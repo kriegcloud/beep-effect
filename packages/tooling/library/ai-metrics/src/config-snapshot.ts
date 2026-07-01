@@ -37,7 +37,11 @@ const EXCLUDED_DIR_NAMES = [
  * @example
  * ```ts
  * import { AiMetricsConfigSnapshotInput } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsConfigSnapshotInput)
+ *
+ * const input = AiMetricsConfigSnapshotInput.make({
+ *   repoRoot: "/repo"
+ * })
+ * console.log(input.label)
  * ```
  * @category models
  * @since 0.0.0
@@ -64,7 +68,14 @@ export class AiMetricsConfigSnapshotInput extends S.Class<AiMetricsConfigSnapsho
  * @example
  * ```ts
  * import { AiMetricsConfigSnapshotDiff } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsConfigSnapshotDiff)
+ *
+ * const diff = AiMetricsConfigSnapshotDiff.make({
+ *   addedPaths: ["AGENTS.md"],
+ *   modifiedPaths: [],
+ *   removedPaths: [],
+ *   unchangedPaths: [".codex/config.toml"]
+ * })
+ * console.log(diff.addedPaths)
  * ```
  * @category models
  * @since 0.0.0
@@ -94,7 +105,13 @@ const emptyConfigSnapshotDiff = AiMetricsConfigSnapshotDiff.make({
  * @example
  * ```ts
  * import { AiMetricsConfigSnapshotFile } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsConfigSnapshotFile)
+ *
+ * const file = AiMetricsConfigSnapshotFile.make({
+ *   contentHash: "sha256:fixture",
+ *   relativePath: "AGENTS.md",
+ *   sizeBytes: 2048
+ * })
+ * console.log(file.relativePath)
  * ```
  * @category models
  * @since 0.0.0
@@ -115,8 +132,23 @@ export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshot
  *
  * @example
  * ```ts
- * import { AiMetricsConfigSnapshotResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsConfigSnapshotResult)
+ * import {
+ *   AiMetricsConfigSnapshotResult,
+ *   ConfigSnapshot
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const result = AiMetricsConfigSnapshotResult.make({
+ *   excludedDirectoryNames: [".git", "node_modules"],
+ *   fileCount: 0,
+ *   files: [],
+ *   snapshot: ConfigSnapshot.make({
+ *     changedPaths: [],
+ *     configHash: "config-hash",
+ *     label: "repo-local-agent-config",
+ *     snapshotId: "config-1"
+ *   })
+ * })
+ * console.log(result.fileCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -143,7 +175,12 @@ export class AiMetricsConfigSnapshotResult extends S.Class<AiMetricsConfigSnapsh
  * @example
  * ```ts
  * import { AiMetricsConfigSnapshotError } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsConfigSnapshotError)
+ *
+ * const error = AiMetricsConfigSnapshotError.make({
+ *   cause: "read failed",
+ *   message: "Failed to read agent guidance file."
+ * })
+ * console.log(error.message)
  * ```
  * @category errors
  * @since 0.0.0
@@ -415,9 +452,20 @@ const readPreviousSnapshot = Effect.fn("AiMetrics.readPreviousConfigSnapshot")(f
  *
  * @example
  * ```ts
- * import { makeAiMetricsConfigSnapshot } from "@beep/repo-ai-metrics"
- * console.log(makeAiMetricsConfigSnapshot)
+ * import { AiMetricsConfigSnapshotInput, makeAiMetricsConfigSnapshot } from "@beep/repo-ai-metrics"
+ * import { NodeServices } from "@effect/platform-node"
+ * import { Effect } from "effect"
+ *
+ * const program = makeAiMetricsConfigSnapshot(
+ *   AiMetricsConfigSnapshotInput.make({ repoRoot: "/repo" })
+ * ).pipe(Effect.provide(NodeServices.layer))
+ * console.log(program)
  * ```
+ * @effects
+ * - Traverses repo-local agent configuration roots and agent guide files.
+ * - Reads included files to compute deterministic content hashes.
+ * - Optionally reads a previous snapshot artifact for diff attribution.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -468,9 +516,36 @@ export const makeAiMetricsConfigSnapshot = Effect.fn("AiMetrics.makeAiMetricsCon
  *
  * @example
  * ```ts
- * import { writeAiMetricsConfigSnapshotArtifacts } from "@beep/repo-ai-metrics"
- * console.log(writeAiMetricsConfigSnapshotArtifacts)
+ * import {
+ *   AiMetricsConfigSnapshotResult,
+ *   ConfigSnapshot,
+ *   writeAiMetricsConfigSnapshotArtifacts
+ * } from "@beep/repo-ai-metrics"
+ * import { NodeServices } from "@effect/platform-node"
+ * import { Effect } from "effect"
+ *
+ * const result = AiMetricsConfigSnapshotResult.make({
+ *   excludedDirectoryNames: [],
+ *   fileCount: 0,
+ *   files: [],
+ *   snapshot: ConfigSnapshot.make({
+ *     changedPaths: [],
+ *     configHash: "config-hash",
+ *     label: "repo-local-agent-config",
+ *     snapshotId: "config-1"
+ *   })
+ * })
+ * const program = writeAiMetricsConfigSnapshotArtifacts({
+ *   outputDir: ".beep/ai-metrics/config",
+ *   result
+ * }).pipe(Effect.provide(NodeServices.layer))
+ * console.log(program)
  * ```
+ * @effects
+ * - Creates the config snapshot output directory when missing.
+ * - Writes a versioned manifest named by `snapshotId`.
+ * - Writes and atomically promotes `latest.json` when `commitLatest` is true.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -534,8 +609,29 @@ export const writeAiMetricsConfigSnapshotArtifacts = Effect.fn("AiMetrics.writeA
  *
  * @example
  * ```ts
- * import { configSnapshotToJson } from "@beep/repo-ai-metrics"
- * console.log(configSnapshotToJson)
+ * import {
+ *   AiMetricsConfigSnapshotResult,
+ *   ConfigSnapshot,
+ *   configSnapshotToJson
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   configSnapshotToJson(
+ *     AiMetricsConfigSnapshotResult.make({
+ *       excludedDirectoryNames: [],
+ *       fileCount: 0,
+ *       files: [],
+ *       snapshot: ConfigSnapshot.make({
+ *         changedPaths: [],
+ *         configHash: "config-hash",
+ *         label: "repo-local-agent-config",
+ *         snapshotId: "config-1"
+ *       })
+ *     })
+ *   )
+ * )
+ * console.log(json)
  * ```
  * @category utilities
  * @since 0.0.0

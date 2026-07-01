@@ -219,6 +219,7 @@ export const DocgenQualityFindingCode = LiteralKit([
   "example-only-voids-result",
   "example-discards-result",
   "example-lacks-observable-result",
+  "example-logs-export-symbol",
   "example-empty-effect-gen",
   "example-too-many-blank-lines",
   "missing-effects-for-effectful-symbol",
@@ -906,8 +907,9 @@ const isDeclarationAlreadyExported = (declaration: Node): boolean => {
     return declaration.getVariableStatement()?.isExported() ?? false;
   }
 
-  const exportable = declaration as Node & { readonly isExported?: () => boolean };
-  return exportable.isExported?.() ?? false;
+  return P.hasProperty(declaration, "isExported") && P.isFunction(declaration.isExported)
+    ? declaration.isExported() === true
+    : false;
 };
 
 const collectExportedDeclarationCandidates = (sourceFile: SourceFile): ReadonlyArray<ExportedDeclarationCandidate> => {
@@ -1460,6 +1462,10 @@ const STANDALONE_VOID_DISCARD_PATTERN = /^\s*void\s+[A-Za-z_$][\w$]*\s*;?\s*$/m;
 const EMPTY_EFFECT_GEN_BODY_PATTERN =
   /Effect\.gen\s*\(\s*function\*\s*\([^)]*\)\s*\{\s*(?:\/\*[\s\S]*?\*\/\s*|\/\/[^\n\r]*(?:\r?\n|$)\s*)*\}\s*\)/m;
 const EXCESSIVE_EXAMPLE_BLANK_LINES_PATTERN = /(?:^|\r?\n)(?:[ \t]*\r?\n){3,}/m;
+const SYMBOL_HANDLE_METADATA_PROPERTIES_PATTERN =
+  /(?:ast|Encoded|fields|identifier|Type|TypeId|annotations|annotationsFromSelf)/;
+
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const exampleOnlyVoidsResult = (example: string): boolean => {
   const code = exampleCodeText(example);
@@ -1480,6 +1486,15 @@ const exampleHasObservableResult = (example: string): boolean =>
 
 const exampleHasTypeEvidence = (example: string): boolean =>
   TYPE_EVIDENCE_EXAMPLE_PATTERN.test(exampleCodeText(example));
+
+const exampleLogsExportSymbolHandle = (subject: DocgenQualitySubject, example: string): boolean => {
+  const exportName = escapeRegExp(subject.exportName);
+  const symbolHandlePattern = new RegExp(
+    String.raw`\b(?:Console|console)\.(?:debug|dir|error|info|log|warn)\s*\(\s*${exportName}(?:\s*\.\s*${SYMBOL_HANDLE_METADATA_PROPERTIES_PATTERN.source})?\s*\)`,
+    "m"
+  );
+  return symbolHandlePattern.test(exampleCodeText(example));
+};
 
 const isTypeOnlySubject = (subject: DocgenQualitySubject): boolean =>
   subject.declarationKind === "type" || subject.declarationKind === "interface";
@@ -1518,6 +1533,105 @@ const makeFinding = ({
     scoreImpact,
     tier,
   });
+
+type ExampleFindingRule = {
+  readonly when: (subject: DocgenQualitySubject, example: string) => boolean;
+  readonly code: DocgenQualityFindingCode;
+  readonly evidence: (example: string) => ReadonlyArray<string>;
+  readonly message: string;
+  readonly remediation: string;
+  readonly scoreImpact: number;
+  readonly tier: DocgenQualityTier;
+};
+
+const exampleCodeEvidence = (example: string): ReadonlyArray<string> => [boundedText(exampleCodeText(example), 160)];
+
+// Per-example checks as a data catalog: a new rule is one array entry, folded over
+// parsedExamples in order — not another imperative `if (...) findings = addFinding(...)` block.
+const EXAMPLE_FINDING_RULES: ReadonlyArray<ExampleFindingRule> = [
+  {
+    when: (_subject, example) => !exampleHasFencedCode(example),
+    code: "example-not-code-fenced",
+    evidence: (example) => [boundedText(example, 160)],
+    message: "@example should include a fenced TypeScript code block.",
+    remediation: "Wrap the example in a ```ts fenced block so docgen can validate it.",
+    scoreImpact: 1,
+    tier: "warn",
+  },
+  {
+    when: (_subject, example) => exampleIsTooTrivial(example),
+    code: "example-too-trivial",
+    evidence: exampleCodeEvidence,
+    message: "@example is too small to teach meaningful use.",
+    remediation: "Show a realistic call site with setup, input, and an observable result.",
+    scoreImpact: 2,
+    tier: "warn",
+  },
+  {
+    when: (subject, example) => exampleOnlyVoidsSubjectResult(subject, example),
+    code: "example-only-voids-result",
+    evidence: exampleCodeEvidence,
+    message: "@example only silences the result instead of showing what matters.",
+    remediation: "Replace `void result` with an assertion, returned value, or visible decoded value.",
+    scoreImpact: 2,
+    tier: "warn",
+  },
+  {
+    when: (_subject, example) => exampleDiscardsResult(example),
+    code: "example-discards-result",
+    evidence: exampleCodeEvidence,
+    message: "@example discards a value with a standalone `void` line.",
+    remediation: "Remove the standalone `void` discard and show a visible result, assertion, or type-level evidence.",
+    scoreImpact: 2,
+    tier: "warn",
+  },
+  {
+    when: (subject, example) => exampleLogsExportSymbolHandle(subject, example),
+    code: "example-logs-export-symbol",
+    evidence: exampleCodeEvidence,
+    message: "@example logs the exported symbol handle instead of demonstrating behavior.",
+    remediation:
+      "Replace symbol-handle logging with construction, decoding, Effect execution, type evidence, or an observable domain result.",
+    scoreImpact: 2,
+    tier: "warn",
+  },
+  {
+    when: (_subject, example) => exampleHasEmptyEffectGenBody(example),
+    code: "example-empty-effect-gen",
+    evidence: exampleCodeEvidence,
+    message: "@example contains an empty Effect.gen block.",
+    remediation: "Replace the empty generator body with a real yielded operation or use a simpler non-Effect example.",
+    scoreImpact: 2,
+    tier: "warn",
+  },
+  {
+    when: (_subject, example) => exampleHasExcessiveBlankLines(example),
+    code: "example-too-many-blank-lines",
+    evidence: exampleCodeEvidence,
+    message: "@example contains three or more consecutive blank lines.",
+    remediation: "Remove empty padding so the fenced code block stays compact and readable.",
+    scoreImpact: 1,
+    tier: "warn",
+  },
+];
+
+const exampleFindings = (subject: DocgenQualitySubject): ReadonlyArray<DocgenQualityFinding> =>
+  A.flatMap(subject.parsedExamples, (example) =>
+    A.flatMap(EXAMPLE_FINDING_RULES, (rule) =>
+      rule.when(subject, example)
+        ? [
+            makeFinding({
+              code: rule.code,
+              evidence: rule.evidence(example),
+              message: rule.message,
+              remediation: rule.remediation,
+              scoreImpact: rule.scoreImpact,
+              tier: rule.tier,
+            }),
+          ]
+        : A.empty<DocgenQualityFinding>()
+    )
+  );
 
 const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
   let findings: ReadonlyArray<DocgenQualityFinding> = A.empty();
@@ -1572,93 +1686,7 @@ const scoreSubject = (subject: DocgenQualitySubject): DocgenQualityReview => {
     );
   }
 
-  for (const example of subject.parsedExamples) {
-    if (!exampleHasFencedCode(example)) {
-      findings = addFinding(
-        findings,
-        makeFinding({
-          code: "example-not-code-fenced",
-          evidence: [boundedText(example, 160)],
-          message: "@example should include a fenced TypeScript code block.",
-          remediation: "Wrap the example in a ```ts fenced block so docgen can validate it.",
-          scoreImpact: 1,
-          tier: "warn",
-        })
-      );
-    }
-
-    if (exampleIsTooTrivial(example)) {
-      findings = addFinding(
-        findings,
-        makeFinding({
-          code: "example-too-trivial",
-          evidence: [boundedText(exampleCodeText(example), 160)],
-          message: "@example is too small to teach meaningful use.",
-          remediation: "Show a realistic call site with setup, input, and an observable result.",
-          scoreImpact: 2,
-          tier: "warn",
-        })
-      );
-    }
-
-    if (exampleOnlyVoidsSubjectResult(subject, example)) {
-      findings = addFinding(
-        findings,
-        makeFinding({
-          code: "example-only-voids-result",
-          evidence: [boundedText(exampleCodeText(example), 160)],
-          message: "@example only silences the result instead of showing what matters.",
-          remediation: "Replace `void result` with an assertion, returned value, or visible decoded value.",
-          scoreImpact: 2,
-          tier: "warn",
-        })
-      );
-    }
-
-    if (exampleDiscardsResult(example)) {
-      findings = addFinding(
-        findings,
-        makeFinding({
-          code: "example-discards-result",
-          evidence: [boundedText(exampleCodeText(example), 160)],
-          message: "@example discards a value with a standalone `void` line.",
-          remediation:
-            "Remove the standalone `void` discard and show a visible result, assertion, or type-level evidence.",
-          scoreImpact: 2,
-          tier: "warn",
-        })
-      );
-    }
-
-    if (exampleHasEmptyEffectGenBody(example)) {
-      findings = addFinding(
-        findings,
-        makeFinding({
-          code: "example-empty-effect-gen",
-          evidence: [boundedText(exampleCodeText(example), 160)],
-          message: "@example contains an empty Effect.gen block.",
-          remediation:
-            "Replace the empty generator body with a real yielded operation or use a simpler non-Effect example.",
-          scoreImpact: 2,
-          tier: "warn",
-        })
-      );
-    }
-
-    if (exampleHasExcessiveBlankLines(example)) {
-      findings = addFinding(
-        findings,
-        makeFinding({
-          code: "example-too-many-blank-lines",
-          evidence: [boundedText(exampleCodeText(example), 160)],
-          message: "@example contains three or more consecutive blank lines.",
-          remediation: "Remove empty padding so the fenced code block stays compact and readable.",
-          scoreImpact: 1,
-          tier: "warn",
-        })
-      );
-    }
-  }
+  findings = A.appendAll(findings, exampleFindings(subject));
 
   if (
     subject.parsedExamples.length > 0 &&

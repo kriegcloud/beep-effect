@@ -14,19 +14,39 @@ import { RejectionGround } from "./Rejection.values.js";
 const $I = $LawPracticeDomainId.create("entities/Rejection/Rejection.model");
 
 /**
- * A rejection raised against a claim by an office action. The statutory
- * {@link RejectionGround} is persisted as JSONB so the per-statute prior-art
- * cardinality survives storage; pinned to both the claim it rejects and the
- * office action that raised it.
+ * Rejection entity raised against a claim by an office action.
+ *
+ * Stores the statutory {@link RejectionGround} as JSONB so the per-statute
+ * prior-art cardinality survives persistence while linking to the rejected claim
+ * and the office action that raised the rejection.
  *
  * @example
  * ```ts
  * import { Rejection } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(Rejection.definition.entityId.resource)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const rejection = S.decodeUnknownSync(Rejection)({
+ *   claimFixtureKey: "claim.1",
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   entityType: "LawPracticeRejection",
+ *   fixtureKey: "rejection.102",
+ *   ground: { referenceFixtureKey: "prior-art.smith", statute: "102" },
+ *   id: 7,
+ *   officeActionFixtureKey: "office-action.first",
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(rejection.ground.statute) // "102"
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Rejection extends BaseEntity.Class<Rejection>($I`Rejection`)(

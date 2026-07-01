@@ -67,9 +67,22 @@ const validateByRelativePath = (relativePath: string, content: string) => {
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect } from "effect"
  * import { validateRepoConfig } from "@beep/ai-sync"
- * console.log(validateRepoConfig)
+ *
+ * const program = validateRepoConfig({
+ *   repoRoot: "/workspace/repo",
+ *   config: ".codex/config.toml"
+ * }).pipe(
+ *   Effect.map((result) => result.schemaId),
+ *   Effect.provide(NodeServices.layer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Reads the requested repo-local config file through `FileSystem` and
+ * `Path`, then decodes it with the registered native V1 schema.
  * @category validation
  * @since 0.0.0
  */
@@ -96,9 +109,19 @@ export const validateRepoConfig = Effect.fn("AiSync.validateRepoConfig")(functio
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect } from "effect"
  * import { validateDogfoodConfig } from "@beep/ai-sync"
- * console.log(validateDogfoodConfig)
+ *
+ * const program = validateDogfoodConfig("/workspace/repo").pipe(
+ *   Effect.map((result) => result.relativePath),
+ *   Effect.provide(NodeServices.layer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Reads `.codex/config.toml` from the supplied repository root and
+ * validates it through {@link validateRepoConfig}.
  * @category validation
  * @since 0.0.0
  */
@@ -111,9 +134,15 @@ export const validateDogfoodConfig = Effect.fn("AiSync.validateDogfoodConfig")(f
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect } from "effect"
  * import { defaultRepoRoot } from "@beep/ai-sync"
- * console.log(defaultRepoRoot)
+ *
+ * const program = defaultRepoRoot().pipe(Effect.provide(NodeServices.layer))
+ * Effect.runPromise(program).then((repoRoot) => console.log(repoRoot.endsWith("beep-effect2")))
  * ```
+ * @effects Resolves a path using the active `Path` service; it does not read or
+ * write the filesystem.
  * @category validation
  * @since 0.0.0
  */
@@ -127,9 +156,19 @@ export const defaultRepoRoot = Effect.fn("AiSync.defaultRepoRoot")(function* () 
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect } from "effect"
  * import { validateCurrentCheckoutDogfood } from "@beep/ai-sync"
- * console.log(validateCurrentCheckoutDogfood)
+ *
+ * const program = validateCurrentCheckoutDogfood().pipe(
+ *   Effect.map((result) => result.schemaId),
+ *   Effect.provide(NodeServices.layer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Resolves this package's checkout root and reads the mandatory Codex
+ * dogfood config before validating it.
  * @category validation
  * @since 0.0.0
  */

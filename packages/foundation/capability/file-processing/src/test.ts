@@ -62,12 +62,13 @@ const testIdentifierHex = "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d
  *
  * const program = Effect.gen(function* () {
  *   const identifiers = yield* decodeTestOperationIdentifiers()
- *   return identifiers.artifactId
+ *   return identifiers.digest.startsWith("sha256:")
  * })
  *
- * console.log(program)
+ * Effect.runPromise(program).then(console.log) // true
  * ```
  *
+ * @effects Decodes the fixed synthetic identifiers through the exported schemas and can fail with `SchemaError` if the fixture constants drift.
  * @category fixtures
  * @since 0.0.0
  */

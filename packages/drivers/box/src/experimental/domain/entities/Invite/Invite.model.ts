@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box invite entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/Invite/Invite.model");
 
 /**
+ * Experimental schema anchor for Box invite records representing pending access.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Invite } from "@beep/box/experimental/domain/entities/Invite/Invite.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Invite.make({
+ * const decoded = S.decodeUnknownSync(Invite)({});
+ * const encoded: Invite.Encoded = S.encodeSync(Invite)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Invite extends S.Class<Invite>($I`Invite`)(
   {},
   $I.annote("Invite", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box invite records representing pending access.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Invite}
+ * Type-level companion namespace for {@link Invite} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Invite } from "@beep/box/experimental/domain/entities/Invite/Invite.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Invite.make({});
+ * const encoded: Invite.Encoded = S.encodeSync(Invite)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Invite {
   /**
-   * Companion encoded type for {@link Invite}.
+   * Encoded payload accepted by the {@link Invite} entity schema.
    *
    * @example
    * ```ts
-   * import type { Invite } from "@beep/box/experimental/domain/entities/Invite/Invite.model";
+   * import { Invite } from "@beep/box/experimental/domain/entities/Invite/Invite.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Invite.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Invite.Encoded = S.encodeSync(Invite)(Invite.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Invite.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Invite}.
- *
- * @example
- * ```ts
- * import type { Invite } from "@beep/box/experimental/domain/entities/Invite/Invite.model";
- *
- * const useValue = (_value: Invite) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Invite = typeof Invite.Type;

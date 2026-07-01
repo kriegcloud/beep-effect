@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box device pin entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/DevicePinner/DevicePinner.model");
 
 /**
+ * Experimental schema anchor for Box device pin records associated with managed users.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
+ * import * as S from "effect/Schema";
  *
- * console.log(DevicePinner.make({
+ * const decoded = S.decodeUnknownSync(DevicePinner)({});
+ * const encoded: DevicePinner.Encoded = S.encodeSync(DevicePinner)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class DevicePinner extends S.Class<DevicePinner>($I`DevicePinner`)(
   {},
   $I.annote("DevicePinner", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box device pin records associated with managed users.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link DevicePinner}
+ * Type-level companion namespace for {@link DevicePinner} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = DevicePinner.make({});
+ * const encoded: DevicePinner.Encoded = S.encodeSync(DevicePinner)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace DevicePinner {
   /**
-   * Companion encoded type for {@link DevicePinner}.
+   * Encoded payload accepted by the {@link DevicePinner} entity schema.
    *
    * @example
    * ```ts
-   * import type { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
+   * import { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: DevicePinner.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: DevicePinner.Encoded = S.encodeSync(DevicePinner)(DevicePinner.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof DevicePinner.Encoded;
 }
-
-/**
- * Companion runtime type for {@link DevicePinner}.
- *
- * @example
- * ```ts
- * import type { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
- *
- * const useValue = (_value: DevicePinner) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type DevicePinner = typeof DevicePinner.Type;

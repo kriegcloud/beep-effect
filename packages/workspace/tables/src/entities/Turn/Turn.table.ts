@@ -15,7 +15,10 @@ import { Turn } from "@beep/workspace-domain/entities/Turn";
  * ```ts
  * import { Turn } from "@beep/workspace-tables/entities"
  *
- * console.log(Turn.Table.definition.tableName)
+ * const tableName: "workspace_turn" = Turn.Table.definition.tableName
+ * const itemsStorage: "jsonb" = Turn.Table.definition.persisted.items.storageKind
+ *
+ * console.log(`${tableName}:${itemsStorage}`)
  * ```
  *
  * @category tables

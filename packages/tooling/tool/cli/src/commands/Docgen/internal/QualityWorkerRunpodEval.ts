@@ -215,9 +215,11 @@ class DocgenQualityWorkerRunpodEvalRuntime extends S.Class<DocgenQualityWorkerRu
  *
  * @example
  * ```ts
- * import { DocgenQualityWorkerRunpodEvalReport } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval"
+ * import type { DocgenQualityWorkerRunpodEvalReport } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval"
  *
- * console.log(DocgenQualityWorkerRunpodEvalReport)
+ * const model: DocgenQualityWorkerRunpodEvalReport["model"] = "qwen3-coder:30b"
+ * const sourceReport: DocgenQualityWorkerRunpodEvalReport["sourceQualityReport"] = "quality.json"
+ * console.log(`${model} from ${sourceReport}`)
  * ```
  * @category models
  * @since 0.0.0
@@ -252,9 +254,14 @@ export class DocgenQualityWorkerRunpodEvalReport extends S.Class<DocgenQualityWo
  *
  * @example
  * ```ts
- * import { requiredQualityWorkerRunpodEvalModel } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval"
+ * import type { RunDocgenQualityWorkerRunpodEvalOptions } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval"
  *
- * console.log(requiredQualityWorkerRunpodEvalModel())
+ * const options: Pick<RunDocgenQualityWorkerRunpodEvalOptions, "confirmRunpodEval" | "provider" | "scope"> = {
+ *   confirmRunpodEval: true,
+ *   provider: "ollama",
+ *   scope: "input"
+ * }
+ * console.log(options.scope)
  * ```
  * @category models
  * @since 0.0.0
@@ -1050,9 +1057,26 @@ export const defaultQualityWorkerRunpodEvalReadinessTimeoutMs = (): number =>
  * - Optionally emits sanitized summary and hashed packet spans to Phoenix OTLP.
  * @example
  * ```ts
- * import { requiredQualityWorkerRunpodEvalModel } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval"
+ * import {
+ *   requiredQualityWorkerRunpodEvalModel,
+ *   runDocgenQualityWorkerRunpodEval
+ * } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval"
  *
- * console.log(requiredQualityWorkerRunpodEvalModel())
+ * const model = requiredQualityWorkerRunpodEvalModel()
+ * const command = [
+ *   "bun",
+ *   "run",
+ *   "beep",
+ *   "docgen",
+ *   "quality-worker-eval-runpod",
+ *   "--confirm-runpod-eval",
+ *   "--provider",
+ *   "ollama",
+ *   "--model",
+ *   model
+ * ]
+ * console.log(command.join(" "))
+ * console.log(typeof runDocgenQualityWorkerRunpodEval)
  * ```
  * @category use-cases
  * @since 0.0.0
@@ -1151,9 +1175,101 @@ export const runDocgenQualityWorkerRunpodEval = Effect.fn(
  * @returns Effect that yields stable pretty JSON.
  * @example
  * ```ts
- * import { generateQualityWorkerRunpodEvalJson } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval"
+ * import { Effect } from "effect"
+ * import { DocgenQualityWorkerEvalReport } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
+ * import {
+ *   DocgenQualityWorkerRunpodEvalReport,
+ *   generateQualityWorkerRunpodEvalJson
+ * } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval"
  *
- * console.log(generateQualityWorkerRunpodEvalJson)
+ * const workerEval = DocgenQualityWorkerEvalReport.make({
+ *   schemaVersion: 1,
+ *   generatedAt: "2026-05-12T00:00:00.000Z",
+ *   sourceQualityReport: "quality.json",
+ *   provider: "ollama",
+ *   model: "qwen3-coder:30b",
+ *   reasoningEffort: null,
+ *   codexSdkVersion: "example-sdk",
+ *   scope: "input",
+ *   summary: {
+ *     packages: 0,
+ *     sourcePackets: 0,
+ *     selectedPackets: 0,
+ *     completed: 0,
+ *     failed: 0,
+ *     timedOut: 0,
+ *     candidates: 0,
+ *     needsHumanReview: 0,
+ *     rejected: 0
+ *   },
+ *   packets: [],
+ *   policyViolations: [],
+ *   runtime: { totalDurationMs: 0, packetTimeoutMs: 180000 },
+ *   recommendation: "No packets selected."
+ * })
+ * const report = DocgenQualityWorkerRunpodEvalReport.make({
+ *   schemaVersion: 1,
+ *   bootstrap: {
+ *     dockerStartCmdHash: "sha256:example",
+ *     model: "qwen3-coder:30b",
+ *     portMappings: ["11434/http"],
+ *     readinessPath: "/api/tags"
+ *   },
+ *   cleanup: {
+ *     deleteStatus: "completed",
+ *     durationMs: 0,
+ *     error: null,
+ *     keepPod: false,
+ *     stopStatus: "completed"
+ *   },
+ *   generatedAt: "2026-05-12T00:00:00.000Z",
+ *   model: "qwen3-coder:30b",
+ *   otlp: {
+ *     baseUrl: null,
+ *     error: null,
+ *     exportedSpans: 0,
+ *     project: "beep-jsdoc-worker-eval",
+ *     serviceName: "beep-docgen-quality-worker-runpod-eval",
+ *     status: "disabled"
+ *   },
+ *   pod: {
+ *     baseUrl: "https://pod-11434.proxy.runpod.net",
+ *     codexBaseUrl: "https://pod-11434.proxy.runpod.net/v1",
+ *     gpuDisplayName: null,
+ *     gpuTypeIds: ["NVIDIA RTX A6000"],
+ *     imageName: "runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04",
+ *     minRamPerGpuGb: 48,
+ *     podId: "pod",
+ *     podName: "beep-jsdoc-worker-eval-example",
+ *     templateId: null
+ *   },
+ *   provider: "ollama",
+ *   recommendation: "No packets selected.",
+ *   runId: "run",
+ *   runtime: {
+ *     cleanupDurationMs: 0,
+ *     provisionDurationMs: 0,
+ *     totalDurationMs: 0,
+ *     workerDurationMs: 0
+ *   },
+ *   scope: "input",
+ *   sourceQualityReport: "quality.json",
+ *   template: {
+ *     imageName: "runpod/pytorch:2.8.0-py3.11-cuda12.8.1-cudnn-devel-ubuntu22.04",
+ *     searchIncludedPublicTemplates: false,
+ *     searchIncludedRunpodTemplates: false,
+ *     strategy: "fallback-image",
+ *     templateId: null,
+ *     templateName: null
+ *   },
+ *   workerEval
+ * })
+ * const hasRecommendation = Effect.runSync(
+ *   generateQualityWorkerRunpodEvalJson(report).pipe(
+ *     Effect.map((json) => json.includes("\"recommendation\""))
+ *   )
+ * )
+ * console.log(hasRecommendation)
  * ```
  * @category formatting
  * @since 0.0.0

@@ -20,9 +20,18 @@ const contexts = createFormHookContexts();
  *
  * @example
  * ```ts
+ * import { createFormHook } from "@tanstack/react-form"
  * import { fieldContext } from "@beep/form/core/contexts"
+ * import { formContext } from "@beep/form/core/contexts"
  *
- * console.log(fieldContext)
+ * const hook = createFormHook({
+ *   fieldContext,
+ *   formContext,
+ *   fieldComponents: {},
+ *   formComponents: {},
+ * })
+ *
+ * console.log(typeof hook.useAppForm) // "function"
  * ```
  *
  * @category utilities
@@ -34,10 +43,14 @@ export const fieldContext = contexts.fieldContext;
  * Hook returning the active field API inside a registered field component.
  *
  * @example
- * ```ts
+ * ```tsx
  * import { useFieldContext } from "@beep/form/core/contexts"
  *
- * console.log(useFieldContext)
+ * export function FieldNameLabel() {
+ *   const field = useFieldContext<string>()
+ *
+ *   return <span>{field.name}</span>
+ * }
  * ```
  *
  * @category hooks
@@ -50,9 +63,18 @@ export const useFieldContext = contexts.useFieldContext;
  *
  * @example
  * ```ts
+ * import { createFormHook } from "@tanstack/react-form"
+ * import { fieldContext } from "@beep/form/core/contexts"
  * import { formContext } from "@beep/form/core/contexts"
  *
- * console.log(formContext)
+ * const hook = createFormHook({
+ *   fieldContext,
+ *   formContext,
+ *   fieldComponents: {},
+ *   formComponents: {},
+ * })
+ *
+ * console.log(typeof hook.withForm) // "function"
  * ```
  *
  * @category utilities
@@ -64,10 +86,18 @@ export const formContext = contexts.formContext;
  * Hook returning the active form API inside a registered form component.
  *
  * @example
- * ```ts
+ * ```tsx
  * import { useFormContext } from "@beep/form/core/contexts"
  *
- * console.log(useFormContext)
+ * export function SubmitStateLabel() {
+ *   const form = useFormContext()
+ *
+ *   return (
+ *     <form.Subscribe selector={(state) => state.isSubmitting}>
+ *       {(isSubmitting) => <span>{isSubmitting ? "Saving" : "Ready"}</span>}
+ *     </form.Subscribe>
+ *   )
+ * }
  * ```
  *
  * @category hooks

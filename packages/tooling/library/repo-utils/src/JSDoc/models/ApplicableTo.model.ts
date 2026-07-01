@@ -16,7 +16,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/ApplicableTo.model");
  * ```ts
  * import { ApplicableTo } from "@beep/repo-utils/JSDoc/models/ApplicableTo.model"
  *
- * console.log(ApplicableTo)
+ * const target = ApplicableTo.Enum.function
+ * console.log(ApplicableTo.is.function(target))
  * ```
  * @category models
  * @since 0.0.0

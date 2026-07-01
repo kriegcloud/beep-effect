@@ -6,14 +6,16 @@ import { cn } from "../lib/index.ts";
 import type { ReactNode } from "react";
 
 /**
- * Event status type.
+ * Visual progress state for a calendar event action.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import type { EventStatus } from "@beep/ui/components/calendar-event-card"
  *
- * const value = {} as EventStatus
- * console.log(value)
+ * const status: EventStatus = "loading"
+ * const buttonDisabled = status === "completed"
+ * strictEqual(buttonDisabled, false)
  * ```
  *
  * @category type-level
@@ -21,14 +23,16 @@ import type { ReactNode } from "react";
  */
 export type EventStatus = "idle" | "loading" | "completed";
 /**
- * Event variant type.
+ * Presentation mode for a calendar event card.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import type { EventVariant } from "@beep/ui/components/calendar-event-card"
  *
- * const value = {} as EventVariant
- * console.log(value)
+ * const variant: EventVariant = "action"
+ * const showsActionButton = variant === "action"
+ * strictEqual(showsActionButton, true)
  * ```
  *
  * @category type-level
@@ -51,13 +55,27 @@ interface CalendarEventCardProps {
 }
 
 /**
- * Calendar event card component.
+ * Timeline-style event card with optional action state.
  *
  * @example
  * ```tsx
- * import { CalendarEventCard } from "@beep/ui/components/calendar-event-card"
+ * import { CalendarEventCard, EventLocation, EventTime, EventTitle } from "@beep/ui/components/calendar-event-card"
  *
- * console.log(CalendarEventCard)
+ * export function ReviewEventCard() {
+ *   return (
+ *     <CalendarEventCard
+ *       eventColor="#0ea5e9"
+ *       label="Today"
+ *       variant="action"
+ *       status="idle"
+ *       onAction={() => undefined}
+ *     >
+ *       <EventTitle>Review engagement letter</EventTitle>
+ *       <EventTime startTime="10:00 AM" endTime="10:30 AM" />
+ *       <EventLocation>Conference Room A</EventLocation>
+ *     </CalendarEventCard>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -161,13 +179,15 @@ interface EventTitleProps {
 }
 
 /**
- * Event title component.
+ * Primary title text inside a calendar event card.
  *
  * @example
  * ```tsx
  * import { EventTitle } from "@beep/ui/components/calendar-event-card"
  *
- * console.log(EventTitle)
+ * export function CalendarEventHeading() {
+ *   return <EventTitle>Client kickoff</EventTitle>
+ * }
  * ```
  *
  * @category components
@@ -184,13 +204,15 @@ interface EventTimeProps {
 }
 
 /**
- * Event time component.
+ * Time range text inside a calendar event card.
  *
  * @example
  * ```tsx
  * import { EventTime } from "@beep/ui/components/calendar-event-card"
  *
- * console.log(EventTime)
+ * export function CalendarEventTimeRange() {
+ *   return <EventTime startTime="1:00 PM" endTime="2:00 PM" />
+ * }
  * ```
  *
  * @category components
@@ -213,13 +235,15 @@ interface EventLocationProps {
 }
 
 /**
- * Event location component.
+ * Location or meeting channel text inside a calendar event card.
  *
  * @example
  * ```tsx
  * import { EventLocation } from "@beep/ui/components/calendar-event-card"
  *
- * console.log(EventLocation)
+ * export function CalendarEventLocationLabel() {
+ *   return <EventLocation>Zoom</EventLocation>
+ * }
  * ```
  *
  * @category components

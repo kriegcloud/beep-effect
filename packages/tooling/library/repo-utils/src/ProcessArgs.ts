@@ -55,7 +55,8 @@ export { OptionInjectionError } from "./errors/OptionInjectionError.js";
  * @example
  * ```ts
  * import { END_OF_OPTIONS } from "@beep/repo-utils/ProcessArgs"
- * console.log(END_OF_OPTIONS)
+ * const argv = ["rm", END_OF_OPTIONS, "-rf"]
+ * console.log(argv.join(" "))
  * ```
  * @category constants
  * @since 0.0.0
@@ -172,6 +173,9 @@ export const toLiteralArgs = (dataArgs: ReadonlyArray<string>): ReadonlyArray<st
  * const program = guardLiteralArg("graphiti-mcp-falkordb-1")
  * console.log(program)
  * ```
+ * @effects Performs in-memory argument validation only; no child process is
+ * spawned and option-like values fail through the typed `OptionInjectionError`
+ * channel.
  * @category guards
  * @since 0.0.0
  */

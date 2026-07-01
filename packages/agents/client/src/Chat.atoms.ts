@@ -62,11 +62,12 @@ Atom.runtime.addGlobalLayer(ClientObservabilityLive);
  * @example
  * ```ts
  * import { HttpChatProtocolLive } from "@beep/agents-client"
+ * import { Layer } from "effect"
  *
- * console.log(HttpChatProtocolLive)
+ * console.log(Layer.isLayer(HttpChatProtocolLive)) // true
  * ```
  *
- * @category services
+ * @category layers
  * @since 0.0.0
  */
 export const HttpChatProtocolLive: Layer.Layer<RpcClient.Protocol> = RpcClient.layerProtocolHttp({
@@ -81,11 +82,20 @@ export const HttpChatProtocolLive: Layer.Layer<RpcClient.Protocol> = RpcClient.l
  * uses this to swap in its Tauri IPC protocol only after the shell confirms the
  * sidecar was spawned in IPC mode.
  *
+ * @remarks
+ * Set this before mounting chat query atoms. Already-mounted queries keep the
+ * runtime they were created with until their atom lifetime is refreshed.
+ *
  * @example
  * ```ts
  * import { chatProtocolLayerAtom, HttpChatProtocolLive } from "@beep/agents-client"
+ * import { Layer } from "effect"
+ * import { AtomRegistry } from "effect/unstable/reactivity"
  *
- * console.log(chatProtocolLayerAtom, HttpChatProtocolLive)
+ * const registry = AtomRegistry.make()
+ * registry.set(chatProtocolLayerAtom, HttpChatProtocolLive)
+ *
+ * console.log(Layer.isLayer(registry.get(chatProtocolLayerAtom))) // true
  * ```
  *
  * @category atoms
@@ -97,14 +107,26 @@ export const chatProtocolLayerAtom: Atom.Writable<Layer.Layer<RpcClient.Protocol
  * Flattened rpc client for {@link ChatRpcs}, integrated with atom reactivity.
  * Exposes `query`/`runtime`/the flat client used by the atoms below.
  *
+ * @remarks
+ * `ChatClient.query(...)` builds an atom. The RPC request is not sent until the
+ * query atom is mounted by the atom runtime, so protocol replacement via
+ * {@link chatProtocolLayerAtom} must happen before the visible chat surface
+ * mounts.
+ *
  * @example
  * ```ts
  * import { ChatClient } from "@beep/agents-client"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ * import { Atom } from "effect/unstable/reactivity"
  *
- * console.log(ChatClient)
+ * const workspaceId = S.decodeUnknownSync(Workspace.WorkspaceId)(1)
+ * const threads = ChatClient.query("ListThreads", { workspaceId }, { reactivityKeys: ["threads"] })
+ *
+ * console.log(Atom.isSerializable(threads)) // true
  * ```
  *
- * @category services
+ * @category clients
  * @since 0.0.0
  */
 export class ChatClient extends AtomRpc.Service<ChatClient>()("ChatClient", {
@@ -126,11 +148,22 @@ const workspaceThreadsKey = (workspaceId: WorkspaceId) => `threads:${workspaceId
 /**
  * The thread list for a workspace, refetched whenever a thread or turn mutates.
  *
+ * @remarks
+ * The atom keys both the workspace-specific list and the shared `threads`
+ * invalidation key. A streamed turn only knows its thread id, but it can still
+ * change the owning thread title or last activity in any visible workspace list.
+ *
  * @example
  * ```ts
  * import { threadsAtoms } from "@beep/agents-client"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ * import { Atom } from "effect/unstable/reactivity"
  *
- * console.log(threadsAtoms)
+ * const workspaceId = S.decodeUnknownSync(Workspace.WorkspaceId)(1)
+ * const atom = threadsAtoms(workspaceId)
+ *
+ * console.log(Atom.isSerializable(atom)) // true
  * ```
  *
  * @category atoms
@@ -152,8 +185,18 @@ export const threadsAtoms = Atom.family((workspaceId: WorkspaceId) =>
  * @example
  * ```ts
  * import { selectedThreadAtom } from "@beep/agents-client"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { AtomRegistry } from "effect/unstable/reactivity"
  *
- * console.log(selectedThreadAtom)
+ * const registry = AtomRegistry.make()
+ * console.log(O.isNone(registry.get(selectedThreadAtom))) // true
+ *
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * registry.set(selectedThreadAtom, O.some(threadId))
+ *
+ * console.log(O.isSome(registry.get(selectedThreadAtom))) // true
  * ```
  *
  * @category atoms
@@ -170,8 +213,14 @@ const timelineKey = (threadId: ThreadId) => `timeline:${threadId}`;
  * @example
  * ```ts
  * import { threadTimelineAtoms } from "@beep/agents-client"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ * import { Atom } from "effect/unstable/reactivity"
  *
- * console.log(threadTimelineAtoms)
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * const atom = threadTimelineAtoms(threadId)
+ *
+ * console.log(Atom.isSerializable(atom)) // true
  * ```
  *
  * @category atoms
@@ -184,12 +233,30 @@ export const threadTimelineAtoms = Atom.family((threadId: ThreadId) =>
 /**
  * Creates a thread in a workspace and focuses it.
  *
+ * @remarks
+ * This is a write-only runtime atom. Writing the payload calls `CreateThread`,
+ * invalidates the affected thread-list keys, then stores the returned thread id
+ * in {@link selectedThreadAtom}.
+ *
  * @example
  * ```ts
  * import { createThreadAtom } from "@beep/agents-client"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ * import { Atom } from "effect/unstable/reactivity"
  *
- * console.log(createThreadAtom)
+ * type WriteValue<A> = A extends Atom.Writable<unknown, infer W> ? W : never
+ *
+ * const workspaceId = S.decodeUnknownSync(Workspace.WorkspaceId)(1)
+ * const request: WriteValue<typeof createThreadAtom> = { workspaceId, title: "Inbox" }
+ *
+ * console.log(request.title) // "Inbox"
  * ```
+ *
+ * @effects
+ * - Calls the `CreateThread` RPC through {@link ChatClient}.
+ * - Invalidates the shared and workspace-scoped thread-list keys.
+ * - Updates {@link selectedThreadAtom} with the created thread id.
  *
  * @category atoms
  * @since 0.0.0
@@ -215,11 +282,30 @@ const draftsRuntime = Atom.runtime(KeyValueStore.layerStorage(() => globalThis.l
 /**
  * Unsent composer content per thread, persisted in localStorage.
  *
+ * @remarks
+ * The atom stores `Option<Document>` with `null`/`Option` wire conversion, so a
+ * missing `draft:{threadId}` key and an explicitly cleared draft both read as
+ * `Option.none`. Reading or writing this atom requires the browser
+ * `localStorage` runtime.
+ *
  * @example
  * ```ts
  * import { draftAtoms } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { Atom } from "effect/unstable/reactivity"
  *
- * console.log(draftAtoms)
+ * type WriteValue<A> = A extends Atom.Writable<unknown, infer W> ? W : never
+ *
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * const draftAtom = draftAtoms(threadId)
+ * const draft: WriteValue<typeof draftAtom> = O.some(
+ *   Document.make({ children: [P.make({ children: [Text.make({ value: "Draft reply" })] })] })
+ * )
+ *
+ * console.log(O.isSome(draft)) // true
  * ```
  *
  * @category atoms
@@ -244,10 +330,28 @@ export const draftAtoms = Atom.family((threadId: ThreadId) =>
  *
  * @example
  * ```ts
+ * import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent"
  * import { StreamingTurn } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
  * import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(StreamingTurn.fields)
+ * const threadId = S.decodeUnknownSync(WorkspaceIdentity.ThreadId)(10)
+ * const userContent = Document.make({ children: [P.make({ children: [Text.make({ value: "Explain atoms" })] })] })
+ * const block = S.decodeUnknownSync(AssistantBlock)({
+ *   type: "paragraph",
+ *   children: [{ type: "text", text: "Atoms keep UI state explicit." }],
+ * })
+ *
+ * const turn = StreamingTurn.make({
+ *   threadId,
+ *   userContent,
+ *   truncateFrom: O.none(),
+ *   blocks: [block],
+ * })
+ *
+ * console.log(turn.blocks.length) // 1
  * ```
  *
  * @category models
@@ -272,11 +376,32 @@ export class StreamingTurn extends S.Class<StreamingTurn>("StreamingTurn")(
 /**
  * Blocks of the in-flight assistant turn, appended as they stream in.
  *
+ * @remarks
+ * The atom is cleared after the persisted timeline has refetched, so the UI can
+ * swap from optimistic streaming content to durable read-model content without
+ * briefly dropping the assistant response.
+ *
  * @example
  * ```ts
- * import { streamingTurnAtom } from "@beep/agents-client"
+ * import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent"
+ * import { streamingTurnAtom, StreamingTurn } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { AtomRegistry } from "effect/unstable/reactivity"
  *
- * console.log(streamingTurnAtom)
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * const userContent = Document.make({ children: [P.make({ children: [Text.make({ value: "Hi" })] })] })
+ * const block = S.decodeUnknownSync(AssistantBlock)({ type: "paragraph", children: [{ type: "text", text: "Hello" }] })
+ * const registry = AtomRegistry.make()
+ *
+ * registry.set(
+ *   streamingTurnAtom,
+ *   O.some(StreamingTurn.make({ threadId, userContent, truncateFrom: O.none(), blocks: [block] }))
+ * )
+ *
+ * console.log(O.isSome(registry.get(streamingTurnAtom))) // true
  * ```
  *
  * @category atoms
@@ -290,8 +415,14 @@ export const streamingTurnAtom = Atom.make<O.Option<StreamingTurn>>(O.none());
  * @example
  * ```ts
  * import { turnErrorAtom } from "@beep/agents-client"
+ * import { ChatActionError } from "@beep/agents-use-cases/public"
+ * import * as O from "effect/Option"
+ * import { AtomRegistry } from "effect/unstable/reactivity"
  *
- * console.log(turnErrorAtom)
+ * const registry = AtomRegistry.make()
+ * registry.set(turnErrorAtom, O.some(ChatActionError.new("thread not found")))
+ *
+ * console.log(O.getOrThrow(registry.get(turnErrorAtom)).message) // "thread not found"
  * ```
  *
  * @category atoms
@@ -315,8 +446,15 @@ const toTurnError = (error: unknown): ChatActionError =>
  * @example
  * ```ts
  * import { EditTarget } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
  *
- * console.log(EditTarget.fields)
+ * const turnId = S.decodeUnknownSync(Workspace.TurnId)(20)
+ * const content = Document.make({ children: [P.make({ children: [Text.make({ value: "Revised prompt" })] })] })
+ * const target = EditTarget.make({ turnId, content })
+ *
+ * console.log(target.content.children.length) // 1
  * ```
  *
  * @category models
@@ -337,9 +475,20 @@ export class EditTarget extends S.Class<EditTarget>("EditTarget")(
  *
  * @example
  * ```ts
- * import { editTargetAtom } from "@beep/agents-client"
+ * import { editTargetAtom, EditTarget } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { AtomRegistry } from "effect/unstable/reactivity"
  *
- * console.log(editTargetAtom)
+ * const turnId = S.decodeUnknownSync(Workspace.TurnId)(20)
+ * const content = Document.make({ children: [P.make({ children: [Text.make({ value: "Edit me" })] })] })
+ * const registry = AtomRegistry.make()
+ *
+ * registry.set(editTargetAtom, O.some(EditTarget.make({ turnId, content })))
+ *
+ * console.log(O.isSome(registry.get(editTargetAtom))) // true
  * ```
  *
  * @category atoms
@@ -360,12 +509,26 @@ const decodeFailures = Metric.counter("ui_editor_decode_failures_total", {
 /**
  * Composer content failing schema decode is a bug — count and log it.
  *
+ * @remarks
+ * UI code writes `void 0` to this atom when editor-state decoding fails. The
+ * atom does not store the bad payload; it records telemetry so malformed editor
+ * states are visible without leaking document content into logs.
+ *
  * @example
  * ```ts
  * import { reportDecodeFailureAtom } from "@beep/agents-client"
+ * import { Atom } from "effect/unstable/reactivity"
  *
- * console.log(reportDecodeFailureAtom)
+ * type WriteValue<A> = A extends Atom.Writable<unknown, infer W> ? W : never
+ *
+ * const write: WriteValue<typeof reportDecodeFailureAtom> = undefined
+ *
+ * console.log(write) // undefined
  * ```
+ *
+ * @effects
+ * - Increments `ui_editor_decode_failures_total`.
+ * - Emits an error log without including the failed editor payload.
  *
  * @category atoms
  * @since 0.0.0
@@ -383,8 +546,15 @@ export const reportDecodeFailureAtom = ChatClient.runtime.fn<void>()(
  * @example
  * ```ts
  * import { SendTurnRequest } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
  *
- * console.log(SendTurnRequest.fields)
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * const content = Document.make({ children: [P.make({ children: [Text.make({ value: "Hello" })] })] })
+ * const request = SendTurnRequest.make({ threadId, content })
+ *
+ * console.log(request._tag) // "send"
  * ```
  *
  * @category models
@@ -401,8 +571,16 @@ export class SendTurnRequest extends S.TaggedClass<SendTurnRequest>("SendTurnReq
  * @example
  * ```ts
  * import { EditTurnRequest } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
  *
- * console.log(EditTurnRequest.fields)
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * const turnId = S.decodeUnknownSync(Workspace.TurnId)(20)
+ * const content = Document.make({ children: [P.make({ children: [Text.make({ value: "Try again" })] })] })
+ * const request = EditTurnRequest.make({ threadId, turnId, content })
+ *
+ * console.log(request._tag) // "edit"
  * ```
  *
  * @category models
@@ -419,9 +597,20 @@ export class EditTurnRequest extends S.TaggedClass<EditTurnRequest>("EditTurnReq
  *
  * @example
  * ```ts
- * import { TurnRequest } from "@beep/agents-client"
+ * import { SendTurnRequest, TurnRequest } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
  *
- * console.log(TurnRequest)
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * const content = Document.make({ children: [P.make({ children: [Text.make({ value: "Hello" })] })] })
+ * const request = SendTurnRequest.make({ threadId, content })
+ * const label = TurnRequest.match(request, {
+ *   send: () => "new turn",
+ *   edit: () => "edit turn",
+ * })
+ *
+ * console.log(label) // "new turn"
  * ```
  *
  * @category schemas
@@ -431,6 +620,21 @@ export const TurnRequest = S.Union([SendTurnRequest, EditTurnRequest]).pipe(S.to
 
 /**
  * Runtime type for {@link TurnRequest}.
+ *
+ * @example
+ * ```ts
+ * import { SendTurnRequest } from "@beep/agents-client"
+ * import type { TurnRequest } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ *
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * const content = Document.make({ children: [P.make({ children: [Text.make({ value: "Hello" })] })] })
+ * const request: TurnRequest = SendTurnRequest.make({ threadId, content })
+ *
+ * console.log(request._tag) // "send"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -456,10 +660,31 @@ export type TurnRequest = typeof TurnRequest.Type;
  *
  * @example
  * ```ts
- * import { runTurnAtom } from "@beep/agents-client"
+ * import { runTurnAtom, SendTurnRequest, TurnRequest } from "@beep/agents-client"
+ * import { Document, P, Text } from "@beep/md/Md.model"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ * import { Atom } from "effect/unstable/reactivity"
  *
- * console.log(runTurnAtom)
+ * type WriteValue<A> = A extends Atom.Writable<unknown, infer W> ? W : never
+ *
+ * const threadId = S.decodeUnknownSync(Workspace.ThreadId)(10)
+ * const content = Document.make({ children: [P.make({ children: [Text.make({ value: "Summarize this" })] })] })
+ * const request: WriteValue<typeof runTurnAtom> = SendTurnRequest.make({ threadId, content })
+ * const mode = TurnRequest.match(request, {
+ *   send: () => "stream a new assistant turn",
+ *   edit: () => "regenerate from an edited turn",
+ * })
+ *
+ * console.log(mode) // "stream a new assistant turn"
  * ```
+ *
+ * @effects
+ * - Calls `SendMessage` or `EditMessage` through {@link ChatClient}.
+ * - Writes optimistic state to {@link streamingTurnAtom} while blocks arrive.
+ * - Clears {@link turnErrorAtom} on start and writes it on failure.
+ * - Invalidates timeline and thread-list keys after completion or interrupt.
+ * - Records perceived-latency metrics for the first streamed block.
  *
  * @category atoms
  * @since 0.0.0

@@ -22,7 +22,7 @@ const $I = $FileProcessingId.create("Extraction");
  * ```ts
  * import { SourceProcessingStatus } from "@beep/file-processing/Extraction"
  *
- * console.log(SourceProcessingStatus)
+ * console.log(SourceProcessingStatus.Options.includes("skipped")) // true
  * ```
  *
  * @category schemas
@@ -48,8 +48,19 @@ export type SourceProcessingStatus = typeof SourceProcessingStatus.Type;
  * @example
  * ```ts
  * import { TextArtifactReference } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(TextArtifactReference)
+ * const program = S.decodeUnknownEffect(TextArtifactReference)({
+ *   artifact: {
+ *     id: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     relativePath: "text/README.txt",
+ *     sizeBytes: 5
+ *   },
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * })
+ *
+ * Effect.runPromise(program).then((reference) => console.log(reference.artifact.relativePath)) // "text/README.txt"
  * ```
  *
  * @category models
@@ -72,7 +83,8 @@ export class TextArtifactReference extends S.Class<TextArtifactReference>($I`Tex
  * ```ts
  * import { TextSpan } from "@beep/file-processing/Extraction"
  *
- * console.log(TextSpan)
+ * const span = TextSpan.make({ endOffset: 5, startOffset: 0, text: "hello" })
+ * console.log(span.text) // "hello"
  * ```
  *
  * @category models
@@ -95,8 +107,20 @@ export class TextSpan extends S.Class<TextSpan>($I`TextSpan`)(
  * @example
  * ```ts
  * import { ExtractionResult } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(ExtractionResult)
+ * const program = S.decodeUnknownEffect(ExtractionResult)({
+ *   engine: "beep-test",
+ *   format: "plain-text",
+ *   metadata: { language: "en" },
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   sourceArtifactId: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   text: "hello",
+ *   warnings: []
+ * })
+ *
+ * Effect.runPromise(program).then((result) => console.log(result.metadata.language)) // "en"
  * ```
  *
  * @category models
@@ -124,8 +148,18 @@ export class ExtractionResult extends S.Class<ExtractionResult>($I`ExtractionRes
  * @example
  * ```ts
  * import { ArchiveExportResult } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(ArchiveExportResult)
+ * const program = S.decodeUnknownEffect(ArchiveExportResult)({
+ *   children: [],
+ *   engine: "libpff",
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   sourceArtifactId: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   warnings: []
+ * })
+ *
+ * Effect.runPromise(program).then((result) => console.log(result.engine)) // "libpff"
  * ```
  *
  * @category models
@@ -605,8 +639,20 @@ export type FileProcessingFailureReason = typeof FileProcessingFailureReason.Typ
  * @example
  * ```ts
  * import { SkippedFileProcessingFailureRecord } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(SkippedFileProcessingFailureRecord)
+ * const program = S.decodeUnknownEffect(SkippedFileProcessingFailureRecord)({
+ *   artifactId: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   format: "xls",
+ *   message: "XLS extraction is deferred in this run.",
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   reason: "format-out-of-scope",
+ *   relativePath: "table.xls",
+ *   status: "skipped"
+ * })
+ *
+ * Effect.runPromise(program).then((record) => console.log(record.reason)) // "format-out-of-scope"
  * ```
  *
  * @category models
@@ -687,8 +733,20 @@ export class FailedFileProcessingFailureRecord extends S.Class<FailedFileProcess
  * @example
  * ```ts
  * import { FileProcessingFailureRecord } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(FileProcessingFailureRecord)
+ * const program = S.decodeUnknownEffect(FileProcessingFailureRecord)({
+ *   artifactId: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   format: "unknown",
+ *   message: "No engine could classify the source.",
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   reason: "unsupported-file-format",
+ *   relativePath: "mystery.bin",
+ *   status: "failed"
+ * })
+ *
+ * Effect.runPromise(program).then((record) => console.log(record.status)) // "failed"
  * ```
  *
  * @category models
@@ -718,8 +776,19 @@ export type FileProcessingFailureRecord = typeof FileProcessingFailureRecord.Typ
  * @example
  * ```ts
  * import { ChildArtifactRecord } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(ChildArtifactRecord)
+ * const program = S.decodeUnknownEffect(ChildArtifactRecord)({
+ *   child: {
+ *     id: "artifact:3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7",
+ *     relativePath: "children/message.txt",
+ *     sizeBytes: 29
+ *   },
+ *   sourceArtifactId: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * })
+ *
+ * Effect.runPromise(program).then((record) => console.log(record.child.relativePath)) // "children/message.txt"
  * ```
  *
  * @category models
@@ -741,8 +810,19 @@ export class ChildArtifactRecord extends S.Class<ChildArtifactRecord>($I`ChildAr
  * @example
  * ```ts
  * import { FileProcessingCoverageSummary } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(FileProcessingCoverageSummary)
+ * const program = S.decodeUnknownEffect(FileProcessingCoverageSummary)({
+ *   byFormat: { markdown: { failed: 0, skipped: 0, succeeded: 1 } },
+ *   failedCount: 0,
+ *   skippedCount: 0,
+ *   sourceCount: 1,
+ *   succeededCount: 1,
+ *   textArtifactCount: 1
+ * })
+ *
+ * Effect.runPromise(program).then((summary) => console.log(summary.succeededCount)) // 1
  * ```
  *
  * @category models
@@ -770,8 +850,27 @@ export class FileProcessingCoverageSummary extends S.Class<FileProcessingCoverag
  * @example
  * ```ts
  * import { ProcessRunManifest } from "@beep/file-processing/Extraction"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(ProcessRunManifest)
+ * const program = S.decodeUnknownEffect(ProcessRunManifest)({
+ *   coverage: {
+ *     byFormat: { markdown: { failed: 0, skipped: 0, succeeded: 1 } },
+ *     failedCount: 0,
+ *     skippedCount: 0,
+ *     sourceCount: 1,
+ *     succeededCount: 1,
+ *     textArtifactCount: 1
+ *   },
+ *   engine: "beep-test",
+ *   manifestVersion: "beep.file-processing.run.v1",
+ *   outputRoot: ".",
+ *   runId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   sourceRootLabel: "fixtures",
+ *   strategies: []
+ * })
+ *
+ * Effect.runPromise(program).then((manifest) => console.log(manifest.outputRoot)) // "."
  * ```
  *
  * @category models

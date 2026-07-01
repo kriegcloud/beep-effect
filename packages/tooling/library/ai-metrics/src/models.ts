@@ -293,7 +293,15 @@ export type AiMetricsQualityGateStatus = typeof AiMetricsQualityGateStatus.Type;
  * @example
  * ```ts
  * import { AiMetricsOtlpEndpointSpec } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsOtlpEndpointSpec)
+ *
+ * const endpoint = AiMetricsOtlpEndpointSpec.make({
+ *   baseUrl: "http://127.0.0.1:6006",
+ *   protocol: "http/protobuf",
+ *   resourceAttributes: { "service.name": "beep-ai-metrics" },
+ *   signalScope: "traces_only",
+ *   traceUrl: "http://127.0.0.1:6006/projects/default/traces"
+ * })
+ * console.log(endpoint.signalScope)
  * ```
  * @category models
  * @since 0.0.0
@@ -342,7 +350,14 @@ export class AiMetricsScoreWeights extends S.Class<AiMetricsScoreWeights>($I`AiM
  * @example
  * ```ts
  * import { ConfigSnapshot } from "@beep/repo-ai-metrics"
- * console.log(ConfigSnapshot)
+ *
+ * const snapshot = ConfigSnapshot.make({
+ *   changedPaths: ["AGENTS.md"],
+ *   configHash: "sha256:fixture",
+ *   label: "repo-local-agent-config",
+ *   snapshotId: "config-fixture"
+ * })
+ * console.log(snapshot.changedPaths.length)
  * ```
  * @category models
  * @since 0.0.0
@@ -371,7 +386,16 @@ export class ConfigSnapshot extends S.Class<ConfigSnapshot>($I`ConfigSnapshot`)(
  * @example
  * ```ts
  * import { AgentTask } from "@beep/repo-ai-metrics"
- * console.log(AgentTask)
+ *
+ * const task = AgentTask.make({
+ *   agentTaskId: "task-1",
+ *   createdAtEpochMillis: 1_717_000_000_000,
+ *   repoRootHash: "repo-hash",
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash",
+ *   title: "Repair package docs"
+ * })
+ * console.log(task.sourceRole)
  * ```
  * @category models
  * @since 0.0.0
@@ -403,7 +427,13 @@ export class AgentTask extends S.Class<AgentTask>($I`AgentTask`)(
  * @example
  * ```ts
  * import { AgentSession } from "@beep/repo-ai-metrics"
- * console.log(AgentSession)
+ *
+ * const session = AgentSession.make({
+ *   agentSessionId: "session-1",
+ *   sourceKind: "claude",
+ *   sourcePathHash: "source-hash"
+ * })
+ * console.log(session.sourceRole)
  * ```
  * @category models
  * @since 0.0.0
@@ -439,7 +469,14 @@ export class AgentSession extends S.Class<AgentSession>($I`AgentSession`)(
  * @example
  * ```ts
  * import { AgentTurn } from "@beep/repo-ai-metrics"
- * console.log(AgentTurn)
+ *
+ * const turn = AgentTurn.make({
+ *   eventName: "codex.event_msg",
+ *   lineNumber: 12,
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash"
+ * })
+ * console.log(turn.eventName)
  * ```
  * @category models
  * @since 0.0.0
@@ -467,7 +504,15 @@ export class AgentTurn extends S.Class<AgentTurn>($I`AgentTurn`)(
  * @example
  * ```ts
  * import { ModelCall } from "@beep/repo-ai-metrics"
- * console.log(ModelCall)
+ *
+ * const call = ModelCall.make({
+ *   callId: "call-1",
+ *   latencyMs: 840,
+ *   model: "gpt-5",
+ *   provider: "openai",
+ *   totalTokens: 4096
+ * })
+ * console.log(call.totalTokens)
  * ```
  * @category models
  * @since 0.0.0
@@ -491,7 +536,14 @@ export class ModelCall extends S.Class<ModelCall>($I`ModelCall`)(
  * @example
  * ```ts
  * import { ToolInvocation } from "@beep/repo-ai-metrics"
- * console.log(ToolInvocation)
+ *
+ * const invocation = ToolInvocation.make({
+ *   durationMs: 1250,
+ *   exitCode: 0,
+ *   toolName: "exec_command",
+ *   toolRunId: "tool-1"
+ * })
+ * console.log(invocation.exitCode)
  * ```
  * @category models
  * @since 0.0.0
@@ -514,7 +566,18 @@ export class ToolInvocation extends S.Class<ToolInvocation>($I`ToolInvocation`)(
  * @example
  * ```ts
  * import { OutcomeLabel } from "@beep/repo-ai-metrics"
- * console.log(OutcomeLabel)
+ *
+ * const label = OutcomeLabel.make({
+ *   agentTaskId: "task-1",
+ *   followUpFix: false,
+ *   interventionCount: 1,
+ *   labelId: "label-1",
+ *   labeledAtEpochMillis: 1_717_000_000_000,
+ *   passed: true,
+ *   qualityGate: "passed",
+ *   rating: 0.9
+ * })
+ * console.log(label.rating)
  * ```
  * @category models
  * @since 0.0.0
@@ -542,7 +605,14 @@ export class OutcomeLabel extends S.Class<OutcomeLabel>($I`OutcomeLabel`)(
  * @example
  * ```ts
  * import { BenchmarkCase } from "@beep/repo-ai-metrics"
- * console.log(BenchmarkCase)
+ *
+ * const benchmark = BenchmarkCase.make({
+ *   benchmarkCaseId: "case-1",
+ *   expectedChecks: ["bun run check"],
+ *   promptHash: "prompt-hash",
+ *   title: "JSDoc repair task"
+ * })
+ * console.log(benchmark.expectedChecks.length)
  * ```
  * @category models
  * @since 0.0.0
@@ -566,7 +636,17 @@ export class BenchmarkCase extends S.Class<BenchmarkCase>($I`BenchmarkCase`)(
  * @example
  * ```ts
  * import { BenchmarkRun } from "@beep/repo-ai-metrics"
- * console.log(BenchmarkRun)
+ *
+ * const run = BenchmarkRun.make({
+ *   benchmarkCaseId: "case-1",
+ *   benchmarkRunId: "run-1",
+ *   configSnapshotId: "config-1",
+ *   elapsedMs: 42_000,
+ *   passed: true,
+ *   qualityGate: "passed",
+ *   recordedAtEpochMillis: 1_717_000_000_000
+ * })
+ * console.log(run.elapsedMs)
  * ```
  * @category models
  * @since 0.0.0
@@ -593,7 +673,23 @@ export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
  * @example
  * ```ts
  * import { Scorecard } from "@beep/repo-ai-metrics"
- * console.log(Scorecard)
+ *
+ * const scorecard = Scorecard.make({
+ *   benchmarkRunCount: 4,
+ *   configSnapshotId: "config-1",
+ *   costScore: 0.8,
+ *   coverageGaps: [],
+ *   flowScore: 0.7,
+ *   labelCount: 6,
+ *   outcomeScore: 0.9,
+ *   scorecardId: "scorecard-1",
+ *   taskCount: 10,
+ *   totalScore: 0.86,
+ *   weights: { cost: 0.1, flow: 0.2, outcome: 0.7 },
+ *   windowEndEpochMillis: 1_717_604_800_000,
+ *   windowStartEpochMillis: 1_717_000_000_000
+ * })
+ * console.log(scorecard.completionReady)
  * ```
  * @category models
  * @since 0.0.0
@@ -629,7 +725,16 @@ export class Scorecard extends S.Class<Scorecard>($I`Scorecard`)(
  * @example
  * ```ts
  * import { TranscriptIngestSummary } from "@beep/repo-ai-metrics"
- * console.log(TranscriptIngestSummary)
+ *
+ * const summary = TranscriptIngestSummary.make({
+ *   acceptedEvents: 1,
+ *   eventNames: ["codex.event_msg"],
+ *   rejectedLines: 0,
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash",
+ *   totalLines: 1
+ * })
+ * console.log(summary.eventNames)
  * ```
  * @category models
  * @since 0.0.0

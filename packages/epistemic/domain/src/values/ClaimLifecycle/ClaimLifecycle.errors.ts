@@ -62,9 +62,14 @@ export class ClaimInvalidTransition extends TaggedErrorClass<ClaimInvalidTransit
  *
  * @example
  * ```ts
- * import { ClaimLifecycleError } from "@beep/epistemic-domain"
+ * import { ClaimInvalidTransition, ClaimLifecycleError } from "@beep/epistemic-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(ClaimLifecycleError)
+ * const decoded = S.decodeUnknownSync(ClaimLifecycleError)(
+ *   ClaimInvalidTransition.between("candidate", "admitted")
+ * )
+ *
+ * console.log(decoded._tag)
  * ```
  *
  * @category errors
@@ -81,13 +86,14 @@ export const ClaimLifecycleError = S.Union([ClaimInvalidTransition]).pipe(
  *
  * @example
  * ```ts
+ * import { ClaimInvalidTransition } from "@beep/epistemic-domain"
  * import type { ClaimLifecycleError } from "@beep/epistemic-domain"
  *
- * const accept = (value: ClaimLifecycleError) => value
- * console.log(accept)
+ * const error: ClaimLifecycleError = ClaimInvalidTransition.between("candidate", "admitted")
+ * console.log(error._tag)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type ClaimLifecycleError = typeof ClaimLifecycleError.Type;

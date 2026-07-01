@@ -21,7 +21,7 @@ const $I = $FileProcessingId.create("Operation");
  * ```ts
  * import { FileProcessingOperationErrorReason } from "@beep/file-processing/Operation"
  *
- * console.log(FileProcessingOperationErrorReason)
+ * console.log(FileProcessingOperationErrorReason.Options.includes("engine-unavailable")) // true
  * ```
  *
  * @category errors
@@ -108,8 +108,26 @@ export class FileProcessingOperationError extends TaggedErrorClass<FileProcessin
  * @example
  * ```ts
  * import { DetectFileOperation } from "@beep/file-processing/Operation"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(DetectFileOperation)
+ * const program = S.decodeUnknownEffect(DetectFileOperation)({
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   operationKind: "detect",
+ *   preference: { engine: "test" },
+ *   source: {
+ *     digest: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     extension: "txt",
+ *     id: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     locator: { kind: "synthetic", value: "note.txt" },
+ *     name: "note.txt",
+ *     relativePath: "note.txt",
+ *     sizeBytes: 5,
+ *     text: "hello"
+ *   }
+ * })
+ *
+ * Effect.runPromise(program).then((operation) => console.log(operation.operationKind)) // "detect"
  * ```
  *
  * @category models
@@ -133,8 +151,17 @@ export class DetectFileOperation extends S.Class<DetectFileOperation>($I`DetectF
  * @example
  * ```ts
  * import { DetectionResult } from "@beep/file-processing/Operation"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(DetectionResult)
+ * const program = S.decodeUnknownEffect(DetectionResult)({
+ *   engine: "beep-test",
+ *   format: "markdown",
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   sourceArtifactId: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * })
+ *
+ * Effect.runPromise(program).then((result) => console.log(result.format)) // "markdown"
  * ```
  *
  * @category models
@@ -160,8 +187,27 @@ export class DetectionResult extends S.Class<DetectionResult>($I`DetectionResult
  * @example
  * ```ts
  * import { ExtractFileOperation } from "@beep/file-processing/Operation"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(ExtractFileOperation)
+ * const program = S.decodeUnknownEffect(ExtractFileOperation)({
+ *   format: "plain-text",
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   operationKind: "extract",
+ *   preference: { engine: "test" },
+ *   source: {
+ *     digest: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     extension: "txt",
+ *     id: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     locator: { kind: "synthetic", value: "note.txt" },
+ *     name: "note.txt",
+ *     relativePath: "note.txt",
+ *     sizeBytes: 5,
+ *     text: "hello"
+ *   }
+ * })
+ *
+ * Effect.runPromise(program).then((operation) => console.log(operation.format)) // "plain-text"
  * ```
  *
  * @category models
@@ -187,8 +233,26 @@ export class ExtractFileOperation extends S.Class<ExtractFileOperation>($I`Extra
  * @example
  * ```ts
  * import { ExportArchiveOperation } from "@beep/file-processing/Operation"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(ExportArchiveOperation)
+ * const program = S.decodeUnknownEffect(ExportArchiveOperation)({
+ *   format: "pst",
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   operationKind: "export-archive",
+ *   preference: { engine: "libpff" },
+ *   source: {
+ *     digest: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     extension: "pst",
+ *     id: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     locator: { kind: "synthetic", value: "mailbox.pst" },
+ *     name: "mailbox.pst",
+ *     relativePath: "mailbox.pst",
+ *     sizeBytes: 128
+ *   }
+ * })
+ *
+ * Effect.runPromise(program).then((operation) => console.log(operation.operationKind)) // "export-archive"
  * ```
  *
  * @category models
@@ -214,8 +278,27 @@ export class ExportArchiveOperation extends S.Class<ExportArchiveOperation>($I`E
  * @example
  * ```ts
  * import { ProcessFileOperation } from "@beep/file-processing/Operation"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(ProcessFileOperation)
+ * const program = S.decodeUnknownEffect(ProcessFileOperation)({
+ *   exportChildren: false,
+ *   operationId: "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   operationKind: "process",
+ *   preference: { engine: "test" },
+ *   source: {
+ *     digest: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     extension: "md",
+ *     id: "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *     locator: { kind: "synthetic", value: "README.md" },
+ *     name: "README.md",
+ *     relativePath: "README.md",
+ *     sizeBytes: 11,
+ *     text: "hello"
+ *   }
+ * })
+ *
+ * Effect.runPromise(program).then((operation) => console.log(operation.exportChildren)) // false
  * ```
  *
  * @category models

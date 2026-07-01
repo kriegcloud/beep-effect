@@ -42,9 +42,18 @@ const generatedAndBuildOutputIgnores = [
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import type { DeprecatedApisESLintConfigShape } from "@beep/repo-configs/eslint/DeprecatedApisESLintConfig"
- * const config = [] satisfies DeprecatedApisESLintConfigShape
- * console.log(config)
+ *
+ * const config = [
+ *   {
+ *     rules: {
+ *       "@typescript-eslint/no-deprecated": "error"
+ *     }
+ *   }
+ * ] satisfies DeprecatedApisESLintConfigShape
+ *
+ * strictEqual(config[0]?.rules?.["@typescript-eslint/no-deprecated"], "error")
  * ```
  * @category configuration
  * @since 0.0.0
@@ -56,8 +65,14 @@ export type DeprecatedApisESLintConfigShape = ReadonlyArray<Linter.Config>;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { DeprecatedApisESLintConfig } from "@beep/repo-configs/eslint/DeprecatedApisESLintConfig"
- * console.log(DeprecatedApisESLintConfig)
+ *
+ * const checksDeprecatedApis = DeprecatedApisESLintConfig.some(
+ *   (entry) => entry.rules?.["@typescript-eslint/no-deprecated"] === "error"
+ * )
+ *
+ * strictEqual(checksDeprecatedApis, true)
  * ```
  * @category configuration
  * @since 0.0.0

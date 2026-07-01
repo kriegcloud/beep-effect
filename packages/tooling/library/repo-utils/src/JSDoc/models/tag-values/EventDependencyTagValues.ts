@@ -12,10 +12,18 @@ import { nameField, optionalDesc, optionalName } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/EventDependencyTagValues");
 
 /**
+ * Schema-backed value for a parsed `fires` tag occurrence: documents an event a symbol emits.
+ *
  * @example
  * ```ts
  * import { FiresValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- * console.log(FiresValue)
+ *
+ * const tag = FiresValue.make({
+ *   name: "repo:changed",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "fires" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -29,10 +37,18 @@ export class FiresValue extends S.TaggedClass<FiresValue>($I`FiresValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `listens` tag occurrence: documents an event a symbol listens for.
+ *
  * @example
  * ```ts
  * import { ListensValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- * console.log(ListensValue)
+ *
+ * const tag = ListensValue.make({
+ *   name: "repo:changed",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "listens" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -46,10 +62,18 @@ export class ListensValue extends S.TaggedClass<ListensValue>($I`ListensValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `event` tag occurrence: documents an event.
+ *
  * @example
  * ```ts
  * import { EventValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- * console.log(EventValue)
+ *
+ * const tag = EventValue.make({
+ *   name: "repo:changed",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "event" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -63,10 +87,15 @@ export class EventValue extends S.TaggedClass<EventValue>($I`EventValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `requires` tag occurrence: documents a dependency.
+ *
  * @example
  * ```ts
  * import { RequiresValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- * console.log(RequiresValue)
+ *
+ * const tag = RequiresValue.make({ name: "effect" })
+ * const tagName: "requires" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0

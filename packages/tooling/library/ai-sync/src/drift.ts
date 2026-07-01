@@ -39,9 +39,15 @@ const readPackageFile = Effect.fn("AiSync.readPackageFile")(function* (relativeP
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { getGeneratedSourceMetadata } from "@beep/ai-sync"
- * console.log(getGeneratedSourceMetadata)
+ *
+ * Effect.runPromise(getGeneratedSourceMetadata()).then((sources) =>
+ *   console.log(sources.length)
+ * )
  * ```
+ * @effects Decodes committed generated metadata in memory and fails with
+ * `AiSyncError` if the generated constants no longer match the metadata schema.
  * @category constants
  * @since 0.0.0
  */
@@ -61,9 +67,20 @@ export const getGeneratedSourceMetadata = Effect.fn("AiSync.getGeneratedSourceMe
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect } from "effect"
  * import { checkGeneratedArtifacts } from "@beep/ai-sync"
- * console.log(checkGeneratedArtifacts)
+ *
+ * const program = checkGeneratedArtifacts().pipe(
+ *   Effect.map((report) => report.mode),
+ *   Effect.provide(NodeServices.layer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Reads committed generated schema and source-metadata files from the
+ * package root, decodes generated source metadata, and fails with
+ * `AiSyncError` when the generated artifacts are missing or stale.
  * @category validation
  * @since 0.0.0
  */
@@ -124,9 +141,28 @@ export const checkGeneratedArtifacts = Effect.fn("AiSync.checkGeneratedArtifacts
  * @returns Drift findings for sources whose current content differs.
  * @example
  * ```ts
- * import { checkSourceDriftWithFetcher } from "@beep/ai-sync"
- * console.log(checkSourceDriftWithFetcher)
+ * import { Effect } from "effect"
+ * import { AiSyncSourceMetadata, checkSourceDriftWithFetcher } from "@beep/ai-sync"
+ *
+ * const source = AiSyncSourceMetadata.make({
+ *   id: "synthetic",
+ *   agent: "codex",
+ *   domain: "config",
+ *   tier: "tier_1",
+ *   url: "https://example.com/schema.json",
+ *   contentHash: "expected",
+ *   isOfficial: true,
+ *   driftMechanism: "hash"
+ * })
+ * const program = checkSourceDriftWithFetcher({
+ *   sources: [source],
+ *   fetcher: () => Effect.succeed("different")
+ * })
+ *
+ * Effect.runPromise(program).then((findings) => console.log(findings.length))
  * ```
+ * @effects Runs the supplied fetcher for each source with bounded concurrency,
+ * hashes each fetched body, and returns findings without writing files.
  * @category validation
  * @since 0.0.0
  */
@@ -160,9 +196,22 @@ export const checkSourceDriftWithFetcher = <R>(options: {
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect, Layer } from "effect"
  * import { checkStrictDrift } from "@beep/ai-sync"
- * console.log(checkStrictDrift)
+ * import { AiSyncHttpLayer } from "@beep/ai-sync/generator"
+ *
+ * const RuntimeLayer = Layer.mergeAll(NodeServices.layer, AiSyncHttpLayer)
+ * const program = checkStrictDrift().pipe(
+ *   Effect.map((report) => report.findings.length),
+ *   Effect.provide(RuntimeLayer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Fetches each committed Tier-1 source through the configured HTTP
+ * client, hashes the current response bodies, and reports drift findings
+ * without writing files.
  * @category validation
  * @since 0.0.0
  */
@@ -178,9 +227,22 @@ export const checkStrictDrift = Effect.fn("AiSync.checkStrictDrift")(function* (
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect, Layer } from "effect"
  * import { assertNoStrictDrift } from "@beep/ai-sync"
- * console.log(assertNoStrictDrift)
+ * import { AiSyncHttpLayer } from "@beep/ai-sync/generator"
+ *
+ * const RuntimeLayer = Layer.mergeAll(NodeServices.layer, AiSyncHttpLayer)
+ * const program = assertNoStrictDrift().pipe(
+ *   Effect.map((report) => report.mode),
+ *   Effect.provide(RuntimeLayer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Executes the strict network drift check and fails with `AiSyncError`
+ * containing a source-by-source summary when any committed Tier-1 hash has
+ * drifted.
  * @category validation
  * @since 0.0.0
  */

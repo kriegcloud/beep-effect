@@ -20,9 +20,18 @@ const $I = $ArchitectureLabServerId.create("entities/Worker/Worker.layer");
  * @example
  * ```ts
  * import { makeWorkerServer } from "@beep/architecture-lab-server/entities/Worker"
+ * import { Worker as WorkerUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect } from "effect"
  *
- * console.log(makeWorkerServer)
+ * const program = makeWorkerServer().pipe(
+ *   Effect.flatMap((server) => server.list(WorkerUseCases.ListWorkersQuery.make({})))
+ * )
+ *
+ * Effect.runPromise(program).then((workers) => console.log(workers.length)) // 0
  * ```
+ *
+ * @effects Allocates the default Worker repository and returns the
+ * repository-backed Worker use-case facade.
  *
  * @category layers
  * @since 0.0.0
@@ -38,8 +47,16 @@ export const makeWorkerServer = Effect.fn("ArchitectureLab.WorkerServer.make")(f
  * @example
  * ```ts
  * import { WorkerServer } from "@beep/architecture-lab-server/entities/Worker"
+ * import { ArchitectureLabServerTest } from "@beep/architecture-lab-server/test"
+ * import { Worker as WorkerUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect } from "effect"
  *
- * console.log(WorkerServer)
+ * const program = Effect.gen(function* () {
+ *   const server = yield* WorkerServer
+ *   return yield* server.list(WorkerUseCases.ListWorkersQuery.make({}))
+ * }).pipe(Effect.provide(ArchitectureLabServerTest))
+ *
+ * Effect.runPromise(program).then((workers) => console.log(workers.length)) // 0
  * ```
  *
  * @category layers
@@ -54,9 +71,16 @@ export class WorkerServer extends Context.Service<WorkerServer, WorkerUseCases.W
  *
  * @example
  * ```ts
- * import { WorkerServerLayer } from "@beep/architecture-lab-server/entities/Worker"
+ * import { WorkerServer, WorkerServerLayer } from "@beep/architecture-lab-server/entities/Worker"
+ * import { Worker as WorkerUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect } from "effect"
  *
- * console.log(WorkerServerLayer)
+ * const program = Effect.gen(function* () {
+ *   const server = yield* WorkerServer
+ *   return yield* server.list(WorkerUseCases.ListWorkersQuery.make({}))
+ * }).pipe(Effect.provide(WorkerServerLayer))
+ *
+ * Effect.runPromise(program).then((workers) => console.log(workers.length)) // 0
  * ```
  *
  * @category layers

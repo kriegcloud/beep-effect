@@ -47,8 +47,11 @@ class EditorViewerProps extends S.Class<EditorViewerProps>($I`EditorViewerProps`
  * @example
  * ```tsx
  * import { EditorViewer } from "@beep/editor/viewer"
+ * import type { SerializedEditorState } from "@beep/lexical-schema"
  *
- * console.log(EditorViewer.name) // "EditorViewer"
+ * function ReadOnlyPreview({ state }: { readonly state: SerializedEditorState.Type }) {
+ *   return <EditorViewer state={state} className="prose max-w-none" />
+ * }
  * ```
  *
  * @category components

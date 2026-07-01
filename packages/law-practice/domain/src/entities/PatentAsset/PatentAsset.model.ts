@@ -14,16 +14,35 @@ import { PatentAssetStatus } from "./PatentAsset.values.js";
 const $I = $LawPracticeDomainId.create("entities/PatentAsset/PatentAsset.model");
 
 /**
- * Patent asset context.
+ * Patent asset entity managed inside a prosecution matter.
  *
  * @example
  * ```ts
  * import { PatentAsset } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(PatentAsset.definition.entityId.resource)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const asset = S.decodeUnknownSync(PatentAsset)({
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   entityType: "LawPracticePatentAsset",
+ *   fixtureKey: "patent-asset.hinge",
+ *   id: 5,
+ *   matterFixtureKey: "matter.hinge",
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   status: "pre_filing",
+ *   title: "Hinged lid assembly",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(asset.status) // "pre_filing"
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class PatentAsset extends BaseEntity.Class<PatentAsset>($I`PatentAsset`)(
@@ -51,6 +70,6 @@ export class PatentAsset extends BaseEntity.Class<PatentAsset>($I`PatentAsset`)(
     },
   },
   $I.annote("PatentAsset", {
-    description: "Patent asset context.",
+    description: "Patent asset entity managed inside a prosecution matter.",
   })
 ) {}

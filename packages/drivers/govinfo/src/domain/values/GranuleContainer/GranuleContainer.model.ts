@@ -12,90 +12,132 @@ import { GranuleMetadata } from "../GranuleMetadata/index.ts";
 const $I = $GovinfoId.create("domain/values/GranuleContainer/GranuleContainer.model");
 
 /**
- * The GranuleContainer value object.
+ * Paginated GovInfo granule listing for a package.
+ *
+ * @remarks
+ * Package granule listings expose subsections of a document package and use
+ * `offsetMark`/page URLs for traversal, similar to collection pages.
  *
  * @example
  * ```ts
  * import { GranuleContainer } from "@beep/govinfo/domain/values/GranuleContainer/GranuleContainer.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(GranuleContainer);
+ * const container = S.decodeUnknownSync(GranuleContainer)({
+ *   count: 1n,
+ *   granules: [
+ *     {
+ *       granuleClass: "HOUSE",
+ *       granuleId: "CREC-2024-01-03-pt1-PgH1",
+ *       granuleLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules/CREC-2024-01-03-pt1-PgH1/summary",
+ *       md5: "d41d8cd98f00b204e9800998ecf8427e",
+ *       title: "House proceedings"
+ *     }
+ *   ],
+ *   message: "",
+ *   nextPage: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules?offsetMark=next&pageSize=100",
+ *   offset: 0,
+ *   pageSize: 100,
+ *   previousPage: ""
+ * });
+ *
+ * console.log(container.granules[0]?.granuleId);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class GranuleContainer extends S.Class<GranuleContainer>($I`GranuleContainer`)(
   {
-    /** change me */
+    /** Total matching granules reported by GovInfo. */
     count: Int64.pipe(
       S.annotateKey({
-        description: "Signed 32-bit integers (commonly used integer type).",
+        description: "Total matching granules reported by GovInfo.",
       })
     ),
 
-    /** change me */
+    /** Granule summaries returned for the current page. */
     granules: GranuleMetadata.pipe(
       S.Array,
       S.annotateKey({
-        description: "",
+        description: "Granule summaries returned for the current page.",
       })
     ),
 
-    /** change me */
+    /** Human-readable API message, when GovInfo includes one. */
     message: S.String.annotateKey({
-      description: "",
+      description: "Human-readable API message, when GovInfo includes one.",
     }),
 
-    /** change me */
+    /** URL for the next page of granule results. */
     nextPage: S.String.annotateKey({
-      description: "",
+      description: "URL for the next page of granule results.",
     }),
 
-    /** change me */
+    /** Numeric offset reported by older GovInfo granule list responses. */
     offset: S.Int.pipe(
       S.check(S.isInt32()),
       S.annotateKey({
-        description: "",
+        description: "Numeric offset reported by older GovInfo granule list responses.",
       })
     ),
 
-    /** change me */
+    /** Number of granules requested for the current page. */
     pageSize: S.Int.pipe(
       S.check(S.isInt32()),
       S.annotateKey({
-        description: "",
+        description: "Number of granules requested for the current page.",
       })
     ),
 
-    /** change me */
+    /** URL for the previous page of granule results. */
     previousPage: S.String.annotateKey({
-      description: "",
+      description: "URL for the previous page of granule results.",
     }),
   },
   $I.annote("GranuleContainer", {
-    description: "The GranuleContainer value object.",
+    description: "Paginated GovInfo granule listing for a package.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link GranuleContainer} value object.
+ * Companion namespace for {@link GranuleContainer} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace GranuleContainer {
   /**
-   * The companion encoded type for {@link GranuleContainer}.
+   * Encoded JSON shape accepted by {@link GranuleContainer}.
    *
    * @example
    * ```ts
-   * import type { GranuleContainer } from "@beep/govinfo/domain/values/GranuleContainer/GranuleContainer.model";
+   * import { GranuleContainer } from "@beep/govinfo/domain/values/GranuleContainer/GranuleContainer.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: GranuleContainer.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(GranuleContainer)({
+   *   count: 1n,
+   *   granules: [
+   *     {
+   *       granuleClass: "HOUSE",
+   *       granuleId: "CREC-2024-01-03-pt1-PgH1",
+   *       granuleLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules/CREC-2024-01-03-pt1-PgH1/summary",
+   *       md5: "d41d8cd98f00b204e9800998ecf8427e",
+   *       title: "House proceedings"
+   *     }
+   *   ],
+   *   message: "",
+   *   nextPage: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules?offsetMark=next&pageSize=100",
+   *   offset: 0,
+   *   pageSize: 100,
+   *   previousPage: ""
+   * });
+   * const encoded: GranuleContainer.Encoded = S.encodeSync(GranuleContainer)(decoded);
+   *
+   * console.log(encoded.pageSize);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof GranuleContainer.Encoded;

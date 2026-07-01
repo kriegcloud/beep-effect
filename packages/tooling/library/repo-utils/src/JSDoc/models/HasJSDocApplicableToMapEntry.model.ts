@@ -25,7 +25,11 @@ const fields = { member: S.String } as const;
  * ```ts
  * import { HasJSDocApplicableToMapEntry } from "@beep/repo-utils/JSDoc/models/HasJSDocApplicableToMapEntry.model"
  *
- * console.log(HasJSDocApplicableToMapEntry)
+ * const entry = HasJSDocApplicableToMapEntry.make({
+ *   applicableTo: "function",
+ *   member: "getJsDocs"
+ * })
+ * console.log(entry.member)
  * ```
  * @category models
  * @since 0.0.0

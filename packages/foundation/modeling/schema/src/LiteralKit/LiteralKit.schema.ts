@@ -376,10 +376,14 @@ const LiteralKitTaggedUnionLiteralErrorBase: TaggedErrorClassFromFields<
  * ```ts
  * import { LiteralNotInSetError } from "@beep/schema/LiteralKit"
  *
- * console.log(LiteralNotInSetError)
+ * const error = LiteralNotInSetError.make({
+ *   literals: ["ready"],
+ *   input: ["blocked"]
+ * })
+ * console.log(error.input.includes("blocked")) // true
  * ```
  *
- * @category models
+ * @category errors
  * @since 0.0.0
  */
 export class LiteralNotInSetError extends LiteralNotInSetErrorBase {}
@@ -392,10 +396,15 @@ export class LiteralNotInSetError extends LiteralNotInSetErrorBase {}
  * ```ts
  * import { LiteralKitKeyCollisionError } from "@beep/schema/LiteralKit"
  *
- * console.log(LiteralKitKeyCollisionError)
+ * const error = LiteralKitKeyCollisionError.make({
+ *   key: "number1",
+ *   existing: "number1",
+ *   incoming: 1
+ * })
+ * console.log(error.key) // "number1"
  * ```
  *
- * @category models
+ * @category errors
  * @since 0.0.0
  */
 export class LiteralKitKeyCollisionError extends LiteralKitKeyCollisionErrorBase {}
@@ -410,10 +419,15 @@ type SeenLiteralKeys = HashMap.HashMap<string, SchemaAST.LiteralValue>;
  * ```ts
  * import { LiteralKitEnumMappingDuplicateLiteralError } from "@beep/schema/LiteralKit"
  *
- * console.log(LiteralKitEnumMappingDuplicateLiteralError)
+ * const error = LiteralKitEnumMappingDuplicateLiteralError.make({
+ *   literal: "ready",
+ *   firstIndex: 0,
+ *   secondIndex: 2
+ * })
+ * console.log(error.secondIndex) // 2
  * ```
  *
- * @category models
+ * @category errors
  * @since 0.0.0
  */
 export class LiteralKitEnumMappingDuplicateLiteralError extends LiteralKitEnumMappingDuplicateLiteralErrorBase {}
@@ -426,10 +440,16 @@ export class LiteralKitEnumMappingDuplicateLiteralError extends LiteralKitEnumMa
  * ```ts
  * import { LiteralKitEnumMappingCoverageError } from "@beep/schema/LiteralKit"
  *
- * console.log(LiteralKitEnumMappingCoverageError)
+ * const error = LiteralKitEnumMappingCoverageError.make({
+ *   literals: ["read", "write"],
+ *   mappingLiterals: ["read"],
+ *   missing: ["write"],
+ *   unexpected: []
+ * })
+ * console.log(error.missing.includes("write")) // true
  * ```
  *
- * @category models
+ * @category errors
  * @since 0.0.0
  */
 export class LiteralKitEnumMappingCoverageError extends LiteralKitEnumMappingCoverageErrorBase {}
@@ -442,10 +462,13 @@ export class LiteralKitEnumMappingCoverageError extends LiteralKitEnumMappingCov
  * ```ts
  * import { LiteralKitTaggedUnionLiteralError } from "@beep/schema/LiteralKit"
  *
- * console.log(LiteralKitTaggedUnionLiteralError)
+ * const error = LiteralKitTaggedUnionLiteralError.make({
+ *   literal: BigInt(1)
+ * })
+ * console.log(typeof error.literal) // "bigint"
  * ```
  *
- * @category models
+ * @category errors
  * @since 0.0.0
  */
 export class LiteralKitTaggedUnionLiteralError extends LiteralKitTaggedUnionLiteralErrorBase {}

@@ -12,10 +12,18 @@ import { optionalDesc, optionalName } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/InlineTagValues");
 
 /**
+ * Schema-backed value for a parsed `link` tag occurrence: an inline link to another symbol.
+ *
  * @example
  * ```ts
  * import { LinkValue } from "@beep/repo-utils/JSDoc/models/tag-values/InlineTagValues"
- * console.log(LinkValue)
+ *
+ * const tag = LinkValue.make({
+ *   name: "TagValue",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "link" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -29,10 +37,15 @@ export class LinkValue extends S.TaggedClass<LinkValue>($I`LinkValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `inheritDoc` tag occurrence: inherits documentation from a parent.
+ *
  * @example
  * ```ts
  * import { InheritDocValue } from "@beep/repo-utils/JSDoc/models/tag-values/InlineTagValues"
- * console.log(InheritDocValue)
+ *
+ * const tag = InheritDocValue.make({ name: "BaseTag" })
+ * const tagName: "inheritDoc" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0

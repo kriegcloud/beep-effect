@@ -37,6 +37,7 @@ const $I = $AcpId.create("agent");
  * import type { AcpAgentOptions } from "@beep/acp/agent"
  *
  * const options: AcpAgentOptions = { logIncoming: true }
+ * console.log(options.logIncoming)
  * ```
  *
  * @category models
@@ -225,7 +226,10 @@ export interface AcpAgentShape {
  * import { Effect } from "effect"
  * import { AcpAgent } from "@beep/acp/agent"
  *
- * const program = Effect.service(AcpAgent)
+ * const program = Effect.service(AcpAgent).pipe(
+ *   Effect.map((agent) => typeof agent.client.requestPermission)
+ * )
+ * console.log(program)
  * ```
  *
  * @category services
@@ -280,6 +284,9 @@ const decodeCancelNotification = S.decodeUnknownEffect(AcpSchema.CancelNotificat
  * console.log(fromStdio)
  * ```
  *
+ * @effects Builds agent and client RPC handlers, registers scoped protocol
+ * fibers, dispatches cancel and extension handlers, and communicates through
+ * the supplied `Stdio` transport when the returned Effect runs.
  * @category constructors
  * @since 0.0.0
  */
@@ -619,6 +626,7 @@ export const layer = (stdio: Stdio.Stdio, options: AcpAgentOptions = {}): Layer.
  * import { layerStdio } from "@beep/acp/agent"
  *
  * const live = layerStdio()
+ * console.log(live)
  * ```
  *
  * @category layers

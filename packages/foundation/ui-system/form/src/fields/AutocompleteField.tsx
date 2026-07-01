@@ -53,9 +53,36 @@ export interface AutocompleteFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { AutocompleteField } from "@beep/form/fields/AutocompleteField"
+ * import * as S from "effect/Schema"
  *
- * console.log(AutocompleteField)
+ * const SearchSchema = S.Struct({ query: S.String })
+ * const suggestions = [
+ *   { value: "apple", label: "Apple" },
+ *   { value: "banana", label: "Banana" },
+ * ]
+ * const searchOptions = makeFormOptions({
+ *   schema: SearchSchema,
+ *   defaultValues: { query: "" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function SearchForm() {
+ *   const form = useAppForm(searchOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="query">
+ *           {() => <AutocompleteField label="Search" options={suggestions} placeholder="Start typing" />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(searchOptions.defaultValues.query) // ""
  * ```
  *
  * @category components

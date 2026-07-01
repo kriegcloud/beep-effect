@@ -69,8 +69,12 @@ const ArtifactName = S.Union([
  * @example
  * ```ts
  * import { ArtifactId } from "@beep/file-processing/Artifact"
+ * import * as S from "effect/Schema"
  *
- * console.log(ArtifactId)
+ * const id = S.decodeUnknownSync(ArtifactId)(
+ *   "artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * )
+ * console.log(id.startsWith("artifact:")) // true
  * ```
  *
  * @category schemas
@@ -101,8 +105,12 @@ export type ArtifactId = typeof ArtifactId.Type;
  * @example
  * ```ts
  * import { OperationId } from "@beep/file-processing/Artifact"
+ * import * as S from "effect/Schema"
  *
- * console.log(OperationId)
+ * const id = S.decodeUnknownSync(OperationId)(
+ *   "operation:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * )
+ * console.log(id.startsWith("operation:")) // true
  * ```
  *
  * @category schemas
@@ -133,8 +141,12 @@ export type OperationId = typeof OperationId.Type;
  * @example
  * ```ts
  * import { ContentDigest } from "@beep/file-processing/Artifact"
+ * import * as S from "effect/Schema"
  *
- * console.log(ContentDigest)
+ * const digest = S.decodeUnknownSync(ContentDigest)(
+ *   "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * )
+ * console.log(digest.slice(0, 7)) // "sha256:"
  * ```
  *
  * @category schemas
@@ -180,6 +192,7 @@ const artifactIdTextEncoder = new TextEncoder();
  * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((valid) => console.log(valid)) // true
  * ```
  *
+ * @effects Requires `Crypto.Crypto` to hash the joined artifact parts and may fail with `SchemaError` when the derived identifier cannot be decoded.
  * @category constructors
  * @since 0.0.0
  */
@@ -197,7 +210,7 @@ export const deriveArtifactId = Effect.fn("Artifact.deriveArtifactId")(function*
  * ```ts
  * import { ArtifactLocatorKind } from "@beep/file-processing/Artifact"
  *
- * console.log(ArtifactLocatorKind)
+ * console.log(ArtifactLocatorKind.Options.includes("memory")) // true
  * ```
  *
  * @category schemas
@@ -253,9 +266,30 @@ export class ArtifactLocator extends S.Class<ArtifactLocator>($I`ArtifactLocator
  *
  * @example
  * ```ts
- * import { SourceArtifact } from "@beep/file-processing/Artifact"
+ * import { ArtifactId, ArtifactLocator, ContentDigest, SourceArtifact } from "@beep/file-processing/Artifact"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(SourceArtifact)
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const digest = yield* S.decodeUnknownEffect(ContentDigest)("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("README.md")
+ *
+ *   return SourceArtifact.make({
+ *     digest,
+ *     extension: "md",
+ *     id: artifactId,
+ *     locator: ArtifactLocator.make({ kind: "synthetic", value: relativePath }),
+ *     name: "README.md",
+ *     relativePath,
+ *     sizeBytes: NonNegativeInt.make(11),
+ *     text: "hello"
+ *   }).extension
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "md"
  * ```
  *
  * @category models
@@ -284,9 +318,24 @@ export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
  *
  * @example
  * ```ts
- * import { ArtifactReference } from "@beep/file-processing/Artifact"
+ * import { ArtifactId, ArtifactReference } from "@beep/file-processing/Artifact"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(ArtifactReference)
+ * const program = Effect.gen(function* () {
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)("artifact:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("text/README.txt")
+ *
+ *   return ArtifactReference.make({
+ *     id: artifactId,
+ *     relativePath,
+ *     sizeBytes: NonNegativeInt.make(5)
+ *   }).relativePath
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // "text/README.txt"
  * ```
  *
  * @category models

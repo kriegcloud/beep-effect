@@ -15,9 +15,15 @@ const $I = $RepoUtilsId.create("JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
  * @example
  * ```ts
+ * import { DateTime } from "effect"
  * import { CanonicalJSDocSourceMetadata } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
- * console.log(CanonicalJSDocSourceMetadata)
+ * const source = CanonicalJSDocSourceMetadata.make({
+ *   name: "TSDoc",
+ *   url: new URL("https://tsdoc.org/"),
+ *   retrievedAt: DateTime.makeUnsafe("2026-01-01T00:00:00.000Z")
+ * })
+ * console.log(source.url.hostname)
  * ```
  * @category models
  * @since 0.0.0
@@ -42,7 +48,12 @@ export class CanonicalJSDocSourceMetadata extends S.Class<CanonicalJSDocSourceMe
  * ```ts
  * import { CanonicalJSDocSourceMetadata } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
- * console.log(CanonicalJSDocSourceMetadata)
+ * const encoded: CanonicalJSDocSourceMetadata.Encoded = {
+ *   name: "JSDoc",
+ *   url: "https://jsdoc.app/",
+ *   retrievedAt: "2026-01-01T00:00:00.000Z"
+ * }
+ * console.log(encoded.name)
  * ```
  * @category models
  * @since 0.0.0
@@ -66,7 +77,12 @@ export declare namespace CanonicalJSDocSourceMetadata {
  * ```ts
  * import { make } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
- * console.log(make)
+ * const source = make({
+ *   name: "JSDoc",
+ *   url: "https://jsdoc.app/",
+ *   retrievedAt: "2026-01-01T00:00:00.000Z"
+ * })
+ * console.log(source.url.hostname)
  * ```
  * @category models
  * @since 0.0.0

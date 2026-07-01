@@ -88,10 +88,16 @@ type DirectionalKit<
  * ```ts
  * import { MappedLiteralDuplicateError } from "@beep/schema/MappedLiteralKit"
  *
- * console.log(MappedLiteralDuplicateError)
+ * const error = MappedLiteralDuplicateError.make({
+ *   side: "to",
+ *   literal: "200",
+ *   firstIndex: 0,
+ *   secondIndex: 1
+ * })
+ * console.log(error.side) // "to"
  * ```
  *
- * @category models
+ * @category errors
  * @since 0.0.0
  */
 export class MappedLiteralDuplicateError extends MappedLiteralDuplicateErrorBase {}

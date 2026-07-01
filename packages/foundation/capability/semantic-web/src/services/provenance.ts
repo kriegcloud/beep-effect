@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -53,13 +52,16 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ProvenanceExportProfile } from "@beep/semantic-web/services/provenance"
  *
- * console.log(ProvenanceExportProfile)
+ * const profile = S.decodeUnknownSync(ProvenanceExportProfile)("prov-core-v1")
+ * strictEqual(profile, "prov-core-v1")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-extensions-v1"]).pipe(
   $I.annoteSchema("ProvenanceExportProfile", {
@@ -72,13 +74,20 @@ export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-ex
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ProjectProvenanceRequest } from "@beep/semantic-web/services/provenance"
  *
- * console.log(ProjectProvenanceRequest)
+ * const request = S.decodeUnknownSync(ProjectProvenanceRequest)({
+ *   bundle: { records: [] },
+ *   anchors: [],
+ *   maxItems: 25
+ * })
+ * strictEqual(request.maxItems, 25)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ProjectProvenanceRequest extends S.Class<ProjectProvenanceRequest>($I`ProjectProvenanceRequest`)(
   {
@@ -97,13 +106,19 @@ export class ProjectProvenanceRequest extends S.Class<ProjectProvenanceRequest>(
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { SummarizeProvenanceRequest } from "@beep/semantic-web/services/provenance"
  *
- * console.log(SummarizeProvenanceRequest)
+ * const request = S.decodeUnknownSync(SummarizeProvenanceRequest)({
+ *   bundle: { records: [] },
+ *   anchors: []
+ * })
+ * strictEqual(request.bundle.records.length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class SummarizeProvenanceRequest extends S.Class<SummarizeProvenanceRequest>($I`SummarizeProvenanceRequest`)(
   {
@@ -121,13 +136,21 @@ export class SummarizeProvenanceRequest extends S.Class<SummarizeProvenanceReque
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ExportProvenanceRequest } from "@beep/semantic-web/services/provenance"
  *
- * console.log(ExportProvenanceRequest)
+ * const request = S.decodeUnknownSync(ExportProvenanceRequest)({
+ *   bundle: { records: [] },
+ *   anchors: [],
+ *   profile: "prov-core-v1",
+ *   maxItems: 10
+ * })
+ * strictEqual(request.profile, "prov-core-v1")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ExportProvenanceRequest extends S.Class<ExportProvenanceRequest>($I`ExportProvenanceRequest`)(
   {
@@ -147,13 +170,20 @@ export class ExportProvenanceRequest extends S.Class<ExportProvenanceRequest>($I
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { BoundedProvenanceProjection } from "@beep/semantic-web/services/provenance"
  *
- * console.log(BoundedProvenanceProjection)
+ * const projection = S.decodeUnknownSync(BoundedProvenanceProjection)({
+ *   bundle: { records: [] },
+ *   evidence: { anchors: [], truncated: false },
+ *   truncated: false
+ * })
+ * strictEqual(projection.truncated, false)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class BoundedProvenanceProjection extends S.Class<BoundedProvenanceProjection>($I`BoundedProvenanceProjection`)(
   {
@@ -175,13 +205,22 @@ export class BoundedProvenanceProjection extends S.Class<BoundedProvenanceProjec
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ProvenanceSummary } from "@beep/semantic-web/services/provenance"
  *
- * console.log(ProvenanceSummary)
+ * const summary = S.decodeUnknownSync(ProvenanceSummary)({
+ *   recordCount: 0,
+ *   entityCount: 0,
+ *   activityCount: 0,
+ *   agentCount: 0,
+ *   anchorCount: 0
+ * })
+ * strictEqual(summary.recordCount, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ProvenanceSummary extends S.Class<ProvenanceSummary>($I`ProvenanceSummary`)(
   {
@@ -202,13 +241,18 @@ export class ProvenanceSummary extends S.Class<ProvenanceSummary>($I`ProvenanceS
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { ProvenanceServiceError } from "@beep/semantic-web/services/provenance"
  *
- * console.log(ProvenanceServiceError)
+ * const error = ProvenanceServiceError.make({
+ *   reason: "missingEvidenceAnchor",
+ *   message: "Projection requests with records require explicit evidence anchors."
+ * })
+ * strictEqual(error.reason, "missingEvidenceAnchor")
  * ```
  *
+ * @category errors
  * @since 0.0.0
- * @category error-handling
  */
 export class ProvenanceServiceError extends TaggedErrorClass<ProvenanceServiceError>($I`ProvenanceServiceError`)(
   "ProvenanceServiceError",
@@ -251,13 +295,49 @@ export interface ProvenanceServiceShape {
  *
  * @example
  * ```ts
- * import { ProvenanceService } from "@beep/semantic-web/services/provenance"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   ProvenanceService,
+ *   ProvenanceSummary,
+ *   SummarizeProvenanceRequest
+ * } from "@beep/semantic-web/services/provenance"
  *
- * console.log(ProvenanceService)
+ * const request = S.decodeUnknownSync(SummarizeProvenanceRequest)({
+ *   bundle: { records: [] },
+ *   anchors: []
+ * })
+ * const program = Effect.gen(function* () {
+ *   const service = yield* ProvenanceService
+ *   return yield* service.summarize(request)
+ * })
+ *
+ * const summary = Effect.runSync(
+ *   Effect.provideService(
+ *     program,
+ *     ProvenanceService,
+ *     ProvenanceService.of({
+ *       exportBundle: () => Effect.die("not used"),
+ *       project: () => Effect.die("not used"),
+ *       summarize: () =>
+ *         Effect.succeed(
+ *           S.decodeUnknownSync(ProvenanceSummary)({
+ *             recordCount: 0,
+ *             entityCount: 0,
+ *             activityCount: 0,
+ *             agentCount: 0,
+ *             anchorCount: 0
+ *           })
+ *         )
+ *     })
+ *   )
+ * )
+ * strictEqual(summary.recordCount, 0)
  * ```
  *
+ * @category services
  * @since 0.0.0
- * @category models
  */
 export class ProvenanceService extends Context.Service<ProvenanceService, ProvenanceServiceShape>()(
   $I`ProvenanceService`
@@ -342,13 +422,30 @@ const createProjection = (
  *
  * @example
  * ```ts
- * import { ProvenanceServiceLive } from "@beep/semantic-web/services/provenance"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   ProvenanceService,
+ *   ProvenanceServiceLive,
+ *   SummarizeProvenanceRequest
+ * } from "@beep/semantic-web/services/provenance"
  *
- * console.log(ProvenanceServiceLive)
+ * const request = S.decodeUnknownSync(SummarizeProvenanceRequest)({
+ *   bundle: { records: [] },
+ *   anchors: []
+ * })
+ * const summary = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const service = yield* ProvenanceService
+ *     return yield* service.summarize(request)
+ *   }).pipe(Effect.provide(ProvenanceServiceLive))
+ * )
+ * strictEqual(summary.recordCount, 0)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const ProvenanceServiceLive = Layer.succeed(
   ProvenanceService,

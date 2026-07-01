@@ -199,9 +199,18 @@ const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDecla
  *
  * @example
  * ```ts
- * import { parseInterfaces } from "@beep/repo-docgen/Parser"
- * console.log(parseInterfaces)
+ * import { parseInterfaces, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "/** User profile. *\/\nexport interface User { readonly id: string }")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const interfaces = Effect.runSync(parseInterfaces.pipe(Effect.provide(Source.layer(source))))
+ *
+ * console.log(interfaces[0]?.name) // "User"
  * ```
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -290,9 +299,18 @@ const getFunctionDeclarations = Effect.gen(function* () {
  *
  * @example
  * ```ts
- * import { parseFunctions } from "@beep/repo-docgen/Parser"
- * console.log(parseFunctions)
+ * import { parseFunctions, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "/** Doubles a value. *\/\nexport function double(n: number) { return n * 2 }")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const functions = Effect.runSync(parseFunctions.pipe(Effect.provide(Source.layer(source))))
+ *
+ * console.log(functions[0]?.name) // "double"
  * ```
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -330,9 +348,18 @@ const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDecl
  *
  * @example
  * ```ts
- * import { parseTypeAliases } from "@beep/repo-docgen/Parser"
- * console.log(parseTypeAliases)
+ * import { parseTypeAliases, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "/** Branded id. *\/\nexport type UserId = string")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const aliases = Effect.runSync(parseTypeAliases.pipe(Effect.provide(Source.layer(source))))
+ *
+ * console.log(aliases[0]?.signature) // "type UserId = string"
  * ```
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -364,9 +391,18 @@ const parseConstantVariableDeclaration = Effect.fn("parseConstantVariableDeclara
  *
  * @example
  * ```ts
- * import { parseConstants } from "@beep/repo-docgen/Parser"
- * console.log(parseConstants)
+ * import { parseConstants, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "/** Maximum retry count. *\/\nexport const MAX_RETRIES = 2")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const constants = Effect.runSync(parseConstants.pipe(Effect.provide(Source.layer(source))))
+ *
+ * console.log(constants[0]?.name) // "MAX_RETRIES"
  * ```
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -446,9 +482,18 @@ const parseNamedExports = (ed: ast.ExportDeclaration) => {
  *
  * @example
  * ```ts
- * import { parseExports } from "@beep/repo-docgen/Parser"
- * console.log(parseExports)
+ * import { parseExports, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "/** Public value. *\/\nexport { value } from \"./value.js\"")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const exports = Effect.runSync(parseExports.pipe(Effect.provide(Source.layer(source))))
+ *
+ * console.log(exports[0]?.name) // "value"
  * ```
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -497,9 +542,18 @@ const parseModuleDeclarations = (namespaces: ReadonlyArray<ast.ModuleDeclaration
  *
  * @example
  * ```ts
- * import { parseNamespaces } from "@beep/repo-docgen/Parser"
- * console.log(parseNamespaces)
+ * import { parseNamespaces, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "/** Grouped helpers. *\/\nexport namespace Helpers { export type Id = string }")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const namespaces = Effect.runSync(parseNamespaces.pipe(Effect.provide(Source.layer(source))))
+ *
+ * console.log(namespaces[0]?.name) // "Helpers"
  * ```
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -641,9 +695,18 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
  *
  * @example
  * ```ts
- * import { parseClasses } from "@beep/repo-docgen/Parser"
- * console.log(parseClasses)
+ * import { parseClasses, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "/** User repository. *\/\nexport class UserRepo { constructor(readonly name: string) {} }")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const classes = Effect.runSync(parseClasses.pipe(Effect.provide(Source.layer(source))))
+ *
+ * console.log(classes[0]?.signature.includes("constructor")) // true
  * ```
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -679,11 +742,24 @@ export const parseModuleDocumentation = Source.pipe(
 /**
  * Parses the active source file into a docgen module model.
  *
+ * @remarks
+ * Module parsing fans out over the specialized parsers concurrently and then
+ * preserves the original path metadata from the active {@link Source} service.
+ *
  * @example
  * ```ts
- * import { parseModule } from "@beep/repo-docgen/Parser"
- * console.log(parseModule)
+ * import { parseModule, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "/** Module docs. *\/\nexport const answer = 42")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const module = Effect.runSync(parseModule.pipe(Effect.provide(Source.layer(source))))
+ *
+ * console.log(module.constants[0]?.name) // "answer"
  * ```
+ * @effects Reads the active {@link Source} service and runs the declaration parsers concurrently.
  * @category parsing
  * @since 0.0.0
  */

@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box event entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/Event/Event.model");
 
 /**
+ * Experimental schema anchor for entries emitted by Box event streams.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Event } from "@beep/box/experimental/domain/entities/Event/Event.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Event.make({
+ * const decoded = S.decodeUnknownSync(Event)({});
+ * const encoded: Event.Encoded = S.encodeSync(Event)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Event extends S.Class<Event>($I`Event`)(
   {},
   $I.annote("Event", {
-    description: "TODO",
+    description: "Experimental schema anchor for entries emitted by Box event streams.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Event}
+ * Type-level companion namespace for {@link Event} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Event } from "@beep/box/experimental/domain/entities/Event/Event.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Event.make({});
+ * const encoded: Event.Encoded = S.encodeSync(Event)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Event {
   /**
-   * Companion encoded type for {@link Event}.
+   * Encoded payload accepted by the {@link Event} entity schema.
    *
    * @example
    * ```ts
-   * import type { Event } from "@beep/box/experimental/domain/entities/Event/Event.model";
+   * import { Event } from "@beep/box/experimental/domain/entities/Event/Event.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Event.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Event.Encoded = S.encodeSync(Event)(Event.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Event.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Event}.
- *
- * @example
- * ```ts
- * import type { Event } from "@beep/box/experimental/domain/entities/Event/Event.model";
- *
- * const useValue = (_value: Event) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Event = typeof Event.Type;

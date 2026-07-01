@@ -90,7 +90,8 @@ const v2Path = (bytes: Uint8Array, view: DataView): Effect.Effect<string, Corpus
  *
  * Effect.runPromise(parseRecycleBinMetadata(bytes)).then((original) => console.log(original.originalName)) // "spec.docx"
  * ```
- * @category parsers
+ * @effects Parses the supplied bytes in memory and fails with `CorpusCommandError` for invalid metadata; it does not read or write files.
+ * @category parsing
  * @since 0.0.0
  */
 export const parseRecycleBinMetadata = Effect.fn("Corpus.parseRecycleBinMetadata")(function* (bytes: Uint8Array) {
@@ -146,7 +147,7 @@ export const parseRecycleBinMetadata = Effect.fn("Corpus.parseRecycleBinMetadata
  * console.log(O.isSome(classifyRecycleBinName("$I0CB4M9.docx"))) // true
  * console.log(O.isNone(classifyRecycleBinName("README.md"))) // true
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const classifyRecycleBinName = (
@@ -182,7 +183,7 @@ export const classifyRecycleBinName = (
  *
  * console.log(`${pairing.matched.length},${pairing.unmatchedContent.length}`) // "1,1"
  * ```
- * @category parsers
+ * @category parsing
  * @since 0.0.0
  */
 export const pairRecycleBinEntries = (entries: ReadonlyArray<RecycleBinScanEntry>): RecycleBinPairing => {

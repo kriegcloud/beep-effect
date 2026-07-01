@@ -342,13 +342,19 @@ const TypeScriptEnc = S.Union([S.toEncoded(OverloadValue)]);
 /**
  * Tagged union over all 113 JSDoc tag occurrence shapes, discriminated by `_tag`.
  *
- * Provides `.cases`, `.match`, `.guards`, and `.isAnyOf` out of the box.
+ * Provides `.cases`, `.match`, `.guards`, and `.isAnyOf` for dispatching on
+ * the parsed `_tag` discriminant.
  *
  * @example
  * ```ts
- * import { TagValue } from "@beep/repo-utils/JSDoc/models/tag-values"
+ * import { ParamValue, TagValue } from "@beep/repo-utils/JSDoc/models/tag-values"
  *
- * console.log(TagValue)
+ * const tag = ParamValue.make({ name: "input", description: "Raw input value." })
+ * const parameterName = TagValue.match(tag, {
+ *   param: (value) => value.name,
+ *   _: () => "unknown"
+ * })
+ * console.log(parameterName)
  * ```
  * @category models
  * @since 0.0.0
@@ -372,10 +378,12 @@ export const TagValue = S.Union([
  *
  * @example
  * ```ts
+ * import { ParamValue } from "@beep/repo-utils/JSDoc/models/tag-values"
  * import type { TagValue } from "@beep/repo-utils/JSDoc/models/tag-values"
- * type Example = TagValue
- * const accept = <A extends Example>(value: A): A => value
- * console.log(accept)
+ *
+ * const tag: TagValue = ParamValue.make({ name: "input" })
+ * const tagName: "param" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -517,14 +525,17 @@ const tagNames = [
 /**
  * LiteralKit over all 113 canonical JSDoc tag names.
  *
- * Provides `.Enum`, `.is`, `.$match`, `S.decodeUnknownResult(TagName)`, and
- * `TagName.Type` (`"param" | "returns" | ... | "overload"`).
+ * Provides `.Enum`, the `.is.<literal>` guard map, `.$match`,
+ * `S.decodeUnknownResult(TagName)`, and `TagName.Type`
+ * (`"param" | "returns" | ... | "overload"`).
  *
  * @example
  * ```ts
  * import { TagName } from "@beep/repo-utils/JSDoc/models/tag-values"
  *
- * console.log(TagName)
+ * const tagName = TagName.Enum.param
+ * const isParam = TagName.is.param(tagName)
+ * console.log(isParam)
  * ```
  * @category models
  * @since 0.0.0
@@ -537,9 +548,11 @@ export const TagName = LiteralKit(tagNames);
  * @example
  * ```ts
  * import type { TagName } from "@beep/repo-utils/JSDoc/models/tag-values"
- * type Example = TagName
- * const accept = <A extends Example>(value: A): A => value
- * console.log(accept)
+ *
+ * const tagName: TagName = "param"
+ * const acceptsTagName = (value: TagName): TagName => value
+ * const sameTagName = acceptsTagName(tagName)
+ * console.log(sameTagName)
  * ```
  * @category models
  * @since 0.0.0

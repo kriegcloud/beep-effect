@@ -11,14 +11,16 @@ import { requireReactContext } from "../lib/react-invariant.ts";
 import type { UseEmblaCarouselType } from "embla-carousel-react";
 
 /**
- * Carousel api type.
+ * Embla carousel API instance exposed after the carousel initializes.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import type { CarouselApi } from "@beep/ui/components/carousel"
  *
- * const value = {} as CarouselApi
- * console.log(value)
+ * const canAdvance = (api: CarouselApi) => api?.canScrollNext() ?? false
+ * const current = canAdvance(undefined)
+ * strictEqual(current, false)
  * ```
  *
  * @category type-level
@@ -116,13 +118,32 @@ const carouselEffectAtom = Atom.family((scope: string) =>
 );
 
 /**
- * Use carousel hook.
+ * Read the nearest carousel controls and scroll state.
+ *
+ * @remarks
+ * This hook requires a parent {@link Carousel}; it reports a React context
+ * invariant when called outside that provider.
  *
  * @example
  * ```tsx
- * import { useCarousel } from "@beep/ui/components/carousel"
+ * import { Carousel, CarouselContent, CarouselItem, useCarousel } from "@beep/ui/components/carousel"
  *
- * console.log(useCarousel)
+ * function CarouselStatus() {
+ *   const { canScrollNext, scrollNext } = useCarousel()
+ *   return <button disabled={!canScrollNext} onClick={scrollNext}>Next</button>
+ * }
+ *
+ * export function CarouselWithStatus() {
+ *   return (
+ *     <Carousel>
+ *       <CarouselContent>
+ *         <CarouselItem>First</CarouselItem>
+ *         <CarouselItem>Second</CarouselItem>
+ *       </CarouselContent>
+ *       <CarouselStatus />
+ *     </Carousel>
+ *   )
+ * }
  * ```
  *
  * @category hooks
@@ -134,13 +155,24 @@ function useCarousel() {
 }
 
 /**
- * Carousel component.
+ * Embla-backed carousel provider with keyboard navigation.
  *
  * @example
  * ```tsx
- * import { Carousel } from "@beep/ui/components/carousel"
+ * import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@beep/ui/components/carousel"
  *
- * console.log(Carousel)
+ * export function MatterCarousel() {
+ *   return (
+ *     <Carousel opts={{ align: "start" }} orientation="horizontal">
+ *       <CarouselContent>
+ *         <CarouselItem>Summary</CarouselItem>
+ *         <CarouselItem>Timeline</CarouselItem>
+ *       </CarouselContent>
+ *       <CarouselPrevious />
+ *       <CarouselNext />
+ *     </Carousel>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -228,13 +260,20 @@ function Carousel({
 }
 
 /**
- * Carousel content component.
+ * Scroll viewport and flex track for carousel items.
  *
  * @example
  * ```tsx
- * import { CarouselContent } from "@beep/ui/components/carousel"
+ * import { CarouselContent, CarouselItem } from "@beep/ui/components/carousel"
  *
- * console.log(CarouselContent)
+ * export function CarouselSlides() {
+ *   return (
+ *     <CarouselContent>
+ *       <CarouselItem>Overview</CarouselItem>
+ *       <CarouselItem>Documents</CarouselItem>
+ *     </CarouselContent>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -251,13 +290,15 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Carousel item component.
+ * Single slide inside a carousel content track.
  *
  * @example
  * ```tsx
  * import { CarouselItem } from "@beep/ui/components/carousel"
  *
- * console.log(CarouselItem)
+ * export function HalfWidthCarouselItem() {
+ *   return <CarouselItem className="basis-1/2">Revenue</CarouselItem>
+ * }
  * ```
  *
  * @category components
@@ -278,13 +319,15 @@ function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Carousel previous component.
+ * Previous-slide control wired to the surrounding carousel.
  *
  * @example
  * ```tsx
  * import { CarouselPrevious } from "@beep/ui/components/carousel"
  *
- * console.log(CarouselPrevious)
+ * export function PreviousSlideButton() {
+ *   return <CarouselPrevious variant="ghost" size="icon-sm" aria-label="Previous matter" />
+ * }
  * ```
  *
  * @category components
@@ -321,13 +364,15 @@ function CarouselPrevious({
 }
 
 /**
- * Carousel next component.
+ * Next-slide control wired to the surrounding carousel.
  *
  * @example
  * ```tsx
  * import { CarouselNext } from "@beep/ui/components/carousel"
  *
- * console.log(CarouselNext)
+ * export function NextSlideButton() {
+ *   return <CarouselNext variant="ghost" size="icon-sm" aria-label="Next matter" />
+ * }
  * ```
  *
  * @category components

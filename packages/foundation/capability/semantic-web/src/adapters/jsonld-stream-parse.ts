@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { NonNegativeInt } from "@beep/schema";
@@ -89,13 +88,31 @@ const applyLoaderBaseIri = (
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect, Layer } from "effect"
+ * import * as S from "effect/Schema"
+ * import { JsonLdDocumentServiceLive } from "@beep/semantic-web/adapters/jsonld-document"
  * import { JsonLdStreamParseServiceLive } from "@beep/semantic-web/adapters/jsonld-stream-parse"
+ * import {
+ *   JsonLdStreamParseRequest,
+ *   JsonLdStreamParseService
+ * } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdStreamParseServiceLive)
+ * const request = S.decodeUnknownSync(JsonLdStreamParseRequest)({
+ *   input: { kind: "text", encoding: "utf-8", chunks: ["{\"@graph\":[]}"] }
+ * })
+ * const layer = JsonLdStreamParseServiceLive.pipe(Layer.provide(JsonLdDocumentServiceLive))
+ * const result = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const service = yield* JsonLdStreamParseService
+ *     return yield* service.parse(request)
+ *   }).pipe(Effect.provide(layer))
+ * )
+ * strictEqual(result.mode, "buffered-fallback")
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const JsonLdStreamParseServiceLive = Layer.effect(
   JsonLdStreamParseService,

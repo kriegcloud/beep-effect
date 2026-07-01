@@ -18,8 +18,10 @@ const $I = $EpistemicDomainId.create("values/ClaimGate/ClaimGateResult.model");
  * @example
  * ```ts
  * import { ClaimGateSeverity } from "@beep/epistemic-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(ClaimGateSeverity.is.violation("violation"))
+ * const severity = S.decodeUnknownSync(ClaimGateSeverity)("violation")
+ * console.log(severity)
  * ```
  *
  * @category schemas
@@ -38,11 +40,11 @@ export const ClaimGateSeverity = LiteralKit(["info", "warning", "violation"]).pi
  * ```ts
  * import type { ClaimGateSeverity } from "@beep/epistemic-domain"
  *
- * const value: ClaimGateSeverity = "violation"
- * console.log(value)
+ * const severity = "violation" satisfies ClaimGateSeverity
+ * console.log(severity)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type ClaimGateSeverity = typeof ClaimGateSeverity.Type;
@@ -64,7 +66,7 @@ export type ClaimGateSeverity = typeof ClaimGateSeverity.Type;
  * console.log(violation.severity)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class ClaimGateViolation extends S.Class<ClaimGateViolation>($I`ClaimGateViolation`)(
@@ -89,8 +91,21 @@ const ClaimGateVerdict = LiteralKit(["admitted", "rejected"]);
  * @example
  * ```ts
  * import { ClaimGateResult } from "@beep/epistemic-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(ClaimGateResult)
+ * const result = S.decodeUnknownSync(ClaimGateResult)({
+ *   verdict: "rejected",
+ *   violations: [
+ *     {
+ *       focusNode: "https://beep.dev/epistemic/claim/patentability",
+ *       message: "Expected at least 1 value(s) for evidence.",
+ *       path: "https://beep.dev/epistemic/hasEvidenceQuote",
+ *       severity: "violation",
+ *     },
+ *   ],
+ * })
+ *
+ * console.log(result.verdict)
  * ```
  *
  * @category schemas
@@ -112,11 +127,11 @@ export const ClaimGateResult = ClaimGateVerdict.toTaggedUnion("verdict")({
  * ```ts
  * import type { ClaimGateResult } from "@beep/epistemic-domain"
  *
- * const accept = (value: ClaimGateResult) => value
- * console.log(accept)
+ * const admitted: ClaimGateResult = { verdict: "admitted" }
+ * console.log(admitted.verdict)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type ClaimGateResult = typeof ClaimGateResult.Type;

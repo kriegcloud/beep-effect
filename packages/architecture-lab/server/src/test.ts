@@ -16,9 +16,17 @@ import { WorkerServerLayer } from "./entities/Worker/index.ts";
  *
  * @example
  * ```ts
+ * import { WorkerServer } from "@beep/architecture-lab-server/entities/Worker"
  * import { ArchitectureLabServerTest } from "@beep/architecture-lab-server/test"
+ * import { Worker as WorkerUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect } from "effect"
  *
- * console.log(ArchitectureLabServerTest)
+ * const program = Effect.gen(function* () {
+ *   const server = yield* WorkerServer
+ *   return yield* server.list(WorkerUseCases.ListWorkersQuery.make({}))
+ * }).pipe(Effect.provide(ArchitectureLabServerTest))
+ *
+ * Effect.runPromise(program).then((workers) => console.log(workers.length)) // 0
  * ```
  *
  * @category testing

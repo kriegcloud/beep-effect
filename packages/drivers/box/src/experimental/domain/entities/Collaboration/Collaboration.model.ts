@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box collaboration entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/Collaboration/Collaboration.model");
 
 /**
+ * Experimental schema anchor for Box collaboration records linking principals to shared items.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Collaboration.make({
+ * const decoded = S.decodeUnknownSync(Collaboration)({});
+ * const encoded: Collaboration.Encoded = S.encodeSync(Collaboration)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Collaboration extends S.Class<Collaboration>($I`Collaboration`)(
   {},
   $I.annote("Collaboration", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box collaboration records linking principals to shared items.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Collaboration}
+ * Type-level companion namespace for {@link Collaboration} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Collaboration.make({});
+ * const encoded: Collaboration.Encoded = S.encodeSync(Collaboration)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Collaboration {
   /**
-   * Companion encoded type for {@link Collaboration}.
+   * Encoded payload accepted by the {@link Collaboration} entity schema.
    *
    * @example
    * ```ts
-   * import type { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
+   * import { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Collaboration.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Collaboration.Encoded = S.encodeSync(Collaboration)(Collaboration.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Collaboration.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Collaboration}.
- *
- * @example
- * ```ts
- * import type { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
- *
- * const useValue = (_value: Collaboration) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Collaboration = typeof Collaboration.Type;

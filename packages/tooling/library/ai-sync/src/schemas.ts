@@ -25,8 +25,11 @@ const $I = $AiSyncId.create("schemas");
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AgentInstructionDocument } from "@beep/ai-sync"
- * console.log(AgentInstructionDocument.ast)
+ *
+ * const document = S.decodeUnknownSync(AgentInstructionDocument)("# Rules")
+ * console.log(document.startsWith("#"))
  * ```
  * @category schemas
  * @since 0.0.0
@@ -57,7 +60,12 @@ export type AgentInstructionDocument = typeof AgentInstructionDocument.Type;
  * @example
  * ```ts
  * import { AgentSkillFrontmatter } from "@beep/ai-sync"
- * console.log(AgentSkillFrontmatter.ast)
+ *
+ * const frontmatter = AgentSkillFrontmatter.make({
+ *   name: "effect-first-development",
+ *   description: "Use Effect patterns"
+ * })
+ * console.log(frontmatter.name)
  * ```
  * @category schemas
  * @since 0.0.0

@@ -18,7 +18,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/DependencyProfile.model");
  * ```ts
  * import { FanValue } from "@beep/repo-utils/JSDoc/models/DependencyProfile.model"
  *
- * console.log(FanValue)
+ * const fan = FanValue.Enum.high
+ * console.log(FanValue.is.high(fan))
  * ```
  * @category models
  * @since 0.0.0
@@ -54,7 +55,11 @@ export type FanValue = typeof FanValue.Type;
  * ```ts
  * import { DependencyProfile } from "@beep/repo-utils/JSDoc/models/DependencyProfile.model"
  *
- * console.log(DependencyProfile)
+ * const profile = DependencyProfile.make({
+ *   typicalFanIn: "high",
+ *   typicalFanOut: "low"
+ * })
+ * console.log(profile.typicalFanOut)
  * ```
  * @category models
  * @since 0.0.0

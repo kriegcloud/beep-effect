@@ -44,9 +44,36 @@ export interface MultiSwitchFieldProps {
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { MultiSwitchField } from "@beep/form/fields/MultiSwitchField"
+ * import * as S from "effect/Schema"
  *
- * console.log(MultiSwitchField)
+ * const ChannelsSchema = S.Struct({ channels: S.Array(S.String) })
+ * const channelOptions = [
+ *   { value: "mentions", label: "Mentions" },
+ *   { value: "releases", label: "Releases" },
+ * ]
+ * const channelFormOptions = makeFormOptions({
+ *   schema: ChannelsSchema,
+ *   defaultValues: { channels: ["mentions"] },
+ *   validateOn: "change",
+ * })
+ *
+ * export function ChannelForm() {
+ *   const form = useAppForm(channelFormOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="channels">
+ *           {() => <MultiSwitchField label="Channels" options={channelOptions} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(channelFormOptions.defaultValues.channels.join(", ")) // "mentions"
  * ```
  *
  * @category components

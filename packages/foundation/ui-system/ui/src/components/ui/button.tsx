@@ -13,13 +13,15 @@ import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 
 /**
- * Button variants component.
+ * Class variance helper for shared button variants and sizes.
  *
  * @example
- * ```tsx
+ * ```ts
  * import { buttonVariants } from "@beep/ui/components/ui/button"
  *
- * console.log(buttonVariants)
+ * const className = buttonVariants({ variant: "outline", size: "sm" })
+ *
+ * console.log(className.includes("border-border"))
  * ```
  *
  * @category components
@@ -61,13 +63,15 @@ const buttonVariants = cva(
 );
 
 /**
- * Button component.
+ * Base UI button with shared size and variant styling.
  *
  * @example
  * ```tsx
  * import { Button } from "@beep/ui/components/ui/button"
  *
- * console.log(Button)
+ * export function SaveButton() {
+ *   return <Button type="submit">Save changes</Button>
+ * }
  * ```
  *
  * @category components

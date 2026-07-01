@@ -19,10 +19,21 @@ const $I = $ArchitectureLabServerId.create("aggregates/WorkItem/WorkItem.layer")
  *
  * @example
  * ```ts
+ * import { ArchitectureLabConfigTest } from "@beep/architecture-lab-config/test"
  * import { makeWorkItemServer } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect } from "effect"
  *
- * console.log(makeWorkItemServer)
+ * const program = Effect.gen(function* () {
+ *   const server = yield* makeWorkItemServer()
+ *   return yield* server.list(WorkItemUseCases.ListWorkItemsQuery.make({}))
+ * }).pipe(Effect.provide(ArchitectureLabConfigTest))
+ *
+ * Effect.runPromise(program).then((items) => console.log(items.length)) // 0
  * ```
+ *
+ * @effects Reads `WorkItemConfig`, allocates the default WorkItem repository,
+ * and returns the repository-backed WorkItem use-case facade.
  *
  * @category layers
  * @since 0.0.0
@@ -38,8 +49,16 @@ export const makeWorkItemServer = Effect.fn("ArchitectureLab.WorkItemServer.make
  * @example
  * ```ts
  * import { WorkItemServer } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { ArchitectureLabServerTest } from "@beep/architecture-lab-server/test"
+ * import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect } from "effect"
  *
- * console.log(WorkItemServer)
+ * const program = Effect.gen(function* () {
+ *   const server = yield* WorkItemServer
+ *   return yield* server.list(WorkItemUseCases.ListWorkItemsQuery.make({}))
+ * }).pipe(Effect.provide(ArchitectureLabServerTest))
+ *
+ * Effect.runPromise(program).then((items) => console.log(items.length)) // 0
  * ```
  *
  * @category layers
@@ -54,9 +73,22 @@ export class WorkItemServer extends Context.Service<WorkItemServer, WorkItemUseC
  *
  * @example
  * ```ts
- * import { WorkItemServerLayer } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { ArchitectureLabConfigTest } from "@beep/architecture-lab-config/test"
+ * import {
+ *   WorkItemServer,
+ *   WorkItemServerLayer
+ * } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect, Layer } from "effect"
  *
- * console.log(WorkItemServerLayer)
+ * const layer = WorkItemServerLayer.pipe(Layer.provide(ArchitectureLabConfigTest))
+ *
+ * const program = Effect.gen(function* () {
+ *   const server = yield* WorkItemServer
+ *   return yield* server.list(WorkItemUseCases.ListWorkItemsQuery.make({}))
+ * }).pipe(Effect.provide(layer))
+ *
+ * Effect.runPromise(program).then((items) => console.log(items.length)) // 0
  * ```
  *
  * @category layers

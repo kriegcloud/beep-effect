@@ -15,11 +15,13 @@ const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalR
  * @example
  * ```ts
  * import { RuntimeCandidateLifecycle } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeCandidateLifecycle)
+ * const isLifecycle = S.is(RuntimeCandidateLifecycle)
+ * console.log(isLifecycle("candidate")) // true
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const RuntimeCandidateLifecycle = LiteralKit(["candidate"]).annotate(
@@ -34,11 +36,13 @@ export const RuntimeCandidateLifecycle = LiteralKit(["candidate"]).annotate(
  * @example
  * ```ts
  * import { RuntimeClaimConfidence } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeClaimConfidence)
+ * const isConfidence = S.is(RuntimeClaimConfidence)
+ * console.log(isConfidence("medium")) // true
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"]).annotate(
@@ -53,11 +57,13 @@ export const RuntimeClaimConfidence = LiteralKit(["high", "medium", "low"]).anno
  * @example
  * ```ts
  * import { RuntimeApprovalDecision } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeApprovalDecision)
+ * const isDecision = S.is(RuntimeApprovalDecision)
+ * console.log(isDecision("pending")) // true
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const RuntimeApprovalDecision = LiteralKit(["pending"]).annotate(
@@ -72,11 +78,13 @@ export const RuntimeApprovalDecision = LiteralKit(["pending"]).annotate(
  * @example
  * ```ts
  * import { RuntimeRequestKind } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeRequestKind)
+ * const isRequestKind = S.is(RuntimeRequestKind)
+ * console.log(isRequestKind("email_to_candidate_work")) // true
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"]).annotate(
@@ -91,11 +99,13 @@ export const RuntimeRequestKind = LiteralKit(["email_to_candidate_work"]).annota
  * @example
  * ```ts
  * import { RuntimeSourceKind } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeSourceKind)
+ * const isSourceKind = S.is(RuntimeSourceKind)
+ * console.log(isSourceKind("email")) // true
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const RuntimeSourceKind = LiteralKit(["email"]).annotate(
@@ -110,11 +120,13 @@ export const RuntimeSourceKind = LiteralKit(["email"]).annotate(
  * @example
  * ```ts
  * import { RuntimeActivityType } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeActivityType)
+ * const isActivityType = S.is(RuntimeActivityType)
+ * console.log(isActivityType("candidate_work_proposed")) // true
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_work_proposed"]).annotate(
@@ -129,11 +141,13 @@ export const RuntimeActivityType = LiteralKit(["artifact_ingested", "candidate_w
  * @example
  * ```ts
  * import { RuntimeUsageMode } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeUsageMode)
+ * const isUsageMode = S.is(RuntimeUsageMode)
+ * console.log(isUsageMode("deterministic_fixture")) // true
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const RuntimeUsageMode = LiteralKit(["deterministic_fixture"]).annotate(

@@ -18,13 +18,16 @@ import type * as Struct_ from "effect/Struct";
  *
  * @example
  * ```ts
- * import { TypeId } from "@beep/schema/VariantSchema"
+ * import * as S from "effect/Schema"
+ * import { TypeId, make } from "@beep/schema/VariantSchema"
  *
- * console.log(TypeId)
+ * const Variant = make({ variants: ["read", "write"], defaultVariant: "read" })
+ * const struct = Variant.Struct({ id: S.String })
+ * console.log(TypeId in struct) // true
  * ```
  *
- * @since 0.0.0
  * @category type-ids
+ * @since 0.0.0
  */
 export const TypeId = "~effect/schema/VariantSchema";
 

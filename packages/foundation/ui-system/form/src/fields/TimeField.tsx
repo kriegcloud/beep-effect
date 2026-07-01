@@ -46,9 +46,37 @@ export interface TimeFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { TimeField } from "@beep/form/fields/TimeField"
+ * import { DateTimeUtcFromValid } from "@beep/schema/DateTimeUtcFromValid"
+ * import * as DateTime from "effect/DateTime"
+ * import * as S from "effect/Schema"
  *
- * console.log(TimeField)
+ * const ReminderSchema = S.Struct({
+ *   reminderTime: S.NullOr(S.toType(DateTimeUtcFromValid)),
+ * })
+ * const defaultReminderTime = DateTime.makeUnsafe("2024-02-03T09:30:00.000Z")
+ * const reminderOptions = makeFormOptions({
+ *   schema: ReminderSchema,
+ *   defaultValues: { reminderTime: defaultReminderTime },
+ *   validateOn: "change",
+ * })
+ *
+ * export function ReminderForm() {
+ *   const form = useAppForm(reminderOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="reminderTime">
+ *           {() => <TimeField label="Reminder time" ampm />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(DateTime.formatIso(reminderOptions.defaultValues.reminderTime))
  * ```
  *
  * @category components

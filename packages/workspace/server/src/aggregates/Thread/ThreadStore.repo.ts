@@ -320,7 +320,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
         .returning()
         .pipe(repositoryUnavailable("insert Thread", THREAD_TABLE_NAME));
       return pipe(
-        rows as ReadonlyArray<ThreadRow>,
+        rows,
         A.head,
         O.map(fromThreadRow),
         O.getOrElse(() => seed)
@@ -333,7 +333,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
         .from(threadTable)
         .where(eq(threadTable.workspaceId, encoded))
         .pipe(repositoryUnavailable("list Thread", THREAD_TABLE_NAME));
-      return A.map(rows as ReadonlyArray<ThreadRow>, fromThreadRow);
+      return A.map(rows, fromThreadRow);
     }),
     setTitleIfEmpty: Effect.fn("Workspace.ThreadStore.drizzleSetTitleIfEmpty")(function* (input) {
       const threadId = threadIdToNumber(input.threadId);
@@ -364,7 +364,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
         .where(eq(threadTable.id, threadId))
         .limit(1)
         .pipe(repositoryUnavailable("select Thread", THREAD_TABLE_NAME));
-      if (A.length(threadRows as ReadonlyArray<ThreadRow>) === 0) {
+      if (A.length(threadRows) === 0) {
         return yield* ThreadStoreServer.Thread.ThreadStoreNotFound.make({ threadId: input.threadId });
       }
       const parentTurnId = pipe(
@@ -376,7 +376,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
         .transaction(
           Effect.fnUntraced(function* (tx) {
             const existingTurns = yield* tx.select().from(turnTable).where(eq(turnTable.threadId, threadId));
-            const turnIndex = (existingTurns as ReadonlyArray<TurnRow>).length;
+            const turnIndex = existingTurns.length;
 
             const messageSeed = makeMessageEntity({
               id: 1,
@@ -395,7 +395,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
 
             const turnRows = yield* tx.insert(turnTable).values(toTurnInsert(turnSeed)).returning();
             const persistedTurn = pipe(
-              turnRows as ReadonlyArray<TurnRow>,
+              turnRows,
               A.head,
               O.map(fromTurnRow),
               O.getOrElse(() => turnSeed)
@@ -408,7 +408,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
             };
             const messageRows = yield* tx.insert(messageTable).values(messageInsert).returning();
             const persistedMessage = pipe(
-              messageRows as ReadonlyArray<MessageRow>,
+              messageRows,
               A.head,
               O.map(fromMessageRow),
               O.getOrElse(() => messageSeed)
@@ -428,7 +428,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
               .where(eq(turnTable.id, persistedTurnId))
               .returning();
             const finalTurn = pipe(
-              reconciledRows as ReadonlyArray<TurnRow>,
+              reconciledRows,
               A.head,
               O.map(fromTurnRow),
               O.getOrElse(() => reconciledTurn)

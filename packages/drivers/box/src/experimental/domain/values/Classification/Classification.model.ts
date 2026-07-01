@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box classification value-object schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("values/Classification/Classification.model");
 
 /**
+ * Experimental value object for Box classification metadata attached to governed content.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Classification } from "@beep/box/experimental/domain/values/Classification/Classification.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Classification.make({
+ * const decoded = S.decodeUnknownSync(Classification)({});
+ * const encoded: Classification.Encoded = S.encodeSync(Classification)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class Classification extends S.Class<Classification>($I`Classification`)(
   {},
   $I.annote("Classification", {
-    description: "TODO",
+    description: "Experimental value object for Box classification metadata attached to governed content.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Classification}
+ * Type-level companion namespace for {@link Classification} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Classification } from "@beep/box/experimental/domain/values/Classification/Classification.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Classification.make({});
+ * const encoded: Classification.Encoded = S.encodeSync(Classification)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Classification {
   /**
-   * Companion encoded type for {@link Classification}.
+   * Encoded payload accepted by the {@link Classification} value-object schema.
    *
    * @example
    * ```ts
-   * import type { Classification } from "@beep/box/experimental/domain/values/Classification/Classification.model";
+   * import { Classification } from "@beep/box/experimental/domain/values/Classification/Classification.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Classification.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Classification.Encoded = S.encodeSync(Classification)(Classification.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Classification.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Classification}.
- *
- * @example
- * ```ts
- * import type { Classification } from "@beep/box/experimental/domain/values/Classification/Classification.model";
- *
- * const useValue = (_value: Classification) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Classification = typeof Classification.Type;

@@ -16,7 +16,8 @@
  * ```ts
  * import * as Public from "@beep/law-practice-use-cases/public"
  *
- * console.log(Public)
+ * const publicKeys = Object.keys(Public)
+ * console.log(publicKeys.length) // 0
  * ```
  *
  * @category use-cases

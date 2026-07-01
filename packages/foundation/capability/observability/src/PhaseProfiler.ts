@@ -52,9 +52,14 @@ const isProfilePhaseDataFirst = (args: IArguments): boolean => args.length >= 2 
  *
  * @example
  * ```typescript
- * import { PhaseOutcome } from "@beep/observability"
+ * import { PhaseOutcome, profilePhase } from "@beep/observability"
+ * import { Effect } from "effect"
  *
- * console.log(PhaseOutcome)
+ * const program = profilePhase(Effect.succeed(PhaseOutcome.Enum.completed), {
+ *   phase: "startup"
+ * })
+ * const outcome = Effect.runSync(program)
+ * console.log(outcome) // "completed"
  * ```
  *
  * @since 0.0.0

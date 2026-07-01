@@ -52,9 +52,30 @@ type PhoneControlProps = {
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { PhoneField } from "@beep/form/fields/PhoneField"
+ * import * as S from "effect/Schema"
  *
- * console.log(PhoneField)
+ * const ContactSchema = S.Struct({ phone: S.String })
+ * const contactOptions = makeFormOptions({
+ *   schema: ContactSchema,
+ *   defaultValues: { phone: "+15551234567" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function PhoneForm() {
+ *   const form = useAppForm(contactOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="phone">{() => <PhoneField label="Phone" defaultCountry="US" />}</form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(contactOptions.defaultValues.phone) // "+15551234567"
  * ```
  *
  * @category components

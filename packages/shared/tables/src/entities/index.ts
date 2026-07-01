@@ -1,21 +1,21 @@
 /**
- * Shared Membership table namespace.
+ * Shared organization membership table metadata namespace.
  *
- * @since 0.0.0
  * @category tables
+ * @since 0.0.0
  */
 export * as Membership from "./Membership/index.ts";
 /**
- * Shared Organization table namespace.
+ * Shared tenant organization table metadata namespace.
  *
- * @since 0.0.0
  * @category tables
+ * @since 0.0.0
  */
 export * as Organization from "./Organization/index.ts";
 /**
- * Shared User table namespace.
+ * Shared human user table metadata namespace.
  *
- * @since 0.0.0
  * @category tables
+ * @since 0.0.0
  */
 export * as User from "./User/index.ts";

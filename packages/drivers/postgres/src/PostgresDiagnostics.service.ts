@@ -383,11 +383,16 @@ export const formatPostgresError = (error: unknown, palette: Colors = colors): s
  *
  * @example
  * ```ts
- * import { logPostgresError } from "@beep/postgres"
+ * import { Effect } from "effect"
+ * import { logPostgresError, PostgresError } from "@beep/postgres"
  *
- * const effect = logPostgresError(new Error("failed"))
- * console.log(effect)
+ * const program = logPostgresError(PostgresError.fromUnknown("query", new Error("failed")))
+ * Effect.runPromise(program).then(() => console.log("logged"))
  * ```
+ *
+ * @effects Formats the unknown failure as a Postgres diagnostic message and
+ * writes it to stderr through Effect's `Console` service when the returned
+ * effect is executed.
  *
  * @category utilities
  * @since 0.0.0

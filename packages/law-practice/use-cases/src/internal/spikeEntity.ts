@@ -44,7 +44,8 @@ class SystemPrincipal extends S.Class<SystemPrincipal>($I`SystemPrincipal`)(
  * ```ts
  * import { spikeEntityInput } from "./spikeEntity.ts"
  *
- * console.log(spikeEntityInput("LawPracticeOfficeAction", 1).entityType)
+ * const input = spikeEntityInput("LawPracticeOfficeAction", 1)
+ * console.log(input.schemaVersion) // "0.0.0"
  * ```
  *
  * @category testing
@@ -70,6 +71,20 @@ export const spikeEntityInput: {
     })
 );
 
+/**
+ * Schema-backed BaseEntity audit-envelope input used by the spike shim.
+ *
+ * @example
+ * ```ts
+ * import { EntityInput, spikeEntityInput } from "./spikeEntity.ts"
+ *
+ * const input: EntityInput = spikeEntityInput("LawPracticeClaim", 2)
+ * console.log(input.source) // "System"
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
 export class EntityInput extends S.Class<EntityInput>($I`EntityInput`)(
   {
     createdAt: S.Finite,

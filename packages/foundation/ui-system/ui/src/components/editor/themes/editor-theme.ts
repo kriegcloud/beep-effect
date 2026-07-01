@@ -6,13 +6,13 @@ import type { EditorThemeClasses } from "lexical";
 import "./editor-theme.css";
 
 /**
- * Editor theme theme value.
+ * Lexical theme class map shared by the editor block.
  *
  * @example
  * ```ts
  * import { editorTheme } from "@beep/ui/components/editor/themes/editor-theme"
  *
- * console.log(editorTheme)
+ * console.log(editorTheme.paragraph)
  * ```
  *
  * @category themes

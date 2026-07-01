@@ -31,6 +31,11 @@ import * as S from "effect/Schema";
  * - `null`: encode `None` as `null`
  * - `undefined`: encode `None` as `undefined`
  *
+ * @remarks
+ * Use this when an object boundary treats an omitted key, `undefined`, and
+ * `null` as the same absence case but the decoded domain model should always
+ * carry an explicit `Option`.
+ *
  * @example
  * ```ts
  * import * as O from "effect/Option"
@@ -38,7 +43,7 @@ import * as S from "effect/Schema";
  * import { OptionFromOptionalNullishKey } from "@beep/schema"
  *
  * const Payload = S.Struct({
- *
+ *   nickname: OptionFromOptionalNullishKey(S.String)
  * })
  *
  * const decode = S.decodeUnknownSync(Payload)
@@ -47,7 +52,9 @@ import * as S from "effect/Schema";
  * const nullish = decode({ nickname: null })
  * const present = decode({ nickname: "beep" })
  *
- * console.log([missing, nullish, present, O.none<string>()])
+ * console.log(O.isNone(missing.nickname)) // true
+ * console.log(O.isNone(nullish.nickname)) // true
+ * console.log(O.getOrUndefined(present.nickname)) // "beep"
  * ```
  *
  * @example
@@ -57,7 +64,7 @@ import * as S from "effect/Schema";
  * import { OptionFromOptionalNullishKey } from "@beep/schema"
  *
  * const Payload = S.Struct({
- *
+ *   homepage: OptionFromOptionalNullishKey(S.URLFromString, { onNoneEncoding: null })
  * })
  *
  * const encode = S.encodeSync(Payload)
@@ -65,14 +72,15 @@ import * as S from "effect/Schema";
  * const encodedNone = encode({ homepage: O.none() })
  * const encodedSome = encode({ homepage: O.some(new URL("https://example.com")) })
  *
- * console.log([encodedNone, encodedSome])
+ * console.log(encodedNone) // { homepage: null }
+ * console.log(encodedSome) // { homepage: "https://example.com/" }
  * ```
  *
- * @category schemas
- * @template Schema - The schema used when the key is present with a non-nullish value.
- * @param schema - The schema for present values.
+ * @typeParam Schema - Schema used when the key is present with a non-nullish value.
+ * @param schema - Schema used to decode `Some` values.
  * @param options - Controls how `None` is represented during encoding.
  * @returns A schema that decodes optional nullish keys into `Option` values.
+ * @category schemas
  * @since 0.0.0
  */
 export const OptionFromOptionalNullishKey = <Schema extends S.Top>(

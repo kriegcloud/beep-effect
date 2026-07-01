@@ -10,9 +10,10 @@
  *
  * @example
  * ```ts
- * import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/proof"
+ * import { fixtureBlocksFor } from "@beep/agents-use-cases/proof"
  *
- * console.log(FixtureTurnKernel, fixtureBlocksFor)
+ * const blocks = fixtureBlocksFor([{ role: "user", text: "hello" }])
+ * console.log(blocks.length) // 4
  * ```
  *
  * @category fixtures
@@ -27,7 +28,7 @@ export { FixtureTurnKernel, fixtureBlocksFor } from "./processes/AssistantTurn/A
  * import { makeInMemoryProfessionalRuntimeSdk } from "@beep/agents-use-cases/proof"
  *
  * const sdk = makeInMemoryProfessionalRuntimeSdk([])
- * console.log(sdk)
+ * console.log(typeof sdk.getContextPacket) // "function"
  * ```
  *
  * @category fixtures
@@ -40,9 +41,32 @@ export { makeInMemoryProfessionalRuntimeSdk } from "./processes/ProfessionalRunt
  * @example
  * ```ts
  * import { RuntimeFixtureInput, runRuntimeFixture } from "@beep/agents-use-cases/proof"
+ * import { Effect } from "effect"
  *
- * console.log(RuntimeFixtureInput)
- * console.log(runRuntimeFixture)
+ * const fixture = RuntimeFixtureInput.make({
+ *   body: [
+ *     "[span:law-email-001-s2] We need help preparing a provisional patent application.",
+ *     "[span:law-email-001-s3] The public prototype demonstration is planned for June 12, 2026.",
+ *     "[span:law-email-001-s4] Avery Chen and Priya Raman are the main contributors.",
+ *     "[span:law-email-001-s5] Please schedule an intake call next week."
+ *   ].join("\n"),
+ *   email: {
+ *     artifactId: "email-artifact-law-001",
+ *     scenarioId: "law-patent-intake",
+ *     sourceSpans: ["law-email-001-s2", "law-email-001-s3", "law-email-001-s4", "law-email-001-s5"],
+ *     subject: "Provisional patent help",
+ *     threadId: "thread-law-001"
+ *   },
+ *   seed: {
+ *     organization: { organizationId: "org-law-fixture" },
+ *     scenarioId: "law-patent-intake",
+ *     workspace: { workspaceId: "workspace-law-fixture" }
+ *   }
+ * })
+ *
+ * Effect.runPromise(runRuntimeFixture(fixture)).then((outputSet) =>
+ *   console.log(outputSet.scenarioId)
+ * )
  * ```
  *
  * @category fixtures
@@ -59,7 +83,12 @@ export {
  * ```ts
  * import { RuntimeScope } from "@beep/agents-use-cases/proof"
  *
- * console.log(RuntimeScope)
+ * const scope = RuntimeScope.make({
+ *   organizationId: "org-1",
+ *   threadId: "thread-1",
+ *   workspaceId: "workspace-1"
+ * })
+ * console.log(scope.organizationId)
  * ```
  *
  * @category use-cases

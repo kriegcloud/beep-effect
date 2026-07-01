@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box restored trashed web link entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model");
 
 /**
+ * Experimental schema anchor for web link metadata returned when a trashed Box web link is restored.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(TrashWebLinkRestored.make({
+ * const decoded = S.decodeUnknownSync(TrashWebLinkRestored)({});
+ * const encoded: TrashWebLinkRestored.Encoded = S.encodeSync(TrashWebLinkRestored)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class TrashWebLinkRestored extends S.Class<TrashWebLinkRestored>($I`TrashWebLinkRestored`)(
   {},
   $I.annote("TrashWebLinkRestored", {
-    description: "TODO",
+    description: "Experimental schema anchor for web link metadata returned when a trashed Box web link is restored.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link TrashWebLinkRestored}
+ * Type-level companion namespace for {@link TrashWebLinkRestored} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = TrashWebLinkRestored.make({});
+ * const encoded: TrashWebLinkRestored.Encoded = S.encodeSync(TrashWebLinkRestored)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace TrashWebLinkRestored {
   /**
-   * Companion encoded type for {@link TrashWebLinkRestored}.
+   * Encoded payload accepted by the {@link TrashWebLinkRestored} entity schema.
    *
    * @example
    * ```ts
-   * import type { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
+   * import { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: TrashWebLinkRestored.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: TrashWebLinkRestored.Encoded = S.encodeSync(TrashWebLinkRestored)(TrashWebLinkRestored.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof TrashWebLinkRestored.Encoded;
 }
-
-/**
- * Companion runtime type for {@link TrashWebLinkRestored}.
- *
- * @example
- * ```ts
- * import type { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
- *
- * const useValue = (_value: TrashWebLinkRestored) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type TrashWebLinkRestored = typeof TrashWebLinkRestored.Type;

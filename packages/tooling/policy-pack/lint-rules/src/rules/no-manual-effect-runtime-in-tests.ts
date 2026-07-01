@@ -131,6 +131,23 @@ const baselineFor = (repoPath: string): number => {
   return 0;
 };
 
+/**
+ * Oxlint rule that prevents net-new manual `Effect.run*` and
+ * `ManagedRuntime.make` calls in test files while preserving the current
+ * legacy baseline counts.
+ *
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import plugin from "@beep/lint-rules/oxlint"
+ *
+ * const description = plugin.rules["no-manual-effect-runtime-in-tests"]?.meta.docs.description
+ *
+ * strictEqual(description?.includes("@effect/vitest"), true)
+ * ```
+ * @category tools
+ * @since 0.1.0
+ */
 export default defineRule({
   meta: {
     type: "problem",

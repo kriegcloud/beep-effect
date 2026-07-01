@@ -37,7 +37,7 @@ import * as S from "effect/Schema";
  * console.log(O.isNone(Node.make({}).label)) // true
  * ```
  *
- * @template A - Element type carried by the field's `Option`.
+ * @typeParam A - Element type carried by the field's `Option`.
  * @param self - `Option`-typed schema field receiving the `none` constructor default.
  * @returns The schema with an `Option.none()` constructor default applied.
  * @category constructors
@@ -71,7 +71,7 @@ export const withNoneDefault = <
  * console.log(Node.make({}).version) // 1
  * ```
  *
- * @template A - The default value type, which must satisfy the field's make input.
+ * @typeParam A - Default value type, which must satisfy the field's make input.
  * @param defaultValue - Constant value used when the field is omitted at construction time.
  * @returns A schema helper that applies the constant constructor default.
  * @category constructors

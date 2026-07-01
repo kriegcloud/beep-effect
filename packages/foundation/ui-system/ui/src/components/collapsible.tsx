@@ -4,13 +4,20 @@ import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible"
 import { cn } from "../lib/index.ts";
 
 /**
- * Collapsible component.
+ * Disclosure root for content that can expand and collapse.
  *
  * @example
  * ```tsx
- * import { Collapsible } from "@beep/ui/components/collapsible"
+ * import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@beep/ui/components/collapsible"
  *
- * console.log(Collapsible)
+ * export function AdvancedFilters() {
+ *   return (
+ *     <Collapsible defaultOpen>
+ *       <CollapsibleTrigger>Filters</CollapsibleTrigger>
+ *       <CollapsibleContent>Status, owner, and due date filters.</CollapsibleContent>
+ *     </Collapsible>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -21,13 +28,15 @@ function Collapsible({ className, ...props }: CollapsiblePrimitive.Root.Props) {
 }
 
 /**
- * Collapsible trigger component.
+ * Control that toggles a collapsible panel.
  *
  * @example
  * ```tsx
  * import { CollapsibleTrigger } from "@beep/ui/components/collapsible"
  *
- * console.log(CollapsibleTrigger)
+ * export function FiltersTrigger() {
+ *   return <CollapsibleTrigger>Show filters</CollapsibleTrigger>
+ * }
  * ```
  *
  * @category components
@@ -38,13 +47,15 @@ function CollapsibleTrigger({ className, ...props }: CollapsiblePrimitive.Trigge
 }
 
 /**
- * Collapsible content component.
+ * Animated panel body for collapsible content.
  *
  * @example
  * ```tsx
  * import { CollapsibleContent } from "@beep/ui/components/collapsible"
  *
- * console.log(CollapsibleContent)
+ * export function FiltersContent() {
+ *   return <CollapsibleContent>Only show overdue matters.</CollapsibleContent>
+ * }
  * ```
  *
  * @category components

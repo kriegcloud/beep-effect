@@ -15,7 +15,10 @@ import { CandidateDraft } from "@beep/workspace-domain/entities/CandidateDraft";
  * ```ts
  * import { CandidateDraft } from "@beep/workspace-tables/entities"
  *
- * console.log(CandidateDraft.Table.definition.tableName)
+ * const tableName: "workspace_candidate_draft" = CandidateDraft.Table.definition.tableName
+ * const snapshotStorage: "jsonb" = CandidateDraft.Table.definition.persisted.snapshot.storageKind
+ *
+ * console.log(`${tableName}:${snapshotStorage}`)
  * ```
  *
  * @category tables

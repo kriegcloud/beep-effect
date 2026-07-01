@@ -41,13 +41,30 @@ const isRepositoryConflict = S.is(WorkItemRepositoryConflict);
 const isRepositoryUnavailable = S.is(WorkItemRepositoryUnavailable);
 
 /**
- * Translate server and aggregate failures to public action failures.
+ * Translate repository and aggregate failures to public WorkItem action failures.
+ *
+ * @remarks
+ * Repository availability details are intentionally redacted to
+ * {@link WORK_ITEM_ACTION_UNAVAILABLE_REASON}. Domain-level transition
+ * failures are exposed as {@link WorkItemActionRejected} with the domain error
+ * tag preserved as the public reason.
  *
  * @example
  * ```ts
- * import { toWorkItemActionError } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import {
+ *   WorkItemRepositoryNotFound,
+ *   toWorkItemActionError
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import * as S from "effect/Schema"
  *
- * console.log(toWorkItemActionError)
+ * const publicError = toWorkItemActionError(
+ *   WorkItemRepositoryNotFound.make({
+ *     workItemId: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ *   })
+ * )
+ *
+ * console.log(publicError._tag) // "WorkItemNotFound"
  * ```
  *
  * @category use-cases
@@ -86,14 +103,52 @@ const mutateStoredWorkItem = (
   );
 
 /**
- * Build WorkItem use-cases from the server repository port.
+ * Build WorkItem use cases from the server repository port.
+ *
+ * @remarks
+ * Lifecycle commands load the current aggregate before applying the domain
+ * transition and saving the result. `list` loads the repository result first
+ * and applies the optional status filter in the use-case layer.
  *
  * @example
  * ```ts
- * import { makeWorkItemUseCases } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import {
+ *   ListWorkItemsQuery,
+ *   makeWorkItemUseCases,
+ *   type WorkItemRepositoryShape
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(makeWorkItemUseCases)
+ * const id = S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * const workItem = DomainWorkItem.create(
+ *   DomainWorkItem.CreateWorkItemInput.make({
+ *     id,
+ *     title: "Review architecture slice",
+ *     priority: O.none()
+ *   })
+ * )
+ * const repository: WorkItemRepositoryShape = {
+ *   create: (created) => Effect.succeed(created),
+ *   get: () => Effect.succeed(workItem),
+ *   list: Effect.succeed([workItem]),
+ *   save: (saved) => Effect.succeed(saved)
+ * }
+ * const useCases = makeWorkItemUseCases(repository)
+ * const query = ListWorkItemsQuery.make({ status: O.some("open") })
+ *
+ * Effect.runPromise(useCases.list(query)).then((items) => console.log(items.length)) // 1
  * ```
+ *
+ * @effects
+ * - `create` constructs a domain aggregate and delegates persistence to
+ *   `repository.create`.
+ * - `assign`, `complete`, `reopen`, and `archive` call `repository.get`, run the
+ *   domain transition, then call `repository.save` in that order.
+ * - `get` reads through `repository.get`; `list` reads `repository.list` and
+ *   filters the loaded array in memory.
  *
  * @category use-cases
  * @since 0.0.0

@@ -24,14 +24,29 @@ import type { WorkItemActionError } from "./WorkItem.errors.js";
 const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.use-cases");
 
 /**
- * Public WorkItem use-case contract.
+ * Public WorkItem use-case contract exposed to callers.
  *
  * @example
  * ```ts
- * import type { WorkItemUseCasesShape } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import {
+ *   ListWorkItemsQuery,
+ *   WorkItemActionFailed,
+ *   type WorkItemUseCasesShape
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import { Effect } from "effect"
  *
- * const value = {} as WorkItemUseCasesShape
- * console.log(value)
+ * const unavailable = WorkItemActionFailed.make({ reason: "offline" })
+ * const useCases: WorkItemUseCasesShape = {
+ *   archive: () => Effect.fail(unavailable),
+ *   assign: () => Effect.fail(unavailable),
+ *   complete: () => Effect.fail(unavailable),
+ *   create: () => Effect.fail(unavailable),
+ *   get: () => Effect.fail(unavailable),
+ *   list: () => Effect.succeed([]),
+ *   reopen: () => Effect.fail(unavailable)
+ * }
+ *
+ * Effect.runPromise(useCases.list(ListWorkItemsQuery.make({}))).then((items) => console.log(items.length)) // 0
  * ```
  *
  * @category use-cases
@@ -50,13 +65,38 @@ export interface WorkItemUseCasesShape {
 }
 
 /**
- * Public WorkItem use-case service.
+ * Context service tag for WorkItem use cases.
+ *
+ * @remarks
+ * The public module declares the tag and contract only. Server code supplies an
+ * implementation with a repository-backed layer or `Effect.provideService`.
  *
  * @example
  * ```ts
- * import { WorkItemUseCases } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import {
+ *   ListWorkItemsQuery,
+ *   WorkItemActionFailed,
+ *   WorkItemUseCases,
+ *   type WorkItemUseCasesShape
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import { Effect } from "effect"
  *
- * console.log(WorkItemUseCases)
+ * const unavailable = WorkItemActionFailed.make({ reason: "offline" })
+ * const useCases: WorkItemUseCasesShape = {
+ *   archive: () => Effect.fail(unavailable),
+ *   assign: () => Effect.fail(unavailable),
+ *   complete: () => Effect.fail(unavailable),
+ *   create: () => Effect.fail(unavailable),
+ *   get: () => Effect.fail(unavailable),
+ *   list: () => Effect.succeed([]),
+ *   reopen: () => Effect.fail(unavailable)
+ * }
+ * const program = Effect.gen(function* () {
+ *   const service = yield* WorkItemUseCases
+ *   return yield* service.list(ListWorkItemsQuery.make({}))
+ * }).pipe(Effect.provideService(WorkItemUseCases, useCases))
+ *
+ * Effect.runPromise(program).then((items) => console.log(items.length)) // 0
  * ```
  *
  * @category use-cases

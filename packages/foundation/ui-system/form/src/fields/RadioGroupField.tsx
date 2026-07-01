@@ -50,9 +50,36 @@ export interface RadioGroupFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { RadioGroupField } from "@beep/form/fields/RadioGroupField"
+ * import * as S from "effect/Schema"
  *
- * console.log(RadioGroupField)
+ * const PlanSchema = S.Struct({ plan: S.String })
+ * const planOptions = [
+ *   { value: "free", label: "Free" },
+ *   { value: "pro", label: "Pro" },
+ * ]
+ * const planFormOptions = makeFormOptions({
+ *   schema: PlanSchema,
+ *   defaultValues: { plan: "free" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function PlanForm() {
+ *   const form = useAppForm(planFormOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="plan">
+ *           {() => <RadioGroupField label="Plan" options={planOptions} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(planFormOptions.defaultValues.plan) // "free"
  * ```
  *
  * @category components

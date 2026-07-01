@@ -25,7 +25,7 @@ import * as S from "effect/Schema";
  * console.log(sameString("tests")("docs")) // false
  * ```
  *
- * @template A - Value type compared by the equivalence relation.
+ * @typeParam A - Value type compared by the equivalence relation.
  * @category models
  * @since 0.0.0
  */
@@ -55,7 +55,7 @@ export type DualEquivalence<A> = {
  * console.log(pipe(["docs", "tests"], sameTags(["docs", "lint"]))) // false
  * ```
  *
- * @template A - Decoded value type described by the schema.
+ * @typeParam A - Decoded value type described by the schema.
  * @param schema - Schema used to derive the underlying equivalence relation.
  * @returns A dual equivalence function for the schema's decoded values.
  * @category utilities

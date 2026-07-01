@@ -240,9 +240,17 @@ export class Provenance extends S.Class<Provenance>($I`Provenance`)(
  *
  * @example
  * ```ts
- * import { TextChunk } from "@beep/nlp/Handoff/Contract"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { ChunkId, Provenance, Span, TextChunk } from "@beep/nlp/Handoff/Contract"
  *
- * console.log(TextChunk)
+ * const chunk = TextChunk.make({
+ *   id: ChunkId.make("chunk-1"),
+ *   kind: "sentence",
+ *   provenance: Provenance.make({ generatedBy: "wink-nlp", source: "doc-1", timestamp: 0 }),
+ *   span: Span.make({ end: NonNegativeInt.make(11), start: NonNegativeInt.make(0) }),
+ *   text: "Hello world"
+ * })
+ * console.log(chunk.kind) // "sentence"
  * ```
  *
  * @since 0.0.0
@@ -267,9 +275,17 @@ export class TextChunk extends S.Class<TextChunk>($I`TextChunk`)(
  *
  * @example
  * ```ts
- * import { Mention } from "@beep/nlp/Handoff/Contract"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { ChunkId, Mention, MentionId, Provenance, Span } from "@beep/nlp/Handoff/Contract"
  *
- * console.log(Mention)
+ * const mention = Mention.make({
+ *   chunkId: ChunkId.make("chunk-1"),
+ *   id: MentionId.make("mention-1"),
+ *   provenance: Provenance.make({ generatedBy: "wink-nlp", source: "doc-1", timestamp: 0 }),
+ *   span: Span.make({ end: NonNegativeInt.make(5), start: NonNegativeInt.make(0) }),
+ *   text: "Acme"
+ * })
+ * console.log(mention.chunkId) // "chunk-1"
  * ```
  *
  * @since 0.0.0
@@ -295,9 +311,16 @@ export class Mention extends S.Class<Mention>($I`Mention`)(
  *
  * @example
  * ```ts
- * import { Entity } from "@beep/nlp/Handoff/Contract"
+ * import { Entity, EntityId, MentionId, Provenance } from "@beep/nlp/Handoff/Contract"
  *
- * console.log(Entity)
+ * const entity = Entity.make({
+ *   canonicalName: "Acme Corporation",
+ *   id: EntityId.make("entity-1"),
+ *   mentions: [MentionId.make("mention-1")],
+ *   provenance: Provenance.make({ generatedBy: "wink-nlp", source: "doc-1", timestamp: 0 }),
+ *   type: "ORG"
+ * })
+ * console.log(entity.type) // "ORG"
  * ```
  *
  * @since 0.0.0
@@ -324,9 +347,16 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  *
  * @example
  * ```ts
- * import { Relation } from "@beep/nlp/Handoff/Contract"
+ * import { EntityId, Provenance, Relation, RelationId } from "@beep/nlp/Handoff/Contract"
  *
- * console.log(Relation)
+ * const relation = Relation.make({
+ *   id: RelationId.make("relation-1"),
+ *   object: EntityId.make("entity-2"),
+ *   provenance: Provenance.make({ generatedBy: "rule-extractor", source: "doc-1", timestamp: 0 }),
+ *   subject: EntityId.make("entity-1"),
+ *   type: "ACQUIRED"
+ * })
+ * console.log(relation.subject) // "entity-1"
  * ```
  *
  * @since 0.0.0
@@ -355,9 +385,17 @@ export class Relation extends S.Class<Relation>($I`Relation`)(
  *
  * @example
  * ```ts
- * import { AnnotatedDocument } from "@beep/nlp/Handoff/Contract"
+ * import { AnnotatedDocument, Provenance } from "@beep/nlp/Handoff/Contract"
  *
- * console.log(AnnotatedDocument)
+ * const provenance = Provenance.make({ generatedBy: "wink-nlp", source: "doc-1", timestamp: 0 })
+ * const document = AnnotatedDocument.make({
+ *   chunks: [],
+ *   entities: [],
+ *   provenance,
+ *   relations: [],
+ *   version: "nlp-ir/1.0"
+ * })
+ * console.log(document.version) // "nlp-ir/1.0"
  * ```
  *
  * @since 0.0.0

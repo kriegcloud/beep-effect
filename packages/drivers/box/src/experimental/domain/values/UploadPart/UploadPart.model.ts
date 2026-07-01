@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box upload part value-object schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("values/UploadPart/UploadPart.model");
 
 /**
+ * Experimental value object for an uploaded chunk in a Box chunked upload session.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { UploadPart } from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(UploadPart.make({
+ * const decoded = S.decodeUnknownSync(UploadPart)({});
+ * const encoded: UploadPart.Encoded = S.encodeSync(UploadPart)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class UploadPart extends S.Class<UploadPart>($I`UploadPart`)(
   {},
   $I.annote("UploadPart", {
-    description: "TODO",
+    description: "Experimental value object for an uploaded chunk in a Box chunked upload session.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link UploadPart}
+ * Type-level companion namespace for {@link UploadPart} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { UploadPart } from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = UploadPart.make({});
+ * const encoded: UploadPart.Encoded = S.encodeSync(UploadPart)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace UploadPart {
   /**
-   * Companion encoded type for {@link UploadPart}.
+   * Encoded payload accepted by the {@link UploadPart} value-object schema.
    *
    * @example
    * ```ts
-   * import type { UploadPart } from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
+   * import { UploadPart } from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: UploadPart.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: UploadPart.Encoded = S.encodeSync(UploadPart)(UploadPart.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof UploadPart.Encoded;
 }
-
-/**
- * Companion runtime type for {@link UploadPart}.
- *
- * @example
- * ```ts
- * import type { UploadPart } from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
- *
- * const useValue = (_value: UploadPart) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type UploadPart = typeof UploadPart.Type;

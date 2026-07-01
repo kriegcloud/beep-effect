@@ -17,9 +17,14 @@ const make = EntityId.factory("architecture_lab", $I);
  *
  * @example
  * ```ts
- * import { WorkerId } from "@beep/architecture-lab-domain/identity/ArchitectureLab"
+ * import { WorkerId, type WorkerId as WorkerIdValue } from "@beep/architecture-lab-domain/identity/ArchitectureLab"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkerId)
+ * const id: WorkerIdValue = S.decodeUnknownSync(WorkerId)(1)
+ *
+ * if (id !== 1 || WorkerId.tableName !== "architecture_lab_worker") {
+ *   throw new Error("expected architecture lab Worker identity")
+ * }
  * ```
  *
  * @category entity-ids
@@ -31,6 +36,19 @@ export const WorkerId = make("worker", {
 
 /**
  * Runtime type for {@link WorkerId}.
+ *
+ * @example
+ * ```ts
+ * import { WorkerId, type WorkerId as WorkerIdValue } from "@beep/architecture-lab-domain/identity/ArchitectureLab"
+ * import * as S from "effect/Schema"
+ *
+ * const id: WorkerIdValue = S.decodeUnknownSync(WorkerId)(1)
+ * const ids: ReadonlyArray<WorkerIdValue> = [id]
+ *
+ * if (ids.length !== 1) {
+ *   throw new Error("expected Worker id type evidence")
+ * }
+ * ```
  *
  * @category entity-ids
  * @since 0.0.0

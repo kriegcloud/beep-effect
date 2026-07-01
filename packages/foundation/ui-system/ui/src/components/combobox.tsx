@@ -8,13 +8,25 @@ import * as React from "react";
 import { cn } from "../lib/index.ts";
 
 /**
- * Combobox component.
+ * Editable, filterable select root built on Base UI's combobox primitive.
  *
  * @example
  * ```tsx
- * import { Combobox } from "@beep/ui/components/combobox"
+ * import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList } from "@beep/ui/components/combobox"
  *
- * console.log(Combobox)
+ * export function FrameworkCombobox() {
+ *   return (
+ *     <Combobox items={["Next.js", "Remix"]}>
+ *       <ComboboxInput placeholder="Select framework..." aria-label="Framework" />
+ *       <ComboboxContent>
+ *         <ComboboxList>
+ *           <ComboboxItem value="Next.js">Next.js</ComboboxItem>
+ *           <ComboboxItem value="Remix">Remix</ComboboxItem>
+ *         </ComboboxList>
+ *       </ComboboxContent>
+ *     </Combobox>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -23,13 +35,21 @@ import { cn } from "../lib/index.ts";
 const Combobox = ComboboxPrimitive.Root;
 
 /**
- * Combobox value component.
+ * Current combobox value renderer for custom display or chips.
  *
  * @example
  * ```tsx
- * import { ComboboxValue } from "@beep/ui/components/combobox"
+ * import { Combobox, ComboboxInput, ComboboxValue } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxValue)
+ * export function ComboboxValuePreview() {
+ *   return (
+ *     <Combobox items={["Open", "Closed"]} defaultValue="Open">
+ *       <ComboboxInput aria-label="Status">
+ *         <ComboboxValue placeholder="Select status" />
+ *       </ComboboxInput>
+ *     </Combobox>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -40,13 +60,21 @@ function ComboboxValue({ ...props }: ComboboxPrimitive.Value.Props) {
 }
 
 /**
- * Combobox trigger component.
+ * Button affordance that opens the combobox popup.
  *
  * @example
  * ```tsx
- * import { ComboboxTrigger } from "@beep/ui/components/combobox"
+ * import { Combobox, ComboboxInput, ComboboxTrigger } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxTrigger)
+ * export function ComboboxWithTrigger() {
+ *   return (
+ *     <Combobox items={["Open", "Closed"]}>
+ *       <ComboboxInput showTrigger={false} aria-label="Status">
+ *         <ComboboxTrigger aria-label="Open status options" />
+ *       </ComboboxInput>
+ *     </Combobox>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -79,13 +107,25 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
 }
 
 /**
- * Combobox input component.
+ * Text input wrapper with optional trigger and clear controls.
  *
  * @example
  * ```tsx
- * import { ComboboxInput } from "@beep/ui/components/combobox"
+ * import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxInput)
+ * export function ClearableStatusCombobox() {
+ *   return (
+ *     <Combobox items={["Open", "Closed"]} defaultValue="Open">
+ *       <ComboboxInput showClear placeholder="Select status..." aria-label="Status" />
+ *       <ComboboxContent>
+ *         <ComboboxList>
+ *           <ComboboxItem value="Open">Open</ComboboxItem>
+ *           <ComboboxItem value="Closed">Closed</ComboboxItem>
+ *         </ComboboxList>
+ *       </ComboboxContent>
+ *     </Combobox>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -124,13 +164,25 @@ function ComboboxInput({
 }
 
 /**
- * Combobox content component.
+ * Positioned popup surface for combobox options.
  *
  * @example
  * ```tsx
- * import { ComboboxContent } from "@beep/ui/components/combobox"
+ * import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxContent)
+ * export function AlignedComboboxContent() {
+ *   return (
+ *     <Combobox items={["Client", "Matter"]}>
+ *       <ComboboxInput aria-label="Scope" />
+ *       <ComboboxContent side="bottom" align="start" sideOffset={8}>
+ *         <ComboboxList>
+ *           <ComboboxItem value="Client">Client</ComboboxItem>
+ *           <ComboboxItem value="Matter">Matter</ComboboxItem>
+ *         </ComboboxList>
+ *       </ComboboxContent>
+ *     </Combobox>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -173,13 +225,20 @@ function ComboboxContent({
 }
 
 /**
- * Combobox list component.
+ * Scrollable listbox container for combobox items.
  *
  * @example
  * ```tsx
- * import { ComboboxList } from "@beep/ui/components/combobox"
+ * import { ComboboxItem, ComboboxList } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxList)
+ * export function StatusOptionList() {
+ *   return (
+ *     <ComboboxList>
+ *       <ComboboxItem value="open">Open</ComboboxItem>
+ *       <ComboboxItem value="closed">Closed</ComboboxItem>
+ *     </ComboboxList>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -199,13 +258,15 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
 }
 
 /**
- * Combobox item component.
+ * Selectable option row with checked-state indicator.
  *
  * @example
  * ```tsx
  * import { ComboboxItem } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxItem)
+ * export function OpenStatusOption() {
+ *   return <ComboboxItem value="open">Open</ComboboxItem>
+ * }
  * ```
  *
  * @category components
@@ -232,13 +293,20 @@ function ComboboxItem({ className, children, ...props }: ComboboxPrimitive.Item.
 }
 
 /**
- * Combobox group component.
+ * Option group for sectioning a combobox list.
  *
  * @example
  * ```tsx
- * import { ComboboxGroup } from "@beep/ui/components/combobox"
+ * import { ComboboxGroup, ComboboxItem, ComboboxLabel } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxGroup)
+ * export function GroupedMatterOptions() {
+ *   return (
+ *     <ComboboxGroup>
+ *       <ComboboxLabel>Matters</ComboboxLabel>
+ *       <ComboboxItem value="active">Active matters</ComboboxItem>
+ *     </ComboboxGroup>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -249,13 +317,15 @@ function ComboboxGroup({ className, ...props }: ComboboxPrimitive.Group.Props) {
 }
 
 /**
- * Combobox label component.
+ * Muted label for an option group.
  *
  * @example
  * ```tsx
  * import { ComboboxLabel } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxLabel)
+ * export function StatusGroupLabel() {
+ *   return <ComboboxLabel>Status</ComboboxLabel>
+ * }
  * ```
  *
  * @category components
@@ -272,13 +342,19 @@ function ComboboxLabel({ className, ...props }: ComboboxPrimitive.GroupLabel.Pro
 }
 
 /**
- * Combobox collection component.
+ * Collection boundary for combobox items that are rendered outside the list.
  *
  * @example
  * ```tsx
- * import { ComboboxCollection } from "@beep/ui/components/combobox"
+ * import { ComboboxCollection, ComboboxItem } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxCollection)
+ * export function ComboboxCollectionOptions() {
+ *   return (
+ *     <ComboboxCollection>
+ *       <ComboboxItem value="open">Open</ComboboxItem>
+ *     </ComboboxCollection>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -289,13 +365,15 @@ function ComboboxCollection({ ...props }: ComboboxPrimitive.Collection.Props) {
 }
 
 /**
- * Combobox empty component.
+ * Empty-state row shown when filtering leaves no options.
  *
  * @example
  * ```tsx
  * import { ComboboxEmpty } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxEmpty)
+ * export function NoOptionsMessage() {
+ *   return <ComboboxEmpty>No matters found.</ComboboxEmpty>
+ * }
  * ```
  *
  * @category components
@@ -315,13 +393,20 @@ function ComboboxEmpty({ className, ...props }: ComboboxPrimitive.Empty.Props) {
 }
 
 /**
- * Combobox separator component.
+ * Divider between combobox option groups.
  *
  * @example
  * ```tsx
- * import { ComboboxSeparator } from "@beep/ui/components/combobox"
+ * import { ComboboxGroup, ComboboxLabel, ComboboxSeparator } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxSeparator)
+ * export function SeparatedComboboxGroup() {
+ *   return (
+ *     <ComboboxGroup>
+ *       <ComboboxSeparator />
+ *       <ComboboxLabel>Archived</ComboboxLabel>
+ *     </ComboboxGroup>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -338,13 +423,26 @@ function ComboboxSeparator({ className, ...props }: ComboboxPrimitive.Separator.
 }
 
 /**
- * Combobox chips component.
+ * Multi-select chip container that also anchors the popup.
  *
  * @example
  * ```tsx
- * import { ComboboxChips } from "@beep/ui/components/combobox"
+ * import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxValue } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxChips)
+ * export function AssigneeChips() {
+ *   return (
+ *     <Combobox items={["Ada", "Grace"]} multiple>
+ *       <ComboboxChips>
+ *         <ComboboxValue>
+ *           {(value: ReadonlyArray<string>) =>
+ *             value.map((assignee) => <ComboboxChip key={assignee}>{assignee}</ComboboxChip>)
+ *           }
+ *         </ComboboxValue>
+ *         <ComboboxChipsInput aria-label="Assignees" placeholder="Add assignee..." />
+ *       </ComboboxChips>
+ *     </Combobox>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -367,13 +465,15 @@ function ComboboxChips({
 }
 
 /**
- * Combobox chip component.
+ * Removable selected value token for multi-select comboboxes.
  *
  * @example
  * ```tsx
  * import { ComboboxChip } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxChip)
+ * export function SelectedAssigneeChip() {
+ *   return <ComboboxChip showRemove={false}>Ada</ComboboxChip>
+ * }
  * ```
  *
  * @category components
@@ -411,13 +511,15 @@ function ComboboxChip({
 }
 
 /**
- * Combobox chips input component.
+ * Inline search input used inside a multi-select chip container.
  *
  * @example
  * ```tsx
  * import { ComboboxChipsInput } from "@beep/ui/components/combobox"
  *
- * console.log(ComboboxChipsInput)
+ * export function AssigneeChipInput() {
+ *   return <ComboboxChipsInput aria-label="Assignees" placeholder="Add assignee..." />
+ * }
  * ```
  *
  * @category components
@@ -434,13 +536,27 @@ function ComboboxChipsInput({ className, ...props }: ComboboxPrimitive.Input.Pro
 }
 
 /**
- * Use combobox anchor hook.
+ * Stable ref for anchoring chip-mode combobox popups to the chips container.
+ *
+ * @remarks
+ * Pass the returned ref to `ComboboxChips` and to `ComboboxContent`'s `anchor`
+ * prop so the popup width and position follow the chip input surface.
  *
  * @example
  * ```tsx
- * import { useComboboxAnchor } from "@beep/ui/components/combobox"
+ * import { Combobox, ComboboxChips, ComboboxChipsInput, ComboboxContent, useComboboxAnchor } from "@beep/ui/components/combobox"
  *
- * console.log(useComboboxAnchor)
+ * export function AnchoredChipCombobox() {
+ *   const anchor = useComboboxAnchor()
+ *   return (
+ *     <Combobox items={["Ada", "Grace"]} multiple>
+ *       <ComboboxChips ref={anchor}>
+ *         <ComboboxChipsInput aria-label="Assignees" />
+ *       </ComboboxChips>
+ *       <ComboboxContent anchor={anchor} />
+ *     </Combobox>
+ *   )
+ * }
  * ```
  *
  * @category hooks

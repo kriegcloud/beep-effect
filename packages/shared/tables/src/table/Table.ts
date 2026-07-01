@@ -1,14 +1,15 @@
 /**
- * Shared-kernel table projection compatibility namespace.
+ * Compatibility re-export for schema-first table projection helpers.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Schema-first Drizzle table projection helpers.
+ * Re-exported `@beep/drizzle` table projection namespace for legacy shared table
+ * consumers.
  *
- * @since 0.0.0
  * @category constructors
+ * @since 0.0.0
  */
 export { EntityTable } from "@beep/drizzle";

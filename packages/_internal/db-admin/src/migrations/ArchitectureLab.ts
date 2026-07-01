@@ -21,10 +21,16 @@ const $I = $BeepId.create("db-admin/migrations/ArchitectureLab");
  * ```ts
  * import { DbAdminMigrationTarget } from "@beep/db-admin/migrations/ArchitectureLab"
  *
- * console.log(DbAdminMigrationTarget)
+ * const target = DbAdminMigrationTarget.make({
+ *   drizzleSchema: {},
+ *   name: "docs",
+ *   schemaName: "docs",
+ *   tables: ["docs_items"]
+ * })
+ * console.log(target.tables) // ["docs_items"]
  * ```
  *
- * @category configuration
+ * @category models
  * @since 0.0.0
  */
 export class DbAdminMigrationTarget extends S.Class<DbAdminMigrationTarget>($I`DbAdminMigrationTarget`)(
@@ -47,7 +53,11 @@ export class DbAdminMigrationTarget extends S.Class<DbAdminMigrationTarget>($I`D
  * ```ts
  * import { ArchitectureLabMigrationTarget } from "@beep/db-admin/migrations/ArchitectureLab"
  *
- * console.log(ArchitectureLabMigrationTarget)
+ * const summary = {
+ *   schemaName: ArchitectureLabMigrationTarget.schemaName,
+ *   tableCount: ArchitectureLabMigrationTarget.tables.length
+ * }
+ * console.log(summary) // { schemaName: "architecture_lab", tableCount: 2 }
  * ```
  *
  * @category configuration

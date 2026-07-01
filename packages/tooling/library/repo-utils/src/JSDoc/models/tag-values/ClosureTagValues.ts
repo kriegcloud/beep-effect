@@ -12,10 +12,18 @@ import { empty, optionalDesc, optionalType } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/ClosureTagValues");
 
 /**
+ * Schema-backed value for a parsed `define` tag occurrence: defines a compile-time constant.
+ *
  * @example
  * ```ts
  * import { DefineValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(DefineValue)
+ *
+ * const tag = DefineValue.make({
+ *   type: "boolean",
+ *   description: "Build-time flag."
+ * })
+ * const tagName: "define" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -29,10 +37,15 @@ export class DefineValue extends S.TaggedClass<DefineValue>($I`DefineValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `dict` tag occurrence: marks an object as a dictionary.
+ *
  * @example
  * ```ts
  * import { DictValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(DictValue)
+ *
+ * const tag = DictValue.make({})
+ * const tagName: "dict" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -46,10 +59,15 @@ export class DictValue extends S.TaggedClass<DictValue>($I`DictValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `implicitCast` tag occurrence: allows implicit type casts.
+ *
  * @example
  * ```ts
  * import { ImplicitCastValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(ImplicitCastValue)
+ *
+ * const tag = ImplicitCastValue.make({})
+ * const tagName: "implicitCast" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -63,10 +81,15 @@ export class ImplicitCastValue extends S.TaggedClass<ImplicitCastValue>($I`Impli
 ) {}
 
 /**
+ * Schema-backed value for a parsed `struct` tag occurrence: marks an object as a struct.
+ *
  * @example
  * ```ts
  * import { StructValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(StructValue)
+ *
+ * const tag = StructValue.make({})
+ * const tagName: "struct" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -80,10 +103,15 @@ export class StructValue extends S.TaggedClass<StructValue>($I`StructValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `unrestricted` tag occurrence: marks an object as unrestricted.
+ *
  * @example
  * ```ts
  * import { UnrestrictedValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(UnrestrictedValue)
+ *
+ * const tag = UnrestrictedValue.make({})
+ * const tagName: "unrestricted" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -97,10 +125,15 @@ export class UnrestrictedValue extends S.TaggedClass<UnrestrictedValue>($I`Unres
 ) {}
 
 /**
+ * Schema-backed value for a parsed `suppress` tag occurrence: suppresses compiler warnings.
+ *
  * @example
  * ```ts
  * import { SuppressValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(SuppressValue)
+ *
+ * const tag = SuppressValue.make({ description: "checkTypes" })
+ * const tagName: "suppress" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -114,10 +147,15 @@ export class SuppressValue extends S.TaggedClass<SuppressValue>($I`SuppressValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `externs` tag occurrence: declares external definitions.
+ *
  * @example
  * ```ts
  * import { ExternsValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(ExternsValue)
+ *
+ * const tag = ExternsValue.make({})
+ * const tagName: "externs" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -131,10 +169,15 @@ export class ExternsValue extends S.TaggedClass<ExternsValue>($I`ExternsValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `noalias` tag occurrence: prevents aliasing.
+ *
  * @example
  * ```ts
  * import { NoaliasValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(NoaliasValue)
+ *
+ * const tag = NoaliasValue.make({})
+ * const tagName: "noalias" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -148,10 +191,15 @@ export class NoaliasValue extends S.TaggedClass<NoaliasValue>($I`NoaliasValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `nocompile` tag occurrence: excludes from compilation.
+ *
  * @example
  * ```ts
  * import { NocompileValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(NocompileValue)
+ *
+ * const tag = NocompileValue.make({})
+ * const tagName: "nocompile" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -165,10 +213,15 @@ export class NocompileValue extends S.TaggedClass<NocompileValue>($I`NocompileVa
 ) {}
 
 /**
+ * Schema-backed value for a parsed `nosideeffects` tag occurrence: marks a function as pure.
+ *
  * @example
  * ```ts
  * import { NosideeffectsValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(NosideeffectsValue)
+ *
+ * const tag = NosideeffectsValue.make({})
+ * const tagName: "nosideeffects" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -182,10 +235,15 @@ export class NosideeffectsValue extends S.TaggedClass<NosideeffectsValue>($I`Nos
 ) {}
 
 /**
+ * Schema-backed value for a parsed `polymer` tag occurrence: Polymer element marker.
+ *
  * @example
  * ```ts
  * import { PolymerValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(PolymerValue)
+ *
+ * const tag = PolymerValue.make({})
+ * const tagName: "polymer" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -199,10 +257,15 @@ export class PolymerValue extends S.TaggedClass<PolymerValue>($I`PolymerValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `polymerBehavior` tag occurrence: Polymer behavior marker.
+ *
  * @example
  * ```ts
  * import { PolymerBehaviorValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(PolymerBehaviorValue)
+ *
+ * const tag = PolymerBehaviorValue.make({})
+ * const tagName: "polymerBehavior" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -216,10 +279,15 @@ export class PolymerBehaviorValue extends S.TaggedClass<PolymerBehaviorValue>($I
 ) {}
 
 /**
+ * Schema-backed value for a parsed `record` tag occurrence: marks a type as a record.
+ *
  * @example
  * ```ts
  * import { RecordValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(RecordValue)
+ *
+ * const tag = RecordValue.make({})
+ * const tagName: "record" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -233,10 +301,15 @@ export class RecordValue extends S.TaggedClass<RecordValue>($I`RecordValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `nocollapse` tag occurrence: prevents property collapsing.
+ *
  * @example
  * ```ts
  * import { NocollapseValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(NocollapseValue)
+ *
+ * const tag = NocollapseValue.make({})
+ * const tagName: "nocollapse" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -250,10 +323,15 @@ export class NocollapseValue extends S.TaggedClass<NocollapseValue>($I`Nocollaps
 ) {}
 
 /**
+ * Schema-backed value for a parsed `noinline` tag occurrence: prevents inlining.
+ *
  * @example
  * ```ts
  * import { NoinlineValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- * console.log(NoinlineValue)
+ *
+ * const tag = NoinlineValue.make({})
+ * const tagName: "noinline" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0

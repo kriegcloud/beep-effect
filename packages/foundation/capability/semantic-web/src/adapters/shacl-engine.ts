@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { A } from "@beep/utils";
@@ -38,13 +37,30 @@ const makeViolation = (
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  * import { BoundedShaclValidationServiceLive } from "@beep/semantic-web/adapters/shacl-engine"
+ * import {
+ *   ShaclValidationRequest,
+ *   ShaclValidationService
+ * } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(BoundedShaclValidationServiceLive)
+ * const request = S.decodeUnknownSync(ShaclValidationRequest)({
+ *   dataset: { quads: [] },
+ *   shapes: []
+ * })
+ * const result = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const service = yield* ShaclValidationService
+ *     return yield* service.validate(request)
+ *   }).pipe(Effect.provide(BoundedShaclValidationServiceLive))
+ * )
+ * strictEqual(result.conforms, true)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const BoundedShaclValidationServiceLive = Layer.succeed(
   ShaclValidationService,
@@ -163,12 +179,29 @@ export const BoundedShaclValidationServiceLive = Layer.succeed(
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  * import { ShaclValidationServiceLive } from "@beep/semantic-web/adapters/shacl-engine"
+ * import {
+ *   ShaclValidationRequest,
+ *   ShaclValidationService
+ * } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclValidationServiceLive)
+ * const request = S.decodeUnknownSync(ShaclValidationRequest)({
+ *   dataset: { quads: [] },
+ *   shapes: []
+ * })
+ * const result = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const service = yield* ShaclValidationService
+ *     return yield* service.validate(request)
+ *   }).pipe(Effect.provide(ShaclValidationServiceLive))
+ * )
+ * strictEqual(result.truncated, false)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const ShaclValidationServiceLive = BoundedShaclValidationServiceLive;

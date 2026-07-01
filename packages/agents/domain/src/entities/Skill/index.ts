@@ -1,21 +1,21 @@
 /**
- * Package entrypoint.
+ * Skill entity subpath exports.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Module exports.
+ * Skill entity schema exports.
  *
  * @example
  * ```ts
- * import * as Module from "@beep/agents-domain/entities/Skill"
+ * import { Skill } from "@beep/agents-domain/entities/Skill"
  *
- * console.log(Module)
+ * console.log(Skill.definition.entityId.tableName)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export * from "./Skill.model.js";

@@ -35,7 +35,12 @@ const encodeTranscriptIngestSummaryJson = S.encodeUnknownEffect(S.fromJsonString
  * @example
  * ```ts
  * import { AiMetricsIngestError } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsIngestError)
+ *
+ * const error = AiMetricsIngestError.make({
+ *   cause: "invalid jsonl",
+ *   message: "Failed to summarize transcript."
+ * })
+ * console.log(error.message)
  * ```
  * @category errors
  * @since 0.0.0
@@ -211,9 +216,25 @@ export const summarizeTranscriptText: (
  *
  * @example
  * ```ts
- * import { summaryToJson } from "@beep/repo-ai-metrics"
- * console.log(summaryToJson)
+ * import { TranscriptIngestSummary, summaryToJson } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   summaryToJson(
+ *     TranscriptIngestSummary.make({
+ *       acceptedEvents: 1,
+ *       eventNames: ["codex.event_msg"],
+ *       rejectedLines: 0,
+ *       sourceKind: "codex",
+ *       sourcePathHash: "source-hash",
+ *       totalLines: 1
+ *     })
+ *   )
+ * )
+ * console.log(json)
  * ```
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsIngestError` if the summary cannot be encoded.
+ *
  * @category services
  * @since 0.0.0
  */

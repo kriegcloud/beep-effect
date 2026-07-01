@@ -15,7 +15,9 @@ import type { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-ca
  * ```ts
  * import { WorkItemToolNames } from "@beep/architecture-lab-server/aggregates/WorkItem"
  *
- * console.log(WorkItemToolNames)
+ * const createToolName = WorkItemToolNames.create
+ *
+ * console.log(createToolName) // "architecture_lab.work_item.create"
  * ```
  *
  * @category tools
@@ -36,10 +38,38 @@ export const WorkItemToolNames = {
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { makeWorkItemToolHandlers } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(makeWorkItemToolHandlers)
+ * const id = S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * const workItem = DomainWorkItem.create(
+ *   DomainWorkItem.CreateWorkItemInput.make({
+ *     id,
+ *     title: "Expose tool handlers",
+ *     priority: O.none()
+ *   })
+ * )
+ * const tools = makeWorkItemToolHandlers({
+ *   archive: () => Effect.succeed(workItem),
+ *   assign: () => Effect.succeed(workItem),
+ *   complete: () => Effect.succeed(workItem),
+ *   create: () => Effect.succeed(workItem),
+ *   get: () => Effect.succeed(workItem),
+ *   list: () => Effect.succeed([workItem]),
+ *   reopen: () => Effect.succeed(workItem)
+ * })
+ *
+ * Effect.runPromise(
+ *   tools["architecture_lab.work_item.get"](WorkItemUseCases.GetWorkItemQuery.make({ id }))
+ * ).then((found) => console.log(found.title)) // "Expose tool handlers"
  * ```
+ *
+ * @effects Returned handlers execute the injected WorkItem use-case effects
+ * under stable architecture-lab tool names.
  *
  * @category tools
  * @since 0.0.0

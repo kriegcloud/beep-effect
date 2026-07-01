@@ -22,10 +22,13 @@ import type * as DomainCandidateClaim from "@beep/epistemic-domain/entities/Cand
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { projectClaims } from "@beep/epistemic-use-cases/ClaimProjection"
  * import type { ClaimProjection } from "@beep/epistemic-use-cases/ClaimProjection"
  *
- * const accept = (project: ClaimProjection) => project
- * console.log(accept)
+ * const project: ClaimProjection = projectClaims
+ *
+ * strictEqual(project([]).total, 0)
  * ```
  *
  * @category use-cases
@@ -40,9 +43,10 @@ export type ClaimProjection = (authority: ReadonlyArray<DomainCandidateClaim.Can
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { projectClaims } from "@beep/epistemic-use-cases/ClaimProjection"
  *
- * console.log(projectClaims([]).total)
+ * strictEqual(projectClaims([]).counts.admitted, 0)
  * ```
  *
  * @category use-cases

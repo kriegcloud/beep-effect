@@ -522,8 +522,49 @@ export class AiMetricsDerivedStorageError extends TaggedErrorClass<AiMetricsDeri
  *
  * @example
  * ```ts
- * import { AiMetricsDerivedTranscriptRecord } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsDerivedTranscriptRecord)
+ * import {
+ *   AiMetricsDerivedTranscriptRecord,
+ *   AiMetricsPrivacyCheckResult,
+ *   AiMetricsRawArchiveObject,
+ *   AiMetricsRedactionResult,
+ *   AiMetricsSanitizedTranscript
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const record = AiMetricsDerivedTranscriptRecord.make({
+ *   archiveObject: AiMetricsRawArchiveObject.make({
+ *     algorithm: "AES-256-GCM",
+ *     archiveObjectId: "raw-0123456789abcdef",
+ *     archivePath: ".beep/ai-metrics/raw/codex/raw-0123456789abcdef.json",
+ *     created: true,
+ *     encryptedAtEpochMillis: 1_717_000_000_000,
+ *     plaintextContentHash: "content-hash",
+ *     sourceKind: "codex",
+ *     sourcePathHash: "source-hash"
+ *   }),
+ *   privacy: AiMetricsPrivacyCheckResult.make({
+ *     hashSaltStatus: "provided",
+ *     inputPathHash: "input-path-hash",
+ *     redaction: AiMetricsRedactionResult.make({
+ *       authHeaderCount: 0,
+ *       bearerTokenCount: 0,
+ *       excludedRawTextFieldCount: 0,
+ *       openAiKeyCount: 0,
+ *       safeForDerivedUi: true,
+ *       secretAssignmentCount: 0
+ *     }),
+ *     sanitized: AiMetricsSanitizedTranscript.make({
+ *       acceptedEvents: 1,
+ *       eventNames: ["codex.event_msg"],
+ *       rawEventEnvelopes: [],
+ *       rejectedLines: 0,
+ *       sourceKind: "codex",
+ *       sourcePathHash: "source-hash",
+ *       totalLines: 1
+ *     }),
+ *     sourceKind: "codex"
+ *   })
+ * })
+ * console.log(record.archiveObject.archiveObjectId)
  * ```
  * @category models
  * @since 0.0.0
@@ -545,8 +586,33 @@ export class AiMetricsDerivedTranscriptRecord extends S.Class<AiMetricsDerivedTr
  *
  * @example
  * ```ts
- * import { AiMetricsDerivedStorageWriteInput } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsDerivedStorageWriteInput)
+ * import {
+ *   AiMetricsDerivedStorageWriteInput,
+ *   AiMetricsStorageLayout,
+ *   ConfigSnapshot
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const input = AiMetricsDerivedStorageWriteInput.make({
+ *   configSnapshot: ConfigSnapshot.make({
+ *     changedPaths: [],
+ *     configHash: "config-hash",
+ *     label: "repo-local-agent-config",
+ *     snapshotId: "config-1"
+ *   }),
+ *   ingestRunId: "ingest-1",
+ *   records: [],
+ *   repoRootHash: "repo-hash",
+ *   startedAtEpochMillis: 1_717_000_000_000,
+ *   storage: AiMetricsStorageLayout.make({
+ *     dataRoot: ".beep/ai-metrics",
+ *     derivedDir: ".beep/ai-metrics/derived",
+ *     duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *     parquetDir: ".beep/ai-metrics/derived/parquet",
+ *     rawArchiveDir: ".beep/ai-metrics/raw"
+ *   }),
+ *   target: "local"
+ * })
+ * console.log(input.parquetExportMode)
  * ```
  * @category models
  * @since 0.0.0
@@ -578,7 +644,17 @@ export class AiMetricsDerivedStorageWriteInput extends S.Class<AiMetricsDerivedS
  * @example
  * ```ts
  * import { AiMetricsDerivedStorageWriteResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsDerivedStorageWriteResult)
+ *
+ * const result = AiMetricsDerivedStorageWriteResult.make({
+ *   archiveObjectCount: 1,
+ *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *   ingestRunId: "ingest-1",
+ *   parquetExportMode: "snapshot",
+ *   parquetTables: ["ai_metrics_turns"],
+ *   sourceFileCount: 1,
+ *   turnCount: 12
+ * })
+ * console.log(result.parquetTables)
  * ```
  * @category models
  * @since 0.0.0
@@ -721,8 +797,18 @@ const ensureAiMetricsDerivedStorageRaw = Effect.fn("AiMetrics.derivedStorage.ens
  * @example
  * ```ts
  * import { ensureAiMetricsDerivedStorage } from "@beep/repo-ai-metrics"
- * console.log(ensureAiMetricsDerivedStorage)
+ * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
+ * import { Effect } from "effect"
+ *
+ * const program = ensureAiMetricsDerivedStorage.pipe(
+ *   Effect.provide(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({
+ *     databasePath: ".beep/ai-metrics/derived/ai-metrics.duckdb"
+ *   })))
+ * )
+ * console.log(program)
  * ```
+ * @effects Creates or migrates DuckDB tables and schema metadata in the configured derived database.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -1155,13 +1241,41 @@ const recordTurnCount: (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>
  * ```ts
  * import {
  *   AiMetricsDerivedStorageWriteInput,
+ *   AiMetricsStorageLayout,
+ *   ConfigSnapshot,
  *   writeAiMetricsDerivedStorage
  * } from "@beep/repo-ai-metrics"
- * const input = AiMetricsDerivedStorageWriteInput
- * const write = writeAiMetricsDerivedStorage
- * console.log(input)
+ *
+ * const input = AiMetricsDerivedStorageWriteInput.make({
+ *   configSnapshot: ConfigSnapshot.make({
+ *     changedPaths: [],
+ *     configHash: "config-hash",
+ *     label: "repo-local-agent-config",
+ *     snapshotId: "config-1"
+ *   }),
+ *   ingestRunId: "ingest-1",
+ *   parquetExportMode: "none",
+ *   records: [],
+ *   repoRootHash: "repo-hash",
+ *   startedAtEpochMillis: 1_717_000_000_000,
+ *   storage: AiMetricsStorageLayout.make({
+ *     dataRoot: ".beep/ai-metrics",
+ *     derivedDir: ".beep/ai-metrics/derived",
+ *     duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *     parquetDir: ".beep/ai-metrics/derived/parquet",
+ *     rawArchiveDir: ".beep/ai-metrics/raw"
+ *   }),
+ *   target: "local"
+ * })
+ * const write = writeAiMetricsDerivedStorage(input)
  * console.log(write)
  * ```
+ * @effects
+ * - Creates the derived DuckDB directory when missing.
+ * - Runs DuckDB table creation and migrations before writing rows.
+ * - Upserts ingest, source-file, archive, session, and turn projections inside a transaction.
+ * - Recreates the selected Parquet export directory for `latest` or `snapshot` exports.
+ *
  * @category services
  * @since 0.0.0
  */

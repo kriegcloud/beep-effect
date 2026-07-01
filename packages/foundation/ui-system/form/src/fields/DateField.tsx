@@ -44,9 +44,35 @@ export interface DateFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { DateField } from "@beep/form/fields/DateField"
+ * import { DateTimeUtcFromValid } from "@beep/schema/DateTimeUtcFromValid"
+ * import * as DateTime from "effect/DateTime"
+ * import * as S from "effect/Schema"
  *
- * console.log(DateField)
+ * const ScheduleSchema = S.Struct({
+ *   startDate: S.NullOr(S.toType(DateTimeUtcFromValid)),
+ * })
+ * const defaultStartDate = DateTime.makeUnsafe("2024-02-03T00:00:00.000Z")
+ * const scheduleOptions = makeFormOptions({
+ *   schema: ScheduleSchema,
+ *   defaultValues: { startDate: defaultStartDate },
+ *   validateOn: "change",
+ * })
+ *
+ * export function ScheduleForm() {
+ *   const form = useAppForm(scheduleOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="startDate">{() => <DateField label="Start date" />}</form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(DateTime.formatIso(scheduleOptions.defaultValues.startDate))
  * ```
  *
  * @category components

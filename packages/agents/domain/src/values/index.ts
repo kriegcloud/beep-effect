@@ -6,13 +6,18 @@
  */
 
 /**
- * Root AssistantContent value-object exports.
+ * Root export for assistant-content value-object schemas and mapping helpers.
  *
  * @example
  * ```ts
  * import { AssistantBlock } from "@beep/agents-domain/values"
+ * import * as S from "effect/Schema"
  *
- * console.log(AssistantBlock)
+ * const block = S.decodeUnknownSync(AssistantBlock)({
+ *   type: "paragraph",
+ *   children: [{ type: "text", text: "Hello" }],
+ * })
+ * console.log(block.type)
  * ```
  *
  * @category value-objects

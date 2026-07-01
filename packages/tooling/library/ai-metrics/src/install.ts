@@ -101,7 +101,12 @@ const requireRawArchiveKeySecretRef = Effect.fn("AiMetrics.requireRawArchiveKeyS
  * @example
  * ```ts
  * import { AiMetricsInstallConfigurationError } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsInstallConfigurationError)
+ *
+ * const error = AiMetricsInstallConfigurationError.make({
+ *   cause: "missing secret reference",
+ *   message: "dankserver target requires a raw archive key secret reference."
+ * })
+ * console.log(error.message)
  * ```
  * @category errors
  * @since 0.0.0
@@ -177,7 +182,15 @@ export class AiMetricsInstallInput extends S.Class<AiMetricsInstallInput>($I`AiM
  * @example
  * ```ts
  * import { AiMetricsStorageLayout } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsStorageLayout)
+ *
+ * const storage = AiMetricsStorageLayout.make({
+ *   dataRoot: ".beep/ai-metrics",
+ *   derivedDir: ".beep/ai-metrics/derived",
+ *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *   parquetDir: ".beep/ai-metrics/derived/parquet",
+ *   rawArchiveDir: ".beep/ai-metrics/raw"
+ * })
+ * console.log(storage.duckDbPath)
  * ```
  * @category models
  * @since 0.0.0
@@ -200,8 +213,25 @@ export class AiMetricsStorageLayout extends S.Class<AiMetricsStorageLayout>($I`A
  *
  * @example
  * ```ts
- * import { AiMetricsServiceSpec } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsServiceSpec)
+ * import { AiMetricsOtlpEndpointSpec, AiMetricsServiceSpec } from "@beep/repo-ai-metrics"
+ *
+ * const service = AiMetricsServiceSpec.make({
+ *   composeServiceName: "phoenix",
+ *   enabledByDefault: true,
+ *   healthUrl: "http://127.0.0.1:6006/healthz",
+ *   image: "arizephoenix/phoenix:latest",
+ *   internalUrl: "http://phoenix:6006",
+ *   otlp: AiMetricsOtlpEndpointSpec.make({
+ *     baseUrl: "http://127.0.0.1:6006",
+ *     protocol: "http/protobuf",
+ *     resourceAttributes: { "service.name": "beep-ai-metrics" },
+ *     signalScope: "traces_only",
+ *     traceUrl: "http://127.0.0.1:6006/projects/default/traces"
+ *   }),
+ *   publicUrl: "http://127.0.0.1:6006",
+ *   tool: "phoenix"
+ * })
+ * console.log(service.tool)
  * ```
  * @category models
  * @since 0.0.0
@@ -227,8 +257,32 @@ export class AiMetricsServiceSpec extends S.Class<AiMetricsServiceSpec>($I`AiMet
  *
  * @example
  * ```ts
- * import { AiMetricsInstallSpec } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsInstallSpec)
+ * import {
+ *   AiMetricsInstallSpec,
+ *   AiMetricsScoreWeights,
+ *   AiMetricsStorageLayout
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const spec = AiMetricsInstallSpec.make({
+ *   candidateTools: ["phoenix"],
+ *   defaultScoreWeights: AiMetricsScoreWeights.make({}),
+ *   defaultTool: "phoenix",
+ *   litellmGatewayEnabled: true,
+ *   plannedCommands: ["bun run beep ai-metrics install plan"],
+ *   privacyMode: "encrypted_raw_redacted_ui",
+ *   services: [],
+ *   stackName: "beep-ai-metrics-local",
+ *   storage: AiMetricsStorageLayout.make({
+ *     dataRoot: ".beep/ai-metrics",
+ *     derivedDir: ".beep/ai-metrics/derived",
+ *     duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *     parquetDir: ".beep/ai-metrics/derived/parquet",
+ *     rawArchiveDir: ".beep/ai-metrics/raw"
+ *   }),
+ *   tailnetOnly: true,
+ *   target: "local"
+ * })
+ * console.log(spec.plannedCommands)
  * ```
  * @category models
  * @since 0.0.0
@@ -305,7 +359,19 @@ export type AiMetricsInstallPlanStepKind = typeof AiMetricsInstallPlanStepKind.T
  * @example
  * ```ts
  * import { AiMetricsInstallPlanStep } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsInstallPlanStep)
+ *
+ * const step = AiMetricsInstallPlanStep.make({
+ *   command: "bun run beep ai-metrics source-discovery",
+ *   description: "Collect source availability before forwarding.",
+ *   kind: "source_discovery",
+ *   mutatesHost: false,
+ *   order: 1,
+ *   required: true,
+ *   requiresRemote: false,
+ *   stepId: "source-discovery",
+ *   title: "Discover sources"
+ * })
+ * console.log(step.required)
  * ```
  * @category models
  * @since 0.0.0
@@ -332,8 +398,28 @@ export class AiMetricsInstallPlanStep extends S.Class<AiMetricsInstallPlanStep>(
  *
  * @example
  * ```ts
- * import { AiMetricsInstallPlan } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsInstallPlan)
+ * import {
+ *   AiMetricsInstallPlan,
+ *   AiMetricsStorageLayout
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const plan = AiMetricsInstallPlan.make({
+ *   defaultTool: "phoenix",
+ *   dryRunOnly: true,
+ *   services: [],
+ *   stackName: "beep-ai-metrics-local",
+ *   steps: [],
+ *   storage: AiMetricsStorageLayout.make({
+ *     dataRoot: ".beep/ai-metrics",
+ *     derivedDir: ".beep/ai-metrics/derived",
+ *     duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *     parquetDir: ".beep/ai-metrics/derived/parquet",
+ *     rawArchiveDir: ".beep/ai-metrics/raw"
+ *   }),
+ *   tailnetOnly: true,
+ *   target: "local"
+ * })
+ * console.log(plan.dryRunOnly)
  * ```
  * @category models
  * @since 0.0.0
@@ -422,7 +508,13 @@ export type AiMetricsInstallDoctorStatus = typeof AiMetricsInstallDoctorStatus.T
  * @example
  * ```ts
  * import { AiMetricsInstallDoctorCheck } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsInstallDoctorCheck)
+ *
+ * const check = AiMetricsInstallDoctorCheck.make({
+ *   checkId: "storage.layout",
+ *   message: "Storage layout resolved.",
+ *   status: "passed"
+ * })
+ * console.log(check.metadata)
  * ```
  * @category models
  * @since 0.0.0
@@ -471,8 +563,36 @@ export class AiMetricsInstallDoctorInput extends S.Class<AiMetricsInstallDoctorI
  *
  * @example
  * ```ts
- * import { AiMetricsInstallDoctorResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsInstallDoctorResult)
+ * import {
+ *   AiMetricsInstallDoctorResult,
+ *   AiMetricsInstallPlan,
+ *   AiMetricsStorageLayout
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const plan = AiMetricsInstallPlan.make({
+ *   defaultTool: "phoenix",
+ *   dryRunOnly: true,
+ *   services: [],
+ *   stackName: "beep-ai-metrics-local",
+ *   steps: [],
+ *   storage: AiMetricsStorageLayout.make({
+ *     dataRoot: ".beep/ai-metrics",
+ *     derivedDir: ".beep/ai-metrics/derived",
+ *     duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *     parquetDir: ".beep/ai-metrics/derived/parquet",
+ *     rawArchiveDir: ".beep/ai-metrics/raw"
+ *   }),
+ *   tailnetOnly: true,
+ *   target: "local"
+ * })
+ * const result = AiMetricsInstallDoctorResult.make({
+ *   availableSourceCount: 1,
+ *   checks: [],
+ *   plan,
+ *   status: "passed",
+ *   target: "local"
+ * })
+ * console.log(result.status)
  * ```
  * @category models
  * @since 0.0.0
@@ -497,8 +617,35 @@ export class AiMetricsInstallDoctorResult extends S.Class<AiMetricsInstallDoctor
  *
  * @example
  * ```ts
- * import { AiMetricsInstallApplyDryRunResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsInstallApplyDryRunResult)
+ * import {
+ *   AiMetricsInstallApplyDryRunResult,
+ *   AiMetricsInstallPlan,
+ *   AiMetricsStorageLayout
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const plan = AiMetricsInstallPlan.make({
+ *   defaultTool: "phoenix",
+ *   dryRunOnly: true,
+ *   services: [],
+ *   stackName: "beep-ai-metrics-local",
+ *   steps: [],
+ *   storage: AiMetricsStorageLayout.make({
+ *     dataRoot: ".beep/ai-metrics",
+ *     derivedDir: ".beep/ai-metrics/derived",
+ *     duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *     parquetDir: ".beep/ai-metrics/derived/parquet",
+ *     rawArchiveDir: ".beep/ai-metrics/raw"
+ *   }),
+ *   tailnetOnly: true,
+ *   target: "local"
+ * })
+ * const result = AiMetricsInstallApplyDryRunResult.make({
+ *   dryRun: true,
+ *   message: "No host mutation performed.",
+ *   plan,
+ *   target: "local"
+ * })
+ * console.log(result.dryRun)
  * ```
  * @category models
  * @since 0.0.0
@@ -1237,8 +1384,15 @@ export const makeAiMetricsInstallApplyDryRunResult: (
  *
  * @example
  * ```ts
- * import { aiMetricsInstallPlanToJson } from "@beep/repo-ai-metrics"
- * console.log(aiMetricsInstallPlanToJson)
+ * import { aiMetricsInstallPlanToJson, makeAiMetricsInstallPlan } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   makeAiMetricsInstallPlan().pipe(
+ *     Effect.flatMap((plan) => aiMetricsInstallPlanToJson(plan))
+ *   )
+ * )
+ * console.log(json)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1254,8 +1408,15 @@ export const aiMetricsInstallPlanToJson: (
  *
  * @example
  * ```ts
- * import { aiMetricsInstallDoctorToJson } from "@beep/repo-ai-metrics"
- * console.log(aiMetricsInstallDoctorToJson)
+ * import { aiMetricsInstallDoctorToJson, makeAiMetricsInstallDoctorResult } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   makeAiMetricsInstallDoctorResult().pipe(
+ *     Effect.flatMap((result) => aiMetricsInstallDoctorToJson(result))
+ *   )
+ * )
+ * console.log(json)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1271,8 +1432,18 @@ export const aiMetricsInstallDoctorToJson: (
  *
  * @example
  * ```ts
- * import { aiMetricsInstallApplyDryRunToJson } from "@beep/repo-ai-metrics"
- * console.log(aiMetricsInstallApplyDryRunToJson)
+ * import {
+ *   aiMetricsInstallApplyDryRunToJson,
+ *   makeAiMetricsInstallApplyDryRunResult
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   makeAiMetricsInstallApplyDryRunResult().pipe(
+ *     Effect.flatMap((result) => aiMetricsInstallApplyDryRunToJson(result))
+ *   )
+ * )
+ * console.log(json)
  * ```
  * @category utilities
  * @since 0.0.0

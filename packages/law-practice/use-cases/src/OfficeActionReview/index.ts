@@ -12,7 +12,7 @@
  * ```ts
  * import * as Module from "@beep/law-practice-use-cases/OfficeActionReview"
  *
- * console.log(Module)
+ * console.log(Object.keys(Module).includes("OfficeActionReview")) // true
  * ```
  *
  * @category services
@@ -26,7 +26,7 @@ export * from "./OfficeActionReview.ports.js";
  * ```ts
  * import * as Module from "@beep/law-practice-use-cases/OfficeActionReview"
  *
- * console.log(Module)
+ * console.log(Object.keys(Module).includes("makeOfficeActionReview")) // true
  * ```
  *
  * @category services

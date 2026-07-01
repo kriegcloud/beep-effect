@@ -13,7 +13,8 @@
  * ```ts
  * import { ChatActionError } from "@beep/agents-use-cases/public"
  *
- * console.log(ChatActionError)
+ * const error = ChatActionError.make({ message: "thread not found" })
+ * console.log(error._tag)
  * ```
  *
  * @category errors
@@ -27,7 +28,7 @@ export * from "./Chat.errors.js";
  * ```ts
  * import { ChatRpcs } from "@beep/agents-use-cases/public"
  *
- * console.log(ChatRpcs)
+ * console.log([...ChatRpcs.requests.keys()].sort())
  * ```
  *
  * @category protocols

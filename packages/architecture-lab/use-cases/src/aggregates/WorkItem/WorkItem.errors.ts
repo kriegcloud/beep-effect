@@ -18,9 +18,14 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.error
  *
  * @example
  * ```ts
- * import { WORK_ITEM_ACTION_UNAVAILABLE_REASON } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import {
+ *   WORK_ITEM_ACTION_UNAVAILABLE_REASON,
+ *   WorkItemActionFailed
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
  *
- * console.log(WORK_ITEM_ACTION_UNAVAILABLE_REASON)
+ * const error = WorkItemActionFailed.make({ reason: WORK_ITEM_ACTION_UNAVAILABLE_REASON })
+ *
+ * console.log(error.reason) // "WorkItem service is unavailable."
  * ```
  *
  * @category errors
@@ -33,9 +38,15 @@ export const WORK_ITEM_ACTION_UNAVAILABLE_REASON = "WorkItem service is unavaila
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { WorkItemNotFound } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemNotFound)
+ * const error = WorkItemNotFound.make({
+ *   workItemId: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * })
+ *
+ * console.log(error._tag) // "WorkItemNotFound"
  * ```
  *
  * @category errors
@@ -57,9 +68,16 @@ export class WorkItemNotFound extends TaggedErrorClass<WorkItemNotFound>($I`Work
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { WorkItemConflict } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemConflict)
+ * const error = WorkItemConflict.make({
+ *   workItemId: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1"),
+ *   reason: "WorkItem already exists"
+ * })
+ *
+ * console.log(error.reason) // "WorkItem already exists"
  * ```
  *
  * @category errors
@@ -82,9 +100,16 @@ export class WorkItemConflict extends TaggedErrorClass<WorkItemConflict>($I`Work
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { WorkItemActionRejected } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemActionRejected)
+ * const error = WorkItemActionRejected.make({
+ *   workItemId: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1"),
+ *   reason: "WorkItemAlreadyArchived"
+ * })
+ *
+ * console.log(error._tag) // "WorkItemActionRejected"
  * ```
  *
  * @category errors
@@ -109,7 +134,9 @@ export class WorkItemActionRejected extends TaggedErrorClass<WorkItemActionRejec
  * ```ts
  * import { WorkItemActionFailed } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
  *
- * console.log(WorkItemActionFailed)
+ * const error = WorkItemActionFailed.make({ reason: "Repository timeout" })
+ *
+ * console.log(error.reason) // "Repository timeout"
  * ```
  *
  * @category errors
@@ -131,10 +158,14 @@ export class WorkItemActionFailed extends TaggedErrorClass<WorkItemActionFailed>
  *
  * @example
  * ```ts
- * import type { WorkItemActionError } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import {
+ *   WorkItemActionFailed,
+ *   type WorkItemActionError
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
  *
- * const value = {} as WorkItemActionError
- * console.log(value)
+ * const error: WorkItemActionError = WorkItemActionFailed.make({ reason: "Repository unavailable" })
+ *
+ * console.log(error._tag) // "WorkItemActionFailed"
  * ```
  *
  * @category errors
@@ -147,9 +178,15 @@ export type WorkItemActionError = WorkItemNotFound | WorkItemConflict | WorkItem
  *
  * @example
  * ```ts
- * import { WorkItemActionError } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import {
+ *   WorkItemActionError,
+ *   WorkItemActionFailed
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemActionError)
+ * const isActionError = S.is(WorkItemActionError)
+ *
+ * console.log(isActionError(WorkItemActionFailed.make({ reason: "Repository unavailable" }))) // true
  * ```
  *
  * @category errors

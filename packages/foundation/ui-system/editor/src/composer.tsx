@@ -69,7 +69,14 @@ interface EditorComposerProps {
  * ```tsx
  * import { EditorComposer } from "@beep/editor/composer"
  *
- * console.log(EditorComposer.name) // "EditorComposer"
+ * function DraftEditor() {
+ *   return (
+ *     <EditorComposer
+ *       placeholder="Draft response"
+ *       onSerializedChange={(state) => console.log(state.root.type)}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @category components

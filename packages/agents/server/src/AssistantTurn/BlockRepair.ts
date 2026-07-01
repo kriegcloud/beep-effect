@@ -93,7 +93,7 @@ class RepairAttemptState extends S.Class<RepairAttemptState>($I`RepairAttemptSta
     repaired: S.Array(IndexedBlock),
   },
   $I.annote("RepairAttemptState", {
-    description: "",
+    description: "Accumulator for unrepaired failures and accepted repaired blocks across repair attempts.",
   })
 ) {}
 interface RepairAttemptState {
@@ -102,7 +102,35 @@ interface RepairAttemptState {
 }
 
 /**
- * Repair-call function used by {@link makeRepairInvalidBlocks}.
+ * Provider call used by {@link makeRepairInvalidBlocks} to obtain repair tool
+ * parameters for a batch of invalid block slices.
+ *
+ * @remarks
+ * `attempt` is one-based and never exceeds the adapter retry limit. The call
+ * returns the raw repair-tool parameters JSON; envelope validation, per-block
+ * decoding, unexpected indices, and dropped repairs remain the adapter's
+ * responsibility.
+ *
+ * @example
+ * ```ts
+ * import { IssueReport } from "@beep/agents-server/AssistantTurn"
+ * import type { BlockRepairCall } from "@beep/agents-server/AssistantTurn"
+ * import { Effect } from "effect"
+ *
+ * const issue = IssueReport.make({
+ *   index: 0,
+ *   raw: '{"type":"paragraph","children":[{"type":"text","text":1}]}',
+ *   report: "/children/0/text Expected string",
+ * })
+ * const callRepair: BlockRepairCall = (pending, attempt) =>
+ *   Effect.succeed(
+ *     `{"repairs":[{"index":${pending[0]?.index ?? 0},"block":{"type":"paragraph","children":[{"type":"text","text":"Fixed on attempt ${attempt}"}]}}]}`
+ *   )
+ *
+ * Effect.runPromise(callRepair([issue], 1)).then((paramsJson) =>
+ *   console.log(paramsJson.includes("Fixed")) // true
+ * )
+ * ```
  *
  * @category combinators
  * @since 0.0.0
@@ -113,7 +141,34 @@ export type BlockRepairCall = (
 ) => Effect.Effect<string, RepairError>;
 
 /**
- * Repair function shape used by the Anthropic turn kernel.
+ * Repair function shape used by the Anthropic turn kernel after streamed block
+ * validation has collected one or more failures.
+ *
+ * @remarks
+ * The returned effect succeeds with repaired indexed blocks only. Missing,
+ * duplicated, unexpected, or still-invalid tool results are handled by the
+ * adapter and do not escape as successful blocks; repair-call failures are
+ * represented by `BlockRepairFailed`.
+ *
+ * @example
+ * ```ts
+ * import { IssueReport, makeRepairInvalidBlocks } from "@beep/agents-server/AssistantTurn"
+ * import type { RepairInvalidBlocks } from "@beep/agents-server/AssistantTurn"
+ * import { Effect } from "effect"
+ *
+ * const repair: RepairInvalidBlocks = makeRepairInvalidBlocks(() =>
+ *   Effect.succeed(
+ *     '{"repairs":[{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"Fixed"}]}}]}'
+ *   )
+ * )
+ * const issue = IssueReport.make({
+ *   index: 0,
+ *   raw: '{"type":"paragraph","children":[{"type":"text","text":1}]}',
+ *   report: "/children/0/text Expected string",
+ * })
+ *
+ * Effect.runPromise(repair([issue])).then((blocks) => console.log(blocks[0]?.block.type)) // "paragraph"
+ * ```
  *
  * @category combinators
  * @since 0.0.0
@@ -314,13 +369,32 @@ const runRepairAttempts = Effect.fn("runRepairAttempts")(function* (
 });
 
 /**
- * Build a repair function from a repair-call implementation.
+ * Build a retrying invalid-block repair function from a provider call.
+ *
+ * @remarks
+ * The returned repair function makes at most two sequential repair attempts.
+ * It keeps the first accepted repair per index, ignores unexpected indices,
+ * logs codec-invalid tool results, records repair metrics, and drops failures
+ * that remain pending after the retry budget. A failed provider call or
+ * malformed repair envelope fails the effect with `BlockRepairFailed`.
  *
  * @example
  * ```ts
- * import { makeRepairInvalidBlocks } from "@beep/agents-server/AssistantTurn"
+ * import { IssueReport, makeRepairInvalidBlocks } from "@beep/agents-server/AssistantTurn"
+ * import { Effect } from "effect"
  *
- * console.log(makeRepairInvalidBlocks)
+ * const repair = makeRepairInvalidBlocks(() =>
+ *   Effect.succeed(
+ *     '{"repairs":[{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"Fixed"}]}}]}'
+ *   )
+ * )
+ * const issue = IssueReport.make({
+ *   index: 0,
+ *   raw: '{"type":"paragraph","children":[{"type":"text","text":1}]}',
+ *   report: "/children/0/text Expected string",
+ * })
+ *
+ * Effect.runPromise(repair([issue])).then((blocks) => console.log(blocks.length)) // 1
  * ```
  *
  * @category combinators
@@ -348,11 +422,17 @@ export const makeRepairInvalidBlocks = (callRepair: BlockRepairCall = defaultRep
 /**
  * Default Anthropic-backed invalid-block repair function.
  *
+ * @remarks
+ * Non-empty failure batches call the Anthropic repair tool with redacted,
+ * structured failure reports. Empty batches return immediately without a
+ * provider call, which is useful for branch-free repair tails.
+ *
  * @example
  * ```ts
  * import { repairInvalidBlocks } from "@beep/agents-server/AssistantTurn"
+ * import { Effect } from "effect"
  *
- * console.log(repairInvalidBlocks)
+ * Effect.runPromise(repairInvalidBlocks([])).then((blocks) => console.log(blocks.length)) // 0
  * ```
  *
  * @category combinators

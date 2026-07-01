@@ -11,12 +11,17 @@
  *
  * @example
  * ```ts
- * import { ChatClient, threadsAtoms } from "@beep/agents-client"
+ * import { threadsAtoms } from "@beep/agents-client"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ * import { Atom } from "effect/unstable/reactivity"
  *
- * console.log(ChatClient, threadsAtoms)
+ * const workspaceId = S.decodeUnknownSync(Workspace.WorkspaceId)(1)
+ *
+ * console.log(Atom.isSerializable(threadsAtoms(workspaceId))) // true
  * ```
  *
- * @category clients
+ * @category atoms
  * @since 0.0.0
  */
 export * from "./Chat.atoms.js";
@@ -27,8 +32,9 @@ export * from "./Chat.atoms.js";
  * @example
  * ```ts
  * import { ClientObservabilityLive } from "@beep/agents-client"
+ * import { Layer } from "effect"
  *
- * console.log(ClientObservabilityLive)
+ * console.log(Layer.isLayer(ClientObservabilityLive)) // true
  * ```
  *
  * @category observability

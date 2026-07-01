@@ -20,9 +20,15 @@ const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.repos
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { WorkItemRepositoryNotFound } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemRepositoryNotFound)
+ * const error = WorkItemRepositoryNotFound.make({
+ *   workItemId: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * })
+ *
+ * console.log(error._tag) // "WorkItemRepositoryNotFound"
  * ```
  *
  * @category repositories
@@ -46,9 +52,16 @@ export class WorkItemRepositoryNotFound extends TaggedErrorClass<WorkItemReposit
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { WorkItemRepositoryConflict } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemRepositoryConflict)
+ * const error = WorkItemRepositoryConflict.make({
+ *   workItemId: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1"),
+ *   reason: "duplicate id"
+ * })
+ *
+ * console.log(error.reason) // "duplicate id"
  * ```
  *
  * @category repositories
@@ -75,7 +88,9 @@ export class WorkItemRepositoryConflict extends TaggedErrorClass<WorkItemReposit
  * ```ts
  * import { WorkItemRepositoryUnavailable } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
  *
- * console.log(WorkItemRepositoryUnavailable)
+ * const error = WorkItemRepositoryUnavailable.make({ reason: "database connection closed" })
+ *
+ * console.log(error._tag) // "WorkItemRepositoryUnavailable"
  * ```
  *
  * @category repositories
@@ -99,10 +114,14 @@ export class WorkItemRepositoryUnavailable extends TaggedErrorClass<WorkItemRepo
  *
  * @example
  * ```ts
- * import type { WorkItemRepositoryError } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import {
+ *   WorkItemRepositoryUnavailable,
+ *   type WorkItemRepositoryError
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
  *
- * const value = {} as WorkItemRepositoryError
- * console.log(value)
+ * const error: WorkItemRepositoryError = WorkItemRepositoryUnavailable.make({ reason: "maintenance" })
+ *
+ * console.log(error._tag) // "WorkItemRepositoryUnavailable"
  * ```
  *
  * @category repositories
@@ -114,14 +133,43 @@ export type WorkItemRepositoryError =
   | WorkItemRepositoryUnavailable;
 
 /**
- * WorkItem repository contract.
+ * WorkItem repository port consumed by the server-side use-case factory.
+ *
+ * @remarks
+ * `create` fails on duplicate identity, `get` fails when no aggregate exists,
+ * `list` returns repository order, and `save` updates an existing aggregate.
  *
  * @example
  * ```ts
- * import type { WorkItemRepositoryShape } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import {
+ *   WorkItemRepositoryNotFound,
+ *   type WorkItemRepositoryShape
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * const value = {} as WorkItemRepositoryShape
- * console.log(value)
+ * const id = S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * const workItem = DomainWorkItem.create(
+ *   DomainWorkItem.CreateWorkItemInput.make({
+ *     id,
+ *     title: "Review architecture slice",
+ *     priority: O.none()
+ *   })
+ * )
+ *
+ * const repository: WorkItemRepositoryShape = {
+ *   create: (created) => Effect.succeed(created),
+ *   get: (workItemId) =>
+ *     workItemId === id
+ *       ? Effect.succeed(workItem)
+ *       : Effect.fail(WorkItemRepositoryNotFound.make({ workItemId })),
+ *   list: Effect.succeed([workItem]),
+ *   save: (saved) => Effect.succeed(saved)
+ * }
+ *
+ * Effect.runPromise(repository.list).then((items) => console.log(items.length)) // 1
  * ```
  *
  * @category repositories
@@ -141,13 +189,30 @@ export interface WorkItemRepositoryShape {
 }
 
 /**
- * WorkItem repository service.
+ * Context tag for the WorkItem repository port.
  *
  * @example
  * ```ts
- * import { WorkItemRepository } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import {
+ *   WorkItemRepository,
+ *   WorkItemRepositoryNotFound,
+ *   type WorkItemRepositoryShape
+ * } from "@beep/architecture-lab-use-cases/aggregates/WorkItem/server"
+ * import { Effect } from "effect"
  *
- * console.log(WorkItemRepository)
+ * const repository: WorkItemRepositoryShape = {
+ *   create: (workItem) => Effect.succeed(workItem),
+ *   get: (workItemId) => Effect.fail(WorkItemRepositoryNotFound.make({ workItemId })),
+ *   list: Effect.succeed([]),
+ *   save: (workItem) => Effect.succeed(workItem)
+ * }
+ *
+ * const program = Effect.gen(function* () {
+ *   const port = yield* WorkItemRepository
+ *   return yield* port.list
+ * }).pipe(Effect.provideService(WorkItemRepository, repository))
+ *
+ * Effect.runPromise(program).then((items) => console.log(items.length)) // 0
  * ```
  *
  * @category repositories

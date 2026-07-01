@@ -1231,9 +1231,86 @@ export { parseValue };
           expect(subject?.sourceAnchor).toContain("packages/foundation/modeling/schema/src/index.ts:");
           expect(findingCodes).not.toContain("missing-example");
           expect(findingCodes).not.toContain("example-lacks-observable-result");
+          expect(findingCodes).not.toContain("example-logs-export-symbol");
           expect(findingCodes).not.toContain("example-only-voids-result");
           expect(findingCodes).not.toContain("example-too-trivial");
           expect(review?.tier).toBe("pass");
+        })
+      )
+    ));
+
+  it("warns when examples log exported symbol handles instead of behavior", () =>
+    Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `/**
+ * Runtime client used by chat examples.
+ *
+ * @example
+ * \`\`\`ts
+ * import { ChatClient } from "@beep/schema"
+ * console.log(ChatClient)
+ * \`\`\`
+ * @category clients
+ * @since 0.0.0
+ */
+export class ChatClient {}
+
+/**
+ * Schema fixture used by the quality rule.
+ *
+ * @example
+ * \`\`\`ts
+ * import { ChatSchema } from "@beep/schema"
+ * console.log(ChatSchema.fields)
+ * \`\`\`
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ChatSchema = { fields: { id: "string" } };
+`
+          );
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+          const target = O.getOrUndefined(A.findFirst(packages, (pkg) => pkg.name === "@beep/schema"));
+
+          expect(target).toBeDefined();
+
+          const report = yield* analyzePackageQuality(target!);
+          const findingCodesFor = (exportName: string) => {
+            const subject = O.getOrUndefined(A.findFirst(report.subjects, (entry) => entry.exportName === exportName));
+            const review = O.getOrUndefined(
+              A.findFirst(report.reviews, (entry) => entry.subjectId === subject?.stableIdentity)
+            );
+            return A.map(review?.findings ?? [], (finding) => finding.code);
+          };
+
+          expect(findingCodesFor("ChatClient")).toContain("example-logs-export-symbol");
+          expect(findingCodesFor("ChatSchema")).toContain("example-logs-export-symbol");
         })
       )
     ));

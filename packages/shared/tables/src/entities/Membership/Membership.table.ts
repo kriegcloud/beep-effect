@@ -1,5 +1,5 @@
 /**
- * Shared-kernel Membership table metadata.
+ * Shared-kernel membership table metadata projection.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -9,13 +9,20 @@ import { EntityTable } from "@beep/drizzle";
 import { Membership } from "@beep/shared-domain/entities";
 
 /**
- * PGLite/Postgres Drizzle table for the shared Membership entity.
+ * Postgres Drizzle table metadata for shared organization memberships.
+ *
+ * @remarks
+ * The table is projected from `Membership.Model`, preserving the shared-domain
+ * entity definition on `Table.definition` for schema and index inspection.
  *
  * @example
  * ```ts
+ * import { getTableConfig } from "drizzle-orm/pg-core"
  * import { Membership } from "@beep/shared-tables/entities"
  *
- * console.log(Membership.Table.definition.tableName) //
+ * const config = getTableConfig(Membership.Table)
+ *
+ * console.log(config.name) // "shared_membership"
  * ```
  *
  * @category tables

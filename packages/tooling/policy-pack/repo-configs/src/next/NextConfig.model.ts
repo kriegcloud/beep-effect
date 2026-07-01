@@ -416,11 +416,14 @@ export const decodeNextConfig = S.decodeUnknownEffect(NextConfig);
  * @returns A plain Next.js configuration object validated by the schema.
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { defineNextConfig } from "@beep/repo-configs/next"
- * import type { NextConfig } from "next"
- * export default defineNextConfig({
+ *
+ * const config = defineNextConfig({
  *   reactStrictMode: true
- * } satisfies NextConfig)
+ * })
+ *
+ * strictEqual(config.reactStrictMode, true)
  * ```
  * @category constructors
  * @since 0.0.0

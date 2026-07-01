@@ -10,11 +10,12 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-use-cases/ClaimGate"
+ * import { strictEqual } from "node:assert"
+ * import * as ClaimGate from "@beep/epistemic-use-cases/ClaimGate"
  *
- * console.log(Module)
+ * strictEqual(typeof ClaimGate.ClaimGate, "function")
  * ```
-
+ *
  * @category services
  * @since 0.0.0
  */
@@ -24,11 +25,12 @@ export * from "./ClaimGate.ports.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-use-cases/ClaimGate"
+ * import { strictEqual } from "node:assert"
+ * import * as ClaimGate from "@beep/epistemic-use-cases/ClaimGate"
  *
- * console.log(Module)
+ * strictEqual(typeof ClaimGate.makeClaimGate, "function")
  * ```
-
+ *
  * @category services
  * @since 0.0.0
  */

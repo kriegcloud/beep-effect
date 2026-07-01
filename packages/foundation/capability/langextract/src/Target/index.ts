@@ -31,7 +31,15 @@ export const ExtractionTargetKind = LiteralKit(["entity", "relation", "attribute
 );
 
 /**
- * Type for {@link ExtractionTargetKind}.
+ * Type for {@link ExtractionTargetKind}. {@inheritDoc ExtractionTargetKind}
+ *
+ * @example
+ * ```ts
+ * import type { ExtractionTargetKind } from "@beep/langextract/Target"
+ *
+ * const kind: ExtractionTargetKind = "entity"
+ * console.log(kind)
+ * ```
  *
  * @category models
  * @since 0.0.0

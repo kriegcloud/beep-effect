@@ -173,6 +173,7 @@ export const BackgroundColorName = BackgroundColorNameDefinition;
  * import type { BackgroundColorName } from "@beep/chalk"
  *
  * const bg: BackgroundColorName = "bgRed"
+ * console.log(bg)
  * ```
  *
  * @since 0.0.0
@@ -247,6 +248,7 @@ export const ChalkOptions = ChalkOptionsDefinition;
  * import type { ChalkOptions } from "@beep/chalk"
  *
  * const opts: ChalkOptions = { level: 3 }
+ * console.log(opts.level)
  * ```
  *
  * @since 0.0.0
@@ -265,10 +267,8 @@ export type ChalkOptions = ChalkOptionsDefinition;
  * import { ColorInfo, supportsColor } from "@beep/chalk"
  *
  * const info: ColorInfo = supportsColor
- * if (info !== false) {
- *
- *
- * }
+ * const rendered = info === false ? "disabled" : `level:${info.level}`
+ * console.log(rendered)
  * ```
  *
  * @since 0.0.0
@@ -284,6 +284,7 @@ export const ColorInfo = ColorInfoDefinition;
  * import type { ColorInfo } from "@beep/chalk"
  *
  * const info: ColorInfo = false
+ * console.log(info)
  * ```
  *
  * @since 0.0.0
@@ -319,6 +320,7 @@ export const ColorName = ColorNameDefinition;
  * import type { ColorName } from "@beep/chalk"
  *
  * const name: ColorName = "red"
+ * console.log(name)
  * ```
  *
  * @since 0.0.0
@@ -359,6 +361,7 @@ export const ColorSupport = ColorSupportDefinition;
  * import type { ColorSupport } from "@beep/chalk"
  *
  * const support: ColorSupport = { level: 3, hasBasic: true, has256: true, has16m: true }
+ * console.log(support.level)
  * ```
  *
  * @since 0.0.0
@@ -393,6 +396,7 @@ export const ColorSupportLevel = ColorSupportLevelDefinition;
  * import type { ColorSupportLevel } from "@beep/chalk"
  *
  * const level: ColorSupportLevel = 3
+ * console.log(level)
  * ```
  *
  * @since 0.0.0
@@ -428,6 +432,7 @@ export const ColorSupportLevelInput = ColorSupportLevelInputDefinition;
  * import type { ColorSupportLevelInput } from "@beep/chalk"
  *
  * const level: ColorSupportLevelInput = 3
+ * console.log(level)
  * ```
  *
  * @since 0.0.0
@@ -463,6 +468,7 @@ export const ForegroundColorName = ForegroundColorNameDefinition;
  * import type { ForegroundColorName } from "@beep/chalk"
  *
  * const fg: ForegroundColorName = "cyanBright"
+ * console.log(fg)
  * ```
  *
  * @since 0.0.0
@@ -498,6 +504,7 @@ export const ModifierName = ModifierNameDefinition;
  * import type { ModifierName } from "@beep/chalk"
  *
  * const mod: ModifierName = "bold"
+ * console.log(mod)
  * ```
  *
  * @since 0.0.0
@@ -512,9 +519,8 @@ export type ModifierName = ModifierNameDefinition;
  * ```ts
  * import { modifierNames } from "@beep/chalk"
  *
- * for (const name of modifierNames) {
- *
- * }
+ * const hasUnderline = modifierNames.includes("underline")
+ * console.log(hasUnderline)
  * ```
  *
  * @since 0.0.0
@@ -529,9 +535,8 @@ export const modifierNames = modifierNameValues;
  * ```ts
  * import { foregroundColorNames } from "@beep/chalk"
  *
- * for (const name of foregroundColorNames) {
- *
- * }
+ * const hasCyan = foregroundColorNames.includes("cyan")
+ * console.log(hasCyan)
  * ```
  *
  * @since 0.0.0
@@ -546,9 +551,8 @@ export const foregroundColorNames = foregroundColorNameValues;
  * ```ts
  * import { backgroundColorNames } from "@beep/chalk"
  *
- * for (const name of backgroundColorNames) {
- *
- * }
+ * const hasBgBlue = backgroundColorNames.includes("bgBlue")
+ * console.log(hasBgBlue)
  * ```
  *
  * @since 0.0.0
@@ -563,9 +567,8 @@ export const backgroundColorNames = backgroundColorNameValues;
  * ```ts
  * import { colorNames } from "@beep/chalk"
  *
- * for (const name of colorNames) {
- *
- * }
+ * const firstColorName = colorNames[0]
+ * console.log(firstColorName)
  * ```
  *
  * @since 0.0.0
@@ -580,7 +583,8 @@ export const colorNames = colorNameValues;
  * ```ts
  * import { modifiers } from "@beep/chalk"
  *
- * console.log(modifiers) // same as modifierNames
+ * const hasBold = modifiers.includes("bold")
+ * console.log(hasBold)
  * ```
  *
  * @since 0.0.0
@@ -595,7 +599,8 @@ export const modifiers = modifierNames;
  * ```ts
  * import { foregroundColors } from "@beep/chalk"
  *
- * console.log(foregroundColors) // same as foregroundColorNames
+ * const hasRed = foregroundColors.includes("red")
+ * console.log(hasRed)
  * ```
  *
  * @since 0.0.0
@@ -610,7 +615,8 @@ export const foregroundColors = foregroundColorNames;
  * ```ts
  * import { backgroundColors } from "@beep/chalk"
  *
- * console.log(backgroundColors) // same as backgroundColorNames
+ * const hasBgRed = backgroundColors.includes("bgRed")
+ * console.log(hasBgRed)
  * ```
  *
  * @since 0.0.0
@@ -625,7 +631,8 @@ export const backgroundColors = backgroundColorNames;
  * ```ts
  * import { colors } from "@beep/chalk"
  *
- * console.log(colors) // same as colorNames
+ * const hasBgYellow = colors.includes("bgYellow")
+ * console.log(hasBgYellow)
  * ```
  *
  * @since 0.0.0
@@ -643,10 +650,8 @@ export const colors = colorNames;
  * ```ts
  * import { supportsColor } from "@beep/chalk"
  *
- * if (supportsColor !== false) {
- *
- *
- * }
+ * const level = supportsColor === false ? 0 : supportsColor.level
+ * console.log(level)
  * ```
  *
  * @since 0.0.0
@@ -664,9 +669,8 @@ export const supportsColor = detectedSupportsColor.stdout;
  * ```ts
  * import { supportsColorStderr } from "@beep/chalk"
  *
- * if (supportsColorStderr !== false) {
- *
- * }
+ * const level = supportsColorStderr === false ? 0 : supportsColorStderr.level
+ * console.log(level)
  * ```
  *
  * @since 0.0.0
@@ -689,7 +693,8 @@ const ChalkStderr = makeChalkConstructor(ChalkStderrValue, createChalkStderr);
  * ```ts
  * import { chalkStderr } from "@beep/chalk"
  *
- * process.stderr.write(chalkStderr.red.bold("Error!") + "\n")
+ * const rendered = chalkStderr.red.bold("Error!")
+ * console.log(rendered.length > 0)
  * ```
  *
  * @since 0.0.0

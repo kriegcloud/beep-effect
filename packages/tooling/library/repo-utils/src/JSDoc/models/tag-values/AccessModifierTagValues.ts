@@ -12,10 +12,15 @@ import { empty, nameField, optionalDesc, optionalName, optionalType } from "./_f
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/AccessModifierTagValues");
 
 /**
+ * Schema-backed value for a parsed `access` tag occurrence: specifies the access level.
+ *
  * @example
  * ```ts
  * import { AccessValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(AccessValue)
+ *
+ * const tag = AccessValue.make({ level: "public" })
+ * const tagName: "access" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -31,10 +36,15 @@ export class AccessValue extends S.TaggedClass<AccessValue>($I`AccessValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `public` tag occurrence: marks a symbol as public.
+ *
  * @example
  * ```ts
  * import { PublicValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(PublicValue)
+ *
+ * const tag = PublicValue.make({})
+ * const tagName: "public" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -48,10 +58,15 @@ export class PublicValue extends S.TaggedClass<PublicValue>($I`PublicValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `private` tag occurrence: marks a symbol as private.
+ *
  * @example
  * ```ts
  * import { PrivateValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(PrivateValue)
+ *
+ * const tag = PrivateValue.make({})
+ * const tagName: "private" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -65,10 +80,15 @@ export class PrivateValue extends S.TaggedClass<PrivateValue>($I`PrivateValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `protected` tag occurrence: marks a symbol as protected.
+ *
  * @example
  * ```ts
  * import { ProtectedValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(ProtectedValue)
+ *
+ * const tag = ProtectedValue.make({})
+ * const tagName: "protected" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -82,10 +102,15 @@ export class ProtectedValue extends S.TaggedClass<ProtectedValue>($I`ProtectedVa
 ) {}
 
 /**
+ * Schema-backed value for a parsed `package` tag occurrence: marks a symbol as package-private.
+ *
  * @example
  * ```ts
  * import { PackageValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(PackageValue)
+ *
+ * const tag = PackageValue.make({})
+ * const tagName: "package" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -99,10 +124,15 @@ export class PackageValue extends S.TaggedClass<PackageValue>($I`PackageValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `readonly` tag occurrence: marks a symbol as read-only.
+ *
  * @example
  * ```ts
  * import { ReadonlyValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(ReadonlyValue)
+ *
+ * const tag = ReadonlyValue.make({})
+ * const tagName: "readonly" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -116,10 +146,15 @@ export class ReadonlyValue extends S.TaggedClass<ReadonlyValue>($I`ReadonlyValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `abstract` tag occurrence: marks a symbol as abstract.
+ *
  * @example
  * ```ts
  * import { AbstractValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(AbstractValue)
+ *
+ * const tag = AbstractValue.make({})
+ * const tagName: "abstract" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -133,10 +168,15 @@ export class AbstractValue extends S.TaggedClass<AbstractValue>($I`AbstractValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `final` tag occurrence: marks a symbol as final.
+ *
  * @example
  * ```ts
  * import { FinalValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(FinalValue)
+ *
+ * const tag = FinalValue.make({})
+ * const tagName: "final" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -150,10 +190,15 @@ export class FinalValue extends S.TaggedClass<FinalValue>($I`FinalValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `override` tag occurrence: marks a method as overriding a parent.
+ *
  * @example
  * ```ts
  * import { OverrideValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(OverrideValue)
+ *
+ * const tag = OverrideValue.make({})
+ * const tagName: "override" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -167,10 +212,15 @@ export class OverrideValue extends S.TaggedClass<OverrideValue>($I`OverrideValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `static` tag occurrence: marks a symbol as static.
+ *
  * @example
  * ```ts
  * import { StaticValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(StaticValue)
+ *
+ * const tag = StaticValue.make({})
+ * const tagName: "static" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -184,10 +234,18 @@ export class StaticValue extends S.TaggedClass<StaticValue>($I`StaticValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `constant` tag occurrence: marks a symbol as a constant.
+ *
  * @example
  * ```ts
  * import { ConstantValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(ConstantValue)
+ *
+ * const tag = ConstantValue.make({
+ *   type: "number",
+ *   name: "Example"
+ * })
+ * const tagName: "constant" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -201,10 +259,15 @@ export class ConstantValue extends S.TaggedClass<ConstantValue>($I`ConstantValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `default` tag occurrence: documents the default value.
+ *
  * @example
  * ```ts
  * import { DefaultValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(DefaultValue)
+ *
+ * const tag = DefaultValue.make({ description: "Defaults to false." })
+ * const tagName: "default" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -218,10 +281,15 @@ export class DefaultValue extends S.TaggedClass<DefaultValue>($I`DefaultValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `defaultValue` tag occurrence: TSDoc default value annotation.
+ *
  * @example
  * ```ts
  * import { DefaultValueValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(DefaultValueValue)
+ *
+ * const tag = DefaultValueValue.make({ description: "Defaults to false." })
+ * const tagName: "defaultValue" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -235,10 +303,15 @@ export class DefaultValueValue extends S.TaggedClass<DefaultValueValue>($I`Defau
 ) {}
 
 /**
+ * Schema-backed value for a parsed `exports` tag occurrence: documents the exported module name.
+ *
  * @example
  * ```ts
  * import { ExportsValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(ExportsValue)
+ *
+ * const tag = ExportsValue.make({ name: "@beep/repo-utils" })
+ * const tagName: "exports" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -252,10 +325,15 @@ export class ExportsValue extends S.TaggedClass<ExportsValue>($I`ExportsValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `export` tag occurrence: marks a symbol for export.
+ *
  * @example
  * ```ts
  * import { ExportValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(ExportValue)
+ *
+ * const tag = ExportValue.make({ type: "typeof Parser" })
+ * const tagName: "export" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -269,10 +347,15 @@ export class ExportValue extends S.TaggedClass<ExportValue>($I`ExportValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `satisfies` tag occurrence: specifies a satisfies constraint.
+ *
  * @example
  * ```ts
  * import { SatisfiesValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(SatisfiesValue)
+ *
+ * const tag = SatisfiesValue.make({ type: "ParserConfig" })
+ * const tagName: "satisfies" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -286,10 +369,15 @@ export class SatisfiesValue extends S.TaggedClass<SatisfiesValue>($I`SatisfiesVa
 ) {}
 
 /**
+ * Schema-backed value for a parsed `import` tag occurrence: declares a type import.
+ *
  * @example
  * ```ts
  * import { ImportValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(ImportValue)
+ *
+ * const tag = ImportValue.make({ type: "ParserConfig" })
+ * const tagName: "import" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -303,10 +391,15 @@ export class ImportValue extends S.TaggedClass<ImportValue>($I`ImportValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `this` tag occurrence: documents the this context type.
+ *
  * @example
  * ```ts
  * import { ThisValue } from "@beep/repo-utils/JSDoc/models/tag-values/AccessModifierTagValues"
- * console.log(ThisValue)
+ *
+ * const tag = ThisValue.make({ type: "Parser" })
+ * const tagName: "this" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0

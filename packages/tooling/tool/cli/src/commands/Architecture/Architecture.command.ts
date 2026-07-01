@@ -274,7 +274,8 @@ const printArchitectureIndex = () => printLines(["architecture commands: create,
  * ```ts
  * import { architectureCommand } from "@beep/repo-cli/commands/Architecture/index"
  *
- * console.log(architectureCommand)
+ * const commandGroups = { architecture: architectureCommand }
+ * console.log(Object.keys(commandGroups)) // ["architecture"]
  * ```
  * @category commands
  * @since 0.0.0

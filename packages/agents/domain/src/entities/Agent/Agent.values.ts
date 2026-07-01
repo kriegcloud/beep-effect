@@ -1,5 +1,5 @@
 /**
- * Agent value schemas.
+ * Value schemas that constrain agent entity fields.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -11,7 +11,7 @@ import { LiteralKit } from "@beep/schema";
 const $I = $AgentsDomainId.create("entities/Agent/Agent.values");
 
 /**
- * Agent mode used by the deterministic proof.
+ * Closed vocabulary of execution modes supported by fixture-backed agents.
  *
  * @example
  * ```ts
@@ -25,19 +25,19 @@ const $I = $AgentsDomainId.create("entities/Agent/Agent.values");
  */
 export const AgentMode = LiteralKit(["deterministic_fixture"]).pipe(
   $I.annoteSchema("AgentMode", {
-    description: "Execution mode vocabulary for proof agents.",
+    description: "Closed vocabulary of execution modes supported by fixture-backed agents.",
   })
 );
 
 /**
- * Runtime type for {@link AgentMode}.
+ * Type accepted by the {@link AgentMode} schema.
  *
  * @example
  * ```ts
  * import type { AgentMode } from "@beep/agents-domain"
  *
- * const value: AgentMode = "deterministic_fixture"
- * console.log(value)
+ * const fixtureMode = "deterministic_fixture" satisfies AgentMode
+ * console.log(fixtureMode)
  * ```
  *
  * @category models

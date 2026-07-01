@@ -44,7 +44,20 @@ export const normalizeHexColorInput = (value: string): string | undefined =>
   );
 
 /**
- * Props for {@link ColorPicker}.
+ * Props for a hex color input that can run controlled or uncontrolled.
+ *
+ * @example
+ * ```tsx
+ * import type { ColorPickerProps } from "@beep/ui/components/color-picker"
+ *
+ * const props = {
+ *   name: "accentColor",
+ *   value: "#0ea5e9",
+ *   onValueChange: (value) => value.toUpperCase(),
+ * } satisfies ColorPickerProps
+ *
+ * console.log(props.value)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -75,11 +88,17 @@ const ColorPickerScope = makeScopedAtom((defaultValue: string) =>
 /**
  * Popover hex color picker with a text input fallback.
  *
+ * @remarks
+ * Pass `value` with `onValueChange` for controlled usage. Without `value`,
+ * `defaultValue` seeds the scoped picker state.
+ *
  * @example
  * ```tsx
  * import { ColorPicker } from "@beep/ui/components/color-picker"
  *
- * console.log(ColorPicker)
+ * export function AccentColorField() {
+ *   return <ColorPicker name="accentColor" defaultValue="#0ea5e9" />
+ * }
  * ```
  *
  * @category components

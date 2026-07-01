@@ -15,8 +15,10 @@ import type { DocsESLintConfigShape as DocsESLintConfigShapeInternal } from "./e
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { VERSION } from "@beep/repo-configs"
- * console.log(VERSION)
+ *
+ * strictEqual(VERSION, "0.0.0")
  * ```
  * @category configuration
  * @since 0.0.0
@@ -28,9 +30,18 @@ export const VERSION = "0.0.0" as const;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import type { DocsESLintConfigShape } from "@beep/repo-configs"
- * const config = [] satisfies DocsESLintConfigShape
- * console.log(config)
+ *
+ * const config = [
+ *   {
+ *     rules: {
+ *       "tsdoc/syntax": "error"
+ *     }
+ *   }
+ * ] satisfies DocsESLintConfigShape
+ *
+ * strictEqual(config[0]?.rules?.["tsdoc/syntax"], "error")
  * ```
  * @category configuration
  * @since 0.0.0
@@ -42,9 +53,18 @@ export type DocsESLintConfigShape = DocsESLintConfigShapeInternal;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import type { DeprecatedApisESLintConfigShape } from "@beep/repo-configs"
- * const config = [] satisfies DeprecatedApisESLintConfigShape
- * console.log(config)
+ *
+ * const config = [
+ *   {
+ *     rules: {
+ *       "@typescript-eslint/no-deprecated": "error"
+ *     }
+ *   }
+ * ] satisfies DeprecatedApisESLintConfigShape
+ *
+ * strictEqual(config[0]?.rules?.["@typescript-eslint/no-deprecated"], "error")
  * ```
  * @category configuration
  * @since 0.0.0
@@ -56,8 +76,12 @@ export type DeprecatedApisESLintConfigShape = DeprecatedApisESLintConfigShapeInt
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { DocsESLintConfig } from "@beep/repo-configs"
- * console.log(DocsESLintConfig)
+ *
+ * const hasTSDocSyntaxRule = DocsESLintConfig.some((entry) => entry.rules?.["tsdoc/syntax"] === "error")
+ *
+ * strictEqual(hasTSDocSyntaxRule, true)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -69,8 +93,14 @@ export const DocsESLintConfig = DocsESLintConfigInternal;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { DeprecatedApisESLintConfig } from "@beep/repo-configs"
- * console.log(DeprecatedApisESLintConfig)
+ *
+ * const checksDeprecatedApis = DeprecatedApisESLintConfig.some(
+ *   (entry) => entry.rules?.["@typescript-eslint/no-deprecated"] === "error"
+ * )
+ *
+ * strictEqual(checksDeprecatedApis, true)
  * ```
  * @category configuration
  * @since 0.0.0

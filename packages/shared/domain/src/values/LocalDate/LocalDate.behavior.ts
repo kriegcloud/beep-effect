@@ -77,15 +77,20 @@ export const makeOption = (input: CalendarParts): O.Option<LocalDate.Model> => L
  * import { Effect } from "effect"
  * import { makeEffect } from "@beep/shared-domain/values/LocalDate"
  *
- * const program = Effect.gen(function* () {
+ * const iso = Effect.runSync(Effect.gen(function* () {
  *   const date = yield* makeEffect({ year: 2024, month: 6, day: 15 })
  *   return date.toISOString()
- * })
+ * }))
+ *
+ * console.log(iso) // "2024-06-15"
  * ```
  *
- * @category constructors
  * @param input - Calendar field payload to construct from.
  * @returns Effect that succeeds with a LocalDate model.
+ * @effects Performs pure schema validation; requires no services and fails
+ * with `S.SchemaError` instead of throwing when the calendar fields are
+ * invalid.
+ * @category constructors
  * @since 0.0.0
  */
 export const makeEffect = (input: CalendarParts): Effect.Effect<LocalDate.Model, S.SchemaError> =>
@@ -193,15 +198,19 @@ const encodeLocalDateFromString = (localDate: CalendarParts): string => formatCa
  * import { Effect } from "effect"
  * import { fromString } from "@beep/shared-domain/values/LocalDate"
  *
- * const program = Effect.gen(function* () {
+ * const month = Effect.runSync(Effect.gen(function* () {
  *   const date = yield* fromString("2024-06-15")
  *   return date.month
- * })
+ * }))
+ *
+ * console.log(month) // 6
  * ```
  *
- * @category constructors
  * @param dateString - ISO local-date text to parse.
  * @returns Effect that succeeds with the parsed LocalDate.
+ * @effects Parses and validates in memory; requires no services and fails with
+ * `S.SchemaError` for malformed strings or impossible calendar dates.
+ * @category constructors
  * @since 0.0.0
  */
 export const fromString = (dateString: string): Effect.Effect<LocalDate.Model, S.SchemaError> =>

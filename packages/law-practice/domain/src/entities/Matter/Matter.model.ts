@@ -14,16 +14,35 @@ import { MatterType } from "./Matter.values.js";
 const $I = $LawPracticeDomainId.create("entities/Matter/Matter.model");
 
 /**
- * Legal matter context.
+ * Legal matter entity grouping prosecution work for one legal client.
  *
  * @example
  * ```ts
  * import { Matter } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(Matter.definition.entityId.tableName)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const matter = S.decodeUnknownSync(Matter)({
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   displayName: "Acme hinge application",
+ *   entityType: "LawPracticeMatter",
+ *   fixtureKey: "matter.hinge",
+ *   id: 3,
+ *   legalClientFixtureKey: "legal-client.acme",
+ *   matterType: "patent_application",
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(matter.matterType) // "patent_application"
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Matter extends BaseEntity.Class<Matter>($I`Matter`)(
@@ -51,6 +70,6 @@ export class Matter extends BaseEntity.Class<Matter>($I`Matter`)(
     },
   },
   $I.annote("Matter", {
-    description: "Legal matter context.",
+    description: "Legal matter entity grouping prosecution work for one legal client.",
   })
 ) {}

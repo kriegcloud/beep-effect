@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box app item entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/AppItem/AppItem.model");
 
 /**
+ * Experimental schema anchor for Box app item resources that represent application-owned Box content.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(AppItem.make({
+ * const decoded = S.decodeUnknownSync(AppItem)({});
+ * const encoded: AppItem.Encoded = S.encodeSync(AppItem)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class AppItem extends S.Class<AppItem>($I`AppItem`)(
   {},
   $I.annote("AppItem", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box app item resources that represent application-owned Box content.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link AppItem}
+ * Type-level companion namespace for {@link AppItem} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = AppItem.make({});
+ * const encoded: AppItem.Encoded = S.encodeSync(AppItem)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace AppItem {
   /**
-   * Companion encoded type for {@link AppItem}.
+   * Encoded payload accepted by the {@link AppItem} entity schema.
    *
    * @example
    * ```ts
-   * import type { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
+   * import { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: AppItem.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: AppItem.Encoded = S.encodeSync(AppItem)(AppItem.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof AppItem.Encoded;
 }
-
-/**
- * Companion runtime type for {@link AppItem}.
- *
- * @example
- * ```ts
- * import type { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
- *
- * const useValue = (_value: AppItem) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type AppItem = typeof AppItem.Type;

@@ -15,7 +15,10 @@ import { CandidateProject } from "@beep/workspace-domain/entities/CandidateProje
  * ```ts
  * import { CandidateProject } from "@beep/workspace-tables/entities"
  *
- * console.log(CandidateProject.Table.definition.tableName)
+ * const tableName: "workspace_candidate_project" = CandidateProject.Table.definition.tableName
+ * const lifecycleStorage: "literal" = CandidateProject.Table.definition.persisted.lifecycle.storageKind
+ *
+ * console.log(`${tableName}:${lifecycleStorage}`)
  * ```
  *
  * @category tables

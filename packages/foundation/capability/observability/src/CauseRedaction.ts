@@ -51,9 +51,10 @@ const decodeNonNegativeInt = (input: number): NonNegativeInt =>
  *
  * @example
  * ```typescript
- * import { REDACTION_PLACEHOLDER } from "@beep/observability"
+ * import { REDACTION_PLACEHOLDER, sanitizeSensitiveText } from "@beep/observability"
  *
- * console.log(REDACTION_PLACEHOLDER) // "[REDACTED]"
+ * const sanitized = sanitizeSensitiveText("Authorization: Bearer sk-EXAMPLEKEY00")
+ * console.log(sanitized.includes(REDACTION_PLACEHOLDER)) // true
  * ```
  *
  * @since 0.0.0
@@ -66,9 +67,14 @@ export const REDACTION_PLACEHOLDER = "[REDACTED]" as const;
  *
  * @example
  * ```typescript
- * import { DEFAULT_MESSAGE_LIMIT } from "@beep/observability"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ * import { DEFAULT_MESSAGE_LIMIT, RedactCauseOptions } from "@beep/observability"
  *
- * console.log(DEFAULT_MESSAGE_LIMIT) // 256
+ * const options = RedactCauseOptions.make({
+ *   messageLimit: S.decodeUnknownSync(NonNegativeInt)(DEFAULT_MESSAGE_LIMIT)
+ * })
+ * console.log(options.messageLimit) // 256
  * ```
  *
  * @since 0.0.0
@@ -81,9 +87,14 @@ export const DEFAULT_MESSAGE_LIMIT = 256 as const;
  *
  * @example
  * ```typescript
- * import { DEFAULT_DETAIL_LIMIT } from "@beep/observability"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ * import { DEFAULT_DETAIL_LIMIT, RedactCauseOptions } from "@beep/observability"
  *
- * console.log(DEFAULT_DETAIL_LIMIT) // 2048
+ * const options = RedactCauseOptions.make({
+ *   detailLimit: S.decodeUnknownSync(NonNegativeInt)(DEFAULT_DETAIL_LIMIT)
+ * })
+ * console.log(options.detailLimit) // 2048
  * ```
  *
  * @since 0.0.0
@@ -214,9 +225,12 @@ export const redactString: {
  *
  * @example
  * ```typescript
- * import { RedactedCause } from "@beep/observability"
+ * import { Cause } from "effect"
+ * import { redactCause } from "@beep/observability"
  *
- * console.log(RedactedCause)
+ * const redacted = redactCause(Cause.fail(new Error("token=sk-EXAMPLEKEY00")))
+ * console.log(redacted.tag) // "failure"
+ * console.log(redacted.message) // "token=[REDACTED]"
  * ```
  *
  * @since 0.0.0
@@ -428,12 +442,12 @@ export class RedactedCauseError extends TaggedErrorClass<RedactedCauseError>($I`
  * import { Cause, Effect } from "effect"
  * import { redactCauseEffect } from "@beep/observability"
  *
- * const program = redactCauseEffect(Cause.fail(new Error("boom"))).pipe(
- *   Effect.flatMap((safe) => Effect.logWarning("operation failed", { tag: safe.tag, message: safe.message }))
- * )
+ * const safe = Effect.runSync(redactCauseEffect(Cause.fail(new Error("boom"))))
  *
- * console.log(program)
+ * console.log(safe.tag) // "failure"
  * ```
+ *
+ * @effects Annotates the active span with the sanitized cause tag and fingerprint while keeping raw messages out of telemetry.
  *
  * @since 0.0.0
  * @category utilities

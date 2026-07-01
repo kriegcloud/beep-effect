@@ -46,9 +46,30 @@ const toggleExternalLabel = (
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { ToggleField } from "@beep/form/fields/ToggleField"
+ * import * as S from "effect/Schema"
  *
- * console.log(ToggleField)
+ * const FormatSchema = S.Struct({ bold: S.Boolean })
+ * const formatOptions = makeFormOptions({
+ *   schema: FormatSchema,
+ *   defaultValues: { bold: false },
+ *   validateOn: "change",
+ * })
+ *
+ * export function FormatForm() {
+ *   const form = useAppForm(formatOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="bold">{() => <ToggleField label="Bold" />}</form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(formatOptions.defaultValues.bold) // false
  * ```
  *
  * @category components

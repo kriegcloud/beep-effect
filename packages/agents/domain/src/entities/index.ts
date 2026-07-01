@@ -6,15 +6,15 @@
  */
 
 /**
- * Agent entity exports.
+ * Agent entity and value-schema exports.
  *
  * @example
  * ```ts
- * import * as Module from "@beep/agents-domain/entities"
+ * import { Agent } from "@beep/agents-domain/entities"
  *
- * console.log(Module)
+ * console.log(Agent.definition.entityId.entityType)
  * ```
-
+ *
  * @category entities
  * @since 0.0.0
  */
@@ -24,11 +24,11 @@ export * from "./Agent/index.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/agents-domain/entities"
+ * import { Skill } from "@beep/agents-domain/entities"
  *
- * console.log(Module)
+ * console.log(Skill.definition.entityId.tableName)
  * ```
-
+ *
  * @category entities
  * @since 0.0.0
  */

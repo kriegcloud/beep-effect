@@ -175,11 +175,28 @@ const streamTurn = (history: ReadonlyArray<TurnHistoryItem>): Stream.Stream<Inde
  * requirement is the redacted `AI_ANTHROPIC_API_KEY` config resolved by the
  * plan's provided client layer.
  *
+ * @remarks
+ * The kernel streams valid blocks as soon as they decode. After the first
+ * invalid slice, later valid blocks are buffered until the repair tail can emit
+ * repaired and already-valid blocks in original envelope order. Repair-call
+ * failures are converted to `TurnGenerationError`; blocks that remain invalid
+ * after repair are logged and dropped.
+ *
  * @example
  * ```ts
+ * import { AgentTurnKernel } from "@beep/agents-use-cases/public"
  * import { AnthropicTurnKernel } from "@beep/agents-server/AnthropicTurnKernel"
+ * import { Effect, Stream } from "effect"
  *
- * console.log(AnthropicTurnKernel)
+ * const program = Effect.gen(function* () {
+ *   const kernel = yield* AgentTurnKernel
+ *   return yield* kernel.streamTurn([{ role: "user", text: "Summarize this" }]).pipe(
+ *     Stream.take(0),
+ *     Stream.runCollect
+ *   )
+ * }).pipe(Effect.provide(AnthropicTurnKernel))
+ *
+ * Effect.runPromise(program).then((blocks) => console.log(blocks.length)) // 0
  * ```
  *
  * @category layers

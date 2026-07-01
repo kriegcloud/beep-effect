@@ -71,6 +71,15 @@ export const phoneCountryOptions = A.filter(countryOptions, (option) => isSuppor
 /**
  * E.164 phone number value used by {@link PhoneInput}.
  *
+ * @example
+ * ```ts
+ * import type { PhoneNumberE164 } from "@beep/ui/components/phone-input"
+ *
+ * const supportLine: PhoneNumberE164 = "+14155552671"
+ *
+ * console.log(supportLine.startsWith("+"))
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -137,7 +146,20 @@ export const parsePhoneDraft: {
 export const isValidPhoneNumberE164 = (value: string): boolean => value.length > 0 && isValidPhoneNumber(value);
 
 /**
- * Props for {@link PhoneInput}.
+ * Props for a country-aware phone input that emits E.164 values.
+ *
+ * @example
+ * ```ts
+ * import type { PhoneInputProps } from "@beep/ui/components/phone-input"
+ *
+ * const props = {
+ *   defaultCountry: "US",
+ *   value: "+14155552671",
+ *   onValueChange: (value) => value.startsWith("+"),
+ * } satisfies PhoneInputProps
+ *
+ * console.log(props.value)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -184,11 +206,17 @@ const PhoneInputScope = makeScopedAtom((input: PhoneInputScopeInput) =>
 /**
  * Country-aware phone input that emits E.164 strings.
  *
+ * @remarks
+ * `value` controls the emitted E.164 number, while the selected country lives
+ * in scoped component state unless `onCountryChange` mirrors it elsewhere.
+ *
  * @example
  * ```tsx
  * import { PhoneInput } from "@beep/ui/components/phone-input"
  *
- * console.log(PhoneInput)
+ * export function ContactPhoneField() {
+ *   return <PhoneInput name="phone" defaultCountry="US" placeholder="(555) 123-4567" />
+ * }
  * ```
  *
  * @category components

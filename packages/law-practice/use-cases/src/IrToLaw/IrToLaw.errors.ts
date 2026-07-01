@@ -19,8 +19,12 @@ const $I = $LawPracticeUseCasesId.create("IrToLaw/IrToLaw.errors");
  * @example
  * ```ts
  * import { IrToLawExtractionErrorReason } from "@beep/law-practice-use-cases/IrToLaw"
+ * import * as S from "effect/Schema"
  *
- * console.log(IrToLawExtractionErrorReason.is["required-extraction-missing"]("required-extraction-missing"))
+ * const decodeReason = S.decodeUnknownSync(IrToLawExtractionErrorReason)
+ * const reason = decodeReason("required-extraction-unaligned")
+ *
+ * console.log(IrToLawExtractionErrorReason.is["required-extraction-unaligned"](reason)) // true
  * ```
  *
  * @category errors
@@ -38,6 +42,18 @@ export const IrToLawExtractionErrorReason = LiteralKit([
 /**
  * Type for {@link IrToLawExtractionErrorReason}.
  *
+ * @example
+ * ```ts
+ * import type { IrToLawExtractionErrorReason } from "@beep/law-practice-use-cases/IrToLaw"
+ *
+ * const labels: Readonly<Record<IrToLawExtractionErrorReason, string>> = {
+ *   "required-extraction-missing": "The model omitted a required legal label.",
+ *   "required-extraction-unaligned": "The label could not be grounded to source text."
+ * }
+ *
+ * console.log(labels["required-extraction-missing"])
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -50,11 +66,18 @@ export type IrToLawExtractionErrorReason = typeof IrToLawExtractionErrorReason.T
  * @example
  * ```ts
  * import { IrToLawExtractionError } from "@beep/law-practice-use-cases/IrToLaw"
+ * import { Effect } from "effect"
  *
- * console.log(IrToLawExtractionError.fromReason("required-extraction-missing", {
- *   label: "distinction",
- *   message: "Missing distinction extraction."
- * }))
+ * const program = Effect.fail(
+ *   IrToLawExtractionError.fromReason("required-extraction-missing", {
+ *     label: "distinction",
+ *     message: "Missing distinction extraction."
+ *   })
+ * ).pipe(
+ *   Effect.catchTag("IrToLawExtractionError", (error) => Effect.succeed(error.reason))
+ * )
+ *
+ * Effect.runPromise(program).then(console.log) // "required-extraction-missing"
  * ```
  *
  * @category errors

@@ -41,10 +41,32 @@ const getStoredWorkItem = Effect.fn("ArchitectureLab.WorkItemRepository.getStore
  *
  * @example
  * ```ts
+ * import { ArchitectureLabConfigTest } from "@beep/architecture-lab-config/test"
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { makeInMemoryWorkItemRepository } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(makeInMemoryWorkItemRepository)
+ * const program = Effect.gen(function* () {
+ *   const repository = yield* makeInMemoryWorkItemRepository()
+ *   const id = S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ *   const workItem = DomainWorkItem.create(
+ *     DomainWorkItem.CreateWorkItemInput.make({
+ *       id,
+ *       title: "Persist WorkItem in memory",
+ *       priority: O.none()
+ *     })
+ *   )
+ *   yield* repository.create(workItem)
+ *   return yield* repository.list
+ * }).pipe(Effect.provide(ArchitectureLabConfigTest))
+ *
+ * Effect.runPromise(program).then((items) => console.log(items.length)) // 1
  * ```
+ *
+ * @effects Reads `WorkItemConfig`, allocates an in-memory `Ref`, and mutates
+ * that process-local store for create, save, get, and list repository calls.
  *
  * @category repositories
  * @since 0.0.0
@@ -131,9 +153,20 @@ const getDrizzleWorkItem = Effect.fn("ArchitectureLab.WorkItemRepository.getDriz
  * @example
  * ```ts
  * import { makeDrizzleWorkItemRepository } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { Effect } from "effect"
  *
- * console.log(makeDrizzleWorkItemRepository)
+ * const program = makeDrizzleWorkItemRepository().pipe(
+ *   Effect.flatMap((repository) => repository.list),
+ *   Effect.catchTag("WorkItemRepositoryUnavailable", (error) => Effect.succeed([error.reason]))
+ * )
+ * const describe = <A, E, R>(_effect: Effect.Effect<A, E, R>) => "Postgres-backed WorkItem repository wired"
+ *
+ * console.log(describe(program)) // "Postgres-backed WorkItem repository wired"
  * ```
+ *
+ * @effects Requires `PostgresDrizzle`; executes `select`, `insert`, and
+ * `update` statements against the WorkItem table and redacts driver failures to
+ * `WorkItemRepositoryUnavailable`.
  *
  * @category repositories
  * @since 0.0.0
@@ -195,9 +228,17 @@ export const makeDrizzleWorkItemRepository = Effect.fn("ArchitectureLab.WorkItem
  *
  * @example
  * ```ts
+ * import { ArchitectureLabConfigTest } from "@beep/architecture-lab-config/test"
  * import { makeWorkItemRepository } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { Effect } from "effect"
  *
- * console.log(makeWorkItemRepository)
+ * const program = makeWorkItemRepository().pipe(
+ *   Effect.flatMap((repository) => repository.list),
+ *   Effect.map((items) => items.length),
+ *   Effect.provide(ArchitectureLabConfigTest)
+ * )
+ *
+ * Effect.runPromise(program).then((count) => console.log(count)) // 0
  * ```
  *
  * @category repositories

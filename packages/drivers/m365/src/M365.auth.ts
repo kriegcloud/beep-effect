@@ -81,16 +81,32 @@ export class M365AuthorizationRequest extends S.Class<M365AuthorizationRequest>(
  *
  * @example
  * ```ts
+ * import { M365AuthorizationRequest } from "@beep/m365"
  * import type { M365InteractiveAuthorizer } from "@beep/m365"
  * import { Effect } from "effect"
  *
  * const authorizer: M365InteractiveAuthorizer = (request) => {
- *   console.log(request.authUrl)
+ *   console.log(new URL(request.authUrl).hostname)
  *   return Effect.succeed("authorization-code")
  * }
  *
- * console.log(authorizer)
+ * const code = await Effect.runPromise(
+ *   authorizer(
+ *     M365AuthorizationRequest.make({
+ *       authUrl: "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+ *       redirectUri: "http://127.0.0.1:3939/m365/oauth/callback"
+ *     })
+ *   )
+ * )
+ *
+ * console.log(code) // "authorization-code"
  * ```
+ *
+ * @effects
+ * - Delegates browser opening or equivalent user navigation to the host.
+ * - Captures the authorization redirect at the host-owned redirect URI.
+ * - Returns only the authorization code; token exchange and token persistence
+ *   stay inside {@link M365Auth}.
  *
  * @category services
  * @since 0.0.0

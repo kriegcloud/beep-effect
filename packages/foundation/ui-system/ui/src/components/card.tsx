@@ -2,13 +2,23 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
- * Card component.
+ * Framed content container with standard and compact density.
  *
  * @example
  * ```tsx
- * import { Card } from "@beep/ui/components/card"
+ * import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@beep/ui/components/card"
  *
- * console.log(Card)
+ * export function BillingCard() {
+ *   return (
+ *     <Card size="sm">
+ *       <CardHeader>
+ *         <CardTitle>Billing</CardTitle>
+ *         <CardDescription>Next invoice posts July 15.</CardDescription>
+ *       </CardHeader>
+ *       <CardContent>$248.00 due</CardContent>
+ *     </Card>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -33,13 +43,20 @@ function Card({
 }
 
 /**
- * Card header component.
+ * Header grid for card title, description, and optional action.
  *
  * @example
  * ```tsx
- * import { CardHeader } from "@beep/ui/components/card"
+ * import { CardAction, CardHeader, CardTitle } from "@beep/ui/components/card"
  *
- * console.log(CardHeader)
+ * export function CardHeaderWithAction() {
+ *   return (
+ *     <CardHeader>
+ *       <CardTitle>Documents</CardTitle>
+ *       <CardAction>12 files</CardAction>
+ *     </CardHeader>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -59,13 +76,15 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Card title component.
+ * Primary heading slot for a card.
  *
  * @example
  * ```tsx
  * import { CardTitle } from "@beep/ui/components/card"
  *
- * console.log(CardTitle)
+ * export function CardSectionTitle() {
+ *   return <CardTitle>Recent activity</CardTitle>
+ * }
  * ```
  *
  * @category components
@@ -82,13 +101,15 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Card description component.
+ * Muted supporting text for a card heading.
  *
  * @example
  * ```tsx
  * import { CardDescription } from "@beep/ui/components/card"
  *
- * console.log(CardDescription)
+ * export function CardSubtitle() {
+ *   return <CardDescription>Updated two minutes ago.</CardDescription>
+ * }
  * ```
  *
  * @category components
@@ -99,13 +120,20 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Card action component.
+ * Top-right action slot in a card header.
  *
  * @example
  * ```tsx
+ * import { Button } from "@beep/ui/components/button"
  * import { CardAction } from "@beep/ui/components/card"
  *
- * console.log(CardAction)
+ * export function CardHeaderAction() {
+ *   return (
+ *     <CardAction>
+ *       <Button size="sm" variant="outline">Open</Button>
+ *     </CardAction>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -122,13 +150,15 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Card content component.
+ * Main body area for a card.
  *
  * @example
  * ```tsx
  * import { CardContent } from "@beep/ui/components/card"
  *
- * console.log(CardContent)
+ * export function CardMetricContent() {
+ *   return <CardContent className="font-mono">$12,480</CardContent>
+ * }
  * ```
  *
  * @category components
@@ -139,13 +169,21 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Card footer component.
+ * Footer band for card totals, metadata, or secondary actions.
  *
  * @example
  * ```tsx
+ * import { Button } from "@beep/ui/components/button"
  * import { CardFooter } from "@beep/ui/components/card"
  *
- * console.log(CardFooter)
+ * export function CardFooterActions() {
+ *   return (
+ *     <CardFooter className="justify-end gap-2">
+ *       <Button variant="ghost" size="sm">Cancel</Button>
+ *       <Button size="sm">Save</Button>
+ *     </CardFooter>
+ *   )
+ * }
  * ```
  *
  * @category components

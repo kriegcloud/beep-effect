@@ -12,8 +12,10 @@
  * @example
  * ```ts
  * import { TurnHistoryItem } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(TurnHistoryItem)
+ * const item = S.decodeUnknownSync(TurnHistoryItem)({ role: "user", text: "Hello" })
+ * console.log(item.role)
  * ```
  *
  * @category protocols
@@ -27,7 +29,8 @@ export * from "./AssistantTurn.contracts.js";
  * ```ts
  * import { TurnGenerationError } from "@beep/agents-use-cases/public"
  *
- * console.log(TurnGenerationError)
+ * const error = TurnGenerationError.make({ message: "turn generation failed" })
+ * console.log(error._tag)
  * ```
  *
  * @category errors
@@ -40,8 +43,15 @@ export * from "./AssistantTurn.errors.js";
  * @example
  * ```ts
  * import { AgentTurnKernel } from "@beep/agents-use-cases/public"
+ * import { FixtureTurnKernel } from "@beep/agents-use-cases/proof"
+ * import { Effect, Stream } from "effect"
  *
- * console.log(AgentTurnKernel)
+ * const program = Effect.gen(function* () {
+ *   const kernel = yield* AgentTurnKernel
+ *   return yield* Stream.runCollect(kernel.streamTurn([{ role: "user", text: "ping" }]))
+ * }).pipe(Effect.provide(FixtureTurnKernel))
+ *
+ * Effect.runPromise(program).then((blocks) => console.log(blocks.length))
  * ```
  *
  * @category services

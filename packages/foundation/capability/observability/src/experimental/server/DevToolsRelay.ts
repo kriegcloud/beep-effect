@@ -26,9 +26,18 @@ const maxSpanEvents = 200;
  *
  * @example
  * ```typescript
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
  * import { DevToolsSnapshot } from "@beep/observability/experimental/server"
  *
- * console.log(DevToolsSnapshot)
+ * const count = S.decodeUnknownSync(NonNegativeInt)(0)
+ * const snapshot = DevToolsSnapshot.make({
+ *   lastUpdatedAtMs: count,
+ *   metricCount: count,
+ *   spanCount: count,
+ *   spanEventCount: count
+ * })
+ * console.log(snapshot.spanCount) // 0
  * ```
  *
  * @since 0.0.0
@@ -98,9 +107,13 @@ const toSpanKey = (span: Pick<DevToolsSchema.Span, "traceId" | "spanId">): strin
  *
  * @example
  * ```typescript
- * import { makeDevToolsRelayService } from "@beep/observability/experimental/server"
+ * import { Layer } from "effect"
+ * import { DevToolsRelayService, makeDevToolsRelayService } from "@beep/observability/experimental/server"
+ * import * as SocketServer from "effect/unstable/socket/SocketServer"
  *
- * console.log(makeDevToolsRelayService)
+ * const RelayLive: Layer.Layer<DevToolsRelayService, never, SocketServer.SocketServer> =
+ *   Layer.effect(DevToolsRelayService, makeDevToolsRelayService)
+ * console.log(RelayLive)
  * ```
  *
  * @effects Requires `SocketServer.SocketServer`, reads the clock, and returns an in-memory relay service.
@@ -202,9 +215,15 @@ const pipeAppendLimited = <A>(values: ReadonlyArray<A>, value: A): ReadonlyArray
  *
  * @example
  * ```typescript
- * import { layerDevToolsRelayServer } from "@beep/observability/experimental/server"
+ * import { Effect } from "effect"
+ * import { DevToolsRelayService, layerDevToolsRelayServer } from "@beep/observability/experimental/server"
  *
- * console.log(layerDevToolsRelayServer)
+ * const snapshot = Effect.gen(function* () {
+ *   const relay = yield* DevToolsRelayService
+ *   return yield* relay.snapshot
+ * }).pipe(Effect.provide(layerDevToolsRelayServer))
+ *
+ * console.log(snapshot)
  * ```
  *
  * @since 0.0.0

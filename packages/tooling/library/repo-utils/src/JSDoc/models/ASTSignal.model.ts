@@ -18,7 +18,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTSignal.model");
  * ```ts
  * import { ASTSignal } from "@beep/repo-utils/JSDoc/models/ASTSignal.model"
  *
- * console.log(ASTSignal)
+ * const signal = ASTSignal.make({
+ *   signal: "Function declaration",
+ *   confidence: 0.95,
+ *   detection: "Node.isFunctionDeclaration(node)"
+ * })
+ * console.log(signal.confidence)
  * ```
  * @category models
  * @since 0.0.0

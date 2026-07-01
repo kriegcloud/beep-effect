@@ -77,13 +77,14 @@ export const isPercentage = S.is(Percentage);
  *
  * @example
  * ```ts
- * import { ZERO } from "@beep/schema/Percentage"
+ * import { ZERO, isZero, toDecimal } from "@beep/schema/Percentage"
  *
- * console.log(ZERO) // 0
+ * console.log(isZero(ZERO)) // true
+ * console.log(toDecimal(ZERO)) // 0
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export const ZERO: Percentage = Percentage.make(0);
 /**
@@ -91,13 +92,13 @@ export const ZERO: Percentage = Percentage.make(0);
  *
  * @example
  * ```ts
- * import { TWENTY } from "@beep/schema/Percentage"
+ * import { TWENTY, toDecimal } from "@beep/schema/Percentage"
  *
- * console.log(TWENTY)
+ * console.log(toDecimal(TWENTY)) // 0.2
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export const TWENTY: Percentage = Percentage.make(20);
 /**
@@ -105,13 +106,13 @@ export const TWENTY: Percentage = Percentage.make(20);
  *
  * @example
  * ```ts
- * import { FIFTY } from "@beep/schema/Percentage"
+ * import { FIFTY, format } from "@beep/schema/Percentage"
  *
- * console.log(FIFTY)
+ * console.log(format(FIFTY, 0)) // "50%"
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export const FIFTY: Percentage = Percentage.make(50);
 /**
@@ -119,13 +120,14 @@ export const FIFTY: Percentage = Percentage.make(50);
  *
  * @example
  * ```ts
- * import { HUNDRED } from "@beep/schema/Percentage"
+ * import { HUNDRED, isFull, toDecimal } from "@beep/schema/Percentage"
  *
- * console.log(HUNDRED)
+ * console.log(isFull(HUNDRED)) // true
+ * console.log(toDecimal(HUNDRED)) // 1
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export const HUNDRED: Percentage = Percentage.make(100);
 

@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box email alias entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/EmailAlias/EmailAlias.model");
 
 /**
+ * Experimental schema anchor for alternate email addresses on Box user accounts.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(EmailAlias.make({
+ * const decoded = S.decodeUnknownSync(EmailAlias)({});
+ * const encoded: EmailAlias.Encoded = S.encodeSync(EmailAlias)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class EmailAlias extends S.Class<EmailAlias>($I`EmailAlias`)(
   {},
   $I.annote("EmailAlias", {
-    description: "TODO",
+    description: "Experimental schema anchor for alternate email addresses on Box user accounts.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link EmailAlias}
+ * Type-level companion namespace for {@link EmailAlias} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = EmailAlias.make({});
+ * const encoded: EmailAlias.Encoded = S.encodeSync(EmailAlias)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace EmailAlias {
   /**
-   * Companion encoded type for {@link EmailAlias}.
+   * Encoded payload accepted by the {@link EmailAlias} entity schema.
    *
    * @example
    * ```ts
-   * import type { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
+   * import { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: EmailAlias.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: EmailAlias.Encoded = S.encodeSync(EmailAlias)(EmailAlias.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof EmailAlias.Encoded;
 }
-
-/**
- * Companion runtime type for {@link EmailAlias}.
- *
- * @example
- * ```ts
- * import type { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
- *
- * const useValue = (_value: EmailAlias) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type EmailAlias = typeof EmailAlias.Type;

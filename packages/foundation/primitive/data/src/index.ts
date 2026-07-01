@@ -16,11 +16,11 @@
  * ```typescript
  * import { Blockchain } from "@beep/data"
  *
- * console.log(Blockchain.Networks.Ethereum.ticker)
+ * console.assert(Blockchain.Networks.Ethereum.ticker === "ETH")
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export * as Blockchain from "./Blockchain.ts";
 /**
@@ -30,11 +30,11 @@ export * as Blockchain from "./Blockchain.ts";
  * ```typescript
  * import { Calendar } from "@beep/data"
  *
- * console.log(Calendar.MonthNameValues[0])
+ * console.assert(Calendar.MonthISOValues[0] === "01")
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export * as Calendar from "./Calendar.ts";
 /**
@@ -44,11 +44,11 @@ export * as Calendar from "./Calendar.ts";
  * ```typescript
  * import { CurrencyCodes } from "@beep/data"
  *
- * console.log(CurrencyCodes.CurrencyCodeDataValues[0].code)
+ * console.assert(CurrencyCodes.CurrencyCodeDataByCode.USD.currency === "US Dollar")
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export * as CurrencyCodes from "./CurrencyCodes.ts";
 /**
@@ -58,11 +58,15 @@ export * as CurrencyCodes from "./CurrencyCodes.ts";
  * ```typescript
  * import { KeyboardShortcuts } from "@beep/data"
  *
- * console.log(KeyboardShortcuts.KeyboardShortcutDataValues[0].name)
+ * const hasCopyShortcut = KeyboardShortcuts.KeyboardShortcutDataValues.some(
+ *   (shortcut) => shortcut.name === "copy"
+ * )
+ *
+ * console.assert(hasCopyShortcut)
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export * as KeyboardShortcuts from "./KeyboardShortcuts.ts";
 /**
@@ -72,11 +76,11 @@ export * as KeyboardShortcuts from "./KeyboardShortcuts.ts";
  * ```typescript
  * import { MimeTypesData } from "@beep/data"
  *
- * console.log(MimeTypesData.lookup("asset.json"))
+ * console.assert(MimeTypesData.lookup("asset.json") === "application/json")
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export * as MimeTypesData from "./MimeTypes.ts";
 /**
@@ -86,11 +90,11 @@ export * as MimeTypesData from "./MimeTypes.ts";
  * ```typescript
  * import { Territories } from "@beep/data"
  *
- * console.log(Territories.TerritoryDataByCode.US.name)
+ * console.assert(Territories.TerritoryDataByCode.US.name === "United States")
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export * as Territories from "./Territories.ts";
 /**
@@ -100,10 +104,10 @@ export * as Territories from "./Territories.ts";
  * ```typescript
  * import { Timezones } from "@beep/data"
  *
- * console.log(Timezones.TimezoneNameValues[0])
+ * console.assert(Timezones.TimezoneDataByName.UTC.name === "UTC")
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export * as Timezones from "./Timezones.ts";

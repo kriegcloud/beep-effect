@@ -29,9 +29,38 @@ const $I = $LawPracticeUseCasesId.create("OfficeActionReview/OfficeActionReview.
  *
  * @example
  * ```ts
+ * import { ArtifactId, ArtifactLocator, ContentDigest, OperationId, SourceArtifact } from "@beep/file-processing/Artifact"
  * import { OfficeActionReviewInput } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(OfficeActionReviewInput)
+ * const digestHex = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * const program = Effect.gen(function* () {
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("fixtures/office-action.txt")
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)(`artifact:${digestHex}`)
+ *   const digest = yield* S.decodeUnknownEffect(ContentDigest)(`sha256:${digestHex}`)
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)(`operation:${digestHex}`)
+ *
+ *   return OfficeActionReviewInput.make({
+ *     matterFixtureKey: "matter.spike",
+ *     officeActionFixtureKey: "office-action.spike",
+ *     operationId,
+ *     sourceArtifact: SourceArtifact.make({
+ *       digest,
+ *       extension: "txt",
+ *       id: artifactId,
+ *       locator: ArtifactLocator.make({ kind: "synthetic", value: relativePath }),
+ *       name: "office-action.txt",
+ *       relativePath,
+ *       sizeBytes: NonNegativeInt.make(21),
+ *       text: "Claim 1 rejected."
+ *     })
+ *   })
+ * })
+ *
+ * Effect.runPromise(program).then((input) => console.log(input.officeActionFixtureKey)) // "office-action.spike"
  * ```
  *
  * @category models
@@ -55,9 +84,17 @@ export class OfficeActionReviewInput extends S.Class<OfficeActionReviewInput>($I
  *
  * @example
  * ```ts
+ * import { IrToLawExtractionError } from "@beep/law-practice-use-cases/IrToLaw"
  * import { OfficeActionReviewError } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import * as S from "effect/Schema"
  *
- * console.log(OfficeActionReviewError)
+ * const error = IrToLawExtractionError.fromReason("required-extraction-unaligned", {
+ *   alignmentStatus: "unaligned",
+ *   label: "distinction",
+ *   message: "The distinction could not be grounded."
+ * })
+ *
+ * console.log(S.is(OfficeActionReviewError)(error)) // true
  * ```
  *
  * @category errors
@@ -76,6 +113,19 @@ export const OfficeActionReviewError = S.Union([
 /**
  * Type for {@link OfficeActionReviewError}.
  *
+ * @example
+ * ```ts
+ * import { IrToLawExtractionError } from "@beep/law-practice-use-cases/IrToLaw"
+ * import type { OfficeActionReviewError } from "@beep/law-practice-use-cases/OfficeActionReview"
+ *
+ * const error: OfficeActionReviewError = IrToLawExtractionError.fromReason("required-extraction-missing", {
+ *   label: "claim",
+ *   message: "Missing claim extraction."
+ * })
+ *
+ * console.log(error._tag) // "IrToLawExtractionError"
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
@@ -93,12 +143,25 @@ export type OfficeActionReviewError = typeof OfficeActionReviewError.Type;
  *
  * @example
  * ```ts
+ * import { IrToLawExtractionError } from "@beep/law-practice-use-cases/IrToLaw"
  * import type { OfficeActionReviewShape } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import { Effect } from "effect"
  *
- * const accept = (shape: OfficeActionReviewShape) => shape
- * console.log(accept)
+ * const review: OfficeActionReviewShape["review"] = () =>
+ *   Effect.fail(
+ *     IrToLawExtractionError.fromReason("required-extraction-missing", {
+ *       label: "office_action",
+ *       message: "Missing office action extraction."
+ *     })
+ *   )
+ *
+ * const shape: OfficeActionReviewShape = { review }
+ * console.log(typeof shape.review) // "function"
  * ```
  *
+ * @effects The `review` method runs the configured file-processing,
+ * LangExtract, IR-to-law, claim-gate, and lifecycle services before returning a
+ * projection or a typed workflow error.
  * @category services
  * @since 0.0.0
  */
@@ -111,9 +174,27 @@ export interface OfficeActionReviewShape {
  *
  * @example
  * ```ts
+ * import { IrToLawExtractionError } from "@beep/law-practice-use-cases/IrToLaw"
  * import { OfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import type { OfficeActionReviewShape } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import { Effect } from "effect"
  *
- * console.log(OfficeActionReview)
+ * const shape: OfficeActionReviewShape = {
+ *   review: () =>
+ *     Effect.fail(
+ *       IrToLawExtractionError.fromReason("required-extraction-missing", {
+ *         label: "claim",
+ *         message: "Missing claim extraction."
+ *       })
+ *     )
+ * }
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* OfficeActionReview
+ *   return typeof service.review
+ * }).pipe(Effect.provideService(OfficeActionReview, shape))
+ *
+ * Effect.runPromise(program).then(console.log) // "function"
  * ```
  *
  * @category services

@@ -114,7 +114,8 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
  * @example
  * ```ts
  * import { TsMorphServiceUnavailableError } from "@beep/repo-utils"
- * const value = TsMorphServiceUnavailableError
+ * const identifier = TsMorphServiceUnavailableError.ast.annotations.identifier
+ * console.log(identifier)
  * ```
  * @category models
  * @since 0.0.0
@@ -139,7 +140,8 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
  * @example
  * ```ts
  * import { TsMorphScopeResolutionError } from "@beep/repo-utils"
- * const value = TsMorphScopeResolutionError
+ * const identifier = TsMorphScopeResolutionError.ast.annotations.identifier
+ * console.log(identifier)
  * ```
  * @category models
  * @since 0.0.0
@@ -164,7 +166,8 @@ export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeRe
  * @example
  * ```ts
  * import { TsMorphProjectLoadError } from "@beep/repo-utils"
- * const value = TsMorphProjectLoadError
+ * const identifier = TsMorphProjectLoadError.ast.annotations.identifier
+ * console.log(identifier)
  * ```
  * @category models
  * @since 0.0.0
@@ -187,7 +190,8 @@ export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoad
  * @example
  * ```ts
  * import { TsMorphSourceFileError } from "@beep/repo-utils"
- * const value = TsMorphSourceFileError
+ * const identifier = TsMorphSourceFileError.ast.annotations.identifier
+ * console.log(identifier)
  * ```
  * @category models
  * @since 0.0.0
@@ -211,7 +215,8 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
  * @example
  * ```ts
  * import { TsMorphSymbolNotFoundError } from "@beep/repo-utils"
- * const value = TsMorphSymbolNotFoundError
+ * const identifier = TsMorphSymbolNotFoundError.ast.annotations.identifier
+ * console.log(identifier)
  * ```
  * @category models
  * @since 0.0.0
@@ -239,7 +244,8 @@ export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNo
  * @example
  * ```ts
  * import { TsMorphUnsupportedFileError } from "@beep/repo-utils"
- * const value = TsMorphUnsupportedFileError
+ * const identifier = TsMorphUnsupportedFileError.ast.annotations.identifier
+ * console.log(identifier)
  * ```
  * @category models
  * @since 0.0.0
@@ -264,7 +270,8 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
  * @example
  * ```ts
  * import { TSMorphServiceError } from "@beep/repo-utils"
- * const value = TSMorphServiceError
+ * const identifier = TSMorphServiceError.ast.annotations.identifier
+ * console.log(identifier)
  * ```
  * @category models
  * @since 0.0.0
@@ -343,8 +350,14 @@ export type TSMorphServiceShape = {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { TSMorphService } from "@beep/repo-utils"
- * const value = TSMorphService
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* TSMorphService
+ *   return "getFileOutline" satisfies keyof typeof service
+ * })
+ * console.log(program)
  * ```
  * @category ports
  * @since 0.0.0
@@ -656,12 +669,24 @@ const collectOutlineEntries = Effect.fn(function* (
 /**
  * Construct the current live implementation for the v1 TSMorphService contract.
  *
- * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { createTSMorphService } from "@beep/repo-utils"
- * const value = createTSMorphService
+ *
+ * const program = createTSMorphService().pipe(
+ *   Effect.map((service) => "searchSymbols" in service)
+ * )
+ * console.log(program)
  * ```
+ * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
+ * @effects
+ * - Requires `Crypto.Crypto`, `FileSystem.FileSystem`, and `Path.Path`.
+ * - Resolves repository roots from `process.cwd()`, reads tsconfig/source
+ *   files, loads ts-morph projects, computes content hashes, and reads
+ *   diagnostics/symbol outlines.
+ * - Caches resolved scopes and symbol indexes in memory for the returned
+ *   service instance; only `updateSourceFile` persists source edits.
  * @category models
  * @since 0.0.0
  */
@@ -1322,8 +1347,11 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
  *
  * @example
  * ```ts
+ * import { Layer } from "effect"
  * import { TSMorphServiceLive } from "@beep/repo-utils"
- * const value = TSMorphServiceLive
+ *
+ * const liveLayer = TSMorphServiceLive.pipe(Layer.provideMerge(Layer.empty))
+ * console.log(liveLayer)
  * ```
  * @category configuration
  * @since 0.0.0

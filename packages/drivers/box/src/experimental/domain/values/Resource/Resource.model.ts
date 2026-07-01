@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box resource reference value-object schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("values/Resource/Resource.model");
 
 /**
+ * Experimental value object for compact Box resource references embedded in payloads.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Resource } from "@beep/box/experimental/domain/values/Resource/Resource.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Resource.make({
+ * const decoded = S.decodeUnknownSync(Resource)({});
+ * const encoded: Resource.Encoded = S.encodeSync(Resource)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class Resource extends S.Class<Resource>($I`Resource`)(
   {},
   $I.annote("Resource", {
-    description: "TODO",
+    description: "Experimental value object for compact Box resource references embedded in payloads.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Resource}
+ * Type-level companion namespace for {@link Resource} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Resource } from "@beep/box/experimental/domain/values/Resource/Resource.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Resource.make({});
+ * const encoded: Resource.Encoded = S.encodeSync(Resource)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Resource {
   /**
-   * Companion encoded type for {@link Resource}.
+   * Encoded payload accepted by the {@link Resource} value-object schema.
    *
    * @example
    * ```ts
-   * import type { Resource } from "@beep/box/experimental/domain/values/Resource/Resource.model";
+   * import { Resource } from "@beep/box/experimental/domain/values/Resource/Resource.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Resource.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Resource.Encoded = S.encodeSync(Resource)(Resource.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Resource.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Resource}.
- *
- * @example
- * ```ts
- * import type { Resource } from "@beep/box/experimental/domain/values/Resource/Resource.model";
- *
- * const useValue = (_value: Resource) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Resource = typeof Resource.Type;

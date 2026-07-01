@@ -40,35 +40,53 @@ const restoreDrillSchemaVersion = "beep.ai_metrics.retention_restore_drill.v1";
 const AiMetricsRetentionMutationMode = LiteralKit(["delete", "compact"]);
 const RawArchiveObjectIdPattern = /^raw-[a-f0-9]{64}$/u;
 
-type RawArchivePlanItem = {
-  readonly archiveObjectId: string;
-  readonly archivePath: string;
-  readonly archiveRunObjectId: string;
-  readonly encryptedAtEpochMillis: number;
-  readonly ingestRunId: string;
-  readonly plaintextContentHash: string;
-  readonly sourceKind: AiMetricsTranscriptSource;
-  readonly sourcePathHash: string;
-};
+class RawArchivePlanItem extends S.Class<RawArchivePlanItem>($I`RawArchivePlanItem`)(
+  {
+    archiveObjectId: S.String,
+    archivePath: S.String,
+    archiveRunObjectId: S.String,
+    encryptedAtEpochMillis: S.Finite,
+    ingestRunId: S.String,
+    plaintextContentHash: S.String,
+    sourceKind: AiMetricsTranscriptSource,
+    sourcePathHash: S.String,
+  },
+  $I.annote("RawArchivePlanItem", {
+    description: "A plan item for a raw archive object",
+  })
+) {}
 
-type PathPlanItem = {
-  readonly absolutePath: string;
-  readonly modifiedAtEpochMillis: number;
-  readonly relativePath: string;
-};
+class PathPlanItem extends S.Class<PathPlanItem>($I`PathPlanItem`)(
+  {
+    absolutePath: S.String,
+    modifiedAtEpochMillis: S.Finite,
+    relativePath: S.String,
+  },
+  $I.annote("PathPlanItem", {
+    description: "A plan item for a path",
+  })
+) {}
 
-type RetentionPlan = {
-  readonly benchmarkRunIds: ReadonlyArray<string>;
-  readonly derivedExportItems: ReadonlyArray<PathPlanItem>;
-  readonly ingestRunIds: ReadonlyArray<string>;
-  readonly labelIds: ReadonlyArray<string>;
-  readonly rawArchiveItems: ReadonlyArray<RawArchivePlanItem>;
-  readonly reportItems: ReadonlyArray<PathPlanItem>;
-  readonly scorecardIds: ReadonlyArray<string>;
-};
+class RetentionPlan extends S.Class<RetentionPlan>($I`RetentionPlan`)(
+  {
+    benchmarkRunIds: S.Array(S.String),
+    derivedExportItems: S.Array(PathPlanItem),
+    ingestRunIds: S.Array(S.String),
+    labelIds: S.Array(S.String),
+    rawArchiveItems: S.Array(RawArchivePlanItem),
+    reportItems: S.Array(PathPlanItem),
+    scorecardIds: S.Array(S.String),
+  },
+  $I.annote("RetentionPlan", {
+    description: "A plan for retention of data",
+  })
+) {}
 
 const retentionFailure = (message: string, cause: unknown): AiMetricsRetentionError =>
-  AiMetricsRetentionError.make({ cause, message });
+  AiMetricsRetentionError.make({
+    cause,
+    message,
+  });
 
 const childPath = (root: string, child: string): string => `${root}/${child}`;
 
@@ -164,7 +182,12 @@ const validateRawArchivePath = (
  * @example
  * ```ts
  * import { AiMetricsRetentionError } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRetentionError)
+ *
+ * const error = AiMetricsRetentionError.make({
+ *   cause: "duckdb unavailable",
+ *   message: "Failed to read AI metrics retention inventory."
+ * })
+ * console.log(error.message)
  * ```
  * @category errors
  * @since 0.0.0
@@ -212,7 +235,16 @@ export class AiMetricsRetentionSelector extends S.Class<AiMetricsRetentionSelect
  * @example
  * ```ts
  * import { AiMetricsRetentionRawArchiveItem } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRetentionRawArchiveItem)
+ *
+ * const item = AiMetricsRetentionRawArchiveItem.make({
+ *   archiveObjectId: "raw-0123456789abcdef",
+ *   encryptedAtEpochMillis: 1_717_000_000_000,
+ *   ingestRunId: "ingest-1",
+ *   plaintextContentHash: "content-hash",
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash"
+ * })
+ * console.log(item.sourceKind)
  * ```
  * @category models
  * @since 0.0.0
@@ -239,7 +271,12 @@ export class AiMetricsRetentionRawArchiveItem extends S.Class<AiMetricsRetention
  * @example
  * ```ts
  * import { AiMetricsRetentionFileItem } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRetentionFileItem)
+ *
+ * const file = AiMetricsRetentionFileItem.make({
+ *   modifiedAtEpochMillis: 1_717_000_000_000,
+ *   relativePath: "derived/parquet/forwarder-1"
+ * })
+ * console.log(file.relativePath)
  * ```
  * @category models
  * @since 0.0.0
@@ -259,8 +296,37 @@ export class AiMetricsRetentionFileItem extends S.Class<AiMetricsRetentionFileIt
  *
  * @example
  * ```ts
- * import { AiMetricsRetentionInventory } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRetentionInventory)
+ * import {
+ *   AiMetricsRetentionFileItem,
+ *   AiMetricsRetentionInventory,
+ *   AiMetricsRetentionRawArchiveItem
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const inventory = AiMetricsRetentionInventory.make({
+ *   derivedExports: [
+ *     AiMetricsRetentionFileItem.make({
+ *       modifiedAtEpochMillis: 1_717_000_000_000,
+ *       relativePath: "derived/parquet/forwarder-1"
+ *     })
+ *   ],
+ *   explicitWindow: true,
+ *   rawArchiveObjects: [
+ *     AiMetricsRetentionRawArchiveItem.make({
+ *       archiveObjectId: "raw-0123456789abcdef",
+ *       encryptedAtEpochMillis: 1_717_000_000_000,
+ *       ingestRunId: "ingest-1",
+ *       plaintextContentHash: "content-hash",
+ *       sourceKind: "codex",
+ *       sourcePathHash: "source-hash"
+ *     })
+ *   ],
+ *   reports: [],
+ *   schemaVersion: "beep.ai_metrics.retention_inventory.v1",
+ *   selectedDerivedExportCount: 1,
+ *   selectedRawArchiveObjectCount: 1,
+ *   selectedReportCount: 0
+ * })
+ * console.log(inventory.selectedRawArchiveObjectCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -287,7 +353,17 @@ export class AiMetricsRetentionInventory extends S.Class<AiMetricsRetentionInven
  * @example
  * ```ts
  * import { AiMetricsRetentionMutationResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRetentionMutationResult)
+ *
+ * const result = AiMetricsRetentionMutationResult.make({
+ *   deletedDerivedExportCount: 2,
+ *   deletedRawArchiveObjectCount: 1,
+ *   deletedReportCount: 0,
+ *   dryRun: true,
+ *   explicitWindow: true,
+ *   mode: "delete",
+ *   schemaVersion: "beep.ai_metrics.retention_mutation.v1"
+ * })
+ * console.log(result.dryRun)
  * ```
  * @category models
  * @since 0.0.0
@@ -348,7 +424,16 @@ export class AiMetricsRetentionEnforcementPolicy extends S.Class<AiMetricsRetent
  * @example
  * ```ts
  * import { AiMetricsRetentionEnforcementResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRetentionEnforcementResult)
+ *
+ * const result = AiMetricsRetentionEnforcementResult.make({
+ *   dataRoot: ".beep/ai-metrics",
+ *   deletedDerivedExportCount: 3,
+ *   dryRun: true,
+ *   keptDerivedExportCount: 2,
+ *   maxSnapshotExports: 2,
+ *   schemaVersion: "beep.ai_metrics.retention_enforcement.v1"
+ * })
+ * console.log(result.deletedDerivedExportCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -374,8 +459,16 @@ export class AiMetricsRetentionEnforcementResult extends S.Class<AiMetricsRetent
  *
  * @example
  * ```ts
- * import { AiMetricsRetentionRestoreDrillInput } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRetentionRestoreDrillInput)
+ * import { AiMetricsRetentionRestoreDrillInput, AiMetricsRetentionSelector } from "@beep/repo-ai-metrics"
+ * import { Redacted } from "effect"
+ *
+ * const input = AiMetricsRetentionRestoreDrillInput.make({
+ *   maxObjects: 1,
+ *   rawArchiveKey: Redacted.make("base64-32-byte-key"),
+ *   restoreRoot: "/tmp/ai-metrics-restore",
+ *   selector: AiMetricsRetentionSelector.make({ dataRoot: ".beep/ai-metrics" })
+ * })
+ * console.log(input.maxObjects)
  * ```
  * @category models
  * @since 0.0.0
@@ -401,7 +494,16 @@ export class AiMetricsRetentionRestoreDrillInput extends S.Class<AiMetricsRetent
  * @example
  * ```ts
  * import { AiMetricsRetentionRestoreDrillResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRetentionRestoreDrillResult)
+ *
+ * const result = AiMetricsRetentionRestoreDrillResult.make({
+ *   derivedDuckDbPath: "/tmp/ai-metrics-restore/derived/ai-metrics.duckdb",
+ *   hashMatches: true,
+ *   replayedObjectCount: 1,
+ *   restoreRoot: "/tmp/ai-metrics-restore",
+ *   schemaVersion: "beep.ai_metrics.retention_restore_drill.v1",
+ *   transcriptTextPrinted: false
+ * })
+ * console.log(result.hashMatches)
  * ```
  * @category models
  * @since 0.0.0
@@ -472,18 +574,16 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const withinWindow = inWindow(input);
-  const rawRows = yield* duckdb.query(
-    `SELECT archive_run_object_id AS "archiveRunObjectId",
-            archive_object_id AS "archiveObjectId",
-            ingest_run_id AS "ingestRunId",
-            source_kind AS "sourceKind",
-            source_path_hash AS "sourcePathHash",
-            plaintext_content_hash AS "plaintextContentHash",
-            archive_path AS "archivePath",
-            encrypted_at_epoch_ms AS "encryptedAtEpochMillis"
-       FROM ai_metrics_raw_archive_objects
-      ORDER BY encrypted_at_epoch_ms ASC`
-  );
+  const rawRows = yield* duckdb.query(`SELECT archive_run_object_id  AS "archiveRunObjectId",
+                                              archive_object_id      AS "archiveObjectId",
+                                              ingest_run_id          AS "ingestRunId",
+                                              source_kind            AS "sourceKind",
+                                              source_path_hash       AS "sourcePathHash",
+                                              plaintext_content_hash AS "plaintextContentHash",
+                                              archive_path           AS "archivePath",
+                                              encrypted_at_epoch_ms  AS "encryptedAtEpochMillis"
+                                       FROM ai_metrics_raw_archive_objects
+                                       ORDER BY encrypted_at_epoch_ms ASC`);
   const rawArchiveItems = pipe(
     rawRows,
     A.map((row): RawArchivePlanItem => {
@@ -501,12 +601,10 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
     }),
     A.filter((item) => withinWindow(item.encryptedAtEpochMillis))
   );
-  const runRows = yield* duckdb.query(
-    `SELECT ingest_run_id AS "ingestRunId",
-            completed_at_epoch_ms AS "completedAtEpochMillis"
-       FROM ai_metrics_ingest_runs
-      ORDER BY completed_at_epoch_ms ASC`
-  );
+  const runRows = yield* duckdb.query(`SELECT ingest_run_id         AS "ingestRunId",
+                                              completed_at_epoch_ms AS "completedAtEpochMillis"
+                                       FROM ai_metrics_ingest_runs
+                                       ORDER BY completed_at_epoch_ms ASC`);
   const windowIngestRunIds = pipe(
     runRows,
     A.filter((row) => withinWindow(numberValue(row.completedAtEpochMillis))),
@@ -517,34 +615,28 @@ const readRetentionPlan = Effect.fn("AiMetrics.retention.readPlan")(function* (i
     A.appendAll(A.map(rawArchiveItems, (item) => item.ingestRunId)),
     A.dedupe
   );
-  const labelRows = yield* duckdb.query(
-    `SELECT label_id AS "labelId",
-            labeled_at_epoch_ms AS "labeledAtEpochMillis"
-       FROM ai_metrics_outcome_labels
-      ORDER BY labeled_at_epoch_ms ASC`
-  );
+  const labelRows = yield* duckdb.query(`SELECT label_id            AS "labelId",
+                                                labeled_at_epoch_ms AS "labeledAtEpochMillis"
+                                         FROM ai_metrics_outcome_labels
+                                         ORDER BY labeled_at_epoch_ms ASC`);
   const labelIds = pipe(
     labelRows,
     A.filter((row) => withinWindow(numberValue(row.labeledAtEpochMillis))),
     A.map((row) => stringValue(row.labelId))
   );
-  const benchmarkRunRows = yield* duckdb.query(
-    `SELECT benchmark_run_id AS "benchmarkRunId",
-            recorded_at_epoch_ms AS "recordedAtEpochMillis"
-       FROM ai_metrics_benchmark_runs
-      ORDER BY recorded_at_epoch_ms ASC`
-  );
+  const benchmarkRunRows = yield* duckdb.query(`SELECT benchmark_run_id     AS "benchmarkRunId",
+                                                       recorded_at_epoch_ms AS "recordedAtEpochMillis"
+                                                FROM ai_metrics_benchmark_runs
+                                                ORDER BY recorded_at_epoch_ms ASC`);
   const benchmarkRunIds = pipe(
     benchmarkRunRows,
     A.filter((row) => withinWindow(numberValue(row.recordedAtEpochMillis))),
     A.map((row) => stringValue(row.benchmarkRunId))
   );
-  const scorecardRows = yield* duckdb.query(
-    `SELECT scorecard_id AS "scorecardId",
-            window_end_epoch_ms AS "windowEndEpochMillis"
-       FROM ai_metrics_scorecards
-      ORDER BY window_end_epoch_ms ASC`
-  );
+  const scorecardRows = yield* duckdb.query(`SELECT scorecard_id        AS "scorecardId",
+                                                    window_end_epoch_ms AS "windowEndEpochMillis"
+                                             FROM ai_metrics_scorecards
+                                             ORDER BY window_end_epoch_ms ASC`);
   const scorecardIds = pipe(
     scorecardRows,
     A.filter((row) => withinWindow(numberValue(row.windowEndEpochMillis))),
@@ -641,9 +733,23 @@ const planToInventory = (input: AiMetricsRetentionSelector, plan: RetentionPlan)
  *
  * @example
  * ```ts
- * import { listAiMetricsRetentionInventory } from "@beep/repo-ai-metrics"
- * console.log(listAiMetricsRetentionInventory)
+ * import { AiMetricsRetentionSelector, listAiMetricsRetentionInventory } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = listAiMetricsRetentionInventory(
+ *   AiMetricsRetentionSelector.make({
+ *     beforeEpochMillis: 1_717_086_400_000,
+ *     dataRoot: ".beep/ai-metrics"
+ *   })
+ * )
+ * const selectedCount = Effect.map(program, (inventory) => inventory.selectedRawArchiveObjectCount)
+ * console.log(selectedCount)
  * ```
+ * @effects
+ * - Opens the derived DuckDB database under the selected data root.
+ * - Reads retention rows from AI-metrics derived tables.
+ * - Walks retained Parquet and report directories to build path-safe inventory rows.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -677,41 +783,54 @@ const deleteRowsForPlan = Effect.fn("AiMetrics.retention.deleteRowsForPlan")(fun
   const benchmarkRunIds = sqlStringList(plan.benchmarkRunIds);
   const scorecardIds = sqlStringList(plan.scorecardIds);
   if (Str.isNonEmpty(labelIds)) {
-    yield* duckdb.run(`DELETE FROM ai_metrics_outcome_labels WHERE label_id IN (${labelIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_outcome_labels
+	                   WHERE label_id IN (${labelIds})`);
   }
   if (Str.isNonEmpty(benchmarkRunIds)) {
-    yield* duckdb.run(`DELETE FROM ai_metrics_benchmark_runs WHERE benchmark_run_id IN (${benchmarkRunIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_benchmark_runs
+	                   WHERE benchmark_run_id IN (${benchmarkRunIds})`);
   }
   if (Str.isNonEmpty(scorecardIds)) {
-    yield* duckdb.run(`DELETE FROM ai_metrics_scorecards WHERE scorecard_id IN (${scorecardIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_scorecards
+	                   WHERE scorecard_id IN (${scorecardIds})`);
   }
   if (Str.isNonEmpty(runIds)) {
-    yield* duckdb.run(`DELETE FROM ai_metrics_turns WHERE ingest_run_id IN (${runIds})`);
-    yield* duckdb.run(`DELETE FROM ai_metrics_sessions WHERE ingest_run_id IN (${runIds})`);
-    yield* duckdb.run(`DELETE FROM ai_metrics_source_files WHERE ingest_run_id IN (${runIds})`);
-    yield* duckdb.run(`DELETE FROM ai_metrics_model_calls WHERE ingest_run_id IN (${runIds})`);
-    yield* duckdb.run(`DELETE FROM ai_metrics_tool_invocations WHERE ingest_run_id IN (${runIds})`);
-    yield* duckdb.run(`DELETE FROM ai_metrics_ingest_runs WHERE ingest_run_id IN (${runIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_turns
+	                   WHERE ingest_run_id IN (${runIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_sessions
+	                   WHERE ingest_run_id IN (${runIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_source_files
+	                   WHERE ingest_run_id IN (${runIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_model_calls
+	                   WHERE ingest_run_id IN (${runIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_tool_invocations
+	                   WHERE ingest_run_id IN (${runIds})`);
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_ingest_runs
+	                   WHERE ingest_run_id IN (${runIds})`);
   }
   if (Str.isNonEmpty(runIds) || Str.isNonEmpty(labelIds)) {
-    yield* duckdb.run(
-      `DELETE FROM ai_metrics_agent_tasks AS task
-        WHERE NOT EXISTS (
-          SELECT 1
-            FROM ai_metrics_sessions AS session
-           WHERE session.agent_task_id = task.agent_task_id
-        )
-          AND NOT EXISTS (
-            SELECT 1
-              FROM ai_metrics_outcome_labels AS label
-             WHERE label.agent_task_id = task.agent_task_id
-        )`
-    );
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_agent_tasks AS task
+	                   WHERE NOT EXISTS (SELECT 1
+	                                     FROM ai_metrics_sessions AS session
+		                   WHERE session.agent_task_id = task.agent_task_id)
+		                 AND NOT EXISTS (SELECT 1
+		                                 FROM ai_metrics_outcome_labels AS label
+		                                 WHERE label.agent_task_id = task.agent_task_id)`);
   }
   if (Str.isNonEmpty(archiveRunObjectIds)) {
-    yield* duckdb.run(
-      `DELETE FROM ai_metrics_raw_archive_objects WHERE archive_run_object_id IN (${archiveRunObjectIds})`
-    );
+    yield* duckdb.run(`DELETE
+	                   FROM ai_metrics_raw_archive_objects
+	                   WHERE archive_run_object_id IN (${archiveRunObjectIds})`);
   }
 });
 
@@ -723,7 +842,10 @@ const removePlanPaths = Effect.fn("AiMetrics.retention.removePlanPaths")(functio
     items,
     (item) =>
       fs
-        .remove(item.absolutePath, { force: true, recursive: true })
+        .remove(item.absolutePath, {
+          force: true,
+          recursive: true,
+        })
         .pipe(Effect.mapError((cause) => retentionFailure("Failed to remove an AI metrics retained file.", cause))),
     { discard: true }
   );
@@ -784,9 +906,23 @@ const listForwarderSnapshotExportDirs = Effect.fn("AiMetrics.retention.listForwa
  *
  * @example
  * ```ts
- * import { enforceAiMetricsRetentionPolicy } from "@beep/repo-ai-metrics"
- * console.log(enforceAiMetricsRetentionPolicy)
+ * import { AiMetricsRetentionEnforcementPolicy, enforceAiMetricsRetentionPolicy } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = enforceAiMetricsRetentionPolicy(
+ *   AiMetricsRetentionEnforcementPolicy.make({
+ *     dataRoot: ".beep/ai-metrics",
+ *     dryRun: true,
+ *     maxSnapshotExports: 2
+ *   })
+ * )
+ * const deletedCount = Effect.map(program, (result) => result.deletedDerivedExportCount)
+ * console.log(deletedCount)
  * ```
+ * @effects
+ * - Reads the derived Parquet snapshot directory and file metadata.
+ * - Removes old snapshot directories only when `dryRun` is `false`.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -892,9 +1028,24 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
  *
  * @example
  * ```ts
- * import { runAiMetricsRetentionDelete } from "@beep/repo-ai-metrics"
- * console.log(runAiMetricsRetentionDelete)
+ * import { AiMetricsRetentionSelector, runAiMetricsRetentionDelete } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = runAiMetricsRetentionDelete(
+ *   AiMetricsRetentionSelector.make({
+ *     beforeEpochMillis: 1_717_086_400_000,
+ *     dataRoot: ".beep/ai-metrics"
+ *   }),
+ *   true
+ * )
+ * const plannedRawDeletes = Effect.map(program, (result) => result.deletedRawArchiveObjectCount)
+ * console.log(plannedRawDeletes)
  * ```
+ * @effects
+ * - Reads the selected retention plan from derived DuckDB storage.
+ * - Deletes selected raw archive files and derived/report outputs only when `dryRun` is `false`.
+ * - Deletes selected derived rows from DuckDB only when `dryRun` is `false`.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -909,7 +1060,11 @@ export const runAiMetricsRetentionDelete: {
     input: AiMetricsRetentionSelector
   ) => Effect.Effect<AiMetricsRetentionMutationResult, AiMetricsRetentionError, FileSystem.FileSystem | Path.Path>;
 } = dual(2, (input: AiMetricsRetentionSelector, dryRun: boolean) =>
-  runRetentionMutation({ dryRun, input, mode: "delete" })
+  runRetentionMutation({
+    dryRun,
+    input,
+    mode: "delete",
+  })
 );
 
 /**
@@ -917,9 +1072,23 @@ export const runAiMetricsRetentionDelete: {
  *
  * @example
  * ```ts
- * import { runAiMetricsRetentionCompact } from "@beep/repo-ai-metrics"
- * console.log(runAiMetricsRetentionCompact)
+ * import { AiMetricsRetentionSelector, runAiMetricsRetentionCompact } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = runAiMetricsRetentionCompact(
+ *   AiMetricsRetentionSelector.make({
+ *     beforeEpochMillis: 1_717_086_400_000,
+ *     dataRoot: ".beep/ai-metrics"
+ *   }),
+ *   true
+ * )
+ * const plannedFileDeletes = Effect.map(program, (result) => result.deletedDerivedExportCount)
+ * console.log(plannedFileDeletes)
  * ```
+ * @effects
+ * - Reads the selected retention plan from derived DuckDB storage.
+ * - Removes selected derived/report output files only when `dryRun` is `false`.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -934,7 +1103,11 @@ export const runAiMetricsRetentionCompact: {
     input: AiMetricsRetentionSelector
   ) => Effect.Effect<AiMetricsRetentionMutationResult, AiMetricsRetentionError, FileSystem.FileSystem | Path.Path>;
 } = dual(2, (input: AiMetricsRetentionSelector, dryRun: boolean) =>
-  runRetentionMutation({ dryRun, input, mode: "compact" })
+  runRetentionMutation({
+    dryRun,
+    input,
+    mode: "compact",
+  })
 );
 
 /**
@@ -942,9 +1115,30 @@ export const runAiMetricsRetentionCompact: {
  *
  * @example
  * ```ts
- * import { runAiMetricsRetentionRestoreDrill } from "@beep/repo-ai-metrics"
- * console.log(runAiMetricsRetentionRestoreDrill)
+ * import {
+ *   AiMetricsRetentionRestoreDrillInput,
+ *   AiMetricsRetentionSelector,
+ *   runAiMetricsRetentionRestoreDrill
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect, Redacted } from "effect"
+ *
+ * const program = runAiMetricsRetentionRestoreDrill(
+ *   AiMetricsRetentionRestoreDrillInput.make({
+ *     maxObjects: 1,
+ *     rawArchiveKey: Redacted.make("base64-32-byte-key"),
+ *     restoreRoot: "/tmp/ai-metrics-restore",
+ *     selector: AiMetricsRetentionSelector.make({ dataRoot: ".beep/ai-metrics" })
+ *   })
+ * )
+ * const replayedCount = Effect.map(program, (result) => result.replayedObjectCount)
+ * console.log(replayedCount)
  * ```
+ * @effects
+ * - Reads source retention rows from derived DuckDB storage.
+ * - Reads and decrypts selected raw archive envelopes using `globalThis.crypto`.
+ * - Creates restore directories, writes a disposable raw archive copy, and writes restored derived DuckDB storage.
+ * - Hashes restored plaintext to prove retained archive integrity before replay.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -1039,7 +1233,13 @@ export const runAiMetricsRetentionRestoreDrill = Effect.fn("AiMetrics.runAiMetri
       sourceKind: item.sourceKind,
       sourcePath: restoreSourcePath,
     }).pipe(Effect.mapError((cause) => retentionFailure("Failed to write restore drill archive object.", cause)));
-    records = A.append(records, AiMetricsDerivedTranscriptRecord.make({ archiveObject, privacy }));
+    records = A.append(
+      records,
+      AiMetricsDerivedTranscriptRecord.make({
+        archiveObject,
+        privacy,
+      })
+    );
   }
 
   yield* Effect.scoped(
@@ -1080,9 +1280,24 @@ const encodeRestoreDrillJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsR
  *
  * @example
  * ```ts
- * import { aiMetricsRetentionInventoryToJson } from "@beep/repo-ai-metrics"
- * console.log(aiMetricsRetentionInventoryToJson)
+ * import { AiMetricsRetentionInventory, aiMetricsRetentionInventoryToJson } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const inventory = AiMetricsRetentionInventory.make({
+ *   derivedExports: [],
+ *   explicitWindow: true,
+ *   rawArchiveObjects: [],
+ *   reports: [],
+ *   schemaVersion: "beep.ai_metrics.retention_inventory.v1",
+ *   selectedDerivedExportCount: 0,
+ *   selectedRawArchiveObjectCount: 0,
+ *   selectedReportCount: 0
+ * })
+ * const json = Effect.runPromise(aiMetricsRetentionInventoryToJson(inventory))
+ * console.log(json)
  * ```
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if inventory cannot be encoded.
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -1100,9 +1315,22 @@ export const aiMetricsRetentionInventoryToJson: (
  *
  * @example
  * ```ts
- * import { aiMetricsRetentionEnforcementToJson } from "@beep/repo-ai-metrics"
- * console.log(aiMetricsRetentionEnforcementToJson)
+ * import { AiMetricsRetentionEnforcementResult, aiMetricsRetentionEnforcementToJson } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const result = AiMetricsRetentionEnforcementResult.make({
+ *   dataRoot: ".beep/ai-metrics",
+ *   deletedDerivedExportCount: 1,
+ *   dryRun: true,
+ *   keptDerivedExportCount: 2,
+ *   maxSnapshotExports: 2,
+ *   schemaVersion: "beep.ai_metrics.retention_enforcement.v1"
+ * })
+ * const json = Effect.runPromise(aiMetricsRetentionEnforcementToJson(result))
+ * console.log(json)
  * ```
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if enforcement result cannot be encoded.
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -1120,9 +1348,23 @@ export const aiMetricsRetentionEnforcementToJson: (
  *
  * @example
  * ```ts
- * import { aiMetricsRetentionMutationToJson } from "@beep/repo-ai-metrics"
- * console.log(aiMetricsRetentionMutationToJson)
+ * import { AiMetricsRetentionMutationResult, aiMetricsRetentionMutationToJson } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const result = AiMetricsRetentionMutationResult.make({
+ *   deletedDerivedExportCount: 2,
+ *   deletedRawArchiveObjectCount: 0,
+ *   deletedReportCount: 1,
+ *   dryRun: true,
+ *   explicitWindow: true,
+ *   mode: "compact",
+ *   schemaVersion: "beep.ai_metrics.retention_mutation.v1"
+ * })
+ * const json = Effect.runPromise(aiMetricsRetentionMutationToJson(result))
+ * console.log(json)
  * ```
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if mutation result cannot be encoded.
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -1140,9 +1382,22 @@ export const aiMetricsRetentionMutationToJson: (
  *
  * @example
  * ```ts
- * import { aiMetricsRetentionRestoreDrillToJson } from "@beep/repo-ai-metrics"
- * console.log(aiMetricsRetentionRestoreDrillToJson)
+ * import { AiMetricsRetentionRestoreDrillResult, aiMetricsRetentionRestoreDrillToJson } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const result = AiMetricsRetentionRestoreDrillResult.make({
+ *   derivedDuckDbPath: "/tmp/ai-metrics-restore/derived/ai-metrics.duckdb",
+ *   hashMatches: true,
+ *   replayedObjectCount: 1,
+ *   restoreRoot: "/tmp/ai-metrics-restore",
+ *   schemaVersion: "beep.ai_metrics.retention_restore_drill.v1",
+ *   transcriptTextPrinted: false
+ * })
+ * const json = Effect.runPromise(aiMetricsRetentionRestoreDrillToJson(result))
+ * console.log(json)
  * ```
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if restore-drill result cannot be encoded.
+ *
  * @category utilities
  * @since 0.0.0
  */

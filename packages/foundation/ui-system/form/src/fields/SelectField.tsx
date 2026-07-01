@@ -50,9 +50,36 @@ export interface SelectFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { SelectField } from "@beep/form/fields/SelectField"
+ * import * as S from "effect/Schema"
  *
- * console.log(SelectField)
+ * const StatusSchema = S.Struct({ status: S.String })
+ * const statusOptions = [
+ *   { value: "draft", label: "Draft" },
+ *   { value: "published", label: "Published" },
+ * ]
+ * const formOptions = makeFormOptions({
+ *   schema: StatusSchema,
+ *   defaultValues: { status: "draft" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function StatusForm() {
+ *   const form = useAppForm(formOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="status">
+ *           {() => <SelectField label="Status" options={statusOptions} placeholder="Choose status" />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(formOptions.defaultValues.status) // "draft"
  * ```
  *
  * @category components

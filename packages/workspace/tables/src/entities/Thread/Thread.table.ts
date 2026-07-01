@@ -15,7 +15,10 @@ import { Thread } from "@beep/workspace-domain/entities/Thread";
  * ```ts
  * import { Thread } from "@beep/workspace-tables/entities"
  *
- * console.log(Thread.Table.definition.tableName)
+ * const tableName: "workspace_thread" = Thread.Table.definition.tableName
+ * const workspaceIdStorage: "entityId" = Thread.Table.definition.persisted.workspaceId.storageKind
+ *
+ * console.log(`${tableName}:${workspaceIdStorage}`)
  * ```
  *
  * @category tables

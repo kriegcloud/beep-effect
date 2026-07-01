@@ -91,7 +91,8 @@ export type JsonLdKeyword = typeof JsonLdKeyword.Type;
  * import { JsonLdTermDefinition } from "@beep/rdf/JsonLd"
  *
  * const term = S.decodeUnknownSync(JsonLdTermDefinition)({
- *
+ *   "@id": "https://schema.org/name",
+ *   "@type": "http://www.w3.org/2001/XMLSchema#string"
  * })
  * console.log(term["@id"]) // "https://schema.org/name"
  * ```
@@ -123,9 +124,17 @@ export class JsonLdTermDefinition extends S.Class<JsonLdTermDefinition>($I`JsonL
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { JsonLdContext } from "@beep/rdf/JsonLd"
  *
- * console.log(JsonLdContext)
+ * const context = S.decodeUnknownSync(JsonLdContext)({
+ *   "@base": "https://example.org/",
+ *   "@vocab": "https://schema.org/",
+ *   terms: {
+ *     name: "https://schema.org/name"
+ *   }
+ * })
+ * console.log(context.terms.name) // "https://schema.org/name"
  * ```
  *
  * @since 0.0.0
@@ -157,9 +166,11 @@ export class JsonLdContext extends S.Class<JsonLdContext>($I`JsonLdContext`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { JsonLdBlankNodeIdentifier } from "@beep/rdf/JsonLd"
  *
- * console.log(JsonLdBlankNodeIdentifier)
+ * const identifier = S.decodeUnknownSync(JsonLdBlankNodeIdentifier)("_:b0")
+ * console.log(identifier) // "_:b0"
  * ```
  *
  * @since 0.0.0
@@ -203,9 +214,11 @@ export type JsonLdBlankNodeIdentifier = typeof JsonLdBlankNodeIdentifier.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { JsonLdNodeIdentifier } from "@beep/rdf/JsonLd"
  *
- * console.log(JsonLdNodeIdentifier)
+ * const identifier = S.decodeUnknownSync(JsonLdNodeIdentifier)("https://example.org/person/alice")
+ * console.log(identifier) // "https://example.org/person/alice"
  * ```
  *
  * @since 0.0.0
@@ -248,9 +261,13 @@ export type JsonLdNodeIdentifier = typeof JsonLdNodeIdentifier.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { JsonLdReferenceValue } from "@beep/rdf/JsonLd"
  *
- * console.log(JsonLdReferenceValue)
+ * const reference = S.decodeUnknownSync(JsonLdReferenceValue)({
+ *   "@id": "https://example.org/person/alice"
+ * })
+ * console.log(reference["@id"]) // "https://example.org/person/alice"
  * ```
  *
  * @since 0.0.0
@@ -280,9 +297,14 @@ export class JsonLdReferenceValue extends S.Class<JsonLdReferenceValue>($I`JsonL
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { JsonLdLiteralValue } from "@beep/rdf/JsonLd"
  *
- * console.log(JsonLdLiteralValue)
+ * const value = S.decodeUnknownSync(JsonLdLiteralValue)({
+ *   "@value": "Alice",
+ *   "@language": "en"
+ * })
+ * console.log(value["@value"]) // "Alice"
  * ```
  *
  * @since 0.0.0
@@ -313,9 +335,15 @@ export class JsonLdLiteralValue extends S.Class<JsonLdLiteralValue>($I`JsonLdLit
  *
  * @example
  * ```ts
- * import { JsonLdPropertyValue } from "@beep/rdf/JsonLd"
+ * import * as S from "effect/Schema"
+ * import { JsonLdLiteralValue, JsonLdPropertyValue } from "@beep/rdf/JsonLd"
  *
- * console.log(JsonLdPropertyValue)
+ * const propertyValue = S.decodeUnknownSync(JsonLdPropertyValue)({
+ *   "@value": "Alice"
+ * })
+ * if (S.is(JsonLdLiteralValue)(propertyValue)) {
+ *   console.log(propertyValue["@value"]) // "Alice"
+ * }
  * ```
  *
  * @since 0.0.0
@@ -348,9 +376,17 @@ export type JsonLdPropertyValue = typeof JsonLdPropertyValue.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { JsonLdNodeObject } from "@beep/rdf/JsonLd"
  *
- * console.log(JsonLdNodeObject)
+ * const node = S.decodeUnknownSync(JsonLdNodeObject)({
+ *   "@id": "https://example.org/person/alice",
+ *   "@type": ["https://schema.org/Person"],
+ *   properties: {
+ *     "https://schema.org/name": [{ "@value": "Alice" }]
+ *   }
+ * })
+ * console.log(Object.keys(node.properties).length) // 1
  * ```
  *
  * @since 0.0.0
@@ -418,9 +454,14 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { JsonLdFrame } from "@beep/rdf/JsonLd"
  *
- * console.log(JsonLdFrame)
+ * const frame = S.decodeUnknownSync(JsonLdFrame)({
+ *   "@type": "https://schema.org/Person",
+ *   includeProperties: ["https://schema.org/name"]
+ * })
+ * console.log(frame.includeProperties._tag) // "Some"
  * ```
  *
  * @since 0.0.0

@@ -16,9 +16,15 @@ import type { WorkPriority } from "./WorkPriority.model.js";
  *
  * @example
  * ```ts
- * import { defaultWorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
+ * import { WorkPriority, defaultWorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
  *
- * console.log(defaultWorkPriority)
+ * const usesNormalPriority = defaultWorkPriority === WorkPriority.Enum.normal
+ *
+ * console.log(usesNormalPriority)
+ *
+ * if (defaultWorkPriority !== WorkPriority.Enum.normal) {
+ *   throw new Error("expected normal default priority")
+ * }
  * ```
  *
  * @category value-objects
@@ -33,7 +39,13 @@ export const defaultWorkPriority: WorkPriority = WorkPrioritySchema.Enum.normal;
  * ```ts
  * import { rank } from "@beep/architecture-lab-domain/values/WorkPriority"
  *
- * console.log(rank)
+ * const highOutranksLow = rank("high") > rank("low")
+ *
+ * console.log(highOutranksLow)
+ *
+ * if (rank("high") <= rank("low")) {
+ *   throw new Error("expected high priority to outrank low priority")
+ * }
  * ```
  *
  * @category value-objects
@@ -47,13 +59,20 @@ export const rank: (priority: WorkPriority) => number = Match.type<WorkPriority>
 );
 
 /**
- * Compare two priorities.
+ * Compare two priorities by their relative rank.
  *
  * @example
  * ```ts
  * import { compare } from "@beep/architecture-lab-domain/values/WorkPriority"
  *
- * console.log(compare)
+ * const highBeatsNormal = compare("high", "normal")
+ * const lowLosesToNormal = compare("normal")("low")
+ *
+ * console.log({ highBeatsNormal, lowLosesToNormal })
+ *
+ * if (highBeatsNormal <= 0 || lowLosesToNormal >= 0) {
+ *   throw new Error("expected priority ordering")
+ * }
  * ```
  *
  * @category value-objects

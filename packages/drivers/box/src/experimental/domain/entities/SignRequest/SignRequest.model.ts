@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box Sign request entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/SignRequest/SignRequest.model");
 
 /**
+ * Experimental schema anchor for Box Sign request resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { SignRequest } from "@beep/box/experimental/domain/entities/SignRequest/SignRequest.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(SignRequest.make({
+ * const decoded = S.decodeUnknownSync(SignRequest)({});
+ * const encoded: SignRequest.Encoded = S.encodeSync(SignRequest)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class SignRequest extends S.Class<SignRequest>($I`SignRequest`)(
   {},
   $I.annote("SignRequest", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box Sign request resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link SignRequest}
+ * Type-level companion namespace for {@link SignRequest} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { SignRequest } from "@beep/box/experimental/domain/entities/SignRequest/SignRequest.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = SignRequest.make({});
+ * const encoded: SignRequest.Encoded = S.encodeSync(SignRequest)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace SignRequest {
   /**
-   * Companion encoded type for {@link SignRequest}.
+   * Encoded payload accepted by the {@link SignRequest} entity schema.
    *
    * @example
    * ```ts
-   * import type { SignRequest } from "@beep/box/experimental/domain/entities/SignRequest/SignRequest.model";
+   * import { SignRequest } from "@beep/box/experimental/domain/entities/SignRequest/SignRequest.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: SignRequest.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: SignRequest.Encoded = S.encodeSync(SignRequest)(SignRequest.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof SignRequest.Encoded;
 }
-
-/**
- * Companion runtime type for {@link SignRequest}.
- *
- * @example
- * ```ts
- * import type { SignRequest } from "@beep/box/experimental/domain/entities/SignRequest/SignRequest.model";
- *
- * const useValue = (_value: SignRequest) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type SignRequest = typeof SignRequest.Type;

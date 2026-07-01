@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box file version entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/FileVersion/FileVersion.model");
 
 /**
+ * Experimental schema anchor for historical versions of Box files.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(FileVersion.make({
+ * const decoded = S.decodeUnknownSync(FileVersion)({});
+ * const encoded: FileVersion.Encoded = S.encodeSync(FileVersion)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class FileVersion extends S.Class<FileVersion>($I`FileVersion`)(
   {},
   $I.annote("FileVersion", {
-    description: "TODO",
+    description: "Experimental schema anchor for historical versions of Box files.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link FileVersion}
+ * Type-level companion namespace for {@link FileVersion} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = FileVersion.make({});
+ * const encoded: FileVersion.Encoded = S.encodeSync(FileVersion)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace FileVersion {
   /**
-   * Companion encoded type for {@link FileVersion}.
+   * Encoded payload accepted by the {@link FileVersion} entity schema.
    *
    * @example
    * ```ts
-   * import type { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
+   * import { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: FileVersion.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: FileVersion.Encoded = S.encodeSync(FileVersion)(FileVersion.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof FileVersion.Encoded;
 }
-
-/**
- * Companion runtime type for {@link FileVersion}.
- *
- * @example
- * ```ts
- * import type { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
- *
- * const useValue = (_value: FileVersion) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type FileVersion = typeof FileVersion.Type;

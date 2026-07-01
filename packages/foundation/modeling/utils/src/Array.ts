@@ -349,8 +349,10 @@ export const slice: {
  * ```ts
  * import { A } from "@beep/utils"
  *
- * const entries = A.entries(["x", "y"])
- * console.log(entries)
+ * const indexed = A.entries(["x", "y"])
+ * const first = indexed[0]
+ *
+ * console.log(first)
  * ```
  *
  * @category getters
@@ -382,8 +384,11 @@ export const keys = (self: ReadonlyArray<unknown>): Array<number> => A.makeBy(se
  * ```ts
  * import { A } from "@beep/utils"
  *
- * const values = A.values(["x", "y"])
- * console.log(values)
+ * const source = ["x", "y"]
+ * const copy = A.values(source)
+ *
+ * console.log(copy)
+ * console.log(copy === source)
  * ```
  *
  * @category getters

@@ -234,7 +234,9 @@ function ToolbarDivider(): JSX.Element {
  * ```tsx
  * import { FixedToolbarPlugin } from "@beep/editor/chat"
  *
- * console.log(FixedToolbarPlugin.name) // "FixedToolbarPlugin"
+ * function ComposerToolbar() {
+ *   return <FixedToolbarPlugin />
+ * }
  * ```
  *
  * @category components

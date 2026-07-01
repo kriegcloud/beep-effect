@@ -13,7 +13,8 @@
  * ```ts
  * import { editorTheme } from "@beep/editor/theme"
  *
- * console.log(typeof editorTheme) // "object"
+ * const paragraphClass = editorTheme.paragraph
+ * console.log(paragraphClass)
  * ```
  *
  * @category configuration

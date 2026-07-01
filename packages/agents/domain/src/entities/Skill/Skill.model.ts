@@ -1,5 +1,5 @@
 /**
- * Agents skill entity model.
+ * Persisted skill entity schema for fixture-backed agent capabilities.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -13,7 +13,7 @@ import * as S from "effect/Schema";
 const $I = $AgentsDomainId.create("entities/Skill/Skill.model");
 
 /**
- * Skill definition used by an agent.
+ * Persisted skill record referenced by fixture-backed agents.
  *
  * @example
  * ```ts
@@ -22,7 +22,7 @@ const $I = $AgentsDomainId.create("entities/Skill/Skill.model");
  * console.log(Skill.definition.entityId.tableName)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Skill extends BaseEntity.Class<Skill>($I`Skill`)(
@@ -42,6 +42,6 @@ export class Skill extends BaseEntity.Class<Skill>($I`Skill`)(
     },
   },
   $I.annote("Skill", {
-    description: "Skill definition used by an agent.",
+    description: "Persisted skill record referenced by fixture-backed agents.",
   })
 ) {}

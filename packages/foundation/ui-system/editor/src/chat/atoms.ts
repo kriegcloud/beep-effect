@@ -41,6 +41,19 @@ const decodeSerializedState = S.decodeUnknownOption(SerializedEditorState);
  * defaults-filled features here; other atoms read `sendOn` and the flags from
  * it. Defaults to {@link ComposerFeatures.make} so an unmounted read is valid.
  *
+ * @example
+ * ```tsx
+ * import { featuresAtom } from "@beep/editor/chat"
+ * import { useAtomValue } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function SendPolicyLabel() {
+ *   const [editor] = useLexicalComposerContext()
+ *   const features = useAtomValue(featuresAtom(editor))
+ *   return <span>{features.sendOn}</span>
+ * }
+ * ```
+ *
  * @category atoms
  * @since 0.0.0
  */
@@ -53,6 +66,19 @@ export const featuresAtom = Atom.family((_editor: LexicalEditor) =>
  * counter): the typeahead `onOpen` fires on every query change, so a `+1/-1`
  * counter would never rebalance.
  *
+ * @example
+ * ```tsx
+ * import { menusOpenAtom } from "@beep/editor/chat"
+ * import { useAtomSet } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function CloseMenusButton() {
+ *   const [editor] = useLexicalComposerContext()
+ *   const setMenusOpen = useAtomSet(menusOpenAtom(editor))
+ *   return <button onClick={() => setMenusOpen({ slash: false, mention: false })}>Close menus</button>
+ * }
+ * ```
+ *
  * @category atoms
  * @since 0.0.0
  */
@@ -63,6 +89,19 @@ export const menusOpenAtom = Atom.family((_editor: LexicalEditor) =>
 /**
  * Per-editor derived flag: whether any typeahead menu is open. Subscribes to
  * {@link menusOpenAtom}.
+ *
+ * @example
+ * ```tsx
+ * import { anyMenuOpenAtom } from "@beep/editor/chat"
+ * import { useAtomValue } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function TypeaheadState() {
+ *   const [editor] = useLexicalComposerContext()
+ *   const menuOpen = useAtomValue(anyMenuOpenAtom(editor))
+ *   return <span aria-live="polite">{menuOpen ? "Menu open" : "No menu"}</span>
+ * }
+ * ```
  *
  * @category atoms
  * @since 0.0.0
@@ -78,6 +117,19 @@ export const anyMenuOpenAtom = Atom.family((editor: LexicalEditor) =>
  * Per-editor captured attachments. Writable; the composer pushes captured files
  * and revokes object URLs on removal/unmount.
  *
+ * @example
+ * ```tsx
+ * import { AttachmentChips, attachmentsAtom } from "@beep/editor/chat"
+ * import { useAtomValue } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function AttachmentPreview() {
+ *   const [editor] = useLexicalComposerContext()
+ *   const attachments = useAtomValue(attachmentsAtom(editor))
+ *   return <AttachmentChips attachments={attachments} onRemove={() => undefined} />
+ * }
+ * ```
+ *
  * @category atoms
  * @since 0.0.0
  */
@@ -91,6 +143,19 @@ export const attachmentsAtom = Atom.family((_editor: LexicalEditor) =>
  * the same bound without threading it through React props. Defaults to
  * {@link DEFAULT_MAX_ATTACHMENT_BYTES}.
  *
+ * @example
+ * ```tsx
+ * import { maxAttachmentBytesAtom } from "@beep/editor/chat"
+ * import { useAtomValue } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function AttachmentLimit() {
+ *   const [editor] = useLexicalComposerContext()
+ *   const maxBytes = useAtomValue(maxAttachmentBytesAtom(editor))
+ *   return <span>{Math.round(maxBytes / 1024 / 1024)} MB</span>
+ * }
+ * ```
+ *
  * @category atoms
  * @since 0.0.0
  */
@@ -103,6 +168,19 @@ export const maxAttachmentBytesAtom = Atom.family((_editor: LexicalEditor) =>
  * here (once per mount); {@link captureAttachmentsFn} reads it at capture time
  * and notifies the app with the raw captured files. Defaults to a no-op so an
  * unseeded read is valid (e.g. in Storybook with no provider).
+ *
+ * @example
+ * ```tsx
+ * import { onAttachAtom } from "@beep/editor/chat"
+ * import { useAtomValue } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function NotifyAttachPort({ files }: { readonly files: ReadonlyArray<File> }) {
+ *   const [editor] = useLexicalComposerContext()
+ *   const onAttach = useAtomValue(onAttachAtom(editor))
+ *   return <button onClick={() => onAttach(files)}>Notify upload port</button>
+ * }
+ * ```
  *
  * @category atoms
  * @since 0.0.0
@@ -118,6 +196,20 @@ export const onAttachAtom = Atom.family((_editor: LexicalEditor) =>
  * capture/remove *logic* lives in the runtime rather than in component handlers
  * (per the repo atom-first law).
  *
+ * @example
+ * ```ts
+ * import { composerRuntime } from "@beep/editor/chat"
+ * import { Effect } from "effect"
+ * import { Atom } from "effect/unstable/reactivity"
+ *
+ * type WriteValue<A> = A extends Atom.Writable<unknown, infer W> ? W : never
+ *
+ * const noopComposerMutation = composerRuntime.fn<{ readonly editorId: string }>()(() => Effect.void)
+ * const writeValue: WriteValue<typeof noopComposerMutation> = { editorId: "composer-1" }
+ *
+ * console.log(writeValue.editorId) // "composer-1"
+ * ```
+ *
  * @category atoms
  * @since 0.0.0
  */
@@ -132,6 +224,22 @@ export const composerRuntime = Atom.runtime(Layer.empty);
  * captured attachments to {@link attachmentsAtom}. The size bound is read from
  * {@link maxAttachmentBytesAtom}. Both the footer picker and the drag-drop
  * binding drive this same path.
+ *
+ * @example
+ * ```tsx
+ * import { captureAttachmentsFn } from "@beep/editor/chat"
+ * import { useAtomSet } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function CaptureFilesButton({ files }: { readonly files: ReadonlyArray<File> }) {
+ *   const [editor] = useLexicalComposerContext()
+ *   const capture = useAtomSet(captureAttachmentsFn)
+ *   return <button onClick={() => capture({ editor, files })}>Attach files</button>
+ * }
+ * ```
+ *
+ * @effects Invokes the per-editor upload-port callback and appends successfully
+ * decoded attachments to {@link attachmentsAtom}; rejected files are logged.
  *
  * @category atoms
  * @since 0.0.0
@@ -164,6 +272,22 @@ export const captureAttachmentsFn = composerRuntime.fn<{
  * `{ editor, id }` revokes the removed attachment's object URL (if found) and
  * filters it out of {@link attachmentsAtom}, entirely inside the runtime.
  *
+ * @example
+ * ```tsx
+ * import { removeAttachmentFn } from "@beep/editor/chat"
+ * import { useAtomSet } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function RemoveAttachmentButton({ id }: { readonly id: string }) {
+ *   const [editor] = useLexicalComposerContext()
+ *   const remove = useAtomSet(removeAttachmentFn)
+ *   return <button onClick={() => remove({ editor, id })}>Remove</button>
+ * }
+ * ```
+ *
+ * @effects Revokes the removed attachment's object URL before writing the
+ * filtered attachment list back to {@link attachmentsAtom}.
+ *
  * @category atoms
  * @since 0.0.0
  */
@@ -191,6 +315,19 @@ export const removeAttachmentFn = composerRuntime.fn<{
  * `useAtomSet`, so editor errors are observed (not swallowed) while staying
  * within the atom-first law.
  *
+ * @example
+ * ```tsx
+ * import { logEditorErrorFn } from "@beep/editor/chat"
+ * import { useAtomSet } from "@effect/atom-react"
+ *
+ * function LexicalErrorProbe() {
+ *   const logEditorError = useAtomSet(logEditorErrorFn)
+ *   return <button onClick={() => logEditorError(new Error("probe"))}>Report editor error</button>
+ * }
+ * ```
+ *
+ * @effects Logs Lexical editor errors through the composer's Effect runtime.
+ *
  * @category atoms
  * @since 0.0.0
  */
@@ -202,6 +339,19 @@ export const logEditorErrorFn = composerRuntime.fn<Error>()((error) =>
  * Per-editor live character count of the editor's plain text. The read fn
  * registers a Lexical update listener (torn down via the atom finalizer) and
  * pushes the new length with `get.setSelf` on every change.
+ *
+ * @example
+ * ```tsx
+ * import { characterCountAtom } from "@beep/editor/chat"
+ * import { useAtomValue } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function LiveCharacterCount() {
+ *   const [editor] = useLexicalComposerContext()
+ *   const count = useAtomValue(characterCountAtom(editor))
+ *   return <span>{count}</span>
+ * }
+ * ```
  *
  * @category atoms
  * @since 0.0.0
@@ -229,6 +379,19 @@ export const characterCountAtom = Atom.family((editor: LexicalEditor) =>
  *
  * The send policy and menu-open flag are read with `get.once` inside the
  * handler so toggling either never re-registers the command.
+ *
+ * @example
+ * ```tsx
+ * import { sendKeyBindingAtom } from "@beep/editor/chat"
+ * import { useAtomMount } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function EnterToSendBinding() {
+ *   const [editor] = useLexicalComposerContext()
+ *   useAtomMount(sendKeyBindingAtom(editor))
+ *   return null
+ * }
+ * ```
  *
  * @category atoms
  * @since 0.0.0
@@ -265,6 +428,18 @@ export const sendKeyBindingAtom = Atom.family((editor: LexicalEditor) =>
  * writable state atom (a bare function initial value makes `Atom.make` build a
  * derived read atom instead).
  *
+ * @example
+ * ```ts
+ * import type { SendHandlerBox } from "@beep/editor/chat"
+ *
+ * const sendHandler: SendHandlerBox = {
+ *   run: (state) => state.root.type === "root",
+ * }
+ *
+ * const result: ReturnType<SendHandlerBox["run"]> = true
+ * console.log(result) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -279,6 +454,24 @@ export interface SendHandlerBox {
  * clears the editor in place). The composer writes the consumer's `onSend` here;
  * the default is a no-op that reports no dispatch.
  *
+ * @example
+ * ```tsx
+ * import { onSendAtom } from "@beep/editor/chat"
+ * import { useAtomInitialValues } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ * import type { SerializedEditorState } from "@beep/lexical-schema"
+ *
+ * function SeedSendHandler({
+ *   onSend,
+ * }: {
+ *   readonly onSend: (state: SerializedEditorState.Type) => boolean | void
+ * }) {
+ *   const [editor] = useLexicalComposerContext()
+ *   useAtomInitialValues([[onSendAtom(editor), { run: onSend }]])
+ *   return null
+ * }
+ * ```
+ *
  * @category atoms
  * @since 0.0.0
  */
@@ -292,6 +485,23 @@ export const onSendAtom = Atom.family((_editor: LexicalEditor) => Atom.make<Send
  * the editor is cleared in place — `$getRoot().clear()` then a fresh empty
  * paragraph re-selected — keeping focus and a valid selection (`registerRichText`
  * does not handle `CLEAR_EDITOR_COMMAND`). An out-of-schema state is skipped.
+ *
+ * @example
+ * ```tsx
+ * import { sendCommandBindingAtom } from "@beep/editor/chat"
+ * import { useAtomMount } from "@effect/atom-react"
+ * import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext"
+ *
+ * function SendCommandBinding() {
+ *   const [editor] = useLexicalComposerContext()
+ *   useAtomMount(sendCommandBindingAtom(editor))
+ *   return null
+ * }
+ * ```
+ *
+ * @effects Registers `SEND_MESSAGE_COMMAND`; on successful dispatch it clears
+ * editor content, revokes captured attachment URLs, and empties
+ * {@link attachmentsAtom}.
  *
  * @category atoms
  * @since 0.0.0

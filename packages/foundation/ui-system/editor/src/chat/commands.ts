@@ -23,6 +23,10 @@ import type { LexicalCommand } from "lexical";
  * @example
  * ```ts
  * import { SEND_MESSAGE_COMMAND } from "@beep/editor/chat"
+ * import type { LexicalEditor } from "lexical"
+ *
+ * const sendCurrentMessage = (editor: LexicalEditor) =>
+ *   editor.dispatchCommand(SEND_MESSAGE_COMMAND, undefined)
  *
  * console.log(SEND_MESSAGE_COMMAND.type) // "SEND_MESSAGE_COMMAND"
  * ```
@@ -39,6 +43,10 @@ export const SEND_MESSAGE_COMMAND: LexicalCommand<void> = createCommand("SEND_ME
  * @example
  * ```ts
  * import { STOP_MESSAGE_COMMAND } from "@beep/editor/chat"
+ * import type { LexicalEditor } from "lexical"
+ *
+ * const stopCurrentTurn = (editor: LexicalEditor) =>
+ *   editor.dispatchCommand(STOP_MESSAGE_COMMAND, undefined)
  *
  * console.log(STOP_MESSAGE_COMMAND.type) // "STOP_MESSAGE_COMMAND"
  * ```

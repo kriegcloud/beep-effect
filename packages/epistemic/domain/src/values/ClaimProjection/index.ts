@@ -10,12 +10,18 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values/ClaimProjection"
+ * import { ClaimProjectionView } from "@beep/epistemic-domain/values/ClaimProjection"
+ * import * as S from "effect/Schema"
  *
- * console.log(Module)
+ * const view = S.decodeUnknownSync(ClaimProjectionView)({
+ *   admittedKeys: ["claim.patentability"],
+ *   counts: { admitted: 1, candidate: 2, consistency_checked: 0, shape_valid: 1 },
+ *   total: 4
+ * })
+ * console.log(view.admittedKeys)
  * ```
 
- * @category models
+ * @category read-models
  * @since 0.0.0
  */
 export * from "./ClaimProjectionView.model.js";

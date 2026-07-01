@@ -55,7 +55,8 @@ export * from "./PostgresSqlState.models.ts";
  * ```ts
  * import { VERSION } from "@beep/postgres"
  *
- * console.log(VERSION)
+ * const packageLabel = `@beep/postgres@${VERSION}`
+ * console.log(packageLabel) // "@beep/postgres@0.0.0"
  * ```
  *
  * @since 0.0.0

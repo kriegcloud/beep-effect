@@ -11,66 +11,86 @@ import * as S from "effect/Schema";
 const $I = $GovinfoId.create("domain/values/SummaryItem/SummaryItem.model");
 
 /**
- * The SummaryItem value object.
+ * GovInfo collection summary row with collection identifiers and counts.
+ *
+ * @remarks
+ * `collectionCode` is the short GovInfo collection identifier used in API
+ * paths and search filters, such as `CREC`, `FR`, `BILLS`, or `USCOURTS`.
  *
  * @example
  * ```ts
  * import { SummaryItem } from "@beep/govinfo/domain/values/SummaryItem/SummaryItem.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(SummaryItem);
+ * const item = S.decodeUnknownSync(SummaryItem)({
+ *   collectionCode: "FR",
+ *   collectionName: "Federal Register",
+ *   granuleCount: 10000n,
+ *   packageCount: 2500n
+ * });
+ *
+ * console.log(item.collectionName);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class SummaryItem extends S.Class<SummaryItem>($I`SummaryItem`)(
   {
-    /** change me */
+    /** Short GovInfo collection code used in routes and search filters. */
     collectionCode: S.String.annotateKey({
-      description: "",
+      description: "Short GovInfo collection code used in routes and search filters.",
     }),
 
-    /** change me */
+    /** Human-readable GovInfo collection name. */
     collectionName: S.String.annotateKey({
-      description: "",
+      description: "Human-readable GovInfo collection name.",
     }),
 
-    /** change me */
+    /** Number of granules reported for the collection. */
     granuleCount: Int64.annotateKey({
-      description: "",
+      description: "Number of granules reported for the collection.",
     }),
 
-    /** change me */
+    /** Number of packages reported for the collection. */
     packageCount: Int64.pipe(
       S.annotateKey({
-        description: "",
+        description: "Number of packages reported for the collection.",
       })
     ),
   },
   $I.annote("SummaryItem", {
-    description: "The SummaryItem value object.",
+    description: "GovInfo collection summary row with collection identifiers and counts.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link SummaryItem} value object.
+ * Companion namespace for {@link SummaryItem} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace SummaryItem {
   /**
-   * The companion encoded type for {@link SummaryItem}.
+   * Encoded JSON shape accepted by {@link SummaryItem}.
    *
    * @example
    * ```ts
-   * import type { SummaryItem } from "@beep/govinfo/domain/values/SummaryItem/SummaryItem.model";
+   * import { SummaryItem } from "@beep/govinfo/domain/values/SummaryItem/SummaryItem.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: SummaryItem.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(SummaryItem)({
+   *   collectionCode: "USCOURTS",
+   *   collectionName: "United States Courts Opinions",
+   *   granuleCount: 5000n,
+   *   packageCount: 1250n
+   * });
+   * const encoded: SummaryItem.Encoded = S.encodeSync(SummaryItem)(decoded);
+   *
+   * console.log(encoded.collectionCode);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof SummaryItem.Encoded;

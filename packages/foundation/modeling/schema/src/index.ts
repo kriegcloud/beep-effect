@@ -1,6 +1,7 @@
 /**
- * \@beep/schema
+ * Public entry point for shared schema helpers, codecs, and value objects.
  *
+ * @packageDocumentation
  * @category schemas
  * @since 0.0.0
  */
@@ -14,13 +15,14 @@ export * from "./Number.ts";
  * ```ts
  * import { VERSION } from "@beep/schema"
  *
- * console.log(VERSION)
+ * const schemaPackageVersion: typeof VERSION = VERSION
+ * console.log(schemaPackageVersion.startsWith("0.")) // true
  * ```
  *
- * @since 0.0.0
  * @category configuration
+ * @since 0.0.0
  */
-export const VERSION = "0.0.0" as const;
+export const VERSION = "0.0.0";
 
 /**
  * @since 0.0.0

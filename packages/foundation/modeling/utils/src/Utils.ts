@@ -7,17 +7,22 @@
 import * as GlobalValue from "./GlobalValue.ts";
 
 /**
- * Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code
+ * Shared mutable state used while structural comparison hooks are active.
  *
- * @since 0.0.0
+ * @remarks
+ * This is an experimental hook for custom test matchers. User code should prefer
+ * the public comparison APIs instead of mutating this state directly.
+ *
  * @example
  * ```ts
  * import { structuralRegionState } from "@beep/utils/Utils"
  *
- * console.log(structuralRegionState)
+ * const enabled = structuralRegionState.enabled
+ * console.log(enabled)
  * ```
  *
  * @category utilities
+ * @since 0.0.0
  */
 export const structuralRegionState = GlobalValue.globalValue(
   "effect/Utils/isStructuralRegion",
@@ -28,17 +33,25 @@ export const structuralRegionState = GlobalValue.globalValue(
 );
 
 /**
- * Note: this is an experimental feature made available to allow custom matchers in tests, not to be directly used yet in user code
+ * Runs `body` with structural comparison hooks temporarily enabled.
  *
- * @since 0.0.0
+ * @remarks
+ * The previous enabled state and tester are restored in a `finally` block, so
+ * nested or throwing bodies do not leak the temporary structural region.
+ *
  * @example
  * ```ts
- * import { structuralRegion } from "@beep/utils/Utils"
+ * import { structuralRegion, structuralRegionState } from "@beep/utils/Utils"
  *
- * console.log(structuralRegion)
+ * const before = structuralRegionState.enabled
+ * const inside = structuralRegion(() => structuralRegionState.enabled)
+ * const after = structuralRegionState.enabled
+ *
+ * console.log([before, inside, after])
  * ```
  *
  * @category utilities
+ * @since 0.0.0
  */
 export const structuralRegion = <A>(body: () => A, tester?: (a: unknown, b: unknown) => boolean): A => {
   const current = structuralRegionState.enabled;

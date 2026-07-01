@@ -31,15 +31,16 @@ export const DbSchema: DbSchemaShape = {
 /**
  * Type for {@link DbSchema}.
  *
- * @since 0.0.0
  * @example
  * ```ts
- * import type { DbSchema } from "@beep/epistemic-tables"
+ * import { DbSchema } from "@beep/epistemic-tables"
+ * import type { DbSchema as DbSchemaShape } from "@beep/epistemic-tables"
  *
- * const value = {} as DbSchema
- * console.log(value)
+ * const schema = DbSchema satisfies DbSchemaShape
+ * console.log(schema.usageRecord.definition.tableName)
  * ```
  *
  * @category tables
+ * @since 0.0.0
  */
 export type DbSchema = DbSchemaShape;

@@ -12,8 +12,13 @@ import { normalizePath as normalizeSchemaPath, PosixPath as PosixPathSchema } fr
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { PosixPath } from "@beep/repo-configs/eslint/Shared"
- * console.log(PosixPath)
+ *
+ * const decoded = S.decodeUnknownSync(PosixPath)("packages/tooling/policy-pack/repo-configs")
+ *
+ * strictEqual(decoded, "packages/tooling/policy-pack/repo-configs")
  * ```
  * @category validation
  * @since 0.0.0

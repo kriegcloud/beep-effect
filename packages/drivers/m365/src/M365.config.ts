@@ -23,7 +23,8 @@ const $I = $M365Id.create("M365.config");
  * ```ts
  * import { GRAPH_API_BASE_URL } from "@beep/m365"
  *
- * console.log(GRAPH_API_BASE_URL) // "https://graph.microsoft.com/v1.0"
+ * const drivesUrl = new URL(`${GRAPH_API_BASE_URL}/me/drives`)
+ * console.log(drivesUrl.pathname) // "/v1.0/me/drives"
  * ```
  *
  * @category constants
@@ -38,7 +39,8 @@ export const GRAPH_API_BASE_URL = "https://graph.microsoft.com/v1.0";
  * ```ts
  * import { DEFAULT_AUTHORITY_HOST } from "@beep/m365"
  *
- * console.log(DEFAULT_AUTHORITY_HOST) // "https://login.microsoftonline.com"
+ * const authority = new URL(`${DEFAULT_AUTHORITY_HOST}/common`)
+ * console.log(authority.hostname) // "login.microsoftonline.com"
  * ```
  *
  * @category constants
@@ -56,7 +58,8 @@ export const DEFAULT_AUTHORITY_HOST = "https://login.microsoftonline.com";
  * ```ts
  * import { DEFAULT_REDIRECT_URI } from "@beep/m365"
  *
- * console.log(DEFAULT_REDIRECT_URI) // "http://localhost"
+ * const redirect = new URL(DEFAULT_REDIRECT_URI)
+ * console.log(redirect.protocol) // "http:"
  * ```
  *
  * @category constants
@@ -71,7 +74,8 @@ export const DEFAULT_REDIRECT_URI = "http://localhost";
  * ```ts
  * import { DEFAULT_MAX_RETRIES } from "@beep/m365"
  *
- * console.log(DEFAULT_MAX_RETRIES) // 3
+ * const retryBudgetAllowsThrottleReplay = DEFAULT_MAX_RETRIES >= 3
+ * console.log(retryBudgetAllowsThrottleReplay) // true
  * ```
  *
  * @category constants

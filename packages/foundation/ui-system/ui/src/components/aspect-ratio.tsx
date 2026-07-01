@@ -1,13 +1,19 @@
 import { cn } from "../lib/index.ts";
 
 /**
- * Aspect ratio component.
+ * Fixed-ratio media wrapper that keeps children cropped inside a stable box.
  *
  * @example
  * ```tsx
  * import { AspectRatio } from "@beep/ui/components/aspect-ratio"
  *
- * console.log(AspectRatio)
+ * export function VideoThumbnail() {
+ *   return (
+ *     <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg bg-muted">
+ *       <img src="/thumbnails/demo.png" alt="Demo video" className="h-full w-full object-cover" />
+ *     </AspectRatio>
+ *   )
+ * }
  * ```
  *
  * @category components

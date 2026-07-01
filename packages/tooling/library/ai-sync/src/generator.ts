@@ -18,7 +18,8 @@ import { TIER_ONE_SOURCES } from "./source-map.ts";
  * @example
  * ```ts
  * import { GENERATED_SCHEMAS_PATH } from "@beep/ai-sync/generator"
- * console.log(GENERATED_SCHEMAS_PATH)
+ *
+ * console.log(GENERATED_SCHEMAS_PATH.endsWith("schemas.gen.ts"))
  * ```
  * @category constants
  * @since 0.0.0
@@ -31,7 +32,8 @@ export const GENERATED_SCHEMAS_PATH = "src/_generated/schemas.gen.ts" as const;
  * @example
  * ```ts
  * import { GENERATED_SOURCE_METADATA_PATH } from "@beep/ai-sync/generator"
- * console.log(GENERATED_SOURCE_METADATA_PATH)
+ *
+ * console.log(GENERATED_SOURCE_METADATA_PATH.endsWith("source-metadata.gen.ts"))
  * ```
  * @category constants
  * @since 0.0.0
@@ -141,7 +143,9 @@ const renderSchemasFile = (): string =>
       " * @example",
       " * ```ts",
       ' * import { CodexMcpServer } from "@beep/ai-sync"',
-      " * console.log(CodexMcpServer.ast)",
+      " *",
+      ' * const server = CodexMcpServer.make({ command: "node", args: ["mcp.js"] })',
+      " * console.log(server.command)",
       " * ```",
       " * @category schemas",
       " * @since 0.0.0",
@@ -188,7 +192,12 @@ const renderSchemasFile = (): string =>
       " * @example",
       " * ```ts",
       ' * import { CodexSkills } from "@beep/ai-sync"',
-      " * console.log(CodexSkills.ast)",
+      " *",
+      " * const skills = CodexSkills.make({",
+      " *   include_instructions: true,",
+      ' *   config: [{ name: "effect-first-development", enabled: true }]',
+      " * })",
+      " * console.log(skills.config?.[0]?.name)",
       " * ```",
       " * @category schemas",
       " * @since 0.0.0",
@@ -209,7 +218,12 @@ const renderSchemasFile = (): string =>
       " * @example",
       " * ```ts",
       ' * import { CodexConfig } from "@beep/ai-sync"',
-      " * console.log(CodexConfig.ast)",
+      " *",
+      " * const config = CodexConfig.make({",
+      ' *   model: "gpt-5",',
+      ' *   mcp_servers: { local: { command: "node", args: ["server.js"] } }',
+      " * })",
+      " * console.log(config.mcp_servers?.local?.command)",
       " * ```",
       " * @category schemas",
       " * @since 0.0.0",
@@ -233,7 +247,9 @@ const renderSchemasFile = (): string =>
       " * @example",
       " * ```ts",
       ' * import { McpJsonServer } from "@beep/ai-sync"',
-      " * console.log(McpJsonServer.ast)",
+      " *",
+      ' * const server = McpJsonServer.make({ type: "stdio", command: "node" })',
+      " * console.log(server.type)",
       " * ```",
       " * @category schemas",
       " * @since 0.0.0",
@@ -259,7 +275,11 @@ const renderSchemasFile = (): string =>
       " * @example",
       " * ```ts",
       ' * import { ClaudeMcpJson } from "@beep/ai-sync"',
-      " * console.log(ClaudeMcpJson.ast)",
+      " *",
+      " * const config = ClaudeMcpJson.make({",
+      ' *   mcpServers: { local: { type: "stdio", command: "node" } }',
+      " * })",
+      " * console.log(config.mcpServers.local?.command)",
       " * ```",
       " * @category schemas",
       " * @since 0.0.0",
@@ -279,7 +299,12 @@ const renderSchemasFile = (): string =>
       " * @example",
       " * ```ts",
       ' * import { ClaudeSettings } from "@beep/ai-sync"',
-      " * console.log(ClaudeSettings.ast)",
+      " *",
+      " * const settings = ClaudeSettings.make({",
+      ' *   enabledMcpjsonServers: ["local"],',
+      " *   enabledPlugins: { diagnostics: true }",
+      " * })",
+      ' * console.log(settings.enabledMcpjsonServers?.includes("local"))',
       " * ```",
       " * @category schemas",
       " * @since 0.0.0",
@@ -304,9 +329,15 @@ const renderSchemasFile = (): string =>
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { hashSourceText } from "@beep/ai-sync/generator"
- * console.log(hashSourceText)
+ *
+ * Effect.runPromise(hashSourceText("agent instructions")).then((hash) =>
+ *   console.log(hash.length)
+ * )
  * ```
+ * @effects Uses the Web Crypto SHA-256 implementation when the returned Effect
+ * is executed; requires no Effect services.
  * @category utilities
  * @since 0.0.0
  */
@@ -328,9 +359,28 @@ export const hashSourceText: (value: string) => Effect.Effect<string, AiSyncErro
  *
  * @example
  * ```ts
- * import { fetchSourceText } from "@beep/ai-sync/generator"
- * console.log(fetchSourceText)
+ * import { Effect } from "effect"
+ * import { AiSyncSourceMetadata } from "@beep/ai-sync"
+ * import { AiSyncHttpLayer, fetchSourceText } from "@beep/ai-sync/generator"
+ *
+ * const source = AiSyncSourceMetadata.make({
+ *   id: "codex-config",
+ *   agent: "codex",
+ *   domain: "config",
+ *   tier: "tier_1",
+ *   url: "https://example.com/config.schema.json",
+ *   isOfficial: true,
+ *   driftMechanism: "hash"
+ * })
+ * const program = fetchSourceText(source).pipe(
+ *   Effect.map((text) => text.length),
+ *   Effect.provide(AiSyncHttpLayer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Performs one HTTP GET through the active Effect HTTP client and
+ * fails with {@link AiSyncError} when the response cannot be fetched as text.
  * @category services
  * @since 0.0.0
  */
@@ -402,9 +452,21 @@ export const renderGeneratedSchemas = renderSchemasFile;
  *
  * @example
  * ```ts
- * import { generateAiSyncArtifacts } from "@beep/ai-sync/generator"
- * console.log(generateAiSyncArtifacts)
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect, Layer } from "effect"
+ * import { AiSyncHttpLayer, generateAiSyncArtifacts } from "@beep/ai-sync/generator"
+ *
+ * const RuntimeLayer = Layer.mergeAll(NodeServices.layer, AiSyncHttpLayer)
+ * const program = generateAiSyncArtifacts().pipe(
+ *   Effect.as("generated"),
+ *   Effect.provide(RuntimeLayer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Fetches Tier-1 source bodies, computes content hashes, writes the
+ * committed generated schema and source-metadata files, and logs a completion
+ * message.
  * @category workflows
  * @since 0.0.0
  */
@@ -421,7 +483,8 @@ export const generateAiSyncArtifacts = Effect.fn("AiSync.generateAiSyncArtifacts
  * @example
  * ```ts
  * import { AiSyncHttpLayer } from "@beep/ai-sync/generator"
- * console.log(AiSyncHttpLayer)
+ *
+ * console.log(AiSyncHttpLayer !== undefined)
  * ```
  * @category services
  * @since 0.0.0

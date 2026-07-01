@@ -12,7 +12,8 @@
  * ```ts
  * import { VERSION } from "@beep/xai"
  *
- * console.log(VERSION)
+ * const packageCoordinate = `@beep/xai@${VERSION}`
+ * console.log(packageCoordinate) // "@beep/xai@0.0.0"
  * ```
  *
  * @category utilities

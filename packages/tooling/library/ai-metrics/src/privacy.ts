@@ -24,7 +24,9 @@ const $I = $RepoAiMetricsId.create("privacy");
  * @example
  * ```ts
  * import { AI_METRICS_LOCAL_INSECURE_HASH_SALT } from "@beep/repo-ai-metrics"
- * console.log(AI_METRICS_LOCAL_INSECURE_HASH_SALT)
+ *
+ * const isSmokeSalt = AI_METRICS_LOCAL_INSECURE_HASH_SALT.includes("insecure")
+ * console.log(isSmokeSalt)
  * ```
  * @category constants
  * @since 0.0.0
@@ -79,7 +81,16 @@ export type AiMetricsHashSaltStatus = typeof AiMetricsHashSaltStatus.Type;
  * @example
  * ```ts
  * import { AiMetricsRedactionResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRedactionResult)
+ *
+ * const redaction = AiMetricsRedactionResult.make({
+ *   authHeaderCount: 0,
+ *   bearerTokenCount: 0,
+ *   excludedRawTextFieldCount: 2,
+ *   openAiKeyCount: 0,
+ *   safeForDerivedUi: true,
+ *   secretAssignmentCount: 0
+ * })
+ * console.log(redaction.safeForDerivedUi)
  * ```
  * @category models
  * @since 0.0.0
@@ -104,7 +115,15 @@ export class AiMetricsRedactionResult extends S.Class<AiMetricsRedactionResult>(
  * @example
  * ```ts
  * import { AiMetricsRawEventEnvelope } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRawEventEnvelope)
+ *
+ * const envelope = AiMetricsRawEventEnvelope.make({
+ *   eventName: "codex.event_msg",
+ *   lineNumber: 1,
+ *   rawEventHash: "event-hash",
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash"
+ * })
+ * console.log(envelope.sourceRole)
  * ```
  * @category models
  * @since 0.0.0
@@ -133,7 +152,17 @@ export class AiMetricsRawEventEnvelope extends S.Class<AiMetricsRawEventEnvelope
  * @example
  * ```ts
  * import { AiMetricsSanitizedTranscript } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsSanitizedTranscript)
+ *
+ * const sanitized = AiMetricsSanitizedTranscript.make({
+ *   acceptedEvents: 1,
+ *   eventNames: ["codex.event_msg"],
+ *   rawEventEnvelopes: [],
+ *   rejectedLines: 0,
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash",
+ *   totalLines: 1
+ * })
+ * console.log(sanitized.eventNames)
  * ```
  * @category models
  * @since 0.0.0
@@ -173,8 +202,35 @@ export class AiMetricsSanitizedTranscript extends S.Class<AiMetricsSanitizedTran
  *
  * @example
  * ```ts
- * import { AiMetricsPrivacyCheckResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsPrivacyCheckResult)
+ * import {
+ *   AiMetricsPrivacyCheckResult,
+ *   AiMetricsRedactionResult,
+ *   AiMetricsSanitizedTranscript
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const result = AiMetricsPrivacyCheckResult.make({
+ *   hashSaltStatus: "provided",
+ *   inputPathHash: "input-path-hash",
+ *   redaction: AiMetricsRedactionResult.make({
+ *     authHeaderCount: 0,
+ *     bearerTokenCount: 0,
+ *     excludedRawTextFieldCount: 1,
+ *     openAiKeyCount: 0,
+ *     safeForDerivedUi: true,
+ *     secretAssignmentCount: 0
+ *   }),
+ *   sanitized: AiMetricsSanitizedTranscript.make({
+ *     acceptedEvents: 1,
+ *     eventNames: ["codex.event_msg"],
+ *     rawEventEnvelopes: [],
+ *     rejectedLines: 0,
+ *     sourceKind: "codex",
+ *     sourcePathHash: "source-hash",
+ *     totalLines: 1
+ *   }),
+ *   sourceKind: "codex"
+ * })
+ * console.log(result.redaction.safeForDerivedUi)
  * ```
  * @category models
  * @since 0.0.0
@@ -198,7 +254,12 @@ export class AiMetricsPrivacyCheckResult extends S.Class<AiMetricsPrivacyCheckRe
  * @example
  * ```ts
  * import { AiMetricsPrivacyError } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsPrivacyError)
+ *
+ * const error = AiMetricsPrivacyError.make({
+ *   cause: "hash failure",
+ *   message: "Failed to hash transcript path."
+ * })
+ * console.log(error.message)
  * ```
  * @category errors
  * @since 0.0.0
@@ -315,8 +376,12 @@ export const resolveAiMetricsHashSaltStatus = (hashSalt: string | undefined): Ai
  * @example
  * ```ts
  * import { hashPublicTextSha256 } from "@beep/repo-ai-metrics"
- * console.log(hashPublicTextSha256)
+ * import { Effect } from "effect"
+ *
+ * const digest = Effect.runPromise(hashPublicTextSha256("visible benchmark id"))
+ * console.log(digest)
  * ```
+ * @effects Reads the Web Crypto implementation through `globalThis.crypto.subtle`.
  * @category utilities
  * @since 0.0.0
  */
@@ -339,8 +404,12 @@ export const hashPublicTextSha256: (value: string) => Effect.Effect<string, AiMe
  * @example
  * ```ts
  * import { hashPrivateIdentifier } from "@beep/repo-ai-metrics"
- * console.log(hashPrivateIdentifier)
+ * import { Effect } from "effect"
+ *
+ * const pathHash = Effect.runPromise(hashPrivateIdentifier("/home/me/.codex/session.jsonl", "salt"))
+ * console.log(pathHash)
  * ```
+ * @effects Reads the Web Crypto implementation through `globalThis.crypto.subtle`.
  * @category utilities
  * @since 0.0.0
  */
@@ -418,8 +487,21 @@ const pathRoleFor = (relativePath: string): AiMetricsSourceRole => {
  * @example
  * ```ts
  * import { makeAiMetricsSourceAttribution } from "@beep/repo-ai-metrics"
- * console.log(makeAiMetricsSourceAttribution)
+ * import { Effect } from "effect"
+ *
+ * const attribution = Effect.runPromise(
+ *   makeAiMetricsSourceAttribution({
+ *     content: "{\"type\":\"session_meta\",\"payload\":{\"id\":\"session-1\"}}",
+ *     hashSalt: "salt",
+ *     relativePath: "sessions/session-1.jsonl",
+ *     sourceKind: "codex",
+ *     sourcePath: "/repo/.codex/sessions/session-1.jsonl"
+ *   })
+ * )
+ * console.log(attribution)
  * ```
+ * @effects Reads `globalThis.crypto.subtle` to hash private source identifiers and thread metadata.
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -584,9 +666,28 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
  *
  * @example
  * ```ts
- * import { makeSanitizedTranscript } from "@beep/repo-ai-metrics"
- * console.log(makeSanitizedTranscript)
+ * import { TranscriptIngestSummary, makeSanitizedTranscript } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const sanitized = Effect.runPromise(
+ *   makeSanitizedTranscript({
+ *     content: "{\"type\":\"event_msg\"}",
+ *     hashSalt: "salt",
+ *     sourcePath: "session.jsonl",
+ *     summary: TranscriptIngestSummary.make({
+ *       acceptedEvents: 1,
+ *       eventNames: ["codex.event_msg"],
+ *       rejectedLines: 0,
+ *       sourceKind: "codex",
+ *       sourcePathHash: "source-hash",
+ *       totalLines: 1
+ *     })
+ *   })
+ * )
+ * console.log(sanitized)
  * ```
+ * @effects Reads `globalThis.crypto.subtle` while hashing transcript source and event-attribution identifiers.
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -644,9 +745,28 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
  *
  * @example
  * ```ts
- * import { makeAiMetricsPrivacyCheckResult } from "@beep/repo-ai-metrics"
- * console.log(makeAiMetricsPrivacyCheckResult)
+ * import { TranscriptIngestSummary, makeAiMetricsPrivacyCheckResult } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const proof = Effect.runPromise(
+ *   makeAiMetricsPrivacyCheckResult({
+ *     content: "{\"type\":\"event_msg\",\"message\":\"redacted at boundary\"}",
+ *     hashSalt: "salt",
+ *     sourcePath: "session.jsonl",
+ *     summary: TranscriptIngestSummary.make({
+ *       acceptedEvents: 1,
+ *       eventNames: ["codex.event_msg"],
+ *       rejectedLines: 0,
+ *       sourceKind: "codex",
+ *       sourcePathHash: "source-hash",
+ *       totalLines: 1
+ *     })
+ *   })
+ * )
+ * console.log(proof)
  * ```
+ * @effects Reads `globalThis.crypto.subtle` while hashing the transcript path, source attribution, and event metadata.
+ *
  * @category constructors
  * @since 0.0.0
  */
@@ -683,9 +803,44 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
  *
  * @example
  * ```ts
- * import { privacyCheckToJson } from "@beep/repo-ai-metrics"
- * console.log(privacyCheckToJson)
+ * import {
+ *   AiMetricsPrivacyCheckResult,
+ *   AiMetricsRedactionResult,
+ *   AiMetricsSanitizedTranscript,
+ *   privacyCheckToJson
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   privacyCheckToJson(
+ *     AiMetricsPrivacyCheckResult.make({
+ *       hashSaltStatus: "provided",
+ *       inputPathHash: "input-path-hash",
+ *       redaction: AiMetricsRedactionResult.make({
+ *         authHeaderCount: 0,
+ *         bearerTokenCount: 0,
+ *         excludedRawTextFieldCount: 0,
+ *         openAiKeyCount: 0,
+ *         safeForDerivedUi: true,
+ *         secretAssignmentCount: 0
+ *       }),
+ *       sanitized: AiMetricsSanitizedTranscript.make({
+ *         acceptedEvents: 0,
+ *         eventNames: [],
+ *         rawEventEnvelopes: [],
+ *         rejectedLines: 0,
+ *         sourceKind: "codex",
+ *         sourcePathHash: "source-hash",
+ *         totalLines: 0
+ *       }),
+ *       sourceKind: "codex"
+ *     })
+ *   )
+ * )
+ * console.log(json)
  * ```
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsPrivacyError` if the payload cannot be encoded.
+ *
  * @category utilities
  * @since 0.0.0
  */

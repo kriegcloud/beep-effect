@@ -1,7 +1,8 @@
 /**
- * CSP header schema & constructor's
- * @since 0.0.0
+ * Content Security Policy schemas and response-header constructors.
+ *
  * @packageDocumentation
+ * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
 import { A, Str, Struct } from "@beep/utils";
@@ -20,7 +21,7 @@ import type { SecureHeaderError } from "../SecureHeaderError/index.ts";
 const $I = $SchemaId.create("Csp");
 
 /**
- * Source value accepted by a Content-Security-Policy directive.
+ * Source expression accepted by a Content-Security-Policy directive.
  *
  * @example
  * ```ts
@@ -36,7 +37,7 @@ const $I = $SchemaId.create("Csp");
  */
 export const DirectiveSource = S.Union([...internal.ArrayOfStrOrStr.members, S.Undefined]).pipe(
   $I.annoteSchema("DirectiveSource", {
-    description: "A CSP directive source",
+    description: "A CSP directive source expression, source list, or explicit undefined directive value.",
   })
 );
 
@@ -63,7 +64,7 @@ const directiveValueSeparator = "; ";
 const ContentSecurityPolicyHeaderNameBase = LiteralKit([headerName, reportOnlyHeaderName]);
 
 /**
- * Header names used for enforcing or reporting CSP directives.
+ * Header names used for enforcing or report-only CSP directives.
  *
  * @example
  * ```ts
@@ -108,43 +109,29 @@ const unwrapDirectiveValue = <T>(value: undefined | T | O.Option<T>): T | undefi
   O.isOption(value) ? O.getOrUndefined(value) : value;
 
 /**
- * Get proper header name for CSP
+ * Select the enforcing or report-only CSP response-header name.
  *
  * @example
  * ```ts
- * import {
- *   getProperHeaderName
- * } from "@beep/schema/Csp";
+ * import { getProperHeaderName } from "@beep/schema/Csp"
  *
- * // Get standard CSP header name
- * const standardHeader = getProperHeaderName();
- * console.log(standardHeader)
- * // => "Content-Security-Policy"
+ * const standardHeader = getProperHeaderName()
+ * const reportOnlyHeader = getProperHeaderName(true)
  *
- * // Get report-only CSP header name
- * const reportOnlyHeader = getProperHeaderName(true);
- * console.log(reportOnlyHeader)
- * // => "Content-Security-Policy-Report-Only"
+ * console.log(standardHeader) // "Content-Security-Policy"
+ * console.log(reportOnlyHeader) // "Content-Security-Policy-Report-Only"
  * ```
  *
- * @category utilities
- * @since 0.0.0
  * @param reportOnly - Whether to return the report-only header name.
  * @returns The matching content security policy header name.
+ * @category utilities
+ * @since 0.0.0
  */
 export const getProperHeaderName = (reportOnly = false): ContentSecurityPolicyHeaderName =>
   reportOnly ? reportOnlyHeaderName : headerName;
 
 /**
- * Create a serialized directive string from a directive name and one or more values.
- *
- * @category utilities
- * @since 0.0.0
- * @template T
- * @param directiveName - Directive name to serialize.
- * @param value - Directive value or values to serialize.
- * @param arrayWrapper - Wrapper used to normalize singular and array values.
- * @returns A serialized directive string.
+ * Options for directive serialization.
  */
 type DirectiveValueOptions = {
   readonly arrayWrapper?: <T>(value: ReadonlyArray<T> | T) => readonly T[];
@@ -153,14 +140,23 @@ type DirectiveValueOptions = {
 /**
  * Creates a serialized directive value from a directive name and value list.
  *
+ * @remarks
+ * The helper is dual-call: pass `(directiveName, value)` directly or pass the
+ * value first to obtain a pipe-friendly directive-name formatter. Values are
+ * joined with a single space, matching CSP directive-list syntax.
+ *
  * @example
  * ```ts
  * import { createDirectiveValue } from "@beep/schema/Csp"
  *
  * const value = createDirectiveValue("default-src", ["'self'", "https://cdn.example.com"])
- * console.log(value)
+ * const style = createDirectiveValue(["'self'"])("style-src")
+ *
+ * console.log(value) // "default-src 'self' https://cdn.example.com"
+ * console.log(style) // "style-src 'self'"
  * ```
  *
+ * @typeParam T - Literal directive source value preserved in the output template string.
  * @category utilities
  * @since 0.0.0
  */
@@ -206,7 +202,7 @@ export const createDirectiveValue: {
  */
 export const PluginTypes = internal.ArrayOfStrOrStr.pipe(
   $I.annoteSchema("PluginTypes", {
-    description: "A CSP plugin-types source",
+    description: "A MIME type or list of MIME types accepted by the CSP plugin-types directive.",
   })
 );
 
@@ -260,7 +256,7 @@ const SandboxBase = LiteralKit([
  */
 export const Sandbox = SandboxBase.pipe(
   $I.annoteSchema("Sandbox", {
-    description: "A CSP sandbox directive",
+    description: "A boolean sandbox directive flag or a supported CSP sandbox token.",
   }),
   SchemaUtils.withLiteralKitStatics(SandboxBase)
 );
@@ -321,12 +317,23 @@ const fetchDirectiveNamesByKey = {
 /**
  * Fetch directive fields accepted by Content-Security-Policy.
  *
+ * @remarks
+ * The serializer accepts both camelCase keys (`defaultSrc`) and CSP wire keys
+ * (`default-src`). `Option.none()` and `undefined` values are omitted so
+ * partially configured policy objects can be composed before rendering.
+ *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { FetchDirective } from "@beep/schema/Csp"
  *
- * const value = FetchDirective.convertToString({ defaultSrc: "'self'" })
- * console.log(value)
+ * const value = FetchDirective.convertToString({
+ *   defaultSrc: O.some("'self'"),
+ *   "img-src": ["https:"],
+ *   scriptSrc: O.none()
+ * })
+ *
+ * console.log(value) // "default-src 'self'; img-src https:"
  * ```
  *
  * @category models
@@ -370,7 +377,7 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
     "worker-src": DirectiveSource,
   },
   $I.annote("FetchDirective", {
-    description: "A CSP fetch directive",
+    description: "CSP fetch directive fields and serialization helpers.",
   })
 ) {
   static readonly convertToString = (directive?: undefined | DirectiveInput<FetchDirective>) => {
@@ -400,12 +407,22 @@ export class FetchDirective extends S.Class<FetchDirective>($I`FetchDirective`)(
 /**
  * Document directive fields accepted by Content-Security-Policy.
  *
+ * @remarks
+ * `sandbox: true` renders the bare `sandbox` directive, while string tokens
+ * render as `sandbox <token>`. CamelCase and wire-format keys are normalized
+ * to the wire-format directive names when serialized.
+ *
  * @example
  * ```ts
  * import { DocumentDirective } from "@beep/schema/Csp"
  *
- * const value = DocumentDirective.convertToString({ sandbox: "allow-scripts" })
- * console.log(value)
+ * const value = DocumentDirective.convertToString({
+ *   "base-uri": "'self'",
+ *   "plugin-types": ["application/pdf"],
+ *   sandbox: true
+ * })
+ *
+ * console.log(value) // "base-uri 'self'; plugin-types application/pdf; sandbox"
  * ```
  *
  * @category models
@@ -420,7 +437,7 @@ export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDir
     sandbox: Sandbox,
   },
   $I.annote("DocumentDirective", {
-    description: "A CSP document directive",
+    description: "CSP document directive fields and serialization helpers.",
   })
 ) {
   static readonly convertToString = (directive?: undefined | DirectiveInput<DocumentDirective>) => {
@@ -454,12 +471,21 @@ export class DocumentDirective extends S.Class<DocumentDirective>($I`DocumentDir
 /**
  * Navigation directive fields accepted by Content-Security-Policy.
  *
+ * @remarks
+ * The serializer normalizes `formAction`, `frameAncestors`, and `navigateTo`
+ * to their CSP wire names and omits absent values.
+ *
  * @example
  * ```ts
  * import { NavigationDirective } from "@beep/schema/Csp"
  *
- * const value = NavigationDirective.convertToString({ formAction: "'self'" })
- * console.log(value)
+ * const value = NavigationDirective.convertToString({
+ *   formAction: "'self'",
+ *   frameAncestors: ["'none'"],
+ *   "navigate-to": "https://example.com"
+ * })
+ *
+ * console.log(value) // "form-action 'self'; frame-ancestors 'none'; navigate-to https://example.com"
  * ```
  *
  * @category models
@@ -475,7 +501,7 @@ export class NavigationDirective extends S.Class<NavigationDirective>($I`Navigat
     "navigate-to": DirectiveSource,
   },
   $I.annote("NavigationDirective", {
-    description: "A CSP navigation directive",
+    description: "CSP navigation directive fields and serialization helpers.",
   })
 ) {
   static readonly convertToString = (directive?: undefined | DirectiveInput<NavigationDirective>) => {
@@ -522,19 +548,27 @@ export class NavigationDirective extends S.Class<NavigationDirective>($I`Navigat
  */
 export const ReportURI = S.Union([...internal.StringOrUrl.members, S.Array(internal.StringOrUrl)]).pipe(
   $I.annoteSchema("ReportURI", {
-    description: "A CSP report-uri",
+    description: "A CSP report-uri target, URL target, or list of reporting targets.",
   })
 );
 
 /**
  * Reporting directive fields accepted by Content-Security-Policy.
  *
+ * @remarks
+ * `report-uri` values are normalized through the shared strict URI encoder
+ * before joining, while `report-to` is rendered as the named reporting group.
+ *
  * @example
  * ```ts
  * import { ReportingDirective } from "@beep/schema/Csp"
  *
- * const value = ReportingDirective.convertToString({ reportTo: "default" })
- * console.log(value)
+ * const value = ReportingDirective.convertToString({
+ *   "report-uri": [new URL("https://example.com/csp"), "https://example.com/local-report"],
+ *   reportTo: "default-endpoint"
+ * })
+ *
+ * console.log(value) // "report-uri https://example.com/csp https://example.com/local-report; report-to default-endpoint"
  * ```
  *
  * @category models
@@ -548,7 +582,7 @@ export class ReportingDirective extends S.Class<ReportingDirective>($I`Reporting
     "report-to": S.String,
   },
   $I.annote("ReportingDirective", {
-    description: "A CSP reporting directive",
+    description: "CSP reporting directive fields and serialization helpers.",
   })
 ) {
   static readonly convertToString = (directive?: undefined | DirectiveInput<ReportingDirective>) => {
@@ -573,15 +607,22 @@ export class ReportingDirective extends S.Class<ReportingDirective>($I`Reporting
 }
 
 /**
- * Combined CSP directive field schema.
+ * Complete normalized CSP directive field schema.
+ *
+ * @remarks
+ * This schema describes the full directive field set produced by composing the
+ * directive classes. It is stricter than the user-facing option object: partial
+ * policy input belongs in {@link ContentSecurityPolicyOptionStruct}, whose
+ * `directives` field makes each directive key optional before rendering.
  *
  * @example
  * ```ts
  * import * as S from "effect/Schema"
  * import { CspDirectives } from "@beep/schema/Csp"
  *
- * const directives = S.decodeUnknownSync(CspDirectives)({ defaultSrc: "'self'" })
- * console.log(directives.defaultSrc)
+ * const result = S.decodeUnknownResult(CspDirectives)({ defaultSrc: "'self'" })
+ *
+ * console.log(result._tag) // "Failure"
  * ```
  *
  * @category schemas
@@ -594,12 +635,17 @@ export const CspDirectives = S.Struct({
   ...ReportingDirective.fields,
 }).pipe(
   $I.annoteSchema("CspDirectives", {
-    description: "A CSP directives",
+    description: "The complete normalized field set for all supported CSP directives.",
   })
 );
 
 /**
- * Structured CSP option object before header serialization.
+ * Structured CSP option object accepted before header serialization.
+ *
+ * @remarks
+ * Unlike {@link CspDirectives}, every directive key is optional here. This is
+ * the object shape callers should use when constructing a CSP policy from the
+ * subset of directives they actually want to emit.
  *
  * @example
  * ```ts
@@ -639,7 +685,7 @@ export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPo
     reportOnly: S.optionalKey(S.Boolean),
   },
   $I.annote("ContentSecurityPolicyOptionStruct", {
-    description: "A CSP option struct",
+    description: "Structured CSP option input with optional directive fields and optional report-only mode.",
   })
 ) {}
 
@@ -660,7 +706,7 @@ export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPo
  */
 export const ContentSecurityPolicyOption = S.Union([S.Literal(false), ContentSecurityPolicyOptionStruct]).pipe(
   $I.annoteSchema("ContentSecurityPolicyOption", {
-    description: "A CSP option",
+    description: "CSP option input, either disabled with false or enabled with structured directives.",
   })
 );
 
@@ -681,7 +727,7 @@ export const ContentSecurityPolicyOption = S.Union([S.Literal(false), ContentSec
 export type ContentSecurityPolicyOption = typeof ContentSecurityPolicyOption.Type;
 
 /**
- * Serialized Content-Security-Policy response header model.
+ * Serialized Content-Security-Policy response-header model.
  *
  * @example
  * ```ts
@@ -706,7 +752,7 @@ export class ContentSecurityPolicyResponseHeader extends S.Class<ContentSecurity
     value: S.OptionFromUndefinedOr(S.String),
   },
   $I.annote("ContentSecurityPolicyResponseHeader", {
-    description: "The `Content-Security-Policy` response header.",
+    description: "A rendered Content-Security-Policy response header name and optional serialized value.",
   })
 ) {}
 
@@ -753,16 +799,23 @@ const decodeContentSecurityPolicyHeader = Effect.fn("Csp.decodeContentSecurityPo
 });
 
 /**
- * Format a structured CSP option into a header value.
+ * Format a structured CSP option into the serialized header value.
+ *
+ * @remarks
+ * `undefined` and `false` disable output and return `undefined`. Enabled
+ * options concatenate fetch, document, navigation, and reporting directive
+ * groups in that order, omitting empty groups.
  *
  * @example
  * ```ts
  * import { ContentSecurityPolicyOptionStruct, createContentSecurityPolicyOptionHeaderValue } from "@beep/schema/Csp"
  *
  * const option = ContentSecurityPolicyOptionStruct.make({
- *   directives: { defaultSrc: "'self'" }
+ *   directives: { defaultSrc: "'self'", sandbox: true }
  * })
- * console.log(createContentSecurityPolicyOptionHeaderValue(option))
+ *
+ * console.log(createContentSecurityPolicyOptionHeaderValue(option)) // "default-src 'self'; sandbox"
+ * console.log(createContentSecurityPolicyOptionHeaderValue(false)) // undefined
  * ```
  *
  * @category formatting
@@ -793,15 +846,25 @@ export const createContentSecurityPolicyOptionHeaderValue = (
 /**
  * One-way schema that decodes CSP options into a response header.
  *
+ * @remarks
+ * This schema is intentionally one-way: it renders policy options into a
+ * response-header model, but encoding a rendered header back into the original
+ * option object is forbidden.
+ *
  * @example
  * ```ts
  * import { Effect } from "effect"
+ * import * as O from "effect/Option"
  * import { ContentSecurityPolicyHeader } from "@beep/schema/Csp"
  *
- * const header = await Effect.runPromise(
- *   ContentSecurityPolicyHeader.create({ directives: { defaultSrc: "'self'" } })
- * )
- * console.log(header._tag)
+ * const header = Effect.runSync(ContentSecurityPolicyHeader.create({
+ *   directives: { defaultSrc: "'self'" },
+ *   reportOnly: true
+ * }))
+ * const response = O.getOrThrow(header)
+ *
+ * console.log(response.name) // "Content-Security-Policy-Report-Only"
+ * console.log(O.getOrUndefined(response.value)) // "default-src 'self'"
  * ```
  *
  * @category schemas
@@ -816,7 +879,7 @@ export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption,
     })
   ),
   $I.annoteSchema("ContentSecurityPolicyHeader", {
-    description: "A one-way schema that decodes `Content-Security-Policy` options into the response header.",
+    description: "A one-way schema that renders Content-Security-Policy options into a response header.",
   }),
   SchemaUtils.withStatics(() => {
     const createValue: (
@@ -890,6 +953,17 @@ export type ContentSecurityPolicyHeader = typeof ContentSecurityPolicyHeader.Typ
 
 /**
  * Public aliases for concise namespace roles.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import { Header } from "@beep/schema/Csp"
+ *
+ * const header = Effect.runSync(Header.create({ directives: { scriptSrc: "'self'" } }))
+ *
+ * console.log(O.isSome(header)) // true
+ * ```
  *
  * @category schemas
  * @since 0.0.0

@@ -69,7 +69,8 @@ const isImageMimeType = S.is(ImageAttachmentMimeType);
  * ```ts
  * import { DEFAULT_MAX_ATTACHMENT_BYTES } from "@beep/editor/chat"
  *
- * console.log(DEFAULT_MAX_ATTACHMENT_BYTES) // 10485760
+ * const defaultMegabytes = DEFAULT_MAX_ATTACHMENT_BYTES / 1024 / 1024
+ * console.log(defaultMegabytes) // 10
  * ```
  *
  * @category configuration
@@ -109,7 +110,13 @@ const AttachmentSizeBytes = S.Int.pipe(
  * ```ts
  * import { AttachmentTooLarge } from "@beep/editor/chat"
  *
- * console.log(typeof AttachmentTooLarge) // "function"
+ * const rejection = new AttachmentTooLarge({
+ *   filename: "recording.mov",
+ *   size: 15_000_000,
+ *   maxBytes: 10_485_760,
+ * })
+ *
+ * console.log(rejection._tag) // "AttachmentTooLarge"
  * ```
  *
  * @category errors
@@ -129,7 +136,12 @@ export class AttachmentTooLarge extends Data.TaggedError("AttachmentTooLarge")<{
  * ```ts
  * import { AttachmentInvalidMimeType } from "@beep/editor/chat"
  *
- * console.log(typeof AttachmentInvalidMimeType) // "function"
+ * const rejection = new AttachmentInvalidMimeType({
+ *   filename: "payload.bin",
+ *   mimeType: "",
+ * })
+ *
+ * console.log(rejection._tag) // "AttachmentInvalidMimeType"
  * ```
  *
  * @category errors
@@ -145,6 +157,18 @@ export class AttachmentInvalidMimeType extends Data.TaggedError("AttachmentInval
  * union so the capture pipeline can distinguish — and surface — an over-budget
  * file from one with an unrecognized MIME type, rather than collapsing both into
  * an opaque `O.none()`.
+ *
+ * @example
+ * ```ts
+ * import { AttachmentInvalidMimeType, type AttachmentRejection } from "@beep/editor/chat"
+ *
+ * const rejection: AttachmentRejection = new AttachmentInvalidMimeType({
+ *   filename: "payload.bin",
+ *   mimeType: "",
+ * })
+ *
+ * console.log(rejection._tag) // "AttachmentInvalidMimeType"
+ * ```
  *
  * @category errors
  * @since 0.0.0
@@ -236,9 +260,17 @@ export class ComposerAttachment extends S.Class<ComposerAttachment>($I`ComposerA
    * @example
    * ```ts
    * import { ComposerAttachment } from "@beep/editor/chat"
+   * import { Result } from "effect"
    *
-   * console.log(typeof ComposerAttachment.fromFile) // "function"
+   * const result = ComposerAttachment.fromFile(
+   *   new File(["avatar"], "avatar.png", { type: "image/png" })
+   * )
+   *
+   * console.log(Result.isSuccess(result)) // true
    * ```
+   *
+   * @effects Creates an object URL for successfully captured files; release it
+   * with {@link revokeAttachment} once the attachment is removed.
    *
    * @category utilities
    * @since 0.0.0
@@ -304,9 +336,15 @@ export const isImageAttachment = (attachment: ComposerAttachment): boolean => is
  * @example
  * ```ts
  * import { fileToAttachment } from "@beep/editor/chat"
+ * import { Result } from "effect"
  *
- * console.log(typeof fileToAttachment) // "function"
+ * const result = fileToAttachment(new File(["hi"], "note.txt", { type: "text/plain" }))
+ *
+ * console.log(Result.isSuccess(result)) // true
  * ```
+ *
+ * @effects Creates an object URL for successfully captured files; release it
+ * with {@link revokeAttachment} once the attachment is removed.
  *
  * @category utilities
  * @since 0.0.0
@@ -321,10 +359,26 @@ export const fileToAttachment = (
  *
  * @example
  * ```ts
- * import { revokeAttachment } from "@beep/editor/chat"
+ * import { ComposerAttachment, revokeAttachment } from "@beep/editor/chat"
  *
- * console.log(typeof revokeAttachment) // "function"
+ * const attachment = ComposerAttachment.make({
+ *   id: "1",
+ *   filename: "preview.png",
+ *   mimeType: "image/png",
+ *   size: 1,
+ *   objectUrl: "blob:preview",
+ *   file: new File([], "preview.png", { type: "image/png" }),
+ * })
+ *
+ * function removeChip(attachment: ComposerAttachment): string {
+ *   revokeAttachment(attachment)
+ *   return attachment.id
+ * }
+ *
+ * console.log(removeChip(attachment)) // "1"
  * ```
+ *
+ * @effects Calls `URL.revokeObjectURL` for the attachment thumbnail URL.
  *
  * @category utilities
  * @since 0.0.0

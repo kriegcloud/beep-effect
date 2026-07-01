@@ -18,14 +18,16 @@ import * as Domain from "./Domain.js";
 const $I = $RepoDocgenId.create("Configuration");
 
 /**
- * Default Jekyll theme used when docgen does not receive an explicit theme override.
+ * Default Jekyll remote theme used when neither CLI flags nor `docgen.json` provide one.
  *
  * @example
  * ```ts
  * import { DEFAULT_THEME } from "@beep/repo-docgen/Configuration"
- * console.log(DEFAULT_THEME)
+ *
+ * const configLine = `remote_theme: ${DEFAULT_THEME}`
+ * console.log(configLine)
  * ```
- * @category services
+ * @category configuration
  * @since 0.0.0
  */
 // cspell:ignore mikearnaldi
@@ -41,14 +43,23 @@ const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
   A.isArray(value) && A.every(value, P.isString);
 
 /**
- * Schema describing the optional `docgen.json` configuration document.
+ * Schema for the optional package-local `docgen.json` document.
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ConfigurationSchema } from "@beep/repo-docgen/Configuration"
- * console.log(ConfigurationSchema)
+ *
+ * const decode = S.decodeUnknownSync(ConfigurationSchema)
+ * const config = decode({
+ *   outDir: "docs",
+ *   enforceExamples: true,
+ *   include: ["src/Parser.ts"]
+ * })
+ *
+ * console.log(config.include)
  * ```
- * @category services
+ * @category configuration
  * @since 0.0.0
  */
 export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`ConfigurationSchema`)({
@@ -76,22 +87,52 @@ export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`Configu
  * @example
  * ```ts
  * import type { ConfigurationDocument } from "@beep/repo-docgen/Configuration"
- * type ExampleConfigurationDocument = ConfigurationDocument
+ *
+ * const document: ConfigurationDocument = {
+ *   enforceVersion: true,
+ *   srcDir: "src"
+ * }
+ *
+ * console.log(document.srcDir)
  * ```
- * @category services
+ * @category configuration
  * @since 0.0.0
  */
 export type ConfigurationDocument = ConfigurationSchema;
 
 /**
- * Fully resolved configuration values used while docgen executes.
+ * Fully resolved configuration values used by the parser, example checker, and printer.
  *
  * @example
  * ```ts
- * import { ConfigurationShape } from "@beep/repo-docgen/Configuration"
- * console.log(ConfigurationShape)
+ * import {
+ *   DEFAULT_THEME,
+ *   ConfigurationShape,
+ *   defaultCompilerOptions
+ * } from "@beep/repo-docgen/Configuration"
+ *
+ * const config = ConfigurationShape.make({
+ *   enableSearch: true,
+ *   enforceDescriptions: false,
+ *   enforceExamples: true,
+ *   enforceVersion: true,
+ *   examplesCompilerOptions: defaultCompilerOptions,
+ *   exclude: [],
+ *   include: ["src/index.ts"],
+ *   outDir: "docs",
+ *   parseCompilerOptions: defaultCompilerOptions,
+ *   projectHomepage: "https://github.com/beep-effect/beep-effect",
+ *   projectName: "@beep/repo-docgen",
+ *   runExamples: false,
+ *   srcDir: "src",
+ *   srcLink: "https://github.com/beep-effect/beep-effect/blob/main/packages/tooling/tool/docgen/src",
+ *   theme: DEFAULT_THEME,
+ *   tscExecutable: "tsc"
+ * })
+ *
+ * console.log(config.include)
  * ```
- * @category services
+ * @category configuration
  * @since 0.0.0
  */
 export class ConfigurationShape extends S.Class<ConfigurationShape>($I`ConfigurationShape`)({
@@ -114,12 +155,45 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
 }) {}
 
 /**
- * Runtime configuration service for docgen command execution.
+ * Runtime configuration service consumed by docgen parsing, checking, and printing effects.
  *
  * @example
  * ```ts
- * import { Configuration } from "@beep/repo-docgen/Configuration"
- * console.log(Configuration)
+ * import { Effect } from "effect"
+ * import {
+ *   DEFAULT_THEME,
+ *   Configuration,
+ *   ConfigurationShape,
+ *   defaultCompilerOptions
+ * } from "@beep/repo-docgen/Configuration"
+ *
+ * const config = ConfigurationShape.make({
+ *   enableSearch: true,
+ *   enforceDescriptions: false,
+ *   enforceExamples: true,
+ *   enforceVersion: true,
+ *   examplesCompilerOptions: defaultCompilerOptions,
+ *   exclude: [],
+ *   include: [],
+ *   outDir: "docs",
+ *   parseCompilerOptions: defaultCompilerOptions,
+ *   projectHomepage: "https://github.com/beep-effect/beep-effect",
+ *   projectName: "@beep/repo-docgen",
+ *   runExamples: false,
+ *   srcDir: "src",
+ *   srcLink: "https://github.com/beep-effect/beep-effect/blob/main/packages/tooling/tool/docgen/src",
+ *   theme: DEFAULT_THEME,
+ *   tscExecutable: "tsc"
+ * })
+ *
+ * const projectName = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const configuration = yield* Configuration
+ *     return configuration.projectName
+ *   }).pipe(Effect.provide(Configuration.layer(config)))
+ * )
+ *
+ * console.log(projectName)
  * ```
  * @category services
  * @since 0.0.0
@@ -142,9 +216,18 @@ export class Configuration extends Context.Service<Configuration, ConfigurationS
  * @example
  * ```ts
  * import type { CompilerOptionsInput } from "@beep/repo-docgen/Configuration"
- * type ExampleCompilerOptionsInput = CompilerOptionsInput
+ *
+ * const inlineOptions: CompilerOptionsInput = {
+ *   moduleResolution: "bundler",
+ *   noEmit: true,
+ *   strict: true,
+ *   target: "es2022"
+ * }
+ * const tsconfigPath: CompilerOptionsInput = "tsconfig.json"
+ *
+ * console.log([inlineOptions.moduleResolution, tsconfigPath])
  * ```
- * @category services
+ * @category configuration
  * @since 0.0.0
  */
 export type CompilerOptionsInput = string | S.Schema.Type<typeof CompilerOptionsShape>;
@@ -177,9 +260,10 @@ type LoadArgs = {
  * @example
  * ```ts
  * import { defaultCompilerOptions } from "@beep/repo-docgen/Configuration"
- * console.log(defaultCompilerOptions)
+ *
+ * console.log(defaultCompilerOptions.moduleResolution)
  * ```
- * @category services
+ * @category configuration
  * @since 0.0.0
  */
 export const defaultCompilerOptions = {
@@ -320,15 +404,43 @@ const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boo
 /**
  * Loads and resolves the effective docgen configuration from CLI input and repo files.
  *
+ * @remarks
+ * CLI options win over `docgen.json`; missing values fall back to package metadata and repo defaults.
+ * Example compiler options are post-processed to allow generated imports and to disable unused checks.
+ *
  * @internal
- * @param args - CLI-sourced configuration overrides.
- * @returns Effect that resolves the effective docgen configuration service value.
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
  * import { load } from "@beep/repo-docgen/Configuration"
- * console.log(load)
+ *
+ * const program = load({
+ *   enableSearch: O.some(false),
+ *   enforceDescriptions: O.none(),
+ *   enforceExamples: O.some(true),
+ *   enforceVersion: O.none(),
+ *   examplesCompilerOptions: O.none(),
+ *   exclude: O.none(),
+ *   include: O.some(["src/Domain.ts"]),
+ *   outDir: O.none(),
+ *   parseCompilerOptions: O.none(),
+ *   projectHomepage: O.none(),
+ *   runExamples: O.none(),
+ *   srcDir: O.none(),
+ *   srcLink: O.none(),
+ *   theme: O.none(),
+ *   tscExecutable: O.none()
+ * }).pipe(Effect.map((config) => config.include))
+ *
+ * console.log(program)
  * ```
- * @category services
+ *
+ * @effects
+ * - Reads `package.json`, optional `docgen.json`, and any referenced TSConfig file from the current package.
+ * - Fails with `DocgenError` when JSONC parsing, schema decoding, or file access fails.
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const load = Effect.fn("load")(function* (args: LoadArgs) {
@@ -409,15 +521,18 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
 });
 
 /**
- * Present for upstream parity; the CLI merges configuration directly in `load`.
+ * Empty layer kept for upstream workflow parity while this port resolves configuration in {@link load}.
  *
  * @internal
  * @example
  * ```ts
+ * import { Layer } from "effect"
  * import { configProviderLayer } from "@beep/repo-docgen/Configuration"
- * console.log(configProviderLayer)
+ *
+ * const merged = Layer.mergeAll(configProviderLayer, Layer.empty)
+ * console.log(merged)
  * ```
- * @category services
+ * @category layers
  * @since 0.0.0
  */
 export const configProviderLayer = Layer.empty;

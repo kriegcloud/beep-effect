@@ -34,6 +34,22 @@ const processReadMessage = (property: string): string =>
 const osCallMessage = (property: string): string =>
   `Use ${hostProcessTarget(property)} instead of os.${property}(); inject the runtime reference in Effect code and provide it explicitly in tests.`;
 
+/**
+ * Oxlint rule that blocks direct host platform and architecture reads outside
+ * the shared host-process reference module.
+ *
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import plugin from "@beep/lint-rules/oxlint"
+ *
+ * const description = plugin.rules["no-global-process-runtime"]?.meta.docs.description
+ *
+ * strictEqual(description?.includes("host runtime"), true)
+ * ```
+ * @category tools
+ * @since 0.1.0
+ */
 export default defineRule({
   meta: {
     type: "problem",

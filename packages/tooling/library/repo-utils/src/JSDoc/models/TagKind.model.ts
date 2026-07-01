@@ -16,7 +16,9 @@ const $I = $RepoUtilsId.create("JSDoc/models/TagKind.model");
  * @example
  * ```ts
  * import { TagKind } from "@beep/repo-utils/JSDoc/models/TagKind.model"
- * console.log(TagKind)
+ *
+ * const kind = TagKind.Enum.block
+ * console.log(TagKind.is.block(kind))
  * ```
  * @category models
  * @since 0.0.0

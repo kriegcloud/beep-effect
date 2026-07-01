@@ -34,8 +34,15 @@ const $I = $LawPracticeUseCasesId.create("IrToLaw/IrToLaw.ports");
  * ```ts
  * import type { LawEntities } from "@beep/law-practice-use-cases/IrToLaw"
  *
- * const accept = (entities: LawEntities) => entities.officeAction
- * console.log(accept)
+ * const entityKeys: ReadonlyArray<keyof LawEntities> = [
+ *   "claim",
+ *   "distinction",
+ *   "officeAction",
+ *   "priorArtReference",
+ *   "rejection"
+ * ]
+ *
+ * console.log(entityKeys.includes("distinction")) // true
  * ```
  *
  * @category models
@@ -63,10 +70,22 @@ export class LawEntities extends S.Class<LawEntities>($I`LawEntities`)(
  *
  * @example
  * ```ts
- * import type { IrToLawShape } from "@beep/law-practice-use-cases/IrToLaw"
+ * import { IrToLawExtractionError, IrToLawShape } from "@beep/law-practice-use-cases/IrToLaw"
+ * import { Effect, Exit } from "effect"
  *
- * const accept = (shape: IrToLawShape) => shape
- * console.log(accept)
+ * const shape = IrToLawShape.make({
+ *   toLaw: () =>
+ *     Effect.fail(
+ *       IrToLawExtractionError.fromReason("required-extraction-missing", {
+ *         label: "claim",
+ *         message: "Missing claim extraction."
+ *       })
+ *     )
+ * })
+ *
+ * const program = Effect.exit(shape.toLaw([]))
+ *
+ * Effect.runPromise(program).then((exit) => console.log(Exit.isFailure(exit))) // true
  * ```
  *
  * @category services
@@ -84,9 +103,26 @@ export class IrToLawShape extends S.Class<IrToLawShape>($I`IrToLawShape`)({
  *
  * @example
  * ```ts
- * import { IrToLaw } from "@beep/law-practice-use-cases/IrToLaw"
+ * import { IrToLaw, IrToLawExtractionError, IrToLawShape } from "@beep/law-practice-use-cases/IrToLaw"
+ * import { Effect, Exit } from "effect"
  *
- * console.log(IrToLaw)
+ * const fakeMapper = IrToLawShape.make({
+ *   toLaw: () =>
+ *     Effect.fail(
+ *       IrToLawExtractionError.fromReason("required-extraction-missing", {
+ *         label: "office_action",
+ *         message: "Missing office-action extraction."
+ *       })
+ *     )
+ * })
+ *
+ * const program = Effect.gen(function* () {
+ *   const mapper = yield* IrToLaw
+ *   const exit = yield* Effect.exit(mapper.toLaw([]))
+ *   return Exit.isFailure(exit)
+ * }).pipe(Effect.provideService(IrToLaw, fakeMapper))
+ *
+ * Effect.runPromise(program).then(console.log) // true
  * ```
  *
  * @category services

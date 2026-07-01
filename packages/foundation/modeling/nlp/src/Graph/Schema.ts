@@ -92,9 +92,15 @@ const textNodeFields = <T extends TextNodeKind>(literal: S.Literal<T>) => ({
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { TextNode } from "@beep/nlp/Graph/Schema"
  *
- * console.log(TextNode)
+ * const node = S.decodeUnknownSync(TextNode)({
+ *   text: "Hello world.",
+ *   type: "sentence",
+ *   timestamp: 0
+ * })
+ * console.log(node.type) // "sentence"
  * ```
  *
  * @since 0.0.0
@@ -174,9 +180,11 @@ const textEdgeMember =
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { TextEdge } from "@beep/nlp/Graph/Schema"
  *
- * console.log(TextEdge)
+ * const edge = S.decodeUnknownSync(TextEdge)({ relation: "contains", weight: 1 })
+ * console.log(edge.relation) // "contains"
  * ```
  *
  * @since 0.0.0
@@ -225,7 +233,13 @@ export type TextEdge = typeof TextEdge.Type;
  * ```ts
  * import { NLPAnalysis } from "@beep/nlp/Graph/Schema"
  *
- * console.log(NLPAnalysis)
+ * const analysis = NLPAnalysis.make({
+ *   sentences: ["Hello world."],
+ *   text: "Hello world.",
+ *   tokens: ["Hello", "world"],
+ *   wordCount: 2
+ * })
+ * console.log(analysis.wordCount) // 2
  * ```
  *
  * @since 0.0.0
@@ -251,7 +265,8 @@ export class NLPAnalysis extends S.Class<NLPAnalysis>($I`NLPAnalysis`)(
  * ```ts
  * import { POSNode } from "@beep/nlp/Graph/Schema"
  *
- * console.log(POSNode)
+ * const node = POSNode.make({ position: 1, tag: "NOUN", text: "brief", timestamp: 0 })
+ * console.log(node.tag) // "NOUN"
  * ```
  *
  * @since 0.0.0
@@ -278,7 +293,13 @@ export class POSNode extends S.Class<POSNode>($I`POSNode`)(
  * ```ts
  * import { EntityNode } from "@beep/nlp/Graph/Schema"
  *
- * console.log(EntityNode)
+ * const node = EntityNode.make({
+ *   entityType: "ORG",
+ *   span: { end: 9, start: 0 },
+ *   text: "Acme Inc.",
+ *   timestamp: 0
+ * })
+ * console.log(node.entityType) // "ORG"
  * ```
  *
  * @since 0.0.0
@@ -306,7 +327,8 @@ export class EntityNode extends S.Class<EntityNode>($I`EntityNode`)(
  * ```ts
  * import { LemmaNode } from "@beep/nlp/Graph/Schema"
  *
- * console.log(LemmaNode)
+ * const node = LemmaNode.make({ lemma: "run", position: 3, token: "running", timestamp: 0 })
+ * console.log(node.lemma) // "run"
  * ```
  *
  * @since 0.0.0
@@ -333,7 +355,14 @@ export class LemmaNode extends S.Class<LemmaNode>($I`LemmaNode`)(
  * ```ts
  * import { DependencyNode } from "@beep/nlp/Graph/Schema"
  *
- * console.log(DependencyNode)
+ * const node = DependencyNode.make({
+ *   dependent: { position: 1, text: "brief" },
+ *   distance: 1,
+ *   head: { position: 2, text: "arrived" },
+ *   relation: "nsubj",
+ *   timestamp: 0
+ * })
+ * console.log(node.relation) // "nsubj"
  * ```
  *
  * @since 0.0.0
@@ -360,7 +389,13 @@ export class DependencyNode extends S.Class<DependencyNode>($I`DependencyNode`)(
  * ```ts
  * import { RelationNode } from "@beep/nlp/Graph/Schema"
  *
- * console.log(RelationNode)
+ * const node = RelationNode.make({
+ *   object: { entityType: "ORG", span: { end: 15, start: 10 }, text: "Globex" },
+ *   relationType: "acquired",
+ *   subject: { entityType: "ORG", span: { end: 4, start: 0 }, text: "Acme" },
+ *   timestamp: 0
+ * })
+ * console.log(node.relationType) // "acquired"
  * ```
  *
  * @since 0.0.0

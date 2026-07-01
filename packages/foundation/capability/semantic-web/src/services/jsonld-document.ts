@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -35,13 +34,16 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdDocumentErrorReason } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdDocumentErrorReason)
+ * const reason = S.decodeUnknownSync(JsonLdDocumentErrorReason)("loaderPolicyViolation")
+ * strictEqual(reason, "loaderPolicyViolation")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const JsonLdDocumentErrorReason = LiteralKit([
   "invalidNodeReference",
@@ -61,13 +63,18 @@ export const JsonLdDocumentErrorReason = LiteralKit([
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { JsonLdDocumentError } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdDocumentError)
+ * const error = JsonLdDocumentError.make({
+ *   reason: "loaderPolicyViolation",
+ *   message: "Remote document loading is disabled for this workflow."
+ * })
+ * strictEqual(error.reason, "loaderPolicyViolation")
  * ```
  *
+ * @category errors
  * @since 0.0.0
- * @category error-handling
  */
 export class JsonLdDocumentError extends TaggedErrorClass<JsonLdDocumentError>($I`JsonLdDocumentError`)(
   "JsonLdDocumentError",
@@ -87,13 +94,19 @@ export class JsonLdDocumentError extends TaggedErrorClass<JsonLdDocumentError>($
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { CompactJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(CompactJsonLdDocumentRequest)
+ * const request = S.decodeUnknownSync(CompactJsonLdDocumentRequest)({
+ *   document: { "@graph": [] },
+ *   context: { terms: { name: "https://schema.org/name" } }
+ * })
+ * strictEqual(request.context.terms.name, "https://schema.org/name")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class CompactJsonLdDocumentRequest extends S.Class<CompactJsonLdDocumentRequest>(
   $I`CompactJsonLdDocumentRequest`
@@ -116,13 +129,18 @@ export class CompactJsonLdDocumentRequest extends S.Class<CompactJsonLdDocumentR
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { FlattenJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(FlattenJsonLdDocumentRequest)
+ * const request = S.decodeUnknownSync(FlattenJsonLdDocumentRequest)({
+ *   document: { "@graph": [] }
+ * })
+ * strictEqual(request.document["@graph"].length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class FlattenJsonLdDocumentRequest extends S.Class<FlattenJsonLdDocumentRequest>(
   $I`FlattenJsonLdDocumentRequest`
@@ -144,13 +162,19 @@ export class FlattenJsonLdDocumentRequest extends S.Class<FlattenJsonLdDocumentR
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { FrameJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(FrameJsonLdDocumentRequest)
+ * const request = S.decodeUnknownSync(FrameJsonLdDocumentRequest)({
+ *   document: { "@graph": [] },
+ *   frame: { "@type": "https://schema.org/Person", includeProperties: ["name"] }
+ * })
+ * strictEqual(request.document["@graph"].length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class FrameJsonLdDocumentRequest extends S.Class<FrameJsonLdDocumentRequest>($I`FrameJsonLdDocumentRequest`)(
   {
@@ -171,13 +195,20 @@ export class FrameJsonLdDocumentRequest extends S.Class<FrameJsonLdDocumentReque
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdDocumentLoaderPolicy } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdDocumentLoaderPolicy)
+ * const policy = S.decodeUnknownSync(JsonLdDocumentLoaderPolicy)({
+ *   allowRemoteDocuments: false,
+ *   maxRemoteDocuments: 0,
+ *   baseIri: "https://example.com/base/"
+ * })
+ * strictEqual(policy.allowRemoteDocuments, false)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class JsonLdDocumentLoaderPolicy extends S.Class<JsonLdDocumentLoaderPolicy>($I`JsonLdDocumentLoaderPolicy`)(
   {
@@ -199,13 +230,16 @@ export class JsonLdDocumentLoaderPolicy extends S.Class<JsonLdDocumentLoaderPoli
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdDocumentNormalizationProfile } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdDocumentNormalizationProfile)
+ * const profile = S.decodeUnknownSync(JsonLdDocumentNormalizationProfile)("expanded-v1")
+ * strictEqual(profile, "expanded-v1")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const JsonLdDocumentNormalizationProfile = LiteralKit(["bounded-v1", "expanded-v1"]).pipe(
   $I.annoteSchema("JsonLdDocumentNormalizationProfile", {
@@ -234,13 +268,19 @@ export type JsonLdDocumentNormalizationProfile = typeof JsonLdDocumentNormalizat
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ExpandJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(ExpandJsonLdDocumentRequest)
+ * const request = S.decodeUnknownSync(ExpandJsonLdDocumentRequest)({
+ *   document: { "@graph": [] },
+ *   loaderPolicy: { allowRemoteDocuments: false }
+ * })
+ * strictEqual(request.document["@graph"].length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ExpandJsonLdDocumentRequest extends S.Class<ExpandJsonLdDocumentRequest>($I`ExpandJsonLdDocumentRequest`)(
   {
@@ -261,13 +301,20 @@ export class ExpandJsonLdDocumentRequest extends S.Class<ExpandJsonLdDocumentReq
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { NormalizeJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(NormalizeJsonLdDocumentRequest)
+ * const request = S.decodeUnknownSync(NormalizeJsonLdDocumentRequest)({
+ *   document: { "@graph": [] },
+ *   profile: "bounded-v1",
+ *   safeMode: true
+ * })
+ * strictEqual(request.profile, "bounded-v1")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class NormalizeJsonLdDocumentRequest extends S.Class<NormalizeJsonLdDocumentRequest>(
   $I`NormalizeJsonLdDocumentRequest`
@@ -292,13 +339,18 @@ export class NormalizeJsonLdDocumentRequest extends S.Class<NormalizeJsonLdDocum
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdToRdfRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdToRdfRequest)
+ * const request = S.decodeUnknownSync(JsonLdToRdfRequest)({
+ *   document: { "@graph": [] }
+ * })
+ * strictEqual(request.document["@graph"].length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class JsonLdToRdfRequest extends S.Class<JsonLdToRdfRequest>($I`JsonLdToRdfRequest`)(
   {
@@ -318,13 +370,19 @@ export class JsonLdToRdfRequest extends S.Class<JsonLdToRdfRequest>($I`JsonLdToR
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdFromRdfRequest } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdFromRdfRequest)
+ * const request = S.decodeUnknownSync(JsonLdFromRdfRequest)({
+ *   dataset: { quads: [] },
+ *   context: { terms: { name: "https://schema.org/name" } }
+ * })
+ * strictEqual(request.dataset.quads.length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class JsonLdFromRdfRequest extends S.Class<JsonLdFromRdfRequest>($I`JsonLdFromRdfRequest`)(
   {
@@ -345,13 +403,18 @@ export class JsonLdFromRdfRequest extends S.Class<JsonLdFromRdfRequest>($I`JsonL
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdDocumentResult } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdDocumentResult)
+ * const result = S.decodeUnknownSync(JsonLdDocumentResult)({
+ *   document: { "@graph": [] }
+ * })
+ * strictEqual(result.document["@graph"].length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class JsonLdDocumentResult extends S.Class<JsonLdDocumentResult>($I`JsonLdDocumentResult`)(
   {
@@ -368,13 +431,18 @@ export class JsonLdDocumentResult extends S.Class<JsonLdDocumentResult>($I`JsonL
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdToRdfResult } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdToRdfResult)
+ * const result = S.decodeUnknownSync(JsonLdToRdfResult)({
+ *   dataset: { quads: [] }
+ * })
+ * strictEqual(result.dataset.quads.length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class JsonLdToRdfResult extends S.Class<JsonLdToRdfResult>($I`JsonLdToRdfResult`)(
   {
@@ -417,13 +485,43 @@ export interface JsonLdDocumentServiceShape {
  *
  * @example
  * ```ts
- * import { JsonLdDocumentService } from "@beep/semantic-web/services/jsonld-document"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   FlattenJsonLdDocumentRequest,
+ *   JsonLdDocumentResult,
+ *   JsonLdDocumentService
+ * } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdDocumentService)
+ * const request = S.decodeUnknownSync(FlattenJsonLdDocumentRequest)({
+ *   document: { "@graph": [] }
+ * })
+ * const program = Effect.gen(function* () {
+ *   const service = yield* JsonLdDocumentService
+ *   return yield* service.flatten(request)
+ * })
+ *
+ * const result = Effect.runSync(
+ *   Effect.provideService(
+ *     program,
+ *     JsonLdDocumentService,
+ *     JsonLdDocumentService.of({
+ *       compact: () => Effect.die("not used"),
+ *       expand: () => Effect.die("not used"),
+ *       flatten: () => Effect.succeed(S.decodeUnknownSync(JsonLdDocumentResult)({ document: { "@graph": [] } })),
+ *       frame: () => Effect.die("not used"),
+ *       fromRdf: () => Effect.die("not used"),
+ *       normalize: () => Effect.die("not used"),
+ *       toRdf: () => Effect.die("not used")
+ *     })
+ *   )
+ * )
+ * strictEqual(result.document["@graph"].length, 0)
  * ```
  *
+ * @category services
  * @since 0.0.0
- * @category models
  */
 export class JsonLdDocumentService extends Context.Service<JsonLdDocumentService, JsonLdDocumentServiceShape>()(
   $I`JsonLdDocumentService`

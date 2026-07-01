@@ -84,9 +84,19 @@ const compileRegex = (pattern: string, flags: string): Effect.Effect<RegExp, Inv
  *
  * @example
  * ```ts
+ * import { Layer } from "effect"
+ * import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem"
+ * import * as NodePath from "@effect/platform-node/NodePath"
  * import { StreamingToolkitHandlersLive } from "@beep/nlp-mcp/StreamingHandlers"
+ * import { FetchHttpClient } from "effect/unstable/http"
  *
- * console.log(StreamingToolkitHandlersLive)
+ * const handlers = StreamingToolkitHandlersLive.pipe(
+ *   Layer.provide(NodeFileSystem.layer),
+ *   Layer.provide(NodePath.layer),
+ *   Layer.provide(FetchHttpClient.layer)
+ * )
+ *
+ * console.log(Layer.isLayer(handlers))
  * ```
  *
  * @since 0.0.0

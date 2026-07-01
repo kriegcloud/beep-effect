@@ -11,8 +11,10 @@
  * @example
  * ```ts
  * import { AssistantContent } from "@beep/agents-domain/turn"
+ * import * as S from "effect/Schema"
  *
- * console.log(AssistantContent.AssistantContent)
+ * const content = S.decodeUnknownSync(AssistantContent.AssistantContent)({ blocks: [] })
+ * console.log(content.blocks.length)
  * ```
  *
  * @category value-objects
@@ -20,13 +22,18 @@
  */
 export * as AssistantContent from "../values/AssistantContent/index.js";
 /**
- * Flat assistant content compatibility exports.
+ * Flat assistant-content compatibility exports.
  *
  * @example
  * ```ts
  * import { AssistantBlock } from "@beep/agents-domain/turn"
+ * import * as S from "effect/Schema"
  *
- * console.log(AssistantBlock)
+ * const block = S.decodeUnknownSync(AssistantBlock)({
+ *   type: "paragraph",
+ *   children: [{ type: "text", text: "Hello" }],
+ * })
+ * console.log(block.type)
  * ```
  *
  * @category value-objects

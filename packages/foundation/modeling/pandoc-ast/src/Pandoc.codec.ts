@@ -192,8 +192,6 @@ const decodeString = S.decodeUnknownEffect(S.String);
 const decodeAttrWire = S.decodeUnknownEffect(AttrWire);
 const decodeTargetWire = S.decodeUnknownEffect(TargetWire);
 const decodeUnknownArray = S.decodeUnknownEffect(S.Array(S.Unknown));
-const decodeUnknownBlockList = S.decodeUnknownEffect(S.Array(S.Unknown));
-const decodeUnknownBlockItems = S.decodeUnknownEffect(S.Array(S.Unknown));
 const decodeHeaderPayloadWire = S.decodeUnknownEffect(HeaderPayloadWire);
 const decodeCodePayloadWire = S.decodeUnknownEffect(CodePayloadWire);
 const decodeDivPayloadWire = S.decodeUnknownEffect(DivPayloadWire);
@@ -222,7 +220,7 @@ const decodeInlines = (input: unknown): Effect.Effect<ReadonlyArray<PandocInline
   Effect.flatMap(decodeUnknownArray(input), (values) => Effect.forEach(values, decodeInlineOrUnknown));
 
 const decodeBlockList = (input: unknown): Effect.Effect<ReadonlyArray<PandocBlock.Type>, S.SchemaError> =>
-  Effect.flatMap(decodeUnknownBlockList(input), (values) => Effect.forEach(values, decodeBlockOrUnknown));
+  Effect.flatMap(decodeUnknownArray(input), (values) => Effect.forEach(values, decodeBlockOrUnknown));
 
 const unknownInline = (constructor: string, payload: unknown): UnknownInline =>
   UnknownInline.make({ constructor, payload });
@@ -235,10 +233,10 @@ const decodeInlineOrUnknown = (input: unknown): Effect.Effect<PandocInline.Type,
 const decodeBlockOrUnknown = (input: unknown): Effect.Effect<PandocBlock.Type, S.SchemaError> => decodeBlock(input);
 
 const decodeBlockListOrUnknown = (input: unknown): Effect.Effect<ReadonlyArray<PandocBlock.Type>, S.SchemaError> =>
-  Effect.flatMap(decodeUnknownBlockList(input), (values) => Effect.forEach(values, decodeBlockOrUnknown));
+  Effect.flatMap(decodeUnknownArray(input), (values) => Effect.forEach(values, decodeBlockOrUnknown));
 
 const decodeBlockItemOrUnknown = (input: unknown): Effect.Effect<ReadonlyArray<PandocBlock.Type>> =>
-  decodeUnknownBlockList(input).pipe(
+  decodeUnknownArray(input).pipe(
     Effect.matchEffect({
       onFailure: () => Effect.succeed([unknownBlock("MalformedListItem", input)]),
       onSuccess: (values) =>
@@ -251,7 +249,7 @@ const decodeBlockItemOrUnknown = (input: unknown): Effect.Effect<ReadonlyArray<P
 const decodeBlockItemsOrUnknown = (
   input: unknown
 ): Effect.Effect<ReadonlyArray<ReadonlyArray<PandocBlock.Type>>, S.SchemaError> =>
-  decodeUnknownBlockItems(input).pipe(
+  decodeUnknownArray(input).pipe(
     Effect.matchEffect({
       onFailure: () => Effect.succeed([[unknownBlock("MalformedListItems", input)]]),
       onSuccess: (items) => Effect.forEach(items, decodeBlockItemOrUnknown),
@@ -287,10 +285,13 @@ const captionFromLegacyWire = (input: unknown): Effect.Effect<ReadonlyArray<Pand
       onFailure: () => captionFromBlocksWire(input),
       onSuccess: ([shortCaptionWire, longCaptionWire]) =>
         Effect.flatMap(
+          // crispen: shortCaption stays `array | null` (not S.OptionFromNullOr) — decodeTablePayloadWire
+          // re-feeds this decoded tuple back through captionFromWire, so Option-ifying the wire schema
+          // would break that re-decode. Absorb once the double-decode is removed.
           shortCaptionWire === null ? Effect.succeed([]) : decodeInlines(shortCaptionWire),
           (shortCaption) =>
             Effect.map(captionFromBlocksWire(longCaptionWire), (longCaption) =>
-              shortCaption.length > 0 ? shortCaption : longCaption
+              A.length(shortCaption) > 0 ? shortCaption : longCaption
             )
         ),
     })

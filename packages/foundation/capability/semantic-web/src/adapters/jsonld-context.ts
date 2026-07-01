@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { A, Str } from "@beep/utils";
@@ -121,13 +120,30 @@ const compactIdentifier = (context: JsonLdContext, iri: string): string => {
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  * import { JsonLdContextServiceLive } from "@beep/semantic-web/adapters/jsonld-context"
+ * import {
+ *   ExpandJsonLdTermRequest,
+ *   JsonLdContextService
+ * } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(JsonLdContextServiceLive)
+ * const request = S.decodeUnknownSync(ExpandJsonLdTermRequest)({
+ *   context: { terms: { name: "https://schema.org/name" } },
+ *   term: "name"
+ * })
+ * const result = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const service = yield* JsonLdContextService
+ *     return yield* service.expandTerm(request)
+ *   }).pipe(Effect.provide(JsonLdContextServiceLive))
+ * )
+ * strictEqual(result.iri, "https://schema.org/name")
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const JsonLdContextServiceLive = Layer.succeed(
   JsonLdContextService,

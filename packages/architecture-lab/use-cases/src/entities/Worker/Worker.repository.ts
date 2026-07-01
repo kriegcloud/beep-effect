@@ -20,9 +20,15 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.repository"
  *
  * @example
  * ```ts
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
  * import { WorkerRepositoryNotFound } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkerRepositoryNotFound)
+ * const error = WorkerRepositoryNotFound.make({
+ *   workerId: S.decodeUnknownSync(DomainWorker.WorkerId)(1)
+ * })
+ *
+ * console.log(error._tag) // "WorkerRepositoryNotFound"
  * ```
  *
  * @category repositories
@@ -44,9 +50,16 @@ export class WorkerRepositoryNotFound extends TaggedErrorClass<WorkerRepositoryN
  *
  * @example
  * ```ts
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
  * import { WorkerRepositoryConflict } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkerRepositoryConflict)
+ * const error = WorkerRepositoryConflict.make({
+ *   workerId: S.decodeUnknownSync(DomainWorker.WorkerId)(1),
+ *   reason: "duplicate id"
+ * })
+ *
+ * console.log(error.reason) // "duplicate id"
  * ```
  *
  * @category repositories
@@ -71,7 +84,9 @@ export class WorkerRepositoryConflict extends TaggedErrorClass<WorkerRepositoryC
  * ```ts
  * import { WorkerRepositoryUnavailable } from "@beep/architecture-lab-use-cases/entities/Worker/server"
  *
- * console.log(WorkerRepositoryUnavailable)
+ * const error = WorkerRepositoryUnavailable.make({ reason: "database connection closed" })
+ *
+ * console.log(error._tag) // "WorkerRepositoryUnavailable"
  * ```
  *
  * @category repositories
@@ -95,10 +110,14 @@ export class WorkerRepositoryUnavailable extends TaggedErrorClass<WorkerReposito
  *
  * @example
  * ```ts
- * import type { WorkerRepositoryError } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import {
+ *   WorkerRepositoryUnavailable,
+ *   type WorkerRepositoryError
+ * } from "@beep/architecture-lab-use-cases/entities/Worker/server"
  *
- * const value = {} as WorkerRepositoryError
- * console.log(value)
+ * const error: WorkerRepositoryError = WorkerRepositoryUnavailable.make({ reason: "maintenance" })
+ *
+ * console.log(error._tag) // "WorkerRepositoryUnavailable"
  * ```
  *
  * @category repositories
@@ -107,14 +126,39 @@ export class WorkerRepositoryUnavailable extends TaggedErrorClass<WorkerReposito
 export type WorkerRepositoryError = WorkerRepositoryNotFound | WorkerRepositoryConflict | WorkerRepositoryUnavailable;
 
 /**
- * Worker repository contract.
+ * Worker repository port consumed by the server-side use-case factory.
+ *
+ * @remarks
+ * `create` fails on duplicate identity, `get` fails when no entity exists, and
+ * `list` returns repository order for the use-case layer to filter.
  *
  * @example
  * ```ts
- * import type { WorkerRepositoryShape } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
+ * import {
+ *   WorkerRepositoryNotFound,
+ *   type WorkerRepositoryShape
+ * } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * const value = {} as WorkerRepositoryShape
- * console.log(value)
+ * const id = S.decodeUnknownSync(DomainWorker.WorkerId)(1)
+ * const worker = DomainWorker.create(
+ *   DomainWorker.CreateWorkerInput.make({
+ *     id,
+ *     organizationId: S.decodeUnknownSync(DomainWorker.WorkerOrganizationId)(10),
+ *     displayName: "Avery Reviewer"
+ *   })
+ * )
+ *
+ * const repository: WorkerRepositoryShape = {
+ *   create: (created) => Effect.succeed(created),
+ *   get: (workerId) =>
+ *     workerId === id ? Effect.succeed(worker) : Effect.fail(WorkerRepositoryNotFound.make({ workerId })),
+ *   list: Effect.succeed([worker])
+ * }
+ *
+ * Effect.runPromise(repository.list).then((workers) => console.log(workers.length)) // 1
  * ```
  *
  * @category repositories
@@ -131,13 +175,29 @@ export interface WorkerRepositoryShape {
 }
 
 /**
- * Worker repository service.
+ * Context tag for the Worker repository port.
  *
  * @example
  * ```ts
- * import { WorkerRepository } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import {
+ *   WorkerRepository,
+ *   WorkerRepositoryNotFound,
+ *   type WorkerRepositoryShape
+ * } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import { Effect } from "effect"
  *
- * console.log(WorkerRepository)
+ * const repository: WorkerRepositoryShape = {
+ *   create: (worker) => Effect.succeed(worker),
+ *   get: (workerId) => Effect.fail(WorkerRepositoryNotFound.make({ workerId })),
+ *   list: Effect.succeed([])
+ * }
+ *
+ * const program = Effect.gen(function* () {
+ *   const port = yield* WorkerRepository
+ *   return yield* port.list
+ * }).pipe(Effect.provideService(WorkerRepository, repository))
+ *
+ * Effect.runPromise(program).then((workers) => console.log(workers.length)) // 0
  * ```
  *
  * @category repositories

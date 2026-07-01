@@ -49,22 +49,27 @@ export interface DrainableWorker<A> {
  *
  * @example
  * ```ts
- * import { Effect } from "effect"
+ * import { Effect, Ref } from "effect"
  * import { makeDrainableWorker } from "@beep/utils/DrainableWorker"
  *
  * const program = Effect.scoped(
  *   Effect.gen(function* () {
- *     const worker = yield* makeDrainableWorker((item: string) => Effect.log(item))
+ *     const processed = yield* Ref.make<Array<string>>([])
+ *     const worker = yield* makeDrainableWorker((item: string) =>
+ *       Ref.update(processed, (items) => [...items, item])
+ *     )
  *     yield* worker.enqueue("compile-docs")
  *     yield* worker.drain
+ *     return yield* Ref.get(processed)
  *   })
  * )
  *
- * console.log(program)
+ * Effect.runPromise(program).then((items) => console.log(items))
  * ```
  *
- * @param process - The effect to run for each queued item.
- * @returns A `DrainableWorker` with `enqueue` and `drain`.
+ * @effects Forks a scoped background fiber, allocates an unbounded queue, runs
+ * `process` for each queued item, and shuts the queue down when the enclosing
+ * scope closes.
  * @category concurrency
  * @since 0.0.0
  */

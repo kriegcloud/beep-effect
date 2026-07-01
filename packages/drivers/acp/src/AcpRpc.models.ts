@@ -17,7 +17,8 @@ import * as AcpSchema from "./_generated/schema.gen.ts";
  * ```ts
  * import { InitializeRpc } from "@beep/acp/rpc"
  *
- * const rpc = InitializeRpc
+ * const method = InitializeRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -36,7 +37,8 @@ export const InitializeRpc = Rpc.make(AGENT_METHODS.initialize, {
  * ```ts
  * import { AuthenticateRpc } from "@beep/acp/rpc"
  *
- * const rpc = AuthenticateRpc
+ * const method = AuthenticateRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -55,7 +57,8 @@ export const AuthenticateRpc = Rpc.make(AGENT_METHODS.authenticate, {
  * ```ts
  * import { LogoutRpc } from "@beep/acp/rpc"
  *
- * const rpc = LogoutRpc
+ * const method = LogoutRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -74,7 +77,8 @@ export const LogoutRpc = Rpc.make(AGENT_METHODS.logout, {
  * ```ts
  * import { NewSessionRpc } from "@beep/acp/rpc"
  *
- * const rpc = NewSessionRpc
+ * const method = NewSessionRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -93,7 +97,8 @@ export const NewSessionRpc = Rpc.make(AGENT_METHODS.session_new, {
  * ```ts
  * import { LoadSessionRpc } from "@beep/acp/rpc"
  *
- * const rpc = LoadSessionRpc
+ * const method = LoadSessionRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -112,7 +117,8 @@ export const LoadSessionRpc = Rpc.make(AGENT_METHODS.session_load, {
  * ```ts
  * import { ListSessionsRpc } from "@beep/acp/rpc"
  *
- * const rpc = ListSessionsRpc
+ * const method = ListSessionsRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -131,7 +137,8 @@ export const ListSessionsRpc = Rpc.make(AGENT_METHODS.session_list, {
  * ```ts
  * import { ForkSessionRpc } from "@beep/acp/rpc"
  *
- * const rpc = ForkSessionRpc
+ * const method = ForkSessionRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -150,7 +157,8 @@ export const ForkSessionRpc = Rpc.make(AGENT_METHODS.session_fork, {
  * ```ts
  * import { ResumeSessionRpc } from "@beep/acp/rpc"
  *
- * const rpc = ResumeSessionRpc
+ * const method = ResumeSessionRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -169,7 +177,8 @@ export const ResumeSessionRpc = Rpc.make(AGENT_METHODS.session_resume, {
  * ```ts
  * import { CloseSessionRpc } from "@beep/acp/rpc"
  *
- * const rpc = CloseSessionRpc
+ * const method = CloseSessionRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -188,7 +197,8 @@ export const CloseSessionRpc = Rpc.make(AGENT_METHODS.session_close, {
  * ```ts
  * import { PromptRpc } from "@beep/acp/rpc"
  *
- * const rpc = PromptRpc
+ * const method = PromptRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -207,7 +217,8 @@ export const PromptRpc = Rpc.make(AGENT_METHODS.session_prompt, {
  * ```ts
  * import { SetSessionModelRpc } from "@beep/acp/rpc"
  *
- * const rpc = SetSessionModelRpc
+ * const method = SetSessionModelRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -226,7 +237,8 @@ export const SetSessionModelRpc = Rpc.make(AGENT_METHODS.session_set_model, {
  * ```ts
  * import { SetSessionConfigOptionRpc } from "@beep/acp/rpc"
  *
- * const rpc = SetSessionConfigOptionRpc
+ * const method = SetSessionConfigOptionRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -245,7 +257,8 @@ export const SetSessionConfigOptionRpc = Rpc.make(AGENT_METHODS.session_set_conf
  * ```ts
  * import { ReadTextFileRpc } from "@beep/acp/rpc"
  *
- * const rpc = ReadTextFileRpc
+ * const method = ReadTextFileRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -264,7 +277,8 @@ export const ReadTextFileRpc = Rpc.make(CLIENT_METHODS.fs_read_text_file, {
  * ```ts
  * import { WriteTextFileRpc } from "@beep/acp/rpc"
  *
- * const rpc = WriteTextFileRpc
+ * const method = WriteTextFileRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -283,7 +297,8 @@ export const WriteTextFileRpc = Rpc.make(CLIENT_METHODS.fs_write_text_file, {
  * ```ts
  * import { RequestPermissionRpc } from "@beep/acp/rpc"
  *
- * const rpc = RequestPermissionRpc
+ * const method = RequestPermissionRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -302,7 +317,8 @@ export const RequestPermissionRpc = Rpc.make(CLIENT_METHODS.session_request_perm
  * ```ts
  * import { ElicitationRpc } from "@beep/acp/rpc"
  *
- * const rpc = ElicitationRpc
+ * const method = ElicitationRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -321,7 +337,8 @@ export const ElicitationRpc = Rpc.make(CLIENT_METHODS.session_elicitation, {
  * ```ts
  * import { CreateTerminalRpc } from "@beep/acp/rpc"
  *
- * const rpc = CreateTerminalRpc
+ * const method = CreateTerminalRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -340,7 +357,8 @@ export const CreateTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_create, {
  * ```ts
  * import { TerminalOutputRpc } from "@beep/acp/rpc"
  *
- * const rpc = TerminalOutputRpc
+ * const method = TerminalOutputRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -359,7 +377,8 @@ export const TerminalOutputRpc = Rpc.make(CLIENT_METHODS.terminal_output, {
  * ```ts
  * import { ReleaseTerminalRpc } from "@beep/acp/rpc"
  *
- * const rpc = ReleaseTerminalRpc
+ * const method = ReleaseTerminalRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -378,7 +397,8 @@ export const ReleaseTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_release, {
  * ```ts
  * import { WaitForTerminalExitRpc } from "@beep/acp/rpc"
  *
- * const rpc = WaitForTerminalExitRpc
+ * const method = WaitForTerminalExitRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -397,7 +417,8 @@ export const WaitForTerminalExitRpc = Rpc.make(CLIENT_METHODS.terminal_wait_for_
  * ```ts
  * import { KillTerminalRpc } from "@beep/acp/rpc"
  *
- * const rpc = KillTerminalRpc
+ * const method = KillTerminalRpc.key
+ * console.log(method)
  * ```
  *
  * @category protocols
@@ -416,7 +437,8 @@ export const KillTerminalRpc = Rpc.make(CLIENT_METHODS.terminal_kill, {
  * ```ts
  * import { AgentRpcs } from "@beep/acp/rpc"
  *
- * const rpc = AgentRpcs
+ * const firstMethod = AgentRpcs.requests.keys().next().value
+ * console.log(firstMethod)
  * ```
  *
  * @category protocols
@@ -444,7 +466,8 @@ export const AgentRpcs = RpcGroup.make(
  * ```ts
  * import { ClientRpcs } from "@beep/acp/rpc"
  *
- * const rpc = ClientRpcs
+ * const firstMethod = ClientRpcs.requests.keys().next().value
+ * console.log(firstMethod)
  * ```
  *
  * @category protocols

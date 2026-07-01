@@ -15,7 +15,8 @@ import { makeNamedNode } from "../Rdf.ts";
  * ```ts
  * import { RDF_NAMESPACE } from "@beep/rdf/Vocab/Rdf"
  *
- * console.log(RDF_NAMESPACE)
+ * const typeIri = `${RDF_NAMESPACE}type`
+ * console.log(typeIri) // "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
  * ```
  *
  * @since 0.0.0
@@ -30,11 +31,12 @@ export const RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#" as co
  * ```ts
  * import { RDF_TYPE } from "@beep/rdf/Vocab/Rdf"
  *
- * console.log(RDF_TYPE)
+ * console.log(RDF_TYPE.value) // "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+ * console.log(RDF_TYPE.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const RDF_TYPE = makeNamedNode(`${RDF_NAMESPACE}type`);
 
@@ -45,11 +47,12 @@ export const RDF_TYPE = makeNamedNode(`${RDF_NAMESPACE}type`);
  * ```ts
  * import { RDF_FIRST } from "@beep/rdf/Vocab/Rdf"
  *
- * console.log(RDF_FIRST)
+ * console.log(RDF_FIRST.value) // "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"
+ * console.log(RDF_FIRST.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const RDF_FIRST = makeNamedNode(`${RDF_NAMESPACE}first`);
 
@@ -60,11 +63,12 @@ export const RDF_FIRST = makeNamedNode(`${RDF_NAMESPACE}first`);
  * ```ts
  * import { RDF_REST } from "@beep/rdf/Vocab/Rdf"
  *
- * console.log(RDF_REST)
+ * console.log(RDF_REST.value) // "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"
+ * console.log(RDF_REST.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const RDF_REST = makeNamedNode(`${RDF_NAMESPACE}rest`);
 
@@ -75,10 +79,11 @@ export const RDF_REST = makeNamedNode(`${RDF_NAMESPACE}rest`);
  * ```ts
  * import { RDF_NIL } from "@beep/rdf/Vocab/Rdf"
  *
- * console.log(RDF_NIL)
+ * console.log(RDF_NIL.value) // "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
+ * console.log(RDF_NIL.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const RDF_NIL = makeNamedNode(`${RDF_NAMESPACE}nil`);

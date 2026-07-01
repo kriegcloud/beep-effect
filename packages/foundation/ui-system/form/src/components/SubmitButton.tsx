@@ -17,6 +17,18 @@ import type React from "react";
 /**
  * Props for {@link SubmitButton}: every `@beep/ui` `Button` prop.
  *
+ * @example
+ * ```tsx
+ * import type { SubmitButtonProps } from "@beep/form/components/SubmitButton"
+ *
+ * const props = {
+ *   children: "Save",
+ *   variant: "default",
+ * } satisfies SubmitButtonProps
+ *
+ * console.log(props.children) // "Save"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -28,11 +40,38 @@ export interface SubmitButtonProps extends React.ComponentProps<typeof Button> {
  * Submit button that disables itself while the form cannot submit or is
  * submitting.
  *
+ * @remarks
+ * `SubmitButton` reads the active form from provider context. Render it inside
+ * `<form.AppForm>` (or use the registered `<form.Submit>` component) so it can
+ * subscribe to `canSubmit` and `isSubmitting`.
+ *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { SubmitButton } from "@beep/form/components/SubmitButton"
+ * import * as S from "effect/Schema"
  *
- * console.log(SubmitButton)
+ * const ContactSchema = S.Struct({ email: S.String })
+ * const contactOptions = makeFormOptions({
+ *   schema: ContactSchema,
+ *   defaultValues: { email: "" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function ContactForm() {
+ *   const form = useAppForm(contactOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="email">{(field) => <field.Text label="Email" />}</form.AppField>
+ *         <SubmitButton>Save</SubmitButton>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(contactOptions.defaultValues.email) // ""
  * ```
  *
  * @category components

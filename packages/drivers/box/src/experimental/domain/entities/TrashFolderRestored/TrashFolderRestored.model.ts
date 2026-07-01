@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box restored trashed folder entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/TrashFolderRestored/TrashFolderRestored.model");
 
 /**
+ * Experimental schema anchor for folder metadata returned when a trashed Box folder is restored.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { TrashFolderRestored } from "@beep/box/experimental/domain/entities/TrashFolderRestored/TrashFolderRestored.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(TrashFolderRestored.make({
+ * const decoded = S.decodeUnknownSync(TrashFolderRestored)({});
+ * const encoded: TrashFolderRestored.Encoded = S.encodeSync(TrashFolderRestored)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class TrashFolderRestored extends S.Class<TrashFolderRestored>($I`TrashFolderRestored`)(
   {},
   $I.annote("TrashFolderRestored", {
-    description: "TODO",
+    description: "Experimental schema anchor for folder metadata returned when a trashed Box folder is restored.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link TrashFolderRestored}
+ * Type-level companion namespace for {@link TrashFolderRestored} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { TrashFolderRestored } from "@beep/box/experimental/domain/entities/TrashFolderRestored/TrashFolderRestored.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = TrashFolderRestored.make({});
+ * const encoded: TrashFolderRestored.Encoded = S.encodeSync(TrashFolderRestored)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace TrashFolderRestored {
   /**
-   * Companion encoded type for {@link TrashFolderRestored}.
+   * Encoded payload accepted by the {@link TrashFolderRestored} entity schema.
    *
    * @example
    * ```ts
-   * import type { TrashFolderRestored } from "@beep/box/experimental/domain/entities/TrashFolderRestored/TrashFolderRestored.model";
+   * import { TrashFolderRestored } from "@beep/box/experimental/domain/entities/TrashFolderRestored/TrashFolderRestored.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: TrashFolderRestored.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: TrashFolderRestored.Encoded = S.encodeSync(TrashFolderRestored)(TrashFolderRestored.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof TrashFolderRestored.Encoded;
 }
-
-/**
- * Companion runtime type for {@link TrashFolderRestored}.
- *
- * @example
- * ```ts
- * import type { TrashFolderRestored } from "@beep/box/experimental/domain/entities/TrashFolderRestored/TrashFolderRestored.model";
- *
- * const useValue = (_value: TrashFolderRestored) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type TrashFolderRestored = typeof TrashFolderRestored.Type;

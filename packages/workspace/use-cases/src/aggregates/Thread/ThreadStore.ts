@@ -30,10 +30,18 @@ const $I = $WorkspaceUseCasesId.create("aggregates/Thread/ThreadStore");
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
  * import type { CreateThreadInput } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * const value = {} as CreateThreadInput
- * console.log(value)
+ * const input = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const workspaceId = yield* S.decodeUnknownEffect(Workspace.WorkspaceId)(7)
+ *     return { title: "Matter intake", workspaceId } satisfies CreateThreadInput
+ *   })
+ * )
+ * console.log(input.title) // "Matter intake"
  * ```
  *
  * @category repositories
@@ -49,10 +57,25 @@ export interface CreateThreadInput {
  *
  * @example
  * ```ts
+ * import { Document } from "@beep/md/Md.model"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
  * import type { AppendTurnInput } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * const value = {} as AppendTurnInput
- * console.log(value)
+ * const input = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const threadId = yield* S.decodeUnknownEffect(Workspace.ThreadId)(42)
+ *     return {
+ *       content: Document.make({ children: [] }),
+ *       parentTurnId: O.none(),
+ *       role: "user",
+ *       threadId,
+ *     } satisfies AppendTurnInput
+ *   })
+ * )
+ * console.log(input.role) // "user"
  * ```
  *
  * @category repositories
@@ -72,8 +95,10 @@ export interface AppendTurnInput {
  * ```ts
  * import type { AppendTurnResult } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * const value = {} as AppendTurnResult
- * console.log(value)
+ * type ResultField = keyof AppendTurnResult
+ *
+ * const persistedFields: ReadonlyArray<ResultField> = ["message", "turn"]
+ * console.log(persistedFields.join(",")) // "message,turn"
  * ```
  *
  * @category repositories
@@ -102,7 +127,8 @@ export interface AppendTurnResult {
  *     title: "Matter intake",
  *   })
  * })
- * console.log(program)
+ * const input = Effect.runSync(program)
+ * console.log(input.title) // "Matter intake"
  * ```
  *
  * @category repositories
@@ -126,8 +152,14 @@ export class SetThreadTitleIfEmptyInput extends S.Class<SetThreadTitleIfEmptyInp
  * ```ts
  * import type { ThreadStoreShape } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * const value = {} as ThreadStoreShape
- * console.log(value)
+ * type ThreadStoreOperation = keyof ThreadStoreShape
+ *
+ * const writeOperations: ReadonlyArray<ThreadStoreOperation> = [
+ *   "appendTurn",
+ *   "createThread",
+ *   "setTitleIfEmpty",
+ * ]
+ * console.log(writeOperations.includes("appendTurn")) // true
  * ```
  *
  * @category repositories
@@ -156,9 +188,24 @@ export interface ThreadStoreShape {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ThreadStore } from "@beep/workspace-use-cases/aggregates/Thread/server"
+ * import type { ThreadStoreShape } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * console.log(ThreadStore)
+ * const unsupported = () => Effect.die("not implemented")
+ * const store: ThreadStoreShape = {
+ *   appendTurn: unsupported,
+ *   createThread: unsupported,
+ *   listThreads: unsupported,
+ *   setTitleIfEmpty: unsupported,
+ *   timeline: unsupported,
+ * }
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* ThreadStore
+ *   return service === store
+ * }).pipe(Effect.provideService(ThreadStore, store))
+ * console.log(Effect.runSync(program)) // true
  * ```
  *
  * @category repositories

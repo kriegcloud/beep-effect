@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box integration mapping entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,66 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/IntegrationMapping/IntegrationMapping.model");
 
 /**
+ * Experimental schema anchor for Box integration mapping records that connect Box resources to external systems.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(IntegrationMapping.make({
+ * const decoded = S.decodeUnknownSync(IntegrationMapping)({});
+ * const encoded: IntegrationMapping.Encoded = S.encodeSync(IntegrationMapping)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class IntegrationMapping extends S.Class<IntegrationMapping>($I`IntegrationMapping`)(
   {},
   $I.annote("IntegrationMapping", {
-    description: "TODO",
+    description:
+      "Experimental schema anchor for Box integration mapping records that connect Box resources to external systems.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link IntegrationMapping}
+ * Type-level companion namespace for {@link IntegrationMapping} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = IntegrationMapping.make({});
+ * const encoded: IntegrationMapping.Encoded = S.encodeSync(IntegrationMapping)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace IntegrationMapping {
   /**
-   * Companion encoded type for {@link IntegrationMapping}.
+   * Encoded payload accepted by the {@link IntegrationMapping} entity schema.
    *
    * @example
    * ```ts
-   * import type { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
+   * import { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: IntegrationMapping.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: IntegrationMapping.Encoded = S.encodeSync(IntegrationMapping)(IntegrationMapping.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof IntegrationMapping.Encoded;
 }
-
-/**
- * Companion runtime type for {@link IntegrationMapping}.
- *
- * @example
- * ```ts
- * import type { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
- *
- * const useValue = (_value: IntegrationMapping) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type IntegrationMapping = typeof IntegrationMapping.Type;

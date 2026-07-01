@@ -1,32 +1,32 @@
 /**
- * Package entrypoint.
+ * Agent entity subpath exports.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Module exports.
+ * Agent entity schema exports.
  *
  * @example
  * ```ts
- * import * as Module from "@beep/agents-domain/entities/Agent"
+ * import { Agent } from "@beep/agents-domain/entities/Agent"
  *
- * console.log(Module)
+ * console.log(Agent.definition.entityId.entityType)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export * from "./Agent.model.js";
 /**
- * Module exports.
+ * Agent value-schema exports.
  *
  * @example
  * ```ts
- * import * as Module from "@beep/agents-domain/entities/Agent"
+ * import { AgentMode } from "@beep/agents-domain/entities/Agent"
  *
- * console.log(Module)
+ * console.log(AgentMode.is.deterministic_fixture("deterministic_fixture"))
  * ```
  *
  * @category value-objects

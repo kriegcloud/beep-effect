@@ -100,6 +100,23 @@ export const layerAllowedRoots = (roots: ReadonlyArray<string>): Layer.Layer<nev
  * read helpers keep their existing `PlatformError` failure type while still
  * refusing the read before any bytes are touched.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem"
+ * import * as NodePath from "@effect/platform-node/NodePath"
+ * import { layerAllowedRoots, resolveLocalPath } from "@beep/nlp-mcp/Streaming/TextStream"
+ *
+ * const program = resolveLocalPath("package.json").pipe(
+ *   Effect.provide(layerAllowedRoots([process.cwd()])),
+ *   Effect.provide(NodeFileSystem.layer),
+ *   Effect.provide(NodePath.layer),
+ *   Effect.map((resolved) => resolved.endsWith("package.json"))
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
+ * ```
+ *
  * @since 0.0.0
  * @category guards
  */

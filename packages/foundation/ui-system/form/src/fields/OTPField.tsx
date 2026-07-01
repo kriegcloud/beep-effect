@@ -48,9 +48,32 @@ export interface OTPFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { OTPField } from "@beep/form/fields/OTPField"
+ * import * as S from "effect/Schema"
  *
- * console.log(OTPField)
+ * const VerificationSchema = S.Struct({ code: S.String })
+ * const verificationOptions = makeFormOptions({
+ *   schema: VerificationSchema,
+ *   defaultValues: { code: "" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function VerificationForm() {
+ *   const form = useAppForm(verificationOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="code">
+ *           {() => <OTPField label="Verification code" maxLength={6} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(verificationOptions.defaultValues.code) // ""
  * ```
  *
  * @category components

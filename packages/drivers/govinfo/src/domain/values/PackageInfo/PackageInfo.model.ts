@@ -10,74 +10,99 @@ import * as S from "effect/Schema";
 const $I = $GovinfoId.create("domain/values/PackageInfo/PackageInfo.model");
 
 /**
- * The PackageInfo value object.
+ * GovInfo package metadata returned by collection and published listings.
+ *
+ * @remarks
+ * GovInfo packages group the content files and metadata needed to understand a
+ * publication. `dateIssued` is the publication date, while `lastModified`
+ * reflects when GovInfo added or updated the package.
  *
  * @example
  * ```ts
  * import { PackageInfo } from "@beep/govinfo/domain/values/PackageInfo/PackageInfo.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(PackageInfo);
+ * const info = S.decodeUnknownSync(PackageInfo)({
+ *   congress: "118",
+ *   dateIssued: "2024-01-03T00:00:00Z",
+ *   docClass: "CREC",
+ *   lastModified: "2024-01-04T12:00:00Z",
+ *   packageLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/summary",
+ *   title: "Congressional Record, January 3, 2024"
+ * });
+ *
+ * console.log(info.packageLink);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class PackageInfo extends S.Class<PackageInfo>($I`PackageInfo`)(
   {
-    /** change me */
+    /** Congress number associated with the package when applicable. */
     congress: S.String.annotateKey({
-      description: "",
+      description: "Congress number associated with the package when applicable.",
     }),
 
-    /** change me */
+    /** Publication date for the package content. */
     dateIssued: S.DateTimeUtcFromString.annotateKey({
-      description: "",
+      description: "Publication date for the package content.",
     }),
 
-    /** change me */
+    /** Collection-specific document class, such as bill type or CREC section. */
     docClass: S.String.annotateKey({
-      description: "",
+      description: "Collection-specific document class, such as bill type or CREC section.",
     }),
 
-    /** change me */
+    /** Time GovInfo last added or updated the package. */
     lastModified: S.DateTimeUtcFromString.annotateKey({
-      description: "",
+      description: "Time GovInfo last added or updated the package.",
     }),
 
-    /** change me */
+    /** API URL for the package summary resource. */
     packageLink: S.String.annotateKey({
-      description: "",
+      description: "API URL for the package summary resource.",
     }),
 
-    /** change me */
+    /** Display title for the GovInfo package. */
     title: S.String.annotateKey({
-      description: "",
+      description: "Display title for the GovInfo package.",
     }),
   },
   $I.annote("PackageInfo", {
-    description: "The PackageInfo value object.",
+    description: "GovInfo package metadata returned by collection and published listings.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link PackageInfo} value object.
+ * Companion namespace for {@link PackageInfo} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace PackageInfo {
   /**
-   * The companion encoded type for {@link PackageInfo}.
+   * Encoded JSON shape accepted by {@link PackageInfo}.
    *
    * @example
    * ```ts
-   * import type { PackageInfo } from "@beep/govinfo/domain/values/PackageInfo/PackageInfo.model";
+   * import { PackageInfo } from "@beep/govinfo/domain/values/PackageInfo/PackageInfo.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: PackageInfo.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(PackageInfo)({
+   *   congress: "118",
+   *   dateIssued: "2024-01-03T00:00:00Z",
+   *   docClass: "CREC",
+   *   lastModified: "2024-01-04T12:00:00Z",
+   *   packageLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/summary",
+   *   title: "Congressional Record, January 3, 2024"
+   * });
+   * const encoded: PackageInfo.Encoded = S.encodeSync(PackageInfo)(decoded);
+   *
+   * console.log(encoded.title);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof PackageInfo.Encoded;

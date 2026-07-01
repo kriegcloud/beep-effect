@@ -6,17 +6,16 @@
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
- * import { classifyCause, LoggingConfig, layerConsoleLogger } from "@beep/observability"
+ * import { Cause, Effect } from "effect"
+ * import { classifyCause, layerConsoleLogger } from "@beep/observability"
  *
- * console.log(classifyCause)
+ * const classification = classifyCause(Cause.fail(new Error("boom")))
  *
- * const config = LoggingConfig.make({ format: "pretty", minLogLevel: "Info" })
- * const program = Effect.log("hello").pipe(
- *
+ * const program = Effect.logInfo("classified failure", { classification }).pipe(
+ *   Effect.provide(layerConsoleLogger({ format: "pretty", minLogLevel: "Info" }))
  * )
  *
- * console.log(Effect.runPromise(program))
+ * Effect.runPromise(program)
  * ```
  *
  * @packageDocumentation
@@ -30,7 +29,8 @@
  * ```typescript
  * import { VERSION } from "@beep/observability"
  *
- * console.log(VERSION) // "0.0.0"
+ * const isWorkspacePlaceholder = VERSION === "0.0.0"
+ * console.log(isWorkspacePlaceholder) // true
  * ```
  *
  * @since 0.0.0

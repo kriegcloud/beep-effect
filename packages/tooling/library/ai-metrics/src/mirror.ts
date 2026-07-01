@@ -359,7 +359,12 @@ const mirrorFailure = (message: string, cause: unknown): AiMetricsMirrorError =>
  * @example
  * ```ts
  * import { AiMetricsMirrorError } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsMirrorError)
+ *
+ * const error = AiMetricsMirrorError.make({
+ *   cause: "privacy proof failed",
+ *   message: "AI metrics mirror manifest failed its privacy proof."
+ * })
+ * console.log(error.message)
  * ```
  * @category errors
  * @since 0.0.0
@@ -426,7 +431,13 @@ export class AiMetricsMirrorBundleInput extends S.Class<AiMetricsMirrorBundleInp
  * @example
  * ```ts
  * import { AiMetricsMirrorTableExport } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsMirrorTableExport)
+ *
+ * const table = AiMetricsMirrorTableExport.make({
+ *   parquetPath: "parquet/ai_metrics_turns.parquet",
+ *   rowCount: 120,
+ *   tableName: "ai_metrics_turns"
+ * })
+ * console.log(table.rowCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -448,7 +459,14 @@ export class AiMetricsMirrorTableExport extends S.Class<AiMetricsMirrorTableExpo
  * @example
  * ```ts
  * import { AiMetricsMirrorPrivacyProof } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsMirrorPrivacyProof)
+ *
+ * const proof = AiMetricsMirrorPrivacyProof.make({
+ *   checkedTokens: ["rawDir", "derivedDir"],
+ *   forbiddenMatches: [],
+ *   omittedTables: ["ai_metrics_raw_archive_objects"],
+ *   safe: true
+ * })
+ * console.log(proof.safe)
  * ```
  * @category models
  * @since 0.0.0
@@ -470,8 +488,32 @@ export class AiMetricsMirrorPrivacyProof extends S.Class<AiMetricsMirrorPrivacyP
  *
  * @example
  * ```ts
- * import { AiMetricsMirrorBundleManifest } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsMirrorBundleManifest)
+ * import {
+ *   AiMetricsMirrorBundleManifest,
+ *   AiMetricsMirrorPrivacyProof
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const manifest = AiMetricsMirrorBundleManifest.make({
+ *   bundleId: "p7-mirror-1",
+ *   createdAtEpochMillis: 1_717_000_000_000,
+ *   includedTables: ["ai_metrics_turns"],
+ *   mirrorStatusSchemaVersion: "beep.ai_metrics.mirror_status.v1",
+ *   omittedDataClasses: ["raw_transcript_bodies"],
+ *   omittedTables: ["ai_metrics_raw_archive_objects"],
+ *   p6ProofPreserved: true,
+ *   privacyProof: AiMetricsMirrorPrivacyProof.make({
+ *     checkedTokens: ["rawDir"],
+ *     forbiddenMatches: [],
+ *     omittedTables: ["ai_metrics_raw_archive_objects"],
+ *     safe: true
+ *   }),
+ *   remoteRoot: "/srv/beep/ai-metrics",
+ *   rowCounts: { ai_metrics_turns: 120 },
+ *   schemaVersion: "beep.ai_metrics.mirror_bundle.v1",
+ *   sourceDataClass: "workstation_local_sanitized_derived_storage",
+ *   target: "dankserver"
+ * })
+ * console.log(manifest.p6ProofPreserved)
  * ```
  * @category models
  * @since 0.0.0
@@ -504,8 +546,43 @@ export class AiMetricsMirrorBundleManifest extends S.Class<AiMetricsMirrorBundle
  *
  * @example
  * ```ts
- * import { AiMetricsMirrorBundleResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsMirrorBundleResult)
+ * import {
+ *   AiMetricsMirrorBundleManifest,
+ *   AiMetricsMirrorBundleResult,
+ *   AiMetricsMirrorPrivacyProof
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const manifest = AiMetricsMirrorBundleManifest.make({
+ *   bundleId: "p7-mirror-1",
+ *   createdAtEpochMillis: 1_717_000_000_000,
+ *   includedTables: [],
+ *   mirrorStatusSchemaVersion: "beep.ai_metrics.mirror_status.v1",
+ *   omittedDataClasses: [],
+ *   omittedTables: [],
+ *   p6ProofPreserved: true,
+ *   privacyProof: AiMetricsMirrorPrivacyProof.make({
+ *     checkedTokens: [],
+ *     forbiddenMatches: [],
+ *     omittedTables: [],
+ *     safe: true
+ *   }),
+ *   remoteRoot: "/srv/beep/ai-metrics",
+ *   rowCounts: {},
+ *   schemaVersion: "beep.ai_metrics.mirror_bundle.v1",
+ *   sourceDataClass: "workstation_local_sanitized_derived_storage",
+ *   target: "dankserver"
+ * })
+ * const result = AiMetricsMirrorBundleResult.make({
+ *   bundleDir: ".beep/ai-metrics/mirror/bundles/p7-mirror-1",
+ *   bundleId: "p7-mirror-1",
+ *   manifest,
+ *   manifestPath: ".beep/ai-metrics/mirror/bundles/p7-mirror-1/manifest.json",
+ *   mirrorDuckDbPath: ".beep/ai-metrics/mirror/work/p7-mirror-1/mirror.duckdb",
+ *   parquetDir: ".beep/ai-metrics/mirror/bundles/p7-mirror-1/parquet",
+ *   statusPath: ".beep/ai-metrics/mirror/bundles/p7-mirror-1/status/mirror-status.json",
+ *   tables: []
+ * })
+ * console.log(result.bundleId)
  * ```
  * @category models
  * @since 0.0.0
@@ -532,8 +609,16 @@ export class AiMetricsMirrorBundleResult extends S.Class<AiMetricsMirrorBundleRe
  * @example
  * ```ts
  * import { locateLatestAiMetricsMirrorBundle } from "@beep/repo-ai-metrics"
- * console.log(locateLatestAiMetricsMirrorBundle)
+ * import { NodeServices } from "@effect/platform-node"
+ * import { Effect } from "effect"
+ *
+ * const program = locateLatestAiMetricsMirrorBundle(".beep/ai-metrics").pipe(
+ *   Effect.provide(NodeServices.layer)
+ * )
+ * console.log(program)
  * ```
+ * @effects Reads and decodes `.beep/ai-metrics/mirror/latest.json` under the selected data root.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -634,9 +719,25 @@ const buildMirrorTables = Effect.fn("AiMetrics.buildMirrorTables")(function* ({
  * database so the active P6 proof database is never mutated by bundle builds.
  * @example
  * ```ts
- * import { buildAiMetricsMirrorBundle } from "@beep/repo-ai-metrics"
- * console.log(buildAiMetricsMirrorBundle)
+ * import { AiMetricsMirrorBundleInput, buildAiMetricsMirrorBundle } from "@beep/repo-ai-metrics"
+ * import { NodeServices } from "@effect/platform-node"
+ * import { Effect } from "effect"
+ *
+ * const program = buildAiMetricsMirrorBundle(
+ *   AiMetricsMirrorBundleInput.make({
+ *     dataRoot: ".beep/ai-metrics",
+ *     target: "dankserver"
+ *   })
+ * ).pipe(Effect.provide(NodeServices.layer))
+ * console.log(program)
  * ```
+ * @effects
+ * - Checks for the source derived DuckDB database.
+ * - Removes and recreates bundle and mirror working directories.
+ * - Attaches the source DuckDB read-only into a temporary mirror database.
+ * - Writes sanitized Parquet tables, status JSON, manifest JSON, and latest pointer JSON.
+ * - Removes the temporary mirror working directory after a successful build.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -780,8 +881,49 @@ const encodeMirrorBundleJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsM
  *
  * @example
  * ```ts
- * import { aiMetricsMirrorBundleToJson } from "@beep/repo-ai-metrics"
- * console.log(aiMetricsMirrorBundleToJson)
+ * import {
+ *   AiMetricsMirrorBundleManifest,
+ *   AiMetricsMirrorBundleResult,
+ *   AiMetricsMirrorPrivacyProof,
+ *   aiMetricsMirrorBundleToJson
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const manifest = AiMetricsMirrorBundleManifest.make({
+ *   bundleId: "p7-mirror-1",
+ *   createdAtEpochMillis: 1_717_000_000_000,
+ *   includedTables: [],
+ *   mirrorStatusSchemaVersion: "beep.ai_metrics.mirror_status.v1",
+ *   omittedDataClasses: [],
+ *   omittedTables: [],
+ *   p6ProofPreserved: true,
+ *   privacyProof: AiMetricsMirrorPrivacyProof.make({
+ *     checkedTokens: [],
+ *     forbiddenMatches: [],
+ *     omittedTables: [],
+ *     safe: true
+ *   }),
+ *   remoteRoot: "/srv/beep/ai-metrics",
+ *   rowCounts: {},
+ *   schemaVersion: "beep.ai_metrics.mirror_bundle.v1",
+ *   sourceDataClass: "workstation_local_sanitized_derived_storage",
+ *   target: "dankserver"
+ * })
+ * const json = Effect.runPromise(
+ *   aiMetricsMirrorBundleToJson(
+ *     AiMetricsMirrorBundleResult.make({
+ *       bundleDir: ".beep/ai-metrics/mirror/bundles/p7-mirror-1",
+ *       bundleId: "p7-mirror-1",
+ *       manifest,
+ *       manifestPath: ".beep/ai-metrics/mirror/bundles/p7-mirror-1/manifest.json",
+ *       mirrorDuckDbPath: ".beep/ai-metrics/mirror/work/p7-mirror-1/mirror.duckdb",
+ *       parquetDir: ".beep/ai-metrics/mirror/bundles/p7-mirror-1/parquet",
+ *       statusPath: ".beep/ai-metrics/mirror/bundles/p7-mirror-1/status/mirror-status.json",
+ *       tables: []
+ *     })
+ *   )
+ * )
+ * console.log(json)
  * ```
  * @category utilities
  * @since 0.0.0

@@ -5,13 +5,23 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
- * Breadcrumb component.
+ * Navigation landmark for a hierarchical page trail.
  *
  * @example
  * ```tsx
- * import { Breadcrumb } from "@beep/ui/components/breadcrumb"
+ * import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@beep/ui/components/breadcrumb"
  *
- * console.log(Breadcrumb)
+ * export function MatterBreadcrumb() {
+ *   return (
+ *     <Breadcrumb>
+ *       <BreadcrumbList>
+ *         <BreadcrumbItem><BreadcrumbLink href="/matters">Matters</BreadcrumbLink></BreadcrumbItem>
+ *         <BreadcrumbSeparator />
+ *         <BreadcrumbItem><BreadcrumbPage>Engagement letter</BreadcrumbPage></BreadcrumbItem>
+ *       </BreadcrumbList>
+ *     </Breadcrumb>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -22,13 +32,15 @@ function Breadcrumb({ ...props }: React.ComponentPropsWithoutRef<"nav">) {
 }
 
 /**
- * Breadcrumb list component.
+ * Ordered list container for breadcrumb items and separators.
  *
  * @example
  * ```tsx
  * import { BreadcrumbList } from "@beep/ui/components/breadcrumb"
  *
- * console.log(BreadcrumbList)
+ * export function BreadcrumbTrailList() {
+ *   return <BreadcrumbList className="gap-2">Dashboard</BreadcrumbList>
+ * }
  * ```
  *
  * @category components
@@ -48,13 +60,19 @@ function BreadcrumbList({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
- * Breadcrumb item component.
+ * List item wrapper for one breadcrumb link, page, or separator.
  *
  * @example
  * ```tsx
- * import { BreadcrumbItem } from "@beep/ui/components/breadcrumb"
+ * import { BreadcrumbItem, BreadcrumbLink } from "@beep/ui/components/breadcrumb"
  *
- * console.log(BreadcrumbItem)
+ * export function BreadcrumbMatterItem() {
+ *   return (
+ *     <BreadcrumbItem>
+ *       <BreadcrumbLink href="/matters/42">Matter 42</BreadcrumbLink>
+ *     </BreadcrumbItem>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -65,13 +83,15 @@ function BreadcrumbItem({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
- * Breadcrumb link component.
+ * Navigable breadcrumb segment.
  *
  * @example
  * ```tsx
  * import { BreadcrumbLink } from "@beep/ui/components/breadcrumb"
  *
- * console.log(BreadcrumbLink)
+ * export function BreadcrumbBackLink() {
+ *   return <BreadcrumbLink href="/clients">Clients</BreadcrumbLink>
+ * }
  * ```
  *
  * @category components
@@ -84,13 +104,15 @@ function BreadcrumbLink({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
- * Breadcrumb page component.
+ * Non-interactive breadcrumb segment for the current page.
  *
  * @example
  * ```tsx
  * import { BreadcrumbPage } from "@beep/ui/components/breadcrumb"
  *
- * console.log(BreadcrumbPage)
+ * export function CurrentBreadcrumbPage() {
+ *   return <BreadcrumbPage>Invoice review</BreadcrumbPage>
+ * }
  * ```
  *
  * @category components
@@ -110,13 +132,15 @@ function BreadcrumbPage({ className, ...props }: React.ComponentPropsWithoutRef<
 }
 
 /**
- * Breadcrumb separator component.
+ * Decorative separator between breadcrumb items.
  *
  * @example
  * ```tsx
  * import { BreadcrumbSeparator } from "@beep/ui/components/breadcrumb"
  *
- * console.log(BreadcrumbSeparator)
+ * export function SlashBreadcrumbSeparator() {
+ *   return <BreadcrumbSeparator>/</BreadcrumbSeparator>
+ * }
  * ```
  *
  * @category components
@@ -137,13 +161,19 @@ function BreadcrumbSeparator({ children, className, ...props }: React.ComponentP
 }
 
 /**
- * Breadcrumb ellipsis component.
+ * Compact placeholder for collapsed breadcrumb segments.
  *
  * @example
  * ```tsx
- * import { BreadcrumbEllipsis } from "@beep/ui/components/breadcrumb"
+ * import { BreadcrumbEllipsis, BreadcrumbItem } from "@beep/ui/components/breadcrumb"
  *
- * console.log(BreadcrumbEllipsis)
+ * export function CollapsedBreadcrumbItems() {
+ *   return (
+ *     <BreadcrumbItem>
+ *       <BreadcrumbEllipsis />
+ *     </BreadcrumbItem>
+ *   )
+ * }
  * ```
  *
  * @category components

@@ -93,9 +93,11 @@ const decodePatternElement = (input: string) =>
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { BracketStringToPOSPatternElement } from "@beep/nlp/Core/PatternParsers"
  *
- * console.log(BracketStringToPOSPatternElement)
+ * const element = S.decodeUnknownSync(BracketStringToPOSPatternElement)("[ADJ|NOUN]")
+ * console.log(element.value) // ["ADJ", "NOUN"]
  * ```
  *
  * @since 0.0.0
@@ -122,9 +124,11 @@ export const BracketStringToPOSPatternElement = S.String.pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { BracketStringToEntityPatternElement } from "@beep/nlp/Core/PatternParsers"
  *
- * console.log(BracketStringToEntityPatternElement)
+ * const element = S.decodeUnknownSync(BracketStringToEntityPatternElement)("[EMAIL|URL]")
+ * console.log(element._tag) // "EntityPatternElement"
  * ```
  *
  * @since 0.0.0
@@ -153,9 +157,11 @@ export const BracketStringToEntityPatternElement = S.String.pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { BracketStringToLiteralPatternElement } from "@beep/nlp/Core/PatternParsers"
  *
- * console.log(BracketStringToLiteralPatternElement)
+ * const element = S.decodeUnknownSync(BracketStringToLiteralPatternElement)("[Effect|Schema]")
+ * console.log(element.value[0]) // "Effect"
  * ```
  *
  * @since 0.0.0
@@ -184,9 +190,11 @@ export const BracketStringToLiteralPatternElement = S.String.pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { BracketStringToPatternElement } from "@beep/nlp/Core/PatternParsers"
  *
- * console.log(BracketStringToPatternElement)
+ * const element = S.decodeUnknownSync(BracketStringToPatternElement)("[NOUN]")
+ * console.log(element._tag) // "POSPatternElement"
  * ```
  *
  * @since 0.0.0
@@ -224,7 +232,8 @@ export type BracketStringToPatternElement = typeof BracketStringToPatternElement
  * ```ts
  * import { PatternFromString } from "@beep/nlp/Core/PatternParsers"
  *
- * console.log(PatternFromString)
+ * const elements = PatternFromString(["[ADJ]", "[Effect]"])
+ * console.log(elements[1]?._tag) // "LiteralPatternElement"
  * ```
  *
  * @since 0.0.0

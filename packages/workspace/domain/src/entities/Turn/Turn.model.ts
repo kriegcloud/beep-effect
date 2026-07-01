@@ -19,6 +19,18 @@ const $I = $WorkspaceDomainId.create("entities/Turn/Turn.model");
 /**
  * Message item in a turn aggregate.
  *
+ * @example
+ * ```ts
+ * import { MessageItem } from "@beep/workspace-domain/entities/Turn"
+ * import * as S from "effect/Schema"
+ *
+ * const item = S.decodeUnknownSync(MessageItem)({
+ *   itemType: "message",
+ *   messageId: 1,
+ * })
+ * console.log(item.itemType)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -34,6 +46,20 @@ export class MessageItem extends S.Class<MessageItem>($I`MessageItem`)(
 
 /**
  * Tool call item in a turn aggregate.
+ *
+ * @example
+ * ```ts
+ * import { ToolCallItem } from "@beep/workspace-domain/entities/Turn"
+ * import * as S from "effect/Schema"
+ *
+ * const item = S.decodeUnknownSync(ToolCallItem)({
+ *   itemType: "tool_call",
+ *   name: "search",
+ *   payload: { query: "open approval gates" },
+ *   toolCallId: "tool-call-1",
+ * })
+ * console.log(item.name)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -53,6 +79,19 @@ export class ToolCallItem extends S.Class<ToolCallItem>($I`ToolCallItem`)(
 /**
  * Tool result item in a turn aggregate.
  *
+ * @example
+ * ```ts
+ * import { ToolResultItem } from "@beep/workspace-domain/entities/Turn"
+ * import * as S from "effect/Schema"
+ *
+ * const item = S.decodeUnknownSync(ToolResultItem)({
+ *   itemType: "tool_result",
+ *   payload: { count: 2 },
+ *   toolCallId: "tool-call-1",
+ * })
+ * console.log(item.toolCallId)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -70,6 +109,18 @@ export class ToolResultItem extends S.Class<ToolResultItem>($I`ToolResultItem`)(
 /**
  * Artifact reference item in a turn aggregate.
  *
+ * @example
+ * ```ts
+ * import { ArtifactRefItem } from "@beep/workspace-domain/entities/Turn"
+ * import * as S from "effect/Schema"
+ *
+ * const item = S.decodeUnknownSync(ArtifactRefItem)({
+ *   artifactId: 1,
+ *   itemType: "artifact_ref",
+ * })
+ * console.log(item.itemType)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -85,6 +136,18 @@ export class ArtifactRefItem extends S.Class<ArtifactRefItem>($I`ArtifactRefItem
 
 /**
  * Activity reference item in a turn aggregate.
+ *
+ * @example
+ * ```ts
+ * import { ActivityItem } from "@beep/workspace-domain/entities/Turn"
+ * import * as S from "effect/Schema"
+ *
+ * const item = S.decodeUnknownSync(ActivityItem)({
+ *   activityId: 1,
+ *   itemType: "activity",
+ * })
+ * console.log(item.activityId)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -134,6 +197,18 @@ export const TurnItem = TurnItemTag.mapMembers(
 /**
  * Runtime type for {@link TurnItem}.
  *
+ * @example
+ * ```ts
+ * import type { TurnItem } from "@beep/workspace-domain/entities/Turn"
+ *
+ * const item: TurnItem = {
+ *   itemType: "tool_result",
+ *   payload: { ok: true },
+ *   toolCallId: "tool-call-1",
+ * }
+ * console.log(item.itemType)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -141,6 +216,23 @@ export type TurnItem = typeof TurnItem.Type;
 
 /**
  * Ordered turn item list.
+ *
+ * @example
+ * ```ts
+ * import { TurnItems } from "@beep/workspace-domain/entities/Turn"
+ * import * as S from "effect/Schema"
+ *
+ * const items = S.decodeUnknownSync(TurnItems)([
+ *   { itemType: "message", messageId: 1 },
+ *   {
+ *     itemType: "tool_call",
+ *     name: "search",
+ *     payload: { query: "thread context" },
+ *     toolCallId: "tool-call-1",
+ *   },
+ * ])
+ * console.log(items.length)
+ * ```
  *
  * @category schemas
  * @since 0.0.0
@@ -153,6 +245,21 @@ export const TurnItems = S.Array(TurnItem).pipe(
 
 /**
  * Runtime type for {@link TurnItems}.
+ *
+ * @example
+ * ```ts
+ * import type { TurnItems } from "@beep/workspace-domain/entities/Turn"
+ *
+ * const items: TurnItems = [
+ *   {
+ *     itemType: "tool_call",
+ *     name: "search",
+ *     payload: { query: "thread context" },
+ *     toolCallId: "tool-call-1",
+ *   },
+ * ]
+ * console.log(items[0]?.itemType)
+ * ```
  *
  * @category models
  * @since 0.0.0

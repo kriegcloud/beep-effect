@@ -6,11 +6,13 @@
  *
  * @example
  * ```typescript
+ * import { Cause } from "effect"
  * import * as S from "effect/Schema"
- * import { ObservedError, ObservedCause } from "@beep/observability"
+ * import { ObservedCause } from "@beep/observability"
  *
- * console.log(ObservedError)
- * console.log(ObservedCause)
+ * const decodeCause = S.decodeUnknownSync(ObservedCause)
+ * const observed = decodeCause(Cause.fail(new Error("boom")))
+ * console.log(Cause.pretty(observed).includes("boom")) // true
  * ```
  *
  * @packageDocumentation
@@ -178,9 +180,14 @@ export type ObservedDefectWithStack = typeof ObservedDefectWithStack.Type;
  *
  * @example
  * ```typescript
+ * import { Cause } from "effect"
+ * import * as A from "effect/Array"
+ * import * as S from "effect/Schema"
  * import { ObservedCauseReason } from "@beep/observability"
  *
- * console.log(ObservedCauseReason)
+ * const decodeReason = S.decodeUnknownSync(ObservedCauseReason)
+ * const decoded = A.map(Cause.fail(new Error("boom")).reasons, decodeReason)
+ * console.log(decoded.length) // 1
  * ```
  *
  * @since 0.0.0
@@ -213,9 +220,12 @@ export type ObservedCauseReason = typeof ObservedCauseReason.Type;
  *
  * @example
  * ```typescript
+ * import { Cause } from "effect"
+ * import * as S from "effect/Schema"
  * import { ObservedCause } from "@beep/observability"
  *
- * console.log(ObservedCause)
+ * const observed = S.decodeUnknownSync(ObservedCause)(Cause.fail(new Error("boom")))
+ * console.log(Cause.pretty(observed).includes("boom")) // true
  * ```
  *
  * @since 0.0.0
@@ -248,9 +258,12 @@ export type ObservedCause = typeof ObservedCause.Type;
  *
  * @example
  * ```typescript
+ * import { Exit } from "effect"
+ * import * as S from "effect/Schema"
  * import { ObservedExit } from "@beep/observability"
  *
- * console.log(ObservedExit)
+ * const observed = S.decodeUnknownSync(ObservedExit)(Exit.fail(new Error("boom")))
+ * console.log(observed._tag) // "Failure"
  * ```
  *
  * @since 0.0.0

@@ -18,9 +18,14 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.errors");
  *
  * @example
  * ```ts
- * import { WORKER_ACTION_UNAVAILABLE_REASON } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import {
+ *   WORKER_ACTION_UNAVAILABLE_REASON,
+ *   WorkerActionFailed
+ * } from "@beep/architecture-lab-use-cases/entities/Worker"
  *
- * console.log(WORKER_ACTION_UNAVAILABLE_REASON)
+ * const error = WorkerActionFailed.make({ reason: WORKER_ACTION_UNAVAILABLE_REASON })
+ *
+ * console.log(error.reason) // "Worker service is unavailable."
  * ```
  *
  * @category errors
@@ -33,9 +38,15 @@ export const WORKER_ACTION_UNAVAILABLE_REASON = "Worker service is unavailable."
  *
  * @example
  * ```ts
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
  * import { WorkerNotFound } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkerNotFound)
+ * const error = WorkerNotFound.make({
+ *   workerId: S.decodeUnknownSync(DomainWorker.WorkerId)(1)
+ * })
+ *
+ * console.log(error._tag) // "WorkerNotFound"
  * ```
  *
  * @category errors
@@ -57,9 +68,16 @@ export class WorkerNotFound extends TaggedErrorClass<WorkerNotFound>($I`WorkerNo
  *
  * @example
  * ```ts
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
  * import { WorkerConflict } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkerConflict)
+ * const error = WorkerConflict.make({
+ *   workerId: S.decodeUnknownSync(DomainWorker.WorkerId)(1),
+ *   reason: "Worker already exists"
+ * })
+ *
+ * console.log(error.reason) // "Worker already exists"
  * ```
  *
  * @category errors
@@ -84,7 +102,9 @@ export class WorkerConflict extends TaggedErrorClass<WorkerConflict>($I`WorkerCo
  * ```ts
  * import { WorkerActionFailed } from "@beep/architecture-lab-use-cases/entities/Worker"
  *
- * console.log(WorkerActionFailed)
+ * const error = WorkerActionFailed.make({ reason: "Repository timeout" })
+ *
+ * console.log(error._tag) // "WorkerActionFailed"
  * ```
  *
  * @category errors
@@ -106,10 +126,14 @@ export class WorkerActionFailed extends TaggedErrorClass<WorkerActionFailed>($I`
  *
  * @example
  * ```ts
- * import type { WorkerActionError } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import {
+ *   WorkerActionFailed,
+ *   type WorkerActionError
+ * } from "@beep/architecture-lab-use-cases/entities/Worker"
  *
- * const value = {} as WorkerActionError
- * console.log(value)
+ * const error: WorkerActionError = WorkerActionFailed.make({ reason: "Repository unavailable" })
+ *
+ * console.log(error._tag) // "WorkerActionFailed"
  * ```
  *
  * @category errors
@@ -122,9 +146,15 @@ export type WorkerActionError = WorkerNotFound | WorkerConflict | WorkerActionFa
  *
  * @example
  * ```ts
- * import { WorkerActionError } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import {
+ *   WorkerActionError,
+ *   WorkerActionFailed
+ * } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkerActionError)
+ * const isActionError = S.is(WorkerActionError)
+ *
+ * console.log(isActionError(WorkerActionFailed.make({ reason: "Repository unavailable" }))) // true
  * ```
  *
  * @category errors

@@ -1,14 +1,15 @@
 /**
- * Shared tables role package.
+ * Shared-kernel table metadata for product concepts used across slices.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Shared-kernel entity table metadata.
+ * Concrete table namespaces for shared `Membership`, `Organization`, and `User`
+ * persistence metadata.
  *
- * @since 0.0.0
  * @category tables
+ * @since 0.0.0
  */
 export * as Entities from "./entities/index.ts";

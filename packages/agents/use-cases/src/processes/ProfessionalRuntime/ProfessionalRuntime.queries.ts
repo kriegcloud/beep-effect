@@ -15,9 +15,19 @@ const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalR
  *
  * @example
  * ```ts
- * import { GetContextPacket } from "@beep/agents-use-cases/public"
+ * import { GetContextPacket, RuntimeScope } from "@beep/agents-use-cases/public"
  *
- * console.log(GetContextPacket)
+ * const query = GetContextPacket.make({
+ *   artifactId: "email-artifact-law-001",
+ *   scenarioId: "law-patent-intake",
+ *   scope: RuntimeScope.make({
+ *     organizationId: "org-law-fixture",
+ *     threadId: "thread-law-001",
+ *     workspaceId: "workspace-law-fixture"
+ *   })
+ * })
+ *
+ * console.log(query.artifactId)
  * ```
  *
  * @category queries

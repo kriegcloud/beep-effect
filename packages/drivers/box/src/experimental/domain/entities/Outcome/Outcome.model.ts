@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box outcome entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/Outcome/Outcome.model");
 
 /**
+ * Experimental schema anchor for outcome resources returned by Box workflow-style operations.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Outcome } from "@beep/box/experimental/domain/entities/Outcome/Outcome.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Outcome.make({
+ * const decoded = S.decodeUnknownSync(Outcome)({});
+ * const encoded: Outcome.Encoded = S.encodeSync(Outcome)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Outcome extends S.Class<Outcome>($I`Outcome`)(
   {},
   $I.annote("Outcome", {
-    description: "TODO",
+    description: "Experimental schema anchor for outcome resources returned by Box workflow-style operations.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Outcome}
+ * Type-level companion namespace for {@link Outcome} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Outcome } from "@beep/box/experimental/domain/entities/Outcome/Outcome.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Outcome.make({});
+ * const encoded: Outcome.Encoded = S.encodeSync(Outcome)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Outcome {
   /**
-   * Companion encoded type for {@link Outcome}.
+   * Encoded payload accepted by the {@link Outcome} entity schema.
    *
    * @example
    * ```ts
-   * import type { Outcome } from "@beep/box/experimental/domain/entities/Outcome/Outcome.model";
+   * import { Outcome } from "@beep/box/experimental/domain/entities/Outcome/Outcome.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Outcome.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Outcome.Encoded = S.encodeSync(Outcome)(Outcome.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Outcome.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Outcome}.
- *
- * @example
- * ```ts
- * import type { Outcome } from "@beep/box/experimental/domain/entities/Outcome/Outcome.model";
- *
- * const useValue = (_value: Outcome) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Outcome = typeof Outcome.Type;

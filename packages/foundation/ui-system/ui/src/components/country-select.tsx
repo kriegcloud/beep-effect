@@ -29,7 +29,17 @@ import type React from "react";
 const $I = $FormId.create("components/country-select");
 
 /**
- * A country option rendered by {@link CountrySelect}.
+ * ISO 3166-1 alpha-2 country code schema accepted by the country primitives.
+ *
+ * @example
+ * ```ts
+ * import { CountryCode } from "@beep/ui/components/country-select"
+ * import * as S from "effect/Schema"
+ *
+ * const isCountryCode = S.is(CountryCode)
+ *
+ * console.log(isCountryCode("US"))
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -291,6 +301,15 @@ export const CountryCode = LiteralKit([
 /**
  * ISO 3166-1 alpha-2 country code used by the country primitives.
  *
+ * @example
+ * ```ts
+ * import type { CountryCode } from "@beep/ui/components/country-select"
+ *
+ * const shippingCountry: CountryCode = "US"
+ *
+ * console.log(shippingCountry)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -412,6 +431,18 @@ const countryCodeValue = (value: unknown): string => (P.isString(value) && isCou
 /**
  * Props for {@link CountryFlag}.
  *
+ * @example
+ * ```ts
+ * import type { CountryFlagProps } from "@beep/ui/components/country-select"
+ *
+ * const props = {
+ *   code: "CA",
+ *   title: "Canada",
+ * } satisfies CountryFlagProps
+ *
+ * console.log(props.code)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -427,7 +458,9 @@ export type CountryFlagProps = React.ComponentPropsWithoutRef<"span"> & {
  * ```tsx
  * import { CountryFlag } from "@beep/ui/components/country-select"
  *
- * console.log(CountryFlag)
+ * export function CanadaFlag() {
+ *   return <CountryFlag code="CA" title="Canada" />
+ * }
  * ```
  *
  * @category components
@@ -457,7 +490,11 @@ export interface CountryOptionContentProps extends React.ComponentProps<"span"> 
  * ```tsx
  * import { CountryOptionContent, countryOptions } from "@beep/ui/components/country-select"
  *
- * console.log(CountryOptionContent)
+ * const option = countryOptions.find((country) => country.code === "US")
+ *
+ * export function UnitedStatesOption() {
+ *   return option ? <CountryOptionContent option={option} /> : null
+ * }
  * ```
  *
  * @category components
@@ -479,7 +516,20 @@ export const CountryOptionContent: React.FC<CountryOptionContentProps> = ({
 );
 
 /**
- * Props for {@link CountrySelect}.
+ * Props for a controlled country combobox.
+ *
+ * @example
+ * ```tsx
+ * import type { CountrySelectProps } from "@beep/ui/components/country-select"
+ *
+ * const props = {
+ *   name: "shippingCountry",
+ *   value: "US",
+ *   onValueChange: (country) => country,
+ * } satisfies CountrySelectProps
+ *
+ * console.log(props.value)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -502,7 +552,9 @@ export interface CountrySelectProps
  * ```tsx
  * import { CountrySelect } from "@beep/ui/components/country-select"
  *
- * console.log(CountrySelect)
+ * export function ShippingCountryField() {
+ *   return <CountrySelect name="shippingCountry" value="US" placeholder="Ship to" />
+ * }
  * ```
  *
  * @category components

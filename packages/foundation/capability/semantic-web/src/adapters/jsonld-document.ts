@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity";
@@ -737,13 +736,29 @@ const literalValueFromRdf = Effect.fn("JsonLdDocument.literalValueFromRdf")(func
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  * import { JsonLdDocumentServiceLive } from "@beep/semantic-web/adapters/jsonld-document"
+ * import {
+ *   FlattenJsonLdDocumentRequest,
+ *   JsonLdDocumentService
+ * } from "@beep/semantic-web/services/jsonld-document"
  *
- * console.log(JsonLdDocumentServiceLive)
+ * const request = S.decodeUnknownSync(FlattenJsonLdDocumentRequest)({
+ *   document: { "@graph": [] }
+ * })
+ * const result = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const service = yield* JsonLdDocumentService
+ *     return yield* service.flatten(request)
+ *   }).pipe(Effect.provide(JsonLdDocumentServiceLive))
+ * )
+ * strictEqual(result.document["@graph"].length, 0)
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const JsonLdDocumentServiceLive = Layer.succeed(
   JsonLdDocumentService,

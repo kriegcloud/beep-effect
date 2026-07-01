@@ -39,9 +39,29 @@ declare module "effect/Schema" {
  * @returns The JSDocTagDefinition metadata or `undefined`.
  * @example
  * ```ts
+ * import { JSDocTagDefinition, make } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  * import { getJSDocTagMetadata } from "@beep/repo-utils/JSDoc/models/JSDocTagAnnotation.model"
  *
- * console.log(getJSDocTagMetadata)
+ * const meta: Omit<JSDocTagDefinition.Encoded, "_tag"> = {
+ *   synonyms: [],
+ *   overview: "Documents a function parameter.",
+ *   tagKind: "block",
+ *   specifications: ["tsdocCore"],
+ *   applicableTo: ["function"],
+ *   astDerivable: "partial",
+ *   astDerivableNote: "Parameter names are AST-derived; prose is authored.",
+ *   parameters: {
+ *     syntax: "@param name - description",
+ *     acceptsType: false,
+ *     acceptsName: true,
+ *     acceptsDescription: true
+ *   },
+ *   relatedTags: ["typeParam"],
+ *   example: "@param input - Raw input value."
+ * }
+ * const tagSchema = make("param", meta)
+ * const metadata = getJSDocTagMetadata(tagSchema)
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0

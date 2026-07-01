@@ -19,7 +19,19 @@ import type React from "react";
 const defaultEmojibaseUrl = "/emojibase-data";
 
 /**
- * Props for {@link EmojiPicker}.
+ * Props for a popover emoji picker that emits the selected emoji glyph.
+ *
+ * @example
+ * ```ts
+ * import type { EmojiPickerProps } from "@beep/ui/components/emoji-picker"
+ *
+ * const props = {
+ *   value: "\u{1F680}",
+ *   onValueChange: (emoji) => emoji.codePointAt(0),
+ * } satisfies EmojiPickerProps
+ *
+ * console.log(props.value)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -42,11 +54,17 @@ const EmojiPickerScope = makeScopedAtom(() => Atom.make<EmojiPickerState>({ open
 /**
  * Popover emoji picker with self-hosted Emojibase data by default.
  *
+ * @remarks
+ * The default `emojibaseUrl` is `/emojibase-data`; pass a custom URL when the
+ * app serves the Frimousse data from another static asset path.
+ *
  * @example
  * ```tsx
  * import { EmojiPicker } from "@beep/ui/components/emoji-picker"
  *
- * console.log(EmojiPicker)
+ * export function ReactionPicker() {
+ *   return <EmojiPicker value="\u{1F44D}" placeholder="Choose reaction" />
+ * }
  * ```
  *
  * @category components

@@ -39,7 +39,7 @@ const $I = $SchemaId.create("SchemaUtils/withKeyDefaults");
  * console.log(S.decodeUnknownSync(Settings)({}).status) // "draft"
  * ```
  *
- * @template TSchema - Schema receiving the shared default value.
+ * @typeParam TSchema - Schema receiving the shared default value.
  * @param self - Schema receiving the shared default value.
  * @param defaultValue - Value used for missing keys and constructor defaults.
  * @returns A schema helper when data-last, or the schema with defaults applied
@@ -104,7 +104,7 @@ const applyEmptyArrayDefaults = <
  * console.log(A.isReadonlyArrayEmpty(settings.tags)) // true
  * ```
  *
- * @template TValue - Element value type used for the empty array default.
+ * @typeParam TValue - Element value type used for the empty array default.
  * @param self - Array schema receiving empty constructor and decoding defaults.
  * @returns A schema helper when data-last, or the array schema with empty
  * defaults applied when data-first.

@@ -18,13 +18,28 @@ import { WorkItemId, WorkItemStatus, WorkItemTitle } from "./WorkItem.values.js"
 const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.model");
 
 /**
- * Architecture lab WorkItem aggregate.
+ * Aggregate state for a WorkItem moving through the architecture lab workflow.
  *
  * @example
  * ```ts
- * import { WorkItem } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItem, WorkItemId, WorkItemTitle, type WorkItemStatus } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkerId } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { WorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItem)
+ * const workItem = WorkItem.make({
+ *   id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *   title: S.decodeUnknownSync(WorkItemTitle)("Document topology"),
+ *   status: "assigned",
+ *   assignee: O.some(S.decodeUnknownSync(WorkerId)(1)),
+ *   priority: O.some(WorkPriority.Enum.high)
+ * })
+ *
+ * const status: WorkItemStatus = workItem.status
+ * if (status !== "assigned") {
+ *   throw new Error("expected assigned WorkItem")
+ * }
  * ```
  *
  * @category aggregates
@@ -45,13 +60,22 @@ export class WorkItem extends S.Class<WorkItem>($I`WorkItem`)(
 ) {}
 
 /**
- * WorkItem creation input.
+ * Constructor input for creating an open WorkItem with optional priority.
  *
  * @example
  * ```ts
- * import { CreateWorkItemInput } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { CreateWorkItemInput, WorkItemId } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(CreateWorkItemInput)
+ * const input = CreateWorkItemInput.make({
+ *   id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *   title: "Document topology"
+ * })
+ *
+ * if (O.isSome(input.priority)) {
+ *   throw new Error("priority is optional at creation time")
+ * }
  * ```
  *
  * @category aggregates
@@ -72,13 +96,24 @@ export class CreateWorkItemInput extends S.Class<CreateWorkItemInput>($I`CreateW
 ) {}
 
 /**
- * Create a new open WorkItem aggregate.
+ * Create a new open WorkItem aggregate and apply the default priority when omitted.
  *
  * @example
  * ```ts
- * import { create } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { CreateWorkItemInput, WorkItemId, create } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(create)
+ * const workItem = create(
+ *   CreateWorkItemInput.make({
+ *     id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *     title: "Document topology"
+ *   })
+ * )
+ *
+ * if (workItem.status !== "open" || O.getOrThrow(workItem.priority) !== "normal") {
+ *   throw new Error("expected a new open WorkItem with normal priority")
+ * }
  * ```
  *
  * @category aggregates
@@ -97,15 +132,36 @@ const requireMutable = (workItem: WorkItem): Effect.Effect<void, WorkItemAlready
   workItem.status === "archived" ? Effect.fail(WorkItemAlreadyArchived.make({ workItemId: workItem.id })) : Effect.void;
 
 /**
- * Assign an open WorkItem to a concrete assignee.
+ * Assign an open or already assigned WorkItem to a concrete Worker identifier.
  *
  * @example
  * ```ts
- * import { assign } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { CreateWorkItemInput, WorkItemId, assign, create } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkerId } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(assign)
+ * const assigned = Effect.runSync(
+ *   assign(
+ *     create(
+ *       CreateWorkItemInput.make({
+ *         id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *         title: "Document topology"
+ *       })
+ *     ),
+ *     S.decodeUnknownSync(WorkerId)(1)
+ *   )
+ * )
+ *
+ * if (assigned.status !== "assigned" || O.isNone(assigned.assignee)) {
+ *   throw new Error("expected assigned WorkItem")
+ * }
  * ```
  *
+ * @effects Pure Effect workflow with no service requirements; fails through
+ * typed WorkItem domain errors when the item is archived, the assignee is
+ * invalid, or the lifecycle transition is unsupported.
  * @category aggregates
  * @since 0.0.0
  */
@@ -129,15 +185,33 @@ export const assign = Effect.fn("WorkItem.assign")(function* (workItem: WorkItem
 });
 
 /**
- * Complete an open or assigned WorkItem.
+ * Complete an open or assigned WorkItem while leaving an already completed item unchanged.
  *
  * @example
  * ```ts
- * import { complete } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { CreateWorkItemInput, WorkItemId, complete, create } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(complete)
+ * const completed = Effect.runSync(
+ *   complete(
+ *     create(
+ *       CreateWorkItemInput.make({
+ *         id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *         title: "Document topology"
+ *       })
+ *     )
+ *   )
+ * )
+ *
+ * if (completed.status !== "completed") {
+ *   throw new Error("expected completed WorkItem")
+ * }
  * ```
  *
+ * @effects Pure Effect workflow with no service requirements; fails through
+ * typed WorkItem domain errors when the item is archived or the lifecycle
+ * transition is unsupported.
  * @category aggregates
  * @since 0.0.0
  */
@@ -160,15 +234,36 @@ export const complete = Effect.fn("WorkItem.complete")(function* (workItem: Work
 });
 
 /**
- * Reopen a completed WorkItem.
+ * Reopen a completed WorkItem and clear any assignee carried by the closed aggregate.
  *
  * @example
  * ```ts
- * import { reopen } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { CreateWorkItemInput, WorkItemId, complete, create, reopen } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(reopen)
+ * const reopened = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const workItem = create(
+ *       CreateWorkItemInput.make({
+ *         id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *         title: "Document topology"
+ *       })
+ *     )
+ *     const completed = yield* complete(workItem)
+ *     return yield* reopen(completed)
+ *   })
+ * )
+ *
+ * if (reopened.status !== "open" || O.isSome(reopened.assignee)) {
+ *   throw new Error("expected reopened WorkItem without assignee")
+ * }
  * ```
  *
+ * @effects Pure Effect workflow with no service requirements; fails through
+ * typed WorkItem domain errors when the item is archived or the lifecycle
+ * transition is unsupported.
  * @category aggregates
  * @since 0.0.0
  */
@@ -185,15 +280,32 @@ export const reopen = Effect.fn("WorkItem.reopen")(function* (workItem: WorkItem
 });
 
 /**
- * Archive any non-archived WorkItem.
+ * Archive a mutable WorkItem as the terminal lifecycle state.
  *
  * @example
  * ```ts
- * import { archive } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { CreateWorkItemInput, WorkItemId, archive, create } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(archive)
+ * const archived = Effect.runSync(
+ *   archive(
+ *     create(
+ *       CreateWorkItemInput.make({
+ *         id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *         title: "Document topology"
+ *       })
+ *     )
+ *   )
+ * )
+ *
+ * if (archived.status !== "archived") {
+ *   throw new Error("expected archived WorkItem")
+ * }
  * ```
  *
+ * @effects Pure Effect workflow with no service requirements; fails through a
+ * typed WorkItem domain error when the item is already archived.
  * @category aggregates
  * @since 0.0.0
  */

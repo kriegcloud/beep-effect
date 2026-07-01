@@ -5,13 +5,15 @@ import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 /**
- * Banner variants component.
+ * Class variance helper for banner tone variants.
  *
  * @example
- * ```tsx
+ * ```ts
  * import { bannerVariants } from "@beep/ui/components/banner"
  *
- * console.log(bannerVariants)
+ * const className = bannerVariants({ variant: "warning" })
+ *
+ * console.log(className.includes("border-warning"))
  * ```
  *
  * @category components
@@ -50,13 +52,22 @@ type BannerRootProps = React.ComponentProps<"div"> &
   };
 
 /**
- * Banner root component.
+ * Inline alert banner with variant-driven icon defaults.
  *
  * @example
  * ```tsx
- * import { Banner } from "@beep/ui/components/banner"
+ * import { Banner, BannerContent, BannerDescription, BannerTitle } from "@beep/ui/components/banner"
  *
- * console.log(Banner)
+ * export function MaintenanceBanner() {
+ *   return (
+ *     <Banner variant="warning">
+ *       <BannerContent>
+ *         <BannerTitle>Maintenance scheduled</BannerTitle>
+ *         <BannerDescription>Exports pause at 8 PM Central.</BannerDescription>
+ *       </BannerContent>
+ *     </Banner>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -74,13 +85,21 @@ function Banner({ className, variant = "default", icon, children, ...props }: Ba
 }
 
 /**
- * Banner content wrapper.
+ * Flexible content column inside a {@link Banner}.
  *
  * @example
  * ```tsx
- * import { BannerContent } from "@beep/ui/components/banner"
+ * import { Banner, BannerContent, BannerTitle } from "@beep/ui/components/banner"
  *
- * console.log(BannerContent)
+ * export function BannerContentColumn() {
+ *   return (
+ *     <Banner>
+ *       <BannerContent>
+ *         <BannerTitle>Workspace ready</BannerTitle>
+ *       </BannerContent>
+ *     </Banner>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -91,13 +110,21 @@ const BannerContent = ({ className, ...props }: React.ComponentProps<"div">) => 
 );
 
 /**
- * Banner title text component.
+ * Short headline text inside a banner content column.
  *
  * @example
  * ```tsx
- * import { BannerTitle } from "@beep/ui/components/banner"
+ * import { Banner, BannerContent, BannerTitle } from "@beep/ui/components/banner"
  *
- * console.log(BannerTitle)
+ * export function BannerHeadline() {
+ *   return (
+ *     <Banner variant="success">
+ *       <BannerContent>
+ *         <BannerTitle>Import complete</BannerTitle>
+ *       </BannerContent>
+ *     </Banner>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -108,13 +135,22 @@ const BannerTitle = ({ className, ...props }: React.ComponentProps<"p">) => (
 );
 
 /**
- * Banner description text component.
+ * Secondary explanatory text inside a banner content column.
  *
  * @example
  * ```tsx
- * import { BannerDescription } from "@beep/ui/components/banner"
+ * import { Banner, BannerContent, BannerDescription, BannerTitle } from "@beep/ui/components/banner"
  *
- * console.log(BannerDescription)
+ * export function BannerBodyCopy() {
+ *   return (
+ *     <Banner variant="info">
+ *       <BannerContent>
+ *         <BannerTitle>New template available</BannerTitle>
+ *         <BannerDescription>Use it for every onboarding checklist.</BannerDescription>
+ *       </BannerContent>
+ *     </Banner>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -129,13 +165,22 @@ type BannerDismissProps = React.ComponentProps<"button"> & {
 };
 
 /**
- * Banner dismiss button.
+ * Dismiss control that calls `onDismiss` before the button `onClick` handler.
  *
  * @example
  * ```tsx
- * import { BannerDismiss } from "@beep/ui/components/banner"
+ * import { Banner, BannerContent, BannerDismiss, BannerTitle } from "@beep/ui/components/banner"
  *
- * console.log(BannerDismiss)
+ * export function DismissibleBanner() {
+ *   return (
+ *     <Banner>
+ *       <BannerContent>
+ *         <BannerTitle>Invite copied</BannerTitle>
+ *       </BannerContent>
+ *       <BannerDismiss onDismiss={() => "dismissed"} />
+ *     </Banner>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -172,7 +217,16 @@ Banner.Dismiss = BannerDismiss;
  * ```tsx
  * import { Banner } from "@beep/ui/components/banner"
  *
- * console.log(Banner)
+ * export function NamespacedBannerParts() {
+ *   return (
+ *     <Banner>
+ *       <Banner.Content>
+ *         <Banner.Title>Saved</Banner.Title>
+ *         <Banner.Description>Your changes are available to the team.</Banner.Description>
+ *       </Banner.Content>
+ *     </Banner>
+ *   )
+ * }
  * ```
  *
  * @category components

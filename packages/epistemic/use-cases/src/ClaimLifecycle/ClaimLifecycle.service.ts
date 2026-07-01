@@ -22,10 +22,15 @@ const $I = $EpistemicUseCasesId.create("ClaimLifecycle/ClaimLifecycle.service");
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
  * import type { ClaimTransitionShape } from "@beep/epistemic-use-cases/ClaimLifecycle"
  *
- * const accept = (shape: ClaimTransitionShape) => shape
- * console.log(accept)
+ * const shape: ClaimTransitionShape = {
+ *   advance: (claim) => Effect.succeed(claim)
+ * }
+ *
+ * strictEqual(typeof shape.advance, "function")
  * ```
  *
  * @category services
@@ -43,9 +48,25 @@ export interface ClaimTransitionShape {
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
  * import { ClaimTransition } from "@beep/epistemic-use-cases/ClaimLifecycle"
  *
- * console.log(ClaimTransition)
+ * const hasAdvance = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const transition = yield* ClaimTransition
+ *     return typeof transition.advance === "function"
+ *   }).pipe(
+ *     Effect.provideService(
+ *       ClaimTransition,
+ *       ClaimTransition.of({
+ *         advance: (claim) => Effect.succeed(claim)
+ *       })
+ *     )
+ *   )
+ * )
+ *
+ * strictEqual(hasAdvance, true)
  * ```
  *
  * @category services
@@ -60,9 +81,31 @@ export class ClaimTransition extends Context.Service<ClaimTransition, ClaimTrans
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { CandidateClaim, ClaimGateResult } from "@beep/epistemic-domain"
  * import { makeClaimTransition } from "@beep/epistemic-use-cases/ClaimLifecycle"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(makeClaimTransition)
+ * const claim = S.decodeUnknownSync(CandidateClaim)({
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   entityType: "EpistemicCandidateClaim",
+ *   fixtureKey: "claim.patentability",
+ *   id: 1,
+ *   lifecycle: "candidate",
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   snapshot: {},
+ *   source: "Agent",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * })
+ * const admitted = S.decodeUnknownSync(ClaimGateResult)({ verdict: "admitted" })
+ *
+ * const advanced = Effect.runSync(makeClaimTransition().advance(claim, admitted))
+ * strictEqual(advanced.lifecycle, "shape_valid")
  * ```
  *
  * @category constructors

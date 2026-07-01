@@ -5,13 +5,22 @@ import { CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 
 /**
- * Accordion component.
+ * Root container for a vertically stacked disclosure group.
  *
  * @example
  * ```tsx
- * import { Accordion } from "@beep/ui/components/accordion"
+ * import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@beep/ui/components/accordion"
  *
- * console.log(Accordion)
+ * export function BillingAccordion() {
+ *   return (
+ *     <Accordion>
+ *       <AccordionItem value="invoices">
+ *         <AccordionTrigger>Invoices</AccordionTrigger>
+ *         <AccordionContent>Download current and past invoices.</AccordionContent>
+ *       </AccordionItem>
+ *     </Accordion>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -22,13 +31,22 @@ function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {
 }
 
 /**
- * Accordion item component.
+ * Disclosure item that owns one trigger/content pair.
  *
  * @example
  * ```tsx
- * import { AccordionItem } from "@beep/ui/components/accordion"
+ * import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@beep/ui/components/accordion"
  *
- * console.log(AccordionItem)
+ * export function SecurityAccordionItem() {
+ *   return (
+ *     <Accordion>
+ *       <AccordionItem value="security">
+ *         <AccordionTrigger>Security</AccordionTrigger>
+ *         <AccordionContent>Manage passkeys and recovery codes.</AccordionContent>
+ *       </AccordionItem>
+ *     </Accordion>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -41,13 +59,22 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
 }
 
 /**
- * Accordion trigger component.
+ * Button-like control that toggles its accordion panel.
  *
  * @example
  * ```tsx
- * import { AccordionTrigger } from "@beep/ui/components/accordion"
+ * import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@beep/ui/components/accordion"
  *
- * console.log(AccordionTrigger)
+ * export function PreferencesTrigger() {
+ *   return (
+ *     <Accordion>
+ *       <AccordionItem value="preferences">
+ *         <AccordionTrigger>Preferences</AccordionTrigger>
+ *         <AccordionContent>Update notification defaults.</AccordionContent>
+ *       </AccordionItem>
+ *     </Accordion>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -79,13 +106,24 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
 }
 
 /**
- * Accordion content component.
+ * Collapsible panel content for an accordion item.
  *
  * @example
  * ```tsx
- * import { AccordionContent } from "@beep/ui/components/accordion"
+ * import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@beep/ui/components/accordion"
  *
- * console.log(AccordionContent)
+ * export function DetailsAccordionContent() {
+ *   return (
+ *     <Accordion>
+ *       <AccordionItem value="details">
+ *         <AccordionTrigger>Details</AccordionTrigger>
+ *         <AccordionContent>
+ *           <p>Owner, status, and billing metadata stay grouped in this panel.</p>
+ *         </AccordionContent>
+ *       </AccordionItem>
+ *     </Accordion>
+ *   )
+ * }
  * ```
  *
  * @category components

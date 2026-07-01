@@ -142,9 +142,11 @@ interface SlashPluginProps {
  *
  * @example
  * ```tsx
- * import { SlashPlugin } from "@beep/editor/chat"
+ * import { SlashPlugin, defaultChatSlashItems } from "@beep/editor/chat"
  *
- * console.log(SlashPlugin.name) // "SlashPlugin"
+ * function SlashCommands() {
+ *   return <SlashPlugin items={defaultChatSlashItems} />
+ * }
  * ```
  *
  * @category components
@@ -212,9 +214,15 @@ interface MentionPluginProps {
  *
  * @example
  * ```tsx
- * import { MentionPlugin } from "@beep/editor/chat"
+ * import { MentionOption, MentionPlugin } from "@beep/editor/chat"
  *
- * console.log(MentionPlugin.name) // "MentionPlugin"
+ * function PeopleMentions() {
+ *   return (
+ *     <MentionPlugin
+ *       source={(query) => [MentionOption.make({ id: query, label: query })]}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -332,7 +340,9 @@ const comboboxAriaAtom = Atom.family((editor: LexicalEditor) =>
  * ```tsx
  * import { ComboboxAriaPlugin } from "@beep/editor/chat"
  *
- * console.log(ComboboxAriaPlugin.name) // "ComboboxAriaPlugin"
+ * function TypeaheadAccessibility() {
+ *   return <ComboboxAriaPlugin />
+ * }
  * ```
  *
  * @category components

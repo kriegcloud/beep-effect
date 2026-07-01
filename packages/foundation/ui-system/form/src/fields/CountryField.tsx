@@ -43,9 +43,30 @@ export interface CountryFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { CountryField } from "@beep/form/fields/CountryField"
+ * import * as S from "effect/Schema"
  *
- * console.log(CountryField)
+ * const LocaleSchema = S.Struct({ country: S.String })
+ * const localeOptions = makeFormOptions({
+ *   schema: LocaleSchema,
+ *   defaultValues: { country: "US" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function LocaleForm() {
+ *   const form = useAppForm(localeOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="country">{() => <CountryField label="Country" />}</form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(localeOptions.defaultValues.country) // "US"
  * ```
  *
  * @category components

@@ -2,13 +2,16 @@ import { HttpApiEndpoint, HttpApiSchema } from "effect/unstable/httpapi";
 import * as Contract from "./Search.contract.ts";
 
 /**
- * HTTP endpoint descriptor for GovInfo search.
+ * HTTP API endpoint descriptor for the GovInfo `/search` POST route.
  *
  * @example
  * ```ts
  * import { Http } from "@beep/govinfo/domain/contracts/Search/Search.http"
+ * import { HttpApiEndpoint } from "effect/unstable/httpapi"
  *
- * console.log(Http)
+ * const isEndpoint = HttpApiEndpoint.isHttpApiEndpoint(Http)
+ *
+ * console.log(isEndpoint)
  * ```
  *
  * @category endpoints

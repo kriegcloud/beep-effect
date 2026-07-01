@@ -45,7 +45,9 @@ const defaultDataRoot = ".beep/ai-metrics";
  * @example
  * ```ts
  * import { DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH } from "@beep/repo-ai-metrics"
- * console.log(DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH)
+ *
+ * const reportPath = DEFAULT_AGENT_EFFECTIVENESS_WORKER_EVAL_REPORT_PATH
+ * console.log(reportPath.endsWith("/ops/manifest.json"))
  * ```
  * @category constants
  * @since 0.0.0
@@ -82,7 +84,10 @@ query AgentEffectivenessPhoenixInventory {
  * @example
  * ```ts
  * import { AgentEffectivenessStatus } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessStatus.Enum.passed)
+ * import * as S from "effect/Schema"
+ *
+ * const isStatus = S.is(AgentEffectivenessStatus)
+ * console.log(isStatus("passed"))
  * ```
  * @category models
  * @since 0.0.0
@@ -107,7 +112,10 @@ export type AgentEffectivenessStatus = typeof AgentEffectivenessStatus.Type;
  * @example
  * ```ts
  * import { AgentEffectivenessAnnotationValue } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessAnnotationValue)
+ * import * as S from "effect/Schema"
+ *
+ * const acceptsValue = S.is(AgentEffectivenessAnnotationValue)
+ * console.log(acceptsValue(0.98))
  * ```
  * @category models
  * @since 0.0.0
@@ -132,7 +140,12 @@ export type AgentEffectivenessAnnotationValue = typeof AgentEffectivenessAnnotat
  * @example
  * ```ts
  * import { AgentEffectivenessError } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessError)
+ *
+ * const error = AgentEffectivenessError.make({
+ *   cause: "decode failed",
+ *   message: "Failed to encode agent-effectiveness evidence."
+ * })
+ * console.log(error._tag)
  * ```
  * @category errors
  * @since 0.0.0
@@ -229,7 +242,17 @@ export class AgentEffectivenessAnnotationPlanInput extends S.Class<AgentEffectiv
  * @example
  * ```ts
  * import { AgentEffectivenessPhoenixProject } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessPhoenixProject)
+ *
+ * const project = AgentEffectivenessPhoenixProject.make({
+ *   hasTraces: true,
+ *   name: "beep-agent-effectiveness",
+ *   recordCount: 12,
+ *   spanAnnotationNames: ["scorecard.total_score"],
+ *   sessionAnnotationNames: [],
+ *   traceAnnotationNames: ["agent.loop.status"],
+ *   traceCount: 4
+ * })
+ * console.log(project.hasTraces)
  * ```
  * @category models
  * @since 0.0.0
@@ -257,7 +280,20 @@ export class AgentEffectivenessPhoenixProject extends S.Class<AgentEffectiveness
  * @example
  * ```ts
  * import { AgentEffectivenessPhoenixSection } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessPhoenixSection)
+ *
+ * const section = AgentEffectivenessPhoenixSection.make({
+ *   baseUrl: "https://phoenix.example.test",
+ *   datasetCount: 2,
+ *   evaluatorCount: 1,
+ *   message: "Phoenix is reachable.",
+ *   projectCount: 1,
+ *   projects: [],
+ *   promptCount: 2,
+ *   serverInsufficientStorage: false,
+ *   status: "passed",
+ *   version: "9.0.0"
+ * })
+ * console.log(section.status)
  * ```
  * @category models
  * @since 0.0.0
@@ -288,7 +324,16 @@ export class AgentEffectivenessPhoenixSection extends S.Class<AgentEffectiveness
  * @example
  * ```ts
  * import { AgentEffectivenessSourceCoverage } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessSourceCoverage)
+ *
+ * const coverage = AgentEffectivenessSourceCoverage.make({
+ *   acceptedEvents: 48,
+ *   lastTimestamp: "2026-05-20T00:00:00.000Z",
+ *   rejectedLines: 2,
+ *   sourceFileCount: 3,
+ *   sourceKind: "codex",
+ *   totalLines: 50
+ * })
+ * console.log(coverage.acceptedEvents / coverage.totalLines)
  * ```
  * @category models
  * @since 0.0.0
@@ -315,7 +360,17 @@ export class AgentEffectivenessSourceCoverage extends S.Class<AgentEffectiveness
  * @example
  * ```ts
  * import { AgentEffectivenessForwarderSummary } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessForwarderSummary)
+ *
+ * const summary = AgentEffectivenessForwarderSummary.make({
+ *   archiveObjectCount: 4,
+ *   completedAtEpochMillis: 1_717_000_000_000,
+ *   configSnapshotId: "config-1",
+ *   ingestRunId: "ingest-1",
+ *   sourceFileCount: 3,
+ *   target: "dankserver",
+ *   turnCount: 12
+ * })
+ * console.log(summary.turnCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -343,7 +398,20 @@ export class AgentEffectivenessForwarderSummary extends S.Class<AgentEffectivene
  * @example
  * ```ts
  * import { AgentEffectivenessScorecardSummary } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessScorecardSummary)
+ *
+ * const summary = AgentEffectivenessScorecardSummary.make({
+ *   benchmarkRunCount: 2,
+ *   completionReady: true,
+ *   configSnapshotId: "config-1",
+ *   coverageGaps: [],
+ *   labelCount: 6,
+ *   scorecardId: "scorecard-1",
+ *   taskCount: 6,
+ *   totalScore: 0.91,
+ *   windowEndEpochMillis: 1_717_086_400_000,
+ *   windowStartEpochMillis: 1_717_000_000_000
+ * })
+ * console.log(summary.completionReady)
  * ```
  * @category models
  * @since 0.0.0
@@ -374,7 +442,20 @@ export class AgentEffectivenessScorecardSummary extends S.Class<AgentEffectivene
  * @example
  * ```ts
  * import { AgentEffectivenessAiMetricsSection } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessAiMetricsSection)
+ *
+ * const section = AgentEffectivenessAiMetricsSection.make({
+ *   benchmarkRunCount: 0,
+ *   dataRoot: ".beep/ai-metrics",
+ *   derivedDuckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *   labelCount: 0,
+ *   latestForwarder: null,
+ *   latestScorecard: null,
+ *   message: "AI-metrics evidence has not been derived yet.",
+ *   sourceCoverage: [],
+ *   status: "unavailable",
+ *   unavailableMetrics: ["provider_model_token_cost"]
+ * })
+ * console.log(section.unavailableMetrics)
  * ```
  * @category models
  * @since 0.0.0
@@ -405,7 +486,21 @@ export class AgentEffectivenessAiMetricsSection extends S.Class<AgentEffectivene
  * @example
  * ```ts
  * import { AgentEffectivenessJsdocWorkerSection } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessJsdocWorkerSection)
+ *
+ * const section = AgentEffectivenessJsdocWorkerSection.make({
+ *   cleanupDeleteStatus: "ok",
+ *   cleanupStopStatus: "ok",
+ *   completedPackets: 50,
+ *   failedPackets: 0,
+ *   message: "JSDoc worker-eval completed without policy violations.",
+ *   otlpStatus: "exported",
+ *   policyViolationCodes: [],
+ *   reportPath: "goals/jsdoc-worker-eval/ops/manifest.json",
+ *   selectedPackets: 50,
+ *   status: "passed",
+ *   timedOutPackets: 0
+ * })
+ * console.log(section.completedPackets === section.selectedPackets)
  * ```
  * @category models
  * @since 0.0.0
@@ -437,7 +532,14 @@ export class AgentEffectivenessJsdocWorkerSection extends S.Class<AgentEffective
  * @example
  * ```ts
  * import { AgentEffectivenessDoctorSummary } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessDoctorSummary)
+ *
+ * const summary = AgentEffectivenessDoctorSummary.make({
+ *   failures: [],
+ *   status: "warning",
+ *   unavailable: ["phoenix: Phoenix probe disabled by --no-phoenix."],
+ *   warnings: []
+ * })
+ * console.log(summary.unavailable.length)
  * ```
  * @category models
  * @since 0.0.0
@@ -461,8 +563,65 @@ export class AgentEffectivenessDoctorSummary extends S.Class<AgentEffectivenessD
  *
  * @example
  * ```ts
- * import { AgentEffectivenessDoctorReport } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessDoctorReport)
+ * import {
+ *   AgentEffectivenessAiMetricsSection,
+ *   AgentEffectivenessDoctorReport,
+ *   AgentEffectivenessDoctorSummary,
+ *   AgentEffectivenessJsdocWorkerSection,
+ *   AgentEffectivenessPhoenixSection
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const summary = AgentEffectivenessDoctorSummary.make({
+ *   failures: [],
+ *   status: "passed",
+ *   unavailable: [],
+ *   warnings: []
+ * })
+ * const report = AgentEffectivenessDoctorReport.make({
+ *   aiMetrics: AgentEffectivenessAiMetricsSection.make({
+ *     benchmarkRunCount: 0,
+ *     dataRoot: ".beep/ai-metrics",
+ *     derivedDuckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *     labelCount: 0,
+ *     latestForwarder: null,
+ *     latestScorecard: null,
+ *     message: "AI-metrics evidence is present.",
+ *     sourceCoverage: [],
+ *     status: "passed",
+ *     unavailableMetrics: []
+ *   }),
+ *   dataRoot: ".beep/ai-metrics",
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   jsdocWorkerEval: AgentEffectivenessJsdocWorkerSection.make({
+ *     cleanupDeleteStatus: null,
+ *     cleanupStopStatus: null,
+ *     completedPackets: 1,
+ *     failedPackets: 0,
+ *     message: "JSDoc worker-eval completed.",
+ *     otlpStatus: null,
+ *     policyViolationCodes: [],
+ *     reportPath: "goals/jsdoc-worker-eval/ops/manifest.json",
+ *     selectedPackets: 1,
+ *     status: "passed",
+ *     timedOutPackets: 0
+ *   }),
+ *   phoenix: AgentEffectivenessPhoenixSection.make({
+ *     baseUrl: "https://phoenix.example.test",
+ *     datasetCount: 0,
+ *     evaluatorCount: 0,
+ *     message: "Phoenix probe disabled.",
+ *     projectCount: 0,
+ *     projects: [],
+ *     promptCount: 0,
+ *     serverInsufficientStorage: false,
+ *     status: "passed",
+ *     version: null
+ *   }),
+ *   schemaVersion: "agent-effectiveness-doctor/v1",
+ *   summary,
+ *   target: "dankserver"
+ * })
+ * console.log(report.summary.status)
  * ```
  * @category models
  * @since 0.0.0
@@ -491,7 +650,18 @@ export class AgentEffectivenessDoctorReport extends S.Class<AgentEffectivenessDo
  * @example
  * ```ts
  * import { AgentEffectivenessPlannedAnnotation } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessPlannedAnnotation)
+ *
+ * const annotation = AgentEffectivenessPlannedAnnotation.make({
+ *   annotationId: "ai-metrics:scorecard:scorecard-1:scorecard.total_score",
+ *   metadata: { configSnapshotId: "config-1" },
+ *   name: "scorecard.total_score",
+ *   optimization: "maximize",
+ *   source: "ai-metrics",
+ *   targetKind: "scorecard",
+ *   targetRef: "scorecard-1",
+ *   value: 0.91
+ * })
+ * console.log(annotation.metadata.configSnapshotId)
  * ```
  * @category models
  * @since 0.0.0
@@ -522,8 +692,86 @@ export class AgentEffectivenessPlannedAnnotation extends S.Class<AgentEffectiven
  *
  * @example
  * ```ts
- * import { AgentEffectivenessAnnotationPlan } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessAnnotationPlan)
+ * import {
+ *   AgentEffectivenessAnnotationPlan,
+ *   AgentEffectivenessAiMetricsSection,
+ *   AgentEffectivenessDoctorReport,
+ *   AgentEffectivenessDoctorSummary,
+ *   AgentEffectivenessJsdocWorkerSection,
+ *   AgentEffectivenessPhoenixSection,
+ *   AgentEffectivenessPlannedAnnotation
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const summary = AgentEffectivenessDoctorSummary.make({
+ *   failures: [],
+ *   status: "passed",
+ *   unavailable: [],
+ *   warnings: []
+ * })
+ * const doctor = AgentEffectivenessDoctorReport.make({
+ *   aiMetrics: AgentEffectivenessAiMetricsSection.make({
+ *     benchmarkRunCount: 0,
+ *     dataRoot: ".beep/ai-metrics",
+ *     derivedDuckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *     labelCount: 0,
+ *     latestForwarder: null,
+ *     latestScorecard: null,
+ *     message: "AI-metrics evidence is present.",
+ *     sourceCoverage: [],
+ *     status: "passed",
+ *     unavailableMetrics: []
+ *   }),
+ *   dataRoot: ".beep/ai-metrics",
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   jsdocWorkerEval: AgentEffectivenessJsdocWorkerSection.make({
+ *     cleanupDeleteStatus: null,
+ *     cleanupStopStatus: null,
+ *     completedPackets: 1,
+ *     failedPackets: 0,
+ *     message: "JSDoc worker-eval completed.",
+ *     otlpStatus: null,
+ *     policyViolationCodes: [],
+ *     reportPath: "goals/jsdoc-worker-eval/ops/manifest.json",
+ *     selectedPackets: 1,
+ *     status: "passed",
+ *     timedOutPackets: 0
+ *   }),
+ *   phoenix: AgentEffectivenessPhoenixSection.make({
+ *     baseUrl: "https://phoenix.example.test",
+ *     datasetCount: 0,
+ *     evaluatorCount: 0,
+ *     message: "Phoenix probe disabled.",
+ *     projectCount: 0,
+ *     projects: [],
+ *     promptCount: 0,
+ *     serverInsufficientStorage: false,
+ *     status: "passed",
+ *     version: null
+ *   }),
+ *   schemaVersion: "agent-effectiveness-doctor/v1",
+ *   summary,
+ *   target: "dankserver"
+ * })
+ * const plan = AgentEffectivenessAnnotationPlan.make({
+ *   annotations: [
+ *     AgentEffectivenessPlannedAnnotation.make({
+ *       annotationId: "agent-effectiveness-doctor:loop:phase1:agent.loop.status",
+ *       metadata: {},
+ *       name: "agent.loop.status",
+ *       optimization: "maximize",
+ *       source: "agent-effectiveness-doctor",
+ *       targetKind: "loop",
+ *       targetRef: "phase1",
+ *       value: "passed"
+ *     })
+ *   ],
+ *   doctor,
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   mutationPolicy: "local-only-no-phoenix-mutation",
+ *   schemaVersion: "agent-effectiveness-annotation-plan/v1",
+ *   summary
+ * })
+ * console.log(plan.annotations.length)
  * ```
  * @category models
  * @since 0.0.0
@@ -550,7 +798,13 @@ export class AgentEffectivenessAnnotationPlan extends S.Class<AgentEffectiveness
  * @example
  * ```ts
  * import { AgentEffectivenessAnnotationCheckFinding } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessAnnotationCheckFinding)
+ *
+ * const finding = AgentEffectivenessAnnotationCheckFinding.make({
+ *   annotationId: "plan.metadata",
+ *   code: "private-home-path",
+ *   message: "Plan payload contains forbidden private-home-path content."
+ * })
+ * console.log(finding.code)
  * ```
  * @category models
  * @since 0.0.0
@@ -574,7 +828,15 @@ export class AgentEffectivenessAnnotationCheckFinding extends S.Class<AgentEffec
  * @example
  * ```ts
  * import { AgentEffectivenessAnnotationCheckReport } from "@beep/repo-ai-metrics"
- * console.log(AgentEffectivenessAnnotationCheckReport)
+ *
+ * const report = AgentEffectivenessAnnotationCheckReport.make({
+ *   annotationCount: 3,
+ *   findings: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   schemaVersion: "agent-effectiveness-annotation-check/v1",
+ *   status: "passed"
+ * })
+ * console.log(report.findings.length)
  * ```
  * @category models
  * @since 0.0.0
@@ -601,7 +863,8 @@ export class AgentEffectivenessAnnotationCheckReport extends S.Class<AgentEffect
  * ```ts
  * import { AGENT_EFFECTIVENESS_PHOENIX_PROJECT } from "@beep/repo-ai-metrics"
  *
- * console.log(AGENT_EFFECTIVENESS_PHOENIX_PROJECT)
+ * const projectName = AGENT_EFFECTIVENESS_PHOENIX_PROJECT
+ * console.log(projectName === "beep-agent-effectiveness")
  * ```
  * @category constants
  * @since 0.0.0
@@ -615,7 +878,8 @@ export const AGENT_EFFECTIVENESS_PHOENIX_PROJECT = "beep-agent-effectiveness";
  * ```ts
  * import { AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION } from "@beep/repo-ai-metrics"
  *
- * console.log(AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION)
+ * const confirmed = AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION === "agent-effectiveness-phoenix-write"
+ * console.log(confirmed)
  * ```
  * @category constants
  * @since 0.0.0
@@ -1825,9 +2089,21 @@ const buildJsdocWorkerSection = Effect.fn("AiMetrics.agentEffectiveness.buildJsd
  *
  * @example
  * ```ts
- * import { makeAgentEffectivenessDoctorReport } from "@beep/repo-ai-metrics"
- * console.log(makeAgentEffectivenessDoctorReport)
+ * import { AgentEffectivenessDoctorInput, makeAgentEffectivenessDoctorReport } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = makeAgentEffectivenessDoctorReport(
+ *   AgentEffectivenessDoctorInput.make({ noPhoenix: true })
+ * )
+ * const status = Effect.map(program, (report) => report.summary.status)
+ * console.log(status)
  * ```
+ * @effects
+ * - Reads Phoenix health and GraphQL inventory unless `noPhoenix` disables the probe.
+ * - Reads the local AI-metrics DuckDB file when derived storage exists.
+ * - Reads the JSDoc worker-eval manifest or report from the selected path.
+ * - Captures the current clock time for the report timestamp.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -2161,9 +2437,27 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
  *
  * @example
  * ```ts
- * import { makeAgentEffectivenessAnnotationPlan } from "@beep/repo-ai-metrics"
- * console.log(makeAgentEffectivenessAnnotationPlan)
+ * import {
+ *   AgentEffectivenessAnnotationPlanInput,
+ *   AgentEffectivenessDoctorInput,
+ *   makeAgentEffectivenessAnnotationPlan
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = makeAgentEffectivenessAnnotationPlan(
+ *   AgentEffectivenessAnnotationPlanInput.make({
+ *     annotationLimit: 10,
+ *     doctor: AgentEffectivenessDoctorInput.make({ noPhoenix: true })
+ *   })
+ * )
+ * const annotationCount = Effect.map(program, (plan) => plan.annotations.length)
+ * console.log(annotationCount)
  * ```
+ * @effects
+ * - Builds the doctor report, including its Phoenix, DuckDB, worker-eval, and clock reads.
+ * - Reads outcome-label and benchmark-run rows from derived DuckDB storage when available.
+ * - Performs no Phoenix mutation; the result is a local dry-run annotation plan.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -2371,8 +2665,18 @@ const jsdocWorkerDataset = (doctor: AgentEffectivenessDoctorReport): AgentEffect
  * @returns Phoenix dataset bundle generated from the doctor report.
  * @example
  * ```ts
- * import { makeAgentEffectivenessDatasetBundle } from "@beep/repo-ai-metrics"
- * console.log(makeAgentEffectivenessDatasetBundle)
+ * import {
+ *   AgentEffectivenessDoctorInput,
+ *   makeAgentEffectivenessDatasetBundle,
+ *   makeAgentEffectivenessDoctorReport
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = makeAgentEffectivenessDoctorReport(
+ *   AgentEffectivenessDoctorInput.make({ noPhoenix: true })
+ * ).pipe(Effect.map(makeAgentEffectivenessDatasetBundle))
+ * const datasetNames = Effect.map(program, (bundle) => bundle.datasets.map((dataset) => dataset.name))
+ * console.log(datasetNames)
  * ```
  * @category services
  * @since 0.0.0
@@ -2401,7 +2705,10 @@ export const makeAgentEffectivenessDatasetBundle: (
  * @example
  * ```ts
  * import { makeAgentEffectivenessPromptBundle } from "@beep/repo-ai-metrics"
- * console.log(makeAgentEffectivenessPromptBundle)
+ *
+ * const bundle = makeAgentEffectivenessPromptBundle("2026-05-20T00:00:00.000Z")
+ * const promptNames = bundle.prompts.map((prompt) => prompt.name)
+ * console.log(promptNames)
  * ```
  * @category services
  * @since 0.0.0
@@ -2454,8 +2761,19 @@ export const makeAgentEffectivenessPromptBundle: (generatedAt: string) => AgentE
  * @returns Deterministic Phoenix experiment bundle for the supplied datasets.
  * @example
  * ```ts
- * import { makeAgentEffectivenessExperimentBundle } from "@beep/repo-ai-metrics"
- * console.log(makeAgentEffectivenessExperimentBundle)
+ * import {
+ *   AgentEffectivenessDatasetBundle,
+ *   makeAgentEffectivenessExperimentBundle
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const datasetBundle = AgentEffectivenessDatasetBundle.make({
+ *   datasets: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   schemaVersion: "agent-effectiveness-datasets/v1"
+ * })
+ * const experimentBundle = makeAgentEffectivenessExperimentBundle(datasetBundle)
+ * console.log(experimentBundle.experiments.length)
  * ```
  * @category services
  * @since 0.0.0
@@ -2651,9 +2969,20 @@ const unconfirmedSyncResult = ({
  * {@link AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}.
  * @example
  * ```ts
- * import { syncAgentEffectivenessPhoenix } from "@beep/repo-ai-metrics"
- * console.log(syncAgentEffectivenessPhoenix)
+ * import { AgentEffectivenessPhoenixSyncInput, syncAgentEffectivenessPhoenix } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = syncAgentEffectivenessPhoenix(
+ *   AgentEffectivenessPhoenixSyncInput.make({ dryRun: true })
+ * )
+ * const mutationPolicy = Effect.map(program, (result) => result.mutationPolicy)
+ * console.log(mutationPolicy)
  * ```
+ * @effects
+ * - In dry-run mode, reads local doctor and annotation evidence but does not mutate Phoenix.
+ * - In confirmed live mode, creates or appends Phoenix datasets, creates prompts and experiments, and writes valid trace/session/span annotations.
+ * - Blocks live writes unless the confirmation token matches {@link AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -3010,8 +3339,18 @@ const duplicateAnnotationIdFindings = (
  * @returns Report-only validation summary that never mutates Phoenix or local evidence.
  * @example
  * ```ts
- * import { makeAgentEffectivenessAnnotationCheckReport } from "@beep/repo-ai-metrics"
- * console.log(makeAgentEffectivenessAnnotationCheckReport)
+ * import {
+ *   AgentEffectivenessAnnotationPlanInput,
+ *   makeAgentEffectivenessAnnotationCheckReport,
+ *   makeAgentEffectivenessAnnotationPlan
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = makeAgentEffectivenessAnnotationPlan(
+ *   AgentEffectivenessAnnotationPlanInput.make({})
+ * ).pipe(Effect.map(makeAgentEffectivenessAnnotationCheckReport))
+ * const status = Effect.map(program, (report) => report.status)
+ * console.log(status)
  * ```
  * @category services
  * @since 0.0.0
@@ -3040,8 +3379,18 @@ export const makeAgentEffectivenessAnnotationCheckReport: (
  *
  * @example
  * ```ts
- * import { agentEffectivenessDoctorReportToJson } from "@beep/repo-ai-metrics"
- * console.log(agentEffectivenessDoctorReportToJson)
+ * import {
+ *   AgentEffectivenessDoctorInput,
+ *   agentEffectivenessDoctorReportToJson,
+ *   makeAgentEffectivenessDoctorReport
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = makeAgentEffectivenessDoctorReport(
+ *   AgentEffectivenessDoctorInput.make({ noPhoenix: true })
+ * ).pipe(Effect.flatMap(agentEffectivenessDoctorReportToJson))
+ * const hasSchemaVersion = Effect.map(program, (json) => json.includes("agent-effectiveness-doctor/v1"))
+ * console.log(hasSchemaVersion)
  * ```
  * @category encoding
  * @since 0.0.0
@@ -3065,8 +3414,18 @@ export const agentEffectivenessDoctorReportToJson: (
  *
  * @example
  * ```ts
- * import { agentEffectivenessAnnotationPlanToJson } from "@beep/repo-ai-metrics"
- * console.log(agentEffectivenessAnnotationPlanToJson)
+ * import {
+ *   AgentEffectivenessAnnotationPlanInput,
+ *   agentEffectivenessAnnotationPlanToJson,
+ *   makeAgentEffectivenessAnnotationPlan
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const program = makeAgentEffectivenessAnnotationPlan(
+ *   AgentEffectivenessAnnotationPlanInput.make({})
+ * ).pipe(Effect.flatMap(agentEffectivenessAnnotationPlanToJson))
+ * const hasMutationPolicy = Effect.map(program, (json) => json.includes("local-only-no-phoenix-mutation"))
+ * console.log(hasMutationPolicy)
  * ```
  * @category encoding
  * @since 0.0.0
@@ -3090,8 +3449,21 @@ export const agentEffectivenessAnnotationPlanToJson: (
  *
  * @example
  * ```ts
- * import { agentEffectivenessAnnotationCheckReportToJson } from "@beep/repo-ai-metrics"
- * console.log(agentEffectivenessAnnotationCheckReportToJson)
+ * import {
+ *   AgentEffectivenessAnnotationCheckReport,
+ *   agentEffectivenessAnnotationCheckReportToJson
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const report = AgentEffectivenessAnnotationCheckReport.make({
+ *   annotationCount: 0,
+ *   findings: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   schemaVersion: "agent-effectiveness-annotation-check/v1",
+ *   status: "passed"
+ * })
+ * const json = Effect.runPromise(agentEffectivenessAnnotationCheckReportToJson(report))
+ * console.log(json)
  * ```
  * @category encoding
  * @since 0.0.0
@@ -3116,8 +3488,20 @@ export const agentEffectivenessAnnotationCheckReportToJson: (
  *
  * @example
  * ```ts
- * import { agentEffectivenessDatasetBundleToJson } from "@beep/repo-ai-metrics"
- * console.log(agentEffectivenessDatasetBundleToJson)
+ * import {
+ *   AgentEffectivenessDatasetBundle,
+ *   agentEffectivenessDatasetBundleToJson
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const bundle = AgentEffectivenessDatasetBundle.make({
+ *   datasets: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   schemaVersion: "agent-effectiveness-datasets/v1"
+ * })
+ * const json = Effect.runPromise(agentEffectivenessDatasetBundleToJson(bundle))
+ * console.log(json)
  * ```
  * @category encoding
  * @since 0.0.0
@@ -3141,8 +3525,15 @@ export const agentEffectivenessDatasetBundleToJson: (
  *
  * @example
  * ```ts
- * import { agentEffectivenessPromptBundleToJson } from "@beep/repo-ai-metrics"
- * console.log(agentEffectivenessPromptBundleToJson)
+ * import {
+ *   agentEffectivenessPromptBundleToJson,
+ *   makeAgentEffectivenessPromptBundle
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const bundle = makeAgentEffectivenessPromptBundle("2026-05-20T00:00:00.000Z")
+ * const json = Effect.runPromise(agentEffectivenessPromptBundleToJson(bundle))
+ * console.log(json)
  * ```
  * @category encoding
  * @since 0.0.0
@@ -3166,8 +3557,22 @@ export const agentEffectivenessPromptBundleToJson: (
  *
  * @example
  * ```ts
- * import { agentEffectivenessExperimentBundleToJson } from "@beep/repo-ai-metrics"
- * console.log(agentEffectivenessExperimentBundleToJson)
+ * import {
+ *   AgentEffectivenessDatasetBundle,
+ *   agentEffectivenessExperimentBundleToJson,
+ *   makeAgentEffectivenessExperimentBundle
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const datasetBundle = AgentEffectivenessDatasetBundle.make({
+ *   datasets: [],
+ *   generatedAt: "2026-05-20T00:00:00.000Z",
+ *   projectName: "beep-agent-effectiveness",
+ *   schemaVersion: "agent-effectiveness-datasets/v1"
+ * })
+ * const bundle = makeAgentEffectivenessExperimentBundle(datasetBundle)
+ * const json = Effect.runPromise(agentEffectivenessExperimentBundleToJson(bundle))
+ * console.log(json)
  * ```
  * @category encoding
  * @since 0.0.0
@@ -3191,8 +3596,27 @@ export const agentEffectivenessExperimentBundleToJson: (
  *
  * @example
  * ```ts
- * import { agentEffectivenessPhoenixSyncResultToJson } from "@beep/repo-ai-metrics"
- * console.log(agentEffectivenessPhoenixSyncResultToJson)
+ * import {
+ *   AgentEffectivenessPhoenixSyncResult,
+ *   agentEffectivenessPhoenixSyncResultToJson
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const result = AgentEffectivenessPhoenixSyncResult.make({
+ *   annotationCount: 0,
+ *   datasetCount: 0,
+ *   dryRun: true,
+ *   experimentCount: 0,
+ *   mutationPolicy: "dry-run-no-phoenix-mutation",
+ *   promptCount: 0,
+ *   skippedAnnotationCount: 0,
+ *   status: "passed",
+ *   writtenDatasetIds: [],
+ *   writtenExperimentIds: [],
+ *   writtenPromptVersionIds: []
+ * })
+ * const json = Effect.runPromise(agentEffectivenessPhoenixSyncResultToJson(result))
+ * console.log(json)
  * ```
  * @category encoding
  * @since 0.0.0

@@ -12,13 +12,18 @@ import { LiteralKit } from "@beep/schema";
 const $I = $ArchitectureLabDomainId.create("values/WorkPriority/WorkPriority.model");
 
 /**
- * Reusable WorkItem priority vocabulary.
+ * Closed priority vocabulary shared by WorkItem creation and ranking behavior.
  *
  * @example
  * ```ts
- * import { WorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
+ * import { WorkPriority, type WorkPriority as WorkPriorityValue } from "@beep/architecture-lab-domain/values/WorkPriority"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkPriority)
+ * const priority: WorkPriorityValue = S.decodeUnknownSync(WorkPriority)("high")
+ *
+ * if (priority !== WorkPriority.Enum.high) {
+ *   throw new Error("expected decoded high priority")
+ * }
  * ```
  *
  * @category value-objects
@@ -33,6 +38,20 @@ export const WorkPriority = LiteralKit(["low", "normal", "high"]).pipe(
 
 /**
  * Runtime type for {@link WorkPriority}.
+ *
+ * @example
+ * ```ts
+ * import { WorkPriority, type WorkPriority as WorkPriorityValue } from "@beep/architecture-lab-domain/values/WorkPriority"
+ *
+ * const priority: WorkPriorityValue = WorkPriority.Enum.normal
+ * const isNormalPriority = priority === "normal"
+ *
+ * console.log(isNormalPriority)
+ *
+ * if (priority !== "normal") {
+ *   throw new Error("expected normal priority")
+ * }
+ * ```
  *
  * @category value-objects
  * @since 0.0.0

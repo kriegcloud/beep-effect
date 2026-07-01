@@ -22,7 +22,10 @@ type DbSchemaShape = {
  * ```ts
  * import { DbSchema } from "@beep/workspace-tables"
  *
- * console.log(DbSchema.candidateDraft.definition.tableName)
+ * const messageTableName: "workspace_message" = DbSchema.message.definition.tableName
+ * const lifecycleStorage = DbSchema.candidateDraft.definition.persisted.lifecycle.storageKind
+ *
+ * console.log(`${messageTableName}:${lifecycleStorage}`)
  * ```
  *
  * @category tables
@@ -39,15 +42,17 @@ export const DbSchema: DbSchemaShape = {
 /**
  * Type for {@link DbSchema}.
  *
- * @since 0.0.0
  * @example
  * ```ts
- * import type { DbSchema } from "@beep/workspace-tables"
+ * import { DbSchema, type DbSchema as DbSchemaType } from "@beep/workspace-tables"
  *
- * const value = {} as DbSchema
- * console.log(value)
+ * const schema: DbSchemaType = DbSchema
+ * const turnTableName: "workspace_turn" = schema.turn.definition.tableName
+ *
+ * console.log(turnTableName)
  * ```
  *
  * @category tables
+ * @since 0.0.0
  */
 export type DbSchema = DbSchemaShape;

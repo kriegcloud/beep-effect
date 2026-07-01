@@ -1,6 +1,7 @@
 /**
  * TSDoc-specific tag occurrence shapes.
  *
+ * @packageDocumentation
  * @category models
  * @since 0.0.0
  */
@@ -11,10 +12,15 @@ import { empty, nameField, optionalDesc } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TSDocTagValues");
 
 /**
+ * Schema-backed value for a parsed `alpha` tag occurrence: marks a symbol as alpha-quality.
+ *
  * @example
  * ```ts
  * import { AlphaValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(AlphaValue)
+ *
+ * const tag = AlphaValue.make({})
+ * const tagName: "alpha" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -28,10 +34,15 @@ export class AlphaValue extends S.TaggedClass<AlphaValue>($I`AlphaValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `beta` tag occurrence: marks a symbol as beta-quality.
+ *
  * @example
  * ```ts
  * import { BetaValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(BetaValue)
+ *
+ * const tag = BetaValue.make({})
+ * const tagName: "beta" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -45,10 +56,15 @@ export class BetaValue extends S.TaggedClass<BetaValue>($I`BetaValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `experimental` tag occurrence: marks a symbol as experimental.
+ *
  * @example
  * ```ts
  * import { ExperimentalValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(ExperimentalValue)
+ *
+ * const tag = ExperimentalValue.make({})
+ * const tagName: "experimental" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -62,10 +78,15 @@ export class ExperimentalValue extends S.TaggedClass<ExperimentalValue>($I`Exper
 ) {}
 
 /**
+ * Schema-backed value for a parsed `internal` tag occurrence: marks a symbol as internal.
+ *
  * @example
  * ```ts
  * import { InternalValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(InternalValue)
+ *
+ * const tag = InternalValue.make({})
+ * const tagName: "internal" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -79,10 +100,15 @@ export class InternalValue extends S.TaggedClass<InternalValue>($I`InternalValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `sealed` tag occurrence: marks a class as sealed.
+ *
  * @example
  * ```ts
  * import { SealedValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(SealedValue)
+ *
+ * const tag = SealedValue.make({})
+ * const tagName: "sealed" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -96,10 +122,15 @@ export class SealedValue extends S.TaggedClass<SealedValue>($I`SealedValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `virtual` tag occurrence: marks a method as virtual.
+ *
  * @example
  * ```ts
  * import { VirtualValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(VirtualValue)
+ *
+ * const tag = VirtualValue.make({})
+ * const tagName: "virtual" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -113,10 +144,15 @@ export class VirtualValue extends S.TaggedClass<VirtualValue>($I`VirtualValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `privateRemarks` tag occurrence: non-public remarks.
+ *
  * @example
  * ```ts
  * import { PrivateRemarksValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(PrivateRemarksValue)
+ *
+ * const tag = PrivateRemarksValue.make({ description: "Internal rollout note." })
+ * const tagName: "privateRemarks" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -130,10 +166,15 @@ export class PrivateRemarksValue extends S.TaggedClass<PrivateRemarksValue>($I`P
 ) {}
 
 /**
+ * Schema-backed value for a parsed `packageDocumentation` tag occurrence: marks file as package entry.
+ *
  * @example
  * ```ts
  * import { PackageDocumentationValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(PackageDocumentationValue)
+ *
+ * const tag = PackageDocumentationValue.make({})
+ * const tagName: "packageDocumentation" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -147,10 +188,15 @@ export class PackageDocumentationValue extends S.TaggedClass<PackageDocumentatio
 ) {}
 
 /**
+ * Schema-backed value for a parsed `label` tag occurrence: a reference label for cross-referencing.
+ *
  * @example
  * ```ts
  * import { LabelValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(LabelValue)
+ *
+ * const tag = LabelValue.make({ name: "tag-values" })
+ * const tagName: "label" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -164,10 +210,15 @@ export class LabelValue extends S.TaggedClass<LabelValue>($I`LabelValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `decorator` tag occurrence: documents a decorator.
+ *
  * @example
  * ```ts
  * import { DecoratorValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(DecoratorValue)
+ *
+ * const tag = DecoratorValue.make({ description: "Applied before class initialization." })
+ * const tagName: "decorator" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -181,10 +232,15 @@ export class DecoratorValue extends S.TaggedClass<DecoratorValue>($I`DecoratorVa
 ) {}
 
 /**
+ * Schema-backed value for a parsed `eventProperty` tag occurrence: marks a property as an event.
+ *
  * @example
  * ```ts
  * import { EventPropertyValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- * console.log(EventPropertyValue)
+ *
+ * const tag = EventPropertyValue.make({})
+ * const tagName: "eventProperty" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0

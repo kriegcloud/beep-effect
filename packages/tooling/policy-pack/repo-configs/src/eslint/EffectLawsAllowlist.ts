@@ -45,8 +45,10 @@ const decodedAllowlistSnapshot = pipe(
  * @returns `undefined` because snapshot-backed runtime has no mutable cache.
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { resetAllowlistCache } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
- * resetAllowlistCache()
+ *
+ * strictEqual(resetAllowlistCache(), undefined)
  * ```
  * @category utilities
  * @since 0.0.0

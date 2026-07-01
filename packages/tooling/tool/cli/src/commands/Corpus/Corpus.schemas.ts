@@ -17,7 +17,20 @@ const $I = $RepoCliId.create("commands/Corpus/Corpus.schemas");
  * @example
  * ```ts
  * import { CorpusProvenanceRecord } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusProvenanceRecord)
+ * import * as S from "effect/Schema"
+ *
+ * const record = S.decodeUnknownSync(CorpusProvenanceRecord)({
+ *   destPath: "/corpus/raw/source-a/a.txt",
+ *   mtimeEpoch: 1718000000,
+ *   mtimeIso: "2024-06-10T06:13:20Z",
+ *   originPath: "/origin/a.txt",
+ *   relativePath: "a.txt",
+ *   salvagedAt: "2026-06-11T15:00:00Z",
+ *   sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   sizeBytes: 0,
+ *   sourceLabel: "source-a"
+ * })
+ * console.log(record.sourceLabel) // "source-a"
  * ```
  * @category models
  * @since 0.0.0
@@ -72,7 +85,9 @@ export const decodeCorpusProvenanceRecordJson = S.decodeUnknownEffect(S.fromJson
  * @example
  * ```ts
  * import { RecycleBinFormatVersion } from "@beep/repo-cli/commands/Corpus"
- * console.log(RecycleBinFormatVersion)
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(RecycleBinFormatVersion)("v2")) // true
  * ```
  * @category schemas
  * @since 0.0.0
@@ -97,7 +112,17 @@ export type RecycleBinFormatVersion = typeof RecycleBinFormatVersion.Type;
  * @example
  * ```ts
  * import { RecycleBinOriginal } from "@beep/repo-cli/commands/Corpus"
- * console.log(RecycleBinOriginal)
+ * import * as S from "effect/Schema"
+ *
+ * const original = S.decodeUnknownSync(RecycleBinOriginal)({
+ *   deletedAtFiletime: "133600000000000000",
+ *   deletedAtIso: "2024-06-10T06:13:20.000Z",
+ *   originalName: "spec.docx",
+ *   originalPath: "C:\\Clients\\spec.docx",
+ *   originalSizeBytes: 11,
+ *   version: "v2"
+ * })
+ * console.log(original.originalName) // "spec.docx"
  * ```
  * @category models
  * @since 0.0.0
@@ -122,7 +147,24 @@ export class RecycleBinOriginal extends S.Class<RecycleBinOriginal>($I`RecycleBi
  * @example
  * ```ts
  * import { MatchedRestorationRecord } from "@beep/repo-cli/commands/Corpus"
- * console.log(MatchedRestorationRecord)
+ * import * as S from "effect/Schema"
+ *
+ * const record = S.decodeUnknownSync(MatchedRestorationRecord)({
+ *   contentRelativePath: "$R0CB4M9.docx",
+ *   matchStatus: "matched",
+ *   metadataRelativePath: "$I0CB4M9.docx",
+ *   original: {
+ *     deletedAtFiletime: "133600000000000000",
+ *     deletedAtIso: "2024-06-10T06:13:20.000Z",
+ *     originalName: "spec.docx",
+ *     originalPath: "C:\\Clients\\spec.docx",
+ *     originalSizeBytes: 11,
+ *     version: "v2"
+ *   },
+ *   pairKey: "0CB4M9.docx",
+ *   sourceLabel: "source-a"
+ * })
+ * console.log(record.matchStatus) // "matched"
  * ```
  * @category models
  * @since 0.0.0
@@ -147,7 +189,23 @@ export class MatchedRestorationRecord extends S.Class<MatchedRestorationRecord>(
  * @example
  * ```ts
  * import { UnmatchedMetadataRestorationRecord } from "@beep/repo-cli/commands/Corpus"
- * console.log(UnmatchedMetadataRestorationRecord)
+ * import * as S from "effect/Schema"
+ *
+ * const record = S.decodeUnknownSync(UnmatchedMetadataRestorationRecord)({
+ *   matchStatus: "unmatched-metadata",
+ *   metadataRelativePath: "$I0CB4M9.docx",
+ *   original: {
+ *     deletedAtFiletime: "133600000000000000",
+ *     deletedAtIso: "2024-06-10T06:13:20.000Z",
+ *     originalName: "spec.docx",
+ *     originalPath: "C:\\Clients\\spec.docx",
+ *     originalSizeBytes: 11,
+ *     version: "v2"
+ *   },
+ *   pairKey: "0CB4M9.docx",
+ *   sourceLabel: "source-a"
+ * })
+ * console.log(record.metadataRelativePath) // "$I0CB4M9.docx"
  * ```
  * @category models
  * @since 0.0.0
@@ -173,7 +231,14 @@ export class UnmatchedMetadataRestorationRecord extends S.Class<UnmatchedMetadat
  * @example
  * ```ts
  * import { UnmatchedContentRestorationRecord } from "@beep/repo-cli/commands/Corpus"
- * console.log(UnmatchedContentRestorationRecord)
+ *
+ * const record = UnmatchedContentRestorationRecord.make({
+ *   contentRelativePath: "$R0CB4M9.docx",
+ *   matchStatus: "unmatched-content",
+ *   pairKey: "0CB4M9.docx",
+ *   sourceLabel: "source-a"
+ * })
+ * console.log(record.contentRelativePath) // "$R0CB4M9.docx"
  * ```
  * @category models
  * @since 0.0.0
@@ -198,7 +263,15 @@ export class UnmatchedContentRestorationRecord extends S.Class<UnmatchedContentR
  * @example
  * ```ts
  * import { CorpusRestorationRecord } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusRestorationRecord)
+ * import * as S from "effect/Schema"
+ *
+ * const record = S.decodeUnknownSync(CorpusRestorationRecord)({
+ *   contentRelativePath: "$R0CB4M9.docx",
+ *   matchStatus: "unmatched-content",
+ *   pairKey: "0CB4M9.docx",
+ *   sourceLabel: "source-a"
+ * })
+ * console.log(record.matchStatus) // "unmatched-content"
  * ```
  * @category models
  * @since 0.0.0
@@ -250,7 +323,15 @@ export const encodeCorpusRestorationRecordJson = S.encodeUnknownEffect(S.fromJso
  * @example
  * ```ts
  * import { CorpusDuplicateSetRecord } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusDuplicateSetRecord)
+ * import * as S from "effect/Schema"
+ *
+ * const record = S.decodeUnknownSync(CorpusDuplicateSetRecord)({
+ *   copies: 2,
+ *   digest: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   members: "source-a/a.txt | source-b/a.txt",
+ *   sizeBytes: 11
+ * })
+ * console.log(record.copies) // 2
  * ```
  * @category models
  * @since 0.0.0
@@ -297,7 +378,9 @@ export const encodeCorpusDuplicateSetReportJson = S.encodeUnknownEffect(
  * @example
  * ```ts
  * import { RecycleBinEntryKind } from "@beep/repo-cli/commands/Corpus"
- * console.log(RecycleBinEntryKind)
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(RecycleBinEntryKind)("metadata")) // true
  * ```
  * @category schemas
  * @since 0.0.0
@@ -465,7 +548,18 @@ export class CorpusExtractOptions extends S.Class<CorpusExtractOptions>($I`Corpu
  * @example
  * ```ts
  * import { CorpusExtractSummary } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusExtractSummary)
+ * import { NonNegativeInt } from "@beep/schema"
+ *
+ * const summary = CorpusExtractSummary.make({
+ *   childArtifactCount: NonNegativeInt.make(1),
+ *   duplicatesSkipped: NonNegativeInt.make(0),
+ *   failedCount: NonNegativeInt.make(0),
+ *   skippedCount: NonNegativeInt.make(0),
+ *   sourceCount: NonNegativeInt.make(2),
+ *   succeededCount: NonNegativeInt.make(2),
+ *   textArtifactCount: NonNegativeInt.make(2)
+ * })
+ * console.log(summary.succeededCount) // 2
  * ```
  * @category models
  * @since 0.0.0
@@ -541,7 +635,9 @@ export class CorpusOrganizeOptions extends S.Class<CorpusOrganizeOptions>($I`Cor
  * @example
  * ```ts
  * import { CorpusOrganizeCategory } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusOrganizeCategory)
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(CorpusOrganizeCategory)("docket")) // true
  * ```
  * @category schemas
  * @since 0.0.0
@@ -574,7 +670,20 @@ export type CorpusOrganizeCategory = typeof CorpusOrganizeCategory.Type;
  * @example
  * ```ts
  * import { CorpusOrganizeRecord } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusOrganizeRecord)
+ *
+ * const record = CorpusOrganizeRecord.make({
+ *   category: "docket",
+ *   digest: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   docket: "10109WO02-US1",
+ *   docketFamily: "10109",
+ *   effectiveName: "response.docx",
+ *   materialized: true,
+ *   organizedRelativePath: "dockets/10109/10109WO02-US1/response.docx",
+ *   restoredFromRecycleBin: false,
+ *   sourceLabel: "source-a",
+ *   sourceRelativePath: "response.docx"
+ * })
+ * console.log(record.category) // "docket"
  * ```
  * @category models
  * @since 0.0.0
@@ -630,7 +739,21 @@ export const encodeCorpusOrganizeRecordJson = S.encodeUnknownEffect(S.fromJsonSt
  * @example
  * ```ts
  * import { CorpusOrganizeSummary } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusOrganizeSummary)
+ * import { NonNegativeInt } from "@beep/schema"
+ *
+ * const summary = CorpusOrganizeSummary.make({
+ *   canonicalArtifacts: NonNegativeInt.make(4),
+ *   clientFiles: NonNegativeInt.make(1),
+ *   docketFamilies: NonNegativeInt.make(1),
+ *   docketFiles: NonNegativeInt.make(2),
+ *   duplicatesSkipped: NonNegativeInt.make(0),
+ *   emailArchives: NonNegativeInt.make(1),
+ *   emailExportFiles: NonNegativeInt.make(0),
+ *   restoredNames: NonNegativeInt.make(1),
+ *   unsortedFiles: NonNegativeInt.make(0),
+ *   versionGroups: NonNegativeInt.make(1)
+ * })
+ * console.log(summary.docketFiles) // 2
  * ```
  * @category models
  * @since 0.0.0
@@ -712,7 +835,18 @@ export class CorpusEnrichOptions extends S.Class<CorpusEnrichOptions>($I`CorpusE
  * @example
  * ```ts
  * import { CorpusEnrichmentRecord } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusEnrichmentRecord)
+ * import { NonNegativeInt } from "@beep/schema"
+ *
+ * const record = CorpusEnrichmentRecord.make({
+ *   candidate: "10772255",
+ *   candidateKind: "patent",
+ *   docketFamilies: ["10109"],
+ *   occurrenceCount: NonNegativeInt.make(3),
+ *   parentApplicationNumbers: [],
+ *   patentNumber: "10772255",
+ *   status: "resolved"
+ * })
+ * console.log(record.candidateKind) // "patent"
  * ```
  * @category models
  * @since 0.0.0
@@ -767,7 +901,17 @@ export const encodeCorpusEnrichmentRecordJson = S.encodeUnknownEffect(S.fromJson
  * @example
  * ```ts
  * import { CorpusEnrichSummary } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusEnrichSummary)
+ * import { NonNegativeInt } from "@beep/schema"
+ *
+ * const summary = CorpusEnrichSummary.make({
+ *   applicationCandidates: NonNegativeInt.make(1),
+ *   failedLookups: NonNegativeInt.make(0),
+ *   familyAnchors: NonNegativeInt.make(1),
+ *   notFound: NonNegativeInt.make(0),
+ *   patentCandidates: NonNegativeInt.make(2),
+ *   resolved: NonNegativeInt.make(2)
+ * })
+ * console.log(summary.resolved) // 2
  * ```
  * @category models
  * @since 0.0.0
@@ -840,7 +984,16 @@ export class CorpusSalvageOptions extends S.Class<CorpusSalvageOptions>($I`Corpu
  * @example
  * ```ts
  * import { CorpusSalvageSummary } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusSalvageSummary)
+ * import { NonNegativeInt } from "@beep/schema"
+ *
+ * const summary = CorpusSalvageSummary.make({
+ *   bytesChecked: NonNegativeInt.make(11),
+ *   matched: NonNegativeInt.make(1),
+ *   mismatched: NonNegativeInt.make(0),
+ *   missing: NonNegativeInt.make(0),
+ *   recordsChecked: NonNegativeInt.make(1)
+ * })
+ * console.log(summary.matched) // 1
  * ```
  * @category models
  * @since 0.0.0
@@ -888,7 +1041,20 @@ export const encodeCorpusSalvageSummaryJson = S.encodeUnknownEffect(S.fromJsonSt
  * @example
  * ```ts
  * import { CorpusCatalogSummary } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusCatalogSummary)
+ * import { NonNegativeInt } from "@beep/schema"
+ *
+ * const summary = CorpusCatalogSummary.make({
+ *   distinctDigests: NonNegativeInt.make(1),
+ *   duplicateFiles: NonNegativeInt.make(0),
+ *   duplicateSets: NonNegativeInt.make(0),
+ *   matchedRestorations: NonNegativeInt.make(1),
+ *   redundantBytes: NonNegativeInt.make(0),
+ *   sourceFiles: NonNegativeInt.make(1),
+ *   totalBytes: NonNegativeInt.make(11),
+ *   unmatchedContentFiles: NonNegativeInt.make(0),
+ *   unmatchedMetadataFiles: NonNegativeInt.make(0)
+ * })
+ * console.log(summary.sourceFiles) // 1
  * ```
  * @category models
  * @since 0.0.0

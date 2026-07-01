@@ -41,6 +41,7 @@ const ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY = 256;
  * import type { AcpClientOptions } from "@beep/acp/client"
  *
  * const options: AcpClientOptions = { logOutgoing: true }
+ * console.log(options.logOutgoing)
  * ```
  *
  * @category models
@@ -294,7 +295,10 @@ export interface AcpClientShape {
  * import { Effect } from "effect"
  * import { AcpClient } from "@beep/acp/client"
  *
- * const program = Effect.service(AcpClient)
+ * const program = Effect.service(AcpClient).pipe(
+ *   Effect.map((client) => typeof client.agent.prompt)
+ * )
+ * console.log(program)
  * ```
  *
  * @category services
@@ -354,6 +358,9 @@ interface BufferedNotificationHandler<A> {
  * console.log(fromStdio)
  * ```
  *
+ * @effects Builds client and server RPC handlers, registers scoped protocol
+ * fibers, buffers inbound notifications, and communicates through the supplied
+ * `Stdio` transport when the returned Effect runs.
  * @category constructors
  * @since 0.0.0
  */

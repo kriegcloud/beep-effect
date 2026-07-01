@@ -164,10 +164,13 @@ const applyEnsureAbsentPathOperation = Effect.fn("Architecture.applyEnsureAbsent
  *   checkCanonicalSliceOperationPlan,
  *   makeCanonicalSliceOperationPlan,
  * } from "@beep/repo-cli/commands/Architecture/index"
+ * import { NodeServices } from "@effect/platform-node"
+ * import { Effect } from "effect"
  *
  * const program = checkCanonicalSliceOperationPlan("/workspace/beep-effect", makeCanonicalSliceOperationPlan())
- * console.log(program)
+ * Effect.runPromise(program.pipe(Effect.provide(NodeServices.layer))).then((result) => console.log(result.idempotent))
  * ```
+ * @effects Reads repository-relative files named by the plan and reports missing, differing, or unexpected paths.
  * @category utilities
  * @since 0.0.0
  */
@@ -256,10 +259,13 @@ export const checkCanonicalSliceOperationPlan: {
  *   applyCanonicalSliceOperationPlan,
  *   makeCanonicalSliceOperationPlan,
  * } from "@beep/repo-cli/commands/Architecture/index"
+ * import { NodeServices } from "@effect/platform-node"
+ * import { Effect } from "effect"
  *
  * const program = applyCanonicalSliceOperationPlan("/workspace/beep-effect", makeCanonicalSliceOperationPlan())
- * console.log(program)
+ * Effect.runPromise(program.pipe(Effect.provide(NodeServices.layer))).then((result) => console.log(result.writtenPaths.length))
  * ```
+ * @effects Creates parent directories, writes missing files, removes legacy paths, and reads existing files to reject conflicting content.
  * @category utilities
  * @since 0.0.0
  */

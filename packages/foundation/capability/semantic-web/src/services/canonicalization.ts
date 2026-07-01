@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -37,13 +36,16 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { CanonicalizationAlgorithm } from "@beep/semantic-web/services/canonicalization"
  *
- * console.log(CanonicalizationAlgorithm)
+ * const algorithm = S.decodeUnknownSync(CanonicalizationAlgorithm)("rdfc-1.0")
+ * strictEqual(algorithm, "rdfc-1.0")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v1"]).pipe(
   $I.annoteSchema("CanonicalizationAlgorithm", {
@@ -56,13 +58,18 @@ export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { CanonicalizationError } from "@beep/semantic-web/services/canonicalization"
  *
- * console.log(CanonicalizationError)
+ * const error = CanonicalizationError.make({
+ *   reason: "unsupportedAlgorithm",
+ *   message: "Only rdfc-1.0 is accepted for graph-safe fingerprints."
+ * })
+ * strictEqual(error.reason, "unsupportedAlgorithm")
  * ```
  *
+ * @category errors
  * @since 0.0.0
- * @category error-handling
  */
 export class CanonicalizationError extends TaggedErrorClass<CanonicalizationError>($I`CanonicalizationError`)(
   "CanonicalizationError",
@@ -81,13 +88,19 @@ export class CanonicalizationError extends TaggedErrorClass<CanonicalizationErro
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { CanonicalizeDatasetRequest } from "@beep/semantic-web/services/canonicalization"
  *
- * console.log(CanonicalizeDatasetRequest)
+ * const request = S.decodeUnknownSync(CanonicalizeDatasetRequest)({
+ *   dataset: { quads: [] },
+ *   algorithm: "rdfc-1.0"
+ * })
+ * strictEqual(request.algorithm, "rdfc-1.0")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class CanonicalizeDatasetRequest extends S.Class<CanonicalizeDatasetRequest>($I`CanonicalizeDatasetRequest`)(
   {
@@ -109,13 +122,19 @@ export class CanonicalizeDatasetRequest extends S.Class<CanonicalizeDatasetReque
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { FingerprintDatasetRequest } from "@beep/semantic-web/services/canonicalization"
  *
- * console.log(FingerprintDatasetRequest)
+ * const request = S.decodeUnknownSync(FingerprintDatasetRequest)({
+ *   dataset: { quads: [] },
+ *   algorithm: "lexical-sort-v1"
+ * })
+ * strictEqual(request.dataset.quads.length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class FingerprintDatasetRequest extends S.Class<FingerprintDatasetRequest>($I`FingerprintDatasetRequest`)(
   {
@@ -137,13 +156,19 @@ export class FingerprintDatasetRequest extends S.Class<FingerprintDatasetRequest
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { CanonicalDatasetResult } from "@beep/semantic-web/services/canonicalization"
  *
- * console.log(CanonicalDatasetResult)
+ * const result = S.decodeUnknownSync(CanonicalDatasetResult)({
+ *   canonicalText: "",
+ *   dataset: { quads: [] }
+ * })
+ * strictEqual(result.canonicalText, "")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class CanonicalDatasetResult extends S.Class<CanonicalDatasetResult>($I`CanonicalDatasetResult`)(
   {
@@ -161,13 +186,20 @@ export class CanonicalDatasetResult extends S.Class<CanonicalDatasetResult>($I`C
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { DatasetFingerprint } from "@beep/semantic-web/services/canonicalization"
  *
- * console.log(DatasetFingerprint)
+ * const fingerprint = "0".repeat(64)
+ * const result = S.decodeUnknownSync(DatasetFingerprint)({
+ *   canonicalText: "<s> <p> <o> .",
+ *   fingerprint
+ * })
+ * strictEqual(result.fingerprint, fingerprint)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class DatasetFingerprint extends S.Class<DatasetFingerprint>($I`DatasetFingerprint`)(
   {
@@ -208,13 +240,43 @@ export interface CanonicalizationServiceShape {
  *
  * @example
  * ```ts
- * import { CanonicalizationService } from "@beep/semantic-web/services/canonicalization"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   CanonicalDatasetResult,
+ *   CanonicalizationError,
+ *   CanonicalizationService,
+ *   CanonicalizeDatasetRequest
+ * } from "@beep/semantic-web/services/canonicalization"
  *
- * console.log(CanonicalizationService)
+ * const request = S.decodeUnknownSync(CanonicalizeDatasetRequest)({
+ *   dataset: { quads: [] },
+ *   algorithm: "rdfc-1.0"
+ * })
+ * const program = Effect.gen(function* () {
+ *   const service = yield* CanonicalizationService
+ *   const result = yield* service.canonicalize(request)
+ *   return result.canonicalText
+ * })
+ *
+ * const canonicalText = Effect.runSync(
+ *   Effect.provideService(
+ *     program,
+ *     CanonicalizationService,
+ *     CanonicalizationService.of({
+ *       canonicalize: () =>
+ *         Effect.succeed(S.decodeUnknownSync(CanonicalDatasetResult)({ canonicalText: "", dataset: { quads: [] } })),
+ *       fingerprint: () =>
+ *         Effect.fail(CanonicalizationError.make({ reason: "fingerprintFailure", message: "not used" }))
+ *     })
+ *   )
+ * )
+ * strictEqual(canonicalText, "")
  * ```
  *
+ * @category services
  * @since 0.0.0
- * @category models
  */
 export class CanonicalizationService extends Context.Service<CanonicalizationService, CanonicalizationServiceShape>()(
   $I`CanonicalizationService`

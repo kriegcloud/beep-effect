@@ -24,15 +24,25 @@ const $I = $AgentsUseCasesId.create("processes/AssistantTurn/AssistantTurn.kerne
  * @example
  * ```ts
  * import type { AgentTurnKernelShape } from "@beep/agents-use-cases/public"
+ * import { Stream } from "effect"
  *
- * declare const kernel: AgentTurnKernelShape
- * console.log(kernel.streamTurn)
+ * const kernel: AgentTurnKernelShape = {
+ *   streamTurn: () => Stream.empty
+ * }
+ *
+ * const stream = kernel.streamTurn([{ role: "user", text: "Summarize this." }])
+ * console.log(stream)
  * ```
  *
  * @category services
  * @since 0.0.0
  */
 export interface AgentTurnKernelShape {
+  /**
+   * Streams the next generated assistant turn for the supplied prompt history.
+   *
+   * @since 0.0.0
+   */
   readonly streamTurn: (history: ReadonlyArray<TurnHistoryItem>) => Stream.Stream<IndexedBlock, TurnGenerationError>;
 }
 
@@ -42,8 +52,19 @@ export interface AgentTurnKernelShape {
  * @example
  * ```ts
  * import { AgentTurnKernel } from "@beep/agents-use-cases/public"
+ * import { FixtureTurnKernel } from "@beep/agents-use-cases/proof"
+ * import { Effect, Stream } from "effect"
  *
- * console.log(AgentTurnKernel)
+ * const program = Effect.gen(function* () {
+ *   const kernel = yield* AgentTurnKernel
+ *   const blocks = yield* Stream.runCollect(
+ *     kernel.streamTurn([{ role: "user", text: "ping" }])
+ *   )
+ *
+ *   return blocks.map((block) => block.index)
+ * }).pipe(Effect.provide(FixtureTurnKernel))
+ *
+ * Effect.runPromise(program).then(console.log) // [0, 1, 2, 3]
  * ```
  *
  * @category services

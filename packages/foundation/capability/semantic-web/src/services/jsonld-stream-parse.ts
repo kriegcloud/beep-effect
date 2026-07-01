@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -38,13 +37,16 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdStreamMode } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdStreamMode)
+ * const mode = S.decodeUnknownSync(JsonLdStreamMode)("buffered-fallback")
+ * strictEqual(mode, "buffered-fallback")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const JsonLdStreamMode = LiteralKit(["true-streaming", "buffered-fallback"]).pipe(
   $I.annoteSchema("JsonLdStreamMode", {
@@ -73,13 +75,20 @@ export type JsonLdStreamMode = typeof JsonLdStreamMode.Type;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdTextChunkStream } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdTextChunkStream)
+ * const input = S.decodeUnknownSync(JsonLdTextChunkStream)({
+ *   kind: "text",
+ *   encoding: "utf-8",
+ *   chunks: ["{\"@graph\":[]}"]
+ * })
+ * strictEqual(input.chunks.length, 1)
  * ```
  *
+ * @category streams
  * @since 0.0.0
- * @category models
  */
 export class JsonLdTextChunkStream extends S.Class<JsonLdTextChunkStream>($I`JsonLdTextChunkStream`)(
   {
@@ -101,13 +110,20 @@ export class JsonLdTextChunkStream extends S.Class<JsonLdTextChunkStream>($I`Jso
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdByteChunkStream } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdByteChunkStream)
+ * const input = S.decodeUnknownSync(JsonLdByteChunkStream)({
+ *   kind: "bytes",
+ *   encoding: "utf-8",
+ *   chunks: [new TextEncoder().encode("{\"@graph\":[]}")]
+ * })
+ * strictEqual(input.encoding, "utf-8")
  * ```
  *
+ * @category streams
  * @since 0.0.0
- * @category models
  */
 export class JsonLdByteChunkStream extends S.Class<JsonLdByteChunkStream>($I`JsonLdByteChunkStream`)(
   {
@@ -129,13 +145,20 @@ export class JsonLdByteChunkStream extends S.Class<JsonLdByteChunkStream>($I`Jso
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdStreamParseInput } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdStreamParseInput)
+ * const input = S.decodeUnknownSync(JsonLdStreamParseInput)({
+ *   kind: "text",
+ *   encoding: "utf-8",
+ *   chunks: ["{\"@graph\":[]}"]
+ * })
+ * strictEqual(input.kind, "text")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const JsonLdStreamParseInput = S.Union([JsonLdTextChunkStream, JsonLdByteChunkStream]).pipe(
   S.toTaggedUnion("kind"),
@@ -165,13 +188,23 @@ export type JsonLdStreamParseInput = typeof JsonLdStreamParseInput.Type;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdStreamParseRequest } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdStreamParseRequest)
+ * const request = S.decodeUnknownSync(JsonLdStreamParseRequest)({
+ *   input: {
+ *     kind: "text",
+ *     encoding: "utf-8",
+ *     chunks: ["{\"@graph\":[]}"]
+ *   },
+ *   loaderPolicy: { allowRemoteDocuments: false }
+ * })
+ * strictEqual(request.input.kind, "text")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class JsonLdStreamParseRequest extends S.Class<JsonLdStreamParseRequest>($I`JsonLdStreamParseRequest`)(
   {
@@ -192,13 +225,20 @@ export class JsonLdStreamParseRequest extends S.Class<JsonLdStreamParseRequest>(
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdStreamParseResult } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdStreamParseResult)
+ * const result = S.decodeUnknownSync(JsonLdStreamParseResult)({
+ *   dataset: { quads: [] },
+ *   mode: "buffered-fallback",
+ *   chunkCount: 1
+ * })
+ * strictEqual(result.chunkCount, 1)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class JsonLdStreamParseResult extends S.Class<JsonLdStreamParseResult>($I`JsonLdStreamParseResult`)(
   {
@@ -220,13 +260,16 @@ export class JsonLdStreamParseResult extends S.Class<JsonLdStreamParseResult>($I
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdStreamParseErrorReason } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdStreamParseErrorReason)
+ * const reason = S.decodeUnknownSync(JsonLdStreamParseErrorReason)("parseFailure")
+ * strictEqual(reason, "parseFailure")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const JsonLdStreamParseErrorReason = LiteralKit([
   "parseFailure",
@@ -243,13 +286,18 @@ export const JsonLdStreamParseErrorReason = LiteralKit([
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { JsonLdStreamParseError } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdStreamParseError)
+ * const error = JsonLdStreamParseError.make({
+ *   reason: "unsupportedEncoding",
+ *   message: "Only UTF-8 chunks are accepted."
+ * })
+ * strictEqual(error.reason, "unsupportedEncoding")
  * ```
  *
+ * @category errors
  * @since 0.0.0
- * @category error-handling
  */
 export class JsonLdStreamParseError extends TaggedErrorClass<JsonLdStreamParseError>($I`JsonLdStreamParseError`)(
   "JsonLdStreamParseError",
@@ -289,13 +337,44 @@ export interface JsonLdStreamParseServiceShape {
  *
  * @example
  * ```ts
- * import { JsonLdStreamParseService } from "@beep/semantic-web/services/jsonld-stream-parse"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   JsonLdStreamParseRequest,
+ *   JsonLdStreamParseResult,
+ *   JsonLdStreamParseService
+ * } from "@beep/semantic-web/services/jsonld-stream-parse"
  *
- * console.log(JsonLdStreamParseService)
+ * const request = S.decodeUnknownSync(JsonLdStreamParseRequest)({
+ *   input: { kind: "text", encoding: "utf-8", chunks: ["{\"@graph\":[]}"] }
+ * })
+ * const program = Effect.gen(function* () {
+ *   const service = yield* JsonLdStreamParseService
+ *   return yield* service.parse(request)
+ * })
+ *
+ * const result = Effect.runSync(
+ *   Effect.provideService(
+ *     program,
+ *     JsonLdStreamParseService,
+ *     JsonLdStreamParseService.of({
+ *       parse: () =>
+ *         Effect.succeed(
+ *           S.decodeUnknownSync(JsonLdStreamParseResult)({
+ *             dataset: { quads: [] },
+ *             mode: "buffered-fallback",
+ *             chunkCount: 1
+ *           })
+ *         )
+ *     })
+ *   )
+ * )
+ * strictEqual(result.mode, "buffered-fallback")
  * ```
  *
+ * @category services
  * @since 0.0.0
- * @category models
  */
 export class JsonLdStreamParseService extends Context.Service<
   JsonLdStreamParseService,

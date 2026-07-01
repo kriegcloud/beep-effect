@@ -68,7 +68,14 @@ export type AiMetricsSourceStatus = typeof AiMetricsSourceStatus.Type;
  * @example
  * ```ts
  * import { AiMetricsSourceDiscoveryInput } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsSourceDiscoveryInput)
+ *
+ * const input = AiMetricsSourceDiscoveryInput.make({
+ *   hashSalt: "salt",
+ *   homeDir: "/home/me",
+ *   maxFiles: 25,
+ *   repoRoot: "/repo"
+ * })
+ * console.log(input.target)
  * ```
  * @category models
  * @since 0.0.0
@@ -109,7 +116,16 @@ export class AiMetricsSourceDiscoveryInput extends S.Class<AiMetricsSourceDiscov
  * @example
  * ```ts
  * import { AiMetricsDiscoveredTranscriptFile } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsDiscoveredTranscriptFile)
+ *
+ * const file = AiMetricsDiscoveredTranscriptFile.make({
+ *   modifiedAtMillis: 1_717_000_000_000,
+ *   sessionIdHash: "session-hash",
+ *   sizeBytes: 4096,
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash",
+ *   sourceRole: "primary"
+ * })
+ * console.log(file.sizeBytes)
  * ```
  * @category models
  * @since 0.0.0
@@ -142,7 +158,15 @@ export class AiMetricsDiscoveredTranscriptFile extends S.Class<AiMetricsDiscover
  * @example
  * ```ts
  * import { AiMetricsDiscoveredSource } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsDiscoveredSource)
+ *
+ * const source = AiMetricsDiscoveredSource.make({
+ *   fileCount: 0,
+ *   files: [],
+ *   rootPathHash: "root-hash",
+ *   sourceKind: "claude",
+ *   status: "missing"
+ * })
+ * console.log(source.fileCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -184,7 +208,19 @@ export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource
  * @example
  * ```ts
  * import { AiMetricsSourceDiscoveryResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsSourceDiscoveryResult)
+ *
+ * const result = AiMetricsSourceDiscoveryResult.make({
+ *   discoveredFileCount: 0,
+ *   generatedAtEpochMillis: 1_717_000_000_000,
+ *   hashSaltStatus: "provided",
+ *   homeDirHash: "home-hash",
+ *   includeAll: false,
+ *   maxFiles: 200,
+ *   repoRootHash: "repo-hash",
+ *   sources: [],
+ *   target: "local"
+ * })
+ * console.log(result.hashSaltStatus)
  * ```
  * @category models
  * @since 0.0.0
@@ -216,7 +252,12 @@ export class AiMetricsSourceDiscoveryResult extends S.Class<AiMetricsSourceDisco
  * @example
  * ```ts
  * import { AiMetricsSourceDiscoveryError } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsSourceDiscoveryError)
+ *
+ * const error = AiMetricsSourceDiscoveryError.make({
+ *   cause: "stat failed",
+ *   message: "Failed to stat AI metrics source file."
+ * })
+ * console.log(error.message)
  * ```
  * @category errors
  * @since 0.0.0
@@ -565,9 +606,25 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
  *
  * @example
  * ```ts
- * import { discoverAiMetricsSources } from "@beep/repo-ai-metrics"
- * console.log(discoverAiMetricsSources)
+ * import { AiMetricsSourceDiscoveryInput, discoverAiMetricsSources } from "@beep/repo-ai-metrics"
+ * import { NodeServices } from "@effect/platform-node"
+ * import { Effect } from "effect"
+ *
+ * const program = discoverAiMetricsSources(
+ *   AiMetricsSourceDiscoveryInput.make({
+ *     hashSalt: "salt",
+ *     homeDir: "/home/me",
+ *     repoRoot: "/repo"
+ *   })
+ * ).pipe(Effect.provide(NodeServices.layer))
+ * console.log(program)
  * ```
+ * @effects
+ * - Stats configured Codex, Claude, and OpenClaw source roots.
+ * - Recursively scans JSONL transcript files up to `maxFiles`.
+ * - Reads Codex session metadata only far enough to derive source attribution.
+ * - Hashes private local paths and session identifiers before returning results.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -622,8 +679,25 @@ export const discoverAiMetricsSources = Effect.fn("AiMetrics.discoverAiMetricsSo
  *
  * @example
  * ```ts
- * import { sourceDiscoveryToJson } from "@beep/repo-ai-metrics"
- * console.log(sourceDiscoveryToJson)
+ * import { AiMetricsSourceDiscoveryResult, sourceDiscoveryToJson } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   sourceDiscoveryToJson(
+ *     AiMetricsSourceDiscoveryResult.make({
+ *       discoveredFileCount: 0,
+ *       generatedAtEpochMillis: 1_717_000_000_000,
+ *       hashSaltStatus: "provided",
+ *       homeDirHash: "home-hash",
+ *       includeAll: false,
+ *       maxFiles: 200,
+ *       repoRootHash: "repo-hash",
+ *       sources: [],
+ *       target: "local"
+ *     })
+ *   )
+ * )
+ * console.log(json)
  * ```
  * @category utilities
  * @since 0.0.0

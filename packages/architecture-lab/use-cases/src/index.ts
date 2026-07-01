@@ -13,7 +13,9 @@
  * ```ts
  * import { VERSION } from "@beep/architecture-lab-use-cases"
  *
- * console.log(VERSION)
+ * const isInitialUseCaseApi = VERSION === "0.0.0"
+ *
+ * console.log(isInitialUseCaseApi) // true
  * ```
  *
  * @category use-cases

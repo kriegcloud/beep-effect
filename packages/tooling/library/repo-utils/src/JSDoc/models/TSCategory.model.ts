@@ -63,7 +63,8 @@ type TSCategoryTagBase = typeof TSCategoryTagBase.Type;
  * ```ts
  * import { CategoryPurity } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(CategoryPurity)
+ * const purity = CategoryPurity.Enum.pure
+ * console.log(CategoryPurity.is.pure(purity))
  * ```
  * @category models
  * @since 0.0.0
@@ -98,9 +99,10 @@ export type CategoryPurity = typeof CategoryPurity.Type;
  *
  * @example
  * ```ts
- * import { TSCategoryDefinition } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
+ * import { getCategory } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(TSCategoryDefinition)
+ * const category = getCategory("Utility")
+ * console.log(category?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -245,9 +247,13 @@ declare module "effect/Schema" {
  * @returns The TSCategoryDefinition metadata or `undefined`.
  * @example
  * ```ts
- * import { getTSCategoryMetadata } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
+ * import { getCategory, getTSCategoryMetadata, make } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(getTSCategoryMetadata)
+ * const utility = getCategory("Utility")
+ * if (utility !== undefined) {
+ *   const tagSchema = make("Utility", utility)
+ *   console.log(getTSCategoryMetadata(tagSchema)?._tag)
+ * }
  * ```
  * @category models
  * @since 0.0.0
@@ -266,9 +272,13 @@ export const getTSCategoryMetadata = (schema: S.Top): TSCategoryAnnotationPayloa
  * @returns Literal category schema annotated with validated metadata.
  * @example
  * ```ts
- * import { make } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
+ * import { getCategory, getTSCategoryMetadata, make } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(make)
+ * const utility = getCategory("Utility")
+ * if (utility !== undefined) {
+ *   const tagSchema = make("Utility", utility)
+ *   console.log(getTSCategoryMetadata(tagSchema)?._tag)
+ * }
  * ```
  * @category models
  * @since 0.0.0
@@ -288,7 +298,7 @@ export const make: {
  * ```ts
  * import { DETERMINISTIC_CLASSIFICATION_THRESHOLD } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(DETERMINISTIC_CLASSIFICATION_THRESHOLD)
+ * console.log(DETERMINISTIC_CLASSIFICATION_THRESHOLD > 0.8)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -300,9 +310,12 @@ export const DETERMINISTIC_CLASSIFICATION_THRESHOLD = 0.85;
  *
  * @example
  * ```ts
- * import { UNCATEGORIZED_GUARDRAIL_THRESHOLD } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
+ * import {
+ *   DETERMINISTIC_CLASSIFICATION_THRESHOLD,
+ *   UNCATEGORIZED_GUARDRAIL_THRESHOLD
+ * } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(UNCATEGORIZED_GUARDRAIL_THRESHOLD)
+ * console.log(UNCATEGORIZED_GUARDRAIL_THRESHOLD < DETERMINISTIC_CLASSIFICATION_THRESHOLD)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -319,7 +332,8 @@ export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
  * ```ts
  * import { TESTING_FILE_PATTERNS } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(TESTING_FILE_PATTERNS)
+ * const matchesTests = TESTING_FILE_PATTERNS.some((pattern) => pattern.includes("test"))
+ * console.log(matchesTests)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -348,7 +362,7 @@ export const TESTING_FILE_PATTERNS = [
  * ```ts
  * import { TESTING_IMPORT_PATTERNS } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(TESTING_IMPORT_PATTERNS)
+ * console.log(TESTING_IMPORT_PATTERNS.includes("vitest*"))
  * ```
  * @category configuration
  * @since 0.0.0
@@ -965,7 +979,8 @@ type Uncategorized = typeof Uncategorized.Type;
  * ```ts
  * import { TSCategoryTag } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(TSCategoryTag)
+ * const tag = TSCategoryTag.Enum.Utility
+ * console.log(TSCategoryTag.is.Utility(tag))
  * ```
  * @category models
  * @since 0.0.0
@@ -1027,7 +1042,7 @@ const CATEGORY_TAG_SCHEMAS = [
  * ```ts
  * import { CATEGORY_TAXONOMY } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(CATEGORY_TAXONOMY)
+ * console.log(CATEGORY_TAXONOMY.length)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -1084,7 +1099,7 @@ const UNCATEGORIZED_CATEGORY_TAG: CategoryTag = "Uncategorized";
  * ```ts
  * import { CATEGORY_PRECEDENCE } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(CATEGORY_PRECEDENCE)
+ * console.log(CATEGORY_PRECEDENCE.includes("Validation"))
  * ```
  * @category configuration
  * @since 0.0.0
@@ -1112,7 +1127,7 @@ export const CATEGORY_PRECEDENCE: ReadonlyArray<CategoryTag> = [
  * ```ts
  * import { CONTEXT_FALLBACK_POLICY } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(CONTEXT_FALLBACK_POLICY)
+ * console.log(CONTEXT_FALLBACK_POLICY.fallbackCategory)
  * ```
  * @category configuration
  * @since 0.0.0
@@ -1136,7 +1151,7 @@ export const CONTEXT_FALLBACK_POLICY = {
  * ```ts
  * import { APPLICABLE_TO_CATEGORY_ROUTING } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(APPLICABLE_TO_CATEGORY_ROUTING)
+ * console.log(APPLICABLE_TO_CATEGORY_ROUTING.function[0])
  * ```
  * @category configuration
  * @since 0.0.0
@@ -1207,7 +1222,7 @@ const combineSignalConfidences: (confidences: ReadonlyArray<number>) => number =
  * ```ts
  * import { getCategoryPrecedence } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(getCategoryPrecedence)
+ * console.log(getCategoryPrecedence("Validation"))
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1229,7 +1244,7 @@ export function getCategoryPrecedence(tag: CategoryTag): number {
  * ```ts
  * import { getCategory } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(getCategory)
+ * console.log(getCategory("Utility")?._tag)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1251,7 +1266,7 @@ export function getCategory(tag: TSCategoryTag): TSCategory | undefined {
  * ```ts
  * import { getCategoriesByPurity } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(getCategoriesByPurity)
+ * console.log(getCategoriesByPurity("pure").length)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1272,7 +1287,7 @@ export function getCategoriesByPurity(purity: TSCategory["purity"]): ReadonlyArr
  * ```ts
  * import { getCategoriesByArchLayer } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(getCategoriesByArchLayer)
+ * console.log(getCategoriesByArchLayer("Core").length)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1298,7 +1313,7 @@ export function getCategoriesByArchLayer(layer: ArchitecturalLayerValue): Readon
  * ```ts
  * import { getCategoriesByEffectAnalog } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(getCategoriesByEffectAnalog)
+ * console.log(getCategoriesByEffectAnalog("Reader").length)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1319,7 +1334,7 @@ export function getCategoriesByEffectAnalog(analog: string): ReadonlyArray<TSCat
  * ```ts
  * import { getCategoriesForApplicableTo } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(getCategoriesForApplicableTo)
+ * console.log(getCategoriesForApplicableTo("function").length)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1385,7 +1400,8 @@ const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, 
  * ```ts
  * import { getCandidateCategories } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(getCandidateCategories)
+ * const candidates = getCandidateCategories([{ category: "Validation", confidence: 0.9 }])
+ * console.log(candidates[0]?.category._tag)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1450,7 +1466,8 @@ export function getCandidateCategories(
  * ```ts
  * import { resolveContextFallback } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(resolveContextFallback)
+ * const category = resolveContextFallback([], undefined, "Utility")
+ * console.log(category)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -1494,9 +1511,11 @@ export function resolveContextFallback(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Category } from "@beep/repo-utils/JSDoc/models/TSCategory.model"
  *
- * console.log(Category)
+ * const category = S.decodeUnknownSync(Category)("Utility")
+ * console.log(category)
  * ```
  * @category models
  * @since 0.0.0

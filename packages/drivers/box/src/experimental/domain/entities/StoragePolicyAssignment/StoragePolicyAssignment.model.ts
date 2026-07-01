@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box storage policy assignment entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model");
 
 /**
+ * Experimental schema anchor for Box storage policy assignment records.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { StoragePolicyAssignment } from "@beep/box/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(StoragePolicyAssignment.make({
+ * const decoded = S.decodeUnknownSync(StoragePolicyAssignment)({});
+ * const encoded: StoragePolicyAssignment.Encoded = S.encodeSync(StoragePolicyAssignment)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class StoragePolicyAssignment extends S.Class<StoragePolicyAssignment>($I`StoragePolicyAssignment`)(
   {},
   $I.annote("StoragePolicyAssignment", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box storage policy assignment records.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link StoragePolicyAssignment}
+ * Type-level companion namespace for {@link StoragePolicyAssignment} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { StoragePolicyAssignment } from "@beep/box/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = StoragePolicyAssignment.make({});
+ * const encoded: StoragePolicyAssignment.Encoded = S.encodeSync(StoragePolicyAssignment)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace StoragePolicyAssignment {
   /**
-   * Companion encoded type for {@link StoragePolicyAssignment}.
+   * Encoded payload accepted by the {@link StoragePolicyAssignment} entity schema.
    *
    * @example
    * ```ts
-   * import type { StoragePolicyAssignment } from "@beep/box/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model";
+   * import { StoragePolicyAssignment } from "@beep/box/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: StoragePolicyAssignment.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: StoragePolicyAssignment.Encoded = S.encodeSync(StoragePolicyAssignment)(StoragePolicyAssignment.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof StoragePolicyAssignment.Encoded;
 }
-
-/**
- * Companion runtime type for {@link StoragePolicyAssignment}.
- *
- * @example
- * ```ts
- * import type { StoragePolicyAssignment } from "@beep/box/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model";
- *
- * const useValue = (_value: StoragePolicyAssignment) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type StoragePolicyAssignment = typeof StoragePolicyAssignment.Type;

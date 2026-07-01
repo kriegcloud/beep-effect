@@ -19,7 +19,9 @@ const $I = $AiSyncId.create("_generated/schemas.gen");
  * @example
  * ```ts
  * import { CodexMcpServer } from "@beep/ai-sync"
- * console.log(CodexMcpServer.ast)
+ *
+ * const server = CodexMcpServer.make({ command: "node", args: ["mcp.js"] })
+ * console.log(server.command)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -66,7 +68,12 @@ export class CodexSkillEntry extends S.Class<CodexSkillEntry>($I`CodexSkillEntry
  * @example
  * ```ts
  * import { CodexSkills } from "@beep/ai-sync"
- * console.log(CodexSkills.ast)
+ *
+ * const skills = CodexSkills.make({
+ *   include_instructions: true,
+ *   config: [{ name: "effect-first-development", enabled: true }]
+ * })
+ * console.log(skills.config?.[0]?.name)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -87,7 +94,12 @@ export class CodexSkills extends S.Class<CodexSkills>($I`CodexSkills`)(
  * @example
  * ```ts
  * import { CodexConfig } from "@beep/ai-sync"
- * console.log(CodexConfig.ast)
+ *
+ * const config = CodexConfig.make({
+ *   model: "gpt-5",
+ *   mcp_servers: { local: { command: "node", args: ["server.js"] } }
+ * })
+ * console.log(config.mcp_servers?.local?.command)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -120,7 +132,9 @@ export class CodexConfig extends S.Class<CodexConfig>($I`CodexConfig`)(
  * @example
  * ```ts
  * import { McpJsonServer } from "@beep/ai-sync"
- * console.log(McpJsonServer.ast)
+ *
+ * const server = McpJsonServer.make({ type: "stdio", command: "node" })
+ * console.log(server.type)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -150,7 +164,11 @@ export class McpJsonServer extends S.Class<McpJsonServer>($I`McpJsonServer`)(
  * @example
  * ```ts
  * import { ClaudeMcpJson } from "@beep/ai-sync"
- * console.log(ClaudeMcpJson.ast)
+ *
+ * const config = ClaudeMcpJson.make({
+ *   mcpServers: { local: { type: "stdio", command: "node" } }
+ * })
+ * console.log(config.mcpServers.local?.command)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -170,7 +188,12 @@ export class ClaudeMcpJson extends S.Class<ClaudeMcpJson>($I`ClaudeMcpJson`)(
  * @example
  * ```ts
  * import { ClaudeSettings } from "@beep/ai-sync"
- * console.log(ClaudeSettings.ast)
+ *
+ * const settings = ClaudeSettings.make({
+ *   enabledMcpjsonServers: ["local"],
+ *   enabledPlugins: { diagnostics: true }
+ * })
+ * console.log(settings.enabledMcpjsonServers?.includes("local"))
  * ```
  * @category schemas
  * @since 0.0.0

@@ -112,7 +112,9 @@ const collectMermaidTargets = (editor: LexicalEditor): ReadonlyArray<MermaidPort
  * ```tsx
  * import { MermaidCodeDecoratorPlugin } from "@beep/editor/mermaid-code-decorator-plugin"
  *
- * console.log(MermaidCodeDecoratorPlugin.name) // "MermaidCodeDecoratorPlugin"
+ * function ReadOnlyDiagramDecorators() {
+ *   return <MermaidCodeDecoratorPlugin />
+ * }
  * ```
  *
  * @category components

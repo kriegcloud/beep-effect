@@ -478,8 +478,10 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
  * const c = Symbol("c")
  * const value = { a: "foo", b: 1, [c]: true }
  *
- * const entries: Array<["a", string] | ["b", number]> = Struct.entries(value)
- * console.log(entries)
+ * const pairs: Array<["a", string] | ["b", number]> = Struct.entries(value)
+ * const first = pairs[0]
+ *
+ * console.log(first)
  * ```
  *
  * @category getters

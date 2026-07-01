@@ -93,8 +93,13 @@ const decodeSerializedState = S.decodeUnknownOption(SerializedEditorState);
  * ```ts
  * import type { ChatComposerProps } from "@beep/editor/chat"
  *
- * const props: ChatComposerProps = { placeholder: "Message…" }
- * console.log(props.placeholder) // "Message…"
+ * const props: ChatComposerProps = {
+ *   placeholder: "Message...",
+ *   features: { attachments: false, sendOn: "modifierEnter" },
+ * }
+ *
+ * const sendOn = props.features?.sendOn
+ * console.log(sendOn) // "modifierEnter"
  * ```
  *
  * @category components
@@ -450,7 +455,14 @@ function AttachmentSweep({ editor }: { readonly editor: LexicalEditor }): null {
  * ```tsx
  * import { ChatComposer } from "@beep/editor/chat"
  *
- * console.log(ChatComposer.name) // "ChatComposer"
+ * function SupportReplyBox() {
+ *   return (
+ *     <ChatComposer
+ *       placeholder="Message..."
+ *       onSend={(state) => state.root.children.length > 0}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @category components

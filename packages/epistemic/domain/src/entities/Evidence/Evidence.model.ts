@@ -22,11 +22,34 @@ const $I = $EpistemicDomainId.create("entities/Evidence/Evidence.model");
  * @example
  * ```ts
  * import { Evidence } from "@beep/epistemic-domain"
+ * import * as Epistemic from "@beep/shared-domain/identity/Epistemic"
+ * import * as S from "effect/Schema"
  *
- * console.log(Evidence.definition.entityId.resource)
+ * const evidence = S.decodeUnknownSync(Evidence)({
+ *   artifactFixtureKey: "artifact:oa-1",
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   entityType: Epistemic.EvidenceId.entityType,
+ *   id: 1,
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "Agent",
+ *   span: {
+ *     confidence: 0.92,
+ *     endChar: 48,
+ *     quote: "a processor configured to receive sensor data",
+ *     startChar: 12
+ *   },
+ *   spanFixtureKey: "span:oa-1:12-48",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * })
+ *
+ * console.log(evidence.span.quote)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Evidence extends BaseEntity.Class<Evidence>($I`Evidence`)(

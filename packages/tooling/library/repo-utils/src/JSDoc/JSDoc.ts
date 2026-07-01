@@ -24,7 +24,8 @@ type JSDocTagMember<Tag extends string> = JSDocTagDefinition.JSDocTagDefinition 
  * ```ts
  * import { JSDocParam } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocParam)
+ * const metadata = JSDocParam.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -64,7 +65,8 @@ export class JSDocParam extends S.Opaque<JSDocParam & JSDocTagMember<"param">>()
  * ```ts
  * import { JSDocReturns } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocReturns)
+ * const metadata = JSDocReturns.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -102,7 +104,8 @@ export class JSDocReturns extends S.Opaque<JSDocReturns & JSDocTagMember<"return
  * ```ts
  * import { JSDocThrows } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocThrows)
+ * const metadata = JSDocThrows.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -137,7 +140,8 @@ export class JSDocThrows extends S.Opaque<JSDocThrows & JSDocTagMember<"throws">
  * ```ts
  * import { JSDocTemplate } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocTemplate)
+ * const metadata = JSDocTemplate.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -172,7 +176,8 @@ export class JSDocTemplate extends S.Opaque<JSDocTemplate & JSDocTagMember<"temp
  * ```ts
  * import { JSDocTypeParam } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocTypeParam)
+ * const metadata = JSDocTypeParam.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -205,7 +210,8 @@ export class JSDocTypeParam extends S.Opaque<JSDocTypeParam & JSDocTagMember<"ty
  * ```ts
  * import { JSDocType } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocType)
+ * const metadata = JSDocType.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -234,7 +240,8 @@ export class JSDocType extends S.Opaque<JSDocType & JSDocTagMember<"type">>()(
  * ```ts
  * import { JSDocTypeDef } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocTypeDef)
+ * const metadata = JSDocTypeDef.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -263,7 +270,8 @@ export class JSDocTypeDef extends S.Opaque<JSDocTypeDef & JSDocTagMember<"typede
  * ```ts
  * import { JSDocCallback } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocCallback)
+ * const metadata = JSDocCallback.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -292,7 +300,8 @@ export class JSDocCallback extends S.Opaque<JSDocCallback & JSDocTagMember<"call
  * ```ts
  * import { JSDocAugments } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocAugments)
+ * const metadata = JSDocAugments.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -321,7 +330,8 @@ export class JSDocAugments extends S.Opaque<JSDocAugments & JSDocTagMember<"augm
  * ```ts
  * import { JSDocImplements } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocImplements)
+ * const metadata = JSDocImplements.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -354,7 +364,8 @@ export class JSDocImplements extends S.Opaque<JSDocImplements & JSDocTagMember<"
  * ```ts
  * import { JSDocClass } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocClass)
+ * const metadata = JSDocClass.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -384,7 +395,8 @@ export class JSDocClass extends S.Opaque<JSDocClass & JSDocTagMember<"class">>()
  * ```ts
  * import { JSDocEnum } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocEnum)
+ * const metadata = JSDocEnum.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -412,7 +424,8 @@ export class JSDocEnum extends S.Opaque<JSDocEnum & JSDocTagMember<"enum">>()(
  * ```ts
  * import { JSDocAsync } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocAsync)
+ * const metadata = JSDocAsync.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -440,7 +453,8 @@ export class JSDocAsync extends S.Opaque<JSDocAsync & JSDocTagMember<"async">>()
  * ```ts
  * import { JSDocGenerator } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocGenerator)
+ * const metadata = JSDocGenerator.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -468,7 +482,8 @@ export class JSDocGenerator extends S.Opaque<JSDocGenerator & JSDocTagMember<"ge
  * ```ts
  * import { JSDocYields } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocYields)
+ * const metadata = JSDocYields.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -502,7 +517,8 @@ export class JSDocYields extends S.Opaque<JSDocYields & JSDocTagMember<"yields">
  * ```ts
  * import { StructuralJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(StructuralJSDoc)
+ * const metadata = StructuralJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -540,7 +556,8 @@ export const StructuralJSDoc = S.Union([
  * ```ts
  * import { StructuralJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(StructuralJSDoc)
+ * const metadata = StructuralJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -571,7 +588,8 @@ export declare namespace StructuralJSDoc {
  * ```ts
  * import { matchStructuralJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(matchStructuralJSDoc)
+ * const matcherName = matchStructuralJSDoc.name
+ * console.log(matcherName)
  * ```
  * @category models
  * @since 0.0.0
@@ -606,7 +624,8 @@ export const matchStructuralJSDoc = (value: StructuralJSDoc.Type) =>
  * ```ts
  * import { JSDocAccess } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocAccess)
+ * const metadata = JSDocAccess.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -640,7 +659,8 @@ export class JSDocAccess extends S.Opaque<JSDocAccess & JSDocTagMember<"access">
  * ```ts
  * import { JSDocPublic } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocPublic)
+ * const metadata = JSDocPublic.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -669,7 +689,8 @@ export class JSDocPublic extends S.Opaque<JSDocPublic & JSDocTagMember<"public">
  * ```ts
  * import { JSDocPrivate } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocPrivate)
+ * const metadata = JSDocPrivate.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -697,7 +718,8 @@ export class JSDocPrivate extends S.Opaque<JSDocPrivate & JSDocTagMember<"privat
  * ```ts
  * import { JSDocProtected } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocProtected)
+ * const metadata = JSDocProtected.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -725,7 +747,8 @@ export class JSDocProtected extends S.Opaque<JSDocProtected & JSDocTagMember<"pr
  * ```ts
  * import { JSDocPackage } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocPackage)
+ * const metadata = JSDocPackage.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -753,7 +776,8 @@ export class JSDocPackage extends S.Opaque<JSDocPackage & JSDocTagMember<"packag
  * ```ts
  * import { JSDocReadonly } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocReadonly)
+ * const metadata = JSDocReadonly.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -782,7 +806,8 @@ export class JSDocReadonly extends S.Opaque<JSDocReadonly & JSDocTagMember<"read
  * ```ts
  * import { JSDocAbstract } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocAbstract)
+ * const metadata = JSDocAbstract.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -810,7 +835,8 @@ export class JSDocAbstract extends S.Opaque<JSDocAbstract & JSDocTagMember<"abst
  * ```ts
  * import { JSDocFinal } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocFinal)
+ * const metadata = JSDocFinal.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -838,7 +864,8 @@ export class JSDocFinal extends S.Opaque<JSDocFinal & JSDocTagMember<"final">>()
  * ```ts
  * import { JSDocOverride } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocOverride)
+ * const metadata = JSDocOverride.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -867,7 +894,8 @@ export class JSDocOverride extends S.Opaque<JSDocOverride & JSDocTagMember<"over
  * ```ts
  * import { JSDocStatic } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocStatic)
+ * const metadata = JSDocStatic.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -895,7 +923,8 @@ export class JSDocStatic extends S.Opaque<JSDocStatic & JSDocTagMember<"static">
  * ```ts
  * import { JSDocConstant } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocConstant)
+ * const metadata = JSDocConstant.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -924,7 +953,8 @@ export class JSDocConstant extends S.Opaque<JSDocConstant & JSDocTagMember<"cons
  * ```ts
  * import { JSDocDefault } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocDefault)
+ * const metadata = JSDocDefault.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -952,7 +982,8 @@ export class JSDocDefault extends S.Opaque<JSDocDefault & JSDocTagMember<"defaul
  * ```ts
  * import { JSDocDefaultValue } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocDefaultValue)
+ * const metadata = JSDocDefaultValue.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -981,7 +1012,8 @@ export class JSDocDefaultValue extends S.Opaque<JSDocDefaultValue & JSDocTagMemb
  * ```ts
  * import { JSDocExports } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocExports)
+ * const metadata = JSDocExports.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1010,7 +1042,8 @@ export class JSDocExports extends S.Opaque<JSDocExports & JSDocTagMember<"export
  * ```ts
  * import { JSDocExport } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocExport)
+ * const metadata = JSDocExport.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1038,7 +1071,8 @@ export class JSDocExport extends S.Opaque<JSDocExport & JSDocTagMember<"export">
  * ```ts
  * import { JSDocSatisfies } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocSatisfies)
+ * const metadata = JSDocSatisfies.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1066,7 +1100,8 @@ export class JSDocSatisfies extends S.Opaque<JSDocSatisfies & JSDocTagMember<"sa
  * ```ts
  * import { JSDocImport } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocImport)
+ * const metadata = JSDocImport.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1099,7 +1134,8 @@ export class JSDocImport extends S.Opaque<JSDocImport & JSDocTagMember<"import">
  * ```ts
  * import { JSDocThis } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocThis)
+ * const metadata = JSDocThis.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1128,7 +1164,8 @@ export class JSDocThis extends S.Opaque<JSDocThis & JSDocTagMember<"this">>()(
  * ```ts
  * import { AccessModifierJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(AccessModifierJSDoc)
+ * const metadata = AccessModifierJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1161,7 +1198,8 @@ export const AccessModifierJSDoc = S.Union([
  * ```ts
  * import { AccessModifierJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(AccessModifierJSDoc)
+ * const metadata = AccessModifierJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1191,7 +1229,8 @@ export declare namespace AccessModifierJSDoc {
  * ```ts
  * import { JSDocDescription } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocDescription)
+ * const metadata = JSDocDescription.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1225,7 +1264,8 @@ export class JSDocDescription extends S.Opaque<JSDocDescription & JSDocTagMember
  * ```ts
  * import { JSDocSummary } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocSummary)
+ * const metadata = JSDocSummary.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1258,7 +1298,8 @@ export class JSDocSummary extends S.Opaque<JSDocSummary & JSDocTagMember<"summar
  * ```ts
  * import { JSDocRemarks } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocRemarks)
+ * const metadata = JSDocRemarks.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1291,7 +1332,8 @@ export class JSDocRemarks extends S.Opaque<JSDocRemarks & JSDocTagMember<"remark
  * ```ts
  * import { JSDocExample } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocExample)
+ * const metadata = JSDocExample.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1325,7 +1367,8 @@ export class JSDocExample extends S.Opaque<JSDocExample & JSDocTagMember<"exampl
  * ```ts
  * import { JSDocDeprecated } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocDeprecated)
+ * const metadata = JSDocDeprecated.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1359,7 +1402,8 @@ export class JSDocDeprecated extends S.Opaque<JSDocDeprecated & JSDocTagMember<"
  * ```ts
  * import { JSDocSee } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocSee)
+ * const metadata = JSDocSee.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1392,7 +1436,8 @@ export class JSDocSee extends S.Opaque<JSDocSee & JSDocTagMember<"see">>()(
  * ```ts
  * import { JSDocSince } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocSince)
+ * const metadata = JSDocSince.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1426,7 +1471,8 @@ export class JSDocSince extends S.Opaque<JSDocSince & JSDocTagMember<"since">>()
  * ```ts
  * import { JSDocVersion } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocVersion)
+ * const metadata = JSDocVersion.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1459,7 +1505,8 @@ export class JSDocVersion extends S.Opaque<JSDocVersion & JSDocTagMember<"versio
  * ```ts
  * import { JSDocAuthor } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocAuthor)
+ * const metadata = JSDocAuthor.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1492,7 +1539,8 @@ export class JSDocAuthor extends S.Opaque<JSDocAuthor & JSDocTagMember<"author">
  * ```ts
  * import { JSDocTodo } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocTodo)
+ * const metadata = JSDocTodo.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1525,7 +1573,8 @@ export class JSDocTodo extends S.Opaque<JSDocTodo & JSDocTagMember<"todo">>()(
  * ```ts
  * import { DocumentationContentJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(DocumentationContentJSDoc)
+ * const metadata = DocumentationContentJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1550,7 +1599,8 @@ export const DocumentationContentJSDoc = S.Union([
  * ```ts
  * import { DocumentationContentJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(DocumentationContentJSDoc)
+ * const metadata = DocumentationContentJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1581,7 +1631,8 @@ export declare namespace DocumentationContentJSDoc {
  * ```ts
  * import { JSDocAlpha } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocAlpha)
+ * const metadata = JSDocAlpha.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1614,7 +1665,8 @@ export class JSDocAlpha extends S.Opaque<JSDocAlpha & JSDocTagMember<"alpha">>()
  * ```ts
  * import { JSDocBeta } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocBeta)
+ * const metadata = JSDocBeta.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1647,7 +1699,8 @@ export class JSDocBeta extends S.Opaque<JSDocBeta & JSDocTagMember<"beta">>()(
  * ```ts
  * import { JSDocExperimental } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocExperimental)
+ * const metadata = JSDocExperimental.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1680,7 +1733,8 @@ export class JSDocExperimental extends S.Opaque<JSDocExperimental & JSDocTagMemb
  * ```ts
  * import { JSDocInternal } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocInternal)
+ * const metadata = JSDocInternal.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1714,7 +1768,8 @@ export class JSDocInternal extends S.Opaque<JSDocInternal & JSDocTagMember<"inte
  * ```ts
  * import { JSDocSealed } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocSealed)
+ * const metadata = JSDocSealed.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1748,7 +1803,8 @@ export class JSDocSealed extends S.Opaque<JSDocSealed & JSDocTagMember<"sealed">
  * ```ts
  * import { JSDocVirtual } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocVirtual)
+ * const metadata = JSDocVirtual.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1781,7 +1837,8 @@ export class JSDocVirtual extends S.Opaque<JSDocVirtual & JSDocTagMember<"virtua
  * ```ts
  * import { JSDocPrivateRemarks } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocPrivateRemarks)
+ * const metadata = JSDocPrivateRemarks.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1814,7 +1871,8 @@ export class JSDocPrivateRemarks extends S.Opaque<JSDocPrivateRemarks & JSDocTag
  * ```ts
  * import { JSDocPackageDocumentation } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocPackageDocumentation)
+ * const metadata = JSDocPackageDocumentation.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1849,7 +1907,8 @@ export class JSDocPackageDocumentation extends S.Opaque<
  * ```ts
  * import { JSDocLabel } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocLabel)
+ * const metadata = JSDocLabel.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1882,7 +1941,8 @@ export class JSDocLabel extends S.Opaque<JSDocLabel & JSDocTagMember<"label">>()
  * ```ts
  * import { JSDocDecorator } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocDecorator)
+ * const metadata = JSDocDecorator.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1916,7 +1976,8 @@ export class JSDocDecorator extends S.Opaque<JSDocDecorator & JSDocTagMember<"de
  * ```ts
  * import { JSDocEventProperty } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocEventProperty)
+ * const metadata = JSDocEventProperty.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1949,7 +2010,8 @@ export class JSDocEventProperty extends S.Opaque<JSDocEventProperty & JSDocTagMe
  * ```ts
  * import { TSDocSpecificJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(TSDocSpecificJSDoc)
+ * const metadata = TSDocSpecificJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -1975,7 +2037,8 @@ export const TSDocSpecificJSDoc = S.Union([
  * ```ts
  * import { TSDocSpecificJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(TSDocSpecificJSDoc)
+ * const metadata = TSDocSpecificJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2006,7 +2069,8 @@ export declare namespace TSDocSpecificJSDoc {
  * ```ts
  * import { JSDocLink } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocLink)
+ * const metadata = JSDocLink.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2040,7 +2104,8 @@ export class JSDocLink extends S.Opaque<JSDocLink & JSDocTagMember<"link">>()(
  * ```ts
  * import { JSDocInheritDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocInheritDoc)
+ * const metadata = JSDocInheritDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2074,7 +2139,8 @@ export class JSDocInheritDoc extends S.Opaque<JSDocInheritDoc & JSDocTagMember<"
  * ```ts
  * import { InlineJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(InlineJSDoc)
+ * const metadata = InlineJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2091,7 +2157,8 @@ export const InlineJSDoc = S.Union([JSDocLink, JSDocInheritDoc]).pipe(
  * ```ts
  * import { InlineJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(InlineJSDoc)
+ * const metadata = InlineJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2122,7 +2189,8 @@ export declare namespace InlineJSDoc {
  * ```ts
  * import { JSDocModule } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocModule)
+ * const metadata = JSDocModule.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2156,7 +2224,8 @@ export class JSDocModule extends S.Opaque<JSDocModule & JSDocTagMember<"module">
  * ```ts
  * import { JSDocNamespace } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocNamespace)
+ * const metadata = JSDocNamespace.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2190,7 +2259,8 @@ export class JSDocNamespace extends S.Opaque<JSDocNamespace & JSDocTagMember<"na
  * ```ts
  * import { JSDocMemberOf } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocMemberOf)
+ * const metadata = JSDocMemberOf.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2224,7 +2294,8 @@ export class JSDocMemberOf extends S.Opaque<JSDocMemberOf & JSDocTagMember<"memb
  * ```ts
  * import { JSDocMember } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocMember)
+ * const metadata = JSDocMember.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2257,7 +2328,8 @@ export class JSDocMember extends S.Opaque<JSDocMember & JSDocTagMember<"member">
  * ```ts
  * import { JSDocProperty } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocProperty)
+ * const metadata = JSDocProperty.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2291,7 +2363,8 @@ export class JSDocProperty extends S.Opaque<JSDocProperty & JSDocTagMember<"prop
  * ```ts
  * import { JSDocInterface } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocInterface)
+ * const metadata = JSDocInterface.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2324,7 +2397,8 @@ export class JSDocInterface extends S.Opaque<JSDocInterface & JSDocTagMember<"in
  * ```ts
  * import { JSDocFunction } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocFunction)
+ * const metadata = JSDocFunction.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2358,7 +2432,8 @@ export class JSDocFunction extends S.Opaque<JSDocFunction & JSDocTagMember<"func
  * ```ts
  * import { OrganizationalJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(OrganizationalJSDoc)
+ * const metadata = OrganizationalJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2380,7 +2455,8 @@ export const OrganizationalJSDoc = S.Union([
  * ```ts
  * import { OrganizationalJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(OrganizationalJSDoc)
+ * const metadata = OrganizationalJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2411,7 +2487,8 @@ export declare namespace OrganizationalJSDoc {
  * ```ts
  * import { JSDocFires } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocFires)
+ * const metadata = JSDocFires.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2444,7 +2521,8 @@ export class JSDocFires extends S.Opaque<JSDocFires & JSDocTagMember<"fires">>()
  * ```ts
  * import { JSDocListens } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocListens)
+ * const metadata = JSDocListens.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2477,7 +2555,8 @@ export class JSDocListens extends S.Opaque<JSDocListens & JSDocTagMember<"listen
  * ```ts
  * import { JSDocEvent } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocEvent)
+ * const metadata = JSDocEvent.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2511,7 +2590,8 @@ export class JSDocEvent extends S.Opaque<JSDocEvent & JSDocTagMember<"event">>()
  * ```ts
  * import { JSDocRequires } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocRequires)
+ * const metadata = JSDocRequires.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2545,7 +2625,8 @@ export class JSDocRequires extends S.Opaque<JSDocRequires & JSDocTagMember<"requ
  * ```ts
  * import { EventDependencyJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(EventDependencyJSDoc)
+ * const metadata = EventDependencyJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2562,7 +2643,8 @@ export const EventDependencyJSDoc = S.Union([JSDocFires, JSDocListens, JSDocEven
  * ```ts
  * import { EventDependencyJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(EventDependencyJSDoc)
+ * const metadata = EventDependencyJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2593,7 +2675,8 @@ export declare namespace EventDependencyJSDoc {
  * ```ts
  * import { JSDocAlias } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocAlias)
+ * const metadata = JSDocAlias.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2626,7 +2709,8 @@ export class JSDocAlias extends S.Opaque<JSDocAlias & JSDocTagMember<"alias">>()
  * ```ts
  * import { JSDocBorrows } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocBorrows)
+ * const metadata = JSDocBorrows.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2659,7 +2743,8 @@ export class JSDocBorrows extends S.Opaque<JSDocBorrows & JSDocTagMember<"borrow
  * ```ts
  * import { JSDocClassDesc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocClassDesc)
+ * const metadata = JSDocClassDesc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2692,7 +2777,8 @@ export class JSDocClassDesc extends S.Opaque<JSDocClassDesc & JSDocTagMember<"cl
  * ```ts
  * import { JSDocConstructs } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocConstructs)
+ * const metadata = JSDocConstructs.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2725,7 +2811,8 @@ export class JSDocConstructs extends S.Opaque<JSDocConstructs & JSDocTagMember<"
  * ```ts
  * import { JSDocCopyright } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocCopyright)
+ * const metadata = JSDocCopyright.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2758,7 +2845,8 @@ export class JSDocCopyright extends S.Opaque<JSDocCopyright & JSDocTagMember<"co
  * ```ts
  * import { JSDocLicense } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocLicense)
+ * const metadata = JSDocLicense.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2791,7 +2879,8 @@ export class JSDocLicense extends S.Opaque<JSDocLicense & JSDocTagMember<"licens
  * ```ts
  * import { JSDocExternal } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocExternal)
+ * const metadata = JSDocExternal.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2824,7 +2913,8 @@ export class JSDocExternal extends S.Opaque<JSDocExternal & JSDocTagMember<"exte
  * ```ts
  * import { JSDocFile } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocFile)
+ * const metadata = JSDocFile.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2857,7 +2947,8 @@ export class JSDocFile extends S.Opaque<JSDocFile & JSDocTagMember<"file">>()(
  * ```ts
  * import { JSDocGlobal } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocGlobal)
+ * const metadata = JSDocGlobal.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2890,7 +2981,8 @@ export class JSDocGlobal extends S.Opaque<JSDocGlobal & JSDocTagMember<"global">
  * ```ts
  * import { JSDocHideConstructor } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocHideConstructor)
+ * const metadata = JSDocHideConstructor.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2923,7 +3015,8 @@ export class JSDocHideConstructor extends S.Opaque<JSDocHideConstructor & JSDocT
  * ```ts
  * import { JSDocIgnore } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocIgnore)
+ * const metadata = JSDocIgnore.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2956,7 +3049,8 @@ export class JSDocIgnore extends S.Opaque<JSDocIgnore & JSDocTagMember<"ignore">
  * ```ts
  * import { JSDocInner } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocInner)
+ * const metadata = JSDocInner.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -2990,7 +3084,8 @@ export class JSDocInner extends S.Opaque<JSDocInner & JSDocTagMember<"inner">>()
  * ```ts
  * import { JSDocInstance } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocInstance)
+ * const metadata = JSDocInstance.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3023,7 +3118,8 @@ export class JSDocInstance extends S.Opaque<JSDocInstance & JSDocTagMember<"inst
  * ```ts
  * import { JSDocKind } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocKind)
+ * const metadata = JSDocKind.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3070,7 +3166,8 @@ export class JSDocKind extends S.Opaque<JSDocKind & JSDocTagMember<"kind">>()(
  * ```ts
  * import { JSDocLends } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocLends)
+ * const metadata = JSDocLends.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3103,7 +3200,8 @@ export class JSDocLends extends S.Opaque<JSDocLends & JSDocTagMember<"lends">>()
  * ```ts
  * import { JSDocMixin } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocMixin)
+ * const metadata = JSDocMixin.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3137,7 +3235,8 @@ export class JSDocMixin extends S.Opaque<JSDocMixin & JSDocTagMember<"mixin">>()
  * ```ts
  * import { JSDocMixes } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocMixes)
+ * const metadata = JSDocMixes.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3170,7 +3269,8 @@ export class JSDocMixes extends S.Opaque<JSDocMixes & JSDocTagMember<"mixes">>()
  * ```ts
  * import { JSDocName } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocName)
+ * const metadata = JSDocName.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3203,7 +3303,8 @@ export class JSDocName extends S.Opaque<JSDocName & JSDocTagMember<"name">>()(
  * ```ts
  * import { JSDocVariation } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocVariation)
+ * const metadata = JSDocVariation.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3236,7 +3337,8 @@ export class JSDocVariation extends S.Opaque<JSDocVariation & JSDocTagMember<"va
  * ```ts
  * import { JSDocTutorial } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocTutorial)
+ * const metadata = JSDocTutorial.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3269,7 +3371,8 @@ export class JSDocTutorial extends S.Opaque<JSDocTutorial & JSDocTagMember<"tuto
  * ```ts
  * import { RemainingJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(RemainingJSDoc)
+ * const metadata = RemainingJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3304,7 +3407,8 @@ export const RemainingJSDoc = S.Union([
  * ```ts
  * import { RemainingJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(RemainingJSDoc)
+ * const metadata = RemainingJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3335,7 +3439,8 @@ export declare namespace RemainingJSDoc {
  * ```ts
  * import { JSDocDefine } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocDefine)
+ * const metadata = JSDocDefine.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3368,7 +3473,8 @@ export class JSDocDefine extends S.Opaque<JSDocDefine & JSDocTagMember<"define">
  * ```ts
  * import { JSDocDict } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocDict)
+ * const metadata = JSDocDict.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3401,7 +3507,8 @@ export class JSDocDict extends S.Opaque<JSDocDict & JSDocTagMember<"dict">>()(
  * ```ts
  * import { JSDocImplicitCast } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocImplicitCast)
+ * const metadata = JSDocImplicitCast.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3434,7 +3541,8 @@ export class JSDocImplicitCast extends S.Opaque<JSDocImplicitCast & JSDocTagMemb
  * ```ts
  * import { JSDocStruct } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocStruct)
+ * const metadata = JSDocStruct.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3467,7 +3575,8 @@ export class JSDocStruct extends S.Opaque<JSDocStruct & JSDocTagMember<"struct">
  * ```ts
  * import { JSDocUnrestricted } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocUnrestricted)
+ * const metadata = JSDocUnrestricted.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3500,7 +3609,8 @@ export class JSDocUnrestricted extends S.Opaque<JSDocUnrestricted & JSDocTagMemb
  * ```ts
  * import { JSDocSuppress } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocSuppress)
+ * const metadata = JSDocSuppress.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3533,7 +3643,8 @@ export class JSDocSuppress extends S.Opaque<JSDocSuppress & JSDocTagMember<"supp
  * ```ts
  * import { JSDocExterns } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocExterns)
+ * const metadata = JSDocExterns.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3566,7 +3677,8 @@ export class JSDocExterns extends S.Opaque<JSDocExterns & JSDocTagMember<"extern
  * ```ts
  * import { JSDocNoAlias } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocNoAlias)
+ * const metadata = JSDocNoAlias.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3599,7 +3711,8 @@ export class JSDocNoAlias extends S.Opaque<JSDocNoAlias & JSDocTagMember<"noalia
  * ```ts
  * import { JSDocNoCompile } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocNoCompile)
+ * const metadata = JSDocNoCompile.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3632,7 +3745,8 @@ export class JSDocNoCompile extends S.Opaque<JSDocNoCompile & JSDocTagMember<"no
  * ```ts
  * import { JSDocNoSideEffects } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocNoSideEffects)
+ * const metadata = JSDocNoSideEffects.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3665,7 +3779,8 @@ export class JSDocNoSideEffects extends S.Opaque<JSDocNoSideEffects & JSDocTagMe
  * ```ts
  * import { JSDocPolymer } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocPolymer)
+ * const metadata = JSDocPolymer.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3698,7 +3813,8 @@ export class JSDocPolymer extends S.Opaque<JSDocPolymer & JSDocTagMember<"polyme
  * ```ts
  * import { JSDocPolymerBehavior } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocPolymerBehavior)
+ * const metadata = JSDocPolymerBehavior.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3731,7 +3847,8 @@ export class JSDocPolymerBehavior extends S.Opaque<JSDocPolymerBehavior & JSDocT
  * ```ts
  * import { JSDocRecord } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocRecord)
+ * const metadata = JSDocRecord.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3764,7 +3881,8 @@ export class JSDocRecord extends S.Opaque<JSDocRecord & JSDocTagMember<"record">
  * ```ts
  * import { JSDocNoCollapse } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocNoCollapse)
+ * const metadata = JSDocNoCollapse.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3797,7 +3915,8 @@ export class JSDocNoCollapse extends S.Opaque<JSDocNoCollapse & JSDocTagMember<"
  * ```ts
  * import { JSDocNoInline } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocNoInline)
+ * const metadata = JSDocNoInline.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3830,7 +3949,8 @@ export class JSDocNoInline extends S.Opaque<JSDocNoInline & JSDocTagMember<"noin
  * ```ts
  * import { ClosureSpecificJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(ClosureSpecificJSDoc)
+ * const metadata = ClosureSpecificJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3860,7 +3980,8 @@ export const ClosureSpecificJSDoc = S.Union([
  * ```ts
  * import { ClosureSpecificJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(ClosureSpecificJSDoc)
+ * const metadata = ClosureSpecificJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3891,7 +4012,8 @@ export declare namespace ClosureSpecificJSDoc {
  * ```ts
  * import { JSDocCategory } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocCategory)
+ * const metadata = JSDocCategory.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3924,7 +4046,8 @@ export class JSDocCategory extends S.Opaque<JSDocCategory & JSDocTagMember<"cate
  * ```ts
  * import { JSDocDocument } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocDocument)
+ * const metadata = JSDocDocument.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3957,7 +4080,8 @@ export class JSDocDocument extends S.Opaque<JSDocDocument & JSDocTagMember<"docu
  * ```ts
  * import { JSDocGroup } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocGroup)
+ * const metadata = JSDocGroup.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -3990,7 +4114,8 @@ export class JSDocGroup extends S.Opaque<JSDocGroup & JSDocTagMember<"group">>()
  * ```ts
  * import { JSDocHidden } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocHidden)
+ * const metadata = JSDocHidden.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4023,7 +4148,8 @@ export class JSDocHidden extends S.Opaque<JSDocHidden & JSDocTagMember<"hidden">
  * ```ts
  * import { JSDocExpand } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocExpand)
+ * const metadata = JSDocExpand.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4056,7 +4182,8 @@ export class JSDocExpand extends S.Opaque<JSDocExpand & JSDocTagMember<"expand">
  * ```ts
  * import { JSDocInline } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocInline)
+ * const metadata = JSDocInline.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4089,7 +4216,8 @@ export class JSDocInline extends S.Opaque<JSDocInline & JSDocTagMember<"inline">
  * ```ts
  * import { JSDocMergeModuleWith } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocMergeModuleWith)
+ * const metadata = JSDocMergeModuleWith.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4122,7 +4250,8 @@ export class JSDocMergeModuleWith extends S.Opaque<JSDocMergeModuleWith & JSDocT
  * ```ts
  * import { JSDocPrimaryExport } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocPrimaryExport)
+ * const metadata = JSDocPrimaryExport.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4155,7 +4284,8 @@ export class JSDocPrimaryExport extends S.Opaque<JSDocPrimaryExport & JSDocTagMe
  * ```ts
  * import { JSDocSortStrategy } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocSortStrategy)
+ * const metadata = JSDocSortStrategy.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4188,7 +4318,8 @@ export class JSDocSortStrategy extends S.Opaque<JSDocSortStrategy & JSDocTagMemb
  * ```ts
  * import { JSDocUseDeclaredType } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocUseDeclaredType)
+ * const metadata = JSDocUseDeclaredType.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4221,7 +4352,8 @@ export class JSDocUseDeclaredType extends S.Opaque<JSDocUseDeclaredType & JSDocT
  * ```ts
  * import { TypeDocSpecificJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(TypeDocSpecificJSDoc)
+ * const metadata = TypeDocSpecificJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4246,7 +4378,8 @@ export const TypeDocSpecificJSDoc = S.Union([
  * ```ts
  * import { TypeDocSpecificJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(TypeDocSpecificJSDoc)
+ * const metadata = TypeDocSpecificJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4277,7 +4410,8 @@ export declare namespace TypeDocSpecificJSDoc {
  * ```ts
  * import { JSDocOverload } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocOverload)
+ * const metadata = JSDocOverload.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4311,7 +4445,8 @@ export class JSDocOverload extends S.Opaque<JSDocOverload & JSDocTagMember<"over
  * ```ts
  * import { TypeScriptSpecificJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(TypeScriptSpecificJSDoc)
+ * const metadata = TypeScriptSpecificJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4328,7 +4463,8 @@ export const TypeScriptSpecificJSDoc = S.Union([JSDocOverload]).pipe(
  * ```ts
  * import { TypeScriptSpecificJSDoc } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(TypeScriptSpecificJSDoc)
+ * const metadata = TypeScriptSpecificJSDoc.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4357,7 +4493,8 @@ export declare namespace TypeScriptSpecificJSDoc {
  * ```ts
  * import { JSDocTag } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocTag)
+ * const metadata = JSDocTag.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -4383,7 +4520,8 @@ export const JSDocTag = S.Union([
  * ```ts
  * import { JSDocTag } from "@beep/repo-utils/JSDoc/JSDoc"
  *
- * console.log(JSDocTag)
+ * const metadata = JSDocTag.ast.annotations.jsDocTagMetadata
+ * console.log(metadata?._tag)
  * ```
  * @category models
  * @since 0.0.0

@@ -87,9 +87,41 @@ const toVerdict = (result: ShaclValidationResult): ClaimGateResult =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { CandidateClaim } from "@beep/epistemic-domain"
  * import { makeClaimGate } from "@beep/epistemic-use-cases/ClaimGate"
+ * import { ShaclValidationResult } from "@beep/semantic-web/services/shacl-validation"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(makeClaimGate)
+ * const claim = S.decodeUnknownSync(CandidateClaim)({
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   entityType: "EpistemicCandidateClaim",
+ *   fixtureKey: "claim.patentability",
+ *   id: 1,
+ *   lifecycle: "candidate",
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   snapshot: {},
+ *   source: "Agent",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * })
+ * const gate = makeClaimGate({
+ *   validate: () =>
+ *     Effect.succeed(
+ *       ShaclValidationResult.make({
+ *         conforms: true,
+ *         truncated: false,
+ *         violations: []
+ *       })
+ *     )
+ * })
+ *
+ * const result = Effect.runSync(gate.evaluate(claim, []))
+ * strictEqual(result.verdict, "admitted")
  * ```
  *
  * @category constructors

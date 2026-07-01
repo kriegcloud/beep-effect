@@ -13,16 +13,21 @@ import * as S from "effect/Schema";
 const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.values");
 
 /**
- * Architecture lab WorkItem identity.
+ * Branded string identifier for a WorkItem aggregate.
  *
  * @example
  * ```ts
- * import { WorkItemId } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItemId, type WorkItemId as WorkItemIdValue } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemId)
+ * const id: WorkItemIdValue = S.decodeUnknownSync(WorkItemId)("work-item-1")
+ *
+ * if (id !== "work-item-1") {
+ *   throw new Error("expected decoded WorkItem id")
+ * }
  * ```
  *
- * @category value-objects
+ * @category entity-ids
  * @since 0.0.0
  */
 export const WorkItemId = S.String.pipe(
@@ -35,21 +40,39 @@ export const WorkItemId = S.String.pipe(
 );
 
 /**
- * Architecture lab WorkItem identity type.
+ * Runtime type for {@link WorkItemId}.
  *
- * @category value-objects
+ * @example
+ * ```ts
+ * import { WorkItemId, type WorkItemId as WorkItemIdValue } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
+ *
+ * const id: WorkItemIdValue = S.decodeUnknownSync(WorkItemId)("work-item-1")
+ * const ids: ReadonlyArray<WorkItemIdValue> = [id]
+ *
+ * if (ids.length !== 1) {
+ *   throw new Error("expected WorkItem id evidence")
+ * }
+ * ```
+ *
+ * @category entity-ids
  * @since 0.0.0
  */
 export type WorkItemId = S.Schema.Type<typeof WorkItemId>;
 
 /**
- * Architecture lab WorkItem title.
+ * Human-readable title carried by a WorkItem aggregate.
  *
  * @example
  * ```ts
- * import { WorkItemTitle } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItemTitle, type WorkItemTitle as WorkItemTitleValue } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemTitle)
+ * const title: WorkItemTitleValue = S.decodeUnknownSync(WorkItemTitle)("Document topology")
+ *
+ * if (title.length === 0) {
+ *   throw new Error("expected title text")
+ * }
  * ```
  *
  * @category value-objects
@@ -64,7 +87,20 @@ export const WorkItemTitle = S.String.pipe(
 );
 
 /**
- * Architecture lab WorkItem title type.
+ * Runtime type for {@link WorkItemTitle}.
+ *
+ * @example
+ * ```ts
+ * import { WorkItemTitle, type WorkItemTitle as WorkItemTitleValue } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
+ *
+ * const title: WorkItemTitleValue = S.decodeUnknownSync(WorkItemTitle)("Document topology")
+ * const label = `WorkItem: ${title}`
+ *
+ * if (!label.includes(title)) {
+ *   throw new Error("expected title to participate as text")
+ * }
+ * ```
  *
  * @category value-objects
  * @since 0.0.0
@@ -72,13 +108,20 @@ export const WorkItemTitle = S.String.pipe(
 export type WorkItemTitle = S.Schema.Type<typeof WorkItemTitle>;
 
 /**
- * Architecture lab WorkItem lifecycle values.
+ * Closed lifecycle vocabulary for WorkItem state transitions.
  *
  * @example
  * ```ts
- * import { WorkItemStatus } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItemStatus, type WorkItemStatus as WorkItemStatusValue } from "@beep/architecture-lab-domain/aggregates/WorkItem"
  *
- * console.log(WorkItemStatus)
+ * const status: WorkItemStatusValue = WorkItemStatus.Enum.assigned
+ * const isAssigned = status === "assigned"
+ *
+ * console.log(isAssigned)
+ *
+ * if (status !== "assigned") {
+ *   throw new Error("expected assigned lifecycle state")
+ * }
  * ```
  *
  * @category value-objects
@@ -92,7 +135,21 @@ export const WorkItemStatus = LiteralKit(["open", "assigned", "completed", "arch
 );
 
 /**
- * Architecture lab WorkItem lifecycle value.
+ * Runtime type for {@link WorkItemStatus}.
+ *
+ * @example
+ * ```ts
+ * import type { WorkItemStatus } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ *
+ * const terminal: WorkItemStatus = "archived"
+ * const isTerminal = terminal === "archived"
+ *
+ * console.log(isTerminal)
+ *
+ * if (terminal !== "archived") {
+ *   throw new Error("expected terminal WorkItem status")
+ * }
+ * ```
  *
  * @category value-objects
  * @since 0.0.0

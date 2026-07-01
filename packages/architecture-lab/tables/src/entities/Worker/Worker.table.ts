@@ -12,13 +12,20 @@ import { Result } from "effect";
 import * as S from "effect/Schema";
 
 /**
- * Worker persistence projection.
+ * Drizzle table projection for architecture lab Worker entities.
  *
  * @example
  * ```ts
  * import { workerTable } from "@beep/architecture-lab-tables/entities/Worker"
+ * import { getColumns, getTableName } from "drizzle-orm"
  *
- * console.log(workerTable)
+ * const columns = getColumns(workerTable)
+ * const tableName = getTableName(workerTable)
+ * if (tableName !== "architecture_lab_worker" || columns.displayName.name !== "display_name") {
+ *   throw new Error("unexpected Worker table projection")
+ * }
+ *
+ * console.log(`${tableName}:${columns.displayName.name}`)
  * ```
  *
  * @category tables
@@ -27,13 +34,18 @@ import * as S from "effect/Schema";
 export const workerTable = EntityTable.pgTableFrom(DomainWorker.Worker);
 
 /**
- * Worker persistence table name.
+ * Physical Postgres table name derived from the Worker entity definition.
  *
  * @example
  * ```ts
  * import { WORKER_TABLE_NAME } from "@beep/architecture-lab-tables/entities/Worker"
  *
- * console.log(WORKER_TABLE_NAME)
+ * const tableName = WORKER_TABLE_NAME
+ * if (tableName !== "architecture_lab_worker") {
+ *   throw new Error("unexpected Worker table name")
+ * }
+ *
+ * console.log(tableName)
  * ```
  *
  * @category tables
@@ -42,14 +54,31 @@ export const workerTable = EntityTable.pgTableFrom(DomainWorker.Worker);
 export const WORKER_TABLE_NAME = workerTable.definition.tableName;
 
 /**
- * Selected Worker row.
+ * Selected row shape returned by queries against {@link workerTable}.
  *
  * @example
  * ```ts
- * import type { WorkerRow } from "@beep/architecture-lab-tables/entities/Worker"
+ * import {
+ *   CreateWorkerInput,
+ *   WorkerId,
+ *   WorkerOrganizationId,
+ *   create
+ * } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { toWorkerInsert, type WorkerRow } from "@beep/architecture-lab-tables/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * const value = {} as WorkerRow
- * console.log(value)
+ * const id = S.decodeUnknownSync(WorkerId)(1)
+ * const worker = create(
+ *   CreateWorkerInput.make({
+ *     displayName: "Ada Lovelace",
+ *     id,
+ *     organizationId: S.decodeUnknownSync(WorkerOrganizationId)(1)
+ *   })
+ * )
+ *
+ * const row = { ...toWorkerInsert(worker), id } satisfies WorkerRow
+ *
+ * console.log(row.displayName)
  * ```
  *
  * @category tables
@@ -58,14 +87,30 @@ export const WORKER_TABLE_NAME = workerTable.definition.tableName;
 export type WorkerRow = typeof workerTable.$inferSelect;
 
 /**
- * Insertable Worker row.
+ * Insert row shape accepted by writes to {@link workerTable}.
  *
  * @example
  * ```ts
- * import type { WorkerInsert } from "@beep/architecture-lab-tables/entities/Worker"
+ * import {
+ *   CreateWorkerInput,
+ *   WorkerId,
+ *   WorkerOrganizationId,
+ *   create
+ * } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { toWorkerInsert, type WorkerInsert } from "@beep/architecture-lab-tables/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * const value = {} as WorkerInsert
- * console.log(value)
+ * const worker = create(
+ *   CreateWorkerInput.make({
+ *     displayName: "Ada Lovelace",
+ *     id: S.decodeUnknownSync(WorkerId)(1),
+ *     organizationId: S.decodeUnknownSync(WorkerOrganizationId)(1)
+ *   })
+ * )
+ *
+ * const insert: WorkerInsert = toWorkerInsert(worker)
+ *
+ * console.log(insert.status)
  * ```
  *
  * @category tables
@@ -77,13 +122,33 @@ const encodeWorker = S.encodeResult(DomainWorker.Worker);
 const decodeWorker = S.decodeUnknownResult(DomainWorker.Worker);
 
 /**
- * Convert a Worker entity to its persistence row shape.
+ * Encode a Worker entity into the insert row accepted by {@link workerTable}.
  *
  * @example
  * ```ts
+ * import {
+ *   CreateWorkerInput,
+ *   WorkerId,
+ *   WorkerOrganizationId,
+ *   create
+ * } from "@beep/architecture-lab-domain/entities/Worker"
  * import { toWorkerInsert } from "@beep/architecture-lab-tables/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * console.log(toWorkerInsert)
+ * const worker = create(
+ *   CreateWorkerInput.make({
+ *     displayName: "Ada Lovelace",
+ *     id: S.decodeUnknownSync(WorkerId)(1),
+ *     organizationId: S.decodeUnknownSync(WorkerOrganizationId)(1)
+ *   })
+ * )
+ *
+ * const insert = toWorkerInsert(worker)
+ * if (insert.displayName !== "Ada Lovelace" || insert.status !== "active") {
+ *   throw new Error("expected Worker insert projection")
+ * }
+ *
+ * console.log(`${insert.displayName}:${insert.status}`)
  * ```
  *
  * @category tables
@@ -92,13 +157,35 @@ const decodeWorker = S.decodeUnknownResult(DomainWorker.Worker);
 export const toWorkerInsert = (worker: DomainWorker.Worker): WorkerInsert => Result.getOrThrow(encodeWorker(worker));
 
 /**
- * Convert a selected persistence row into a Worker entity.
+ * Decode a selected Worker row back into the domain entity.
  *
  * @example
  * ```ts
- * import { fromWorkerRow } from "@beep/architecture-lab-tables/entities/Worker"
+ * import {
+ *   CreateWorkerInput,
+ *   WorkerId,
+ *   WorkerOrganizationId,
+ *   create
+ * } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { fromWorkerRow, toWorkerInsert, type WorkerRow } from "@beep/architecture-lab-tables/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * console.log(fromWorkerRow)
+ * const id = S.decodeUnknownSync(WorkerId)(1)
+ * const worker = create(
+ *   CreateWorkerInput.make({
+ *     displayName: "Ada Lovelace",
+ *     id,
+ *     organizationId: S.decodeUnknownSync(WorkerOrganizationId)(1)
+ *   })
+ * )
+ * const row = { ...toWorkerInsert(worker), id } satisfies WorkerRow
+ *
+ * const decoded = fromWorkerRow(row)
+ * if (decoded.displayName !== "Ada Lovelace") {
+ *   throw new Error("expected decoded Worker")
+ * }
+ *
+ * console.log(decoded.displayName)
  * ```
  *
  * @category tables

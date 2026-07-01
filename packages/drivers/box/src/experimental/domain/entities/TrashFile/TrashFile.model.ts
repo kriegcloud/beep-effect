@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box trashed file entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/TrashFile/TrashFile.model");
 
 /**
+ * Experimental schema anchor for Box file metadata while the file is in trash.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { TrashFile } from "@beep/box/experimental/domain/entities/TrashFile/TrashFile.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(TrashFile.make({
+ * const decoded = S.decodeUnknownSync(TrashFile)({});
+ * const encoded: TrashFile.Encoded = S.encodeSync(TrashFile)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class TrashFile extends S.Class<TrashFile>($I`TrashFile`)(
   {},
   $I.annote("TrashFile", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box file metadata while the file is in trash.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link TrashFile}
+ * Type-level companion namespace for {@link TrashFile} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { TrashFile } from "@beep/box/experimental/domain/entities/TrashFile/TrashFile.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = TrashFile.make({});
+ * const encoded: TrashFile.Encoded = S.encodeSync(TrashFile)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace TrashFile {
   /**
-   * Companion encoded type for {@link TrashFile}.
+   * Encoded payload accepted by the {@link TrashFile} entity schema.
    *
    * @example
    * ```ts
-   * import type { TrashFile } from "@beep/box/experimental/domain/entities/TrashFile/TrashFile.model";
+   * import { TrashFile } from "@beep/box/experimental/domain/entities/TrashFile/TrashFile.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: TrashFile.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: TrashFile.Encoded = S.encodeSync(TrashFile)(TrashFile.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof TrashFile.Encoded;
 }
-
-/**
- * Companion runtime type for {@link TrashFile}.
- *
- * @example
- * ```ts
- * import type { TrashFile } from "@beep/box/experimental/domain/entities/TrashFile/TrashFile.model";
- *
- * const useValue = (_value: TrashFile) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type TrashFile = typeof TrashFile.Type;

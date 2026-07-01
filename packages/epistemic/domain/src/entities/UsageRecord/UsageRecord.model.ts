@@ -17,16 +17,43 @@ import * as S from "effect/Schema";
 const $I = $EpistemicDomainId.create("entities/UsageRecord/UsageRecord.model");
 
 /**
- * Usage attribution record for model, tool, or agent work.
+ * Append-only usage attribution for model, tool, or agent work.
  *
  * @example
  * ```ts
  * import { UsageRecord } from "@beep/epistemic-domain"
+ * import * as Epistemic from "@beep/shared-domain/identity/Epistemic"
+ * import * as S from "effect/Schema"
  *
- * console.log(UsageRecord.definition.entityId.tableName)
+ * const usage = S.decodeUnknownSync(UsageRecord)({
+ *   activityId: 1,
+ *   actor: { kind: "System", component: "Runtime" },
+ *   costUsdApproxMicros: 1200,
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   credentialReference: null,
+ *   entityType: Epistemic.UsageRecordId.entityType,
+ *   id: 1,
+ *   inputTokens: 420,
+ *   latencyMillis: 900,
+ *   metadata: { turnId: "turn-1" },
+ *   model: "gpt-5",
+ *   orgId: 1,
+ *   outputTokens: 180,
+ *   provider: "openai",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "Agent",
+ *   totalTokens: 600,
+ *   unitCount: null,
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * })
+ *
+ * console.log(usage.provider)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class UsageRecord extends BaseEntity.Class<UsageRecord>($I`UsageRecord`)(
@@ -96,11 +123,38 @@ export class UsageRecord extends BaseEntity.Class<UsageRecord>($I`UsageRecord`)(
  * @example
  * ```ts
  * import { TurnFinalizationUsageAppend } from "@beep/epistemic-domain"
+ * import * as Epistemic from "@beep/shared-domain/identity/Epistemic"
+ * import * as S from "effect/Schema"
  *
- * console.log(TurnFinalizationUsageAppend)
+ * const append = S.decodeUnknownSync(TurnFinalizationUsageAppend)({
+ *   activityId: 1,
+ *   actor: { kind: "System", component: "Runtime" },
+ *   costUsdApproxMicros: 1200,
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   credentialReference: null,
+ *   entityType: Epistemic.UsageRecordId.entityType,
+ *   id: 1,
+ *   inputTokens: 420,
+ *   latencyMillis: 900,
+ *   metadata: { turnId: "turn-1" },
+ *   model: "gpt-5",
+ *   orgId: 1,
+ *   outputTokens: 180,
+ *   provider: "openai",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "Agent",
+ *   totalTokens: 600,
+ *   unitCount: null,
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * })
+ *
+ * console.log(append.model)
  * ```
  *
- * @category models
+ * @category commands
  * @since 0.0.0
  */
 export class TurnFinalizationUsageAppend extends S.Class<TurnFinalizationUsageAppend>($I`TurnFinalizationUsageAppend`)(
@@ -116,13 +170,41 @@ export class TurnFinalizationUsageAppend extends S.Class<TurnFinalizationUsageAp
 ) {}
 
 /**
- * Build the UsageRecord appended for a finalized turn.
+ * Build the {@link UsageRecord} appended for a finalized turn.
  *
  * @example
  * ```ts
- * import { appendTurnFinalizationUsageRecord } from "@beep/epistemic-domain"
+ * import { TurnFinalizationUsageAppend, appendTurnFinalizationUsageRecord } from "@beep/epistemic-domain"
+ * import * as Epistemic from "@beep/shared-domain/identity/Epistemic"
+ * import * as S from "effect/Schema"
  *
- * console.log(appendTurnFinalizationUsageRecord)
+ * const append = S.decodeUnknownSync(TurnFinalizationUsageAppend)({
+ *   activityId: 1,
+ *   actor: { kind: "System", component: "Runtime" },
+ *   costUsdApproxMicros: 1200,
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   credentialReference: null,
+ *   entityType: Epistemic.UsageRecordId.entityType,
+ *   id: 1,
+ *   inputTokens: 420,
+ *   latencyMillis: 900,
+ *   metadata: { turnId: "turn-1" },
+ *   model: "gpt-5",
+ *   orgId: 1,
+ *   outputTokens: 180,
+ *   provider: "openai",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "Agent",
+ *   totalTokens: 600,
+ *   unitCount: null,
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * })
+ * const usage = appendTurnFinalizationUsageRecord(append)
+ *
+ * console.log(usage.model)
  * ```
  *
  * @category constructors
