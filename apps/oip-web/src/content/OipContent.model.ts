@@ -276,23 +276,49 @@ export class NavItem extends S.Class<NavItem>($I`NavItem`)(
 ) {}
 
 /**
- * Hero citation and opening claim.
+ * A single rotating hero background clip: a poster still plus its background video.
  *
  * @example
  * ```ts
- * import { HeroContent, NavItem, SiteAsset } from "@beep/oip-web/content"
+ * import { HeroClip, SiteAsset } from "@beep/oip-web/content"
+ *
+ * const clip = new HeroClip({
+ *   poster: new SiteAsset({ alt: "", src: "/oip/hero-vid-poster.jpg" }),
+ *   video: new SiteAsset({ alt: "", src: "/oip/hero-vid.mp4" })
+ * })
+ *
+ * console.log(clip.video.src)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HeroClip extends S.Class<HeroClip>($I`HeroClip`)(
+  {
+    poster: SiteAsset,
+    video: SiteAsset,
+  },
+  $I.annote("HeroClip", {
+    description: "A single rotating hero background clip for the OIP home page.",
+  })
+) {}
+
+/**
+ * Hero opening claim and rotating background media.
+ *
+ * @example
+ * ```ts
+ * import { HeroClip, HeroContent, NavItem, SiteAsset } from "@beep/oip-web/content"
  *
  * const link = new NavItem({ href: "#contact", label: "Contact" })
  * const asset = new SiteAsset({ alt: "Hero", src: "/oip/hero.jpg" })
  * const hero = new HeroContent({
- *   citation: "175 F.3d 1356",
  *   headline: "Patent counsel.",
  *   lede: "For builders.",
  *   portrait: asset,
  *   primaryCta: link,
  *   secondaryCta: link,
- *   video: asset,
- *   videoPoster: asset
+ *   clips: [new HeroClip({ poster: asset, video: asset })]
  * })
  *
  * console.log(hero.headline)
@@ -303,17 +329,15 @@ export class NavItem extends S.Class<NavItem>($I`NavItem`)(
  */
 export class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
   {
-    citation: S.String,
     headline: S.String,
     lede: S.String,
     primaryCta: NavItem,
     secondaryCta: NavItem,
     portrait: SiteAsset,
-    video: SiteAsset,
-    videoPoster: SiteAsset,
+    clips: S.NonEmptyArray(HeroClip),
   },
   $I.annote("HeroContent", {
-    description: "Hero citation and opening claim for the OIP home page.",
+    description: "Hero opening claim and rotating background media for the OIP home page.",
   })
 ) {}
 
@@ -328,7 +352,6 @@ export class HeroContent extends S.Class<HeroContent>($I`HeroContent`)(
  *   body: "Trial and prosecution experience.",
  *   id: "law",
  *   image: new SiteAsset({ alt: "Portrait", src: "/oip/portrait.png" }),
- *   kicker: "Law",
  *   title: "Patent practice"
  * })
  *
@@ -343,7 +366,6 @@ export class AboutPanel extends S.Class<AboutPanel>($I`AboutPanel`)(
     body: S.String,
     id: S.String,
     image: SiteAsset,
-    kicker: S.String,
     title: S.String,
   },
   $I.annote("AboutPanel", {

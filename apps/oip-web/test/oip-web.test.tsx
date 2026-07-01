@@ -1,7 +1,7 @@
 import { Button } from "@beep/ui/components/ui/button";
 import { A } from "@beep/utils";
 import { useAtom } from "@effect/atom-react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Clock, ConfigProvider, Effect, Exit, Layer } from "effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -15,7 +15,7 @@ import { POST } from "@/app/api/contact/route";
 import Home from "@/app/page";
 import { BackToTop } from "@/components/BackToTop";
 import { ContactForm } from "@/components/ContactForm";
-import { HeroVideo } from "@/components/HeroVideo";
+import { HERO_ROTATE_MS, HeroVideo } from "@/components/HeroVideo";
 import { OipThemeProvider } from "@/components/OipThemeProvider";
 import { oipRedirects } from "@/config/OipRedirects";
 import {
@@ -290,7 +290,7 @@ describe("@beep/oip-web", { concurrent: false }, () => {
     Home({}).then((page) => {
       render(page);
 
-      expect(screen.getByRole("heading", { name: /thirty years between a planter row/i })).toBeDefined();
+      expect(screen.getByRole("heading", { name: /thirty years as patent counsel/i })).toBeDefined();
       expect(screen.getByRole("link", { name: oipSiteContent.contact.email })).toBeDefined();
       expect(screen.getByRole("button", { name: "Switch to dark mode" })).toBeDefined();
     }));
@@ -395,7 +395,9 @@ describe("@beep/oip-web", { concurrent: false }, () => {
 
     const { container } = render(
       <OipAtomProvider>
-        <HeroVideo poster="/oip/hero-vid-poster.jpg" mp4="/oip/hero-vid.mp4" webm="/oip/hero-vid.webm" />
+        <HeroVideo
+          clips={[{ poster: "/oip/hero-vid-poster.jpg", mp4: "/oip/hero-vid.mp4", webm: "/oip/hero-vid.webm" }]}
+        />
       </OipAtomProvider>
     );
 
@@ -428,6 +430,80 @@ describe("@beep/oip-web", { concurrent: false }, () => {
         Object.defineProperty(window, "cancelIdleCallback", { configurable: true, value: originalCancelIdleCallback });
         Object.defineProperty(HTMLMediaElement.prototype, "load", { configurable: true, value: originalLoad });
         Object.defineProperty(HTMLMediaElement.prototype, "play", { configurable: true, value: originalPlay });
+        restoreMatchMedia();
+      });
+  });
+
+  it("rotates hero clips on an Atom-driven interval when multiple clips are supplied", () => {
+    const restoreMatchMedia = mockMatchMedia(false);
+    const setIntervalSpy = vi.spyOn(window, "setInterval");
+    const originalLoad = HTMLMediaElement.prototype.load;
+    const originalPlay = HTMLMediaElement.prototype.play;
+    Object.defineProperty(HTMLMediaElement.prototype, "load", { configurable: true, value: vi.fn() });
+    Object.defineProperty(HTMLMediaElement.prototype, "play", {
+      configurable: true,
+      value: vi.fn(() => Promise.resolve()),
+    });
+
+    const clips = [
+      { poster: "/oip/hero-a-poster.jpg", mp4: "/oip/hero-a.mp4", webm: "/oip/hero-a.webm" },
+      { poster: "/oip/hero-b-poster.jpg", mp4: "/oip/hero-b.mp4", webm: "/oip/hero-b.webm" },
+    ];
+
+    const { container } = render(
+      <OipAtomProvider>
+        <HeroVideo clips={clips} />
+      </OipAtomProvider>
+    );
+
+    return waitFor(() => expect(setIntervalSpy.mock.calls.some(([, ms]) => ms === HERO_ROTATE_MS)).toBe(true))
+      .then(() => {
+        expect(container.querySelector('[data-hero-clip="0"]')?.className).toContain("opacity-100");
+        expect(container.querySelector('[data-hero-clip="1"]')?.className).toContain("opacity-0");
+
+        const rotate = setIntervalSpy.mock.calls.find(([, ms]) => ms === HERO_ROTATE_MS)?.[0] as () => void;
+
+        return act(() => {
+          rotate();
+        });
+      })
+      .then(() =>
+        waitFor(() => {
+          expect(container.querySelector('[data-hero-clip="0"]')?.className).toContain("opacity-0");
+          expect(container.querySelector('[data-hero-clip="1"]')?.className).toContain("opacity-100");
+        })
+      )
+      .finally(() => {
+        setIntervalSpy.mockRestore();
+        Object.defineProperty(HTMLMediaElement.prototype, "load", { configurable: true, value: originalLoad });
+        Object.defineProperty(HTMLMediaElement.prototype, "play", { configurable: true, value: originalPlay });
+        restoreMatchMedia();
+      });
+  });
+
+  it("does not arm hero rotation under reduced motion", () => {
+    const restoreMatchMedia = mockMatchMedia(true);
+    const setIntervalSpy = vi.spyOn(window, "setInterval");
+    const clips = [
+      { poster: "/oip/hero-a-poster.jpg", mp4: "/oip/hero-a.mp4", webm: "/oip/hero-a.webm" },
+      { poster: "/oip/hero-b-poster.jpg", mp4: "/oip/hero-b.mp4", webm: "/oip/hero-b.webm" },
+    ];
+
+    const { container } = render(
+      <OipAtomProvider>
+        <HeroVideo clips={clips} />
+      </OipAtomProvider>
+    );
+
+    return waitFor(() => expect(container.querySelector('[data-hero-clip="0"]')).not.toBeNull())
+      .then(() => act(() => {}))
+      .then(() => {
+        expect(setIntervalSpy.mock.calls.some(([, ms]) => ms === HERO_ROTATE_MS)).toBe(false);
+        expect(container.querySelector('[data-hero-clip="0"]')?.className).toContain("opacity-100");
+        expect(container.querySelector('[data-hero-clip="1"]')?.className).toContain("opacity-0");
+      })
+      .finally(() => {
+        setIntervalSpy.mockRestore();
         restoreMatchMedia();
       });
   });
