@@ -5,6 +5,19 @@ import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
+/**
+ * Bubble group component.
+ *
+ * @example
+ * ```tsx
+ * import { BubbleGroup } from "@beep/ui/components/bubble"
+ *
+ * console.log(BubbleGroup)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function BubbleGroup({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="bubble-group" className={cn("flex min-w-0 flex-col gap-2", className)} {...props} />;
 }
@@ -36,6 +49,19 @@ const bubbleVariants = cva(
   }
 );
 
+/**
+ * Bubble component.
+ *
+ * @example
+ * ```tsx
+ * import { Bubble } from "@beep/ui/components/bubble"
+ *
+ * console.log(Bubble)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function Bubble({
   variant = "default",
   align = "start",
@@ -56,6 +82,19 @@ function Bubble({
   );
 }
 
+/**
+ * Bubble content component.
+ *
+ * @example
+ * ```tsx
+ * import { BubbleContent } from "@beep/ui/components/bubble"
+ *
+ * console.log(BubbleContent)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function BubbleContent({ className, render, ...props }: useRender.ComponentProps<"div">) {
   return useRender({
     defaultTagName: "div",
@@ -95,6 +134,19 @@ const bubbleReactionsVariants = cva(
   }
 );
 
+/**
+ * Bubble reactions component.
+ *
+ * @example
+ * ```tsx
+ * import { BubbleReactions } from "@beep/ui/components/bubble"
+ *
+ * console.log(BubbleReactions)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function BubbleReactions({
   side = "bottom",
   align = "end",
@@ -115,4 +167,8 @@ function BubbleReactions({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Bubble, BubbleContent, BubbleGroup, BubbleReactions };

@@ -11,10 +11,36 @@ import {
 } from "@shadcn/react/message-scroller";
 import type * as React from "react";
 
+/**
+ * Message scroller provider component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageScrollerProvider } from "@beep/ui/components/message-scroller"
+ *
+ * console.log(MessageScrollerProvider)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageScrollerProvider(props: React.ComponentProps<typeof MessageScrollerPrimitive.Provider>) {
   return <MessageScrollerPrimitive.Provider {...props} />;
 }
 
+/**
+ * Message scroller root component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageScroller } from "@beep/ui/components/message-scroller"
+ *
+ * console.log(MessageScroller)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageScroller({ className, ...props }: React.ComponentProps<typeof MessageScrollerPrimitive.Root>) {
   return (
     <MessageScrollerPrimitive.Root
@@ -25,6 +51,19 @@ function MessageScroller({ className, ...props }: React.ComponentProps<typeof Me
   );
 }
 
+/**
+ * Message scroller viewport component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageScrollerViewport } from "@beep/ui/components/message-scroller"
+ *
+ * console.log(MessageScrollerViewport)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageScrollerViewport({
   className,
   ...props
@@ -41,6 +80,19 @@ function MessageScrollerViewport({
   );
 }
 
+/**
+ * Message scroller content component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageScrollerContent } from "@beep/ui/components/message-scroller"
+ *
+ * console.log(MessageScrollerContent)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageScrollerContent({
   className,
   ...props
@@ -54,6 +106,19 @@ function MessageScrollerContent({
   );
 }
 
+/**
+ * Message scroller item component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageScrollerItem } from "@beep/ui/components/message-scroller"
+ *
+ * console.log(MessageScrollerItem)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageScrollerItem({
   className,
   scrollAnchor = false,
@@ -69,6 +134,19 @@ function MessageScrollerItem({
   );
 }
 
+/**
+ * Message scroller button component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageScrollerButton } from "@beep/ui/components/message-scroller"
+ *
+ * console.log(MessageScrollerButton)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageScrollerButton({
   direction = "end",
   className,
@@ -103,6 +181,10 @@ function MessageScrollerButton({
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   MessageScroller,
   MessageScrollerButton,

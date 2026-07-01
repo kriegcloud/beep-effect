@@ -8,8 +8,8 @@ Configuration is read from `components.json`.
 
 ## Contents
 
-- Commands: init, add (dry-run, smart merge), search, view, docs, info, build
-- Templates: next, vite, start, react-router, astro, laravel
+- Commands: init, apply, add (dry-run, smart merge), search, view, docs, info, build
+- Templates: next, vite, start, react-router, astro
 - Presets: named, code, URL formats and fields
 - Switching presets
 
@@ -27,7 +27,7 @@ Initializes shadcn/ui in an existing project or creates a new project (when `--n
 
 | Flag                    | Short | Description                                               | Default |
 | ----------------------- | ----- | --------------------------------------------------------- | ------- |
-| `--template <template>` | `-t`  | Template (next, vite, start, react-router, astro, laravel) | —       |
+| `--template <template>` | `-t`  | Template (next, start, vite, next-monorepo, react-router) | —       |
 | `--preset [name]`       | `-p`  | Preset configuration (named, code, or URL)                | —       |
 | `--yes`                 | `-y`  | Skip confirmation prompt                                  | `true`  |
 | `--defaults`            | `-d`  | Use defaults (`--template=next --preset=base-nova`)       | `false` |
@@ -37,12 +37,28 @@ Initializes shadcn/ui in an existing project or creates a new project (when `--n
 | `--silent`              | `-s`  | Mute output                                               | `false` |
 | `--rtl`                 |       | Enable RTL support                                        | —       |
 | `--reinstall`           |       | Re-install existing UI components                         | `false` |
-| `--no-reinstall`        |       | Keep existing UI components when switching presets        | `false` |
-| `--base <base>`         |       | Override the base primitive library in scratch workflows  | —       |
 | `--monorepo`            |       | Scaffold a monorepo project                               | —       |
 | `--no-monorepo`         |       | Skip the monorepo prompt                                  | —       |
 
 `npx shadcn@latest create` is an alias for `npx shadcn@latest init`.
+
+### `apply` — Apply a preset to an existing project
+
+```bash
+npx shadcn@latest apply [preset] [options]
+```
+
+Applies a preset to an existing project, overwriting preset-driven config, fonts, CSS variables, and detected UI components.
+
+| Flag                | Short | Description                                | Default |
+| ------------------- | ----- | ------------------------------------------ | ------- |
+| `--preset <preset>` | —     | Preset configuration (named, code, or URL) | —       |
+| `--yes`             | `-y`  | Skip confirmation prompt                   | `false` |
+| `--cwd <cwd>`       | `-c`  | Working directory                          | current |
+| `--silent`          | `-s`  | Mute output                                | `false` |
+
+`[preset]` is a shorthand for `--preset <preset>`. If both are provided, they must match.
+If no preset is provided, the CLI offers to open the custom preset builder on `ui.shadcn.com/create`.
 
 ### `add` — Add components
 
@@ -52,7 +68,8 @@ Initializes shadcn/ui in an existing project or creates a new project (when `--n
 npx shadcn@latest add [components...] [options]
 ```
 
-Accepts component names, registry-prefixed names (`@magicui/shimmer-button`), URLs, or local paths.
+Accepts component names, registry-prefixed names (`@magicui/shimmer-button`),
+GitHub item addresses (`owner/repo/item`), URLs, or local paths.
 
 | Flag            | Short | Description                                                                                                          | Default |
 | --------------- | ----- | -------------------------------------------------------------------------------------------------------------------- | ------- |
@@ -89,17 +106,20 @@ npx shadcn@latest add button --view button.tsx
 # Works with URLs too.
 npx shadcn@latest add https://api.npoint.io/abc123 --dry-run
 
+# Works with public GitHub registries too.
+npx shadcn@latest add owner/repo/item --dry-run
+
 # CSS diffs.
 npx shadcn@latest add button --diff globals.css
 ```
 
 **When to use dry-run:**
 
-- To see what files will be added or changed, use `--dry-run`.
-- Preview changes before overwriting existing components with `--diff`.
-- Inspect component source without installing by using `--view`.
-- Check CSS changes to `globals.css` with `--diff globals.css`.
-- Audit third-party registry code before installing with `--view`.
+- When the user asks "what files will this add?" or "what will this change?" — use `--dry-run`.
+- Before overwriting existing components — use `--diff` to preview the changes first.
+- When the user wants to inspect component source code without installing — use `--view`.
+- When checking what CSS changes would be made to `globals.css` — use `--diff globals.css`.
+- When the user asks to review or audit third-party registry code before installing — use `--view` to inspect the source.
 
 > **`npx shadcn@latest add --dry-run` vs `npx shadcn@latest view`:** Prefer `npx shadcn@latest add --dry-run/--diff/--view` over `npx shadcn@latest view` when the user wants to preview changes to their project. `npx shadcn@latest view` only shows raw registry metadata. `npx shadcn@latest add --dry-run` shows exactly what would happen in the user's project: resolved file paths, diffs against existing files, and CSS updates. Use `npx shadcn@latest view` only when the user wants to browse registry info without a project context.
 
@@ -110,17 +130,22 @@ See [Updating Components in SKILL.md](./SKILL.md#updating-components) for the fu
 ### `search` — Search registries
 
 ```bash
-npx shadcn@latest search <registries...> [options]
+npx shadcn@latest search [registries...] [options]
 ```
 
-Fuzzy search across registries. Also aliased as `npx shadcn@latest list`. Without `-q`, lists all items.
+Fuzzy search across registries. Also aliased as `npx shadcn@latest list`.
+Supports namespaces (`@acme`), public GitHub registry sources (`owner/repo`),
+and registry catalog URLs. Without `-q`, lists all items. When no registries are
+passed, searches every registry configured in `components.json`.
 
-| Flag                | Short | Description            | Default |
-| ------------------- | ----- | ---------------------- | ------- |
-| `--query <query>`   | `-q`  | Search query           | —       |
-| `--limit <number>`  | `-l`  | Max items per registry | `100`   |
-| `--offset <number>` | `-o`  | Items to skip          | `0`     |
-| `--cwd <cwd>`       | `-c`  | Working directory      | current |
+| Flag                | Short | Description                                       | Default |
+| ------------------- | ----- | ------------------------------------------------- | ------- |
+| `--query <query>`   | `-q`  | Search query                                      | —       |
+| `--type <type>`     | `-t`  | Filter by item type (e.g. `ui`, `block`, `hook`); comma-separated | —       |
+| `--limit <number>`  | `-l`  | Max items to display                              | `100`   |
+| `--offset <number>` | `-o`  | Items to skip                                     | `0`     |
+| `--json`            |       | Output as JSON                                    | `false` |
+| `--cwd <cwd>`       | `-c`  | Working directory                                 | current |
 
 ### `view` — View item details
 
@@ -128,7 +153,9 @@ Fuzzy search across registries. Also aliased as `npx shadcn@latest list`. Withou
 npx shadcn@latest view <items...> [options]
 ```
 
-Displays item info including file contents. Example: `npx shadcn@latest view @shadcn/button`.
+Displays item info including file contents. Examples:
+`npx shadcn@latest view @shadcn/button`,
+`npx shadcn@latest view owner/repo/item`.
 
 ### `docs` — Get component documentation URLs
 
@@ -216,6 +243,9 @@ npx shadcn@latest build [registry] [options]
 
 Builds `registry.json` into individual JSON files for distribution. Default input: `./registry.json`, default output: `./public/r`.
 
+For authoring rules, `include`, item definitions, `registryDependencies`, and
+GitHub registry behavior, see [registry.md](./registry.md).
+
 | Flag              | Short | Description       | Default      |
 | ----------------- | ----- | ----------------- | ------------ |
 | `--output <path>` | `-o`  | Output directory  | `./public/r` |
@@ -242,18 +272,19 @@ All templates support monorepo scaffolding via the `--monorepo` flag. When passe
 
 Three ways to specify a preset via `--preset`:
 
-1. **Named:** `--preset base-nova` or `--preset radix-nova`
-2. **Code:** `--preset a2r6bw` (base62 string, starts with lowercase `a`)
+1. **Named:** `--preset nova` or `--preset lyra`
+2. **Code:** `--preset a2r6bw` (version-prefixed base62 string, e.g. `a2r6bw` or `b0`)
 3. **URL:** `--preset "https://ui.shadcn.com/init?base=radix&style=nova&..."`
 
 > **IMPORTANT:** Never try to decode, fetch, or resolve preset codes manually. Preset codes are opaque — pass them directly to `npx shadcn@latest init --preset <code>` and let the CLI handle resolution.
+> Use `npx shadcn@latest apply --preset <code>` when overwriting an existing project's preset.
 
 ## Switching Presets
 
-Ask the user first: **reinstall**, **merge**, or **skip** existing components?
+Ask the user first: **overwrite**, **merge**, or **skip** existing components?
 
-- **Re-install** → `npx shadcn@latest init --preset <code> --force --reinstall`. Overwrites all component files with the new preset styles. Use when the user hasn't customized components.
+- **Overwrite / Re-install** → `npx shadcn@latest apply --preset <code>`. Overwrites all detected component files with the new preset styles. Use when the user hasn't customized components.
 - **Merge** → `npx shadcn@latest init --preset <code> --force --no-reinstall`, then run `npx shadcn@latest info` to get the list of installed components and use the [smart merge workflow](./SKILL.md#updating-components) to update them one by one, preserving local changes. Use when the user has customized components.
 - **Skip** → `npx shadcn@latest init --preset <code> --force --no-reinstall`. Only updates config and CSS variables, leaves existing components as-is.
 
-Always run preset commands inside the user's project directory. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly — preset codes do not encode the base.
+Always run preset commands inside the user's project directory. `apply` only works in an existing project with a `components.json` file. The CLI automatically preserves the current base (`base` vs `radix`) from `components.json`. If you must use a scratch/temp directory (e.g. for `--dry-run` comparisons), pass `--base <current-base>` explicitly — preset codes do not encode the base.

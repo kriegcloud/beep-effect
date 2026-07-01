@@ -5,6 +5,19 @@ import { cva } from "class-variance-authority";
 import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
+/**
+ * Marker variant class generator.
+ *
+ * @example
+ * ```tsx
+ * import { markerVariants } from "@beep/ui/components/marker"
+ *
+ * console.log(markerVariants)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 const markerVariants = cva(
   "group/marker relative flex min-h-4 w-full items-center gap-2 text-left text-sm text-muted-foreground [&_svg:not([class*='size-'])]:size-4 [a]:underline [a]:underline-offset-3 [a]:hover:text-foreground",
   {
@@ -19,6 +32,19 @@ const markerVariants = cva(
   }
 );
 
+/**
+ * Marker component.
+ *
+ * @example
+ * ```tsx
+ * import { Marker } from "@beep/ui/components/marker"
+ *
+ * console.log(Marker)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function Marker({
   className,
   variant = "default",
@@ -41,6 +67,19 @@ function Marker({
   });
 }
 
+/**
+ * Marker icon component.
+ *
+ * @example
+ * ```tsx
+ * import { MarkerIcon } from "@beep/ui/components/marker"
+ *
+ * console.log(MarkerIcon)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -52,6 +91,19 @@ function MarkerIcon({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
+/**
+ * Marker content component.
+ *
+ * @example
+ * ```tsx
+ * import { MarkerContent } from "@beep/ui/components/marker"
+ *
+ * console.log(MarkerContent)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -65,4 +117,8 @@ function MarkerContent({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Marker, MarkerContent, MarkerIcon, markerVariants };

@@ -357,6 +357,8 @@
     "storybook": "bunx turbo run storybook --filter=@beep/storybook",
     "storybook:build": "bunx turbo run storybook:build --filter=@beep/storybook",
     "storybook:start": "bunx turbo run storybook:start --filter=@beep/storybook",
+    "skills:update": "bun run beep skills update",
+    "skills:update:check": "bun run beep skills update --check",
     "test": "beep-cli test",
     "test:storybook": "bunx turbo run test:storybook --filter=@beep/storybook",
     "topo-sort": "bun run beep topo-sort",

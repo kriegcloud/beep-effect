@@ -25,6 +25,19 @@ const attachmentVariants = cva(
   }
 );
 
+/**
+ * Attachment component.
+ *
+ * @example
+ * ```tsx
+ * import { Attachment } from "@beep/ui/components/attachment"
+ *
+ * console.log(Attachment)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function Attachment({
   className,
   state = "done",
@@ -63,6 +76,19 @@ const attachmentMediaVariants = cva(
   }
 );
 
+/**
+ * Attachment media component.
+ *
+ * @example
+ * ```tsx
+ * import { AttachmentMedia } from "@beep/ui/components/attachment"
+ *
+ * console.log(AttachmentMedia)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function AttachmentMedia({
   className,
   variant = "icon",
@@ -78,6 +104,19 @@ function AttachmentMedia({
   );
 }
 
+/**
+ * Attachment content component.
+ *
+ * @example
+ * ```tsx
+ * import { AttachmentContent } from "@beep/ui/components/attachment"
+ *
+ * console.log(AttachmentContent)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function AttachmentContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -91,6 +130,19 @@ function AttachmentContent({ className, ...props }: React.ComponentProps<"div">)
   );
 }
 
+/**
+ * Attachment title component.
+ *
+ * @example
+ * ```tsx
+ * import { AttachmentTitle } from "@beep/ui/components/attachment"
+ *
+ * console.log(AttachmentTitle)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function AttachmentTitle({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -104,6 +156,19 @@ function AttachmentTitle({ className, ...props }: React.ComponentProps<"span">) 
   );
 }
 
+/**
+ * Attachment description component.
+ *
+ * @example
+ * ```tsx
+ * import { AttachmentDescription } from "@beep/ui/components/attachment"
+ *
+ * console.log(AttachmentDescription)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function AttachmentDescription({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -118,6 +183,19 @@ function AttachmentDescription({ className, ...props }: React.ComponentProps<"sp
   );
 }
 
+/**
+ * Attachment actions component.
+ *
+ * @example
+ * ```tsx
+ * import { AttachmentActions } from "@beep/ui/components/attachment"
+ *
+ * console.log(AttachmentActions)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function AttachmentActions({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -131,6 +209,19 @@ function AttachmentActions({ className, ...props }: React.ComponentProps<"div">)
   );
 }
 
+/**
+ * Attachment action button component.
+ *
+ * @example
+ * ```tsx
+ * import { AttachmentAction } from "@beep/ui/components/attachment"
+ *
+ * console.log(AttachmentAction)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function AttachmentAction({ className, variant, size = "icon-xs", ...props }: React.ComponentProps<typeof Button>) {
   return (
     <Button
@@ -143,6 +234,19 @@ function AttachmentAction({ className, variant, size = "icon-xs", ...props }: Re
   );
 }
 
+/**
+ * Attachment trigger component.
+ *
+ * @example
+ * ```tsx
+ * import { AttachmentTrigger } from "@beep/ui/components/attachment"
+ *
+ * console.log(AttachmentTrigger)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function AttachmentTrigger({ className, render, type, ...props }: useRender.ComponentProps<"button">) {
   return useRender({
     defaultTagName: "button",
@@ -160,6 +264,19 @@ function AttachmentTrigger({ className, render, type, ...props }: useRender.Comp
   });
 }
 
+/**
+ * Attachment group component.
+ *
+ * @example
+ * ```tsx
+ * import { AttachmentGroup } from "@beep/ui/components/attachment"
+ *
+ * console.log(AttachmentGroup)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -173,6 +290,10 @@ function AttachmentGroup({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export {
   Attachment,
   AttachmentAction,

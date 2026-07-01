@@ -1,10 +1,36 @@
 import { cn } from "@beep/ui/lib/utils";
 import type * as React from "react";
 
+/**
+ * Message group component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageGroup } from "@beep/ui/components/message"
+ *
+ * console.log(MessageGroup)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageGroup({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="message-group" className={cn("flex min-w-0 flex-col gap-2", className)} {...props} />;
 }
 
+/**
+ * Message component.
+ *
+ * @example
+ * ```tsx
+ * import { Message } from "@beep/ui/components/message"
+ *
+ * console.log(Message)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function Message({ className, align = "start", ...props }: React.ComponentProps<"div"> & { align?: "start" | "end" }) {
   return (
     <div
@@ -19,6 +45,19 @@ function Message({ className, align = "start", ...props }: React.ComponentProps<
   );
 }
 
+/**
+ * Message avatar component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageAvatar } from "@beep/ui/components/message"
+ *
+ * console.log(MessageAvatar)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageAvatar({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -32,6 +71,19 @@ function MessageAvatar({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * Message content component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageContent } from "@beep/ui/components/message"
+ *
+ * console.log(MessageContent)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -45,6 +97,19 @@ function MessageContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * Message header component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageHeader } from "@beep/ui/components/message"
+ *
+ * console.log(MessageHeader)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -58,6 +123,19 @@ function MessageHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * Message footer component.
+ *
+ * @example
+ * ```tsx
+ * import { MessageFooter } from "@beep/ui/components/message"
+ *
+ * console.log(MessageFooter)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 function MessageFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -71,4 +149,8 @@ function MessageFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ * @category components
+ * @since 0.0.0
+ */
 export { Message, MessageAvatar, MessageContent, MessageFooter, MessageGroup, MessageHeader };
