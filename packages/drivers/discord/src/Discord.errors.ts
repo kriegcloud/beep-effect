@@ -32,7 +32,7 @@ export const DiscordErrorReason = LiteralKit(["request", "transport", "response-
 );
 
 /**
- * Type for {@link DiscordErrorReason}. {@inheritDoc DiscordErrorReason}
+ * {@inheritDoc DiscordErrorReason}
  *
  * @example
  * ```ts

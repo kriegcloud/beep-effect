@@ -293,6 +293,7 @@ export class NavItem extends S.Class<NavItem>($I`NavItem`)(
  * @category models
  * @since 0.0.0
  */
+// fallow-ignore-next-line unused-export
 export class HeroClip extends S.Class<HeroClip>($I`HeroClip`)(
   {
     poster: SiteAsset,

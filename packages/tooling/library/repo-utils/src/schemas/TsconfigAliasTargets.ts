@@ -28,15 +28,12 @@ type BuildDocgenAliasTargetsOptions = {
  * @example
  * ```ts
  * import { CanonicalAliasTargets } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
- *
  * const targets = CanonicalAliasTargets.make({
  *   rootAliasTarget: "./packages/example/src/index.ts",
  *   wildcardAliasTarget: "./packages/example/src/*"
  * })
- *
  * console.log(targets.wildcardAliasTarget) // "./packages/example/src/*"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -85,25 +82,23 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
 /**
  * Resolve the canonical root export target from a package `exports` field.
  *
+ * @param exportsField - Package `exports` field value the root entry is resolved from.
+ * @returns The resolved root export target path, or `Option.none` when only subpaths exist.
  * @remarks
  * Conditional export objects are searched in repo-preferred order:
  * `types`, `import`, `default`, `require`, `node`, `bun`, then `browser`.
  * If an export map only contains subpaths and no `"."` key, this returns
  * `Option.none`.
- *
  * @example
  * ```ts
  * import * as O from "effect/Option"
  * import { resolveRootExportTarget } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
- *
  * const target = resolveRootExportTarget({
  *   ".": { types: "./dist/index.d.ts", import: "./src/index.ts" },
  *   "./package.json": "./package.json"
  * })
- *
  * console.log(O.getOrUndefined(target)) // "./dist/index.d.ts"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -127,15 +122,12 @@ export const resolveRootExportTarget = (exportsField: unknown): O.Option<string>
  * ```ts
  * import * as O from "effect/Option"
  * import { resolveSubpathExportTarget } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
- *
  * const target = resolveSubpathExportTarget(
  *   { "./testing": { import: "./src/testing.ts" } },
  *   "./testing"
  * )
- *
  * console.log(O.getOrUndefined(target)) // "./src/testing.ts"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -153,15 +145,15 @@ export const resolveSubpathExportTarget: {
 /**
  * Resolve the wildcard export target from a package `exports` field.
  *
+ * @param exportsField - Package `exports` field value the wildcard entry is resolved from.
+ * @returns The resolved wildcard export target path, or `Option.none` when absent.
  * @example
  * ```ts
  * import * as O from "effect/Option"
  * import { resolveWildcardExportTarget } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
- *
  * const wildcard = resolveWildcardExportTarget({ "./*": "./src/*.ts" })
  * console.log(O.getOrUndefined(wildcard)) // "./src/*.ts"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -175,16 +167,13 @@ export const resolveWildcardExportTarget = (exportsField: unknown): O.Option<str
  * The wildcard target is derived from the directory that contains the root
  * export. A root export at `./src/index.ts` therefore maps wildcards to
  * `./src/*`, not to the package root.
- *
  * @example
  * ```ts
  * import { buildCanonicalAliasTargets } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
- *
  * const targets = buildCanonicalAliasTargets("packages/example", "./src/index.ts")
  * console.log(targets.rootAliasTarget) // "./packages/example/src/index.ts"
  * console.log(targets.wildcardAliasTarget) // "./packages/example/src/*"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -233,19 +222,15 @@ const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
  * inferred from the root export's containing directory. This keeps docgen
  * examples compiling against source files without changing the published
  * package's actual export surface.
- *
  * @example
  * ```ts
  * import { buildDocgenAliasTargets } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
- *
  * const targets = buildDocgenAliasTargets("packages/example", {
  *   rootExportTarget: "./src/index.ts",
  *   wildcardExportTarget: "./src/*.ts"
  * })
- *
  * console.log(targets.wildcardAliasTarget) // "./packages/example/src/*.ts"
  * ```
- *
  * @category models
  * @since 0.0.0
  */

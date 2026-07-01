@@ -211,8 +211,12 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
   /**
    * Construct a source-file error from a raw file path (decoded to an `Option`) and message.
    *
-   * @since 0.0.0
+   * @param filePathInput - Raw file path decoded to an `Option<TypeScriptFilePath>`.
+   * @param message - Human-readable explanation of the source-file failure.
+   * @param scopeId - Optional project scope the failing file belongs to.
+   * @returns A `TsMorphSourceFileError` carrying the decoded path, message, and scope.
    * @category constructors
+   * @since 0.0.0
    */
   static at(
     filePathInput: string,
@@ -657,6 +661,14 @@ const collectOutlineEntries = Effect.fn(function* (
 /**
  * Construct the current live implementation for the v1 TSMorphService contract.
  *
+ * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
+ * @effects
+ * - Requires `Crypto.Crypto`, `FileSystem.FileSystem`, and `Path.Path`.
+ * - Resolves repository roots from `process.cwd()`, reads tsconfig/source
+ *   files, loads ts-morph projects, computes content hashes, and reads
+ *   diagnostics/symbol outlines.
+ * - Caches resolved scopes and symbol indexes in memory for the returned
+ *   service instance; only `updateSourceFile` persists source edits.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -667,14 +679,6 @@ const collectOutlineEntries = Effect.fn(function* (
  * )
  * console.log(program)
  * ```
- * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
- * @effects
- * - Requires `Crypto.Crypto`, `FileSystem.FileSystem`, and `Path.Path`.
- * - Resolves repository roots from `process.cwd()`, reads tsconfig/source
- *   files, loads ts-morph projects, computes content hashes, and reads
- *   diagnostics/symbol outlines.
- * - Caches resolved scopes and symbol indexes in memory for the returned
- *   service instance; only `updateSourceFile` persists source edits.
  * @category models
  * @since 0.0.0
  */

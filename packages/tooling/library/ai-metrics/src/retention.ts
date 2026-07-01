@@ -731,11 +731,14 @@ const planToInventory = (input: AiMetricsRetentionSelector, plan: RetentionPlan)
 /**
  * List retained AI metrics raw archive objects and derived/report outputs.
  *
+ * @effects
+ * - Opens the derived DuckDB database under the selected data root.
+ * - Reads retention rows from AI-metrics derived tables.
+ * - Walks retained Parquet and report directories to build path-safe inventory rows.
  * @example
  * ```ts
  * import { AiMetricsRetentionSelector, listAiMetricsRetentionInventory } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const program = listAiMetricsRetentionInventory(
  *   AiMetricsRetentionSelector.make({
  *     beforeEpochMillis: 1_717_086_400_000,
@@ -745,11 +748,6 @@ const planToInventory = (input: AiMetricsRetentionSelector, plan: RetentionPlan)
  * const selectedCount = Effect.map(program, (inventory) => inventory.selectedRawArchiveObjectCount)
  * console.log(selectedCount)
  * ```
- * @effects
- * - Opens the derived DuckDB database under the selected data root.
- * - Reads retention rows from AI-metrics derived tables.
- * - Walks retained Parquet and report directories to build path-safe inventory rows.
- *
  * @category services
  * @since 0.0.0
  */
@@ -904,11 +902,13 @@ const listForwarderSnapshotExportDirs = Effect.fn("AiMetrics.retention.listForwa
 /**
  * Enforce local AI metrics retention for old per-run Parquet snapshots.
  *
+ * @effects
+ * - Reads the derived Parquet snapshot directory and file metadata.
+ * - Removes old snapshot directories only when `dryRun` is `false`.
  * @example
  * ```ts
  * import { AiMetricsRetentionEnforcementPolicy, enforceAiMetricsRetentionPolicy } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const program = enforceAiMetricsRetentionPolicy(
  *   AiMetricsRetentionEnforcementPolicy.make({
  *     dataRoot: ".beep/ai-metrics",
@@ -919,10 +919,6 @@ const listForwarderSnapshotExportDirs = Effect.fn("AiMetrics.retention.listForwa
  * const deletedCount = Effect.map(program, (result) => result.deletedDerivedExportCount)
  * console.log(deletedCount)
  * ```
- * @effects
- * - Reads the derived Parquet snapshot directory and file metadata.
- * - Removes old snapshot directories only when `dryRun` is `false`.
- *
  * @category services
  * @since 0.0.0
  */
@@ -1026,11 +1022,14 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
 /**
  * Delete selected AI metrics raw, derived, and report data.
  *
+ * @effects
+ * - Reads the selected retention plan from derived DuckDB storage.
+ * - Deletes selected raw archive files and derived/report outputs only when `dryRun` is `false`.
+ * - Deletes selected derived rows from DuckDB only when `dryRun` is `false`.
  * @example
  * ```ts
  * import { AiMetricsRetentionSelector, runAiMetricsRetentionDelete } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const program = runAiMetricsRetentionDelete(
  *   AiMetricsRetentionSelector.make({
  *     beforeEpochMillis: 1_717_086_400_000,
@@ -1041,11 +1040,6 @@ const runRetentionMutation = Effect.fn("AiMetrics.retention.runMutation")(functi
  * const plannedRawDeletes = Effect.map(program, (result) => result.deletedRawArchiveObjectCount)
  * console.log(plannedRawDeletes)
  * ```
- * @effects
- * - Reads the selected retention plan from derived DuckDB storage.
- * - Deletes selected raw archive files and derived/report outputs only when `dryRun` is `false`.
- * - Deletes selected derived rows from DuckDB only when `dryRun` is `false`.
- *
  * @category services
  * @since 0.0.0
  */
@@ -1070,11 +1064,13 @@ export const runAiMetricsRetentionDelete: {
 /**
  * Compact selected AI metrics derived Parquet and report outputs.
  *
+ * @effects
+ * - Reads the selected retention plan from derived DuckDB storage.
+ * - Removes selected derived/report output files only when `dryRun` is `false`.
  * @example
  * ```ts
  * import { AiMetricsRetentionSelector, runAiMetricsRetentionCompact } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const program = runAiMetricsRetentionCompact(
  *   AiMetricsRetentionSelector.make({
  *     beforeEpochMillis: 1_717_086_400_000,
@@ -1085,10 +1081,6 @@ export const runAiMetricsRetentionDelete: {
  * const plannedFileDeletes = Effect.map(program, (result) => result.deletedDerivedExportCount)
  * console.log(plannedFileDeletes)
  * ```
- * @effects
- * - Reads the selected retention plan from derived DuckDB storage.
- * - Removes selected derived/report output files only when `dryRun` is `false`.
- *
  * @category services
  * @since 0.0.0
  */
@@ -1113,6 +1105,11 @@ export const runAiMetricsRetentionCompact: {
 /**
  * Restore selected encrypted raw archive objects into disposable derived storage.
  *
+ * @effects
+ * - Reads source retention rows from derived DuckDB storage.
+ * - Reads and decrypts selected raw archive envelopes using `globalThis.crypto`.
+ * - Creates restore directories, writes a disposable raw archive copy, and writes restored derived DuckDB storage.
+ * - Hashes restored plaintext to prove retained archive integrity before replay.
  * @example
  * ```ts
  * import {
@@ -1121,7 +1118,6 @@ export const runAiMetricsRetentionCompact: {
  *   runAiMetricsRetentionRestoreDrill
  * } from "@beep/repo-ai-metrics"
  * import { Effect, Redacted } from "effect"
- *
  * const program = runAiMetricsRetentionRestoreDrill(
  *   AiMetricsRetentionRestoreDrillInput.make({
  *     maxObjects: 1,
@@ -1133,12 +1129,6 @@ export const runAiMetricsRetentionCompact: {
  * const replayedCount = Effect.map(program, (result) => result.replayedObjectCount)
  * console.log(replayedCount)
  * ```
- * @effects
- * - Reads source retention rows from derived DuckDB storage.
- * - Reads and decrypts selected raw archive envelopes using `globalThis.crypto`.
- * - Creates restore directories, writes a disposable raw archive copy, and writes restored derived DuckDB storage.
- * - Hashes restored plaintext to prove retained archive integrity before replay.
- *
  * @category services
  * @since 0.0.0
  */
@@ -1278,11 +1268,11 @@ const encodeRestoreDrillJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsR
 /**
  * Render a retention inventory as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if inventory cannot be encoded.
  * @example
  * ```ts
  * import { AiMetricsRetentionInventory, aiMetricsRetentionInventoryToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const inventory = AiMetricsRetentionInventory.make({
  *   derivedExports: [],
  *   explicitWindow: true,
@@ -1296,8 +1286,6 @@ const encodeRestoreDrillJson = S.encodeUnknownEffect(S.fromJsonString(AiMetricsR
  * const json = Effect.runPromise(aiMetricsRetentionInventoryToJson(inventory))
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if inventory cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1313,11 +1301,11 @@ export const aiMetricsRetentionInventoryToJson: (
 /**
  * Render a retention enforcement result as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if enforcement result cannot be encoded.
  * @example
  * ```ts
  * import { AiMetricsRetentionEnforcementResult, aiMetricsRetentionEnforcementToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const result = AiMetricsRetentionEnforcementResult.make({
  *   dataRoot: ".beep/ai-metrics",
  *   deletedDerivedExportCount: 1,
@@ -1329,8 +1317,6 @@ export const aiMetricsRetentionInventoryToJson: (
  * const json = Effect.runPromise(aiMetricsRetentionEnforcementToJson(result))
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if enforcement result cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1346,11 +1332,11 @@ export const aiMetricsRetentionEnforcementToJson: (
 /**
  * Render a retention mutation result as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if mutation result cannot be encoded.
  * @example
  * ```ts
  * import { AiMetricsRetentionMutationResult, aiMetricsRetentionMutationToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const result = AiMetricsRetentionMutationResult.make({
  *   deletedDerivedExportCount: 2,
  *   deletedRawArchiveObjectCount: 0,
@@ -1363,8 +1349,6 @@ export const aiMetricsRetentionEnforcementToJson: (
  * const json = Effect.runPromise(aiMetricsRetentionMutationToJson(result))
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if mutation result cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1380,11 +1364,11 @@ export const aiMetricsRetentionMutationToJson: (
 /**
  * Render a restore drill result as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if restore-drill result cannot be encoded.
  * @example
  * ```ts
  * import { AiMetricsRetentionRestoreDrillResult, aiMetricsRetentionRestoreDrillToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const result = AiMetricsRetentionRestoreDrillResult.make({
  *   derivedDuckDbPath: "/tmp/ai-metrics-restore/derived/ai-metrics.duckdb",
  *   hashMatches: true,
@@ -1396,8 +1380,6 @@ export const aiMetricsRetentionMutationToJson: (
  * const json = Effect.runPromise(aiMetricsRetentionRestoreDrillToJson(result))
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsRetentionError` if restore-drill result cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */

@@ -373,6 +373,7 @@ export const resolveAiMetricsHashSaltStatus = (hashSalt: string | undefined): Ai
 /**
  * Compute a deterministic public SHA-256 digest for non-private content identity.
  *
+ * @effects Reads the Web Crypto implementation through `globalThis.crypto.subtle`.
  * @example
  * ```ts
  * import { hashPublicTextSha256 } from "@beep/repo-ai-metrics"
@@ -381,7 +382,6 @@ export const resolveAiMetricsHashSaltStatus = (hashSalt: string | undefined): Ai
  * const digest = Effect.runPromise(hashPublicTextSha256("visible benchmark id"))
  * console.log(digest)
  * ```
- * @effects Reads the Web Crypto implementation through `globalThis.crypto.subtle`.
  * @category utilities
  * @since 0.0.0
  */
@@ -401,6 +401,7 @@ export const hashPublicTextSha256: (value: string) => Effect.Effect<string, AiMe
 /**
  * Compute a salted SHA-256 digest for private identifiers such as local paths and session ids.
  *
+ * @effects Reads the Web Crypto implementation through `globalThis.crypto.subtle`.
  * @example
  * ```ts
  * import { hashPrivateIdentifier } from "@beep/repo-ai-metrics"
@@ -409,7 +410,6 @@ export const hashPublicTextSha256: (value: string) => Effect.Effect<string, AiMe
  * const pathHash = Effect.runPromise(hashPrivateIdentifier("/home/me/.codex/session.jsonl", "salt"))
  * console.log(pathHash)
  * ```
- * @effects Reads the Web Crypto implementation through `globalThis.crypto.subtle`.
  * @category utilities
  * @since 0.0.0
  */
@@ -484,11 +484,11 @@ const pathRoleFor = (relativePath: string): AiMetricsSourceRole => {
 /**
  * Derive privacy-safe source attribution from local transcript metadata.
  *
+ * @effects Reads `globalThis.crypto.subtle` to hash private source identifiers and thread metadata.
  * @example
  * ```ts
  * import { makeAiMetricsSourceAttribution } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const attribution = Effect.runPromise(
  *   makeAiMetricsSourceAttribution({
  *     content: "{\"type\":\"session_meta\",\"payload\":{\"id\":\"session-1\"}}",
@@ -500,8 +500,6 @@ const pathRoleFor = (relativePath: string): AiMetricsSourceRole => {
  * )
  * console.log(attribution)
  * ```
- * @effects Reads `globalThis.crypto.subtle` to hash private source identifiers and thread metadata.
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -664,11 +662,11 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
 /**
  * Build a sanitized transcript projection from an ingest summary and raw JSONL text.
  *
+ * @effects Reads `globalThis.crypto.subtle` while hashing transcript source and event-attribution identifiers.
  * @example
  * ```ts
  * import { TranscriptIngestSummary, makeSanitizedTranscript } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const sanitized = Effect.runPromise(
  *   makeSanitizedTranscript({
  *     content: "{\"type\":\"event_msg\"}",
@@ -686,8 +684,6 @@ const rawEventEnvelopes = Effect.fn("AiMetrics.rawEventEnvelopes")(function* ({
  * )
  * console.log(sanitized)
  * ```
- * @effects Reads `globalThis.crypto.subtle` while hashing transcript source and event-attribution identifiers.
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -743,11 +739,11 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
 /**
  * Build the P1 privacy proof payload for one transcript.
  *
+ * @effects Reads `globalThis.crypto.subtle` while hashing the transcript path, source attribution, and event metadata.
  * @example
  * ```ts
  * import { TranscriptIngestSummary, makeAiMetricsPrivacyCheckResult } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const proof = Effect.runPromise(
  *   makeAiMetricsPrivacyCheckResult({
  *     content: "{\"type\":\"event_msg\",\"message\":\"redacted at boundary\"}",
@@ -765,8 +761,6 @@ export const makeSanitizedTranscript = Effect.fn("AiMetrics.makeSanitizedTranscr
  * )
  * console.log(proof)
  * ```
- * @effects Reads `globalThis.crypto.subtle` while hashing the transcript path, source attribution, and event metadata.
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -801,6 +795,7 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
 /**
  * Render a privacy check result as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsPrivacyError` if the payload cannot be encoded.
  * @example
  * ```ts
  * import {
@@ -810,7 +805,6 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
  *   privacyCheckToJson
  * } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const json = Effect.runPromise(
  *   privacyCheckToJson(
  *     AiMetricsPrivacyCheckResult.make({
@@ -839,8 +833,6 @@ export const makeAiMetricsPrivacyCheckResult = Effect.fn("AiMetrics.makeAiMetric
  * )
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsPrivacyError` if the payload cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */

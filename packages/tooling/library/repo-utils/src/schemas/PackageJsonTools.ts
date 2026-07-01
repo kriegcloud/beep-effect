@@ -309,25 +309,20 @@ export const npmPackageJsonJsonSchema = S.toJsonSchemaDocument(NpmPackageJson);
  * Known record fields such as scripts and dependencies are sorted by key, while
  * unsupported package.json shapes still fail through {@link decodePackageJsonEffect}.
  * Unknown-but-schema-supported nested JSON is canonicalized recursively.
- *
- * @example
- * ```ts
- * import { Effect } from "effect"
- * import { normalizePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
- * const normalized = Effect.runSync(normalizePackageJsonEffect({
- *   name: "@beep/example",
- *   dependencies: { zod: "^4.0.0", effect: "catalog:" }
- * }))
- *
- * console.log(Object.keys(normalized.dependencies ?? {})) // ["effect", "zod"]
- * ```
- *
  * @effects
  * Validates the package manifest through {@link encodePackageJsonEffect}, then
  * canonicalizes key ordering in memory; failures are reported as
  * `S.SchemaError`.
- *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { normalizePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
+ * const normalized = Effect.runSync(normalizePackageJsonEffect({
+ *   name: "@beep/example",
+ *   dependencies: { zod: "^4.0.0", effect: "catalog:" }
+ * }))
+ * console.log(Object.keys(normalized.dependencies ?? {})) // ["effect", "zod"]
+ * ```
  * @category combinators
  * @since 0.0.0
  */

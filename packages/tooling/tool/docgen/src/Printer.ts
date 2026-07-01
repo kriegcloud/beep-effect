@@ -390,7 +390,6 @@ const printNamespace: {
  * @remarks
  * Rendering depends on the active {@link Configuration.Configuration} and {@link Parser.Source}
  * so generated pages can include theme-compatible fences and source links.
- *
  * @example
  * ```ts
  * import { Effect, Layer } from "effect"
@@ -404,7 +403,6 @@ const printNamespace: {
  * import { Constant, Doc, Position } from "@beep/repo-docgen/Domain"
  * import { Source, SourceShape } from "@beep/repo-docgen/Parser"
  * import { print } from "@beep/repo-docgen/Printer"
- *
  * const project = new Project({ useInMemoryFileSystem: true })
  * const sourceFile = project.createSourceFile("src/example.ts", "export const answer = 42")
  * const source = SourceShape.new(["src", "example.ts"], sourceFile)
@@ -442,7 +440,6 @@ const printNamespace: {
  * const markdown = Effect.runSync(
  *   print(model).pipe(Effect.provide(Layer.mergeAll(Configuration.layer(config), Source.layer(source))))
  * )
- *
  * console.log(markdown.includes("answer"))
  * ```
  * @category formatting
@@ -486,10 +483,11 @@ const sortByName: <
 /**
  * Renders a parsed module into markdown grouped by documentation category.
  *
+ * @param module - Parsed docgen module to render.
+ * @returns An Effect that yields the module rendered as category-grouped markdown.
  * @remarks
  * Printables are sorted by category and then by symbol name. Symbols with no
  * `@category` are grouped under the legacy `utils` fallback.
- *
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -503,7 +501,6 @@ const sortByName: <
  * import { Constant, Doc, Module, Position } from "@beep/repo-docgen/Domain"
  * import { SourceShape } from "@beep/repo-docgen/Parser"
  * import { printModule } from "@beep/repo-docgen/Printer"
- *
  * const project = new Project({ useInMemoryFileSystem: true })
  * const sourceFile = project.createSourceFile("src/example.ts", "export const answer = 42")
  * const source = SourceShape.new(["src", "example.ts"], sourceFile)
@@ -550,7 +547,6 @@ const sortByName: <
  *   namespaces: []
  * })
  * const markdown = Effect.runSync(printModule(module).pipe(Effect.provide(Configuration.layer(config))))
- *
  * console.log(markdown.includes("# models"))
  * ```
  * @category formatting

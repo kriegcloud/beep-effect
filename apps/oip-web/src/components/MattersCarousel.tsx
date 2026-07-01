@@ -1,5 +1,9 @@
+// fallow-ignore-file unused-file
 /**
  * Selected-matters carousel for the OIP public home page.
+ *
+ * Temporarily unmounted from {@link OipHomePage} (the selected-matters section is
+ * commented out pending review-gate sign-off); retained for re-enable.
  *
  * @packageDocumentation
  * @since 0.0.0

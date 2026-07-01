@@ -23,13 +23,73 @@
  */
 export const VERSION = "0.0.0" as const;
 
+/**
+ * Runtime Lexical node rendering the `artifact-ref` block as a chip.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export * from "./artifact-ref-node.tsx";
+/**
+ * The feature-flagged chat composer surface: config, commands, toolbar, typeahead, attachments, and send.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export * from "./chat/index.ts";
+/**
+ * Composer primitives: an editable Lexical surface wired with the v1 node registration and theme.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export * from "./composer.tsx";
+/**
+ * Read-only Lexical plugin rendering `language="mermaid"` code nodes as diagrams.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export * from "./mermaid-code-decorator-plugin.tsx";
+/**
+ * Mermaid diagram renderer shared by persisted editor and streaming chat surfaces.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export * from "./mermaid-view.tsx";
+/**
+ * Node registration for the `@beep/lexical-schema` v1 vocabulary.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
 export * from "./nodes.ts";
+/**
+ * Editor theme reusing the `@beep/ui` editor substrate theme.
+ *
+ * @category themes
+ * @since 0.0.0
+ */
 export * from "./theme.ts";
+/**
+ * Read-only viewer rendering a `@beep/lexical-schema` serialized editor state.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export * from "./viewer.tsx";
+/**
+ * YouTube iframe embed used by editor and streaming chat surfaces.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export * from "./youtube-embed.tsx";
+/**
+ * Runtime Lexical node for `@beep/lexical-schema` YouTube embeds.
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export * from "./youtube-node.tsx";

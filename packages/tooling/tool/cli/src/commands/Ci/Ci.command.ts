@@ -244,6 +244,7 @@ const renderTurboSummary = (repoRoot: string, summaryPath: string, run: TurboSum
  *
  * @param explicitPath - Optional explicit Turbo summary path.
  * @returns Effect that renders the summary.
+ * @effects Locates the repository root, reads Turbo summary JSON, reads `GITHUB_STEP_SUMMARY`, then appends Markdown to that file or logs it to stdout.
  * @example
  * ```ts
  * import { appendTurboSummary } from "@beep/repo-cli/commands/Ci"
@@ -254,7 +255,6 @@ const renderTurboSummary = (repoRoot: string, summaryPath: string, run: TurboSum
  * const program = appendTurboSummary(O.some(".turbo/runs/latest.json")).pipe(Effect.provide(NodeServices.layer))
  * Effect.runPromise(program).then(() => console.log("summary appended"))
  * ```
- * @effects Locates the repository root, reads Turbo summary JSON, reads `GITHUB_STEP_SUMMARY`, then appends Markdown to that file or logs it to stdout.
  * @category use-cases
  * @since 0.0.0
  */

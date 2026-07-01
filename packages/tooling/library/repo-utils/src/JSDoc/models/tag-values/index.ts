@@ -350,10 +350,7 @@ const TypeScriptEnc = S.Union([S.toEncoded(OverloadValue)]);
  * import { ParamValue, TagValue } from "@beep/repo-utils/JSDoc/models/tag-values"
  *
  * const tag = ParamValue.make({ name: "input", description: "Raw input value." })
- * const parameterName = TagValue.match(tag, {
- *   param: (value) => value.name,
- *   _: () => "unknown"
- * })
+ * const parameterName = TagValue.guards.param(tag) ? tag.name : "unknown"
  * console.log(parameterName)
  * ```
  * @category models

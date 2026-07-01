@@ -404,17 +404,18 @@ const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boo
 /**
  * Loads and resolves the effective docgen configuration from CLI input and repo files.
  *
+ * @internal
  * @remarks
  * CLI options win over `docgen.json`; missing values fall back to package metadata and repo defaults.
  * Example compiler options are post-processed to allow generated imports and to disable unused checks.
- *
- * @internal
+ * @effects
+ * - Reads `package.json`, optional `docgen.json`, and any referenced TSConfig file from the current package.
+ * - Fails with `DocgenError` when JSONC parsing, schema decoding, or file access fails.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import * as O from "effect/Option"
  * import { load } from "@beep/repo-docgen/Configuration"
- *
  * const program = load({
  *   enableSearch: O.some(false),
  *   enforceDescriptions: O.none(),
@@ -432,14 +433,8 @@ const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boo
  *   theme: O.none(),
  *   tscExecutable: O.none()
  * }).pipe(Effect.map((config) => config.include))
- *
  * console.log(program)
  * ```
- *
- * @effects
- * - Reads `package.json`, optional `docgen.json`, and any referenced TSConfig file from the current package.
- * - Fails with `DocgenError` when JSONC parsing, schema decoding, or file access fails.
- *
  * @category configuration
  * @since 0.0.0
  */

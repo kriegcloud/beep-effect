@@ -74,6 +74,7 @@ const v2Path = (bytes: Uint8Array, view: DataView): Effect.Effect<string, Corpus
  * Supports format v1 (Windows Vista-8.1, fixed 520-byte path) and v2
  * (Windows 10+, length-prefixed path).
  *
+ * @effects Parses the supplied bytes in memory and fails with `CorpusCommandError` for invalid metadata; it does not read or write files.
  * @example
  * ```ts
  * import { parseRecycleBinMetadata } from "@beep/repo-cli/commands/Corpus"
@@ -90,7 +91,6 @@ const v2Path = (bytes: Uint8Array, view: DataView): Effect.Effect<string, Corpus
  *
  * Effect.runPromise(parseRecycleBinMetadata(bytes)).then((original) => console.log(original.originalName)) // "spec.docx"
  * ```
- * @effects Parses the supplied bytes in memory and fails with `CorpusCommandError` for invalid metadata; it does not read or write files.
  * @category parsing
  * @since 0.0.0
  */

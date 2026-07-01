@@ -13,9 +13,8 @@ import type { ReactNode } from "react";
  * import { strictEqual } from "node:assert"
  * import type { EventStatus } from "@beep/ui/components/calendar-event-card"
  *
- * const status: EventStatus = "loading"
- * const buttonDisabled = status === "completed"
- * strictEqual(buttonDisabled, false)
+ * const isCompleted = (status: EventStatus): boolean => status === "completed"
+ * strictEqual(isCompleted("loading"), false)
  * ```
  *
  * @category type-level

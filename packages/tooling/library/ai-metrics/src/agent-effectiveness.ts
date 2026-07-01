@@ -2096,23 +2096,21 @@ const buildJsdocWorkerSection = Effect.fn("AiMetrics.agentEffectiveness.buildJsd
 /**
  * Build the report-only Phase 1 agent-effectiveness doctor report.
  *
+ * @effects
+ * - Reads Phoenix health and GraphQL inventory unless `noPhoenix` disables the probe.
+ * - Reads the local AI-metrics DuckDB file when derived storage exists.
+ * - Reads the JSDoc worker-eval manifest or report from the selected path.
+ * - Captures the current clock time for the report timestamp.
  * @example
  * ```ts
  * import { AgentEffectivenessDoctorInput, makeAgentEffectivenessDoctorReport } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const program = makeAgentEffectivenessDoctorReport(
  *   AgentEffectivenessDoctorInput.make({ noPhoenix: true })
  * )
  * const status = Effect.map(program, (report) => report.summary.status)
  * console.log(status)
  * ```
- * @effects
- * - Reads Phoenix health and GraphQL inventory unless `noPhoenix` disables the probe.
- * - Reads the local AI-metrics DuckDB file when derived storage exists.
- * - Reads the JSDoc worker-eval manifest or report from the selected path.
- * - Captures the current clock time for the report timestamp.
- *
  * @category services
  * @since 0.0.0
  */
@@ -2444,6 +2442,10 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
 /**
  * Build a sanitized local-only annotation plan.
  *
+ * @effects
+ * - Builds the doctor report, including its Phoenix, DuckDB, worker-eval, and clock reads.
+ * - Reads outcome-label and benchmark-run rows from derived DuckDB storage when available.
+ * - Performs no Phoenix mutation; the result is a local dry-run annotation plan.
  * @example
  * ```ts
  * import {
@@ -2452,7 +2454,6 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
  *   makeAgentEffectivenessAnnotationPlan
  * } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const program = makeAgentEffectivenessAnnotationPlan(
  *   AgentEffectivenessAnnotationPlanInput.make({
  *     annotationLimit: 10,
@@ -2462,11 +2463,6 @@ const queryAnnotationRows = Effect.fn("AiMetrics.agentEffectiveness.queryAnnotat
  * const annotationCount = Effect.map(program, (plan) => plan.annotations.length)
  * console.log(annotationCount)
  * ```
- * @effects
- * - Builds the doctor report, including its Phoenix, DuckDB, worker-eval, and clock reads.
- * - Reads outcome-label and benchmark-run rows from derived DuckDB storage when available.
- * - Performs no Phoenix mutation; the result is a local dry-run annotation plan.
- *
  * @category services
  * @since 0.0.0
  */
@@ -2976,22 +2972,20 @@ const unconfirmedSyncResult = ({
  * @remarks
  * This function defaults to dry-run. Live writes require
  * {@link AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}.
+ * @effects
+ * - In dry-run mode, reads local doctor and annotation evidence but does not mutate Phoenix.
+ * - In confirmed live mode, creates or appends Phoenix datasets, creates prompts and experiments, and writes valid trace/session/span annotations.
+ * - Blocks live writes unless the confirmation token matches {@link AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}.
  * @example
  * ```ts
  * import { AgentEffectivenessPhoenixSyncInput, syncAgentEffectivenessPhoenix } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const program = syncAgentEffectivenessPhoenix(
  *   AgentEffectivenessPhoenixSyncInput.make({ dryRun: true })
  * )
  * const mutationPolicy = Effect.map(program, (result) => result.mutationPolicy)
  * console.log(mutationPolicy)
  * ```
- * @effects
- * - In dry-run mode, reads local doctor and annotation evidence but does not mutate Phoenix.
- * - In confirmed live mode, creates or appends Phoenix datasets, creates prompts and experiments, and writes valid trace/session/span annotations.
- * - Blocks live writes unless the confirmation token matches {@link AGENT_EFFECTIVENESS_PHOENIX_WRITE_CONFIRMATION}.
- *
  * @category services
  * @since 0.0.0
  */

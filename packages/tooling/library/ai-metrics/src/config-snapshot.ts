@@ -133,12 +133,19 @@ export class AiMetricsConfigSnapshotFile extends S.Class<AiMetricsConfigSnapshot
  * @example
  * ```ts
  * import {
+ *   AiMetricsConfigSnapshotDiff,
  *   AiMetricsConfigSnapshotResult,
  *   ConfigSnapshot
  * } from "@beep/repo-ai-metrics"
  *
  * const result = AiMetricsConfigSnapshotResult.make({
  *   excludedDirectoryNames: [".git", "node_modules"],
+ *   diff: AiMetricsConfigSnapshotDiff.make({
+ *     addedPaths: [],
+ *     modifiedPaths: [],
+ *     removedPaths: [],
+ *     unchangedPaths: []
+ *   }),
  *   fileCount: 0,
  *   files: [],
  *   snapshot: ConfigSnapshot.make({
@@ -450,22 +457,20 @@ const readPreviousSnapshot = Effect.fn("AiMetrics.readPreviousConfigSnapshot")(f
 /**
  * Build a deterministic snapshot of repo-owned agent-facing configuration.
  *
+ * @effects
+ * - Traverses repo-local agent configuration roots and agent guide files.
+ * - Reads included files to compute deterministic content hashes.
+ * - Optionally reads a previous snapshot artifact for diff attribution.
  * @example
  * ```ts
  * import { AiMetricsConfigSnapshotInput, makeAiMetricsConfigSnapshot } from "@beep/repo-ai-metrics"
  * import { NodeServices } from "@effect/platform-node"
  * import { Effect } from "effect"
- *
  * const program = makeAiMetricsConfigSnapshot(
  *   AiMetricsConfigSnapshotInput.make({ repoRoot: "/repo" })
  * ).pipe(Effect.provide(NodeServices.layer))
  * console.log(program)
  * ```
- * @effects
- * - Traverses repo-local agent configuration roots and agent guide files.
- * - Reads included files to compute deterministic content hashes.
- * - Optionally reads a previous snapshot artifact for diff attribution.
- *
  * @category services
  * @since 0.0.0
  */
@@ -514,18 +519,28 @@ export const makeAiMetricsConfigSnapshot = Effect.fn("AiMetrics.makeAiMetricsCon
 /**
  * Persist a config snapshot manifest and latest pointer for future diff attribution.
  *
+ * @effects
+ * - Creates the config snapshot output directory when missing.
+ * - Writes a versioned manifest named by `snapshotId`.
+ * - Writes and atomically promotes `latest.json` when `commitLatest` is true.
  * @example
  * ```ts
  * import {
+ *   AiMetricsConfigSnapshotDiff,
  *   AiMetricsConfigSnapshotResult,
  *   ConfigSnapshot,
  *   writeAiMetricsConfigSnapshotArtifacts
  * } from "@beep/repo-ai-metrics"
  * import { NodeServices } from "@effect/platform-node"
  * import { Effect } from "effect"
- *
  * const result = AiMetricsConfigSnapshotResult.make({
  *   excludedDirectoryNames: [],
+ *   diff: AiMetricsConfigSnapshotDiff.make({
+ *     addedPaths: [],
+ *     modifiedPaths: [],
+ *     removedPaths: [],
+ *     unchangedPaths: []
+ *   }),
  *   fileCount: 0,
  *   files: [],
  *   snapshot: ConfigSnapshot.make({
@@ -541,11 +556,6 @@ export const makeAiMetricsConfigSnapshot = Effect.fn("AiMetrics.makeAiMetricsCon
  * }).pipe(Effect.provide(NodeServices.layer))
  * console.log(program)
  * ```
- * @effects
- * - Creates the config snapshot output directory when missing.
- * - Writes a versioned manifest named by `snapshotId`.
- * - Writes and atomically promotes `latest.json` when `commitLatest` is true.
- *
  * @category services
  * @since 0.0.0
  */
@@ -610,6 +620,7 @@ export const writeAiMetricsConfigSnapshotArtifacts = Effect.fn("AiMetrics.writeA
  * @example
  * ```ts
  * import {
+ *   AiMetricsConfigSnapshotDiff,
  *   AiMetricsConfigSnapshotResult,
  *   ConfigSnapshot,
  *   configSnapshotToJson
@@ -620,6 +631,12 @@ export const writeAiMetricsConfigSnapshotArtifacts = Effect.fn("AiMetrics.writeA
  *   configSnapshotToJson(
  *     AiMetricsConfigSnapshotResult.make({
  *       excludedDirectoryNames: [],
+ *       diff: AiMetricsConfigSnapshotDiff.make({
+ *         addedPaths: [],
+ *         modifiedPaths: [],
+ *         removedPaths: [],
+ *         unchangedPaths: []
+ *       }),
  *       fileCount: 0,
  *       files: [],
  *       snapshot: ConfigSnapshot.make({

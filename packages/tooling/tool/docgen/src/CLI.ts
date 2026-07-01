@@ -138,22 +138,18 @@ const options = {
  * Builds the `docgen` CLI command and wires parsed flags into the core workflow.
  *
  * @internal
- * @example
- * ```ts
- * import { Command } from "effect/unstable/cli"
- * import { docgenCommand } from "@beep/repo-docgen/CLI"
- *
- * const runDocgen = Command.runWith(docgenCommand, { version: "v0.0.0" })
- * const helpProgram = runDocgen(["--help"])
- *
- * console.log(helpProgram)
- * ```
- *
  * @effects
  * - Decodes inline compiler-option JSON before loading package configuration.
  * - Prefixes `DocgenError` messages with the resolved package name.
  * - Runs the core docgen workflow with a scoped {@link Configuration.Configuration} layer.
- *
+ * @example
+ * ```ts
+ * import { Command } from "effect/unstable/cli"
+ * import { docgenCommand } from "@beep/repo-docgen/CLI"
+ * const runDocgen = Command.runWith(docgenCommand, { version: "v0.0.0" })
+ * const helpProgram = runDocgen(["--help"])
+ * console.log(helpProgram)
+ * ```
  * @category cli-commands
  * @since 0.0.0
  */
@@ -215,7 +211,7 @@ export const docgenCommand = Command.make(
  * import { Effect } from "effect"
  * import { cli } from "@beep/repo-docgen/CLI"
  *
- * const helpProgram = cli(["--help"]).pipe(Effect.either)
+ * const helpProgram = cli(["--help"]).pipe(Effect.result)
  * console.log(helpProgram)
  * ```
  * @category cli-commands

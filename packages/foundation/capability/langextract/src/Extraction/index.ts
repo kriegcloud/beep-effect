@@ -56,7 +56,7 @@ export const LangExtractErrorReason = LiteralKit([
 );
 
 /**
- * Type for {@link LangExtractErrorReason}. {@inheritDoc LangExtractErrorReason}
+ * {@inheritDoc LangExtractErrorReason}
  *
  * @example
  * ```ts
@@ -130,7 +130,7 @@ export const AlignmentStatus = LiteralKit(["match_exact", "match_lesser", "match
 );
 
 /**
- * Type for {@link AlignmentStatus}. {@inheritDoc AlignmentStatus}
+ * {@inheritDoc AlignmentStatus}
  *
  * @example
  * ```ts

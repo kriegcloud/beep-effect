@@ -506,7 +506,6 @@ export class Constant extends S.TaggedClass<Constant>($I`Constant`)("Constant", 
  * @remarks
  * Namespace export declarations are marked with `isNamespaceExport` so the printer can label
  * `export * as Name from "./module.js"` differently from named export lists.
- *
  * @example
  * ```ts
  * import { Doc, Export, Position } from "@beep/repo-docgen/Domain"
