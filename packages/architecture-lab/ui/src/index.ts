@@ -21,6 +21,8 @@
  * const expectedVersion: typeof VERSION = "0.0.0"
  * const isExpectedVersion = VERSION === expectedVersion
  *
+ * console.log(isExpectedVersion) // true
+ *
  * if (!isExpectedVersion) {
  *   throw new Error("unexpected architecture lab UI version")
  * }

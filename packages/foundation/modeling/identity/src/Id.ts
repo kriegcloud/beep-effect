@@ -25,7 +25,7 @@
  * @since 0.0.0
  */
 
-import { Function as Fn, flow, pipe, Result } from "effect";
+import { Function as Fn, flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -43,17 +43,11 @@ type BeepBase = typeof BeepBase.Type;
 
 const IdentityVersion = S.Literal("0.0.0");
 
-const decodeBeepNamespace = S.decodeUnknownResult(BeepNamespace);
-const decodeBeepBase = S.decodeUnknownResult(BeepBase);
-const decodeIdentityVersion = S.decodeUnknownResult(IdentityVersion);
-const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
-  cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
-
 const isBeepNamespace = S.is(BeepNamespace);
 const isBeepBase = S.is(BeepBase);
 
-const beepNamespace = Result.getOrThrowWith(decodeBeepNamespace("@beep"), schemaIssueToError);
-const beepBase = Result.getOrThrowWith(decodeBeepBase("beep"), schemaIssueToError);
+const beepNamespace = S.decodeUnknownSync(BeepNamespace)("@beep");
+const beepBase = S.decodeUnknownSync(BeepBase)("beep");
 const MODULE_CHARACTERS = /^[A-Za-z0-9_-]+$/;
 const MODULE_LEADING_ALPHA = /^[A-Za-z]/;
 const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
@@ -178,7 +172,7 @@ export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmen
  * @since 0.0.0
  * @category configuration
  */
-export const VERSION = Result.getOrThrowWith(decodeIdentityVersion("0.0.0"), schemaIssueToError);
+export const VERSION = S.decodeUnknownSync(IdentityVersion)("0.0.0");
 
 /**
  * Type-level constraint ensuring an identity segment does not start or end with a slash.
@@ -893,11 +887,6 @@ const BaseSegmentSchema = S.String.check(
   })
 );
 
-const decodeString = S.decodeUnknownResult(S.String);
-const decodeSegment = S.decodeUnknownResult(SegmentSchema);
-const decodeModuleSegment = S.decodeUnknownResult(ModuleSegmentSchema);
-const decodeBaseSegment = S.decodeUnknownResult(BaseSegmentSchema);
-
 const toIdentityString = <Value extends string>(value: Value): IdentityString<Value> => value as IdentityString<Value>;
 
 const toIdentitySymbol = <Value extends string>(value: Value): IdentitySymbol<Value> =>
@@ -929,12 +918,12 @@ const toTaggedKey = <const Segment extends TString.NonEmpty>(segment: Segment): 
   `$${toPascalIdentifier(segment)}Id` as TaggedAccessor<Segment>;
 
 const validateSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment => {
-  Result.getOrThrowWith(decodeSegment(segment), schemaIssueToError);
+  S.decodeUnknownSync(SegmentSchema)(segment);
   return segment;
 };
 
 const validateModuleSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment => {
-  Result.getOrThrowWith(decodeModuleSegment(segment), schemaIssueToError);
+  S.decodeUnknownSync(ModuleSegmentSchema)(segment);
   return segment;
 };
 
@@ -964,7 +953,7 @@ const stripPrefix = (prefix: string) =>
   flow(O.liftPredicate(Str.startsWith(prefix)), O.map(Str.slice(Str.length(prefix))));
 
 const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): NormalizedBase<Base> => {
-  const value = Result.getOrThrowWith(decodeString(base), schemaIssueToError);
+  const value = S.decodeUnknownSync(S.String)(base);
   const namespaceBaseOption = O.as(O.liftPredicate(isBeepNamespace)(value), beepBase);
   const scopedNamespaceOption = stripPrefix(`${beepNamespace}/`)(value);
   const atPrefixNamespaceOption = stripPrefix(beepNamespace)(value);
@@ -978,7 +967,7 @@ const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): Normali
     O.getOrElse(() => withoutNamespace)
   );
 
-  return Result.getOrThrowWith(decodeBaseSegment(withoutAtPrefix), schemaIssueToError) as NormalizedBase<Base>;
+  return S.decodeUnknownSync(BaseSegmentSchema)(withoutAtPrefix) as NormalizedBase<Base>;
 };
 
 const createBaseIdentity = <const Base extends TString.NonEmpty>(base: NormalizedBase<Base>): BaseIdentity<Base> =>
@@ -994,7 +983,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
     validateTemplateInterpolations(values);
     validateTemplateSegmentCount(strings);
 
-    return pipe(strings[0], decodeModuleSegment, Result.getOrThrowWith(schemaIssueToError), (segment) =>
+    return pipe(strings[0], S.decodeUnknownSync(ModuleSegmentSchema), (segment) =>
       toIdentityString(appendIdentityValue(value, segment))
     );
   }

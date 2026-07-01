@@ -61,6 +61,12 @@ export class FaceDetectionErrorFromUnknownOptions extends S.Class<FaceDetectionE
 /**
  * Technical failure raised by the `@beep/face-detection` driver boundary.
  *
+ * @remarks
+ * This error is reserved for driver concerns such as ONNX Runtime loading,
+ * model session creation, image preprocessing, request decoding, and
+ * post-processing tensor validation. Product-level "no face found" decisions
+ * should be modeled outside this driver.
+ *
  * @example
  * ```ts
  * import { FaceDetectionError } from "@beep/face-detection"
@@ -92,8 +98,11 @@ export class FaceDetectionError extends TaggedErrorClass<FaceDetectionError>($I`
    * ```ts
    * import { FaceDetectionError } from "@beep/face-detection"
    *
-   * const error = FaceDetectionError.fromUnknown("loadModel", "failed", { modelPath: "./yunet.onnx" })
-   * console.log(error)
+   * const error = FaceDetectionError.fromUnknown("loadModel", "failed", {
+   *   cause: new Error("missing file"),
+   *   modelPath: "./yunet.onnx"
+   * })
+   * console.log(error.message)
    * ```
    *
    * @category errors

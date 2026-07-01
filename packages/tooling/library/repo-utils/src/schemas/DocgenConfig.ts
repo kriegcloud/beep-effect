@@ -60,6 +60,7 @@ const withRootRelativePrefix: {
  *
  * const internalGlob = "src/internal/**" + "/*.ts"
  * const excludesInternalSources = DEFAULT_DOCGEN_EXCLUDE.includes(internalGlob)
+ *
  * console.log(excludesInternalSources) // true
  * ```
  *
@@ -229,9 +230,10 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
  *   CanonicalDocgenExamplesCompilerOptions
  * } from "@beep/repo-utils/schemas/DocgenConfig"
  *
+ * const internalGlob = "src/internal/**" + "/*.ts"
  * const config = CanonicalDocgenConfig.make({
  *   $schema: "../../packages/tooling/tool/docgen/schema.json",
- *   exclude: ["src/internal/**" + "/*.ts"],
+ *   exclude: [internalGlob],
  *   srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/example/src/",
  *   examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make({
  *     noEmit: true,
@@ -259,11 +261,11 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
  *     noErrorTruncation: true,
  *     types: [],
  *     jsx: "react-jsx",
- *     paths: { "@beep/example": ["./packages/example/src/index.ts"] }
+ *     paths: {}
  *   })
  * })
  *
- * console.log(config.exclude.length) // 1
+ * console.log(config.exclude[0] === internalGlob) // true
  * ```
  *
  * @category models
@@ -409,7 +411,7 @@ export const toDocgenExamplesCompilerOptionsJson = (
  *       noErrorTruncation: true,
  *       types: [],
  *       jsx: "react-jsx",
- *       paths: { "@beep/example": ["./packages/example/src/index.ts"] }
+ *       paths: {}
  *     })
  *   })
  * )
@@ -738,14 +740,15 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
  *     noErrorTruncation: true,
  *     types: [],
  *     jsx: "react-jsx",
- *     paths: { "@beep/example": ["./packages/example/src/index.ts"] }
+ *     paths: {}
  *   })
  * })
  *
- *
  * const generatedGlob = "src/generated/**" + "/*.ts"
  * const merged = mergeManagedDocgenConfig({ exclude: [generatedGlob] }, canonical)
- * console.log(merged.exclude.length) // 1
+ * const exclude = merged.exclude
+ *
+ * console.log(Array.isArray(exclude) && exclude[0] === generatedGlob) // true
  * ```
  *
  * @category models

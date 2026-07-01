@@ -16,9 +16,11 @@ const $I = $FaceDetectionId.create("FaceDetection.models");
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { PositivePixelDimension } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(PositivePixelDimension)
+ * const width = S.decodeUnknownSync(PositivePixelDimension)(640)
+ * console.log(width)
  * ```
  *
  * @category schemas
@@ -38,7 +40,17 @@ export const PositivePixelDimension = S.Int.check(
 );
 
 /**
- * Pixel dimension greater than zero.
+ * Runtime TypeScript type produced by the {@link PositivePixelDimension} schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PositivePixelDimension } from "@beep/face-detection/FaceDetection.models"
+ * import type { PositivePixelDimension as PositivePixelDimensionValue } from "@beep/face-detection/FaceDetection.models"
+ *
+ * const width: PositivePixelDimensionValue = S.decodeUnknownSync(PositivePixelDimension)(1280)
+ * console.log(width)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -50,9 +62,11 @@ export type PositivePixelDimension = typeof PositivePixelDimension.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { FaceDetectionConfidence } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(FaceDetectionConfidence)
+ * const confidence = S.decodeUnknownSync(FaceDetectionConfidence)(0.92)
+ * console.log(confidence)
  * ```
  *
  * @category schemas
@@ -87,7 +101,17 @@ export const FaceDetectionConfidence = S.Finite.check(
 );
 
 /**
- * Detection confidence between zero and one.
+ * Runtime TypeScript type produced by the {@link FaceDetectionConfidence} schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FaceDetectionConfidence } from "@beep/face-detection/FaceDetection.models"
+ * import type { FaceDetectionConfidence as FaceDetectionConfidenceValue } from "@beep/face-detection/FaceDetection.models"
+ *
+ * const confidence: FaceDetectionConfidenceValue = S.decodeUnknownSync(FaceDetectionConfidence)(0.5)
+ * console.log(confidence)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -99,9 +123,11 @@ export type FaceDetectionConfidence = typeof FaceDetectionConfidence.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { FaceDetectionPercentage } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(FaceDetectionPercentage)
+ * const threshold = S.decodeUnknownSync(FaceDetectionPercentage)(75)
+ * console.log(threshold)
  * ```
  *
  * @category schemas
@@ -136,7 +162,17 @@ export const FaceDetectionPercentage = S.Finite.check(
 );
 
 /**
- * Percentage threshold accepted by face-detection triage.
+ * Runtime TypeScript type produced by the {@link FaceDetectionPercentage} schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FaceDetectionPercentage } from "@beep/face-detection/FaceDetection.models"
+ * import type { FaceDetectionPercentage as FaceDetectionPercentageValue } from "@beep/face-detection/FaceDetection.models"
+ *
+ * const percentage: FaceDetectionPercentageValue = S.decodeUnknownSync(FaceDetectionPercentage)(50)
+ * console.log(percentage)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -148,9 +184,11 @@ export type FaceDetectionPercentage = typeof FaceDetectionPercentage.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { FaceDetectionTopK } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(FaceDetectionTopK)
+ * const topK = S.decodeUnknownSync(FaceDetectionTopK)(20)
+ * console.log(topK)
  * ```
  *
  * @category schemas
@@ -170,7 +208,17 @@ export const FaceDetectionTopK = S.Int.check(
 );
 
 /**
- * Positive maximum number of detections to keep.
+ * Runtime TypeScript type produced by the {@link FaceDetectionTopK} schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FaceDetectionTopK } from "@beep/face-detection/FaceDetection.models"
+ * import type { FaceDetectionTopK as FaceDetectionTopKValue } from "@beep/face-detection/FaceDetection.models"
+ *
+ * const topK: FaceDetectionTopKValue = S.decodeUnknownSync(FaceDetectionTopK)(10)
+ * console.log(topK)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -233,7 +281,8 @@ export class FaceDetectionImageRequest extends S.Class<FaceDetectionImageRequest
  * ```ts
  * import { FaceDetectionPoint } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(FaceDetectionPoint)
+ * const point = FaceDetectionPoint.make({ x: 112.5, y: 48 })
+ * console.log(point.x)
  * ```
  *
  * @category models
@@ -256,7 +305,8 @@ export class FaceDetectionPoint extends S.Class<FaceDetectionPoint>($I`FaceDetec
  * ```ts
  * import { FaceDetectionBox } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(FaceDetectionBox)
+ * const box = FaceDetectionBox.make({ height: 80, width: 64, x: 40, y: 24 })
+ * console.log(box.width)
  * ```
  *
  * @category models
@@ -281,7 +331,14 @@ export class FaceDetectionBox extends S.Class<FaceDetectionBox>($I`FaceDetection
  * ```ts
  * import { FaceDetectionLandmarks } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(FaceDetectionLandmarks)
+ * const landmarks = FaceDetectionLandmarks.make({
+ *   leftEye: { x: 58, y: 42 },
+ *   leftMouth: { x: 60, y: 78 },
+ *   nose: { x: 74, y: 62 },
+ *   rightEye: { x: 90, y: 42 },
+ *   rightMouth: { x: 88, y: 78 }
+ * })
+ * console.log(landmarks.nose.x)
  * ```
  *
  * @category models
@@ -307,7 +364,18 @@ export class FaceDetectionLandmarks extends S.Class<FaceDetectionLandmarks>($I`F
  * ```ts
  * import { FaceDetection } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(FaceDetection)
+ * const face = FaceDetection.make({
+ *   box: { height: 80, width: 64, x: 40, y: 24 },
+ *   confidence: 0.91,
+ *   landmarks: {
+ *     leftEye: { x: 58, y: 42 },
+ *     leftMouth: { x: 60, y: 78 },
+ *     nose: { x: 74, y: 62 },
+ *     rightEye: { x: 90, y: 42 },
+ *     rightMouth: { x: 88, y: 78 }
+ *   }
+ * })
+ * console.log(face.confidence)
  * ```
  *
  * @category models
@@ -331,7 +399,13 @@ export class FaceDetection extends S.Class<FaceDetection>($I`FaceDetection`)(
  * ```ts
  * import { FaceDetectionResult } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(FaceDetectionResult)
+ * const result = FaceDetectionResult.make({
+ *   faces: [],
+ *   height: 720,
+ *   imagePath: "./photo.jpg",
+ *   width: 1280
+ * })
+ * console.log(result.faces.length)
  * ```
  *
  * @category models
@@ -354,9 +428,13 @@ export class FaceDetectionResult extends S.Class<FaceDetectionResult>($I`FaceDet
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { decodeFaceDetectionModelConfig } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(decodeFaceDetectionModelConfig)
+ * const config = Effect.runSync(
+ *   decodeFaceDetectionModelConfig({ modelPath: "./face_detection_yunet_2023mar.onnx" })
+ * )
+ * console.log(config.modelPath)
  * ```
  *
  * @category codecs
@@ -369,9 +447,18 @@ export const decodeFaceDetectionModelConfig = S.decodeUnknownEffect(FaceDetectio
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { decodeFaceDetectionImageRequest } from "@beep/face-detection/FaceDetection.models"
  *
- * console.log(decodeFaceDetectionImageRequest)
+ * const request = Effect.runSync(
+ *   decodeFaceDetectionImageRequest({
+ *     imagePath: "./photo.jpg",
+ *     minConfidence: 0.8,
+ *     nmsThreshold: 0.3,
+ *     topK: 20
+ *   })
+ * )
+ * console.log(request.topK)
  * ```
  *
  * @category codecs

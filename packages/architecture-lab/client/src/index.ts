@@ -18,9 +18,8 @@
  * ```ts
  * import { VERSION } from "@beep/architecture-lab-client"
  *
- * if (VERSION !== "0.0.0") {
- *   throw new Error("unexpected architecture lab client version")
- * }
+ * const isInitialClientBuild = VERSION === "0.0.0"
+ * console.log(isInitialClientBuild) // true
  * ```
  *
  * @category constants

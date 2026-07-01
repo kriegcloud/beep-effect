@@ -60,6 +60,9 @@ export const WorkItemVisibleAction = LiteralKit(["assign", "complete", "reopen",
  *
  * const action: WorkItemVisibleActionValue = WorkItemVisibleAction.Enum.assign
  * const visibleActions: ReadonlyArray<WorkItemVisibleActionValue> = [action]
+ * const visibleActionList = visibleActions.join(",")
+ *
+ * console.log(visibleActionList) // "assign"
  *
  * if (visibleActions[0] !== "assign") {
  *   throw new Error("expected typed visible action evidence")
