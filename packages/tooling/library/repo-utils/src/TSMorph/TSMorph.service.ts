@@ -519,19 +519,17 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
     decodeSourceText,
     Str.slice(startOffset, endOffset)(sourceFileText),
     (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to decode extracted symbol source for "${qualifiedName}": ${message}`,
-      })
+      TsMorphSourceFileError.at(
+        symbolFilePath,
+        `Failed to decode extracted symbol source for "${qualifiedName}": ${message}`
+      )
   );
   const contentHash = yield* decodeContentHashFromSourceText(symbolText).pipe(
     Effect.mapError((error) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to hash extracted symbol source for "${qualifiedName}": ${schemaMessage(error)}`,
-      })
+      TsMorphSourceFileError.at(
+        symbolFilePath,
+        `Failed to hash extracted symbol source for "${qualifiedName}": ${schemaMessage(error)}`
+      )
     )
   );
 
@@ -540,25 +538,13 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
   const docstring = readDocstring(declaration);
   const symbol = makeSymbol({
     filePath: yield* decodeOrFail(decodeSymbolFilePath, symbolFilePath, (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to decode symbol file path for "${qualifiedName}": ${message}`,
-      })
+      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode symbol file path for "${qualifiedName}": ${message}`)
     ),
     name: yield* decodeOrFail(decodeSymbolNameSegment, declarationName.value.name, (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to decode symbol name for "${qualifiedName}": ${message}`,
-      })
+      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode symbol name for "${qualifiedName}": ${message}`)
     ),
     qualifiedName: yield* decodeOrFail(decodeSymbolQualifiedName, qualifiedName, (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to decode qualified name "${qualifiedName}": ${message}`,
-      })
+      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode qualified name "${qualifiedName}": ${message}`)
     ),
     kind: declarationName.value.kind,
     signature: readSignature(declaration),
@@ -568,32 +554,16 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
     keywords: makeKeywords(declarationName.value.name, qualifiedName, { kind: declarationName.value.kind }),
     parentId: O.map(parentSymbol, (parent) => parent.id),
     startLine: yield* decodeOrFail(decodeLineNumber, declaration.getStartLineNumber(true), (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to decode start line for "${qualifiedName}": ${message}`,
-      })
+      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode start line for "${qualifiedName}": ${message}`)
     ),
     endLine: yield* decodeOrFail(decodeLineNumber, declaration.getEndLineNumber(), (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to decode end line for "${qualifiedName}": ${message}`,
-      })
+      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode end line for "${qualifiedName}": ${message}`)
     ),
     byteOffset: yield* decodeOrFail(decodeByteOffset, bytePrefix.length, (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to decode byte offset for "${qualifiedName}": ${message}`,
-      })
+      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode byte offset for "${qualifiedName}": ${message}`)
     ),
     byteLength: yield* decodeOrFail(decodeByteLength, byteSpan.length, (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-        message: `Failed to decode byte length for "${qualifiedName}": ${message}`,
-      })
+      TsMorphSourceFileError.at(symbolFilePath, `Failed to decode byte length for "${qualifiedName}": ${message}`)
     ),
     contentHash,
   });
@@ -791,22 +761,17 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
   > {
     const absoluteFilePath = resolveAbsolutePath(pathApi, repoRootPath, filePath);
     yield* ensureExists(fs, absoluteFilePath, () =>
-      TsMorphSourceFileError.make({
-        scopeId: O.none(),
-        filePath: S.decodeOption(TypeScriptFilePath)(filePath),
-        message: `No TypeScript file exists at "${absoluteFilePath}".`,
-      })
+      TsMorphSourceFileError.at(filePath, `No TypeScript file exists at "${absoluteFilePath}".`)
     );
 
     const repoRelativeFilePath = yield* decodeRepoRelativePath(pathApi, repoRootPath, absoluteFilePath);
     return {
       absoluteFilePath,
       filePath: yield* decodeOrFail(decodeTypeScriptFilePath, repoRelativeFilePath, (message) =>
-        TsMorphSourceFileError.make({
-          scopeId: O.none(),
-          filePath: S.decodeOption(TypeScriptFilePath)(filePath),
-          message: `Resolved file path "${repoRelativeFilePath}" is not a valid TypeScriptFilePath: ${message}`,
-        })
+        TsMorphSourceFileError.at(
+          filePath,
+          `Resolved file path "${repoRelativeFilePath}" is not a valid TypeScriptFilePath: ${message}`
+        )
       ),
     };
   });
@@ -946,11 +911,11 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
       isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
     ) {
-      return yield* TsMorphSourceFileError.make({
-        scopeId: O.some(scope.scopeId),
-        filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
-        message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
-      });
+      return yield* TsMorphSourceFileError.at(
+        normalizedFilePath,
+        `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
+        O.some(scope.scopeId)
+      );
     }
 
     const project = yield* projectPool.getOrCreate(scope);
@@ -958,11 +923,11 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     const sourceFile = existingSourceFile ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
 
     if (sourceFile === undefined) {
-      return yield* TsMorphSourceFileError.make({
-        scopeId: O.some(scope.scopeId),
-        filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
-        message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
-      });
+      return yield* TsMorphSourceFileError.at(
+        normalizedFilePath,
+        `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
+        O.some(scope.scopeId)
+      );
     }
 
     if (existingSourceFile === undefined) {
@@ -1082,19 +1047,19 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     );
     const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
     const sourceText = yield* decodeOrFail(decodeSourceText, loadedSourceFile.sourceFile.getFullText(), (message) =>
-      TsMorphSourceFileError.make({
-        scopeId: O.some(scope.scopeId),
-        filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-        message: `Failed to decode source text for "${loadedSourceFile.filePath}": ${message}`,
-      })
+      TsMorphSourceFileError.at(
+        loadedSourceFile.filePath,
+        `Failed to decode source text for "${loadedSourceFile.filePath}": ${message}`,
+        O.some(scope.scopeId)
+      )
     );
     const contentHash = yield* decodeContentHashFromSourceText(sourceText).pipe(
       Effect.mapError((error) =>
-        TsMorphSourceFileError.make({
-          scopeId: O.some(scope.scopeId),
-          filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-          message: `Failed to hash source text for "${loadedSourceFile.filePath}": ${schemaMessage(error)}`,
-        })
+        TsMorphSourceFileError.at(
+          loadedSourceFile.filePath,
+          `Failed to hash source text for "${loadedSourceFile.filePath}": ${schemaMessage(error)}`,
+          O.some(scope.scopeId)
+        )
       ),
       Effect.provide(cryptoContext)
     );
@@ -1320,11 +1285,11 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       yield* Effect.try({
         try: () => update(loadedSourceFile.sourceFile, project),
         catch: (cause) =>
-          TsMorphSourceFileError.make({
-            scopeId: O.some(scope.scopeId),
-            filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-            message: `Failed to update source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
-          }),
+          TsMorphSourceFileError.at(
+            loadedSourceFile.filePath,
+            `Failed to update source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
+            O.some(scope.scopeId)
+          ),
       });
 
       const after = loadedSourceFile.sourceFile.getFullText();
@@ -1335,11 +1300,11 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
       yield* Effect.tryPromise({
         try: () => loadedSourceFile.sourceFile.save(),
         catch: (cause) =>
-          TsMorphSourceFileError.make({
-            scopeId: O.some(scope.scopeId),
-            filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-            message: `Failed to save source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
-          }),
+          TsMorphSourceFileError.at(
+            loadedSourceFile.filePath,
+            `Failed to save source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
+            O.some(scope.scopeId)
+          ),
       });
 
       MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
