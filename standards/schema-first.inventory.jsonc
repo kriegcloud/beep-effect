@@ -588,6 +588,46 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/foundation/capability/mcp-kit/src/FieldTier.ts",
+      "symbol": "FieldTierSet",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/mcp-kit",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/FieldTier.ts",
+      "symbol": "ProjectWithinBudgetOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/mcp-kit",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/TierGate.ts",
+      "symbol": "TierGateShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/mcp-kit",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/TierGate.ts",
+      "symbol": "ToolCallRequest",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/mcp-kit",
+      "reason": "The `tool` field carries an effect/unstable/ai Tool value (method members such as annotate/setSuccess/setFailure), a runtime handle rather than pure data; not schema-modelable."
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/ToolkitComposition.ts",
+      "symbol": "GatedLayer",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/mcp-kit",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/capability/nlp-processing/src/Backend/NLPBackend.ts",
       "symbol": "NLPBackendShape",
       "kind": "exported-interface",

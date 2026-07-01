@@ -104,7 +104,10 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   constraints), codex gate-1 folded, `DECISIONS.md` pre-drafted. **Graduate-now (Wave-1,
   user-confirmed):** [`gov-legal-data-driver-codegen`](./gov-legal-data-driver-codegen/README.md),
   [`uspto-patent-driver-depth`](./uspto-patent-driver-depth/README.md) (extends `@beep/uspto`),
-  [`mcp-auth-gated-registration`](./mcp-auth-gated-registration/README.md),
+  [`mcp-auth-gated-registration`](./mcp-auth-gated-registration/README.md) (grilled+decomposed+
+  graduated first goal 2026-07-01: Q1–Q7 resolved, BRIEF+MAP written,
+  [`goals/mcp-kit`](../goals/mcp-kit/README.md) scaffolded at `foundation/capability`;
+  `uspto-mcp`/`mcp-host-retrofit`/`mcp-write-wall` queue behind it),
   [`citation-grounding-hallucination-guard`](./citation-grounding-hallucination-guard/README.md).
   **Queued (P2/P3, research-complete):**
   [`effect-orchestration-patterns`](./effect-orchestration-patterns/README.md),

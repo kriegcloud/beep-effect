@@ -51,7 +51,7 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 586,
+      "line": 589,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -63,7 +63,7 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 585,
+      "line": 588,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -101,7 +101,7 @@
       "owner": "@beep/agents-server",
       "reason": "scanChunk is the (state, text) => [nextState, completed] fold step of the incremental streaming JSON extractor, always invoked data-first inside the per-chunk scan loop; its dtslint contract asserts the data-first [ScanState, Array<string>] tuple result. A data-last dual would add no pipeable ergonomics to a reducer step and would obscure the proven fold signature.",
       "issue": "AGENTS-SERVER-SCANSTATE-FOLD-STEP",
-      "line": 79,
+      "line": 80,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -174,6 +174,66 @@
       "owner": "@beep/wink",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
       "line": 133,
+      "column": 14,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/FieldTier.ts",
+      "qualifiedName": "projectFieldTier",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/mcp-kit",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 164,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/FieldTier.ts",
+      "qualifiedName": "projectWithinBudget",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/mcp-kit",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
+      "line": 212,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual", "third-param-not-object-like"]
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/SanitizedSpan.ts",
+      "qualifiedName": "withSanitizedToolSpan",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/mcp-kit",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 150,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/TierGate.ts",
+      "qualifiedName": "withEnabledWhenApprovedTool",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/mcp-kit",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 349,
+      "column": 14,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/ToolAnnotations.ts",
+      "qualifiedName": "annotateFourHints",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/mcp-kit",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 76,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]

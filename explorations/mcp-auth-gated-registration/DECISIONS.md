@@ -1,163 +1,174 @@
 # MCP Auth-Gated Registration & Progressive Disclosure — Decisions
 
 <!--
-Stage 2 (align) seed. Pre-drafted from RESEARCH.md + CAPTURE.md. Each question
-poses a branch-closing fork with a RECOMMENDED answer and grounded rationale,
-left **open** for the user to resolve via `/grill-with-docs
-mcp-auth-gated-registration`. Do not treat recommendations as decided.
+Stage 2 (align) log. Q1–Q7 were pre-drafted 2026-06-29 from RESEARCH.md +
+CAPTURE.md and resolved 2026-07-01 in a /grill-with-docs session (one
+branch-closing question at a time, recommendation first). Every code fact the
+recommendations rest on was re-verified against current HEAD by read-only
+Codex sub-agents — evidence in
+[reviews/2026-07-01-codex-verification.md](./reviews/2026-07-01-codex-verification.md).
 -->
 
-## Q1: Is this packet patterns-only (a reusable MCP auth + progressive-disclosure kit), or does it also build the gov-legal MCP host and its drivers?
+## Q1: Patterns-only kit, or also the gov-legal MCP host and its drivers?
 
-**Recommended:** Patterns-only. Ship a reusable kit (conditional/credential-keyed
-`Toolkit` composition, `api_key_required` envelope, tier-gate dispatch wrapper,
-progressive field-tier projection) and prove it against exactly one thin first
-consumer. The MCP host package and the gov-legal/USPTO driver builds stay in
-their own goals and are cross-linked, never absorbed. Keep the multi-provider
-LLM dispatch/fallback work a boundary-with, sharing only the `Config.redacted`
-primitive.
+**Decision (2026-07-01): Kit only; host = proof.** `@beep/mcp-kit` (credential-
+keyed `Toolkit` composition, `api_key_required` envelope, tier-gate dispatch
+wrapper, progressive field-tier projection) is the shipping deliverable, proven
+against exactly one thin consumer. The full gov-legal MCP host and driver
+builds stay in their own goals (`gov-legal-data-driver-codegen`,
+`uspto-patent-driver-depth`), cross-linked never absorbed. The multi-provider
+LLM dispatch/fallback work remains a boundary-with, sharing only the
+`Config.redacted` primitive.
 
-**Rationale:** CAPTURE seeds this explicitly as "about PATTERNS … layered onto
-the TWO existing Effect MCP servers — NOT a third server," and the cluster
-rationale justifies a new packet precisely because it is a *cross-cutting gap*,
-not a driver build. RESEARCH confirms NLP surface expansion is owned by
-`goals/nlp-adjunct-port` (DONE), USPTO driver depth by `uspto-patent-driver-depth`,
-and gov-legal driver builds by `gov-legal-data-driver-codegen`; and that
-`requiresAuth`/`api_key_required`/tier-gate/named-field-tiers are genuine NOT
-FOUND gaps with no real src. Absorbing the host + drivers would re-scope a P2
-wedge into a multi-goal program and collide with goals that already own that
-work.
+**Rationale:** CAPTURE seeds this explicitly as "about PATTERNS … NOT a third
+server"; RESEARCH confirms the host/driver work is owned elsewhere and the
+`requiresAuth`/`api_key_required`/tier-gate/field-tier gaps are genuine NOT
+FOUND. Absorbing host + drivers would re-scope a P2 wedge into a multi-goal
+program and collide with goals that already own that work.
 
-**Status:** open (for /grill-with-docs)
+**Rejected:** kit + one real shipping host (scope collision with the gov-legal
+goals); kit + host + drivers (full-program absorption).
 
-## Q2: Which concrete MCP surface proves the kit first — a new dedicated gov-legal/USPTO MCP package reusing the `Layer.mergeAll` seam, or an extension of `@beep/nlp-mcp` / `@beep/m365-mcp`?
+## Q2: Which concrete MCP surface proves the kit first?
 
-**Recommended:** A new dedicated gov-legal/USPTO MCP package that reuses the
-`nlp-mcp` `Layer.mergeAll(McpServer.toolkit(...).pipe(Layer.provide(...)))` seam
-verbatim, with `@beep/uspto` as its first toolkit. Do NOT extend NLP or M365.
+**Decision (2026-07-01): A minimal real USPTO host** — a thin new `*-mcp`
+package wiring `@beep/uspto` through the kit, reusing the `@beep/nlp-mcp`
+`Layer.mergeAll(...)` seam (`packages/drivers/nlp-mcp/src/Server.ts:101-107`)
+verbatim. It seeds the future dedicated gov-legal MCP goal rather than being
+throwaway.
 
-**Rationale:** RESEARCH (locked decisions, filesystem-verified 2026-06-29) found
-neither `@beep/nlp-mcp` nor `@beep/m365-mcp` imports any gov-legal driver — they
-are domain-specific hosts — and that the conditional-credential research itself
-assumes a new gov-legal `makeServerLayer`, contradicting the literal "do NOT
-scaffold a third" reading. The seed's real intent is "don't re-scaffold the
-`Toolkit`/`layerStdio` machinery," which reusing the seam honors. `@beep/uspto`
-is the only driver already built key-optional (`apiKey: Option<Redacted>`,
-`X-API-KEY` only when present — the in-repo Shape C precedent) and carries the
-25,000-token reshaping pressure (`documentBag`), making it the natural,
-highest-signal first consumer. (Subordinate to Q1: only relevant if a host is in
-scope at all.)
+**Rationale:** `@beep/uspto` is the only driver already built key-optional
+(`apiKey: Option<Redacted>`, `X-API-KEY` only when present *and* same-origin —
+`Uspto.service.ts:249-255,398`, verified 2026-07-01) and carries the real
+25k-token `documentBag` reshaping pressure. The existing hosts can't prove the
+kit's core: `nlp-mcp` has no API key (local wink-nlp) and `m365-mcp` is OAuth —
+neither exercises the optional-secret credential-keyed path.
 
-**Status:** open (for /grill-with-docs)
+**Rejected:** extending `nlp-mcp`/`m365-mcp` as the proof (under-proves the
+credential path); fixture-only proof (never exercises real credential
+resolution or the real token ceiling).
 
-## Q3: Build the patterns natively on `effect/unstable/ai`, or wrap a third-party MCP framework (`@modelcontextprotocol/sdk`, FastMCP-style)?
+## Q3: Native `effect/unstable/ai`, or wrap a third-party MCP framework?
 
-**Recommended:** Reimplement native to `effect/unstable/ai`. No third-party MCP
-runtime; port prior-art *shapes* into Effect idiom only.
+**Decision (2026-07-01): Reimplement native to `effect/unstable/ai`.** No
+third-party MCP runtime; port prior-art *shapes* into Effect idiom only.
 
-**Rationale:** The repo already runs `effect@4.0.0-beta.91` with both MCP drivers
-on `effect/unstable/ai` `{Tool, Toolkit}` + `McpServer.layerStdio` — the runtime
-is chosen, and the kit's gating depends on Effect's typed `Toolkit`/`Layer`/
-`Config` substrate (build-time layer composition, `Config.option`, `failureMode`,
-`Context.Reference` hints). RESEARCH's licensing gravity makes "buy/copy"
-infeasible regardless: MIT sources (`mcp-uspto`, `patents-mcp-server`,
-`uspto_pfw_mcp`, `us-gov-open-data-mcp`, `us-legal-tools`) are port-but-reimplement
-(idiom, not literal copy), `screenpipe` is NOASSERTION, and `mike` is
-AGPL/unknown — both copy-forbidden. Wrapping a JS SDK would fork the server off
-the Effect substrate the whole kit is built on.
+**Rationale:** The runtime is chosen — both servers run `{Tool, Toolkit}` +
+`McpServer.layerStdio` on `effect@4.0.0-beta.92` (pin corrected from beta.91,
+2026-07-01) — and the kit's gating depends on Effect's typed
+`Toolkit`/`Layer`/`Config` substrate. Licensing gravity independently forbids
+copying (MIT sources are port-to-idiom; `screenpipe` NOASSERTION and `mike`
+AGPL are clean-room only). Inherited constraint: `effect/unstable/ai` is beta —
+pin + re-verify the internals at implementation time.
 
-**Status:** open (for /grill-with-docs)
+**Rejected:** wrapping `@modelcontextprotocol/sdk`/FastMCP-style (forks the
+server off the Effect substrate the kit is built on).
 
-## Q4: Where does the shared kit live — a new `@beep/mcp-kit` driver package, foundation/capability, or inlined per host?
+## Q4: Where does the shared kit live?
 
-**Recommended:** A new shared driver-tier package `@beep/mcp-kit`
-(`packages/drivers/mcp-kit`) housing the host-construction helpers: the
-`api_key_required` envelope, the `SourceAuth` gate registry, the `tools/call`
-tier-gate dispatch wrapper, and the progressive field-tier projector / columnar
-reshaper. Park the schema-first, domain-agnostic models (the `SourceAuth`
-`{name, envVar, gate, signupUrl}` record, named field-tier Schema variants) in
-`foundation/capability` if a cycle-free home is needed; keep host wiring in
-`mcp-kit`. Every `*-mcp` host depends on the one kit.
+**Decision (2026-07-01): `packages/foundation/capability/mcp-kit`**
+(`@beep/mcp-kit`) — the doctrine-pure repo-owned-substrate home, sibling to
+`foundation/capability/nlp-processing`.
 
-**Rationale:** `ls packages/drivers` confirms no shared MCP/driver kit exists —
-both servers (`@beep/nlp-mcp`, `@beep/m365-mcp`) are standalone driver packages,
-and reusable NLP capability already lives in `packages/foundation/capability/nlp`.
-A new sibling driver package mirrors the existing `*-mcp` placement and lets the
-two current hosts plus the proposed gov-legal host share one kit without import
-cycles. Per the CLAUDE.md search-first rule, `rg`/`ls` confirmed no `@beep/mcp-*`
-package to reuse, so this is genuinely net-new placement, not duplication.
+**Rationale:** The kit wraps no external engine — it composes Effect's own
+`McpServer`/`Toolkit`/`Config`, and `03-driver-boundaries.md:97` routes
+repo-owned hardened substrate to `foundation`, not `drivers`. `shared/*` is
+ruled out by `02-shared-kernel.md:44` (no "generic schema kits … reusable
+technical capability packages"). The `SourceAuth`/gate/field-tier schemas stay
+**inline in the kit** — no separate schema parking; promote to `@beep/schema`
+(`foundation/modeling`) only if a non-MCP consumer appears.
 
-**Status:** open (for /grill-with-docs)
+**Rejected:** `packages/drivers/mcp-kit` (the pre-drafted recommendation —
+precedent-aligned but substrate-in-drivers drift per `03:97`); inline-per-host
+with later extraction (ships no standalone kit).
 
-## Q5: How is per-source auth modeled, and does an absent key make a tool vanish (build-time composition) or degrade gracefully (call-time guard)?
+## Q4b: The `foundation/capability` ≥2-consumer gate (`07-non-slice-families.md:56`)
 
-**Recommended:** Model source auth as a 3-value `gate: none | soft | hard` enum,
-keyed off the *optional-secret* credential class (`Config.redacted(...).pipe(
-Config.option)`) only. Default to call-time graceful degradation (Shape C: tool
-stays registered, returns `api_key_required` content) for `none`/`soft`/key-optional
-sources; reserve build-time layer composition (Shapes A/B, tool disappears) for
-`hard`-gated sources that are useless without the key. Model CourtListener as
-`soft` (optional-token + degradation), and lock its exact tier before decompose.
+**Decision (2026-07-01): Satisfy the gate, don't waive it.** The first goal
+wires the new USPTO proving host **and** retrofits `@beep/nlp-mcp` +
+`@beep/m365-mcp` onto the kit's two cross-cutting helpers — the sanitized-span
+wrapper and the four-hint annotation helper — landing ≥2 (really 3) honest
+consumers at creation, named in the kit README per the gate.
 
-**Rationale:** RESEARCH shows "auth required" collapses three real gate strengths
-— `none` (eCFR, Federal Register), `hard` (GovInfo 401 `API_KEY_MISSING`, DOL
-APIv4), `soft` (CourtListener, open-by-default + throttled) — so a boolean
-mis-gates CourtListener. The in-repo credential primitive splits four classes and
-only the optional-secret class lets a tool vanish; `@beep/uspto` is the existing
-Shape C precedent. CourtListener's 2026 auth is genuinely contradictory across
-sources (wiki "open by default" vs changelog "anonymous 401 / membership-gated
-since 2026-05-07"), so optional-token degradation is robust to either outcome and
-must not be hard-coded.
+**Rationale:** The retrofit is a real doctrine fix, not make-work:
+`Toolkit.ts:263-265` annotates every tool span with raw `parameters`
+(confirmed 2026-07-01), so `@beep/nlp-mcp`'s raw-`text` tools violate
+`12-observability.md` §3 *today*; and `@beep/nlp-processing` tools annotate
+none of the four MCP hints while `m365-mcp` annotates all four (the #5
+asymmetry).
 
-**Status:** open (for /grill-with-docs)
+**Rejected:** waiver via `standards/architecture/DECISIONS.md` entry (needless
+— the gate is satisfiable with bounded, genuinely-needed work); reverting Q4 to
+`drivers/` (gate-free but drift).
 
-## Q6: `api_key_required` wire channel — adopt the success-with-error-JSON contract, or wrap `tools/call` to emit `isError: true`?
+## Q5: Per-source auth model + absent-key behavior
 
-**Recommended:** Adopt the success-with-error-JSON contract by default: return the
-typed failure as a normal result and mirror the structured payload into
-`content[].text` as JSON (`{error:"api_key_required", tool, envVar, registration}`),
-not `structuredContent` alone. Add a `tools/call` registration wrapper that maps
-typed failures onto `isError:true` only if a concrete target client mishandles the
-success channel. Pin the channel to MCP `2025-06-18` semantics.
+**Decision (2026-07-01): `gate: none | soft | hard` enum + hybrid behavior.**
+Gating keys off the optional-secret credential class only
+(`Config.redacted(...).pipe(Config.option)`). Absent key: graceful call-time
+degradation (Shape C — tool stays registered, returns the `api_key_required`
+envelope) for `none`/`soft`/key-optional sources; build-time vanish (Shapes
+A/B — `Config.option`-gated Layer composition) reserved for `hard`-gated
+sources useless without a key. **CourtListener locks as `soft`**
+(optional-token + degradation), robust to its contradictory 2026 auth signals.
 
-**Rationale:** RESEARCH verified (`McpServer.ts:708-738`) that `McpServer` ships
-every successfully-returned encoded result — success *or* a `failureMode:"return"`
-typed failure — as `CallToolResult({ isError:false, … })`; `isError:true` is
-reserved for a *failed Effect cause*. So `failureMode:"return"` does **not** yield
-`isError:true` (this corrects a prior assumption). The `mcp-uspto` contract is
-spec-correct against the installed `2025-06-18` target (a missing key is a
-recoverable tool-execution outcome, which clients "SHOULD provide … to enable
-self-correction"), and several clients drop `structuredContent` — hence the
-`content[].text` mirror. The bundled `effect@4.0.0-beta.91` `McpServer` does not
-speak `2025-11-25`, so any reliance on it is spec drift requiring an effect
-dependency-upgrade + reverification task first.
+**Rationale:** "Auth required" collapses three real gate strengths (none: eCFR
+/ Federal Register; hard: GovInfo 401 `API_KEY_MISSING`, DOL APIv4; soft:
+CourtListener) — a boolean mis-gates CourtListener. Only the optional-secret
+class can self-gate; the idiom exists inline in 7 drivers with no shared
+helper (verified 2026-07-01), so the kit's `SourceAuth` registry consolidates
+real duplication.
 
-**Status:** open (for /grill-with-docs)
+**Rejected:** always-degrade (pays tool-def token cost for unusable hard-gated
+tools); always-vanish (kills discoverability/self-correction and undercuts the
+`api_key_required` deliverable).
 
-## Q7: Where is the candidate→approved write-tool wall enforced, and how is a gated `tools/call` audited?
+## Q6: `api_key_required` wire channel
 
-**Recommended:** Enforce at BOTH layers — filter the `tools/list` surface via the
-built-in `McpSchema.EnabledWhen` predicate AND re-check at the `tools/call`
-dispatch boundary with a `ClaimGate`-shaped wrapper that returns refusal as
-structured content (fail-closed, refusal-as-value, never a thrown error);
-annotations remain untrusted UX hints only. For audit, record each gated call in
-`UsageRecord.metadata` (and drop the "one persisted `Activity` per call" promise)
-rather than adding an `Activity` table in this packet — unless persisted
-`Activity` is independently required. Gate this on first adding a sanitized span
-wrapper + proof test.
+**Decision (2026-07-01): Success-with-error-JSON (`isError:false`), pinned to
+MCP `2025-06-18`.** Return the typed failure as a normal result and mirror
+`{error:"api_key_required", tool, envVar, registration}` into `content[].text`
+as JSON — never `structuredContent` alone (clients drop it). The `isError:true`
+upgrade stays available through the Q7 dispatch wrapper if a target client
+mishandles the success channel, but is not the default.
 
-**Rationale:** RESEARCH is emphatic that MCP annotations are "untrusted hints,
-never the security boundary," and that `EnabledWhen` filters `tools/list` only —
-`tools/call` dispatches by name *without* re-checking it (`McpServer.ts:1490-1512`
-vs `708-738`) — so defense-in-depth needs both axes. `ClaimGate`
-(`@beep/epistemic-use-cases`) is the in-repo total-engine, refusal-as-value
-precedent to mirror. On persistence: `@beep/epistemic-tables` exports only
-`UsageRecord` + the `usageRecord` table and has **no** `Activity` table/converter
-(`rg "Activity" … → zero hits`), so "one `Activity` + one `UsageRecord` per call"
-is not buildable today; `UsageRecord.metadata` is the lower-friction sink.
-Span-hygiene caveat: `Toolkit.ts:263-266` annotates every tool span with full
-`parameters`, so raw user text (e.g. `@beep/nlp` `Analyze`) leaks into spans
-despite handler-level discipline — a sanitized span wrapper + proof test is
-required before claiming audit/span hygiene.
+**Rationale:** Verified 2026-07-01: `McpServer` ships every
+successfully-returned encoded result — including a `failureMode:"return"`
+typed failure — as `CallToolResult({isError:false})` (`McpServer.ts:717-728`,
+`Toolkit.ts:364-366`); `isError:true` is reserved for a failed Effect cause.
+The success-JSON contract matches native behavior and the canonical
+`mcp-uspto` shape with zero extra machinery. The bundled server advertises
+`2025-06-18` only (`McpServer.ts:336-341`) — any `2025-11-25` reliance is spec
+drift requiring an effect upgrade + reverification task first.
 
-**Status:** open (for /grill-with-docs)
+**Rejected:** wrapper-mapped `isError:true` as default (spec-ideal
+self-correction channel, cheap via the Q7 wrapper — deliberately kept as an
+upgrade path, not baseline); deferring the choice to the goal.
+
+## Q7: Write-tool wall enforcement + audit sink
+
+**Decision (2026-07-01): Two-layer enforcement; audit in
+`UsageRecord.metadata`.** Filter the `tools/list` surface via
+`McpSchema.EnabledWhen` AND re-check at the `tools/call` dispatch boundary with
+a `ClaimGate`-shaped wrapper (fail-closed, refusal-as-value, never thrown);
+annotations remain untrusted UX hints. The dispatch wrapper is the *real*
+security boundary — `EnabledWhen` keys off client-initialization params and is
+not re-checked at `tools/call` (`McpServer.ts:255-262` vs `:1450`, verified
+2026-07-01). Each gated call is audited into the existing
+`UsageRecord.metadata` jsonb column; the "one persisted `Activity` per call"
+promise is dropped (no `Activity` table exists in `@beep/epistemic-tables`).
+The sanitized-span wrapper + proof test is a mandatory kit deliverable
+(`12-observability.md` §3 violation live today — see Q4b).
+
+**Rationale:** MCP annotations are "untrusted hints, never the security
+boundary"; `ClaimGate` (`ClaimGate.ports.ts:42-47`, total engine, error channel
+`never`) is the in-repo refusal-as-value precedent;
+`UsageRecord.metadata` is confirmed jsonb (`UsageRecord.model.ts:69,95-97`).
+Scope caveat carried to MAP: the USPTO proving host is read-only, so the
+write-wall is fixture-proven in goal-1 and proven against a real write-capable
+host in a follow-on goal.
+
+**Rejected:** adding an `Activity` table + converter + migration here (adds
+persistence scope to a P2 wedge; coordinate with `domain-layer-hardening`'s
+provenance-attestation goal instead); span-only audit with no persistence
+(loses the durable record).
