@@ -195,7 +195,7 @@ const lineAt = (starts: ReadonlyArray<number>, offset: number): number => {
 	let high = starts.length - 1;
 	while (low < high) {
 		const mid = (low + high + 1) >> 1;
-		if ((starts[mid] ?? 0) <= offset) {
+		if (A.getUnsafe(starts, mid) <= offset) {
 			low = mid;
 		} else {
 			high = mid - 1;
@@ -248,7 +248,7 @@ const collectHits = (text: string, dialect: SectionDialect): ReadonlyArray<Marke
 			const start = match.index;
 			// Two styles could in principle match one line; the first wins so a
 			// marker is never counted twice.
-			if (start === undefined || MutableHashSet.has(seen, start)) {
+			if (MutableHashSet.has(seen, start)) {
 				continue;
 			}
 			// The loosely-captured attribute run decides whether this line is a
@@ -271,7 +271,7 @@ const collectHits = (text: string, dialect: SectionDialect): ReadonlyArray<Marke
 			MutableHashSet.add(seen, start);
 			hits.push({
 				kind: match[1] === "BEGIN" ? "BEGIN" : "END",
-				key: match[2] ?? "",
+				key: A.getUnsafe(match, 2),
 				style: matcher.style,
 				start,
 				end: start + match[0].length,

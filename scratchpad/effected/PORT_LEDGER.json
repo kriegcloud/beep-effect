@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "schema-org",
+    "module": "templates",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:46:33.011Z"
+    "at": "2026-10-09T23:46:45.226Z"
   },
   "rows": [
     {
@@ -4382,7 +4382,7 @@
       "module": "templates",
       "wave": 1,
       "position": 11,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "tooling/library",
       "upstreamPaths": {
@@ -4557,6 +4557,36 @@
           "upstreamBehaviour": "For n new declarations without existing anchors, internal/reconcile.ts searches forward and backward from each missing section, performing exactly n(n-1) unsuccessful anchor lookups.",
           "labBehaviour": "Nearest existing predecessor/successor indices are precomputed in two passes, then missing sections are placed in declaration order; successor preference, predecessor fallback, foreign spans and bytes remain unchanged. Anchor search is linear; no whole-algorithm claim is made.",
           "reason": "upstream-bug: Round-1 sol-1-3 proves the inherited quadratic search from the oracle loops under D11; S0 diff confirms both loops are replaced. Fix-templates-g1.md:3,29-30 and mixed/no-anchor regressions pin output compatibility; these tests do not measure runtime or count lookups."
+        },
+        {
+          "test": "module suite scratchpad/test/templates/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/templates/internal/reconcile.ts:192 carried a branch no input can reach",
+          "labBehaviour": "Removed the unreachable slot-index fallback and section-kind guard by retaining each narrowed section reference alongside its slot index.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/templates/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/templates/internal/reconcile.ts:230 carried a branch no input can reach",
+          "labBehaviour": "Removed the unreachable empty-string render fallback; every declaration has a cached successful render before document assembly.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/templates/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/templates/internal/scan.ts:198 carried a branch no input can reach",
+          "labBehaviour": "Removed the unreachable line-start fallback; binary-search indices stay within the populated array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/templates/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/templates/internal/scan.ts:251 carried a branch no input can reach",
+          "labBehaviour": "Removed the undefined match-index guard; native matchAll results carry an index. Duplicate-offset handling remains and is tested.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/templates/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/templates/internal/scan.ts:274 carried a branch no input can reach",
+          "labBehaviour": "Removed the unreachable empty-key fallback; every compiled dialect matcher captures the section key.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -4648,13 +4678,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:15.976Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:18:40.317Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:18:40.317Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:46:45.226Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (1 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },

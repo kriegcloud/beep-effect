@@ -12,6 +12,7 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
+import * as A from "effect/Array";
 import * as Equal from "effect/Equal";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
@@ -171,10 +172,10 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 	items.push({ kind: "text", value: text.slice(cursor) });
 
 	const targets = MutableHashSet.fromIterable(declared.map((section) => identityOf(section.key, section.commentStyle)));
-	const slots: Array<number> = [];
+	const slots: Array<readonly [number, Extract<Item, { kind: "section" }>]> = [];
 	items.forEach((item, index) => {
 		if (item.kind === "section" && MutableHashSet.has(targets, item.identity)) {
-			slots.push(index);
+			slots.push([index, item]);
 		}
 	});
 
@@ -188,11 +189,8 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 		if (!MutableHashMap.has(onDisk, identity) || slotCursor >= slots.length) {
 			return;
 		}
-		const itemIndex = slots[slotCursor] ?? 0;
-		const item = items[itemIndex];
-		if (item?.kind === "section") {
-			item.render = O.getOrUndefined(MutableHashMap.get(rendered, identity));
-		}
+		const [itemIndex, item] = A.getUnsafe(slots, slotCursor);
+		item.render = O.getOrUndefined(MutableHashMap.get(rendered, identity));
 		MutableHashMap.set(itemIndexByDeclared, declaredIndex, itemIndex);
 		slotCursor += 1;
 	});
@@ -229,7 +227,7 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 		if (MutableHashMap.has(onDisk, identity)) {
 			return;
 		}
-		const block = O.getOrElse(MutableHashMap.get(rendered, identity), () => "");
+		const block = O.getOrThrow(MutableHashMap.get(rendered, identity));
 		const next = successor[declaredIndex];
 		if (next !== undefined) {
 			pushInto(beforeAnchor, next, block);
