@@ -837,3 +837,14 @@ peer service was stopped, and the worker changed no admission setting.
   systemd user manager`; the existing user bus was reachable after supplying
   its runtime directory and bus address explicitly. Retry submitted successfully.
 - Prevention: inherit the user-manager environment in detached lane launches.
+
+## 2026-10-09 — H2 typed fixture decoder diagnostic
+
+- Work: qualify the historical-inventory review fix.
+- Evidence: targeted regressions passed; test-tsgo emitted TS377112 because
+  the new legacy-snapshot fixture used `decodeUnknownEffect` for a known
+  encoded value. This diagnostic is introduced by H2.
+- Recovery: use `decodeEffect` for the typed fixture and rerun test-tsgo through
+  admission; retain the runtime legacy-default assertion.
+- Prevention: select typed versus unknown decoding from the actual boundary
+  input, including synthetic fixtures. Source review does not replace compiler proof.

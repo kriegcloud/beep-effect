@@ -188,7 +188,7 @@ describe("pure goal completion resolver", () => {
           })
         )).outcome
       ).toBe("verified");
-      const legacy = yield* S.decodeUnknownEffect(GoalRequiredCheckSnapshot)({
+      const legacy = yield* S.decodeEffect(GoalRequiredCheckSnapshot)({
         contexts: ["Lint"],
         sources: ["surviving-ruleset/history/1"],
         effectiveAt: "2026-10-06T00:55:25Z",
