@@ -8,6 +8,7 @@
 // stringify prints them, and the corpus harness compares them.
 
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/toml/TomlDateTime");
@@ -29,7 +30,7 @@ function daysInMonth(year: number, month: number): number {
 	if (month === 2 && isLeapYear(year)) {
 		return 29;
 	}
-	return MONTH_LENGTHS[month - 1] ?? 31;
+	return A.getUnsafe(MONTH_LENGTHS, month - 1);
 }
 
 /** Class-level filter shared by every class carrying a `{ year, month, day }` triple. */

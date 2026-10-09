@@ -1,0 +1,14 @@
+[
+  {
+    "id": "EV010:scratchpad/test/toml/TomlDocument.test.ts:8:node:fs@0#1",
+    "reason": "\u2014 Filesystem calls enumerate and read the vendored corpus for byte-exact document round-trip assertions. The subject receives strings and has no FileSystem dependency; these calls load fixtures rather than provide a filesystem to the subject."
+  },
+  {
+    "id": "EV010:scratchpad/test/toml/e2e/toml-test.e2e.test.ts:12:node:fs@0#1",
+    "reason": "\u2014 Filesystem calls load the complete vendored compliance corpus and its expected JSON values. Raw UTF-8 reads preserve CRLF and lone-CR cases, while discovery assertions guard corpus completeness. The parser has no FileSystem dependency."
+  },
+  {
+    "id": "EV010:scratchpad/test/toml/oracle.property.test.ts:37:node:fs@0#1",
+    "reason": "\u2014 Filesystem calls supply the vendored corpus and expected JSON values for exhaustive differential checks. Both parsers receive strings; neither uses a FileSystem service. The reads are fixture loading outside EV010\u2019s filesystem-double replacement condition."
+  }
+]

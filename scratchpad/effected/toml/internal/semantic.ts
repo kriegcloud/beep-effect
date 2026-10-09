@@ -120,13 +120,8 @@ const navigateHeaderPrefix = (root: SemNode, keyPath: ReadonlyArray<TomlKey>): S
 		}
 		current = Match.value(existing.kind).pipe(
 			Match.whenOr("table-explicit", "table-implicit", "table-dotted", () => existing),
-			Match.when("array-tables", () => {
-				const element = existing.elements[existing.elements.length - 1];
-				if (element === undefined) {
-					throw TomlSemanticInvariantError.make({ message: "missing array-table element" });
-				}
-				return element;
-			}),
+			// openArrayTable inserts before publishing; later headers only append.
+			Match.when("array-tables", () => A.getUnsafe(existing.elements, existing.elements.length - 1)),
 			Match.when("inline", () => raise("InlineTableExtended", `inline table "${key.value}" cannot be extended`, key)),
 			Match.when("static-array", () => raise("ArrayOfTablesConflict", `"${key.value}" is a static array, not an array of tables`, key)),
 			Match.when("value", () => raise("TableRedefined", `"${key.value}" is already defined as a value`, key)),

@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "env",
+    "module": "toml",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:40:44.678Z"
+    "at": "2026-10-09T23:43:05.548Z"
   },
   "rows": [
     {
@@ -2010,7 +2010,7 @@
       "module": "toml",
       "wave": 1,
       "position": 3,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
@@ -2304,6 +2304,18 @@
           "upstreamBehaviour": "Schema classes use short literal identities or default tagged identities, union/literal schemas lack composer metadata, shared datetime fields have no descriptions, and the calendar filter has only a title.",
           "labBehaviour": "$ScratchpadId-derived $I identities/annotations cover Toml, TomlDateTime, TomlDiagnostic, TomlDocument, TomlEdit, TomlFormat and TomlNode schemas plus visitor events and internal diagnostic/cap/invariant carriers. IeeeNumber, NonFiniteSpelling, suspended unions, calendar constraints and fields gain schema metadata.",
           "reason": "identity-annotations: operator step 4, D5 and EF-12 require canonical @beep/identity schema and field annotations; fix-toml-g1/g2/g3 metadata reports describe this class despite some identity-keys labels."
+        },
+        {
+          "test": "module suite scratchpad/test/toml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/toml/TomlDateTime.ts:32 carried a branch no input can reach",
+          "labBehaviour": "(original line)",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/toml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/toml/TomlEdit.ts:127 carried a branch no input can reach",
+          "labBehaviour": "(original line)",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -2401,13 +2413,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:17.651Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:17:43.109Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:17:43.109Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:43:05.548Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (3 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
