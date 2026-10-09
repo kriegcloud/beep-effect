@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "xdg",
+    "module": "memfs",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T16:49:45.899Z"
+    "at": "2026-10-09T23:09:14.693Z"
   },
   "rows": [
     {
@@ -774,7 +774,7 @@
       "module": "memfs",
       "wave": 1,
       "position": 1,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "tooling/test-kit",
       "upstreamPaths": {
@@ -988,6 +988,192 @@
           "upstreamBehaviour": "Node errno parity fixtures use the host default temporary directory; the unchanged copyFile-from-directory case expects BadResource/EISDIR, but this workstation btrfs can copy an empty directory successfully.",
           "labBehaviour": "scratchpad/vitest.effected.config.ts selects TMPDIR=/tmp only for memfs, placing host oracle fixtures on tmpfs and retaining the upstream BadResource/EISDIR assertion and existing skips.",
           "reason": "test-environment: D9 and the 2026-10-09 environmental-fix ruling permit tmpfs fixture placement. env-memfs.md reproduces btrfs behavior and verifies the unchanged assertion with TMPDIR=/tmp; central-notes.md:3 and the actual shared-config diff ground the lasting setting."
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/MemoryFileSystem.ts:934 carried a branch no input can reach",
+          "labBehaviour": "removed the empty-prefix fallback; mkdirSync receives absolute paths and its prefix loop starts at component 1, so the prefix already contains a separator.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/MemoryFileSystem.ts:1713 carried a branch no input can reach",
+          "labBehaviour": "removed the nullish pathOrDescriptor fallback; system failures during handle construction always supply a path or descriptor, while BadArgument uses the outer empty-path case.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:78 carried a branch no input can reach",
+          "labBehaviour": "Replaced local comparator normalization arms with Order.Number, preserving negative, zero and positive results.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:317 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-inode recovery for retained namespace and descriptor references.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:400 carried a branch no input can reach",
+          "labBehaviour": "Replaced empty-pop fallback inside a non-empty inode-path worklist with checked Option extraction.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:416 carried a branch no input can reach",
+          "labBehaviour": "Removed missing/non-directory root fallback; the root inode is permanent.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:528 carried a branch no input can reach",
+          "labBehaviour": "Removed attachment conflict, self-attachment and link-count rejection arms; callers attach fresh directories to absent names.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:580 carried a branch no input can reach",
+          "labBehaviour": "Made internal resolution options and method required; every caller supplies them.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:595 carried a branch no input can reach",
+          "labBehaviour": "Removed empty-component extraction and empty-stack fallbacks; traversal retains the root stack entry.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:724 carried a branch no input can reach",
+          "labBehaviour": "Removed missing/non-file inode recovery for live file descriptors.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:740 carried a branch no input can reach",
+          "labBehaviour": "Removed non-errno cause fallback from internal resolution-error path rewriting.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:806 carried a branch no input can reach",
+          "labBehaviour": "Removed empty final-component fallback after empty and slash-only paths have already been rejected.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:867 carried a branch no input can reach",
+          "labBehaviour": "Removed redundant non-recursive non-empty-directory rejection; public callers reject it before detachment.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:967 carried a branch no input can reach",
+          "labBehaviour": "Removed non-errno fallback for dangling-link mkdir resolution failures.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:987 carried a branch no input can reach",
+          "labBehaviour": "Removed error remapping after fresh directory attachment, whose inputs are already validated.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:1097 carried a branch no input can reach",
+          "labBehaviour": "Removed empty-worklist and non-directory fallbacks from directory ancestry traversal.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:1339 carried a branch no input can reach",
+          "labBehaviour": "Removed duplicate copy-walk depth rejection; shared subtrees pass validation before mutation, and new subtrees retain cloneInode's bound.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:1357 carried a branch no input can reach",
+          "labBehaviour": "Removed destination-kind fallback after copy validation has established a directory destination.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:1599 carried a branch no input can reach",
+          "labBehaviour": "Removed unchanged-copy success arm; copy conflicts fail and successful copies change the destination.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:1681 carried a branch no input can reach",
+          "labBehaviour": "Removed fresh-file creation retry, non-file invariant and linking-failure recovery arms within the serialized transition.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:1761 carried a branch no input can reach",
+          "labBehaviour": "Removed already-closed descriptor and missing-inode fallbacks from the once-only scope finalizer.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:1796 carried a branch no input can reach",
+          "labBehaviour": "Removed symbolic-link size arm from resolved stat information; stat follows links and descriptors reference files.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:1900 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-descriptor event fallback after a successful descriptor write.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:2041 carried a branch no input can reach",
+          "labBehaviour": "Removed empty-frame, out-of-bounds name and missing stored-entry fallbacks from directory enumeration.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:2358 carried a branch no input can reach",
+          "labBehaviour": "Removed root-parent fallback for scoped temporary files; generated files always sit inside an allocated directory.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:2516 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-pattern and missing-expansion fallbacks after findIndex establishes an expandable pattern.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:2557 carried a branch no input can reach",
+          "labBehaviour": "Removed out-of-bounds character fallback inside the bounded character-class loop.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:2648 carried a branch no input can reach",
+          "labBehaviour": "Excluded Star from the single-character matcher; the segment matcher consumes stars separately.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:2701 carried a branch no input can reach",
+          "labBehaviour": "Removed out-of-bounds compiled-segment fallback inside the bounded matching loop.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:2749 carried a branch no input can reach",
+          "labBehaviour": "Removed empty-worklist and missing stored-entry fallbacks from glob traversal.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/memfs/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:3027 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-root, empty-frame, out-of-bounds name and missing stored-entry fallbacks from snapshot traversal.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -1073,6 +1259,10 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
@@ -1080,7 +1270,8 @@
       "notes": [
         "2026-10-09T11:33:57.044Z beep laws done (four laws clean, allowlisted sites listed); S1 held by the environment-bound tests in TESTS_NOT_PASSING.md",
         "2026-10-09T15:17:10.608Z S1: green: env-bound tests resolved per the 2026-10-09 rulings; tsgo, oxlint and the four laws clean; audit green (parity strict)",
-        "2026-10-09T16:17:26.260Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:17:26.260Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:09:14.693Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (32 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
