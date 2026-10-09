@@ -426,11 +426,8 @@ const descendImpl: (
 
 	const results: Array<string> = [];
 	const frames: Array<DescendFrame> = [{ relative: base, absolute: absoluteBase, depth: 0, ancestors: baseAncestors }];
-	// A head index, never Array.shift(): shift() re-indexes the whole array on
-	// every dequeue, turning a large walk quadratic.
-	for (let head = 0; head < frames.length; head += 1) {
-		const frame = frames[head];
-		if (frame === undefined) break;
+	// Array iteration visits appended frames without re-indexing the queue.
+	for (const frame of frames) {
 
 		// A directory that vanished between its parent's listing and this read is
 		// a benign race — treat it as empty, and never record it as unreadable:
@@ -485,7 +482,7 @@ const descendImpl: (
 			// `realPathOf` reports or fails that per `onUnreadable`.
 			let ancestors = frame.ancestors;
 			if (followSymlinks) {
-				const parentReal = frame.ancestors[frame.ancestors.length - 1] ?? frame.absolute;
+				const parentReal = O.getOrThrow(A.last(frame.ancestors));
 				const real = (yield* isSymbolicLink(absolute))
 					? yield* realPathOf(absolute, relative)
 					: O.some(path.join(parentReal, entry));
