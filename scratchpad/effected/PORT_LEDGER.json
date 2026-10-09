@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "engine",
+    "module": "env",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:40:30.412Z"
+    "at": "2026-10-09T23:40:44.678Z"
   },
   "rows": [
     {
@@ -4606,7 +4606,7 @@
       "module": "env",
       "wave": 1,
       "position": 12,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "tooling/library",
       "upstreamPaths": {
@@ -4741,6 +4741,30 @@
           "upstreamBehaviour": "Purity scans resolve ../src beside the relocated tests; agentCiKeys, colorKeys and terminalKeys source scans resolve ../src/internal or ../src/internal/osc8, which do not identify the lab source tree.",
           "labBehaviour": "Purity scans resolve scratchpad/effected/env; key-inventory tests resolve its internal and internal/osc8 directories. Existing scanner controls, read-key inventories and source boundary assertions are retained.",
           "reason": "test-environment: D9 and the 2026-10-09 environment ruling require retargeting inherited source-scanning tests to the lab layout; the step-2 layout commit repairs their paths rather than waiving the tests."
+        },
+        {
+          "test": "module suite scratchpad/test/env/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/env/EnvOverride.ts:34 carried a branch no input can reach",
+          "labBehaviour": "replaced the static-only class and inaccessible private constructor with a plain object exposing the same reader functions.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/env/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/env/internal/osc8/detect.ts:171 carried a branch no input can reach",
+          "labBehaviour": "moved wrapper-name normalization before explanation dispatch, removing the impossible null-wrapper fallback from the wrapper-strips handler.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/env/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/env/internal/osc8/semver.ts:37 carried a branch no input can reach",
+          "labBehaviour": "Removed the major-capture zero fallback: every successful regex match includes the mandatory digit capture.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/env/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/env/internal/osc8/semver.ts:43 carried a branch no input can reach",
+          "labBehaviour": "(original line) Replaced the indexed loop with ordered differences of fixed tuple components, removing two unreachable out-of-range zero fallbacks while preserving comparison behavior.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -4844,13 +4868,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:19:56.078Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:18:47.954Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:18:47.954Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:40:44.678Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (4 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },

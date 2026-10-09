@@ -31,8 +31,7 @@ const isProvider = (
  * @category utilities
  * @since 0.0.0
  */
-export class EnvOverride {
-	private constructor() {}
+export const EnvOverride = {
 
 	/**
 	 * Read `options.envVar` and say what happened, without logging.
@@ -95,7 +94,7 @@ export class EnvOverride {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly readResult = Effect.fn("readResult")(function* <const M extends Record<AudienceKind, ReadonlyArray<string>>>(options: {
+	readResult: Effect.fn("readResult")(function* <const M extends Record<AudienceKind, ReadonlyArray<string>>>(options: {
 		readonly envVar: string;
 		readonly accepts: M;
 		readonly source?: Readonly<Record<string, string | undefined>> | ConfigProvider.ConfigProvider | undefined;
@@ -135,7 +134,7 @@ export class EnvOverride {
 			accepted: O.none(),
 			rejected: O.some({ value: raw.value, audience: kind, accepts }),
 		};
-	});
+	}),
 
 	/**
 	 * Read `options.envVar` and accept it only when the current audience accepts it.
@@ -166,7 +165,7 @@ export class EnvOverride {
 	 * @category utilities
 	 * @since 0.0.0
 	 */
-	static readonly read = Effect.fn("read")(function* <const M extends Record<AudienceKind, ReadonlyArray<string>>>(options: {
+	read: Effect.fn("read")(function* <const M extends Record<AudienceKind, ReadonlyArray<string>>>(options: {
 		readonly envVar: string;
 		readonly accepts: M;
 	}): Effect.fn.Return<O.Option<M[AudienceKind][number]>, never, Audience> {
@@ -178,5 +177,5 @@ export class EnvOverride {
 			);
 		}
 		return accepted;
-	});
-}
+	}),
+};
