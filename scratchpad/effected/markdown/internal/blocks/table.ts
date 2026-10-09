@@ -142,10 +142,8 @@ const scanCell = (text: string, from: number): number => {
 
 /** `_scan_table_row_end`: `spacechar* newline`. */
 const scanRowEnd = (text: string, from: number): number => {
+	// scanCell and scanCellEnd already consumed all whitespace before this offset.
 	let index = from;
-	while (isSpaceChar(text.charAt(index))) {
-		index += 1;
-	}
 	if (text.charAt(index) === "\r") {
 		index += 1;
 	}
@@ -218,11 +216,11 @@ const scanDelimiterRowLine = (line: string, from: number): boolean => {
  *
  * **Details**
  *
- * Returns `undefined` unless the WHOLE text is consumed and at least one cell
- * came out of it — which is what makes a line either a row or not a row, with
- * no partial verdict in between.
+ * Records whether the whole text was consumed, alongside the scanned cells.
+ * Delimiter rows already satisfy the grammar; other callers validate this
+ * result through `rowFromSource`.
  */
-const rowFromSource = (source: RowSource): ScannedRow | undefined => {
+const scanRowSource = (source: RowSource) => {
 	const { text } = source;
 	const length = text.length;
 	let cells: RawCell[] = [];
@@ -268,10 +266,12 @@ const rowFromSource = (source: RowSource): ScannedRow | undefined => {
 		}
 	}
 
-	if (offset !== length || cells.length === 0) {
-		return undefined;
-	}
-	return { cells, paragraphOffset };
+	return { cells, paragraphOffset, complete: offset === length };
+};
+
+const rowFromSource = (source: RowSource): ScannedRow | undefined => {
+	const row = scanRowSource(source);
+	return row.complete && row.cells.length > 0 ? row : undefined;
 };
 
 // --- cell content ---------------------------------------------------------
@@ -424,11 +424,7 @@ const addRow = (
 	rowBlock.startOffset = rowStartOffset;
 
 	const used = Math.min(row.cells.length, data.columns);
-	for (let index = 0; index < used; index += 1) {
-		const cell = row.cells[index];
-		if (cell === undefined) {
-			continue;
-		}
+	for (const cell of row.cells.slice(0, used)) {
 		const start = offsetAt(source, cell.start, rowStartOffset);
 		const cellBlock = scanner.addChild("tableCell", start - scanner.lineStart);
 		cellBlock.startOffset = start;
@@ -483,10 +479,8 @@ export const tableHeaderStart: BlockStart = {
 		}
 
 		const delimiterSource = lineSource(scanner);
-		const delimiterRow = rowFromSource(delimiterSource);
-		if (delimiterRow === undefined) {
-			return 0;
-		}
+		// The delimiter grammar guarantees a complete row with at least one cell.
+		const delimiterRow = scanRowSource(delimiterSource);
 
 		const headerSource = paragraphSource(container);
 		const headerRow = rowFromSource(headerSource);

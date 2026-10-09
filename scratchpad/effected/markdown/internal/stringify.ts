@@ -381,8 +381,9 @@ const literalLineOpensBlock = (line: string, open: boolean): boolean => {
 	if (char === ">" || char === "<" || char === "[" || char === "|" || char === ":") {
 		return true;
 	} else if (char === "#") {
-		const run = /^#{1,6}/.exec(line)?.[0] ?? "";
-		return run.length > 0 && (run.length === line.length || isSpaceOrTab(line[run.length]));
+		let length = 1;
+		while (length < 6 && line[length] === "#") length += 1;
+		return length === line.length || isSpaceOrTab(line[length]);
 	} else if (char === "`" || char === "~") {
 		// A fence is 3+ of either; an open line of only 1-2 could be completed.
 		return line.startsWith(char.repeat(3)) || (open && [...line].every((each) => each === char));
@@ -811,9 +812,7 @@ interface WalkableNode {
  */
 const treeContainsMdx = (root: WalkableNode): boolean => {
 	const stack: WalkableNode[] = [root];
-	while (stack.length > 0) {
-		const node = stack.pop();
-		if (node === undefined) break;
+	for (let node = stack.pop(); node !== undefined; node = stack.pop()) {
 		if (HashSet.has(MDX_NODE_TYPES, node.type)) {
 			return true;
 		}
@@ -1001,7 +1000,7 @@ const serializeCode = (node: Code, forceFence: boolean): string => {
 };
 
 const setextUnderline = (heading: Heading, content: string): string => {
-	const lastLine = content.split("\n").at(-1) ?? "";
+	const lastLine = content.slice(content.lastIndexOf("\n") + 1);
 	const char = heading.depth === 1 ? "=" : "-";
 	return char.repeat(Math.max(1, lastLine.length));
 };
@@ -1264,15 +1263,13 @@ const serializeBlocks = (children: ReadonlyArray<Block>, state: StringifyState, 
 	}
 	if (!tight) return parts.join("\n\n");
 	let out = "";
-	for (let index = 0; index < parts.length; index += 1) {
-		if (index > 0) {
-			const prev = nodes[index - 1];
-			const next = nodes[index];
-			if (prev !== undefined && next !== undefined) {
-				out += canJoinWithoutBlank(prev, next) ? "\n" : "\n\n";
-			}
+	previous = undefined;
+	for (const [node, part] of A.zip(nodes, parts)) {
+		if (previous !== undefined) {
+			out += canJoinWithoutBlank(previous, node) ? "\n" : "\n\n";
 		}
-		out += parts[index] ?? "";
+		out += part;
+		previous = node;
 	}
 	return out;
 };

@@ -656,20 +656,10 @@ export class SchemaResolver {
 				versions: MutableHashMap.empty<string, S.Top>(),
 			};
 			if (declaration.version === undefined) {
-				if (entry.versionless !== undefined) {
-					throw SchemaRegistryError.make({
-						message: `SchemaResolver.fromRegistry: duplicate versionless registration for "${declaration.name}"`,
-					});
-				}
 				entry.versionless = schema;
 			} else {
-				const segments = parseVersionSegments(declaration.version);
-				if (segments === undefined) {
-					throw SchemaRegistryError.make({
-						message: `SchemaResolver.fromRegistry: registration key "${key}" carries an illegal version`,
-					});
-				}
-				const canonical = A.join(segments, ".");
+				// Classification already validated the version grammar.
+				const canonical = A.join(A.map(Str.split(declaration.version, "."), Str.replace(/^0+(?=\d)/, "")), ".");
 				if (MutableHashMap.has(entry.versions, canonical)) {
 					throw SchemaRegistryError.make({
 						message: `SchemaResolver.fromRegistry: registrations for "${declaration.name}" collide on version ${canonical}`,

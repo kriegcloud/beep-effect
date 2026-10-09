@@ -1,0 +1,10 @@
+[
+  {
+    "id": "EV010:scratchpad/test/markdown/e2e/support/corpus.ts:15:node:fs@0#1",
+    "reason": "This support module synchronously loads and enumerates checked-in conformance fixtures for test registration. The real fixture files supply the oracle data; a memory filesystem would require seeding from those same files or changing sibling callers outside this lane. Left unchanged."
+  },
+  {
+    "id": "EV010:scratchpad/test/markdown/tools/generate-entities.ts:7:node:fs@0#1",
+    "reason": "This maintenance generator writes a real source artifact to disk. Replacing its filesystem with memfs would prevent its intended output from being persisted; left unchanged."
+  }
+]

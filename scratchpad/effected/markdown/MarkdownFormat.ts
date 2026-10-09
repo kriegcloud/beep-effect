@@ -275,11 +275,8 @@ const walk = (
 		return;
 	}
 	const children = childrenOf(node);
-	for (let i = 0; i < children.length; i++) {
-		const child = children[i];
-		if (child !== undefined) {
-			walk(child, node, children, i, visit);
-		}
+	for (const [child, index] of A.map(children, (child, index) => [child, index] as const)) {
+		walk(child, node, children, index, visit);
 	}
 };
 
@@ -360,19 +357,12 @@ interface TaggedEdit {
 	readonly nodeEnd: number;
 }
 
-/** Accumulates format edits; drops no-op splices to keep format idempotent. */
+/** Accumulates edits after the formatting helpers have excluded unchanged markers. */
 class FormatEmitter {
 	readonly edits: Array<TaggedEdit> = [];
-	private readonly source: string;
-	constructor(source: string) {
-		this.source = source;
-	}
-
 	push(node: MarkdownNode, offset: number, length: number, content: string): void {
-		if (this.source.slice(offset, offset + length) !== content) {
-			const { start, end } = spanOf(node);
-			this.edits.push({ offset, length, content, nodeStart: start, nodeEnd: end });
-		}
+		const { start, end } = spanOf(node);
+		this.edits.push({ offset, length, content, nodeStart: start, nodeEnd: end });
 	}
 }
 
@@ -382,7 +372,7 @@ const formatThematicBreak = (
 	node: ThematicBreak,
 	target: ThematicBreakChar,
 ): void => {
-	const fidelity = node.markerChar ?? "*";
+	const fidelity = node.markerChar;
 	if (fidelity === target) {
 		return;
 	}
@@ -400,16 +390,13 @@ const formatHeading = (
 	target: HeadingStyle,
 	emphasisChar: EmphasisChar | undefined,
 ): boolean => {
-	const fidelity = node.headingStyle ?? "atx";
-	if (fidelity === target || node.children.length === 0) {
+	const fidelity = node.headingStyle;
+	if (fidelity === target || A.isReadonlyArrayNonEmpty(node.children) === false) {
 		return false;
 	}
 	const { start, end } = spanOf(node);
-	const first = node.children[0];
-	const last = node.children[node.children.length - 1];
-	if (first === undefined || last === undefined) {
-		return false;
-	}
+	const first = A.headNonEmpty(node.children);
+	const last = A.lastNonEmpty(node.children);
 	const contentStart = first.position.start.offset;
 	const contentEnd = last.position.end.offset;
 	const original = source.slice(contentStart, contentEnd);
@@ -417,7 +404,7 @@ const formatHeading = (
 		return false;
 	}
 	if (target === "setext") {
-		if (node.depth > 2 || original.length === 0 || SETEXT_CONTENT_HAZARD.test(original)) {
+		if (node.depth > 2 || SETEXT_CONTENT_HAZARD.test(original)) {
 			return false;
 		}
 		if (start !== 0 && source.charCodeAt(start - 1) !== 0x0a) {
@@ -427,7 +414,7 @@ const formatHeading = (
 	// Normalize the descendants against the original source, then compose
 	// their splices into the heading's single replacement. The outer walk
 	// skips these descendants only when this whole-heading edit is emitted.
-	const descendants = new FormatEmitter(source);
+	const descendants = new FormatEmitter();
 	if (emphasisChar !== undefined) {
 		walk(node, undefined, [], 0, (child, _parent, siblings, index) => {
 			if (isEmphasisLike(child)) {
@@ -458,7 +445,7 @@ const formatList = (
 	index: number,
 	target: BulletChar,
 ): void => {
-	if (!isUnorderedList(node) || (node.bulletChar ?? "-") === target) {
+	if (!isUnorderedList(node) || node.bulletChar === target) {
 		return;
 	}
 	const previous = index > 0 ? siblings[index - 1] : undefined;
@@ -485,7 +472,7 @@ const formatEmphasis = (
 	index: number,
 	target: EmphasisChar,
 ): void => {
-	const fidelity = node.markerChar ?? "*";
+	const fidelity = node.markerChar;
 	if (fidelity === target) {
 		return;
 	}
@@ -530,9 +517,6 @@ const formatFence = (source: string, emit: FormatEmitter, node: Code, target: Fe
 	let openLength = 0;
 	while (start + openLength < end && source[start + openLength] === fidelity) {
 		openLength++;
-	}
-	if (openLength === 0) {
-		return;
 	}
 	const newLength = Math.max(3, openLength, longestRun(node.value, target) + 1);
 	emit.push(node, start, openLength, target.repeat(newLength));
@@ -604,7 +588,10 @@ const formatCodeBlockStyle = (
 		return false;
 	}
 	const lines = value === "" ? [] : value.split("\n");
-	if (lines.length === 0 || BLANK_LINE.test(lines[0] ?? "") || BLANK_LINE.test(lines[lines.length - 1] ?? "")) {
+	if (A.isReadonlyArrayNonEmpty(lines) === false) {
+		return false;
+	}
+	if (BLANK_LINE.test(A.headNonEmpty(lines)) || BLANK_LINE.test(A.lastNonEmpty(lines))) {
 		return false;
 	}
 	if (lines.some((line) => line !== "" && BLANK_LINE.test(line))) {
@@ -764,8 +751,7 @@ const findAncestry = (root: Root, target: MarkdownNode): ReadonlyArray<MarkdownN
  * @category formatting
  * @since 0.0.0
  */
-export class MarkdownFormat {
-	private constructor() {}
+export abstract class MarkdownFormat {
 
 	/**
 	 * Compute marker-normalization edits per the requested
@@ -823,7 +809,7 @@ export class MarkdownFormat {
 		if (Result.isFailure(parsed)) {
 			return [];
 		}
-		const emit = new FormatEmitter(text);
+		const emit = new FormatEmitter();
 		walk(parsed.success, undefined, [], 0, (node, parent, siblings, index) => {
 			if (options?.thematicBreakChar !== undefined && node.type === "thematicBreak") {
 				formatThematicBreak(text, emit, node, options.thematicBreakChar);

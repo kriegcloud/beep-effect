@@ -18,6 +18,7 @@
 // ends, never a defect and never a stream failure (the yaml visitor's
 // diagnostics-as-events precedent).
 
+import * as A from "effect/Array";
 import * as Data from "effect/Data";
 import * as Stream from "effect/Stream";
 import { MAX_NESTING_DEPTH } from "./internal/limits.ts";
@@ -94,8 +95,7 @@ export const MarkdownVisitorEvent = Data.taggedEnum<MarkdownVisitorEvent>();
  * @category streams
  * @since 0.0.0
  */
-export class MarkdownVisitor {
-	private constructor() {}
+export abstract class MarkdownVisitor {
 
 	/**
 	 * Create a lazy `Stream` of `MarkdownVisitorEvent` walking `root` in
@@ -171,27 +171,24 @@ function* walkNode(node: MarkdownNode, path: MarkdownPath, depth: number): Gener
 			path,
 			depth,
 		});
-		return;
-	}
+	} else {
+		yield MarkdownVisitorEvent.Enter({ node, path, depth });
 
-	yield MarkdownVisitorEvent.Enter({ node, path, depth });
-
-	if ("children" in node) {
-		const children = node.children;
-		for (let index = 0; index < children.length; index++) {
-			const child = children[index];
-			if (child === undefined) continue;
-			const events = walkNode(child, [...path, index], depth + 1);
-			for (const event of events) {
-				yield event;
-				if (event._tag === "Error") {
-					// Terminal: abort the whole walk, mirroring stringify's
-					// whole-operation typed failure.
-					return;
+		if ("children" in node) {
+			const children: ReadonlyArray<MarkdownNode> = node.children;
+			for (const [child, index] of A.map(children, (child, index) => [child, index] as const)) {
+				const events = walkNode(child, [...path, index], depth + 1);
+				for (const event of events) {
+					yield event;
+					if (event._tag === "Error") {
+						// Terminal: abort the whole walk, mirroring stringify's
+						// whole-operation typed failure.
+						return;
+					}
 				}
 			}
 		}
-	}
 
-	yield MarkdownVisitorEvent.Exit({ node, path, depth });
+		yield MarkdownVisitorEvent.Exit({ node, path, depth });
+	}
 }

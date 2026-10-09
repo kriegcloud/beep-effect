@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "spdx",
+    "module": "markdown",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:28:14.619Z"
+    "at": "2026-10-09T23:31:48.566Z"
   },
   "rows": [
     {
@@ -6207,7 +6207,7 @@
       "module": "markdown",
       "wave": 2,
       "position": 3,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
@@ -6957,6 +6957,294 @@
           "upstreamBehaviour": "Repeated unterminated <!A declarations bypassed missing-closer memoization and rescanned the remaining paragraph with the HTML regex, giving quadratic work.",
           "labBehaviour": "Declaration openers join the memoized missing-closer precheck, so 8000 unterminated attempts invoke the HTML regex zero times while closed HTML and literal text keep their values and spans.",
           "reason": "upstream-bug: INVENTORY req-33 verifies the pinned oracle shares the suffix-scanning path and gives bounded parse probes; fix-markdown-g10.md:4,22-25 and the deterministic zero-regex regression pin the improvement."
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/FrontmatterSource.ts:160 carried a branch no input can reach",
+          "labBehaviour": "removed the empty private constructor and made the static utility class abstract, retaining the prohibition on direct TypeScript construction.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/FrontmatterResolver.ts:659 carried a branch no input can reach",
+          "labBehaviour": "removed duplicate-versionless-registration rejection; distinct record keys cannot classify to the same versionless name.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/FrontmatterResolver.ts:667 carried a branch no input can reach",
+          "labBehaviour": "removed the illegal-version recheck after successful classification; retained canonical zero-padding normalization and collision detection.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownDocument.ts:722 carried a branch no input can reach",
+          "labBehaviour": "replaced dense heading-array index guards with indexed iteration.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownDocument.ts:737 carried a branch no input can reach",
+          "labBehaviour": "removed missing-entry fallbacks for boundary indexes produced from that same heading array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownDocument.ts:1006 carried a branch no input can reach",
+          "labBehaviour": "replaced mapping over the parser's always-empty diagnostic carriers with an empty diagnostics array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownFormat.ts:278 carried a branch no input can reach",
+          "labBehaviour": "replaced dense parsed-child index guards with indexed iteration.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownFormat.ts:361 carried a branch no input can reach",
+          "labBehaviour": "removed the no-op collector check; formatting helpers already exclude unchanged markers or emit a different syntax style.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownFormat.ts:375 carried a branch no input can reach",
+          "labBehaviour": "removed parser-only thematic-break, heading, list, and emphasis marker fallbacks.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownFormat.ts:398 carried a branch no input can reach",
+          "labBehaviour": "used nonempty-array accessors and removed redundant missing-child and empty-span checks.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownFormat.ts:521 carried a branch no input can reach",
+          "labBehaviour": "removed the zero-length opener guard for parsed fenced-code nodes.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownFormat.ts:594 carried a branch no input can reach",
+          "labBehaviour": "removed missing-line fallbacks after establishing a nonempty line array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownFormat.ts:754 carried a branch no input can reach",
+          "labBehaviour": "replaced the empty private constructor with an abstract static utility class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownVisitor.ts:98 carried a branch no input can reach",
+          "labBehaviour": "replaced the empty private constructor with an abstract static utility class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownVisitor.ts:174 carried a branch no input can reach",
+          "labBehaviour": "expressed the terminal diagnostic arm with else, removing the return that its parent never resumes.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "MarkdownVisitor.ts:179 carried a branch no input can reach",
+          "labBehaviour": "replaced dense decoded-child index guards with indexed iteration.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/blocks/list.ts:32 carried a branch no input can reach",
+          "labBehaviour": "Removed the invalid-bullet fallback; the preceding regex admits only -, *, and +.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/blocks/list.ts:35 carried a branch no input can reach",
+          "labBehaviour": "Removed the invalid-delimiter fallback; the matched ordered marker ends only in . or ).",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/blocks/list.ts:65 carried a branch no input can reach",
+          "labBehaviour": "Read ordered-marker digits and delimiter from the complete match, removing impossible missing-capture fallbacks.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/blocks/list.ts:190 carried a branch no input can reach",
+          "labBehaviour": "Removed optional access to listData after the ordered predicate has established its presence.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/blocks/table.ts:144 carried a branch no input can reach",
+          "labBehaviour": "Removed the whitespace loop already exhausted by scanCell and scanCellEnd.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/blocks/table.ts:427 carried a branch no input can reach",
+          "labBehaviour": "Iterated the bounded cell slice directly, removing the impossible missing-cell guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/blocks/table.ts:483 carried a branch no input can reach",
+          "labBehaviour": "Used the shared row scanner directly after delimiter-grammar validation, removing the impossible undefined-delimiter-row guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/blocks/thematicBreak.ts:15 carried a branch no input can reach",
+          "labBehaviour": "Removed the absent-marker fallback after the regex has established a valid marker.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlineParser.ts:200 carried a branch no input can reach",
+          "labBehaviour": "Made non-text materialization exhaustive; removed the undefined fallback and result-dropping guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlineParser.ts:333 carried a branch no input can reach",
+          "labBehaviour": "Replaced the out-of-bounds binary-search fallback with A.getUnsafe; midpoint bounds guarantee a valid index.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlineParser.ts:379 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-tail return after the availability check guarantees sufficient text; retained an invariant assertion.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlineParser.ts:525 carried a branch no input can reach",
+          "labBehaviour": "Replaced the parallel openerFound flag and opener checks with one matchingOpener value.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlineParser.ts:587 carried a branch no input can reach",
+          "labBehaviour": "Removed the unsupported-delimiter fallback; the remaining delimiter arm handles tilde after asterisk and underscore.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:69 carried a branch no input can reach",
+          "labBehaviour": "removed the out-of-range host fallback; every caller supplies an in-bounds index.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:97 carried a branch no input can reach",
+          "labBehaviour": "removed the '<' trimming branch; candidate scanning already stops before '<'.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:126 carried a branch no input can reach",
+          "labBehaviour": "removed the one-character semicolon fallback; validated candidates retain a non-trimmable prefix.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:144 carried a branch no input can reach",
+          "labBehaviour": "removed the zero-length trimming exit; trimming always returns at a retained prefix.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:269 carried a branch no input can reach",
+          "labBehaviour": "removed the empty trimmed www-link rejection.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:331 carried a branch no input can reach",
+          "labBehaviour": "removed the empty trimmed scheme-link rejection.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:477 carried a branch no input can reach",
+          "labBehaviour": "removed the empty trimmed email rejection.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:526 carried a branch no input can reach",
+          "labBehaviour": "simplified piece lookup and removed exhausted/missing-piece fallbacks; pieces are dense and nonempty, and queries are bounded.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:568 carried a branch no input can reach",
+          "labBehaviour": "removed the missing-last-piece return; runs passed to linkifyRun are nonempty.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:610 carried a branch no input can reach",
+          "labBehaviour": "removed the empty-pop guard; the surrounding loop requires a nonempty pending stack.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/emphasis.ts:114 carried a branch no input can reach",
+          "labBehaviour": "removed the preceding-code-unit fallback; its index is in bounds under the existing guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/emphasis.ts:147 carried a branch no input can reach",
+          "labBehaviour": "removed the absent-run rejection; the construct measures the current peek code, so a delimiter matches.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/link.ts:77 carried a branch no input can reach",
+          "labBehaviour": "Removed the undefined-pop exit from a stack proven non-empty by its loop condition.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/link.ts:90 carried a branch no input can reach",
+          "labBehaviour": "Removed the undefined-child check during in-bounds traversal of the dense children array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/link.ts:359 carried a branch no input can reach",
+          "labBehaviour": "Removed the absent-destination guard after successful inline-link formation.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/inlines/link.ts:366 carried a branch no input can reach",
+          "labBehaviour": "Removed the absent-raw-label fallback after reference resolution.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/lineIndex.ts:182 carried a branch no input can reach",
+          "labBehaviour": "Removed the zero fallback for an in-bounds binary-search lookup in a valid line table.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/lineIndex.ts:190 carried a branch no input can reach",
+          "labBehaviour": "Removed the zero fallback for the final in-bounds lookup in a valid non-empty line table.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/markdown/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/markdown/internal/phrasing.ts:82 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-first-segment fallback after non-empty trimmed content establishes source provenance.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -7090,13 +7378,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:05.969Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:19:24.289Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:19:24.289Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:31:48.566Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (2 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },

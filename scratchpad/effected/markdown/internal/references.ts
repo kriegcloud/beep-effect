@@ -263,10 +263,7 @@ export class ReferenceScanner {
 
 		while (code !== -1) {
 			if (code === C_BACKSLASH && reEscapable.test(this.subject.charAt(this.pos + 1))) {
-				this.pos += 1;
-				if (this.peek() !== -1) {
-					this.pos += 1;
-				}
+				this.pos += 2;
 			} else if (code === C_OPEN_PAREN) {
 				this.pos += 1;
 				openParens += 1;

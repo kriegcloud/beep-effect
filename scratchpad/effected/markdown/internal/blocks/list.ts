@@ -28,10 +28,11 @@ const reBulletListMarker = /^[*+-]/;
 const reOrderedListMarker = /^(\d{1,9})([.)])/;
 const reNonSpace = /[^ \t\f\v\r\n]/;
 
-const bulletCharOf = (char: string): BulletChar | undefined =>
-	char === "-" || char === "*" || char === "+" ? char : undefined;
+// Called only after reBulletListMarker has matched one of these three bytes.
+const bulletCharOf = (char: string): BulletChar => (char === "-" ? "-" : char === "*" ? "*" : "+");
 
-const delimiterOf = (char: string): ListDelimiter | undefined => (char === "." || char === ")" ? char : undefined);
+// Called only with the final byte of a matched ordered marker.
+const delimiterOf = (char: string): ListDelimiter => (char === "." ? "." : ")");
 
 /**
  * Parse a list marker at the scanner's next non-whitespace position,
@@ -61,14 +62,14 @@ const parseListMarker = (scanner: BlockScanner, container: BlockNode): ListData 
 			...O.getSomesStruct({ bulletChar: O.fromUndefinedOr(bulletChar) }),
 		};
 		markerLength = bullet[0].length;
-	} else if (ordered !== null && (container.type !== "paragraph" || Number.parseInt(ordered[1] ?? "", 10) === 1)) {
-		const delimiter = delimiterOf(ordered[2] ?? "");
+	} else if (ordered !== null && (container.type !== "paragraph" || Number.parseInt(ordered[0].slice(0, -1), 10) === 1)) {
+		const delimiter = delimiterOf(ordered[0].slice(-1));
 		data = {
 			type: "ordered",
 			tight: true,
 			padding: 0,
 			markerOffset,
-			start: Number.parseInt(ordered[1] ?? "1", 10),
+			start: Number.parseInt(ordered[0].slice(0, -1), 10),
 			...O.getSomesStruct({ delimiter: O.fromUndefinedOr(delimiter) }),
 		};
 		markerLength = ordered[0].length;
@@ -186,7 +187,7 @@ export const listConstruct: BlockConstruct = {
 			spread: block.data.spread ?? false,
 			children: listItemChildren(children),
 			position: context.position(block.startOffset, block.endOffset),
-			...(ordered && listData?.start !== undefined ? { start: listData.start } : {}),
+			...(ordered && listData.start !== undefined ? { start: listData.start } : {}),
 			...O.getSomesStruct({
 				bulletChar: O.fromUndefinedOr(listData?.bulletChar),
 				delimiter: O.fromUndefinedOr(listData?.delimiter),
