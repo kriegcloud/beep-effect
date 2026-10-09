@@ -37,6 +37,7 @@ import * as Console from "effect/Console";
 import { Command, Flag } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import { dual, flow, pipe } from "effect/Function";
 import { FetchHttpClient } from "effect/http";
 import * as Layer from "effect/Layer";
@@ -47,8 +48,13 @@ import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { aiMetricsDataRootFlag as dataRootFlag, jsonFlag } from "../../internal/cli/Flags.ts";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { resolveDataRoot } from "../AIMetrics/AIMetrics.config.ts";
+import { TrialUsageReportJson } from "./AgentEffectiveness.trials.schemas.ts";
 import { runAgentConventionComparison } from "./internal/EvalComparison.ts";
 import { runAgentEffectivenessEvalScoreCommand } from "./internal/EvalScorer.ts";
+import { collectTrial } from "./internal/TrialCollector.ts";
+import { executeTrial } from "./internal/TrialExecutor.ts";
+import { finalizeTrial } from "./internal/TrialProof.ts";
+import { parseTrialUsage } from "./internal/TrialUsage.ts";
 import type {
   AgentEffectivenessAnnotationCheckReport,
   AgentEffectivenessAnnotationPlan,
@@ -674,11 +680,67 @@ const evalsCompareCommand = Command.make(
     runAgentConventionComparison(baseline, candidate, failIncomparable).pipe(Effect.asVoid)
 ).pipe(Command.withDescription("Compare declared convention controls and separate measured outcomes as JSON"));
 
+const trialRunCommand = Command.make(
+  "run",
+  {
+    plan: Flag.File("plan", { mustExist: true }),
+  },
+  ({ plan }) => executeTrial(plan).pipe(Effect.flatMap(Console.log))
+).pipe(Command.withDescription("Execute one frozen disposable trial; emit an immutable private attempt receipt"));
+const trialCollectCommand = Command.make(
+  "collect",
+  { request: Flag.File("request", { mustExist: true }) },
+  ({ request }) => collectTrial(request).pipe(Effect.flatMap(Console.log))
+).pipe(Command.withDescription("Reconstruct an exact retained commit and collect protected acceptance and full Yeet"));
+const trialFinalizeCommand = Command.make(
+  "finalize",
+  {
+    attempt: Flag.File("attempt", { mustExist: true }),
+    proof: Flag.File("proof", { mustExist: true }),
+  },
+  ({ attempt, proof }) => finalizeTrial(attempt, proof).pipe(Effect.flatMap(Console.log))
+).pipe(Command.withDescription("Bind exact local commit to full Yeet and task acceptance before benchmark projection"));
+const trialUsageCommand = Command.make(
+  "parse-usage",
+  {
+    provider: Flag.ChoiceWithValue("provider", [
+      ["codex", "codex"],
+      ["claude", "claude"],
+      ["grok", "grok"],
+    ]),
+    input: Flag.File("input", { mustExist: true }),
+    output: Flag.String("output"),
+    tool: Flag.String("tool").pipe(Flag.optional),
+  },
+  ({ provider, input, output, tool }) =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const report = yield* parseTrialUsage(provider, yield* fs.readFileString(input), O.toArray(tool));
+      yield* fs.writeFileString(output, yield* TrialUsageReportJson.encode(report), { flag: "wx", mode: 0o600 });
+      yield* Console.log(output);
+    })
+).pipe(Command.withDescription("Parse native JSONL into a private receipt; retain unknown usage coverage"));
+
 const evalsCommand = Command.make("evals", {}, () =>
-  printLines(["Agent-effectiveness eval commands:", "- score", "- compare"])
+  printLines([
+    "Agent-effectiveness eval commands:",
+    "- score",
+    "- compare",
+    "- run",
+    "- collect",
+    "- finalize",
+    "- parse-usage",
+  ])
 ).pipe(
   Command.withDescription("Run SkillOpt eval scorer commands"),
-  Command.withSubcommands([evalsScoreCommand, evalsCompareCommand])
+  Command.withSubcommands([
+    evalsScoreCommand,
+    evalsCompareCommand,
+    trialRunCommand,
+    trialCollectCommand,
+    trialFinalizeCommand,
+    trialUsageCommand,
+  ])
 );
 
 /**

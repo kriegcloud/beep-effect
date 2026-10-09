@@ -509,3 +509,48 @@ protocol, and `Bash(graft build:*)` also approved `--deep`.
 pass (fixed at eight workers); the prompt-hook unit bug and the missing
 synthesis checkpoint belong upstream; re-check the stamp guard against any
 new graft version before upgrading.
+
+---
+
+## 2026-10-09: Bounded Local Code Graph Coding Outcomes Experiment
+
+**Context:** The operator authorized comparing complete Beep coding outcomes
+across graph configurations and a no-graph control, after the pre-packet
+toolchain startup/fixture/interface gate. The experiment is tracked in
+[`explorations/code-graph-coding-outcomes`](../../explorations/code-graph-coding-outcomes/README.md).
+Its toolchain is frozen; common green source, task P0/acceptance, full-depth
+ingestion, runner pilot and scored protocol remain later gates.
+
+**Decision (operator, 2026-10-09):** permit only this bounded, local-only
+experiment to use isolated alternative code indexes and a narrow exemption
+from the Graft-before-source-search instruction. The no-graph trial may use
+ordinary search; a treatment trial may use only its assigned graph
+configuration. Every other repository law remains in force. The scored graph
+corpus is the frozen Beep repository, with ordinary read-only Effect reference
+access shared by all arms. Serena JetBrains dependency indexing is an explicit
+practical capability difference, separately reported from Beep-only diagnostics.
+
+- Do not change production agent guidance, global wiring, hooks or memory
+  architecture. No memory service is reintroduced; experiment indexes are
+  disposable structure/analysis caches, never durable authority.
+- Isolate trial worktrees, instructions, hooks, skills, indexes, generated wiki
+  pages, run state and exact IDE project roots. Trial agents may commit locally
+  only: no push, remote branch, PR or merge. Protect evaluator-only oracles and
+  preserve all attempts, commits, diffs and sanitized receipt digests.
+- Preserve the production Opus-built Graft index and compatible installed
+  binary. Use an experiment copy/snapshot with incremental catch-up; do not
+  rebuild it solely to equalize preparation cost. Disclose historic preparation
+  separately from measured marginal cost.
+- Startup/query readiness does not authorize scored launch. Freeze a common
+  full-verify-green source, normative task acceptance, complete documented
+  ingestion and pilot-tested instrumentation/protocol before scored cells.
+  Exact-final local full Yeet remains mandatory; later hosted readiness and
+  adoption are separate claims.
+
+**Expiry and reversion:** this exemption ends on **2026-11-09**, or experiment
+completion earlier. Before any continuation after expiry, add an explicit dated
+amendment with scope, evidence, new expiry and reversal path. On expiry or
+completion, stop experiment-only launches and owned processes, retain the
+commits/receipts/snapshots, then remove only owned experiment wiring and caches.
+Ordinary Graft posture resumes. Production state remains intact, and any
+proposed adoption requires a separate recorded decision and ordinary review.

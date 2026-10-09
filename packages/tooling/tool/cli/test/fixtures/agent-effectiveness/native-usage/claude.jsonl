@@ -1,0 +1,7 @@
+{"type": "system"}
+{"type": "system"}
+{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Read"}]}}
+{"type": "user", "message": {"content": [{"type": "tool_result"}]}}
+{"type": "rate_limit_event"}
+{"type": "assistant", "message": {"content": [{"type": "text"}]}}
+{"usage": {"input_tokens": 4, "cache_creation_input_tokens": 5231, "cache_read_input_tokens": 26227, "output_tokens": 160, "output_tokens_details": {"thinking_tokens": 0}, "server_tool_use": {"web_search_requests": 0, "web_fetch_requests": 0}, "service_tier": "standard", "cache_creation": {"ephemeral_1h_input_tokens": 5231, "ephemeral_5m_input_tokens": 0}, "inference_geo": "global", "iterations": [{"input_tokens": 2, "output_tokens": 67, "cache_read_input_tokens": 15643, "cache_creation_input_tokens": 172, "cache_creation": {"ephemeral_5m_input_tokens": 0, "ephemeral_1h_input_tokens": 172}, "type": "message"}], "speed": "standard", "fallback_credit": null}, "is_error": false, "num_turns": 2, "type": "result", "modelUsage": {"claude-opus-5-5": {}}}

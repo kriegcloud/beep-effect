@@ -31,6 +31,7 @@ import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import { ChildProcess } from "effect/process";
@@ -1201,6 +1202,71 @@ export const runCapturedStreams = Effect.fn("StepExec.runCapturedStreams")(funct
         stderr: options.trim === true ? Str.trim(stderr.text) : stderr.text,
         truncated: stdout.truncated || stderr.truncated,
       });
+    })
+  );
+});
+
+/**
+ * Spool complete separate byte streams into exclusive private files.
+ * **Details**
+ * The existing admitted child lifecycle owns cleanup. Files are opened before
+ * spawn with wx/0600 and remain on interruption; no output is copied to console.
+ * A caller must hash/retain partial files and classify timeout as an abort.
+ * **Example** (Retain private diagnostics)
+ * ```ts
+ * import { runSpooledStreams } from "@beep/repo-cli/test/Process"
+ * console.log(runSpooledStreams({ command: "git", args: ["status"], stdoutPath: "/private/out", stderrPath: "/private/err", timeout: "10 seconds" }))
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const runSpooledStreams = Effect.fn("StepExec.runSpooledStreams")(function* (
+  options: RunCapturedOptions & { readonly stdoutPath: string; readonly stderrPath: string }
+) {
+  const fs = yield* FileSystem.FileSystem;
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const stdout = yield* fs.open(options.stdoutPath, { flag: "wx", mode: 0o600 });
+      const stderr = yield* fs.open(options.stderrPath, { flag: "wx", mode: 0o600 });
+      const forceKillAfter = options.forceKillAfter ?? "1 second";
+      const handle = yield* makeAdmittedChild(
+        { ...options, forceKillAfter },
+        { stdin: options.stdin ?? "ignore", stdout: "pipe", stderr: "pipe" }
+      );
+      const commandLine = formatCommandLine(options.command, options.args);
+      const deadline = capturePipeDeadline(handle, commandLine);
+      const capture = Effect.all(
+        [
+          handle.stdout.pipe(
+            Stream.interruptWhen(deadline),
+            Stream.runForEach((chunk) => stdout.writeAll(chunk))
+          ),
+          handle.stderr.pipe(
+            Stream.interruptWhen(deadline),
+            Stream.runForEach((chunk) => stderr.writeAll(chunk))
+          ),
+          handle.exitCode,
+        ],
+        { concurrency: "unbounded" }
+      );
+      const timeoutError = CaptureCommandTimedOutError.make({
+        commandLine,
+        message: "Private spooled command exceeded its runtime budget.",
+      });
+      const [elapsed, results] = yield* Effect.timed(
+        options.timeout === undefined
+          ? capture
+          : capture.pipe(
+              Effect.timeoutOrElse({
+                duration: options.timeout,
+                orElse: () =>
+                  interruptTimedOutCapture(handle, forceKillAfter).pipe(Effect.andThen(Effect.fail(timeoutError))),
+              })
+            )
+      );
+      if (options.timeout !== undefined && Duration.toMillis(elapsed) >= Duration.toMillis(options.timeout))
+        return yield* timeoutError;
+      return results[2];
     })
   );
 });

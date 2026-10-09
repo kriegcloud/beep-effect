@@ -1,0 +1,455 @@
+{
+  "schemaVersion": "code-graph-readiness-import/v1",
+  "asOf": "2026-10-09",
+  "gate": "passed",
+  "source": "protected-readiness-2026-10-09",
+  "sourcePromptSha256": "905c6921ff8fceb9efffe82feba8d19249261b9e064b16678a7d3964d69d30cf",
+  "frozenToolchainSha256": "3ea3b3b24104e0eeeb332dc09cb3c25a0a95694d739ab4afee68198728d6d02a",
+  "freezeAt": "2026-10-09T21:11:20.457417+00:00",
+  "laneBase": "df7d88aad700c442d31f9c7c52094b6dd094470a",
+  "commonTrialBase": null,
+  "sourceContentDigest": null,
+  "baseFullVerifyPassed": null,
+  "taskAcceptanceFrozen": false,
+  "protocolFrozen": false,
+  "fullBeepIngestionComplete": false,
+  "components": [
+    {
+      "id": "graft",
+      "version": "0.21.1",
+      "identityKind": "distribution",
+      "runtime": "node24.21.0",
+      "sourceCommit": null,
+      "entrypointSha256": "51f295d3e9e4a50b0879def918cc337ec8f9cfc017be413764101a973270bb69",
+      "dependencyLocks": [
+        {
+          "reference": "graft-package-incumbent-manifest.json",
+          "sha256": "f31206e5f2a7cfb8e3445c3bfe814ad4da74c14823b8c784e099ee6297957a4c",
+          "bytes": 1218636
+        }
+      ],
+      "officialSources": ["https://www.npmjs.com/package/@nanonets/graft"],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "graphify",
+      "version": "0.9.83",
+      "identityKind": "distribution",
+      "runtime": "python3.13.16",
+      "sourceCommit": null,
+      "entrypointSha256": "ca457498dcc138aa67881e3cb93e3465ab92f16b7ad2dc095b4feef3197f3686",
+      "dependencyLocks": [
+        {
+          "reference": "fixture-logs/graphify-py31316-freeze.txt",
+          "sha256": "c50ab04485830ea283a6c5fbd7dc4b840c6c15d131ade83601e38d676d3d6527",
+          "bytes": 1246
+        }
+      ],
+      "officialSources": [
+        "https://github.com/Graphify-Labs/graphify/releases/tag/v0.9.83"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "codegraph",
+      "version": "1.6.2",
+      "identityKind": "distribution",
+      "runtime": "node24.21.0 launcher; bundled node runtime below",
+      "sourceCommit": null,
+      "entrypointSha256": "80419260f06862d7a422d13ef69e3b24c7a21dbef4309bce41db02ad642b1877",
+      "dependencyLocks": [
+        {
+          "reference": "fixture-logs/codegraph-package-lock.json",
+          "sha256": "15ebb1c86a30a341f995c23c2344812a1183c0c2dae6ded116b512ccd27b29ea",
+          "bytes": 3630
+        }
+      ],
+      "officialSources": [
+        "https://github.com/colbymchenry/codegraph/releases/tag/v1.6.2"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "gitnexus",
+      "version": "1.6.12",
+      "identityKind": "distribution",
+      "runtime": "node24.21.0",
+      "sourceCommit": null,
+      "entrypointSha256": "e2c96d62b26a1898e536457377f7b73c539b080c7e8c316869ffc6a790003eb4",
+      "dependencyLocks": [
+        {
+          "reference": "fixture-logs/gitnexus-package-lock.json",
+          "sha256": "b4b0757d835e5f4d7493b2e6fa2d5f1af49a7dcb2ea55edf7ba9ef27b314de98",
+          "bytes": 130752
+        }
+      ],
+      "officialSources": [
+        "https://github.com/abhigyanpatwari/GitNexus/releases/tag/v1.6.12"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "codebase-memory-mcp",
+      "version": "0.11.0",
+      "identityKind": "distribution",
+      "runtime": "native release assets",
+      "sourceCommit": null,
+      "entrypointSha256": "a831cdcafaed7b1f7c23ce996a72a035f2188d7e20e9a18f39ec4b2d4e3302a6",
+      "dependencyLocks": [],
+      "officialSources": [
+        "https://github.com/DeusData/codebase-memory-mcp/releases/tag/v0.11.0"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "code-review-graph",
+      "version": "2.3.9",
+      "identityKind": "distribution",
+      "runtime": "python3.13.16",
+      "sourceCommit": null,
+      "entrypointSha256": "2322a6275e1174ea3b0a334055b123d9556af2809913c7d9ff771156f220ccc8",
+      "dependencyLocks": [
+        {
+          "reference": "fixture-logs/code-review-graph-py31316-freeze.txt",
+          "sha256": "812416340adef43e1fd28ffad75a815292fa69001d7b1e2ee9bfe8163f436d9e",
+          "bytes": 1518
+        }
+      ],
+      "officialSources": [
+        "https://github.com/tirth8205/code-review-graph/releases/tag/v2.3.9"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "serena-lsp",
+      "version": "2.0.0.dev0",
+      "identityKind": "source VCS pin",
+      "runtime": "Python3.14.8 Serena env; Node24.21.0 LSP runtime recheck",
+      "sourceCommit": "1de556f71569f3acfc0743e526dd60aca40a545e",
+      "entrypointSha256": "640bdf02abe6c48706b78e3af353c7932765c7b43e50112d914d1d427541f210",
+      "dependencyLocks": [
+        {
+          "reference": "serena/evidence/current-freeze.txt",
+          "sha256": "9ecebeba944bd7900e2af034811756fb69c19170a7a42e97af5a1c296d3c2dfa",
+          "bytes": 1357
+        },
+        {
+          "reference": "serena/evidence/lsp-package-lock.json",
+          "sha256": "bc4de63e64827713e529e2304bd1018ed6e1f61443fed02efe4867009b4de5e7",
+          "bytes": 1121
+        }
+      ],
+      "officialSources": [
+        "https://github.com/oraios/serena/commit/1de556f71569f3acfc0743e526dd60aca40a545e"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "serena-jetbrains",
+      "version": "2.0.0.dev0",
+      "identityKind": "source VCS pin",
+      "runtime": "Python3.14.8 Serena env; Node24.21.0 LSP runtime recheck",
+      "sourceCommit": "1de556f71569f3acfc0743e526dd60aca40a545e",
+      "entrypointSha256": "640bdf02abe6c48706b78e3af353c7932765c7b43e50112d914d1d427541f210",
+      "dependencyLocks": [
+        {
+          "reference": "serena/evidence/current-freeze.txt",
+          "sha256": "9ecebeba944bd7900e2af034811756fb69c19170a7a42e97af5a1c296d3c2dfa",
+          "bytes": 1357
+        },
+        {
+          "reference": "serena/evidence/lsp-package-lock.json",
+          "sha256": "bc4de63e64827713e529e2304bd1018ed6e1f61443fed02efe4867009b4de5e7",
+          "bytes": 1121
+        }
+      ],
+      "officialSources": [
+        "https://github.com/oraios/serena/commit/1de556f71569f3acfc0743e526dd60aca40a545e"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "repowise",
+      "version": "0.55.0",
+      "identityKind": "distribution",
+      "runtime": "python3.13.16",
+      "sourceCommit": null,
+      "entrypointSha256": "9c6919f6a2dd6eaa89d91aeb5fef102f04e67e8469790cb8b74e830bd89650e0",
+      "dependencyLocks": [
+        {
+          "reference": "repowise-requirements.lock",
+          "sha256": "e87609cc5cb64e9c9a3985170a9098b49eb937fd15ea9d625bd82487ef48c938",
+          "bytes": 2612
+        }
+      ],
+      "officialSources": [
+        "https://github.com/repowise-dev/repowise/releases/tag/v0.55.0"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "fallow",
+      "version": "3.33.0",
+      "identityKind": "distribution",
+      "runtime": "node24.21.0 npm launcher/native analyzer",
+      "sourceCommit": null,
+      "entrypointSha256": "871e25151b2f6e78d0e7964e4f5af7efaf4a3ee9045406e73a6188605c564942",
+      "dependencyLocks": [
+        {
+          "reference": "fallow-package-lock.json",
+          "sha256": "35fa5036308cef7895ad414ef3e4e61000a5eef6523f1826763fd3305195f8f7",
+          "bytes": 17417
+        }
+      ],
+      "officialSources": [
+        "https://github.com/fallow-rs/fallow/releases/tag/v3.33.0"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "code-graph-rag",
+      "version": "0.1.38",
+      "identityKind": "distribution",
+      "runtime": "python3.13.16",
+      "sourceCommit": null,
+      "entrypointSha256": "bbab23fd3501a42bb91bd0d78aea1776705299eeed8ade8c09eba24d8f3fd00c",
+      "dependencyLocks": [
+        {
+          "reference": "runtime/cgr-compatible-freeze.txt",
+          "sha256": "7795f7fb05deb731302a0e8b8decc6b2f4b186292a47f80ba15233ffb7521a3c",
+          "bytes": 2663
+        }
+      ],
+      "officialSources": [
+        "https://github.com/vitali87/code-graph-rag/releases/tag/v0.1.38"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    },
+    {
+      "id": "understand-anything",
+      "version": "2.9.7 source plugin manifest",
+      "identityKind": "source VCS pin and native skill interface",
+      "runtime": "node24.21.0; pnpm10.6.2 frozen workspace",
+      "sourceCommit": "ffa2f0a84a85525623e9f94f7a6b560e39ae43ce",
+      "entrypointSha256": "12a224cbe2dfdb49c7262949a30b90fdaed784fe436df23fcec45485e663e625",
+      "dependencyLocks": [
+        {
+          "reference": "ua-pnpm-lock.yaml",
+          "sha256": "20342fbb10c311a3259a4f7acb367cc79b2b2ad565ede2c3e1704a797d32ed96",
+          "bytes": 219126
+        }
+      ],
+      "officialSources": [
+        "https://github.com/Egonex-AI/Understand-Anything/commit/ffa2f0a84a85525623e9f94f7a6b560e39ae43ce"
+      ],
+      "fixtureQuery": "passed",
+      "threeHarnessInterfaceReachability": "passed",
+      "scoredAdoption": null,
+      "fullBeepIngestion": "pending"
+    }
+  ],
+  "runtimesAndHarnesses": [
+    {
+      "id": "codex",
+      "version": "codex-cli 0.162.1",
+      "entrypointSha256": "628e35487d888a28f0427fc37501da529dd3d81fcbad7a2c3421c1e8670d92e1"
+    },
+    {
+      "id": "claude",
+      "version": "2.1.296 (Claude Code)",
+      "entrypointSha256": "24972e3bc859fab2b46ed4c1e51f7d6130f06d3bd550811a114640de3370d0de"
+    },
+    {
+      "id": "uv",
+      "version": "uv 0.13.0 (x86_64-unknown-linux-gnu)",
+      "entrypointSha256": "3e801df892439f5cde65d8b51ea69b69abff199ef37cc3cae4481be15d592df0"
+    },
+    {
+      "id": "node",
+      "version": "v24.21.0",
+      "entrypointSha256": "7fde7b8afa198da66257f42ee2001d874c7355631e6d1579a5fb5ef1f246df4c"
+    },
+    {
+      "id": "python",
+      "version": "3.13.16",
+      "entrypointSha256": "47bf2894b1cfb09b4adf27f6edf8c507dccb3b9052793f5d80177b5a1bc6c81b"
+    },
+    {
+      "id": "grok",
+      "version": "1.0.50 c58f321264ba stable",
+      "entrypointSha256": "c80de0155706ff2d995623887b102f2d0abd2c62b2643dea3a0cebaf7dd724d5"
+    },
+    {
+      "id": "bun",
+      "version": "1.4.2",
+      "entrypointSha256": "a83d263767d839e4d2649ca8e35d07159c7afc99afdc96d731ced29e056dda0c"
+    },
+    {
+      "id": "ripgrep-no-graph-baseline",
+      "version": "15.2.0",
+      "entrypointSha256": "9f8cee254ecb69b6626d2f3e07424aad9d79a7953ec226e3dde8b921c84694c4"
+    },
+    {
+      "id": "cliproxyapi-isolated",
+      "version": "8.0.23 commit d318bcc3",
+      "entrypointSha256": "085c1bd627c952f2c8db9b5af60bf4aeb1772c3fb102a241bf5ab7662d47f727"
+    },
+    {
+      "id": "npm",
+      "version": "11.19.0",
+      "entrypointSha256": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7"
+    },
+    {
+      "id": "pnpm",
+      "version": "10.6.2",
+      "entrypointSha256": "e5cbe9432a815791a541c33aa736d6c66cfc005560397d6c07deb9898947ee96"
+    }
+  ],
+  "protectedReceipts": [
+    {
+      "reference": "protected-readiness-2026-10-09:readiness-gate.json",
+      "sha256": "39a8659de946b9e3e8b3e6c555cec71abde04042f7386cc296678f52ae49e4ef",
+      "bytes": 5280
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:toolchain-freeze.json",
+      "sha256": "3ea3b3b24104e0eeeb332dc09cb3c25a0a95694d739ab4afee68198728d6d02a",
+      "bytes": 102984
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:upstream-inventory.md",
+      "sha256": "45da93c451b02345e2ee8f4ec6bec128bd9414f098eaf6c835e1b7d91672d142",
+      "bytes": 17015
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:eligibility-searches.json",
+      "sha256": "987fef060e33083a84e173a50ab145f8a0fc7834f5b206512c8c7265a0415c6c",
+      "bytes": 19283
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:task-readiness-final.md",
+      "sha256": "b30d9cf06da653df93d2233216bd73ffaa59e6c21d678c6b78b8614a4553261e",
+      "bytes": 14383
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:runner-reuse-audit.md",
+      "sha256": "19456e618b3748d0badd2870e6edc03458692748afec498d6481d3a7bd1fa158",
+      "bytes": 19667
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:fixture-readiness.md",
+      "sha256": "314358a198e3bd7cec4564bb3c4d514b68061acf23492387f9f6589a925d14bd",
+      "bytes": 11085
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:six-tool-mcp/README.md",
+      "sha256": "1248d33623ce991fceb4874bf00a93947258d21309e970b16439eb053d09a35d",
+      "bytes": 5393
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:six-tool-mcp/matrix.json",
+      "sha256": "e9abb92711d4605e2da958d559c61f46fd5127047604d5721c8cbc982de0a823",
+      "bytes": 5351
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:runtime/readiness.md",
+      "sha256": "d35a2df9a4fbcb27d1df3df6104e07b0026b06e5923bd7dce3a580d1f0ddb425",
+      "bytes": 9600
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:runtime/native-final-summary.json",
+      "sha256": "bbdf3f31037637f8df2291f4a88e53152512295aa7b4595756e9dd4dab59a85b",
+      "bytes": 1389
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:runtime/cgr-compatible-freeze.txt",
+      "sha256": "7795f7fb05deb731302a0e8b8decc6b2f4b186292a47f80ba15233ffb7521a3c",
+      "bytes": 2663
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:runtime/proxy-generation-receipt.json",
+      "sha256": "e7aaf7348db146aa44dfec4265969cc25e368461decf26146c27e2270a6f7c13",
+      "bytes": 1969
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:runtime/cgr-muse-smoke.json",
+      "sha256": "732d4bddb78358c55959aa71b353b1ccdec4bc27676d1787aee3b07965b783b8",
+      "bytes": 20905
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:serena/evidence/readiness.md",
+      "sha256": "67898bce9134d01de8a093729cee92bf6593333b49a33f7f74697a886c57563b",
+      "bytes": 9974
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:ua-host-fixed-pilot-receipt.md",
+      "sha256": "43571cf572586ea9d7aa0be002705416b44e7e45e84a22660ae0d47ef0e1dae6",
+      "bytes": 9557
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:ua-host-fixed-pilot-status.json",
+      "sha256": "73ad061281c463842f868176077d045e4b908561b12335cf3b8788116e28478c",
+      "bytes": 876
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:ua-claude-2.1.296-plugin-list.json",
+      "sha256": "85a36a209932727d302b38d5d8782d550090f0641aa5fe29946a9b1a910611c0",
+      "bytes": 242
+    },
+    {
+      "reference": "protected-readiness-2026-10-09:packet-license-metadata.json",
+      "sha256": "ee68508df80dcb2fa88d60ae092ece93f1b9ad581ebed0266784c7166a5c8270",
+      "bytes": 3793
+    },
+    {
+      "reference": "protected-evaluator:historical-parity-receipt.json",
+      "sha256": "fa140419cb5a459320b96de77a7eaf1aaea37bdd3457c78021b85bed9eb43f62",
+      "bytes": 2219,
+      "publicSummary": "historical baseline7/7 passed; current adapter/acceptance unfrozen; Apache-2.0; no oracle content imported"
+    },
+    {
+      "reference": "protected-video:CgvK66lHY5o/claims.md",
+      "sha256": "5da892d3cb37cfb3bda52d27cd3094109f11e5a260fd8ab5261b897457e8ce33",
+      "bytes": 5724
+    },
+    {
+      "reference": "protected-upstream:Graft/src/context/savings.ts",
+      "sha256": "a210da80cda2fee84c1fe944febd65ac4532f91b77fe0d749d21db05f0446039",
+      "bytes": 7056
+    }
+  ],
+  "privacy": "Safe projection only; exact private paths, auth/account data, raw logs, oracle content and third-party bodies remain outside tracked packet."
+}

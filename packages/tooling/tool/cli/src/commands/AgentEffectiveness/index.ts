@@ -26,3 +26,9 @@ export * from "./AgentEffectiveness.errors.ts";
  * @since 0.0.0
  */
 export * from "./AgentEffectiveness.schemas.ts";
+/**
+ * Trial invocation and protected receipt contracts.
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./AgentEffectiveness.trials.schemas.ts";

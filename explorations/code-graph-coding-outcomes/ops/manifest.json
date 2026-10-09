@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "code-graph-coding-outcomes",
+    "title": "Code Graphs and Complete Beep Coding Outcomes",
+    "status": "active",
+    "stage": "research",
+    "openQuestions": [
+      "Which exact common main snapshot passes full Yeet verification before trials?",
+      "Can all three requested goals pass P0, ownership and executable acceptance freeze without replacement?",
+      "Does the minimum runner pilot prove isolation, observed usage, adoption, exact-final full Yeet and interruption/resume?",
+      "Which documented full-depth ingestion routes pass quality and coverage within measured subscription limits?",
+      "What counterbalanced order, limits, rerun rules and blinded judge packaging should be frozen after pilots?"
+    ],
+    "sources": ["research/SOURCES.md"],
+    "links": {
+      "goals": [],
+      "docs": [],
+      "supersededBy": null
+    },
+    "created": "2026-10-09",
+    "updated": "2026-10-09"
+  }
+}

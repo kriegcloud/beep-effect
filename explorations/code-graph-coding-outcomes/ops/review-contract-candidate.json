@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "code-graph-review-contract-candidate/v1",
+  "status": "unfrozen; no judges called",
+  "panel": [
+    {
+      "model": "gpt-6-astra",
+      "effort": "medium",
+      "role": "independent blinded judge"
+    },
+    {
+      "model": "claude-opus-5-5",
+      "effort": "medium",
+      "role": "independent blinded judge"
+    },
+    {
+      "model": "grok-4.7",
+      "effort": "medium",
+      "role": "independent blinded judge"
+    }
+  ],
+  "availabilityPolicy": "Verify exact native route before any candidate review. Any changed panel is recorded before reviewing any candidate, never selected in response to an unfavorable grade. No unauthorized paid fallback.",
+  "blinding": {
+    "candidateId": "fresh opaque identifier mapped privately to cell and exact commit",
+    "included": [
+      "normative task brief",
+      "source base and candidate tree with ordinary doctrine",
+      "canonical source diff without commit author, message, branch or tool/model labels",
+      "source-grounded reuse references for the task",
+      "deterministic check verdict and bound receipt identifiers after independent code inspection"
+    ],
+    "excluded": [
+      "coding transcript and usage",
+      "graph/tool/harness identity",
+      "other judge reports",
+      "other candidates and rankings",
+      "vendor claims"
+    ],
+    "limits": "Code style or integration artifacts may reveal provenance; judges record suspected unblinding separately. Do not rewrite candidate code to hide style."
+  },
+  "dimensions": [
+    "Beep law compliance",
+    "Effect usage",
+    "reuse of existing code",
+    "maintainability"
+  ],
+  "anchors": {
+    "1": "Material defect; concrete violated contract, unsafe behavior, or fundamental missed abstraction.",
+    "2": "Significant repair needed before acceptable Beep integration.",
+    "3": "Acceptable for Beep; no material defect in the assessed dimension.",
+    "4": "Strong with only minor issues.",
+    "5": "Exemplary, supported by concrete source evidence rather than absence of detected issues."
+  },
+  "requiredPerDimension": [
+    "integer grade 1-5",
+    "certainty low/medium/high",
+    "brief file and line or diff-cited rationale",
+    "any finding with severity and remedy"
+  ],
+  "reuseInstruction": "Inspect actual existing schemas/helpers/services and package boundaries. Cite the existing symbol and candidate callsite or duplication. Do not penalize a necessary new abstraction merely because a similarly named symbol exists.",
+  "deterministicPriority": "No grade or majority vote may turn failing task/package/full-Yeet evidence into a passing candidate. Preserve per-judge disagreements, never compress grades into one confidence score.",
+  "humanPanel": "Operator grades top three full-verify-passing finalists per task plus documented close calls, with same blind packet and anchors. If fewer than three pass, show only qualifying finalists; failed close calls remain labeled failures.",
+  "recommendation": "Compare each tool to no graph within the same model/task. Prioritize pass rate and quality/reuse, then observed time/tokens and preparation/upkeep. Show unknowns and failures, historical Graft preparation included/excluded, and declared ownership amortization horizons."
+}

@@ -261,3 +261,9 @@ export * from "./telemetry-v2.ts";
  * @since 0.0.0
  */
 export * from "./telemetry-v2-store.ts";
+/**
+ * Content-free provider usage with explicit native cache semantics.
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./usage.ts";

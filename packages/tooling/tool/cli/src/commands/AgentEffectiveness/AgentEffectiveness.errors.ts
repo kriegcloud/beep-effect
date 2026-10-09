@@ -12,6 +12,24 @@ import { OpaqueDefect } from "../../internal/schema/OpaqueDefect.ts";
 const $I = $RepoCliId.create("commands/AgentEffectiveness/AgentEffectiveness.errors");
 
 /**
+ * A trial prerequisite or protected receipt operation failed.
+ * **Example** (Keep launch failures typed)
+ * ```ts
+ * import { AgentTrialError } from "@beep/repo-cli/commands/AgentEffectiveness"
+ * console.log(AgentTrialError.make({ stage: "isolation", message: "Required canary absent" }).stage)
+ * ```
+ * @category errors
+ * @since 0.0.0
+ */
+export class AgentTrialError extends S.TaggedError<AgentTrialError>($I`AgentTrialError`)(
+  "AgentTrialError",
+  { stage: S.NonEmptyString, message: S.NonEmptyString, cause: S.optionalKey(S.Defect({ includeStack: true })) },
+  $I.annoteError<AgentTrialError>("AgentTrialError", {
+    description: "Fail-closed trial execution, isolation, parsing or exact proof failure.",
+  })
+) {}
+
+/**
  * Operational failure raised while scoring a SkillOpt eval fixture.
  *
  * **Example** (Create eval scorer error)

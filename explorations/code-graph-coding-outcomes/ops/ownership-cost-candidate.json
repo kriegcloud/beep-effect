@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "code-graph-ownership-cost-candidate/v1",
+  "status": "unfrozen; no scoring admission",
+  "horizonsSessions": [1, 10, 100],
+  "reportDimensions": [
+    "observed input/output/cache-read/cache-write tokens per provider identity",
+    "elapsed preparation/coding/proof/upkeep time",
+    "CPU seconds, peak memory, disk footprint",
+    "native list-price estimate under one sourced price snapshot",
+    "observed cash charges or null",
+    "subscription account headroom snapshots, not causal attribution"
+  ],
+  "costRule": "For each within-model/task comparison, show preparation + sum of actual session observations + observed refresh/upkeep. For hypothetical H horizons, amortized preparation per session is preparation/H; any extrapolated session component is labeled projection and shows the observed basis. Missing costs remain null, never silently zero.",
+  "graftViews": [
+    "marginal incumbent catch-up and session only",
+    "historical incumbent preparation plus marginal catch-up and session; unknown historic components stay unknown",
+    "any later cheap-model fresh-build sensitivity separate from primary incumbent result"
+  ],
+  "failures": "Include failed/aborted preparation and coding attempts. Report primary attempt costs and retry costs separately as well as total. Native child usage is additive only after checking provider record nesting and avoiding double counting.",
+  "smallSample": "One coding run per cell; no significance claim. Do not extrapolate fixture or whole-file counterfactual tokens to full source costs.",
+  "capacityCandidate": {
+    "fullYeetConcurrency": 1,
+    "indexBuildConcurrency": 1,
+    "jetbrainsRootsActive": 1,
+    "minimumAvailableMemoryGiB": 32,
+    "minimumFreeDiskGiB": 100,
+    "nativeCodingConcurrency": null
+  },
+  "basis": "Private resource-estimate-candidate.json and candidate-corpus-resource-inventory.json; final limits require productive and representative ingestion pilots."
+}

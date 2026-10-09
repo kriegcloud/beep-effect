@@ -1,0 +1,122 @@
+[
+  {
+    "repo": "trailhq/Graft",
+    "url": "https://github.com/trailhq/Graft",
+    "license": "MIT",
+    "stars": 9757,
+    "pushedAt": "2026-10-09T14:06:12Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "Graphify-Labs/graphify",
+    "url": "https://github.com/Graphify-Labs/graphify",
+    "license": "Apache-2.0",
+    "stars": 125007,
+    "pushedAt": "2026-10-09T19:08:04Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "colbymchenry/codegraph",
+    "url": "https://github.com/colbymchenry/codegraph",
+    "license": "MIT",
+    "stars": 73599,
+    "pushedAt": "2026-10-07T16:34:38Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "abhigyanpatwari/GitNexus",
+    "url": "https://github.com/abhigyanpatwari/GitNexus",
+    "license": "NOASSERTION",
+    "stars": 47797,
+    "pushedAt": "2026-10-09T20:49:34Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "DeusData/codebase-memory-mcp",
+    "url": "https://github.com/DeusData/codebase-memory-mcp",
+    "license": "MIT",
+    "stars": 46229,
+    "pushedAt": "2026-10-09T20:36:49Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "tirth8205/code-review-graph",
+    "url": "https://github.com/tirth8205/code-review-graph",
+    "license": "MIT",
+    "stars": 32006,
+    "pushedAt": "2026-10-06T19:33:08Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "oraios/serena",
+    "url": "https://github.com/oraios/serena",
+    "license": "NOASSERTION",
+    "stars": 30129,
+    "pushedAt": "2026-10-09T13:08:19Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "repowise-dev/repowise",
+    "url": "https://github.com/repowise-dev/repowise",
+    "license": "AGPL-3.0",
+    "stars": 7385,
+    "pushedAt": "2026-10-09T20:35:52Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "fallow-rs/fallow",
+    "url": "https://github.com/fallow-rs/fallow",
+    "license": "MIT",
+    "stars": 5030,
+    "pushedAt": "2026-10-09T20:12:40Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "vitali87/code-graph-rag",
+    "url": "https://github.com/vitali87/code-graph-rag",
+    "license": "MIT",
+    "stars": 5240,
+    "pushedAt": "2026-10-09T21:13:40Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "Egonex-AI/Understand-Anything",
+    "url": "https://github.com/Egonex-AI/Understand-Anything",
+    "license": "MIT",
+    "stars": 85759,
+    "pushedAt": "2026-10-09T05:35:24Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "repowise-dev/repowise-bench",
+    "url": "https://github.com/repowise-dev/repowise-bench",
+    "license": null,
+    "stars": 22,
+    "pushedAt": "2026-10-01T03:56:13Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "artemrudenko/code-graph-benchmark-v2",
+    "url": "https://github.com/artemrudenko/code-graph-benchmark-v2",
+    "license": "MIT",
+    "stars": 0,
+    "pushedAt": "2026-09-16T21:12:50Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "cocoindex-io/cocoindex",
+    "url": "https://github.com/cocoindex-io/cocoindex",
+    "license": "Apache-2.0",
+    "stars": 11657,
+    "pushedAt": "2026-10-09T18:37:01Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  },
+  {
+    "repo": "cocoindex-io/cocoindex-code",
+    "url": "https://github.com/cocoindex-io/cocoindex-code",
+    "license": "Apache-2.0",
+    "stars": 2810,
+    "pushedAt": "2026-10-06T23:03:34Z",
+    "verification": "GitHub official repo metadata 2026-10-09"
+  }
+]

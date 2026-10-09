@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "code-graph-protocol-draft/v1",
+  "status": "draft-unfrozen",
+  "asOf": "2026-10-09",
+  "normativeContract": "../CAPTURE.md",
+  "toolchainFrozen": true,
+  "toolchainSha256": "3ea3b3b24104e0eeeb332dc09cb3c25a0a95694d739ab4afee68198728d6d02a",
+  "commonBase": null,
+  "sourceContentDigest": null,
+  "tasks": [
+    {
+      "goal": "hybrid-retrieval-fusion-core",
+      "state": "conditional-P0-and-ownership-pending",
+      "briefSha256": null,
+      "acceptanceSha256": null,
+      "protectedOracleSha256": null
+    },
+    {
+      "goal": "ontology-sidecar-stateless-identity",
+      "state": "conditional-P0-and-ownership-pending",
+      "briefSha256": null,
+      "acceptanceSha256": null,
+      "protectedOracleSha256": null
+    },
+    {
+      "goal": "epistemic-memory-retention-projections",
+      "state": "conditional-P0-and-ownership-pending",
+      "briefSha256": null,
+      "acceptanceSha256": null,
+      "protectedOracleSha256": null
+    }
+  ],
+  "codingModels": [
+    {
+      "id": "gpt-6.1-sol",
+      "effort": "medium",
+      "harness": "codex0.162.1"
+    },
+    {
+      "id": "claude-opus-5-5",
+      "effort": "medium",
+      "harness": "claude2.1.296"
+    },
+    {
+      "id": "grok-4.7",
+      "effort": "medium",
+      "harness": "grok1.0.50"
+    }
+  ],
+  "judgePanel": ["GPT6Astra", "ClaudeOpus5.5", "Grok4.7"],
+  "judgeExactIdentifiers": null,
+  "candidateConfigurations": 13,
+  "candidateCodingCells": 117,
+  "integrationDigests": null,
+  "indexSnapshots": null,
+  "runOrder": null,
+  "counterbalanceSeed": null,
+  "resourceLimits": null,
+  "rerunRules": null,
+  "pilotPassed": false,
+  "baseFullVerifyPassed": null,
+  "allowedTrialMutation": "owned-worktree-local-commit-only",
+  "requiredFullProof": "bun run beep yeet verify on exact final local commit",
+  "experimentExpiry": "2026-11-09 or completion earlier",
+  "newApiBillingAuthorized": false,
+  "jevMaximumUsd": 30,
+  "jevPaidCallsObserved": 0,
+  "scoredRunsStarted": 0,
+  "runOrderCandidate": {
+    "path": "run-order-candidate.json",
+    "sha256": "abec3906464a8af7411d0fb290652bbbd1280ecec35ed2c5b9c8b177e96c58a7",
+    "seed": "c723e6dfa22aaa1580ddc608c4e075d037450361aebdf928cb47c2911f8b773f",
+    "status": "candidate; not launch admission"
+  },
+  "rerunRulesCandidate": {
+    "implementationFailure": "Eligible failed primary attempt; no post-oracle repair/retry to improve score. Ordinary autonomous retries within the original active budget count as part of that attempt.",
+    "timeout": "Retain final/partial commits, tracked diff and ignored inventory. Counts as eligible failed primary attempt; no extra active budget by restarting.",
+    "quota": "Checkpoint exact context/commit/index/config and active time; pause inference. Operator may switch account; verify unchanged model/tool controls and record route change before resuming remaining budget. Preserve original attempt and pause duration.",
+    "infrastructure": "Preserve failure; at most one fresh retry after attributable harness/host remediation with identical task/model/tool controls. Report primary intention-to-treat outcome and separate successful-completion sensitivity; never replace a failure silently.",
+    "harnessDefect": "If controls or acceptance must change, invalidate affected pilot/cell evidence explicitly; correct and version controls before any replacement. No arm-specific waiver.",
+    "unsupportedIntegration": "Keep original matrix cell/ordinal with evidence and null unavailable usage. No substitute backend or invented integration.",
+    "pilot": "Pilot results do not count; scored inclusion requires a fresh run after harness/control freeze."
+  },
+  "outcomeRulesCandidate": {
+    "passing": "Frozen task gates and package gates plus full exact-final-commit Yeet exit0; clean reconstructed commit and bound controls/receipts required.",
+    "review": "Deterministic failures cannot be waived by human/model grades. Tool/model labels hidden from fresh judges where practical; file/diff rationale, anchored1-5 separate dimensions and low/medium/high certainty.",
+    "unknown": "Missing usage/line/path/adoption/billing remains null with cause, never zero.",
+    "selection": "Passing correctness and quality/reuse first; time/tokens/setup/upkeep next, within model/task. All failures and unknowns retained.",
+    "acceptanceFeedback": "Sealed acceptance executes only after coding completion; private suite/oracle/report never returned to coding agent for a retry.",
+    "publication": "Trial agents commit locally only; winner PR remediation happens after selection and is reported separately from frozen trial outcome."
+  },
+  "candidateSource": "df7d88aad700c442d31f9c7c52094b6dd094470a",
+  "candidateSourceGate": {
+    "canonicalFullYeet": "passed",
+    "supplementalFullScope": "failed inherited four coverage metrics; all other lanes passed",
+    "freeze": "withheld"
+  },
+  "ownershipCostCandidate": {
+    "path": "ownership-cost-candidate.json",
+    "sha256": "058c01d17a97bb3f97d4ebdf82229a658a7d137cdfe0f985aa26477d90878561",
+    "status": "candidate; not launch admission"
+  },
+  "ordinaryVerificationBoundaryCandidate": {
+    "rule": "All arms retain the same ordinary repository checks. A canonical check may internally invoke a structural analyzer (for example the lockfile-pinned Fallow quality lane), independent of the separately pinned navigation treatment.",
+    "restriction": "Coding agents may not invoke another graph configuration for navigation. Normal verification command output is available identically within a model/task; do not introduce arm-specific quality shortcuts.",
+    "measurement": "Keep ordinary verification subprocesses and post-coding evaluator work separate from model-selected graph adoption. The repository quality analyzer version and assigned graph-tool version can differ and must both remain bound to their own frozen input inventories."
+  }
+}
