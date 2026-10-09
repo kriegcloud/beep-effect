@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "semver",
+    "module": "tsconfig-json",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:35:03.429Z"
+    "at": "2026-10-09T23:36:17.579Z"
   },
   "rows": [
     {
@@ -8804,7 +8804,7 @@
       "module": "tsconfig-json",
       "wave": 3,
       "position": 2,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
@@ -9045,6 +9045,60 @@
           "upstreamBehaviour": "Public schemas/codecs lacked canonical @beep/identity composer identities and field metadata; existing schema error/class identities used unqualified literal names.",
           "labBehaviour": "CompilerOptions, TsconfigJson, CompilerOptionsFromProgrammatic, TsEnumCodec, JsxConfig, ResolvedTsconfig, PortableTsconfig, TsconfigDiscovery and loader errors use file-local $ScratchpadId composers, $I.annote schema/domain metadata and annotated object fields.",
           "reason": "identity-annotations: Port step 4 and EF-12 require @beep/identity $I annotations; INVENTORY sol-1-1 and fix-tsconfig-json-g1.md confirm completion. That report labels this identity-keys, but it concerns annotations rather than identity-keyed collections and is normalized here."
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "ResolvedTsconfig.ts:163 carried a branch no input can reach",
+          "labBehaviour": "Removed non-string fallback for schema-validated path-list entries.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "ResolvedTsconfig.ts:169 carried a branch no input can reach",
+          "labBehaviour": "Iterated record entries with their values and removed non-array/non-string fallbacks for schema-validated paths mappings.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "ResolvedTsconfig.ts:332 carried a branch no input can reach",
+          "labBehaviour": "Removed non-string fallback for schema-validated watch exclusion entries.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "TsEnumCodec.ts:230 carried a branch no input can reach",
+          "labBehaviour": "Replaced split/pop/nullish fallback with equivalent basename slicing; splitting a string always produces an element.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "TsEnumCodec.ts:359 carried a branch no input can reach",
+          "labBehaviour": "Removed failed-lookup fallback for schema-valid enum strings, which are exhaustively represented by the tables.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "TsEnumCodec.ts:365 carried a branch no input can reach",
+          "labBehaviour": "Read the typed library field and removed its non-string element fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "TsEnumCodec.ts:411 carried a branch no input can reach",
+          "labBehaviour": "Replaced the static facade's private empty constructor with an abstract class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "TsconfigDiscovery.ts:79 carried a branch no input can reach",
+          "labBehaviour": "Replaced the static facade's private empty constructor with an abstract class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/tsconfig-json/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "TsconfigLoader.ts:262 carried a branch no input can reach",
+          "labBehaviour": "Replaced the static facade's private empty constructor with an abstract class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -9124,13 +9178,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:19.315Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:19:43.484Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:19:43.484Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:36:17.579Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (0 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },

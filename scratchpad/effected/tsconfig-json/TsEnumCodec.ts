@@ -227,7 +227,7 @@ const decode: {
 
 // Implementation of TsEnumCodec.normalizeLibReference; the public contract lives on the static.
 const normalizeLibReference = (lib: string): string => {
-	const base = (lib.split("/").pop() ?? lib).toLowerCase();
+	const base = lib.slice(lib.lastIndexOf("/") + 1).toLowerCase();
 	const withoutPrefix = base.startsWith("lib.") ? base.slice(4) : base;
 	return withoutPrefix.endsWith(".d.ts") ? withoutPrefix.slice(0, -5) : withoutPrefix;
 };
@@ -355,14 +355,13 @@ const encodeCompilerOptions = (options: CompilerOptions.Type): ProgrammaticCompi
 	for (const [key, family] of COMPILER_OPTION_ENUM_KEYS) {
 		const value = source[key];
 		if (P.isString(value)) {
-			const encoded = encode(family, value);
-			if (O.isSome(encoded)) result[key] = encoded.value;
+			result[key] = O.getOrThrow(encode(family, value));
 		}
 	}
 
-	const lib = source.lib;
+	const lib = options.lib;
 	if (A.isArray(lib)) {
-		result.lib = lib.map((entry) => (P.isString(entry) ? `lib.${normalizeLibReference(entry)}.d.ts` : entry));
+		result.lib = lib.map((entry) => `lib.${normalizeLibReference(entry)}.d.ts`);
 	}
 
 	return result;
@@ -407,8 +406,7 @@ const decodeCompilerOptions = (numeric: Readonly<Record<string, unknown>>): Reco
  * @category codecs
  * @since 0.0.0
  */
-export class TsEnumCodec {
-	private constructor() {}
+export abstract class TsEnumCodec {
 
 	/**
 	 * Encodes a family's canonical (or alias) string spelling to its numeric
