@@ -9,6 +9,7 @@ import {
   GoalMergeMethod,
   GoalMergeResult,
   GoalPullRequestRef,
+  GoalRequiredCheckSnapshot,
   goalPullRequestRefs,
 } from "@beep/repo-cli/test/Goals";
 import { it } from "@beep/test-runner";
@@ -35,6 +36,14 @@ const fixture = () =>
     packet: "unmentioned-packet",
     declarationDigest: "declaration",
     acceptedDeclarationDigest: O.some("accepted-declaration"),
+    requiredChecks: O.some(
+      GoalRequiredCheckSnapshot.make({
+        contexts: ["Lint"],
+        sources: ["complete-merge-time-inventory"],
+        effectiveAt: time,
+        inventoryComplete: true,
+      })
+    ),
     finalPullRequest: 1429,
     acceptedHead: O.some("accepted-head"),
     merged: O.some(true),
@@ -146,6 +155,47 @@ describe("goal completion declaration", () => {
 });
 
 describe("pure goal completion resolver", () => {
+  it.effect("requires complete historical inventory despite green surviving contexts", () =>
+    Effect.gen(function* () {
+      const observation = fixture();
+      expect(
+        (yield* GoalCompletionVerifier.resolve(
+          GoalCompletionObservation.make({
+            ...observation,
+            requiredChecks: O.none(),
+          })
+        )).outcome
+      ).toBe("unknown");
+      const snapshot = GoalRequiredCheckSnapshot.make({
+        contexts: ["Lint"],
+        sources: ["surviving-ruleset/history/1"],
+        effectiveAt: time,
+        inventoryComplete: false,
+      });
+      expect(
+        (yield* GoalCompletionVerifier.resolve(
+          GoalCompletionObservation.make({
+            ...observation,
+            requiredChecks: O.some(snapshot),
+          })
+        )).outcome
+      ).toBe("unknown");
+      expect(
+        (yield* GoalCompletionVerifier.resolve(
+          GoalCompletionObservation.make({
+            ...observation,
+            requiredChecks: O.some(GoalRequiredCheckSnapshot.make({ ...snapshot, inventoryComplete: true })),
+          })
+        )).outcome
+      ).toBe("verified");
+      const legacy = yield* S.decodeUnknownEffect(GoalRequiredCheckSnapshot)({
+        contexts: ["Lint"],
+        sources: ["surviving-ruleset/history/1"],
+        effectiveAt: "2026-10-06T00:55:25Z",
+      });
+      expect(legacy.inventoryComplete).toBe(false);
+    })
+  );
   it.effect("round-trips the persisted JSON boundary including optional head and merge facts", () =>
     Effect.gen(function* () {
       const receipt = yield* GoalCompletionVerifier.resolve(fixture());

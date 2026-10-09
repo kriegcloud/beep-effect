@@ -219,3 +219,37 @@ schema-first and Fallow audit/health passed. No publication push, ready transiti
 or new monitor occurred. The orchestrator owns one main repair; H2 merges that
 repair and retries its existing delivery wave. The full package pass remains
 recorded at its actual delivery head, rather than inferred for later main source.
+
+## Hosted review: deleted historical rulesets
+
+Thread `discussion_r4234859239` correctly identifies an inventory gap: GitHub's
+current ruleset list cannot enumerate rulesets deleted since the merge, even
+when each surviving ruleset's historical version is readable. The snapshot
+now records `inventoryComplete`; omitted legacy fields decode as false.
+The live adapter sets false. Passing surviving contexts remain observed facts,
+but overall completion is unknown until an independently complete merge-time
+inventory is available. A positively observed required red remains unsatisfied.
+Stored receipts are re-resolved, so a previously persisted verified outcome
+cannot bypass this rule. Lifecycle fields remain unchanged.
+
+The earlier three-packet online observations retain verified PR/head/merge
+bindings, passing surviving required contexts and the recorded timeline
+sub-claims. After this fix, live overall receipt outcomes are unknown for
+#1429, #1462 and #1427 because historical inventory completeness is unknown.
+This qualification supersedes earlier overall-verification wording in this
+receipt; it does not invent evidence for deleted rulesets.
+
+Regression fixtures cover passing surviving contexts with incomplete inventory,
+a complete synthetic snapshot, decoding older snapshots without the new flag,
+and revalidation of stored verified receipts with incomplete inventory.
+The original squash/merge/rebase, stale-head, required-red, network-failure,
+refresh-only writer and lifecycle assertions remain.
+
+Read-only live reread (`bun .beep/h2/run3-online.ts`) confirms all three merged
+results and 16 surviving required contexts passing before merge. Overall
+completion is unknown for each because `inventoryComplete=false`.
+#1429 and #1427 retain verified draft-ready and review-window sub-claims;
+#1462 retains its unsatisfied seven-second window. Every merge-ready verdict
+sub-claim remains unknown. No clone completion receipt was written.
+Independent Opus review of this fix and the missing-snapshot follow-up
+concludes zero actionable findings; runtime/package gates remain separate proof.

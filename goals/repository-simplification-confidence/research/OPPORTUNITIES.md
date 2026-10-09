@@ -817,3 +817,23 @@ peer service was stopped, and the worker changed no admission setting.
   baseline refresh, copied repair, suppression, waiver or push occurred.
 - Prevention: shared-main policy proof at the merge gate and a fast inherited-red
   routing path distinguish lane delivery failures from new program integration reds.
+
+## 2026-10-09 — H2 deleted-ruleset inventory gap
+
+- Work: close out ready PR #1574 after authorized inherited-red fallback.
+- Evidence: reviewer thread `discussion_r4234859239` identifies that current
+  ruleset enumeration cannot include rulesets deleted since historical merge.
+  Per-ruleset version history proves surviving contexts, not inventory completeness.
+- Recovery: record completeness explicitly and resolve incomplete inventories as
+  unknown, including previously stored receipts; keep observed PR-merge and
+  surviving-context sub-facts without resetting lifecycle state.
+- Prevention: require an independently complete merge-time ruleset inventory
+  before promoting historical required-check success to overall verification.
+
+## 2026-10-09 — H2 detached monitor user-bus environment
+
+- Work: submit bounded readiness monitor after marking #1574 ready.
+- Evidence: initial submission reported `Detached proof jobs require an active
+  systemd user manager`; the existing user bus was reachable after supplying
+  its runtime directory and bus address explicitly. Retry submitted successfully.
+- Prevention: inherit the user-manager environment in detached lane launches.

@@ -110,6 +110,7 @@ const overallOutcome = (observation: GoalCompletionObservation): GoalCompletionO
       })
     ) ||
     A.isReadonlyArrayEmpty(gating) ||
+    !O.exists(observation.requiredChecks, (snapshot) => snapshot.inventoryComplete) ||
     A.some(gating, (check) => check.outcome === "unknown" || O.isNone(check.observedHead))
   )
     return "unknown";
@@ -331,6 +332,9 @@ const readHistoricalRequiredChecks = Effect.fn("Goals.Completion.historicalRequi
     contexts: A.dedupe(A.flatMap(snapshots, (snapshot) => snapshot.contexts)),
     sources: A.map(snapshots, (snapshot) => snapshot.source),
     effectiveAt: mergedAt,
+    // Version history covers only surviving rulesets. Deleted rulesets cannot
+    // be discovered through current enumeration; no complete historical inventory is inferred.
+    inventoryComplete: false,
   });
 });
 /**
@@ -569,7 +573,7 @@ export const observeGoalCompletion = Effect.fn("Goals.Completion.observe")(funct
         hostedRef,
         gatingOutcome,
         O.some(head),
-        `Required contexts observed at accepted head before merge; ${O.getOrElse(O.map(required, A.length), () => 0)} contexts. Versioned GitHub ruleset history supplies the required-context names; unavailable history is unknown.`
+        `Required contexts observed at accepted head before merge; ${O.getOrElse(O.map(required, A.length), () => 0)} contexts. Versioned GitHub history supplies surviving ruleset contexts only. Deleted rulesets are not enumerable; merge-time inventory completeness is unknown, so passing observed contexts cannot verify overall completion.`
       )
     );
     const evidence = yield* readDeclaredEvidence(root, manifest, head, gatingOutcome, hostedEvidence);

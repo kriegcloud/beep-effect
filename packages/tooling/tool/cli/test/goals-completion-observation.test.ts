@@ -1,9 +1,12 @@
 import {
   GoalCompletionIo,
+  GoalCompletionObservation,
   GoalCompletionReceipt,
+  GoalCompletionVerifier,
   GoalInitiative,
   GoalManifest,
   GoalPullRequestRef,
+  GoalRequiredCheckSnapshot,
   goalCompletionDeclarationDigest,
   goalsCommand,
   observeGoalCompletion,
@@ -176,6 +179,19 @@ const observe = Effect.fn("CompletionTest.observe")(function* (scenario: typeof 
   );
 });
 
+const completeReceipt = Effect.fn("CompletionTest.completeReceipt")(function* () {
+  const receipt = yield* observe();
+  const snapshot = O.getOrThrow(receipt.requiredChecks);
+  return yield* GoalCompletionVerifier.resolve(
+    GoalCompletionObservation.make({
+      ...receipt,
+      merged: O.some(true),
+      grandfathered: false,
+      requiredChecks: O.some(GoalRequiredCheckSnapshot.make({ ...snapshot, inventoryComplete: true })),
+    })
+  );
+});
+
 it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations and storage", (it) => {
   it.effect.prop(
     "preserves declaration digests across arbitrary PR-reference codec round trips",
@@ -215,10 +231,17 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       expect((yield* observe({ preMergePendingRerun: true })).outcome).toBe("unknown");
     })
   );
-  it.effect("verifies a squash/rebase result without original-head ancestry", () =>
+  it.effect("retains squash/rebase merge facts but cannot verify a current-only ruleset inventory", () =>
     Effect.gen(function* () {
       const receipt = yield* observe();
-      expect(receipt.outcome).toBe("verified");
+      expect(receipt.outcome).toBe("unknown");
+      assertSome(
+        O.map(receipt.requiredChecks, (snapshot) => snapshot.inventoryComplete),
+        false
+      );
+      expect(
+        A.some(receipt.evidence, (check) => check.ref.kind === "hosted-required-checks" && check.outcome === "verified")
+      ).toBe(true);
       assertSome(
         O.map(receipt.merge, (merge) => merge.method),
         O.none()
@@ -241,9 +264,13 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       );
     })
   );
-  it.effect("keeps pre-merge success when a later rerun turns red", () =>
+  it.effect("retains pre-merge passing context despite a post-merge rerun and incomplete inventory", () =>
     Effect.gen(function* () {
-      expect((yield* observe({ postMergeRerun: true })).outcome).toBe("verified");
+      const receipt = yield* observe({ postMergeRerun: true });
+      expect(receipt.outcome).toBe("unknown");
+      expect(
+        A.some(receipt.evidence, (check) => check.ref.kind === "hosted-required-checks" && check.outcome === "verified")
+      ).toBe(true);
     })
   );
   it.effect("a positive required red makes completion unsatisfied", () =>
@@ -266,10 +293,10 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       expect((yield* observe({ missingHistory: true })).outcome).toBe("unknown");
     })
   );
-  it.effect("timeline failure leaves only the sub-claim unknown", () =>
+  it.effect("timeline failure leaves the window sub-claim unknown independently of inventory completeness", () =>
     Effect.gen(function* () {
       const receipt = yield* observe({ missingTimeline: true });
-      expect(receipt.outcome).toBe("verified");
+      expect(receipt.outcome).toBe("unknown");
       assertSome(
         A.findFirst(receipt.subClaims, (check) => check.ref.ref === "review-window").pipe(
           O.map((check) => check.outcome)
@@ -281,7 +308,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
   it.effect("seven-second historical window remains unsatisfied without resetting completion", () =>
     Effect.gen(function* () {
       const receipt = yield* observe({ windowShort: true });
-      expect(receipt.outcome).toBe("verified");
+      expect(receipt.outcome).toBe("unknown");
       assertSome(
         A.findFirst(receipt.subClaims, (check) => check.ref.ref === "review-window").pipe(
           O.map((check) => check.outcome)
@@ -306,7 +333,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
     Effect.gen(function* () {
       yield* temporaryWorkingDirectory;
       const value = yield* manifest();
-      const receipt = yield* observe();
+      const receipt = yield* completeReceipt();
       const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
       const correct = yield* encodeReceipt(receipt);
       const stale = yield* encodeReceipt(
@@ -332,11 +359,31 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       );
     })
   );
-  it.effect("a transient unknown refresh does not displace definite head-bound evidence", () =>
+  it.effect("revalidates stored verified receipts against incomplete inventory", () =>
     Effect.gen(function* () {
       yield* temporaryWorkingDirectory;
       const value = yield* manifest();
       const receipt = yield* observe();
+      const staleVerified = GoalCompletionReceipt.make({ ...receipt, outcome: "verified" });
+      const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(staleVerified);
+      yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
+      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      assertSome(
+        O.map(
+          yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
+            Effect.provideService(GoalCompletionIo, io)
+          ),
+          (row) => row.outcome
+        ),
+        "unknown"
+      );
+    })
+  );
+  it.effect("a transient unknown refresh does not displace definite head-bound evidence", () =>
+    Effect.gen(function* () {
+      yield* temporaryWorkingDirectory;
+      const value = yield* manifest();
+      const receipt = yield* completeReceipt();
       const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
       const correct = yield* encodeReceipt(receipt);
       const unknown = yield* encodeReceipt(
@@ -378,7 +425,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
           ),
           (row) => row.outcome
         ),
-        "verified"
+        "unknown"
       );
     })
   );

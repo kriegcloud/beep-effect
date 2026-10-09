@@ -452,7 +452,12 @@ export const GoalCheckConclusion = LiteralKit([
 export type GoalCheckConclusion = typeof GoalCheckConclusion.Type;
 
 /**
- * Records the historical required contexts and the immutable GitHub ruleset versions supplying them.
+ * Records historical required contexts, their ruleset versions and merge-time inventory completeness.
+ *
+ * **Details**
+ *
+ * Current ruleset enumeration omits rulesets deleted since merge. Its inventory
+ * is incomplete; absent completeness on older receipts also decodes to false.
  *
  * **Example** (Inspect required-check provenance)
  *
@@ -465,7 +470,12 @@ export type GoalCheckConclusion = typeof GoalCheckConclusion.Type;
  * @since 0.0.0
  */
 export class GoalRequiredCheckSnapshot extends S.Class<GoalRequiredCheckSnapshot>($I`GoalRequiredCheckSnapshot`)(
-  { contexts: S.Array(S.NonEmptyString), sources: S.Array(S.NonEmptyString), effectiveAt: S.DateTimeUtcFromString },
+  {
+    contexts: S.Array(S.NonEmptyString),
+    sources: S.Array(S.NonEmptyString),
+    effectiveAt: S.DateTimeUtcFromString,
+    inventoryComplete: S.Boolean.pipe(S.withDecodingDefaultKey(Effect.succeed(false))),
+  },
   $I.annote("GoalRequiredCheckSnapshot", {
     description: "Historical required-context list with source version references and merge-time applicability.",
   })

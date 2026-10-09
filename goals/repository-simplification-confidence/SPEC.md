@@ -849,3 +849,16 @@ no global cap, wrapper, peer job, source baseline or acceptance rule changes.
   Reason: percentages improved while added implementation increased absolute
   uncovered counts; the existing baseline must not be refreshed to hide that.
   Reversal is the receipt commit; no coverage policy or floor changed.
+
+### 2026-10-09 — H2 historical ruleset inventory completeness
+
+Record `inventoryComplete` on required-check snapshots; legacy omitted fields
+decode as false. Current GitHub enumeration observes surviving rulesets only,
+so the live adapter cannot attest merge-time completeness and overall green
+completion resolves unknown. Preserve observed PR/head/merge bindings, surviving
+context checks and historical sub-claims; positive required failures remain
+unsatisfied. Revalidate stored receipts through the same resolver. Reason:
+review `discussion_r4234859239` exposes deleted rulesets absent from today's
+inventory. Reverse by reverting this review fix and deleting derived receipts;
+optional defaulted fields preserve schema compatibility. An independent
+merge-time inventory provider is a later explicit evidence extension.
