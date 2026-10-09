@@ -147,7 +147,7 @@ const KEY_INDEX = HashMap.fromIterable(A.map(KEY_ORDER, (k, i) => [k, i] as cons
  * `localeCompare` sorts differently across ICU builds/locales; package.json key
  * order must be stable everywhere.
  */
-const byCodePoint = Order.make<string>((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+const byCodePoint = Order.String;
 const byKnownIndex = Order.mapInput(Order.Number, (entry: [string, unknown, number]) => entry[2]);
 const byEntryKey = Order.mapInput(byCodePoint, (entry: [string, unknown]) => entry[0]);
 

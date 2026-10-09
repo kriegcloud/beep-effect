@@ -63,9 +63,9 @@ const singleComparator = (
 ): O.Option<{ readonly operator: "" | "^" | "~"; readonly version: string }> => {
 	const match = SINGLE_COMPARATOR_RE.exec(range);
 	if (match === null) return O.none();
-	const operator = match[1];
-	const version = match[2];
-	if ((operator !== "" && operator !== "^" && operator !== "~") || version === undefined) return O.none();
+	const matched = match[0];
+	const operator = matched.startsWith("^") ? "^" : matched.startsWith("~") ? "~" : "";
+	const version = matched.slice(operator.length);
 	return SemVer.isPinnable(version) ? O.some({ operator, version }) : O.none();
 };
 

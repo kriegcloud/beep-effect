@@ -76,11 +76,13 @@ const browseUrlOf = (raw: string): O.Option<string> => {
 
 	const prefixed = PREFIXED_SHORTHAND.exec(url);
 	if (prefixed !== null) {
-		const [, scheme, rest] = prefixed;
+		const colon = url.indexOf(":");
+		const scheme = url.slice(0, colon);
+		const rest = url.slice(colon + 1);
 		// `gist:id` resolves to a different host than the code-forge shorthands.
-		if (scheme === "gist") return O.some(`https://gist.github.com/${stripGitSuffix(rest ?? "")}`);
-		const host = O.getOrUndefined(HashMap.get(SHORTHAND_HOSTS, scheme ?? ""));
-		if (host !== undefined) return O.some(`${host}/${stripGitSuffix(rest ?? "")}`);
+		if (scheme === "gist") return O.some(`https://gist.github.com/${stripGitSuffix(rest)}`);
+		const host = O.getOrUndefined(HashMap.get(SHORTHAND_HOSTS, scheme));
+		if (host !== undefined) return O.some(`${host}/${stripGitSuffix(rest)}`);
 	}
 
 	// Anything with a scheme: normalize the transport away and keep host + path.
@@ -89,7 +91,7 @@ const browseUrlOf = (raw: string): O.Option<string> => {
 	const withoutGitPlus = url.startsWith("git+") ? url.slice(4) : url;
 	const schemeMatch = /^([a-z][a-z0-9+.-]*):\/\/(.*)$/i.exec(withoutGitPlus);
 	if (schemeMatch !== null) {
-		const authorityAndPath = schemeMatch[2] ?? "";
+		const authorityAndPath = withoutGitPlus.slice(withoutGitPlus.indexOf("://") + 3);
 		// Drop any `user@` credential prefix — it is transport, not identity.
 		const withoutCredentials = authorityAndPath.replace(/^[^/@]+@/, "");
 		return withoutCredentials === "" ? O.none() : O.some(`https://${stripGitSuffix(withoutCredentials)}`);
@@ -98,10 +100,10 @@ const browseUrlOf = (raw: string): O.Option<string> => {
 	// The scp-like form has no scheme: `git@github.com:owner/name.git`.
 	const scp = SCP_LIKE.exec(withoutGitPlus);
 	if (scp !== null) {
-		const [, , host, path] = scp;
-		if (host !== undefined && path !== undefined && path !== "") {
-			return O.some(`https://${host}/${stripGitSuffix(path)}`);
-		}
+		const colon = withoutGitPlus.indexOf(":");
+		const host = withoutGitPlus.slice(withoutGitPlus.lastIndexOf("@", colon) + 1, colon);
+		const path = withoutGitPlus.slice(colon + 1);
+		return O.some(`https://${host}/${stripGitSuffix(path)}`);
 	}
 
 	return O.none();
