@@ -291,8 +291,7 @@ const fallbackFormat = (error: unknown): string =>
  * @category utilities
  * @since 0.0.0
  */
-export class ProcessGuard {
-	private constructor() {}
+export abstract class ProcessGuard {
 
 	/**
 	 * Parse a test-only crash-injection setting into {@link ProcessGuardOptions.injectCrash}: `<at>:<kind>`, where `at`
@@ -407,17 +406,16 @@ export class ProcessGuard {
 				},
 			};
 
-			const startupFailed = (error: unknown): void => {
+			const startupFailed = (error: unknown): never => {
 				host.stderr.write(`${label}: startup failed: ${describe(error)}\n`);
-				host.exit(1);
+				return host.exit(1);
 			};
 			const start = (): Promise<void> => {
 				let loading: Promise<unknown>;
 				try {
 					loading = Promise.resolve(options.load(control));
 				} catch (error) {
-					startupFailed(error);
-					return Promise.resolve();
+					return startupFailed(error);
 				}
 				return loading.then(() => undefined, startupFailed);
 			};

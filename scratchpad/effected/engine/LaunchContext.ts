@@ -71,8 +71,7 @@ export type ProjectDirInput = typeof ProjectDirInput.Type;
  * @category utilities
  * @since 0.0.0
  */
-export class LaunchContext {
-	private constructor() {}
+export abstract class LaunchContext {
 
 	/**
 	 * Whether a value still carries a literal `${VAR}` placeholder.
