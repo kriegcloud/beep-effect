@@ -214,16 +214,20 @@ const safeIssueNumber: (digits: string) => O.Option<number> = flow(Number, O.lif
 export const harvestIssueReferences = (text: string): ReadonlyArray<IssueReference> => {
 	const references: Array<IssueReference> = [];
 	for (const match of text.matchAll(INLINE_PATTERN)) {
-		const issueNumber = safeIssueNumber(match[2] ?? "");
+		// The full match guarantees a keyword, whitespace, hash and digits.
+		// Read that guaranteed string without optional capture fallbacks.
+		const hash = match[0].indexOf("#");
+		const issueNumber = safeIssueNumber(match[0].slice(hash + 1));
 		if (O.isNone(issueNumber)) continue;
-		const keyword = R.get<string, ClosingKeyword>(ClosingKeyword.Enum, Str.toLowerCase(match[1] ?? ""));
-		if (O.isNone(keyword)) continue;
-		references.push({
-			issueNumber: issueNumber.value,
-			keyword: keyword.value,
-			start: match.index,
-			end: match.index + match[0].length,
-		});
+		const keyword = R.get<string, ClosingKeyword>(ClosingKeyword.Enum, Str.toLowerCase(Str.trim(match[0].slice(0, hash))));
+		O.map(keyword, (keyword) =>
+			references.push({
+				issueNumber: issueNumber.value,
+				keyword,
+				start: match.index,
+				end: match.index + match[0].length,
+			}),
+		);
 	}
 	return references;
 };
@@ -257,9 +261,13 @@ export const harvestIssueReferences = (text: string): ReadonlyArray<IssueReferen
 export const parseBareLineReference = (line: string): O.Option<BareLineReference> => {
 	const match = BARE_LINE_PATTERN.exec(Str.trim(line));
 	if (match === null) return O.none();
-	const issueNumber = safeIssueNumber(match[2] ?? "");
+	const hash = match[0].indexOf("#");
+	const issueNumber = safeIssueNumber(match[0].slice(hash + 1));
 	return O.flatMap(issueNumber, (issueNumber) =>
-		O.map(R.get<string, ClosingKeyword>(ClosingKeyword.Enum, Str.toLowerCase(match[1] ?? "")), (keyword) => ({ issueNumber, keyword })),
+		O.map(
+			R.get<string, ClosingKeyword>(ClosingKeyword.Enum, Str.toLowerCase(Str.replace(/:$/, "")(Str.trim(match[0].slice(0, hash))))),
+			(keyword) => ({ issueNumber, keyword }),
+		),
 	);
 };
 

@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "toml",
+    "module": "github-references",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:43:05.548Z"
+    "at": "2026-10-09T23:46:23.043Z"
   },
   "rows": [
     {
@@ -3604,7 +3604,7 @@
       "module": "github-references",
       "wave": 1,
       "position": 8,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
@@ -3764,6 +3764,36 @@
           "upstreamBehaviour": "IssueReferences.ts, ClosingList.ts and KeywordFamily.ts have no @beep/identity composer or schema/field identity annotations.",
           "labBehaviour": "Each of those three files creates $I with $ScratchpadId.create(\"effected/github-references/<file>\"). All four literal kits and five Struct models receive $I.annote descriptions; model fields are annotated and harvested fields inherit ReferenceList annotations.",
           "reason": "identity-annotations: operator step 4 and D5 require @beep/identity identities on schemas and fields; round-1 grok-1-1/2/3 and sol-1-1 require canonical annotations for the newly modeled domains and parser results."
+        },
+        {
+          "test": "module suite scratchpad/test/github-references/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-references/IssueReferences.ts:217 carried a branch no input can reach",
+          "labBehaviour": "removed the impossible missing-digit capture fallback by reading digits from the guaranteed full regex match.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-references/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-references/IssueReferences.ts:219 carried a branch no input can reach",
+          "labBehaviour": "removed the impossible missing-keyword capture fallback by reading the keyword from the guaranteed full regex match.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-references/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-references/IssueReferences.ts:220 carried a branch no input can reach",
+          "labBehaviour": "replaced the impossible keyword-rejection continue with Option.map over the typed lookup.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-references/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-references/IssueReferences.ts:260 carried a branch no input can reach",
+          "labBehaviour": "removed the impossible bare-line missing-digit capture fallback by reading digits from the guaranteed full regex match.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-references/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-references/IssueReferences.ts:262 carried a branch no input can reach",
+          "labBehaviour": "removed the impossible bare-line missing-keyword capture fallback by deriving the keyword from the full match and stripping its optional colon.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -3825,13 +3855,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:19:59.383Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:18:22.738Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:18:22.738Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:46:23.043Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (0 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
