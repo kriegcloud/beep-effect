@@ -1019,7 +1019,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const root = yield* fs.makeTempDirectoryScoped({ directory: path.join(repoRoot, ".beep"), prefix: "h3-index-" });
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "h3-index-" });
       yield* fs.makeDirectory(path.join(root, "packages/foo"), { recursive: true });
       yield* fs.makeDirectory(path.join(root, "packages/nested"), { recursive: true });
       yield* fs.writeFileString(path.join(root, "packages/nested/AGENTS.md"), "# Nested checkout\n");
