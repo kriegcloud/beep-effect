@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "walker",
+    "module": "commands",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:46:58.463Z"
+    "at": "2026-10-09T23:49:54.946Z"
   },
   "rows": [
     {
@@ -4030,7 +4030,7 @@
       "module": "commands",
       "wave": 1,
       "position": 10,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "drivers",
       "upstreamPaths": {
@@ -4276,6 +4276,24 @@
           "upstreamBehaviour": "Schemas use short class names and unannotated fields; LocalExec and ToolDiscovery Context.Service keys are @effected/commands paths. No $ScratchpadId-derived annotation namespace identifies commands models.",
           "labBehaviour": "LocalExec.ts, Run.ts, Tool.ts, ToolDiscovery.ts, ScriptedSpawner.ts and internal/capture.ts derive $I from $ScratchpadId. Schema/class/error identifiers, schema annotations, field descriptions and LocalExec/ToolDiscovery service keys use that namespace, including new literal domains and schema carriers.",
           "reason": "identity-annotations: operator step 4 and D5 require @beep/identity $I schema/service identities and annotations. The e40af7df43 step-4 commit and fix-wave schema additions establish the metadata and key changes; Redaction and Retry introduce no owning schemas to annotate."
+        },
+        {
+          "test": "module suite scratchpad/test/commands/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/commands/Run.ts:633 carried a branch no input can reach",
+          "labBehaviour": "Replaced the undefined-candidate skip with A.getUnsafe; the bounds-checked split/filter array is dense.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/commands/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/commands/ToolDiscovery.ts:485 carried a branch no input can reach",
+          "labBehaviour": "Replaced the global-version empty-string fallback with O.getOrThrow; mismatch requires a present version.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/commands/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/commands/ToolDiscovery.ts:486 carried a branch no input can reach",
+          "labBehaviour": "Replaced the local-version empty-string fallback with O.getOrThrow under the same presence guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -4367,13 +4385,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:19:52.739Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:18:30.815Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:18:30.815Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:49:54.946Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (5 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
