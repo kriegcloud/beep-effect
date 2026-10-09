@@ -747,7 +747,7 @@ const sameTuple = (a: SemVer, b: SemVer): boolean =>
 	a.major === b.major && a.minor === b.minor && a.patch === b.patch;
 
 const admitsTuple = (set: ComparatorSet, tuple: SemVer): boolean =>
-	set.length === 0 || A.some(set, (c) => c.version.isPrerelease && sameTuple(c.version, tuple));
+	A.some(set, (c) => c.version.isPrerelease && sameTuple(c.version, tuple));
 
 const prereleaseTuples = (set: ComparatorSet): Array<SemVer> =>
 	A.dedupeWith(A.map(A.filter(set, (c) => c.version.isPrerelease), (c) => c.version), sameTuple);

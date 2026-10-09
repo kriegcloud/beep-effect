@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "markdown",
+    "module": "semver",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:31:48.566Z"
+    "at": "2026-10-09T23:35:03.429Z"
   },
   "rows": [
     {
@@ -2615,7 +2615,7 @@
       "module": "semver",
       "wave": 1,
       "position": 5,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
@@ -2804,6 +2804,48 @@
           "upstreamBehaviour": "Range.FromString encodes unrestricted empty comparator sets such as sets: [[]] as an empty string, losing prerelease membership on decode.",
           "labBehaviour": "Range.FromString rejects any empty comparator branch with SchemaIssue.InvalidValue because the range string grammar cannot represent its unrestricted membership.",
           "reason": "upstream-bug: INVENTORY.md sol-1-6 reproduced upstream encode/decode changing 1.0.0-beta membership from true to false; fix-semver-g1.md:53 and one/multiple empty-branch regressions pin the fix."
+        },
+        {
+          "test": "module suite scratchpad/test/semver/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/semver/Range.ts:750 carried a branch no input can reach",
+          "labBehaviour": "removed the redundant empty-set check in admitsTuple; both callers handle empty sets before calling it.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/semver/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/semver/internal/grammar.ts:58 carried a branch no input can reach",
+          "labBehaviour": "Removed advance's EOF return; every private caller first establishes an available character or separator width.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/semver/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/semver/internal/grammar.ts:121 carried a branch no input can reach",
+          "labBehaviour": "Removed prerelease advancement's nullish fallback under the identifier-character loop guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/semver/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/semver/internal/grammar.ts:128 carried a branch no input can reach",
+          "labBehaviour": "Removed the empty prerelease-token check after first-character validation guarantees consumption.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/semver/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/semver/internal/grammar.ts:161 carried a branch no input can reach",
+          "labBehaviour": "Removed build advancement's nullish fallback under the identifier-character loop guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/semver/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/semver/internal/grammar.ts:164 carried a branch no input can reach",
+          "labBehaviour": "Removed the empty build-token check after first-character validation guarantees consumption.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/semver/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/semver/internal/grammar.ts:462 carried a branch no input can reach",
+          "labBehaviour": "Removed the post-space range-end check; the preceding range-end check detects OR separators, and entry-point trimming excludes trailing spaces.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -2877,13 +2919,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:12.606Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:18:00.251Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:18:00.251Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-09T23:35:03.429Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (0 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
