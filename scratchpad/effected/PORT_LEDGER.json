@@ -3665,6 +3665,18 @@
           "upstreamBehaviour": "scratchpad/effected/semver/internal/grammar.ts:462 carried a branch no input can reach",
           "labBehaviour": "Removed the post-space range-end check; the preceding range-end check detects OR separators, and entry-point trimming excludes trailing spaces.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/semver/Range.test.ts:65; scratchpad/test/semver/VersionCache.test.ts:108; scratchpad/test/semver/internal/desugar.coverage.test.ts:14,18",
+          "upstreamBehaviour": "Wildcard-major tilde and caret ranges (~*, ~x, ^*, ^x) normalize to >=0.0.0 <1.0.0-0 and reject stable versions at or above 1.0.0.",
+          "labBehaviour": "All four spellings normalize to >=0.0.0, accept stable versions without a major ceiling, exclude prereleases and resolve the highest cached stable version.",
+          "reason": "upstream-bug: sol-2-1/fable-2-2 differential evidence and pinned oracle desugar.ts:37,58 show a null major incorrectly substituted with zero; node-semver replaceTilde/replaceCaret treat wildcard majors as unrestricted. The diff corrects both coverage expectations and adds public membership/filter/cache regressions."
+        },
+        {
+          "test": "scratchpad/test/semver/Range.test.ts:82; scratchpad/test/semver/VersionCache.test.ts:128; scratchpad/test/semver/internal/desugar.coverage.test.ts:43",
+          "upstreamBehaviour": "Strict full-wildcard comparisons (>*, >x, <*, <x) normalize to >=0.0.0 and admit stable versions, allowing cache resolution.",
+          "labBehaviour": "Strict full-wildcard comparisons normalize to <0.0.0-0, match and filter no versions, and fail cache resolution with UnsatisfiedRangeError; non-strict wildcard operators retain >=0.0.0.",
+          "reason": "upstream-bug: sol-2-2/fable-2-3 differential evidence and pinned oracle desugar.ts:117-119 show the wildcard-major branch ignores the operator; node-semver replaceXRange:432-434 makes strict comparisons unsatisfiable. The diff splits the coverage expectation and adds public membership/filter/cache regressions."
         }
       ],
       "backlog": [
@@ -3709,6 +3721,48 @@
           "round": 1,
           "finding": "backlog-7 — Optional public barrel exposure of the newly introduced overflow error (scratchpad/effected/semver/index.ts:39)",
           "reason": "effect-idiom: Consider exporting SemVerBumpOverflowError from index.ts and switching the test import during public-surface cleanup. If published, let the central codemod record it in exportsAdded and README Added exports; do not treat that bookkeeping as a required fix."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-5 — The cache suite adds an unsupported layer timeout (scratchpad/test/semver/VersionCache.test.ts:17)",
+          "reason": "test: During vitest-canon work, remove the unsupported 30-second layer timeout and redundant 10-second option; investigate failures at their cause. Global timeout/config changes are outside the port write surface."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6 — README overstates codec/parse diagnostic agreement (scratchpad/effected/semver/Range.ts:142)",
+          "reason": "docs: Narrow the README same-message claim to grammar failures and describe normalized model-validation diagnostics accurately; avoid an otherwise-unrequired runtime message change."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-7 — README misstates errors and lab dependencies (scratchpad/effected/semver/README.md:168)",
+          "reason": "docs: Add the SemVerBumpOverflowError row and synchronous-throw behavior, correct the error count/routing claim, and name the Beep identity/schema dependencies; central bookkeeping owns Port notes."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-8 — Public bump methods omit synchronous overflow documentation (scratchpad/effected/semver/SemVer.ts:1257)",
+          "reason": "jsdoc: Document SemVerBumpOverflowError and safe-integer overflow conditions at major, minor, patch and prerelease, using canonical conditional throws tags or a covering class-level Gotchas paragraph."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "sol-2-1 — Wildcard-major tilde and caret ranges gain an incorrect upper bound (scratchpad/effected/semver/internal/desugar.ts:56)",
+          "reason": "bug: outside the port's write surface (PORT_LEDGER.json and README Port-notes bookkeeping remains central)."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "sol-2-2 — Strict comparisons against a full wildcard become match-all ranges (scratchpad/effected/semver/internal/desugar.ts:169)",
+          "reason": "bug: outside the port's write surface (PORT_LEDGER.json and README Port-notes bookkeeping remains central)."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-1 — Intersection projects already-correct prerelease bounds unnecessarily (scratchpad/effected/semver/Range.ts:821)",
+          "reason": "bug: outside the port's write surface (narrowing the existing ledger and README deviation record remains central)."
         }
       ],
       "reviewRounds": [
@@ -3727,6 +3781,24 @@
             "fable": {
               "required": 9,
               "backlog": 6
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 5,
+              "backlog": 3
             }
           }
         }

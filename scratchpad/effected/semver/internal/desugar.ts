@@ -53,7 +53,8 @@ const comp = (operator: ComparatorOperator, version: VersionParts): ComparatorPa
  * @since 0.0.0
  */
 export const desugarTilde = (p: PartialParts): ReadonlyArray<ComparatorParts> => {
-	const major = p.major ?? 0;
+	if (p.major === null) return [comp(">=", sv(0, 0, 0))];
+	const major = p.major;
 	const minor = p.minor;
 	const patch = p.patch ?? 0;
 
@@ -89,7 +90,8 @@ export const desugarTilde = (p: PartialParts): ReadonlyArray<ComparatorParts> =>
  * @since 0.0.0
  */
 export const desugarCaret = (p: PartialParts): ReadonlyArray<ComparatorParts> => {
-	const major = p.major ?? 0;
+	if (p.major === null) return [comp(">=", sv(0, 0, 0))];
+	const major = p.major;
 	const minor = p.minor;
 	const patch = p.patch;
 
@@ -167,7 +169,8 @@ export const desugarXRange: {
 
 	// Has wildcards
 	if (major === null) {
-		// * -> >=0.0.0; >* or >=* etc. still resolve to >=0.0.0
+		// Strict comparisons against * admit no version.
+		if (operator === "<" || operator === ">") return [comp("<", sv(0, 0, 0, [0]))];
 		return [comp(">=", sv(0, 0, 0))];
 	}
 

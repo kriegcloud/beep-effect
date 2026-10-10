@@ -206,6 +206,8 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 - **upstream-bug** — Lab range sugar overflow returns typed InvalidRangeError failures where upstream threw schema validation exceptions. (scratchpad/test/semver/Range.test.ts:361)
 - **upstream-bug** — Lab encodes empty unions as an unsatisfiable expression where upstream encoded them as a wildcard that invented members. (scratchpad/test/semver/Range.test.ts:381)
 - **upstream-bug** — Lab rejects unrepresentable unrestricted empty branches during encoding where upstream silently lost prerelease members. (scratchpad/test/semver/Range.test.ts:396)
+- **upstream-bug** — Lab wildcard-major tilde/caret ranges accept all stable versions while upstream imposes an incorrect major-zero ceiling (scratchpad/test/semver/Range.test.ts:65; scratchpad/test/semver/VersionCache.test.ts:108; scratchpad/test/semver/internal/desugar.coverage.test.ts:14,18).
+- **upstream-bug** — Lab strict full-wildcard comparisons match no versions while upstream admits stable versions (scratchpad/test/semver/Range.test.ts:82; scratchpad/test/semver/VersionCache.test.ts:128; scratchpad/test/semver/internal/desugar.coverage.test.ts:43).
 
 ### Dependency backlog
 

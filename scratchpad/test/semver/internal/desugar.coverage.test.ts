@@ -11,11 +11,11 @@ const print = (parts: ReadonlyArray<ComparatorParts>) => parts.map(formatCompara
 describe("desugar coverage", () => {
   it.effect("expands every tilde and caret compatibility boundary", () => Effect.sync(() => {
     const tilde: ReadonlyArray<readonly [PartialParts, string]> = [
-      [partial(null), ">=0.0.0 <1.0.0-0"], [partial(1), ">=1.0.0 <2.0.0-0"],
+      [partial(null), ">=0.0.0"], [partial(1), ">=1.0.0 <2.0.0-0"],
       [partial(1, 2), ">=1.2.0 <1.3.0-0"], [partial(1, 2, 3), ">=1.2.3 <1.3.0-0"],
     ];
     const caret: ReadonlyArray<readonly [PartialParts, string]> = [
-      [partial(null), ">=0.0.0 <1.0.0-0"], [partial(1), ">=1.0.0 <2.0.0-0"],
+      [partial(null), ">=0.0.0"], [partial(1), ">=1.0.0 <2.0.0-0"],
       [partial(0), ">=0.0.0 <1.0.0-0"], [partial(0, 2, 3), ">=0.2.3 <0.3.0-0"],
       [partial(0, 0), ">=0.0.0 <0.1.0-0"], [partial(0, 0, 3), ">=0.0.3 <0.0.4-0"],
       [partial(0, 0, 0), ">=0.0.0 <0.0.1-0"],
@@ -40,7 +40,9 @@ describe("desugar coverage", () => {
       assert.strictEqual(print(desugarXRange(operator, partial(1, 2, 3))), full);
       assert.strictEqual(print(desugarXRange(operator, partial(1))), minor);
       assert.strictEqual(print(desugarXRange(partial(1, 2))(operator)), patch);
-      assert.strictEqual(print(desugarXRange(operator, partial(null))), ">=0.0.0");
+      const wildcard = operator === "<" || operator === ">" ? "<0.0.0-0" : ">=0.0.0";
+      assert.strictEqual(print(desugarXRange(operator, partial(null))), wildcard);
+      assert.strictEqual(print(desugarXRange(partial(null))(operator)), wildcard);
     }
     assert.strictEqual(print(desugarXRange(null, { ...partial(1, 2, 3), prerelease: ["rc", 1], build: ["007"] })), "1.2.3-rc.1+007");
   }));

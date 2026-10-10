@@ -1,5 +1,6 @@
 import { assert, describe, it } from "@effect/vitest";
 import { assertFailure, assertNone, assertSome, assertSuccess } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
@@ -61,6 +62,39 @@ describe("Range", () => {
 	});
 
 	describe("test and filter", () => {
+		for (const input of ["~*", "~x", "^*", "^x"]) {
+			it.effect(`${input} admits every stable version and excludes prereleases`, () =>
+				Effect.gen(function* () {
+					const range = yield* Range.parse(input);
+					assert.strictEqual(range.toString(), ">=0.0.0");
+					assertSuccess(Range.parseResult(input), range);
+					const stable = yield* Effect.forEach(["0.0.0", "0.9.9", "1.0.0", "2.0.0", "999.0.0"], SemVer.parse);
+					const prereleases = yield* Effect.forEach(["0.0.0-0", "0.5.0-alpha", "1.0.0-beta", "2.0.0-rc.1"], SemVer.parse);
+					for (const version of stable) assert.isTrue(range.test(version), `${input} at ${version}`);
+					for (const version of prereleases) assert.isFalse(range.test(version), `${input} at ${version}`);
+					const versions = [...stable, ...prereleases];
+					assert.deepStrictEqual(range.filter(versions), stable);
+					assert.deepStrictEqual(Range.filter(versions, range), stable);
+				}),
+			);
+		}
+
+		for (const input of [">*", ">x", "<*", "<x"]) {
+			it.effect(`${input} matches and filters no stable or prerelease version`, () =>
+				Effect.gen(function* () {
+					const range = yield* Range.parse(input);
+					assert.strictEqual(range.toString(), "<0.0.0-0");
+					assertSuccess(Range.parseResult(input), range);
+					const versions = yield* Effect.forEach([
+						"0.0.0-0", "0.0.0-alpha", "0.0.0", "0.9.9", "1.0.0-beta", "1.0.0", "2.0.0-rc.1", "2.0.0", "999.0.0",
+					], SemVer.parse);
+					for (const version of versions) assert.isFalse(range.test(version), `${input} at ${version}`);
+					assert.deepStrictEqual(range.filter(versions), []);
+					assert.deepStrictEqual(Range.filter(versions, range), []);
+				}),
+			);
+		}
+
 		it.effect("matches instance and static forms identically", () =>
 			Effect.gen(function* () {
 				const range = yield* Range.parse("^1.0.0");
@@ -95,6 +129,24 @@ describe("Range", () => {
 	});
 
 	describe("algebra", () => {
+		const preservedBounds: ReadonlyArray<readonly [string, string, string]> = [
+			["^1.0.0", ">=1.5.0", ">=1.0.0 <2.0.0-0 >=1.5.0"],
+			["~1.2.3", ">=1.2.5", ">=1.2.3 <1.3.0-0 >=1.2.5"],
+		];
+		for (const [input, lower, expected] of preservedBounds) {
+			it.effect(`intersect preserves ${input} formatting and its prerelease upper bound`, () =>
+				Effect.gen(function* () {
+					const left = yield* Range.parse(input);
+					const right = yield* Range.parse(lower);
+					const both = yield* Range.intersect(left, right);
+					assert.strictEqual(both.toString(), expected);
+					assert.deepStrictEqual(both.sets, [[...A.flatten(left.sets), ...A.flatten(right.sets)]]);
+					const upper = A.findFirst(A.flatten(both.sets), (comparator) => comparator.operator === "<");
+					assertSome(O.map(upper, (comparator) => comparator.version.prerelease), [0]);
+				}),
+			);
+		}
+
 		it.effect("union combines with OR semantics", () =>
 			Effect.gen(function* () {
 				const combined = Range.union(yield* Range.parse("^1.0.0"), yield* Range.parse("^2.0.0"));

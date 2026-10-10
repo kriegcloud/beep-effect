@@ -105,6 +105,41 @@ layer(VersionCache.layer, { timeout: "30 seconds" })("VersionCache", (it) => {
 	});
 
 	describe("resolution", () => {
+		it.effect("resolveString treats wildcard-major tilde and caret as stable wildcards", () =>
+			Effect.gen(function* () {
+				const cache = yield* VersionCache;
+				yield* cache.load([
+					SemVer.of(0, 5, 0), SemVer.of(1, 0, 0), SemVer.of(2, 0, 0), SemVer.of(9, 0, 0),
+					SemVer.of(10, 0, 0, ["beta"]),
+				]);
+				for (const input of ["~*", "~x", "^*", "^x"]) {
+					assert.strictEqual((yield* cache.resolveString(input)).toString(), "9.0.0");
+				}
+				yield* cache.load([SemVer.of(0, 0, 0, [0]), SemVer.of(10, 0, 0, ["beta"])]);
+				for (const input of ["~*", "~x", "^*", "^x"]) {
+					const error = yield* Effect.flip(cache.resolveString(input));
+					assert.instanceOf(error, UnsatisfiedRangeError);
+					assert.strictEqual(error._tag, "UnsatisfiedRangeError");
+					assert.strictEqual(error.range.toString(), ">=0.0.0");
+				}
+			}),
+		);
+
+		it.effect("resolveString rejects strict comparisons against full wildcards", () =>
+			Effect.gen(function* () {
+				const cache = yield* VersionCache;
+				const versions = [SemVer.of(0, 0, 0, [0]), SemVer.of(0, 0, 0), SemVer.of(1, 0, 0, ["beta"]), SemVer.of(2, 0, 0)];
+				yield* cache.load(versions);
+				for (const input of [">*", ">x", "<*", "<x"]) {
+					const error = yield* Effect.flip(cache.resolveString(input));
+					assert.instanceOf(error, UnsatisfiedRangeError);
+					assert.strictEqual(error._tag, "UnsatisfiedRangeError");
+					assert.strictEqual(error.range.toString(), "<0.0.0-0");
+					assert.deepStrictEqual(error.available, versions);
+				}
+			}),
+		);
+
 		it.effect("resolve returns the highest satisfying version", () =>
 			Effect.gen(function* () {
 				const cache = yield* VersionCache;
