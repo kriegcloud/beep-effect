@@ -538,6 +538,60 @@ export const trialEvaluatorInputRoots: {
 );
 
 /**
+ * Restore frozen link literals in a fresh evaluator-owned filesystem copy.
+ * **Details**
+ * Node's copy API resolves relative targets against the original physical root.
+ * Container chroots require the original literals. Common immutable inputs are
+ * never written; callers supply the missing-link error for their capability.
+ * **Example** (Restore only links declared by a decoded inventory)
+ * ```ts
+ * import { TrialInputInventory, restoreTrialInventoryLinks } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const restored = S.decodeUnknownEffect(TrialInputInventory)({}).pipe(Effect.flatMap((seed) => restoreTrialInventoryLinks(seed, "/owned/copy", "Copied runtime link is missing")))
+ * console.log(Effect.isEffect(restored)) // true: invalid inventory stays in the error channel.
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const restoreTrialInventoryLinks = Effect.fn("AgentEffectiveness.restoreTrialInventoryLinks")(function* (
+  seed: TrialInputInventory,
+  owned: string,
+  missingLinkMessage: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  if (
+    !path.isAbsolute(owned) ||
+    (yield* fs.realPath(owned)) !== owned ||
+    seed.root === owned ||
+    Str.startsWith(`${seed.root}/`)(owned) ||
+    Str.startsWith(`${owned}/`)(seed.root)
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Runtime link restoration requires a canonical copy disjoint from its immutable seed",
+    });
+  for (const [name, literal] of R.toEntries(seed.symlinks)) {
+    if (path.isAbsolute(name) || path.normalize(name) !== name || name === ".." || Str.startsWith("../")(name))
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Runtime link restoration contains an escaping path",
+      });
+    const link = path.join(owned, name);
+    if ((yield* fs.realPath(path.dirname(link))) !== path.dirname(link))
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Runtime link restoration parent is not canonical",
+      });
+    if (O.isNone(yield* fs.readLink(link).pipe(Effect.option)))
+      return yield* AgentTrialError.make({ stage: "proof", message: missingLinkMessage });
+    yield* fs.remove(link);
+    yield* fs.symlink(literal, link);
+  }
+});
+
+/**
  * Copy and independently verify the native Bun seed before any check command.
  * **Details**
  * The seed remains immutable. Only a fresh evaluator-owned copy is writable;
@@ -573,14 +627,7 @@ export const prepareTrialBunCache = Effect.fn("AgentEffectiveness.prepareTrialBu
       message: "Bun cache copy must be fresh and disjoint from its immutable seed",
     });
   yield* fs.copy(seed.root, owned);
-  // Node's copy API resolves relative links; restore frozen literals in the fresh owned copy.
-  for (const [name, literal] of R.toEntries(seed.symlinks)) {
-    const link = path.join(owned, name);
-    if (O.isNone(yield* fs.readLink(link).pipe(Effect.option)))
-      return yield* AgentTrialError.make({ stage: "proof", message: "Copied Bun cache link is missing" });
-    yield* fs.remove(link);
-    yield* fs.symlink(literal, link);
-  }
+  yield* restoreTrialInventoryLinks(seed, owned, "Copied Bun cache link is missing");
   const initial = yield* captureTrialInventory(owned);
   if (initial.digest !== seed.digest)
     return yield* AgentTrialError.make({
@@ -874,6 +921,7 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     const ociRun = path.join(outputRoot, "oci-run");
     yield* fs.copy(path.join(runtime.nix.root, "var/nix"), nixState);
     yield* fs.copy(runtime.oci.root, oci);
+    yield* restoreTrialInventoryLinks(runtime.oci, oci, "Copied OCI image link is missing");
     yield* fs.makeDirectory(ociRun, { mode: 0o700 });
     const home = path.join(outputRoot, "native-home");
     yield* fs.makeDirectory(path.join(home, ".docker"), { recursive: true, mode: 0o700 });

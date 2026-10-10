@@ -3,6 +3,7 @@ import {
   captureTrialInventory,
   executeTrialCheck,
   prepareTrialBunCache,
+  restoreTrialInventoryLinks,
   TrialArtifact,
   TrialBootstrapFile,
   TrialBrokerControl,
@@ -256,6 +257,29 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
           const drift = yield* prepareTrialBunCache(seed, output2).pipe(Effect.result);
           expect(drift._tag).toBe("Failure");
           expect(yield* fs.exists(`${output2}/bun-cache`)).toBe(false);
+        })
+      )
+    );
+    test.effect("restores the frozen OCI musl link inside its copied image root", () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectoryScoped();
+          const source = `${root}/image`;
+          const copy = `${root}/copy`;
+          yield* fs.makeDirectory(`${source}/lib`, { recursive: true });
+          yield* fs.writeFileString(`${source}/lib/ld-musl-x86_64.so.1`, "frozen ELF fixture");
+          yield* fs.symlink("ld-musl-x86_64.so.1", `${source}/lib/libc.musl-x86_64.so.1`);
+          const inventory = yield* captureTrialInventory(source);
+          yield* fs.copy(source, copy);
+          expect(yield* fs.readLink(`${copy}/lib/libc.musl-x86_64.so.1`)).toBe(`${source}/lib/ld-musl-x86_64.so.1`);
+          yield* restoreTrialInventoryLinks(inventory, copy, "Copied OCI image link is missing");
+          expect(yield* fs.readLink(`${copy}/lib/libc.musl-x86_64.so.1`)).toBe("ld-musl-x86_64.so.1");
+          expect(yield* fs.realPath(`${copy}/lib/libc.musl-x86_64.so.1`)).toBe(`${copy}/lib/ld-musl-x86_64.so.1`);
+          yield* validateTrialInventory(TrialInputInventory.make({ ...inventory, root: copy }), "/runtime/oci");
+          yield* validateTrialInventory(inventory, "/runtime/oci");
+          const forbidden = yield* restoreTrialInventoryLinks(inventory, source, "missing").pipe(Effect.result);
+          expect(forbidden._tag).toBe("Failure");
         })
       )
     );

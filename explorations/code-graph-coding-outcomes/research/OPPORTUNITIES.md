@@ -406,3 +406,22 @@ the private copy before the command, and retain small before/after inventory
 artifacts. The filesystem copy API resolves relative links, so restore their
 frozen literals before checking the initial copy. Measure peak allocation for
 the 12,008,287,651-byte seed; do not assume reflinks or retain every mutable tree.
+
+## 2026-10-09 — OCI clones must preserve image link literals
+
+The portable filesystem copy API rewrites relative symlinks to absolute paths
+under the original physical source. A read-only census found 2,789 relative
+links in the frozen OCI store. A tiny source-bound fixture reproduced the musl
+case: `lib/libc.musl-x86_64.so.1` points to `ld-musl-x86_64.so.1`; the original
+link resolved in an isolated image view, but the copied link did not. Earlier
+successful native OCI probes reused the original owned store and therefore did
+not exercise this copy behavior. Evidence is in
+`runner-oci-copy-link-probe-v3.json` and the retained diagnostic predecessors.
+
+The fix shares the frozen-literal restoration loop already needed by Bun and
+runs it on the fresh OCI copy before starting its service. It rejects seed/copy
+overlap and noncanonical parents, preserves the common seed, and adds no mount
+allowance. A focused regression checks that the copied musl alias resolves into
+the copied root and that the original inventory remains unchanged. Prevention:
+probe the actual clone primitive when moving a runtime into a new namespace;
+container identity metadata alone does not prove filesystem link equivalence.

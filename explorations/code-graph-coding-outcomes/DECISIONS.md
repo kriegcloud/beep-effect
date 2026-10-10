@@ -188,3 +188,19 @@ reflinks when supported; the portable filesystem copy in the runner may require
 ordinary storage, so no physical sharing assumption enters the capacity gate.
 Budget one private cache copy in peak execution and measure its allocation before
 admitting the 117-cell grid. Do not multiply retained cache trees across trials.
+
+## Order of unscored runtime qualification (2026-10-09)
+
+After focused checks, independent review and a stable local commit, run the
+unscored native Collector integration prerequisite before the final default
+package audit. The copied OCI image exposed a concrete link-rewriting defect
+that the earlier original-store probe did not exercise. Validate the actual
+runtime copy path before repeating the whole package audit. Both proofs remain
+required before harness qualification. This changes only the order of unscored
+checks; frozen toolchain, model, candidate-source and acceptance controls remain.
+Reversal is to run the package audit first again, preserving all prior receipts.
+
+Reuse literal-link restoration for the fresh OCI copy before starting its
+service. Preserve the immutable original, exact declared targets and existing
+namespace restrictions. The musl loader regression must pass before launch.
+The earlier cache commit and interrupted proof remain retained recovery points.
