@@ -198,7 +198,6 @@ const toFields = Effect.fn("toFields")(function* (raw: BunLockfileRawType): Effe
 			// name — because that is what nested keys prefix themselves with. The
 			// path is the fallback for a lockfile that records no such entry.
 			const instanceId = MutableHashSet.has(keys, name) ? name : wsPath;
-			if (instanceId === "") continue; // no identity, no row; skip, never throw
 			packages.push(
 				ResolvedPackage.make({
 					name,

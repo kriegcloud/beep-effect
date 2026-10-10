@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "npm",
+    "module": "lockfiles",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-10T00:09:13.095Z"
+    "at": "2026-10-10T00:09:27.244Z"
   },
   "rows": [
     {
@@ -8859,7 +8859,7 @@
       "module": "lockfiles",
       "wave": 3,
       "position": 1,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
@@ -9047,6 +9047,24 @@
           "upstreamBehaviour": "BunExtension.overrides and BunLockfileRaw.overrides accept only string-valued override records, so a valid nested or version-scoped npm-style Bun override causes validation failure.",
           "labBehaviour": "BunExtension.ts defines recursive OverrideValue as a string or nested override record, and internal/bun.ts reuses BunExtension.fields.overrides. Parsing preserves parent-scoped, self-rule and recursively nested string overrides, while rejecting non-string leaves.",
           "reason": "upstream-bug: repair-workspaces.md:12-13,26,30,38 reports the upstream rejection of the valid onnxruntime-node@1.30.0 parent rule in bun.lock:3533 and the repaired self.int.test.ts:123. The two added Lockfile tests pin recursive preservation and malformed-leaf rejection."
+        },
+        {
+          "test": "module suite scratchpad/test/lockfiles/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/lockfiles/internal/bun.ts:201 carried a branch no input can reach",
+          "labBehaviour": "removed the redundant empty-instanceId guard; the loop already skips empty workspace paths and selects a nonempty name or that nonempty path, so instanceId cannot be empty. Behaviour is unchanged.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/lockfiles/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/lockfiles/internal/yarn.ts:111 carried a branch no input can reach",
+          "labBehaviour": "removed the impossible locator === undefined check by using Effect String.split's non-empty result; retained the reachable empty-string guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/lockfiles/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/lockfiles/internal/yarn.ts:136 carried a branch no input can reach",
+          "labBehaviour": "removed the impossible ?? \"\" fallback after the first split element by using Effect String.split's non-empty result.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -9138,13 +9156,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:04.300Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:19:36.756Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:19:36.756Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:09:27.244Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (4 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
