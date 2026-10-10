@@ -425,3 +425,28 @@ allowance. A focused regression checks that the copied musl alias resolves into
 the copied root and that the original inventory remains unchanged. Prevention:
 probe the actual clone primitive when moving a runtime into a new namespace;
 container identity metadata alone does not prove filesystem link equivalence.
+
+## 2026-10-09 — Structured tracked inventories must not use log bounds
+
+Collector request four stopped after 1,173 seconds of preparation with
+`Tracked root protection inventory is unavailable`. The exact sparse-namespace
+Git command exited zero: its 33,160 NUL-separated paths occupied 3,302,037
+characters, while diagnostic capture clipped output at 512 KiB. The truncation
+guard correctly refused the partial inventory; the defect was using diagnostic
+log capture for complete structured data. No native Yeet command ran.
+
+The repaired boundary uses the existing spooled-stream abstraction with the
+same `git ls-files -z` command. Zero exit and successful capture precede parsing;
+NUL termination and canonical relative paths precede protection-root derivation.
+Raw stdout/stderr are hashed proof dependencies and remain in retention closure.
+A real index larger than the diagnostic bound proves its final root survives.
+The repaired helper also captured all 33,160 paths and 96 roots from the retained
+reconstruction without changing its index hash. Evidence is in
+`runner-tracked-root-attribution-v1.json` and
+`runner-tracked-root-repaired-probe-v1.json`.
+
+Prevention: distinguish scalar diagnostics from complete inventory protocols.
+Keep bounded logs bounded; use private spools for structured data that must be
+complete. Adjacent full ignored/tree/flag inventories already spool, while
+expected-empty or target-scoped checks still fail closed on truncation. No
+log-bound increase, alternate Git inventory command or mount allowance is needed.

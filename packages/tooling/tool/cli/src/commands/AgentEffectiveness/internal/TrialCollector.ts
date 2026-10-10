@@ -538,6 +538,93 @@ export const trialEvaluatorInputRoots: {
 );
 
 /**
+ * Derive complete protection roots from a NUL-terminated tracked Git inventory.
+ * **Details**
+ * Every pathname must be canonical and relative before first-component mapping.
+ * Empty, unterminated, absolute and escaping inventories fail closed.
+ * **Example** (Keep tracked pathname validation in the error channel)
+ * ```ts
+ * import { parseTrialTrackedRoots } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(parseTrialTrackedRoots("packages/example.ts\0"))) // true
+ * ```
+ * @category parsing
+ * @since 0.0.0
+ */
+export const parseTrialTrackedRoots = Effect.fn("AgentEffectiveness.parseTrialTrackedRoots")(function* (raw: string) {
+  const path = yield* Path.Path;
+  if (raw === "" || !Str.endsWith("\0")(raw))
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Tracked root inventory is missing or not NUL-terminated",
+    });
+  const names = A.dropRight(Str.split("\0")(raw), 1);
+  if (
+    !A.every(
+      names,
+      (name) =>
+        name !== "" &&
+        name !== "." &&
+        name !== ".." &&
+        !path.isAbsolute(name) &&
+        path.normalize(name) === name &&
+        !Str.startsWith("../")(name)
+    )
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Tracked root inventory contains a noncanonical or escaping path",
+    });
+  return A.dedupe(A.flatMap(names, (name) => O.toArray(A.head(Str.split("/")(name)))));
+});
+
+/**
+ * Spool the complete tracked index without applying diagnostic log bounds.
+ * **Details**
+ * Parsing begins only after successful stream capture and zero exit. Raw private
+ * stdout/stderr survive failures; passing evidence is bound into proof custody.
+ * **Example** (Keep inventory capture inside declared runtime services)
+ * ```ts
+ * import { collectTrialTrackedInventory } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(collectTrialTrackedInventory("/owned/source", "/owned/output"))) // true
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const collectTrialTrackedInventory = Effect.fn("AgentEffectiveness.collectTrialTrackedInventory")(function* (
+  workspace: string,
+  outputRoot: string,
+  system?: TrialInputInventory
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  if (!path.isAbsolute(outputRoot) || (yield* fs.realPath(outputRoot)) !== outputRoot)
+    return yield* AgentTrialError.make({ stage: "proof", message: "Tracked inventory output must be canonical" });
+  const stdoutPath = path.join(outputRoot, "tracked-roots.nul");
+  const stderrPath = path.join(outputRoot, "tracked-roots.stderr");
+  const code = yield* runSpooledStreams({
+    command: "/usr/bin/bwrap",
+    args: yield* trialGitSandbox(workspace, ["ls-files", "-z"], system),
+    cwd: outputRoot,
+    env: {},
+    extendEnv: false,
+    timeout: "30 seconds",
+    forceKillAfter: "1 second",
+    stdoutPath,
+    stderrPath,
+  });
+  if (code !== 0)
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Tracked root protection inventory is unavailable",
+      cause: { exitCode: code },
+    });
+  yield* parseTrialTrackedRoots(yield* fs.readFileString(stdoutPath));
+  return yield* trialArtifact(stdoutPath);
+});
+
+/**
  * Restore frozen link literals in a fresh evaluator-owned filesystem copy.
  * **Details**
  * Node's copy API resolves relative targets against the original physical root.
@@ -742,24 +829,20 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     "/output",
   ];
   args.push(...(yield* system.pipe(O.getOrUndefined, trialSystemBindings)));
+  let trackedRootInventory = O.none<TrialArtifact>();
+  let trackedRootStderr = O.none<TrialArtifact>();
+  let protectionRoots: ReadonlyArray<string> = [];
   if (check.rootWritePolicy === "native-temp-only") {
     if (check.kind !== "yeet")
       return yield* AgentTrialError.make({
         stage: "proof",
         message: "Native root temporary creation is permitted only for trusted Yeet",
       });
-    const tracked = yield* inspect(["ls-files", "-z"]);
-    if (tracked.exitCode !== 0 || tracked.truncated)
-      return yield* AgentTrialError.make({
-        stage: "proof",
-        message: "Tracked root protection inventory is unavailable",
-      });
-    const roots = A.dedupe(
-      A.map(
-        Str.split("\u0000")(tracked.output).filter((name) => name !== ""),
-        (name) => name.split("/")[0]!
-      )
-    );
+    const tracked = yield* collectTrialTrackedInventory(source.workspace, outputRoot, O.getOrUndefined(system));
+    trackedRootInventory = O.some(tracked);
+    trackedRootStderr = O.some(yield* trialArtifact(path.join(outputRoot, "tracked-roots.stderr")));
+    const roots = yield* parseTrialTrackedRoots(yield* fs.readFileString(tracked.path));
+    protectionRoots = roots;
     for (const root of roots) {
       const input = path.join(source.workspace, root);
       const canonical = yield* fs.realPath(input);
@@ -1276,6 +1359,7 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
       modeBefore: rootModeBefore,
       modeAfter: rootModeAfter,
       unchanged: rootUnchanged,
+      protectionRoots,
     }),
     { flag: "wx", mode: 0o600 }
   );
@@ -1299,6 +1383,8 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     ...(O.isSome(nativeReport) ? { nativeReport: nativeReport.value } : {}),
     evaluatorContract: yield* trialArtifact(contractPath),
     rootInventory: yield* trialArtifact(rootInventoryPath),
+    ...(O.isSome(trackedRootInventory) ? { trackedRootInventory: trackedRootInventory.value } : {}),
+    ...(O.isSome(trackedRootStderr) ? { trackedRootStderr: trackedRootStderr.value } : {}),
     ...(O.isSome(gitMetadataBefore)
       ? {
           gitMetadata: {

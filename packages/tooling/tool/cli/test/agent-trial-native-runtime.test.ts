@@ -1,7 +1,10 @@
 import { hashPublicTextSha256 } from "@beep/repo-ai-metrics/privacy";
 import {
   captureTrialInventory,
+  collectTrialTrackedInventory,
   executeTrialCheck,
+  inspectTrialGit,
+  parseTrialTrackedRoots,
   prepareTrialBunCache,
   restoreTrialInventoryLinks,
   TrialArtifact,
@@ -257,6 +260,81 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
           const drift = yield* prepareTrialBunCache(seed, output2).pipe(Effect.result);
           expect(drift._tag).toBe("Failure");
           expect(yield* fs.exists(`${output2}/bun-cache`)).toBe(false);
+        })
+      )
+    );
+    test.effect("spools a real tracked index beyond diagnostic bounds without dropping its final root", () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectoryScoped();
+          const workspace = `${root}/workspace`;
+          const output = `${root}/output`;
+          yield* fs.makeDirectory(workspace);
+          yield* fs.makeDirectory(output);
+          const git = Effect.fn(function* (args: ReadonlyArray<string>) {
+            const result = yield* runCaptured({
+              command: "/usr/bin/git",
+              args: ["-c", "core.hooksPath=/dev/null", "-C", workspace, ...args],
+              env: {},
+              extendEnv: false,
+              bound: repoRunOutputBound,
+            });
+            expect(result.exitCode).toBe(0);
+            return Str.trim(result.output);
+          });
+          yield* git(["init"]);
+          const blob = yield* git(["hash-object", "-w", "--stdin"]);
+          const paths = [
+            ...A.map(A.range(0, 3500), (index) => `early-root/${index}-${Str.repeat(180)("x")}.ts`),
+            "late-root/last.ts",
+          ];
+          const indexPath = `${root}/index-info`;
+          yield* fs.writeFileString(
+            indexPath,
+            A.join(
+              A.map(paths, (name) => `100644 ${blob}\t${name}\n`),
+              ""
+            )
+          );
+          const loaded = yield* runCaptured({
+            command: "/bin/sh",
+            args: ["-c", 'exec git -C "$1" update-index --index-info < "$2"', "fixture", workspace, indexPath],
+            env: { PATH: "/usr/bin:/bin", GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: "/dev/null" },
+            extendEnv: false,
+            bound: repoRunOutputBound,
+          });
+          expect(loaded.exitCode).toBe(0);
+          const capped = yield* inspectTrialGit(workspace, ["ls-files", "-z"]);
+          expect(capped.exitCode).toBe(0);
+          expect(capped.truncated).toBe(true);
+          const artifact = yield* collectTrialTrackedInventory(workspace, output);
+          const raw = yield* fs.readFileString(artifact.path);
+          expect(Str.length(raw)).toBeGreaterThan(repoRunOutputBound.maxChars);
+          expect(A.dropRight(Str.split("\0")(raw), 1)).toEqual(A.sort(paths, Str.Order));
+          expect(yield* parseTrialTrackedRoots(raw)).toEqual(["early-root", "late-root"]);
+          const duplicate = yield* collectTrialTrackedInventory(workspace, output).pipe(Effect.result);
+          expect(duplicate._tag).toBe("Failure");
+          for (const malformed of [
+            "",
+            "missing-terminator",
+            "\0",
+            "ok\0\0",
+            "/absolute\0",
+            "../escape\0",
+            "a/../escape\0",
+            ".\0",
+            "a//b\0",
+          ])
+            expect((yield* parseTrialTrackedRoots(malformed).pipe(Effect.result))._tag).toBe("Failure");
+          const empty = `${root}/not-a-repository`;
+          const failedOutput = `${root}/failed`;
+          yield* fs.makeDirectory(empty);
+          yield* fs.makeDirectory(failedOutput);
+          const failed = yield* collectTrialTrackedInventory(empty, failedOutput).pipe(Effect.result);
+          expect(failed._tag).toBe("Failure");
+          expect(yield* fs.exists(`${failedOutput}/tracked-roots.nul`)).toBe(true);
+          expect(yield* fs.exists(`${failedOutput}/tracked-roots.stderr`)).toBe(true);
         })
       )
     );

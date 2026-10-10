@@ -263,6 +263,8 @@ const acceptanceDependencies = Effect.fn("TrialRetention.acceptanceDependencies"
       ...O.toArray(O.fromUndefinedOr(check.evaluatorContract)),
       ...O.toArray(O.fromUndefinedOr(check.nativeReport)),
       ...O.toArray(O.fromUndefinedOr(check.rootInventory)),
+      ...O.toArray(O.fromUndefinedOr(check.trackedRootInventory)),
+      ...O.toArray(O.fromUndefinedOr(check.trackedRootStderr)),
       ...O.toArray(O.fromUndefinedOr(check.nativeRuntimeEvidence)),
     ]),
   ];

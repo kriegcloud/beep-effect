@@ -204,3 +204,15 @@ Reuse literal-link restoration for the fresh OCI copy before starting its
 service. Preserve the immutable original, exact declared targets and existing
 namespace restrictions. The musl loader regression must pass before launch.
 The earlier cache commit and interrupted proof remain retained recovery points.
+
+## Complete tracked-root capture (2026-10-09)
+
+Use the existing spooled-stream boundary for Collector's complete tracked index,
+without changing `git ls-files -z` or diagnostic capture limits. Require zero
+exit after successful stream drain, NUL termination, and canonical relative
+names before deriving the same first-component protection roots. Persist the
+raw stdout/stderr as artifact-bound proof and retention dependencies. Legacy
+records still decode, but absent required native tracked-root evidence cannot
+pass finalization. Failed captures retain their partial files and do not admit
+protection roots. Reversal keeps the prior runner commit, failed request and
+source-bound attribution receipts; no source or cache inventory is rewritten.

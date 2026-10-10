@@ -24,6 +24,7 @@ import {
   TrialPlanJson,
   TrialProofJson,
 } from "../AgentEffectiveness.trials.schemas.ts";
+import { parseTrialTrackedRoots } from "./TrialCollector.ts";
 import { trialArtifact } from "./TrialExecutor.ts";
 import {
   deriveTrialInvocation,
@@ -221,6 +222,8 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
     fullYeetChecks[0]?.namespaceBindings !== undefined &&
     fullYeetChecks[0]?.evaluatorContract !== undefined &&
     fullYeetChecks[0]?.nativeRuntimeEvidence !== undefined &&
+    fullYeetChecks[0]?.trackedRootInventory !== undefined &&
+    fullYeetChecks[0]?.trackedRootStderr !== undefined &&
     fullYeetChecks[0]?.id === plan.fullYeetCheckSpec.id &&
     fullYeetChecks[0]?.nativeReport?.digest === proof.verdict.digest &&
     fullYeetChecks[0]?.nativeReport?.path === proof.verdict.path;
@@ -260,6 +263,7 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
         const inventory = yield* S.decodeEffect(
           S.fromJsonString(
             S.Struct({
+              protectionRoots: S.String.pipe(S.Array, S.optional),
               before: S.Array(S.String),
               after: S.Array(S.String),
               linksBefore: S.optional(S.Record(S.String, S.String)),
@@ -270,7 +274,20 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
             })
           )
         )(yield* fs.readFileString(check.rootInventory.path));
+        let trackedValid = check.id !== plan.fullYeetCheckSpec?.id;
+        if (check.trackedRootInventory !== undefined && check.trackedRootStderr !== undefined) {
+          yield* checkArtifact(check.trackedRootInventory);
+          yield* checkArtifact(check.trackedRootStderr);
+          const roots = yield* parseTrialTrackedRoots(yield* fs.readFileString(check.trackedRootInventory.path));
+          const output = path.dirname(check.stdout.path);
+          trackedValid =
+            check.trackedRootInventory.path === path.join(output, "tracked-roots.nul") &&
+            check.trackedRootStderr.path === path.join(output, "tracked-roots.stderr") &&
+            inventory.protectionRoots !== undefined &&
+            equalNames(roots, inventory.protectionRoots);
+        }
         rootValid =
+          trackedValid &&
           inventory.unchanged &&
           equalNames(inventory.before, inventory.after) &&
           inventory.modeBefore === inventory.modeAfter &&

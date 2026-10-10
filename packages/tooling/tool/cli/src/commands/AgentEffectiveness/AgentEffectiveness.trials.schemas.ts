@@ -374,6 +374,8 @@ export class TrialAcceptance extends S.Class<TrialAcceptance>($I`TrialAcceptance
         nativeReport: S.optional(TrialArtifact),
         nativeRuntimeEvidence: S.optional(TrialArtifact),
         rootInventory: S.optional(TrialArtifact),
+        trackedRootInventory: S.optional(TrialArtifact),
+        trackedRootStderr: S.optional(TrialArtifact),
         gitMetadata: S.optional(S.Struct({ beforeDigest: Sha256Hex, afterDigest: Sha256Hex })),
         bindings: S.Struct({ candidate: S.NonEmptyString, sealed: S.NonEmptyString, output: S.NonEmptyString }),
         namespaceBindings: S.optional(
