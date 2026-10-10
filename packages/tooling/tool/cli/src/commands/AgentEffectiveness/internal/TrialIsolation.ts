@@ -618,6 +618,7 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
   );
   if (A.dedupe(names).length !== names.length)
     return yield* AgentTrialError.make({ stage: "proof", message: "Duplicate sealed inventory file/link" });
+  const directories = HashSet.fromIterable(input.directories ?? []);
   for (const name of names) {
     if (path.isAbsolute(name) || path.normalize(name) !== name || name === ".." || Str.startsWith("../")(name))
       return yield* AgentTrialError.make({ stage: "proof", message: "Sealed inventory contains an escaping path" });
@@ -642,7 +643,7 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
           stage: "proof",
           message: "Sealed link differs or escapes evaluator namespace",
         });
-    } else if (A.contains(input.directories ?? [], name)) {
+    } else if (HashSet.has(directories, name)) {
       if ((yield* fs.stat(full)).type !== "Directory" || (yield* fs.realPath(full)) !== full)
         return yield* AgentTrialError.make({
           stage: "proof",

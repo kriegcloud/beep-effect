@@ -543,3 +543,21 @@ files. The earlier formatting result did not establish hook-equivalent lint
 compliance. No commit was created or hook skipped. Correct the declarations,
 run the actual lint check and retain revised source hashes and focused receipts
 before retrying the normal commit. Evidence: `target-batch-local-commit.log`.
+
+## Avoid linear directory membership inside large inventory validation
+
+Request six passed its framework, complete tracked-root capture and native vendor
+guard on local `60f7dd1b5b`, but had not produced a native Yeet verdict. Read-only
+source attribution confirmed `Array.contains` scans the 40,582-directory array
+for every non-link inventory name. The frozen Bun seed has 407,235 files, 4,845
+links and 40,582 directories: one complete validation therefore performs
+17,349,880,423 string-equivalence comparisons at that branch. This is an
+algorithmic count, not a measured fraction of elapsed time or a timing forecast.
+
+The agent stopped its owned scope after 1,047.74 seconds; exit 130, clean source
+and unchanged request. Preserve the attempt and partial evidence as aborted,
+not a passing rerun. Replace only membership lookup with an existing Effect
+hash set built once per validation. Keep name/duplicate validation, ordering,
+file hashing, metadata, symlinks, traversal and final digest checks unchanged.
+Receipts: `native6-directory-membership-attribution-v1.json` and
+`runner-native-attempt6-interruption-v1.json`.

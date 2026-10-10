@@ -258,3 +258,14 @@ binding must prevent passing admission. Preserve historical requests and their
 actual results; only a fresh unscored attempt may use the revised contract.
 Independent final review and mutation tests must close the P1 finding before
 launch. Reversal retains the previous local commit and all original artifacts.
+
+### Preserve full inventory checks with constant-time directory membership
+
+After the source-bound 17.35-billion-comparison attribution, stop unscored
+request six and retain exit 130 plus all partial evidence. Build the existing
+Effect hash set once for directory membership rather than rescanning the array
+for each inventory entry. Do not cache or skip filesystem, byte, mode, owner,
+link, traversal or digest validation. Exact source review and existing focused
+regressions precede a fresh local commit and new attempt identity. No frozen
+task, candidate, model, environment or limit changes. Reversal is retained
+`60f7dd1b5b` and unchanged request-six artifacts.
