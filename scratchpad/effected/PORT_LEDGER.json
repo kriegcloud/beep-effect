@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "github",
+    "module": "sbom",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-10T00:10:42.981Z"
+    "at": "2026-10-10T00:10:55.569Z"
   },
   "rows": [
     {
@@ -10878,7 +10878,7 @@
       "module": "sbom",
       "wave": 4,
       "position": 2,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "drivers",
       "upstreamPaths": {
@@ -11226,6 +11226,18 @@
           "upstreamBehaviour": "The regex runtimeSpecifiers walker reads from text in an exported class message as a runtime import, producing the phantom specifier ${this.path}.",
           "labBehaviour": "The TypeScript declaration parser ignores message contents and records actual runtime imports/re-exports; the expanded fixture asserts only effect and the relative lab SPDX edge while ignoring type-only edges.",
           "reason": "upstream-bug: env-sbom.md:24 reports the false-positive dependency; a read-only probe of the S0 walker on the exported ReadError fixture returned [${this.path}, effect/Schema], whereas the lab parser returned [effect/Schema]; the regression fixture pins the correction."
+        },
+        {
+          "test": "module suite scratchpad/test/sbom/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/sbom/SbomDocument.ts:356 carried a branch no input can reach",
+          "labBehaviour": "Replaced the length-first singleton-license guard with first-element/rest destructuring, removing the impossible undefined-element arm after a one-element array check.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/sbom/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/sbom/SlsaProvenance.ts:262 carried a branch no input can reach",
+          "labBehaviour": "Replaced split(\"@\")[0] ?? \"\" with suffix removal at the first \"@\", preserving extraction behavior and removing the impossible fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -11323,6 +11335,10 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
@@ -11330,7 +11346,8 @@
       "notes": [
         "2026-10-09T11:34:03.467Z beep laws done (four laws clean, allowlisted sites listed); S1 held by the environment-bound tests in TESTS_NOT_PASSING.md",
         "2026-10-09T15:21:09.482Z S1: green: env-bound tests resolved per the 2026-10-09 rulings; tsgo, oxlint and the four laws clean; audit green (parity strict)",
-        "2026-10-09T16:20:10.151Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:20:10.151Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:10:55.569Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (9 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
