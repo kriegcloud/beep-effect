@@ -14,6 +14,15 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   }), runs);
 };
 describe("guard schema property floor", () => {
+  it.effect("round-trips the overflow sentinel and compares measurements", () => Effect.gen(function* () {
+    const encoded = yield* S.encodeEffect(GuardMeasurement)(Infinity);
+    assert.strictEqual(encoded, Infinity);
+    const decoded = yield* S.decodeEffect(GuardMeasurement)(encoded);
+    assert.strictEqual(decoded, Infinity);
+    const equivalent = S.toEquivalence(GuardMeasurement);
+    assert.isTrue(equivalent(decoded, Infinity));
+    assert.isFalse(equivalent(decoded, 100_000));
+  }));
   roundTrips("InvalidCap", InvalidCap);
   roundTrips("GuardReason", GuardReason);
   roundTrips("GuardMeasurement", GuardMeasurement);

@@ -7,7 +7,7 @@ import { escape as oracleEscape } from "minimatch";
 import { escape } from "../../../effected/glob/internal/escape.ts";
 import { unescape } from "../../../effected/glob/internal/unescape.ts";
 const runs = { arbitrary: fcRuns(100) };
-const text = Arbitrary.schema(S.Array(S.Literals(["a", "é", "?", "*", "(", ")", "[", "]", "{", "}", ",", "+", "@", "!"])) ).pipe(Arbitrary.map((parts) => parts.join("")));
+const text = S.Literals(["a", "é", "?", "*", "(", ")", "[", "]", "{", "}", ",", "+", "@", "!"]).pipe(S.Array, Arbitrary.schema, Arbitrary.map((parts) => parts.join("")));
 describe("escape property floor", () => {
   it.effect.prop("escape/unescape fidelity and canonical escaped rendering idempotence", [text, Arbitrary.schema(S.Boolean), Arbitrary.schema(S.Boolean)], ([input, windowsPathsNoEscape, magicalBraces]) => Effect.sync(() => {
     const options = { windowsPathsNoEscape, magicalBraces };
