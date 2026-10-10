@@ -4,6 +4,7 @@ import * as A from "effect/Array";
 import * as N from "effect/Number";
 import * as Str from "effect/String";
 import * as Effect from "effect/Effect";
+import { identity } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -16,6 +17,10 @@ import { serializeHeader, serializeValue } from "./internal/config.ts";
 import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/git/Gitmodules");
+const DiagnosticJsonString = S.fromJsonString(S.String).annotate(
+  $I.annote("DiagnosticJsonString", { description: "JSON quoting for synchronous submodule field diagnostics." }),
+);
+const encodeDiagnosticJsonString = S.encodeResult(DiagnosticJsonString);
 
 /** A value that can be rendered and scanned without a NUL-byte diagnostic. */
 const GitmodulesValue = S.String.check(S.isPattern(/^[^\0]*$/u)).annotate(
@@ -157,7 +162,7 @@ export class GitmodulesDecodeError extends S.TaggedError<GitmodulesDecodeError>(
 			? `submodule "${this.name}" has no path`
 			: this.reason === "missingUrl"
 				? `submodule "${this.name}" has no url`
-				: `submodule "${this.name}": invalid value ${JSON.stringify(this.value ?? "")} for ${this.field ?? "a field"}`;
+				: `submodule "${this.name}": invalid value ${Result.getOrThrowWith(encodeDiagnosticJsonString(this.value ?? ""), identity)} for ${this.field ?? "a field"}`;
 	}
 }
 

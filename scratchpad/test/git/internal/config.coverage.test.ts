@@ -32,16 +32,12 @@ describe("git config scanner boundary coverage", () => {
     }),
   );
 
-  it.effect("diagnoses a trailing value escape at EOF and retains the preceding value", () =>
+  it.effect("accepts a trailing value escape at EOF and retains the preceding value and raw span", () =>
     Effect.gen(function* () {
       const text = "[core]\nkey = first\\";
       const parsed = scan(text);
-      assert.deepStrictEqual(parsed.diagnostics, [{
-        code: "invalidEscape",
-        message: 'invalid escape sequence \\ in value of "key"',
-        offset: text.length - 1,
-        length: 2,
-      }]);
+      assert.deepStrictEqual(parsed.diagnostics, []);
+      assert.strictEqual(parsed.sections[0]?.entries[0]?.valueLength, "first\\".length);
       assert.strictEqual(parsed.sections[0]?.entries[0]?.value, "first");
     }),
   );
@@ -68,7 +64,6 @@ describe("git config scanner boundary coverage", () => {
       for (const [text, message] of [
         ["[core]\rjunk\n", "unexpected text after carriage return"],
         ["[.origin]\n", "malformed dotted section header"],
-        ["[remote.]\n", "malformed dotted section header"],
       ]) {
         assertDefined(text);
         assertDefined(message);
@@ -76,6 +71,21 @@ describe("git config scanner boundary coverage", () => {
         assert.deepStrictEqual(parsed.sections, []);
         assert.deepStrictEqual(parsed.diagnostics, [{ code: "invalidSectionHeader", message, offset: 0, length: text.length }]);
       }
+    }),
+  );
+
+  it.effect("accepts an empty dotted subsection while retaining its header span", () =>
+    Effect.gen(function* () {
+      const text = "[remote.]\nurl=u\n";
+      const parsed = scan(text);
+      assert.deepStrictEqual(parsed.diagnostics, []);
+      const section = parsed.sections[0];
+      assertDefined(section);
+      assert.strictEqual(section.name, "remote");
+      assert.strictEqual(section.subsection, "");
+      assert.strictEqual(section.fold, true);
+      assert.strictEqual(section.bracketLength, "[remote.]".length);
+      assert.strictEqual(section.entries[0]?.value, "u");
     }),
   );
 

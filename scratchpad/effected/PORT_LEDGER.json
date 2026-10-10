@@ -6690,6 +6690,54 @@
           "upstreamBehaviour": "scratchpad/effected/git/Gitmodules.ts:56 carried a branch no input can reach",
           "labBehaviour": "Replaced the unused private boolean encoder with SchemaGetter.forbiddenEncoding; this schema is used only for decoding.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/git/Git.test.ts:978",
+          "upstreamBehaviour": "commonDir strips a CR before the final LF and rejects any embedded LF, losing valid Unix pathname identity.",
+          "labBehaviour": "commonDir removes exactly one final LF, preserving pathname CR and embedded LF; the echoed older-Git option remains refused.",
+          "reason": "upstream-bug: git-r2; part-1/sol sol-2-1 records scripted-spawner probes reproducing both failures in the pinned oracle. The added CR/LF pathname regression verifies the correction."
+        },
+        {
+          "test": "scratchpad/test/git/GitConfig.test.ts:199; scratchpad/test/git/Gitmodules.test.ts:49",
+          "upstreamBehaviour": "The config scanner accepts quoted subsection headers without whitespace, including [remote\"origin\"].",
+          "labBehaviour": "Quoted subsections require a space or tab after the section name; separated empty subsections remain accepted in GitConfig and Gitmodules.",
+          "reason": "upstream-bug: git-r5; part-2/sol sol-2-1 records Git 2.56.0 rejecting the unseparated header with exit 128 while the pinned oracle accepts it. New public parse regressions verify rejection and valid separators."
+        },
+        {
+          "test": "scratchpad/test/git/GitConfig.test.ts:213; scratchpad/test/git/internal/config.coverage.test.ts:77",
+          "upstreamBehaviour": "The scanner rejects [remote.] as a malformed dotted header, preventing empty-subsection lookup.",
+          "labBehaviour": "Empty dotted subsections parse and share the quoted-empty address, with source bytes and surgical edits preserved; empty section names remain invalid.",
+          "reason": "upstream-bug: git-r6; part-2/sol sol-2-2 records Git 2.56.0 accepting [remote.] and emitting remote..url while the pinned oracle rejects it. The former rejection assertion is retargeted and lookup/span regressions added."
+        },
+        {
+          "test": "scratchpad/test/git/GitConfig.test.ts:225,235; scratchpad/test/git/internal/config.coverage.test.ts:35",
+          "upstreamBehaviour": "A backslash immediately before EOF is diagnosed as invalidEscape, even outside quotes or after a closed quoted value.",
+          "labBehaviour": "An EOF backslash outside open quotes is dropped from the decoded value and included in the replacement span; open quotes and backslash plus terminal CR remain invalid.",
+          "reason": "upstream-bug: git-r7; part-2/sol sol-2-3 records Git 2.56.0 accepting unquoted and closed-quote EOF backslashes while the pinned oracle rejects them. Retargeted scanner and new public parse/set tests verify the correction."
+        },
+        {
+          "test": "scratchpad/test/git/GitConfig.test.ts:240,252; scratchpad/test/git/Gitmodules.test.ts:64",
+          "upstreamBehaviour": "A terminal CR enters decoded config values and their replacement spans, so set removes the line ending and terminal-CR submodule booleans can fail.",
+          "labBehaviour": "Terminal CR ends the value and stays outside the edit span; empty and nonempty values decode correctly, shallow 0/1 decode as booleans, and embedded CR and CRLF remain intact.",
+          "reason": "upstream-bug: git-r8; part-2/sol sol-2-4 and inventory probes record Git 2.56.0 decoding x=CR as empty and x=aCR as a while the pinned oracle retains CR. New get/set, byte-fidelity and boolean regressions verify the correction."
+        },
+        {
+          "test": "scratchpad/test/git/Git.test.ts:601,947; scratchpad/test/git/GitConfig.test.ts:191; scratchpad/test/git/Gitmodules.test.ts:40; scratchpad/test/git/GitCommand.test.ts:208,825",
+          "upstreamBehaviour": "Refusal, invalid-line and submodule diagnostics use native JSON.stringify; the reused nonnegative-integer predicate and private GitArg/redaction vocabulary lack runtime schemas.",
+          "labBehaviour": "These three diagnostic paths use Schema JSON codecs; NonNegativeInteger has an S.is guard, and GitArg derives from a local schema and LiteralKit, preserving acceptance, carrier shape, argv, redaction and diagnostic bytes.",
+          "reason": "schema-first: D5, Effect laws 17/19 and EF-3/EF-12b require schema-owned reused domains, schema-derived guards and JSON codecs. This records newly repaired git-r1/r3/r9 sites, excluding the already recorded commonDir codec and other round-1 domains."
+        },
+        {
+          "test": "scratchpad/test/git/integration/Git.int.test.ts:78,147; scratchpad/test/git/integration/GitSurface.int.test.ts:81,136",
+          "upstreamBehaviour": "Integration helpers repeatedly acquire TestLayer, mutate process.env and use native filesystem/path operations and async hooks; file-wide directives suppress their diagnostics.",
+          "labBehaviour": "Each integration file shares one scoped Context, pins configuration/protocol on real child spawns, and uses Effect FileSystem/Path and composed hooks under a suite-owned temporary root; directives are removed.",
+          "reason": "tsgo-diagnostics: D11 and the diagnostic-directive policy require actual strictEffectProvide, multipleEffectProvide, processEnv, nodeBuiltinImport and asyncFunction repairs. Newly touched integration resource lifetimes, environment scope and platform boundaries are distinct from the recorded unit-helper repairs."
+        },
+        {
+          "test": "scratchpad/test/git/integration/Git.int.test.ts:101; scratchpad/test/git/integration/GitSurface.int.test.ts:106",
+          "upstreamBehaviour": "Unsuccessful real-Git fixture setup dies with a native Error carrying the failing invocation, exit code and stderr.",
+          "labBehaviour": "Each integration fixture dies with its identity-annotated FixtureSetupError schema tagged error, retaining the message and fail-fast defect outcome.",
+          "reason": "tagged-errors: Effect law 7 prohibits native Error defects. These newly changed integration setup defect shapes are separate from the existing NotStubbedError and GitConfigInvariantError record; the native-runtime report describes this same replacement, not an additional divergence."
         }
       ],
       "backlog": [
@@ -6758,6 +6806,18 @@
           "round": 1,
           "finding": "git-b11 — Integrate the directive scan in central tooling (scratchpad/effected/runner (directive-scan integration))",
           "reason": "tsgo: Central tooling integrates the existing directive scan into the lab gate; no broad exemption without a binding ruling; git-r6 separately repairs local test directives."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "git-b1 — Correct the nonexistent diagnostic type in documentation (scratchpad/effected/git/GitConfig.ts:36)",
+          "reason": "docs: During S2, replace GitConfigErrorCode with GitConfigDiagnosticCode in the sentence."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "git-b2 — Replace native JSON serialization in JSDoc examples (scratchpad/effected/git/GitConfig.ts:568,677)",
+          "reason": "jsdoc: During S2, use schema JSON codecs of the correct payload shape: S.fromJsonString(S.Array(S.String)) for getAll arrays and S.fromJsonString(S.String) for rendered module text. Preserve the example output and carried upstream meaning."
         }
       ],
       "reviewRounds": [
@@ -6776,6 +6836,24 @@
             "fable": {
               "required": 8,
               "backlog": 19
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "60fcfb5ebcdc26765a66cc1f13afc88adcb05d11",
+          "seats": {
+            "grok": {
+              "required": 6,
+              "backlog": 1
+            },
+            "sol": {
+              "required": 9,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 5,
+              "backlog": 1
             }
           }
         }
