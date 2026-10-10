@@ -2,6 +2,8 @@
 // (original, modified) into minimal raw edit records. The facade
 // materializes public `YamlEdit` instances from these.
 
+import * as A from "effect/Array";
+
 /**
  * A raw text-edit record: replace `[offset, offset + length)` with `content`.
  *
@@ -67,10 +69,6 @@ export function computeEdits(original: string, ...[modified]: [modified: string]
 	const modStart = prefixLen;
 	const modEnd = modified.length - suffixLen;
 
-	if (origStart >= origEnd && modStart >= modEnd) {
-		return [];
-	}
-
 	// Try to split into line-level edits for better granularity
 	const origMiddle = original.substring(origStart, origEnd);
 	const modMiddle = modified.substring(modStart, modEnd);
@@ -81,9 +79,7 @@ export function computeEdits(original: string, ...[modified]: [modified: string]
 		// Same number of lines — emit per-line edits for changed lines only
 		const edits: RawEdit[] = [];
 		let offset = origStart;
-		for (let i = 0; i < origLines.length; i++) {
-			const origLine = origLines[i] ?? "";
-			const modLine = modLines[i] ?? "";
+		for (const [origLine, modLine] of A.zip(origLines, modLines)) {
 			if (origLine !== modLine) {
 				edits.push({
 					offset,

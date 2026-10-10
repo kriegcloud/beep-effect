@@ -231,13 +231,8 @@ const buildLines = (text: string): ReadonlyArray<LintLine> => {
  * `parse-validity` rule reports what went wrong).
  */
 const buildContext = (text: string): LintContext => {
-	const tokens = Result.match(YamlTokens.tokenize(text), {
-		onSuccess: (value) => value,
-		onFailure: (error) => {
-			// The tokenize failure channel is reserved and never fires today.
-			throw error;
-		},
-	});
+	// Tokenization always succeeds; malformed syntax is composer diagnostics.
+	const tokens = Result.getOrThrow(YamlTokens.tokenize(text));
 	return {
 		text,
 		lines: buildLines(text),
@@ -554,7 +549,7 @@ export class YamlStyleConflictError extends S.TaggedError<YamlStyleConflictError
 			.map(
 				(conflict) =>
 					`Conflicting style for ${conflict.rule}.${conflict.dimension}: ${conflict.candidates
-						.map((c) => `${Result.getOrElse(encodeStyleCandidateJson(c.value), () => "<invalid style value>")} (${c.count}×, first at ${c.line + 1}:${c.character + 1})`)
+						.map((c) => `${Result.getOrThrow(encodeStyleCandidateJson(c.value))} (${c.count}×, first at ${c.line + 1}:${c.character + 1})`)
 						.join(" vs ")}`,
 			)
 			.join("; ");
@@ -624,8 +619,8 @@ const resolveStrictEvidence = (
 				);
 				continue;
 			}
-			const only = tallies[0];
-			if (only === undefined) continue;
+			// groupVotes creates each group by inserting its first tally.
+			const only = A.getUnsafe(tallies, 0);
 			const dimPicks = O.getOrUndefined(MutableHashMap.get(picks, ruleId)) ?? MutableHashMap.empty<string, string | number | boolean>();
 			MutableHashMap.set(dimPicks, dimension, only.value);
 			MutableHashMap.set(picks, ruleId, dimPicks);
@@ -641,8 +636,7 @@ const resolveLenientEvidence = (evidence: StyleEvidence, base: YamlLintConfig): 
 		for (const [dimension, tallies] of dims) {
 			// Dominant = plurality: highest count wins; a tie breaks to the first
 			// tally in canonical (value-key) order, so the pick is deterministic.
-			let dominant = tallies[0];
-			if (dominant === undefined) continue;
+			let dominant = A.getUnsafe(tallies, 0);
 			for (const tally of tallies) {
 				if (tally.count > dominant.count) dominant = tally;
 			}

@@ -8,6 +8,7 @@ import type { RawDiagnostic } from "../diagnostics.ts";
 import type { ParseOptionsInput } from "../options.ts";
 import type { EscapedComment } from "./comments.ts";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as A from "effect/Array";
 import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
@@ -93,7 +94,7 @@ export function lineCol(...[text, offset]: [text: string, offset: number]): { li
 			hi = mid - 1;
 		}
 	}
-	const lineStart = starts[lo] ?? 0;
+	const lineStart = A.getUnsafe(starts, lo);
 	const bom = text[lineStart] === "\uFEFF" && pos > lineStart ? 1 : 0;
 	return { line: lo, column: pos - lineStart - bom };
 }

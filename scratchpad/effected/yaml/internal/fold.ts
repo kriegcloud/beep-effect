@@ -3,20 +3,6 @@
 // scalars, plus the whitespace analyses that decide when block styles cannot
 // represent a value faithfully.
 
-import { $ScratchpadId } from "@beep/identity/packages";
-import * as S from "effect/Schema";
-
-const $I = $ScratchpadId.create("effected/yaml/internal/fold");
-
-/** A defect raised when a YAML helper invariant is violated. */
-class FoldFailure extends S.TaggedError<FoldFailure>($I`FoldFailure`)(
-	"FoldFailure",
-	{
-		message: S.String.annotateKey({ description: "The violated scalar-folding invariant." }),
-	},
-	$I.annote("FoldFailure", { description: "A violated invariant while rendering a YAML scalar." }),
-) {}
-
 /**
  * Folds a logical scalar line at safe spaces while preserving its YAML value.
  *
@@ -71,6 +57,14 @@ export function foldScalarLine(
 	let prev: string | undefined;
 	for (let i = 0; i < text.length; i++) {
 		const ch = text[i];
+		// An existing physical break already satisfies the previous line's
+		// budget. Never reuse its split candidate when folding rendered text.
+		if (ch === "\n") {
+			split = undefined;
+			end = i + 1 + lineWidth;
+			prev = undefined;
+			continue;
+		}
 		if (ch === " " && prev !== undefined && prev !== " ") {
 			const next = text[i + 1];
 			if (next !== undefined && next !== " ") split = i;
@@ -84,9 +78,7 @@ export function foldScalarLine(
 	}
 	if (folds.length === 0) return text;
 	let result = text.slice(0, folds[0]);
-	for (let f = 0; f < folds.length; f++) {
-		const fold = folds[f];
-		if (fold === undefined) throw FoldFailure.make({ message: "Missing fold" });
+	for (const [f, fold] of folds.entries()) {
 		const sliceEnd = folds[f + 1] ?? text.length;
 		// Drop the space at `fold`; the inserted break carries the join.
 		result += `\n${indent}${text.slice(fold + 1, sliceEnd)}`;
@@ -136,12 +128,8 @@ export function foldRenderedScalar(
 	if (first === "|" || first === "'") return rendered;
 	if (first === ">") {
 		const lines = rendered.split("\n");
-		const firstLine = lines[0];
-		if (firstLine === undefined) throw FoldFailure.make({ message: "Missing first line" });
-		const out: string[] = [firstLine];
-		for (let i = 1; i < lines.length; i++) {
-			const line = lines[i];
-			if (line === undefined) throw FoldFailure.make({ message: "Missing line" });
+		const out = lines.slice(0, 1);
+		for (const line of lines.slice(1)) {
 			// Fold only base-indent content lines: they start with exactly `indent`
 			// and the next char is content (not a further space/tab, which would
 			// make the line "more-indented" and its break literal to the reader).
@@ -508,9 +496,7 @@ export function renderBlockFolded(
 	// in a blank run is the identical `""`, so emitting the compensation line
 	// at the end of the run instead of its start is byte-identical output.
 	let pendingCompensation = false;
-	for (let i = 0; i < valueLines.length; i++) {
-		const line = valueLines[i];
-		if (line === undefined) throw FoldFailure.make({ message: "Missing line" });
+	for (const [i, line] of valueLines.entries()) {
 		if (line === "") {
 			// If the previous line was non-empty, non-more-indented content,
 			// the \n after it is preserved (not folded) because it's followed

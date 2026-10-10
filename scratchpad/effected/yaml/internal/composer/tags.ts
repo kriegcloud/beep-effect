@@ -7,6 +7,7 @@ import type { CstNode } from "../cst.ts";
 import type { RawDirective } from "../raw-document.ts";
 import type { ComposerState } from "./state.ts";
 import * as MutableHashSet from "effect/MutableHashSet";
+import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import { lexAll } from "../lexer.ts";
@@ -54,13 +55,11 @@ export function resolveTagHandle(...[tag, state]: [tag: string, state: ComposerS
 	// Named tag handle: !name!suffix
 	const namedMatch = tag.match(/^(![\w-]*!)(.*)$/);
 	if ((namedMatch !== null)) {
-		const handle = namedMatch[1];
-		const suffix = namedMatch[2];
-		if ((handle !== undefined && handle !== "")) {
-			const prefix = O.getOrUndefined(MutableHashMap.get(state.tagMap, handle));
-			if ((prefix !== undefined && prefix !== "")) {
-				return prefix + decodeTagSuffix(suffix ?? "", tag, state);
-			}
+		const handle = A.getUnsafe(namedMatch, 1);
+		const suffix = A.getUnsafe(namedMatch, 2);
+		const prefix = O.getOrUndefined(MutableHashMap.get(state.tagMap, handle));
+		if ((prefix !== undefined && prefix !== "")) {
+			return prefix + decodeTagSuffix(suffix, tag, state);
 		}
 	}
 	// Primary tag handle: !suffix (non-empty suffix)
@@ -172,8 +171,8 @@ export function validateTagHandlesInDocument(...[docCst, state]: [docCst: CstNod
 		if (child.type !== "directive") continue;
 		const directive = parseDirective(child.source);
 		if ((directive !== null) && directive.name === "TAG" && directive.parameters.length >= 2) {
-			const handle = directive.parameters[0];
-			if ((handle !== undefined && handle !== "")) MutableHashSet.add(localHandles, handle);
+			const handle = A.getUnsafe(directive.parameters, 0);
+			MutableHashSet.add(localHandles, handle);
 		}
 	}
 	// Walk the doc's CST nodes for `tag` children and validate references.
@@ -185,7 +184,7 @@ export function validateTagHandlesInDocument(...[docCst, state]: [docCst: CstNod
 			const src = node.source;
 			if (!src.startsWith("!<")) {
 				const named = src.match(/^(![\w-]*!)(.*)$/);
-				const suffix = src.startsWith("!!") ? src.slice(2) : named !== null ? named[2] ?? "" : src.slice(1);
+				const suffix = src.startsWith("!!") ? src.slice(2) : named !== null ? A.getUnsafe(named, 2) : src.slice(1);
 				try {
 					decodeURIComponent(suffix);
 				} catch {

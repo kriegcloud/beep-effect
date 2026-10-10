@@ -756,28 +756,27 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 			if (!hasExplicitKey) {
 				checkMultilineImplicitKeys(pairs, state, semItems);
 			}
-			const firstPair = pairs[0];
-			if (firstPair !== undefined) {
-				// Anchor the blank-above check at the segment's first token
-				// (comment or key) — the analog of buildPairs anchoring at the
-				// key it is about to construct. Comments INSIDE the segment
-				// attach to the pair via buildPairs; a blank line ABOVE the
-				// segment is this item's spaceBefore.
-				const segFirst = content[0];
-				const fields = takePendingFields(segFirst !== undefined ? segFirst.offset : -1);
-				const map = YamlMap.make({
-					items: pairs,
-					style: "flow",
-					offset: firstPair.key.offset,
-					length: 0,
-					...fields,
-					...O.getSomesStruct({ comment: O.fromUndefinedOr(segTrailing) }),
-				});
-				items.push(map);
-				pushedIdx = items.length - 1;
-				lastItemEnd = map.offset + map.length;
-			} else if (segTrailing !== undefined) {
-				seqTrailing = joinComments(seqTrailing, segTrailing);
+			// A value separator always yields a pair, and remains in content.
+			for (const firstPair of pairs.slice(0, 1)) {
+				for (const segFirst of content.slice(0, 1)) {
+					// Anchor the blank-above check at the segment's first token
+					// (comment or key) — the analog of buildPairs anchoring at the
+					// key it is about to construct. Comments INSIDE the segment
+					// attach to the pair via buildPairs; a blank line ABOVE the
+					// segment is this item's spaceBefore.
+					const fields = takePendingFields(segFirst.offset);
+					const map = YamlMap.make({
+						items: pairs,
+						style: "flow",
+						offset: firstPair.key.offset,
+						length: 0,
+						...fields,
+						...O.getSomesStruct({ comment: O.fromUndefinedOr(segTrailing) }),
+					});
+					items.push(map);
+					pushedIdx = items.length - 1;
+					lastItemEnd = map.offset + map.length;
+				}
 			}
 		} else {
 			// Process as plain sequence items. Comments before an item in the
@@ -788,17 +787,18 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 			const semItems = flattenFlowChildren(content, state);
 			for (const si of semItems) {
 				if (si.kind === "comment") {
-					const cText = si.comment ?? "";
+					const cText = si.comment;
 					// Own-line vs trailing is decided from the comment's own line
 					//: only a comment SHARING a line with content attaches
 					// backward as the previous item's trailing comment; an
 					// own-line comment attributes FORWARD to the next item.
-					const ownLine = si.offset === undefined ? true : isOwnLineAt(state.text, si.offset);
+					const ownLine = isOwnLineAt(state.text, si.offset);
 					if (!ownLine && pushedIdx >= 0) {
-						const prev = items[pushedIdx];
-						if (prev !== undefined) items[pushedIdx] = withCommentFields(prev, { comment: cText });
+						for (const prev of items.slice(pushedIdx, pushedIdx + 1)) {
+							items[pushedIdx] = withCommentFields(prev, { comment: cText });
+						}
 					} else {
-						acceptOwnLineComment(cText, si.offset ?? -1);
+						acceptOwnLineComment(cText, si.offset);
 					}
 					continue;
 				}
@@ -816,18 +816,15 @@ function composeFlowSeqInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 	// comment (hoisted leftover — mirrors buildPairs' contract). A blank line
 	// between the last item and the terminal run embeds as a LEADING empty
 	// line in the joined string.
-	if (pending.length > 0) {
-		const joined = joinPending(pending);
-		const first = pending[0];
+	for (const first of pending.slice(0, 1)) {
+		const joined = first.text + pending.slice(1).map(
+			(part) => part.blankAbove ? `\n\n${part.text}` : `\n${part.text}`,
+		).join("");
 		const withLead =
-			joined !== undefined &&
-			first !== undefined &&
-			lastItemEnd >= 0 &&
-			first.offset >= 0 &&
-			hasBlankLineAbove(state.text, first.offset)
+			lastItemEnd >= 0 && first.offset >= 0 && hasBlankLineAbove(state.text, first.offset)
 				? `\n${joined}`
 				: joined;
-		if (withLead !== undefined) seqTrailing = joinComments(seqTrailing, withLead);
+		seqTrailing = joinComments(seqTrailing, withLead);
 	}
 
 	const seqComment =

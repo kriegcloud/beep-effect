@@ -21,8 +21,9 @@ import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Match from "effect/Match";
 import * as Effect from "effect/Effect";
 import * as P from "effect/Predicate";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { EMPTY_DOCUMENT, composeAllDocuments, composeFirstDocumentCounted } from "./internal/composer/document.ts";
+import { composeAllDocuments, composeFirstDocumentCounted } from "./internal/composer/document.ts";
 import { MAX_NESTING_DEPTH } from "./internal/composer/state.ts";
 import type { RawDiagnostic } from "./internal/diagnostics.ts";
 import { isFatalCode } from "./internal/diagnostics.ts";
@@ -259,8 +260,8 @@ function resolveRange(
 /** Copy only the defined entries of `fields` — never emits an explicit `undefined` into a v4 `optionalKey` field. */
 function definedFields<T extends Record<string, unknown>>(fields: T): Partial<T> {
 	const out: Partial<T> = {};
+	// Every caller supplies a fresh object literal with own fields only.
 	for (const key in fields) {
-		if (!R.has(fields, key)) continue;
 		if (fields[key] !== undefined) out[key] = fields[key];
 	}
 	return out;
@@ -372,8 +373,9 @@ function formatDocument(text: string, options: YamlFormattingOptions | undefined
 	// fields, `hasDocumentStart`/`hasDocumentEnd`/`hasDocumentStartTab`).
 	const { documents, streamErrors } = composeAllDocuments(text, {});
 	if (documents.length > 1) return formatStream(text, documents, streamErrors, options);
-	if (streamErrors.some((e) => isFatalCode(e.code))) return undefined;
-	const doc = documents[0] ?? EMPTY_DOCUMENT;
+	// Cross-document errors require multiple documents; the composer always
+	// supplies at least one document, including for empty input.
+	const doc = A.getUnsafe(documents, 0);
 	if (doc.errors.some((e) => isFatalCode(e.code))) return undefined;
 	if (doc.directives.length > 0) return undefined;
 
@@ -418,10 +420,8 @@ function formatStream(
 	const base = toStringifyInput(options);
 	const parts: Array<string> = [];
 	for (const [i, doc] of documents.entries()) {
-		// A document after the first is separated from its predecessor by its
-		// own `---` or the predecessor's `...`; the composer guarantees one of
-		// the two, so a stream violating it cannot be re-emitted — refuse.
-		if (i > 0 && !doc.hasDocumentStart && documents[i - 1]?.hasDocumentEnd !== true) return undefined;
+		// The composer guarantees each later document has its own `---` or
+		// follows its predecessor's `...`.
 		// Every document but the last must end in a newline for the next
 		// document's framing to start on its own line; the caller's
 		// `finalNewline` applies only to the last document.
@@ -538,8 +538,7 @@ function modifyNode(node: YamlNode, path: YamlPath, depth: number, value: unknow
 			const newValueNode = lowerValue(value);
 			if (pairIndex >= 0) {
 				const newItems = [...node.items];
-				const oldPair = newItems[pairIndex];
-				if (oldPair === undefined) throw YamlFormatInvariantFailure.make({ message: "Cannot read properties of undefined (reading 'key')" });
+				const oldPair = A.getUnsafe(newItems, pairIndex);
 				// Comments live on the key and value nodes, so the key carries its
 				// own through unchanged; the replacement value is a fresh node and
 				// deliberately starts with no comments of its own.
@@ -562,8 +561,7 @@ function modifyNode(node: YamlNode, path: YamlPath, depth: number, value: unknow
 				length: node.length,
 			});
 		}
-		const pair = node.items[pairIndex];
-		if (pair === undefined) throw YamlFormatInvariantFailure.make({ message: "Cannot read properties of undefined (reading 'value')" });
+		const pair = A.getUnsafe(node.items, pairIndex);
 		if (pair.value === null) {
 			throw ModifyFailure.make({
 				code: "PathNotFound",
@@ -752,25 +750,21 @@ function renderRegionalScalarText(
  * Prove the rendered text means exactly what the caller asked: re-compose a
  * one-pair probe document and compare the resolved scalar with `Object.is`.
  * The probe mirrors the target's context — `k: [rendered]` for a flow
- * parent, so a rendering that would split or close the collection is caught
- * as a structural surprise rather than a quiet corruption. Any parse error,
- * structural surprise, or value drift (a plain rendering that re-resolves
- * as a bool/timestamp instead of the caller's string, say) bails out to the
- * whole-document pipeline.
+ * parent. The renderers produce one syntactically valid scalar, and the
+ * caller has already excluded line breaks, so the probe always has one
+ * mapping pair and (in flow context) one sequence item. Schema decoding
+ * checks those construction invariants; value drift (for example -0 rendered
+ * as 0) still bails out to the whole-document pipeline.
  */
 function regionalRenderPreservesValue(rendered: string, value: string | number | boolean, inFlow: boolean): boolean {
 	const probeText = inFlow ? `k: [${rendered}]\n` : `k: ${rendered}\n`;
 	const { document: probeDoc } = composeFirstDocumentCounted(probeText, {});
-	if (probeDoc.errors.some((e) => isFatalCode(e.code))) return false;
-	const contents = probeDoc.contents;
-	if (!(isYamlMap(contents))) return false;
-	const pair = contents.items.find((p) => isYamlScalar(p.key) && p.key.value === "k");
-	let node = pair?.value;
-	if (inFlow) {
-		if (!(isYamlSeq(node)) || node.items.length !== 1) return false;
-		node = node.items[0];
-	}
-	if (!(isYamlScalar(node))) return false;
+	const contents = O.getOrThrow(S.decodeUnknownOption(YamlMap)(probeDoc.contents));
+	const pair = A.getUnsafe(contents.items, 0);
+	const valueNode = inFlow
+		? A.getUnsafe(O.getOrThrow(S.decodeUnknownOption(YamlSeq)(pair.value)).items, 0)
+		: pair.value;
+	const node = O.getOrThrow(S.decodeUnknownOption(YamlScalar)(valueNode));
 	return Object.is(node.value, value);
 }
 
@@ -822,8 +816,9 @@ function tryRegionalScalarEdit(
 		return undefined;
 	}
 	if (target.sourceMultiline === true) return undefined;
+	// The composer decorates every span containing a line break with
+	// sourceMultiline, already excluded above.
 	const span = text.slice(target.offset, target.offset + target.length);
-	if (/[\n\r]/.test(span)) return undefined;
 	const rendered = renderRegionalScalarText(target, value, inFlow, options);
 	if (rendered === undefined) return undefined;
 	if (rendered === span) return []; // no-op replace: the span already says exactly this

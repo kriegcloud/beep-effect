@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "workspaces",
+    "module": "yaml",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-10T00:12:29.857Z"
+    "at": "2026-10-10T00:27:14.882Z"
   },
   "rows": [
     {
@@ -1280,7 +1280,7 @@
       "module": "yaml",
       "wave": 1,
       "position": 2,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
@@ -1802,6 +1802,672 @@
           "upstreamBehaviour": "Hyphen spacing offers separator-shortening fixes for compact block collections with continuation entries, changing parsed sequence/mapping values.",
           "labBehaviour": "Diagnostics remain but fixes are omitted when they would relocate a continued compact collection; scalar, flow and single-line compact fixes remain available and preserve parsed values.",
           "reason": "upstream-bug: fix-yaml-g9.md:18 and INVENTORY.md hyphen-fix-fidelity reproduce upstream nested-sequence/map corruption; value-fidelity and safe-fix regressions pin the selective omission."
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlNode.ts:887 carried a branch no input can reach",
+          "labBehaviour": "Removed null traversal checks; traversal starts with a node and rejects null values before assignment.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlNode.ts:1171 carried a branch no input can reach",
+          "labBehaviour": "Removed the fallback beyond the four-member node union; the remaining member is necessarily an alias.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlToken.ts:114 carried a branch no input can reach",
+          "labBehaviour": "Removed backward-offset restart logic; the private promotion function receives the lexer's ordered token stream.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlToken.ts:128 carried a branch no input can reach",
+          "labBehaviour": "Replaced the missing-line-start fallback with Array.getUnsafe; the dense index starts at zero and the cursor advances only to existing entries.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlToken.ts:219 carried a branch no input can reach",
+          "labBehaviour": "Removed the unreachable failure callback for total tokenization; Result.getOrThrow retains defect behavior for a future failure.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlVisitor.ts:277 carried a branch no input can reach",
+          "labBehaviour": "Made sequence traversal exhaustive after excluding scalar, alias, and map nodes.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:130 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-offset fallback; every YamlNode has an offset.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:146 carried a branch no input can reach",
+          "labBehaviour": "Simplified external-key offset selection; only absence of the key needs a fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:458 carried a branch no input can reach",
+          "labBehaviour": "Removed empty-content span fallbacks; inline-implicit-map lookahead guarantees a colon in the slice.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1118 carried a branch no input can reach",
+          "labBehaviour": "Removed defaults for required SemanticItem comment offset and text.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1152 carried a branch no input can reach",
+          "labBehaviour": "Removed the default for a required value-separator offset.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1183 carried a branch no input can reach",
+          "labBehaviour": "Removed the exhaustive node-or-key condition and dead catch-all increment after the other union variants were handled.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1189 carried a branch no input can reach",
+          "labBehaviour": "Narrowed the next token once, removing the contradictory missing-node fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1203 carried a branch no input can reach",
+          "labBehaviour": "Narrowed each comment token once, removing redundant comment-kind and missing-text fallbacks.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1212 carried a branch no input can reach",
+          "labBehaviour": "Read the narrowed separator offset directly, removing contradictory separator fallbacks.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1330 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-node guard from a node variant whose schema requires its node.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1347 carried a branch no input can reach",
+          "labBehaviour": "Removed required-comment-field fallbacks and the required-offset guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1364 carried a branch no input can reach",
+          "labBehaviour": "Removed the null fallback for a required content node.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1405 carried a branch no input can reach",
+          "labBehaviour": "Removed the required-comment-offset guard in null-key value consumption.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1415 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-node and missing-offset fallbacks; the node and its offset are required.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1422 carried a branch no input can reach",
+          "labBehaviour": "Removed the null fallback for a required content node.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1550 carried a branch no input can reach",
+          "labBehaviour": "Passed the already-known question-mark offset into lookahead, removing its absent-child fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:1695 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-offset guard from a narrowed value-separator token.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:2013 carried a branch no input can reach",
+          "labBehaviour": "Removed the unused private sequence length getter.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:2056 carried a branch no input can reach",
+          "labBehaviour": "Used nonempty-array narrowing and lastNonEmpty for the private dense sequence array, removing its impossible absent-last-item guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/block.ts:2359 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-offset fallback for the required external key.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:66 carried a branch no input can reach",
+          "labBehaviour": "Removed undefined-element guards from bounded scans of dense CST arrays; also at lines 106, 116, 134, 165, 312, 986, 1001, 1005, and 1279. Bounded indexed reads use A.getUnsafe.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:304 carried a branch no input can reach",
+          "labBehaviour": "Removed copying meta.comment across a newline: this document walk only assigns anchor/tag metadata.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:321 carried a branch no input can reach",
+          "labBehaviour": "Removed missing/empty TAG parameter guards after parseDirective supplies exactly two nonempty parameters.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:453 carried a branch no input can reach",
+          "labBehaviour": "Removed empty-current-meta alternatives when outer metadata exists; outer metadata is committed only while processing a new anchor/tag. Also at lines 474, 603, and 634.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:662 carried a branch no input can reach",
+          "labBehaviour": "Removed the fallthrough after exhaustive document-child handling; alias is the remaining child kind, and document CST nodes only occur as roots.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:854 carried a branch no input can reach",
+          "labBehaviour": "Removed the absent YAML-version fallback after the preceding parameter-count check guarantees one parameter.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:1056 carried a branch no input can reach",
+          "labBehaviour": "Added a non-null decoration overload and removed null fallbacks for map keys and sequence items: decorating a non-null node always returns a non-null node.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:1105 carried a branch no input can reach",
+          "labBehaviour": "Removed the final non-sequence fallback after alias, scalar, and map handling exhaust the other YamlNode variants.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:1238 carried a branch no input can reach",
+          "labBehaviour": "Removed the zero-document fallback: parseCSTAll always returns at least one document, including for empty input.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/document.ts:1297 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-first-item guards after nonempty collection checks; also at line 1318.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/flow.ts:760 carried a branch no input can reach",
+          "labBehaviour": "removed the no-pair trailing-comment recovery path: a segment containing \":\" always emits a value separator and builds a pair.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/flow.ts:767 carried a branch no input can reach",
+          "labBehaviour": "removed the missing-first-content offset fallback: \":\" remains in the filtered content.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/flow.ts:790 carried a branch no input can reach",
+          "labBehaviour": "removed missing comment-text and comment-offset fallbacks: flattenFlowChildren always supplies both fields.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/flow.ts:797 carried a branch no input can reach",
+          "labBehaviour": "replaced the missing-previous-item guard with iteration over the recorded item: pushedIdx refers to an item already appended.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/flow.ts:819 carried a branch no input can reach",
+          "labBehaviour": "removed undefined first-comment, joined-comment, and terminal-comment checks by constructing the terminal text from the first pending comment.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/scalars.ts:87 carried a branch no input can reach",
+          "labBehaviour": "Removed the NaN fallback after FLOAT_RE matches; every matching spelling parses numerically.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/scalars.ts:454 carried a branch no input can reach",
+          "labBehaviour": "Replaced indexed iteration over the dense split result with entries(), removing the undefined-line fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/scalars.ts:542 carried a branch no input can reach",
+          "labBehaviour": "Returned the known first scalar text instead of an undefined fallback for the initialized parts array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/scalars.ts:762 carried a branch no input can reach",
+          "labBehaviour": "Returned the known first scalar text instead of an undefined fallback for the initialized parts array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/scalars.ts:1373 carried a branch no input can reach",
+          "labBehaviour": "Removed the non-line-ending escape path after auto-detection has established an all-empty body.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/scalars.ts:1431 carried a branch no input can reach",
+          "labBehaviour": "Iterated the internally built dense lines array directly, removing the undefined-line fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/composer/scalars.ts:1600 carried a branch no input can reach",
+          "labBehaviour": "Removed the undefined-value guard; scalar resolution produces a defined value.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:38 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-token depth-guard fallbacks; collection dispatch always supplies an in-bounds token.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:54 carried a branch no input can reach",
+          "labBehaviour": "Made dense, bounds-checked token reads definite; removed redundant undefined checks and conditional leaf insertion throughout the parser.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:79 carried a branch no input can reach",
+          "labBehaviour": "Replaced impossible missing-first/missing-last checks on nonempty dense children with indexed Effect Array access; removed the unused private invariant error.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:304 carried a branch no input can reach",
+          "labBehaviour": "Replaced sequence-entry trivia scanning and fallback with direct entry lookup; the lexer queues each start marker immediately before its entry.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:328 carried a branch no input can reach",
+          "labBehaviour": "Removed the optional mapping-start check; every caller dispatches on a known block-map-start token.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:399 carried a branch no input can reach",
+          "labBehaviour": "Simplified nested mapping-start handling; same-or-shallower marker alternatives cannot reach this dispatch under lexer scope tracking.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:425 carried a branch no input can reach",
+          "labBehaviour": "Removed compact-sequence trivia handling and the empty-child guard; entry-content parsing consumes trivia, and the loop begins with a known entry.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:579 carried a branch no input can reach",
+          "labBehaviour": "Removed outer-sequence trivia and deeper-collection handling already consumed by entry-content parsing; retained parent/sibling scope-marker handling.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:615 carried a branch no input can reach",
+          "labBehaviour": "Removed the lookahead document-boundary alternative; line-start boundaries are preceded by the newline that already terminates lookahead.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/cst-parser.ts:972 carried a branch no input can reach",
+          "labBehaviour": "Removed the no-progress fallback; document parsing consumes input whenever invoked on a nonempty token stream.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/diff.ts:70 carried a branch no input can reach",
+          "labBehaviour": "Removed the empty-change guard; both changed regions can be empty only for equal strings, already returned earlier.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/diff.ts:85 carried a branch no input can reach",
+          "labBehaviour": "Replaced indexed empty-string fallbacks with zipped iteration over equal-length dense line arrays.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/diff.ts:86 carried a branch no input can reach",
+          "labBehaviour": "The same zipped iteration removes the unreachable modified-line fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/fold.ts:89 carried a branch no input can reach",
+          "labBehaviour": "Replaced indexed fold access with entries iteration, removing the impossible missing-fold guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/fold.ts:140 carried a branch no input can reach",
+          "labBehaviour": "Retained the split header through slice(0, 1), removing the impossible missing-first-line guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/fold.ts:144 carried a branch no input can reach",
+          "labBehaviour": "Iterated populated split body lines directly, removing the impossible missing-line guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/fold.ts:513 carried a branch no input can reach",
+          "labBehaviour": "Iterated dense value-line entries, removing the impossible missing-line guard and the now-unused private FoldFailure class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/lexer.ts:251 carried a branch no input can reach",
+          "labBehaviour": "Replaced guarded indexed peek access with a one-character slice; an in-bounds string index cannot be undefined.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/lexer.ts:255 carried a branch no input can reach",
+          "labBehaviour": "Replaced guarded indexed character access with a one-character slice; an in-bounds string index cannot be undefined.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/lexer.ts:260 carried a branch no input can reach",
+          "labBehaviour": "Removed the advance bounds fallback; callers only advance over confirmed source characters.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/lexer.ts:365 carried a branch no input can reach",
+          "labBehaviour": "Removed the ensureBlockSeq flow-context guard; every caller already requires block context.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/lexer.ts:549 carried a branch no input can reach",
+          "labBehaviour": "Removed the trailing-whitespace indexed-access fallback; end > start guarantees a valid character index.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/lexer.ts:1000 carried a branch no input can reach",
+          "labBehaviour": "Replaced bounded indexed iteration with direct iteration over content lines, removing the impossible undefined fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/lexer.ts:1159 carried a branch no input can reach",
+          "labBehaviour": "Centralized guaranteed-nonempty pending-token reads in takePending; removed impossible empty-read fallbacks here and at lines 1383, 1392, 1440, 1450, 1504, and 1514.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/rules/empty-lines.ts:118 carried a branch no input can reach",
+          "labBehaviour": "Removed the absent-line fallback inside the bounds-checked blank-run scan; use A.getUnsafe for the dense line array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/rules/empty-lines.ts:126 carried a branch no input can reach",
+          "labBehaviour": "Removed the firstExcess/lastBlank absence guard and unused lastBlank lookup; runLength > allowed proves firstExcess lies within the scanned run.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/rules/empty-lines.ts:171 carried a branch no input can reach",
+          "labBehaviour": "Removed the absent-line fallback inside the bounds-checked inference scan; use A.getUnsafe for the dense line array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "hyphen-spacing.ts:108 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-token lookahead branch; bounded indexing reads dense tokenizer output.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "indentation.ts:119 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-depth fallback; one depth is produced for each consecutively numbered context line.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "indentation.ts:124 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-token offset fallback inside the bounded dense-token loop.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "indentation.ts:170 carried a branch no input can reach",
+          "labBehaviour": "Removed empty-indent fallback; each content line initializes its indent array with its own indent.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "indentation.ts:171 carried a branch no input can reach",
+          "labBehaviour": "Removed the undefined-unit arithmetic fallback; without an observed increase, content is unindented, so callers pass zero.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "indentation.ts:228 carried a branch no input can reach",
+          "labBehaviour": "Removed empty-stack fallbacks in checking and inference; stacks start at zero and never pop their base entry.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "indentation.ts:259 carried a branch no input can reach",
+          "labBehaviour": "Removed missing-content-pair guards in checking and inference; loop bounds guarantee both entries in the dense content array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "util.ts:250 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-token midpoint branch; binary-search bounds guarantee an entry in the ordered dense token array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "util.ts:327 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-line midpoint branch; binary-search bounds guarantee an entry in the ordered dense line array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:226 carried a branch no input can reach",
+          "labBehaviour": "removed the empty-string resolver case; requiresQuoting handles empty strings before calling it.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:316 carried a branch no input can reach",
+          "labBehaviour": "removed the newline quoting case; renderString handles multiline strings before dispatching to requiresQuoting.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:326 carried a branch no input can reach",
+          "labBehaviour": "simplified first/last character access after the nonempty-string check; removed undefined guards and the redundant first !== \"\" check.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:629 carried a branch no input can reach",
+          "labBehaviour": "replaced the last-match undefined guard with bounded array access; a successful global regex match is nonempty.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:662 carried a branch no input can reach",
+          "labBehaviour": "narrowed detectCircular to object input; both callers have already established an array or object.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:830 carried a branch no input can reach",
+          "labBehaviour": "replaced missing-rendered-line guards with bounded array access throughout value and AST rendering; renderer results are nonempty and loop indices are bounded.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:859 carried a branch no input can reach",
+          "labBehaviour": "removed the flow-context check from isBlockCollection; its only caller has already returned for flow style.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1003 carried a branch no input can reach",
+          "labBehaviour": "replaced directive parameter guards with bounded access after the length >= 2 check.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1053 carried a branch no input can reach",
+          "labBehaviour": "removed missing regex-capture guards and the suffix fallback; both capture groups participate in every successful match.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1248 carried a branch no input can reach",
+          "labBehaviour": "removed the null-node fallback after exhausting the YamlNode union; the remaining member is YamlAlias.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1259 carried a branch no input can reach",
+          "labBehaviour": "removed absent-style fallbacks for schema-required scalar and collection styles, plus undefined-key fallbacks for required YamlPair keys.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:583 carried a branch no input can reach",
+          "labBehaviour": "removed the single-quoted renderer rejection branch; preceding control-character and CR checks exclude every rejection condition.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1454 carried a branch no input can reach",
+          "labBehaviour": "removed the canonical-flow fallback in rendersAcrossLines; canonical flow maps return before this helper is called.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1520 carried a branch no input can reach",
+          "labBehaviour": "removed multiline double-quoted detection in explicit, mapping, and sequence paths; double-quoted rendering escapes newlines.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1642 carried a branch no input can reach",
+          "labBehaviour": "removed out-of-range comment-index guards; callers supply indices of lines already appended, with the mapping's reachable -1 sentinel retained.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1867 carried a branch no input can reach",
+          "labBehaviour": "simplified spilled-header comment placement; multiline quoted rendering requires canonical mode, which removes leading comments.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:1905 carried a branch no input can reach",
+          "labBehaviour": "removed duplicate block-map metadata rendering; the earlier nonempty block-map branch handles every such value.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/internal/stringifier.ts:2295 carried a branch no input can reach",
+          "labBehaviour": "removed redundant null/undefined root checks after the empty-document return.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlFormat.ts:263 carried a branch no input can reach",
+          "labBehaviour": "The private definedFields helper receives fresh object literals exclusively; removed its inherited-property rejection branch.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlFormat.ts:376 carried a branch no input can reach",
+          "labBehaviour": "Cross-document errors require multiple documents and composition always supplies at least one document; removed the single-document stream-error check and empty-document fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlFormat.ts:423 carried a branch no input can reach",
+          "labBehaviour": "Composer output guarantees each later document has its own --- or follows a predecessor ending with ...; removed the impossible framing-refusal branch.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlFormat.ts:541 carried a branch no input can reach",
+          "labBehaviour": "A successful findIndex identifies an existing pair in the unchanged dense array; replaced the impossible undefined-pair guards at replacement and deeper navigation with Array.getUnsafe.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlFormat.ts:759 carried a branch no input can reach",
+          "labBehaviour": "Regional renderers produce one valid scalar and multiline output is already excluded; replaced impossible probe parse/shape fallback branches with schema-checked extraction, retaining Object.is value-drift detection.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlFormat.ts:819 carried a branch no input can reach",
+          "labBehaviour": "The composer marks every scalar span containing a line break as sourceMultiline, already excluded by the preceding guard; removed the duplicate span-newline rejection.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlLint.ts:234 carried a branch no input can reach",
+          "labBehaviour": "Tokenization always returns Success and malformed syntax is represented by composer diagnostics; replaced the impossible failure callback with Result.getOrThrow.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlLint.ts:552 carried a branch no input can reach",
+          "labBehaviour": "StyleCandidateValue admits only strings, finite numbers, and booleans, all JSON-encodable; removed the impossible invalid-style-value fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/yaml/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/yaml/YamlLint.ts:623 carried a branch no input can reach",
+          "labBehaviour": "Every groupVotes group is created with its first tally; replaced impossible empty-group branches in strict and lenient resolution with Array.getUnsafe.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -1995,13 +2661,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:24.365Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:17:34.068Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:17:34.068Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:27:14.882Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (5 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },

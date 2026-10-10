@@ -129,11 +129,7 @@ export class YamlEdit extends S.Class<YamlEdit>($I`YamlEdit`)({
 	 */
 	static applyAll(text: string, edits: ReadonlyArray<YamlEdit>): string {
 		const sorted = A.sort(edits, Order.flip(Order.mapInput(Order.Number, (edit: YamlEdit) => edit.offset)));
-		for (let i = 0; i + 1 < sorted.length; i++) {
-			const upper = sorted[i];
-			if (upper === undefined) throw YamlEditFailure.make({ message: "Missing upper" });
-			const lower = sorted[i + 1];
-			if (lower === undefined) throw YamlEditFailure.make({ message: "Missing lower" });
+		for (const [upper, lower] of A.zip(sorted, A.drop(sorted, 1))) {
 			if (lower.offset + lower.length > upper.offset) {
 				throw YamlEditFailure.make({
 					message: `YamlEdit.applyAll received overlapping edits at offsets ${lower.offset} and ${upper.offset} — overlapping edits are a programmer error`,
