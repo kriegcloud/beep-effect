@@ -595,3 +595,21 @@ Before another full preparation, enumerate the frozen lane commands and helper
 requirements, classify their scope, and run bounded offline probes in the exact
 namespace. Preserve the 1,440.25-second failed attempt and all inputs. Receipt:
 `native8-runtime-friction-v1.json`.
+
+## Prove mandatory sidecar toolchain discovery in the sealed runtime
+
+Request nine reached native full Yeet and passed 22 pre-push lanes before
+`quality:desktop-ipc` failed. The sidecar build calls `rustc -vV`, but the sealed
+runtime did not contain that executable. Ten later lanes were not run. This is
+an environment prerequisite failure, not a task implementation result.
+
+The prior executable census did not fully traverse mandatory helper scripts.
+Before another full Collector attempt, inspect the frozen sidecar build and IPC
+lane, bind its required toolchain and outputs, and run a bounded probe inside
+the same namespace. Retain this failed attempt and the original runtime; do not
+weaken or skip the desktop lane. Receipt: `native9-runtime-friction-v1.json`.
+
+The runner's exact clean commit `376943bfad` separately passes default
+`bun run beep quality package-verify @beep/repo-cli`: audit 917.5 seconds,
+docgen 23.7 seconds, exit zero. This proves the runner package and does not
+substitute for the candidate's native full Yeet result.

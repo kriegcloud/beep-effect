@@ -311,3 +311,34 @@ the actual commands offline before a new request. Complete the current runner's
 default package audit before another full Collector launch. Existing commands,
 acceptance criteria and quality gates remain unchanged. Reversal retains request
 eight and the original inventories. Evidence: `runner-native-attempt8-terminal-v1.json`.
+
+### Preserve the failed desktop lane and add a real compiler in a fresh runtime
+
+Request nine ran at clean `376943bfad`, after the exact default CLI package
+proof passed. The reviewed runtime added `bun`, its literal `bunx` alias,
+external `test` and `zip`; 23 bounded offline command probes passed. Native Yeet
+then passed 22 pre-push lanes before `quality:desktop-ipc` failed because
+`rustc -vV` was absent. Ten later lanes were not run. Collector exited 1 after
+3,770.55 seconds; source and request remained unchanged, and immutable runtime
+preservation passed. No native final verdict or Collector proof was emitted.
+Preserve all inputs, streams, mutable-cache inventories and local commits.
+
+Frozen source proves that this local IPC lane queries Rust for the host triple
+and builds its sidecar with Bun. It does not compile Rust or run Cargo. The
+workflow selects stable Rust without a numeric compiler pin. A fresh owned
+system preserves every existing entry and adds the actual installed stable
+Rust 1.99.0 executable, driver and LLVM libraries. Its inventory digest is
+`e10f2d6d0e3a2a76208f9d44ddda69293572cb2576f71f571ea2b484eb3c5db2`.
+Static closure covers eleven ELF files and thirty dependency edges; inventory
+validation and independent review pass. Actual execution is still pending.
+
+Require a bounded real compiler query and the exact offline desktop IPC lane
+in fresh owned scratch before another full Collector request. Preserve the
+original runtime and attempt; bind any new request to the fresh inventory and
+regenerated contracts. Do not fake the target query, skip the mandatory lane,
+mount broad host toolchains or infer full Rust/Cargo readiness. Reversal uses
+the retained original runtime and request nine. Receipts:
+`runner-native-attempt9-terminal-v1.json`,
+`native-desktop-ipc-runtime-attribution-v1.json`,
+`native-desktop-rust-runtime-preparation-v1.json`, and
+`native-desktop-rust-independent-review-v1.json`.
