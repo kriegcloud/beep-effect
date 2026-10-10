@@ -294,3 +294,20 @@ system and request seven; no existing inventory or receipt is overwritten.
 Evidence: `runner-native-attempt7-terminal-v1.json`,
 `native7-sparse-runtime-librt-preparation-v1.json`, and
 `sparse-librt-independent-closure-v1.json`.
+
+### Audit native command availability before another full qualification
+
+Request eight binds the reviewed `librt` system in every check and passed its
+preflight and independent review. It ran from clean `a799f574e0`, completed an
+offline 2,574-package head install, and entered canonical full Yeet. Commitlint
+failed because the frozen PATH provided `bun` but omitted the `bunx` alias.
+Collector exited 1 after 1,440.25 seconds and retained no admissible final
+verdict or proof. Immutable runtime evidence is preserved; the owned writable
+Bun cache changed during head install, as its separate inventories record.
+
+Retain this failure and audit the canonical frozen lanes' executable requirements
+together. Add only source-proven requirements in a fresh owned runtime and probe
+the actual commands offline before a new request. Complete the current runner's
+default package audit before another full Collector launch. Existing commands,
+acceptance criteria and quality gates remain unchanged. Reversal retains request
+eight and the original inventories. Evidence: `runner-native-attempt8-terminal-v1.json`.

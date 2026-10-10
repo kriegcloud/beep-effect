@@ -582,3 +582,16 @@ Shared free disk also declined during the attempt. Its measured allocation was
 18.6 GB, with possible shared-extent counting; larger filesystem changes are
 not attributable solely to this run. Recheck live headroom before every heavy
 launch and retain the 100 GiB reserve.
+
+## Inventory command aliases and direct executables, not only ELF libraries
+
+Request eight cleared Rolldown startup and reached native full Yeet, but direct
+commitlint invocation failed with `Failed to spawn bunx`. The frozen PATH had
+`bun` and lacked the distributed `bunx` alias. A source audit also identified a
+direct external `test` command in Storybook artifact validation. Shell builtin
+availability does not establish direct process-spawn availability.
+
+Before another full preparation, enumerate the frozen lane commands and helper
+requirements, classify their scope, and run bounded offline probes in the exact
+namespace. Preserve the 1,440.25-second failed attempt and all inputs. Receipt:
+`native8-runtime-friction-v1.json`.
