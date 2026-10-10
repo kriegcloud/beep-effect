@@ -875,9 +875,9 @@ const UNTIMED_SLACK: Duration.Input = "30 seconds";
  * child after its ceiling interrupts it.
  */
 const CLEANUP_ALLOWANCE: Duration.Input = "1 minute";
-/** A ceiling as a person reads it: `"4m"` for `"4 minutes"`, the raw input if it does not decode. */
+/** A fired ceiling as a person reads it: `"4m"` for `"4 minutes"`; the timeout already decoded it. */
 const describeDuration = (input: Duration.Input): string =>
-	O.match(Duration.fromInput(input), { onNone: () => String(input), onSome: Duration.format });
+	Duration.format(Duration.fromInputUnsafe(input));
 
 const failure = (
 	reason: PackedInstallError["reason"],
@@ -964,7 +964,7 @@ const planClosure = Effect.fn("planClosure")(function* (carrier: string, options
 					`${name === carrier ? "the carrier" : "a closure member"} is always packed from the workspace; overrides replace only packages outside it`,
 				);
 			}
-			const spec = O.getOrElse(MutableHashMap.get(wanted, name), () => "");
+			const spec = O.getOrThrow(MutableHashMap.get(wanted, name));
 			const absolute = path.isAbsolute(spec) ? spec : path.resolve(root, spec);
 			const source = yield* fs
 				.realPath(absolute)
@@ -1528,9 +1528,8 @@ export class PackedInstall {
 			}
 			packed.push({ name: replacement.name, tarball, manifest });
 		}
-		const [carrier, ...rest] = packed;
-		if (carrier === undefined)
-			return yield* failure("UnknownPackage", `${options.carrier} was not packed`, { package: options.carrier });
+		const carrier = O.getOrThrow(A.head(packed));
+		const rest = A.drop(packed, 1);
 		const conflict =
 			options.allowSharedBins === true
 				? undefined

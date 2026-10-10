@@ -345,11 +345,11 @@ export class VersioningStrategy extends S.Class<VersioningStrategy>($I`Versionin
 	 * @since 0.0.0
 	 */
 	tagsFor(releases: ReadonlyArray<PackageRelease>, options?: TagFormatOptions): ReadonlyArray<ReleaseTag> {
-		if (releases.length === 0) return [];
+		if (!A.isReadonlyArrayNonEmpty(releases)) return [];
 		if (this.perPackageTags) {
 			return releases.map((release) => ReleaseTag.scoped(release.name, release.version, options));
 		}
 		const first = releases[0];
-		return first === undefined ? [] : [ReleaseTag.single(first.version, options)];
+		return [ReleaseTag.single(first.version, options)];
 	}
 }

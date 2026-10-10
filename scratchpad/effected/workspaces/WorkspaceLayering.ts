@@ -181,17 +181,16 @@ const cycleOf = (
 		const index = MutableHashMap.empty<string, Graph.NodeIndex>();
 		for (const name of sorted) MutableHashMap.set(index, name, Graph.addNode(mutable, name));
 		for (const e of edges) {
-			const from = O.getOrUndefined(MutableHashMap.get(index, e.from));
-			const to = O.getOrUndefined(MutableHashMap.get(index, e.to));
-			if (from !== undefined && to !== undefined && from !== to) Graph.addEdge(mutable, from, to, e.field);
+			const from = O.getOrThrow(MutableHashMap.get(index, e.from));
+			const to = O.getOrThrow(MutableHashMap.get(index, e.to));
+			if (from !== to) Graph.addEdge(mutable, from, to, e.field);
 		}
 	});
 	const members = MutableHashSet.empty<string>();
 	for (const component of Graph.stronglyConnectedComponents(graph)) {
 		if (component.length < 2) continue;
 		for (const index of component) {
-			const name = sorted[index];
-			if (name !== undefined) MutableHashSet.add(members, name);
+			MutableHashSet.add(members, A.getUnsafe(sorted, index));
 		}
 	}
 	return MutableHashSet.size(members) === 0 ? O.none() : O.some(A.sort(A.fromIterable(members), Order.String));
@@ -227,8 +226,7 @@ const cycleOf = (
  * @category utilities
  * @since 0.0.0
  */
-export class WorkspaceLayering {
-	private constructor() {}
+export abstract class WorkspaceLayering {
 
 	/**
 	 * Check `graph` against `policy`, reading only the policy's fields. Pure.

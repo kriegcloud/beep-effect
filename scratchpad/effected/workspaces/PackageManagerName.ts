@@ -540,7 +540,7 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
 				hint.name === name ? hint.version : O.none<string>(),
 			);
 			return O.orElse(fromCorepack, () =>
-				O.flatMap(hints.devEngines, (hint) => (hint.name === name ? hint.version : O.none<string>())),
+				O.flatMap(hints.devEngines, (hint) => hint.version),
 			);
 		};
 
@@ -617,15 +617,6 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
 					version: versionFor(hints, "pnpm"),
 					runtime: "node",
 					evidence: "pnpm-lock.yaml",
-				});
-			}
-
-			if (O.isSome(bunLock) && namesManager(hints, "bun")) {
-				return DetectedPackageManager.make({
-					name: "bun",
-					version: versionFor(hints, "bun"),
-					runtime: "bun",
-					evidence: bunLock.value,
 				});
 			}
 

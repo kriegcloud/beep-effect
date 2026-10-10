@@ -275,7 +275,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot>($I`W
  *
  * @since 0.0.0
  */
-	#versionNames: ReadonlyArray<string> | undefined;
+	#versionNames: ReadonlyArray<string> = [];
 	/**
  * Caches captured members by name outside the serializable schema.
  *
@@ -439,7 +439,7 @@ export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot>($I`W
  */
 	get versionNames(): ReadonlyArray<string> {
 		this.#versions();
-		return this.#versionNames ?? [];
+		return this.#versionNames;
 	}
 
 	/**

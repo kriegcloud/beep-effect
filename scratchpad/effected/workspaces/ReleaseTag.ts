@@ -108,14 +108,12 @@ const isVersionText = S.is(VersionText);
  */
 const versionCore = (version: string): VersionCore | undefined => {
 	if (!isVersionText(version)) return undefined;
-	const withoutBuild = version.split("+", 1)[0] ?? "";
+	const withoutBuild = version.slice(0, version.indexOf("+") === -1 ? version.length : version.indexOf("+"));
 	const dash = withoutBuild.indexOf("-");
 	const prerelease = dash !== -1;
 	const core = prerelease ? withoutBuild.slice(0, dash) : withoutBuild;
 
 	const segments = core.split(".");
-	if (segments.length !== 3) return undefined;
-	if (!segments.every((segment) => NUMERIC_IDENTIFIER.test(segment))) return undefined;
 
 	return { major: Number(segments[0]), minor: Number(segments[1]), prerelease };
 };

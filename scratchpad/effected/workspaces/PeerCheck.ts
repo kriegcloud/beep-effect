@@ -18,6 +18,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import type { Lockfile, ResolvedPackage } from "../lockfiles/index.ts";
 import { Range, SemVer } from "../semver/index.ts";
 import * as O from "effect/Option";
+import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as R from "effect/Record";
@@ -631,7 +632,7 @@ const resolvePeerRange = (catalogs: CatalogSet | undefined, peer: string, wanted
  * @internal
  */
 type Verdict =
-	| { readonly _tag: "unsatisfied"; readonly found: string | null }
+	| { readonly _tag: "unsatisfied"; readonly found: string | null; readonly version: SemVer | null }
 	| { readonly _tag: "satisfied" }
 	| { readonly _tag: "unjudged"; readonly reasons: ReadonlyArray<UnverifiedReason> };
 
@@ -642,7 +643,7 @@ type Verdict =
  * @internal
  */
 type JoinedVerdict =
-	| { readonly _tag: "unsatisfied"; readonly found: string | null; readonly wanted: string }
+	| { readonly _tag: "unsatisfied"; readonly found: string | null; readonly version: SemVer | null; readonly wanted: string }
 	| Exclude<Verdict, { readonly _tag: "unsatisfied" }>;
 
 /**
@@ -675,7 +676,7 @@ const compare = (wanted: string, found: string): Verdict => {
 	const version = SemVer.parseResult(found);
 	if (Result.isFailure(range) || Result.isFailure(version)) return SATISFIED;
 	if (Range.satisfies(version.success, range.success)) return SATISFIED;
-	return { _tag: "unsatisfied", found };
+	return { _tag: "unsatisfied", found, version: version.success };
 };
 
 /**
@@ -720,7 +721,7 @@ const judgeJoined = (
 	const provider = O.getOrUndefined(MutableHashMap.get(context, peer));
 	if (provider === undefined) {
 		if (optional) return SATISFIED;
-		return { _tag: "unsatisfied", found: null, wanted };
+		return { _tag: "unsatisfied", found: null, version: null, wanted };
 	}
 	// A workspace row carries the placeholder version `0.0.0`, so accepting it
 	// on name alone is the same decline {@link judge} makes: an edge exists and
@@ -1125,9 +1126,9 @@ const collect = (
 	const visited = MutableHashSet.empty<string>();
 	const queue: Array<Walk> = [...roots];
 
-	while (queue.length > 0) {
-		const current = queue.shift();
-		if (current === undefined) break;
+	while (A.isArrayNonEmpty(queue)) {
+		const current = queue[0];
+		queue.shift();
 		if (MutableHashSet.has(visited, current.instance.instanceId)) continue;
 		MutableHashSet.add(visited, current.instance.instanceId);
 
@@ -1159,7 +1160,7 @@ const collect = (
 			// pnpm computes the same violation and then SUPPRESSES it when a rule
 			// permits the version that resolved. Replicating that is the whole
 			// point: without it we report findings pnpm calls clean.
-			if (suppressedByRule(policy, declaring, peer, verdict.found)) continue;
+			if (suppressedByRule(policy, declaring, peer, verdict.version)) continue;
 			// One row per (importer, peer, declaring INSTANCE) — which is what pnpm
 			// reports. Measured on `peers/diamond`, where one importer reaches
 			// `use-sync-external-store@1.2.2` through both react-redux and zustand:
@@ -1264,11 +1265,9 @@ const ruleParentName = (parent: string): string => {
  *
  * @internal
  */
-const suppressedByRule = (policy: Policy, parentName: string, peer: string, found: string | null): boolean => {
-	if (found === null) return policy.ignoreMissing(peer);
+const suppressedByRule = (policy: Policy, parentName: string, peer: string, version: SemVer | null): boolean => {
+	if (version === null) return policy.ignoreMissing(peer);
 	if (policy.allowAny(peer)) return true;
-	const version = SemVer.parseResult(found);
-	if (Result.isFailure(version)) return false;
 	for (const [key, permitted] of R.toEntries(policy.allowed)) {
 		const separator = key.indexOf(">");
 		// A key starting with ">" names no parent at all — malformed, and a
@@ -1291,7 +1290,7 @@ const suppressedByRule = (policy: Policy, parentName: string, peer: string, foun
 		// A rule whose own value is unparseable suppresses nothing — it cannot be
 		// evaluated, and treating it as a wildcard would hide real findings.
 		if (Result.isFailure(range)) continue;
-		if (Range.satisfies(version.success, range.success)) return true;
+		if (Range.satisfies(version, range.success)) return true;
 	}
 	return false;
 };
@@ -1338,7 +1337,7 @@ const judge = (
 		// reportable without any range arithmetic, and reported even when the
 		// range itself is junk — "no provider" is a fact about the graph, not
 		// about the range.
-		return { _tag: "unsatisfied", found: null };
+		return { _tag: "unsatisfied", found: null, version: null };
 	}
 
 	// A peer satisfied by a WORKSPACE package is accepted without a version

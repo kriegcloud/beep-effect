@@ -137,9 +137,7 @@ export const closureOf: {
 	}
 	const ordered: Array<WorkspacePackage> = [root];
 	const seen = MutableHashSet.make(carrier);
-	for (let head = 0; head < ordered.length; head++) {
-		const current = ordered[head];
-		if (current === undefined) continue;
+	for (const current of ordered) {
 		for (const field of RUNTIME_DEPENDENCY_FIELDS) {
 			for (const name of A.sort(R.keys(current[field]), Str.Order)) {
 				const dependency = O.getOrUndefined(MutableHashMap.get(byName, name));
@@ -169,7 +167,7 @@ export interface ConsumerInput {
 	readonly dependencies: Readonly<Record<string, string>>;
 }
 
-const major = (version: string): number => Number.parseInt(version.split(".")[0] ?? "", 10);
+const major = (version: string): number => Number.parseInt(version, 10);
 
 const minor = (version: string): number => Number.parseInt(version.split(".")[1] ?? "", 10);
 

@@ -318,7 +318,7 @@ const END_WITH_CHUNK = /^\s*\(\s*[^\s)]/u;
 /** Whether the reference at `at` is itself a member access (`globalThis.process`), which no ignore token exempts. */
 const isMemberAccess = (code: string, at: number): boolean => {
 	let j = at - 1;
-	while (j >= 0 && /\s/.test(code[j] ?? "")) j--;
+	while (j >= 0 && /\s/.test(code.charAt(j))) j--;
 	return code[j] === ".";
 };
 
@@ -332,9 +332,9 @@ const processReads = (code: string, ignoreTokens: ReadonlyArray<string>): Readon
 const stdoutWrites = (code: string): ReadonlyArray<{ readonly at: number; readonly method: string }> =>
 	[...code.matchAll(STDOUT_WRITE)]
 		.map((match) => ({
-			at: match.index ?? 0,
-			end: (match.index ?? 0) + match[0].length,
-			method: match[1] ?? "write",
+			at: match.index,
+			end: match.index + match[0].length,
+			method: match[0].endsWith("write") ? "write" : "end",
 		}))
 		.filter(({ at, end }) => !isIdentifierChar(codePointBefore(code, at)) && code[at - 1] !== "#" && !isIdentifierChar(codePointAt(code, end)))
 		.filter(({ end, method }) => method === "write" || END_WITH_CHUNK.test(code.slice(end)))
@@ -343,13 +343,16 @@ const stdoutWrites = (code: string): ReadonlyArray<{ readonly at: number; readon
 /** The member name directly after the reference at `at` (`console.log` → `"log"`, `console?.log` too), or `undefined` when it is not a named member access. */
 const memberAfter = (code: string, at: number, name: string): string | undefined => {
 	let j = at + name.length;
-	while (j < code.length && /\s/.test(code[j] ?? "")) j++;
+	while (j < code.length && /\s/.test(code.charAt(j))) j++;
 	if (code[j] === "?" && code[j + 1] === ".") j++;
 	if (code[j] !== ".") return undefined;
 	j++;
-	while (j < code.length && /\s/.test(code[j] ?? "")) j++;
+	while (j < code.length && /\s/.test(code.charAt(j))) j++;
 	let end = j;
-	while (isIdentifierChar(codePointAt(code, end))) end += codePointAt(code, end)?.length ?? 1;
+	for (const point of code.slice(j)) {
+		if (!isIdentifierChar(point)) break;
+		end += point.length;
+	}
 	return end > j ? code.slice(j, end) : undefined;
 };
 
@@ -845,10 +848,9 @@ export class SourceBoundary {
 		const pending: Array<{ readonly directory: string; readonly ancestors: ReadonlyArray<string> }> = [
 			{ directory: options.root, ancestors: [] },
 		];
-		while (pending.length > 0) {
-			const next = pending.pop();
-			if (next === undefined) break;
-			const { directory, ancestors } = next;
+		while (A.isArrayNonEmpty(pending)) {
+			const { directory, ancestors } = A.lastNonEmpty(pending);
+			pending.pop();
 			const real = yield* fs.realPath(directory);
 			if (A.some(ancestors, (ancestor) => ancestor === real)) continue;
 			const ancestry = A.append(ancestors, real);

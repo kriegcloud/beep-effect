@@ -538,8 +538,8 @@ const configToEntries = (config: HookConfig): CatalogEntries => {
 type UpdateConfig = (config: HookConfig) => unknown;
 
 /** Locate the `updateConfig` hook across the CJS/ESM export shapes a `pnpmfile.cjs` can present. */
-const updateConfigOf = (mod: unknown): UpdateConfig | undefined => {
-	for (const candidate of [mod, P.isObject(mod) ? mod.default : undefined]) {
+const updateConfigOf = (mod: Readonly<Record<string, unknown>>): UpdateConfig | undefined => {
+	for (const candidate of [mod, mod.default]) {
 		if (!P.isObject(candidate)) continue;
 		const hooks = candidate.hooks;
 		if (P.isObject(hooks) && P.isFunction(hooks.updateConfig)) {
@@ -614,7 +614,7 @@ const replayInProcess = Effect.fn("replayInProcess")(function* (
 			// Critical-dependency warning it cannot silence — even one composing
 			// `layerSubprocess`, because this module stays in its import graph
 			// either way.
-			try: (): Promise<unknown> => import(/* webpackIgnore: true */ url),
+			try: (): Promise<Readonly<Record<string, unknown>>> => import(/* webpackIgnore: true */ url),
 			catch: (cause) => CatalogAssemblyError.make({ source: "hooks", path: name, cause }),
 		});
 		const updateConfig = updateConfigOf(loaded);

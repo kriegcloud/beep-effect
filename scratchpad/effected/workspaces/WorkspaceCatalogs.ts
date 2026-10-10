@@ -64,7 +64,6 @@ const CatalogRecord = S.Record(S.String, S.String).annotate(
 const CatalogRecords = S.Record(S.String, CatalogRecord).annotate(
 	$I.annote("CatalogRecords", { description: "Own catalog names mapped to dependency records." }),
 );
-const isCatalogRecords = S.is(CatalogRecords);
 
 /**
  * Each importer's dependency-name → resolved-version map, keyed by importer path
@@ -419,17 +418,17 @@ const catalogBlocksOf = (
 	readonly catalog?: Record<string, string> | undefined;
 	readonly catalogs?: Record<string, Record<string, string>> | undefined;
 } => {
-	if (!P.isObjectKeyword(document) || P.isFunction(document)) return {};
+	if (!P.isObjectKeyword(document)) return {};
 	const catalog = "catalog" in document ? document.catalog : undefined;
 	const catalogs = "catalogs" in document ? document.catalogs : undefined;
 	// Preserve pnpm's duplicate-default refusal before dropping unusable entries.
 	if (catalog !== undefined && catalog !== null &&
-		P.isObjectKeyword(catalogs) && !P.isFunction(catalogs) && "default" in catalogs &&
-		catalogs.default !== undefined && catalogs.default !== null) return {};
+		P.isObjectKeyword(catalogs) && "default" in catalogs &&
+		catalogs.default !== null) return {};
 	return {
 		catalogs: normalize({
 			default: catalog,
-			...(P.isObjectKeyword(catalogs) && !P.isFunction(catalogs) ? catalogs : {}),
+			...(P.isObjectKeyword(catalogs) ? catalogs : {}),
 		}),
 	};
 };
@@ -514,6 +513,7 @@ const validatedCatalogBlocks = (
 				malformed("catalog", labels.catalogs, `"${labels.catalogs}" must map catalog names to catalogs`),
 			);
 		}
+		const catalogEntries: Array<readonly [string, Record<string, string>]> = [];
 		for (const [name, entries] of R.toEntries(catalogs)) {
 			if (!isStringRecord(entries)) {
 				return Effect.fail(
@@ -524,8 +524,9 @@ const validatedCatalogBlocks = (
 					),
 				);
 			}
+			catalogEntries.push([name, entries]);
 		}
-		if (isCatalogRecords(catalogs)) validCatalogs = catalogs;
+		validCatalogs = R.fromEntries(catalogEntries);
 	}
 
 	// The default catalog declared twice — pnpm rejects the equivalent

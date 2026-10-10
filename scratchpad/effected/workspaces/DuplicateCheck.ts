@@ -387,9 +387,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck>($I`DuplicateCheck`)(
 		// One global walk: reachability is a property of the graph, not of any
 		// single importer, and every reached edge is a dependent to record.
 		const reached = MutableHashSet.empty<string>();
-		while (queue.length > 0) {
-			const current = queue.shift();
-			if (current === undefined) break;
+		for (const current of queue) {
 			if (MutableHashSet.has(reached, current.instanceId)) continue;
 			MutableHashSet.add(reached, current.instanceId);
 			for (const targetId of R.values(current.resolved)) {
