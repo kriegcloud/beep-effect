@@ -13,6 +13,7 @@ import {
 const runs = { arbitrary: fcRuns(100) };
 const Characters = S.Array(S.Literals(["a", "b", " ", "\t", "\n", "\r", "\"", "\\", "😀", "\u0000"]));
 const LiteralCharacters = S.Array(S.Literals(["a", "b", " ", "\t", "\\", "\"", "😀"]));
+const JsonString = S.fromJsonString(S.String);
 
 const calendarFidelity = <T extends TomlLocalDate | TomlLocalTime | TomlLocalDateTime | TomlOffsetDateTime>(name: string, schema: S.Codec<T>): void => {
   it.effect.prop(name, [Arbitrary.schema(schema)], ([value]) => Effect.sync(() => {
@@ -33,10 +34,10 @@ calendarFidelity("offset date-times classify faithfully and render idempotently"
 it.effect.prop("basic string parsers preserve decoded content after canonical re-encoding", [Arbitrary.schema(Characters)],
   ([characters]) => Effect.gen(function* () {
     const value = characters.join("");
-    const encoded = yield* S.encodeEffect(S.fromJsonString(S.String))(value);
+    const encoded = yield* S.encodeEffect(JsonString)(value);
     const basic = scanBasicString(encoded, 0);
     assert.deepStrictEqual(basic, { value, end: encoded.length });
-    const reencoded = yield* S.encodeEffect(S.fromJsonString(S.String))(basic.value);
+    const reencoded = yield* S.encodeEffect(JsonString)(basic.value);
     assert.deepStrictEqual(scanBasicString(reencoded, 0), basic);
     const multiline = `"""${encoded.slice(1, -1)}"""`;
     assert.deepStrictEqual(scanMultilineBasicString(multiline, 0), { value, end: multiline.length });

@@ -1,4 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as Match from "effect/Match";
@@ -65,14 +66,16 @@ export interface SemanticVisitor {
 }
 
 /** How a defined name came to exist. */
-type Provenance =
-	| "value"
-	| "inline"
-	| "static-array"
-	| "table-explicit"
-	| "table-implicit"
-	| "table-dotted"
-	| "array-tables";
+const Provenance = LiteralKit([
+	"value",
+	"inline",
+	"static-array",
+	"table-explicit",
+	"table-implicit",
+	"table-dotted",
+	"array-tables",
+]).pipe($I.annoteSchema("Provenance", { description: "How a defined name came to exist in the TOML semantic provenance tree." }));
+type Provenance = typeof Provenance.Type;
 
 /** One name in the provenance tree. `elements` is used by `array-tables` only; `sectionId` by `table-dotted` only. */
 interface SemNode {

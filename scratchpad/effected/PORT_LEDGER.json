@@ -3121,6 +3121,18 @@
           "round": 1,
           "finding": "b-layout-newline — Import layout and optional newline domain (scratchpad/effected/toml/internal/semantic.ts:1-25)",
           "reason": "effect-idiom: Consider regrouping imports beneath headers in Effect/@beep/relative order. Extract a shared newline domain only if reuse warrants it; keep the current anonymous S.Literals unions otherwise."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "b-description-links — Declaration-reference artifacts in descriptions (scratchpad/effected/toml/TomlDiagnostic.ts:197)",
+          "reason": "jsdoc: Replace these two tokens with plain `TomlErrorCode` and `TomlExpression` in the schema descriptions; preserve legal JSDoc links."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "b-oracle-runs — Oracle property-run floor (scratchpad/test/toml/oracle.property.test.ts:300,312,324)",
+          "reason": "test: Import `fcRuns` from `@beep/fc-runs` and use `{ ...fcRuns(250), seed: 20260710 }`, retaining the explicit replayable seed and both oracle properties."
         }
       ],
       "reviewRounds": [
@@ -3139,6 +3151,24 @@
             "fable": {
               "required": 6,
               "backlog": 13
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 2,
+              "backlog": 2
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 4,
+              "backlog": 1
             }
           }
         }
