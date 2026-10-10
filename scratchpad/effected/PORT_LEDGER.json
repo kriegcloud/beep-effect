@@ -4009,6 +4009,54 @@
           "round": 1,
           "finding": "b7 — The upstream differential-oracle shim explanation was dropped. (scratchpad/test/spdx/spdx-expression-parse.d.ts:1)",
           "reason": "docs: At S2, restore the four-line upstream explanatory header above the oracle ambient declaration."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-1 — Canonical outcome helpers receive self-derived expected payloads (scratchpad/test/spdx/SpdxExpression.coverage.test.ts:12)",
+          "reason": "test: Make the collapsing-test parse helper return `Result.getOrThrow(SpdxExpression.parseResult(input))`. In the coverage test, obtain the error with `Effect.flip(S.decodeEffect(SpdxExpression.FromString)(\"MIT AND\"))` and retain the explicit expected-message assertion. Preserve wrong-variant failures and payload checks."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-2 — The carried round-trip property ignores the configurable run floor (scratchpad/test/spdx/SpdxExpression.test.ts:224-232)",
+          "reason": "test: Import `fcRuns` from `@beep/fc-runs/FastCheckRuns` and add `{ arbitrary: fcRuns(100) }` as the existing property's fourth argument. Preserve the arbitrary and every assertion."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-3 — Record post-fix walker performance measurements centrally (scratchpad/effected/spdx/SpdxExpression.ts:36-47,323-334,424-447,523-531)",
+          "reason": "perf: Have the orchestrator append these seat-attributed post-fix measurements to the central ledger's notes/reviewRounds for closed r2. No source or test change is assigned; revisit dispatch only when a concrete compliant alternative exists."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-4 — Option/Result boundaries could use match helpers (scratchpad/effected/spdx/License.ts:296-299)",
+          "reason": "effect-idiom: As an optional equivalent cleanup, consume catalog lookups with `O.match` and FromString parsing with `Result.match`, preserving license-reference fallback and existing error payloads. Leave collector leaf pushes unchanged."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6 — README retains npm-artifact packaging claims (scratchpad/effected/spdx/README.md:11-13)",
+          "reason": "docs: Delete the two packaging paragraphs or replace them with a lab-accurate sentence describing Effect as the dependency and the lack of IO, filesystem and network use. This is outside the README's centrally owned Port notes."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-7 — FromString documentation names the wrong encoding path (scratchpad/effected/spdx/SpdxExpression.ts:564-567)",
+          "reason": "jsdoc: State that encoding uses the shared serializer also used by each node's toString; normalize the adjacent Schema member comment's mixed indentation during that documentation edit."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-8 — Schema-description prose retains a TSDoc selector artifact (scratchpad/effected/spdx/SpdxExpression.ts:215,264)",
+          "reason": "schema: Replace `any (SpdxExpression:type)` with `members of the SpdxExpression union` in both descriptions. Preserve annotation keys and schema behavior."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-9 — The oracle ambient shim still lacks its upstream explanation (scratchpad/test/spdx/spdx-expression-parse.d.ts:1)",
+          "reason": "docs: Restore the four upstream explanatory comment lines above the existing declaration. Keep the current declaration signature; changing it is unnecessary to fix the missing prose."
         }
       ],
       "reviewRounds": [
@@ -4027,6 +4075,24 @@
             "fable": {
               "required": 8,
               "backlog": 6
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 1,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 9
             }
           }
         }
