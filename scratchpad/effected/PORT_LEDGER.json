@@ -11694,6 +11694,18 @@
           "upstreamBehaviour": "scratchpad/effected/config-file/ConfigResolver.ts:447 carried a branch no input can reach",
           "labBehaviour": "Removed the function-rejection guard after successful JSON parsing; a parsed JSON value cannot be a function.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/config-file/MergeStrategy.test.ts:95,254,272; scratchpad/test/config-file/MergeStrategy.property.test.ts:50; scratchpad/test/config-file/internal/deepMerge.property.test.ts:27,120",
+          "upstreamBehaviour": "Same-prototype classes merge into freshly allocated prototype-only objects, losing private-field brands and identity. Direct deepMerge also copies non-plain or incompatible-prototype inputs; nested plain records can merge across prototype kinds.",
+          "labBehaviour": "Classes and other non-plain values stay atomic by highest-priority identity. canMerge accepts only same-prototype plain records; direct deepMerge returns the target intact for non-plain or incompatible inputs, including nested incompatible plain records. Its overloads now accept object inputs.",
+          "reason": "upstream-bug: sol-2-1 reports a pinned-oracle differential probe where decoded class output passes instanceof but its private getter throws TypeError. The diff adds private-brand and identity regressions and enforces the compatible-plain-record merge domain, with direct-helper prototype tests at line 120."
+        },
+        {
+          "test": "scratchpad/test/config-file/MergeStrategy.test.ts:145,187; scratchpad/test/config-file/internal/deepMerge.property.test.ts:52,100",
+          "upstreamBehaviour": "Both merge copy loops enumerate only string keys, dropping required enumerable symbol fields from schema-decoded records and returning values outside their declared schema.",
+          "labBehaviour": "Both loops copy own enumerable string and symbol keys through PropertyKey access, preserving target priority, nested merging, inert descriptors and input immutability. Non-enumerable keys and string __proto__ remain excluded; Symbol(\"__proto__\") is retained.",
+          "reason": "upstream-bug: sol-2-2 reports a pinned-oracle differential probe with schema validity changing from true to false and the required symbol becoming undefined. Oracle source confirms Object.keys-only loops; the diff uses Reflect.ownKeys with enumerability guards and adds symbol-schema regressions."
         }
       ],
       "backlog": [
@@ -11768,6 +11780,18 @@
           "round": 1,
           "finding": "fable-1-14 — README adaptation and its import examples are unfinished. (scratchpad/effected/config-file/README.md:3)",
           "reason": "docs: During S2, remove the specified badges/Install/stability material and rewrite examples to lab paths and dedicated Effect module imports. Leave README Port notes bookkeeping to the central codemod."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "grok-2-1 — The internal crypto module lost its upstream lead documentation. (scratchpad/effected/config-file/internal/crypto.ts:1)",
+          "reason": "jsdoc: Restore the complete pinned-oracle module lead above imports, convert @remarks to Details, and retain @internal without dropping prose. Documentation/JSDoc work is deferred."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "grok-2-2 — Inline event fields and the short-ciphertext message lack descriptions. (scratchpad/effected/config-file/ConfigEvent.ts:70)",
+          "reason": "schema: Add annotateKey descriptions from carried comments to nonempty event-variant fields and CiphertextTooShortError.message; preserve comments until annotations carry their prose. Deferred documentation-only schema work."
         }
       ],
       "reviewRounds": [
@@ -11786,6 +11810,24 @@
             "fable": {
               "required": 7,
               "backlog": 8
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "60fcfb5ebcdc26765a66cc1f13afc88adcb05d11",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 1
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
             }
           }
         }

@@ -9,6 +9,8 @@ const runs = { arbitrary: fcRuns(100) };
 const Scalar = S.Union([S.String, S.Boolean, S.Int, S.Null]);
 const Sample = S.Struct({ local: Scalar, middle: Scalar, base: Scalar, fallback: S.Json });
 class Settings extends S.Class<Settings>("MergeStrategy.property/Settings")({ port: S.Int, host: S.String }) {
+  #secret = "ready";
+  get secret(): string { return this.#secret; }
   get address(): string { return `${this.host}:${this.port}`; }
 }
 
@@ -52,6 +54,8 @@ describe("MergeStrategy priority properties", () => {
         { path: "/base", resolver: "base", value: lower },
       ]);
       assert.instanceOf(actual, Settings);
+      assert.strictEqual(actual, higher);
+      assert.strictEqual(actual.secret, "ready");
       assert.strictEqual(actual.port, higher.port);
       assert.strictEqual(actual.host, higher.host);
       assert.strictEqual(actual.address, higher.address);
