@@ -10963,6 +10963,12 @@
           "upstreamBehaviour": "TsconfigLoader.ts:262 carried a branch no input can reach",
           "labBehaviour": "Replaced the static facade's private empty constructor with an abstract class.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/tsconfig-json/PortableTsconfig.test.ts:22; scratchpad/test/tsconfig-json/PortableTsconfig.test.ts:38; scratchpad/test/tsconfig-json/PortableTsconfig.test.ts:53; scratchpad/test/tsconfig-json/PortableTsconfig.property.test.ts:43",
+          "upstreamBehaviour": "PortableTsconfig.compilerOptions is Record<string, unknown>; only make enforces the allow-list and forces noEmit true and composite false. Upstream has no portable runtime schema. Before this round, the lab schema also accepted an unconstrained record.",
+          "labBehaviour": "PortableTsconfig.compilerOptions now has schema-derived preserved fields, optional types, required noEmit true and composite false, and no arbitrary-key type. Decode and encode reject missing/reversed flags and invalid known fields, and strip machine paths and unclassified keys. make retains its projection behavior.",
+          "reason": "schema-first: D5 and the Core Modeling Contract require precision to carry invariants. Round-2 sol-2-1 tightens the nested portable model and public type, as confirmed by the PortableTsconfig.ts diff and added boundary/property tests. This is distinct from the existing round-1 S.Opaque model conversion."
         }
       ],
       "backlog": [
@@ -11013,6 +11019,12 @@
           "round": 1,
           "finding": "fable-1-4-public — Qualify the public discovery span name (scratchpad/effected/tsconfig-json/TsconfigDiscovery.ts:20)",
           "reason": "effect-idiom: Consider naming the public span TsconfigDiscovery.findNearest; keep this preference separate from the required restoration of internal untraced behavior."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "sol-2-2 — Preserve decoder error payloads in failure assertions (scratchpad/test/tsconfig-json/CompilerOptionsFromProgrammatic.test.ts:74)",
+          "reason": "test: Deferred canon work should retain decoder errors and assert independently expected issue paths/messages at all four sentinel sites, distinguishing invalid jsx: 9999 from valid target: 12."
         }
       ],
       "reviewRounds": [
@@ -11031,6 +11043,24 @@
             "fable": {
               "required": 4,
               "backlog": 6
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 2,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 4,
+              "backlog": 0
             }
           }
         }

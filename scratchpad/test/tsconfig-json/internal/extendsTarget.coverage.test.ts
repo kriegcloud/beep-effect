@@ -5,6 +5,8 @@ import * as S from "effect/Schema";
 import { resolveExports, resolveExtendsTarget } from "../../../effected/tsconfig-json/internal/extendsTarget.ts";
 import { fixtureLayer } from "../fixtures.ts";
 
+const JsonValue = S.fromJsonString(S.Unknown);
+
 const nested = (leaf: unknown, depth: number): unknown => {
   let value = leaf;
   for (let i = 0; i < depth; i++) value = { default: value };
@@ -34,7 +36,7 @@ describe("extendsTarget boundary coverage", () => {
   }));
 
   it.effect("substitutes nested wildcard arrays, skips dunder data and bounds recursion", () => Effect.gen(function* () {
-    const poisoned = yield* S.decodeEffect(S.fromJsonString(S.Unknown))('{"__proto__":"./bad.json","constructor":"./bad.json","prototype":"./bad.json","browser":"./bad.json","types":[false,"./*.json"]}');
+    const poisoned = yield* S.decodeEffect(JsonValue)('{"__proto__":"./bad.json","constructor":"./bad.json","prototype":"./bad.json","browser":"./bad.json","types":[false,"./*.json"]}');
     assertSome(resolveExports({ "./*": poisoned }, "./base"), "./base.json");
     assertNone(resolveExports({ "./*": nested("./*.json", 34) }, "./base"));
     assertNone(resolveExports(nested("./base.json", 34), "."));

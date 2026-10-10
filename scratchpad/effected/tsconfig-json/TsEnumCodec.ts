@@ -355,13 +355,14 @@ const encodeCompilerOptions = (options: CompilerOptions.Type): ProgrammaticCompi
 	for (const [key, family] of COMPILER_OPTION_ENUM_KEYS) {
 		const value = source[key];
 		if (P.isString(value)) {
-			result[key] = O.getOrThrow(encode(family, value));
+			const encoded = encode(family, value);
+			if (O.isSome(encoded)) result[key] = encoded.value;
 		}
 	}
 
-	const lib = options.lib;
+	const lib = source.lib;
 	if (A.isArray(lib)) {
-		result.lib = lib.map((entry) => `lib.${normalizeLibReference(entry)}.d.ts`);
+		result.lib = lib.map((entry) => (P.isString(entry) ? `lib.${normalizeLibReference(entry)}.d.ts` : entry));
 	}
 
 	return result;

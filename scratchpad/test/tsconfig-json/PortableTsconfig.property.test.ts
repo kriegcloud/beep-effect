@@ -29,9 +29,23 @@ it.effect.prop("portable projection is stable, forces virtual-environment flags 
   Effect.gen(function* () {
     const portable = PortableTsconfig.make(value, { includeTypes: true });
     assert.deepStrictEqual(PortableTsconfig.make(portable.compilerOptions, { includeTypes: true }), portable);
+    assertTrue(S.is(PortableTsconfig)(portable));
+    const encoded = yield* S.encodeEffect(PortableTsconfig)(portable);
+    assert.deepStrictEqual(encoded, portable);
+    assert.deepStrictEqual(yield* S.decodeEffect(PortableTsconfig)(encoded), portable);
     assert.strictEqual(portable.compilerOptions.noEmit, true);
     assert.strictEqual(portable.compilerOptions.composite, false);
-    assert.strictEqual(portable.compilerOptions.typeRoots, undefined);
-    assert.strictEqual(portable.compilerOptions.outDir, undefined);
+    assert.isFalse("typeRoots" in portable.compilerOptions);
+    assert.isFalse("outDir" in portable.compilerOptions);
     assert.deepStrictEqual(portable.compilerOptions.types, value.types);
+  }), runs);
+
+it.effect.prop("schema-generated portable configs obey the flags and remain unchanged by projection", [Arbitrary.schema(PortableTsconfig)], ([value]) =>
+  Effect.gen(function* () {
+    assert.strictEqual(value.compilerOptions.noEmit, true);
+    assert.strictEqual(value.compilerOptions.composite, false);
+    assert.isFalse("typeRoots" in value.compilerOptions);
+    assert.isFalse("outDir" in value.compilerOptions);
+    assert.deepStrictEqual(PortableTsconfig.make(value.compilerOptions, { includeTypes: true }), value);
+    assert.deepStrictEqual(yield* S.encodeEffect(PortableTsconfig)(value), value);
   }), runs);
