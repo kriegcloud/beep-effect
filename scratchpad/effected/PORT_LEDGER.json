@@ -1230,6 +1230,54 @@
           "round": 1,
           "finding": "back-9 — Suite-level layer migration and diagnostic pragmas (scratchpad/test/memfs/Handle.test.ts:1)",
           "reason": "test: During S3 migrate nine suite-level layers to it.layer/layer and remove strictEffectProvide pragmas; retain justified Promise and nodeBuiltinImport suppressions."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-2 — Invariant documentation for removed defensive branches (scratchpad/effected/memfs/internal/volume.ts:308)",
+          "reason": "docs: Add warranted invariant comments and account centrally for authorized unreachable-branch simplifications; exclude the cause-passthrough removal restored by grok-2-1. Documentation/coverage work is deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-3-docs — Stale NodeSync builtin-access prose (scratchpad/effected/memfs/NodeSyncFileSystem.ts:31)",
+          "reason": "docs: Describe node:fs builtin-registry access accurately in README and index API prose. Documentation is deferred; central deviation accounting is outside the repair groups."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-4 — Host-builtin spy justification and canon accounting (scratchpad/test/memfs/NodeSyncFileSystem.coverage.test.ts:11)",
+          "reason": "test: Add a local reason for node:fs adapter spies and centrally record an EV010-equivalent exception. Vitest-canon work is deferred; registry and ledger edits are outside the port repair surface."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-5 — Stale RangeError API documentation (scratchpad/effected/memfs/MemoryFileSystem.ts:462)",
+          "reason": "docs: Replace stale RangeError references with UnknownFaultKeyError, retaining InvalidFaultCountError for failTimes. Documentation/JSDoc work is deferred; this continues the round-1 concern."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6-values — Seed/stat runtime schema barrel exports (scratchpad/effected/memfs/index.ts:53)",
+          "reason": "schema: Consider exporting the six seed/stat schema value facets with a barrel regression. No required upstream value export or mandatory barrel contract is shown; added-export accounting remains central."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-7 — Generator and invariant-access simplification (scratchpad/effected/memfs/MemoryFileSystem.ts:1247)",
+          "reason": "effect-idiom: Consider direct mapping in layerFaulty, Effect.sync in getInode and removal of redundant optional chains; preserve laziness and fault timing. No forbidden generator form or measured regression is demonstrated."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-8 — Predicate guard and error extraction consistency (scratchpad/effected/memfs/internal/seed.ts:45)",
+          "reason": "effect-idiom: Consider Predicate.isUint8Array/isError only where oracle semantics remain unchanged. Do not widen Error-only extraction. The cited typeof law does not forbid these instanceof sites."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-9 — Repeated schema round-trip property helpers (scratchpad/test/memfs/internal/errno.property.test.ts:8)",
+          "reason": "test: Hoist roundTrips into the local memfs helpers and preserve all assertions and fcRuns. Test consolidation is deferred; no lost property contract is demonstrated."
         }
       ],
       "reviewRounds": [
@@ -1248,6 +1296,24 @@
             "fable": {
               "required": 8,
               "backlog": 7
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 1,
+              "backlog": 8
             }
           }
         }

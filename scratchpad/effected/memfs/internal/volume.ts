@@ -400,7 +400,7 @@ const collectInodePaths = (state: State, inode: Inode, directory: DirectoryInode
 };
 
 const inodeUpdateEvents = (state: State, inode: Inode): ReadonlyArray<FileSystem.WatchEvent.Update> => {
-	const root = O.getOrThrow(O.filter(HashMap.get(state.inodes, RootInode), S.is(DirectoryInode)));
+	const root = O.getOrThrow(O.filter(HashMap.get(state.inodes, RootInode), InodeEntry.isAnyOf(["Directory"])));
 	if (inode === RootInode) return [{ _tag: "Update", path: "/" }];
 	// NOTE: An inode may be reachable through multiple hard-link aliases, each of
 	// which must receive an update event.
@@ -512,7 +512,7 @@ const attachDirectory = Effect.fnUntraced(function* (
 	yield* validateEntryName(method, name);
 	const parentEntry = yield* getDirectory(state, parent, method, name);
 	// Callers attach only fresh clones or newly created directories to an absent name.
-	const entry = O.getOrThrow(O.filter(HashMap.get(state.inodes, inode), S.is(DirectoryInode)));
+	const entry = O.getOrThrow(O.filter(HashMap.get(state.inodes, inode), InodeEntry.isAnyOf(["Directory"])));
 	const now = yield* DateTime.now;
 	const nextParent = {
 		...parentEntry,
@@ -641,17 +641,10 @@ interface OpenOptions {
 // descriptors
 // =============================================================================
 
-const isOpenFlag = (flag: unknown): flag is FileSystem.OpenFlag =>
-	flag === "r" ||
-	flag === "r+" ||
-	flag === "w" ||
-	flag === "wx" ||
-	flag === "w+" ||
-	flag === "wx+" ||
-	flag === "a" ||
-	flag === "ax" ||
-	flag === "a+" ||
-	flag === "ax+";
+const OpenFlag = LiteralKit(["r", "r+", "w", "wx", "w+", "wx+", "a", "ax", "a+", "ax+"]).pipe(
+ $I.annoteSchema("OpenFlag", { description: "The supported file-open flags." }),
+);
+const isOpenFlag = S.is(OpenFlag);
 
 const openMode = (flag: FileSystem.OpenFlag): OpenMode => ({
 	readable: flag === "r" || flag.endsWith("+"),
@@ -693,7 +686,7 @@ const getOpenFile = (
 			const code = method === "truncate" ? "EINVAL" : "EBADF";
 			return Effect.fail(descriptorError(fd, method, code, `File descriptor is not ${access}`));
 		}
-		const entry = O.getOrThrow(O.filter(HashMap.get(state.inodes, descriptor.inode), S.is(FileInode)));
+		const entry = O.getOrThrow(O.filter(HashMap.get(state.inodes, descriptor.inode), InodeEntry.isAnyOf(["File"])));
 		return Effect.succeed([descriptor, entry]);
 	});
 
@@ -706,10 +699,9 @@ const withSystemErrorPath = (error: PlatformError, method: string, path: string)
 				pathOrDescriptor: path,
 				description: error.reason.description,
 				syscall: error.reason.syscall,
-				cause: ErrnoException.from(
-					O.getOrThrow(O.filter(O.some(error.reason.cause), S.is(ErrnoException))).code,
-					path,
-				),
+				cause: S.is(ErrnoException)(error.reason.cause)
+					? ErrnoException.from(error.reason.cause.code, path)
+					: error.reason.cause,
 			});
 
 const withOperationError = (error: PlatformError, method: string, path: string): PlatformError =>
@@ -1054,7 +1046,7 @@ const containsDirectory = (state: State, ancestor: Inode, candidate: Inode): boo
 	while (pending.length > 0) {
 		const current = O.getOrThrow(O.fromUndefinedOr(pending.pop()));
 		if (current === candidate) return true;
-		const entry = O.getOrThrow(O.filter(HashMap.get(state.inodes, current), S.is(DirectoryInode)));
+		const entry = O.getOrThrow(O.filter(HashMap.get(state.inodes, current), InodeEntry.isAnyOf(["Directory"])));
 		for (const inode of HashMap.values(entry.entries)) {
 			if (findInode(state, inode)?._tag === "Directory") {
 				pending.push(inode);
@@ -1631,7 +1623,7 @@ const openDescriptorUnlocked: (
 			const parent = yield* resolveParent(nextState, candidatePath, "open", path, "EISDIR");
 			const [createdState, inode] = yield* createFile(nextState);
 			nextState = createdState;
-			let created = O.getOrThrow(O.filter(HashMap.get(nextState.inodes, inode), S.is(FileInode)));
+			let created = O.getOrThrow(O.filter(HashMap.get(nextState.inodes, inode), InodeEntry.isAnyOf(["File"])));
 			if (options?.mode !== undefined) {
 				created = {
 					...created,
@@ -1640,7 +1632,7 @@ const openDescriptorUnlocked: (
 				nextState = setInode(nextState, created);
 			}
 			nextState = yield* linkInode(nextState, parent.inode, parent.name, inode, "open");
-			entry = O.getOrThrow(O.filter(HashMap.get(nextState.inodes, inode), S.is(FileInode)));
+			entry = O.getOrThrow(O.filter(HashMap.get(nextState.inodes, inode), InodeEntry.isAnyOf(["File"])));
 		}
 
 		const fd = FileDescriptor.make(nextState.nextDescriptor);
@@ -2944,7 +2936,7 @@ const snapshotOf = (path: string, entry: InodeEntry): VolumeEntrySnapshot => ({
 
 const collectEntrySnapshots = (state: State): Array<VolumeEntrySnapshot> => {
 	const output: Array<VolumeEntrySnapshot> = [];
-	const root = O.getOrThrow(O.filter(HashMap.get(state.inodes, RootInode), S.is(DirectoryInode)));
+	const root = O.getOrThrow(O.filter(HashMap.get(state.inodes, RootInode), InodeEntry.isAnyOf(["Directory"])));
 	// The root itself, which the walk below never reaches — it starts FROM the
 	// root and reports descendants. Emitting it lets the inspection view answer
 	// `has`/`isDirectory`/`mtime` for "/" from real state rather than a
