@@ -5390,6 +5390,24 @@
           "upstreamBehaviour": "scratchpad/effected/commands/ToolDiscovery.ts:486 carried a branch no input can reach",
           "labBehaviour": "Replaced the local-version empty-string fallback with O.getOrThrow under the same presence guard.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/commands/ScriptedSpawner.test.ts:156; scratchpad/test/commands/ScriptedSpawner.property.test.ts:13",
+          "upstreamBehaviour": "ScriptResult permits any numeric scripted exit, including fractions and non-finite values.",
+          "labBehaviour": "ScriptResult.exit now uses the shared optional integer ExitCode schema. Guards and decoders reject fractional and non-finite exits while retaining omitted or undefined exits, integer results and platform-error identity.",
+          "reason": "numeric-domains: law 17 and EF-35 require one owning integer exit-code domain. Required fable-2-2 aligns the scripted producer with CommandOutput; the diff flips fraction and Infinity acceptance assertions to rejection and removes the obsolete exit arbitrary hint. This records the new scripted-input restriction, not the existing output/error restriction."
+        },
+        {
+          "test": "scratchpad/test/commands/Tool.property.test.ts:32; scratchpad/test/commands/Tool.property.test.ts:79",
+          "upstreamBehaviour": "Tool construction requires explicit version, source and onMismatch fields; Tool.named supplies their defaults outside the schema.",
+          "labBehaviour": "Tool.make accepts omitted version, source and onMismatch, defaulting to a fresh --version probe, any source and preferLocal. Tool.named forwards defined overrides; decoded and encoded fields remain required.",
+          "reason": "schema-first: EF-34 and schema-first Pattern 3 require constructor defaults in the owning schema. Required fable-2-8 adds S.withConstructorDefault with Effect-valued defaults; new tests cover constructor acceptance, fresh probes, explicit and undefined overrides, and required wire fields."
+        },
+        {
+          "test": "scratchpad/effected/commands/Run.ts:104; scratchpad/effected/commands/ScriptedSpawner.ts:53; scratchpad/test/commands/ScriptedSpawner.test.ts:156",
+          "upstreamBehaviour": "Run.ts exposes no ExitCode schema value or same-name derived type.",
+          "labBehaviour": "Run.ts newly exports the existing integer ExitCode schema and its derived type so ScriptedSpawner can reuse the domain. The package barrel is unchanged.",
+          "reason": "added-exports: D2 requires additive exports to be recorded, and law 17 requires reuse of the owning domain. Required fable-2-2 changes ExitCode from a private schema into a module export and adds its same-name type; earlier schema value additions are outside this round diff."
         }
       ],
       "backlog": [
@@ -5452,6 +5470,60 @@
           "round": 1,
           "finding": "fable-1-15 — Consider exhaustive matching for policy and error branches (scratchpad/effected/commands/ToolDiscovery.ts:307)",
           "reason": "effect-idiom: Optionally replace policy/error ternary chains with LiteralKit $match or exhaustive Match after the literal-domain repair, preserving message bytes and resolution behavior."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-1 — Consider schema value re-exports at the package boundary (scratchpad/effected/commands/index.ts:43)",
+          "reason": "schema: Consider value re-exports of RunOptions, LauncherPrefixes, ToolResolutionFailure, ScriptResult and SpawnRecord; retain the remaining type-only exports. Defer barrel property checks to S3 and route added-export bookkeeping centrally."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-3 — Migrate effectful test layers and record fresh-state exceptions (scratchpad/test/commands/e2e/Run.e2e.test.ts:28)",
+          "reason": "test: Use it.layer for shared effectful worlds; document fresh-state per-test builds as canon exceptions, consolidate the helper and correct the lifecycle comment. Update the prior sol-1-13 bookkeeping centrally."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-4 — Replace tautological and ad-hoc container assertions (scratchpad/test/commands/ScriptedSpawner.test.ts:142)",
+          "reason": "test: Remove the self-referential assertExitFailure, narrow the defect once, use assertSome for decoded values and LocalExec contexts, and public Exit/Cause checks in ToolDiscovery. Update prior sol-1-12 bookkeeping centrally."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-5 — Complete and correct public API JSDoc categories (scratchpad/effected/commands/LocalExec.ts:152)",
+          "reason": "jsdoc: Add semantic categories to public members, remove the private withPrefix example and replace application-process/CQRS category slugs with categories appropriate to OS command utilities."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6 — Replace type-guard examples with observable results (scratchpad/effected/commands/LocalExec.ts:391)",
+          "reason": "jsdoc: Replace type-guard tautologies with observable argv, context labels or scripted command results; show a retry policy value or a retried result."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-7 — Simplify wrappers and Option round trips (scratchpad/effected/commands/ToolDiscovery.ts:339)",
+          "reason": "effect-idiom: Reuse the ready decoder, preserve Options through getSomesStruct, use Effect String/Array helpers and call Effect.sleep directly; retain behavior."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-9 — Clarify coverage-only constructor probes (scratchpad/test/commands/Run.coverage.test.ts:43)",
+          "reason": "test: Defer to S3: retain upstream private constructors and remove redundant Object.keys assertions or document coverage-only probes. Do not remove constructors without a forcing law or verified upstream bug; ledger notes belong to the central owner."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-10 — Remove stale attribution and packaging prose (scratchpad/effected/commands/README.md:81)",
+          "reason": "docs: Central bookkeeping deletes the stale Attribution bullet. The docs owner replaces Node-version and ESM exports-map packaging prose with the lab dependency statement."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "sol-2-2 — Record added schema exports and numeric-domain changes (scratchpad/effected/commands/README.md:85)",
+          "reason": "docs: outside the port's write surface; README Port notes and PORT_LEDGER.json added-export/numeric-domain bookkeeping remain with the central codemod."
         }
       ],
       "reviewRounds": [
@@ -5470,6 +5542,24 @@
             "fable": {
               "required": 7,
               "backlog": 10
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 4,
+              "backlog": 6
             }
           }
         }
