@@ -2,7 +2,8 @@
 
 The original toolchain freeze has passed and remains unchanged. The common source,
 task contracts, runtime profiles and index snapshots are not frozen. No scored
-cell, judge call, full Beep ingestion, winner or task PR has started.
+cell, judge call, full Beep ingestion, winner or task PR has started. Work is
+paused for reported zero remaining Codex quota; all owned run scopes are settled.
 
 | Gate | Evidence and remaining limit |
 | --- | --- |
@@ -20,10 +21,22 @@ cell, judge call, full Beep ingestion, winner or task PR has started.
 | JetBrains | Dedicated offline IDE exposes the exact root but has no successful source read. The retained final screenshot shows a JetBrains Account sign-in modal; original host license validity remains unknown. Current dedicated topology is unsupported, with all nine candidate cells retained. No login, new terms or backend substitution. |
 | Blinded review | A 19-file synthetic export reproduces identically, its exact diff reconstructs the fixture head, and an offline read-only reviewer namespace denies private mapping, oracle and other-trial access. Native judge authentication, consumption and grading remain unproved. |
 | Retention capacity | A no-delete synthetic archive/restore canary passes exact commit/tree/diff/evidence checks and rejects missing-base/corrupt inputs. Current per-attempt workspace duplication does not qualify 117 retained states within the free-disk reserve. An additional original-path restoration fixture preserves a failed outcome and immutable dependency references, including deliberate interruption recovery. Eighteen focused retention tests now pass, including real SIGKILL recovery, source-only failed retention, output overlap refusal, nested proof dependencies and source-byte checks independent of Git flags. Guard-evidence closure and declared seed-root protection pass bounded review. Original namespace targets now survive custody and restoration; legitimate native links pass and wrong-target or escaping links fail. Default package proof passes at `d1c5d8854f`. The later complete CLI package proof passes at clean `376943bfad`; genuine full-source Executor custody and capacity remain unproved. Original attempts are preserved. |
-| Costs | No Jev calls, new billing, purchases or actual quota failure observed. Account usage is shared and cannot be attributed solely to this initiative. The agent has not switched accounts. The latest read-only snapshot at 08:32 UTC reports active Codex ready with 3% remaining and no exhausted limit. Claude usage reads now succeed and report the active account ready with 32% remaining; the earlier rate-limited observations remain retained. No new model-dependent trial has started. Muse is ready with remaining usage unknown. Shared deltas are not experiment billing. Model/effort controls are unchanged. |
+| Costs | No Jev calls, new billing, purchases or account switch. At 08:53 UTC the native account tool reports 100% used and zero remaining; ordinary usage is still allowed and no hard denial is reported. The initiative conservatively pauses at the reported exhausted quota under the prompt. Claude usage is intermittently unreadable due to rate limiting; its last readable snapshot was 32%. Shared usage is not attributable solely to this initiative. Model/effort controls remain unchanged. |
 
 Private staging retains source-bound commands, all failed attempts, native logs,
 compiler and runtime inventories, local commits, package receipts and account
 snapshots. Public documents carry sanitized summaries and hashes; raw logs and
 sealed checks remain outside the repository. Current runtime failures are not
 implementation failures and do not relax any passing criterion.
+
+
+Attempt ten was prepared from clean `bb7ec2fc92` with the byte-identical package
+proof bridge, strict system/control preflight and a real public guard pass for
+all 1,603 output targets. Parent review matched 25 prepared hashes. Its source
+integrity check passed, then the run was interrupted for reported zero remaining
+quota after 720.02 seconds. Exit 130, clean source, unchanged request, inactive
+scope and partial evidence are retained. No full collection or final proof was
+emitted. This is a quota-interrupted qualification attempt, not a runtime test
+failure or scored cell. Resume requires a live account recheck and a fresh
+attempt identity; never reuse its occupied output paths. Receipts:
+`native-attempt10-quota-pause-v1.json` and `native-attempt10-terminal-v1.json`.

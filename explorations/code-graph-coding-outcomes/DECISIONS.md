@@ -397,3 +397,15 @@ next request to the unchanged CLI package tree. Reversal uses the retained
 request-nine inputs and original system inventories. Receipts:
 `runner-bb6-package-proof-parent-verification-v1.json` and
 `native-desktop-v3-parent-verification-v1.json`.
+
+
+### Pause on reported exhausted quota without switching routes
+
+At 08:53 UTC the native account tool reports 100% used and zero remaining, while
+ordinary usage remains allowed and no hard denial is reported. Apply the prompt's
+quota pause conservatively. Interrupt only the owned attempt-ten scope, preserve
+exit 130 and all partials, confirm the scope inactive, and checkpoint. The
+operator may switch an existing account; the agent does not switch accounts,
+reset limits, buy credits or substitute a provider. Resume after a live recheck
+with the frozen controls and a fresh attempt identity. Earlier successful
+package and runtime prerequisite evidence remains source-bound and reusable.
