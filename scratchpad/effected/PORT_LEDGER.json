@@ -6512,6 +6512,12 @@
           "upstreamBehaviour": "scratchpad/effected/engine/ProcessGuard.ts:419-420 carried a branch no input can reach",
           "labBehaviour": "Removed Promise.resolve() after the non-returning startup-failure path; typed startupFailed as never and returned host.exit(1).",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/engine/entrypoints.test.ts:44; scratchpad/test/engine/entrypoints.test.ts:51",
+          "upstreamBehaviour": "The pinned upstream runtimeImportsOf regex scans from an exported class into its JSDoc and reports an example import as a runtime package; the regression fixture yields unexpected-package.",
+          "labBehaviour": "The text walker restricts matching to import/export clause shapes, excluding the exported-class JSDoc example while retaining multiline runtime clauses and skipping type-only clauses; the fixture yields no package.",
+          "reason": "upstream-bug: The pinned oracle regex reports unexpected-package for the new exported-class documentation regression at entrypoints.test.ts:44; the lab regex returns none. A read-only Node comparison also shows the oracle falsely includes @beep/scratchpad/effected/engine/ProcessGuard from actual guard JSDoc, while the lab returns only effect/* imports. The diff adds regression tests at lines 44 and 51."
         }
       ],
       "backlog": [
@@ -6550,6 +6556,48 @@
           "round": 1,
           "finding": "fable-1-7 — Relocated documentation examples cannot resolve imports (scratchpad/effected/engine/LaunchContext.ts:32)",
           "reason": "jsdoc: At S2 use @beep/scratchpad/effected/engine/index and /guard aliases; replace the nonexistent server import with an inline startServer stub and verify docgen."
+        },
+        {
+          "seat": "sol",
+          "round": 2,
+          "finding": "sol-2-1 — Property rejects valid placeholder-bearing cwd fallback (scratchpad/test/engine/LaunchContext.test.ts:106)",
+          "reason": "test: Retain the nonempty assertion; allow unchanged cwd fallback placeholders, reject placeholders only in selected argv/env candidates, and add the fixed counterexample. Deferred S3 work."
+        },
+        {
+          "seat": "sol",
+          "round": 2,
+          "finding": "sol-2-2 — Property bypasses configured run floor and seed (scratchpad/test/engine/LaunchContext.test.ts:108)",
+          "reason": "test: Use fcRuns(200) from @beep/fc-runs/FastCheckRuns to retain the minimum and honor configured run floors and seed. Deferred S3 work."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6 — README retains npm exports-map installation prose (scratchpad/effected/engine/README.md:5)",
+          "reason": "docs: Delete the retained ESM-only/exports-map paragraph at README.md:5. Deferred S2 documentation work."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-7 — README omits the main entry identity dependency (scratchpad/effected/engine/README.md:7)",
+          "reason": "docs: Document the main entry runtime dependency on @beep/identity/packages and the effect/*-only guard; update the Tier paragraph and link the identity-annotations note. Deferred S2 documentation work."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-8 — Examples teach forbidden synchronous schema decoding (scratchpad/effected/engine/Distribution.ts:24)",
+          "reason": "jsdoc: Use the typed Result-based decoder idiom or S.is in Distribution JSDoc and README examples, retaining their output. Deferred S2 documentation work."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-9 — Diagnostic registry lists a removed guard suppression (scratchpad/effected/DIAGNOSTIC_EXCEPTIONS.md:19)",
+          "reason": "docs: Remove the stale ProcessGuard source-suppression row and adjust the source total in DIAGNOSTIC_EXCEPTIONS.md. Registry is outside the engine fix write surface."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-10 — Import-walker restoration blocked by JSDoc false positive (scratchpad/test/engine/entrypoints.test.ts:15)",
+          "reason": "test: Fix report leaves exact upstream regex restoration blocked because it reads a JSDoc import as a runtime dependency; further helper ruling or broader write surface requested. Final diff now narrows the regex and adds regressions; preserve this LEFT receipt, with its blocker superseded by that later change."
         }
       ],
       "reviewRounds": [
@@ -6568,6 +6616,24 @@
             "fable": {
               "required": 4,
               "backlog": 3
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 2,
+              "backlog": 9
             }
           }
         }

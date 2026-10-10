@@ -1,5 +1,9 @@
 [
   {
+    "id": "EV014:scratchpad/test/engine/purity.test.ts:12:it.layer@1#1",
+    "reason": "The round-2 review requires restoring the upstream NodeServices layer without a raised hook timeout. This real-source purity test needs the resource layer; adding the canon timeout would violate that restoration and the no-raised-timeouts gate repair rule."
+  },
+  {
     "id": "EV010:scratchpad/test/engine/purity.test.ts:4:@effect/platform-node@0#1",
     "reason": "The suite scans the actual engine source tree and asserts that real source files satisfy the purity boundary. A memory filesystem would substitute fixtures for the source under test. Retained the platform layer."
   },

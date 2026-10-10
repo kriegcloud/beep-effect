@@ -2,6 +2,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { ProcessGuard, type ProcessGuardHost } from "../../effected/engine/ProcessGuard.ts";
+import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 class Stackless extends S.TaggedError<Stackless>()("Stackless", { message: S.String }) {}
 
@@ -53,6 +54,31 @@ describe("ProcessGuard reporting boundaries", () => {
         (reason: unknown) => ({ status: "rejected" as const, reason }),
       ));
       assert.deepStrictEqual(result, { status: "rejected", reason: "exit sentinel" });
+      assert.deepStrictEqual(reports, ["guard: startup failed: synchronous load failure\n"]);
+      assert.deepStrictEqual(exits, [1]);
+    }),
+  );
+
+  it.effect("a synchronous load throw still returns a Promise when the host exit returns", () =>
+    Effect.gen(function* () {
+      const reports: Array<string> = [];
+      const exits: Array<number | undefined> = [];
+      const host = deliberatelyInvalid<ProcessGuardHost>({
+        on: () => undefined,
+        emit: () => undefined,
+        stderr: { write: (chunk: string) => reports.push(chunk) },
+        exit: (code?: number) => { exits.push(code); },
+      });
+      const result = ProcessGuard.run({
+        label: "guard",
+        host,
+        policy: { onUncaught: "exitBeforeConnect", onRejection: "log" },
+        load: () => { throw "synchronous load failure"; },
+      });
+      assert.instanceOf(result, Promise);
+      assert.deepStrictEqual(reports, ["guard: startup failed: synchronous load failure\n"]);
+      assert.deepStrictEqual(exits, [1]);
+      assert.isUndefined(yield* Effect.promise(() => result));
       assert.deepStrictEqual(reports, ["guard: startup failed: synchronous load failure\n"]);
       assert.deepStrictEqual(exits, [1]);
     }),
