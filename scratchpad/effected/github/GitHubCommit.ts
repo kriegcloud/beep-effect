@@ -1,5 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as A from "effect/Array";
+import * as Str from "effect/String";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -87,7 +89,7 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
  * @since 0.0.0
  */
 	get subject(): string {
-		return this.message.split("\n", 1)[0] ?? "";
+		return A.headNonEmpty(Str.split(this.message, "\n"));
 	}
 }
 

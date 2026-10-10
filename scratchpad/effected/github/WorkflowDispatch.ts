@@ -423,7 +423,8 @@ const make = (client: GitHubClient["Service"]): WorkflowDispatchShape => {
           while: (found) => O.isNone(found) || found.value.isDone === false,
           schedule: Schedule.spaced(interval),
         });
-        return yield* Effect.fromOption(settled).pipe(Effect.mapError(() => expired));
+        // The repeat predicate stops only for a present, completed run.
+        return O.getOrThrow(settled);
       }).pipe(Effect.timeoutOrElse({ duration: timeout, orElse: () => Effect.fail(expired) }));
     }),
   };

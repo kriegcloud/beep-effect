@@ -6,6 +6,7 @@ import type { OctokitResponse } from "@octokit/types";
 import * as A from "effect/Array";
 import * as Clock from "effect/Clock";
 import * as Effect from "effect/Effect";
+import { constVoid } from "effect/Function";
 import * as O from "@beep/utils/Option";
 import * as P from "effect/Predicate";
 import * as Redacted from "effect/Redacted";
@@ -88,10 +89,10 @@ class TransportFailure extends S.TaggedError<TransportFailure>($I`TransportFailu
 }, $I.annote("TransportFailure", { description: "Carries an Octokit throwable until it is classified." })) {}
 
 const SILENT_LOG = {
-	debug: () => {},
-	info: () => {},
-	warn: () => {},
-	error: () => {},
+	debug: constVoid,
+	info: constVoid,
+	warn: constVoid,
+	error: constVoid,
 };
 
 /**

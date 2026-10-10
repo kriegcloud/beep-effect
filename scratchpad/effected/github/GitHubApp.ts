@@ -898,7 +898,7 @@ const makeRotatingClient = Effect.fn("makeRotatingClient")(function* (
 		graphql: (document, variables) =>
 			Effect.flatMap(currentForGraphQL, (client) => client.graphql(document, variables)),
 		rateLimit: Effect.flatMap(Ref.get(held), (state) =>
-			O.isSome(state) ? state.value.client.rateLimit : Effect.succeedNone,
+			O.getOrThrow(state).client.rateLimit,
 		),
 	} satisfies GitHubClientShape;
 });

@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "lockfiles",
+    "module": "github",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-10T00:09:27.244Z"
+    "at": "2026-10-10T00:10:42.981Z"
   },
   "rows": [
     {
@@ -7794,7 +7794,7 @@
       "module": "github",
       "wave": 2,
       "position": 4,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "drivers",
       "upstreamPaths": {
@@ -8716,6 +8716,42 @@
           "upstreamBehaviour": "Rest.Data directly exposes the generated response data type, which is never for bodyless routes even though successful Octokit HTTP 204 responses contain an empty string.",
           "labBehaviour": "Rest.Data maps bodyless never to the empty-string success type, distributes across route unions and permits typed Result fixtures; resource void methods continue discarding the body.",
           "reason": "upstream-bug: INVENTORY backlog-09/req-18 and req-03 HTTP-204 probes verify empty-string transport success against the upstream never type. Rest.test.ts:9 pins bodyful/bodyless union assignment and equality; live HTTP-204 resource regressions preserve undefined results."
+        },
+        {
+          "test": "module suite scratchpad/test/github/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github/CheckRun.ts:267 carried a branch no input can reach",
+          "labBehaviour": "replaced the unreachable bytes[end] ?? 0 fallback with bytes.readUInt8(end); the truncation index is always within the oversized UTF-8 buffer, preserving behavior.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github/GitHubApp.ts:901 carried a branch no input can reach",
+          "labBehaviour": "Simplified the rotating client's rateLimit fallback from an Option conditional to O.getOrThrow(state).client.rateLimit. Successful construction always populates held state before exposing the client, and no operation clears it, so the absent-state fallback cannot occur.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github/GitHubCommit.ts:92 carried a branch no input can reach",
+          "labBehaviour": "— replaced the impossible nullish fallback after splitting a string on \"\\n\" with Effect String.split and Array.headNonEmpty; empty-message and first-line behavior are preserved.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github/GitHubIssue.ts:505 carried a branch no input can reach",
+          "labBehaviour": "(formerly :503): normalized nullable comment bodies before marker search, removing the selected comment's unreachable body ?? \"\" fallback while preserving behavior.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github/GraphQL.ts:225 carried a branch no input can reach",
+          "labBehaviour": "(original line) — Removed the redundant per-entry “already exists” scan. The reason already joins every entry message, so an entry containing that phrase necessarily satisfies the preceding reason check. Classification behavior is preserved.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github/Repo.ts:108 carried a branch no input can reach",
+          "labBehaviour": "Missing-element checks after an exactly-two-element split were unreachable; use effect/String.split's nonempty result and validate empty owner, missing or empty repository, and surplus segments directly, preserving behavior.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -8843,6 +8879,10 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
@@ -8850,7 +8890,8 @@
       "notes": [
         "2026-10-09T11:33:44.281Z beep laws done (four laws clean, allowlisted sites listed); S1 held by the environment-bound tests in TESTS_NOT_PASSING.md",
         "2026-10-09T15:20:07.874Z S1: green: env-bound tests resolved per the 2026-10-09 rulings; tsgo, oxlint and the four laws clean; audit green (parity strict)",
-        "2026-10-09T16:19:30.600Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:19:30.600Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:10:42.981Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (4 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },

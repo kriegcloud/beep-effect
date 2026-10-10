@@ -220,10 +220,7 @@ const classify = (
   retryAfterMillis: number | undefined,
 ): GitHubGraphQLError["kind"] => {
   const lowered = reason.toLowerCase();
-  if (
-    lowered.includes("already exists") ||
-    entries.some((entry) => entry.message.toLowerCase().includes("already exists"))
-  ) {
+  if (lowered.includes("already exists")) {
     return "alreadyExists";
   }
   if (entries.some((entry) => entry.type === "NOT_FOUND")) return "notFound";
