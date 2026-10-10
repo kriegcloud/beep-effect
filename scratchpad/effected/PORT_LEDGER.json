@@ -7480,6 +7480,18 @@
           "upstreamBehaviour": "DescendError and GlobExpansionError have no explicit schema identifier; their Error.name is their tag. The other data shapes have no schema annotations, and invalid wiring dies with Error named Error.",
           "labBehaviour": "Descend.ts, Expand.ts and Walker.ts create $ScratchpadId-derived $I identities. Error classes take $I identifiers and schema annotations; Struct fields and LiteralKit domains gain descriptions/identities. DescendError, GlobExpansionError, WalkerDefect and DescendDefect expose namespaced Error.name and corresponding string/stack representations.",
           "reason": "identity-annotations: step 4 and D5 require @beep/identity-derived schema/error identifiers and annotations. fable.md:18 and grok.md:4 ground the observable names; INVENTORY.md codemod-1 records them and reject-1 refuses oracle-name overrides. Existing tests cover Error compatibility and messages, not exact names."
+        },
+        {
+          "test": "scratchpad/test/walker/Walker.test.ts:16; scratchpad/test/walker/Descend.test.ts:65; scratchpad/effected/walker/Descend.ts:51",
+          "upstreamBehaviour": "The upstream module has no DepthCap or OnUnreadableArray schema/type exports. Before this round the lab unreadable-array kit was private and no shared depth schema was exported.",
+          "labBehaviour": "Walker.ts now exports DepthCap as a runtime schema and same-name type; Descend.ts exports OnUnreadableArray as a runtime schema and same-name type for expansion reuse. The root barrel is unchanged.",
+          "reason": "schema-first: Effect law 17, law 19 and EF-6/35 require named reused domains and schema-derived guards. Round-2 req-2/3 add these subpath shapes; this records only the new exports, not the four runtime schemas already ledgered."
+        },
+        {
+          "test": "scratchpad/test/walker/Walker.test.ts:16; scratchpad/test/walker/Descend.test.ts:65; scratchpad/test/walker/Expand.test.ts:49",
+          "upstreamBehaviour": "Upstream options are interfaces, with runtime guards rejecting non-positive or non-integer depths. Before this round lab AscendOptions and CompileAndExpandOptions decoded any finite maxDepth, including 0, negatives and fractions.",
+          "labBehaviour": "Both option schemas now decode maxDepth through DepthCap, rejecting 0, negatives and fractions. Traversal guards use the same schema and retain their messages, default 256 and acceptance of positive integers above the safe-integer range.",
+          "reason": "numeric-domains: Effect law 17 and EF-6/35 require the reused numeric constraint in its schema. Req-3 adds positive-integer decoding beyond the existing finite-number deviation; three new 11-case tests pin schema/operation parity including 2 ** 53 and Number.MAX_VALUE."
         }
       ],
       "backlog": [
@@ -7530,6 +7542,66 @@
           "round": 1,
           "finding": "backlog-8 — Consider qualified upward-operation span names (scratchpad/effected/walker/Walker.ts:77)",
           "reason": "effect-idiom: Track Walker.<operation> span qualification as a naming proposal; retain the current law-forced Effect.fn wrappers unless a binding convention or permitted deviation authorizes new observable labels."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-1 — Normalize JSDoc continuation indentation (scratchpad/effected/walker/Descend.ts:60,153-162)",
+          "reason": "docs: Re-indent top-level and field JSDoc continuation lines mechanically, with no prose or runtime change."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-2 — Correct the failure-absorption combinator in carried prose (scratchpad/effected/walker/Walker.ts:337)",
+          "reason": "jsdoc: Change those two references to Effect.orElseSucceed and retain the warning that catchCause would absorb defects. Do not edit README Port notes."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-3 — Replace self-derived Exit expectations during canon work (scratchpad/test/walker/Walker.test.ts:100,110,179,186,193,282,503)",
+          "reason": "test: During canon work use assertTrue(Exit.isFailure(exit)) with useful shape-specific messages and appropriate independent Cause.hasDies checks; preserve every upstream failure/defect assertion."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-4 — Use Effect helpers in deferred test cleanup (scratchpad/test/walker/Walker.property.test.ts:21)",
+          "reason": "law: Use A.join(A.makeBy(depth, ...), \"/\") and R.fromEntries(A.map(present, ...)); keep fixture seeds, fault injection and oracle assertions unchanged."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-5 — Cover the curried descend overloads (scratchpad/effected/walker/Descend.ts:585-590)",
+          "reason": "test: Add one existing-file it.effect test comparing curried and data-first record and array results during coverage work. Retain the forced overloads; central deviation bookkeeping remains outside the repair groups."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-6 — Add optional-field parity protection for expansion options (scratchpad/effected/walker/Expand.ts:48-53)",
+          "reason": "type-safety: Consider a field-key satisfies assertion or schema-derived shared fields that preserve all current optionality, exclusions and encodings. Do not restore the diagnostic/law-forced schema to an interface."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-7 — Consider non-throwing JSON quotation and codec consolidation (scratchpad/effected/walker/Descend.ts:263-264)",
+          "reason": "effect-idiom: Consider a non-throwing getter codec adapter using Result.getOrElse with an explicit total-domain explanation, or shared quotation if useful; preserve exact JSON-quoted message bytes. No required new helper/file is assigned."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-8 — Consider immutable prune lookup representation (scratchpad/effected/walker/Descend.ts:339,466)",
+          "reason": "effect-idiom: Optionally use HashSet.fromIterable/HashSet.has without changing membership or traversal. Do not revert the forced native-runtime replacement."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-9 — Keep queue documentation aligned after restoration (scratchpad/effected/walker/Descend.ts:546-547)",
+          "reason": "docs: After req-8, verify that the existing head-index description and restored comment agree. Retain the paragraph if they do; do not rewrite it to bless the unforced S3 loop."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "codemod-1 — Record added runtime schema exports centrally (scratchpad/effected/walker/README.md:95)",
+          "reason": "docs: outside the port's write surface; added-export and Port-notes bookkeeping remains central."
         }
       ],
       "reviewRounds": [
@@ -7548,6 +7620,24 @@
             "fable": {
               "required": 4,
               "backlog": 8
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 4,
+              "backlog": 12
             }
           }
         }
