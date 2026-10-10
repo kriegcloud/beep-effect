@@ -240,3 +240,70 @@ namespace evidence and a single canonical verdict discovered from native stdout.
 Legacy or synthetic receipts remain readable and retained, but missing native
 bindings must fail admission. The regression test must cover this distinction;
 a contract hash alone does not establish that its declared procedure is valid.
+
+## Diagnose IDE modals visually before interpreting readiness
+
+The dedicated JetBrains fixture reported an early ready state in one attempt,
+then timed out in file synchronization. A later attempt never reported ready.
+Thread dumps showed a modal event loop, while generic OCR returned only the
+workspace label. Direct inspection of the retained screenshot established a
+JetBrains Account sign-in modal. This does not determine the normal host IDE's
+license validity or explain every readiness predicate. Preserve both the raw
+observations and the correction; no login or speculative setup flag was used.
+Private evidence: `serena-jb-dedicated-ide-attribution-supplement-v1.json`.
+Prevention: inspect the actual modal and require a source-checked response after
+index readiness; neither endpoint startup nor a transient status is sufficient.
+
+## Retain a minimal Nix closure instead of trusting a live host store
+
+The host baseline passed both canonical Nix commands, but a later isolated
+development-shell probe offered 172 source builds with substitutes disabled.
+Two Bash outputs had disappeared from the live store. Their signed public-cache
+payloads total about 1.31 MB; importing them with seven closure metadata records
+made both commands pass offline with builds disabled. An unsigned import fails
+as intended. The host store remains a diagnostic input, not a frozen runtime:
+capture only the required owned closure before admission, and preserve signature
+verification and the no-build bound. Private evidence:
+`runner-evaluator-nix-signed-cache-v3.log` and its retained probe receipt.
+
+## Preserve container-store identity across evaluator namespaces
+
+Native Podman rejected an owned store mounted under a different absolute path.
+An archive conversion also changed image configuration serialization, so the
+strict identity check rejected it. Mounting only the owned store at its original
+path inside an otherwise empty namespace preserved native identity without
+exposing parent host directories. An isolated extracted runtime then executed
+the pinned scanner, which parsed the lockfile before its offline advisory request
+timed out. Preserve that failure; next prove the existing exact-authority broker
+and the actual command together. Do not mount the host Docker socket or treat a
+container startup as a completed security scan. Private evidence:
+`runner-evaluator-capability-probes-latest.json` and retained OCI probe receipts.
+
+## Retention needs a restore proof before working-directory retirement
+
+Candidate bundles already exclude the shared base history, but coding and
+collector repositories each import that history, and both retain source archives.
+For 117 cells, nominal baseline-sized packs, archives and tracked trees total
+about 476 GiB before indexes, logs, caches or retries, against roughly 410 GiB
+currently free and a 100 GiB reserve. This is scenario arithmetic, not allocated
+storage measurement; reflink sharing must not be assumed. The current runner has
+no archive/retirement command, and receipts bind artifact paths as well as bytes.
+Do not remove a successful attempt casually. First prove exact restoration of
+commit, tree, diff, raw evidence and shared-base dependencies in a fresh namespace,
+including corrupted-input and missing-base rejection. Preserve failed attempts
+and all original evidence while developing that canary. Private evidence:
+`review-packaging/storage-audit-receipt.json` and `storage-measurements.json`.
+
+## Match embedding inputs before asserting a vector self-match
+
+Repowise's real integrated embedding fixture correctly ranked the expected source
+first, but a self-match threshold failed because the query used only page body
+text. Native indexing prepends title, path and summary. Using native `embed_item`
+and `cap_embed_text`, and checking byte equality with the originally submitted
+input, repaired the oracle with two local query-only calls. No prose generation
+was repeated. Preserve the initial failure and distinguish semantic ranking from
+identical-input vector checks. Private evidence: `ingestion-gap-summary-v1.json`.
+The integrated run retains six model calls, six page/vector IDs, finite normalized
+768-dimensional vectors, zero embedding-failure markers and successful reopen
+queries. Separate mock-prose and real-embedding demonstrations were insufficient
+to establish this integrated path.

@@ -118,3 +118,23 @@ insufficient: ignored files can affect execution without entering a commit.
 Original worktrees and ignored-file inventory remain diagnostic artifacts, not
 passing-proof inputs. Reversal for all three decisions is removal of owned
 experimental profiles/reconstructions after immutable receipts are retained.
+## 2026-10-09 — Freeze existing unsigned runtime bytes explicitly
+
+The evaluator's minimal Nix closure separates public cache artifacts from the
+already installed Determinate runtime. The public development-shell and input
+sources retain native signature or content-address verification. The installed
+runtime has 64 pre-existing paths without cache signatures; its installer origin
+does not establish a cache signature. An owned shell environment is also local.
+
+For those enumerated local paths only, permit a local copy without cache-signature
+checking, with independently verified native NAR hashes and binary hashes before
+and after copying. This admits no unsigned network download and asserts no
+upstream signature. Reject any path outside the allowlist or any content drift.
+Keep the rejected strict-copy attempt. Do not self-sign observed bytes and present
+that as upstream authentication. This is a supplemental evaluator runtime input;
+the original toolchain freeze remains immutable and trial admission is pending.
+
+The reason is to freeze the existing runtime independently of host garbage
+collection without triggering source builds or substituting a new runtime. The
+reversal is to discard only the owned supplemental snapshot and its candidate
+profile, retaining the receipt; no host store, daemon or production config changes.

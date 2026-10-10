@@ -4,7 +4,7 @@ Current authorized spend: existing subscription routes and at most the operator'
 
 Known preparation observations imported by digest: isolated Muse Spark1.3 minimal chat canary HTTP200,37input/87output/124total; USD cost null. UA successful tiny full skill+fresh query394.17seconds,2,378,945host input (2,311,168cached;67,777uncached),8,723output (305reasoning); child usage and USD cost null. Two earlier UA incomplete attempts retained separately:754,409host input including 689,536 cached,2,914output including433reasoning. Initial CGR model pilot usage null and request-shape defect; failed attempts remain separate. Corrected Responses/project-scope probe passed with 4,737 input (4,721 cached),138 output (73 reasoning). These preparation counters do not estimate full Beep ingestion or a coding cell.
 
-The nominal candidate matrix has117 coding cells:3 tasks ×3 models ×(12 graph configurations +no graph). Supported-cell disposition and full resource estimates are pending. No cell token/time/cost estimate, ingestion CPU/RAM/disk, historical Graft prep cost or refreshed marginal index cost has yet been measured: retain null fields until receipt-backed observations exist.
+The nominal candidate matrix has117 coding cells:3 tasks ×3 models ×(12 graph configurations +no graph). The nine Serena JetBrains cells remain in the candidate matrix with an unsupported disposition for the current dedicated offline topology. Full-corpus ingestion and coding-cell resource estimates remain unmeasured, as do historical Graft preparation and marginal catch-up costs. Fixture measurements below do not fill those unknown fields.
 
 Record preparation and session cost separately. For declared horizon H, report ownership as historical prep +marginal ingestion/catch-up +sum(session observed cost) +refresh/upkeep; expose both Graft historic-prep-included and excluded sensitivity views. Never convert a vendor whole-file-read counterfactual into observed savings. Subscription billing/credits are separate from native token counters. Use comparable price/config assumptions only when explicitly sourced and label estimates.
 
@@ -69,3 +69,29 @@ unloaded unit defaults are not measurements. The candidate scheduler admits
 one full Yeet proof at a time and requires at least 32GiB available RAM and
 100GiB free disk before heavy admission. Final per-arm limits still require
 productive coding and representative ingestion pilots.
+
+At 00:11 UTC on October 10, two remaining fixture branches had passing receipts.
+Graphify's native seeded semantic duplicate adjudication made one Muse minimal
+call in 4.17 seconds: 60 input and 119 output tokens, including 106 reasoning
+tokens. Repowise's integrated prose and real local embedding run made six Muse
+minimal calls in 40.23 seconds: 4,771 input and 3,451 output tokens, including
+1,598 reasoning tokens. Both report zero cached tokens. Reasoning is a subset
+of output and must not be added again. Exact-recipe query/reopen checks passed
+without regenerating prose; the earlier incorrect query oracle is retained.
+These seven calls close fixture gaps only. Repowise's successful supplemental
+Python runtime still needs parity or explicit binding against the original
+frozen runtime before full ingestion admission.
+
+The client guard bounded requests, but upstream account selection and internal
+proxy retries are unknown. Actual billed USD remains null. Post-call and later
+account receipts are separate immutable observations; the latest at 00:18 UTC
+reports active Codex 64%, active Claude 14%, and Muse 65% remaining, all ready.
+No account switch or Jev call was performed by this initiative.
+
+The retention audit also blocks matrix admission. At the measured free capacity,
+coding-only workspace retirement leaves about 8.46 GiB beyond the 100 GiB reserve
+for all index copies, logs, caches, deltas, failed attempts and restore overlap.
+The underlying 303.39 GiB retained-source scenario is nominal arithmetic, not
+physical allocation or a reflink guarantee. Full Collector restoration at the
+original path must preserve proof references before its source copies can be
+retired. Failed outcomes require the same byte-complete retention guarantees.
