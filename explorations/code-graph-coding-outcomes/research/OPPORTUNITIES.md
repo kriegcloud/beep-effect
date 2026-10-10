@@ -307,3 +307,78 @@ The integrated run retains six model calls, six page/vector IDs, finite normaliz
 768-dimensional vectors, zero embedding-failure markers and successful reopen
 queries. Separate mock-prose and real-embedding demonstrations were insufficient
 to establish this integrated path.
+
+## 2026-10-09 — Retention requires independent evidence and lifecycle review
+
+The initial nine focused retention tests passed, but independent review found
+that an output directory could overlap a source directory marked for later
+retirement or an already hashed evidence directory. It also found incomplete
+traversal of nested finalization proof references and an aborted classification
+that the accepted terminal schemas could not represent. A separate Git fixture
+showed that skip-worktree can hide changed tracked bytes from ordinary clean
+status checks. The implementation remains uncommitted and is not admitted.
+
+Prevention: test the complete failed and aborted lifecycle, require disjoint
+output and retained dependency paths, traverse the full proof dependency closure,
+and compare source bytes with committed objects independently of index flags.
+Keep passing focused tests separate from independent review and package proof.
+The private findings are in `retention-independent-review-v1.json`; no attempt
+source or evidence has been deleted.
+
+The Executor integration also stamped a drained-capture receipt after any spool
+exit, including write failure or timeout. The process helper explicitly retains
+partial files on interruption. Completion must follow observed successful drain;
+a terminal process and hashable files alone cannot establish it. Failed files
+remain evidence even when they cannot qualify source retirement. Private finding:
+`review-packaging/parent-capture-completion-review-v1.json`.
+
+## 2026-10-09 — Runtime declaration hashes need byte verification
+
+Independent review of the evaluator runtime contract found that finalization
+checked the four directory inventories but omitted standalone certificate,
+bootstrap and broker artifact bytes. It also accepted absent or partial file
+metadata. A digest of declared controls does not prove those inputs remained
+unchanged. The runner worker is consolidating strict validation for Collector
+and finalization; native proof remains unqualified until the checks and
+negative regressions pass. Private findings are retained in
+`runtime-security-independent-review-v1.json`.
+
+Prevention: use the same complete byte and metadata validator when admitting
+the runtime and when consuming its final proof. Preserve missing metadata as
+an admission failure rather than silently skipping the check.
+
+Native runtime admission then rejected an unlisted `bin/bwrap`: recursive
+filesystem traversal followed a symlinked directory while the inventory described
+links without following them. The worker changed validation to explicit no-follow
+traversal. The failed startup remains retained; generated inventory files alone
+do not prove admission or execution. A symlink-directory regression is required
+so traversal and inventory semantics stay aligned.
+
+## 2026-10-09 — Native dependency projections must cover real workspace roots
+
+The first actual Collector attempt reconstructed source, then refused before
+executing a check: "Runtime projection target is not a vendor dependency root".
+Its allowlist omitted the frozen repository's `infra/node_modules` and
+`infra/lambda/turbo-cache/node_modules` inputs. The source and failure receipt
+remain retained. A narrow workspace-root correction and allow/deny regression
+precede a fresh attempt; this startup is not a Yeet failure or pass.
+
+Prevention: exercise the declared dependency projection against the actual
+frozen workspace layout before the full command, preserving the checks against
+masking tracked source and escaping the namespace.
+
+## 2026-10-09 — Retention must preserve inventory projection semantics
+
+The declared-seed custody fix passed its link-free fixture, but independent
+review found that it validated every inventory at the default `/sealed` target.
+The frozen Nix and OCI inventories have legitimate absolute links that their
+native validators admit at `/nix` and `/runtime/oci`. Losing those targets
+makes real runtime seeds fail retention despite successful native admission.
+The correction preserves each declared target and keeps containment strict;
+native-link positives and wrong-target/escape negatives are required. Private
+evidence is in `retention-seed-independent-recheck-v1.json`.
+
+The target-preservation fix also needed a shared helper from a worker that had
+already handed back its task. A queued message does not restart an idle native
+subagent. The orchestrator issued an explicit follow-up task; future dependent
+handoffs should distinguish message delivery from an active implementation turn.

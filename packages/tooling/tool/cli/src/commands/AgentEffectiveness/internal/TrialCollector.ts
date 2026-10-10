@@ -5,12 +5,15 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { shellQuote } from "@beep/repo-ai-metrics";
 import { hashPublicTextSha256 } from "@beep/repo-ai-metrics/privacy";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { repoRunOutputBound, runCaptured, runSpooledStreams } from "../../../internal/process/StepExec.ts";
@@ -25,18 +28,29 @@ import {
   TrialProof,
   TrialProofJson,
 } from "../AgentEffectiveness.trials.schemas.ts";
-import { trialArtifact } from "./TrialExecutor.ts";
+import { startTrialBroker, trialArtifact } from "./TrialExecutor.ts";
 import {
   hashTrialInput,
   inspectTrialGit,
   trialCheckContractDigest,
   trialGitSandbox,
+  trialNativeInventoryBindings,
+  trialSystemBindings,
   validateTrialInventory,
+  validateTrialNativeRuntime,
 } from "./TrialIsolation.ts";
-import { TrialCommittedSource, TrialCommittedSourceJson, TrialEvaluatorCheck } from "./TrialProfile.schemas.ts";
+import {
+  TrialCommittedSource,
+  TrialCommittedSourceJson,
+  TrialEvaluatorCheck,
+  TrialNativeRuntimeEvidence,
+  TrialNativeYeetRuntime,
+  TrialRuntimeClosure,
+} from "./TrialProfile.schemas.ts";
+import { acquireTrialRetentionLease } from "./TrialRetention.ts";
 import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
-import type { TrialArtifact, TrialMount, TrialRuntimeClosure } from "./TrialProfile.schemas.ts";
+import type { TrialArtifact, TrialInputInventory, TrialMount } from "./TrialProfile.schemas.ts";
 
 /**
  * Locate the single canonical verdict announcement from the native Yeet stream.
@@ -285,7 +299,8 @@ export const reconstructTrialSource = Effect.fn("AgentEffectiveness.reconstructT
   candidate: TrialArtifact,
   base: O.Option<TrialArtifact>,
   finalCommit: string,
-  baseCommit: string
+  baseCommit: string,
+  system?: TrialInputInventory
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -327,7 +342,7 @@ export const reconstructTrialSource = Effect.fn("AgentEffectiveness.reconstructT
       "/inputs/candidate.bundle",
     ];
     if (O.isSome(base)) args.push("--ro-bind", base.value.path, "/inputs/base.bundle");
-    for (const root of ["/usr", "/bin", "/lib", "/lib64"]) args.push("--ro-bind", root, root);
+    args.push(...(yield* trialSystemBindings(system)));
     args.push(
       "--clearenv",
       "--setenv",
@@ -374,7 +389,7 @@ export const reconstructTrialSource = Effect.fn("AgentEffectiveness.reconstructT
   yield* git(["checkout", "--detach", finalCommit]);
   yield* git(["merge-base", "--is-ancestor", baseCommit, finalCommit]);
   const inspect = Effect.fn(function* (args: ReadonlyArray<string>) {
-    const result = yield* inspectTrialGit(workspace, args);
+    const result = yield* inspectTrialGit(workspace, args, system);
     if (result.exitCode !== 0 || result.truncated)
       return yield* AgentTrialError.make({ stage: "proof", message: "Reconstruction inspection failed" });
     return Str.trim(result.output);
@@ -391,7 +406,7 @@ export const reconstructTrialSource = Effect.fn("AgentEffectiveness.reconstructT
   const archive = path.join(destination, "source.tar");
   const archiveResult = yield* runSpooledStreams({
     command: "/usr/bin/bwrap",
-    args: yield* trialGitSandbox(workspace, ["archive", "--format=tar", finalCommit]),
+    args: yield* trialGitSandbox(workspace, ["archive", "--format=tar", finalCommit], system),
     cwd: destination,
     env: {},
     extendEnv: false,
@@ -415,6 +430,110 @@ export const reconstructTrialSource = Effect.fn("AgentEffectiveness.reconstructT
   yield* fs.writeFileString(receipt, yield* TrialCommittedSourceJson.encode(evidence), { flag: "wx", mode: 0o600 });
   return { workspace, finalCommit, tree, source: yield* trialArtifact(receipt) };
 });
+
+/**
+ * Preserve inventory namespace targets for evaluator collection and retention.
+ * **Details**
+ * Retained inventories must keep their original projection targets so absolute
+ * links receive the same validation as the native evaluator.
+ * **Example** (Inspect bindings after boundary decoding)
+ * ```ts
+ * import { TrialEvaluatorCheck, trialEvaluatorInventoryBindings } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const bindings = S.decodeUnknownEffect(TrialEvaluatorCheck)({}).pipe(Effect.map(trialEvaluatorInventoryBindings([])))
+ * console.log(Effect.isEffect(bindings)) // true: malformed controls stay in the error channel.
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const trialEvaluatorInventoryBindings: {
+  (
+    projectedRuntime: ReadonlyArray<TrialRuntimeClosure>
+  ): (check: TrialEvaluatorCheck) => ReadonlyArray<TrialRuntimeClosure>;
+  (
+    check: TrialEvaluatorCheck,
+    projectedRuntime: ReadonlyArray<TrialRuntimeClosure>
+  ): ReadonlyArray<TrialRuntimeClosure>;
+} = dual(
+  2,
+  (
+    check: TrialEvaluatorCheck,
+    projectedRuntime: ReadonlyArray<TrialRuntimeClosure>
+  ): ReadonlyArray<TrialRuntimeClosure> =>
+    A.dedupeWith(
+      [
+        TrialRuntimeClosure.make({ inventory: check.input, target: "/sealed" }),
+        ...O.fromUndefinedOr(check.sparseSystem).pipe(
+          O.map((inventory) => [TrialRuntimeClosure.make({ inventory, target: "/runtime/system" })]),
+          O.getOrElse(() => [])
+        ),
+        ...projectedRuntime,
+        ...O.fromUndefinedOr(check.nativeRuntime).pipe(
+          O.map(trialNativeInventoryBindings),
+          O.getOrElse(() => [])
+        ),
+      ],
+      (left, right) =>
+        left.target === right.target &&
+        left.inventory.root === right.inventory.root &&
+        left.inventory.digest === right.inventory.digest
+    )
+);
+
+/**
+ * Enumerate immutable evaluator input paths for output overlap protection.
+ * **Details**
+ * Includes sealed bundles, dependency seeds, sparse system inputs and standalone
+ * native assets. Per-check output and writable compiler/cache copies are excluded.
+ * Collection and retention share this census so an embedded seed cannot become
+ * an output destination.
+ * **Example** (Inspect inputs after decoding a protected check)
+ * ```ts
+ * import { TrialEvaluatorCheck, trialEvaluatorInputRoots } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const roots = S.decodeUnknownEffect(TrialEvaluatorCheck)({}).pipe(Effect.map(trialEvaluatorInputRoots([], [])))
+ * console.log(Effect.isEffect(roots)) // true: an invalid check stays a failing computation.
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const trialEvaluatorInputRoots: {
+  (
+    runtime: ReadonlyArray<TrialMount>,
+    projectedRuntime: ReadonlyArray<TrialRuntimeClosure>
+  ): (check: TrialEvaluatorCheck) => ReadonlyArray<string>;
+  (
+    check: TrialEvaluatorCheck,
+    runtime: ReadonlyArray<TrialMount>,
+    projectedRuntime: ReadonlyArray<TrialRuntimeClosure>
+  ): ReadonlyArray<string>;
+} = dual(
+  3,
+  (
+    check: TrialEvaluatorCheck,
+    runtime: ReadonlyArray<TrialMount>,
+    projectedRuntime: ReadonlyArray<TrialRuntimeClosure>
+  ): ReadonlyArray<string> =>
+    A.dedupe([
+      ...A.map(trialEvaluatorInventoryBindings(check, projectedRuntime), (binding) => binding.inventory.root),
+      ...A.map(O.toArray(check.compilerOverlay), (artifact) => artifact.path),
+      ...A.map(runtime, (mount) => mount.source),
+      ...O.fromUndefinedOr(check.nativeRuntime).pipe(
+        O.map((value) => [
+          value.certificateBundle.path,
+          ...A.map(value.bootstrap, (file) => file.artifact.path),
+          value.broker.program.path,
+          value.broker.interpreter.path,
+          value.broker.relay.path,
+          value.broker.policy.path,
+          value.broker.canaries.path,
+        ]),
+        O.getOrElse(() => [])
+      ),
+    ])
+);
 
 /**
  * Execute one frozen native check in an offline evaluator-only namespace.
@@ -442,6 +561,22 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
   if ((yield* hashTrialInput(committedSource.path)) !== committedSource.digest)
     return yield* AgentTrialError.make({ stage: "proof", message: "Committed source receipt changed" });
   const source = yield* TrialCommittedSourceJson.decode(yield* fs.readFileString(committedSource.path));
+  const native = O.fromUndefinedOr(check.nativeRuntime);
+  const system = O.map(native, (runtime) => runtime.system).pipe(O.orElse(() => O.fromUndefinedOr(check.sparseSystem)));
+  const inspect = Effect.fn("AgentEffectiveness.inspectNativeSource")((gitArgs: ReadonlyArray<string>) =>
+    inspectTrialGit(source.workspace, gitArgs, O.getOrUndefined(system))
+  );
+  const validateNative = Effect.fn("AgentEffectiveness.validateNativeRuntime")(function* () {
+    if (O.isNone(native)) return;
+    const runtime = native.value;
+    if (check.kind !== "yeet")
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Native capabilities are evaluator-only Yeet inputs",
+      });
+    yield* validateTrialNativeRuntime(runtime);
+  });
+  yield* validateNative();
   yield* validateTrialInventory(check.input);
   if (
     !path.isAbsolute(outputRoot) ||
@@ -452,6 +587,17 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     return yield* AgentTrialError.make({
       stage: "proof",
       message: "Check output must be a fresh canonical owned root",
+    });
+  const immutableRoots = [source.workspace, ...trialEvaluatorInputRoots(check, runtime, projectedRuntime)];
+  if (
+    A.some(
+      immutableRoots,
+      (root) => root === outputRoot || Str.startsWith(`${root}/`)(outputRoot) || Str.startsWith(`${outputRoot}/`)(root)
+    )
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Evaluator output overlaps immutable source or runtime inputs",
     });
   yield* fs.makeDirectory(outputRoot, { mode: 0o700 });
   const bindings = { candidate: source.workspace, sealed: check.input.root, output: outputRoot };
@@ -465,7 +611,7 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
   const environment = Object.fromEntries(
     Object.entries(check.environmentTemplate).map(([key, value]) => [key, resolve(value)])
   );
-  const args = [
+  let args = [
     "--die-with-parent",
     "--new-session",
     "--unshare-all",
@@ -487,14 +633,14 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     outputRoot,
     "/output",
   ];
-  for (const root of ["/usr", "/bin", "/lib", "/lib64"]) args.push("--ro-bind", root, root);
+  args.push(...(yield* system.pipe(O.getOrUndefined, trialSystemBindings)));
   if (check.rootWritePolicy === "native-temp-only") {
     if (check.kind !== "yeet")
       return yield* AgentTrialError.make({
         stage: "proof",
         message: "Native root temporary creation is permitted only for trusted Yeet",
       });
-    const tracked = yield* inspectTrialGit(source.workspace, ["ls-files", "-z"]);
+    const tracked = yield* inspect(["ls-files", "-z"]);
     if (tracked.exitCode !== 0 || tracked.truncated)
       return yield* AgentTrialError.make({
         stage: "proof",
@@ -538,6 +684,8 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
   for (const closure of projectedRuntime) {
     if (
       closure.target !== "/workspace/node_modules" &&
+      closure.target !== "/workspace/infra/node_modules" &&
+      closure.target !== "/workspace/infra/lambda/turbo-cache/node_modules" &&
       !/^\/workspace\/(?:packages|apps)\/[^.]+\/node_modules$/.test(closure.target) &&
       !Str.startsWith("/runtime/")(closure.target)
     )
@@ -546,16 +694,35 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
         message: "Runtime projection target is not a vendor dependency root",
       });
     yield* validateTrialInventory(closure.inventory, closure.target);
+    if (Str.startsWith("/workspace/")(closure.target)) {
+      const relative = path.relative("/workspace", closure.target);
+      const tracked = yield* inspect(["ls-files", "--", relative]);
+      const ignored = yield* inspect(["check-ignore", "--quiet", "--no-index", `${relative}/.runner-input-probe`]);
+      if (
+        tracked.exitCode !== 0 ||
+        tracked.truncated ||
+        Str.trim(tracked.output) !== "" ||
+        ignored.exitCode !== 0 ||
+        ignored.truncated
+      )
+        return yield* AgentTrialError.make({
+          stage: "proof",
+          message: "Evaluator runtime projection would cover tracked or unignored source",
+        });
+      const mountpoint = path.join(source.workspace, relative);
+      yield* fs.makeDirectory(mountpoint, { recursive: true, mode: 0o700 });
+      if ((yield* fs.realPath(mountpoint)) !== mountpoint)
+        return yield* AgentTrialError.make({
+          stage: "proof",
+          message: "Evaluator runtime mountpoint is not canonical",
+        });
+    }
     args.push("--ro-bind", closure.inventory.root, closure.target);
   }
   let gitMetadataBefore = O.none<Sha256Hex>();
   if (check.kind === "yeet") {
     const metadata = path.join(source.workspace, ".git");
-    const common = yield* inspectTrialGit(source.workspace, [
-      "rev-parse",
-      "--path-format=absolute",
-      "--git-common-dir",
-    ]);
+    const common = yield* inspect(["rev-parse", "--path-format=absolute", "--git-common-dir"]);
     if (
       (yield* fs.realPath(metadata)) !== metadata ||
       common.exitCode !== 0 ||
@@ -590,13 +757,8 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
         message: "Evaluator writable output target is not approved",
       });
     const relative = path.relative("/workspace", target);
-    const tracked = yield* inspectTrialGit(source.workspace, ["ls-files", "--", relative]);
-    const ignored = yield* inspectTrialGit(source.workspace, [
-      "check-ignore",
-      "--quiet",
-      "--no-index",
-      `${relative}/.runner-output-probe`,
-    ]);
+    const tracked = yield* inspect(["ls-files", "--", relative]);
+    const ignored = yield* inspect(["check-ignore", "--quiet", "--no-index", `${relative}/.runner-output-probe`]);
     if (
       tracked.exitCode !== 0 ||
       tracked.truncated ||
@@ -625,11 +787,189 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     args.push("--bind", owned, "/workspace/node_modules/@effect/tsgo-linux-x64/artifacts/typescript/7.0.2/tsc");
     compilerCopy = O.some(owned);
   }
+  let manifestCopy = O.none<string>();
+  let manifestBefore = O.none<Sha256Hex>();
+  let processCommand = "/usr/bin/bwrap";
+  let processPrefix: ReadonlyArray<string> = [];
+  let nativeWrapper = O.none<string>();
+  let outerEnvironment: Record<string, string> = {};
+  if (O.isSome(native)) {
+    const runtime = native.value;
+    const manifest = path.join(source.workspace, "package.json");
+    manifestBefore = O.some(yield* hashTrialInput(manifest));
+    const copy = path.join(outputRoot, "manifest-owned.json");
+    yield* fs.copyFile(manifest, copy);
+    yield* fs.chmod(copy, 0o600);
+    manifestCopy = O.some(copy);
+    const nixState = path.join(outputRoot, "nix-state");
+    const oci = path.join(outputRoot, "oci-owned");
+    const ociRun = path.join(outputRoot, "oci-run");
+    yield* fs.copy(path.join(runtime.nix.root, "var/nix"), nixState);
+    yield* fs.copy(runtime.oci.root, oci);
+    yield* fs.makeDirectory(ociRun, { mode: 0o700 });
+    const home = path.join(outputRoot, "native-home");
+    yield* fs.makeDirectory(path.join(home, ".docker"), { recursive: true, mode: 0o700 });
+    yield* fs.writeFileString(
+      path.join(home, ".docker/config.json"),
+      yield* S.encodeEffect(S.fromJsonString(S.Unknown))({
+        proxies: {
+          default: {
+            httpProxy: "http://127.0.0.1:18080",
+            httpsProxy: "http://127.0.0.1:18080",
+            noProxy: "localhost,127.0.0.1",
+          },
+        },
+      }),
+      { mode: 0o600 }
+    );
+    yield* fs.writeFileString(
+      path.join(outputRoot, "containers.conf"),
+      '[containers]\ncgroups="disabled"\nnetns="host"\n[engine]\nruntime="crun"\ncgroup_manager="cgroupfs"\nevents_logger="file"\n[engine.runtimes]\ncrun=["/runtime/crun/bin/crun"]\n',
+      { mode: 0o600 }
+    );
+    const socket = yield* startTrialBroker(runtime.broker, outputRoot);
+    args = A.map(args, (arg) => (arg === "--unshare-all" ? "--unshare-pid" : arg));
+    args.push(
+      "--unshare-net",
+      "--unshare-ipc",
+      "--unshare-uts",
+      "--unshare-cgroup",
+      "--ro-bind",
+      runtime.crun.root,
+      "/runtime/crun",
+      "--overlay-src",
+      path.join(runtime.nix.root, "store"),
+      "--tmp-overlay",
+      "/nix/store",
+      "--bind",
+      nixState,
+      "/nix/var/nix",
+      "--bind",
+      oci,
+      runtime.oci.root,
+      "--bind",
+      ociRun,
+      path.join(path.dirname(runtime.oci.root), "run"),
+      "--bind",
+      copy,
+      "/workspace/package.json",
+      "--ro-bind",
+      socket,
+      "/broker/egress.sock",
+      "--ro-bind",
+      runtime.broker.relay.path,
+      "/relay/inner.py",
+      "--ro-bind",
+      runtime.certificateBundle.path,
+      "/runtime/certificates.pem",
+      "--ro-bind",
+      "/sys",
+      "/sys"
+    );
+    const imageTag = "ghcr.io/google/osv-scanner-action:v2.3.3";
+    const podman = A.join(
+      A.map(
+        [
+          "/usr/bin/podman",
+          "--root",
+          runtime.oci.root,
+          "--runroot",
+          path.join(path.dirname(runtime.oci.root), "run"),
+          "--storage-driver",
+          "vfs",
+          "--cgroup-manager",
+          "cgroupfs",
+          "--events-backend",
+          "file",
+        ],
+        shellQuote
+      ),
+      " "
+    );
+    const wrapper = path.join(outputRoot, "native-yeet.sh");
+    yield* fs.writeFileString(
+      wrapper,
+      A.join(
+        [
+          "set -eu",
+          `${podman} tag ${shellQuote(runtime.image)} ${shellQuote(imageTag)}`,
+          `${podman} system service --time=0 unix:///output/docker.sock > /output/oci-service.log 2>&1 &`,
+          "service_pid=$!",
+          'trap \'kill "$service_pid" 2>/dev/null || true; wait "$service_pid" 2>/dev/null || true\' EXIT INT TERM',
+          'for attempt in $(seq 1 100); do [ -S /output/docker.sock ] && break; kill -0 "$service_pid"; sleep 0.05; done',
+          A.join(A.map(["/usr/bin/python3", "/relay/inner.py", ...argv], shellQuote), " "),
+        ],
+        "\n"
+      ),
+      { mode: 0o600 }
+    );
+    nativeWrapper = O.some(wrapper);
+    const bootstrap = path.join(outputRoot, "oci-bootstrap");
+    processCommand = "/usr/bin/podman";
+    processPrefix = [
+      "--root",
+      path.join(bootstrap, "storage"),
+      "--runroot",
+      path.join(bootstrap, "run"),
+      "--storage-driver",
+      "vfs",
+      "--cgroup-manager",
+      "cgroupfs",
+      "--events-backend",
+      "file",
+      "unshare",
+      "/usr/bin/bwrap",
+    ];
+    const outerHome = path.join(outputRoot, "bootstrap-home");
+    const outerRun = path.join(outputRoot, "bootstrap-run");
+    yield* fs.makeDirectory(outerHome, { mode: 0o700 });
+    yield* fs.makeDirectory(outerRun, { mode: 0o700 });
+    const bootstrapConfig = path.join(outputRoot, "bootstrap-containers.conf");
+    yield* fs.writeFileString(
+      bootstrapConfig,
+      '[engine]\nruntime="runc"\ncgroup_manager="cgroupfs"\nevents_logger="file"\n',
+      { mode: 0o600 }
+    );
+    outerEnvironment = {
+      HOME: outerHome,
+      PATH: "/usr/bin:/bin",
+      XDG_CONFIG_HOME: path.join(outerHome, ".config"),
+      XDG_RUNTIME_DIR: outerRun,
+      CONTAINERS_CONF: bootstrapConfig,
+      CONTAINERS_STORAGE_CONF: path.join(runtime.system.root, "usr/share/containers/storage.conf"),
+    };
+    const additions = {
+      HOME: "/output/native-home",
+      XDG_RUNTIME_DIR: "/output/native-run",
+      DOCKER_HOST: "unix:///output/docker.sock",
+      CONTAINERS_CONF: "/output/containers.conf",
+      CONTAINERS_STORAGE_CONF: "/usr/share/containers/storage.conf",
+      HTTPS_PROXY: "http://127.0.0.1:18080",
+      HTTP_PROXY: "http://127.0.0.1:18080",
+      NO_PROXY: "localhost,127.0.0.1",
+      SSL_CERT_FILE: "/runtime/certificates.pem",
+      NIX_REMOTE: "local",
+      NIX_CONFIG: "experimental-features = nix-command flakes\nsandbox = false\nsubstitute = false\nmax-jobs = 0\n",
+    };
+    for (const [key, value] of R.toEntries(additions)) {
+      if (environment[key] !== value)
+        return yield* AgentTrialError.make({
+          stage: "proof",
+          message: "Native runtime environment differs from frozen contract",
+        });
+    }
+    yield* fs.makeDirectory(path.join(outputRoot, "native-run"), { mode: 0o700 });
+  }
   args.push("--clearenv", "--setenv", "HOME", "/nonexistent");
   for (const [key, value] of Object.entries(environment)) args.push("--setenv", key, value);
-  args.push("--chdir", "/workspace", "--", ...argv);
-  const before = yield* inspectTrialGit(source.workspace, ["rev-parse", "HEAD"]);
-  const status = yield* inspectTrialGit(source.workspace, ["status", "--porcelain"]);
+  args.push(
+    "--chdir",
+    "/workspace",
+    "--",
+    ...O.match(nativeWrapper, { onNone: () => argv, onSome: () => ["/bin/sh", "/output/native-yeet.sh"] })
+  );
+  const before = yield* inspect(["rev-parse", "HEAD"]);
+  const status = yield* inspect(["status", "--porcelain"]);
   if (
     before.exitCode !== 0 ||
     before.truncated ||
@@ -653,16 +993,42 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
   const stdoutPath = path.join(outputRoot, "stdout.log");
   const stderrPath = path.join(outputRoot, "stderr.log");
   const exitCode = yield* runSpooledStreams({
-    command: "/usr/bin/bwrap",
-    args,
+    command: processCommand,
+    args: [...processPrefix, ...args],
     cwd: outputRoot,
-    env: {},
+    env: outerEnvironment,
     extendEnv: false,
     timeout: check.timeoutMs,
     forceKillAfter: "1 second",
     stdoutPath,
     stderrPath,
   });
+  yield* validateNative();
+  let nativeRuntimeEvidence = O.none<TrialArtifact>();
+  if (O.isSome(native) && O.isSome(manifestCopy) && O.isSome(manifestBefore)) {
+    const runtime = native.value;
+    const evidence = TrialNativeRuntimeEvidence.make({
+      schemaVersion: "agent-trial-native-runtime-evidence/v1",
+      runtimeDigest: yield* hashPublicTextSha256(
+        yield* S.encodeEffect(S.fromJsonString(TrialNativeYeetRuntime))(runtime)
+      ),
+      manifestBefore: manifestBefore.value,
+      manifestAfter: yield* hashTrialInput(manifestCopy.value),
+      preserved: true,
+      systemDigest: runtime.system.digest,
+      nixDigest: runtime.nix.digest,
+      ociDigest: runtime.oci.digest,
+      image: runtime.image,
+    });
+    if (evidence.manifestAfter !== evidence.manifestBefore)
+      return yield* AgentTrialError.make({ stage: "proof", message: "Native manifest overlay changed" });
+    const file = path.join(outputRoot, "native-runtime-evidence.json");
+    yield* fs.writeFileString(file, yield* S.encodeEffect(S.fromJsonString(TrialNativeRuntimeEvidence))(evidence), {
+      flag: "wx",
+      mode: 0o600,
+    });
+    nativeRuntimeEvidence = O.some(yield* trialArtifact(file));
+  }
   let nativeReport = O.none<TrialArtifact>();
   let reportPath = O.map(check.reportRelativePath, (relative) => path.join(outputRoot, relative));
   if (check.kind === "yeet" && O.isNone(check.reportRelativePath)) {
@@ -746,8 +1112,8 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     (yield* hashTrialInput(compilerCopy.value)) !== check.compilerOverlay.value.digest
   )
     return yield* AgentTrialError.make({ stage: "proof", message: "Evaluator compiler bytes changed during check" });
-  const after = yield* inspectTrialGit(source.workspace, ["rev-parse", "HEAD"]);
-  const dirty = yield* inspectTrialGit(source.workspace, ["status", "--porcelain"]);
+  const after = yield* inspect(["rev-parse", "HEAD"]);
+  const dirty = yield* inspect(["status", "--porcelain"]);
   const rootInventoryAfter = (yield* fs.readDirectory(source.workspace)).sort();
   const rootModeAfter = (yield* fs.stat(source.workspace)).mode;
   const rootLinksAfter = yield* literalRootLinks();
@@ -839,8 +1205,9 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     passedCount: parsed.passedCount,
     failedCount: parsed.failedCount,
     collectionFailures: parsed.collectionFailures,
+    ...(O.isSome(nativeRuntimeEvidence) ? { nativeRuntimeEvidence: nativeRuntimeEvidence.value } : {}),
   };
-});
+}, Effect.scoped);
 
 /**
  * Execute a frozen ordered acceptance inventory with implementation fail-fast.
@@ -959,6 +1326,7 @@ export const collectTrial = Effect.fn("AgentEffectiveness.collectTrial")(functio
   const fullSpec = plan.fullYeetCheckSpec;
   if (
     fullSpec === undefined ||
+    request.yeet.nativeRuntime === undefined ||
     !equal(request.yeet.commandTemplate, [
       "/runtime/bin/bun",
       "run",
@@ -980,18 +1348,32 @@ export const collectTrial = Effect.fn("AgentEffectiveness.collectTrial")(functio
     !equal(plan.requiredYeetLaneIds, request.yeet.expectedCases)
   )
     return yield* AgentTrialError.make({ stage: "proof", message: "Full Yeet contract differs from frozen plan" });
+  yield* acquireTrialRetentionLease(attempt.plan.path);
   const source = yield* reconstructTrialSource(
     request.reconstructionRoot,
     attempt.bundle.value,
     O.fromUndefinedOr(plan.baseBundle),
     attempt.terminal.finalCommit,
-    attempt.baseCommit
+    attempt.baseCommit,
+    request.yeet.nativeRuntime.system
   );
+  if (
+    !A.every(
+      request.checks,
+      (check) =>
+        check.sparseSystem?.digest === request.yeet.nativeRuntime?.system.digest &&
+        check.sparseSystem?.root === request.yeet.nativeRuntime?.system.root
+    )
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Acceptance checks require the same declared native system",
+    });
   const acceptance = yield* collectTrialAcceptance(
     plan,
     source.source,
     request.checks,
-    request.runtime,
+    A.filter(request.runtime, (mount) => mount.target !== "/inputs/base-origin"),
     request.outputRoot,
     request.projectedRuntime
   );
@@ -1039,4 +1421,4 @@ export const collectTrial = Effect.fn("AgentEffectiveness.collectTrial")(functio
   const proofPath = path.join(request.outputRoot, "proof.json");
   yield* fs.writeFileString(proofPath, yield* TrialProofJson.encode(proof), { flag: "wx", mode: 0o600 });
   return proofPath;
-});
+}, Effect.scoped);

@@ -178,6 +178,21 @@ export class TrialBrokerControl extends S.Class<TrialBrokerControl>($I`TrialBrok
 ) {}
 
 /**
+ * Preserve the mode and ownership needed by native runtime inputs.
+ * **Example** (Describe an owned executable)
+ * ```ts
+ * import { TrialInputMetadata } from "@beep/repo-cli/test/AgentEffectiveness"
+ * console.log(TrialInputMetadata.make({ mode: 0o100755, uid: 1000, gid: 1000 }).uid) // 1000
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TrialInputMetadata extends S.Class<TrialInputMetadata>($I`TrialInputMetadata`)(
+  { mode: S.Int, uid: S.Int, gid: S.Int },
+  $I.annote("TrialInputMetadata", { description: "Exact file mode and ownership for a frozen native runtime input." })
+) {}
+
+/**
  * Frozen evaluator inputs with explicit canonical namespace link projections.
  * **Example** (Reject missing controls)
  * ```ts
@@ -195,9 +210,89 @@ export class TrialInputInventory extends S.Class<TrialInputInventory>($I`TrialIn
     files: S.Record(S.NonEmptyString, Sha256Hex),
     symlinks: S.Record(S.NonEmptyString, S.NonEmptyString),
     directories: S.Array(S.NonEmptyString).check(S.isUnique()).pipe(S.optional),
+    metadata: S.optional(S.Record(S.NonEmptyString, TrialInputMetadata)),
   },
   $I.annote("TrialInputInventory", {
     description: "Frozen evaluator inputs with explicit canonical namespace link projections.",
+  })
+) {}
+
+/**
+ * Bind an existing privileged bootstrap file without granting a host directory.
+ * **Example** (Reject a missing file fingerprint)
+ * ```ts
+ * import { TrialBootstrapFile } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialBootstrapFile)({})) // false
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TrialBootstrapFile extends S.Class<TrialBootstrapFile>($I`TrialBootstrapFile`)(
+  { artifact: TrialArtifact, metadata: TrialInputMetadata },
+  $I.annote("TrialBootstrapFile", {
+    description: "Exact byte, mode and ownership binding for rootless namespace bootstrap.",
+  })
+) {}
+
+/**
+ * Declare the owned native Yeet capabilities separately from coding tools.
+ * **Details**
+ * The Nix store and database are minimal snapshots. OCI state is copied into
+ * an owned step and projected at its original path. No host daemon or broad
+ * system directory is an admitted runtime input.
+ * **Example** (Reject incomplete native runtime controls)
+ * ```ts
+ * import { TrialNativeYeetRuntime } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialNativeYeetRuntime)({})) // false
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TrialNativeYeetRuntime extends S.Class<TrialNativeYeetRuntime>($I`TrialNativeYeetRuntime`)(
+  {
+    schemaVersion: S.Literal("agent-trial-native-yeet-runtime/v1"),
+    system: TrialInputInventory,
+    nix: TrialInputInventory,
+    nixStorePaths: S.NonEmptyArray(S.NonEmptyString).check(S.isUnique()),
+    oci: TrialInputInventory,
+    image: S.NonEmptyString.check(S.isPattern(/^ghcr\.io\/google\/osv-scanner-action@sha256:[a-f0-9]{64}$/)),
+    crun: TrialInputInventory,
+    broker: TrialBrokerControl,
+    certificateBundle: TrialArtifact,
+    bootstrap: S.NonEmptyArray(TrialBootstrapFile),
+  },
+  $I.annote("TrialNativeYeetRuntime", {
+    description: "Digest-bound evaluator-only system, Nix, OCI and restricted advisory capabilities.",
+  })
+) {}
+
+/**
+ * Retain the guards observed by the native evaluator outside coding.
+ * **Example** (Reject missing preservation evidence)
+ * ```ts
+ * import { TrialNativeRuntimeEvidence } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialNativeRuntimeEvidence)({})) // false
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TrialNativeRuntimeEvidence extends S.Class<TrialNativeRuntimeEvidence>($I`TrialNativeRuntimeEvidence`)(
+  {
+    schemaVersion: S.Literal("agent-trial-native-runtime-evidence/v1"),
+    runtimeDigest: Sha256Hex,
+    manifestBefore: Sha256Hex,
+    manifestAfter: Sha256Hex,
+    preserved: S.Boolean,
+    systemDigest: Sha256Hex,
+    nixDigest: Sha256Hex,
+    ociDigest: Sha256Hex,
+    image: S.NonEmptyString,
+  },
+  $I.annote("TrialNativeRuntimeEvidence", {
+    description: "Immutable native capability and source-overlay guards required by passing finalization.",
   })
 ) {}
 
@@ -226,6 +321,8 @@ export class TrialEvaluatorCheck extends S.Class<TrialEvaluatorCheck>($I`TrialEv
     compilerOverlay: TrialArtifact.pipe(S.OptionFromNullOr),
     timeoutMs: S.Int.check(S.isGreaterThan(0)),
     rootWritePolicy: S.optional(S.Literals(["readonly", "native-temp-only"])),
+    nativeRuntime: S.optional(TrialNativeYeetRuntime),
+    sparseSystem: S.optional(TrialInputInventory),
   },
   $I.annote("TrialEvaluatorCheck", {
     description: "Frozen command and native reporter contract for one required evaluator gate.",

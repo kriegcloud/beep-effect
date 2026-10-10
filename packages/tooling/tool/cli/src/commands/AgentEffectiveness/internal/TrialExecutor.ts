@@ -34,7 +34,12 @@ import {
   inspectTrialGit,
   trialGitSandbox,
 } from "./TrialIsolation.ts";
-import { TrialNativeInvocationJson, TrialProductiveCanaries } from "./TrialProfile.schemas.ts";
+import { TrialBrokerControl, TrialNativeInvocationJson, TrialProductiveCanaries } from "./TrialProfile.schemas.ts";
+import {
+  acquireTrialRetentionLease,
+  initializeTrialRetentionOwnership,
+  recordTrialRetentionCapture,
+} from "./TrialRetention.ts";
 import { parseTrialSessionIdentity, parseTrialUsage } from "./TrialUsage.ts";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
 import type { TrialProductiveProfile } from "./TrialProfile.schemas.ts";
@@ -155,6 +160,8 @@ export const executeTrial = Effect.fn("AgentEffectiveness.executeTrial")(functio
     Effect.gen(function* () {
       yield* fs.makeDirectory(plan.workspaceRoot, { recursive: true, mode: 0o700 });
       yield* fs.makeDirectory(state, { mode: 0o700 });
+      yield* initializeTrialRetentionOwnership(frozenPlanPath);
+      yield* acquireTrialRetentionLease(frozenPlanPath);
       yield* git(state, ["init", "--bare", repository]);
       if (plan.baseBundle !== undefined) {
         if ((yield* hashTrialInput(plan.baseBundle.path)) !== plan.baseBundle.digest)
@@ -268,16 +275,20 @@ export const executeTrial = Effect.fn("AgentEffectiveness.executeTrial")(functio
         }),
         privateOptions
       );
-      const code = yield* runSpooledStreams({
-        command: processCommand,
-        args: processArgs,
-        env: gitEnvironment,
-        extendEnv: false,
-        stdoutPath,
-        stderrPath,
-        timeout: plan.timeoutMs,
-        forceKillAfter: "1 second",
-      });
+      const capture = yield* Effect.exit(
+        runSpooledStreams({
+          command: processCommand,
+          args: processArgs,
+          env: gitEnvironment,
+          extendEnv: false,
+          stdoutPath,
+          stderrPath,
+          timeout: plan.timeoutMs,
+          forceKillAfter: "1 second",
+        })
+      );
+      if (Exit.isSuccess(capture)) yield* recordTrialRetentionCapture(frozenPlanPath);
+      const code = yield* capture;
       codingElapsedMs = O.some((yield* Clock.currentTimeMillis) - O.getOrElse(codingStartedAt, () => startedAt));
       exitCode = O.some(code);
     }).pipe(Effect.scoped)
@@ -533,12 +544,12 @@ export const retainTrialCandidate = Effect.fn("AgentEffectiveness.retainTrialCan
  * @since 0.0.0
  */
 export const startTrialBroker = Effect.fn("AgentEffectiveness.startTrialBroker")(function* (
-  profile: TrialProductiveProfile,
+  profile: TrialProductiveProfile | TrialBrokerControl,
   receipts: string
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const broker = profile.broker;
+  const broker = S.is(TrialBrokerControl)(profile) ? profile : profile.broker;
   for (const artifact of [broker.program, broker.interpreter, broker.relay, broker.policy, broker.canaries])
     if ((yield* hashTrialInput(artifact.path)) !== artifact.digest)
       return yield* AgentTrialError.make({ stage: "network", message: "Broker runtime, policy or evidence changed" });

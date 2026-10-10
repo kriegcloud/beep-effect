@@ -95,3 +95,31 @@ The underlying 303.39 GiB retained-source scenario is nominal arithmetic, not
 physical allocation or a reflink guarantee. Full Collector restoration at the
 original path must preserve proof references before its source copies can be
 retired. Failed outcomes require the same byte-complete retention guarantees.
+
+A separate canonical-runtime parity replay subsequently passed with the original
+Repowise Python 3.13.16 entrypoint. Its six Muse minimal calls took 40.40 seconds
+and reported 4,776 input, 3,488 output (including 1,536 reasoning), and zero
+cached tokens. Six local embedding batches produced all six expected vectors;
+query/reopen passed. This supersedes the runtime admission gap above while
+preserving the earlier 3.13.13 attempt and its cost. Post-call Muse headroom
+remained 65%; observed billed USD is still null. No full-corpus cost is inferred.
+
+### Retained full-source allocation observation
+
+A read-only measurement of the existing failed native full-Yeet rehearsal
+found 33,081 tracked regular files with 560,439,498 logical bytes and
+639,250,432 allocated bytes reported by `st_blocks`. Its 79 source symlinks
+reported 323,584 allocated bytes. Archive membership had no missing files or
+type, size or link-text mismatches; this measurement did not rehash contents.
+
+The same rehearsal reported 1,057,546,240 allocated bytes for Git metadata,
+1,051,693,056 for its frozen origin, 8,853,524,480 for its runtime projection,
+and 13,336,207,360 for its output directory. Shared extents may be counted
+repeatedly. These are observations of one failed proof, not a passing-cell
+estimate or unique physical usage. The private receipt is
+`review-packaging/baseline-allocation-observation-v1.json`.
+
+Capacity admission must distinguish required immutable source, raw streams
+and proof reports from compiler outputs and caches that can be rebuilt. The
+current measurements do not qualify retaining 117 complete directory copies.
+No existing attempt or output was removed.

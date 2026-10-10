@@ -7,7 +7,11 @@ import { hashPublicTextSha256 } from "@beep/repo-ai-metrics/privacy";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import * as HashSet from "effect/HashSet";
+import * as MutableList from "effect/MutableList";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -16,11 +20,19 @@ import { hashFileSha256 } from "../../../internal/cli/FsGuards.ts";
 import { repoRunOutputBound, runCaptured } from "../../../internal/process/StepExec.ts";
 import { AgentTrialError } from "../AgentEffectiveness.errors.ts";
 import { TrialIsolationAttestation } from "../AgentEffectiveness.trials.schemas.ts";
-import { TrialArtifact, TrialNativeInvocation } from "./TrialProfile.schemas.ts";
+import {
+  TrialArtifact,
+  TrialInputInventory,
+  TrialInputMetadata,
+  TrialNativeInvocation,
+  TrialNativeYeetRuntime,
+  TrialRuntimeClosure,
+} from "./TrialProfile.schemas.ts";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
-import type { TrialEvaluatorCheck, TrialInputInventory } from "./TrialProfile.schemas.ts";
+import type { TrialEvaluatorCheck } from "./TrialProfile.schemas.ts";
 
 const fail = (message: string) => Effect.fail(AgentTrialError.make({ stage: "isolation", message }));
+const sameMetadata = S.toEquivalence(TrialInputMetadata);
 
 /**
  * Hash a complete narrow input tree, rejecting links that escape its root.
@@ -167,9 +179,11 @@ export const buildTrialSandbox = Effect.fn("AgentEffectiveness.buildTrialSandbox
     "/home",
     "--dir",
     "/home/trial",
-    "--bind",
-    path.dirname(workspace),
+    "--dir",
     "/state",
+    "--bind",
+    path.join(path.dirname(workspace), "repository.git"),
+    "/state/repository.git",
     "--bind",
     workspace,
     "/workspace",
@@ -381,7 +395,8 @@ export const trialControlsDigest = Effect.fn("AgentEffectiveness.trialControlsDi
  */
 export const trialGitSandbox = Effect.fn("AgentEffectiveness.trialGitSandbox")(function* (
   workspace: string,
-  gitArgs: ReadonlyArray<string>
+  gitArgs: ReadonlyArray<string>,
+  system?: TrialInputInventory
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -400,14 +415,15 @@ export const trialGitSandbox = Effect.fn("AgentEffectiveness.trialGitSandbox")(f
     "/dev",
     "--tmpfs",
     "/tmp",
-    "--bind",
-    state,
+    "--dir",
     "/state",
     "--bind",
     workspace,
     "/workspace",
   ];
-  for (const root of ["/usr", "/bin", "/lib", "/lib64"]) args.push("--ro-bind", root, root);
+  if (yield* fs.exists(path.join(state, "repository.git")))
+    args.push("--bind", path.join(state, "repository.git"), "/state/repository.git");
+  args.push(...(yield* trialSystemBindings(system)));
   args.push(
     "--clearenv",
     "--setenv",
@@ -462,11 +478,12 @@ export const trialGitSandbox = Effect.fn("AgentEffectiveness.trialGitSandbox")(f
  */
 export const inspectTrialGit = Effect.fn("AgentEffectiveness.inspectTrialGit")(function* (
   workspace: string,
-  args: ReadonlyArray<string>
+  args: ReadonlyArray<string>,
+  system?: TrialInputInventory
 ) {
   return yield* runCaptured({
     command: "/usr/bin/bwrap",
-    args: yield* trialGitSandbox(workspace, args),
+    args: yield* trialGitSandbox(workspace, args, system),
     extendEnv: false,
     env: {},
     source: "stdout",
@@ -574,9 +591,15 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
     if (O.isSome(link)) {
       const target = input.symlinks[name];
       const projected = path.resolve(namespaceRoot, path.dirname(name), link.value);
+      const nativeRoots =
+        namespaceRoot === "/nix"
+          ? ["/nix/store/"]
+          : namespaceRoot === "/runtime/oci"
+            ? ["/bin/", "/sbin/", "/usr/", "/lib/", "/lib64/", "/etc/", "/proc/", "/dev/"]
+            : [];
       if (
         target !== link.value ||
-        !A.some(["/workspace/", "/runtime/", "/sealed/"], (root) => Str.startsWith(root)(projected))
+        !A.some(["/workspace/", "/runtime/", "/sealed/", ...nativeRoots], (root) => Str.startsWith(root)(projected))
       )
         return yield* AgentTrialError.make({
           stage: "proof",
@@ -590,12 +613,61 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
         });
     } else if (input.files[name] === undefined || (yield* hashTrialInput(full)) !== input.files[name])
       return yield* AgentTrialError.make({ stage: "proof", message: "Sealed input file changed" });
+    const metadata = input.metadata?.[name];
+    if (metadata !== undefined) {
+      let observed: O.Option<TrialInputMetadata>;
+      if (O.isSome(link)) {
+        const result = yield* runCaptured({
+          command: "/usr/bin/stat",
+          args: ["--printf=%f,%u,%g", full],
+          extendEnv: false,
+          env: {},
+          source: "stdout",
+          timeout: "10 seconds",
+        });
+        const parts = Str.split(",")(result.output);
+        const fields = O.all({
+          mode: O.flatMap(A.get(parts, 0), (hex) => Num.parse(`0x${hex}`)),
+          uid: O.flatMap(A.get(parts, 1), Num.parse),
+          gid: O.flatMap(A.get(parts, 2), Num.parse),
+        });
+        observed =
+          result.exitCode === 0 && !result.truncated
+            ? O.flatMap(fields, S.decodeUnknownOption(TrialInputMetadata))
+            : O.none();
+      } else {
+        const info = yield* fs.stat(full);
+        observed = O.map(O.all({ uid: info.uid, gid: info.gid }), (ids) =>
+          TrialInputMetadata.make({ mode: info.mode, ...ids })
+        );
+      }
+      if (!O.exists(observed, (value) => sameMetadata(metadata, value)))
+        return yield* AgentTrialError.make({ stage: "proof", message: "Sealed input ownership or mode changed" });
+    }
   }
-  for (const name of yield* fs.readDirectory(input.root, { recursive: true })) {
-    if (!A.contains(names, name) && !A.some(names, (entry) => Str.startsWith(name + "/")(entry)))
+  const pending = MutableList.make<string>();
+  const actual = MutableList.make<string>();
+  MutableList.append(pending, "");
+  for (
+    let directory = MutableList.take(pending);
+    directory !== MutableList.Empty;
+    directory = MutableList.take(pending)
+  ) {
+    for (const entry of yield* fs.readDirectory(path.join(input.root, directory))) {
+      const relative = path.join(directory, entry);
+      MutableList.append(actual, relative);
+      const full = path.join(input.root, relative);
+      if (O.isNone(yield* fs.readLink(full).pipe(Effect.option)) && (yield* fs.stat(full)).type === "Directory")
+        MutableList.append(pending, relative);
+    }
+  }
+  const declared = HashSet.fromIterable(names);
+  for (const name of MutableList.toArray(actual)) {
+    if (!HashSet.has(declared, name) && !A.some(names, (entry) => Str.startsWith(name + "/")(entry)))
       return yield* AgentTrialError.make({
         stage: "proof",
         message: "Unlisted sealed input would enter evaluator namespace",
+        cause: { unlisted: name },
       });
   }
   const canonical = {
@@ -604,12 +676,48 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
       A.map(A.sort(Object.keys(input.symlinks), Str.Order), (key) => [key, input.symlinks[key]])
     ),
     ...(input.directories === undefined ? {} : { directories: A.sort(input.directories, Str.Order) }),
+    ...(input.metadata === undefined
+      ? {}
+      : {
+          metadata: R.fromEntries(
+            A.sort(
+              R.toEntries(input.metadata),
+              Order.mapInput(Str.Order, ([name]: readonly [string, unknown]) => name)
+            )
+          ),
+        }),
   };
   if ((yield* hashPublicTextSha256(yield* S.encodeEffect(S.fromJsonString(S.Unknown))(canonical))) !== input.digest)
     return yield* AgentTrialError.make({
       stage: "proof",
       message: "Sealed inventory digest differs from frozen controls",
     });
+});
+
+/**
+ * Project a declared sparse system into the evaluator namespace.
+ * **Details**
+ * Omission retains legacy diagnostic mounts. Admitted evaluator contracts must
+ * supply an inventory with metadata for every executable and library input.
+ * **Example** (Keep filesystem work in a computation)
+ * ```ts
+ * import { trialSystemBindings } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(trialSystemBindings())) // true
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const trialSystemBindings = Effect.fn("AgentEffectiveness.trialSystemBindings")(function* (
+  system?: TrialInputInventory
+) {
+  const path = yield* Path.Path;
+  if (system !== undefined) yield* validateTrialInventory(system, "/runtime/system");
+  return A.flatMap(["/usr", "/bin", "/lib", "/lib64"], (target) => [
+    "--ro-bind",
+    system === undefined ? target : path.join(system.root, path.relative("/", target)),
+    target,
+  ]);
 });
 
 /**
@@ -625,12 +733,13 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
 export const trialCheckContractDigest = Effect.fn("trialCheckContractDigest")(function* (check: TrialEvaluatorCheck) {
   return yield* hashPublicTextSha256(
     yield* S.encodeEffect(S.fromJsonString(S.Unknown))({
-      encoding: "trial-check-contract/v1",
+      encoding: "trial-check-contract/v2",
       id: check.id,
       kind: check.kind,
       commandTemplate: check.commandTemplate,
-      environment: Object.entries(check.environmentTemplate).sort(([left], [right]) =>
-        left < right ? -1 : left > right ? 1 : 0
+      environment: A.sort(
+        R.toEntries(check.environmentTemplate),
+        Order.mapInput(Str.Order, ([name]: readonly [string, string]) => name)
       ),
       inputBundleDigest: check.input.digest,
       expectedCases: check.expectedCases,
@@ -640,6 +749,130 @@ export const trialCheckContractDigest = Effect.fn("trialCheckContractDigest")(fu
       compilerDigest: O.isSome(check.compilerOverlay) ? check.compilerOverlay.value.digest : null,
       timeoutMs: check.timeoutMs,
       rootWritePolicy: check.rootWritePolicy ?? "readonly",
+      sparseSystem:
+        check.sparseSystem === undefined ? null : yield* S.encodeEffect(TrialInputInventory)(check.sparseSystem),
+      nativeRuntime:
+        check.nativeRuntime === undefined ? null : yield* S.encodeEffect(TrialNativeYeetRuntime)(check.nativeRuntime),
     })
   );
+});
+
+/**
+ * Preserve the namespace targets of native capability inventories.
+ * **Details**
+ * Absolute Nix and OCI links are evaluated in their declared namespaces. Both
+ * native admission and retained custody use these bindings.
+ * **Example** (Keep decoded native controls bound to their targets)
+ * ```ts
+ * import { TrialNativeYeetRuntime, trialNativeInventoryBindings } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const bindings = S.decodeUnknownEffect(TrialNativeYeetRuntime)({}).pipe(Effect.map(trialNativeInventoryBindings))
+ * console.log(Effect.isEffect(bindings)) // true: malformed controls remain a failing computation.
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const trialNativeInventoryBindings = (runtime: TrialNativeYeetRuntime): ReadonlyArray<TrialRuntimeClosure> => [
+  TrialRuntimeClosure.make({ inventory: runtime.system, target: "/runtime/system" }),
+  TrialRuntimeClosure.make({ inventory: runtime.nix, target: "/nix" }),
+  TrialRuntimeClosure.make({ inventory: runtime.oci, target: "/runtime/oci" }),
+  TrialRuntimeClosure.make({ inventory: runtime.crun, target: "/runtime/crun" }),
+];
+
+/**
+ * Revalidate every native capability against its declared files and metadata.
+ * **Details**
+ * Both collection and finalization use this guard. Legacy inventory decoding
+ * remains compatible; complete native metadata and standalone asset bindings
+ * are required by this admission boundary.
+ * **Example** (Compose validation after boundary decoding)
+ * ```ts
+ * import { TrialNativeYeetRuntime, validateTrialNativeRuntime } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const validation = S.decodeUnknownEffect(TrialNativeYeetRuntime)({}).pipe(Effect.flatMap(validateTrialNativeRuntime))
+ * console.log(Effect.isEffect(validation)) // true: invalid controls remain a failing computation.
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const validateTrialNativeRuntime = Effect.fn("AgentEffectiveness.validateTrialNativeRuntime")(function* (
+  runtime: TrialNativeYeetRuntime
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const bootstrapPaths = A.map(runtime.bootstrap, (file) => file.artifact.path);
+  if (
+    !A.every(
+      [
+        "/usr/bin/podman",
+        "/usr/bin/bwrap",
+        "/usr/bin/newuidmap",
+        "/usr/bin/newgidmap",
+        "/usr/bin/runc",
+        "/usr/bin/stat",
+        runtime.broker.interpreter.path,
+      ],
+      (file) => A.contains(bootstrapPaths, file)
+    )
+  )
+    return yield* AgentTrialError.make({ stage: "proof", message: "Native bootstrap input closure is incomplete" });
+  for (const { inventory, target } of trialNativeInventoryBindings(runtime)) {
+    if (
+      inventory.metadata === undefined ||
+      !A.makeEquivalence(Str.Equivalence)(
+        A.sort(R.keys(inventory.metadata), Str.Order),
+        A.sort([...R.keys(inventory.files), ...R.keys(inventory.symlinks), ...(inventory.directories ?? [])], Str.Order)
+      )
+    )
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Native runtime requires complete mode and ownership metadata",
+      });
+    yield* validateTrialInventory(inventory, target);
+  }
+  for (const file of runtime.bootstrap) {
+    const info = yield* fs.stat(file.artifact.path);
+    if (
+      (yield* hashTrialInput(file.artifact.path)) !== file.artifact.digest ||
+      info.mode !== file.metadata.mode ||
+      !O.contains(info.uid, file.metadata.uid) ||
+      !O.contains(info.gid, file.metadata.gid)
+    )
+      return yield* AgentTrialError.make({ stage: "proof", message: "Rootless bootstrap file changed" });
+  }
+  if (
+    !A.makeEquivalence(Str.Equivalence)(A.sort(runtime.broker.authorities, Str.Order), [
+      "api.osv.dev:443",
+      "registry.npmjs.org:443",
+    ]) ||
+    (yield* hashTrialInput(runtime.certificateBundle.path)) !== runtime.certificateBundle.digest
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Native advisory policy or certificate bytes differ",
+    });
+  for (const artifact of [
+    runtime.broker.program,
+    runtime.broker.interpreter,
+    runtime.broker.relay,
+    runtime.broker.policy,
+    runtime.broker.canaries,
+  ])
+    if ((yield* hashTrialInput(artifact.path)) !== artifact.digest)
+      return yield* AgentTrialError.make({ stage: "proof", message: "Native broker asset changed" });
+  const policy = yield* S.decodeEffect(
+    S.fromJsonString(S.Record(S.String, S.Struct({ fixture: S.optional(S.Boolean) })))
+  )(yield* fs.readFileString(runtime.broker.policy.path));
+  if (
+    !A.makeEquivalence(Str.Equivalence)(
+      A.sort(R.keys(policy), Str.Order),
+      A.sort(runtime.broker.authorities, Str.Order)
+    ) ||
+    A.some(R.values(policy), (entry) => entry.fixture === true)
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Native broker policy differs or permits private fixtures",
+    });
 });

@@ -54,6 +54,7 @@ import { runAgentEffectivenessEvalScoreCommand } from "./internal/EvalScorer.ts"
 import { collectTrial } from "./internal/TrialCollector.ts";
 import { executeTrial } from "./internal/TrialExecutor.ts";
 import { finalizeTrial } from "./internal/TrialProof.ts";
+import { rehydrateTrial, retainTrial } from "./internal/TrialRetention.ts";
 import { parseTrialUsage } from "./internal/TrialUsage.ts";
 import type {
   AgentEffectivenessAnnotationCheckReport,
@@ -721,6 +722,20 @@ const trialUsageCommand = Command.make(
     })
 ).pipe(Command.withDescription("Parse native JSONL into a private receipt; retain unknown usage coverage"));
 
+const trialRetainCommand = Command.make(
+  "retain",
+  { request: Flag.File("request", { mustExist: true }) },
+  ({ request }) => retainTrial(request).pipe(Effect.flatMap(Console.log))
+).pipe(
+  Command.withDescription("Qualify terminal trial evidence and emit a source-retirement plan without deleting it")
+);
+
+const trialRehydrateCommand = Command.make(
+  "rehydrate",
+  { request: Flag.File("request", { mustExist: true }) },
+  ({ request }) => rehydrateTrial(request).pipe(Effect.flatMap(Console.log))
+).pipe(Command.withDescription("Restore retained trial source at its original path with immutable receipt references"));
+
 const evalsCommand = Command.make("evals", {}, () =>
   printLines([
     "Agent-effectiveness eval commands:",
@@ -730,9 +745,11 @@ const evalsCommand = Command.make("evals", {}, () =>
     "- collect",
     "- finalize",
     "- parse-usage",
+    "- retain",
+    "- rehydrate",
   ])
 ).pipe(
-  Command.withDescription("Run SkillOpt eval scorer commands"),
+  Command.withDescription("Run agent evaluations and manage their retained evidence"),
   Command.withSubcommands([
     evalsScoreCommand,
     evalsCompareCommand,
@@ -740,6 +757,8 @@ const evalsCommand = Command.make("evals", {}, () =>
     trialCollectCommand,
     trialFinalizeCommand,
     trialUsageCommand,
+    trialRetainCommand,
+    trialRehydrateCommand,
   ])
 );
 

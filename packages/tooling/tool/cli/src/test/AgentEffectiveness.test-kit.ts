@@ -13,4 +13,5 @@ export * from "../commands/AgentEffectiveness/internal/TrialExecutor.ts";
 export * from "../commands/AgentEffectiveness/internal/TrialIsolation.ts";
 export * from "../commands/AgentEffectiveness/internal/TrialProfile.schemas.ts";
 export * from "../commands/AgentEffectiveness/internal/TrialProof.ts";
+export * from "../commands/AgentEffectiveness/internal/TrialRetention.ts";
 export * from "../commands/AgentEffectiveness/internal/TrialUsage.ts";

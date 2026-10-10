@@ -27,6 +27,12 @@ export * from "./AgentEffectiveness.errors.ts";
  */
 export * from "./AgentEffectiveness.schemas.ts";
 /**
+ * Terminal evidence retention and original-path source restoration contracts.
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./AgentEffectiveness.TrialRetention.schemas.ts";
+/**
  * Trial invocation and protected receipt contracts.
  * @category schemas
  * @since 0.0.0

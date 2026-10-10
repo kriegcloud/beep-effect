@@ -31,12 +31,15 @@ import {
   inspectTrialGit,
   trialCheckContractDigest,
   validateTrialInventory,
+  validateTrialNativeRuntime,
 } from "./TrialIsolation.ts";
 import {
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
   TrialInputInventory,
   TrialNativeInvocationJson,
+  TrialNativeRuntimeEvidence,
+  TrialNativeYeetRuntime,
 } from "./TrialProfile.schemas.ts";
 import type { TrialArtifact } from "../AgentEffectiveness.trials.schemas.ts";
 
@@ -91,6 +94,19 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
   const plan = yield* TrialPlanJson.decode(yield* fs.readFileString(attempt.plan.path));
   const verdict = yield* YeetVerdictJson.decode(yield* fs.readFileString(proof.verdict.path));
   const acceptance = yield* TrialAcceptanceJson.decode(yield* fs.readFileString(proof.acceptance.path));
+  let proofSystem = O.none<TrialInputInventory>();
+  if (proof.fullYeetCollection !== undefined) {
+    yield* checkArtifact(proof.fullYeetCollection);
+    const collection = yield* TrialAcceptanceJson.decode(yield* fs.readFileString(proof.fullYeetCollection.path));
+    const first = A.head(collection.requiredChecks);
+    if (O.isSome(first) && first.value.evaluatorContract !== undefined) {
+      yield* checkArtifact(first.value.evaluatorContract);
+      const contract = yield* S.decodeEffect(S.fromJsonString(TrialEvaluatorCheck))(
+        yield* fs.readFileString(first.value.evaluatorContract.path)
+      );
+      proofSystem = O.fromUndefinedOr(contract.nativeRuntime?.system);
+    }
+  }
   let evidenceWorkspace = attempt.workspace;
   let reconstructed = false;
   if (proof.reconstruction !== undefined) {
@@ -106,14 +122,14 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
       (yield* fs.realPath(source.workspace)) !== source.workspace
     )
       return yield* fail("Reconstruction is not an owned fresh tree bound to the retained candidate bundle");
-    const tree = yield* inspectTrialGit(source.workspace, ["rev-parse", "HEAD^{tree}"]);
+    const tree = yield* inspectTrialGit(source.workspace, ["rev-parse", "HEAD^{tree}"], O.getOrUndefined(proofSystem));
     if (tree.exitCode !== 0 || tree.truncated || Str.trim(tree.output) !== source.tree)
       return yield* fail("Reconstructed Git tree differs from retained source evidence");
     evidenceWorkspace = source.workspace;
     reconstructed = true;
   }
-  const head = yield* inspectTrialGit(evidenceWorkspace, ["rev-parse", "HEAD"]);
-  const dirty = yield* inspectTrialGit(evidenceWorkspace, ["status", "--porcelain"]);
+  const head = yield* inspectTrialGit(evidenceWorkspace, ["rev-parse", "HEAD"], O.getOrUndefined(proofSystem));
+  const dirty = yield* inspectTrialGit(evidenceWorkspace, ["status", "--porcelain"], O.getOrUndefined(proofSystem));
   // ProofState.collectDiffFingerprint frames status, unstaged and staged bytes
   // with two NUL separators. A clean exact commit therefore has this digest.
   const cleanFingerprint = yield* hashPublicTextSha256("\u0000\u0000");
@@ -147,6 +163,7 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
     fullYeetChecks.length === 1 &&
     fullYeetChecks[0]?.namespaceBindings !== undefined &&
     fullYeetChecks[0]?.evaluatorContract !== undefined &&
+    fullYeetChecks[0]?.nativeRuntimeEvidence !== undefined &&
     fullYeetChecks[0]?.id === plan.fullYeetCheckSpec.id &&
     fullYeetChecks[0]?.nativeReport?.digest === proof.verdict.digest &&
     fullYeetChecks[0]?.nativeReport?.path === proof.verdict.path;
@@ -211,8 +228,35 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
         const contract = yield* S.decodeEffect(S.fromJsonString(TrialEvaluatorCheck))(
           yield* fs.readFileString(check.evaluatorContract.path)
         );
+        let nativeValid = check.id !== plan.fullYeetCheckSpec?.id;
+        const declaredSystem = contract.nativeRuntime?.system ?? contract.sparseSystem;
+        if (declaredSystem !== undefined) yield* validateTrialInventory(declaredSystem, "/runtime/system");
+        const systemValid =
+          declaredSystem !== undefined &&
+          declaredSystem.digest === O.getOrUndefined(proofSystem)?.digest &&
+          declaredSystem.root === O.getOrUndefined(proofSystem)?.root;
+
+        if (contract.nativeRuntime !== undefined && check.nativeRuntimeEvidence !== undefined) {
+          yield* checkArtifact(check.nativeRuntimeEvidence);
+          const evidence = yield* S.decodeEffect(S.fromJsonString(TrialNativeRuntimeEvidence))(
+            yield* fs.readFileString(check.nativeRuntimeEvidence.path)
+          );
+          const runtime = contract.nativeRuntime;
+          yield* validateTrialNativeRuntime(runtime);
+          nativeValid =
+            evidence.preserved &&
+            evidence.manifestBefore === evidence.manifestAfter &&
+            evidence.runtimeDigest ===
+              (yield* hashPublicTextSha256(yield* S.encodeEffect(S.fromJsonString(TrialNativeYeetRuntime))(runtime))) &&
+            evidence.systemDigest === runtime.system.digest &&
+            evidence.nixDigest === runtime.nix.digest &&
+            evidence.ociDigest === runtime.oci.digest &&
+            evidence.image === runtime.image;
+        }
         contractValid =
           O.isSome(spec) &&
+          nativeValid &&
+          systemValid &&
           (check.id !== plan.fullYeetCheckSpec?.id ||
             (contract.kind === "yeet" && O.isNone(contract.reportRelativePath))) &&
           spec.value.contractDigest === (yield* trialCheckContractDigest(contract)) &&

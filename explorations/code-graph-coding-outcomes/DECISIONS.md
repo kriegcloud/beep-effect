@@ -138,3 +138,28 @@ The reason is to freeze the existing runtime independently of host garbage
 collection without triggering source builds or substituting a new runtime. The
 reversal is to discard only the owned supplemental snapshot and its candidate
 profile, retaining the receipt; no host store, daemon or production config changes.
+
+
+## 2026-10-09 — Retain failures independently of passing eligibility
+
+Source retirement depends on complete, recoverable evidence, not a passing
+coding outcome. A clean committed failed or aborted attempt can qualify when
+its commit, diff, required raw streams, index dependencies, terminal evidence
+and immutable references survive a fresh restore witness. Unknown token counts
+or model provenance stay unknown; they do not imply that stored bytes are lost.
+They still affect experimental eligibility and must never become a passing grade.
+
+Missing or truncated required bytes block qualification. Dirty or untracked
+state also blocks source-only retirement unless a separate byte-complete archive
+preserves it. A declared completeness label alone is insufficient: bind the
+capture-completion evidence to the drained streams and their hashes and sizes.
+Coding and Collector source directories require separate ownership and restore
+bindings. Keep their original absolute receipt references and emit new restore
+witnesses; do not rewrite old proofs to point at a new directory.
+
+The initial commands only qualify retention and restore source; they do not
+delete actual attempt state. Exclusive evaluator leases, atomic checkpoints and
+real interruption tests precede any retirement operation. Reversal restores the
+exact source at its original path from retained bundles and dependencies. The
+117-cell capacity gate stays closed until peak and retained allocations, index
+copies, failures and restoration overlap fit beyond the 100 GiB reserve.
