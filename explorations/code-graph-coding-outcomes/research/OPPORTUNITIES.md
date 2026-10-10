@@ -561,3 +561,24 @@ hash set built once per validation. Keep name/duplicate validation, ordering,
 file hashing, metadata, symlinks, traversal and final digest checks unchanged.
 Receipts: `native6-directory-membership-attribution-v1.json` and
 `runner-native-attempt6-interruption-v1.json`.
+
+## Check dynamic addon dependencies before full runtime preparation
+
+Request seven spent 1,597.69 seconds preparing and validating the native runtime,
+then retaining failure evidence. Its CLI startup failed with
+`librt.so.1: cannot open shared object file`; no Yeet verdict was produced. The
+system generator had covered executable dependencies but omitted libraries
+loaded by workspace native addons. All original evidence is retained.
+
+Before another full attempt, inspect the selected native addon dependency
+closure and probe the binding, wrapper and actual CLI inside the exact sparse
+runtime. A separate one-file correction passes those probes; it does not prove
+full Yeet. Preserve both runtime inventories and derive new check bindings.
+Receipts: `native7-runtime-friction-v1.json`,
+`native7-dynamic-node-elf-census-v1.json`, and
+`sparse-librt-independent-closure-v1.json`.
+
+Shared free disk also declined during the attempt. Its measured allocation was
+18.6 GB, with possible shared-extent counting; larger filesystem changes are
+not attributable solely to this run. Recheck live headroom before every heavy
+launch and retain the 100 GiB reserve.

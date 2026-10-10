@@ -269,3 +269,28 @@ link, traversal or digest validation. Exact source review and existing focused
 regressions precede a fresh local commit and new attempt identity. No frozen
 task, candidate, model, environment or limit changes. Reversal is retained
 `60f7dd1b5b` and unchanged request-six artifacts.
+
+### Add a missing native library in a fresh unscored runtime
+
+Request seven reached native CLI startup on clean `bcb0b9760e`, then failed
+because the sealed system omitted `librt.so.1`, required by the frozen Rolldown
+GNU addon. The Collector exited 1 after 1,597.69 seconds. Runtime and Bun-cache
+before/after evidence match, but no Yeet verdict or final proof exists. Preserve
+the original request, seed, local commit and failed attempt.
+
+A separate owned copy adds only the verified 14,424-byte library and metadata.
+Its complete inventory digest is
+`10023ccc81bdde24570450f1d8809da98d47de4914208eb88ec03f1d772cad66`.
+Direct binding, wrapper import and actual CLI help probes pass offline with the
+same declared mounts. A finite census covers 46 addon paths and 22 GNU x86-64
+ELF variants; all 13 resolved libraries match declared system or vendor bytes.
+Independent review found no actionable issue within that scope. Lazy loading and
+full Yeet remain unproved.
+
+Use a fresh attempt identity and bind the new system in every applicable check
+and native runtime, then regenerate contract, full-spec and config hashes.
+Recheck disk and memory admission before launch. Reversal keeps the original
+system and request seven; no existing inventory or receipt is overwritten.
+Evidence: `runner-native-attempt7-terminal-v1.json`,
+`native7-sparse-runtime-librt-preparation-v1.json`, and
+`sparse-librt-independent-closure-v1.json`.
