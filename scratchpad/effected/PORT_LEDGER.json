@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "config-file",
+    "module": "git",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-10T00:07:23.284Z"
+    "at": "2026-10-10T00:07:38.346Z"
   },
   "rows": [
     {
@@ -5323,7 +5323,7 @@
       "module": "git",
       "wave": 1,
       "position": 14,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "drivers",
       "upstreamPaths": {
@@ -5623,6 +5623,84 @@
           "upstreamBehaviour": "GitConfig rejects a leading U+FEFF BOM before an otherwise valid section, reporting an invalid key and a variable before any section.",
           "labBehaviour": "The scanner skips U+FEFF only at source offset zero while preserving the original text and absolute offsets; surgical edits retain the BOM, and repeated/noninitial BOMs remain rejected.",
           "reason": "upstream-bug: fix-git-g2.md:37 and round-1/part-2/sol.md:46 report Git accepting BOM-prefixed configuration while the pinned upstream returns Failure; the added regression pins parse/stringify, offsets, edits and noninitial rejection."
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Git.ts:650 carried a branch no input can reach",
+          "labBehaviour": "Narrowed classification outcomes by command kind and removed handlers for outcomes that kind cannot emit.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Git.ts:863 carried a branch no input can reach",
+          "labBehaviour": "Removed the first ls-tree header fallback; Str.split guarantees a first element.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Git.ts:897 carried a branch no input can reach",
+          "labBehaviour": "Removed the name-status token fallback inside the bounded index loop.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Git.ts:1030 carried a branch no input can reach",
+          "labBehaviour": "Removed the log SHA undefined check inside the bounded index loop; retained truncated-header failures.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Git.ts:1051 carried a branch no input can reach",
+          "labBehaviour": "Removed the log path fallback inside the bounded index loop.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Git.ts:1217 carried a branch no input can reach",
+          "labBehaviour": "Removed the status token fallback inside the bounded index loop.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Git.ts:1748 carried a branch no input can reach",
+          "labBehaviour": "Removed the first ls-files header fallback; Str.split guarantees a first element.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Git.ts:3014 carried a branch no input can reach",
+          "labBehaviour": "Removed the absent-without-handler defect path; both quiet parsers already decode empty output to an empty array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/GitConfig.ts:309 carried a branch no input can reach",
+          "labBehaviour": "Removed undefined-index guards and fallback from binary-search accesses whose indices remain within the nonempty line-start array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/GitConfig.ts:699 carried a branch no input can reach",
+          "labBehaviour": "Removed the offset > 0 guard when appending after an existing entry; that entry necessarily follows a section header.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/GitConfig.ts:965 carried a branch no input can reach",
+          "labBehaviour": "Removed the offset > 0 guard when inserting into an existing section; the insertion point necessarily follows its header.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Gitmodules.ts:52 carried a branch no input can reach",
+          "labBehaviour": "Replaced optional number parsing with N.Number after integer-syntax validation; normalized accepted text cannot produce the former None branch.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/git/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/git/Gitmodules.ts:56 carried a branch no input can reach",
+          "labBehaviour": "Replaced the unused private boolean encoder with SchemaGetter.forbiddenEncoding; this schema is used only for decoding.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -5720,13 +5798,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:01.048Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:19:04.700Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:19:04.700Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:07:38.346Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (8 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },

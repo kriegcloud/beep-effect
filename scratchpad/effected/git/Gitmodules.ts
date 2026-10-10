@@ -8,6 +8,7 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaIssue from "effect/SchemaIssue";
+import * as SchemaGetter from "effect/SchemaGetter";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import type { GitConfigEditError, GitConfigParseError } from "./GitConfig.ts";
 import { GitConfig } from "./GitConfig.ts";
@@ -33,10 +34,10 @@ const GitIntegerText = S.String.check(S.isPattern(/^[ \t\n\r\v\f]*[+-]?(?:0[xX][
 );
 const isGitIntegerText = S.is(GitIntegerText);
 
-/** Git boolean text and bare keys, encoded canonically as true or false. */
+/** Decode Git boolean text and bare keys; this private schema is read-only. */
 const GitBoolean = S.UndefinedOr(S.String).pipe(
-	S.decodeTo(S.Boolean, SchemaTransformation.transformEffect<boolean, string | undefined>({
-		decode: Effect.fn("GitBoolean.decode")((value: string | undefined): Effect.Effect<boolean, SchemaIssue.Issue> => {
+	S.decodeTo(S.Boolean, {
+		decode: SchemaGetter.transformEffect(Effect.fn("GitBoolean.decode")((value: string | undefined): Effect.Effect<boolean, SchemaIssue.Issue> => {
 			if (value === undefined) return Effect.succeed(true);
 			const folded = Str.toLowerCase(value);
 			if (A.contains(["true", "yes", "on"], folded)) return Effect.succeed(true);
@@ -48,13 +49,12 @@ const GitBoolean = S.UndefinedOr(S.String).pipe(
 			const multiplier = suffix === "k" ? 1024 : suffix === "m" ? 1048576 : suffix === "g" ? 1073741824 : 1;
 			const digits = multiplier === 1 ? integer : Str.slice(0, -1)(integer);
 			const normalized = /^0[0-7]+$/.test(digits) ? `0o${digits}` : digits;
-			const parsed = N.parse(normalized);
-			if (O.isNone(parsed)) return invalid();
-			const signed = parsed.value * multiplier * (Str.startsWith("-")(Str.trimStart(folded)) ? -1 : 1);
+			const parsed = N.Number(normalized);
+			const signed = parsed * multiplier * (Str.startsWith("-")(Str.trimStart(folded)) ? -1 : 1);
 			return signed < -2147483648 || signed > 2147483647 ? invalid() : Effect.succeed(signed !== 0);
-		}),
-		encode: (value) => Effect.succeed(value ? "true" : "false"),
-	})),
+		})),
+		encode: SchemaGetter.forbiddenEncoding,
+	}),
 ).annotate($I.annote("GitBoolean", { description: "Git boolean words, integer spellings and bare-key semantics." }));
 const decodeGitBoolean = S.decodeUnknownOption(GitBoolean);
 
