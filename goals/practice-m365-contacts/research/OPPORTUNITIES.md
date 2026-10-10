@@ -146,3 +146,17 @@
   scoped root rule directly, then requalify affected packages and one push wave.
 - Prevention: include scoped root oxlint in the package handoff contract, and
   inspect every named failure before acknowledging an aggregate hosted red.
+
+## 2026-10-10: grant handback wait after merged delivery
+
+- Work: advance the merged contact driver/job into the read-only grant probe
+  and pre-seed export, preserving the authorization and export ordering.
+- Evidence: PR 1 #1591 merged at 22:56:39 UTC; repair follow-up #1595 merged
+  at 00:19:46 UTC. The S13 final gate was consumed. At 00:50 UTC the required
+  scoped grant handback remained absent. No mailbox call or write had run.
+- Friction: merge completion does not provide a visible grant execution state;
+  the worker can only poll for the final authorization handback until the
+  brief's three-hour deadline. The cause of the delay is unknown.
+- Prevention: give the grant owner an explicit queued/running/failed receipt
+  beside the final InScope proof, so the worker can distinguish scheduling
+  delay from a failed grant without querying or modifying the tenant.
