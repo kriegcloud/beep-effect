@@ -227,12 +227,9 @@ const mount = Effect.fn("mount")(function* <A>(
 				return exited.then(() => undefined, () => undefined);
 			}),
 	);
-	const exited: Effect.Effect<A, Cli.Cancelled> = Effect.promise(() => instance.waitUntilExit()).pipe(
-		Effect.flatMap(() =>
-			Effect.flatMap(Deferred.isDone(result), (done) =>
-				done ? Deferred.await(result) : Effect.die(ScreenExited.make({ message: SCREEN_EXITED })),
-			),
-		),
+	// Completing the Deferred wakes its side of the race synchronously. Ink's exit can win only before an answer.
+	const exited = Effect.promise(() => instance.waitUntilExit()).pipe(
+		Effect.flatMap(() => Effect.die(ScreenExited.make({ message: SCREEN_EXITED }))),
 	);
 	return yield* Effect.raceFirst(Deferred.await(result), exited);
 });

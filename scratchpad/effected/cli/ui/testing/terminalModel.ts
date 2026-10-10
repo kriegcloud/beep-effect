@@ -63,7 +63,7 @@ export const screenAfter: {
 			if (lines.length === 0) lines.push("");
 		} else if (command === "H") {
 			const [line, col] = params === undefined || params === "" ? [1, 1] : params.split(";").map((part) => Number(part === "" ? 1 : part));
-			row = screenTop() + (line ?? 1) - 1;
+			row = screenTop() + Number(line) - 1;
 			column = (col ?? 1) - 1;
 			while (lines.length <= row) lines.push("");
 		}

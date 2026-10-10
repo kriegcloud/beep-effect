@@ -222,8 +222,7 @@ const slice = (
  * @category models
  * @since 0.0.0
  */
-export class Viewport {
-	private constructor() {}
+export abstract class Viewport {
 
 	/**
 	 * A viewport over `count` items, `height` of them in view, with `cursor` selected (clamped; 0 by default).

@@ -1,4 +1,5 @@
 import * as Match from "effect/Match";
+import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as S from "effect/Schema";
@@ -395,7 +396,7 @@ export class Confirm {
 			key: toggle.key,
 		}));
 		const numberOf = MutableHashMap.fromIterable(
-			state.toggles.map((toggle, index) => [toggle.key, index] as const),
+			toggleRows.map((row, index) => [row, index] as const),
 		);
 		const ellipsis = { ellipsis: glyphs.ellipsis };
 		const lead = state.row === 0 ? glyphs.arrow : " ".repeat(Fmt.width(glyphs.arrow));
@@ -429,12 +430,12 @@ export class Confirm {
 						state: Viewport.init(state.toggles.length, state.toggles.length, Math.max(0, state.row - 1)),
 						reserved: RESERVED,
 						renderRow: (row: ViewportRow) => {
-							const index =
-								row._tag === "Item" ? O.getOrElse(MutableHashMap.get(numberOf, row.key), () => 0) : 0;
-							const toggle = state.toggles[index];
+							// Viewport returns the Item objects built from these validated toggles.
+							const index = O.getOrThrow(MutableHashMap.get(numberOf, row));
+							const toggle = A.getUnsafe(state.toggles, index);
 							return react.createElement(Toggle.View, {
-								label: toggle?.label ?? "",
-								value: toggle?.value ?? false,
+								label: toggle.label,
+								value: toggle.value,
 								highlighted: state.row === index + 1,
 							});
 						},

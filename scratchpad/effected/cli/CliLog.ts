@@ -619,12 +619,14 @@ export class CliLog {
 								...extras,
 							];
 							if (file !== undefined) {
-								const target =
-									"path" in file
-										? O.some(file.path)
-										: yield* Config.option(Config.String(file.envVar)).pipe(
-												Effect.orElseSucceed(O.none<string>),
-											);
+								let target: O.Option<string>;
+								if ("path" in file) {
+									target = O.some(file.path);
+								} else {
+									target = yield* Config.option(Config.String(file.envVar)).pipe(
+										Effect.orElseSucceed(O.none<string>),
+									);
+								}
 								if (O.isSome(target) && target.value !== "") {
 									const location = yield* PathModule.Path;
 									loggers.push(yield* makeFileSink(location.resolve(target.value), lowered, underActionsIn));

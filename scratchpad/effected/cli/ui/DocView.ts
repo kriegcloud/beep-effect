@@ -78,7 +78,6 @@ const docView: () => FunctionComponent<DocViewProps> = fromReact((react) => {
 		const given = props.ctx;
 		const theme = screen?.theme;
 		const neutralize = screen?.neutralizeWorkflowCommands === true;
-		if (given === undefined && theme === undefined) throw MissingDocViewThemeError.make({ message: OUTSIDE });
 		const ctx = react.useMemo(() => {
 			if (given !== undefined) return given;
 			if (theme === undefined) throw MissingDocViewThemeError.make({ message: OUTSIDE });

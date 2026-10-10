@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "github-actions",
+    "module": "cli",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-10T00:31:31.578Z"
+    "at": "2026-10-10T00:33:58.946Z"
   },
   "rows": [
     {
@@ -13409,7 +13409,7 @@
       "module": "cli",
       "wave": 4,
       "position": 4,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "tooling/library",
       "upstreamPaths": {
@@ -14439,6 +14439,312 @@
           "upstreamBehaviour": "screenAfter consumes BEL-terminated OSC sequences only; ST-terminated OSC 8 hyperlinks appear in transcripts as protocol text and destination bytes instead of just their label.",
           "labBehaviour": "The OSC matcher accepts BEL or ST terminators; combined, stdout and stderr transcripts show only the hyperlink label while raw written output keeps the original bytes.",
           "reason": "upstream-bug: Pinned-oracle differential probe in round-1 INVENTORY.md cli-19 produced protocol text for an ST-terminated link; fix-cli-g10.md:19 records the verified defect and its BEL/ST transcript pin."
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliFailure.ts:129 carried a branch no input can reach",
+          "labBehaviour": "removed the missing-first-element fallback because String.split always returns a first element.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliFailure.ts:139 carried a branch no input can reach",
+          "labBehaviour": "removed the first-line destructuring default for the same nonempty split-result guarantee.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliFailure.ts:195 carried a branch no input can reach",
+          "labBehaviour": "removed the missing-capture fallback because a successful position regex always supplies capture group 1.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliLinks.ts:190 carried a branch no input can reach",
+          "labBehaviour": "removed the undefined-cwd branch because a present Path service guarantees a resolved working directory.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliLinks.ts:196 carried a branch no input can reach",
+          "labBehaviour": "removed the corresponding redundant undefined-cwd check from automatic mode selection.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliLogger.ts:104 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliMessage.ts:54 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliPrompt.ts:52 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliRuntime.ts:383 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliTest.ts:96 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ConfigIssueRenderer.ts:49 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/Doc.ts:903 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/Fmt.ts:76 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/GithubAnnotation.ts:51 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/Glyphs.ts:74 carried a branch no input can reach",
+          "labBehaviour": "removed empty private constructor; static utility class is now abstract.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/internal/renderDoc.ts:204 carried a branch no input can reach",
+          "labBehaviour": "removed the undefined fallback for the widest index of a nonempty widths array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/internal/renderDoc.ts:269 carried a branch no input can reach",
+          "labBehaviour": "removed the missing-cell fallback for rows constructed with exactly the table's column count.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/internal/renderMarkdown.ts:153 carried a branch no input can reach",
+          "labBehaviour": "replaced an always-matching leading-whitespace regex extraction and its impossible missing-match fallbacks with equivalent trim-based extraction.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/internal/renderMarkdown.ts:223 carried a branch no input can reach",
+          "labBehaviour": "removed the first-line fallback after the empty-block guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/internal/renderMarkdown.ts:451 carried a branch no input can reach",
+          "labBehaviour": "removed missing-first-token fallbacks because string splitting always produces at least one token.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/internal/scanAudience.ts:95 carried a branch no input can reach",
+          "labBehaviour": "removed the missing-token fallback for a dense typed argv array read guarded by its length.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/CliUi.ts:230 carried a branch no input can reach",
+          "labBehaviour": "simplified completed-Deferred recovery on Ink’s exit race; Deferred completion synchronously wins its side of the race.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/CliUiLive.ts:632 carried a branch no input can reach",
+          "labBehaviour": "simplified the mount-failure scope comparison; the controller exclusively owns that acquisition.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/CliUiLive.ts:679 carried a branch no input can reach",
+          "labBehaviour": "simplified the end-run warning fallback; mount and draw already handle boundary reports before the run ends.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/CliUiLive.ts:811 carried a branch no input can reach",
+          "labBehaviour": "simplified the empty-event-chunk fallback; successful source pulls/takes hand off nonempty chunks.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/CliUiLive.ts:842 carried a branch no input can reach",
+          "labBehaviour": "replaced the shutdown default after a successful subscription take with an invariant lookup.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/CliUiLive.ts:862 carried a branch no input can reach",
+          "labBehaviour": "simplified the no-stream/no-subscription fallback; the input union supplies exactly one source.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/Confirm.ts:433 carried a branch no input can reach",
+          "labBehaviour": "replaced impossible header/missing-toggle defaults with lookups over the Item objects constructed from validated toggles.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/DocView.ts:81 carried a branch no input can reach",
+          "labBehaviour": "consolidated duplicate missing-context guards into the memoized context builder.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/MultiSelect.ts:252 carried a branch no input can reach",
+          "labBehaviour": "Replaced the explicit private no-op constructor with an abstract static-only class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/Select.ts:234 carried a branch no input can reach",
+          "labBehaviour": "Replaced the explicit private no-op constructor with an abstract static-only class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/Tabs.ts:133 carried a branch no input can reach",
+          "labBehaviour": "Replaced the explicit private no-op constructor with an abstract static-only class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/TextInput.ts:286 carried a branch no input can reach",
+          "labBehaviour": "Replaced the explicit private no-op constructor with an abstract static-only class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/Toggle.ts:40 carried a branch no input can reach",
+          "labBehaviour": "Replaced the explicit private no-op constructor with an abstract static-only class.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/MultiSelect.ts:386 carried a branch no input can reach",
+          "labBehaviour": "Replaced missing-key and missing-item fallbacks with invariant lookups; item rows and their key map are built from the same checked items.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/Select.ts:375 carried a branch no input can reach",
+          "labBehaviour": "Removed header and missing-choice rendering fallbacks; Select supplies only item rows, and Viewport returns those same row objects.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/Tabs.ts:261 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-tab label fallback; labelOf is called only for existing tab positions.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/TextInput.ts:191 carried a branch no input can reach",
+          "labBehaviour": "Replaced the empty-string fallback for an array index bounded by the loop with Array.getUnsafe.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/TextInput.ts:157 carried a branch no input can reach",
+          "labBehaviour": "Removed embedded-backspace handling from typed text runs; Ink splits both backspace bytes into individual events before useInput, and the existing named-key path handles them.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/Viewport.ts:226 carried a branch no input can reach",
+          "labBehaviour": "removed the unused private constructor and made Viewport abstract, retaining its static API and TypeScript non-instantiability.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/internal/inkConsole.ts:84 carried a branch no input can reach",
+          "labBehaviour": "Replaced the missing-row-cell fallback with A.getUnsafe; constructed rows always have the header's column count.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/internal/inkConsole.ts:87 carried a branch no input can reach",
+          "labBehaviour": "Replaced the missing-column-width fallback with A.getUnsafe; widths are constructed for every rendered column.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/internal/lazyView.ts:41 carried a branch no input can reach",
+          "labBehaviour": "Removed the function alternative in NO_VIEW; pick returns function-valued inputs before invoking this diagnostic.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/internal/lazyView.ts:96 carried a branch no input can reach",
+          "labBehaviour": "Removed the repeated function exclusion; the preceding function guard already returns those inputs.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/testing/CliUiTest.ts:443 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-code fallback inside the bounds-checked traversal of a dense SGR code array.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/testing/CliUiTest.ts:444 carried a branch no input can reach",
+          "labBehaviour": "Replaced reset's missing-stack-entry fallback with reverse traversal and stack clearing.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/testing/CliUiTest.ts:480 carried a branch no input can reach",
+          "labBehaviour": "Replaced final style closure's missing-entry fallback with reverse traversal.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/testing/CliUiTest.ts:1098 carried a branch no input can reach",
+          "labBehaviour": "Replaced the missing-capture nullish fallback with a boolean comparison; next settles only after finding a drawn capture.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/testing/fakeStreams.ts:23 carried a branch no input can reach",
+          "labBehaviour": "Removed the unused base _read override; MemoryInput supplies its own implementation and MemoryOutput disables reading.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/ui/testing/terminalModel.ts:66 carried a branch no input can reach",
+          "labBehaviour": "— Removed the unreachable home-row nullish fallback by replacing (line ?? 1) with Number(line). Both coordinate-construction paths always produce a numeric first element; behavior is preserved.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/cli/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/cli/CliFailure.ts:234 carried a branch no input can reach",
+          "labBehaviour": "Removed the former isDependency fallback for an undefined frame file, which the preceding isRuntime guard made unreachable; classify the resolved file directly while preserving stack-frame selection.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -14578,6 +14884,10 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
@@ -14585,7 +14895,8 @@
       "notes": [
         "2026-10-09T11:33:31.732Z beep laws done (four laws clean, allowlisted sites listed); S1 held by the environment-bound tests in TESTS_NOT_PASSING.md",
         "2026-10-09T15:21:41.160Z S1: green: env-bound tests resolved per the 2026-10-09 rulings; tsgo, oxlint and the four laws clean; audit green (parity strict)",
-        "2026-10-09T16:20:22.891Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:20:22.891Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:33:58.946Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (130 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
