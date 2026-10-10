@@ -5796,6 +5796,30 @@
           "upstreamBehaviour": "scratchpad/effected/templates/internal/scan.ts:274 carried a branch no input can reach",
           "labBehaviour": "Removed the unreachable empty-key fallback; every compiled dialect matcher captures the section key.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/templates/SectionDocument.reconcile.test.ts:245; scratchpad/test/templates/SectionDocument.property.test.ts:57",
+          "upstreamBehaviour": "First insertion discards a BOM-only or whitespace-only prefix through trim(), and replaces all trailing line breaks in other nonempty documents with two separators.",
+          "labBehaviour": "First insertion preserves every existing prefix byte, including BOM, whitespace and excess or mixed line endings, and appends only missing separator line breaks.",
+          "reason": "upstream-bug: sol-2-1 and fable-2-1 report matching pinned-oracle byte-loss probes; the oracle reconcile.ts:173 confirms trim-and-rebuild insertion. The round-2 diff replaces it and adds exact-prefix and repeated-reconciliation regressions."
+        },
+        {
+          "test": "scratchpad/test/templates/SectionDialect.test.ts:268; scratchpad/test/templates/SectionDialect.property.test.ts:54; scratchpad/test/templates/SectionDocument.test.ts:451",
+          "upstreamBehaviour": "LF rendering succeeds for content ending in bare CR, but parsing absorbs that CR into the boundary CRLF, loses the byte and reports Drifted on an identical check.",
+          "labBehaviour": "LF rendering and its complete reconciliation batch fail with the new typed trailingCarriageReturn reason and message; CRLF rendering preserves the trailing CR and reaches a fixed point.",
+          "reason": "upstream-bug: sol-2-2 reports identical lab and pinned-oracle render/parse probes for a trailing CR. The diff adds the reason literal, refusal and exhaustive message branch, with LF refusal, CRLF fidelity and unchanged-document regressions."
+        },
+        {
+          "test": "scratchpad/test/templates/SectionDialect.test.ts:298,322,357; scratchpad/test/templates/internal/scan.coverage.test.ts:32,67",
+          "upstreamBehaviour": "Full-marker regexes exposed by matchers() capture attributes and closing spans; lazy attribute capture followed by whitespace matching backtracks quadratically on malformed long whitespace tails.",
+          "labBehaviour": "matchers() exposes prefix-candidate regexes; the new markerMatches() method reconstructs full captures, spans and attributes through a shared linear closing-boundary sweep used by containsMarker and scan.",
+          "reason": "upstream-bug: sol-2-3 identifies quadratic oracle regex backtracking and reports 4000/8000/16000-space timings. The diff removes lazy tail capture; added increasing-size malformed-tail, parser-call, capture/offset and grammar tests support the repair, without a timing benchmark."
+        },
+        {
+          "test": "scratchpad/test/templates/SectionAttributes.test.ts:369,378,387,397",
+          "upstreamBehaviour": "Upstream attribute validation uses grammar predicates without reusable AttributeName/AttributeValue schema checks or identified decode diagnostics; the pre-round lab schemas report generic regex failures.",
+          "labBehaviour": "AttributeName and AttributeValue checks gain composer-derived identifiers, titles, descriptions and grammar-specific decode messages; both accepted-input regexes remain unchanged.",
+          "reason": "schema-first: Law 18 and EF-12c require metadata and user-facing messages on reusable checks. This round newly annotates the attribute-name/value checks, distinct from the already ledgered SectionKey/Delimiter check metadata; the diff adds AST-metadata and exact decode-message regressions."
         }
       ],
       "backlog": [
@@ -5858,6 +5882,42 @@
           "round": 1,
           "finding": "backlog-10 — Optional test-error barrel export (scratchpad/effected/templates/index.ts:11)",
           "reason": "effect-idiom: Optionally re-export ManagedSectionTestError from index.ts when a barrel consumer needs it; record the existing source export separately."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-5 — Useful schema and scanner lead descriptions (scratchpad/effected/templates/internal/attributes.ts:35)",
+          "reason": "jsdoc: During documentation work, rewrite useful domain leads and retain compatibility notes in Details. Preserve the exact grammar and required undefined-capable key contract; metadata repair grok-2-2 is independently required."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6 — Outcome rationale and observable examples (scratchpad/effected/templates/SectionOutcome.ts:20)",
+          "reason": "docs: Restore the reordering rationale, show actual variant construction and $match with expected results, and add the required carrier spacing during documentation work."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-9 — Adapt README packaging claims (scratchpad/effected/templates/README.md:12)",
+          "reason": "docs: During documentation work, remove the upstream packaging paragraph or describe the lab ESM .ts path imports. Do not change package manifests or config."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-10 — Optional direct schema references (scratchpad/effected/templates/SectionOutcome.ts:9)",
+          "reason": "effect-idiom: Consider direct references to the existing schema values after checking initialization order and derivation equivalence. Retain the required schema authorities and compatibility statics; do not restore the upstream type-only/Data-only models."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-11 — Shared schema round-trip property helper (scratchpad/test/templates/SectionOutcome.property.test.ts:9)",
+          "reason": "test: During test-canon work, extract one shared helper under scratchpad/test/templates carrying both meaningful assertions and import it across the nine property files. A canon-kit change outside the module is outside the port's write surface and must remain backlog."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-12 — Test-helper documentation carriers (scratchpad/test/templates/fixtures.ts:36)",
+          "reason": "jsdoc: During documentation work, convert the carrier to Details and name the ported memfs helper/module. Keep changes inside fixtures.ts."
         }
       ],
       "reviewRounds": [
@@ -5875,6 +5935,24 @@
             },
             "fable": {
               "required": 9,
+              "backlog": 8
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 2,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 5,
               "backlog": 8
             }
           }

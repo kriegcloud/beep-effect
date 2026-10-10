@@ -49,3 +49,30 @@ it.effect.prop("reconcile is idempotent and preserves every byte outside the dec
     const reparsed = yield* SectionDocument.parse(formatted.text);
     assert.isTrue(S.toEquivalence(SectionDocument)(reparsed, formatted));
   }), runs);
+
+
+const BlankCharacter = S.Literals([" ", "\t", "\n"]);
+const BlankPrefix = S.Array(BlankCharacter);
+
+it.effect.prop("first insertion preserves every byte of empty and blank prefixes and reaches a fixed point",
+  [Arbitrary.schema(BlankPrefix), Arbitrary.schema(S.Boolean), Arbitrary.schema(S.String), Arbitrary.schema(Eol)],
+  ([whitespace, bom, value, eol]) => Effect.gen(function* () {
+    const prefix = (bom ? "\uFEFF" : "") + whitespace.map((character) => character === "\n" ? eol : character).join("");
+    const id = SectionId.make({ key: "tool", commentStyle: CommentStyle.hash });
+    const section = id.section(`data:${value.replace(/\r/g, "").replace(/\n/g, "\ndata:")}`);
+    const parsed = yield* SectionDocument.parse(prefix);
+    const block = yield* Effect.fromResult(SectionDialect.default.render(section, parsed.eol));
+    const separator = prefix === "" || prefix.endsWith(parsed.eol + parsed.eol) ? "" : prefix.endsWith(parsed.eol) ? parsed.eol : parsed.eol + parsed.eol;
+    const first = yield* Effect.fromResult(parsed.reconcile([section]));
+    assert.strictEqual(first.text, prefix + separator + block + parsed.eol);
+    assert.strictEqual(first.text.slice(0, prefix.length), prefix);
+    assert.deepStrictEqual(first.outcomes.map((outcome) => outcome._tag), ["Created"]);
+    const formatted = yield* SectionDocument.parse(first.text);
+    assert.strictEqual(formatted.check(section)._tag, "UpToDate");
+    const second = yield* Effect.fromResult(formatted.reconcile([section]));
+    assert.strictEqual(second.text, first.text);
+    assert.isFalse(second.changed);
+    assert.deepStrictEqual(second.outcomes.map((outcome) => outcome._tag), ["Unchanged"]);
+    const reparsed = yield* SectionDocument.parse(formatted.text);
+    assert.isTrue(S.toEquivalence(SectionDocument)(reparsed, formatted));
+  }), runs);

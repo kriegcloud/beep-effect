@@ -17,6 +17,7 @@ import * as Equal from "effect/Equal";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 import * as Result from "effect/Result";
 import { PlacedSection, Section } from "../Section.ts";
 import { Eol, SectionDialect, SectionRenderError } from "../SectionDialect.ts";
@@ -260,7 +261,10 @@ export const reconcile = (input: ReconcileInput): Result.Result<ReconcileOutput,
 
 	let output = parts.join("");
 	for (const block of appended) {
-		output = output.trim() === "" ? `${block}${eol}` : `${output.replace(/(?:\r?\n)+$/, "")}${eol}${eol}${block}${eol}`;
+		// Existing bytes are a preserved prefix, even in a blank document.
+		// Add only the line breaks needed for a two-break block separator.
+		const missing = O.isSome(Str.match(/(?:\r?\n){2}$/)(output)) ? "" : Str.endsWith("\n")(output) ? eol : eol + eol;
+		output = output === "" ? `${block}${eol}` : `${output}${missing}${block}${eol}`;
 	}
 
 	return Result.succeed({ text: output, outcomes, changed: output !== text });

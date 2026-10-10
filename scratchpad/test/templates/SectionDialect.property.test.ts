@@ -3,6 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Result from "effect/Result";
 import { Eol, SectionDialect, SectionRenderError } from "../../effected/templates/SectionDialect.ts";
 import { CommentStyle } from "../../effected/templates/CommentStyle.ts";
 import { Section, SectionId, SectionKey } from "../../effected/templates/Section.ts";
@@ -47,4 +48,31 @@ it.effect.prop("render/parse preserves content, attributes and markers and reach
     assert.isTrue(S.toEquivalence(SectionDocument)(reparsed, parsed));
     assert.strictEqual(dialect.beginMarker(id), rendered.split(eol)[0]?.replace(' origin="property" key="' + key + '"', ""));
     assert.strictEqual(dialect.endMarker(id), rendered.split(eol).at(-1));
+  }), runs);
+
+
+it.effect.prop("trailing bare CR refuses LF rendering and preserves full fidelity with CRLF",
+  [Arbitrary.schema(SectionKey), Arbitrary.schema(S.String), Arbitrary.schema(StyleIndex)],
+  ([key, value, index]) => Effect.gen(function* () {
+    const id = SectionId.make({ key, commentStyle: styles[index] });
+    const content = `data:${value.replace(/\r/g, "").replace(/\n/g, "\ndata:")}\r`;
+    const section = id.section(content, { origin: "property", key });
+    const dialect = SectionDialect.default;
+    const refused = dialect.render(section, "\n");
+    if (!Result.isFailure(refused)) assert.fail("LF must refuse a trailing bare CR");
+    assert.strictEqual(refused.failure.reason, "trailingCarriageReturn");
+    assert.strictEqual(refused.failure.key, key);
+    const rendered = yield* Effect.fromResult(dialect.render(section, "\r\n"));
+    const parsed = yield* SectionDocument.parse(rendered, dialect);
+    const recovered = yield* Effect.fromOption(parsed.read(id));
+    assert.isTrue(S.toEquivalence(Section)(recovered, section));
+    assert.strictEqual(recovered.content, content);
+    const rerendered = yield* Effect.fromResult(dialect.render(recovered, "\r\n"));
+    assert.strictEqual(rerendered, rendered);
+    const reparsed = yield* SectionDocument.parse(rerendered, dialect);
+    assert.isTrue(S.toEquivalence(SectionDocument)(reparsed, parsed));
+    assert.strictEqual(parsed.check(section)._tag, "UpToDate");
+    const repeated = yield* Effect.fromResult(parsed.reconcile([section]));
+    assert.strictEqual(repeated.text, rendered);
+    assert.isFalse(repeated.changed);
   }), runs);

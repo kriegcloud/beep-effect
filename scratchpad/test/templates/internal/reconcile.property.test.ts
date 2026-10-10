@@ -28,9 +28,11 @@ import { Section } from "../../../effected/templates/Section.ts";
 import { SectionDialect } from "../../../effected/templates/SectionDialect.ts";
 import { scan, normalizeEol } from "../../../effected/templates/internal/scan.ts";
 
+const JsonText = S.fromJsonString(S.String);
+const encodeText = S.encodeEffect(JsonText);
+
 it.effect.prop("reconciliation is idempotent and preserves every byte outside declared spans including BOM and foreign blocks", [Arbitrary.schema(S.String), Arbitrary.schema(S.String), Arbitrary.schema(S.String)], ([lead, tail, body]) => Effect.gen(function* () {
   const dialect = SectionDialect.default;
-  const encodeText = S.encodeEffect(S.fromJsonString(S.String));
   const encodedLead = yield* encodeText(lead);
   const encodedTail = yield* encodeText(tail);
   const encodedBody = yield* encodeText(body);
