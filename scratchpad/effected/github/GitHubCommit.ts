@@ -1,13 +1,12 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import * as A from "effect/Array";
-import * as Str from "effect/String";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
 import type { PageSource } from "./internal/paginate.ts";
@@ -89,7 +88,10 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
  * @since 0.0.0
  */
 	get subject(): string {
-		return A.headNonEmpty(Str.split(this.message, "\n"));
+		return O.match(Str.indexOf("\n")(this.message), {
+			onNone: () => this.message,
+			onSome: (end) => Str.takeLeft(this.message, end),
+		});
 	}
 }
 
@@ -483,7 +485,7 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 			let finished = false;
 			return {
 				next: Effect.suspend(() => {
-					if (finished) return Effect.succeed(O.none<ReadonlyArray<CommitFile>>());
+					if (finished) return Effect.succeedNone;
 					page += 1;
 					return client
 						.request("GET /repos/{owner}/{repo}/commits/{ref}", { owner, repo, ref, page, per_page: perPage })
@@ -492,7 +494,7 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 								const files = commit.files ?? [];
 								if (files.length < perPage) finished = true;
 								return files.length === 0
-									? Effect.succeed(O.none<ReadonlyArray<CommitFile>>())
+									? Effect.succeedNone
 									: Effect.asSome(Effect.forEach(files, (file) => fileOf(file, "GitHubCommit.changedFiles")));
 							}),
 						);

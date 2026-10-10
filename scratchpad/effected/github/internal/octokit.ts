@@ -280,9 +280,10 @@ const withSignal = (params: Record<string, unknown>, signal: AbortSignal): Recor
 
 /** Response headers off a throwable, when it carried any. */
 const readThrownHeaders = (error: unknown): Record<string, unknown> | undefined => {
-	if (!P.isObjectOrArray(error) || !P.hasProperty(error, "response")) return undefined;
+	if (!P.isObject(error)) return undefined;
 	const response = error.response;
-	if (!P.isObjectOrArray(response) || !P.hasProperty(response, "headers")) return undefined;
-	const headers = response.headers;
-	return P.isObjectOrArray(headers) && !A.isArray(headers) ? headers : undefined;
+	const headers = P.isObject(response) ? response.headers : undefined;
+	if (A.isArray(headers)) return undefined;
+	if (P.isObject(headers)) return headers;
+	return P.isObject(error.headers) ? error.headers : undefined;
 };

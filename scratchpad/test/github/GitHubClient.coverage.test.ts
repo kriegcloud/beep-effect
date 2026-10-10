@@ -11,6 +11,8 @@ import { GraphQLDocument } from "../../effected/github/GraphQL.ts";
 import { scriptedFetch } from "./fixtures.ts";
 import { RateLimitSnapshot } from "../../effected/github/Resilience.ts";
 
+const DefectMessage = S.Struct({ message: S.String });
+
 const doc = GraphQLDocument.make({ name: "probe", document: "query { viewer { login } }", response: S.String })<Record<string, never>>();
 const denied = GitHubError.notFound("probe", "missing");
 const params = { owner: "o", repo: "r" };
@@ -98,7 +100,7 @@ describe("GitHubClient remaining fixture paths", () => {
         if (Exit.isFailure(exit)) {
           const die = yield* exit.cause.pipe(Cause.findDie, Effect.fromResult);
           assertExitFailure(exit, Cause.die(die.defect));
-          const defect = yield* S.decodeUnknownEffect(S.Struct({ message: S.String }))(die.defect);
+          const defect = yield* S.decodeUnknownEffect(DefectMessage)(die.defect);
           assert.include(defect.message, operation);
           assert.include(defect.message, "no");
         } else {

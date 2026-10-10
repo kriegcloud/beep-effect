@@ -2,6 +2,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
+import { identity } from "effect/Function";
 import * as S from "effect/Schema";
 import { GitHubGraphQLError, GraphQLDocument } from "../../effected/github/GraphQL.ts";
 
@@ -21,7 +22,7 @@ describe("GraphQL classification coverage", () => {
     { name: "empty errors", input: { errors: [], message: "offline" }, kind: "transport", reason: "offline", retryable: true },
     { name: "ignored primitive entries", input: { errors: [null, undefined, 42, "bad"], message: "offline" }, kind: "transport", reason: "offline", retryable: true },
     { name: "malformed entry", input: { errors: [{ message: 42, type: 42 }] }, kind: "rejected", reason: "[object Object]", retryable: false },
-    { name: "array entry", input: { errors: [[]] }, kind: "rejected", reason: "", retryable: false },
+    { name: "array entry", input: { errors: [[]] }, kind: "transport", reason: "[object Object]", retryable: true },
     { name: "duplicate prose", input: { status: 500, message: "Branch ALREADY EXISTS" }, kind: "alreadyExists", reason: "Branch ALREADY EXISTS", retryable: false },
     { name: "duplicate entry overrides not found", input: { status: 404, errors: [{ message: "branch Already Exists", type: "NOT_FOUND" }] }, kind: "alreadyExists", reason: "branch Already Exists", retryable: false },
     { name: "not found entry", input: { errors: [{ message: "missing", type: "NOT_FOUND" }] }, kind: "notFound", reason: "missing", retryable: false },
@@ -90,6 +91,7 @@ describe("GraphQLDocument coverage", () => {
     assert.strictEqual(document.name, "count");
     assert.strictEqual(document.document, "query { count }");
     assert.strictEqual(document.encodeVariables(variables), variables);
+    assert.strictEqual(document.encodeVariables, identity);
     assert.deepStrictEqual(yield* document.decode({ count: "42" }), { count: 42 });
     const invalid = yield* document.decode({ count: "invalid" }).pipe(Effect.mapError(S.isSchemaError), Effect.result);
     assertFailure(invalid, true);
@@ -99,5 +101,68 @@ describe("GraphQLDocument coverage", () => {
     const document = GraphQLDocument.make({ name: "echo", document: "query Echo", response: S.String })<{ owner: string }>((variables) => ({ login: variables.owner }));
     assert.deepStrictEqual(document.encodeVariables({ owner: "octocat" }), { login: "octocat" });
     assert.strictEqual(yield* document.decode("response"), "response");
+  }));
+
+  it.effect("retains the custom encoder and its returned reference", () => Effect.sync(() => {
+    const variables = { owner: "octocat" };
+    const encoded = { login: "octocat" };
+    const encode = (input: typeof variables) => {
+      assert.strictEqual(input, variables);
+      return encoded;
+    };
+    const document = GraphQLDocument.make({ name: "echo", document: "query Echo", response: S.String })<typeof variables>(encode);
+    assert.strictEqual(document.encodeVariables, encode);
+    assert.strictEqual(document.encodeVariables(variables), encoded);
+  }));
+});
+
+describe("GraphQL throwable boundary regressions", () => {
+  it.effect("ignores arrays with named throwable, header and error-entry properties", () => Effect.sync(() => {
+    const samples = [
+      { input: Object.assign([], { status: 404, message: "missing" }), kind: "transport" },
+      { input: { status: 403, headers: Object.assign([], { "retry-after": "2" }) }, kind: "unauthorized" },
+      { input: { status: 403, response: Object.assign([], { headers: { "retry-after": "2" } }) }, kind: "unauthorized" },
+      { input: { status: 403, response: { headers: Object.assign([], { "retry-after": "2" }) } }, kind: "unauthorized" },
+      { input: { errors: [Object.assign([], { message: "missing", type: "NOT_FOUND" })] }, kind: "transport" },
+    ];
+    for (const sample of samples) {
+      const error = GitHubGraphQLError.fromThrowable("arrays", sample.input, 0);
+      assert.strictEqual(error.kind, sample.kind);
+      assert.strictEqual(error.retryAfterMillis, undefined);
+      assert.deepStrictEqual(error.errors, []);
+      assert.strictEqual(error.cause, sample.input);
+    }
+  }));
+
+  it.effect("retains ordinary object errors and headers", () => Effect.sync(() => {
+    const original = { errors: [{ message: "limited", type: "RATE_LIMITED" }], headers: { "retry-after": "2" } };
+    const error = GitHubGraphQLError.fromThrowable("objects", original, 0);
+    assert.strictEqual(error.kind, "rateLimited");
+    assert.strictEqual(error.reason, "limited");
+    assert.strictEqual(error.errors[0]?.type, "RATE_LIMITED");
+    assert.strictEqual(error.retryAfterMillis, 2000);
+    assert.strictEqual(error.cause, original);
+  }));
+
+  for (const original of [{ toString: null }, { errors: [{ message: 42, toString: null }] }]) {
+    it.effect(`keeps an uncoercible ${"errors" in original ? "entry" : "throwable"} in the typed channel`, () => Effect.sync(() => {
+      const error = GitHubGraphQLError.fromThrowable("coercion", original, 0);
+      assert.strictEqual(error.kind, "errors" in original ? "rejected" : "transport");
+      assert.strictEqual(error.reason, "Unable to describe GitHub GraphQL failure");
+      assert.strictEqual(error.cause, original);
+      if ("errors" in original) assert.strictEqual(error.errors[0]?.message, error.reason);
+    }));
+  }
+
+  it.effect("preserves successful custom coercion descriptions", () => Effect.sync(() => {
+    const original = { toString: () => "offline" };
+    const error = GitHubGraphQLError.fromThrowable("coercion", original, 0);
+    assert.strictEqual(error.reason, "offline");
+    assert.strictEqual(error.cause, original);
+    const withEntry = { errors: [{ message: 42, toString: () => "entry detail" }] };
+    const entryError = GitHubGraphQLError.fromThrowable("coercion", withEntry, 0);
+    assert.strictEqual(entryError.reason, "entry detail");
+    assert.strictEqual(entryError.errors[0]?.message, "entry detail");
+    assert.strictEqual(entryError.cause, withEntry);
   }));
 });

@@ -7,6 +7,8 @@ import * as S from "effect/Schema";
 import { GitHubRepository, type GitHubRepositoryShape } from "../../effected/github/GitHubRepository.ts";
 import { repositoryFixture } from "./fixtures.ts";
 
+const DefectMessage = S.Struct({ message: S.String });
+
 it.layer(Layer.merge(GitHubRepository.layerTest(), Repo.layer(RepoRef.make({ owner: "acme", repo: "widget" }))), { timeout: "30 seconds" })((it) => {
 it.effect("unstubbed repository members identify the missing override", () => Effect.gen(function* () {
   const repository = yield* GitHubRepository;
@@ -17,7 +19,7 @@ it.effect("unstubbed repository members identify the missing override", () => Ef
   ];
   for (const [member, effect] of reads) {
     const defect = yield* effect.pipe(Effect.catchDefect(Effect.succeed));
-    const error = yield* S.decodeUnknownEffect(S.Struct({ message: S.String }))(defect);
+    const error = yield* S.decodeUnknownEffect(DefectMessage)(defect);
     assert.strictEqual(error.message, `GitHubRepository.makeTest: ${member} was read but not stubbed — pass an override.`);
   }
   assert.throws(() => direct.updateSettings({}), /updateSettings was read but not stubbed/);

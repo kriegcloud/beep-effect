@@ -1,14 +1,33 @@
 import { assert, describe, it } from "@effect/vitest";
-import { assertFailure, assertSuccess } from "@effect/vitest/utils";
+import { assertFailure, assertFalse, assertSuccess, assertTrue } from "@effect/vitest/utils";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { InvalidRepoRefError, Repo, RepoRef } from "../../effected/github/Repo.ts";
+
+const JsonString = S.fromJsonString(S.String);
 
 const ref = RepoRef.make({ owner: "acme", repo: "widget" });
 
 describe("Repo parsing and provisioning", () => {
+  it.effect("rejects slashes in either coordinate segment through construction and decoding", () => Effect.gen(function* () {
+    for (const segment of ["/", "/extra", "extra/", "acme/extra", "extra/\n"]) {
+      for (const fields of [{ owner: segment, repo: "widget" }, { owner: "acme", repo: segment }]) {
+        assertFalse(S.is(RepoRef)(fields));
+        assert.throws(() => RepoRef.make(fields));
+        assertTrue(yield* S.decodeEffect(RepoRef)(fields).pipe(Effect.result, Effect.map(Result.isFailure)));
+      }
+    }
+  }));
+  it.effect("retains whitespace, punctuation, Unicode and control characters other than slash", () => Effect.gen(function* () {
+    const fields = { owner: " .@\\é💫\n\u0000 ", repo: "\t?:#\\仓库\r\n " };
+    const decoded = yield* S.decodeEffect(RepoRef)(fields);
+    assert.deepStrictEqual(yield* S.encodeEffect(RepoRef)(decoded), fields);
+    assert.deepStrictEqual(yield* RepoRef.parse(decoded.slug), decoded);
+    assert.deepStrictEqual(RepoRef.make(fields), decoded);
+  }));
   it.effect("parses exactly two nonempty segments and preserves invalid input in its error", () => Effect.gen(function* () {
     assertSuccess(RepoRef.parseResult("acme/widget"), ref);
     assert.deepStrictEqual(yield* RepoRef.parse("acme/widget"), ref);
@@ -17,7 +36,7 @@ describe("Repo parsing and provisioning", () => {
       const error = InvalidRepoRefError.make({ input: slug });
       assertFailure(RepoRef.parseResult(slug), error);
       assertFailure(yield* Effect.result(RepoRef.parse(slug)), error);
-      assert.strictEqual(error.message, `not an owner/repo slug: ${(yield* S.encodeEffect(S.fromJsonString(S.String))(slug))}`);
+      assert.strictEqual(error.message, `not an owner/repo slug: ${(yield* S.encodeEffect(JsonString)(slug))}`);
     }
   }));
   it.layer(Repo.layerFromSlug("acme/widget"), { timeout: "30 seconds" })((it) => {

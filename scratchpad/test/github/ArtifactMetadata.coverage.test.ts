@@ -6,6 +6,8 @@ import { ArtifactMetadata, StorageRecordInput } from "../../effected/github/Arti
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
 import { harness } from "./harness.ts";
 
+const JsonBody = S.fromJsonString(S.Unknown);
+
 const input = StorageRecordInput.make({ name: "pkg:npm/widget", digest: "sha256:abc", registryUrl: "https://registry.example", repository: "widget" });
 it.layer(Repo.layer(RepoRef.make({ owner: "acme", repo: "widget" })), { timeout: "30 seconds" })((it) => {
   it.effect("unstubbed storage calls identify their member", () => Effect.sync(() => {
@@ -33,6 +35,6 @@ it.layer(ArtifactMetadata.layer.pipe(Layer.provideMerge(base)), { timeout: "30 s
     assert.deepStrictEqual(yield* service.createStorageRecord(input), []);
     assert.deepStrictEqual(yield* service.createStorageRecord(StorageRecordInput.make({ ...input, artifactUrl: "https://artifact.example", path: "dist/file" })), [17, 0]);
     assert.strictEqual(script.calls[0]?.path, "/orgs/acme/artifacts/metadata/storage-record");
-    assert.deepStrictEqual(yield* S.decodeEffect(S.fromJsonString(S.Unknown))(script.calls[1]?.body ?? "{}"), { name: input.name, digest: input.digest, registry_url: input.registryUrl, repository: input.repository, artifact_url: "https://artifact.example", path: "dist/file" });
+    assert.deepStrictEqual(yield* S.decodeEffect(JsonBody)(script.calls[1]?.body ?? "{}"), { name: input.name, digest: input.digest, registry_url: input.registryUrl, repository: input.repository, artifact_url: "https://artifact.example", path: "dist/file" });
   }));
 });

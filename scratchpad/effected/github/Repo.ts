@@ -74,13 +74,13 @@ export class RepoRef extends S.Class<RepoRef>($I`RepoRef`)({
 	 *
 	 * @since 0.0.0
 	 */
-	owner: S.NonEmptyString.annotateKey({ description: "The user or organization." }),
+	owner: S.NonEmptyString.check(S.isPattern(/^[^/]+$/u)).annotateKey({ description: "The user or organization." }),
 	/**
 	 * The repository name, without the owner.
 	 *
 	 * @since 0.0.0
 	 */
-	repo: S.NonEmptyString.annotateKey({ description: "The repository name, without the owner." }),
+	repo: S.NonEmptyString.check(S.isPattern(/^[^/]+$/u)).annotateKey({ description: "The repository name, without the owner." }),
 }, $I.annote("RepoRef", { description: "Which repository an operation acts on." })) {
 	/**
 	 * Validates an `"owner/repo"` slug synchronously without throwing for invalid input.

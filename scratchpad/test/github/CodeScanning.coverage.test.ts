@@ -7,6 +7,8 @@ import * as S from "effect/Schema";
 import * as Result from "effect/Result";
 import { CodeScanning } from "../../effected/github/CodeScanning.ts";
 
+const UnstubbedError = S.TaggedStruct("UnstubbedError", { message: S.String });
+
 describe("CodeScanning test doubles", () => {
   it.layer(Repo.layer(RepoRef.make({ owner: "acme", repo: "widget" })), { timeout: "30 seconds" })((it) => {
     it.effect("default methods identify the missing override", () =>
@@ -14,7 +16,7 @@ describe("CodeScanning test doubles", () => {
         const service = CodeScanning.makeTest();
         assert.throws(() => service.configure({}), /CodeScanning\.makeTest: configure\(\) was called but not stubbed/);
         const defect = yield* service.languages.pipe(Effect.catchDefect(Effect.succeed));
-        const error = yield* S.decodeUnknownEffect(S.TaggedStruct("UnstubbedError", { message: S.String }))(defect);
+        const error = yield* S.decodeUnknownEffect(UnstubbedError)(defect);
         assert.strictEqual(
           error.message,
           "CodeScanning.makeTest: languages() was called but not stubbed — pass an override."

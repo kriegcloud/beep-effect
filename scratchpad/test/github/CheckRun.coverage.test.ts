@@ -6,6 +6,9 @@ import { Annotation, CheckRun, CheckRunOutput, CheckRunRef } from "../../effecte
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
 import { harness } from "./harness.ts";
 
+const JsonBody = S.fromJsonString(S.Unknown);
+const JsonRecord = S.fromJsonString(S.Record(S.String, S.Unknown));
+
 const output = CheckRunOutput.make({ title: "lint", summary: "passed" });
 const ref = CheckRunRef.make({ id: 3, name: "lint", url: "stub", status: "completed" });
 it.layer(Repo.layer(RepoRef.make({ owner: "acme", repo: "widget" })), { timeout: "30 seconds" })((it) => {
@@ -50,13 +53,13 @@ it.layer(CheckRun.layer.pipe(Layer.provideMerge(base)), { timeout: "30 seconds" 
       Annotation.make({ path: "a.ts", startLine: 1, endLine: 2, level: "warning", message: "first", title: "heading" }),
       Annotation.make({ path: "b.ts", startLine: 4, endLine: 4, level: "notice", message: "second" }),
     ] }));
-    const body = yield* S.decodeEffect(S.fromJsonString(S.Unknown))(script.calls[1]?.body ?? "{}");
+    const body = yield* S.decodeEffect(JsonBody)(script.calls[1]?.body ?? "{}");
     assert.deepStrictEqual(body, { output: { title: "lint", summary: "passed", text: "details", annotations: [
       { path: "a.ts", start_line: 1, end_line: 2, annotation_level: "warning", message: "first", title: "heading" },
       { path: "b.ts", start_line: 4, end_line: 4, annotation_level: "notice", message: "second" },
     ] } });
     yield* service.complete(3, "skipped");
-    const completion = yield* S.decodeEffect(S.fromJsonString(S.Record(S.String, S.Unknown)))(script.calls[2]?.body ?? "{}");
+    const completion = yield* S.decodeEffect(JsonRecord)(script.calls[2]?.body ?? "{}");
     assert.strictEqual(completion.output, undefined);
     assert.strictEqual(completion.conclusion, "skipped");
   }));

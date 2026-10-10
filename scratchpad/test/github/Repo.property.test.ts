@@ -1,6 +1,6 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
-import { assertTrue } from "@effect/vitest/utils";
+import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -15,17 +15,21 @@ const roundTrips = <A, I>(name: string, schema: S.Codec<A, I>): void => {
     assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
   }), runs);
 };
-const Segment = S.NonEmptyString.check(S.isPattern(/^[a-zA-Z0-9_-]+$/));
-const Coordinates = S.Struct({ owner: Segment, repo: Segment });
-
 describe("Repo schema and parser properties", () => {
   roundTrips("RepoRef", RepoRef);
   roundTrips("InvalidRepoRefError", InvalidRepoRefError);
-  it.effect.prop("parsing a formatted slash-free coordinate preserves both segments and formatting is stable", [Arbitrary.schema(Coordinates)], ([fields]) => Effect.gen(function* () {
-    const ref = RepoRef.make(fields);
+  it.effect.prop("parsing a formatted slash-free coordinate preserves both segments and formatting is stable", [Arbitrary.schema(RepoRef)], ([ref]) => Effect.gen(function* () {
     const parsed = yield* RepoRef.parse(ref.slug);
     assertTrue(S.toEquivalence(RepoRef)(parsed, ref));
     assert.strictEqual(parsed.slug, ref.slug);
     assert.strictEqual((yield* RepoRef.parse(parsed.slug)).slug, parsed.slug);
+  }), runs);
+  it.effect.prop("a slash in either coordinate segment is rejected", [Arbitrary.schema(RepoRef)], ([ref]) => Effect.sync(() => {
+    const ownerSlash = { owner: `${ref.owner}/extra`, repo: ref.repo };
+    const repoSlash = { owner: ref.owner, repo: `extra/${ref.repo}` };
+    assertFalse(S.is(RepoRef)(ownerSlash));
+    assertFalse(S.is(RepoRef)(repoSlash));
+    assert.throws(() => RepoRef.make(ownerSlash));
+    assert.throws(() => RepoRef.make(repoSlash));
   }), runs);
 });

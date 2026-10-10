@@ -4,6 +4,8 @@ import { Repo, RepoRef } from "../../effected/github/Repo.ts";
 import * as S from "effect/Schema";
 import { DeploymentEnvironment } from "../../effected/github/DeploymentEnvironment.ts";
 
+const UnstubbedError = S.TaggedStruct("UnstubbedError", { message: S.String });
+
 describe("DeploymentEnvironment test doubles", () => {
   it.layer(Repo.layer(RepoRef.make({ owner: "acme", repo: "widget" })), { timeout: "30 seconds" })((it) => {
     it.effect("default methods identify the missing override", () =>
@@ -18,7 +20,7 @@ describe("DeploymentEnvironment test doubles", () => {
           /DeploymentEnvironment\.makeTest: delete\(\) was called but not stubbed/
         );
         const defect = yield* service.list.pipe(Effect.catchDefect(Effect.succeed));
-        const error = yield* S.decodeUnknownEffect(S.TaggedStruct("UnstubbedError", { message: S.String }))(defect);
+        const error = yield* S.decodeUnknownEffect(UnstubbedError)(defect);
         assert.strictEqual(
           error.message,
           "DeploymentEnvironment.makeTest: list() was called but not stubbed — pass an override."

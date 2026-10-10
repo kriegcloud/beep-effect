@@ -10413,6 +10413,54 @@
           "upstreamBehaviour": "scratchpad/effected/github/Repo.ts:108 carried a branch no input can reach",
           "labBehaviour": "Missing-element checks after an exactly-two-element split were unreachable; use effect/String.split's nonempty result and validate empty owner, missing or empty repository, and surplus segments directly, preserving behavior.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/github/GitHubError.test.ts:54",
+          "upstreamBehaviour": "Numeric throwable statuses such as NaN, Infinity and 404.5 are retained, then GitHubError construction throws because status must satisfy S.Int.",
+          "labBehaviour": "An S.is(S.Int) guard drops invalid numeric statuses; classification returns a retryable transport GitHubError with the original cause.",
+          "reason": "upstream-bug: Round-2 INVENTORY req-04, part-1/sol sol-2-3 and fix-github-g1 report pinned-oracle schema exceptions for NaN, Infinity and 404.5. The diff adds five invalid-status regressions and replaces P.isNumber with the schema-derived integer guard."
+        },
+        {
+          "test": "scratchpad/test/github/GitHubError.test.ts:65",
+          "upstreamBehaviour": "Duplicate-resource classification searches an already truncated reason, so HTTP 422 with 501 prefix characters before already exists is rejected.",
+          "labBehaviour": "Classification uses the full original message and validation entries; only the displayed reason is sanitized and truncated after selecting alreadyExists.",
+          "reason": "upstream-bug: Round-2 INVENTORY req-05 and part-1/sol sol-2-4 reproduce rejected in the pinned oracle for long duplicate prose. The diff moves sanitization after classification and adds HTTP 409/422 long-message tests preserving bounded display, validation and cause."
+        },
+        {
+          "test": "scratchpad/test/github/internal/headers.coverage.test.ts:15; scratchpad/test/github/transport.test.ts:92",
+          "upstreamBehaviour": "Retry-after and reset seconds can produce unsafe integer or infinite milliseconds, causing rate-limit error construction to throw instead of returning a typed failure.",
+          "labBehaviour": "Both delay calculations saturate at Number.MAX_SAFE_INTEGER, preserving typed REST/GraphQL rate-limit errors and refusal of excessive retry delays.",
+          "reason": "upstream-bug: Round-2 INVENTORY req-11 and part-2/sol codex-2-1 report pinned-oracle schema exceptions and a scripted HTTP-429 defect. The diff bounds both conversions and adds six saturation cases plus four REST/GraphQL HTTP-failure regressions."
+        },
+        {
+          "test": "scratchpad/test/github/GraphQL.coverage.test.ts:148",
+          "upstreamBehaviour": "String(error) and String(raw) can throw TypeError for an uncoercible throwable or GraphQL entry, such as an object with toString=null.",
+          "labBehaviour": "Protected coercion returns Unable to describe GitHub GraphQL failure when conversion fails, preserving successful descriptions and the original cause.",
+          "reason": "upstream-bug: Round-2 INVENTORY req-12 and part-2/sol codex-2-2 report No default value from both pinned-oracle counterexamples. The diff protects both fallbacks with Result.try and adds regressions for uncoercible throwables, entries and successful custom coercion."
+        },
+        {
+          "test": "scratchpad/test/github/transport.test.ts:123; scratchpad/test/github/internal/octokit.coverage.test.ts:21",
+          "upstreamBehaviour": "Failure-header capture reads only response.headers, so HTTP-200 GraphQL errors with HTTP headers on error.headers leave the rate-limit snapshot stale.",
+          "labBehaviour": "Non-array top-level headers supply the snapshot when nested headers are unusable; valid nested headers retain precedence and nested array headers still suppress fallback.",
+          "reason": "upstream-bug: Round-2 INVENTORY req-16, part-3/grok grok-2-1 and fix-github-g1 report the pinned-oracle missing snapshot for GraphqlResponseError. The diff adds the fallback and a real scripted HTTP-200 GraphQL-error regression with remaining=12, plus precedence and malformed-header cases."
+        },
+        {
+          "test": "scratchpad/test/github/Repo.coverage.test.ts:15; scratchpad/test/github/Repo.property.test.ts:21",
+          "upstreamBehaviour": "RepoRef accepts slash-containing owner or repo segments, allowing distinct coordinates to share a slug that RepoRef.parseResult rejects.",
+          "labBehaviour": "Both coordinate fields reject slash while retaining other nonempty characters; formatter/parser properties generate the production RepoRef schema domain.",
+          "reason": "upstream-bug: Round-2 INVENTORY req-15 and part-2/sol codex-2-5 reproduce acme/extra/widget from two distinct pinned-oracle coordinates and failed parsing. The diff adds slash-excluding field checks, constructor/decoder rejection tests and production-schema fidelity properties."
+        },
+        {
+          "test": "scratchpad/test/github/GitHubError.test.ts:23; scratchpad/test/github/GraphQL.coverage.test.ts:25; scratchpad/test/github/internal/octokit.coverage.test.ts:21",
+          "upstreamBehaviour": "Cast-based record reads accept array throwables, responses, headers and error entries, including their named properties; an empty GraphQL array entry is retained as rejected.",
+          "labBehaviour": "P.isObject excludes arrays at newly repaired record boundaries; the empty GraphQL array entry is ignored and becomes transport with reason [object Object] and retryable=true.",
+          "reason": "type-safety: D11/D15 and effect-laws-v1 law 17 require correctly typed built-in or schema-derived guards instead of array-to-record narrowing. Round-2 req-01 and the readThrownHeaders diff repair additional sites; the pre-existing nested-header-array exclusion is preserved, not recorded again."
+        },
+        {
+          "test": "scratchpad/test/github/GitHubApp.test.ts:304; scratchpad/test/github/PullRequestComment.test.ts:27; scratchpad/test/github/WorkflowDispatch.test.ts:214; scratchpad/test/github/GitTag.test.ts:28; scratchpad/test/github/RepositoryVariable.test.ts:241; scratchpad/test/github/RepositorySecret.test.ts:238; scratchpad/test/github/Ruleset.test.ts:266",
+          "upstreamBehaviour": "Upstream response projectors throw during comment/run/tag construction or return unchecked secret/variable/ruleset/workflow lists. Upstream refresh is interruptible but lacks the lab ownership serialization; the round-1 lab repair masked blocking refresh work.",
+          "labBehaviour": "New boundary decoders produce operation-specific GitHubError.decode failures before comment/tag filtering, retaining valid defaults, order and plain list shapes. Rotation restores interruption for blocking work while atomically retaining acquired tokens and registering cleanup before acquisition.",
+          "reason": "effect-first: EF-3/EF-31 require typed external-data validation, and EF-26 requires interruptible blocking work with explicit resource ownership. Round-2 req-13/14 add decoding at previously unrepaired projections; req-02 narrows the lab rotation mask. The diff adds malformed-response tests and blocked DELETE/POST/GET cancellation tests. This adds new sites without repeating the round-1 commit-file decoding or token-serialization entries."
         }
       ],
       "backlog": [
@@ -10511,6 +10559,18 @@
           "round": 1,
           "finding": "central — Promote the module-data manifest to a real package manifest (scratchpad/effected/github/package.json)",
           "reason": "test-environment: At promotion, turn the retained upstream package.json module data file into the real package manifest and drop its data-file role."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "back-01 — Repair the ignored internal pagination JSDoc example (scratchpad/effected/github/internal/paginate.ts:50)",
+          "reason": "jsdoc: During the documentation backlog pass, import effect/Chunk and use Chunk.join(Effect.runSync(Stream.runCollect(items)), ',') to preserve the printed 1,2 result."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "req-03 — List all cursor-paginated attestations (scratchpad/effected/github/internal/octokit.ts:245)",
+          "reason": "bug: Left pending because this group cannot repair shared pagination normalization: object-shaped {attestations: [...]} pages are discarded by the array engine. The report says a two-page probe followed cursor-2 but returned no entries; switching only Attestation.ts to client.paginate would break listing tests. Normalize shared transport pages before the engine consumes them."
         }
       ],
       "reviewRounds": [
@@ -10529,6 +10589,24 @@
             "fable": {
               "required": 17,
               "backlog": 19
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "60fcfb5ebcdc26765a66cc1f13afc88adcb05d11",
+          "seats": {
+            "grok": {
+              "required": 5,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 11,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 4,
+              "backlog": 0
             }
           }
         }

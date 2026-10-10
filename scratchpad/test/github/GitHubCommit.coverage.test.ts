@@ -1,6 +1,7 @@
 import { assert, describe, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Str from "effect/String";
 import { CommitComparison, CommitSummary, GitHubCommit } from "../../effected/github/GitHubCommit.ts";
 import { Repo, RepoRef } from "../../effected/github/Repo.ts";
 import { harness } from "./harness.ts";
@@ -12,6 +13,19 @@ const raw = (extra: Record<string, unknown> = {}) => ({
 });
 
 describe("GitHubCommit coverage", () => {
+  for (const { name, message, subject } of [
+    { name: "empty", message: "", subject: "" },
+    { name: "without a newline", message: "  subject  ", subject: "  subject  " },
+    { name: "multiline", message: "subject\n\nbody\nmore body", subject: "subject" },
+    { name: "with a long body", message: `subject\n${Str.repeat(200_000)("body\n")}`, subject: "subject" },
+  ]) {
+    it.effect(`extracts the first line of a message ${name}`, () => Effect.sync(() => {
+      const commit = CommitSummary.make({ sha: "c", message, author: "Unknown", url: "u", parents: [] });
+      assert.strictEqual(commit.subject, subject);
+      assert.strictEqual(commit.message, message);
+    }));
+  }
+
   it.effect("unstubbed members name the missing override", () => Effect.sync(() => {
     const commits = GitHubCommit.makeTest();
     assert.throws(() => commits.get("c"), /get\(\) was called but not stubbed/);
