@@ -11205,6 +11205,36 @@
           "upstreamBehaviour": "scratchpad/effected/lockfiles/internal/yarn.ts:136 carried a branch no input can reach",
           "labBehaviour": "removed the impossible ?? \"\" fallback after the first split element by using Effect String.split's non-empty result.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/lockfiles/Lockfile.test.ts:395; scratchpad/test/lockfiles/Lockfile.coverage.test.ts:40",
+          "upstreamBehaviour": "Lockfile.withImporterNames accepts ReadonlyMap<string, string> and reads names through native Map.get.",
+          "labBehaviour": "Lockfile.withImporterNames accepts HashMap.HashMap<string, string> and uses HashMap.get with Option fallbacks; missing, empty and unchanged names retain prior rewrite behavior.",
+          "reason": "native-runtime: Effect collection law 6, EF-5 and the 2026-10-09 public-collection ruling require this parameter migration. This newly changed API is distinct from the existing internal-index and configDependencies deviations."
+        },
+        {
+          "test": "scratchpad/test/lockfiles/internal/npm.coverage.test.ts:27,34",
+          "upstreamBehaviour": "An npm workspace link resolved to an absent constructor target reads inherited Object metadata and fabricates the workspace name Object.",
+          "labBehaviour": "Both npm workspace passes use own-property lookup; an absent constructor target retains fallback name foo and version 0.0.0, while an own constructor target retains its manifest metadata and workspace edges.",
+          "reason": "upstream-bug: sol-2-1 and fix-lockfiles-g2 report a pinned-oracle probe returning Object at node_modules/foo without an own constructor entry. Added absent/own-target regressions pin the corrected identity and both workspace passes."
+        },
+        {
+          "test": "scratchpad/test/lockfiles/internal/npm.coverage.test.ts:41",
+          "upstreamBehaviour": "npm resolution accepts raw package positions even when versionless or nameless entries produce no normalized package row, yielding dangling resolved targets.",
+          "labBehaviour": "npm resolution accepts only emitted instance identities, continues ancestor search past skipped positions, and omits edges when no modeled target exists; valid nearest and workspace targets remain resolvable.",
+          "reason": "upstream-bug: sol-2-2 and fix-lockfiles-g2 report a pinned-oracle versionless-target probe resolving node_modules/dep without a package row. The added regression covers skipped entries, ancestor precedence and packageByInstanceId for every resolved target."
+        },
+        {
+          "test": "scratchpad/test/lockfiles/internal/pnpm.coverage.test.ts:20; scratchpad/test/lockfiles/Lockfile.test.ts:1066",
+          "upstreamBehaviour": "pnpm resolves root publish-directory links to the unmodeled root id . and can resolve malformed or covered metadata keys that emit no package row, without reporting those edges unresolved.",
+          "labBehaviour": "pnpm resolution indexes modeled snapshots, uncovered valid package rows and non-root workspace importers; skipped/root targets become unresolved edges, retaining valid alias and workspace resolution.",
+          "reason": "upstream-bug: sol-2-2 and fix-lockfiles-g2 report pinned-oracle dangling targets ., broken and covered@1 with missing package rows. Added emitted-target regression and the updated root publish-directory test assert unresolved misses and real target lookup."
+        },
+        {
+          "test": "scratchpad/test/lockfiles/internal/bun.coverage.test.ts:23",
+          "upstreamBehaviour": "bun resolution accepts raw tuple keys for malformed or suppressed workspace-duplicate rows, allowing an edge to target a package instance that was never emitted.",
+          "labBehaviour": "bun validates targets against emitted instance identities while retaining raw position keys for ancestor search and workspace identity selection; skipped targets fall through to valid ancestors or are omitted.",
+          "reason": "upstream-bug: sol-2-2 and fix-lockfiles-g2 report a pinned-oracle malformed-tuple probe emitting resolved dep:dep without a dep row. The added regression pins malformed/duplicate skipping, nearest and ancestor precedence, workspace ids and target lookup."
         }
       ],
       "backlog": [
@@ -11267,6 +11297,30 @@
           "round": 1,
           "finding": "fable-1-14 — Consider a consistent internal tracing convention. (scratchpad/effected/lockfiles/internal/pnpm.ts:127)",
           "reason": "effect-idiom: If useful later, use qualified span names or a documented internal-untraced convention, preserving behavior. The concrete emit change is owned by fable-1-6."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "grok-2-2 — Correct descriptions of non-finite format versions (scratchpad/effected/lockfiles/internal/npm.ts:61,68)",
+          "reason": "docs: In S2, describe string-or-finite version preservation where allowed and non-finite rejection at the schema boundary. Correct the comments and YarnMetadata description; retain S.Finite and the accepted numeric-domains deviation."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-3 — Describe the remaining nested schema fields (scratchpad/effected/lockfiles/LockfileIntegrity.ts:84-89)",
+          "reason": "schema: Add annotateKey descriptions only to those nested fields during S2; keep their schemas and defaults unchanged. This asks to add missing descriptions, not merely to record an already-completed identity-key change."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "sol-2-3 — Migrate the README quick-start Map call (scratchpad/effected/lockfiles/README.md:26)",
+          "reason": "docs: fix-lockfiles-g1 LEFT leaves the quick-start native Map outside its write surface for the central lane; migrate it to HashMap for the changed withImporterNames API."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "sol-2-2 — Reconcile the root publish-directory assertions (scratchpad/test/lockfiles/Lockfile.test.ts:1089)",
+          "reason": "test: fix-lockfiles-g2 LEFT reports the unowned root-target assertions blocking the no-new-failure gate. The current diff already changes them to an unresolved edge and verifies no root package; retain this historical LEFT record as requested."
         }
       ],
       "reviewRounds": [
@@ -11285,6 +11339,24 @@
             "fable": {
               "required": 8,
               "backlog": 7
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "60fcfb5ebcdc26765a66cc1f13afc88adcb05d11",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 1
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 2,
+              "backlog": 2
             }
           }
         }
