@@ -4779,9 +4779,8 @@ export function decodeRow(row: string | undefined): readonly number[] {
 function decodePairs(rows: readonly string[]): MutableHashMap.MutableHashMap<number, number> {
 	const map = MutableHashMap.empty<number, number>();
 	for (const row of rows) {
-		// Both generated tables contain complete decimal pairs, pinned by tests.
-		const [from, to] = Str.split(row, ",");
-		MutableHashMap.set(map, Number(from), Number(to));
+		const [from, to] = decodeRow(row);
+		if (from !== undefined && to !== undefined) MutableHashMap.set(map, from, to);
 	}
 	return map;
 }

@@ -4492,6 +4492,12 @@
           "upstreamBehaviour": "Conformance.check omits catch-all references, so validateResult with danglingReferences report succeeds on a graph whose serialized catch-all points to a missing node; the sponsor fixture lacks its referenced Organization.",
           "labBehaviour": "Conformance.check emits DanglingReference issues with original property names and node/property/array order, including foreign nodes and unchecked malformed ids; the report policy now fails these graphs. The sponsor fixture defines #acme to preserve its empty-issues assertion.",
           "reason": "upstream-bug: Round-1 part-1/sol.md:5 reproduces no issues and Success from the enabled closure gate on pinned upstream for additional.mentions @id #missing. Inventory req-8 and fix-schema-org-g1.md:37-40 pin reporting, gating, exclusions and the adjusted sponsor fixture."
+        },
+        {
+          "test": "scratchpad/test/schema-org/JsonLdDocument.coverage.test.ts:9",
+          "upstreamBehaviour": "toJsonLd returns the flattened in-memory JSON value without a JSON text round trip, retaining negative zero in nested additional values; script JSON already serializes negative zero as zero.",
+          "labBehaviour": "toJsonLd now encodes and decodes the flattened value through S.fromJsonString(S.Json), normalizing nested negative zero to zero so the plain wire value matches parsed script JSON.",
+          "reason": "native-runtime: EF-3/EF-19 require schema JSON codecs instead of native JSON encoding; this round additionally applies the codec round trip to toJsonLd. The new negative-zero regression pins the observable normalization. This is a distinct new wire-value deviation, not a verified upstream defect."
         }
       ],
       "backlog": [
@@ -4572,6 +4578,72 @@
           "round": 1,
           "finding": "backlog-13 — Catch-all upstream-bug deviation receipt (scratchpad/effected/PORT_LEDGER.json)",
           "reason": "bug: Record the verified catch-all upstream bug centrally, citing the pinned-oracle probe and exact JsonLdDocument/Conformance regression tests."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "backlog-1 — Prefix-exemption documentation overstates behavior (scratchpad/effected/schema-org/Conformance.ts:578)",
+          "reason": "docs: During documentation work, describe declared foreign prefixes as exempt; schema: terms and undeclared prefixes remain checked. Preserve behavior and issue order."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "backlog-2 — Published examples use throwing sync decoders (scratchpad/effected/schema-org/Thing.ts:29)",
+          "reason": "jsdoc: At S2 replace the five S.decodeUnknownSync examples with Result.getOrThrow(S.decodeUnknownResult(Schema)(input)), preserving displayed values."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "backlog-3 — Ordered vocabulary queries allocate intermediate Option arrays (scratchpad/effected/schema-org/Vocabulary.ts:241,295)",
+          "reason": "effect-idiom: During optional cleanup use A.filterMap with the existing A.get callbacks, preserving missing-name filtering and traversal order."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-4 — Conformance issue collection discards Option results (scratchpad/effected/schema-org/Conformance.ts:612-639)",
+          "reason": "effect-idiom: During optional cleanup compute issue lists as values before appending them; preserve node/term order and existing assertions."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-5 — JSDoc blocks contain unprefixed blank lines (scratchpad/effected/schema-org/JsonLdDocument.ts:28,74,116)",
+          "reason": "jsdoc: During S2 delete or prefix the four orphan blank lines with the JSDoc comment prefix, preserving prose and examples."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-6 — Whole-file byte ceiling couples documentation to table-size coverage (scratchpad/test/schema-org/Vocabulary.test.ts:64)",
+          "reason": "test: Defer generated-span measurement to documentation/test work; establish the law-forced justification and central receipt first. Keep numeric bounds and upstream rationale; do not weaken the assertion for req-5."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-7 — Vendored vocabulary header loses upstream warning and rationale (scratchpad/effected/schema-org/internal/vocabulary.ts:5-13)",
+          "reason": "docs: During S2 restore carried upstream paragraphs, move the vendoring notice above imports, and qualify generator/data paths as upstream-only at the pinned commit. Coordinate the byte ceiling without deleting prose."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-8 — Internal vocabulary examples use native array helpers (scratchpad/effected/schema-org/internal/vocabulary.ts:2556,3517,4471,4506,4603-4604)",
+          "reason": "jsdoc: During S2 use effect/Array A.map and A.contains in the five fences, preserving demonstrated results and coordinating added bytes with backlog-6."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-9 — Optional barrel exports and public visibility need a decision (scratchpad/effected/schema-org/index.ts)",
+          "reason": "docs: During public API/documentation cleanup either add and record chosen barrel exports or document file-level/internal status; preserve upstream exports and kinds."
+        },
+        {
+          "seat": "sol",
+          "round": 2,
+          "finding": "backlog-10 — List/set reference fix needs a central upstream-bug receipt (scratchpad/effected/PORT_LEDGER.json)",
+          "reason": "bug: Before req-4, centrally record pinned-oracle @list/@set evidence and exact new identifier/closure regressions. Ledger and README Port notes are outside fix-group ownership; no container behavior fix is present this round."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "req-4 — List/set reference validation and closure fix left unapplied (scratchpad/effected/schema-org/JsonLdDocument.ts:195-216)",
+          "reason": "bug: LEFT because the required section-14 container-specific upstream-bug receipt was outside the fix lane write surface and not supplied. referencesOf and container regressions remain unchanged; obtain the central receipt before implementation."
         }
       ],
       "reviewRounds": [
@@ -4590,6 +4662,24 @@
             "fable": {
               "required": 7,
               "backlog": 12
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 3,
+              "backlog": 3
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 1
+            },
+            "fable": {
+              "required": 5,
+              "backlog": 6
             }
           }
         }
