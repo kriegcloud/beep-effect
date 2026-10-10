@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "glob",
+    "module": "config-file",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-10T00:07:05.621Z"
+    "at": "2026-10-10T00:07:23.284Z"
   },
   "rows": [
     {
@@ -9435,7 +9435,7 @@
       "module": "config-file",
       "wave": 3,
       "position": 3,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "tooling/library",
       "upstreamPaths": {
@@ -9743,6 +9743,12 @@
           "upstreamBehaviour": "deepMerge reads result[key] before its own-property check; a lower-priority own field absent from the target can invoke an inherited getter and throw instead of copying its data.",
           "labBehaviour": "deepMerge checks R.has before reading existing target values and defines absent source keys as own data properties, avoiding inherited getters/setters while preserving the document prototype.",
           "reason": "upstream-bug: fix-config-file-g2.md:1,6,8 identifies and tests the ownership-before-read repair. A read-only S0/lab probe with an inherited throwing field getter and a lower own data field gives upstream getterCalls=1 and a throw versus lab getterCalls=0, own field=\"own data\" and preserved class identity; test:95 pins the same accessor-safe copying pattern."
+        },
+        {
+          "test": "module suite scratchpad/test/config-file/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/config-file/ConfigResolver.ts:447 carried a branch no input can reach",
+          "labBehaviour": "Removed the function-rejection guard after successful JSON parsing; a parsed JSON value cannot be a function.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -9846,13 +9852,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:19:54.417Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:19:50.090Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:19:50.090Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:07:23.284Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (1 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },
