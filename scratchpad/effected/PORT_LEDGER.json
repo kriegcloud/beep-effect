@@ -11896,6 +11896,90 @@
           "round": 1,
           "finding": "b12 — Keep optional-path compatibility until any promotion decision (scratchpad/effected/xdg/Xdg.ts:106)",
           "reason": "schema: Retain the upstream optional-key representation in this wave. Revisit Option-valued public fields only as a separately authorized promotion/API design with a forcing cause; do not rewrite upstream tests or treat a recorded preference as permission for port drift. Any proposed Port-notes entry is outside this inventory’s assignment."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "grok-2-1 — Preserve literal empty strings in the environment regression fixtures (scratchpad/test/xdg/Xdg.test.ts:22)",
+          "reason": "test: Add preserveEmptyStrings: true to the env helper and empty-environment application fixture; preserve absence, error, fallback, runtime, darwin, search-path and layerFrom assertions."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "grok-2-3 — Assert complete Windows native-directory Option payloads (scratchpad/test/xdg/NativeDirs.test.ts:55)",
+          "reason": "test: Replace the three Windows unwrap-and-field sequences with assertSome(native, NativeDirs.make({ ... })), retaining every expected path."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "grok-2-4 — Use the finite-number schema in the README configuration example (scratchpad/effected/xdg/README.md:75)",
+          "reason": "docs: Change the README configuration example from S.Number to S.Finite; leave Port notes and central numeric-domain bookkeeping to the codemod."
+        },
+        {
+          "seat": "sol",
+          "round": 2,
+          "finding": "sol-2-1 — Give the explicit fallback a path distinct from the default floor (scratchpad/test/xdg/AppDirs.test.ts:266)",
+          "reason": "test: Retain upstream cases and add a resolution case with namespace myapp, fallbackDir .other, and no higher-precedence inputs; assert /home/ada/.other for config, data, cache and state."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-3 — Consider match-based native-platform dispatch (scratchpad/effected/xdg/NativeDirs.ts:89)",
+          "reason": "effect-idiom: If adopted, use Match.value with unchanged darwin/win32 NativeDirs payloads and an O.none fallback; import effect/Match and retain native-directory expectations."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-4 — Consider Option helpers for optional runtime-directory plumbing (scratchpad/effected/xdg/AppDirs.ts:505)",
+          "reason": "effect-idiom: If adopted, use Option mapping and Effect.transposeOption for ensureRuntime, Option fallback helpers for selection, and Effect.forEach for ensure; preserve spans, paths, error mapping and runtime absence."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-5 — Consider one built-in namespace-component pattern (scratchpad/effected/xdg/AppDirs.ts:401)",
+          "reason": "schema: If adopted, combine separator exclusion and dot-component rejection in one built-in S.isPattern with metadata; preserve NonEmptyNamespace, both error messages and all acceptance/rejection cases."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6 — Put synchronous global-stubbing coverage in the appropriate test runner (scratchpad/test/xdg/Xdg.coverage.test.ts:22)",
+          "reason": "test: Use plain it with existing try/finally, or Effect.sync with Effect.ensuring to unstub globals; preserve all three platform assertions and cleanup on failure."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-7 — Avoid self-referential expected causes in failure assertions (scratchpad/test/xdg/Xdg.test.ts:79)",
+          "reason": "test: Use assert(Exit.isFailure(exit)), retain subsequent exit.cause.reasons assertions, and remove unused assertExitFailure imports."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-8 — Remove upstream installation prose from the lab README (scratchpad/effected/xdg/README.md:12)",
+          "reason": "docs: Delete installation paragraphs at README lines 12-14; preserve FileSystem/Path provision and carried API prose."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-9 — Track relative-XDG-path filtering as a separate behavior change (scratchpad/effected/xdg/Xdg.ts:275)",
+          "reason": "bug: In a separate upstream-bug wave, settle cross-platform absolute-path policy, filter the five XDG directory variables and splitDirs entries, preserve APPDATA/LOCALAPPDATA, and add regressions; orchestrator owns prerequisite ledger/Port-notes records."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-10 — Consider generated resolution-precedence properties (scratchpad/test/xdg/AppDirs.property.test.ts:26)",
+          "reason": "test: Add generated override/platform/single-component namespace properties for override dominance, search-path heads and lengths, and runtime presence; use fcRuns and retain oracle examples."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-11 — Consolidate the repeated schema round-trip helper (scratchpad/test/xdg/Xdg.property.test.ts:15)",
+          "reason": "test: If adopted, share a local roundTrips helper or use the canon helper where its synchronous shape fits; retain fcRuns and all schemas. Keep any lab-wide migration outside this module."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-12 — Consider exposing added schema values through the barrel (scratchpad/effected/xdg/index.ts:13)",
+          "reason": "effect-idiom: If adopted, expose AppDirOverrides/AppDirsOptions values and AppDirsNamespaceError through the barrel, adjust test imports, and delegate Added-exports bookkeeping to the central codemod."
         }
       ],
       "reviewRounds": [
@@ -11914,6 +11998,24 @@
             "fable": {
               "required": 5,
               "backlog": 9
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 2,
+              "backlog": 2
+            },
+            "sol": {
+              "required": 0,
+              "backlog": 1
+            },
+            "fable": {
+              "required": 2,
+              "backlog": 10
             }
           }
         }
