@@ -138,6 +138,23 @@ describe("ClosingList.parseClosingList", () => {
 });
 
 describe("ClosingList.review regressions", () => {
+	it("requires non-empty natural-number lists and natural offsets while preserving duplicates", () => {
+		for (const issueNumbers of [[0], [Number.MAX_SAFE_INTEGER], [0, 0, Number.MAX_SAFE_INTEGER]]) {
+			assert.isTrue(S.is(ClosingList)({ keyword: "fixes", issueNumbers }));
+			assert.isTrue(S.is(ReferenceList)({ keyword: "refs", closing: false, issueNumbers }));
+			assert.isTrue(S.is(HarvestedReferenceList)({ keyword: "refs", closing: false, issueNumbers, start: 0, end: Number.MAX_SAFE_INTEGER }));
+		}
+		for (const issueNumbers of [[], [-1], [Number.MAX_SAFE_INTEGER + 1]]) {
+			assert.isFalse(S.is(ClosingList)({ keyword: "fixes", issueNumbers }));
+			assert.isFalse(S.is(ReferenceList)({ keyword: "refs", closing: false, issueNumbers }));
+			assert.isFalse(S.is(HarvestedReferenceList)({ keyword: "refs", closing: false, issueNumbers, start: 0, end: 8 }));
+		}
+		for (const offset of [-1, Number.MAX_SAFE_INTEGER + 1]) {
+			assert.isFalse(S.is(HarvestedReferenceList)({ keyword: "refs", closing: false, issueNumbers: [0], start: offset, end: 8 }));
+			assert.isFalse(S.is(HarvestedReferenceList)({ keyword: "refs", closing: false, issueNumbers: [0], start: 0, end: offset }));
+		}
+	});
+
 	it("keeps the reference and combined kits in tuple order", () => {
 		assert.strictEqual(REFERENCE_KEYWORDS, ReferenceKeyword.literals);
 		assert.deepStrictEqual(R.values(ReferenceKeyword.Enum), [...REFERENCE_KEYWORDS]);

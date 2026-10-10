@@ -201,6 +201,7 @@ One entry per class of change (law- or ruling-forced) and one per behavioural di
 - **effect-first** — Lab uses Option absence and Effect string/flow helpers where upstream used undefined sentinels and native line-processing methods, retaining parser semantics (scratchpad/test/github-references/IssueReferences.test.ts:126,137; scratchpad/test/github-references/ClosingList.test.ts:188,209).
 - **effect-imports** — Lab uses dedicated effect/<Module> imports in source, tests and the example where upstream imported the root effect barrel (module suite scratchpad/test/github-references/**).
 - **identity-annotations** — Lab annotates domains, models and fields through three $ScratchpadId composers where upstream had no identity annotations (module suite scratchpad/test/github-references/**).
+- **numeric-domains** — The lab now validates natural issue numbers and offsets and non-empty issue lists where upstream exposes unrestricted number and readonly-array types, preserving parser output and duplicate order (scratchpad/test/github-references/IssueReferences.test.ts:93; scratchpad/test/github-references/ClosingList.test.ts:141).
 
 ### Dependency backlog
 

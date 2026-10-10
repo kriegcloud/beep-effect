@@ -4739,6 +4739,12 @@
           "upstreamBehaviour": "scratchpad/effected/github-references/IssueReferences.ts:262 carried a branch no input can reach",
           "labBehaviour": "removed the impossible bare-line missing-keyword capture fallback by deriving the keyword from the full match and stripping its optional colon.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/github-references/IssueReferences.test.ts:93; scratchpad/test/github-references/ClosingList.test.ts:141",
+          "upstreamBehaviour": "The five upstream result interfaces expose issue numbers and offsets as number and lists as ReadonlyArray<number>, without runtime validation. The previously recorded lab schemas used S.Int and S.Array(S.Int), allowing negative fields and empty lists.",
+          "labBehaviour": "This round refines issue numbers and offsets to S.Natural and all three list models to S.NonEmptyArray(S.Natural), deriving non-empty readonly list types. Schema validation now rejects negative fields and empty lists; zero, safe-integer boundaries and duplicates remain valid. Parser grammars and result fields are preserved.",
+          "reason": "numeric-domains: schema-first Precision carries invariants, EF-12b/EF-35 and law 17 require natural-number ranges and non-empty collections matching parser results (fable-2-2). This records the new sign and non-empty constraints, not the existing safe-integer deviation."
         }
       ],
       "backlog": [
@@ -4771,6 +4777,66 @@
           "round": 1,
           "finding": "fable-1-6 — Deferred unreachable-branch coverage investigation (scratchpad/effected/github-references/IssueReferences.ts:148,186)",
           "reason": "test: In S3 reassess unreachable keyword-guard branches after membership fixes; avoid coverage ignores and vacuous tests. Any capture broadening needs a coverage-law cause, oracle equivalence and central deviation recording."
+        },
+        {
+          "seat": "sol",
+          "round": 2,
+          "finding": "sol-2-2 — Property suites compare Option containers directly (scratchpad/test/github-references/ClosingList.property.test.ts:46)",
+          "reason": "test: During canon work use assertSome/assertNone for known outcomes and match generated expected Options; preserve plain-value comparisons and property meanings."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-4 — Optional cleanup of a side-effecting Option.map (scratchpad/effected/github-references/IssueReferences.ts:223)",
+          "reason": "effect-idiom: Reassess reachable keyword guards only after proving oracle equivalence; avoid grammar broadening solely for style. The side-effecting Option.map is removed by this round’s perf fix, but retain this inventory record as requested."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-5 — Optional replacement of upstream loops with array combinators (scratchpad/effected/github-references/IssueReferences.ts:300–307)",
+          "reason": "effect-idiom: Optionally compare array combinators against upstream order and outputs; otherwise retain the unchanged upstream loops. No mandatory restore or deviation is warranted."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6 — README examples omit the lab barrel's index segment (scratchpad/effected/github-references/README.md:21)",
+          "reason": "docs: Append /index to the nine README example imports without changing exports or repository configuration."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-7-prose — Features still describe new runtime schemas as types only (scratchpad/effected/github-references/README.md:168–171)",
+          "reason": "docs: Describe the keyword/result domains as schema and type in Features; leave Port notes and added-export bookkeeping to the central codemod."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-8 — Published-package compatibility guidance remains in the lab README (scratchpad/effected/github-references/README.md:12)",
+          "reason": "docs: Remove publishing-only compatibility advice and obsolete migration guidance, retaining the out-of-scope pointer and grammar/API documentation."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-9 — REFERENCE_KEYWORDS lost its upstream public release tag (scratchpad/effected/github-references/ClosingList.ts:94)",
+          "reason": "jsdoc: Restore @public above @category constants during the documentation pass."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-10 — Barrel example uses native array helpers (scratchpad/effected/github-references/index.ts:39)",
+          "reason": "jsdoc: Import effect/Array and use A.map and A.join in the barrel example while retaining its displayed result."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-11 — Some assertions use their actual payload as their expectation (scratchpad/test/github-references/ClosingList.test.ts:37)",
+          "reason": "test: Supply explicit expected payloads, preserve existing input cases and equivalent independent checks, and carry per-case context in test names."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-12 — Repeated property helper and mixed pure-test conventions (scratchpad/test/github-references/IssueReferences.property.test.ts:9–20)",
+          "reason": "test: Optionally extract a module-local roundTrips helper, move imports to the top and use plain it for pure sync assertions; shared test-utils proposals remain outside the port write surface."
         }
       ],
       "reviewRounds": [
@@ -4789,6 +4855,24 @@
             "fable": {
               "required": 5,
               "backlog": 7
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 3,
+              "backlog": 9
             }
           }
         }

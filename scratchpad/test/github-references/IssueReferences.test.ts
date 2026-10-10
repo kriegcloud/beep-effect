@@ -90,6 +90,21 @@ describe("IssueReferences.harvestIssueReferences", () => {
 });
 
 describe("IssueReferences.review regressions", () => {
+	it("accepts natural-number boundaries and rejects negative or unsafe issue numbers and offsets", () => {
+		for (const issueNumber of [0, Number.MAX_SAFE_INTEGER]) {
+			assert.isTrue(S.is(BareLineReference)({ keyword: "fixes", issueNumber }));
+			assert.isTrue(S.is(IssueReference)({ keyword: "fixes", issueNumber, start: 0, end: Number.MAX_SAFE_INTEGER }));
+		}
+		for (const issueNumber of [-1, Number.MAX_SAFE_INTEGER + 1]) {
+			assert.isFalse(S.is(BareLineReference)({ keyword: "fixes", issueNumber }));
+			assert.isFalse(S.is(IssueReference)({ keyword: "fixes", issueNumber, start: 0, end: 8 }));
+		}
+		for (const offset of [-1, Number.MAX_SAFE_INTEGER + 1]) {
+			assert.isFalse(S.is(IssueReference)({ keyword: "fixes", issueNumber: 0, start: offset, end: 8 }));
+			assert.isFalse(S.is(IssueReference)({ keyword: "fixes", issueNumber: 0, start: 0, end: offset }));
+		}
+	});
+
 	it("keeps the closing kit, tuple and Enum in the same literal order", () => {
 		assert.strictEqual(CLOSING_KEYWORDS, ClosingKeyword.literals);
 		assert.deepStrictEqual(R.values(ClosingKeyword.Enum), [...CLOSING_KEYWORDS]);

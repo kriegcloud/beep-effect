@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { flow } from "effect/Function";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -86,6 +86,8 @@ export type ClosingKeyword = typeof ClosingKeyword.Type;
  */
 export const CLOSING_KEYWORDS = ClosingKeyword.literals;
 
+const CLOSING_KEYWORD_BY_NAME: R.ReadonlyRecord<string, ClosingKeyword> = ClosingKeyword.Enum;
+
 /**
  * One closing reference found in prose by {@link harvestIssueReferences}.
  *
@@ -105,13 +107,13 @@ export const CLOSING_KEYWORDS = ClosingKeyword.literals;
  */
 export const IssueReference = S.Struct({
 	/** The referenced issue number. */
-	issueNumber: S.Int.annotate($I.annote("IssueReference.issueNumber", { description: "The referenced safe integer issue number." })),
+	issueNumber: S.Natural.annotate($I.annote("IssueReference.issueNumber", { description: "The referenced safe integer issue number." })),
 	/** The matched keyword, lowercased to its canonical form. */
 	keyword: ClosingKeyword.annotate($I.annote("IssueReference.keyword", { description: "The matched closing keyword in canonical lowercase form." })),
 	/** Offset of the first character of the whole match (`keyword` through digits). */
-	start: S.Int.annotate($I.annote("IssueReference.start", { description: "The offset of the first character of the whole match." })),
+	start: S.Natural.annotate($I.annote("IssueReference.start", { description: "The offset of the first character of the whole match." })),
 	/** Offset one past the last character of the whole match. */
-	end: S.Int.annotate($I.annote("IssueReference.end", { description: "The offset one past the last character of the whole match." })),
+	end: S.Natural.annotate($I.annote("IssueReference.end", { description: "The offset one past the last character of the whole match." })),
 }).annotate($I.annote("IssueReference", { description: "A closing issue reference harvested from prose with its match offsets." }));
 
 /**
@@ -145,7 +147,7 @@ export type IssueReference = typeof IssueReference.Type;
  */
 export const BareLineReference = S.Struct({
 	/** The referenced issue number. */
-	issueNumber: S.Int.annotate($I.annote("BareLineReference.issueNumber", { description: "The referenced safe integer issue number." })),
+	issueNumber: S.Natural.annotate($I.annote("BareLineReference.issueNumber", { description: "The referenced safe integer issue number." })),
 	/** The matched keyword, lowercased to its canonical form. */
 	keyword: ClosingKeyword.annotate($I.annote("BareLineReference.keyword", { description: "The matched closing keyword in canonical lowercase form." })),
 }).annotate($I.annote("BareLineReference", { description: "The closing issue reference carried by a whole bare line." }));
@@ -175,13 +177,6 @@ const INLINE_PATTERN = new RegExp(`\\b(${KEYWORDS})\\s+#(\\d+)`, "gi");
  * parser whose contract is one.
  */
 const BARE_LINE_PATTERN = new RegExp(`^(${KEYWORDS}):?[ \\t]+#(\\d+)$`, "i");
-
-/**
- * `#<digits>` parsed to a number — or `None` when the digits exceed
- * `Number.MAX_SAFE_INTEGER`, because a silently rounded issue number is worse
- * than a skipped match. Callers skip such matches; they do not fail.
- */
-const safeIssueNumber: (digits: string) => O.Option<number> = flow(Number, O.liftPredicate(Number.isSafeInteger));
 
 /**
  * Every inline closing reference in `text`, in document order.
@@ -214,20 +209,11 @@ const safeIssueNumber: (digits: string) => O.Option<number> = flow(Number, O.lif
 export const harvestIssueReferences = (text: string): ReadonlyArray<IssueReference> => {
 	const references: Array<IssueReference> = [];
 	for (const match of text.matchAll(INLINE_PATTERN)) {
-		// The full match guarantees a keyword, whitespace, hash and digits.
-		// Read that guaranteed string without optional capture fallbacks.
-		const hash = match[0].indexOf("#");
-		const issueNumber = safeIssueNumber(match[0].slice(hash + 1));
-		if (O.isNone(issueNumber)) continue;
-		const keyword = R.get<string, ClosingKeyword>(ClosingKeyword.Enum, Str.toLowerCase(Str.trim(match[0].slice(0, hash))));
-		O.map(keyword, (keyword) =>
-			references.push({
-				issueNumber: issueNumber.value,
-				keyword,
-				start: match.index,
-				end: match.index + match[0].length,
-			}),
-		);
+		// Both captures are mandatory in INLINE_PATTERN.
+		const issueNumber = Number(A.getUnsafe(match, 2));
+		if (!Number.isSafeInteger(issueNumber)) continue;
+		const keyword = O.getOrThrow(R.get(CLOSING_KEYWORD_BY_NAME, Str.toLowerCase(A.getUnsafe(match, 1))));
+		references.push({ issueNumber, keyword, start: match.index, end: match.index + match[0].length });
 	}
 	return references;
 };
@@ -261,14 +247,11 @@ export const harvestIssueReferences = (text: string): ReadonlyArray<IssueReferen
 export const parseBareLineReference = (line: string): O.Option<BareLineReference> => {
 	const match = BARE_LINE_PATTERN.exec(Str.trim(line));
 	if (match === null) return O.none();
-	const hash = match[0].indexOf("#");
-	const issueNumber = safeIssueNumber(match[0].slice(hash + 1));
-	return O.flatMap(issueNumber, (issueNumber) =>
-		O.map(
-			R.get<string, ClosingKeyword>(ClosingKeyword.Enum, Str.toLowerCase(Str.replace(/:$/, "")(Str.trim(match[0].slice(0, hash))))),
-			(keyword) => ({ issueNumber, keyword }),
-		),
-	);
+	// Both captures are mandatory in BARE_LINE_PATTERN.
+	const issueNumber = Number(A.getUnsafe(match, 2));
+	if (!Number.isSafeInteger(issueNumber)) return O.none();
+	const keyword = O.getOrThrow(R.get(CLOSING_KEYWORD_BY_NAME, Str.toLowerCase(A.getUnsafe(match, 1))));
+	return O.some({ issueNumber, keyword });
 };
 
 /**

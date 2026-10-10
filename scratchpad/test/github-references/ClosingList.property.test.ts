@@ -1,6 +1,7 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
 import { assert, describe, it } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -76,7 +77,7 @@ describe("ClosingList property floor", () => {
   arrayProperty("harvestReferenceLists", G.harvestReferenceLists, stringifyHarvest);
   it.effect.prop("README: duplicates, order, case, atomic unsafe-number rejection and exact spans",
     [Arbitrary.schema(Sample)], ([sample]) => Effect.sync(() => {
-      const issues = [...sample.issues, ...sample.issues];
+      const issues = A.appendAll(sample.issues, sample.issues);
       const line = sample.keyword.toUpperCase() + " " + issues.map((issue) => "#" + issue).join(sample.separator);
       assert.deepStrictEqual(G.parseReferenceList(line), O.some({ keyword: sample.keyword, closing: S.is(ClosingKeyword)(sample.keyword), issueNumbers: issues }));
       assert.deepStrictEqual(G.parseReferenceList(line + ", #9007199254740992"), O.none());

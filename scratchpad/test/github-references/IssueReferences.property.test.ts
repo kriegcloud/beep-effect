@@ -49,12 +49,20 @@ describe("IssueReferences property floor", () => {
     }
   }), runs);
   it.effect.prop("harvestIssueReferences: normalization idempotence and fidelity including exact offsets", [Arbitrary.schema(Sample), Arbitrary.schema(S.String)], ([sample, noise]) => Effect.sync(() => {
-    for (const text of ["prefix " + sample.keyword.toUpperCase() + "\t#00" + sample.issue + " and " + sample.keyword + " #" + sample.issue + ".", noise]) {
+    const structured = ["\t", "\n", "\r\n", "\v", "\f", "\u00a0", "\u2028"].map((gap) => "prefix " + sample.keyword.toUpperCase() + gap + "#00" + sample.issue + " and " + sample.keyword + " #" + sample.issue + ".");
+    for (const text of [...structured, noise]) {
       const parsed = G.harvestIssueReferences(text);
+      if (structured.includes(text)) {
+        const secondStart = text.indexOf(" and ") + 5;
+        assert.deepStrictEqual(parsed, [
+          { keyword: sample.keyword, issueNumber: sample.issue, start: 7, end: secondStart - 5 },
+          { keyword: sample.keyword, issueNumber: sample.issue, start: secondStart, end: text.length - 1 },
+        ]);
+      }
       const canonical = stringifyHarvest(parsed);
       assert.deepStrictEqual(G.harvestIssueReferences(canonical), parsed);
       assert.strictEqual(stringifyHarvest(G.harvestIssueReferences(canonical)), canonical);
-      for (const hit of parsed) assert.deepStrictEqual(G.parseBareLineReference(text.slice(hit.start, hit.end)), O.some({ keyword: hit.keyword, issueNumber: hit.issueNumber }));
+      for (const hit of parsed) assert.deepStrictEqual(G.parseBareLineReference(stringifyBare(hit)), O.some({ keyword: hit.keyword, issueNumber: hit.issueNumber }));
     }
   }), runs);
   it.effect.prop("README: case, duplicate order, required hash, colon dialect and unsafe-number rejection", [Arbitrary.schema(Sample)], ([sample]) => Effect.sync(() => {
