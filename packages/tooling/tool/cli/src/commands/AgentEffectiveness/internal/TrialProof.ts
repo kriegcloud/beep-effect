@@ -19,31 +19,37 @@ import { AgentTrialError } from "../AgentEffectiveness.errors.ts";
 import {
   TrialAcceptanceJson,
   TrialAttemptJson,
+  TrialCollectRequestJson,
   TrialFinalization,
   TrialFinalizationJson,
   TrialPlanJson,
   TrialProofJson,
 } from "../AgentEffectiveness.trials.schemas.ts";
-import { parseTrialTrackedRoots } from "./TrialCollector.ts";
+import { parseTrialTrackedRoots, trialMountGuardPaths, validateTrialIgnoreCensus } from "./TrialCollector.ts";
 import { trialArtifact } from "./TrialExecutor.ts";
 import {
   deriveTrialInvocation,
+  deriveTrialRuntimeControlsDigest,
   hashTrialInput,
   inspectTrialGit,
   trialCheckContractDigest,
   trialInventoryDigest,
   validateTrialInventory,
   validateTrialNativeRuntime,
+  validateTrialRequestChecks,
 } from "./TrialIsolation.ts";
 import {
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
   TrialInputInventory,
+  TrialMountGuardEvidence,
   TrialNativeInvocationJson,
   TrialNativeRuntimeEvidence,
   TrialNativeYeetRuntime,
 } from "./TrialProfile.schemas.ts";
+import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { TrialArtifact } from "../AgentEffectiveness.trials.schemas.ts";
+import type { TrialMountGuardPhase } from "./TrialProfile.schemas.ts";
 
 const equalNames = A.makeEquivalence(Str.Equivalence);
 const fail = (message: string) => Effect.fail(AgentTrialError.make({ stage: "proof", message }));
@@ -103,6 +109,66 @@ export const validateTrialBunCacheEvidence = Effect.fn("AgentEffectiveness.valid
     (yield* trialInventoryDigest(after)) === after.digest
   );
 });
+
+/**
+ * Validate complete batch-query coverage and every retained raw artifact.
+ * **Example** (Keep malformed evidence in the error channel)
+ * ```ts
+ * import { TrialArtifact, validateTrialMountGuardEvidence } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const valid = S.decodeUnknownEffect(TrialArtifact)({}).pipe(Effect.flatMap((artifact) => validateTrialMountGuardEvidence(artifact, "vendor", [], "/owned/output")))
+ * console.log(Effect.isEffect(valid)) // true
+ * ```
+ * @category validation
+ * @since 0.0.0
+ */
+export const validateTrialMountGuardEvidence = Effect.fn("AgentEffectiveness.validateTrialMountGuardEvidence")(
+  function* (
+    artifact: TrialArtifact,
+    phase: TrialMountGuardPhase,
+    targets: ReadonlyArray<string>,
+    outputRoot: string,
+    system?: TrialInputInventory
+  ) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const stem = path.join(outputRoot, `mount-guard-${phase}`);
+    if (artifact.path !== stem + ".json" || (yield* hashTrialInput(artifact.path)) !== artifact.digest) return false;
+    const data = yield* S.decodeEffect(S.fromJsonString(TrialMountGuardEvidence))(
+      yield* fs.readFileString(artifact.path)
+    );
+    const relative = yield* trialMountGuardPaths(phase, targets);
+    const suffix = phase === "vendor" ? ".runner-input-probe" : ".runner-output-probe";
+    const probes = A.map(relative, (name) => `${name}/${suffix}`);
+    if (
+      data.phase !== phase ||
+      !data.passed ||
+      !equalNames(data.targets, targets) ||
+      !equalNames(data.probePaths, probes) ||
+      data.queriesIssued !== (A.isReadonlyArrayEmpty(targets) ? 0 : 2) ||
+      data.trackedExitCode !== 0 ||
+      data.ignoredExitCode !== 0 ||
+      data.systemDigest !== system?.digest ||
+      data.systemRoot !== system?.root
+    )
+      return false;
+    for (const [file, name] of [
+      [data.input, ".input.nul"],
+      [data.trackedStdout, ".tracked.nul"],
+      [data.trackedStderr, ".tracked.stderr"],
+      [data.ignoredStdout, ".ignored.nul"],
+      [data.ignoredStderr, ".ignored.stderr"],
+    ] satisfies ReadonlyArray<readonly [TrialArtifact, string]>)
+      if (file.path !== stem + name || (yield* hashTrialInput(file.path)) !== file.digest) return false;
+    return (
+      (yield* fs.readFileString(data.input.path)) ===
+        (A.isReadonlyArrayEmpty(probes) ? "" : A.join(probes, "\0") + "\0") &&
+      (yield* fs.readFileString(data.trackedStdout.path)) === "" &&
+      (yield* validateTrialIgnoreCensus(yield* fs.readFileString(data.ignoredStdout.path), probes))
+    );
+  }
+);
 
 /**
  * Finalize only an intact exact-commit, full-Yeet and task-oracle proof.
@@ -203,7 +269,35 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
       return yield* fail("Full Yeet collection identity differs from the frozen attempt");
     fullYeetChecks = collection.requiredChecks;
   }
+  let requestVendorTargets = O.none<ReadonlyArray<string>>();
+  let requestCheckControls = O.none<ReadonlyArray<TrialEvaluatorCheck>>();
+  let requestRuntimeDigest = O.none<Sha256Hex>();
+  if (proof.collectRequest !== undefined) {
+    yield* checkArtifact(proof.collectRequest);
+    const collectedRequest = yield* TrialCollectRequestJson.decode(yield* fs.readFileString(proof.collectRequest.path));
+    if (
+      collectedRequest.attempt.path !== proof.attempt.path ||
+      collectedRequest.attempt.digest !== proof.attempt.digest
+    )
+      return yield* fail("Collection request binds a different attempt");
+    if (!(yield* validateTrialRequestChecks(plan, collectedRequest.checks, collectedRequest.yeet)))
+      return yield* fail("Collection request controls or slots differ from frozen plan");
+    requestVendorTargets = O.some(
+      A.filter(
+        A.map(collectedRequest.projectedRuntime, (closure) => closure.target),
+        Str.startsWith("/workspace/")
+      )
+    );
+    requestCheckControls = O.some([...collectedRequest.checks, collectedRequest.yeet]);
+    const census = yield* deriveTrialRuntimeControlsDigest(collectedRequest.runtime, collectedRequest.projectedRuntime);
+    if (
+      !A.every([...collectedRequest.checks, collectedRequest.yeet], (check) => check.runtimeControlsDigest === census)
+    )
+      return yield* fail("Collection runtime census differs from frozen check controls");
+    requestRuntimeDigest = O.some(census);
+  }
   const fullYeetBinding =
+    proof.collectRequest !== undefined &&
     plan.fullYeetCheckSpec !== undefined &&
     equalNames(plan.fullYeetCheckSpec.commandTemplate, [
       "/runtime/bin/bun",
@@ -222,6 +316,7 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
     fullYeetChecks[0]?.namespaceBindings !== undefined &&
     fullYeetChecks[0]?.evaluatorContract !== undefined &&
     fullYeetChecks[0]?.nativeRuntimeEvidence !== undefined &&
+    fullYeetChecks[0]?.mountGuardEvidence?.length === 2 &&
     fullYeetChecks[0]?.trackedRootInventory !== undefined &&
     fullYeetChecks[0]?.trackedRootStderr !== undefined &&
     fullYeetChecks[0]?.id === plan.fullYeetCheckSpec.id &&
@@ -336,8 +431,45 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
             evidence.ociDigest === runtime.oci.digest &&
             evidence.image === runtime.image;
         }
+        let requestContractValid = false;
+        const requested = O.flatMap(requestCheckControls, (controls) =>
+          A.findFirst(controls, (control) => control.id === check.id)
+        );
+        if (O.isSome(requested) && O.isSome(spec))
+          requestContractValid = (yield* trialCheckContractDigest(requested.value)) === spec.value.contractDigest;
+        let mountValid = false;
+        if (
+          check.mountGuardEvidence !== undefined &&
+          check.mountGuardEvidence.length === 2 &&
+          check.projectedGuardTargets !== undefined &&
+          O.isSome(requestVendorTargets) &&
+          equalNames(check.projectedGuardTargets, requestVendorTargets.value) &&
+          O.exists(requestCheckControls, (controls) => A.some(controls, (control) => control.id === check.id)) &&
+          declaredSystem !== undefined
+        ) {
+          const vendor = A.get(check.mountGuardEvidence, 0);
+          const writable = A.get(check.mountGuardEvidence, 1);
+          if (O.isSome(vendor) && O.isSome(writable))
+            mountValid =
+              (yield* validateTrialMountGuardEvidence(
+                vendor.value,
+                "vendor",
+                check.projectedGuardTargets,
+                path.dirname(check.stdout.path),
+                declaredSystem
+              )) &&
+              (yield* validateTrialMountGuardEvidence(
+                writable.value,
+                "writable",
+                contract.writableCacheTargets,
+                path.dirname(check.stdout.path),
+                declaredSystem
+              ));
+        }
         contractValid =
           O.isSome(spec) &&
+          requestContractValid &&
+          mountValid &&
           nativeValid &&
           systemValid &&
           (check.id !== plan.fullYeetCheckSpec?.id ||

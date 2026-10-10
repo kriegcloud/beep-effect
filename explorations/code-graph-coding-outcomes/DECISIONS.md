@@ -216,3 +216,45 @@ records still decode, but absent required native tracked-root evidence cannot
 pass finalization. Failed captures retain their partial files and do not admit
 protection roots. Reversal keeps the prior runner commit, failed request and
 source-bound attribution receipts; no source or cache inventory is rewritten.
+
+### Stop redundant unscored runtime preparation before harness freeze
+
+Request five was deliberately stopped after 2,075.73 seconds when read-only
+source attribution established thousands of repeated sparse-system validations
+across target guards. Preserve the exit-130 receipt and partial evidence as an
+aborted qualification attempt. Assess a narrow batched-query repair before a
+fresh attempt; every protection must remain independently reviewable and tested.
+This changes unscored test execution only. Toolchain, candidate bytes, model pins,
+acceptance, resource limits and scored admission remain unchanged. A fresh
+source-bound native result and default package verification are still required.
+Reversal: retain this interruption and rerun the prior local commit under a new
+attempt identity; never overwrite or relabel the aborted result.
+
+### Admit exact manifest-backed output roots before harness freeze
+
+The complete batched guard rejected 46 existing request-five output targets
+before any query or mount mutation. The earlier scalar guard would also have
+rejected them after processing earlier targets. Frozen `df7d88aad7` manifests
+explicitly declare `infra`, `scratchpad`, and `tools/tsgo-shim`; the infra manifest
+references `infra/ci-runners/sdks/ghaRunners` as a local dependency and enters
+`infra/lambda/turbo-cache` for its tests. Independent boundary review accepts
+these five exact roots with the existing output-leaf grammar, plus exact root
+`dist`. Do not add a broad `infra` or `tools` descendant allowance.
+
+All tracked-file, positive-ignore, canonical-path, symlink and frozen-contract
+checks remain mandatory. If an existing requested output fails those checks,
+correct only the fresh unscored request and preserve the rejected request.
+No prior attempt gains a pass or revised controls. Reversal is the retained
+previous local runner commit and original request-five bytes. Protected receipt:
+`native-extra-output-root-attribution-v1.json`.
+
+### Bind the evaluator runtime census before accepting batch evidence
+
+The collection request's artifact hash cannot by itself authorize its runtime
+projections. Bind the ordered runtime mounts and projected inventory census to
+the frozen check contracts, then compare decoded request checks and native Yeet
+controls against the plan before deriving expected guard targets. Missing legacy
+binding must prevent passing admission. Preserve historical requests and their
+actual results; only a fresh unscored attempt may use the revised contract.
+Independent final review and mutation tests must close the P1 finding before
+launch. Reversal retains the previous local commit and all original artifacts.

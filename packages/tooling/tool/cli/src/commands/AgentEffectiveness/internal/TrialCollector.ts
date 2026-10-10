@@ -10,11 +10,13 @@ import { hashPublicTextSha256 } from "@beep/repo-ai-metrics/privacy";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { repoRunOutputBound, runCaptured, runSpooledStreams } from "../../../internal/process/StepExec.ts";
 import { YeetVerdictJson } from "../../Yeet/internal/Verdict.ts";
@@ -31,6 +33,7 @@ import {
 import { startTrialBroker, trialArtifact } from "./TrialExecutor.ts";
 import {
   captureTrialInventory,
+  deriveTrialRuntimeControlsDigest,
   hashTrialInput,
   inspectTrialGit,
   trialCheckContractDigest,
@@ -39,12 +42,14 @@ import {
   trialSystemBindings,
   validateTrialInventory,
   validateTrialNativeRuntime,
+  validateTrialRequestChecks,
 } from "./TrialIsolation.ts";
 import {
   TrialCommittedSource,
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
   TrialInputInventory,
+  TrialMountGuardEvidence,
   TrialNativeRuntimeEvidence,
   TrialNativeYeetRuntime,
   TrialRuntimeClosure,
@@ -52,7 +57,7 @@ import {
 import { acquireTrialRetentionLease } from "./TrialRetention.ts";
 import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
-import type { TrialArtifact, TrialMount } from "./TrialProfile.schemas.ts";
+import type { TrialArtifact, TrialMount, TrialMountGuardPhase } from "./TrialProfile.schemas.ts";
 
 /**
  * Locate the single canonical verdict announcement from the native Yeet stream.
@@ -624,6 +629,218 @@ export const collectTrialTrackedInventory = Effect.fn("AgentEffectiveness.collec
   return yield* trialArtifact(stdoutPath);
 });
 
+const writableGuardRoots = [
+  "/workspace/node_modules/.vite",
+  "/workspace/node_modules/.vite-temp",
+  "/workspace/node_modules/.vitest-cache",
+  "/workspace/node_modules/.cache",
+  "/workspace/.beep",
+  "/workspace/.turbo",
+  "/workspace/.cache",
+];
+
+/**
+ * Validate all phase targets before constructing native query arguments.
+ * **Example** (Preserve phase checks inside the error channel)
+ * ```ts
+ * import { trialMountGuardPaths } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(trialMountGuardPaths("vendor", ["/workspace/node_modules"]))) // true
+ * ```
+ * @category validation
+ * @since 0.0.0
+ */
+export const trialMountGuardPaths = Effect.fn("AgentEffectiveness.trialMountGuardPaths")(function* (
+  phase: TrialMountGuardPhase,
+  targets: ReadonlyArray<string>
+) {
+  const path = yield* Path.Path;
+
+  for (const target of targets) {
+    const allowed = Match.value(phase).pipe(
+      Match.when(
+        "vendor",
+        () =>
+          target === "/workspace/node_modules" ||
+          target === "/workspace/infra/node_modules" ||
+          target === "/workspace/infra/lambda/turbo-cache/node_modules" ||
+          /^\/workspace\/(?:packages|apps)\/[^.]+\/node_modules$/.test(target)
+      ),
+      Match.when(
+        "writable",
+        () =>
+          A.contains(writableGuardRoots, target) ||
+          target === "/workspace/node_modules/.tmp" ||
+          target === "/workspace/dist" ||
+          A.some(
+            [
+              "/workspace/infra",
+              "/workspace/infra/ci-runners/sdks/ghaRunners",
+              "/workspace/infra/lambda/turbo-cache",
+              "/workspace/scratchpad",
+              "/workspace/tools/tsgo-shim",
+            ],
+            (root) =>
+              Str.startsWith(`${root}/`)(target) &&
+              /^(?:dist|dist-test|dist-scripts|build|docs|coverage|node_modules\/(?:\.tmp|\.vite|\.vite-temp|\.vitest-cache|\.cache)|\.turbo|\.beep)$/.test(
+                Str.slice(root.length + 1)(target)
+              )
+          ) ||
+          /^\/workspace\/(?:packages|apps)\/[^.]+\/(?:dist|dist-test|dist-scripts|build|docs|coverage|node_modules\/(?:\.tmp|\.vite|\.vite-temp|\.vitest-cache|\.cache)|\.turbo|\.beep)$/.test(
+            target
+          )
+      ),
+      Match.exhaustive
+    );
+    if (!allowed || !path.isAbsolute(target) || path.normalize(target) !== target || pipe(target, Str.includes("\0")))
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Mount guard target is unauthorized or noncanonical",
+      });
+  }
+  return A.map(targets, (target) => path.relative("/workspace", target));
+});
+
+/**
+ * Require one positive ignore record for every input ordinal.
+ * **Details**
+ * Git verbose nonmatching NUL records preserve negation and duplicates. Missing,
+ * extra, malformed, unmatched or negated records never admit a target.
+ * **Example** (Keep partial native records failing)
+ * ```ts
+ * import { validateTrialIgnoreCensus } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(validateTrialIgnoreCensus("", ["node_modules/.probe"]))) // true
+ * ```
+ * @category validation
+ * @since 0.0.0
+ */
+export const validateTrialIgnoreCensus = Effect.fn("AgentEffectiveness.validateTrialIgnoreCensus")(function* (
+  raw: string,
+  probes: ReadonlyArray<string>
+) {
+  if (A.isReadonlyArrayEmpty(probes)) return raw === "";
+  if (!Str.endsWith("\0")(raw)) return false;
+  const fields = A.dropRight(Str.split("\0")(raw), 1);
+  if (fields.length !== probes.length * 4) return false;
+  const frames = A.chunksOf(fields, 4);
+  for (const [frame, probe] of A.zip(frames, probes)) {
+    const [source, line, pattern, name] = yield* S.decodeUnknownEffect(
+      S.Tuple([S.String, S.String, S.String, S.String])
+    )(frame);
+    if (
+      source === "" ||
+      !/^[1-9][0-9]*$/.test(line) ||
+      pattern === "" ||
+      Str.startsWith("!")(pattern) ||
+      name !== probe
+    )
+      return false;
+  }
+  return true;
+});
+
+/**
+ * Capture two complete native Git queries for an ordered mount phase.
+ * **Details**
+ * Every real query builds the checked sparse namespace. No target mountpoint is
+ * created until all paths pass. Empty phases have explicit evidence and no child.
+ * **Example** (Keep phase admission scoped to evaluator services)
+ * ```ts
+ * import { collectTrialMountGuard } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(collectTrialMountGuard("/owned/source", "/owned/output", "vendor", []))) // true
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const collectTrialMountGuard = Effect.fn("AgentEffectiveness.collectTrialMountGuard")(function* (
+  workspace: string,
+  outputRoot: string,
+  phase: TrialMountGuardPhase,
+  targets: ReadonlyArray<string>,
+  system?: TrialInputInventory
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const relative = yield* trialMountGuardPaths(phase, targets);
+  if (!path.isAbsolute(outputRoot) || (yield* fs.realPath(outputRoot)) !== outputRoot)
+    return yield* AgentTrialError.make({ stage: "proof", message: "Mount guard output root is not canonical" });
+  const stem = path.join(outputRoot, `mount-guard-${phase}`);
+  const input = `${stem}.input.nul`;
+  const trackedOut = `${stem}.tracked.nul`;
+  const trackedErr = `${stem}.tracked.stderr`;
+  const ignoredOut = `${stem}.ignored.nul`;
+  const ignoredErr = `${stem}.ignored.stderr`;
+  const suffix = phase === "vendor" ? ".runner-input-probe" : ".runner-output-probe";
+  const probes = A.map(relative, (name) => `${name}/${suffix}`);
+  yield* fs.writeFileString(input, A.isReadonlyArrayEmpty(probes) ? "" : A.join(probes, "\0") + "\0", {
+    flag: "wx",
+    mode: 0o600,
+  });
+  let trackedCode = 0;
+  let ignoredCode = 0;
+  if (A.isReadonlyArrayEmpty(targets)) {
+    for (const file of [trackedOut, trackedErr, ignoredOut, ignoredErr])
+      yield* fs.writeFileString(file, "", { flag: "wx", mode: 0o600 });
+  } else {
+    trackedCode = yield* runSpooledStreams({
+      command: "/usr/bin/bwrap",
+      args: yield* trialGitSandbox(workspace, ["ls-files", "-z", "--", ...relative], system),
+      env: {},
+      extendEnv: false,
+      timeout: "30 seconds",
+      forceKillAfter: "1 second",
+      stdoutPath: trackedOut,
+      stderrPath: trackedErr,
+    });
+    if (trackedCode !== 0 || (yield* fs.readFileString(trackedOut)) !== "")
+      return yield* AgentTrialError.make({ stage: "proof", message: "Mount guard targets would cover tracked source" });
+    ignoredCode = yield* runSpooledStreams({
+      command: "/usr/bin/bwrap",
+      args: yield* trialGitSandbox(
+        workspace,
+        ["check-ignore", "--stdin", "-z", "--no-index", "--verbose", "--non-matching"],
+        system
+      ),
+      env: {},
+      extendEnv: false,
+      timeout: "30 seconds",
+      forceKillAfter: "1 second",
+      stdoutPath: ignoredOut,
+      stderrPath: ignoredErr,
+      stdinStream: Stream.fromEffect(fs.readFile(input)),
+    });
+    if (ignoredCode !== 0 || !(yield* validateTrialIgnoreCensus(yield* fs.readFileString(ignoredOut), probes)))
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Mount guard targets include unignored or incomplete paths",
+      });
+  }
+  const evidence = TrialMountGuardEvidence.make({
+    schemaVersion: "agent-trial-mount-guard/v1",
+    phase,
+    targets,
+    probePaths: probes,
+    input: yield* trialArtifact(input),
+    trackedStdout: yield* trialArtifact(trackedOut),
+    trackedStderr: yield* trialArtifact(trackedErr),
+    ignoredStdout: yield* trialArtifact(ignoredOut),
+    ignoredStderr: yield* trialArtifact(ignoredErr),
+    queriesIssued: A.isReadonlyArrayEmpty(targets) ? 0 : 2,
+    trackedExitCode: trackedCode,
+    ignoredExitCode: ignoredCode,
+    passed: true,
+    ...(system === undefined ? {} : { systemDigest: system.digest, systemRoot: system.root }),
+  });
+  const file = stem + ".json";
+  yield* fs.writeFileString(file, yield* S.encodeEffect(S.fromJsonString(TrialMountGuardEvidence))(evidence), {
+    flag: "wx",
+    mode: 0o600,
+  });
+  return yield* trialArtifact(file);
+});
+
 /**
  * Restore frozen link literals in a fresh evaluator-owned filesystem copy.
  * **Details**
@@ -873,6 +1090,31 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     args.push("--ro-bind", mount.source, mount.target);
   }
   for (const closure of projectedRuntime) {
+    const target = closure.target;
+    const allowed =
+      target === "/workspace/node_modules" ||
+      target === "/workspace/infra/node_modules" ||
+      target === "/workspace/infra/lambda/turbo-cache/node_modules" ||
+      /^\/workspace\/(?:packages|apps)\/[^.]+\/node_modules$/.test(target) ||
+      Str.startsWith("/runtime/")(target);
+    if (!allowed || !path.isAbsolute(target) || path.normalize(target) !== target || pipe(target, Str.includes("\0")))
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Runtime projection target is not a vendor dependency root",
+      });
+  }
+  const projectedGuardTargets = A.filter(
+    A.map(projectedRuntime, (closure) => closure.target),
+    Str.startsWith("/workspace/")
+  );
+  const vendorGuard = yield* collectTrialMountGuard(
+    source.workspace,
+    outputRoot,
+    "vendor",
+    projectedGuardTargets,
+    O.getOrUndefined(system)
+  );
+  for (const closure of projectedRuntime) {
     if (
       closure.target !== "/workspace/node_modules" &&
       closure.target !== "/workspace/infra/node_modules" &&
@@ -887,19 +1129,6 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     yield* validateTrialInventory(closure.inventory, closure.target);
     if (Str.startsWith("/workspace/")(closure.target)) {
       const relative = path.relative("/workspace", closure.target);
-      const tracked = yield* inspect(["ls-files", "--", relative]);
-      const ignored = yield* inspect(["check-ignore", "--quiet", "--no-index", `${relative}/.runner-input-probe`]);
-      if (
-        tracked.exitCode !== 0 ||
-        tracked.truncated ||
-        Str.trim(tracked.output) !== "" ||
-        ignored.exitCode !== 0 ||
-        ignored.truncated
-      )
-        return yield* AgentTrialError.make({
-          stage: "proof",
-          message: "Evaluator runtime projection would cover tracked or unignored source",
-        });
       const mountpoint = path.join(source.workspace, relative);
       yield* fs.makeDirectory(mountpoint, { recursive: true, mode: 0o700 });
       if ((yield* fs.realPath(mountpoint)) !== mountpoint)
@@ -927,40 +1156,16 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     gitMetadataBefore = O.some(yield* hashTrialInput(metadata));
     args.push("--bind", metadata, "/workspace/.git");
   }
-  const allowedCaches = [
-    "/workspace/node_modules/.vite",
-    "/workspace/node_modules/.vite-temp",
-    "/workspace/node_modules/.vitest-cache",
-    "/workspace/node_modules/.cache",
-    "/workspace/.beep",
-    "/workspace/.turbo",
-    "/workspace/.cache",
-  ];
+  const writableGuard = yield* collectTrialMountGuard(
+    source.workspace,
+    outputRoot,
+    "writable",
+    check.writableCacheTargets,
+    O.getOrUndefined(system)
+  );
   const outputOverlays: Record<string, string> = {};
   for (const [index, target] of check.writableCacheTargets.entries()) {
-    const ignoredBuildTarget =
-      /^\/workspace\/(?:packages|apps)\/[^.]+\/(?:dist|dist-test|dist-scripts|build|docs|coverage|node_modules\/(?:\.tmp|\.vite|\.vite-temp|\.vitest-cache|\.cache)|\.turbo|\.beep)$/.test(
-        target
-      ) || target === "/workspace/node_modules/.tmp";
-    if (!A.contains(allowedCaches, target) && !ignoredBuildTarget)
-      return yield* AgentTrialError.make({
-        stage: "proof",
-        message: "Evaluator writable output target is not approved",
-      });
     const relative = path.relative("/workspace", target);
-    const tracked = yield* inspect(["ls-files", "--", relative]);
-    const ignored = yield* inspect(["check-ignore", "--quiet", "--no-index", `${relative}/.runner-output-probe`]);
-    if (
-      tracked.exitCode !== 0 ||
-      tracked.truncated ||
-      Str.trim(tracked.output) !== "" ||
-      ignored.exitCode !== 0 ||
-      ignored.truncated
-    )
-      return yield* AgentTrialError.make({
-        stage: "proof",
-        message: "Writable evaluator output would cover tracked or unignored source",
-      });
     yield* fs.makeDirectory(path.join(source.workspace, relative), { recursive: true, mode: 0o700 });
     const owned = path.join(outputRoot, `cache-${index}`);
     yield* fs.makeDirectory(owned, { mode: 0o700 });
@@ -1383,6 +1588,8 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     ...(O.isSome(nativeReport) ? { nativeReport: nativeReport.value } : {}),
     evaluatorContract: yield* trialArtifact(contractPath),
     rootInventory: yield* trialArtifact(rootInventoryPath),
+    mountGuardEvidence: [vendorGuard, writableGuard],
+    projectedGuardTargets,
     ...(O.isSome(trackedRootInventory) ? { trackedRootInventory: trackedRootInventory.value } : {}),
     ...(O.isSome(trackedRootStderr) ? { trackedRootStderr: trackedRootStderr.value } : {}),
     ...(O.isSome(gitMetadataBefore)
@@ -1531,6 +1738,7 @@ export const collectTrialAcceptance = Effect.fn("AgentEffectiveness.collectTrial
 export const collectTrial = Effect.fn("AgentEffectiveness.collectTrial")(function* (requestPath: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const collectRequestArtifact = yield* trialArtifact(requestPath);
   const request = yield* TrialCollectRequestJson.decode(yield* fs.readFileString(requestPath));
   if ((yield* hashTrialInput(request.attempt.path)) !== request.attempt.digest)
     return yield* AgentTrialError.make({ stage: "proof", message: "Retained attempt changed before collection" });
@@ -1568,6 +1776,17 @@ export const collectTrial = Effect.fn("AgentEffectiveness.collectTrial")(functio
     !equal(plan.requiredYeetLaneIds, request.yeet.expectedCases)
   )
     return yield* AgentTrialError.make({ stage: "proof", message: "Full Yeet contract differs from frozen plan" });
+  if (!(yield* validateTrialRequestChecks(plan, request.checks, request.yeet)))
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Collection request controls or slots differ from frozen plan",
+    });
+  const runtimeControlsDigest = yield* deriveTrialRuntimeControlsDigest(request.runtime, request.projectedRuntime);
+  if (!A.every([...request.checks, request.yeet], (check) => check.runtimeControlsDigest === runtimeControlsDigest))
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Evaluator runtime census is not bound to frozen check controls",
+    });
   yield* acquireTrialRetentionLease(attempt.plan.path);
   const source = yield* reconstructTrialSource(
     request.reconstructionRoot,
@@ -1637,6 +1856,7 @@ export const collectTrial = Effect.fn("AgentEffectiveness.collectTrial")(functio
     yeetExitCode: yeet.exitCode,
     reconstruction: source.source,
     fullYeetCollection: yield* trialArtifact(fullYeetCollectionPath),
+    collectRequest: collectRequestArtifact,
   });
   const proofPath = path.join(request.outputRoot, "proof.json");
   yield* fs.writeFileString(proofPath, yield* TrialProofJson.encode(proof), { flag: "wx", mode: 0o600 });

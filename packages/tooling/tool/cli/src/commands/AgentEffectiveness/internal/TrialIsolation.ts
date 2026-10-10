@@ -30,7 +30,7 @@ import {
 } from "./TrialProfile.schemas.ts";
 import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
-import type { TrialEvaluatorCheck } from "./TrialProfile.schemas.ts";
+import type { TrialEvaluatorCheck, TrialMount } from "./TrialProfile.schemas.ts";
 
 const fail = (message: string) => Effect.fail(AgentTrialError.make({ stage: "isolation", message }));
 const sameMetadata = S.toEquivalence(TrialInputMetadata);
@@ -810,6 +810,41 @@ export const trialSystemBindings = Effect.fn("AgentEffectiveness.trialSystemBind
 });
 
 /**
+ * Bind the ordered readonly mount and inventory projection census.
+ * **Details**
+ * Physical roots, namespace targets, access modes and complete inventory digests
+ * are frozen with each evaluator check. Order and duplicate projections matter.
+ * **Example** (Hash an empty diagnostic runtime census)
+ * ```ts
+ * import { deriveTrialRuntimeControlsDigest } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(deriveTrialRuntimeControlsDigest([], []))) // true
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const deriveTrialRuntimeControlsDigest = Effect.fn("AgentEffectiveness.deriveTrialRuntimeControlsDigest")(
+  function* (runtime: ReadonlyArray<TrialMount>, projectedRuntime: ReadonlyArray<TrialRuntimeClosure>) {
+    return yield* hashPublicTextSha256(
+      yield* S.encodeEffect(S.fromJsonString(S.Unknown))({
+        encoding: "trial-runtime-controls/v1",
+        runtime: A.map(runtime, (mount) => ({
+          source: mount.source,
+          target: mount.target,
+          access: mount.access,
+          digest: mount.digest,
+        })),
+        projectedRuntime: A.map(projectedRuntime, (closure) => ({
+          root: closure.inventory.root,
+          target: closure.target,
+          digest: closure.inventory.digest,
+        })),
+      })
+    );
+  }
+);
+
+/**
  * Bind every evaluator control using fixed field order and sorted environment entries.
  * **Example** (Inspect the frozen contract operation)
  * ```ts
@@ -822,7 +857,8 @@ export const trialSystemBindings = Effect.fn("AgentEffectiveness.trialSystemBind
 export const trialCheckContractDigest = Effect.fn("trialCheckContractDigest")(function* (check: TrialEvaluatorCheck) {
   return yield* hashPublicTextSha256(
     yield* S.encodeEffect(S.fromJsonString(S.Unknown))({
-      encoding: "trial-check-contract/v2",
+      encoding: "trial-check-contract/v3",
+      runtimeControlsDigest: check.runtimeControlsDigest ?? null,
       id: check.id,
       kind: check.kind,
       commandTemplate: check.commandTemplate,
@@ -973,4 +1009,46 @@ export const validateTrialNativeRuntime = Effect.fn("AgentEffectiveness.validate
       stage: "proof",
       message: "Native broker policy differs or permits private fixtures",
     });
+});
+
+/**
+ * Verify every collection check slot against the frozen ordered plan.
+ * **Example** (Inspect independent request validation)
+ * ```ts
+ * import { validateTrialRequestChecks } from "@beep/repo-cli/test/AgentEffectiveness"
+ * console.log(validateTrialRequestChecks)
+ * ```
+ * @category validation
+ * @since 0.0.0
+ */
+export const validateTrialRequestChecks = Effect.fn("AgentEffectiveness.validateTrialRequestChecks")(function* (
+  plan: Pick<TrialPlan, "requiredTaskCheckIds" | "requiredCheckSpecs" | "fullYeetCheckSpec">,
+  checks: ReadonlyArray<TrialEvaluatorCheck>,
+  yeet: TrialEvaluatorCheck
+) {
+  if (
+    !A.makeEquivalence(Str.Equivalence)(
+      A.map(checks, (check) => check.id),
+      plan.requiredTaskCheckIds
+    ) ||
+    plan.fullYeetCheckSpec === undefined ||
+    yeet.id !== plan.fullYeetCheckSpec.id ||
+    yeet.kind !== "yeet" ||
+    A.some(checks, (check) => check.kind === "yeet")
+  )
+    return false;
+  for (const requested of [...checks, yeet]) {
+    const frozen = A.findFirst(
+      [...plan.requiredCheckSpecs, plan.fullYeetCheckSpec],
+      (spec) => spec.id === requested.id
+    );
+    if (
+      O.isNone(frozen) ||
+      frozen.value.inputBundleDigest !== requested.input.digest ||
+      !A.makeEquivalence(Str.Equivalence)(frozen.value.commandTemplate, requested.commandTemplate) ||
+      frozen.value.contractDigest !== (yield* trialCheckContractDigest(requested))
+    )
+      return false;
+  }
+  return true;
 });

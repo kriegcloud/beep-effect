@@ -1,7 +1,9 @@
 import { hashPublicTextSha256 } from "@beep/repo-ai-metrics/privacy";
 import {
   captureTrialInventory,
+  collectTrialMountGuard,
   collectTrialTrackedInventory,
+  deriveTrialRuntimeControlsDigest,
   executeTrialCheck,
   inspectTrialGit,
   parseTrialTrackedRoots,
@@ -15,6 +17,7 @@ import {
   TrialEvaluatorCheck,
   TrialInputInventory,
   TrialInputMetadata,
+  TrialMountGuardEvidence,
   TrialNativeRuntimeEvidence,
   TrialNativeYeetRuntime,
   trialArtifact,
@@ -22,9 +25,13 @@ import {
   trialEvaluatorInputRoots,
   trialEvaluatorInventoryBindings,
   trialInventoryDigest,
+  trialMountGuardPaths,
   validateTrialBunCacheEvidence,
+  validateTrialIgnoreCensus,
   validateTrialInventory,
+  validateTrialMountGuardEvidence,
   validateTrialNativeRuntime,
+  validateTrialRequestChecks,
 } from "@beep/repo-cli/test/AgentEffectiveness";
 import { repoRunOutputBound, runCaptured } from "@beep/repo-cli/test/Process";
 import { Sha256Hex } from "@beep/schema/Sha256";
@@ -87,6 +94,74 @@ const check = TrialEvaluatorCheck.make({
   timeoutMs: 1000,
   nativeRuntime: runtime,
 });
+it.effect("freezes ordered runtime and projection controls in every evaluator contract", () =>
+  Effect.gen(function* () {
+    const mount = { source: "/owned/bin", target: "/runtime/bin", access: "readonly", digest: zero };
+    const projection = { target: "/workspace/node_modules", inventory };
+    const original = yield* deriveTrialRuntimeControlsDigest([mount], [projection]);
+    const mutations = [
+      yield* deriveTrialRuntimeControlsDigest([{ ...mount, source: "/other/bin" }], [projection]),
+      yield* deriveTrialRuntimeControlsDigest([{ ...mount, target: "/runtime/other" }], [projection]),
+      yield* deriveTrialRuntimeControlsDigest([{ ...mount, access: "writable" }], [projection]),
+      yield* deriveTrialRuntimeControlsDigest([{ ...mount, digest: one }], [projection]),
+      yield* deriveTrialRuntimeControlsDigest([mount], [{ ...projection, target: "/workspace/infra/node_modules" }]),
+      yield* deriveTrialRuntimeControlsDigest(
+        [mount],
+        [{ ...projection, inventory: TrialInputInventory.make({ ...inventory, root: "/other/runtime" }) }]
+      ),
+      yield* deriveTrialRuntimeControlsDigest(
+        [mount],
+        [{ ...projection, inventory: TrialInputInventory.make({ ...inventory, digest: one }) }]
+      ),
+      yield* deriveTrialRuntimeControlsDigest([mount], [projection, projection]),
+    ];
+    const otherProjection = { ...projection, target: "/workspace/infra/node_modules" };
+    expect(yield* deriveTrialRuntimeControlsDigest([mount], [projection, otherProjection])).not.toBe(
+      yield* deriveTrialRuntimeControlsDigest([mount], [otherProjection, projection])
+    );
+    const frozen = yield* trialCheckContractDigest(
+      TrialEvaluatorCheck.make({ ...check, runtimeControlsDigest: original })
+    );
+    expect(yield* trialCheckContractDigest(check)).not.toBe(frozen);
+    for (const digest of mutations) {
+      expect(digest).not.toBe(original);
+      expect(
+        yield* trialCheckContractDigest(TrialEvaluatorCheck.make({ ...check, runtimeControlsDigest: digest }))
+      ).not.toBe(frozen);
+    }
+  })
+);
+it.effect("rejects duplicate, extra, reordered and moved collection check slots", () =>
+  Effect.gen(function* () {
+    const first = TrialEvaluatorCheck.make({ ...check, id: "first", kind: "framework" });
+    const second = TrialEvaluatorCheck.make({ ...check, id: "second", kind: "vitest" });
+    const spec = Effect.fn(function* (value: TrialEvaluatorCheck) {
+      return {
+        id: value.id,
+        commandTemplate: value.commandTemplate,
+        inputBundleDigest: value.input.digest,
+        contractDigest: yield* trialCheckContractDigest(value),
+      };
+    });
+    const plan = {
+      requiredTaskCheckIds: [first.id, second.id],
+      requiredCheckSpecs: [yield* spec(first), yield* spec(second)],
+      fullYeetCheckSpec: yield* spec(check),
+    };
+    expect(yield* validateTrialRequestChecks(plan, [first, second], check)).toBe(true);
+    for (const values of [
+      [first, first],
+      [first, second, second],
+      [second, first],
+      [first, check],
+    ])
+      expect(yield* validateTrialRequestChecks(plan, values, check)).toBe(false);
+    expect(yield* validateTrialRequestChecks(plan, [first, second], first)).toBe(false);
+    expect(
+      yield* validateTrialRequestChecks(plan, [first, second], TrialEvaluatorCheck.make({ ...check, timeoutMs: 1234 }))
+    ).toBe(false);
+  })
+);
 it("protects embedded native seed roots and excludes writable output copies", () => {
   const value = TrialEvaluatorCheck.make({
     ...check,
@@ -260,6 +335,114 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
           const drift = yield* prepareTrialBunCache(seed, output2).pipe(Effect.result);
           expect(drift._tag).toBe("Failure");
           expect(yield* fs.exists(`${output2}/bun-cache`)).toBe(false);
+        })
+      )
+    );
+    test.effect("batches complete ignored target coverage with duplicates and scalar negation parity", () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectoryScoped();
+          const workspace = `${root}/workspace`;
+          yield* fs.makeDirectory(workspace);
+          const git = Effect.fn(function* (args: ReadonlyArray<string>) {
+            const result = yield* runCaptured({
+              command: "/usr/bin/git",
+              args: ["-c", "core.hooksPath=/dev/null", "-C", workspace, ...args],
+              env: {},
+              extendEnv: false,
+              bound: repoRunOutputBound,
+            });
+            expect(result.exitCode).toBe(0);
+          });
+          yield* git(["init"]);
+          yield* fs.writeFileString(
+            `${workspace}/.gitignore`,
+            "node_modules/\ndist/\n!packages/unignored/dist/\n\\!literal/\n"
+          );
+          for (const root of [
+            "infra",
+            "infra/ci-runners/sdks/ghaRunners",
+            "infra/lambda/turbo-cache",
+            "scratchpad",
+            "tools/tsgo-shim",
+          ]) {
+            expect(yield* trialMountGuardPaths("writable", [`/workspace/${root}/dist`])).toEqual([`${root}/dist`]);
+          }
+          expect(yield* trialMountGuardPaths("writable", ["/workspace/dist"])).toEqual(["dist"]);
+          for (const target of [
+            "/workspace/infra/private/dist",
+            "/workspace/tools/tsgo-shim-private/dist",
+            "/workspace/scratchpad/source",
+            "/workspace/infra/ci-runners/sdks/other/dist",
+          ]) {
+            expect((yield* trialMountGuardPaths("writable", [target]).pipe(Effect.result))._tag).toBe("Failure");
+          }
+          const goodTargets = [
+            "/workspace/node_modules",
+            "/workspace/packages/!literal/node_modules",
+            "/workspace/node_modules",
+          ];
+          const output = `${root}/good`;
+          yield* fs.makeDirectory(output);
+          const evidence = yield* collectTrialMountGuard(workspace, output, "vendor", goodTargets);
+          expect(yield* validateTrialMountGuardEvidence(evidence, "vendor", goodTargets, output)).toBe(true);
+          const record = yield* S.decodeEffect(S.fromJsonString(TrialMountGuardEvidence))(
+            yield* fs.readFileString(evidence.path)
+          );
+          expect(record.queriesIssued).toBe(2);
+          expect(record.probePaths.length).toBe(3);
+          const escapedScalar = yield* inspectTrialGit(workspace, [
+            "check-ignore",
+            "--quiet",
+            "--no-index",
+            "packages/!literal/node_modules/.runner-input-probe",
+          ]);
+          expect(escapedScalar.exitCode).toBe(0);
+          const raw = yield* fs.readFileString(record.ignoredStdout.path);
+          expect(yield* validateTrialIgnoreCensus(raw, record.probePaths)).toBe(true);
+          expect(yield* validateTrialIgnoreCensus(Str.slice(0, -1)(raw), record.probePaths)).toBe(false);
+          expect(yield* validateTrialIgnoreCensus(raw, A.append(record.probePaths, "extra/.probe"))).toBe(false);
+          yield* fs.writeFileString(record.ignoredStdout.path, `${raw} `);
+          expect(yield* validateTrialMountGuardEvidence(evidence, "vendor", goodTargets, output)).toBe(false);
+          yield* fs.writeFileString(record.ignoredStdout.path, raw);
+          const empty = `${root}/empty`;
+          yield* fs.makeDirectory(empty);
+          const noQueries = yield* collectTrialMountGuard("/nonexistent", empty, "vendor", []);
+          const emptyRecord = yield* S.decodeEffect(S.fromJsonString(TrialMountGuardEvidence))(
+            yield* fs.readFileString(noQueries.path)
+          );
+          expect(emptyRecord.queriesIssued).toBe(0);
+          let badIndex = 0;
+          for (const target of [
+            "/workspace/packages/unignored/dist",
+            "/workspace/packages/absent/build",
+            "/workspace/packages/../escape/dist",
+            "/workspace/packages/bad\0/dist",
+          ]) {
+            const out = `${root}/bad-${badIndex++}`;
+            yield* fs.makeDirectory(out);
+            const result = yield* collectTrialMountGuard(workspace, out, "writable", [target]).pipe(Effect.result);
+            expect(result._tag).toBe("Failure");
+          }
+          const negated = yield* inspectTrialGit(workspace, [
+            "check-ignore",
+            "--quiet",
+            "--no-index",
+            "packages/unignored/dist/.runner-output-probe",
+          ]);
+          expect(negated.exitCode).toBe(1);
+          yield* fs.makeDirectory(`${workspace}/packages/tracked/dist`, { recursive: true });
+          yield* fs.writeFileString(`${workspace}/packages/tracked/dist/source`, "source");
+          yield* git(["add", "--force", "packages/tracked/dist/source"]);
+          const trackedOutput = `${root}/tracked`;
+          yield* fs.makeDirectory(trackedOutput);
+          expect(
+            (yield* collectTrialMountGuard(workspace, trackedOutput, "writable", [
+              "/workspace/packages/tracked/dist",
+            ]).pipe(Effect.result))._tag
+          ).toBe("Failure");
+          expect(yield* fs.exists(`${trackedOutput}/mount-guard-writable.ignored.nul`)).toBe(false);
         })
       )
     );
@@ -467,7 +650,7 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
           ]).pipe(Effect.result);
           expect(masked._tag).toBe("Failure");
           if (masked._tag === "Failure")
-            expect(masked.failure.message).toBe("Evaluator runtime projection would cover tracked or unignored source");
+            expect(masked.failure.message).toBe("Mount guard targets would cover tracked source");
         })
       )
     );

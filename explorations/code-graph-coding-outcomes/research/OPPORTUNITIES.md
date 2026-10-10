@@ -450,3 +450,96 @@ Keep bounded logs bounded; use private spools for structured data that must be
 complete. Adjacent full ignored/tree/flag inventories already spool, while
 expected-empty or target-scoped checks still fail closed on truncation. No
 log-bound increase, alternate Git inventory command or mount allowance is needed.
+
+## Repeated system-inventory validation during native target guards
+
+- Work: qualify the isolated native Collector on unchanged candidate `df7d88aad7`
+  with runner `00b62a40a6`, after the complete tracked-inventory repair.
+- Evidence: request five passed its exact-source framework check and retained all
+  33,160 tracked paths. After 2,075.73 seconds it had no native Yeet verdict and
+  was still preparing target guards. The agent stopped its owned scope with
+  SIGINT; exit 130, source/request unchanged, clean checkout. This is an aborted
+  attempt, not a passing rerun or a coding outcome.
+- Attribution: 148 projected workspace roots and 1,461 writable targets each
+  invoke two Git guards. Each guard revalidates the same 1,002-file, 260,945,384-byte
+  sparse system inventory. The resulting 3,218 validations imply approximately
+  839.7 GB of potential logical file reads, excluding other checks. This is
+  source-derived amplification, not measured unique disk I/O, retained storage,
+  tokens, or billing. Process observations showed continued CPU and cached reads,
+  with no observed memory-limit or OOM event.
+- Prevention under review: batch actual Git queries while retaining exact
+  per-target tracked/ignored decisions, complete raw capture, canonical-path and
+  mount guards, and system validation at each actual Git process boundary. No
+  unchecked validation cache or relaxed passing rule is approved.
+- Receipts: protected `native5-runtime-validation-performance-attribution-v1.json`
+  and `runner-native-attempt5-interruption-v1.json`; all partial outputs, seeds,
+  and local commits remain retained.
+
+## Bind guard census to frozen controls, not only current artifacts
+
+Independent review of the batching repair found that hashing the supplied
+collection request and matching batch records proves internal consistency,
+but does not freeze its projected-runtime target census. A changed request
+could otherwise redefine the vendor coverage under unchanged attempt/check
+digests. This is a pre-commit P1 finding; no native attempt used this repair.
+
+The correction must bind the applicable projection/runtime census to the frozen
+evaluator contract and validate decoded checks and Yeet equivalence. Add a
+regression that mutates the census while keeping the other evidence consistent.
+Preserve earlier requests as historical evidence; do not backfill their controls.
+Prevention: distinguish artifact integrity from authorization by frozen inputs
+when extending evidence protocols. The independent source review and final
+closure receipt remain in protected staging.
+
+## Validate the whole declared target census before expensive preparation
+
+The real 1,461-target probe failed with `Mount guard target is unauthorized or
+noncanonical`: 46 requested outputs belonged to exact infra, scratchpad and
+compiler-shim roots, or root `dist`, absent from the original scalar allowlist.
+Request five had stopped earlier in its serial preparation and had not reached
+these targets. This is an inherited fixture/runtime mismatch exposed by the
+batch preflight, not a new batch-path translation defect.
+
+Frozen manifests establish the five exact package roots. Extend only their
+existing output-leaf allowance after independent review; retain all Git and
+filesystem guards. Future request preparation should validate every target
+before expensive source reconstruction or cache copying. The failed probe and
+manifest-bound attribution remain in protected staging.
+
+## Exercise input-stream failure cleanup before native qualification
+
+The third focused batching run stopped making test progress after adding an
+early-closed stdin case; its worker sustained CPU without a completed test.
+The owner interrupted that test command and retained exit 130 and its log.
+A bounded process-only probe is attributing the failure. The separate real
+1,461-target census passed in 4.179 seconds with unchanged Git index, but that
+happy-path result does not prove stream-failure cleanup.
+
+Require terminating producer-error, early-close and interruption checks before
+source review closure or another Collector launch. Retain failures rather than
+increasing test timeouts or dropping the case. This is unscored harness work.
+
+The bounded process-only isolation subsequently passed all three tests in
+1.95 seconds, including producer errors, early closure and interruption. This
+refines the earlier attribution: stdin cleanup is not established as the cause
+of the combined suite's stall. Runtime-only isolation exposed a test-fixture
+ReferenceError; the owner corrected it. Proof-only isolation is pending to locate
+the remaining combined-run stall before another full focused replay. A separate
+`docgen:local` run failed on inherited infra Pulumi SDK type exports; retain that
+classification and do not mix unrelated infra repairs into the runner wave.
+
+A later read of the historical final retention log corrects the timing inference:
+its 18 passing tests took 84.41 seconds. The new 30-second retention isolation
+and 60-second combined bound were shorter than that established duration. Those
+timeouts alone cannot establish a regression or a setup hang. Use a bound informed
+by the retained passing receipt before further attribution. Evidence:
+`retention-test-timing-attribution-v1.json`; original timeout logs stay retained.
+
+## Run the hook-equivalent lint check before freezing source hashes
+
+Normal local commit was rejected by Biome `useSingleVarDeclarator` in the new
+guard's output-file declarations. The hook also sorted import blocks in three
+files. The earlier formatting result did not establish hook-equivalent lint
+compliance. No commit was created or hook skipped. Correct the declarations,
+run the actual lint check and retain revised source hashes and focused receipts
+before retrying the normal commit. Evidence: `target-batch-local-commit.log`.

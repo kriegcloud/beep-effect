@@ -374,6 +374,8 @@ export class TrialAcceptance extends S.Class<TrialAcceptance>($I`TrialAcceptance
         nativeReport: S.optional(TrialArtifact),
         nativeRuntimeEvidence: S.optional(TrialArtifact),
         rootInventory: S.optional(TrialArtifact),
+        mountGuardEvidence: S.optional(TrialArtifact.pipe(S.Array)),
+        projectedGuardTargets: S.optional(S.String.pipe(S.Array)),
         trackedRootInventory: S.optional(TrialArtifact),
         trackedRootStderr: S.optional(TrialArtifact),
         gitMetadata: S.optional(S.Struct({ beforeDigest: Sha256Hex, afterDigest: Sha256Hex })),
@@ -444,6 +446,7 @@ export class TrialProof extends S.Class<TrialProof>($I`TrialProof`)(
     yeetExitCode: S.Int,
     reconstruction: S.optional(TrialArtifact),
     fullYeetCollection: S.optional(TrialArtifact),
+    collectRequest: S.optional(TrialArtifact),
   },
   $I.annote("TrialProof", {
     description:

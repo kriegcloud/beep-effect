@@ -58,6 +58,7 @@ import {
   TrialEvaluatorCheck,
   TrialInputInventory,
   TrialMount,
+  TrialMountGuardEvidence,
   TrialNativeInvocation,
   TrialNativeRuntimeEvidence,
   TrialRuntimeClosure,
@@ -238,6 +239,23 @@ const acceptanceDependencies = Effect.fn("TrialRetention.acceptanceDependencies"
   if (record.finalCommit !== finalCommit) return yield* fail("Nested acceptance has a different candidate commit");
   let cacheDependencies: ReadonlyArray<TrialArtifact> = [];
   for (const check of record.requiredChecks) {
+    for (const guard of check.mountGuardEvidence ?? []) {
+      yield* validateArtifact(guard);
+      const data = yield* S.decodeEffect(S.fromJsonString(TrialMountGuardEvidence))(
+        yield* fs.readFileString(guard.path)
+      );
+      for (const artifact of [
+        data.input,
+        data.trackedStdout,
+        data.trackedStderr,
+        data.ignoredStdout,
+        data.ignoredStderr,
+      ]) {
+        yield* validateArtifact(artifact);
+        cacheDependencies = A.append(cacheDependencies, artifact);
+      }
+    }
+
     for (const evidence of O.toArray(O.fromUndefinedOr(check.nativeRuntimeEvidence))) {
       yield* validateArtifact(evidence);
       const native = yield* S.decodeEffect(S.fromJsonString(TrialNativeRuntimeEvidence))(
@@ -263,6 +281,7 @@ const acceptanceDependencies = Effect.fn("TrialRetention.acceptanceDependencies"
       ...O.toArray(O.fromUndefinedOr(check.evaluatorContract)),
       ...O.toArray(O.fromUndefinedOr(check.nativeReport)),
       ...O.toArray(O.fromUndefinedOr(check.rootInventory)),
+      ...(check.mountGuardEvidence ?? []),
       ...O.toArray(O.fromUndefinedOr(check.trackedRootInventory)),
       ...O.toArray(O.fromUndefinedOr(check.trackedRootStderr)),
       ...O.toArray(O.fromUndefinedOr(check.nativeRuntimeEvidence)),
@@ -290,6 +309,10 @@ const proofDependencies = Effect.fn("TrialRetention.proofDependencies")(function
     const source = yield* TrialCommittedSourceJson.decode(yield* fs.readFileString(reconstruction.path));
     if (source.finalCommit !== finalCommit) return yield* fail("Nested reconstruction differs from candidate commit");
     dependencies = A.appendAll(dependencies, [reconstruction, ...sourceDependencies(source)]);
+  }
+  for (const request of O.toArray(O.fromUndefinedOr(proof.collectRequest))) {
+    yield* validateArtifact(request);
+    dependencies = A.append(dependencies, request);
   }
   for (const collection of O.toArray(O.fromUndefinedOr(proof.fullYeetCollection)))
     dependencies = A.appendAll(dependencies, yield* acceptanceDependencies(collection, finalCommit));
@@ -733,6 +756,10 @@ export const retainTrial = Effect.fn("AgentEffectiveness.retainTrial")(
         dependencies = A.appendAll(dependencies, yield* proofDependencies(record.proof, request.attempt, finalCommit));
         const proof = yield* TrialProofJson.decode(yield* fs.readFileString(record.proof.path));
         declaredInputs = mergeDeclaredInputs(declaredInputs, yield* acceptanceInputs(proof.acceptance));
+        for (const request of O.toArray(O.fromUndefinedOr(proof.collectRequest))) {
+          yield* validateArtifact(request);
+          dependencies = A.append(dependencies, request);
+        }
         for (const collection of O.toArray(O.fromUndefinedOr(proof.fullYeetCollection)))
           declaredInputs = mergeDeclaredInputs(declaredInputs, yield* acceptanceInputs(collection));
       }

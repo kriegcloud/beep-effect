@@ -328,9 +328,66 @@ export class TrialEvaluatorCheck extends S.Class<TrialEvaluatorCheck>($I`TrialEv
     rootWritePolicy: S.optional(S.Literals(["readonly", "native-temp-only"])),
     nativeRuntime: S.optional(TrialNativeYeetRuntime),
     sparseSystem: S.optional(TrialInputInventory),
+    runtimeControlsDigest: S.optional(Sha256Hex),
   },
   $I.annote("TrialEvaluatorCheck", {
     description: "Frozen command and native reporter contract for one required evaluator gate.",
+  })
+) {}
+
+/**
+ * Native mount protection phase with independent complete query evidence.
+ * **Example** (Validate the phase before constructing query inputs)
+ * ```ts
+ * import { TrialMountGuardPhase } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialMountGuardPhase)("vendor")) // true
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const TrialMountGuardPhase = LiteralKit(["vendor", "writable"]).pipe(
+  $I.annoteSchema("TrialMountGuardPhase", {
+    description: "Ordered evaluator dependency and writable-output guard phases.",
+  })
+);
+/** Native protection phase. @category models @since 0.0.0 */
+export type TrialMountGuardPhase = typeof TrialMountGuardPhase.Type;
+
+/**
+ * Complete ordered mount guard census and private native Git query receipts.
+ * **Details**
+ * Duplicate targets keep their original ordinals. Empty phases issue no queries;
+ * nonempty phases require both drained query captures and complete ignore records.
+ * **Example** (Reject missing native query evidence)
+ * ```ts
+ * import { TrialMountGuardEvidence } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialMountGuardEvidence)({})) // false
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TrialMountGuardEvidence extends S.Class<TrialMountGuardEvidence>($I`TrialMountGuardEvidence`)(
+  {
+    schemaVersion: S.Literal("agent-trial-mount-guard/v1"),
+    phase: TrialMountGuardPhase,
+    targets: S.Array(S.String),
+    probePaths: S.Array(S.String),
+    input: TrialArtifact,
+    trackedStdout: TrialArtifact,
+    trackedStderr: TrialArtifact,
+    ignoredStdout: TrialArtifact,
+    ignoredStderr: TrialArtifact,
+    queriesIssued: S.Literals([0, 2]),
+    trackedExitCode: S.Int,
+    ignoredExitCode: S.Int,
+    passed: S.Boolean,
+    systemDigest: S.optional(Sha256Hex),
+    systemRoot: S.optional(S.String),
+  },
+  $I.annote("TrialMountGuardEvidence", {
+    description: "Artifact-bound complete native protection of every declared mount target.",
   })
 ) {}
 

@@ -1221,7 +1221,11 @@ export const runCapturedStreams = Effect.fn("StepExec.runCapturedStreams")(funct
  * @since 0.0.0
  */
 export const runSpooledStreams = Effect.fn("StepExec.runSpooledStreams")(function* (
-  options: RunCapturedOptions & { readonly stdoutPath: string; readonly stderrPath: string }
+  options: RunCapturedOptions & {
+    readonly stdoutPath: string;
+    readonly stderrPath: string;
+    readonly stdinStream?: Stream.Stream<Uint8Array, PlatformError.PlatformError>;
+  }
 ) {
   const fs = yield* FileSystem.FileSystem;
   return yield* Effect.scoped(
@@ -1231,7 +1235,11 @@ export const runSpooledStreams = Effect.fn("StepExec.runSpooledStreams")(functio
       const forceKillAfter = options.forceKillAfter ?? "1 second";
       const handle = yield* makeAdmittedChild(
         { ...options, forceKillAfter },
-        { stdin: options.stdin ?? "ignore", stdout: "pipe", stderr: "pipe" }
+        {
+          stdin: options.stdinStream === undefined ? (options.stdin ?? "ignore") : "pipe",
+          stdout: "pipe",
+          stderr: "pipe",
+        }
       );
       const commandLine = formatCommandLine(options.command, options.args);
       const deadline = capturePipeDeadline(handle, commandLine);
@@ -1246,6 +1254,9 @@ export const runSpooledStreams = Effect.fn("StepExec.runSpooledStreams")(functio
             Stream.runForEach((chunk) => stderr.writeAll(chunk))
           ),
           handle.exitCode,
+          options.stdinStream === undefined
+            ? Effect.void
+            : Stream.run(options.stdinStream.pipe(Stream.interruptWhen(deadline)), handle.stdin),
         ],
         { concurrency: "unbounded" }
       );

@@ -6,10 +6,75 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as Stream from "effect/Stream";
 
 layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: true })(
   "private complete trial streams",
   (it) => {
+    it.effect("waits for late stdin chunks and fails a producer even when the child exits zero", () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectoryScoped();
+          const input = `${root}/input`;
+          yield* fs.writeFileString(input, "first\0last\0");
+          const data = yield* fs.readFile(input);
+          const stream = Stream.concat(
+            Stream.succeed(data.slice(0, 6)),
+            Stream.fromEffect(Effect.sleep("50 millis").pipe(Effect.as(data.slice(6))))
+          );
+          const code = yield* runSpooledStreams({
+            command: process.execPath,
+            args: [
+              "-e",
+              "process.stdin.on('data',b=>process.stdout.write(b));process.stdin.on('end',()=>process.exit(0))",
+            ],
+            stdinStream: stream,
+            stdoutPath: `${root}/out`,
+            stderrPath: `${root}/err`,
+            timeout: "5 seconds",
+          });
+          expect(code).toBe(0);
+          expect(yield* fs.readFileString(`${root}/out`)).toBe("first\0last\0");
+          const failed = yield* runSpooledStreams({
+            command: process.execPath,
+            args: ["-e", "process.stdout.write('child-zero');process.exit(0)"],
+            stdinStream: Stream.fromEffect(
+              Effect.sleep("200 millis").pipe(Effect.andThen(fs.readFile(`${root}/missing`)))
+            ),
+            stdoutPath: `${root}/failed-out`,
+            stderrPath: `${root}/failed-err`,
+            timeout: "5 seconds",
+          }).pipe(Effect.result);
+          expect(failed._tag).toBe("Failure");
+          expect(yield* fs.readFileString(`${root}/failed-out`)).toBe("child-zero");
+          const early = yield* runSpooledStreams({
+            command: process.execPath,
+            args: [
+              "-e",
+              "require('node:fs').closeSync(0);process.stdout.write('early-close');setTimeout(()=>process.exit(0),500)",
+            ],
+            stdinStream: Stream.fromEffect(Effect.sleep("150 millis").pipe(Effect.as(new Uint8Array(1024 * 1024)))),
+            stdoutPath: `${root}/early-out`,
+            stderrPath: `${root}/early-err`,
+            timeout: "5 seconds",
+          }).pipe(Effect.result);
+          expect(early._tag).toBe("Failure");
+          expect(yield* fs.readFileString(`${root}/early-out`)).toBe("early-close");
+          const timeout = yield* runSpooledStreams({
+            command: process.execPath,
+            args: ["-e", "process.stdout.write('partial');setInterval(()=>{},1000)"],
+            stdinStream: Stream.never,
+            stdoutPath: `${root}/timeout-out`,
+            stderrPath: `${root}/timeout-err`,
+            timeout: "300 millis",
+            forceKillAfter: "100 millis",
+          }).pipe(Effect.result);
+          expect(timeout._tag).toBe("Failure");
+          expect(yield* fs.readFileString(`${root}/timeout-out`)).toBe("partial");
+        })
+      )
+    );
     it.effect("retains both streams beyond bounded capture and protects file modes", () =>
       Effect.scoped(
         Effect.gen(function* () {
