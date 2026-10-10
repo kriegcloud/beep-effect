@@ -5,6 +5,7 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
+const Json = S.fromJsonString(S.Unknown);
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>, sample: S.Codec<T, unknown> = schema): void => {
   it.effect.prop(name, [Arbitrary.schema(sample)], ([value]) => Effect.gen(function* () {
     const encoded = yield* S.encodeEffect(schema)(value);
@@ -35,6 +36,18 @@ const PackageSample = S.instanceOf(Package, {
     encode: Getter.transform((pkg) => pkg.pipe(S.encodeResult(Package.schema), Result.getOrThrow, S.decodeUnknownResult(WireSample), Result.getOrThrow)),
   }),
 });
+it.effect("serialization retains control-character and lone-surrogate dependency keys", () => Effect.gen(function* () {
+  const pkg = yield* Package.decode({
+    name: "a",
+    version: "0.0.1-beta.2",
+    peerDependencies: { "\t": "", "\ud890": "" },
+    scripts: { j: "Na" },
+    "x-custom": [{}, true],
+  });
+  const text = pkg.toJsonString();
+  const parsed = yield* Package.decode(yield* S.decodeEffect(Json)(text));
+  assert.strictEqual(parsed.toJsonString(), text, `before: ${text}\nafter: ${parsed.toJsonString()}`);
+}));
 describe("Package property floor", () => {
   roundTrips("DependencyMapField", DependencyMapField);
   roundTrips("StringMapField", StringMapField);
@@ -50,8 +63,9 @@ describe("Package property floor", () => {
 });
 it.effect.prop("serialization is idempotent and parse/stringify retains package data and unknown fields", [Arbitrary.schema(PackageSample)], ([pkg]) => Effect.gen(function* () {
   const text = pkg.toJsonString();
-  const parsed = yield* Package.decode(yield* S.decodeEffect(S.fromJsonString(S.Unknown))(text));
-  assert.strictEqual(parsed.toJsonString(), text);
+  const wire = yield* S.decodeEffect(Json)(text);
+  const parsed = yield* Package.decode(wire);
+  assert.strictEqual(parsed.toJsonString(), text, `before: ${text}\nafter: ${parsed.toJsonString()}`);
   assert.isTrue(S.toEquivalence(Package)(parsed, pkg));
   assert.isTrue(S.toEquivalence(S.Unknown)(yield* S.encodeEffect(Package.schema)(parsed), yield* S.encodeEffect(Package.schema)(pkg)));
 }), runs);

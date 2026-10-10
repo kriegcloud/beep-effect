@@ -7,6 +7,7 @@ import * as S from "effect/Schema";
 import * as ST from "effect/SchemaTransformation";
 
 const runs = { arbitrary: fcRuns(100) };
+const Json = S.fromJsonString(S.Unknown);
 
 const roundTrips = <T, E>(name: string, codec: S.Codec<T, E>, schema: S.Codec<T, unknown> = codec): void => {
   it.effect.prop(name, [Arbitrary.schema(schema)], ([value]) => Effect.gen(function* () {
@@ -26,10 +27,10 @@ describe("manifest property floor", () => {
   roundTrips("PackageManifest.schema", PackageManifest.schema, codec);
   it.effect.prop("manifest text formatting is idempotent, parsed values and unknown fields survive", [Arbitrary.schema(codec)], ([value]) => Effect.gen(function* () {
     const text = value.toJsonString();
-    const parsed = yield* S.decodeEffect(S.fromJsonString(S.Unknown))(text);
+    const parsed = yield* S.decodeEffect(Json)(text);
     const decoded = yield* PackageManifest.decode(parsed);
     assert.strictEqual(decoded.toJsonString(), text);
-    const expectedRest = yield* S.decodeEffect(S.fromJsonString(S.Unknown))(yield* S.encodeEffect(S.fromJsonString(S.Unknown))(value.rest));
+    const expectedRest = yield* S.decodeEffect(Json)(yield* S.encodeEffect(Json)(value.rest));
     assert.deepStrictEqual(decoded.rest, expectedRest);
     assertTrue(S.toEquivalence(PackageManifest)(decoded, value));
   }), runs);

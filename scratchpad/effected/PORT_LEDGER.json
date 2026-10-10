@@ -11983,6 +11983,18 @@
           "upstreamBehaviour": "scratchpad/effected/package-json/internal/format.ts:150 carried a branch no input can reach",
           "labBehaviour": "Replaced the custom comparator with equivalent Order.String; equal-key comparisons were unreachable when sorting unique record keys.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/package-json/Person.test.ts:11; scratchpad/test/package-json/Funding.test.ts:39; scratchpad/test/package-json/Repository.test.ts:31",
+          "upstreamBehaviour": "Person, Funding, Repository and Bugs partition unknown keys by assignment into plain objects; an own __proto__ data field is lost and can replace the rest prototype. Encoding after a modeled-field edit drops that field.",
+          "labBehaviour": "All five unknown-key partitions use ordered entries and R.fromEntries, with Repository and Bugs reusing restOf. An own __proto__ data field survives decode and edited encode, and rest retains Object.prototype.",
+          "reason": "upstream-bug: Round-2 sol-2-1/2/3 and fix-package-json-g1.md report pinned-oracle af7566a9da2eff169cb74955efcc5ede1e5de9f8 probes with empty rest keys and edited encodings missing __proto__. The diff replaces the five unsafe partitions and adds regressions for all four models, including both Person codecs and Funding bare/array fields."
+        },
+        {
+          "test": "scratchpad/test/package-json/Funding.test.ts:87; scratchpad/test/package-json/Funding.test.ts:114",
+          "upstreamBehaviour": "Funding.FromField replay checks only current rest values against wire property access. Deleting an extension or clearing rest replays the original object and restores removed fields; inherited names or absent undefined-valued keys can evade membership checks.",
+          "labBehaviour": "Remembered-object replay requires equal unknown-key counts and own-key membership/value checks through R.get. Extension deletions, clearing and replacements persist while bare-object versus array representation and entry order remain intact.",
+          "reason": "upstream-bug: Round-2 sol-2-4 and fix-package-json-g1.md report pinned-oracle af7566a9da2eff169cb74955efcc5ede1e5de9f8 restoring keep/remove after deleting remove or clearing rest. Funding.ts adds key-count and own-key checks; new tests cover deletion and clearing in bare/array fields plus inherited-name and undefined-valued replacements."
         }
       ],
       "backlog": [
@@ -12033,6 +12045,48 @@
           "round": 1,
           "finding": "fable-1-4-export — Optional JsoncStringifyError barrel export (scratchpad/effected/package-json/index.ts:30)",
           "reason": "effect-idiom: Optionally re-export JsoncStringifyError from the existing jsonc barrel export and record exportsAdded if adopted."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-16 — Consolidate LenientManifest synchronous decoding (scratchpad/effected/package-json/LenientManifest.ts:291)",
+          "reason": "effect-idiom: Use decodeUnknownResult with Result error/value mapping and drop Cause/Exit imports; consolidation preference with no demonstrated bug or mandatory primitive choice."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-17 — Use Record.remove for empty dependency maps (scratchpad/effected/package-json/internal/format.ts:246)",
+          "reason": "effect-idiom: Fold over STRIP_EMPTY_KEYS with R.remove, retaining formatter bytes; no cited law forbids delete and no observable failure or qualifying performance evidence."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-18 — Reuse RuleFailure schema fields (scratchpad/effected/package-json/PackageValidator.ts:108)",
+          "reason": "schema: Reuse RuleFailure.fields in the failures array schema, keeping the encoded shape identical; consolidation opportunity without a demonstrated constraint or shape defect."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-19 — Correct SPDX error examples and member categories (scratchpad/effected/package-json/License.ts:28)",
+          "reason": "jsdoc: Use InvalidSpdxLicenseError.make in the three examples; add category getters to message and category models to input. Documentation work is deferred to backlog."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-20 — Normalize JSDoc whitespace and example spacing (scratchpad/effected/package-json/Repository.ts:272-323)",
+          "reason": "docs: Re-indent the Repository JSDoc block, remove extra lead-sentence spaces in LenientManifest and Funding, and insert a blank line after the Person Example heading; documentation formatting is deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-21 — Update README parsing and error-cause descriptions (scratchpad/effected/package-json/README.md:187)",
+          "reason": "docs: Describe parse/parseResult as parsing text and PackageJsonParseError as carrying path and a SchemaError cause, replacing raw JSON.parse/SyntaxError claims; documentation updates are deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-23 — Consolidate public provenance setters (scratchpad/effected/package-json/Person.ts:217-219)",
+          "reason": "effect-idiom: Move provenance-writing helpers into their classes or make setters module-private, retaining wireOf/isBareField readers and tests; no mandatory law or demonstrated serialization bug is cited."
         }
       ],
       "reviewRounds": [
@@ -12051,6 +12105,24 @@
             "fable": {
               "required": 5,
               "backlog": 9
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 4,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 15,
+              "backlog": 8
             }
           }
         }

@@ -19,6 +19,8 @@ import { PackageJsonFormat, PackageJsonModifyError, PackageJsonSyntaxError } fro
 import { JsoncEdit } from "../../effected/jsonc/JsoncEdit.ts";
 const ObjectJson = S.Record(S.String, S.Json);
 const Json = S.fromJsonString(S.Unknown);
+const CustomJson = S.fromJsonString(S.Struct({ private: S.Boolean, custom: S.Json }));
+const CustomTailJson = S.fromJsonString(S.Struct({ private: S.Boolean, custom: S.Json, tail: S.String }));
 describe("formatting property floor", () => {
   roundTrips("PackageJsonSyntaxError", PackageJsonSyntaxError);
   roundTrips("PackageJsonModifyError", PackageJsonModifyError);
@@ -41,7 +43,7 @@ describe("formatting property floor", () => {
     assert.strictEqual(text, JsoncEdit.applyAll(source, edits));
     assert.strictEqual(text, expected);
     assert.strictEqual(yield* PackageJsonFormat.modifyToString(text, ["custom"], value), text);
-    const parsed = yield* S.decodeEffect(S.fromJsonString(S.Struct({ private: S.Boolean, custom: S.Json })))(text);
+    const parsed = yield* S.decodeEffect(CustomJson)(text);
     assert.deepStrictEqual(parsed, { private: true, custom: yield* S.decodeEffect(Json)(yield* S.encodeEffect(Json)(value)) });
   }), runs);
   it.effect.prop("container edits preserve all bytes outside the replacement and parsed JSON fidelity", [Arbitrary.schema(S.Json)], ([value]) => Effect.gen(function* () {
@@ -50,7 +52,7 @@ describe("formatting property floor", () => {
     const text = yield* PackageJsonFormat.modifyToString(`${prefix}null${suffix}`, ["custom"], value);
     assertTrue(text.startsWith(prefix));
     assertTrue(text.endsWith(suffix));
-    const parsed = yield* S.decodeEffect(S.fromJsonString(S.Struct({ private: S.Boolean, custom: S.Json, tail: S.String })))(text);
+    const parsed = yield* S.decodeEffect(CustomTailJson)(text);
     assert.deepStrictEqual(parsed, { private: true, custom: yield* S.decodeEffect(Json)(yield* S.encodeEffect(Json)(value)), tail: "kept" });
     assert.strictEqual(yield* PackageJsonFormat.modifyToString(text, ["custom"], value), text);
   }), runs);
