@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "package-json",
+    "module": "glob",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-09T23:50:12.917Z"
+    "at": "2026-10-10T00:07:05.621Z"
   },
   "rows": [
     {
@@ -2433,7 +2433,7 @@
       "module": "glob",
       "wave": 1,
       "position": 4,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
@@ -2526,6 +2526,66 @@
           "upstreamBehaviour": "GlobPatternError, GlobPatternOptions, GlobPattern and GlobSet use plain or absent schema identifiers with unannotated fields; compilability filters have only titles, and internal literal domains/errors lack identity metadata.",
           "labBehaviour": "$ScratchpadId.create establishes file-local $I identifiers, $I.annote schema/check descriptions and annotateKey field metadata across GlobPattern.ts, GlobSet.ts, limits.ts, types.ts, ast.ts, assertValidPattern.ts, braceExpressions.ts and minimatch.ts.",
           "reason": "identity-annotations: step 4/D5 and laws 18/19 require @beep/identity schema, field and reusable-check annotations. INVENTORY sol-1-4a/4b/5 and fix-glob-g1.md:4-5 plus fix-glob-g2.md:1 ground the completed metadata."
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/ast.ts:659 carried a branch no input can reach",
+          "labBehaviour": "Removed the non-root check in #fillNegs; its sole caller invokes it only on the root.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/ast.ts:681 carried a branch no input can reach",
+          "labBehaviour": "Replaced bounded indexed tail reads with direct iteration, eliminating the impossible undefined-source fallback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/ast.ts:818 carried a branch no input can reach",
+          "labBehaviour": "Removed the missing-parent fallback after isEnd had already established that the parent exists.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/ast.ts:1127 carried a branch no input can reach",
+          "labBehaviour": "Passed the validated extglob node into #adoptWithSpace, eliminating its duplicate rejection branch.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/ast.ts:1161 carried a branch no input can reach",
+          "labBehaviour": "Passed the validated extglob node into #adopt, eliminating its duplicate rejection branch.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/ast.ts:1184 carried a branch no input can reach",
+          "labBehaviour": "Passed validated child and parent operator types into #canUsurpType, eliminating repeated operator-validity checks.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/ast.ts:1244 carried a branch no input can reach",
+          "labBehaviour": "Passed the validated node and mapped operator into #usurp, eliminating impossible null, invalid-child, and missing-mapping fallbacks; narrowed usurpMap to its actual non-null domain.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/minimatch.ts:1349 carried a branch no input can reach",
+          "labBehaviour": "Replaced indexed traversal of equally sized internal arrays with zipped traversal, removing the impossible missing-offset guard.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/minimatch.ts:1518 carried a branch no input can reach",
+          "labBehaviour": "Removed the impossible invariant throw and redundant final condition: loop exhaustion and preceding returns leave only the exhausted-pattern case.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/glob/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/glob/internal/minimatch.ts:1824 carried a branch no input can reach",
+          "labBehaviour": "Replaced indexed basename lookup over dense slash-split output with traversal retaining the last nonempty segment, removing impossible undefined fallbacks.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -2617,13 +2677,18 @@
         },
         {
           "stage": 1,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 2,
           "sha": null
         }
       ],
       "blocked": null,
       "notes": [
         "2026-10-09T11:20:02.635Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
-        "2026-10-09T16:17:52.953Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:17:52.953Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:07:05.621Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (0 ledgered exceptions), property floor"
       ],
       "closedAt": null
     },

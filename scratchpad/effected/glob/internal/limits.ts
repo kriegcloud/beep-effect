@@ -171,7 +171,11 @@ export type GuardReason = typeof GuardReason.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const GuardMeasurement = S.declare((value): value is number => S.is(S.Finite)(value) || value === Infinity).annotate(
+export const GuardMeasurement = S.Number.check(S.makeFilter((value) => S.is(S.Finite)(value) || value === Infinity, {
+	identifier: "GuardMeasurement",
+	title: "Finite or positive-infinity measurement",
+	description: "Accepts finite measurements and positive infinity from expansion overflow.",
+})).annotate(
 	$I.annote("GuardMeasurement", {
 		title: "Glob guard measurement",
 		description: "A finite guard measurement or positive infinity when an expansion count overflows.",

@@ -100,7 +100,7 @@ const parseCommaParts = (str: string, depth: number): Array<string> => {
 	p[p.length - 1] += `{${body}}`;
 	const postParts = parseCommaParts(post, depth + 1);
 	if (post.length !== 0) {
-		p[p.length - 1] += postParts.shift() ?? "";
+		p[p.length - 1] += postParts.splice(0, 1).join("");
 		p.push(...postParts);
 	}
 
@@ -198,9 +198,6 @@ const expand_ = (str: string, max: number, isTopInput: boolean, depth: number): 
 
 		if (/\$$/.test(m.pre)) {
 			const post: Array<string> = m.post.length !== 0 ? expand_(m.post, max, false, depth + 1) : [""];
-			if (post.length > max) {
-				throw GuardExceeded.fromReason("ExpansionBudgetExceeded", max, post.length);
-			}
 			for (const p of post) {
 				expansions.push(`${pre}{${m.body}}${p}`);
 			}
