@@ -6,9 +6,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as P from "effect/Predicate";
-import * as SchemaGetter from "effect/SchemaGetter";
-import { identity } from "effect/Function";
 import * as Stdio from "effect/Stdio";
 import * as Terminal from "effect/Terminal";
 import { ColorLevel } from "./ColorLevel.ts";
@@ -65,12 +62,8 @@ export const StreamEnv = S.Struct({
   *
   * Core's `Terminal` exposes one width, so `stderr.columns` reports stdout's width.
   */
-	columns: S.Option(S.declare(P.isNumber, {
-		...$I.annote("StreamColumns", {
-			description: "A stream column number, retaining the full JavaScript number domain accepted by stream snapshots.",
-		}),
-		toCodecArbitrary: () => S.link<number>()(S.Finite, { decode: SchemaGetter.transform(identity), encode: SchemaGetter.transform(identity) }),
-	})).pipe($I.annoteKey("StreamEnv.columns", { description: "The terminal width in columns, or None when it is unknown." })),
+	// @effect-diagnostics-next-line schemaNumber:off -- Upstream Option<number> accepts NaN and infinities; S.Finite would narrow its domain.
+	columns: S.Option(S.Number).pipe($I.annoteKey("StreamEnv.columns", { description: "The terminal width in columns, or None when it is unknown." })),
 }).annotate($I.annote("StreamEnv", { description: "What one output stream can do: terminal attachment, colour, hyperlinks and optional columns." }));
 
 /**

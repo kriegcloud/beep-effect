@@ -6144,6 +6144,30 @@
           "upstreamBehaviour": "scratchpad/effected/env/internal/osc8/semver.ts:43 carried a branch no input can reach",
           "labBehaviour": "(original line) Replaced the indexed loop with ordered differences of fixed tuple components, removing two unreachable out-of-range zero fallbacks while preserving comparison behavior.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/env/Audience.test.ts; scratchpad/test/env/internal/osc8/detect.property.test.ts; scratchpad/test/env/TerminalEnv.coverage.test.ts:8",
+          "upstreamBehaviour": "AudienceShape and Osc8Info are interface-only payloads; the OSC8 override is an inline literal union; StreamEnv.columns is Option<number>.",
+          "labBehaviour": "This round adds AudienceShape and Osc8Info Struct values and an Osc8Override LiteralKit with derived types, retaining ordinary payloads and nulls. StreamEnv.columns now reuses S.Option(S.Number) instead of the prior custom declaration and finite-only arbitrary link; non-finite values remain accepted.",
+          "reason": "schema-first: D5/D11, EF-33 and effect-laws-v1 laws 17/19/21 require schema-owned pure data, named literal domains and built-in schema reuse. env-r2-1/2/5 add these specific contracts, absent from the existing deviation; schemaNumber is disabled with a reason to preserve the upstream number domain."
+        },
+        {
+          "test": "scratchpad/test/env/Audience.test.ts:20; scratchpad/test/env/EnvOverride.test.ts:21",
+          "upstreamBehaviour": "Logger.layer capture is installed through ordinary Layer.provide or Effect.provide composition in the upstream tests.",
+          "labBehaviour": "Both capture helpers use Logger.layer built with Layer.buildWithScope inside Effect.scopedWith; Effect.provideContext installs the context for the audience layer or reader. This replaces the prior lab CurrentLoggers Sets and retains the existing warning assertions.",
+          "reason": "native-runtime: effect-laws-v1 law 6, D5/D11 and the later 2026-10-09 Logger.CurrentLoggers ruling require the scoped logger recipe in env-r2-3. The existing native-runtime deviation covers source collections, not these test capture installations."
+        },
+        {
+          "test": "scratchpad/test/env/RuntimeEnv.test.ts:199; scratchpad/test/env/internal/osc8/detect.coverage.test.ts:10; scratchpad/test/env/deliberatelyInvalid.ts:1",
+          "upstreamBehaviour": "The RuntimeEnv invalid-CI test deliberately passes an ill-typed value directly to make; upstream has no deliberatelyInvalid helper or missing-wrapper-name collaborator test.",
+          "labBehaviour": "The invalid-CI test calls RuntimeEnv.make through deliberatelyInvalid<Parameters<typeof RuntimeEnv.make>[0]> instead of the prior Reflect.apply erasure, retaining the type proof and throws assertion. The new missing-wrapper-name spy also uses the single helper to supply undefined.",
+          "reason": "type-safety: D15 and the 2026-10-09 operator ruling authorize one deliberatelyInvalid<T>(value: unknown): T helper per module with the sole value as T cast. env-r2-4 makes intentional test erasure explicit; this is distinct from the existing source-provider narrowing deviation."
+        },
+        {
+          "test": "scratchpad/effected/env/Audience.ts:86; scratchpad/effected/env/internal/osc8/detect.ts:64; scratchpad/effected/env/TerminalEnv.ts:66",
+          "upstreamBehaviour": "AudienceShape and Osc8Info interfaces and the inline override domain have no runtime schema identities or field metadata; upstream columns has no StreamColumns schema identity.",
+          "labBehaviour": "New AudienceShape, Osc8Info and Osc8Override schema values carry composer identities, with identities on both AudienceShape fields and all twelve Osc8Info fields. Built-in S.Number replaces the prior StreamColumns declaration, removing its identity while retaining StreamEnv.columns.",
+          "reason": "identity-annotations: operator step 4 requires composer identities on every added schema and field. env-r2-1/5 introduce these new identities; env-r2-2 removes the custom StreamColumns identity. The existing identity deviation does not cover these new models or this removal."
         }
       ],
       "backlog": [
@@ -6218,6 +6242,42 @@
           "round": 1,
           "finding": "backlog-12 — Missing stage commit references (scratchpad/effected/PORT_LEDGER.json)",
           "reason": "docs: In central ledger closeout, verify the module's actual stage commits and backfill their references; do not invent SHAs or treat report notes as commit proof."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "backlog-1 — ProcessSnapshot round-trip property is missing (scratchpad/test/env/internal/osc8/detect.property.test.ts:35)",
+          "reason": "test: In S3 add a ProcessSnapshot Arbitrary.schema encode/decode property, schema equivalence, re-encoding equality and fcRuns, including undefined environment entries; retain the narrower JSON property. Deferred S3 property work."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "backlog-2 — Unrestricted packed-format property has an oversized-number counterexample (scratchpad/test/env/internal/osc8/semver.property.test.ts:25)",
+          "reason": "test: In S3 generate inverse-format checks from the bounded Version tuple, retain unrestricted-input parity separately, and add the oversized input as a deterministic oracle-parity case. Preserve both parsers; deferred S3 property work."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "backlog-3 — StreamEnv example contains three accidental implementation imports (scratchpad/effected/env/TerminalEnv.ts:30)",
+          "reason": "jsdoc: In S2 delete the three accidental implementation imports inside the StreamEnv example fence and retain the remaining example. Implementation import removal is env-r2-2; example cleanup is deferred S2 work."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "backlog-4 — Nested terminal and terminal field reuse an identity segment (scratchpad/effected/env/internal/osc8/detect.ts:290)",
+          "reason": "schema: Consider a distinct Osc8Terminal schema identity and name/version keys while retaining Osc8Detection.terminal on the outer field. No actual registry or JSON Schema failure was demonstrated, so this remains optional."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-5 — CiName custom message repeats the default literal formatter (scratchpad/effected/env/internal/agentCi.ts:29)",
+          "reason": "effect-idiom: Consider annotating the CiName LiteralKit directly and removing CiNameBase, the repeated default message and unused Array import while preserving error text. Optional consolidation without a demonstrated failure."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "backlog-6 — Inherited test inventories and assertions await canon migration (scratchpad/test/env/agentCi.test.ts:95)",
+          "reason": "test: In S3 migrate native Set inventories to HashSet, key lists to Record.keys and the CI switch to CiName.$match, preserving the compile-time exhaustiveness proof. Deferred inherited vitest-canon migration."
         }
       ],
       "reviewRounds": [
@@ -6236,6 +6296,24 @@
             "fable": {
               "required": 3,
               "backlog": 10
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 6,
+              "backlog": 3
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 5,
+              "backlog": 6
             }
           }
         }

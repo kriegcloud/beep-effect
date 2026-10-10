@@ -1,8 +1,38 @@
-import { assert, describe, it } from "@effect/vitest";
+import { assert, describe, it, vi } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { compareSemver, parseKonsoleVersion, parseVteVersion } from "../../../../effected/env/internal/osc8/semver.ts";
 
 describe("semver edge behaviour", () => {
+  it.effect("defaults a missing major capture from the regex collaborator to zero", () =>
+    Effect.sync(() => {
+      const exec = RegExp.prototype.exec;
+      const spy = vi.spyOn(RegExp.prototype, "exec").mockImplementation(function (this: RegExp, text) {
+        if (this.source === "^(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?") {
+          const match: [string] = [text];
+          return Object.assign(match, { index: 0, input: text });
+        }
+        return exec.call(this, text);
+      });
+      try {
+        assert.strictEqual(compareSemver("7", "8"), 0);
+      } finally {
+        spy.mockRestore();
+      }
+    }));
+
+  it.effect("defaults missing numeric components on either side of the indexed comparison", () =>
+    Effect.sync(() => {
+      const number = Number;
+      vi.stubGlobal("Number", (value: unknown) => value === "0" ? undefined : number(value));
+      try {
+        assert.strictEqual(compareSemver("0.0.0", "0.0.0"), 0);
+        assert.strictEqual(compareSemver("0.0.0", "1.0.0"), -1);
+        assert.strictEqual(compareSemver("1.0.0", "0.0.0"), 1);
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    }));
+
   it.effect("compares fixed components, zero defaults and permissive suffixes in both call forms", () =>
     Effect.sync(() => {
       assert.strictEqual(compareSemver("2", "2.0.0"), 0);

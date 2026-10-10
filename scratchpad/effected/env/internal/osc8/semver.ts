@@ -34,12 +34,13 @@ export const compareSemver: {
 	const parsed = (s: string): [number, number, number] | null => {
 		const m = SEMVER_RE.exec(s);
 		if (m === null) return null;
-		return [Number(m[1]), Number(m[2] ?? 0), Number(m[3] ?? 0)];
+		return [Number(m[1] ?? 0), Number(m[2] ?? 0), Number(m[3] ?? 0)];
 	};
 	const aa = parsed(a);
 	const bb = parsed(b);
 	if (aa === null || bb === null) return 0;
-	for (const diff of [aa[0] - bb[0], aa[1] - bb[1], aa[2] - bb[2]]) {
+	for (let i = 0; i < 3; i++) {
+		const diff = (aa[i] ?? 0) - (bb[i] ?? 0);
 		if (diff !== 0) return diff;
 	}
 	return 0;
