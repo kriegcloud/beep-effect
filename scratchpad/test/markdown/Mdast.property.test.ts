@@ -5,6 +5,14 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { Mdast, MdastDecodeError } from "../../effected/markdown/Mdast.ts";
 
+const ProjectedContent = S.Struct({
+      children: S.Tuple([
+        S.Struct({ children: S.Tuple([S.Struct({ value: S.String })]) }),
+        S.Struct({ value: S.String }),
+        S.Struct({ label: S.String }),
+      ]),
+    });
+
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({ text: S.String, code: S.String, label: S.String });
 
@@ -21,13 +29,7 @@ describe("Mdast properties", () => {
       { type: "definition", identifier: "id", label: sample.label, url: "./target" },
     ] });
     const plain = Mdast.toMdast(root);
-    const content = yield* S.decodeUnknownEffect(S.Struct({
-      children: S.Tuple([
-        S.Struct({ children: S.Tuple([S.Struct({ value: S.String })]) }),
-        S.Struct({ value: S.String }),
-        S.Struct({ label: S.String }),
-      ]),
-    }))(plain);
+    const content = yield* S.decodeUnknownEffect(ProjectedContent)(plain);
     assert.strictEqual(content.children[0].children[0].value, sample.text);
     assert.strictEqual(content.children[1].value, sample.code);
     assert.strictEqual(content.children[2].label, sample.label);

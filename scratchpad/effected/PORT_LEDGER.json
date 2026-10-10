@@ -9302,6 +9302,144 @@
           "upstreamBehaviour": "scratchpad/effected/markdown/internal/phrasing.ts:82 carried a branch no input can reach",
           "labBehaviour": "Removed the missing-first-segment fallback after non-empty trimmed content establishes source provenance.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:272",
+          "upstreamBehaviour": "ATX-to-setext conversion after a nonblank paragraph removes the interrupting marker and absorbs the preceding block into the heading.",
+          "labBehaviour": "Conversion is skipped unless the heading begins a physical line with a blank or absent predecessor; separate blocks survive LF, CR and CRLF boundaries.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-1 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:272 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:285",
+          "upstreamBehaviour": "Converting a setext heading ending in literal whitespace-plus-hashes emits an ATX closing sequence and loses those hashes on reparse.",
+          "labBehaviour": "Hazardous setext-to-ATX conversions retain the original heading spelling; escaped hashes still permit safe conversion.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-2 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:285 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:296",
+          "upstreamBehaviour": "LF-only line boundaries allow a lone-CR paragraph followed by a thematic break to normalize into a setext heading.",
+          "labBehaviour": "Boundary helpers recognize LF, bare CR and actual CRLF pairs; hazardous thematic-break rewrites are skipped.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-3 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:296 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:305",
+          "upstreamBehaviour": "Emphasis normalization tests surrogate halves and introduces underscores beside astral letters, turning emphasis into literal text.",
+          "labBehaviour": "The formatter tests complete adjacent Unicode code points and retains emphasis spelling at hazardous astral-letter flanks while keeping UTF-16 offsets.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-4 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:305 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:313; scratchpad/test/markdown/format.test.ts:321",
+          "upstreamBehaviour": "Fence normalization treats trailing backticks in an unclosed final content line as a closing fence and rewrites code content.",
+          "labBehaviour": "Only genuine closing lines are rewritten; unclosed foo-backtick content survives, and genuine closing fences normalize in CR and container contexts.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-5 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:313; scratchpad/test/markdown/format.test.ts:321 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:335",
+          "upstreamBehaviour": "Independent nested bullet edits can turn marker-only list lines into thematic breaks and erase the list structure.",
+          "labBehaviour": "All range-selected bullet edits are projected together; edits on a line that would introduce a thematic break are suppressed.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-6 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:335 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:591",
+          "upstreamBehaviour": "Bare-CR replacements bypass LF-only multiline protection and can escape blockquotes or alter headings and table rows.",
+          "labBehaviour": "CR and LF both trigger typed UnsupportedTarget inside protected multiline containers.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-7 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:591 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:610",
+          "upstreamBehaviour": "Replacing ATX heading text with after # emits a closing-hash sequence and loses the requested literal hash on reparse.",
+          "labBehaviour": "The replacement escapes a newly introduced terminal hash run in the surrounding heading source, preserving literal heading content.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-8 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:610 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:630",
+          "upstreamBehaviour": "A Link or LinkReference fragment inside another link succeeds but invalidates the surrounding link when reparsed.",
+          "labBehaviour": "Direct and descendant link fragments inside either link context fail with typed UnsupportedTarget before rendering.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-9 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:630 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:648; scratchpad/test/markdown/format.test.ts:665",
+          "upstreamBehaviour": "Flow replacements render in isolation and can merge with preceding paragraphs or become prose inside preceding lists or footnotes.",
+          "labBehaviour": "The replacement is parsed in its actual source context; blocks that lose their category or splice-relative start in the container slot fail with typed UnsupportedTarget.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-10 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/format.test.ts:648; scratchpad/test/markdown/format.test.ts:665 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/mdast.test.ts:146; scratchpad/test/markdown/mdast.test.ts:164",
+          "upstreamBehaviour": "Cyclic foreign mdast children recurse until RangeError, escaping Result and becoming an Effect defect.",
+          "labBehaviour": "Ancestor back-edges return MdastDecodeError with a structured InvalidValue issue through both APIs; shared acyclic subtrees remain accepted.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-23 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/mdast.test.ts:146; scratchpad/test/markdown/mdast.test.ts:164 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/hardening.test.ts:135; scratchpad/test/markdown/hardening.test.ts:156",
+          "upstreamBehaviour": "Independent block and inline depth budgets accept combined trees deeper than 256 which the visitor truncates and stringifier rejects.",
+          "labBehaviour": "Successful parsing requires the entire materialized tree to fit the existing depth budget from root depth zero; excessive combined depth returns the typed parse failure.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-24 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/hardening.test.ts:135; scratchpad/test/markdown/hardening.test.ts:156 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/mdast.test.ts:176",
+          "upstreamBehaviour": "Projection recomputes list spread from synthetic item positions and loses explicit spread:true on positionless foreign lists.",
+          "labBehaviour": "Lists with synthetic item positions preserve the admitted spread flag; real item positions continue to determine between-item spacing.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-25 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/mdast.test.ts:176 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/internal/blocks/linkReferenceDefinition.property.test.ts:59",
+          "upstreamBehaviour": "Extracting a definition before 150000 shallow paragraph lines spreads the surviving segments into call arguments and throws RangeError in Node.",
+          "labBehaviour": "The existing segment array is cleared and refilled iteratively, preserving identity and order while allowing the valid shallow paragraph to parse.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-35 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/internal/blocks/linkReferenceDefinition.property.test.ts:59 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:992",
+          "upstreamBehaviour": "Decoded entity-shaped link/image destinations and titles are emitted directly and decoded again on reparse, changing their values.",
+          "labBehaviour": "Literal ampersands are encoded before destination syntax and title quoting, preserving decoded URLs and titles for links, images and definitions.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-36 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/stringify.test.ts:992 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1014",
+          "upstreamBehaviour": "Decoded code language and metadata are inserted as active fence syntax; backticks, entities and whitespace can alter fences, values or language boundaries.",
+          "labBehaviour": "Info-string encoding protects ampersands, backslashes, backticks, line endings, language whitespace and metadata edge whitespace, preserving decoded language, metadata and code content.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-37 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/stringify.test.ts:1014 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1030",
+          "upstreamBehaviour": "Direct-image and full-image-reference alt serialization activates decoded markup and entity syntax, losing literal alt characters.",
+          "labBehaviour": "Both image arms apply inline-text escaping to decoded alt text, preserving literal emphasis, code, HTML, brackets, backslashes and entity-shaped text.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-38 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/stringify.test.ts:1030 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1047",
+          "upstreamBehaviour": "Balanced destinations deeper than 32 parentheses are emitted bare, although the parser rejects that bare nesting depth.",
+          "labBehaviour": "Destinations above the parser cap retain angle brackets; the 32-level boundary still uses bare spelling and both cases round-trip as links.",
+          "reason": "upstream-bug: Round-2 INVENTORY.md req-39 reproduces the defect against the pinned oracle; the working-tree source diff and scratchpad/test/markdown/stringify.test.ts:1047 regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/internal/blocks/linkReferenceDefinition.property.test.ts:36; scratchpad/test/markdown/internal/blocks/linkReferenceDefinition.property.test.ts:80",
+          "upstreamBehaviour": "Each consecutive definition rescans the growing child prefix and recreates the remaining source-segment suffix, causing quadratic extraction bookkeeping.",
+          "labBehaviour": "Extraction tracks consumed text and one insertion index, positions against original segments, and rebases the surviving suffix once; final-child extraction avoids preceding-sibling reads.",
+          "reason": "upstream-bug: Pinned oracle src/internal/blocks/linkReferenceDefinition.ts retains per-definition children.indexOf and sliceWithSegments; INVENTORY req-40 identifies quadratic bookkeeping. The diff removes both repeated scans and adds deterministic read-bound, identity, order and position regressions."
+        },
+        {
+          "test": "scratchpad/test/markdown/internal/entityMap.coverage.test.ts; scratchpad/test/markdown/internal/blockRegistry.coverage.test.ts",
+          "upstreamBehaviour": "Entity lookup and block construct registries expose native ReadonlyMap methods and insertion-order iteration; the earlier lab port retained ordered facades over HashMap.",
+          "labBehaviour": "ENTITY_MAP and BlockDialect.constructs expose Effect HashMap directly, with Option lookups and hash traversal order. Explicit scanner starts retain parsing precedence.",
+          "reason": "native-runtime: Laws 6, 7 and 10 plus the native-collection ruling require direct Effect collections; req-14 and req-15 remove the retained facades. This records the new contract/order change, rather than repeating the earlier underlying Map-to-HashMap migration."
+        },
+        {
+          "test": "scratchpad/test/markdown/inline-pass.test.ts:23; scratchpad/test/markdown/internal/entities.coverage.test.ts:8; scratchpad/test/markdown/internal/entities.property.test.ts:17",
+          "upstreamBehaviour": "decodeEntity returns a decoded string or undefined for malformed, unknown or unterminated references.",
+          "labBehaviour": "decodeEntity returns Option<string>; both production consumers use literal-source fallback on None, preserving parsed text and successful decoded values.",
+          "reason": "effect-first: EF-2 requires internally produced absence to use Option. Req-20 changes this decoder contract; the existing scanDelims Option deviation concerns a different function."
+        },
+        {
+          "test": "scratchpad/test/markdown/internal/blockTypes.property.test.ts; scratchpad/test/markdown/internal/inlineParser.property.test.ts; scratchpad/test/markdown/internal/blocks/frontmatter.property.test.ts:17; scratchpad/test/markdown/internal/blocks/table.property.test.ts:27; scratchpad/test/markdown/mdx.test.ts",
+          "upstreamBehaviour": "RawDiagnostic, source/provenance, reference, capture and table intermediate models are type-only; several engine domains are hand-written unions. JSX empty-name checks report struct-level filter issues.",
+          "labBehaviour": "New annotated schema values own RawDiagnostic, SourceLine, LineColumn, ParsedReference, RawInlineSegment, InlineSource, frontmatter captures and table models; LiteralKit owns engine kinds and shared raw domains. Shared NonEmptyString moves JSX empty-name issues to name fields; parser payloads remain plain objects.",
+          "reason": "schema-first: D5 and laws 17-19 require executable pure-data models, named domains, derived types/guards and annotations. Req-12,17,19,26,31-34,41-42 add newly exposed model shapes and field-level JSX issues; earlier navigation/options/domain migrations are not repeated."
+        },
+        {
+          "test": "scratchpad/test/markdown/delimiter-run.test.ts:62; scratchpad/test/markdown/line-index.test.ts:8; scratchpad/test/markdown/internal/Preprocess.property.test.ts; scratchpad/test/markdown/internal/references.property.test.ts",
+          "upstreamBehaviour": "Newly modeled diagnostic, source/provenance, capture and table numeric fields have no executable finite-number validation; DelimiterRun.numdelims accepts any finite number in the earlier lab schema.",
+          "labBehaviour": "New schemas use finite numeric fields; DelimiterRun.numdelims additionally requires a positive integer, rejecting zero, negative and fractional lengths. Ordinary parser outputs and scanning behavior are preserved.",
+          "reason": "numeric-domains: TS377098 effect(schemaNumber) requires finite domain numbers, and req-46 requires the positive integer delimiter invariant. This records new model admission and positive-integer tightening, not the existing general Number-to-Finite node/range migration."
         }
       ],
       "backlog": [
@@ -9406,6 +9544,210 @@
           "round": 1,
           "finding": "back-17 — Autolink underflow branches appear unreachable (scratchpad/effected/markdown/internal/inlines/autolinkLiteral.ts:124)",
           "reason": "test: During S3 remove unreachable autolink underflow branches and retain the useful surrounding trimming explanation."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-1 — DocumentSection schema migration needs a concrete compatibility design (scratchpad/effected/markdown/MarkdownDocument.ts:119)",
+          "reason": "schema: Private source state and navigation getters require a representation/constructor compatibility design; the reports propose a public-shape deviation without proving it necessary. Retain as the seats’ schema-design backlog under section 14."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-2 — Parse option defaults live in call-site fallbacks (scratchpad/effected/markdown/Markdown.ts:236)",
+          "reason": "effect-idiom: Optional-field construction/encoding would change; the preference does not establish that the proposed public transformation is safe or forced (D9/section 14)."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-3 — Diagnostic annotation contains TSDoc reference residue (scratchpad/effected/markdown/MarkdownDiagnostic.ts:94)",
+          "reason": "docs: Documentation/annotation prose is deferred; no executable schema defect."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-4 — SectionQueryOptions field uses export-style documentation tags (scratchpad/effected/markdown/MarkdownDocument.ts:343)",
+          "reason": "docs: Documentation/JSDoc work is deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-5 — RegExp matcher uses instanceof rather than Predicate.isRegExp (scratchpad/effected/markdown/MarkdownDocument.ts:832)",
+          "reason": "effect-idiom: The cited typeof law does not ban instanceof; behavior-identical stylistic preference outside D11."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-6 — Adjacent array checks mix native and Effect helpers (scratchpad/effected/markdown/MarkdownFormat.ts:974)",
+          "reason": "effect-idiom: Behavior-identical helper consistency without a demonstrated hard-law or semantic violation; outside D11."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-7 — Resolver field comment formatting and non-export tags are inconsistent (scratchpad/effected/markdown/FrontmatterResolver.ts:67)",
+          "reason": "docs: Documentation/JSDoc work is deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-8 — Frontmatter set normalizes a CRLF block to LF (scratchpad/effected/markdown/Frontmatter.ts:426)",
+          "reason": "docs: Documentation clarification is deferred; source matches upstream and no verified bug or mandatory law cause is shown."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "back-9 — Formatter property inputs omit adjacency/code-point hazards (scratchpad/test/markdown/MarkdownDocument.property.test.ts:46)",
+          "reason": "test: Coverage/property-floor work is deferred; required bugs still own focused regressions."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-10 — Inline materialization still has unmeasured constant-factor allocation (scratchpad/effected/markdown/internal/inlineParser.ts:682)",
+          "reason": "perf: No measurement or algorithmic-class improvement; D11 performance threshold is not met."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-11 — Parent/tail invariants use untyped Option defects (scratchpad/effected/markdown/internal/blockParser.ts:373)",
+          "reason": "effect-idiom: Neither seat demonstrates a reachable failure. The S3 simplification is forced by section 11.3, so the unforced-restore rule does not apply; typed-invariant consistency is backlog."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-12 — Mdast foreign-record predicate has a behavior-identical simplification (scratchpad/effected/markdown/Mdast.ts:347)",
+          "reason": "effect-idiom: Helper terseness only, without semantic or hard-law defect."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-13 — Registry/parser JSDoc section spacing is inconsistent (scratchpad/effected/markdown/internal/blockRegistry.ts:168)",
+          "reason": "jsdoc: Documentation/JSDoc work is deferred."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "back-14 — Record removal of the unreachable fence-character refusal (scratchpad/effected/markdown/internal/blocks/fencedCode.ts:42)",
+          "reason": "docs: outside the port's write surface; documentation/coverage bookkeeping is deferred, not one of the enumerated law-forced systemic recording classes."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "back-15 — Record removal of the unreachable empty-meta guard (scratchpad/effected/markdown/internal/blocks/code.ts:72)",
+          "reason": "docs: outside the port's write surface; documentation/coverage bookkeeping is deferred, not a required restoration."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "back-16 — Record collapse of the redundant destination end check (scratchpad/effected/markdown/internal/references.ts:266)",
+          "reason": "docs: outside the port's write surface; documentation/coverage bookkeeping is deferred, not a required restoration."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-17 — Inline dialect lookup could use getOrThrowWith directly (scratchpad/effected/markdown/internal/inlineRegistry.ts:147)",
+          "reason": "effect-idiom: Equivalent helper shortening without observable defect; outside D11."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-18 — Total list-marker values still pass through Option spreads (scratchpad/effected/markdown/internal/blocks/list.ts:62)",
+          "reason": "effect-idiom: Equivalent helper shortening without observable defect; outside D11."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-19 — Segment binary search retains an unreachable undefined guard (scratchpad/effected/markdown/internal/segments.ts:56)",
+          "reason": "test: Coverage-stage source cleanup is deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-20 — Frontmatter line loops retain unreachable undefined checks (scratchpad/effected/markdown/internal/blocks/frontmatter.ts:117)",
+          "reason": "test: Coverage-stage source cleanup is deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-21 — Mandatory footnote capture retains a redundant undefined check (scratchpad/effected/markdown/internal/blocks/footnoteDefinition.ts:143)",
+          "reason": "test: Coverage-stage source cleanup is deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-22 — HTML block-close lookup retains dead fallbacks (scratchpad/effected/markdown/internal/blocks/htmlBlock.ts:68)",
+          "reason": "test: Coverage-stage source cleanup is deferred."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-23 — Reference header still describes a native Map (scratchpad/effected/markdown/internal/references.ts:23)",
+          "reason": "docs: Documentation work is deferred; the actual recorded collection replacement is not shown wrong here."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-24 — Reference scanner duplicates ESCAPABLE (scratchpad/effected/markdown/internal/references.ts:29)",
+          "reason": "effect-idiom: Behavior-identical reuse cleanup without demonstrated defect; outside D11."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-25 — LineIndex Gotchas contradict actual constructor checks (scratchpad/effected/markdown/internal/lineIndex.ts:129)",
+          "reason": "jsdoc: Documentation/JSDoc work is deferred."
+        },
+        {
+          "seat": "sol",
+          "round": 2,
+          "finding": "back-26 — Depth-limit prose incorrectly promises guarded schema decoding (scratchpad/effected/markdown/internal/limits.ts:11)",
+          "reason": "docs: Documentation is deferred; evidence disproves the prose, not an executable admission contract requiring a new guard."
+        },
+        {
+          "seat": "sol",
+          "round": 2,
+          "finding": "back-27 — Eight exported inline doc blocks contain empty Details sections (scratchpad/effected/markdown/internal/inlines/codeSpan.ts:22)",
+          "reason": "jsdoc: All eight sites share the empty-section conversion defect. Documentation/JSDoc is backlog under this merge request even when it demonstrates a docgen gate miss."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-28 — Link-close domain results still use undefined sentinels (scratchpad/effected/markdown/internal/inlines/link.ts:261)",
+          "reason": "effect-idiom: Method-local Option refactor crosses retained reference-scanner boundary contracts; no observable failure or new evidence against a closed contract. Retain coordinated idiom backlog as the seat classified it."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-29 — Data-last inline overloads lack behavior tests (scratchpad/test/markdown/internal/inlines/FootnoteReference.property.test.ts:26)",
+          "reason": "test: Coverage/test-floor work is deferred; the seat verified matching arities and demonstrated no bug."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-30 — Inline property floors duplicate test templates (scratchpad/test/markdown/internal/inlines/codeSpan.property.test.ts:18)",
+          "reason": "test: Vitest-canon/test consolidation is deferred; no law violation or failed behavior shown."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "back-31 — Footnote overload parameter types are unnecessarily indirect (scratchpad/effected/markdown/internal/inlines/footnoteReference.ts:94)",
+          "reason": "type-safety: Indexed Parameters types are sound, without unsafe assertions; signature readability is outside D11."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "req-2 — Setext-to-ATX conversion loses literal trailing hashes (scratchpad/effected/markdown/MarkdownFormat.ts:429)",
+          "reason": "bug: Source fix is reported complete; LEFT refers only to section 14 ledger/README bookkeeping outside the fix lane write surface. This round supplies its new deviation record."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "req-8 — Heading text replacements lose a trailing literal hash (scratchpad/effected/markdown/MarkdownFormat.ts:947)",
+          "reason": "bug: Source fix is reported complete; LEFT refers only to section 14 ledger/README bookkeeping outside the fix lane write surface. This round supplies its new deviation record."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "req-12 — Raw cross-module errors and diagnostic payload lack schemas (scratchpad/effected/markdown/internal/carriers.ts:77)",
+          "reason": "law: Direct S.TaggedError migration needs coordinated factory changes in unowned blockParser, inlineParser and stringify callers; positional constructors hit TS377044 and guards hit TS377042. Shared code/payload schemas were added, but both carriers still extend Data.TaggedError."
         }
       ],
       "reviewRounds": [
@@ -9424,6 +9766,24 @@
             "fable": {
               "required": 12,
               "backlog": 25
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 24,
+              "backlog": 11
+            },
+            "sol": {
+              "required": 29,
+              "backlog": 1
+            },
+            "fable": {
+              "required": 34,
+              "backlog": 28
             }
           }
         }

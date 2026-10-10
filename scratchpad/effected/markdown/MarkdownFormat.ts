@@ -34,8 +34,10 @@ import * as A from "effect/Array";
 import * as O from "@beep/utils/Option";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
+import * as HashSet from "effect/HashSet";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Markdown, MarkdownDialect, MarkdownParseOptions } from "./Markdown.ts";
 import type { MarkdownDocument } from "./MarkdownDocument.ts";
 import type { MarkdownRange } from "./MarkdownEdit.ts";
@@ -292,7 +294,7 @@ const ALPHANUMERIC = /[\p{L}\p{N}]/u;
 /** The start offset of the line containing `offset`. */
 const lineStartOf = (source: string, offset: number): number => {
 	let i = offset;
-	while (i > 0 && source.charCodeAt(i - 1) !== 0x0a) {
+	while (i > 0 && source.charCodeAt(i - 1) !== 0x0a && source.charCodeAt(i - 1) !== 0x0d) {
 		i--;
 	}
 	return i;
@@ -305,7 +307,7 @@ const previousLineBlank = (source: string, offset: number): boolean => {
 		return true;
 	}
 	let i = lineStart - 1;
-	if (i > 0 && source.charCodeAt(i - 1) === 0x0d) {
+	if (source.charCodeAt(i) === 0x0a && i > 0 && source.charCodeAt(i - 1) === 0x0d) {
 		i--;
 	}
 	const prevStart = lineStartOf(source, i);
@@ -355,14 +357,15 @@ interface TaggedEdit {
 	readonly content: string;
 	readonly nodeStart: number;
 	readonly nodeEnd: number;
+	readonly bullet: boolean;
 }
 
 /** Accumulates edits after the formatting helpers have excluded unchanged markers. */
 class FormatEmitter {
 	readonly edits: Array<TaggedEdit> = [];
-	push(node: MarkdownNode, offset: number, length: number, content: string): void {
+	push(node: MarkdownNode, offset: number, length: number, content: string, bullet = false): void {
 		const { start, end } = spanOf(node);
-		this.edits.push({ offset, length, content, nodeStart: start, nodeEnd: end });
+		this.edits.push({ offset, length, content, nodeStart: start, nodeEnd: end, bullet });
 	}
 }
 
@@ -407,7 +410,7 @@ const formatHeading = (
 		if (node.depth > 2 || SETEXT_CONTENT_HAZARD.test(original)) {
 			return false;
 		}
-		if (start !== 0 && source.charCodeAt(start - 1) !== 0x0a) {
+		if (lineStartOf(source, start) !== start || !previousLineBlank(source, start)) {
 			return false;
 		}
 	}
@@ -426,6 +429,7 @@ const formatHeading = (
 		MarkdownEdit.make({ offset: edit.offset - contentStart, length: edit.length, content: edit.content }),
 	));
 	if (target === "atx") {
+		if (/(?:^|[ \t])#+[ \t]*$/.test(content)) return false;
 		emit.push(node, start, end - start, `${"#".repeat(node.depth)} ${content}`);
 		return true;
 	}
@@ -458,9 +462,20 @@ const formatList = (
 		return;
 	}
 	for (const item of node.children) {
-		emit.push(node, item.position.start.offset, 1, target);
+		emit.push(node, item.position.start.offset, 1, target, true);
 	}
 };
+
+const codePointBefore = (source: string, offset: number): string => {
+	let start = offset - 1;
+	const low = O.exists(Str.charCodeAt(source, start), (code) => code >= 0xdc00 && code <= 0xdfff);
+	const high = O.exists(Str.charCodeAt(source, start - 1), (code) => code >= 0xd800 && code <= 0xdbff);
+	if (low && high) start--;
+	return Str.slice(Math.max(0, start), offset)(source);
+};
+
+const codePointAfter = (source: string, offset: number): string =>
+	Str.slice(offset, offset + (O.exists(Str.codePointAt(source, offset), (code) => code > 0xffff) ? 2 : 1))(source);
 
 const isEmphasisLike = (node: MarkdownNode): node is Emphasis | Strong => node.type === "emphasis" || node.type === "strong";
 
@@ -480,7 +495,7 @@ const formatEmphasis = (
 	const { start, end } = spanOf(node);
 	if (
 		target === "_" &&
-		((start > 0 && ALPHANUMERIC.test(source.charAt(start - 1))) || (end < source.length && ALPHANUMERIC.test(source.charAt(end))))
+		((start > 0 && ALPHANUMERIC.test(codePointBefore(source, start))) || (end < source.length && ALPHANUMERIC.test(codePointAfter(source, end))))
 	) {
 		return;
 	}
@@ -520,13 +535,20 @@ const formatFence = (source: string, emit: FormatEmitter, node: Code, target: Fe
 	}
 	const newLength = Math.max(3, openLength, longestRun(node.value, target) + 1);
 	emit.push(node, start, openLength, target.repeat(newLength));
-	let closeLength = 0;
-	while (end - closeLength > start + openLength && source[end - closeLength - 1] === fidelity) {
-		closeLength++;
-	}
-	if (closeLength >= 3) {
-		emit.push(node, end - closeLength, closeLength, target.repeat(newLength));
-	}
+	// A genuine closing line is the one source line after all content lines.
+	// The parsed value already accounts for actual container prefixes: every
+	// unclosed content line contributes a newline, including a literal run
+	// of backticks. Count locally so normalizing many fences stays linear.
+	let lineEnd = end;
+	while (lineEnd > start && (source[lineEnd - 1] === " " || source[lineEnd - 1] === "\t")) lineEnd--;
+	const closeLineStart = lineStartOf(source, lineEnd);
+	if (closeLineStart <= start) return;
+	let closeStart = lineEnd;
+	while (closeStart > closeLineStart && source[closeStart - 1] === fidelity) closeStart--;
+	if (lineEnd - closeStart < openLength) return;
+	const physicalLines = A.length(Str.split(Str.slice(start, lineEnd)(source), /\r\n|[\r\n]/));
+	const contentLines = A.length(Str.split(node.value, "\n")) - 1;
+	if (physicalLines === contentLines + 2) emit.push(node, closeStart, lineEnd - closeStart, target.repeat(newLength));
 };
 
 /** A line that is empty or holds only spaces and tabs. */
@@ -797,15 +819,13 @@ export abstract class MarkdownFormat {
 		range?: MarkdownRangeLike,
 		options?: MarkdownFormattingOptions,
 	): ReadonlyArray<MarkdownEdit> {
-		const parsed = Markdown.parseResult(
-			text,
-			MarkdownParseOptions.make({
-				...O.getSomesStruct({
-					dialect: O.fromUndefinedOr(options?.dialect),
-					frontmatter: O.fromUndefinedOr(options?.frontmatter),
-				}),
+		const parseOptions = MarkdownParseOptions.make({
+			...O.getSomesStruct({
+				dialect: O.fromUndefinedOr(options?.dialect),
+				frontmatter: O.fromUndefinedOr(options?.frontmatter),
 			}),
-		);
+		});
+		const parsed = Markdown.parseResult(text, parseOptions);
 		if (Result.isFailure(parsed)) {
 			return [];
 		}
@@ -843,7 +863,30 @@ export abstract class MarkdownFormat {
 				: emit.edits.filter(
 						(edit) => Math.max(edit.nodeStart, range.offset) <= Math.min(edit.nodeEnd, range.offset + range.length),
 					);
-		return filtered.map((edit) =>
+		const bulletEdits = A.filter(filtered, (edit) => edit.bullet);
+		const hazardousLines: Array<number> = [];
+		if (A.isReadonlyArrayNonEmpty(bulletEdits)) {
+			const originalBreaks: Array<number> = [];
+			walk(parsed.success, undefined, [], 0, (node) => {
+				if (node.type === "thematicBreak") originalBreaks.push(spanOf(node).start);
+			});
+			const existingBreaks = HashSet.fromIterable(originalBreaks);
+			// Project the complete range-filtered wave, including nested lists on
+			// the same physical line, before judging the thematic-break hazard.
+			const projected = MarkdownEdit.applyAll(text, A.map(bulletEdits, (edit) => MarkdownEdit.make(edit)));
+			const reparsed = Markdown.parseResult(projected, parseOptions);
+			if (Result.isSuccess(reparsed)) {
+				walk(reparsed.success, undefined, [], 0, (node) => {
+					if (node.type === "thematicBreak" && !HashSet.has(existingBreaks, spanOf(node).start)) {
+						hazardousLines.push(lineStartOf(projected, spanOf(node).start));
+					}
+				});
+			} else {
+				for (const edit of bulletEdits) hazardousLines.push(lineStartOf(text, edit.offset));
+			}
+		}
+		const hazards = HashSet.fromIterable(hazardousLines);
+		return A.map(A.filter(filtered, (edit) => !edit.bullet || !HashSet.has(hazards, lineStartOf(text, edit.offset))), (edit) =>
 			MarkdownEdit.make({ offset: edit.offset, length: edit.length, content: edit.content }),
 		);
 	}
@@ -939,6 +982,13 @@ export abstract class MarkdownFormat {
 		} else {
 			return yield* fail("UnsupportedTarget", `a ${target.type} node inside a ${parent.type} cannot be replaced`);
 		}
+		if (!P.isString(replacement) && A.some(ancestry, (node) => node.type === "link" || node.type === "linkReference")) {
+			let containsLink = false;
+			walk(replacement, undefined, [], 0, (node) => {
+				if (node.type === "link" || node.type === "linkReference") containsLink = true;
+			});
+			if (containsLink) return yield* fail("UnsupportedTarget", "a link replacement cannot be nested inside another link");
+		}
 		let renderRoot: Root;
 		if (P.isString(replacement)) {
 			// Synthesized render scaffolding: `make` fills the zero-width
@@ -970,12 +1020,47 @@ export abstract class MarkdownFormat {
 		}
 		const renderedContent = rendered.success.replace(/\n+$/, "");
 		const inCell = slot === "cell" || A.some(ancestry, (ancestor) => ancestor.type === "tableCell");
-		const content = inCell ? escapeCellPipes(renderedContent) : renderedContent;
-		if (content.includes("\n") && ancestry.some((ancestor) => isNoMultilineAncestor(ancestor.type))) {
+		let content = inCell ? escapeCellPipes(renderedContent) : renderedContent;
+		if (/[\r\n]/.test(content) && A.some(ancestry, (ancestor) => isNoMultilineAncestor(ancestor.type))) {
 			return yield* fail(
 				"UnsupportedTarget",
 				"a multi-line replacement cannot be spliced inside a container whose continuation lines carry a prefix",
 			);
+		}
+		const heading = A.findFirst(ancestry, (node): node is Heading => node.type === "heading" && node.headingStyle === "atx");
+		if (O.isSome(heading)) {
+			const headingStart = spanOf(heading.value).start;
+			const prefix = Str.slice(headingStart, start)(document.source);
+			const projected = prefix + content + Str.slice(end, spanOf(heading.value).end)(document.source);
+			let hashEnd = projected.length;
+			while (projected[hashEnd - 1] === " " || projected[hashEnd - 1] === "\t") hashEnd--;
+			let hashStart = hashEnd;
+			while (projected[hashStart - 1] === "#") hashStart--;
+			if (hashStart < hashEnd && (hashStart === 0 || projected[hashStart - 1] === " " || projected[hashStart - 1] === "\t") &&
+				hashStart >= prefix.length && hashStart < prefix.length + content.length) {
+				const at = hashStart - prefix.length;
+				content = Str.slice(0, at)(content) + "\\" + Str.slice(at)(content);
+			}
+		}
+		if (slot === "flow") {
+			const parseOptions = MarkdownParseOptions.make({ frontmatter: document.frontmatter !== undefined });
+			const standalone = Markdown.parseResult(content, parseOptions);
+			const projected = Markdown.parseResult(Str.slice(0, start)(document.source) + content + Str.slice(end)(document.source), parseOptions);
+			if (Result.isFailure(standalone) || Result.isFailure(projected)) {
+				return yield* fail("UnsupportedTarget", "the flow replacement cannot be parsed in its source context");
+			}
+			const contextualBlocks: Array<MarkdownNode> = [];
+			walk(projected.success, undefined, [], 0, (node, candidateParent) => {
+				if (candidateParent?.type === parent.type && spanOf(candidateParent).start === spanOf(parent).start) {
+					contextualBlocks.push(node);
+				}
+			});
+			// Reuse actual interruption grammar: each standalone block must still
+			// begin at its splice-relative offset in the same container slot.
+			if (!A.every(standalone.success.children, (node) => A.some(contextualBlocks, (candidate) =>
+				candidate.type === node.type && spanOf(candidate).start === start + spanOf(node).start))) {
+				return yield* fail("UnsupportedTarget", "the preceding block context would absorb the flow replacement");
+			}
 		}
 		const edits: ReadonlyArray<MarkdownEdit> = [MarkdownEdit.make({ offset: start, length: end - start, content })];
 		return edits;

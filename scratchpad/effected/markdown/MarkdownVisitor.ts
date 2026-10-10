@@ -18,8 +18,8 @@
 // ends, never a defect and never a stream failure (the yaml visitor's
 // diagnostics-as-events precedent).
 
-import * as A from "effect/Array";
 import * as Data from "effect/Data";
+import * as Iterable from "effect/Iterable";
 import * as Stream from "effect/Stream";
 import { MAX_NESTING_DEPTH } from "./internal/limits.ts";
 import { MarkdownDiagnostic } from "./MarkdownDiagnostic.ts";
@@ -176,7 +176,7 @@ function* walkNode(node: MarkdownNode, path: MarkdownPath, depth: number): Gener
 
 		if ("children" in node) {
 			const children: ReadonlyArray<MarkdownNode> = node.children;
-			for (const [child, index] of A.map(children, (child, index) => [child, index] as const)) {
+			for (const [child, index] of Iterable.map(children, (child, index) => [child, index] as const)) {
 				const events = walkNode(child, [...path, index], depth + 1);
 				for (const event of events) {
 					yield event;

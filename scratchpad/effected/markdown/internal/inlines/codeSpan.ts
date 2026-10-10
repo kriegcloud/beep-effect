@@ -24,7 +24,7 @@ const reNonSpace = /[^ ]/;
  * **Example** (Register the backtick trigger)
  *
  * ```ts
- * import { codeSpanConstruct } from "@beep/scratchpad/effected/markdown/internal/inlines/codeSpan"
+ * import { codeSpanConstruct } from "../../../../effected/markdown/internal/inlines/codeSpan.ts"
  *
  * console.log(codeSpanConstruct.triggers.map((code) => String.fromCharCode(code)).join("")) // `
  * ```

@@ -17,8 +17,9 @@
 //    `markerOffset + padding`; the offset form of that is the item's start
 //    plus its padding, which is what the fallback below uses.
 
-import type { BulletChar, ListDelimiter } from "../../MarkdownNode.ts";
-import { List, ListItem } from "../../MarkdownNode.ts";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+import { BulletChar, List, ListDelimiter, ListItem } from "../../MarkdownNode.ts";
 import type { BlockConstruct, BlockNode, BlockScanner, BlockStart, ListData } from "../blockTypes.ts";
 import { flowChildren, listItemChildren } from "../blockTypes.ts";
 import { isSpaceOrTab, peekCode } from "../preprocess.ts";
@@ -28,11 +29,8 @@ const reBulletListMarker = /^[*+-]/;
 const reOrderedListMarker = /^(\d{1,9})([.)])/;
 const reNonSpace = /[^ \t\f\v\r\n]/;
 
-// Called only after reBulletListMarker has matched one of these three bytes.
-const bulletCharOf = (char: string): BulletChar => (char === "-" ? "-" : char === "*" ? "*" : "+");
-
-// Called only with the final byte of a matched ordered marker.
-const delimiterOf = (char: string): ListDelimiter => (char === "." ? "." : ")");
+const decodeBulletChar = S.decodeUnknownResult(BulletChar);
+const decodeListDelimiter = S.decodeUnknownResult(ListDelimiter);
 
 /**
  * Parse a list marker at the scanner's next non-whitespace position,
@@ -53,7 +51,7 @@ const parseListMarker = (scanner: BlockScanner, container: BlockNode): ListData 
 	const ordered = bullet === null ? reOrderedListMarker.exec(rest) : null;
 
 	if (bullet !== null) {
-		const bulletChar = bulletCharOf(bullet[0].charAt(0));
+		const bulletChar = Result.getOrThrow(decodeBulletChar(bullet[0].charAt(0)));
 		data = {
 			type: "bullet",
 			tight: true,
@@ -63,7 +61,7 @@ const parseListMarker = (scanner: BlockScanner, container: BlockNode): ListData 
 		};
 		markerLength = bullet[0].length;
 	} else if (ordered !== null && (container.type !== "paragraph" || Number.parseInt(ordered[0].slice(0, -1), 10) === 1)) {
-		const delimiter = delimiterOf(ordered[0].slice(-1));
+		const delimiter = Result.getOrThrow(decodeListDelimiter(ordered[0].slice(-1)));
 		data = {
 			type: "ordered",
 			tight: true,

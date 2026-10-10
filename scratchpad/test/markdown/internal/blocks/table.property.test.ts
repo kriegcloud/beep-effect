@@ -7,6 +7,7 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Markdown, MarkdownFormat, MarkdownFormattingOptions, Mdast } from "../../../../effected/markdown/index.ts";
+import { CellContent, RawCell, RowSource, ScannedRow } from "../../../../effected/markdown/internal/blocks/table.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 // Positions refer to different byte strings after canonical serialization.
@@ -23,6 +24,42 @@ const sourceOf = (text: string, style: string) => `| ${text} | other |\n| ${styl
 const options = MarkdownFormattingOptions.make({ headingStyle: "atx", bulletChar: "-" });
 
 describe("table parser properties", () => {
+  it.effect("scanner models retain text provenance, cell boundaries and optional scan status", () => Effect.gen(function* () {
+    const source = { text: "  a\\|b | tail |\n", segments: [{ textOffset: 0, sourceOffset: 10, length: 15 }] };
+    const cell = { start: 0, contentStart: 2, end: 6 };
+    const row = { cells: [cell], paragraphOffset: 0 };
+    const content = { text: "a|b", segments: [
+      { textOffset: 0, sourceOffset: 12, length: 1 },
+      { textOffset: 1, sourceOffset: 14, length: 2 },
+    ] };
+    assert.deepStrictEqual(yield* S.decodeEffect(RowSource)(source), source);
+    assert.deepStrictEqual(yield* S.decodeEffect(RawCell)(cell), cell);
+    assert.deepStrictEqual(yield* S.decodeEffect(ScannedRow)(row), row);
+    assert.deepStrictEqual(yield* S.decodeEffect(ScannedRow)({ ...row, complete: false }), { ...row, complete: false });
+    assert.deepStrictEqual(yield* S.decodeEffect(CellContent)(content), content);
+    assert.deepStrictEqual(yield* S.encodeEffect(RowSource)(source), source);
+    assert.deepStrictEqual(yield* S.encodeEffect(CellContent)(content), content);
+    assert.isFalse(S.is(ScannedRow)({ ...row, complete: null }));
+    assert.isFalse(S.is(RawCell)({ ...cell, end: Infinity }));
+    assert.isFalse(S.is(RowSource)({ ...source, segments: [{ textOffset: 0, sourceOffset: "10", length: 15 }] }));
+  }));
+  it.effect("escaped cell text keeps its original source span", () => Effect.gen(function* () {
+    const source = "| a\\|b | tail |\n| --- | --- |\n| c | d |\n";
+    const root = yield* Markdown.parse(source);
+    const table = root.children[0];
+    assert.ok(table?.type === "table");
+    if (table?.type === "table") {
+      const cell = table.children[0]?.children[0];
+      assert.ok(cell !== undefined);
+      if (cell !== undefined) {
+        assert.strictEqual(cell.position.start.offset, 2);
+        assert.strictEqual(cell.position.end.offset, 6);
+        assert.strictEqual(source.slice(cell.position.start.offset, cell.position.end.offset), "a\\|b");
+        const text = cell.children[0];
+        assert.strictEqual(text?.type === "text" ? text.value : undefined, "a|b");
+      }
+    }
+  }));
   it.effect.prop("parse/stringify preserves all semantic fields and stabilizes", [words, styles], ([text, style]) => Effect.gen(function* () {
     const source = sourceOf(text, style);
     const parsed = yield* Markdown.parse(source);

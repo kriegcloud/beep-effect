@@ -1,13 +1,41 @@
-import { assert, describe, it } from "@effect/vitest";
+import { assert, describe, it, vi } from "@effect/vitest";
 import { assertDefined, assertFailure } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import { MarkdownDocument } from "../../effected/markdown/MarkdownDocument.ts";
+import { Markdown } from "../../effected/markdown/Markdown.ts";
 import { MarkdownFormat, MarkdownFormattingOptions, MarkdownModificationError } from "../../effected/markdown/MarkdownFormat.ts";
 import { Blockquote, type FlowContent, Paragraph, Text } from "../../effected/markdown/MarkdownNode.ts";
 import { MAX_NESTING_DEPTH } from "../../effected/markdown/internal/limits.ts";
 
 describe("MarkdownFormat coverage", () => {
+  it.effect("allows a link-free fragment inside a link", () => Effect.gen(function* () {
+    const doc = yield* MarkdownDocument.parse("[outer](/a)\n");
+    const target = doc.find("text");
+    assertDefined(target);
+    assert.strictEqual(yield* MarkdownFormat.modifyToString(doc, target, Text.make({ value: "inner" })), "[inner](/a)\n");
+  }));
+  it.effect("retains bullet spellings and rejects flow edits when contextual parsing fails", () => Effect.gen(function* () {
+    const doc = yield* MarkdownDocument.parse("hello\n");
+    const target = doc.find("paragraph");
+    assertDefined(target);
+    const rejected = Markdown.parseResult("> ".repeat(MAX_NESTING_DEPTH + 1) + "deep\n");
+    assertFailure(Result.mapError(rejected, (error) => error.diagnostic.code), "NestingDepthExceeded");
+    const parse = Markdown.parseResult;
+    const spy = vi.spyOn(Markdown, "parseResult");
+    try {
+      spy.mockImplementation((source, options) => source === "* a\n" ? parse(source, options) : rejected);
+      assert.strictEqual(MarkdownFormat.formatToString("* a\n", undefined, MarkdownFormattingOptions.make({ bulletChar: "-" })), "* a\n");
+      const result = yield* Effect.result(MarkdownFormat.modify(doc, target, "replacement"));
+      assertFailure(Result.mapError(result, (error) => error.code), "UnsupportedTarget");
+      spy.mockImplementation((source, options) => source === "replacement" ? parse(source, options) : rejected);
+      const contextual = yield* Effect.result(MarkdownFormat.modify(doc, target, "replacement"));
+      assertFailure(Result.mapError(contextual, (error) => error.code), "UnsupportedTarget");
+    } finally {
+      spy.mockRestore();
+    }
+  }));
+
   it.effect("reports typed errors with the concrete target span", () => Effect.gen(function* () {
     const doc = yield* MarkdownDocument.parse("hello\n");
     const target = doc.find("paragraph");
@@ -34,6 +62,8 @@ describe("MarkdownFormat coverage", () => {
 
   it.effect("normalizes safe markers while retaining hazardous container spellings", () => Effect.gen(function* () {
     const cases: ReadonlyArray<readonly [string, MarkdownFormattingOptions, string]> = [
+      ["```", MarkdownFormattingOptions.make({ fenceChar: "~" }), "~~~"],
+      ["``` \t", MarkdownFormattingOptions.make({ fenceChar: "~" }), "~~~ \t"],
       ["* a\n\nparagraph\n\n+ b\n", MarkdownFormattingOptions.make({ bulletChar: "-" }), "- a\n\nparagraph\n\n- b\n"],
       ["***\r\n\r\ntext\n", MarkdownFormattingOptions.make({ thematicBreakChar: "_" }), "___\r\n\r\ntext\n"],
       ["a\n\r\n***\n", MarkdownFormattingOptions.make({ thematicBreakChar: "-" }), "a\n\r\n---\n"],
