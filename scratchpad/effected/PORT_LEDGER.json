@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "yaml",
+    "module": "github-actions",
     "stage": 3,
     "commit": null,
-    "at": "2026-10-10T00:27:14.882Z"
+    "at": "2026-10-10T00:31:31.578Z"
   },
   "rows": [
     {
@@ -14594,7 +14594,7 @@
       "module": "github-actions",
       "wave": 5,
       "position": 1,
-      "stage": 2,
+      "stage": 3,
       "status": "in-progress",
       "provisionalHome": "drivers",
       "upstreamPaths": {
@@ -15426,6 +15426,72 @@
           "upstreamBehaviour": "PackageManagerInstaller validates bin targets but accepts escaping bin names; shim creation can write outside .bin and the extracted package on installs or cache hits.",
           "labBehaviour": "Schema-derived bin-name and resolved shim-destination checks reject all unsafe entries as layoutUnexpected before any shim directory/write/cache publication, retaining bin-target validation.",
           "reason": "upstream-bug: round-1 r21 pinned-oracle/stub probes accept ../../outside and record an out-of-package write; fix-github-actions-g10 reports the 36-case install/cache-hit Linux/Windows regression failing before and passing after containment validation."
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/ActionCache.ts:402 carried a branch no input can reach",
+          "labBehaviour": "Removed the empty-root guard; resolved include patterns always produce rooted paths.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/ActionCache.ts:417 carried a branch no input can reach",
+          "labBehaviour": "Removed the negated-wildcard guard; GlobSet classifies whole-pattern negations as excludes.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/ActionCache.ts:421 carried a branch no input can reach",
+          "labBehaviour": "Removed the empty-prefix fallback; every wildcard include was rooted before compilation.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/Artifact.ts:523 carried a branch no input can reach",
+          "labBehaviour": "Removed the unreachable now ?? 0 expiry fallback by carrying the retention deadline in an Option; date formatting remains inside the RPC body callback.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/BlobEnvelope.ts:378 carried a branch no input can reach",
+          "labBehaviour": "Removed the unreachable missing-version-byte fallback by reading the byte with DataView.getUint8 after the complete-header length check.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/internal/actionsResults.ts:167 carried a branch no input can reach",
+          "labBehaviour": "replaced redundant parts.length !== 3 with parts.length > 3. Existing undefined/empty run and job checks reject short scopes; accepted inputs and error messages are unchanged.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/internal/pnpmExe.ts:186 carried a branch no input can reach",
+          "labBehaviour": "Replaced split(\"?\")[0] ?? \"\" with removal of the first question mark and everything after it; split always supplies a first element.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/internal/sigv4.ts:179 carried a branch no input can reach",
+          "labBehaviour": "Replaced the empty-string fallback with getOrThrow; every queried key comes directly from the same unchanged map.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/DetachedProcess.ts:552 carried a branch no input can reach",
+          "labBehaviour": "The private empty constructor cannot be called through the TypeScript API; an abstract static utility class removes the explicit unreachable constructor while retaining the static operations and runtime behavior.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/GitHubMarkdown.ts:273 carried a branch no input can reach",
+          "labBehaviour": "The private empty constructor cannot be called through the TypeScript API; an abstract static utility class removes the explicit unreachable constructor while retaining the static operations and runtime behavior.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "module suite scratchpad/test/github-actions/** at per-file 100 percent coverage",
+          "upstreamBehaviour": "scratchpad/effected/github-actions/GitHubToken.ts:239 carried a branch no input can reach",
+          "labBehaviour": "The private empty constructor cannot be called through the TypeScript API; an abstract static utility class removes the explicit unreachable constructor while retaining the static operations and runtime behavior.",
+          "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
         }
       ],
       "backlog": [
@@ -15536,6 +15602,10 @@
         {
           "stage": 1,
           "sha": "d60d476ac65f3c98600a8616b0a7f3957d2e1faa"
+        },
+        {
+          "stage": 2,
+          "sha": null
         }
       ],
       "blocked": null,
@@ -15543,7 +15613,8 @@
         "2026-10-09T11:33:50.730Z beep laws done (four laws clean, allowlisted sites listed); S1 held by the environment-bound tests in TESTS_NOT_PASSING.md",
         "2026-10-09T15:21:56.678Z S1: green: env-bound tests resolved per the 2026-10-09 rulings; tsgo, oxlint and the four laws clean; audit green (parity strict)",
         "2026-10-09T16:20:29.824Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
-        "2026-10-09T16:24:06.816Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)"
+        "2026-10-09T16:24:06.816Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
+        "2026-10-10T00:31:31.578Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (26 ledgered exceptions), property floor"
       ],
       "closedAt": null
     }
