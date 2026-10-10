@@ -378,3 +378,22 @@ and reports no actionable finding. Closure:
 `productive-system-output-guard-independent-closure-v1.json`. Proceed to a normal
 local commit and exact-source default package verification. Actual native
 execution, full proof, productive custody and capacity remain separate gates.
+
+
+### Retain the package pass and actual runtime prerequisite probes
+
+Local `bb6be667a7` passes the default CLI package audit and docgen on its exact
+clean commit (813.52 seconds). The fresh offline prerequisite probe then passes
+public vendor/writable guards, the actual typos executable, frozen root typo
+scan, and the exact desktop IPC lane. That lane compiles the sidecar and passes
+its real stdio RPC integration test. Post-run source and immutable input checks
+pass; no capacity interruption or timeout occurred.
+
+These results permit preparing a fresh synthetic Collector request with the
+new system, exact sidecar output declaration and regenerated control contracts.
+They do not grant a native full Yeet pass, genuine Executor custody, a common
+green baseline or scored admission. Preserve all prior attempts and bind the
+next request to the unchanged CLI package tree. Reversal uses the retained
+request-nine inputs and original system inventories. Receipts:
+`runner-bb6-package-proof-parent-verification-v1.json` and
+`native-desktop-v3-parent-verification-v1.json`.

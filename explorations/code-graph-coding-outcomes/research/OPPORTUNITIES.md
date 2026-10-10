@@ -644,3 +644,18 @@ A source audit of remaining gates also found the mandatory full lint-policy
 `typos` executable absent from the declared runtime. Its preparation must use a
 fresh inventoried copy. Conditional browser assets remain unqualified; a skipped
 branch provides no readiness evidence. Receipt: `native-desktop-rust-probe-v2.json`.
+
+
+## Account for the full cache in probe admission
+
+A draft offline-probe plan allowed only 8 GiB of temporary space although the
+immutable Bun seed contains about 12 GB of logical file data and an earlier
+native allocation measured 18.6 GB. The estimate lacked evidence and was
+corrected before execution. Preserve the old plan; admit with a conservative
+64 GiB temporary allowance plus the 100 GiB reserve, and retain a watchdog that
+stops only the owned scope. The actual probe completed without interruption.
+Its guard/cache preparation took 410.04 seconds, separately from the 6-second
+desktop IPC command. Most memory at the 24 GiB cap was file cache; the observed
+cgroup counters showed no OOM kill. Receipts: `native-desktop-v3-probe-plan-v3.json`,
+`native-desktop-v3-resource-observations.jsonl` and
+`native-desktop-v3-parent-verification-v1.json`.
