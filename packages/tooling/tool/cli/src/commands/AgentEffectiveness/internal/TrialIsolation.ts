@@ -28,6 +28,7 @@ import {
   TrialNativeYeetRuntime,
   TrialRuntimeClosure,
 } from "./TrialProfile.schemas.ts";
+import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
 import type { TrialEvaluatorCheck } from "./TrialProfile.schemas.ts";
 
@@ -555,6 +556,40 @@ export const deriveTrialInvocation = Effect.fn("AgentEffectiveness.deriveTrialIn
   });
 });
 
+const readTrialInputMetadata = Effect.fn("AgentEffectiveness.readTrialInputMetadata")(function* (
+  full: string,
+  link: O.Option<string>
+) {
+  const fs = yield* FileSystem.FileSystem;
+  let observed: O.Option<TrialInputMetadata>;
+  if (O.isSome(link)) {
+    const result = yield* runCaptured({
+      command: "/usr/bin/stat",
+      args: ["--printf=%f,%u,%g", full],
+      extendEnv: false,
+      env: {},
+      source: "stdout",
+      timeout: "10 seconds",
+    });
+    const parts = Str.split(",")(result.output);
+    const fields = O.all({
+      mode: O.flatMap(A.get(parts, 0), (hex) => Num.parse(`0x${hex}`)),
+      uid: O.flatMap(A.get(parts, 1), Num.parse),
+      gid: O.flatMap(A.get(parts, 2), Num.parse),
+    });
+    observed =
+      result.exitCode === 0 && !result.truncated
+        ? O.flatMap(fields, S.decodeUnknownOption(TrialInputMetadata))
+        : O.none();
+  } else {
+    const info = yield* fs.stat(full);
+    observed = O.map(O.all({ uid: info.uid, gid: info.gid }), (ids) =>
+      TrialInputMetadata.make({ mode: info.mode, ...ids })
+    );
+  }
+  return observed;
+});
+
 /**
  * Validate a complete sealed inventory without following namespace-only links.
  * **Details**
@@ -599,7 +634,9 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
             : [];
       if (
         target !== link.value ||
-        !A.some(["/workspace/", "/runtime/", "/sealed/", ...nativeRoots], (root) => Str.startsWith(root)(projected))
+        !(namespaceRoot === "/runtime/bun-cache" || namespaceRoot === "/output/bun-cache"
+          ? projected === namespaceRoot || Str.startsWith(`${namespaceRoot}/`)(projected)
+          : A.some(["/workspace/", "/runtime/", "/sealed/", ...nativeRoots], (root) => Str.startsWith(root)(projected)))
       )
         return yield* AgentTrialError.make({
           stage: "proof",
@@ -615,32 +652,7 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
       return yield* AgentTrialError.make({ stage: "proof", message: "Sealed input file changed" });
     const metadata = input.metadata?.[name];
     if (metadata !== undefined) {
-      let observed: O.Option<TrialInputMetadata>;
-      if (O.isSome(link)) {
-        const result = yield* runCaptured({
-          command: "/usr/bin/stat",
-          args: ["--printf=%f,%u,%g", full],
-          extendEnv: false,
-          env: {},
-          source: "stdout",
-          timeout: "10 seconds",
-        });
-        const parts = Str.split(",")(result.output);
-        const fields = O.all({
-          mode: O.flatMap(A.get(parts, 0), (hex) => Num.parse(`0x${hex}`)),
-          uid: O.flatMap(A.get(parts, 1), Num.parse),
-          gid: O.flatMap(A.get(parts, 2), Num.parse),
-        });
-        observed =
-          result.exitCode === 0 && !result.truncated
-            ? O.flatMap(fields, S.decodeUnknownOption(TrialInputMetadata))
-            : O.none();
-      } else {
-        const info = yield* fs.stat(full);
-        observed = O.map(O.all({ uid: info.uid, gid: info.gid }), (ids) =>
-          TrialInputMetadata.make({ mode: info.mode, ...ids })
-        );
-      }
+      const observed = yield* readTrialInputMetadata(full, link);
       if (!O.exists(observed, (value) => sameMetadata(metadata, value)))
         return yield* AgentTrialError.make({ stage: "proof", message: "Sealed input ownership or mode changed" });
     }
@@ -670,11 +682,35 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
         cause: { unlisted: name },
       });
   }
+  if ((yield* trialInventoryDigest(input)) !== input.digest)
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Sealed inventory digest differs from frozen controls",
+    });
+});
+
+/**
+ * Hash the canonical inventory fields independently of a live filesystem root.
+ * **Details**
+ * This codec binds retained cache snapshots after their rebuildable directory is
+ * gone. Files, link literals, directories and metadata preserve validation order.
+ * **Example** (Compose a retained inventory digest)
+ * ```ts
+ * import { TrialInputInventory, trialInventoryDigest } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const digest = S.decodeUnknownEffect(TrialInputInventory)({}).pipe(Effect.flatMap(trialInventoryDigest))
+ * console.log(Effect.isEffect(digest)) // true: malformed inventories remain failures.
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const trialInventoryDigest = Effect.fn("AgentEffectiveness.trialInventoryDigest")(function* (
+  input: TrialInputInventory
+) {
   const canonical = {
-    files: Object.fromEntries(A.map(A.sort(Object.keys(input.files), Str.Order), (key) => [key, input.files[key]])),
-    symlinks: Object.fromEntries(
-      A.map(A.sort(Object.keys(input.symlinks), Str.Order), (key) => [key, input.symlinks[key]])
-    ),
+    files: R.fromEntries(A.map(A.sort(R.keys(input.files), Str.Order), (key) => [key, input.files[key]])),
+    symlinks: R.fromEntries(A.map(A.sort(R.keys(input.symlinks), Str.Order), (key) => [key, input.symlinks[key]])),
     ...(input.directories === undefined ? {} : { directories: A.sort(input.directories, Str.Order) }),
     ...(input.metadata === undefined
       ? {}
@@ -687,11 +723,64 @@ export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTria
           ),
         }),
   };
-  if ((yield* hashPublicTextSha256(yield* S.encodeEffect(S.fromJsonString(S.Unknown))(canonical))) !== input.digest)
-    return yield* AgentTrialError.make({
-      stage: "proof",
-      message: "Sealed inventory digest differs from frozen controls",
-    });
+  return yield* hashPublicTextSha256(yield* S.encodeEffect(S.fromJsonString(S.Unknown))(canonical));
+});
+
+/**
+ * Capture an owned cache without traversing directory symlinks.
+ * **Details**
+ * The snapshot records complete metadata and literal links. It does not follow
+ * outputs into other roots, and its digest can be checked after cache retirement.
+ * **Example** (Keep cache capture inside the filesystem service boundary)
+ * ```ts
+ * import { captureTrialInventory } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(captureTrialInventory("/owned/cache"))) // true
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const captureTrialInventory = Effect.fn("AgentEffectiveness.captureTrialInventory")(function* (root: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  if (!path.isAbsolute(root) || (yield* fs.realPath(root)) !== root)
+    return yield* AgentTrialError.make({ stage: "proof", message: "Cache snapshot root must be canonical" });
+  const files: Record<string, Sha256Hex> = {};
+  const symlinks: Record<string, string> = {};
+  const directories = MutableList.make<string>();
+  const metadata: Record<string, TrialInputMetadata> = {};
+  const pending = MutableList.make<string>();
+  MutableList.append(pending, "");
+  for (let parent = MutableList.take(pending); parent !== MutableList.Empty; parent = MutableList.take(pending)) {
+    for (const name of yield* fs.readDirectory(path.join(root, parent))) {
+      const relative = path.join(parent, name);
+      const full = path.join(root, relative);
+      const link = yield* fs.readLink(full).pipe(Effect.option);
+      if (O.isSome(link)) symlinks[relative] = link.value;
+      else {
+        const info = yield* fs.stat(full);
+        if (info.type === "Directory") {
+          MutableList.append(directories, relative);
+          MutableList.append(pending, relative);
+        } else if (info.type === "File") files[relative] = yield* hashTrialInput(full);
+        else
+          return yield* AgentTrialError.make({ stage: "proof", message: "Cache contains a special filesystem input" });
+      }
+      const observed = yield* readTrialInputMetadata(full, link);
+      if (O.isNone(observed))
+        return yield* AgentTrialError.make({ stage: "proof", message: "Cannot capture cache ownership or mode" });
+      metadata[relative] = observed.value;
+    }
+  }
+  const input = TrialInputInventory.make({
+    root,
+    files,
+    symlinks,
+    directories: MutableList.toArray(directories),
+    metadata,
+    digest: yield* hashPublicTextSha256(""),
+  });
+  return TrialInputInventory.make({ ...input, digest: yield* trialInventoryDigest(input) });
 });
 
 /**
@@ -778,6 +867,10 @@ export const trialNativeInventoryBindings = (runtime: TrialNativeYeetRuntime): R
   TrialRuntimeClosure.make({ inventory: runtime.nix, target: "/nix" }),
   TrialRuntimeClosure.make({ inventory: runtime.oci, target: "/runtime/oci" }),
   TrialRuntimeClosure.make({ inventory: runtime.crun, target: "/runtime/crun" }),
+  ...O.fromUndefinedOr(runtime.bunInstallCache).pipe(
+    O.map((inventory) => [TrialRuntimeClosure.make({ inventory, target: "/runtime/bun-cache" })]),
+    O.getOrElse(() => [])
+  ),
 ];
 
 /**
@@ -801,6 +894,11 @@ export const validateTrialNativeRuntime = Effect.fn("AgentEffectiveness.validate
   runtime: TrialNativeYeetRuntime
 ) {
   const fs = yield* FileSystem.FileSystem;
+  if (runtime.bunInstallCache === undefined)
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Native full runtime requires an immutable Bun install cache",
+    });
   const bootstrapPaths = A.map(runtime.bootstrap, (file) => file.artifact.path);
   if (
     !A.every(

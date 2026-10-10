@@ -236,15 +236,25 @@ const acceptanceDependencies = Effect.fn("TrialRetention.acceptanceDependencies"
   yield* validateArtifact(artifact);
   const record = yield* TrialAcceptanceJson.decode(yield* fs.readFileString(artifact.path));
   if (record.finalCommit !== finalCommit) return yield* fail("Nested acceptance has a different candidate commit");
+  let cacheDependencies: ReadonlyArray<TrialArtifact> = [];
   for (const check of record.requiredChecks) {
     for (const evidence of O.toArray(O.fromUndefinedOr(check.nativeRuntimeEvidence))) {
       yield* validateArtifact(evidence);
-      // This contract contains digests and image identity only, with no nested artifact paths.
-      yield* S.decodeEffect(S.fromJsonString(TrialNativeRuntimeEvidence))(yield* fs.readFileString(evidence.path));
+      const native = yield* S.decodeEffect(S.fromJsonString(TrialNativeRuntimeEvidence))(
+        yield* fs.readFileString(evidence.path)
+      );
+      for (const cache of [
+        ...O.toArray(O.fromUndefinedOr(native.bunCacheBefore)),
+        ...O.toArray(O.fromUndefinedOr(native.bunCacheAfter)),
+      ]) {
+        yield* validateArtifact(cache);
+        cacheDependencies = A.append(cacheDependencies, cache);
+      }
     }
   }
   return [
     artifact,
+    ...cacheDependencies,
     ...A.flatMap(record.requiredChecks, (check) => [
       check.inputBundle,
       check.stdout,

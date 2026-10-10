@@ -1,6 +1,8 @@
 import { hashPublicTextSha256 } from "@beep/repo-ai-metrics/privacy";
 import {
+  captureTrialInventory,
   executeTrialCheck,
+  prepareTrialBunCache,
   TrialArtifact,
   TrialBootstrapFile,
   TrialBrokerControl,
@@ -9,11 +11,14 @@ import {
   TrialEvaluatorCheck,
   TrialInputInventory,
   TrialInputMetadata,
+  TrialNativeRuntimeEvidence,
   TrialNativeYeetRuntime,
   trialArtifact,
   trialCheckContractDigest,
   trialEvaluatorInputRoots,
   trialEvaluatorInventoryBindings,
+  trialInventoryDigest,
+  validateTrialBunCacheEvidence,
   validateTrialInventory,
   validateTrialNativeRuntime,
 } from "@beep/repo-cli/test/AgentEffectiveness";
@@ -50,6 +55,7 @@ const runtime = TrialNativeYeetRuntime.make({
   crun: inventory,
   image: `ghcr.io/google/osv-scanner-action@sha256:${zero}`,
   certificateBundle: artifact,
+  bunInstallCache: inventory,
   bootstrap: [
     TrialBootstrapFile.make({ artifact, metadata: TrialInputMetadata.make({ mode: 0o100755, uid: 1000, gid: 1000 }) }),
   ],
@@ -132,6 +138,7 @@ it.effect("binds every native capability, certificate, bootstrap and broker cont
       { nix: TrialInputInventory.make({ ...inventory, digest: one }) },
       { oci: TrialInputInventory.make({ ...inventory, digest: one }) },
       { crun: TrialInputInventory.make({ ...inventory, digest: one }) },
+      { bunInstallCache: TrialInputInventory.make({ ...inventory, digest: one }) },
       { certificateBundle: { ...artifact, digest: one } },
       {
         bootstrap: [
@@ -159,6 +166,115 @@ it.effect("binds every native capability, certificate, bootstrap and broker cont
 layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: true })(
   "native runtime metadata",
   (test) => {
+    test.effect("initializes a private cache, preserves literal aliases and binds changed output snapshots", () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectoryScoped();
+          const seedRoot = `${root}/seed`;
+          const outputRoot = `${root}/output`;
+          yield* fs.makeDirectory(seedRoot);
+          yield* fs.makeDirectory(outputRoot);
+          yield* fs.writeFileString(`${seedRoot}/package`, "frozen", { mode: 0o600 });
+          yield* fs.symlink("package", `${seedRoot}/alias`);
+          const seed = yield* captureTrialInventory(seedRoot);
+          const receipt = yield* prepareTrialBunCache(seed, outputRoot);
+          const before = yield* S.decodeEffect(S.fromJsonString(TrialInputInventory))(
+            yield* fs.readFileString(receipt.path)
+          );
+          expect(before.root).toBe(`${outputRoot}/bun-cache`);
+          expect(before.digest).toBe(seed.digest);
+          expect(yield* fs.readLink(`${before.root}/alias`)).toBe("package");
+          yield* validateTrialInventory(before, "/output/bun-cache");
+          yield* fs.writeFileString(`${before.root}/package`, "mutable");
+          const after = yield* captureTrialInventory(before.root);
+          expect(after.digest).not.toBe(before.digest);
+          expect(yield* trialInventoryDigest(after)).toBe(after.digest);
+          const afterPath = `${outputRoot}/bun-cache-after.json`;
+          const afterText = yield* S.encodeEffect(S.fromJsonString(TrialInputInventory))(after);
+          yield* fs.writeFileString(afterPath, afterText);
+          const evidence = TrialNativeRuntimeEvidence.make({
+            schemaVersion: "agent-trial-native-runtime-evidence/v1",
+            runtimeDigest: zero,
+            manifestBefore: zero,
+            manifestAfter: zero,
+            preserved: true,
+            systemDigest: zero,
+            nixDigest: zero,
+            ociDigest: zero,
+            image: runtime.image,
+            bunCacheSeedDigest: seed.digest,
+            bunCacheBefore: receipt,
+            bunCacheAfter: yield* trialArtifact(afterPath),
+            bunCacheTarget: "/output/bun-cache",
+          });
+          const env = { BUN_INSTALL_CACHE_DIR: "/output/bun-cache", BUN_TMPDIR: "/tmp" };
+          expect(yield* validateTrialBunCacheEvidence(seed, evidence, outputRoot, env)).toBe(true);
+          expect(
+            yield* validateTrialBunCacheEvidence(
+              seed,
+              TrialNativeRuntimeEvidence.make({ ...evidence, bunCacheAfter: undefined }),
+              outputRoot,
+              env
+            )
+          ).toBe(false);
+          expect(
+            yield* validateTrialBunCacheEvidence(seed, evidence, outputRoot, { ...env, BUN_TMPDIR: "/host" })
+          ).toBe(false);
+          yield* fs.writeFileString(afterPath, `${afterText} `);
+          expect(yield* validateTrialBunCacheEvidence(seed, evidence, outputRoot, env)).toBe(false);
+          yield* fs.writeFileString(afterPath, afterText);
+          const duplicate = yield* prepareTrialBunCache(seed, outputRoot).pipe(Effect.result);
+          expect(duplicate._tag).toBe("Failure");
+          yield* fs.remove(before.root, { recursive: true });
+          expect(yield* validateTrialBunCacheEvidence(seed, evidence, outputRoot, env)).toBe(true);
+          yield* fs.remove(afterPath);
+          expect((yield* validateTrialBunCacheEvidence(seed, evidence, outputRoot, env).pipe(Effect.result))._tag).toBe(
+            "Failure"
+          );
+
+          yield* validateTrialInventory(seed, "/runtime/bun-cache");
+
+          const output3 = `${root}/output3`;
+          yield* fs.makeDirectory(output3);
+          const poisoned = yield* prepareTrialBunCache(seed, output3).pipe(
+            Effect.provideService(FileSystem.FileSystem, {
+              ...fs,
+              copy: (from, to, options) =>
+                fs.copy(from, to, options).pipe(Effect.andThen(fs.writeFileString(`${to}/package`, "copy drift"))),
+            }),
+            Effect.tap(() => fs.writeFileString(`${output3}/command-started`, "unexpected")),
+            Effect.result
+          );
+          expect(poisoned._tag).toBe("Failure");
+          if (poisoned._tag === "Failure")
+            expect(poisoned.failure.message).toBe("Initial owned Bun cache differs from immutable seed");
+          expect(yield* fs.exists(`${output3}/command-started`)).toBe(false);
+          yield* fs.writeFileString(`${seedRoot}/package`, "drift");
+          const output2 = `${root}/output2`;
+          yield* fs.makeDirectory(output2);
+          const drift = yield* prepareTrialBunCache(seed, output2).pipe(Effect.result);
+          expect(drift._tag).toBe("Failure");
+          expect(yield* fs.exists(`${output2}/bun-cache`)).toBe(false);
+        })
+      )
+    );
+    test.effect("keeps host cache aliases rejected under both explicit cache targets", () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const root = yield* fs.makeTempDirectoryScoped();
+          yield* fs.symlink("/home/host/cache/package", `${root}/alias`);
+          const input = yield* captureTrialInventory(root);
+          for (const target of ["/runtime/bun-cache", "/output/bun-cache"]) {
+            const result = yield* validateTrialInventory(input, target).pipe(Effect.result);
+            expect(result._tag).toBe("Failure");
+            if (result._tag === "Failure")
+              expect(result.failure.message).toBe("Sealed link differs or escapes evaluator namespace");
+          }
+        })
+      )
+    );
     test.effect("admits only the two frozen infra vendor roots", () =>
       Effect.scoped(
         Effect.gen(function* () {
@@ -323,6 +439,7 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
             nix: sealed,
             oci: sealed,
             crun: sealed,
+            bunInstallCache: sealed,
             bootstrap,
             certificateBundle: yield* trialArtifact(certificate),
             broker: TrialBrokerControl.make({
@@ -335,6 +452,12 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
             }),
           });
           yield* validateTrialNativeRuntime(native);
+          const missingCache = yield* validateTrialNativeRuntime(
+            TrialNativeYeetRuntime.make({ ...native, bunInstallCache: undefined })
+          ).pipe(Effect.result);
+          expect(missingCache._tag).toBe("Failure");
+          if (missingCache._tag === "Failure")
+            expect(missingCache.failure.message).toBe("Native full runtime requires an immutable Bun install cache");
           const { metadata: _metadata, ...legacy } = sealed;
           const absent = yield* validateTrialNativeRuntime(
             TrialNativeYeetRuntime.make({ ...native, system: TrialInputInventory.make(legacy) })

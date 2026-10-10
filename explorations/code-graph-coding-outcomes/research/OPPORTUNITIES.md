@@ -382,3 +382,27 @@ The target-preservation fix also needed a shared helper from a worker that had
 already handed back its task. A queued message does not restart an idle native
 subagent. The orchestrator issued an explicit follow-up task; future dependent
 handoffs should distinguish message delivery from an active implementation turn.
+
+## 2026-10-09 — Cache relocation and writability need a native preflight
+
+The native Collector spent 684 seconds validating dependency inputs before
+rejecting the copied Bun cache. Its 4,845 package aliases still contained
+absolute host-cache targets. The literals matched the frozen inventory, but
+could not resolve in the evaluator namespace. The validator correctly refused
+them; a copy receipt alone had not established namespace compatibility.
+
+A fresh owned seed now uses relative aliases to identical package bytes already
+present in that seed. Both read-only-cache install probes failed with
+`EROFS accessing temporary directory`, including the explicit Bun temp setting.
+An isolated writable copy passed the canonical frozen install, including the
+repository lifecycle scripts. The common seed remained unchanged; private
+cache output gained one temporary node-gyp file. Retain these failures alongside
+`runner-native-link-attribution-v1.json`, the relocation/probe receipts and
+`runner-native-bun-cache-integration-proposal-v1.json`.
+
+Prevention: test the cache's native layout and write requirements before a long
+Collector run. Bind a complete immutable seed inventory, independently verify
+the private copy before the command, and retain small before/after inventory
+artifacts. The filesystem copy API resolves relative links, so restore their
+frozen literals before checking the initial copy. Measure peak allocation for
+the 12,008,287,651-byte seed; do not assume reflinks or retain every mutable tree.

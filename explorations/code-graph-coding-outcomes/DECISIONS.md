@@ -163,3 +163,28 @@ real interruption tests precede any retirement operation. Reversal restores the
 exact source at its original path from retained bundles and dependencies. The
 117-cell capacity gate stays closed until peak and retained allocations, index
 copies, failures and restoration overlap fit beyond the 100 GiB reserve.
+
+## Seeded native Bun cache custody (2026-10-09)
+
+Keep the common Bun cache immutable and normalize its package aliases in a new
+owned seed. The original copied cache had 4,845 absolute aliases into a host
+cache path; the namespace validator correctly rejected them. Relative aliases
+now point only to corresponding package bytes already present in the owned seed.
+Both read-only-cache probes failed with Bun's temporary-directory EROFS error,
+including the probe with `BUN_TMPDIR=/tmp`. The same canonical frozen install
+passed with an isolated writable copy and no network access.
+
+The native runtime contract binds the complete seed inventory and initializes a
+fresh private copy before any check command. Independently measure and validate
+that initial copy, preserve literal aliases, and freeze the cache environment.
+Recheck the common seed after execution. Retain artifact-bound before/after
+inventories; the mutable cache tree is rebuildable output and is excluded from
+permanent evidence custody. Missing legacy cache capability or lifecycle evidence
+cannot pass full admission. Reversal keeps the previous verified runner commit,
+original seed, requests, failures and probe receipts intact.
+
+The seed contains 12,008,287,651 logical file bytes. The diagnostic copy used
+reflinks when supported; the portable filesystem copy in the runner may require
+ordinary storage, so no physical sharing assumption enters the capacity gate.
+Budget one private cache copy in peak execution and measure its allocation before
+admitting the 117-cell grid. Do not multiply retained cache trees across trials.

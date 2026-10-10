@@ -30,6 +30,7 @@ import {
 } from "../AgentEffectiveness.trials.schemas.ts";
 import { startTrialBroker, trialArtifact } from "./TrialExecutor.ts";
 import {
+  captureTrialInventory,
   hashTrialInput,
   inspectTrialGit,
   trialCheckContractDigest,
@@ -43,6 +44,7 @@ import {
   TrialCommittedSource,
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
+  TrialInputInventory,
   TrialNativeRuntimeEvidence,
   TrialNativeYeetRuntime,
   TrialRuntimeClosure,
@@ -50,7 +52,7 @@ import {
 import { acquireTrialRetentionLease } from "./TrialRetention.ts";
 import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
-import type { TrialArtifact, TrialInputInventory, TrialMount } from "./TrialProfile.schemas.ts";
+import type { TrialArtifact, TrialMount } from "./TrialProfile.schemas.ts";
 
 /**
  * Locate the single canonical verdict announcement from the native Yeet stream.
@@ -536,6 +538,65 @@ export const trialEvaluatorInputRoots: {
 );
 
 /**
+ * Copy and independently verify the native Bun seed before any check command.
+ * **Details**
+ * The seed remains immutable. Only a fresh evaluator-owned copy is writable;
+ * its measured initial snapshot must match the complete frozen seed inventory.
+ * **Example** (Keep private cache initialization in a computation)
+ * ```ts
+ * import { TrialInputInventory, prepareTrialBunCache } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const prepared = S.decodeUnknownEffect(TrialInputInventory)({}).pipe(Effect.flatMap((seed) => prepareTrialBunCache(seed, "/owned/output")))
+ * console.log(Effect.isEffect(prepared)) // true: invalid seeds remain failures.
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const prepareTrialBunCache = Effect.fn("AgentEffectiveness.prepareTrialBunCache")(function* (
+  seed: TrialInputInventory,
+  outputRoot: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* validateTrialInventory(seed, "/runtime/bun-cache");
+  const owned = path.join(outputRoot, "bun-cache");
+  if (
+    (yield* fs.exists(owned)) ||
+    (yield* fs.realPath(outputRoot)) !== outputRoot ||
+    seed.root === outputRoot ||
+    Str.startsWith(`${seed.root}/`)(outputRoot) ||
+    Str.startsWith(`${outputRoot}/`)(seed.root)
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Bun cache copy must be fresh and disjoint from its immutable seed",
+    });
+  yield* fs.copy(seed.root, owned);
+  // Node's copy API resolves relative links; restore frozen literals in the fresh owned copy.
+  for (const [name, literal] of R.toEntries(seed.symlinks)) {
+    const link = path.join(owned, name);
+    if (O.isNone(yield* fs.readLink(link).pipe(Effect.option)))
+      return yield* AgentTrialError.make({ stage: "proof", message: "Copied Bun cache link is missing" });
+    yield* fs.remove(link);
+    yield* fs.symlink(literal, link);
+  }
+  const initial = yield* captureTrialInventory(owned);
+  if (initial.digest !== seed.digest)
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Initial owned Bun cache differs from immutable seed",
+    });
+  yield* validateTrialInventory(initial, "/output/bun-cache");
+  const receipt = path.join(outputRoot, "bun-cache-before.json");
+  yield* fs.writeFileString(receipt, yield* S.encodeEffect(S.fromJsonString(TrialInputInventory))(initial), {
+    flag: "wx",
+    mode: 0o600,
+  });
+  return yield* trialArtifact(receipt);
+});
+
+/**
  * Execute one frozen native check in an offline evaluator-only namespace.
  * **Details**
  * Complete output is retained before native reporter parsing. This collector
@@ -787,6 +848,7 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     args.push("--bind", owned, "/workspace/node_modules/@effect/tsgo-linux-x64/artifacts/typescript/7.0.2/tsc");
     compilerCopy = O.some(owned);
   }
+  let bunCacheBefore = O.none<TrialArtifact>();
   let manifestCopy = O.none<string>();
   let manifestBefore = O.none<Sha256Hex>();
   let processCommand = "/usr/bin/bwrap";
@@ -795,6 +857,12 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
   let outerEnvironment: Record<string, string> = {};
   if (O.isSome(native)) {
     const runtime = native.value;
+    if (runtime.bunInstallCache === undefined)
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Native full runtime requires an immutable Bun install cache",
+      });
+    bunCacheBefore = O.some(yield* prepareTrialBunCache(runtime.bunInstallCache, outputRoot));
     const manifest = path.join(source.workspace, "package.json");
     manifestBefore = O.some(yield* hashTrialInput(manifest));
     const copy = path.join(outputRoot, "manifest-owned.json");
@@ -940,6 +1008,8 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     };
     const additions = {
       HOME: "/output/native-home",
+      BUN_INSTALL_CACHE_DIR: "/output/bun-cache",
+      BUN_TMPDIR: "/tmp",
       XDG_RUNTIME_DIR: "/output/native-run",
       DOCKER_HOST: "unix:///output/docker.sock",
       CONTAINERS_CONF: "/output/containers.conf",
@@ -1007,6 +1077,18 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
   let nativeRuntimeEvidence = O.none<TrialArtifact>();
   if (O.isSome(native) && O.isSome(manifestCopy) && O.isSome(manifestBefore)) {
     const runtime = native.value;
+    if (runtime.bunInstallCache === undefined || O.isNone(bunCacheBefore))
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Native Bun cache initialization evidence is missing",
+      });
+    const afterCache = yield* captureTrialInventory(path.join(outputRoot, "bun-cache"));
+    const cacheAfterPath = path.join(outputRoot, "bun-cache-after.json");
+    yield* fs.writeFileString(
+      cacheAfterPath,
+      yield* S.encodeEffect(S.fromJsonString(TrialInputInventory))(afterCache),
+      { flag: "wx", mode: 0o600 }
+    );
     const evidence = TrialNativeRuntimeEvidence.make({
       schemaVersion: "agent-trial-native-runtime-evidence/v1",
       runtimeDigest: yield* hashPublicTextSha256(
@@ -1019,6 +1101,10 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
       nixDigest: runtime.nix.digest,
       ociDigest: runtime.oci.digest,
       image: runtime.image,
+      bunCacheSeedDigest: runtime.bunInstallCache.digest,
+      bunCacheBefore: bunCacheBefore.value,
+      bunCacheAfter: yield* trialArtifact(cacheAfterPath),
+      bunCacheTarget: "/output/bun-cache",
     });
     if (evidence.manifestAfter !== evidence.manifestBefore)
       return yield* AgentTrialError.make({ stage: "proof", message: "Native manifest overlay changed" });

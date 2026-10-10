@@ -30,6 +30,7 @@ import {
   hashTrialInput,
   inspectTrialGit,
   trialCheckContractDigest,
+  trialInventoryDigest,
   validateTrialInventory,
   validateTrialNativeRuntime,
 } from "./TrialIsolation.ts";
@@ -45,6 +46,62 @@ import type { TrialArtifact } from "../AgentEffectiveness.trials.schemas.ts";
 
 const equalNames = A.makeEquivalence(Str.Equivalence);
 const fail = (message: string) => Effect.fail(AgentTrialError.make({ stage: "proof", message }));
+
+/**
+ * Validate retained Bun cache lifecycle without requiring the mutable cache tree.
+ * **Details**
+ * Snapshot file hashes, canonical inventory digests and exact output paths are
+ * required independently. The seed remains a separate immutable runtime input.
+ * **Example** (Compose evidence validation after decoding)
+ * ```ts
+ * import { TrialInputInventory, TrialNativeRuntimeEvidence, validateTrialBunCacheEvidence } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ * const valid = Effect.gen(function* () {
+ *   const seed = yield* S.decodeUnknownEffect(TrialInputInventory)({})
+ *   const evidence = yield* S.decodeUnknownEffect(TrialNativeRuntimeEvidence)({})
+ *   return yield* validateTrialBunCacheEvidence(seed, evidence, "/owned/output", {})
+ * })
+ * console.log(Effect.isEffect(valid)) // true: incomplete evidence remains a failing computation.
+ * ```
+ * @category validation
+ * @since 0.0.0
+ */
+export const validateTrialBunCacheEvidence = Effect.fn("AgentEffectiveness.validateTrialBunCacheEvidence")(function* (
+  seed: TrialInputInventory,
+  evidence: TrialNativeRuntimeEvidence,
+  output: string,
+  environment: Readonly<Record<string, string>>
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  if (
+    evidence.bunCacheSeedDigest !== seed.digest ||
+    evidence.bunCacheBefore === undefined ||
+    evidence.bunCacheAfter === undefined ||
+    evidence.bunCacheTarget !== "/output/bun-cache" ||
+    evidence.bunCacheBefore.path !== path.join(output, "bun-cache-before.json") ||
+    evidence.bunCacheAfter.path !== path.join(output, "bun-cache-after.json") ||
+    environment.BUN_INSTALL_CACHE_DIR !== "/output/bun-cache" ||
+    environment.BUN_TMPDIR !== "/tmp"
+  )
+    return false;
+  for (const artifact of [evidence.bunCacheBefore, evidence.bunCacheAfter])
+    if ((yield* hashTrialInput(artifact.path)) !== artifact.digest) return false;
+  const before = yield* S.decodeEffect(S.fromJsonString(TrialInputInventory))(
+    yield* fs.readFileString(evidence.bunCacheBefore.path)
+  );
+  const after = yield* S.decodeEffect(S.fromJsonString(TrialInputInventory))(
+    yield* fs.readFileString(evidence.bunCacheAfter.path)
+  );
+  return (
+    before.root === path.join(output, "bun-cache") &&
+    after.root === before.root &&
+    before.digest === seed.digest &&
+    (yield* trialInventoryDigest(before)) === before.digest &&
+    (yield* trialInventoryDigest(after)) === after.digest
+  );
+});
 
 /**
  * Finalize only an intact exact-commit, full-Yeet and task-oracle proof.
@@ -243,8 +300,17 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
           );
           const runtime = contract.nativeRuntime;
           yield* validateTrialNativeRuntime(runtime);
+          const cacheValid =
+            runtime.bunInstallCache !== undefined &&
+            (yield* validateTrialBunCacheEvidence(
+              runtime.bunInstallCache,
+              evidence,
+              path.dirname(check.stdout.path),
+              contract.environmentTemplate
+            ));
           nativeValid =
             evidence.preserved &&
+            cacheValid &&
             evidence.manifestBefore === evidence.manifestAfter &&
             evidence.runtimeDigest ===
               (yield* hashPublicTextSha256(yield* S.encodeEffect(S.fromJsonString(TrialNativeYeetRuntime))(runtime))) &&

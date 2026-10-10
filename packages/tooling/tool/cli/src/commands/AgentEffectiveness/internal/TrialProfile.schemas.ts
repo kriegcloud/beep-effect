@@ -262,6 +262,7 @@ export class TrialNativeYeetRuntime extends S.Class<TrialNativeYeetRuntime>($I`T
     broker: TrialBrokerControl,
     certificateBundle: TrialArtifact,
     bootstrap: S.NonEmptyArray(TrialBootstrapFile),
+    bunInstallCache: S.optional(TrialInputInventory),
   },
   $I.annote("TrialNativeYeetRuntime", {
     description: "Digest-bound evaluator-only system, Nix, OCI and restricted advisory capabilities.",
@@ -290,6 +291,10 @@ export class TrialNativeRuntimeEvidence extends S.Class<TrialNativeRuntimeEviden
     nixDigest: Sha256Hex,
     ociDigest: Sha256Hex,
     image: S.NonEmptyString,
+    bunCacheSeedDigest: S.optional(Sha256Hex),
+    bunCacheBefore: S.optional(TrialArtifact),
+    bunCacheAfter: S.optional(TrialArtifact),
+    bunCacheTarget: S.optional(S.Literal("/output/bun-cache")),
   },
   $I.annote("TrialNativeRuntimeEvidence", {
     description: "Immutable native capability and source-overlay guards required by passing finalization.",

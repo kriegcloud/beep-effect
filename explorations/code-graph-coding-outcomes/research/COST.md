@@ -123,3 +123,20 @@ Capacity admission must distinguish required immutable source, raw streams
 and proof reports from compiler outputs and caches that can be rebuilt. The
 current measurements do not qualify retaining 117 complete directory copies.
 No existing attempt or output was removed.
+
+### Writable cache prerequisite observation
+
+The normalized immutable Bun cache has 407,235 regular files, 12,008,287,651
+logical bytes and 4,845 relative alias links. Two offline install probes with
+a read-only cache failed with EROFS. An owned writable copy passed the canonical
+frozen install with 2,574 packages; the command and post-run hashing took 85.52
+seconds. The seed was fully rehashed unchanged. The copied cache acquired one
+additional temporary node-gyp file and preserved all aliases. This diagnostic
+used a trusted copy from the verified seed but did not independently hash the
+copy before execution; the runner capability must add that verification.
+
+The seed is shared immutable input; each native proof needs its own writable
+copy. Reflink sharing is an optimization, not an assumed capacity guarantee.
+The new capability must measure allocation and separate retained inventory
+evidence from derived cache contents before matrix capacity can be admitted.
+These offline probes made no provider calls. Existing attempts and seeds remain.
