@@ -9,6 +9,7 @@ import {
   parseTrialTrackedRoots,
   prepareTrialBunCache,
   restoreTrialInventoryLinks,
+  retainTrialCandidate,
   TrialArtifact,
   TrialBootstrapFile,
   TrialBrokerControl,
@@ -26,6 +27,8 @@ import {
   trialEvaluatorInventoryBindings,
   trialInventoryDigest,
   trialMountGuardPaths,
+  trialPlanSystem,
+  trialSystemBindings,
   validateTrialBunCacheEvidence,
   validateTrialIgnoreCensus,
   validateTrialInventory,
@@ -245,6 +248,86 @@ it.effect("binds every native capability, certificate, bootstrap and broker cont
 layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: true })(
   "native runtime metadata",
   (test) => {
+    test.effect("requires one metadata-complete productive system and never falls back to host Git", () =>
+      Effect.scoped(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          expect(O.isNone(yield* trialPlanSystem({ networkAdmission: "blocked-until-broker" }))).toBe(true);
+          expect(
+            (yield* trialPlanSystem({ networkAdmission: "exact-authority-broker" }).pipe(Effect.result))._tag
+          ).toBe("Failure");
+          const root = yield* fs.makeTempDirectoryScoped();
+          const systemRoot = `${root}/system`;
+          yield* fs.makeDirectory(`${systemRoot}/usr/bin`, { recursive: true });
+          yield* fs.makeDirectory(`${systemRoot}/usr/lib`, { recursive: true });
+          for (const [name, target] of [
+            ["bin", "usr/bin"],
+            ["lib", "usr/lib"],
+            ["lib64", "usr/lib"],
+          ])
+            yield* fs.symlink(target, `${systemRoot}/${name}`);
+          const system = yield* captureTrialInventory(systemRoot);
+          const closure = { inventory: system, target: "/runtime/system" };
+          expect(
+            O.isSome(yield* trialPlanSystem({ networkAdmission: "exact-authority-broker", runtimeClosures: [closure] }))
+          ).toBe(true);
+          expect(
+            (yield* trialPlanSystem({
+              networkAdmission: "exact-authority-broker",
+              runtimeClosures: [closure, closure],
+            }).pipe(Effect.result))._tag
+          ).toBe("Failure");
+          expect(yield* trialSystemBindings(system, true)).toEqual([
+            "--ro-bind",
+            `${systemRoot}/usr`,
+            "/usr",
+            "--ro-bind",
+            `${systemRoot}/bin`,
+            "/bin",
+            "--ro-bind",
+            `${systemRoot}/lib`,
+            "/lib",
+            "--ro-bind",
+            `${systemRoot}/lib64`,
+            "/lib64",
+          ]);
+          expect((yield* trialSystemBindings(undefined, true).pipe(Effect.result))._tag).toBe("Failure");
+          const legacy = TrialInputInventory.make({ ...system, metadata: undefined });
+          const legacyBound = TrialInputInventory.make({ ...legacy, digest: yield* trialInventoryDigest(legacy) });
+          expect(yield* S.decodeUnknownEffect(TrialInputInventory)(legacyBound)).toEqual(legacyBound);
+          yield* trialSystemBindings(legacyBound);
+          expect((yield* trialSystemBindings(legacyBound, true).pipe(Effect.result))._tag).toBe("Failure");
+          expect(
+            (yield* trialSystemBindings(TrialInputInventory.make({ ...system, metadata: {} }), true).pipe(
+              Effect.result
+            ))._tag
+          ).toBe("Failure");
+          const workspace = `${root}/workspace`;
+          const receipts = `${root}/receipts`;
+          yield* fs.makeDirectory(workspace);
+          yield* fs.makeDirectory(receipts);
+          const init = yield* runCaptured({
+            command: "/usr/bin/git",
+            args: ["-C", workspace, "init"],
+            env: {},
+            extendEnv: false,
+            bound: repoRunOutputBound,
+          });
+          expect(init.exitCode).toBe(0);
+          expect(
+            (yield* retainTrialCandidate(workspace, Str.repeat(40)("0"), receipts, O.none(), undefined, true).pipe(
+              Effect.result
+            ))._tag
+          ).toBe("Failure");
+          expect(
+            (yield* retainTrialCandidate(workspace, Str.repeat(40)("0"), receipts, O.none(), system, true).pipe(
+              Effect.result
+            ))._tag
+          ).toBe("Failure");
+          expect(yield* fs.exists(`${receipts}/candidate.bundle`)).toBe(false);
+        })
+      )
+    );
     test.effect("initializes a private cache, preserves literal aliases and binds changed output snapshots", () =>
       Effect.scoped(
         Effect.gen(function* () {
@@ -370,6 +453,44 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
             expect(yield* trialMountGuardPaths("writable", [`/workspace/${root}/dist`])).toEqual([`${root}/dist`]);
           }
           expect(yield* trialMountGuardPaths("writable", ["/workspace/dist"])).toEqual(["dist"]);
+          const exactOutputs = [
+            "/workspace/apps/professional-desktop/src-tauri/binaries",
+            "/workspace/apps/storybook/storybook-static",
+          ];
+          expect(yield* trialMountGuardPaths("writable", exactOutputs)).toEqual([
+            "apps/professional-desktop/src-tauri/binaries",
+            "apps/storybook/storybook-static",
+          ]);
+          for (const target of [
+            "/workspace/apps/other/src-tauri/binaries",
+            "/workspace/apps/professional-desktop/src-tauri/private",
+            "/workspace/apps/professional-desktop/src-tauri/binaries/source",
+            "/workspace/apps/todox/storybook-static",
+            "/workspace/apps/storybook/storybook-static/source",
+          ]) {
+            expect((yield* trialMountGuardPaths("writable", [target]).pipe(Effect.result))._tag).toBe("Failure");
+          }
+          const nonIgnoredOutput = `${root}/exact-output-not-ignored`;
+          yield* fs.makeDirectory(nonIgnoredOutput);
+          expect(
+            (yield* collectTrialMountGuard(workspace, nonIgnoredOutput, "writable", exactOutputs).pipe(Effect.result))
+              ._tag
+          ).toBe("Failure");
+          const exactOutputProof = `${root}/exact-output`;
+          yield* fs.makeDirectory(exactOutputProof);
+          yield* fs.writeFileString(
+            `${workspace}/.gitignore`,
+            "node_modules/\ndist/\n!packages/unignored/dist/\n\\!literal/\napps/professional-desktop/src-tauri/binaries/\napps/storybook/storybook-static/\n"
+          );
+          expect(
+            yield* validateTrialMountGuardEvidence(
+              yield* collectTrialMountGuard(workspace, exactOutputProof, "writable", exactOutputs),
+              "writable",
+              exactOutputs,
+              exactOutputProof
+            )
+          ).toBe(true);
+
           for (const target of [
             "/workspace/infra/private/dist",
             "/workspace/tools/tsgo-shim-private/dist",
@@ -378,6 +499,16 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
           ]) {
             expect((yield* trialMountGuardPaths("writable", [target]).pipe(Effect.result))._tag).toBe("Failure");
           }
+          yield* fs.makeDirectory(`${workspace}/apps/professional-desktop/src-tauri/binaries`, { recursive: true });
+          yield* fs.writeFileString(`${workspace}/apps/professional-desktop/src-tauri/binaries/owned-source`, "source");
+          yield* git(["add", "--force", "apps/professional-desktop/src-tauri/binaries/owned-source"]);
+          const exactTrackedOutput = `${root}/exact-output-tracked`;
+          yield* fs.makeDirectory(exactTrackedOutput);
+          expect(
+            (yield* collectTrialMountGuard(workspace, exactTrackedOutput, "writable", exactOutputs).pipe(Effect.result))
+              ._tag
+          ).toBe("Failure");
+          expect(yield* fs.exists(`${exactTrackedOutput}/mount-guard-writable.ignored.nul`)).toBe(false);
           const goodTargets = [
             "/workspace/node_modules",
             "/workspace/packages/!literal/node_modules",

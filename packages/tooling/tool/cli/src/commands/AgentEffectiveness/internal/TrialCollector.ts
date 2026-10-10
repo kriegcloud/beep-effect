@@ -672,6 +672,8 @@ export const trialMountGuardPaths = Effect.fn("AgentEffectiveness.trialMountGuar
           A.contains(writableGuardRoots, target) ||
           target === "/workspace/node_modules/.tmp" ||
           target === "/workspace/dist" ||
+          target === "/workspace/apps/professional-desktop/src-tauri/binaries" ||
+          target === "/workspace/apps/storybook/storybook-static" ||
           A.some(
             [
               "/workspace/infra",

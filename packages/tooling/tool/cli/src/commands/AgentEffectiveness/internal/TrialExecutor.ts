@@ -33,6 +33,7 @@ import {
   hashTrialInput,
   inspectTrialGit,
   trialGitSandbox,
+  trialPlanSystem,
 } from "./TrialIsolation.ts";
 import { TrialBrokerControl, TrialNativeInvocationJson, TrialProductiveCanaries } from "./TrialProfile.schemas.ts";
 import {
@@ -42,7 +43,7 @@ import {
 } from "./TrialRetention.ts";
 import { parseTrialSessionIdentity, parseTrialUsage } from "./TrialUsage.ts";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
-import type { TrialProductiveProfile } from "./TrialProfile.schemas.ts";
+import type { TrialInputInventory, TrialProductiveProfile } from "./TrialProfile.schemas.ts";
 
 const privateOptions = { flag: "wx" as const, mode: 0o600 };
 const gitEnvironment = { PATH: "/usr/bin:/bin", HOME: "/nonexistent", GIT_CONFIG_NOSYSTEM: "1", LC_ALL: "C" };
@@ -130,6 +131,8 @@ export const executeTrial = Effect.fn("AgentEffectiveness.executeTrial")(functio
       stage: "plan",
       message: "Trial roots must be absolute, disjoint and outside tmpfs",
     });
+  const system = O.getOrUndefined(yield* trialPlanSystem(plan));
+  const requireSystem = plan.networkAdmission === "exact-authority-broker";
   yield* fs.makeDirectory(plan.receiptRoot, { recursive: true, mode: 0o700 });
   yield* fs.makeDirectory(receipts, { mode: 0o700 });
   const frozenPlanPath = path.join(receipts, "plan.json");
@@ -301,7 +304,9 @@ export const executeTrial = Effect.fn("AgentEffectiveness.executeTrial")(functio
     workspace,
     plan.baseCommit,
     receipts,
-    O.fromUndefinedOr(plan.baseBundle)
+    O.fromUndefinedOr(plan.baseBundle),
+    system,
+    requireSystem
   ).pipe(Effect.exit);
   if (Exit.isSuccess(retention) && O.isSome(retention.value)) {
     finalCommit = O.some(retention.value.value.finalCommit);
@@ -443,21 +448,33 @@ export const retainTrialCandidate = Effect.fn("AgentEffectiveness.retainTrialCan
   workspace: string,
   baseCommit: string,
   receipts: string,
-  baseBundle: O.Option<TrialArtifact> = O.none()
+  baseBundle: O.Option<TrialArtifact> = O.none(),
+  system?: TrialInputInventory,
+  requireSystem?: boolean
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  if (requireSystem === true && system === undefined)
+    return yield* AgentTrialError.make({
+      stage: "git",
+      message: "Productive candidate retention requires a declared sealed system",
+    });
   const diffPath = path.join(receipts, "candidate.diff");
   if (!(yield* fs.exists(path.join(workspace, ".git")))) return O.none();
   const isolatedGit = Effect.fn(function* (args: ReadonlyArray<string>) {
-    const result = yield* inspectTrialGit(workspace, args);
+    const result = yield* inspectTrialGit(workspace, args, system, requireSystem);
     if (result.exitCode !== 0 || result.truncated)
       return yield* AgentTrialError.make({ stage: "git", message: "Isolated candidate retention failed" });
     return Str.trim(result.output);
   });
   const ignoredExit = yield* runSpooledStreams({
     command: "/usr/bin/bwrap",
-    args: yield* trialGitSandbox(workspace, ["ls-files", "--others", "--ignored", "--exclude-standard", "-z"]),
+    args: yield* trialGitSandbox(
+      workspace,
+      ["ls-files", "--others", "--ignored", "--exclude-standard", "-z"],
+      system,
+      requireSystem
+    ),
     env: {},
     extendEnv: false,
     stdoutPath: path.join(receipts, "ignored-files.nul"),
@@ -493,15 +510,12 @@ export const retainTrialCandidate = Effect.fn("AgentEffectiveness.retainTrialCan
     const bundlePath = path.join(receipts, "candidate.bundle");
     const bundleExit = yield* runSpooledStreams({
       command: "/usr/bin/bwrap",
-      args: yield* trialGitSandbox(workspace, [
-        "bundle",
-        "create",
-        "-",
-        "--all",
-        "HEAD",
-        "--reflog",
-        ...(O.isSome(baseBundle) ? [`^${baseCommit}`] : []),
-      ]),
+      args: yield* trialGitSandbox(
+        workspace,
+        ["bundle", "create", "-", "--all", "HEAD", "--reflog", ...(O.isSome(baseBundle) ? [`^${baseCommit}`] : [])],
+        system,
+        requireSystem
+      ),
       env: {},
       extendEnv: false,
       stdoutPath: bundlePath,
@@ -516,7 +530,12 @@ export const retainTrialCandidate = Effect.fn("AgentEffectiveness.retainTrialCan
   const diffError = path.join(receipts, "diff.stderr");
   const diffExit = yield* runSpooledStreams({
     command: "/usr/bin/bwrap",
-    args: yield* trialGitSandbox(workspace, ["diff", "--binary", "--no-ext-diff", "--no-textconv", baseCommit, head]),
+    args: yield* trialGitSandbox(
+      workspace,
+      ["diff", "--binary", "--no-ext-diff", "--no-textconv", baseCommit, head],
+      system,
+      requireSystem
+    ),
     env: gitEnvironment,
     extendEnv: false,
     stdoutPath: diffPath,

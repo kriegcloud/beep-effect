@@ -119,6 +119,8 @@ export const buildTrialSandbox = Effect.fn("AgentEffectiveness.buildTrialSandbox
     return yield* fail("Isolation canaries belong to different controls or tools");
   if (!path.isAbsolute(plan.command) || !path.isAbsolute(workspace))
     return yield* fail("Trial command and workspace must be absolute");
+  const system = O.getOrUndefined(yield* trialPlanSystem(plan));
+  const requireSystem = plan.networkAdmission === "exact-authority-broker";
   for (const closure of plan.runtimeClosures ?? []) {
     if (
       closure.target !== "/workspace/node_modules" &&
@@ -126,7 +128,11 @@ export const buildTrialSandbox = Effect.fn("AgentEffectiveness.buildTrialSandbox
       !Str.startsWith("/runtime/")(closure.target)
     )
       return yield* fail("Runtime projection target is not an approved dependency root");
-    yield* validateTrialInventory(closure.inventory, closure.target);
+    yield* validateTrialInventory(
+      closure.inventory,
+      closure.target,
+      requireSystem && closure.target === "/runtime/system"
+    );
     const source = closure.inventory.root;
     for (const protectedRoot of [plan.receiptRoot, plan.workspaceRoot, plan.sourceRepository]) {
       const root = yield* fs.realPath(protectedRoot);
@@ -189,12 +195,11 @@ export const buildTrialSandbox = Effect.fn("AgentEffectiveness.buildTrialSandbox
     workspace,
     "/workspace",
   ];
-  for (const root of ["/usr", "/bin", "/lib", "/lib64"]) {
-    if (!(yield* fs.exists(root))) return yield* fail(`Required runtime root unavailable: ${root}`);
-    args.push("--ro-bind", root, root);
-  }
-  for (const file of ["/etc/ssl", "/etc/ca-certificates"]) {
-    if (yield* fs.exists(file)) args.push("--ro-bind", file, file);
+  args.push(...(yield* trialSystemBindings(system, requireSystem)));
+  if (!requireSystem) {
+    for (const file of ["/etc/ssl", "/etc/ca-certificates"]) {
+      if (yield* fs.exists(file)) args.push("--ro-bind", file, file);
+    }
   }
   for (const closure of plan.runtimeClosures ?? []) args.push("--ro-bind", closure.inventory.root, closure.target);
   if (productiveRuntime !== undefined) args.push("--bind", productiveRuntime.home, "/home/trial");
@@ -397,7 +402,8 @@ export const trialControlsDigest = Effect.fn("AgentEffectiveness.trialControlsDi
 export const trialGitSandbox = Effect.fn("AgentEffectiveness.trialGitSandbox")(function* (
   workspace: string,
   gitArgs: ReadonlyArray<string>,
-  system?: TrialInputInventory
+  system?: TrialInputInventory,
+  requireSystem?: boolean
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -424,7 +430,7 @@ export const trialGitSandbox = Effect.fn("AgentEffectiveness.trialGitSandbox")(f
   ];
   if (yield* fs.exists(path.join(state, "repository.git")))
     args.push("--bind", path.join(state, "repository.git"), "/state/repository.git");
-  args.push(...(yield* trialSystemBindings(system)));
+  args.push(...(yield* trialSystemBindings(system, requireSystem)));
   args.push(
     "--clearenv",
     "--setenv",
@@ -480,11 +486,12 @@ export const trialGitSandbox = Effect.fn("AgentEffectiveness.trialGitSandbox")(f
 export const inspectTrialGit = Effect.fn("AgentEffectiveness.inspectTrialGit")(function* (
   workspace: string,
   args: ReadonlyArray<string>,
-  system?: TrialInputInventory
+  system?: TrialInputInventory,
+  requireSystem?: boolean
 ) {
   return yield* runCaptured({
     command: "/usr/bin/bwrap",
-    args: yield* trialGitSandbox(workspace, args, system),
+    args: yield* trialGitSandbox(workspace, args, system, requireSystem),
     extendEnv: false,
     env: {},
     source: "stdout",
@@ -606,8 +613,21 @@ const readTrialInputMetadata = Effect.fn("AgentEffectiveness.readTrialInputMetad
  */
 export const validateTrialInventory = Effect.fn("AgentEffectiveness.validateTrialInventory")(function* (
   input: TrialInputInventory,
-  namespaceRoot = "/sealed"
+  namespaceRoot = "/sealed",
+  requireMetadata?: boolean
 ) {
+  if (
+    requireMetadata === true &&
+    (input.metadata === undefined ||
+      !A.makeEquivalence(Str.Equivalence)(
+        A.sort(R.keys(input.metadata), Str.Order),
+        A.sort([...R.keys(input.files), ...R.keys(input.symlinks), ...(input.directories ?? [])], Str.Order)
+      ))
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Native runtime requires complete mode and ownership metadata",
+    });
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   if ((yield* fs.realPath(input.root)) !== input.root)
@@ -799,10 +819,13 @@ export const captureTrialInventory = Effect.fn("AgentEffectiveness.captureTrialI
  * @since 0.0.0
  */
 export const trialSystemBindings = Effect.fn("AgentEffectiveness.trialSystemBindings")(function* (
-  system?: TrialInputInventory
+  system?: TrialInputInventory,
+  requireSystem?: boolean
 ) {
   const path = yield* Path.Path;
-  if (system !== undefined) yield* validateTrialInventory(system, "/runtime/system");
+  if (requireSystem === true && system === undefined)
+    return yield* fail("Productive namespace requires a declared sealed system");
+  if (system !== undefined) yield* validateTrialInventory(system, "/runtime/system", requireSystem);
   return A.flatMap(["/usr", "/bin", "/lib", "/lib64"], (target) => [
     "--ro-bind",
     system === undefined ? target : path.join(system.root, path.relative("/", target)),
@@ -953,18 +976,7 @@ export const validateTrialNativeRuntime = Effect.fn("AgentEffectiveness.validate
   )
     return yield* AgentTrialError.make({ stage: "proof", message: "Native bootstrap input closure is incomplete" });
   for (const { inventory, target } of trialNativeInventoryBindings(runtime)) {
-    if (
-      inventory.metadata === undefined ||
-      !A.makeEquivalence(Str.Equivalence)(
-        A.sort(R.keys(inventory.metadata), Str.Order),
-        A.sort([...R.keys(inventory.files), ...R.keys(inventory.symlinks), ...(inventory.directories ?? [])], Str.Order)
-      )
-    )
-      return yield* AgentTrialError.make({
-        stage: "proof",
-        message: "Native runtime requires complete mode and ownership metadata",
-      });
-    yield* validateTrialInventory(inventory, target);
+    yield* validateTrialInventory(inventory, target, true);
   }
   for (const file of runtime.bootstrap) {
     const info = yield* fs.stat(file.artifact.path);
@@ -1052,4 +1064,29 @@ export const validateTrialRequestChecks = Effect.fn("AgentEffectiveness.validate
       return false;
   }
   return true;
+});
+
+/**
+ * Resolve the declared coding system while keeping legacy diagnostics decodable.
+ * **Details**
+ * Productive transport requires exactly one system projection. Namespace builders
+ * independently validate its actual bytes and complete metadata at every boundary.
+ * **Example** (Leave an old diagnostic plan without a system)
+ * ```ts
+ * import { trialPlanSystem } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(trialPlanSystem({ networkAdmission: "blocked-until-broker" }))) // true
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const trialPlanSystem = Effect.fn("AgentEffectiveness.trialPlanSystem")(function* (
+  plan: Pick<TrialPlan, "networkAdmission" | "runtimeClosures">
+) {
+  const systems = A.filter(plan.runtimeClosures ?? [], (closure) => closure.target === "/runtime/system");
+  if (systems.length > 1) return yield* fail("Coding system projection is ambiguous");
+  const system = O.map(A.head(systems), (closure) => closure.inventory);
+  if (plan.networkAdmission === "exact-authority-broker" && O.isNone(system))
+    return yield* fail("Productive coding requires a declared sealed system");
+  return system;
 });

@@ -342,3 +342,39 @@ the retained original runtime and request nine. Receipts:
 `native-desktop-ipc-runtime-attribution-v1.json`,
 `native-desktop-rust-runtime-preparation-v1.json`, and
 `native-desktop-rust-independent-review-v1.json`.
+
+### Close productive runtime boundaries in their existing owners
+
+Readiness inspection found that coding still used broad host system roots and
+post-coding Git did not receive the Collector's declared system. Close those
+seams in the existing isolation and executor modules before final productive
+admission. Require exactly one declared metadata-complete system for productive
+coding and propagate it through every candidate-retention Git operation.
+Retain the separate legacy diagnostic path; it cannot qualify productive runs.
+No current or historical fixture becomes a scored trial through this change.
+
+Admit only the source-proven exact sidecar and Storybook generated output roots,
+with existing tracked, ignored, canonical and link checks unchanged. Fresh
+requests must declare those outputs and selected coverage directories explicitly
+and regenerate their control bindings. Browser assets remain a separate
+unproved prerequisite. Focused regression checks, final independent review and
+a default package proof must precede native qualification of the repair.
+Reversal retains `7afbf032ff` and all prior attempts. Evidence:
+`executor-final-control-next-step-plan-v1.json`,
+`native-desktop-rust-probe-v2.json`, and
+`remaining-native-gates-finite-census-v1.json`.
+
+The repair's stable five-file checkpoint passes source checking, lint, 52 tests
+in five suites (139.53 seconds), and CLI docgen with 2,376 examples. The original
+serialized models are reused. Missing or duplicate systems, incomplete metadata,
+legacy diagnostics, sealed Git without host fallback, real candidate retention,
+and exact/neighboring/tracked output paths have regression evidence. Failed
+intermediate checks remain retained. Final independent closure and the new
+commit's default package proof are still required. Receipt:
+`runner-sealed-system-checkpoint-v1.json`.
+
+Independent final review matches every source/test and verification-log hash
+and reports no actionable finding. Closure:
+`productive-system-output-guard-independent-closure-v1.json`. Proceed to a normal
+local commit and exact-source default package verification. Actual native
+execution, full proof, productive custody and capacity remain separate gates.

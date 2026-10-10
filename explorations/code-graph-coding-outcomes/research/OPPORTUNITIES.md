@@ -613,3 +613,34 @@ The runner's exact clean commit `376943bfad` separately passes default
 `bun run beep quality package-verify @beep/repo-cli`: audit 917.5 seconds,
 docgen 23.7 seconds, exit zero. This proves the runner package and does not
 substitute for the candidate's native full Yeet result.
+
+## Require an executed validator result, not merely a zero exit
+
+The external Rust inventory validation invocation printed Bun help and exited
+zero without running its TypeScript script. The first probe caught the same
+routing problem because its required reconstruction output was absent. The
+claimed validation pass was withdrawn; original preparation and review receipts
+remain unchanged. Static file identities and ELF dependency inspection are
+separate evidence and remain valid.
+
+The corrected invocation produces both an execution marker and a successful
+public-validator result. The actual compiler probe then passes in the offline
+namespace. Future smoke checks must verify their required semantic output and
+artifact, not only process exit. Receipts:
+`native-desktop-rust-public-validation-correction-v1.json` and
+`native-desktop-rust-probe-v2.json`.
+
+## Validate mandatory generated outputs before a full run
+
+Frozen desktop build source writes its Bun sidecar under the specifically
+ignored `apps/professional-desktop/src-tauri/binaries` directory. The current
+public writable-target guard rejects that path as unauthorized or noncanonical;
+the exact rejection is retained. No permissive overlay or IPC execution bypassed
+the guard. Admit only this source-proven exact output root, retaining tracked,
+ignored, canonical and symlink checks, with neighboring-path rejection tests.
+Then rerun the failed guard and previously unexecuted IPC lane before full Yeet.
+
+A source audit of remaining gates also found the mandatory full lint-policy
+`typos` executable absent from the declared runtime. Its preparation must use a
+fresh inventoried copy. Conditional browser assets remain unqualified; a skipped
+branch provides no readiness evidence. Receipt: `native-desktop-rust-probe-v2.json`.

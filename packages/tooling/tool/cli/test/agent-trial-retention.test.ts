@@ -1,6 +1,7 @@
 import { hashPublicTextSha256 } from "@beep/repo-ai-metrics/privacy";
 import {
   acquireTrialRetentionLease,
+  captureTrialInventory,
   hashTrialInput,
   initializeTrialRetentionOwnership,
   parseTrialUsage,
@@ -8,6 +9,7 @@ import {
   recordTrialRetentionCapture,
   rehydrateTrial,
   retainTrial,
+  retainTrialCandidate,
   TrialAcceptance,
   TrialAcceptanceJson,
   TrialArtifact,
@@ -527,6 +529,27 @@ const finalized = Effect.fn("TrialRetentionTest.finalized")(function* (
 });
 
 layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: true })("trial retention", (it) => {
+  it.effect("retains a real candidate through the supplied sealed Git system", () =>
+    Effect.scoped(
+      Effect.gen(function* () {
+        const f = yield* setup();
+        const system = yield* captureTrialInventory(f.request.system.root);
+        const output = f.path.join(f.root, "strict-candidate-retention");
+        yield* f.fs.makeDirectory(output);
+        const result = yield* retainTrialCandidate(
+          f.attempt.workspace,
+          f.attempt.baseCommit,
+          output,
+          O.none(),
+          system,
+          true
+        );
+        expect(O.isSome(result)).toBe(true);
+        if (O.isSome(result)) expect(result.value.finalCommit).toBe(f.source.finalCommit);
+        yield* validateTrialInventory(system, "/runtime/system", true);
+      })
+    )
+  );
   it.effect(
     "qualifies a failed clean candidate without deleting evidence and restores its original Collector path",
     () =>
