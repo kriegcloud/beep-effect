@@ -5005,6 +5005,18 @@
           "round": 1,
           "finding": "grok-1-6 — Add formatter fidelity properties (scratchpad/test/github-commands/WorkflowCommand.test.ts:29/:47-50)",
           "reason": "test: At S3 add fcRuns-backed arbitrary-string properties for no raw message CR/LF and one-pass escape round trips, including property colon/comma escaping; retain upstream tests and do not assert renderer idempotence."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "grok-2-1 — dependency-free prose contradicts the lab imports (scratchpad/effected/github-commands/index.ts:2)",
+          "reason": "docs: During the documentation pass, rewrite both leads to preserve pure string processing and no IO while naming effect and @beep/identity as lab dependencies; keep accurate no-service/no-layer/no-platform statements."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "fable-2-6 — getter/enumerability deviation lacks an executable witness (scratchpad/test/github-commands/WorkflowCommand.test.ts:52)",
+          "reason": "test: In the later test/coverage pass, add a getter that hides second during rendering and assert ::debug first=a,second=b::m; comment the upstream result, retain R.toEntries and upstream assertions, and route citation updates centrally."
         }
       ],
       "reviewRounds": [
@@ -5023,6 +5035,24 @@
             "fable": {
               "required": 5,
               "backlog": 6
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a12bef261998d2ad92153dada46373be06950692",
+          "seats": {
+            "grok": {
+              "required": 2,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 0,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 2,
+              "backlog": 4
             }
           }
         }
