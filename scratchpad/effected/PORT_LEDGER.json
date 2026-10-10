@@ -7913,6 +7913,18 @@
           "upstreamBehaviour": "scratchpad/effected/npm/PackageTarball.ts:249 carried a branch no input can reach",
           "labBehaviour": "Replaced the impossible missing-SRI-separator fallback with the equivalent lowercase prefix derived from the validated digest algorithm.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/npm/Manifest.test.ts:187",
+          "upstreamBehaviour": "Manifest.resolve assigns resolved dependencies into an ordinary object, dropping an own __proto__ key from all four dependency sections for concrete, catalog and workspace specifiers.",
+          "labBehaviour": "Manifest.resolve collects dependency tuples and builds sections with effect/Record.fromEntries, preserving every own key and resolved value without changing the input manifest.",
+          "reason": "upstream-bug: sol-2-1 and fix-npm-g1 report pinned-oracle af7566a9da2eff169cb74955efcc5ede1e5de9f8 probes where keys [\"__proto__\", \"p\"] became [\"p\"]. The diff fixes all three resolution branches and adds five regressions across all four sections. This is separate from the existing unknown-field decode fix."
+        },
+        {
+          "test": "scratchpad/test/npm/CatalogAssemblyError.test.ts:108; scratchpad/test/npm/CatalogAssemblyError.property.test.ts:24",
+          "upstreamBehaviour": "CatalogAssemblyError exposes independent source and optional reason fields, with no source-specific failure projection; manifest and catalog errors can carry hooks-only reasons.",
+          "labBehaviour": "CatalogAssemblyError adds an @internal failure getter projecting a validated source union: manifest/catalog omit reason and hooks retain optional reason. Public fields, tag, encoded reasons and cause identity remain compatible; message rendering reads the projection.",
+          "reason": "schema-first: law 20 and EF-13 require source-specific variants instead of a case-specific optional bag. Round-2 npm-2-5 adds this CatalogAssemblyError projection and regression/property assertions; the existing schema-first entry covers the other error facades and is not repeated or extended."
         }
       ],
       "backlog": [
@@ -7993,6 +8005,24 @@
             "fable": {
               "required": 13,
               "backlog": 12
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "60fcfb5ebcdc26765a66cc1f13afc88adcb05d11",
+          "seats": {
+            "grok": {
+              "required": 2,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 4,
+              "backlog": 0
             }
           }
         }
