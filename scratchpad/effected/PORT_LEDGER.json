@@ -4367,6 +4367,12 @@
           "upstreamBehaviour": "The pinned upstream package supplies types/spdx-expression-parse.d.ts as an ambient type shim for its untyped CommonJS differential oracle; the S0 source/test copy lacks that types-directory declaration in the lab test graph.",
           "labBehaviour": "A test-local scratchpad/test/spdx/spdx-expression-parse.d.ts declares the oracle module and its default parse(string): unknown export, enabling the existing lab oracle tests to type-check. The upstream explanatory header is absent and remains backlog b7; oracle throw/no-throw assertions are unchanged.",
           "reason": "test-environment: D9 preserves the upstream oracle while adapting its ambient declaration to the lab source/test layout. Step-2 commit 7cf8a7636e179a9de5555c95c15f3afc6da1f33c adds this shim; inventory b7 confirms the upstream types-directory origin and tracks the lost header."
+        },
+        {
+          "test": "scratchpad/test/spdx/internal/parser.coverage.test.ts:9; scratchpad/test/spdx/internal/parser.coverage.test.ts:22",
+          "upstreamBehaviour": "internal/parser.ts exports RawSimpleLicense and RawExpression only as handwritten types; the raw plain-object parser contract has no runtime schema or schema-derived validation surface.",
+          "labBehaviour": "The internal parser module now exports a runtime RawExpression schema built from annotated plain-object variants and recursive suspensions. Leaf and WITH types derive from schemas; documentRef remains a required key allowing undefined, and WITH accepts only simple operands. Parser output and control flow are unchanged; added tests exercise guards and decoding.",
+          "reason": "schema-first: EF-12b and EF-33, D5 and D11 require named, reused domain contracts to be schema-backed and nonrecursive shapes to be schema-derived. Round-3 sol-3-1 adds the raw-tree runtime schema surface; this is distinct from the existing LicenseRefId grammar deviation. No upstream behavior defect is alleged."
         }
       ],
       "backlog": [
@@ -4495,6 +4501,24 @@
             "fable": {
               "required": 0,
               "backlog": 9
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 1,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
             }
           }
         }
