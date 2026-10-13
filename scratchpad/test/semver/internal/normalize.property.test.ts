@@ -5,12 +5,12 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { normalizeSets } from "../../../effected/semver/internal/normalize.ts";
-import { ComparatorOperator, compareParts } from "../../../effected/semver/internal/order.ts";
+import { ComparatorParts, VersionParts, compareParts } from "../../../effected/semver/internal/order.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const Component = S.Int.check(S.isBetween({ minimum: 0, maximum: 1000000 }));
-const Version = S.Struct({ major: Component, minor: Component, patch: Component, prerelease: S.Array(S.Union([Component, S.Literals(["alpha", "beta", "rc"])])), build: S.Array(S.String) });
-const Comparator = S.Struct({ operator: ComparatorOperator, version: Version });
+const Version = VersionParts.mapFields((fields) => ({ ...fields, major: Component, minor: Component, patch: Component, prerelease: S.Array(S.Union([Component, S.Literals(["alpha", "beta", "rc"])])), build: S.Array(S.String) }));
+const Comparator = ComparatorParts.mapFields((fields) => ({ ...fields, version: Version }));
 
 describe("normalization properties", () => {
   it.effect.prop("normalization is idempotent and preserves each branch's semantic constraints", [Comparator.pipe(S.Array, S.Array, Arbitrary.schema)], ([sets]) => Effect.sync(() => {

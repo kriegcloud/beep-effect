@@ -4025,6 +4025,42 @@
           "upstreamBehaviour": "Strict full-wildcard comparisons (>*, >x, <*, <x) normalize to >=0.0.0 and admit stable versions, allowing cache resolution.",
           "labBehaviour": "Strict full-wildcard comparisons normalize to <0.0.0-0, match and filter no versions, and fail cache resolution with UnsatisfiedRangeError; non-strict wildcard operators retain >=0.0.0.",
           "reason": "upstream-bug: sol-2-2/fable-2-3 differential evidence and pinned oracle desugar.ts:117-119 show the wildcard-major branch ignores the operator; node-semver replaceXRange:432-434 makes strict comparisons unsatisfiable. The diff splits the coverage expectation and adds public membership/filter/cache regressions."
+        },
+        {
+          "test": "scratchpad/test/semver/Range.test.ts:52; scratchpad/test/semver/VersionCache.test.ts:108; scratchpad/test/semver/internal/desugar.coverage.test.ts:37",
+          "upstreamBehaviour": "Strict partial upper bounds <1.x and <1.2.x use stable boundaries, admitting boundary prereleases when another comparator grants tuple permission.",
+          "labBehaviour": "Strict partial upper bounds, including omitted-component spellings, use the corresponding -0 boundary; matching, filtering, maximum selection and cache resolution reject those boundary prereleases. Concrete upper bounds retain their semantics.",
+          "reason": "upstream-bug: grok-3-1/sol-3-1 report pinned-oracle and node-semver differential evidence for >=1.0.0-alpha <1.x accepting 1.0.0-beta upstream. The diff adds [0] to both partial < branches, corrects two existing expectations and adds public/cache regressions."
+        },
+        {
+          "test": "scratchpad/test/semver/Range.test.ts:70; scratchpad/test/semver/internal/desugar.coverage.test.ts:70",
+          "upstreamBehaviour": "Caret lower bounds retain a numeric patch and prerelease suffix after a wildcard minor; ^1.x.3 excludes 1.0.0 and ^1.x.0-alpha admits 1.0.0-alpha.",
+          "labBehaviour": "Caret lower bounds with a wildcard minor use major.0.0 without prerelease identifiers, discarding later components while retaining the existing upper bounds.",
+          "reason": "upstream-bug: grok-3-2/sol-3-2/fable-3-3 identify the same lower expression in the pinned oracle and node-semver discard semantics. The diff replaces that expression and adds stable-inclusion and prerelease-exclusion regressions for positive and zero majors and x/* spellings."
+        },
+        {
+          "test": "scratchpad/test/semver/Range.test.ts:70; scratchpad/test/semver/internal/desugar.coverage.test.ts:82",
+          "upstreamBehaviour": "Hyphen lower bounds independently replace wildcards with zero and retain later components or prerelease suffixes; 1.x.3 - 2 excludes 1.0.0 and x.2 - 1.0.0 excludes 0.1.0.",
+          "labBehaviour": "Hyphen lower bounds stop at the first wildcard and retain prereleases only on fully specified endpoints. Wildcard-major lower bounds are omitted when bounded above; fully unbounded ranges retain stable-wildcard normalization.",
+          "reason": "upstream-bug: grok-3-2/sol-3-2/fable-3-2 cite pinned-oracle lowerVersion and node-semver hyphenReplace evidence. The diff introduces conditional lower comparators and tests suffix truncation, omitted floors, stable inclusion, prerelease exclusion and both overloads."
+        },
+        {
+          "test": "scratchpad/test/semver/Range.test.ts:99; scratchpad/test/semver/internal/grammar.coverage.test.ts:82",
+          "upstreamBehaviour": "Primitive X-ranges accept concrete components following a wildcard: 1.x.2 becomes a major interval, >=*.1 a stable wildcard, and >*.1 an unsatisfiable range.",
+          "labBehaviour": "Primitive optional-operator parsing rejects ill-ordered wildcard components through the existing failure path. Trailing wildcards remain valid; tilde, caret and hyphen retain separate suffix-discard semantics.",
+          "reason": "upstream-bug: grok-3-3/fable-3-1 trace the same acceptance in the pinned oracle and node-semver invalidXRangeOrder rejection. The diff adds the primitive-path guard and ten public/internal rejection cases, plus valid primitive and sugar controls."
+        },
+        {
+          "test": "scratchpad/test/semver/internal/order.coverage.test.ts:56,71; scratchpad/test/semver/internal/desugar.coverage.test.ts:101",
+          "upstreamBehaviour": "VersionParts, ComparatorParts and PartialParts are exported pure-data interfaces without runtime schema values; property generators independently redeclare their shapes.",
+          "labBehaviour": "All three names also export annotated structural schema values with same-name derived types. Property generators derive shared shapes, and codec/metadata tests preserve plain numeric/null intermediate records and the existing final SemVer validation boundary.",
+          "reason": "schema-first: AGENTS.md schema-first domain-model law, EF-33 and the Core Modeling Contract require schema-owned pure data. sol-3-3/grok-3-4 and the diff ground these new runtime model exports; the existing LiteralKit/equality-guard deviation does not cover them."
+        },
+        {
+          "test": "scratchpad/effected/semver/internal/order.ts:38; scratchpad/effected/semver/internal/desugar.ts:32; scratchpad/test/semver/internal/order.coverage.test.ts:56",
+          "upstreamBehaviour": "The interface-authored structural models allow any TypeScript number, including nonfinite components and numeric prerelease identifiers, and provide no runtime recognition or decoding.",
+          "labBehaviour": "New structural schemas use S.Finite for version components and numeric prerelease identifiers, and S.NullOr(S.Finite) for partial components. Schema recognition/decoding exclude nonfinite values while retaining finite negative, fractional and unsafe-integer intermediates; parser decoding is unchanged.",
+          "reason": "numeric-domains: The schemaNumber finite-number ruling requires S.Finite rather than S.Number. The fix report labels this law:tsgo-schemaNumber; this entry uses the existing semver class numeric-domains. The diff grounds the narrowing on the newly introduced models; no dedicated nonfinite-input regression was added."
         }
       ],
       "backlog": [
@@ -4147,6 +4183,24 @@
             "fable": {
               "required": 5,
               "backlog": 3
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 3,
+              "backlog": 1
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 3,
+              "backlog": 0
             }
           }
         }

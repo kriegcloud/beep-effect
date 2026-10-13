@@ -3,12 +3,12 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { ComparatorOperator, compareBuild, compareParts, comparePrereleaseIdentifier } from "../../../effected/semver/internal/order.ts";
+import { ComparatorOperator, VersionParts, compareBuild, compareParts, comparePrereleaseIdentifier } from "../../../effected/semver/internal/order.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const Component = S.Int.check(S.isBetween({ minimum: 0, maximum: 1000000 }));
 const Identifier = S.Union([Component, S.String]);
-const Version = S.Struct({ major: Component, minor: Component, patch: Component, prerelease: S.Array(Identifier), build: S.Array(S.String) });
+const Version = VersionParts.mapFields((fields) => ({ ...fields, major: Component, minor: Component, patch: Component, prerelease: S.Array(Identifier), build: S.Array(S.String) }));
 const sign = (value: number): number => value < 0 ? -1 : value > 0 ? 1 : 0;
 
 describe("order property floor", () => {

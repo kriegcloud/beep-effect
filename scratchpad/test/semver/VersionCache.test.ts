@@ -105,6 +105,21 @@ layer(VersionCache.layer, { timeout: "30 seconds" })("VersionCache", (it) => {
 	});
 
 	describe("resolution", () => {
+		it.effect("resolveString rejects partial upper boundary prereleases despite lower tuple permission", () =>
+			Effect.gen(function* () {
+				const cache = yield* VersionCache;
+				for (const [upper, tuple] of [["1.x", "1.0.0"], ["1", "1.0.0"], ["1.2.x", "1.2.0"], ["1.2", "1.2.0"]] as const) {
+					const versions = yield* Effect.forEach(["0.9.9", `${tuple}-0`, `${tuple}-alpha`, `${tuple}-beta`, tuple, "2.0.0"], SemVer.parse);
+					yield* cache.load(versions);
+					const error = yield* Effect.flip(cache.resolveString(`>=${tuple}-alpha <${upper}`));
+					assert.instanceOf(error, UnsatisfiedRangeError);
+					assert.strictEqual(error.range.toString(), `>=${tuple}-alpha <${tuple}-0`);
+					assert.deepStrictEqual(error.available, versions);
+					assert.strictEqual((yield* cache.resolveString(`>=${tuple}-alpha <${tuple}`)).toString(), `${tuple}-beta`);
+				}
+			}),
+		);
+
 		it.effect("resolveString treats wildcard-major tilde and caret as stable wildcards", () =>
 			Effect.gen(function* () {
 				const cache = yield* VersionCache;
