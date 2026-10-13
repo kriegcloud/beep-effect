@@ -1028,3 +1028,17 @@ The run-3 `beep-heavy bun run beep lint policy --full` retry reached 32G and was
 ### 2026-10-13 — Node/V8 Bun.spawn shim drops output streams
 
 Coverage job 114132486598 and the local full coverage attempt both fail the two practice-kg startup assertions at `apps/practice-kg-mcp/test/Host.test.ts:462`: expected the sanitized refusal, received an empty string. The root `vitest.setup.ts` Node shim returns only `exited` from `Bun.spawn`; its absent stderr becomes an empty Response body. Return both piped Web streams, preserve the exit promise, and pin the contract with `vitest-bun-spawn.test.ts`. The focused startup rerun passes both cases. This repairs the measurement precondition; it does not establish a successful full coverage rerun or authorize lowering a floor.
+
+#1612 merged while the published parity replay was generating JSDoc, causing
+a new base-conflict inbox row. Stop that owned admitted replay because its
+base is superseded, not because of elapsed time; keep its completed stages
+labelled with the old head. Merge main cleanly, retain all source properties,
+reuse the new CI JSON codec and retire exactly three unused admissions through
+the schema-first writer. Pre-publication ownership routing would have avoided
+a second integration wave for the already-tested source alternative.
+
+Hosted Repo Sanity job 115502999707 fails old-head Syncpack on minimatch
+10.2.5 versus 10.2.6 and smol-toml 1.9.0 versus ^1.9.0. Integrated #1612
+repairs both; acknowledge with the actual main merge commit, not a waiver.
+The separately reported Sherif ordering issue still requires live attribution
+on the new head if it appears.

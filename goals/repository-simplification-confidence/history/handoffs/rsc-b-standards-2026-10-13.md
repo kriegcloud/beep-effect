@@ -1,14 +1,14 @@
 # B handoff — 2026-10-13
 
 lane: rsc-b-standards
-head: feec3ace0af4860de6140a90cd1c2fe79c7a758e (source repair; publication head follows)
-PR: none
+head: 4cfc0f5472884f1534a68e2ed0e620d82251e762 (integrated proof base; integration wave publication follows)
+PR: #1616 (ready; initial published head 25af6051583d206f87ba5c69c1a47a756f823d67)
 package-verify: @beep/repo-cli pass (audit and docgen)
 package-verify: @beep/m365 pass (audit and docgen)
 package-verify: @beep/practice-m365-contacts pass (audit; package has no docgen script)
 hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet fail (inherited); knowledge refs pass; fallow audit+health pass; coverage read: no touched test file has a regression-baseline row
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-b-standards-2026-10-13.md
-open: PR #1612 admission reconciliation, publication and review; original R20 refresh, guidance and detector/provenance waves remain open
+open: integration wave publication and hosted requalification; inherited JSDoc ratchet debt and original R20 refresh, guidance and detector/provenance waves remain open
 
 ## Bounded repair and provenance
 
@@ -26,7 +26,7 @@ source provenance and do not call a mailbox or Graph service.
   the workflow codec; generated operational patterns preserve equivalence
   through JSON encode/decode, 25 trials each.
 
-No production schema, detector or exception inventory changed. Existing
+No production schema or detector changed. The integrated owner write retires only the three superseded exception rows. Existing
 custom path filters make zero-size generation exhaust; the app uses finite
 nonzero-size checks rather than inflating discard limits. Installed Effect
 4.0.2 source confirms direct checkEffect requires a boolean result; the
@@ -145,3 +145,62 @@ admissions need to be dropped from #1612 if B lands first, or retired through
 the registry owner in B's integration wave if #1612 lands first. This explicit
 source judgment and exact overlapping hunks are the pre-publication
 reconciliation; the orchestrator retains serialized merge ownership.
+
+## Integrated #1612 wave
+
+#1612 merged as `af42e6ff5dfc26fdaf8c600a327f87f75963a3e4` while #1616's
+old-head parity replay was generating JSDoc. Stop only that owned admitted
+replay due to the superseded base; retain its two completed stages with old
+head `25af605`. It is partial, not a successful current-base rerun.
+
+Local merge `4cfc0f5472884f1534a68e2ed0e620d82251e762` integrates main
+cleanly. The named CI JSON codec is reused. The schema-first owner write
+removes exactly the three superseded exception rows and no other row. All
+three focused suites and all three quick package lint/type checks pass on the
+integrated candidate. Full prior audit/docgen results are preserved separately
+above; quick requalification does not claim a new full audit. Independent
+review confirms every property survived and no detector/exception broadening
+occurred. Fresh integrated test TypeScript and bounded docgen pass.
+
+The base-conflict row is acknowledged with the actual merge commit. Hosted
+Repo Sanity job 115502999707 on the old published head fails Syncpack on
+minimatch 10.2.5/10.2.6 and smol-toml 1.9.0/^1.9.0; integrated main repairs
+both, and its row is acknowledged with that merge commit. Root and scratchpad
+manifests match origin/main.
+
+Hosted JSDoc job 115502999717 fails inventory generation with only
+`Failed to generate JSDoc documentation inventory.` It never reaches the
+ratchet. This is distinct from the local successful generation plus eight
+metric increases. Its cause is unknown from that log; integrated main adds
+better error diagnostics, but that repaired precondition is not a successful
+hosted rerun. Preserve the red and wait for an exact new-head result.
+
+GitHub initially reported zero threads on the old published head; a later
+review correctly found the unfinished detector work listed as acceptance
+evidence. The PLAN row now explicitly says pending, without claiming the
+bounded repair completes detector work. Hosted heavy jobs remain separate
+from structural mergeability. No PR merge was performed by B.
+
+
+## Integrated terminal verification and review disposition
+
+All eight integration stages exit 0: focused suites (37 app, 15 driver,
+31 CLI tests), three package quick lint/type checks, schema-first check,
+and Effect/Vitest check. The full audits/docgen above ran before main
+integration; the quick requalification is intentionally reported separately.
+
+Integrated parity completes at `4cfc0f5` plus the reviewed test-alias and
+owner-generated inventory delta: test-tsgo 0, bounded docgen 0,
+jsdoc-ratchet 1, knowledge refs 0, Fallow audit 0, Fallow health 0, final
+schema-first 0. Logs: `integrated-parity/results.tsv`. All 3,435 scanned
+JSDoc source paths match integrated main `af42e6f`, proved by
+`integrated-jsdoc-attribution.json`; the eight inherited increases remain.
+Coverage read finds no touched-test row, and no floor is changed.
+
+Review thread `PRRT_kwDOPbO_N86sCQUm` is addressed by marking detector
+acceptance pending in PLAN. The bounded handoff is progress evidence, not
+the missing final detector receipt. Inbox review row is acknowledged with
+its actual thread URL. The old hosted JSDoc row is acknowledged as wontfix
+for this bounded test wave, retaining its unknown generation cause and raw
+log; this does not waive the gate or change a baseline. Fresh hosted
+verification remains required after integration publication.

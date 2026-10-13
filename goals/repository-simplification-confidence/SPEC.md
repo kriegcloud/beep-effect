@@ -908,3 +908,22 @@ exception ruling or other registry row changes follow from this decision.
 | Decision | Reason and evidence | Reversal |
 | --- | --- | --- |
 | Give the effected lint gate an explicit Oxlint config extending the root config and admitting scratchpad paths. | Root `scratchpad/**` exclusion made `lint:effected jsonl` report no files and fail its canary check. The explicit config retains root rules and plugins and reports the expected canary diagnostic. | Revert the config and gate argument together. |
+
+### 2026-10-13 — B integrates #1612 and retires its superseded admissions
+
+Merge main at `af42e6ff5dfc26fdaf8c600a327f87f75963a3e4`, preserving every
+other burn-down repair. The merge composes cleanly. Reuse its named CI JSON
+codec, then run the schema-first writer: it removes exactly the three stale
+SFV4-arbitrary-tests exception rows because generated properties now cover
+those files. No other inventory row changes. Reverse with the integration
+wave's revert; never restore generated totals manually.
+
+The earlier full audit/docgen package gates remain source-bound evidence.
+For this integration's test-only alias reuse and owner-written row retirement,
+requalification uses the three focused suites, quick lint/type package gates
+and fresh local parity. No package source or JSDoc changed in B's delta, so
+repeating the 24-minute CLI audit would add no relevant coverage. Report full
+prior gates and quick integrated gates separately; hosted exact-head checks
+remain authoritative.
+
+- B (2026-10-13): keep detector acceptance pending until its durable final receipt exists. The codec-test handoff records bounded progress only; the valid #1616 review identified an ambiguous evidence-map link. Reversal: restore the final receipt link when detector fixtures and individual admissions are complete.

@@ -61,9 +61,13 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-B's October 13 bounded baseline repair is in verification. It adds meaningful
-codec properties for the three inherited arbitrary-test findings; the fresh
-schema-first scan passes without registry exceptions.
+B's October 13 bounded baseline repair is published in
+[PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
+codec properties for the three inherited arbitrary-test findings. After
+integrating #1612, the schema-first owner removes their three superseded
+exception rows; the fresh check passes. Integrated local verification is
+settled, with eight inherited JSDoc ratchet increases; hosted requalification
+remains pending.
 [Current B handoff](history/handoffs/rsc-b-standards-2026-10-13.md) records
 terminal package and parity results. The original refresh, guidance, and
 detector/provenance waves remain open.

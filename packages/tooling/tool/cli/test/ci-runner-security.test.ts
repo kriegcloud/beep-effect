@@ -300,9 +300,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
     "round-trips arbitrary operational patterns through the pre-runtime JSON codec",
     [Arbitrary.schema(CiOperationalPatterns)],
     Effect.fnUntraced(function* ([patterns]) {
-      const codec = S.fromJsonString(CiOperationalPatterns);
-      const encoded = yield* S.encodeEffect(codec)(patterns);
-      const decoded = yield* S.decodeEffect(codec)(encoded);
+      const encoded = yield* S.encodeEffect(OperationalPatternsJson)(patterns);
+      const decoded = yield* S.decodeEffect(OperationalPatternsJson)(encoded);
       assertTrue(S.toEquivalence(CiOperationalPatterns)(patterns, decoded));
     }),
     { arbitrary: { runs: 25 } }
