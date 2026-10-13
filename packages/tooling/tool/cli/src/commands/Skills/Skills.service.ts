@@ -11,27 +11,38 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
 import { SkillsCommandError } from "./Skills.errors.ts";
 import {
   decodeSkillLockV2Entry,
+  SkillGitRevision,
   SkillLicense,
   SkillPatch,
   SkillProvenanceReport,
+  SkillProvenanceResolution,
   SkillSnapshotFile,
   SkillTreeMode,
+  SkillUpstream,
   SkillUpstreamContent,
   SkillUpstreamContentFile,
 } from "./Skills.schemas.ts";
 import { skillResolutionSeeds } from "./Skills.seeds.ts";
+import {
+  LocalSkillLockEntry,
+  SkillDriftRow,
+  SkillMigrationRow,
+  SkillsLockMigrationPlan,
+  VendoredSkillLockEntry,
+} from "./SkillsLock.schemas.ts";
 import type * as Crypto from "effect/Crypto";
-import type { SkillProvenanceResolution } from "./Skills.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.service");
 
@@ -455,6 +466,21 @@ const fetchResponseBytes = Effect.fn("SkillUpstreamContentSource.fetchResponseBy
   return new Uint8Array(buffer);
 });
 
+const GitHubCommitJson = S.fromJsonString(S.Struct({ sha: SkillGitRevision }));
+
+const resolveGitHubRevision = Effect.fn("SkillUpstreamContentSource.resolveGitHubRevision")(function* (
+  repository: string,
+  ref: string,
+  skill: string
+): Effect.fn.Return<SkillGitRevision, SkillsCommandError, HttpClient.HttpClient> {
+  const url = `https://api.github.com/repos/${repository}/commits/${ref}`;
+  const bytes = yield* fetchResponseBytes(url, skill);
+  const commit = yield* S.decodeEffect(GitHubCommitJson)(new TextDecoder().decode(bytes)).pipe(
+    SkillsCommandError.mapError(`Failed to decode the ${ref} commit of ${repository}.`, url, skill)
+  );
+  return commit.sha;
+});
+
 const loadGitHubContent = Effect.fn("SkillUpstreamContentSource.loadGitHubContent")(function* (
   resolution: SkillProvenanceResolution
 ): Effect.fn.Return<SkillUpstreamContent, SkillsCommandError, HttpClient.HttpClient> {
@@ -531,6 +557,12 @@ const loadGitHubContent = Effect.fn("SkillUpstreamContentSource.loadGitHubConten
 export interface SkillUpstreamContentSourceShape {
   /** Load a complete pinned tree and license without consulting a floating ref. */
   readonly load: (resolution: SkillProvenanceResolution) => Effect.Effect<SkillUpstreamContent, SkillsCommandError>;
+  /** Resolve a floating ref (such as `main`) to the immutable commit it names right now. */
+  readonly resolveRevision: (
+    repository: string,
+    ref: string,
+    skill: string
+  ) => Effect.Effect<SkillGitRevision, SkillsCommandError>;
 }
 
 /**
@@ -544,7 +576,7 @@ export interface SkillUpstreamContentSourceShape {
  * **Example** (Resolve against a stubbed offline source)
  *
  * ```ts
- * import { SkillProvenanceResolution, SkillUpstreamContent } from "@beep/repo-cli/commands/Skills/Skills.schemas"
+ * import { SkillGitRevision, SkillProvenanceResolution, SkillUpstreamContent } from "@beep/repo-cli/commands/Skills/Skills.schemas"
  * import { SkillUpstreamContentSource } from "@beep/repo-cli/commands/Skills/Skills.service"
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
@@ -579,6 +611,8 @@ export interface SkillUpstreamContentSourceShape {
  *   SkillUpstreamContentSource.of({
  *     load: () =>
  *       Effect.succeed(SkillUpstreamContent.make({ files: [], licenseBytes: new Uint8Array() })),
+ *     resolveRevision: () =>
+ *       Effect.orDie(S.decodeEffect(SkillGitRevision)("0123456789abcdef0123456789abcdef01234567")),
  *   })
  * )
  *
@@ -605,6 +639,9 @@ const makeSkillUpstreamContentSource = Effect.gen(function* () {
   return SkillUpstreamContentSource.of({
     load: Effect.fn("SkillUpstreamContentSource.load")((resolution) =>
       loadGitHubContent(resolution).pipe(Effect.provide(httpContext))
+    ),
+    resolveRevision: Effect.fn("SkillUpstreamContentSource.resolveRevision")((repository, ref, skill) =>
+      resolveGitHubRevision(repository, ref, skill).pipe(Effect.provide(httpContext))
     ),
   });
 }).pipe(Effect.withSpan("SkillUpstreamContentSource.make"));
@@ -656,6 +693,42 @@ const resolveResolution = Effect.fn("SkillsProvenance.resolveResolution")(functi
   );
 });
 
+const readInstalledTargets = Effect.fn("SkillsProvenance.readInstalledTargets")(function* (
+  repoRoot: string,
+  skill: string
+): Effect.fn.Return<
+  {
+    readonly localTree: ComputedSkillTree;
+    readonly installedTargets: ReadonlyArray<string>;
+    readonly installedTreeHash: Sha256Hex;
+  },
+  SkillsCommandError,
+  FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  const path = yield* Path.Path;
+  const claudeTarget = `${CLAUDE_SKILLS_DIR}/${skill}`;
+  const agentsTarget = `.agents/skills/${skill}`;
+  const localFiles = yield* readLocalSkillFiles(path.join(repoRoot, claudeTarget), skill);
+  const localTree = yield* computeSkillTree(localFiles, `${skill}:installed`);
+  const agentsFiles = yield* readLocalSkillFiles(path.join(repoRoot, agentsTarget), skill);
+  const agentsTree = yield* computeSkillTree(agentsFiles, `${skill}:agents-installed`);
+  if (!Str.Equivalence(localTree.treeHash, agentsTree.treeHash)) {
+    return yield* SkillsCommandError.make({
+      message: `Installed skill targets disagree for ${skill}; refusing to report cross-target provenance.`,
+      skill,
+    });
+  }
+  const installedHashChunks = pipe(
+    A.empty<Uint8Array>(),
+    (chunks) => appendFramedText(chunks, claudeTarget),
+    (chunks) => appendFramedText(chunks, localTree.treeHash),
+    (chunks) => appendFramedText(chunks, agentsTarget),
+    (chunks) => appendFramedText(chunks, agentsTree.treeHash)
+  );
+  const installedTreeHash = yield* hashBytes(concatBytes(installedHashChunks), `${skill}:installed-targets`);
+  return { localTree, installedTargets: [claudeTarget, agentsTarget], installedTreeHash };
+});
+
 /**
  * Computes the would-be `skills-lock/v2` entry for one installed, seeded skill.
  *
@@ -703,7 +776,6 @@ export const resolveSkillProvenance = Effect.fn("SkillsProvenance.resolveSkillPr
   SkillsCommandError,
   SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
 > {
-  const path = yield* Path.Path;
   const resolution = yield* resolveResolution(skill);
   const source = yield* SkillUpstreamContentSource;
   const upstreamContent = yield* source.load(resolution);
@@ -717,23 +789,7 @@ export const resolveSkillProvenance = Effect.fn("SkillsProvenance.resolveSkillPr
   }
 
   const upstreamTree = yield* computeSkillTree(upstreamContent.files, `${skill}:upstream`);
-  const localFiles = yield* readLocalSkillFiles(path.join(repoRoot, CLAUDE_SKILLS_DIR, skill), skill);
-  const localTree = yield* computeSkillTree(localFiles, `${skill}:installed`);
-  const agentsTarget = `.agents/skills/${skill}`;
-  const claudeTarget = `${CLAUDE_SKILLS_DIR}/${skill}`;
-  const agentsFiles = yield* readLocalSkillFiles(path.join(repoRoot, agentsTarget), skill);
-  const agentsTree = yield* computeSkillTree(agentsFiles, `${skill}:agents-installed`);
-  if (!Str.Equivalence(localTree.treeHash, agentsTree.treeHash)) {
-    return yield* SkillsCommandError.make({
-      message: `Installed skill targets disagree for ${skill}; refusing to report cross-target provenance.`,
-      skill,
-    });
-  }
-  let installedHashChunks = appendFramedText(A.empty<Uint8Array>(), claudeTarget);
-  installedHashChunks = appendFramedText(installedHashChunks, localTree.treeHash);
-  installedHashChunks = appendFramedText(installedHashChunks, agentsTarget);
-  installedHashChunks = appendFramedText(installedHashChunks, agentsTree.treeHash);
-  const installedTreeHash = yield* hashBytes(concatBytes(installedHashChunks), `${skill}:installed-targets`);
+  const { localTree, installedTargets, installedTreeHash } = yield* readInstalledTargets(repoRoot, skill);
   const allPaths = A.sort(
     A.union(
       A.map(upstreamTree.files, (file) => file.path),
@@ -779,7 +835,7 @@ export const resolveSkillProvenance = Effect.fn("SkillsProvenance.resolveSkillPr
     },
     effective: {
       treeHash: localTree.treeHash,
-      installedTargets: [claudeTarget, agentsTarget],
+      installedTargets,
       installedTreeHash,
     },
   }).pipe(
@@ -875,15 +931,18 @@ const makeSkillProvenanceService = Effect.gen(function* () {
  * **Example** (Build an offline resolver)
  *
  * ```ts
- * import { SkillUpstreamContent } from "@beep/repo-cli/commands/Skills/Skills.schemas"
+ * import { SkillGitRevision, SkillUpstreamContent } from "@beep/repo-cli/commands/Skills/Skills.schemas"
  * import { SkillProvenanceServiceLayer, SkillUpstreamContentSource } from "@beep/repo-cli/commands/Skills/Skills.service"
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
+ * import * as S from "effect/Schema";
  * const offline = Layer.succeed(
  *   SkillUpstreamContentSource,
  *   SkillUpstreamContentSource.of({
  *     load: () =>
  *       Effect.succeed(SkillUpstreamContent.make({ files: [], licenseBytes: new Uint8Array() })),
+ *     resolveRevision: () =>
+ *       Effect.orDie(S.decodeEffect(SkillGitRevision)("0123456789abcdef0123456789abcdef01234567")),
  *   })
  * )
  *
@@ -967,4 +1026,149 @@ export const runSkillProvenance = Effect.fn("Skills.runSkillProvenance")(functio
 ): Effect.fn.Return<SkillProvenanceReport, SkillsCommandError, SkillProvenanceService> {
   const service = yield* SkillProvenanceService;
   return yield* service.resolve(skill, repoRoot);
+});
+
+const SKILLS_LOCK_PATH = "skills-lock.json";
+
+const V1LockSkills = S.fromJsonString(
+  S.Struct({
+    version: S.Literal(1),
+    skills: S.Record(S.String, S.Struct({ sourceType: S.String })),
+  })
+);
+
+const atRevision = (resolution: SkillProvenanceResolution, revision: SkillGitRevision): SkillProvenanceResolution =>
+  SkillProvenanceResolution.make({
+    ...resolution,
+    upstream: SkillUpstream.make({ ...resolution.upstream, sourceRevision: revision }),
+  });
+
+// A drifted path is `upstream-advanced` when the installed bytes (or absence)
+// equal the same path at the tracking ref's current upstream head; otherwise it is local.
+const classifyDrift = Effect.fn("SkillsLock.classifyDrift")(function* (
+  resolution: SkillProvenanceResolution,
+  repoRoot: string,
+  driftPaths: ReadonlyArray<string>,
+  headRevision: SkillGitRevision
+): Effect.fn.Return<
+  ReadonlyArray<SkillDriftRow>,
+  SkillsCommandError,
+  SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  const source = yield* SkillUpstreamContentSource;
+  const head = yield* source.load(atRevision(resolution, headRevision));
+  const headTree = yield* computeSkillTree(head.files, `${resolution.name}:observed-head`);
+  const { localTree } = yield* readInstalledTargets(repoRoot, resolution.name);
+  return A.map(driftPaths, (filePath) => {
+    const installed = findFile(localTree.files, filePath);
+    const atHead = findFile(headTree.files, filePath);
+    const matchesHead = O.match(installed, {
+      onNone: () => O.isNone(atHead),
+      onSome: (file) => O.exists(atHead, (headFile) => filesMatch(headFile, file)),
+    });
+    return SkillDriftRow.make({ path: filePath, driftClass: matchesHead ? "upstream-advanced" : "local" });
+  });
+});
+
+const migrateSkill = Effect.fn("SkillsLock.migrateSkill")(function* (
+  repoRoot: string,
+  skill: string,
+  v1SourceType: string,
+  seeds: ReadonlyArray<SkillProvenanceResolution>
+): Effect.fn.Return<
+  SkillMigrationRow,
+  SkillsCommandError,
+  SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  const seed = A.findFirst(seeds, (candidate) => Str.Equivalence(candidate.name, skill));
+  if (O.isSome(seed)) {
+    const report = yield* resolveSkillProvenance(skill, repoRoot);
+    const source = yield* SkillUpstreamContentSource;
+    const upstreamHead = yield* source.resolveRevision(
+      seed.value.upstream.repository,
+      seed.value.upstream.trackingRef,
+      skill
+    );
+    const drift = yield* classifyDrift(seed.value, repoRoot, report.driftPaths, upstreamHead);
+    return SkillMigrationRow.make({
+      skill,
+      disposition: "vendored",
+      entry: VendoredSkillLockEntry.make({ ...report.entry }),
+      drift,
+      upstreamHead,
+    });
+  }
+  const { installedTargets, installedTreeHash } = yield* readInstalledTargets(repoRoot, skill);
+  const entry = LocalSkillLockEntry.make({ installedTargets, installedTreeHash });
+  return Str.Equivalence(v1SourceType, "github")
+    ? SkillMigrationRow.make({
+        skill,
+        disposition: "unresolved",
+        entry,
+        drift: [],
+        note: "v1 github entry without a ratified resolution seed; stays local until one is ratified",
+      })
+    : SkillMigrationRow.make({ skill, disposition: "local", entry, drift: [] });
+});
+
+/**
+ * Computes the read-only `skills-lock/v1` to `skills-lock/v2` migration plan.
+ *
+ * **Details**
+ *
+ * Every skill in the v1 lock gets one row, sorted by name. A skill with a
+ * ratified resolution seed becomes a `vendored` entry, computed by the same
+ * resolver as `beep skills provenance`, and each of its drifted paths is
+ * classified against the observed upstream head. A v1 `github` skill
+ * without a seed is `unresolved` and stays local. Every other skill is
+ * `local`, identified by its installed tree hash. Nothing is written.
+ *
+ * **Example** (Inspect the requirements before providing them)
+ *
+ * ```ts
+ * import { planSkillsLockMigration } from "@beep/repo-cli/commands/Skills/Skills.service"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(planSkillsLockMigration("/workspace/beep-effect"))) // true
+ * ```
+ *
+ * @param repoRoot - Absolute repository root holding `skills-lock.json` and the installed trees.
+ * @returns The migration plan, without writing anything.
+ * @category queries
+ * @since 0.0.0
+ */
+export const planSkillsLockMigration = Effect.fn("SkillsLock.planSkillsLockMigration")(function* (
+  repoRoot: string
+): Effect.fn.Return<
+  SkillsLockMigrationPlan,
+  SkillsCommandError,
+  SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const lockPath = path.join(repoRoot, SKILLS_LOCK_PATH);
+  const text = yield* fs
+    .readFileString(lockPath)
+    .pipe(SkillsCommandError.mapError(`Failed to read ${SKILLS_LOCK_PATH}.`, lockPath));
+  const v1 = yield* S.decodeEffect(V1LockSkills)(text).pipe(
+    SkillsCommandError.mapError(`${SKILLS_LOCK_PATH} is not a skills-lock/v1 document.`, lockPath)
+  );
+  const seeds = yield* skillResolutionSeeds.pipe(
+    SkillsCommandError.mapError("Invalid ratified provenance resolution seed table.")
+  );
+  const rows = yield* Effect.forEach(
+    A.sort(R.keys(v1.skills), Str.Order),
+    (skill) =>
+      migrateSkill(
+        repoRoot,
+        skill,
+        O.getOrElse(
+          O.map(R.get(v1.skills, skill), (entry) => entry.sourceType),
+          () => "local"
+        ),
+        seeds
+      ),
+    { concurrency: 1 }
+  );
+  return SkillsLockMigrationPlan.make({ rows });
 });

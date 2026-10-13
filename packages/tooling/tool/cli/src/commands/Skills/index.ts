@@ -47,3 +47,10 @@ export * from "./Skills.seeds.ts";
  * @since 0.0.0
  */
 export * from "./Skills.service.ts";
+/**
+ * skills-lock/v2 document and migration-plan schemas.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillsLock.schemas.ts";
