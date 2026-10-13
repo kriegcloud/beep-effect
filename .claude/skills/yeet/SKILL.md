@@ -175,6 +175,10 @@ bun run beep yeet publish --prove-first --message "type(scope): summary"
 bun run beep yeet ready
 ```
 
+  Under S11 (AGENTS.md "Mergeable"), when the refusing red is inherited from
+  `main`, call final, flip with `gh pr ready <n>`, and record each inherited
+  red with its attribution in the PR body.
+
 - Publish exactly the staged index from a dirty worktree (unstaged/untracked
   residue is parked in a marked stash after the commit, the clean tree is
   proven, and the stash is restored after push; on a restore conflict the stash

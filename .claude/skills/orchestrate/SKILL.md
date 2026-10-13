@@ -109,7 +109,10 @@ still holds on required reds, so until it gains an attributed S11 mode (see
 Follow-ups) run S11 merges through the relaxed gate script in
 `~/.cache/beep/orchestrator/bin/`. It REST-merges the pinned sha once threads
 are 0, there is no base conflict and the window has elapsed, and it records
-each red in the merge line.
+each red in the merge line. An S11 PR still has to leave draft first. When
+`yeet ready` refuses on an inherited required red, the owner calls final,
+flips with `gh pr ready <n>`, and records each inherited red with its
+attribution in the PR body; the orchestrator copies those into the gate line.
 
 Two more operator rulings from 2026-10-06 (verbatim, relayed by the
 orchestrator session):
@@ -184,6 +187,9 @@ orchestrator session):
   recorded attribution, under the same thread, conflict and window checks.
   S11 merges then stop depending on the out-of-repo relaxed script (raised on
   #1619).
+- `yeet ready --inherited "<check>=<attribution>"` (S11): flip over an
+  inherited required red with the attribution written to the PR, so S11 PRs
+  stop leaving draft through a bare `gh pr ready` (raised on #1619).
 - `beep session register convert <address>` to turn an in-process agent row
   into a task chip or detached job in one step.
 - A PR-comment helper for `codex-lane` rows so the `orchestrator:` prefix is
