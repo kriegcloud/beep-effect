@@ -14635,6 +14635,18 @@
           "round": 1,
           "finding": "central — Promote the module-data manifest (scratchpad/effected/sbom/package.json)",
           "reason": "test-environment: At promotion, make the retained upstream package.json the real package manifest and drop its temporary module-data role; central-notes.md Backlog lists sbom with github and github-actions."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "sol-3-1 — Document synchronous JSON serialization failures (scratchpad/effected/sbom/InTotoStatement.ts:501)",
+          "reason": "jsdoc: Add @throws SchemaError when the predicate cannot be serialized as JSON to toJson JSDoc before @since; preserve the serializer and recorded failure behavior."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "sol-3-2 — Redact the README token double (scratchpad/effected/sbom/README.md:144)",
+          "reason": "docs: Import Redacted from effect/Redacted and return Effect.succeed(Redacted.make(\"test-token\")) in the README Testing example."
         }
       ],
       "reviewRounds": [
@@ -14666,6 +14678,24 @@
             },
             "sol": {
               "required": 1,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 2,
               "backlog": 0
             },
             "fable": {
