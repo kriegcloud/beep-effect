@@ -7212,6 +7212,24 @@
               "backlog": 9
             }
           }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 1,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 1,
+              "backlog": 0
+            }
+          }
         }
       ],
       "commits": [
