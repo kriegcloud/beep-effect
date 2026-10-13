@@ -1,14 +1,14 @@
 # B handoff — 2026-10-13
 
 lane: rsc-b-standards
-head: 6eb3d036771e868768846b3c56a5aafac69c3b2b (verification base; working changes uncommitted)
+head: feec3ace0af4860de6140a90cd1c2fe79c7a758e (source repair; publication head follows)
 PR: none
-package-verify: @beep/repo-cli pending
-package-verify: @beep/m365 pending
-package-verify: @beep/practice-m365-contacts pending
+package-verify: @beep/repo-cli pass (audit and docgen)
+package-verify: @beep/m365 pass (audit and docgen)
+package-verify: @beep/practice-m365-contacts pass (audit; package has no docgen script)
 hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet fail (inherited); knowledge refs pass; fallow audit+health pass; coverage read: no touched test file has a regression-baseline row
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-b-standards-2026-10-13.md
-open: full package/parity proofs, publication and review; original R20 refresh, guidance and detector/provenance waves remain open
+open: PR #1612 admission reconciliation, publication and review; original R20 refresh, guidance and detector/provenance waves remain open
 
 ## Bounded repair and provenance
 
@@ -38,7 +38,7 @@ Private local logs are under `.beep/rsc-b/oct13-baseline-repair/`.
 
 | Command | Result | Log |
 | --- | --- | --- |
-| `bun install` through beep-heavy | pass, no lockfile change | installation receipt |
+| `bun install` through beep-heavy | pass, no lockfile change | `install.log` |
 | `bun run beep lint schema-first` before repair | exit 1, exactly three arbitrary-test advisories | `schema-first-before.log` |
 | `bun run beep lint schema-first` after repair | exit 0, zero advisories and inventory parity clean | `schema-first-after.log` |
 | App focused test, owning package | pass, 37 tests | `app-test-canon.log` |
@@ -121,3 +121,27 @@ tests pass. All other 15 cheap-gate lanes pass in the first run, including
 schema-first and goals doctor. The verdict incorrectly suggested goals doctor
 as the repair route; streamed lane results identify Effect/Vitest as the
 actual failed stage. A full cheap-gate rerun is required before publication.
+
+## Full package gates settled
+
+All three full package verifiers exit 0. Repo CLI audit takes 1,425.1 seconds
+and docgen 64.9 seconds; M365 audit 16.4 seconds and docgen 5.7 seconds; the
+contacts app audit 15.8 seconds and docgen skips because it has no script.
+The verifier reports the actual audit/docgen steps, not a quick subset.
+The sequential proof process is settled and its admission slot is released.
+The app gate runs after the final canonical property correction.
+
+## Cheap gates settled
+
+The complete canonical rerun exits 0 at source commit
+`feec3ace0af4860de6140a90cd1c2fe79c7a758e`; all 16 lanes pass, including
+Effect/Vitest. Log: `cheap-gates-canon.log`. The introduced EV007 inbox row
+`local-shard-c83657bf2d2c` is acknowledged with that repair commit, without a
+waiver. The earlier rejected observed acknowledgement changed no inbox state.
+
+The CI alias in #1612 changes an existing decode expression outside the new
+properties; it can compose without deleting the new coverage. The three
+admissions need to be dropped from #1612 if B lands first, or retired through
+the registry owner in B's integration wave if #1612 lands first. This explicit
+source judgment and exact overlapping hunks are the pre-publication
+reconciliation; the orchestrator retains serialized merge ownership.
