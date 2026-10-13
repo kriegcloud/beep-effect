@@ -11,6 +11,7 @@ import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkFalse, thunkTrue } from "@beep/utils";
 import * as OptionUtils from "@beep/utils/Option";
 import { getSomesStruct } from "@beep/utils/Option";
+import * as Cause from "effect/Cause";
 import * as Clock from "effect/Clock";
 import * as Console from "effect/Console";
 import { Argument, Command, Flag } from "effect/cli";
@@ -336,7 +337,8 @@ const ignoredTestPathSegments = ["/test/fixtures/", "/infra/lambda/"] as const;
 const testSearchRoots = ["apps", "packages", "infra"] as const;
 const moduleTagScannedRoots = [".patterns", "apps", "packages", "tooling"] as const;
 const moduleTagScannedExtensions = [".hbs", ".md", ".ts", ".tsx"] as const;
-const effectDiagnosticsDirectiveScannedRoots = ["apps", "packages", "tooling", "infra", "scratchpad"] as const;
+// Scratchpad is an unshipped lab; its compiler diagnostic experiments are intentionally local.
+const effectDiagnosticsDirectiveScannedRoots = ["apps", "packages", "tooling", "infra"] as const;
 const effectDiagnosticsDirectiveScannedExtensions = [".cts", ".mts", ".ts", ".tsx"] as const;
 const effectDiagnosticsDirectiveIgnoredDirectoryNames = ["node_modules", "dist", "coverage", "tmp"] as const;
 const tsgoProfileScannedRoots = ["apps", "packages", "infra", "scratchpad"] as const;
@@ -3422,6 +3424,7 @@ export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInvent
     rootDir: repoRoot,
     ...OptionUtils.getSomesStruct({ outputJsonPath, outputMarkdownPath, ciOutputJsonPath, ciOutputMarkdownPath }),
   }).pipe(
+    Effect.tapError(flow(Cause.fail, Cause.pretty, Console.error)),
     QualityScriptCommandError.mapError("Failed to generate JSDoc documentation inventory.", {
       command: "bun run beep quality jsdoc-inventory",
       exitCode: 1,
