@@ -25,7 +25,6 @@ const $I = $ScratchpadId.create("effected/schema-org/JsonLdDocument");
  * merge the two nodes, so a graph that contains it does not mean what its
  * author thinks it means.
  *
-
  * **Example** (Report a duplicate node identifier)
  *
  * ```ts
@@ -71,7 +70,6 @@ export class DuplicateNodeIdError extends S.TaggedError<DuplicateNodeIdError>($I
  * Unambiguous caller error: the flattened output would carry one term twice
  * with one of the two silently winning.
  *
-
  * **Example** (Report a colliding catch-all term)
  *
  * ```ts
@@ -113,7 +111,6 @@ export class ConflictingTermError extends S.TaggedError<ConflictingTermError>($I
 /**
  * Any node this package can place in a graph.
  *
-
  * **Example** (Validate a supported graph node)
  *
  * ```ts
@@ -356,7 +353,6 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
 	/**
 	 * The `@id` of every node in the graph.
 	 *
-	 *
 	 * **Example** (Test whether a graph defines an identifier)
 	 *
 	 * ```ts
@@ -379,7 +375,6 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
 
 	/**
 	 * Node identifiers in graph insertion order, with duplicates removed.
-	 *
 	 *
 	 * **Example** (Read the first inserted node identifier)
 	 *
@@ -464,7 +459,6 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
 	 * closes the JSON-LD block early and injects markup into the document. That
 	 * is the failure this package exists to prevent, and it is reintroduced the
 	 * moment this value is serialized by hand.
-	 *
 	 *
 	 * **Example** (Produce a plain JSON-LD value for a framework)
 	 *

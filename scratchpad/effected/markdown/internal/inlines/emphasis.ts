@@ -61,8 +61,6 @@ export const DelimiterRun = S.Struct({
 /**
  * The payload measured by {@link DelimiterRun}.
  *
- * **Details**
- *
  * @category type-level
  * @since 0.0.0
  */
@@ -172,8 +170,6 @@ const handleDelim = (scanner: InlineScanner, cc: number): boolean => {
 
 /**
  * Consumes `*` and `_` runs for emphasis and strong emphasis pairing.
- *
- * **Details**
  *
  * **Example** (Register both emphasis markers)
  *
