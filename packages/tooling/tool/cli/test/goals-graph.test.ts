@@ -5,6 +5,7 @@ import {
   CapabilityCatalogReport,
   CapabilityGraphAnswers,
   CapabilityProjection,
+  canonicalJsonTextPretty,
   compileCapabilityProjection,
   evaluateCapabilityGraph,
   GoalExplainReport,
@@ -17,12 +18,10 @@ import {
   renderExplainHuman,
   renderFrontierHuman,
   runCapabilityGraph,
-} from "@beep/repo-cli/commands/Goals";
-import { canonicalJsonText } from "@beep/repo-cli/commands/Goals/PacketCore/PacketDigest";
+} from "@beep/repo-cli/test/Goals";
 import { findRepoRoot } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
+import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
@@ -32,7 +31,6 @@ import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
-import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
@@ -40,7 +38,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { expectReportedExit, temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
-import type { CapabilitySlug } from "@beep/repo-cli/commands/Goals";
+import type { CapabilitySlug } from "@beep/repo-cli/test/Goals";
 
 const COMPLETION_GATE = {
   operator: "yeet",
@@ -67,8 +65,10 @@ const manifestOf = (spec: PacketSpec): GoalManifest =>
     requires: [...(spec.requires ?? [])],
   });
 
+const encodeManifestJson = S.encodeEffect(S.fromJsonString(GoalManifest));
+
 const encodeAnswers = (answers: CapabilityGraphAnswers) =>
-  Effect.map(S.encodeUnknownEffect(CapabilityGraphAnswers)(answers), canonicalJsonText);
+  Effect.map(S.encodeUnknownEffect(CapabilityGraphAnswers)(answers), canonicalJsonTextPretty);
 
 // Multiplication by an odd constant modulo 2^32 is a bijection, so this is a
 // deterministic, seedable permutation that is neither forward nor reverse.
@@ -110,7 +110,7 @@ const differential = Effect.fn("differential")(function* (specs: ReadonlyArray<P
   const expectedText = yield* encodeAnswers(expected);
   for (const [name, order] of ORDERS) {
     const compiled = compileCapabilityProjection(order(manifests));
-    strictEqual(canonicalJsonText(compiled), canonicalJsonText(reference), `projection under ${name}`);
+    strictEqual(canonicalJsonTextPretty(compiled), canonicalJsonTextPretty(reference), `projection under ${name}`);
     const sql = yield* runCapabilityGraph(permuteRows(compiled, order));
     strictEqual(yield* encodeAnswers(sql), expectedText, `sql answers under ${name}`);
     strictEqual(yield* encodeAnswers(evaluateCapabilityGraph(permuteRows(compiled, order))), expectedText);
@@ -138,12 +138,10 @@ const toSpecs = (census: typeof GeneratedCensus.Type): ReadonlyArray<PacketSpec>
     requires: A.filter(packet.requires, (capability) => !A.contains(packet.provides, capability)),
   }));
 
-const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
-
 const explain = (projection: CapabilityProjection, answers: CapabilityGraphAnswers, slug: string) =>
   O.getOrThrow(buildExplainReport(projection, answers, slug));
 
-it.layer(PlatformLayer, { concurrent: false, timeout: "60 seconds" })((it) => {
+it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) => {
   describe("goals capability graph — sealed differential fixtures", { concurrent: false }, () => {
     it.effect("1. AND gate: blocked until every required capability is available", () =>
       Effect.gen(function* () {
@@ -415,8 +413,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "60 seconds" })((it) => {
   describe("goals next|explain|catalog commands", { concurrent: false }, () => {
     const runGoalsCommand = Command.runWith(goalsCommand, { version: "0.0.0" });
     const writeManifest = (spec: PacketSpec) =>
-      Effect.flatMap(S.encodeUnknownEffect(GoalManifest)(manifestOf(spec)), (encoded) =>
-        writeProjectFile(`goals/${spec.id}/ops/manifest.json`, `${JSON.stringify(encoded, null, 2)}\n`)
+      Effect.flatMap(encodeManifestJson(manifestOf(spec)), (text) =>
+        writeProjectFile(`goals/${spec.id}/ops/manifest.json`, `${text}\n`)
       );
     const lastLog = Effect.map(TestConsole.logLines, (lines) => pipe(A.filter(lines, P.isString), A.last));
 
@@ -465,8 +463,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "60 seconds" })((it) => {
         temporaryWorkingDirectory,
         Effect.gen(function* () {
           yield* writeManifest({ id: "pkt-a", status: "active" });
-          const renamed = yield* S.encodeUnknownEffect(GoalManifest)(manifestOf({ id: "pkt-z", status: "active" }));
-          yield* writeProjectFile("goals/pkt-b/ops/manifest.json", JSON.stringify(renamed));
+          const renamed = yield* encodeManifestJson(manifestOf({ id: "pkt-z", status: "active" }));
+          yield* writeProjectFile("goals/pkt-b/ops/manifest.json", renamed);
           expectReportedExit(yield* Effect.exit(runGoalsCommand(["next", "--json"])));
           const errors = A.filter(yield* TestConsole.errorLines, P.isString);
           assertTrue(A.some(errors, (line) => line.includes('declares initiative.id "pkt-z"')));
