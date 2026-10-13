@@ -41,14 +41,19 @@ Ground truth this design builds on:
    (a) inside a fence whose info string carries `beep:generated=<producer-id>` →
    `generated-example`. Validated by regenerating via the producer registry and
    byte-comparing. Never executed. Fence-scoped by construction (C2).
-   (b) under a valid historical citation → `historical-with-commit`. Verified against
-   the cited commit's tree and command surface, not HEAD's.
-   (c) on a live surface → `verified`. Verified at HEAD.
+   (b) on an archival-classified path and under a valid historical citation →
+   `historical-with-commit`. Verified against the cited commit's tree and command
+   surface, not HEAD's.
+   (c) on a live surface → `verified`. Verified at HEAD, always: a historical marker
+   on a live surface never moves a span off HEAD (see contract 3).
    (d) anything else → `unclassified`. Unmarked fences are decoys, not spans.
 3. **Historical citation shape.** Block form `<!-- beep:historical commit=<40-hex> -->`
    scopes to exactly the next Markdown block (paragraph, list, table, or fence), by AST.
-   Document form is frontmatter `beep-historical: <40-hex>`, admitted only on paths the
-   refs rule table already classes as archival. The commit must be an ancestor of HEAD
+   Document form is frontmatter `beep-historical: <40-hex>`. Both forms are admitted
+   only on paths the refs rule table already classes as archival. On a live surface a
+   marker of either form is inert, and the span stays `verified` at HEAD. The marker
+   itself is reported as `historical-marker-on-live-surface` so it cannot be used to
+   launder live debt. The commit must be an ancestor of HEAD
    (`merge-base --is-ancestor`); otherwise `historical-commit-not-ancestor`. A citation
    is a claim that gets checked, not an exemption: a span that fails at its cited commit
    is `historical-claim-unverified`.
@@ -143,7 +148,8 @@ export const KnowledgeEvaluatorId = LiteralKit(["paths", "commands", "symbols", 
 export const KnowledgeFindingOrigin = LiteralKit(["owned", "delegated"])            // delegated: domain gate owns blocking
 // KnowledgeFindingKind (existing LiteralKit) gains, additively:
 //   unknown-beep-symbol, packet-status-claim-drift, skill-license-unrecorded, generated-example-drift,
-//   historical-claim-unverified, historical-commit-not-ancestor, unclassified-reference-span,
+//   historical-claim-unverified, historical-commit-not-ancestor, historical-marker-on-live-surface,
+//   unclassified-reference-span,
 //   baseline-tamper, lease-expired, lease-owner-unresolved, lease-lifetime-exceeded, lease-quota-exceeded
 export class TreeEntryWitness   extends S.TaggedClass<TreeEntryWitness>()("TreeEntryWitness", { path: S.String }) {}
 export class CommandNodeWitness extends S.TaggedClass<CommandNodeWitness>()("CommandNodeWitness", { commandPath: S.Array(S.String), option: S.optionalKey(S.String) }) {}
@@ -255,7 +261,9 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
    - rename, rename+edit, and multi-hop moves;
    - a historical citation with a non-ancestor commit, and one with an ancestor commit
      where the claim also fails;
-   - a document-level historical marker on a live path.
+   - a document-level and a block-level historical marker on a live path: both inert,
+     the span still checked at HEAD, and each reported as
+     `historical-marker-on-live-surface`.
 3. **Seal guard:** add, relabel kind/subject/class, change `mintedAt`, edit a note, mixed
    baseline+code diff with `--accept-mint`, hand-crafted "mint" that fails byte
    reproduction. All of these must block. Pure deletion and pure key reordering
@@ -323,10 +331,14 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
 - **K7 30-day immutable-issued lease cap, quotas 2 per document and 20 per repo.**
   Reason: bounded, visible debt that cannot be renewed forever. Reverse: tune the numbers
   from PR-4 report data; the mechanism stays.
-- **K8 Historical class verifies at the cited commit, with a block-scoped default.**
-  Document-level marking is allowed only on archival-classified paths. Reason: a marker
-  is a checked claim, never an exemption, which honors C1. Reverse: drop the
-  document-level form if it shows up as a laundering channel in reports.
+- **K8 Historical class verifies at the cited commit, with a block-scoped default, and
+  only on archival-classified paths.** On a live surface a block or document marker is
+  inert and reported (`historical-marker-on-live-surface`), so live spans are always
+  verified at HEAD. Reason: a marker is a checked claim, never an exemption, which honors
+  C1. Restricting both forms to archival paths closes the route where a block marker
+  would move a live span's check to an old commit (review on #1626). Reverse: admit
+  block markers on live surfaces only with dual verification (cited commit and HEAD), if
+  a real need appears.
 - **K9 Unclassified spans are gated only by the Stage-1 introduced-only delta.** Reason:
   non-baselineable per SPEC without making the initial seal impossible. Reverse: make
   them blocking-by-count once the unclassified worklist reaches zero.
