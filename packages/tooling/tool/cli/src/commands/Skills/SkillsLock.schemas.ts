@@ -169,7 +169,9 @@ export class SkillsLockDocument extends S.Class<SkillsLockDocument>($I`SkillsLoc
  *
  * `vendored` has a ratified seed and becomes a full warehouse entry; `local`
  * stays repo-authored; `unresolved` is a v1 `github` entry without a ratified
- * seed. It stays local and is reported, never guessed.
+ * seed (it stays local and is reported, never guessed), or any skill whose
+ * installed targets are missing or have diverged (no entry is computed; the
+ * row's note names the install-state problem).
  *
  * **Example** (Check a disposition)
  *
@@ -301,7 +303,7 @@ export class SkillMigrationRow extends S.Class<SkillMigrationRow>($I`SkillMigrat
   {
     skill: S.String,
     disposition: SkillMigrationDisposition,
-    entry: SkillsLockEntry,
+    entry: S.optionalKey(SkillsLockEntry),
     drift: S.Array(SkillDriftRow),
     upstreamHead: S.optionalKey(SkillGitRevision),
     note: S.optionalKey(S.String),

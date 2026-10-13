@@ -11,16 +11,17 @@ import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
-import { SkillsCommandError } from "./Skills.errors.ts";
+import { SkillInstallStateError, SkillsCommandError } from "./Skills.errors.ts";
 import {
   decodeSkillLockV2Entry,
   SkillGitRevision,
@@ -702,20 +703,34 @@ const readInstalledTargets = Effect.fn("SkillsProvenance.readInstalledTargets")(
     readonly installedTargets: ReadonlyArray<string>;
     readonly installedTreeHash: Sha256Hex;
   },
-  SkillsCommandError,
+  SkillsCommandError | SkillInstallStateError,
   FileSystem.FileSystem | Path.Path | Crypto.Crypto
 > {
+  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const claudeTarget = `${CLAUDE_SKILLS_DIR}/${skill}`;
   const agentsTarget = `.agents/skills/${skill}`;
+  for (const target of [claudeTarget, agentsTarget]) {
+    const exists = yield* fs
+      .exists(path.join(repoRoot, target))
+      .pipe(SkillsCommandError.mapError(`Failed to inspect installed skill target ${target}.`, target, skill));
+    if (!exists) {
+      return yield* SkillInstallStateError.make({
+        skill,
+        reason: "missing-target",
+        message: `Installed skill "${skill}" is missing its ${target} target.`,
+      });
+    }
+  }
   const localFiles = yield* readLocalSkillFiles(path.join(repoRoot, claudeTarget), skill);
   const localTree = yield* computeSkillTree(localFiles, `${skill}:installed`);
   const agentsFiles = yield* readLocalSkillFiles(path.join(repoRoot, agentsTarget), skill);
   const agentsTree = yield* computeSkillTree(agentsFiles, `${skill}:agents-installed`);
   if (!Str.Equivalence(localTree.treeHash, agentsTree.treeHash)) {
-    return yield* SkillsCommandError.make({
-      message: `Installed skill targets disagree for ${skill}; refusing to report cross-target provenance.`,
+    return yield* SkillInstallStateError.make({
       skill,
+      reason: "divergent-targets",
+      message: `Installed skill targets disagree for ${skill}; refusing to report cross-target provenance.`,
     });
   }
   const installedHashChunks = pipe(
@@ -789,7 +804,11 @@ export const resolveSkillProvenance = Effect.fn("SkillsProvenance.resolveSkillPr
   }
 
   const upstreamTree = yield* computeSkillTree(upstreamContent.files, `${skill}:upstream`);
-  const { localTree, installedTargets, installedTreeHash } = yield* readInstalledTargets(repoRoot, skill);
+  const { localTree, installedTargets, installedTreeHash } = yield* readInstalledTargets(repoRoot, skill).pipe(
+    Effect.catchTag("SkillInstallStateError", (error) =>
+      Effect.fail(SkillsCommandError.make({ message: error.message, skill }))
+    )
+  );
   const allPaths = A.sort(
     A.union(
       A.map(upstreamTree.files, (file) => file.path),
@@ -1058,7 +1077,11 @@ const classifyDrift = Effect.fn("SkillsLock.classifyDrift")(function* (
   const source = yield* SkillUpstreamContentSource;
   const head = yield* source.load(atRevision(resolution, headRevision));
   const headTree = yield* computeSkillTree(head.files, `${resolution.name}:observed-head`);
-  const { localTree } = yield* readInstalledTargets(repoRoot, resolution.name);
+  const { localTree } = yield* readInstalledTargets(repoRoot, resolution.name).pipe(
+    Effect.catchTag("SkillInstallStateError", (error) =>
+      Effect.fail(SkillsCommandError.make({ message: error.message, skill: error.skill }))
+    )
+  );
   return A.map(driftPaths, (filePath) => {
     const installed = findFile(localTree.files, filePath);
     const atHead = findFile(headTree.files, filePath);
@@ -1080,6 +1103,20 @@ const migrateSkill = Effect.fn("SkillsLock.migrateSkill")(function* (
   SkillsCommandError,
   SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
 > {
+  // A missing or divergent install is this skill's problem, not the plan's: report it
+  // as an unresolved row and keep planning the rest. Other I/O failures stay fatal.
+  const installed = yield* readInstalledTargets(repoRoot, skill).pipe(
+    Effect.map(Result.succeed),
+    Effect.catchTag("SkillInstallStateError", flow(Result.fail, Effect.succeed))
+  );
+  if (Result.isFailure(installed)) {
+    return SkillMigrationRow.make({
+      skill,
+      disposition: "unresolved",
+      drift: [],
+      note: `${installed.failure.reason}: ${installed.failure.message}`,
+    });
+  }
   const seed = A.findFirst(seeds, (candidate) => Str.Equivalence(candidate.name, skill));
   if (O.isSome(seed)) {
     const report = yield* resolveSkillProvenance(skill, repoRoot);
@@ -1098,8 +1135,10 @@ const migrateSkill = Effect.fn("SkillsLock.migrateSkill")(function* (
       upstreamHead,
     });
   }
-  const { installedTargets, installedTreeHash } = yield* readInstalledTargets(repoRoot, skill);
-  const entry = LocalSkillLockEntry.make({ installedTargets, installedTreeHash });
+  const entry = LocalSkillLockEntry.make({
+    installedTargets: installed.success.installedTargets,
+    installedTreeHash: installed.success.installedTreeHash,
+  });
   return Str.Equivalence(v1SourceType, "github")
     ? SkillMigrationRow.make({
         skill,

@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Err } from "@beep/utils";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
@@ -126,3 +127,57 @@ export class SkillsDriftError extends S.TaggedError<SkillsDriftError>($I`SkillsD
     (driftCount, message) => SkillsDriftError.new(driftCount, message)
   );
 }
+
+/**
+ * Why an installed skill's targets cannot be hashed.
+ *
+ * **Example** (Check a reason)
+ *
+ * ```ts
+ * import { SkillInstallStateReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * console.log(SkillInstallStateReason.is["missing-target"]("missing-target")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const SkillInstallStateReason = LiteralKit(["missing-target", "divergent-targets"]).pipe(
+  $I.annoteSchema("SkillInstallStateReason", {
+    description: "A skill install-state problem: a missing target directory or targets whose trees disagree.",
+  })
+);
+
+/**
+ * A skill's installed targets are missing or disagree with each other.
+ *
+ * **Details**
+ *
+ * Kept apart from {@link SkillsCommandError} so the lock-migration plan can
+ * report one partially installed skill as `unresolved` instead of aborting
+ * the whole plan; every other filesystem failure stays fatal.
+ *
+ * **Example** (Create an install-state error)
+ *
+ * ```ts
+ * import { SkillInstallStateError } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillInstallStateError.make({ skill: "adhd", reason: "missing-target", message: "missing" })
+ * console.log(error.reason)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillInstallStateError extends S.TaggedError<SkillInstallStateError>($I`SkillInstallStateError`)(
+  "SkillInstallStateError",
+  {
+    skill: S.String,
+    reason: SkillInstallStateReason,
+    message: S.String,
+  },
+  $I.annoteError<SkillInstallStateError>("SkillInstallStateError", {
+    title: "Skill Install State Error",
+    description: "An installed skill's targets are missing or have diverged.",
+  })
+) {}

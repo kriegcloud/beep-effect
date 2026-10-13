@@ -334,7 +334,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
         Effect.provideService(SkillUpstreamContentSource, source)
       );
 
-      expect(A.map(plan.rows, (row) => [row.skill, row.disposition, row.entry._tag])).toEqual([
+      expect(A.map(plan.rows, (row) => [row.skill, row.disposition, row.entry?._tag])).toEqual([
         ["adhd", "unresolved", "local"],
         ["shadcn", "vendored", "vendored"],
         ["yeet", "local", "local"],
@@ -349,6 +349,40 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
         expect(shadcn.value.upstreamHead).toBe(OBSERVED_HEAD_REVISION);
       }
       expect(yield* fs.readFileString(path.join(repoRoot, "skills-lock.json"))).toBe(SKILLS_LOCK_V1_FIXTURE);
+    })
+  );
+
+  it.effect("reports a partially installed skill as unresolved and keeps planning the rest", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const repoRoot = yield* fs.makeTempDirectoryScoped({ prefix: "skills-lock-plan-partial-" });
+      yield* writeFixtureFile(
+        repoRoot,
+        "skills-lock.json",
+        textEncoder.encode(
+          '{"version": 1, "skills": {"broken": {"source": "x", "sourceType": "local", "computedHash": "0"}, "yeet": {"source": "x", "sourceType": "local", "computedHash": "0"}}}\n'
+        )
+      );
+      yield* writeFixtureFile(repoRoot, ".claude/skills/yeet/SKILL.md", textEncoder.encode("# yeet\n"));
+      yield* writeFixtureFile(repoRoot, ".agents/skills/yeet/SKILL.md", textEncoder.encode("# yeet\n"));
+      // "broken" exists under .claude/skills only: its .agents target is missing.
+      yield* writeFixtureFile(repoRoot, ".claude/skills/broken/SKILL.md", textEncoder.encode("# broken\n"));
+
+      const plan = yield* planSkillsLockMigration(repoRoot).pipe(
+        Effect.provideService(
+          SkillUpstreamContentSource,
+          SkillUpstreamContentSource.of({
+            load: Effect.fn("SkillsLockPlanTest.partial.load")(() => Effect.die("unreachable")),
+            resolveRevision: Effect.fn("SkillsLockPlanTest.partial.resolveRevision")(() => Effect.die("unreachable")),
+          })
+        )
+      );
+
+      expect(A.map(plan.rows, (row) => [row.skill, row.disposition, row.entry?._tag])).toEqual([
+        ["broken", "unresolved", undefined],
+        ["yeet", "local", "local"],
+      ]);
+      expect(plan.rows[0]?.note).toContain("missing-target");
     })
   );
 
