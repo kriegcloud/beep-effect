@@ -32,6 +32,9 @@ import * as TestConsole from "effect/testing/TestConsole";
 import { NodeCommandTestLayer } from "./support/CommandTest.ts";
 
 const Json = S.fromJsonString(S.Unknown);
+const JsonRpcFrameJson = S.fromJsonString(JsonRpcMessage);
+const ToolRequest = S.Struct({ name: S.String });
+const BindingJson = S.fromJsonString(EndpointBinding);
 const encodeJson = S.encodeEffect(Json);
 const decodeJson = S.decodeEffect(Json);
 const runCommand = Command.runWith(agentMessageCommand, { version: "test", renderErrors: false });
@@ -176,7 +179,7 @@ const attachedFixture = Effect.fn("AgentMessageCommandTest.attachedFixture")(fun
   const requests = yield* Ref.make(A.empty<string>());
   const httpRequests = yield* Ref.make(0);
   const readTool = Effect.fn("AgentMessageCommandTest.readTool")(function* (params: unknown) {
-    const { name } = yield* S.decodeUnknownEffect(S.Struct({ name: S.String }))(params);
+    const { name } = yield* S.decodeUnknownEffect(ToolRequest)(params);
     yield* Ref.update(requests, A.append(name));
     const structuredContent = Match.value(name).pipe(
       Match.when("t3_thread_configuration", () => configuration),
@@ -210,9 +213,7 @@ const attachedFixture = Effect.fn("AgentMessageCommandTest.attachedFixture")(fun
       expect(request.url).toBe(profile.url);
       expect(request.headers.authorization).toBe("Bearer synthetic-fixture");
       if (request.body._tag !== "Uint8Array") return yield* Effect.die("Expected an encoded JSON-RPC fixture request.");
-      const frame = yield* S.decodeEffect(S.fromJsonString(JsonRpcMessage))(
-        new TextDecoder().decode(request.body.body)
-      );
+      const frame = yield* S.decodeEffect(JsonRpcFrameJson)(new TextDecoder().decode(request.body.body));
       if (frame.method === "notifications/initialized")
         return HttpClientResponse.fromWeb(request, new Response(null, { status: 202 }));
       const result = frame.method === "initialize" ? { protocolVersion: "2025-06-18" } : yield* readTool(frame.params);
@@ -357,14 +358,14 @@ it.layer(
         Effect.gen(function* () {
           const f = yield* setup();
           const attached = yield* attachedFixture(f, provider);
-          const printed = yield* Deferred.make<void>();
+          const printed = yield* Deferred.make<EndpointBinding, S.SchemaError>();
           const console = yield* Console.Console;
           const observedConsole: Console.Console = {
             ...console,
             log: (...args: ReadonlyArray<unknown>) => {
               console.log(...args);
               // Bridge the synchronous console boundary to a deterministic enrollment witness.
-              Deferred.doneUnsafe(printed, Effect.void);
+              Deferred.doneUnsafe(printed, S.decodeUnknownEffect(BindingJson)(args[0]));
             },
           };
           const fiber = yield* f
@@ -374,7 +375,7 @@ it.layer(
               Effect.provideService(Console.Console, observedConsole),
               Effect.forkChild
             );
-          yield* Deferred.await(printed);
+          const emitted = yield* Deferred.await(printed);
           yield* Fiber.interrupt(fiber);
           const enrolled = yield* f.store.endpoint("attached");
           expect(enrolled.sessionId).toBe("owned-thread");
@@ -394,10 +395,7 @@ it.layer(
             "t3_thread_read",
             "t3_project_read",
           ]);
-          const rows = yield* Effect.forEach(A.filter(yield* TestConsole.logLines, P.isString), (line) =>
-            decodeJson(line)
-          );
-          expect(A.last(rows).pipe(O.getOrThrow)).toMatchObject({
+          expect(emitted).toMatchObject({
             endpointId: "attached",
             sessionId: "owned-thread",
           });

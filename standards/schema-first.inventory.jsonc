@@ -985,7 +985,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 35,
+      "line": 38,
       "owner": "@beep/repo-cli",
       "reason": "Command integration regressions decode actual CLI output and fixed protocol fixtures to verify private state, authorization, durable delivery, ACK/recovery and rejection before HTTP. Schema-derived envelope identity and host-authority properties live in agent-message-models.test.ts and AgentMessage.tools.test.ts; these scenarios assert command effects rather than new codec laws. Reconsider if schema-law tests or reusable schemas move into this file."
     },
@@ -995,7 +995,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 75,
+      "line": 77,
       "owner": "@beep/repo-cli",
       "reason": "Native runtime regressions decode real synthetic-child and SQLite receipts to verify enrollment, policy rejection, delivery, cancellation cleanup and writer-lock behavior. Generated envelope/reference properties live in agent-message-models.test.ts; arbitrary codec round-trips do not exercise these fixed subprocess lifecycle scenarios. Reconsider if reusable schemas or schema-law assertions move into this file."
     },

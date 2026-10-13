@@ -47,6 +47,8 @@ const lockTimeout = RouterError.make({
   code: "storage",
   message: "Agent message SQL operation failed: LockTimeoutError.",
 });
+const ManagedProfileJson = S.fromJsonString(ManagedLaunchProfile);
+const ReceiptJson = S.fromJsonString(Receipt);
 const managedCommandFixture = Effect.fn("AgentMessageTest.managedCommandFixture")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -72,7 +74,7 @@ const managedCommandFixture = Effect.fn("AgentMessageTest.managedCommandFixture"
     tools: [],
   });
   const write = (value: ManagedLaunchProfile) =>
-    S.encodeEffect(S.fromJsonString(ManagedLaunchProfile))(value).pipe(
+    S.encodeEffect(ManagedProfileJson)(value).pipe(
       Effect.flatMap((json) => fs.writeFileString(filename, json, { mode: 0o600 }))
     );
   yield* write(profile);
@@ -169,8 +171,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
           log: (...args) => {
             originalConsole.log(...args);
             Deferred.doneUnsafe(enrolled, Effect.void);
-            if (++printed === 2)
-              Deferred.doneUnsafe(delivered, S.decodeUnknownEffect(S.fromJsonString(Receipt))(args[0]));
+            if (++printed === 2) Deferred.doneUnsafe(delivered, S.decodeUnknownEffect(ReceiptJson)(args[0]));
           },
         });
         const fiber = yield* f.execute.pipe(

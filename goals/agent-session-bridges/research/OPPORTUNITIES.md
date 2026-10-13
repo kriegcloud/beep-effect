@@ -290,3 +290,30 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
   regression-only exception applies. Preserve the actual process/command
   assertions and schema-property suites; do not add a token round-trip solely
   to satisfy the detector or disable its rule.
+
+## 2026-10-13: CI trace output exposed a command-test capture assumption
+
+- Work: verify the new command regressions on PR #1571 after shared repairs.
+- Evidence: hosted `repo-cli-2` failed both attach-T3 tests with `Expected a
+  valid JSON string`; `CI=1` reproduced the same two failures locally. The
+  lifecycle trace messages were included in the full test console history.
+- Prevention: run command-output tests with CI tracing enabled and capture the
+  command's own output at its injected Console boundary. Run root-config
+  Oxlint as well as package checks to catch inline schema construction.
+- Action: decode the observed command argument as `EndpointBinding`, retaining
+  malformed-output failure, and hoist four reusable test schemas. The focused
+  command/runtime suite passes all 13 tests with CI and tracing enabled.
+  No provider calls, baseline changes, or ambiguity-hold mutations occurred.
+
+## 2026-10-13: schema inventory exceptions depend on source line positions
+
+- Work: publish the CI trace repair after hoisting reusable test schemas.
+- Evidence: 15 publication gates passed; schema-first reported the two existing
+  regression-only exceptions as stale after their first codec lines moved from
+  35/75 to 38/77. The inventory writer refreshed locations but replaced the
+  previously reviewed exception status and rationale with advisory defaults.
+- Prevention: retain an exception's reviewed disposition across a line-only
+  source move, or require an explicit reconciliation in the writer output.
+- Action: retain the generated current locations and restore the unchanged
+  reviewed status and reasons. The final inventory diff changes only two line
+  numbers; no new exemption or relaxed numeric baseline is introduced.
