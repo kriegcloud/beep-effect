@@ -183,6 +183,10 @@
       <excludeFolder url="file://$MODULE_DIR$/licenses" />
       <excludeFolder url="file://$MODULE_DIR$/research" />
       <excludeFolder url="file://$MODULE_DIR$/docs" />
+      <excludeFolder url="file://$MODULE_DIR$/explorations/agent-fleet-layout" />
+      <excludeFolder url="file://$MODULE_DIR$/explorations/todox-wealth-management-site" />
+      <excludeFolder url="file://$MODULE_DIR$/explorations/turborepo-quality-cache" />
+      <excludeFolder url="file://$MODULE_DIR$/explorations/v3-consistency-audit" />
       <excludeFolder url="file://$MODULE_DIR$/explorations/beep-ci-operational-ontology" />
       <excludeFolder url="file://$MODULE_DIR$/explorations/cursor-agent-pool" />
       <excludeFolder url="file://$MODULE_DIR$/explorations/effect-mcp-2026-07-28" />
@@ -210,7 +214,6 @@
       <excludeFolder url="file://$MODULE_DIR$/goals/effect-schema-parity" />
       <excludeFolder url="file://$MODULE_DIR$/goals/epistemic-contradiction-detection" />
       <excludeFolder url="file://$MODULE_DIR$/goals/epistemic-contradiction-triage" />
-      <excludeFolder url="file://$MODULE_DIR$/goals/fleet-root-registry" />
       <excludeFolder url="file://$MODULE_DIR$/goals/freshbooks-driver" />
       <excludeFolder url="file://$MODULE_DIR$/goals/harness-evidence-ledger" />
       <excludeFolder url="file://$MODULE_DIR$/goals/ingestion-secret-scrub" />
