@@ -21,7 +21,7 @@ import {
   scanUnsafeAssertions,
   tsExtension,
 } from "../../effected/runner/Exports.ts";
-import { CANARY_DIAGNOSTICS, compareVersions, gatePlan, missingCanaryDiagnostics } from "../../effected/runner/Gates.ts";
+import { CANARY_DIAGNOSTICS, compareVersions, editorTsgoVerdict, gatePlan, missingCanaryDiagnostics } from "../../effected/runner/Gates.ts";
 import { assembleKnowledge, moduleTsconfig, okfLinks, readmeSkeleton, scanVendorNotices } from "../../effected/runner/Knowledge.ts";
 import {
   AUDIT_TARGETS,
@@ -515,5 +515,36 @@ describe("jsdoc law", () => {
     for (const rule of ["loose-fence", "example-title", "example-fences", "section-order"]) {
       assert.include(rules, rule);
     }
+  });
+});
+
+describe("editorTsgoVerdict", () => {
+  it("stays clean when a non-zero exit printed only suggestion diagnostics", () => {
+    const verdict = editorTsgoVerdict({ exitCode: 1, output: "test/a.test.ts(22,28): suggestion TS377141: Add a brand.\ntest/b.test.ts(3,1): suggestion TS377141: Add a brand.\n" });
+    assert.isFalse(verdict.red);
+    assert.strictEqual(verdict.advisories, 2);
+    assert.deepStrictEqual(verdict.errors, []);
+  });
+
+  it("is red on an error diagnostic", () => {
+    const verdict = editorTsgoVerdict({ exitCode: 2, output: "src/a.ts(1,7): error TS2322: Type 'string' is not assignable to type 'number'.\nsrc/b.ts(4,2): suggestion TS377141: Add a brand." });
+    assert.isTrue(verdict.red);
+    assert.deepStrictEqual(verdict.errors, ["src/a.ts(1,7): error TS2322: Type 'string' is not assignable to type 'number'."]);
+    assert.strictEqual(verdict.advisories, 1);
+  });
+
+  it("is red on a global error without a position", () => {
+    assert.isTrue(editorTsgoVerdict({ exitCode: 1, output: "error TS5083: Cannot read file 'tsconfig.json'." }).red);
+  });
+
+  it("is red when a non-zero exit printed no diagnostic", () => {
+    assert.isTrue(editorTsgoVerdict({ exitCode: 139, output: "" }).red);
+    assert.isTrue(editorTsgoVerdict({ exitCode: 1, output: "Segmentation fault\n" }).red);
+  });
+
+  it("is clean on a silent success", () => {
+    const verdict = editorTsgoVerdict({ exitCode: 0, output: "" });
+    assert.isFalse(verdict.red);
+    assert.strictEqual(verdict.advisories, 0);
   });
 });
