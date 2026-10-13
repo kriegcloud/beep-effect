@@ -290,6 +290,57 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })("quality a
 
   describe("inline schema annotations", () => {
     it.effect(
+      "classifies schema classes by heritage rather than member examples or initializers",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const repoRoot = yield* acquireFixtureRepo();
+        yield* fs.writeFileString(
+          path.join(repoRoot, "packages", "demo", "src", "index.ts"),
+          `import * as Context from "effect/Context";
+import * as S from "effect/Schema";
+export class DemoService extends Context.Service<DemoService>()("DemoService") {
+  /**
+   * Builds a service layer with schema-backed metadata.
+   *
+   * **Example** (Construct metadata)
+   *
+   * \`\`\`ts
+   * import * as S from "effect/Schema";
+   * class Meta extends S.Class<Meta>("Meta")({ tag: S.String }) {}
+   * console.log(Meta.make({ tag: "demo" }).tag);
+   * \`\`\`
+   */
+  static readonly layerMemory = "fixture";
+}
+export class PlainClass {
+  static readonly metadata = S.Class("Meta")({ tag: S.String });
+}
+export class SchemaClass extends S.Class<SchemaClass>("SchemaClass")({}) {}
+export class SchemaError extends S.TaggedError<SchemaError>()("SchemaError", {}) {}
+export class ModelClass extends Model.Class<ModelClass>("ModelClass")({}) {}
+export class DomainEntity extends PartEntity.Entity<DomainEntity>("DomainEntity")({}) {}
+`
+        );
+        const inventory = yield* buildJSDocDocumentationInventory({ rootDir: repoRoot, generatedAt: fixedGeneratedAt });
+        const gaps = A.flatMap(inventory.packages, (pkg) =>
+          A.map(pkg.exports, (entry) => ({
+            name: entry.symbolName,
+            rules: A.map(entry.schemaAnnotationGaps, (gap) => gap.rule),
+          }))
+        );
+        expect(gaps).toEqual([
+          { name: "DemoService", rules: [] },
+          { name: "PlainClass", rules: [] },
+          { name: "SchemaClass", rules: ["missing-schema-annotation"] },
+          { name: "SchemaError", rules: ["missing-schema-annotation"] },
+          { name: "ModelClass", rules: ["missing-schema-annotation"] },
+          { name: "DomainEntity", rules: ["missing-schema-annotation"] },
+        ]);
+      })
+    );
+
+    it.effect(
       "recognizes annotations without accepting field metadata or empty annotations",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;

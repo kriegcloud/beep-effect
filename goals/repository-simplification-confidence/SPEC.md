@@ -874,3 +874,17 @@ repair owns only those three surfaces and their focused regression tests.
 Dependents integrate the landed repair once; coverage floors, JSDoc totals and
 existing file-containment gates remain unchanged. Reversal is a normal revert
 of this repair commit; no live message store or external session is touched.
+
+### D26 — Distinguish JSDoc source findings from scanner artifacts (2026-10-13)
+
+The completed inventory exposes two classifier/scope errors. A regular
+`Context.Service` class is mistaken for a schema when a nested example contains
+`S.Class`; classify its own heritage instead. Scratchpad's umbrella docgen
+configuration excludes test files and its default Vitest config but misses the
+additional `vitest.effected.config.ts` and intentional `effected/.canary/**`
+fixtures. Exclude those two exact infrastructure paths from that owning config;
+ordinary Effected source remains inventoried and its live canary gates remain
+independent. Regression tests preserve real schema detection and exercise the
+false positive. No metric baseline changes. Reversal is a normal revert of these
+classifier/config changes. The active Effected owner retains ordinary source
+annotation and documentation repairs.

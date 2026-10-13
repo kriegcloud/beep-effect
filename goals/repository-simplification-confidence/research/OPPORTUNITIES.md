@@ -991,3 +991,14 @@ devDependencies. Artifact-specific fake state, broken-link traversal tests, and
 complete bounded diagnostics would have prevented repeated uninformative runs.
 The follow-up fixes these shared causes once on main, without changing quality
 floors or treating earlier interrupted scans as complete measurements.
+
+## 2026-10-13: inventory completion separates source debt from scanner errors
+
+The repaired full scan reports eight metric increases, but its per-export rows
+show `BlobStore` misclassified by a nested schema example and seven infrastructure
+exports entering the documentation surface through two missing umbrella-config
+exclusions. This makes real source repair appear larger than it is. Classify
+declarations from their own AST heritage and keep explicit test/canary scope
+aligned with package docgen configuration. Preserve the actual remaining source
+findings and baseline instead of annotating the wrong service or teaching
+intentionally invalid canaries to pass.
