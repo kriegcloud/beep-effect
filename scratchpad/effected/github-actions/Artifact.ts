@@ -178,19 +178,22 @@ export interface UploadOptions {
 	readonly compressionLevel?: number | undefined;
 }
 
+// A boundary struct keeps the upload's plain-record public representation.
+const UploadResult = S.Struct({
+	/** The new artifact's database id, which `download` takes. */
+	id: S.Finite.annotateKey({ description: "The new artifact's database id, which download takes." }),
+	/** The size of the uploaded zip, in bytes. */
+	size: S.Finite.annotateKey({ description: "The size of the uploaded zip, in bytes." }),
+}).pipe($I.annoteSchema("UploadResult", { description: "What an upload produced." }));
+
 /**
- * What an upload produced.
+ * What an upload produced, decoded as a plain record with a finite database id.
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface UploadResult {
-	/** The new artifact's database id, which `download` takes. */
-	readonly id: number;
-	/** The size of the uploaded zip, in bytes. */
-	readonly size: number;
-}
+export type UploadResult = typeof UploadResult.Type;
 
 /**
  * Where a download should land.
@@ -216,17 +219,20 @@ export interface DownloadResult {
 	readonly downloadPath: string;
 }
 
+// A boundary struct keeps the deletion's plain-record public representation.
+const ArtifactRef = S.Struct({
+	/** The deleted artifact's database id. */
+	id: S.Finite.annotateKey({ description: "The deleted artifact's database id." }),
+}).pipe($I.annoteSchema("ArtifactRef", { description: "The id of an artifact that delete removed." }));
+
 /**
- * The id of an artifact that `delete` removed.
+ * The finite database id of an artifact that `delete` removed, decoded as a plain record.
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface ArtifactRef {
-	/** The deleted artifact's database id. */
-	readonly id: number;
-}
+export type ArtifactRef = typeof ArtifactRef.Type;
 
 /**
  * The members of the {@link Artifact} service: upload, list, get, download and
@@ -542,10 +548,13 @@ const make = Effect.fn("make")(function* (
 									detail: "FinalizeArtifact did not confirm the upload",
 								});
 						}
-						return {
+						return yield* S.decodeEffect(UploadResult)({
 							id: Number(stringField(finalized, "artifactId") ?? 0),
 							size: Number(size.size),
-						} satisfies UploadResult;
+						}).pipe(Effect.mapError((cause) => ArtifactError.make({
+							...twirpFailureFields({ method: "FinalizeArtifact", kind: "malformed", cause }),
+							artifact: name,
+						})));
 					}),
 				);
 			}),
@@ -612,7 +621,12 @@ const make = Effect.fn("make")(function* (
 				if (deleted === CONFLICT || !isOk(deleted)) {
 					return yield* ArtifactError.make({ reason: "refused", artifact: name, detail: "DeleteArtifact did not confirm" });
 				}
-				return { id: Number(stringField(deleted, "artifactId") ?? found.id) } satisfies ArtifactRef;
+				return yield* S.decodeEffect(ArtifactRef)({
+					id: Number(stringField(deleted, "artifactId") ?? found.id),
+				}).pipe(Effect.mapError((cause) => ArtifactError.make({
+					...twirpFailureFields({ method: "DeleteArtifact", kind: "malformed", cause }),
+					artifact: name,
+				})));
 			}),
 		} satisfies ArtifactShape;
 	});

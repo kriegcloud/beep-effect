@@ -125,6 +125,28 @@ describe("CheckDocument", () => {
 				}).pipe(withLayer(layer));
 			}),
 		);
+
+		it.effect("a maxWait between quiet-window multiples flushes at its exact deadline", () =>
+			Effect.gen(function* () {
+				const { writes, layer } = yield* harness({ quiet: "500 millis", maxWait: "750 millis" });
+				yield* Effect.gen(function* () {
+					const doc = yield* CheckDocument;
+					yield* doc.report("build", CheckReport.make({ state: "pass" }));
+					yield* TestClock.adjust("400 millis");
+					yield* doc.report("build", CheckReport.make({ state: "fail" }));
+					yield* TestClock.adjust("100 millis");
+					assert.deepStrictEqual(yield* Ref.get(writes), [], "the report at 400ms prevents settling at 500ms");
+					yield* TestClock.adjust("249 millis");
+					assert.deepStrictEqual(yield* Ref.get(writes), [], "no write before the 750ms deadline");
+					yield* TestClock.adjust("1 millis");
+					const all = yield* Ref.get(writes);
+					assert.strictEqual(all.length, 1, "exactly one write at 750ms, before the next full quiet interval");
+					assert.include(all[0] ?? "", "fail", "the deadline flush carries the latest report");
+					assert.notInclude(all[0] ?? "", "pass");
+				}).pipe(withLayer(layer));
+				assert.strictEqual((yield* Ref.get(writes)).length, 1, "scope finalization does not duplicate the write");
+			}),
+		);
 	});
 
 	describe("replacement, never appending", () => {

@@ -69,7 +69,8 @@ const live = (
 const protocol = (
 	fetch: typeof globalThis.fetch,
 	transfer: ReturnType<typeof fileTransfer>["transfer"],
-	env: Readonly<Record<string, string>> = {}
+	env: Readonly<Record<string, string>> = {},
+	spawner = Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {})
 ) =>
 	artifactLayer(transfer).pipe(
 		Layer.provideMerge(
@@ -77,11 +78,38 @@ const protocol = (
 				resultsEnv(env),
 				MemoryFileSystem.layer,
 				Path.layer,
-				Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {}),
+				spawner,
 				FetchHttpClient.layer.pipe(Layer.provide(Layer.succeed(FetchHttpClient.Fetch)(fetch)))
 			)
 		)
 	);
+
+// The RPC regressions need archive bytes, but do not depend on a native zip process.
+const protocolZip = Layer.effect(
+	ChildProcessSpawner.ChildProcessSpawner,
+	Effect.map(FileSystem.FileSystem, (fs) =>
+		ChildProcessSpawner.make(Effect.fnUntraced(function* (command) {
+			const destination = "args" in command ? command.args[2] : undefined;
+			if (destination === undefined) {
+				return yield* Effect.die("expected a zip destination");
+			}
+			yield* fs.writeFileString(destination, "archive bytes").pipe(Effect.orDie);
+			return ChildProcessSpawner.makeHandle({
+				pid: ChildProcessSpawner.ProcessId(42),
+				exitCode: Effect.succeed(ChildProcessSpawner.ExitCode(0)),
+				isRunning: Effect.succeed(false),
+				kill: () => Effect.void,
+				stdin: Sink.drain,
+				stdout: Stream.empty,
+				stderr: Stream.empty,
+				all: Stream.empty,
+				getInputFd: () => Sink.drain,
+				getOutputFd: () => Stream.empty,
+				unref: Effect.succeed(Effect.void),
+			});
+		}))
+	)
+).pipe(Layer.provide(MemoryFileSystem.layer));
 
 const uploadable = {
 	CreateArtifact: () => json({ ok: true, signedUploadUrl: "https://blob.example/artifact?sig=abc" }),
@@ -89,6 +117,56 @@ const uploadable = {
 };
 
 describe("Artifact", () => {
+	for (const idField of ["artifactId", "artifact_id"]) {
+		for (const malformed of ["not-a-number", "Infinity", "1e309"]) {
+			for (const method of ["FinalizeArtifact", "DeleteArtifact"] as const) {
+				const { transfer } = fileTransfer();
+				const { calls, fetch } = twirpFetch({
+					...uploadable,
+					ListArtifacts: () => json({ artifacts: [{ databaseId: "11", name: "logs", size: "1" }] }),
+					[method]: () => json({ ok: true, [idField]: malformed }),
+				});
+				it.layer(protocol(fetch, transfer, {}, protocolZip), { timeout: "10 seconds" })((it) => {
+					it.effect(`rejects malformed ${idField} ${malformed} from ${method}`, () =>
+						Effect.gen(function* () {
+							const artifacts = yield* Artifact;
+							const error = yield* Effect.flip(method === "FinalizeArtifact"
+								? artifacts.upload("logs", ["/work/a.txt"], "/work")
+								: artifacts.delete("logs"));
+							assert.instanceOf(error, ArtifactError);
+							assert.strictEqual(error.reason, "unreachable");
+							assert.strictEqual(error.artifact, "logs");
+							assert.strictEqual(error.detail, `${method} did not answer with a Twirp body`);
+							assert.instanceOf(error.cause, S.SchemaError);
+							assert.deepStrictEqual(calls.map((call) => call.method), method === "FinalizeArtifact"
+								? ["CreateArtifact", "FinalizeArtifact"]
+								: ["ListArtifacts", "DeleteArtifact"]);
+						})
+					);
+				});
+			}
+		}
+	}
+
+	{
+		const { transfer } = fileTransfer();
+		const { fetch } = twirpFetch({
+			...uploadable,
+			FinalizeArtifact: () => json({ ok: true }),
+			ListArtifacts: () => json({ artifacts: [{ databaseId: "11", name: "logs", size: "1" }] }),
+			DeleteArtifact: () => json({ ok: true }),
+		});
+		it.layer(protocol(fetch, transfer, {}, protocolZip), { timeout: "10 seconds" })((it) => {
+			it.effect("preserves missing-id defaults at finalize and delete boundaries", () =>
+				Effect.gen(function* () {
+					const artifacts = yield* Artifact;
+					assert.deepStrictEqual(yield* artifacts.upload("logs", ["/work/a.txt"], "/work"), { id: 0, size: 13 });
+					assert.deepStrictEqual(yield* artifacts.delete("logs"), { id: 11 });
+				})
+			);
+		});
+	}
+
 	{
 		const { blobs, transfer } = fileTransfer();
 		const { calls, fetch } = twirpFetch(uploadable);

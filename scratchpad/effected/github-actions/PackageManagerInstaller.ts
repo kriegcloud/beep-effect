@@ -16,7 +16,6 @@ import * as O from "@beep/utils/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as P from "effect/Predicate";
-import * as Result from "effect/Result";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import { ActionEnvironment } from "./ActionEnvironment.ts";
@@ -38,6 +37,20 @@ const BinName = S.String.check(S.isPattern(/^(?!\.{1,2}$)[^/\\:\x00]+$/, {
 	description: "A nonempty filename component without path separators, drive prefixes or NUL bytes.",
 })).pipe($I.annoteSchema("BinName", { description: "A package manager command name confined to one shim filename." }));
 const isBinName = S.is(BinName);
+
+const WindowsDeviceName = S.String.check(S.isPattern(/^(?:CON|PRN|AUX|NUL|COM[1-9¹²³]|LPT[1-9¹²³])(?:\.|$)/i, {
+	identifier: "WindowsDeviceName",
+	title: "Windows reserved device name",
+	description: "A reserved Win32 device stem, including names with extensions.",
+})).pipe($I.annoteSchema("WindowsDeviceName", { description: "A command name that Windows resolves as a device." }));
+const isWindowsDeviceName = S.is(WindowsDeviceName);
+
+const WindowsShimTarget = S.String.check(S.isPattern(/^[^"%!\x00-\x1f\x7f]+$/, {
+	identifier: "WindowsShimTarget",
+	title: "Literal Windows shim target",
+	description: "A complete target without quotes, cmd expansion markers or control bytes; path separators are allowed.",
+})).pipe($I.annoteSchema("WindowsShimTarget", { description: "A complete path safe inside a quoted cmd argument." }));
+const isWindowsShimTarget = S.is(WindowsShimTarget);
 
 /**
  * Raised when a package manager cannot be provisioned on the runner.
@@ -448,8 +461,10 @@ const SHIM_DIR = ".bin";
  * a shell script or a Mach-O to node is exactly the "Invalid or unexpected
  * token" failure this rule exists to prevent.
  */
-const posixShim = (target: string): string =>
-	isNodeScript(target) ? `#!/bin/sh\nexec node "${target}" "$@"\n` : `#!/bin/sh\nexec "${target}" "$@"\n`;
+const posixShim = (target: string): string => {
+	const literal = `'${Str.replaceAll("'", "'\\''")(target)}'`;
+	return isNodeScript(target) ? `#!/bin/sh\nexec node ${literal} "$@"\n` : `#!/bin/sh\nexec ${literal} "$@"\n`;
+};
 
 /** The Windows shim body, CRLF-terminated as cmd expects; same node-vs-direct rule. */
 const cmdShim = (target: string): string =>
@@ -505,7 +520,7 @@ const normalizeBins = (bin: unknown, fallbackName: string): O.Option<Record<stri
 		if (!P.isString(value)) {
 			return O.none();
 		}
-		entries[name] = value.replace(/^\.\//, "");
+		R.assignProperty(entries, name, value.replace(/^\.\//, ""));
 	}
 	return R.keys(entries).length === 0 ? O.none() : O.some(entries);
 };
@@ -639,7 +654,7 @@ const make = Effect.gen(function* () {
 		for (const name of R.keys(bins)) {
 			const shim = path.resolve(shimDir, shimFileName(name));
 			const containment = path.relative(shimDir, shim);
-			if (!isBinName(name) || containment === "" || containment === ".." ||
+			if (!isBinName(name) || (windows && isWindowsDeviceName(name)) || containment === "" || containment === ".." ||
 				Str.startsWith(`..${path.sep}`)(containment) || path.isAbsolute(containment)) {
 				return yield* errorFor(pin)({
 					reason: "layoutUnexpected",
@@ -673,10 +688,9 @@ const make = Effect.gen(function* () {
 			.pipe(
 				Effect.mapError((cause) => errorFor(pin)({ reason: "layoutUnexpected", subject: "no package.json", cause })),
 			);
-		const manifest = yield* Effect.try({
-			try: () => Result.getOrThrowWith(S.decodeResult(Json)(raw), (error) => error),
-			catch: (cause) => errorFor(pin)({ reason: "layoutUnexpected", subject: "unparseable package.json", cause }),
-		});
+		const manifest = yield* S.decodeEffect(Json)(raw).pipe(
+			Effect.mapError((cause) => errorFor(pin)({ reason: "layoutUnexpected", subject: "unparseable package.json", cause })),
+		);
 		const bins = O.getOrUndefined(normalizeBins(P.hasProperty(manifest, "bin") ? manifest.bin : undefined, pin.name));
 		if (bins === undefined) {
 			return yield* errorFor(pin)({ reason: "layoutUnexpected", subject: "package.json names no bin" });
@@ -783,6 +797,17 @@ const make = Effect.gen(function* () {
 		// Preflight the whole map before creating the directory or writing even
 		// the first valid shim; a later hostile name must leave no partial shims.
 		yield* validateShimDestinations(pin, into, bins);
+		if (windows) {
+			for (const [name, relative] of R.toEntries(bins)) {
+				const target = path.join(finalDirectory, relative);
+				if (!isWindowsShimTarget(target)) {
+					return yield* errorFor(pin)({
+						reason: "layoutUnexpected",
+						subject: `bin ${name} (${target}) cannot be represented literally in a Windows shim`,
+					});
+				}
+			}
+		}
 		const cacheError = (subject: string) => (cause: unknown) =>
 			errorFor(pin)({ reason: "cacheFailed", subject, cause });
 		yield* fs.makeDirectory(shimDir, { recursive: true }).pipe(Effect.mapError(cacheError(shimDir)));
@@ -894,13 +919,8 @@ const make = Effect.gen(function* () {
 		const unverifiable = (cause: unknown) =>
 			errorFor(pin)({ reason: "integrityMismatch", subject: packumentUrl, cause });
 		const packument = yield* fs.readFileString(packumentFile).pipe(
+			Effect.flatMap(S.decodeEffect(Json)),
 			Effect.mapError(unverifiable),
-			Effect.flatMap((raw) =>
-				Effect.try({
-					try: () => Result.getOrThrowWith(S.decodeResult(Json)(raw), (error) => error),
-					catch: unverifiable,
-				}),
-			),
 		);
 		const dist = P.hasProperty(packument, "dist") ? packument.dist : undefined;
 		return yield* expectedFromSri(pin, P.hasProperty(dist, "integrity") ? dist.integrity : undefined, packumentUrl);

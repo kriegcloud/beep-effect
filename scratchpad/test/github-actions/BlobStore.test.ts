@@ -8,7 +8,7 @@ import * as Redacted from "effect/Redacted";
 import * as S from "effect/Schema";
 import * as DateTime from "effect/DateTime";
 import * as TestClock from "effect/testing/TestClock";
-import { FetchHttpClient } from "effect/http";
+import { FetchHttpClient, HttpClient, HttpClientResponse } from "effect/http";
 import type { S3Config } from "../../effected/github-actions/index.ts";
 import {
 	ActionOutputs,
@@ -154,6 +154,100 @@ describe("SigV4", () => {
 
 describe("BlobStore", () => {
 	describe("the S3 backend", () => {
+		{
+			let executions = 0;
+			const http = HttpClient.make((request) => {
+				executions += 1;
+				return Effect.succeed(HttpClientResponse.fromWeb(request, new Response(null, { status: 200 })));
+			});
+			const layer = BlobStore.layerS3(CONFIG).pipe(Layer.provide(Layer.mergeAll(
+				ActionOutputs.layerTest({ setSecret: () => Effect.void }),
+				Layer.succeed(HttpClient.HttpClient)(http),
+			)));
+			it.layer(layer, { timeout: "10 seconds" })((it) => {
+				it.effect("rejects dot-segment keys for GET, PUT and HEAD before HTTP execution", () =>
+					Effect.gen(function* () {
+						const store = yield* BlobStore;
+						for (const key of [".", "..", "a/../b", "./b", "a/./b", "../outside", "a/.", "a/..", "a//../b"]) {
+							const error = BlobStoreError.make({
+								reason: "misconfigured",
+								key,
+								detail: "The object path must not contain complete . or .. segments",
+							});
+							assert.deepStrictEqual(yield* Effect.flip(store.get(key, Meta)), error);
+							assert.deepStrictEqual(yield* Effect.flip(store.put(key, {
+								metadata: Meta.make({ tag: "dot-segment", durationMs: 1 }),
+								body: new Uint8Array([1]),
+							}, Meta)), error);
+							assert.deepStrictEqual(yield* Effect.flip(store.has(key)), error);
+							assert.strictEqual(executions, 0);
+						}
+					}),
+				);
+			});
+		}
+
+		for (const config of [
+			{ ...CONFIG, bucket: "." },
+			{ ...CONFIG, bucket: ".." },
+			{ ...CONFIG, bucket: "a/./b" },
+			{ ...CONFIG, bucket: "a/../b" },
+			{ ...CONFIG, prefix: "." },
+			{ ...CONFIG, prefix: ".." },
+			{ ...CONFIG, prefix: "a/./b" },
+			{ ...CONFIG, prefix: "a/../b" },
+		]) {
+			let executions = 0;
+			const http = HttpClient.make((request) => {
+				executions += 1;
+				return Effect.succeed(HttpClientResponse.fromWeb(request, new Response(null, { status: 200 })));
+			});
+			const layer = BlobStore.layerS3(config).pipe(Layer.provide(Layer.mergeAll(
+				ActionOutputs.layerTest({ setSecret: () => Effect.void }),
+				Layer.succeed(HttpClient.HttpClient)(http),
+			)));
+			it.layer(layer, { timeout: "10 seconds" })((it) => {
+				it.effect(`rejects a dot segment in bucket ${config.bucket} or prefix ${config.prefix}`, () =>
+					Effect.gen(function* () {
+						const error = yield* Effect.flip((yield* BlobStore).has("safe-key"));
+						assert.deepStrictEqual(error, BlobStoreError.make({
+							reason: "misconfigured",
+							key: "safe-key",
+							detail: "The object path must not contain complete . or .. segments",
+						}));
+						assert.strictEqual(executions, 0);
+					}),
+				);
+			});
+		}
+
+		{
+			const seen: Array<string> = [];
+			const fake = fetchStub((input) => {
+				seen.push(String(input));
+				return new Response(null, { status: 200 });
+			});
+			it.layer(s3(fake), { timeout: "10 seconds" })((it) => {
+				it.effect("preserves dotted names, literal percent escapes and empty segments", () =>
+					Effect.gen(function* () {
+						const store = yield* BlobStore;
+						for (const key of ["...", "a/.hidden/b", "a/b..", "%2e", "%2E%2E", "a//b", "a/"]) {
+							assert.isTrue(yield* store.has(key));
+						}
+						assert.deepStrictEqual(seen, [
+							`${CONFIG.endpoint}/cache/...`,
+							`${CONFIG.endpoint}/cache/a/.hidden/b`,
+							`${CONFIG.endpoint}/cache/a/b..`,
+							`${CONFIG.endpoint}/cache/%252e`,
+							`${CONFIG.endpoint}/cache/%252E%252E`,
+							`${CONFIG.endpoint}/cache/a//b`,
+							`${CONFIG.endpoint}/cache/a/`,
+						]);
+					}),
+				);
+			});
+		}
+
 		{
 			const seen: Array<{ url: string; method: string; authorization: string | null }> = [];
 

@@ -540,7 +540,7 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
 			CheckDocument,
 			Effect.gen(function* () {
 				const quietMillis = Duration.toMillis(options.debounce?.quiet ?? "500 millis");
-				const maxWaitMillis = Math.max(Duration.toMillis(options.debounce?.maxWait ?? "3 seconds"), quietMillis);
+				const maxWaitMillis = Num.max(Duration.toMillis(options.debounce?.maxWait ?? "3 seconds"), quietMillis);
 				const checksRef = yield* Ref.make(CheckDocumentSnapshot.make({ checks: HashMap.empty(), order: [] }));
 				const writtenRef = yield* Ref.make(options.initial ?? "");
 				const versionRef = yield* Ref.make(0);
@@ -636,7 +636,9 @@ export class CheckDocument extends Context.Service<CheckDocument, CheckDocumentS
 						let settled = false;
 						while (!settled) {
 							const before = yield* Ref.get(versionRef);
-							yield* Effect.sleep(quietMillis);
+							const pollingAt = yield* Clock.currentTimeMillis;
+							const remaining = Num.max(0, maxWaitMillis - (pollingAt - start));
+							yield* Effect.sleep(Num.min(quietMillis, remaining));
 							const after = yield* Ref.get(versionRef);
 							const now = yield* Clock.currentTimeMillis;
 							settled = after === before || now - start >= maxWaitMillis;

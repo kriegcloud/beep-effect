@@ -6744,6 +6744,18 @@
           "upstreamBehaviour": "AudienceShape and Osc8Info interfaces and the inline override domain have no runtime schema identities or field metadata; upstream columns has no StreamColumns schema identity.",
           "labBehaviour": "New AudienceShape, Osc8Info and Osc8Override schema values carry composer identities, with identities on both AudienceShape fields and all twelve Osc8Info fields. Built-in S.Number replaces the prior StreamColumns declaration, removing its identity while retaining StreamEnv.columns.",
           "reason": "identity-annotations: operator step 4 requires composer identities on every added schema and field. env-r2-1/5 introduce these new identities; env-r2-2 removes the custom StreamColumns identity. The existing identity deviation does not cover these new models or this removal."
+        },
+        {
+          "test": "scratchpad/test/env/Audience.test.ts:213; scratchpad/test/env/RuntimeEnv.test.ts:19; scratchpad/test/env/TerminalEnv.test.ts:330",
+          "upstreamBehaviour": "AudienceOptions, RuntimeEnvOverrides and TerminalEnvTestOptions are type-only handwritten configuration interfaces; their direct modules expose no corresponding runtime schema values.",
+          "labBehaviour": "The three direct modules export same-name S.Struct values and schema-derived types. TerminalEnvTestOptions reuses an optional-field PartialStreamEnv derived from StreamEnv. Plain objects, absent keys, Option overrides and non-finite columns remain supported; the barrel remains type-only.",
+          "reason": "schema-first: D5/D11, architecture section 5 and EF-33 require schemas to own pure configuration data. sol-3-1/2/3 add these three contracts, which are not covered by existing deviations for AudienceShape, Osc8Info or other payloads."
+        },
+        {
+          "test": "scratchpad/effected/env/Audience.ts:122; scratchpad/effected/env/RuntimeEnv.ts:130; scratchpad/effected/env/TerminalEnv.ts:90,113",
+          "upstreamBehaviour": "The three configuration interfaces have no runtime schema identities or field metadata, and no PartialStreamEnv schema identity exists.",
+          "labBehaviour": "AudienceOptions, RuntimeEnvOverrides, TerminalEnvTestOptions and the private PartialStreamEnv schema receive composer identities. The seven newly schema-owned outer configuration fields receive annoteKey metadata.",
+          "reason": "identity-annotations: operator step 4 requires composer identities on added schemas and fields. This round introduces identities and field metadata for the three options contracts and PartialStreamEnv; the existing identity deviations cover different schemas."
         }
       ],
       "backlog": [
@@ -18281,6 +18293,102 @@
           "upstreamBehaviour": "scratchpad/effected/github-actions/GitHubToken.ts:239 carried a branch no input can reach",
           "labBehaviour": "The private empty constructor cannot be called through the TypeScript API; an abstract static utility class removes the explicit unreachable constructor while retaining the static operations and runtime behavior.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/github-actions/Artifact.test.ts:130",
+          "upstreamBehaviour": "FinalizeArtifact and DeleteArtifact convert supplied IDs with Number and can succeed with NaN or Infinity.",
+          "labBehaviour": "Finalize/delete results decode finite IDs and reject invalid supplied IDs through malformed ArtifactError with a SchemaError cause; missing IDs retain upload 0 and delete found.id defaults.",
+          "reason": "upstream-bug: r1 pinned-oracle differential RPC probes reproduced successful NaN IDs; 12 added regressions cover not-a-number, Infinity and 1e309 in both response spellings and both methods."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ActionCache.test.ts:843",
+          "upstreamBehaviour": "Resolved LF/CR-bearing filenames are written into a newline-delimited tar manifest, splitting one accepted path into multiple inputs.",
+          "labBehaviour": "Resolved paths containing LF or CR fail with archiveFailed and an offending-path diagnostic before manifest creation, tar or backend operations.",
+          "reason": "upstream-bug: r2 differential manifest probes and streamed native tar evidence demonstrate path splitting; g2 reports the added LF/CR regressions failing before and passing after the fix."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ActionCache.test.ts:890",
+          "upstreamBehaviour": "Selected real directories and separately matched descendants all enter the tar manifest, producing duplicate members and quadratic payload I/O in deep trees.",
+          "labBehaviour": "An ancestor-prefix pass removes recursively covered paths while retaining surviving order, symlink boundaries and original literal-pattern version hashing.",
+          "reason": "upstream-bug: r3 differential manifests and streamed tar probes demonstrate duplicate members; the added archive-member regression reproduces duplicates before the fix and passes after it, as reported by g2."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ManagedDocument.test.ts:160; scratchpad/test/github-actions/ManagedDocument.test.ts:288",
+          "upstreamBehaviour": "Pinned upstream accepts terminal bare-CR region content under LF rendering and loses that byte on reparse; the pre-fix lab throws SchemaError when translating the templates refusal.",
+          "labBehaviour": "ManagedDocument exposes trailingCarriageReturn in its error-kind schema and returns the refusal through typed Result and Effect failure channels.",
+          "reason": "upstream-bug: r4 propagates the templates module's recorded trailingCarriageReturn byte-loss fix; added empty/LF-document regressions assert ManagedDocumentError, unchanged text and the typed Result/Effect channels."
+        },
+        {
+          "test": "scratchpad/test/github-actions/BlobStore.test.ts:168,210",
+          "upstreamBehaviour": "Complete dot segments in bucket/prefix/key are signed as raw paths but normalized by URL transport, aliasing keys or removing the bucket.",
+          "labBehaviour": "GET, PUT and HEAD reject complete . or .. segments as misconfigured BlobStoreError before signing or HTTP execution; other raw segments and encoding remain intact.",
+          "reason": "upstream-bug: r7 pinned-oracle recording-fetch probes demonstrate resource aliasing, signature mismatch and bucket removal; new key/configuration regressions assert typed refusal and zero HTTP requests."
+        },
+        {
+          "test": "scratchpad/test/github-actions/CheckDocument.test.ts:129",
+          "upstreamBehaviour": "With quiet 500ms, maxWait 750ms and reports at 0/400ms, full-quiet polling first writes at 1000ms, exceeding the staleness bound.",
+          "labBehaviour": "Polling sleeps for the lesser of the quiet interval and remaining maxWait budget, writing the latest state at 750ms without a duplicate at scope closure.",
+          "reason": "upstream-bug: r8 differential TestClock probes reproduce the 1000ms write; g6 reports the added 500ms/750ms deadline regression failing before and passing after the bounded-sleep fix."
+        },
+        {
+          "test": "scratchpad/test/github-actions/GitHubMarkdown.test.ts:11,153",
+          "upstreamBehaviour": "Table cell normalization handles CRLF/LF but leaves bare CR, which the Markdown parser treats as a row boundary.",
+          "labBehaviour": "Direct and schema-derived tables normalize CRLF, CR and LF to <br>, preserving row and column relationships.",
+          "reason": "upstream-bug: r9 pinned-oracle parser probes demonstrate an extra row for a bare-CR cell; g7 reports the added direct/schema-derived regressions failing before the fix."
+        },
+        {
+          "test": "scratchpad/test/github-actions/GitHubMarkdown.test.ts:68,83",
+          "upstreamBehaviour": "Raw link-label passthrough leaves unmatched brackets active, breaking the link or excluding part of the supplied label.",
+          "labBehaviour": "Unmatched unescaped brackets are escaped before link construction, preserving the entire label and supported emphasis, balanced brackets, escapes and complete code spans.",
+          "reason": "upstream-bug: r10 differential parser probes demonstrate broken or partial labels; added parser-backed regressions require one complete link with the requested destination and retain inline Markdown."
+        },
+        {
+          "test": "scratchpad/test/github-actions/PackageManagerInstaller.test.ts:642",
+          "upstreamBehaviour": "POSIX shims interpolate complete targets in double quotes, allowing shell expansion in target and cache-root components.",
+          "labBehaviour": "Both node and direct-executable shims single-quote the complete target with embedded-quote escaping, preserving literal paths and argument forwarding.",
+          "reason": "upstream-bug: r13 pinned-oracle differential installation and shell probes expand bin/$tool.js into a different pathname; added target/cache-root metacharacter regressions pin literal shim bodies for both branches."
+        },
+        {
+          "test": "scratchpad/test/github-actions/PackageManagerInstaller.test.ts:1918,1934",
+          "upstreamBehaviour": "Windows shims interpolate unrestricted complete targets, allowing quote, expansion and control bytes to alter cmd interpretation.",
+          "labBehaviour": "Windows rejects quotes, percent/exclamation expansion markers and control bytes anywhere in a complete target with layoutUnexpected before any shim write; separators and ordinary quoted metacharacters remain accepted.",
+          "reason": "upstream-bug: r13 seat evidence establishes unsafe cmd target interpolation; added install/cache-hit matrices cover target/cache-root bytes and require no partial shim writes, with safe-neighbor command-shape assertions."
+        },
+        {
+          "test": "scratchpad/test/github-actions/PackageManagerInstaller.test.ts:1882",
+          "upstreamBehaviour": "Lexically confined Windows device stems such as NUL, CON, COM1 and LPT1 are accepted as shim filenames even with extensions.",
+          "labBehaviour": "Windows-only validation rejects reserved device stems, including case/extension and superscript-digit variants, through layoutUnexpected before writes; POSIX acceptance remains unchanged.",
+          "reason": "upstream-bug: r14 demonstrates that lexical containment accepts Win32 device paths rather than regular shim files; the added Windows/POSIX install/cache-hit matrix asserts rejection before shims or cache publication."
+        },
+        {
+          "test": "scratchpad/test/github-actions/PackageManagerInstaller.test.ts:656",
+          "upstreamBehaviour": "Indexed assignment while normalizing a manifest bin record silently drops an own __proto__ string entry through the inherited setter.",
+          "labBehaviour": "R.assignProperty retains __proto__ as an own bin property, publishing its path and shim alongside normal bins.",
+          "reason": "upstream-bug: r15 pinned source and assignment semantics establish own-key loss; the added JSON-manifest regression asserts both __proto__ and pnpm paths and identical shim bodies. The report's TypeError claim is discarded."
+        },
+        {
+          "test": "scratchpad/test/github-actions/Secret.test.ts:61",
+          "upstreamBehaviour": "forChildEnv masks an own __proto__ secret but indexed assignment silently omits it from the successful plaintext handoff.",
+          "labBehaviour": "R.assignProperty preserves the enumerable own __proto__ plaintext property in the plain record while retaining masking order.",
+          "reason": "upstream-bug: r16 pinned-oracle differential probes show ownProto=false despite both values being masked; g10 reports the added own-key/fidelity/masking-order regression failing before and passing after the fix."
+        },
+        {
+          "test": "scratchpad/test/github-actions/archiveCommands.test.ts:34",
+          "upstreamBehaviour": "POSIX zip receives filenames directly after destination, so leading-dash filenames can be interpreted as command options.",
+          "labBehaviour": "POSIX zip argv inserts -- before filenames, treating leading-dash paths literally; the Windows command remains unchanged.",
+          "reason": "upstream-bug: r18 lab/oracle command probes emit -h as an option and installed zip documentation confirms -- literal-path semantics; updated argv and added leading-dash regressions pin the terminator."
+        },
+        {
+          "test": "scratchpad/test/github-actions/CacheKey.test.ts:608,656; scratchpad/test/github-actions/ManagedDocument.test.ts:328,338",
+          "upstreamBehaviour": "Reusable CacheKey checks and the managed-region NamePart pattern lack complete filter metadata and export inline or partially annotated JSON Schema constraints.",
+          "labBehaviour": "These newly annotated checks carry identity-derived identifiers, titles and descriptions; CacheKey constraints and NamePart gain named JSON Schema definitions/references while preserving validation bounds, grammar and messages.",
+          "reason": "identity-annotations: effect-laws-v1 law 18 and EF-12c require complete reusable-check metadata; r5/r6 introduce filter annotations and shared definition shapes not recorded in the existing schema/field identity row."
+        },
+        {
+          "test": "scratchpad/test/github-actions/BlobStore.property.test.ts:27,29",
+          "upstreamBehaviour": "S3Config is an exported type-only interface with no executable runtime schema.",
+          "labBehaviour": "BlobStore.ts exports an identity-annotated S3Config Struct and its same-name derived type, preserving plain-object construction, string/redacted fields and absent or explicit-undefined optional fields.",
+          "reason": "schema-first: EF-33 and executable-contract architecture require a runtime schema source of truth; r11 introduces the S3Config value export, with new Arbitrary.schema round trips and optional-field properties."
         }
       ],
       "backlog": [
@@ -18361,6 +18469,18 @@
           "round": 1,
           "finding": "central — Module-data manifest becomes the package manifest at promotion (scratchpad/effected/github-actions/package.json)",
           "reason": "test-environment: Keep the upstream manifest as module data in the lab; at promotion convert it to the real package manifest and drop the data-file role."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "r3 — Remove recursively covered descendants from the tar input manifest (scratchpad/test/github-actions/ActionCache.coverage.test.ts:150)",
+          "reason": "perf: g2 LEFT requests central retargeting of the unowned descendant-manifest assertion. The live diff now expects only /work and updates the test title; preserve the historical LEFT record without claiming the gate remains failing."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "r13 — Keep complete shim targets literal in POSIX and Windows scripts (scratchpad/test/github-actions/PackageManagerInstaller.coverage.test.ts:147)",
+          "reason": "bug: g9 LEFT requests central retargeting of two unowned double-quoted shim assertions. The live diff updates the shared assertion to a single-quoted target; preserve the historical LEFT record without claiming the gate remains failing."
         }
       ],
       "reviewRounds": [
@@ -18379,6 +18499,24 @@
             "fable": {
               "required": 19,
               "backlog": 26
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "2f515ae2519cc72223c94917019bf7ebfe92a4a5",
+          "seats": {
+            "grok": {
+              "required": 11,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 13,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 5,
+              "backlog": 0
             }
           }
         }

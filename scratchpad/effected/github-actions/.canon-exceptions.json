@@ -56,43 +56,47 @@
     "reason": "Reads the actual module source tree to detect unsanctioned ambient process reads; memfs would disconnect the assertions from the source under test."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:48:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:49:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:57:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:58:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:75:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:71:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:83:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:89:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:93:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:97:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:103:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:107:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:122:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:117:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:132:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:136:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:143:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:146:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {
-    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:152:provide@11#1",
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:157:provide@11#1",
+    "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
+  },
+  {
+    "id": "EV002:scratchpad/test/github-actions/Secret.test.ts:166:provide@11#1",
     "reason": "ActionOutputs.layerTest resolves to a pure Layer.succeed stub; D14 permits per-test provision."
   },
   {

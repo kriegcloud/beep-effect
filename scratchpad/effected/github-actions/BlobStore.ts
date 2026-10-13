@@ -3,7 +3,6 @@ import * as Str from "effect/String";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Match from "effect/Match";
 import { $ScratchpadId } from "@beep/identity/packages";
-import type * as Redacted from "effect/Redacted";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -17,6 +16,8 @@ import { BlobEnvelope } from "./BlobEnvelope.ts";
 import { sign, uriEncode } from "./internal/sigv4.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 import { Secret } from "./Secret.ts";
+
+const DotSegment = S.Literals([".", ".."]);
 
 const $I = $ScratchpadId.create("effected/github-actions/BlobStore");
 
@@ -126,15 +127,31 @@ export interface BlobStoreShape {
 /**
  * How to reach an S3-compatible object store.
  *
+ * **Example** (Validate an S3 configuration)
+ *
+ * ```ts
+ * import { S3Config } from "@beep/scratchpad/effected/github-actions/BlobStore";
+ * import * as Redacted from "effect/Redacted";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(S3Config)({
+ *   bucket: "build-cache",
+ *   region: "us-east-1",
+ *   accessKeyId: "example-key",
+ *   secretAccessKey: Redacted.make("example-secret"),
+ *   prefix: undefined,
+ * })) // true
+ * ```
+ *
  * @public
  * @category configuration
  * @since 0.0.0
  */
-export interface S3Config {
+export const S3Config = S.Struct({
 	/** The bucket name. */
-	readonly bucket: string;
+	bucket: S.String.annotateKey({ description: "The bucket name." }),
 	/** The bucket's region, used for SigV4 signing and the default AWS endpoint. */
-	readonly region: string;
+	region: S.String.annotateKey({ description: "The bucket's region, used for SigV4 signing and the default AWS endpoint." }),
 	/**
   * A custom endpoint, e.g. `https://<account>.r2.cloudflarestorage.com`.
   *
@@ -145,16 +162,25 @@ export interface S3Config {
   * against R2, MinIO and Spaces — virtual-host addressing needs per-bucket
   * DNS that none of them provide the same way.
   */
-	readonly endpoint?: string | undefined;
+	endpoint: S.optional(S.String).annotateKey({ description: "A custom path-style endpoint. Omitting it targets AWS itself." }),
 	/** The access key id. */
-	readonly accessKeyId: string;
+	accessKeyId: S.String.annotateKey({ description: "The access key id." }),
 	/** The secret access key, declassified once and masked in the runner log. */
-	readonly secretAccessKey: Redacted.Redacted<string>;
+	secretAccessKey: S.Redacted(S.String).annotateKey({ description: "The secret access key, declassified once and masked in the runner log." }),
 	/** For temporary credentials. */
-	readonly sessionToken?: Redacted.Redacted<string> | undefined;
+	sessionToken: S.String.pipe(S.Redacted, S.optional).annotateKey({ description: "For temporary credentials." }),
 	/** Prepended to every key, so one bucket can hold several caches. */
-	readonly prefix?: string | undefined;
-}
+	prefix: S.optional(S.String).annotateKey({ description: "Prepended to every key, so one bucket can hold several caches." }),
+}).annotate($I.annote("S3Config", { description: "How to reach an S3-compatible object store." }));
+
+/**
+ * The configuration accepted by the S3-compatible backend.
+ *
+ * @public
+ * @category configuration
+ * @since 0.0.0
+ */
+export type S3Config = typeof S3Config.Type;
 
 /**
  * Durable blob storage with a metadata channel.
@@ -345,8 +371,7 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 		const objectPath = (key: string): string =>
 			A.join([config.bucket, ...(config.prefix === undefined ? [] : [config.prefix]), key], "/");
 
-		const request = (method: string, key: string, body: Uint8Array, now: DateTime.Utc) => {
-			const path = objectPath(key);
+		const request = (method: string, path: string, body: Uint8Array, now: DateTime.Utc) => {
 			const headers = sign(
 				{ method, path, host, headers: {}, body, now: DateTime.toDateUtc(now) },
 				{
@@ -361,8 +386,16 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 		};
 
 		const send = Effect.fn("BlobStore.send")(function* (method: "GET" | "PUT" | "HEAD", key: string, body: Uint8Array) {
+			const path = objectPath(key);
+			if (A.some(Str.split(path, "/"), S.is(DotSegment))) {
+				return yield* BlobStoreError.make({
+					reason: "misconfigured",
+					key,
+					detail: "The object path must not contain complete . or .. segments",
+				});
+			}
 			const now = yield* DateTime.now;
-			const { url, headers } = request(method, key, body, now);
+			const { url, headers } = request(method, path, body, now);
 			const base = HttpClientRequest.make(method)(url, { headers });
 			const built = body.length === 0 ? base : HttpClientRequest.bodyUint8Array(base, body);
 			return yield* http

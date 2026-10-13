@@ -57,11 +57,9 @@ export const payloadOf = (token: string): Result.Result<unknown, JwtPayloadFailu
 	if (Result.isFailure(json)) {
 		return Result.fail({ kind: "payload", detail: "the payload is not base64url JSON", cause: json.failure });
 	}
-	try {
-		return Result.succeed(Result.getOrThrowWith(S.decodeResult(Json)(json.success), (error) => error));
-	} catch (cause) {
-		return Result.fail({ kind: "payload", detail: "the payload is not base64url JSON", cause });
-	}
+	return Result.mapError(S.decodeResult(Json)(json.success), (cause): JwtPayloadFailure => ({
+		kind: "payload", detail: "the payload is not base64url JSON", cause,
+	}));
 };
 
 /**
@@ -85,6 +83,6 @@ export const unsignedJwt: {
 	(header: unknown, payload: unknown): string;
 	(payload: unknown): (header: unknown) => string;
 } = Function.dual(2, (header: unknown, payload: unknown): string => {
-	const segment = (value: unknown): string => Base64Url.encode(Result.getOrThrowWith(S.encodeResult(Json)(value), (error) => error));
+	const segment = (value: unknown): string => S.encodeResult(Json)(value).pipe(Result.getOrThrow, Base64Url.encode);
 	return `${segment(header)}.${segment(payload)}.unsigned`;
 });

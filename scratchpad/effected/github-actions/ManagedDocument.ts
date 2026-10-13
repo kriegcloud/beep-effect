@@ -41,7 +41,9 @@ export class RejectedRegionDialectError extends S.TaggedError<RejectedRegionDial
  *
  * @since 0.0.0
  */
-const NamePart = S.String.check(S.isPattern(/^[A-Za-z0-9][A-Za-z0-9_-]*$/u));
+const NamePart = S.String.check(S.isPattern(/^[A-Za-z0-9][A-Za-z0-9_-]*$/u, $I.annote("NamePart", {
+	description: "Letters, digits, dashes and underscores, starting alphanumeric; dots are excluded to keep marker keys unambiguous.",
+})));
 
 /**
  * The marker vocabulary every managed document is written with: HTML comments
@@ -65,14 +67,16 @@ const REGION_DIALECT: SectionDialect = SectionDialect.make({
  * The four structural kinds (`unterminatedRegion`, `orphanedEnd`,
  * `overlappingRegions`, `duplicateRegion`) surface at parse time and name an
  * ambiguity whose silent resolution would corrupt content a human wrote by
- * hand. The three declaration kinds surface when regions are applied:
+ * hand. The four declaration kinds surface when regions are applied:
  * `markerInContent` refuses region content that itself contains a line the
  * scanner would read as a region marker, `duplicateDeclaration` refuses
  * one call that states two intentions for the same region, and
  * `invalidAttribute` refuses region metadata whose name is outside the
  * `[A-Za-z][A-Za-z0-9_-]*` grammar or whose value contains `"` or a line
  * break — either would write a marker the region scanner could not read
- * back verbatim.
+ * back verbatim. `trailingCarriageReturn` refuses content whose final bare
+ * carriage return LF rendering would absorb into the boundary line ending,
+ * losing a byte on the next parse.
  *
  * **Example** (Describe an ambiguous region)
  *
@@ -101,6 +105,7 @@ export class ManagedDocumentError extends S.TaggedError<ManagedDocumentError>($I
 		"markerInContent",
 		"duplicateDeclaration",
 		"invalidAttribute",
+		"trailingCarriageReturn",
 	]).annotateKey({ description: "Which ambiguity or refusal was found." }),
 	/**
 	 * 1-based line of the offending marker, for the structural kinds.
@@ -152,6 +157,7 @@ const KIND_PROSE: Record<ManagedDocumentError["kind"], string> = {
 	markerInContent: "Region content contains a managed-region marker",
 	duplicateDeclaration: "Region was declared twice in one call",
 	invalidAttribute: "Region metadata has an invalid attribute name or value",
+	trailingCarriageReturn: "Region content ends in a bare carriage return that LF rendering cannot preserve",
 };
 
 /**
@@ -505,11 +511,13 @@ export class ManagedDocument extends S.Class<ManagedDocument>($I`ManagedDocument
 		const reconciled = parsed.success.reconcile(declared);
 		if (Result.isFailure(reconciled)) {
 			const failure = reconciled.failure;
+			// Every declaration uses REGION_DIALECT's own HTML style.
+			if (failure.reason === "unknownCommentStyle") {
+				throw RejectedRegionDialectError.make({ message: "ManagedDocument: the region dialect rejected its own comment style" });
+			}
 			return Result.fail(
 				ManagedDocumentError.make({
-					// Every declaration uses REGION_DIALECT's own HTML style; decode
-					// the remaining upstream reasons into the public error vocabulary.
-					kind: Result.getOrThrow(S.decodeUnknownResult(ManagedDocumentError.fields.kind)(failure.reason)),
+					kind: failure.reason,
 					key: this.regionKeyOf(failure.key),
 					...O.getSomesStruct({ attribute: O.fromUndefinedOr(failure.attribute) }),
 				}),

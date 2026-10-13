@@ -187,6 +187,19 @@ interface ColumnRuntime {
  */
 const passthrough = (value: string): Html => Html.make({ value });
 
+const escapeLinkLabel = (text: string): string => {
+	const characters = text.split("");
+	const openings: Array<number> = [];
+	// Escaped characters and complete code spans do not participate in label
+	// bracket pairing. Exact backtick runs keep wider code delimiters intact.
+	for (const token of text.matchAll(new RegExp("\\\\[\\s\\S]|(?<!`)(`+)(?!`)[\\s\\S]*?(?<!`)\\1(?!`)|[\\[\\]]", "g"))) {
+		if (token[0] === "[") openings.push(token.index);
+		else if (token[0] === "]" && openings.pop() === undefined) characters[token.index] = "\\]";
+	}
+	for (const index of openings) characters[index] = "\\[";
+	return A.join(characters, "");
+};
+
 /**
  * Serialize a tree the writer built itself.
  *
@@ -297,7 +310,7 @@ export abstract class GitHubMarkdown {
 		// corruption class the pipe escaping exists to prevent, reachable
 		// through a multi-line `format` result or a multi-line value. GitHub
 		// renders `<br>` inside a cell, so line structure survives inline.
-		const inline = (value: string): string => value.replace(/\r?\n/g, "<br>");
+		const inline = (value: string): string => value.replace(/\r\n|\r|\n/g, "<br>");
 		const cells = (values: ReadonlyArray<string>): TableRow =>
 			TableRow.make({
 				children: A.map(headers, (_, index) =>
@@ -436,7 +449,7 @@ export abstract class GitHubMarkdown {
 	 * @since 0.0.0
 	 */
 	static link(text: string, url: string): string {
-		return block(Paragraph.make({ children: [Link.make({ url, children: [passthrough(text)] })] }));
+		return block(Paragraph.make({ children: [Link.make({ url, children: [passthrough(escapeLinkLabel(text))] })] }));
 	}
 
 	/**

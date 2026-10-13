@@ -136,7 +136,7 @@ const dotnetCompressionLevel = (level: number): string =>
 export const zipManifest = (files: ReadonlyArray<string>): string => files.map((file) => `${file}\n`).join("");
 
 /**
- * Pack `files` into a zip: `zip -<level> -qr <destination> <files...>` with
+ * Pack `files` into a zip: `zip -<level> -qr <destination> -- <files...>` with
  * `root` as the working directory, or on Windows a pwsh script that opens
  * `destination` with `ZipFile.Open(..., Create)` after a `File.Delete` (the
  * overwrite) and adds one `CreateEntryFromFile` per line of `manifest`,
@@ -162,7 +162,7 @@ export const zipManifest = (files: ReadonlyArray<string>): string => files.map((
 export const zipCommand = (options: ZipCommandOptions): ChildProcess.StandardCommand => {
 	const level = clampLevel(options.level);
 	if (!options.windows) {
-		return ChildProcess.make("zip", [`-${level}`, "-qr", options.destination, ...options.files], {
+		return ChildProcess.make("zip", [`-${level}`, "-qr", options.destination, "--", ...options.files], {
 			cwd: options.root,
 		});
 	}

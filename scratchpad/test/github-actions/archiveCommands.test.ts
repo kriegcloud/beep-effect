@@ -27,7 +27,21 @@ describe("archiveCommands", () => {
 				level: 6,
 			});
 			assert.strictEqual(command.command, "zip");
-			assert.deepStrictEqual([...command.args], ["-6", "-qr", "/tmp/scratch/artifact.zip", "a.txt", "dir/b.txt"]);
+			assert.deepStrictEqual([...command.args], ["-6", "-qr", "/tmp/scratch/artifact.zip", "--", "a.txt", "dir/b.txt"]);
+			assert.strictEqual(command.options.cwd, "/work/root");
+		});
+
+		it("POSIX: leading-dash paths follow the option terminator literally", () => {
+			const command = zipCommand({
+				windows: false,
+				root: "/work/root",
+				files: ["-h", "--help", "-r/nested.txt"],
+				manifest: "/tmp/scratch/artifact.manifest",
+				destination: "/tmp/scratch/artifact.zip",
+				level: 6,
+			});
+			assert.strictEqual(command.command, "zip");
+			assert.deepStrictEqual([...command.args], ["-6", "-qr", "/tmp/scratch/artifact.zip", "--", "-h", "--help", "-r/nested.txt"]);
 			assert.strictEqual(command.options.cwd, "/work/root");
 		});
 

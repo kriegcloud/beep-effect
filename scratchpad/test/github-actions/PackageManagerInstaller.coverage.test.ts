@@ -13,13 +13,25 @@ import { ChildProcessSpawner } from "effect/process";
 import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import { PackageManagerPin } from "../../effected/npm/index.ts";
 import { ActionEnvironment } from "../../effected/github-actions/ActionEnvironment.ts";
-import { PackageManagerInstaller } from "../../effected/github-actions/PackageManagerInstaller.ts";
+import { PackageManagerInstaller, PackageManagerInstallerError } from "../../effected/github-actions/PackageManagerInstaller.ts";
 import { ToolInstaller } from "../../effected/github-actions/ToolInstaller.ts";
 
 const refused = PlatformError.badArgument({ module: "FileSystem", method: "fixture", description: "refused" });
 const Json = S.fromJsonString(S.Unknown);
 const pin = (spec: string) => Result.getOrThrow(PackageManagerPin.parseResult(spec));
 const nativeDependencies = { "@pnpm/exe.linux-x64": "12.0.0", "@pnpm/exe.win32-x64": "12.0.0" };
+
+it("an expected hash without a measured hash reports unverifiable integrity", () => {
+  const error = PackageManagerInstallerError.make({
+    reason: "integrityMismatch",
+    name: "pnpm",
+    version: "12.0.0",
+    expected: "sha512.expected",
+    subject: "/archive",
+  });
+  assert.strictEqual(error.message, "Could not verify the integrity of pnpm@12.0.0 (/archive)");
+});
+
 interface Fixture {
   readonly spec?: string;
   readonly cached?: boolean;
@@ -144,7 +156,7 @@ for (const unreadable of [false, true]) {
       const record = yield* installer.install(pin("pnpm@12.0.0"));
       assert.strictEqual(record.bins.pnpm, "/stage/package/pnpm");
       const fs = yield* FileSystem.FileSystem;
-      assert.strictEqual(yield* fs.readFileString("/stage/package/.bin/pnpm"), '#!/bin/sh\nexec "/stage/package/pnpm" "$@"\n');
+      assert.strictEqual(yield* fs.readFileString("/stage/package/.bin/pnpm"), "#!/bin/sh\nexec '/stage/package/pnpm' \"$@\"\n");
     }));
   });
 }
