@@ -29,6 +29,7 @@ import { readdirSync, statSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { join } from "node:path";
+import * as NodeStream from "node:stream";
 import { P } from "@beep/utils";
 import { addEqualityTesters } from "@effect/vitest";
 import { micromark } from "micromark";
@@ -155,6 +156,8 @@ type BunTestShim = {
     options?: BunSpawnSyncOptions
   ) => {
     readonly exited: Promise<number>;
+    readonly stderr: ReturnType<typeof NodeStream.Readable.toWeb> | undefined;
+    readonly stdout: ReturnType<typeof NodeStream.Readable.toWeb> | undefined;
   };
   readonly spawnSync: (
     commandOrOptions: BunSpawnSyncObject | ReadonlyArray<string>,
@@ -240,6 +243,8 @@ const spawn = (commandOrOptions: BunSpawnSyncObject | ReadonlyArray<string>, opt
   });
 
   return {
+    stderr: child.stderr === null ? undefined : NodeStream.Readable.toWeb(child.stderr),
+    stdout: child.stdout === null ? undefined : NodeStream.Readable.toWeb(child.stdout),
     exited: new Promise<number>((resolve, reject) => {
       child.on("error", reject);
       child.on("exit", (code, signal) => {

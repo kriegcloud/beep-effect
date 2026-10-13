@@ -15,7 +15,7 @@ describe("office-action fixture truth", () => {
       const rows = Str.split(Str.trimEnd(jsonl), "\n");
       expect(rows).toHaveLength(34);
       for (const line of rows) {
-        const fixture = yield* S.decodeEffect(S.fromJsonString(Fixture))(line);
+        const fixture = yield* S.decodeEffect(FixtureJson)(line);
         const text = yield* read(`${fixture.id}.txt`);
         if (fixture.outcome.status === "recognized") {
           expect(Str.includes(fixture.outcome.finalityQuote)(text)).toBe(true);
@@ -25,3 +25,4 @@ describe("office-action fixture truth", () => {
     })
   );
 });
+const FixtureJson = S.fromJsonString(Fixture);
