@@ -9,9 +9,11 @@ digests while retaining the originals.
 
 ## Next action
 
-P0 and P4 are complete. Hand the provenance summaries to pass-3
-identification and the practice-kg bundle; then record the P1-P2 ceilings in
-the decision log before the live mail slice.
+P1 is complete. Run-9 corrects the first P2 wave to nine occurrences within
+both retained output ceilings and authorizes a bounded occurrence selector in
+PR6. The committed membership pins source identities and sizes. Run 10 owns
+the sequential wave after the selector is content-final; no P2 family has started.
+Retain both sealed P1 families and freeze records.
 
 ## Launcher
 
@@ -37,6 +39,43 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-10 — Fresh P1 slice sealed acceptance: one store pass, zero warnings,
+exceptions or interruptions, 3,339 accounted children (3,237 engine plus 51
+repair-copy and 51 Tika children). Attachment dispositions: 59 repaired
+occurrences / 51 distinct digests, 147 unsupported, zero unchanged. Input
+56,140,800 bytes; promoted output/family disk usage 132,668,272 bytes
+(2.363134690x); attempt 809,685 ms, family 822,686 ms. All ceilings hold.
+Archive re-verification took 254,472 ms before family start. Four focused
+restoration tests pass. P1 complete, P0/P4 complete, P2/P3 pending, lifecycle
+active. PR3 #1606 merged; PR4 records the outcome and post-push receipts.
+See `history/p1/2026-10-10-fresh-slice-acceptance.md`.
+
+
+2026-10-10 — Run-5 selector regression passes: a new mail family uses the original
+sealed archive, creates a distinct transformation identity and output tree, and
+leaves the first terminal ledger unchanged. All five focused tests pass. The
+fresh live slice uses the retained object, engines and ceilings after PR3 is
+content-final; its outcome is separate evidence for PR4.
+
+2026-10-10 — Sealed P1 diagnosis attributes an attachment-reuse engine defect.
+Eleven repaired digests and 22 unsupported dispositions preceded a duplicate
+attachment. Two real Tika invocations exited 0 with unchanged extracted content
+and one differing parser-duration field. First-evidence reuse passes the new
+synthetic regression. The fresh family is authorized by run 4; acceptance is
+pending. See `history/p1/2026-10-10-engine-failure-diagnosis.md`.
+
+
+2026-10-09 — PR1 #1596 merged the probe-proven Tika capture and portable-name
+fixes. The frozen live slice ran once and sealed a failure: one unapproved
+`engine-failure`, zero store passes, zero warning rows, and zero terminal child
+rows. Attachment dispositions: 11 repaired, 22 unsupported, zero unchanged.
+Input 56,140,800 bytes; retained output 115,418,004 bytes (2.055866749x);
+family elapsed 350,398 ms; archive re-verification 282,677 ms. The output fits
+the frozen disk/time ceilings, but final child reconciliation did not complete.
+The four fresh synthetic exception/accounting/resume cases pass. P1 remains
+in-progress; no second launch or artifact mutation is authorized. See the
+handoff and frozen run manifest for aggregate evidence and digests.
 
 2026-10-06 — P0 resumed and P4 opened (lane E, corpus provenance completion).
 The 2026-08-27 archive run had stalled at a 90.25 GB root-archive partial;

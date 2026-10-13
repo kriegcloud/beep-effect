@@ -1,5 +1,28 @@
 # Tooling friction receipts
 
+## Main-red repair: downstream test cache missed upstream kernel columns
+
+The domain-kernel P1 change (#1593, 6513e85d2c) added `deletedAt` and
+`deletedByPrincipal`, but a downstream law-practice tables test task replayed
+the stale green `cache hit, replaying logs 3a087b1f2d538283`. Main run
+38019764454 at 3aa125a5d6 exposed 11 failures in `Test Unit (unit-b)` after
+#1605 changed the inputs. A fresh `beep-heavy env TURBO_FORCE=true bun run
+--filter @beep/law-practice-tables test` reproduces exactly 11 failed and 34
+passed tests across three files. The test task inputs do not cover workspace
+dependency sources; covering upstream kernel sources in the downstream task
+hash, or qualifying dependent tests uncached after kernel changes, would have
+prevented the stale green. This lane updates only the existing expected-column
+helpers and records this receipt; cache configuration repair remains a follow-up.
+
+Main run 38019764454 attempt 2, `Test Unit (unit-a)` job 114124110280,
+also exposes four documents-domain exact-wire failures: SyncCursor, SyncItem,
+SyncConflict and SyncOperation. Clean main 3aa125a5d6 reproduces four failed
+and 23 passed tests through `beep-heavy` with `TURBO_FORCE=true`. Each encoded
+row gains the same null-valued pair. SPEC D4 requires this encoding while
+accepting missing input keys, so the repair preserves those inputs and adds
+the pair to their expected outputs. PR #1608's previous unit-a green therefore
+does not qualify these upstream changes without an uncached package run.
+
 ## 2026-10-09 — heavy admission environment
 
 - Doing: P0 dependent typecheck through `beep-heavy`.
@@ -7,6 +30,13 @@
 - Attribution: environment-only; this shell omitted the user-manager bus environment.
 - Remedy: set `XDG_RUNTIME_DIR=/run/user/1000` and the matching user bus address on heavy invocations.
 - Prevention: initialize these variables in the lane execution environment.
+
+The documents-domain quick proof also first failed with TS6305 because
+`@beep/rdf` dependency declarations were absent. Restoring the dependency
+build outputs through `beep-heavy bunx turbo run build --filter=@beep/rdf...`
+removed the import failure and its cascading taxonomy diagnostics. The full
+quick proof then passed lint and check; worktree provisioning should restore
+required declaration outputs before package verification.
 
 ## 2026-10-09 — dependent check admission queue
 
@@ -270,3 +300,54 @@ refused because its index.lock was active. The following commit was empty.
 Waited for the merge, staged named paths, and amended that unpublished
 commit; never removed the lock or changed published history. Awaiting every
 mutating Git operation before staging would prevent this sequencing error.
+
+## P2 tool-shell user bus receipt
+
+The first two beep-heavy launches failed before starting proof work: user scope
+bus transport lacked XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS. Supplying
+the standard user-bus environment restored the approved heavy lane, retaining
+BEEP_HEAVY_MEM=32G and TURBO_CONCURRENCY=2. A launch wrapper that carries these
+non-secret variables into tool shells would prevent this friction. No cap or
+home configuration changed.
+
+## P2 inherited verification receipts
+
+The dependent check stops at @beep/ui build with TS2589 (type instantiation
+excessively deep); 68/70 tasks finished before the failure. Schema-first
+stops on AccountsSecretField and AccountsSecretsItem in
+packages/tooling/tool/cli/src/commands/Accounts/AccountsSecretsLayout.schemas.ts:
+object schemas prefer annotated S.Class over S.Struct. Both source trees,
+standards and lockfile match origin/main byte-for-byte; this wave edits only
+the goal packet. Owner repair on main followed by integration prevents
+repeating these unrelated failures. No source or baseline suppression added.
+
+P2 JSDoc inventory generation succeeds but the totals ratchet fails on eight
+metrics in main-identical source: empty-section, leading-blank, missing export
+categories/examples/since, schema annotations, trailing-blank and unsafe
+examples. This reproduces P1 D24. Owner repair and a generated inventory
+refresh on main prevent repeat qualification costs; no baseline changes here.
+
+## P2 sequential publication receipt
+
+Starting Yeet publish before the direct git commit hook settled caused an
+index.lock collision. Both attempts ended without a commit or push; staged
+packet intent survived. No lock was removed. Awaiting the first mutation's
+terminal result before launching the next prevents this avoidable friction.
+The retry uses strictly sequential commit then heavy publish.
+
+P2 publication's collected cheap gates pass 14/16 lanes but refuse on inherited
+schema-first and the already admitted PracticeKg Effect-Vitest re-anchor.
+The current scan reports one PracticeKg identity; the prior EV015 is history.
+Affected source/inventory matches main. Run-8 authorizes fallback publication;
+owner inventory/source repair on main would remove this repeated fence.
+
+
+## P3 inherited publication fence
+
+The P3 packet-only Yeet publish collects all 16 cheap lanes: 14 pass, schema-first
+and Effect-Vitest fail. AccountsSecretField/AccountsSecretsItem and the existing
+PracticeKg inventory re-anchor match origin/main byte-for-byte, as do all package,
+app, standards and lockfile files. Exact refusal: "yeet publish cheap-gates failed
+after creating the local commit; nothing was pushed." Run-9 permits the inherited
+fallback. Owner source/inventory repair on main would remove the repeated fence;
+no lane baseline refresh, suppression or package repair is performed.
