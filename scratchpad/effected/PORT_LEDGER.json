@@ -6512,6 +6512,12 @@
           "upstreamBehaviour": "Upstream attribute validation uses grammar predicates without reusable AttributeName/AttributeValue schema checks or identified decode diagnostics; the pre-round lab schemas report generic regex failures.",
           "labBehaviour": "AttributeName and AttributeValue checks gain composer-derived identifiers, titles, descriptions and grammar-specific decode messages; both accepted-input regexes remain unchanged.",
           "reason": "schema-first: Law 18 and EF-12c require metadata and user-facing messages on reusable checks. This round newly annotates the attribute-name/value checks, distinct from the already ledgered SectionKey/Delimiter check metadata; the diff adds AST-metadata and exact decode-message regressions."
+        },
+        {
+          "test": "scratchpad/test/templates/SectionDialect.test.ts:409; scratchpad/test/templates/ManagedSection.test.ts:70",
+          "upstreamBehaviour": "Rendering hash or HTML sections with a closing-rule tail immediately before U+2028 or U+2029 inside a quoted attribute succeeds, but parsing the emitted block fails with orphanedEnd; sync can write the unreadable block.",
+          "labBehaviour": "Render validates the full synthesized BEGIN marker, including kind, key, comment style and exact attributes, and returns SectionRenderError with reason invalidAttribute when recognition fails. Sync propagates the refusal with zero writes and preserves existing text and bytes; ordinary Unicode attributes still round trip.",
+          "reason": "upstream-bug: sol-3-1 reports the same render-success/parse-orphanedEnd probes against the reviewed lab and pinned upstream oracle. The round-3 diff adds full-marker validation plus hash/HTML U+2028/U+2029 refusal regressions for LF/CRLF and a sync byte-preservation regression; fix-templates-g1.md reports these cases reproduced erroneous success before the fix."
         }
       ],
       "backlog": [
@@ -6646,6 +6652,24 @@
             "fable": {
               "required": 5,
               "backlog": 8
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 1,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
             }
           }
         }
