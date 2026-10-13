@@ -144,7 +144,7 @@ const overJob = Effect.fn("overJob")(function* <A, E>(
     }),
   });
   const checkout = path.join(root, "checkout");
-  yield* fs.makeDirectory(checkout);
+  yield* fs.makeDirectory(checkout, { recursive: true });
   const context = yield* Layer.build(
     contactSeedingLayer(checkout).pipe(
       Layer.provide(Layer.succeed(ContactsMailbox, fake)),
