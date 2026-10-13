@@ -862,3 +862,15 @@ Move live ruleset, desktop settings and held-main reads from the contents-only v
   Reason: percentages improved while added implementation increased absolute
   uncovered counts; the existing baseline must not be refreshed to hide that.
   Reversal is the receipt commit; no coverage policy or floor changed.
+
+### D25 — Repair newly exposed CI causes once on main (2026-10-13)
+
+PR #1571 fresh CI exposes a shared technical-drawing test-fixture race: one
+mutable page count is reused by concurrent render tests. PR #1612 diagnostics
+also reveal inventory traversal failing on a broken YAML fixture symlink; its
+Repo Sanity job exposes unsorted schema-package devDependencies. The completed
+#1612 repair wave leaves these causes for follow-up. A separate main-targeted
+repair owns only those three surfaces and their focused regression tests.
+Dependents integrate the landed repair once; coverage floors, JSDoc totals and
+existing file-containment gates remain unchanged. Reversal is a normal revert
+of this repair commit; no live message store or external session is touched.

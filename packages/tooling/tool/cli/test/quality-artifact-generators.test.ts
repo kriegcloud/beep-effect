@@ -1,5 +1,6 @@
 import {
   buildJSDocDocumentationInventory,
+  listSourceFiles,
   summarizeTurboDryRunOutput,
   summarizeTurboQueryAffectedOutput,
   writeJSDocDocumentationInventory,
@@ -162,6 +163,61 @@ const acquireLabsFixtureRepo = Effect.fnUntraced(function* () {
 });
 
 it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })("quality artifact generators", (it) => {
+  it.effect("skips broken symlinks while containing targets and terminating cycles", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const parent = yield* fs.makeTempDirectoryScoped({ prefix: "beep-quality-source-files-" });
+      const root = path.join(parent, "src");
+      const external = path.join(parent, "external");
+      const source = path.join(root, "index.ts");
+      yield* fs.makeDirectory(root);
+      yield* fs.makeDirectory(external);
+      yield* fs.writeFileString(source, "export const value = true;\n");
+      yield* fs.writeFileString(path.join(external, "escape.ts"), "export const escaped = true;\n");
+      yield* fs.symlink("missing-target", path.join(root, "missing-comma-in-flow"));
+      yield* fs.symlink("missing-target.ts", path.join(root, "broken.ts"));
+      yield* fs.symlink(source, path.join(root, "alias.ts"));
+      yield* fs.symlink(root, path.join(root, "loop"));
+      yield* fs.symlink(external, path.join(root, "escape"));
+      yield* fs.symlink(path.join(external, "escape.ts"), path.join(root, "escape.ts"));
+
+      expect(yield* listSourceFiles(root, path)).toEqual([source, source]);
+    })
+  );
+
+  for (const reason of S.Literals(["PermissionDenied", "Unknown"]).literals) {
+    it.effect(`preserves ${reason} stat failures`, () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "beep-quality-stat-error-" });
+        const source = path.join(root, "index.ts");
+        yield* fs.writeFileString(source, "export const value = true;\n");
+        const failure = PlatformError.systemError({
+          _tag: reason,
+          module: "FileSystem",
+          method: "stat",
+          pathOrDescriptor: source,
+          description: "injected stat failure",
+        });
+        const failingFs = FileSystem.FileSystem.of({
+          ...fs,
+          stat: (target) => (target === source ? Effect.fail(failure) : fs.stat(target)),
+        });
+        const error = yield* listSourceFiles(root, path).pipe(
+          Effect.provideService(FileSystem.FileSystem, failingFs),
+          Effect.flip
+        );
+
+        expect(error._tag).toBe("QualityArtifactGeneratorError");
+        expect(error.message).toBe(`Failed to stat ${source}.`);
+        expect(error.filePath).toBe(source);
+        expect(error.cause).toBe(failure);
+      })
+    );
+  }
+
   // The old bracket acquired the whole fixture before registering cleanup.
   // Inject into the real setup seam, then observe removal outside that shorter scope.
   for (const [labs, interrupted] of A.cartesian([false, true], [false, true])) {

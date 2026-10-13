@@ -979,3 +979,15 @@ repo-cli audit/docgen passed. Manifest-only quick checks initially lacked
 upstream dist declarations; rebuilding the dependency closure and replaying
 all three checks passed. Record proof prerequisite scope with each result so
 an environment-only first attempt is not mistaken for a source regression.
+
+## 2026-10-13: shared CI failures exposed after fixture repair
+
+PR #1571 job 115461073078 reaches a technical-drawing assertion with page count
+1 instead of 2 because its fake backend stores one count across render outputs.
+PR #1612 job 115466055746 finally identifies the previously opaque inventory
+failure: `Failed to stat` a broken `yaml-test-suite/name` fixture link. Job
+115466055306 gets past dependency alignment and finds unsorted schema-package
+devDependencies. Artifact-specific fake state, broken-link traversal tests, and
+complete bounded diagnostics would have prevented repeated uninformative runs.
+The follow-up fixes these shared causes once on main, without changing quality
+floors or treating earlier interrupted scans as complete measurements.
