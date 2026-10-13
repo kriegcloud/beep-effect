@@ -27,7 +27,6 @@ const $I = $ScratchpadId.create("effected/sbom/SbomDocument");
  *
  * console.log(BOM_FORMAT) // CycloneDX
  * ```
- *
  * @category constants
  * @since 0.0.0
  */
@@ -44,7 +43,6 @@ export const BOM_FORMAT = "CycloneDX" as const;
  *
  * console.log(SPEC_VERSION) // 1.6
  * ```
- *
  * @category constants
  * @since 0.0.0
  */
@@ -133,7 +131,6 @@ export type ExternalReferenceType = typeof ExternalReferenceType.Type;
  * })
  * console.log(reference.url) // https://example.com/source
  * ```
- *
  * @public
  * @category models
  * @since 0.0.0
@@ -157,7 +154,6 @@ export class ExternalReference extends S.Class<ExternalReference>($I`ExternalRef
  * const author = Contact.make({ name: "Ada", email: "ada@example.com" })
  * console.log(author.name) // Ada
  * ```
- *
  * @public
  * @category models
  * @since 0.0.0
@@ -268,7 +264,6 @@ export class Component extends S.Class<Component>($I`Component`)({
  * const metadata = SbomMetadata.make({ timestamp: "2026-01-01T00:00:00Z" })
  * console.log(metadata.timestamp) // 2026-01-01T00:00:00Z
  * ```
- *
  * @public
  * @category models
  * @since 0.0.0
@@ -407,7 +402,6 @@ const componentJson = (component: Component): Record<string, unknown> =>
  * })
  * console.log(JSON.stringify(documentJson(document))) // {"bomFormat":"CycloneDX","specVersion":"1.6","version":1,"components":[{"type":"library","bom-ref":"pkg:npm/example-library@1.0.0","name":"example-library"}]}
  * ```
- *
  * @internal
  * @category serialization
  * @since 0.0.0

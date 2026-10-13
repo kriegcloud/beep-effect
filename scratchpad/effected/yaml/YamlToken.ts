@@ -31,7 +31,6 @@ const $I = $ScratchpadId.create("effected/yaml/YamlToken");
  *
  * console.log(S.is(YamlTokenKind)("scalar")) // true
  * ```
- *
  * @public
  * @category schemas
  * @since 0.0.0
@@ -144,7 +143,6 @@ const promoteAll = (text: string, tokens: ReadonlyArray<InternalToken>): Readonl
  *
  * console.log(Result.isSuccess(YamlTokens.tokenize('"unterminated'))) // true
  * ```
- *
  * @public
  * @category parsing
  * @since 0.0.0

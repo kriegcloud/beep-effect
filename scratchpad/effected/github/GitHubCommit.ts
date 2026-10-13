@@ -37,7 +37,6 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * });
  * console.log(commit.subject); // Fix parser
  * ```
- *
  * @public
  * @category models
  * @since 0.0.0
@@ -103,7 +102,6 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
  *
  * console.log(S.is(FileStatus)("renamed")); // true
  * ```
- *
  * @public
  * @category schemas
  * @since 0.0.0
@@ -145,7 +143,6 @@ export type FileStatus = typeof FileStatus.Type;
  * });
  * console.log(file.previousPath); // src/old.ts
  * ```
- *
  * @public
  * @category models
  * @since 0.0.0
@@ -181,7 +178,6 @@ export class CommitFile extends S.Class<CommitFile>($I`CommitFile`)({
  * });
  * console.log(comparison.aheadBy); // 1
  * ```
- *
  * @public
  * @category models
  * @since 0.0.0
@@ -402,7 +398,6 @@ export interface RawFile {
  * }, "example"));
  * console.log(file.path); // src/parser.ts
  * ```
- *
  * @category mapping
  * @since 0.0.0
  */

@@ -124,7 +124,6 @@ export class ConflictingTermError extends S.TaggedError<ConflictingTermError>($I
  * const work = CreativeWork.make({ "@id": "https://example.com/#work" });
  * console.log(S.is(JsonLdNode)(work)); // true
  * ```
- *
  * @public
  * @category schemas
  * @since 0.0.0
