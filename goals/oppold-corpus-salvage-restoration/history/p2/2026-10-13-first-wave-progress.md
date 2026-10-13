@@ -87,3 +87,52 @@ Stop and diagnose the first failure; never retry a sealed family.
 P2 remains incomplete; eighteen larger occurrences and the other estate,
 recycle and legacy-Word gates remain open. Reversal: revert packet decisions
 while retaining all immutable families, outputs and freeze records.
+
+
+## Run-12 — family 2 accepted and reconciled
+
+Standing Runs 12+ ruling applies. Preserve the prior locally appended report.
+Family 2 unit beep-heavy-corpus-restore-p2-2026-10-13-2.service ended;
+result stamp is zero. Seal recorded 2026-10-13T20:25:49.846Z. Last row is
+family-acceptance-pass, expected/terminal one, unapproved zero. Exactly one
+store pass and zero warnings, exceptions, interruptions or failure rows.
+
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-02/ledgers/mail/slice.jsonl`.
+Attempt: mail:973a3612438a25029652c75f:r0.
+Object identity: 886bd60cee359bcca9ee313bdeb4c08a4c7c3de3e676c021d50425741bfbac14.
+Source digest: 4501c21643be4ec9bb146983cd3760c73a8ddb41604c68126198f734dba0f95d.
+Policy digest: bd8566190e0a528375ec8489c87d59309db09e4eca72125a5f2fd8680134f899.
+Ledger digest: c885172e73301fd762903ef17ed5fd08dfd890604871df89f10fc316de46f1b8.
+
+Record counts: 343 attachment-type-repair, 4,310 mail-child-pass, one each
+family-run-start, family-attempt-start, mail-store-pass, family-run-summary
+and family-acceptance-pass. All 4,064 engine children and 246 derived children
+reconcile for the store attempt. Both distinct digest sets in 123 repair-copy
+and 123 Tika children equal the 123 distinct repaired digests. Dispositions:
+125 repaired occurrences, 218 unsupported, zero unchanged; zero other derived
+children. Unsupported dispositions are not repairs.
+Input 98,804,736 bytes; output and family disk usage 265,766,621 bytes;
+amplification 2.689816620x. Attempt 2,588,015 ms, 27,465.590 ms per MiB;
+family 2,611,137 ms. Archive verification 393,030 ms from the started stamp
+2026-10-13T19:35:45.651Z to family-run-start 2026-10-13T19:42:18.681Z.
+Queue duration was not captured precisely; the prior handoff records only the
+started stamp. All attempt/family output and elapsed ceilings hold.
+Private log read as counts only: two lines, 807 bytes.
+
+| Check | State | Measured value |
+| --- | --- | --- |
+| P0 seal | met | Same sealed run; current-run counts remeasured before continuation |
+| Membership/source identities | met | Nine frozen records match source metadata and recomputed twelve-field policy digests |
+| Family 2 reconciliation | met | Zero result, accepted seal, 4,310 children and matching 123 repair digest pairs |
+| Engines | met | pffexport 20260917; bubblewrap 0.13.0; OpenJDK 27, 2026-09-15; Java real path and Tika digest unchanged |
+| Frozen launcher/membership | met | SHA-256 values unchanged from pre-launch records |
+| Main engine code | met | Corpus/libpff diff from origin/main and frozen code head empty |
+| Capacity after family 2 | met | 239,569,948,672 free bytes, above 100,000,000,000 floor |
+| Packet health | met | Zero blockers, same three unrelated advisories; adoption has zero conflicts |
+
+Decision: accept family 2 and continue to ordinal 3 only after renewed
+preflight and a full sixty-second interval. Retain the frozen launcher,
+engines and all nine pre-launch manifests. No package source changed.
+Reversal: revert the packet continuation decision while retaining every
+sealed family, output and freeze record. P2 remains in-progress and incomplete.

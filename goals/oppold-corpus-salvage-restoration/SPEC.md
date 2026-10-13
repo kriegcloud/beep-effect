@@ -929,3 +929,22 @@ launcher. Stop and diagnose the first failure, never retry a sealed family.
 Reversal: revert this packet continuation decision while retaining every
 ledger, output and manifest. P2 remains in-progress, with later estate,
 recycle and legacy-Word obligations open. No merge or new code is authorized.
+
+
+### 2026-10-13: family 2 accepted; continue the frozen wave
+
+Standing Runs 12+ ruling resumes after family 2 ended with result zero and
+accepted seal. All 4,310 children reconcile: 4,064 engine children and
+123 repair-copy/Tika pairs with identical digest sets. Dispositions: 125
+repaired occurrences / 123 distinct digests, 218 unsupported, zero unchanged.
+Zero warnings, exceptions or interruptions. Input 98,804,736 bytes; output
+265,766,621 bytes, amplification 2.689816620x; attempt 2,588,015 ms,
+family 2,611,137 ms. Source, runtime policy, engine, membership and launcher
+identities match its immutable pre-launch record; all ceilings hold.
+
+Decision: continue to ordinal 3 after renewed preflight and a full sixty-second
+interval, one detached family unit at a time. Stop and diagnose the first
+failure; never retry a sealed family or change code inside this wave.
+Reversal: revert this packet continuation decision while retaining all
+ledgers, outputs and freeze records. P2 stays incomplete; eighteen larger
+occurrences and remaining estate, recycle and legacy-Word obligations remain open.

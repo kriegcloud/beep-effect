@@ -747,3 +747,14 @@ Free bytes 204492922880, above retained floor. Zero P2 families started.
   occurred. Replaced the argument with a message file containing real newlines.
 - **Prevented by:** use a file for every multiline commit message and keep
   body lines below the repository limit.
+
+
+## 2026-10-13 — Shared heavy admission delays resumed-wave preflight
+
+- **Doing:** remeasuring engine smokes and focused restoration proof after
+  reconciling accepted family 2, before ordinal 3.
+- **Evidence:** both approved wrappers report `all 5 slots busy, waiting`.
+  The family 2 unit has ended; no new family launches while its required
+  preflight remains queued. Admission is retained; no cap or configuration changes.
+- **Prevented by:** expose queue position and estimated slot availability in
+  the lane handoff so the wave driver can distinguish admission from execution.

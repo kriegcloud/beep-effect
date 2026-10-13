@@ -9,13 +9,12 @@ digests while retaining the originals.
 
 ## Next action
 
-P1 is complete. Run 11 reconciled accepted P2 family 1 and launched family 2
-under the unchanged frozen script, after renewed preflight and sixty seconds.
-One of nine bounded families sealed; only family 2 runs. Continue from the
-dated handoff, verify its seal and every child/repair pair/ceiling, then wait
-sixty seconds before the next ordinal. Stop and diagnose the first failure;
-never retry a sealed family. P2 remains incomplete. Retain all families,
-outputs and immutable freeze records.
+P1 is complete. Run 12 reconciled accepted P2 family 2 under the unchanged
+frozen script. Two of nine bounded families sealed; ordinal 3 awaits renewed
+preflight admission. Continue from the dated handoff, one detached family
+at a time, with a full sixty-second interval after successful reconciliation.
+Stop and diagnose the first failure; never retry a sealed family. P2 remains
+incomplete. Retain all families, outputs and immutable freeze records.
 
 ## Launcher
 
@@ -41,6 +40,15 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-13 — Second bounded P2 family accepted: one store, 4,310 accounted
+children (4,064 engine plus 123 repair-copy and 123 Tika children), zero
+warnings, exceptions or interruptions. Both derived digest sets equal the
+123 distinct repaired digests; 125 repaired occurrences, 218 unsupported,
+zero unchanged. Input 98,804,736 bytes; output 265,766,621 bytes
+(2.689816620x); attempt 2,588,015 ms, family 2,611,137 ms. All ceilings
+and frozen identities hold. Two of nine sealed; next ordinal awaits preflight.
+P2 remains in-progress and incomplete.
 
 2026-10-13 — First bounded P2 family accepted: one store, 3,785 accounted
 children (3,623 engine plus 81 repair-copy and 81 Tika children), zero warnings,

@@ -258,3 +258,12 @@ remain open; P3 remains pending. PR7 records the terminal wave outcome.
 seconds, family 2 is active under the same frozen launcher. One of nine
 sealed; seven not launched. Continue sequentially from the dated handoff,
 stop at the first failure, retain all sealed state. P2 remains incomplete.
+
+
+**Run-12 progress 2026-10-13:** family 2 accepted and fully reconciled:
+4,310 children, zero warnings/exceptions, 2.689816620x amplification,
+2,588,015 ms attempt / 2,611,137 ms family. Both derived digest sets
+match 123 distinct repaired digests. Two of nine sealed; ordinal 3 awaits
+renewed preflight through shared heavy admission. The full sixty-second
+interval is complete. Continue with the same frozen launcher sequentially,
+stop at the first failure and retain all state. P2 remains incomplete.
