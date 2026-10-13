@@ -1,19 +1,26 @@
+import { ManagedLaunchProfile } from "@beep/ai-provider-cli";
 import {
   AgentMessageStore,
+  agentMessageServeCommand,
   EndpointBinding,
   EndpointDispatch,
   Envelope,
   makeAgentMessageStore,
+  Receipt,
   RouterError,
   runAgentMessageDispatchLoop,
 } from "@beep/repo-cli/commands/AgentMessage";
-import { makeAgentMessageSqliteClient } from "@beep/repo-cli/test/AgentMessage";
+import { agentMessageStoreLayer, makeAgentMessageSqliteClient } from "@beep/repo-cli/test/AgentMessage";
 import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
+import * as NodeCrypto from "@effect/platform-node/NodeCrypto";
 import { expect } from "@effect/vitest";
-import { assertNone } from "@effect/vitest/utils";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Clock from "effect/Clock";
 import * as Config from "effect/Config";
+import * as Console from "effect/Console";
+import * as Context from "effect/Context";
+import { Command } from "effect/cli";
 import * as Deferred from "effect/Deferred";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
@@ -21,15 +28,18 @@ import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import { identity } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as Ref from "effect/Ref";
 import * as Reactivity from "effect/reactivity/Reactivity";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import * as SqlClient from "effect/sql/SqlClient";
 import * as TestClock from "effect/testing/TestClock";
+import * as TestConsole from "effect/testing/TestConsole";
 import type { AgentMessageStoreShape } from "@beep/repo-cli/commands/AgentMessage";
 import type { ChildProcessHandle } from "effect/process/ChildProcessSpawner";
 
@@ -37,6 +47,195 @@ const lockTimeout = RouterError.make({
   code: "storage",
   message: "Agent message SQL operation failed: LockTimeoutError.",
 });
+const managedCommandFixture = Effect.fn("AgentMessageTest.managedCommandFixture")(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const directory = yield* fs.makeTempDirectoryScoped({ prefix: "managed-command-" });
+  yield* fs.chmod(directory, 0o700);
+  const home = path.join(directory, "home");
+  const workspace = path.join(directory, "workspace");
+  yield* fs.makeDirectory(home, { mode: 0o700 });
+  yield* fs.makeDirectory(workspace, { mode: 0o700 });
+  const state = path.join(directory, "state");
+  const filename = path.join(directory, "profile.json");
+  const profile = ManagedLaunchProfile.make({
+    provider: "codex",
+    executable: "bun",
+    prefixArgs: [
+      "run",
+      path.resolve(import.meta.dirname, "../../../../drivers/ai-provider-cli/test/fixtures/managed-codex-peer.ts"),
+    ],
+    workspace,
+    profileRoot: home,
+    env: { HOME: home, CODEX_HOME: path.join(home, ".codex"), PATH: yield* Config.String("PATH") },
+    authLane: "existing-subscription",
+    tools: [],
+  });
+  const write = (value: ManagedLaunchProfile) =>
+    S.encodeEffect(S.fromJsonString(ManagedLaunchProfile))(value).pipe(
+      Effect.flatMap((json) => fs.writeFileString(filename, json, { mode: 0o600 }))
+    );
+  yield* write(profile);
+  const run = Command.runWith(agentMessageServeCommand, { version: "test", renderErrors: false });
+  const execute = run([
+    "--state-dir",
+    state,
+    "--profile-file",
+    filename,
+    "--endpoint",
+    "managed",
+    "--participant",
+    "managed",
+    "--owner",
+    "managed-owner",
+    "--repository-scope",
+    "fixture",
+    "--generation",
+    "1",
+  ]);
+  return { fs, state, filename, profile, write, execute };
+});
+
+it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer), { timeout: "20 seconds" })(
+  "Managed serve CLI boundary",
+  (it) => {
+    it.effect("rejects missing, exposed and credential-bearing profiles before native launch", () =>
+      Effect.gen(function* () {
+        const f = yield* managedCommandFixture();
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        const launches = yield* Ref.make(0);
+        const watched = ChildProcessSpawner.make((command) =>
+          Ref.update(launches, (count) => count + 1).pipe(Effect.andThen(spawner.spawn(command)))
+        );
+        yield* f.fs.remove(f.filename);
+        expect(
+          yield* f.execute.pipe(
+            Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched),
+            Effect.isFailure
+          )
+        ).toBe(true);
+        expect(yield* Ref.get(launches)).toBe(0);
+        yield* f.write(f.profile);
+        yield* f.fs.chmod(f.filename, 0o644);
+        expect(
+          yield* f.execute.pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched), Effect.flip)
+        ).toMatchObject({ _tag: "RouterError", code: "policyMismatch" });
+        expect(yield* Ref.get(launches)).toBe(0);
+        yield* f.fs.chmod(f.filename, 0o600);
+        yield* f.write(
+          ManagedLaunchProfile.make({ ...f.profile, env: { ...f.profile.env, OPENAI_API_KEY: "synthetic-forbidden" } })
+        );
+        expect(
+          yield* f.execute.pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched), Effect.flip)
+        ).toMatchObject({ _tag: "ManagedSessionError", reason: "invalid-profile" });
+        expect(yield* Ref.get(launches)).toBe(0);
+      })
+    );
+
+    it.effect("rejects native permission drift and finalizes the launched Bun worker", () =>
+      Effect.gen(function* () {
+        const f = yield* managedCommandFixture();
+        yield* f.write(
+          ManagedLaunchProfile.make({ ...f.profile, env: { ...f.profile.env, FIXTURE_MODE: "wrong-policy" } })
+        );
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        const started = yield* Deferred.make<ChildProcessHandle>();
+        const watched = ChildProcessSpawner.make((command) =>
+          spawner.spawn(command).pipe(Effect.tap((child) => Deferred.succeed(started, child)))
+        );
+        expect(
+          yield* f.execute.pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched), Effect.flip)
+        ).toMatchObject({ _tag: "ManagedSessionError", reason: "policy-mismatch" });
+        expect(yield* (yield* Deferred.await(started)).isRunning).toBe(false);
+        const context = yield* Layer.build(agentMessageStoreLayer(f.state));
+        expect(yield* Context.get(context, AgentMessageStore).endpoint("managed").pipe(Effect.isFailure)).toBe(true);
+      }).pipe(TestClock.withLive)
+    );
+
+    it.effect("enrolls a real Bun synthetic native worker and terminates it when serve is cancelled", () =>
+      Effect.gen(function* () {
+        const f = yield* managedCommandFixture();
+        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+        const started = yield* Deferred.make<ChildProcessHandle>();
+        const enrolled = yield* Deferred.make<void>();
+        const delivered = yield* Deferred.make<Receipt, S.SchemaError>();
+        const watched = ChildProcessSpawner.make((command) =>
+          spawner.spawn(command).pipe(Effect.tap((child) => Deferred.succeed(started, child)))
+        );
+        const originalConsole = yield* Console.Console;
+        let printed = 0;
+        const observedConsole = Console.Console.of({
+          ...originalConsole,
+          log: (...args) => {
+            originalConsole.log(...args);
+            Deferred.doneUnsafe(enrolled, Effect.void);
+            if (++printed === 2)
+              Deferred.doneUnsafe(delivered, S.decodeUnknownEffect(S.fromJsonString(Receipt))(args[0]));
+          },
+        });
+        const fiber = yield* f.execute.pipe(
+          Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched),
+          Effect.provideService(Console.Console, observedConsole),
+          Effect.forkChild
+        );
+        const child = yield* Deferred.await(started);
+        yield* Deferred.await(enrolled);
+        const context = yield* Layer.build(agentMessageStoreLayer(f.state));
+        const store = Context.get(context, AgentMessageStore);
+        const binding = yield* store.endpoint("managed");
+        expect(binding).toMatchObject({
+          ownerId: "managed-owner",
+          generation: 1,
+          sessionId: "owned-thread",
+          policy: { modelId: "gpt-6.1-sol", effort: "medium", approvalPolicy: "never" },
+        });
+        assertSome(
+          O.map(binding.host, ({ mode, provider, backend }) => ({ mode, provider, backend })),
+          {
+            mode: "managed-process",
+            provider: "codex",
+            backend: "codex-app-server-stdio",
+          }
+        );
+        expect(yield* child.isRunning).toBe(true);
+        yield* store.register(
+          EndpointBinding.make({
+            ...binding,
+            endpointId: "sender",
+            participantId: "sender",
+            ownerId: "sender-owner",
+            sessionId: "sender-session",
+          })
+        );
+        const now = yield* Clock.currentTimeMillis;
+        yield* store.accept(
+          Envelope.make({
+            messageId: "native-delivery",
+            idempotencyKey: "native-delivery",
+            conversationId: "conversation",
+            from: "sender",
+            to: { kind: "direct", endpointId: "managed" },
+            repositoryScope: "fixture",
+            body: "synthetic-only-task",
+            createdAt: now,
+            expiresAt: now + 60000,
+            capabilityFingerprint: binding.capabilityFingerprint,
+            policyFingerprint: binding.policyFingerprint,
+          }),
+          now
+        );
+        expect(yield* Deferred.await(delivered)).toMatchObject({
+          messageId: "native-delivery",
+          status: "delivered",
+          sequence: 3,
+        });
+        expect((yield* store.receipts("native-delivery"))[2]?.status).toBe("delivered");
+        yield* Fiber.interrupt(fiber);
+        expect(yield* child.isRunning).toBe(false);
+      }).pipe(TestClock.withLive)
+    );
+  }
+);
 const fixture = Effect.fnUntraced(function* <A, E, R>(
   run: (store: AgentMessageStoreShape, filename: string) => Effect.Effect<A, E, R>
 ) {

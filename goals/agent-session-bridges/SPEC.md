@@ -183,3 +183,15 @@ This declaration qualifies only the admitted bounded attached-T3 slice. It does
 not add separate Desktop attachment, always-on operation, physical unload, global
 authority, OS isolation or atomic policy comparison. No replay or new native
 inference is required to replace the partial final-refactor receipt.
+
+### 2026-10-13: close owned coverage gaps with disposable command tests
+
+| Date | Decision | Reason | Reversal |
+| --- | --- | --- | --- |
+| 2026-10-13 | Exercise real operator, peer and managed serve commands with private state, injected HTTP and the existing local synthetic peer | Hosted coverage exposed untested command handlers; command boundaries and child cleanup need observable proof while live ambiguity holds remain preserved | Revert the test-only wave and opt-in test layer; no production state or provider session changes |
+
+Shared inherited inventory and drawing repairs are published separately in
+PR #1617 and enter this lane through main. The test compiler's saved result,
+focused execution and independent review are recorded in
+[hosted triage](research/T3-HOSTED-TRIAGE.md). This decision grants no baseline
+relaxation and does not change the final hosted/review/merge acceptance gate.

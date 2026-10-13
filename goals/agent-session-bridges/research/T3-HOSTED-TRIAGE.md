@@ -245,3 +245,38 @@ The new head must earn its own hosted results. Later-round minor fixture-path
 portability is tracked in #1587, and future private-package publication exports
 in #1607. Neither is claimed repaired here. Required hosted reds still prevent
 merge readiness and operative packet completion.
+
+## 2026-10-13: shared repairs and command-path regressions
+
+PR #1612 merged as `af42e6ff5d`. The separate shared repair PR #1617 is ready
+at `83ab04b36d`, after all 16 cheap publication gates and the clean head-install
+preflight passed. Its hosted Repo Sanity check passes. JSDoc job `115505589097`
+now generates inventory successfully across 147 packages, then reports four
+inherited ordinary Effected source categories against the unchanged baseline:
+empty-section 9, schemaAnnotationFindings 15, trailing-blank 39 and
+unsafeExampleFindings 2. Those source repairs remain with the porting owner.
+The scanner and drawing fixes must enter this lane through main once.
+
+The owned test wave adds actual operator and peer command execution, attached
+T3 enrollment with injected HTTP, and managed `serve` execution with the existing
+synthetic peer under real Bun. The managed cases prove rejection before launch,
+permission-drift cleanup, durable enrollment and delivery, receipt persistence,
+and child termination on cancellation. T3 read cases cover owned identity,
+bounded request arguments, pagination, malformed responses and no retries.
+Default command-test HTTP fails closed; only attached fixtures override it.
+
+Verification on the final test source passed 13 command/runtime tests and all
+16 T3 package tests. Quick repo-cli and T3 package lint/check passed. The actual
+saved repo-cli test compiler result has exitCode zero and empty output;
+producer exit alone was insufficient and the earlier claim was corrected.
+Effect-Vitest reports zero introduced findings. Independent reviews of the
+runtime cases, command/compiler correction and test helper found zero actionable
+issues; the T3 delta was inspected separately. No coverage or JSDoc baseline
+changed. These tests establish local behavior, not a final hosted coverage pass.
+
+The managed tests do not cover a model-mismatch handshake, the generation race
+immediately before inference, or the Bun-hosted SQLite selection branch. The
+profile fixture has no wrong-model mode, and the command offers no deterministic
+pause for that race. These limits are retained without timing-based tests or
+production changes solely for coverage. Both live ambiguity holds remain intact;
+no provider inference, resend or recovery command was run.

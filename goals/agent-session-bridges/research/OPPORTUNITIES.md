@@ -264,3 +264,16 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
 - Action: keep the hosted cause unknown, retain local and hosted evidence
   separately, and do not weaken the ratchet or claim a local generation pass
   satisfies the hosted gate.
+
+## 2026-10-13: inspect the test compiler result, not the producer exit
+
+- Work: add actual command-path regressions while closing PR #1571 coverage gaps.
+- Evidence: `package-test-typecheck` exited zero after writing its result, but
+  `.turbo/package-test-typecheck-result.json` carried `exitCode: 1`. The new
+  command tests had decoder callback and widened literal type errors. The
+  earlier producer-exit success claim was withdrawn before committing.
+- Prevention: make package verification propagate the compiler failure, or
+  require the saved compiler exit in every verification receipt. Quick source
+  lint/check and passing runtime tests do not establish test type correctness.
+- Action: repair the test source and read the saved compiler result. Preserve
+  all baselines and the live session ambiguity holds.

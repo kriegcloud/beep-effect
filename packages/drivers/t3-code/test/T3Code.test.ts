@@ -35,6 +35,48 @@ const configuration = {
 const sent = { threadId: "owned", messageId: "message", runId: "run", status: "queued", delivery: "queued" };
 const waited = { threadId: "owned", runId: "run", status: "completed", timedOut: false };
 const interrupted = { threadId: "owned", runId: "run", status: "interrupt_requested" };
+const observed = {
+  thread: {
+    threadId: "owned",
+    projectId: "project",
+    status: "idle",
+    latestRunId: "run",
+    activeRunId: null,
+    providerInstanceId: "codex",
+    model: "gpt-6.1-sol",
+    runtimeMode: "full-access",
+    interactionMode: "default",
+    worktreePath: "/owned/work",
+  },
+  recentRuns: [
+    {
+      runId: "run",
+      ordinal: 1,
+      status: "completed",
+      providerInstanceId: "codex",
+      model: "gpt-6.1-sol",
+      requestedAt: "2026-10-13T00:00:00Z",
+      startedAt: null,
+      completedAt: null,
+    },
+  ],
+  items: [
+    {
+      position: 10,
+      visibility: "local",
+      sourceThreadId: "owned",
+      itemId: "item",
+      runId: "run",
+      messageId: "message",
+      type: "message",
+      status: "completed",
+      text: "synthetic completed response",
+      textTruncated: true,
+    },
+  ],
+  nextPosition: 9,
+  hasMore: true,
+};
 
 const response = Effect.fn("T3CodeTest.response")(function* (
   request: HttpClientRequest.HttpClientRequest,
@@ -96,6 +138,55 @@ const errorOf = Effect.fn("T3CodeTest.errorOf")(<Value>(effect: Effect.Effect<Va
 );
 
 describe("T3 owned legacy MCP driver", () => {
+  it.effect(
+    "reads owned timeline provenance and pagination with bounded tool arguments",
+    Effect.fnUntraced(function* () {
+      const fake = yield* fixture(goodTool(observed));
+      expect(yield* fake.t3.read("owned")).toMatchObject(observed);
+      const frames = yield* Ref.get(fake.frames);
+      expect(A.length(frames)).toBe(3);
+      assertSome(
+        O.map(A.last(frames), (frame) => frame.params),
+        {
+          name: "t3_thread_read",
+          arguments: { threadId: "owned", view: "messages", limit: 100, runLimit: 50, maxCharsPerItem: 20000 },
+        }
+      );
+    })
+  );
+  it.effect(
+    "rejects another thread's read without implying a submission",
+    Effect.fnUntraced(function* () {
+      const fake = yield* fixture(goodTool({ ...observed, thread: { ...observed.thread, threadId: "foreign" } }));
+      const error = yield* fake.t3.read("owned").pipe(errorOf);
+      expect(error.operation).toBe("read");
+      expect(error.reason).toBe("identity-mismatch");
+      expect(error.submission).toBe("not-submitted");
+      expect(A.length(yield* Ref.get(fake.frames))).toBe(3);
+    })
+  );
+  for (const { name, result } of [
+    { name: "invalid tool envelope", result: { isError: "private invalid envelope" } },
+    { name: "missing tool content", result: { content: [] } },
+    { name: "malformed textual JSON", result: { content: [{ type: "text", text: "private invalid JSON" }] } },
+    { name: "schema-invalid read payload", result: { structuredContent: { ...observed, hasMore: "invalid" } } },
+  ]) {
+    it.effect(
+      `rejects ${name} as a sanitized read protocol failure`,
+      Effect.fnUntraced(function* () {
+        const fake = yield* fixture((frame, request) =>
+          response(request, { jsonrpc: "2.0", id: frame.id, result }, 200, false)
+        );
+        const error = yield* fake.t3.read("owned").pipe(errorOf);
+        expect(error.operation).toBe("read");
+        expect(error.reason).toBe("protocol");
+        expect(error.submission).toBe("not-submitted");
+        expect(yield* encodeJson(error)).not.toContain("private");
+        expect(A.length(yield* Ref.get(fake.frames))).toBe(3);
+      })
+    );
+  }
+
   it.effect(
     "negotiates session headers and decodes SSE configuration",
     Effect.fnUntraced(function* () {
