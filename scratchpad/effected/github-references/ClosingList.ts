@@ -160,6 +160,16 @@ export const ClosingList = S.Struct({
  */
 export type ClosingList = typeof ClosingList.Type;
 
+const ClosingFlagMatchesKeyword = S.makeFilter(
+	(list: { readonly keyword: ListKeyword; readonly closing: boolean }) =>
+		list.closing === S.is(ClosingKeyword)(list.keyword),
+	$I.annote("ClosingFlagMatchesKeyword", {
+		title: "Closing flag matches keyword",
+		description: "The closing flag equals membership in the closing keyword domain.",
+		message: "Expected closing to match the keyword's closing classification.",
+	}),
+);
+
 /**
  * The issues a reference-list line names, per {@link parseReferenceList}.
  *
@@ -183,7 +193,7 @@ export const ReferenceList = S.Struct({
 	closing: S.Boolean.annotate($I.annote("ReferenceList.closing", { description: "Whether the keyword is a closing keyword." })),
 	/** The referenced issue numbers, duplicates preserved, in line order. */
 	issueNumbers: S.NonEmptyArray(S.Natural).annotate($I.annote("ReferenceList.issueNumbers", { description: "The safe integer issue numbers in line order, including duplicates." })),
-}).annotate($I.annote("ReferenceList", { description: "The issues named by a whole reference-list line with its closing flag." }));
+}).check(ClosingFlagMatchesKeyword).annotate($I.annote("ReferenceList", { description: "The issues named by a whole reference-list line with its closing flag." }));
 
 /**
  * The decoded representation accepted by {@link ReferenceList}.
@@ -533,7 +543,14 @@ export const HarvestedReferenceList = S.Struct({
 	start: S.Natural.annotate($I.annote("HarvestedReferenceList.start", { description: "The offset of the first character of the matched keyword." })),
 	/** Offset one past the last digit of the last item. */
 	end: S.Natural.annotate($I.annote("HarvestedReferenceList.end", { description: "The offset one past the last digit of the last item." })),
-}).annotate($I.annote("HarvestedReferenceList", { description: "A reference list harvested from prose with its match offsets." }));
+}).check(
+	ClosingFlagMatchesKeyword,
+	S.makeFilter((list) => list.end > list.start, $I.annote("HarvestedReferenceList.OrderedSpan", {
+		title: "Ordered harvested list span",
+		description: "The exclusive end offset exceeds the start offset of the harvested match.",
+		message: "Expected end to be greater than start.",
+	})),
+).annotate($I.annote("HarvestedReferenceList", { description: "A reference list harvested from prose with its match offsets." }));
 
 /**
  * The decoded representation accepted by {@link HarvestedReferenceList}.

@@ -6,9 +6,10 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
-const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
-  it.effect.prop(name + ": encode/decode preserves values and never fails", [Arbitrary.schema(schema)], ([value]) =>
+const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>, arbitrary: Arbitrary.Arbitrary<T> = Arbitrary.schema(schema)): void => {
+  it.effect.prop(name + ": encode/decode preserves values and never fails", [arbitrary], ([value]) =>
     Effect.gen(function* () {
+      assertTrue(S.is(schema)(value));
       const encoded = yield* S.encodeEffect(schema)(value);
       const decoded = yield* S.decodeEffect(schema)(encoded);
       assertTrue(S.toEquivalence(schema)(decoded, value));
@@ -17,6 +18,16 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
 };
 import * as O from "effect/Option";
 import * as G from "../../effected/github-references/IssueReferences.ts";
+const spanArbitrary = Arbitrary.schema(G.IssueReference.fields.end.check(S.isGreaterThan(0))).pipe(
+  Arbitrary.flatMap((end) => Arbitrary.schema(G.IssueReference.fields.start.check(S.isLessThan(end))).pipe(
+    Arbitrary.map((start) => ({ start, end })),
+  )),
+);
+const referenceArbitrary = Arbitrary.all({
+  keyword: Arbitrary.schema(G.IssueReference.fields.keyword),
+  issueNumber: Arbitrary.schema(G.IssueReference.fields.issueNumber),
+  span: spanArbitrary,
+}).pipe(Arbitrary.map(({ keyword, issueNumber, span }) => ({ keyword, issueNumber, ...span })));
 const Sample = S.Struct({ keyword: G.ClosingKeyword, issue: S.Int.check(S.isBetween({ minimum: 0, maximum: 999999 })), colon: S.Boolean });
 const stringifyBare = (value: G.BareLineReference): string => value.keyword + " #" + value.issueNumber;
 const stringifyHarvest = (values: ReadonlyArray<G.IssueReference>): string => {
@@ -30,7 +41,9 @@ const stringifyHarvest = (values: ReadonlyArray<G.IssueReference>): string => {
 };
 describe("IssueReferences property floor", () => {
   roundTrips("ClosingKeyword", G.ClosingKeyword);
-  roundTrips("IssueReference", G.IssueReference);
+  roundTrips("IssueReference", G.IssueReference, referenceArbitrary);
+  it.effect.prop("schema-derived issue references have ordered spans", [referenceArbitrary], ([reference]) =>
+    Effect.sync(() => assertTrue(reference.end > reference.start)), runs);
   roundTrips("BareLineReference", G.BareLineReference);
   it.effect.prop("parseBareLineReference: canonicalization idempotence and parse/stringify fidelity", [Arbitrary.schema(Sample), Arbitrary.schema(S.String)], ([sample, noise]) => Effect.sync(() => {
     for (const text of [" " + sample.keyword.toUpperCase() + (sample.colon ? ":" : "") + "\t#00" + sample.issue + " ", noise]) {
