@@ -48,6 +48,14 @@ export const GitConfigDiagnosticCode = LiteralKit([
 ]).annotate($I.annote("GitConfigDiagnosticCode", { description: "The diagnostic codes emitted by the git-config scanner." }));
 
 /**
+ * Decoded value produced by {@link GitConfigDiagnosticCode}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GitConfigDiagnosticCode = typeof GitConfigDiagnosticCode.Type;
+
+/**
  * The scanner's schema-derived diagnostic code type.
  *
  * @category type-level
