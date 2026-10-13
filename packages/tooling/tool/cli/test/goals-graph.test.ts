@@ -435,6 +435,7 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
           { id: "pkt-history", status: "completed-retained", provides: ["cap/old"] },
           { id: "pkt-live", status: "active", provides: ["cap/live"], requires: ["cap/done", "cap/ghost"] },
           { id: "pkt-next", status: "paused", requires: ["cap/live"] },
+          { id: "pkt-ref", status: "reference", provides: ["cap/ghost"] },
         ]);
         const section = renderCapabilityMermaidSection(projection, answers);
         const has = (line: string) => assertTrue(Str.includes(line)(section));
@@ -449,6 +450,8 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
         has("| [pkt-live](./pkt-live/README.md) | `cap/ghost` |");
         has("| [pkt-next](./pkt-next/README.md) | `cap/live` |");
         assertTrue(!Str.includes("pkt-history")(section));
+        // A reference provider is not drawn, so it must not appear as an edge endpoint either.
+        assertTrue(!Str.includes("p_pkt_ref")(section));
         strictEqual(pipe(projection, renderCapabilityMermaidSection(answers)), section);
       })
     );

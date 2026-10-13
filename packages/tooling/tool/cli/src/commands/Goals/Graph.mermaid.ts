@@ -31,6 +31,8 @@ import type { CapabilityGraphAnswers, CapabilityProjection, GraphPacketRow } fro
 
 const NON_TERMINAL: ReadonlyArray<GoalStatus> = ["active", "paused"];
 
+const RENDERED_PROVIDER_STATUSES: ReadonlyArray<GoalStatus> = ["active", "paused", "completed-retained"];
+
 const isNonTerminal = (packet: GraphPacketRow): boolean => A.contains(NON_TERMINAL, packet.status);
 
 const nodeId = (slug: string): string => `p_${Str.replaceAll("-", "_")(slug)}`;
@@ -76,7 +78,13 @@ export const renderCapabilityMermaidSection: {
   const edges = A.flatMap(liveRequires, (requirement) =>
     pipe(
       projection.provides,
-      A.filter((provide) => provide.capability === requirement.capability),
+      // Only providers the diagram draws (live nodes or relics) get an edge; a
+      // reference or superseded provider would otherwise become an undeclared node.
+      A.filter(
+        (provide) =>
+          provide.capability === requirement.capability &&
+          packetWhere(provide.packetId, (packet) => A.contains(RENDERED_PROVIDER_STATUSES, packet.status))
+      ),
       A.map((provide) => ({
         provider: provide.packetId,
         consumer: requirement.packetId,
