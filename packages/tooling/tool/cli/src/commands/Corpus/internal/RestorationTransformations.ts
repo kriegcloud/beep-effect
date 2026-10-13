@@ -2333,7 +2333,10 @@ export const restoreMailImpl = Effect.fn("CorpusRestoration.restoreMail")(functi
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const selection = yield* readMailOccurrenceSelection(options);
-  const expectedStoreCount = O.isSome(selection) ? 1 : options.expectedStoreCount;
+  if (O.isSome(selection) && options.expectedStoreCount !== 1) {
+    return yield* transformationError("Explicit mail occurrence selection requires expected store count one.");
+  }
+  const expectedStoreCount = options.expectedStoreCount;
   const prepared = yield* prepareTransformationRun(
     options.corpusRoot,
     options.runLabel,

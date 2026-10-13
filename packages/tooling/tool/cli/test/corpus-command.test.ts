@@ -4155,7 +4155,7 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
         preservationLabel: defaults.runLabel,
         occurrence: member.objectId,
         membershipFile,
-        expectedStoreCount: 99,
+        expectedStoreCount: 1,
       });
       const summary = yield* restoreMail(options);
       const { records } = yield* readTransformationLedgerFixture(
@@ -4212,6 +4212,7 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
         { occurrence: member.objectId, membershipFile, scope: "full" },
         { occurrence: member.objectId, scope: "slice" },
         { membershipFile, scope: "slice" },
+        { occurrence: member.objectId, membershipFile, scope: "slice", expectedStoreCount: 99 },
       ]) {
         const options = yield* S.decodeUnknownEffect(RestorationMailOptions)({
           ...(yield* S.encodeEffect(RestorationMailOptions)(defaults)),
@@ -4249,9 +4250,7 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
       for (const text of [
         "invalid json",
         Str.replace(defaults.runLabel, "wrong-archive")(encoded),
-        yield* encodeMailOccurrenceMembershipJson(
-          MailOccurrenceMembership.make({ ...membership, members: [member, member] })
-        ),
+        yield* S.encodeEffect(S.fromJsonString(S.Unknown))({ ...membership, members: [member, member] }),
       ]) {
         yield* fs.writeFileString(membershipFile, text);
         yield* restoreMail(options).pipe(Effect.flip);
@@ -4280,6 +4279,41 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
         yield* restoreMail(changedOptions).pipe(Effect.flip);
         expect(yield* fs.exists(path.join(fixture.corpusRoot, "staging/restoration/runs/refused-plan"))).toBe(false);
       }
+    })
+  );
+
+  it.effect(
+    "rejects duplicate unselected occurrence objectIds when decoding the bounded plan",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(
+        restorationPffexportStub,
+        restorationTikaStub,
+        O.some(1024 * 1024 + 64)
+      );
+      const defaults = mailRestorationOptions(fixture);
+      const { member, membershipFile, membership } = yield* makeMailMembershipFixture(fixture, defaults.runLabel);
+      const unselected = { ...member, objectId: Sha256Hex.make(Str.repeat(64)("f")) };
+      const invalid = {
+        ...(yield* S.encodeEffect(MailOccurrenceMembership)(membership)),
+        members: [member, unselected, { ...unselected, sha256: Sha256Hex.make(Str.repeat(64)("e")) }],
+      };
+      const decoded = yield* S.decodeEffect(MailOccurrenceMembership)(invalid).pipe(Effect.exit);
+      decoded.pipe(Exit.isFailure, assertTrue);
+      yield* fs.writeFileString(membershipFile, yield* S.encodeEffect(S.fromJsonString(S.Unknown))(invalid));
+      const options = yield* S.decodeEffect(RestorationMailOptions)({
+        ...(yield* S.encodeEffect(RestorationMailOptions)(defaults)),
+        occurrence: member.objectId,
+        membershipFile,
+        runLabel: "refused-duplicate-plan",
+        preservationLabel: defaults.runLabel,
+      });
+      const error = yield* restoreMail(options).pipe(Effect.flip);
+      expect(error._tag).toBe("CorpusCommandError");
+      expect(yield* fs.exists(path.join(fixture.corpusRoot, "staging/restoration/runs/refused-duplicate-plan"))).toBe(
+        false
+      );
     })
   );
 

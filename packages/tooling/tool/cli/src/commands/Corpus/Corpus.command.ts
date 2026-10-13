@@ -277,7 +277,7 @@ const restorationPreservationLabelFlag = Flag.String("preservation-label").pipe(
 );
 const restorationOccurrenceFlag = Flag.String("occurrence").pipe(
   Flag.optional,
-  Flag.withDescription("One SHA-256 occurrence identity from --membership-file; slice scope only")
+  Flag.withDescription("One member objectId from --membership-file, not its content sha256; slice scope only")
 );
 const restorationMembershipFileFlag = Flag.String("membership-file").pipe(
   Flag.optional,

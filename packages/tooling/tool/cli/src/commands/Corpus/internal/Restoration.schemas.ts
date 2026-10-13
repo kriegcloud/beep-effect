@@ -404,7 +404,16 @@ export class MailOccurrenceMembership extends S.Class<MailOccurrenceMembership>(
     schema: S.Literal("mail-occurrence-membership/v1"),
     preservationLabel: RunLabel,
     maxInputBytes: S.Literal(536870912),
-    members: S.Array(MailOccurrenceMember).check(S.isMinLength(1), S.isMaxLength(10)),
+    members: S.Array(MailOccurrenceMember).check(
+      S.isMinLength(1),
+      S.isMaxLength(10),
+      S.makeFilter((members) => A.dedupe(A.map(members, (member) => member.objectId)).length === members.length, {
+        identifier: $I`UniqueMailOccurrenceObjectIds`,
+        title: "Unique Mail Occurrence Object Ids",
+        description: "Every occurrence in a bounded mail plan must have a distinct objectId.",
+        message: "Expected unique mail occurrence objectIds.",
+      })
+    ),
   },
   $I.annote("MailOccurrenceMembership", {
     description: "At most ten pinned mail occurrences authorized by a committed bounded-wave plan.",

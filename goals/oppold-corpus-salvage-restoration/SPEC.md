@@ -868,3 +868,21 @@ no merge-ready verdict is claimed. Reversal: submit the same until-ready detache
 monitor with a forty-minute maximum. The orchestrator owns review/CI merge gates
 and run-10 execution; zero P2 families have started. Retain post-push receipts
 for the next packet evidence commit without moving the final selector head.
+
+
+### 2026-10-13: PR6 round-two occurrence contract corrections
+
+Run-9c limits this wave to the three existing PR6 review threads. Explicit
+selection now requires the supplied expected store count to equal one and
+returns CorpusCommandError before preparing any family state when it differs.
+The frozen denominator is never silently replaced. The occurrence flag names
+the membership member objectId rather than its content sha256. Membership
+decoding requires every objectId to be unique, including unselected entries
+whose content digests differ. Synthetic tests cover rejection before family
+state, valid expectedCount one, default slice behavior, and duplicate unselected
+identities at both schema and command boundaries.
+
+Decision: fix these three contracts in one PR6 push. Reversal: revert this
+review-fix commit while retaining both sealed P1 families and their manifests.
+P1 remains complete; P2 remains pending. No transformation family is launched
+in this run. Run 10 starts only after PR6 merges under the orchestrator gate.

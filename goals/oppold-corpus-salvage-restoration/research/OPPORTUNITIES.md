@@ -715,3 +715,25 @@ for S11 triage, not relabelled environment-only or as the local eight-total red.
 Prevention: surface the underlying typed cause in the generator failure report.
 Both P1 ledger hashes, engine identities and Tika digest remain unchanged.
 Free bytes 204492922880, above retained floor. Zero P2 families started.
+
+
+## 2026-10-13 — Review exposed two occurrence-plan integrity gaps
+
+- **Doing:** closing the three PR6 round-two review threads before expansion.
+- **Evidence:** explicit selection silently replaced expectedStoreCount 99
+  with one, and duplicate unselected objectIds passed membership decoding.
+  Both contracts now reject with a typed boundary error before family state.
+  The first new regression failed because its fixture omitted the larger
+  synthetic PST required by the membership helper; the corrected fixture
+  passes without changing production selection.
+- **Prevented by:** test contradictory explicit denominators and whole-plan
+  identity uniqueness at decode time, including unselected duplicate entries.
+
+## 2026-10-13 — Worker environment omitted user-manager variables
+
+- **Doing:** launching the required quick package proof through beep-heavy.
+- **Evidence:** the wrapper refused before starting work because the user bus
+  variables were absent. Supplying the existing runtime directory and bus
+  socket for the current user restored the approved heavy lane.
+- **Prevented by:** preserve XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS in
+  every worker launch, as the lane mechanics specify. No unit/config changed.
