@@ -63,7 +63,7 @@ export const TAB_STOP = 4;
  * **Example** (Validate SourceLine data)
  *
  * ```ts
- * import { SourceLine } from "../../../../effected/markdown/internal/preprocess.ts";
+ * import { SourceLine } from "@beep/scratchpad/effected/markdown/internal/preprocess";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(SourceLine)({ text: "heading", start: 0 })); // true

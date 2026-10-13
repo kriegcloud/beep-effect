@@ -2709,6 +2709,16 @@ const glob = (volume: Volume) =>
  * `caseSensitive: false` folds path components during lookup while retaining
  * stored entry spellings. The policy remains fixed for the volume's lifetime.
  *
+ * **Example** (Decode a case-folding policy)
+ *
+ * ```ts
+ * import { EngineOptions } from "@beep/scratchpad/effected/memfs/internal/volume"
+ * import * as S from "effect/Schema"
+ *
+ * const options = S.decodeUnknownSync(EngineOptions)({ caseSensitive: false })
+ * console.log(options.caseSensitive) // false
+ * ```
+ *
  * @internal
  * @category configuration
  * @since 0.0.0
@@ -2924,6 +2934,23 @@ const SnapshotEntryType = LiteralKit(["File", "Directory", "SymbolicLink"]).pipe
  *
  * File data is a live reference; callers must copy it before exposing or
  * modifying bytes outside the engine.
+ *
+ * **Example** (Decode a directory entry)
+ *
+ * ```ts
+ * import { VolumeEntrySnapshot } from "@beep/scratchpad/effected/memfs/internal/volume"
+ * import * as S from "effect/Schema"
+ *
+ * const entry = S.decodeUnknownSync(VolumeEntrySnapshot)({
+ *   path: "/docs",
+ *   type: "Directory",
+ *   data: undefined,
+ *   mtime: 0,
+ *   target: undefined,
+ *   size: 0
+ * })
+ * console.log(entry.type) // "Directory"
+ * ```
  *
  * @internal
  * @category models

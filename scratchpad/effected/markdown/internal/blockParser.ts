@@ -697,7 +697,7 @@ class BlockParser implements BlockScanner {
  * **Example** (Validate GFM block options)
  *
  * ```ts
- * import { BlockParseOptions } from "../../../../effected/markdown/internal/blockParser.ts"
+ * import { BlockParseOptions } from "@beep/scratchpad/effected/markdown/internal/blockParser"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(BlockParseOptions)({ dialect: "gfm", frontmatter: true })) // true
@@ -735,7 +735,7 @@ export type BlockParseOptions = typeof BlockParseOptions.Type;
  * **Example** (Parse a heading with the block engine)
  *
  * ```ts
- * import { parseBlocks } from "../../../../effected/markdown/internal/blockParser.ts"
+ * import { parseBlocks } from "@beep/scratchpad/effected/markdown/internal/blockParser"
  *
  * const parsed = parseBlocks("# Hello\n", { dialect: "commonmark" })
  * console.log(parsed.root.children[0]?.type) // heading

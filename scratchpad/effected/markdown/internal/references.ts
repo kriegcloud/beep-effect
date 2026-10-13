@@ -371,17 +371,15 @@ export const normalizeReference = (rawLabel: string): string =>
 /**
  * A link reference definition, parsed but not yet placed in the tree.
  *
- *
  * **Example** (Validate ParsedReference data)
  *
  * ```ts
- * import { ParsedReference } from "../../../../effected/markdown/internal/references.ts";
+ * import { ParsedReference } from "@beep/scratchpad/effected/markdown/internal/references";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(ParsedReference)({ key: "GUIDE", identifier: "guide", label: "Guide", url: "/guide", length: 15 })); // true
  * ```
  *
-
  * @category models
  * @since 0.0.0
  */

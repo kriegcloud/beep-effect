@@ -78,7 +78,7 @@ const finalizeFenced = (block: BlockNode): void => {
  * **Example** (Inspect code block containment)
  *
  * ```ts
- * import { codeConstruct } from "../../../../effected/markdown/internal/blocks/code.ts";
+ * import { codeConstruct } from "@beep/scratchpad/effected/markdown/internal/blocks/code";
  *
  * console.log(codeConstruct.acceptsLines); // true
  * console.log(codeConstruct.canContain("paragraph")); // false

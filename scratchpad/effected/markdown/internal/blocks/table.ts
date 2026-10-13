@@ -82,7 +82,7 @@ const isSpaceChar = (char: string): boolean => char === " " || char === "\t" || 
  * **Example** (Validate RowSource data)
  *
  * ```ts
- * import { RowSource } from "../../../../effected/markdown/internal/blocks/table.ts";
+ * import { RowSource } from "@beep/scratchpad/effected/markdown/internal/blocks/table";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(RowSource)({ text: "| guide |\n", segments: [] })); // true
@@ -109,7 +109,7 @@ export type RowSource = typeof RowSource.Type;
  * **Example** (Validate RawCell data)
  *
  * ```ts
- * import { RawCell } from "../../../../effected/markdown/internal/blocks/table.ts";
+ * import { RawCell } from "@beep/scratchpad/effected/markdown/internal/blocks/table";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(RawCell)({ start: 0, contentStart: 2, end: 8 })); // true
@@ -137,7 +137,7 @@ export type RawCell = typeof RawCell.Type;
  * **Example** (Validate ScannedRow data)
  *
  * ```ts
- * import { ScannedRow } from "../../../../effected/markdown/internal/blocks/table.ts";
+ * import { ScannedRow } from "@beep/scratchpad/effected/markdown/internal/blocks/table";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(ScannedRow)({ cells: [], paragraphOffset: 0, complete: true })); // true
@@ -340,7 +340,7 @@ const rowFromSource = (source: RowSource): ScannedRow | undefined => {
  * **Example** (Validate CellContent data)
  *
  * ```ts
- * import { CellContent } from "../../../../effected/markdown/internal/blocks/table.ts";
+ * import { CellContent } from "@beep/scratchpad/effected/markdown/internal/blocks/table";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(CellContent)({ text: "guide", segments: [] })); // true

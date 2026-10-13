@@ -1341,8 +1341,8 @@ const serializeBlocks = (children: ReadonlyArray<Block>, state: StringifyState, 
  * **Example** (Serialize an empty document)
  *
  * ```ts
- * import { stringifyTree } from "../../../../effected/markdown/internal/stringify.ts";
- * import type { Root } from "../../../../effected/markdown/MarkdownNode.ts";
+ * import { stringifyTree } from "@beep/scratchpad/effected/markdown/internal/stringify";
+ * import type { Root } from "@beep/scratchpad/effected/markdown/MarkdownNode";
  *
  * const point = { line: 1, column: 1, offset: 0 };
  * const root: Root = {

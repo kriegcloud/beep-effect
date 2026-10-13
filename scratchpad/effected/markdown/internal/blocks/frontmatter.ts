@@ -45,13 +45,12 @@ const $I = $ScratchpadId.create("effected/markdown/internal/blocks/frontmatter")
  * **Example** (Validate FrontmatterFormat data)
  *
  * ```ts
- * import { FrontmatterFormat } from "../../../../effected/markdown/internal/blocks/frontmatter.ts";
+ * import { FrontmatterFormat } from "@beep/scratchpad/effected/markdown/internal/blocks/frontmatter";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(FrontmatterFormat)("yaml")); // true
  * ```
  *
-
  * @category schemas
  * @since 0.0.0
  */
@@ -82,17 +81,15 @@ const FENCES = HashMap.fromIterable<string, FenceRule>([
 /**
  * A successful capture: everything the parser needs to skip and materialize.
  *
- *
  * **Example** (Validate FrontmatterCapture data)
  *
  * ```ts
- * import { FrontmatterCapture } from "../../../../effected/markdown/internal/blocks/frontmatter.ts";
+ * import { FrontmatterCapture } from "@beep/scratchpad/effected/markdown/internal/blocks/frontmatter";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(FrontmatterCapture)({ format: "yaml", value: "title: Guide", lineCount: 3, endOffset: 20 })); // true
  * ```
  *
-
  * @category models
  * @since 0.0.0
  */
@@ -218,17 +215,15 @@ export type RawNewline = typeof RawNewline.Type;
  * matching the preprocessed scan where the replacement character breaks the
  * exact match the same way).
  *
- *
  * **Example** (Validate RawFrontmatterCapture data)
  *
  * ```ts
- * import { RawFrontmatterCapture } from "../../../../effected/markdown/internal/blocks/frontmatter.ts";
+ * import { RawFrontmatterCapture } from "@beep/scratchpad/effected/markdown/internal/blocks/frontmatter";
  * import * as S from "effect/Schema";
  *
  * console.log(S.is(RawFrontmatterCapture)({ format: "yaml", value: "title: Guide\n", newline: "\n", bodyOffset: 21 })); // true
  * ```
  *
-
  * @category models
  * @since 0.0.0
  */
