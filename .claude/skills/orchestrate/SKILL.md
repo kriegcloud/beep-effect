@@ -104,7 +104,12 @@ loops stop after round 2; non-required Heavy/Coverage reds merge over only
 with a written attribution. Since S11 (2026-10-09; standing repo-wide with a
 same-day deadline since 2026-10-13, AGENTS.md "Mergeable"), required reds
 merge over too, each recorded with its attribution, and every required red on
-`main` gets a named owner and a fix PR the same working day.
+`main` gets a named owner and a fix PR the same working day. `yeet merge-gate`
+still holds on required reds, so until it gains an attributed S11 mode (see
+Follow-ups) run S11 merges through the relaxed gate script in
+`~/.cache/beep/orchestrator/bin/`. It REST-merges the pinned sha once threads
+are 0, there is no base conflict and the window has elapsed, and it records
+each red in the merge line.
 
 Two more operator rulings from 2026-10-06 (verbatim, relayed by the
 orchestrator session):
@@ -175,6 +180,10 @@ orchestrator session):
   a rulings file instead of the template.
 - Port `gate.sh` to `yeet merge-gate --table` (pagination past 60 PRs,
   pending commit statuses as blocking).
+- `yeet merge-gate --relaxed` (S11): tolerate required reds, each with a
+  recorded attribution, under the same thread, conflict and window checks.
+  S11 merges then stop depending on the out-of-repo relaxed script (raised on
+  #1619).
 - `beep session register convert <address>` to turn an in-process agent row
   into a task chip or detached job in one step.
 - A PR-comment helper for `codex-lane` rows so the `orchestrator:` prefix is
