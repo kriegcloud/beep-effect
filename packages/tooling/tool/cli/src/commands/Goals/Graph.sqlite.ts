@@ -237,7 +237,7 @@ const walksFor = (
  * console.log(Effect.isEffect(queryCapabilityGraph(projection))) // true
  * ```
  *
- * @category engines
+ * @category queries
  * @since 0.0.0
  */
 export const queryCapabilityGraph = Effect.fn("Goals.queryCapabilityGraph")(function* (
@@ -315,7 +315,7 @@ export const GraphSqliteLive: Layer.Layer<SqlClient.SqlClient, GoalGraphOperatio
  *
  * @param projection - Compiled capability projection.
  * @returns The SQL engine's answers.
- * @category engines
+ * @category queries
  * @since 0.0.0
  */
 export const runCapabilityGraph = Effect.fn("Goals.runCapabilityGraph")(

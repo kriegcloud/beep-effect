@@ -137,7 +137,7 @@ const packetRow = (manifest: GoalManifest): GraphPacketRow =>
  *
  * @param manifests - Decoded manifests in any discovery order.
  * @returns The sorted, duplicate-free projection.
- * @category compilers
+ * @category projections
  * @since 0.0.0
  */
 export const compileCapabilityProjection = (manifests: ReadonlyArray<GoalManifest>): CapabilityProjection => {
@@ -266,7 +266,7 @@ const breadthFirstDepths = (
  *
  * @param projection - Compiled capability projection.
  * @returns The reference answers.
- * @category evaluators
+ * @category queries
  * @since 0.0.0
  */
 export const evaluateCapabilityGraph = (projection: CapabilityProjection): CapabilityGraphAnswers => {
@@ -410,7 +410,7 @@ const isReady = (projection: CapabilityProjection, answers: CapabilityGraphAnswe
  * @param projection - Compiled capability projection.
  * @param answers - Engine answers over the same projection.
  * @returns Actionable packets with their requirement rows, plus fog capabilities and cycles.
- * @category reports
+ * @category read-models
  * @since 0.0.0
  */
 export const buildFrontierReport: {
@@ -461,7 +461,7 @@ export const buildFrontierReport: {
  * @param answers - Engine answers over the same projection.
  * @param slug - Packet slug to explain.
  * @returns The explanation, or none for an unknown slug.
- * @category reports
+ * @category read-models
  * @since 0.0.0
  */
 export const buildExplainReport: {
@@ -538,7 +538,7 @@ export const buildExplainReport: {
  * @param projection - Compiled capability projection.
  * @param answers - Engine answers over the same projection.
  * @returns One entry per capability with providers, consumers, and D4/D5/D8 signals.
- * @category reports
+ * @category read-models
  * @since 0.0.0
  */
 export const buildCatalogReport: {
@@ -604,7 +604,7 @@ const cycleLines = (cycles: ReadonlyArray<ReadonlyArray<string>>): ReadonlyArray
  *
  * @param report - Frontier report to render.
  * @returns Multi-line human text.
- * @category renderers
+ * @category formatting
  * @since 0.0.0
  */
 export const renderFrontierHuman = (report: GoalFrontierReport): string =>
@@ -650,7 +650,7 @@ export const renderFrontierHuman = (report: GoalFrontierReport): string =>
  *
  * @param report - Explain report to render.
  * @returns Multi-line human text.
- * @category renderers
+ * @category formatting
  * @since 0.0.0
  */
 export const renderExplainHuman = (report: GoalExplainReport): string => {
@@ -713,7 +713,7 @@ const catalogLine = (entry: CapabilityCatalogEntry): string => {
  *
  * @param report - Catalog report to render.
  * @returns Multi-line human text.
- * @category renderers
+ * @category formatting
  * @since 0.0.0
  */
 export const renderCatalogHuman = (report: CapabilityCatalogReport): string =>
