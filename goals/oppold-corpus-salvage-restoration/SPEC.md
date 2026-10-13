@@ -886,3 +886,26 @@ Decision: fix these three contracts in one PR6 push. Reversal: revert this
 review-fix commit while retaining both sealed P1 families and their manifests.
 P1 remains complete; P2 remains pending. No transformation family is launched
 in this run. Run 10 starts only after PR6 merges under the orchestrator gate.
+
+
+### 2026-10-13: launch the nine bounded P2 families after PR6 merge
+
+Run-10 go and its branch correction follow merged #1611 at 6eb3d03677.
+The committed membership still contains nine ordered occurrences, all matching
+the sealed archive by objectId, source digest and input bytes. Retain ratio 4,
+attempt 7,200,000 ms, family 43,200,000 ms, total output 2,147,483,648 bytes
+per family and the 100,000,000,000-byte free-space floor. Scope remains slice,
+with explicit occurrence, committed membership and expected stores one.
+
+Decision: use nine fresh date-stamped output labels under the restoration
+runs parent, each selecting the original archive with preservationLabel.
+Each family has a pre-launch freeze record with source, engine, code, script,
+membership and policy identities. Record the computed policy digest before
+launch and compare it to family-run-start; never change a manifest to fit
+runtime drift. Launch one detached beep-heavy family at a time, reconcile
+acceptance before continuing, and wait 60 seconds after each successful seal.
+Stop at the first failure and diagnose before further execution; never retry
+a sealed family. No engine or launcher code changes inside the wave.
+Reversal: revert the packet launch decision while retaining every family,
+ledger, output and freeze record. P2 remains incomplete until all estate,
+recycle and legacy-Word obligations close.

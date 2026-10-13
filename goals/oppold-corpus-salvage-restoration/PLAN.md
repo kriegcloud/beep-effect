@@ -233,3 +233,20 @@ Run-9: nine inputs at most 536,870,912 bytes, range 61,727,744 to 456,877,056;
 eighteen larger remaining occurrences await a later ceiling ruling. Membership
 is pinned in history/evidence/p2-first-wave-membership.json. PR6 adds the public
 bounded selector; run 10 launches the wave after content-final. No family started.
+
+
+## P2 bounded-wave launch — 2026-10-13
+
+PR6 #1611 merged at 6eb3d03677. Run-10 go and its branch correction
+authorize the first wave. All nine source identities match the sealed archive;
+each has a pre-launch freeze record. Family 1 is active under detached
+beep-heavy; zero families sealed at the first transformation observation.
+Its policy matches the freeze record. Four focused tests and both real
+sandbox smokes pass. See the dated handoff and first-wave progress record.
+
+P2 is in-progress, not complete. Continue one family at a time, reconcile
+acceptance before progressing, wait 60 seconds between successful seals,
+and stop at the first failure. No source/engine/launcher changes inside
+the wave. Existing blockers about the absent public selector are historical:
+PR6 closes that precondition. Later estate, recycle and DOC obligations
+remain open; P3 remains pending. PR7 records the terminal wave outcome.

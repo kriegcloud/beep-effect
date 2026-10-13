@@ -9,11 +9,13 @@ digests while retaining the originals.
 
 ## Next action
 
-P1 is complete. Run-9 corrects the first P2 wave to nine occurrences within
-both retained output ceilings and authorizes a bounded occurrence selector in
-PR6. The committed membership pins source identities and sizes. Run 10 owns
-the sequential wave after the selector is content-final; no P2 family has started.
-Retain both sealed P1 families and freeze records.
+P1 is complete and PR6 #1611 is merged. Run 10 has launched the first of
+nine bounded P2 mail families under retained ceilings; zero families are
+sealed at the first transformation check. One detached family runs at a
+time. Its runtime policy matches its pre-launch freeze record. Continue
+from the dated handoff, reconcile acceptance, and wait 60 seconds before
+each next family; stop and diagnose the first failure. P2 remains incomplete.
+Retain both sealed P1 families and every P2 output and freeze record.
 
 ## Launcher
 

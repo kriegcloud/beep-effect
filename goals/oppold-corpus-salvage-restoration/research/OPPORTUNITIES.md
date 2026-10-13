@@ -737,3 +737,13 @@ Free bytes 204492922880, above retained floor. Zero P2 families started.
   socket for the current user restored the approved heavy lane.
 - **Prevented by:** preserve XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS in
   every worker launch, as the lane mechanics specify. No unit/config changed.
+
+
+## 2026-10-13 — Literal newline escapes blocked the launch-evidence commit
+
+- **Doing:** committing the bounded-wave launch evidence before handoff.
+- **Evidence:** commitlint rejected the body for exceeding 100 characters
+  because the shell argument held literal newline escapes. No commit or push
+  occurred. Replaced the argument with a message file containing real newlines.
+- **Prevented by:** use a file for every multiline commit message and keep
+  body lines below the repository limit.
