@@ -93,7 +93,6 @@ export type YamlVisitorEvent = typeof visitorEvent.Type;
  * `YamlVisitorEvent.Scalar({ path, depth, value, style })`,
  * `YamlVisitorEvent.$is("MapStart")`).
  *
-
  * **Example** (Construct and identify a scalar event)
  *
  * ```ts
@@ -102,6 +101,7 @@ export type YamlVisitorEvent = typeof visitorEvent.Type;
  * const event = YamlVisitorEvent.Scalar({ path: [], depth: 0, value: "hello", style: "plain" });
  * console.log(YamlVisitorEvent.$is("Scalar")(event)) // true
  * ```
+ *
  * @public
  * @category constructors
  * @since 0.0.0

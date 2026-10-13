@@ -22,7 +22,6 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
 /**
  * A commit, projected to what callers read.
  *
-
  * **Example** (Read a commit subject)
  *
  * ```ts
@@ -37,6 +36,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * });
  * console.log(commit.subject); // Fix parser
  * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
@@ -66,7 +66,6 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
 	/**
  * The message's first line.
  *
-
  * **Example** (Extract the first message line)
  *
  * ```ts
@@ -93,7 +92,6 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
 /**
  * How a file changed in a commit or a comparison.
  *
-
  * **Example** (Validate a renamed file status)
  *
  * ```ts
@@ -102,6 +100,7 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
  *
  * console.log(S.is(FileStatus)("renamed")); // true
  * ```
+ *
  * @public
  * @category schemas
  * @since 0.0.0
@@ -128,7 +127,6 @@ export type FileStatus = typeof FileStatus.Type;
 /**
  * One changed file.
  *
-
  * **Example** (Inspect the path before a rename)
  *
  * ```ts
@@ -143,6 +141,7 @@ export type FileStatus = typeof FileStatus.Type;
  * });
  * console.log(file.previousPath); // src/old.ts
  * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
@@ -163,7 +162,6 @@ export class CommitFile extends S.Class<CommitFile>($I`CommitFile`)({
 /**
  * The result of comparing two refs.
  *
-
  * **Example** (Inspect commits ahead of base)
  *
  * ```ts
@@ -178,6 +176,7 @@ export class CommitFile extends S.Class<CommitFile>($I`CommitFile`)({
  * });
  * console.log(comparison.aheadBy); // 1
  * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
@@ -263,7 +262,6 @@ export class GitHubCommit extends Context.Service<GitHubCommit, GitHubCommitShap
 	/**
  * The live service, built over a `GitHubClient`.
  *
-
  * **Example** (Construct a commit read with the live layer)
  *
  * ```ts
@@ -287,7 +285,6 @@ export class GitHubCommit extends Context.Service<GitHubCommit, GitHubCommitShap
 	/**
  * An in-memory double; unstubbed members die naming themselves.
  *
-
  * **Example** (Override the commit listing)
  *
  * ```ts
@@ -311,7 +308,6 @@ export class GitHubCommit extends Context.Service<GitHubCommit, GitHubCommitShap
 	/**
  * {@link GitHubCommit.makeTest} behind a `Layer`.
  *
-
  * **Example** (Provide a commit test layer)
  *
  * ```ts
@@ -383,7 +379,6 @@ export interface RawFile {
  * Project a `diff-entry` to a {@link CommitFile}. Shared with
  * `PullRequest.listFiles`; not re-exported from the package entrypoint.
  *
-
  * **Example** (Project a GitHub diff entry)
  *
  * ```ts
@@ -398,6 +393,7 @@ export interface RawFile {
  * }, "example"));
  * console.log(file.path); // src/parser.ts
  * ```
+ *
  * @category mapping
  * @since 0.0.0
  */
