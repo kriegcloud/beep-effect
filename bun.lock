@@ -3279,6 +3279,8 @@
         "@effect/doctest": "catalog:",
         "@effect/platform-bun": "catalog:",
         "@effect/platform-node": "catalog:",
+        "@effect/sql-sqlite-bun": "catalog:",
+        "@effect/sql-sqlite-node": "catalog:",
         "@effected/github": "catalog:",
         "@noble/hashes": "catalog:",
         "@openai/codex-sdk": "catalog:",
