@@ -7,6 +7,7 @@ import {
   EndpointBinding,
   Envelope,
   LaunchGrant,
+  Receipt,
 } from "@beep/repo-cli/test/AgentMessage";
 import { it } from "@beep/test-runner";
 import { expect } from "@effect/vitest";
@@ -28,6 +29,7 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
+import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 import { NodeCommandTestLayer } from "./support/CommandTest.ts";
 
@@ -35,6 +37,7 @@ const Json = S.fromJsonString(S.Unknown);
 const JsonRpcFrameJson = S.fromJsonString(JsonRpcMessage);
 const ToolRequest = S.Struct({ name: S.String });
 const BindingJson = S.fromJsonString(EndpointBinding);
+const ReceiptJson = S.fromJsonString(Receipt);
 const encodeJson = S.encodeEffect(Json);
 const decodeJson = S.decodeEffect(Json);
 const runCommand = Command.runWith(agentMessageCommand, { version: "test", renderErrors: false });
@@ -240,6 +243,47 @@ it.layer(
   ),
   { timeout: "30 seconds" }
 )("AgentMessage CLI boundaries", (it) => {
+  it.effect("watch emits durable acceptance without acknowledging and stops on cancellation", () =>
+    Effect.gen(function* () {
+      const f = yield* setup();
+      const envelopeFile = yield* f.write("watched.json", yield* S.encodeEffect(Envelope)(f.envelope("watched")));
+      yield* f.execute(["send", "--file", envelopeFile]);
+      const printed = yield* Deferred.make<Receipt, S.SchemaError>();
+      const original = yield* Console.Console;
+      const observed = Console.Console.of({
+        ...original,
+        log: (...args) => {
+          original.log(...args);
+          Deferred.doneUnsafe(printed, S.decodeUnknownEffect(ReceiptJson)(args[0]));
+        },
+      });
+      const fiber = yield* runCommand(["watch", "--message-id", "watched", "--state-dir", f.stateDir]).pipe(
+        Effect.provideService(Console.Console, observed),
+        Effect.forkChild
+      );
+      expect(yield* Deferred.await(printed)).toMatchObject({ messageId: "watched", status: "accepted", sequence: 1 });
+      yield* Fiber.interrupt(fiber);
+      expect(yield* f.store.receipts("watched")).toHaveLength(1);
+    }).pipe(TestClock.withLive)
+  );
+
+  it.effect("tools rejects exposed and malformed private grants before starting transport", () =>
+    Effect.gen(function* () {
+      const f = yield* setup();
+      const grantFile = yield* f.write("mcp-grant.json", yield* S.encodeEffect(LaunchGrant)(f.grant("a")));
+      yield* f.fs.chmod(grantFile, 0o644);
+      expect(
+        yield* runCommand(["tools", "--state-dir", f.stateDir, "--grant-file", grantFile]).pipe(Effect.flip)
+      ).toMatchObject({ _tag: "RouterError", code: "policyMismatch" });
+      yield* f.fs.chmod(grantFile, 0o600);
+      yield* f.write("mcp-grant.json", { grantId: "incomplete" });
+      expect(
+        yield* runCommand(["tools", "--state-dir", f.stateDir, "--grant-file", grantFile]).pipe(Effect.flip)
+      ).toMatchObject({ _tag: "SchemaError" });
+      expect(yield* f.store.validateGrant("grant-a", f.now).pipe(Effect.isFailure)).toBe(true);
+    })
+  );
+
   it.effect("operator commands persist enrollment and messages and render the corresponding receipts", () =>
     Effect.gen(function* () {
       const f = yield* setup();

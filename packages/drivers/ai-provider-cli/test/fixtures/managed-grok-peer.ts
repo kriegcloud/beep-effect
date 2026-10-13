@@ -12,6 +12,7 @@ const program = Effect.gen(function* () {
   const agent = yield* Agent.AcpAgent;
   const stalled = yield* Config.String("STALL_AT").pipe(Config.withDefault("none"));
   const home = yield* Config.String("HOME");
+  const mode = yield* Config.String("FIXTURE_MODE").pipe(Config.withDefault("echo"));
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const checkpoint = (operation: string) =>
@@ -38,13 +39,16 @@ const program = Effect.gen(function* () {
         Effect.sync(
           (): Schema.NewSessionResponse => ({
             sessionId: authenticated ? "owned-grok" : "unauthenticated",
-            models: { currentModelId: "grok-4.7", availableModels: [{ modelId: "grok-4.7", name: "synthetic" }] },
+            models: {
+              currentModelId: mode === "wrong-model" ? "foreign" : "grok-4.7",
+              availableModels: [{ modelId: "grok-4.7", name: "synthetic" }],
+            },
             configOptions: [
               {
                 id: "reasoning_effort",
                 name: "Effort",
                 type: "select",
-                currentValue: "medium",
+                currentValue: mode === "wrong-effort" ? "high" : "medium",
                 options: [{ value: "medium", name: "Medium" }],
               },
             ],

@@ -117,6 +117,14 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
           )
         ).toBe(true);
         expect(yield* Ref.get(launches)).toBe(0);
+        for (const sandboxWritablePaths of [[], [f.profile.workspace]]) {
+          yield* f.write(ManagedLaunchProfile.make({ ...f.profile, provider: "grok", sandboxWritablePaths }));
+          expect(
+            yield* f.execute.pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched), Effect.flip)
+          ).toMatchObject({ _tag: "RouterError", code: "policyMismatch" });
+          expect(yield* Ref.get(launches)).toBe(0);
+        }
+        yield* f.write(f.profile);
         yield* f.write(f.profile);
         yield* f.fs.chmod(f.filename, 0o644);
         expect(

@@ -212,3 +212,26 @@ references and host-authority properties remain in the existing model/tool
 suites. No new schema law is introduced by these tests. Revisit the entries if
 reusable schemas or schema-law assertions move into either file; the detector
 and all behavior assertions remain enabled.
+
+### 2026-10-13: strengthen coverage at provider and operator boundaries
+
+| Date | Decision | Reason | Reversal |
+| --- | --- | --- | --- |
+| 2026-10-13 | Exercise additional malformed provider receipts, policy mismatches, private profile failures and scoped operator/tool boundaries with synthetic fixtures | The first completed current-head coverage comparison reports missing file identities for new modules; boundary failures need behavioral proof before coverage admission | Revert the test wave; fixtures use private disposable state and never contact a live provider |
+
+The corpus schema-hoist repair remains with its assigned main repair lane.
+This wave preserves existing coverage floors and does not grant replay,
+resend or clearance of either live delivery ambiguity hold. Hosted checks,
+review closure and the review window still determine merge readiness.
+
+### 2026-10-13: admit reviewed new coverage identities while holding existing floors
+
+| Date | Decision | Reason | Reversal |
+| --- | --- | --- | --- |
+| 2026-10-13 | After boundary-test review, register only measured new file identities through the scoped coverage writer and retain every pre-existing package and file row | The comparator rejects uncovered new paths even when package totals pass; its remediation and regression tests expressly allow reviewer-accepted new identities while prohibiting lowering existing rows | Revert the additive identity rows; keep the test improvements and preserve all existing floors |
+
+The independent policy review distinguishes a new identity from an existing-row
+regression. The narrowed generated diff must retain existing metric percentages,
+uncovered counts, tier minimums, epsilon, exemptions and follow-up policy. It
+must contain measurements from the final test wave and remain subject to hosted
+coverage comparison. No externally lowered floor is precedent for this wave.

@@ -14,13 +14,225 @@ import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as TestClock from "effect/testing/TestClock";
 
 const TestLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, AiProviderCliSession.layer);
+const syntheticProfile = Effect.fn("SessionTest.profile")(function* (
+  provider: ManagedLaunchProfile["provider"],
+  mode = "echo"
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = yield* fs.makeTempDirectoryScoped();
+  const home = path.join(root, "home");
+  const workspace = path.join(root, "workspace");
+  yield* fs.makeDirectory(workspace);
+  return ManagedLaunchProfile.make({
+    provider,
+    executable: "bun",
+    prefixArgs: ["run", path.join(import.meta.dirname, `fixtures/managed-${provider}-peer.ts`)],
+    workspace,
+    profileRoot: home,
+    env: { HOME: home, PATH: yield* Config.String("PATH"), FIXTURE_MODE: mode, CODEX_HOME: path.join(home, ".codex") },
+    authLane: "existing-subscription",
+    tools: [],
+  });
+});
 it.layer(TestLayer, { timeout: "20 seconds", concurrent: false })("managed native sessions", (it) => {
+  it.effect(
+    "writes scoped Codex tool configuration and denies steering after disposal",
+    Effect.fnUntraced(function* () {
+      const profile = yield* syntheticProfile("codex");
+      const configured = ManagedLaunchProfile.make({
+        ...profile,
+        tools: [{ name: "peer", command: "false", args: ["synthetic"], env: { MODE: "fixture" } }],
+      });
+      const session = yield* (yield* AiProviderCliSession).open(configured);
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const content = yield* fs.readFileString(path.join(profile.profileRoot, ".codex/config.toml"));
+      assert.include(content, '[mcp_servers."peer".env]');
+      assert.include(content, '"MODE" = "fixture"');
+      yield* session.cancel;
+      yield* session.close;
+      const error = yield* session
+        .steer(
+          ManagedSessionSteering.make({
+            expectedTurnId: "none",
+            message: ManagedSessionMessage.make({ messageId: "late", text: "synthetic" }),
+          })
+        )
+        .pipe(Effect.flip);
+      assert.equal(error.reason, "closed");
+    })
+  );
+  it.effect(
+    "rejects unknown child executable as sanitized transport failure",
+    Effect.fnUntraced(function* () {
+      const profile = yield* syntheticProfile("claude");
+      const error = yield* (yield* AiProviderCliSession)
+        .open(ManagedLaunchProfile.make({ ...profile, executable: "/missing/synthetic-driver" }))
+        .pipe(Effect.flip);
+      assert.equal(error.reason, "transport");
+      assert.equal(error.operation, "spawn");
+    })
+  );
+  it.effect(
+    "cancels Grok and refuses unqualified active steering",
+    Effect.fnUntraced(function* () {
+      const session = yield* (yield* AiProviderCliSession).open(yield* syntheticProfile("grok"));
+      const error = yield* session
+        .steer(
+          ManagedSessionSteering.make({
+            expectedTurnId: "none",
+            message: ManagedSessionMessage.make({ messageId: "steer", text: "synthetic" }),
+          })
+        )
+        .pipe(Effect.flip);
+      assert.equal(error.reason, "unsupported");
+      yield* session.cancel;
+      yield* session.close;
+    })
+  );
+
+  for (const mode of ["malformed-resume", "malformed-turn", "failed-turn"]) {
+    it.effect(
+      `fences Codex ${mode} without replaying`,
+      Effect.fnUntraced(function* () {
+        const session = yield* (yield* AiProviderCliSession).open(yield* syntheticProfile("codex", mode));
+        const first = yield* session
+          .prompt(ManagedSessionMessage.make({ messageId: "first", text: "synthetic" }))
+          .pipe(Effect.result);
+        const failure =
+          mode === "malformed-resume"
+            ? yield* session
+                .prompt(ManagedSessionMessage.make({ messageId: "second", text: "synthetic" }))
+                .pipe(Effect.flip)
+            : first._tag === "Failure"
+              ? first.failure
+              : undefined;
+        assert.equal(failure?.reason, mode === "malformed-resume" ? "policy-mismatch" : "provider-failure");
+        const late = yield* session
+          .prompt(ManagedSessionMessage.make({ messageId: "late", text: "synthetic" }))
+          .pipe(Effect.flip);
+        assert.equal(late.reason, "closed");
+      })
+    );
+  }
+  for (const mode of ["wrong-policy", "wrong-session", "no-init", "error", "unknown", "control"]) {
+    it.effect(
+      `classifies Claude ${mode} without replay`,
+      Effect.fnUntraced(function* () {
+        const sessions = yield* AiProviderCliSession;
+        const session = yield* sessions.open(yield* syntheticProfile("claude", mode));
+        const result = yield* session
+          .prompt(ManagedSessionMessage.make({ messageId: "case", text: "synthetic" }))
+          .pipe(Effect.result);
+        if (mode === "unknown" || mode === "control") {
+          assert.equal(result._tag, "Success");
+        } else {
+          assert.equal(result._tag, "Failure");
+          if (result._tag === "Failure")
+            assert.equal(result.failure.reason, mode === "error" ? "provider-failure" : "policy-mismatch");
+        }
+        const unsupported = yield* session
+          .steer(
+            ManagedSessionSteering.make({
+              expectedTurnId: "none",
+              message: ManagedSessionMessage.make({ messageId: "steer", text: "synthetic" }),
+            })
+          )
+          .pipe(Effect.flip);
+        assert.equal(unsupported.reason, "unsupported");
+        yield* session.close;
+        yield* session.close;
+        const late = yield* session
+          .prompt(ManagedSessionMessage.make({ messageId: "late", text: "synthetic" }))
+          .pipe(Effect.flip);
+        assert.equal(late.reason, "closed");
+      })
+    );
+  }
+  for (const [provider, mode] of [
+    ["cursor", "wrong-model"],
+    ["grok", "wrong-model"],
+    ["grok", "wrong-effort"],
+  ] satisfies ReadonlyArray<readonly ["cursor" | "grok", string]>) {
+    it.effect(
+      `rejects ${provider} ${mode} readback`,
+      Effect.fnUntraced(function* () {
+        const sessions = yield* AiProviderCliSession;
+        const error = yield* sessions.open(yield* syntheticProfile(provider, mode)).pipe(Effect.flip);
+        assert.equal(error.reason, "policy-mismatch");
+      })
+    );
+  }
+  for (const invalid of [
+    "relative-workspace",
+    "same-home",
+    "wrong-home",
+    "api-env",
+    "codex-home",
+    "codex-existing",
+    "claude-existing",
+    "grok-relative",
+  ]) {
+    it.effect(
+      `rejects isolated profile boundary ${invalid}`,
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const provider = Match.value(invalid).pipe(
+          Match.when("claude-existing", () => "claude" as const),
+          Match.when("grok-relative", () => "grok" as const),
+          Match.orElse(() => "codex" as const)
+        );
+        const profile = yield* syntheticProfile(provider);
+        if (invalid === "codex-existing") {
+          yield* fs.makeDirectory(path.join(profile.profileRoot, ".codex"), { recursive: true });
+          yield* fs.writeFileString(path.join(profile.profileRoot, ".codex/config.toml"), "retained");
+        }
+        if (invalid === "claude-existing") {
+          yield* fs.makeDirectory(profile.profileRoot);
+          yield* fs.writeFileString(path.join(profile.profileRoot, "managed-mcp.json"), "retained");
+        }
+        const changed = Match.value(invalid).pipe(
+          Match.when("relative-workspace", () => ManagedLaunchProfile.make({ ...profile, workspace: "relative" })),
+          Match.when("same-home", () =>
+            ManagedLaunchProfile.make({
+              ...profile,
+              profileRoot: profile.workspace,
+              env: { ...profile.env, HOME: profile.workspace },
+            })
+          ),
+          Match.when("wrong-home", () =>
+            ManagedLaunchProfile.make({ ...profile, env: { ...profile.env, HOME: "/foreign" } })
+          ),
+          Match.when("api-env", () =>
+            ManagedLaunchProfile.make({ ...profile, env: { ...profile.env, OPENAI_API_KEY: "synthetic" } })
+          ),
+          Match.when("codex-home", () =>
+            ManagedLaunchProfile.make({ ...profile, env: { ...profile.env, CODEX_HOME: "/foreign" } })
+          ),
+          Match.when("grok-relative", () =>
+            ManagedLaunchProfile.make({ ...profile, sandboxWritablePaths: ["relative"] })
+          ),
+          Match.orElse(() => profile)
+        );
+        const sessions = yield* AiProviderCliSession;
+        const error = yield* sessions.open(changed).pipe(Effect.flip);
+        assert.equal(error.reason, "invalid-profile");
+        if (invalid === "codex-existing")
+          assert.equal(yield* fs.readFileString(path.join(profile.profileRoot, ".codex/config.toml")), "retained");
+        if (invalid === "claude-existing")
+          assert.equal(yield* fs.readFileString(path.join(profile.profileRoot, "managed-mcp.json")), "retained");
+      })
+    );
+  }
   it.effect(
     "roundtrips Codex framing and fences queued prompts after close",
     Effect.fnUntraced(function* () {

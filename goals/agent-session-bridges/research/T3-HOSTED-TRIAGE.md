@@ -280,3 +280,61 @@ profile fixture has no wrong-model mode, and the command offers no deterministic
 pause for that race. These limits are retained without timing-based tests or
 production changes solely for coverage. Both live ambiguity holds remain intact;
 no provider inference, resend or recovery command was run.
+
+## 2026-10-13: final coverage admission test wave
+
+The completed hosted run at `9527fa49` passed JSDoc, strict compilation,
+both CLI unit shards, build and docgen. Lint Policy still reported the two
+inherited corpus schema-hoist errors, now assigned to the main repair PR #1627.
+Coverage executed its test shards, then rejected missing baseline identities
+for five new provider-session modules and eight AgentMessage modules. It
+reported no package-total coverage regression for these failures.
+
+The new test wave adds 23 provider cases with synthetic subprocess peers.
+Node V8 passes all 42 cases, and full driver package verification passes its
+audit and docgen. The CLI boundary suite passes 30 cases with CI tracing;
+the actual strict test-compiler receipt is zero with empty output. Quick
+package verification, root-config Oxlint and Effect-Vitest pass. A bounded
+AgentMessage V8 run passes 74 cases across seven suites; it began before an
+equivalent Option assertion was changed to the repository assertion helper,
+so the final canonical measurement determines numerical admission.
+
+The tests cover malformed provider receipts, model/effort/session and profile
+mismatches, retained configuration, receipt-watch cancellation, exposed or
+malformed grant rejection, attached ownership/workspace/receiving grants,
+contradictory native completion evidence and sandbox refusal before launch.
+The injected MCP discovery experiment stalled at startup and was removed;
+this wave makes no discovery qualification claim. Both live delivery holds
+remain untouched, and no live provider was contacted.
+
+Independent source review reports zero required findings. Independent policy
+review permits reviewer-accepted measured new file identities while preserving
+every existing package/file floor, uncovered count, tier, epsilon, exemption
+and follow-up. The canonical writer replaces whole measured package rows, so
+its output must be narrowed and structurally checked. Numerical row acceptance
+and a hosted ratchet pass remain separate from the passing test-source review.
+
+The final canonical measurement completed with 5,976 CLI cases passing and
+five existing skips, plus all 60 provider-package cases passing. The writer's
+full output was narrowed to exactly 13 new identities: 156 inserted lines and
+no deleted lines. A structural comparison preserved every prior package/file
+row and policy value. Independent review checked all 52 percentages and 52
+uncovered counts against the direct package summaries and accepted these rows
+with zero required findings. The canonical comparison function then passed
+both packages with epsilon 0.001 against the narrowed baseline.
+
+The writer retains legacy provenance fields in the baseline. Fresh evidence
+comes from the canonical run, direct summaries and unchanged test-source
+hashes; those legacy fields are not a claim of a new run. Hosted comparison
+on the final published head remains the readiness gate. Main's corpus fix
+has merged as #1627; #1629 owns the newer Goals status-constant examples.
+
+The subsequent cheap-gate pass attempt found two introduced Fallow complexity
+violations in the provider scenario matrix. Flattening the readback tuples and
+using explicit Match transformations retained all cases and assertions. Actual
+Fallow audit and health then passed with zero introduced complexity findings;
+types, Oxlint and quick package verification passed. Fresh V8 passed all 42
+session cases and reproduced every accepted metric for the five driver files
+exactly. Independent delta review found zero required findings and retained
+numerical admission. Production sources, fixtures and baseline rows did not
+change during this test-only repair.

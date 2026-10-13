@@ -46,18 +46,26 @@ const program = Effect.gen(function* () {
         } else if (frame.type === "user") {
           if (mode === "oversized")
             return yield* Stream.make(Str.repeat(1048577)("x")).pipe(Stream.run(stdio.stdout()));
+          if (mode === "no-init") {
+            yield* emit({ type: "result", subtype: "success", is_error: false, session_id: sessionId });
+            return;
+          }
           yield* emit({
             type: "system",
             subtype: "init",
             session_id: sessionId,
             model: "claude-opus-5-5",
-            permissionMode: "dontAsk",
+            permissionMode: mode === "wrong-policy" ? "default" : "dontAsk",
           });
+          if (mode === "control") {
+            yield* emit({ type: "control_request", request_id: "synthetic-denied", request: {} });
+          }
+          if (mode === "unknown") yield* emit({ unrelated: true });
           yield* emit({
             type: "result",
             subtype: "success",
-            is_error: false,
-            session_id: sessionId,
+            is_error: mode === "error",
+            session_id: mode === "wrong-session" ? "foreign" : sessionId,
             result: frame.message?.content ?? "",
           });
         }

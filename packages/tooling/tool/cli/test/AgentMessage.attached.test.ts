@@ -254,6 +254,118 @@ const fixture = Effect.fn("AttachedTest.driver")(function* (
 });
 
 it.layer(NodeServices.layer, { timeout: "30 seconds" })("Attached T3 and scoped peer boundaries", (it) => {
+  it.effect("refuses foreign host identity, workspace and non-idle enrollment before submission", () =>
+    Effect.forEach(
+      ["identity", "workspace", "not-idle"],
+      (scenario) =>
+        Effect.gen(function* () {
+          const state = yield* setup();
+          const foreignWorkspace = yield* state.fs.makeTempDirectoryScoped();
+          const { driver, sent } = yield* fixture(state, "ack");
+          const rejected = T3Code.of({
+            ...driver,
+            read: Effect.fn("AttachedTest.foreignRead")((threadId) =>
+              driver.read(threadId).pipe(
+                Effect.map((read) =>
+                  T3CodeRead.make({
+                    ...read,
+                    thread: {
+                      ...read.thread,
+                      projectId: scenario === "identity" ? "foreign" : read.thread.projectId,
+                      status: scenario === "not-idle" ? "failed" : read.thread.status,
+                    },
+                  })
+                )
+              )
+            ),
+            readProject: Effect.fn("AttachedTest.foreignProject")((projectId) =>
+              driver
+                .readProject(projectId)
+                .pipe(
+                  Effect.map((project) =>
+                    scenario === "workspace"
+                      ? T3CodeProject.make({ ...project, workspaceRoot: foreignWorkspace })
+                      : project
+                  )
+                )
+            ),
+          });
+          expect(
+            yield* verifyAttachedT3(state.profile, true).pipe(Effect.provideService(T3Code, rejected), Effect.flip)
+          ).toMatchObject({ _tag: "RouterError", code: "policyMismatch" });
+          expect(yield* Ref.get(sent)).toBe(0);
+        }),
+      { concurrency: 1 }
+    )
+  );
+
+  it.effect("refuses changed enrollment and receiving grant scope without exposing the queued task", () =>
+    Effect.forEach(
+      ["owner", "conversation"],
+      (scenario) =>
+        Effect.gen(function* () {
+          const state = yield* setup();
+          const { driver, sent } = yield* fixture(state, "ack");
+          const profile = AttachedT3Profile.make({
+            ...state.profile,
+            ownerId: scenario === "owner" ? "foreign-owner" : state.profile.ownerId,
+            conversationId: scenario === "conversation" ? O.some("foreign-conversation") : state.profile.conversationId,
+          });
+          const dispatch = yield* makeAttachedT3Dispatch(profile, state.directory).pipe(
+            Effect.provideService(AgentMessageStore, state.store),
+            Effect.provideService(T3Code, driver)
+          );
+          expect(yield* dispatch.submit(state.claim)).toBe("failed");
+          expect(yield* Ref.get(sent)).toBe(0);
+          expect(yield* state.store.receipts("incoming")).toHaveLength(2);
+        }),
+      { concurrency: 1 }
+    )
+  );
+
+  it.effect("retains ambiguity for a foreign submitted thread or missing exact-run evidence without resending", () =>
+    Effect.forEach(
+      ["foreign-submission", "missing-run"],
+      (scenario) =>
+        Effect.gen(function* () {
+          const state = yield* setup();
+          const { driver, sent } = yield* fixture(state, "ack");
+          const inconsistent = T3Code.of({
+            ...driver,
+            sendQueued: Effect.fn("AttachedTest.foreignSubmission")((threadId, text, requestKey) =>
+              driver
+                .sendQueued(threadId, text, requestKey)
+                .pipe(
+                  Effect.map((sent) =>
+                    scenario === "foreign-submission" ? T3CodeSend.make({ ...sent, threadId: "foreign-thread" }) : sent
+                  )
+                )
+            ),
+            read: Effect.fn("AttachedTest.missingRun")((threadId) =>
+              driver
+                .read(threadId)
+                .pipe(
+                  Effect.map((read) =>
+                    scenario === "missing-run" ? T3CodeRead.make({ ...read, recentRuns: [] }) : read
+                  )
+                )
+            ),
+          });
+          const dispatch = yield* makeAttachedT3Dispatch(state.profile, state.directory).pipe(
+            Effect.provideService(AgentMessageStore, state.store),
+            Effect.provideService(T3Code, inconsistent)
+          );
+          expect(yield* dispatch.submit(state.claim).pipe(Effect.flip)).toMatchObject({
+            _tag: "RouterError",
+            code: "policyMismatch",
+          });
+          expect(yield* Ref.get(sent)).toBe(1);
+          Utils.assertNone(yield* state.store.claimNext("b", "owner-b", state.now + 10, state.now + 20000));
+        }),
+      { concurrency: 1 }
+    )
+  );
+
   it.effect("requires scoped ACK and the exact settled native run", () =>
     Effect.gen(function* () {
       const state = yield* setup();

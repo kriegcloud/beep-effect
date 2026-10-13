@@ -317,3 +317,68 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
 - Action: retain the generated current locations and restore the unchanged
   reviewed status and reasons. The final inventory diff changes only two line
   numbers; no new exemption or relaxed numeric baseline is introduced.
+
+## 2026-10-13: first hosted coverage proof exposes missing file identities
+
+- Work: close PR #1571 after the inherited JSDoc source repair landed.
+- Evidence: the current-head coverage job completed successfully through test
+  execution, then rejected uncovered units in five provider session modules and
+  eight AgentMessage modules because they have no baseline file identity.
+  Strict compilation, both CLI shards, build and docgen passed on that head.
+- Prevention: include V8 coverage for new modules in their package handoff and
+  review the file identities before publication. Passing runtime tests alone
+  does not establish coverage admission.
+- Action: add deterministic tests for missing failure and lifecycle paths and
+  independently review coverage admission policy. Preserve existing coverage
+  floors, live delivery holds and provider isolation throughout the repair.
+
+## 2026-10-13: admission status buries the live capacity summary
+
+- Work: check local capacity before measuring the final coverage wave.
+- Evidence: `beep quality scheduler status` reported no admitted tokens and
+  usable capacity, followed by more than two thousand historical quarantine
+  entries. The diagnostic output exceeded the bounded tool response.
+- Prevention: show historical quarantine counts by default and reserve the
+  complete path inventory for an explicit detail option.
+- Action: retain the capacity result and leave historical scheduler state
+  untouched. No other session or proof was stopped.
+
+## 2026-10-13: a newer main export changes the JSDoc gate again
+
+- Work: wait for the shared corpus lint repair before integrating main.
+- Evidence: PR #1627 changed only a test file, but its JSDoc job reported
+  `missingExportExamples: 10 > 9 (+1)` on current main. Independent attribution
+  identified two public provider-status constants added by #1614 without
+  examples. The aggregate increase alone did not identify the offending export.
+- Prevention: include exact fresh inventory rows in a ratchet failure and
+  validate public exports before their owning PR lands.
+- Action: route both constants to the existing Goals projection owner, retain
+  source-bound attribution and preserve the JSDoc baseline. This lane does not
+  duplicate that owner's source edits or waive the inherited failure.
+
+## 2026-10-13: new identity admission requires narrowing whole-package output
+
+- Work: admit reviewed measurements for 13 new files while holding old floors.
+- Evidence: the scoped writer replaced two complete package rows, producing
+  a 3,208-line diff. Narrowing it to the reviewed identities produced 156
+  insertions with every previous metric and policy field unchanged; the
+  comparator passed both packages against that narrowed document.
+- Prevention: provide a typed writer mode that admits selected new identities
+  and rejects replacement of existing rows. Preserve fresh provenance rather
+  than retaining the legacy timestamp and commit fields.
+- Action: retain raw generated output and direct summaries, verify all new
+  values independently, and structurally assert preservation before publication.
+  No existing floor is lowered by this wave.
+
+## 2026-10-13: the publication gate catches branching in a test matrix
+
+- Work: run cheap gates after the coverage test wave and numerical review.
+- Evidence: 14 gates passed; Fallow audit and health rejected two introduced
+  complexity findings in the provider session suite. The invalid-profile case
+  setup used repeated conditional patches, and nested readback loops increased
+  complexity in the surrounding suite callback.
+- Prevention: express scenario setup as explicit transformations and flatten
+  readback cases before the test handoff; include Fallow in the initial review.
+- Action: retain every case and assertion, simplify the scenario structure,
+  rerun tests and V8 coverage, and recheck the actual Fallow gates. Do not add
+  suppressions or change complexity or coverage baselines.

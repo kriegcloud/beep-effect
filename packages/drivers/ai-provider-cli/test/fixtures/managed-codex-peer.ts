@@ -37,9 +37,12 @@ const main = Effect.scoped(
             code: -32600,
             errorMessage: "no rollout found before first turn",
           });
-        if (method === "thread/resume")
+        if (method === "thread/resume") {
+          if (mode === "malformed-resume") return {};
           return mode === "wrong-resume" ? { ...start, thread: { id: "foreign-thread" } } : start;
+        }
         if (method === "turn/start") {
+          if (mode === "malformed-turn") return {};
           hasTurn = true;
           count += 1;
           activeId = `owned-turn-${count}`;
@@ -53,7 +56,7 @@ const main = Effect.scoped(
           });
           yield* transport.notify("turn/completed", {
             threadId: "owned-thread",
-            turn: { id: activeId, status: "completed" },
+            turn: { id: activeId, status: mode === "failed-turn" ? "failed" : "completed" },
           });
           yield* transport.notify("turn/completed", {
             threadId: "owned-thread",
