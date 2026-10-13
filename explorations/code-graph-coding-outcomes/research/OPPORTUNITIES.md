@@ -692,3 +692,18 @@ include the actual privilege metadata, and qualify each revision before a long
 run. The dated decision selects a reviewed bootstrap-only revision before any
 scored cells, preserving the frozen catalog and old requests. Receipt:
 `attempt11-bootstrap-offline-feasibility-closure-v1.json`.
+
+## Enforce read-only storage during interpreter recovery probes
+
+The fresh request-eleven strict preflight rejected six unlisted entries in the
+preserved system: four Python bytecode files and two cache directories. A private
+old-loader probe had used the owned Python library tree without disabling
+bytecode writes. The later bwrap probes mounted that tree read-only. No declared
+input was missing, and the full Collector had not started.
+
+Preserve the exact additions in a forensic backup and restore their original
+absence only after confirming that the two new directories contain no declared
+inputs or unrelated files. Recheck every declared input and require zero extras;
+do not amend the frozen inventory to accept probe artifacts. Future Python probes
+must disable bytecode generation and use read-only filesystem mounts wherever
+possible. Receipt: `attempt11-strict-system-unlisted-attribution-v1.json`.
