@@ -30,7 +30,6 @@ const JsonValue = S.fromJsonString(S.Json);
  * merge the two nodes, so a graph that contains it does not mean what its
  * author thinks it means.
  *
-
  * **Example** (Report a duplicate node identifier)
  *
  * ```ts
@@ -76,7 +75,6 @@ export class DuplicateNodeIdError extends S.TaggedError<DuplicateNodeIdError>($I
  * Unambiguous caller error: the flattened output would carry one term twice
  * with one of the two silently winning.
  *
-
  * **Example** (Report a colliding catch-all term)
  *
  * ```ts
@@ -118,7 +116,6 @@ export class ConflictingTermError extends S.TaggedError<ConflictingTermError>($I
 /**
  * Any node this package can place in a graph.
  *
-
  * **Example** (Validate a supported graph node)
  *
  * ```ts

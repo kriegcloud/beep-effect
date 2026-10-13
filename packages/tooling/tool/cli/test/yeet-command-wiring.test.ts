@@ -167,7 +167,7 @@ describe("yeet merge-loop command wiring", () => {
       yield* fs.writeFileString(`${root}/bun.lock`, "");
       yield* fs.writeFileString(
         `${root}/package.json`,
-        yield* S.encodeUnknownEffect(S.fromJsonString(S.Unknown))({ name: "yeet-command-fixture", workspaces: [] })
+        yield* S.encodeUnknownEffect(FixturePackageJson)({ name: "yeet-command-fixture", workspaces: [] })
       );
       const encoder = new TextEncoder();
       const handle = (output: string) =>
@@ -1060,3 +1060,4 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("publish readiness-monitor
     })
   );
 });
+const FixturePackageJson = S.fromJsonString(S.Unknown);
