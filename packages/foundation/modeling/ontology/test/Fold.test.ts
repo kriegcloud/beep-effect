@@ -714,22 +714,16 @@ describe("Ontology.fold FOLIO-derived module", () => {
       expect(toMarkdown(assembled)).toBe(toMarkdown(second));
       expect(toContext(assembled)).toEqual(toContext(second));
 
-      const claimClass = assembled.classes[0];
-      expect(claimClass?.iri).toBe("https://ns.beep.sh/ontology/Ontology.models/OWLClass");
-      const subClassOf = pipe(
-        claimClass?.predicates ?? [],
-        A.findFirst((predicate) => predicate.key === "sub_class_of"),
-        O.getOrUndefined
-      );
-      const parentClassOf = pipe(
-        claimClass?.predicates ?? [],
-        A.findFirst((predicate) => predicate.key === "parent_class_of"),
-        O.getOrUndefined
-      );
-      expect(subClassOf?.termIri).toBe("http://www.w3.org/2000/01/rdf-schema#subClassOf");
-      strictEqual(subClassOf?.reverse, false);
-      expect(parentClassOf?.termIri).toBe("http://www.w3.org/2000/01/rdf-schema#subClassOf");
-      strictEqual(parentClassOf?.reverse, true);
+      const claimClass = O.getOrThrow(A.head(assembled.classes));
+      strictEqual(claimClass.iri, "https://ns.beep.sh/ontology/Ontology.models/OWLClass");
+      const predicate = (key: string) =>
+        O.getOrThrow(A.findFirst(claimClass.predicates, (candidate) => candidate.key === key));
+      const subClassOf = predicate("sub_class_of");
+      const parentClassOf = predicate("parent_class_of");
+      strictEqual(subClassOf.termIri, "http://www.w3.org/2000/01/rdf-schema#subClassOf");
+      strictEqual(subClassOf.reverse, false);
+      strictEqual(parentClassOf.termIri, "http://www.w3.org/2000/01/rdf-schema#subClassOf");
+      strictEqual(parentClassOf.reverse, true);
     })
   );
 });
