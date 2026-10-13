@@ -133,6 +133,14 @@ export const DevEnginesSchema: S.Struct<{
 }).pipe($I.annoteSchema("DevEnginesSchema", { description: "The `devEngines` field schema, modeling runtime and package-manager constraints as optional DevEngine slots." }));
 
 /**
+ * Decoded value produced by {@link DevEnginesSchema}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type DevEnginesSchema = typeof DevEnginesSchema.Type;
+
+/**
  * The decoded `devEngines` field type.
  *
  * @public

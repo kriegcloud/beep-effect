@@ -51,7 +51,7 @@ const reUnicodeWhitespaceChar = /^\s/;
  * @since 0.0.0
  */
 export const DelimiterRun = S.Struct({
-	numdelims: S.Finite.annotateKey({ description: "Length of the delimiter run in UTF-16 code units." }),
+	numdelims: S.Int.check(S.isGreaterThanOrEqualTo(1)).annotateKey({ description: "Positive integer length of the delimiter run in UTF-16 code units." }),
 	canOpen: S.Boolean.annotateKey({ description: "Whether the run satisfies the opening flanking rule." }),
 	canClose: S.Boolean.annotateKey({ description: "Whether the run satisfies the closing flanking rule." }),
 }).annotate($I.annote("DelimiterRun", {
@@ -60,8 +60,6 @@ export const DelimiterRun = S.Struct({
 
 /**
  * The payload measured by {@link DelimiterRun}.
- *
- * **Details**
  *
  * @category type-level
  * @since 0.0.0
@@ -172,8 +170,6 @@ const handleDelim = (scanner: InlineScanner, cc: number): boolean => {
 
 /**
  * Consumes `*` and `_` runs for emphasis and strong emphasis pairing.
- *
- * **Details**
  *
  * **Example** (Register both emphasis markers)
  *

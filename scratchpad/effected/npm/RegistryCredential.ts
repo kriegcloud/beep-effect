@@ -30,8 +30,6 @@ export class InvalidBasicAuthUsernameError extends S.TaggedError<InvalidBasicAut
 /**
  * A bearer token — npm's `_authToken`, and the form every modern registry
  * documents first.
- *
- *
  * **Example** (Construct a redacted bearer credential)
  *
  * ```ts
@@ -41,7 +39,6 @@ export class InvalidBasicAuthUsernameError extends S.TaggedError<InvalidBasicAut
  * const credential = TokenCredential.make({ kind: "token", token: Redacted.make("example-token") });
  * console.log(credential.kind) // token
  * ```
- *
  * @public
  * @category schemas
  * @since 0.0.0
