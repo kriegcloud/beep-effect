@@ -873,5 +873,10 @@ Move live ruleset, desktop settings and held-main reads from the contents-only v
 | Retain the existing test transit graph. | A temporary upstream `deletedAt` column rename changed the law-practice-tables test dry-run hash from `adb33a6bd107efa3` to `03713802b97245f8`; the original bytes were restored. The current dependency graph already hashes upstream sources. | Revisit if a concrete upstream change leaves a downstream hash unchanged. |
 | Preserve the baked AMI receipt and both metric baselines. | Runner-image staleness is an advisory separate from the actual Syncpack red; rewriting the baked lock digest would invent image provenance. JSDoc reproduces eight real source regressions. Newer coverage stops on startup tests before measurement. | Refresh the image through the documented bake/canary path; repair source findings and collect complete current coverage rows. |
 | Keep dependency-review v5 intact while fixture filtering remains open. | The pinned action has no manifest-path exclusion in its inputs or configuration schema. A fictional exclusion would provide no protection; a filtered comparison integration needs a separately qualified implementation. | Add and prove a manifest-aware comparison implementation for `scratchpad/test/**/fixtures/**`. |
-
 | Restore Bun.spawn output streams in the Node test shim. | The local full coverage lane reproduces both hosted practice-kg startup failures because the root shim exposes no stderr or stdout. A real child-process witness and both startup cases pass after the repair. | Revert the shim and its focused regression test; the application refusal behavior stays unchanged. |
+
+### 2026-10-13 — RSC burndown run 4 decision
+
+| Decision | Reason and evidence | Reversal |
+| --- | --- | --- |
+| Give the effected lint gate an explicit Oxlint config extending the root config and admitting scratchpad paths. | Root `scratchpad/**` exclusion made `lint:effected jsonl` report no files and fail its canary check. The explicit config retains root rules and plugins and reports the expected canary diagnostic. | Revert the config and gate argument together. |

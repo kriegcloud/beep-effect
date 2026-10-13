@@ -180,8 +180,9 @@ and TURBO_CONCURRENCY=2; the lane unit retains MemoryHigh 36G / MemoryMax 40G.
   boundary so a hosted-only failure is diagnosable. Source documentation
   remediation remains open; the totals baseline is preserved.
 - Item 2: knowledge refs passes with zero live gated observations. Repo Sanity
-  currently fails Syncpack (root minimatch override and scratchpad smol-toml),
-  now aligned with a generated lockfile. Image staleness is a separate advisory:
+  failed Syncpack at base `6e390049ca` before the root minimatch override and
+  scratchpad smol-toml range alignment. Syncpack passes at head `b85d072730`
+  after those repairs and lockfile generation. Image staleness is a separate advisory:
   preserve the baked receipt until a real image/canary refresh.
 
 Attribution: main job 115443989798 names the current lint failures. #1592 owns
@@ -211,3 +212,29 @@ raw local logs are retained under `.beep/rsc-burndown/` (ignored).
 
 Reverse this wave by reverting its PR. No packet lifecycle state, image pin,
 coverage/JSDoc baseline, paid service, merge or retirement changes.
+
+## Run 4 review wave (2026-10-13)
+
+PR #1612 round 1 had three Minor threads. The effected lint gate now passes
+`.oxlintrc.effected.json` explicitly. It extends the root rules and plugin and
+admits scratchpad paths. Before this change, `lint:effected jsonl` reported no
+files and failed its missing-canary check; afterward its Oxlint step reports
+`oxlint clean (canary flagged)`. The Syncpack receipt now names failing base
+`6e390049ca` and passing head `b85d072730`. The Bun.spawn decision row remains
+inside its table after removing the intervening blank line.
+
+The hosted JSDoc job 115466055746 exposes a broken YAML fixture symlink during
+`FileSystem.stat`. Run 4 retains that inherited red under S11; the shared CI
+repair lane owns the traversal repair. Its P0 inbox row is acknowledged with
+that attribution; the interrupted proof job result is acknowledged as observed.
+No JSDoc or coverage baseline changed. Qualification and publication results
+are in the worker report; raw run-4 logs are under `.beep/rsc-burndown/run4/`.
+Reverse this review wave by reverting its commit. No merge or retirement.
+
+Run-4 local proof: `bun run --cwd scratchpad lint:effected jsonl` exits 0,
+including Oxlint and all four law checks. `package-verify @beep/scratchpad
+--quick` exits 0 but skips both standard steps because this lab package has no
+`beep:lint` or `beep:check` script. The explicit runner check and collected
+cheap-gate outcomes are recorded separately in the final worker report.
+The explicit `check:effected runner` also exits 0, including live Effect
+canary diagnostics, editor tsgo 0.51.1 and the workspace tsgo check.
