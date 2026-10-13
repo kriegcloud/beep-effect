@@ -203,7 +203,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })("quality a
         });
         const failingFs = FileSystem.FileSystem.of({
           ...fs,
-          stat: (target) => (target === source ? Effect.fail(failure) : fs.stat(target)),
+          stat: Effect.fn("FileSystem.FileSystem.stat")((target) =>
+            target === source ? Effect.fail(failure) : fs.stat(target)
+          ),
         });
         const error = yield* listSourceFiles(root, path).pipe(
           Effect.provideService(FileSystem.FileSystem, failingFs),

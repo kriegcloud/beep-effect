@@ -1016,3 +1016,16 @@ The run-3 `beep-heavy bun run beep lint policy --full` retry reached 32G and was
 ### 2026-10-13 — Node/V8 Bun.spawn shim drops output streams
 
 Coverage job 114132486598 and the local full coverage attempt both fail the two practice-kg startup assertions at `apps/practice-kg-mcp/test/Host.test.ts:462`: expected the sanitized refusal, received an empty string. The root `vitest.setup.ts` Node shim returns only `exited` from `Bun.spawn`; its absent stderr becomes an empty Response body. Return both piped Web streams, preserve the exit promise, and pin the contract with `vitest-bun-spawn.test.ts`. The focused startup rerun passes both cases. This repairs the measurement precondition; it does not establish a successful full coverage rerun or authorize lowering a floor.
+
+## 2026-10-13: quick package checks missed strict test diagnostics
+
+- Work: publish the shared inventory and drawing repairs in PR #1617.
+- Evidence: hosted Check job `115506076889` reported TS377047 at
+  `quality-artifact-generators.test.ts:206`; the new filesystem stat callback
+  requires the reusable `Effect.fn` form. Focused execution and quick package
+  lint/check had passed without exercising this strict test compiler gate.
+- Prevention: run `bun run beep quality test-tsgo` on test repairs and inspect
+  the actual compiler result before declaring the source final.
+- Action: return the PR to draft, correct the callback idiom, run focused and
+  strict compiler proof, and publish one corrective wave. Keep the inherited
+  JSDoc source findings in #1618 separate; do not adjust any baseline.
