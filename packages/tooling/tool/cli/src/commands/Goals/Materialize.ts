@@ -24,6 +24,7 @@
 
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
+import { Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
@@ -298,3 +299,67 @@ export const writeReviewedPlan = Effect.fn("Goals.writeReviewedPlan")(function* 
   yield* Console.log(Str.trimEnd(canonicalJsonTextPretty(encoded)));
   return receipt;
 });
+
+/**
+ * `--write`: replay a reviewed plan. Shared by `goals bootstrap` and `goals adopt`.
+ *
+ * **Example** (Read the flag)
+ *
+ * ```ts
+ * import { materializeWriteFlag } from "@beep/repo-cli/commands/Goals/Materialize"
+ *
+ * console.log(typeof materializeWriteFlag) // "object"
+ * ```
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export const materializeWriteFlag = Flag.Boolean("write").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Replay the reviewed plan named by --expect; never writes a plan you have not reviewed")
+);
+
+/**
+ * `--expect <planId>`: the reviewed plan id a `--write` must match.
+ *
+ * **Example** (Read the flag)
+ *
+ * ```ts
+ * import { materializeExpectFlag } from "@beep/repo-cli/commands/Goals/Materialize"
+ *
+ * console.log(typeof materializeExpectFlag) // "object"
+ * ```
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export const materializeExpectFlag = Flag.String("expect").pipe(
+  Flag.optional,
+  Flag.withDescription("The reviewed planId (goal-plan/v1:...) that --write must match")
+);
+
+/**
+ * Refuses unless exactly one of `--plan` or `--write` was passed.
+ *
+ * **Example** (Build the guard effect)
+ *
+ * ```ts
+ * import { requireOneMode } from "@beep/repo-cli/commands/Goals/Materialize"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(requireOneMode({ plan: true, write: false }))) // true
+ * ```
+ *
+ * @param options - The parsed `--plan` and `--write` flags.
+ * @returns Succeeds when exactly one mode is selected.
+ * @category commands
+ * @since 0.0.0
+ */
+export const requireOneMode = (options: { readonly plan: boolean; readonly write: boolean }) =>
+  options.plan === options.write
+    ? Effect.fail(
+        GoalPlanInputError.new(
+          "Pass exactly one of --plan (review the plan) or --write --expect <planId> (replay a reviewed plan)."
+        )
+      )
+    : Effect.void;

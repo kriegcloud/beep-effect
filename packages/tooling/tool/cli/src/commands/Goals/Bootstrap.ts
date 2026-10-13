@@ -35,7 +35,7 @@ import {
 import { GoalPlanInputError, GoalPlanOperationalError } from "./Goals.errors.ts";
 import { isCapabilitySlug } from "./Goals.schemas.ts";
 import { listGoalPackets } from "./Inventory.ts";
-import { writeReviewedPlan } from "./Materialize.ts";
+import { materializeExpectFlag, materializeWriteFlag, requireOneMode, writeReviewedPlan } from "./Materialize.ts";
 import { canonicalJsonText, canonicalJsonTextPretty, sha256Hex } from "./PacketCore/PacketDigest.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as PlatformError from "effect/PlatformError";
@@ -856,14 +856,6 @@ const planFlag = Flag.Boolean("plan").pipe(
   Flag.withDefault(false),
   Flag.withDescription("Compile and print the materialization plan for review")
 );
-const writeFlag = Flag.Boolean("write").pipe(
-  Flag.withDefault(false),
-  Flag.withDescription("Replay the reviewed plan named by --expect; never writes a plan you have not reviewed")
-);
-const expectFlag = Flag.String("expect").pipe(
-  Flag.optional,
-  Flag.withDescription("The reviewed planId (goal-plan/v1:...) that --write must match")
-);
 const jsonFlag = Flag.Boolean("json").pipe(
   Flag.withDefault(false),
   Flag.withDescription("Print the plan as canonical JSON")
@@ -951,11 +943,7 @@ const runBootstrapPlan = Effect.fn("Goals.runBootstrapPlan")(function* (options:
   readonly write: boolean;
   readonly expect: O.Option<string>;
 }) {
-  if (options.plan === options.write) {
-    return yield* GoalPlanInputError.new(
-      "Pass exactly one of --plan (review the plan) or --write --expect <planId> (replay a reviewed plan)."
-    );
-  }
+  yield* requireOneMode(options);
   const slug = yield* decodeSlug(options.slug);
   const provides = yield* parseCapabilityList("provides", options.provides);
   const requires = yield* parseCapabilityList("requires", options.requires);
@@ -1017,8 +1005,8 @@ export const goalsBootstrapCommand = Command.make(
     today: todayFlag,
     plan: planFlag,
     json: jsonFlag,
-    write: writeFlag,
-    expect: expectFlag,
+    write: materializeWriteFlag,
+    expect: materializeExpectFlag,
   },
   Effect.fn(function* (options) {
     return yield* runBootstrapPlan(options).pipe(
