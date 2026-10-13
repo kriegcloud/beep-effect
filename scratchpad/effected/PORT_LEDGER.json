@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "spdx",
+    "module": "templates",
     "stage": 5,
     "commit": null,
-    "at": "2026-10-13T23:35:36.483Z"
+    "at": "2026-10-13T23:39:31.815Z"
   },
   "rows": [
     {
@@ -6283,8 +6283,8 @@
       "module": "templates",
       "wave": 1,
       "position": 11,
-      "stage": 3,
-      "status": "in-progress",
+      "stage": 5,
+      "status": "done",
       "provisionalHome": "tooling/library",
       "upstreamPaths": {
         "src": "packages/templates/src",
@@ -6685,6 +6685,14 @@
         },
         {
           "stage": 2,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 3,
+          "sha": "37513ce1d6a26cc5ca5fa45441010a56e173c8f8"
+        },
+        {
+          "stage": 4,
           "sha": null
         }
       ],
@@ -6692,9 +6700,11 @@
       "notes": [
         "2026-10-09T11:20:15.976Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
         "2026-10-09T16:18:40.317Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
-        "2026-10-09T23:46:45.226Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (1 ledgered exceptions), property floor"
+        "2026-10-09T23:46:45.226Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (1 ledgered exceptions), property floor",
+        "2026-10-13T23:39:28.611Z S4: S4 closed at review round 3 (operator cap: three rounds)",
+        "2026-10-13T23:39:31.815Z S5: done: final round committed and gated (audit, docgen, per-file coverage)"
       ],
-      "closedAt": null
+      "closedAt": "2026-10-13T23:39:31.815Z"
     },
     {
       "id": "w1-env",
