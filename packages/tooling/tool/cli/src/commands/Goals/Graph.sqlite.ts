@@ -30,6 +30,7 @@ import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
 import { GoalGraphOperationalError } from "./Goals.errors.ts";
 import { CapabilitySlug } from "./Goals.schemas.ts";
@@ -137,8 +138,27 @@ const SlugRows = S.Array(S.Struct({ slug: S.String }));
 const CycleRows = S.Array(S.Struct({ member: S.String, root: S.String }));
 const WalkRows = S.Array(S.Struct({ target: S.String, slug: S.String, depth: S.Int }));
 
-const causeMessage = (cause: unknown): string =>
-  P.hasProperty(cause, "message") && P.isString(cause.message) ? cause.message : String(cause);
+const CAUSE_CHAIN_DEPTH = 5;
+
+const ownMessage = (cause: unknown): O.Option<string> =>
+  P.hasProperty(cause, "message") && P.isString(cause.message) && Str.isNonEmpty(cause.message)
+    ? O.some(cause.message)
+    : O.none();
+
+// SqlError's own message is generic ("Failed to execute statement"); the driver's
+// text (e.g. "FOREIGN KEY constraint failed") sits further down the cause chain.
+const causeMessages = (cause: unknown, depth: number): ReadonlyArray<string> =>
+  depth >= CAUSE_CHAIN_DEPTH || P.isNullish(cause)
+    ? []
+    : [
+        ...O.toArray(ownMessage(cause)),
+        ...causeMessages(P.hasProperty(cause, "cause") ? cause.cause : undefined, depth + 1),
+      ];
+
+const causeMessage = (cause: unknown): string => {
+  const messages = A.dedupe(causeMessages(cause, 0));
+  return A.isReadonlyArrayNonEmpty(messages) ? A.join(messages, ": ") : String(cause);
+};
 
 const engineError = (cause: unknown): GoalGraphOperationalError =>
   GoalGraphOperationalError.make({

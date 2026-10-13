@@ -314,9 +314,8 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
           requires: [],
           duplicates: [],
         });
-        const exit = yield* Effect.exit(runCapabilityGraph(dangling));
-        exit.pipe(Exit.isFailure, assertTrue);
-        expect(String(exit)).toMatch(/engine failed: .*FOREIGN KEY/i);
+        const error = yield* Effect.flip(runCapabilityGraph(dangling));
+        expect(error.message).toMatch(/^The in-memory capability-graph engine failed: .*FOREIGN KEY/i);
       })
     );
 
