@@ -24,6 +24,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { CapabilitySlug, GoalStatus } from "./Goals.schemas.ts";
 
@@ -211,6 +212,17 @@ export class DuplicateCapabilityDeclaration extends S.Class<DuplicateCapabilityD
   })
 ) {}
 
+const UniquePacketIdsCheck = S.makeFilter(
+  (projection: { readonly packets: ReadonlyArray<GraphPacketRow> }) =>
+    A.length(A.dedupe(A.map(projection.packets, (packet) => packet.packetId))) === A.length(projection.packets),
+  {
+    identifier: $I`CapabilityProjectionUniquePacketIdsCheck`,
+    title: "Capability Projection Unique Packet Ids",
+    description: "Every packet row in a capability projection has a distinct packet id.",
+    message: "A capability projection cannot contain a duplicate packet id",
+  }
+);
+
 /**
  * The normalized capability projection compiled from decoded manifests.
  *
@@ -219,7 +231,9 @@ export class DuplicateCapabilityDeclaration extends S.Class<DuplicateCapabilityD
  * Every array is sorted and duplicate-free: `packets` by id, `capabilities`
  * lexically, `provides` by capability then packet, `requires` by packet then
  * capability, `duplicates` by packet, edge kind, then capability. Discovery
- * order never changes the value.
+ * order never changes the value. Packet ids must be unique; a projection with
+ * a repeated id is rejected at construction, because "last status wins" would
+ * make the answers depend on input order.
  *
  * **Example** (Construct an empty projection)
  *
@@ -240,13 +254,13 @@ export class DuplicateCapabilityDeclaration extends S.Class<DuplicateCapabilityD
  * @since 0.0.0
  */
 export class CapabilityProjection extends S.Class<CapabilityProjection>($I`CapabilityProjection`)(
-  {
+  S.Struct({
     packets: S.Array(GraphPacketRow),
     capabilities: S.Array(CapabilitySlug),
     provides: S.Array(GraphCapabilityEdge),
     requires: S.Array(GraphCapabilityEdge),
     duplicates: S.Array(DuplicateCapabilityDeclaration),
-  },
+  }).check(UniquePacketIdsCheck),
   $I.annote("CapabilityProjection", {
     description: "Sorted, duplicate-free packet and capability rows compiled from decoded goal manifests.",
   })

@@ -137,7 +137,14 @@ const SlugRows = S.Array(S.Struct({ slug: S.String }));
 const CycleRows = S.Array(S.Struct({ member: S.String, root: S.String }));
 const WalkRows = S.Array(S.Struct({ target: S.String, slug: S.String, depth: S.Int }));
 
-const engineError = GoalGraphOperationalError.new("The in-memory capability-graph engine failed.");
+const causeMessage = (cause: unknown): string =>
+  P.hasProperty(cause, "message") && P.isString(cause.message) ? cause.message : String(cause);
+
+const engineError = (cause: unknown): GoalGraphOperationalError =>
+  GoalGraphOperationalError.make({
+    message: `The in-memory capability-graph engine failed: ${causeMessage(cause)}`,
+    cause,
+  });
 
 const isGraphError = S.is(GoalGraphOperationalError);
 

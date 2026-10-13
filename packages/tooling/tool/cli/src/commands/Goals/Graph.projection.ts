@@ -121,6 +121,13 @@ const packetRow = (manifest: GoalManifest): GraphPacketRow =>
  * {@link DuplicateCapabilityDeclaration}; two packets providing one capability
  * stay two edges (a collision, never last-write-wins).
  *
+ * **Gotchas**
+ *
+ * Packet ids must be unique. Two manifests with the same `initiative.id`
+ * throw a `SchemaError` from the projection's construction check in every
+ * input order. The census loader prevents this upstream by requiring each
+ * id to match its directory.
+ *
  * **Example** (Compile one provider and one consumer)
  *
  * ```ts

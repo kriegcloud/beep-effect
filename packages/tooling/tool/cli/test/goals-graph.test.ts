@@ -12,6 +12,7 @@ import {
   GoalFrontierReport,
   GoalManifest,
   GoalStatus,
+  GraphCapabilityEdge,
   goalsCommand,
   loadCapabilityProjection,
   renderCatalogHuman,
@@ -34,7 +35,9 @@ import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
+import { ChildProcess } from "effect/process";
 import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { expectReportedExit, temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
@@ -137,6 +140,18 @@ const toSpecs = (census: typeof GeneratedCensus.Type): ReadonlyArray<PacketSpec>
     // GoalManifest rejects self-cycles (D6), so a generated packet never requires what it provides.
     requires: A.filter(packet.requires, (capability) => !A.contains(packet.provides, capability)),
   }));
+
+// Effect's ChildProcess runs under both Bun and the Node coverage workers.
+const gitPorcelain = Effect.fn("GoalsGraphTest.gitPorcelain")(function* (repoRoot: string) {
+  const handle = yield* ChildProcess.make("git", ["status", "--porcelain"], {
+    cwd: repoRoot,
+    stdin: "ignore",
+    stderr: "ignore",
+  });
+  const output = yield* handle.stdout.pipe(Stream.decodeText(), Stream.mkString);
+  strictEqual(yield* handle.exitCode, 0);
+  return output;
+});
 
 const explain = (projection: CapabilityProjection, answers: CapabilityGraphAnswers, slug: string) =>
   O.getOrThrow(buildExplainReport(projection, answers, slug));
@@ -272,6 +287,39 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
       })
     );
 
+    it.effect("rejects duplicate packet ids in every input order", () =>
+      Effect.gen(function* () {
+        const manifests = A.map(
+          [
+            { id: "pkt-a", status: "completed-retained" as const, provides: ["cap/x" as const] },
+            { id: "pkt-a", status: "active" as const },
+          ],
+          manifestOf
+        );
+        for (const order of [manifests, A.reverse(manifests)]) {
+          const exit = yield* Effect.exit(Effect.try(() => compileCapabilityProjection(order)));
+          exit.pipe(Exit.isFailure, assertTrue);
+          expect(String(exit)).toContain("duplicate packet id");
+        }
+      })
+    );
+
+    it.effect("surfaces the engine's own failure text instead of a fixed message", () =>
+      Effect.gen(function* () {
+        // A provides edge naming a packet that has no row violates the foreign key.
+        const dangling = CapabilityProjection.make({
+          packets: [],
+          capabilities: ["cap/x"],
+          provides: [GraphCapabilityEdge.make({ packetId: "pkt-ghost", capability: "cap/x" })],
+          requires: [],
+          duplicates: [],
+        });
+        const exit = yield* Effect.exit(runCapabilityGraph(dangling));
+        exit.pipe(Exit.isFailure, assertTrue);
+        expect(String(exit)).toMatch(/engine failed: .*FOREIGN KEY/i);
+      })
+    );
+
     it.effect("D7: the unlock walk routes through a non-execution-capable packet and annotates it", () =>
       Effect.gen(function* () {
         const { projection, answers } = yield* differential([
@@ -385,13 +433,7 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
       () =>
         Effect.gen(function* () {
           const repoRoot = yield* findRepoRoot();
-          const porcelain = (): string =>
-            Bun.spawnSync(["git", "status", "--porcelain"], {
-              cwd: repoRoot,
-              stdout: "pipe",
-              stderr: "pipe",
-            }).stdout.toString();
-          const before = porcelain();
+          const before = yield* gitPorcelain(repoRoot);
           const projection = yield* loadCapabilityProjection(repoRoot);
           const sql = yield* runCapabilityGraph(projection);
           strictEqual(yield* encodeAnswers(sql), yield* encodeAnswers(evaluateCapabilityGraph(projection)));
@@ -404,7 +446,7 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
               )
             );
           }
-          expect(porcelain()).toBe(before);
+          expect(yield* gitPorcelain(repoRoot)).toBe(before);
         }),
       60_000
     );
