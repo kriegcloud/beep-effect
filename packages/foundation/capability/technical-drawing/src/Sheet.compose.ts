@@ -422,12 +422,15 @@ export const composeSheet = (input: {
     A.length(input.shading) === 0
       ? []
       : [`<path id="shading" d="${pathOf(input.shading)}" ${attrsFor(options.shadingWeightMm * PT_PER_MM)}/>`];
-  return [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${r3(page.width)}pt" height="${r3(page.height)}pt" viewBox="0 0 ${r3(page.width)} ${r3(page.height)}">`,
-    `<path id="labels" d="${labelPath}" ${attrs}/>`,
-    ...shadingLayer,
-    `<path id="figure" d="${figurePath}" ${attrs}/>`,
-    "</svg>",
-    "",
-  ].join("\n");
+  return pipe(
+    [
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${r3(page.width)}pt" height="${r3(page.height)}pt" viewBox="0 0 ${r3(page.width)} ${r3(page.height)}">`,
+      `<path id="labels" d="${labelPath}" ${attrs}/>`,
+      ...shadingLayer,
+      `<path id="figure" d="${figurePath}" ${attrs}/>`,
+      "</svg>",
+      "",
+    ],
+    A.join("\n")
+  );
 };

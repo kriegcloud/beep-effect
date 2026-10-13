@@ -3,6 +3,7 @@ import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertInstanceOf } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -15,7 +16,7 @@ import * as TestConsole from "effect/testing/TestConsole";
 const runDrawings = Command.runWith(drawingsCommand, { version: "0.0.0" });
 const TestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 
-const logged = TestConsole.logLines.pipe(Effect.map((lines) => lines.join("\n")));
+const logged = TestConsole.logLines.pipe(Effect.map((lines) => A.join(A.map(lines, String), "\n")));
 
 describe("beep drawings command", () => {
   it.layer(TestLayer, { timeout: "60 seconds" })((it) => {
