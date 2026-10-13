@@ -9,13 +9,13 @@ digests while retaining the originals.
 
 ## Next action
 
-P1 is complete and PR6 #1611 is merged. Run 10 has launched the first of
-nine bounded P2 mail families under retained ceilings; zero families are
-sealed at the first transformation check. One detached family runs at a
-time. Its runtime policy matches its pre-launch freeze record. Continue
-from the dated handoff, reconcile acceptance, and wait 60 seconds before
-each next family; stop and diagnose the first failure. P2 remains incomplete.
-Retain both sealed P1 families and every P2 output and freeze record.
+P1 is complete. Run 11 reconciled accepted P2 family 1 and launched family 2
+under the unchanged frozen script, after renewed preflight and sixty seconds.
+One of nine bounded families sealed; only family 2 runs. Continue from the
+dated handoff, verify its seal and every child/repair pair/ceiling, then wait
+sixty seconds before the next ordinal. Stop and diagnose the first failure;
+never retry a sealed family. P2 remains incomplete. Retain all families,
+outputs and immutable freeze records.
 
 ## Launcher
 
@@ -41,6 +41,14 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-13 — First bounded P2 family accepted: one store, 3,785 accounted
+children (3,623 engine plus 81 repair-copy and 81 Tika children), zero warnings,
+exceptions or interruptions. Dispositions: 82 repaired occurrences / 81
+distinct digests, 233 unsupported, zero unchanged. Input 61,727,744 bytes;
+output 147,490,617 bytes (2.389373197x); attempt 769,470 ms, family 847,540 ms.
+All ceilings and frozen identities hold. Family 2 is active, seven unstarted;
+P2 remains in-progress. Both real smokes and four focused tests pass again.
 
 2026-10-10 — Fresh P1 slice sealed acceptance: one store pass, zero warnings,
 exceptions or interruptions, 3,339 accounted children (3,237 engine plus 51

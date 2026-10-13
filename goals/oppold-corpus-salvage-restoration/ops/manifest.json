@@ -10,7 +10,7 @@
   },
   "packetPath": "goals/oppold-corpus-salvage-restoration",
   "lifecycle": "active",
-  "statusNote": "2026-10-13: P0/P1/P4 complete; PR6 merged. Run 10 starts nine bounded mail families sequentially under retained ceilings. P2 in-progress, P3 pending, lifecycle active; remaining estate and recycle/DOC gates stay open.",
+  "statusNote": "2026-10-13: P0/P1/P4 complete; P2 in-progress. Run 11 reconciled accepted family 1 and launched family 2 with the frozen script after renewed preflight and sixty seconds; one of nine sealed, seven not launched. Remaining estate and recycle/DOC gates stay open; P3 pending, lifecycle active.",
   "mission": "Preserve and verify the current T7 salvage state, then restore mail, reconcile all three recycle volumes, and convert distinct legacy-Word digests with originals retained.",
   "executionCapable": true,
   "reflectionRequired": true,

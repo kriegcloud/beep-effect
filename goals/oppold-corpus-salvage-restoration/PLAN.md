@@ -250,3 +250,11 @@ and stop at the first failure. No source/engine/launcher changes inside
 the wave. Existing blockers about the absent public selector are historical:
 PR6 closes that precondition. Later estate, recycle and DOC obligations
 remain open; P3 remains pending. PR7 records the terminal wave outcome.
+
+
+**Run-11 progress 2026-10-13:** family 1 accepted and fully reconciled:
+3,785 children, zero warnings/exceptions, 2.389373197x amplification,
+769,470 ms attempt / 847,540 ms family. After renewed preflight and sixty
+seconds, family 2 is active under the same frozen launcher. One of nine
+sealed; seven not launched. Continue sequentially from the dated handoff,
+stop at the first failure, retain all sealed state. P2 remains incomplete.

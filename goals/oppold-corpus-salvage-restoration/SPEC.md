@@ -909,3 +909,23 @@ a sealed family. No engine or launcher code changes inside the wave.
 Reversal: revert the packet launch decision while retaining every family,
 ledger, output and freeze record. P2 remains incomplete until all estate,
 recycle and legacy-Word obligations close.
+
+
+### 2026-10-13: family 1 accepted; continue the frozen wave
+
+Run-11 resumes after family 1 ended with result zero and an accepted seal.
+All 3,785 children reconcile, including 81 repair-copy/Tika pairs; 82
+repaired occurrences, 233 unsupported dispositions, zero unchanged. There
+are no warnings, exceptions or interruptions. Input 61,727,744 bytes,
+output 147,490,617 bytes, amplification 2.389373197x; attempt 769,470 ms
+and family 847,540 ms remain within the retained ceilings. Source, policy,
+engine, membership and script identities match its pre-launch freeze record.
+
+Decision: continue to ordinal 2 after complete reconciliation, renewed
+preflight and a full sixty-second interval. Only its detached family unit
+runs; all subsequent ordinals remain gated on their predecessors' accepted
+reconciliation. Retain all nine immutable manifests and the unchanged
+launcher. Stop and diagnose the first failure, never retry a sealed family.
+Reversal: revert this packet continuation decision while retaining every
+ledger, output and manifest. P2 remains in-progress, with later estate,
+recycle and legacy-Word obligations open. No merge or new code is authorized.

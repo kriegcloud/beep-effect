@@ -55,3 +55,35 @@ P2 is in-progress and incomplete. Larger and stub-sized mail occurrences,
 non-PST dispositions, recycle and legacy-Word gates remain open.
 Reversal: revert packet decisions while retaining every run, ledger, output
 and freeze record. The active family is handed over without cancellation.
+
+
+## Run-11 — family 1 accepted, family 2 launched
+
+Family 1 sealed acceptance at 2026-10-13T19:29:58.274Z and reconciled before
+continuation. One store pass, expected/terminal one, unapproved zero; zero
+warnings, exceptions or interruptions. All 3,785 child rows reconcile:
+3,623 engine children, 81 repair-copy and 81 Tika children. Dispositions:
+82 repaired occurrences / 81 distinct digests, 233 unsupported, zero unchanged.
+Input 61,727,744 bytes; output and family disk usage 147,490,617 bytes;
+amplification 2.389373197x. Attempt 769,470 ms, family 847,540 ms; both
+output/time ceilings hold. Private log: two lines / 807 bytes, counts only.
+Ledger digest:
+6c9c70a6047bc894f2688a851ef8bbc5cd2cba99a1cdc984dff43bafec66ff67.
+The runtime policy equals its immutable pre-launch record.
+
+After successful reconciliation, renewed engine/source/script/membership
+checks, both real sandbox smokes, four focused passing tests and a full
+sixty-second wait, family 2 launched with the same frozen script and ordinal 2.
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-2.service.
+Started: 2026-10-13T19:35:45.651Z. Free bytes immediately before launch:
+232,788,058,112, above the 100,000,000,000 floor.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-02/ledgers/mail/slice.jsonl`.
+One of nine families sealed; family 2 active, seven not launched. There is
+no second concurrent family and no source/engine/launcher change in the wave.
+Continue only after accepted seal, complete child/repair-pair reconciliation,
+ceiling and frozen-contract checks, then sixty seconds before the next ordinal.
+Stop and diagnose the first failure; never retry a sealed family.
+P2 remains incomplete; eighteen larger occurrences and the other estate,
+recycle and legacy-Word gates remain open. Reversal: revert packet decisions
+while retaining all immutable families, outputs and freeze records.
