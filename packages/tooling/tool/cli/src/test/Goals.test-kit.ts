@@ -13,6 +13,7 @@ export * from "@beep/repo-cli/commands/Goals/Goals.command";
 export * from "@beep/repo-cli/commands/Goals/Goals.errors";
 export * from "@beep/repo-cli/commands/Goals/Goals.schemas";
 export * from "@beep/repo-cli/commands/Goals/Graph";
+export * from "@beep/repo-cli/commands/Goals/Graph.mermaid";
 export * from "@beep/repo-cli/commands/Goals/Graph.projection";
 export * from "@beep/repo-cli/commands/Goals/Graph.schemas";
 export * from "@beep/repo-cli/commands/Goals/Graph.sqlite";

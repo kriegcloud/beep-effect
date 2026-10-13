@@ -55,6 +55,13 @@ export * from "./Goals.errors.ts";
  */
 export * from "./Goals.schemas.ts";
 /**
+ * Mermaid capability-graph section for goals/INDEX.md.
+ *
+ * @category formatting
+ * @since 0.0.0
+ */
+export * from "./Graph.mermaid.ts";
+/**
  * Pure capability projection compiler, reference evaluator, and reports.
  *
  * @category utilities
