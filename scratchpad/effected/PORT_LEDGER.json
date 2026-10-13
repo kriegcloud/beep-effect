@@ -3641,6 +3641,24 @@
           "upstreamBehaviour": "Overflowing endpoint or step arithmetic can compute NaN (Infinity minus Infinity or Infinity divided by Infinity). NaN bypasses total > max, allowing endpoint-driven generation to hang or return members without a valid count.",
           "labBehaviour": "Non-finite computed counts are normalized to positive Infinity and rejected before generation with ExpansionBudgetExceeded, the configured limit and actual Infinity; facade Result and Effect forms carry GlobPatternError.",
           "reason": "upstream-bug: the pinned oracle at braceExpansion.ts:237-244 compares an unchecked arithmetic count with max; NaN > max is false. The diff validates count with S.Finite, and four overflow regressions assert typed Infinity failures through expansion, Minimatch, GlobPattern and GlobSet. Existing typed handling of positive-Infinity counts is preserved."
+        },
+        {
+          "test": "scratchpad/test/glob/engine.test.ts:287,298; scratchpad/test/glob/hostility.test.ts:176",
+          "upstreamBehaviour": "Matching *(a|aa)b uses an anchored native regexp; a failing a-prefix has Fibonacci-many decompositions. Parsed regexp segments expose _src and _glob metadata without a separate segment evaluator.",
+          "labBehaviour": "Repeated extglobs carry an optional _matchSegment predicate on MMRegExp, dispatched by Minimatch. Owner-local memoized AST states and reachable offsets avoid exponential decomposition while preserving regexp source and metadata; direct RegExp.test still uses the native regexp.",
+          "reason": "upstream-bug: sol-3-2 measured rising lab and pinned-oracle times for failing prefixes of lengths 26-38 and established Fibonacci-many backtracking paths. The diff adds memoized matching, oracle-parity cases, metadata assertions and a two-second subprocess regression for 1,000-character candidates."
+        },
+        {
+          "test": "scratchpad/test/glob/braceExpansion.test.ts:297,318; scratchpad/test/glob/hostility.test.ts:185",
+          "upstreamBehaviour": "Expanding 32 sibling {1..1000} ranges with max 1000 materializes 32,000 intermediate members before ExpansionBudgetExceeded reports actual 32000. Sibling arrays and suffix products are accumulated before parent rejection.",
+          "labBehaviour": "Lazy brace generation rejects on the first excess emitted output with actual max plus one, so the example reports 1001 and retains at most 1000 pushed output members. Within-budget order and empty filtering are preserved; numeric pre-loop count and Infinity failures remain.",
+          "reason": "upstream-bug: sol-3-3 reports pinned-oracle push instrumentation showing 32,000 intermediate members and Theta(kB) sibling storage. The diff removes sibling materialization and adds allocation assertions, boundary/suffix/empty-member parity and a watchdog asserting actual 1001."
+        },
+        {
+          "test": "scratchpad/effected/glob/GlobPattern.ts:49,134,331; scratchpad/effected/glob/GlobSet.ts:89; scratchpad/effected/glob/internal/limits.ts:29,228",
+          "upstreamBehaviour": "Facade schema classes omit a brand type argument; corresponding lab schema error classes also lacked it at HEAD. Structurally compatible values can satisfy unbranded class instance types.",
+          "labBehaviour": "Ten S.Class and S.TaggedError declarations now include a readonly unique-symbol brand type argument, distinguishing their instance types nominally. Schema fields and serialized payloads are unchanged.",
+          "reason": "tsgo-diagnostics: schemaClassMissingBrand (TS377141) requires a brand type argument to prevent structural substitution of class instances. The working-tree diff brands three GlobPattern classes, GlobSet and six internal errors; this nominal shape change is separate from the existing overload/factory/schema-guard deviation."
         }
       ],
       "backlog": [
@@ -3751,6 +3769,24 @@
             "fable": {
               "required": 3,
               "backlog": 1
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
             }
           }
         }
