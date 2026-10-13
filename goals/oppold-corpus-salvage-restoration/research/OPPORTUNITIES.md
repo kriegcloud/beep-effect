@@ -371,3 +371,230 @@ inventory surfaces match main. The inherited-fence ruling authorizes direct
 push plus PR creation, ready and bounded monitoring. Attribution-aware
 publication would avoid requiring that fallback for aggregate failure evidence.
 No unrelated source or inventory baseline was changed.
+
+### 2026-10-10: duplicate attachments repeat volatile Tika metadata
+
+- Work: diagnose the sealed P1 `engine-failure` without changing its ledger.
+- Evidence: 33 dispositions, 11 copies and 11 text children; the next attachment
+  repeats a repaired digest. Two exact-sandbox invocations exited 0, differed in
+  one parser-duration field, and retained identical extracted content. A synthetic
+  duplicate fixture with varying parser output fails before the fix and passes
+  after first-evidence reuse.
+- Prevention: content-addressed extraction should retain the first successful
+  result per digest; a duplicate fixture must include volatile parser metadata
+  rather than only fixed stub text. Preserve the first evidence, validate
+  containment and nonempty bytes, and hash its final child normally.
+- Attribution: engine defect; no source corruption or sandbox failure established.
+- Reversal: revert the engine-fix PR and retain both run trees. The original
+  sealed failure remains immutable; only the orchestrator authorizes a fresh family.
+
+### 2026-10-10: fresh-family authority has no independent output label
+
+- Work: prepare the run-4 authorized fresh ledger while retaining the sealed run.
+- Evidence: `prepareTransformationRun` passes the same `runLabel` into archive
+  verification and preservation selection, and joins it into the transformation
+  run root. The public `restore-mail` command has no independent transformation
+  label. A new label selects an absent preservation archive; the original label
+  selects a terminal immutable ledger.
+- Prevention: model preservation identity separately from transformation-family
+  identity before offering a fresh-family recovery route. Test both families
+  against one sealed archive while preserving the first terminal ledger.
+- Disposition: publish the proven engine fix; stop the fresh launch without a new
+  flag, archive alias, or hand-authored run state. The brief reserves expansion
+  beyond the bounded fix for the orchestrator.
+- Reversal: no live state was added. A scoped contract ruling can authorize the
+  separate label and its schema/command/reconciliation tests.
+
+### 2026-10-10: run-4 publication repeats inherited inventory fences
+
+- Evidence: Yeet committed the reviewed update, then
+  `github-checks:cheap-gates: failed 2 step(s)`:
+  `lint:schema-first: exit 1`, `lint:effect-vitest: exit 1`. Nothing pushed.
+  Fourteen other cheap gates pass. Five schema entries and one PracticeKg
+  projections entry belong to source files matching main.
+- Disposition: use the standing inherited-fence direct-push and labelled-PR
+  fallback, authorized again by run 4. The orchestrator owns consolidated
+  burn-down under S11; no lane baseline or CI setting is changed.
+- Prevention: classify inherited inventory before publication admission so a
+  scoped repair lane does not repeatedly stop on unrelated debt.
+- Reversal: close the unmerged engine-fix PR and retain the immutable evidence.
+
+
+### 2026-10-10: receipt proof lacked user-bus variables
+
+Final receipt knowledge-reference verification failed before admission with
+"Failed to connect to user scope bus" because the noninteractive shell lacked
+`XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS`. No proof or corpus command ran.
+Retried the same beep-heavy command with the documented user-bus environment.
+Prevention: preserve those variables on every noninteractive heavy invocation.
+No configuration or unit file was changed.
+
+
+### 2026-10-10: inherited changeset graph stops hosted Repo Sanity
+
+Read completed job 114115190524 immediately through the Actions jobs logs API.
+Changeset-graph rejects private-workspace notes in
+`.changeset/effected-allowlist-drop.md` and `.changeset/jsonl-effect-first.md`;
+both match main and are untouched by this lane. Hosted Repo Sanity stops before
+its remaining checks. Attribution: inherited, orchestrator S11 burn-down owns it.
+Prevention: enforce private-workspace release-note policy before those notes land.
+No baseline, CI policy, changeset, or source repair was made here.
+
+
+### 2026-10-10: run-5 user-bus environment absent
+
+- Doing: starting the prescribed heavy package and parity commands.
+- Evidence: both wrappers refused before launching work because the user-bus
+  address and runtime directory were undefined. The workstation user manager
+  is available with the established explicit bus environment.
+- Prevention: export the user-manager environment in every lane harness,
+  including interactive resumption surfaces, before heavy admission.
+- Disposition: supplied the existing runtime and bus values per command; kept
+  the 32G cap and concurrency 2. No unit, home configuration or permissions changed.
+- Reversal: omit these per-command environment values after a harness forwards them.
+
+
+### 2026-10-10: three advisory rows survive the inherited-red burn-down
+
+- Doing: publishing the independent preservation selector as the run-5 wave.
+- Evidence: fifteen cheap gates pass; schema-first alone exits 1 on three
+  pre-existing codec-test property-coverage advisories. All finding files match
+  origin/main. Yeet reports "cheap-gates failed after creating the local commit;
+  nothing was pushed." The run's parity ratchet has zero introduced findings.
+- Prevention: inherited advisory attribution should permit scoped delivery
+  without repeating a complete publication scanner wave.
+- Disposition: follow the standing inherited-fence ruling: record the refusal,
+  commit owned receipts by name, and push the full addressed wave once to PR3.
+- Reversal: close PR3 and retain the packet and both immutable run directories.
+
+
+### 2026-10-10: merging during coverage mixed test and module revisions
+
+- Doing: incorporating #1605 while the full package coverage process was active.
+- Evidence: the new directory-removal regression failed with NotFound against
+  an older loaded module. Current source contains the recovery and both affected
+  files match main. A fresh run of the same V8 script passes all 31 tests.
+- Prevention: let an active proof finish or invalidate it before merging changes
+  in a package under test; restart the proof against one stable source revision.
+- Disposition: stopped and observed the contaminated wrapper, started fresh full
+  scoped coverage, and held the live launch. No source workaround or suppression.
+- Reversal: rerun the proof; no live corpus state was created.
+
+
+### 2026-10-10: the amended head reaches another inherited Repo Sanity fence
+
+- Doing: reading the completed hosted Repo Sanity red immediately from its job
+  endpoint while the overall workflow continues.
+- Evidence: job 114122237833 passes changeset-graph, config sync, boundaries
+  configuration and versions, then Syncpack fails on the minimatch override
+  (10.2.5 versus 10.2.6) and scratchpad smol-toml (1.9.0 versus ^1.9.0).
+  Package manifests, lockfile and Syncpack configuration have zero lane diff.
+- Prevention: run the same manifest-consistency check before calling the
+  inherited-red burn-down final, so it does not expose a second dependency fence.
+- Disposition: acknowledge as inherited under S11; the orchestrator owns repair.
+  No dependency, lockfile, rule or scope expansion is made.
+- Reversal: the acknowledgement can be superseded by the orchestrator's fix.
+
+### 2026-10-10: inherited hosted policy failures obscure the Corpus proof
+
+- Work: verify PR3 #1606 after the independent preservation label change.
+- Evidence: Heavy / Lint Policy job 114122483280 failed tsgo profile/directive rules,
+  30 hoist-schema oxlint errors, three schema test advisories, JSDoc inventory
+  generation, and two deprecated-API fixture project-service checks. The identified
+  failing files and configs match origin/main. JSDoc Ratchet job 114122237783 failed
+  inventory generation with the prior head's same failure class.
+- Attribution: inherited S11 orchestrator burn-down; rows acknowledged wontfix.
+  Local package verification, test-tsgo, and package docgen passed.
+- Prevention: burn down the inherited policy and hosted inventory defects once on
+  main, then propagate that head to dependent lanes. No unrelated repair in this lane.
+
+### 2026-10-10: accepted-slice documentation hits inherited schema advisories
+
+- Work: publish PR4's aggregate acceptance evidence and P1 flips.
+- Evidence: Yeet created the packet commit and refused before push with
+  `github-checks:cheap-gates: failed 1 step(s)`, `lint:schema-first: exit 1`,
+  and `yeet publish cheap-gates failed after creating the local commit; nothing
+  was pushed.` Fifteen other gates pass, including committed JSDoc, Effect-Vitest,
+  Knip and all Fallow blocking lanes.
+- Attribution: three pre-existing schema-codec test advisories; all three
+  affected files match origin/main. No source, inventory or CI changes here.
+- Disposition: use the standing inherited-fence fallback: named-path receipt
+  commit, direct push and labelled PR creation, then Yeet ready and bounded
+  monitoring. The orchestrator owns repair and S11 merge; the live acceptance
+  remains valid independent of inherited publication findings.
+- Prevention: give advisory inventory admission explicit inherited attribution,
+  then burn down those main findings once instead of duplicating lane repairs.
+- Reversal: close PR4 or supersede the disposition with the orchestrator repair;
+  retain both sealed families and aggregate evidence.
+
+
+## 2026-10-10: public home aliases changed a policy recomputation
+
+- Doing: answering PR4 #1609's policy-identity review thread before expansion.
+- Evidence: both immutable manifests and both persisted start rows have
+  `2bc3fc673c343ef6008b9b3bb1c85e000ac59239d345f3e50d4d08aaf6a5a2c8`.
+  Recomputing with the manifest's literal home alias gives
+  `1fcde5680cb42357e784ae4309cd05ce633999bc79b582479219ed07915d090e`;
+  expanding the alias as the launch script does reproduces the persisted hash.
+  The pre-launch commit contains every fresh frozen field except the explicitly
+  deferred policy hash. #1606 changes code identity, which this hash excludes.
+- Prevented by: document the ordered hash inputs, runtime home expansion, and
+  the separate original/fresh freeze-record associations beside acceptance.
+  Preserve public path hygiene and both immutable records. No code change or
+  new run is needed. Reversal: revert the clarification and reopen acceptance.
+
+## 2026-10-10: the inherited schema fence repeated on the correction wave
+
+- Doing: publishing the policy-identity clarification on existing PR4 #1609.
+- Evidence: 15 cheap gates passed; schema-first exited 1 on three pre-existing
+  schema-codec test advisories. All affected files match origin/main. Exact
+  refusal: `yeet publish cheap-gates failed after creating the local commit;
+  nothing was pushed.` The staged correction introduced no source finding.
+- Prevented by: main's orchestrator-owned schema advisory repair under S11.
+  Apply the already authorized inherited-fence fallback with one wave push;
+  do not change inventory, unrelated tests or CI. Reverse by closing/reverting
+  PR4's documentation changes, retaining both immutable execution records.
+
+
+## 2026-10-10: bounded expansion has no occurrence selector
+
+- Doing: run-8 preflight for up to ten distinct store families after merged P1.
+- Evidence: `selectMailCandidates` supports one fixed smallest recycle PST or
+  the whole estate; the public schema and flag inventory expose no store selector.
+  A fresh output label repeats P1, while expected-count changes alone fail the
+  denominator contract after the immutable start. Zero families were launched.
+- Prevention: verify a bounded occurrence-selection contract before authorizing
+  a sequential expansion wave. Include the selection in each freeze record.
+- Disposition: record the plan and stop before launch; orchestrator supplies
+  the contract or authorizes a scoped implementation. No corpus or code mutation.
+- Reversal: revert the plan, retaining both sealed P1 families and manifests.
+
+
+## 2026-10-10: inherited publication fence on P2 launch preflight
+
+- Doing: publishing the bounded P2 plan and the public-selector blocker.
+- Evidence: 15 of 16 collected cheap gates pass; schema-first exits 1 on the
+  same three schema-test advisories in files matching origin/main.
+  Exact refusal: `yeet publish cheap-gates failed after creating the local
+  commit; nothing was pushed.` No package source or inventory changed.
+- Prevention: consolidated main advisory repair under the orchestrator's S11.
+- Disposition: standing fence permits named receipt commit and one direct
+  wave push with labelled PR and ready; no CI or inventory waiver.
+- Reversal: close/revert the plan PR; retain both immutable P1 families.
+
+
+### 2026-10-10: independent ratio and family caps disagreed
+
+PR5 review found 539157504 × 4 exceeds 2147483648 by 9146368 bytes.
+Prevention: filter inputs against floor(family cap / ratio) before wave
+membership selection. Run-9 correction admits nine inputs at most 536870912
+bytes, largest 456877056; eighteen larger inputs wait. No family started.
+Reversal: revert the plan correction, retaining immutable P1 evidence.
+
+
+### 2026-10-10: PR5 membership correction repeats inherited fence
+
+Fifteen cheap gates pass; `lint:schema-first: exit 1` alone stops publication
+after the local commit. Three codec-test advisories match main. Use the standing
+direct-push fallback; consolidated main repair prevents this repeated scanner
+wave. Reversal: revert the correction, retaining sealed P1 evidence.
