@@ -511,10 +511,11 @@ const finishCreatedPullRequest = Effect.fn("Yeet.finishCreatedPullRequest")(func
   });
 });
 
-// `gh pr create` opens the PR against the repository default branch, so the
-// REST fallback reads that branch too. `--base` is the affected-planning base,
-// never the PR target: whether GraphQL was rate limited must not change where
-// the PR opens. A failed read is an error, not a guessed `main`.
+// Every new PR targets the repository default branch, read once through REST
+// and passed to both creation paths. Neither `--base` (the affected-planning
+// base) nor a `branch.<name>.gh-merge-base` setting may pick the target, and a
+// GraphQL rate limit must not change where the PR opens. A failed or empty read
+// is an error, not a guessed `main`.
 const resolveDefaultBranchViaRest = Effect.fn("Yeet.resolveDefaultBranchViaRest")(function* (
   context: RepoRunContext,
   capture: typeof runRepoCommandCapture
@@ -524,12 +525,20 @@ const resolveDefaultBranchViaRest = Effect.fn("Yeet.resolveDefaultBranchViaRest"
     ["api", "repos/{owner}/{repo}", "--jq", ".default_branch"],
     context.repoRoot
   ).pipe(Effect.mapError(YeetCommandError.new("Failed to read the repository default branch through GitHub REST.")));
-  const branch = Str.trim(result.output);
-  if (result.exitCode !== 0 || Str.isEmpty(branch)) {
+  const command = "gh api repos/{owner}/{repo} --jq .default_branch";
+  if (result.exitCode !== 0) {
     return yield* YeetCommandError.make({
       message: `GitHub REST default branch read failed:\n${result.output}`,
-      command: "gh api repos/{owner}/{repo} --jq .default_branch",
+      command,
       exitCode: result.exitCode,
+    });
+  }
+  const branch = Str.trim(result.output);
+  if (Str.isEmpty(branch)) {
+    return yield* YeetCommandError.make({
+      message: "GitHub REST default branch read returned no branch.",
+      command,
+      exitCode: 1,
     });
   }
   return branch;
@@ -541,7 +550,7 @@ const createPullRequestViaRest = Effect.fn("Yeet.createPullRequestViaRest")(func
   prStep: O.Option<RepoPlanStep>,
   capture: typeof runRepoCommandCapture,
   view: NonNullable<EnsurePullRequestDependencies["view"]>,
-  input: { readonly title: string; readonly bodyPath: string; readonly draft: boolean }
+  input: { readonly title: string; readonly bodyPath: string; readonly draft: boolean; readonly base: string }
 ): Effect.fn.Return<YeetEnsuredPullRequest, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
   const existing = yield* findOpenPullRequestViaRest(context);
   if (O.isSome(existing)) {
@@ -553,7 +562,6 @@ const createPullRequestViaRest = Effect.fn("Yeet.createPullRequestViaRest")(func
       created: false,
     });
   }
-  const base = yield* resolveDefaultBranchViaRest(context, capture);
   const headOwner = yield* originPushOwner(context);
   const rest = yield* capture(
     "gh",
@@ -567,7 +575,7 @@ const createPullRequestViaRest = Effect.fn("Yeet.createPullRequestViaRest")(func
       "-f",
       `head=${headOwner}:${context.branch}`,
       "-f",
-      `base=${base}`,
+      `base=${input.base}`,
       "-F",
       `body=@${input.bodyPath}`,
       "-F",
@@ -610,18 +618,24 @@ const createPullRequest = Effect.fn("Yeet.createPullRequest")(function* (
   const bodyPath = yield* runOutputPathForContext(context, "pr-body.md");
   yield* writeTextFile(bodyPath, yield* buildPrBody(context, recorder));
   const draft = O.exists(prStep, (step) => A.contains(step.args, "--draft"));
+  const base = yield* resolveDefaultBranchViaRest(context, capture);
   const result = yield* capture(
     "gh",
-    ["pr", "create", ...(draft ? ["--draft"] : []), "--title", title, "--body-file", bodyPath],
+    ["pr", "create", ...(draft ? ["--draft"] : []), "--base", base, "--title", title, "--body-file", bodyPath],
     context.repoRoot
   ).pipe(Effect.mapError(YeetCommandError.new("Failed to run gh pr create.")));
   if (result.exitCode !== 0) {
     if (isGraphQlRateLimitOutput(result.output)) {
-      return yield* createPullRequestViaRest(context, recorder, prStep, capture, view, { title, bodyPath, draft });
+      return yield* createPullRequestViaRest(context, recorder, prStep, capture, view, {
+        title,
+        bodyPath,
+        draft,
+        base,
+      });
     }
     return yield* YeetCommandError.make({
       message: `gh pr create failed:\n${result.output}`,
-      command: `gh pr create --title <subject> --body-file ${bodyPath}`,
+      command: `gh pr create --base ${base} --title <subject> --body-file ${bodyPath}`,
       exitCode: result.exitCode,
     });
   }
