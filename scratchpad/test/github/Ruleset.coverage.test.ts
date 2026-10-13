@@ -10,6 +10,8 @@ import { Ruleset } from "../../effected/github/Ruleset.ts";
 import { Repo } from "../../effected/github/Repo.ts";
 import { harness, REPO } from "./harness.ts";
 
+const DefectFields = S.Struct({ _tag: S.String, message: S.String });
+
 describe("Ruleset test-double behavior", () => {
   it.layer(Layer.mergeAll(Ruleset.layerTest(), Repo.layer(REPO)), { timeout: "30 seconds" })((it) => {
     it.effect("unstubbed operations name the missing member; list dies only when executed", () => Effect.gen(function* () {
@@ -22,7 +24,7 @@ describe("Ruleset test-double behavior", () => {
       const cause = yield* exit.pipe(Exit.getCause, Effect.fromOption);
       assertExitFailure(exit, cause);
       const defect = yield* cause.pipe(Cause.findDefect, Effect.fromResult);
-      assert.deepStrictEqual(yield* S.decodeUnknownEffect(S.Struct({ _tag: S.String, message: S.String }))(defect), {
+      assert.deepStrictEqual(yield* S.decodeUnknownEffect(DefectFields)(defect), {
         _tag: "UnstubbedError",
         message: "Ruleset.makeTest: list() was called but not stubbed — pass an override.",
       });
