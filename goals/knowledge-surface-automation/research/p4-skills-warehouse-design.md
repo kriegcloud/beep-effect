@@ -59,7 +59,7 @@ v1 file, because the 29 local skills would lose their installed-tree hash and
 4. **Patches are generated, then classified.** For a vendored skill whose installed
    tree differs from the pristine snapshot, migration emits one patch per drifted
    file under `.agents/skill-patches/<skill>/NNNN-<slug>.patch`, labelled
-   `temporary-drift`, owned by the repo owner, with drop condition "upstream
+   `temporary-drift`, owned by the CODEOWNERS owner of the skill's path (B9), with drop condition "upstream
    contains an equivalent change". Classification into `policy` / `repo-adaptation`
    is the first HITL hunk review (SPEC B); until then every generated patch carries
    the conservative label.
@@ -94,7 +94,7 @@ v1 file, because the 29 local skills would lose their installed-tree hash and
 - **Later:** `materialize` + the clearing-house equivalence check (P4); Renovate +
   hunk ledger (P5).
 
-## Decisions (B5–B9)
+## Decisions (B5–B10)
 
 - **B5 — tagged-union lock.** Reason: the 29 local skills need the same drift
   oracle, and one file is what Renovate and `update --check` already read. Reverse:
@@ -112,6 +112,11 @@ v1 file, because the 29 local skills would lose their installed-tree hash and
   shows floating `main` refetches are indistinguishable from local edits without
   classification, and would invalidate pins on every update. Reverse: allow
   floating refetch for skills explicitly marked `tracking: floating` in the lock.
-- **B9 — owner is the repo owner until a CODEOWNERS file exists** (the P1 report's
-  open question). Reason: no ownership policy exists to bind. Reverse: a CODEOWNERS
-  file plus a doctor check replaces the literal.
+- **B9 — patch owner resolves from `.github/CODEOWNERS`** at the merge-base, with
+  GitHub last-match semantics over the skill's installed path, exactly as the knowledge
+  doctor binds lease owners (K6). The file exists today (`* @kriegcloud`), so every
+  generated patch is owned by `@kriegcloud`; a PR cannot grant itself ownership because
+  the base copy is read. Reason: answers the P1 report's open question with the ownership
+  policy the repo already has, and keeps one owner-resolution rule across workstreams
+  (review on #1626). Reverse: a dedicated owner registry, if per-path ownership outgrows
+  CODEOWNERS.

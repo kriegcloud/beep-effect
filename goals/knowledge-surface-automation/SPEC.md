@@ -320,8 +320,8 @@ Each entry names its record, which carries the reason and the reversal path.
   resolutions migrate into the lock, plan/expect-digest writes, conservative patch
   labels, owner binding, drift classification + no floating refetch of vendored
   skills): `research/p4-skills-warehouse-design.md`.
-- 2026-10-13 — Workstream E executor E8–E10 (`--write` requires `--expect <planId>`,
-  claim-then-rename no-replace publish, printed receipts): `research/p4-goals-materialize-design.md`.
-- 2026-10-13 — Workstream C Stage-2 knowledge doctor K1–K10 (witness-mandatory
+- 2026-10-13 — Workstream E executor E8–E11 (`--write` requires `--expect <planId>`,
+  claim-then-rename no-replace publish, empty claims are abandoned, printed receipts): `research/p4-goals-materialize-design.md`.
+- 2026-10-13 — Workstream C Stage-2 knowledge doctor K1–K11 (witness-mandatory
   evaluators, byte-reproducible CI mint, non-laundering mint, CODEOWNERS-bound
-  leases, causal grouping): `research/p4-knowledge-doctor-design.md`.
+  leases, causal grouping, append-only promotions file): `research/p4-knowledge-doctor-design.md`.

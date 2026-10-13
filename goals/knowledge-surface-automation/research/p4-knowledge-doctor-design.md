@@ -97,7 +97,13 @@ Ground truth this design builds on:
      (iv) `verify-mint` byte-equality holds. This is C8 exactly.
 9. **The mint cannot launder.** Mint output = baselineable findings at the SHA,
    intersected with (previous keys ∪ findings of kinds promoted since the previous mint
-   ∪ everything, on the very first seal). Any other blocking finding at a main SHA makes
+   ∪ everything, on the very first seal). Promotions live outside the sealed file, in
+   `goals/knowledge-doctor.promotions.jsonc`: an append-only, human-reviewed list of
+   `{ kind, promotedAt, windowEvidence }`. A promotion PR edits only that file, never the
+   baseline, so the baseline stays byte-reproducible from (`mintedAt`, promotions as of
+   `mintedAt`). The mint reads the promotions file at its SHA. A feature branch that edits
+   or removes an existing promotion row is a blocking `baseline-tamper`; appending is the
+   only admitted change. Any other blocking finding at a main SHA makes
    the mint refuse with the list (`KnowledgeMintRefusal`). Leased or lease-expired
    findings are never minted.
 10. **Baseline keys use durable identity (C6 order).** The key is
@@ -175,7 +181,13 @@ export class KnowledgeBaselineEntry extends S.Class<KnowledgeBaselineEntry>(...)
 }) {}
 export class KnowledgeDoctorBaseline extends S.Class<KnowledgeDoctorBaseline>(...)({
   schemaVersion: S.tag("knowledge-doctor-baseline/v1"), mintedAt: KnowledgeCommitSha,
-  promotedKinds: S.Array(KnowledgeFindingKind), entries: S.Array(KnowledgeBaselineEntry), // sorted by key
+  entries: S.Array(KnowledgeBaselineEntry),                                     // sorted by key
+}) {}
+export class KnowledgeDoctorPromotion extends S.Class<KnowledgeDoctorPromotion>(...)({
+  kind: KnowledgeFindingKind, promotedAt: KnowledgeCommitSha, windowEvidence: S.String,
+}) {}
+export class KnowledgeDoctorPromotions extends S.Class<KnowledgeDoctorPromotions>(...)({
+  schemaVersion: S.tag("knowledge-doctor-promotions/v1"), promotions: S.Array(KnowledgeDoctorPromotion), // append-only
 }) {}
 export class KnowledgeDebtLease extends S.Class<KnowledgeDebtLease>(...)({
   key: KnowledgeBaselineKey, owner: S.String, reason: S.NonEmptyString,
@@ -302,10 +314,11 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   step reads `leases --json` (warning only).
 - **PR 5 (needs App token):** the mint workflow. Its first CI-generated baseline-only PR
   is the initial seal.
-- **Promotion PRs:** one per extraction form, each after its C7 window, appending to
-  `promotedKinds`. The next CI mint admits that kind's inherited keys.
+- **Promotion PRs:** one per extraction form, each after its C7 window, appending one
+  row to `goals/knowledge-doctor.promotions.jsonc` (never touching the sealed baseline).
+  The next CI mint reads the promotion at its SHA and admits that kind's inherited keys.
 
-## Decisions (K1..K10)
+## Decisions (K1..K11)
 
 - **K1 Witness-mandatory evaluators.** Reason: makes the counterfactual test total;
   vacuous passes cannot be represented. Reverse: if some evaluator legitimately cannot
@@ -346,3 +359,8 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   is a separate `knowledge-doctor/v1` digest over durable identity.** Reason: Stage-1
   `findingId` stays comparison-scoped and unchanged. Reverse: bump to
   `knowledge-finding/v2` if older consumers must reject Stage-2 reports.
+- **K11 Promotions live in their own append-only file.** Reason: contract 8 forbids any
+  non-mint edit to the sealed baseline and `verify-mint` must reproduce it byte for byte;
+  a `promotedKinds` field edited by promotion PRs would break the seal (review on #1626).
+  Reverse: fold promotions back into the baseline only if the mint App opens promotion PRs
+  itself.

@@ -30,7 +30,13 @@ not ship graduation, `ops/materialization.json`, rematerialization/capsules, the
       an empty directory atomically).
 
    On any failure the staging directory is removed, and the claimed directory too
-   if it is still empty. `goals/INDEX.md` is a disposable projection regenerated after
+   if it is still empty. A crash between the claim and the rename can still leave an
+   empty `goals/<slug>`. An empty directory carries no data, so it is an abandoned
+   claim, never a packet: publish removes an existing empty `goals/<slug>` with an
+   empty-only `rmdir` (which fails on any content) before claiming, and the inventory
+   scan skips empty slug directories, so a stale claim neither blocks a retry nor shows
+   up as a manifest-less packet (E11). A stale `goals/.staging-*` directory is swept the
+   same way at publish start. `goals/INDEX.md` is a disposable projection regenerated after
    publish (its `report` row is executed as `goals index --write`).
 4. **Adopt never overwrites.** Adoption `create` entries are written with exclusive-
    create (`flag: "wx"`): a file that appeared since planning fails the write, never
@@ -56,7 +62,7 @@ not ship graduation, `ops/materialization.json`, rematerialization/capsules, the
 - Self-hosting: adopt write of `knowledge-surface-automation` creates
   `research/.gitkeep` and nothing else.
 
-## Decisions (E8–E10)
+## Decisions (E8–E11)
 
 - **E8 — `--expect <planId>` is mandatory for `--write`.** Reason: plan/apply
   separation is the E design's core; a write without a reviewed id is the dry-run-
@@ -65,6 +71,11 @@ not ship graduation, `ops/materialization.json`, rematerialization/capsules, the
   no `RENAME_NOREPLACE`. A non-recursive `makeDirectory` claim plus rename onto the
   empty claim gives the same guarantee for concurrent creators. Reverse: switch to
   `renameat2(RENAME_NOREPLACE)` if a platform member appears.
+- **E11 — empty slug directories are abandoned claims.** Reason: a crash between claim
+  and rename otherwise leaves an empty `goals/<slug>` that the inventory scan counts as a
+  packet and that blocks every retry (review on #1626). An empty-only `rmdir` cannot
+  destroy data. Implementation rides the next E PR (the executor merged in #1632 without
+  it). Reverse: replace with a claim marker file if a platform no-replace rename appears.
 - **E10 — receipts printed, not yet persisted.** Reason: `ops/materialization.json`
   belongs with rematerialization/capsules (E-3), which needs per-region hashes the
   receipt does not have yet. Reverse: persist the receipt as-is in E-3.
