@@ -23,8 +23,10 @@ import {
   encodeSkillsLockV2Json,
   encodeSkillUpstream,
   findSkillResolutionSeed,
+  LocalSkillLockEntry,
   planSkillsLockMigration,
   resolveSkillProvenance,
+  SkillDriftRow,
   SkillGitRevision,
   SkillUpstreamContent,
   SkillUpstreamContentFile,
@@ -36,6 +38,7 @@ import { Sha256HexFromBytes } from "@beep/schema";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
@@ -261,6 +264,18 @@ const SKILLS_LOCK_V1_FIXTURE = `${JSON.stringify(
 )}\n`;
 
 layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) => {
+  it.effect.prop(
+    "round-trips schema-generated local lock entries and drift rows through their codecs",
+    [Arbitrary.schema(LocalSkillLockEntry), Arbitrary.schema(SkillDriftRow)],
+    Effect.fnUntraced(function* ([entry, drift]) {
+      expect(
+        yield* S.decodeEffect(LocalSkillLockEntry)(yield* S.encodeEffect(LocalSkillLockEntry)(entry))
+      ).toStrictEqual(entry);
+      expect(yield* S.decodeEffect(SkillDriftRow)(yield* S.encodeEffect(SkillDriftRow)(drift))).toStrictEqual(drift);
+    }),
+    { arbitrary: { runs: 32 } }
+  );
+
   it.effect("classifies every v1 skill and splits drift into local and upstream-advanced", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
