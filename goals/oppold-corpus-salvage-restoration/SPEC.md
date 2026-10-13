@@ -985,3 +985,23 @@ another lane. Launch ordinal 3 only after both proofs pass, refreshed free
 space remains above 100 GB, and a full sixty-second interval completes.
 Reversal: stop only worker-owned queued preflight commands and hand off the
 unchanged next ordinal, retaining every sealed family and freeze record.
+
+
+### 2026-10-13: family 3 accepted; continue the frozen wave
+
+Standing Runs 12+/13+ ruling governs this continuation. Family 3 exited zero,
+sealed acceptance and reconciled all 4,416 children: 4,108 engine children,
+154 repair-copy and 154 Tika children. Both derived identity sets match all
+154 distinct repaired digests; 176 repaired occurrences / 181 unsupported,
+zero unchanged. Zero warnings, exceptions or interruptions. Input 98,804,736
+bytes; output 246,434,736 bytes (2.494159146x); attempt 2,409,929 ms,
+family 2,430,372 ms. All retained ceilings and frozen identities hold.
+Three of nine accepted; eighteen larger occurrences remain excluded.
+
+Decision: accept family 3 and continue to ordinal 4 with the SAME frozen
+launcher only after renewed admitted smokes/focused proof, a full sixty-second
+interval and the 100 GB floor. No code/engine/launcher change or merged-main
+integration inside the wave. If admission stalls, hold after at most twenty
+minutes without disturbing other lanes. P2 remains incomplete.
+Reversal: revert packet continuation decisions while retaining every family,
+output, ledger and freeze record. PR7 follows the terminal wave record.

@@ -473,3 +473,70 @@ goals index matches, diff whitespace and added-line public hygiene pass.
 Both preflight commands ended successfully. Ordinal 3 is the sole active
 wave unit and is intentionally transferred to the watcher, not cancelled.
 Graft estimated 128,799 tokens saved across two source retrievals.
+
+
+## Runs 13+ mid-wave final report
+
+lane: corpus-restore
+head: ce137232a071bc1504768e69ad912852eb65f4e6 (local committed continuation-evidence head)
+PR(s): #1611 MERGED at 6eb3d03677 | PR7 none (bounded wave incomplete; no push or merge)
+package-verify: not run (docs-only; no package edited). Renewed real Tika/pffexport sandbox smokes pass through beep-heavy; four focused restoration tests pass, 78 skipped, 3.63 seconds.
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet not run (docs-only: no package source changed) | knowledge refs pass at exact committed head, zero live gated observations | fallow audit+health not run (docs-only: no package source changed) | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: Two of nine families remain sealed and accepted; both ledger hashes unchanged. Family 2 re-reconciles all 4,310 children (4,064 engine, 123 repair-copy, 123 Tika), with identical derived/repaired digest sets, 125 repaired occurrences and 218 unsupported dispositions, zero warnings/exceptions/interruptions. All nine source, engine, launcher, membership and policy identities match their immutable pre-launch manifests. Renewed smokes and focused tests obtained shared admission; a full sixty-second interval followed confirmed proof. Ordinal 3 submitted at 2026-10-13T21:34:16Z with the SAME frozen script, unit beep-heavy-corpus-restore-p2-2026-10-13-3.service. Free bytes before submission: 332,194,398,208, above the 100 GB floor. Last check: sole wave unit active/running and queued; no started/result stamp, so archive verification and runtime policy comparison remain pending. Ledger relative to corpus home: staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-03/ledgers/mail/slice.jsonl. Ordinals 4-9 unstarted. The orchestrator watcher resumes after this unit ends: reconcile result, accepted seal, source/policy identity, all children and repair pairs, ceilings and capacity before renewed preflight, sixty seconds and ordinal 4. Stop and diagnose the first failure; never retry sealed families or change engine/launcher code inside the wave. P2 remains incomplete; eighteen larger occurrences and remaining estate/recycle/DOC gates remain open. Decision: restore omitted user-bus environment for admitted preflight and continue the unchanged frozen wave; reversal is stopping only worker-owned queued preflight and reverting packet decisions while retaining every ledger, output and manifest. No outside job, slot limit, configuration or source changed. Packet launcher/manifest/index, public-hygiene scans and commit hooks pass; doctor retains zero blockers and the same three unrelated advisories. Session ledger records watcher handoff. No worker-owned proof or gate remains active; the sole family unit transfers under the standing mid-wave ruling. Evidence and carried-over report are committed; this exact-head final report is appended locally for the next evidence commit. Graft saved approximately 128,799 tokens across two retrievals.
+blocked: wave running — 2 of 9 sealed, unit beep-heavy-corpus-restore-p2-2026-10-13-3.service
+
+
+## Standing wave continuation — family 3 accepted and reconciled
+
+Family 3 unit beep-heavy-corpus-restore-p2-2026-10-13-3.service ended;
+result stamp is zero. Sealed acceptance at 2026-10-13T22:32:05.820Z:
+expected/terminal one, unapproved zero; one store pass, zero warnings,
+exceptions, interruptions or failure rows. Prior mid-wave report is preserved.
+
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-03/ledgers/mail/slice.jsonl`.
+Attempt: mail:9e98e7217a932e00092e313d:r0.
+Object identity: 888eeb36b076ff20ad7048e2bebe55ba7bd929b94698676fdc23e7601aecb96d.
+Source digest: 4120aa082ab2640bc072520d95bd974b84962eeb63ed948fb989fe8ebe2db069.
+Policy digest: b3851eea94aafd0d0a08ae4201c82a4ad020ec6aeb916a330ba25872c007b761.
+Ledger digest: 53f84aa4f03c1368b18cf3da03d6a50321d6300c22224abf6d419cae9cd2b99e.
+
+Record counts: 357 attachment-type-repair, 4,416 mail-child-pass, one each
+family-run-start, family-attempt-start, mail-store-pass, family-run-summary
+and family-acceptance-pass. All 4,108 engine children and 308 derived children
+reconcile for the sole store attempt. Both repair-copy and Tika identity sets
+equal all 154 distinct repaired digests, with 154 children in each set.
+Dispositions: 176 repaired occurrences, 181 unsupported, zero unchanged;
+zero other derived children. Unsupported dispositions are not repairs.
+Input 98,804,736 bytes; output and family disk usage 246,434,736 bytes;
+amplification 2.494159146x. Attempt 2,409,929 ms, 25,575.633 ms per MiB;
+family 2,430,372 ms. Queue approximately 526,184 ms from prior submission
+to started stamp 2026-10-13T21:43:02.184Z; archive verification 513,256 ms
+to family-run-start 2026-10-13T21:51:35.440Z.
+All output/time ceilings hold. Private log read as counts: two lines / 807 bytes.
+
+| Prerequisite | State | Current evidence |
+| --- | --- | --- |
+| P0 seal | met | Expected sealed run; 755 directory passes, 10,696 file passes, four inherited losses, one preflight and one seal |
+| Original slice candidate | met | 53 PST occurrences, 23 eligible; original object/digest unchanged, input 56,140,800 bytes |
+| Transformation state | met | Families 1-3 accepted with zero result; ordinals 4-9 run roots and stamps absent |
+| Membership/source identities | met | All nine pre-launch records match archive metadata and source identities |
+| Frozen engines | met | pffexport 20260917; bubblewrap 0.13.0; OpenJDK 27 dated 2026-09-15; Java real path and Tika digest unchanged |
+| Frozen launcher/membership/policies | met | All nine manifests match current digests and recomputed policy hashes |
+| Main/frozen source parity | met | Corpus/libpff diff from origin/main and frozen code head empty |
+| Capacity after family 3 | met | 421,738,582,016 free bytes, above 100,000,000,000-byte floor |
+| Real sandbox smokes | pending | Renewed wrapper queued through beep-heavy; all five shared slots initially occupied |
+| Four focused restoration tests | pending | Renewed wrapper queued through beep-heavy |
+| Packet health | met | Adoption zero conflicts; doctor zero blockers and same three unrelated advisories; index matches |
+
+Family 1 and 2 ledger hashes remain unchanged. Launcher digest remains
+5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6;
+membership digest remains
+00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+No probe rerun or pre-run fix; prior probe and merged fixes remain evidence.
+Three of nine accepted; P2 remains incomplete. Continue ordinal 4 only after
+renewed admitted preflight, the full sixty-second interval and capacity check.
+Never retry a sealed family, bypass admission or alter engines/launcher.
+Decision reversal: revert packet continuation decisions while retaining all
+families, ledgers, outputs and immutable freeze records.

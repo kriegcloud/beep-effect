@@ -178,3 +178,58 @@ eighteen larger occurrences and estate/recycle/legacy-Word gates remain open.
 Reversal: revert packet continuation decisions while retaining every sealed
 family, output and freeze record. No merge or PR publication during this
 mid-wave handoff; PR7 follows the terminal wave record.
+
+
+## Standing wave continuation — family 3 accepted and reconciled
+
+Family 3 unit beep-heavy-corpus-restore-p2-2026-10-13-3.service ended;
+result stamp is zero. Sealed acceptance at 2026-10-13T22:32:05.820Z:
+expected/terminal one, unapproved zero; one store pass, zero warnings,
+exceptions, interruptions or failure rows. Prior mid-wave report is preserved.
+
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-03/ledgers/mail/slice.jsonl`.
+Attempt: mail:9e98e7217a932e00092e313d:r0.
+Object identity: 888eeb36b076ff20ad7048e2bebe55ba7bd929b94698676fdc23e7601aecb96d.
+Source digest: 4120aa082ab2640bc072520d95bd974b84962eeb63ed948fb989fe8ebe2db069.
+Policy digest: b3851eea94aafd0d0a08ae4201c82a4ad020ec6aeb916a330ba25872c007b761.
+Ledger digest: 53f84aa4f03c1368b18cf3da03d6a50321d6300c22224abf6d419cae9cd2b99e.
+
+Record counts: 357 attachment-type-repair, 4,416 mail-child-pass, one each
+family-run-start, family-attempt-start, mail-store-pass, family-run-summary
+and family-acceptance-pass. All 4,108 engine children and 308 derived children
+reconcile for the sole store attempt. Both repair-copy and Tika identity sets
+equal all 154 distinct repaired digests, with 154 children in each set.
+Dispositions: 176 repaired occurrences, 181 unsupported, zero unchanged;
+zero other derived children. Unsupported dispositions are not repairs.
+Input 98,804,736 bytes; output and family disk usage 246,434,736 bytes;
+amplification 2.494159146x. Attempt 2,409,929 ms, 25,575.633 ms per MiB;
+family 2,430,372 ms. Queue approximately 526,184 ms from prior submission
+to started stamp 2026-10-13T21:43:02.184Z; archive verification 513,256 ms
+to family-run-start 2026-10-13T21:51:35.440Z.
+All output/time ceilings hold. Private log read as counts: two lines / 807 bytes.
+
+| Prerequisite | State | Current evidence |
+| --- | --- | --- |
+| P0 seal | met | Expected sealed run; 755 directory passes, 10,696 file passes, four inherited losses, one preflight and one seal |
+| Original slice candidate | met | 53 PST occurrences, 23 eligible; original object/digest unchanged, input 56,140,800 bytes |
+| Transformation state | met | Families 1-3 accepted with zero result; ordinals 4-9 run roots and stamps absent |
+| Membership/source identities | met | All nine pre-launch records match archive metadata and source identities |
+| Frozen engines | met | pffexport 20260917; bubblewrap 0.13.0; OpenJDK 27 dated 2026-09-15; Java real path and Tika digest unchanged |
+| Frozen launcher/membership/policies | met | All nine manifests match current digests and recomputed policy hashes |
+| Main/frozen source parity | met | Corpus/libpff diff from origin/main and frozen code head empty |
+| Capacity after family 3 | met | 421,738,582,016 free bytes, above 100,000,000,000-byte floor |
+| Real sandbox smokes | pending | Renewed wrapper queued through beep-heavy; all five shared slots initially occupied |
+| Four focused restoration tests | pending | Renewed wrapper queued through beep-heavy |
+| Packet health | met | Adoption zero conflicts; doctor zero blockers and same three unrelated advisories; index matches |
+
+Family 1 and 2 ledger hashes remain unchanged. Launcher digest remains
+5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6;
+membership digest remains
+00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+No probe rerun or pre-run fix; prior probe and merged fixes remain evidence.
+Three of nine accepted; P2 remains incomplete. Continue ordinal 4 only after
+renewed admitted preflight, the full sixty-second interval and capacity check.
+Never retry a sealed family, bypass admission or alter engines/launcher.
+Decision reversal: revert packet continuation decisions while retaining all
+families, ledgers, outputs and immutable freeze records.
