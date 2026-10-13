@@ -277,3 +277,16 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
   lint/check and passing runtime tests do not establish test type correctness.
 - Action: repair the test source and read the saved compiler result. Preserve
   all baselines and the live session ambiguity holds.
+
+## 2026-10-13: command regressions trigger the schema-property advisory
+
+- Work: publish the current-main conflict resolution and reviewed command tests.
+- Evidence: 15 of 16 cheap gates passed. `SFV4-arbitrary-tests` flagged
+  `AgentMessage.command.test.ts` and `AgentMessage.runtime.test.ts` because they
+  decode real command/process receipts without schema-derived property tests.
+- Prevention: include the full schema-first detector in command-test handoff;
+  compiler, Effect-Vitest and runtime proof cover different contracts.
+- Action: independently review whether the repository's documented
+  regression-only exception applies. Preserve the actual process/command
+  assertions and schema-property suites; do not add a token round-trip solely
+  to satisfy the detector or disable its rule.

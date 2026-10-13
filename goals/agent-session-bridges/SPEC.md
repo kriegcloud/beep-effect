@@ -204,3 +204,11 @@ from the merged workspace, preserving the AgentMessage/T3 aliases and main's
 compiler-profile split. Do not copy the shared repair into this branch; integrate
 it through main after it lands. Reversal is a reviewed merge revert, preserving
 the test-wave commit and both live ambiguity holds.
+
+Two independently reviewed `SFV4-arbitrary-tests` entries cover the actual
+command and runtime regression suites. Their codecs inspect real CLI/process
+receipts and deterministic fixtures; generated envelope identity, native/host
+references and host-authority properties remain in the existing model/tool
+suites. No new schema law is introduced by these tests. Revisit the entries if
+reusable schemas or schema-law assertions move into either file; the detector
+and all behavior assertions remain enabled.

@@ -1000,6 +1000,26 @@
       "reason": "Generic workstation state partition key shared by PR-session and session-ledger helpers. It accepts existing plain repository objects and PrRepository instances; S.Struct preserves that structural contract without a redundant class constructor."
     },
     {
+      "file": "packages/tooling/tool/cli/test/AgentMessage.command.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 35,
+      "owner": "@beep/repo-cli",
+      "reason": "Command integration regressions decode actual CLI output and fixed protocol fixtures to verify private state, authorization, durable delivery, ACK/recovery and rejection before HTTP. Schema-derived envelope identity and host-authority properties live in agent-message-models.test.ts and AgentMessage.tools.test.ts; these scenarios assert command effects rather than new codec laws. Reconsider if schema-law tests or reusable schemas move into this file."
+    },
+    {
+      "file": "packages/tooling/tool/cli/test/AgentMessage.runtime.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 75,
+      "owner": "@beep/repo-cli",
+      "reason": "Native runtime regressions decode real synthetic-child and SQLite receipts to verify enrollment, policy rejection, delivery, cancellation cleanup and writer-lock behavior. Generated envelope/reference properties live in agent-message-models.test.ts; arbitrary codec round-trips do not exercise these fixed subprocess lifecycle scenarios. Reconsider if reusable schemas or schema-law assertions move into this file."
+    },
+    {
       "file": "packages/tooling/tool/cli/test/ci-lane.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
