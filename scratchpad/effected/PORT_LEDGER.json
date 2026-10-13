@@ -7728,6 +7728,48 @@
           "upstreamBehaviour": "Unsuccessful real-Git fixture setup dies with a native Error carrying the failing invocation, exit code and stderr.",
           "labBehaviour": "Each integration fixture dies with its identity-annotated FixtureSetupError schema tagged error, retaining the message and fail-fast defect outcome.",
           "reason": "tagged-errors: Effect law 7 prohibits native Error defects. These newly changed integration setup defect shapes are separate from the existing NotStubbedError and GitConfigInvariantError record; the native-runtime report describes this same replacement, not an additional divergence."
+        },
+        {
+          "test": "scratchpad/test/git/integration/GitSurface.int.test.ts:304,591; scratchpad/test/git/GitCommand.test.ts:299",
+          "upstreamBehaviour": "With log.showSignature enabled, signature banners precede machine-parsed log output: log fails to parse and commitInfo returns a banner-contaminated sha.",
+          "labBehaviour": "GitCommand.log and commitInfo pass --no-show-signature, keeping history readable, sha exact, signature verdicts available and message bytes unchanged.",
+          "reason": "upstream-bug: git-r3-1; part-1/sol sol-3-1 reproduces both failures in the pinned oracle with real Git output. The diff adds the flag, argv assertions and real-Git signature-display regressions with config restoration."
+        },
+        {
+          "test": "scratchpad/test/git/Git.test.ts:1127; scratchpad/test/git/integration/GitSurface.int.test.ts:322",
+          "upstreamBehaviour": "A successful commitInfo invocation selecting no commit returns empty output and defects during schema assertion; malformed separators or signature fields also escape safe parsing.",
+          "labBehaviour": "parseCommitInfo returns Option after separator checks and schema decoding; parse misses fail with GitCommandError kind failed, redacted invocation args, cwd and explanatory detail.",
+          "reason": "upstream-bug: git-r3-2; part-1/sol sol-3-2 reports a real tree-ref invocation exiting 0 with empty output and both lab and pinned oracle defecting. The diff adds six malformed-output cases and a real tree-ref regression."
+        },
+        {
+          "test": "scratchpad/test/git/GitConfig.test.ts:551,565,584",
+          "upstreamBehaviour": "Appending entries or sections after a bare EOF backslash or final LF/CRLF continuation consumes the inserted content into the preceding value despite reporting success.",
+          "labBehaviour": "appendAtEof, append and insertEntry share insertionSeparator, adding the line ending needed to close an open logical value and preserve old values and new keys or sections.",
+          "reason": "upstream-bug: git-r3-4; part-2/sol sol-3-1 reproduces lab and pinned-oracle corruption and confirms the resulting interpretation with Git 2.56.0. The diff adds EOF/LF/CRLF edit matrices and literal/comment-backslash controls."
+        },
+        {
+          "test": "scratchpad/test/git/GitConfig.test.ts:226,617; scratchpad/test/git/internal/config.coverage.test.ts:8",
+          "upstreamBehaviour": "Whitespace before continuations or an accepted EOF backslash is lost from decoded values; significant continuation bytes remain outside replacement spans and can contaminate set results.",
+          "labBehaviour": "The scanner commits pending decoded whitespace and significant raw endpoints when consuming EOF, LF or CRLF backslashes, preserving Git values and replacing the full significant span.",
+          "reason": "upstream-bug: git-r3-5; part-2/sol sol-3-2 compares Git 2.56.0 with lab and pinned oracle for spaces, tabs, CRLF and comments. The diff corrects the EOF-whitespace expectation and adds parse/set and scanner-span regressions; this is distinct from round-2 EOF acceptance."
+        },
+        {
+          "test": "scratchpad/test/git/GitConfig.test.ts:636; scratchpad/test/git/internal/config.coverage.test.ts:50",
+          "upstreamBehaviour": "Empty quoted prefixes or initial continuations cause leading unquoted whitespace to enter decoded values, unlike Git; quoted-space controls already retain their spaces.",
+          "labBehaviour": "The scanner skips unquoted whitespace while decoded is empty, including after empty quotes or initial continuations, while preserving quoted or escaped whitespace and source spans.",
+          "reason": "upstream-bug: git-r3-6; part-2/sol sol-3-3 reports Git 2.56.0 returning b where lab and pinned oracle return space-b, with a matching quoted-space control. The diff adds public parsing, replacement and scanner-span regressions."
+        },
+        {
+          "test": "scratchpad/effected/git/Git.ts:1845; scratchpad/test/git/Git.test.ts SSH environment and precedence regressions",
+          "upstreamBehaviour": "SshFromEnv is a reused handwritten interface with command, program and variant Option<string> fields, without an executable schema or identity and field annotations.",
+          "labBehaviour": "A module-local annotated S.Struct with three S.Option(S.String) fields owns SshFromEnv and its derived type; plain-object construction, SSH precedence and blank-value behavior are preserved.",
+          "reason": "schema-first: D5, D11, Architecture section 5 and EF-12b require schemas to own reused configuration data. git-r3-3 and the diff ground this newly touched SSH model; prior schema-first entries cover different sites."
+        },
+        {
+          "test": "scratchpad/effected/git/Git.ts:256; scratchpad/effected/git/GitConfig.ts:56; scratchpad/effected/git/Gitmodules.ts:83; scratchpad/test/git/integration/Git.int.test.ts:49; scratchpad/test/git/integration/GitSurface.int.test.ts:46",
+          "upstreamBehaviour": "Git schema classes and tagged errors omit the second nominal brand type argument, allowing structural substitution; lab-added errors and integration fixture errors likewise lacked it.",
+          "labBehaviour": "The diff adds { readonly brand: unique symbol } to 33 schema class/error declarations across Git.ts, GitConfig.ts, Gitmodules.ts and both integration fixtures; instance types gain nominal distinctions without runtime field or encoding changes.",
+          "reason": "tsgo-diagnostics: Effect 4 schemaClassMissingBrand (TS377141) requires the second brand type argument. This newly touched type-shape change uses the existing ledger class and its commands-module precedent; fix-git reports supply no branding-specific compiler proof."
         }
       ],
       "backlog": [
@@ -7808,6 +7850,12 @@
           "round": 2,
           "finding": "git-b2 — Replace native JSON serialization in JSDoc examples (scratchpad/effected/git/GitConfig.ts:568,677)",
           "reason": "jsdoc: During S2, use schema JSON codecs of the correct payload shape: S.fromJsonString(S.Array(S.String)) for getAll arrays and S.fromJsonString(S.String) for rendered module text. Preserve the example output and carried upstream meaning."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "git-b3-1 — Correct the configList example that combines file and local scope (scratchpad/effected/git/GitCommand.ts:2299)",
+          "reason": "docs: During the documentation pass, use GitCommand.configList(\".gitmodules\") and remove --local from the expected argv; demonstrate a scoped read separately with the file omitted."
         }
       ],
       "reviewRounds": [
@@ -7844,6 +7892,24 @@
             "fable": {
               "required": 5,
               "backlog": 1
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 2,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 6,
+              "backlog": 1
+            },
+            "fable": {
+              "required": 1,
+              "backlog": 0
             }
           }
         }
