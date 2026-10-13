@@ -35,15 +35,21 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 implementation is done; P0 and P2 remain in progress. Route A consumes the
-existing certificate registration. The orchestrator adds the attorney-only RBAC
-contacts grant after PR 1 merges. All three edited-package verifications and test
-typechecks pass. Driver docgen and knowledge references pass; identity-dependent
-infra docgen has an attributed inherited third-party failure under S11. JSDoc
-ratchet, fallow and scoped coverage passed before publication. PR 1 #1591 has
-merged; follow-up #1595 repairs manifest ordering and contacts JSON schema
-hoisting found by hosted checks. The scoped grant handback remains pending.
-No live mailbox call or write has run.
+P0 and P1 are done; P2 remains in progress. PR 1 #1591 and reviewed follow-up
+#1595 are merged. The scoped grant and runtime read passed. The pre-seed export
+contains 536 contacts; SPEC records its full hash. The online plan finds every
+identifiable source contact already present: zero creates, 480 existing skips,
+seven unidentifiable skips, zero conflicts and zero untracked tags.
+
+Live verification exposed the zero-create apply path: it returns before folder
+discovery and run-journal persistence, so the required dedicated-folder and
+per-run rollback evidence cannot be produced in this mailbox state. Stop before
+smoke/apply under the brief's live-defect rule. A reviewed change or scope ruling
+must address this before another live run; existing contacts remain untouched.
+No mailbox write has run, and completed-retained is not claimed.
+
+Historical package, type, scoped docgen, fallow and coverage proofs are in the
+earlier handoff. This resume edits only packet evidence.
 
 ## Latest Evidence
 
@@ -51,8 +57,15 @@ No live mailbox call or write has run.
   487 normalized contacts; four inputs share one byte hash. VCF is census-only.
 - [Offline dry run](./history/2026-10-09-seeding-dry-run.md): 480 creates, seven
   unidentifiable skips, zero conflicts and zero untracked tags.
-- [Lane handoff](./history/handoffs/m365-contacts-2026-10-09.md): setup, decisions
-  and current verification evidence.
+- [Earlier lane handoff](./history/handoffs/m365-contacts-2026-10-09.md): setup, decisions
+  and historical qualification evidence.
+- [Grant observations](./history/2026-10-13-p0-grant-proof.md): scoped
+  administrative handback and passing runtime read after admission queueing.
+- [Resume handoff](./history/handoffs/m365-contacts-2026-10-13.md): deadline
+  boundary, terminal unit evidence and remaining live steps.
+
+- [Online plan](./history/2026-10-13-seeding-dry-run-online.md): zero creates,
+  480 existing skips, and the zero-create verification blocker.
 
 ## Notes
 

@@ -211,6 +211,34 @@ This spec binds to them without restating.
   This preserves their wire and runtime behavior. Reversal: revert only the
   schema-hoisting commit; no public model or permission change is involved.
 
+- **2026-10-13 queued grant probe:** the final read retry was submitted
+  before the two-hour deadline, then admitted at 21:17:50 UTC after shared
+  heavy-slot queueing. It passed. This supersedes the provisional stop
+  assessment while the result was unknown: no failed read was received at
+  or after the deadline, and no additional retry was submitted. Continue
+  from the proven read into export and online planning. Reason: the
+  already-authorized attempt resolved the dependency after an admission
+  delay; no permission or credential was widened. Reversal: stop on a
+  subsequent safety trip and retain every receipt.
+
+- **(h) Pre-seed export (2026-10-13, R3a).** Exported 536 existing
+  contacts from every folder before any write. SHA-256:
+  `7942bb0ee8345eb074421399c48fdf221d1467a6b0b6d01807adebfd93b0a0f9`. Private location:
+  `<corpus-home>/ops/practice-contacts/2026-10-13/export.jsonl`.
+  Reason: backs up the mailbox's prior contacts before the authorized seed.
+  Directory mode 0700 and file mode 0600 were verified. Reversal: none;
+  preserve the backup outside this repository.
+
+- **2026-10-13 zero-create live verification:** all 480 identifiable CSV
+  contacts already match existing mailbox contacts. The planner correctly
+  avoids duplicates and writes no PATCH. Main's zero-create apply returns
+  before folder discovery or journal persistence, blocking this run's
+  dedicated-folder and per-run undo proof. Stop before smoke/apply under the
+  live-defect rule. Reason: required live verification is unavailable in
+  the actual mailbox state. Reversal: a reviewed zero-create receipt/undo
+  change or later scope ruling; never duplicate or tag existing contacts
+  merely to satisfy evidence.
+
 ## Acceptance Criteria
 
 - [x] Either auth lane injects into the unchanged REST service boundary in

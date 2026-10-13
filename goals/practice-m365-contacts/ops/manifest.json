@@ -6,13 +6,13 @@
     "title": "Practice M365 Contacts",
     "status": "active",
     "created": "2026-08-30",
-    "updated": "2026-10-09",
+    "updated": "2026-10-13",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/practice-m365-contacts",
   "lifecycle": "active",
   "mission": "Add the confidential-client auth lane and contacts write verbs to @beep/m365, then seed the attorney's contact folder from the salvaged CSVs with dedup and rollback tags",
-  "statusNote": "PR 1 implementation and offline evidence qualified: all edited-package checks, test-tsgo, driver docgen, JSDoc ratchet, knowledge refs, fallow and scoped coverage pass. Inherited identity-dependent infra/Pulumi docgen red recorded under S11. Publication and live prerequisites remain.",
+  "statusNote": "PR 1 and reviewed follow-up merged; scoped grant and runtime read proved. Pre-seed export records 536 contacts and full hash. Online plan has zero creates, 480 existing skips, seven unidentifiable, no conflict/untracked tags. Zero-create apply returns before folder/journal, blocking required rollback and dedicated-folder proof. Stop before smoke/apply under the live-defect rule; reviewed fix or ruling required. Historical qualification retained; no completion claimed.",
   "blockedBy": [],
   "executionCapable": true,
   "reflectionRequired": true,
@@ -52,7 +52,7 @@
     {
       "id": "P0",
       "name": "Research",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P1",

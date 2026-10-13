@@ -160,3 +160,35 @@
 - Prevention: give the grant owner an explicit queued/running/failed receipt
   beside the final InScope proof, so the worker can distinguish scheduling
   delay from a failed grant without querying or modifying the tenant.
+
+## 2026-10-13 — heavy wrapper user-bus environment
+
+- Doing: read-only grant probe through `beep-heavy` after workstation reboot.
+- Evidence: the initial wrapper failed before admission with user scope bus
+  unavailable; the env verification itself passed. Providing the standard
+  user-bus environment let the wrapper admit and Graph return HTTP 403.
+- Prevention: initialize the user runtime directory and bus address in the
+  lane launcher so every heavy job has the same user-systemd context.
+- Outcome: wrapper repaired for this invocation only; no home config changed.
+  HTTP 403 is a separate grant-propagation observation, not a wrapper failure.
+- Reversal: remove the invocation-local environment once the launcher supplies it.
+
+## 2026-10-13 — read-only propagation probe queues behind heavy work
+
+- Doing: scheduled retry of the credential-gated folder-list smoke.
+- Evidence: retry 8 reached `beep-heavy` around 20:28 UTC and reported all
+  five slots busy; still unadmitted at 20:33 UTC. This is not a Graph result.
+- Prevention: a governed admission weight for short live read probes could
+  keep safety checks from waiting behind multi-package builds. This needs
+  a later owner decision; this lane does not bypass the required wrapper.
+- Outcome: keep the existing waiter and poll its result every minute.
+
+## 2026-10-13 — zero-create first run has no receipt
+
+- Doing: online planning before the authorized smoke/apply.
+- Evidence: plan has Create 0, SkipExistsInMailbox 480, SkipUnidentifiable 7.
+  `ContactSeeding.apply` returns before folder discovery and journal save
+  when creates is empty; per-run undo rejects absent journal state.
+- Prevention: fixture the first online apply against an already populated
+  mailbox and define a no-op receipt/undo contract before live verification.
+- Outcome: stop before writes; reviewed fix or scope ruling required.
