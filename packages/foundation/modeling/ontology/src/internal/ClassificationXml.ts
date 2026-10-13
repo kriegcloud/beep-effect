@@ -134,7 +134,7 @@ const makeConcept = Effect.fnUntraced(function* (
     ? S.decodeEffect(IpcSymbol)(notation)
     : pin.kind === "cpc"
       ? S.decodeEffect(CpcSymbol)(notation)
-      : S.decodeEffect(S.Union([NiceClassNumber, NiceBasicNumber]))(notation);
+      : S.decodeEffect(NiceNumber)(notation);
   return yield* S.decodeEffect(ClassificationConcept)({
     kind: pin.kind,
     edition: pin.edition,
@@ -408,3 +408,4 @@ export const parseNice = Effect.fnUntraced(function* (
     )
   );
 });
+const NiceNumber = S.Union([NiceClassNumber, NiceBasicNumber]);
