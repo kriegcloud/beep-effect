@@ -979,3 +979,38 @@ repo-cli audit/docgen passed. Manifest-only quick checks initially lacked
 upstream dist declarations; rebuilding the dependency closure and replaying
 all three checks passed. Record proof prerequisite scope with each result so
 an environment-only first attempt is not mistaken for a source regression.
+
+## 2026-10-13: arbitrary-test diagnostic and generation friction
+
+A newly written journal property initially exhausted generation at size zero:
+its custom non-empty path filter has no generation bounds, and discarded
+trials do not advance the multi-run size schedule. Installed Effect 4 source
+confirmed single-run checks use the requested size. Twenty-five seeded
+nonzero sizes retain finite budgets and exercise the actual persistence
+codec. Generation annotations on the shared path schema would avoid this
+caller workaround; that source change remains outside this bounded repair.
+
+Independent review caught an unsupported diagnostic call,
+`Arbitrary.formatCheckResult`, before publication. Replace it with a plain
+seed diagnostic while preserving the passed-run assertion. A live installed
+API lookup before choosing diagnostics would have prevented the failed run.
+The first CLI test invocation also used the repository root configuration and
+reported no test files; running in the owning package fixed command routing.
+
+The direct checker also requires an `Effect<boolean>` callback, unlike the
+Vitest property adapter's assertion callback. Returning schema equivalence
+fixed the falsification caused by a void result. The corrected app suite
+passes all 13 tests. Keep adapter and direct-checker contracts explicit in
+examples; code review must verify callback return types as well as exports.
+
+The required JSDoc parity lane regenerates its inventory successfully but
+fails eight totals on unchanged main source. All 3,435 inventory source paths
+match the recorded base. A distinct owner repair is needed; raising the
+baseline in this test wave would conceal inherited debt. Raw JSDoc generation
+took approximately nine minutes despite this wave touching only tests.
+
+Cheap gates subsequently flagged introduced EV007 on the direct checker.
+Canonical per-seed `it.effect.prop` registration preserves the nonzero-size
+coverage and passes 37 app tests. The Yeet aggregate repair hint incorrectly
+blamed goals doctor, which passed; the streamed lane results correctly name
+Effect/Vitest. Route failed-stage diagnostics from the actual terminal row.

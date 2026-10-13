@@ -243,7 +243,7 @@ produces them.
 | Retained tools | `rsc-a-retire` | `history/receipts/stage-5-acceptance.md#retained-tools` |
 | Surviving capabilities | `rsc-a-retire` (repository tools) + `rsc-f-agents` (agent capabilities) | `history/receipts/surviving-capabilities.md` |
 | Harness ledger presentation and decision links | `rsc-a-retire` (compact presentation) + `rsc-f-agents` (decision links via the supported writer) | `history/receipts/stage-5-acceptance.md#harness-ledger` |
-| Detector repairs | `rsc-b-standards` | `history/receipts/stage-4-detectors.md` |
+| Detector repairs | `rsc-b-standards` | `history/receipts/stage-4-detectors.md`; bounded October 13 baseline repair: `history/handoffs/rsc-b-standards-2026-10-13.md` |
 | Standards and documentation currency (brief 2.B) | `rsc-b-standards` | `history/receipts/stage-4-standards-docs.md` |
 | Script ports | `rsc-c-scripts` | `history/receipts/stage-5-acceptance.md#script-ports` |
 | Sensitive scripts | `rsc-c-scripts` | `history/receipts/stage-5-acceptance.md#sensitive-scripts` |
@@ -334,3 +334,5 @@ and the S11 review/merge gate remain with the orchestrator. Independent
 source/scope review at `3897314253` returned zero actionable findings.
 See `history/handoffs/rsc-d-release-2026-10-09.md` for current terminal results.
 GitHub Packages lacks read:packages; desktop verification remains E-owned.
+
+B status (2026-10-13): bounded three-finding baseline repair in verification; original R20 waves remain open.

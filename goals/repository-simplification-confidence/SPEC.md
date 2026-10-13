@@ -862,3 +862,32 @@ Move live ruleset, desktop settings and held-main reads from the contents-only v
   Reason: percentages improved while added implementation increased absolute
   uncovered counts; the existing baseline must not be refreshed to hide that.
   Reversal is the receipt commit; no coverage policy or floor changed.
+
+### 2026-10-13 — B resolves the three inherited arbitrary-test blockers
+
+The resumed coordination request assigns B the three SFV4 arbitrary-test
+findings in the contacts app, M365 driver, and CI runner security tests.
+The source owner's M365 PRs are merged and its chat is dormant. B adds offline
+codec-preservation properties in those existing test files rather than adding
+registry exceptions. The journal property uses 25 reproducible single checks
+at nonzero sizes because its existing custom path filter has no generation
+bounds; budgets remain finite. Driver drafts and workflow inputs preserve
+schema equivalence through their codecs; operational patterns and journals
+preserve it through JSON persistence. No production schema or detector changes
+are needed. Reverse by reverting this repair wave.
+
+The preserved October 9 generated-refresh candidate stays separate and must be
+regenerated against integrated main before publication. This narrow baseline
+repair does not complete R20's three original waves or the honest-zero mission.
+
+### 2026-10-13 — B judgment on the overlapping #1612 admissions
+
+PR #1612 proposes exceptions for the same three arbitrary-test findings.
+B's focused codec properties pass without them and supplement the existing
+boundary regressions. Treat those three admissions as superseded by the
+source repair; compose the CI codec alias and drop stale admissions through
+the registry owner after integration, preserving every unrelated #1612 fix.
+Reason: legitimate deterministic boundary coverage and generated codec
+coverage are compatible. Reversal: revert the source wave, then individually
+reconsider the three findings with their original provenance. No broad
+exception ruling or other registry row changes follow from this decision.
