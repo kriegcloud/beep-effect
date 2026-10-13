@@ -687,3 +687,31 @@ pushed.” Attribution: inherited, not introduced. Inbox row acknowledged
 under S11/S12. Authorized fallback: one direct feature-branch push, labelled
 PR creation, ready and bounded detached readiness monitor. No unrelated repair
 or baseline/CI waiver. Final default package audit is still active.
+
+
+### Run-9B hosted inherited Repo Sanity red
+
+Read completed job 114169343496 immediately, before the full run completed.
+Repo Sanity fails only at syncpack: root minimatch override 10.2.5 versus
+10.2.6, and scratchpad smol-toml 1.9.0 versus ^1.9.0. Both manifests exactly
+match origin/main; no manifest or lockfile changed in this lane. Attribution:
+inherited S11 debt, acknowledged for the orchestrator burn-down. The bounded
+monitor surfaced the row and stays active; wait is resumed on the same job.
+Prevention: repair these two ranges once on main rather than in corpus lanes.
+
+
+### Run-9B final proof and hosted inventory diagnosis limit
+
+Final default package-verify passes on canonical assertions: audit 846.3
+seconds, docgen 22.0 seconds, exit zero. Implementation remains unchanged
+from the 295-file/5899-test coverage proof; transformation/schema metrics 100.
+Knowledge refs pass on published head, zero live gated observations.
+Hosted JSDoc job 114169343752 fails inventory generation before totals
+comparison, with only “Failed to generate JSDoc documentation inventory.”
+The completed log was read immediately; no underlying cause or inventory
+artifact was emitted. Local inventory succeeded twice, and all 1052 local
+finding-bearing files match main. Hosted cause is unclassified, acknowledged
+for S11 triage, not relabelled environment-only or as the local eight-total red.
+Prevention: surface the underlying typed cause in the generator failure report.
+Both P1 ledger hashes, engine identities and Tika digest remain unchanged.
+Free bytes 204492922880, above retained floor. Zero P2 families started.

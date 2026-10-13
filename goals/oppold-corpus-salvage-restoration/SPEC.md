@@ -856,3 +856,15 @@ Reversal: close/revert PR6 and retain both immutable P1 families; no P2 output
 exists. No changeset: @beep/repo-cli is private under #1566 and the standing
 private-workspace ruling. This optional behavior is compatible, not a major
 public API break; reversal restores the original fixed slice selection.
+
+
+### Run-9B closeout decision — bounded monitor termination
+
+After final local proof and content-final publication, terminate the worker-owned
+readiness monitor before handoff, as Mechanics forbids exiting with an owned
+unit running. Hosted Repo Sanity is inherited; hosted JSDoc generation remains
+unclassified for S11 triage. The monitor is terminated, its unit inactive/dead;
+no merge-ready verdict is claimed. Reversal: submit the same until-ready detached
+monitor with a forty-minute maximum. The orchestrator owns review/CI merge gates
+and run-10 execution; zero P2 families have started. Retain post-push receipts
+for the next packet evidence commit without moving the final selector head.

@@ -853,3 +853,62 @@ pushed.” Attribution: inherited, not introduced. Inbox row acknowledged
 under S11/S12. Authorized fallback: one direct feature-branch push, labelled
 PR creation, ready and bounded detached readiness monitor. No unrelated repair
 or baseline/CI waiver. Final default package audit is still active.
+
+
+### Run-9B hosted inherited Repo Sanity red
+
+Read completed job 114169343496 immediately, before the full run completed.
+Repo Sanity fails only at syncpack: root minimatch override 10.2.5 versus
+10.2.6, and scratchpad smol-toml 1.9.0 versus ^1.9.0. Both manifests exactly
+match origin/main; no manifest or lockfile changed in this lane. Attribution:
+inherited S11 debt, acknowledged for the orchestrator burn-down. The bounded
+monitor surfaced the row and stays active; wait is resumed on the same job.
+Prevention: repair these two ranges once on main rather than in corpus lanes.
+
+
+### Run-9B final proof and hosted inventory diagnosis limit
+
+Final default package-verify passes on canonical assertions: audit 846.3
+seconds, docgen 22.0 seconds, exit zero. Implementation remains unchanged
+from the 295-file/5899-test coverage proof; transformation/schema metrics 100.
+Knowledge refs pass on published head, zero live gated observations.
+Hosted JSDoc job 114169343752 fails inventory generation before totals
+comparison, with only “Failed to generate JSDoc documentation inventory.”
+The completed log was read immediately; no underlying cause or inventory
+artifact was emitted. Local inventory succeeded twice, and all 1052 local
+finding-bearing files match main. Hosted cause is unclassified, acknowledged
+for S11 triage, not relabelled environment-only or as the local eight-total red.
+Prevention: surface the underlying typed cause in the generator failure report.
+Both P1 ledger hashes, engine identities and Tika digest remain unchanged.
+Free bytes 204492922880, above retained floor. Zero P2 families started.
+
+
+### Run-9B final handoff barrier
+
+PR5 head cc452277db3d7fd678716bd083992479fe4e9d79, ready/open; one correction
+push, reliability thread answered/resolved with no later comment. PR6 is #1611
+at 8f11bf2248d3a0ecc4fa87332ff2f3cc2d5ab636, ready/open and ready-for-heavy;
+one source-wave push, no merge. Default package proof and every local wrapper
+are terminal. Bounded monitor 42cbc96b-62cf-4d6f-a0e6-45670d92a32d surfaced two
+hosted rows, both acknowledged, and was deliberately cancelled at handoff.
+Record phase terminated, wait exit 3, unit inactive/dead, zero unacknowledged
+inbox rows. No merge-ready verdict; resubmit the same forty-minute monitor to
+reverse cancellation. Final fetch/merge reports already up to date. Reference
+links remain absent; both P1 ledger digests unchanged. Complete review pagination
+shows no outstanding thread. Source/plan are final; post-push SPEC/handoff/
+OPPORTUNITIES receipts stay local for run-10 evidence, including this self-head
+report. Graft estimated 344563 tokens saved in four calls.
+
+
+## Run-9 final report
+
+final cc452277db3d7fd678716bd083992479fe4e9d79 #1610
+final 8f11bf2248d3a0ecc4fa87332ff2f3cc2d5ab636 #1611
+lane: corpus-restore
+head: 8f11bf2248d3a0ecc4fa87332ff2f3cc2d5ab636
+PR(s): #1610 OPEN, ready, reliability thread answered/resolved | #1611 OPEN, ready, ready-for-heavy (PR6)
+package-verify: @beep/repo-cli: pass (default; audit 846.3 s, docgen 22.0 s); both engine smokes pass
+hosted-parity: test-tsgo pass | docgen local pass | jsdoc-ratchet fail (eight inherited totals; local inventory generation pass) | knowledge refs pass (published head, zero live gated observations) | fallow audit+health pass | scoped coverage producer pass (295 files, 5899 tests); package and touched-file floors pass, transformation/schema 100% on all metrics; surviving-file comparison retains 28 inherited metric drops in 12 unchanged files
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-10.md
+open items: Run 10 owns execution of nine bounded occurrences; eighteen larger occurrences await a later ceiling ruling. P1 remains complete and both sealed ledgers unchanged; P2 remains pending with zero families launched. S11 owns inherited schema advisories, hosted syncpack mismatches, local JSDoc/coverage debt, and the unclassified hosted JSDoc inventory-generation failure. All known inbox rows acknowledged; complete review pagination shows no outstanding thread. CI/review-window merge gates remain with the orchestrator; no merge or merge-ready claim. Bounded monitor deliberately terminated and observed inactive; no worker-owned job running. Reverse cancellation by resubmitting the forty-minute until-ready monitor; reverse selector by closing/reverting PR6 while retaining P1 state. Final fetch/merge was already up to date; reference links absent. Post-push SPEC/handoff/OPPORTUNITIES receipts remain local for the next evidence commit. One temporary third-heavy-wrapper attempt was stopped and receipted. Graft saved approximately 344563 tokens in four calls.
+final 8f11bf2248d3a0ecc4fa87332ff2f3cc2d5ab636 #1611
