@@ -511,6 +511,30 @@ const finishCreatedPullRequest = Effect.fn("Yeet.finishCreatedPullRequest")(func
   });
 });
 
+// `gh pr create` opens the PR against the repository default branch, so the
+// REST fallback reads that branch too. `--base` is the affected-planning base,
+// never the PR target: whether GraphQL was rate limited must not change where
+// the PR opens. A failed read is an error, not a guessed `main`.
+const resolveDefaultBranchViaRest = Effect.fn("Yeet.resolveDefaultBranchViaRest")(function* (
+  context: RepoRunContext,
+  capture: typeof runRepoCommandCapture
+): Effect.fn.Return<string, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
+  const result = yield* capture(
+    "gh",
+    ["api", "repos/{owner}/{repo}", "--jq", ".default_branch"],
+    context.repoRoot
+  ).pipe(Effect.mapError(YeetCommandError.new("Failed to read the repository default branch through GitHub REST.")));
+  const branch = Str.trim(result.output);
+  if (result.exitCode !== 0 || Str.isEmpty(branch)) {
+    return yield* YeetCommandError.make({
+      message: `GitHub REST default branch read failed:\n${result.output}`,
+      command: "gh api repos/{owner}/{repo} --jq .default_branch",
+      exitCode: result.exitCode,
+    });
+  }
+  return branch;
+});
+
 const createPullRequestViaRest = Effect.fn("Yeet.createPullRequestViaRest")(function* (
   context: RepoRunContext,
   recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
@@ -529,7 +553,7 @@ const createPullRequestViaRest = Effect.fn("Yeet.createPullRequestViaRest")(func
       created: false,
     });
   }
-  const base = Str.replace(/^origin\//, "")(context.base);
+  const base = yield* resolveDefaultBranchViaRest(context, capture);
   const headOwner = yield* originPushOwner(context);
   const rest = yield* capture(
     "gh",
