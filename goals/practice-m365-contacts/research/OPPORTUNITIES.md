@@ -215,3 +215,13 @@
 - Prevention: expose durable queue position and admission time in result receipts.
 - Response: retain the waiter and poll every minute; do not cancel it for timeout
   or bypass the shared budget. At most two lane heavy units remain active.
+
+
+## PR 2 review qualification admission (2026-10-13)
+
+While qualifying the two PR #1623 journal-safety review fixes,
+`beep-heavy bun run beep quality package-verify @beep/practice-m365-contacts`
+remained queued for more than ten minutes with `all 5 slots busy, waiting`.
+No gate had started and no pass was claimed. The waiter was retained under the
+brief's admission ruling. A fair admission queue with a durable position and
+wait estimate would make review-wave completion easier to coordinate.

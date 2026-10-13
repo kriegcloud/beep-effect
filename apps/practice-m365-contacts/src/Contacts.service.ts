@@ -70,7 +70,14 @@ const selectUndoJournals = Effect.fn("ContactSeeding.selectUndoJournals")(functi
 ) {
   const selected = byCategory ? journals : A.filter(journals, (journal) => O.contains(journal.runId)(run));
   if (!byCategory && A.isReadonlyArrayEmpty(selected)) return yield* ContactsError.make({ reason: "missing-journal" });
-  if (!byCategory && A.some(selected, (journal) => O.isSome(journal.pendingSourceKey)))
+  if (
+    !byCategory &&
+    A.some(
+      selected,
+      (journal) =>
+        O.isSome(journal.pendingSourceKey) || (A.isReadonlyArrayEmpty(journal.contacts) && O.isNone(journal.receipt))
+    )
+  )
     return yield* ContactsError.make({ reason: "ambiguous-write" });
   return selected;
 });
@@ -194,8 +201,6 @@ export const contactSeedingLayer = (checkoutRoot: string) =>
               const planned = yield* plan(inputs, false, false);
               yield* failUntracked(planned.untrackedTagged);
               const creates = A.filter(planned.rows, ContactPlanRow.guards.Create);
-              let journal = RunJournal.make({ runId: planned.report.runId, folderCreated: false, contacts: [] });
-              yield* state.save(journal);
               const savedIds = HashSet.fromIterable(A.getSomes(A.map(planned.journals, (run) => run.folderId)));
               const recorded = A.filter(planned.inventory.folders, (folder) => HashSet.has(savedIds, folder.id));
               const named = A.filter(planned.inventory.folders, (folder) =>
@@ -203,6 +208,8 @@ export const contactSeedingLayer = (checkoutRoot: string) =>
               );
               const choices = A.isReadonlyArrayNonEmpty(recorded) ? recorded : named;
               if (A.length(choices) > 1) return yield* ContactsError.make({ reason: "folder-ambiguous" });
+              let journal = RunJournal.make({ runId: planned.report.runId, folderCreated: false, contacts: [] });
+              yield* state.save(journal);
               if (A.isReadonlyArrayEmpty(creates)) {
                 yield* state.save(
                   RunJournal.make({

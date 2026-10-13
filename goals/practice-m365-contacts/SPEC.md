@@ -260,6 +260,16 @@ ruling, record this repair in the handoff release table without a changeset.
 Its optional receipt fields decode existing journals unchanged; no published
 major release is needed. Reversal: revert the repair as a unit.
 
+### PR 2 review safety (2026-10-13)
+
+Validate folder ambiguity before saving the initial journal, then persist it
+before a folder POST. An empty per-run undo requires a completed apply receipt;
+a crashed or incomplete empty journal fails with `ambiguous-write`. Nonempty
+legacy journals retain their guarded rollback behavior. Reason: a durable
+initial journal is not a successful apply receipt. Synthetic tests cover
+refusal without writes. Reversal: revert the bounded review wave. The private
+app remains exempt from changesets under #1566.
+
 ## Acceptance Criteria
 
 - [x] Either auth lane injects into the unchanged REST service boundary in

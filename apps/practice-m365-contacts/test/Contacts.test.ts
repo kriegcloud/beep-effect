@@ -85,7 +85,8 @@ const overJob = Effect.fn("overJob")(function* <A, E>(
   root: string,
   initial: MailboxInventory,
   program: Effect.Effect<A, E, ContactSeeding>,
-  ambiguous = false
+  ambiguous = false,
+  folderCreationFails = false
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -96,6 +97,7 @@ const overJob = Effect.fn("overJob")(function* <A, E>(
   const fake = ContactsMailbox.of({
     inventory: Ref.get(inventory),
     createFolder: Effect.gen(function* () {
+      if (folderCreationFails) return yield* M365Error.fromReason("response status", { status: 403 });
       const folder = GraphContactFolder.make({ id: "seed-folder", displayName: O.some(seedFolderName) });
       yield* Ref.update(inventory, (snapshot) =>
         MailboxInventory.make({ ...snapshot, folders: A.append(snapshot.folders, folder) })
@@ -384,6 +386,93 @@ describe("contact seeding", () => {
           expect(run.result).toMatchObject({ reason: "ambiguous-write" });
           expect(run.deleted).toHaveLength(0);
           assertNone(O.getOrThrow(A.head(run.journals)).undoReceipt);
+        })
+      )
+    );
+    it.effect("rejects incomplete empty journals in dry-run and live undo without writing receipts", () =>
+      withFiles(
+        Effect.fnUntraced(function* (root) {
+          const path = yield* Path.Path;
+          const state = yield* makeContactsState(path.join(root, "state"));
+          const journal = RunJournal.make({ runId: "crashed-run", folderCreated: false, contacts: [] });
+          yield* state.save(journal);
+          const run = yield* overJob(
+            root,
+            empty,
+            ContactSeeding.use(
+              Effect.fnUntraced(function* (job) {
+                expect(yield* Effect.flip(job.undo(O.some(journal.runId), false, true, false))).toMatchObject({
+                  reason: "ambiguous-write",
+                });
+                expect(yield* Effect.flip(job.undo(O.some(journal.runId), false, false, true))).toMatchObject({
+                  reason: "ambiguous-write",
+                });
+              })
+            )
+          );
+          expect(run.created).toBe(0);
+          expect(run.deleted).toHaveLength(0);
+          expect(run.inventory).toEqual(empty);
+          expect(run.journals).toEqual([journal]);
+        })
+      )
+    );
+    it.effect("rejects ambiguous seed folders before saving a journal even with zero creates", () =>
+      withFiles(
+        Effect.fnUntraced(function* (root) {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const input = path.join(root, "fixture.csv");
+          yield* fs.writeFileString(input, csv);
+          const initial = MailboxInventory.make({
+            ...inventoryOf([stored("existing", "Fixture Person", "person@example.test")]),
+            folders: A.map(["first-folder", "second-folder"], (id) =>
+              GraphContactFolder.make({ id, displayName: O.some(seedFolderName) })
+            ),
+          });
+          const run = yield* overJob(
+            root,
+            initial,
+            ContactSeeding.use((job) => Effect.flip(job.apply(ContactInputs.make({ csv: [input], vcf: [] }), true)))
+          );
+          expect(run.result).toMatchObject({ reason: "folder-ambiguous" });
+          expect(run.journals).toHaveLength(0);
+          expect(run.created).toBe(0);
+          expect(run.deleted).toHaveLength(0);
+          expect(run.inventory).toEqual(initial);
+        })
+      )
+    );
+    it.effect("persists an incomplete initial journal before folder creation can fail", () =>
+      withFiles(
+        Effect.fnUntraced(function* (root) {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const input = path.join(root, "fixture.csv");
+          yield* fs.writeFileString(input, csv);
+          const run = yield* overJob(
+            root,
+            empty,
+            ContactSeeding.use((job) => Effect.flip(job.apply(ContactInputs.make({ csv: [input], vcf: [] }), true))),
+            false,
+            true
+          );
+          expect(run.result).toMatchObject({ reason: "response status", status: 403 });
+          expect(run.journals).toHaveLength(1);
+          const journal = O.getOrThrow(A.head(run.journals));
+          assertNone(journal.receipt);
+          assertNone(journal.folderId);
+          expect(journal.contacts).toHaveLength(0);
+          expect(run.created).toBe(0);
+          expect(run.inventory).toEqual(empty);
+          const rollback = yield* overJob(
+            root,
+            empty,
+            ContactSeeding.use((job) => Effect.flip(job.undo(O.some(journal.runId), false, false, true)))
+          );
+          expect(rollback.result).toMatchObject({ reason: "ambiguous-write" });
+          expect(rollback.journals).toEqual([journal]);
+          expect(rollback.deleted).toHaveLength(0);
         })
       )
     );
