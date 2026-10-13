@@ -11,7 +11,7 @@ import {
 import { it } from "@beep/test-runner";
 import * as BunServices from "@effect/platform-bun/BunServices";
 import { describe, expect } from "@effect/vitest";
-import { assertNone, assertTrue } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -457,8 +457,9 @@ describe("contact seeding", () => {
             false,
             true
           );
-          expect(run.result).toMatchObject({ reason: "response status" });
-          assertTrue(S.is(M365Error)(run.result) && O.contains(403)(run.result.status));
+          const failure = yield* Effect.fromOption(O.liftPredicate(S.is(M365Error))(run.result));
+          expect(failure.reason).toBe("response status");
+          assertSome(failure.status, 403);
           expect(run.journals).toHaveLength(1);
           const journal = O.getOrThrow(A.head(run.journals));
           assertNone(journal.receipt);
