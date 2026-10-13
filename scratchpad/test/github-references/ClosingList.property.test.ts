@@ -7,9 +7,10 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
 const runs = { arbitrary: fcRuns(100) };
-const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
-  it.effect.prop(name + ": encode/decode preserves values and never fails", [Arbitrary.schema(schema)], ([value]) =>
+const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>, arbitrary: Arbitrary.Arbitrary<T> = Arbitrary.schema(schema)): void => {
+  it.effect.prop(name + ": encode/decode preserves values and never fails", [arbitrary], ([value]) =>
     Effect.gen(function* () {
+      assertTrue(S.is(schema)(value));
       const encoded = yield* S.encodeEffect(schema)(value);
       const decoded = yield* S.decodeEffect(schema)(encoded);
       assertTrue(S.toEquivalence(schema)(decoded, value));
@@ -19,6 +20,19 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
 import * as O from "effect/Option";
 import * as G from "../../effected/github-references/ClosingList.ts";
 import { ClosingKeyword } from "../../effected/github-references/IssueReferences.ts";
+
+const referenceArbitrary = Arbitrary.all({
+  keyword: Arbitrary.schema(G.ReferenceList.fields.keyword),
+  issueNumbers: Arbitrary.schema(G.ReferenceList.fields.issueNumbers),
+}).pipe(Arbitrary.map((reference) => ({ ...reference, closing: S.is(ClosingKeyword)(reference.keyword) })));
+const spanArbitrary = Arbitrary.schema(G.HarvestedReferenceList.fields.end.check(S.isGreaterThan(0))).pipe(
+  Arbitrary.flatMap((end) => Arbitrary.schema(G.HarvestedReferenceList.fields.start.check(S.isLessThan(end))).pipe(
+    Arbitrary.map((start) => ({ start, end })),
+  )),
+);
+const harvestedArbitrary = Arbitrary.all({ reference: referenceArbitrary, span: spanArbitrary }).pipe(
+  Arbitrary.map(({ reference, span }) => ({ ...reference, ...span })),
+);
 
 const Sample = S.Struct({
   keyword: G.ListKeyword,
@@ -66,8 +80,14 @@ describe("ClosingList property floor", () => {
   roundTrips("ReferenceKeyword", G.ReferenceKeyword);
   roundTrips("ListKeyword", G.ListKeyword);
   roundTrips("ClosingList", G.ClosingList);
-  roundTrips("ReferenceList", G.ReferenceList);
-  roundTrips("HarvestedReferenceList", G.HarvestedReferenceList);
+  roundTrips("ReferenceList", G.ReferenceList, referenceArbitrary);
+  roundTrips("HarvestedReferenceList", G.HarvestedReferenceList, harvestedArbitrary);
+  it.effect.prop("schema-derived lists have consistent closing flags and ordered harvested spans",
+    [referenceArbitrary, harvestedArbitrary], ([reference, harvested]) => Effect.sync(() => {
+      assert.strictEqual(reference.closing, S.is(ClosingKeyword)(reference.keyword));
+      assert.strictEqual(harvested.closing, S.is(ClosingKeyword)(harvested.keyword));
+      assertTrue(harvested.end > harvested.start);
+    }), runs);
   singleProperty("parseClosingList", G.parseClosingList, stringifyList);
   singleProperty("parseReferenceList", G.parseReferenceList, stringifyList);
   const stringifyLines = (values: ReadonlyArray<G.ClosingList | G.ReferenceList>) => values.map(stringifyList).join("\n");

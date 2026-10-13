@@ -10,7 +10,7 @@ import { ConfigDependencyHooks } from "../../effected/workspaces/ConfigDependenc
 import { WorkspaceCatalogs } from "../../effected/workspaces/WorkspaceCatalogs.ts";
 import { WorkspaceDiscovery } from "../../effected/workspaces/WorkspaceDiscovery.ts";
 import { WorkspaceRoot } from "../../effected/workspaces/WorkspaceRoot.ts";
-import { WorkspaceSnapshots } from "../../effected/workspaces/WorkspaceSnapshots.ts";
+import { WorkspaceSnapshots, WorkspaceSnapshotsOptions } from "../../effected/workspaces/WorkspaceSnapshots.ts";
 import { PackageStateSnapshot } from "../../effected/workspaces/WorkspaceStateSnapshot.ts";
 
 const runs = { arbitrary: fcRuns(100) };
@@ -58,3 +58,16 @@ it.layer(platform, { timeout: "30 seconds" })((it) => {
     runs,
   );
 });
+
+
+it.effect.prop("snapshot options round-trip without materializing lazy defaults", [Arbitrary.schema(WorkspaceSnapshotsOptions)], ([value]) => Effect.gen(function* () {
+  const encoded = yield* S.encodeEffect(WorkspaceSnapshotsOptions)(value);
+  const decoded = yield* S.decodeEffect(WorkspaceSnapshotsOptions)(encoded);
+  assert.isTrue(S.toEquivalence(WorkspaceSnapshotsOptions)(decoded, value));
+  assert.deepStrictEqual(yield* S.encodeEffect(WorkspaceSnapshotsOptions)(decoded), encoded);
+}), runs);
+
+it.effect("snapshot options keep absent keys distinct from explicit undefined", () => Effect.gen(function* () {
+  assert.deepStrictEqual(yield* S.decodeEffect(WorkspaceSnapshotsOptions)({}), {});
+  assert.deepStrictEqual(yield* S.decodeEffect(WorkspaceSnapshotsOptions)({ stopAt: undefined }), { stopAt: undefined });
+}));

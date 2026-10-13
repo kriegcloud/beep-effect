@@ -40,6 +40,8 @@ const MemberDocument = S.Struct({
   private: S.Boolean,
   custom: S.Json,
 });
+const MemberText = S.fromJsonString(MemberDocument);
+
 it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
   it.effect.prop(
     "typed and fallback enumeration agree and preserve manifest fields",
@@ -49,7 +51,7 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
         const path = yield* Path.Path;
         const files: Record<string, string> = { "/repo/package.json": '{"name":"root","workspaces":["packages/*"]}' };
         for (const [index, document] of A.map(documents, (document, index) => [index, document] as const)) {
-          files[`/repo/packages/member-${index}/package.json`] = yield* S.encodeEffect(S.fromJsonString(MemberDocument))(document);
+          files[`/repo/packages/member-${index}/package.json`] = yield* S.encodeEffect(MemberText)(document);
         }
         const fs = MemoryFileSystem.makeSync(files).sync;
         const typed: SyncFileSystem = {
@@ -67,7 +69,7 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
           assert.strictEqual(member.value.name, document.name);
           assert.strictEqual(member.value.version, document.version);
           assert.strictEqual(member.value.private, document.private);
-          const parsed = yield* S.decodeEffect(S.fromJsonString(MemberDocument))(fs.readFile(member.value.packageJsonPath));
+          const parsed = yield* S.decodeEffect(MemberText)(fs.readFile(member.value.packageJsonPath));
           assert.deepStrictEqual(member.value.manifestRecord.custom, parsed.custom);
         }
       }),

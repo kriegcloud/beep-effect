@@ -10,6 +10,7 @@ it.effect("missing importer records abstain and resolver layers are memoized", (
     assertNone(state.resolveIn(".", "missing", "catalog:"));
     assert.strictEqual(state.catalogResolver, state.catalogResolver);
     assert.strictEqual(state.workspaceResolver, state.workspaceResolver);
+    assert.strictEqual(state.resolvers, state.resolvers);
     assert.deepStrictEqual(state.versionNames, []);
   }),
 );

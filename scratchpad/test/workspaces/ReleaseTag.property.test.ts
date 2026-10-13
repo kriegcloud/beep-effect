@@ -3,7 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { TagStyle, TrackingTag, ReleaseTag, TagClassification, classifyTag } from "../../effected/workspaces/ReleaseTag.ts";
+import { TagStyle, TagFormatOptions, TrackingTagOptions, TrackingTag, ReleaseTag, TagClassification, classifyTag } from "../../effected/workspaces/ReleaseTag.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -19,10 +19,23 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
 
 describe("ReleaseTag schema laws", () => {
   roundTrips("TagStyle", TagStyle);
+  roundTrips("TagFormatOptions", TagFormatOptions);
+  roundTrips("TrackingTagOptions", TrackingTagOptions);
   roundTrips("TrackingTag", TrackingTag);
   roundTrips("ReleaseTag", ReleaseTag);
   roundTrips("TagClassification", TagClassification);
 });
+
+it.effect("tag option schemas preserve omitted keys without resolving defaults", () => Effect.gen(function* () {
+  assert.deepStrictEqual(yield* S.decodeEffect(TagFormatOptions)({}), {});
+  assert.deepStrictEqual(yield* S.decodeEffect(TrackingTagOptions)({}), {});
+  assert.isTrue(S.is(TagFormatOptions)({ versionPrefix: "" }));
+  assert.isTrue(S.is(TrackingTagOptions)({ packageName: "", precision: "both", includePrerelease: false }));
+  assert.isFalse(S.is(TagFormatOptions)({ versionPrefix: undefined }));
+  assert.isFalse(S.is(TrackingTagOptions)({ packageName: undefined }));
+  assert.isFalse(S.is(TrackingTagOptions)({ precision: undefined }));
+  assert.isFalse(S.is(TrackingTagOptions)({ includePrerelease: undefined }));
+}));
 
 const VersionParts = S.Struct({
   major: S.Literals(["0", "1", "12", "999"]),

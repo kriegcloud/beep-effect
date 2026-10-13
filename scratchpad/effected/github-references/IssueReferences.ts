@@ -114,7 +114,11 @@ export const IssueReference = S.Struct({
 	start: S.Natural.annotate($I.annote("IssueReference.start", { description: "The offset of the first character of the whole match." })),
 	/** Offset one past the last character of the whole match. */
 	end: S.Natural.annotate($I.annote("IssueReference.end", { description: "The offset one past the last character of the whole match." })),
-}).annotate($I.annote("IssueReference", { description: "A closing issue reference harvested from prose with its match offsets." }));
+}).check(S.makeFilter((reference) => reference.end > reference.start, $I.annote("IssueReference.OrderedSpan", {
+	title: "Ordered issue reference span",
+	description: "The exclusive end offset exceeds the start offset of the harvested match.",
+	message: "Expected end to be greater than start.",
+}))).annotate($I.annote("IssueReference", { description: "A closing issue reference harvested from prose with its match offsets." }));
 
 /**
  * Decoded inline closing reference with its issue number, canonical keyword and match offsets.

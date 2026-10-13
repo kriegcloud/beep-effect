@@ -3,7 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { VersioningStrategyType, ClassifyOptions, PackageRelease, VersioningStrategy } from "../../effected/workspaces/VersioningStrategy.ts";
+import { VersioningStrategyType, ClassifyOptions, VersioningDetectOptions, PackageRelease, VersioningStrategy } from "../../effected/workspaces/VersioningStrategy.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -20,9 +20,20 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
 describe("VersioningStrategy schema laws", () => {
   roundTrips("VersioningStrategyType", VersioningStrategyType);
   roundTrips("ClassifyOptions", ClassifyOptions);
+  roundTrips("VersioningDetectOptions", VersioningDetectOptions);
   roundTrips("PackageRelease", PackageRelease);
   roundTrips("VersioningStrategy", VersioningStrategy);
 });
+
+it.effect("detection options reuse the exact optional fixed-groups field without defaults", () => Effect.gen(function* () {
+  assert.strictEqual(VersioningDetectOptions.fields.fixedGroups, ClassifyOptions.fields.fixedGroups);
+  assert.deepStrictEqual(yield* S.decodeEffect(VersioningDetectOptions)({}), {});
+  assert.deepStrictEqual(
+    yield* S.decodeEffect(VersioningDetectOptions)({ fixedGroups: [["", "missing-package"], []] }),
+    { fixedGroups: [["", "missing-package"], []] },
+  );
+  assert.isFalse(S.is(VersioningDetectOptions)({ fixedGroups: undefined }));
+}));
 
 it.effect.prop("classification is idempotent on its normalized package set",
   [Arbitrary.schema(ClassifyOptions)], ([options]) => Effect.sync(() => {

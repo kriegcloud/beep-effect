@@ -7,6 +7,8 @@ import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import { findWorkspaceRootSync, getWorkspacePackagesSync } from "../../effected/workspaces/WorkspacesSync.ts";
 import type { SyncFileSystem, WorkspaceDiscoverySkip } from "../../effected/workspaces/WorkspacesSync.ts";
 
+const WorkspaceText = S.fromJsonString(S.Struct({ name: S.String, workspaces: S.Array(S.String) }));
+
 const seed = {
   "/repo/package.json": '{"name":"root","workspaces":["packages/**"]}',
   "/repo/packages/a/package.json": '{"name":"a"}',
@@ -145,7 +147,7 @@ it.layer(Path.layer, { timeout: "30 seconds" })((it) => {
     Effect.gen(function* () {
       const path = yield* Path.Path;
       for (const patterns of [["a".repeat(65537)], ["packages/a", "!packages/a"], ["packages/*", "!packages/a"]]) {
-        const text = yield* S.encodeEffect(S.fromJsonString(S.Struct({ name: S.String, workspaces: S.Array(S.String) })))({
+        const text = yield* S.encodeEffect(WorkspaceText)({
           name: "root",
           workspaces: patterns,
         });

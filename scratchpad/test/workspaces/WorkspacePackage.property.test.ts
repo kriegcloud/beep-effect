@@ -46,6 +46,8 @@ const located = WorkspacePackage.make({
   relativePath: ".",
   workspaceRoot: "/repo",
 });
+const ManifestText = S.fromJsonString(ManifestDocument);
+
 it.layer(MemoryFileSystem.layerWith({}), { timeout: "30 seconds" })((it) => {
   it.effect.prop(
     "manifest parse/stringify fidelity and serialization idempotence",
@@ -54,7 +56,7 @@ it.layer(MemoryFileSystem.layerWith({}), { timeout: "30 seconds" })((it) => {
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         yield* fs.makeDirectory("/repo", { recursive: true });
-        yield* fs.writeFileString(located.packageJsonPath, yield* S.encodeEffect(S.fromJsonString(ManifestDocument))(document));
+        yield* fs.writeFileString(located.packageJsonPath, yield* S.encodeEffect(ManifestText)(document));
         const first = yield* located.manifest();
         const original = yield* S.encodeEffect(Package.schema)(first);
         const text = first.toJsonString();

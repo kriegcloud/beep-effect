@@ -3,6 +3,8 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+const JsonValue = S.fromJsonString(S.Unknown);
+
 const runs = { arbitrary: fcRuns(100) };
 const roundTrip = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(`${name}: decoding encoded values succeeds and preserves the value`, [Arbitrary.schema(schema)], ([value]) => Effect.gen(function* () {
@@ -12,9 +14,11 @@ const roundTrip = <T, E>(name: string, schema: S.Codec<T, E>): void => {
     assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
   }), runs);
 };
-import { CatalogSet } from "../../effected/workspaces/WorkspaceCatalogs.ts";
+import { CatalogSet, ImporterVersions, WorkspaceCatalogsOptions } from "../../effected/workspaces/WorkspaceCatalogs.ts";
 describe("WorkspaceCatalogs property floor", () => {
   roundTrip("CatalogSet", CatalogSet);
+  roundTrip("ImporterVersions", ImporterVersions);
+  roundTrip("WorkspaceCatalogsOptions", WorkspaceCatalogsOptions);
 });
 
 import { Yaml } from "../../effected/yaml/index.ts";
@@ -43,10 +47,10 @@ describe("catalog parser fidelity", () => {
   it.effect.prop("catalog normalization is idempotent and both manifest parsers preserve normalized ranges", [Arbitrary.schema(CatalogSet)], ([value]) => Effect.gen(function* () {
     const normalized = CatalogSet.fromCatalogs(value.entries);
     assert.deepStrictEqual(CatalogSet.fromCatalogs(normalized.entries).entries, normalized.entries);
-    const json = yield* S.encodeEffect(S.fromJsonString(S.Unknown))({ catalogs: normalized.entries });
+    const json = yield* S.encodeEffect(JsonValue)({ catalogs: normalized.entries });
     const parsed = yield* CatalogSet.fromManifestWorkspaces(json);
     assert.deepStrictEqual(parsed.entries, normalized.entries);
-    const reparsed = yield* CatalogSet.fromManifestWorkspaces(yield* S.encodeEffect(S.fromJsonString(S.Unknown))({ catalogs: parsed.entries }));
+    const reparsed = yield* CatalogSet.fromManifestWorkspaces(yield* S.encodeEffect(JsonValue)({ catalogs: parsed.entries }));
     assert.deepStrictEqual(reparsed.entries, parsed.entries);
     const yamlParsed = yield* CatalogSet.fromWorkspaceYaml(yield* Yaml.stringify({ catalogs: normalized.entries }));
     assert.deepStrictEqual(yamlParsed.entries, normalized.entries);

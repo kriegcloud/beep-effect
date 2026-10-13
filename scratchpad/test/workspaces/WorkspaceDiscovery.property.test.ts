@@ -3,6 +3,8 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+const JsonValue = S.fromJsonString(S.Unknown);
+
 const runs = { arbitrary: fcRuns(100) };
 const roundTrip = <T, E>(name: string, schema: S.Codec<T, E>): void => {
   it.effect.prop(`${name}: decoding encoded values succeeds and preserves the value`, [Arbitrary.schema(schema)], ([value]) => Effect.gen(function* () {
@@ -32,14 +34,14 @@ it.layer(WorkspaceDiscovery.layer({ cwd: "/repo" }).pipe(Layer.provide(Layer.mer
   it.effect.prop("manifest discovery preserves unknown fields through parse, stringify and reparse", [Arbitrary.schema(S.Struct({ name: S.String.check(S.isMinLength(1)), version: S.String.check(S.isMinLength(1)), custom: S.Json }))], ([manifest]) => Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const discovery = yield* WorkspaceDiscovery;
-    const text = yield* S.encodeEffect(S.fromJsonString(S.Unknown))(manifest);
+    const text = yield* S.encodeEffect(JsonValue)(manifest);
     yield* fs.writeFileString("/repo/package.json", text);
     yield* discovery.refresh;
     const first = yield* discovery.getPackage(manifest.name);
-    assert.deepStrictEqual(first.manifestRecord, yield* S.decodeEffect(S.fromJsonString(S.Unknown))(text));
+    assert.deepStrictEqual(first.manifestRecord, yield* S.decodeEffect(JsonValue)(text));
     assert.strictEqual(first.name, manifest.name);
     assert.strictEqual(first.version, manifest.version);
-    yield* fs.writeFileString("/repo/package.json", yield* S.encodeEffect(S.fromJsonString(S.Unknown))(first.manifestRecord));
+    yield* fs.writeFileString("/repo/package.json", yield* S.encodeEffect(JsonValue)(first.manifestRecord));
     yield* discovery.refresh;
     const second = yield* discovery.getPackage(manifest.name);
     assert.deepStrictEqual(second.manifestRecord, first.manifestRecord);

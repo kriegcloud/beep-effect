@@ -130,6 +130,24 @@ describe("IssueReferences.review regressions", () => {
 		assert.isFalse(S.is(BareLineReference)({ ...bare, keyword: "refs" }));
 	});
 
+	it("requires nonempty ordered spans and accepts real harvests", () => {
+		const text = "see fixes #12 and closes #3";
+		const harvested = harvestIssueReferences(text);
+		assert.deepStrictEqual(harvested, [
+			{ keyword: "fixes", issueNumber: 12, start: 4, end: 13 },
+			{ keyword: "closes", issueNumber: 3, start: 18, end: 27 },
+		]);
+		for (const reference of harvested) {
+			assert.isTrue(S.is(IssueReference)(reference));
+			assertSome(S.decodeOption(IssueReference)(reference), reference);
+			for (const [start, end] of [[0, 0], [10, 10], [10, 0]] as const) {
+				const invalid = { ...reference, start, end };
+				assert.isFalse(S.is(IssueReference)(invalid));
+				assertNone(S.decodeOption(IssueReference)(invalid));
+			}
+		}
+	});
+
 	it("rejects invalid keywords and prototype names in both parser dialects", () => {
 		for (const keyword of ["nope", "xfixes", "reference", "refs", "constructor", "toString", "hasOwnProperty", "__proto__", "valueOf"]) {
 			assert.isFalse(S.is(ClosingKeyword)(keyword), keyword);
