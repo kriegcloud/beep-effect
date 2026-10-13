@@ -5954,6 +5954,18 @@
           "upstreamBehaviour": "Run.ts exposes no ExitCode schema value or same-name derived type.",
           "labBehaviour": "Run.ts newly exports the existing integer ExitCode schema and its derived type so ScriptedSpawner can reuse the domain. The package barrel is unchanged.",
           "reason": "added-exports: D2 requires additive exports to be recorded, and law 17 requires reuse of the owning domain. Required fable-2-2 changes ExitCode from a private schema into a module export and adds its same-name type; earlier schema value additions are outside this round diff."
+        },
+        {
+          "test": "scratchpad/test/commands/ScriptedSpawner.test.ts:196; scratchpad/test/commands/ScriptedSpawner.test.ts:213",
+          "upstreamBehaviour": "SpawnRecord is a type-only interface carrying the original ChildProcess.CommandOptions; upstream has no SpawnRecord runtime guard or decoder. Core additional-FD keys use fd${number}, including whitespace and radix spellings.",
+          "labBehaviour": "The port validator now checks input/output configurations under noncanonical numeric FD keys, including fd 3 and fd0x3. Guards and decoders reject numeric stream/sink payloads while accepting valid opaque carriers and preserving options/configuration identity.",
+          "reason": "schema-first: Core Principle 5 and EF-3 require an executable contract faithful to core. Required sol-3-1 repairs the port-added S.Finite key matcher, which skipped noncanonical-key values. This records newly enforced validation, not the already ledgered creation of SpawnRecord; the defect is in the port, not upstream."
+        },
+        {
+          "test": "scratchpad/effected/commands/LocalExec.ts:124; scratchpad/effected/commands/Run.ts:191; scratchpad/effected/commands/Tool.ts:93; scratchpad/effected/commands/ToolDiscovery.ts:83; scratchpad/effected/commands/ScriptedSpawner.ts:16; scratchpad/effected/commands/internal/capture.ts:36",
+          "upstreamBehaviour": "Upstream schema classes/errors omit the second nominal brand type argument; structurally compatible types can remain assignable. Port-added schema errors and EvidenceKey also lacked this argument before this round.",
+          "labBehaviour": "All 18 schema Class, TaggedClass and TaggedError declarations in the round diff add { readonly brand: unique symbol } as their second type argument, giving each instance type a nominal distinction. Runtime fields, constructors and encoded shapes remain unchanged.",
+          "reason": "tsgo-diagnostics: Effect 4 schemaClassMissingBrand (TS377141) requires the second brand type argument to prevent structural substitution of class instances. The working-tree diff grounds this new type-shape change; the fix-lane report covers the FD repair and supplies no branding-specific compile proof."
         }
       ],
       "backlog": [
@@ -6106,6 +6118,24 @@
             "fable": {
               "required": 4,
               "backlog": 6
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 1,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
             }
           }
         }
