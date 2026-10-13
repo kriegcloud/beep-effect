@@ -317,7 +317,9 @@ const skillFlag = Flag.String("skill").pipe(
   Flag.optional
 );
 const provenanceSkillArgument = Argument.String("skill").pipe(
-  Argument.withDescription("Installed skill to resolve; the P1 pilot supports shadcn")
+  Argument.withDescription(
+    "Installed skill to resolve: one with a ratified resolution seed (grill-me, oracle, portless, shadcn, teach, turborepo)"
+  )
 );
 const provenanceJsonFlag = Flag.Boolean("json").pipe(
   Flag.withDefault(false),

@@ -34,6 +34,13 @@ export * from "./Skills.render.ts";
  */
 export * from "./Skills.schemas.ts";
 /**
+ * Ratified first-wave provenance resolution seeds.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export * from "./Skills.seeds.ts";
+/**
  * Injectable read-only provenance services.
  *
  * @category services

@@ -22,10 +22,12 @@ import {
   encodeSkillsLockV2,
   encodeSkillsLockV2Json,
   encodeSkillUpstream,
+  findSkillResolutionSeed,
   resolveSkillProvenance,
   SkillUpstreamContent,
   SkillUpstreamContentFile,
   SkillUpstreamContentSource,
+  skillResolutionSeeds,
 } from "@beep/repo-cli/commands/Skills";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { Sha256HexFromBytes } from "@beep/schema";
@@ -38,6 +40,7 @@ import * as Exit from "effect/Exit";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -175,6 +178,40 @@ layer(TestLayer)("skills-lock/v2 schemas", (it) => {
       const encoded = yield* encodeSkillsLockV2Json(document);
       const decodedAgain = yield* decodeSkillsLockV2Json(encoded);
       expect(yield* encodeSkillsLockV2Json(decodedAgain)).toBe(encoded);
+    })
+  );
+});
+
+layer(TestLayer)("skills resolution seeds", (it) => {
+  it.effect("decodes the six ratified first-wave resolutions with unique names", () =>
+    Effect.gen(function* () {
+      const seeds = yield* skillResolutionSeeds;
+      expect(A.map(seeds, (seed) => seed.name)).toStrictEqual([
+        "grill-me",
+        "oracle",
+        "portless",
+        "shadcn",
+        "teach",
+        "turborepo",
+      ]);
+      const oracle = yield* findSkillResolutionSeed("oracle");
+      assertTrue(O.isSome(oracle));
+      if (O.isSome(oracle)) {
+        expect([oracle.value.provenanceStatus, oracle.value.provenanceConfidence]).toStrictEqual([
+          "inferred",
+          "medium",
+        ]);
+      }
+      assertTrue(O.isNone(yield* findSkillResolutionSeed("yeet")));
+    })
+  );
+
+  it.effect("refuses provenance for a skill with no ratified seed", () =>
+    Effect.gen(function* () {
+      const repoRoot = yield* findRepoRoot();
+      const exit = yield* Effect.exit(resolveSkillProvenance("yeet", repoRoot));
+      assertTrue(Exit.isFailure(exit));
+      expect(String(exit)).toContain("No ratified provenance resolution");
     })
   );
 });

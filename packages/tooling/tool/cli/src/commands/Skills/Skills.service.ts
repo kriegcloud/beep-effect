@@ -24,13 +24,14 @@ import {
   SkillLicense,
   SkillPatch,
   SkillProvenanceReport,
-  SkillProvenanceResolution,
   SkillSnapshotFile,
   SkillTreeMode,
   SkillUpstreamContent,
   SkillUpstreamContentFile,
 } from "./Skills.schemas.ts";
+import { skillResolutionSeeds } from "./Skills.seeds.ts";
 import type * as Crypto from "effect/Crypto";
+import type { SkillProvenanceResolution } from "./Skills.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.service");
 
@@ -39,7 +40,6 @@ const PATCH_PATH = "patches/0001-local-drift.patch";
 const textDecoder = new TextDecoder("utf-8", { fatal: true });
 const textEncoder = new TextEncoder();
 const decodeSha256HexFromBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
-const decodeProvenanceResolution = S.decodeUnknownEffect(SkillProvenanceResolution);
 const decodeSkillTreeMode = S.decodeUnknownEffect(SkillTreeMode);
 
 const GitHubTreeEntryType = LiteralKit(["blob", "tree", "commit"]);
@@ -92,29 +92,6 @@ class ComputedSkillTree extends S.Class<ComputedSkillTree>($I`ComputedSkillTree`
 ) {}
 
 const decodeGitHubTree = S.decodeUnknownEffect(S.fromJsonString(S.suspend(() => GitHubTree)));
-
-const shadcnResolutionInput = {
-  name: "shadcn",
-  sourceType: "github",
-  upstream: {
-    repository: "shadcn-ui/ui",
-    repositoryUrl: "https://github.com/shadcn-ui/ui",
-    treePath: "skills/shadcn",
-    entryPath: "skills/shadcn/SKILL.md",
-    trackingRef: "main",
-    sourceRevision: "91f21dfe1328585670275781b4525fff2507f917",
-    observedHeadRevision: "cb2bcd88d93b2f9bddb030e9136f1f8773e7eac4",
-    observedPathRevision: "6cd3f4c65c361ab6554e06a77e6a0af9cf8b6e37",
-  },
-  license: {
-    spdxId: "MIT",
-    path: "LICENSE.md",
-    sha256: "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f",
-  },
-  provenanceStatus: "exact",
-  provenanceConfidence: "high",
-  provenanceEvidence: ["exact-tree", "path-history"],
-};
 
 const normalizeSlashes = Str.replaceAll("\\", "/");
 
@@ -662,19 +639,25 @@ export const SkillUpstreamContentSourceLive = Layer.effect(SkillUpstreamContentS
 const resolveResolution = Effect.fn("SkillsProvenance.resolveResolution")(function* (
   skill: string
 ): Effect.fn.Return<SkillProvenanceResolution, SkillsCommandError> {
-  if (!Str.Equivalence(skill, "shadcn")) {
-    return yield* SkillsCommandError.make({
-      message: `Unsupported provenance pilot skill "${skill}". The P1 pilot supports: shadcn.`,
-      skill,
-    });
-  }
-  return yield* decodeProvenanceResolution(shadcnResolutionInput).pipe(
-    SkillsCommandError.mapError(`Invalid ratified provenance resolution for ${skill}.`, undefined, skill)
+  const seeds = yield* skillResolutionSeeds.pipe(
+    SkillsCommandError.mapError("Invalid ratified provenance resolution seed table.", undefined, skill)
+  );
+  return yield* A.findFirst(seeds, (seed) => Str.Equivalence(seed.name, skill)).pipe(
+    Effect.fromOption,
+    Effect.mapError(() =>
+      SkillsCommandError.make({
+        message: `No ratified provenance resolution for "${skill}". Resolved skills: ${A.join(
+          A.map(seeds, (seed) => seed.name),
+          ", "
+        )}.`,
+        skill,
+      })
+    )
   );
 });
 
 /**
- * Computes the would-be `skills-lock/v2` entry for one installed pilot skill.
+ * Computes the would-be `skills-lock/v2` entry for one installed, seeded skill.
  *
  * **Details**
  *
@@ -721,8 +704,8 @@ export const resolveSkillProvenance = Effect.fn("SkillsProvenance.resolveSkillPr
   SkillUpstreamContentSource | FileSystem.FileSystem | Path.Path | Crypto.Crypto
 > {
   const path = yield* Path.Path;
-  const source = yield* SkillUpstreamContentSource;
   const resolution = yield* resolveResolution(skill);
+  const source = yield* SkillUpstreamContentSource;
   const upstreamContent = yield* source.load(resolution);
   const actualLicenseHash = yield* hashBytes(upstreamContent.licenseBytes, `${skill}:${resolution.license.path}`);
   if (!Str.Equivalence(actualLicenseHash, resolution.license.sha256)) {
@@ -820,7 +803,7 @@ export const resolveSkillProvenance = Effect.fn("SkillsProvenance.resolveSkillPr
  * @since 0.0.0
  */
 export interface SkillProvenanceServiceShape {
-  /** Compute the would-be lock entry for one installed pilot skill. */
+  /** Compute the would-be lock entry for one installed, seeded skill. */
   readonly resolve: (skill: string, repoRoot: string) => Effect.Effect<SkillProvenanceReport, SkillsCommandError>;
 }
 
