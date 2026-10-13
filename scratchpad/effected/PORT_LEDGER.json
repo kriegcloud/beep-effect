@@ -6866,6 +6866,18 @@
           "round": 2,
           "finding": "backlog-6 — Inherited test inventories and assertions await canon migration (scratchpad/test/env/agentCi.test.ts:95)",
           "reason": "test: In S3 migrate native Set inventories to HashSet, key lists to Record.keys and the CI switch to CiName.$match, preserving the compile-time exhaustiveness proof. Deferred inherited vitest-canon migration."
+        },
+        {
+          "seat": "grok",
+          "round": 3,
+          "finding": "grok-3-1 — AudienceShape lacks its generated round-trip property (scratchpad/effected/env/Audience.ts:86)",
+          "reason": "test: During S3 add it.effect.prop with Arbitrary.schema(AudienceShape), S.encodeEffect/S.decodeEffect, S.toEquivalence, re-encode equality and fcRuns in Audience.property.test.ts; deferred generated round-trip work, with no demonstrated runtime defect."
+        },
+        {
+          "seat": "grok",
+          "round": 3,
+          "finding": "grok-3-2 — Osc8Info and Osc8Override lack generated round-trip properties (scratchpad/effected/env/internal/osc8/detect.ts:92)",
+          "reason": "test: During S3 add Arbitrary.schema round-trips for Osc8Info and Osc8Override in internal/osc8/detect.property.test.ts, with S.encodeEffect/S.decodeEffect, S.toEquivalence, re-encode equality and fcRuns; deferred property work, with no demonstrated detector/schema mismatch."
         }
       ],
       "reviewRounds": [
@@ -6902,6 +6914,24 @@
             "fable": {
               "required": 5,
               "backlog": 6
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 2
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
             }
           }
         }
