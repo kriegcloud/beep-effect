@@ -659,3 +659,19 @@ desktop IPC command. Most memory at the 24 GiB cap was file cache; the observed
 cgroup counters showed no OOM kill. Receipts: `native-desktop-v3-probe-plan-v3.json`,
 `native-desktop-v3-resource-observations.jsonl` and
 `native-desktop-v3-parent-verification-v1.json`.
+
+
+## Preserve bootstrap binaries as well as the sandbox runtime
+
+The October 13 post-reboot check found that the request still referenced mutable
+host bootstrap files. Of 32 artifact references, five checks failed across four
+unique files: Python appeared twice, Python's shared library and Podman changed,
+and the pinned SQLite filename disappeared. The standalone broker/bootstrap
+inputs therefore cannot reuse their earlier pass without recovery.
+
+The frozen sparse runtime and tool entrypoints are separate from these host
+references. Recover exact original bytes into owned storage when available,
+regenerate path-bound contracts, and prove the bootstrap before another long
+Collector run. Do not roll back workstation packages, substitute updated bytes,
+or rewrite the historical attempt. Receipt:
+`attempt11-reboot-standalone-artifact-check-v1.json`.
