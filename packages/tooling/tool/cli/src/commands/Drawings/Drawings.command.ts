@@ -1,6 +1,7 @@
 /**
- * `beep drawings`: render design-figure sheet sets from a spec and validate
- * sheet-set PDFs against the filing rules.
+ * `beep drawings`: render design-figure sheet sets from a spec, validate
+ * sheet-set PDFs against the filing rules, judge them, record deliveries and
+ * attorney review rounds, and record approvals.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -23,14 +24,27 @@ import * as Config from "effect/Config";
 import { Argument, Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.ts";
+import { isRequiredSeverity } from "../Qa/Inventory.schemas.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import { buildDrawingJudgePack, ingestDrawingJudgeInventory } from "./Drawings.judge.ts";
 import { FigureSetLive, MailReaderM365Live, MailReaderUnavailable, sheetSetApprovalLive } from "./Drawings.layer.ts";
+import { openRequiredFindings, parseFigureOverride } from "./Drawings.review.rules.ts";
+import {
+  DeliverRequest,
+  ReviewIngestRequest,
+  ReviewOpenRequest,
+  ReviewPlanRequest,
+  ReviewRoundLocation,
+} from "./Drawings.review.schemas.ts";
+import { DrawingReview } from "./Drawings.review.ts";
 import type { OcctError } from "@beep/occt";
 import type { DrawingError, RenderManifest, ValidationReport } from "@beep/technical-drawing";
+import type { ReviewFinding, ReviewStatus } from "./Drawings.review.schemas.ts";
 
 const specFlag = Flag.File("spec", { mustExist: true }).pipe(Flag.withDescription("Figure-set spec JSON"));
 const outFlag = Flag.Directory("out").pipe(Flag.withDescription("Output directory for sheets, PDF, and manifest"));
@@ -181,7 +195,27 @@ const decodeDeliverer = (value: string) =>
     Effect.mapError((cause) => DrawingsCommandError.new(cause, `"${value}" is not an email address.`))
   );
 
-const runStatement = Effect.fn("DrawingsCommand.statement")(function* (options: { readonly manifest: string }) {
+const reviewDirFlag = Flag.Directory("review-dir", { mustExist: true }).pipe(
+  Flag.optional,
+  Flag.withDescription("The matter's review/ directory; found from the manifest's ancestors when omitted")
+);
+
+const runStatement = Effect.fn("DrawingsCommand.statement")(function* (options: {
+  readonly manifest: string;
+  readonly reviewDir: O.Option<string>;
+}) {
+  const review = yield* DrawingReview;
+  const verdict = yield* review.guard(options.manifest, options.reviewDir);
+  if (A.isReadonlyArrayNonEmpty(verdict.refusals)) {
+    return yield* DrawingsCommandError.new(
+      verdict,
+      `No approval statement while required review findings are open:\n${A.join(
+        A.map(verdict.refusals, (line) => `  ${line}`),
+        "\n"
+      )}\nResolve or decline them in the round's dispositions, or render a new set.`
+    );
+  }
+  yield* printLines(A.map(verdict.warnings, (line) => `warning: ${line}`));
   const approval = yield* SheetSetApproval;
   const statement = yield* approval
     .statement(options.manifest)
@@ -216,9 +250,17 @@ const runSign = (
     ]);
   });
 
-const drawingsStatementCommand = Command.make("statement", { manifest: manifestFlag }, runStatement).pipe(
-  Command.withDescription("Print the approval line the approver must write for a rendered sheet set"),
-  Command.provide(sheetSetApprovalLive(MailReaderUnavailable))
+const drawingReviewLive = DrawingReview.layer.pipe(Layer.provide(PdfTools.makeLayer()));
+
+const drawingsStatementCommand = Command.make(
+  "statement",
+  { manifest: manifestFlag, reviewDir: reviewDirFlag },
+  runStatement
+).pipe(
+  Command.withDescription(
+    "Print the approval line the approver must write for a rendered sheet set; refused while a review round over the set has open required findings"
+  ),
+  Command.provide(Layer.merge(sheetSetApprovalLive(MailReaderUnavailable), drawingReviewLive))
 );
 
 const drawingsSignEmailCommand = Command.make(
@@ -274,19 +316,26 @@ const replyFlag = Flag.File("reply", { mustExist: true }).pipe(
   Flag.withDescription("The judge's final message, or a bare qa-inventory/v1 JSON file")
 );
 
+const reviewFlag = Flag.File("review", { mustExist: true }).pipe(
+  Flag.optional,
+  Flag.withDescription("A review round's round.json: add the reviewer's requests to the pack")
+);
+
 const runJudge = Effect.fn("DrawingsCommand.judge")(function* (options: {
   readonly manifest: string;
   readonly round: number;
   readonly photos: O.Option<string>;
+  readonly review: O.Option<string>;
 }) {
   const pack = yield* buildDrawingJudgePack({
     manifestPath: options.manifest,
     round: options.round,
     photosDir: options.photos,
+    reviewPath: options.review,
   });
   yield* printLines([
     `judge pack: ${pack.packDir}`,
-    `  ${pack.sheets} sheet(s), ${pack.photos} reference photo(s)`,
+    `  ${pack.sheets} sheet(s), ${pack.photos} reference photo(s)${pack.reviewed ? ", reviewer requests" : ""}`,
     `  give the vision judge (claude-opus-5-5) ${pack.packDir}/prompt.md, then:`,
     `  bun run beep drawings judge-ingest --pack ${pack.packDir} --reply <reply file>`,
   ]);
@@ -305,7 +354,7 @@ const runJudgeIngest = Effect.fn("DrawingsCommand.judgeIngest")(function* (optio
 
 const drawingsJudgeCommand = Command.make(
   "judge",
-  { manifest: manifestFlag, round: roundFlag, photos: photosFlag },
+  { manifest: manifestFlag, round: roundFlag, photos: photosFlag, review: reviewFlag },
   runJudge
 ).pipe(
   Command.withDescription("Build a vision-judge pack (sheet PNGs, photos, drawing-rubric prompt) for a sheet set"),
@@ -318,8 +367,230 @@ const drawingsJudgeIngestCommand = Command.make(
   runJudgeIngest
 ).pipe(Command.withDescription("Validate a judge reply as a drawing-rubric qa-inventory/v1 and store it in the pack"));
 
+const matterFlag = Flag.Directory("matter", { mustExist: true }).pipe(
+  Flag.withDescription("Matter directory under the corpus root; rounds live in <matter>/review/round-<n>/")
+);
+const reviewRoundFlag = Flag.Int("round").pipe(Flag.withDescription("Review round number"));
+const deliveryFlag = Flag.File("delivery", { mustExist: true }).pipe(
+  Flag.optional,
+  Flag.withDescription("delivery.json written by `drawings deliver record` for the send being reviewed")
+);
+const reviewerPdfFlag = Flag.File("pdf", { mustExist: true }).pipe(
+  Flag.withDescription("A PDF the reviewer sent back, under the corpus root; repeat for each file"),
+  Flag.atLeast(1)
+);
+const figureFlag = Flag.String("figure").pipe(
+  Flag.withDescription("<file>[:<page>]=<FIG.> for a page ink coverage cannot match; repeat as needed"),
+  Flag.atLeast(0)
+);
+const dispositionsFlag = Flag.File("dispositions", { mustExist: true }).pipe(
+  Flag.withDescription("dispositions.json with one entry per finding")
+);
+const draftFlag = Flag.File("draft", { mustExist: true }).pipe(
+  Flag.withDescription("JSON the outbox returned for the draft (create_draft or get_draft)")
+);
+const sentMessageIdFlag = Flag.String("sent-message-id").pipe(
+  Flag.optional,
+  Flag.withDescription("Graph id of the sent message")
+);
+const internetMessageIdFlag = Flag.String("internet-message-id").pipe(
+  Flag.optional,
+  Flag.withDescription("Internet Message-ID of the sent message")
+);
+const deliveryOutFlag = Flag.String("out").pipe(
+  Flag.optional,
+  Flag.withDescription("Where to write the record; defaults to delivery.json next to the manifest")
+);
+
+const locationOf = (options: { readonly corpusRoot: string; readonly matter: string; readonly round: number }) =>
+  S.decodeEffect(ReviewRoundLocation)({
+    corpusRoot: options.corpusRoot,
+    matter: options.matter,
+    round: options.round,
+  }).pipe(Effect.mapError((cause) => DrawingsCommandError.new(cause, `Round ${options.round} is not a valid round.`)));
+
+const oneLine = (text: string): string => text.replace(/\s*\n\s*/g, " / ");
+
+const findingLine = (finding: ReviewFinding): string =>
+  `  ${finding.id} ${finding.severity} ${finding.status} ${O.match(finding.figure, {
+    onNone: () => "all sheets",
+    onSome: (figure) => `FIG. ${figure}`,
+  })}: ${oneLine(finding.notes[0].text)}${A.length(finding.notes) > 1 ? ` (×${A.length(finding.notes)})` : ""}`;
+
+const renderReviewStatus = (status: ReviewStatus): ReadonlyArray<string> => [
+  `review round ${status.round.round}: ${status.round.status}, sheet set ${status.round.reviewedSheetSetSha256}`,
+  `  ${status.roundDir}`,
+  ...O.match(status.intake, {
+    onNone: () => [],
+    onSome: (intake) =>
+      A.map(
+        intake.pages,
+        (page) =>
+          `  ${page.file} page ${page.page} → FIG. ${page.match.figure} (${page.match.basis}, coverage ${page.match.coverage.toFixed(3)}), ${A.length(page.notes)} note(s)`
+      ),
+  }),
+  ...O.match(status.inventory, {
+    onNone: () => ["  not ingested yet"],
+    onSome: (inventory) => [
+      `  ${A.length(inventory.findings)} finding(s), ${A.length(openRequiredFindings(inventory.findings))} open required, ${A.length(
+        A.filter(inventory.findings, (finding) => isRequiredSeverity(finding.severity))
+      )} required in all`,
+      ...A.map(inventory.findings, findingLine),
+    ],
+  }),
+];
+
+const runReviewOpen = Effect.fn("DrawingsCommand.reviewOpen")(function* (options: {
+  readonly corpusRoot: string;
+  readonly matter: string;
+  readonly round: number;
+  readonly manifest: string;
+  readonly delivery: O.Option<string>;
+}) {
+  const review = yield* DrawingReview;
+  const status = yield* review.open(
+    ReviewOpenRequest.make({
+      location: yield* locationOf(options),
+      manifestPath: options.manifest,
+      deliveryPath: options.delivery,
+    })
+  );
+  yield* printLines(renderReviewStatus(status));
+});
+
+const runReviewIngest = Effect.fn("DrawingsCommand.reviewIngest")(function* (options: {
+  readonly corpusRoot: string;
+  readonly matter: string;
+  readonly round: number;
+  readonly manifest: string;
+  readonly pdf: ReadonlyArray<string>;
+  readonly figure: ReadonlyArray<string>;
+}) {
+  const review = yield* DrawingReview;
+  const overrides = yield* Effect.forEach(options.figure, (text) =>
+    Result.match(parseFigureOverride(text), {
+      onFailure: (reason) => Effect.fail(DrawingsCommandError.make({ message: reason })),
+      onSuccess: Effect.succeed,
+    })
+  );
+  const [first, ...rest] = options.pdf;
+  if (first === undefined) {
+    return yield* DrawingsCommandError.make({ message: "Name at least one reviewer PDF with --pdf." });
+  }
+  const status = yield* review.ingest(
+    ReviewIngestRequest.make({
+      location: yield* locationOf(options),
+      manifestPath: options.manifest,
+      pdfPaths: [first, ...rest],
+      figureOverrides: overrides,
+    })
+  );
+  yield* printLines(renderReviewStatus(status));
+});
+
+const runReviewPlan = Effect.fn("DrawingsCommand.reviewPlan")(function* (options: {
+  readonly corpusRoot: string;
+  readonly matter: string;
+  readonly round: number;
+  readonly dispositions: string;
+}) {
+  const review = yield* DrawingReview;
+  const status = yield* review.plan(
+    ReviewPlanRequest.make({ location: yield* locationOf(options), dispositionsPath: options.dispositions })
+  );
+  yield* printLines(renderReviewStatus(status));
+});
+
+const runReviewStatus = Effect.fn("DrawingsCommand.reviewStatus")(function* (options: {
+  readonly corpusRoot: string;
+  readonly matter: string;
+  readonly round: number;
+}) {
+  const review = yield* DrawingReview;
+  yield* printLines(renderReviewStatus(yield* review.status(yield* locationOf(options))));
+});
+
+const roundFlags = { corpusRoot: corpusRootFlag, matter: matterFlag, round: reviewRoundFlag };
+
+const drawingsReviewCommand = Command.make("review", {}, () =>
+  printLines(["drawings review commands: open, ingest, plan, status"])
+).pipe(
+  Command.withDescription("Attorney review rounds: markup ingest, dispositions, and status per sent sheet set"),
+  Command.withSubcommands(
+    A.make(
+      Command.make("open", { ...roundFlags, manifest: manifestFlag, delivery: deliveryFlag }, runReviewOpen).pipe(
+        Command.withDescription("Open a review round over the sheet set that was sent")
+      ),
+      Command.make(
+        "ingest",
+        { ...roundFlags, manifest: manifestFlag, pdf: reviewerPdfFlag, figure: figureFlag },
+        runReviewIngest
+      ).pipe(
+        Command.withDescription(
+          "Match each returned page to a sent sheet by ink coverage and turn the reviewer's notes into findings"
+        )
+      ),
+      Command.make("plan", { ...roundFlags, dispositions: dispositionsFlag }, runReviewPlan).pipe(
+        Command.withDescription("Apply a dispositions file; every finding needs exactly one disposition")
+      ),
+      Command.make("status", roundFlags, runReviewStatus).pipe(
+        Command.withDescription("Print a review round's pages, findings, and open required count")
+      )
+    )
+  ),
+  Command.provide(drawingReviewLive)
+);
+
+const runDeliverRecord = Effect.fn("DrawingsCommand.deliverRecord")(function* (options: {
+  readonly manifest: string;
+  readonly draft: string;
+  readonly sentMessageId: O.Option<string>;
+  readonly internetMessageId: O.Option<string>;
+  readonly out: O.Option<string>;
+}) {
+  const review = yield* DrawingReview;
+  const written = yield* review.deliver(
+    yield* S.decodeEffect(DeliverRequest)({
+      manifestPath: options.manifest,
+      draftPath: options.draft,
+      sentMessageId: options.sentMessageId,
+      internetMessageId: options.internetMessageId,
+      outPath: options.out,
+    }).pipe(Effect.mapError((cause) => DrawingsCommandError.new(cause, "The delivery flags are not valid.")))
+  );
+  yield* printLines([
+    `delivery of sheet set ${written.record.sheetSetSha256} recorded: ${written.path}`,
+    ...A.map(
+      written.record.attachments,
+      (attachment) => `  ${attachment.name} ${attachment.size} B ${attachment.sha256}`
+    ),
+  ]);
+});
+
+const drawingsDeliverCommand = Command.make("deliver", {}, () =>
+  printLines(["drawings deliver commands: record"])
+).pipe(
+  Command.withDescription("Record which sheet set, by hash, went to the reviewer"),
+  Command.withSubcommands(
+    A.make(
+      Command.make(
+        "record",
+        {
+          manifest: manifestFlag,
+          draft: draftFlag,
+          sentMessageId: sentMessageIdFlag,
+          internetMessageId: internetMessageIdFlag,
+          out: deliveryOutFlag,
+        },
+        runDeliverRecord
+      ).pipe(Command.withDescription("Write delivery.json from an outbox draft's attachment facts"))
+    )
+  ),
+  Command.provide(drawingReviewLive)
+);
+
 const printDrawingsIndex = () =>
-  printLines(["drawings commands: render, validate, judge, judge-ingest, statement, sign"]);
+  printLines(["drawings commands: render, validate, judge, judge-ingest, statement, sign, deliver, review"]);
 
 /**
  * Design-figure drawings command group.
@@ -346,7 +617,9 @@ export const drawingsCommand = Command.make("drawings", {}, printDrawingsIndex).
       drawingsJudgeCommand,
       drawingsJudgeIngestCommand,
       drawingsStatementCommand,
-      drawingsSignCommand
+      drawingsSignCommand,
+      drawingsDeliverCommand,
+      drawingsReviewCommand
     )
   )
 );
