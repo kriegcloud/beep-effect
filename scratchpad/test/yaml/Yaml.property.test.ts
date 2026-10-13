@@ -17,7 +17,7 @@ import { Yaml, YamlParseOptions, YamlStringifyOptions, YamlParseError, YamlStrin
 const Value = S.Struct({ text: S.String, count: S.Int.check(S.isGreaterThanOrEqualTo(1)), enabled: S.Boolean, items: S.Array(S.String) });
 const Single = Yaml.fromString().pipe(S.decodeTo(Value));
 const Default = Yaml.YamlFromString.pipe(S.decodeTo(Value));
-const All = Yaml.allFromString().pipe(S.decodeTo(S.Array(Value)));
+const All = Yaml.allFromString().pipe(S.decodeTo(S.NonEmptyArray(Value)));
 describe("facade properties", () => {
   roundTrips("parse options", YamlParseOptions);
   roundTrips("stringify options", YamlStringifyOptions);

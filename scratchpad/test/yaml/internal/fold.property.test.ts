@@ -28,7 +28,8 @@ it.effect.prop("logical-line folding preserves the scalar and stabilizes after p
 it.effect.prop("rendered folding is idempotent and value-faithful for plain, double, folded, literal and single styles", [words, width], ([value, columns]) => Effect.gen(function* () {
   const styles = [value, `"${value}"`, `'${value}'`, renderBlockLiteral(value, "  "), renderBlockFolded(value, "  ")];
   for (const style of styles) {
-    const rendered = foldRenderedScalar(style, "  ", columns);
+    const source = yield* Effect.fromNullishOr(style);
+    const rendered = foldRenderedScalar(source, "  ", columns);
     assert.strictEqual(foldRenderedScalar(rendered, "  ", columns), rendered);
     const parsed = yield* Yaml.parse(`${rendered}\n`);
     assert.strictEqual(parsed, value);

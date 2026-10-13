@@ -256,14 +256,14 @@ export function hasNewlineSpacesTab(s: string): boolean {
  * source needs N+1 consecutive source newlines (i.e., one extra to account
  * for the bare newline that would otherwise fold to a space).
  *
- * Continuation lines are prefixed with the given indent. Leading whitespace
- * on continuation lines after the indent is preserved as part of the content
- * because empty lines precede them, suppressing the fold-to-space rule.
+ * Continuation lines are prefixed with the given indent. Whitespace adjacent
+ * to an interior line break cannot survive flow folding; those values must
+ * use escaped double quotes instead.
  *
  * **Gotchas**
  *
  * Returns null if the content cannot safely be represented as single-quoted
- * (carriage returns or non-tab control characters).
+ * (carriage returns, non-tab control characters, or folding whitespace).
  *
  * **Example** (Encode a literal newline in single quotes)
  *
@@ -282,6 +282,7 @@ export function renderSingleQuotedMultiline(s: string, ...[indent]: [indent: str
 		const code = s.charCodeAt(i);
 		if (code === 0x0d || isControlChar(code)) return null;
 	}
+	if (hasInteriorTrailingWhitespace(s) || /\n[ \t]/.test(s)) return null;
 	const escaped = s.replace(/'/g, "''");
 	let result = "";
 	let i = 0;
@@ -313,6 +314,11 @@ export function renderSingleQuotedMultiline(s: string, ...[indent]: [indent: str
  * Renders a string scalar using block literal style (pipe `|`).
  *
  *
+ * **Gotchas**
+ *
+ * Returns null when preserving indentation would require an indicator outside
+ * YAML's single-digit range 1–9. Callers must use escaped double quotes.
+ *
  * **Example** (Strip absent trailing newlines)
  *
  * ```ts
@@ -341,7 +347,7 @@ export function renderBlockLiteral(
 		preserveKeep?: boolean,
 		explicitIndent?: number,
 	]
-): string {
+): string | null {
 	// Compute chomp indicator from the value's trailing-newline structure.
 	// `+` (keep) is required when the value retains more than one trailing
 	// newline OR when the value consists solely of newlines (otherwise `|`
@@ -352,7 +358,7 @@ export function renderBlockLiteral(
 	// when clip would read identically (byte preservation).
 	let chomp = "";
 	const onlyNewlines = s.length > 0 && /^\n+$/.test(s);
-	if (s.endsWith("\n\n") || (onlyNewlines && explicitChomp === "keep")) {
+	if (s.endsWith("\n\n") || onlyNewlines) {
 		chomp = "+";
 	} else if (!s.endsWith("\n")) {
 		chomp = "-";
@@ -386,6 +392,7 @@ export function renderBlockLiteral(
 		// it matches the rendered indent, byte-preserving the header.
 		indentIndicator = String(explicitIndent);
 	}
+	if (indentIndicator !== "" && (indent.length < 1 || indent.length > 9)) return null;
 	return `|${indentIndicator}${chomp}\n${lines.map((l) => (l === "" ? "" : `${indent}${l}`)).join("\n")}`;
 }
 
@@ -398,6 +405,11 @@ export function renderBlockLiteral(
  * into a space by the reader. To preserve a literal newline in the value,
  * the output must contain an empty line (double newline). Each empty line
  * in the value already produces the correct number of blank lines.
+ *
+ * **Gotchas**
+ *
+ * Returns null when preserving indentation would require an indicator outside
+ * YAML's single-digit range 1–9. Callers must use escaped double quotes.
  *
  * **Example** (Preserve a newline in folded output)
  *
@@ -417,13 +429,13 @@ export function renderBlockFolded(
 		explicitChomp?: "strip" | "clip" | "keep",
 		explicitIndent?: number,
 	]
-): string {
+): string | null {
 	// Chomp derivation mirrors renderBlockLiteral; `explicitChomp` /
 	// `explicitIndent` are fidelity-path header preservation (a redundant
 	// explicit `+` or `>2` re-emits byte-intact) — canonical callers pass
 	// neither.
 	let chomp = "";
-	if (s.endsWith("\n\n")) {
+	if (s.endsWith("\n\n") || (s.length > 0 && /^\n+$/.test(s))) {
 		chomp = "+";
 	} else if (!s.endsWith("\n")) {
 		chomp = "-";
@@ -461,6 +473,8 @@ export function renderBlockFolded(
 		// when it matches the rendered indent — see renderBlockLiteral.
 		indentIndicator = String(explicitIndent);
 	}
+
+	if (indentIndicator !== "" && (indent.length < 1 || indent.length > 9)) return null;
 
 	// Build folded output from the resolved value lines.
 	//

@@ -1,4 +1,6 @@
+import * as MutableHashSet from "effect/MutableHashSet";
 import { dual } from "effect/Function";
+import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
@@ -68,24 +70,35 @@ function validateFlowSeparators(
 	// Track: after seeing "scalar : scalar", the next scalar without comma is an error
 	let colonCount = 0; // number of colons seen since last comma
 	let contentAfterColon = 0; // content tokens after the most recent colon
+	let sawContent = false;
+	let separatorRequired = false;
+	// Cache one bounded segment per comma, then collect with a relative cursor.
+	let segmentStart = 0;
+	let segmentEnd = 0;
+	let segment: readonly CstNode[] = [];
 
 	for (let i = 0; i < children.length; i++) {
 		const child = children[i];
 		if (child === undefined) continue;
 		if (child.type === "whitespace" && (child.source === openBracket || child.source === closeBracket)) continue;
 		if (child.type === "newline") continue;
-		// The scalar collector stops at a comment, so following content is
-		// counted separately without changing whether this entry has a colon.
-		if (child.type === "comment") continue;
+		// A comment ends a collected scalar. Following independent content
+		// requires a comma, but a following colon may still belong to this key.
+		if (child.type === "comment") {
+			if (sawContent) separatorRequired = true;
+			continue;
+		}
 		if (child.type === "whitespace" && child.source.trim() === "") continue;
 
 		if (child.type === "whitespace" && child.source === ",") {
 			colonCount = 0;
 			contentAfterColon = 0;
+			sawContent = false;
+			separatorRequired = false;
 			continue;
 		}
 		if (child.type === "whitespace" && child.source === ":") {
-			if (colonCount > 0 && contentAfterColon > 0) {
+			if (colonCount > 0) {
 				state.errors.push({
 					code: "MalformedFlowCollection",
 					message: "Missing comma between flow collection entries",
@@ -95,6 +108,7 @@ function validateFlowSeparators(
 			}
 			colonCount++;
 			contentAfterColon = 0;
+			separatorRequired = false;
 			continue;
 		}
 
@@ -106,26 +120,29 @@ function validateFlowSeparators(
 			child.type === "alias";
 
 		if (isContent) {
+			let isNextKey = false;
 			if (child.type === "flow-scalar" && getScalarStyle(child) === "plain") {
-				// Match the flattening walk's scalar boundaries within this entry.
-				// Nested collections are single CST children and remain opaque here.
-				let end = i + 1;
-				while (end < children.length) {
-					const next = children[end];
-					if (next?.type === "whitespace" && (next.source === "," || next.source === closeBracket)) break;
-					end++;
+				if (i >= segmentEnd) {
+					segmentStart = i;
+					segmentEnd = i + 1;
+					while (segmentEnd < children.length) {
+						const next = children[segmentEnd];
+						if (next?.type === "whitespace" && (next.source === "," || next.source === closeBracket)) break;
+						segmentEnd++;
+					}
+					segment = A.makeBy(segmentEnd - segmentStart, (offset) => A.getUnsafe(children, segmentStart + offset));
 				}
-				const entry = children.slice(i, end);
-				const collected = hasValueSepThroughPlainScalars(entry, 1)
-					? collectMultilineKey(entry, 0)
-					: collectMultilinePlainScalar(entry, 0, undefined, state.text);
-				i += collected.nextIdx - 1;
+				const cursor = i - segmentStart;
+				isNextKey = hasValueSepThroughPlainScalars(segment, cursor + 1);
+				const collected = isNextKey
+					? collectMultilineKey(segment, cursor)
+					: collectMultilinePlainScalar(segment, cursor, undefined, state.text);
+				i = segmentStart + collected.nextIdx - 1;
 			}
-			contentAfterColon++;
-			// Error: we've seen at least one colon, a value after it, and now
-			// another content token without a comma. This means something like
-			// `key: value nextkey` (missing comma).
-			if (colonCount > 0 && contentAfterColon > 1) {
+			// A collector-classified key belongs to the next structural colon.
+			// Count only values here so that colon reports the missing comma once.
+			if (!isNextKey) contentAfterColon++;
+			if (separatorRequired || (colonCount > 0 && contentAfterColon > 1 && !isNextKey)) {
 				state.errors.push({
 					code: "MalformedFlowCollection",
 					message: "Missing comma between flow collection entries",
@@ -133,6 +150,8 @@ function validateFlowSeparators(
 					length: child.length,
 				});
 			}
+			separatorRequired = false;
+			sawContent = true;
 		}
 	}
 }
@@ -153,7 +172,8 @@ function validateFlowContentIndent(cst: CstNode, state: ComposerState, parentBlo
 	let lineStart = -1;
 	while (i < end && i < text.length) {
 		const ch = text[i];
-		if (ch === "\n") {
+		if (ch === "\n" || ch === "\r") {
+			if (ch === "\r" && text[i + 1] === "\n") i++;
 			inLineStart = true;
 			lineStart = i + 1;
 			i++;
@@ -194,7 +214,7 @@ function isClosersOnly(text: string, start: number, end: number): boolean {
 	let sawCloser = false;
 	for (let i = start; i < end && i < text.length; i++) {
 		const ch = text[i];
-		if (ch === "\n") break;
+		if (ch === "\n" || ch === "\r") break;
 		if (ch === "}" || ch === "]") {
 			sawCloser = true;
 			continue;
@@ -280,7 +300,7 @@ function composeFlowMapInner(cst: CstNode, state: ComposerState, meta?: NodeMeta
 	// Filter out brackets and blank whitespace, but KEEP commas and newlines
 	// so that flattenFlowChildren can respect segment boundaries for multi-line keys.
 	const content = children.filter(
-		(c) => !(c.type === "whitespace" && (c.source === "{" || c.source === "}" || c.source.trim() === "")),
+		(c) => !(c.type === "whitespace" && (c.source === "{" || c.source.trim() === "")),
 	);
 
 	const items = flattenFlowChildren(content, state);
@@ -343,6 +363,7 @@ export const flattenFlowChildren: {
 } = dual(2, (children: readonly CstNode[], state: ComposerState): SemanticItem[] => {
 	const items: SemanticItem[] = [];
 	let pendingMeta: NodeMeta = {};
+	let explicitKeyOffset = 0;
 
 	for (let i = 0; i < children.length; i++) {
 		const child = children[i];
@@ -362,11 +383,11 @@ export const flattenFlowChildren: {
 				if (last?.kind === "key" && last.node === undefined) {
 					items[keyIndex] = {
 						kind: "key",
-						node: YamlScalar.make({ value: null, style: "plain", offset: 0, length: 0 }),
+						node: YamlScalar.make({ value: null, style: "plain", offset: explicitKeyOffset, length: 0 }),
 					};
 				}
 				if (hasMeta(pendingMeta)) {
-					const value = resolveScalar("", ["plain", pendingMeta.tag, state]);
+					const value = resolveScalar("", ["plain", pendingMeta.tag, state, pendingMeta.tagSpan]);
 					const scalar = YamlScalar.make({
 						value,
 						style: "plain",
@@ -387,7 +408,7 @@ export const flattenFlowChildren: {
 			if (child.source === ":") {
 				// Flush pending tag/anchor as empty scalar before value-sep
 				if (hasMeta(pendingMeta)) {
-					const value = resolveScalar("", ["plain", pendingMeta.tag, state]);
+					const value = resolveScalar("", ["plain", pendingMeta.tag, state, pendingMeta.tagSpan]);
 					const scalar = YamlScalar.make({
 						value,
 						style: "plain",
@@ -410,6 +431,7 @@ export const flattenFlowChildren: {
 				// The ? marks the next content as an explicit key. If ? is
 				// followed by nothing before , or }, it creates a null key.
 				// We emit a "key" marker; buildPairs handles the pairing.
+				explicitKeyOffset = child.offset;
 				items.push({ kind: "key" });
 			}
 			continue;
@@ -437,9 +459,23 @@ export const flattenFlowChildren: {
 		}
 		if (child.type === "tag") {
 			pendingMeta.tag = child.source;
+			pendingMeta.tagSpan = { offset: child.offset, length: child.length };
+			MutableHashSet.add(state.tagOffsets, child.offset);
 			continue;
 		}
 		if (child.type === "flow-scalar" || child.type === "block-scalar") {
+			// A terminal ? in a mapping may arrive as a plain CST scalar.
+			// Its following closer supplies the explicit empty-key boundary.
+			if (child.type === "flow-scalar" && child.source === "?") {
+				let next = i + 1;
+				while (children[next]?.type === "newline" || children[next]?.type === "comment" ||
+					(children[next]?.type === "whitespace" && children[next]?.source.trim() === "")) next++;
+				if (children[next]?.type === "whitespace" && children[next]?.source === "}") {
+					explicitKeyOffset = child.offset;
+					items.push({ kind: "key" });
+					continue;
+				}
+			}
 			// Check for # without preceding space — YAML 1.2 §6.6 requires
 			// whitespace before # for it to be a comment indicator. When # appears
 			// as a plain scalar immediately after , or ] or }, it means # wasn't
@@ -480,7 +516,7 @@ export const flattenFlowChildren: {
 					// Plain scalar eventually followed by ":" (possibly through
 					// continuation plain scalars) — merge as multi-line key
 					const { value, nextIdx } = collectMultilineKey(children, i);
-					const resolved = resolveScalar(value, ["plain", pendingMeta.tag, state]);
+					const resolved = resolveScalar(value, ["plain", pendingMeta.tag, state, pendingMeta.tagSpan]);
 					const scalar = YamlScalar.make({
 						value: resolved,
 						style: "plain",
@@ -505,7 +541,7 @@ export const flattenFlowChildren: {
 					undefined,
 					state.text,
 				);
-				const resolved = resolveScalar(value, ["plain", pendingMeta.tag, state]);
+				const resolved = resolveScalar(value, ["plain", pendingMeta.tag, state, pendingMeta.tagSpan]);
 				const scalar = YamlScalar.make({
 					value: resolved,
 					style: "plain",
@@ -550,9 +586,18 @@ export const flattenFlowChildren: {
 			items.push({ kind: "node", node: seq });
 		}
 	}
+	let trailingKeyIndex = items.length - 1;
+	while (trailingKeyIndex >= 0 && items[trailingKeyIndex]?.kind === "comment") trailingKeyIndex--;
+	const trailingKey = items[trailingKeyIndex];
+	if (trailingKey?.kind === "key" && trailingKey.node === undefined) {
+		items[trailingKeyIndex] = {
+			kind: "key",
+			node: YamlScalar.make({ value: null, style: "plain", offset: explicitKeyOffset, length: 0 }),
+		};
+	}
 	// Flush trailing pending tag/anchor as empty scalar (e.g., !!str at end of flow)
 	if (hasMeta(pendingMeta)) {
-		const value = resolveScalar("", ["plain", pendingMeta.tag, state]);
+		const value = resolveScalar("", ["plain", pendingMeta.tag, state, pendingMeta.tagSpan]);
 		const scalar = YamlScalar.make({
 			value,
 			style: "plain",

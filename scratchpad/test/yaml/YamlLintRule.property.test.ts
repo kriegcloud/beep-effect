@@ -3,7 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { YamlLintSeverity, YamlLintDiagnostic, StyleVote, StyleFloor } from "../../effected/yaml/YamlLintRule.ts";
+import { LintLine, YamlLintSeverity, YamlLintDiagnostic, StyleVote, StyleFloor } from "../../effected/yaml/YamlLintRule.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
@@ -17,6 +17,7 @@ const roundTrips = <T, E>(name: string, schema: S.Codec<T, E>): void => {
 };
 
 describe("YamlLintRule schema property floor", () => {
+  roundTrips("LintLine", LintLine);
   roundTrips("YamlLintSeverity", YamlLintSeverity);
   roundTrips("YamlLintDiagnostic", YamlLintDiagnostic);
   roundTrips("StyleVote", StyleVote);

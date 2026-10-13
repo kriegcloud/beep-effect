@@ -1048,7 +1048,7 @@ export class Yaml {
 				S.Array(S.Unknown),
 				SchemaTransformation.transformEffect({
 					decode: (input: string) =>
-						(input === "" ? Effect.succeed([]) : Yaml.parseAll(input, options)).pipe(
+						Yaml.parseAll(input, options).pipe(
 							Effect.mapError((error) => new SchemaIssue.InvalidValue({ message: error.message }, input)),
 						),
 					encode: Effect.fn("encode")(function* (values: ReadonlyArray<unknown>) {

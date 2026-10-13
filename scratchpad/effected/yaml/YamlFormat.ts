@@ -6,15 +6,13 @@
 // (`composeFirstDocumentCounted`, `stringifyDocument`) exactly as `Yaml.ts`
 // does; nothing imports `YamlFormat.ts` back.
 //
-// Neither `format` nor `modify` catch the internal stringifier's
-// `StringifyFailure` (the circular-reference guard) or `StringifyDepthExceeded`:
-// `format` builds its output AST from already-parsed nodes, and `modify`'s
-// `jsValueToNode` runs BOTH guards itself while lowering the caller's value —
-// failing typed with a `CircularReference` / `NestingDepthExceeded` diagnostic
-// before a node ever reaches the stringifier. So neither internal throw can
-// occur here; were one ever thrown it would indicate an internal invariant
-// violation, not a user-facing error, and is left to surface as an uncaught
-// defect.
+// `format` builds its output AST from composer-bounded parsed nodes.
+// `modify`'s `jsValueToNode` rejects circular references and excessive
+// replacement depth while lowering the caller's value. The document and
+// replacement can still exceed the depth cap together, so `modify` also
+// translates `StringifyDepthExceeded` from its final stringify into a typed
+// `NestingDepthExceeded` diagnostic. Unexpected stringifier failures,
+// including `StringifyFailure`, remain defects.
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
@@ -33,6 +31,7 @@ import { requoteScalarText } from "./internal/requote.ts";
 import {
 	renderDoubleQuoted,
 	renderSingleQuoted,
+	StringifyDepthExceeded,
 	stringifyDocument,
 	stringifyValue,
 	stripNodeComments,
@@ -52,11 +51,18 @@ const isYamlScalar = S.is(YamlScalar);
 const isYamlMap = S.is(YamlMap);
 const isYamlSeq = S.is(YamlSeq);
 const isFiniteIndex = S.is(S.Finite);
+const isStringifyDepthExceeded = S.is(StringifyDepthExceeded);
 
 /** A defect raised when a YAML helper invariant is violated. */
-class YamlFormatInvariantFailure extends S.TaggedError<YamlFormatInvariantFailure>($I`YamlFormatInvariantFailure`)("YamlFormatInvariantFailure", {
-	message: S.String,
-}) {}
+class YamlFormatInvariantFailure extends S.TaggedError<YamlFormatInvariantFailure>($I`YamlFormatInvariantFailure`)(
+	"YamlFormatInvariantFailure",
+	{
+		message: S.String.annotateKey({ description: "The failed invariant encountered while navigating the YAML tree." }),
+	},
+	$I.annote("YamlFormatInvariantFailure", {
+		description: "A defect raised when YAML modification encounters an inconsistent internal tree.",
+	}),
+) {}
 
 /**
  * A range accepted at the `format`/`formatToString`/etc. call sites: either a
@@ -1156,7 +1162,21 @@ export class YamlFormat {
 		});
 
 		const outputDoc: RawYamlDocument = { ...doc, contents: newContents };
-		const formatted = stringifyDocument(outputDoc, toStringifyInput(options));
+		const formatted = yield* Effect.try({
+			try: () => stringifyDocument(outputDoc, toStringifyInput(options)),
+			catch: (defect) => {
+				if (!isStringifyDepthExceeded(defect)) throw defect;
+				return YamlModificationError.make({
+					path: echoErrorPath(path),
+					diagnostics: [
+						YamlDiagnostic.fromRaw(
+							{ code: "NestingDepthExceeded", message: defect.message, offset: 0, length: 0 },
+							text,
+						),
+					],
+				});
+			},
+		});
 		return computeEdits(text, withSourceBom(text, formatted)).map((e) => YamlEdit.make(e));
 	});
 

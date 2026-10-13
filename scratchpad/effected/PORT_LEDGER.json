@@ -2534,6 +2534,180 @@
           "upstreamBehaviour": "scratchpad/effected/yaml/YamlLint.ts:623 carried a branch no input can reach",
           "labBehaviour": "Every groupVotes group is created with its first tally; replaced impossible empty-group branches in strict and lenient resolution with Array.getUnsafe.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/yaml/YamlLint.property.test.ts:35; scratchpad/test/yaml/rules/documents-and-keys.test.ts:13",
+          "upstreamBehaviour": "Lint line contexts split only on LF; lone CR remains embedded in a line rather than delimiting physical lines.",
+          "labBehaviour": "Lint contexts split on CR, LF and CRLF, aligning with the already-admitted token positions; EOF-newline remains LF-only.",
+          "reason": "upstream-bug: lint-cr-lines extends the verified CR physical-position correction into lint contexts. The new context/position tests and lone-CR marker fixture pin the changed line shape; YamlLint.ts buildLines changes in this diff."
+        },
+        {
+          "test": "scratchpad/test/yaml/YamlFormat.test.ts:723",
+          "upstreamBehaviour": "A 160-level document modified with a 160-level replacement dies with StringifyDepthExceeded although both inputs succeed independently.",
+          "labBehaviour": "Combined depth overflow fails with YamlModificationError, an echoed path and NestingDepthExceeded; unexpected stringifier throws remain defects.",
+          "reason": "upstream-bug: INVENTORY.md modify-combined-depth records the same pinned-oracle defect; fix-yaml-g3.md and the added 160+160 regression ground the targeted final-stringify catch."
+        },
+        {
+          "test": "scratchpad/test/yaml/YamlLint.property.test.ts:74; scratchpad/test/yaml/inference.test.ts:60",
+          "upstreamBehaviour": "Inherited toString/constructor config entries can run absent custom rules; assigning __proto__ can discard inferred rule or dimension keys.",
+          "labBehaviour": "Rule and severity reads use own keys, and inference overlays preserve own __proto__ keys with warning/off behavior.",
+          "reason": "upstream-bug: Pinned-upstream probes in lint-own-config-keys and fix-yaml-g2.md reproduce callbacks for absent rules and lost options; the added regressions pin Record.get/fromEntries/assignProperty changes."
+        },
+        {
+          "test": "scratchpad/test/yaml/inference.test.ts:32; scratchpad/test/yaml/inference.test.ts:47",
+          "upstreamBehaviour": "NUL-delimited rule/dimension/value keys merge distinct custom vote and floor tuples.",
+          "labBehaviour": "Schema-encoded JSON tuple keys retain separate tallies, counts, maximum floors and first positions.",
+          "reason": "upstream-bug: lint-tuple-collisions and fix-yaml-g2.md reproduce two distinct pinned-upstream votes merging into count 2 and colliding floors; both new regression cases assert distinct identities."
+        },
+        {
+          "test": "scratchpad/test/yaml/cst-visitor.test.ts:63",
+          "upstreamBehaviour": "CST mapping events omit explicit empty keys and can classify the preceding value as a key.",
+          "labBehaviour": "Block and flow walkers emit empty-key events and preserve preceding values, including a: 1 followed by : 2.",
+          "reason": "upstream-bug: fix-yaml-g5.md records direct pinned-upstream probes for the three added empty-key projections. This is the new empty-key case, beyond the existing omitted-value deviation."
+        },
+        {
+          "test": "scratchpad/test/yaml/cst-visitor.test.ts:66; scratchpad/test/yaml/internal/cst-visitor.property.test.ts:38",
+          "upstreamBehaviour": "CST mapping walkers alternate key/value roles after every scalar fragment, inventing keys from multiline values.",
+          "labBehaviour": "Block and flow scalar continuation fragments retain their role until an indicator or entry boundary changes it.",
+          "reason": "upstream-bug: cst-multiline-value-roles and fix-yaml-g5.md reproduce incorrect block-value, explicit-key and flow projections in the pinned oracle; new projection and generated-property tests pin the correction."
+        },
+        {
+          "test": "scratchpad/test/yaml/lexer.test.ts:119; scratchpad/test/yaml/Yaml.test.ts:49",
+          "upstreamBehaviour": "Repeated block header indicators such as |++ and |22 are accepted as scalar headers.",
+          "labBehaviour": "Repeated chomping or indentation indicators emit lexical errors and strict parsing fails; valid mixed orderings remain accepted.",
+          "reason": "upstream-bug: fix-yaml-g1.md records pinned-oracle acceptance and independent-parser rejection. Added lexer and strict-parser matrices verify rejection and valid-order controls."
+        },
+        {
+          "test": "scratchpad/test/yaml/lexer.test.ts:153; scratchpad/test/yaml/lexer.test.ts:164; scratchpad/test/yaml/Yaml.test.ts:68",
+          "upstreamBehaviour": "Quoted scanners retain lone CR in token values and do not apply their physical-line document-marker termination check after it.",
+          "labBehaviour": "Both quoted scanners fold lone CR to a space and recognize column-zero markers; this entry covers scanner values, not public composition of closed quotes.",
+          "reason": "upstream-bug: quoted-lone-cr and fix-yaml-g1.md reproduce the pinned scanner behavior. New lexer value/position and marker tests ground the repair; LEFT quoted-lone-cr-composer explicitly limits the public-value claim."
+        },
+        {
+          "test": "scratchpad/test/yaml/fold.test.ts:57; scratchpad/test/yaml/stringifier-regressions.test.ts:203",
+          "upstreamBehaviour": "Literal and folded renderers can clip a newline-only value to an empty string when chomping is omitted.",
+          "labBehaviour": "Both block styles derive keep chomping for nonempty newline-only values, preserving their trailing newlines.",
+          "reason": "upstream-bug: fix-yaml-g6.md reproduces pinned | and > output for a single newline parsing as empty. Added helper and public-option round trips test omitted arguments and one to three newlines."
+        },
+        {
+          "test": "scratchpad/test/yaml/fold.test.ts:66; scratchpad/test/yaml/stringifier-regressions.test.ts:214",
+          "upstreamBehaviour": "Single-quoted multiline folding accepts interior trailing spaces/tabs that YAML readers discard.",
+          "labBehaviour": "The helper returns null for folding whitespace; canonical plain/single-quoted rendering falls back to escaped double quotes.",
+          "reason": "upstream-bug: fix-yaml-g6.md and single-quoted-whitespace reproduce whitespace loss in the pinned helper with the independent parser; new rejection and exact-output tests pin the change. The pre-existing continuation-leading fallback is not recorded again."
+        },
+        {
+          "test": "scratchpad/test/yaml/fold.test.ts:73; scratchpad/test/yaml/stringifier-regressions.test.ts:224",
+          "upstreamBehaviour": "Block literal/folded rendering can emit invalid required indentation indicators 0 or 10.",
+          "labBehaviour": "Both helpers return null outside the 1-9 range, changing their return shape to string or null; callers emit escaped double quotes.",
+          "reason": "upstream-bug: fix-yaml-g6.md reproduces pinned |0-/|10- and >0-/>10- rejection by the independent parser. Added helper rejection, valid-width controls and public round trips ground both renderers."
+        },
+        {
+          "test": "scratchpad/test/yaml/stringifier-regressions.test.ts:249",
+          "upstreamBehaviour": "Nested canonical trailing-newline plain/single-quoted scalars emit an unindented closing quote, producing invalid YAML.",
+          "labBehaviour": "Nested values use escaped double quotes; representable root values regain unchanged upstream single-quoted bytes.",
+          "reason": "upstream-bug: fix-yaml-g6.md records pinned upstream rejection with Missing closing quote. Added value/AST map/sequence regressions test the fallback, and the adjacent root-byte test pins the parity restoration."
+        },
+        {
+          "test": "scratchpad/test/yaml/stringifier-regressions.test.ts:269",
+          "upstreamBehaviour": "Flow collection scalars can emit block syntax or lose multiline LF content when rendered lines are joined.",
+          "labBehaviour": "Multiline and requested block-style flow values and keys render as escaped double-quoted scalars.",
+          "reason": "upstream-bug: flow-scalar-fidelity and fix-yaml-g6.md reproduce pinned flow sequence/map rejection or value loss. Added value/AST map/sequence round trips cover all five styles and canonical/fidelity modes."
+        },
+        {
+          "test": "scratchpad/test/yaml/stringifier-regressions.test.ts:290",
+          "upstreamBehaviour": "Explicit single-quoted/block styles can emit raw NUL/ESC or lose lone-CR content.",
+          "labBehaviour": "Control characters and CR force escaped double quotes before any style dispatch, in value and AST rendering.",
+          "reason": "upstream-bug: explicit-style-controls and fix-yaml-g6.md reproduce pinned public-facade parser rejection and block styles parsing a CR-containing string as b. Added exact-output and round-trip tests pin the pre-dispatch escape guard."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer-regressions.test.ts:151; scratchpad/test/yaml/internal/composer/block.coverage.test.ts:350",
+          "upstreamBehaviour": "Repeated pending anchors or tags on one block node can silently retain the last property.",
+          "labBehaviour": "Duplicate node properties produce positioned fatal diagnostics while distinct outer-container and inner-key metadata remain valid.",
+          "reason": "upstream-bug: block-duplicate-properties and fix-yaml-g8.md document pinned acceptance. Added strict-parser duplicate matrices and outer/inner controls ground block.ts validation, including split-line scalar tags."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer-regressions.test.ts:214",
+          "upstreamBehaviour": "Explicitly tagged large decimal, hexadecimal and octal integers round through Number.parseInt.",
+          "labBehaviour": "Valid explicit integers outside the safe-number range retain exact bigint precision through safeParseInt; safe values remain numbers.",
+          "reason": "upstream-bug: explicit-integer-precision and fix-yaml-g8.md reproduce pinned rounding. Added explicit-versus-implicit signed/base matrices pin exact bigint values and safe-boundary/fallback behavior."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer-regressions.test.ts:224",
+          "upstreamBehaviour": "LF-only composer indexing treats dedented CR-only continuations as same-line content and can accept malformed input.",
+          "labBehaviour": "Composer line starts, same-line checks, indentation and scalar/flow boundaries recognize lone CR and count CRLF once.",
+          "reason": "upstream-bug: composer-cr-lines reproduces pinned acceptance of a CR-only equivalent rejected with LF. Added physical-position, accepted-continuation and dedented-rejection matrices ground the composition change beyond earlier token-position repairs."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer-regressions.test.ts:60",
+          "upstreamBehaviour": "A colon or sequence dash in a line comment can misidentify the parent indentation of an explicit-indent block scalar and drop content.",
+          "labBehaviour": "Backward parent-indent scanning excludes separated unquoted comments while protecting quoted hashes and property punctuation.",
+          "reason": "upstream-bug: block-indent-comment-scan and fix-yaml-g8.md reproduce pinned |2 content loss. New comment-colon/dash and quote/hash controls ground the additional scan repair beyond the existing verbatim-tag case."
+        },
+        {
+          "test": "scratchpad/test/yaml/composer-regressions.test.ts:179",
+          "upstreamBehaviour": "Node-less explicit flow keys can disappear at comma or closing boundaries, leaving no correctly positioned null-key node or duplicate-key diagnostic.",
+          "labBehaviour": "Synthetic null keys at comma and closing boundaries retain the explicit indicator offset and zero length, positioning duplicate diagnostics correctly.",
+          "reason": "upstream-bug: flow-empty-key-offset and fix-yaml-g8.md ground nested {? , ?} offsets 9 and 13 and the duplicate span. The diff adds closing-boundary materialization and provenance beyond the existing comma-entry retention deviation."
+        },
+        {
+          "test": "scratchpad/test/yaml/core-regressions.test.ts:243; scratchpad/test/yaml/core-regressions.test.ts:255; scratchpad/test/yaml/core-regressions.test.ts:270",
+          "upstreamBehaviour": "Malformed tag suffixes lack reliable per-document property-span diagnostics; the prior repair can steal earlier spans, duplicate errors and miss first-document collection tags.",
+          "labBehaviour": "Tag spans travel with pending metadata and optional resolver arguments; effective properties are validated once per span, excluding tag-shaped scalar continuation content.",
+          "reason": "upstream-bug: tag-diagnostic-spans and fix-yaml-g8.md identify the remaining cases beyond the ledgered percent-decoding repair. Added multidocument/collection, resolver-idempotence and effective-property tests ground the new integration and signature shape."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/documents-and-keys.test.ts:75; scratchpad/test/yaml/rules/documents-and-keys.test.ts:97",
+          "upstreamBehaviour": "Removing a forbidden standalone start marker can erase an empty first document, including streams with header comments.",
+          "labBehaviour": "The diagnostic remains, but removal is withheld unless contents or an explicit end marker independently preserve that document.",
+          "reason": "upstream-bug: document-start-empty-document and fix-yaml-g2.md reproduce pinned document count falling from two to one. Added independent/lab parser regressions assert document counts and values, plus safe explicit-end removal."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/documents-and-keys.test.ts:110",
+          "upstreamBehaviour": "A synthesized document-start marker is inserted before the initial BOM, turning that BOM into mapping-key content.",
+          "labBehaviour": "Marker insertion occurs immediately after a stream-leading BOM and preserves mapping keys and values.",
+          "reason": "upstream-bug: document-start-bom and fix-yaml-g2.md reproduce a pinned fix changing key a to BOM+a. The added independent-parser regression asserts offset 1, exact bytes and unchanged mapping data."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/indentation.test.ts:200; scratchpad/test/yaml/rules/indentation.test.ts:206; scratchpad/test/yaml/rules/indentation.test.ts:227",
+          "upstreamBehaviour": "Compact descendants are measured from the hyphen line; for non-two-space units, valid siblings/children can receive false checks or votes.",
+          "labBehaviour": "Compact columns remain stack context without unit checks or votes; sibling key-column and child key-plus-unit shapes work for spaces: 4.",
+          "reason": "upstream-bug: indent-compact-unit and fix-yaml-g9.md ground the newly tested non-two-space shapes beyond the existing spaces:2 correction. Added check/inference matrices pin separator exclusion and downstream structural comparisons."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/indentation.test.ts:251; scratchpad/test/yaml/rules/indentation.test.ts:276",
+          "upstreamBehaviour": "Anchor/tag properties after a mapping colon obscure the opening key, suppressing sequence-placement diagnostics and inference votes.",
+          "labBehaviour": "Property-only mapping values retain opening-key status until actual same-line content appears.",
+          "reason": "upstream-bug: indent-node-properties and fix-yaml-g9.md verify hidden policy violations and strict-inference conflicts. Added anchor/tag/combined matrices cover both sequence policies and same-line flow-value controls."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/indentation.test.ts:289",
+          "upstreamBehaviour": "Separately tokenized multiline plain-scalar continuations are treated as structural indentation, adding false diagnostics and votes.",
+          "labBehaviour": "Composed scalar spans and deeper explicit-key fragments are excluded, while colon lines and subsequent block-value checks remain structural.",
+          "reason": "upstream-bug: indent-scalar-continuations and fix-yaml-g9.md ground the upstream false checks/votes. Added mapping, sequence and explicit-key check/inference matrices retain real structural unit votes."
+        },
+        {
+          "test": "scratchpad/test/yaml/rules/spacing-regressions.test.ts:108; scratchpad/test/yaml/rules/spacing-regressions.test.ts:132",
+          "upstreamBehaviour": "Hyphen spacing can offer a fix that moves a same-line nested sequence hyphen governing an explicit-indent block scalar and corrupts its value.",
+          "labBehaviour": "The diagnostic remains but that destructive fix is withheld; fixes remain available when the scalar parent hyphen does not move.",
+          "reason": "upstream-bug: hyphen-explicit-block-fidelity and fix-yaml-g9.md ground the new |2/>2 header case beyond continued compact collections already ledgered. Added literal/folded/chomp/property matrices and safe-fix controls assert semantic fidelity."
+        },
+        {
+          "test": "scratchpad/test/yaml/YamlLintRule.property.test.ts:20; scratchpad/test/yaml/inference.test.ts:82; scratchpad/effected/yaml/internal/options.ts:30",
+          "upstreamBehaviour": "LintLine, LintContext, YamlLintInference, CST vocabulary/events, raw pipeline records and render/budget/block contexts are handwritten data models.",
+          "labBehaviour": "Structural schemas derive their types; runtime exports are added for lint payloads, CstNode, ParseOptionsInput, StringifyOptionsInput, RawDiagnostic, RawDirective, RawYamlDocument and RawEdit; internal contexts retain plain-object construction.",
+          "reason": "schema-first: D5, EF-12b/EF-33 and schema-first modeling require executable contracts for the newly touched models. Round-2 diffs add these schema values and internal domains without per-node or per-scalar decoding; previously ledgered models are not repeated."
+        },
+        {
+          "test": "scratchpad/test/yaml/YamlVisitor.test.ts:46; scratchpad/effected/yaml/internal/options.ts:42; scratchpad/effected/yaml/internal/cst.ts:28",
+          "upstreamBehaviour": "Visitor mapping paths can contain NaN or infinities; newly modeled raw/context coordinates and option numbers have no finite runtime contract.",
+          "labBehaviour": "Non-finite visitor path segments become NaN/Infinity/-Infinity strings while scalar values remain numeric; new raw/context schemas use finite numeric fields and ContentLine has nonempty nonnegative-integer indents.",
+          "reason": "numeric-domains: schemaNumber and the finite-number ruling require numeric refinements at these newly touched sites. The new visitor regression pins the path-shape change; raw records remain structurally constructed, and ExpansionBudget.limit still preserves numeric overflow."
+        },
+        {
+          "test": "scratchpad/effected/yaml/YamlEdit.ts:22; scratchpad/effected/yaml/YamlFormat.ts:57; scratchpad/effected/yaml/internal/cst.ts:9",
+          "upstreamBehaviour": "Private invariant errors lack schema and message-field descriptions; the newly modeled payloads and domains lack schema identity metadata.",
+          "labBehaviour": "YamlEditFailure and YamlFormatInvariantFailure gain schema/message metadata, and the round-2 lint, CST, raw, render, budget and block schemas gain composer identities and descriptions.",
+          "reason": "identity-annotations: Step 4, D5 and EF-12 require identity and descriptive schema/field metadata at these newly touched definitions. Tags, messages and plain-object representations are preserved; this records new sites rather than repeating the existing public-schema annotation row."
         }
       ],
       "backlog": [
@@ -2698,6 +2872,30 @@
           "round": 1,
           "finding": "allowlist-retirement — allowlist retirement (standards/effect-laws.allowlist.jsonc:517)",
           "reason": "law: Have the central owner remove the four exact YAML entries after source fixes; required allow-1..allow-4 assign only module/test changes."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "docs-width-fold-deviation — Record the width-fold idempotence correction centrally (scratchpad/effected/yaml/internal/fold.ts:62)",
+          "reason": "docs: Backlog central upstream-bug documentation of the physical-break reset and fold.property.test.ts evidence. Do not assign PORT_LEDGER.json or README Port notes to a fix group. This is not one of the systemic law-forced deviation classes."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "docs-canonical-whitespace-deviation — Record the canonical continuation-whitespace correction centrally (scratchpad/effected/yaml/internal/stringifier.ts:569)",
+          "reason": "docs: Backlog central upstream-bug ledger/Port-notes recording of the already-correct double-quoted continuation-whitespace fallback, citing foldFlowLines and stringifier.coverage.test.ts. Retain the value-preserving fallback; no source repair or per-lane bookkeeping is requested."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "quoted-lone-cr-composer — Fold lone CR in public quoted composition (scratchpad/effected/yaml/internal/composer/scalars.ts:396)",
+          "reason": "bug: LEFT fix-yaml-g1.md: quoted composition independently re-decodes raw source at lines 396 and 448, so public Yaml.parse retains lone CR; scanner repair is complete, and downstream composition needs the owning lane."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "section-14-registration — Register round-2 deviations centrally (scratchpad/effected/PORT_LEDGER.json)",
+          "reason": "docs: LEFT fix-yaml-g8.md: section-14 registration is outside the port write surface; the report supplies DEVIATION records for central bookkeeping. PORT_LEDGER.json is the inferred destination because the LEFT line supplies no file."
         }
       ],
       "reviewRounds": [
@@ -2716,6 +2914,24 @@
             "fable": {
               "required": 30,
               "backlog": 30
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "2f515ae2519cc72223c94917019bf7ebfe92a4a5",
+          "seats": {
+            "grok": {
+              "required": 18,
+              "backlog": 2
+            },
+            "sol": {
+              "required": 35,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 12,
+              "backlog": 1
             }
           }
         }

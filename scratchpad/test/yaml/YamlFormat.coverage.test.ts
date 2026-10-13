@@ -1,5 +1,5 @@
 import { fcRuns } from "@beep/fc-runs/FastCheckRuns";
-import { assert, describe, it } from "@effect/vitest";
+import { assert, describe, it, vi } from "@effect/vitest";
 import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Cause from "effect/Cause";
@@ -9,6 +9,7 @@ import { flow } from "effect/Function";
 import * as Option from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as Stringifier from "../../effected/yaml/internal/stringifier.ts";
 import { Yaml } from "../../effected/yaml/Yaml.ts";
 import { YamlFormat } from "../../effected/yaml/YamlFormat.ts";
 
@@ -52,6 +53,15 @@ describe("formatting navigation and regional fallbacks", () => {
     const value = { get key(): unknown { throw defect; } };
     const exit = yield* Effect.exit(YamlFormat.modify("a: old\n", ["a"], value));
     assertSome(Option.flatMap(Exit.getCause(exit), flow(Cause.findDie, Result.map((d) => d.defect), Result.getSuccess)), defect);
+  }));
+
+  it.effect("unexpected document serialization failures retain their defect", () => Effect.gen(function* () {
+    const defect = new Error("document serialization defect");
+    const serializer = vi.spyOn(Stringifier, "stringifyDocument").mockImplementation(() => { throw defect; });
+    try {
+      const exit = yield* Effect.exit(YamlFormat.modify("a: old\n", ["a"], "new", { indent: 2 }));
+      assertSome(Option.flatMap(Exit.getCause(exit), flow(Cause.findDie, Result.map((d) => d.defect), Result.getSuccess)), defect);
+    } finally { serializer.mockRestore(); }
   }));
 
   it.effect("requotes null-valued explicit keys while leaving aliases intact", () => Effect.sync(() => {

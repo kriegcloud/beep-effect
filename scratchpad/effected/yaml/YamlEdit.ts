@@ -19,9 +19,15 @@ import * as S from "effect/Schema";
 const $I = $ScratchpadId.create("effected/yaml/YamlEdit");
 
 /** A defect raised when a YAML helper invariant is violated. */
-class YamlEditFailure extends S.TaggedError<YamlEditFailure>($I`YamlEditFailure`)("YamlEditFailure", {
-	message: S.String,
-}) {}
+class YamlEditFailure extends S.TaggedError<YamlEditFailure>($I`YamlEditFailure`)(
+	"YamlEditFailure",
+	{
+		message: S.String.annotateKey({ description: "The overlapping edit ranges that prevent applying the YAML edits." }),
+	},
+	$I.annote("YamlEditFailure", {
+		description: "A defect raised when overlapping YAML text edits cannot be applied consistently.",
+	}),
+) {}
 
 /**
  * A single path segment: a `string` for mapping keys or a `number` for
