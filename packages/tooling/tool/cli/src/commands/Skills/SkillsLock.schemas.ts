@@ -76,10 +76,11 @@ export class VendoredSkillLockEntry extends S.TaggedClass<VendoredSkillLockEntry
  *
  * ```ts
  * import { LocalSkillLockEntry } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import { Sha256Hex } from "@beep/schema"
  *
  * const entry = LocalSkillLockEntry.make({
  *   installedTargets: [".claude/skills/yeet", ".agents/skills/yeet"],
- *   installedTreeHash: "0".repeat(64),
+ *   installedTreeHash: Sha256Hex.make("0".repeat(64)),
  * })
  * console.log(entry._tag) // "local"
  * ```
@@ -281,11 +282,12 @@ export class SkillDriftRow extends S.Class<SkillDriftRow>($I`SkillDriftRow`)(
  *
  * ```ts
  * import { LocalSkillLockEntry, SkillMigrationRow } from "@beep/repo-cli/commands/Skills/SkillsLock.schemas"
+ * import { Sha256Hex } from "@beep/schema"
  *
  * const row = SkillMigrationRow.make({
  *   skill: "adhd",
  *   disposition: "unresolved",
- *   entry: LocalSkillLockEntry.make({ installedTargets: [], installedTreeHash: "0".repeat(64) }),
+ *   entry: LocalSkillLockEntry.make({ installedTargets: [], installedTreeHash: Sha256Hex.make("0".repeat(64)) }),
  *   drift: [],
  *   note: "v1 github entry without a ratified resolution seed",
  * })
