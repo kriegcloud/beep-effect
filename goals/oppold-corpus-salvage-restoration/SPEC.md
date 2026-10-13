@@ -823,3 +823,66 @@ The largest admitted input allows 1,827,508,224 bytes at ratio 4, within the cap
 The prior 539,157,504-byte member is excluded. No family has started.
 Decision: correct PR5 before implementing the authorized selector in PR6.
 Reversal: revert these planning edits; retain both immutable P1 families.
+
+
+### 2026-10-10: bounded occurrence selector for the first P2 wave
+
+Run-9 authorizes one optional occurrence identity plus an explicit membership
+file in restore-mail. The schema pins each member's objectId, source SHA-256
+and input bytes; accepts one to ten non-stub members no larger than 536,870,912
+bytes; and names the preservation archive. The committed first-wave membership
+contains nine entries in ascending input-size/objectId order, range 61,727,744
+to 456,877,056 bytes. It contains no paths or client names.
+
+The command pairs --occurrence with --membership-file and requires slice scope.
+It rejects absent, duplicate, out-of-plan, wrong-archive, non-PST, digest/size-drift
+and over-budget selections before family-run-start. Selection derives expected
+store count one. Absent selection retains the existing scope and denominator
+behavior; the full-estate invocation remains outside this lane's authority.
+A selected family's policy hash additionally freezes objectId and the exact
+membership-file SHA-256. Defaults preserve the original ten-field policy digest.
+Independent preservationLabel continues to select the original sealed archive;
+a fresh runLabel names each transformation family and its immutable ledger.
+
+| Surface | Location |
+| --- | --- |
+| Committed first-wave membership | history/evidence/p2-first-wave-membership.json |
+
+Decision: add the schema, public flags and pre-start guard in PR6; run 10 owns
+the nine sequential detached families. No family runs during implementation.
+Every future family needs a pre-execution freeze record including selected
+identity and membership digest. No engine or launcher change inside the wave.
+Reversal: close/revert PR6 and retain both immutable P1 families; no P2 output
+exists. No changeset: @beep/repo-cli is private under #1566 and the standing
+private-workspace ruling. This optional behavior is compatible, not a major
+public API break; reversal restores the original fixed slice selection.
+
+
+### Run-9B closeout decision — bounded monitor termination
+
+After final local proof and content-final publication, terminate the worker-owned
+readiness monitor before handoff, as Mechanics forbids exiting with an owned
+unit running. Hosted Repo Sanity is inherited; hosted JSDoc generation remains
+unclassified for S11 triage. The monitor is terminated, its unit inactive/dead;
+no merge-ready verdict is claimed. Reversal: submit the same until-ready detached
+monitor with a forty-minute maximum. The orchestrator owns review/CI merge gates
+and run-10 execution; zero P2 families have started. Retain post-push receipts
+for the next packet evidence commit without moving the final selector head.
+
+
+### 2026-10-13: PR6 round-two occurrence contract corrections
+
+Run-9c limits this wave to the three existing PR6 review threads. Explicit
+selection now requires the supplied expected store count to equal one and
+returns CorpusCommandError before preparing any family state when it differs.
+The frozen denominator is never silently replaced. The occurrence flag names
+the membership member objectId rather than its content sha256. Membership
+decoding requires every objectId to be unique, including unselected entries
+whose content digests differ. Synthetic tests cover rejection before family
+state, valid expectedCount one, default slice behavior, and duplicate unselected
+identities at both schema and command boundaries.
+
+Decision: fix these three contracts in one PR6 push. Reversal: revert this
+review-fix commit while retaining both sealed P1 families and their manifests.
+P1 remains complete; P2 remains pending. No transformation family is launched
+in this run. Run 10 starts only after PR6 merges under the orchestrator gate.
