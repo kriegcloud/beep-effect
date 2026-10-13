@@ -39,6 +39,7 @@ import {
   validateTrialRequestChecks,
 } from "./TrialIsolation.ts";
 import {
+  TrialBootstrapFile,
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
   TrialInputInventory,
@@ -411,7 +412,13 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
             yield* fs.readFileString(check.nativeRuntimeEvidence.path)
           );
           const runtime = contract.nativeRuntime;
-          yield* validateTrialNativeRuntime(runtime);
+          const capabilities = yield* validateTrialNativeRuntime(runtime);
+          const equalCapabilities = S.toEquivalence(TrialBootstrapFile.Capabilities);
+          const capabilitiesValid =
+            evidence.bootstrapCapabilitiesBefore !== undefined &&
+            evidence.bootstrapCapabilitiesAfter !== undefined &&
+            equalCapabilities(capabilities, evidence.bootstrapCapabilitiesBefore) &&
+            equalCapabilities(capabilities, evidence.bootstrapCapabilitiesAfter);
           const cacheValid =
             runtime.bunInstallCache !== undefined &&
             (yield* validateTrialBunCacheEvidence(
@@ -422,6 +429,7 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
             ));
           nativeValid =
             evidence.preserved &&
+            capabilitiesValid &&
             cacheValid &&
             evidence.manifestBefore === evidence.manifestAfter &&
             evidence.runtimeDigest ===

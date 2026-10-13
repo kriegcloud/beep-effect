@@ -22,6 +22,7 @@ import { AgentTrialError } from "../AgentEffectiveness.errors.ts";
 import { TrialIsolationAttestation } from "../AgentEffectiveness.trials.schemas.ts";
 import {
   TrialArtifact,
+  TrialBootstrapFile,
   TrialInputInventory,
   TrialInputMetadata,
   TrialNativeInvocation,
@@ -804,6 +805,38 @@ export const captureTrialInventory = Effect.fn("AgentEffectiveness.captureTrialI
   return TrialInputInventory.make({ ...input, digest: yield* trialInventoryDigest(input) });
 });
 
+const trialAccountBindings = Effect.fn("AgentEffectiveness.trialAccountBindings")(function* (
+  system: TrialInputInventory,
+  requireAccounts?: boolean
+) {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
+  const bindings: Array<string> = [];
+  const names = ["etc/passwd", "etc/group", "etc/nsswitch.conf"];
+  const declared = A.filter(names, (name) => R.has(system.files, name));
+  if (A.isReadonlyArrayEmpty(declared) && requireAccounts !== true) return [];
+  if (A.length(declared) !== A.length(names))
+    return yield* fail("Sealed account inputs require the exact three-file census");
+  for (const name of names) {
+    const full = path.join(system.root, name);
+    const info = yield* fs.stat(full);
+    const metadata = O.fromUndefinedOr(system.metadata?.[name]);
+    if (
+      R.has(system.symlinks, name) ||
+      O.isNone(metadata) ||
+      info.type !== "File" ||
+      (yield* fs.realPath(full)) !== full ||
+      (yield* hashTrialInput(full)) !== system.files[name] ||
+      info.mode !== metadata.value.mode ||
+      !O.contains(info.uid, metadata.value.uid) ||
+      !O.contains(info.gid, metadata.value.gid)
+    )
+      return yield* fail("Sealed account input is not a canonical metadata-bound regular file");
+    bindings.push("--ro-bind", full, `/${name}`);
+  }
+  return bindings;
+});
+
 /**
  * Project a declared sparse system into the evaluator namespace.
  * **Details**
@@ -826,11 +859,14 @@ export const trialSystemBindings = Effect.fn("AgentEffectiveness.trialSystemBind
   if (requireSystem === true && system === undefined)
     return yield* fail("Productive namespace requires a declared sealed system");
   if (system !== undefined) yield* validateTrialInventory(system, "/runtime/system", requireSystem);
-  return A.flatMap(["/usr", "/bin", "/lib", "/lib64"], (target) => [
-    "--ro-bind",
-    system === undefined ? target : path.join(system.root, path.relative("/", target)),
-    target,
-  ]);
+  return [
+    ...A.flatMap(["/usr", "/bin", "/lib", "/lib64"], (target) => [
+      "--ro-bind",
+      system === undefined ? target : path.join(system.root, path.relative("/", target)),
+      target,
+    ]),
+    ...(system === undefined ? [] : yield* trialAccountBindings(system, requireSystem)),
+  ];
 });
 
 /**
@@ -881,7 +917,7 @@ export const deriveTrialRuntimeControlsDigest = Effect.fn("AgentEffectiveness.de
 export const trialCheckContractDigest = Effect.fn("trialCheckContractDigest")(function* (check: TrialEvaluatorCheck) {
   return yield* hashPublicTextSha256(
     yield* S.encodeEffect(S.fromJsonString(S.Unknown))({
-      encoding: "trial-check-contract/v3",
+      encoding: "trial-check-contract/v4",
       runtimeControlsDigest: check.runtimeControlsDigest ?? null,
       id: check.id,
       kind: check.kind,
@@ -933,6 +969,48 @@ export const trialNativeInventoryBindings = (runtime: TrialNativeYeetRuntime): R
   ),
 ];
 
+const readTrialBootstrapCapabilities = Effect.fn("AgentEffectiveness.readTrialBootstrapCapabilities")(function* (
+  runtime: TrialNativeYeetRuntime
+) {
+  const result = yield* runCaptured({
+    command: runtime.broker.interpreter.path,
+    args: [
+      "-I",
+      "-B",
+      "-c",
+      A.join(
+        [
+          "import errno,json,os,sys",
+          "rows=[]",
+          "for path in sys.argv[1:]:",
+          " try: capability=os.getxattr(path,'security.capability').hex()",
+          " except OSError as error:",
+          "  if error.errno!=errno.ENODATA: raise",
+          "  capability=None",
+          " rows.append({'path':path,'capability':capability})",
+          "print(json.dumps(rows))",
+        ],
+        "\n"
+      ),
+      "/usr/bin/newuidmap",
+      "/usr/bin/newgidmap",
+    ],
+    extendEnv: false,
+    env: { PYTHONDONTWRITEBYTECODE: "1" },
+    source: "stdout",
+    timeout: "10 seconds",
+  }).pipe(
+    Effect.mapError(() => AgentTrialError.make({ stage: "proof", message: "Bootstrap capability reader failed" }))
+  );
+  if (result.exitCode !== 0 || result.truncated)
+    return yield* AgentTrialError.make({ stage: "proof", message: "Bootstrap capability capture is incomplete" });
+  return yield* S.decodeEffect(S.fromJsonString(TrialBootstrapFile.Capabilities))(result.output).pipe(
+    Effect.mapError(() =>
+      AgentTrialError.make({ stage: "proof", message: "Bootstrap capability observations are invalid" })
+    )
+  );
+});
+
 /**
  * Revalidate every native capability against its declared files and metadata.
  * **Details**
@@ -950,79 +1028,136 @@ export const trialNativeInventoryBindings = (runtime: TrialNativeYeetRuntime): R
  * @category execution
  * @since 0.0.0
  */
-export const validateTrialNativeRuntime = Effect.fn("AgentEffectiveness.validateTrialNativeRuntime")(function* (
-  runtime: TrialNativeYeetRuntime
-) {
-  const fs = yield* FileSystem.FileSystem;
-  if (runtime.bunInstallCache === undefined)
-    return yield* AgentTrialError.make({
-      stage: "proof",
-      message: "Native full runtime requires an immutable Bun install cache",
-    });
-  const bootstrapPaths = A.map(runtime.bootstrap, (file) => file.artifact.path);
-  if (
-    !A.every(
-      [
-        "/usr/bin/podman",
-        "/usr/bin/bwrap",
-        "/usr/bin/newuidmap",
-        "/usr/bin/newgidmap",
-        "/usr/bin/runc",
-        "/usr/bin/stat",
-        runtime.broker.interpreter.path,
-      ],
-      (file) => A.contains(bootstrapPaths, file)
-    )
-  )
-    return yield* AgentTrialError.make({ stage: "proof", message: "Native bootstrap input closure is incomplete" });
-  for (const { inventory, target } of trialNativeInventoryBindings(runtime)) {
-    yield* validateTrialInventory(inventory, target, true);
-  }
-  for (const file of runtime.bootstrap) {
-    const info = yield* fs.stat(file.artifact.path);
+export const validateTrialNativeRuntime = Effect.fn("AgentEffectiveness.validateTrialNativeRuntime")(
+  function* (runtime: TrialNativeYeetRuntime) {
+    const fs = yield* FileSystem.FileSystem;
+    if (runtime.bunInstallCache === undefined)
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Native full runtime requires an immutable Bun install cache",
+      });
     if (
-      (yield* hashTrialInput(file.artifact.path)) !== file.artifact.digest ||
-      info.mode !== file.metadata.mode ||
-      !O.contains(info.uid, file.metadata.uid) ||
-      !O.contains(info.gid, file.metadata.gid)
+      !A.every(
+        ["etc/passwd", "etc/group", "etc/nsswitch.conf"],
+        (name) =>
+          R.has(runtime.system.files, name) &&
+          runtime.system.metadata?.[name] !== undefined &&
+          !R.has(runtime.system.symlinks, name)
+      )
     )
-      return yield* AgentTrialError.make({ stage: "proof", message: "Rootless bootstrap file changed" });
-  }
-  if (
-    !A.makeEquivalence(Str.Equivalence)(A.sort(runtime.broker.authorities, Str.Order), [
-      "api.osv.dev:443",
-      "registry.npmjs.org:443",
-    ]) ||
-    (yield* hashTrialInput(runtime.certificateBundle.path)) !== runtime.certificateBundle.digest
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Native system requires declared readonly account inputs",
+      });
+    const bootstrapPaths = A.map(runtime.bootstrap, (file) => file.artifact.path);
+    if (
+      !A.every(
+        [
+          "/usr/bin/podman",
+          "/usr/bin/bwrap",
+          "/usr/bin/newuidmap",
+          "/usr/bin/newgidmap",
+          "/usr/bin/runc",
+          "/usr/bin/stat",
+          runtime.broker.interpreter.path,
+        ],
+        (file) => A.contains(bootstrapPaths, file)
+      )
+    )
+      return yield* AgentTrialError.make({ stage: "proof", message: "Native bootstrap input closure is incomplete" });
+    const helperPaths = ["/usr/bin/newuidmap", "/usr/bin/newgidmap"];
+    for (const helperPath of helperPaths) {
+      const declarations = A.filter(runtime.bootstrap, (file) => file.artifact.path === helperPath);
+      if (A.length(declarations) !== 1 || A.some(declarations, (file) => file.capability === undefined))
+        return yield* AgentTrialError.make({
+          stage: "proof",
+          message: "Bootstrap helpers require unique explicit capability declarations",
+        });
+    }
+    for (const { inventory, target } of trialNativeInventoryBindings(runtime)) {
+      yield* validateTrialInventory(inventory, target, true);
+    }
+    yield* trialAccountBindings(runtime.system, true);
+    for (const file of runtime.bootstrap) {
+      const info = yield* fs.stat(file.artifact.path);
+      if (A.contains(helperPaths, file.artifact.path) && info.type !== "File")
+        return yield* AgentTrialError.make({
+          stage: "proof",
+          message: "Bootstrap privilege helper must be a regular file",
+        });
+      if (
+        (yield* hashTrialInput(file.artifact.path)) !== file.artifact.digest ||
+        info.mode !== file.metadata.mode ||
+        !O.contains(info.uid, file.metadata.uid) ||
+        !O.contains(info.gid, file.metadata.gid)
+      )
+        return yield* AgentTrialError.make({ stage: "proof", message: "Rootless bootstrap file changed" });
+    }
+    if (
+      !A.makeEquivalence(Str.Equivalence)(A.sort(runtime.broker.authorities, Str.Order), [
+        "api.osv.dev:443",
+        "registry.npmjs.org:443",
+      ]) ||
+      (yield* hashTrialInput(runtime.certificateBundle.path)) !== runtime.certificateBundle.digest
+    )
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Native advisory policy or certificate bytes differ",
+      });
+    for (const artifact of [
+      runtime.broker.program,
+      runtime.broker.interpreter,
+      runtime.broker.relay,
+      runtime.broker.policy,
+      runtime.broker.canaries,
+    ])
+      if ((yield* hashTrialInput(artifact.path)) !== artifact.digest)
+        return yield* AgentTrialError.make({ stage: "proof", message: "Native broker asset changed" });
+    const policy = yield* S.decodeEffect(
+      S.fromJsonString(S.Record(S.String, S.Struct({ fixture: S.optional(S.Boolean) })))
+    )(yield* fs.readFileString(runtime.broker.policy.path));
+    if (
+      !A.makeEquivalence(Str.Equivalence)(
+        A.sort(R.keys(policy), Str.Order),
+        A.sort(runtime.broker.authorities, Str.Order)
+      ) ||
+      A.some(R.values(policy), (entry) => entry.fixture === true)
+    )
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Native broker policy differs or permits private fixtures",
+      });
+    const observations = yield* readTrialBootstrapCapabilities(runtime);
+    for (const observation of observations) {
+      const declaration = A.findFirst(runtime.bootstrap, (file) => file.artifact.path === observation.path);
+      if (
+        O.isNone(declaration) ||
+        declaration.value.capability === undefined ||
+        !S.toEquivalence(TrialBootstrapFile.Capability)(declaration.value.capability, observation.capability)
+      )
+        return yield* AgentTrialError.make({ stage: "proof", message: "Bootstrap helper capability changed" });
+      const info = yield* fs.stat(observation.path);
+      if (
+        info.type !== "File" ||
+        (yield* fs.realPath(observation.path)) !== observation.path ||
+        (yield* hashTrialInput(observation.path)) !== declaration.value.artifact.digest ||
+        info.mode !== declaration.value.metadata.mode ||
+        !O.contains(info.uid, declaration.value.metadata.uid) ||
+        !O.contains(info.gid, declaration.value.metadata.gid)
+      )
+        return yield* AgentTrialError.make({
+          stage: "proof",
+          message: "Bootstrap helper identity changed during capability capture",
+        });
+    }
+    return observations;
+  },
+  Effect.mapError((cause) =>
+    S.is(AgentTrialError)(cause)
+      ? cause
+      : AgentTrialError.make({ stage: "proof", message: "Native runtime validation failed" })
   )
-    return yield* AgentTrialError.make({
-      stage: "proof",
-      message: "Native advisory policy or certificate bytes differ",
-    });
-  for (const artifact of [
-    runtime.broker.program,
-    runtime.broker.interpreter,
-    runtime.broker.relay,
-    runtime.broker.policy,
-    runtime.broker.canaries,
-  ])
-    if ((yield* hashTrialInput(artifact.path)) !== artifact.digest)
-      return yield* AgentTrialError.make({ stage: "proof", message: "Native broker asset changed" });
-  const policy = yield* S.decodeEffect(
-    S.fromJsonString(S.Record(S.String, S.Struct({ fixture: S.optional(S.Boolean) })))
-  )(yield* fs.readFileString(runtime.broker.policy.path));
-  if (
-    !A.makeEquivalence(Str.Equivalence)(
-      A.sort(R.keys(policy), Str.Order),
-      A.sort(runtime.broker.authorities, Str.Order)
-    ) ||
-    A.some(R.values(policy), (entry) => entry.fixture === true)
-  )
-    return yield* AgentTrialError.make({
-      stage: "proof",
-      message: "Native broker policy differs or permits private fixtures",
-    });
-});
+);
 
 /**
  * Verify every collection check slot against the frozen ordered plan.

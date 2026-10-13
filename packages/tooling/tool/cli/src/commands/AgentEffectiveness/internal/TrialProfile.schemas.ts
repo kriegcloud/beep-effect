@@ -217,6 +217,13 @@ export class TrialInputInventory extends S.Class<TrialInputInventory>($I`TrialIn
   })
 ) {}
 
+const TrialBootstrapCapabilityHex = S.NonEmptyString.check(
+  S.isPattern(/^(?:[a-f0-9]{24}|[a-f0-9]{40}|[a-f0-9]{48})$/)
+).pipe(
+  $I.annoteSchema("TrialBootstrapCapabilityHex", { description: "Exact Linux v1, v2 or v3 security.capability bytes." })
+);
+const TrialBootstrapCapabilityState = S.OptionFromNullOr(TrialBootstrapCapabilityHex);
+
 /**
  * Bind an existing privileged bootstrap file without granting a host directory.
  * **Example** (Reject a missing file fingerprint)
@@ -229,11 +236,45 @@ export class TrialInputInventory extends S.Class<TrialInputInventory>($I`TrialIn
  * @since 0.0.0
  */
 export class TrialBootstrapFile extends S.Class<TrialBootstrapFile>($I`TrialBootstrapFile`)(
-  { artifact: TrialArtifact, metadata: TrialInputMetadata },
+  { artifact: TrialArtifact, metadata: TrialInputMetadata, capability: S.optional(TrialBootstrapCapabilityState) },
   $I.annote("TrialBootstrapFile", {
     description: "Exact byte, mode and ownership binding for rootless namespace bootstrap.",
   })
-) {}
+) {
+  /**
+   * Decode raw capability bytes while preserving explicit absence.
+   * **Example** (Decode absent capabilities)
+   * ```ts
+   * import { TrialBootstrapFile } from "@beep/repo-cli/test/AgentEffectiveness"
+   * import * as S from "effect/Schema"
+   * const absent = S.decodeUnknownEffect(TrialBootstrapFile.Capability)(null)
+   * console.log(absent)
+   * ```
+   * @category models
+   * @since 0.0.0
+   */
+  static readonly Capability = TrialBootstrapCapabilityState;
+
+  /**
+   * Require the exact ordered privilege-helper observations.
+   * **Example** (Reject an incomplete capability census)
+   * ```ts
+   * import { TrialBootstrapFile } from "@beep/repo-cli/test/AgentEffectiveness"
+   * import * as S from "effect/Schema"
+   * console.log(S.is(TrialBootstrapFile.Capabilities)([])) // false
+   * ```
+   * @category models
+   * @since 0.0.0
+   */
+  static readonly Capabilities = S.Tuple([
+    S.Struct({ path: S.Literal("/usr/bin/newuidmap"), capability: TrialBootstrapCapabilityState }),
+    S.Struct({ path: S.Literal("/usr/bin/newgidmap"), capability: TrialBootstrapCapabilityState }),
+  ]).pipe(
+    $I.annoteSchema("TrialBootstrapCapabilities", {
+      description: "Ordered exact two-helper capability census; null explicitly encodes absence.",
+    })
+  );
+}
 
 /**
  * Declare the owned native Yeet capabilities separately from coding tools.
@@ -295,6 +336,8 @@ export class TrialNativeRuntimeEvidence extends S.Class<TrialNativeRuntimeEviden
     bunCacheBefore: S.optional(TrialArtifact),
     bunCacheAfter: S.optional(TrialArtifact),
     bunCacheTarget: S.optional(S.Literal("/output/bun-cache")),
+    bootstrapCapabilitiesBefore: S.optional(TrialBootstrapFile.Capabilities),
+    bootstrapCapabilitiesAfter: S.optional(TrialBootstrapFile.Capabilities),
   },
   $I.annote("TrialNativeRuntimeEvidence", {
     description: "Immutable native capability and source-overlay guards required by passing finalization.",

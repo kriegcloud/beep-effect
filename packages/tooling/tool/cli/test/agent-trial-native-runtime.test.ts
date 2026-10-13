@@ -5,22 +5,37 @@ import {
   collectTrialTrackedInventory,
   deriveTrialRuntimeControlsDigest,
   executeTrialCheck,
+  finalizeTrial,
+  hashTrialInput,
   inspectTrialGit,
   parseTrialTrackedRoots,
+  parseTrialUsage,
   prepareTrialBunCache,
   restoreTrialInventoryLinks,
   retainTrialCandidate,
+  TrialAcceptance,
+  TrialAcceptanceJson,
   TrialArtifact,
+  TrialAttempt,
+  TrialAttemptJson,
   TrialBootstrapFile,
   TrialBrokerControl,
+  TrialCollectRequest,
+  TrialCollectRequestJson,
   TrialCommittedSource,
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
+  TrialFinalizationJson,
   TrialInputInventory,
   TrialInputMetadata,
+  TrialMount,
   TrialMountGuardEvidence,
   TrialNativeRuntimeEvidence,
   TrialNativeYeetRuntime,
+  TrialPlan,
+  TrialPlanJson,
+  TrialProof,
+  TrialProofJson,
   trialArtifact,
   trialCheckContractDigest,
   trialEvaluatorInputRoots,
@@ -37,17 +52,24 @@ import {
   validateTrialRequestChecks,
 } from "@beep/repo-cli/test/AgentEffectiveness";
 import { repoRunOutputBound, runCaptured } from "@beep/repo-cli/test/Process";
+import { YeetVerdict, YeetVerdictJson, YeetVerdictLane } from "@beep/repo-cli/test/Yeet";
 import { Sha256Hex } from "@beep/schema/Sha256";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { expect, it, layer } from "@effect/vitest";
 import * as A from "effect/Array";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Path from "effect/Path";
+import * as ChildProcess from "effect/process/ChildProcess";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Tuple from "effect/Tuple";
 
 const zero = Sha256Hex.make(Str.repeat(64)("0"));
 const one = Sha256Hex.make(Str.repeat(64)("1"));
@@ -97,15 +119,23 @@ const check = TrialEvaluatorCheck.make({
   timeoutMs: 1000,
   nativeRuntime: runtime,
 });
+it.effect("invalidates the legacy contract using an independent v4 encoding reference", () =>
+  Effect.gen(function* () {
+    const value = yield* trialCheckContractDigest(TrialEvaluatorCheck.make({ ...check, nativeRuntime: undefined }));
+    expect(value).toBe("82bc549744975361dad549de52e2dd410cf619026b4fca299bfcc951ca4ee90c");
+    expect(value).not.toBe("b30fa15be2aaf0a784350838fc186fae3f85ebab2c6e545b7009f401d25af944");
+  })
+);
+
 it.effect("freezes ordered runtime and projection controls in every evaluator contract", () =>
   Effect.gen(function* () {
-    const mount = { source: "/owned/bin", target: "/runtime/bin", access: "readonly", digest: zero };
+    const mount = TrialMount.make({ source: "/owned/bin", target: "/runtime/bin", access: "readonly", digest: zero });
     const projection = { target: "/workspace/node_modules", inventory };
     const original = yield* deriveTrialRuntimeControlsDigest([mount], [projection]);
     const mutations = [
       yield* deriveTrialRuntimeControlsDigest([{ ...mount, source: "/other/bin" }], [projection]),
       yield* deriveTrialRuntimeControlsDigest([{ ...mount, target: "/runtime/other" }], [projection]),
-      yield* deriveTrialRuntimeControlsDigest([{ ...mount, access: "writable" }], [projection]),
+      yield* deriveTrialRuntimeControlsDigest([{ ...mount, access: "resettable" }], [projection]),
       yield* deriveTrialRuntimeControlsDigest([{ ...mount, digest: one }], [projection]),
       yield* deriveTrialRuntimeControlsDigest([mount], [{ ...projection, target: "/workspace/infra/node_modules" }]),
       yield* deriveTrialRuntimeControlsDigest(
@@ -147,8 +177,8 @@ it.effect("rejects duplicate, extra, reordered and moved collection check slots"
       };
     });
     const plan = {
-      requiredTaskCheckIds: [first.id, second.id],
-      requiredCheckSpecs: [yield* spec(first), yield* spec(second)],
+      requiredTaskCheckIds: A.make(first.id, second.id),
+      requiredCheckSpecs: A.make(yield* spec(first), yield* spec(second)),
       fullYeetCheckSpec: yield* spec(check),
     };
     expect(yield* validateTrialRequestChecks(plan, [first, second], check)).toBe(true);
@@ -216,6 +246,15 @@ it.effect("binds every native capability, certificate, bootstrap and broker cont
     const changed = (value: TrialNativeYeetRuntime) =>
       trialCheckContractDigest(TrialEvaluatorCheck.make({ ...check, nativeRuntime: value }));
     for (const patch of [
+      { bootstrap: [TrialBootstrapFile.make({ ...runtime.bootstrap[0], capability: O.none() })] },
+      {
+        bootstrap: [
+          TrialBootstrapFile.make({
+            ...runtime.bootstrap[0],
+            capability: O.some("0100000280000000000000000000000000000000"),
+          }),
+        ],
+      },
       { system: TrialInputInventory.make({ ...inventory, digest: one }) },
       { nix: TrialInputInventory.make({ ...inventory, digest: one }) },
       { oci: TrialInputInventory.make({ ...inventory, digest: one }) },
@@ -236,14 +275,148 @@ it.effect("binds every native capability, certificate, bootstrap and broker cont
       { broker: TrialBrokerControl.make({ ...runtime.broker, maxSeconds: 20 }) },
       { nixStorePaths: ["/nix/store/different"] },
       { image: `ghcr.io/google/osv-scanner-action@sha256:${one}` },
-    ])
-      expect(yield* changed(yield* S.decodeUnknownEffect(TrialNativeYeetRuntime)({ ...runtime, ...patch }))).not.toBe(
-        frozen
-      );
+    ]) {
+      const merged = { ...runtime, ...patch };
+      if (!A.isReadonlyArrayNonEmpty(merged.bootstrap) || !A.isReadonlyArrayNonEmpty(merged.nixStorePaths))
+        return yield* Effect.die("fixture mutation must remain nonempty");
+      expect(
+        yield* changed(
+          TrialNativeYeetRuntime.make({ ...merged, bootstrap: merged.bootstrap, nixStorePaths: merged.nixStorePaths })
+        )
+      ).not.toBe(frozen);
+    }
     const { nativeRuntime: _native, ...legacy } = check;
     expect(yield* trialCheckContractDigest(TrialEvaluatorCheck.make(legacy))).not.toBe(frozen);
   })
 );
+
+const makeNativeFixture = Effect.fn(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const home = yield* Config.String("HOME");
+  const cache = `${home}/.cache/beep/runner-tests`;
+  yield* fs.makeDirectory(cache, { recursive: true });
+  const root = yield* fs.makeTempDirectoryScoped({ directory: cache });
+  const inputs = `${root}/inputs`;
+  yield* fs.makeDirectory(inputs);
+  yield* fs.makeDirectory(`${inputs}/etc`);
+  yield* fs.writeFileString(`${inputs}/etc/passwd`, "fixture:x:0:0:fixture:/output/native-home:/bin/sh\n");
+  yield* fs.writeFileString(`${inputs}/etc/group`, "fixture:x:0:\n");
+  yield* fs.writeFileString(`${inputs}/etc/nsswitch.conf`, "passwd: files\ngroup: files\n");
+  for (const dir of ["usr/bin", "var/nix", "store", "bin", "lib", "lib64"])
+    yield* fs.makeDirectory(`${inputs}/${dir}`, { recursive: true });
+  const binaries = ["/usr/bin/git"];
+  const libraries = yield* Effect.forEach(binaries, (binary) =>
+    runCaptured({
+      command: "/usr/bin/ldd",
+      args: [binary],
+      source: "stdout",
+      timeout: "10 seconds",
+    })
+  );
+  const paths = A.dedupe([
+    ...binaries,
+    ...A.flatMap(libraries, (result) =>
+      A.flatMap(Str.split("\n")(result.output), (line) =>
+        O.toArray(O.map(Str.match(/\/[^\s]+/)(line), (match) => match[0]))
+      )
+    ),
+  ]);
+  for (const original of paths) {
+    const projected = Str.startsWith("/lib")(original) ? yield* fs.realPath(original) : original;
+    const destination = `${inputs}${projected}`;
+    const parent = (yield* Path.Path).dirname(destination);
+    yield* fs.makeDirectory(parent, { recursive: true });
+    yield* fs.copyFile(original, destination);
+  }
+  yield* fs.copyFile("/usr/lib/ld-linux-x86-64.so.2", `${inputs}/lib64/ld-linux-x86-64.so.2`);
+  const sealed = yield* captureTrialInventory(inputs);
+  const pythonResolution = yield* runCaptured({
+    command: "python3",
+    args: ["-I", "-B", "-c", "import os,sys; print(os.path.realpath(sys.executable))"],
+    extendEnv: true,
+    env: { PYTHONDONTWRITEBYTECODE: "1" },
+    source: "stdout",
+    timeout: "10 seconds",
+  });
+  expect(pythonResolution.exitCode).toBe(0);
+  expect(pythonResolution.truncated).toBe(false);
+  const python = yield* fs.realPath(Str.trim(pythonResolution.output));
+  const bootstrap = [];
+  for (const path of [
+    "/usr/bin/podman",
+    "/usr/bin/bwrap",
+    "/usr/bin/newuidmap",
+    "/usr/bin/newgidmap",
+    "/usr/bin/runc",
+    "/usr/bin/stat",
+    python,
+  ]) {
+    const info = yield* fs.stat(path);
+    const capability =
+      path === "/usr/bin/newuidmap" || path === "/usr/bin/newgidmap"
+        ? yield* runCaptured({
+            command: python,
+            args: [
+              "-I",
+              "-B",
+              "-c",
+              "import errno,json,os,sys\ntry: value=os.getxattr(sys.argv[1],'security.capability').hex()\nexcept OSError as error:\n if error.errno!=errno.ENODATA: raise\n value=None\nprint(json.dumps(value))",
+              path,
+            ],
+            env: { PYTHONDONTWRITEBYTECODE: "1" },
+            extendEnv: false,
+            source: "stdout",
+            timeout: "10 seconds",
+          }).pipe(
+            Effect.flatMap((result) => S.decodeEffect(S.fromJsonString(TrialBootstrapFile.Capability))(result.output))
+          )
+        : undefined;
+    bootstrap.push(
+      TrialBootstrapFile.make({
+        artifact: yield* trialArtifact(path),
+        capability,
+        metadata: TrialInputMetadata.make({
+          mode: info.mode,
+          uid: O.getOrElse(info.uid, () => 0),
+          gid: O.getOrElse(info.gid, () => 0),
+        }),
+      })
+    );
+  }
+  const certificate = `${root}/certificate`;
+  const program = `${root}/program`;
+  const policy = `${root}/policy`;
+  yield* fs.writeFileString(certificate, "certificate");
+  yield* fs.writeFileString(program, "program");
+  yield* fs.writeFileString(
+    policy,
+    yield* S.encodeEffect(S.fromJsonString(S.Unknown))({
+      "api.osv.dev:443": {},
+      "registry.npmjs.org:443": {},
+    })
+  );
+  const asset = yield* trialArtifact(program);
+  if (!A.isArrayNonEmpty(bootstrap)) return yield* Effect.die("fixture bootstrap must be nonempty");
+  const native = TrialNativeYeetRuntime.make({
+    ...runtime,
+    system: sealed,
+    nix: sealed,
+    oci: sealed,
+    crun: sealed,
+    bunInstallCache: sealed,
+    bootstrap,
+    certificateBundle: yield* trialArtifact(certificate),
+    broker: TrialBrokerControl.make({
+      ...runtime.broker,
+      program: asset,
+      relay: asset,
+      canaries: asset,
+      policy: yield* trialArtifact(policy),
+      interpreter: yield* trialArtifact(python),
+    }),
+  });
+  return { fs, root, inputs, sealed, python, native, certificate, program };
+});
 
 layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: true })(
   "native runtime metadata",
@@ -260,12 +433,19 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
           const systemRoot = `${root}/system`;
           yield* fs.makeDirectory(`${systemRoot}/usr/bin`, { recursive: true });
           yield* fs.makeDirectory(`${systemRoot}/usr/lib`, { recursive: true });
-          for (const [name, target] of [
-            ["bin", "usr/bin"],
-            ["lib", "usr/lib"],
-            ["lib64", "usr/lib"],
-          ])
+          for (const [name, target] of A.make(
+            Tuple.make("bin", "usr/bin"),
+            Tuple.make("lib", "usr/lib"),
+            Tuple.make("lib64", "usr/lib")
+          ))
             yield* fs.symlink(target, `${systemRoot}/${name}`);
+          yield* fs.makeDirectory(`${systemRoot}/etc`);
+          for (const [name, contents] of A.make(
+            Tuple.make("passwd", "fixture:x:0:0:fixture:/output/native-home:/bin/sh\n"),
+            Tuple.make("group", "fixture:x:0:\n"),
+            Tuple.make("nsswitch.conf", "passwd: files\ngroup: files\n")
+          ))
+            yield* fs.writeFileString(`${systemRoot}/etc/${name}`, contents);
           const system = yield* captureTrialInventory(systemRoot);
           const closure = { inventory: system, target: "/runtime/system" };
           expect(
@@ -290,12 +470,21 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
             "--ro-bind",
             `${systemRoot}/lib64`,
             "/lib64",
+            "--ro-bind",
+            `${systemRoot}/etc/passwd`,
+            "/etc/passwd",
+            "--ro-bind",
+            `${systemRoot}/etc/group`,
+            "/etc/group",
+            "--ro-bind",
+            `${systemRoot}/etc/nsswitch.conf`,
+            "/etc/nsswitch.conf",
           ]);
           expect((yield* trialSystemBindings(undefined, true).pipe(Effect.result))._tag).toBe("Failure");
           const legacy = TrialInputInventory.make({ ...system, metadata: undefined });
           const legacyBound = TrialInputInventory.make({ ...legacy, digest: yield* trialInventoryDigest(legacy) });
-          expect(yield* S.decodeUnknownEffect(TrialInputInventory)(legacyBound)).toEqual(legacyBound);
-          yield* trialSystemBindings(legacyBound);
+          expect(yield* S.decodeEffect(TrialInputInventory)(legacyBound)).toEqual(legacyBound);
+          expect((yield* trialSystemBindings(legacyBound).pipe(Effect.result))._tag).toBe("Failure");
           expect((yield* trialSystemBindings(legacyBound, true).pipe(Effect.result))._tag).toBe("Failure");
           expect(
             (yield* trialSystemBindings(TrialInputInventory.make({ ...system, metadata: {} }), true).pipe(
@@ -808,91 +997,595 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
         })
       )
     );
-    test.effect("requires complete native metadata and revalidates standalone asset bytes", () =>
-      Effect.scoped(
-        Effect.gen(function* () {
-          const fs = yield* FileSystem.FileSystem;
-          const root = yield* fs.makeTempDirectoryScoped();
-          const inputs = `${root}/inputs`;
-          yield* fs.makeDirectory(inputs);
-          const empty = { files: {}, symlinks: {}, directories: [], metadata: {} };
-          const digest = yield* hashPublicTextSha256(yield* S.encodeEffect(S.fromJsonString(S.Unknown))(empty));
-          const sealed = TrialInputInventory.make({ root: inputs, digest, ...empty });
-          const bootstrap = [];
-          for (const path of [
-            "/usr/bin/podman",
-            "/usr/bin/bwrap",
-            "/usr/bin/newuidmap",
-            "/usr/bin/newgidmap",
-            "/usr/bin/runc",
-            "/usr/bin/stat",
-          ]) {
-            const info = yield* fs.stat(path);
-            bootstrap.push(
-              TrialBootstrapFile.make({
-                artifact: yield* trialArtifact(path),
+    test.effect(
+      "retains drained capture and refuses evidence publication after native postvalidation fails",
+      () =>
+        Effect.scoped(
+          Effect.gen(function* () {
+            const { fs, root, native, python, certificate, program } = yield* makeNativeFixture();
+            const workspace = `${root}/source`;
+            yield* fs.makeDirectory(workspace);
+            yield* fs.writeFileString(`${workspace}/package.json`, "{}\n");
+            yield* fs.writeFileString(`${workspace}/.gitignore`, ".beep/\n");
+            const git = Effect.fn(function* (args: ReadonlyArray<string>) {
+              const result = yield* runCaptured({
+                command: "/usr/bin/git",
+                args: [
+                  "-c",
+                  "core.hooksPath=/dev/null",
+                  "-c",
+                  "user.name=Fixture",
+                  "-c",
+                  "user.email=fixture@localhost",
+                  ...args,
+                ],
+                cwd: workspace,
+                source: "stdout",
+                timeout: "10 seconds",
+              });
+              expect(result.exitCode).toBe(0);
+              return Str.trim(result.output);
+            });
+            yield* git(["init"]);
+            yield* git(["add", "."]);
+            yield* git(["commit", "-m", "fixture"]);
+            const commit = yield* git(["rev-parse", "HEAD"]);
+            yield* fs.writeFileString(
+              program,
+              "import argparse,socket\np=argparse.ArgumentParser()\np.add_argument('--socket');p.add_argument('--policy');p.add_argument('--events');p.add_argument('--max-seconds');a=p.parse_args()\ns=socket.socket(socket.AF_UNIX);s.bind(a.socket);s.listen()\nprint('ready',flush=True)\nwhile True:\n c,_=s.accept();c.recv(4096);c.sendall(b'HTTP/1.1 403 Forbidden\\r\\n\\r\\n');c.close()\n"
+            );
+            const brokerArtifact = yield* trialArtifact(program);
+            const prepared = TrialNativeYeetRuntime.make({
+              ...native,
+              broker: TrialBrokerControl.make({
+                ...native.broker,
+                program: brokerArtifact,
+                relay: brokerArtifact,
+                canaries: brokerArtifact,
+              }),
+            });
+            const environmentTemplate = {
+              HOME: "/output/native-home",
+              BUN_INSTALL_CACHE_DIR: "/output/bun-cache",
+              BUN_TMPDIR: "/tmp",
+              XDG_RUNTIME_DIR: "/output/native-run",
+              DOCKER_HOST: "unix:///output/docker.sock",
+              CONTAINERS_CONF: "/output/containers.conf",
+              CONTAINERS_STORAGE_CONF: "/usr/share/containers/storage.conf",
+              HTTPS_PROXY: "http://127.0.0.1:18080",
+              HTTP_PROXY: "http://127.0.0.1:18080",
+              NO_PROXY: "localhost,127.0.0.1",
+              SSL_CERT_FILE: "/runtime/certificates.pem",
+              NIX_REMOTE: "local",
+              NIX_CONFIG:
+                "experimental-features = nix-command flakes\nsandbox = false\nsubstitute = false\nmax-jobs = 0\n",
+            };
+            const artifact = yield* trialArtifact(program);
+            const source = TrialCommittedSource.make({
+              schemaVersion: "agent-trial-committed-source/v1",
+              workspace,
+              finalCommit: commit,
+              tree: yield* git(["rev-parse", "HEAD^{tree}"]),
+              bundle: artifact,
+              baseBundle: O.none(),
+              sourceArchive: artifact,
+            });
+            const sourcePath = `${root}/source.json`;
+            yield* fs.writeFileString(sourcePath, yield* TrialCommittedSourceJson.encode(source));
+            yield* fs.makeDirectory(`${root}/sealed`);
+            const ownedCheck = TrialEvaluatorCheck.make({
+              ...check,
+              nativeRuntime: prepared,
+              input: yield* captureTrialInventory(`${root}/sealed`),
+              environmentTemplate,
+              reportRelativePath: O.some("unused.json"),
+              timeoutMs: 10000,
+            });
+            const child = `${root}/child.py`;
+            yield* fs.writeFileString(
+              child,
+              "import pathlib,sys\npathlib.Path(sys.argv[1]).write_text('changed')\nprint('drained stdout',flush=True)\nprint('drained stderr',file=sys.stderr,flush=True)\n"
+            );
+            const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+            let nativeCommands = 0;
+            const controlled = ChildProcessSpawner.make((command) => {
+              if (command._tag === "StandardCommand" && command.command === "/usr/bin/podman") {
+                nativeCommands += 1;
+                return spawner.spawn(ChildProcess.make(python, ["-I", "-B", child, certificate], command.options));
+              }
+              return spawner.spawn(command);
+            });
+            const output = `${root}/postvalidation-output`;
+            const result = yield* executeTrialCheck(yield* trialArtifact(sourcePath), ownedCheck, [], output).pipe(
+              Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, controlled),
+              Effect.result
+            );
+            expect(nativeCommands).toBe(1);
+            expect(result._tag).toBe("Failure");
+            if (result._tag === "Failure")
+              expect(result.failure.message).toBe("Native advisory policy or certificate bytes differ");
+            expect(yield* fs.readFileString(`${output}/stdout.log`)).toBe("drained stdout\n");
+            expect(yield* fs.readFileString(`${output}/stderr.log`)).toBe("drained stderr\n");
+            expect(yield* fs.exists(`${output}/native-runtime-evidence.json`)).toBe(false);
+            expect(yield* fs.exists(`${output}/bun-cache-after.json`)).toBe(false);
+            // This is a deterministic process-service fixture, never a native qualification claim.
+            // Establish a valid acceptance-evidence baseline before changing only capability observations.
+            yield* fs.writeFileString(certificate, "certificate");
+            const census = yield* deriveTrialRuntimeControlsDigest([], []);
+            const acceptedCheck = TrialEvaluatorCheck.make({
+              ...ownedCheck,
+              runtimeControlsDigest: census,
+              commandTemplate: [
+                "/runtime/bin/bun",
+                "run",
+                "beep",
+                "yeet",
+                "verify",
+                "--tier",
+                "full",
+                "--base",
+                commit,
+                "--head",
+                "HEAD",
+              ],
+              rootWritePolicy: "native-temp-only",
+              reportRelativePath: O.none(),
+              writableCacheTargets: ["/workspace/.beep"],
+            });
+            const verdict = YeetVerdict.make({
+              schemaVersion: "yeet-verdict/v2",
+              base: commit,
+              branch: "detached",
+              committed: false,
+              createdAt: "2026-10-13T00:00:00.000Z",
+              head: commit,
+              lanes: [
+                YeetVerdictLane.make({ id: "check", label: "check", phase: "full", status: "passed", exitCode: 0 }),
+              ],
+              message: "deterministic syscall fixture; unqualified",
+              mode: "verify",
+              outcome: "success",
+              packetPaths: [],
+              pushed: false,
+              runId: "fixture",
+              resolvedHeadSha: O.some(commit),
+              proofTier: O.some("full"),
+              diffFingerprint: O.some(yield* hashPublicTextSha256("\u0000\u0000")),
+            });
+            const verdictText = yield* YeetVerdictJson.encode(verdict);
+            const literal = yield* S.encodeEffect(S.fromJsonString(S.String))(verdictText);
+            const acceptedOutput = `${root}/accepted-output`;
+            yield* fs.writeFileString(
+              child,
+              `import pathlib,sys\np=pathlib.Path('cache-0/yeet/runs/fixture/verdict.json');p.parent.mkdir(parents=True);p.write_text(${literal})\nprint('[yeet] verdict written to /workspace/.beep/yeet/runs/fixture/verdict.json',flush=True)\n`
+            );
+            const collected = yield* executeTrialCheck(
+              yield* trialArtifact(sourcePath),
+              acceptedCheck,
+              [],
+              acceptedOutput
+            ).pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, controlled));
+            expect(collected.passed).toBe(true);
+            const full = acceptedCheck;
+            const task = TrialEvaluatorCheck.make({
+              ...acceptedCheck,
+              id: "task",
+              kind: "framework",
+              nativeRuntime: undefined,
+              sparseSystem: prepared.system,
+              rootWritePolicy: "readonly",
+              reportRelativePath: O.some("unused.json"),
+            });
+            const spec = Effect.fn(function* (value: TrialEvaluatorCheck) {
+              return {
+                id: value.id,
+                commandTemplate: value.commandTemplate,
+                inputBundleDigest: value.input.digest,
+                contractDigest: yield* trialCheckContractDigest(value),
+              };
+            });
+            const plan = TrialPlan.make({
+              schemaVersion: "agent-trial-plan/v1",
+              runId: "fixture",
+              attemptId: "capabilities",
+              provider: "codex",
+              model: "gpt-6.1-sol",
+              effort: "medium",
+              baseCommit: commit,
+              sourceDigest: artifact.digest,
+              taskDigest: zero,
+              acceptanceDigest: zero,
+              configDigest: zero,
+              toolId: "none",
+              selectedToolNames: [],
+              requiredYeetLaneIds: ["check"],
+              requiredTaskCheckIds: [task.id],
+              requiredCheckSpecs: [yield* spec(task)],
+              fullYeetCheckSpec: yield* spec(full),
+              sourceRepository: workspace,
+              workspaceRoot: `${root}/arms`,
+              receiptRoot: `${root}/receipts`,
+              command: "/runtime/cli",
+              commandDigest: zero,
+              delegation: "disabled",
+              networkAdmission: "blocked-until-broker",
+              args: [],
+              environment: {},
+              mounts: [],
+              promptPath: `${root}/prompt`,
+              timeoutMs: 1000,
+              isolationAttestationPath: `${root}/canaries`,
+              isolationAttestationDigest: zero,
+            });
+            const persist = Effect.fn(function* (name: string, text: string) {
+              const destination = `${root}/${name}`;
+              yield* fs.writeFileString(destination, text, { flag: "wx", mode: 0o600 });
+              return yield* trialArtifact(destination);
+            });
+            const planArtifact = yield* persist("plan.json", yield* TrialPlanJson.encode(plan));
+            const attempt = TrialAttempt.make({
+              schemaVersion: "agent-trial-attempt/v1",
+              plan: planArtifact,
+              sourceArchive: O.some(artifact),
+              nativeInvocation: O.none(),
+              runId: plan.runId,
+              attemptId: plan.attemptId,
+              baseCommit: commit,
+              workspace,
+              elapsedMs: 1,
+              setupElapsedMs: O.some(0),
+              codingElapsedMs: O.some(1),
+              retentionElapsedMs: O.some(0),
+              exitCode: O.some(0),
+              stdout: collected.stdout,
+              stderr: collected.stderr,
+              diff: collected.stderr,
+              bundle: O.some(artifact),
+              indexStates: [],
+              usage: yield* parseTrialUsage("codex", "", []),
+              terminal: { status: "awaiting-proof", finalCommit: commit },
+            });
+            const retained = yield* persist("attempt.json", yield* TrialAttemptJson.encode(attempt));
+            const request = TrialCollectRequest.make({
+              schemaVersion: "agent-trial-collect-request/v1",
+              attempt: retained,
+              reconstructionRoot: `${root}/unused-reconstruction`,
+              outputRoot: `${root}/unused-output`,
+              runtime: [],
+              projectedRuntime: [],
+              checks: [task],
+              yeet: full,
+            });
+            const requestArtifact = yield* persist("request.json", yield* TrialCollectRequestJson.encode(request));
+            const taskContract = yield* persist(
+              "task-contract.json",
+              yield* S.encodeEffect(S.fromJsonString(TrialEvaluatorCheck))(task)
+            );
+            const taskOutcome = yield* persist(
+              "task-outcome.json",
+              yield* S.encodeEffect(S.fromJsonString(S.Unknown))({
+                id: task.id,
+                passed: true,
+                collected: 1,
+                passedCount: 1,
+                failedCount: 0,
+                collectionFailures: 0,
+              })
+            );
+            // The task reporter is a synthetic fixture. All runtime native observations below are actual guarded reads.
+            const taskResult = {
+              ...collected,
+              id: task.id,
+              evaluatorContract: taskContract,
+              parsedOutcome: taskOutcome,
+              nativeRuntimeEvidence: undefined,
+              collected: 1,
+              passedCount: 1,
+            };
+            const observedEvidenceArtifact = collected.nativeRuntimeEvidence;
+            if (observedEvidenceArtifact === undefined)
+              return yield* Effect.die("fixture did not publish native evidence");
+            const evidence = yield* S.decodeEffect(S.fromJsonString(TrialNativeRuntimeEvidence))(
+              yield* fs.readFileString(observedEvidenceArtifact.path)
+            );
+            const observed = evidence.bootstrapCapabilitiesBefore;
+            if (observed === undefined) return yield* Effect.die("fixture did not capture capabilities");
+            const altered = yield* S.decodeEffect(TrialBootstrapFile.Capabilities)([
+              {
+                path: "/usr/bin/newuidmap",
+                capability: O.isNone(observed[0].capability) ? "0100000280000000000000000000000000000000" : null,
+              },
+              { path: "/usr/bin/newgidmap", capability: O.getOrNull(observed[1].capability) },
+            ]);
+            const finalize = Effect.fn(function* (name: string, value: TrialNativeRuntimeEvidence) {
+              const nativeEvidence = yield* persist(
+                `${name}-native.json`,
+                yield* S.encodeEffect(S.fromJsonString(TrialNativeRuntimeEvidence))(value)
+              );
+              if (!A.isReadonlyArrayNonEmpty(collected.resolvedArgv))
+                return yield* Effect.die("fixture argv must be nonempty");
+              const collection = TrialAcceptance.make({
+                schemaVersion: "agent-trial-acceptance/v1",
+                taskDigest: zero,
+                acceptanceDigest: zero,
+                finalCommit: commit,
+                requiredChecks: [
+                  {
+                    ...collected,
+                    namespaceBindings: { candidate: "/workspace", sealed: "/sealed", output: "/output" },
+                    resolvedArgv: collected.resolvedArgv,
+                    nativeRuntimeEvidence: nativeEvidence,
+                  },
+                ],
+              });
+              const acceptance = yield* persist(
+                `${name}-collection.json`,
+                yield* TrialAcceptanceJson.encode(collection)
+              );
+              if (collected.nativeReport === undefined) return yield* Effect.die("fixture report missing");
+              const taskAcceptance = yield* persist(
+                `${name}-task-acceptance.json`,
+                yield* TrialAcceptanceJson.encode(
+                  TrialAcceptance.make({
+                    schemaVersion: "agent-trial-acceptance/v1",
+                    taskDigest: zero,
+                    acceptanceDigest: zero,
+                    finalCommit: commit,
+                    requiredChecks: [
+                      {
+                        ...taskResult,
+                        resolvedArgv: collected.resolvedArgv,
+                        namespaceBindings: { candidate: "/workspace", sealed: "/sealed", output: "/output" },
+                      },
+                    ],
+                  })
+                )
+              );
+              const proof = TrialProof.make({
+                schemaVersion: "agent-trial-proof/v1",
+                attempt: retained,
+                finalCommit: commit,
+                verdict: collected.nativeReport,
+                acceptance: taskAcceptance,
+                fullYeetCollection: acceptance,
+                collectRequest: requestArtifact,
+                requiredLaneIds: ["check"],
+                yeetExitCode: 0,
+              });
+              const proofArtifact = yield* persist(`${name}-proof.json`, yield* TrialProofJson.encode(proof));
+              const backend = yield* ChildProcessSpawner.ChildProcessSpawner;
+              let capabilityReads = 0;
+              const observing = ChildProcessSpawner.make((command) => {
+                if (command._tag === "StandardCommand" && command.command === python && A.contains(command.args, "-c"))
+                  capabilityReads += 1;
+                return backend.spawn(command);
+              });
+              const result = yield* finalizeTrial(retained.path, proofArtifact.path).pipe(
+                Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, observing),
+                Effect.result
+              );
+              if (result._tag === "Success") {
+                const report = yield* TrialFinalizationJson.decode(yield* fs.readFileString(result.success));
+                yield* fs.rename(result.success, `${root}/${name}-finalization.json`);
+                return { result, report: O.some(report), capabilityReads };
+              }
+              return { result, report: O.none(), capabilityReads };
+            });
+            const baseline = yield* finalize("baseline", evidence);
+            if (baseline.result._tag === "Failure") return yield* baseline.result.failure;
+            expect(baseline.result._tag).toBe("Success");
+            expect(baseline.capabilityReads).toBe(1);
+            if (O.isSome(baseline.report)) {
+              expect(baseline.report.value.failures).not.toContain("Task acceptance is missing, incomplete or failed");
+              // Known synthetic capture/invocation/reconstruction provenance gates deliberately remain red.
+              expect(baseline.report.value.failures).toEqual([
+                "Native stream or process did not complete",
+                "Trusted native invocation/config pin evidence is missing or inconsistent",
+                "Fresh retained-commit reconstruction evidence is missing",
+              ]);
+              expect(O.isNone(baseline.report.value.benchmark)).toBe(true);
+            }
+            for (const [name, patch] of R.toEntries({
+              "missing-before": { bootstrapCapabilitiesBefore: undefined },
+              "missing-after": { bootstrapCapabilitiesAfter: undefined },
+              "mutated-before": { bootstrapCapabilitiesBefore: altered },
+              "mutated-after": { bootstrapCapabilitiesAfter: altered },
+            })) {
+              const value = TrialNativeRuntimeEvidence.make({
+                ...evidence,
+                ...patch,
+              });
+              const changed = yield* finalize(name, value);
+              expect(changed.result._tag).toBe("Success");
+              expect(changed.capabilityReads).toBe(1);
+              if (O.isSome(changed.report)) {
+                if (O.isSome(baseline.report))
+                  expect(changed.report.value.failures).toEqual([
+                    "Task acceptance is missing, incomplete or failed",
+                    ...baseline.report.value.failures,
+                  ]);
+                expect(O.isNone(changed.report.value.benchmark)).toBe(true);
+              }
+            }
+            const changedJson = yield* S.encodeEffect(S.fromJsonString(TrialBootstrapFile.Capabilities))(altered);
+            const changedLiteral = yield* S.encodeEffect(S.fromJsonString(S.String))(changedJson);
+            const currentReader = ChildProcessSpawner.make((command) => {
+              if (command._tag === "StandardCommand" && command.command === python && A.contains(command.args, "-c"))
+                return spawner.spawn(
+                  ChildProcess.make(python, ["-I", "-B", "-c", `print(${changedLiteral})`], command.options)
+                );
+              return spawner.spawn(command);
+            });
+            const current = yield* finalize("current-mutated", evidence).pipe(
+              Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, currentReader)
+            );
+            expect(current.result._tag).toBe("Failure");
+            expect(current.capabilityReads).toBe(1);
+            if (current.result._tag === "Failure") {
+              expect(current.result.failure._tag).toBe("AgentTrialError");
+              if (current.result.failure._tag === "AgentTrialError") {
+                expect(current.result.failure.stage).toBe("proof");
+                expect(current.result.failure.message).toBe("Bootstrap helper capability changed");
+              }
+            }
+            expect(yield* fs.exists(`${root}/finalization.json`)).toBe(false);
+            const currentDirectory = FileSystem.FileSystem.of({
+              ...fs,
+              stat: Effect.fn("fixture.stat")((input: string) =>
+                fs
+                  .stat(input)
+                  .pipe(
+                    Effect.map((info) =>
+                      input === `${prepared.system.root}/etc/group` ? { ...info, type: "Directory" } : info
+                    )
+                  )
+              ),
+            });
+            const directory = yield* finalize("current-account-directory", evidence).pipe(
+              Effect.provideService(FileSystem.FileSystem, currentDirectory)
+            );
+            expect(directory.result._tag).toBe("Failure");
+            expect(yield* fs.exists(`${root}/finalization.json`)).toBe(false);
+          })
+        ),
+      { timeout: 60000 }
+    );
+    test.effect(
+      "requires complete native metadata and revalidates standalone asset bytes",
+      () =>
+        Effect.scoped(
+          Effect.gen(function* () {
+            const { fs, root, inputs, sealed, python, native, certificate, program } = yield* makeNativeFixture();
+            const originalGroup = yield* fs.readFileString(`${inputs}/etc/group`);
+            yield* fs.remove(`${inputs}/etc/group`, { recursive: true });
+            yield* fs.makeDirectory(`${inputs}/etc/group`);
+            const directoryReplacement = yield* validateTrialNativeRuntime(native).pipe(Effect.result);
+            expect(directoryReplacement._tag).toBe("Failure");
+            yield* fs.remove(`${inputs}/etc/group`, { recursive: true });
+            yield* fs.writeFileString(`${inputs}/etc/group`, originalGroup);
+            const observed = yield* validateTrialNativeRuntime(native);
+            expect(observed).toHaveLength(2);
+            for (const encodedType of ["Directory", "SymbolicLink", "Socket"]) {
+              const type = yield* S.decodeUnknownEffect(S.Literals(["Directory", "SymbolicLink", "Socket"]))(
+                encodedType
+              );
+              const nonregular = yield* validateTrialNativeRuntime(native).pipe(
+                Effect.provideService(
+                  FileSystem.FileSystem,
+                  FileSystem.FileSystem.of({
+                    ...fs,
+                    stat: Effect.fn("fixture.stat")((input: string) =>
+                      input === "/usr/bin/newuidmap"
+                        ? fs.stat(input).pipe(Effect.map((info) => ({ ...info, type })))
+                        : fs.stat(input)
+                    ),
+                  })
+                ),
+                Effect.result
+              );
+              expect(nonregular._tag).toBe("Failure");
+              if (nonregular._tag === "Failure")
+                expect(nonregular.failure.message).toBe("Bootstrap privilege helper must be a regular file");
+            }
+
+            const reader = `${root}/capability-reader`;
+            const observationsJson = yield* S.encodeEffect(S.fromJsonString(TrialBootstrapFile.Capabilities))(observed);
+            const observationsLiteral = yield* S.encodeEffect(S.fromJsonString(S.String))(observationsJson);
+            const interceptedReader = (errorNumber: number) =>
+              `import errno,os,sys\ndef denied(*args): raise OSError(${errorNumber},'denied')\nos.getxattr=denied\ncode=sys.argv[4]\nsys.argv=[sys.argv[0],*sys.argv[5:]]\nexec(code)`;
+            for (const body of [
+              "raise SystemExit(1)",
+              "print('[]')",
+              "print('not JSON')",
+              `print(${observationsLiteral})\nraise SystemExit(1)`,
+              `print(${observationsLiteral})\nprint('x'*1048576)`,
+              interceptedReader(13),
+              interceptedReader(95),
+              "import time; time.sleep(30)",
+            ]) {
+              yield* fs.writeFileString(reader, `#!${python} -B\n${body}\n`);
+              yield* fs.chmod(reader, 0o755);
+              const info = yield* fs.stat(reader);
+              const readerBinding = TrialBootstrapFile.make({
+                artifact: yield* trialArtifact(reader),
                 metadata: TrialInputMetadata.make({
                   mode: info.mode,
                   uid: O.getOrElse(info.uid, () => 0),
                   gid: O.getOrElse(info.gid, () => 0),
                 }),
+              });
+              const failedReader = yield* validateTrialNativeRuntime(
+                TrialNativeYeetRuntime.make({
+                  ...native,
+                  bootstrap: [...native.bootstrap, readerBinding],
+                  broker: TrialBrokerControl.make({ ...native.broker, interpreter: readerBinding.artifact }),
+                })
+              ).pipe(Effect.result);
+              expect(failedReader._tag).toBe("Failure");
+              if (failedReader._tag === "Failure") expect(failedReader.failure.stage).toBe("proof");
+            }
+
+            const omitted = yield* validateTrialNativeRuntime(
+              TrialNativeYeetRuntime.make({
+                ...native,
+                bootstrap: A.map(native.bootstrap, (file) =>
+                  TrialBootstrapFile.make({ ...file, capability: undefined })
+                ),
               })
-            );
-          }
-          const certificate = `${root}/certificate`;
-          const program = `${root}/program`;
-          const policy = `${root}/policy`;
-          yield* fs.writeFileString(certificate, "certificate");
-          yield* fs.writeFileString(program, "program");
-          yield* fs.writeFileString(
-            policy,
-            yield* S.encodeEffect(S.fromJsonString(S.Unknown))({ "api.osv.dev:443": {}, "registry.npmjs.org:443": {} })
-          );
-          const asset = yield* trialArtifact(program);
-          const native = TrialNativeYeetRuntime.make({
-            ...runtime,
-            system: sealed,
-            nix: sealed,
-            oci: sealed,
-            crun: sealed,
-            bunInstallCache: sealed,
-            bootstrap,
-            certificateBundle: yield* trialArtifact(certificate),
-            broker: TrialBrokerControl.make({
-              ...runtime.broker,
-              program: asset,
-              relay: asset,
-              canaries: asset,
-              policy: yield* trialArtifact(policy),
-              interpreter: yield* trialArtifact("/usr/bin/stat"),
-            }),
-          });
-          yield* validateTrialNativeRuntime(native);
-          const missingCache = yield* validateTrialNativeRuntime(
-            TrialNativeYeetRuntime.make({ ...native, bunInstallCache: undefined })
-          ).pipe(Effect.result);
-          expect(missingCache._tag).toBe("Failure");
-          if (missingCache._tag === "Failure")
-            expect(missingCache.failure.message).toBe("Native full runtime requires an immutable Bun install cache");
-          const { metadata: _metadata, ...legacy } = sealed;
-          const absent = yield* validateTrialNativeRuntime(
-            TrialNativeYeetRuntime.make({ ...native, system: TrialInputInventory.make(legacy) })
-          ).pipe(Effect.result);
-          expect(absent._tag).toBe("Failure");
-          if (absent._tag === "Failure")
-            expect(absent.failure.message).toBe("Native runtime requires complete mode and ownership metadata");
-          yield* fs.writeFileString(program, "changed");
-          const changed = yield* validateTrialNativeRuntime(native).pipe(Effect.result);
-          expect(changed._tag).toBe("Failure");
-          if (changed._tag === "Failure") expect(changed.failure.message).toBe("Native broker asset changed");
-          yield* fs.writeFileString(program, "program");
-          yield* fs.writeFileString(certificate, "changed");
-          const cert = yield* validateTrialNativeRuntime(native).pipe(Effect.result);
-          expect(cert._tag).toBe("Failure");
-          if (cert._tag === "Failure")
-            expect(cert.failure.message).toBe("Native advisory policy or certificate bytes differ");
-        })
-      )
+            ).pipe(Effect.result);
+            expect(omitted._tag).toBe("Failure");
+            const duplicates = yield* validateTrialNativeRuntime(
+              TrialNativeYeetRuntime.make({
+                ...native,
+                bootstrap: [
+                  ...native.bootstrap,
+                  ...A.filter(native.bootstrap, (file) => file.artifact.path === "/usr/bin/newuidmap"),
+                ],
+              })
+            ).pipe(Effect.result);
+            expect(duplicates._tag).toBe("Failure");
+            const changedCapabilities = yield* validateTrialNativeRuntime(
+              TrialNativeYeetRuntime.make({
+                ...native,
+                bootstrap: A.map(native.bootstrap, (file) =>
+                  file.artifact.path === "/usr/bin/newuidmap"
+                    ? TrialBootstrapFile.make({
+                        ...file,
+                        capability: O.isNone(observed[0].capability)
+                          ? O.some("0100000280000000000000000000000000000000")
+                          : O.none(),
+                      })
+                    : file
+                ),
+              })
+            ).pipe(Effect.result);
+            expect(changedCapabilities._tag).toBe("Failure");
+            const missingCache = yield* validateTrialNativeRuntime(
+              TrialNativeYeetRuntime.make({ ...native, bunInstallCache: undefined })
+            ).pipe(Effect.result);
+            expect(missingCache._tag).toBe("Failure");
+            if (missingCache._tag === "Failure")
+              expect(missingCache.failure.message).toBe("Native full runtime requires an immutable Bun install cache");
+            const { metadata: _metadata, ...legacy } = sealed;
+            const absent = yield* validateTrialNativeRuntime(
+              TrialNativeYeetRuntime.make({ ...native, system: TrialInputInventory.make(legacy) })
+            ).pipe(Effect.result);
+            expect(absent._tag).toBe("Failure");
+            if (absent._tag === "Failure")
+              expect(absent.failure.message).toBe("Native system requires declared readonly account inputs");
+            yield* fs.writeFileString(program, "changed");
+            const changed = yield* validateTrialNativeRuntime(native).pipe(Effect.result);
+            expect(changed._tag).toBe("Failure");
+            if (changed._tag === "Failure") expect(changed.failure.message).toBe("Native broker asset changed");
+            yield* fs.writeFileString(program, "program");
+            yield* fs.writeFileString(certificate, "changed");
+            const cert = yield* validateTrialNativeRuntime(native).pipe(Effect.result);
+            expect(cert._tag).toBe("Failure");
+            if (cert._tag === "Failure")
+              expect(cert.failure.message).toBe("Native advisory policy or certificate bytes differ");
+          })
+        ),
+      { timeout: 60000 }
     );
     test.effect("rejects mode changes even when bytes and legacy inventory fields remain unchanged", () =>
       Effect.scoped(
@@ -924,4 +1617,48 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
       )
     );
   }
+);
+
+layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: true })((test) =>
+  test.effect("projects only exact declared readonly account files and rejects incomplete or linked inputs", () =>
+    Effect.scoped(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* fs.makeTempDirectoryScoped();
+        yield* fs.makeDirectory(`${root}/etc`);
+        for (const name of ["passwd", "group", "nsswitch.conf"])
+          yield* fs.writeFileString(`${root}/etc/${name}`, `fixture-${name}`);
+        const system = yield* captureTrialInventory(root);
+        const args = yield* trialSystemBindings(system, true);
+        expect(A.takeRight(args, 9)).toEqual([
+          "--ro-bind",
+          `${root}/etc/passwd`,
+          "/etc/passwd",
+          "--ro-bind",
+          `${root}/etc/group`,
+          "/etc/group",
+          "--ro-bind",
+          `${root}/etc/nsswitch.conf`,
+          "/etc/nsswitch.conf",
+        ]);
+        const missing = { ...system, files: R.remove(system.files, "etc/group") };
+        const incomplete = TrialInputInventory.make({ ...missing, digest: yield* trialInventoryDigest(missing) });
+        expect((yield* trialSystemBindings(incomplete, true).pipe(Effect.result))._tag).toBe("Failure");
+        yield* fs.remove(`${root}/etc/group`);
+        yield* fs.symlink("passwd", `${root}/etc/group`);
+        const linked = yield* captureTrialInventory(root);
+        expect((yield* trialSystemBindings(linked, true).pipe(Effect.result))._tag).toBe("Failure");
+        yield* fs.remove(`${root}/etc/group`);
+        yield* fs.makeDirectory(`${root}/etc/group`);
+        const directory = yield* captureTrialInventory(root);
+        const forged = {
+          ...directory,
+          files: { ...directory.files, "etc/group": yield* hashTrialInput(`${root}/etc/group`) },
+          directories: A.filter(directory.directories ?? [], (name) => name !== "etc/group"),
+        };
+        const claimedFile = TrialInputInventory.make({ ...forged, digest: yield* trialInventoryDigest(forged) });
+        expect((yield* trialSystemBindings(claimedFile, true).pipe(Effect.result))._tag).toBe("Failure");
+      })
+    )
+  )
 );

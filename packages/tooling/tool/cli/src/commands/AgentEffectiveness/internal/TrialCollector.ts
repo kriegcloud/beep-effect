@@ -988,9 +988,9 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
         stage: "proof",
         message: "Native capabilities are evaluator-only Yeet inputs",
       });
-    yield* validateTrialNativeRuntime(runtime);
+    return yield* validateTrialNativeRuntime(runtime);
   });
-  yield* validateNative();
+  const bootstrapCapabilitiesBefore = yield* validateNative();
   yield* validateTrialInventory(check.input);
   if (
     !path.isAbsolute(outputRoot) ||
@@ -1411,7 +1411,7 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     stdoutPath,
     stderrPath,
   });
-  yield* validateNative();
+  const bootstrapCapabilitiesAfter = yield* validateNative();
   let nativeRuntimeEvidence = O.none<TrialArtifact>();
   if (O.isSome(native) && O.isSome(manifestCopy) && O.isSome(manifestBefore)) {
     const runtime = native.value;
@@ -1443,6 +1443,8 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
       bunCacheBefore: bunCacheBefore.value,
       bunCacheAfter: yield* trialArtifact(cacheAfterPath),
       bunCacheTarget: "/output/bun-cache",
+      bootstrapCapabilitiesBefore,
+      bootstrapCapabilitiesAfter,
     });
     if (evidence.manifestAfter !== evidence.manifestBefore)
       return yield* AgentTrialError.make({ stage: "proof", message: "Native manifest overlay changed" });

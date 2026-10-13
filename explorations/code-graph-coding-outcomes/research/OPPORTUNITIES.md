@@ -707,3 +707,71 @@ inputs or unrelated files. Recheck every declared input and require zero extras;
 do not amend the frozen inventory to accept probe artifacts. Future Python probes
 must disable bytecode generation and use read-only filesystem mounts wherever
 possible. Receipt: `attempt11-strict-system-unlisted-attribution-v1.json`.
+
+
+## Qualify account lookup and failed-verdict retention before long native checks
+
+The October 13 eleventh synthetic Collector attempt passed 24 full pre-push
+lanes, including desktop IPC and the JSDoc ratchet. Nine CLI doctests then failed
+with `uv_os_get_passwd returned ENOENT`; eight later lanes did not run. The sealed
+system had no account files, while module initialization calls Node's
+`os.userInfo().homedir`. A HOME setting alone does not supply that lookup.
+
+Prepare synthetic account records as explicit read-only system inputs, matching
+the observed namespace UID/GID and declared writable home. Prove positive,
+missing-user and wrong-home cases with the pinned Node runtime before rerunning
+the affected doctests. Preserve existing system snapshots and use fresh inputs;
+do not bind host account files or modify candidate source to bypass the failure.
+
+After the failed command, Collector separately refused the native verdict
+location. The native stderr records a missing `flock` executable, and stdout
+contains no verdict announcement. Attribute and test that finalization path
+independently: a failed quality command must retain an honest failed verdict,
+and successful account lookup alone cannot establish that retention. The attempt exited 1 after 3,430.84 seconds; its scope
+settled, runtime preservation passed, and source, request and helper capability
+checks remained unchanged. No passing native proof or Executor custody resulted.
+Receipts: `native-attempt11-terminal-summary-v1.json`,
+`native-attempt11-terminal-addendum-v1.json`,
+`native-attempt11-finalization-error-v1.json`, and
+`attempt11-passwd-namespace-attribution-v1.json`.
+
+
+## Distinguish admission cancellation from successful bootstrap
+
+The exact older-baseline qualification queued for 915.9 seconds while all five
+existing heavy slots were occupied. Its owned queued service was stopped at the
+preregistered 15-minute fence; the manager then reported it inactive with no
+remaining process or cgroup. The detached candidate stayed clean, and install,
+SDK preparation and coverage never started.
+
+The outer launcher returned zero when the queued service was stopped. A completed
+bootstrap marker and actual stage receipts must therefore gate success; process
+exit alone is insufficient. Preserve the held candidate and wait for changed
+capacity evidence before resubmitting. Do not modify shared slot limits or stop
+foreign work. Receipt: `ancestor-baseline-candidates-20261013/bootstrap-actual-v1/terminal-cleanup.json`.
+
+
+## Measure guard preparation separately from command execution
+
+Attempt eleven ran for 3,430.84 seconds. The full native check began about 32
+minutes after launch, after source and runtime preparation; its observed first
+red arrived about 19 minutes later. The remaining interval included capture and
+post-run guards. Report these phases separately from agent coding time, and
+retain their resource observations. Do not call a tool fast or slow by charging
+all preparation to one model session or by omitting this harness overhead.
+
+Use bounded source-supported prerequisite probes before repeating a full native
+attempt. Any later optimization of repeated inventory reads must preserve exact
+census, byte/metadata bindings, and pre/post validation; cached success alone
+cannot stand in for immutable input proof. Receipt:
+`native-attempt11-terminal-summary-v1.json` and its retained full-check logs.
+
+
+## Attribute inherited lock descriptors before diagnosing stale admission
+
+A follow-up capacity attribution found live processes holding matching descriptors
+for every locked slot. The acquisition PIDs had exited, while inherited
+open-file descriptions still held the locks. Do not infer stale admission from
+an absent acquisition PID alone: correlate kernel lock device/inode records with
+accessible process descriptors and cgroups. No foreign process was changed.
+Receipt: `ancestor-baseline-candidates-20261013/descriptor-attribution-20261013T210304Z.json`.

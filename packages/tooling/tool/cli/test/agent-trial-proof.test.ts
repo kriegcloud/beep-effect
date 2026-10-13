@@ -15,6 +15,7 @@ import {
   TrialAcceptanceJson,
   TrialAttempt,
   TrialAttemptJson,
+  TrialBootstrapFile,
   TrialBrokerControl,
   TrialCollectRequest,
   TrialCollectRequestJson,
@@ -24,6 +25,7 @@ import {
   TrialIsolationAttestation,
   TrialIsolationAttestationJson,
   TrialNativeChildPolicy,
+  TrialNativeRuntimeEvidence,
   TrialPlan,
   TrialPlanJson,
   TrialProductiveProfile,
@@ -40,6 +42,7 @@ import { Sha256Hex } from "@beep/schema/Sha256";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
+import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -101,9 +104,9 @@ const setup = Effect.fn(function* () {
     selectedToolNames: [],
     requiredYeetLaneIds: ["quality:check"],
     requiredTaskCheckIds: ["exports", "behavior"],
-    requiredCheckSpecs: ["exports", "behavior"].map((id) => ({
+    requiredCheckSpecs: A.map(A.make("exports", "behavior"), (id) => ({
       id,
-      commandTemplate: ["fixture", "CANDIDATE"],
+      commandTemplate: A.make("fixture", "CANDIDATE"),
       inputBundleDigest: zero,
       contractDigest: zero,
     })),
@@ -362,7 +365,7 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
                 TrialPlan.make({
                   ...plan,
                   sourceDigest: archive.digest,
-                  requiredCheckSpecs: plan.requiredCheckSpecs.map((spec) => ({
+                  requiredCheckSpecs: A.map(plan.requiredCheckSpecs, (spec) => ({
                     ...spec,
                     inputBundleDigest: inputBundle.digest,
                   })),
@@ -437,7 +440,7 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
                 taskDigest: zero,
                 acceptanceDigest: zero,
                 finalCommit: commit,
-                requiredChecks: yield* Effect.forEach(["exports", "behavior"], (id) =>
+                requiredChecks: yield* Effect.forEach(A.make("exports", "behavior"), (id) =>
                   Effect.gen(function* () {
                     const parsedOutcome = yield* artifact(
                       `${name}-${id}-outcome.json`,
@@ -456,8 +459,8 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
                       inputBundleDigest: inputBundle.digest,
                       inputBundle,
                       bindings: { candidate: workspace, sealed: inputBundle.path, output: path.join(root, "checks") },
-                      commandTemplate: ["fixture", "CANDIDATE"],
-                      resolvedArgv: ["fixture", workspace],
+                      commandTemplate: A.make("fixture", "CANDIDATE"),
+                      resolvedArgv: A.make("fixture", workspace),
                       cwd: workspace,
                       filteredEnvironment: {},
                       invocationDigest,
@@ -793,4 +796,61 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
       )
     );
   }
+);
+
+layer(NodeServices.layer, { excludeTestServices: true })((test) =>
+  test.effect("requires an ordered explicit two-helper capability evidence census", () =>
+    Effect.gen(function* () {
+      const absent = yield* S.decodeEffect(TrialBootstrapFile.Capabilities)([
+        { path: "/usr/bin/newuidmap", capability: null },
+        { path: "/usr/bin/newgidmap", capability: null },
+      ]);
+      expect(O.isNone(absent[0].capability)).toBe(true);
+      for (const malformed of [
+        [],
+        [{ path: "/usr/bin/newuidmap", capability: null }],
+        [
+          { path: "/usr/bin/newgidmap", capability: null },
+          { path: "/usr/bin/newuidmap", capability: null },
+        ],
+        [
+          { path: "/usr/bin/newuidmap", capability: null },
+          { path: "/usr/bin/newuidmap", capability: null },
+        ],
+        [
+          { path: "/usr/bin/newuidmap", capability: "00" },
+          { path: "/usr/bin/newgidmap", capability: null },
+        ],
+        [{ path: "/usr/bin/newuidmap" }, { path: "/usr/bin/newgidmap", capability: null }],
+      ]) {
+        expect(
+          (yield* S.decodeUnknownEffect(TrialBootstrapFile.Capabilities)(malformed).pipe(Effect.result))._tag
+        ).toBe("Failure");
+      }
+      const present = yield* S.decodeEffect(TrialBootstrapFile.Capabilities)([
+        { path: "/usr/bin/newuidmap", capability: "0100000280000000000000000000000000000000" },
+        { path: "/usr/bin/newgidmap", capability: null },
+      ]);
+      expect(S.toEquivalence(TrialBootstrapFile.Capabilities)(absent, present)).toBe(false);
+      const evidence = {
+        schemaVersion: "agent-trial-native-runtime-evidence/v1",
+        runtimeDigest: Sha256Hex.make(Str.repeat(64)("0")),
+        manifestBefore: Sha256Hex.make(Str.repeat(64)("0")),
+        manifestAfter: Sha256Hex.make(Str.repeat(64)("0")),
+        preserved: true,
+        systemDigest: Sha256Hex.make(Str.repeat(64)("0")),
+        nixDigest: Sha256Hex.make(Str.repeat(64)("0")),
+        ociDigest: Sha256Hex.make(Str.repeat(64)("0")),
+        image: "fixture",
+      };
+      const legacy = yield* S.decodeUnknownEffect(TrialNativeRuntimeEvidence)(evidence);
+      expect(legacy.bootstrapCapabilitiesBefore).toBeUndefined();
+      expect(
+        (yield* S.decodeUnknownEffect(TrialNativeRuntimeEvidence)({
+          ...evidence,
+          bootstrapCapabilitiesBefore: [],
+        }).pipe(Effect.result))._tag
+      ).toBe("Failure");
+    })
+  )
 );

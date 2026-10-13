@@ -442,3 +442,34 @@ with their recorded blockers still applicable. No workstation rollback, global
 tool installation or production index change is part of this decision. Evidence:
 `attempt11-bootstrap-offline-feasibility-closure-v1.json`,
 `attempt11-reboot-bootstrap-repair-proposal-v1.json`, and the independent review.
+
+
+### Complete declared account and finalization dependencies before scoring
+
+Attempt eleven demonstrated two omissions in the sealed verification runtime:
+account lookup needed by Node module initialization, and executable dependencies
+needed by Yeet inbox finalization. Select a fresh additive runtime inventory with
+synthetic native account files and pinned `flock`, `jq` and the latter's finite
+library closure. Preserve every previously declared byte, prior inventory and
+attempt. This is a pre-scoring runtime-input revision, not a tool or model
+upgrade, and requires fresh system and control digests.
+
+Project only the three fixed account files read-only from the declared system.
+Their records must match the observed namespace identity and native writable
+home. Coding identity receives separate evidence and assets; do not assume that
+its namespace matches the native verification role. Use existing inventory and
+isolation owners, require canonical regular files at admission and proof
+revalidation, and retain the complete file and metadata census. No host account
+files, generic mount allowance, candidate source workaround or quality waiver
+is authorized by this decision.
+
+Before another full native attempt, prove account lookup positive and negative
+cases, pinned executable compatibility and locking behavior, the affected
+actual doctests, and the failed-verdict retention path. Apply the reviewed
+capability and account-boundary source changes with focused tests and default
+package verification. Their preparation and syntax checks alone do not satisfy
+these gates. Reversal is to stop the new preparation and retain the previous
+source commit and immutable runtime inventories with their known failures.
+Evidence: `attempt11-passwd-namespace-attribution-v2.json`,
+`native-flock-source-inventory-v1.json`, `native-jq-source-inventory-v1.json`,
+and `public-bootstrap-capability-nss-draft-independent-review-v2.json`.
