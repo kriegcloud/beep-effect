@@ -289,7 +289,101 @@ describe("contact seeding", () => {
           expect(run.deleted).toHaveLength(1);
           expect(run.inventory.contacts).toHaveLength(0);
           expect(run.inventory.folders).toHaveLength(0);
-          expect(run.journals[0]?.contacts).toHaveLength(1);
+          expect(
+            O.getOrThrow(A.findFirst(run.journals, (journal) => journal.runId === run.result.runId)).contacts
+          ).toHaveLength(1);
+        })
+      )
+    );
+    it.effect("journals an already-present run without creating a folder and persists no-op undo", () =>
+      withFiles(
+        Effect.fnUntraced(function* (root) {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const input = path.join(root, "fixture.csv");
+          yield* fs.writeFileString(input, csv);
+          const initial = inventoryOf([stored("existing", "Hand edited name", "person@example.test")]);
+          const run = yield* overJob(
+            root,
+            initial,
+            ContactSeeding.use(
+              Effect.fnUntraced(function* (job) {
+                const applied = yield* job.apply(ContactInputs.make({ csv: [input], vcf: [] }), true);
+                expect(applied).toMatchObject({ created: 0, SkipExistsInMailbox: 1, failed: 0 });
+                expect(yield* job.undo(O.some(applied.runId), false, true, false)).toMatchObject({ deleted: 0 });
+                expect(yield* job.undo(O.some(applied.runId), false, false, true)).toMatchObject({ deleted: 0 });
+                expect(yield* Effect.flip(job.undo(O.some("missing-run"), false, true, false))).toMatchObject({
+                  reason: "missing-journal",
+                });
+                return applied;
+              })
+            )
+          );
+          expect(run.created).toBe(0);
+          expect(run.deleted).toHaveLength(0);
+          expect(run.inventory).toEqual(initial);
+          expect(run.journals).toHaveLength(1);
+          const journal = O.getOrThrow(A.head(run.journals));
+          expect(journal.contacts).toHaveLength(0);
+          assertNone(journal.folderId);
+          expect(journal.folderCreated).toBe(false);
+          expect(O.getOrThrow(journal.receipt)).toEqual(run.result);
+          expect(O.getOrThrow(journal.undoReceipt)).toMatchObject({ runId: run.result.runId, deleted: 0 });
+        })
+      )
+    );
+    it.effect("discovers a dedicated folder on a zero-create run and never deletes it during no-op undo", () =>
+      withFiles(
+        Effect.fnUntraced(function* (root) {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const input = path.join(root, "fixture.csv");
+          yield* fs.writeFileString(input, csv);
+          const initial = MailboxInventory.make({
+            ...inventoryOf([stored("existing", "Fixture Person", "person@example.test")]),
+            folders: [GraphContactFolder.make({ id: "existing-folder", displayName: O.some(seedFolderName) })],
+          });
+          const run = yield* overJob(
+            root,
+            initial,
+            ContactSeeding.use(
+              Effect.fnUntraced(function* (job) {
+                const applied = yield* job.apply(ContactInputs.make({ csv: [input], vcf: [] }), true);
+                yield* job.undo(O.some(applied.runId), false, false, true);
+                return applied;
+              })
+            )
+          );
+          expect(run.inventory).toEqual(initial);
+          expect(run.created).toBe(0);
+          expect(run.deleted).toHaveLength(0);
+          const journal = O.getOrThrow(A.head(run.journals));
+          expect(O.getOrThrow(journal.folderId)).toBe("existing-folder");
+          expect(journal.folderCreated).toBe(false);
+        })
+      )
+    );
+    it.effect("does not treat an unfinished ambiguous create as a completed empty run", () =>
+      withFiles(
+        Effect.fnUntraced(function* (root) {
+          const path = yield* Path.Path;
+          const state = yield* makeContactsState(path.join(root, "state"));
+          yield* state.save(
+            RunJournal.make({
+              runId: "unfinished-run",
+              folderCreated: false,
+              contacts: [],
+              pendingSourceKey: O.some("fixture-source"),
+            })
+          );
+          const run = yield* overJob(
+            root,
+            empty,
+            ContactSeeding.use((job) => Effect.flip(job.undo(O.some("unfinished-run"), false, false, true)))
+          );
+          expect(run.result).toMatchObject({ reason: "ambiguous-write" });
+          expect(run.deleted).toHaveLength(0);
+          assertNone(O.getOrThrow(A.head(run.journals)).undoReceipt);
         })
       )
     );

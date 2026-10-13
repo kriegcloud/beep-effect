@@ -25,3 +25,13 @@ Stop under the live-defect rule before smoke or apply. A reviewed fix must
 handle a zero-create receipt and its rollback semantics; the goal's dedicated
 folder criterion must be reconciled with mailbox-wide duplicate avoidance.
 Existing contacts must remain untouched, and no live retry runs unreviewed code.
+
+
+## Run 5 — authorized zero-create repair verification
+
+Read-only CSV-only online plan passed: run
+`seed-b5aae0b5-5df1-474e-9ce3-9954a22f0661`.
+Create 0; SkipExistsInMailbox 480; SkipAlreadySeeded 0; Conflict 0;
+SkipUnidentifiable 7; untrackedTagged 0. No PATCH or DELETE planned.
+The Run 4 ruling accepts all 480 mailbox-wide matches; the bounded repair
+must persist this no-op run and prove its per-run undo without mailbox changes.

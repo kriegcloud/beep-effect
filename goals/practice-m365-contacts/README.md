@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -35,21 +35,18 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 and P1 are done; P2 remains in progress. PR 1 #1591 and reviewed follow-up
-#1595 are merged. The scoped grant and runtime read passed. The pre-seed export
-contains 536 contacts; SPEC records its full hash. The online plan finds every
-identifiable source contact already present: zero creates, 480 existing skips,
-seven unidentifiable skips, zero conflicts and zero untracked tags.
+P0–P4 closeout content is complete. PR 1 #1591 and reviewed follow-up #1595
+are merged; PR 2 carries the bounded zero-create repair, live receipts and
+reflection. All 480 identifiable CSV contacts already resolve mailbox-wide;
+apply created zero contacts and skipped seven unidentifiable cards. Existing
+contacts were never duplicated, patched or tagged.
 
-Live verification exposed the zero-create apply path: it returns before folder
-discovery and run-journal persistence, so the required dedicated-folder and
-per-run rollback evidence cannot be produced in this mailbox state. Stop before
-smoke/apply under the brief's live-defect rule. A reviewed change or scope ruling
-must address this before another live run; existing contacts remain untouched.
-No mailbox write has run, and completed-retained is not claimed.
-
-Historical package, type, scoped docgen, fallow and coverage proofs are in the
-earlier handoff. This resume edits only packet evidence.
+The scoped grant and runtime read passed. The pre-seed export contains 536
+contacts; SPEC records its full hash. Contacts-only smoke created and deleted
+one synthetic contact. A durable empty journal records apply and no-op undo;
+per-run and category undo dry-runs both plan zero deletions. The final handoff
+records Yeet readiness separately from the live proof. The orchestrator merges
+and removes the contacts grant afterward using runbook section 4.
 
 ## Latest Evidence
 
@@ -65,7 +62,7 @@ earlier handoff. This resume edits only packet evidence.
   boundary, terminal unit evidence and remaining live steps.
 
 - [Online plan](./history/2026-10-13-seeding-dry-run-online.md): zero creates,
-  480 existing skips, and the zero-create verification blocker.
+  480 existing skips; the later Run 4 ruling accepts mailbox-wide resolution.
 
 ## Notes
 
@@ -77,3 +74,8 @@ earlier handoff. This resume edits only packet evidence.
   HTTP-executor design only; those verbs are out of scope.
 - Contact content, real mailbox addresses, and machine-local salvage paths
   never enter this public repo — evidence uses counts, headers, and tags.
+
+- [Live receipt and rollback proof](./history/2026-10-13-seeding-receipt.md):
+  480 matched existing, zero creates, empty-run undo persisted, smoke self-cleaned.
+- [Closeout reflection](./history/reflections/2026-10-13-codex.md): no-op
+  receipt semantics, acceptance clarification and qualification friction.

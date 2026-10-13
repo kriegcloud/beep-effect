@@ -192,3 +192,26 @@
 - Prevention: fixture the first online apply against an already populated
   mailbox and define a no-op receipt/undo contract before live verification.
 - Outcome: stop before writes; reviewed fix or scope ruling required.
+
+
+## 2026-10-13 — zero-create qualification blocked upstream
+
+- Task: qualify the bounded empty-journal repair before the authorized live sequence.
+- Evidence: full driver package proof passes; full app package proof stops in
+  `@beep/box:build` with `TS2589: Type instantiation is excessively deep` before
+  the app audit starts. Box source matches origin/main; no contacts driver edit.
+- Prevention: make direct package qualification distinguish dependency-build
+  failures from failures in the touched package, retaining both receipts.
+- Response: acknowledged inherited failure under S11; qualify app audit,
+  test typecheck and scoped coverage directly through beep-heavy. Do not edit Box.
+
+
+## 2026-10-13 — live-smoke admission delay
+
+- Task: run the already-qualified contacts-only smoke after the clean online plan.
+- Evidence: beep-heavy reports all five shared slots busy; the live batch remains
+  queued while repository-wide inventory generation runs in the parity batch.
+  Polls find no smoke result yet, so no write or smoke pass is claimed.
+- Prevention: expose durable queue position and admission time in result receipts.
+- Response: retain the waiter and poll every minute; do not cancel it for timeout
+  or bypass the shared budget. At most two lane heavy units remain active.
