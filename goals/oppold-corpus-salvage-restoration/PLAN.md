@@ -22,7 +22,9 @@ Current phase state:
   `restore-verify` reported terminals=11451 passes=11451 over the same bytes.
 - **P1 Mail vertical slice:** run-bound source-path extraction, child
   reconciliation, attachment repair, sandboxing, hard resource ceilings, and
-  synthetic exception lanes are implemented; the live slice follows P0.
+  synthetic exception lanes are implemented. **Complete 2026-10-10:** the fresh
+  slice sealed acceptance with one store pass, 3,339 accounted children, zero
+  warnings/exceptions, and measured disk/time amplification within ceilings.
 - **P2 Transformation wave:** recycle, legacy-Word, and acceptance tooling has
   synthetic occurrence, fidelity, restart, tamper, and acceptance-integrity
   coverage; the single live wave follows the passing slice.
@@ -73,7 +75,14 @@ independent verification 11,451/11,451.
    never a client filename.
 2. Run a public source-path libpff process at concurrency one with `-m all`.
 3. Persist raw engine output, per-child digests, child counts, warnings,
-   failures, and atomic attempt promotion.
+   failures, and atomic attempt promotion under the following P1 location inventory:
+
+   | Surface | Location |
+   | --- | --- |
+   | Corpus home | `~/data-home/oppold-corpus` |
+   | P1 run root, relative to corpus home | `staging/restoration/runs/t7-salvage-2026-08-10/**` |
+   | Run-root children | `ledgers/mail/slice.jsonl`, `output/mail/slice/`, and `writer-claims/` |
+
 4. Repair attachment types from byte signatures and run second-pass
    extraction.
 5. Exercise corrupt, password, and codepage lanes with synthetic fixtures.
@@ -81,6 +90,33 @@ independent verification 11,451/11,451.
 
 **Exit:** zero unaccounted children and approved amplification. Otherwise stop;
 do not expand to the estate.
+
+**Not met 2026-10-09:** the one frozen slice sealed `family-acceptance-failure`
+after one unapproved `engine-failure`; zero store passes and zero terminal child rows.
+Retained output 115,418,004 bytes / input 56,140,800 bytes (2.055866749x), family
+elapsed 350,398 ms. Eleven repairs and 22 unsupported dispositions are recorded,
+but final child acceptance is absent. Stop without retry; the orchestrator owns any
+fresh-ledger route. P1 is in-progress, P2/P3 remain pending.
+
+**Progress 2026-10-10:** the first slice sealed an unapproved engine failure.
+Diagnosis attributes repeated Tika extraction of duplicate attachment digests:
+parser-duration metadata changes between invocations. Run 4 authorizes a fix and
+one fresh slice after its PR is content-final. Fresh run-root label:
+`t7-salvage-2026-08-10-p1-2026-10-10-engine-fix`, under the same corpus restoration runs
+parent, with `ledgers/mail/slice.jsonl`, `output/mail/slice/`, and `writer-claims/`.
+The original run is retained; P1 remains in-progress until fresh acceptance.
+Run 5 authorizes `--preservation-label t7-salvage-2026-08-10` independently of
+the fresh output label. Launch follows content-final PR3 #1606 and preflight;
+the fresh manifest and private log policy retain the original freeze evidence.
+The outcome lands later as PR4; P1 remains in-progress until accepted.
+
+
+**Met 2026-10-10:** fresh family accepted one store with zero unaccounted
+children. Input 56,140,800 bytes; output 132,668,272 bytes (2.363134690x);
+attempt 809,685 ms, family 822,686 ms. All 3,339 children reconcile (3,237 engine
+plus 51 repair-copy and 51 Tika children); 59 repaired occurrences / 51 distinct
+digests, 147 unsupported, zero unchanged. No warnings, exceptions, or interruptions.
+Both sealed families are retained; see the fresh slice acceptance record.
 
 ## P2 — Transformation wave
 
@@ -158,10 +194,15 @@ five named roots. Step 4 is the orchestrator hand-off to workstreams C and D.
 
 ## Current blockers
 
-P0 runs under the 2026-10-06 re-measured denominators (decision log). P1-P2
-transformation ceilings (retained output, elapsed time, fidelity) are still
-agent-decided per the 2026-10-06 autonomy charter and must be recorded in the
-decision log before the live slice. The T7 exFAT volume carries a dirty flag;
+P0 is sealed under the 2026-10-06 re-measured denominators (decision log).
+P1 ceilings are set by the 2026-10-09 sizing-probe decision: ratio 4, two hours
+per attempt, 2 GiB total output, and twelve hours total elapsed. Only P2's
+ceilings remain undecided. The two probe-proven pre-run fixes merged through
+#1596 before the first live slice. That immutable failure remains evidence;
+the run-4/5 authorized fresh family passed after the PR3 engine and selector
+fixes. P1 is complete; only P2 ceilings and expansion remain for the orchestrator.
+The T7 exFAT volume
+carries a dirty flag;
 an unmounted `fsck.exfat` is an operator decision and is not required for the
 read-only archive run.
 
@@ -172,3 +213,23 @@ read-only archive run.
 - Keep all corpus paths, object records, and ledgers outside this public repo.
 - If a parent-MAP gate fires, reopen the exploration at `decompose`. Do not
   append G2-G4 or bundle v2 to this packet.
+
+
+## P2 bounded-wave launch preflight — 2026-10-10
+
+Run-8 authorizes the first wave after #1609 merged. Retained ceilings and the
+P1 measured basis are recorded in SPEC. Plan nine remaining non-stub PST
+occurrences in ascending size/object identity order, one fresh family at a time,
+with 60 seconds between successful seals. Stop at the first failure; no code
+change inside the wave. Stub-sized and non-PST estate obligations stay open.
+
+Run-8 launch stopped because slice scope selected the accepted P1 occurrence,
+full scope selected the entire estate and was forbidden, and the public options
+had no bounded occurrence selector. Run 9 authorizes that selector; P2 stays
+pending until run-10 execution. Zero families started; P1 remains complete.
+
+
+Run-9: nine inputs at most 536,870,912 bytes, range 61,727,744 to 456,877,056;
+eighteen larger remaining occurrences await a later ceiling ruling. Membership
+is pinned in history/evidence/p2-first-wave-membership.json. PR6 adds the public
+bounded selector; run 10 launches the wave after content-final. No family started.
