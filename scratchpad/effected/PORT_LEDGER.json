@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "schema-org",
+    "module": "semver",
     "stage": 5,
     "commit": null,
-    "at": "2026-10-13T23:34:56.879Z"
+    "at": "2026-10-13T23:35:15.319Z"
   },
   "rows": [
     {
@@ -3838,8 +3838,8 @@
       "module": "semver",
       "wave": 1,
       "position": 5,
-      "stage": 3,
-      "status": "in-progress",
+      "stage": 5,
+      "status": "done",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
         "src": "packages/semver/src",
@@ -4272,6 +4272,14 @@
         },
         {
           "stage": 2,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 3,
+          "sha": "41af328ed21f70d1cdfe60df08f8b1ae892e835c"
+        },
+        {
+          "stage": 4,
           "sha": null
         }
       ],
@@ -4279,9 +4287,11 @@
       "notes": [
         "2026-10-09T11:20:12.606Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
         "2026-10-09T16:18:00.251Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
-        "2026-10-09T23:35:03.429Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (0 ledgered exceptions), property floor"
+        "2026-10-09T23:35:03.429Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (0 ledgered exceptions), property floor",
+        "2026-10-13T23:35:12.064Z S4: S4 closed at review round 3 (operator cap: three rounds)",
+        "2026-10-13T23:35:15.319Z S5: done: final round committed and gated (audit, docgen, per-file coverage)"
       ],
-      "closedAt": null
+      "closedAt": "2026-10-13T23:35:15.319Z"
     },
     {
       "id": "w1-spdx",
