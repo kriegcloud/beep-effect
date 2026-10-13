@@ -293,7 +293,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
       const projection = yield* fs.readFileString(
         path.join(root, "packages/tooling/tool/cli/src/commands/Ci/CiOperational.patterns.json")
       );
-      const decoded = yield* S.decodeEffect(S.fromJsonString(CiOperationalPatterns))(projection);
+      const decoded = yield* S.decodeEffect(OperationalPatternsJson)(projection);
       assert.deepEqual(decoded, ciOperationalPatterns);
       for (const file of ["README.md", "nested/note.md", "docs/runbooks/ci.md", "goals/demo/PLAN.md"]) {
         assert.isTrue(isHeavyDocsOnlyPath(file), file);
@@ -1358,3 +1358,4 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
     })
   );
 });
+const OperationalPatternsJson = S.fromJsonString(CiOperationalPatterns);

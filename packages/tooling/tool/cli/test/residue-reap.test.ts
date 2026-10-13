@@ -1727,7 +1727,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("checkout retention arch
                   if (!Str.Equivalence(phase, "intent")) return;
                   const runs = A.filter(
                     yield* fs.readDirectory(path.join(fixture.repoRoot, ".beep", "residue-reap")).pipe(Effect.orDie),
-                    S.is(S.String.check(S.isPattern(/^[a-f0-9-]{36}$/u)))
+                    S.is(RunDirectoryName)
                   );
                   yield* Ref.set(
                     holder,
@@ -2105,15 +2105,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("archive interruption re
               Effect.gen(function* () {
                 const fs = yield* FileSystem.FileSystem;
                 const path = yield* Path.Path;
-                const encoded = yield* S.encodeEffect(
-                  S.fromJsonString(
-                    S.Struct({
-                      repoRoot: S.String,
-                      homeRoot: S.String,
-                      nowMillis: S.Finite,
-                    })
-                  )
-                )(fixture);
+                const encoded = yield* S.encodeEffect(ResidueInvocationJson)(fixture);
                 const script = `
             import { runResidueReap } from "@beep/repo-cli/test/RepoRun";
             import { NodeServices } from "@effect/platform-node";
@@ -2129,10 +2121,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("archive interruption re
                 );
                 expect(killed).toBe(true);
                 const runsRoot = path.join(fixture.repoRoot, ".beep", "residue-reap");
-                const runs = A.filter(
-                  yield* fs.readDirectory(runsRoot),
-                  S.is(S.String.check(S.isPattern(/^[a-f0-9-]{36}$/u)))
-                );
+                const runs = A.filter(yield* fs.readDirectory(runsRoot), S.is(RunDirectoryName));
                 expect(runs).toHaveLength(1);
                 const runId = O.getOrThrow(A.head(runs));
                 expect(yield* fs.exists(path.join(runsRoot, runId, "plan.json"))).toBe(true);
@@ -2340,3 +2329,11 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("retention fences", (it)
     )
   );
 });
+const RunDirectoryName = S.String.check(S.isPattern(/^[a-f0-9-]{36}$/u));
+const ResidueInvocationJson = S.fromJsonString(
+  S.Struct({
+    repoRoot: S.String,
+    homeRoot: S.String,
+    nowMillis: S.Finite,
+  })
+);

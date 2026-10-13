@@ -36,7 +36,7 @@ const detect = Effect.fnUntraced(function* (snapshot: ContradictionDetectionSnap
   return yield* ContradictionDetectionService.use((service) => service.detect(snapshot));
 });
 const encodedOutput = Effect.fnUntraced(function* (candidates: ReadonlyArray<DetectedContradiction>) {
-  return canonicalDetectionJson(yield* S.encodeEffect(S.Array(DetectedContradiction))(candidates));
+  return canonicalDetectionJson(yield* S.encodeEffect(DetectedContradictions)(candidates));
 });
 const conformance = Effect.fnUntraced(function* (record: DetectedContradiction, index: number) {
   const wire = yield* S.encodeEffect(DetectedContradiction)(record);
@@ -211,3 +211,4 @@ describe("Contradiction detection golden vectors", () => {
     });
   });
 });
+const DetectedContradictions = S.Array(DetectedContradiction);
