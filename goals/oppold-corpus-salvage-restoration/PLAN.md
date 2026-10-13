@@ -276,3 +276,12 @@ full sixty-second interval and 332,194,398,208 free bytes, ordinal 3 was
 submitted to the sole detached family unit with the unchanged frozen script.
 The watcher reconciles its terminal result before ordinal 4. P2 remains
 incomplete; stop at the first failure, retain all state and never retry seals.
+
+
+**Standing continuation 2026-10-13:** family 3 accepted and fully reconciled:
+4,416 children, zero warnings/exceptions, 2.494159146x amplification,
+2,409,929 ms attempt / 2,430,372 ms family; 154 repair digest pairs.
+After renewed admitted smokes/focused proof and sixty seconds, ordinal 4
+was submitted with the SAME frozen launcher as the sole wave unit.
+Three of nine accepted; P2 remains incomplete. The watcher resumes after
+the unit ends. Retain every family; stop at the first failure.

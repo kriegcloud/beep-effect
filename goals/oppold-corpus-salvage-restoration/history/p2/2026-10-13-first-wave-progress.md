@@ -233,3 +233,40 @@ renewed admitted preflight, the full sixty-second interval and capacity check.
 Never retry a sealed family, bypass admission or alter engines/launcher.
 Decision reversal: revert packet continuation decisions while retaining all
 families, ledgers, outputs and immutable freeze records.
+
+
+## Standing wave continuation — ordinal 4 submitted
+
+Renewed Tika/pffexport real sandbox smokes passed through beep-heavy.
+Four focused restoration tests passed, 78 skipped, 5.69 seconds.
+Full sixty-second interval elapsed after confirmed preflight completion.
+Free bytes immediately before submission: 421,384,577,024.
+
+Submitted at 2026-10-13T22:43:48Z with the SAME frozen launcher and ordinal 4.
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-4.service.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-04/ledgers/mail/slice.jsonl`.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-04-run-manifest.json.
+At submission the sole detached family unit is active/running.
+MemoryMax 34,359,738,368 bytes, MemorySwapMax zero, agent-runs.slice.
+Frozen expected policy:
+4b83984ac749b78681c8285ce5bb9f0ccbc95b8e70c0a041dfc6c1949a1d0000.
+
+Three of nine families accepted; ordinal 4 submitted, ordinals 5-9 unstarted.
+Runtime policy comparison awaits its first family-run-start after verification.
+The orchestrator watcher owns the active-unit handoff under Runs 12+/13+.
+After this unit ends, reconcile result, accepted seal, source/policy identity,
+all children and repair pairs, ceilings and capacity before renewed preflight,
+a full sixty-second interval and ordinal 5. Stop and diagnose the first failure;
+never retry a sealed family. No source/engine/launcher changes inside the wave.
+P2 remains incomplete; eighteen larger occurrences and remaining estate,
+recycle and legacy-Word obligations stay open. PR7 follows the terminal record.
+Reversal: revert packet continuation decisions while retaining every family,
+ledger, output and immutable freeze record. No PR publication or merge here.
+
+Packet verification: launcher within 4,000 characters, manifest parses,
+adoption zero conflicts, doctor zero blockers / same three unrelated
+advisories, goals index matches, whitespace and added-line public hygiene pass.
+No package source edited; package-verify and package-source hosted parity
+producers are not run for this docs-only continuation.
+Graft estimated 64,688 tokens saved across two retrievals.
