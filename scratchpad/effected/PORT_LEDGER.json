@@ -12005,6 +12005,12 @@
           "upstreamBehaviour": "bun resolution accepts raw tuple keys for malformed or suppressed workspace-duplicate rows, allowing an edge to target a package instance that was never emitted.",
           "labBehaviour": "bun validates targets against emitted instance identities while retaining raw position keys for ancestor search and workspace identity selection; skipped targets fall through to valid ancestors or are omitted.",
           "reason": "upstream-bug: sol-2-2 and fix-lockfiles-g2 report a pinned-oracle malformed-tuple probe emitting resolved dep:dep without a dep row. The added regression pins malformed/duplicate skipping, nearest and ancestor precedence, workspace ids and target lookup."
+        },
+        {
+          "test": "scratchpad/test/lockfiles/internal/yarn.coverage.test.ts:12,27,42",
+          "upstreamBehaviour": "Yarn indexes descriptors before rejecting unnameable package rows, then resolves dependencies solely by descriptor presence; skipped compound-key or unsupported-protocol targets produce dangling resolved edges and no unresolvedEdges signal.",
+          "labBehaviour": "Yarn resolves indexed locators only when their instance IDs are emitted. Dangling targets produce no resolved edge and add the dependency name to sorted unresolvedEdges; skipped-row aliases to emitted locators and descriptor overwrite precedence remain valid.",
+          "reason": "upstream-bug: sol-3-1 and fable-3-1 identify the pinned oracle indexing before emission filtering (src/internal/yarn.ts:86-92,104-115) and resolving without membership (185-189). The diff adds the emitted-ID check at lab yarn.ts:215 and two dangling-target regressions plus an alias-preservation test; fix-lockfiles-g1 reports both new counterexamples failed before the fix."
         }
       ],
       "backlog": [
@@ -12127,6 +12133,24 @@
             "fable": {
               "required": 2,
               "backlog": 2
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 1,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 1,
+              "backlog": 0
             }
           }
         }
