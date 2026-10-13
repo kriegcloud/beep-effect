@@ -1174,6 +1174,24 @@
           "upstreamBehaviour": "scratchpad/effected/memfs/internal/volume.ts:3027 carried a branch no input can reach",
           "labBehaviour": "Removed missing-root, empty-frame, out-of-bounds name and missing stored-entry fallbacks from snapshot traversal.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/memfs/internal/volume.coverage.test.ts:25,53; scratchpad/test/memfs/internal/seed.property.test.ts:14,21,29,39,53,62,80,90",
+          "upstreamBehaviour": "EngineOptions, VolumeEntrySnapshot and SeedRootError are type-only interfaces; applyRoot repeats an inline success payload. Modes and owners share an imperative unsigned 32-bit check.",
+          "labBehaviour": "EngineOptions, VolumeEntrySnapshot and SeedRootError gain runtime schema exports; AppliedSeed adds a schema and derived type. SnapshotEntryType uses LiteralKit. One internal unsigned 32-bit schema supplies both guards. Required undefined-valued keys, plain results, seed identity and live bytes remain.",
+          "reason": "schema-first: D5, law 17 and EF-12b/EF-33 require executable payload contracts and schema-derived guards. Round-3 sol-3-2/3/4 add these previously unrecorded shapes; existing seed/stat/inode/glob deviations are not repeated."
+        },
+        {
+          "test": "scratchpad/test/memfs/internal/volume.coverage.test.ts:25",
+          "upstreamBehaviour": "VolumeEntrySnapshot.mtime and size are unrestricted number fields with no runtime schema.",
+          "labBehaviour": "The new VolumeEntrySnapshot schema uses S.Finite for mtime and size, rejecting NaN and infinities while accepting finite fractional and negative numbers. Snapshot construction remains unchanged.",
+          "reason": "numeric-domains: schemaNumber/TS377098 requires finite numeric schema domains. The diff and new invalid/finite snapshot assertions ground these fields; previously ledgered stat mtimeMs/size and inode fields are distinct."
+        },
+        {
+          "test": "scratchpad/effected/memfs/internal/seed.ts:16,140,173; scratchpad/test/memfs/internal/seed.property.test.ts:14,21",
+          "upstreamBehaviour": "internal/seed.ts has no IdentityComposer; SeedRootError and the applyRoot success payload have no schema or field identity annotations.",
+          "labBehaviour": "A new $ScratchpadId composer identifies effected/memfs/internal/seed. SeedRootError and AppliedSeed receive annoteSchema identities and annoteKey field annotations; the new volume contracts and internal domains use the existing volume composer.",
+          "reason": "identity-annotations: step 4 requires @beep/identity schema and field annotations. Round 3 newly identifies seed.ts and annotates the added contracts; the existing ledger names other composers and is left unchanged."
         }
       ],
       "backlog": [
@@ -1278,6 +1296,12 @@
           "round": 2,
           "finding": "fable-2-9 — Repeated schema round-trip property helpers (scratchpad/test/memfs/internal/errno.property.test.ts:8)",
           "reason": "test: Hoist roundTrips into the local memfs helpers and preserve all assertions and fcRuns. Test consolidation is deferred; no lost property contract is demonstrated."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "sol-3-5 — Effect-based decoding in public schema examples (scratchpad/effected/memfs/MemoryFileSystem.ts:195)",
+          "reason": "jsdoc: During S2, replace these calls with `S.decodeUnknownEffect`, running the resulting effects at each example's runtime boundary while retaining the demonstrated inputs and outputs."
         }
       ],
       "reviewRounds": [
@@ -1314,6 +1338,24 @@
             "fable": {
               "required": 1,
               "backlog": 8
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 5,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 1,
+              "backlog": 0
             }
           }
         }

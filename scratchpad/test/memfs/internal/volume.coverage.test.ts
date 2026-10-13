@@ -10,7 +10,7 @@ import * as Stream from "effect/Stream";
 import * as Scope from "effect/Scope";
 import * as S from "effect/Schema";
 import { ErrnoException } from "../../../effected/memfs/internal/errno.ts";
-import { make, makeInspectableWith } from "../../../effected/memfs/internal/volume.ts";
+import { EngineOptions, VolumeEntrySnapshot, make, makeInspectableWith } from "../../../effected/memfs/internal/volume.ts";
 import { deliberatelyInvalid } from "../deliberatelyInvalid.ts";
 import { collectWatch } from "../helpers.ts";
 
@@ -22,6 +22,111 @@ const fails = Effect.fnUntraced(function* <A, E, R>(effect: Effect.Effect<A, E, 
 });
 
 describe("volume uncovered contracts", () => {
+  it.effect("owns plain engine options and required inspection keys with executable schemas", () => Effect.gen(function* () {
+    const isOptions = S.is(EngineOptions);
+    assert.strictEqual(isOptions({ caseSensitive: true }), true);
+    assert.strictEqual(isOptions({ caseSensitive: false }), true);
+    for (const options of [{}, { caseSensitive: undefined }, { caseSensitive: "false" }, { caseSensitive: 0 }]) {
+      assert.strictEqual(isOptions(options), false);
+    }
+    assert.deepStrictEqual(yield* S.decodeEffect(EngineOptions)({ caseSensitive: false }), { caseSensitive: false });
+
+    const engine = yield* makeInspectableWith({ caseSensitive: true });
+    const root = engine.lookup("/");
+    assert(root !== undefined);
+    const isSnapshot = S.is(VolumeEntrySnapshot);
+    assert.strictEqual(isSnapshot(root), true);
+    assert.deepStrictEqual(root, { path: "/", type: "Directory", data: undefined, mtime: root.mtime, target: undefined, size: 0 });
+    const { data, target, ...metadata } = root;
+    assert.strictEqual(data, undefined);
+    assert.strictEqual(target, undefined);
+    assert.strictEqual(isSnapshot({ ...metadata, target }), false);
+    assert.strictEqual(isSnapshot({ ...metadata, data }), false);
+    for (const payload of [
+      { ...root, path: 0 }, { ...root, type: "Other" }, { ...root, data: [1] },
+      { ...root, mtime: "0" }, { ...root, target: null }, { ...root, size: "0" },
+      { ...root, mtime: NaN }, { ...root, mtime: Infinity }, { ...root, size: -Infinity },
+    ]) assert.strictEqual(isSnapshot(payload), false);
+    assert.strictEqual(isSnapshot({ ...root, mtime: -0.5, size: -0.5 }), true);
+  }));
+
+  it.effect("retains live file bytes across snapshots, hard links and schema validation", () => Effect.gen(function* () {
+    const engine = yield* makeInspectableWith({ caseSensitive: true });
+    const fs = engine.fileSystem;
+    yield* fs.writeFile("/file", new Uint8Array([1, 2]));
+    yield* fs.link("/file", "/alias");
+    yield* fs.symlink("file", "/symbolic");
+    const file = engine.lookup("/file");
+    const alias = engine.lookup("/alias");
+    const symbolic = engine.lookup("/symbolic");
+    assert(file !== undefined && file.data !== undefined && alias !== undefined && symbolic !== undefined);
+    assert.strictEqual(alias.data, file.data);
+    assert.strictEqual(engine.lookup("/file")?.data, file.data);
+    assert.deepStrictEqual(symbolic, { path: "/symbolic", type: "SymbolicLink", data: undefined, mtime: symbolic.mtime, target: "file", size: 4 });
+    for (const entry of engine.entries()) {
+      assert.strictEqual(S.is(VolumeEntrySnapshot)(entry), true);
+      if (entry.type === "File") assert.strictEqual(entry.data, file.data);
+    }
+    const decoded = yield* S.decodeEffect(VolumeEntrySnapshot)(file);
+    assert.strictEqual(decoded.data, file.data);
+    file.data[0] = 9;
+    assert.deepStrictEqual(yield* fs.readFile("/alias"), new Uint8Array([9, 2]));
+    assert.strictEqual(engine.lookup("/file")?.data, file.data);
+  }));
+
+  it.effect("accepts unsigned 32-bit mode and owner boundaries and omitted modes", () => Effect.gen(function* () {
+    const fs = yield* make;
+    yield* fs.makeDirectory("/default-mode", { mode: undefined });
+    assert.strictEqual((yield* fs.stat("/default-mode")).mode & 0o7777, 0o755);
+    const defaultFile = yield* fs.open("/default-mode/file", { flag: "w", mode: undefined });
+    assert.strictEqual((yield* defaultFile.stat).mode & 0o7777, 0o644);
+    for (const value of [0, 0xffff_ffff]) {
+      const path = `/mode-${value}`;
+      yield* fs.makeDirectory(path, { mode: value });
+      assert.strictEqual((yield* fs.stat(path)).mode & 0o7777, value & 0o7777);
+      const file = yield* fs.open(`${path}/file`, { flag: "w", mode: value });
+      assert.strictEqual((yield* file.stat).mode & 0o7777, value & 0o7777);
+      yield* fs.chmod(`${path}/file`, value);
+      assert.strictEqual((yield* file.stat).mode & 0o7777, value & 0o7777);
+      yield* fs.chown(`${path}/file`, value, value);
+      const info = yield* file.stat;
+      assertSome(info.uid, value);
+      assertSome(info.gid, value);
+    }
+  }));
+
+  it.effect("rejects invalid modes and owners with exact BadArgument descriptions without mutation", () => Effect.gen(function* () {
+    const fs = yield* make;
+    yield* fs.writeFile("/file", new Uint8Array([1, 2]));
+    const before = yield* fs.stat("/file");
+    const invalid = [-1, 0.5, 0x1_0000_0000, NaN, Infinity, -Infinity, null, "0", false, {}];
+    for (const value of invalid) {
+      const mode = deliberatelyInvalid<number>(value);
+      for (const [method, operation] of [
+        ["makeDirectory", fs.makeDirectory("/invalid-mode", { mode })],
+        ["open", fs.open("/invalid-mode", { flag: "w", mode })],
+        ["chmod", fs.chmod("/file", mode)],
+      ] as const) {
+        const error = yield* fails(operation);
+        assert.strictEqual(error.reason._tag, "BadArgument");
+        assert.strictEqual(error.reason.method, method);
+        assert.strictEqual(error.reason.description, "mode must be an unsigned 32-bit integer");
+      }
+      assert.strictEqual(yield* fs.exists("/invalid-mode"), false);
+    }
+    for (const value of [...invalid, undefined]) {
+      const owner = deliberatelyInvalid<number>(value);
+      for (const [name, operation] of [["uid", fs.chown("/file", owner, 0)], ["gid", fs.chown("/file", 0, owner)]] as const) {
+        const error = yield* fails(operation);
+        assert.strictEqual(error.reason._tag, "BadArgument");
+        assert.strictEqual(error.reason.method, "chown");
+        assert.strictEqual(error.reason.description, `${name} must be an unsigned 32-bit integer`);
+      }
+    }
+    assert.deepStrictEqual(yield* fs.stat("/file"), before);
+    assert.deepStrictEqual(yield* fs.readFile("/file"), new Uint8Array([1, 2]));
+  }));
+
   it.effect("keeps invalid entry-name errors in the typed channel with the caller path", () => Effect.gen(function* () {
     const fs = yield* make;
     const error = yield* fails(fs.writeFile("/missing/.", new Uint8Array([1])));
