@@ -48,13 +48,13 @@ import type { CapabilityEdgeKind } from "./Graph.schemas.ts";
 /**
  * Statuses whose `provides` can still be built: anything else is fog (D8).
  *
- * **Example** (Check whether a retained provider remains buildable)
+ * **Example** (Check whether a provider status can still build)
  *
  * ```ts
- * import { BUILDABLE_PROVIDER_STATUSES } from "@beep/repo-cli/commands/Goals"
- * import * as A from "effect/Array"
+ * import { BUILDABLE_PROVIDER_STATUSES } from "@beep/repo-cli/commands/Goals/Graph.projection"
  *
- * console.log(A.contains(BUILDABLE_PROVIDER_STATUSES, "completed-retained")) // true
+ * console.log(BUILDABLE_PROVIDER_STATUSES.includes("paused")) // true
+ * console.log(BUILDABLE_PROVIDER_STATUSES.includes("superseded")) // false
  * ```
  *
  * @category constants
@@ -65,14 +65,13 @@ export const BUILDABLE_PROVIDER_STATUSES: ReadonlyArray<GoalStatus> = ["active",
 /**
  * Statuses an unlock walk may route through: unfinished but buildable.
  *
- * **Example** (Distinguish paused work from an already completed provider)
+ * **Example** (Check whether an unlock walk may route through a status)
  *
  * ```ts
- * import { CANDIDATE_PROVIDER_STATUSES } from "@beep/repo-cli/commands/Goals"
- * import * as A from "effect/Array"
+ * import { CANDIDATE_PROVIDER_STATUSES } from "@beep/repo-cli/commands/Goals/Graph.projection"
  *
- * console.log(A.contains(CANDIDATE_PROVIDER_STATUSES, "paused")) // true
- * console.log(A.contains(CANDIDATE_PROVIDER_STATUSES, "completed-retained")) // false
+ * console.log(CANDIDATE_PROVIDER_STATUSES.includes("active")) // true
+ * console.log(CANDIDATE_PROVIDER_STATUSES.includes("completed-retained")) // false
  * ```
  *
  * @category constants
