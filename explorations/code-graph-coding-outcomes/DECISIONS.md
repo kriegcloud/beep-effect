@@ -409,3 +409,36 @@ operator may switch an existing account; the agent does not switch accounts,
 reset limits, buy credits or substitute a provider. Resume after a live recheck
 with the frozen controls and a fresh attempt identity. Earlier successful
 package and runtime prerequisite evidence remains source-bound and reusable.
+
+### Revise only the outer bootstrap after the workstation update
+
+The October 13 reboot changed host Podman and broker Python dependencies. The
+original bytes remain available, but recovering them does not by itself close
+the loader and privilege-helper boundary. A bounded audit-library probe rejected
+an outside library, yet allowed execution when its audit module was missing
+or a child removed its audit setting. Preserve those failures; do not
+promote that mechanism into the runner.
+
+The frozen toolchain catalog contains neither host Podman nor the host broker
+Python. Its tool Python installations are separate and retain their hashes.
+Independent source review also distinguishes these outer bootstrap processes
+from the sealed coding and verification system. Select an explicit pre-scoring
+revision of the outer bootstrap contract, subject to the checks below. This
+supersedes the recovery-only tactic in the earlier friction receipt; it does not
+change the frozen toolchain catalog, inner runtime, model routes, task acceptance
+or historical contracts. No scored cell or productive pilot has started.
+
+Inventory the new bootstrap bytes, actual metadata, package provenance and
+dependency boundary. Bind and verify the capability xattrs that grant the
+finite host UID/GID mapping helpers their privilege; ordinary owned copies must
+not impersonate them. Prove the real rootless namespace and tiny container path,
+broker startup and authority policy before regenerating an attempt. Every new
+native runtime must receive fresh control, check and request digests, admission
+and final proof. Prior bootstrap proof cannot qualify the revised contract.
+
+Keep attempt ten, original inputs, recovered bytes and all failed probes. The
+reversal is to stop the new preparation and return to those retained artifacts,
+with their recorded blockers still applicable. No workstation rollback, global
+tool installation or production index change is part of this decision. Evidence:
+`attempt11-bootstrap-offline-feasibility-closure-v1.json`,
+`attempt11-reboot-bootstrap-repair-proposal-v1.json`, and the independent review.

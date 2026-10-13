@@ -675,3 +675,20 @@ regenerate path-bound contracts, and prove the bootstrap before another long
 Collector run. Do not roll back workstation packages, substitute updated bytes,
 or rewrite the historical attempt. Receipt:
 `attempt11-reboot-standalone-artifact-check-v1.json`.
+
+## Declare the outer bootstrap boundary before freezing trial controls
+
+Exact old binaries were recoverable after the update, but the host loader could
+still search undeclared libraries. An audit-library probe rejected an outside
+load before its constructor, while a missing audit module and a child that
+removed the audit setting both permitted ordinary execution. These negative
+results disqualify environment-only audit as the boundary guarantee; they do
+not establish that the pinned Podman actually performs either bypass.
+
+The UID/GID mapping helpers also obtain privilege through file capability
+xattrs, which the existing hash, mode and ownership contract does not bind.
+Distinguish frozen inner runtimes from host bootstrap dependencies explicitly,
+include the actual privilege metadata, and qualify each revision before a long
+run. The dated decision selects a reviewed bootstrap-only revision before any
+scored cells, preserving the frozen catalog and old requests. Receipt:
+`attempt11-bootstrap-offline-feasibility-closure-v1.json`.
