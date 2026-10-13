@@ -11443,6 +11443,54 @@
           "upstreamBehaviour": "Upstream response projectors throw during comment/run/tag construction or return unchecked secret/variable/ruleset/workflow lists. Upstream refresh is interruptible but lacks the lab ownership serialization; the round-1 lab repair masked blocking refresh work.",
           "labBehaviour": "New boundary decoders produce operation-specific GitHubError.decode failures before comment/tag filtering, retaining valid defaults, order and plain list shapes. Rotation restores interruption for blocking work while atomically retaining acquired tokens and registering cleanup before acquisition.",
           "reason": "effect-first: EF-3/EF-31 require typed external-data validation, and EF-26 requires interruptible blocking work with explicit resource ownership. Round-2 req-13/14 add decoding at previously unrepaired projections; req-02 narrows the lab rotation mask. The diff adds malformed-response tests and blocked DELETE/POST/GET cancellation tests. This adds new sites without repeating the round-1 commit-file decoding or token-serialization entries."
+        },
+        {
+          "test": "scratchpad/test/github/GitHubError.test.ts:23",
+          "upstreamBehaviour": "REST throwable classification uses unchecked String conversion; uncoercible objects and arrays throw TypeError instead of producing GitHubError.",
+          "labBehaviour": "Both REST fallback conversions are protected by Result.try; failed conversion produces a retryable transport error with a stable description and the original cause.",
+          "reason": "upstream-bug: Round-3 req-01 records pinned-oracle TypeError probes for toString=null, a null-prototype object and an array containing one. The diff protects both conversions and adds regressions for all three inputs plus successful conversions."
+        },
+        {
+          "test": "scratchpad/test/github/GitHubContent.coverage.test.ts:10",
+          "upstreamBehaviour": "The contents API response is accessed unchecked; null outer responses and null, omitted or non-string base64 content can defect before returning a typed error.",
+          "labBehaviour": "getFile validates the outer response and base64 string before access or whitespace removal; getFile and getFileOption propagate GitHubError.decode for malformed payloads.",
+          "reason": "upstream-bug: Round-3 req-12 records a pinned-oracle HTTP-200 content=null probe defecting at replace. The diff adds outer/string decoding and four malformed-payload regressions through both file APIs, preserving directory and unsupported-encoding rejection."
+        },
+        {
+          "test": "scratchpad/test/github/GitHubIssue.coverage.test.ts:213",
+          "upstreamBehaviour": "isCrossReferencedBy searches only the latest 50 cross-reference events, returning false when the requested PR appears on an older page.",
+          "labBehaviour": "The query requests pageInfo and accepts a before cursor; the service traverses earlier pages until a match or exhaustion and returns immediately on a match.",
+          "reason": "upstream-bug: Round-3 req-13 records lab/oracle false after one request when 50 recent other-PR events hide an earlier match. The diff adds cursor traversal and first-page, preceding-page, exhaustion and missing-cursor regressions."
+        },
+        {
+          "test": "scratchpad/test/github/GitHubApp.test.ts:131",
+          "upstreamBehaviour": "GitHubApp token normalization assigns accepted string permissions into an ordinary object; an own __proto__ key invokes the inherited setter and disappears before TokenPermissions decoding.",
+          "labBehaviour": "GitHubApp normalization filters string-valued entries and builds the record with Record.fromEntries, preserving __proto__ and ordinary grants as own keys.",
+          "reason": "upstream-bug: Round-3 req-15 identifies the same assignment in the pinned oracle; the new token-path regression asserts own __proto__, contents and metadata grants and omission of a non-string grant. This repairs the earlier normalization stage, not the already-recorded TokenPermissions.fromGitHub stage."
+        },
+        {
+          "test": "scratchpad/test/github/transport.test.ts:205; scratchpad/test/github/internal/octokit.coverage.test.ts:12",
+          "upstreamBehaviour": "Complete rate-limit header triples with unsafe integer fields reach throwing RateLimitSnapshot.make, discarding successful responses or defecting before HTTP/GraphQL error classification.",
+          "labBehaviour": "Snapshot recording decodes nonthrowingly; invalid metadata leaves the previous snapshot unchanged while payload delivery and typed failure classification continue.",
+          "reason": "upstream-bug: Round-3 req-17 records REST, pagination and GraphQL probes defecting on complete triples containing reset=9007199254740992 or 1e308. The diff replaces throwing snapshot construction and adds success, failure, retention and subsequent-refresh regressions; it does not repeat the recorded retry-delay saturation repair."
+        },
+        {
+          "test": "scratchpad/test/github/GitTag.test.ts:113",
+          "upstreamBehaviour": "upsert normalizes the tag before passing it to create, which normalizes again; tags/tags/foo creates refs/tags/foo while the existing-tag reset addresses tags/tags/foo.",
+          "labBehaviour": "upsert passes the original tag to create and retains the once-normalized short tag for reset, so both paths address tags/tags/foo.",
+          "reason": "upstream-bug: Round-3 req-19 records the pinned-oracle create/reset ref mismatch for tags/tags/foo. The one-line source diff changes create(short, sha) to create(tag, sha); new successful-create and already-exists regressions assert matching POST/PATCH refs."
+        },
+        {
+          "test": "scratchpad/test/github/GitHubRepository.test.ts:362",
+          "upstreamBehaviour": "applySettings routes and reports undefined-valued entries even though serialization omits their values, causing unnecessary REST/GraphQL writes and false applied-key reports.",
+          "labBehaviour": "Undefined-valued entries are skipped before routing and reporting; undefined-only REST or GraphQL input returns empty applied-key arrays without HTTP requests.",
+          "reason": "upstream-bug: Round-3 req-20 records pinned-oracle requests and applied keys for has_issues=undefined and has_discussions=undefined. The diff adds an undefined guard and two regressions asserting empty reports and zero requests."
+        },
+        {
+          "test": "scratchpad/test/github/**; GitHubApp.test.ts:441,469,503; GitBranch.test.ts:164; GitTag.test.ts:73",
+          "upstreamBehaviour": "Unchecked issue/comment, check-run, release/asset, commit/comparison, App, environment and ref/tag responses can defect or return invalid successes. Upstream lacks the lab rotation ownership protocol; the previous lab repair can hang on scope close or lose an observed credential during decoding.",
+          "labBehaviour": "New wire validation maps malformed values to operation-specific GitHubError.decode or existing GitHubAppError kinds, preserving valid defaults/order and short-circuit skips. Rotation closes admission, interrupts and joins its active child, and owns observed credentials before interruptible decoding so cleanup can revoke them.",
+          "reason": "effect-first: EF-3/EF-31 require typed external-data boundaries; EF-26 requires interruptible blocking work and explicit resource ownership. Round-3 req-03/04/05/06/07/08/09/10/11/18/21 add new boundary sites; req-02/16 repair the prior lab rotation protocol. Malformed-response, scope-close-before-caller-cancellation and post-response cancellation/decode-failure tests ground these changes without repeating prior sites."
         }
       ],
       "backlog": [
@@ -11553,6 +11601,12 @@
           "round": 2,
           "finding": "req-03 — List all cursor-paginated attestations (scratchpad/effected/github/internal/octokit.ts:245)",
           "reason": "bug: Left pending because this group cannot repair shared pagination normalization: object-shaped {attestations: [...]} pages are discarded by the array engine. The report says a two-page probe followed cursor-2 but returned no entries; switching only Attestation.ts to client.paginate would break listing tests. Normalize shared transport pages before the engine consumes them."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "req-14 — Complete attestation cursor pagination (scratchpad/effected/github/internal/octokit.ts:245)",
+          "reason": "bug: Left because bare attestations envelopes are discarded by the shared array pagination engine; fixing normalization or adding a decoded-page API exceeds the lane's two-file ownership. The report's two-page probe returned entries=[], calls=2, cursor=cursor2. Attestation source and tests remain unchanged."
         }
       ],
       "reviewRounds": [
@@ -11588,6 +11642,24 @@
             },
             "fable": {
               "required": 4,
+              "backlog": 0
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 11,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 11,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 11,
               "backlog": 0
             }
           }
