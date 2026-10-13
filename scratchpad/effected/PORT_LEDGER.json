@@ -8833,6 +8833,24 @@
           "upstreamBehaviour": "CatalogAssemblyError exposes independent source and optional reason fields, with no source-specific failure projection; manifest and catalog errors can carry hooks-only reasons.",
           "labBehaviour": "CatalogAssemblyError adds an @internal failure getter projecting a validated source union: manifest/catalog omit reason and hooks retain optional reason. Public fields, tag, encoded reasons and cause identity remain compatible; message rendering reads the projection.",
           "reason": "schema-first: law 20 and EF-13 require source-specific variants instead of a case-specific optional bag. Round-2 npm-2-5 adds this CatalogAssemblyError projection and regression/property assertions; the existing schema-first entry covers the other error facades and is not repeated or extended."
+        },
+        {
+          "test": "scratchpad/test/npm/NpmRegistry.test.ts:558; scratchpad/test/npm/NpmRegistry.test.ts:572; scratchpad/test/npm/NpmRegistry.test.ts:586; scratchpad/test/npm/NpmRegistry.test.ts:599; scratchpad/test/npm/NpmRegistry.test.ts:613",
+          "upstreamBehaviour": "NpmRegistry.makeSeeded reads inherited registry, package, version and dist-tag package keys through direct indexing, reporting unseeded constructor and toString versions as published.",
+          "labBehaviour": "Seeded lookups use effect/Record.get and Option composition to accept only own registry, package, version and dist-tag package entries. Inherited entries return None or empty collections; explicit own constructor keys and valid facts remain supported.",
+          "reason": "upstream-bug: sol-3-1 reports pinned-oracle af7566a9da2eff169cb74955efcc5ede1e5de9f8 returning Some for unseeded constructor/toString and None for 1.0.0. Oracle NpmRegistry.ts:478,481,496 confirms inherited-key indexing. npm-3-4 replaces those lookups and adds five regression tests; fix-npm-g2 reports four failing before and passing after."
+        },
+        {
+          "test": "scratchpad/test/npm/ReleaseAgeGate.test.ts; scratchpad/test/npm/Manifest.test.ts; scratchpad/test/npm/PackageManagerCache.test.ts",
+          "upstreamBehaviour": "ReleaseAgeGate uses native array predicates, map/filter and flatMap; Manifest.needsResolution uses native some; PackageManagerCache joins path components with native join.",
+          "labBehaviour": "These routines use effect/Array.some, filterMap, flatMap, filter and join. ReleaseAgeGate adapts optional finite ages with Result.fromOption for the installed filterMap callback contract; predicates, filtering order, inert returns and path bytes are preserved.",
+          "reason": "effect-first: EF-5 and AGENTS.md require Effect helpers where equivalent. npm-3-1 through npm-3-3 replace the remaining array operations in these specific routines; this records new helper-call shapes, separately from the prior string-helper, Hex.encode and Effect.fn changes. No behavioral divergence or existing assertion change is claimed."
+        },
+        {
+          "test": "scratchpad/test/npm/PackagePublish.test.ts:48; scratchpad/test/npm/PackagePublish.test.ts:55; scratchpad/test/npm/PackagePublish.test.ts:453; scratchpad/test/npm/PackageManagerPin.test.ts:117",
+          "upstreamBehaviour": "Three pack fixture payloads and rejection-input quoting use native JSON.stringify at synchronous test setup boundaries.",
+          "labBehaviour": "Pack fixtures use S.encodeResult(S.fromJsonString(S.Unknown)); rejection-input quoting uses the corresponding String codec. Result failures explicitly call assert.fail. Unknown encoding retains the malformed missing-filename fixture; existing oracle assertions remain.",
+          "reason": "native-runtime: EF-19 and effect-first-development law 22 require Schema JSON codecs in tests and fixtures. npm-3-5 replaces these four serialization sites with explicit Result codecs and test-boundary failure handling. This is separate from the existing production pack-output JSON parsing deviation."
         }
       ],
       "backlog": [
@@ -8895,6 +8913,18 @@
           "round": 1,
           "finding": "backlog-10 — The test-rule enforcement claim is qualified by directives; repo policy remediation cannot be assigned to this module (scratchpad/test/npm/NpmRegistry.test.ts:1)",
           "reason": "tsgo: Move module-local test-canon replacements to S3; track any repo-wide directive/checker/config policy separately because it is outside the port write surface."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "npm-3-b1 — Public JSDoc examples use synchronous Schema codecs (scratchpad/effected/npm/PackagePublish.ts:133)",
+          "reason": "jsdoc: During S2, use Effect codecs with execution at the example's outer runtime boundary, or schema `.make(...)` when construction is the point. Preserve each example's purpose and expected output."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "npm-3-b2 — Public examples use native JSON serialization (scratchpad/effected/npm/Manifest.ts:215)",
+          "reason": "docs: During S2, compose Schema JSON encoding into the Manifest examples, executing at their outer runtime boundary and preserving the shown JSON and teaching purpose. Update the README usage example in the same documentation pass. Leave README Port notes to the central codemod."
         }
       ],
       "reviewRounds": [
@@ -8930,6 +8960,24 @@
             },
             "fable": {
               "required": 4,
+              "backlog": 0
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 3,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
               "backlog": 0
             }
           }
