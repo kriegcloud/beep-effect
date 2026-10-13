@@ -12730,6 +12730,18 @@
           "upstreamBehaviour": "Both merge copy loops enumerate only string keys, dropping required enumerable symbol fields from schema-decoded records and returning values outside their declared schema.",
           "labBehaviour": "Both loops copy own enumerable string and symbol keys through PropertyKey access, preserving target priority, nested merging, inert descriptors and input immutability. Non-enumerable keys and string __proto__ remain excluded; Symbol(\"__proto__\") is retained.",
           "reason": "upstream-bug: sol-2-2 reports a pinned-oracle differential probe with schema validity changing from true to false and the required symbol becoming undefined. Oracle source confirms Object.keys-only loops; the diff uses Reflect.ownKeys with enumerability guards and adds symbol-schema regressions."
+        },
+        {
+          "test": "scratchpad/test/config-file/ConfigFile.test.ts:231,256,279",
+          "upstreamBehaviour": "Independently valid sources can merge into a value that violates the decoded schema; load and nonempty-source loadOrDefault return it successfully and emit Resolved and Loaded.",
+          "labBehaviour": "Strategy results are validated against S.toType(options.schema), preserving parseOptions. Invalid merged values fail with ConfigValidationError and no file path before Resolved or Loaded; wire transformations are not repeated. Empty-source defaults remain unchanged.",
+          "reason": "upstream-bug: sol-3-1 reports a pinned-oracle probe where individually valid {a:1} and {b:2} merge into a value rejected by their cross-field refinement. The ConfigFile.ts diff adds decoded-type validation; new load/loadOrDefault regressions assert typed failure, absent path and no success events, plus transformed-schema success."
+        },
+        {
+          "test": "scratchpad/test/config-file/internal/deepMerge.property.test.ts:27,48; scratchpad/test/config-file/MergeStrategy.test.ts:29; scratchpad/test/config-file/ConfigFile.test.ts:313",
+          "upstreamBehaviour": "Merging compatible cyclic plain records repeatedly visits the same target/source pair, throwing RangeError in deepMerge and layeredMerge and dying during ConfigFile.load.",
+          "labBehaviour": "Each merge tracks active target/source/result tuples in an ancestor stack using reference identity, registers results before recursion and reuses the allocated result for recurring pairs. Self-cycles and mutual cycles terminate while retaining priority and input links.",
+          "reason": "upstream-bug: sol-3-2 reports pinned-oracle direct and custom-codec load probes producing RangeError or Die(RangeError) for valid cyclic records. The deepMerge.ts diff adds ancestor-pair result reuse under the identity-cycle ruling; new helper, strategy and public-load regressions cover termination and cyclic links."
         }
       ],
       "backlog": [
@@ -12844,6 +12856,24 @@
             "grok": {
               "required": 1,
               "backlog": 1
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
             },
             "sol": {
               "required": 2,
