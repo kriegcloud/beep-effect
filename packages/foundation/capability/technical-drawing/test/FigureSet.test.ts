@@ -57,12 +57,14 @@ const fakeEngine = Layer.succeed(
   GeometryEngine,
   GeometryEngine.of({
     info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
-    summarize: Effect.fnUntraced(function* () {
+    // a model with more than one part reports one overlapping pair
+    summarize: Effect.fnUntraced(function* (model) {
       return ModelSummary.make({
         boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
         volume: 250,
         faceCount: 6,
         edgeCount: 12,
+        partOverlaps: A.length(model.parts) > 1 ? 1 : 0,
       });
     }),
     project: Effect.fnUntraced(function* (model, cameras, shading) {
@@ -134,12 +136,13 @@ const spec = (
   figures: ReadonlyArray<{ view: string; description: string }>,
   omissions: ReadonlyArray<unknown> = [],
   extra: Readonly<Record<string, string>> = {},
-  part: Readonly<Record<string, unknown>> = body
+  part: Readonly<Record<string, unknown>> = body,
+  moreParts: ReadonlyArray<Readonly<Record<string, unknown>>> = []
 ) =>
   JSON.stringify({
     ...extra,
     title: "Synthetic block",
-    model: { parts: [part] },
+    model: { parts: [part, ...moreParts] },
     figures,
     omissions,
   });
@@ -210,6 +213,9 @@ describe("@beep/technical-drawing", () => {
         expect(SheetOptions.make({}).brokenGapMm).toBe(1.5);
         expect(() => SheetOptions.make({ brokenDashMm: 0.5 })).toThrow();
         expect(() => SheetOptions.make({ brokenGapMm: 0.5 })).toThrow();
+        // round caps eat the line weight: a heavy stroke closes a gap that is valid on its own
+        expect(() => SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 0.75 })).toThrow();
+        expect(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 1.2 }).brokenGapMm).toBe(1.2);
       })
     );
 
@@ -477,6 +483,38 @@ describe("@beep/technical-drawing", () => {
           );
           assertInstanceOf(error, DrawingError);
           expect(error.reason).toBe("omission");
+        })
+      );
+
+      it.effect(
+        "refuses a model whose parts overlap unless the request allows it",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          yield* fs.writeFileString(
+            specPath,
+            spec([{ view: "front", description: "is a front elevation view" }], [], {}, body, [
+              { ...body, name: "lid" },
+            ])
+          );
+          const service = yield* FigureSet;
+          const error = yield* Effect.flip(
+            service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "refused"), validate: false }))
+          );
+          assertInstanceOf(error, DrawingError);
+          expect(error.reason).toBe("geometry");
+          expect(error.message).toContain("1 pair(s) of parts overlap");
+          const allowed = yield* service.render(
+            RenderRequest.make({
+              specPath,
+              outputDir: path.join(dir, "allowed"),
+              validate: false,
+              allowPartOverlaps: true,
+            })
+          );
+          expect(allowed.model.partOverlaps).toBe(1);
         })
       );
 

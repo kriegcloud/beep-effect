@@ -65,9 +65,17 @@ export class RenderRequest extends S.Class<RenderRequest>($I`RenderRequest`)(
       S.withConstructorDefault(Effect.succeed(false)),
       S.annotateKey({ description: "Whether to add procedural straight-line surface shading. Defaults to false." })
     ),
+    allowPartOverlaps: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.annotateKey({
+        description:
+          "Whether to render a model whose parts interpenetrate. Defaults to false: overlapping solids double-count volume and confuse hidden-line removal, so the render is refused.",
+      })
+    ),
   },
   $I.annote("RenderRequest", {
-    description: "Spec path, output directory, sheet options, and validation switch of a render.",
+    description:
+      "Spec path, output directory, sheet options, validation and shading switches, and the part-overlap override of a render.",
   })
 ) {}
 
@@ -187,6 +195,12 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     );
     const info = yield* engine.info;
     const model = yield* engine.summarize(spec.model);
+    if (model.partOverlaps > 0 && !request.allowPartOverlaps) {
+      return yield* DrawingError.make({
+        reason: "geometry",
+        message: `${model.partOverlaps} pair(s) of parts overlap; fix the model so parts only touch, or set allowPartOverlaps to render anyway.`,
+      });
+    }
     const views = [...A.map(spec.figures, (f) => f.view), ...A.map(spec.omissions, (o) => o.omitted)];
     const cameras = A.map(views, (view) => cameraForView({ view, box: model.boundingBox }));
     const projected = yield* engine.project(spec.model, cameras, O.none());

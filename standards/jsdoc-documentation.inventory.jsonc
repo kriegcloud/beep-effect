@@ -189497,8 +189497,8 @@
           "exportKind": "interface",
           "filePath": "src/FigureSet.service.ts",
           "repoPath": "packages/foundation/capability/technical-drawing/src/FigureSet.service.ts",
-          "line": 92,
-          "anchor": "packages-foundation-capability-technical-drawing-src-figureset-service-ts-92-figuresetshape",
+          "line": 100,
+          "anchor": "packages-foundation-capability-technical-drawing-src-figureset-service-ts-100-figuresetshape",
           "currentTags": [
             "@category",
             "@since"
@@ -189525,8 +189525,8 @@
           "exportKind": "class",
           "filePath": "src/FigureSet.service.ts",
           "repoPath": "packages/foundation/capability/technical-drawing/src/FigureSet.service.ts",
-          "line": 329,
-          "anchor": "packages-foundation-capability-technical-drawing-src-figureset-service-ts-329-figureset",
+          "line": 343,
+          "anchor": "packages-foundation-capability-technical-drawing-src-figureset-service-ts-343-figureset",
           "currentTags": [
             "@category",
             "@since"
@@ -190851,8 +190851,8 @@
           "exportKind": "class",
           "filePath": "src/Sheet.schemas.ts",
           "repoPath": "packages/foundation/capability/technical-drawing/src/Sheet.schemas.ts",
-          "line": 195,
-          "anchor": "packages-foundation-capability-technical-drawing-src-sheet-schemas-ts-195-sheetoptions",
+          "line": 211,
+          "anchor": "packages-foundation-capability-technical-drawing-src-sheet-schemas-ts-211-sheetoptions",
           "currentTags": [
             "@category",
             "@since"

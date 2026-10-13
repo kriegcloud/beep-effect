@@ -176,9 +176,25 @@ export const MARGINS_CM = { top: 2.5, left: 2.5, right: 1.5, bottom: 1.0 } as co
  */
 export const MIN_LETTER_HEIGHT_CM = 0.32;
 
+// Smallest visible gap between broken-line dashes, after the round caps eat
+// half the line weight from each side. 0.4 mm survives two-thirds reduction.
+// The tolerance keeps decimal inputs such as 1.2 - 0.8 on the right side of
+// the floor despite binary rounding.
+const MIN_VISIBLE_BROKEN_GAP_MM = 0.4;
+const GAP_TOLERANCE_MM = 1e-9;
+
+const brokenGapStaysOpen = (options: { readonly brokenGapMm: number; readonly lineWeightMm: number }): boolean =>
+  options.brokenGapMm - options.lineWeightMm >= MIN_VISIBLE_BROKEN_GAP_MM - GAP_TOLERANCE_MM;
+
 /**
  * Sheet options of a render: format, line weight, lettering, inner safety
  * gap, shading pitches, and the broken-line dash pattern.
+ *
+ * **Gotchas**
+ *
+ * Round caps eat half the line weight from each end of a dash, so the options
+ * are refused unless `brokenGapMm - lineWeightMm` is at least 0.4 mm;
+ * otherwise a broken (unclaimed) outline would print as a solid line.
  *
  * **Example** (Defaults)
  *
@@ -193,7 +209,7 @@ export const MIN_LETTER_HEIGHT_CM = 0.32;
  * @since 0.0.0
  */
 export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
-  {
+  S.Struct({
     format: SheetFormat.pipe(
       S.withConstructorDefault(Effect.succeed("letter" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("letter" as const)),
@@ -322,7 +338,14 @@ export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
           "Gap between dashes of broken (unclaimed) lines, in mm on the sheet, measured before the round caps. Defaults to 1.5.",
       })
     ),
-  },
+  }).check(
+    S.makeFilter(brokenGapStaysOpen, {
+      identifier: $I`SheetOptionsBrokenGapCheck`,
+      title: "Broken-Line Visible Gap",
+      description: `Round caps add half the line weight to each end of every dash, so the visible broken-line gap is brokenGapMm minus lineWeightMm; it must stay at least ${MIN_VISIBLE_BROKEN_GAP_MM} mm or the unclaimed outline prints as a solid (claimed) line.`,
+      message: `Expected the broken-line gap minus the line weight to be at least ${MIN_VISIBLE_BROKEN_GAP_MM} mm`,
+    })
+  ),
   $I.annote("SheetOptions", {
     description:
       "Page format, stroke and shading widths, shading pitch range, broken-line dash pattern, lettering height, and margin safety gap of a render.",

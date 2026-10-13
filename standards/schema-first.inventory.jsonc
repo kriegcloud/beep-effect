@@ -210,6 +210,22 @@
       "reason": "Live obs-websocket connection handle, not data: events is a Stream, subscribeEvents is a scoped Effect, and request is an Effectful call. Only the hello and identified payloads are schema-backed (ObsHello, ObsIdentified); the handle itself has no decode or persistence boundary."
     },
     {
+      "file": "packages/drivers/occt/src/internal/kernel.ts",
+      "symbol": "BuiltModel",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/occt",
+      "reason": "Internal kernel carrier of replicad WASM shape handles (optional solid and broken-line Shape3D compounds); not data, never encoded or persisted."
+    },
+    {
+      "file": "packages/drivers/occt/src/internal/kernel.ts",
+      "symbol": "BuiltPart",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/occt",
+      "reason": "Internal kernel carrier of replicad WASM shape handles (one Shape3D plus its line style); not data, never encoded or persisted."
+    },
+    {
       "file": "packages/drivers/wink/src/Wink.service.ts",
       "symbol": "WinkEngineRuntimeState",
       "kind": "exported-type-literal",
