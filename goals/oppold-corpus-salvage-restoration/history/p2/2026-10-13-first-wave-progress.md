@@ -136,3 +136,15 @@ preflight and a full sixty-second interval. Retain the frozen launcher,
 engines and all nine pre-launch manifests. No package source changed.
 Reversal: revert the packet continuation decision while retaining every
 sealed family, output and freeze record. P2 remains in-progress and incomplete.
+
+
+### Run-12 continuation blocked before ordinal 3
+
+Two families are accepted and reconciled; seven remain unstarted. Renewed
+engine smokes and focused proof remained unadmitted for approximately twenty
+minutes. Worker-owned queued commands were terminated without execution proof;
+no outside job or admission policy changed. No family unit is active, and
+ordinal 3 has no run directory or stamps. Resume renewed preflight through
+beep-heavy, a full sixty-second interval and the same frozen script at ordinal 3.
+P2 remains incomplete; retain all families and freeze records. This is an
+admission blocker, not a failed or retried family.

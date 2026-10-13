@@ -948,3 +948,21 @@ failure; never retry a sealed family or change code inside this wave.
 Reversal: revert this packet continuation decision while retaining all
 ledgers, outputs and freeze records. P2 stays incomplete; eighteen larger
 occurrences and remaining estate, recycle and legacy-Word obligations remain open.
+
+
+### 2026-10-13: bounded handoff on shared admission delay
+
+Renewed engine smokes and focused proof remained queued for approximately
+20 minutes after family 2 reconciled. Neither command emitted an execution
+result. Admission holders were live jobs; no outside job, slot limit or
+configuration was changed. Both worker-owned queued command trees were
+terminated before handoff, without admitting ordinal 3 or changing its script.
+Termination statuses are not proof of an engine smoke or test execution.
+
+Decision: report shared admission as a continuation blocker instead of
+holding a worker indefinitely or bypassing the required preflight. Family 2
+is accepted; two of nine are sealed. Ordinal 3 has no started/result stamp
+or run directory. P2 remains in-progress. Reversal: resume renewed preflight
+through beep-heavy, wait a full sixty-second interval, and launch the unchanged
+frozen script with ordinal 3 after all checks pass. Retain every sealed family,
+output and pre-launch freeze record. No family failure or retry is claimed.

@@ -332,3 +332,32 @@ P0 current sealed-run counts: 755 directory passes, 10,696 file passes,
 four inherited losses, one preflight and one seal. All nine member source
 identities and precomputed policy digests revalidate; next family run root
 and stamps absent. Preserve the existing source head during the wave.
+
+
+## Run-12 — shared admission blocker before ordinal 3
+
+Family 2 accepted reconciliation was committed locally at 9b30ad1ade.
+Both renewed preflight commands remained queued for approximately twenty
+minutes, reporting all five shared slots busy. Admission owners were live;
+no outside process, slot limit, unit or configuration was changed. Terminated
+only the two worker-owned queued command trees before handoff. One wrapper
+exited 143 and the other 0 without test output; neither status is claimed as
+execution proof. Renewed smokes and focused proof remain unperformed on this
+resume. Prior passing run-11 evidence is retained, with unchanged source and
+engine identities, but does not replace the renewed check.
+
+Two of nine families sealed and accepted. No family unit is active. Ordinal 3
+has no run directory or started/result stamp; ordinals 3-9 remain unstarted.
+The required full sixty-second interval was completed. Stop here on shared
+admission, without starting or retrying any family. P2 stays incomplete.
+Resume by re-running preflight through beep-heavy, retaining all frozen
+identities and the 100 GB floor, then a full sixty-second interval and the
+same launcher with ordinal 3. Reversal: resume that unchanged continuation;
+retain every sealed family, output and pre-launch manifest.
+
+Packet verification: launcher within 4,000 characters, manifest parses,
+goals index matches, adoption zero conflicts, doctor zero blockers and the
+same three unrelated advisories. Knowledge refs passed at 9b30ad1ade with
+zero live gated observations. No package source edited; all package parity
+producers except knowledge refs are not run for this docs-only continuation.
+Graft estimated 71,228 tokens saved across two retrievals.
