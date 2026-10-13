@@ -129,15 +129,20 @@ const shadingFor = (input: {
   );
 };
 
+// Everything a sheet draws for a view: solid outlines plus broken-line parts.
+const drawnSegments = (edges: EdgeSet): ReadonlyArray<Segment2> => [...edges.visible, ...edges.broken];
+
 const proveOmission = (claim: OmissionClaim, shown: EdgeSet, omitted: EdgeSet): OmissionProof =>
   OmissionProof.make({
     omitted: claim.omitted,
     shown: claim.shown,
     relation: claim.relation,
-    proven: sameSegments({
-      left: claim.relation === "identical" ? shown.visible : mirrorSegments(shown.visible),
-      right: omitted.visible,
-    }),
+    proven:
+      A.length(shown.broken) === A.length(omitted.broken) &&
+      sameSegments({
+        left: claim.relation === "identical" ? drawnSegments(shown) : mirrorSegments(drawnSegments(shown)),
+        right: drawnSegments(omitted),
+      }),
   });
 
 const makeService = Effect.fn("FigureSet.makeService")(function* () {
@@ -223,7 +228,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
             });
       })
     );
-    const scale = commonScale({ views: A.map(figureEdges, (e) => e.visible), options: request.sheet });
+    const scale = commonScale({ views: A.map(figureEdges, drawnSegments), options: request.sheet });
     const shading = yield* shadingFor({
       request,
       scale,
@@ -246,6 +251,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
         const svg = composeSheet({
           segments: edges.visible,
           shading: shadingLines,
+          broken: edges.broken,
           figure: index + 1,
           sheet: index + 1,
           sheets,
@@ -265,6 +271,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           svgSha256: yield* sha256(svgBytes),
           visibleSegments: A.length(edges.visible),
           shadingSegments: A.length(shadingLines),
+          brokenSegments: A.length(edges.broken),
         });
       })
     );

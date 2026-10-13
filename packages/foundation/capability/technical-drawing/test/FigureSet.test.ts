@@ -37,6 +37,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 
@@ -64,11 +65,13 @@ const fakeEngine = Layer.succeed(
         edgeCount: 12,
       });
     }),
-    project: Effect.fnUntraced(function* (_, cameras, shading) {
-      // shaded projections carry one diagonal hatch line per view
+    project: Effect.fnUntraced(function* (model, cameras, shading) {
+      // shaded projections carry one diagonal hatch line per view; a model
+      // with a broken-line part carries one broken segment per view
       const hatch = O.match(shading, { onNone: () => [], onSome: () => [[1, 1, 4, 4] as const] });
+      const broken = A.some(model.parts, (part) => part.lineStyle === "broken") ? [[2, 1, 8, 1] as const] : [];
       return A.map(cameras, (camera) =>
-        EdgeSet.make({ visible: camera.eye[1] > 0 ? shifted : square, hidden: [], shading: hatch })
+        EdgeSet.make({ visible: camera.eye[1] > 0 ? shifted : square, hidden: [], shading: hatch, broken })
       );
     }),
   })
@@ -125,15 +128,18 @@ const fakeBackend = (pageCount: { current: number }) =>
     })
   );
 
+const body = { name: "body", add: [{ kind: "box", min: [0, 0, 0], max: [10, 5, 5] }] };
+
 const spec = (
   figures: ReadonlyArray<{ view: string; description: string }>,
   omissions: ReadonlyArray<unknown> = [],
-  extra: Readonly<Record<string, string>> = {}
+  extra: Readonly<Record<string, string>> = {},
+  part: Readonly<Record<string, unknown>> = body
 ) =>
   JSON.stringify({
     ...extra,
     title: "Synthetic block",
-    model: { parts: [{ name: "body", add: [{ kind: "box", min: [0, 0, 0], max: [10, 5, 5] }] }] },
+    model: { parts: [part] },
     figures,
     omissions,
   });
@@ -167,6 +173,43 @@ describe("@beep/technical-drawing", () => {
           expect(y).toBeGreaterThanOrEqual(2.5 * 28.3464);
           expect(y).toBeLessThanOrEqual(792 - 1.0 * 28.3464);
         }
+      })
+    );
+
+    it.effect(
+      "composeSheet adds a dashed broken layer only when broken lines exist",
+      Effect.fnUntraced(function* () {
+        const options = SheetOptions.make({});
+        const base = { segments: square, figure: 1, sheet: 1, sheets: 1, scale: 20, options } as const;
+        const plain = composeSheet({ ...base, shading: [] });
+        // an empty broken layer leaves the sheet byte-identical
+        expect(composeSheet({ ...base, shading: [], broken: [] })).toBe(plain);
+        expect(plain).not.toContain('id="broken"');
+        expect(plain).not.toContain("stroke-dasharray");
+        const withBroken = composeSheet({ ...base, shading: [[1, 1, 4, 4]], broken: [[2, 1, 8, 1]] });
+        // 3 mm dashes, 1.5 mm gaps, the outline weight, between shading and figure
+        expect(withBroken).toContain(
+          'stroke-width="0.992" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8.504 4.252"/>'
+        );
+        const order = A.map(['id="labels"', 'id="shading"', 'id="broken"', 'id="figure"'], (id) =>
+          withBroken.indexOf(id)
+        );
+        expect(order).toEqual(A.sort(order, Order.Number));
+        expect(A.every(order, (index) => index > 0)).toBe(true);
+        const custom = composeSheet({
+          ...base,
+          shading: [],
+          broken: [[2, 1, 8, 1]],
+          options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 1 }),
+        });
+        expect(custom).toContain('stroke-dasharray="5.669 2.835"');
+        // broken lines inside the outline do not move it; outside it they re-centre the view
+        const figureOf = (svg: string) => svg.slice(svg.indexOf('<path id="figure"'));
+        expect(figureOf(withBroken)).toBe(figureOf(plain));
+        expect(figureOf(composeSheet({ ...base, shading: [], broken: [[-10, 0, 0, 0]] }))).not.toBe(figureOf(plain));
+        expect(SheetOptions.make({}).brokenGapMm).toBe(1.5);
+        expect(() => SheetOptions.make({ brokenDashMm: 0.5 })).toThrow();
+        expect(() => SheetOptions.make({ brokenGapMm: 0.5 })).toThrow();
       })
     );
 
@@ -382,6 +425,35 @@ describe("@beep/technical-drawing", () => {
           // 0.2 mm shading under 0.35 mm outlines
           expect(shadedSvg).toContain('stroke-width="0.567"');
           expect(shadedSvg).toContain('stroke-width="0.992"');
+        })
+      );
+
+      it.effect(
+        "draws broken-line parts as a dashed layer, counts them, and proves omissions over both layers",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const service = yield* FigureSet;
+          const figures = [{ view: "front", description: "is a front elevation view" }];
+          const omissions = [{ omitted: "left", shown: "front", relation: "identical" }];
+          const render = Effect.fnUntraced(function* (name: string, text: string) {
+            const specPath = path.join(dir, `${name}.json`);
+            yield* fs.writeFileString(specPath, text);
+            const out = path.join(dir, name);
+            const manifest = yield* service.render(RenderRequest.make({ specPath, outputDir: out, validate: false }));
+            return { manifest, svg: yield* fs.readFileString(path.join(out, "fig-1.svg")) };
+          });
+          const solid = yield* render("solid", spec(figures, omissions));
+          const broken = yield* render("broken", spec(figures, omissions, {}, { ...body, lineStyle: "broken" }));
+          expect(A.map(solid.manifest.figures, (f) => f.brokenSegments)).toEqual([0]);
+          expect(A.map(broken.manifest.figures, (f) => f.brokenSegments)).toEqual([1]);
+          expect(solid.svg).not.toContain('id="broken"');
+          expect(broken.svg).toContain('<path id="broken"');
+          expect(broken.svg).toContain('stroke-dasharray="8.504 4.252"');
+          expect(A.map(broken.manifest.omissions, (o) => o.proven)).toEqual([true]);
+          // the broken segment lies inside the outline, so the scale is unchanged
+          expect(broken.manifest.scale).toBe(solid.manifest.scale);
         })
       );
 

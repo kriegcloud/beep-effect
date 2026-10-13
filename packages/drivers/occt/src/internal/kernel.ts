@@ -7,18 +7,17 @@
  */
 
 import { A, N, O } from "@beep/utils";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Order from "effect/Order";
 import * as replicad from "replicad";
 import { OcctError } from "../Occt.errors.ts";
 import { BoundingBox, EdgeSet, ModelSummary, Primitive } from "../Occt.models.ts";
 import { hatchCompound } from "./shading.ts";
 import { cross } from "./vector.ts";
-import type { OpenCascadeInstance } from "replicad-opencascadejs";
-import type { Camera, ModelSpec, Rotation, Segment2, ShadingPlan } from "../Occt.models.ts";
+import type { HLRBRep_HLRToShape, OpenCascadeInstance, TopoDS_Shape } from "replicad-opencascadejs";
+import type { Camera, ModelSpec, PartLineStyle, Rotation, Segment2, ShadingPlan } from "../Occt.models.ts";
 
 type Shape3D = replicad.Shape3D;
-type AnyShape = replicad.AnyShape;
 
 const CURVE_SAMPLES = 24;
 const DECIMALS = 3;
@@ -69,39 +68,140 @@ const buildPart = (add: ReadonlyArray<Primitive>, subtract: ReadonlyArray<Primit
 };
 
 /**
- * Build every part of a spec and keep them as separate solids in one compound.
+ * One built part and the line style it is drawn in.
  *
  * @internal
  */
-export const buildCompound = (spec: ModelSpec): { readonly compound: Shape3D } => {
-  const parts = spec.parts.map((part) => buildPart(part.add, part.subtract));
-  const compound = A.length(parts) === 1 ? parts[0] : replicad.makeCompound(parts);
+export interface BuiltPart {
+  readonly lineStyle: PartLineStyle;
+  readonly shape: Shape3D;
+}
+
+/**
+ * The parts of a model gathered by line style: the solid (claimed) parts and
+ * the broken-line (unclaimed) parts, each as one solid or compound, or none.
+ *
+ * @internal
+ */
+export interface BuiltModel {
+  readonly broken: O.Option<Shape3D>;
+  readonly solid: O.Option<Shape3D>;
+}
+
+/**
+ * Build every part of a spec as its own solid, in spec order.
+ *
+ * @internal
+ */
+export const buildParts = (spec: ModelSpec): ReadonlyArray<BuiltPart> =>
+  A.map(spec.parts, (part) => ({ lineStyle: part.lineStyle, shape: buildPart(part.add, part.subtract) }));
+
+const compoundOf = (shapes: ReadonlyArray<Shape3D>): O.Option<Shape3D> => {
+  if (A.length(shapes) === 0) {
+    return O.none();
+  }
+  const compound = A.length(shapes) === 1 ? shapes[0] : replicad.makeCompound([...shapes]);
   if (!(compound instanceof replicad.Compound || compound instanceof replicad.Solid)) {
     throw OcctError.make({ reason: "solid-build", message: "The parts did not form a solid or a compound." });
   }
-  return { compound };
+  return O.some(compound);
+};
+
+const shapesIn = (parts: ReadonlyArray<BuiltPart>, lineStyle: PartLineStyle): ReadonlyArray<Shape3D> =>
+  pipe(
+    parts,
+    A.filter((part) => part.lineStyle === lineStyle),
+    A.map((part) => part.shape)
+  );
+
+/**
+ * Gather built parts into one compound per line style.
+ *
+ * **Details**
+ *
+ * `makeCompound` disposes the part shapes it is given, so each part goes into
+ * exactly one compound and must not be read afterwards. With no broken parts
+ * the solid compound is exactly the compound the kernel always built.
+ *
+ * @internal
+ */
+export const compoundParts = (parts: ReadonlyArray<BuiltPart>): BuiltModel => ({
+  solid: compoundOf(shapesIn(parts, "solid")),
+  broken: compoundOf(shapesIn(parts, "broken")),
+});
+
+/**
+ * Build every part of a spec and gather them into one compound per line style.
+ *
+ * @internal
+ */
+export const buildCompound: (spec: ModelSpec) => BuiltModel = flow(buildParts, compoundParts);
+
+// Common volume, in cubic model units, above which two parts overlap. Parts
+// modelled to touch (zero clearance) share only a face, whose volume is zero
+// up to the boolean's numerical noise.
+const OVERLAP_TOLERANCE = 1e-6;
+
+const boxesMeet = (a: Shape3D, b: Shape3D): boolean => {
+  const [aMin, aMax] = a.boundingBox.bounds;
+  const [bMin, bMax] = b.boundingBox.bounds;
+  return A.every([0, 1, 2] as const, (i) => aMin[i] < bMax[i] && bMin[i] < aMax[i]);
+};
+
+const commonVolume = (a: Shape3D, b: Shape3D): number => {
+  const common = a.intersect(b);
+  try {
+    return replicad.measureVolume(common);
+  } finally {
+    common.delete();
+  }
 };
 
 /**
- * Measure a built compound.
+ * Count the pairs of parts whose common volume exceeds the overlap tolerance.
+ *
+ * **Details**
+ *
+ * Reads the part shapes, so it must run before {@link compoundParts} disposes
+ * them. Pairs whose bounding boxes do not meet are skipped without a boolean.
+ *
+ * @internal
+ */
+export const countOverlaps = (parts: ReadonlyArray<BuiltPart>): number =>
+  pipe(
+    parts,
+    A.flatMap((a, i) => A.map(A.drop(parts, i + 1), (b) => [a.shape, b.shape] as const)),
+    A.filter(([a, b]) => boxesMeet(a, b) && commonVolume(a, b) > OVERLAP_TOLERANCE),
+    A.length
+  );
+
+/**
+ * Measure a built model.
  *
  * **Details**
  *
  * `makeCompound` disposes the part shapes it is given, so every measurement
- * reads the compound, never the parts.
+ * reads the compounds, never the parts: volumes and topology counts are
+ * summed and the bounding boxes are unioned. With only solid parts this is
+ * the single compound's measurement.
  *
  * @internal
  */
-export const summarize = (built: ReturnType<typeof buildCompound>): ModelSummary => {
-  const [min, max] = built.compound.boundingBox.bounds;
+export const summarize = (input: { readonly built: BuiltModel; readonly partOverlaps: number }): ModelSummary => {
+  const shapes = [...O.toArray(input.built.solid), ...O.toArray(input.built.broken)];
+  const bounds = A.map(shapes, (shape) => shape.boundingBox.bounds);
+  const lowest = (axis: 0 | 1 | 2) => round(Math.min(...A.map(bounds, ([min]) => min[axis])));
+  const highest = (axis: 0 | 1 | 2) => round(Math.max(...A.map(bounds, ([, max]) => max[axis])));
+  const sum = (measure: (shape: Shape3D) => number) => A.reduce(shapes, 0, (total, shape) => total + measure(shape));
   return ModelSummary.make({
     boundingBox: BoundingBox.make({
-      min: [round(min[0]), round(min[1]), round(min[2])],
-      max: [round(max[0]), round(max[1]), round(max[2])],
+      min: [lowest(0), lowest(1), lowest(2)],
+      max: [highest(0), highest(1), highest(2)],
     }),
-    volume: round(replicad.measureVolume(built.compound)),
-    faceCount: built.compound.faces.length,
-    edgeCount: built.compound.edges.length,
+    volume: round(sum(replicad.measureVolume)),
+    faceCount: sum((shape) => shape.faces.length),
+    edgeCount: sum((shape) => shape.edges.length),
+    partOverlaps: input.partOverlaps,
   });
 };
 
@@ -181,43 +281,72 @@ const toSegments = (edges: ReadonlyArray<replicad.Edge>): ReadonlyArray<Segment2
     A.sort(segmentOrder)
   );
 
+const visibleEdges = (shapes: HLRBRep_HLRToShape, own: TopoDS_Shape, oc: OpenCascadeInstance) => [
+  ...edgesOf(shapes.VCompound(own), oc),
+  ...edgesOf(shapes.Rg1LineVCompound(own), oc),
+  ...edgesOf(shapes.OutLineVCompound(own), oc),
+];
+
 /**
  * Run exact hidden-line removal for one camera and return canonical segments.
+ *
+ * **Details**
+ *
+ * The solid compound, the broken-line compound, and the hatch are added to
+ * one hidden-line pass, so every part hides what lies behind it whatever its
+ * style. Each shape's edges are then read on their own: the solid
+ * compound's visible (and, on request, hidden) edges, the broken compound's
+ * visible edges only, and the hatch's visible edges. Only solid parts are
+ * hatched. With no broken parts the pass is the one the kernel always ran.
  *
  * @internal
  */
 export const project = (options: {
   readonly oc: OpenCascadeInstance;
-  readonly compound: AnyShape;
+  readonly built: BuiltModel;
   readonly camera: Camera;
   readonly withHidden: boolean;
   readonly shading: O.Option<ShadingPlan>;
 }): EdgeSet => {
-  const { oc, compound, camera, withHidden } = options;
-  const hatch = O.flatMap(options.shading, (plan) => hatchCompound({ oc, shape: compound, camera, plan }));
+  const { oc, built, camera, withHidden } = options;
+  const hatch = O.flatMap(built.solid, (shape) =>
+    O.flatMap(options.shading, (plan) => hatchCompound({ oc, shape, camera, plan }))
+  );
   const algo = new oc.HLRBRep_Algo();
-  algo.Add(compound.wrapped, 0);
-  O.map(hatch, (shape) => algo.Add(shape.wrapped, 0));
+  A.forEach([built.solid, built.broken, hatch], (shape) => O.map(shape, (s) => algo.Add(s.wrapped, 0)));
   algo.Projector(makeProjector(oc, camera));
   algo.Update();
   algo.Hide();
   const shapes = new oc.HLRBRep_HLRToShape(algo);
-  const own = compound.wrapped;
-  const visible = [
-    ...edgesOf(shapes.VCompound(own), oc),
-    ...edgesOf(shapes.Rg1LineVCompound(own), oc),
-    ...edgesOf(shapes.OutLineVCompound(own), oc),
-  ];
-  const hidden = withHidden
-    ? [
-        ...edgesOf(shapes.HCompound(own), oc),
-        ...edgesOf(shapes.Rg1LineHCompound(own), oc),
-        ...edgesOf(shapes.OutLineHCompound(own), oc),
-      ]
-    : [];
+  const visible = O.match(built.solid, {
+    onNone: A.empty<replicad.Edge>,
+    onSome: (s) => visibleEdges(shapes, s.wrapped, oc),
+  });
+  const hidden = O.match(
+    O.filter(built.solid, () => withHidden),
+    {
+      onNone: A.empty<replicad.Edge>,
+      onSome: (s) => [
+        ...edgesOf(shapes.HCompound(s.wrapped), oc),
+        ...edgesOf(shapes.Rg1LineHCompound(s.wrapped), oc),
+        ...edgesOf(shapes.OutLineHCompound(s.wrapped), oc),
+      ],
+    }
+  );
+  // Broken lines mark unclaimed matter (37 CFR 1.152), never hidden lines:
+  // only the broken compound's visible edges are read.
+  const broken = O.match(built.broken, {
+    onNone: A.empty<replicad.Edge>,
+    onSome: (s) => visibleEdges(shapes, s.wrapped, oc),
+  });
   const shading = O.match(hatch, {
-    onNone: () => [],
+    onNone: A.empty<replicad.Edge>,
     onSome: (shape) => edgesOf(shapes.VCompound(shape.wrapped), oc),
   });
-  return EdgeSet.make({ visible: toSegments(visible), hidden: toSegments(hidden), shading: toSegments(shading) });
+  return EdgeSet.make({
+    visible: toSegments(visible),
+    hidden: toSegments(hidden),
+    shading: toSegments(shading),
+    broken: toSegments(broken),
+  });
 };

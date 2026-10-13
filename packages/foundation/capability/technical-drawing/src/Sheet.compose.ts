@@ -356,6 +356,20 @@ export const commonScale = (input: {
 /**
  * Compose one sheet.
  *
+ * **Details**
+ *
+ * Layers are emitted in drawing order: labels, shading, broken lines, then
+ * the figure outlines. The view is centred on the extents of the outlines
+ * and the broken lines together. The shading and broken layers are written
+ * only when non-empty, so a sheet without them is byte-identical to one
+ * composed before those layers existed.
+ *
+ * **Gotchas**
+ *
+ * SVG restarts the dash pattern at every subpath, and each segment is its own
+ * subpath, so a curved broken edge sampled into short segments reads as a
+ * row of short dashes.
+ *
  * **Example** (A sheet with one segment)
  *
  * ```ts
@@ -367,12 +381,25 @@ export const commonScale = (input: {
  * console.log(svg.startsWith("<svg"))
  * ```
  *
+ * **Example** (A sheet with a broken-line part)
+ *
+ * ```ts
+ * import { SheetOptions, composeSheet } from "@beep/technical-drawing"
+ *
+ * const svg = composeSheet({
+ *   segments: [[0, 0, 40, 0]], shading: [], broken: [[10, 5, 30, 5]],
+ *   figure: 1, sheet: 1, sheets: 1, scale: 5, options: SheetOptions.make({})
+ * })
+ * console.log(svg.includes("stroke-dasharray"))
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
 export const composeSheet = (input: {
   readonly segments: ReadonlyArray<Segment2>;
   readonly shading: ReadonlyArray<Segment2>;
+  readonly broken?: ReadonlyArray<Segment2> | undefined;
   readonly figure: number;
   readonly sheet: number;
   readonly sheets: number;
@@ -380,9 +407,10 @@ export const composeSheet = (input: {
   readonly options: SheetOptions;
 }): string => {
   const { segments, scale, options } = input;
+  const broken = input.broken ?? A.empty<Segment2>();
   const { page, cap, sight, figure } = sheetGeometry(options);
   const stroke = options.lineWeightMm * PT_PER_MM;
-  const extents = viewExtents(segments);
+  const extents = viewExtents([...segments, ...broken]);
   const drawnW = (extents.maxX - extents.minX) * scale;
   const drawnH = (extents.maxY - extents.minY) * scale;
   const originX = (figure.left + figure.right) / 2 - drawnW / 2;
@@ -422,10 +450,14 @@ export const composeSheet = (input: {
     A.length(input.shading) === 0
       ? []
       : [`<path id="shading" d="${pathOf(input.shading)}" ${attrsFor(options.shadingWeightMm * PT_PER_MM)}/>`];
+  const dash = `${r3(options.brokenDashMm * PT_PER_MM)} ${r3(options.brokenGapMm * PT_PER_MM)}`;
+  const brokenLayer =
+    A.length(broken) === 0 ? [] : [`<path id="broken" d="${pathOf(broken)}" ${attrs} stroke-dasharray="${dash}"/>`];
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${r3(page.width)}pt" height="${r3(page.height)}pt" viewBox="0 0 ${r3(page.width)} ${r3(page.height)}">`,
     `<path id="labels" d="${labelPath}" ${attrs}/>`,
     ...shadingLayer,
+    ...brokenLayer,
     `<path id="figure" d="${figurePath}" ${attrs}/>`,
     "</svg>",
     "",

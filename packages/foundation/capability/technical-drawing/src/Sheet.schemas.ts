@@ -177,7 +177,8 @@ export const MARGINS_CM = { top: 2.5, left: 2.5, right: 1.5, bottom: 1.0 } as co
 export const MIN_LETTER_HEIGHT_CM = 0.32;
 
 /**
- * Sheet options of a render: format, line weight, lettering, inner safety gap.
+ * Sheet options of a render: format, line weight, lettering, inner safety
+ * gap, shading pitches, and the broken-line dash pattern.
  *
  * **Example** (Defaults)
  *
@@ -294,9 +295,36 @@ export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
           "Exposure above which a face stays unshaded. Defaults to 0.55, just below a face seen square-on (1/√3 under the 45° light), so plans and elevations stay line drawings and only oblique faces are shaded.",
       })
     ),
+    brokenDashMm: S.Finite.check(
+      S.isGreaterThanOrEqualTo(1, {
+        identifier: $I`BrokenDashCheck`,
+        title: "Broken-Line Dash",
+        description: "Dashes shorter than 1 mm read as dots once the sheet is reduced to two-thirds.",
+        message: "Expected a broken-line dash of at least 1 mm",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(3)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(3)),
+      S.annotateKey({ description: "Dash length of broken (unclaimed) lines, in mm on the sheet. Defaults to 3." })
+    ),
+    brokenGapMm: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0.75, {
+        identifier: $I`BrokenGapCheck`,
+        title: "Broken-Line Gap",
+        description: "Gaps narrower than 0.75 mm close up once round line caps and two-thirds reduction are applied.",
+        message: "Expected a broken-line gap of at least 0.75 mm",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(1.5)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(1.5)),
+      S.annotateKey({
+        description:
+          "Gap between dashes of broken (unclaimed) lines, in mm on the sheet, measured before the round caps. Defaults to 1.5.",
+      })
+    ),
   },
   $I.annote("SheetOptions", {
     description:
-      "Page format, stroke and shading widths, shading pitch range, lettering height, and margin safety gap of a render.",
+      "Page format, stroke and shading widths, shading pitch range, broken-line dash pattern, lettering height, and margin safety gap of a render.",
   })
 ) {}
