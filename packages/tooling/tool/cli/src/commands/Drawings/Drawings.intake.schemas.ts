@@ -194,6 +194,9 @@ export class IntakeRequest extends S.Class<IntakeRequest>($I`IntakeRequest`)(
     maxBytes: PositiveInt.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_INTAKE_MAX_BYTES))).annotateKey({
       description: "Largest attachment to download; larger ones are skipped.",
     }),
+    includeOwn: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))).annotateKey({
+      description: "Let --pick choose the mailbox's own messages of a conversation; drafts are never chosen.",
+    }),
   },
   $I.annote("IntakeRequest", {
     description: "Request to pull one message's file attachments into a directory under the corpus root.",
@@ -248,6 +251,13 @@ export class IntakeAttachment extends S.Class<IntakeAttachment>($I`IntakeAttachm
 /**
  * Provenance facts of the pulled message.
  *
+ * **Details**
+ *
+ * Every field Graph may leave out is optional and written as `null`, so a
+ * message with an Exchange X500 sender address, or with no internet message
+ * id, still has its attachments pulled. `from` keeps the address as Graph
+ * reports it; `fromEmail` holds it normalised when it is an SMTP address.
+ *
  * **Example** (Message facts)
  *
  * ```ts
@@ -257,13 +267,14 @@ export class IntakeAttachment extends S.Class<IntakeAttachment>($I`IntakeAttachm
  *
  * const facts = MessageFacts.make({
  *   messageId: "AAMkAGI2",
- *   internetMessageId: "<id@mail.example.test>",
+ *   internetMessageId: O.some("<id@mail.example.test>"),
  *   conversationId: O.some("AAQkAGI2"),
- *   from: EmailString.make("sender@example.test"),
- *   receivedAt: "2026-10-10T12:00:00Z",
+ *   from: O.some("Sender@example.test"),
+ *   fromEmail: O.some(EmailString.make("sender@example.test")),
+ *   receivedAt: O.some("2026-10-10T12:00:00Z"),
  *   subject: "Sheets"
  * })
- * console.log(facts.from)
+ * console.log(facts.fromEmail)
  * ```
  *
  * @category models
@@ -272,10 +283,17 @@ export class IntakeAttachment extends S.Class<IntakeAttachment>($I`IntakeAttachm
 export class MessageFacts extends S.Class<MessageFacts>($I`MessageFacts`)(
   {
     messageId: S.String.annotateKey({ description: "Graph message id." }),
-    internetMessageId: S.String.annotateKey({ description: "RFC 5322 Message-ID." }),
+    internetMessageId: S.OptionFromNullOr(S.String).annotateKey({ description: "RFC 5322 Message-ID, if reported." }),
     conversationId: S.OptionFromNullOr(S.String).annotateKey({ description: "Graph conversation id, if reported." }),
-    from: EmailString.annotateKey({ description: "Sender address, normalised." }),
-    receivedAt: S.String.annotateKey({ description: "Receipt timestamp as Graph reports it." }),
+    from: S.OptionFromNullOr(S.String).annotateKey({
+      description: "Sender address as Graph reports it (SMTP or Exchange X500): `from`, else `sender`.",
+    }),
+    fromEmail: S.OptionFromNullOr(EmailString).annotateKey({
+      description: "The sender address normalised, when it is an SMTP address.",
+    }),
+    receivedAt: S.OptionFromNullOr(S.String).annotateKey({
+      description: "Receipt timestamp as Graph reports it, if reported.",
+    }),
     subject: S.String.annotateKey({ description: "Subject line; empty when the message has none." }),
   },
   $I.annote("MessageFacts", { description: "Provenance facts of the message a drawing intake pulled." })
@@ -296,10 +314,11 @@ export class MessageFacts extends S.Class<MessageFacts>($I`MessageFacts`)(
  *   mailbox: "mailbox@example.test",
  *   message: MessageFacts.make({
  *     messageId: "AAMkAGI2",
- *     internetMessageId: "<id@mail.example.test>",
+ *     internetMessageId: O.some("<id@mail.example.test>"),
  *     conversationId: O.none(),
- *     from: EmailString.make("sender@example.test"),
- *     receivedAt: "2026-10-10T12:00:00Z",
+ *     from: O.some("Sender@example.test"),
+ *     fromEmail: O.some(EmailString.make("sender@example.test")),
+ *     receivedAt: O.some("2026-10-10T12:00:00Z"),
  *     subject: ""
  *   }),
  *   outDir: "/corpus/matter/inputs/round-2",
@@ -342,10 +361,11 @@ export class IntakeRecord extends S.Class<IntakeRecord>($I`IntakeRecord`)(
  *     mailbox: "mailbox@example.test",
  *     message: MessageFacts.make({
  *       messageId: "AAMkAGI2",
- *       internetMessageId: "<id@mail.example.test>",
+ *       internetMessageId: O.some("<id@mail.example.test>"),
  *       conversationId: O.none(),
- *       from: EmailString.make("sender@example.test"),
- *       receivedAt: "2026-10-10T12:00:00Z",
+ *       from: O.some("Sender@example.test"),
+ *       fromEmail: O.some(EmailString.make("sender@example.test")),
+ *       receivedAt: O.some("2026-10-10T12:00:00Z"),
  *       subject: ""
  *     }),
  *     outDir: "/corpus/in",
@@ -355,7 +375,7 @@ export class IntakeRecord extends S.Class<IntakeRecord>($I`IntakeRecord`)(
  *   recordPath: "/corpus/in/intake.json",
  *   conversationSize: O.none()
  * })
- * console.log(result.recordPath)
+ * console.log(result.setAside) // 0
  * ```
  *
  * @category models
@@ -366,7 +386,10 @@ export class IntakeResult extends S.Class<IntakeResult>($I`IntakeResult`)(
     record: IntakeRecord.annotateKey({ description: "The record that was written." }),
     recordPath: S.String.annotateKey({ description: "Absolute path of the record file." }),
     conversationSize: S.Option(S.Natural).annotateKey({
-      description: "Messages in the conversation when the item resolved as one; none for a message id.",
+      description: "Conversation messages --pick chose among when the item resolved as one; none for a message id.",
+    }),
+    setAside: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(0))).annotateKey({
+      description: "Conversation messages --pick never considered: drafts, and the mailbox's own mail unless included.",
     }),
   },
   $I.annote("IntakeResult", { description: "The intake record and where it was written." })

@@ -13,6 +13,8 @@ import {
   DrawingsCommandError,
   drawingIntakeLaneLayer,
   drawingsCommand,
+  IntakePick,
+  IntakePickFromString,
   IntakeRecord,
   IntakeRequest,
   runDrawingIntake,
@@ -31,6 +33,7 @@ import {
   deepStrictEqual,
   strictEqual,
 } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import { Command } from "effect/cli";
@@ -53,20 +56,48 @@ const SENDER = "reviewer@example.test";
 const NEXT_PAGE = "https://graph.microsoft.com/v1.0/users/drawings@example.test/messages?$skiptoken=page2";
 const encoder = new TextEncoder();
 
-const message = (id: string, conversationId: string, receivedDateTime: string) => ({
+const REVIEWER_RAW = "Reviewer@Example.test";
+// The mailbox's own address in another case, as Sent Items reports it.
+const OWN_RAW = "Drawings@Example.test";
+const X500_SENDER =
+  "/O=EXCHANGELABS/OU=EXCHANGE ADMINISTRATIVE GROUP (FYDIBOHF23SPDLT)/CN=RECIPIENTS/CN=SYNTHETIC-REVIEWER";
+
+const message = (id: string, conversationId: string, receivedDateTime: string, address = REVIEWER_RAW) => ({
   id,
   conversationId,
   receivedDateTime,
   internetMessageId: `<${id}@mail.example.test>`,
   subject: SUBJECT,
-  from: { emailAddress: { name: "Reviewer", address: "Reviewer@Example.test" } },
+  from: { emailAddress: { name: "Sender", address } },
 });
 
-const MESSAGES: Readonly<Record<string, ReturnType<typeof message>>> = {
+const MESSAGES: Readonly<Record<string, unknown>> = {
   AAMkMsgOld: message("AAMkMsgOld", CONVERSATION, "2026-10-09T10:00:00Z"),
   AAMkMsgNew: message("AAMkMsgNew", CONVERSATION, "2026-10-10T12:00:00Z"),
+  // Newer than the reviewer's reply: our own sheet delivery in Sent Items, and a pending outbox draft.
+  AAMkMsgOwn: message("AAMkMsgOwn", CONVERSATION, "2026-10-11T09:00:00Z", OWN_RAW),
+  AAMkMsgDraft: {
+    id: "AAMkMsgDraft",
+    conversationId: CONVERSATION,
+    isDraft: true,
+    subject: SUBJECT,
+    sender: { emailAddress: { address: MAILBOX } },
+    receivedDateTime: "2026-10-12T09:00:00Z",
+  },
   AAMkMsgSolo: message("AAMkMsgSolo", "PlainConv2", "2026-10-08T08:00:00Z"),
   AAQkMsgShaped: message("AAQkMsgShaped", "OtherConv", "2026-10-07T08:00:00Z"),
+  AAMkOnlyOwn: message("AAMkOnlyOwn", "OwnConv", "2026-10-06T08:00:00Z", OWN_RAW),
+  AAMkOnlyDraft: { id: "AAMkOnlyDraft", conversationId: "DraftConv", isDraft: true, subject: SUBJECT },
+  // A conversation-shaped message id whose conversation listing Graph refuses.
+  AAQkMsgBadList: message("AAQkMsgBadList", "OtherConv", "2026-10-05T08:00:00Z"),
+  // No sender at all.
+  AAMkMsgAnon: { id: "AAMkMsgAnon", subject: SUBJECT },
+  // An internal sender Graph reports as an Exchange X500 address, with no Message-ID or receipt time.
+  AAMkMsgX500: {
+    id: "AAMkMsgX500",
+    subject: SUBJECT,
+    from: { emailAddress: { name: "Reviewer", address: X500_SENDER } },
+  },
 };
 
 const CONTENT: Readonly<Record<string, string>> = {
@@ -76,6 +107,9 @@ const CONTENT: Readonly<Record<string, string>> = {
   old1: "synthetic sheet one",
   oldCopy: "synthetic sheet one",
   shaped: "synthetic shaped",
+  own: "synthetic outbound sheet",
+  draft: "synthetic draft sheet",
+  x500: "synthetic internal sheet",
 };
 
 const file = (id: string, name: string, declared = true) => ({
@@ -97,6 +131,9 @@ const ATTACHMENTS: Readonly<Record<string, ReadonlyArray<unknown>>> = {
   ],
   AAMkMsgOld: [file("old1", "Fig1.pdf"), file("oldCopy", "Copy of Fig1.pdf")],
   AAQkMsgShaped: [file("shaped", "shaped.pdf")],
+  AAMkMsgOwn: [file("own", "Outbound.pdf")],
+  AAMkMsgDraft: [file("draft", "Draft.pdf")],
+  AAMkMsgX500: [file("x500", "Internal.pdf")],
 };
 
 const unused = Effect.fnUntraced(function* () {
@@ -118,7 +155,7 @@ const page = (value: ReadonlyArray<GraphMessage>, nextLink: O.Option<string>) =>
 const listing = Effect.fnUntraced(function* (request: M365ListMessagesRequest) {
   const decoded = (ids: ReadonlyArray<string>) => Effect.forEach(ids, (id) => decodeMessage(MESSAGES[id]));
   if (O.isSome(request.nextLink)) {
-    return page(yield* decoded(["AAMkMsgNew"]), O.none());
+    return page(yield* decoded(["AAMkMsgNew", "AAMkMsgDraft", "AAMkMsgOwn"]), O.none());
   }
   const filter = O.getOrElse(request.filter, () => "");
   if (filter === `conversationId eq '${CONVERSATION}'`) {
@@ -126,6 +163,18 @@ const listing = Effect.fnUntraced(function* (request: M365ListMessagesRequest) {
   }
   if (filter === "conversationId eq 'PlainConv2'") {
     return page(yield* decoded(["AAMkMsgSolo"]), O.none());
+  }
+  if (filter === "conversationId eq 'OwnConv'") {
+    return page(yield* decoded(["AAMkOnlyOwn"]), O.none());
+  }
+  if (filter === "conversationId eq 'DraftConv'") {
+    return page(yield* decoded(["AAMkOnlyDraft"]), O.none());
+  }
+  if (filter === "conversationId eq 'AAQkMsgBadList'") {
+    return yield* notFound(400);
+  }
+  if (filter === "conversationId eq 'AAQkGone'") {
+    return yield* notFound(404);
   }
   if (filter === "conversationId eq 'AAMkBadFilter'") {
     return yield* notFound(400);
@@ -206,6 +255,7 @@ const pullWith = (fields: {
   readonly corpusRoot: string;
   readonly pick?: number;
   readonly maxBytes?: number;
+  readonly includeOwn?: boolean;
 }) =>
   DrawingIntake.use((intake) =>
     intake.pull(
@@ -216,6 +266,7 @@ const pullWith = (fields: {
         corpusRoot: fields.corpusRoot,
         ...(fields.pick === undefined ? {} : { pick: fields.pick }),
         ...(fields.maxBytes === undefined ? {} : { maxBytes: fields.maxBytes }),
+        ...(fields.includeOwn === undefined ? {} : { includeOwn: fields.includeOwn }),
       })
     )
   );
@@ -227,7 +278,7 @@ const ServiceLayer = DrawingIntake.layer.pipe(Layer.provide(FakeM365), Layer.pro
 describe("DrawingIntake over a fake mailbox", () => {
   it.layer(ServiceLayer, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "saves the newest message of a conversation, skips inline and item attachments, and records sha256",
+      "saves the newest reviewer message of a conversation, skips inline and item attachments, and records sha256",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
@@ -235,8 +286,11 @@ describe("DrawingIntake over a fake mailbox", () => {
         const result = yield* pullWith({ ref: conversation, outDir: out, corpusRoot: root });
         const { record } = result;
         assertSome(result.conversationSize, 2);
+        strictEqual(result.setAside, 2);
         strictEqual(record.message.messageId, "AAMkMsgNew");
-        strictEqual(record.message.from, SENDER);
+        assertSome(record.message.from, REVIEWER_RAW);
+        assertSome(record.message.fromEmail, SENDER);
+        assertSome(record.message.internetMessageId, "<AAMkMsgNew@mail.example.test>");
         deepStrictEqual(
           A.map(record.attachments, (row) => row.outcome),
           ["saved", "saved", "skipped-inline", "skipped-item", "saved"]
@@ -281,6 +335,70 @@ describe("DrawingIntake over a fake mailbox", () => {
     );
 
     it.effect(
+      "sets drafts aside always and the mailbox's own mail unless included",
+      Effect.fnUntraced(function* () {
+        const { root, out } = yield* corpus();
+        const own = yield* pullWith({ ref: conversation, outDir: out, corpusRoot: root, includeOwn: true });
+        strictEqual(own.record.message.messageId, "AAMkMsgOwn");
+        assertSome(own.conversationSize, 3);
+        strictEqual(own.setAside, 1);
+        deepStrictEqual(
+          A.map(own.record.attachments, (row) => row.savedAs),
+          [O.some("Outbound.pdf")]
+        );
+        const onlyOwn = yield* Effect.flip(
+          pullWith({ ref: OutlookItemRef.cases.conversation.make({ id: "OwnConv" }), outDir: out, corpusRoot: root })
+        );
+        strictEqual(onlyOwn.reason, "refused");
+        assertInclude(onlyOwn.message, "--include-own");
+        const included = yield* pullWith({
+          ref: OutlookItemRef.cases.conversation.make({ id: "OwnConv" }),
+          outDir: out,
+          corpusRoot: root,
+          includeOwn: true,
+        });
+        strictEqual(included.record.message.messageId, "AAMkOnlyOwn");
+        const onlyDraft = yield* Effect.flip(
+          pullWith({
+            ref: OutlookItemRef.cases.conversation.make({ id: "DraftConv" }),
+            outDir: out,
+            corpusRoot: root,
+            includeOwn: true,
+          })
+        );
+        strictEqual(onlyDraft.reason, "refused");
+        assertInclude(onlyDraft.message, "all drafts; nothing to pull.");
+      })
+    );
+
+    it.effect(
+      "pulls a message whose sender is an Exchange X500 address and that has no Message-ID",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const { root, out } = yield* corpus();
+        const result = yield* pullWith({
+          ref: OutlookItemRef.cases.message.make({ id: "AAMkMsgX500" }),
+          outDir: out,
+          corpusRoot: root,
+        });
+        assertSome(result.record.message.from, X500_SENDER);
+        assertNone(result.record.message.fromEmail);
+        assertNone(result.record.message.internetMessageId);
+        assertNone(result.record.message.receivedAt);
+        deepStrictEqual(yield* listOut(out), ["Internal.pdf", "intake.json"]);
+        const written = yield* decodeRecord(yield* fs.readFileString(result.recordPath));
+        assertNone(written.message.internetMessageId);
+        const anonymous = yield* pullWith({
+          ref: OutlookItemRef.cases.message.make({ id: "AAMkMsgAnon" }),
+          outDir: out,
+          corpusRoot: root,
+        });
+        assertNone(anonymous.record.message.from);
+        assertNone(anonymous.record.message.fromEmail);
+      })
+    );
+
+    it.effect(
       "gives new bytes under a taken name a short-hash name and leaves the old file alone",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -297,7 +415,7 @@ describe("DrawingIntake over a fake mailbox", () => {
     );
 
     it.effect(
-      "falls back from message to conversation and from conversation to message",
+      "falls back between message and conversation, and reports a refused listing instead of not-found",
       Effect.fnUntraced(function* () {
         const { root, out } = yield* corpus();
         const viaConversation = yield* pullWith({
@@ -318,7 +436,22 @@ describe("DrawingIntake over a fake mailbox", () => {
           pullWith({ ref: OutlookItemRef.cases.message.make({ id: "AAMkBadFilter" }), outDir: out, corpusRoot: root })
         );
         assertInstanceOf(missing, DrawingIntakeError);
-        strictEqual(missing.reason, "not-found");
+        strictEqual(missing.reason, "mail");
+        assertInclude(missing.message, "Could not list the conversation's messages (response status 400)");
+        const absent = yield* Effect.flip(
+          pullWith({ ref: OutlookItemRef.cases.message.make({ id: "AAMkNowhere" }), outDir: out, corpusRoot: root })
+        );
+        strictEqual(absent.reason, "not-found");
+        const refusedListing = yield* pullWith({
+          ref: OutlookItemRef.cases.conversation.make({ id: "AAQkMsgBadList" }),
+          outDir: out,
+          corpusRoot: root,
+        });
+        strictEqual(refusedListing.record.message.messageId, "AAQkMsgBadList");
+        const gone = yield* Effect.flip(
+          pullWith({ ref: OutlookItemRef.cases.conversation.make({ id: "AAQkGone" }), outDir: out, corpusRoot: root })
+        );
+        strictEqual(gone.reason, "not-found");
       })
     );
 
@@ -411,10 +544,11 @@ describe("beep drawings intake", () => {
           out,
           corpusRoot: root,
           pick: "latest",
+          includeOwn: false,
         });
         const output = yield* logged;
         assertInclude(output, "intake: 5 attachment(s)");
-        assertInclude(output, "conversation of 2 message(s)");
+        assertInclude(output, "--pick chose among 2 message(s), newest first (2 draft or own message(s) set aside)");
         assertInclude(output, "Fig1.pdf  19 bytes  sha256 ");
         assertInclude(output, "skipped-inline");
         assertInclude(output, "record: ");
@@ -427,7 +561,14 @@ describe("beep drawings intake", () => {
       "refuses a bad --message, --pick or --mailbox before any mail call",
       Effect.fnUntraced(function* () {
         const { root, out } = yield* corpus();
-        const base = { message: CONVERSATION, mailbox: O.none(), out, corpusRoot: root, pick: "latest" };
+        const base = {
+          message: CONVERSATION,
+          mailbox: O.none(),
+          out,
+          corpusRoot: root,
+          pick: "latest",
+          includeOwn: false,
+        };
         const badMessage = yield* Effect.flip(runDrawingIntake({ ...base, message: "two words" }));
         assertInstanceOf(badMessage, DrawingsCommandError);
         const badPick = yield* Effect.flip(runDrawingIntake({ ...base, pick: "0" }));
@@ -475,4 +616,51 @@ describe("beep drawings intake", () => {
       })
     );
   });
+
+  // An empty environment, so the default prefix can never reach a live registration.
+  const emptyEnv = ConfigProvider.layer(ConfigProvider.fromEnv({ env: {} }));
+  it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer, emptyEnv), { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "the command defaults to the read-only docket-intake registration",
+      Effect.fnUntraced(function* () {
+        const { root, out } = yield* corpus();
+        const error = yield* Effect.flip(
+          Command.runWith(drawingsCommand, { version: "0.0.0" })([
+            "intake",
+            "--message",
+            CONVERSATION,
+            "--out",
+            out,
+            "--corpus-root",
+            root,
+          ])
+        );
+        assertInstanceOf(error, DrawingsCommandError);
+        assertInclude(error.message, "CLOUD_M365_DOCKET_TENANT_ID is not set");
+      })
+    );
+  });
+});
+
+describe("drawing intake codecs", () => {
+  it.effect.prop(
+    "round-trips arbitrary intake records through their JSON codec",
+    [Arbitrary.schema(IntakeRecord)],
+    Effect.fnUntraced(function* ([record]) {
+      const json = S.fromJsonString(IntakeRecord);
+      const decoded = yield* S.decodeEffect(json)(yield* S.encodeEffect(json)(record));
+      assertTrue(S.toEquivalence(IntakeRecord)(record, decoded));
+    }),
+    { arbitrary: { runs: 25 } }
+  );
+
+  it.effect.prop(
+    "round-trips arbitrary picks through the --pick text codec",
+    [Arbitrary.schema(IntakePick)],
+    Effect.fnUntraced(function* ([pick]) {
+      const decoded = yield* S.decodeEffect(IntakePickFromString)(yield* S.encodeEffect(IntakePickFromString)(pick));
+      strictEqual(decoded, pick);
+    }),
+    { arbitrary: { runs: 50 } }
+  );
 });

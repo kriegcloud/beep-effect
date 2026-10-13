@@ -340,10 +340,16 @@ const intakePickFlag = Flag.String("pick").pipe(
   Flag.withDefault("latest"),
   Flag.withDescription("For a conversation: latest, or n for the n-th newest message")
 );
+const intakeIncludeOwnFlag = Flag.Boolean("include-own").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("For a conversation: let --pick choose the mailbox's own sent mail (drafts are never chosen)")
+);
+// Intake only reads mail, so it defaults to the docket-intake registration (Mail.ReadWrite on the
+// attorney's mailbox, no Mail.Send) rather than the send-capable M365_OUTBOX one.
 const intakeEnvPrefixFlag = Flag.String("env-prefix").pipe(
-  Flag.withDefault("M365_OUTBOX"),
+  Flag.withDefault("CLOUD_M365_DOCKET"),
   Flag.withDescription(
-    "Prefix of the app-only settings: <PREFIX>_TENANT_ID, _CLIENT_ID, _CERT_THUMBPRINT_SHA256, _CERT_PRIVATE_KEY, _MAILBOX (run under op run)"
+    "Prefix of the app-only settings: <PREFIX>_TENANT_ID, _CLIENT_ID, _CERT_THUMBPRINT_SHA256, _CERT_PRIVATE_KEY, _MAILBOX (run under op run); defaults to the read-only docket-intake registration"
   )
 );
 
@@ -355,12 +361,13 @@ const drawingsIntakeCommand = Command.make(
     out: intakeOutFlag,
     corpusRoot: intakeCorpusRootFlag,
     pick: intakePickFlag,
+    includeOwn: intakeIncludeOwnFlag,
     envPrefix: intakeEnvPrefixFlag,
   },
   runDrawingIntake
 ).pipe(
   Command.withDescription(
-    "Pull a message's file attachments into a directory under the corpus root, deduped by sha256, with intake.json"
+    "Pull a message's file attachments into a directory under the corpus root, deduped by sha256, with intake.json (read-only; app-only settings from CLOUD_M365_DOCKET_* unless --env-prefix names another registration)"
   ),
   Command.provide((input) =>
     drawingIntakeLaneLayer({ envPrefix: input.envPrefix, mailLayer: M365.makeAppOnlyLiveLayer })

@@ -50,6 +50,7 @@ import {
 import type {
   GraphAttachment,
   GraphMessage,
+  GraphRecipient,
   M365AppOnlyConfigInput,
   M365AppOnlyEnvSettings,
   M365Error,
@@ -60,8 +61,10 @@ import type { IntakeAttachmentOutcome, IntakePick } from "./Drawings.intake.sche
 const $I = $RepoCliId.create("commands/Drawings/Drawings.intake");
 
 const FILE_ATTACHMENT = "#microsoft.graph.fileAttachment";
-// Graph answers 404 for an unknown id and 400 for an id of the wrong kind (a conversation id as a message id).
-const NOT_FOUND_STATUSES = HashSet.make(400, 404);
+// Graph answers 404 for an unknown message id and 400 for an id of the wrong kind (a conversation id as a
+// message id). A 400 from the conversation listing is a refused query, never "not found".
+const MESSAGE_NOT_FOUND_STATUSES = HashSet.make(400, 404);
+const LISTING_NOT_FOUND_STATUSES = HashSet.make(404);
 const CONVERSATION_PAGE_SIZE = 50;
 const MAX_CONVERSATION_PAGES = 20;
 const RECORD_NAME_PATTERN = /^intake(-\d+)?\.json$/;
@@ -78,11 +81,40 @@ const refused = (message: string): DrawingIntakeError => DrawingIntakeError.make
 
 const mailError =
   (what: string) =>
-  (cause: M365Error): DrawingIntakeError =>
-    DrawingIntakeError.make({ reason: "mail", message: `${what} (${cause.reason}).`, cause });
+  (cause: M365Error): DrawingIntakeError => {
+    const status = O.match(cause.status, { onNone: () => "", onSome: (code) => ` ${code}` });
+    return DrawingIntakeError.make({ reason: "mail", message: `${what} (${cause.reason}${status}).`, cause });
+  };
 
-const isNotFound = (error: M365Error): boolean =>
-  error.reason === "response status" && O.exists(error.status, (status) => HashSet.has(NOT_FOUND_STATUSES, status));
+const isNotFoundIn =
+  (statuses: HashSet.HashSet<number>) =>
+  (error: M365Error): boolean =>
+    error.reason === "response status" && O.exists(error.status, (status) => HashSet.has(statuses, status));
+
+const isMailFailure = (error: DrawingIntakeError): boolean => error.reason === "mail";
+
+const addressOf = (recipient: O.Option<GraphRecipient>): O.Option<string> =>
+  pipe(
+    recipient,
+    O.flatMap((r) => r.emailAddress),
+    O.flatMap((email) => email.address),
+    O.filter(Str.isNonEmpty)
+  );
+
+const rawSenderOf = (message: GraphMessage): O.Option<string> =>
+  O.orElse(addressOf(message.from), () => addressOf(message.sender));
+
+// Drafts are never a reviewer's input; the mailbox's own mail (sheets we sent, replies from the outbox) is
+// set aside unless the request includes it. A mailbox given as a user id matches no address and sets nothing aside.
+const isEligible =
+  (mailbox: string, includeOwn: boolean) =>
+  (message: GraphMessage): boolean => {
+    const own = Str.toLowerCase(mailbox);
+    const sentByMailbox = A.some([addressOf(message.from), addressOf(message.sender)], (address) =>
+      O.exists(address, (value) => Str.toLowerCase(value) === own)
+    );
+    return !O.getOrElse(message.isDraft, () => false) && (includeOwn || !sentByMailbox);
+  };
 
 const isWithin = (path: Path.Path, root: string, file: string): boolean => {
   const relative = path.relative(root, file);
@@ -124,6 +156,7 @@ const escapeODataString = Str.replaceAll("'", "''");
 type Resolved = {
   readonly message: GraphMessage;
   readonly conversationSize: O.Option<number>;
+  readonly setAside: number;
 };
 
 /**
@@ -165,8 +198,8 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
 
   const asMessage = (mailbox: string, id: string): Effect.Effect<O.Option<Resolved>, DrawingIntakeError> =>
     m365.getMessage(M365GetMessageRequest.make({ messageId: id, userId: O.some(mailbox) })).pipe(
-      Effect.map((message) => O.some({ message, conversationSize: O.none() })),
-      Effect.catchIf(isNotFound, () => Effect.succeedNone),
+      Effect.map((message) => O.some({ message, conversationSize: O.none(), setAside: 0 })),
+      Effect.catchIf(isNotFoundIn(MESSAGE_NOT_FOUND_STATUSES), () => Effect.succeedNone),
       Effect.mapError(mailError("Could not read the message"))
     );
 
@@ -196,11 +229,13 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
       })
     );
 
-  // Graph refuses `$orderby` on a property the `$filter` does not name, so the newest-first order is applied here.
+  // Graph refuses `$orderby` on a property the `$filter` does not name, so the newest-first order, and the
+  // draft and own-mail exclusion, are applied here: the listing spans every folder, Sent Items and Drafts included.
   const asConversation = Effect.fnUntraced(function* (
     mailbox: string,
     id: string,
-    pick: IntakePick
+    pick: IntakePick,
+    includeOwn: boolean
   ): Effect.fn.Return<O.Option<Resolved>, DrawingIntakeError> {
     const first = M365ListMessagesRequest.make({
       filter: O.some(`conversationId eq '${escapeODataString(id)}'`),
@@ -208,32 +243,54 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
       userId: O.some(mailbox),
     });
     const messages = yield* collectPages(mailbox, first, [], MAX_CONVERSATION_PAGES).pipe(
-      Effect.catchIf(isNotFound, () => Effect.succeed(A.empty<GraphMessage>())),
+      Effect.catchIf(isNotFoundIn(LISTING_NOT_FOUND_STATUSES), () => Effect.succeed(A.empty<GraphMessage>())),
       Effect.mapError(mailError("Could not list the conversation's messages"))
     );
     if (!A.isReadonlyArrayNonEmpty(messages)) {
       return O.none();
     }
-    const sorted = A.sort(messages, newestFirst);
-    const message = yield* Effect.fromOption(A.get(sorted, pickIndex(pick)), () =>
-      refused(`The conversation has ${A.length(sorted)} message(s); --pick ${pick} is out of range.`)
+    const candidates = A.sort(A.filter(messages, isEligible(mailbox, includeOwn)), newestFirst);
+    const setAside = A.length(messages) - A.length(candidates);
+    if (!A.isReadonlyArrayNonEmpty(candidates)) {
+      return yield* refused(
+        `The conversation has ${A.length(messages)} message(s), all drafts${includeOwn ? "" : " or sent from the mailbox"}; ` +
+          `nothing to pull${includeOwn ? "" : " (--include-own considers the mailbox's own mail)"}.`
+      );
+    }
+    const message = yield* Effect.fromOption(A.get(candidates, pickIndex(pick)), () =>
+      refused(
+        `The conversation has ${A.length(candidates)} message(s) to pick from (${setAside} set aside); --pick ${pick} is out of range.`
+      )
     );
-    return O.some({ message, conversationSize: O.some(A.length(sorted)) });
+    return O.some({ message, conversationSize: O.some(A.length(candidates)), setAside });
   });
 
-  // The id prefix is only a hint: try the kind it suggests first, then the other.
+  // The id prefix is only a hint: try the kind it suggests first, then the other. A Graph failure of the
+  // first lookup does not stop the second; when neither finds the item, the first failure is reported.
   const resolve = Effect.fn("DrawingIntake.resolve")(function* (request: IntakeRequest) {
     const { id } = request.ref;
     const message = asMessage(request.mailbox, id);
-    const conversation = asConversation(request.mailbox, id, request.pick);
+    const conversation = asConversation(request.mailbox, id, request.pick, request.includeOwn);
     const [first, second] = OutlookItemRef.match(request.ref, {
       message: () => [message, conversation] as const,
       conversation: () => [conversation, message] as const,
     });
-    const found = yield* first.pipe(
-      Effect.flatMap(O.match({ onNone: () => second, onSome: (resolved) => Effect.succeedSome(resolved) }))
+    const viaFirst = yield* first.pipe(
+      Effect.map((found) => ({ found, failure: O.none<DrawingIntakeError>() })),
+      Effect.catchIf(isMailFailure, (failure) =>
+        Effect.succeed({ found: O.none<Resolved>(), failure: O.some(failure) })
+      )
     );
-    return yield* Effect.fromOption(found, () =>
+    if (O.isSome(viaFirst.found)) {
+      return viaFirst.found.value;
+    }
+    const viaSecond = yield* second.pipe(
+      Effect.catchIf(isMailFailure, (failure) => Effect.fail(O.getOrElse(viaFirst.failure, () => failure)))
+    );
+    if (O.isSome(viaSecond)) {
+      return viaSecond.value;
+    }
+    return yield* O.getOrElse(viaFirst.failure, () =>
       DrawingIntakeError.make({
         reason: "not-found",
         message: `No message or conversation "${id}" in mailbox "${request.mailbox}".`,
@@ -241,28 +298,20 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
     );
   });
 
-  const required = <A>(value: O.Option<A>, what: string): Effect.Effect<A, DrawingIntakeError> =>
-    Effect.fromOption(value, () => DrawingIntakeError.make({ reason: "mail", message: `The message has no ${what}.` }));
-
+  // Provenance is recorded as far as Graph reports it; a missing or non-SMTP field never stops the pull.
   const factsOf = Effect.fnUntraced(function* (message: GraphMessage) {
-    const address = yield* required(
-      pipe(
-        message.from,
-        O.flatMap((from) => from.emailAddress),
-        O.flatMap((email) => email.address)
-      ),
-      "sender address"
-    );
+    const from = rawSenderOf(message);
+    const fromEmail = yield* O.match(from, {
+      onNone: () => Effect.succeedNone,
+      onSome: (address) => decodeEmail(address).pipe(Effect.option),
+    });
     return MessageFacts.make({
       messageId: message.id,
-      internetMessageId: yield* required(message.internetMessageId, "internet message id"),
+      internetMessageId: message.internetMessageId,
       conversationId: message.conversationId,
-      from: yield* decodeEmail(address).pipe(
-        Effect.mapError((cause) =>
-          DrawingIntakeError.make({ reason: "mail", message: "The sender address does not decode.", cause })
-        )
-      ),
-      receivedAt: yield* required(message.receivedDateTime, "receipt time"),
+      from,
+      fromEmail,
+      receivedAt: message.receivedDateTime,
       subject: O.getOrElse(message.subject, () => ""),
     });
   });
@@ -309,7 +358,7 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
     if (!isWithin(path, root, outDir)) {
       return yield* refused(`"${outDir}" is not under the corpus root "${root}".`);
     }
-    const { message, conversationSize } = yield* resolve(request);
+    const { message, conversationSize, setAside } = yield* resolve(request);
     const facts = yield* factsOf(message);
     const listed = yield* m365
       .listMessageAttachments(
@@ -413,7 +462,7 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
     yield* fs
       .writeFileString(recordPath, `${json}\n`, { flag: "wx" })
       .pipe(Effect.mapError(io(`Could not write "${recordPath}".`)));
-    return IntakeResult.make({ record, recordPath, conversationSize });
+    return IntakeResult.make({ record, recordPath, conversationSize, setAside });
   });
 
   return { pull } satisfies DrawingIntakeShape;
@@ -425,7 +474,9 @@ const makeService = Effect.fn("DrawingIntake.makeService")(function* () {
  * **Details**
  *
  * The item may be a message id or a conversation id (the newest message, or
- * the `pick`-th newest). Inline and item attachments are skipped; file
+ * the `pick`-th newest). A conversation spans every folder, so drafts are
+ * never picked, and the mailbox's own mail (sheets it sent, outbox replies)
+ * only when `includeOwn` is set. Inline and item attachments are skipped; file
  * attachments are hashed, deduped against the files already in the directory,
  * and written without ever replacing a file. The record goes to
  * `intake.json`, or `intake-<n>.json` when earlier records exist.
@@ -495,10 +546,11 @@ const attachmentLine = (row: IntakeAttachment): string => {
  *       mailbox: "mailbox@example.test",
  *       message: MessageFacts.make({
  *         messageId: "AAMkAGI2",
- *         internetMessageId: "<id@mail.example.test>",
+ *         internetMessageId: O.some("<id@mail.example.test>"),
  *         conversationId: O.none(),
- *         from: EmailString.make("sender@example.test"),
- *         receivedAt: "2026-10-10T12:00:00Z",
+ *         from: O.some("Sender@example.test"),
+ *         fromEmail: O.some(EmailString.make("sender@example.test")),
+ *         receivedAt: O.some("2026-10-10T12:00:00Z"),
  *         subject: ""
  *       }),
  *       outDir: "/corpus/in",
@@ -519,7 +571,10 @@ export const renderIntakeSummary = (result: IntakeResult): ReadonlyArray<string>
   `intake: ${A.length(result.record.attachments)} attachment(s) -> ${result.record.outDir}`,
   ...O.match(result.conversationSize, {
     onNone: () => [],
-    onSome: (size) => [`  the link named a conversation of ${size} message(s); --pick chose among them, newest first`],
+    onSome: (size) => [
+      `  the link named a conversation; --pick chose among ${size} message(s), newest first` +
+        (result.setAside > 0 ? ` (${result.setAside} draft or own message(s) set aside)` : ""),
+    ],
   }),
   ...A.map(result.record.attachments, attachmentLine),
   `record: ${result.recordPath}`,
@@ -558,10 +613,10 @@ export class DrawingIntakeLane extends Context.Service<DrawingIntakeLane, M365Ap
  * import { M365 } from "@beep/m365"
  * import { drawingIntakeLaneLayer } from "@beep/repo-cli/commands/Drawings"
  *
- * console.log(drawingIntakeLaneLayer({ envPrefix: "M365_OUTBOX", mailLayer: M365.makeAppOnlyLiveLayer }))
+ * console.log(drawingIntakeLaneLayer({ envPrefix: "CLOUD_M365_DOCKET", mailLayer: M365.makeAppOnlyLiveLayer }))
  * ```
  *
- * @param options - `envPrefix` names the app-only variables (such as `M365_OUTBOX`); `mailLayer` builds the M365 layer from the loaded settings.
+ * @param options - `envPrefix` names the app-only variables (such as `CLOUD_M365_DOCKET`, the read-only docket-intake registration); `mailLayer` builds the M365 layer from the loaded settings.
  * @returns The intake service and lane settings, needing the file-system, path and crypto services.
  * @category layers
  * @since 0.0.0
@@ -612,6 +667,7 @@ export const runDrawingIntake = Effect.fn("DrawingsCommand.intake")(function* (o
   readonly out: string;
   readonly corpusRoot: string;
   readonly pick: string;
+  readonly includeOwn: boolean;
 }) {
   const ref = yield* decodeRef(options.message).pipe(
     Effect.mapError(
@@ -627,7 +683,16 @@ export const runDrawingIntake = Effect.fn("DrawingsCommand.intake")(function* (o
   );
   const intake = yield* DrawingIntake;
   const result = yield* intake
-    .pull(IntakeRequest.make({ ref, mailbox, outDir: options.out, corpusRoot: options.corpusRoot, pick }))
+    .pull(
+      IntakeRequest.make({
+        ref,
+        mailbox,
+        outDir: options.out,
+        corpusRoot: options.corpusRoot,
+        pick,
+        includeOwn: options.includeOwn,
+      })
+    )
     .pipe(Effect.mapError((cause) => DrawingsCommandError.new(cause, cause.message)));
   yield* printLines(renderIntakeSummary(result));
 });
