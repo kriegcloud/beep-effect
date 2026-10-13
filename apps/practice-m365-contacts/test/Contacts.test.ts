@@ -16,6 +16,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -457,7 +458,7 @@ describe("contact seeding", () => {
             false,
             true
           );
-          const failure = yield* Effect.fromOption(O.liftPredicate(S.is(M365Error))(run.result));
+          const failure = yield* pipe(run.result, O.liftPredicate(S.is(M365Error)), Effect.fromOption);
           expect(failure.reason).toBe("response status");
           assertSome(failure.status, 403);
           expect(run.journals).toHaveLength(1);
