@@ -17,6 +17,7 @@ export * from "@beep/repo-cli/commands/Goals/Graph.projection";
 export * from "@beep/repo-cli/commands/Goals/Graph.schemas";
 export * from "@beep/repo-cli/commands/Goals/Graph.sqlite";
 export * from "@beep/repo-cli/commands/Goals/Inventory";
+export * from "@beep/repo-cli/commands/Goals/Materialize";
 export * from "@beep/repo-cli/commands/Goals/Migration";
 export * from "@beep/repo-cli/commands/Goals/PortfolioIndex";
 export * from "@beep/repo-cli/commands/Goals/SetRiskTier";

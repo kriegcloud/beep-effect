@@ -90,6 +90,13 @@ export * from "./Graph.ts";
  */
 export * from "./Inventory.ts";
 /**
+ * Materialization executor: replay reviewed bootstrap and adoption plans.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export * from "./Materialize.ts";
+/**
  * Packet-convention migration command and model surfaces.
  *
  * @category cli-commands

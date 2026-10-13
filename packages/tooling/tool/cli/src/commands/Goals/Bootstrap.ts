@@ -35,6 +35,7 @@ import {
 import { GoalPlanInputError, GoalPlanOperationalError } from "./Goals.errors.ts";
 import { isCapabilitySlug } from "./Goals.schemas.ts";
 import { listGoalPackets } from "./Inventory.ts";
+import { writeReviewedPlan } from "./Materialize.ts";
 import { canonicalJsonText, canonicalJsonTextPretty, sha256Hex } from "./PacketCore/PacketDigest.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as PlatformError from "effect/PlatformError";
@@ -853,7 +854,15 @@ const todayFlag = Flag.String("today").pipe(
 );
 const planFlag = Flag.Boolean("plan").pipe(
   Flag.withDefault(false),
-  Flag.withDescription("Compile and print the materialization plan (the only mode this slice ships)")
+  Flag.withDescription("Compile and print the materialization plan for review")
+);
+const writeFlag = Flag.Boolean("write").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Replay the reviewed plan named by --expect; never writes a plan you have not reviewed")
+);
+const expectFlag = Flag.String("expect").pipe(
+  Flag.optional,
+  Flag.withDescription("The reviewed planId (goal-plan/v1:...) that --write must match")
 );
 const jsonFlag = Flag.Boolean("json").pipe(
   Flag.withDefault(false),
@@ -939,10 +948,12 @@ const runBootstrapPlan = Effect.fn("Goals.runBootstrapPlan")(function* (options:
   readonly today: O.Option<string>;
   readonly plan: boolean;
   readonly json: boolean;
+  readonly write: boolean;
+  readonly expect: O.Option<string>;
 }) {
-  if (!options.plan) {
+  if (options.plan === options.write) {
     return yield* GoalPlanInputError.new(
-      "Phase 0 ships plan-only commands; pass --plan (no writer exists to omit it for)."
+      "Pass exactly one of --plan (review the plan) or --write --expect <planId> (replay a reviewed plan)."
     );
   }
   const slug = yield* decodeSlug(options.slug);
@@ -972,6 +983,10 @@ const runBootstrapPlan = Effect.fn("Goals.runBootstrapPlan")(function* (options:
     input,
     A.map(records, (record) => record.slug)
   ).pipe(Effect.mapError(GoalPlanOperationalError.new("Failed to digest the materialization plan.")));
+  if (options.write) {
+    yield* writeReviewedPlan(plan, options.expect);
+    return;
+  }
   yield* reportMaterializationPlan(plan, options.json);
 });
 
@@ -1002,6 +1017,8 @@ export const goalsBootstrapCommand = Command.make(
     today: todayFlag,
     plan: planFlag,
     json: jsonFlag,
+    write: writeFlag,
+    expect: expectFlag,
   },
   Effect.fn(function* (options) {
     return yield* runBootstrapPlan(options).pipe(
@@ -1017,4 +1034,8 @@ export const goalsBootstrapCommand = Command.make(
       })
     );
   })
-).pipe(Command.withDescription("Compile the read-only packet materialization plan (--plan --json); no writer exists"));
+).pipe(
+  Command.withDescription(
+    "Compile a packet materialization plan (--plan --json), or publish a reviewed one (--write --expect)"
+  )
+);

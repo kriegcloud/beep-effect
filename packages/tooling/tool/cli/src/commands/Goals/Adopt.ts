@@ -49,6 +49,7 @@ import {
   readmeTitle,
   TEMPLATE_SLUG,
 } from "./Inventory.ts";
+import { writeReviewedPlan } from "./Materialize.ts";
 import { canonicalJsonText, sha256Hex, sha256HexBytes } from "./PacketCore/PacketDigest.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as PlatformError from "effect/PlatformError";
@@ -540,7 +541,15 @@ const towardFlag = Flag.Literals("toward", PhaseArchetype.literals).pipe(
 );
 const planFlag = Flag.Boolean("plan").pipe(
   Flag.withDefault(false),
-  Flag.withDescription("Compile and print the adoption plan (the only mode this slice ships)")
+  Flag.withDescription("Compile and print the adoption plan for review")
+);
+const writeFlag = Flag.Boolean("write").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Apply the reviewed adoption plan named by --expect; never overwrites a file")
+);
+const expectFlag = Flag.String("expect").pipe(
+  Flag.optional,
+  Flag.withDescription("The reviewed planId (goal-plan/v1:...) that --write must match")
 );
 const jsonFlag = Flag.Boolean("json").pipe(
   Flag.withDefault(false),
@@ -552,10 +561,12 @@ const runAdoptPlan = Effect.fn("Goals.runAdoptPlan")(function* (options: {
   readonly toward: O.Option<PhaseArchetype>;
   readonly plan: boolean;
   readonly json: boolean;
+  readonly write: boolean;
+  readonly expect: O.Option<string>;
 }) {
-  if (!options.plan) {
+  if (options.plan === options.write) {
     return yield* GoalPlanInputError.new(
-      "Phase 0 ships plan-only commands; pass --plan (no writer exists to omit it for)."
+      "Pass exactly one of --plan (review the plan) or --write --expect <planId> (replay a reviewed plan)."
     );
   }
   const slug = yield* decodeGoalSlug(options.slug).pipe(
@@ -565,6 +576,10 @@ const runAdoptPlan = Effect.fn("Goals.runAdoptPlan")(function* (options: {
   const plan = yield* compileAdoptionPlan(snapshot, options.toward).pipe(
     Effect.mapError(GoalPlanOperationalError.new("Failed to digest the adoption plan."))
   );
+  if (options.write) {
+    yield* writeReviewedPlan(plan, options.expect);
+    return;
+  }
   yield* reportMaterializationPlan(plan, options.json);
 });
 
@@ -584,7 +599,7 @@ const runAdoptPlan = Effect.fn("Goals.runAdoptPlan")(function* (options: {
  */
 export const goalsAdoptCommand = Command.make(
   "adopt",
-  { slug: slugArgument, toward: towardFlag, plan: planFlag, json: jsonFlag },
+  { slug: slugArgument, toward: towardFlag, plan: planFlag, json: jsonFlag, write: writeFlag, expect: expectFlag },
   Effect.fn(function* (options) {
     return yield* runAdoptPlan(options).pipe(
       Effect.catchTags({
@@ -599,4 +614,6 @@ export const goalsAdoptCommand = Command.make(
       })
     );
   })
-).pipe(Command.withDescription("Compile the read-only packet adoption plan (--plan --json); no writer exists"));
+).pipe(
+  Command.withDescription("Compile a packet adoption plan (--plan --json), or apply a reviewed one (--write --expect)")
+);
