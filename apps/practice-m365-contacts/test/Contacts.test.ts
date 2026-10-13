@@ -457,7 +457,8 @@ describe("contact seeding", () => {
             false,
             true
           );
-          expect(run.result).toMatchObject({ reason: "response status", status: O.some(403) });
+          expect(run.result).toMatchObject({ reason: "response status" });
+          assertTrue(S.is(M365Error)(run.result) && O.contains(403)(run.result.status));
           expect(run.journals).toHaveLength(1);
           const journal = O.getOrThrow(A.head(run.journals));
           assertNone(journal.receipt);
