@@ -10,6 +10,7 @@ import { Render } from "../../effected/cli/Render.ts";
 const runs = { arbitrary: fcRuns(100) };
 const context = Render.contextOf({ audience: "agent", neutralizeWorkflowCommands: false });
 const textSchema = S.String;
+const JsonText = S.fromJsonString(S.String);
 
 // textLines drops the empty line contributed by a terminal line break. Keep
 // generated line breaks inside the content for the idempotence properties.
@@ -29,8 +30,8 @@ for (const [name, format] of [["plain", Render.plain], ["ansi", Render.ansi]] as
     const expected = Fmt.sanitize(text).replace(/\r\n?/g, "\n");
     assert.strictEqual(formatted, expected);
     assert.strictEqual(format([Doc.verbatim(formatted)], context), formatted);
-    const serialized = yield* S.encodeEffect(S.fromJsonString(S.String))(formatted);
-    const parsed = yield* S.decodeEffect(S.fromJsonString(S.String))(serialized);
+    const serialized = yield* S.encodeEffect(JsonText)(formatted);
+    const parsed = yield* S.decodeEffect(JsonText)(serialized);
     assert.strictEqual(format([Doc.verbatim(parsed)], context), formatted);
     assert.notInclude(formatted, "\u001b");
   }), runs);
@@ -40,8 +41,8 @@ it.effect.prop("GitHub log formatting is idempotent and preserves text after neu
     const text = `content:${value}:end`;
   const formatted = Render.githubLog([Doc.verbatim(text)], context);
   assert.strictEqual(Render.githubLog([Doc.verbatim(formatted)], context), formatted);
-  const serialized = yield* S.encodeEffect(S.fromJsonString(S.String))(formatted);
-  const parsed = yield* S.decodeEffect(S.fromJsonString(S.String))(serialized);
+  const serialized = yield* S.encodeEffect(JsonText)(formatted);
+  const parsed = yield* S.decodeEffect(JsonText)(serialized);
   assert.strictEqual(Render.githubLog([Doc.verbatim(parsed)], context), formatted);
   assert.notInclude(formatted, "##[");
   assert.notMatch(formatted, /^\s*::/m);
@@ -60,7 +61,7 @@ it.effect.prop("markdown verbatim fences preserve sanitized content and reformat
   const parsed = lines.slice(1, -1).join("\n");
   assert.strictEqual(parsed, Fmt.sanitize(text).replace(/\r\n?/g, "\n"));
   assert.strictEqual(Render.markdown([Doc.verbatim(parsed)], context), formatted);
-  const serialized = yield* S.encodeEffect(S.fromJsonString(S.String))(parsed);
-  const decoded = yield* S.decodeEffect(S.fromJsonString(S.String))(serialized);
+  const serialized = yield* S.encodeEffect(JsonText)(parsed);
+  const decoded = yield* S.decodeEffect(JsonText)(serialized);
   assert.strictEqual(Render.markdown([Doc.verbatim(decoded)], context), formatted);
 }), runs);

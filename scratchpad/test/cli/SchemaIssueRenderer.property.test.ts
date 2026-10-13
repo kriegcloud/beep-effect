@@ -7,6 +7,7 @@ import { SchemaIssueRenderer } from "../../effected/cli/SchemaIssueRenderer.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const target = S.Struct({ port: S.Finite });
+const JsonInput = S.fromJsonString(S.Struct({ port: S.String }));
 
 // This formatter consumes issue trees, not its string output. Fidelity is
 // measured by reconstructing the rejected input through its JSON codec.
@@ -19,8 +20,8 @@ it.effect.prop("issue formatting preserves the rejected path and survives input 
     assert.include(lines[0] ?? "", "at port");
     assert.include(lines[0] ?? "", "number");
     assert.deepStrictEqual(SchemaIssueRenderer.render(issue.issue), lines);
-    const encoded = yield* S.encodeEffect(S.fromJsonString(S.Struct({ port: S.String })))(input);
-    const decoded = yield* S.decodeEffect(S.fromJsonString(S.Struct({ port: S.String })))(encoded);
+    const encoded = yield* S.encodeEffect(JsonInput)(input);
+    const decoded = yield* S.decodeEffect(JsonInput)(encoded);
     const reconstructed = yield* S.decodeUnknownEffect(target)(decoded).pipe(Effect.flip);
     assert.deepStrictEqual(SchemaIssueRenderer.render(reconstructed.issue), lines);
   }), runs);

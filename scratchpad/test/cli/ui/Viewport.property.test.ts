@@ -3,7 +3,7 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Viewport } from "../../../effected/cli/ui/Viewport.ts";
+import { Viewport, ViewportState, ViewportRow, ViewportMove } from "../../../effected/cli/ui/Viewport.ts";
 
 const runs = { arbitrary: fcRuns(100) };
 const Sample = S.Struct({
@@ -28,3 +28,11 @@ it.effect.prop("resize is idempotent and retains selection; home and end are sta
     assert.isAtMost(resized.offset, resized.cursor);
     assert.isBelow(resized.cursor, resized.offset + resized.height);
   }), runs);
+
+for (const model of [ViewportState, ViewportRow, ViewportMove]) {
+  it.effect.prop(`${model.ast.annotations?.identifier} round-trips the production viewport schema`, [Arbitrary.schema(model)], ([value]) =>
+    Effect.gen(function* () {
+      const encoded = yield* S.encodeEffect(model)(value);
+      assert.deepStrictEqual(yield* S.decodeEffect(model)(encoded), value);
+    }), runs);
+}

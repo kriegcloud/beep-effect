@@ -16,6 +16,15 @@ const transcript = S.Literals([
 const height = Arbitrary.schema(S.Int.check(S.isBetween({ minimum: 1, maximum: 10 })));
 
 describe("terminalModel property floor", () => {
+  it.effect.prop("overwriting either cell of a wide grapheme preserves the suffix", [
+    Arbitrary.schema(S.Literals(["😀", "界", "👨‍👩‍👧‍👦", "🇺🇸"])),
+    text,
+  ], ([wide, suffix]) => Effect.sync(() => {
+    assert.deepStrictEqual(screenAfter(`${wide}${suffix}\rA`), screenAfter(`A ${suffix}`));
+    assert.deepStrictEqual(screenAfter(`${wide}${suffix}\u001b[1;2HA`), screenAfter(` A${suffix}`));
+    assert.deepStrictEqual(screenAfter(`${wide}${suffix}\u001b[2GA`), screenAfter(` A${suffix}`));
+  }), runs);
+
   it.effect.prop("canonical screen text is idempotent and preserves the parsed screen on reparse", [transcript, height], ([written, rows]) => Effect.sync(() => {
     const parsed = screenAfter(written, rows);
     const formatted = parsed.join("\n");

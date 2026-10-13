@@ -42,7 +42,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/testing/CliUiTest");
 
 class CliUiTestError extends S.TaggedError<CliUiTestError>($I`CliUiTestError`)(
 	"CliUiTestError",
-	{ message: S.String },
+	{ message: S.String.annotate({ description: "The invalid test interaction or failed screen wait and its context." }) },
 	$I.annote("CliUiTestError", { description: "Invalid test interaction with a CLI screen." }),
 ) {}
 

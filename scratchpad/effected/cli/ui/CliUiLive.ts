@@ -295,9 +295,26 @@ interface Run<S> {
 
 const $I = $ScratchpadId.create("effected/cli/ui/CliUiLive");
 
-class LiveTickError extends S.TaggedError<LiveTickError>($I`LiveTickError`)("LiveTickError", {
-	message: S.String,
-}) {}
+/**
+ * Reports a live-view tick interval that is not positive and finite.
+ *
+ * **Example** (Describe the failure)
+ *
+ * ```ts
+ * import { LiveTickError } from "./CliUiLive.ts"
+ * const error = LiveTickError.make({ message: "tickMillis must be positive and finite." })
+ * console.log(error._tag) // LiveTickError
+ * ```
+ *
+ * @internal
+ * @category errors
+ * @since 0.0.0
+ */
+export class LiveTickError extends S.TaggedError<LiveTickError>($I`LiveTickError`)("LiveTickError", {
+	message: S.String.annotate($I.annote("LiveTickError.message", {
+		description: "Identifies the invalid tick interval and its positive, finite millisecond requirement.",
+	})),
+}, $I.annote("LiveTickError", { description: "A live view tick interval must be positive and finite." })) {}
 
 const TICK_INVALID = (tickMillis: number): string =>
 	`@effected/cli/ui: CliUi.live's tickMillis must be a positive, finite number of milliseconds, not ${tickMillis}`;

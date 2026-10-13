@@ -1,6 +1,7 @@
 import { assert, it, vi } from "@effect/vitest";
 import { assertNone } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import { inkChalk, resolveInkEntry } from "../../../../effected/cli/ui/internal/inkChalk.ts";
 import { MemoryFileSystem } from "../../../../effected/memfs/index.ts";
@@ -19,6 +20,15 @@ it.layer(MemoryFileSystem.layer, { timeout: "10 seconds" })("missing chalk realp
     assertNone(yield* inkChalk());
   }));
 });
+
+it.effect("a provided realPath self-interruption propagates instead of returning None", () => Effect.gen(function* () {
+  const handle = yield* MemoryFileSystem.makeHandle();
+  const exit = yield* Effect.exit(inkChalk().pipe(Effect.provideService(FileSystem.FileSystem, {
+    ...handle.fileSystem,
+    realPath: () => Effect.interrupt,
+  })));
+  assert.isTrue(Exit.hasInterrupts(exit));
+}));
 
 it.effect("a resolved module without a numeric chalk level returns None", () => Effect.gen(function* () {
   const fs = yield* MemoryFileSystem.makeHandle();

@@ -35,10 +35,26 @@ import { UiStreams } from "./UiStreams.ts";
 
 const $I = $ScratchpadId.create("effected/cli/ui/CliUi");
 
-/** Ink exited before the screen produced an answer. */
-class ScreenExited extends S.TaggedError<ScreenExited>($I`ScreenExited`)(
+/**
+ * Ink exited before the screen produced an answer.
+ *
+ * **Example** (Describe the failure)
+ *
+ * ```ts
+ * import { ScreenExited } from "./CliUi.ts"
+ * const error = ScreenExited.make({ message: "The screen ended without an answer." })
+ * console.log(error._tag) // ScreenExited
+ * ```
+ *
+ * @internal
+ * @category errors
+ * @since 0.0.0
+ */
+export class ScreenExited extends S.TaggedError<ScreenExited>($I`ScreenExited`)(
 	"ScreenExited",
-	{ message: S.String },
+	{ message: S.String.annotate($I.annote("ScreenExited.message", {
+		description: "Reports that Ink exited before the screen produced an answer or cancellation.",
+	})) },
 	$I.annote("ScreenExited", { description: "Ink exited without resolving or cancelling the screen." }),
 ) {
 	override readonly name = "Error";

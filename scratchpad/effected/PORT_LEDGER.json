@@ -16743,6 +16743,96 @@
           "upstreamBehaviour": "scratchpad/effected/cli/CliFailure.ts:234 carried a branch no input can reach",
           "labBehaviour": "Removed the former isDependency fallback for an undefined frame file, which the preceding isRuntime guard made unreachable; classify the resolved file directly while preserving stack-frame selection.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/cli/CliRuntime.coverage.test.ts:19",
+          "upstreamBehaviour": "Reporting a failure whose string conversion throws emits the fallback diagnostic, then dies with the conversion exception and loses the requested exit code.",
+          "labBehaviour": "CliRuntime.reported guards conversion and returns a marked CliRuntimeError with an unprintable-failure message, errorReported=false and the selected exit code.",
+          "reason": "upstream-bug: cli-r2-3 pinned-oracle probe reproduced exitCode=1 after requesting 23; the retargeted regression requires Cause.fail and both runtime marks. The diff adds Result.try/getOrElse."
+        },
+        {
+          "test": "scratchpad/test/cli/Doc.test.ts:417; scratchpad/test/cli/layout.test.ts:496",
+          "upstreamBehaviour": "A schema-valid file link carrying url: undefined enters the URL branch, loses its default file label and can crash during target sanitization.",
+          "labBehaviour": "Doc.link and layout select URLs with the URL-member schema guard; file links retain their file label and normalized target without the invalid url key.",
+          "reason": "upstream-bug: cli-r2-8 inventory records the verified pinned-oracle defect; constructor and rendering regressions cover undefined-url file targets and valid URL precedence. Both guards change in the diff."
+        },
+        {
+          "test": "scratchpad/test/cli/internal/format.property.test.ts:10",
+          "upstreamBehaviour": "Issue deduplication uses a dotted display string, collapsing a literal a.b key and the nested path a then b when their messages match.",
+          "labBehaviour": "Issue entries deduplicate structurally by message and complete path, retaining both rejected locations while keeping their existing display format.",
+          "reason": "upstream-bug: cli-r2-9 inventory verifies the pinned-oracle collision; the added property requires both paths, display lines and tree branches. The diff changes the hash-set key to IssueEntry."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/CliUiTest.chunk.test.ts:51,61,69",
+          "upstreamBehaviour": "Select, Confirm and MultiSelect continue changing reducer state after Enter in the same input chunk, so the returned answer can differ from the submitted answer.",
+          "labBehaviour": "All three reducers return the same submitted state for every later action, retaining the selected value, confirmation answer and selected items.",
+          "reason": "upstream-bug: cli-r2-16 pinned-oracle reducer probes reproduced Enter-then-down, Enter-then-y and Enter-then-space changes; three added chunk regressions pin terminal submission. Each reducer guard is in the diff."
+        },
+        {
+          "test": "scratchpad/test/cli/Render.markdown.oracle.test.ts:67",
+          "upstreamBehaviour": "Literal exclamation text immediately before a rendered link forms Markdown image syntax instead of text followed by a link.",
+          "labBehaviour": "Markdown text escaping includes exclamation marks, preserving text and link nodes without creating an image.",
+          "reason": "upstream-bug: cli-r2-17 inventory verifies the pinned-oracle defect; the added parser-backed regression checks text, link destination and no image. The diff adds ! to escapeText."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/Select.test.ts:87; scratchpad/test/cli/ui/MultiSelect.test.ts:97",
+          "upstreamBehaviour": "Select and MultiSelect repaint replacement props after rerender but submit values from their original mount-time choices or sections.",
+          "labBehaviour": "Rows, labels, details and selected items render from the same mount-time state collections used for submission.",
+          "reason": "upstream-bug: cli-r2-18 review probes displayed replacement while submitting original, and pinned-oracle inspection confirms the split. Added rerender-and-submit tests and state.choices/state.sections diff changes enforce the documented snapshot."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/Select.test.ts:21",
+          "upstreamBehaviour": "Fractional or NaN initial indices can highlight disabled row zero despite an available enabled choice; a missing fractional array entry is treated as enabled.",
+          "labBehaviour": "Select truncates initial indices, maps NaN to zero, clamps and searches for an existing enabled choice; infinity boundary behavior remains intact.",
+          "reason": "upstream-bug: cli-r2-19 probes reproduced the fractional/NaN defect in both port and pinned oracle; the new disabled-first-row test covers fractions, NaN and infinities. This is distinct from the existing round-1 out-of-range integer deviation."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/widget-resize.test.ts:21",
+          "upstreamBehaviour": "TextInput, highlighted/plain Toggle and column Tabs rely on lagging hook widths, allowing intended single rows to wrap during immediate resize repaints.",
+          "labBehaviour": "Layout reserves a margin and clips single-row children against current Ink dimensions, including input title, value, validation error and help.",
+          "reason": "upstream-bug: cli-r2-24 production-path probes reproduced interim wrapping in port and pinned widget sources; the new resize suite checks every captured frame. All three layout changes appear in the diff; the test file is untracked and was inspected separately."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/testing/terminalModel.coverage.test.ts:6; scratchpad/test/cli/ui/testing/terminalModel.property.test.ts:19",
+          "upstreamBehaviour": "Terminal transcript overwrites use UTF-16 offsets, leaving an orphan emoji surrogate or deleting a suffix after wide CJK text; G cursor commands always reset to column one.",
+          "labBehaviour": "screenAfter tracks grapheme heads and continuation cells, applies carriage return and G/H coordinates to display cells and clears complete overwritten graphemes.",
+          "reason": "upstream-bug: cli-r2-26 pinned-oracle probes and fix-g9 reproduce malformed Unicode and lost suffixes. Added coverage and wide-cell properties pin whole-grapheme overwrites; the diff also honors explicit G column parameters."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/widgetText.test.ts:150",
+          "upstreamBehaviour": "Sanitizing raw cursor slices independently exposes CSI/OSC payload text when the cursor splits an escape, and folds a split CRLF into two spaces.",
+          "labBehaviour": "TextInput sanitizes the whole value, maps its raw cursor and splits the cleaned result; escape payloads stay hidden and CRLF folds once while raw submission remains unchanged.",
+          "reason": "upstream-bug: cli-r2-29 inventory explains the split-sequence defect; added mounted mid-CSI/mid-OSC and CRLF regressions ground the correction. This is distinct from the existing round-1 raw-value sanitization deviation; the diff introduces lineTextAround."
+        },
+        {
+          "test": "scratchpad/test/cli/CliTest.property.test.ts:11; scratchpad/test/cli/ui/Viewport.property.test.ts:33; scratchpad/test/cli/GithubAnnotation.property.test.ts:55",
+          "upstreamBehaviour": "EditorLinks, subprocess data, log/prompt payloads, annotation metadata, GlyphSet, StatusDef, widget actions and viewport/text-input state are erased declarations or duplicate runtime vocabularies.",
+          "labBehaviour": "New runtime schema values own EditorLinks, Sandbox, RunOptions, RunResult, CliLogFile, CliPromptTarget, AnnotationLevel, GithubAnnotationProperties, GlyphSet, StatusDef, ConfirmAction, SelectAction, MultiSelectAction, ViewportState, ViewportRow, ViewportMove, TextInputState and TabsAction; AudienceKind literals feed the flag; Doc reuses shared schemas.",
+          "reason": "schema-first: D5/D11 schema ownership and LiteralKit laws require executable domains and derived types; D2 permits the added value exports. These are newly modeled round-2 sites, not the Doc/Token/key/span models already ledgered. Plain construction, optional keys and vocabularies remain intact."
+        },
+        {
+          "test": "scratchpad/test/cli/CliTest.property.test.ts:30; scratchpad/test/cli/Glyphs.property.test.ts:9; scratchpad/test/cli/ui/Viewport.property.test.ts:33; scratchpad/test/cli/ui/TextInput.property.test.ts:8; scratchpad/test/cli/ui/Tabs.property.test.ts:8",
+          "upstreamBehaviour": "RunResult.exitCode, GlyphSet.spinnerIntervalMs, viewport state numbers, TextInputState.cursor and TabsAction.jump have only unrestricted TypeScript number contracts.",
+          "labBehaviour": "Their new executable schemas use S.Finite, rejecting NaN and infinities during codec validation while existing subprocess and reducer construction stays unvalidated.",
+          "reason": "numeric-domains: schemaNumber diagnostic and finite-domain ruling require finite numeric schemas; fix-g3 and fix-g7 record rejected S.Number diagnostics. This records new fields only, excluding the existing Doc/ExitRequested finite-domain deviation."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/reducer-error-metadata.test.ts:20; scratchpad/test/cli/ui/widget-error-metadata.test.ts:8; scratchpad/test/cli/ui/bridge-error-metadata.test.ts:18",
+          "upstreamBehaviour": "Thirteen reducer, widget and bridge/test-runtime errors omit schema descriptions or message metadata; several error classes are private to their source modules.",
+          "labBehaviour": "Meaningful schema/message annotations cover DuplicateToggleKeyError, NoEnabledChoiceError, MissingDocViewThemeError, LiveTickError, ScreenExited, DuplicateItemKey, DuplicateViewportKeyError, MissingUiThemeError, InkNotLoaded, ScreenContextError, LazyViewStateError, ConsoleTrace and CliUiTestError; the first eight gain direct-file exports.",
+          "reason": "identity-annotations: Step 4 and EF-12 require meaningful error-schema and field metadata. cli-r2-22/27/31 address these newly touched annotation sites while preserving tags, messages, names and construction; direct-file exports permit metadata inspection under D2."
+        },
+        {
+          "test": "scratchpad/test/cli/internal/failureTarget.coverage.test.ts:19; scratchpad/test/cli/ui/widgetText.test.ts:171",
+          "upstreamBehaviour": "refreshFailureTarget advertises optional settings for currying and a combined optional-argument data-first signature; the cursor mapper has no upstream API.",
+          "labBehaviour": "refreshFailureTarget separates audience-only and audience-plus-required-settings calls and requires settings for currying; new internal lineTextAround exposes both data-first and curried overloads.",
+          "reason": "tsgo-diagnostics: missingPipeableSignature diagnostic forces overload shape: fix-g5 records TS377101 on restoring optional settings; fix-g7 records the cursor mapper pipeable requirement. Omitted/undefined audience calls remain Effects and the mapper is an added internal export."
+        },
+        {
+          "test": "scratchpad/test/cli/ui/internal/inkChalk.coverage.test.ts:24",
+          "upstreamBehaviour": "Upstream Promise filesystem resolution is ported to FileSystem Effects; the previous port catches every cause and turns an injected realPath self-interruption into successful None.",
+          "labBehaviour": "inkChalk recovers only non-interrupt causes, allowing injected filesystem interruption to propagate while retaining unresolved/missing-chalk fallback and the forced Effect/FileSystem shape.",
+          "reason": "effect-first: D11 Effect interruption semantics require selective recovery; cli-r2-30 is a port-specific Effect-idiom correction, not a verified upstream bug. The diff uses catchCauseIf with not(hasInterrupts) and the added regression asserts Exit.hasInterrupts."
         }
       ],
       "backlog": [
@@ -16853,6 +16943,36 @@
           "round": 1,
           "finding": "backlog-18 — File-wide test diagnostic exceptions hide future occurrences. (scratchpad/test/cli/ui/CliUi.run.test.ts:1)",
           "reason": "test: During S3 narrow file-wide diagnostic headers to next-line exceptions required by Vitest and migrate remaining timers/promises to Effect."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "cli-b2-1 — Doc and Block prose incorrectly says their values are never decoded or encoded. (scratchpad/effected/cli/Doc.ts:545)",
+          "reason": "docs: Docs/JSDoc are deferred S2 work under the merge instructions."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "cli-r2-3 — Hostile string conversion loses the selected exit code after reporting. (scratchpad/effected/cli/CliRuntime.ts:741)",
+          "reason": "bug: outside the port's write surface: §14 PORT_LEDGER.json and README Port notes bookkeeping; the verified bug is supplied in the DEVIATION line for central recording."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "cli-r2-10 — Document span boundaries split graphemes during layout. (scratchpad/effected/cli/internal/layout.ts:148)",
+          "reason": "bug: scratchpad/test/cli/layout.test.ts:227 The retained upstream test explicitly requires split emoji to measure differently from joined emoji. Fixing this finding requires retargeting that assertion, which is outside the two sanctioned existing-test changes in the brief. The requested exception remains unanswered; grapheme layout is unchanged."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "cli-r2-9 — Issue deduplication conflates dotted names and nested paths. (scratchpad/effected/cli/internal/format.ts:104)",
+          "reason": "bug: outside the port's write surface — central PORT_LEDGER.json and README deviation registration; DEVIATION supplied below."
+        },
+        {
+          "seat": "fable",
+          "round": 2,
+          "finding": "cli-r2-17 — Text immediately before a Markdown link turns it into an image. (scratchpad/effected/cli/internal/renderMarkdown.ts:30)",
+          "reason": "bug: outside the port's write surface — central PORT_LEDGER.json and README deviation registration; DEVIATION supplied below."
         }
       ],
       "reviewRounds": [
@@ -16871,6 +16991,24 @@
             "fable": {
               "required": 20,
               "backlog": 24
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "2f515ae2519cc72223c94917019bf7ebfe92a4a5",
+          "seats": {
+            "grok": {
+              "required": 3,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 27,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 12,
+              "backlog": 1
             }
           }
         }

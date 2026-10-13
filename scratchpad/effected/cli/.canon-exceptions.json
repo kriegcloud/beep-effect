@@ -252,23 +252,23 @@
     "reason": "The second view retains its deliberate bounded lifetime in the sequential unmount-and-remount test."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:178:scoped@24#1",
+    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:192:scoped@24#1",
     "reason": "Closes the ASCII Ink render before mounting the highlighted render, preserving separate render lifetimes."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:185:scoped@30#1",
+    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:199:scoped@30#1",
     "reason": "Closes the highlighted Ink render before mounting the narrow render, preserving separate render lifetimes."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:193:scoped@25#1",
+    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:207:scoped@25#1",
     "reason": "Keeps the narrow render in its own acquisition/release scope, matching the other independent render cases."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:241:scoped@22#1",
+    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:255:scoped@22#1",
     "reason": "Unmounts the off Toggle render before mounting the on Toggle render."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:248:scoped@21#1",
+    "id": "EV004:scratchpad/test/cli/ui/Confirm.test.ts:262:scoped@21#1",
     "reason": "Keeps the on Toggle render in its own acquisition/release scope, matching the independent off render."
   },
   {
@@ -284,27 +284,27 @@
     "reason": "Schedule.spaced polling needs the live clock while waiting for an external React/Ink commit; an unadvanced TestClock would suspend the poll."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/MultiSelect.test.ts:153:scoped@24#1",
+    "id": "EV004:scratchpad/test/cli/ui/MultiSelect.test.ts:180:scoped@24#1",
     "reason": "Retained the shorter scope to unmount the first screen before rendering the ASCII screen; process-wide mount serialization requires this release."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/MultiSelect.test.ts:164:scoped@24#1",
+    "id": "EV004:scratchpad/test/cli/ui/MultiSelect.test.ts:191:scoped@24#1",
     "reason": "Retained the shorter scope to unmount the first screen before rendering the ASCII screen; process-wide mount serialization requires this release."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Select.test.ts:112:scoped@23#1",
+    "id": "EV004:scratchpad/test/cli/ui/Select.test.ts:148:scoped@23#1",
     "reason": "Retained the shorter scope to unmount the wide screen before rendering the narrow screen; process-wide mount serialization requires this release."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Select.test.ts:121:scoped@25#1",
+    "id": "EV004:scratchpad/test/cli/ui/Select.test.ts:157:scoped@25#1",
     "reason": "Retained the paired narrow render\u2019s shorter scope, preserving independent mount and cleanup lifetimes."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Select.test.ts:178:scoped@25#1",
+    "id": "EV004:scratchpad/test/cli/ui/Select.test.ts:214:scoped@25#1",
     "reason": "Retained the paired narrow render\u2019s shorter scope, preserving independent mount and cleanup lifetimes."
   },
   {
-    "id": "EV004:scratchpad/test/cli/ui/Select.test.ts:193:scoped@30#1",
+    "id": "EV004:scratchpad/test/cli/ui/Select.test.ts:229:scoped@30#1",
     "reason": "Retained the paired narrow render\u2019s shorter scope, preserving independent mount and cleanup lifetimes."
   },
   {
@@ -502,6 +502,14 @@
   {
     "id": "EV010:scratchpad/test/cli/ui/wizard.test.ts:4:@effect/platform-node@0#1",
     "reason": "Retained `NodeServices.layer`: these tests exercise `CliRuntime.main` and its production platform wiring, including terminal interactivity decisions and session overrides. A filesystem-only memory double would not preserve that subject."
+  },
+  {
+    "id": "EV012:scratchpad/test/cli/ui/bridge-error-metadata.test.ts:18:vi.mock@0#1",
+    "reason": "The subject is metadata on private, unexported error schemas. No service layer exposes those definitions. This partial observer delegates to the actual Schema.TaggedError constructor and returns its unchanged class; assertions inspect the actual schema and message annotations rather than substitute behavior."
+  },
+  {
+    "id": "EV011:scratchpad/test/cli/ui/bridge-error-metadata.test.ts:5:vitest-import@0#1",
+    "reason": "Vitest requires the direct vi import for vi.hoisted and the hoisted Schema observer; the @effect/vitest re-export cannot supply Vitest's hoisted mock API."
   },
   {
     "id": "EV010:scratchpad/test/cli/erasableSyntax.test.ts:4:node:fs@0#1",

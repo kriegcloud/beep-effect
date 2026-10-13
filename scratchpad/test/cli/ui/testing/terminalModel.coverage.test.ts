@@ -3,6 +3,24 @@ import * as Effect from "effect/Effect";
 import { screenAfter } from "../../../../effected/cli/ui/testing/terminalModel.ts";
 
 describe("terminalModel coverage", () => {
+  it.effect("overwrites whole emoji and CJK graphemes using terminal cells", () => Effect.sync(() => {
+    assert.deepStrictEqual(screenAfter("😀x\rA"), ["A x"]);
+    assert.deepStrictEqual(screenAfter("界x\rA"), ["A x"]);
+    assert.deepStrictEqual(screenAfter("👨‍👩‍👧‍👦x\rA"), ["A x"]);
+    assert.deepStrictEqual(screenAfter("🇺🇸x\rA"), ["A x"]);
+    assert.deepStrictEqual(screenAfter("e\u0301x\rA"), ["Ax"]);
+    assert.deepStrictEqual(screenAfter("😀x\u001b[1;2HA"), [" Ax"]);
+    assert.deepStrictEqual(screenAfter("界x\u001b[2GA"), [" Ax"]);
+    assert.deepStrictEqual(screenAfter("abc\r界"), ["界c"]);
+    assert.deepStrictEqual(screenAfter("😀界x\u001b[2G好"), [" 好 x"]);
+    assert.deepStrictEqual(screenAfter("😀x\u001b[4GA"), ["😀xA"]);
+    assert.deepStrictEqual(screenAfter("e\u001b[31m\u0301x\rA"), ["Ax"]);
+    assert.deepStrictEqual(screenAfter("\u0301x"), ["x"]);
+    assert.deepStrictEqual(screenAfter("e\u001b[1;2H\u0301x"), ["e\u0301x"]);
+    assert.deepStrictEqual(screenAfter("界\u001b[1;3H\u0301x"), ["界\u0301x"]);
+    assert.deepStrictEqual(screenAfter("e\u001b[8G\u0301x"), ["e      x"]);
+  }));
+
   it.effect("supports both dual forms and normalizes empty lines and trailing whitespace", () => Effect.sync(() => {
     assert.deepStrictEqual(screenAfter(""), []);
     assert.deepStrictEqual(screenAfter("first  \n\nlast\t \n"), ["first", "last"]);

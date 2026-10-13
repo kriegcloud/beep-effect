@@ -16,14 +16,15 @@ const BindingInput = S.Struct({
   help: S.String,
   hidden: S.optionalKey(S.Boolean),
 });
+const BindingInputs = S.Array(BindingInput);
 
 it.effect.prop("binding normalization is idempotent and serialization preserves dispatch and help", [BindingInput.pipe(S.Array, Arbitrary.schema)], ([bindings]) =>
   Effect.gen(function* () {
     const table = KeyTable.make(bindings);
     const again = KeyTable.make(table.bindings);
     assert.deepStrictEqual(again.bindings, table.bindings);
-    const encoded = yield* S.encodeEffect(S.Array(BindingInput))(table.bindings);
-    const decoded = yield* S.decodeEffect(S.Array(BindingInput))(encoded);
+    const encoded = yield* S.encodeEffect(BindingInputs)(table.bindings);
+    const decoded = yield* S.decodeEffect(BindingInputs)(encoded);
     const restored = KeyTable.make(decoded);
     for (const glyphs of [Glyphs.ascii, Glyphs.unicode]) {
       assert.deepStrictEqual(restored.help(glyphs), table.help(glyphs));

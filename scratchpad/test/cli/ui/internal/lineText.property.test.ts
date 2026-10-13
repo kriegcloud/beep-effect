@@ -3,8 +3,12 @@ import { assert, it } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { lineText } from "../../../../effected/cli/ui/internal/lineText.ts";
+import { lineText, lineTextAround } from "../../../../effected/cli/ui/internal/lineText.ts";
 const runs = { arbitrary: fcRuns(100) };
+it.effect("a tab maps to one visible space on either side of the cursor", () => Effect.sync(() => {
+  assert.deepStrictEqual(lineTextAround("a\tb", 1), ["a", " b"]);
+  assert.deepStrictEqual(lineTextAround("a\tb", 2), ["a ", "b"]);
+}));
 it.effect.prop("lineText is idempotent and its normalized text survives serialization faithfully", [Arbitrary.schema(S.String)], ([text]) => Effect.gen(function* () {
   const normalized = lineText(text);
   assert.strictEqual(lineText(normalized), normalized);

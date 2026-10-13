@@ -19,7 +19,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/internal/inkConsole");
 /** Captures the caller stack for console.trace. */
 class ConsoleTrace extends S.TaggedError<ConsoleTrace>($I`ConsoleTrace`)(
 	"ConsoleTrace",
-	{ message: S.String },
+	{ message: S.String.annotate({ description: "The trace message used to capture the caller stack, empty before formatting." }) },
 	$I.annote("ConsoleTrace", { description: "The caller stack rendered by console.trace." }),
 ) {
 	override readonly name = "Error";

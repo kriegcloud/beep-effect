@@ -8,9 +8,11 @@ import type { ReactElement } from "react";
 
 const $I = $ScratchpadId.create("effected/cli/ui/internal/lazyView");
 
-class LazyViewStateError extends S.TaggedError<LazyViewStateError>($I`LazyViewStateError`)("LazyViewStateError", {
-	message: S.String,
-}) {}
+class LazyViewStateError extends S.TaggedError<LazyViewStateError>($I`LazyViewStateError`)(
+	"LazyViewStateError",
+	{ message: S.String.annotate({ description: "The unloaded view or invalid loader preventing a lazy render." }) },
+	$I.annote("LazyViewStateError", { description: "A lazy view was rendered before loading or carried an invalid loader." }),
+) {}
 
 /** Where a lazy view keeps its loader: a `Symbol.for` key, so two copies of the package agree on it. */
 const LOAD = Symbol.for("@effected/cli/ui/lazyView");

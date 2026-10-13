@@ -17,6 +17,7 @@ const overflowField = O.getOrUndefined(SchemaAST.isUnion(blockAst)
   : O.none());
 assertDefined(overflowField);
 const overflowSchema = S.make<S.Codec<(hidden: number) => ReadonlyArray<Inline>>>(overflowField.type);
+const InlineContent = S.Array(Inline);
 
 it.effect.prop("generated overflow callbacks retain valid inline content through a Block round trip", [Arbitrary.schema(overflowSchema)], ([overflow]) => Effect.gen(function* () {
   const block = Doc.list([], { overflow });
@@ -25,7 +26,7 @@ it.effect.prop("generated overflow callbacks retain valid inline content through
   assertDefined(decoded.overflow);
   for (const hidden of [0, 3]) {
     const expected = overflow(hidden);
-    yield* S.decodeEffect(S.Array(Inline))(expected);
+    yield* S.decodeEffect(InlineContent)(expected);
     assert.deepStrictEqual(decoded.overflow(hidden), expected);
   }
 }), { arbitrary: fcRuns(50) });
