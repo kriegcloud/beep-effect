@@ -733,7 +733,7 @@ checks remained unchanged. No passing native proof or Executor custody resulted.
 Receipts: `native-attempt11-terminal-summary-v1.json`,
 `native-attempt11-terminal-addendum-v1.json`,
 `native-attempt11-finalization-error-v1.json`, and
-`attempt11-passwd-namespace-attribution-v1.json`.
+`attempt11-passwd-namespace-attribution-v2.json`.
 
 
 ## Distinguish admission cancellation from successful bootstrap
@@ -775,3 +775,21 @@ open-file descriptions still held the locks. Do not infer stale admission from
 an absent acquisition PID alone: correlate kernel lock device/inode records with
 accessible process descriptors and cgroups. No foreign process was changed.
 Receipt: `ancestor-baseline-candidates-20261013/descriptor-attribution-20261013T210304Z.json`.
+
+
+## Include real retention fixtures in isolation-contract regression checks
+
+The first default package verification after the account-file boundary change
+passed build and type checking, then reported 5,867 passing tests and one failure
+in the real sealed-Git candidate-retention case. The failure was the exact
+three-file account census guard. The 28 narrower boundary and proof tests had
+passed, so they did not cover this existing consumer of the shared binding path.
+
+Source review attributed this to the existing strict fixture: it requested a
+productive sealed system with a Git-only inventory. Add owned synthetic account
+files, prove the incomplete inventory is rejected without published output, and
+recapture the complete inventory before the existing real retention roundtrip.
+Include that case in focused verification, then rerun the full package audit and
+documentation gate. Keep the native account boundary unchanged. The failed package run took 1,370.19 seconds; retain
+that cost and its failure instead of relabeling the earlier focused pass.
+Receipt: `code-graph-package-aac30f2-1791927383193654817.terminal.json`.

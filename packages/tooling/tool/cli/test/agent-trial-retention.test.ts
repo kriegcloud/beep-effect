@@ -533,9 +533,35 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
     Effect.scoped(
       Effect.gen(function* () {
         const f = yield* setup();
-        const system = yield* captureTrialInventory(f.request.system.root);
+        const gitOnlySystem = yield* captureTrialInventory(f.request.system.root);
         const output = f.path.join(f.root, "strict-candidate-retention");
         yield* f.fs.makeDirectory(output);
+        const missingAccounts = yield* retainTrialCandidate(
+          f.attempt.workspace,
+          f.attempt.baseCommit,
+          output,
+          O.none(),
+          gitOnlySystem,
+          true
+        ).pipe(Effect.result);
+        expect(missingAccounts._tag).toBe("Failure");
+        if (missingAccounts._tag === "Failure") {
+          expect(missingAccounts.failure._tag).toBe("AgentTrialError");
+          if (missingAccounts.failure._tag === "AgentTrialError")
+            expect(missingAccounts.failure.message).toBe("Sealed account inputs require the exact three-file census");
+        }
+        expect(yield* f.fs.readDirectory(output)).toEqual([]);
+        // Declare synthetic account files with candidate Git HOME /nonexistent.
+        // These owned fixture inputs never read or project host /etc.
+        const accountRoot = f.path.join(gitOnlySystem.root, "etc");
+        yield* f.fs.makeDirectory(accountRoot);
+        for (const [name, contents] of A.make(
+          Tuple.make("passwd", "fixture:x:0:0:Fixture:/nonexistent:/bin/sh\n"),
+          Tuple.make("group", "fixture:x:0:\n"),
+          Tuple.make("nsswitch.conf", "passwd: files\ngroup: files\n")
+        ))
+          yield* f.fs.writeFileString(f.path.join(accountRoot, name), contents);
+        const system = yield* captureTrialInventory(gitOnlySystem.root);
         const result = yield* retainTrialCandidate(
           f.attempt.workspace,
           f.attempt.baseCommit,
