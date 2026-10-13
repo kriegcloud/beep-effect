@@ -448,7 +448,7 @@ export class EffectDiagnosticsDirectiveExemption extends S.Class<EffectDiagnosti
  * which implements `Bun.*` over node builtins before any Effect runtime exists, the root Vitest
  * shared config, whose include list is scanned synchronously before any Effect runtime exists,
  * and the effect-vitest-canon D14 conformance entrypoint. Every other `@effect-diagnostics`
- * directive in a scanned root (`apps`, `packages`, `tooling`, `infra`, `scratchpad`, and the
+ * directive in a scanned root (`apps`, `packages`, `tooling`, `infra`, and the
  * repo-root TypeScript files) fails `beep quality tsgo-rules`; a lane that wants a fourth entry
  * has found a rule-card gap, not a reason to grow this list.
  *
