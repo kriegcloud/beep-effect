@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "github-commands",
+    "module": "github-references",
     "stage": 5,
     "commit": null,
-    "at": "2026-10-13T23:17:03.385Z"
+    "at": "2026-10-13T23:17:12.267Z"
   },
   "rows": [
     {
@@ -5089,8 +5089,8 @@
       "module": "github-references",
       "wave": 1,
       "position": 8,
-      "stage": 3,
-      "status": "in-progress",
+      "stage": 5,
+      "status": "done",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
         "src": "packages/github-references/src",
@@ -5458,6 +5458,14 @@
         },
         {
           "stage": 2,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 3,
+          "sha": "1b16cb852502ef9a235c3dcddf53258b7fc66925"
+        },
+        {
+          "stage": 4,
           "sha": null
         }
       ],
@@ -5465,9 +5473,11 @@
       "notes": [
         "2026-10-09T11:19:59.383Z S1: green under tsgo, oxlint and the four beep laws; upstream tests pass; audit green (parity strict)",
         "2026-10-09T16:18:22.738Z S2: S2 green: docgen with all enforcement flags and the JSDoc law; carriers converted; README adapted (section 10.3)",
-        "2026-10-09T23:46:23.043Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (0 ledgered exceptions), property floor"
+        "2026-10-09T23:46:23.043Z S3: S3 green: per-file 100 percent coverage, canon detectors clean (0 ledgered exceptions), property floor",
+        "2026-10-13T23:17:10.213Z S4: S4 closed at review round 3 (operator cap: three rounds)",
+        "2026-10-13T23:17:12.267Z S5: done: final round committed and gated (audit, docgen, per-file coverage)"
       ],
-      "closedAt": null
+      "closedAt": "2026-10-13T23:17:12.267Z"
     },
     {
       "id": "w1-github-commands",
