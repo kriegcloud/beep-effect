@@ -267,3 +267,12 @@ match 123 distinct repaired digests. Two of nine sealed; ordinal 3 awaits
 renewed preflight through shared heavy admission. The full sixty-second
 interval is complete. Continue with the same frozen launcher sequentially,
 stop at the first failure and retain all state. P2 remains incomplete.
+
+
+**Runs 13+ progress 2026-10-13:** renewed real engine smokes and four
+focused restoration tests pass after shared admission. All frozen identities
+match; two of nine accepted families retain their ledger hashes. After a
+full sixty-second interval and 332,194,398,208 free bytes, ordinal 3 was
+submitted to the sole detached family unit with the unchanged frozen script.
+The watcher reconciles its terminal result before ordinal 4. P2 remains
+incomplete; stop at the first failure, retain all state and never retry seals.

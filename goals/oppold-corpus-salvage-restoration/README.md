@@ -9,12 +9,13 @@ digests while retaining the originals.
 
 ## Next action
 
-P1 is complete. Run 12 reconciled accepted P2 family 2 under the unchanged
-frozen script. Two of nine bounded families sealed; ordinal 3 is blocked on renewed
-preflight admission after an approximately twenty-minute queue wait. Continue from the dated handoff, one detached family
-at a time, with a full sixty-second interval after successful reconciliation.
-Stop and diagnose the first failure; never retry a sealed family. P2 remains
-incomplete. Retain all families, outputs and immutable freeze records.
+P1 is complete. Two of nine bounded P2 families are accepted and reconciled.
+Renewed admitted smokes and four focused tests pass; ordinal 3 is submitted
+to its detached unit with the unchanged frozen script after sixty seconds.
+Continue from the dated handoff when the watcher reports that unit ended.
+Reconcile its seal, identities, children, repair pairs and ceilings before
+ordinal 4. Stop and diagnose the first failure; never retry a sealed family.
+P2 remains incomplete. Retain every family, output and immutable freeze record.
 
 ## Launcher
 

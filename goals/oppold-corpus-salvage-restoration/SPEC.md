@@ -966,3 +966,22 @@ or run directory. P2 remains in-progress. Reversal: resume renewed preflight
 through beep-heavy, wait a full sixty-second interval, and launch the unchanged
 frozen script with ordinal 3 after all checks pass. Retain every sealed family,
 output and pre-launch freeze record. No family failure or retry is claimed.
+
+
+### 2026-10-13: renew admitted preflight after shared-admission handoff
+
+Runs 13+ permits continuation after shared heavy admission becomes available.
+Family 2 remains accepted; both existing family ledger digests are unchanged.
+All nine source, engine, membership, policy and launcher freeze identities
+match. Ordinals 3-9 remain unstarted. No source change or main integration
+is performed during the frozen wave.
+
+Decision: pass the existing workstation user-bus address and runtime directory
+to beep-heavy because this tool session omitted those environment variables.
+The user bus is present. Initial wrappers failed before admission and therefore
+are not engine or test execution evidence. Rerun both required preflight
+commands through the unchanged shared queue; never bypass admission or stop
+another lane. Launch ordinal 3 only after both proofs pass, refreshed free
+space remains above 100 GB, and a full sixty-second interval completes.
+Reversal: stop only worker-owned queued preflight commands and hand off the
+unchanged next ordinal, retaining every sealed family and freeze record.

@@ -148,3 +148,33 @@ ordinal 3 has no run directory or stamps. Resume renewed preflight through
 beep-heavy, a full sixty-second interval and the same frozen script at ordinal 3.
 P2 remains incomplete; retain all families and freeze records. This is an
 admission blocker, not a failed or retried family.
+
+
+## Runs 13+ — admitted preflight passed; ordinal 3 submitted
+
+Both real sandbox smokes passed through beep-heavy after approximately
+fifteen minutes of shared queueing. Four focused restoration tests passed,
+78 skipped, 3.63 seconds. All frozen identities match; the source is unchanged.
+A full sixty-second interval elapsed after confirmed preflight completion.
+Free bytes immediately before submission: 332,194,398,208.
+
+Submitted at 2026-10-13T21:34:16Z with the SAME frozen launcher and ordinal 3.
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-3.service.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-03/ledgers/mail/slice.jsonl`.
+At initial observation the detached unit is active/running, waiting for
+shared admission; started/result stamps are absent. It is the only wave
+family unit. MemoryMax 34,359,738,368 bytes, MemorySwapMax zero, agent-runs.slice.
+Runtime policy comparison remains pending the first family-run-start.
+
+Two of nine sealed; ordinal 3 submitted, ordinals 4-9 unstarted. The
+orchestrator watcher owns the explicit mid-wave handoff under Runs 12+/13+.
+When the unit ends, read its result and reconcile seal, source/policy identity,
+all children and repair digest pairs, output/time ceilings and capacity.
+Stop and diagnose any failure; never retry a sealed family. Continue to
+ordinal 4 only after accepted reconciliation, renewed preflight and sixty seconds.
+No source/engine/launcher changes inside the wave. P2 remains incomplete;
+eighteen larger occurrences and estate/recycle/legacy-Word gates remain open.
+Reversal: revert packet continuation decisions while retaining every sealed
+family, output and freeze record. No merge or PR publication during this
+mid-wave handoff; PR7 follows the terminal wave record.

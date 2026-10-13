@@ -758,3 +758,16 @@ Free bytes 204492922880, above retained floor. Zero P2 families started.
   preflight remains queued. Admission is retained; no cap or configuration changes.
 - **Prevented by:** expose queue position and estimated slot availability in
   the lane handoff so the wave driver can distinguish admission from execution.
+
+
+## 2026-10-13 — Relaunch did not inherit the user-bus environment
+
+- **Doing:** renewing admitted sandbox smokes and focused restoration proof
+  before the next frozen wave family.
+- **Evidence:** both beep-heavy wrappers stopped before admission with
+  `DBUS_SESSION_BUS_ADDRESS and XDG_RUNTIME_DIR not defined`. The existing
+  user bus was present; explicit workstation runtime/bus variables restored
+  access. Both renewed commands then entered the unchanged shared slot queue.
+- **Prevented by:** preserve the user-bus environment on every worker relaunch
+  and check manager reachability before issuing admitted work. No engine,
+  launcher, unit configuration or outside job was changed.
