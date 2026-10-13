@@ -264,6 +264,12 @@ const ADOPT_BASE_VALIDATIONS: ReadonlyArray<ValidationRequirement> = [
   "goal-md-within-budget",
 ];
 
+// Template files a conforming packet need not carry (ruled 2026-10-13,
+// research/p1-fp-eyeball-verdicts.md, Workstream E): the reflection template is
+// authoring convenience in goals/_template, never a packet artifact.
+const isOptionalTemplateConvention = (relativePath: string): boolean =>
+  Str.Equivalence(relativePath, `history/reflections/${REFLECTION_TEMPLATE_BASENAME}`);
+
 const isReflectionArtifact = (relativePath: string): boolean =>
   Str.startsWith("history/reflections/")(relativePath) &&
   Str.endsWith(".md")(relativePath) &&
@@ -351,7 +357,11 @@ export const compileAdoptionPlan: {
     const present = A.map(snapshot.files, (file) => presentFileRow(snapshot.packetPath, file, parsedManifest));
     const packetPaths = A.map(snapshot.files, (file) => file.path);
     const missing = yield* Effect.forEach(
-      A.filter(snapshot.templateFiles, (templateFile) => !A.contains(packetPaths, templateFile.path)),
+      A.filter(
+        snapshot.templateFiles,
+        (templateFile) =>
+          !A.contains(packetPaths, templateFile.path) && !isOptionalTemplateConvention(templateFile.path)
+      ),
       (templateFile) => missingTemplateRow(snapshot, archetype, templateFile)
     );
 
