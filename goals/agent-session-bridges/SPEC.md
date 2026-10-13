@@ -195,3 +195,12 @@ PR #1617 and enter this lane through main. The test compiler's saved result,
 focused execution and independent review are recorded in
 [hosted triage](research/T3-HOSTED-TRIAGE.md). This decision grants no baseline
 relaxation and does not change the final hosted/review/merge acceptance gate.
+
+### 2026-10-13: resolve base conflicts before the shared repair lands
+
+Merge current main independently of PR #1617 so PR #1571 can remain reviewable
+while shared CI repair continues. Regenerate the root TypeScript configuration
+from the merged workspace, preserving the AgentMessage/T3 aliases and main's
+compiler-profile split. Do not copy the shared repair into this branch; integrate
+it through main after it lands. Reversal is a reviewed merge revert, preserving
+the test-wave commit and both live ambiguity holds.

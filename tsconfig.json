@@ -2089,13 +2089,6 @@
       ],
       "@beep/t3-code": ["./packages/drivers/t3-code/src/index.ts"],
       "@beep/t3-code/*": ["./packages/drivers/t3-code/src/*"]
-    },
-    "plugins": [
-      {
-        "name": "@effect/language-service",
-        "inlays": true,
-        "noExternal": true
-      }
-    ]
+    }
   }
 }
