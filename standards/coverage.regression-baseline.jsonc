@@ -15420,6 +15420,18 @@
             "functions": 36
           }
         },
+        "packages/drivers/m365/src/M365.env.ts": {
+          "lines": 96,
+          "statements": 96,
+          "branches": 100,
+          "functions": 87.5,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
         "packages/drivers/m365/src/M365.errors.ts": {
           "lines": 89.74,
           "statements": 84.44,
@@ -15430,6 +15442,18 @@
             "statements": 7,
             "branches": 2,
             "functions": 7
+          }
+        },
+        "packages/drivers/m365/src/M365.links.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/drivers/m365/src/M365.schemas.ts": {
@@ -24133,6 +24157,30 @@
             "statements": 46,
             "branches": 8,
             "functions": 32
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Drawings/Drawings.intake.schemas.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 75,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 1,
+            "functions": 0
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Drawings/Drawings.intake.ts": {
+          "lines": 95.62,
+          "statements": 93.03,
+          "branches": 91.83,
+          "functions": 81.94,
+          "uncovered": {
+            "lines": 8,
+            "statements": 14,
+            "branches": 4,
+            "functions": 13
           }
         },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.judge.ts": {

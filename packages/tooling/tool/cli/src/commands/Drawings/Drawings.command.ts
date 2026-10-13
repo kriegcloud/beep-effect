@@ -1,11 +1,13 @@
 /**
- * `beep drawings`: render design-figure sheet sets from a spec and validate
- * sheet-set PDFs against the filing rules.
+ * `beep drawings`: render design-figure sheet sets from a spec, validate
+ * sheet-set PDFs against the filing rules, and pull reviewer attachments in
+ * from Outlook.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
+import { M365 } from "@beep/m365";
 import { PdfTools } from "@beep/pdf-tools";
 import {
   ConfirmationSource,
@@ -27,6 +29,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
+import { drawingIntakeLaneLayer, runDrawingIntake } from "./Drawings.intake.ts";
 import { buildDrawingJudgePack, ingestDrawingJudgeInventory } from "./Drawings.judge.ts";
 import { FigureSetLive, MailReaderM365Live, MailReaderUnavailable, sheetSetApprovalLive } from "./Drawings.layer.ts";
 import type { OcctError } from "@beep/occt";
@@ -171,8 +174,10 @@ const attestedByFlag = Flag.String("attested-by").pipe(
 const deliveredByFlag = Flag.String("delivered-by").pipe(
   Flag.withDescription("Email address the PDF was delivered from; must equal the approver recorded in the spec")
 );
-const corpusRootFlag = Flag.Directory("corpus-root", { mustExist: true }).pipe(
-  Flag.withFallbackConfig(Config.String("BEEP_OPPOLD_CORPUS_ROOT")),
+const corpusRootBaseFlag = Flag.Directory("corpus-root", { mustExist: true }).pipe(
+  Flag.withFallbackConfig(Config.String("BEEP_OPPOLD_CORPUS_ROOT"))
+);
+const corpusRootFlag = corpusRootBaseFlag.pipe(
   Flag.withDescription("Corpus root the confirmation PDF must live under")
 );
 
@@ -318,8 +323,52 @@ const drawingsJudgeIngestCommand = Command.make(
   runJudgeIngest
 ).pipe(Command.withDescription("Validate a judge reply as a drawing-rubric qa-inventory/v1 and store it in the pack"));
 
+const intakeMessageFlag = Flag.String("message").pipe(
+  Flag.withDescription("Outlook web link, or a Graph message or conversation id")
+);
+const intakeMailboxFlag = Flag.String("mailbox").pipe(
+  Flag.optional,
+  Flag.withDescription("Mailbox to read (address or user id); defaults to <PREFIX>_MAILBOX")
+);
+const intakeOutFlag = Flag.Directory("out").pipe(
+  Flag.withDescription("Directory under the corpus root for the attachments and intake.json")
+);
+const intakeCorpusRootFlag = corpusRootBaseFlag.pipe(
+  Flag.withDescription("Corpus root the intake directory must lie under")
+);
+const intakePickFlag = Flag.String("pick").pipe(
+  Flag.withDefault("latest"),
+  Flag.withDescription("For a conversation: latest, or n for the n-th newest message")
+);
+const intakeEnvPrefixFlag = Flag.String("env-prefix").pipe(
+  Flag.withDefault("M365_OUTBOX"),
+  Flag.withDescription(
+    "Prefix of the app-only settings: <PREFIX>_TENANT_ID, _CLIENT_ID, _CERT_THUMBPRINT_SHA256, _CERT_PRIVATE_KEY, _MAILBOX (run under op run)"
+  )
+);
+
+const drawingsIntakeCommand = Command.make(
+  "intake",
+  {
+    message: intakeMessageFlag,
+    mailbox: intakeMailboxFlag,
+    out: intakeOutFlag,
+    corpusRoot: intakeCorpusRootFlag,
+    pick: intakePickFlag,
+    envPrefix: intakeEnvPrefixFlag,
+  },
+  runDrawingIntake
+).pipe(
+  Command.withDescription(
+    "Pull a message's file attachments into a directory under the corpus root, deduped by sha256, with intake.json"
+  ),
+  Command.provide((input) =>
+    drawingIntakeLaneLayer({ envPrefix: input.envPrefix, mailLayer: M365.makeAppOnlyLiveLayer })
+  )
+);
+
 const printDrawingsIndex = () =>
-  printLines(["drawings commands: render, validate, judge, judge-ingest, statement, sign"]);
+  printLines(["drawings commands: render, validate, judge, judge-ingest, statement, sign, intake"]);
 
 /**
  * Design-figure drawings command group.
@@ -338,7 +387,7 @@ const printDrawingsIndex = () =>
  * @since 0.0.0
  */
 export const drawingsCommand = Command.make("drawings", {}, printDrawingsIndex).pipe(
-  Command.withDescription("Design-figure sheet rendering and filing validation"),
+  Command.withDescription("Design-figure sheet rendering, filing validation, approval, and reviewer intake"),
   Command.withSubcommands(
     A.make(
       drawingsRenderCommand,
@@ -346,7 +395,8 @@ export const drawingsCommand = Command.make("drawings", {}, printDrawingsIndex).
       drawingsJudgeCommand,
       drawingsJudgeIngestCommand,
       drawingsStatementCommand,
-      drawingsSignCommand
+      drawingsSignCommand,
+      drawingsIntakeCommand
     )
   )
 );
