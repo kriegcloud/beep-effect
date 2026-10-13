@@ -14,6 +14,7 @@
  * @since 0.0.0
  */
 
+import { $ScratchpadId } from "@beep/identity/packages";
 import { detectEffectVitestFindings } from "@beep/repo-cli/commands/Lint";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
@@ -28,6 +29,8 @@ import { ManifestInvalid } from "./Audit.errors.ts";
 import { listTsFiles } from "./Copy.ts";
 import type { AuditTarget } from "./Ledger.schema.ts";
 import { labPaths, type RunnerConfig } from "./Paths.ts";
+
+const $I = $ScratchpadId.create("effected/runner/Canon");
 
 /**
  * A ledgered canon exception: the detector finding id and why the finding is
@@ -48,8 +51,17 @@ import { labPaths, type RunnerConfig } from "./Paths.ts";
  */
 export const CanonExceptions = S.Struct({ id: S.NonEmptyString, reason: S.NonEmptyString }).pipe(
   S.Array,
-  S.fromJsonString
+  S.fromJsonString,
+  $I.annoteSchema("CanonExceptions", { description: "Ledgered canon exceptions with detector finding ids and acceptance reasons." })
 );
+
+/**
+ * Decoded value produced by {@link CanonExceptions}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type CanonExceptions = typeof CanonExceptions.Type;
 
 const decodeExceptions = S.decodeUnknownEffect(CanonExceptions);
 

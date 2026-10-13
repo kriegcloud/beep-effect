@@ -17,8 +17,6 @@ import * as P from "effect/Predicate";
 
 /**
  * The run/job identifiers the artifact protocol scopes every call to.
- *
- *
  * @internal
  * @category models
  * @since 0.0.0
@@ -30,8 +28,6 @@ export interface BackendIds {
 
 /**
  * Where the results backend is and how to talk to it.
- *
- *
  * @internal
  * @category models
  * @since 0.0.0
@@ -98,8 +94,6 @@ export const RUNTIME_TOKEN = "ACTIONS_RUNTIME_TOKEN";
  * The `misconfigured` detail every results-backend consumer reports when
  * {@link resultsBackend} fails: names the missing variable, and says why it is
  * missing — the single most common misuse of these services.
- *
- *
  * **Example** (Explain a missing results URL)
  *
  * ```ts
@@ -107,7 +101,6 @@ export const RUNTIME_TOKEN = "ACTIONS_RUNTIME_TOKEN";
  *
  * console.log(misconfiguredDetail(RESULTS_URL, "cache")) // ACTIONS_RESULTS_URL is not set — the cache is only reachable from a `uses:` step, never from `run:`
  * ```
- *
  * @internal
  * @category formatting
  * @since 0.0.0
