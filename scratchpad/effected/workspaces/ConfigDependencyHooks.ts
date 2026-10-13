@@ -691,11 +691,12 @@ const failure = (name, cause) => ({
 });
 const replay = async () => {
 	let catalog = {};
-	const catalogs = {};
+	const catalogEntries = [];
 	for (const [name, entries] of Object.entries(JSON.parse(seedJson))) {
 		if (name === "default") catalog = { ...entries };
-		else catalogs[name] = { ...entries };
+		else catalogEntries.push([name, { ...entries }]);
 	}
+	const catalogs = Object.fromEntries(catalogEntries);
 	let config = {
 		catalog,
 		catalogs,
@@ -758,14 +759,17 @@ const REPLAY_TIMEOUT = Duration.seconds(30);
  * threaded (`configOf`), never fatal.
  */
 const ReplayPayload = S.Union([
-	S.Struct({ ok: S.Literal(true), config: S.Unknown }),
 	S.Struct({
-		ok: S.Literal(false),
-		name: S.optionalKey(S.String),
-		message: S.optionalKey(S.String),
-		stack: S.optionalKey(S.String),
+		ok: S.Literal(true).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child completed hook replay successfully." })),
+		config: S.Unknown.pipe($I.annoteKey("ReplayPayload.config", { description: "Hook-returned config data, normalized tolerantly by the parent." })),
 	}),
-]);
+	S.Struct({
+		ok: S.Literal(false).pipe($I.annoteKey("ReplayPayload.ok", { description: "The child failed to load or replay a hook." })),
+		name: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.name", { description: "The config dependency whose hook failed, when identified." })),
+		message: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.message", { description: "The child-side failure message, when available." })),
+		stack: S.optionalKey(S.String).pipe($I.annoteKey("ReplayPayload.stack", { description: "The child-side failure stack, when available." })),
+	}),
+]).pipe($I.annoteSchema("ReplayPayload", { description: "The subprocess hook replay success or failure envelope, with tolerant success config data." }));
 
 /** Rebuild the subprocess's serialized failure as an `Error`, preserving the child-side stack when it carried one. */
 const replayFailureCause = (payload: { readonly message?: string; readonly stack?: string }): Error => {

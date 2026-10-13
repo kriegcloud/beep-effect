@@ -6,6 +6,8 @@ import * as Result from "effect/Result";
 import { ScriptedSpawner } from "../../effected/commands/index.ts";
 import type { PeerDependencyRules } from "../../effected/workspaces/ConfigDependencyHooks.ts";
 
+const JsonValue = S.fromJsonString(S.Unknown);
+
 // The resolution ladder intentionally reads real disk. Its public result is
 // supplied here so the tests isolate replay and protocol behavior without IO.
 vi.doMock("../../effected/workspaces/internal/configDependencyResolution.ts", (original) =>
@@ -93,7 +95,7 @@ describe("ConfigDependencyHooks replay coverage", () => {
 });
 
 for (const payload of [{ ok: false }, { ok: false, name: "cfg", message: "bad hook", stack: "hook stack" }]) {
-  const spawner = ScriptedSpawner.make(() => ({ stdout: `${Result.getOrThrow(S.encodeResult(S.fromJsonString(S.Unknown))(payload))}\n` }));
+  const spawner = ScriptedSpawner.make(() => ({ stdout: `${Result.getOrThrow(S.encodeResult(JsonValue)(payload))}\n` }));
   it.layer(ConfigDependencyHooks.layerSubprocess.pipe(Layer.provide(spawner.layer)), { timeout: "30 seconds" })((it) => {
     it.effect(`reconstructs replay failure with ${payload.message ?? "default diagnostic"}`, () => Effect.gen(function* () {
       const hooks = yield* ConfigDependencyHooks;

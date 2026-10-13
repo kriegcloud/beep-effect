@@ -9,6 +9,8 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { binTargetOf, consumerFiles, fileOverridesOf, overridePath, readPackedManifest, scrubEnv, unresolvedSpecifiers, versionOf } from "../../../effected/workspaces/internal/packedInstallPlan.ts";
 
+const ConsumerDocument = S.Struct({ dependencies: S.Record(S.String, S.String) });
+
 const runs = { arbitrary: fcRuns(100) };
 const Version = S.Struct({ major: S.Int.check(S.isBetween({ minimum: 0, maximum: 1000 })), minor: S.Int.check(S.isBetween({ minimum: 0, maximum: 1000 })), patch: S.Int.check(S.isBetween({ minimum: 0, maximum: 1000 })) });
 const Specifier = S.Literals(["workspace:*", "catalog:", "catalog:peers", "link:../local", "file:./local.tgz", "file:/absolute.tgz", "^1.2.3", "latest"]);
@@ -83,7 +85,7 @@ it.effect.prop("consumer formatting is deterministic and faithful to exact packe
   assert.deepStrictEqual(consumerFiles(input), files);
   for (const file of files) {
     if (file.file === "package.json") {
-      const document = yield* S.decodeUnknownEffect(S.Struct({ dependencies: S.Record(S.String, S.String) }))(yield* S.decodeEffect(json)(file.content));
+      const document = yield* S.decodeUnknownEffect(ConsumerDocument)(yield* S.decodeEffect(json)(file.content));
       assert.deepStrictEqual(document.dependencies, { carrier: `file:${tarball}`, member: `file:${tarball}`, external: "^2" });
       assert.strictEqual(`${yield* S.encodeEffect(prettyJson)(yield* S.decodeEffect(json)(file.content))}\n`, file.content);
     }

@@ -15385,6 +15385,84 @@
           "upstreamBehaviour": "scratchpad/effected/workspaces/internal/sourceText.ts:601 carried a branch no input can reach",
           "labBehaviour": "Removed impossible missing-entry defaults from the nonempty line-start binary search and selected line lookup at line 604.",
           "reason": "coverage: section 11.3, an unreachable branch is a finding against the source; simplified without a behaviour change"
+        },
+        {
+          "test": "scratchpad/test/workspaces/ConfigDependencyHooksSubprocess.test.ts:135",
+          "upstreamBehaviour": "Subprocess seed construction assigns named catalogs into {}, silently dropping an own __proto__ catalog.",
+          "labBehaviour": "The child builds ordered catalogs with Object.fromEntries and retains __proto__ alongside default and ordinary named catalogs.",
+          "reason": "upstream-bug: r02 and fix-workspaces-g1 report the pinned-oracle identity-hook loss; the diff replaces catalog assignment and adds an actual-node-child regression with own-key, value and ordering assertions."
+        },
+        {
+          "test": "scratchpad/test/workspaces/PeerCheck.test.ts:765",
+          "upstreamBehaviour": "Absolute link:/packages/a is normalized to packages/a and can be attributed to an unrelated workspace-relative manifest.",
+          "labBehaviour": "Absolute link paths retain their leading slash; unmatched targets remain uncovered with unresolvedEdge and no fabricated peer findings.",
+          "reason": "upstream-bug: r07 records matching lab/oracle misattribution; the diff preserves absolute identity and tests three absolute path spellings against an unrelated internal package."
+        },
+        {
+          "test": "scratchpad/test/workspaces/TrackingTag.test.ts:102",
+          "upstreamBehaviour": "TrackingTag.forVersion with a valid version and packageName \"\" throws during TrackingTag construction.",
+          "labBehaviour": "Unrepresentable supplied package names return []; omitted and valid package names retain alias ordering and precision.",
+          "reason": "upstream-bug: r08 records the pinned-oracle totality failure; the diff guards the supplied name with TrackingTag.fields.packageName and adds empty-name, prerelease, precision and valid-name controls."
+        },
+        {
+          "test": "scratchpad/test/workspaces/PackedInstallPlan.test.ts:58; scratchpad/test/workspaces/PackedInstall.test.ts:1054",
+          "upstreamBehaviour": "Environment scrubbing and command layering assign entries into {}, losing an explicitly supplied own __proto__ variable.",
+          "labBehaviour": "Record.assignProperty preserves the own variable through scrubbing and overrides; undefined still removes it and trap filtering is preserved.",
+          "reason": "upstream-bug: r15 identifies the same ordinary-assignment defect in the oracle; both copy loops change in the diff, with own-key preservation, override, removal and trap-filter regressions."
+        },
+        {
+          "test": "scratchpad/test/workspaces/WorkspaceSnapshots.test.ts:863",
+          "upstreamBehaviour": "Projecting successful replay versions through assignment into {} silently omits a replay named __proto__ from serialized snapshots.",
+          "labBehaviour": "Record.fromEntries retains own replay names, values and order in historical/live snapshots and serialization.",
+          "reason": "upstream-bug: r16 corrects the seat claim to silent loss: the exact-loop probe yielded no own keys without throwing; the diff changes hookVersionsOf and adds historical/live and serialization assertions."
+        },
+        {
+          "test": "scratchpad/test/workspaces/WorkspaceSnapshots.test.ts:911",
+          "upstreamBehaviour": "Historical Bun inline-catalog assembly reads only object-workspaces blocks, omitting top-level catalogs retained by the live reader.",
+          "labBehaviour": "Historical snapshots tolerantly merge top-level default/named catalogs before nested workspaces catalogs, with nested values winning and malformed entries degrading.",
+          "reason": "upstream-bug: r18 documents a no-lockfile ref/worktree mismatch; the diff adds top-level assembly and regressions for array workspaces, overlapping precedence and tolerant malformed blocks. This is distinct from the existing live-reader correction."
+        },
+        {
+          "test": "scratchpad/test/workspaces/sourceText.test.ts:95; scratchpad/test/workspaces/SourceBoundary.test.ts:404",
+          "upstreamBehaviour": "Identifier matching misses Unicode-escaped process/require names and can falsely match longer escaped identifiers; console lookup assumes unescaped name width.",
+          "labBehaviour": "Whole cooked identifier names drive references and callee matching at original UTF-16 offsets; escaped console stderr methods remain exempt, and member/invalid-name controls remain excluded.",
+          "reason": "upstream-bug: r23 records exact-commit/oracle misses and false positives; the diff adds identifier cooking, raw-width console lookup and escaped-name, longer-name, receiver, member-call and offset regressions. Prior string-specifier cooking is unchanged."
+        },
+        {
+          "test": "scratchpad/test/workspaces/sourceText.test.ts:156; scratchpad/test/workspaces/SourceBoundary.test.ts:404",
+          "upstreamBehaviour": "Optional standalone require?.(\"node:process\") yields no module specifier or boundary offence.",
+          "labBehaviour": "Optional standalone require calls expose whole literal module specifiers, including escaped require names, while member and computed-argument calls stay excluded.",
+          "reason": "upstream-bug: r24 records the lab/oracle omission and an execution probe invoking require once; the diff recognizes optional-call punctuation and adds positive, raw-offset, member and computed-argument regressions."
+        },
+        {
+          "test": "scratchpad/test/workspaces/LockfileReader.test.ts",
+          "upstreamBehaviour": "The lockfile reader passes a native Map through MutableHashMap.backing at the importer-name boundary.",
+          "labBehaviour": "The reader passes HashMap.fromIterable(names) to the sibling Effect HashMap contract, preserving names, fallback and ordering.",
+          "reason": "native-runtime: D5/D11, effect-laws-v1 law 6 and the native-collection replacement ruling require an Effect collection at this newly repaired boundary; the diff removes .backing. The existing collection record does not describe this boundary."
+        },
+        {
+          "test": "scratchpad/test/workspaces/ReleaseTag.property.test.ts; scratchpad/test/workspaces/Workspaces.test.ts; scratchpad/test/workspaces/internal/roots.coverage.test.ts",
+          "upstreamBehaviour": "Packing, peer, tag, scanner, discovery, snapshot, layering, sync and internal plan/traversal payloads retain erased data declarations without runtime schema values.",
+          "labBehaviour": "Additional annotated structural schemas and same-name .Type aliases own those payloads, options and variants; shared fields and named finite cases are reused. Plain objects, optional keys, lazy defaults and operation inputs are retained.",
+          "reason": "schema-first: EF-12b/EF-33, D5/D11 and Architecture Core Principle 5 require schema-owned pure data. Round-2 r09-r13, r19-r22 and r26-r29 add previously unmodeled surfaces and runtime exports; PackageManagerName and discovery membership now derive from existing schemas. Existing round-1 modeled symbols are not repeated."
+        },
+        {
+          "test": "scratchpad/test/workspaces/PackedInstall.test.ts:1503; scratchpad/test/workspaces/WorkspaceDiscovery.test.ts:920; scratchpad/test/workspaces/WorkspacePackage.test.ts:345",
+          "upstreamBehaviour": "PackedInstallError, WorkspaceDiscoveryError and WorkspaceManifestError encode originating Error causes without their stacks.",
+          "labBehaviour": "All three Defect schemas use includeStack: true and retain their original cause optionality, fields and annotations.",
+          "reason": "tagged-errors: the cause-carrying error law requires Defect({ includeStack: true }); r06 and the diff repair these three additional schemas, with exact originating-stack encoding assertions. Existing LockfileReadError, ChangeDetectionError and LayerPolicyError records are not repeated."
+        },
+        {
+          "test": "scratchpad/effected/workspaces/internal/sourceText.ts:47; scratchpad/effected/workspaces/ReleaseTag.ts:99",
+          "upstreamBehaviour": "SourceLiteral.start and VersionCore major/minor are unrestricted number fields in erased data models.",
+          "labBehaviour": "Their newly added runtime schemas use S.Finite; existing lexer and version operations do not decode these schemas and retain their accepted inputs.",
+          "reason": "numeric-domains: @effect/tsgo schemaNumber and the systemic-class ruling require finite schema domains; g6/g7 report TS377098 and the diff shows these new fields. This does not repeat prior Offence coordinates, edgeCount or HookConfig domains, or claim new operation-wide rejection."
+        },
+        {
+          "test": "scratchpad/effected/workspaces/ConfigDependencyHooks.ts:760; scratchpad/effected/workspaces/ReleaseTag.ts:114; scratchpad/effected/workspaces/internal/traverse.ts:30",
+          "upstreamBehaviour": "ReplayPayload has anonymous envelope fields; the SemVer pattern and minimum-depth checks lack their own identity metadata.",
+          "labBehaviour": "ReplayPayload and its ok/config/name/message/stack fields receive canonical identities and meaning; VersionTextPattern and MinimumDepth checks receive identifier, title and description metadata.",
+          "reason": "identity-annotations: operator step 4, EF-12/EF-12c and law 18 require canonical boundary and check annotations. r05/r14/r25 and the diff add metadata to these previously unannotated surfaces, preserving wire shapes, optionality, regex, numeric range and failure wording."
         }
       ],
       "backlog": [
@@ -15549,6 +15627,12 @@
           "round": 1,
           "finding": "b27 — Simplify rootOf local thunk (scratchpad/effected/workspaces/ChangeDetector.ts:197)",
           "reason": "effect-idiom: const rootOf = Effect.map(discovery.info, (info) => info.root); and yield* rootOf at the two call sites."
+        },
+        {
+          "seat": "grok",
+          "round": 2,
+          "finding": "b01 — Avoid taking the whole source suffix for a member lookup. (scratchpad/effected/workspaces/SourceBoundary.ts:352)",
+          "reason": "perf: walk via codePointAt(code, end) and take only code.slice(j, end), with Unicode/member-boundary controls. Do not require a behavior-changing restore: the report does not demonstrate an unforced semantic change."
         }
       ],
       "reviewRounds": [
@@ -15567,6 +15651,24 @@
             "fable": {
               "required": 30,
               "backlog": 33
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "60fcfb5ebcdc26765a66cc1f13afc88adcb05d11",
+          "seats": {
+            "grok": {
+              "required": 8,
+              "backlog": 1
+            },
+            "sol": {
+              "required": 20,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 9,
+              "backlog": 0
             }
           }
         }

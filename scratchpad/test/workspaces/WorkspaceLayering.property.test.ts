@@ -12,9 +12,10 @@ const roundTrip = <T, E>(name: string, schema: S.Codec<T, E>): void => {
     assert.deepStrictEqual(yield* S.encodeEffect(schema)(decoded), encoded);
   }), runs);
 };
-import { LayerEdge, LayeringReport } from "../../effected/workspaces/WorkspaceLayering.ts";
+import { LayerEdge, LayeringGraph, LayeringReport } from "../../effected/workspaces/WorkspaceLayering.ts";
 describe("WorkspaceLayering property floor", () => {
   roundTrip("LayerEdge", LayerEdge);
+  roundTrip("LayeringGraph", LayeringGraph);
   roundTrip("LayeringReport", LayeringReport);
 });
 

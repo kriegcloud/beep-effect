@@ -16,6 +16,8 @@ import { LockfileReadError, LockfileReader } from "../../effected/workspaces/Loc
 import { WorkspaceRoot, WorkspaceRootNotFoundError } from "../../effected/workspaces/WorkspaceRoot.ts";
 import { ChildProcessSpawner } from "effect/process";
 
+const JsonValue = S.fromJsonString(S.Unknown);
+
 const missingLock = LockfileReadError.make({ lockfilePath: "/repo/pnpm-lock.yaml", format: "pnpm", cause: undefined });
 const support = Layer.mergeAll(WorkspaceRoot.layerTest("/repo"), LockfileReader.layerTest({ read: Effect.fail(missingLock) }), Path.layer);
 
@@ -33,7 +35,7 @@ describe("catalog validation edge cases", () => {
       [{ catalogs: { broken: 1 } }, "catalogs.broken"],
       [{ workspaces: { packages: ["packages/*", 1] } }, "package.json"],
     ] as const) {
-      const text = yield* S.encodeEffect(S.fromJsonString(S.Unknown))(manifest);
+      const text = yield* S.encodeEffect(JsonValue)(manifest);
       const error = yield* Effect.flip(CatalogSet.fromManifestWorkspaces(text));
       assert.strictEqual(error.path, path);
     }

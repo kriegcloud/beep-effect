@@ -8,7 +8,7 @@
     "reason": "Real temporary directories are required by the native-disk fetch subject."
   },
   {
-    "id": "EV015:scratchpad/test/workspaces/ConfigDependencyHooksSubprocess.test.ts:275:TestClock.adjust@12#1",
+    "id": "EV015:scratchpad/test/workspaces/ConfigDependencyHooksSubprocess.test.ts:331:TestClock.adjust@12#1",
     "reason": "This layer block contains exactly one non-concurrent test, which exclusively owns its TestClock; advancing it preserves the thirty-second timeout assertion."
   },
   {
@@ -32,11 +32,11 @@
     "reason": "PackageManagerDetector.layerTest resolves directly to Layer.succeed; the unstubbed member's defect occurs when called, not during layer acquisition."
   },
   {
-    "id": "EV014:scratchpad/test/workspaces/PackedInstall.test.ts:1011:it.layer@1#1",
+    "id": "EV014:scratchpad/test/workspaces/PackedInstall.test.ts:1013:it.layer@1#1",
     "reason": "ScriptedSpawner.make constructs its layer with Layer.succeed; this hook acquires no scoped or effectful resource."
   },
   {
-    "id": "EV014:scratchpad/test/workspaces/PackedInstall.test.ts:1087:it.layer@1#1",
+    "id": "EV014:scratchpad/test/workspaces/PackedInstall.test.ts:1107:it.layer@1#1",
     "reason": "ScriptedSpawner.make constructs its layer with Layer.succeed; this hook acquires no scoped or effectful resource."
   },
   {
@@ -76,20 +76,20 @@
     "reason": "WorkspaceDiscovery.layerTest uses pure Layer.succeed; it acquires no scoped resource and needs no resource hook timeout."
   },
   {
-    "id": "EV002:scratchpad/test/workspaces/WorkspaceSnapshots.test.ts:379:provide@10#1",
-    "reason": "workspaceResolver is a pure Layer.succeed stub, allowed per test by D14; provider call unchanged."
+    "id": "EV014:scratchpad/test/workspaces/WorkspaceSnapshots.test.ts:364:it.layer@1#1",
+    "reason": "The snapshot workspaceResolver is a pure Layer.succeed value: acquisition has no effects or scoped resources, so there is no resource hook to time out."
   },
   {
-    "id": "EV002:scratchpad/test/workspaces/WorkspaceSnapshots.test.ts:433:provide@10#1",
-    "reason": "workspaceResolver is a pure Layer.succeed stub, allowed per test by D14; provider call unchanged."
+    "id": "EV014:scratchpad/test/workspaces/WorkspaceSnapshots.test.ts:428:it.layer@1#1",
+    "reason": "The snapshot resolvers merge pure Layer.succeed values: acquisition has no effects or scoped resources, so there is no resource hook to time out."
   },
   {
-    "id": "EV002:scratchpad/test/workspaces/WorkspaceSnapshots.test.ts:442:provide@10#1",
-    "reason": "workspaceResolver is a pure Layer.succeed stub, allowed per test by D14; provider call unchanged."
+    "id": "EV014:scratchpad/test/workspaces/WorkspaceSnapshots.test.ts:864:it.layer@2#1",
+    "reason": "The own-name regression uses only Layer.succeed service doubles. The filesystem-independent snapshot construction occurs in the test body, not a resource-acquiring layer hook."
   },
   {
-    "id": "EV002:scratchpad/test/workspaces/WorkspaceStateSnapshotSeed.test.ts:129:provide@27#1",
-    "reason": "catalogResolver is a pure Layer.succeed stub, allowed per test by D14; provider call unchanged."
+    "id": "EV014:scratchpad/test/workspaces/WorkspaceStateSnapshotSeed.test.ts:127:it.layer@1#1",
+    "reason": "The seeded snapshot catalogResolver is a pure Layer.succeed value: acquisition has no effects or scoped resources, so there is no resource hook to time out."
   },
   {
     "id": "EV010:scratchpad/test/workspaces/WorkspacesSync.test.ts:17:node:fs@0#1",

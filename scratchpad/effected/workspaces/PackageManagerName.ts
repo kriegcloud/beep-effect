@@ -647,7 +647,7 @@ export class PackageManagerDetector extends Context.Service<PackageManagerDetect
 			const declared = declaredName(hints);
 			if (O.isSome(declared)) {
 				const name = declared.value;
-				if (name === "pnpm" || name === "npm" || name === "yarn" || name === "bun") {
+				if (S.is(PackageManagerName)(name)) {
 					return DetectedPackageManager.make({
 						name,
 						version: versionFor(hints, name),

@@ -31,11 +31,9 @@ import type { ChildProcessSpawner } from "effect/process";
 import type {
 	ConfigDependencyHooksShape,
 	HookInjection,
-	HookReplay,
 	HookReplayContext,
-	PeerDependencyRules,
 } from "./ConfigDependencyHooks.ts";
-import { ConfigDependencyHooks, NoPeerDependencyRules } from "./ConfigDependencyHooks.ts";
+import { ConfigDependencyHooks, HookReplay, PeerDependencyRules, NoPeerDependencyRules } from "./ConfigDependencyHooks.ts";
 import { inlineCatalogs, merge, normalize, rangeOf } from "./internal/catalogs.ts";
 import { importerVersionsOf } from "./internal/importerVersions.ts";
 import { findLayerRoot } from "./internal/layerRoot.ts";
@@ -83,11 +81,28 @@ const CatalogRecords = S.Record(S.String, CatalogRecord).annotate(
  * because a filesystem edge is not a version. Only pnpm records importer
  * versions; bun and npm yield an empty index.
  *
+ * **Example** (Read recorded importer versions)
+ *
+ * ```ts
+ * import { ImporterVersions } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(ImporterVersions)({ ".": { effect: "4.0.2" } })) // true
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export type ImporterVersions = Readonly<Record<string, Readonly<Record<string, string>>>>;
+export const ImporterVersions = S.Record(S.String, S.Record(S.String, S.String)).annotate(
+	$I.annote("ImporterVersions", { description: "Importer paths mapped to dependency names and installed versions." }),
+);
+
+/** The readonly plain-record importer index described by {@link ImporterVersions}.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ImporterVersions = typeof ImporterVersions.Type;
 
 /**
  * An immutable, fully-normalized catalog collection — the one catalog
@@ -615,13 +630,15 @@ const unstubbed = (method: string): Effect.Effect<never> =>
 	);
 
 /** The single assembly pass's outputs, memoized together. */
-interface Assembled {
-	readonly catalogs: CatalogSet;
-	readonly releaseAgeGate: ReleaseAgeGate;
-	readonly importerVersions: ImporterVersions;
-	readonly peerDependencyRules: PeerDependencyRules;
-	readonly hookReplays: Readonly<Record<string, HookReplay>>;
-}
+// Assembly retains its plain-object representation; only the type owner changes.
+const Assembled = S.Struct({
+	catalogs: CatalogSet.annotateKey($I.annote("catalogs", { description: "The assembled catalog collection." })),
+	releaseAgeGate: ReleaseAgeGate.annotateKey($I.annote("releaseAgeGate", { description: "The effective release-age gate." })),
+	importerVersions: ImporterVersions.annotateKey($I.annote("importerVersions", { description: "The lockfile importer version index." })),
+	peerDependencyRules: PeerDependencyRules.annotateKey($I.annote("peerDependencyRules", { description: "The effective seeded and replayed peer rules." })),
+	hookReplays: S.Record(S.String, HookReplay).annotateKey($I.annote("hookReplays", { description: "Hook versions and their resolution provenance." })),
+}).annotate($I.annote("Assembled", { description: "The cached plain-object outputs of one catalog assembly." }));
+type Assembled = typeof Assembled.Type;
 
 /**
  * Replay a parsed `pnpm-workspace.yaml` document's `configDependencies`
@@ -791,11 +808,20 @@ export interface WorkspaceCatalogsShape {
 /**
  * Controls where the {@link WorkspaceCatalogs} layer discovers the workspace root and where its ascent stops.
  *
+ * **Example** (Read lazy catalog options)
+ *
+ * ```ts
+ * import { WorkspaceCatalogsOptions } from "@beep/scratchpad/effected/workspaces/WorkspaceCatalogs";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(WorkspaceCatalogsOptions)({})) // true
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface WorkspaceCatalogsOptions {
+export const WorkspaceCatalogsOptions = S.Struct({
 	/**
 	 * The directory the workspace root is resolved from.
 	 *
@@ -803,7 +829,7 @@ export interface WorkspaceCatalogsOptions {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly cwd?: string;
+	cwd: S.optionalKey(S.String).annotateKey($I.annote("cwd", { description: "Starting directory, defaulted lazily on use." })),
 	/**
 	 * A ceiling for the root ascent from `cwd`, passed straight through to the
 	 * `stopAt` of {@link WorkspaceRoot}'s `find`.
@@ -821,8 +847,14 @@ export interface WorkspaceCatalogsOptions {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly stopAt?: string | undefined;
-}
+	stopAt: S.optional(S.String).annotateKey($I.annote("stopAt", { description: "Inclusive ceiling; absent or undefined leaves ascent unbounded." })),
+}).annotate($I.annote("WorkspaceCatalogsOptions", { description: "Plain-object catalog assembly options with lazy root resolution." }));
+
+/** The plain-object options described by {@link WorkspaceCatalogsOptions}.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type WorkspaceCatalogsOptions = typeof WorkspaceCatalogsOptions.Type;
 
 /**
  * Assembles a workspace's catalogs, package-manager-aware.
