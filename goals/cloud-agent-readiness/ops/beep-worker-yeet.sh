@@ -2,6 +2,8 @@
 # Submit and observe worker Yeet jobs from a user-owned, resource-bounded scope.
 set -euo pipefail
 unset SSH_AUTH_SOCK
+# Repository-wide scans must run serially within this worker's proof memory budget.
+export BEEP_QUALITY_CHEAP_GATE_CONCURRENCY=1
 export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
 export NVM_DIR="$HOME/.nvm"
 if [[ -s "$NVM_DIR/nvm.sh" ]]; then

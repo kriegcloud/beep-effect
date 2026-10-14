@@ -1132,6 +1132,23 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(A.filter(HM.toEntries(idsByCommand), ([, ids]) => A.length(ids) > 1)).toEqual([]);
       expect(A.every(cheapGateLanes, (lane) => lane.tier === "cheap-gates")).toBe(true);
       expect(A.every(prePushLanes, (lane) => lane.tier === "pre-push")).toBe(true);
+      for (const [value, expected] of [
+        [undefined, 4],
+        ["1", 1],
+        ["2", 2],
+        ["3", 3],
+        ["4", 4],
+        ["0", 4],
+        ["5", 4],
+        ["2.5", 4],
+        ["nope", 4],
+        ["", 4],
+      ] as const) {
+        withEnvVar("BEEP_QUALITY_CHEAP_GATE_CONCURRENCY", value, () => {
+          expect(githubCheckTierConcurrency("cheap-gates")).toBe(expected);
+          expect(githubCheckTierConcurrency("pre-push")).toBe(1);
+        });
+      }
       // D9: the cheap tier runs four abreast; heavy pre-push lanes stay serial.
       expect(githubCheckTierConcurrency("cheap-gates")).toBe(4);
       expect(githubCheckTierConcurrency("pre-push")).toBe(1);

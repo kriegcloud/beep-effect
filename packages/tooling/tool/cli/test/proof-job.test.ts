@@ -119,6 +119,7 @@ const runFixture = Effect.fnUntraced(function* <Value, Error, Requirements>(
         ConfigProvider.fromUnknown({
           PATH: root,
           BEEP_RUN_SCOPES: "1",
+          BEEP_QUALITY_CHEAP_GATE_CONCURRENCY: "1",
           TURBO_TOKEN: "private",
           OP_SERVICE_ACCOUNT_TOKEN: "private",
           BEEP_FOO_KEY: "private",
@@ -419,12 +420,14 @@ describe("proof job launcher", () => {
         const launcher = yield* ProofJobLauncher.make(root);
         const record = yield* launcher.submit(submission(root));
         expect(record.phase).toBe("submitted");
+        expect(record.request.forwardedEnvNames).toContain("BEEP_QUALITY_CHEAP_GATE_CONCURRENCY");
         const args = yield* fs.readFileString(`${root}/launch.argv`);
         for (const text of [
           "--collect",
           "--service-type=exec",
           "--expand-environment=no",
           "--slice=agent-runs.slice",
+          "--setenv=BEEP_QUALITY_CHEAP_GATE_CONCURRENCY=1",
           "TimeoutStopSec=60",
           "RuntimeMaxSec=3600",
           `StandardOutput=append:${record.unit.logPath}`,
