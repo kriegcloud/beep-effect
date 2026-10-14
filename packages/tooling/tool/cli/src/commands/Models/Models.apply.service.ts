@@ -1,5 +1,6 @@
 /**
  * Backup-first native configuration writes and drift-fenced recovery.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -92,6 +93,7 @@ const assertNativeFields = Effect.fnUntraced(function* (
 
 /**
  * The writer accepts only explicit locator ownership, never a full replacement file.
+ *
  * @category services
  * @since 0.0.0
  */

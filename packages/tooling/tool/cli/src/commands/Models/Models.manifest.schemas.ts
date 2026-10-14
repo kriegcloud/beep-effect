@@ -846,6 +846,7 @@ export const ModelsApplyMode = LiteralKit(["check", "dry-run", "write"]).pipe(
 
 /**
  * Writer mode derived from its schema.
+ *
  * @category type-level
  * @since 0.0.0
  */

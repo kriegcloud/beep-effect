@@ -708,6 +708,7 @@ const writeRemoteSkill = Effect.fn("Skills.writeRemoteSkill")(function* (
       .pipe(SkillsCommandError.mapError("Cannot back up remote skill."));
   const stage = path.join(path.dirname(skillDir), `.${source.name}.stage-${suffix}`);
   const previous = path.join(path.dirname(skillDir), `.${source.name}.previous-${suffix}`);
+  yield* makeParentDirectory(stage);
   yield* Effect.acquireUseRelease(
     fs.makeDirectory(stage).pipe(SkillsCommandError.mapError("Cannot stage remote skill.")),
     Effect.fnUntraced(function* () {

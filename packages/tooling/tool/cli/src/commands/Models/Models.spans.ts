@@ -1,5 +1,6 @@
 /**
  * Grammar-specific owned spans for model projections.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
