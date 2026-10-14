@@ -1,6 +1,6 @@
 # Documentation lint migration
 
-Lifecycle: active. Implementation is complete in TS7 lane B. Local verification is recorded below; publication remains with the orchestrator.
+Lifecycle: `completed-retained`. Implementation is complete in TS7 lane B; local verification is recorded below.
 
 The docs lint runner moves from ESLint to @beep/lint-rules on oxlint. ESLint removal is deferred
 until lane A merges; the deprecated-API profile and shared environment remain intact.

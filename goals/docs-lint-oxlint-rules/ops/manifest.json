@@ -4,13 +4,13 @@
     "id": "docs-lint-oxlint-rules",
     "packetId": "goal-packet/v1:4d851de8f0e15d0532d70a7563987bf6302c1f20d6220cb25709db68d68cfe74",
     "title": "JSDoc/TSDoc lint on repo-owned oxlint rules",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/docs-lint-oxlint-rules",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Port documentation lint to repo-owned oxlint rules; defer ESLint removal until lane A merges.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -60,17 +60,17 @@
     {
       "id": "P2",
       "name": "Verify",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
