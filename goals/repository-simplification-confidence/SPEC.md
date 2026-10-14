@@ -1212,3 +1212,13 @@ A retirement and H2 completion evidence in the conflicted README/PLAN,
 retaining the ended S5 notification disposition. The operator again requested
 conflict resolution and push under the existing no-checks waiver.
 Reversal: revert this merge with the feature branch as first parent.
+
+### 2026-10-14 — Restore inherited quality evidence after Knip retirement
+
+The Knip retirement receipt was extended during main integration, but the
+FreshBooks cache review still pinned the earlier receipt digest. Pin that review
+to the current committed receipt, matching the root review. The review's scope
+and cache posture are unchanged. Also correct the CI fleet JSDoc example to use
+the existing public `@beep/infra` export, so docgen can compile it. Revert this
+unblocker PR to restore both prior references; re-record the cache review if
+the receipt changes again.
