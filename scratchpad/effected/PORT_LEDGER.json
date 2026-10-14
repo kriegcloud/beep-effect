@@ -14506,6 +14506,24 @@
           "round": 2,
           "finding": "fable-2-12 — Consider exposing added schema values through the barrel (scratchpad/effected/xdg/index.ts:13)",
           "reason": "effect-idiom: If adopted, expose AppDirOverrides/AppDirsOptions values and AppDirsNamespaceError through the barrel, adjust test imports, and delegate Added-exports bookkeeping to the central codemod."
+        },
+        {
+          "seat": "grok",
+          "round": 3,
+          "finding": "grok-3-2 — Consider namespace validation in the native resolver (scratchpad/effected/xdg/XdgConfig.ts:37)",
+          "reason": "bug: Establish and record the native-resolver namespace contract in a separately verified upstream-bug wave, then share namespace validation and add invalid-namespace regressions; preserve Linux None and the never error channel. Deferred pending section 14 evidence and central bookkeeping."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "sol-3-1 — Describe provider failures for optional environment variables (scratchpad/effected/xdg/Xdg.ts:100)",
+          "reason": "docs: Qualify HOME-only failure claims: absent optional variables use defaults, while provider failures for any variable propagate as XdgEnvError. Describe variable as the failed lookup; preserve runtime behavior. Deferred documentation/JSDoc work."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "fable-3-2 — Execute the present-runtime ensureRuntime branch in a test (scratchpad/test/xdg/AppDirs.test.ts:413)",
+          "reason": "test: Add a present-runtime ensureRuntime case asserting Some of the namespaced path and that it is the only mkdir; preserve the existing None case and upstream assertions. Deferred test-strengthening/coverage work."
         }
       ],
       "reviewRounds": [
@@ -14542,6 +14560,24 @@
             "fable": {
               "required": 2,
               "backlog": 10
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 1
+            },
+            "sol": {
+              "required": 0,
+              "backlog": 1
+            },
+            "fable": {
+              "required": 1,
+              "backlog": 1
             }
           }
         }
