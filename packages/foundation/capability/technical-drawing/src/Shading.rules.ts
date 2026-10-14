@@ -61,6 +61,9 @@ const GROWTH = 1.4;
 const FULL_LINES = 2;
 const TAPER_FROM = 0.6;
 const TAPER_TO = 0.4;
+// Spare cut positions a graded face lists past its band, for when the strokes
+// at its shadow edge turn out to be hidden behind another part.
+const SPARE_CUTS = 6;
 
 /**
  * Sheet frame and 1.84(m) light of a camera, in model coordinates.
@@ -221,7 +224,9 @@ const toneSpacing = (tone: ShadingTone) =>
  * for one line gets none. An optional `keep` rejects positions where the face
  * is too narrow for a stroke (a tab, a lip, a pointed tip): the line is not
  * counted and the next position is tried one gap further in, so the strokes
- * move inward instead of vanishing.
+ * move inward instead of vanishing. `spare` adds that many further positions
+ * on the same schedule, past the tone's share and count but still inside the
+ * face, for the kernel to fall back on when the first ones are hidden.
  *
  * **Example** (A light 30-wide face)
  *
@@ -240,23 +245,26 @@ export const gradedOffsets = (input: {
   readonly maxPitch: number;
   readonly tone: ShadingTone;
   readonly keep?: (offset: number) => boolean;
+  readonly spare?: number;
 }): ReadonlyArray<number> => {
   const { span, minPitch } = input;
   const maxPitch = Math.max(input.maxPitch, minPitch);
   const keep = input.keep ?? (() => true);
+  const spare = Math.max(0, input.spare ?? 0);
   const { coverage, minLines, maxLines } = toneSpacing(input.tone);
   const limit = span - minPitch;
-  const next = (offsets: ReadonlyArray<number>, at: number, gap: number): ReadonlyArray<number> => {
+  const next = (offsets: ReadonlyArray<number>, at: number, gap: number, spares: number): ReadonlyArray<number> => {
     const offset = at + gap;
-    const enough = A.length(offsets) >= minLines && offset > coverage * span;
-    if (A.length(offsets) >= maxLines || offset > limit || enough) {
+    const drawn = A.length(offsets) - spares;
+    const bandFull = drawn >= maxLines || (drawn >= minLines && offset > coverage * span);
+    if (offset > limit || (bandFull && spares >= spare)) {
       return offsets;
     }
     return keep(offset)
-      ? next([...offsets, offset], offset, Math.min(maxPitch, gap * GROWTH))
-      : next(offsets, offset, gap);
+      ? next([...offsets, offset], offset, Math.min(maxPitch, gap * GROWTH), bandFull ? spares + 1 : spares)
+      : next(offsets, offset, gap, spares);
   };
-  return next([], 0, minPitch);
+  return next([], 0, minPitch, 0);
 };
 
 // Length of the chord a cut at `offset` along the anchor's step makes across
@@ -650,15 +658,23 @@ const gradedTreatment = (input: {
   const chord = chordAt(face, anchor, direction);
   const seen = spread(direction, view.eye);
   const keep = (offset: number) => plan.minStroke <= 0 || chord(offset / factor) * seen >= plan.minStroke;
-  const offsets = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep });
+  const schedule = { span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep };
+  const band = gradedOffsets(schedule);
+  // spare positions past the band share its schedule; the kernel draws the first `keep` visible cuts
+  const offsets = gradedOffsets({ ...schedule, spare: SPARE_CUTS });
   // a lit face carries short strokes only (Example 32: lit faces are nearly bare)
-  const cuts = A.zipWith(
-    offsets,
-    gradedExtents({ count: A.length(offsets), fullLines: tone === "faint" ? 0 : FULL_LINES }),
-    (offset, extent) => ShadingCut.make({ offset: offset / factor, extent })
+  const extents = gradedExtents({ count: A.length(band), fullLines: tone === "faint" ? 0 : FULL_LINES });
+  const cuts = A.map(offsets, (offset, index) =>
+    ShadingCut.make({
+      offset: offset / factor,
+      extent: pipe(
+        A.get(extents, index),
+        O.getOrElse(() => TAPER_TO)
+      ),
+    })
   );
-  return A.isReadonlyArrayNonEmpty(cuts)
-    ? ShadingLines.make({ origin: anchor.point, step: anchor.step, cuts })
+  return A.isReadonlyArrayNonEmpty(band)
+    ? ShadingLines.make({ origin: anchor.point, step: anchor.step, cuts, keep: O.some(A.length(band)) })
     : skipped("sliver");
 };
 

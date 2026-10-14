@@ -154,9 +154,55 @@ const liftFor =
 // Planar faces only: curved faces are counted, never hatched.
 const isPlanar = (face: replicad.Face): boolean => face.geomType === "PLANE";
 
+/**
+ * One planned cut of one face, for the hidden-line pass to find again: the
+ * face's index, the cut's rank among its face's cuts, how many visible cuts
+ * that face draws, and the cut line in model space.
+ *
+ * @internal
+ */
+export interface HatchCut {
+  readonly direction: V3;
+  readonly face: number;
+  readonly keep: number;
+  readonly point: V3;
+  readonly rank: number;
+}
+
+const unitV = (v: V3): V3 => {
+  const length = Math.hypot(v[0], v[1], v[2]);
+  return length < 1e-12 ? v : [v[0] / length, v[1] / length, v[2] / length];
+};
+
+const crossV = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+
+const cutsOf = (index: number, face: replicad.Face, treatment: FaceTreatment): ReadonlyArray<HatchCut> =>
+  FaceTreatment.match(treatment, {
+    lines: (lines) => {
+      const normal = vec(face.normalAt(face.center));
+      const direction = unitV(crossV(normal, lines.step));
+      const keep = O.getOrElse(lines.keep, () => A.length(lines.cuts));
+      return A.map(lines.cuts, (cut, rank) => ({
+        face: index,
+        rank,
+        keep,
+        point: add(lines.origin, scale(lines.step, cut.offset)),
+        direction,
+      }));
+    },
+    skipped: () => A.empty<HatchCut>(),
+  });
+
 const shadeFace =
   (oc: OpenCascadeInstance, view: ViewFacts, plan: ShadingPlan) =>
-  (face: replicad.Face): { readonly treatment: FaceTreatment; readonly edges: ReadonlyArray<replicad.Edge> } => {
+  (
+    face: replicad.Face,
+    index: number
+  ): {
+    readonly treatment: FaceTreatment;
+    readonly edges: ReadonlyArray<replicad.Edge>;
+    readonly cuts: ReadonlyArray<HatchCut>;
+  } => {
     const treatment = isPlanar(face)
       ? treatmentFor({ face: factsOf(face), view, plan })
       : ShadingSkipped.make({ reason: "curved" });
@@ -173,7 +219,7 @@ const shadeFace =
         ),
       skipped: () => A.empty<replicad.Edge>(),
     });
-    return { treatment, edges };
+    return { treatment, edges, cuts: cutsOf(index, face, treatment) };
   };
 
 /**
@@ -193,7 +239,11 @@ export const hatchCompound = (options: {
   readonly shape: replicad.AnyShape;
   readonly camera: Camera;
   readonly plan: ShadingPlan;
-}): { readonly compound: O.Option<replicad.AnyShape>; readonly coverage: ShadingCoverage } => {
+}): {
+  readonly compound: O.Option<replicad.AnyShape>;
+  readonly coverage: ShadingCoverage;
+  readonly cuts: ReadonlyArray<HatchCut>;
+} => {
   const shaded = A.map(options.shape.faces, shadeFace(options.oc, viewFactsOf(options.camera), options.plan));
   return {
     compound: pipe(
@@ -202,5 +252,6 @@ export const hatchCompound = (options: {
       O.map((edges) => replicad.makeCompound([...edges]))
     ),
     coverage: coverageOf(A.map(shaded, (face) => face.treatment)),
+    cuts: A.flatMap(shaded, (face) => face.cuts),
   };
 };

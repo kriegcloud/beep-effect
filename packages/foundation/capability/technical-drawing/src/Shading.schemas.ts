@@ -344,7 +344,10 @@ export class ShadingCut extends S.Class<ShadingCut>($I`ShadingCut`)(
 /**
  * Parallel shading lines on one face: section planes through
  * `origin + step × offset`, each with normal `step`, drawn over `extent` of
- * the chord they cut.
+ * the chord they cut. Graded lines list spare positions after the ones they
+ * mean to draw, and `keep` says how many visible cuts to draw, so a face whose
+ * shadow edge is hidden behind another part still shows its strokes further
+ * in.
  *
  * **Example** (Two lines, the second a short stroke)
  *
@@ -366,10 +369,17 @@ export class ShadingLines extends S.Class<ShadingLines>($I`ShadingLines`)(
     cuts: S.Array(ShadingCut).annotateKey({
       description: "Section planes along `step`, each with the fraction of its chord that is drawn.",
     }),
+    keep: S.OptionFromOptionalKey(S.Int.check(S.isGreaterThanOrEqualTo(0))).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "How many of the cuts, in order, are drawn once hidden-line removal has shown which are visible; the rest are spare positions deeper in the face. None draws every cut.",
+      })
+    ),
   },
   $I.annote("ShadingLines", {
     description:
-      "Section planes, as origin, step, and cuts, that cut one face into shading lines drawn over a centred fraction of each chord.",
+      "Section planes, as origin, step, and cuts, that cut one face into shading lines drawn over a centred fraction of each chord; `keep` caps how many visible cuts are drawn.",
   })
 ) {}
 

@@ -9,7 +9,9 @@
 import { legibleShading } from "@beep/technical-drawing";
 import { A, N, O } from "@beep/utils";
 import { pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import * as Order from "effect/Order";
+import * as R from "effect/Record";
 import * as replicad from "replicad";
 import { OcctError } from "../Occt.errors.ts";
 import { BoundingBox, EdgeSet, ModelSummary, Primitive } from "../Occt.models.ts";
@@ -17,6 +19,8 @@ import { hatchCompound } from "./shading.ts";
 import { cross } from "./vector.ts";
 import type { OpenCascadeInstance } from "replicad-opencascadejs";
 import type { Camera, ModelSpec, Rotation, Segment2, ShadingPlan } from "../Occt.models.ts";
+import type { HatchCut } from "./shading.ts";
+import type { V3 } from "./vector.ts";
 
 type Shape3D = replicad.Shape3D;
 type AnyShape = replicad.AnyShape;
@@ -182,6 +186,96 @@ const toSegments = (edges: ReadonlyArray<replicad.Edge>): ReadonlyArray<Segment2
     A.sort(segmentOrder)
   );
 
+// How far (model units on the view plane) a visible stroke may sit from the
+// projected cut line it came from and still be that cut's.
+const CUT_TOLERANCE = 0.05;
+
+// Every cut's line on the view plane, in the projector's own frame: the same
+// frame the hidden-line pass reports its edges in.
+const projectedCuts = (camera: Camera, cuts: ReadonlyArray<HatchCut>) => {
+  const direction = normalize(camera.eye);
+  const right = normalize(cross(normalize(camera.up), direction));
+  const up = cross(direction, right);
+  const to2d = (p: V3): readonly [number, number] => {
+    const d: V3 = [p[0] - camera.target[0], p[1] - camera.target[1], p[2] - camera.target[2]];
+    return [d[0] * right[0] + d[1] * right[1] + d[2] * right[2], d[0] * up[0] + d[1] * up[1] + d[2] * up[2]];
+  };
+  return A.map(cuts, (cut) => {
+    const point = to2d(cut.point);
+    const along = [
+      cut.direction[0] * right[0] + cut.direction[1] * right[1] + cut.direction[2] * right[2],
+      cut.direction[0] * up[0] + cut.direction[1] * up[1] + cut.direction[2] * up[2],
+    ] as const;
+    const length = Math.hypot(along[0], along[1]);
+    return { cut, point, along: length < 1e-9 ? null : ([along[0] / length, along[1] / length] as const) };
+  });
+};
+
+const offLine = (
+  line: { readonly point: readonly [number, number]; readonly along: readonly [number, number] },
+  x: number,
+  y: number
+): number => Math.abs((x - line.point[0]) * line.along[1] - (y - line.point[1]) * line.along[0]);
+
+/**
+ * Of a graded view's visible strokes, those on the first `keep` cuts of each
+ * face that hidden-line removal left with a stroke at least `minStroke` long:
+ * a face whose shadow edge is behind another part draws its strokes on the
+ * spare positions further in instead of nothing.
+ *
+ * @internal
+ */
+export const visibleCuts = (options: {
+  readonly camera: Camera;
+  readonly cuts: ReadonlyArray<HatchCut>;
+  readonly segments: ReadonlyArray<Segment2>;
+  readonly minStroke: number;
+}): ReadonlyArray<Segment2> => {
+  const lines = pipe(
+    projectedCuts(options.camera, options.cuts),
+    A.map((line) => (line.along === null ? O.none() : O.some({ cut: line.cut, point: line.point, along: line.along }))),
+    A.getSomes
+  );
+  const owner = (s: Segment2): O.Option<HatchCut> =>
+    pipe(
+      lines,
+      A.findFirst((line) => offLine(line, s[0], s[1]) <= CUT_TOLERANCE && offLine(line, s[2], s[3]) <= CUT_TOLERANCE),
+      O.map((line) => line.cut)
+    );
+  const owned = A.map(options.segments, (segment) => ({ segment, owner: owner(segment) }));
+  const length = (s: Segment2) => Math.hypot(s[2] - s[0], s[3] - s[1]);
+  const shows = (cut: HatchCut) =>
+    A.some(
+      owned,
+      (o) =>
+        O.exists(o.owner, (c) => c.face === cut.face && c.rank === cut.rank) && length(o.segment) >= options.minStroke
+    );
+  // per face: the first `keep` cuts, by rank, that show a stroke
+  const key = (cut: HatchCut) => `${cut.face}:${cut.rank}`;
+  const chosen = pipe(
+    options.cuts,
+    A.groupBy((cut) => `${cut.face}`),
+    R.values,
+    A.flatMap((group) =>
+      pipe(
+        A.sort(
+          group,
+          Order.mapInput(Order.Number, (cut: HatchCut) => cut.rank)
+        ),
+        A.filter(shows),
+        A.take(group[0].keep)
+      )
+    ),
+    A.map(key),
+    HashSet.fromIterable
+  );
+  return pipe(
+    owned,
+    A.filter((o) => O.match(o.owner, { onNone: () => true, onSome: (cut) => HashSet.has(chosen, key(cut)) })),
+    A.map((o) => o.segment)
+  );
+};
+
 /**
  * Run exact hidden-line removal for one camera and return canonical segments.
  *
@@ -229,7 +323,16 @@ export const project = (options: {
       onNone: () => segments,
       onSome: (plan) =>
         plan.style === "graded"
-          ? legibleShading({ segments, minStroke: plan.minStroke, minSpacing: plan.minPitch / 2 })
+          ? legibleShading({
+              segments: visibleCuts({
+                camera,
+                cuts: O.match(shaded, { onNone: () => [], onSome: (view) => view.cuts }),
+                segments,
+                minStroke: plan.minStroke,
+              }),
+              minStroke: plan.minStroke,
+              minSpacing: plan.minPitch / 2,
+            })
           : segments,
     });
   return EdgeSet.make({

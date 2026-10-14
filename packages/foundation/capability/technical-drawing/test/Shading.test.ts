@@ -162,6 +162,16 @@ describe("Shading.rules", () => {
         (o) => Math.round(o * 10) / 10
       )
     ).toEqual([3, 4.4]);
+    // spares continue the schedule past the band, inside the face
+    const withSpares = gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint", spare: 3 });
+    expect(A.take(withSpares, 2)).toEqual(gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint" }));
+    expect(A.length(withSpares)).toBe(5);
+    expect(Math.max(...withSpares)).toBeLessThanOrEqual(39);
+    const faint = treatmentFor({ face: wall, view: front, plan: plan({ style: "graded", axis: "surface-class" }) });
+    assertSome(
+      O.map(linesOf(faint), (l) => [A.length(l.cuts) > O.getOrThrow(l.keep), O.getOrThrow(l.keep) >= 1]),
+      [true, true]
+    );
   });
 
   it("keeps shading legible after hidden-line removal: fragments and doubled lines go", () => {

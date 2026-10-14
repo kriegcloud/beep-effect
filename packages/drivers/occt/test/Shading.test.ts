@@ -194,6 +194,30 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
+      "draws a wall's strokes on the spare positions when another part hides its shadow edge",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // a wall whose shadow edge (its right end, x = 20) is behind a slab standing in front of x >= 8
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-20, -15, 0], max: [20, 15, 20] })] });
+        const slab = Part.make({ name: "slab", add: [Box.make({ min: [8, -40, -5], max: [26, -25, 25] })] });
+        const strokesLeftOf = (solid: ModelSpec, limit: number) =>
+          occt
+            .project(ProjectionRequest.make({ solid, cameras: [front], shading: O.some(graded({ minStroke: 0.5 })) }))
+            .pipe(
+              Effect.map((views) =>
+                pipe(
+                  views[0]?.shading ?? [],
+                  A.filter((s) => isVertical(s) && s[0] > -19 && s[0] < limit),
+                  A.length
+                )
+              )
+            );
+        expect(yield* strokesLeftOf(ModelSpec.make({ parts: [wall] }), 7)).toBe(0);
+        expect(yield* strokesLeftOf(ModelSpec.make({ parts: [wall, slab] }), 7)).toBeGreaterThan(0);
+      })
+    );
+
+    it.effect(
       "hatches a square-on face under graded shading, which the uniform default leaves blank",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;
