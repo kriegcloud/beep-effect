@@ -269,37 +269,59 @@ const inkBox = (d: string, keep: (piece: ReadonlyArray<Pt>) => boolean = () => t
   );
 };
 // Largest all-ink square (in points) of the nonzero fill, sampled every `step` points.
+type Crossing = readonly [number, number];
+// Where the outline edges cross the scanline `y`, sorted by x, with the winding direction.
+const rowCrossings = (edges: ReadonlyArray<readonly [Pt, Pt]>, y: number): ReadonlyArray<Crossing> =>
+  A.sort(
+    A.flatMap(
+      edges,
+      ([[x0, y0], [x1, y1]]): ReadonlyArray<Crossing> =>
+        (y0 <= y && y1 > y) || (y1 <= y && y0 > y)
+          ? [[x0 + ((y - y0) / (y1 - y0)) * (x1 - x0), y1 > y0 ? 1 : -1] as const]
+          : []
+    ),
+    (a: Crossing, b: Crossing) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)
+  );
+// Nonzero-winding ink test for each sampled column of one scanline.
+const rowInk = (
+  crossings: ReadonlyArray<Crossing>,
+  minX: number,
+  cols: number,
+  step: number
+): ReadonlyArray<boolean> => {
+  let winding = 0;
+  let k = 0;
+  return A.makeBy(cols, (c) => {
+    const x = minX + (c + 0.5) * step;
+    while (k < crossings.length && crossings[k]![0] <= x) {
+      winding += crossings[k]![1];
+      k++;
+    }
+    return winding !== 0;
+  });
+};
+// Dynamic-programming square sizes for one row given the previous row's sizes.
+const rowSquares = (ink: ReadonlyArray<boolean>, previous: ReadonlyArray<number>): ReadonlyArray<number> => {
+  const current: Array<number> = [];
+  for (let c = 0; c < ink.length; c++) {
+    current[c] = ink[c] ? 1 + Math.min(previous[c] ?? 0, current[c - 1] ?? 0, previous[c - 1] ?? 0) : 0;
+  }
+  return current;
+};
 const largestInkSquarePt = (d: string, step: number): number => {
   const edges = flatten(d);
   const box = inkBox(d);
   const cols = Math.ceil((box.maxX - box.minX) / step) + 1;
   const rows = Math.ceil((box.maxY - box.minY) / step) + 1;
-  let previous = new Array<number>(cols).fill(0);
+  let previous: ReadonlyArray<number> = A.makeBy(cols, () => 0);
   let best = 0;
   for (let r = 0; r < rows; r++) {
     const y = box.minY + (r + 0.5) * step;
-    const crossings = A.sort(
-      A.flatMap(edges, ([[x0, y0], [x1, y1]]) =>
-        (y0 <= y && y1 > y) || (y1 <= y && y0 > y)
-          ? [[x0 + ((y - y0) / (y1 - y0)) * (x1 - x0), y1 > y0 ? 1 : -1] as const]
-          : []
-      ),
-      (a: readonly [number, number], b: readonly [number, number]) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)
+    const current = rowSquares(rowInk(rowCrossings(edges, y), box.minX, cols, step), previous);
+    best = Math.max(
+      best,
+      A.reduce(current, 0, (acc, size) => Math.max(acc, size))
     );
-    const current = new Array<number>(cols).fill(0);
-    let winding = 0;
-    let k = 0;
-    for (let c = 0; c < cols; c++) {
-      const x = box.minX + (c + 0.5) * step;
-      while (k < crossings.length && crossings[k]![0] <= x) {
-        winding += crossings[k]![1];
-        k++;
-      }
-      if (winding !== 0) {
-        current[c] = 1 + Math.min(previous[c]!, current[c - 1] ?? 0, previous[c - 1] ?? 0);
-        best = Math.max(best, current[c]!);
-      }
-    }
     previous = current;
   }
   return best * step;
