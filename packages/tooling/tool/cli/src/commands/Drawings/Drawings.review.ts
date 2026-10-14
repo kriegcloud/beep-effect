@@ -182,17 +182,116 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       .readFileString(file)
       .pipe(Effect.mapError(fail(`Could not read ${what} "${file}".`)), Effect.flatMap(decodeJson(schema, file, what)));
 
+  const removeStagedOutput = (temporary: string | undefined, temporaryDir: string | undefined) => {
+    const nodeFs = process.getBuiltinModule("node:fs");
+    if (temporary !== undefined) {
+      try {
+        nodeFs.unlinkSync(temporary);
+      } catch {
+        // Preserve the original write error; this file is only a stale temporary.
+      }
+    }
+    if (temporaryDir !== undefined) {
+      try {
+        nodeFs.rmdirSync(temporaryDir);
+      } catch {
+        // Preserve the original write error; this directory is only a stale temporary.
+      }
+    }
+  };
+
+  const writeRoundFile = Effect.fnUntraced(function* (root: string, file: string, bytes: Uint8Array) {
+    return yield* Effect.try({
+      try: () => {
+        const nodeFs = process.getBuiltinModule("node:fs");
+        const parent = path.dirname(file);
+        const flags = nodeFs.constants.O_RDONLY | nodeFs.constants.O_DIRECTORY | nodeFs.constants.O_NOFOLLOW;
+        const directory = nodeFs.openSync(parent, flags);
+        let temporary: string | undefined;
+        let temporaryDir: string | undefined;
+        try {
+          const actualParent = nodeFs.realpathSync(`/proc/self/fd/${directory}`);
+          if (actualParent !== parent || (actualParent !== root && !isWithin(root, actualParent))) {
+            throw refuse("The output directory changed or leaves its selected root.");
+          }
+          const heldParent = `/proc/self/fd/${directory}`;
+          const target = `${heldParent}/${path.basename(file)}`;
+          temporaryDir = nodeFs.mkdtempSync(`${heldParent}/.review-`);
+          temporary = `${temporaryDir}/output.tmp`;
+          const output = nodeFs.openSync(
+            temporary,
+            nodeFs.constants.O_WRONLY |
+              nodeFs.constants.O_CREAT |
+              nodeFs.constants.O_EXCL |
+              nodeFs.constants.O_NOFOLLOW,
+            0o600
+          );
+          try {
+            nodeFs.writeFileSync(output, bytes);
+            nodeFs.fsyncSync(output);
+          } finally {
+            nodeFs.closeSync(output);
+          }
+          nodeFs.renameSync(temporary, target);
+          temporary = undefined;
+          nodeFs.fsyncSync(directory);
+        } finally {
+          removeStagedOutput(temporary, temporaryDir);
+          nodeFs.closeSync(directory);
+        }
+      },
+      catch: fail(`Could not safely write review file "${file}".`),
+    });
+  });
+
+  const ensureRoundDirectory = (root: string, roundDir: string) =>
+    Effect.try({
+      try: () => {
+        const nodeFs = process.getBuiltinModule("node:fs");
+        const flags = nodeFs.constants.O_RDONLY | nodeFs.constants.O_DIRECTORY | nodeFs.constants.O_NOFOLLOW;
+        const matter = path.dirname(path.dirname(roundDir));
+        const matterHandle = nodeFs.openSync(matter, flags);
+        try {
+          if (nodeFs.realpathSync(`/proc/self/fd/${matterHandle}`) !== matter) {
+            throw refuse("The matter directory changed.");
+          }
+          const review = `/proc/self/fd/${matterHandle}/review`;
+          if (nodeFs.lstatSync(review, { throwIfNoEntry: false }) === undefined) nodeFs.mkdirSync(review);
+          const reviewHandle = nodeFs.openSync(review, flags);
+          try {
+            const round = `/proc/self/fd/${reviewHandle}/${path.basename(roundDir)}`;
+            if (nodeFs.lstatSync(round, { throwIfNoEntry: false }) === undefined) nodeFs.mkdirSync(round);
+            const roundHandle = nodeFs.openSync(round, flags);
+            try {
+              const actual = nodeFs.realpathSync(`/proc/self/fd/${roundHandle}`);
+              if (actual !== roundDir || !isWithin(root, actual)) {
+                throw refuse("The review round directory changed or leaves the corpus root.");
+              }
+            } finally {
+              nodeFs.closeSync(roundHandle);
+            }
+          } finally {
+            nodeFs.closeSync(reviewHandle);
+          }
+        } finally {
+          nodeFs.closeSync(matterHandle);
+        }
+      },
+      catch: fail(`Could not safely create review directory "${roundDir}".`),
+    });
+
   // Writes `value` as pretty JSON and returns the hash of the bytes written.
   const writeJson = Effect.fn("DrawingReview.writeJson")(function* <A, I>(
     schema: S.Codec<A, I>,
     file: string,
-    value: A
+    value: A,
+    writeRoot: string
   ) {
     const json = yield* S.encodeEffect(S.fromJsonString(schema, { space: 2 }))(value).pipe(
       Effect.mapError(fail(`Could not encode "${file}".`))
     );
     const bytes = encoder.encode(`${json}\n`);
-    yield* fs.writeFile(file, bytes).pipe(Effect.mapError(fail(`Could not write "${file}".`)));
+    yield* writeRoundFile(writeRoot, file, bytes);
     return yield* sha256(bytes);
   });
 
@@ -271,7 +370,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   });
 
   const open = Effect.fn("DrawingReview.open")(function* (request: ReviewOpenRequest) {
-    const { roundDir } = yield* roundDirOf(request.location);
+    const { root, roundDir } = yield* roundDirOf(request.location);
     const roundFile = path.join(roundDir, "round.json");
     if (yield* fs.exists(roundFile).pipe(Effect.orElseSucceed(() => false))) {
       return yield* refuse(`Review round ${request.location.round} is already open at "${roundDir}".`);
@@ -294,10 +393,8 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       reviewedSpecSha256: set.specSha256,
       sentMessageId: O.flatMap(delivery, (record) => record.sentMessageId),
     });
-    yield* fs
-      .makeDirectory(roundDir, { recursive: true })
-      .pipe(Effect.mapError(fail(`Could not create "${roundDir}".`)));
-    yield* writeJson(ReviewRound, roundFile, round);
+    yield* ensureRoundDirectory(root, roundDir);
+    yield* writeJson(ReviewRound, roundFile, round, root);
     return ReviewStatus.make({ roundDir, round, intake: O.none(), inventory: O.none() });
   });
 
@@ -418,20 +515,20 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       reviewedSheetSetSha256: round.reviewedSheetSetSha256,
       findings,
     });
-    const intakeSha256 = yield* writeJson(ReviewIntake, path.join(roundDir, "intake.json"), intake);
-    const inventorySha256 = yield* writeJson(ReviewInventory, path.join(roundDir, "inventory.json"), inventory);
+    const intakeSha256 = yield* writeJson(ReviewIntake, path.join(roundDir, "intake.json"), intake, root);
+    const inventorySha256 = yield* writeJson(ReviewInventory, path.join(roundDir, "inventory.json"), inventory, root);
     const next = ReviewRound.make({
       ...round,
       status: "ingested",
       intakeSha256: O.some(intakeSha256),
       inventorySha256: O.some(inventorySha256),
     });
-    yield* writeJson(ReviewRound, path.join(roundDir, "round.json"), next);
+    yield* writeJson(ReviewRound, path.join(roundDir, "round.json"), next, root);
     return ReviewStatus.make({ roundDir, round: next, intake: O.some(intake), inventory: O.some(inventory) });
   });
 
   const plan = Effect.fn("DrawingReview.plan")(function* (request: ReviewPlanRequest) {
-    const { roundDir } = yield* roundDirOf(request.location);
+    const { root, roundDir } = yield* roundDirOf(request.location);
     const current = yield* readStatus(roundDir, request.location.round, false);
     const round = current.round;
     if (round.status !== "ingested" && round.status !== "planned") {
@@ -460,17 +557,17 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     );
     const target = path.join(roundDir, "dispositions.json");
     if (source !== target) {
-      yield* fs.writeFile(target, bytes).pipe(Effect.mapError(fail(`Could not write "${target}".`)));
+      yield* writeRoundFile(root, target, bytes);
     }
     const planned = ReviewInventory.make({ ...inventory, findings });
-    const inventorySha256 = yield* writeJson(ReviewInventory, path.join(roundDir, "inventory.json"), planned);
+    const inventorySha256 = yield* writeJson(ReviewInventory, path.join(roundDir, "inventory.json"), planned, root);
     const next = ReviewRound.make({
       ...round,
       status: "planned",
       dispositionsSha256: O.some(yield* sha256(bytes)),
       inventorySha256: O.some(inventorySha256),
     });
-    yield* writeJson(ReviewRound, path.join(roundDir, "round.json"), next);
+    yield* writeJson(ReviewRound, path.join(roundDir, "round.json"), next, root);
     return ReviewStatus.make({ roundDir, round: next, intake: current.intake, inventory: O.some(planned) });
   });
 
@@ -488,8 +585,10 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       );
     }
     const out = O.getOrElse(O.map(request.outPath, path.resolve), () => path.join(set.manifestDir, "delivery.json"));
-    if (yield* fs.exists(out).pipe(Effect.orElseSucceed(() => false))) {
-      return yield* refuse(`"${out}" already exists; pass --out to record another delivery.`);
+    const dir = yield* realPath(path.dirname(out), "The delivery directory");
+    const target = path.join(dir, path.basename(out));
+    if (yield* fs.exists(target).pipe(Effect.orElseSucceed(() => false))) {
+      return yield* refuse(`"${target}" already exists; pass --out to record another delivery.`);
     }
     const record = DeliveryRecord.make({
       schemaVersion: "drawing-delivery/v1",
@@ -501,8 +600,8 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       attachments: draft.attachments,
       deliveredAt: DateTime.formatIso(yield* DateTime.now),
     });
-    yield* writeJson(DeliveryRecord, out, record);
-    return DeliveryWritten.make({ path: out, record });
+    yield* writeJson(DeliveryRecord, target, record, dir);
+    return DeliveryWritten.make({ path: target, record });
   });
 
   const ancestorsOf = (dir: string): A.NonEmptyReadonlyArray<string> => {
@@ -516,7 +615,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     const hits = yield* Effect.forEach(ancestors, (dir) =>
       fs.stat(path.join(dir, "review")).pipe(
         Effect.map((info) => (info.type === "Directory" ? O.some(path.join(dir, "review")) : O.none<string>())),
-        Effect.orElseSucceed(() => O.none<string>())
+        Effect.orElseSucceed(O.none<string>)
       )
     );
     return A.head(A.getSomes(hits));

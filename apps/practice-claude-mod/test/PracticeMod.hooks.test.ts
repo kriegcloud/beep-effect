@@ -8,6 +8,8 @@ import { makeModHost } from "@/PracticeMod.host";
 import { VerdictRow } from "@/PracticeMod.values";
 import type { Engine } from "claude-code";
 
+const decodeUnknownVerdictRowArray = S.decodeUnknownEffect(S.Array(VerdictRow));
+
 const fixture = () => {
   const store = MutableHashMap.empty<string, unknown>();
   const engine = {
@@ -98,15 +100,15 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
       const rows = yield* store.pipe(
         MutableHashMap.get("verdict-rows"),
         O.getOrUndefined,
-        S.decodeUnknownEffect(S.Array(VerdictRow))
+        decodeUnknownVerdictRowArray
       );
       expect(A.map(rows, (row) => row.revision)).toEqual([0, 1]);
       expect(A.map(rows, (row) => O.getOrUndefined(row.verdict))).toEqual(["wrong", undefined]);
       expect(O.getOrUndefined(A.getUnsafe(rows, 0).note)).toBe("missed the continuation");
-      expect(yield* Effect.promise(() => hooks.practiceCommand(engine)("export"))).toEqual({
-        text: "Exported 2 verdicts to practice-verdicts.jsonl.",
-      });
-      expect(engine.fs.write).toHaveBeenCalledWith("practice-verdicts.jsonl", expect.stringContaining('"revision":1'));
+      const exported = yield* Effect.promise(() => hooks.practiceCommand(engine)("export"));
+      expect(exported.text).toMatch(/^Copy these JSONL rows into a file you choose:/);
+      expect(exported.text).toContain('"revision":1');
+      expect(engine.fs.write).not.toHaveBeenCalled();
       expect(yield* Effect.promise(() => hooks.practiceCommand(engine)("unknown"))).toEqual({
         text: "Use /practice export, /practice undo, or /practice raw.",
       });
@@ -124,10 +126,11 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
         text: "The verdict could not be saved. Try again.",
       });
       expect(engine.ui.toast).toHaveBeenCalledWith("The verdict could not be saved. Try again.");
-      engine.fs.write.mockRejectedValue("write denied");
+      engine.store.get.mockRejectedValue("read denied");
       expect(yield* Effect.promise(() => hooks.practiceCommand(engine)("export"))).toEqual({
         text: "The verdicts could not be exported.",
       });
+      expect(engine.fs.write).not.toHaveBeenCalled();
     })
   );
 
@@ -187,7 +190,6 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
       const cases = [
         { operation: "store-get", program: host.storeGet("key"), mock: engine.store.get },
         { operation: "store-set", program: host.storeSet("key", "value"), mock: engine.store.set },
-        { operation: "fs-write", program: host.writeText("out.jsonl", "text"), mock: engine.fs.write },
         { operation: "session-id", program: host.sessionId, mock: engine.session.id },
         { operation: "clock", program: host.now, mock: engine.clock.now },
       ];

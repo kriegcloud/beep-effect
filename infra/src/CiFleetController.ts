@@ -595,7 +595,7 @@ type CiFleetControllerPulumiConfigValuesFields = {
  * **Example** (Validate a runner label)
  *
  * ```ts
- * import { CiFleetControllerPulumiConfigValues } from "@beep/infra/CiFleetController"
+ * import { CiFleetControllerPulumiConfigValues } from "@beep/infra"
  * import * as S from "effect/Schema"
  *
  * console.log(S.is(CiFleetControllerPulumiConfigValues.fields.runnerLabel)("beep-ci-heavy"))

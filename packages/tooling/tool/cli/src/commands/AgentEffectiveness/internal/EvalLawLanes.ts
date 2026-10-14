@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A } from "@beep/utils";
@@ -339,7 +340,15 @@ const prepareLawSandbox = Effect.fn("AgentEffectivenessEvalScorer.prepareLawSand
   );
   yield* Effect.forEach(
     sourceFiles,
-    (file) => stageSourceFile(path.join(fixtureDir, file), path.join(fixtureRoot, file)),
+    Effect.fn(function* (file) {
+      const from = yield* resolvePathWithinRoot({ root: fixtureDir, candidate: file }).pipe(
+        Effect.mapError(AgentEffectivenessEvalScorerError.mapError("Fixture source escaped its root.", { file }))
+      );
+      const to = yield* resolvePathWithinRoot({ root: fixtureRoot, candidate: file }).pipe(
+        Effect.mapError(AgentEffectivenessEvalScorerError.mapError("Staged source escaped its sandbox.", { file }))
+      );
+      yield* stageSourceFile(from, to);
+    }),
     { concurrency: 8, discard: true }
   );
   yield* fs

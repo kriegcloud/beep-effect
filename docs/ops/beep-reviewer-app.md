@@ -230,7 +230,41 @@ The implementation PR's local HTTP tests cover token refresh, JWT signature,
 severity mapping, ownership, annotation batching, editable comment identity,
 COMMENT-only reviews, stale heads, and ruleset preservation. Mock proof does not
 establish installed permissions, GitHub's live 403 behavior, or branch-rule
-enforcement. Those acceptance steps remain pending until human provisioning.
+enforcement. The installation below has also completed live acceptance.
+
+### Live acceptance, 2026-10-14
+
+App `beep-reviewer` (`5321138`), installation `171494634`, was verified with
+credentials resolved from `BEEP_SECRETS`. The installation token listed exactly
+one repository: `beep-effect/beep-effect`. No private key or token was printed or
+written to a local file during verification.
+
+The disposable [acceptance PR #1765](https://github.com/beep-effect/beep-effect/pull/1765)
+was closed without merging and its branch was deleted after these checks:
+
+| Acceptance case | Observed result |
+| --- | --- |
+| Start and repeat on the same head | Check `116076032475` was `in_progress`; the second start reused its id |
+| Complete with zero P0/P1 | The check completed successfully with title `4/5 · L2 · P0 0 · P1 0 · P2 2` |
+| Upsert the summary twice | [Comment `6177272852`](https://github.com/beep-effect/beep-effect/pull/1765#issuecomment-6177272852) was edited in place by `beep-reviewer[bot]`, with no 403 |
+| Post a COMMENT review with an inline comment | [Review `5523948807`](https://github.com/beep-effect/beep-effect/pull/1765#pullrequestreview-5523948807) was `COMMENTED` by `beep-reviewer[bot]` on the requested head |
+| Complete with one P1 | Check `116076857549` concluded `failure` |
+| Cancel a superseded run | Check `116076907500` concluded `cancelled` |
+| Same-named success from another actor | A success status from `kriegcloud` did not satisfy `reviewer gate` |
+| Correct App's success | Check `116077100236` satisfied the gate on head `7e22e095003bef87101305d29790b3b692bac7c7` |
+| Head changes | The old head was rejected and its successful check did not carry forward |
+| Code-to-document rename | Moving `scripts/cloud/bootstrap.sh` to a Markdown path still required review |
+| Documentation-only head | [Check `116078568151`](https://github.com/beep-effect/beep-effect/runs/116078568151) immediately succeeded as L0 and satisfied the gate |
+
+The active [main ruleset](https://github.com/beep-effect/beep-effect/rules/10240248)
+now requires `{ "context": "beep-reviewer", "integration_id": 5321138 }`.
+The update was applied using `kriegcloud`'s gh login. A comparison of the saved
+before/after responses confirmed that every other rule, required check, condition,
+and bypass actor was preserved, including the fleet orchestrator's bypass actor.
+
+These results verify the installed App and this checkout's CLI gate. They do not
+establish that a separately deployed fleet controller has adopted the commands;
+that deployment must run the `l0` and `gate` calls described above.
 
 ## Rotation and revocation
 

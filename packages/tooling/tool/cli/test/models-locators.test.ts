@@ -99,6 +99,21 @@ layer(Layer.mergeAll(NodeServices.layer, ModelsLocatorReaderLive), { timeout: "3
       );
     })
   );
+  it.effect("scans repeated opening delimiters with no closer without backtracking", () =>
+    Effect.gen(function* () {
+      const reader = yield* ModelsLocatorReader;
+      assertNone(
+        yield* reader.read(file("task --model ".repeat(20_000)), {
+          _tag: "line-value",
+          binding: binding("model"),
+          render: verbatim,
+          linePrefix: "",
+          before: "task --model ",
+          after: " --effort ",
+        })
+      );
+    })
+  );
 
   it("renders each locator field", () => {
     assertSome(expectedLocatorValue(codexHeavy, "model", verbatim), "gpt-6-astra");

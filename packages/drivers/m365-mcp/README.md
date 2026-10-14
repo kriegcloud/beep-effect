@@ -6,7 +6,7 @@ Model Context Protocol servers for Microsoft 365 over stdio. Both expose
 | Server | Executable | Lane | Does |
 | --- | --- | --- | --- |
 | `beep-m365` | `src/bin.ts` | Delegated, read-only | Reads drives, sites, mail and calendar. |
-| `beep-m365-outbox` | `src/bin-outbox.ts` | App-only, one mailbox | Prepares and sends mail with attachments; writes calendar events. |
+| `beep-m365-outbox` | `src/bin-outbox.ts` | App-only, one mailbox | Prepares mail with attachments and writes calendar events. Automated sending is disabled. |
 
 ## Read-only server
 
@@ -21,15 +21,18 @@ Model Context Protocol servers for Microsoft 365 over stdio. Both expose
 
 ## Outbox server
 
-The outbox is the route by which an agent session sends mail from the
-configured mailbox. Contract and decisions: `goals/m365-agent-outbox/SPEC.md`.
+The outbox prepares mail in the configured mailbox. Automated sending is
+temporarily disabled because Graph's draft-send action cannot bind the send to
+the draft version that was checked. Contract and original design:
+`goals/m365-agent-outbox/SPEC.md`; security decision:
+`goals/codex-security-findings-2026-10-14/SPEC.md`.
 
 | Tool | Does | Sends mail |
 | --- | --- | --- |
 | `m365_outbox_create_draft` | Creates a draft and attaches files from local paths. Returns the draft id and each attachment's name, size and sha256. | No |
 | `m365_outbox_get_draft` | Returns the stored draft's recipients, subject, body length, and each stored attachment's name, size and sha256. Reads any draft id in the mailbox. | No |
 | `m365_outbox_delete_draft` | Deletes a draft this server created that is still a draft. | No |
-| `m365_outbox_send_draft` | Sends a draft this server created, after checking the stored draft against an `expect` block. | **Yes, the only one** |
+| `m365_outbox_send_draft` | Checks the stored draft against `expect`, then refuses with `version-unbound`; it cannot safely send a mutable draft. | No |
 | `m365_outbox_create_event` | Creates a calendar event. No attendees. | No |
 | `m365_outbox_update_event` | Changes fields of a calendar event this server created, when the event has no attendees. | No |
 
@@ -57,10 +60,9 @@ pair, so an event with attendees is never changed by this server.
 addresses, the subject, and every attachment as `{ name, size, sha256 }`, all
 three required. A draft id the audit log has no `draft-created` record for is
 refused with the single field `not-created-here`; nothing is read or
-downloaded. A draft created here and later edited in Outlook is still
-sendable once `expect` restates it. For a draft it created, the server reads
-the draft back, downloads each stored attachment and hashes it, and sends
-only when:
+downloaded. A draft created here and later edited in Outlook can be restated
+in `expect`. For a draft it created, the server reads the draft back,
+downloads each stored attachment and hashes it. It checks:
 
 - the message is still a draft;
 - each recipient list equals the expected one as a set (case and surrounding
@@ -75,6 +77,13 @@ the attachment, which includes storage overhead. `create_draft` and
 the mailbox stores, so a draft edited in Outlook can still be restated, and an
 attachment swapped for another of the same name and size is caught by its
 digest.
+
+Even when every check matches, `send_draft` returns `refused` with
+`version-unbound` and does not call Graph's send action. Another principal
+could edit the draft between the final read and that action. A human can send
+the prepared draft in Outlook after reviewing it. Automated sending can return
+only after an immutable message request or a documented version-bound send
+path is implemented and tested.
 
 A draft is refused with `attachments` when it holds something that cannot be
 verified: an item or reference attachment, an inline one, one without a name
