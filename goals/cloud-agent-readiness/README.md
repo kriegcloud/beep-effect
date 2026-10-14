@@ -128,3 +128,5 @@ qualified by the beep-worker receipts.
 - Moving Effect off the `pkg.pr.new` snapshot onto a published release is a
   dependency-policy decision, not this packet's (non-goal); this packet makes
   the snapshot reachable and the failure loud.
+
+- [Longer bounded cheap-gate proof](history/2026-10-14-long-cheap-gates.md): ten-minute timeout under four-lane memory contention; guarded recovery passes after cleanup, full green verdict remains open.

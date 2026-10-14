@@ -236,3 +236,7 @@ proof slice, avoiding shared-pressure starvation. ExecStopPost remains in the
 proof unit and can still be delayed; automatic recovery no longer depends on it
 finishing once all owned work is gone. Heavy proof, cancellation/reboot behavior,
 direct SSH detection and broader budget sizing remain separate acceptance.
+
+## Worker cheap-gate concurrency — 2026-10-14
+
+The [ten-minute proof](../history/2026-10-14-long-cheap-gates.md) still stalled at the 7 GiB soft ceiling: import-law and schema-first scans overlap under the hard-coded four-lane policy. Add an explicit or host-aware lower lane width, preserve the 8 GiB hard limit, and rerun actual detached cheap gates. Recovery safely refused remaining tasks and completed after bounded soft-throttle relief; finalizer execution under pressure remains separate work.
