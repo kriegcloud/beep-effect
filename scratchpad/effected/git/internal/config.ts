@@ -66,7 +66,7 @@ export type GitConfigDiagnosticCode = typeof GitConfigDiagnosticCode.Type;
  * @category type-level
  * @since 0.0.0
  */
-export type RawDiagnosticCode = typeof GitConfigDiagnosticCode.Type;
+export type RawDiagnosticCode = GitConfigDiagnosticCode;
 
 /**
  * One raw scanner diagnostic, positions in character offsets.

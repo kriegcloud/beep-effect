@@ -548,3 +548,21 @@ describe("editorTsgoVerdict", () => {
     assert.strictEqual(verdict.advisories, 0);
   });
 });
+
+describe("foreignSpecifierLines after regex literals", () => {
+  it("ignores JSDoc example imports that follow a regex holding a backtick or a quote", () => {
+    const text = [
+      "const fence = /^(?:`{3,}|~{3,})(?=[ \\t]*$)/;",
+      "const special = /^[#`~*+_=<>0-9-]/;",
+      "const quote = /'/g;",
+      "/**",
+      " * ```ts",
+      ' * import { x } from "@beep/scratchpad/effected/markdown/internal/blocks/code";',
+      " * ```",
+      " */",
+      'import { y } from "@effected/glob";',
+    ].join("\n");
+    assert.deepStrictEqual(foreignSpecifierLines("c.ts", text), ["c.ts:9"]);
+  });
+});
+
