@@ -1381,7 +1381,11 @@ export const makeKnowledgeArchiveOracle = Effect.fn("Knowledge.makeArchiveOracle
   scratchRoot: string,
   trackedEntries: ReadonlyArray<KnowledgeTrackedEntry>,
   runtimeExecutable = process.execPath
-) {
+): Effect.fn.Return<
+  KnowledgeArchiveOracle,
+  KnowledgeOperationalError,
+  FileSystem.FileSystem | Path.Path | Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner
+> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const runtime = yield* Effect.context<
