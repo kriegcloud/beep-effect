@@ -2,13 +2,13 @@
 
 ```text
 lane: rsc-h4-permissions
-head: a0c0177c9830fed0e45db6f036b184341b66e617 (current source snapshot; final audit in progress)   pr: #1770
-package-verify: @beep/repo-cli current full run pending; prior integrated full audit 1045.0s/docgen 30.8s pass (historical pre-S25)
-hosted-parity: final source sequence in progress; test-tsgo=pass (364 files); preceding post-S25 JSDoc fails on two attributed main examples; 42 scoped tests pass and incumbent coverage is 100% in every metric, zero uncovered
+head: 7f55eeca0d2773ac0fd9491b5f8a53e1cfd8d383 (qualified integration snapshot; publication SHA follows in dispatch receipt)   pr: #1770
+package-verify: @beep/repo-cli pass — default audit 1190.6s and package docgen 46.4s
+hosted-parity: test-tsgo=fail (sole inherited AgentMessage TS377032); docgen local=pass; jsdoc-ratchet=fail (inherited 1345>1343); knowledge refs=pass; fallow audit+health=pass; coverage read=pass (incumbent row 100% all metrics, zero uncovered)
 routes: ChatGPT Desktop x fresh/dormant-idle/dormant-relaunch/background/subagent-followup -> unknown, build 26.1007.71326-1, fixture none; Claude Desktop x same routes in bypass/auto -> unknown, build 2.37337.1-1, fixture none
-config: no backups created or writes; legacy sandbox_mode still present with default_permissions; F writer and drift check pending
+config: no H4 writes or backups; legacy sandbox_mode still coexists with default_permissions at 21:55Z; F writer and drift check pending; project default mode and settings-edit deny preserved
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h4-permissions-2026-10-14.md
-open: final post-S25 qualification/publication; reply+resolve both reviewed threads after push; shared Security/JSDoc and old Skills property reds; operator Desktop fixture batch; F owned-field config repair; overall Permission continuity remains open
+open: publication and review replies; attributed main test-tsgo/JSDoc and live Security ruleset drift; operator Desktop fixtures; F owned-field config repair; overall Permission continuity remains open
 ```
 
 ## Delivered scope
@@ -268,3 +268,78 @@ eight generated examples. Skills source and test still have no H4 diff from
 main. This rules out claiming the S25 merge alone resolved it. The default
 package audit and subsequent bounded docgen remain in progress/pending; their
 actual final results will be recorded before publication.
+
+## Latest main integration — 7f55eeca0d
+
+The default audit on the preceding snapshot completed in 1,204.5s with one
+inherited Skills property failure and 6,479 passing tests; its package docgen
+passed in 45.8s. Quick lint/check then passed in 7.4s/6.7s and bounded docgen
+passed in 43.79s.
+
+Freshness found three main commits, including consolidated fix #1773. Main
+`e54795648b421369d7ac48e3543483fd8c4b6681` merged cleanly as
+`7f55eeca0d2773ac0fd9491b5f8a53e1cfd8d383`. A scoped diff confirms H4's
+reviewed code/test files equal `a0c0177c98`. All required parity is running
+again, alongside a current full package audit. The merged state already
+passes quick package lint/check (6.7s/6.3s), Effect Vitest, doctests and bounded
+docgen. Test-tsgo reports only inherited TS377032 at
+`AgentMessage.runtime.test.ts:322`, introduced by #1766 (`55b1836e40`); the
+file equals main and H4 has zero reported diagnostics. The current sequence
+also runs the entire Skills provenance and AgentMessage runtime test files
+under CI settings to verify the merged fixes.
+
+On the preceding published head, Heavy Build/Check/Docgen/Integration/Coverage
+all stopped on the two locator brand errors already repaired in
+`e5a69726c2`. Each completed job log was read and its inbox row acknowledged
+with that fix SHA; the Coverage job did not reach measurement. Source wave
+publication waits for the current collected results, so those stale jobs do
+not describe the local source. Queued checks for that superseded head were
+cancelled through the canonical Yeet GitHub helper.
+
+## Integrated parity completion — 7f55eeca0d
+
+The full required parity sequence completed on the current merge. Package
+quick lint/check, Effect Vitest, nine doctests, bounded docgen, CI knowledge
+references, Fallow audit and health, retired paths, scoped coverage and the
+coverage read all pass. The three scoped files pass 42 cases in 22.91s.
+Coverage is 97.1% statements, 100% branches, 92.1% functions and 97.14% lines;
+the incumbent Session command is 100% in every metric, with zero uncovered
+counts and every baseline floor/ceiling satisfied. Neither baseline changed.
+The full Skills provenance and AgentMessage runtime files pass all 37 cases
+in 18.16s under CI settings, confirming the merged runtime/property repair.
+
+Two required parity checks remain red and source-attributed: test-tsgo's sole
+TS377032 at `AgentMessage.runtime.test.ts:322` is unchanged from main, and
+JSDoc remains `1345 > 1343` root imports. The current generated inventory adds
+no root-import examples compared with the inventory already committed on
+main, and contains zero H4 root-import examples. No lane-local suppression,
+allowlist, baseline or inherited-source repair was made.
+
+At 21:55Z, installed builds remain ChatGPT Desktop 26.1007.71326-1 and Claude
+Desktop 2.37337.1-1. Sanitized booleans confirm Codex's two permission keys
+still coexist, model and effort match the approved defaults, and project
+Claude default mode and the settings-edit deny remain preserved. No home
+write or backup was made; F's writer/return-of-key check remains pending.
+The old-head Lint Policy job was cancelled by canonical `cancel-queued`:
+run 38637405167 and job 116104805039 both report cancelled at head 9a1b342f05.
+Its log endpoint is unavailable; that cancellation is not a passing lint claim.
+
+## Final full package result and publication boundary
+
+On integrated main `7f55eeca0d2773ac0fd9491b5f8a53e1cfd8d383`, the default
+`beep-heavy bun run beep quality package-verify @beep/repo-cli` exits 0:
+audit passes in 1,190.6s and package docgen passes in 46.4s. This supersedes
+the historical failed Skills-property audit above; the current full package
+gate is green. A fresh fetch and `git merge origin/main` report already up to
+date. Source/code tests remain identical to the independently reviewed a0c0177.
+
+The local required parity results remain exactly as recorded above: two
+inherited reds, all other required checks pass. The read-only live ruleset
+check still reproduces the extra `beep-reviewer` requirement. No red is waived
+or called green. The orchestrator owns the S11 merge gate, review window and
+retirement; H4 will not merge this PR. Overall route acceptance remains open.
+
+The committed report names the qualification snapshot. The post-publication
+dispatch receipt records the exact remote head and review reply results; it
+is metadata only and does not change the qualified implementation. Graft
+reported approximately 97,006 tokens saved across the lane's discovery calls.

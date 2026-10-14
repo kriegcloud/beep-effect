@@ -2097,3 +2097,13 @@ codec property at `skills-provenance.test.ts:388`; the Unit parent merely
 aggregates it. Route these findings to the shared owner. Do not copy fixes
 or rewrite baselines in H4. The final post-S25 sequence includes a bounded
 recheck of the Skills property.
+
+### H4 — latest main exposes a separate test-entry diagnostic (2026-10-14)
+
+After the completed audit, freshness found main #1773's shared-red fix and
+#1766's receiver grant. Merge `7f55eeca0d` preserves H4 source unchanged.
+The repeated test-tsgo fails only `AgentMessage.runtime.test.ts:322` with
+TS377032 `strictEffectProvide`. The file matches main; blame binds the call
+to #1766 (`55b1836e40`). Route this to its owner instead of inserting a
+suppression or copying a fix into H4. Main-owned test entry points need the
+same dedicated test typecheck before their publication.

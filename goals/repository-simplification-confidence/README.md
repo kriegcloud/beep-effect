@@ -5,8 +5,10 @@
 Program active after the October 14 resume. H4 PR #1770 delivers the read-only
 permission census, runbook and synthetic regressions. Current source review
 has zero actionable findings; 42 scoped tests pass, including the hosted
-review regressions. Final post-S25 package/parity qualification is running.
-Two JSDoc examples on main and live ruleset drift are attributed separately.
+review regressions. Current-main parity is complete: bounded docgen, references,
+Fallow and coverage pass; test-tsgo and JSDoc remain source-attributed main reds.
+Full package verification passes (audit 1,190.6s / docgen 46.4s); live
+ruleset drift is shared-owned.
 Desktop route verification and F's owned-field config repair remain external
 dependencies; Permission continuity is open.
 H2's #1574 merge and #1744 evidence follow-up are in current main.

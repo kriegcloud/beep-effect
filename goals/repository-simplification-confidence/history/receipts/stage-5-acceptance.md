@@ -31,10 +31,13 @@ H4, 2026-10-14: earlier default CLI audits/docgen passed at their recorded
 pre-S25 snapshots (1,257.0s/42.2s and 1,045.0s/30.8s). Current source
 `a0c0177c98` follows main's opaque-schema migration and repairs both hosted
 review findings. Independent review has zero actionable findings; 42 scoped
-cases pass, with every incumbent coverage floor/ceiling met. Final post-S25
-full package/parity qualification is running. The JSDoc +2 root-import
-regression is attributed to two unchanged main examples, and live ruleset
-drift remains shared-owned. Current results are in the
+cases pass on integrated main `7f55eeca0d`, with every incumbent coverage
+floor/ceiling met. Bounded docgen, references and both Fallow checks pass.
+Test-tsgo fails only main's AgentMessage test diagnostic; the JSDoc +2
+root-import regression is inherited, with no added inventory examples. Full
+package verification passes (audit 1,190.6s / docgen 46.4s), and live ruleset
+drift remains shared-owned.
+Current results are in the
 [H4 handoff](../handoffs/rsc-h4-permissions-2026-10-14.md). These qualify the
 reader; Desktop route acceptance remains open below.
 

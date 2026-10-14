@@ -373,8 +373,10 @@ and overall program acceptance remain open.
 The Session census and Desktop continuity runbook are in PR #1770. Source
 `a0c0177c98` includes main's S25 opaque-schema migration and both hosted review
 fixes; independent review has zero actionable findings. The 42 scoped cases
-pass. Final full package/parity qualification is running; earlier proof stays
-historical, and shared JSDoc/ruleset failures are attributed in the handoff.
+pass, including a fresh 22.91s run on integrated main `7f55eeca0d`. Bounded
+docgen, references, Fallow and coverage pass; test-tsgo and JSDoc remain
+source-attributed main reds. Full package verification passes (audit 1,190.6s / docgen 46.4s). Earlier
+proof stays historical, and live ruleset drift remains shared-owned.
 No home or Claude harness settings changed. R97 keeps the project default.
 F owns legacy Codex key removal, backup and drift check. R96's operator-driven
 Desktop fixture batch remains external; installed-build route results are
