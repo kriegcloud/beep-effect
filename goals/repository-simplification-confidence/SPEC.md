@@ -1070,3 +1070,12 @@ snapshot is owner-regenerated before push; exact-head parity and independent
 review remain mandatory qualification, and R14 merge belongs to the driver.
 No failing check is relabelled a pass. Recovery: repair any introduced red
 in a fully addressed wave before calling final; revert the PR if necessary.
+
+### 2026-10-14 — H2 inherited schema-first fence uses the resume fallback
+
+Publish the fully addressed, locally qualified H2 wave through the standing
+resume direct-push fallback after normal Yeet collects 16 green cheap lanes
+and only the unchanged main PatchSeriesFile red. Keep that repair on main
+with the program orchestrator; do not weaken policy or duplicate its code.
+Run explicit bounded readiness and report the skipped isolated preflight.
+Reverse through the delivery PR's revert; derived receipts remain rebuildable.

@@ -1595,3 +1595,13 @@ should be rendered beside the option in command help.
 - References now has one gated claim-element external-mirror path after main
   #1729, rather than the earlier 15. Preserve both results at their own heads.
   Docgen, Fallow, retired paths and 289 scoped tests pass on the integration.
+
+### 2026-10-14 — H2 inherited schema-first publication fence
+
+- Publisher collects 16 passing cheap lanes and one inherited main
+  PatchSeriesFile schema-first red, then pushes nothing. Acknowledge the
+  exact local shard with main attribution; do not add a suppression.
+- Apply the resume-authorized direct-push fallback to the complete qualified
+  wave, followed by explicit bounded readiness. Workspace frozen install
+  passes; the refused isolated head-install step is not claimed as run.
+  Program orchestrator owns the single-main repair and S11 gate.

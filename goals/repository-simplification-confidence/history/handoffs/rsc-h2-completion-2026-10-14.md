@@ -386,3 +386,21 @@ Integrated reds are attributed from exact current rows:
 The program orchestrator owns these main repairs. No baseline, inventory
 exception or unrelated source fix is introduced. Final delivery retains the
 complete H2 fixes and both independent medium Opus review receipts.
+
+### Terminal inherited publication fence and fallback
+
+Normal publisher at `dff371755a` collects all 17 cheap lanes: 16 pass and
+only `lint:schema-first` fails on main #1732's `PatchSeriesFile`. It creates
+the local metadata commit and pushes nothing. Inbox
+`local-shard-b5d54487b9b1` is acknowledged with unchanged-main attribution
+and program-orchestrator ownership. No exception or baseline is added.
+
+Use the resume ruling's authorized direct-push fallback for this inherited
+fence: commit the named evidence files, push the complete branch, confirm
+the exact PR head, run `yeet ready`, and explicitly submit
+`monitor --until-ready --detach --job-max-runtime "40 minutes"`.
+Workspace frozen installation passed after integration; this refused
+publisher did not reach its isolated head-install preflight. The earlier
+normal isolated-install pass remains bound to `0f57cb043f`, not this tip.
+Hosted installation and acceptance remain authoritative. Final dispatch
+records the actual tip and terminal bounded-monitor result. H2 never merges.
