@@ -997,3 +997,5 @@ v1 compatibility and allows current v2 metadata to be checked; other versions
 remain invalid. Five independent inherited health/provenance diagnostics are
 retained and attributed, rather than suppressed. Reversal: revert this schema
 field change with the retirement wave.
+
+| 2026-10-14 | A observes the S5 effected-port notification rule has reached its recorded exit condition: all port branches landed, and closeout #1662 (`4a78679afe5b21c19c7587e6985fa7a0d98e2881`) is in lane ancestry. No additional notice gates the generated Knip-removal lock. | Live merged PRs #1592, #1628, #1659 and #1662; `scratchpad/EFFECTED_PORT_GOAL.md` Port complete records 29/29 done. S5 and the earlier Decision Log row end the rule once that branch lands. | If the port reopens on a branch rewriting these files, restore its notification coordination before the next shared-file push. |

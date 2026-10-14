@@ -113,3 +113,11 @@ reviewer verifies each against unchanged main values and finds no new Knip
 retirement error. This remains a failed supplemental validator, not a full
 acceptance pass. Route the broader archived health/provenance reconciliation
 to `rsc-b-standards` / the orchestrator; A does not rebuild a parity project.
+
+## S5 exit condition verified and parity attribution
+
+S5 is no longer an external blocker. Live GitHub reads confirm the effected port branches #1592, #1628 and #1659 merged; closeout #1662 merged at `4a78679afe5b21c19c7587e6985fa7a0d98e2881`, already an ancestor of this lane. Its tracked completion record reports 29/29 done. The standing S5 ruling ends the notification rule when that branch lands; the additional lock delta remains documented above.
+
+Commit-bound test-tsgo and JSDoc ratchet pass. Fallow audit passes with zero introduced and nine inherited-adjacent findings; health passes. Knowledge refs fails on 11 host-path observations: every exact reported source line occurs unchanged on current main, including the three files with unrelated lane diffs. Local docgen returns full-required for global inputs and requests `--full`; this planner refusal is not a pass. The full proof follows admission.
+
+The retired-path law initially fails on 19 path occurrences in six Palantiri Markdown files. The integrated merge restored old prose over main migration changes; attributed introduced integration residue. Restored only the corrected main lines, retaining other lane text; rerun follows. Fresh OCCT and PDF Tools default package gates pass (audit/docgen 22.5s/3.3s and 15.4s/3.0s). Cache review refresh passes, changes no tracked output and retains the 2,102/2/151/no-drop counts. CLI and scoped coverage remain running.

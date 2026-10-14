@@ -1346,3 +1346,7 @@ A fresh fetch advanced main from `aeb2a85cc5` to `3749e7ca4a` while the CLI audi
 ### 2026-10-14 — FQE archived validator rejects the current manifest version
 
 The admitted FQE validator exits 1 before its retirement assertions: the local manifest decoder accepts `initiative-manifest/v1`, while current main's manifest is v2. Both values are verified on `origin/main`, so the mismatch is inherited. Broaden the existing schema to the two supported literal versions, preserving v1 compatibility and rejection of other versions. A canonical manifest-version domain reused by archived validators would have prevented this drift. The initial red is not proof of the retired helper fix; validation must rerun.
+
+### 2026-10-14 — resumed merge restored retired path prose
+
+The commit-bound `beep laws retired-effect-paths --check` reported 19 stale references in six Observability Palantiri documents. The resolved main integration had restored pre-migration prose; these findings are introduced integration residue. Restored exactly the corrected main lines, preserving other lane text. A targeted post-merge law scan before broad parity would have caught the resolution drift sooner. The original red log remains in the ignored lane evidence directory.
