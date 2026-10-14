@@ -29,6 +29,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -73,6 +74,29 @@ const writeExecutable = Effect.fnUntraced(function* (path: string, text: string)
   const fs = yield* FileSystem.FileSystem;
   yield* fs.writeFileString(path, text);
   yield* fs.chmod(path, 0o755);
+});
+const terminalUnit = Effect.fnUntraced(function* (root: string, overrides: Readonly<Record<string, string>> = {}) {
+  const properties = {
+    ActiveState: "failed",
+    SubState: "failed",
+    MainPID: "0",
+    ControlPID: "0",
+    TasksCurrent: "0",
+    ControlGroup: "/user.slice/owned.service",
+    Result: "timeout",
+    ExecMainCode: "1",
+    ExecMainStatus: "130",
+    InvocationID: "11111111111111111111111111111111",
+    ...overrides,
+  };
+  const lines = A.join(
+    A.map(R.toEntries(properties), ([key, value]) => `${key}=${value}`),
+    "\n"
+  );
+  yield* writeExecutable(
+    `${root}/systemctl`,
+    `#!/bin/sh\n[ "$5" = LoadState ] && { printf 'loaded\\n'; exit 0; }\nprintf '%s\\n' '${lines}'\n`
+  );
 });
 const runFixture = Effect.fnUntraced(function* <Value, Error, Requirements>(
   use: (root: string) => Effect.Effect<Value, Error, Requirements>,
@@ -587,6 +611,111 @@ describe("proof job launcher", () => {
         const result = yield* launcher.read(record.jobId);
         expect(O.getOrNull(O.flatMap(result, (value) => value.terminationReason))).toBe("finalizer-missing");
         expect((yield* inbox(root))[0]?.severity).toBe("P1");
+      })
+    )
+  );
+  it.effect("recovers a loaded failed unit without reset and retains timeout evidence", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        const launcher = yield* ProofJobLauncher.make(root);
+        const record = yield* launcher.submit(submission(root));
+        const journal = yield* running(root, launcher, record.jobId);
+        yield* terminalUnit(root);
+        const waited = yield* launcher.wait(record.jobId, Job.ProofJobWaitOptions.make({ timeoutMs: O.some(1000) }));
+        expect(waited.record.phase).toBe("terminated");
+        assertSome(waited.record.terminationReason, "timeout");
+        const observed = O.getOrThrow(waited.record.systemd);
+        expect(observed.serviceResult).toBe("timeout");
+        assertSome(observed.exitCode, "exited");
+        assertSome(observed.exitStatus, "130");
+        assertSome(observed.invocationId, "11111111111111111111111111111111");
+        expect(yield* fs.readFileString(journal)).toContain('"attempt-terminated"');
+        yield* launcher.read(record.jobId);
+        expect((yield* inbox(root)).length).toBe(1);
+      })
+    )
+  );
+  it.effect("retains an OOM result instead of replacing it with finalizer-missing", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const launcher = yield* ProofJobLauncher.make(root);
+        const record = yield* launcher.submit(submission(root));
+        yield* running(root, launcher, record.jobId);
+        yield* terminalUnit(root, { Result: "oom-kill", ExecMainCode: "2", ExecMainStatus: "9" });
+        const result = O.getOrThrow(yield* launcher.read(record.jobId));
+        assertSome(result.terminationReason, "oom-killed");
+        assertSome(O.getOrThrow(result.systemd).exitCode, "killed");
+      })
+    )
+  );
+  it.effect("an inactive unit's exit zero never fabricates a green proof", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const launcher = yield* ProofJobLauncher.make(root);
+        const record = yield* launcher.submit(submission(root));
+        yield* running(root, launcher, record.jobId);
+        yield* terminalUnit(root, {
+          ActiveState: "inactive",
+          SubState: "dead",
+          Result: "success",
+          ExecMainStatus: "0",
+        });
+        const result = O.getOrThrow(yield* launcher.read(record.jobId));
+        expect(result.phase).toBe("terminated");
+        assertNone(result.outcome);
+        assertSome(result.terminationReason, "finalizer-missing");
+      })
+    )
+  );
+  for (const [name, properties] of [
+    ["active runner", { ActiveState: "active", SubState: "running" }],
+    ["stopping finalizer", { ActiveState: "deactivating", SubState: "stop-post" }],
+    ["main process", { MainPID: "42" }],
+    ["control process", { ControlPID: "42" }],
+    ["remaining descendants", { TasksCurrent: "2" }],
+    ["missing accounting", { TasksCurrent: "" }],
+    ["malformed PID", { MainPID: "invalid" }],
+    ["unrecognized result", { Result: "new-result" }],
+  ] as const) {
+    it.effect(`retains the job when observation shows ${name}`, () =>
+      fixture(
+        Effect.fnUntraced(function* (root) {
+          const launcher = yield* ProofJobLauncher.make(root);
+          const record = yield* launcher.submit(submission(root));
+          yield* running(root, launcher, record.jobId);
+          yield* terminalUnit(root, properties);
+          expect(O.getOrThrow(yield* launcher.read(record.jobId)).phase).toBe("running");
+        })
+      )
+    );
+  }
+  it.effect("retains a live recorded identity despite an empty failed unit", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const launcher = yield* ProofJobLauncher.make(root);
+        const record = yield* launcher.submit(submission(root));
+        yield* launcher.markRunning(record.jobId, Job.ProofJobRunner.make({ pid: process.pid, startedAt: stamp }));
+        yield* terminalUnit(root);
+        expect(O.getOrThrow(yield* launcher.read(record.jobId)).phase).toBe("running");
+      })
+    )
+  );
+  it.effect("does not assign another invocation's failure to the recorded job", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const fs = yield* FileSystem.FileSystem;
+        const launcher = yield* ProofJobLauncher.make(root);
+        const record = yield* launcher.submit(submission(root));
+        yield* running(root, launcher, record.jobId);
+        const current = O.getOrThrow(yield* launcher.read(record.jobId));
+        const bound = Job.ProofJobRecord.make({
+          ...current,
+          unit: Job.ProofJobUnit.make({ ...current.unit, invocationId: O.some("22222222222222222222222222222222") }),
+        });
+        yield* fs.writeFileString(`${root}/.beep/yeet/jobs/${record.jobId}.json`, yield* encodeRecordJson(bound));
+        yield* terminalUnit(root);
+        expect(O.getOrThrow(yield* launcher.read(record.jobId)).phase).toBe("running");
       })
     )
   );

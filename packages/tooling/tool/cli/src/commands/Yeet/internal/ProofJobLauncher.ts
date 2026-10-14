@@ -19,6 +19,7 @@ import * as Equal from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
 import { constant } from "effect/Function";
 import * as HashSet from "effect/HashSet";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -55,6 +56,7 @@ import {
   ProofJobRecord,
   ProofJobRequest,
   ProofJobRunner,
+  ProofJobServiceResult,
   ProofJobSystemdResult,
   ProofJobUnit,
   proofJobOutcomeForExit,
@@ -216,6 +218,45 @@ export interface ProofJobLauncherShape {
     operation: Effect.Effect<Value, Error, Requirements>
   ) => Effect.Effect<Value, Error | YeetCommandError, Requirements>;
 }
+
+// Missing identity/accounting evidence refuses recovery rather than assuming
+// a loaded unit is empty. systemctl properties are decoded as boundary data.
+const systemdCount = S.String.check(S.isPattern(/^(0|[1-9][0-9]*)$/u));
+class ProofJobUnitObservation extends S.Class<ProofJobUnitObservation>($I`ProofJobUnitObservation`)(
+  {
+    ActiveState: S.NonEmptyString,
+    SubState: S.NonEmptyString,
+    MainPID: systemdCount,
+    ControlPID: systemdCount,
+    TasksCurrent: systemdCount,
+    ControlGroup: S.String,
+    Result: ProofJobServiceResult,
+    ExecMainCode: systemdCount,
+    ExecMainStatus: systemdCount,
+    InvocationID: S.String,
+  },
+  $I.annote("ProofJobUnitObservation", {
+    description: "Terminal unit state and process/accounting evidence required for dead-job recovery.",
+  })
+) {}
+const decodeUnitObservation = S.decodeUnknownOption(ProofJobUnitObservation);
+const parseUnitObservation = (output: string) =>
+  decodeUnitObservation(
+    R.fromEntries(
+      A.getSomes(
+        A.map(Str.split(output, "\n"), (line) =>
+          O.map(Str.indexOf("=")(line), (index) => [Str.slice(0, index)(line), Str.slice(index + 1)(line)] as const)
+        )
+      )
+    )
+  );
+const observedExitCode = (code: string) =>
+  Match.value(code).pipe(
+    Match.when("1", () => O.some("exited" as const)),
+    Match.when("2", () => O.some("killed" as const)),
+    Match.when("3", () => O.some("dumped" as const)),
+    Match.orElse(() => O.none())
+  );
 
 const proofJobEnvironment = Effect.fn("ProofJob.environment")(function* () {
   const provider = yield* ConfigProvider.ConfigProvider;
@@ -502,8 +543,36 @@ const makeProofJobLauncher = Effect.fn("Yeet.ProofJobLauncher.make")(function* (
       "LoadState",
       "--value",
     ]).pipe(Effect.option);
-    if (!O.exists(shown, (result) => Str.trim(result.output) === "not-found"))
-      return { loaded, reconciled: O.none<ProofJobRecord>() };
+    if (O.isNone(shown) || shown.value.exitCode !== 0) return { loaded, reconciled: O.none<ProofJobRecord>() };
+    const loadState = Str.trim(shown.value.output);
+    const absent = loadState === "not-found";
+    if (!absent && loadState !== "loaded") return { loaded, reconciled: O.none<ProofJobRecord>() };
+    let observation = O.none<ProofJobUnitObservation>();
+    if (!absent) {
+      const detailed = yield* command("systemctl", [
+        "--user",
+        "show",
+        record.unit.unitName,
+        ...A.flatMap(R.keys(ProofJobUnitObservation.fields), (property) => ["-p", property]),
+      ]).pipe(Effect.option);
+      observation = O.flatMap(
+        O.filter(detailed, (result) => result.exitCode === 0),
+        (result) => parseUnitObservation(result.output)
+      );
+      if (O.isNone(observation)) return { loaded, reconciled: O.none<ProofJobRecord>() };
+      const unit = observation.value;
+      const emptyTerminal =
+        ((unit.ActiveState === "failed" && unit.SubState === "failed") ||
+          (unit.ActiveState === "inactive" && unit.SubState === "dead")) &&
+        unit.MainPID === "0" &&
+        unit.ControlPID === "0" &&
+        (unit.ControlGroup === "" || unit.TasksCurrent === "0");
+      const invocationMatches = O.match(record.unit.invocationId, {
+        onNone: () => true,
+        onSome: (expected) => unit.InvocationID === expected,
+      });
+      if (!emptyTerminal || !invocationMatches) return { loaded, reconciled: O.none<ProofJobRecord>() };
+    }
     // Without a runner, fence the submitter to avoid racing the initial systemd-run call.
     const owner = O.getOrElse(record.runner, () => record.submitter);
     const status = yield* processIdentityStatus({
@@ -511,15 +580,28 @@ const makeProofJobLauncher = Effect.fn("Yeet.ProofJobLauncher.make")(function* (
       procStart: O.getOrElse(owner.procStart, () => ""),
     }).pipe(Effect.provide(context));
     if (status !== "dead") return { loaded, reconciled: O.none<ProofJobRecord>() };
-    const stamped = yield* finalizeLocked(
-      id,
-      ProofJobSystemdResult.make({
-        serviceResult: "unknown",
-        invocationId: record.unit.invocationId,
-        finalizedAt: yield* now,
-      }),
-      "finalizer-missing"
-    );
+    const finalizedAt = yield* now;
+    const systemd = O.match(observation, {
+      onNone: () =>
+        ProofJobSystemdResult.make({
+          serviceResult: "unknown",
+          invocationId: record.unit.invocationId,
+          finalizedAt,
+        }),
+      onSome: (unit) =>
+        ProofJobSystemdResult.make({
+          serviceResult: unit.Result,
+          exitCode: observedExitCode(unit.ExecMainCode),
+          exitStatus: unit.ExecMainCode === "0" ? O.none() : O.some(unit.ExecMainStatus),
+          invocationId: Str.isNonEmpty(unit.InvocationID) ? O.some(unit.InvocationID) : record.unit.invocationId,
+          finalizedAt,
+        }),
+    });
+    const reason =
+      absent || systemd.serviceResult === "success" || systemd.serviceResult === "unknown"
+        ? "finalizer-missing"
+        : undefined;
+    const stamped = yield* finalizeLocked(id, systemd, reason);
     return { loaded: O.some(stamped.record), reconciled: O.some(stamped.record) };
   }, withRecordLock);
   const read = Effect.fn("ProofJob.read")(function* (id: UUID) {

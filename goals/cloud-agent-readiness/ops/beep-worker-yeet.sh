@@ -11,8 +11,12 @@ fi
 runtime_uid="$(id -u)"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$runtime_uid}"
 export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
-if ! systemctl --user cat agent-runs.slice >/dev/null 2>&1; then
-  printf '%s\n' 'worker Yeet: user manager or agent-runs.slice unavailable.' >&2
+slice=agent-runs.slice
+case "${1:-}" in
+  job|status|proof-report|inbox|--help|-h|'') slice=beep-yeet-control.slice ;;
+esac
+if ! systemctl --user cat "$slice" >/dev/null 2>&1; then
+  printf '%s\n' 'worker Yeet: user manager or selected worker slice unavailable.' >&2
   exit 69
 fi
 root="$(git rev-parse --show-toplevel)"
@@ -22,5 +26,5 @@ if [[ ! -f "$entrypoint" ]]; then
   exit 78
 fi
 exec systemd-run --user --scope --quiet --collect \
-  "--unit=beep-worker-yeet-$$" --slice=agent-runs.slice \
+  "--unit=beep-worker-yeet-$$" "--slice=$slice" \
   env -u SSH_AUTH_SOCK bun run "$entrypoint" -- yeet "$@"
