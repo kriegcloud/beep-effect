@@ -9810,7 +9810,7 @@
       "kind": "literal-kit",
       "owner": "@beep/m365-mcp",
       "identity": "OutboxSendMismatchField",
-      "description": "A reason a send is refused: a part of the stored draft that differs from the send expectation, or `not-created-here` when this server did not create the draft."
+      "description": "A reason a send is refused: a mismatched draft field, an unrecorded draft, or an unversioned Graph send operation."
     },
     {
       "file": "packages/drivers/m365-mcp/src/OutboxStoredAttachments.ts",
@@ -29416,6 +29416,14 @@
       "description": "A portable, host-agnostic locator for a citation, in the style of W3C Web Annotation selectors."
     },
     {
+      "file": "packages/law-practice/domain/src/values/DurableLocator/DurableLocator.model.ts",
+      "symbol": "TextQuote",
+      "kind": "schema-class",
+      "owner": "@beep/law-practice-domain",
+      "identity": "TextQuote",
+      "description": "W3C TextQuoteSelector: the exact quoted text with optional prefix and suffix context."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/DurableLocatorOptions/DurableLocatorOptions.model.ts",
       "symbol": "DurableLocatorOptions",
       "kind": "tagged-union",
@@ -30343,6 +30351,22 @@
       "description": "Restatement citation: secondary authority published by the American Law Institute (#578)."
     },
     {
+      "file": "packages/law-practice/domain/src/values/ReviewItem/ReviewItem.model.ts",
+      "symbol": "ReviewItem",
+      "kind": "tagged-union",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ReviewItem",
+      "description": "One piece of agent work awaiting the attorney's verdict, discriminated on its kind."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/ReviewItem/ReviewItem.model.ts",
+      "symbol": "ReviewItemKind",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "ReviewItemKind",
+      "description": "Kinds of agent work product that reach the attorney review queue."
+    },
+    {
       "file": "packages/law-practice/domain/src/values/Segment/Segment.model.ts",
       "symbol": "Segment",
       "kind": "schema-class",
@@ -30389,6 +30413,30 @@
       "owner": "@beep/law-practice-domain",
       "identity": "SourceNormRef",
       "description": "Opaque reference to the norm that prescribes a legal position or role."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "PageCrop",
+      "kind": "schema-class",
+      "owner": "@beep/law-practice-domain",
+      "identity": "PageCrop",
+      "description": "A pre-rendered, size-bounded image of the passage region on one page."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "PageCropMimeType",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "PageCropMimeType",
+      "description": "Image formats a pre-rendered page crop may carry."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/SourceRef/SourceRef.model.ts",
+      "symbol": "SourceRef",
+      "kind": "schema-class",
+      "owner": "@beep/law-practice-domain",
+      "identity": "SourceRef",
+      "description": "Where a review item's evidence lives: a Box file, an optional page, the quote, and an optional crop."
     },
     {
       "file": "packages/law-practice/domain/src/values/Span/Span.model.ts",
@@ -30485,6 +30533,22 @@
       "owner": "@beep/law-practice-domain",
       "identity": "TreatyCitation",
       "description": "Treaty-series citation (#309): T.I.A.S. No. 1502, 1155 U.N.T.S. 331."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/VerdictRow/VerdictRow.model.ts",
+      "symbol": "Verdict",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-domain",
+      "identity": "Verdict",
+      "description": "The attorney's judgement of a review item: right, wrong, partly right, or withdrawn (no current judgement)."
+    },
+    {
+      "file": "packages/law-practice/domain/src/values/VerdictRow/VerdictRow.model.ts",
+      "symbol": "VerdictRow",
+      "kind": "schema-class",
+      "owner": "@beep/law-practice-domain",
+      "identity": "VerdictRow",
+      "description": "One append-only entry in the attorney's verdict log for a review item."
     },
     {
       "file": "packages/law-practice/server/src/CandorPromotionGate/CandorPromotionGate.ports.ts",
@@ -33104,6 +33168,57 @@
       "file": "packages/law-practice/use-cases/src/PracticeKg.tools.ts",
       "symbol": "practiceKgMatterFieldTiers",
       "kind": "struct-const",
+      "owner": "@beep/law-practice-use-cases"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictBatchEmptyError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictBatchEmptyError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictBatchLockedError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictBatchLockedError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictLogError",
+      "kind": "tagged-error",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictLogError"
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.errors.ts",
+      "symbol": "VerdictLogOperation",
+      "kind": "literal-kit",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "VerdictLogOperation",
+      "description": "Verdict-log store operation that failed: reading the rows or appending one."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/ReviewQueue/ReviewQueue.ports.ts",
+      "symbol": "RecordVerdictInput",
+      "kind": "schema-class",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "RecordVerdictInput",
+      "description": "The attorney's verdict on one review item, before the queue assigns its revision and timestamp."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/VerdictProjector/VerdictProjector.schemas.ts",
+      "symbol": "ClaimDispositionProjection",
+      "kind": "schema-class",
+      "owner": "@beep/law-practice-use-cases",
+      "identity": "ClaimDispositionProjection",
+      "description": "The disposition an attorney's final verdict implies for one candidate claim, before persistence."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/internal/DefectCause.ts",
+      "symbol": "DefectCause",
+      "kind": "schema-const",
       "owner": "@beep/law-practice-use-cases"
     },
     {
@@ -47960,7 +48075,7 @@
       "kind": "literal-kit",
       "owner": "@beep/repo-cli",
       "identity": "KnowledgeLeaseViolation",
-      "description": "A debt-lease rule a lease breaks: owner, lifetime, or quota."
+      "description": "A debt-lease rule a lease breaks: owner, future issue date, lifetime, or quota."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.leases.ts",
@@ -53022,7 +53137,7 @@
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
       "identity": "SkillTrainPullRequestComment",
-      "description": "A pull-request comment's body and creation time from gh pr list --json comments."
+      "description": "A pull-request comment's author, body, and creation time from gh pr list --json comments."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Skills/SkillsRelock.schemas.ts",
