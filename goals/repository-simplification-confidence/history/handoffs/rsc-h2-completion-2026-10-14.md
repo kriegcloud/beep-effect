@@ -2,9 +2,9 @@
 
 ```text
 lane: rsc-h2-completion
-head: d42750855e11c4e8e15430ec7033188f1734ec1a (qualified code; report-only delivery tip in final dispatch)   PR: #1574
-package-verify @beep/repo-cli: pass (final full audit 1020.4s/docgen 27.2s; native property source d42750855e)
-hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=fail inherited 15 main host paths fallow=pass coverage=pass (287 tests; every existing touched floor/ceiling met or improved)
+head: 075a4d79081f33cca1d1d5b4f44b770b2d1dc01d (qualified code; report-only delivery tip in final dispatch)   PR: #1574
+package-verify @beep/repo-cli: pass (frozen final source audit 890.6s/docgen 26.5s at 075a4d7908)
+hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=fail inherited 15 main host paths fallow=pass coverage=pass (289 tests; every existing touched floor/ceiling met or improved)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
 post-merge refresh: pending merge; orchestrator owns three-packet refresh
@@ -263,3 +263,87 @@ independent pinned Opus hint and property reviews returned zero actionable
 findings; those remain source-bound to their recorded heads. The final native
 registration has the four passing detector/compiler/runtime checks above.
 No paid quota increase, model substitution, baseline or inventory change is made.
+
+## New review wave: receipt freshness and fixture-table qualification
+
+Threads `PRRT_kwDOPbO_N86sWn2p` and `PRRT_kwDOPbO_N86sWn2Z` arrive after the
+report update at `af9dfcf748`. Both are valid. The table now distinguishes
+verified synthetic complete inventories from unknown live-adapter outcomes.
+Receipt selection no longer lets an old definite outcome mask a newer
+successful merged observation that is unknown only because inventory is
+incomplete. A candidate unknown receipt must have merge facts, a check
+snapshot and definite gating hosted-check evidence. Missing-history and
+pending-check refreshes preserve older positively observed red evidence.
+Repository, declaration digest, final PR and revalidation bindings remain.
+
+The pending-rerun case already resolves unknown; its refreshed check facts
+replace the earlier unknown while overall completion stays unknown. Only
+the required-red case clears unsatisfaction to unknown. Regressions cover
+both, plus missing-history and pending-check preservation, and a later
+factless transient refresh. Source `6fe60c8bf8` receives ZERO ACTIONABLE
+FINDINGS from independent Cursor Opus review. Its init confirms
+`Claude Opus 5.5 300K Medium` with the approved `claude-opus-5-5-medium` pin.
+Direct Opus was quota-blocked; an earlier Cursor alias reported High and was
+stopped. Neither unavailable/mismatched attempt supplies review evidence.
+
+Assertion-only compiler cleanup `075a4d7908` uses
+`Option.pipe(O.isSome, assertTrue)`. Fresh final test-tsgo passes;
+schema-first, Effect/Vitest, docgen, JSDoc, Fallow audit/health, retired-path
+law and 289 scoped tests pass. Existing touched coverage floors and
+uncovered ceilings all pass without any baseline write. Completion is
+80.23% lines, 76.71% statements, 56.35% branches and 71.02% functions;
+Doctor remains 85.2/85.15/73.91/87.62 with uncovered 46/49/36/12.
+Knowledge references retains 15 inherited host paths.
+
+The first storage audit crosses the source correction and fails its new
+degraded-refresh regression (6265 pass, one fail). Its observed selection
+is the behavior fixed by `6fe60c8bf8`, not the later cold scoped result.
+Inbox `local-shard-b44b0ccc5bfa` is acknowledged against that fix. A fresh
+full package gate runs with source frozen at `075a4d7908`; its terminal
+result is recorded below and in the final dispatch.
+
+Both threads are answered/resolved via `yeet reply`, two resolved and zero
+failed. REST replies are `4272109485` (freshness) and `4272109928` (table);
+later bot acknowledgements are not new actionable threads. The complete
+review-fix wave is published after the frozen-source gate completes.
+
+### Hosted reds at report-only head af9dfcf748
+
+Fetch every completed red job log directly without waiting for the run.
+The eight job fetches all succeed; this supersedes no earlier failed fetch.
+These observations concern GitHub's synthetic merge, not a local pass.
+
+| Job | Observed failure and attribution | Owner/disposition |
+| --- | --- | --- |
+| `115902386452` Heavy / Check | `skills-relock.test.ts:507` TS377112; file absent from H2 head, inherited main #1732 | program orchestrator main repair |
+| `115901762566` repo-cli-2 unit | CI descriptor fixture rejects Skills Replay/Relock/Train jobs added on main; H2 changes no workflows or descriptor fixture | inherited main repair |
+| `115901762671` repo-cli-1 unit | knowledge-doctor live witness times out at 180s; root cause unknown, no H2 fixture edit | orchestrator timeout investigation |
+| `115901762518` Property Laws | both descriptor mismatch and knowledge-doctor timeout | inherited descriptor component; timeout component unknown |
+| `115901762337` JSDoc Ratchet | missingExportExamples 12 versus 9, unsafeExampleFindings 1 versus 0; aggregate log omits owning source rows | orchestrator attribution, source ownership unknown; local parity does not substitute for hosted proof |
+| `115902385930` Lint Policy | main PatchSeriesFile schema finding, observability/practice laws, existing retired-script references and JSDoc totals; skills-relock compiler red | inherited components retained; full aggregate ownership needs orchestrator attribution |
+| `115902386082` Coverage Regression | descriptor mismatch and knowledge-doctor timeout stop tests; baseline comparison never runs | required-row comparison unknown; main repair/investigation |
+| `115909644068` Test Unit aggregate | aggregates failed children | child attributions above |
+
+The final dispatch identifies the new exact-head hosted and bounded-monitor
+state. H2 neither duplicates a consolidated main repair nor merges itself.
+
+### Frozen-source package result and final delivery boundary
+
+The replacement full package gate completes exit 0 with source frozen at
+`075a4d79081f33cca1d1d5b4f44b770b2d1dc01d`: audit 890.6s, docgen 26.5s.
+This is the final receipt-selection source qualification. The previous
+failed cross-correction audit remains recorded; its acknowledgement is not
+substituted for this pass. Corrected test-tsgo passes at the same source.
+All 289 scoped tests and existing coverage floors/ceilings pass; schema-first,
+Effect/Vitest, bounded docgen, JSDoc, Fallow and retired-path law pass.
+Knowledge refs retains 15 attributed inherited host paths.
+
+Final publication includes this report-only evidence update with the complete
+freshness/table review-fix wave. The report's head is the qualified source,
+as in prior handoffs; final dispatch binds the actual published metadata tip
+and the exact-head hosted/readiness result. This avoids a self-referential
+commit OID in a tracked report. No source is changed after qualification.
+The bounded monitor's durable result is in clone-local Yeet job receipts and
+the final dispatch. A red/unknown strict monitor does not authorize H2 to
+merge; the program orchestrator applies S11, re-reads threads, then owns
+three-packet refresh and retirement.

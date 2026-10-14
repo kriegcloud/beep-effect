@@ -402,3 +402,27 @@ orchestrator's consolidated repair; do not replace hosted failure with local
 passing test-tsgo. The supplementary native-registration Opus review is
 quota-blocked before reviewing; prior source-bound Opus reviews and current
 four native-registration checks remain explicitly distinct.
+
+### Final receipt-freshness qualification
+
+The complete successful-observation candidate requires merge facts, a check
+snapshot and a definite gating hosted-required-check result. Newer unknown
+receipts from missing history or pending required checks retain the older
+positively observed red. Refreshed successful facts can clear an old red to
+unknown without establishing historical inventory completeness.
+
+Frozen final source `075a4d7908` passes the full package audit (890.6s) and
+docgen (26.5s). Corrected test-tsgo passes. Schema-first, Effect/Vitest,
+bounded docgen, JSDoc, Fallow audit/health, retired-path law and 289 scoped
+tests pass; every existing touched coverage floor and uncovered ceiling
+passes. Knowledge refs retains 15 inherited main host paths. No baseline
+or inventory is rewritten. Independent medium Opus Cursor follow-up of
+semantic source `6fe60c8bf8` returns ZERO ACTIONABLE FINDINGS; `075a4d7908`
+changes only the two assertion pipelines after that review.
+
+The two new threads are answered/resolved with REST replies `4272109485`
+and `4272109928`, alongside the earlier two resolved threads. The handoff
+records intermediate compiler/audit failures, accepted source, publication
+boundary and exact hosted-red observations. Final dispatch binds the
+report-only published tip and bounded readiness receipt. Post-merge refresh
+is still owned by the orchestrator; no historical lifecycle is reset.

@@ -1476,3 +1476,15 @@ on the new head if it appears.
   Use each Option's `pipe(O.isSome, assertTrue)` form, preserving assertion
   polarity and values. Runtime regressions pass; retain the compiler failure
   until the corrected compiler run completes. No suppression is introduced.
+
+### 2026-10-14 — H2 full audit crossed a source correction
+
+- Full audit started before the freshness review completed and ends with
+  6265 passing tests and the new degraded-refresh preservation regression red.
+  Its actual result selects the missing-history unknown receipt, the behavior
+  corrected by `6fe60c8bf8`; a cold scoped run after that fix passes all
+  289 tests and existing coverage rows. The audit is failed evidence, not
+  current-source qualification.
+- Acknowledge the precise fix SHA and rerun the full package gate with source
+  frozen. Do not edit implementation during the admitted full suite; this
+  prevents old transformed modules and newer tests sharing one proof run.
