@@ -2,8 +2,8 @@
 
 Repo root: the current working directory. Do not assume an absolute path.
 
-Outcome: fix and close the 48 Codex security findings captured on
-2026-10-14 for `kriegcloud/beep-effect`: 5 Medium, 13 Low, 30 Informational.
+Outcome: fix and close the 49 Codex security findings captured on
+2026-10-14 for `kriegcloud/beep-effect`: 5 Medium, 13 Low, 31 Informational.
 Ship one Yeet-driven PR to mergeable, merge it, then resolve the exact captured
 Codex IDs until no packet-applicable finding remains open.
 
@@ -30,7 +30,8 @@ Scope:
 Rules:
 
 <!-- codex-findings-refresh:start -->
-Refresh capture: the original 47 records retain their prior triage and proof; CSF-048 was added from the later full CSV export and has a validated repair.
+Refresh capture: the original 48 records retain their triage and proof; CSF-049
+was appended, validated, and repaired on the current branch.
 <!-- codex-findings-refresh:end -->
 
 1. Default every item to `remediate`; use `already-fixed` or `false-positive`
@@ -44,7 +45,7 @@ Refresh capture: the original 47 records retain their prior triage and proof; CS
    sanitized metadata, summaries, decisions, changed files, and proof.
 5. Run focused tests, affected package checks, packet validation, then Yeet
    repair/verify. Publish one intentional PR and monitor through mergeable.
-6. After merge, close only the exact 48-ID allowlist in Codex as Fixed
+6. After merge, close only the exact 49-ID allowlist in Codex as Fixed
    (or the evidence-backed invalid reason) and verify zero packet-open findings.
 
 Stop if the signed-in CSV export is unavailable, tracked evidence contains secret

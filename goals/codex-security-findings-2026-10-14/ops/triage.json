@@ -4,11 +4,11 @@
     "repository": "kriegcloud/beep-effect",
     "findingsView": "repo-scoped, status=new",
     "branch": "codex/security-findings-2026-10-14",
-    "expectedCount": 48,
-    "capturedCount": 48,
+    "expectedCount": 49,
+    "capturedCount": 49,
     "capturedAt": "2026-10-14",
     "captureMethod": "signed-in-csv-export",
-    "note": "All 48 finding IDs are bound to current-HEAD triage; the 48th was appended from the later signed-in CSV export while preserving prior decisions."
+    "note": "All 49 finding IDs are bound to current-HEAD triage. The 49th was appended from the refreshed signed-in CSV export while preserving prior decisions."
   },
   "lanes": {
     "L1-remediation": {
@@ -174,6 +174,10 @@
     "L38-skill-patch-budget": {
       "status": "implemented",
       "findings": ["CSF-048"]
+    },
+    "L41-skill-install-containment": {
+      "status": "implemented",
+      "findings": ["CSF-049"]
     }
   },
   "findings": [
@@ -1555,6 +1559,37 @@
       "ownerArea": "Skills provenance patch rendering",
       "verdict": "confirmed-vulnerable",
       "lane": "L38-skill-patch-budget"
+    },
+    {
+      "id": "CSF-049",
+      "codexId": "commit:ed2f3eb6d7e081919206b070a79dce1c",
+      "title": "Materialize follows install symlinks outside the repository",
+      "severity": "Informational",
+      "codexStatus": "New",
+      "commit": "4e66575c646c282169021a6d5eb3d01129617bcf",
+      "disposition": "remediate",
+      "validation": {
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The authenticated report shows an allowed textual install target whose skills parent can be a symlink outside the repository. The writer resolved that parent and staged, renamed, and cleaned files at its physical location without bounding it to the repository. A service regression reproduces the external symlink and verifies refusal without changing either the outside sentinel or the in-repo target."
+      },
+      "remediation": {
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Skills/internal/ClearingHouse.ts",
+          "packages/tooling/tool/cli/test/skills-materialize.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx --bun vitest run test/skills-materialize.test.ts",
+          "bun run beep quality test-tsgo",
+          "bun run beep quality package-verify @beep/repo-cli --quick",
+          "bun run beep quality fallow audit --check"
+        ],
+        "summary": "Resolve the physical repository root and each install parent before staging. Reject an ancestor outside that root and restrict physical installation to the two permitted skills directories, including the in-repository mirror symlink."
+      },
+      "ownerArea": "Skills materializer target containment",
+      "verdict": "confirmed-vulnerable",
+      "lane": "L41-skill-install-containment"
     }
   ]
 }

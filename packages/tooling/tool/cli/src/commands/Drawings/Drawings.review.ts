@@ -182,6 +182,24 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       .readFileString(file)
       .pipe(Effect.mapError(fail(`Could not read ${what} "${file}".`)), Effect.flatMap(decodeJson(schema, file, what)));
 
+  const removeStagedOutput = (temporary: string | undefined, temporaryDir: string | undefined) => {
+    const nodeFs = process.getBuiltinModule("node:fs");
+    if (temporary !== undefined) {
+      try {
+        nodeFs.unlinkSync(temporary);
+      } catch {
+        // Preserve the original write error; this file is only a stale temporary.
+      }
+    }
+    if (temporaryDir !== undefined) {
+      try {
+        nodeFs.rmdirSync(temporaryDir);
+      } catch {
+        // Preserve the original write error; this directory is only a stale temporary.
+      }
+    }
+  };
+
   const writeRoundFile = Effect.fnUntraced(function* (root: string, file: string, bytes: Uint8Array) {
     return yield* Effect.try({
       try: () => {
@@ -218,20 +236,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
           temporary = undefined;
           nodeFs.fsyncSync(directory);
         } finally {
-          if (temporary !== undefined) {
-            try {
-              nodeFs.unlinkSync(temporary);
-            } catch {
-              // Preserve the original write error; this file is only a stale temporary.
-            }
-          }
-          if (temporaryDir !== undefined) {
-            try {
-              nodeFs.rmdirSync(temporaryDir);
-            } catch {
-              // Preserve the original write error; this directory is only a stale temporary.
-            }
-          }
+          removeStagedOutput(temporary, temporaryDir);
           nodeFs.closeSync(directory);
         }
       },

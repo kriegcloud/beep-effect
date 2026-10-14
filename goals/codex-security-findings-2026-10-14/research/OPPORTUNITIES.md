@@ -54,3 +54,46 @@
   because it runs package lint and source check, not this test typecheck lane.
 - Would have prevented it: have the quick package verifier name the omitted
   test typecheck lane, or offer a repo-cli test typecheck profile before push.
+
+## 2026-10-14: live knowledge-doctor test times out in the full repo-cli shard
+
+- Doing: waiting for hosted proof of PR #1728 after the docket fixture repair.
+- Evidence: `Test Unit (repo-cli-1)` timed out at 180 seconds in the live
+  knowledge-doctor checkout test on both PR #1728 and the independently
+  running `main` head. The isolated knowledge-doctor test file passed locally.
+  The live test scanned the whole checkout twice even though its fixture suite
+  already checks deterministic report encoding.
+- Would have prevented it: keep the live checkout test to one scan and leave
+  deterministic double-scan proof to the bounded fixture; set a timeout based
+  on the hosted runner's measured runtime.
+
+## 2026-10-14: Yeet publish pushes but cannot detach its monitor
+
+- Doing: publishing each corrected security head through `beep yeet publish`.
+- Evidence: cheap gates, fresh install, and `git push` succeeded, then monitor
+  submission exited nonzero because no active systemd user manager was
+  available. The published head was verified remotely and the documented
+  attached `beep yeet monitor --until-ready` path resumed review tracking.
+- Would have prevented it: have publish start the attached monitor fallback,
+  or report pushed success distinctly from monitor submission failure.
+
+## 2026-10-14: review fix added a Fallow complexity gate failure
+
+- Doing: rerunning Yeet cheap gates after the drawings delivery symlink review fix.
+- Evidence: `quality fallow audit --check` attributed one new cognitive
+  complexity finding to the temporary-file cleanup inside
+  `Drawings.review.ts`. Extracting that cleanup into a small named function
+  cleared the introduced finding; the drawing review tests and test typecheck
+  passed afterward.
+- Would have prevented it: run the new-only Fallow audit on the reviewed
+  change before starting the broader cheap-gates suite.
+
+## 2026-10-14: hosted job log download timed out during CI attribution
+
+- Doing: attributing a red repo-cli test shard on the shared `main` blocker.
+- Evidence: the documented `gh api` job-log read ended with an `i/o timeout`
+  while retrieving the completed job's log. The check-run annotations named
+  only the shard exit, so the exact failing test remained unknown at that point.
+- Would have prevented it: retain a concise failing-test summary in the check
+  annotations or as a separately downloadable artifact when the large log
+  blob is unavailable.
