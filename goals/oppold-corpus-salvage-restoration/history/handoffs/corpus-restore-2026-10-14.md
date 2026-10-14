@@ -283,3 +283,37 @@ unsupported with retained diagnostic evidence. Never retry this recovery
 occurrence or any old sealed family. Launch no further occurrence before
 that reconciliation. Publish the aggregate record PR after the recovery
 batch ends; this launch handoff is not a content-final record PR.
+
+
+## Recovery ordinal 5 live handoff — 2026-10-14T13:40:14Z
+
+Launch requested at 13:38:58Z; admitted script started at
+2026-10-14T13:38:59.023Z, less than two seconds of slot wait.
+Unit beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service is active.
+Private log has one line; re-verification summary count zero; result stamp
+absent. The built-in archive re-verification is in progress. No
+family-run-start or accepted recovery outcome is claimed. Manifest
+policySha256 stays null until observed once from family-run-start.
+
+Execution HEAD at launch: 25ba89181f (packet-only commits after the frozen
+source snapshot 08afe6715d2715713618b2d9f2ea64c8aba6b6b7). Production
+source equality with that snapshot and merged main is confirmed. Manifest
+freeze commit 4bd0ea98d73a9c3a285ec0bfd85973d64f8a0223 predates launch.
+No engine, membership, original launcher or old sealed-state changes.
+Recovery launcher remains frozen at
+9c39a78e1b143f7b6d0df48bb680eee8e723db3c41b179ffd48c36308ff5c98d.
+Free bytes before launch preflight: 339,888,861,184. New output is written
+only by restore-mail. No other recovery ordinal has started.
+
+Result stamp on resume: ~/.cache/beep/corpus-restore/p2-recovery-2026-10-14-5.result.
+Ledger, relative to corpus home:
+staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-14-recovery-05/ledgers/mail/slice.jsonl.
+Run manifest: history/evidence/p2-recovery-2026-10-14-family-05-run-manifest.json.
+The driver owns waiting for this live unit under the latest ruling. All
+worker auxiliary verification calls have ended; only this transferred
+family unit runs. Next action: aggregate reconciliation and unsupported
+recovery disposition if the second pass repeats its failure, then the
+remaining approved occurrences sequentially. Never relaunch ordinal 5.
+Eighteen larger occurrences and estate/recycle/DOC gates remain open for
+P3. Reversal: revert packet decisions while retaining all corpus artifacts,
+claims, ledgers and manifests. No new record PR until the recovery outcome.

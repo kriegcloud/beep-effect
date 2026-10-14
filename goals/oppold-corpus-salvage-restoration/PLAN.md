@@ -390,3 +390,11 @@ freeze records and the full sixty-second interval; driver resumes after
 seal review. Repeated second-pass failure is unsupported with evidence,
 never accepted partial output or a third attempt. P2 stays in-progress;
 eighteen larger occurrences and estate/recycle/DOC gates stay open for P3.
+
+
+**Recovery launch 2026-10-14:** ordinal 5 started at 13:38:59.023Z in
+beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service. Sole live
+recovery family; archive re-verification active, result pending. The driver
+waits for this unit, then relaunches the lane to reconcile seal/children,
+fill the manifest policy digest once and progress to 7/8/9. No recovery
+accepted yet. All old families and their evidence remain immutable.

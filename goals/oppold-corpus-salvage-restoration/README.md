@@ -9,12 +9,13 @@ digests while retaining the originals.
 
 ## Next action
 
-The recovery engine PR #1731 merged at 226087bfda. The four fresh freeze
-records for failed ordinals 5/7/8/9 are prepared with measured engine
-identities and the approved 22,320,000-ms attempt bound. Commit them,
-launch ordinal 5 under admitted beep-heavy, then reconcile each seal before
-the driver continues sequentially. Repeated second-pass failure is
-unsupported with retained evidence, never accepted partial repairs or a
+Recovery ordinal 5 is active in
+beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service, launched once
+after #1731 merged, source equality, committed new freeze records and
+admitted preflight. The driver waits for the unit to end, then this lane
+reconciles its result and seal before progressing sequentially to 7/8/9.
+No accepted recovery output is claimed yet. A repeated second-pass failure
+is unsupported with retained evidence, never accepted partial repairs or a
 third attempt. P2 stays in-progress; eighteen larger occurrences and
 estate/recycle/DOC gates remain open for P3.
 
@@ -42,6 +43,15 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-14: Recovery engine #1731 merged at 226087bfda. Four fresh
+manifests were committed before launch for failed ordinals 5/7/8/9.
+Ordinal 5 started at 13:38:59.023Z; its sole detached family unit is active
+in archive re-verification. Both real sandbox smokes, four focused
+restoration tests and two recovery regressions pass. Knowledge refs has
+fifteen inherited gates in eleven documents matching main, zero introduced
+gates. No recovery terminal outcome yet; old sealed state retained.
+
 
 2026-10-14: Ordinal 9 sealed failure, result one, one unapproved engine-failure.
 Input 456,877,056 bytes; retained output 1,177,728,174 bytes; family elapsed
