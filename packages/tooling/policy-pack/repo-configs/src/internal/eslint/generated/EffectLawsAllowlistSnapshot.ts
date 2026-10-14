@@ -6,6 +6,14 @@ export const ALLOWLIST_SNAPSHOT = {
   "entries": [
     {
       "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/capability/observability/src/server/DevTools.ts",
+      "kind": "new-map-set",
+      "reason": "The Effect DevTools wire schema requires native Map attributes. Copying each tracer attribute map at publication preserves the start and end snapshots while the tracer continues mutating its own attributes; the DevTools regression checks that the start message stays empty and the end message carries later attributes. Effect HashMap is not the vendor wire type.",
+      "owner": "@beep/observability",
+      "issue": "DEVTOOLS-NATIVE-MAP-WIRE-SNAPSHOTS"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/modeling/utils/src/Schema.ts",
       "kind": "native-error",
       "reason": "compileAssertion is a low-level adapter that precompiles the decoded schema parser while preserving Effect Schema.asserts compatibility: schema failures must throw native Error with the exact generic message and SchemaIssue cause, while defects and mixed causes must preserve the complete Cause. A tagged application error would change that observable vendor contract.",

@@ -4942,13 +4942,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:119:provideScopedLayer@10#1",
+      "id": "EV002:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:140:provideScopedLayer@10#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/models-manifest-errors.test.ts",
-      "line": 119,
-      "endLine": 123,
+      "line": 140,
+      "endLine": 144,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:5d5f83e0d96b9a26d6c135ea063cb127753c7393a4f8bbcf6610ce0e1847e923",
       "class": "unresolved-layer-provide",
@@ -13035,6 +13035,48 @@
       "status": "open"
     },
     {
+      "id": "EV004:packages/foundation/capability/observability/test/DevTools.test.ts:81:scoped@8#1",
+      "lens": "resource",
+      "ruleId": "EV004",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/DevTools.test.ts",
+      "line": 81,
+      "endLine": 81,
+      "symbol": "scoped",
+      "occurrence": "v2:9e6761df6c0e487a885208420e5cfca06943ec18476101b1ff6a780f0ca8dc70",
+      "class": "inner-helper-scope-lifetime-review",
+      "evidence": "Effect.scoped",
+      "replacement": {
+        "primitive": "readme.resource-safety",
+        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV004:packages/foundation/capability/observability/test/LocalLgtmServer.test.ts:53:scoped@4#1",
+      "lens": "resource",
+      "ruleId": "EV004",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/LocalLgtmServer.test.ts",
+      "line": 53,
+      "endLine": 53,
+      "symbol": "scoped",
+      "occurrence": "v2:ea3b4d95e6b6ce636a7fa1db7eb2f39f972d87085e7dda05017ac91773e1ca12",
+      "class": "helper-scope-lifetime-review",
+      "evidence": "Effect.scoped",
+      "replacement": {
+        "primitive": "readme.resource-safety",
+        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
       "id": "EV004:packages/foundation/ui-system/dock-react/test/DockviewReact.test.tsx:205:scoped@13#1",
       "lens": "resource",
       "ruleId": "EV004",
@@ -14776,13 +14818,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:145:scoped@14#1",
+      "id": "EV004:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:166:scoped@14#1",
       "lens": "detector",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/models-manifest-errors.test.ts",
-      "line": 145,
-      "endLine": 145,
+      "line": 166,
+      "endLine": 166,
       "symbol": "scoped",
       "occurrence": "v2:7bc3532e750f7bb87290dd20858e357bc2b40d14e4c9d001630309ceeb3634c6",
       "class": "redundant-whole-body-scope",
@@ -14797,13 +14839,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:159:scoped@14#1",
+      "id": "EV004:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:180:scoped@14#1",
       "lens": "detector",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/models-manifest-errors.test.ts",
-      "line": 159,
-      "endLine": 159,
+      "line": 180,
+      "endLine": 180,
       "symbol": "scoped",
       "occurrence": "v2:edcd04ad2fe21f9cdbd6389e3282649cd2f9d05154d69ed7f62952bbe663ce56",
       "class": "redundant-whole-body-scope",
@@ -18306,13 +18348,13 @@
       "status": "open"
     },
     {
-      "id": "EV006:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:842:isTrue@10#1",
+      "id": "EV006:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:866:isTrue@10#1",
       "lens": "resource",
       "ruleId": "EV006",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-doctor.test.ts",
-      "line": 842,
-      "endLine": 842,
+      "line": 866,
+      "endLine": 866,
       "symbol": "isTrue",
       "occurrence": "v2:e83c748c2e5b4f2cb38e27c4232f5d3db19fc4fe3f226f7f21b0e3f5d834fdf0",
       "class": "hand-rolled-data-assertion",
@@ -20397,6 +20439,28 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "The subject is the native Chromium DOM/WebGL renderer, including RAF, real canvas hit testing, GPU disposal and remount behavior. TestClock cannot drive those native browser callbacks. Retain it.live for the native browser subject. Instrumented runner adoption is verified in 72ea45def6 and L-OBS-01 is fixed."
+    },
+    {
+      "id": "EV009:packages/foundation/capability/observability/test/LocalLgtmServer.test.ts:62:it.live@2#1",
+      "lens": "resource",
+      "ruleId": "EV009",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/LocalLgtmServer.test.ts",
+      "line": 62,
+      "endLine": 75,
+      "symbol": "it.live",
+      "occurrence": "v2:d5cde1998e0b3b828593c6038f0ed3941b0f28826a31a668f63be835bb20b07a",
+      "class": "unjustified-live-test",
+      "evidence": "it.live( \"exports spans over OTLP when devtools is also enabled\", Effect.fnUntraced(function* () { const http = makeCapturingHttpClient(); const span = yield* runWithLayer( Effect.currentSpan.pipe(Eff",
+      "replacement": {
+        "primitive": "it.effect",
+        "sketch": "it.effect: Use for runtime-boundary-in-test candidates (EV001, candidate class runtime-boundary-in-test) and unjustified-live-test judgments (EV009, candidate class unjustified-live-test)."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "The DevTools client dials a real websocket and waits out its one-second connect timeout before the OTLP export can be asserted; the TestClock never advances that timeout, so the test must run on the live clock. The test comment states this rationale."
     },
     {
       "id": "EV009:packages/foundation/modeling/schema/test/LocalDate.test.ts:346:it.live@4#1",
@@ -24645,13 +24709,13 @@
       "reason": "Owner repository-simplification-confidence / lane C. Real platform boundary verifies subprocess, symlink, permissions and physical-file behavior; memory cannot model this subject. Reconsider when lane B's census lands."
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/accounts-usage.test.ts:42:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/accounts-usage.test.ts:52:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
-      "line": 42,
-      "endLine": 42,
+      "line": 52,
+      "endLine": 52,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -26708,6 +26772,27 @@
       "status": "open"
     },
     {
+      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor-grouping.test.ts:24:@effect/platform-node@0#1",
+      "lens": "resource",
+      "ruleId": "EV010",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/knowledge-doctor-grouping.test.ts",
+      "line": 24,
+      "endLine": 24,
+      "symbol": "@effect/platform-node",
+      "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
+      "class": "platform-resource-provenance-review",
+      "evidence": "import { NodeCrypto, NodeServices } from \"@effect/platform-node\";",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
       "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:27:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -27156,13 +27241,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:13:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:15:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/models-manifest-errors.test.ts",
-      "line": 13,
-      "endLine": 13,
+      "line": 15,
+      "endLine": 15,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -40010,6 +40095,27 @@
       "occurrence": "v2:ba4aa3f0feaa08d47a99c29030fa1f146a29c437f613336b021969a623aeb4fd",
       "class": "shared-test-clock-adjustment",
       "evidence": "TestClock.adjust(\"1 second\")",
+      "replacement": {
+        "primitive": "TestClock.adjust",
+        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV015:packages/tooling/tool/cli/test/accounts-usage.test.ts:1324:TestClock.adjust@15#1",
+      "lens": "resource",
+      "ruleId": "EV015",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
+      "line": 1324,
+      "endLine": 1324,
+      "symbol": "TestClock.adjust",
+      "occurrence": "v2:fbecb4ac9eeac0b0fc568a24200f5b7adb92e30cea7c7b583829fe879cb03a19",
+      "class": "shared-test-clock-adjustment",
+      "evidence": "TestClock.adjust(\"3600 seconds\")",
       "replacement": {
         "primitive": "TestClock.adjust",
         "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."

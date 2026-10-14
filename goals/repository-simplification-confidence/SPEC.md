@@ -952,3 +952,16 @@ prior gates and quick integrated gates separately; hosted exact-head checks
 remain authoritative.
 
 - B (2026-10-13): keep detector acceptance pending until its durable final receipt exists. The codec-test handoff records bounded progress only; the valid #1616 review identified an ambiguous evidence-map link. Reversal: restore the final receipt link when detector fixtures and individual admissions are complete.
+
+### 2026-10-14 — close the next hosted policy and coverage wave
+
+Preserve the 92% AccountsUsage statement floor and restore it with regressions
+for disappearing credentials and cached-token expiry. Admit only TsNativeApi's
+new identity from matching hosted and passing local measurements; all incumbent
+baseline fields remain unchanged. Normalize the captured reference path and
+label that editorial change. Retain DevTools' native Map snapshots at the
+vendor protocol boundary: the wire schema requires ReadonlyMap, and the
+existing regression proves that later attributes cannot alter the start
+snapshot. Document that specific boundary in the canonical allowlist and
+regenerate its projection. Reversal removes the new identity or boundary
+entry through a repair PR; it does not lower a published coverage floor.

@@ -32354,6 +32354,18 @@
             "branches": 0,
             "functions": 0
           }
+        },
+        "packages/tooling/library/repo-utils/src/TsNativeApi.ts": {
+          "lines": 88.88,
+          "statements": 90.21,
+          "branches": 72.72,
+          "functions": 84.78,
+          "uncovered": {
+            "lines": 9,
+            "statements": 9,
+            "branches": 3,
+            "functions": 7
+          }
         }
       }
     },
