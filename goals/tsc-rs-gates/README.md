@@ -31,12 +31,13 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — complete. P1 Implement — in progress (the tsc-rs swap of the generated script defaults).
+P0 Research — complete (PR #1670). P1 Implement — complete (the swap PR). P2 Verify — in progress: hosted gates and timings on tsc-rs.
 
 ## Latest Evidence
 
 - `research/measurements-2026-10-13.md`: tsc-rs 0.6.0 vs tsgo, 3.7× geomean faster on the check projects at half the peak RSS, identical diagnostics on 283 of 284 projects.
-- The eleven upstream TypeScript 7.1-dev diagnostics (10 TS7031, 1 TS5088) are fixed in `@beep/repo-cli` and `@beep/utils` and verified green under tsgo 0.51.1, tsc-rs 0.6.0 and stock `typescript@7.1.0-dev.20261008.1`.
+- The eleven upstream TypeScript 7.1-dev diagnostics (10 TS7031, 1 TS5088) are fixed in `@beep/repo-cli` and `@beep/utils` and verified green under tsgo 0.51.1, tsc-rs 0.6.0 and stock `typescript@7.1.0-dev.20261008.1` (PR #1670).
+- P1 (this packet's swap PR): `tsc-rs` 0.6.0 pinned in the root catalog and held with `@effect/tsgo` in `syncpack.config.ts`; 151 manifests' `beep:build`/`beep:check`/`beep:check:tests` (+ scripts/stories/examples variants), the root `check:configs` and infra's `-b` build run `tsc-rs`; scaffold defaults, the typecheck-coverage parser and the single-project-emit law know `tsc-rs`; runbook rewritten.
 
 ## Notes
 

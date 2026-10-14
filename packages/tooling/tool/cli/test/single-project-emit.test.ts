@@ -134,7 +134,7 @@ const compilerArguments = (words: ReadonlyArray<string>): O.Option<ReadonlyArray
 };
 
 const containsCompilerBuildTokens = (text: string): boolean =>
-  /(?:^|[\s/"'=(`])(?:tsc|tsgo)(?=\s|["')`]|$)/u.test(text) &&
+  /(?:^|[\s/"'=(`])(?:tsc-rs|tsc|tsgo)(?=\s|["')`]|$)/u.test(text) &&
   /(?:^|[\s"'=])(?:-b|--build|--force)(?=\s|["')`<>\\;&|]|$)/u.test(text);
 
 // Known launchers distinguish executable arguments from their own option values.
@@ -213,6 +213,9 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) => {
         "tsc -b",
         "tsgo -b",
         "tsc -b tsconfig.json",
+        "tsc-rs -b",
+        "tsc-rs -b tsconfig.json",
+        "tsc-rs -p tsconfig.json --force",
         "tsgo --build",
         "tsc --force",
         "tsgo -p tsconfig.json --force",
@@ -232,6 +235,8 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) => {
       for (const script of [
         "tsc -p tsconfig.json",
         "tsgo -p tsconfig.check.json && bun run beep:check:tests",
+        "tsc-rs -p tsconfig.check.json && bun run beep:check:tests",
+        "tsc-rs -p tsconfig.json && bun run babel",
         "tsc -p tsconfig.json && echo -b",
         "echo -b && tsgo -p tsconfig.json",
         'echo "tsc -b"',
