@@ -46,11 +46,11 @@ Naming rules the catalog check enforces:
 | slice | 437 | 369 | 68 |
 | foundation | 253 | 209 | 44 |
 | driver | 569 | 465 | 104 |
-| tooling | 3755 | 3504 | 251 |
+| tooling | 3788 | 3539 | 249 |
 | ecosystem | 1 | 1 | 0 |
 | app | 146 | 107 | 39 |
 | lab | 175 | 164 | 11 |
-| **total** | 5336 | 4819 | 517 |
+| **total** | 5369 | 4854 | 515 |
 
 Declared: 6 attribute keys, 6 metrics, 0 events, 3 spans.
 
