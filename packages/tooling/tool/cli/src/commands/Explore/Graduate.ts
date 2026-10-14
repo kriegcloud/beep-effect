@@ -23,7 +23,7 @@ import { Argument, Command, Flag } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { dual, pipe } from "effect/Function";
+import { constFalse, dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
@@ -800,11 +800,6 @@ export const writeGraduationPlan = Effect.fn("Explore.writeGraduationPlan")(func
   const nextText = yield* Effect.fromOption(renderGraduatedManifest(new TextDecoder().decode(preImage), edit)).pipe(
     Effect.mapError(GoalPlanOperationalError.new(`${edit.path} is not a JSON manifest object.`))
   );
-  const published = yield* Effect.forEach(plan.children, (child) =>
-    publishBootstrapPlan(child, repoRoot).pipe(
-      Effect.map((receipt) => GraduationChildReceipt.make({ slug: child.slug, outcome: "published", receipt }))
-    )
-  );
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const store = yield* PacketEventStore;
@@ -812,34 +807,55 @@ export const writeGraduationPlan = Effect.fn("Explore.writeGraduationPlan")(func
   const pendingPath = path.join(packetPath, ...GRADUATION_PENDING_SEGMENTS);
   const streamFailure = (error: { readonly message: string }) =>
     GoalPlanOperationalError.new(
-      `Recording the graduation events of explorations/${plan.exploration} failed before the manifest changed: ${error.message}`
+      `Recording the graduation events of explorations/${plan.exploration} failed before anything was written: ${error.message}`
     )(error);
+  // The stream is folded and the owed events encoded before any child is
+  // published, so a forked or corrupt stream refuses with nothing written.
   const pending = (yield* store.hasStream(packetPath))
     ? O.some(
         yield* Effect.gen(function* () {
           const afterDigest = yield* sha256Hex(nextText);
           const owed = yield* planPendingEvents(plan, edit.path, afterDigest, previous, at, packetPath);
-          const encoded = yield* encodePendingEvents(owed);
-          yield* writeFileAtomically(pendingPath, canonicalJsonTextPretty(encoded));
-          return owed;
+          return { owed, text: canonicalJsonTextPretty(yield* encodePendingEvents(owed)) };
         }).pipe(Effect.mapError(streamFailure))
       )
-    : O.none<GraduationPendingEvents>();
-  // A sidecar for a manifest that never flipped would only mislead recovery:
-  // drop it when the manifest still holds its pre-image.
-  const discardUnflippedPending = readPinnedFile(edit.path, edit.preImageDigest, repoRoot).pipe(
-    Effect.andThen(fs.remove(pendingPath, { force: true })),
-    Effect.ignore
+    : O.none<{ readonly owed: GraduationPendingEvents; readonly text: string }>();
+  const published = yield* Effect.forEach(plan.children, (child) =>
+    publishBootstrapPlan(child, repoRoot).pipe(
+      Effect.map((receipt) => GraduationChildReceipt.make({ slug: child.slug, outcome: "published", receipt }))
+    )
   );
+  // The sidecar lands only after every child published and immediately before
+  // the flip, so a failed child publish leaves no sidecar behind.
+  yield* O.match(pending, {
+    onNone: () => Effect.void,
+    onSome: ({ text }) => Effect.asVoid(writeFileAtomically(pendingPath, text)).pipe(Effect.mapError(streamFailure)),
+  });
+  // A sidecar is only meaningful next to the graduated manifest it records.
+  // When the flip fails, it is kept only if the manifest already holds exactly
+  // those bytes; any other state (pre-image, moved pre-image, unreadable)
+  // removes it, so recovery is never pointed at a manifest it does not match.
+  const discardUnflippedPending = (owed: GraduationPendingEvents) =>
+    fs.readFile(path.join(repoRoot, edit.path)).pipe(
+      Effect.flatMap(sha256HexBytes),
+      Effect.map((digest) => digest === owed.manifestAfterDigest),
+      Effect.orElseSucceed(constFalse),
+      Effect.flatMap((flipped) => (flipped ? Effect.void : fs.remove(pendingPath, { force: true }))),
+      Effect.ignore
+    );
   const manifest = yield* replacePinnedFile(
     edit.path,
     edit.preImageDigest,
     () => Effect.succeed(nextText),
     repoRoot
-  ).pipe(Effect.onError(() => (O.isSome(pending) ? discardUnflippedPending : Effect.void)));
+  ).pipe(
+    Effect.onError(() =>
+      O.match(pending, { onNone: () => Effect.void, onSome: ({ owed }) => discardUnflippedPending(owed) })
+    )
+  );
   const eventsAppended = yield* O.match(pending, {
     onNone: () => Effect.succeed(0),
-    onSome: (owed) =>
+    onSome: ({ owed }) =>
       appendPendingEvents(owed, packetPath).pipe(
         Effect.tap(() => fs.remove(pendingPath)),
         Effect.mapError((error) =>

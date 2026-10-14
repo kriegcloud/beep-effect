@@ -37,6 +37,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { assertJournalFileLockOwned, withJournalFileLock } from "../../internal/repo-run/AdmissionJournal.ts";
 import { removeEmptyDirectory } from "../../internal/repo-run/DirectoryHandle.ts";
 import { MaterializationReceipt, MaterializedFile } from "./Bootstrap.schemas.ts";
 import { GoalPlanInputError, GoalPlanOperationalError } from "./Goals.errors.ts";
@@ -324,11 +325,17 @@ export const writeFileAtomically = Effect.fn("Goals.writeFileAtomically")(functi
  *
  * **Details**
  *
- * Checks the pre-image with {@link readPinnedFile}, renders the replacement
- * from the current text, and publishes it with {@link writeFileAtomically},
- * re-checking the pre-image between staging and the rename. The file is
+ * The whole check-render-rename runs under the owned-generation file lock
+ * `<file>.lock` (the lock the packet event store uses), so concurrent writers
+ * of the same file serialize. Inside the lock it checks the pre-image with
+ * {@link readPinnedFile}, renders the replacement from the current text, and
+ * publishes it with {@link writeFileAtomically}, re-checking lock ownership
+ * and the pre-image between staging and the rename. A writer that waited for
+ * the lock then finds the pre-image moved and refuses, so two writers of one
+ * reviewed pre-image yield one replacement and one refusal. The file is
  * either the pre-image or the full replacement. Returns the before and after
- * digests.
+ * digests; a lock that stays busy or is lost refuses with
+ * `GoalPlanOperationalError`.
  *
  * **Example** (Build the pinned replacement)
  *
@@ -355,14 +362,34 @@ export const replacePinnedFile = Effect.fn("Goals.replacePinnedFile")(function* 
   repoRoot = "."
 ) {
   const path = yield* Path.Path;
-  const bytes = yield* readPinnedFile(relativePath, preImageDigest, repoRoot);
-  const next = yield* render(new TextDecoder().decode(bytes));
-  const afterDigest = yield* writeFileAtomically(
-    path.join(repoRoot, relativePath),
-    next,
-    Effect.asVoid(readPinnedFile(relativePath, preImageDigest, repoRoot))
+  const target = path.join(repoRoot, relativePath);
+  const lockPath = `${target}.lock`;
+  return yield* withJournalFileLock(
+    lockPath,
+    (lockToken) =>
+      Effect.gen(function* () {
+        const bytes = yield* readPinnedFile(relativePath, preImageDigest, repoRoot);
+        const next = yield* render(new TextDecoder().decode(bytes));
+        const afterDigest = yield* writeFileAtomically(
+          target,
+          next,
+          assertJournalFileLockOwned(lockPath, lockToken).pipe(
+            Effect.andThen(readPinnedFile(relativePath, preImageDigest, repoRoot)),
+            Effect.asVoid
+          )
+        );
+        return { beforeDigest: preImageDigest, afterDigest };
+      }),
+    undefined,
+    `Refusing to replace ${relativePath}: another writer holds ${lockPath}.`
+  ).pipe(
+    Effect.catchTag(
+      "QualitySchedulerError",
+      Effect.fnUntraced(function* (error) {
+        return yield* GoalPlanOperationalError.new(`Refusing to replace ${relativePath}: ${error.message}`)(error);
+      })
+    )
   );
-  return { beforeDigest: preImageDigest, afterDigest };
 });
 
 /**

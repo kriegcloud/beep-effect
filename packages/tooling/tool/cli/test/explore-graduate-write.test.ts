@@ -133,6 +133,22 @@ const streamBodies = Effect.gen(function* () {
   return A.map((yield* store.list(locator)).events, (stored) => stored.event.body);
 });
 
+// Moves the manifest's pre-image while the first child is being published:
+// the live filesystem, except that renaming onto goals/first-child also
+// rewrites the exploration manifest.
+const manifestMovingFileSystem = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  return FileSystem.FileSystem.of({
+    ...fs,
+    rename: Effect.fn("ManifestMovingFileSystem.rename")(function* (from: string, to: string) {
+      yield* fs.rename(from, to);
+      if (Str.endsWith("goals/first-child")(to)) {
+        yield* fs.writeFileString(MANIFEST_PATH, `${manifestText}\n`);
+      }
+    }),
+  });
+});
+
 const crashAfterManifestFlip = Effect.gen(function* () {
   yield* seedFixture;
   const fs = yield* FileSystem.FileSystem;
@@ -358,6 +374,55 @@ it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
             expect(refused.message).toContain("is not the graduated manifest recorded");
             strictEqual(A.length(yield* streamBodies), 0);
             strictEqual(yield* exists(PENDING_PATH), true);
+          })
+        ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
+      30_000
+    );
+  });
+
+  describe("explore graduate --write stream guards", { concurrent: false }, () => {
+    it.effect(
+      "refuses a corrupt stream before publishing any child",
+      () =>
+        Effect.andThen(
+          temporaryWorkingDirectory,
+          Effect.gen(function* () {
+            yield* seedFixture;
+            yield* writeProjectFile(
+              `${PROVENANCE}/ops/events/00001-packet-created-${"0".repeat(64)}.json`,
+              "{ not json"
+            );
+            const plan = yield* planFor(["first-child=First Child"]);
+            const refused = yield* Effect.flip(writeGraduationPlan(plan, O.some(plan.planId), AT));
+            expect(refused.message).toContain("failed before anything was written");
+            strictEqual(yield* exists("goals/first-child"), false);
+            strictEqual(yield* exists(PENDING_PATH), false);
+            strictEqual(yield* readProjectFile(MANIFEST_PATH), manifestText);
+          })
+        ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
+      30_000
+    );
+
+    it.effect(
+      "removes the pending sidecar when the flip fails because the pre-image moved",
+      () =>
+        Effect.andThen(
+          temporaryWorkingDirectory,
+          Effect.gen(function* () {
+            yield* seedFixture;
+            const fs = yield* FileSystem.FileSystem;
+            yield* fs.makeDirectory(`${PROVENANCE}/ops/events`, { recursive: true });
+            const plan = yield* planFor(["first-child=First Child"]);
+            const failed = yield* Effect.flip(
+              writeGraduationPlan(plan, O.some(plan.planId), AT).pipe(
+                Effect.provideServiceEffect(FileSystem.FileSystem, manifestMovingFileSystem)
+              )
+            );
+            expect(failed.message).toContain("changed since the plan was reviewed");
+            strictEqual(yield* exists("goals/first-child/ops/manifest.json"), true);
+            strictEqual(yield* readProjectFile(MANIFEST_PATH), `${manifestText}\n`);
+            strictEqual(yield* exists(PENDING_PATH), false);
+            strictEqual(A.length(yield* streamBodies), 0);
           })
         ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
       30_000

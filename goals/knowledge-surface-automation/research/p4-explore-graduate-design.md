@@ -122,8 +122,12 @@ then disagree with `goals/`.
   event bodies. `replacePinnedFile` stays before the append, so its second pre-image
   check gates the events. After the append, the trace is rewritten with the same
   staged-sibling-and-rename helper (`writeFileAtomically`) and the sidecar is
-  removed. If the manifest replace fails while the manifest still holds its
-  pre-image, the sidecar is dropped. `explore graduate <slug> --resume-events`
+  removed. The stream is folded and the owed events encoded before any child is
+  published, so a forked or corrupt stream refuses with nothing written; the
+  sidecar itself is written only after the children, immediately before the flip.
+  If the manifest replace fails, the sidecar is kept only when the manifest already
+  holds the recorded post-write bytes; any other state (pre-image, moved pre-image,
+  unreadable) removes it. `explore graduate <slug> --resume-events`
   refuses with `GraduationRecoveryError` unless the sidecar decodes, the stream
   exists, and the manifest's digest equals the recorded post-write digest. It then
   appends only the suffix of the recorded events the stream still lacks, so a crash
@@ -173,7 +177,12 @@ then disagree with `goals/`.
   atomic trace write through `writeFileAtomically` (now also under
   `replacePinnedFile`), and the `packet-graduation-pending` check advisory, with
   tests for a crash injected after the manifest flip, a tampered-manifest refusal,
-  and a refused second resume. The edit works on
+  and a refused second resume. Review round 2 moved the stream checks ahead of
+  child publication, made the failed-flip sidecar cleanup depend on the post-write
+  digest, and serialized `replacePinnedFile` under the owned-generation file lock
+  the event store already uses (`<file>.lock`, `withJournalFileLock`): a second
+  writer of the same reviewed pre-image waits, then finds the pre-image moved and
+  refuses. The edit works on
   the raw JSON record, so manifest keys the schema does not model survive. Tests
   (`explore-graduate-write.test.ts`) cover the happy path, refusal without or with a wrong
   `--expect`, a real mid-write failure between two children followed by a resumed write,
