@@ -10270,6 +10270,132 @@
           "upstreamBehaviour": "Newly modeled diagnostic, source/provenance, capture and table numeric fields have no executable finite-number validation; DelimiterRun.numdelims accepts any finite number in the earlier lab schema.",
           "labBehaviour": "New schemas use finite numeric fields; DelimiterRun.numdelims additionally requires a positive integer, rejecting zero, negative and fractional lengths. Ordinary parser outputs and scanning behavior are preserved.",
           "reason": "numeric-domains: TS377098 effect(schemaNumber) requires finite domain numbers, and req-46 requires the positive integer delimiter invariant. This records new model admission and positive-integer tightening, not the existing general Number-to-Finite node/range migration."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:436; scratchpad/test/markdown/format.test.ts:457",
+          "upstreamBehaviour": "Flow replacements can absorb untouched following paragraphs, lists, code blocks, blockquotes, table rows or definition continuations.",
+          "labBehaviour": "Modification returns UnsupportedTarget unless standalone replacement ends and the following sibling type and both shifted boundaries survive; empty replacements cannot merge neighboring lists.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-1 records the pinned-oracle following-block absorption; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:493",
+          "upstreamBehaviour": "Terminal replacement whitespace beside emphasis, strong or delete closing delimiters invalidates the enclosing markup.",
+          "labBehaviour": "Phrasing splices encode terminal whitespace as character references when reaching a delimiter-bearing ancestor closing boundary, preserving replacement text and enclosing markup.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-2 reproduces both implementations losing emphasis after replacing old with new plus a trailing space; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:512",
+          "upstreamBehaviour": "Underscore formatting checks only neighboring Unicode letters and numbers and removes emphasis beside combining marks or format characters.",
+          "labBehaviour": "Formatting applies parser-equivalent punctuation, whitespace and flanking rules at both underscore delimiters, retaining safe source spelling beside U+0301 and U+200C.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-3 reproduces U+0301 and U+200C emphasis loss against both implementations; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:540",
+          "upstreamBehaviour": "ATX-to-setext conversion of HTML-block or reference-definition-shaped content turns the heading into another construct.",
+          "labBehaviour": "Conversion is skipped unless reparsing with the formatter dialect produces exactly one setext heading with the same depth and retained content.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-6 traces the pinned oracle emitting the same unsafe HTML/reference-shaped conversions; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/format.test.ts:552; scratchpad/test/markdown/document.test.ts:182",
+          "upstreamBehaviour": "MarkdownDocument omits the parse dialect and flow modification safety reparses default to GFM, allowing unsafe splices into CommonMark documents.",
+          "labBehaviour": "MarkdownDocument adds an encoded dialect field, populated by parsing and defaulted to gfm for legacy decoding and construction; both modification reparses use it.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-7 demonstrates GFM-only table interruption incorrectly admitting a CommonMark flow splice; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/mdast.test.ts:193",
+          "upstreamBehaviour": "The oracle derives list spread from item gaps; the earlier lab fallback lets any synthetic item suppress real gaps or preserve an incorrect admitted spread flag.",
+          "labBehaviour": "Projection checks consecutive non-synthetic item positions when two exist, preserves admitted spread when missing positions prevent a gap check, and keeps fully positioned singleton behavior.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-8 contrasts the oracle real line-1/line-3 gap with the lab mixed-position failure; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/hardening.test.ts:76",
+          "upstreamBehaviour": "Promoting a 150,000-line paragraph into a setext heading spreads all segments into push arguments and throws RangeError in Node outside Result.",
+          "labBehaviour": "Segment copying appends each segment individually so the shallow heading parses successfully with complete text and exact heading, text and root positions.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-11 reproduces the Node argument-limit overflow against the pinned oracle; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/Mdast.coverage.test.ts:34; scratchpad/test/markdown/Mdast.coverage.test.ts:38",
+          "upstreamBehaviour": "Deep acyclic foreign mdast input overflows recursive normalization, throwing RangeError synchronously and producing an Effect defect.",
+          "labBehaviour": "An iterative child-edge preflight rejects depths above 512, with root depth zero, as MdastDecodeError carrying InvalidValue depth/limit metadata; shared acyclic trees through depth 512 remain admitted.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-12 reproduces the 16,000-level overflow against both implementations; g2 reports before-fix failures; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/internal/inlineParser.coverage.test.ts:141",
+          "upstreamBehaviour": "Link-opener deactivation continues through older image and inactive openers after all active links clear, performing quadratic bracket visits.",
+          "labBehaviour": "Deactivation stops when the active-link count reaches zero; scaled regressions require exactly n visits through n=4,000 and identical parse output.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-13 measures n(n+1) visits and identifies the same full-stack loop in the pinned oracle; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:993",
+          "upstreamBehaviour": "Underscore emphasis and strong serialization checks one preceding UTF-16 unit and ignores following text, so unsafe astral-letter or alphanumeric neighbors erase markup on reparse.",
+          "labBehaviour": "Serialization reads the previous complete Unicode code point and following nonempty Text sibling, using asterisks beside Unicode letters or numbers while preserving safe underscore spelling.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-16 traces emphasis loss; fix-markdown-g5.md reports pinned-oracle reproduction; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1011",
+          "upstreamBehaviour": "Decoded CR/LF in link, image and definition destinations or titles is emitted as physical source line endings, losing links or splitting paragraphs.",
+          "labBehaviour": "Destination and title escaping encodes CR/LF as numeric character references after literal ampersand escaping, preserving decoded values and existing quote, backslash and destination escapes.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-17 reproduces newline-containing destination and blank-line-title failures against both implementations; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1036",
+          "upstreamBehaviour": "A code node with metadata but no language emits metadata as the first info word, acquiring a language class on reparse.",
+          "labBehaviour": "When language is absent, serialization emits an empty info string and drops unrepresentable metadata, retaining original code content and absence of a language class.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-18 traces metadata tail becoming a language; fix-markdown-g5.md reports the pinned-oracle probe; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1050",
+          "upstreamBehaviour": "Metadata-only fenced code is classified as indented for block separators, introducing blank lines and making tight list items loose.",
+          "labBehaviour": "Paragraph interruption and both code separator classifications recognize metadata as fenced code, preserving single-newline separators and tight-list rendering.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-19 traces tight-list loosening; fix-markdown-g5.md reports pinned-oracle spread changing from false to true; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/gfm-tables.test.ts:70",
+          "upstreamBehaviour": "Unbounded table-cell segment spreads throw Node RangeError for a shallow cell containing 150,000 escaped pipes.",
+          "labBehaviour": "Table-cell and reclaimed-paragraph segments append iteratively, with retained-interval segments appended individually; large cells parse successfully with exact content and source spans.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-20 reproduces the escaped-pipe-cell Node argument-limit overflow against the pinned oracle; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1072",
+          "upstreamBehaviour": "Decoded carriage returns in canonical text or image alt are emitted as raw CR, allowing subsequent heading, list or other block-opening text to become source structure.",
+          "labBehaviour": "Canonical text and image-alt escaping emits decoded CR as a numeric character reference, preserving inline content and rendering across block-opening characters.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-21 reproduces one paragraph becoming a paragraph plus heading or list against both implementations; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1092; scratchpad/test/markdown/stringify-literal.test.ts:46",
+          "upstreamBehaviour": "A decoded soft newline after emitted trailing spaces becomes a spaces-style hard break, including when spaces and newline belong to adjoining Text siblings.",
+          "labBehaviour": "Escaping emits a numeric newline reference when preceding output ends in two spaces, preserving a Text soft newline across canonical and mixed-style siblings.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-22 reproduces decoded-space soft newlines acquiring a Break node against both implementations; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/internal/blocks/table.property.test.ts:31",
+          "upstreamBehaviour": "Table-header promotion rescans every source segment for every retained escaped-pipe interval, producing quadratic provenance reads.",
+          "labBehaviour": "A forward segment cursor processes ordered retained intervals, meeting linear segment-read bounds while preserving content, exact source offsets and segment boundaries.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-23 measures 762528, 3025028 and 12050028 reads at n=500,1000,2000 against both implementations; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/stringify.test.ts:1113",
+          "upstreamBehaviour": "A tilde-fenced code language beginning with a tilde lengthens the opening fence, losing language and sometimes retaining the closing fence as content.",
+          "labBehaviour": "Info-string encoding replaces one leading language tilde with a numeric character reference for tilde fences, preserving language, metadata and code content on reparse.",
+          "reason": "upstream-bug: Round-3 INVENTORY.md req-24 traces the pinned spelling hazard; fix-markdown-g5.md supplies the upstream-bug claim and regression; the working-tree source diff and cited regression cover the repair."
+        },
+        {
+          "test": "scratchpad/test/markdown/internal/blockTypes.property.test.ts:66; scratchpad/test/markdown/format.test.ts:436; scratchpad/test/markdown/autolink-boundaries.test.ts:10",
+          "upstreamBehaviour": "TaggedEdit, RawInlineSlice, PreparedInline, DefinitionData, FootnoteData and EmailMatch are handwritten interfaces; BlockContinueResult and BlockStartResult are type-only numeric unions.",
+          "labBehaviour": "Executable annotated Struct schemas and derived types own these six payloads; two LiteralKit schemas expose unchanged 0/1/2 verdicts. Four exported parser payloads and two verdicts gain runtime schema values; plain records and optional title keys remain intact.",
+          "reason": "schema-first: D5, EF-12b, EF-33, EF-35 and law 19 require executable pure-data models and named literal domains. Round-3 req-5,14,15,25 touch these new models; prior navigation, source/provenance and node-domain migrations are not repeated."
+        },
+        {
+          "test": "scratchpad/test/markdown/internal/blockTypes.property.test.ts:66; scratchpad/test/markdown/autolink-boundaries.test.ts:10",
+          "upstreamBehaviour": "The newly modeled edit-owner, raw/prepared inline and email-match offsets have only TypeScript number fields without their own executable numeric admission contracts.",
+          "labBehaviour": "TaggedEdit reuses finite MarkdownEdit offsets; raw/prepared inline offsets use Finite, and EmailMatch from/to use Natural. New schemas reject non-finite offsets and noninteger or negative email offsets; ordinary scanner records remain unchanged.",
+          "reason": "numeric-domains: TS377098 effect(schemaNumber), schema-first domain ownership and round-3 req-25 require numeric domain schemas and nonnegative integer email offsets. This covers newly modeled fields, not earlier node/range or delimiter tightening."
+        },
+        {
+          "test": "scratchpad/test/markdown/mdx.test.ts",
+          "upstreamBehaviour": "MDX flow and text JSX fragment-with-attributes checks are duplicated filters without shared identifier, title or description metadata.",
+          "labBehaviour": "Both JSX schemas reuse one filter with a shared MdxFragmentAttributes identity, title, description and the existing user-facing rejection message; accepted element shapes remain unchanged.",
+          "reason": "identity-annotations: Law 18 and the reusable-custom-check rule require identifier, title, description and a user-facing message. Round-3 req-10 adds metadata for this specific filter, rather than repeating earlier node/schema annotations."
         }
       ],
       "backlog": [
@@ -10578,6 +10704,18 @@
           "round": 2,
           "finding": "req-12 — Raw cross-module errors and diagnostic payload lack schemas (scratchpad/effected/markdown/internal/carriers.ts:77)",
           "reason": "law: Direct S.TaggedError migration needs coordinated factory changes in unowned blockParser, inlineParser and stringify callers; positional constructors hit TS377044 and guards hit TS377042. Shared code/payload schemas were added, but both carriers still extend Data.TaggedError."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "back-1 — Eight inline JSDoc blocks have empty Details sections (scratchpad/effected/markdown/internal/inlines/codeSpan.ts:22)",
+          "reason": "jsdoc: Remove the eight empty `**Details**` headings and their padding, preserving the lead descriptions, examples, and tags."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "req-9 — Engine errors still extend Data.TaggedError instead of S.TaggedError (scratchpad/effected/markdown/internal/carriers.ts:117)",
+          "reason": "law: Positional S.TaggedError constructors trigger TS377044; instanceof guards trigger TS377042. Coordinated factory/guard changes in blockParser, inlineParser, stringify and sibling tests exceed g3 ownership. Trial reverted; carriers still use Data.TaggedError."
         }
       ],
       "reviewRounds": [
@@ -10614,6 +10752,24 @@
             "fable": {
               "required": 34,
               "backlog": 28
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 8,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 17,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 6,
+              "backlog": 0
             }
           }
         }
