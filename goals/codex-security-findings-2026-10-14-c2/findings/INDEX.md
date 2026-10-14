@@ -15,7 +15,7 @@ auth values, email addresses, and raw local paths.
 
 | ID | Severity | Status | Title | Owner area |
 | --- | --- | --- | --- | --- |
-| [CSF-001](./CSF-001.md) | Informational | repair in progress | C2 report constructor validates the placeholder digest too early | `@beep/semantica` |
+| [CSF-001](./CSF-001.md) | Informational | Fixed after PR #1787 | C2 report constructor validates the placeholder digest too early | `@beep/semantica` |
 
 ## Closeout Mapping
 
