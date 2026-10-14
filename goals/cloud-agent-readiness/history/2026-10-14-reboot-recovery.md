@@ -1,6 +1,7 @@
 # Reboot recovery qualification — 2026-10-14
 
-Status: **pending physical-console diagnosis; recovery not qualified**.
+Status: **boot/access and core services recovered after firmware correction;
+Muse proxy catalog recovery remains open**.
 The operator selected reboot recovery after the proxy route receipt. The
 worker readiness checkout was at
 `6d6cec22b5164ef9830b5171e7c7ad580b098d96` before reboot.
@@ -47,3 +48,44 @@ does not establish automatic post-boot recovery.
 The local receipt cannot yet be synchronized to the offline worker. Its last
 synchronized readiness source remains 6d6cec22b5. Do not close reboot acceptance
 or fleet readiness based on the successful reboot command alone.
+
+## Firmware correction and post-boot follow-up
+
+The operator confirmed the first reboot entered Windows. Ubuntu's Inland SSD
+had been placed first in Hard Drive BBS Priorities, but the separate main Boot
+Option Priorities still selected Windows Boot Manager first. The earlier
+assistant approval of the submenu screenshot was mistaken. The operator then
+set the main Boot Option #1 to P3: Inland SATA SSD, saved and booted Ubuntu.
+Windows remains on the separate Toshiba drive; the original installer erased
+only the selected Inland SSD. No drive was erased during recovery.
+
+Fresh YubiKey SSH succeeded on the second attempt after the first missed touch.
+The new boot id is `3f6b96f1-c326-4f3d-87d4-bec52b1f3acd`, different from the
+preflight id. Ubuntu confirms Legacy boot. Source remains 6d6cec22b5, all eight
+existing-file hashes match preflight, and the installed manifest is unchanged.
+
+Tailscale is Running; SSH service/socket, UFW, fail2ban, rootless Docker, T3 and
+CLIProxyAPI are active. User lingering remains enabled. Docker info exits zero,
+T3 tailnet HTTPS returns 200, runtime versions match and ordinary model checking
+exits zero with zero findings across 360 models. GitHub authentication and the
+1Password service-account vault-list probe pass with output suppressed.
+
+The YubiKey admin route also passes post-boot sudo authentication. UFW permits
+SSH only through tailscale0 (IPv4 and IPv6), the fail2ban sshd jail is active,
+and effective sshd policy retains root/password/keyboard-interactive login
+disabled with publickey authentication required. A post-boot GPT-6.1-Sol medium
+proxy inference returns HTTP 200, answer 4 and zero tool calls.
+
+One recovery gap remains: the proxy catalog has 58 entries rather than the
+prior 62, and muse-wonder-1.0 is absent. Its inference request returns HTTP 400,
+model_not_found / unknown provider. The existing Meta OAuth record remains
+present, mode 0600, enabled, with credential fields populated; no values were
+printed. The proxy loads four auth records at startup. Startup logs show DNS
+failures and failed model-catalog refreshes at boot. This supports a startup
+network/catalog timing hypothesis but does not yet prove the precise cause.
+The proxy has not been restarted or reconfigured in this follow-up.
+
+Private post-boot evidence is saved under ~/.cache/beep/readiness/reboot/.
+Core service/access recovery passes for this observed boot after the firmware
+correction; automatic Muse proxy registration remains unqualified. No second
+OS-driven reboot after the BIOS correction has been performed.
