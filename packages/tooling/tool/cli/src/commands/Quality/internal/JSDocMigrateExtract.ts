@@ -383,15 +383,17 @@ export const listJSDocMigrateCorpusFiles = Effect.fn("JSDocMigrateExtract.listCo
  * @category models
  * @since 0.0.0
  */
-export class RunJSDocMigrateExtractOptions extends S.Class<RunJSDocMigrateExtractOptions>(
-  $I`RunJSDocMigrateExtractOptions`
-)(
-  {
+export class RunJSDocMigrateExtractOptions extends S.Opaque<
+  RunJSDocMigrateExtractOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     output: S.optionalKey(S.String),
-  },
-  $I.annote("RunJSDocMigrateExtractOptions", {
-    description: "Options accepted by the jsdoc-migrate extract stage: the extract.jsonl output path.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunJSDocMigrateExtractOptions", {
+      description: "Options accepted by the jsdoc-migrate extract stage: the extract.jsonl output path.",
+    })
+  )
 ) {}
 
 /**

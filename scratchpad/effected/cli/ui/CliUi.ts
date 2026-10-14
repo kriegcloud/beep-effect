@@ -50,7 +50,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/CliUi");
  * @category errors
  * @since 0.0.0
  */
-export class ScreenExited extends S.TaggedError<ScreenExited>($I`ScreenExited`)(
+export class ScreenExited extends S.TaggedError<ScreenExited, { readonly brand: unique symbol }>($I`ScreenExited`)(
 	"ScreenExited",
 	{ message: S.String.annotate($I.annote("ScreenExited.message", {
 		description: "Reports that Ink exited before the screen produced an answer or cancellation.",

@@ -35,7 +35,9 @@ const $I = $RepoUtilsId.create("errors/OptionInjectionError");
  * @category error-handling
  * @since 0.0.0
  */
-export class OptionInjectionError extends S.TaggedError<OptionInjectionError>($I`OptionInjectionError`)(
+export class OptionInjectionError extends S.TaggedError<OptionInjectionError, { readonly brand: unique symbol }>(
+  $I`OptionInjectionError`
+)(
   "OptionInjectionError",
   {
     message: S.String,

@@ -24,6 +24,7 @@ import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { AnnotatedDocumentInput } from "../Handoff/Handoff.model.ts";
 import { ensureRemoteExtractionAllowed } from "./Service.policy.ts";
 import { buildPrompt } from "./Service.prompt.ts";
 import { LangExtractGenerationTimeout, LangExtractRemotePolicy, LangExtractService } from "./Service.service.ts";
@@ -86,13 +87,15 @@ export const make = Effect.fn("LangExtractService.make")(function* () {
       const candidates = yield* parseModelOutput(response.text);
       const extractions = alignCandidates(candidates, AlignmentSource.fromRequest(request));
       const timestamp = yield* Clock.currentTimeMillis;
-      const annotatedDocument = toAnnotatedDocument({
-        documentId: request.documentId,
-        extractions,
-        generatedBy: GENERATED_BY,
-        text: request.text,
-        timestamp,
-      });
+      const annotatedDocument = toAnnotatedDocument(
+        AnnotatedDocumentInput.make({
+          documentId: request.documentId,
+          extractions,
+          generatedBy: GENERATED_BY,
+          text: request.text,
+          timestamp,
+        })
+      );
       const alignedCount = pipe(
         extractions,
         A.filter(GroundedExtraction.isAnyOf(["match_exact", "match_lesser", "match_minimal_fold", "match_fuzzy"])),

@@ -41,7 +41,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/ExecutionDeduplicator")
  * @category errors
  * @since 0.0.0
  */
-export class ExecutionFailure extends S.TaggedError<ExecutionFailure>($I`ExecutionFailure`)(
+export class ExecutionFailure extends S.TaggedError<ExecutionFailure, { readonly brand: unique symbol }>($I`ExecutionFailure`)(
   "ExecutionFailure",
   {
     message: ErrorMessage.annotateKey({

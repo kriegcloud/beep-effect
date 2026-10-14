@@ -109,31 +109,33 @@ const FallowVersionedRawFields = {
   version: S.String,
   elapsed_ms: S.Finite,
 };
-class FallowRawAction extends S.Class<FallowRawAction>($I`FallowRawAction`)(
-  {
+class FallowRawAction extends S.Opaque<FallowRawAction, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     auto_fixable: S.Boolean,
     description: S.String,
-  },
-  $I.annote("FallowRawAction", {
-    description: "Common raw Fallow action shape emitted with actionable findings.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowRawAction", {
+      description: "Common raw Fallow action shape emitted with actionable findings.",
+    })
+  )
 ) {}
-class FallowActionIssue extends S.Class<FallowActionIssue>($I`FallowActionIssue`)(
-  {
+class FallowActionIssue extends S.Opaque<FallowActionIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     actions: S.Array(FallowRawAction),
-  },
-  $I.annote("FallowActionIssue", {
-    description: "Raw Fallow issue item that must carry action metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowActionIssue", {
+      description: "Raw Fallow issue item that must carry action metadata.",
+    })
+  )
 ) {}
 const FallowIssueArray = S.Array(FallowActionIssue).pipe(
   $I.annoteSchema("FallowIssueArray", {
     description: "Raw Fallow issue array retained for success-shape validation.",
   })
 );
-class FallowHealthFinding extends S.Class<FallowHealthFinding>($I`FallowHealthFinding`)(
-  {
+class FallowHealthFinding extends S.Opaque<FallowHealthFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     name: S.String,
     line: S.Finite,
@@ -144,33 +146,36 @@ class FallowHealthFinding extends S.Class<FallowHealthFinding>($I`FallowHealthFi
     param_count: S.Finite,
     severity: S.String,
     actions: S.Array(FallowRawAction),
-  },
-  $I.annote("FallowHealthFinding", {
-    description: "Raw Fallow health finding shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowHealthFinding", {
+      description: "Raw Fallow health finding shape.",
+    })
+  )
 ) {}
-class FallowFeatureFlagFinding extends S.Class<FallowFeatureFlagFinding>($I`FallowFeatureFlagFinding`)(
-  {
+class FallowFeatureFlagFinding extends S.Opaque<FallowFeatureFlagFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     line: S.Finite,
-  },
-  $I.annote("FallowFeatureFlagFinding", {
-    description: "Raw Fallow feature flag finding shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowFeatureFlagFinding", {
+      description: "Raw Fallow feature flag finding shape.",
+    })
+  )
 ) {}
-class FallowSecurityTracePoint extends S.Class<FallowSecurityTracePoint>($I`FallowSecurityTracePoint`)(
-  {
+class FallowSecurityTracePoint extends S.Opaque<FallowSecurityTracePoint, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     line: S.Finite,
     col: S.Finite,
     role: S.String,
-  },
-  $I.annote("FallowSecurityTracePoint", {
-    description: "Raw Fallow security trace point shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowSecurityTracePoint", {
+      description: "Raw Fallow security trace point shape.",
+    })
+  )
 ) {}
-class FallowSecurityFinding extends S.Class<FallowSecurityFinding>($I`FallowSecurityFinding`)(
-  {
+class FallowSecurityFinding extends S.Opaque<FallowSecurityFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.String,
     category: S.optionalKey(S.String),
     cwe: S.optionalKey(S.Finite),
@@ -180,26 +185,29 @@ class FallowSecurityFinding extends S.Class<FallowSecurityFinding>($I`FallowSecu
     evidence: S.String,
     trace: S.Array(FallowSecurityTracePoint),
     actions: S.Array(FallowRawAction),
-  },
-  $I.annote("FallowSecurityFinding", {
-    description: "Raw Fallow security finding shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowSecurityFinding", {
+      description: "Raw Fallow security finding shape.",
+    })
+  )
 ) {}
-class FallowFixPreviewFinding extends S.Class<FallowFixPreviewFinding>($I`FallowFixPreviewFinding`)(
-  {
+class FallowFixPreviewFinding extends S.Opaque<FallowFixPreviewFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     path: S.optionalKey(S.String),
     file: S.optionalKey(S.String),
     line: S.optionalKey(S.Finite),
-  },
-  $I.annote("FallowFixPreviewFinding", {
-    description: "Raw Fallow fix dry-run item shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowFixPreviewFinding", {
+      description: "Raw Fallow fix dry-run item shape.",
+    })
+  )
 ) {}
-class FallowDeadCodeSummaryRawReport extends S.Class<FallowDeadCodeSummaryRawReport>(
-  $I`FallowDeadCodeSummaryRawReport`
-)(
-  {
+class FallowDeadCodeSummaryRawReport extends S.Opaque<
+  FallowDeadCodeSummaryRawReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     total_issues: S.Finite,
     unused_files: S.Finite,
     unused_exports: S.Finite,
@@ -208,19 +216,21 @@ class FallowDeadCodeSummaryRawReport extends S.Class<FallowDeadCodeSummaryRawRep
     unresolved_imports: S.Finite,
     unlisted_dependencies: S.Finite,
     boundary_violations: S.Finite,
-  },
-  $I.annote("FallowDeadCodeSummaryRawReport", {
-    description: "Raw Fallow dead-code summary counts emitted by dead-code JSON output.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowDeadCodeSummaryRawReport", {
+      description: "Raw Fallow dead-code summary counts emitted by dead-code JSON output.",
+    })
+  )
 ) {}
-class FallowEntryPointsRawReport extends S.Class<FallowEntryPointsRawReport>($I`FallowEntryPointsRawReport`)(
-  {
+class FallowEntryPointsRawReport extends S.Opaque<FallowEntryPointsRawReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     total: S.Finite,
     sources: S.Record(S.String, S.Finite),
-  },
-  $I.annote("FallowEntryPointsRawReport", {
-    description: "Raw Fallow entry point summary emitted by dead-code JSON output.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowEntryPointsRawReport", {
+      description: "Raw Fallow entry point summary emitted by dead-code JSON output.",
+    })
+  )
 ) {}
 const FallowAuditRawReport = S.Struct({
   kind: S.Literal("audit"),
@@ -311,24 +321,27 @@ const FallowFlagsRawReport = S.Struct({
     description: "Raw Fallow flags JSON shape accepted by the P1 wrapper.",
   })
 );
-class FallowSecurityDetailedRawReport extends S.Class<FallowSecurityDetailedRawReport>(
-  $I`FallowSecurityDetailedRawReport`
-)(
-  {
+class FallowSecurityDetailedRawReport extends S.Opaque<
+  FallowSecurityDetailedRawReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.Literal("security"),
     schema_version: S.Union([S.Finite, S.String]),
     security_findings: S.Array(FallowSecurityFinding),
     unresolved_edge_files: S.Finite,
     unresolved_callee_sites: S.Finite,
-  },
-  $I.annote("FallowSecurityDetailedRawReport", {
-    description: "Detailed raw Fallow security JSON shape accepted by the P1 wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowSecurityDetailedRawReport", {
+      description: "Detailed raw Fallow security JSON shape accepted by the P1 wrapper.",
+    })
+  )
 ) {}
-class FallowSecuritySummaryRawReport extends S.Class<FallowSecuritySummaryRawReport>(
-  $I`FallowSecuritySummaryRawReport`
-)(
-  {
+class FallowSecuritySummaryRawReport extends S.Opaque<
+  FallowSecuritySummaryRawReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.Literal("security"),
     schema_version: S.Union([S.Finite, S.String]),
     version: S.String,
@@ -338,10 +351,11 @@ class FallowSecuritySummaryRawReport extends S.Class<FallowSecuritySummaryRawRep
       unresolved_edge_files: S.Finite,
       unresolved_callee_sites: S.Finite,
     }),
-  },
-  $I.annote("FallowSecuritySummaryRawReport", {
-    description: "Summary raw Fallow security JSON shape accepted by the P1 wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowSecuritySummaryRawReport", {
+      description: "Summary raw Fallow security JSON shape accepted by the P1 wrapper.",
+    })
+  )
 ) {}
 
 /**
@@ -357,8 +371,8 @@ const FallowSecurityRawReport = S.Union([FallowSecurityDetailedRawReport, Fallow
     description: "Raw Fallow security JSON shapes accepted by the P1 wrapper.",
   })
 );
-class FallowFixPreviewRawReport extends S.Class<FallowFixPreviewRawReport>($I`FallowFixPreviewRawReport`)(
-  {
+class FallowFixPreviewRawReport extends S.Opaque<FallowFixPreviewRawReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     dry_run: S.Literal(true),
     fixes: S.Array(FallowFixPreviewFinding),
     total_fixed: S.Finite,
@@ -366,10 +380,11 @@ class FallowFixPreviewRawReport extends S.Class<FallowFixPreviewRawReport>($I`Fa
     skipped_content_changed: S.Finite,
     skipped_low_confidence_exports: S.Finite,
     skipped_mixed_line_endings: S.Finite,
-  },
-  $I.annote("FallowFixPreviewRawReport", {
-    description: "Raw Fallow fix dry-run JSON shape accepted by the P1 wrapper.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowFixPreviewRawReport", {
+      description: "Raw Fallow fix dry-run JSON shape accepted by the P1 wrapper.",
+    })
+  )
 ) {}
 const decodeFallowAuditRawReportOption = S.decodeUnknownOption(FallowAuditRawReport);
 const decodeFallowDeadCodeRawReportOption = S.decodeUnknownOption(FallowDeadCodeRawReport);
@@ -403,15 +418,19 @@ type ProcessResult = {
   readonly output: string;
   readonly exitCode: number;
 };
-class FallowAuditDiffFallbackResult extends S.Class<FallowAuditDiffFallbackResult>($I`FallowAuditDiffFallbackResult`)(
-  {
+class FallowAuditDiffFallbackResult extends S.Opaque<
+  FallowAuditDiffFallbackResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     stdout: S.String,
     stderr: S.optionalKey(S.String),
     exitCode: S.Finite,
-  },
-  $I.annote("FallowAuditDiffFallbackResult", {
-    description: "Fallow audit process result fields used to detect sandbox worktree failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowAuditDiffFallbackResult", {
+      description: "Fallow audit process result fields used to detect sandbox worktree failures.",
+    })
+  )
 ) {}
 const FallowAuditDiffFallbackPredicate = Fn({
   input: FallowAuditDiffFallbackResult,

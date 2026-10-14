@@ -49,7 +49,7 @@ import * as R from "effect/Record";
 const $I = $ScratchpadId.create("effected/workspaces/WorkspaceCatalogs");
 
 /** A catalog shape or test-wiring defect with the original diagnostic message. */
-class WorkspaceCatalogsDefect extends S.TaggedError<WorkspaceCatalogsDefect>($I`WorkspaceCatalogsDefect`)(
+class WorkspaceCatalogsDefect extends S.TaggedError<WorkspaceCatalogsDefect, { readonly brand: unique symbol }>($I`WorkspaceCatalogsDefect`)(
 	"WorkspaceCatalogsDefect",
 	{ message: S.String },
 	$I.annote("WorkspaceCatalogsDefect", { description: "A catalog shape or test-wiring defect." }),
@@ -129,7 +129,7 @@ export type ImporterVersions = typeof ImporterVersions.Type;
  * @category models
  * @since 0.0.0
  */
-export class CatalogSet extends S.Class<CatalogSet>($I`CatalogSet`)({
+export class CatalogSet extends S.Class<CatalogSet, { readonly brand: unique symbol }>($I`CatalogSet`)({
 	/** Catalog name → dependency name → version range. */
 	entries: CatalogRecords.annotateKey({ description: "Catalog name → dependency name → version range." }),
 }, $I.annote("CatalogSet", { description: "An immutable, fully-normalized catalog collection — the one catalog resolution semantic in the package." })) {

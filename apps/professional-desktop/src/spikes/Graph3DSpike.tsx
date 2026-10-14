@@ -41,15 +41,16 @@ import type { JSX } from "react";
 
 const $I = $ProfessionalDesktopId.create("spikes/Graph3DSpike");
 
-class StressPreset extends S.Class<StressPreset>($I`StressPreset`)(
-  {
+class StressPreset extends S.Opaque<StressPreset, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.NonEmptyString,
     nodeCount: S.Natural,
     edgeCount: S.Natural,
-  },
-  $I.annote("StressPreset", {
-    description: "Synthetic graph dimensions used by one Graph3D stress preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("StressPreset", {
+      description: "Synthetic graph dimensions used by one Graph3D stress preset.",
+    })
+  )
 ) {
   static readonly equivalence = S.toEquivalence(StressPreset);
 
@@ -79,62 +80,68 @@ class StressPreset extends S.Class<StressPreset>($I`StressPreset`)(
   ];
 }
 
-class StressReport extends S.Class<StressReport>($I`StressReport`)(
-  {
+class StressReport extends S.Opaque<StressReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     avgUpdateMs: S.DurationFromMillis,
     updates: PosInt,
     worstUpdateMs: S.DurationFromMillis,
-  },
-  $I.annote("StressReport", {
-    description: "Measured projection-update latency from one Graph3D stress pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("StressReport", {
+      description: "Measured projection-update latency from one Graph3D stress pass.",
+    })
+  )
 ) {}
 
-class BrowserHeapMemory extends S.Class<BrowserHeapMemory>($I`BrowserHeapMemory`)(
-  {
+class BrowserHeapMemory extends S.Opaque<BrowserHeapMemory, { readonly brand: unique symbol }>()(
+  S.Struct({
     usedJSHeapSize: S.Natural,
-  },
-  $I.annote("BrowserHeapMemory", {
-    description: "Chromium-specific browser heap measurement when the performance extension is available.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserHeapMemory", {
+      description: "Chromium-specific browser heap measurement when the performance extension is available.",
+    })
+  )
 ) {}
 
-class BrowserPerformance extends S.Class<BrowserPerformance>($I`BrowserPerformance`)(
-  {
+class BrowserPerformance extends S.Opaque<BrowserPerformance, { readonly brand: unique symbol }>()(
+  S.Struct({
     memory: S.OptionFromOptionalKey(BrowserHeapMemory),
-  },
-  $I.annote("BrowserPerformance", {
-    description: "Browser performance boundary with an optional Chromium heap measurement.",
-  })
+  }).pipe(
+    $I.annoteSchema("BrowserPerformance", {
+      description: "Browser performance boundary with an optional Chromium heap measurement.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(BrowserPerformance);
 }
 
-class Graph3DSpikeRendering extends S.Class<Graph3DSpikeRendering>($I`Graph3DSpikeRendering`)(
-  { state: S.tag("rendering") },
-  $I.annote("Graph3DSpikeRendering", {
-    description: "The graph-3d spike renderer is mounting.",
-  })
+class Graph3DSpikeRendering extends S.Opaque<Graph3DSpikeRendering, { readonly brand: unique symbol }>()(
+  S.Struct({ state: S.tag("rendering") }).pipe(
+    $I.annoteSchema("Graph3DSpikeRendering", {
+      description: "The graph-3d spike renderer is mounting.",
+    })
+  )
 ) {}
 
-class Graph3DSpikeReady extends S.Class<Graph3DSpikeReady>($I`Graph3DSpikeReady`)(
-  {
+class Graph3DSpikeReady extends S.Opaque<Graph3DSpikeReady, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("ready"),
     handle: Graph3DRenderHandle,
-  },
-  $I.annote("Graph3DSpikeReady", {
-    description: "The graph-3d spike renderer is mounted and ready.",
-  })
+  }).pipe(
+    $I.annoteSchema("Graph3DSpikeReady", {
+      description: "The graph-3d spike renderer is mounted and ready.",
+    })
+  )
 ) {}
 
-class Graph3DSpikeFailed extends S.Class<Graph3DSpikeFailed>($I`Graph3DSpikeFailed`)(
-  {
+class Graph3DSpikeFailed extends S.Opaque<Graph3DSpikeFailed, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("failed"),
     message: S.NonEmptyString,
-  },
-  $I.annote("Graph3DSpikeFailed", {
-    description: "The graph-3d spike renderer failed to mount.",
-  })
+  }).pipe(
+    $I.annoteSchema("Graph3DSpikeFailed", {
+      description: "The graph-3d spike renderer failed to mount.",
+    })
+  )
 ) {}
 
 const Graph3DSpikeState = LiteralKit(["rendering", "ready", "failed"]).pipe(
@@ -151,7 +158,7 @@ const Graph3DSpikeState = LiteralKit(["rendering", "ready", "failed"]).pipe(
  * ```ts
  * import { Graph3DSpikeStatus } from "@/spikes/Graph3DSpike"
  *
- * const status = Graph3DSpikeStatus.cases.rendering.make()
+ * const status = Graph3DSpikeStatus.cases.rendering.make({})
  * console.log(Graph3DSpikeStatus.guards.rendering(status)) // true
  * ```
  *
@@ -175,7 +182,7 @@ export const Graph3DSpikeStatus = Graph3DSpikeState.mapMembers(
  */
 type Graph3DSpikeStatus = typeof Graph3DSpikeStatus.Type;
 
-const renderingStatus: Graph3DSpikeStatus = Graph3DSpikeStatus.cases.rendering.make();
+const renderingStatus: Graph3DSpikeStatus = Graph3DSpikeStatus.cases.rendering.make({});
 
 const selectedPresetAtom = Atom.make(StressPreset.default);
 const stressReportAtom = Atom.make<O.Option<StressReport>>(O.none());

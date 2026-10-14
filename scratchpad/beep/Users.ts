@@ -178,7 +178,7 @@ export declare namespace PlanType {
  * @category errors
  * @since 0.0.0
  */
-export class UsersError extends S.TaggedError<UsersError>()(
+export class UsersError extends S.TaggedError<UsersError, { readonly brand: unique symbol }>()(
   "UsersError",
   { message: S.String },
   $I.annoteError("UsersError", { description: "A user or subscription wire value was rejected." }),

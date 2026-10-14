@@ -330,7 +330,7 @@ export const maxSafeInteger = Number.MAX_SAFE_INTEGER ?? 9007199254740991;
  * @category models
  * @since 0.0.0
  */
-export class BoundaryParams extends S.Class<BoundaryParams>($I`BoundaryParams`)(
+export class BoundaryParams extends S.Class<BoundaryParams, { readonly brand: unique symbol }>($I`BoundaryParams`)(
   {
     defaultValue: S.optionalKey(S.Finite).pipe(
       $I.annoteKey("BoundaryParams.defaultValue", {
@@ -382,7 +382,7 @@ export class BoundaryParams extends S.Class<BoundaryParams>($I`BoundaryParams`)(
  * @category models
  * @since 0.0.0
  */
-export class SpinParams extends S.Class<SpinParams>($I`SpinParams`)(
+export class SpinParams extends S.Class<SpinParams, { readonly brand: unique symbol }>($I`SpinParams`)(
   {
     precision: NonNegativePrecision.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
@@ -646,8 +646,8 @@ export type NumberInputError = typeof NumberInputError.Type;
  * @category models
  * @since 0.0.0
  */
-export class NumberInputChangeMetadata extends S.Class<NumberInputChangeMetadata>($I`NumberInputChangeMetadata`)(
-  {
+export class NumberInputChangeMetadata extends S.Opaque<NumberInputChangeMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     error: S.OptionFromNullOr(NumberInputError).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("NumberInputChangeMetadata.error", {
@@ -664,10 +664,11 @@ export class NumberInputChangeMetadata extends S.Class<NumberInputChangeMetadata
         description: "Editable text after formatting or parser normalization.",
       })
     ),
-  },
-  $I.annote("NumberInputChangeMetadata", {
-    description: "Context describing the latest number input change callback.",
-  })
+  }).pipe(
+    $I.annoteSchema("NumberInputChangeMetadata", {
+      description: "Context describing the latest number input change callback.",
+    })
+  )
 ) {}
 
 const getError = (value: number | undefined, min: number, max: number): O.Option<NumberInputError> => {
@@ -904,11 +905,14 @@ export const useNumberInput = (options: UseNumberInputOptions = {}) => {
 
   useAtomSubscribe(interfaceValueAtom, (nextInterfaceValue) => {
     const nextNumberValue = pipe(nextInterfaceValue, parser, toNumberOrUndefined);
-    onChange?.(nextNumberValue, {
-      valueText: nextInterfaceValue,
-      error: getError(nextNumberValue, min, max),
-      eventType: NumberInputEventType.Enum.change,
-    });
+    onChange?.(
+      nextNumberValue,
+      NumberInputChangeMetadata.make({
+        valueText: nextInterfaceValue,
+        error: getError(nextNumberValue, min, max),
+        eventType: NumberInputEventType.Enum.change,
+      })
+    );
   });
 
   const spinUp = (event: React.MouseEvent | React.TouchEvent) => {
@@ -987,17 +991,23 @@ export const useNumberInput = (options: UseNumberInputOptions = {}) => {
       const resolvedValue = toNumberOrUndefined(result);
 
       setInterfaceValue(result);
-      onChange?.(resolvedValue, {
-        valueText: formatter(result),
-        error: getError(resolvedValue, min, max),
-        eventType: NumberInputEventType.Enum.blur,
-      });
+      onChange?.(
+        resolvedValue,
+        NumberInputChangeMetadata.make({
+          valueText: formatter(result),
+          error: getError(resolvedValue, min, max),
+          eventType: NumberInputEventType.Enum.blur,
+        })
+      );
     } else {
-      onChange?.(undefined, {
-        valueText: "",
-        error: O.none(),
-        eventType: NumberInputEventType.Enum.blur,
-      });
+      onChange?.(
+        undefined,
+        NumberInputChangeMetadata.make({
+          valueText: "",
+          error: O.none(),
+          eventType: NumberInputEventType.Enum.blur,
+        })
+      );
     }
   };
 

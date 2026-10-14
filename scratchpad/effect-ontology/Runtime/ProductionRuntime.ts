@@ -77,7 +77,7 @@ export {
  * @category errors
  * @since 0.0.0
  */
-export class UnsupportedLlmProviderError extends S.TaggedError<UnsupportedLlmProviderError>(
+export class UnsupportedLlmProviderError extends S.TaggedError<UnsupportedLlmProviderError, { readonly brand: unique symbol }>(
   $I`UnsupportedLlmProviderError`
 )(
   "UnsupportedLlmProviderError",

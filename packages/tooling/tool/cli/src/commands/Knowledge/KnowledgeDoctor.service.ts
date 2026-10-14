@@ -1761,15 +1761,19 @@ const resolveDoctorRefs = Effect.fn("KnowledgeDoctor.resolveRefs")(function* (ba
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorCheckOptions extends S.Class<KnowledgeDoctorCheckOptions>($I`KnowledgeDoctorCheckOptions`)(
-  {
+export class KnowledgeDoctorCheckOptions extends S.Opaque<
+  KnowledgeDoctorCheckOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     acceptMint: S.Boolean,
     baseRef: S.String,
     now: S.DateTimeUtc,
-  },
-  $I.annote("KnowledgeDoctorCheckOptions", {
-    description: "Base ref, CI mint acceptance flag, and the instant of one gating knowledge-doctor check.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorCheckOptions", {
+      description: "Base ref, CI mint acceptance flag, and the instant of one gating knowledge-doctor check.",
+    })
+  )
 ) {}
 
 const missingBaseline = (): KnowledgeDoctorInputError =>
@@ -1930,16 +1934,18 @@ const verifyMintLive = Effect.scoped(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorLeasesOptions extends S.Class<KnowledgeDoctorLeasesOptions>(
-  $I`KnowledgeDoctorLeasesOptions`
-)(
-  {
+export class KnowledgeDoctorLeasesOptions extends S.Opaque<
+  KnowledgeDoctorLeasesOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseRef: S.String,
     now: S.DateTimeUtc,
-  },
-  $I.annote("KnowledgeDoctorLeasesOptions", {
-    description: "Base ref and instant of one knowledge-doctor lease listing.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorLeasesOptions", {
+      description: "Base ref and instant of one knowledge-doctor lease listing.",
+    })
+  )
 ) {}
 
 const leasesLive = Effect.fn("KnowledgeDoctor.leasesLive")(function* (options: KnowledgeDoctorLeasesOptions) {

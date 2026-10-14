@@ -26,7 +26,13 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import { printLines } from "../../internal/cli/Printer.ts";
-import { FilesCommandError, failOnExtensionlessFile, formatPlatformError } from "./Files.errors.ts";
+import {
+  FilesCommandError,
+  failOnExtensionlessFile,
+  formatPlatformError,
+  mapPlatformError,
+  PlatformErrorOptions,
+} from "./Files.errors.ts";
 import {
   assessImageCandidate,
   byNameAscending,
@@ -41,7 +47,12 @@ import {
   normalizeOutputDimensions,
   targetNameForEntry,
 } from "./Files.media.ts";
-import { uniqueArchiveTargetName, uniqueNormalizeTargetName } from "./Files.plan.ts";
+import {
+  CandidateAssessmentThresholds,
+  TargetNameForEntryOptions,
+  uniqueArchiveTargetName,
+  uniqueNormalizeTargetName,
+} from "./Files.plan.ts";
 import { FilesConcurrency, runFilesProgressForEach } from "./Files.progress.ts";
 import {
   archivedEntries,
@@ -464,7 +475,11 @@ const collectSortableFile = Effect.fn("Files.collectSortableFile")(function* (
 
   const stat = yield* fs
     .stat(sourcePath)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat file", sourcePath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stat file", sourcePath, PlatformErrorOptions.make({ cause }))
+      )
+    );
 
   if (stat.type !== "File") {
     return { file: O.none<SortableFile>(), skippedCount: 0 };
@@ -499,16 +514,18 @@ const collectSortableFile = Effect.fn("Files.collectSortableFile")(function* (
   };
 });
 
+const readDirectoryEntries = Effect.fnUntraced(function* (directory: string) {
+  const fs = yield* FileSystem.FileSystem;
+  return yield* fs.readDirectory(directory).pipe(mapPlatformError("Failed to read directory", directory));
+});
+
 const collectSortableFiles = Effect.fn("Files.collectSortableFiles")(function* (
   dir: string,
   mediaOnly: boolean,
   progressLabel: string
 ): Effect.fn.Return<SortableFileCollection, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
-  const fs = yield* FileSystem.FileSystem;
   const { canonicalDir, directory } = yield* validateDirectory(dir);
-  const entries = yield* fs
-    .readDirectory(directory)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
+  const entries = yield* readDirectoryEntries(directory);
   const collectedEntries = yield* runFilesProgressForEach(
     entries,
     (entry) => collectSortableFile(directory, canonicalDir, mediaOnly, entry),
@@ -539,7 +556,11 @@ const normalizeCollectedSkipped = (skipped: NormalizeSkippedEntry): NormalizeCol
 const statSourceEntry = (fs: FileSystem.FileSystem, sourcePath: string) =>
   fs
     .stat(sourcePath)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat source entry", sourcePath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stat source entry", sourcePath, PlatformErrorOptions.make({ cause }))
+      )
+    );
 
 const collectNormalizeFile = Effect.fn("Files.collectNormalizeFile")(function* (
   directory: string,
@@ -658,10 +679,7 @@ const collectNormalizeFiles = Effect.fn("Files.collectNormalizeFiles")(function*
   FilesCommandError,
   FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
-  const fs = yield* FileSystem.FileSystem;
-  const entries = yield* fs
-    .readDirectory(directory)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
+  const entries = yield* readDirectoryEntries(directory);
   const collectedEntries = yield* runFilesProgressForEach(
     entries,
     (entry) => collectNormalizeFile(directory, canonicalDirectory, entry),
@@ -798,7 +816,11 @@ const inspectExistingCaptionTarget = Effect.fnUntraced(function* (
   const path = yield* Path.Path;
   const captionExists = yield* fs
     .exists(captionPath)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to inspect caption target", captionPath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to inspect caption target", captionPath, PlatformErrorOptions.make({ cause }))
+      )
+    );
   if (!captionExists) return Result.succeed(false);
 
   const captionCanonicalPath = yield* fs.realPath(captionPath).pipe(Effect.option);
@@ -816,7 +838,11 @@ const inspectExistingCaptionTarget = Effect.fnUntraced(function* (
 
   const captionStat = yield* fs
     .stat(captionPath)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat caption target", captionPath, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stat caption target", captionPath, PlatformErrorOptions.make({ cause }))
+      )
+    );
   if (captionStat.type !== "File") {
     return captionPlanSkip(
       source,
@@ -877,12 +903,8 @@ const planCaptionTarget = Effect.fnUntraced(function* (
 const buildCreateCaptionFilesPlan = Effect.fn("Files.buildCreateCaptionFilesPlan")(function* (
   options: CreateCaptionFilesOptions
 ): Effect.fn.Return<CreateCaptionFilesPlan, FilesCommandError, FileSystem.FileSystem | Path.Path | Terminal.Terminal> {
-  const fs = yield* FileSystem.FileSystem;
   const { canonicalDir, directory } = yield* validateDirectory(options.dir);
-  const sourceNames = yield* fs.readDirectory(directory).pipe(
-    Effect.map(A.sort(Order.String)),
-    Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause }))
-  );
+  const sourceNames = yield* readDirectoryEntries(directory).pipe(Effect.map(A.sort(Order.String)));
 
   let entries = A.empty<CreateCaptionFilesPlanEntry>();
   let plannedCaptionNames = HashSet.empty<string>();
@@ -1060,11 +1082,8 @@ const collectDetectBordersFiles = Effect.fn("Files.collectDetectBordersFiles")(f
   FilesCommandError,
   FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
-  const fs = yield* FileSystem.FileSystem;
   const { canonicalDir, directory } = yield* validateDirectory(dir);
-  const entries = yield* fs
-    .readDirectory(directory)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
+  const entries = yield* readDirectoryEntries(directory);
 
   const collectedEntries = yield* runFilesProgressForEach(
     entries,
@@ -1281,10 +1300,7 @@ const collectArchiveCandidateFiles = Effect.fn("Files.collectArchiveCandidateFil
   FilesCommandError,
   FileSystem.FileSystem | Path.Path | Terminal.Terminal
 > {
-  const fs = yield* FileSystem.FileSystem;
-  const entries = yield* fs
-    .readDirectory(directory)
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to read directory", directory, { cause })));
+  const entries = yield* readDirectoryEntries(directory);
   const collectedEntries = yield* runFilesProgressForEach(
     entries,
     (entry) => collectArchiveCandidateFile(directory, canonicalDirectory, entry),
@@ -1464,7 +1480,11 @@ const collectArchiveSidecars = Effect.fn("Files.collectArchiveSidecars")(functio
 
     const exists = yield* fs
       .exists(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to inspect sidecar file", sourcePath, { cause })));
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to inspect sidecar file", sourcePath, PlatformErrorOptions.make({ cause }))
+        )
+      );
 
     if (!exists) {
       continue;
@@ -1472,7 +1492,11 @@ const collectArchiveSidecars = Effect.fn("Files.collectArchiveSidecars")(functio
 
     const stat = yield* fs
       .stat(sourcePath)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat sidecar file", sourcePath, { cause })));
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to stat sidecar file", sourcePath, PlatformErrorOptions.make({ cause }))
+        )
+      );
 
     if (stat.type !== "File") {
       continue;
@@ -1553,12 +1577,15 @@ const buildArchivePoorCandidatesPlan = Effect.fn("Files.buildArchivePoorCandidat
     }
 
     const sourceStem = path.basename(file.name, file.extension);
-    const assessment = assessImageCandidate(dimensionsResult.success, {
-      maxAspect: options.maxAspect,
-      maxUpscale: options.maxUpscale,
-      minShortEdge: options.minShortEdge,
-      targetResolution: options.targetResolution,
-    });
+    const assessment = assessImageCandidate(
+      dimensionsResult.success,
+      CandidateAssessmentThresholds.make({
+        maxAspect: options.maxAspect,
+        maxUpscale: options.maxUpscale,
+        minShortEdge: options.minShortEdge,
+        targetResolution: options.targetResolution,
+      })
+    );
 
     if (assessment.decision === "keep") {
       entries = A.append(
@@ -1653,12 +1680,15 @@ const buildRenamePlan = Effect.fn("Files.buildRenamePlan")(function* (
   let plan = A.empty<RenamePlanEntry>();
 
   for (const [file, dimensions] of A.zip(collection.files, dimensionsByFile)) {
-    const targetName = targetNameForEntry(prefix, {
-      dimensions,
-      file,
-      index,
-      width,
-    });
+    const targetName = targetNameForEntry(
+      prefix,
+      TargetNameForEntryOptions.make({
+        dimensions,
+        file,
+        index,
+        width,
+      })
+    );
     plan = A.append(
       plan,
       RenamePlanEntry.make({

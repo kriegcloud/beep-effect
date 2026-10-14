@@ -52,7 +52,7 @@ const command = Effect.fnUntraced(function* (
  * @category models
  * @since 0.0.0
  */
-export class NpmExecutor extends S.Class<NpmExecutor>($I`NpmExecutor`)({
+export class NpmExecutor extends S.Class<NpmExecutor, { readonly brand: unique symbol }>($I`NpmExecutor`)({
 	/**
 	 * The npm package spec to fetch and run (`"npm@11"`). Absent means the
 	 * ambient `npm` on `PATH`.

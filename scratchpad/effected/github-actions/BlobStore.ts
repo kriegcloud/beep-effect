@@ -46,7 +46,7 @@ const EndpointProtocol = LiteralKit(["http:", "https:"]).pipe(
  * @category errors
  * @since 0.0.0
  */
-export class BlobStoreError extends S.TaggedError<BlobStoreError>($I`BlobStoreError`)("BlobStoreError", {
+export class BlobStoreError extends S.TaggedError<BlobStoreError, { readonly brand: unique symbol }>($I`BlobStoreError`)("BlobStoreError", {
 	/**
 	 * `unreachable` — the store could not be contacted. `refused` — it answered,
 	 * unhappily; `status` says how. `misconfigured` — the layer was built with

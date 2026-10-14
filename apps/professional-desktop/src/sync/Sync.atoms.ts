@@ -54,48 +54,53 @@ const vaultSyncStatusKey = (workspaceId: WorkspaceIdentity.WorkspaceId) => `vaul
 
 const vaultSyncConflictsKey = (workspaceId: WorkspaceIdentity.WorkspaceId) => `vault-sync-conflicts:${workspaceId}`;
 
-class VaultSyncIdleState extends S.Class<VaultSyncIdleState>($I`VaultSyncIdleState`)(
-  { kind: S.tag("idle") },
-  $I.annote("VaultSyncIdleState", {
-    description: "Vault sync controls are ready for the next operator action.",
-  })
+class VaultSyncIdleState extends S.Opaque<VaultSyncIdleState, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("idle") }).pipe(
+    $I.annoteSchema("VaultSyncIdleState", {
+      description: "Vault sync controls are ready for the next operator action.",
+    })
+  )
 ) {}
 
-class VaultSyncRunningState extends S.Class<VaultSyncRunningState>($I`VaultSyncRunningState`)(
-  { kind: S.tag("syncing") },
-  $I.annote("VaultSyncRunningState", {
-    description: "A workspace vault sync pass is currently running.",
-  })
+class VaultSyncRunningState extends S.Opaque<VaultSyncRunningState, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("syncing") }).pipe(
+    $I.annoteSchema("VaultSyncRunningState", {
+      description: "A workspace vault sync pass is currently running.",
+    })
+  )
 ) {}
 
-class VaultSyncReviewingState extends S.Class<VaultSyncReviewingState>($I`VaultSyncReviewingState`)(
-  {
+class VaultSyncReviewingState extends S.Opaque<VaultSyncReviewingState, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("reviewing"),
     conflictId: SyncConflictId,
-  },
-  $I.annote("VaultSyncReviewingState", {
-    description: "A single vault sync conflict is being marked as reviewed.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultSyncReviewingState", {
+      description: "A single vault sync conflict is being marked as reviewed.",
+    })
+  )
 ) {}
 
-class VaultSyncSucceededState extends S.Class<VaultSyncSucceededState>($I`VaultSyncSucceededState`)(
-  {
+class VaultSyncSucceededState extends S.Opaque<VaultSyncSucceededState, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("succeeded"),
     message: S.NonEmptyString,
-  },
-  $I.annote("VaultSyncSucceededState", {
-    description: "The latest vault sync action completed successfully.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultSyncSucceededState", {
+      description: "The latest vault sync action completed successfully.",
+    })
+  )
 ) {}
 
-class VaultSyncFailedState extends S.Class<VaultSyncFailedState>($I`VaultSyncFailedState`)(
-  {
+class VaultSyncFailedState extends S.Opaque<VaultSyncFailedState, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("failed"),
     message: S.NonEmptyString,
-  },
-  $I.annote("VaultSyncFailedState", {
-    description: "The latest vault sync action failed with an operator-safe message.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultSyncFailedState", {
+      description: "The latest vault sync action failed with an operator-safe message.",
+    })
+  )
 ) {}
 
 const VaultSyncPanelStateKind = LiteralKit(["idle", "syncing", "reviewing", "succeeded", "failed"]).pipe(
@@ -112,7 +117,7 @@ const VaultSyncPanelStateKind = LiteralKit(["idle", "syncing", "reviewing", "suc
  * ```ts
  * import { VaultSyncPanelState } from "@/sync/Sync.atoms"
  *
- * const state = VaultSyncPanelState.cases.idle.make()
+ * const state = VaultSyncPanelState.cases.idle.make({})
  * console.log(state.kind) // "idle"
  * ```
  *
@@ -143,7 +148,7 @@ export const VaultSyncPanelState = VaultSyncPanelStateKind.mapMembers(
  * ```ts
  * import { VaultSyncPanelState, type VaultSyncPanelState as State } from "@/sync/Sync.atoms"
  *
- * const state: State = VaultSyncPanelState.cases.syncing.make()
+ * const state: State = VaultSyncPanelState.cases.syncing.make({})
  * console.log(state.kind) // "syncing"
  * ```
  *
@@ -152,23 +157,26 @@ export const VaultSyncPanelState = VaultSyncPanelStateKind.mapMembers(
  */
 export type VaultSyncPanelState = typeof VaultSyncPanelState.Type;
 
-class TriggerVaultSyncCommand extends S.Class<TriggerVaultSyncCommand>($I`TriggerVaultSyncCommand`)(
-  { kind: S.tag("trigger") },
-  $I.annote("TriggerVaultSyncCommand", {
-    description: "Request one serialized vault sync pass for the owning workspace.",
-  })
+class TriggerVaultSyncCommand extends S.Opaque<TriggerVaultSyncCommand, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("trigger") }).pipe(
+    $I.annoteSchema("TriggerVaultSyncCommand", {
+      description: "Request one serialized vault sync pass for the owning workspace.",
+    })
+  )
 ) {}
 
-class ReviewVaultSyncConflictCommand extends S.Class<ReviewVaultSyncConflictCommand>(
-  $I`ReviewVaultSyncConflictCommand`
-)(
-  {
+class ReviewVaultSyncConflictCommand extends S.Opaque<
+  ReviewVaultSyncConflictCommand,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("review"),
     conflictId: SyncConflictId,
-  },
-  $I.annote("ReviewVaultSyncConflictCommand", {
-    description: "Request serialized review of one conflict in the owning workspace.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewVaultSyncConflictCommand", {
+      description: "Request serialized review of one conflict in the owning workspace.",
+    })
+  )
 ) {}
 
 const VaultSyncCommandKind = LiteralKit(["trigger", "review"]).pipe(
@@ -185,7 +193,7 @@ const VaultSyncCommandKind = LiteralKit(["trigger", "review"]).pipe(
  * ```ts
  * import { VaultSyncCommand } from "@/sync/Sync.atoms"
  *
- * const command = VaultSyncCommand.cases.trigger.make()
+ * const command = VaultSyncCommand.cases.trigger.make({})
  * console.log(VaultSyncCommand.guards.trigger(command)) // true
  * ```
  *
@@ -227,7 +235,7 @@ type VaultSyncCommand = typeof VaultSyncCommand.Type;
  * @since 0.0.0
  */
 export const vaultSyncPanelStateAtoms = Atom.family((_workspaceId: WorkspaceIdentity.WorkspaceId) =>
-  Atom.make<VaultSyncPanelState>(VaultSyncPanelState.cases.idle.make())
+  Atom.make<VaultSyncPanelState>(VaultSyncPanelState.cases.idle.make({}))
 );
 
 /**
@@ -379,7 +387,7 @@ const triggerVaultSync = Effect.fn("documents.vault_sync.trigger")(function* (
   yield* Effect.annotateCurrentSpan({
     "documents.vault_sync.workspace_id": workspaceId,
   });
-  ctx.set(stateAtom, VaultSyncPanelState.cases.syncing.make());
+  ctx.set(stateAtom, VaultSyncPanelState.cases.syncing.make({}));
   yield* Reactivity.mutation(client("TriggerVaultSync", VaultSyncWorkspacePayload.make({ workspaceId })), [
     vaultSyncStatusKey(workspaceId),
     vaultSyncConflictsKey(workspaceId),
@@ -433,7 +441,7 @@ const reviewVaultSyncConflict = Effect.fn("documents.vault_sync.review")(functio
       onSuccess: () =>
         Effect.annotateCurrentSpan({
           "documents.vault_sync.outcome": "succeeded",
-        }).pipe(Effect.andThen(Effect.sync(() => ctx.set(stateAtom, VaultSyncPanelState.cases.idle.make())))),
+        }).pipe(Effect.andThen(Effect.sync(() => ctx.set(stateAtom, VaultSyncPanelState.cases.idle.make({}))))),
     })
   );
 });
@@ -466,7 +474,9 @@ export const vaultSyncCommandAtoms = Atom.family((workspaceId: WorkspaceIdentity
     Effect.fnUntraced(function* (command, ctx) {
       const client = yield* DesktopSyncClient;
       const registry = yield* AtomRegistry.AtomRegistry;
-      const resetInterruptedCommand = Effect.sync(() => registry.set(stateAtom, VaultSyncPanelState.cases.idle.make()));
+      const resetInterruptedCommand = Effect.sync(() =>
+        registry.set(stateAtom, VaultSyncPanelState.cases.idle.make({}))
+      );
 
       const operation = VaultSyncCommand.match(command, {
         trigger: () => triggerVaultSync(workspaceId, client, ctx),

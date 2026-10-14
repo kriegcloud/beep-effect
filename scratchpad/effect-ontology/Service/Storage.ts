@@ -143,15 +143,12 @@ const isLocalStorageKey = S.is(LocalStorageKey);
  * @category models
  * @since 0.0.0
  */
-export class ObjectWithGeneration extends S.Class<ObjectWithGeneration>($I`ObjectWithGeneration`)(
-  {
+export class ObjectWithGeneration extends S.Opaque<ObjectWithGeneration, { readonly brand: unique symbol }>()(S.Struct({
     content: S.String,
     generation: S.NonEmptyString,
-  },
-  $I.annote("ObjectWithGeneration", {
+  }).pipe($I.annoteSchema("ObjectWithGeneration", {
     description: "Stored text together with the backend generation used for optimistic locking.",
-  })
-) {}
+  }))) {}
 
 /**
  * Error thrown when setIfGenerationMatch fails due to concurrent modification
@@ -173,7 +170,7 @@ export class ObjectWithGeneration extends S.Class<ObjectWithGeneration>($I`Objec
  * @category errors
  * @since 0.0.0
  */
-export class GenerationMismatchError extends S.TaggedError<GenerationMismatchError>($I`GenerationMismatchError`)(
+export class GenerationMismatchError extends S.TaggedError<GenerationMismatchError, { readonly brand: unique symbol }>($I`GenerationMismatchError`)(
   "GenerationMismatchError",
   {
     key: S.NonEmptyString.annotateKey({
@@ -343,17 +340,14 @@ export type StorageBackend = typeof StorageBackend.Type;
  * @category models
  * @since 0.0.0
  */
-export class StorageConfigValue extends S.Class<StorageConfigValue>($I`StorageConfigValue`)(
-  {
+export class StorageConfigValue extends S.Opaque<StorageConfigValue, { readonly brand: unique symbol }>()(S.Struct({
     type: StorageBackend,
     bucketName: S.optionalKey(S.NonEmptyString),
     localPath: S.optionalKey(S.NonEmptyString),
     pathPrefix: S.optionalKey(S.String),
-  },
-  $I.annote("StorageConfigValue", {
+  }).pipe($I.annoteSchema("StorageConfigValue", {
     description: "Backend selection and backend-specific object-storage location settings.",
-  })
-) {}
+  }))) {}
 
 /**
  * Provides the storage config service capability.

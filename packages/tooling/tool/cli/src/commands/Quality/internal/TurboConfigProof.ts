@@ -161,7 +161,9 @@ export type TurboConfigProofSelectorMode = typeof TurboConfigProofSelectorMode.T
  * @category errors
  * @since 0.0.0
  */
-export class TurboConfigProofError extends S.TaggedError<TurboConfigProofError>($I`TurboConfigProofError`)(
+export class TurboConfigProofError extends S.TaggedError<TurboConfigProofError, { readonly brand: unique symbol }>(
+  $I`TurboConfigProofError`
+)(
   "TurboConfigProofError",
   commandErrorFields,
   $I.annoteError<TurboConfigProofError>("TurboConfigProofError", {
@@ -210,19 +212,21 @@ export class TurboConfigProofError extends S.TaggedError<TurboConfigProofError>(
  * @category models
  * @since 0.0.0
  */
-export class TurboConfigProofCountSummary extends S.Class<TurboConfigProofCountSummary>(
-  $I`TurboConfigProofCountSummary`
-)(
-  {
+export class TurboConfigProofCountSummary extends S.Opaque<
+  TurboConfigProofCountSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     total: S.Finite,
     packages: S.Finite,
     byTask: S.Record(S.String, S.Finite),
     byReason: S.Record(S.String, S.Finite),
     byStatus: S.Record(S.String, S.Finite),
-  },
-  $I.annote("TurboConfigProofCountSummary", {
-    description: "Aggregated package, task, reason, and cache-status counts from one Turbo probe.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboConfigProofCountSummary", {
+      description: "Aggregated package, task, reason, and cache-status counts from one Turbo probe.",
+    })
+  )
 ) {}
 
 /**
@@ -231,18 +235,20 @@ export class TurboConfigProofCountSummary extends S.Class<TurboConfigProofCountS
  * @category models
  * @since 0.0.0
  */
-export class TurboConfigProofDryRunSummary extends S.Class<TurboConfigProofDryRunSummary>(
-  $I`TurboConfigProofDryRunSummary`
-)(
-  {
+export class TurboConfigProofDryRunSummary extends S.Opaque<
+  TurboConfigProofDryRunSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     task: TurboConfigProofTaskName,
     selector: TurboConfigProofSelectorMode,
     command: S.String,
     summary: TurboConfigProofCountSummary,
-  },
-  $I.annote("TurboConfigProofDryRunSummary", {
-    description: "Dry-run proof summary for a single Turbo task.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboConfigProofDryRunSummary", {
+      description: "Dry-run proof summary for a single Turbo task.",
+    })
+  )
 ) {}
 
 /**
@@ -251,8 +257,8 @@ export class TurboConfigProofDryRunSummary extends S.Class<TurboConfigProofDryRu
  * @category models
  * @since 0.0.0
  */
-export class TurboConfigProofReport extends S.Class<TurboConfigProofReport>($I`TurboConfigProofReport`)(
-  {
+export class TurboConfigProofReport extends S.Opaque<TurboConfigProofReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.String,
     head: S.String,
     tasks: S.Array(TurboConfigProofTaskName),
@@ -260,10 +266,11 @@ export class TurboConfigProofReport extends S.Class<TurboConfigProofReport>($I`T
     queryCommand: S.String,
     query: TurboConfigProofCountSummary,
     dryRuns: S.Array(TurboConfigProofDryRunSummary),
-  },
-  $I.annote("TurboConfigProofReport", {
-    description: "Scoped Turbo config proof report for a base/head comparison.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboConfigProofReport", {
+      description: "Scoped Turbo config proof report for a base/head comparison.",
+    })
+  )
 ) {}
 
 /**
@@ -272,16 +279,17 @@ export class TurboConfigProofReport extends S.Class<TurboConfigProofReport>($I`T
  * @category models
  * @since 0.0.0
  */
-export class TurboConfigProofOptions extends S.Class<TurboConfigProofOptions>($I`TurboConfigProofOptions`)(
-  {
+export class TurboConfigProofOptions extends S.Opaque<TurboConfigProofOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.String,
     head: S.String,
     selector: TurboConfigProofSelectorMode,
     tasks: S.Array(S.String),
-  },
-  $I.annote("TurboConfigProofOptions", {
-    description: "Base, head, selector, and task inputs for scoped Turbo config proof collection.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboConfigProofOptions", {
+      description: "Base, head, selector, and task inputs for scoped Turbo config proof collection.",
+    })
+  )
 ) {}
 
 type CommandOutput = {

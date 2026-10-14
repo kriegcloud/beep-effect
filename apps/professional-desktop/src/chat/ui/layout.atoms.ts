@@ -154,14 +154,34 @@ export const sidebarPercentAtom = Atom.kvs({
   defaultValue: () => SIDEBAR_DEFAULT_PERCENT,
 });
 
-class SidebarLayoutChanged extends S.Class<SidebarLayoutChanged>($I`SidebarLayoutChanged`)(
-  {
+/**
+ * A completed resizable-panel layout accepted by the persisted layout action.
+ *
+ * **Example** (Record a user-dragged sidebar layout)
+ *
+ * ```ts
+ * import { SIDEBAR_PANE_ID, SidebarLayoutChanged } from "@/chat/ui/layout.atoms"
+ *
+ * const change = SidebarLayoutChanged.make({
+ *   layout: { [SIDEBAR_PANE_ID]: 24, "chat-pane": 76 },
+ *   isUserInteraction: true
+ * })
+ *
+ * console.log(change.layout[SIDEBAR_PANE_ID]) // => 24
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SidebarLayoutChanged extends S.Opaque<SidebarLayoutChanged, { readonly brand: unique symbol }>()(
+  S.Struct({
     layout: S.Record(S.String, S.Finite),
     isUserInteraction: S.Boolean,
-  },
-  $I.annote("SidebarLayoutChanged", {
-    description: "A completed resizable-panel layout accepted by the persisted layout action.",
-  })
+  }).pipe(
+    $I.annoteSchema("SidebarLayoutChanged", {
+      description: "A completed resizable-panel layout accepted by the persisted layout action.",
+    })
+  )
 ) {}
 
 /**

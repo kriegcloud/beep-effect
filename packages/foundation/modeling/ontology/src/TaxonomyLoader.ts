@@ -163,7 +163,9 @@ export type VendorLoadStatus = typeof VendorLoadStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class VendorManifestEntry extends S.Class<VendorManifestEntry>($I`VendorManifestEntry`)(
+export class VendorManifestEntry extends S.Class<VendorManifestEntry, { readonly brand: unique symbol }>(
+  $I`VendorManifestEntry`
+)(
   {
     _tag: S.tagDefaultOmit("VendorTaxonomySeedSlice"),
     format: S.Literal("jsonld"),
@@ -212,9 +214,10 @@ export class VendorManifestEntry extends S.Class<VendorManifestEntry>($I`VendorM
  * @category models
  * @since 0.0.0
  */
-export class VendorAlignmentManifestEntry extends S.Class<VendorAlignmentManifestEntry>(
-  $I`VendorAlignmentManifestEntry`
-)(
+export class VendorAlignmentManifestEntry extends S.Class<
+  VendorAlignmentManifestEntry,
+  { readonly brand: unique symbol }
+>($I`VendorAlignmentManifestEntry`)(
   {
     _tag: S.tagDefaultOmit("VendorConceptAlignmentSlice"),
     conceptIri: HttpsIriReference,
@@ -271,16 +274,17 @@ const VendorAlignmentManifestEntryBoundary = VendorAlignmentManifestEntry.check(
  * @category models
  * @since 0.0.0
  */
-export class VendorConceptSlice extends S.Class<VendorConceptSlice>($I`VendorConceptSlice`)(
-  {
+export class VendorConceptSlice extends S.Opaque<VendorConceptSlice, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@id": HttpsIriReference,
     "@type": S.Literal("owl:Class"),
     "rdfs:label": S.NonEmptyString,
     "skos:definition": S.NonEmptyString,
-  },
-  $I.annote("VendorConceptSlice", {
-    description: "Minimal external JSON-LD class fields required to verify a manifested alignment.",
-  })
+  }).pipe(
+    $I.annoteSchema("VendorConceptSlice", {
+      description: "Minimal external JSON-LD class fields required to verify a manifested alignment.",
+    })
+  )
 ) {}
 
 /**
@@ -296,7 +300,10 @@ export class VendorConceptSlice extends S.Class<VendorConceptSlice>($I`VendorCon
  * @category errors
  * @since 0.0.0
  */
-export class TaxonomyManifestReadError extends S.TaggedError<TaxonomyManifestReadError>($I`TaxonomyManifestReadError`)(
+export class TaxonomyManifestReadError extends S.TaggedError<
+  TaxonomyManifestReadError,
+  { readonly brand: unique symbol }
+>($I`TaxonomyManifestReadError`)(
   "TaxonomyManifestReadError",
   { path: S.NonEmptyString },
   $I.annoteError<TaxonomyManifestReadError>("TaxonomyManifestReadError", {
@@ -317,9 +324,10 @@ export class TaxonomyManifestReadError extends S.TaggedError<TaxonomyManifestRea
  * @category errors
  * @since 0.0.0
  */
-export class TaxonomyManifestParseError extends S.TaggedError<TaxonomyManifestParseError>(
-  $I`TaxonomyManifestParseError`
-)(
+export class TaxonomyManifestParseError extends S.TaggedError<
+  TaxonomyManifestParseError,
+  { readonly brand: unique symbol }
+>($I`TaxonomyManifestParseError`)(
   "TaxonomyManifestParseError",
   { line: S.Int, path: S.NonEmptyString },
   $I.annoteError<TaxonomyManifestParseError>("TaxonomyManifestParseError", {
@@ -340,7 +348,9 @@ export class TaxonomyManifestParseError extends S.TaggedError<TaxonomyManifestPa
  * @category errors
  * @since 0.0.0
  */
-export class VendorSliceUnvetted extends S.TaggedError<VendorSliceUnvetted>($I`VendorSliceUnvetted`)(
+export class VendorSliceUnvetted extends S.TaggedError<VendorSliceUnvetted, { readonly brand: unique symbol }>(
+  $I`VendorSliceUnvetted`
+)(
   "VendorSliceUnvetted",
   { id: S.NonEmptyString },
   $I.annoteError<VendorSliceUnvetted>("VendorSliceUnvetted", {
@@ -361,7 +371,9 @@ export class VendorSliceUnvetted extends S.TaggedError<VendorSliceUnvetted>($I`V
  * @category errors
  * @since 0.0.0
  */
-export class VendorSliceReadError extends S.TaggedError<VendorSliceReadError>($I`VendorSliceReadError`)(
+export class VendorSliceReadError extends S.TaggedError<VendorSliceReadError, { readonly brand: unique symbol }>(
+  $I`VendorSliceReadError`
+)(
   "VendorSliceReadError",
   { id: S.NonEmptyString, path: S.NonEmptyString },
   $I.annoteError<VendorSliceReadError>("VendorSliceReadError", {
@@ -382,7 +394,9 @@ export class VendorSliceReadError extends S.TaggedError<VendorSliceReadError>($I
  * @category errors
  * @since 0.0.0
  */
-export class VendorSliceParseError extends S.TaggedError<VendorSliceParseError>($I`VendorSliceParseError`)(
+export class VendorSliceParseError extends S.TaggedError<VendorSliceParseError, { readonly brand: unique symbol }>(
+  $I`VendorSliceParseError`
+)(
   "VendorSliceParseError",
   { id: S.NonEmptyString, path: S.NonEmptyString },
   $I.annoteError<VendorSliceParseError>("VendorSliceParseError", {
@@ -405,9 +419,10 @@ export class VendorSliceParseError extends S.TaggedError<VendorSliceParseError>(
  * @category errors
  * @since 0.0.0
  */
-export class VendorSliceAlignmentNotAdmitted extends S.TaggedError<VendorSliceAlignmentNotAdmitted>(
-  $I`VendorSliceAlignmentNotAdmitted`
-)(
+export class VendorSliceAlignmentNotAdmitted extends S.TaggedError<
+  VendorSliceAlignmentNotAdmitted,
+  { readonly brand: unique symbol }
+>($I`VendorSliceAlignmentNotAdmitted`)(
   "VendorSliceAlignmentNotAdmitted",
   { id: S.NonEmptyString, path: S.NonEmptyString },
   $I.annoteError<VendorSliceAlignmentNotAdmitted>("VendorSliceAlignmentNotAdmitted", {
@@ -434,7 +449,9 @@ export class VendorSliceAlignmentNotAdmitted extends S.TaggedError<VendorSliceAl
  * @category errors
  * @since 0.0.0
  */
-export class VendorSlicePathEscape extends S.TaggedError<VendorSlicePathEscape>($I`VendorSlicePathEscape`)(
+export class VendorSlicePathEscape extends S.TaggedError<VendorSlicePathEscape, { readonly brand: unique symbol }>(
+  $I`VendorSlicePathEscape`
+)(
   "VendorSlicePathEscape",
   {
     id: S.NonEmptyString,
@@ -467,9 +484,10 @@ export class VendorSlicePathEscape extends S.TaggedError<VendorSlicePathEscape>(
  * @category errors
  * @since 0.0.0
  */
-export class VendorSliceConceptMismatch extends S.TaggedError<VendorSliceConceptMismatch>(
-  $I`VendorSliceConceptMismatch`
-)(
+export class VendorSliceConceptMismatch extends S.TaggedError<
+  VendorSliceConceptMismatch,
+  { readonly brand: unique symbol }
+>($I`VendorSliceConceptMismatch`)(
   "VendorSliceConceptMismatch",
   {
     actualConceptIri: IRIReference,
@@ -501,9 +519,10 @@ export class VendorSliceConceptMismatch extends S.TaggedError<VendorSliceConcept
  * @category errors
  * @since 0.0.0
  */
-export class VendorAlignmentTargetNotFound extends S.TaggedError<VendorAlignmentTargetNotFound>(
-  $I`VendorAlignmentTargetNotFound`
-)(
+export class VendorAlignmentTargetNotFound extends S.TaggedError<
+  VendorAlignmentTargetNotFound,
+  { readonly brand: unique symbol }
+>($I`VendorAlignmentTargetNotFound`)(
   "VendorAlignmentTargetNotFound",
   {
     id: S.NonEmptyString,
@@ -528,38 +547,39 @@ export class VendorAlignmentTargetNotFound extends S.TaggedError<VendorAlignment
  * @category models
  * @since 0.0.0
  */
-export class VendorAssetManifestRow extends S.Class<VendorAssetManifestRow>($I`VendorAssetManifestRow`)(
-  {
+export class VendorAssetManifestRow extends S.Opaque<VendorAssetManifestRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: S.NonEmptyString,
     id: S.NonEmptyString,
     loadKind: S.OptionFromOptionalKey(VendorLoadKind),
     loadStatus: S.OptionFromOptionalKey(VendorLoadStatus),
-  },
-  $I.annote("VendorAssetManifestRow", {
-    description: "Asset-pack row fields used to distinguish references from explicit loader directives.",
-  })
+  }).pipe(
+    $I.annoteSchema("VendorAssetManifestRow", {
+      description: "Asset-pack row fields used to distinguish references from explicit loader directives.",
+    })
+  )
 ) {}
 
-class LoadedTaxonomySeedSlice extends S.Class<LoadedTaxonomySeedSlice>($I`LoadedTaxonomySeedSlice`)(
-  {
-    _tag: S.tag("LoadedTaxonomySeedSlice"),
+class LoadedTaxonomySeedSlice extends S.Opaque<LoadedTaxonomySeedSlice, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("LoadedTaxonomySeedSlice", {
     seed: TaxonomySeed,
-  },
-  $I.annote("LoadedTaxonomySeedSlice", {
-    description: "A schema-decoded vendor taxonomy seed awaiting registry merge.",
-  })
+  }).pipe(
+    $I.annoteSchema("LoadedTaxonomySeedSlice", {
+      description: "A schema-decoded vendor taxonomy seed awaiting registry merge.",
+    })
+  )
 ) {}
 
-class LoadedAlignmentSlice extends S.Class<LoadedAlignmentSlice>($I`LoadedAlignmentSlice`)(
-  {
-    _tag: S.tag("LoadedAlignmentSlice"),
+class LoadedAlignmentSlice extends S.Opaque<LoadedAlignmentSlice, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("LoadedAlignmentSlice", {
     alignment: ConceptAlignment,
     id: S.NonEmptyString,
     localConceptIri: IRIReference,
-  },
-  $I.annote("LoadedAlignmentSlice", {
-    description: "A verified external alignment awaiting merge into its repo-owned concept.",
-  })
+  }).pipe(
+    $I.annoteSchema("LoadedAlignmentSlice", {
+      description: "A verified external alignment awaiting merge into its repo-owned concept.",
+    })
+  )
 ) {}
 
 type VendorLoadManifestEntry = VendorAlignmentManifestEntry | VendorManifestEntry;

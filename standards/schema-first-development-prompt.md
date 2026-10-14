@@ -184,9 +184,16 @@ complete. Report the exact commands and outcomes.
 
 - Use Schema for domain objects, wire payloads, persisted rows, configuration
   payloads, events, and other pure data.
-- Prefer `S.Class` for reusable object models.
-- Use `S.Struct` when a boundary shape is itself the desired value and
-  class-style construction adds no value.
+- Model reusable plain data as a branded `S.Opaque` over an annotated
+  `S.Struct` (`S.TaggedStruct` for `_tag` data):
+  `class X extends S.Opaque<X, { readonly brand: unique symbol }>()(S.Struct({...}).pipe($I.annoteSchema("X", {...}))) {}`.
+  Values stay plain objects validated by shape; construct with `X.make(...)`.
+- Keep a branded `S.Class` / `S.TaggedClass` / `S.Error` / `S.TaggedError` for
+  errors, persisted entities, schemas with instance members, and `.extend`
+  chains. Every schema class and Opaque declaration carries
+  `{ readonly brand: unique symbol }`.
+- Use a bare `S.Struct` when a boundary shape is itself the desired value and
+  is not exported as a domain model.
 - Keep plain interfaces and type literals for service contracts, ports,
   overload surfaces, and genuinely type-level machinery.
 - Do not suffix schema values with `Schema`.
@@ -254,7 +261,7 @@ complete. Report the exact commands and outcomes.
   case-specific payloads as discriminated unions, not one object with optional
   fields for every case.
 - Use `LiteralKit` for a reusable discriminator domain.
-- Prefer `S.Class` for member schemas.
+- Define member schemas as branded `S.Opaque` classes over `S.Struct`.
 - Use `S.toTaggedUnion("<field>")` for custom fields such as `kind`, `type`,
   `status`, `family`, or `profile`.
 - Use `S.TaggedUnion(...)` only for canonical `_tag` unions.
@@ -331,14 +338,15 @@ const $I = $PackageNameId.create("relative/path/from/package/src");
  * @category models
  * @since 0.0.0
  */
-export class TaskInput extends S.Class<TaskInput>($I`TaskInput`)(
-  {
+export class TaskInput extends S.Opaque<TaskInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     title: S.NonEmptyString,
-  },
-  $I.annote("TaskInput", {
-    description: "Validated input for creating a task.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskInput", {
+      description: "Validated input for creating a task.",
+    })
+  )
 ) {
   static readonly is = S.is(TaskInput);
 }
@@ -422,16 +430,17 @@ import * as S from "effect/Schema";
 
 const $I = $PackageNameId.create("relative/path/from/package/src");
 
-export class ImportOptions extends S.Class<ImportOptions>($I`ImportOptions`)(
-  {
+export class ImportOptions extends S.Opaque<ImportOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     strict: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
     note: S.OptionFromNullishOr(S.NonEmptyString).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("ImportOptions", {
-    description: "Import behavior with canonical construction defaults.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImportOptions", {
+      description: "Import behavior with canonical construction defaults.",
+    })
+  )
 ) {}
 ```
 
@@ -470,27 +479,29 @@ import * as S from "effect/Schema";
 const $I = $PackageNameId.create("relative/path/from/package/src");
 const JobKind = LiteralKit(["queued", "completed"]);
 
-class JobQueued extends S.Class<JobQueued>($I`JobQueued`)(
-  {
+class JobQueued extends S.Opaque<JobQueued, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("queued"),
     queuedAt: S.String,
-  },
-  $I.annote("JobQueued", {
-    description: "Job waiting to be processed.",
-  })
+  }).pipe(
+    $I.annoteSchema("JobQueued", {
+      description: "Job waiting to be processed.",
+    })
+  )
 ) {
   static readonly thunkThis = () => JobQueued;
 }
 
-class JobCompleted extends S.Class<JobCompleted>($I`JobCompleted`)(
-  {
+class JobCompleted extends S.Opaque<JobCompleted, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("completed"),
     completedAt: S.String,
     result: S.String,
-  },
-  $I.annote("JobCompleted", {
-    description: "Successfully completed job.",
-  })
+  }).pipe(
+    $I.annoteSchema("JobCompleted", {
+      description: "Successfully completed job.",
+    })
+  )
 ) {
   static readonly thunkThis = () => JobCompleted;
 }

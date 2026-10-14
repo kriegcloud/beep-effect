@@ -120,7 +120,7 @@ export const makeAnthropicLanguageModelLayer = (
  * @since 0.0.0
  */
 export const makeAnthropicLanguageModelLiveLayer = (
-  options: Omit<ConstructorParameters<typeof AnthropicLanguageModelOptions>[0], "model"> = {}
+  options: Omit<Exclude<(typeof AnthropicLanguageModelOptions)["~type.make.in"], void>, "model"> = {}
 ) =>
   Layer.unwrap(
     Config.NonEmptyString(ANTHROPIC_MODEL_ENV).pipe(

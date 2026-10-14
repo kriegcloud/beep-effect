@@ -28,6 +28,7 @@ import {
   IntakeBatchInput,
   IntakeBatchOutput,
   IntakeCurrentFileContext,
+  IntakeFileMetadata,
   IntakeLogRequest,
   IntakeRefusedStateInput,
   IntakeResultEntry,
@@ -131,9 +132,9 @@ export const intakeBatchMachine = setupEffect({
   actions: { logIntakeCause },
 }).createMachine({
   id: "intakeBatch",
-  context: ({ input }) => ({ ...input, cursor: 0, entries: [] }),
+  context: ({ input }) => IntakeBatchContext.make({ ...input, cursor: 0, entries: [] }),
   initial: "next",
-  output: ({ context }) => ({ intakeBatchId: context.intakeBatchId, entries: context.entries }),
+  output: ({ context }) => IntakeBatchOutput.make({ intakeBatchId: context.intakeBatchId, entries: context.entries }),
   states: {
     next: {
       always: ({ context }) => {
@@ -141,11 +142,15 @@ export const intakeBatchMachine = setupEffect({
         if (P.isUndefined(file)) {
           return { target: "done" };
         }
-        const refusal = intakeRefusal(file);
+        const refusal = intakeRefusal(IntakeFileMetadata.make(file));
         if (O.isSome(refusal)) {
-          return { target: "refused", context: { current: file }, input: { message: refusal.value } };
+          return {
+            target: "refused",
+            context: IntakeCurrentFileContext.make({ current: file }),
+            input: IntakeRefusedStateInput.make({ message: refusal.value }),
+          };
         }
-        return { target: "reading", context: { current: file } };
+        return { target: "reading", context: IntakeCurrentFileContext.make({ current: file }) };
       },
     },
     refused: {
@@ -159,11 +164,11 @@ export const intakeBatchMachine = setupEffect({
     reading: {
       invoke: {
         src: "readFile",
-        input: ({ context }) => ({ file: context.current }),
+        input: ({ context }) => ReadFileInput.make({ file: context.current }),
         onDone: ({ context, event }) => ({
           target: "submitting",
-          context: { current: context.current },
-          input: { content: event.output },
+          context: IntakeCurrentFileContext.make({ current: context.current }),
+          input: IntakeSubmittingStateInput.make({ content: event.output }),
         }),
         onError: (args, enq) => {
           const entry = failureEntry(args.context.current, intakeFailureMessage(args.event.error));

@@ -5,7 +5,11 @@ import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { makeInMemoryThreadStore, ThreadStoreInMemoryLayer } from "@beep/workspace-server/aggregates/Thread";
 import { ThreadStoreRepoTestSchemas } from "@beep/workspace-server/test";
-import { SetThreadTitleIfEmptyInput } from "@beep/workspace-use-cases/aggregates/Thread/server";
+import {
+  AppendTurnInput,
+  CreateThreadInput,
+  SetThreadTitleIfEmptyInput,
+} from "@beep/workspace-use-cases/aggregates/Thread/server";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
@@ -99,27 +103,31 @@ describe("ThreadStore in-memory", () => {
         const store = yield* makeTestThreadStore;
         const workspaceId = yield* S.decodeEffect(WorkspaceIdentity.WorkspaceId)(2);
 
-        const thread = yield* store.createThread({ title: "Matter intake", workspaceId });
+        const thread = yield* store.createThread(CreateThreadInput.make({ title: "Matter intake", workspaceId }));
         expect(thread.title).toBe("Matter intake");
 
         const threads = yield* store.listThreads(workspaceId);
         expect(A.map(threads, (t) => t.id)).toEqual([thread.id]);
 
-        const first = yield* store.appendTurn({
-          threadId: thread.id,
-          parentTurnId: O.none(),
-          role: "user",
-          content: docOf("Hello"),
-        });
+        const first = yield* store.appendTurn(
+          AppendTurnInput.make({
+            threadId: thread.id,
+            parentTurnId: O.none(),
+            role: "user",
+            content: docOf("Hello"),
+          })
+        );
         expect(first.turn.turnIndex).toBe(0);
         expect(first.message.role).toBe("user");
 
-        const second = yield* store.appendTurn({
-          threadId: thread.id,
-          parentTurnId: O.some(first.turn.id),
-          role: "assistant",
-          content: docOf("Hi there"),
-        });
+        const second = yield* store.appendTurn(
+          AppendTurnInput.make({
+            threadId: thread.id,
+            parentTurnId: O.some(first.turn.id),
+            role: "assistant",
+            content: docOf("Hi there"),
+          })
+        );
         expect(second.turn.turnIndex).toBe(1);
         expect(O.getOrNull(second.turn.parentTurnId)).toStrictEqual(first.turn.id);
 
@@ -150,22 +158,32 @@ describe("ThreadStore in-memory", () => {
         const workspaceA = yield* S.decodeEffect(WorkspaceIdentity.WorkspaceId)(2);
         const workspaceB = yield* S.decodeEffect(WorkspaceIdentity.WorkspaceId)(3);
 
-        const threadA = yield* store.createThread({ title: "Thread A", workspaceId: workspaceA });
-        const threadB = yield* store.createThread({ title: "Thread B", workspaceId: workspaceB });
+        const threadA = yield* store.createThread(
+          CreateThreadInput.make({ title: "Thread A", workspaceId: workspaceA })
+        );
+        const threadB = yield* store.createThread(
+          CreateThreadInput.make({ title: "Thread B", workspaceId: workspaceB })
+        );
 
-        yield* store.appendTurn({ threadId: threadA.id, parentTurnId: O.none(), role: "user", content: docOf("A1") });
-        yield* store.appendTurn({
-          threadId: threadA.id,
-          parentTurnId: O.none(),
-          role: "assistant",
-          content: docOf("A2"),
-        });
-        const appendedB = yield* store.appendTurn({
-          threadId: threadB.id,
-          parentTurnId: O.none(),
-          role: "user",
-          content: docOf("B1"),
-        });
+        yield* store.appendTurn(
+          AppendTurnInput.make({ threadId: threadA.id, parentTurnId: O.none(), role: "user", content: docOf("A1") })
+        );
+        yield* store.appendTurn(
+          AppendTurnInput.make({
+            threadId: threadA.id,
+            parentTurnId: O.none(),
+            role: "assistant",
+            content: docOf("A2"),
+          })
+        );
+        const appendedB = yield* store.appendTurn(
+          AppendTurnInput.make({
+            threadId: threadB.id,
+            parentTurnId: O.none(),
+            role: "user",
+            content: docOf("B1"),
+          })
+        );
 
         const threadsA = yield* store.listThreads(workspaceA);
         const threadsB = yield* store.listThreads(workspaceB);
@@ -190,7 +208,9 @@ describe("ThreadStore in-memory", () => {
         const workspaceId = yield* S.decodeEffect(WorkspaceIdentity.WorkspaceId)(2);
 
         const created = yield* Effect.all(
-          A.makeBy(concurrency, (index) => store.createThread({ title: `Concurrent ${index}`, workspaceId })),
+          A.makeBy(concurrency, (index) =>
+            store.createThread(CreateThreadInput.make({ title: `Concurrent ${index}`, workspaceId }))
+          ),
           { concurrency }
         );
         const persisted = yield* store.listThreads(workspaceId);
@@ -206,12 +226,14 @@ describe("ThreadStore in-memory", () => {
 
         const appended = yield* Effect.all(
           A.makeBy(concurrency, (index) =>
-            store.appendTurn({
-              threadId: thread.id,
-              parentTurnId: O.none(),
-              role: "user",
-              content: docOf(`Concurrent ${index}`),
-            })
+            store.appendTurn(
+              AppendTurnInput.make({
+                threadId: thread.id,
+                parentTurnId: O.none(),
+                role: "user",
+                content: docOf(`Concurrent ${index}`),
+              })
+            )
           ),
           { concurrency }
         );
@@ -232,7 +254,9 @@ describe("ThreadStore in-memory", () => {
         const store = yield* makeTestThreadStore;
         const missing = yield* decodeWorkspaceIdentityThreadId(999);
         const error = yield* store
-          .appendTurn({ threadId: missing, parentTurnId: O.none(), role: "user", content: docOf("x") })
+          .appendTurn(
+            AppendTurnInput.make({ threadId: missing, parentTurnId: O.none(), role: "user", content: docOf("x") })
+          )
           .pipe(Effect.flip);
         expect(error._tag).toBe("ThreadStoreNotFound");
       })
@@ -245,7 +269,9 @@ describe("ThreadStore in-memory", () => {
       Effect.fnUntraced(function* () {
         const store = yield* makeInMemoryThreadStore();
         const workspaceId = yield* S.decodeEffect(WorkspaceIdentity.WorkspaceId)(2);
-        const error = yield* store.createThread({ title: "Unavailable", workspaceId }).pipe(Effect.flip);
+        const error = yield* store
+          .createThread(CreateThreadInput.make({ title: "Unavailable", workspaceId }))
+          .pipe(Effect.flip);
 
         expect(error._tag).toBe("ThreadStoreUnavailable");
         expect(error.reason).toBe("generate Thread public id failed");
@@ -294,18 +320,22 @@ describe("ThreadStore in-memory", () => {
         const store = yield* makeTestThreadStore;
         const workspaceId = yield* S.decodeEffect(WorkspaceIdentity.WorkspaceId)(2);
 
-        const thread = yield* store.createThread({ title: "New thread", workspaceId });
+        const thread = yield* store.createThread(CreateThreadInput.make({ title: "New thread", workspaceId }));
 
-        yield* store.setTitleIfEmpty({
-          threadId: thread.id,
-          emptyTitle: "New thread",
-          title: "Draft fee memo",
-        });
-        yield* store.setTitleIfEmpty({
-          threadId: thread.id,
-          emptyTitle: "New thread",
-          title: "Ignored replacement",
-        });
+        yield* store.setTitleIfEmpty(
+          SetThreadTitleIfEmptyInput.make({
+            threadId: thread.id,
+            emptyTitle: "New thread",
+            title: "Draft fee memo",
+          })
+        );
+        yield* store.setTitleIfEmpty(
+          SetThreadTitleIfEmptyInput.make({
+            threadId: thread.id,
+            emptyTitle: "New thread",
+            title: "Ignored replacement",
+          })
+        );
 
         const threads = yield* store.listThreads(workspaceId);
         expect(A.map(threads, (thread) => thread.title)).toEqual(["Draft fee memo"]);
@@ -397,7 +427,9 @@ describe("ThreadStore in-memory", () => {
         const store = yield* makeTestThreadStore;
         const missing = yield* decodeWorkspaceIdentityThreadId(999);
         const error = yield* store
-          .setTitleIfEmpty({ threadId: missing, emptyTitle: "New thread", title: "Missing" })
+          .setTitleIfEmpty(
+            SetThreadTitleIfEmptyInput.make({ threadId: missing, emptyTitle: "New thread", title: "Missing" })
+          )
           .pipe(Effect.flip);
         expect(error._tag).toBe("ThreadStoreNotFound");
       })
@@ -417,16 +449,18 @@ describe("ThreadStore in-memory", () => {
         const workspaceId = yield* S.decodeEffect(WorkspaceIdentity.WorkspaceId)(2);
         const createdTime = yield* Clock.currentTimeMillis;
 
-        const thread = yield* store.createThread({ title: "New thread", workspaceId });
+        const thread = yield* store.createThread(CreateThreadInput.make({ title: "New thread", workspaceId }));
         expect(DateTime.toEpochMillis(thread.createdAt)).toBe(createdTime);
         expect(DateTime.toEpochMillis(thread.updatedAt)).toBe(createdTime);
 
-        const { message, turn } = yield* store.appendTurn({
-          threadId: thread.id,
-          parentTurnId: O.none(),
-          role: "user",
-          content: docOf("Hello"),
-        });
+        const { message, turn } = yield* store.appendTurn(
+          AppendTurnInput.make({
+            threadId: thread.id,
+            parentTurnId: O.none(),
+            role: "user",
+            content: docOf("Hello"),
+          })
+        );
         expect(DateTime.toEpochMillis(turn.createdAt)).toBe(createdTime);
         expect(DateTime.toEpochMillis(message.createdAt)).toBe(createdTime);
 

@@ -77,18 +77,19 @@ export type WarningLevel = typeof WarningLevel.Type;
  * @category models
  * @since 0.0.0
  */
-export class WarningPosition extends S.Class<WarningPosition>($I`WarningPosition`)(
-  {
+export class WarningPosition extends S.Opaque<WarningPosition, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: S.Finite.annotateKey({
       description: "Start offset of the problematic region in the source text.",
     }),
     end: S.Finite.annotateKey({
       description: "End offset of the problematic region in the source text.",
     }),
-  },
-  $I.annote("WarningPosition", {
-    description: "Character range of the region a citation warning refers to.",
-  })
+  }).pipe(
+    $I.annoteSchema("WarningPosition", {
+      description: "Character range of the region a citation warning refers to.",
+    })
+  )
 ) {}
 
 /**
@@ -119,8 +120,8 @@ export class WarningPosition extends S.Class<WarningPosition>($I`WarningPosition
  * @category models
  * @since 0.0.0
  */
-export class CitationWarning extends S.Class<CitationWarning>($I`CitationWarning`)(
-  {
+export class CitationWarning extends S.Opaque<CitationWarning, { readonly brand: unique symbol }>()(
+  S.Struct({
     level: WarningLevel.annotateKey({
       description: "Severity level of the warning.",
     }),
@@ -137,10 +138,11 @@ export class CitationWarning extends S.Class<CitationWarning>($I`CitationWarning
         description: "Additional free-form context about the warning.",
       })
     ),
-  },
-  $I.annote("CitationWarning", {
-    description: "A diagnostic emitted while parsing a citation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CitationWarning", {
+      description: "A diagnostic emitted while parsing a citation.",
+    })
+  )
 ) {}
 
 /**

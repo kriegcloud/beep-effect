@@ -64,7 +64,7 @@ const KitFieldProblem = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class KitFieldError extends S.TaggedError<KitFieldError>()(
+export class KitFieldError extends S.TaggedError<KitFieldError, { readonly brand: unique symbol }>()(
   "KitFieldError",
   {
     problem: KitFieldProblem,

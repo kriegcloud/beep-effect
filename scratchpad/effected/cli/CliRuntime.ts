@@ -43,7 +43,7 @@ import * as P from "effect/Predicate";
 const $I = $ScratchpadId.create("effected/cli/CliRuntime");
 
 /** A runtime invariant failure or a non-Error value wrapped for teardown. */
-class CliRuntimeError extends S.TaggedError<CliRuntimeError>($I`CliRuntimeError`)(
+class CliRuntimeError extends S.TaggedError<CliRuntimeError, { readonly brand: unique symbol }>($I`CliRuntimeError`)(
 	"CliRuntimeError",
 	{
 		message: S.String.annotate({ description: "The runtime invariant or reported failure that needs teardown handling." }),

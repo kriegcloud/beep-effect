@@ -6,13 +6,15 @@ import * as S from "effect/Schema";
 const $I = make("probe").$ProbeId.create("Widget");
 const $Bound = make("probe", { authority: "https://ns.beep.sh/", prefix: "beep" }).$ProbeId.create("Widget");
 
-class WidgetError extends S.TaggedError<WidgetError>($I`WidgetError`)(
+class WidgetError extends S.TaggedError<WidgetError, { readonly brand: unique symbol }>($I`WidgetError`)(
   "WidgetError",
   { reason: S.String, attempts: S.Finite },
   $I.annoteError<WidgetError>("WidgetError", { description: "Widget failed." })
 ) {}
 
-class BoundWidgetError extends S.TaggedError<BoundWidgetError>($Bound`BoundWidgetError`)(
+class BoundWidgetError extends S.TaggedError<BoundWidgetError, { readonly brand: unique symbol }>(
+  $Bound`BoundWidgetError`
+)(
   "BoundWidgetError",
   { reason: S.String },
   $Bound.annoteError<BoundWidgetError>("BoundWidgetError", { description: "Bound widget failed." })

@@ -122,19 +122,20 @@ export const EpistemicPolicyRevisionConfig = Config.schema(PolicyRevision, "EPIS
  * @category configuration
  * @since 0.0.0
  */
-export class EpistemicServerConfig extends S.Class<EpistemicServerConfig>($I`EpistemicServerConfig`)(
-  {
+export class EpistemicServerConfig extends S.Opaque<EpistemicServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     destinationAllowlist: S.Array(SinkDestination).annotateKey({
       description: "Destinations governed egress may reach; empty denies every destination.",
     }),
     policyRevision: PolicyRevision.annotateKey({
       description: "Policy revision every grant and execution record is pinned to.",
     }),
-  },
-  $I.annote("EpistemicServerConfig", {
-    title: "Epistemic server config",
-    description: "Server-only execution-authority settings: destination allowlist and pinned policy revision.",
-  })
+  }).pipe(
+    $I.annoteSchema("EpistemicServerConfig", {
+      title: "Epistemic server config",
+      description: "Server-only execution-authority settings: destination allowlist and pinned policy revision.",
+    })
+  )
 ) {}
 
 /**

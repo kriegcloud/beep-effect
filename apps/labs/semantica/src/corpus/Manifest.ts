@@ -122,11 +122,12 @@ const CorpusManifestRowDefinition = CorpusManifestRowFields.check(CorpusManifest
  * @category models
  * @since 0.0.0
  */
-export class CorpusManifestRow extends S.Class<CorpusManifestRow>($I`CorpusManifestRow`)(
-  CorpusManifestRowDefinition,
-  $I.annote("CorpusManifestRow", {
-    description: "Content hash, byte length, and deterministic relative path for one W1 paper.",
-  })
+export class CorpusManifestRow extends S.Opaque<CorpusManifestRow, { readonly brand: unique symbol }>()(
+  CorpusManifestRowDefinition.pipe(
+    $I.annoteSchema("CorpusManifestRow", {
+      description: "Content hash, byte length, and deterministic relative path for one W1 paper.",
+    })
+  )
 ) {}
 
 const CorpusManifestSelectionFields = S.Struct({
@@ -169,11 +170,12 @@ const CorpusManifestSelectionDefinition = CorpusManifestSelectionFields.check(
  * @category models
  * @since 0.0.0
  */
-export class CorpusManifestSelection extends S.Class<CorpusManifestSelection>($I`CorpusManifestSelection`)(
-  CorpusManifestSelectionDefinition,
-  $I.annote("CorpusManifestSelection", {
-    description: "Deterministic first-25 selection rule and source PDF count used to define W1.",
-  })
+export class CorpusManifestSelection extends S.Opaque<CorpusManifestSelection, { readonly brand: unique symbol }>()(
+  CorpusManifestSelectionDefinition.pipe(
+    $I.annoteSchema("CorpusManifestSelection", {
+      description: "Deterministic first-25 selection rule and source PDF count used to define W1.",
+    })
+  )
 ) {}
 
 const CorpusManifestFields = S.Struct({
@@ -243,11 +245,12 @@ const CorpusManifestDefinition = CorpusManifestFields.check(CorpusManifestChecks
  * @category models
  * @since 0.0.0
  */
-export class CorpusManifest extends S.Class<CorpusManifest>($I`CorpusManifest`)(
-  CorpusManifestDefinition,
-  $I.annote("CorpusManifest", {
-    description: "Schema-refined, content-addressed manifest that defines the W1 corpus.",
-  })
+export class CorpusManifest extends S.Opaque<CorpusManifest, { readonly brand: unique symbol }>()(
+  CorpusManifestDefinition.pipe(
+    $I.annoteSchema("CorpusManifest", {
+      description: "Schema-refined, content-addressed manifest that defines the W1 corpus.",
+    })
+  )
 ) {}
 
 const ManifestDriftKind = LiteralKit(["missing-file", "sha256-mismatch", "bytes-mismatch"]).annotate(
@@ -256,41 +259,44 @@ const ManifestDriftKind = LiteralKit(["missing-file", "sha256-mismatch", "bytes-
   })
 );
 
-class MissingManifestFile extends S.Class<MissingManifestFile>($I`MissingManifestFile`)(
-  {
+class MissingManifestFile extends S.Opaque<MissingManifestFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("missing-file"),
     id: CorpusPaperId,
     relativePath: S.NonEmptyString,
-  },
-  $I.annote("MissingManifestFile", {
-    description: "Manifest row whose selected PDF is absent from the configured corpus root.",
-  })
+  }).pipe(
+    $I.annoteSchema("MissingManifestFile", {
+      description: "Manifest row whose selected PDF is absent from the configured corpus root.",
+    })
+  )
 ) {}
 
-class ManifestSha256Mismatch extends S.Class<ManifestSha256Mismatch>($I`ManifestSha256Mismatch`)(
-  {
+class ManifestSha256Mismatch extends S.Opaque<ManifestSha256Mismatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("sha256-mismatch"),
     id: CorpusPaperId,
     relativePath: S.NonEmptyString,
     expectedSha256: Sha256Hex,
     actualSha256: Sha256Hex,
-  },
-  $I.annote("ManifestSha256Mismatch", {
-    description: "Manifest row whose selected PDF bytes have a different SHA-256 digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestSha256Mismatch", {
+      description: "Manifest row whose selected PDF bytes have a different SHA-256 digest.",
+    })
+  )
 ) {}
 
-class ManifestBytesMismatch extends S.Class<ManifestBytesMismatch>($I`ManifestBytesMismatch`)(
-  {
+class ManifestBytesMismatch extends S.Opaque<ManifestBytesMismatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("bytes-mismatch"),
     id: CorpusPaperId,
     relativePath: S.NonEmptyString,
     expectedBytes: S.Natural,
     actualBytes: S.Natural,
-  },
-  $I.annote("ManifestBytesMismatch", {
-    description: "Manifest row whose selected PDF has a different byte length.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestBytesMismatch", {
+      description: "Manifest row whose selected PDF has a different byte length.",
+    })
+  )
 ) {}
 
 /**
@@ -361,7 +367,9 @@ const CorpusRootUnavailableReason = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class CorpusRootUnavailable extends S.TaggedError<CorpusRootUnavailable>($I`CorpusRootUnavailable`)(
+export class CorpusRootUnavailable extends S.TaggedError<CorpusRootUnavailable, { readonly brand: unique symbol }>(
+  $I`CorpusRootUnavailable`
+)(
   "CorpusRootUnavailable",
   {
     message: S.NonEmptyString,
@@ -395,7 +403,7 @@ export class CorpusRootUnavailable extends S.TaggedError<CorpusRootUnavailable>(
  * @category errors
  * @since 0.0.0
  */
-export class ManifestDrift extends S.TaggedError<ManifestDrift>($I`ManifestDrift`)(
+export class ManifestDrift extends S.TaggedError<ManifestDrift, { readonly brand: unique symbol }>($I`ManifestDrift`)(
   "ManifestDrift",
   {
     message: S.NonEmptyString,
@@ -425,7 +433,9 @@ export class ManifestDrift extends S.TaggedError<ManifestDrift>($I`ManifestDrift
  * @category errors
  * @since 0.0.0
  */
-export class ManifestDecodeFailed extends S.TaggedError<ManifestDecodeFailed>($I`ManifestDecodeFailed`)(
+export class ManifestDecodeFailed extends S.TaggedError<ManifestDecodeFailed, { readonly brand: unique symbol }>(
+  $I`ManifestDecodeFailed`
+)(
   "ManifestDecodeFailed",
   {
     message: S.NonEmptyString,
@@ -454,7 +464,9 @@ export class ManifestDecodeFailed extends S.TaggedError<ManifestDecodeFailed>($I
  * @category errors
  * @since 0.0.0
  */
-export class ManifestWriteFailed extends S.TaggedError<ManifestWriteFailed>($I`ManifestWriteFailed`)(
+export class ManifestWriteFailed extends S.TaggedError<ManifestWriteFailed, { readonly brand: unique symbol }>(
+  $I`ManifestWriteFailed`
+)(
   "ManifestWriteFailed",
   {
     message: S.NonEmptyString,

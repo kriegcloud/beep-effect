@@ -76,7 +76,9 @@ export type Graph3DDriverErrorReason = typeof Graph3DDriverErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class Graph3DDriverError extends S.TaggedError<Graph3DDriverError>($I`Graph3DDriverError`)(
+export class Graph3DDriverError extends S.TaggedError<Graph3DDriverError, { readonly brand: unique symbol }>(
+  $I`Graph3DDriverError`
+)(
   "Graph3DDriverError",
   {
     reason: Graph3DDriverErrorReason,

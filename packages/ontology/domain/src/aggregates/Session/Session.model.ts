@@ -206,17 +206,18 @@ export type ChangeOperation = typeof ChangeOperation.Type;
  * @category models
  * @since 0.0.0
  */
-export class SessionGraphPartitions extends S.Class<SessionGraphPartitions>($I`SessionGraphPartitions`)(
-  {
+export class SessionGraphPartitions extends S.Opaque<SessionGraphPartitions, { readonly brand: unique symbol }>()(
+  S.Struct({
     asserted: Dataset,
     ontologies: Dataset,
     inferred: Dataset,
     shapes: Dataset,
     provenance: Dataset,
-  },
-  $I.annote("SessionGraphPartitions", {
-    description: "Derived RDF datasets for every ontology session named graph partition.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionGraphPartitions", {
+      description: "Derived RDF datasets for every ontology session named graph partition.",
+    })
+  )
 ) {}
 
 /**
@@ -241,16 +242,17 @@ export class SessionGraphPartitions extends S.Class<SessionGraphPartitions>($I`S
  * @category models
  * @since 0.0.0
  */
-export class NamedGraphPartition extends S.Class<NamedGraphPartition>($I`NamedGraphPartition`)(
-  {
+export class NamedGraphPartition extends S.Opaque<NamedGraphPartition, { readonly brand: unique symbol }>()(
+  S.Struct({
     partition: GraphPartition,
     graph: NamedNode,
     dataset: Dataset,
     excludedFromReasoning: S.Boolean,
-  },
-  $I.annote("NamedGraphPartition", {
-    description: "Named graph view derived from a session partition.",
-  })
+  }).pipe(
+    $I.annoteSchema("NamedGraphPartition", {
+      description: "Named graph view derived from a session partition.",
+    })
+  )
 ) {}
 
 /**
@@ -272,14 +274,15 @@ export class NamedGraphPartition extends S.Class<NamedGraphPartition>($I`NamedGr
  * @category models
  * @since 0.0.0
  */
-export class SessionChangeDelta extends S.Class<SessionChangeDelta>($I`SessionChangeDelta`)(
-  {
+export class SessionChangeDelta extends S.Opaque<SessionChangeDelta, { readonly brand: unique symbol }>()(
+  S.Struct({
     added: S.Array(Quad),
     removed: S.Array(Quad),
-  },
-  $I.annote("SessionChangeDelta", {
-    description: "Real RDF quad delta produced by applying ontology change operations.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionChangeDelta", {
+      description: "Real RDF quad delta produced by applying ontology change operations.",
+    })
+  )
 ) {}
 
 // fallow-ignore-next-line code-duplication -- domain Session and use-cases ports both default PrefixMap empty; jsdoc-carrier migration only rewrote comment carriers and Fallow attributes the pre-existing twin as introduced
@@ -312,16 +315,17 @@ const PrefixMapWithEmptyDefault = PrefixMap.pipe(
  * @category models
  * @since 0.0.0
  */
-export class Session extends S.Class<Session>($I`Session`)(
-  {
+export class Session extends S.Opaque<Session, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: SessionId,
     baseDataset: Dataset,
     prefixes: PrefixMapWithEmptyDefault,
     changeLog: S.Array(ChangeOperation),
-  },
-  $I.annote("Session", {
-    description: "Ontology workbench session with base dataset and ordered change log.",
-  })
+  }).pipe(
+    $I.annoteSchema("Session", {
+      description: "Ontology workbench session with base dataset and ordered change log.",
+    })
+  )
 ) {}
 
 /**
@@ -352,15 +356,16 @@ export class Session extends S.Class<Session>($I`Session`)(
  * @category models
  * @since 0.0.0
  */
-export class SessionChangeApplication extends S.Class<SessionChangeApplication>($I`SessionChangeApplication`)(
-  {
+export class SessionChangeApplication extends S.Opaque<SessionChangeApplication, { readonly brand: unique symbol }>()(
+  S.Struct({
     session: Session,
     delta: SessionChangeDelta,
     operations: S.Array(ChangeOperation),
-  },
-  $I.annote("SessionChangeApplication", {
-    description: "Applied session batch containing the updated session and real dataset delta.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionChangeApplication", {
+      description: "Applied session batch containing the updated session and real dataset delta.",
+    })
+  )
 ) {}
 
 /**
@@ -384,15 +389,16 @@ export class SessionChangeApplication extends S.Class<SessionChangeApplication>(
  * @category models
  * @since 0.0.0
  */
-export class CreateSessionInput extends S.Class<CreateSessionInput>($I`CreateSessionInput`)(
-  {
+export class CreateSessionInput extends S.Opaque<CreateSessionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: SessionId,
     baseDataset: Dataset,
     prefixes: PrefixMapWithEmptyDefault,
-  },
-  $I.annote("CreateSessionInput", {
-    description: "Input for creating an ontology session.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateSessionInput", {
+      description: "Input for creating an ontology session.",
+    })
+  )
 ) {}
 
 const emptyDataset = () => makeDataset([]);
@@ -700,7 +706,7 @@ export const changeDeltaForOperation: {
  *
  * ```ts
  * import { applyChangeToPartitions, ChangeOperation, emptySessionGraphPartitions, graphPartitionIri } from "@beep/ontology-domain/aggregates/Session"
- * import { makeNamedNode, makeQuad } from "@beep/rdf/Rdf"
+ * import { MakeQuadOptionsInput, makeNamedNode, makeQuad } from "@beep/rdf/Rdf"
  *
  * const next = applyChangeToPartitions(
  *   emptySessionGraphPartitions(),
@@ -710,10 +716,10 @@ export const changeDeltaForOperation: {
  *     quad: makeQuad(
  *       makeNamedNode("https://example.test/alice"),
  *       makeNamedNode("https://example.test/knows"),
- *       {
+ *       MakeQuadOptionsInput.make({
  *         object: makeNamedNode("https://example.test/bob"),
  *         graph: makeNamedNode(graphPartitionIri("ontologies"))
- *       }
+ *       })
  *     )
  *   })
  * )

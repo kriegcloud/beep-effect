@@ -256,7 +256,7 @@ export type ClassifyBatchInput = typeof ClassifyBatchInput.Type;
  * @category errors
  * @since 0.0.0
  */
-export class ClassificationError extends S.TaggedError<ClassificationError>($I`ClassificationError`)(
+export class ClassificationError extends S.TaggedError<ClassificationError, { readonly brand: unique symbol }>($I`ClassificationError`)(
   "ClassificationError",
   {
     message: ErrorMessage.annotateKey({

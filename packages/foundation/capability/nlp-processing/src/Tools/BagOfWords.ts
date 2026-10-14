@@ -12,27 +12,29 @@ import { AiNGram, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/BagOfWords");
 
-class BagOfWordsParameters extends S.Class<BagOfWordsParameters>($I`BagOfWordsParameters`)(
-  {
+class BagOfWordsParameters extends S.Opaque<BagOfWordsParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text to compute a bag-of-words term-frequency table from",
       examples: ["the cat sat on the mat"],
     }),
-  },
-  $I.annote("BagOfWordsParameters", {
-    description: "Text input used to compute a bag-of-words term-frequency table.",
-  })
+  }).pipe(
+    $I.annoteSchema("BagOfWordsParameters", {
+      description: "Text input used to compute a bag-of-words term-frequency table.",
+    })
+  )
 ) {}
 
-class BagOfWordsSuccess extends S.Class<BagOfWordsSuccess>($I`BagOfWordsSuccess`)(
-  {
+class BagOfWordsSuccess extends S.Opaque<BagOfWordsSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     terms: S.Array(AiNGram),
     totalTerms: S.Natural,
     uniqueTerms: S.Natural,
-  },
-  $I.annote("BagOfWordsSuccess", {
-    description: "Bag-of-words term-frequency table with total and unique term counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("BagOfWordsSuccess", {
+      description: "Bag-of-words term-frequency table with total and unique term counts.",
+    })
+  )
 ) {}
 
 /**

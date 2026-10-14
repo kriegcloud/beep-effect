@@ -65,11 +65,12 @@ const ecfrGetStructureToolName = productionToolName("ecfr", ecfrGetStructureOper
  * @category tool-schemas
  * @since 0.0.0
  */
-export class EcfrListTitlesParams extends S.Class<EcfrListTitlesParams>($I`EcfrListTitlesParams`)(
-  {},
-  $I.annote("EcfrListTitlesParams", {
-    description: "Empty MCP parameter object for the no-argument eCFR listTitles operation.",
-  })
+export class EcfrListTitlesParams extends S.Opaque<EcfrListTitlesParams, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("EcfrListTitlesParams", {
+      description: "Empty MCP parameter object for the no-argument eCFR listTitles operation.",
+    })
+  )
 ) {}
 
 /**
@@ -89,7 +90,9 @@ export class EcfrListTitlesParams extends S.Class<EcfrListTitlesParams>($I`EcfrL
  * @category errors
  * @since 0.0.0
  */
-export class GovinfoSearchFailure extends S.TaggedError<GovinfoSearchFailure>($I`GovinfoSearchFailure`)(
+export class GovinfoSearchFailure extends S.TaggedError<GovinfoSearchFailure, { readonly brand: unique symbol }>(
+  $I`GovinfoSearchFailure`
+)(
   "GovinfoSearchFailure",
   {
     reason: GovinfoErrorReason,

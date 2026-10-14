@@ -32,9 +32,12 @@ const decodeObservedCauseJson = S.decodeUnknownEffect(observedCauseJson);
 const encodeObservedExitJson = S.encodeEffect(observedExitJson);
 const decodeObservedExitJson = S.decodeUnknownEffect(observedExitJson);
 
-class TestObservedError extends S.TaggedError<TestObservedError>()("TestObservedError", {
-  message: S.String,
-}) {}
+class TestObservedError extends S.TaggedError<TestObservedError, { readonly brand: unique symbol }>()(
+  "TestObservedError",
+  {
+    message: S.String,
+  }
+) {}
 
 describe("Observed", () => {
   it.effect(

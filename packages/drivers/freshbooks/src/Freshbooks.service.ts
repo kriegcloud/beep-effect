@@ -86,18 +86,19 @@ export const FRESHBOOKS_MAX_PER_PAGE = 100;
  * @category models
  * @since 0.0.0
  */
-export class ResolvedFreshbooksConfig extends S.Class<ResolvedFreshbooksConfig>($I`ResolvedFreshbooksConfig`)(
-  {
+export class ResolvedFreshbooksConfig extends S.Opaque<ResolvedFreshbooksConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientId: S.NonEmptyString,
     clientSecret: S.Redacted(S.String),
     redirectUri: S.String,
     apiUrl: FreshbooksBaseUrl,
     authUrl: FreshbooksBaseUrl,
     headers: S.Record(S.String, S.String),
-  },
-  $I.annote("ResolvedFreshbooksConfig", {
-    description: "Resolved runtime configuration for the FreshBooks services.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedFreshbooksConfig", {
+      description: "Resolved runtime configuration for the FreshBooks services.",
+    })
+  )
 ) {}
 
 /**

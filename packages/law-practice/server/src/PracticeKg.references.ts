@@ -94,14 +94,15 @@ ORDER BY digest, number, source`;
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgReferenceScans extends S.Class<PracticeKgReferenceScans>($I`PracticeKgReferenceScans`)(
-  {
+export class PracticeKgReferenceScans extends S.Opaque<PracticeKgReferenceScans, { readonly brand: unique symbol }>()(
+  S.Struct({
     docketReferences: S.Array(PracticeKgDocketReferenceRow),
     numberMentions: S.Array(PracticeKgNumberMentionRow),
-  },
-  $I.annote("PracticeKgReferenceScans", {
-    description: "Client-prefixed docket references and USPTO number mentions scanned from docket documents.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgReferenceScans", {
+      description: "Client-prefixed docket references and USPTO number mentions scanned from docket documents.",
+    })
+  )
 ) {}
 
 /**

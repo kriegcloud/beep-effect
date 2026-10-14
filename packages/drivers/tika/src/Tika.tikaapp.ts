@@ -18,7 +18,7 @@ import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { PosInt } from "./internal/PosInt.ts";
 import { tikaOperationError } from "./Tika.error-translation.ts";
-import { makeTikaError } from "./Tika.errors.ts";
+import { makeTikaError, TikaErrorOptions } from "./Tika.errors.ts";
 import { decodeTikaResponseRecord, readTikaContentText, stringifyTikaMetadata } from "./Tika.response.ts";
 import { TikaFileProcessingEngine, TikaFileProcessingEngineDescriptor } from "./Tika.service.ts";
 import type { ExportArchiveOperation, ExtractFileOperation } from "@beep/file-processing/Operation";
@@ -46,8 +46,8 @@ const tikaAppEngineConfigTimeoutMillisDefault = PosInt.make(defaultTimeoutMillis
  * @category configuration
  * @since 0.0.0
  */
-export class TikaAppEngineConfig extends S.Class<TikaAppEngineConfig>($I`TikaAppEngineConfig`)(
-  {
+export class TikaAppEngineConfig extends S.Opaque<TikaAppEngineConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     jarPath: S.NonEmptyString.annotateKey({
       description: "Path to the tika-app JAR file.",
     }),
@@ -63,10 +63,12 @@ export class TikaAppEngineConfig extends S.Class<TikaAppEngineConfig>($I`TikaApp
     ).annotateKey({
       description: "Per-file tika-app extraction timeout in milliseconds.",
     }),
-  },
-  $I.annote("TikaAppEngineConfig", {
-    description: "Configuration for the real tika-app subprocess engine: jar path, java binary, and per-file timeout.",
-  })
+  }).pipe(
+    $I.annoteSchema("TikaAppEngineConfig", {
+      description:
+        "Configuration for the real tika-app subprocess engine: jar path, java binary, and per-file timeout.",
+    })
+  )
 ) {}
 
 /**
@@ -139,11 +141,11 @@ export const makeTikaAppFileProcessingEngine = Effect.fn("Tika.makeTikaAppFilePr
           })
         )
       ),
-      Effect.mapError(() => makeTikaError("engine-unavailable", { cause: "tika spawn failed" }))
+      Effect.mapError(() => makeTikaError("engine-unavailable", TikaErrorOptions.make({ cause: "tika spawn failed" })))
     );
 
     if (result.exitCode !== 0) {
-      return yield* makeTikaError("response-status", { cause: `exit ${result.exitCode}` });
+      return yield* makeTikaError("response-status", TikaErrorOptions.make({ cause: `exit ${result.exitCode}` }));
     }
 
     return result.stdout;
@@ -202,13 +204,20 @@ export const makeTikaAppFileProcessingEngine = Effect.fn("Tika.makeTikaAppFilePr
           const directory = yield* fs
             .makeTempDirectoryScoped({ prefix: "beep-tika-app-" })
             .pipe(
-              Effect.mapError(() => makeTikaError("engine-unavailable", { cause: "source snapshot directory failed" }))
+              Effect.mapError(() =>
+                makeTikaError(
+                  "engine-unavailable",
+                  TikaErrorOptions.make({ cause: "source snapshot directory failed" })
+                )
+              )
             );
           const sourcePath = path.join(directory, `source.${operation.source.extension}`);
           yield* fs
             .writeFile(sourcePath, bytes, { flag: "wx", mode: 0o600 })
             .pipe(
-              Effect.mapError(() => makeTikaError("engine-unavailable", { cause: "source snapshot write failed" }))
+              Effect.mapError(() =>
+                makeTikaError("engine-unavailable", TikaErrorOptions.make({ cause: "source snapshot write failed" }))
+              )
             );
           return yield* extractImpl(operation, sourcePath);
         })

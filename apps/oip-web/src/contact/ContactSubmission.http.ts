@@ -39,14 +39,15 @@ const contactClientBaseUrl = (): string =>
  * @category schemas
  * @since 0.0.0
  */
-export class ContactSubmissionAccepted extends S.Class<ContactSubmissionAccepted>($I`ContactSubmissionAccepted`)(
-  {
+export class ContactSubmissionAccepted extends S.Opaque<ContactSubmissionAccepted, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: ContactResponseMessage,
     status: S.tag("accepted"),
-  },
-  $I.annote("ContactSubmissionAccepted", {
-    description: "Accepted OIP contact response body.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContactSubmissionAccepted", {
+      description: "Accepted OIP contact response body.",
+    })
+  )
 ) {}
 
 /**
@@ -68,14 +69,15 @@ export class ContactSubmissionAccepted extends S.Class<ContactSubmissionAccepted
  * @category schemas
  * @since 0.0.0
  */
-export class ContactSubmissionRejected extends S.Class<ContactSubmissionRejected>($I`ContactSubmissionRejected`)(
-  {
+export class ContactSubmissionRejected extends S.Opaque<ContactSubmissionRejected, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: ContactResponseMessage,
     status: S.tag("rejected"),
-  },
-  $I.annote("ContactSubmissionRejected", {
-    description: "Rejected OIP contact response body.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContactSubmissionRejected", {
+      description: "Rejected OIP contact response body.",
+    })
+  )
 ) {}
 
 /**

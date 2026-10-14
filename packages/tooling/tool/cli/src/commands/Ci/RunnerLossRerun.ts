@@ -221,14 +221,15 @@ export type RunnerLossHeadStatus = typeof RunnerLossHeadStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class RunnerLossHead extends S.Class<RunnerLossHead>($I`RunnerLossHead`)(
-  {
+export class RunnerLossHead extends S.Opaque<RunnerLossHead, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: RunnerLossHeadStatus,
     currentSha: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("RunnerLossHead", {
-    description: "Whether a workflow run's SHA is still the head of its pull request or branch.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunnerLossHead", {
+      description: "Whether a workflow run's SHA is still the head of its pull request or branch.",
+    })
+  )
 ) {}
 
 const runnerLossRunPullRequestsDefault = A.empty<number>();
@@ -265,8 +266,8 @@ const runnerLossRunPullRequestsDefault = A.empty<number>();
  * @category models
  * @since 0.0.0
  */
-export class RunnerLossRun extends S.Class<RunnerLossRun>($I`RunnerLossRun`)(
-  {
+export class RunnerLossRun extends S.Opaque<RunnerLossRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Finite,
     name: S.String,
     event: S.String,
@@ -280,10 +281,11 @@ export class RunnerLossRun extends S.Class<RunnerLossRun>($I`RunnerLossRun`)(
       S.withConstructorDefault(Effect.succeed(runnerLossRunPullRequestsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(runnerLossRunPullRequestsDefault))
     ),
-  },
-  $I.annote("RunnerLossRun", {
-    description: "The fields of a GitHub Actions workflow run the runner-loss rerun decision reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunnerLossRun", {
+      description: "The fields of a GitHub Actions workflow run the runner-loss rerun decision reads.",
+    })
+  )
 ) {}
 
 /**
@@ -311,17 +313,18 @@ export class RunnerLossRun extends S.Class<RunnerLossRun>($I`RunnerLossRun`)(
  * @category models
  * @since 0.0.0
  */
-export class RunnerLossFailedJob extends S.Class<RunnerLossFailedJob>($I`RunnerLossFailedJob`)(
-  {
+export class RunnerLossFailedJob extends S.Opaque<RunnerLossFailedJob, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Finite,
     name: S.String,
     runnerName: S.NullOr(S.String),
     runnerLoss: S.Boolean,
     reruns: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(0)), S.withDecodingDefaultTypeKey(Effect.succeed(0))),
-  },
-  $I.annote("RunnerLossFailedJob", {
-    description: "One failed job of a workflow-run attempt, whether its runner was lost, and its prior reruns.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunnerLossFailedJob", {
+      description: "One failed job of a workflow-run attempt, whether its runner was lost, and its prior reruns.",
+    })
+  )
 ) {}
 
 /**
@@ -360,8 +363,8 @@ export class RunnerLossFailedJob extends S.Class<RunnerLossFailedJob>($I`RunnerL
  * @category models
  * @since 0.0.0
  */
-export class RunnerLossRerunInput extends S.Class<RunnerLossRerunInput>($I`RunnerLossRerunInput`)(
-  {
+export class RunnerLossRerunInput extends S.Opaque<RunnerLossRerunInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     run: RunnerLossRun,
     attempt: S.Finite,
     maxAttempt: S.Finite.pipe(
@@ -374,10 +377,11 @@ export class RunnerLossRerunInput extends S.Class<RunnerLossRerunInput>($I`Runne
     ),
     failedJobs: S.Array(RunnerLossFailedJob),
     head: RunnerLossHead,
-  },
-  $I.annote("RunnerLossRerunInput", {
-    description: "The run, attempt, failed jobs, bounds, and head finding the runner-loss rerun decision reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunnerLossRerunInput", {
+      description: "The run, attempt, failed jobs, bounds, and head finding the runner-loss rerun decision reads.",
+    })
+  )
 ) {}
 
 /**
@@ -411,8 +415,8 @@ export class RunnerLossRerunInput extends S.Class<RunnerLossRerunInput>($I`Runne
  * @category models
  * @since 0.0.0
  */
-export class RunnerLossRerunDecision extends S.Class<RunnerLossRerunDecision>($I`RunnerLossRerunDecision`)(
-  {
+export class RunnerLossRerunDecision extends S.Opaque<RunnerLossRerunDecision, { readonly brand: unique symbol }>()(
+  S.Struct({
     rerun: S.Boolean,
     reason: RunnerLossRerunReason,
     runId: S.Finite,
@@ -423,10 +427,11 @@ export class RunnerLossRerunDecision extends S.Class<RunnerLossRerunDecision>($I
     lostJobs: S.Array(RunnerLossFailedJob),
     otherFailedJobs: S.Array(RunnerLossFailedJob),
     head: RunnerLossHead.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("RunnerLossRerunDecision", {
-    description: "Whether one lost job of a workflow-run attempt is re-run, with the jobs that decided it.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunnerLossRerunDecision", {
+      description: "Whether one lost job of a workflow-run attempt is re-run, with the jobs that decided it.",
+    })
+  )
 ) {}
 
 /**
@@ -456,14 +461,15 @@ export class RunnerLossRerunDecision extends S.Class<RunnerLossRerunDecision>($I
  * @category models
  * @since 0.0.0
  */
-export class RunnerLossRerunReport extends S.Class<RunnerLossRerunReport>($I`RunnerLossRerunReport`)(
-  {
+export class RunnerLossRerunReport extends S.Opaque<RunnerLossRerunReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     decision: RunnerLossRerunDecision,
     dryRun: S.Boolean,
-  },
-  $I.annote("RunnerLossRerunReport", {
-    description: "A runner-loss rerun decision and whether its rerun was only reported.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunnerLossRerunReport", {
+      description: "A runner-loss rerun decision and whether its rerun was only reported.",
+    })
+  )
 ) {}
 
 /**
@@ -481,14 +487,15 @@ export class RunnerLossRerunReport extends S.Class<RunnerLossRerunReport>($I`Run
  * @category models
  * @since 0.0.0
  */
-export class RunnerLossJobEvidence extends S.Class<RunnerLossJobEvidence>($I`RunnerLossJobEvidence`)(
-  {
+export class RunnerLossJobEvidence extends S.Opaque<RunnerLossJobEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     annotations: S.Array(S.String),
     reruns: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(0)), S.withDecodingDefaultTypeKey(Effect.succeed(0))),
-  },
-  $I.annote("RunnerLossJobEvidence", {
-    description: "The check-run annotation messages and prior rerun count a failed job is judged on.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunnerLossJobEvidence", {
+      description: "The check-run annotation messages and prior rerun count a failed job is judged on.",
+    })
+  )
 ) {}
 
 const isCopyOf = (job: CiWorkflowJob) => (prior: CiWorkflowJob) =>

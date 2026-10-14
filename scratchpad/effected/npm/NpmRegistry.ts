@@ -127,7 +127,7 @@ export type RegistryTarget = typeof RegistryTarget.Type & {
  * @category models
  * @since 0.0.0
  */
-export class PublishedVersion extends S.Class<PublishedVersion>($I`PublishedVersion`)({
+export class PublishedVersion extends S.Class<PublishedVersion, { readonly brand: unique symbol }>($I`PublishedVersion`)({
 	/** The package name as the registry reports it. */
 	name: S.String.annotateKey({ description: "The package name as the registry reports it." }),
 	/** The version as the registry reports it. */
@@ -162,7 +162,7 @@ export class PublishedVersion extends S.Class<PublishedVersion>($I`PublishedVers
  * @category models
  * @since 0.0.0
  */
-export class PublishTime extends S.Class<PublishTime>($I`PublishTime`)({
+export class PublishTime extends S.Class<PublishTime, { readonly brand: unique symbol }>($I`PublishTime`)({
 	/** The version this timestamp belongs to. */
 	version: S.String.annotateKey({ description: "The version this timestamp belongs to." }),
 	/** When it was published. */
@@ -245,7 +245,7 @@ const registryReadFailure = flow(S.decodeUnknownResult(RegistryReadFailureFromPa
  * @category errors
  * @since 0.0.0
  */
-export class RegistryReadError extends S.TaggedError<RegistryReadError>($I`RegistryReadError`)("RegistryReadError", RegistryReadErrorPayload, $I.annote("RegistryReadError", { description: "A registry read failed." })) {
+export class RegistryReadError extends S.TaggedError<RegistryReadError, { readonly brand: unique symbol }>($I`RegistryReadError`)("RegistryReadError", RegistryReadErrorPayload, $I.annote("RegistryReadError", { description: "A registry read failed." })) {
 	/**
 	 * Describes the failed registry read using its package, registry and failure kind.
 	 *
@@ -519,7 +519,7 @@ const make = Effect.fnUntraced(function* () {
 	return { version, versions, distTags, publishTimes } satisfies NpmRegistryShape;
 });
 
-class UnstubbedRegistryMethodError extends S.TaggedError<UnstubbedRegistryMethodError>($I`UnstubbedRegistryMethodError`)(
+class UnstubbedRegistryMethodError extends S.TaggedError<UnstubbedRegistryMethodError, { readonly brand: unique symbol }>($I`UnstubbedRegistryMethodError`)(
 	"UnstubbedRegistryMethodError",
 	{ message: S.String },
 	$I.annote("UnstubbedRegistryMethodError", { description: "An unstubbed registry test-double method was invoked." }),

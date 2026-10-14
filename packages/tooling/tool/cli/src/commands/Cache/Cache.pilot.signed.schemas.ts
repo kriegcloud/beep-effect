@@ -35,11 +35,12 @@ const $I = $RepoCliId.create("commands/Cache/Cache.pilot.signed.schemas");
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotTask extends S.Class<CacheSignedPilotTask>($I`CacheSignedPilotTask`)(
-  { ...CachePilotTask.fields, origin: LiteralKit(["fresh", "remote-hit"]) },
-  $I.annote("CacheSignedPilotTask", {
-    description: "Selected signed-profile task facts; dependencies retain fresh-only local observations.",
-  })
+export class CacheSignedPilotTask extends S.Opaque<CacheSignedPilotTask, { readonly brand: unique symbol }>()(
+  S.Struct({ ...CachePilotTask.fields, origin: LiteralKit(["fresh", "remote-hit"]) }).pipe(
+    $I.annoteSchema("CacheSignedPilotTask", {
+      description: "Selected signed-profile task facts; dependencies retain fresh-only local observations.",
+    })
+  )
 ) {}
 const SignedOutcome = S.TaggedUnion({
   Executed: {
@@ -66,11 +67,12 @@ const SignedOutcome = S.TaggedUnion({
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotRun extends S.Class<CacheSignedPilotRun>($I`CacheSignedPilotRun`)(
-  { ...CachePilotRun.fields, outcome: SignedOutcome },
-  $I.annote("CacheSignedPilotRun", {
-    description: "Signed selected-task execution; local hits and blocked selected tasks are not representable.",
-  })
+export class CacheSignedPilotRun extends S.Opaque<CacheSignedPilotRun, { readonly brand: unique symbol }>()(
+  S.Struct({ ...CachePilotRun.fields, outcome: SignedOutcome }).pipe(
+    $I.annoteSchema("CacheSignedPilotRun", {
+      description: "Signed selected-task execution; local hits and blocked selected tasks are not representable.",
+    })
+  )
 ) {}
 
 /**
@@ -92,8 +94,11 @@ export class CacheSignedPilotRun extends S.Class<CacheSignedPilotRun>($I`CacheSi
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotProtection extends S.Class<CacheSignedPilotProtection>($I`CacheSignedPilotProtection`)(
-  {
+export class CacheSignedPilotProtection extends S.Opaque<
+  CacheSignedPilotProtection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mechanism: S.tag("nested-reader-denial/v1"),
     protectedFiles: S.Literal(2),
     readsDenied: S.Literal(true),
@@ -101,11 +106,12 @@ export class CacheSignedPilotProtection extends S.Class<CacheSignedPilotProtecti
     writerEnvironmentHidden: S.Literal(true),
     protectedBytesUnchanged: S.Literal(true),
     issuerMaterialDenied: S.OptionFromOptionalKey(S.Literal(true)).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CacheSignedPilotProtection", {
-    description:
-      "Same-boundary reader denial for synthetic issuer material and producer record with post-replay integrity.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSignedPilotProtection", {
+      description:
+        "Same-boundary reader denial for synthetic issuer material and producer record with post-replay integrity.",
+    })
+  )
 ) {}
 
 /**
@@ -120,18 +126,19 @@ export class CacheSignedPilotProtection extends S.Class<CacheSignedPilotProtecti
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotArchive extends S.Class<CacheSignedPilotArchive>($I`CacheSignedPilotArchive`)(
-  {
+export class CacheSignedPilotArchive extends S.Opaque<CacheSignedPilotArchive, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveSha256: Sha256Hex,
     archiveBytes: S.Natural,
     decodedBytes: S.Natural,
     path: S.Literal("packages/foundation/modeling/identity/.turbo/turbo-lint.log"),
     logSha256: Sha256Hex,
     logBytes: S.Natural,
-  },
-  $I.annote("CacheSignedPilotArchive", {
-    description: "Measured archive and sole regular-log identities; no raw archive or task text is retained.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSignedPilotArchive", {
+      description: "Measured archive and sole regular-log identities; no raw archive or task text is retained.",
+    })
+  )
 ) {}
 
 /**
@@ -146,8 +153,8 @@ export class CacheSignedPilotArchive extends S.Class<CacheSignedPilotArchive>($I
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotPair extends S.Class<CacheSignedPilotPair>($I`CacheSignedPilotPair`)(
-  {
+export class CacheSignedPilotPair extends S.Opaque<CacheSignedPilotPair, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Natural,
     client: CacheClientPin,
     authorityRoot: Sha256Hex,
@@ -159,11 +166,12 @@ export class CacheSignedPilotPair extends S.Class<CacheSignedPilotPair>($I`Cache
     protection: CacheSignedPilotProtection,
     archive: CacheSignedPilotArchive,
     events: S.Array(CacheFixtureEvent).check(S.isMaxLength(101)),
-  },
-  $I.annote("CacheSignedPilotPair", {
-    description:
-      "One empty-store namespace with separate authority, producer and reader roots and sanitized wire observations.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSignedPilotPair", {
+      description:
+        "One empty-store namespace with separate authority, producer and reader roots and sanitized wire observations.",
+    })
+  )
 ) {}
 
 /**
@@ -182,11 +190,19 @@ export class CacheSignedPilotPair extends S.Class<CacheSignedPilotPair>($I`Cache
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotFreshPair extends S.Class<CacheSignedPilotFreshPair>($I`CacheSignedPilotFreshPair`)(
-  { id: S.Natural, leftRoot: Sha256Hex, rightRoot: Sha256Hex, left: CachePilotRun, right: CachePilotRun },
-  $I.annote("CacheSignedPilotFreshPair", {
-    description: "Same-configuration fresh comparison; cache-disabled normal authority remains a separate observation.",
-  })
+export class CacheSignedPilotFreshPair extends S.Opaque<CacheSignedPilotFreshPair, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.Natural,
+    leftRoot: Sha256Hex,
+    rightRoot: Sha256Hex,
+    left: CachePilotRun,
+    right: CachePilotRun,
+  }).pipe(
+    $I.annoteSchema("CacheSignedPilotFreshPair", {
+      description:
+        "Same-configuration fresh comparison; cache-disabled normal authority remains a separate observation.",
+    })
+  )
 ) {}
 
 /**
@@ -205,8 +221,8 @@ export class CacheSignedPilotFreshPair extends S.Class<CacheSignedPilotFreshPair
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotShadow extends S.Class<CacheSignedPilotShadow>($I`CacheSignedPilotShadow`)(
-  {
+export class CacheSignedPilotShadow extends S.Opaque<CacheSignedPilotShadow, { readonly brand: unique symbol }>()(
+  S.Struct({
     case: LiteralKit([
       "baseline",
       "source-comment",
@@ -220,10 +236,11 @@ export class CacheSignedPilotShadow extends S.Class<CacheSignedPilotShadow>($I`C
       "absolute-root",
     ]),
     comparison: CacheSignedPilotPair,
-  },
-  $I.annote("CacheSignedPilotShadow", {
-    description: "Signed remote replay compared with fresh authority for one fixed perturbation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSignedPilotShadow", {
+      description: "Signed remote replay compared with fresh authority for one fixed perturbation.",
+    })
+  )
 ) {}
 
 /**
@@ -244,8 +261,8 @@ export class CacheSignedPilotShadow extends S.Class<CacheSignedPilotShadow>($I`C
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotMutation extends S.Class<CacheSignedPilotMutation>($I`CacheSignedPilotMutation`)(
-  {
+export class CacheSignedPilotMutation extends S.Opaque<CacheSignedPilotMutation, { readonly brand: unique symbol }>()(
+  S.Struct({
     case: LiteralKit([
       "root-task-config",
       "child-task-config",
@@ -260,10 +277,11 @@ export class CacheSignedPilotMutation extends S.Class<CacheSignedPilotMutation>(
     afterSha256: Sha256Hex,
     seed: CacheSignedPilotRun,
     comparison: CacheSignedPilotPair,
-  },
-  $I.annote("CacheSignedPilotMutation", {
-    description: "Same-backend seed, changed fresh execution and signed replay with independently changed authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSignedPilotMutation", {
+      description: "Same-backend seed, changed fresh execution and signed replay with independently changed authority.",
+    })
+  )
 ) {}
 
 /**
@@ -282,9 +300,10 @@ export class CacheSignedPilotMutation extends S.Class<CacheSignedPilotMutation>(
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotNonExecution extends S.Class<CacheSignedPilotNonExecution>(
-  $I`CacheSignedPilotNonExecution`
-)(
+export class CacheSignedPilotNonExecution extends S.Class<
+  CacheSignedPilotNonExecution,
+  { readonly brand: unique symbol }
+>($I`CacheSignedPilotNonExecution`)(
   {
     id: S.NonEmptyString,
     reason: CachePilotNonExecution.fields.reason,
@@ -347,10 +366,11 @@ export class CacheSignedPilotNonExecution extends S.Class<CacheSignedPilotNonExe
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotPolicyRefusal extends S.Class<CacheSignedPilotPolicyRefusal>(
-  $I`CacheSignedPilotPolicyRefusal`
-)(
-  {
+export class CacheSignedPilotPolicyRefusal extends S.Opaque<
+  CacheSignedPilotPolicyRefusal,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     reason: S.tag("missing-child-config"),
     removedPath: S.Literal("packages/foundation/modeling/identity/turbo.json"),
     isolationRoot: Sha256Hex,
@@ -365,11 +385,12 @@ export class CacheSignedPilotPolicyRefusal extends S.Class<CacheSignedPilotPolic
     executionSummaries: S.Literal(0),
     selectedLogFiles: S.Literal(0),
     guardRejected: S.Literal(true),
-  },
-  $I.annote("CacheSignedPilotPolicyRefusal", {
-    description:
-      "Direct native dry-plan evidence that the governed runtime guard refused a missing child configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSignedPilotPolicyRefusal", {
+      description:
+        "Direct native dry-plan evidence that the governed runtime guard refused a missing child configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -384,10 +405,11 @@ export class CacheSignedPilotPolicyRefusal extends S.Class<CacheSignedPilotPolic
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotCaptureControl extends S.Class<CacheSignedPilotCaptureControl>(
-  $I`CacheSignedPilotCaptureControl`
-)(
-  {
+export class CacheSignedPilotCaptureControl extends S.Opaque<
+  CacheSignedPilotCaptureControl,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     case: LiteralKit(["credential-output", "terminal-control", "oversized-log", "undeclared-output"]),
     isolationRoot: Sha256Hex,
     summarySha256: Sha256Hex,
@@ -396,11 +418,12 @@ export class CacheSignedPilotCaptureControl extends S.Class<CacheSignedPilotCapt
     selectedExitCode: S.Literal(0),
     origin: S.Literal("fresh"),
     diagnostic: S.NonEmptyString,
-  },
-  $I.annote("CacheSignedPilotCaptureControl", {
-    description:
-      "Native summary and isolated probe identity with a case-derived capture rejection; contains no raw task output.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheSignedPilotCaptureControl", {
+      description:
+        "Native summary and isolated probe identity with a case-derived capture rejection; contains no raw task output.",
+    })
+  )
 ) {}
 
 /**
@@ -415,7 +438,9 @@ export class CacheSignedPilotCaptureControl extends S.Class<CacheSignedPilotCapt
  * @category schemas
  * @since 0.0.0
  */
-export class CacheSignedPilotReceipt extends S.Class<CacheSignedPilotReceipt>($I`CacheSignedPilotReceipt`)(
+export class CacheSignedPilotReceipt extends S.Class<CacheSignedPilotReceipt, { readonly brand: unique symbol }>(
+  $I`CacheSignedPilotReceipt`
+)(
   {
     schemaVersion: S.tag("cache-pilot-signed/v9"),
     authority: S.tag("signed-pilot-observation-only"),
@@ -487,9 +512,10 @@ export class CacheSignedPilotReceipt extends S.Class<CacheSignedPilotReceipt>($I
  * @category models
  * @since 0.0.0
  */
-export class CacheSignedPilotRequest extends S.Class<CacheSignedPilotRequest>($I`CacheSignedPilotRequest`)(
-  { sourceRoot: S.NonEmptyString, pilot: CachePilotRequest },
-  $I.annote("CacheSignedPilotRequest", {
-    description: "Frozen source checkout and exact native pilot request for a separately owned supervisor.",
-  })
+export class CacheSignedPilotRequest extends S.Opaque<CacheSignedPilotRequest, { readonly brand: unique symbol }>()(
+  S.Struct({ sourceRoot: S.NonEmptyString, pilot: CachePilotRequest }).pipe(
+    $I.annoteSchema("CacheSignedPilotRequest", {
+      description: "Frozen source checkout and exact native pilot request for a separately owned supervisor.",
+    })
+  )
 ) {}

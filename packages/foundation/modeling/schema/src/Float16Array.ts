@@ -24,9 +24,16 @@ const float16ArrayConstructor = globalThis.Float16Array;
 const unsupportedFloat16ArrayRuntimeMessage =
   "Float16Array is not available in this runtime. Use Node >=24.0.0 or Bun >=1.1.23.";
 
-class UnsupportedFloat16ArrayRuntimeError extends S.TaggedError<UnsupportedFloat16ArrayRuntimeError>(
-  $I`UnsupportedFloat16ArrayRuntimeError`
-)(
+/**
+ * Float16Array helpers were used in a runtime that does not expose globalThis.Float16Array.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class UnsupportedFloat16ArrayRuntimeError extends S.TaggedError<
+  UnsupportedFloat16ArrayRuntimeError,
+  { readonly brand: unique symbol }
+>($I`UnsupportedFloat16ArrayRuntimeError`)(
   "UnsupportedFloat16ArrayRuntimeError",
   {
     message: S.String,

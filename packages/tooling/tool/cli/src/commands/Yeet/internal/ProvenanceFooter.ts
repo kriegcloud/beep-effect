@@ -135,14 +135,15 @@ export const ProvenanceStampStatus = LiteralKit([
  * @category schemas
  * @since 0.0.0
  */
-export class ProvenanceStampOutcome extends S.Class<ProvenanceStampOutcome>($I`ProvenanceStampOutcome`)(
-  {
+export class ProvenanceStampOutcome extends S.Opaque<ProvenanceStampOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: ProvenanceStampStatus,
     message: S.String,
-  },
-  $I.annote("ProvenanceStampOutcome", {
-    description: "Status and logged message of one provenance footer stamp attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProvenanceStampOutcome", {
+      description: "Status and logged message of one provenance footer stamp attempt.",
+    })
+  )
 ) {}
 
 const isProvenanceStampFailureStatus = S.is(ProvenanceStampFailureStatus);
@@ -175,23 +176,37 @@ const skippedStamp = (message: string): ProvenanceStampOutcome =>
 const currentStamp = (prNumber: PrNumber): ProvenanceStampOutcome =>
   ProvenanceStampOutcome.make({ status: "current", message: `provenance footer current for PR #${prNumber}` });
 
-class GhPrBody extends S.Class<GhPrBody>($I`GhPrBody`)(
-  { body: S.NullOr(S.String) },
-  $I.annote("GhPrBody", { description: "Narrow gh pr view response carrying the body." })
+/**
+ * Narrow gh pr view response carrying the body.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GhPrBody extends S.Opaque<GhPrBody, { readonly brand: unique symbol }>()(
+  S.Struct({ body: S.NullOr(S.String) }).pipe(
+    $I.annoteSchema("GhPrBody", { description: "Narrow gh pr view response carrying the body." })
+  )
 ) {}
 
 // `gh pr view --json` exposes `updatedAt` but not `lastEditedAt` (gh 2.99).
 // Any body edit bumps `updatedAt`, so it is a sound inclusive baseline: an
 // edit that lands after this snapshot is timestamped at or after it, and the
 // snapshot's own body is already a known body for the reconcile.
-class GhPrBodySnapshot extends S.Class<GhPrBodySnapshot>($I`GhPrBodySnapshot`)(
-  {
+/**
+ * Fresh pull-request body plus the GitHub update timestamp used as a race-detection baseline.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GhPrBodySnapshot extends S.Opaque<GhPrBodySnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.NullOr(S.String),
     updatedAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("GhPrBodySnapshot", {
-    description: "Fresh pull-request body plus the GitHub update timestamp used as a race-detection baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhPrBodySnapshot", {
+      description: "Fresh pull-request body plus the GitHub update timestamp used as a race-detection baseline.",
+    })
+  )
 ) {}
 
 /**
@@ -220,33 +235,50 @@ class GhPrBodySnapshot extends S.Class<GhPrBodySnapshot>($I`GhPrBodySnapshot`)(
  * @category models
  * @since 0.0.0
  */
-export class PrBodyEdit extends S.Class<PrBodyEdit>($I`PrBodyEdit`)(
-  {
+export class PrBodyEdit extends S.Opaque<PrBodyEdit, { readonly brand: unique symbol }>()(
+  S.Struct({
     editedAt: S.DateTimeUtcFromString,
     editor: S.OptionFromNullOr(S.String),
     body: S.String,
-  },
-  $I.annote("PrBodyEdit", { description: "A timestamped full pull-request body revision and its optional editor." })
+  }).pipe(
+    $I.annoteSchema("PrBodyEdit", {
+      description: "A timestamped full pull-request body revision and its optional editor.",
+    })
+  )
 ) {}
 
-class GhPrBodyEditNode extends S.Class<GhPrBodyEditNode>($I`GhPrBodyEditNode`)(
-  {
+/**
+ * Raw GitHub pull-request user-content edit node.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GhPrBodyEditNode extends S.Opaque<GhPrBodyEditNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     editedAt: S.DateTimeUtcFromString,
     editor: S.NullOr(S.Struct({ login: S.String })),
     diff: S.String,
-  },
-  $I.annote("GhPrBodyEditNode", { description: "Raw GitHub pull-request user-content edit node." })
+  }).pipe($I.annoteSchema("GhPrBodyEditNode", { description: "Raw GitHub pull-request user-content edit node." }))
 ) {}
 
-class GhPrBodyEditsDocument extends S.Class<GhPrBodyEditsDocument>($I`GhPrBodyEditsDocument`)(
-  {
+/**
+ * GitHub GraphQL response containing recent PR body edits.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GhPrBodyEditsDocument extends S.Opaque<GhPrBodyEditsDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: S.Struct({
       repository: S.Struct({
         pullRequest: S.Struct({ userContentEdits: S.Struct({ nodes: S.Array(GhPrBodyEditNode) }) }),
       }),
     }),
-  },
-  $I.annote("GhPrBodyEditsDocument", { description: "GitHub GraphQL response containing recent PR body edits." })
+  }).pipe(
+    $I.annoteSchema("GhPrBodyEditsDocument", {
+      description: "GitHub GraphQL response containing recent PR body edits.",
+    })
+  )
 ) {}
 
 const decodeGhPrBody = S.decodeUnknownEffect(S.fromJsonString(GhPrBody));
@@ -516,9 +548,12 @@ const bodyWithoutProvenanceFooter = (body: string): string =>
  * @category models
  * @since 0.0.0
  */
-export class PrSessionRecordingResult extends S.Class<PrSessionRecordingResult>($I`PrSessionRecordingResult`)(
-  { repository: PrRepository, registryRowExists: S.Boolean, mirrorWritten: S.Boolean },
-  $I.annote("PrSessionRecordingResult", { description: "Independent registry and run-mirror persistence outcomes." })
+export class PrSessionRecordingResult extends S.Opaque<PrSessionRecordingResult, { readonly brand: unique symbol }>()(
+  S.Struct({ repository: PrRepository, registryRowExists: S.Boolean, mirrorWritten: S.Boolean }).pipe(
+    $I.annoteSchema("PrSessionRecordingResult", {
+      description: "Independent registry and run-mirror persistence outcomes.",
+    })
+  )
 ) {}
 
 /**

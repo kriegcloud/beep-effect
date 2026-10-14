@@ -47,7 +47,7 @@ const decodeState = S.decodeUnknownEffect(S.fromJsonString(BatchState));
  * @category errors
  * @since 0.0.0
  */
-export class BatchStatePersistenceError extends S.TaggedError<BatchStatePersistenceError>(
+export class BatchStatePersistenceError extends S.TaggedError<BatchStatePersistenceError, { readonly brand: unique symbol }>(
   $I`BatchStatePersistenceError`
 )(
   "BatchStatePersistenceError",
@@ -81,7 +81,7 @@ export class BatchStatePersistenceError extends S.TaggedError<BatchStatePersiste
  * @category errors
  * @since 0.0.0
  */
-export class BatchStateDecodeError extends S.TaggedError<BatchStateDecodeError>($I`BatchStateDecodeError`)(
+export class BatchStateDecodeError extends S.TaggedError<BatchStateDecodeError, { readonly brand: unique symbol }>($I`BatchStateDecodeError`)(
   "BatchStateDecodeError",
   {
     batchId: BatchId,

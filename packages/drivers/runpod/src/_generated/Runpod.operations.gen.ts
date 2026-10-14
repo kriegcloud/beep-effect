@@ -469,9 +469,10 @@ export type GetDocsStatus200TextResponse =
  * @category dtos
  * @since 0.1.0
  */
-export class GetOpenAPIRequest extends S.Class<GetOpenAPIRequest>(
-  $I`GetOpenAPIRequest`,
-)(
+export class GetOpenAPIRequest extends S.Class<
+  GetOpenAPIRequest,
+  { readonly brand: unique symbol }
+>($I`GetOpenAPIRequest`)(
   {},
   $I.annote("GetOpenAPIRequest", {
     description: "Request input for GetOpenAPI.",
@@ -492,7 +493,10 @@ export class GetOpenAPIRequest extends S.Class<GetOpenAPIRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class GetDocsRequest extends S.Class<GetDocsRequest>($I`GetDocsRequest`)(
+export class GetDocsRequest extends S.Class<
+  GetDocsRequest,
+  { readonly brand: unique symbol }
+>($I`GetDocsRequest`)(
   {},
   $I.annote("GetDocsRequest", {
     description: "Request input for GetDocs.",
@@ -513,9 +517,10 @@ export class GetDocsRequest extends S.Class<GetDocsRequest>($I`GetDocsRequest`)(
  * @category dtos
  * @since 0.1.0
  */
-export class ListPodsRequest extends S.Class<ListPodsRequest>(
-  $I`ListPodsRequest`,
-)(
+export class ListPodsRequest extends S.Class<
+  ListPodsRequest,
+  { readonly brand: unique symbol }
+>($I`ListPodsRequest`)(
   {
     computeType: LiteralKit(["GPU", "CPU"]).pipe(S.optionalKey),
     cpuFlavorId: S.String.pipe(S.Array, S.optionalKey),
@@ -555,9 +560,10 @@ export class ListPodsRequest extends S.Class<ListPodsRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class CreatePodRequest extends S.Class<CreatePodRequest>(
-  $I`CreatePodRequest`,
-)(
+export class CreatePodRequest extends S.Class<
+  CreatePodRequest,
+  { readonly brand: unique symbol }
+>($I`CreatePodRequest`)(
   {
     body: S.suspend(() => Models.PodCreateInput),
   },
@@ -580,7 +586,10 @@ export class CreatePodRequest extends S.Class<CreatePodRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class GetPodRequest extends S.Class<GetPodRequest>($I`GetPodRequest`)(
+export class GetPodRequest extends S.Class<
+  GetPodRequest,
+  { readonly brand: unique symbol }
+>($I`GetPodRequest`)(
   {
     includeMachine: S.Boolean.pipe(S.optionalKey),
     includeNetworkVolume: S.Boolean.pipe(S.optionalKey),
@@ -608,9 +617,10 @@ export class GetPodRequest extends S.Class<GetPodRequest>($I`GetPodRequest`)(
  * @category dtos
  * @since 0.1.0
  */
-export class UpdatePodRequest extends S.Class<UpdatePodRequest>(
-  $I`UpdatePodRequest`,
-)(
+export class UpdatePodRequest extends S.Class<
+  UpdatePodRequest,
+  { readonly brand: unique symbol }
+>($I`UpdatePodRequest`)(
   {
     podId: S.String,
     body: S.suspend(() => Models.PodUpdateInput),
@@ -634,9 +644,10 @@ export class UpdatePodRequest extends S.Class<UpdatePodRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class DeletePodRequest extends S.Class<DeletePodRequest>(
-  $I`DeletePodRequest`,
-)(
+export class DeletePodRequest extends S.Class<
+  DeletePodRequest,
+  { readonly brand: unique symbol }
+>($I`DeletePodRequest`)(
   {
     podId: S.String,
   },
@@ -659,9 +670,10 @@ export class DeletePodRequest extends S.Class<DeletePodRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class UpdatePodViaPostRequest extends S.Class<UpdatePodViaPostRequest>(
-  $I`UpdatePodViaPostRequest`,
-)(
+export class UpdatePodViaPostRequest extends S.Class<
+  UpdatePodViaPostRequest,
+  { readonly brand: unique symbol }
+>($I`UpdatePodViaPostRequest`)(
   {
     podId: S.String,
     body: S.suspend(() => Models.PodUpdateInput),
@@ -685,9 +697,10 @@ export class UpdatePodViaPostRequest extends S.Class<UpdatePodViaPostRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class StartPodRequest extends S.Class<StartPodRequest>(
-  $I`StartPodRequest`,
-)(
+export class StartPodRequest extends S.Class<
+  StartPodRequest,
+  { readonly brand: unique symbol }
+>($I`StartPodRequest`)(
   {
     podId: S.String,
   },
@@ -710,7 +723,10 @@ export class StartPodRequest extends S.Class<StartPodRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class StopPodRequest extends S.Class<StopPodRequest>($I`StopPodRequest`)(
+export class StopPodRequest extends S.Class<
+  StopPodRequest,
+  { readonly brand: unique symbol }
+>($I`StopPodRequest`)(
   {
     podId: S.String,
   },
@@ -733,9 +749,10 @@ export class StopPodRequest extends S.Class<StopPodRequest>($I`StopPodRequest`)(
  * @category dtos
  * @since 0.1.0
  */
-export class ResetPodRequest extends S.Class<ResetPodRequest>(
-  $I`ResetPodRequest`,
-)(
+export class ResetPodRequest extends S.Class<
+  ResetPodRequest,
+  { readonly brand: unique symbol }
+>($I`ResetPodRequest`)(
   {
     podId: S.String,
   },
@@ -758,9 +775,10 @@ export class ResetPodRequest extends S.Class<ResetPodRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class RestartPodRequest extends S.Class<RestartPodRequest>(
-  $I`RestartPodRequest`,
-)(
+export class RestartPodRequest extends S.Class<
+  RestartPodRequest,
+  { readonly brand: unique symbol }
+>($I`RestartPodRequest`)(
   {
     podId: S.String,
   },
@@ -783,9 +801,10 @@ export class RestartPodRequest extends S.Class<RestartPodRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class ListEndpointsRequest extends S.Class<ListEndpointsRequest>(
-  $I`ListEndpointsRequest`,
-)(
+export class ListEndpointsRequest extends S.Class<
+  ListEndpointsRequest,
+  { readonly brand: unique symbol }
+>($I`ListEndpointsRequest`)(
   {
     includeTemplate: S.Boolean.pipe(S.optionalKey),
     includeWorkers: S.Boolean.pipe(S.optionalKey),
@@ -809,9 +828,10 @@ export class ListEndpointsRequest extends S.Class<ListEndpointsRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class CreateEndpointRequest extends S.Class<CreateEndpointRequest>(
-  $I`CreateEndpointRequest`,
-)(
+export class CreateEndpointRequest extends S.Class<
+  CreateEndpointRequest,
+  { readonly brand: unique symbol }
+>($I`CreateEndpointRequest`)(
   {
     body: S.suspend(() => Models.EndpointCreateInput),
   },
@@ -834,9 +854,10 @@ export class CreateEndpointRequest extends S.Class<CreateEndpointRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class GetEndpointRequest extends S.Class<GetEndpointRequest>(
-  $I`GetEndpointRequest`,
-)(
+export class GetEndpointRequest extends S.Class<
+  GetEndpointRequest,
+  { readonly brand: unique symbol }
+>($I`GetEndpointRequest`)(
   {
     endpointId: S.String,
     includeTemplate: S.Boolean.pipe(S.optionalKey),
@@ -861,9 +882,10 @@ export class GetEndpointRequest extends S.Class<GetEndpointRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class UpdateEndpointRequest extends S.Class<UpdateEndpointRequest>(
-  $I`UpdateEndpointRequest`,
-)(
+export class UpdateEndpointRequest extends S.Class<
+  UpdateEndpointRequest,
+  { readonly brand: unique symbol }
+>($I`UpdateEndpointRequest`)(
   {
     endpointId: S.String,
     body: S.suspend(() => Models.EndpointUpdateInput),
@@ -887,9 +909,10 @@ export class UpdateEndpointRequest extends S.Class<UpdateEndpointRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class DeleteEndpointRequest extends S.Class<DeleteEndpointRequest>(
-  $I`DeleteEndpointRequest`,
-)(
+export class DeleteEndpointRequest extends S.Class<
+  DeleteEndpointRequest,
+  { readonly brand: unique symbol }
+>($I`DeleteEndpointRequest`)(
   {
     endpointId: S.String,
   },
@@ -912,9 +935,10 @@ export class DeleteEndpointRequest extends S.Class<DeleteEndpointRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class UpdateEndpointViaPostRequest extends S.Class<UpdateEndpointViaPostRequest>(
-  $I`UpdateEndpointViaPostRequest`,
-)(
+export class UpdateEndpointViaPostRequest extends S.Class<
+  UpdateEndpointViaPostRequest,
+  { readonly brand: unique symbol }
+>($I`UpdateEndpointViaPostRequest`)(
   {
     endpointId: S.String,
     body: S.suspend(() => Models.EndpointUpdateInput),
@@ -938,9 +962,10 @@ export class UpdateEndpointViaPostRequest extends S.Class<UpdateEndpointViaPostR
  * @category dtos
  * @since 0.1.0
  */
-export class ListTemplatesRequest extends S.Class<ListTemplatesRequest>(
-  $I`ListTemplatesRequest`,
-)(
+export class ListTemplatesRequest extends S.Class<
+  ListTemplatesRequest,
+  { readonly brand: unique symbol }
+>($I`ListTemplatesRequest`)(
   {
     includeEndpointBoundTemplates: S.Boolean.pipe(S.optionalKey),
     includePublicTemplates: S.Boolean.pipe(S.optionalKey),
@@ -965,9 +990,10 @@ export class ListTemplatesRequest extends S.Class<ListTemplatesRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class CreateTemplateRequest extends S.Class<CreateTemplateRequest>(
-  $I`CreateTemplateRequest`,
-)(
+export class CreateTemplateRequest extends S.Class<
+  CreateTemplateRequest,
+  { readonly brand: unique symbol }
+>($I`CreateTemplateRequest`)(
   {
     body: S.suspend(() => Models.TemplateCreateInput),
   },
@@ -990,9 +1016,10 @@ export class CreateTemplateRequest extends S.Class<CreateTemplateRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class GetTemplateRequest extends S.Class<GetTemplateRequest>(
-  $I`GetTemplateRequest`,
-)(
+export class GetTemplateRequest extends S.Class<
+  GetTemplateRequest,
+  { readonly brand: unique symbol }
+>($I`GetTemplateRequest`)(
   {
     includeEndpointBoundTemplates: S.Boolean.pipe(S.optionalKey),
     includePublicTemplates: S.Boolean.pipe(S.optionalKey),
@@ -1018,9 +1045,10 @@ export class GetTemplateRequest extends S.Class<GetTemplateRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class UpdateTemplateRequest extends S.Class<UpdateTemplateRequest>(
-  $I`UpdateTemplateRequest`,
-)(
+export class UpdateTemplateRequest extends S.Class<
+  UpdateTemplateRequest,
+  { readonly brand: unique symbol }
+>($I`UpdateTemplateRequest`)(
   {
     templateId: S.String,
     body: S.suspend(() => Models.TemplateUpdateInput),
@@ -1044,9 +1072,10 @@ export class UpdateTemplateRequest extends S.Class<UpdateTemplateRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class DeleteTemplateRequest extends S.Class<DeleteTemplateRequest>(
-  $I`DeleteTemplateRequest`,
-)(
+export class DeleteTemplateRequest extends S.Class<
+  DeleteTemplateRequest,
+  { readonly brand: unique symbol }
+>($I`DeleteTemplateRequest`)(
   {
     templateId: S.String,
   },
@@ -1069,9 +1098,10 @@ export class DeleteTemplateRequest extends S.Class<DeleteTemplateRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class UpdateTemplateViaPostRequest extends S.Class<UpdateTemplateViaPostRequest>(
-  $I`UpdateTemplateViaPostRequest`,
-)(
+export class UpdateTemplateViaPostRequest extends S.Class<
+  UpdateTemplateViaPostRequest,
+  { readonly brand: unique symbol }
+>($I`UpdateTemplateViaPostRequest`)(
   {
     templateId: S.String,
     body: S.suspend(() => Models.TemplateUpdateInput),
@@ -1095,9 +1125,10 @@ export class UpdateTemplateViaPostRequest extends S.Class<UpdateTemplateViaPostR
  * @category dtos
  * @since 0.1.0
  */
-export class ListNetworkVolumesRequest extends S.Class<ListNetworkVolumesRequest>(
-  $I`ListNetworkVolumesRequest`,
-)(
+export class ListNetworkVolumesRequest extends S.Class<
+  ListNetworkVolumesRequest,
+  { readonly brand: unique symbol }
+>($I`ListNetworkVolumesRequest`)(
   {},
   $I.annote("ListNetworkVolumesRequest", {
     description: "Request input for ListNetworkVolumes.",
@@ -1118,9 +1149,10 @@ export class ListNetworkVolumesRequest extends S.Class<ListNetworkVolumesRequest
  * @category dtos
  * @since 0.1.0
  */
-export class CreateNetworkVolumeRequest extends S.Class<CreateNetworkVolumeRequest>(
-  $I`CreateNetworkVolumeRequest`,
-)(
+export class CreateNetworkVolumeRequest extends S.Class<
+  CreateNetworkVolumeRequest,
+  { readonly brand: unique symbol }
+>($I`CreateNetworkVolumeRequest`)(
   {
     body: S.suspend(() => Models.NetworkVolumeCreateInput),
   },
@@ -1143,9 +1175,10 @@ export class CreateNetworkVolumeRequest extends S.Class<CreateNetworkVolumeReque
  * @category dtos
  * @since 0.1.0
  */
-export class GetNetworkVolumeRequest extends S.Class<GetNetworkVolumeRequest>(
-  $I`GetNetworkVolumeRequest`,
-)(
+export class GetNetworkVolumeRequest extends S.Class<
+  GetNetworkVolumeRequest,
+  { readonly brand: unique symbol }
+>($I`GetNetworkVolumeRequest`)(
   {
     networkVolumeId: S.String,
   },
@@ -1168,9 +1201,10 @@ export class GetNetworkVolumeRequest extends S.Class<GetNetworkVolumeRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class UpdateNetworkVolumeRequest extends S.Class<UpdateNetworkVolumeRequest>(
-  $I`UpdateNetworkVolumeRequest`,
-)(
+export class UpdateNetworkVolumeRequest extends S.Class<
+  UpdateNetworkVolumeRequest,
+  { readonly brand: unique symbol }
+>($I`UpdateNetworkVolumeRequest`)(
   {
     networkVolumeId: S.String,
     body: S.suspend(() => Models.NetworkVolumeUpdateInput),
@@ -1194,9 +1228,10 @@ export class UpdateNetworkVolumeRequest extends S.Class<UpdateNetworkVolumeReque
  * @category dtos
  * @since 0.1.0
  */
-export class DeleteNetworkVolumeRequest extends S.Class<DeleteNetworkVolumeRequest>(
-  $I`DeleteNetworkVolumeRequest`,
-)(
+export class DeleteNetworkVolumeRequest extends S.Class<
+  DeleteNetworkVolumeRequest,
+  { readonly brand: unique symbol }
+>($I`DeleteNetworkVolumeRequest`)(
   {
     networkVolumeId: S.String,
   },
@@ -1219,9 +1254,10 @@ export class DeleteNetworkVolumeRequest extends S.Class<DeleteNetworkVolumeReque
  * @category dtos
  * @since 0.1.0
  */
-export class UpdateNetworkVolumeViaPostRequest extends S.Class<UpdateNetworkVolumeViaPostRequest>(
-  $I`UpdateNetworkVolumeViaPostRequest`,
-)(
+export class UpdateNetworkVolumeViaPostRequest extends S.Class<
+  UpdateNetworkVolumeViaPostRequest,
+  { readonly brand: unique symbol }
+>($I`UpdateNetworkVolumeViaPostRequest`)(
   {
     networkVolumeId: S.String,
     body: S.suspend(() => Models.NetworkVolumeUpdateInput),
@@ -1245,9 +1281,10 @@ export class UpdateNetworkVolumeViaPostRequest extends S.Class<UpdateNetworkVolu
  * @category dtos
  * @since 0.1.0
  */
-export class ListContainerRegistryAuthsRequest extends S.Class<ListContainerRegistryAuthsRequest>(
-  $I`ListContainerRegistryAuthsRequest`,
-)(
+export class ListContainerRegistryAuthsRequest extends S.Class<
+  ListContainerRegistryAuthsRequest,
+  { readonly brand: unique symbol }
+>($I`ListContainerRegistryAuthsRequest`)(
   {},
   $I.annote("ListContainerRegistryAuthsRequest", {
     description: "Request input for ListContainerRegistryAuths.",
@@ -1268,9 +1305,10 @@ export class ListContainerRegistryAuthsRequest extends S.Class<ListContainerRegi
  * @category dtos
  * @since 0.1.0
  */
-export class CreateContainerRegistryAuthRequest extends S.Class<CreateContainerRegistryAuthRequest>(
-  $I`CreateContainerRegistryAuthRequest`,
-)(
+export class CreateContainerRegistryAuthRequest extends S.Class<
+  CreateContainerRegistryAuthRequest,
+  { readonly brand: unique symbol }
+>($I`CreateContainerRegistryAuthRequest`)(
   {
     body: S.suspend(() => Models.ContainerRegistryAuthCreateInput),
   },
@@ -1293,9 +1331,10 @@ export class CreateContainerRegistryAuthRequest extends S.Class<CreateContainerR
  * @category dtos
  * @since 0.1.0
  */
-export class GetContainerRegistryAuthRequest extends S.Class<GetContainerRegistryAuthRequest>(
-  $I`GetContainerRegistryAuthRequest`,
-)(
+export class GetContainerRegistryAuthRequest extends S.Class<
+  GetContainerRegistryAuthRequest,
+  { readonly brand: unique symbol }
+>($I`GetContainerRegistryAuthRequest`)(
   {
     containerRegistryAuthId: S.String,
   },
@@ -1318,9 +1357,10 @@ export class GetContainerRegistryAuthRequest extends S.Class<GetContainerRegistr
  * @category dtos
  * @since 0.1.0
  */
-export class DeleteContainerRegistryAuthRequest extends S.Class<DeleteContainerRegistryAuthRequest>(
-  $I`DeleteContainerRegistryAuthRequest`,
-)(
+export class DeleteContainerRegistryAuthRequest extends S.Class<
+  DeleteContainerRegistryAuthRequest,
+  { readonly brand: unique symbol }
+>($I`DeleteContainerRegistryAuthRequest`)(
   {
     containerRegistryAuthId: S.String,
   },
@@ -1343,9 +1383,10 @@ export class DeleteContainerRegistryAuthRequest extends S.Class<DeleteContainerR
  * @category dtos
  * @since 0.1.0
  */
-export class PodBillingRequest extends S.Class<PodBillingRequest>(
-  $I`PodBillingRequest`,
-)(
+export class PodBillingRequest extends S.Class<
+  PodBillingRequest,
+  { readonly brand: unique symbol }
+>($I`PodBillingRequest`)(
   {
     bucketSize: LiteralKit(["hour", "day", "week", "month", "year"]).pipe(
       S.optionalKey,
@@ -1375,9 +1416,10 @@ export class PodBillingRequest extends S.Class<PodBillingRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class EndpointBillingRequest extends S.Class<EndpointBillingRequest>(
-  $I`EndpointBillingRequest`,
-)(
+export class EndpointBillingRequest extends S.Class<
+  EndpointBillingRequest,
+  { readonly brand: unique symbol }
+>($I`EndpointBillingRequest`)(
   {
     bucketSize: LiteralKit(["hour", "day", "week", "month", "year"]).pipe(
       S.optionalKey,
@@ -1412,9 +1454,10 @@ export class EndpointBillingRequest extends S.Class<EndpointBillingRequest>(
  * @category dtos
  * @since 0.1.0
  */
-export class NetworkVolumeBillingRequest extends S.Class<NetworkVolumeBillingRequest>(
-  $I`NetworkVolumeBillingRequest`,
-)(
+export class NetworkVolumeBillingRequest extends S.Class<
+  NetworkVolumeBillingRequest,
+  { readonly brand: unique symbol }
+>($I`NetworkVolumeBillingRequest`)(
   {
     bucketSize: LiteralKit(["hour", "day", "week", "month", "year"]).pipe(
       S.optionalKey,
@@ -1627,9 +1670,10 @@ export type RunpodResponseBodyKind = typeof RunpodResponseBodyKind.Type;
  * @category models
  * @since 0.1.0
  */
-export class RunpodOperationDescriptor extends S.Class<RunpodOperationDescriptor>(
-  $I`RunpodOperationDescriptor`,
-)(
+export class RunpodOperationDescriptor extends S.Class<
+  RunpodOperationDescriptor,
+  { readonly brand: unique symbol }
+>($I`RunpodOperationDescriptor`)(
   {
     authenticated: S.Boolean,
     method: RunpodHttpMethod,

@@ -79,11 +79,12 @@ const HttpApiMethod = LiteralKit(["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD
   })
 );
 
-class HttpApiStatusField extends S.Class<HttpApiStatusField>($I`HttpApiStatusField`)(
-  { status: HttpStatusCode },
-  $I.annote("HttpApiStatusField", {
-    description: "Internal helper schema for decoding runtime HTTP status fields.",
-  })
+class HttpApiStatusField extends S.Opaque<HttpApiStatusField, { readonly brand: unique symbol }>()(
+  S.Struct({ status: HttpStatusCode }).pipe(
+    $I.annoteSchema("HttpApiStatusField", {
+      description: "Internal helper schema for decoding runtime HTTP status fields.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(HttpApiStatusField);
 }
@@ -112,18 +113,22 @@ class HttpApiStatusField extends S.Class<HttpApiStatusField>($I`HttpApiStatusFie
  * @category models
  * @since 0.0.0
  */
-export class HttpApiTelemetryDescriptor extends S.Class<HttpApiTelemetryDescriptor>($I`HttpApiTelemetryDescriptor`)(
-  {
+export class HttpApiTelemetryDescriptor extends S.Opaque<
+  HttpApiTelemetryDescriptor,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     apiName: S.NonEmptyString,
     groupName: S.NonEmptyString,
     endpointName: S.NonEmptyString,
     method: HttpApiMethod,
     route: S.NonEmptyString,
     successStatus: HttpStatusCode,
-  },
-  $I.annote("HttpApiTelemetryDescriptor", {
-    description: "Shared HTTP API telemetry descriptor.",
-  })
+  }).pipe(
+    $I.annoteSchema("HttpApiTelemetryDescriptor", {
+      description: "Shared HTTP API telemetry descriptor.",
+    })
+  )
 ) {}
 
 /**

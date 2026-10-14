@@ -39,8 +39,8 @@ const $I = $RepoCliId.create("commands/Image/Image.schemas");
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesOptions extends S.Class<ExtractFramesOptions>($I`ExtractFramesOptions`)(
-  {
+export class ExtractFramesOptions extends S.Opaque<ExtractFramesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     fps: PositiveFrameRate,
     manifest: S.Option(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
@@ -56,10 +56,11 @@ export class ExtractFramesOptions extends S.Class<ExtractFramesOptions>($I`Extra
       S.withDecodingDefault(Effect.succeed(O.none<string>()))
     ),
     video: S.String,
-  },
-  $I.annote("ExtractFramesOptions", {
-    description: "Validated options for extracting PNG frames from one video.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesOptions", {
+      description: "Validated options for extracting PNG frames from one video.",
+    })
+  )
 ) {}
 
 /**
@@ -83,8 +84,8 @@ export class ExtractFramesOptions extends S.Class<ExtractFramesOptions>($I`Extra
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesDirOptions extends S.Class<ExtractFramesDirOptions>($I`ExtractFramesDirOptions`)(
-  {
+export class ExtractFramesDirOptions extends S.Opaque<ExtractFramesDirOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dir: S.String,
     fps: PositiveFrameRate,
     overwrite: S.Boolean.pipe(
@@ -95,10 +96,11 @@ export class ExtractFramesDirOptions extends S.Class<ExtractFramesDirOptions>($I
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
       S.withDecodingDefault(Effect.succeed(O.none<string>()))
     ),
-  },
-  $I.annote("ExtractFramesDirOptions", {
-    description: "Validated options for extracting PNG frames from direct video files in a directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesDirOptions", {
+      description: "Validated options for extracting PNG frames from direct video files in a directory.",
+    })
+  )
 ) {}
 
 /**
@@ -121,16 +123,17 @@ export class ExtractFramesDirOptions extends S.Class<ExtractFramesDirOptions>($I
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesDirVideo extends S.Class<ExtractFramesDirVideo>($I`ExtractFramesDirVideo`)(
-  {
+export class ExtractFramesDirVideo extends S.Opaque<ExtractFramesDirVideo, { readonly brand: unique symbol }>()(
+  S.Struct({
     outDir: S.String,
     sourceName: S.String,
     sourcePath: S.String,
     stem: S.String,
-  },
-  $I.annote("ExtractFramesDirVideo", {
-    description: "A direct video file selected for folder-based frame extraction.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesDirVideo", {
+      description: "A direct video file selected for folder-based frame extraction.",
+    })
+  )
 ) {}
 
 /**
@@ -160,16 +163,17 @@ export class ExtractFramesDirVideo extends S.Class<ExtractFramesDirVideo>($I`Ext
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesDirSuccess extends S.Class<ExtractFramesDirSuccess>($I`ExtractFramesDirSuccess`)(
-  {
+export class ExtractFramesDirSuccess extends S.Opaque<ExtractFramesDirSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     result: ExtractFramesResult,
     sourceName: S.String,
     sourcePath: S.String,
     status: S.tag("success"),
-  },
-  $I.annote("ExtractFramesDirSuccess", {
-    description: "Successful extraction outcome for one direct video file.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesDirSuccess", {
+      description: "Successful extraction outcome for one direct video file.",
+    })
+  )
 ) {}
 
 /**
@@ -192,16 +196,17 @@ export class ExtractFramesDirSuccess extends S.Class<ExtractFramesDirSuccess>($I
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesDirFailure extends S.Class<ExtractFramesDirFailure>($I`ExtractFramesDirFailure`)(
-  {
+export class ExtractFramesDirFailure extends S.Opaque<ExtractFramesDirFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: S.String,
     sourceName: S.String,
     sourcePath: S.String,
     status: S.tag("failure"),
-  },
-  $I.annote("ExtractFramesDirFailure", {
-    description: "Failure summary for one video in a folder-based frame extraction run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesDirFailure", {
+      description: "Failure summary for one video in a folder-based frame extraction run.",
+    })
+  )
 ) {}
 
 /**
@@ -275,16 +280,17 @@ export type ExtractFramesDirOutcome = typeof ExtractFramesDirOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesDirResult extends S.Class<ExtractFramesDirResult>($I`ExtractFramesDirResult`)(
-  {
+export class ExtractFramesDirResult extends S.Opaque<ExtractFramesDirResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     completedCount: S.Finite,
     failedCount: S.Finite,
     outcomes: S.Array(ExtractFramesDirOutcome),
     totalCount: S.Finite,
-  },
-  $I.annote("ExtractFramesDirResult", {
-    description: "Batch result for extracting frames from direct video files in a directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesDirResult", {
+      description: "Batch result for extracting frames from direct video files in a directory.",
+    })
+  )
 ) {}
 
 /**

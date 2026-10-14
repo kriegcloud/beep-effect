@@ -21,8 +21,8 @@ const DATE_YMD_PATTERN = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
 const NonEmptyString = S.NonEmptyString;
 const DateYmdString = S.String.check(S.isPattern(DATE_YMD_PATTERN));
 const ArrayOfStrings = S.Array(S.String);
-export class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>($I`EffectLawsAllowlistEntry`)(
-  {
+export class EffectLawsAllowlistEntry extends S.Opaque<EffectLawsAllowlistEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     rule: NonEmptyString,
     file: NativePathToPosixPath,
     kind: NonEmptyString,
@@ -30,27 +30,35 @@ export class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>(
     owner: NonEmptyString,
     issue: NonEmptyString,
     expiresOn: S.OptionFromOptionalKey(DateYmdString).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("EffectLawsAllowlistEntry", {
-    description: "One allowlisted effect-law finding from the standards allowlist artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectLawsAllowlistEntry", {
+      description: "One allowlisted effect-law finding from the standards allowlist artifact.",
+    })
+  )
 ) {}
 
-export class EffectLawsAllowlistDocument extends S.Class<EffectLawsAllowlistDocument>($I`EffectLawsAllowlistDocument`)(
-  {
+export class EffectLawsAllowlistDocument extends S.Opaque<
+  EffectLawsAllowlistDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     version: S.tag(1),
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
       S.withDecodingDefault(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
     ),
-  },
-  $I.annote("EffectLawsAllowlistDocument", {
-    description: "Decoded effect-law allowlist document loaded from JSONC.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectLawsAllowlistDocument", {
+      description: "Decoded effect-law allowlist document loaded from JSONC.",
+    })
+  )
 ) {}
 
-export class EffectLawsAllowlistSnapshot extends S.Class<EffectLawsAllowlistSnapshot>($I`EffectLawsAllowlistSnapshot`)(
-  {
+export class EffectLawsAllowlistSnapshot extends S.Opaque<
+  EffectLawsAllowlistSnapshot,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: PosixPath,
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
@@ -60,41 +68,46 @@ export class EffectLawsAllowlistSnapshot extends S.Class<EffectLawsAllowlistSnap
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
-  },
-  $I.annote("EffectLawsAllowlistSnapshot", {
-    description: "Generated snapshot of the effect-law allowlist and any schema diagnostics.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectLawsAllowlistSnapshot", {
+      description: "Generated snapshot of the effect-law allowlist and any schema diagnostics.",
+    })
+  )
 ) {
   static readonly decodeResult = S.decodeUnknownResult(EffectLawsAllowlistSnapshot);
   static readonly encodeResult = S.encodeResult(EffectLawsAllowlistSnapshot);
 }
 
-export class EffectLawsAllowlistCheckInput extends S.Class<EffectLawsAllowlistCheckInput>(
-  $I`EffectLawsAllowlistCheckInput`
-)(
-  {
+export class EffectLawsAllowlistCheckInput extends S.Opaque<
+  EffectLawsAllowlistCheckInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ruleId: NonEmptyString,
     filePath: NonEmptyString,
     kind: NonEmptyString,
-  },
-  $I.annote("EffectLawsAllowlistCheckInput", {
-    description: "Runtime lookup input checked against the effect-law allowlist snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectLawsAllowlistCheckInput", {
+      description: "Runtime lookup input checked against the effect-law allowlist snapshot.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(EffectLawsAllowlistCheckInput);
 }
 
-export class EffectLawsAllowlistLookupKey extends S.Class<EffectLawsAllowlistLookupKey>(
-  $I`EffectLawsAllowlistLookupKey`
-)(
-  {
+export class EffectLawsAllowlistLookupKey extends S.Opaque<
+  EffectLawsAllowlistLookupKey,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     rule: NonEmptyString,
     file: PosixPath,
     kind: NonEmptyString,
-  },
-  $I.annote("EffectLawsAllowlistLookupKey", {
-    description: "Normalized key used to compare effect-law findings with allowlist entries.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectLawsAllowlistLookupKey", {
+      description: "Normalized key used to compare effect-law findings with allowlist entries.",
+    })
+  )
 ) {
   static readonly equivalence = S.toEquivalence(EffectLawsAllowlistLookupKey);
 }

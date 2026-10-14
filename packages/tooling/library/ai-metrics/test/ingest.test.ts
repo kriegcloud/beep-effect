@@ -399,12 +399,14 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
         A.join("\n")
       );
 
-      const summary = yield* summarizeTranscriptText({
-        content,
-        hashSalt: O.none(),
-        sourceKind: AiMetricsTranscriptSource.Enum.codex,
-        sourcePath: "codex.jsonl",
-      });
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content,
+          hashSalt: O.none(),
+          sourceKind: AiMetricsTranscriptSource.Enum.codex,
+          sourcePath: "codex.jsonl",
+        })
+      );
 
       expect(summary.sourceKind).toBe("codex");
       expect(summary.totalLines).toBe(3);
@@ -425,12 +427,14 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
     Effect.fn(function* () {
       const content = '{"sessionId":"claude-session","timestamp":"2026-05-05T11:00:00Z","message":{"role":"user"}}';
 
-      const summary = yield* summarizeTranscriptText({
-        content,
-        hashSalt: O.none(),
-        sourceKind: AiMetricsTranscriptSource.Enum.claude,
-        sourcePath: "claude.jsonl",
-      });
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content,
+          hashSalt: O.none(),
+          sourceKind: AiMetricsTranscriptSource.Enum.claude,
+          sourcePath: "claude.jsonl",
+        })
+      );
 
       expect(summary.acceptedEvents).toBe(1);
       expect(summary.eventNames).toEqual(["message"]);
@@ -661,12 +665,14 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
           yield* Effect.gen(function* () {
-            const summary = yield* summarizeTranscriptText({
-              content,
-              hashSalt: O.some("test-salt"),
-              sourceKind: AiMetricsTranscriptSource.Enum.codex,
-              sourcePath,
-            });
+            const summary = yield* summarizeTranscriptText(
+              AiMetricsTranscriptTextSummaryInput.make({
+                content,
+                hashSalt: O.some("test-salt"),
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePath,
+              })
+            );
             const privacy = yield* makeAiMetricsPrivacyCheckResult({
               content,
               hashSalt: O.some("test-salt"),
@@ -838,12 +844,14 @@ it.layer(NodeServices.layer)("@beep/repo-ai-metrics", (it) => {
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
           yield* Effect.gen(function* () {
-            const summary = yield* summarizeTranscriptText({
-              content,
-              hashSalt: O.some("test-salt"),
-              sourceKind: AiMetricsTranscriptSource.Enum.codex,
-              sourcePath,
-            });
+            const summary = yield* summarizeTranscriptText(
+              AiMetricsTranscriptTextSummaryInput.make({
+                content,
+                hashSalt: O.some("test-salt"),
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePath,
+              })
+            );
             const privacy = yield* makeAiMetricsPrivacyCheckResult({
               content,
               hashSalt: O.some("test-salt"),
@@ -1512,12 +1520,14 @@ volumes:
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
           yield* Effect.gen(function* () {
-            const summary = yield* summarizeTranscriptText({
-              content,
-              hashSalt: O.some("test-salt"),
-              sourceKind: AiMetricsTranscriptSource.Enum.claude,
-              sourcePath,
-            });
+            const summary = yield* summarizeTranscriptText(
+              AiMetricsTranscriptTextSummaryInput.make({
+                content,
+                hashSalt: O.some("test-salt"),
+                sourceKind: AiMetricsTranscriptSource.Enum.claude,
+                sourcePath,
+              })
+            );
             const privacy = yield* makeAiMetricsPrivacyCheckResult({
               content,
               hashSalt: O.some("test-salt"),
@@ -1667,12 +1677,14 @@ volumes:
   it.effect(
     "falls back unknown transcript type metadata to bounded event names",
     Effect.fn(function* () {
-      const summary = yield* summarizeTranscriptText({
-        content: '{"type":"sk-secretfixture","timestamp":"2026-05-05T10:00:00Z"}',
-        hashSalt: O.some("test-salt"),
-        sourceKind: AiMetricsTranscriptSource.Enum.codex,
-        sourcePath: "codex.jsonl",
-      });
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content: '{"type":"sk-secretfixture","timestamp":"2026-05-05T10:00:00Z"}',
+          hashSalt: O.some("test-salt"),
+          sourceKind: AiMetricsTranscriptSource.Enum.codex,
+          sourcePath: "codex.jsonl",
+        })
+      );
 
       expect(summary.eventNames).toEqual(["event"]);
     })
@@ -1692,12 +1704,14 @@ volumes:
             ],
             A.join("\n")
           );
-          const summary = yield* summarizeTranscriptText({
-            content,
-            hashSalt: O.some("test-salt"),
-            sourceKind: AiMetricsTranscriptSource.Enum.codex,
-            sourcePath,
-          });
+          const summary = yield* summarizeTranscriptText(
+            AiMetricsTranscriptTextSummaryInput.make({
+              content,
+              hashSalt: O.some("test-salt"),
+              sourceKind: AiMetricsTranscriptSource.Enum.codex,
+              sourcePath,
+            })
+          );
           const result = yield* makeAiMetricsPrivacyCheckResult({
             content,
             hashSalt: O.some("test-salt"),
@@ -1741,12 +1755,14 @@ volumes:
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
           yield* Effect.gen(function* () {
-            const summary = yield* summarizeTranscriptText({
-              content,
-              hashSalt: O.some("test-salt"),
-              sourceKind: AiMetricsTranscriptSource.Enum.codex,
-              sourcePath,
-            });
+            const summary = yield* summarizeTranscriptText(
+              AiMetricsTranscriptTextSummaryInput.make({
+                content,
+                hashSalt: O.some("test-salt"),
+                sourceKind: AiMetricsTranscriptSource.Enum.codex,
+                sourcePath,
+              })
+            );
             const privacy = yield* makeAiMetricsPrivacyCheckResult({
               content,
               hashSalt: O.some("test-salt"),
@@ -2888,12 +2904,14 @@ volumes:
     "reports derived UI as safe when secret-shaped values are absent",
     Effect.fn(function* () {
       const content = '{"type":"session_meta","timestamp":"2026-05-05T12:00:00Z"}';
-      const summary = yield* summarizeTranscriptText({
-        content,
-        hashSalt: O.some("test-salt"),
-        sourceKind: AiMetricsTranscriptSource.Enum.codex,
-        sourcePath: "codex.jsonl",
-      });
+      const summary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content,
+          hashSalt: O.some("test-salt"),
+          sourceKind: AiMetricsTranscriptSource.Enum.codex,
+          sourcePath: "codex.jsonl",
+        })
+      );
       const result = yield* makeAiMetricsPrivacyCheckResult({
         content,
         hashSalt: O.some("test-salt"),
@@ -3321,12 +3339,14 @@ volumes:
     "uses caller-relative paths for Claude source role attribution",
     Effect.fn(function* () {
       const content = '{"sessionId":"claude-session","timestamp":"2026-05-05T11:00:00Z"}';
-      const primarySummary = yield* summarizeTranscriptText({
-        content,
-        hashSalt: O.some("test-salt"),
-        sourceKind: AiMetricsTranscriptSource.Enum.claude,
-        sourcePath: "/tmp/subagents/workspace/claude.jsonl",
-      });
+      const primarySummary = yield* summarizeTranscriptText(
+        AiMetricsTranscriptTextSummaryInput.make({
+          content,
+          hashSalt: O.some("test-salt"),
+          sourceKind: AiMetricsTranscriptSource.Enum.claude,
+          sourcePath: "/tmp/subagents/workspace/claude.jsonl",
+        })
+      );
       const primary = yield* makeAiMetricsPrivacyCheckResult({
         content,
         hashSalt: O.some("test-salt"),

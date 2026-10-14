@@ -4,6 +4,7 @@ import {
   CodexModelsCache,
   ModelsCatalog,
   ModelsCatalogLive,
+  ModelsCatalogOptions,
   ModelsCatalogSources,
   ModelsCheck,
   ModelsCheckLive,
@@ -146,7 +147,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
   it.effect("validates a Codex binding against its cache ladder rather than upstream levels", () =>
     Effect.gen(function* () {
       const catalog = yield* ModelsCatalog;
-      const snapshot = yield* catalog.snapshot({ home: "/home/op", offline: false });
+      const snapshot = yield* catalog.snapshot(ModelsCatalogOptions.make({ home: "/home/op", offline: false }));
       const restricted = CatalogSnapshot.make({
         ...snapshot,
         models: A.map(snapshot.models, (model) =>

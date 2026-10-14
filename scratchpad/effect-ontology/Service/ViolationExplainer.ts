@@ -61,7 +61,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/ViolationExplainer");
  * @category errors
  * @since 0.0.0
  */
-export class ExplanationError extends S.TaggedError<ExplanationError>($I`ExplanationError`)(
+export class ExplanationError extends S.TaggedError<ExplanationError, { readonly brand: unique symbol }>($I`ExplanationError`)(
   "ExplanationError",
   {
     message: ErrorMessage.annotateKey({
@@ -101,7 +101,7 @@ const explanationContextMaxTokensDefault = PosInt.make(500);
  * @category schemas
  * @since 0.0.0
  */
-export class ExplanationContext extends S.Class<ExplanationContext>($I`ExplanationContext`)({
+export class ExplanationContext extends S.Opaque<ExplanationContext, { readonly brand: unique symbol }>()(S.Struct({
   /** The canonical RDF dataset containing the data graph */
   dataStore: S.OptionFromOptionalKey(Dataset).pipe(
     S.withConstructorDefault(Effect.succeedNone),
@@ -115,11 +115,9 @@ export class ExplanationContext extends S.Class<ExplanationContext>($I`Explanati
   domainDescription: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefaultTypeKey(Effect.succeed(""))),
   /** Maximum tokens for the explanation */
   maxTokens: PosInt.pipe(S.withConstructorDefault(Effect.succeed(explanationContextMaxTokensDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(explanationContextMaxTokensDefault))),
-  },
-  $I.annote("ExplanationContext", {
+  }).pipe($I.annoteSchema("ExplanationContext", {
     description: "Neighborhood triples, domain description, and token bound for a SHACL explanation.",
-  })
-) {
+  }))) {
   /**
    * Create empty context
    *
@@ -180,7 +178,7 @@ const llmViolationExplanationConfidenceDefault = Confidence.make(0.8);
  * @category schemas
  * @since 0.0.0
  */
-export class LlmViolationExplanation extends S.Class<LlmViolationExplanation>($I`LlmViolationExplanation`)({
+export class LlmViolationExplanation extends S.Class<LlmViolationExplanation, { readonly brand: unique symbol }>($I`LlmViolationExplanation`)({
   /** Original violation */
   focusNode: S.String,
   /** Path that was violated (if any) */
@@ -247,7 +245,7 @@ export class LlmViolationExplanation extends S.Class<LlmViolationExplanation>($I
  * @category schemas
  * @since 0.0.0
  */
-export class BatchExplanationResult extends S.Class<BatchExplanationResult>($I`BatchExplanationResult`)(
+export class BatchExplanationResult extends S.Class<BatchExplanationResult, { readonly brand: unique symbol }>($I`BatchExplanationResult`)(
   {
     explanations: S.Array(LlmViolationExplanation),
     totalViolations: S.Natural,

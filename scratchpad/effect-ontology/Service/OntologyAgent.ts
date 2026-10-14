@@ -120,7 +120,7 @@ type OntologyQueryError =
  * @category errors
  * @since 0.0.0
  */
-export class OntologyAgentError extends S.TaggedError<OntologyAgentError>($I`OntologyAgentError`)(
+export class OntologyAgentError extends S.TaggedError<OntologyAgentError, { readonly brand: unique symbol }>($I`OntologyAgentError`)(
   "OntologyAgentError",
   {
     operation: OntologyAgentOperation.annotateKey({

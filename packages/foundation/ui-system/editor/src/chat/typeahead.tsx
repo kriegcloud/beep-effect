@@ -85,7 +85,9 @@ class MentionMenuOption extends MenuOption {
  * @category errors
  * @since 0.0.0
  */
-export class MentionLookupError extends S.TaggedError<MentionLookupError>($I`MentionLookupError`)(
+export class MentionLookupError extends S.TaggedError<MentionLookupError, { readonly brand: unique symbol }>(
+  $I`MentionLookupError`
+)(
   "MentionLookupError",
   {
     reason: S.Literals(["source-failed", "invalid-results"]).annotateKey({

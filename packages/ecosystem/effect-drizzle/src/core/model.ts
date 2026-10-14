@@ -37,7 +37,9 @@ import type * as Meta from "./Meta.ts";
  * @category errors
  * @since 0.0.0
  */
-export class ModelInvariantError extends TaggedError<ModelInvariantError>("@beep/effect-drizzle/ModelInvariantError")(
+export class ModelInvariantError extends TaggedError<ModelInvariantError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/ModelInvariantError"
+)(
   "ModelInvariantError",
   {
     message: StringSchema,

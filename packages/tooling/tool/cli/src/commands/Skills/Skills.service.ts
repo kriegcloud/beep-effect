@@ -93,26 +93,28 @@ const decodeSkillTreeMode = S.decodeUnknownEffect(SkillTreeMode);
 const GitHubTreeEntryType = LiteralKit(["blob", "tree", "commit"]);
 const GitHubTreeMode = LiteralKit(["100644", "100755", "120000", "040000", "160000"]);
 
-class GitHubTreeEntry extends S.Class<GitHubTreeEntry>($I`GitHubTreeEntry`)(
-  {
+class GitHubTreeEntry extends S.Opaque<GitHubTreeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: GitHubTreeMode,
     type: GitHubTreeEntryType,
     sha: S.String,
-  },
-  $I.annote("GitHubTreeEntry", {
-    description: "Mode-aware entry returned by the GitHub recursive tree API.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTreeEntry", {
+      description: "Mode-aware entry returned by the GitHub recursive tree API.",
+    })
+  )
 ) {}
 
-class GitHubTree extends S.Class<GitHubTree>($I`GitHubTree`)(
-  {
+class GitHubTree extends S.Opaque<GitHubTree, { readonly brand: unique symbol }>()(
+  S.Struct({
     tree: S.Array(GitHubTreeEntry),
     truncated: S.Boolean,
-  },
-  $I.annote("GitHubTree", {
-    description: "GitHub recursive tree response used by the pinned upstream content source.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTree", {
+      description: "GitHub recursive tree response used by the pinned upstream content source.",
+    })
+  )
 ) {}
 
 const decodeGitHubTree = S.decodeUnknownEffect(S.fromJsonString(S.suspend(() => GitHubTree)));

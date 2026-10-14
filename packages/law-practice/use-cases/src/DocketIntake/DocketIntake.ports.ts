@@ -50,7 +50,9 @@ const $I = $LawPracticeUseCasesId.create("DocketIntake/DocketIntake.ports");
  * @category errors
  * @since 0.0.0
  */
-export class DocketIntakeError extends S.TaggedError<DocketIntakeError>($I`DocketIntakeError`)(
+export class DocketIntakeError extends S.TaggedError<DocketIntakeError, { readonly brand: unique symbol }>(
+  $I`DocketIntakeError`
+)(
   "DocketIntakeError",
   {
     ambiguousWrite: S.Boolean.pipe(

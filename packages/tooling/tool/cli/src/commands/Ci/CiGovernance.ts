@@ -35,35 +35,44 @@ const emptyRecord: Readonly<Record<string, unknown>> = {};
 const SizeLabel = LiteralKit(["size/S", "size/M", "size/L", "size/XL"]).pipe(
   $I.annoteSchema("SizeLabel", { description: "The mutually exclusive pull request size labels." })
 );
-class PrSizeLabelDiff extends S.Class<PrSizeLabelDiff>($I`PrSizeLabelDiff`)(
-  { label: SizeLabel, remove: S.Array(S.String), add: S.Boolean },
-  $I.annote("PrSizeLabelDiff", { description: "The size label to keep and contradictory labels to remove." })
+class PrSizeLabelDiff extends S.Opaque<PrSizeLabelDiff, { readonly brand: unique symbol }>()(
+  S.Struct({ label: SizeLabel, remove: S.Array(S.String), add: S.Boolean }).pipe(
+    $I.annoteSchema("PrSizeLabelDiff", { description: "The size label to keep and contradictory labels to remove." })
+  )
 ) {}
 const textRecord = S.Record(S.String, S.Unknown);
-class WorkflowStep extends S.Class<WorkflowStep>($I`WorkflowStep`)(
-  { uses: S.optionalKey(S.String), with: S.optionalKey(textRecord), env: S.optionalKey(textRecord) },
-  $I.annote("WorkflowStep", { description: "Workflow step fields inspected by credential and artifact policy." })
+class WorkflowStep extends S.Opaque<WorkflowStep, { readonly brand: unique symbol }>()(
+  S.Struct({ uses: S.optionalKey(S.String), with: S.optionalKey(textRecord), env: S.optionalKey(textRecord) }).pipe(
+    $I.annoteSchema("WorkflowStep", {
+      description: "Workflow step fields inspected by credential and artifact policy.",
+    })
+  )
 ) {}
-class WorkflowJob extends S.Class<WorkflowJob>($I`WorkflowJob`)(
-  {
+class WorkflowJob extends S.Opaque<WorkflowJob, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.optionalKey(S.String),
     environment: S.optionalKey(S.Union([S.String, S.Struct({ name: S.String })])),
     env: S.optionalKey(textRecord),
     steps: WorkflowStep.pipe(S.Array, S.optionalKey),
     strategy: S.optionalKey(S.Struct({ matrix: S.Record(S.String, S.Unknown) })),
-  },
-  $I.annote("WorkflowJob", { description: "Projected YAML job for workflow policy and producing-context checks." })
+  }).pipe(
+    $I.annoteSchema("WorkflowJob", {
+      description: "Projected YAML job for workflow policy and producing-context checks.",
+    })
+  )
 ) {}
-class WorkflowDocument extends S.Class<WorkflowDocument>($I`WorkflowDocument`)(
-  { on: S.Unknown, concurrency: S.optionalKey(textRecord), jobs: S.Record(S.String, WorkflowJob) },
-  $I.annote("WorkflowDocument", { description: "GitHub workflow document with job projections." })
+class WorkflowDocument extends S.Opaque<WorkflowDocument, { readonly brand: unique symbol }>()(
+  S.Struct({ on: S.Unknown, concurrency: S.optionalKey(textRecord), jobs: S.Record(S.String, WorkflowJob) }).pipe(
+    $I.annoteSchema("WorkflowDocument", { description: "GitHub workflow document with job projections." })
+  )
 ) {}
-class RequiredContext extends S.Class<RequiredContext>($I`RequiredContext`)(
-  { context: S.String, integration_id: S.Finite.pipe(S.NullOr, S.optionalKey) },
-  $I.annote("RequiredContext", { description: "A required status context and its producing integration." })
+class RequiredContext extends S.Opaque<RequiredContext, { readonly brand: unique symbol }>()(
+  S.Struct({ context: S.String, integration_id: S.Finite.pipe(S.NullOr, S.optionalKey) }).pipe(
+    $I.annoteSchema("RequiredContext", { description: "A required status context and its producing integration." })
+  )
 ) {}
-class RulesetRule extends S.Class<RulesetRule>($I`RulesetRule`)(
-  {
+class RulesetRule extends S.Opaque<RulesetRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     parameters: S.optionalKey(
       S.Struct({
@@ -71,24 +80,67 @@ class RulesetRule extends S.Class<RulesetRule>($I`RulesetRule`)(
         required_status_checks: RequiredContext.pipe(S.Array, S.optionalKey),
       })
     ),
-  },
-  $I.annote("RulesetRule", { description: "Required status checks projected from a GitHub ruleset." })
+  }).pipe($I.annoteSchema("RulesetRule", { description: "Required status checks projected from a GitHub ruleset." }))
 ) {}
-class Ruleset extends S.Class<Ruleset>($I`Ruleset`)(
-  { id: S.Finite, name: S.String, enforcement: S.String, rules: S.Array(RulesetRule) },
-  $I.annote("Ruleset", { description: "Live ruleset state used for capture and drift checking." })
+class Ruleset extends S.Opaque<Ruleset, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Finite, name: S.String, enforcement: S.String, rules: S.Array(RulesetRule) }).pipe(
+    $I.annoteSchema("Ruleset", { description: "Live ruleset state used for capture and drift checking." })
+  )
 ) {}
-class SettingsEnvironment extends S.Class<SettingsEnvironment>($I`SettingsEnvironment`)(
-  { protection_rules: S.Array(S.Struct({ type: S.String, reviewers: S.Unknown.pipe(S.Array, S.optionalKey) })) },
-  $I.annote("SettingsEnvironment", { description: "Desktop environment reviewer rules without secret values." })
+/**
+ * Desktop environment reviewer rules without secret values.
+ *
+ * **Example** (Require a named reviewer on the desktop environment)
+ *
+ * ```ts
+ * import { desktopEnvironmentApproved, SettingsEnvironment } from "@beep/repo-cli/commands/Ci"
+ *
+ * const unreviewed = SettingsEnvironment.make({ protection_rules: [{ type: "required_reviewers", reviewers: [] }] })
+ * const reviewed = SettingsEnvironment.make({
+ *   protection_rules: [{ type: "required_reviewers", reviewers: [{ type: "User", reviewer: { login: "octocat" } }] }]
+ * })
+ *
+ * console.log(desktopEnvironmentApproved(unreviewed)) // => false
+ * console.log(desktopEnvironmentApproved(reviewed)) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SettingsEnvironment extends S.Opaque<SettingsEnvironment, { readonly brand: unique symbol }>()(
+  S.Struct({
+    protection_rules: S.Array(S.Struct({ type: S.String, reviewers: S.Unknown.pipe(S.Array, S.optionalKey) })),
+  }).pipe(
+    $I.annoteSchema("SettingsEnvironment", { description: "Desktop environment reviewer rules without secret values." })
+  )
 ) {}
-class HeldRun extends S.Class<HeldRun>($I`HeldRun`)(
-  { id: S.Finite, status: S.String, created_at: S.String, head_branch: S.String },
-  $I.annote("HeldRun", { description: "Main Check run fields required to detect a held concurrency group." })
+/**
+ * Main Check run fields required to detect a held concurrency group.
+ *
+ * **Example** (Find the stale main run holding the concurrency group)
+ *
+ * ```ts
+ * import { HeldRun, heldGroupRunIds } from "@beep/repo-cli/commands/Ci"
+ *
+ * const stale = HeldRun.make({ id: 101, status: "waiting", created_at: "2026-10-09T12:00:00Z", head_branch: "main" })
+ * const successor = HeldRun.make({ id: 102, status: "pending", created_at: "2026-10-09T13:00:00Z", head_branch: "main" })
+ * const twoHoursLater = Date.parse("2026-10-09T14:00:00Z")
+ *
+ * console.log(heldGroupRunIds([stale, successor], twoHoursLater)) // => [101]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HeldRun extends S.Opaque<HeldRun, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Finite, status: S.String, created_at: S.String, head_branch: S.String }).pipe(
+    $I.annoteSchema("HeldRun", { description: "Main Check run fields required to detect a held concurrency group." })
+  )
 ) {}
-class HeldRunList extends S.Class<HeldRunList>($I`HeldRunList`)(
-  { workflow_runs: S.Array(HeldRun) },
-  $I.annote("HeldRunList", { description: "Main-push Check runs returned by the GitHub API." })
+class HeldRunList extends S.Opaque<HeldRunList, { readonly brand: unique symbol }>()(
+  S.Struct({ workflow_runs: S.Array(HeldRun) }).pipe(
+    $I.annoteSchema("HeldRunList", { description: "Main-push Check runs returned by the GitHub API." })
+  )
 ) {}
 
 const stringListOption = S.Array(S.String).pipe(S.decodeUnknownOption);
@@ -360,8 +412,8 @@ export const heldGroupRunIds: {
  * **Example** (Missing approval)
  *
  * ```ts
- * import { desktopEnvironmentApproved } from "@beep/repo-cli/commands/Ci"
- * desktopEnvironmentApproved({ protection_rules: [] }) // => false
+ * import { desktopEnvironmentApproved, SettingsEnvironment } from "@beep/repo-cli/commands/Ci"
+ * desktopEnvironmentApproved(SettingsEnvironment.make({ protection_rules: [] })) // => false
  * ```
  *
  * @param environment - The decoded protection rules returned by GitHub.

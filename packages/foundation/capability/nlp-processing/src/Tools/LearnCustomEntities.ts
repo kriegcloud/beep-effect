@@ -25,8 +25,8 @@ const LearnCustomEntitiesMode = LearnCustomEntitiesModeKit.pipe(
   SchemaUtils.withLiteralKitStatics(LearnCustomEntitiesModeKit)
 );
 
-class LearnCustomEntityDefinition extends S.Class<LearnCustomEntityDefinition>($I`LearnCustomEntityDefinition`)(
-  {
+class LearnCustomEntityDefinition extends S.Opaque<LearnCustomEntityDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
     mark: S.optionalKey(MarkRange).annotateKey({
       description: "Optional [start, end] mark range over matched pattern tokens",
     }),
@@ -36,14 +36,18 @@ class LearnCustomEntityDefinition extends S.Class<LearnCustomEntityDefinition>($
     patterns: S.NonEmptyArray(S.String).annotateKey({
       description: "Ordered bracket-string pattern elements such as [PROPN], [PROPN]",
     }),
-  },
-  $I.annote("LearnCustomEntityDefinition", {
-    description: "One custom entity definition consisting of a name and bracket-string patterns.",
-  })
+  }).pipe(
+    $I.annoteSchema("LearnCustomEntityDefinition", {
+      description: "One custom entity definition consisting of a name and bracket-string patterns.",
+    })
+  )
 ) {}
 
-class LearnCustomEntitiesParameters extends S.Class<LearnCustomEntitiesParameters>($I`LearnCustomEntitiesParameters`)(
-  {
+class LearnCustomEntitiesParameters extends S.Opaque<
+  LearnCustomEntitiesParameters,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     entities: S.NonEmptyArray(LearnCustomEntityDefinition).annotateKey({
       description: "One or more custom entity definitions to learn",
     }),
@@ -53,23 +57,25 @@ class LearnCustomEntitiesParameters extends S.Class<LearnCustomEntitiesParameter
     mode: S.optionalKey(LearnCustomEntitiesMode).annotateKey({
       description: "append merges with existing learned entities; replace overwrites them.",
     }),
-  },
-  $I.annote("LearnCustomEntitiesParameters", {
-    description: "Inputs required to learn custom bracket-string entity patterns into the wink engine.",
-  })
+  }).pipe(
+    $I.annoteSchema("LearnCustomEntitiesParameters", {
+      description: "Inputs required to learn custom bracket-string entity patterns into the wink engine.",
+    })
+  )
 ) {}
 
-class LearnCustomEntitiesSuccess extends S.Class<LearnCustomEntitiesSuccess>($I`LearnCustomEntitiesSuccess`)(
-  {
+class LearnCustomEntitiesSuccess extends S.Opaque<LearnCustomEntitiesSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     entityNames: S.Array(S.String),
     groupName: S.String,
     learnedEntityCount: S.Natural,
     mode: LearnCustomEntitiesMode,
     totalEntityCount: S.Natural,
-  },
-  $I.annote("LearnCustomEntitiesSuccess", {
-    description: "Learning result summary for custom entity definitions.",
-  })
+  }).pipe(
+    $I.annoteSchema("LearnCustomEntitiesSuccess", {
+      description: "Learning result summary for custom entity definitions.",
+    })
+  )
 ) {}
 
 /**

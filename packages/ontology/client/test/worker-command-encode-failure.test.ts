@@ -21,12 +21,12 @@ vi.mock("@beep/ontology-use-cases/aggregates/Session", (importOriginal) =>
     import("effect/Result"),
     import("effect/Schema"),
   ]).then(([actual, ResultModule, SchemaModule]) => {
-    class ForcedWorkerCommandEncodeFailure extends SchemaModule.TaggedError<ForcedWorkerCommandEncodeFailure>()(
-      "ForcedWorkerCommandEncodeFailure",
-      {
-        message: SchemaModule.String,
-      }
-    ) {}
+    class ForcedWorkerCommandEncodeFailure extends SchemaModule.TaggedError<
+      ForcedWorkerCommandEncodeFailure,
+      { readonly brand: unique symbol }
+    >()("ForcedWorkerCommandEncodeFailure", {
+      message: SchemaModule.String,
+    }) {}
     return {
       ...actual,
       encodeWorkerCommand: () =>

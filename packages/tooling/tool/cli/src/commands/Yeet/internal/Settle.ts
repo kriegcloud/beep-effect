@@ -70,15 +70,17 @@ const $I = $RepoCliId.create("commands/Yeet/internal/Settle");
  * @category models
  * @since 0.0.0
  */
-export class GhRulesetRequiredStatusCheck extends S.Class<GhRulesetRequiredStatusCheck>(
-  $I`GhRulesetRequiredStatusCheck`
-)(
-  {
+export class GhRulesetRequiredStatusCheck extends S.Opaque<
+  GhRulesetRequiredStatusCheck,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     context: S.String,
-  },
-  $I.annote("GhRulesetRequiredStatusCheck", {
-    description: "One required status-check context named by a branch ruleset.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhRulesetRequiredStatusCheck", {
+      description: "One required status-check context named by a branch ruleset.",
+    })
+  )
 ) {}
 
 /**
@@ -103,17 +105,18 @@ export class GhRulesetRequiredStatusCheck extends S.Class<GhRulesetRequiredStatu
  * @category models
  * @since 0.0.0
  */
-export class GhBranchRule extends S.Class<GhBranchRule>($I`GhBranchRule`)(
-  {
+export class GhBranchRule extends S.Opaque<GhBranchRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     ruleset_id: S.optionalKey(S.Finite),
     parameters: S.Struct({
       required_status_checks: GhRulesetRequiredStatusCheck.pipe(S.Array, S.optionalKey),
     }).pipe(S.optionalKey),
-  },
-  $I.annote("GhBranchRule", {
-    description: "One branch rule from the GitHub rules API, narrowed to the required-status-check contexts.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhBranchRule", {
+      description: "One branch rule from the GitHub rules API, narrowed to the required-status-check contexts.",
+    })
+  )
 ) {}
 
 /**
@@ -142,16 +145,20 @@ export class GhBranchRule extends S.Class<GhBranchRule>($I`GhBranchRule`)(
  * @category models
  * @since 0.0.0
  */
-export class YeetRulesetRequiredContexts extends S.Class<YeetRulesetRequiredContexts>($I`YeetRulesetRequiredContexts`)(
-  {
+export class YeetRulesetRequiredContexts extends S.Opaque<
+  YeetRulesetRequiredContexts,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     base: S.NonEmptyString,
     contexts: S.Array(S.NonEmptyString),
     rulesetIds: S.Array(S.Finite),
     readAt: S.String,
-  },
-  $I.annote("YeetRulesetRequiredContexts", {
-    description: "Required status-check contexts the base branch ruleset expects for a pull request head.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRulesetRequiredContexts", {
+      description: "Required status-check contexts the base branch ruleset expects for a pull request head.",
+    })
+  )
 ) {}
 
 /**
@@ -174,15 +181,16 @@ export class YeetRulesetRequiredContexts extends S.Class<YeetRulesetRequiredCont
  * @category models
  * @since 0.0.0
  */
-export class YeetGatedContextFamily extends S.Class<YeetGatedContextFamily>($I`YeetGatedContextFamily`)(
-  {
+export class YeetGatedContextFamily extends S.Opaque<YeetGatedContextFamily, { readonly brand: unique symbol }>()(
+  S.Struct({
     prefix: S.NonEmptyString,
     admittedBy: S.NonEmptyString,
     members: S.Array(S.NonEmptyString),
-  },
-  $I.annote("YeetGatedContextFamily", {
-    description: "Expected contexts sharing a prefix that a single label admits, with the admitting label.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetGatedContextFamily", {
+      description: "Expected contexts sharing a prefix that a single label admits, with the admitting label.",
+    })
+  )
 ) {}
 
 /**
@@ -238,15 +246,16 @@ const isRequiredStatusChecksRule = (rule: GhBranchRule): boolean => rule.type ==
  * @category models
  * @since 0.0.0
  */
-export class YeetRulesetRulesPayload extends S.Class<YeetRulesetRulesPayload>($I`YeetRulesetRulesPayload`)(
-  {
+export class YeetRulesetRulesPayload extends S.Opaque<YeetRulesetRulesPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.NonEmptyString,
     readAt: S.String,
     rules: S.Array(GhBranchRule),
-  },
-  $I.annote("YeetRulesetRulesPayload", {
-    description: "Decoded branch rules for one base branch, stamped with the read instant.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRulesetRulesPayload", {
+      description: "Decoded branch rules for one base branch, stamped with the read instant.",
+    })
+  )
 ) {}
 
 /**
@@ -573,15 +582,16 @@ export const readYeetChangedPaths = Effect.fn("Yeet.readYeetChangedPaths")(funct
  * @category models
  * @since 0.0.0
  */
-export class YeetSettleCheck extends S.Class<YeetSettleCheck>($I`YeetSettleCheck`)(
-  {
+export class YeetSettleCheck extends S.Opaque<YeetSettleCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     outcome: YeetCheckOutcome,
     required: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
-  },
-  $I.annote("YeetSettleCheck", {
-    description: "One reported PR check with its classified outcome and GitHub required flag.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetSettleCheck", {
+      description: "One reported PR check with its classified outcome and GitHub required flag.",
+    })
+  )
 ) {}
 
 /**
@@ -676,16 +686,17 @@ export const yeetBaseMergeableFor: {
  * @category models
  * @since 0.0.0
  */
-export class YeetRegistrationRecall extends S.Class<YeetRegistrationRecall>($I`YeetRegistrationRecall`)(
-  {
+export class YeetRegistrationRecall extends S.Opaque<YeetRegistrationRecall, { readonly brand: unique symbol }>()(
+  S.Struct({
     registered: S.HashSet(S.String),
     checks: S.Array(YeetSettleCheck),
     recalled: S.Array(S.String),
-  },
-  $I.annote("YeetRegistrationRecall", {
-    description:
-      "Registration memory for one head plus the poll's checks with remembered-but-absent names kept pending.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRegistrationRecall", {
+      description:
+        "Registration memory for one head plus the poll's checks with remembered-but-absent names kept pending.",
+    })
+  )
 ) {}
 
 /**
@@ -746,14 +757,15 @@ export const rememberRegistered: {
  * @category models
  * @since 0.0.0
  */
-export class YeetExpectedContextInput extends S.Class<YeetExpectedContextInput>($I`YeetExpectedContextInput`)(
-  {
+export class YeetExpectedContextInput extends S.Opaque<YeetExpectedContextInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     expected: S.Array(S.NonEmptyString),
     checks: S.Array(YeetSettleCheck),
-  },
-  $I.annote("YeetExpectedContextInput", {
-    description: "Expected required contexts paired with the checks one poll reported.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetExpectedContextInput", {
+      description: "Expected required contexts paired with the checks one poll reported.",
+    })
+  )
 ) {}
 
 const yeetExpectedContextCensusGatedDefault = A.empty<string>();
@@ -787,8 +799,8 @@ const yeetExpectedContextCensusGatedDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class YeetExpectedContextCensus extends S.Class<YeetExpectedContextCensus>($I`YeetExpectedContextCensus`)(
-  {
+export class YeetExpectedContextCensus extends S.Opaque<YeetExpectedContextCensus, { readonly brand: unique symbol }>()(
+  S.Struct({
     matched: S.Array(S.String),
     unmatched: S.Array(S.String),
     pending: S.Array(S.String),
@@ -797,11 +809,12 @@ export class YeetExpectedContextCensus extends S.Class<YeetExpectedContextCensus
       S.withConstructorDefault(Effect.succeed(yeetExpectedContextCensusGatedDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(yeetExpectedContextCensusGatedDefault))
     ),
-  },
-  $I.annote("YeetExpectedContextCensus", {
-    description:
-      "Expected contexts partitioned into matched, tolerated-unmatched, and missing, plus the pending checks that hold the settle.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetExpectedContextCensus", {
+      description:
+        "Expected contexts partitioned into matched, tolerated-unmatched, and missing, plus the pending checks that hold the settle.",
+    })
+  )
 ) {}
 
 const matrixChildPrefix = (context: string): string => `${context} (`;
@@ -907,8 +920,8 @@ const yeetSettleInputFamiliesDefault = A.empty<YeetGatedContextFamily>();
  * @category models
  * @since 0.0.0
  */
-export class YeetSettleInput extends S.Class<YeetSettleInput>($I`YeetSettleInput`)(
-  {
+export class YeetSettleInput extends S.Opaque<YeetSettleInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     expected: YeetRulesetRequiredContexts.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     checks: S.Array(YeetSettleCheck),
     closeoutBound: S.Boolean,
@@ -923,11 +936,12 @@ export class YeetSettleInput extends S.Class<YeetSettleInput>($I`YeetSettleInput
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("YeetSettleInput", {
-    description:
-      "Expected contexts, reported checks, closeout binding, elapsed wait, gated families, heavy admission, and base-conflict state for one settle evaluation.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetSettleInput", {
+      description:
+        "Expected contexts, reported checks, closeout binding, elapsed wait, gated families, heavy admission, and base-conflict state for one settle evaluation.",
+    })
+  )
 ) {}
 
 /**
@@ -962,8 +976,8 @@ export class YeetSettleInput extends S.Class<YeetSettleInput>($I`YeetSettleInput
  * @category models
  * @since 0.0.0
  */
-export class YeetSettleVerdict extends S.Class<YeetSettleVerdict>($I`YeetSettleVerdict`)(
-  {
+export class YeetSettleVerdict extends S.Opaque<YeetSettleVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     settled: S.Boolean,
     reason: YeetSettleReason.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     census: YeetExpectedContextCensus,
@@ -974,11 +988,12 @@ export class YeetSettleVerdict extends S.Class<YeetSettleVerdict>($I`YeetSettleV
       S.withConstructorDefault(Effect.succeed(true))
     ),
     admission: HeavyAdmission.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetSettleVerdict", {
-    description:
-      "Whether the required census settled, the wait reason the gate line names, the census behind it, whether the registration budget still applies, and the heavy admission it was judged under.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetSettleVerdict", {
+      description:
+        "Whether the required census settled, the wait reason the gate line names, the census behind it, whether the registration budget still applies, and the heavy admission it was judged under.",
+    })
+  )
 ) {}
 
 const censusFor = (input: YeetSettleInput): YeetExpectedContextCensus =>

@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/workspaces/PackageManagerName");
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
-class PackageManagerDetectorDefect extends S.TaggedError<PackageManagerDetectorDefect>($I`PackageManagerDetectorDefect`)("PackageManagerDetectorDefect", {
+class PackageManagerDetectorDefect extends S.TaggedError<PackageManagerDetectorDefect, { readonly brand: unique symbol }>($I`PackageManagerDetectorDefect`)("PackageManagerDetectorDefect", {
 	message: S.String,
 }, $I.annote("PackageManagerDetectorDefect", { description: "An invalid manifest value or unstubbed package manager detector." })) {}
 
@@ -154,7 +154,7 @@ export type PackageManagerEvidence = typeof PackageManagerEvidence.Type;
  * @category models
  * @since 0.0.0
  */
-export class DetectedPackageManager extends S.Class<DetectedPackageManager>($I`DetectedPackageManager`)({
+export class DetectedPackageManager extends S.Class<DetectedPackageManager, { readonly brand: unique symbol }>($I`DetectedPackageManager`)({
 	/** The detected manager. */
 	name: PackageManagerName.annotateKey({ description: "The detected manager." }),
 	/** Its version, when a manifest field agrees on the manager and carries one. */
@@ -293,7 +293,7 @@ const corepackHint = (manifest: Record<string, unknown>): O.Option<ManagerHint> 
  * @category errors
  * @since 0.0.0
  */
-export class PackageManagerDetectionError extends S.TaggedError<PackageManagerDetectionError>($I`PackageManagerDetectionError`)(
+export class PackageManagerDetectionError extends S.TaggedError<PackageManagerDetectionError, { readonly brand: unique symbol }>($I`PackageManagerDetectionError`)(
 	"PackageManagerDetectionError",
 	{
 		/** The workspace root that was probed. */

@@ -154,16 +154,17 @@ export const worktreeAddArgs: {
  * @category models
  * @since 0.0.0
  */
-export class WorktreeContext extends S.Class<WorktreeContext>($I`WorktreeContext`)(
-  {
+export class WorktreeContext extends S.Opaque<WorktreeContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     currentRoot: S.String,
     mainCheckout: S.String,
     worktreesRoot: S.String,
     entries: S.Array(WorktreeListEntry),
-  },
-  $I.annote("WorktreeContext", {
-    description: "Resolved worktree layout (invoking root, main checkout, worktrees root) plus listed worktrees.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeContext", {
+      description: "Resolved worktree layout (invoking root, main checkout, worktrees root) plus listed worktrees.",
+    })
+  )
 ) {}
 
 /**
@@ -193,15 +194,16 @@ export class WorktreeContext extends S.Class<WorktreeContext>($I`WorktreeContext
  * @category models
  * @since 0.0.0
  */
-export class WorktreeCopyOutcome extends S.Class<WorktreeCopyOutcome>($I`WorktreeCopyOutcome`)(
-  {
+export class WorktreeCopyOutcome extends S.Opaque<WorktreeCopyOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     entry: S.String,
     status: LiteralKit(["copied", "skipped"]),
     reason: S.optionalKey(S.String),
-  },
-  $I.annote("WorktreeCopyOutcome", {
-    description: "Outcome of copying one local-only file from the main checkout into a fresh worktree.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeCopyOutcome", {
+      description: "Outcome of copying one local-only file from the main checkout into a fresh worktree.",
+    })
+  )
 ) {}
 
 /**
@@ -236,8 +238,8 @@ export class WorktreeCopyOutcome extends S.Class<WorktreeCopyOutcome>($I`Worktre
  * @category models
  * @since 0.0.0
  */
-export class WorktreeDoctorEntry extends S.Class<WorktreeDoctorEntry>($I`WorktreeDoctorEntry`)(
-  {
+export class WorktreeDoctorEntry extends S.Opaque<WorktreeDoctorEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     branch: S.NullOr(S.String),
     detached: S.Boolean,
@@ -251,10 +253,11 @@ export class WorktreeDoctorEntry extends S.Class<WorktreeDoctorEntry>($I`Worktre
     changeCount: S.Finite,
     hasEnv: S.Boolean,
     hasNodeModules: S.Boolean,
-  },
-  $I.annote("WorktreeDoctorEntry", {
-    description: "Per-worktree diagnostic row emitted by worktree doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeDoctorEntry", {
+      description: "Per-worktree diagnostic row emitted by worktree doctor.",
+    })
+  )
 ) {}
 
 /**
@@ -284,16 +287,17 @@ export class WorktreeDoctorEntry extends S.Class<WorktreeDoctorEntry>($I`Worktre
  * @category models
  * @since 0.0.0
  */
-export class WorktreeDoctorReport extends S.Class<WorktreeDoctorReport>($I`WorktreeDoctorReport`)(
-  {
+export class WorktreeDoctorReport extends S.Opaque<WorktreeDoctorReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     mainCheckout: S.String,
     worktreesRoot: S.String,
     entries: S.Array(WorktreeDoctorEntry),
     pruneDryRun: S.Array(S.String),
-  },
-  $I.annote("WorktreeDoctorReport", {
-    description: "Read-only report produced by worktree doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeDoctorReport", {
+      description: "Read-only report produced by worktree doctor.",
+    })
+  )
 ) {}
 
 const isUnderWorktreesRoot = (path: Path.Path, worktreesRoot: string, candidate: string): boolean => {

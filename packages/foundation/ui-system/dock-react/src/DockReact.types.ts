@@ -50,13 +50,14 @@ const $I = $DockReactId.create("DockReact.types");
  * @category models
  * @since 0.0.0
  */
-export class DockPanelApi extends S.Class<DockPanelApi>($I`DockPanelApi`)(
-  {
+export class DockPanelApi extends S.Opaque<DockPanelApi, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: PanelIdSchema,
-  },
-  $I.annote("DockPanelApi", {
-    description: "Renderer-facing API identifying the dock panel currently being rendered.",
-  })
+  }).pipe(
+    $I.annoteSchema("DockPanelApi", {
+      description: "Renderer-facing API identifying the dock panel currently being rendered.",
+    })
+  )
 ) {}
 
 /**

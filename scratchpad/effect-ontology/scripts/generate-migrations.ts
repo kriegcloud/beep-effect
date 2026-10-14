@@ -23,7 +23,7 @@ CREATE EXTENSION IF NOT EXISTS vector;--> statement-breakpoint
 CREATE EXTENSION IF NOT EXISTS pg_trgm;--> statement-breakpoint
 `;
 
-class MigrationGenerationError extends S.TaggedError<MigrationGenerationError>()("MigrationGenerationError", {
+class MigrationGenerationError extends S.TaggedError<MigrationGenerationError, { readonly brand: unique symbol }>()("MigrationGenerationError", {
   message: S.NonEmptyString,
   exitCode: S.Int,
 }) {}

@@ -67,7 +67,9 @@ export type CandorRecordReadReason = typeof CandorRecordReadReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class CandorRecordReadError extends S.TaggedError<CandorRecordReadError>($I`CandorRecordReadError`)(
+export class CandorRecordReadError extends S.TaggedError<CandorRecordReadError, { readonly brand: unique symbol }>(
+  $I`CandorRecordReadError`
+)(
   "CandorRecordReadError",
   {
     message: S.String,

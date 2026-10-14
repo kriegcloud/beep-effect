@@ -1,4 +1,8 @@
 import {
+  BuildProbeRegionLuminanceArgsOptions,
+  BuildRenderContactSheetArgsOptions,
+  BuildRenderGifArgsOptions,
+  BuildWriteContainerMetadataArgsOptions,
   buildExtractClipArgs,
   buildExtractFrameAtArgs,
   buildProbeRegionLuminanceArgs,
@@ -379,15 +383,17 @@ describe("@beep/ffmpeg capture", () => {
 
   it("builds palette-optimized GIF arguments with dither routing", () => {
     expect(
-      buildRenderGifArgs({
-        dither: "bayer",
-        duration: "2",
-        fps: "10",
-        outputPath: "./clips/drag.gif",
-        start: "1.5",
-        videoPath: "./capture.webm",
-        width: 640,
-      })
+      buildRenderGifArgs(
+        BuildRenderGifArgsOptions.make({
+          dither: "bayer",
+          duration: "2",
+          fps: "10",
+          outputPath: "./clips/drag.gif",
+          start: "1.5",
+          videoPath: "./capture.webm",
+          width: 640,
+        })
+      )
     ).toEqual([
       "-hide_banner",
       "-nostdin",
@@ -405,15 +411,17 @@ describe("@beep/ffmpeg capture", () => {
       "./clips/drag.gif",
     ]);
 
-    const floydArgs = buildRenderGifArgs({
-      dither: "floyd_steinberg",
-      duration: "2",
-      fps: "15",
-      outputPath: "./clips/drag.gif",
-      start: "0",
-      videoPath: "./capture.webm",
-      width: 480,
-    });
+    const floydArgs = buildRenderGifArgs(
+      BuildRenderGifArgsOptions.make({
+        dither: "floyd_steinberg",
+        duration: "2",
+        fps: "15",
+        outputPath: "./clips/drag.gif",
+        start: "0",
+        videoPath: "./capture.webm",
+        width: 480,
+      })
+    );
     expect(floydArgs).toContain(
       "[0:v] fps=15,scale=480:-1:flags=lanczos,split [a][b];[a] palettegen=stats_mode=diff [p];[b][p] paletteuse=dither=floyd_steinberg"
     );
@@ -421,15 +429,17 @@ describe("@beep/ffmpeg capture", () => {
 
   it("builds contact-sheet arguments", () => {
     expect(
-      buildRenderContactSheetArgs({
-        columns: 4,
-        fps: "8",
-        outputPath: "./sheets/capture.jpg",
-        quality: 5,
-        rows: 4,
-        tileWidth: 320,
-        videoPath: "./capture.webm",
-      })
+      buildRenderContactSheetArgs(
+        BuildRenderContactSheetArgsOptions.make({
+          columns: 4,
+          fps: "8",
+          outputPath: "./sheets/capture.jpg",
+          quality: 5,
+          rows: 4,
+          tileWidth: 320,
+          videoPath: "./capture.webm",
+        })
+      )
     ).toEqual([
       "-hide_banner",
       "-nostdin",
@@ -448,15 +458,17 @@ describe("@beep/ffmpeg capture", () => {
 
   it("builds container metadata remux arguments with movflags routing", () => {
     expect(
-      buildWriteContainerMetadataArgs({
-        metadata: [
-          MetadataPair.make({ key: "BEEP_QA_SESSION_ID", value: "session-42" }),
-          MetadataPair.make({ key: "BEEP_QA_ROUND", value: "3" }),
-        ],
-        outputPath: "./tagged/capture.webm",
-        useMetadataTags: false,
-        videoPath: "./capture.webm",
-      })
+      buildWriteContainerMetadataArgs(
+        BuildWriteContainerMetadataArgsOptions.make({
+          metadata: [
+            MetadataPair.make({ key: "BEEP_QA_SESSION_ID", value: "session-42" }),
+            MetadataPair.make({ key: "BEEP_QA_ROUND", value: "3" }),
+          ],
+          outputPath: "./tagged/capture.webm",
+          useMetadataTags: false,
+          videoPath: "./capture.webm",
+        })
+      )
     ).toEqual([
       "-hide_banner",
       "-nostdin",
@@ -475,12 +487,14 @@ describe("@beep/ffmpeg capture", () => {
     ]);
 
     expect(
-      buildWriteContainerMetadataArgs({
-        metadata: [MetadataPair.make({ key: "BEEP_QA_SESSION_ID", value: "session-42" })],
-        outputPath: "./tagged/capture.mp4",
-        useMetadataTags: true,
-        videoPath: "./capture.mp4",
-      })
+      buildWriteContainerMetadataArgs(
+        BuildWriteContainerMetadataArgsOptions.make({
+          metadata: [MetadataPair.make({ key: "BEEP_QA_SESSION_ID", value: "session-42" })],
+          outputPath: "./tagged/capture.mp4",
+          useMetadataTags: true,
+          videoPath: "./capture.mp4",
+        })
+      )
     ).toEqual([
       "-hide_banner",
       "-nostdin",
@@ -501,13 +515,15 @@ describe("@beep/ffmpeg capture", () => {
 
   it("builds region luminance probe arguments", () => {
     expect(
-      buildProbeRegionLuminanceArgs({
-        height: 128,
-        videoPath: "./capture.webm",
-        width: 128,
-        x: 0,
-        y: 0,
-      })
+      buildProbeRegionLuminanceArgs(
+        BuildProbeRegionLuminanceArgsOptions.make({
+          height: 128,
+          videoPath: "./capture.webm",
+          width: 128,
+          x: 0,
+          y: 0,
+        })
+      )
     ).toEqual([
       "-hide_banner",
       "-nostdin",

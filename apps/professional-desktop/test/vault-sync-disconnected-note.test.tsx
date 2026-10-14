@@ -49,7 +49,7 @@ const noConflicts: ReadonlyArray<SyncConflict> = [];
 const renderWithStatus = (
   status: VaultSyncStatus,
   conflicts: AsyncResult.AsyncResult<ReadonlyArray<SyncConflict>, unknown> = AsyncResult.success(noConflicts),
-  panelState: VaultSyncPanelState = VaultSyncPanelState.cases.idle.make()
+  panelState: VaultSyncPanelState = VaultSyncPanelState.cases.idle.make({})
 ) =>
   render(
     <RegistryProvider

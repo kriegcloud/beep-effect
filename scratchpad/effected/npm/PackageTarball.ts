@@ -102,7 +102,7 @@ const TarballFailureFromPayload = S.toType(TarballErrorPayload).pipe(S.decodeTo(
  * @category errors
  * @since 0.0.0
  */
-export class TarballError extends S.TaggedError<TarballError>($I`TarballError`)("TarballError", TarballErrorPayload,
+export class TarballError extends S.TaggedError<TarballError, { readonly brand: unique symbol }>($I`TarballError`)("TarballError", TarballErrorPayload,
 	$I.annote("TarballError", { description: "Raised when a published tarball cannot be fetched, verified or extracted." }),
 ) {
 	private get variant(): typeof TarballFailure.Type {

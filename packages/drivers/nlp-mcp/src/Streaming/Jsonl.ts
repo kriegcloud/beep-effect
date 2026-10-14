@@ -45,8 +45,8 @@ const NonNegativeInteger = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * @category models
  * @since 0.0.0
  */
-export class JsonlLineError extends S.Class<JsonlLineError>($I`JsonlLineError`)(
-  {
+export class JsonlLineError extends S.Opaque<JsonlLineError, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Parser error message (the original line text is never included). */
     error: S.String.annotateKey({
       description: "Parser error message (the original line text is never included).",
@@ -54,10 +54,11 @@ export class JsonlLineError extends S.Class<JsonlLineError>($I`JsonlLineError`)(
     lineNumber: NonNegativeInteger.annotateKey({
       description: "Zero-based index of the offending line within the file.",
     }),
-  },
-  $I.annote("JsonlLineError", {
-    description: "Structured parse failure for a single JSONL line.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonlLineError", {
+      description: "Structured parse failure for a single JSONL line.",
+    })
+  )
 ) {}
 
 /**
@@ -75,8 +76,8 @@ export class JsonlLineError extends S.Class<JsonlLineError>($I`JsonlLineError`)(
  * @category models
  * @since 0.0.0
  */
-export class JsonlStats extends S.Class<JsonlStats>($I`JsonlStats`)(
-  {
+export class JsonlStats extends S.Opaque<JsonlStats, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Number of lines that failed to parse. */
     errorCount: NonNegativeInteger.annotateKey({ description: "Number of lines that failed to parse." }),
     /** Reserved skipped-line count, always `0` because blanks are pre-filtered. */
@@ -87,10 +88,11 @@ export class JsonlStats extends S.Class<JsonlStats>($I`JsonlStats`)(
     successCount: NonNegativeInteger.annotateKey({ description: "Number of lines that parsed successfully." }),
     /** Total number of non-empty lines examined. */
     totalLines: NonNegativeInteger.annotateKey({ description: "Total number of non-empty lines examined." }),
-  },
-  $I.annote("JsonlStats", {
-    description: "Aggregate parse statistics for a JSONL file.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonlStats", {
+      description: "Aggregate parse statistics for a JSONL file.",
+    })
+  )
 ) {}
 
 /**
@@ -108,15 +110,16 @@ export class JsonlStats extends S.Class<JsonlStats>($I`JsonlStats`)(
  * @category models
  * @since 0.0.0
  */
-export class JsonlReadOptions extends S.Class<JsonlReadOptions>($I`JsonlReadOptions`)(
-  {
+export class JsonlReadOptions extends S.Opaque<JsonlReadOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     skipInvalid: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
       description: "Drop malformed JSONL records instead of failing the stream.",
     }),
-  },
-  $I.annote("JsonlReadOptions", {
-    description: "Options shared by JSONL read and sample helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonlReadOptions", {
+      description: "Options shared by JSONL read and sample helpers.",
+    })
+  )
 ) {}
 
 /**
@@ -134,18 +137,19 @@ export class JsonlReadOptions extends S.Class<JsonlReadOptions>($I`JsonlReadOpti
  * @category models
  * @since 0.0.0
  */
-export class JsonlValidationResult extends S.Class<JsonlValidationResult>($I`JsonlValidationResult`)(
-  {
+export class JsonlValidationResult extends S.Opaque<JsonlValidationResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     errors: S.Array(JsonlLineError).annotateKey({
       description: "Collected JSONL parse errors.",
     }),
     records: S.Array(S.Unknown).annotateKey({
       description: "Parsed JSONL records.",
     }),
-  },
-  $I.annote("JsonlValidationResult", {
-    description: "Validation result containing parsed records and collected line errors.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonlValidationResult", {
+      description: "Validation result containing parsed records and collected line errors.",
+    })
+  )
 ) {}
 
 const decodeJsonLine = S.decodeResult(S.fromJsonString(S.Unknown));

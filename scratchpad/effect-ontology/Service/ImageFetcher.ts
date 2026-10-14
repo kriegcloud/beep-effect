@@ -116,17 +116,14 @@ const imageFetchOptionsMaxSizeBytesDefault = PosInt.make(DEFAULT_MAX_SIZE_BYTES)
  * @category configuration
  * @since 0.0.0
  */
-export class ImageFetchOptions extends S.Class<ImageFetchOptions>($I`ImageFetchOptions`)(
-  {
+export class ImageFetchOptions extends S.Opaque<ImageFetchOptions, { readonly brand: unique symbol }>()(S.Struct({
     timeout: S.Duration.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_TIMEOUT)), S.withDecodingDefaultTypeKey(Effect.succeed(DEFAULT_TIMEOUT))),
     maxSizeBytes: PosInt.pipe(S.withConstructorDefault(Effect.succeed(imageFetchOptionsMaxSizeBytesDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(imageFetchOptionsMaxSizeBytesDefault))),
     allowedTypes: S.NonEmptyArray(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeed(ALLOWED_CONTENT_TYPES)), S.withDecodingDefaultTypeKey(Effect.succeed(ALLOWED_CONTENT_TYPES))),
     retry: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true))),
-  },
-  $I.annote("ImageFetchOptions", {
+  }).pipe($I.annoteSchema("ImageFetchOptions", {
     description: "Request timeout, byte ceiling, accepted media types, and retry policy for image fetching.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link ImageFetchOptions}.

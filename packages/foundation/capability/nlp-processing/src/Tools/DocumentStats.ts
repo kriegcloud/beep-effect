@@ -12,16 +12,17 @@ import { AiDocumentStats, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/DocumentStats");
 
-class DocumentStatsParameters extends S.Class<DocumentStatsParameters>($I`DocumentStatsParameters`)(
-  {
+class DocumentStatsParameters extends S.Opaque<DocumentStatsParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The text to analyze",
       examples: ["Hello world. This is a short example document."],
     }),
-  },
-  $I.annote("DocumentStatsParameters", {
-    description: "Text input used to compute high-level document statistics.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentStatsParameters", {
+      description: "Text input used to compute high-level document statistics.",
+    })
+  )
 ) {}
 
 /**

@@ -47,6 +47,7 @@ import {
   globPatternToRegExp,
   intEnvValue,
   isUnresolvedSecretReference,
+  JsoncModification,
   JsonStringCodec,
   jsonText,
   localOnlyTurboCacheArgs,
@@ -81,9 +82,12 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 
-class SharedInternalsTestError extends S.TaggedError<SharedInternalsTestError>()("SharedInternalsTestError", {
-  message: S.String,
-}) {}
+class SharedInternalsTestError extends S.TaggedError<SharedInternalsTestError, { readonly brand: unique symbol }>()(
+  "SharedInternalsTestError",
+  {
+    message: S.String,
+  }
+) {}
 
 it.layer(Layer.merge(BunCrypto.layer, Path.layer), { timeout: "10 seconds" })((it) => {
   describe("SchemaFirstPolicyFinding wire contract", { concurrent: false }, () => {
@@ -242,7 +246,7 @@ it.layer(Layer.merge(BunCrypto.layer, Path.layer), { timeout: "10 seconds" })((i
   describe("Jsonc editing", { concurrent: false }, () => {
     it("modifies a value while preserving comments and formatting", () => {
       const source = '{\n  // keep me\n  "a": 1,\n  "b": 2\n}';
-      const next = applyJsoncModification({ content: source, path: ["a"], value: 42 });
+      const next = applyJsoncModification(JsoncModification.make({ content: source, path: ["a"], value: 42 }));
       expect(next.includes("// keep me")).toBe(true);
       expect(next.includes('"a": 42')).toBe(true);
       expect(next.includes('"b": 2')).toBe(true);

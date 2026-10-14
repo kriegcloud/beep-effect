@@ -24,6 +24,7 @@ import {
   runYeetWatchLoop,
   splicePrProvenanceFooter,
   toPublicPrProvenance,
+  YeetExecutedStep,
   YeetUntilReadyPolicy,
   YeetWatchEnded,
   yeetMonitorExitTable,
@@ -50,7 +51,6 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { makeRecord, PlatformLayer, repository } from "./yeet-pr-fixtures.ts";
-import type { YeetExecutedStep } from "@beep/repo-cli/test/Yeet";
 
 const MemoryLayer = Layer.mergeAll(
   BunCrypto.layer,
@@ -805,14 +805,14 @@ describe("Yeet provenance footer splice", () => {
         const root = yield* fs.makeTempDirectoryScoped();
         yield* configureRepo(root);
         const recorder = yield* Ref.make<ReadonlyArray<YeetExecutedStep>>([
-          {
+          YeetExecutedStep.make({
             step: prCreateStep,
             result: RepoStepRunResult.make({ stepId: prCreateStep.id, commandText: "gh pr create", exitCode: 0 }),
-          },
-          {
+          }),
+          YeetExecutedStep.make({
             step: provenanceStampStep,
             result: RepoStepRunResult.make({ stepId: provenanceStampStep.id, commandText: "gh pr edit", exitCode: 1 }),
-          },
+          }),
         ]);
         const body = yield* buildPrBody(context(root), recorder);
         expect(body).toContain("publish:pr-create: passed");

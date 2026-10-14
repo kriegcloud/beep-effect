@@ -27,7 +27,7 @@ class AlternateBlobStore extends Context.Service<AlternateBlobStore, Context.Ser
 	"@beep/scratchpad/test/github-actions/BlobStore.test/AlternateBlobStore",
 ) {}
 
-class Meta extends S.Class<Meta>("Meta")({ tag: S.String, durationMs: S.Finite }) {}
+class Meta extends S.Class<Meta, { readonly brand: unique symbol }>("Meta")({ tag: S.String, durationMs: S.Finite }) {}
 
 const fetchStub = (
 	handle: (

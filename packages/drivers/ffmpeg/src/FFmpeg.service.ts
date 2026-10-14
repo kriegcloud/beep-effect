@@ -96,8 +96,8 @@ const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 const NumberOrString = S.Union([S.Finite, S.String]);
 type FFmpegConfigInputOptions = (typeof FFmpegConfigInput)["~type.make.in"];
 
-class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
-  {
+class FfprobeStream extends S.Opaque<FfprobeStream, { readonly brand: unique symbol }>()(
+  S.Struct({
     avg_frame_rate: S.OptionFromOptionalKey(NumberOrString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     duration: S.OptionFromOptionalKey(NumberOrString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     height: S.OptionFromOptionalKey(VideoDimension).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -105,30 +105,33 @@ class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
     r_frame_rate: S.OptionFromOptionalKey(NumberOrString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     start_time: S.OptionFromOptionalKey(NumberOrString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     width: S.OptionFromOptionalKey(VideoDimension).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("FfprobeStream", {
-    description: "Internal ffprobe stream payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("FfprobeStream", {
+      description: "Internal ffprobe stream payload.",
+    })
+  )
 ) {}
 
-class FfprobeFormat extends S.Class<FfprobeFormat>($I`FfprobeFormat`)(
-  {
+class FfprobeFormat extends S.Opaque<FfprobeFormat, { readonly brand: unique symbol }>()(
+  S.Struct({
     duration: S.OptionFromOptionalKey(NumberOrString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     start_time: S.OptionFromOptionalKey(NumberOrString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("FfprobeFormat", {
-    description: "Internal ffprobe format payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("FfprobeFormat", {
+      description: "Internal ffprobe format payload.",
+    })
+  )
 ) {}
 
-class FfprobeOutput extends S.Class<FfprobeOutput>($I`FfprobeOutput`)(
-  {
+class FfprobeOutput extends S.Opaque<FfprobeOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: S.OptionFromOptionalKey(FfprobeFormat).pipe(S.withConstructorDefault(Effect.succeedNone)),
     streams: S.Array(FfprobeStream),
-  },
-  $I.annote("FfprobeOutput", {
-    description: "Internal ffprobe JSON payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("FfprobeOutput", {
+      description: "Internal ffprobe JSON payload.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(FfprobeOutput));
 }
@@ -196,19 +199,20 @@ export interface FFmpegShape {
   ) => Effect.Effect<WriteContainerMetadataResult, FFmpegError>;
 }
 
-class ProcessResult extends S.Class<ProcessResult>($I`ProcessResult`)(
-  {
+class ProcessResult extends S.Opaque<ProcessResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     exitCode: ProcessExitCode,
     stderr: S.String,
     stdout: S.String,
-  },
-  $I.annote("ProcessResult", {
-    description: "Result of a process execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessResult", {
+      description: "Result of a process execution.",
+    })
+  )
 ) {}
 
-class ExtractContext extends S.Class<ExtractContext>($I`ExtractContext`)(
-  {
+class ExtractContext extends S.Opaque<ExtractContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     expectedFrameCount: FrameCount,
     fpsText: S.String,
     manifestPath: S.String,
@@ -218,20 +222,22 @@ class ExtractContext extends S.Class<ExtractContext>($I`ExtractContext`)(
     probe: VideoProbe,
     request: ExtractFramesRequest,
     videoPath: S.String,
-  },
-  $I.annote("ExtractContext", {
-    description: "Context for extracting frames from a video.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractContext", {
+      description: "Context for extracting frames from a video.",
+    })
+  )
 ) {}
 
-class TempFrame extends S.Class<TempFrame>($I`TempFrame`)(
-  {
+class TempFrame extends S.Opaque<TempFrame, { readonly brand: unique symbol }>()(
+  S.Struct({
     index: FrameIndex,
     path: S.String,
-  },
-  $I.annote("TempFrame", {
-    description: "Temporary frame information.",
-  })
+  }).pipe(
+    $I.annoteSchema("TempFrame", {
+      description: "Temporary frame information.",
+    })
+  )
 ) {}
 
 /**
@@ -255,17 +261,18 @@ class TempFrame extends S.Class<TempFrame>($I`TempFrame`)(
  * @category models
  * @since 0.0.0
  */
-export class PlannedFrameCommit extends S.Class<PlannedFrameCommit>($I`PlannedFrameCommit`)(
-  {
+export class PlannedFrameCommit extends S.Opaque<PlannedFrameCommit, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileName: S.String,
     index: FrameIndex,
     relativePath: S.String,
     sourcePath: S.String,
     targetPath: S.String,
-  },
-  $I.annote("PlannedFrameCommit", {
-    description: "Planned frame commit information.",
-  })
+  }).pipe(
+    $I.annoteSchema("PlannedFrameCommit", {
+      description: "Planned frame commit information.",
+    })
+  )
 ) {}
 
 /**
@@ -287,15 +294,16 @@ export class PlannedFrameCommit extends S.Class<PlannedFrameCommit>($I`PlannedFr
  * @category models
  * @since 0.0.0
  */
-export class ProgressState extends S.Class<ProgressState>($I`ProgressState`)(
-  {
+export class ProgressState extends S.Opaque<ProgressState, { readonly brand: unique symbol }>()(
+  S.Struct({
     block: S.Record(S.String, S.String),
     buffer: S.String,
     stdout: S.String,
-  },
-  $I.annote("ProgressState", {
-    description: "Progress state information during frame extraction.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProgressState", {
+      description: "Progress state information during frame extraction.",
+    })
+  )
 ) {}
 
 const defaultConfig = (input?: FFmpegConfigInputOptions | undefined): FFmpegConfig =>
@@ -438,8 +446,11 @@ const formatFps = (fps: number): string => `${fps}`;
  * @category models
  * @since 0.0.0
  */
-export class FormatFrameFileNameOptions extends S.Class<FormatFrameFileNameOptions>($I`FormatFrameFileNameOptions`)(
-  {
+export class FormatFrameFileNameOptions extends S.Opaque<
+  FormatFrameFileNameOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     index: FrameIndex.pipe(
       $I.annoteKey("FormatFrameFileNameOptions.index", {
         description: "Zero-based frame index to render into the filename.",
@@ -455,10 +466,11 @@ export class FormatFrameFileNameOptions extends S.Class<FormatFrameFileNameOptio
         description: "Safe filename prefix placed before the padded frame index.",
       })
     ),
-  },
-  $I.annote("FormatFrameFileNameOptions", {
-    description: "Options for formatting one generated PNG frame filename.",
-  })
+  }).pipe(
+    $I.annoteSchema("FormatFrameFileNameOptions", {
+      description: "Options for formatting one generated PNG frame filename.",
+    })
+  )
 ) {}
 
 const FormatFrameFileName = Fn({
@@ -476,9 +488,9 @@ const FormatFrameFileName = Fn({
  * **Example** (Format padded frame name)
  *
  * ```ts
- * import { formatFrameFileName } from "@beep/ffmpeg"
+ * import { FormatFrameFileNameOptions, formatFrameFileName } from "@beep/ffmpeg"
  *
- * const name = formatFrameFileName({ index: 0, padding: 5, prefix: "clip_frame" })
+ * const name = formatFrameFileName(FormatFrameFileNameOptions.make({ index: 0, padding: 5, prefix: "clip_frame" }))
  * console.log(name)
  * ```
  *
@@ -537,10 +549,11 @@ export const buildFfprobeArgs = (request: ProbeVideoRequest): ReadonlyArray<stri
  * @category models
  * @since 0.0.0
  */
-export class BuildExtractFramesArgsOptions extends S.Class<BuildExtractFramesArgsOptions>(
-  $I`BuildExtractFramesArgsOptions`
-)(
-  {
+export class BuildExtractFramesArgsOptions extends S.Opaque<
+  BuildExtractFramesArgsOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     fps: S.String.pipe(
       $I.annoteKey("BuildExtractFramesArgsOptions.fps", {
         description: "Frame-rate text passed to ffmpeg's fps video filter.",
@@ -556,10 +569,11 @@ export class BuildExtractFramesArgsOptions extends S.Class<BuildExtractFramesArg
         description: "Input video path passed to the native ffmpeg command.",
       })
     ),
-  },
-  $I.annote("BuildExtractFramesArgsOptions", {
-    description: "Options for building native ffmpeg frame extraction arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildExtractFramesArgsOptions", {
+      description: "Options for building native ffmpeg frame extraction arguments.",
+    })
+  )
 ) {}
 
 const BuildExtractFramesArgs = Fn({
@@ -577,13 +591,13 @@ const BuildExtractFramesArgs = Fn({
  * **Example** (Build extract frames args)
  *
  * ```ts
- * import { buildExtractFramesArgs } from "@beep/ffmpeg"
+ * import { BuildExtractFramesArgsOptions, buildExtractFramesArgs } from "@beep/ffmpeg"
  *
- * const args = buildExtractFramesArgs({
+ * const args = buildExtractFramesArgs(BuildExtractFramesArgsOptions.make({
  *   fps: "1",
  *   outputPattern: "./frames/frame_%05d.png",
  *   videoPath: "./clip.mp4",
- * })
+ * }))
  * console.log(args)
  * ```
  *
@@ -628,10 +642,11 @@ export const buildExtractFramesArgs: (options: BuildExtractFramesArgsOptions) =>
  * @category models
  * @since 0.0.0
  */
-export class BuildExtractFrameAtArgsOptions extends S.Class<BuildExtractFrameAtArgsOptions>(
-  $I`BuildExtractFrameAtArgsOptions`
-)(
-  {
+export class BuildExtractFrameAtArgsOptions extends S.Opaque<
+  BuildExtractFrameAtArgsOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maxWidth: S.OptionFromOptionalKey(VideoDimension).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("BuildExtractFrameAtArgsOptions.maxWidth", {
@@ -654,10 +669,11 @@ export class BuildExtractFrameAtArgsOptions extends S.Class<BuildExtractFrameAtA
         description: "Input video path passed to the native ffmpeg command.",
       })
     ),
-  },
-  $I.annote("BuildExtractFrameAtArgsOptions", {
-    description: "Options for building single-frame timestamp extraction arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildExtractFrameAtArgsOptions", {
+      description: "Options for building single-frame timestamp extraction arguments.",
+    })
+  )
 ) {}
 
 const BuildExtractFrameAtArgs = Fn({
@@ -743,8 +759,11 @@ const clipCodecArgs: Record<ClipCodec, ReadonlyArray<string>> = {
  * @category models
  * @since 0.0.0
  */
-export class BuildExtractClipArgsOptions extends S.Class<BuildExtractClipArgsOptions>($I`BuildExtractClipArgsOptions`)(
-  {
+export class BuildExtractClipArgsOptions extends S.Opaque<
+  BuildExtractClipArgsOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     codec: ClipCodec.pipe(
       $I.annoteKey("BuildExtractClipArgsOptions.codec", {
         description: "Encoder preset selecting the codec argument block.",
@@ -771,10 +790,11 @@ export class BuildExtractClipArgsOptions extends S.Class<BuildExtractClipArgsOpt
         description: "Input video path passed to the native ffmpeg command.",
       })
     ),
-  },
-  $I.annote("BuildExtractClipArgsOptions", {
-    description: "Options for building clip extraction arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildExtractClipArgsOptions", {
+      description: "Options for building clip extraction arguments.",
+    })
+  )
 ) {}
 
 const BuildExtractClipArgs = Fn({
@@ -856,8 +876,8 @@ const gifDitherFragment = (dither: GifDither): string =>
  * @category models
  * @since 0.0.0
  */
-export class BuildRenderGifArgsOptions extends S.Class<BuildRenderGifArgsOptions>($I`BuildRenderGifArgsOptions`)(
-  {
+export class BuildRenderGifArgsOptions extends S.Opaque<BuildRenderGifArgsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dither: GifDither.pipe(
       $I.annoteKey("BuildRenderGifArgsOptions.dither", {
         description: "paletteuse dithering mode; bayer adds bayer_scale=5.",
@@ -893,10 +913,11 @@ export class BuildRenderGifArgsOptions extends S.Class<BuildRenderGifArgsOptions
         description: "GIF pixel width scaled with lanczos; height follows the aspect ratio.",
       })
     ),
-  },
-  $I.annote("BuildRenderGifArgsOptions", {
-    description: "Options for building palette-optimized GIF rendering arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildRenderGifArgsOptions", {
+      description: "Options for building palette-optimized GIF rendering arguments.",
+    })
+  )
 ) {}
 
 const BuildRenderGifArgs = Fn({
@@ -919,9 +940,9 @@ const BuildRenderGifArgs = Fn({
  * **Example** (Build palette GIF args)
  *
  * ```ts
- * import { buildRenderGifArgs } from "@beep/ffmpeg"
+ * import { BuildRenderGifArgsOptions, buildRenderGifArgs } from "@beep/ffmpeg"
  *
- * const args = buildRenderGifArgs({
+ * const args = buildRenderGifArgs(BuildRenderGifArgsOptions.make({
  *   dither: "bayer",
  *   duration: "2",
  *   fps: "10",
@@ -929,7 +950,7 @@ const BuildRenderGifArgs = Fn({
  *   start: "1.5",
  *   videoPath: "./capture.webm",
  *   width: 640,
- * })
+ * }))
  * console.log(args)
  * ```
  *
@@ -977,10 +998,11 @@ export const buildRenderGifArgs: (options: BuildRenderGifArgsOptions) => Readonl
  * @category models
  * @since 0.0.0
  */
-export class BuildRenderContactSheetArgsOptions extends S.Class<BuildRenderContactSheetArgsOptions>(
-  $I`BuildRenderContactSheetArgsOptions`
-)(
-  {
+export class BuildRenderContactSheetArgsOptions extends S.Opaque<
+  BuildRenderContactSheetArgsOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     columns: TileCount.pipe(
       $I.annoteKey("BuildRenderContactSheetArgsOptions.columns", {
         description: "Number of tile columns in the sheet grid.",
@@ -1016,10 +1038,11 @@ export class BuildRenderContactSheetArgsOptions extends S.Class<BuildRenderConta
         description: "Input video path passed to the native ffmpeg command.",
       })
     ),
-  },
-  $I.annote("BuildRenderContactSheetArgsOptions", {
-    description: "Options for building contact-sheet rendering arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildRenderContactSheetArgsOptions", {
+      description: "Options for building contact-sheet rendering arguments.",
+    })
+  )
 ) {}
 
 const BuildRenderContactSheetArgs = Fn({
@@ -1037,9 +1060,9 @@ const BuildRenderContactSheetArgs = Fn({
  * **Example** (Build contact sheet args)
  *
  * ```ts
- * import { buildRenderContactSheetArgs } from "@beep/ffmpeg"
+ * import { BuildRenderContactSheetArgsOptions, buildRenderContactSheetArgs } from "@beep/ffmpeg"
  *
- * const args = buildRenderContactSheetArgs({
+ * const args = buildRenderContactSheetArgs(BuildRenderContactSheetArgsOptions.make({
  *   columns: 4,
  *   fps: "8",
  *   outputPath: "./sheets/capture.jpg",
@@ -1047,7 +1070,7 @@ const BuildRenderContactSheetArgs = Fn({
  *   rows: 4,
  *   tileWidth: 320,
  *   videoPath: "./capture.webm",
- * })
+ * }))
  * console.log(args)
  * ```
  *
@@ -1090,10 +1113,11 @@ export const buildRenderContactSheetArgs: (options: BuildRenderContactSheetArgsO
  * @category models
  * @since 0.0.0
  */
-export class BuildWriteContainerMetadataArgsOptions extends S.Class<BuildWriteContainerMetadataArgsOptions>(
-  $I`BuildWriteContainerMetadataArgsOptions`
-)(
-  {
+export class BuildWriteContainerMetadataArgsOptions extends S.Opaque<
+  BuildWriteContainerMetadataArgsOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     metadata: S.Array(MetadataPair).pipe(
       $I.annoteKey("BuildWriteContainerMetadataArgsOptions.metadata", {
         description: "Container metadata assignments emitted as -metadata KEY=value pairs.",
@@ -1114,10 +1138,11 @@ export class BuildWriteContainerMetadataArgsOptions extends S.Class<BuildWriteCo
         description: "Input video path passed to the native ffmpeg command.",
       })
     ),
-  },
-  $I.annote("BuildWriteContainerMetadataArgsOptions", {
-    description: "Options for building container metadata remux arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildWriteContainerMetadataArgsOptions", {
+      description: "Options for building container metadata remux arguments.",
+    })
+  )
 ) {}
 
 const BuildWriteContainerMetadataArgs = Fn({
@@ -1140,14 +1165,14 @@ const BuildWriteContainerMetadataArgs = Fn({
  * **Example** (Build metadata remux args)
  *
  * ```ts
- * import { buildWriteContainerMetadataArgs, MetadataPair } from "@beep/ffmpeg"
+ * import { BuildWriteContainerMetadataArgsOptions, buildWriteContainerMetadataArgs, MetadataPair } from "@beep/ffmpeg"
  *
- * const args = buildWriteContainerMetadataArgs({
+ * const args = buildWriteContainerMetadataArgs(BuildWriteContainerMetadataArgsOptions.make({
  *   metadata: [MetadataPair.make({ key: "BEEP_QA_SESSION_ID", value: "session-42" })],
  *   outputPath: "./tagged/capture.webm",
  *   useMetadataTags: false,
  *   videoPath: "./capture.webm",
- * })
+ * }))
  * console.log(args)
  * ```
  *
@@ -1192,10 +1217,11 @@ export const buildWriteContainerMetadataArgs: (
  * @category models
  * @since 0.0.0
  */
-export class BuildProbeRegionLuminanceArgsOptions extends S.Class<BuildProbeRegionLuminanceArgsOptions>(
-  $I`BuildProbeRegionLuminanceArgsOptions`
-)(
-  {
+export class BuildProbeRegionLuminanceArgsOptions extends S.Opaque<
+  BuildProbeRegionLuminanceArgsOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     height: VideoDimension.pipe(
       $I.annoteKey("BuildProbeRegionLuminanceArgsOptions.height", {
         description: "Crop region height in pixels.",
@@ -1221,10 +1247,11 @@ export class BuildProbeRegionLuminanceArgsOptions extends S.Class<BuildProbeRegi
         description: "Crop region top offset in pixels.",
       })
     ),
-  },
-  $I.annote("BuildProbeRegionLuminanceArgsOptions", {
-    description: "Options for building region luminance probe arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildProbeRegionLuminanceArgsOptions", {
+      description: "Options for building region luminance probe arguments.",
+    })
+  )
 ) {}
 
 const BuildProbeRegionLuminanceArgs = Fn({
@@ -1248,15 +1275,15 @@ const BuildProbeRegionLuminanceArgs = Fn({
  * **Example** (Build luminance probe args)
  *
  * ```ts
- * import { buildProbeRegionLuminanceArgs } from "@beep/ffmpeg"
+ * import { BuildProbeRegionLuminanceArgsOptions, buildProbeRegionLuminanceArgs } from "@beep/ffmpeg"
  *
- * const args = buildProbeRegionLuminanceArgs({
+ * const args = buildProbeRegionLuminanceArgs(BuildProbeRegionLuminanceArgsOptions.make({
  *   height: 128,
  *   videoPath: "./capture.webm",
  *   width: 128,
  *   x: 0,
  *   y: 0,
- * })
+ * }))
  * console.log(args)
  * ```
  *
@@ -1290,7 +1317,7 @@ const runProcess = (
         [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
         { concurrency: "unbounded" }
       );
-      return { exitCode, stderr, stdout };
+      return ProcessResult.make({ exitCode, stderr, stdout });
     })
   ).pipe(Effect.mapError((cause) => FFmpegError.fromUnknown(operation, message, { cause })));
 
@@ -1366,11 +1393,13 @@ const collectProgressText = Effect.fn("FFmpeg.collectProgressText")(function* (
   expected: number,
   sink: FFmpegEventSink | undefined
 ): Effect.fn.Return<string, PlatformError.PlatformError> {
-  const state = yield* Ref.make<ProgressState>({
-    block: {},
-    buffer: "",
-    stdout: "",
-  });
+  const state = yield* Ref.make<ProgressState>(
+    ProgressState.make({
+      block: {},
+      buffer: "",
+      stdout: "",
+    })
+  );
 
   yield* stream.pipe(
     Stream.decodeText(),
@@ -1417,7 +1446,7 @@ const runExtractProcess = (
         [collectProgressText(handle.stdout, expected, sink), collectText(handle.stderr), handle.exitCode],
         { concurrency: "unbounded" }
       );
-      return { exitCode, stderr, stdout };
+      return ProcessResult.make({ exitCode, stderr, stdout });
     })
   ).pipe(
     Effect.mapError((cause) =>
@@ -1648,7 +1677,9 @@ const commitFrames = Effect.fn("FFmpeg.commitFrames")(function* (
 
   for (const tempFrame of tempFrames) {
     const position = A.length(planned);
-    const fileName = formatFrameFileName({ index: position, padding: finalPadding, prefix: context.prefix });
+    const fileName = formatFrameFileName(
+      FormatFrameFileNameOptions.make({ index: position, padding: finalPadding, prefix: context.prefix })
+    );
     const targetPath = path.join(context.outDir, fileName);
     planned = A.append(
       planned,
@@ -1797,8 +1828,8 @@ const useMetadataTagsExtensions = HashSet.make(".m4v", ".mov", ".mp4");
 const shouldUseMetadataTags = (extension: string): boolean =>
   HashSet.has(useMetadataTagsExtensions, Str.toLowerCase(extension));
 
-class ExtractAtContext extends S.Class<ExtractAtContext>($I`ExtractAtContext`)(
-  {
+class ExtractAtContext extends S.Opaque<ExtractAtContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifestPath: S.String,
     outDir: S.String,
     overwrite: S.Boolean,
@@ -1807,22 +1838,24 @@ class ExtractAtContext extends S.Class<ExtractAtContext>($I`ExtractAtContext`)(
     probe: VideoProbe,
     timestampsSeconds: S.Array(NonNegativeSeconds),
     videoPath: S.String,
-  },
-  $I.annote("ExtractAtContext", {
-    description: "Context for extracting timestamped frames from a video.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractAtContext", {
+      description: "Context for extracting timestamped frames from a video.",
+    })
+  )
 ) {}
 
-class StagedTimestampedFrame extends S.Class<StagedTimestampedFrame>($I`StagedTimestampedFrame`)(
-  {
+class StagedTimestampedFrame extends S.Opaque<StagedTimestampedFrame, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileName: S.String,
     index: FrameIndex,
     tempPath: S.String,
     timestampSeconds: NonNegativeSeconds,
-  },
-  $I.annote("StagedTimestampedFrame", {
-    description: "Staged timestamped frame information.",
-  })
+  }).pipe(
+    $I.annoteSchema("StagedTimestampedFrame", {
+      description: "Staged timestamped frame information.",
+    })
+  )
 ) {}
 
 const makeFramesAtManifest = (
@@ -2055,11 +2088,13 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
         ),
       Effect.fnUntraced(function* (tempDir) {
         const tempPattern = path.join(tempDir, `${context.prefix}_%0${context.padding}d.png`);
-        const args = buildExtractFramesArgs({
-          fps: context.fpsText,
-          outputPattern: tempPattern,
-          videoPath: context.videoPath,
-        });
+        const args = buildExtractFramesArgs(
+          BuildExtractFramesArgsOptions.make({
+            fps: context.fpsText,
+            outputPattern: tempPattern,
+            videoPath: context.videoPath,
+          })
+        );
         const command = ChildProcess.make(config.ffmpegPath, args, {
           forceKillAfter: `${config.forceKillAfterMillis} millis`,
           stdin: "ignore",
@@ -2284,7 +2319,9 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
           A.map(request.timestampsSeconds, (timestampSeconds, index) => ({ index, timestampSeconds })),
           Effect.fnUntraced(function* (entry) {
             const index = FrameIndex.make(entry.index);
-            const fileName = formatFrameFileName({ index, padding: context.padding, prefix: context.prefix });
+            const fileName = formatFrameFileName(
+              FormatFrameFileNameOptions.make({ index, padding: context.padding, prefix: context.prefix })
+            );
             const tempPath = path.join(tempDir, fileName);
             const args = buildExtractFrameAtArgs({
               outputPath: tempPath,
@@ -2393,15 +2430,17 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     const outPath = path.resolve(request.outPath);
     const fileSizeBytes = yield* runCaptureOutput({
       argsForTarget: (target) =>
-        buildRenderGifArgs({
-          dither: request.dither,
-          duration: `${request.durationSeconds}`,
-          fps: formatFps(request.fps),
-          outputPath: target,
-          start: `${request.startSeconds}`,
-          videoPath,
-          width: request.width,
-        }),
+        buildRenderGifArgs(
+          BuildRenderGifArgsOptions.make({
+            dither: request.dither,
+            duration: `${request.durationSeconds}`,
+            fps: formatFps(request.fps),
+            outputPath: target,
+            start: `${request.startSeconds}`,
+            videoPath,
+            width: request.width,
+          })
+        ),
       failureMessage: `ffmpeg could not render a GIF from "${videoPath}".`,
       operation: "renderGif",
       outPath,
@@ -2437,15 +2476,17 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     const sheetFps = (request.columns * request.rows) / durationSeconds;
     const fileSizeBytes = yield* runCaptureOutput({
       argsForTarget: (target) =>
-        buildRenderContactSheetArgs({
-          columns: request.columns,
-          fps: formatFps(sheetFps),
-          outputPath: target,
-          quality: request.quality,
-          rows: request.rows,
-          tileWidth: request.tileWidth,
-          videoPath,
-        }),
+        buildRenderContactSheetArgs(
+          BuildRenderContactSheetArgsOptions.make({
+            columns: request.columns,
+            fps: formatFps(sheetFps),
+            outputPath: target,
+            quality: request.quality,
+            rows: request.rows,
+            tileWidth: request.tileWidth,
+            videoPath,
+          })
+        ),
       failureMessage: `ffmpeg could not render a contact sheet from "${videoPath}".`,
       operation: "renderContactSheet",
       outPath,
@@ -2475,12 +2516,14 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     const outPath = path.resolve(request.outPath);
     const fileSizeBytes = yield* runCaptureOutput({
       argsForTarget: (target) =>
-        buildWriteContainerMetadataArgs({
-          metadata: request.metadata,
-          outputPath: target,
-          useMetadataTags: shouldUseMetadataTags(path.extname(outPath)),
-          videoPath,
-        }),
+        buildWriteContainerMetadataArgs(
+          BuildWriteContainerMetadataArgsOptions.make({
+            metadata: request.metadata,
+            outputPath: target,
+            useMetadataTags: shouldUseMetadataTags(path.extname(outPath)),
+            videoPath,
+          })
+        ),
       failureMessage: `ffmpeg could not write container metadata for "${videoPath}".`,
       operation: "writeContainerMetadata",
       outPath,
@@ -2504,13 +2547,15 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     );
     const videoPath = path.resolve(request.videoPath);
     yield* ensureFile(fs, videoPath, "video input", "probeRegionLuminance");
-    const args = buildProbeRegionLuminanceArgs({
-      height: request.height,
-      videoPath,
-      width: request.width,
-      x: request.x,
-      y: request.y,
-    });
+    const args = buildProbeRegionLuminanceArgs(
+      BuildProbeRegionLuminanceArgsOptions.make({
+        height: request.height,
+        videoPath,
+        width: request.width,
+        x: request.x,
+        y: request.y,
+      })
+    );
     const result = yield* runProcess(
       spawner,
       makeCommand(config.ffmpegPath, args),

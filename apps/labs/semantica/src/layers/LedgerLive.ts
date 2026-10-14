@@ -25,20 +25,24 @@ import type * as SqlError from "effect/sql/SqlError";
 
 const $I = $SemanticaId.create("layers/LedgerLive");
 
-class LedgerLiveOptions extends S.Class<LedgerLiveOptions>($I`LedgerLiveOptions`)(
-  {
+class LedgerLiveOptions extends S.Opaque<LedgerLiveOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     ledgerRoot: S.NonEmptyString,
     mode: RuntimeMode,
     runId: RunId,
-  },
-  $I.annote("LedgerLiveOptions", {
-    description: "Filesystem root and execution identity for one isolated PGlite ledger.",
-  })
+  }).pipe(
+    $I.annoteSchema("LedgerLiveOptions", {
+      description: "Filesystem root and execution identity for one isolated PGlite ledger.",
+    })
+  )
 ) {}
 
-class StoredRow extends S.Class<StoredRow>($I`StoredRow`)(
-  { digest: S.String, payload: S.String },
-  $I.annote("StoredRow", { description: "Digest and canonical JSON payload read from an immutable ledger row." })
+class StoredRow extends S.Opaque<StoredRow, { readonly brand: unique symbol }>()(
+  S.Struct({ digest: S.String, payload: S.String }).pipe(
+    $I.annoteSchema("StoredRow", {
+      description: "Digest and canonical JSON payload read from an immutable ledger row.",
+    })
+  )
 ) {}
 
 const databaseFailed = (): LedgerFailed =>

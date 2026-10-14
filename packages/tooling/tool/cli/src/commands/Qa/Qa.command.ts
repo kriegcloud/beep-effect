@@ -18,6 +18,7 @@ import * as Argument from "effect/cli/Argument";
 import * as Command from "effect/cli/Command";
 import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
@@ -28,7 +29,7 @@ import { runQaExtract } from "./Extract.ts";
 import { runQaJudgeIngest } from "./JudgeIngest.ts";
 import { runQaJudgeLint } from "./JudgeLint.ts";
 import { runQaJudgePack } from "./JudgePack.ts";
-import { runQaJudgeSkill } from "./JudgeSkill.ts";
+import { QaJudgeSkillOptions, runQaJudgeSkill } from "./JudgeSkill.ts";
 import { QaCommandError } from "./Qa.errors.ts";
 import {
   DEFAULT_SCENARIO_PATH,
@@ -297,7 +298,11 @@ const qaJudgeLintCommand = Command.make("judge-lint", { round: requiredRoundFlag
   Command.provide(QaCommandLayers)
 );
 
-const qaJudgeSkillCommand = Command.make("judge-skill", { write: writeSkillFlag }, runQaJudgeSkill).pipe(
+const qaJudgeSkillCommand = Command.make(
+  "judge-skill",
+  { write: writeSkillFlag },
+  flow(QaJudgeSkillOptions.make, runQaJudgeSkill)
+).pipe(
   Command.withDescription("Render the qa-inventory judge contract as deterministic SKILL.md"),
   Command.provide(QaCommandLayers)
 );

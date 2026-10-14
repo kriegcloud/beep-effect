@@ -56,7 +56,7 @@ export type AccountsErrorReason = typeof AccountsErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class AccountsError extends S.TaggedError<AccountsError>($I`AccountsError`)(
+export class AccountsError extends S.TaggedError<AccountsError, { readonly brand: unique symbol }>($I`AccountsError`)(
   "AccountsError",
   { reason: AccountsErrorReason, message: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) },
   $I.annoteError<AccountsError>("AccountsError", {

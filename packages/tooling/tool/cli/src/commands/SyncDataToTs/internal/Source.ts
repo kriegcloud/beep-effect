@@ -59,17 +59,18 @@ export type ParsedCsvRecords = Array<ParsedCsvRecord> & {
  * @category models
  * @since 0.0.0
  */
-export class SyncDataFetchedSource extends S.Class<SyncDataFetchedSource>($I`SyncDataFetchedSource`)(
-  {
+export class SyncDataFetchedSource extends S.Opaque<SyncDataFetchedSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.Uint8Array,
     id: S.String,
     sha256: S.String,
     text: S.String,
     url: S.String,
-  },
-  $I.annote("SyncDataFetchedSource", {
-    description: "Raw fetched source with stable hash metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncDataFetchedSource", {
+      description: "Raw fetched source with stable hash metadata.",
+    })
+  )
 ) {}
 
 const attachCsvColumns = (rows: ReadonlyArray<ParsedCsvRecord>, columns: ReadonlyArray<string>): ParsedCsvRecords => {
@@ -243,13 +244,13 @@ export const fetchSource = Effect.fn("SyncDataToTs.fetchSource")(function* (
   const bytes = yield* readResponseBytes(response, targetId, publicUrl);
   const sha256 = yield* sha256Hex(bytes, targetId, publicUrl);
 
-  return {
+  return SyncDataFetchedSource.make({
     id,
     url: publicUrl,
     bytes,
     text: textDecoder.decode(bytes),
     sha256,
-  };
+  });
 });
 
 /**
@@ -302,7 +303,7 @@ const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content
         R.fromEntries
       );
 
-      class ParsedCsvRow extends S.Class<ParsedCsvRow>($I`ParsedCsvRow`)(
+      class ParsedCsvRow extends S.Class<ParsedCsvRow, { readonly brand: unique symbol }>($I`ParsedCsvRow`)(
         rowFields,
         $I.annote("ParsedCsvRow", {
           description: "CSV row decoded with the runtime header columns from the source document.",

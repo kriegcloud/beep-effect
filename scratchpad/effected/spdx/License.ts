@@ -38,7 +38,7 @@ const $I = $ScratchpadId.create("effected/spdx/License");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidSpdxExpressionError extends S.TaggedError<InvalidSpdxExpressionError>($I`InvalidSpdxExpressionError`)(
+export class InvalidSpdxExpressionError extends S.TaggedError<InvalidSpdxExpressionError, { readonly brand: unique symbol }>($I`InvalidSpdxExpressionError`)(
 	"InvalidSpdxExpressionError",
 	{
 		/**
@@ -136,7 +136,7 @@ const isLicenseRefId = S.is(LicenseRefId);
  * @category models
  * @since 0.0.0
  */
-export class License extends S.Class<License>($I`License`)({
+export class License extends S.Class<License, { readonly brand: unique symbol }>($I`License`)({
 	/**
 	 * The SPDX short identifier (e.g. `"MIT"`) or a `LicenseRef-`/`DocumentRef-`
 	 * reference string.

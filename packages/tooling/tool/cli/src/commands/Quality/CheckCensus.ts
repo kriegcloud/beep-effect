@@ -144,12 +144,13 @@ const censusProgramFields = {
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusProgram extends S.Class<CheckCensusProgram>($I`CheckCensusProgram`)(
-  censusProgramFields,
-  $I.annote("CheckCensusProgram", {
-    description:
-      "Size, upstream consumption, wall time, diagnostic count, and default-mode instantiations, types, and check time of one measured tsgo program.",
-  })
+export class CheckCensusProgram extends S.Opaque<CheckCensusProgram, { readonly brand: unique symbol }>()(
+  S.Struct(censusProgramFields).pipe(
+    $I.annoteSchema("CheckCensusProgram", {
+      description:
+        "Size, upstream consumption, wall time, diagnostic count, and default-mode instantiations, types, and check time of one measured tsgo program.",
+    })
+  )
 ) {}
 
 /**
@@ -177,8 +178,8 @@ export class CheckCensusProgram extends S.Class<CheckCensusProgram>($I`CheckCens
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusDelta extends S.Class<CheckCensusDelta>($I`CheckCensusDelta`)(
-  {
+export class CheckCensusDelta extends S.Opaque<CheckCensusDelta, { readonly brand: unique symbol }>()(
+  S.Struct({
     files: CensusDelta,
     upstreamSrc: CensusDelta,
     upstreamDist: CensusDelta,
@@ -187,10 +188,11 @@ export class CheckCensusDelta extends S.Class<CheckCensusDelta>($I`CheckCensusDe
     instantiations: CensusDelta,
     types: CensusDelta,
     checkTimeMs: CensusDelta,
-  },
-  $I.annote("CheckCensusDelta", {
-    description: "Reference-keeping overlay minus committed check overlay, per measured field.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusDelta", {
+      description: "Reference-keeping overlay minus committed check overlay, per measured field.",
+    })
+  )
 ) {}
 
 /**
@@ -216,17 +218,18 @@ export class CheckCensusDelta extends S.Class<CheckCensusDelta>($I`CheckCensusDe
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusRow extends S.Class<CheckCensusRow>($I`CheckCensusRow`)(
-  {
+export class CheckCensusRow extends S.Opaque<CheckCensusRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     package: S.String,
     overlay: CheckCensusProgram,
     referenceKeeping: CheckCensusProgram,
     delta: CheckCensusDelta,
     buildOverlapFiles: CensusCount,
-  },
-  $I.annote("CheckCensusRow", {
-    description: "Committed check overlay versus reference-keeping overlay measurements for one workspace package.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusRow", {
+      description: "Committed check overlay versus reference-keeping overlay measurements for one workspace package.",
+    })
+  )
 ) {}
 
 /**
@@ -250,18 +253,19 @@ export class CheckCensusRow extends S.Class<CheckCensusRow>($I`CheckCensusRow`)(
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusReport extends S.Class<CheckCensusReport>($I`CheckCensusReport`)(
-  {
+export class CheckCensusReport extends S.Opaque<CheckCensusReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     generatedAt: S.String,
     concurrency: CensusCount,
     rows: S.Array(CheckCensusRow),
     gate: S.OptionFromOptionalKey(CheckCensusGateReport).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<CheckCensusGateReport>()))
     ),
-  },
-  $I.annote("CheckCensusReport", {
-    description: "Check-program census over every measured workspace package.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusReport", {
+      description: "Check-program census over every measured workspace package.",
+    })
+  )
 ) {}
 
 /**
@@ -279,14 +283,15 @@ export class CheckCensusReport extends S.Class<CheckCensusReport>($I`CheckCensus
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusPackage extends S.Class<CheckCensusPackage>($I`CheckCensusPackage`)(
-  {
+export class CheckCensusPackage extends S.Opaque<CheckCensusPackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     dir: S.String,
-  },
-  $I.annote("CheckCensusPackage", {
-    description: "Workspace package name and absolute directory measured by the check census.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusPackage", {
+      description: "Workspace package name and absolute directory measured by the check census.",
+    })
+  )
 ) {}
 
 /**
@@ -309,16 +314,17 @@ export class CheckCensusPackage extends S.Class<CheckCensusPackage>($I`CheckCens
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusOptions extends S.Class<CheckCensusOptions>($I`CheckCensusOptions`)(
-  {
+export class CheckCensusOptions extends S.Opaque<CheckCensusOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.String,
     tsgoPath: S.String,
     packages: S.Array(CheckCensusPackage),
     concurrency: CensusCount.pipe(S.withConstructorDefault(Effect.succeed(CHECK_CENSUS_CONCURRENCY))),
-  },
-  $I.annote("CheckCensusOptions", {
-    description: "Repository root, tsgo binary, package selection, and worker bound for one check census.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusOptions", {
+      description: "Repository root, tsgo binary, package selection, and worker bound for one check census.",
+    })
+  )
 ) {}
 
 /**
@@ -341,15 +347,17 @@ export class CheckCensusOptions extends S.Class<CheckCensusOptions>($I`CheckCens
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusMissingOutput extends S.Class<CheckCensusMissingOutput>($I`CheckCensusMissingOutput`)(
-  {
+export class CheckCensusMissingOutput extends S.Opaque<CheckCensusMissingOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
     package: S.String,
     reference: S.String,
     declarationFile: S.String,
-  },
-  $I.annote("CheckCensusMissingOutput", {
-    description: "A project referenced by a census package whose declaration index (outDir/index.d.ts) does not exist.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusMissingOutput", {
+      description:
+        "A project referenced by a census package whose declaration index (outDir/index.d.ts) does not exist.",
+    })
+  )
 ) {}
 
 const TsconfigReference = S.Struct({ path: S.String }).annotate(
@@ -740,14 +748,16 @@ const censusPackage = Effect.fn("CheckCensus.censusPackage")(function* (
  * **Example** (Census one package)
  *
  * ```ts
- * import { runCheckCensus } from "@beep/repo-cli/commands/Quality/CheckCensus"
+ * import { CheckCensusOptions, CheckCensusPackage, runCheckCensus } from "@beep/repo-cli/commands/Quality/CheckCensus"
  *
- * const report = runCheckCensus({
- *   repoRoot: "/repo",
- *   tsgoPath: "/repo/node_modules/.bin/tsgo",
- *   packages: [{ name: "@beep/n3", dir: "/repo/packages/drivers/n3" }],
- *   concurrency: 1,
- * })
+ * const report = runCheckCensus(
+ *   CheckCensusOptions.make({
+ *     repoRoot: "/repo",
+ *     tsgoPath: "/repo/node_modules/.bin/tsgo",
+ *     packages: [CheckCensusPackage.make({ name: "@beep/n3", dir: "/repo/packages/drivers/n3" })],
+ *     concurrency: 1,
+ *   })
+ * )
  * console.log(typeof report) // "object"
  * ```
  *

@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { FsUtils } from "@beep/repo-utils/FsUtils";
+import { FsUtils, GlobOptions } from "@beep/repo-utils/FsUtils";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "@beep/repo-utils/schemas/TypeScriptSourceExclusions";
 import { LiteralKit } from "@beep/schema";
@@ -110,18 +110,19 @@ export type SchemaCatalogEntryKind = typeof SchemaCatalogEntryKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class SchemaCatalogEntry extends S.Class<SchemaCatalogEntry>($I`SchemaCatalogEntry`)(
-  {
+export class SchemaCatalogEntry extends S.Opaque<SchemaCatalogEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     symbol: S.String,
     kind: SchemaCatalogEntryKind,
     owner: S.String,
     identity: S.optionalKey(S.String),
     description: S.optionalKey(S.String),
-  },
-  $I.annote("SchemaCatalogEntry", {
-    description: "Single static schema declaration catalog entry.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaCatalogEntry", {
+      description: "Single static schema declaration catalog entry.",
+    })
+  )
 ) {}
 
 /**
@@ -140,15 +141,16 @@ export class SchemaCatalogEntry extends S.Class<SchemaCatalogEntry>($I`SchemaCat
  * @category models
  * @since 0.0.0
  */
-export class SchemaCatalogDocument extends S.Class<SchemaCatalogDocument>($I`SchemaCatalogDocument`)(
-  {
+export class SchemaCatalogDocument extends S.Opaque<SchemaCatalogDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("schema-catalog/v1"),
     generatedBy: S.Literal(SCHEMA_CATALOG_GENERATED_BY),
     entries: S.Array(SchemaCatalogEntry),
-  },
-  $I.annote("SchemaCatalogDocument", {
-    description: "Generated schema catalog document committed under standards.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaCatalogDocument", {
+      description: "Generated schema catalog document committed under standards.",
+    })
+  )
 ) {}
 
 /**
@@ -167,16 +169,17 @@ export class SchemaCatalogDocument extends S.Class<SchemaCatalogDocument>($I`Sch
  * @category models
  * @since 0.0.0
  */
-export class SchemaCatalogOptions extends S.Class<SchemaCatalogOptions>($I`SchemaCatalogOptions`)(
-  {
+export class SchemaCatalogOptions extends S.Opaque<SchemaCatalogOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
     ),
-  },
-  $I.annote("SchemaCatalogOptions", {
-    description: "CLI options for schema catalog generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaCatalogOptions", {
+      description: "CLI options for schema catalog generation.",
+    })
+  )
 ) {}
 
 /**
@@ -195,14 +198,15 @@ export class SchemaCatalogOptions extends S.Class<SchemaCatalogOptions>($I`Schem
  * @category models
  * @since 0.0.0
  */
-export class SchemaCatalogSummary extends S.Class<SchemaCatalogSummary>($I`SchemaCatalogSummary`)(
-  {
+export class SchemaCatalogSummary extends S.Opaque<SchemaCatalogSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     entries: S.Finite,
     wroteCatalog: S.Boolean,
-  },
-  $I.annote("SchemaCatalogSummary", {
-    description: "Summary emitted after a schema catalog run.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaCatalogSummary", {
+      description: "Summary emitted after a schema catalog run.",
+    })
+  )
 ) {}
 
 type SchemaCatalogMetadata = {
@@ -632,11 +636,14 @@ export const generateSchemaCatalogDocument = Effect.fn("SchemaCatalog.generateDo
     // Enumerate through FsUtils so the scan is anchored at the repo root even
     // when the command runs from a workspace subdirectory (ts-morph resolves
     // relative globs against the process cwd).
-    const sourcePaths = yield* fsUtils.globFiles(SchemaFirstIncludedGlobs, {
-      absolute: true,
-      cwd: repoRoot,
-      ignore: "**/docs/**",
-    });
+    const sourcePaths = yield* fsUtils.globFiles(
+      SchemaFirstIncludedGlobs,
+      GlobOptions.make({
+        absolute: true,
+        cwd: repoRoot,
+        ignore: "**/docs/**",
+      })
+    );
     const project = new Project({
       skipAddingFilesFromTsConfig: true,
       tsConfigFilePath: path.join(repoRoot, "tsconfig.json"),

@@ -68,7 +68,9 @@ type ContactSubmissionErrorOptions = {
  * @category errors
  * @since 0.0.0
  */
-export class ContactSubmissionError extends S.TaggedError<ContactSubmissionError>($I`ContactSubmissionError`)(
+export class ContactSubmissionError extends S.TaggedError<ContactSubmissionError, { readonly brand: unique symbol }>(
+  $I`ContactSubmissionError`
+)(
   "ContactSubmissionError",
   {
     provider: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),

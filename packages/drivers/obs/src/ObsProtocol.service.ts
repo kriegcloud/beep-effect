@@ -39,6 +39,9 @@ import {
   decodeObsIncomingMessageJson,
   encodeObsOutgoingMessageJson,
   OBS_RPC_VERSION,
+  ObsEventEnvelope,
+  ObsHello,
+  ObsIdentified,
   ObsIdentify,
   ObsIdentifyMessage,
   ObsIncomingMessage,
@@ -46,20 +49,12 @@ import {
   ObsRecordStateChangedEvent,
   ObsRequestEnvelope,
   ObsRequestMessage,
+  ObsRequestResponseEnvelope,
   ObsUnknownEvent,
 } from "./ObsProtocol.models.ts";
 import type * as Scope from "effect/Scope";
 import type { ObsConfig, ObsConfigInputOptions } from "./Obs.models.ts";
-import type {
-  ObsAuthChallenge,
-  ObsEvent,
-  ObsEventEnvelope,
-  ObsHello,
-  ObsIdentified,
-  ObsOutgoingMessage,
-  ObsRequestResponseEnvelope,
-  ObsRequestType,
-} from "./ObsProtocol.models.ts";
+import type { ObsAuthChallenge, ObsEvent, ObsOutgoingMessage, ObsRequestType } from "./ObsProtocol.models.ts";
 
 const $I = $ObsId.create("ObsProtocol.service");
 
@@ -99,10 +94,11 @@ type PendingRequests = HashMap.HashMap<
  * @category models
  * @since 0.0.0
  */
-export class ComputeObsAuthenticationOptions extends S.Class<ComputeObsAuthenticationOptions>(
-  $I`ComputeObsAuthenticationOptions`
-)(
-  {
+export class ComputeObsAuthenticationOptions extends S.Opaque<
+  ComputeObsAuthenticationOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     challenge: S.String.pipe(
       $I.annoteKey("ComputeObsAuthenticationOptions.challenge", {
         description: "Base64 challenge string from the obs-websocket Hello message.",
@@ -118,10 +114,11 @@ export class ComputeObsAuthenticationOptions extends S.Class<ComputeObsAuthentic
         description: "Base64 salt string from the obs-websocket Hello message.",
       })
     ),
-  },
-  $I.annote("ComputeObsAuthenticationOptions", {
-    description: "Input for computing the obs-websocket Identify authentication string.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComputeObsAuthenticationOptions", {
+      description: "Input for computing the obs-websocket Identify authentication string.",
+    })
+  )
 ) {}
 
 const ComputeObsAuthentication = Fn({
@@ -420,10 +417,10 @@ const connectWith = Effect.fn($I`connectWith`)(function* (
   );
 
   const routeMessage = ObsIncomingMessage.match({
-    0: (message) => handleHello(message.d),
-    2: (message) => handleIdentified(message.d),
-    5: (message) => handleEvent(message.d),
-    7: (message) => handleResponse(message.d),
+    0: (message) => handleHello(ObsHello.make(message.d)),
+    2: (message) => handleIdentified(ObsIdentified.make(message.d)),
+    5: (message) => handleEvent(ObsEventEnvelope.make(message.d)),
+    7: (message) => handleResponse(ObsRequestResponseEnvelope.make(message.d)),
   });
 
   const onMessage = Effect.fn($I`onMessage`)((text: string) =>

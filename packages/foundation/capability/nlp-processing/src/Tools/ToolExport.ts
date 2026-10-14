@@ -116,7 +116,9 @@ const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
  * @category errors
  * @since 0.0.0
  */
-export class ExportedToolError extends S.TaggedError<ExportedToolError>($I`ExportedToolError`)(
+export class ExportedToolError extends S.TaggedError<ExportedToolError, { readonly brand: unique symbol }>(
+  $I`ExportedToolError`
+)(
   "ExportedToolError",
   {
     cause: S.OptionFromOptionalKey(

@@ -40,7 +40,7 @@ import * as P from "effect/Predicate";
 
 const $I = $ScratchpadId.create("effected/cli/ui/testing/CliUiTest");
 
-class CliUiTestError extends S.TaggedError<CliUiTestError>($I`CliUiTestError`)(
+class CliUiTestError extends S.TaggedError<CliUiTestError, { readonly brand: unique symbol }>($I`CliUiTestError`)(
 	"CliUiTestError",
 	{ message: S.String.annotate({ description: "The invalid test interaction or failed screen wait and its context." }) },
 	$I.annote("CliUiTestError", { description: "Invalid test interaction with a CLI screen." }),

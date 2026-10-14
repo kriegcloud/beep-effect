@@ -1,6 +1,6 @@
 import { CI_LANE_PARTITIONS, proveCiLanePartition } from "@beep/repo-cli/commands/Ci";
 import { CreatePackageScripts, createPackageCommand } from "@beep/repo-cli/commands/CreatePackage";
-import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync";
+import { syncTsconfigAtRoot, TsconfigSyncRunOptionsCheck } from "@beep/repo-cli/commands/TsconfigSync";
 import { FsUtilsLive, findRepoRoot, TSMorphServiceLive } from "@beep/repo-utils";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
@@ -1570,7 +1570,10 @@ export const $IdentityId: Identity.IdentityComposer<"@beep/identity"> = composer
             ]);
 
             // config-sync:check, fallow:boundaries:config-check, and the tsgo-rules alias mirror.
-            const check = yield* syncTsconfigAtRoot(rootDir, { mode: "check", filter: undefined, verbose: false });
+            const check = yield* syncTsconfigAtRoot(
+              rootDir,
+              TsconfigSyncRunOptionsCheck.make({ mode: "check", filter: undefined, verbose: false })
+            );
             expect(check.changedFiles).toBe(0);
             const rootPaths = yield* decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
             expect(yield* readJsonFile(aliasesPath)).toEqual(rootPaths.compilerOptions.paths);

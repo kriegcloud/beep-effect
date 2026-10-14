@@ -291,7 +291,7 @@ export class EventBroadcastHub extends Context.Service<EventBroadcastHub, EventB
 /**
  * Configuration for Cloud Pub/Sub event subscription
  */
-class PubSubSubscriptionError extends S.TaggedError<PubSubSubscriptionError>($I`PubSubSubscriptionError`)(
+class PubSubSubscriptionError extends S.TaggedError<PubSubSubscriptionError, { readonly brand: unique symbol }>($I`PubSubSubscriptionError`)(
   "PubSubSubscriptionError",
   {
     message: S.NonEmptyString,
@@ -304,7 +304,7 @@ class PubSubSubscriptionError extends S.TaggedError<PubSubSubscriptionError>($I`
 
 const isSubscriptionAlreadyExists = S.is(S.Struct({ code: S.Literal(6) }));
 
-class PubSubCreateError extends S.TaggedError<PubSubCreateError>($I`PubSubCreateError`)("PubSubCreateError", {
+class PubSubCreateError extends S.TaggedError<PubSubCreateError, { readonly brand: unique symbol }>($I`PubSubCreateError`)("PubSubCreateError", {
   alreadyExists: S.Boolean,
   cause: S.Defect({ includeStack: true }),
 }) {}

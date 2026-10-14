@@ -49,15 +49,16 @@ const ROADMAP_LINK_DEFINITION_PATTERN = /^\s*\[[^\]]+\]:\s+((?:\.\.\/|\.\/)(?:go
 const PHASE_SNAPSHOT_PATTERN = /^\s*\((\d+)\/(\d+)\)/;
 const DERIVED_PROJECTION_PATHS = HashSet.make(EXPLORATION_ATLAS_PATH, PORTFOLIO_INDEX_PATH);
 
-class RoadmapReference extends S.Class<RoadmapReference>($I`RoadmapReference`)(
-  {
+class RoadmapReference extends S.Opaque<RoadmapReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     target: S.String,
     phaseDone: S.optionalKey(S.Finite),
     phaseTotal: S.optionalKey(S.Finite),
-  },
-  $I.annote("RoadmapReference", {
-    description: "One goal or exploration Markdown link parsed from the repository roadmap.",
-  })
+  }).pipe(
+    $I.annoteSchema("RoadmapReference", {
+      description: "One goal or exploration Markdown link parsed from the repository roadmap.",
+    })
+  )
 ) {}
 
 const RoadmapPolicySeverity = LiteralKit(["warning", "error"]).pipe(
@@ -66,8 +67,8 @@ const RoadmapPolicySeverity = LiteralKit(["warning", "error"]).pipe(
   })
 );
 
-class RoadmapPolicyFinding extends S.Class<RoadmapPolicyFinding>($I`RoadmapPolicyFinding`)(
-  {
+class RoadmapPolicyFinding extends S.Opaque<RoadmapPolicyFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.Literal("roadmap-policy"),
     ruleId: S.Literal("roadmap-ref"),
     severity: RoadmapPolicySeverity,
@@ -75,10 +76,11 @@ class RoadmapPolicyFinding extends S.Class<RoadmapPolicyFinding>($I`RoadmapPolic
     file: S.String,
     message: S.String,
     remediation: S.String,
-  },
-  $I.annote("RoadmapPolicyFinding", {
-    description: "Machine-readable roadmap-reference lint finding consumed by repository quality tooling.",
-  })
+  }).pipe(
+    $I.annoteSchema("RoadmapPolicyFinding", {
+      description: "Machine-readable roadmap-reference lint finding consumed by repository quality tooling.",
+    })
+  )
 ) {}
 
 const encodePolicyFinding = S.encodeUnknownEffect(RoadmapPolicyFinding);

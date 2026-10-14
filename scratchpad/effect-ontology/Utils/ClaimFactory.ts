@@ -122,8 +122,7 @@ const claimFactoryOptionsDefaultConfidenceDefault = Confidence.make(0.85);
  * @category models
  * @since 0.0.0
  */
-export class ClaimFactoryOptions extends S.Class<ClaimFactoryOptions>($I`ClaimFactoryOptions`)(
-  {
+export class ClaimFactoryOptions extends S.Opaque<ClaimFactoryOptions, { readonly brand: unique symbol }>()(S.Struct({
     baseNamespace: S.NonEmptyString.annotateKey({ description: "Base namespace used to construct entity IRIs." }),
     documentId: S.NonEmptyString.annotateKey({ description: "Source document identifier stored as the article ID." }),
     ontologyId: S.NonEmptyString.annotateKey({ description: "Ontology scope assigned to generated claims." }),
@@ -131,11 +130,9 @@ export class ClaimFactoryOptions extends S.Class<ClaimFactoryOptions>($I`ClaimFa
       S.withConstructorDefault(Effect.succeed(claimFactoryOptionsDefaultConfidenceDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(claimFactoryOptionsDefaultConfidenceDefault)),
       S.annotateKey({ description: "Confidence used when source evidence has no score." })
     ),
-  },
-  $I.annote("ClaimFactoryOptions", {
+  }).pipe($I.annoteSchema("ClaimFactoryOptions", {
     description: "Schema-defaulted namespace, provenance, and confidence policy for generated claims.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link ClaimFactoryOptions}.
@@ -146,17 +143,14 @@ export class ClaimFactoryOptions extends S.Class<ClaimFactoryOptions>($I`ClaimFa
  */
 export type ClaimFactoryOptionsInput = (typeof ClaimFactoryOptions)["~type.make.in"];
 
-class IriCollisionEntity extends S.Class<IriCollisionEntity>($I`IriCollisionEntity`)(
-  {
+class IriCollisionEntity extends S.Opaque<IriCollisionEntity, { readonly brand: unique symbol }>()(S.Struct({
     mention: S.NonEmptyString,
     types: S.Array(IRI),
     documentId: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     chunkIndex: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("IriCollisionEntity", {
+  }).pipe($I.annoteSchema("IriCollisionEntity", {
     description: "Entity details retained when multiple extracted entities map to the same IRI.",
-  })
-) {}
+  }))) {}
 
 /**
  * IRI collision warning - two entities would produce the same IRI
@@ -183,18 +177,15 @@ class IriCollisionEntity extends S.Class<IriCollisionEntity>($I`IriCollisionEnti
  * @category models
  * @since 0.0.0
  */
-export class IriCollisionWarning extends S.Class<IriCollisionWarning>($I`IriCollisionWarning`)(
-  {
+export class IriCollisionWarning extends S.Opaque<IriCollisionWarning, { readonly brand: unique symbol }>()(S.Struct({
     entityId: S.NonEmptyString.annotateKey({ description: "Entity identifier shared by colliding records." }),
     iri: IRI.annotateKey({ description: "IRI produced for the colliding entity identifier." }),
     entities: S.Array(IriCollisionEntity).annotateKey({
       description: "Entity records that produced the same IRI.",
     }),
-  },
-  $I.annote("IriCollisionWarning", {
+  }).pipe($I.annoteSchema("IriCollisionWarning", {
     description: "Entity records that would silently collapse to the same generated IRI.",
-  })
-) {}
+  }))) {}
 
 /**
  * Result of IRI collision detection
@@ -216,7 +207,7 @@ export class IriCollisionWarning extends S.Class<IriCollisionWarning>($I`IriColl
  * @category models
  * @since 0.0.0
  */
-export class IriCollisionReport extends S.Class<IriCollisionReport>($I`IriCollisionReport`)(
+export class IriCollisionReport extends S.Class<IriCollisionReport, { readonly brand: unique symbol }>($I`IriCollisionReport`)(
   {
     collisions: S.Array(IriCollisionWarning).annotateKey({ description: "Detected IRI collisions." }),
     totalEntities: S.Natural.annotateKey({ description: "Entity count before deduplication." }),
@@ -277,15 +268,12 @@ export class IriCollisionReport extends S.Class<IriCollisionReport>($I`IriCollis
  * @category models
  * @since 0.0.0
  */
-export class ClaimData extends S.Class<ClaimData>($I`ClaimData`)(
-  {
+export class ClaimData extends S.Opaque<ClaimData, { readonly brand: unique symbol }>()(S.Struct({
     ...CreateClaimInput.fields,
     claimId: ClaimId.annotateKey({ description: "Generated claim identifier." }),
-  },
-  $I.annote("ClaimData", {
+  }).pipe($I.annoteSchema("ClaimData", {
     description: "Validated claim creation payload paired with its generated identifier.",
-  })
-) {}
+  }))) {}
 
 /**
  * Exact schema-backed payload persisted with one extracted document graph.
@@ -306,16 +294,13 @@ export class ClaimData extends S.Class<ClaimData>($I`ClaimData`)(
  * @category models
  * @since 0.0.0
  */
-export class ClaimExtractionArtifact extends S.Class<ClaimExtractionArtifact>($I`ClaimExtractionArtifact`)(
-  {
+export class ClaimExtractionArtifact extends S.Opaque<ClaimExtractionArtifact, { readonly brand: unique symbol }>()(S.Struct({
     claims: S.Array(ClaimData),
     entityObservations: S.Array(EntityObservation),
     relationObservations: S.Array(RelationObservation),
-  },
-  $I.annote("ClaimExtractionArtifact", {
+  }).pipe($I.annoteSchema("ClaimExtractionArtifact", {
     description: "Exact durable claims and grounding observations for one extracted document graph.",
-  })
-) {}
+  }))) {}
 
 const ClaimExtractionArtifactJson = S.fromJsonString(ClaimExtractionArtifact).pipe(
   $I.annoteSchema("ClaimExtractionArtifactJson", {

@@ -81,8 +81,8 @@ const POST_FOOTNOTE_HEADING_RE = /^[A-Z][A-Z0-9 &:'.-]{3,}$/m;
  * @category models
  * @since 0.0.0
  */
-export class Zone extends S.Class<Zone>($I`Zone`)(
-  {
+export class Zone extends S.Opaque<Zone, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Start position in input-text coordinates. */
     start: S.Natural.annotateKey({
       description: "Start position in input-text coordinates.",
@@ -96,10 +96,11 @@ export class Zone extends S.Class<Zone>($I`Zone`)(
       description: "Footnote number (1, 2, 3...).",
       examples: [PosInt.make(1), PosInt.make(2), PosInt.make(3)],
     }),
-  },
-  $I.annote("Zone", {
-    description: "A detected footnote zone in raw input-text coordinates.",
-  })
+  }).pipe(
+    $I.annoteSchema("Zone", {
+      description: "A detected footnote zone in raw input-text coordinates.",
+    })
+  )
 ) {}
 
 /**

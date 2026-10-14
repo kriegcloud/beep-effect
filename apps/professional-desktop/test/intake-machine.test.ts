@@ -295,7 +295,7 @@ describe("document intake machine", { concurrent: false }, () => {
             current.matches({ vault: { watching: { unconfigured: { manual: "editing" } } } })
           );
           expect(prompt).not.toHaveBeenCalled();
-          expect(vaultSelectionOf(manual)).toStrictEqual(VaultSelectionState.cases.manual.make());
+          expect(vaultSelectionOf(manual)).toStrictEqual(VaultSelectionState.cases.manual.make({}));
           prompt.mockRestore();
         })
       );

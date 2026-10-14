@@ -52,7 +52,9 @@ const pathAttribute = (path: string): Record<string, string> => ({ path_length: 
 
 const countAttribute = (name: string, count: number): Record<string, string> => ({ [name]: `${count}` });
 
-class InvalidPatternError extends S.TaggedError<InvalidPatternError>($I`InvalidPatternError`)(
+class InvalidPatternError extends S.TaggedError<InvalidPatternError, { readonly brand: unique symbol }>(
+  $I`InvalidPatternError`
+)(
   "InvalidPatternError",
   {
     cause: S.Unknown,

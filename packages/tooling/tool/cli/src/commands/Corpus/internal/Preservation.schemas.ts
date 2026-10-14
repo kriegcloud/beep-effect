@@ -92,18 +92,22 @@ export type PreservationSourceClass = typeof PreservationSourceClass.Type;
  * @category models
  * @since 0.0.0
  */
-export class PreservationObjectIdentity extends S.Class<PreservationObjectIdentity>($I`PreservationObjectIdentity`)(
-  {
+export class PreservationObjectIdentity extends S.Opaque<
+  PreservationObjectIdentity,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mtimeEpoch: S.Int,
     mtimeIso: S.NonEmptyString,
     relativePath: S.NonEmptyString,
     sizeBytes: S.Natural,
     sourceClass: PreservationSourceClass,
-  },
-  $I.annote("PreservationObjectIdentity", {
-    title: "Preservation Object Identity",
-    description: "Occurrence identity of one T7 archive object: source class, relative path, size, and mtime.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreservationObjectIdentity", {
+      title: "Preservation Object Identity",
+      description: "Occurrence identity of one T7 archive object: source class, relative path, size, and mtime.",
+    })
+  )
 ) {}
 
 /**
@@ -124,15 +128,19 @@ export class PreservationObjectIdentity extends S.Class<PreservationObjectIdenti
  * @category models
  * @since 0.0.0
  */
-export class SourceStabilityObservation extends S.Class<SourceStabilityObservation>($I`SourceStabilityObservation`)(
-  {
+export class SourceStabilityObservation extends S.Opaque<
+  SourceStabilityObservation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mtimeEpoch: S.Int,
     sizeBytes: S.Natural,
-  },
-  $I.annote("SourceStabilityObservation", {
-    title: "Source Stability Observation",
-    description: "Size and mtime re-stat snapshot taken immediately before or after a streaming copy attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceStabilityObservation", {
+      title: "Source Stability Observation",
+      description: "Size and mtime re-stat snapshot taken immediately before or after a streaming copy attempt.",
+    })
+  )
 ) {}
 
 /**
@@ -154,90 +162,133 @@ export class SourceStabilityObservation extends S.Class<SourceStabilityObservati
  * @category models
  * @since 0.0.0
  */
-export class StreamingHashResult extends S.Class<StreamingHashResult>($I`StreamingHashResult`)(
-  {
+export class StreamingHashResult extends S.Opaque<StreamingHashResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.Natural,
     sha256: Sha256Hex,
-  },
-  $I.annote("StreamingHashResult", {
-    title: "Streaming Hash Result",
-    description: "SHA-256 digest and byte count produced without materializing the complete file in memory.",
-  })
+  }).pipe(
+    $I.annoteSchema("StreamingHashResult", {
+      title: "Streaming Hash Result",
+      description: "SHA-256 digest and byte count produced without materializing the complete file in memory.",
+    })
+  )
 ) {}
 
-class CopiedOutcome extends S.Class<CopiedOutcome>($I`CopiedOutcome`)(
-  {
+/**
+ * A fresh full copy streamed once while hashing, with matching pre and post source stats.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CopiedOutcome extends S.Opaque<CopiedOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("copied"),
     bytesCopied: S.Natural,
     sha256: Sha256Hex,
     statAfter: SourceStabilityObservation,
     statBefore: SourceStabilityObservation,
-  },
-  $I.annote("CopiedOutcome", {
-    description: "A fresh full copy streamed once while hashing, with matching pre and post source stats.",
-  })
+  }).pipe(
+    $I.annoteSchema("CopiedOutcome", {
+      description: "A fresh full copy streamed once while hashing, with matching pre and post source stats.",
+    })
+  )
 ) {}
 
-class ResumeCompletedOutcome extends S.Class<ResumeCompletedOutcome>($I`ResumeCompletedOutcome`)(
-  {
+/**
+ * An existing partial destination whose bytes re-hashed as a valid prefix and whose remainder streamed to completion.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ResumeCompletedOutcome extends S.Opaque<ResumeCompletedOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("resume-completed"),
     bytesCopied: S.Natural,
     bytesReused: S.Natural,
     sha256: Sha256Hex,
     statAfter: SourceStabilityObservation,
     statBefore: SourceStabilityObservation,
-  },
-  $I.annote("ResumeCompletedOutcome", {
-    description:
-      "An existing partial destination whose bytes re-hashed as a valid prefix and whose remainder streamed to completion.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResumeCompletedOutcome", {
+      description:
+        "An existing partial destination whose bytes re-hashed as a valid prefix and whose remainder streamed to completion.",
+    })
+  )
 ) {}
 
-class AlreadyCompleteOutcome extends S.Class<AlreadyCompleteOutcome>($I`AlreadyCompleteOutcome`)(
-  {
+/**
+ * An existing full-length destination whose digest matched two stable source reads bracketed by source stats.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AlreadyCompleteOutcome extends S.Opaque<AlreadyCompleteOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("already-complete"),
     bytesReused: S.Natural,
     sha256: Sha256Hex,
     statAfter: SourceStabilityObservation,
     statBefore: SourceStabilityObservation,
-  },
-  $I.annote("AlreadyCompleteOutcome", {
-    description:
-      "An existing full-length destination whose digest matched two stable source reads bracketed by source stats.",
-  })
+  }).pipe(
+    $I.annoteSchema("AlreadyCompleteOutcome", {
+      description:
+        "An existing full-length destination whose digest matched two stable source reads bracketed by source stats.",
+    })
+  )
 ) {}
 
-class ResumeDiscardedOutcome extends S.Class<ResumeDiscardedOutcome>($I`ResumeDiscardedOutcome`)(
-  {
+/**
+ * Existing destination bytes failed the prefix re-hash and were truncated to zero; a fresh attempt follows. Never terminal.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ResumeDiscardedOutcome extends S.Opaque<ResumeDiscardedOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("resume-discarded"),
     bytesDiscarded: S.Natural,
-  },
-  $I.annote("ResumeDiscardedOutcome", {
-    description:
-      "Existing destination bytes failed the prefix re-hash and were truncated to zero; a fresh attempt follows. Never terminal.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResumeDiscardedOutcome", {
+      description:
+        "Existing destination bytes failed the prefix re-hash and were truncated to zero; a fresh attempt follows. Never terminal.",
+    })
+  )
 ) {}
 
-class ChangedDuringCopyOutcome extends S.Class<ChangedDuringCopyOutcome>($I`ChangedDuringCopyOutcome`)(
-  {
+/**
+ * The pre/post re-stat pair diverged around the copy; the attempt is terminal and the object is re-copied from its stable state. Never a PASS row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ChangedDuringCopyOutcome extends S.Opaque<ChangedDuringCopyOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("changed-during-copy"),
     statAfter: SourceStabilityObservation,
     statBefore: SourceStabilityObservation,
-  },
-  $I.annote("ChangedDuringCopyOutcome", {
-    description:
-      "The pre/post re-stat pair diverged around the copy; the attempt is terminal and the object is re-copied from its stable state. Never a PASS row.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangedDuringCopyOutcome", {
+      description:
+        "The pre/post re-stat pair diverged around the copy; the attempt is terminal and the object is re-copied from its stable state. Never a PASS row.",
+    })
+  )
 ) {}
 
-class UnreadableOutcome extends S.Class<UnreadableOutcome>($I`UnreadableOutcome`)(
-  {
+/**
+ * The source could not be read; carries the platform error text with no corpus content.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class UnreadableOutcome extends S.Opaque<UnreadableOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("unreadable"),
     message: S.NonEmptyString,
-  },
-  $I.annote("UnreadableOutcome", {
-    description: "The source could not be read; carries the platform error text with no corpus content.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnreadableOutcome", {
+      description: "The source could not be read; carries the platform error text with no corpus content.",
+    })
+  )
 ) {}
 
 /**
@@ -432,18 +483,19 @@ export type PreservationAttemptOutcome = typeof PreservationAttemptOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class PreservationManifestRow extends S.Class<PreservationManifestRow>($I`PreservationManifestRow`)(
-  {
+export class PreservationManifestRow extends S.Opaque<PreservationManifestRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     archivedAt: S.NonEmptyString,
     attempt: S.Natural,
     destRelativePath: S.NonEmptyString,
     object: PreservationObjectIdentity,
     outcome: PreservationAttemptOutcome,
-  },
-  $I.annote("PreservationManifestRow", {
-    title: "Preservation Manifest Row",
-    description: "Append-only destination-manifest row for one archive attempt over one T7 object.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreservationManifestRow", {
+      title: "Preservation Manifest Row",
+      description: "Append-only destination-manifest row for one archive attempt over one T7 object.",
+    })
+  )
 ) {}
 
 /**
@@ -529,18 +581,19 @@ export type InheritedLossClass = typeof InheritedLossClass.Type;
  * @category models
  * @since 0.0.0
  */
-export class InheritedLossRow extends S.Class<InheritedLossRow>($I`InheritedLossRow`)(
-  {
+export class InheritedLossRow extends S.Opaque<InheritedLossRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     count: S.Natural,
     evidenceRef: S.NonEmptyString,
     lossClass: InheritedLossClass,
     note: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("InheritedLossRow", {
-    title: "Inherited Loss Row",
-    description:
-      "Aggregate opening-balance entry for one inherited loss class, referencing out-of-repo evidence without corpus content.",
-  })
+  }).pipe(
+    $I.annoteSchema("InheritedLossRow", {
+      title: "Inherited Loss Row",
+      description:
+        "Aggregate opening-balance entry for one inherited loss class, referencing out-of-repo evidence without corpus content.",
+    })
+  )
 ) {}
 
 /**
@@ -565,20 +618,21 @@ export class InheritedLossRow extends S.Class<InheritedLossRow>($I`InheritedLoss
  * @category models
  * @since 0.0.0
  */
-export class CapacityMeasurement extends S.Class<CapacityMeasurement>($I`CapacityMeasurement`)(
-  {
+export class CapacityMeasurement extends S.Opaque<CapacityMeasurement, { readonly brand: unique symbol }>()(
+  S.Struct({
     destFreeBytes: S.Natural,
     measuredAt: S.NonEmptyString,
     objectCount: S.Natural,
     requiredBytes: S.Natural,
     sourceRoot: S.NonEmptyString,
     sourceBytes: S.Natural,
-  },
-  $I.annote("CapacityMeasurement", {
-    title: "Capacity Measurement",
-    description:
-      "Canonical source identity, object count, and byte totals measured against destination free space before the archive run.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapacityMeasurement", {
+      title: "Capacity Measurement",
+      description:
+        "Canonical source identity, object count, and byte totals measured against destination free space before the archive run.",
+    })
+  )
 ) {}
 
 /**
@@ -599,17 +653,19 @@ export class CapacityMeasurement extends S.Class<CapacityMeasurement>($I`Capacit
  * @category models
  * @since 0.0.0
  */
-export class ArchiveWriterPayloadSyncHookInput extends S.Class<ArchiveWriterPayloadSyncHookInput>(
-  $I`ArchiveWriterPayloadSyncHookInput`
-)(
-  {
+export class ArchiveWriterPayloadSyncHookInput extends S.Opaque<
+  ArchiveWriterPayloadSyncHookInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     partialAbs: S.NonEmptyString,
     sourceAbs: S.NonEmptyString,
-  },
-  $I.annote("ArchiveWriterPayloadSyncHookInput", {
-    title: "Archive Writer Payload Sync Hook Input",
-    description: "Source and staged-destination paths observed after payload sync and before source re-stat.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveWriterPayloadSyncHookInput", {
+      title: "Archive Writer Payload Sync Hook Input",
+      description: "Source and staged-destination paths observed after payload sync and before source re-stat.",
+    })
+  )
 ) {}
 
 /**
@@ -629,17 +685,18 @@ export class ArchiveWriterPayloadSyncHookInput extends S.Class<ArchiveWriterPayl
  * @category models
  * @since 0.0.0
  */
-export class ArchiveWriterLiveOptions extends S.Class<ArchiveWriterLiveOptions>($I`ArchiveWriterLiveOptions`)(
-  {
+export class ArchiveWriterLiveOptions extends S.Opaque<ArchiveWriterLiveOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     afterPayloadSync: Fn({
       input: ArchiveWriterPayloadSyncHookInput,
       output: S.declare((u): u is Effect.Effect<void> => Effect.isEffect(u)),
     }).pipe(S.optionalKey),
-  },
-  $I.annote("ArchiveWriterLiveOptions", {
-    title: "Archive Writer Live Options",
-    description: "Schema-backed test hook invoked between staged payload sync and the source stability re-stat.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveWriterLiveOptions", {
+      title: "Archive Writer Live Options",
+      description: "Schema-backed test hook invoked between staged payload sync and the source stability re-stat.",
+    })
+  )
 ) {}
 
 /**
@@ -657,38 +714,53 @@ export class ArchiveWriterLiveOptions extends S.Class<ArchiveWriterLiveOptions>(
  * @category models
  * @since 0.0.0
  */
-export class T7PreservationOptions extends S.Class<T7PreservationOptions>($I`T7PreservationOptions`)(
-  {
+export class T7PreservationOptions extends S.Opaque<T7PreservationOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.NonEmptyString,
     t7Root: S.NonEmptyString,
-  },
-  $I.annote("T7PreservationOptions", {
-    title: "T7 Preservation Options",
-    description: "Out-of-repo corpus archive home and removable-drive root used by a preservation operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("T7PreservationOptions", {
+      title: "T7 Preservation Options",
+      description: "Out-of-repo corpus archive home and removable-drive root used by a preservation operation.",
+    })
+  )
 ) {}
 
-class PreflightProposed extends S.Class<PreflightProposed>($I`PreflightProposed`)(
-  {
+/**
+ * A capacity preflight awaiting an approved ceiling; the archive runner refuses this state.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PreflightProposed extends S.Opaque<PreflightProposed, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("proposed"),
     measurement: CapacityMeasurement,
-  },
-  $I.annote("PreflightProposed", {
-    description: "A capacity preflight awaiting an approved ceiling; the archive runner refuses this state.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreflightProposed", {
+      description: "A capacity preflight awaiting an approved ceiling; the archive runner refuses this state.",
+    })
+  )
 ) {}
 
-class PreflightApproved extends S.Class<PreflightApproved>($I`PreflightApproved`)(
-  {
+/**
+ * An operator-approved disk ceiling over a recorded measurement; required before any archive run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PreflightApproved extends S.Opaque<PreflightApproved, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("approved"),
     approvedAt: S.NonEmptyString,
     approvedBy: S.NonEmptyString,
     ceilingBytes: S.Natural,
     measurement: CapacityMeasurement,
-  },
-  $I.annote("PreflightApproved", {
-    description: "An operator-approved disk ceiling over a recorded measurement; required before any archive run.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreflightApproved", {
+      description: "An operator-approved disk ceiling over a recorded measurement; required before any archive run.",
+    })
+  )
 ) {}
 
 const CapacityPreflightKind = LiteralKit(["proposed", "approved"]);
@@ -781,57 +853,86 @@ export const CapacityPreflightJson = JsonStringCodec(CapacityPreflight);
  * @category models
  * @since 0.0.0
  */
-export class PreservationRunSummary extends S.Class<PreservationRunSummary>($I`PreservationRunSummary`)(
-  {
+export class PreservationRunSummary extends S.Opaque<PreservationRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     attempted: S.Natural,
     passed: S.Natural,
     unapproved: S.Natural,
-  },
-  $I.annote("PreservationRunSummary", {
-    title: "Preservation Run Summary",
-    description: "Attempt, approved-terminal, and unapproved-terminal counts from one preservation run.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreservationRunSummary", {
+      title: "Preservation Run Summary",
+      description: "Attempt, approved-terminal, and unapproved-terminal counts from one preservation run.",
+    })
+  )
 ) {}
 
-class VerifiedOutcome extends S.Class<VerifiedOutcome>($I`VerifiedOutcome`)(
-  {
+/**
+ * Destination bytes re-hashed to the manifest digest in a fresh process.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VerifiedOutcome extends S.Opaque<VerifiedOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("verified"),
     sha256: Sha256Hex,
-  },
-  $I.annote("VerifiedOutcome", {
-    description: "Destination bytes re-hashed to the manifest digest in a fresh process.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifiedOutcome", {
+      description: "Destination bytes re-hashed to the manifest digest in a fresh process.",
+    })
+  )
 ) {}
 
-class MissingDestinationOutcome extends S.Class<MissingDestinationOutcome>($I`MissingDestinationOutcome`)(
-  {
+/**
+ * A terminal manifest row references a destination that does not exist.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MissingDestinationOutcome extends S.Opaque<MissingDestinationOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("missing-destination"),
-  },
-  $I.annote("MissingDestinationOutcome", {
-    description: "A terminal manifest row references a destination that does not exist.",
-  })
+  }).pipe(
+    $I.annoteSchema("MissingDestinationOutcome", {
+      description: "A terminal manifest row references a destination that does not exist.",
+    })
+  )
 ) {}
 
-class SizeMismatchOutcome extends S.Class<SizeMismatchOutcome>($I`SizeMismatchOutcome`)(
-  {
+/**
+ * Destination length diverged from the manifest row before hashing.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SizeMismatchOutcome extends S.Opaque<SizeMismatchOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("size-mismatch"),
     actualBytes: S.Natural,
     expectedBytes: S.Natural,
-  },
-  $I.annote("SizeMismatchOutcome", {
-    description: "Destination length diverged from the manifest row before hashing.",
-  })
+  }).pipe(
+    $I.annoteSchema("SizeMismatchOutcome", {
+      description: "Destination length diverged from the manifest row before hashing.",
+    })
+  )
 ) {}
 
-class HashMismatchOutcome extends S.Class<HashMismatchOutcome>($I`HashMismatchOutcome`)(
-  {
+/**
+ * Destination bytes re-hashed to a different digest than the manifest row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HashMismatchOutcome extends S.Opaque<HashMismatchOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("hash-mismatch"),
     actualSha256: Sha256Hex,
     expectedSha256: Sha256Hex,
-  },
-  $I.annote("HashMismatchOutcome", {
-    description: "Destination bytes re-hashed to a different digest than the manifest row.",
-  })
+  }).pipe(
+    $I.annoteSchema("HashMismatchOutcome", {
+      description: "Destination bytes re-hashed to a different digest than the manifest row.",
+    })
+  )
 ) {}
 
 const VerificationOutcomeKind = LiteralKit(["verified", "missing-destination", "size-mismatch", "hash-mismatch"]);
@@ -919,17 +1020,21 @@ export type PreservationVerificationOutcome = typeof PreservationVerificationOut
  * @category models
  * @since 0.0.0
  */
-export class PreservationVerificationRow extends S.Class<PreservationVerificationRow>($I`PreservationVerificationRow`)(
-  {
+export class PreservationVerificationRow extends S.Opaque<
+  PreservationVerificationRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     destRelativePath: S.NonEmptyString,
     object: PreservationObjectIdentity,
     outcome: PreservationVerificationOutcome,
     verifiedAt: S.NonEmptyString,
-  },
-  $I.annote("PreservationVerificationRow", {
-    title: "Preservation Verification Row",
-    description: "Independent re-verification result for one terminal destination-manifest row.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreservationVerificationRow", {
+      title: "Preservation Verification Row",
+      description: "Independent re-verification result for one terminal destination-manifest row.",
+    })
+  )
 ) {}
 
 /**
@@ -954,21 +1059,23 @@ export class PreservationVerificationRow extends S.Class<PreservationVerificatio
  * @category models
  * @since 0.0.0
  */
-export class PreservationVerificationSummary extends S.Class<PreservationVerificationSummary>(
-  $I`PreservationVerificationSummary`
-)(
-  {
+export class PreservationVerificationSummary extends S.Opaque<
+  PreservationVerificationSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     bytesVerified: S.Natural,
     hashMismatched: S.Natural,
     missing: S.Natural,
     rowsChecked: S.Natural,
     sizeMismatched: S.Natural,
     verified: S.Natural,
-  },
-  $I.annote("PreservationVerificationSummary", {
-    title: "Preservation Verification Summary",
-    description: "Aggregate counts for one fresh-process verification pass over the destination manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreservationVerificationSummary", {
+      title: "Preservation Verification Summary",
+      description: "Aggregate counts for one fresh-process verification pass over the destination manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -989,17 +1096,19 @@ export class PreservationVerificationSummary extends S.Class<PreservationVerific
  * @category models
  * @since 0.0.0
  */
-export class PreservationVerificationReport extends S.Class<PreservationVerificationReport>(
-  $I`PreservationVerificationReport`
-)(
-  {
+export class PreservationVerificationReport extends S.Opaque<
+  PreservationVerificationReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     rows: S.Array(PreservationVerificationRow),
     summary: PreservationVerificationSummary,
-  },
-  $I.annote("PreservationVerificationReport", {
-    title: "Preservation Verification Report",
-    description: "Per-object verification rows paired with their aggregate preservation summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("PreservationVerificationReport", {
+      title: "Preservation Verification Report",
+      description: "Per-object verification rows paired with their aggregate preservation summary.",
+    })
+  )
 ) {}
 
 /**
@@ -1035,8 +1144,8 @@ export class PreservationVerificationReport extends S.Class<PreservationVerifica
  * @category models
  * @since 0.0.0
  */
-export class T7ArchiveProvenanceRecord extends S.Class<T7ArchiveProvenanceRecord>($I`T7ArchiveProvenanceRecord`)(
-  {
+export class T7ArchiveProvenanceRecord extends S.Opaque<T7ArchiveProvenanceRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     record: S.tag("t7-archive/v1"),
     archivedAt: S.NonEmptyString,
     destRelativePath: S.NonEmptyString,
@@ -1046,12 +1155,13 @@ export class T7ArchiveProvenanceRecord extends S.Class<T7ArchiveProvenanceRecord
     sha256: Sha256Hex,
     sizeBytes: S.Natural,
     sourceClass: PreservationSourceClass,
-  },
-  $I.annote("T7ArchiveProvenanceRecord", {
-    title: "T7 Archive Provenance Record",
-    description:
-      "Tagged provenance-ledger row for one verified T7 archive object, appended beside untagged legacy salvage rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("T7ArchiveProvenanceRecord", {
+      title: "T7 Archive Provenance Record",
+      description:
+        "Tagged provenance-ledger row for one verified T7 archive object, appended beside untagged legacy salvage rows.",
+    })
+  )
 ) {}
 
 /**

@@ -37,28 +37,30 @@ const decodeBaseUrl = S.decodeUnknownEffect(URLStr);
 const decodeErrorPathOption = S.decodeUnknownOption(S.NonEmptyString);
 const decodeErrorStatusOption = S.decodeUnknownOption(DiscordHttpStatus);
 
-class DiscordRawChannel extends S.Class<DiscordRawChannel>($I`DiscordRawChannel`)(
-  {
+class DiscordRawChannel extends S.Opaque<DiscordRawChannel, { readonly brand: unique symbol }>()(
+  S.Struct({
     guild_id: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     id: S.String,
     name: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("DiscordRawChannel", {
-    description: "Subset of Discord channel response fields needed for sanitized proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiscordRawChannel", {
+      description: "Subset of Discord channel response fields needed for sanitized proof.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(DiscordRawChannel);
 }
 
-class DiscordRawMessage extends S.Class<DiscordRawMessage>($I`DiscordRawMessage`)(
-  {
+class DiscordRawMessage extends S.Opaque<DiscordRawMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     channel_id: S.String,
     id: S.String,
     timestamp: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("DiscordRawMessage", {
-    description: "Subset of Discord message response fields needed for sanitized proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiscordRawMessage", {
+      description: "Subset of Discord message response fields needed for sanitized proof.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(DiscordRawMessage);
 }

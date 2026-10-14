@@ -35,7 +35,7 @@ import type { DockWorkspace as DockWorkspaceType } from "./Dock.tree.ts";
  * const allow: DockCommandPolicy = () => Effect.void
  * const panel = Panel.make({ id: PanelId.make("panel-one"), title: "Panel One", view: TextPanelView.make({ text: "one" }) })
  * const workspace = PopulatedWorkspace.make({ root: TabsNode.make({ groupId: GroupId.make("group-one"), active: panel }) })
- * const envelope = DockCommandEnvelope.make({ commandId: CommandId.make("command-clear"), origin: ApiCommandOrigin.make({ requestId: "request-one" }), command: ClearWorkspaceCommand.make() })
+ * const envelope = DockCommandEnvelope.make({ commandId: CommandId.make("command-clear"), origin: ApiCommandOrigin.make({ requestId: "request-one" }), command: ClearWorkspaceCommand.make({}) })
  * const decision = Effect.runSync(Effect.as(allow(workspace, envelope), "allowed"))
  * console.log(decision)
  * ```

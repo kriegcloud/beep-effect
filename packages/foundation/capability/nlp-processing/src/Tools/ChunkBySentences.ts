@@ -13,8 +13,8 @@ import { AiSentenceChunk, AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/ChunkBySentences");
 
-class ChunkBySentencesParameters extends S.Class<ChunkBySentencesParameters>($I`ChunkBySentencesParameters`)(
-  {
+class ChunkBySentencesParameters extends S.Opaque<ChunkBySentencesParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxChunkChars: PosInt.annotateKey({
       description:
         "Target maximum number of characters per chunk. If a single sentence exceeds this, it is returned as its own chunk.",
@@ -24,21 +24,23 @@ class ChunkBySentencesParameters extends S.Class<ChunkBySentencesParameters>($I`
       description: "The text to chunk",
       examples: ["First sentence. Second sentence. Third sentence. Fourth sentence."],
     }),
-  },
-  $I.annote("ChunkBySentencesParameters", {
-    description: "Inputs required to split text into sentence-aligned chunks.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChunkBySentencesParameters", {
+      description: "Inputs required to split text into sentence-aligned chunks.",
+    })
+  )
 ) {}
 
-class ChunkBySentencesSuccess extends S.Class<ChunkBySentencesSuccess>($I`ChunkBySentencesSuccess`)(
-  {
+class ChunkBySentencesSuccess extends S.Opaque<ChunkBySentencesSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     chunkCount: S.Natural,
     chunks: S.Array(AiSentenceChunk),
     originalSentenceCount: S.Natural,
-  },
-  $I.annote("ChunkBySentencesSuccess", {
-    description: "Sentence-aligned text chunks and their source sentence counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChunkBySentencesSuccess", {
+      description: "Sentence-aligned text chunks and their source sentence counts.",
+    })
+  )
 ) {}
 
 /**

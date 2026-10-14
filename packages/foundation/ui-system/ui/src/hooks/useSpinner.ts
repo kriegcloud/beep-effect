@@ -13,14 +13,15 @@ import { useId } from "react";
 
 const $I = $UiId.create("hooks/useSpinner");
 
-class SpinnerSchedule extends S.Class<SpinnerSchedule>($I`SpinnerSchedule`)(
-  {
+class SpinnerSchedule extends S.Opaque<SpinnerSchedule, { readonly brand: unique symbol }>()(
+  S.Struct({
     continuousChangeInterval: S.Natural,
     continuousChangeDelay: S.Natural,
-  },
-  $I.annote("SpinnerSchedule", {
-    description: "Timing configuration used while a spinner button is held down.",
-  })
+  }).pipe(
+    $I.annoteSchema("SpinnerSchedule", {
+      description: "Timing configuration used while a spinner button is held down.",
+    })
+  )
 ) {
   static readonly is = S.is(SpinnerSchedule);
   static readonly decodeOption = S.decodeUnknownOption(SpinnerSchedule);

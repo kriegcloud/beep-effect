@@ -405,7 +405,9 @@ it.layer(CodegenKitTestLayer, { timeout: "10 seconds" })("@beep/codegen-kit", (i
       });
       const output = yield* kit.postProcess(rawSchemaModule, classConfig);
 
-      expect(output).toContain("export class Example extends S.Class<Example>($I`Example`)(");
+      expect(output).toContain(
+        "export class Example extends S.Class<Example, { readonly brand: unique symbol }>($I`Example`)("
+      );
       expect(output).toContain('$I.annote("Example"');
       expect(output).toContain("static readonly is = S.is(Example);");
       expect(output).not.toContain("export type Example =");

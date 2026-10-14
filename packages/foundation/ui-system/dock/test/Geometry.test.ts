@@ -138,7 +138,7 @@ describe("dock geometry projection", () => {
   });
 
   it("projects an empty workspace to empty geometry", () => {
-    expect(projectWorkspace(EmptyWorkspace.make(), { container: box })).toEqual(DockGeometry.empty);
+    expect(projectWorkspace(EmptyWorkspace.make({}), { container: box })).toEqual(DockGeometry.empty);
   });
 
   it("supports data-last tree and workspace projection", () => {

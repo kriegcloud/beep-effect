@@ -99,18 +99,19 @@ export type EmailAddress = typeof EmailAddress.Type;
  * @category models
  * @since 0.0.0
  */
-export class EmailConfirmation extends S.Class<EmailConfirmation>($I`EmailConfirmation`)(
-  {
+export class EmailConfirmation extends S.Opaque<EmailConfirmation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("email").annotateKey({ description: "Confirmation discriminator." }),
     internetMessageId: S.NonEmptyString.annotateKey({ description: "RFC 5322 Message-ID of the reply." }),
     from: EmailAddress.annotateKey({ description: "Graph `from` address." }),
     sender: EmailAddress.annotateKey({ description: "Graph `sender` address." }),
     receivedAt: S.NonEmptyString.annotateKey({ description: "Graph `receivedDateTime`." }),
     authoredText: S.String.annotateKey({ description: "Plain-text `uniqueBody`: the portion the sender wrote." }),
-  },
-  $I.annote("EmailConfirmation", {
-    description: "An email reply's sender addresses and attorney-authored plain text.",
-  })
+  }).pipe(
+    $I.annoteSchema("EmailConfirmation", {
+      description: "An email reply's sender addresses and attorney-authored plain text.",
+    })
+  )
 ) {}
 
 /**
@@ -134,8 +135,8 @@ export class EmailConfirmation extends S.Class<EmailConfirmation>($I`EmailConfir
  * @category models
  * @since 0.0.0
  */
-export class PdfConfirmation extends S.Class<PdfConfirmation>($I`PdfConfirmation`)(
-  {
+export class PdfConfirmation extends S.Opaque<PdfConfirmation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("pdf").annotateKey({ description: "Confirmation discriminator." }),
     path: S.NonEmptyString.annotateKey({ description: "Absolute path of the PDF under the corpus root." }),
     initialedPage: S.Int.check(
@@ -149,10 +150,11 @@ export class PdfConfirmation extends S.Class<PdfConfirmation>($I`PdfConfirmation
     pageText: S.String.annotateKey({ description: "Extracted text of the initialed page only." }),
     deliveredBy: EmailAddress.annotateKey({ description: "Approver the operator attests delivered the PDF." }),
     attestedBy: S.NonEmptyString.annotateKey({ description: "Operator making the delivery attestation." }),
-  },
-  $I.annote("PdfConfirmation", {
-    description: "The text of the page an approver initialed, with the operator's delivery attestation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfConfirmation", {
+      description: "The text of the page an approver initialed, with the operator's delivery attestation.",
+    })
+  )
 ) {}
 
 /**
@@ -274,8 +276,8 @@ export type ApprovalRefusalReason = typeof ApprovalRefusalReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class ApprovalRecord extends S.Class<ApprovalRecord>($I`ApprovalRecord`)(
-  {
+export class ApprovalRecord extends S.Opaque<ApprovalRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the approved sheet-set PDF." }),
     approver: EmailAddress.annotateKey({ description: "Approver address recorded for the matter." }),
     statement: S.NonEmptyString.annotateKey({ description: "The verbatim statement that was matched." }),
@@ -290,8 +292,9 @@ export class ApprovalRecord extends S.Class<ApprovalRecord>($I`ApprovalRecord`)(
       description: "Sender (email) or attested deliverer (PDF) that matched.",
     }),
     attestedBy: S.String.annotateKey({ description: "Operator delivery attestation for a PDF; empty for email." }),
-  },
-  $I.annote("ApprovalRecord", {
-    description: "Sheet-set hash, approver, matched statement, and the confirmation evidence of one approval.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApprovalRecord", {
+      description: "Sheet-set hash, approver, matched statement, and the confirmation evidence of one approval.",
+    })
+  )
 ) {}

@@ -29,9 +29,10 @@ const messageWithCause = (message: string, cause: unknown): string =>
  * @category errors
  * @since 0.0.0
  */
-export class EffectImportRulesConfigurationError extends S.TaggedError<EffectImportRulesConfigurationError>(
-  $I`EffectImportRulesConfigurationError`
-)(
+export class EffectImportRulesConfigurationError extends S.TaggedError<
+  EffectImportRulesConfigurationError,
+  { readonly brand: unique symbol }
+>($I`EffectImportRulesConfigurationError`)(
   "EffectImportRulesConfigurationError",
   {
     message: S.String,
@@ -59,9 +60,10 @@ export class EffectImportRulesConfigurationError extends S.TaggedError<EffectImp
  * @category errors
  * @since 0.0.0
  */
-export class EffectImportRulesPersistenceError extends S.TaggedError<EffectImportRulesPersistenceError>(
-  $I`EffectImportRulesPersistenceError`
-)(
+export class EffectImportRulesPersistenceError extends S.TaggedError<
+  EffectImportRulesPersistenceError,
+  { readonly brand: unique symbol }
+>($I`EffectImportRulesPersistenceError`)(
   "EffectImportRulesPersistenceError",
   {
     message: S.String,
@@ -93,9 +95,10 @@ export class EffectImportRulesPersistenceError extends S.TaggedError<EffectImpor
  * @category errors
  * @since 0.0.0
  */
-export class NoNativeRuntimeRulesExecutionError extends S.TaggedError<NoNativeRuntimeRulesExecutionError>(
-  $I`NoNativeRuntimeRulesExecutionError`
-)(
+export class NoNativeRuntimeRulesExecutionError extends S.TaggedError<
+  NoNativeRuntimeRulesExecutionError,
+  { readonly brand: unique symbol }
+>($I`NoNativeRuntimeRulesExecutionError`)(
   "NoNativeRuntimeRulesExecutionError",
   {
     message: S.String,
@@ -127,9 +130,10 @@ export class NoNativeRuntimeRulesExecutionError extends S.TaggedError<NoNativeRu
  * @category errors
  * @since 0.0.0
  */
-export class TerseEffectRulesPersistenceError extends S.TaggedError<TerseEffectRulesPersistenceError>(
-  $I`TerseEffectRulesPersistenceError`
-)(
+export class TerseEffectRulesPersistenceError extends S.TaggedError<
+  TerseEffectRulesPersistenceError,
+  { readonly brand: unique symbol }
+>($I`TerseEffectRulesPersistenceError`)(
   "TerseEffectRulesPersistenceError",
   {
     message: S.String,
@@ -161,9 +165,10 @@ export class TerseEffectRulesPersistenceError extends S.TaggedError<TerseEffectR
  * @category errors
  * @since 0.0.0
  */
-export class RetiredEffectPathsExecutionError extends S.TaggedError<RetiredEffectPathsExecutionError>(
-  $I`RetiredEffectPathsExecutionError`
-)(
+export class RetiredEffectPathsExecutionError extends S.TaggedError<
+  RetiredEffectPathsExecutionError,
+  { readonly brand: unique symbol }
+>($I`RetiredEffectPathsExecutionError`)(
   "RetiredEffectPathsExecutionError",
   {
     message: S.String,

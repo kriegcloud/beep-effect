@@ -10,6 +10,7 @@ import { A, Str } from "@beep/utils";
 import * as Bool from "effect/Boolean";
 import * as Effect from "effect/Effect";
 import { flow, pipe } from "effect/Function";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -66,11 +67,13 @@ const decodeLiteralPatternElement = (input: string): O.Option<LiteralPatternElem
 
 const succeedPatternElement = (element: PatternElementType) => Effect.succeed(element);
 
-const encodePatternElement = PatternElement.match({
-  EntityPatternElement: (element) => Pattern.Entity.toBracketString(element.value),
-  LiteralPatternElement: (element) => Pattern.Literal.toBracketString(element.value),
-  POSPatternElement: (element) => Pattern.POS.toBracketString(element.value),
-});
+const encodePatternElement = Match.type<typeof PatternElement.Encoded>().pipe(
+  Match.tagsExhaustive({
+    EntityPatternElement: (element) => Pattern.Entity.toBracketString(element.value),
+    LiteralPatternElement: (element) => Pattern.Literal.toBracketString(element.value),
+    POSPatternElement: (element) => Pattern.POS.toBracketString(element.value),
+  })
+);
 
 const decodePatternElement = (input: string) =>
   pipe(

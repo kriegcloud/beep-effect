@@ -94,8 +94,8 @@ export type DrizzleOperation = typeof DrizzleOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DrizzleErrorContext extends S.Class<DrizzleErrorContext>($I`DrizzleErrorContext`)(
-  {
+export class DrizzleErrorContext extends S.Opaque<DrizzleErrorContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     params: S.OptionFromOptionalKey(S.Unknown.pipe(S.Array))
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -104,10 +104,11 @@ export class DrizzleErrorContext extends S.Class<DrizzleErrorContext>($I`Drizzle
     query: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "SQL statement text captured from an explicit or native Drizzle error context.",
     }),
-  },
-  $I.annote("DrizzleErrorContext", {
-    description: "Optional query context captured while normalizing Drizzle driver failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("DrizzleErrorContext", {
+      description: "Optional query context captured while normalizing Drizzle driver failures.",
+    })
+  )
 ) {}
 
 const emptyContext = (): DrizzleErrorContext => DrizzleErrorContext.make({});
@@ -310,7 +311,7 @@ const extractNativeQueryContext = (cause: unknown, seen: ReadonlyArray<object> =
  * @category errors
  * @since 0.0.0
  */
-export class DrizzleError extends S.TaggedError<DrizzleError>($I`DrizzleError`)(
+export class DrizzleError extends S.TaggedError<DrizzleError, { readonly brand: unique symbol }>($I`DrizzleError`)(
   "DrizzleError",
   {
     operation: DrizzleOperation.annotateKey({

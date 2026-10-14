@@ -34,12 +34,10 @@ const $I = $HtmlId.create("Html.nodes");
  * @category models
  * @since 0.0.0
  */
-export class Text extends S.TaggedClass<Text>($I`Text`)(
-  "#text",
-  {
+export class Text extends S.Opaque<Text, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("#text", {
     value: S.String.annotateKey({ description: "Character data of the text node." }),
-  },
-  $I.annote("Text", { description: "A character-data text node." })
+  }).pipe($I.annoteSchema("Text", { description: "A character-data text node." }))
 ) {
   static readonly fromValue = (value: string): Text => Text.make({ value });
 }
@@ -169,12 +167,10 @@ export type HtmlCommentData = typeof HtmlCommentData.Type;
  * @category models
  * @since 0.0.0
  */
-export class Comment extends S.TaggedClass<Comment>($I`Comment`)(
-  "#comment",
-  {
+export class Comment extends S.Opaque<Comment, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("#comment", {
     value: HtmlCommentData.annotateKey({ description: "Comment text (without the delimiters)." }),
-  },
-  $I.annote("Comment", { description: "An HTML comment node." })
+  }).pipe($I.annoteSchema("Comment", { description: "An HTML comment node." }))
 ) {
   static readonly fromValue = (value: string): Comment => Comment.make({ value });
 }
@@ -219,9 +215,8 @@ export declare namespace Comment {
  * @category models
  * @since 0.0.0
  */
-export class Doctype extends S.TaggedClass<Doctype>($I`Doctype`)(
-  "#doctype",
-  {
+export class Doctype extends S.Opaque<Doctype, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("#doctype", {
     name: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: 'Document type name (e.g. "html").' }),
@@ -231,8 +226,7 @@ export class Doctype extends S.TaggedClass<Doctype>($I`Doctype`)(
     systemId: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Legacy system identifier." }),
-  },
-  $I.annote("Doctype", { description: "A document type declaration." })
+  }).pipe($I.annoteSchema("Doctype", { description: "A document type declaration." }))
 ) {
   static readonly html = (): Doctype => Doctype.make({ name: O.some("html") });
 }

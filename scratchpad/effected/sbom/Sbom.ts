@@ -105,7 +105,7 @@ export type SbomJsonOptions = typeof SbomJsonOptions.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SbomWriteError extends S.TaggedError<SbomWriteError>($I`SbomWriteError`)("SbomWriteError", {
+export class SbomWriteError extends S.TaggedError<SbomWriteError, { readonly brand: unique symbol }>($I`SbomWriteError`)("SbomWriteError", {
 	/** The path that could not be written. */
 	path: S.String.annotateKey({ description: "The path that could not be written." }),
 	/** The underlying failure, preserved structurally. */

@@ -140,18 +140,19 @@ type SkillDriftLineFormatter<Tag extends SkillDrift["_tag"]> = (drift: SkillDrif
  * @category models
  * @since 0.0.0
  */
-export class RemoteSkillSource extends S.Class<RemoteSkillSource>($I`RemoteSkillSource`)(
-  {
+export class RemoteSkillSource extends S.Opaque<RemoteSkillSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     source: S.String,
     sourceType: S.Literal("github"),
     ref: S.String,
     skillPath: S.String,
-  },
-  $I.annote("RemoteSkillSource", {
-    title: "Remote Skill Source",
-    description: "A repo-local skill folder mirrored from a GitHub repository path.",
-  })
+  }).pipe(
+    $I.annoteSchema("RemoteSkillSource", {
+      title: "Remote Skill Source",
+      description: "A repo-local skill folder mirrored from a GitHub repository path.",
+    })
+  )
 ) {}
 
 /**
@@ -170,18 +171,19 @@ export class RemoteSkillSource extends S.Class<RemoteSkillSource>($I`RemoteSkill
  * @category models
  * @since 0.0.0
  */
-export class SkillLockEntry extends S.Class<SkillLockEntry>($I`SkillLockEntry`)(
-  {
+export class SkillLockEntry extends S.Opaque<SkillLockEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.String,
     sourceType: LiteralKit(["github", "local"]),
     computedHash: S.String,
     ref: S.optionalKey(S.String),
     skillPath: S.optionalKey(S.String),
-  },
-  $I.annote("SkillLockEntry", {
-    title: "Skill Lock Entry",
-    description: "Resolved source metadata and content hash for one repo-local skill.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillLockEntry", {
+      title: "Skill Lock Entry",
+      description: "Resolved source metadata and content hash for one repo-local skill.",
+    })
+  )
 ) {}
 
 /**
@@ -200,76 +202,82 @@ export class SkillLockEntry extends S.Class<SkillLockEntry>($I`SkillLockEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillLockFile extends S.Class<SkillLockFile>($I`SkillLockFile`)(
-  {
+export class SkillLockFile extends S.Opaque<SkillLockFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal(1),
     skills: S.Record(S.String, SkillLockEntry),
-  },
-  $I.annote("SkillLockFile", {
-    title: "Skill Lock File",
-    description: "Repo-local skill lockfile written by bun run skills:update.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillLockFile", {
+      title: "Skill Lock File",
+      description: "Repo-local skill lockfile written by bun run skills:update.",
+    })
+  )
 ) {}
 
 const SuspendSkillLockFile = S.suspend(() => SkillLockFile);
 
-class GitHubTreeEntry extends S.Class<GitHubTreeEntry>($I`GitHubTreeEntry`)(
-  {
+class GitHubTreeEntry extends S.Opaque<GitHubTreeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     type: LiteralKit(["blob", "tree", "commit"]),
     sha: S.String,
     size: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("GitHubTreeEntry", {
-    title: "GitHub Tree Entry",
-    description: "One entry from the GitHub git tree API.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTreeEntry", {
+      title: "GitHub Tree Entry",
+      description: "One entry from the GitHub git tree API.",
+    })
+  )
 ) {}
 
-class GitHubTree extends S.Class<GitHubTree>($I`GitHubTree`)(
-  {
+class GitHubTree extends S.Opaque<GitHubTree, { readonly brand: unique symbol }>()(
+  S.Struct({
     tree: S.Array(GitHubTreeEntry),
     truncated: S.Boolean,
-  },
-  $I.annote("GitHubTree", {
-    title: "GitHub Tree",
-    description: "GitHub recursive tree API response.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTree", {
+      title: "GitHub Tree",
+      description: "GitHub recursive tree API response.",
+    })
+  )
 ) {}
 
 const SuspendGitHubTree = S.suspend(() => GitHubTree);
 
-class CodexSkillEntry extends S.Class<CodexSkillEntry>($I`CodexSkillEntry`)(
-  {
+class CodexSkillEntry extends S.Opaque<CodexSkillEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     enabled: S.Boolean,
-  },
-  $I.annote("CodexSkillEntry", {
-    title: "Codex Skill Entry",
-    description: "Minimal Codex skill entry used by the skills updater.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSkillEntry", {
+      title: "Codex Skill Entry",
+      description: "Minimal Codex skill entry used by the skills updater.",
+    })
+  )
 ) {}
 
-class CodexSkillsSection extends S.Class<CodexSkillsSection>($I`CodexSkillsSection`)(
-  {
+class CodexSkillsSection extends S.Opaque<CodexSkillsSection, { readonly brand: unique symbol }>()(
+  S.Struct({
     include_instructions: S.Boolean,
     config: S.Array(CodexSkillEntry),
-  },
-  $I.annote("CodexSkillsSection", {
-    title: "Codex Skills Section",
-    description: "The .codex/config.toml skills table managed by the skills updater.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSkillsSection", {
+      title: "Codex Skills Section",
+      description: "The .codex/config.toml skills table managed by the skills updater.",
+    })
+  )
 ) {}
 
-class CodexSkillsConfig extends S.Class<CodexSkillsConfig>($I`CodexSkillsConfig`)(
-  {
+class CodexSkillsConfig extends S.Opaque<CodexSkillsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     skills: CodexSkillsSection,
-  },
-  $I.annote("CodexSkillsConfig", {
-    title: "Codex Skills Config",
-    description: "Minimal .codex/config.toml shape required by the skills updater.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSkillsConfig", {
+      title: "Codex Skills Config",
+      description: "Minimal .codex/config.toml shape required by the skills updater.",
+    })
+  )
 ) {}
 
 const SuspendCodexSkillsConfig = S.suspend(() => CodexSkillsConfig);

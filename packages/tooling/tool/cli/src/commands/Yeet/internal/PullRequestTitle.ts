@@ -113,16 +113,18 @@ export type YeetPullRequestTitleSource = typeof YeetPullRequestTitleSource.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class YeetPullRequestTitleResolution extends S.Class<YeetPullRequestTitleResolution>(
-  $I`YeetPullRequestTitleResolution`
-)(
-  {
+export class YeetPullRequestTitleResolution extends S.Opaque<
+  YeetPullRequestTitleResolution,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     title: YeetPullRequestTitle,
     source: YeetPullRequestTitleSource,
-  },
-  $I.annote("YeetPullRequestTitleResolution", {
-    description: "The pull request title a publish resolved and where it came from.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPullRequestTitleResolution", {
+      description: "The pull request title a publish resolved and where it came from.",
+    })
+  )
 ) {}
 
 /**
@@ -169,14 +171,15 @@ export type YeetPullRequestTitleSyncStatus = typeof YeetPullRequestTitleSyncStat
  * @category schemas
  * @since 0.0.0
  */
-export class YeetPullRequestTitleSync extends S.Class<YeetPullRequestTitleSync>($I`YeetPullRequestTitleSync`)(
-  {
+export class YeetPullRequestTitleSync extends S.Opaque<YeetPullRequestTitleSync, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: YeetPullRequestTitleSyncStatus,
     message: S.String,
-  },
-  $I.annote("YeetPullRequestTitleSync", {
-    description: "Outcome of syncing an existing pull request title during a re-publish.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPullRequestTitleSync", {
+      description: "Outcome of syncing an existing pull request title during a re-publish.",
+    })
+  )
 ) {}
 
 /**

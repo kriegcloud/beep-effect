@@ -87,12 +87,13 @@ const $I = $RepoCliId.create("commands/Yeet/internal/MergeGate");
  * @category models
  * @since 0.0.0
  */
-export class MergeGateTolerance extends S.Class<MergeGateTolerance>($I`MergeGateTolerance`)(
-  { check: S.NonEmptyString, attribution: S.NonEmptyString },
-  $I.annote("MergeGateTolerance", {
-    description:
-      "A check tolerated red or pending with its attribution: non-required only, unless the gate is relaxed (S11).",
-  })
+export class MergeGateTolerance extends S.Opaque<MergeGateTolerance, { readonly brand: unique symbol }>()(
+  S.Struct({ check: S.NonEmptyString, attribution: S.NonEmptyString }).pipe(
+    $I.annoteSchema("MergeGateTolerance", {
+      description:
+        "A check tolerated red or pending with its attribution: non-required only, unless the gate is relaxed (S11).",
+    })
+  )
 ) {}
 
 /**
@@ -246,16 +247,17 @@ export type MergeGateCheckState = typeof MergeGateCheckState.Type;
  * @category models
  * @since 0.0.0
  */
-export class MergeGateCheckAtMerge extends S.Class<MergeGateCheckAtMerge>($I`MergeGateCheckAtMerge`)(
-  {
+export class MergeGateCheckAtMerge extends S.Opaque<MergeGateCheckAtMerge, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: S.NonEmptyString,
     state: MergeGateCheckState,
     required: S.Boolean,
     attribution: S.NonEmptyString,
-  },
-  $I.annote("MergeGateCheckAtMerge", {
-    description: "One check that was not green when an S11 merge went through, with its attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("MergeGateCheckAtMerge", {
+      description: "One check that was not green when an S11 merge went through, with its attribution.",
+    })
+  )
 ) {}
 
 /**
@@ -309,8 +311,8 @@ export const MERGE_GATE_S11_DEFAULT_ATTRIBUTION = "S11: unattributed at merge; t
  * @category models
  * @since 0.0.0
  */
-export class MergeGateRead extends S.Class<MergeGateRead>($I`MergeGateRead`)(
-  {
+export class MergeGateRead extends S.Opaque<MergeGateRead, { readonly brand: unique symbol }>()(
+  S.Struct({
     prNumber: S.Finite,
     title: S.String,
     headSha: S.NonEmptyString,
@@ -321,8 +323,7 @@ export class MergeGateRead extends S.Class<MergeGateRead>($I`MergeGateRead`)(
     window: YeetReviewWindow,
     unresolvedThreads: S.Option(S.Finite),
     readAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("MergeGateRead", { description: "The pull request facts the merge gate decides on." })
+  }).pipe($I.annoteSchema("MergeGateRead", { description: "The pull request facts the merge gate decides on." }))
 ) {}
 
 /**
@@ -377,10 +378,10 @@ export type MergeGateHoldReason = typeof MergeGateHoldReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class MergeGateHold extends S.TaggedClass<MergeGateHold>($I`MergeGateHold`)(
-  "hold",
-  { prNumber: S.Finite, reason: MergeGateHoldReason, detail: S.NonEmptyString },
-  $I.annote("MergeGateHold", { description: "The merge gate refused on its first unmet criterion." })
+export class MergeGateHold extends S.Opaque<MergeGateHold, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("hold", { prNumber: S.Finite, reason: MergeGateHoldReason, detail: S.NonEmptyString }).pipe(
+    $I.annoteSchema("MergeGateHold", { description: "The merge gate refused on its first unmet criterion." })
+  )
 ) {}
 
 /**
@@ -411,9 +412,8 @@ export class MergeGateHold extends S.TaggedClass<MergeGateHold>($I`MergeGateHold
  * @category models
  * @since 0.0.0
  */
-export class MergeGateMerge extends S.TaggedClass<MergeGateMerge>($I`MergeGateMerge`)(
-  "merge",
-  {
+export class MergeGateMerge extends S.Opaque<MergeGateMerge, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("merge", {
     prNumber: S.Finite,
     headSha: S.NonEmptyString,
     commitTitle: S.NonEmptyString,
@@ -421,8 +421,7 @@ export class MergeGateMerge extends S.TaggedClass<MergeGateMerge>($I`MergeGateMe
     tolerated: S.Array(MergeGateTolerance),
     relaxed: S.Boolean,
     atMerge: S.Array(MergeGateCheckAtMerge),
-  },
-  $I.annote("MergeGateMerge", { description: "The merge gate is met at a pinned head." })
+  }).pipe($I.annoteSchema("MergeGateMerge", { description: "The merge gate is met at a pinned head." }))
 ) {}
 
 /**
@@ -485,15 +484,14 @@ export type MergeGateDecision = typeof MergeGateDecision.Type;
  * @category models
  * @since 0.0.0
  */
-export class MergeGateOptions extends S.Class<MergeGateOptions>($I`MergeGateOptions`)(
-  {
+export class MergeGateOptions extends S.Opaque<MergeGateOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     wantSha: S.NonEmptyString,
     now: S.DateTimeUtcFromString,
     tolerate: S.Array(MergeGateTolerance),
     forceWindow: S.Boolean,
     relaxed: S.Boolean,
-  },
-  $I.annote("MergeGateOptions", { description: "What the caller asserts when it asks the gate." })
+  }).pipe($I.annoteSchema("MergeGateOptions", { description: "What the caller asserts when it asks the gate." }))
 ) {}
 
 /**
@@ -510,9 +508,10 @@ export class MergeGateOptions extends S.Class<MergeGateOptions>($I`MergeGateOpti
  * @category models
  * @since 0.0.0
  */
-export class MergeGateInput extends S.Class<MergeGateInput>($I`MergeGateInput`)(
-  { read: MergeGateRead, options: MergeGateOptions },
-  $I.annote("MergeGateInput", { description: "The read and the caller's assertions the gate decides from." })
+export class MergeGateInput extends S.Opaque<MergeGateInput, { readonly brand: unique symbol }>()(
+  S.Struct({ read: MergeGateRead, options: MergeGateOptions }).pipe(
+    $I.annoteSchema("MergeGateInput", { description: "The read and the caller's assertions the gate decides from." })
+  )
 ) {}
 
 const goodConclusion = (conclusion: string | null): boolean =>
@@ -1056,9 +1055,10 @@ export const readMergeGate = Effect.fn("Yeet.readMergeGate")(function* (
  * @category models
  * @since 0.0.0
  */
-export class MergeGateMerged extends S.Class<MergeGateMerged>($I`MergeGateMerged`)(
-  { prNumber: S.Finite, mergeSha: S.String, commitTitle: S.NonEmptyString },
-  $I.annote("MergeGateMerged", { description: "The squash merge GitHub confirmed." })
+export class MergeGateMerged extends S.Opaque<MergeGateMerged, { readonly brand: unique symbol }>()(
+  S.Struct({ prNumber: S.Finite, mergeSha: S.String, commitTitle: S.NonEmptyString }).pipe(
+    $I.annoteSchema("MergeGateMerged", { description: "The squash merge GitHub confirmed." })
+  )
 ) {}
 
 /**
@@ -1136,16 +1136,15 @@ export const executeMergeGate = Effect.fn("Yeet.executeMergeGate")(function* (
  * @category models
  * @since 0.0.0
  */
-export class MergeGateRunOptions extends S.Class<MergeGateRunOptions>($I`MergeGateRunOptions`)(
-  {
+export class MergeGateRunOptions extends S.Opaque<MergeGateRunOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     prNumber: S.Finite,
     wantSha: S.NonEmptyString,
     tolerate: S.Array(MergeGateTolerance),
     forceWindow: S.Boolean,
     relaxed: S.Boolean,
     dryRun: S.Boolean,
-  },
-  $I.annote("MergeGateRunOptions", { description: "One merge-gate invocation." })
+  }).pipe($I.annoteSchema("MergeGateRunOptions", { description: "One merge-gate invocation." }))
 ) {}
 
 // Best-effort steps after a merge print a warning and never fail the command:
@@ -1253,16 +1252,18 @@ export const runMergeGate = Effect.fn("Yeet.runMergeGate")(function* (
   options: MergeGateRunOptions
 ): Effect.fn.Return<MergeGateDecision, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner> {
   const read = yield* readMergeGate(context, options.prNumber);
-  const decision = decideMergeGate({
-    read,
-    options: {
-      wantSha: options.wantSha,
-      now: read.readAt,
-      tolerate: options.tolerate,
-      forceWindow: options.forceWindow,
-      relaxed: options.relaxed,
-    },
-  });
+  const decision = decideMergeGate(
+    MergeGateInput.make({
+      read,
+      options: MergeGateOptions.make({
+        wantSha: options.wantSha,
+        now: read.readAt,
+        tolerate: options.tolerate,
+        forceWindow: options.forceWindow,
+        relaxed: options.relaxed,
+      }),
+    })
+  );
   yield* Console.log(
     `[yeet] ${renderMergeGateDecision(decision)}${options.forceWindow ? " (review window forced)" : ""}`
   );
@@ -1309,8 +1310,8 @@ export const runMergeGate = Effect.fn("Yeet.runMergeGate")(function* (
  * @category models
  * @since 0.0.0
  */
-export class MergeGateCommandOptions extends S.Class<MergeGateCommandOptions>($I`MergeGateCommandOptions`)(
-  {
+export class MergeGateCommandOptions extends S.Opaque<MergeGateCommandOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.String,
     head: S.String,
     packetDir: S.String,
@@ -1320,8 +1321,11 @@ export class MergeGateCommandOptions extends S.Class<MergeGateCommandOptions>($I
     forceWindow: S.Boolean,
     relaxed: S.Boolean,
     dryRun: S.Boolean,
-  },
-  $I.annote("MergeGateCommandOptions", { description: "Parsed yeet merge-gate flags before tolerances are decoded." })
+  }).pipe(
+    $I.annoteSchema("MergeGateCommandOptions", {
+      description: "Parsed yeet merge-gate flags before tolerances are decoded.",
+    })
+  )
 ) {}
 
 /**
@@ -1350,12 +1354,15 @@ export class MergeGateCommandOptions extends S.Class<MergeGateCommandOptions>($I
 export const runYeetMergeGate = Effect.fn("Yeet.runMergeGateCommand")(function* (options: MergeGateCommandOptions) {
   const tolerate = yield* decodeAttributedCheckFlags("tolerate", options.tolerate, parseMergeGateTolerance);
   const context = yield* hydrateYeetReadOnlyContext(options);
-  yield* runMergeGate(context, {
-    prNumber: options.pr,
-    wantSha: options.sha,
-    tolerate,
-    forceWindow: options.forceWindow,
-    relaxed: options.relaxed,
-    dryRun: options.dryRun,
-  });
+  yield* runMergeGate(
+    context,
+    MergeGateRunOptions.make({
+      prNumber: options.pr,
+      wantSha: options.sha,
+      tolerate,
+      forceWindow: options.forceWindow,
+      relaxed: options.relaxed,
+      dryRun: options.dryRun,
+    })
+  );
 });

@@ -143,14 +143,15 @@ export type GateInputScope = typeof GateInputScope.Type;
  * @category models
  * @since 0.0.0
  */
-export class GateFileWitness extends S.Class<GateFileWitness>($I`GateFileWitness`)(
-  {
+export class GateFileWitness extends S.Opaque<GateFileWitness, { readonly brand: unique symbol }>()(
+  S.Struct({
     modifiedAtMs: S.Finite,
     path: S.String,
-  },
-  $I.annote("GateFileWitness", {
-    description: "One file observed on disk with the modification time it carried.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateFileWitness", {
+      description: "One file observed on disk with the modification time it carried.",
+    })
+  )
 ) {}
 
 /**
@@ -174,17 +175,18 @@ export class GateFileWitness extends S.Class<GateFileWitness>($I`GateFileWitness
  * @category models
  * @since 0.0.0
  */
-export class GateArtifactDescriptor extends S.Class<GateArtifactDescriptor>($I`GateArtifactDescriptor`)(
-  {
+export class GateArtifactDescriptor extends S.Opaque<GateArtifactDescriptor, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactPath: S.NonEmptyString,
     gateId: S.NonEmptyString,
     kind: GateArtifactKind,
     regenerateCommand: S.NonEmptyString,
     scope: GateInputScope,
-  },
-  $I.annote("GateArtifactDescriptor", {
-    description: "One cached verification-gate artifact paired with the command that regenerates it.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateArtifactDescriptor", {
+      description: "One cached verification-gate artifact paired with the command that regenerates it.",
+    })
+  )
 ) {}
 
 /**
@@ -194,14 +196,15 @@ export class GateArtifactDescriptor extends S.Class<GateArtifactDescriptor>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GateFresh extends S.Class<GateFresh>($I`GateFresh`)(
-  {
+export class GateFresh extends S.Opaque<GateFresh, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("fresh"),
     gateId: S.NonEmptyString,
-  },
-  $I.annote("GateFresh", {
-    description: "A gate artifact at least as new as every relevant file this branch changed.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateFresh", {
+      description: "A gate artifact at least as new as every relevant file this branch changed.",
+    })
+  )
 ) {}
 
 /**
@@ -210,8 +213,8 @@ export class GateFresh extends S.Class<GateFresh>($I`GateFresh`)(
  * @category models
  * @since 0.0.0
  */
-export class GateStale extends S.Class<GateStale>($I`GateStale`)(
-  {
+export class GateStale extends S.Opaque<GateStale, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("stale"),
     gateId: S.NonEmptyString,
     artifactPath: S.NonEmptyString,
@@ -219,11 +222,12 @@ export class GateStale extends S.Class<GateStale>($I`GateStale`)(
     newestInputPath: S.NonEmptyString,
     regenerateCommand: S.NonEmptyString,
     skewMs: S.Finite,
-  },
-  $I.annote("GateStale", {
-    description:
-      "A gate artifact older than the newest relevant file this branch changed, so it cannot have observed it.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateStale", {
+      description:
+        "A gate artifact older than the newest relevant file this branch changed, so it cannot have observed it.",
+    })
+  )
 ) {}
 
 /**
@@ -239,15 +243,16 @@ export class GateStale extends S.Class<GateStale>($I`GateStale`)(
  * @category models
  * @since 0.0.0
  */
-export class GateUnproven extends S.Class<GateUnproven>($I`GateUnproven`)(
-  {
+export class GateUnproven extends S.Opaque<GateUnproven, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("unproven"),
     gateId: S.NonEmptyString,
     detail: S.String,
-  },
-  $I.annote("GateUnproven", {
-    description: "A gate whose freshness could not be established because its proof artifact is absent.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateUnproven", {
+      description: "A gate whose freshness could not be established because its proof artifact is absent.",
+    })
+  )
 ) {}
 
 /**

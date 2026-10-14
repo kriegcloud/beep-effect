@@ -26,7 +26,9 @@ const $I = $RepoCliId.create("commands/Goals/Goals.errors");
  * @category errors
  * @since 0.0.0
  */
-export class GoalPacketNotFoundError extends S.TaggedError<GoalPacketNotFoundError>($I`GoalPacketNotFoundError`)(
+export class GoalPacketNotFoundError extends S.TaggedError<GoalPacketNotFoundError, { readonly brand: unique symbol }>(
+  $I`GoalPacketNotFoundError`
+)(
   "GoalPacketNotFoundError",
   {
     slug: S.String,
@@ -65,7 +67,10 @@ export class GoalPacketNotFoundError extends S.TaggedError<GoalPacketNotFoundErr
  * @category errors
  * @since 0.0.0
  */
-export class GoalManifestInvalidError extends S.TaggedError<GoalManifestInvalidError>($I`GoalManifestInvalidError`)(
+export class GoalManifestInvalidError extends S.TaggedError<
+  GoalManifestInvalidError,
+  { readonly brand: unique symbol }
+>($I`GoalManifestInvalidError`)(
   "GoalManifestInvalidError",
   {
     slug: S.String,
@@ -104,7 +109,10 @@ export class GoalManifestInvalidError extends S.TaggedError<GoalManifestInvalidE
  * @category errors
  * @since 0.0.0
  */
-export class GoalReadmeStatusLineError extends S.TaggedError<GoalReadmeStatusLineError>($I`GoalReadmeStatusLineError`)(
+export class GoalReadmeStatusLineError extends S.TaggedError<
+  GoalReadmeStatusLineError,
+  { readonly brand: unique symbol }
+>($I`GoalReadmeStatusLineError`)(
   "GoalReadmeStatusLineError",
   {
     slug: S.String,
@@ -146,7 +154,7 @@ export class GoalReadmeStatusLineError extends S.TaggedError<GoalReadmeStatusLin
  * @category errors
  * @since 0.0.0
  */
-export class GoalsGitError extends S.TaggedError<GoalsGitError>($I`GoalsGitError`)(
+export class GoalsGitError extends S.TaggedError<GoalsGitError, { readonly brand: unique symbol }>($I`GoalsGitError`)(
   "GoalsGitError",
   {
     message: S.String,
@@ -175,7 +183,9 @@ export class GoalsGitError extends S.TaggedError<GoalsGitError>($I`GoalsGitError
  * @category errors
  * @since 0.0.0
  */
-export class GoalStatusInputError extends S.TaggedError<GoalStatusInputError>($I`GoalStatusInputError`)(
+export class GoalStatusInputError extends S.TaggedError<GoalStatusInputError, { readonly brand: unique symbol }>(
+  $I`GoalStatusInputError`
+)(
   "GoalStatusInputError",
   {
     message: S.String,
@@ -211,7 +221,9 @@ export class GoalStatusInputError extends S.TaggedError<GoalStatusInputError>($I
  * @category errors
  * @since 0.0.0
  */
-export class GoalPlanInputError extends S.TaggedError<GoalPlanInputError>($I`GoalPlanInputError`)(
+export class GoalPlanInputError extends S.TaggedError<GoalPlanInputError, { readonly brand: unique symbol }>(
+  $I`GoalPlanInputError`
+)(
   "GoalPlanInputError",
   {
     message: S.String,
@@ -245,7 +257,10 @@ export class GoalPlanInputError extends S.TaggedError<GoalPlanInputError>($I`Goa
  * @category errors
  * @since 0.0.0
  */
-export class GoalPlanOperationalError extends S.TaggedError<GoalPlanOperationalError>($I`GoalPlanOperationalError`)(
+export class GoalPlanOperationalError extends S.TaggedError<
+  GoalPlanOperationalError,
+  { readonly brand: unique symbol }
+>($I`GoalPlanOperationalError`)(
   "GoalPlanOperationalError",
   {
     message: S.String,
@@ -281,7 +296,9 @@ export class GoalPlanOperationalError extends S.TaggedError<GoalPlanOperationalE
  * @category errors
  * @since 0.0.0
  */
-export class GoalGraphInputError extends S.TaggedError<GoalGraphInputError>($I`GoalGraphInputError`)(
+export class GoalGraphInputError extends S.TaggedError<GoalGraphInputError, { readonly brand: unique symbol }>(
+  $I`GoalGraphInputError`
+)(
   "GoalGraphInputError",
   {
     message: S.String,
@@ -314,7 +331,10 @@ export class GoalGraphInputError extends S.TaggedError<GoalGraphInputError>($I`G
  * @category errors
  * @since 0.0.0
  */
-export class GoalGraphOperationalError extends S.TaggedError<GoalGraphOperationalError>($I`GoalGraphOperationalError`)(
+export class GoalGraphOperationalError extends S.TaggedError<
+  GoalGraphOperationalError,
+  { readonly brand: unique symbol }
+>($I`GoalGraphOperationalError`)(
   "GoalGraphOperationalError",
   {
     message: S.String,

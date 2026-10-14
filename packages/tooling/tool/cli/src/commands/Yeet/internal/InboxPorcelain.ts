@@ -364,15 +364,16 @@ const yeetAckResolutionCandidates = (flags: YeetAckResolutionFlags): ReadonlyArr
  * @category models
  * @since 0.0.0
  */
-export class YeetInboxAckReport extends S.Class<YeetInboxAckReport>($I`YeetInboxAckReport`)(
-  {
+export class YeetInboxAckReport extends S.Opaque<YeetInboxAckReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     receipt: YeetAckReceipt,
     receiptPath: S.NonEmptyString,
     replacedPrior: S.Boolean,
-  },
-  $I.annote("YeetInboxAckReport", {
-    description: "The written receipt, its path, and whether a prior receipt for the row was replaced.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetInboxAckReport", {
+      description: "The written receipt, its path, and whether a prior receipt for the row was replaced.",
+    })
+  )
 ) {}
 
 /**

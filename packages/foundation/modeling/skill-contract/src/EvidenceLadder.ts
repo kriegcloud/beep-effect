@@ -31,15 +31,16 @@ const predicateTypeEquivalence = S.toEquivalence(EvidencePredicateType);
  * @category models
  * @since 0.0.0
  */
-export class EvidenceReceiptReference extends S.Class<EvidenceReceiptReference>($I`EvidenceReceiptReference`)(
-  {
+export class EvidenceReceiptReference extends S.Opaque<EvidenceReceiptReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     predicateType: EvidencePredicateType,
     receipt: EvidenceSubject,
     subjects: S.NonEmptyArray(EvidenceSubject),
-  },
-  $I.annote("EvidenceReceiptReference", {
-    description: "Predicate identity, receipt digest, and covered subjects proving one evidence-ladder rung.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceReceiptReference", {
+      description: "Predicate identity, receipt digest, and covered subjects proving one evidence-ladder rung.",
+    })
+  )
 ) {}
 
 /**
@@ -56,16 +57,20 @@ export class EvidenceReceiptReference extends S.Class<EvidenceReceiptReference>(
  * @category models
  * @since 0.0.0
  */
-export class EvidenceLadderReceiptTypes extends S.Class<EvidenceLadderReceiptTypes>($I`EvidenceLadderReceiptTypes`)(
-  {
+export class EvidenceLadderReceiptTypes extends S.Opaque<
+  EvidenceLadderReceiptTypes,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     accepted: EvidencePredicateType,
     delivered: EvidencePredicateType,
     persisted: EvidencePredicateType,
     semanticallyApplied: EvidencePredicateType,
-  },
-  $I.annote("EvidenceLadderReceiptTypes", {
-    description: "Versioned predicate identities demanded by each evidence-ladder rung.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceLadderReceiptTypes", {
+      description: "Versioned predicate identities demanded by each evidence-ladder rung.",
+    })
+  )
 ) {}
 
 /**
@@ -82,14 +87,15 @@ export class EvidenceLadderReceiptTypes extends S.Class<EvidenceLadderReceiptTyp
  * @category models
  * @since 0.0.0
  */
-export class Accepted extends S.Class<Accepted>($I`Accepted`)(
-  {
+export class Accepted extends S.Opaque<Accepted, { readonly brand: unique symbol }>()(
+  S.Struct({
     accepted: EvidenceReceiptReference,
     rung: S.tag("Accepted"),
-  },
-  $I.annote("Accepted", {
-    description: "Lowest ladder rung proving only that transport accepted the operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("Accepted", {
+      description: "Lowest ladder rung proving only that transport accepted the operation.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -108,15 +114,16 @@ export class Accepted extends S.Class<Accepted>($I`Accepted`)(
  * @category models
  * @since 0.0.0
  */
-export class Persisted extends S.Class<Persisted>($I`Persisted`)(
-  {
+export class Persisted extends S.Opaque<Persisted, { readonly brand: unique symbol }>()(
+  S.Struct({
     accepted: EvidenceReceiptReference,
     persisted: EvidenceReceiptReference,
     rung: S.tag("Persisted"),
-  },
-  $I.annote("Persisted", {
-    description: "Ladder rung proving transport acceptance and durable persistence.",
-  })
+  }).pipe(
+    $I.annoteSchema("Persisted", {
+      description: "Ladder rung proving transport acceptance and durable persistence.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -135,16 +142,17 @@ export class Persisted extends S.Class<Persisted>($I`Persisted`)(
  * @category models
  * @since 0.0.0
  */
-export class Delivered extends S.Class<Delivered>($I`Delivered`)(
-  {
+export class Delivered extends S.Opaque<Delivered, { readonly brand: unique symbol }>()(
+  S.Struct({
     accepted: EvidenceReceiptReference,
     delivered: EvidenceReceiptReference,
     persisted: EvidenceReceiptReference,
     rung: S.tag("Delivered"),
-  },
-  $I.annote("Delivered", {
-    description: "Ladder rung proving acceptance, persistence, and delivery.",
-  })
+  }).pipe(
+    $I.annoteSchema("Delivered", {
+      description: "Ladder rung proving acceptance, persistence, and delivery.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
@@ -163,17 +171,18 @@ export class Delivered extends S.Class<Delivered>($I`Delivered`)(
  * @category models
  * @since 0.0.0
  */
-export class SemanticallyApplied extends S.Class<SemanticallyApplied>($I`SemanticallyApplied`)(
-  {
+export class SemanticallyApplied extends S.Opaque<SemanticallyApplied, { readonly brand: unique symbol }>()(
+  S.Struct({
     accepted: EvidenceReceiptReference,
     delivered: EvidenceReceiptReference,
     persisted: EvidenceReceiptReference,
     rung: S.tag("SemanticallyApplied"),
     semanticallyApplied: EvidenceReceiptReference,
-  },
-  $I.annote("SemanticallyApplied", {
-    description: "Highest ladder rung proving the delivered result was semantically applied.",
-  })
+  }).pipe(
+    $I.annoteSchema("SemanticallyApplied", {
+      description: "Highest ladder rung proving the delivered result was semantically applied.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }

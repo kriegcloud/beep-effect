@@ -55,8 +55,8 @@ const moduleName = "OpenAiCompatClient";
  * @category models
  * @since 0.0.0
  */
-export class OpenAiCompatClientOptions extends S.Class<OpenAiCompatClientOptions>($I`OpenAiCompatClientOptions`)(
-  {
+export class OpenAiCompatClientOptions extends S.Opaque<OpenAiCompatClientOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.OptionFromOptionalKey(S.String.pipe(S.RedactedFromValue)).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
@@ -65,10 +65,11 @@ export class OpenAiCompatClientOptions extends S.Class<OpenAiCompatClientOptions
       S.withDecodingDefaultTypeKey(Effect.succeed("https://api.openai.com/v1"))
     ),
     headers: S.OptionFromOptionalKey(S.Record(S.String, S.String)).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("OpenAiCompatClientOptions", {
-    description: "Runtime configuration accepted by the OpenAI-compatible client layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenAiCompatClientOptions", {
+      description: "Runtime configuration accepted by the OpenAI-compatible client layer.",
+    })
+  )
 ) {}
 
 /**

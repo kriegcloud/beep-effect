@@ -23,6 +23,7 @@ import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { ExiftoolError, ProcessExitCode } from "./Exiftool.errors.ts";
 import {
+  BeepQaProvenance,
   ExifMetadata,
   ExiftoolConfig,
   ExiftoolConfigInput,
@@ -75,15 +76,16 @@ export interface ExiftoolShape {
   readonly writeXmpPacket: (request: WriteXmpPacketRequest) => Effect.Effect<WriteTagsResult, ExiftoolError>;
 }
 
-class ProcessResult extends S.Class<ProcessResult>($I`ProcessResult`)(
-  {
+class ProcessResult extends S.Opaque<ProcessResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     exitCode: ProcessExitCode,
     stderr: S.String,
     stdout: S.String,
-  },
-  $I.annote("ProcessResult", {
-    description: "Result of a process execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessResult", {
+      description: "Result of a process execution.",
+    })
+  )
 ) {}
 
 const defaultConfig = (input?: ExiftoolConfigInputOptions | undefined): ExiftoolConfig =>
@@ -188,8 +190,8 @@ const metadataFromRaw = (raw: Readonly<Record<string, unknown>>): ExifMetadata =
  * @category models
  * @since 0.0.0
  */
-export class BuildReadTagsArgsOptions extends S.Class<BuildReadTagsArgsOptions>($I`BuildReadTagsArgsOptions`)(
-  {
+export class BuildReadTagsArgsOptions extends S.Opaque<BuildReadTagsArgsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     configPath: S.String.pipe(
       $I.annoteKey("BuildReadTagsArgsOptions.configPath", {
         description: "Materialized -config file path passed as the FIRST exiftool argument.",
@@ -205,10 +207,11 @@ export class BuildReadTagsArgsOptions extends S.Class<BuildReadTagsArgsOptions>(
         description: "Whether to pass -n for numeric tag values.",
       })
     ),
-  },
-  $I.annote("BuildReadTagsArgsOptions", {
-    description: "Options for building native exiftool read-tags arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildReadTagsArgsOptions", {
+      description: "Options for building native exiftool read-tags arguments.",
+    })
+  )
 ) {}
 
 const BuildReadTagsArgs = Fn({
@@ -226,13 +229,15 @@ const BuildReadTagsArgs = Fn({
  * **Example** (Build read-tags args)
  *
  * ```ts
- * import { buildReadTagsArgs } from "@beep/exiftool"
+ * import { BuildReadTagsArgsOptions, buildReadTagsArgs } from "@beep/exiftool"
  *
- * const args = buildReadTagsArgs({
- *   configPath: "/tmp/beepqa.config",
- *   filePath: "./frame.png",
- *   numeric: false
- * })
+ * const args = buildReadTagsArgs(
+ *   BuildReadTagsArgsOptions.make({
+ *     configPath: "/tmp/beepqa.config",
+ *     filePath: "./frame.png",
+ *     numeric: false
+ *   })
+ * )
  * console.log(args)
  * ```
  *
@@ -269,8 +274,8 @@ export const buildReadTagsArgs: (options: BuildReadTagsArgsOptions) => ReadonlyA
  * @category models
  * @since 0.0.0
  */
-export class BuildWriteTagsArgsOptions extends S.Class<BuildWriteTagsArgsOptions>($I`BuildWriteTagsArgsOptions`)(
-  {
+export class BuildWriteTagsArgsOptions extends S.Opaque<BuildWriteTagsArgsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     assignments: S.Array(TagAssignment).pipe(
       $I.annoteKey("BuildWriteTagsArgsOptions.assignments", {
         description: "Tag assignments rendered as -TAG=VALUE argv entries.",
@@ -291,10 +296,11 @@ export class BuildWriteTagsArgsOptions extends S.Class<BuildWriteTagsArgsOptions
         description: "Source file whose metadata is rewritten.",
       })
     ),
-  },
-  $I.annote("BuildWriteTagsArgsOptions", {
-    description: "Options for building native exiftool write-tags arguments.",
-  })
+  }).pipe(
+    $I.annoteSchema("BuildWriteTagsArgsOptions", {
+      description: "Options for building native exiftool write-tags arguments.",
+    })
+  )
 ) {}
 
 const BuildWriteTagsArgs = Fn({
@@ -312,14 +318,16 @@ const BuildWriteTagsArgs = Fn({
  * **Example** (Build write-tags args)
  *
  * ```ts
- * import { buildWriteTagsArgs, TagAssignment } from "@beep/exiftool"
+ * import { BuildWriteTagsArgsOptions, buildWriteTagsArgs, TagAssignment } from "@beep/exiftool"
  *
- * const args = buildWriteTagsArgs({
- *   assignments: [TagAssignment.make({ tagName: "XMP-beepQA:sessionId", value: "qa-round-1-1754000000000" })],
- *   configPath: "/tmp/beepqa.config",
- *   outputPath: "./frames/.tmp/frame.png",
- *   sourcePath: "./frames/frame.png"
- * })
+ * const args = buildWriteTagsArgs(
+ *   BuildWriteTagsArgsOptions.make({
+ *     assignments: [TagAssignment.make({ tagName: "XMP-beepQA:sessionId", value: "qa-round-1-1754000000000" })],
+ *     configPath: "/tmp/beepqa.config",
+ *     outputPath: "./frames/.tmp/frame.png",
+ *     sourcePath: "./frames/frame.png"
+ *   })
+ * )
  * console.log(args)
  * ```
  *
@@ -365,7 +373,7 @@ const runProcess = (
         [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
         { concurrency: "unbounded" }
       );
-      return { exitCode, stderr, stdout };
+      return ProcessResult.make({ exitCode, stderr, stdout });
     })
   ).pipe(Effect.mapError((cause) => ExiftoolError.fromUnknown(operation, message, { cause })));
 
@@ -536,7 +544,11 @@ const makeService = Effect.fn("Exiftool.make")(function* (configInput?: Exiftool
         ExiftoolError.fromUnknown("writeXmpPacket", "Invalid write-XMP-packet request.", { cause })
       )
     );
-    return yield* writeTagsCore("writeXmpPacket", request.filePath, provenanceTagAssignments(request.provenance));
+    return yield* writeTagsCore(
+      "writeXmpPacket",
+      request.filePath,
+      provenanceTagAssignments(BeepQaProvenance.make(request.provenance))
+    );
   });
 
   const version = Effect.gen(function* () {

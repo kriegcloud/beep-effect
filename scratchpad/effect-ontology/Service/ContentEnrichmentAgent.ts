@@ -57,7 +57,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/ContentEnrichmentAgent"
  * @category errors
  * @since 0.0.0
  */
-export class ContentEnrichmentError extends S.TaggedError<ContentEnrichmentError>($I`ContentEnrichmentError`)(
+export class ContentEnrichmentError extends S.TaggedError<ContentEnrichmentError, { readonly brand: unique symbol }>($I`ContentEnrichmentError`)(
   "ContentEnrichmentError",
   {
     message: ErrorMessage.annotateKey({

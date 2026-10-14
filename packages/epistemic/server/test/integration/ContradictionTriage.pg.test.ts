@@ -14,7 +14,9 @@ import {
   BeliefVersionRef,
   ContradictionAssessment,
   ContradictionBeliefPair,
+  ContradictionCandidateContent,
   ContradictionMatchBasis,
+  ContradictionProposalContent,
   ContradictionProposalId,
   ContradictionResolutionProposal,
   canonicalizeContradiction,
@@ -122,14 +124,14 @@ const matchBasis = ContradictionMatchBasis.make({
   leftEvidenceIds,
   rightEvidenceIds,
 });
-const proposalContent = {
+const proposalContent = ContradictionProposalContent.make({
   fact: { amount: "125" },
   losingBelief: left,
   proposalId: ContradictionProposalId.make(Str.repeat(64)("c")),
   rationale: "The signed amendment controls.",
   validFrom: instant,
   validTo: O.none<DateTime.Utc>(),
-};
+});
 const proposal = ContradictionResolutionProposal.make({
   ...proposalContent,
   proposalDigest: Result.getOrThrow(contradictionProposalDigest(proposalContent)),
@@ -139,13 +141,13 @@ const assessment = ContradictionAssessment.make({
   proposals: [proposal],
 });
 const normalized = canonicalizeContradiction(pair, matchBasis);
-const candidateContent = {
+const candidateContent = ContradictionCandidateContent.make({
   assessment,
   matchBasis: normalized.matchBasis,
   pair: normalized.pair,
   validFrom: instant,
   validTo: O.none<DateTime.Utc>(),
-};
+});
 const candidate = ContradictionCandidate.make({
   ...candidateContent,
   candidateDigest: Result.getOrThrow(contradictionCandidateDigest(candidateContent)),
@@ -220,14 +222,14 @@ const makeSupersessionCandidate = (
     leftEvidenceIds: candidateLeftEvidenceIds,
     rightEvidenceIds: candidateRightEvidenceIds,
   });
-  const candidateProposalContent = {
+  const candidateProposalContent = ContradictionProposalContent.make({
     fact: { amount: replacementAmount },
     losingBelief,
     proposalId: ContradictionProposalId.make(Str.repeat(64)(proposalIdHex)),
     rationale: `Competing supersession proposal ${suffix}.`,
     validFrom: instant,
     validTo: O.none<DateTime.Utc>(),
-  };
+  });
   const candidateProposal = ContradictionResolutionProposal.make({
     ...candidateProposalContent,
     proposalDigest: Result.getOrThrow(contradictionProposalDigest(candidateProposalContent)),
@@ -238,13 +240,13 @@ const makeSupersessionCandidate = (
   });
   const normalizedCandidate = canonicalizeContradiction(candidatePair, candidateMatchBasis);
   const candidateKey = contradictionCandidateKey(candidatePair, candidateMatchBasis);
-  const content = {
+  const content = ContradictionCandidateContent.make({
     assessment: candidateAssessment,
     matchBasis: normalizedCandidate.matchBasis,
     pair: normalizedCandidate.pair,
     validFrom: instant,
     validTo: O.none<DateTime.Utc>(),
-  };
+  });
   return ContradictionCandidate.make({
     ...content,
     candidateDigest: Result.getOrThrow(contradictionCandidateDigest(content)),

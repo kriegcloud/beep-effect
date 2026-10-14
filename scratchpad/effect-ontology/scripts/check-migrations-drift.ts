@@ -17,12 +17,12 @@ import * as S from "effect/Schema";
 import * as ChildProcess from "effect/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 
-class MigrationsDriftError extends S.TaggedError<MigrationsDriftError>()("MigrationsDriftError", {
+class MigrationsDriftError extends S.TaggedError<MigrationsDriftError, { readonly brand: unique symbol }>()("MigrationsDriftError", {
   message: S.String,
   newFolders: S.Array(S.String),
 }) {}
 
-class MigrationGenerationError extends S.TaggedError<MigrationGenerationError>()("MigrationGenerationError", {
+class MigrationGenerationError extends S.TaggedError<MigrationGenerationError, { readonly brand: unique symbol }>()("MigrationGenerationError", {
   exitCode: S.Int,
   message: S.String,
 }) {}

@@ -298,14 +298,15 @@ export const ModelsCatalogSourcesLive: Layer.Layer<
  * @category models
  * @since 0.0.0
  */
-export class ModelsCatalogOptions extends S.Class<ModelsCatalogOptions>($I`ModelsCatalogOptions`)(
-  {
+export class ModelsCatalogOptions extends S.Opaque<ModelsCatalogOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     home: S.NonEmptyString,
     offline: S.Boolean,
-  },
-  $I.annote("ModelsCatalogOptions", {
-    description: "The operator home one assembly reads overlays under, and whether it skips the upstream fetch.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsCatalogOptions", {
+      description: "The operator home one assembly reads overlays under, and whether it skips the upstream fetch.",
+    })
+  )
 ) {}
 
 /**
@@ -327,10 +328,10 @@ export interface ModelsCatalogShape {
  * **Example** (Describe a snapshot program)
  *
  * ```ts
- * import { ModelsCatalog } from "@beep/repo-cli/commands/Models"
+ * import { ModelsCatalog, ModelsCatalogOptions } from "@beep/repo-cli/commands/Models"
  * import * as Effect from "effect/Effect"
  *
- * const program = ModelsCatalog.use((catalog) => catalog.snapshot({ home: "/home/op", offline: true }))
+ * const program = ModelsCatalog.use((catalog) => catalog.snapshot(ModelsCatalogOptions.make({ home: "/home/op", offline: true })))
  * console.log(Effect.isEffect(program)) // true
  * ```
  *

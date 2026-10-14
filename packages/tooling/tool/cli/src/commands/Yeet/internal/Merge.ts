@@ -112,15 +112,16 @@ export const defaultMergePrOptions: MergePrOptions = {
  * @category models
  * @since 0.0.0
  */
-export class MergeOutcome extends S.Class<MergeOutcome>($I`MergeOutcome`)(
-  {
+export class MergeOutcome extends S.Opaque<MergeOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     pullRequestNumber: S.Finite,
     state: S.NonEmptyString,
     sweep: SweepReport,
-  },
-  $I.annote("MergeOutcome", {
-    description: "Result of one operator-authorized squash merge and the workspace sweep that followed it.",
-  })
+  }).pipe(
+    $I.annoteSchema("MergeOutcome", {
+      description: "Result of one operator-authorized squash merge and the workspace sweep that followed it.",
+    })
+  )
 ) {}
 
 const decodePullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPrView));

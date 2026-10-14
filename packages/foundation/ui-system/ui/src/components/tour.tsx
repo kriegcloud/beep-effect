@@ -29,7 +29,7 @@ import Link from "next/link";
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { cn } from "../lib/index.ts";
-import { requireReactContext } from "../lib/react-invariant.ts";
+import { ReactContextInvariantOptions, requireReactContext } from "../lib/react-invariant.ts";
 
 const TourContext = React.createContext<{
   readonly start: (tourId: string) => void;
@@ -175,7 +175,10 @@ const tourBodyOverflowLockAtom = Atom.make((get) => {
  */
 function useTour() {
   const context = React.useContext(TourContext);
-  return requireReactContext(context, { message: "useTour must be used within a TourProvider" });
+  return requireReactContext(
+    context,
+    ReactContextInvariantOptions.make({ message: "useTour must be used within a TourProvider" })
+  );
 }
 
 /**

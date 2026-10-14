@@ -139,7 +139,7 @@ const onlyGatedOpen = (input: YeetSettleInput, result: YeetSettleVerdict): boole
   A.isReadonlyArrayNonEmpty(input.checks);
 const heavyContexts = ["Lint", "Heavy / Check", "Heavy / Docgen"];
 const heavyFamilies = expected(heavyContexts).pipe(O.getOrThrow, yeetGatedFamiliesFor);
-const verdict = (values: Partial<YeetSettleInput> = {}) =>
+const verdict = (values: Partial<Parameters<typeof YeetSettleInput.make>[0]> = {}) =>
   deriveSettleVerdict(
     YeetSettleInput.make({
       checks: [],

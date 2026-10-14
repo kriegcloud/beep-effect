@@ -23,14 +23,20 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-class MissingTargetTripleError extends S.TaggedError<MissingTargetTripleError>()("MissingTargetTripleError", {
-  message: S.String,
-}) {}
+class MissingTargetTripleError extends S.TaggedError<MissingTargetTripleError, { readonly brand: unique symbol }>()(
+  "MissingTargetTripleError",
+  {
+    message: S.String,
+  }
+) {}
 
-class SidecarBuildError extends S.TaggedError<SidecarBuildError>()("SidecarBuildError", {
-  exitCode: S.Int,
-  message: S.String,
-}) {}
+class SidecarBuildError extends S.TaggedError<SidecarBuildError, { readonly brand: unique symbol }>()(
+  "SidecarBuildError",
+  {
+    exitCode: S.Int,
+    message: S.String,
+  }
+) {}
 
 const program = Effect.gen(function* () {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;

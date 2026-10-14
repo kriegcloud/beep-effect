@@ -74,16 +74,13 @@ const $I = $ScratchpadId.create("effect-ontology/Service/EventBus");
  * @category models
  * @since 0.0.0
  */
-export class JobWithMetadata extends S.Class<JobWithMetadata>($I`JobWithMetadata`)(
-  {
+export class JobWithMetadata extends S.Opaque<JobWithMetadata, { readonly brand: unique symbol }>()(S.Struct({
     job: BackgroundJob,
     id: S.NonEmptyString,
     attempts: S.Int.check(S.isGreaterThanOrEqualTo(0, { message: "Queue attempts must be non-negative." })),
-  },
-  $I.annote("JobWithMetadata", {
+  }).pipe($I.annoteSchema("JobWithMetadata", {
     description: "A schema-backed background job paired with queue identity and retry attempts.",
-  })
-) {}
+  }))) {}
 
 /**
  * Runtime schema for a canonical event entry from the journal.

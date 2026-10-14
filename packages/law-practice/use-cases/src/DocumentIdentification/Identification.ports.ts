@@ -26,7 +26,9 @@ const $I = $LawPracticeUseCasesId.create("DocumentIdentification/Identification.
  * @category errors
  * @since 0.0.0
  */
-export class IdentificationError extends S.TaggedError<IdentificationError>($I`IdentificationError`)(
+export class IdentificationError extends S.TaggedError<IdentificationError, { readonly brand: unique symbol }>(
+  $I`IdentificationError`
+)(
   "IdentificationError",
   {
     operation: S.NonEmptyString,
@@ -54,11 +56,10 @@ export class IdentificationError extends S.TaggedError<IdentificationError>($I`I
  * @category ports
  * @since 0.0.0
  */
-export class ContactCardSourceShape extends S.Class<ContactCardSourceShape>($I`ContactCardSourceShape`)(
-  {
+export class ContactCardSourceShape extends S.Opaque<ContactCardSourceShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     cards: S.declare((u): u is Stream.Stream<RawContactCard, IdentificationError> => Stream.isStream(u)),
-  },
-  $I.annote("ContactCardSourceShape", { description: "ContactCardSource operations." })
+  }).pipe($I.annoteSchema("ContactCardSourceShape", { description: "ContactCardSource operations." }))
 ) {}
 /**
  * Service tag for ContactCardSource.
@@ -96,12 +97,11 @@ export class ContactCardSource extends Context.Service<ContactCardSource, Contac
  * @category ports
  * @since 0.0.0
  */
-export class UsptoRecordLookupShape extends S.Class<UsptoRecordLookupShape>($I`UsptoRecordLookupShape`)(
-  {
+export class UsptoRecordLookupShape extends S.Opaque<UsptoRecordLookupShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     byApplication: Fn({ input: S.String, output: EffectOutput<O.Option<UsptoRecordFacts>, IdentificationError>() }),
     byPatent: Fn({ input: S.String, output: EffectOutput<O.Option<UsptoRecordFacts>, IdentificationError>() }),
-  },
-  $I.annote("UsptoRecordLookupShape", { description: "UsptoRecordLookup operations." })
+  }).pipe($I.annoteSchema("UsptoRecordLookupShape", { description: "UsptoRecordLookup operations." }))
 ) {}
 /**
  * Service tag for UsptoRecordLookup.
@@ -138,9 +138,13 @@ export class UsptoRecordLookup extends Context.Service<UsptoRecordLookup, UsptoR
  * @category ports
  * @since 0.0.0
  */
-export class DomainRegistrantLookupShape extends S.Class<DomainRegistrantLookupShape>($I`DomainRegistrantLookupShape`)(
-  { registrant: Fn({ input: S.String, output: EffectOutput<O.Option<string>, IdentificationError>() }) },
-  $I.annote("DomainRegistrantLookupShape", { description: "DomainRegistrantLookup operations." })
+export class DomainRegistrantLookupShape extends S.Opaque<
+  DomainRegistrantLookupShape,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ registrant: Fn({ input: S.String, output: EffectOutput<O.Option<string>, IdentificationError>() }) }).pipe(
+    $I.annoteSchema("DomainRegistrantLookupShape", { description: "DomainRegistrantLookup operations." })
+  )
 ) {}
 /**
  * Service tag for DomainRegistrantLookup.
@@ -177,11 +181,13 @@ export class DomainRegistrantLookup extends Context.Service<DomainRegistrantLook
  * @category ports
  * @since 0.0.0
  */
-export class DocumentExtractionSourceShape extends S.Class<DocumentExtractionSourceShape>(
-  $I`DocumentExtractionSourceShape`
-)(
-  { extraction: Fn({ input: S.String, output: EffectOutput<O.Option<ConfirmedExtraction>, IdentificationError>() }) },
-  $I.annote("DocumentExtractionSourceShape", { description: "DocumentExtractionSource operations." })
+export class DocumentExtractionSourceShape extends S.Opaque<
+  DocumentExtractionSourceShape,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    extraction: Fn({ input: S.String, output: EffectOutput<O.Option<ConfirmedExtraction>, IdentificationError>() }),
+  }).pipe($I.annoteSchema("DocumentExtractionSourceShape", { description: "DocumentExtractionSource operations." }))
 ) {}
 /**
  * Service tag for DocumentExtractionSource.

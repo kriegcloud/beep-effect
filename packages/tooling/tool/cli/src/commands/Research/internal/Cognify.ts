@@ -23,6 +23,7 @@ import { INSERT_CAPTURE_LOG, runWithResearchDb } from "./Catalog.ts";
 import { catalogDbPath } from "./CatalogOps.ts";
 import {
   COGNEE_CREDENTIALS_MISSING,
+  CogneeCardUpload,
   cogneeAdd,
   cogneeCognify,
   cogneeLogin,
@@ -35,25 +36,24 @@ import type { CogneeSettings } from "./CogneeClient.ts";
 
 const $I = $RepoCliId.create("commands/Research/internal/Cognify");
 
-class PendingCardRow extends S.Class<PendingCardRow>($I`PendingCardRow`)(
-  {
+class PendingCardRow extends S.Opaque<PendingCardRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     path: S.String,
     sourceType: S.String,
-  },
-  $I.annote("PendingCardRow", {
-    title: "Pending Card Row",
-    description: "Research catalog row for a card pending Cognee upload.",
-  })
+  }).pipe(
+    $I.annoteSchema("PendingCardRow", {
+      title: "Pending Card Row",
+      description: "Research catalog row for a card pending Cognee upload.",
+    })
+  )
 ) {}
 const decodePendingCardRows = S.decodeUnknownEffect(S.Array(PendingCardRow));
 const decodeCognifySummary = S.decodeUnknownEffect(ResearchCognifySummary);
 
 const COGNEE_ADD_BATCH_SIZE = 50;
 
-interface CognifyUpload {
-  readonly content: string;
-  readonly fileName: string;
+interface CognifyUpload extends CogneeCardUpload {
   readonly id: string;
 }
 
@@ -120,7 +120,7 @@ export const cognifyImpl = Effect.fn("Research.cognifyImpl")(function* (
     }
     const dataset = datasetForSourceType(row.sourceType);
     const uploads = MutableHashMap.get(byDataset, dataset).pipe(O.getOrElse((): Array<CognifyUpload> => []));
-    uploads.push({ content: content.value, fileName: `${row.id}.md`, id: row.id });
+    uploads.push({ ...CogneeCardUpload.make({ content: content.value, fileName: `${row.id}.md` }), id: row.id });
     MutableHashMap.set(byDataset, dataset, uploads);
   }
 

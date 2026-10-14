@@ -10,6 +10,20 @@
  */
 import "@testing-library/jest-dom/vitest";
 import { ChatClient, runTurnAtom, SendTurnRequest, turnErrorAtom } from "@beep/agents-client/Chat.atoms";
+import {
+  CodeBlock,
+  HeadingBlock,
+  LinkInline,
+  ListBlock,
+  ListItem,
+  ParagraphBlock,
+  QuoteBlock,
+  TableBlock,
+  TableCellBlock,
+  TableRowBlock,
+  TextInline,
+  YouTubeBlock,
+} from "@beep/agents-domain";
 import { ChatActionError } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
@@ -82,30 +96,48 @@ function RunFailingTurn({ threadId }: { readonly threadId: WorkspaceIdentity.Thr
 describe("StreamingBlocks", { concurrent: false }, () => {
   it("renders the assistant block vocabulary to the expected tags", () => {
     const blocks: ReadonlyArray<AssistantBlock> = [
-      { type: "heading", level: "h2", children: [{ type: "text", text: "Title" }] },
-      {
+      HeadingBlock.make({ type: "heading", level: "h2", children: [TextInline.make({ type: "text", text: "Title" })] }),
+      ParagraphBlock.make({
         type: "paragraph",
         children: [
-          { type: "text", text: "bold", bold: true },
-          { type: "text", text: " and " },
-          { type: "text", text: "italic", italic: true },
-          { type: "link", url: "https://example.com", text: "link" },
+          TextInline.make({ type: "text", text: "bold", bold: true }),
+          TextInline.make({ type: "text", text: " and " }),
+          TextInline.make({ type: "text", text: "italic", italic: true }),
+          LinkInline.make({ type: "link", url: "https://example.com", text: "link" }),
         ],
-      },
-      { type: "quote", children: [{ type: "text", text: "a quote" }] },
-      { type: "list", listType: "bullet", items: [{ children: [{ type: "text", text: "one" }] }] },
-      { type: "list", listType: "number", items: [{ children: [{ type: "text", text: "two" }] }] },
-      { type: "code", code: "console.log('beep')" },
-      { type: "code", language: "mermaid", code: "graph TD\n  A --> B" },
-      {
+      }),
+      QuoteBlock.make({ type: "quote", children: [TextInline.make({ type: "text", text: "a quote" })] }),
+      ListBlock.make({
+        type: "list",
+        listType: "bullet",
+        items: [ListItem.make({ children: [TextInline.make({ type: "text", text: "one" })] })],
+      }),
+      ListBlock.make({
+        type: "list",
+        listType: "number",
+        items: [ListItem.make({ children: [TextInline.make({ type: "text", text: "two" })] })],
+      }),
+      CodeBlock.make({ type: "code", code: "console.log('beep')" }),
+      CodeBlock.make({ type: "code", language: "mermaid", code: "graph TD\n  A --> B" }),
+      TableBlock.make({
         type: "table",
         headerRow: true,
         rows: [
-          { cells: [{ children: [{ type: "text", text: "Name" }] }, { children: [{ type: "text", text: "Value" }] }] },
-          { cells: [{ children: [{ type: "text", text: "Language" }] }, { children: [{ type: "text", text: "TS" }] }] },
+          TableRowBlock.make({
+            cells: [
+              TableCellBlock.make({ children: [TextInline.make({ type: "text", text: "Name" })] }),
+              TableCellBlock.make({ children: [TextInline.make({ type: "text", text: "Value" })] }),
+            ],
+          }),
+          TableRowBlock.make({
+            cells: [
+              TableCellBlock.make({ children: [TextInline.make({ type: "text", text: "Language" })] }),
+              TableCellBlock.make({ children: [TextInline.make({ type: "text", text: "TS" })] }),
+            ],
+          }),
         ],
-      },
-      { type: "youtube", videoId: "M7lc1UVf-VE" },
+      }),
+      YouTubeBlock.make({ type: "youtube", videoId: "M7lc1UVf-VE" }),
     ];
 
     const { container } = render(<StreamingBlocks blocks={blocks} />);
@@ -139,7 +171,7 @@ describe("StreamingBlocks", { concurrent: false }, () => {
     expect(boundedKey(huge).length).toBeLessThan(64);
     // a multi-MB code block derives a bounded render key without materializing
     // the whole body into the key string.
-    const codeRenderKey = blockRenderKey({ type: "code", code: huge });
+    const codeRenderKey = blockRenderKey(CodeBlock.make({ type: "code", code: huge }));
     expect(codeRenderKey.length).toBeLessThan(8192);
     expect(boundedKey(codeRenderKey).length).toBeLessThan(64);
   });
@@ -151,7 +183,12 @@ describe("StreamingBlocks", { concurrent: false }, () => {
     // against a megabyte paragraph allocated the megabyte in order to bound it.
     const huge = "x".repeat(2_000_000);
 
-    const paragraphKey = blockRenderKey({ type: "paragraph", children: [{ type: "text", text: huge }] });
+    const paragraphKey = blockRenderKey(
+      ParagraphBlock.make({
+        type: "paragraph",
+        children: [TextInline.make({ type: "text", text: huge })],
+      })
+    );
 
     expect(paragraphKey.length).toBeLessThan(8192);
     expect(boundedKey(paragraphKey).length).toBeLessThan(64);
@@ -161,8 +198,15 @@ describe("StreamingBlocks", { concurrent: false }, () => {
     // A truncated sample alone would collide. The count and the true length -- both
     // computed without concatenating anything -- are what keep them apart.
     const shared = "z".repeat(1_000);
-    const first = blockRenderKey({ type: "paragraph", children: [{ type: "text", text: shared }] });
-    const second = blockRenderKey({ type: "paragraph", children: [{ type: "text", text: `${shared}tail` }] });
+    const first = blockRenderKey(
+      ParagraphBlock.make({ type: "paragraph", children: [TextInline.make({ type: "text", text: shared })] })
+    );
+    const second = blockRenderKey(
+      ParagraphBlock.make({
+        type: "paragraph",
+        children: [TextInline.make({ type: "text", text: `${shared}tail` })],
+      })
+    );
 
     expect(first).not.toBe(second);
   });

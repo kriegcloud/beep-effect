@@ -493,7 +493,7 @@ const renderClassEntry = (
       " * @category schemas",
       " * @since 0.0.0",
       " */",
-      `export class ${name} extends S.Class<${name}>($I\`${name}\`)(`,
+      `export class ${name} extends S.Class<${name}, { readonly brand: unique symbol }>($I\`${name}\`)(`,
       `  ${fields},`,
       `${renderAnnotation(name, annotations, config, "annote")}`,
       ") {",

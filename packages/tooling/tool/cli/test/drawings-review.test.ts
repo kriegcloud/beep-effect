@@ -674,7 +674,7 @@ describe("beep drawings review", () => {
             deliveryPath: O.none(),
           })
         );
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
         const inventory = path.join(opened.roundDir, "inventory.json");
         const outsideInventory = path.join(outside, "inventory.json");
         yield* fs.rename(inventory, outsideInventory);
@@ -869,7 +869,7 @@ describe("beep drawings review", () => {
           })
         );
         expect(notIngested.message).toContain("has no readable inventory.json");
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
         const pack = yield* buildDrawingJudgePack({
           manifestPath: corpus.other.manifest,
           round: 1,
@@ -906,7 +906,7 @@ describe("beep drawings review", () => {
           review.plan(ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: "unused.json" }))
         );
         expect(early.message).toContain("is open; plan a round after ingest");
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
 
         const dispositionsFile = path.join(corpus.matter, "dispositions-draft.json");
         const write = (round: number, entries: ReadonlyArray<DispositionEntry>) =>
@@ -995,7 +995,7 @@ describe("beep drawings review", () => {
         expect(pending.refusals).toEqual([
           "review round 1 on this sheet set has not been ingested; its findings are unknown, not zero",
         ]);
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
 
         const sent = corpus.sent.hash.slice(0, 12);
         const refused = yield* Effect.flip(runDrawings(["statement", "--manifest", corpus.sent.manifest]));
@@ -1083,7 +1083,7 @@ describe("beep drawings review", () => {
             deliveryPath: O.none(),
           })
         );
-        const findings = yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        const findings = yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
         const roundFile = path.join(opened.roundDir, "round.json");
         const inventoryFile = path.join(opened.roundDir, "inventory.json");
 
@@ -1091,7 +1091,7 @@ describe("beep drawings review", () => {
         const resolved = A.map(findings, (finding) =>
           ReviewFinding.make({ ...finding, status: "resolved", disposition: O.some(specChange) })
         );
-        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(opened.round, resolved));
+        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(ReviewRound.make(opened.round), resolved));
         const status = yield* Effect.flip(review.status(corpus.location));
         expect(status.message).toContain(`"${inventoryFile}" changed outside beep drawings review (sha256`);
         const guarded = yield* Effect.flip(review.guard(corpus.sent.manifest, O.none()));
@@ -1110,13 +1110,13 @@ describe("beep drawings review", () => {
         yield* fs.remove(inventoryFile);
         const missing = yield* Effect.flip(review.status(corpus.location));
         expect(missing.message).toContain("is missing, but round.json records sha256");
-        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(opened.round, resolved));
+        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(ReviewRound.make(opened.round), resolved));
         yield* writeJsonFile(ReviewRound, roundFile, ReviewRound.make({ ...opened.round, status: "ingested" }));
         const unrecorded = yield* Effect.flip(review.status(corpus.location));
         expect(unrecorded.message).toContain("round.json records no hash for it");
 
         // once planned, dispositions.json is checked too; a draft before planning is not
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
         const dispositionsFile = path.join(opened.roundDir, "dispositions.json");
         const write = (entries: ReadonlyArray<DispositionEntry>) =>
           writeJsonFile(

@@ -99,8 +99,8 @@ export type M365EnvPrefix = typeof M365EnvPrefix.Type;
  * @category models
  * @since 0.0.0
  */
-export class M365AppOnlyEnvNames extends S.Class<M365AppOnlyEnvNames>($I`M365AppOnlyEnvNames`)(
-  {
+export class M365AppOnlyEnvNames extends S.Opaque<M365AppOnlyEnvNames, { readonly brand: unique symbol }>()(
+  S.Struct({
     tenantId: S.NonEmptyString.annotateKey({ description: "Variable holding the Entra tenant id." }),
     clientId: S.NonEmptyString.annotateKey({ description: "Variable holding the Entra application id." }),
     certThumbprintSha256: S.NonEmptyString.annotateKey({
@@ -110,10 +110,11 @@ export class M365AppOnlyEnvNames extends S.Class<M365AppOnlyEnvNames>($I`M365App
       description: "Variable holding the PEM private key of the registered certificate.",
     }),
     mailbox: S.NonEmptyString.annotateKey({ description: "Variable holding the mailbox address or user id." }),
-  },
-  $I.annote("M365AppOnlyEnvNames", {
-    description: "Names of the environment variables of one Microsoft 365 app-only prefix.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365AppOnlyEnvNames", {
+      description: "Names of the environment variables of one Microsoft 365 app-only prefix.",
+    })
+  )
 ) {}
 
 /**
@@ -165,16 +166,17 @@ export const m365AppOnlyEnvNames = (prefix: M365EnvPrefix): M365AppOnlyEnvNames 
  * @category models
  * @since 0.0.0
  */
-export class M365AppOnlyEnvSettings extends S.Class<M365AppOnlyEnvSettings>($I`M365AppOnlyEnvSettings`)(
-  {
+export class M365AppOnlyEnvSettings extends S.Opaque<M365AppOnlyEnvSettings, { readonly brand: unique symbol }>()(
+  S.Struct({
     appOnly: M365AppOnlyConfigInput.annotateKey({
       description: "App-only lane settings (certificate credential) for `M365.makeAppOnlyLiveLayer`.",
     }),
     mailbox: GraphPathSegment.annotateKey({ description: "Mailbox address or user id the lane addresses." }),
-  },
-  $I.annote("M365AppOnlyEnvSettings", {
-    description: "Microsoft 365 app-only lane settings and mailbox loaded from prefixed environment variables.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365AppOnlyEnvSettings", {
+      description: "Microsoft 365 app-only lane settings and mailbox loaded from prefixed environment variables.",
+    })
+  )
 ) {}
 
 const decodePrefix = S.decodeUnknownEffect(M365EnvPrefix);

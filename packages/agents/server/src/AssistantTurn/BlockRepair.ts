@@ -101,40 +101,43 @@ const blocksRepaired = Metric.counter("agents_assistant_turn_blocks_repaired_tot
  * @category models
  * @since 0.0.0
  */
-export class IssueReport extends S.Class<IssueReport>($I`IssueReport`)(
-  {
+export class IssueReport extends S.Opaque<IssueReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     index: BlockIndex.annotateKey({ description: "Original block index in the assistant turn envelope." }),
     raw: S.String.annotateKey({ description: "The raw JSON slice that failed validation." }),
     report: S.String.annotateKey({ description: "Validation issue that caused the slice to be held for repair." }),
-  },
-  $I.annote("IssueReport", {
-    description: "Validation issue report for one streamed assistant-block slice.",
-  })
+  }).pipe(
+    $I.annoteSchema("IssueReport", {
+      description: "Validation issue report for one streamed assistant-block slice.",
+    })
+  )
 ) {
   static readonly encodeResult = S.encodeResult(IssueReport);
 }
 
-class RepairItem extends S.Class<RepairItem>($I`RepairItem`)(
-  {
+class RepairItem extends S.Opaque<RepairItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     index: BlockIndex.annotateKey({ description: "Original failure index echoed unchanged." }),
     block: AssistantBlock.annotateKey({ description: "Corrected assistant block returned for the failure index." }),
-  },
-  $I.annote("RepairItem", {
-    description: "One corrected assistant block returned by the repair tool.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepairItem", {
+      description: "One corrected assistant block returned by the repair tool.",
+    })
+  )
 ) {}
 
-class RepairEnvelope extends S.Class<RepairEnvelope>($I`RepairEnvelope`)(
-  {
+class RepairEnvelope extends S.Opaque<RepairEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     repairs: S.Array(RepairItem).annotateKey({ description: "Corrected blocks for listed failure indices." }),
-  },
-  $I.annote("RepairEnvelope", {
-    description: "Repair tool response envelope.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepairEnvelope", {
+      description: "Repair tool response envelope.",
+    })
+  )
 ) {}
 
-class RepairAttemptState extends S.Class<RepairAttemptState>($I`RepairAttemptState`)(
-  {
+class RepairAttemptState extends S.Opaque<RepairAttemptState, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputTokens: RepairTokenCount.annotateKey({
       description: "Provider input tokens accumulated across completed repair attempts.",
     }),
@@ -147,24 +150,26 @@ class RepairAttemptState extends S.Class<RepairAttemptState>($I`RepairAttemptSta
     repaired: S.Array(IndexedBlock).annotateKey({
       description: "Accepted repaired blocks accumulated across repair attempts.",
     }),
-  },
-  $I.annote("RepairAttemptState", {
-    description: "Accumulator for unrepaired failures and accepted repaired blocks across repair attempts.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepairAttemptState", {
+      description: "Accumulator for unrepaired failures and accepted repaired blocks across repair attempts.",
+    })
+  )
 ) {}
 
-class RepairUsage extends S.Class<RepairUsage>($I`RepairUsage`)(
-  {
+class RepairUsage extends S.Opaque<RepairUsage, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputTokens: RepairTokenCount.annotateKey({ description: "Provider input tokens for one repair call." }),
     outputTokens: RepairTokenCount.annotateKey({ description: "Provider output tokens for one repair call." }),
-  },
-  $I.annote("RepairUsage", {
-    description: "Validated provider token usage for one assistant-block repair call.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepairUsage", {
+      description: "Validated provider token usage for one assistant-block repair call.",
+    })
+  )
 ) {}
 
-class RepairInvalidBlocksResult extends S.Class<RepairInvalidBlocksResult>($I`RepairInvalidBlocksResult`)(
-  {
+class RepairInvalidBlocksResult extends S.Opaque<RepairInvalidBlocksResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     blocks: S.Array(IndexedBlock).annotateKey({ description: "Accepted repaired blocks." }),
     inputTokens: RepairTokenCount.annotateKey({
       description: "Provider input tokens accumulated across all repair calls.",
@@ -172,10 +177,11 @@ class RepairInvalidBlocksResult extends S.Class<RepairInvalidBlocksResult>($I`Re
     outputTokens: RepairTokenCount.annotateKey({
       description: "Provider output tokens accumulated across all repair calls.",
     }),
-  },
-  $I.annote("RepairInvalidBlocksResult", {
-    description: "Accepted repaired blocks and aggregate provider usage for the repair tail.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepairInvalidBlocksResult", {
+      description: "Accepted repaired blocks and aggregate provider usage for the repair tail.",
+    })
+  )
 ) {}
 
 /**
@@ -321,7 +327,9 @@ const toBlockRepairFailed = (message: string): BlockRepairFailed => BlockRepairF
  * @category models
  * @since 0.0.0
  */
-export class PatchOpSummaryBase extends S.Class<PatchOpSummaryBase>($I`PatchOpSummaryBase`)(
+export class PatchOpSummaryBase extends S.Class<PatchOpSummaryBase, { readonly brand: unique symbol }>(
+  $I`PatchOpSummaryBase`
+)(
   {
     path: RedactedJsonPointerPath.annotateKey({
       description: "Redacted and truncated JSON Pointer path for the summarized patch operation.",
@@ -453,19 +461,20 @@ export const PatchOpSummary = S.Union([AddPatchOpSummary, RemovePatchOpSummary, 
  */
 export type PatchOpSummary = typeof PatchOpSummary.Type;
 
-class PatchSummarization extends S.Class<PatchSummarization>($I`PatchSummarization`)(
-  {
+class PatchSummarization extends S.Opaque<PatchSummarization, { readonly brand: unique symbol }>()(
+  S.Struct({
     operations: PatchOperationCount.annotateKey({
       description: "Number of structural JSON Patch operations summarized.",
     }),
     ops: S.Array(PatchOpSummary).annotateKey({
       description: "Redacted per-operation patch summaries safe for logs.",
     }),
-  },
-  $I.annote("PatchSummarization", {
-    description:
-      "Summarize a JSON patch into non-sensitive structural metadata: the operation count and, per operation, the op kind plus a redacted/truncated JSON Pointer. The `value` field of add/replace operations carries repaired assistant content and is intentionally never logged.",
-  })
+  }).pipe(
+    $I.annoteSchema("PatchSummarization", {
+      description:
+        "Summarize a JSON patch into non-sensitive structural metadata: the operation count and, per operation, the op kind plus a redacted/truncated JSON Pointer. The `value` field of add/replace operations carries repaired assistant content and is intentionally never logged.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeEffect(PatchSummarization);
 }
@@ -585,7 +594,7 @@ const repairItemToIndexed = Effect.fn("repairItemToIndexed")(function* (
       }),
     })
   );
-  return O.some<IndexedBlock>({ block: checked.value, index: item.index });
+  return O.some(IndexedBlock.make({ block: checked.value, index: item.index }));
 });
 
 const containsIndexedBlock = (blocks: ReadonlyArray<IndexedBlock>, index: number): boolean =>

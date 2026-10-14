@@ -67,8 +67,8 @@ const gitAdapter = {
  * @category models
  * @since 0.0.0
  */
-export class GoalCompletionObservation extends S.Class<GoalCompletionObservation>($I`GoalCompletionObservation`)(
-  {
+export class GoalCompletionObservation extends S.Opaque<GoalCompletionObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     repository: S.NonEmptyString,
     packet: S.NonEmptyString,
     declarationDigest: S.NonEmptyString,
@@ -83,10 +83,11 @@ export class GoalCompletionObservation extends S.Class<GoalCompletionObservation
     nonRequiredReds: S.Array(GoalNonRequiredRed),
     subClaims: S.Array(GoalEvidenceCheck),
     verifiedAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("GoalCompletionObservation", {
-    description: "Facts observed once for a declared final PR, separate from the pure completion decision.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalCompletionObservation", {
+      description: "Facts observed once for a declared final PR, separate from the pure completion decision.",
+    })
+  )
 ) {}
 
 const overallOutcome = (observation: GoalCompletionObservation): GoalCompletionOutcome => {

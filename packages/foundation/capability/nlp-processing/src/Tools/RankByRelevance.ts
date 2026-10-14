@@ -18,8 +18,8 @@ const CandidateText = S.String.pipe(
   })
 );
 
-class RankByRelevanceParameters extends S.Class<RankByRelevanceParameters>($I`RankByRelevanceParameters`)(
-  {
+class RankByRelevanceParameters extends S.Opaque<RankByRelevanceParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
     query: S.String.annotateKey({
       description: "Query to rank texts against",
       examples: ["cats and kittens"],
@@ -32,21 +32,23 @@ class RankByRelevanceParameters extends S.Class<RankByRelevanceParameters>($I`Ra
       description: "Maximum number of ranked results to return (default: all texts)",
       examples: [PosInt.make(3), PosInt.make(5), PosInt.make(10)],
     }),
-  },
-  $I.annote("RankByRelevanceParameters", {
-    description: "Inputs required to rank multiple candidate texts against a query.",
-  })
+  }).pipe(
+    $I.annoteSchema("RankByRelevanceParameters", {
+      description: "Inputs required to rank multiple candidate texts against a query.",
+    })
+  )
 ) {}
 
-class RankByRelevanceSuccess extends S.Class<RankByRelevanceSuccess>($I`RankByRelevanceSuccess`)(
-  {
+class RankByRelevanceSuccess extends S.Opaque<RankByRelevanceSuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     ranked: S.Array(AiRankedText),
     returned: S.Natural,
     totalTexts: S.Natural,
-  },
-  $I.annote("RankByRelevanceSuccess", {
-    description: "Ranked relevance results and source-text count metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("RankByRelevanceSuccess", {
+      description: "Ranked relevance results and source-text count metadata.",
+    })
+  )
 ) {}
 
 /**

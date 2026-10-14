@@ -65,7 +65,7 @@ import type { AttachmentPort } from "./config.ts";
  * @since 0.0.0
  */
 export const featuresAtom = Atom.family((_editor: LexicalEditor) =>
-  Atom.make<ComposerFeatures>(ComposerFeatures.make())
+  Atom.make<ComposerFeatures>(ComposerFeatures.make({}))
 );
 
 /**

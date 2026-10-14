@@ -55,8 +55,8 @@ const OptionFromOptionalSpan = Span.pipe(S.OptionFromOptionalKey, S.withConstruc
  * @category models
  * @since 0.0.0
  */
-export class CaseComponentSpan extends S.Class<CaseComponentSpan>($I`CaseComponentSpan`)(
-  {
+export class CaseComponentSpan extends S.Opaque<CaseComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     caseName: OptionFromOptionalSpan,
     plaintiff: OptionFromOptionalSpan,
     defendant: OptionFromOptionalSpan,
@@ -68,10 +68,11 @@ export class CaseComponentSpan extends S.Class<CaseComponentSpan>($I`CaseCompone
     year: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
     metadataParenthetical: OptionFromOptionalSpan,
-  },
-  $I.annote("CaseComponentSpan", {
-    description: 'Component spans for case citations (type: "case").',
-  })
+  }).pipe(
+    $I.annoteSchema("CaseComponentSpan", {
+      description: 'Component spans for case citations (type: "case").',
+    })
+  )
 ) {}
 
 /**
@@ -139,17 +140,18 @@ export declare namespace CaseComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class StatuteComponentSpan extends S.Class<StatuteComponentSpan>($I`StatuteComponentSpan`)(
-  {
+export class StatuteComponentSpan extends S.Opaque<StatuteComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     title: OptionFromOptionalSpan,
     code: OptionFromOptionalSpan,
     section: OptionFromOptionalSpan,
     subsection: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("StatuteComponentSpan", {
-    description: 'Component spans for statute citations (type: "statute").',
-  })
+  }).pipe(
+    $I.annoteSchema("StatuteComponentSpan", {
+      description: 'Component spans for statute citations (type: "statute").',
+    })
+  )
 ) {}
 
 /**
@@ -217,8 +219,11 @@ export declare namespace StatuteComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class ConstitutionalComponentSpan extends S.Class<ConstitutionalComponentSpan>($I`ConstitutionalComponentSpan`)(
-  {
+export class ConstitutionalComponentSpan extends S.Opaque<
+  ConstitutionalComponentSpan,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     jurisdiction: OptionFromOptionalSpan,
     article: OptionFromOptionalSpan,
     amendment: OptionFromOptionalSpan,
@@ -228,10 +233,11 @@ export class ConstitutionalComponentSpan extends S.Class<ConstitutionalComponent
     currentLocation: OptionFromOptionalSpan.annotateKey({
       description: "Span of the `(now …)` post-reform parenthetical, when present (#789).",
     }),
-  },
-  $I.annote("ConstitutionalComponentSpan", {
-    description: 'Component spans for constitutional citations (type: "constitutional").',
-  })
+  }).pipe(
+    $I.annoteSchema("ConstitutionalComponentSpan", {
+      description: 'Component spans for constitutional citations (type: "constitutional").',
+    })
+  )
 ) {}
 
 /**
@@ -299,18 +305,19 @@ export declare namespace ConstitutionalComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class JournalComponentSpan extends S.Class<JournalComponentSpan>($I`JournalComponentSpan`)(
-  {
+export class JournalComponentSpan extends S.Opaque<JournalComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     volume: OptionFromOptionalSpan,
     journal: OptionFromOptionalSpan,
     page: OptionFromOptionalSpan,
     pincite: OptionFromOptionalSpan,
     year: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("JournalComponentSpan", {
-    description: 'Component spans for journal citations (type: "journal").',
-  })
+  }).pipe(
+    $I.annoteSchema("JournalComponentSpan", {
+      description: 'Component spans for journal citations (type: "journal").',
+    })
+  )
 ) {}
 
 /**
@@ -378,17 +385,18 @@ export declare namespace JournalComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class NeutralComponentSpan extends S.Class<NeutralComponentSpan>($I`NeutralComponentSpan`)(
-  {
+export class NeutralComponentSpan extends S.Opaque<NeutralComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     year: OptionFromOptionalSpan,
     court: OptionFromOptionalSpan,
     documentNumber: OptionFromOptionalSpan,
     pincite: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("NeutralComponentSpan", {
-    description: 'Component spans for neutral citations (type: "neutral").',
-  })
+  }).pipe(
+    $I.annoteSchema("NeutralComponentSpan", {
+      description: 'Component spans for neutral citations (type: "neutral").',
+    })
+  )
 ) {}
 
 /**
@@ -451,13 +459,14 @@ export declare namespace NeutralComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class IdComponentSpan extends S.Class<IdComponentSpan>($I`IdComponentSpan`)(
-  {
+export class IdComponentSpan extends S.Opaque<IdComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     pincite: OptionFromOptionalSpan,
-  },
-  $I.annote("IdComponentSpan", {
-    description: 'Component spans for Id./Ibid. citations (type: "id").',
-  })
+  }).pipe(
+    $I.annoteSchema("IdComponentSpan", {
+      description: 'Component spans for Id./Ibid. citations (type: "id").',
+    })
+  )
 ) {}
 
 /**
@@ -520,13 +529,14 @@ export declare namespace IdComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class SupraComponentSpan extends S.Class<SupraComponentSpan>($I`SupraComponentSpan`)(
-  {
+export class SupraComponentSpan extends S.Opaque<SupraComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     pincite: OptionFromOptionalSpan,
-  },
-  $I.annote("SupraComponentSpan", {
-    description: 'Component spans for supra citations (type: "supra").',
-  })
+  }).pipe(
+    $I.annoteSchema("SupraComponentSpan", {
+      description: 'Component spans for supra citations (type: "supra").',
+    })
+  )
 ) {}
 
 /**
@@ -589,13 +599,17 @@ export declare namespace SupraComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class ShortFormCaseComponentSpan extends S.Class<ShortFormCaseComponentSpan>($I`ShortFormCaseComponentSpan`)(
-  {
+export class ShortFormCaseComponentSpan extends S.Opaque<
+  ShortFormCaseComponentSpan,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     pincite: OptionFromOptionalSpan,
-  },
-  $I.annote("ShortFormCaseComponentSpan", {
-    description: 'Component spans for short-form case citations (type: "shortFormCase").',
-  })
+  }).pipe(
+    $I.annoteSchema("ShortFormCaseComponentSpan", {
+      description: 'Component spans for short-form case citations (type: "shortFormCase").',
+    })
+  )
 ) {}
 
 /**
@@ -663,15 +677,16 @@ export declare namespace ShortFormCaseComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class PublicLawComponentSpan extends S.Class<PublicLawComponentSpan>($I`PublicLawComponentSpan`)(
-  {
+export class PublicLawComponentSpan extends S.Opaque<PublicLawComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     congress: OptionFromOptionalSpan,
     lawNumber: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("PublicLawComponentSpan", {
-    description: 'Component spans for public law citations (type: "publicLaw").',
-  })
+  }).pipe(
+    $I.annoteSchema("PublicLawComponentSpan", {
+      description: 'Component spans for public law citations (type: "publicLaw").',
+    })
+  )
 ) {}
 
 /**
@@ -739,18 +754,20 @@ export declare namespace PublicLawComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class FederalRegisterComponentSpan extends S.Class<FederalRegisterComponentSpan>(
-  $I`FederalRegisterComponentSpan`
-)(
-  {
+export class FederalRegisterComponentSpan extends S.Opaque<
+  FederalRegisterComponentSpan,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     volume: OptionFromOptionalSpan,
     page: OptionFromOptionalSpan,
     year: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("FederalRegisterComponentSpan", {
-    description: 'Component spans for federal register citations (type: "federalRegister").',
-  })
+  }).pipe(
+    $I.annoteSchema("FederalRegisterComponentSpan", {
+      description: 'Component spans for federal register citations (type: "federalRegister").',
+    })
+  )
 ) {}
 
 /**
@@ -818,18 +835,20 @@ export declare namespace FederalRegisterComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class StatutesAtLargeComponentSpan extends S.Class<StatutesAtLargeComponentSpan>(
-  $I`StatutesAtLargeComponentSpan`
-)(
-  {
+export class StatutesAtLargeComponentSpan extends S.Opaque<
+  StatutesAtLargeComponentSpan,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     volume: OptionFromOptionalSpan,
     page: OptionFromOptionalSpan,
     year: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("StatutesAtLargeComponentSpan", {
-    description: 'Component spans for statutes at large citations (type: "statutesAtLarge").',
-  })
+  }).pipe(
+    $I.annoteSchema("StatutesAtLargeComponentSpan", {
+      description: 'Component spans for statutes at large citations (type: "statutesAtLarge").',
+    })
+  )
 ) {}
 
 /**
@@ -897,16 +916,17 @@ export declare namespace StatutesAtLargeComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class FederalRuleComponentSpan extends S.Class<FederalRuleComponentSpan>($I`FederalRuleComponentSpan`)(
-  {
+export class FederalRuleComponentSpan extends S.Opaque<FederalRuleComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     ruleSet: OptionFromOptionalSpan,
     rule: OptionFromOptionalSpan,
     subsection: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("FederalRuleComponentSpan", {
-    description: 'Component spans for federal rule citations (type: "federalRule").',
-  })
+  }).pipe(
+    $I.annoteSchema("FederalRuleComponentSpan", {
+      description: 'Component spans for federal rule citations (type: "federalRule").',
+    })
+  )
 ) {}
 
 /**
@@ -974,17 +994,18 @@ export declare namespace FederalRuleComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class RestatementComponentSpan extends S.Class<RestatementComponentSpan>($I`RestatementComponentSpan`)(
-  {
+export class RestatementComponentSpan extends S.Opaque<RestatementComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     edition: OptionFromOptionalSpan,
     subject: OptionFromOptionalSpan,
     section: OptionFromOptionalSpan,
     subsection: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("RestatementComponentSpan", {
-    description: 'Component spans for Restatement citations (type: "restatement").',
-  })
+  }).pipe(
+    $I.annoteSchema("RestatementComponentSpan", {
+      description: 'Component spans for Restatement citations (type: "restatement").',
+    })
+  )
 ) {}
 
 /**
@@ -1052,17 +1073,18 @@ export declare namespace RestatementComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class TreatiseComponentSpan extends S.Class<TreatiseComponentSpan>($I`TreatiseComponentSpan`)(
-  {
+export class TreatiseComponentSpan extends S.Opaque<TreatiseComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     volume: OptionFromOptionalSpan,
     title: OptionFromOptionalSpan,
     section: OptionFromOptionalSpan,
     year: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("TreatiseComponentSpan", {
-    description: 'Component spans for treatise citations (type: "treatise").',
-  })
+  }).pipe(
+    $I.annoteSchema("TreatiseComponentSpan", {
+      description: 'Component spans for treatise citations (type: "treatise").',
+    })
+  )
 ) {}
 
 /**
@@ -1130,17 +1152,18 @@ export declare namespace TreatiseComponentSpan {
  * @category models
  * @since 0.0.0
  */
-export class AnnotationComponentSpan extends S.Class<AnnotationComponentSpan>($I`AnnotationComponentSpan`)(
-  {
+export class AnnotationComponentSpan extends S.Opaque<AnnotationComponentSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     volume: OptionFromOptionalSpan,
     series: OptionFromOptionalSpan,
     page: OptionFromOptionalSpan,
     year: OptionFromOptionalSpan,
     signal: OptionFromOptionalSpan,
-  },
-  $I.annote("AnnotationComponentSpan", {
-    description: 'Component spans for A.L.R. annotation citations (type: "annotation").',
-  })
+  }).pipe(
+    $I.annoteSchema("AnnotationComponentSpan", {
+      description: 'Component spans for A.L.R. annotation citations (type: "annotation").',
+    })
+  )
 ) {}
 
 /**

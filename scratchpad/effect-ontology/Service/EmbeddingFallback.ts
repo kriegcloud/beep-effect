@@ -52,15 +52,12 @@ const $I = $ScratchpadId.create("effect-ontology/Service/EmbeddingFallback");
  * @category configuration
  * @since 0.0.0
  */
-export class FallbackChainConfig extends S.Class<FallbackChainConfig>($I`FallbackChainConfig`)(
-  {
+export class FallbackChainConfig extends S.Opaque<FallbackChainConfig, { readonly brand: unique symbol }>()(S.Struct({
     providers: S.Array(EmbeddingProviderId),
     logFallbacks: S.Boolean,
-  },
-  $I.annote("FallbackChainConfig", {
+  }).pipe($I.annoteSchema("FallbackChainConfig", {
     description: "Ordered embedding providers and fallback-switch logging policy.",
-  })
-) {}
+  }))) {}
 
 /**
  * Active provider tracking for observability
@@ -78,16 +75,13 @@ export class FallbackChainConfig extends S.Class<FallbackChainConfig>($I`Fallbac
  * @category models
  * @since 0.0.0
  */
-export class ActiveProviderInfo extends S.Class<ActiveProviderInfo>($I`ActiveProviderInfo`)(
-  {
+export class ActiveProviderInfo extends S.Opaque<ActiveProviderInfo, { readonly brand: unique symbol }>()(S.Struct({
     currentProvider: EmbeddingProviderId,
     fallbackCount: S.Int.check(S.isGreaterThanOrEqualTo(0, { message: "Fallback count must be non-negative." })),
     lastFallbackReason: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ActiveProviderInfo", {
+  }).pipe($I.annoteSchema("ActiveProviderInfo", {
     description: "Current embedding provider, fallback count, and optional last fallback reason.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Default Configuration

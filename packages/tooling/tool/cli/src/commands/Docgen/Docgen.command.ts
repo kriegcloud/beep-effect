@@ -59,6 +59,7 @@ import {
   resolveDocgenQualityTargets,
 } from "./internal/Quality.ts";
 import {
+  AnalyzeDocgenQualityWorkerEvalOptions,
   analyzeDocgenQualityWorkerEval,
   defaultQualityWorkerEvalPacketLimit,
   defaultQualityWorkerEvalReasoningEffort,
@@ -70,6 +71,7 @@ import {
   defaultQualityWorkerRunpodEvalPacketLimit,
   defaultQualityWorkerRunpodEvalReadinessTimeoutMs,
   generateQualityWorkerRunpodEvalJson,
+  RunDocgenQualityWorkerRunpodEvalOptions,
   requiredQualityWorkerRunpodEvalModel,
   runDocgenQualityWorkerRunpodEval,
 } from "./internal/QualityWorkerRunpodEval.ts";
@@ -905,16 +907,18 @@ const docgenQualityWorkerEvalCommand = Command.make(
         O.getOrElse(R.empty)
       );
 
-      const report = yield* analyzeDocgenQualityWorkerEval({
-        ...baseUrlOptions,
-        model,
-        packetLimit,
-        provider,
-        ...reasoningOptions,
-        report: source.report,
-        scope: source.scope,
-        sourceQualityReport: source.sourceQualityReport,
-      });
+      const report = yield* analyzeDocgenQualityWorkerEval(
+        AnalyzeDocgenQualityWorkerEvalOptions.make({
+          ...baseUrlOptions,
+          model,
+          packetLimit,
+          provider,
+          ...reasoningOptions,
+          report: source.report,
+          scope: source.scope,
+          sourceQualityReport: source.sourceQualityReport,
+        })
+      );
       const content = yield* generateQualityWorkerEvalJson(report);
 
       if (O.isSome(output)) {
@@ -1059,25 +1063,27 @@ const docgenQualityWorkerRunpodEvalCommand = Command.make(
           )
         )
       );
-      const report = yield* runDocgenQualityWorkerRunpodEval({
-        allow24GbFallback,
-        confirmRunpodEval,
-        ...O.getSomesStruct({ gpuTypeIds: O.fromUndefinedOr(resolvedGpuTypeIds) }),
-        keepPod,
-        model,
-        otlpBaseUrl,
-        otlpEnabled: otlp,
-        otlpProject,
-        packetLimit,
-        provider,
-        readinessTimeoutMs,
-        report: source.report,
-        scope: source.scope,
-        sourceQualityReport: source.sourceQualityReport,
-        skipTemplateSearch,
-        allowPublicTemplateSearch,
-        ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
-      }).pipe((effect) =>
+      const report = yield* runDocgenQualityWorkerRunpodEval(
+        RunDocgenQualityWorkerRunpodEvalOptions.make({
+          allow24GbFallback,
+          confirmRunpodEval,
+          ...O.getSomesStruct({ gpuTypeIds: O.fromUndefinedOr(resolvedGpuTypeIds) }),
+          keepPod,
+          model,
+          otlpBaseUrl,
+          otlpEnabled: otlp,
+          otlpProject,
+          packetLimit,
+          provider,
+          readinessTimeoutMs,
+          report: source.report,
+          scope: source.scope,
+          sourceQualityReport: source.sourceQualityReport,
+          skipTemplateSearch,
+          allowPublicTemplateSearch,
+          ...(O.isSome(templateId) ? { templateId: templateId.value } : {}),
+        })
+      ).pipe((effect) =>
         Layer.build(Runpod.makeLayer(RunpodConfigInput.make({ apiKey: runpodApiKey }))).pipe(
           Effect.flatMap((context) => effect.pipe(Effect.provide(context))),
           Effect.scoped

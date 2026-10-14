@@ -352,18 +352,19 @@ export type OutlookCategoryPreset = typeof OutlookCategoryPreset.Type;
  * @category models
  * @since 0.0.0
  */
-export class MasterCategoryIntent extends S.Class<MasterCategoryIntent>($I`MasterCategoryIntent`)(
-  {
+export class MasterCategoryIntent extends S.Opaque<MasterCategoryIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     displayName: MailCategoryName.annotateKey({
       description: "Category display name as it appears in Outlook.",
     }),
     color: OutlookCategoryPreset.annotateKey({
       description: "Outlook color preset for the category.",
     }),
-  },
-  $I.annote("MasterCategoryIntent", {
-    description: "A master category the applier ensures exists: display name plus color preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("MasterCategoryIntent", {
+      description: "A master category the applier ensures exists: display name plus color preset.",
+    })
+  )
 ) {}
 
 const fnvOffsetBasis = 2166136261;
@@ -496,19 +497,19 @@ export type MailDomain = typeof MailDomain.Type;
  * @category models
  * @since 0.0.0
  */
-export class SenderDomainRule extends S.TaggedClass<SenderDomainRule>($I`SenderDomainRule`)(
-  "SenderDomainRule",
-  {
+export class SenderDomainRule extends S.Opaque<SenderDomainRule, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("SenderDomainRule", {
     domain: MailDomain.annotateKey({
       description: "Sender domain the rule matches.",
     }),
     category: PracticeCategory.annotateKey({
       description: "Practice category the rule assigns.",
     }),
-  },
-  $I.annote("SenderDomainRule", {
-    description: "Inbox-rule intent assigning one practice category to mail from a sender domain.",
-  })
+  }).pipe(
+    $I.annoteSchema("SenderDomainRule", {
+      description: "Inbox-rule intent assigning one practice category to mail from a sender domain.",
+    })
+  )
 ) {}
 
 /**
@@ -532,19 +533,19 @@ export class SenderDomainRule extends S.TaggedClass<SenderDomainRule>($I`SenderD
  * @category models
  * @since 0.0.0
  */
-export class SenderAddressRule extends S.TaggedClass<SenderAddressRule>($I`SenderAddressRule`)(
-  "SenderAddressRule",
-  {
+export class SenderAddressRule extends S.Opaque<SenderAddressRule, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("SenderAddressRule", {
     address: EmailString.annotateKey({
       description: "Normalized sender address the rule matches.",
     }),
     category: PracticeCategory.annotateKey({
       description: "Practice category the rule assigns.",
     }),
-  },
-  $I.annote("SenderAddressRule", {
-    description: "Inbox-rule intent assigning one practice category to mail from one sender address.",
-  })
+  }).pipe(
+    $I.annoteSchema("SenderAddressRule", {
+      description: "Inbox-rule intent assigning one practice category to mail from one sender address.",
+    })
+  )
 ) {}
 
 /**
@@ -606,8 +607,8 @@ export type MailRuleIntent = typeof MailRuleIntent.Type;
  * @category models
  * @since 0.0.0
  */
-export class MailTaxonomy extends S.Class<MailTaxonomy>($I`MailTaxonomy`)(
-  {
+export class MailTaxonomy extends S.Opaque<MailTaxonomy, { readonly brand: unique symbol }>()(
+  S.Struct({
     practiceCategories: S.Array(PracticeCategory)
       .pipe(
         S.withDecodingDefaultKey(Effect.succeed(PracticeCategory.literals)),
@@ -626,10 +627,11 @@ export class MailTaxonomy extends S.Class<MailTaxonomy>($I`MailTaxonomy`)(
       .annotateKey({
         description: "Inbox-rule intents rendered for the attorney.",
       }),
-  },
-  $I.annote("MailTaxonomy", {
-    description: "Mail-tagging taxonomy: practice categories, taggable matters, and inbox-rule intents.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailTaxonomy", {
+      description: "Mail-tagging taxonomy: practice categories, taggable matters, and inbox-rule intents.",
+    })
+  )
 ) {}
 
 const practiceCategoryIntent = (category: PracticeCategory): MasterCategoryIntent =>

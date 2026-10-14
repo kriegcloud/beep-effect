@@ -68,8 +68,8 @@ const $I = $M365McpId.create("M365Tools");
  * @category tool-schemas
  * @since 0.1.0
  */
-export class M365ToolError extends S.Class<M365ToolError>($I`M365ToolError`)(
-  {
+export class M365ToolError extends S.Opaque<M365ToolError, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: S.NonEmptyString.annotateKey({
       description: "Human-readable failure message safe to return to an MCP tool caller.",
     }),
@@ -85,10 +85,11 @@ export class M365ToolError extends S.Class<M365ToolError>($I`M365ToolError`)(
     toolName: S.NonEmptyString.annotateKey({
       description: "MCP tool that returned the failure.",
     }),
-  },
-  $I.annote("M365ToolError", {
-    description: "Structured Microsoft 365 MCP tool failure with retry metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ToolError", {
+      description: "Structured Microsoft 365 MCP tool failure with retry metadata.",
+    })
+  )
 ) {}
 
 /**

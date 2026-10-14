@@ -1,5 +1,5 @@
 import { extractFencedCodeBlockDetails } from "@beep/repo-docgen/Core";
-import { FsUtils, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
+import { FsUtils, findRepoRoot, GlobOptions, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { A, O, Str } from "@beep/utils";
 import { transform as transformDoctest } from "@effect/doctest/Transform";
 import * as Effect from "effect/Effect";
@@ -800,7 +800,7 @@ const discoverFiles = Effect.fn("Doctest.discoverFiles")(function* (config: Doct
   });
   const selected = A.isReadonlyArrayNonEmpty(includePatterns)
     ? yield* fsUtils
-        .globFiles(includePatterns, { cwd: repoRoot })
+        .globFiles(includePatterns, GlobOptions.make({ cwd: repoRoot }))
         .pipe(Effect.mapError(() => DoctestAnalysisError.make({ message: "Failed to expand doctest include globs." })))
     : O.isSome(packagePrefix)
       ? yield* fsUtils

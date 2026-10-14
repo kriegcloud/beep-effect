@@ -39,27 +39,29 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BunResolve
  * @since 0.0.0
  */
 
-class BunRelease extends S.Class<BunRelease>($I`BunRelease`)(
-  {
+class BunRelease extends S.Opaque<BunRelease, { readonly brand: unique symbol }>()(
+  S.Struct({
     tag_name: S.String,
     prerelease: S.Boolean,
     draft: S.Boolean,
-  },
-  $I.annote("BunRelease", {
-    description: "GitHub release schema for Bun releases",
-  })
+  }).pipe(
+    $I.annoteSchema("BunRelease", {
+      description: "GitHub release schema for Bun releases",
+    })
+  )
 ) {}
 
-class BunPackageJsonDocument extends S.Class<BunPackageJsonDocument>($I`BunPackageJsonDocument`)(
-  {
+class BunPackageJsonDocument extends S.Opaque<BunPackageJsonDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageManager: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefault(Effect.succeed(""))
     ),
-  },
-  $I.annote("BunPackageJsonDocument", {
-    description: "Subset of root package.json fields required by the Bun resolver.",
-  })
+  }).pipe(
+    $I.annoteSchema("BunPackageJsonDocument", {
+      description: "Subset of root package.json fields required by the Bun resolver.",
+    })
+  )
 ) {}
 
 /**
@@ -68,14 +70,15 @@ class BunPackageJsonDocument extends S.Class<BunPackageJsonDocument>($I`BunPacka
  * @category models
  * @since 0.0.0
  */
-export class BunVercelDocument extends S.Class<BunVercelDocument>($I`BunVercelDocument`)(
-  {
+export class BunVercelDocument extends S.Opaque<BunVercelDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     installCommand: S.String,
     buildCommand: S.String,
-  },
-  $I.annote("BunVercelDocument", {
-    description: "Subset of Vercel configuration fields containing explicit Bun runtime pins.",
-  })
+  }).pipe(
+    $I.annoteSchema("BunVercelDocument", {
+      description: "Subset of Vercel configuration fields containing explicit Bun runtime pins.",
+    })
+  )
 ) {}
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -165,14 +168,15 @@ type BunSemverIdentifier = typeof BunSemverIdentifier.Type;
  * @category models
  * @since 0.0.0
  */
-export class BunSemver extends S.Class<BunSemver>($I`BunSemver`)(
-  {
+export class BunSemver extends S.Opaque<BunSemver, { readonly brand: unique symbol }>()(
+  S.Struct({
     core: S.Tuple([S.Finite, S.Finite, S.Finite]),
     prerelease: BunSemverIdentifier.pipe(S.NonEmptyArray, S.Option),
-  },
-  $I.annote("BunSemver", {
-    description: "Parsed Bun semantic version components.",
-  })
+  }).pipe(
+    $I.annoteSchema("BunSemver", {
+      description: "Parsed Bun semantic version components.",
+    })
+  )
 ) {}
 
 const parseBunVersionPart = (value: string): O.Option<number> => {
@@ -234,10 +238,12 @@ const parseBunSemver = (value: string): O.Option<BunSemver> => {
     Str.isNonEmpty(identifier) ? parsePrerelease(identifier) : O.none()
   );
 
-  return O.some({
-    core: [major.value, minor.value, patch.value] as const,
-    prerelease,
-  });
+  return O.some(
+    BunSemver.make({
+      core: [major.value, minor.value, patch.value] as const,
+      prerelease,
+    })
+  );
 };
 
 const compareBunSemverIdentifier = (left: BunSemverIdentifier, right: BunSemverIdentifier): number => {
@@ -323,8 +329,8 @@ const selectLatestLocalBunVersion = (
  * @category models
  * @since 0.0.0
  */
-export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState`)(
-  {
+export class BunVersionState extends S.Opaque<BunVersionState, { readonly brand: unique symbol }>()(
+  S.Struct({
     bunVersionFile: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefault(Effect.succeed(""))
@@ -338,10 +344,11 @@ export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState
     bunArchiveSha256: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     expectedBunArchiveSha256: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("BunVersionState", {
-    description: "Resolved Bun version state from local files and optionally GitHub",
-  })
+  }).pipe(
+    $I.annoteSchema("BunVersionState", {
+      description: "Resolved Bun version state from local files and optionally GitHub",
+    })
+  )
 ) {}
 
 /**

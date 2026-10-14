@@ -72,15 +72,14 @@ export type OntologyFingerprint = typeof OntologyFingerprint.Type;
  * @category tool-schemas
  * @since 0.0.0
  */
-export class OntologyToolBudgets extends S.Class<OntologyToolBudgets>($I`OntologyToolBudgets`)(
-  {
+export class OntologyToolBudgets extends S.Opaque<OntologyToolBudgets, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxChangeOperations: S.Natural,
     maxQueryResults: S.Natural,
     maxSearchResults: S.Natural,
     maxValidationResults: S.Natural,
     reasonerDriftCap: S.Natural,
-  },
-  $I.annote("OntologyToolBudgets", { description: "Server-owned static ceilings for ontology tools." })
+  }).pipe($I.annoteSchema("OntologyToolBudgets", { description: "Server-owned static ceilings for ontology tools." }))
 ) {}
 
 /** Immutable ontology tool budget defaults.
@@ -137,7 +136,9 @@ export type OntologyBudgetKind = typeof OntologyBudgetKind.Type;
  * @category errors
  * @since 0.0.0
  */
-export class OntologyCasConflict extends S.TaggedError<OntologyCasConflict>($I`OntologyCasConflict`)(
+export class OntologyCasConflict extends S.TaggedError<OntologyCasConflict, { readonly brand: unique symbol }>(
+  $I`OntologyCasConflict`
+)(
   "OntologyCasConflict",
   {
     expectedFingerprint: OntologyFingerprint,
@@ -159,7 +160,9 @@ export class OntologyCasConflict extends S.TaggedError<OntologyCasConflict>($I`O
  * @category errors
  * @since 0.0.0
  */
-export class OntologyBudgetRefusal extends S.TaggedError<OntologyBudgetRefusal>($I`OntologyBudgetRefusal`)(
+export class OntologyBudgetRefusal extends S.TaggedError<OntologyBudgetRefusal, { readonly brand: unique symbol }>(
+  $I`OntologyBudgetRefusal`
+)(
   "OntologyBudgetRefusal",
   {
     kind: OntologyBudgetKind,
@@ -182,9 +185,10 @@ export class OntologyBudgetRefusal extends S.TaggedError<OntologyBudgetRefusal>(
  * @category errors
  * @since 0.0.0
  */
-export class OntologyReasonerDriftRefusal extends S.TaggedError<OntologyReasonerDriftRefusal>(
-  $I`OntologyReasonerDriftRefusal`
-)(
+export class OntologyReasonerDriftRefusal extends S.TaggedError<
+  OntologyReasonerDriftRefusal,
+  { readonly brand: unique symbol }
+>($I`OntologyReasonerDriftRefusal`)(
   "OntologyReasonerDriftRefusal",
   {
     actual: S.Natural,
@@ -207,7 +211,9 @@ export class OntologyReasonerDriftRefusal extends S.TaggedError<OntologyReasoner
  * @category errors
  * @since 0.0.0
  */
-export class OntologyNoOpRefusal extends S.TaggedError<OntologyNoOpRefusal>($I`OntologyNoOpRefusal`)(
+export class OntologyNoOpRefusal extends S.TaggedError<OntologyNoOpRefusal, { readonly brand: unique symbol }>(
+  $I`OntologyNoOpRefusal`
+)(
   "OntologyNoOpRefusal",
   {
     guidance: S.NonEmptyString,
@@ -228,9 +234,10 @@ export class OntologyNoOpRefusal extends S.TaggedError<OntologyNoOpRefusal>($I`O
  * @category errors
  * @since 0.0.0
  */
-export class OntologyActorIdentityRefusal extends S.TaggedError<OntologyActorIdentityRefusal>(
-  $I`OntologyActorIdentityRefusal`
-)(
+export class OntologyActorIdentityRefusal extends S.TaggedError<
+  OntologyActorIdentityRefusal,
+  { readonly brand: unique symbol }
+>($I`OntologyActorIdentityRefusal`)(
   "OntologyActorIdentityRefusal",
   {
     guidance: S.NonEmptyString,
@@ -251,7 +258,9 @@ export class OntologyActorIdentityRefusal extends S.TaggedError<OntologyActorIde
  * @category errors
  * @since 0.0.0
  */
-export class OntologyTierGateRefusal extends S.TaggedError<OntologyTierGateRefusal>($I`OntologyTierGateRefusal`)(
+export class OntologyTierGateRefusal extends S.TaggedError<OntologyTierGateRefusal, { readonly brand: unique symbol }>(
+  $I`OntologyTierGateRefusal`
+)(
   "OntologyTierGateRefusal",
   {
     guidance: S.NonEmptyString,
@@ -272,9 +281,10 @@ export class OntologyTierGateRefusal extends S.TaggedError<OntologyTierGateRefus
  * @category errors
  * @since 0.0.0
  */
-export class OntologyToolExecutionError extends S.TaggedError<OntologyToolExecutionError>(
-  $I`OntologyToolExecutionError`
-)(
+export class OntologyToolExecutionError extends S.TaggedError<
+  OntologyToolExecutionError,
+  { readonly brand: unique symbol }
+>($I`OntologyToolExecutionError`)(
   "OntologyToolExecutionError",
   {
     operation: S.NonEmptyString,
@@ -326,9 +336,10 @@ export type OntologyToolFailure = typeof OntologyToolFailure.Type;
  * @category tool-schemas
  * @since 0.0.0
  */
-export class OpenInspectRequest extends S.Class<OpenInspectRequest>($I`OpenInspectRequest`)(
-  { path: OntologyFilePath, baseIri: OptionalBaseIri, sessionHandle: OptionalSessionHandle },
-  $I.annote("OpenInspectRequest", { description: "Open and inspect a saved Turtle ontology." })
+export class OpenInspectRequest extends S.Opaque<OpenInspectRequest, { readonly brand: unique symbol }>()(
+  S.Struct({ path: OntologyFilePath, baseIri: OptionalBaseIri, sessionHandle: OptionalSessionHandle }).pipe(
+    $I.annoteSchema("OpenInspectRequest", { description: "Open and inspect a saved Turtle ontology." })
+  )
 ) {}
 
 /** Open/inspect response.
@@ -340,15 +351,14 @@ export class OpenInspectRequest extends S.Class<OpenInspectRequest>($I`OpenInspe
  * @category tool-schemas
  * @since 0.0.0
  */
-export class OpenInspectResponse extends S.Class<OpenInspectResponse>($I`OpenInspectResponse`)(
-  {
+export class OpenInspectResponse extends S.Opaque<OpenInspectResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     sessionId: SessionId,
     fingerprint: OntologyFingerprint,
     quadCount: S.Natural,
     prefixes: PrefixMap,
-  },
-  $I.annote("OpenInspectResponse", { description: "Inspection metadata for a saved Turtle ontology." })
+  }).pipe($I.annoteSchema("OpenInspectResponse", { description: "Inspection metadata for a saved Turtle ontology." }))
 ) {}
 
 /** Snapshot/describe request.
@@ -360,9 +370,10 @@ export class OpenInspectResponse extends S.Class<OpenInspectResponse>($I`OpenIns
  * @category tool-schemas
  * @since 0.0.0
  */
-export class SnapshotDescribeRequest extends S.Class<SnapshotDescribeRequest>($I`SnapshotDescribeRequest`)(
-  { path: OntologyFilePath, baseIri: OptionalBaseIri, sessionHandle: OptionalSessionHandle },
-  $I.annote("SnapshotDescribeRequest", { description: "Describe the read model of a saved Turtle ontology." })
+export class SnapshotDescribeRequest extends S.Opaque<SnapshotDescribeRequest, { readonly brand: unique symbol }>()(
+  S.Struct({ path: OntologyFilePath, baseIri: OptionalBaseIri, sessionHandle: OptionalSessionHandle }).pipe(
+    $I.annoteSchema("SnapshotDescribeRequest", { description: "Describe the read model of a saved Turtle ontology." })
+  )
 ) {}
 
 /** Snapshot/describe response.
@@ -374,9 +385,12 @@ export class SnapshotDescribeRequest extends S.Class<SnapshotDescribeRequest>($I
  * @category tool-schemas
  * @since 0.0.0
  */
-export class SnapshotDescribeResponse extends S.Class<SnapshotDescribeResponse>($I`SnapshotDescribeResponse`)(
-  { fingerprint: OntologyFingerprint, snapshot: OntologySnapshot },
-  $I.annote("SnapshotDescribeResponse", { description: "Ontology snapshot with the source semantic fingerprint." })
+export class SnapshotDescribeResponse extends S.Opaque<SnapshotDescribeResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ fingerprint: OntologyFingerprint, snapshot: OntologySnapshot }).pipe(
+    $I.annoteSchema("SnapshotDescribeResponse", {
+      description: "Ontology snapshot with the source semantic fingerprint.",
+    })
+  )
 ) {}
 
 /** Search request with no caller-owned result ceiling.
@@ -388,8 +402,8 @@ export class SnapshotDescribeResponse extends S.Class<SnapshotDescribeResponse>(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class OntologySearchRequest extends S.Class<OntologySearchRequest>($I`OntologySearchRequest`)(
-  {
+export class OntologySearchRequest extends S.Opaque<OntologySearchRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     baseIri: OptionalBaseIri,
     sessionHandle: OptionalSessionHandle,
@@ -398,8 +412,7 @@ export class OntologySearchRequest extends S.Class<OntologySearchRequest>($I`Ont
       S.withConstructorDefault(Effect.succeed(OntologyViewMode.make("all"))),
       S.withDecodingDefaultKey(Effect.succeed(OntologyViewMode.make("all")))
     ),
-  },
-  $I.annote("OntologySearchRequest", { description: "Search resources in a saved Turtle ontology." })
+  }).pipe($I.annoteSchema("OntologySearchRequest", { description: "Search resources in a saved Turtle ontology." }))
 ) {}
 
 /** Bounded ontology search response.
@@ -411,14 +424,15 @@ export class OntologySearchRequest extends S.Class<OntologySearchRequest>($I`Ont
  * @category tool-schemas
  * @since 0.0.0
  */
-export class OntologySearchResponse extends S.Class<OntologySearchResponse>($I`OntologySearchResponse`)(
-  {
+export class OntologySearchResponse extends S.Opaque<OntologySearchResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     fingerprint: OntologyFingerprint,
     results: S.Array(OntologyResourceSummary),
     resultCount: S.Natural,
     truncated: S.Boolean,
-  },
-  $I.annote("OntologySearchResponse", { description: "Server-bounded ontology resource search results." })
+  }).pipe(
+    $I.annoteSchema("OntologySearchResponse", { description: "Server-bounded ontology resource search results." })
+  )
 ) {}
 
 /** SPARQL query request with server-owned safeguards.
@@ -430,8 +444,11 @@ export class OntologySearchResponse extends S.Class<OntologySearchResponse>($I`O
  * @category tool-schemas
  * @since 0.0.0
  */
-export class OntologySparqlQueryRequest extends S.Class<OntologySparqlQueryRequest>($I`OntologySparqlQueryRequest`)(
-  {
+export class OntologySparqlQueryRequest extends S.Opaque<
+  OntologySparqlQueryRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: OntologyFilePath,
     baseIri: OptionalBaseIri,
     sessionHandle: OptionalSessionHandle,
@@ -441,8 +458,11 @@ export class OntologySparqlQueryRequest extends S.Class<OntologySparqlQueryReque
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("OntologySparqlQueryRequest", { description: "Run a bounded SPARQL query over a saved Turtle ontology." })
+  }).pipe(
+    $I.annoteSchema("OntologySparqlQueryRequest", {
+      description: "Run a bounded SPARQL query over a saved Turtle ontology.",
+    })
+  )
 ) {}
 
 /** SPARQL query response.
@@ -454,11 +474,15 @@ export class OntologySparqlQueryRequest extends S.Class<OntologySparqlQueryReque
  * @category tool-schemas
  * @since 0.0.0
  */
-export class OntologySparqlQueryResponse extends S.Class<OntologySparqlQueryResponse>($I`OntologySparqlQueryResponse`)(
-  { fingerprint: OntologyFingerprint, query: RunOntologySparqlResult },
-  $I.annote("OntologySparqlQueryResponse", {
-    description: "Bounded SPARQL result with the source semantic fingerprint.",
-  })
+export class OntologySparqlQueryResponse extends S.Opaque<
+  OntologySparqlQueryResponse,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ fingerprint: OntologyFingerprint, query: RunOntologySparqlResult }).pipe(
+    $I.annoteSchema("OntologySparqlQueryResponse", {
+      description: "Bounded SPARQL result with the source semantic fingerprint.",
+    })
+  )
 ) {}
 
 /** CAS-safe typed change batch request.
@@ -470,15 +494,16 @@ export class OntologySparqlQueryResponse extends S.Class<OntologySparqlQueryResp
  * @category tool-schemas
  * @since 0.0.0
  */
-export class ProposeChangeBatchRequest extends S.Class<ProposeChangeBatchRequest>($I`ProposeChangeBatchRequest`)(
-  {
+export class ProposeChangeBatchRequest extends S.Opaque<ProposeChangeBatchRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     baseIri: OptionalBaseIri,
     sessionHandle: OptionalSessionHandle,
     expectedFingerprint: OntologyFingerprint,
     operations: S.NonEmptyArray(ChangeOperation),
-  },
-  $I.annote("ProposeChangeBatchRequest", { description: "Apply and CAS-save a typed ontology change batch." })
+  }).pipe(
+    $I.annoteSchema("ProposeChangeBatchRequest", { description: "Apply and CAS-save a typed ontology change batch." })
+  )
 ) {}
 
 /** CAS-safe typed change batch response.
@@ -490,17 +515,21 @@ export class ProposeChangeBatchRequest extends S.Class<ProposeChangeBatchRequest
  * @category tool-schemas
  * @since 0.0.0
  */
-export class ProposeChangeBatchResponse extends S.Class<ProposeChangeBatchResponse>($I`ProposeChangeBatchResponse`)(
-  {
+export class ProposeChangeBatchResponse extends S.Opaque<
+  ProposeChangeBatchResponse,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: OntologyFilePath,
     previousFingerprint: OntologyFingerprint,
     currentFingerprint: OntologyFingerprint,
     appliedOperations: S.NonEmptyArray(ChangeOperation),
     delta: SessionChangeDelta,
-  },
-  $I.annote("ProposeChangeBatchResponse", {
-    description: "Saved ontology change batch with real added and removed deltas.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProposeChangeBatchResponse", {
+      description: "Saved ontology change batch with real added and removed deltas.",
+    })
+  )
 ) {}
 
 /** SHACL validation request.
@@ -512,8 +541,8 @@ export class ProposeChangeBatchResponse extends S.Class<ProposeChangeBatchRespon
  * @category tool-schemas
  * @since 0.0.0
  */
-export class ValidateOntologyRequest extends S.Class<ValidateOntologyRequest>($I`ValidateOntologyRequest`)(
-  {
+export class ValidateOntologyRequest extends S.Opaque<ValidateOntologyRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     baseIri: OptionalBaseIri,
     sessionHandle: OptionalSessionHandle,
@@ -521,8 +550,7 @@ export class ValidateOntologyRequest extends S.Class<ValidateOntologyRequest>($I
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("ValidateOntologyRequest", { description: "Run bounded real-engine SHACL validation." })
+  }).pipe($I.annoteSchema("ValidateOntologyRequest", { description: "Run bounded real-engine SHACL validation." }))
 ) {}
 
 /** SHACL validation response.
@@ -534,11 +562,12 @@ export class ValidateOntologyRequest extends S.Class<ValidateOntologyRequest>($I
  * @category tool-schemas
  * @since 0.0.0
  */
-export class ValidateOntologyResponse extends S.Class<ValidateOntologyResponse>($I`ValidateOntologyResponse`)(
-  { fingerprint: OntologyFingerprint, result: RunOntologyValidationResult },
-  $I.annote("ValidateOntologyResponse", {
-    description: "Bounded SHACL validation result and verified repair proposals.",
-  })
+export class ValidateOntologyResponse extends S.Opaque<ValidateOntologyResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ fingerprint: OntologyFingerprint, result: RunOntologyValidationResult }).pipe(
+    $I.annoteSchema("ValidateOntologyResponse", {
+      description: "Bounded SHACL validation result and verified repair proposals.",
+    })
+  )
 ) {}
 
 /** Verified repair request.
@@ -550,17 +579,18 @@ export class ValidateOntologyResponse extends S.Class<ValidateOntologyResponse>(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class RepairOntologyRequest extends S.Class<RepairOntologyRequest>($I`RepairOntologyRequest`)(
-  {
+export class RepairOntologyRequest extends S.Opaque<RepairOntologyRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     baseIri: OptionalBaseIri,
     sessionHandle: OptionalSessionHandle,
     expectedFingerprint: OntologyFingerprint,
     proposalId: S.NonEmptyString,
-  },
-  $I.annote("RepairOntologyRequest", {
-    description: "Revalidate, select, apply, and CAS-save a P0-registry verified repair proposal.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepairOntologyRequest", {
+      description: "Revalidate, select, apply, and CAS-save a P0-registry verified repair proposal.",
+    })
+  )
 ) {}
 
 /** Verified repair response.
@@ -572,9 +602,16 @@ export class RepairOntologyRequest extends S.Class<RepairOntologyRequest>($I`Rep
  * @category tool-schemas
  * @since 0.0.0
  */
-export class RepairOntologyResponse extends S.Class<RepairOntologyResponse>($I`RepairOntologyResponse`)(
-  { proposal: OntologyRepairProposal, change: ProposeChangeBatchResponse, validation: RunOntologyValidationResult },
-  $I.annote("RepairOntologyResponse", { description: "Applied verified repair with post-save SHACL validation." })
+export class RepairOntologyResponse extends S.Opaque<RepairOntologyResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
+    proposal: OntologyRepairProposal,
+    change: ProposeChangeBatchResponse,
+    validation: RunOntologyValidationResult,
+  }).pipe(
+    $I.annoteSchema("RepairOntologyResponse", {
+      description: "Applied verified repair with post-save SHACL validation.",
+    })
+  )
 ) {}
 
 /** Provenance sidecar export request.
@@ -586,16 +623,19 @@ export class RepairOntologyResponse extends S.Class<RepairOntologyResponse>($I`R
  * @category tool-schemas
  * @since 0.0.0
  */
-export class ExportProvenanceRequest extends S.Class<ExportProvenanceRequest>($I`ExportProvenanceRequest`)(
-  {
+export class ExportProvenanceRequest extends S.Opaque<ExportProvenanceRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     baseIri: OptionalBaseIri,
     sessionHandle: OptionalSessionHandle,
     expectedFingerprint: OntologyFingerprint,
     provPath: OntologyFilePath,
     datasetPath: OntologyFilePath,
-  },
-  $I.annote("ExportProvenanceRequest", { description: "Export PROV-O and dataset-description Turtle sidecars." })
+  }).pipe(
+    $I.annoteSchema("ExportProvenanceRequest", {
+      description: "Export PROV-O and dataset-description Turtle sidecars.",
+    })
+  )
 ) {}
 
 /** Provenance sidecar export response.
@@ -607,9 +647,10 @@ export class ExportProvenanceRequest extends S.Class<ExportProvenanceRequest>($I
  * @category tool-schemas
  * @since 0.0.0
  */
-export class ExportProvenanceResponse extends S.Class<ExportProvenanceResponse>($I`ExportProvenanceResponse`)(
-  { fingerprint: OntologyFingerprint, provPath: OntologyFilePath, datasetPath: OntologyFilePath },
-  $I.annote("ExportProvenanceResponse", { description: "Written ontology provenance sidecar locations." })
+export class ExportProvenanceResponse extends S.Opaque<ExportProvenanceResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ fingerprint: OntologyFingerprint, provPath: OntologyFilePath, datasetPath: OntologyFilePath }).pipe(
+    $I.annoteSchema("ExportProvenanceResponse", { description: "Written ontology provenance sidecar locations." })
+  )
 ) {}
 
 /** Provenance publication request.
@@ -627,8 +668,8 @@ export class ExportProvenanceResponse extends S.Class<ExportProvenanceResponse>(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PublishProvenanceRequest extends S.Class<PublishProvenanceRequest>($I`PublishProvenanceRequest`)(
-  {
+export class PublishProvenanceRequest extends S.Opaque<PublishProvenanceRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     provPath: OntologyFilePath.check(
       S.isPattern(/\.prov\.ttl$/u, {
         identifier: "OntologyPublishProvenanceFilePath",
@@ -640,10 +681,11 @@ export class PublishProvenanceRequest extends S.Class<PublishProvenanceRequest>(
     destination: S.NonEmptyString.annotateKey({
       description: "Absolute URL to publish to; authorized by the governed egress allowlist, never by this schema.",
     }),
-  },
-  $I.annote("PublishProvenanceRequest", {
-    description: "Publish an existing provenance sidecar to a governed egress destination.",
-  })
+  }).pipe(
+    $I.annoteSchema("PublishProvenanceRequest", {
+      description: "Publish an existing provenance sidecar to a governed egress destination.",
+    })
+  )
 ) {}
 
 /** Provenance publication response.
@@ -655,9 +697,10 @@ export class PublishProvenanceRequest extends S.Class<PublishProvenanceRequest>(
  * @category tool-schemas
  * @since 0.0.0
  */
-export class PublishProvenanceResponse extends S.Class<PublishProvenanceResponse>($I`PublishProvenanceResponse`)(
-  { provPath: OntologyFilePath, publishedBytes: S.Natural, status: S.Natural },
-  $I.annote("PublishProvenanceResponse", { description: "Result of a governed provenance publication." })
+export class PublishProvenanceResponse extends S.Opaque<PublishProvenanceResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ provPath: OntologyFilePath, publishedBytes: S.Natural, status: S.Natural }).pipe(
+    $I.annoteSchema("PublishProvenanceResponse", { description: "Result of a governed provenance publication." })
+  )
 ) {}
 
 /** Capability metadata request.
@@ -669,9 +712,10 @@ export class PublishProvenanceResponse extends S.Class<PublishProvenanceResponse
  * @category tool-schemas
  * @since 0.0.0
  */
-export class CapabilityMetadataRequest extends S.Class<CapabilityMetadataRequest>($I`CapabilityMetadataRequest`)(
-  { sessionHandle: OptionalSessionHandle },
-  $I.annote("CapabilityMetadataRequest", { description: "Request ontology toolkit capability metadata." })
+export class CapabilityMetadataRequest extends S.Opaque<CapabilityMetadataRequest, { readonly brand: unique symbol }>()(
+  S.Struct({ sessionHandle: OptionalSessionHandle }).pipe(
+    $I.annoteSchema("CapabilityMetadataRequest", { description: "Request ontology toolkit capability metadata." })
+  )
 ) {}
 
 /** One advertised ontology tool capability.
@@ -683,9 +727,10 @@ export class CapabilityMetadataRequest extends S.Class<CapabilityMetadataRequest
  * @category tool-schemas
  * @since 0.0.0
  */
-export class OntologyToolCapability extends S.Class<OntologyToolCapability>($I`OntologyToolCapability`)(
-  { name: S.NonEmptyString, mutating: S.Boolean },
-  $I.annote("OntologyToolCapability", { description: "Advertised ontology agent tool capability." })
+export class OntologyToolCapability extends S.Opaque<OntologyToolCapability, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.NonEmptyString, mutating: S.Boolean }).pipe(
+    $I.annoteSchema("OntologyToolCapability", { description: "Advertised ontology agent tool capability." })
+  )
 ) {}
 
 /** Capability metadata response.
@@ -697,16 +742,20 @@ export class OntologyToolCapability extends S.Class<OntologyToolCapability>($I`O
  * @category tool-schemas
  * @since 0.0.0
  */
-export class CapabilityMetadataResponse extends S.Class<CapabilityMetadataResponse>($I`CapabilityMetadataResponse`)(
-  {
+export class CapabilityMetadataResponse extends S.Opaque<
+  CapabilityMetadataResponse,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     capabilities: S.Array(OntologyToolCapability),
     budgets: OntologyToolBudgets,
     casAlgorithm: S.Literal("rdfc-1.0"),
     casSemantics: S.Literal("semantic"),
     stateless: S.Literal(true),
     reasonerProfile: S.Literal("structural-rdfs-owl-rl-subset"),
-  },
-  $I.annote("CapabilityMetadataResponse", { description: "Actual ontology toolkit limits and semantics." })
+  }).pipe(
+    $I.annoteSchema("CapabilityMetadataResponse", { description: "Actual ontology toolkit limits and semantics." })
+  )
 ) {}
 
 const makeTool = <Name extends string, Parameters extends S.Top, Success extends S.Top>(

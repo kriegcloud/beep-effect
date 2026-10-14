@@ -28,7 +28,9 @@ const $I = $RepoCliId.create("commands/VersionSync/VersionSync.errors");
  * @category utilities
  * @since 0.0.0
  */
-export class VersionSyncError extends S.TaggedError<VersionSyncError>($I`VersionSyncError`)(
+export class VersionSyncError extends S.TaggedError<VersionSyncError, { readonly brand: unique symbol }>(
+  $I`VersionSyncError`
+)(
   "VersionSyncError",
   {
     message: S.String,
@@ -81,7 +83,9 @@ export class VersionSyncError extends S.TaggedError<VersionSyncError>($I`Version
  * @category utilities
  * @since 0.0.0
  */
-export class NetworkUnavailableError extends S.TaggedError<NetworkUnavailableError>($I`NetworkUnavailableError`)(
+export class NetworkUnavailableError extends S.TaggedError<NetworkUnavailableError, { readonly brand: unique symbol }>(
+  $I`NetworkUnavailableError`
+)(
   "NetworkUnavailableError",
   { message: S.String },
   $I.annoteError<NetworkUnavailableError>("NetworkUnavailableError", {
@@ -111,7 +115,9 @@ export class NetworkUnavailableError extends S.TaggedError<NetworkUnavailableErr
  * @category utilities
  * @since 0.0.0
  */
-export class VersionSyncDriftError extends S.TaggedError<VersionSyncDriftError>($I`VersionSyncDriftError`)(
+export class VersionSyncDriftError extends S.TaggedError<VersionSyncDriftError, { readonly brand: unique symbol }>(
+  $I`VersionSyncDriftError`
+)(
   "VersionSyncDriftError",
   {
     message: S.String,

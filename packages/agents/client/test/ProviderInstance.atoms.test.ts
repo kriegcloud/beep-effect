@@ -4,6 +4,7 @@ import {
   providerInstanceTransportLayerAtom,
 } from "@beep/agents-client/ProviderInstance.service";
 import { ProviderInstance } from "@beep/agents-domain/entities/ProviderInstance";
+import { ProbeProviderInstanceCommand } from "@beep/agents-use-cases";
 import { ProviderInstanceRpcs, ProviderUnauthenticated } from "@beep/agents-use-cases/public";
 import * as Agents from "@beep/shared-domain/identity/Agents";
 import { it } from "@beep/test-runner";
@@ -95,7 +96,7 @@ describe("@beep/agents-client ProviderInstance atoms", { concurrent: false }, ()
         yield* AtomRegistry.getResult(registry, providerInstancesAtom, { suspendOnWaiting: true });
         expect(listReads).toBe(1);
 
-        registry.set(probeProviderInstanceAtom, { id: instance.id });
+        registry.set(probeProviderInstanceAtom, ProbeProviderInstanceCommand.make({ id: instance.id }));
         yield* AtomRegistry.getResult(registry, probeProviderInstanceAtom, { suspendOnWaiting: true });
         yield* AtomRegistry.getResult(registry, providerInstancesAtom, { suspendOnWaiting: true });
 
@@ -115,7 +116,10 @@ describe("@beep/agents-client ProviderInstance atoms", { concurrent: false }, ()
         const registry = yield* AtomRegistry.AtomRegistry;
         yield* AtomRegistry.mount(registry, probeProviderInstanceAtom);
 
-        registry.set(probeProviderInstanceAtom, { id: Agents.ProviderInstanceId.make(7) });
+        registry.set(
+          probeProviderInstanceAtom,
+          ProbeProviderInstanceCommand.make({ id: Agents.ProviderInstanceId.make(7) })
+        );
         yield* AtomRegistry.getResult(registry, probeProviderInstanceAtom, { suspendOnWaiting: true }).pipe(
           Effect.exit
         );

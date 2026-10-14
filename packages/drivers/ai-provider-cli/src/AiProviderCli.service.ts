@@ -53,7 +53,11 @@ const $I = $AiProviderCliId.create("AiProviderCli.service");
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { AiProviderCliProcessResult, type AiProviderCliRunner } from "@beep/ai-provider-cli"
+ * import {
+ *   AiProviderCliProcessResult,
+ *   AiProviderCliRunRequest,
+ *   type AiProviderCliRunner
+ * } from "@beep/ai-provider-cli"
  *
  * const runner: AiProviderCliRunner = (request) =>
  *   Effect.succeed(
@@ -64,9 +68,9 @@ const $I = $AiProviderCliId.create("AiProviderCli.service");
  *     })
  *   )
  *
- * const result = Effect.runSync(runner({
+ * const result = Effect.runSync(runner(AiProviderCliRunRequest.make({
  *   args: ["auth", "status"], env: {}, executable: "claude", provider: "claude"
- * }))
+ * })))
  *
  * console.log(result.stdout) // "claude auth status"
  * ```
@@ -101,8 +105,8 @@ interface AiProviderCliShape {
  * @category models
  * @since 0.0.0
  */
-class AiProviderCliPaths extends S.Class<AiProviderCliPaths>($I`AiProviderCliPaths`)(
-  {
+class AiProviderCliPaths extends S.Opaque<AiProviderCliPaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     claudePath: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed("claude")),
       S.withDecodingDefaultTypeKey(Effect.succeed("claude"))
@@ -115,10 +119,11 @@ class AiProviderCliPaths extends S.Class<AiProviderCliPaths>($I`AiProviderCliPat
     ).annotateKey({
       description: "Executable command or path for Codex CLI auth probes.",
     }),
-  },
-  $I.annote("AiProviderCliPaths", {
-    description: "Configuration for the AI provider CLI executable paths",
-  })
+  }).pipe(
+    $I.annoteSchema("AiProviderCliPaths", {
+      description: "Configuration for the AI provider CLI executable paths",
+    })
+  )
 ) {}
 
 const commandFor = (

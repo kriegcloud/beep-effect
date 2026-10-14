@@ -21,7 +21,7 @@ interface BaseShape {
   readonly id: string;
 }
 
-export class GoldenTicket extends S.Class<GoldenTicket>("GoldenTicket")({
+export class GoldenTicket extends S.Class<GoldenTicket, { readonly brand: unique symbol }>("GoldenTicket")({
   tier: S.String,
 }) {
   static readonly fromWire = (w: string): GoldenTicket => new GoldenTicket({ tier: w });

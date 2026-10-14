@@ -122,18 +122,19 @@ export interface UploadBoxProps
  * @category models
  * @since 0.0.0
  */
-class UploadImagePreview extends S.Class<UploadImagePreview>($I`UploadImagePreview`)(
-  {
+class UploadImagePreview extends S.Opaque<UploadImagePreview, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.File,
     url: BlobObjectUrl.pipe(
       $I.annoteKey("UploadImagePreview.url", {
         description: "Browser object URL owned by the upload preview lifecycle.",
       })
     ),
-  },
-  $I.annote("UploadImagePreview", {
-    description: "Preview URL for a selected image file.",
-  })
+  }).pipe(
+    $I.annoteSchema("UploadImagePreview", {
+      description: "Preview URL for a selected image file.",
+    })
+  )
 ) {}
 
 /**
@@ -222,10 +223,12 @@ const uploadImagePreviewsAtom = Atom.family((files: ReadonlyArray<File>) =>
 
     const previews = A.flatMap(files, (file) =>
       isImageFile(file)
-        ? A.make({
-            file,
-            url: URL.createObjectURL(file),
-          })
+        ? A.make(
+            UploadImagePreview.make({
+              file,
+              url: URL.createObjectURL(file),
+            })
+          )
         : A.empty()
     );
 

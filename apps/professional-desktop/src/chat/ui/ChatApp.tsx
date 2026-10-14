@@ -14,6 +14,7 @@
  */
 "use client";
 
+import { CreateThreadAtomInput } from "@beep/agents-client";
 import { createThreadAtom, selectedThreadAtom, threadsAtoms } from "@beep/agents-client/Chat.atoms";
 import { Button } from "@beep/ui/components/button";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@beep/ui/components/resizable";
@@ -34,6 +35,7 @@ import {
   SIDEBAR_MAX_PERCENT,
   SIDEBAR_MIN_PERCENT,
   SIDEBAR_PANE_ID,
+  SidebarLayoutChanged,
   sidebarPercentAtom,
   sidebarSize,
 } from "./layout.atoms.ts";
@@ -61,7 +63,9 @@ const autoNewThreadBinding = Atom.family((workspaceId: WorkspaceIdentity.Workspa
       Stream.filter(A.isReadonlyArrayEmpty),
       Stream.filter(() => O.isNone(get.once(selectedThreadAtom))),
       Stream.take(1),
-      Stream.runForEach(() => Effect.sync(() => get.set(createThreadAtom, { workspaceId, title: "New thread" })))
+      Stream.runForEach(() =>
+        Effect.sync(() => get.set(createThreadAtom, CreateThreadAtomInput.make({ workspaceId, title: "New thread" })))
+      )
     )
   )
 );
@@ -118,7 +122,9 @@ export function ChatApp(): JSX.Element {
         orientation="horizontal"
         className="min-h-0 flex-1"
         data-testid="chat-panes"
-        onLayoutChanged={(layout, meta) => persistSidebarLayout({ layout, isUserInteraction: meta.isUserInteraction })}
+        onLayoutChanged={(layout, meta) =>
+          persistSidebarLayout(SidebarLayoutChanged.make({ layout, isUserInteraction: meta.isUserInteraction }))
+        }
       >
         {/* Sizes are percent STRINGS. react-resizable-panels reads a bare `number` as
             PIXELS — so `minSize={14} maxSize={40}` pinned the sidebar into a 14-to-40
@@ -161,7 +167,12 @@ export function ChatApp(): JSX.Element {
                         className="mt-4"
                         data-testid="chat-no-thread-create"
                         onClick={() =>
-                          createThread({ workspaceId: DEFAULT_PROFESSIONAL_WORKSPACE_ID, title: "New thread" })
+                          createThread(
+                            CreateThreadAtomInput.make({
+                              workspaceId: DEFAULT_PROFESSIONAL_WORKSPACE_ID,
+                              title: "New thread",
+                            })
+                          )
                         }
                       >
                         + New thread

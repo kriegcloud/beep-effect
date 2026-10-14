@@ -14,7 +14,12 @@ import * as Flag from "effect/cli/Flag";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
-import { isCheckModeFlags, isDryRunModeFlags, isWriteModeFlags } from "./TsconfigSync.schemas.ts";
+import {
+  isCheckModeFlags,
+  isDryRunModeFlags,
+  isWriteModeFlags,
+  TsconfigSyncRunOptions,
+} from "./TsconfigSync.schemas.ts";
 import { syncTsconfigAtRoot } from "./TsconfigSync.service.ts";
 import type { TsconfigSyncMode, TsconfigSyncModeFlags } from "./TsconfigSync.schemas.ts";
 
@@ -82,7 +87,7 @@ export const tsconfigSyncCommand = Command.make(
       ...O.getSomesStruct({ filter }),
     };
 
-    yield* syncTsconfigAtRoot(rootDir, syncOptions).pipe(
+    yield* syncTsconfigAtRoot(rootDir, TsconfigSyncRunOptions.make(syncOptions)).pipe(
       Effect.catchTags({
         TsconfigSyncDriftError: Effect.fn(function* (error) {
           yield* Console.error(`tsconfig-sync: ${error.summary}`);

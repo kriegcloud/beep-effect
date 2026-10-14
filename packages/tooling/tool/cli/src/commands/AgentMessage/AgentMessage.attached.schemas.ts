@@ -25,11 +25,12 @@ const Text = S.NonEmptyString.check(S.isMaxLength(512));
  * @category models
  * @since 0.0.0
  */
-export class AttachedT3NativeBaseline extends S.Class<AttachedT3NativeBaseline>($I`AttachedT3NativeBaseline`)(
-  { sessionId: Text, policy: Text, observedAt: S.Int.check(S.isGreaterThan(0)), source: Text },
-  $I.annote("AttachedT3NativeBaseline", {
-    description: "Host-supplied independent native observation; MCP does not verify it live.",
-  })
+export class AttachedT3NativeBaseline extends S.Opaque<AttachedT3NativeBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({ sessionId: Text, policy: Text, observedAt: S.Int.check(S.isGreaterThan(0)), source: Text }).pipe(
+    $I.annoteSchema("AttachedT3NativeBaseline", {
+      description: "Host-supplied independent native observation; MCP does not verify it live.",
+    })
+  )
 ) {}
 
 /**
@@ -51,8 +52,8 @@ export class AttachedT3NativeBaseline extends S.Class<AttachedT3NativeBaseline>(
  * @category models
  * @since 0.0.0
  */
-export class AttachedT3Profile extends S.Class<AttachedT3Profile>($I`AttachedT3Profile`)(
-  {
+export class AttachedT3Profile extends S.Opaque<AttachedT3Profile, { readonly brand: unique symbol }>()(
+  S.Struct({
     ownershipConfirmed: S.Literal(true),
     threadId: Text,
     projectId: Text,
@@ -74,8 +75,9 @@ export class AttachedT3Profile extends S.Class<AttachedT3Profile>($I`AttachedT3P
     peerExecutable: Text,
     waitTimeoutMs: S.Int.check(S.isBetween({ minimum: 1000, maximum: 120000 })),
     conversationId: LaunchGrant.fields.conversationScope,
-  },
-  $I.annote("AttachedT3Profile", {
-    description: "Private explicit enrollment with exact live T3 configuration and separate native baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttachedT3Profile", {
+      description: "Private explicit enrollment with exact live T3 configuration and separate native baseline.",
+    })
+  )
 ) {}

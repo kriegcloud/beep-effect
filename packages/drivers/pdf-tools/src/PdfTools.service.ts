@@ -131,8 +131,8 @@ export const pinnedFontconfig = ({ fonts, cacheDirectory }: PinnedFontconfigRequ
  * @category services
  * @since 0.0.0
  */
-export class PdfToolsConfig extends S.Class<PdfToolsConfig>($I`PdfToolsConfig`)(
-  {
+export class PdfToolsConfig extends S.Opaque<PdfToolsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     rsvgConvertPath: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed("rsvg-convert")),
       S.annotateKey({ description: "rsvg-convert executable. Defaults to the PATH name." })
@@ -158,10 +158,11 @@ export class PdfToolsConfig extends S.Class<PdfToolsConfig>($I`PdfToolsConfig`)(
         description: "Longest a single tool run may take before it is stopped. Defaults to two minutes.",
       })
     ),
-  },
-  $I.annote("PdfToolsConfig", {
-    description: "Executable paths, per-run timeout, and kill grace period for the PDF tools driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfToolsConfig", {
+      description: "Executable paths, per-run timeout, and kill grace period for the PDF tools driver.",
+    })
+  )
 ) {}
 
 /**

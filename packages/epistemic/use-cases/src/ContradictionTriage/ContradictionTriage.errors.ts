@@ -72,9 +72,10 @@ export type ContradictionTriageOperation = typeof ContradictionTriageOperation.T
  * @category errors
  * @since 0.0.0
  */
-export class ContradictionRepositoryUnavailable extends S.TaggedError<ContradictionRepositoryUnavailable>(
-  $I`ContradictionRepositoryUnavailable`
-)(
+export class ContradictionRepositoryUnavailable extends S.TaggedError<
+  ContradictionRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`ContradictionRepositoryUnavailable`)(
   "ContradictionRepositoryUnavailable",
   {
     cause: S.OptionFromOptionalKey(
@@ -181,9 +182,10 @@ export type ContradictionReviewConflictReason = typeof ContradictionReviewConfli
  * @category errors
  * @since 0.0.0
  */
-export class ContradictionReviewConflict extends S.TaggedError<ContradictionReviewConflict>(
-  $I`ContradictionReviewConflict`
-)(
+export class ContradictionReviewConflict extends S.TaggedError<
+  ContradictionReviewConflict,
+  { readonly brand: unique symbol }
+>($I`ContradictionReviewConflict`)(
   "ContradictionReviewConflict",
   {
     candidateId: Epistemic.ContradictionCandidateId.annotateKey({
@@ -272,9 +274,10 @@ export type ContradictionSubmissionConflictReason = typeof ContradictionSubmissi
  * @category errors
  * @since 0.0.0
  */
-export class ContradictionSubmissionConflict extends S.TaggedError<ContradictionSubmissionConflict>(
-  $I`ContradictionSubmissionConflict`
-)(
+export class ContradictionSubmissionConflict extends S.TaggedError<
+  ContradictionSubmissionConflict,
+  { readonly brand: unique symbol }
+>($I`ContradictionSubmissionConflict`)(
   "ContradictionSubmissionConflict",
   {
     candidateKey: ContradictionCandidateKey.annotateKey({

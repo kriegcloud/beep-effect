@@ -33,14 +33,15 @@ const RepositoryOriginProtocol = LiteralKit(["https:", "ssh:", "git:"]).pipe(
 
 type RepositoryOriginProtocol = typeof RepositoryOriginProtocol.Type;
 
-class CanonicalRepositoryOrigin extends S.Class<CanonicalRepositoryOrigin>($I`CanonicalRepositoryOrigin`)(
-  {
+class CanonicalRepositoryOrigin extends S.Opaque<CanonicalRepositoryOrigin, { readonly brand: unique symbol }>()(
+  S.Struct({
     authority: S.String,
     repositoryPath: S.String,
-  },
-  $I.annote("CanonicalRepositoryOrigin", {
-    description: "Canonical host authority and owner/repository path for a Git remote.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalRepositoryOrigin", {
+      description: "Canonical host authority and owner/repository path for a Git remote.",
+    })
+  )
 ) {}
 
 const isRepositoryOriginProtocol = S.is(RepositoryOriginProtocol);
@@ -280,16 +281,17 @@ export const artifactDirForContext = Effect.fn("Yeet.artifactDirForContext")(fun
  * @category models
  * @since 0.0.0
  */
-export class ProofLedgerLocation extends S.Class<ProofLedgerLocation>($I`ProofLedgerLocation`)(
-  {
+export class ProofLedgerLocation extends S.Opaque<ProofLedgerLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     originRoot: S.NonEmptyString,
     ledgerRoot: S.NonEmptyString,
     ledgerPath: S.NonEmptyString,
-  },
-  $I.annote("ProofLedgerLocation", {
-    description:
-      "The checkout that ran, the owning clone whose proof ledger it shares, and that ledger's path (ruling 71).",
-  })
+  }).pipe(
+    $I.annoteSchema("ProofLedgerLocation", {
+      description:
+        "The checkout that ran, the owning clone whose proof ledger it shares, and that ledger's path (ruling 71).",
+    })
+  )
 ) {}
 
 const GITFILE_PREFIX = "gitdir:";

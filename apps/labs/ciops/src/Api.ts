@@ -29,13 +29,14 @@ const $I = $CiopsId.create("Api");
  * @category schemas
  * @since 0.0.0
  */
-export class Health extends S.Class<Health>($I`Health`)(
-  {
+export class Health extends S.Opaque<Health, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("ok"),
-  },
-  $I.annote("Health", {
-    description: "Service health snapshot returned by GET /health.",
-  })
+  }).pipe(
+    $I.annoteSchema("Health", {
+      description: "Service health snapshot returned by GET /health.",
+    })
+  )
 ) {}
 
 // Not exported: `Api` is the only consumer, and a lab-local export with no

@@ -71,8 +71,8 @@ describe("vault sync command atoms", () => {
       registry.mount(actionA);
       registry.mount(actionB);
 
-      registry.set(actionA, VaultSyncCommand.cases.trigger.make());
-      registry.set(actionB, VaultSyncCommand.cases.trigger.make());
+      registry.set(actionA, VaultSyncCommand.cases.trigger.make({}));
+      registry.set(actionB, VaultSyncCommand.cases.trigger.make({}));
       yield* waitForPanelState(registry, workspaceA, VaultSyncPanelState.guards.syncing);
       yield* waitForPanelState(registry, workspaceB, VaultSyncPanelState.guards.syncing);
 
@@ -109,7 +109,7 @@ describe("vault sync command atoms", () => {
       registry.mount(vaultSyncPanelStateAtoms(workspaceA));
       registry.mount(action);
 
-      registry.set(action, VaultSyncCommand.cases.trigger.make());
+      registry.set(action, VaultSyncCommand.cases.trigger.make({}));
       yield* waitForPanelState(registry, workspaceA, VaultSyncPanelState.guards.syncing);
       registry.set(action, VaultSyncCommand.cases.review.make({ conflictId }));
       yield* Effect.sleep(25);

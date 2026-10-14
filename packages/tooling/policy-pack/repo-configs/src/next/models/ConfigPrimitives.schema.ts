@@ -32,8 +32,8 @@ const StringOrStringArray = S.Union([S.String, StringArray]);
  * @category schemas
  * @since 0.0.0
  */
-export class DomainLocale extends S.Class<DomainLocale>($I`DomainLocale`)(
-  {
+export class DomainLocale extends S.Opaque<DomainLocale, { readonly brand: unique symbol }>()(
+  S.Struct({
     defaultLocale: S.NonEmptyString.annotateKey({
       description: "Default locale served for the configured domain.",
     }),
@@ -42,10 +42,11 @@ export class DomainLocale extends S.Class<DomainLocale>($I`DomainLocale`)(
     }),
     http: S.optionalKey(S.Literal(true).annotateKey({ description: "Whether the domain uses HTTP." })),
     locales: S.optionalKey(StringArray.annotateKey({ description: "Locales served for this domain." })),
-  },
-  $I.annote("DomainLocale", {
-    description: "Locale-specific domain routing entry for Next.js internationalization.",
-  })
+  }).pipe(
+    $I.annoteSchema("DomainLocale", {
+      description: "Locale-specific domain routing entry for Next.js internationalization.",
+    })
+  )
 ) {}
 
 /**
@@ -65,8 +66,8 @@ export class DomainLocale extends S.Class<DomainLocale>($I`DomainLocale`)(
  * @category schemas
  * @since 0.0.0
  */
-export class I18NConfig extends S.Class<I18NConfig>($I`I18NConfig`)(
-  {
+export class I18NConfig extends S.Opaque<I18NConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     defaultLocale: S.NonEmptyString.annotateKey({
       description: "Default locale for the application.",
       documentation: "https://nextjs.org/docs/advanced-features/i18n-routing",
@@ -81,11 +82,12 @@ export class I18NConfig extends S.Class<I18NConfig>($I`I18NConfig`)(
       description: "Locales supported by the application.",
       documentation: "https://nextjs.org/docs/advanced-features/i18n-routing",
     }),
-  },
-  $I.annote("I18NConfig", {
-    description: "Internationalization configuration for a Next.js app.",
-    documentation: "https://nextjs.org/docs/advanced-features/i18n-routing",
-  })
+  }).pipe(
+    $I.annoteSchema("I18NConfig", {
+      description: "Internationalization configuration for a Next.js app.",
+      documentation: "https://nextjs.org/docs/advanced-features/i18n-routing",
+    })
+  )
 ) {}
 
 /**
@@ -102,8 +104,8 @@ export class I18NConfig extends S.Class<I18NConfig>($I`I18NConfig`)(
  * @category schemas
  * @since 0.0.0
  */
-export class TypeScriptConfig extends S.Class<TypeScriptConfig>($I`TypeScriptConfig`)(
-  {
+export class TypeScriptConfig extends S.Opaque<TypeScriptConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     ignoreBuildErrors: S.optionalKey(
       S.Boolean.annotateKey({ description: "Do not run TypeScript during production builds." })
     ),
@@ -113,10 +115,11 @@ export class TypeScriptConfig extends S.Class<TypeScriptConfig>($I`TypeScriptCon
         documentation: "https://nextjs.org/docs/app/api-reference/config/typescript",
       })
     ),
-  },
-  $I.annote("TypeScriptConfig", {
-    description: "Next.js TypeScript configuration block.",
-  })
+  }).pipe(
+    $I.annoteSchema("TypeScriptConfig", {
+      description: "Next.js TypeScript configuration block.",
+    })
+  )
 ) {}
 
 /**
@@ -155,14 +158,32 @@ export const NextParsedUrlQuery = S.Record(S.String, StringOrStringArray).pipe(
  */
 export type NextParsedUrlQuery = typeof NextParsedUrlQuery.Type;
 
-class ExportPathMapEntry extends S.Class<ExportPathMapEntry>($I`ExportPathMapEntry`)(
-  {
+/**
+ * Public export path map entry returned by next.config.js exportPathMap.
+ *
+ * **Example** (Export a dynamic patent page as a static path)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ExportPathMapEntry } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
+ *
+ * const entry = S.decodeUnknownSync(ExportPathMapEntry)({ page: "/patents/[id]", query: { id: "US11234567B2" } })
+ *
+ * console.log(entry.page) // => "/patents/[id]"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ExportPathMapEntry extends S.Opaque<ExportPathMapEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     page: S.String.annotateKey({ description: "Page route that should render this export path." }),
     query: S.optionalKey(NextParsedUrlQuery.annotateKey({ description: "Query parameters for the exported path." })),
-  },
-  $I.annote("ExportPathMapEntry", {
-    description: "Public export path map entry returned by next.config.js exportPathMap.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExportPathMapEntry", {
+      description: "Public export path map entry returned by next.config.js exportPathMap.",
+    })
+  )
 ) {}
 
 /**
@@ -194,8 +215,13 @@ export const ExportPathMap = S.Record(S.String, ExportPathMapEntry).pipe(
  *
  * ```ts
  * import type { ExportPathMap } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
- * const paths: ExportPathMap = { "/": { page: "/" } }
- * console.log(paths)
+ * import { ExportPathMapEntry } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
+ *
+ * const paths: ExportPathMap = {
+ *   "/": ExportPathMapEntry.make({ page: "/" }),
+ *   "/about": ExportPathMapEntry.make({ page: "/about", query: { ref: "nav" } })
+ * }
+ * console.log(paths["/about"]?.page) // /about
  * ```
  *
  * @category models
@@ -203,31 +229,59 @@ export const ExportPathMap = S.Record(S.String, ExportPathMapEntry).pipe(
  */
 export type ExportPathMap = typeof ExportPathMap.Type;
 
-class FetchLoggingConfig extends S.Class<FetchLoggingConfig>($I`FetchLoggingConfig`)(
-  {
+/**
+ * Log full fetch request URLs.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class FetchLoggingConfig extends S.Opaque<FetchLoggingConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     fullUrl: S.optionalKey(S.Boolean.annotateKey({ description: "Log full fetch request URLs." })),
     hmrRefreshes: S.optionalKey(
       S.Boolean.annotateKey({
         description: "If true, fetch requests restored from the HMR cache are logged during an HMR refresh request.",
       })
     ),
-  },
-  $I.annote("FetchLoggingConfig", {
-    description: "Fetch logging configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("FetchLoggingConfig", {
+      description: "Fetch logging configuration.",
+    })
+  )
 ) {}
 
-class IncomingRequestLoggingConfig extends S.Class<IncomingRequestLoggingConfig>($I`IncomingRequestLoggingConfig`)(
-  {
+/**
+ * Incoming request logging ignore rules: regular expressions matching requests that should not be
+ * logged.
+ *
+ * **Example** (Skip health checks in the request log)
+ *
+ * ```ts
+ * import { IncomingRequestLoggingConfig } from "@beep/repo-configs/next/models/ConfigPrimitives.schema"
+ *
+ * const logging = IncomingRequestLoggingConfig.make({ ignore: [/^\/api\/health/, /^\/_next\/static/] })
+ *
+ * console.log(logging.ignore?.some((pattern) => pattern.test("/api/health/live"))) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class IncomingRequestLoggingConfig extends S.Opaque<
+  IncomingRequestLoggingConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ignore: S.optionalKey(
       RegExpArray.annotateKey({
         description: "Regular expressions matching incoming requests that should not be logged.",
       })
     ),
-  },
-  $I.annote("IncomingRequestLoggingConfig", {
-    description: "Incoming request logging ignore rules.",
-  })
+  }).pipe(
+    $I.annoteSchema("IncomingRequestLoggingConfig", {
+      description: "Incoming request logging ignore rules.",
+    })
+  )
 ) {}
 
 /**
@@ -244,8 +298,8 @@ class IncomingRequestLoggingConfig extends S.Class<IncomingRequestLoggingConfig>
  * @category schemas
  * @since 0.0.0
  */
-export class LoggingConfig extends S.Class<LoggingConfig>($I`LoggingConfig`)(
-  {
+export class LoggingConfig extends S.Opaque<LoggingConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     fetches: S.optionalKey(FetchLoggingConfig.annotateKey({ description: "Fetch logging configuration." })),
     incomingRequests: S.optionalKey(
       S.Union([S.Boolean, IncomingRequestLoggingConfig]).annotateKey({
@@ -260,10 +314,11 @@ export class LoggingConfig extends S.Class<LoggingConfig>($I`LoggingConfig`)(
         description: "Forward browser console logs to the terminal.",
       })
     ),
-  },
-  $I.annote("LoggingConfig", {
-    description: "Logging configuration for Next.js.",
-  })
+  }).pipe(
+    $I.annoteSchema("LoggingConfig", {
+      description: "Logging configuration for Next.js.",
+    })
+  )
 ) {}
 
 /**
@@ -341,8 +396,8 @@ export type LightningCssFeature = typeof LightningCssFeature.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class LightningCssFeatures extends S.Class<LightningCssFeatures>($I`LightningCssFeatures`)(
-  {
+export class LightningCssFeatures extends S.Opaque<LightningCssFeatures, { readonly brand: unique symbol }>()(
+  S.Struct({
     include: S.optionalKey(
       LightningCssFeature.pipe(
         S.Array,
@@ -357,8 +412,9 @@ export class LightningCssFeatures extends S.Class<LightningCssFeatures>($I`Light
         S.annotateKey({ description: "Lightning CSS features to always exclude." })
       )
     ),
-  },
-  $I.annote("LightningCssFeatures", {
-    description: "Lightning CSS include/exclude feature configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("LightningCssFeatures", {
+      description: "Lightning CSS include/exclude feature configuration.",
+    })
+  )
 ) {}

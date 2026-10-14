@@ -16,6 +16,7 @@ import {
   LedgerDisposition,
   MechanismClass,
 } from "@beep/repo-ai-metrics";
+import { AiMetricsStateHomeInput } from "@beep/repo-ai-metrics/data-root";
 import { findRepoRoot } from "@beep/repo-utils";
 import { A, O, pipe, Str } from "@beep/utils";
 import * as Config from "effect/Config";
@@ -398,10 +399,12 @@ const resolveHookPulseDir = Effect.gen(function* () {
   if (O.isSome(configuredRoot)) {
     return hookPulseLedgerDir(configuredRoot.value);
   }
-  const stateHome = aiMetricsStateHome({
-    homeDir: yield* Config.option(Config.String("HOME")),
-    stateHome: yield* Config.option(Config.String("XDG_STATE_HOME")),
-  });
+  const stateHome = aiMetricsStateHome(
+    AiMetricsStateHomeInput.make({
+      homeDir: yield* Config.option(Config.String("HOME")),
+      stateHome: yield* Config.option(Config.String("XDG_STATE_HOME")),
+    })
+  );
   return yield* O.match(stateHome, {
     onNone: () =>
       HarnessLedgerInputError.new("Neither XDG_STATE_HOME nor HOME is set; pass --state-dir <hook-events dir>."),

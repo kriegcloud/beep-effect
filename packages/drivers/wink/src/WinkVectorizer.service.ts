@@ -161,7 +161,9 @@ const observeVectorizer = (operation: string) =>
  * @category errors
  * @since 0.0.0
  */
-export class VectorizerError extends S.TaggedError<VectorizerError>($I`VectorizerError`)(
+export class VectorizerError extends S.TaggedError<VectorizerError, { readonly brand: unique symbol }>(
+  $I`VectorizerError`
+)(
   "VectorizerError",
   {
     cause: S.OptionFromOptionalKey(

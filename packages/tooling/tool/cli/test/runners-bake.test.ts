@@ -246,8 +246,8 @@ describe("runner bake schemas", () => {
     [BakeReport],
     ([original]) =>
       Effect.gen(function* () {
-        const encoded = yield* BakeReportJson.encode(original);
-        expect(yield* BakeReportJson.decode(encoded)).toStrictEqual(original);
+        const encoded = yield* BakeReportJson.encode(BakeReport.make(original));
+        expect(yield* BakeReportJson.decode(encoded)).toStrictEqual(BakeReport.make(original));
       }),
     { arbitrary: fcRuns(100) }
   );

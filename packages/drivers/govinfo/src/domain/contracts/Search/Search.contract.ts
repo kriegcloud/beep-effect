@@ -112,7 +112,9 @@ export class Success extends SearchResponse.extend<Success>($I`Success`)(
  * @category errors
  * @since 0.0.0
  */
-export class FailureBadRequest extends S.TaggedError<FailureBadRequest>($I`FailureBadRequest`)(
+export class FailureBadRequest extends S.TaggedError<FailureBadRequest, { readonly brand: unique symbol }>(
+  $I`FailureBadRequest`
+)(
   "FailureBadRequest",
   {
     cause: S.OptionFromOptionalKey(S.Defect().pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))).pipe(
@@ -144,7 +146,9 @@ export class FailureBadRequest extends S.TaggedError<FailureBadRequest>($I`Failu
  * @category errors
  * @since 0.0.0
  */
-export class FailureNotFound extends S.TaggedError<FailureNotFound>($I`FailureNotFound`)(
+export class FailureNotFound extends S.TaggedError<FailureNotFound, { readonly brand: unique symbol }>(
+  $I`FailureNotFound`
+)(
   "FailureNotFound",
   {
     cause: S.OptionFromOptionalKey(S.Defect().pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))).pipe(
@@ -176,9 +180,10 @@ export class FailureNotFound extends S.TaggedError<FailureNotFound>($I`FailureNo
  * @category errors
  * @since 0.0.0
  */
-export class FailureInternalServerError extends S.TaggedError<FailureInternalServerError>(
-  $I`FailureInternalServerError`
-)(
+export class FailureInternalServerError extends S.TaggedError<
+  FailureInternalServerError,
+  { readonly brand: unique symbol }
+>($I`FailureInternalServerError`)(
   "FailureInternalServerError",
   {
     cause: S.OptionFromOptionalKey(S.Defect().pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))).pipe(

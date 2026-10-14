@@ -731,7 +731,7 @@ it.layer(NodeServices.layer)("hook-pulse writer conformance", (it) => {
         const row = expectSingleRow(run);
         const decoded = yield* decodeHookPulseRow(row);
 
-        expect(decoded).toBeInstanceOf(HookPulseV1);
+        expect(S.is(HookPulseV1)(decoded)).toBe(true);
         expect(decoded.schemaVersion).toBe(HookPulseSchemaVersion.Enum["hook-pulse/v1"]);
         expect(decoded.agentKind).toBe(HookPulseAgentKind.Enum["claude-code"]);
         expect(decoded.instrumentClass).toBe(HookPulseInstrumentClass.Enum.production);
