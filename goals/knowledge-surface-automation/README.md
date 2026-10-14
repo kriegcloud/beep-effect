@@ -50,12 +50,21 @@ P4 in progress. Shipped on main so far:
 - **E-3b:** the read-only `beep explore graduate <exploration> --goal <slug>=<title>
   --plan [--json]` compiles a content-addressed `graduation-plan/v1` (one bootstrap
   plan per child, the hash-pinned exploration manifest edit, the refusal matrix, and
-  `alreadyPublished` replay classification). `--write --expect` is E-3c.
+  `alreadyPublished` replay classification).
+- **E-3c:** `explore graduate --write --expect <planId>` publishes the remaining children
+  through `publishBootstrapPlan`, then flips the exploration manifest through the
+  pre-image check adoption shares (`replacePinnedFile`), appends `stage-entered` and
+  `status-set` for explorations with `ops/events/`, and prints a `graduation-receipt/v1`.
+  A crash between children resumes by re-running the same command. Bootstrap, adopt,
+  and graduate are now all self-hosted: this PR graduated
+  `explorations/typed-agent-skill-contracts` with its own executor, publishing
+  `goals/skill-contract-gate-certificates` beside the already-published
+  `goals/skill-contract-kernel` (E17).
 - **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds;
   B-3a classifies drift against upstream path history. B-3b (this PR) adds
   `lock-plan --write --expect <planDigest>`, flips `skills-lock.json` to v2 (6 vendored,
-  31 local), and generates oracle's two-patch series under `.agents/skill-patches/`;
-  receipt in [`research/p4-report-skills-lock-plan.md`](./research/p4-report-skills-lock-plan.md).
+  31 local), and records the remaining local edits as pinned patch series under
+  `.agents/skill-patches/`; receipt in [`research/p4-report-skills-lock-plan.md`](./research/p4-report-skills-lock-plan.md).
 - **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
   FP-eyeball report
   ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
