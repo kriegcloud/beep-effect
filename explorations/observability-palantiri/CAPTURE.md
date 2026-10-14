@@ -32,7 +32,7 @@ and dev tooling across:
 
 - deployed web apps (`apps/oip-web` → oip.law, `apps/todox` → todox.ai, both Next.js on Vercel);
 - `apps/practice-kg-mcp`, a stdio MCP server shipped as an `.mcpb` with a bun-compiled Windows binary, running inside Claude Desktop on a law-firm attorney's PC (privileged) and on the operator's father's PC (dev/QA, lenient);
-- the Tailscale tailnet fleet: `dankstation` (this CachyOS workstation), `dankserver` (Ubuntu homelab, control plane at `~/YeeBois/projects/dankserver`), `beep-worker`, `grok-bot-box-1` (tagged device), an incoming Linux box, `tom-pc-1` and `tom-pc` (two Windows machines; confirm which one is the attorney's working PC), plus ephemeral GitHub Actions runners and vendor cloud VMs;
+- the Tailscale tailnet fleet: `dankstation` (this CachyOS workstation), `dankserver` (Ubuntu homelab, control plane in the machine-local `dankserver` checkout), `beep-worker`, `grok-bot-box-1` (tagged device), an incoming Linux box, `tom-pc-1` and `tom-pc` (two Windows machines; confirm which one is the attorney's working PC), plus ephemeral GitHub Actions runners and vendor cloud VMs;
 - repo tooling (`beep` CLI, yeet proof jobs, beep-heavy queue, scheduler timers, `beep qa`), CI + Turborepo, and the local dev loop (portless dev servers, Storybook, Effect DevTools), with WebStorm integration researched last;
 - every agent harness, both as an **emitter** of attributed telemetry and as a **consumer** of the Palantiri: Claude Code (4 accounts), Codex CLI (4 accounts), Cursor, Grok Build CLI, the Grok bot box, and Muse (`bun run beep accounts status` is the live roster), including LLM quota and account headroom as a first-class signal.
 
@@ -62,7 +62,7 @@ query surface (MCP + CLI), and one place to look, not necessarily one store.
 - The CLI is the primary agent path, not MCP: Claude Code passes `TRACEPARENT` into Bash subprocesses, so `beep …` spans nest under the agent's own trace, while MCP covers clients without a shell. Claude Code strips `OTEL_*` from MCP servers and hooks, so the repo MCP server and CLI carry their own exporter config.
 - Phoenix stays the LLM-trace store whatever the hub becomes (it stores traces only); the collector fans `gen_ai.*` spans to Phoenix and every span to the general store, joined by trace id. A tailnet-only design still needs exactly one authenticated public ingress for Vercel drains and GitHub webhooks.
 - Installed `effect` is 4.0.2 (reference checkout is 4.0.4). Module paths are `effect/http`, `effect/http-api`, `effect/observability`, `effect/devtools`, `effect/eventlog`, `effect/ai`; there is no export under the retired `unstable` path segment. 4.0.4 carries a fix that finishes HTTP server spans before shutdown (matters for short-lived CLI processes).
-- `dankserver` live stack (Ansible-managed, `~/YeeBois/projects/dankserver/docs/monitoring-stack.md`): Grafana 13.2.3, Prometheus 3.15.0 (10y retention, `/srv/data/monitoring` on a dedicated disk), node-exporter 1.12.1, OTel Collector 0.162.0, Arize Phoenix on a dedicated tailnet HTTPS route, restic backups + restore drills, dashboards `dankserver-host-overview`, `dankserver-backup-integrity`, `openclaw-operations`. Claude Code and Codex already export there with the `beep.*` schema (`goals/harness-otel-adoption`, closed 2026-07-25, 98.5% session coverage proven).
+- `dankserver` live stack (Ansible-managed; monitoring-stack documentation in the machine-local `dankserver` checkout): Grafana 13.2.3, Prometheus 3.15.0 (10y retention, `/srv/data/monitoring` on a dedicated disk), node-exporter 1.12.1, OTel Collector 0.162.0, Arize Phoenix on a dedicated tailnet HTTPS route, restic backups + restore drills, dashboards `dankserver-host-overview`, `dankserver-backup-integrity`, `openclaw-operations`. Claude Code and Codex already export there with the `beep.*` schema (`goals/harness-otel-adoption`, closed 2026-07-25, 98.5% session coverage proven).
 - Tailnet health check reports `systemd-resolved`/NetworkManager mis-wiring on `dankstation` (MagicDNS may fail); record it as a prerequisite.
 - The hub compose already allows CORS from `professional-desktop.beep.localhost:1355` and Tauri origins; browser OTLP from the Next.js apps is not wired.
 
@@ -92,7 +92,7 @@ Treat the traps in `adhd/phase1-pool.md` as named non-goals (federated no-backen
 - Reconcile, do not duplicate: `goals/turborepo-cache-trust-observability` (active, owns cache-outcome telemetry) and `explorations/ci-hang-observability` (graduated; its only re-entry is hosted observability).
 - Hub placement inputs: specs, disks, and intended roles of `beep-worker` and the incoming box; migration path for Prometheus/Grafana/Phoenix state via the existing restic repos; what "fully enrolled" means as a checkable trigger.
 - Prometheus 3.x native OTLP receiver and how far back it accepts late samples (laptop backlog replay); Grafana 13 login via Tailscale identity headers; `tailscale serve --service` status.
-- Cursor, Grok Build, Grok bot, and Muse emission hooks: what each harness exposes (env, hooks, transcripts, proxy) and how the CLIProxyAPI (`~/.cli-proxy-api`) could stamp `beep.*` attributes for every proxied request.
+- Cursor, Grok Build, Grok bot, and Muse emission hooks: what each harness exposes (env, hooks, transcripts, proxy) and how the machine-local CLIProxyAPI installation could stamp `beep.*` attributes for every proxied request.
 - Codex `[otel]` exporter syntax; the exact `@vercel/otel` exporter env; Turborepo `--summarize` format.
 - A JS/Bun allowlist-exporter design for the strict tier (no library exists); where Claude Desktop stores MCP stderr and for how long.
 - Measured CPU/battery cost of an OTel collector contrib agent on a Windows laptop; an OTel-hostmetrics-native dashboard worth adopting as-is.
@@ -121,7 +121,7 @@ Suggested graduation order from the report: CLI + parcels first, attribute contr
 
 #### 9. Constraints
 
-- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against `~/YeeBois/references/effect/effect` (never priors); `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
+- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against the local reference checkout of [Effect](https://github.com/Effect-TS/effect) (never priors); `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
 - The repo is public: no corpus content, client data, tokens, `op://` resolutions, or home-absolute paths in packet files; tailnet hostnames are fine, account emails are not.
 - Do not mutate `dankserver`, the tailnet ACL, or any Windows host during the exploration; proposals only, with the exact Ansible/CLI commands the goal packets will run.
 - One PR for the packet; publish through `yeet`; friction receipts into the packet's `research/OPPORTUNITIES.md` as they happen.
