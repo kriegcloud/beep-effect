@@ -2,7 +2,8 @@
  * Goals command group.
  *
  * Goal-packet lifecycle tooling: a generated portfolio index
- * (`beep goals index`), and the single-writer status command
+ * (`beep goals index`), the read-only capability graph (`beep goals next`,
+ * `explain`, `catalog`), and the single-writer status command
  * (`beep goals set-status`) with its mechanical `--migrate` mode.
  *
  * @packageDocumentation
@@ -13,7 +14,9 @@ import { Command } from "effect/cli";
 import { printLines } from "../../internal/cli/Printer.ts";
 import { goalsAdoptCommand } from "./Adopt.ts";
 import { goalsBootstrapCommand } from "./Bootstrap.ts";
+import { goalsCompletionCommand } from "./Completion.ts";
 import { goalsDoctorCommand } from "./Doctor.ts";
+import { goalsCatalogCommand, goalsExplainCommand, goalsNextCommand } from "./Graph.ts";
 import { goalsMigrateConventionsCommand, goalsRepairForkCommand } from "./Migration/Migration.command.ts";
 import { goalsIndexCommand } from "./PortfolioIndex.ts";
 import { goalsSetRiskTierCommand } from "./SetRiskTier.ts";
@@ -36,8 +39,12 @@ import { goalsSetStatusCommand } from "./SetStatus.ts";
 export const goalsCommand = Command.make("goals", {}, () =>
   printLines([
     "Goals commands:",
-    "- bun run beep goals doctor [--write-baseline]",
+    "- bun run beep goals doctor [--online] [--write-baseline]",
+    "- bun run beep goals completion refresh [--slug <slug>]",
     "- bun run beep goals index [--write | --check]",
+    "- bun run beep goals next [--json]",
+    "- bun run beep goals explain <slug> [--json]",
+    "- bun run beep goals catalog [--json]",
     "- bun run beep goals set-status <slug> <status>",
     "- bun run beep goals set-status --migrate [--write]",
     '- bun run beep goals set-risk-tier <slug> <tier> --reason "..."',
@@ -48,11 +55,15 @@ export const goalsCommand = Command.make("goals", {}, () =>
   ])
 ).pipe(
   Command.withDescription(
-    "Goal-packet lifecycle tooling (doctor, index, transitions, bootstrap, adoption, convention migration)"
+    "Goal-packet lifecycle tooling (doctor, index, capability graph, transitions, bootstrap, adoption, convention migration)"
   ),
   Command.withSubcommands([
     goalsDoctorCommand,
+    goalsCompletionCommand,
     goalsIndexCommand,
+    goalsNextCommand,
+    goalsExplainCommand,
+    goalsCatalogCommand,
     goalsSetStatusCommand,
     goalsSetRiskTierCommand,
     goalsBootstrapCommand,

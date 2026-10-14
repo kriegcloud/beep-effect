@@ -16,10 +16,16 @@
       "path": "apps/oip-web"
     },
     {
+      "path": "apps/practice-claude-mod"
+    },
+    {
       "path": "apps/practice-identify"
     },
     {
       "path": "apps/practice-kg-mcp"
+    },
+    {
+      "path": "apps/practice-m365-contacts"
     },
     {
       "path": "apps/practice-mail-tagging"

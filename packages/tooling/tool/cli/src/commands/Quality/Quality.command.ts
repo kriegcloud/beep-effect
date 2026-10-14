@@ -11,6 +11,7 @@ import { LiteralKit } from "@beep/schema";
 import { A, Str, thunkFalse, thunkTrue } from "@beep/utils";
 import * as OptionUtils from "@beep/utils/Option";
 import { getSomesStruct } from "@beep/utils/Option";
+import * as Cause from "effect/Cause";
 import * as Clock from "effect/Clock";
 import * as Console from "effect/Console";
 import { Argument, Command, Flag } from "effect/cli";
@@ -87,7 +88,6 @@ import {
 import { RunJSDocMigrateExtractOptions, runJSDocMigrateExtract } from "./internal/JSDocMigrateExtract.ts";
 import { RunJSDocMigrateTitlesOptions, runJSDocMigrateTitles } from "./internal/JSDocMigrateTitles.ts";
 import { defaultJSDocInventoryPath, defaultJSDocTotalsBaselinePath, runJSDocRatchet } from "./internal/JSDocRatchet.ts";
-import { defaultKnipBaselinePath, runKnipRatchet } from "./internal/KnipRatchet.ts";
 import { runPackageVerifyCli } from "./internal/PackageVerify.ts";
 import { repoRelative } from "./internal/QualityArtifactSupport.ts";
 import { testTsgoSyntheticConfigTemplate } from "./internal/TestTsgoSyntheticConfig.ts";
@@ -336,7 +336,8 @@ const ignoredTestPathSegments = ["/test/fixtures/", "/infra/lambda/"] as const;
 const testSearchRoots = ["apps", "packages", "infra"] as const;
 const moduleTagScannedRoots = [".patterns", "apps", "packages", "tooling"] as const;
 const moduleTagScannedExtensions = [".hbs", ".md", ".ts", ".tsx"] as const;
-const effectDiagnosticsDirectiveScannedRoots = ["apps", "packages", "tooling", "infra", "scratchpad"] as const;
+// Scratchpad is an unshipped lab; its compiler diagnostic experiments are intentionally local.
+const effectDiagnosticsDirectiveScannedRoots = ["apps", "packages", "tooling", "infra"] as const;
 const effectDiagnosticsDirectiveScannedExtensions = [".cts", ".mts", ".ts", ".tsx"] as const;
 const effectDiagnosticsDirectiveIgnoredDirectoryNames = ["node_modules", "dist", "coverage", "tmp"] as const;
 const tsgoProfileScannedRoots = ["apps", "packages", "infra", "scratchpad"] as const;
@@ -446,7 +447,7 @@ export class EffectDiagnosticsDirectiveExemption extends S.Class<EffectDiagnosti
  * which implements `Bun.*` over node builtins before any Effect runtime exists, the root Vitest
  * shared config, whose include list is scanned synchronously before any Effect runtime exists,
  * and the effect-vitest-canon D14 conformance entrypoint. Every other `@effect-diagnostics`
- * directive in a scanned root (`apps`, `packages`, `tooling`, `infra`, `scratchpad`, and the
+ * directive in a scanned root (`apps`, `packages`, `tooling`, `infra`, and the
  * repo-root TypeScript files) fails `beep quality tsgo-rules`; a lane that wants a fourth entry
  * has found a rule-card gap, not a reason to grow this list.
  *
@@ -488,7 +489,7 @@ export const effectDiagnosticsDirectiveExemptions: readonly [
   }),
 ];
 
-const TsgoDisabledRuleName = LiteralKit(["experimentalApiUsage", "unstableApiUsage"]);
+const TsgoDisabledRuleName = LiteralKit(["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage"]);
 
 /**
  * One installed `@effect/tsgo` rule the root profile declares `"off"`, with the reason.
@@ -506,7 +507,7 @@ const TsgoDisabledRuleName = LiteralKit(["experimentalApiUsage", "unstableApiUsa
  *
  * const disabled = TsgoDisabledRule.make({
  *   rule: "unstableApiUsage",
- *   reason: "The repo builds on effect/unstable/* modules by design.",
+ *   reason: "The repo builds on @stability unstable Effect modules by design.",
  * })
  * console.log(disabled.rule) // => "unstableApiUsage"
  * ```
@@ -529,9 +530,11 @@ export class TsgoDisabledRule extends S.Class<TsgoDisabledRule>($I`TsgoDisabledR
  *
  * **Details**
  *
- * Both entries are the stability rules from `@effect/tsgo` 0.47: they flag every import of an
- * API tagged `@stability experimental` or `@stability unstable`, and this repository builds on
- * `effect/unstable/*` (HTTP, HttpApi, CLI, and friends) on purpose.
+ * All three entries are the stability rules: `experimentalApiUsage` and `unstableApiUsage` (from
+ * `@effect/tsgo` 0.47) flag every import of an API tagged `@stability experimental` or
+ * `@stability unstable`, and `apiStabilityLeak` (0.50) flags every untagged export whose types
+ * expose one. This repository builds on Effect's `@stability unstable` modules (`effect/http`,
+ * `effect/http-api`, `effect/cli`, and friends) on purpose.
  *
  * **Example** (Read the disabled rule names)
  *
@@ -540,20 +543,25 @@ export class TsgoDisabledRule extends S.Class<TsgoDisabledRule>($I`TsgoDisabledR
  * import * as A from "effect/Array"
  *
  * console.log(A.map(tsgoDisabledRules, (disabled) => disabled.rule))
- * // => ["experimentalApiUsage", "unstableApiUsage"]
+ * // => ["apiStabilityLeak", "experimentalApiUsage", "unstableApiUsage"]
  * ```
  *
  * @category constants
  * @since 0.0.0
  */
-export const tsgoDisabledRules: readonly [TsgoDisabledRule, TsgoDisabledRule] = [
+export const tsgoDisabledRules: readonly [TsgoDisabledRule, TsgoDisabledRule, TsgoDisabledRule] = [
+  TsgoDisabledRule.make({
+    rule: "apiStabilityLeak",
+    reason:
+      "Untagged @beep exports count as stable, and they expose @stability unstable Effect types by design, so nearly every export would be reported.",
+  }),
   TsgoDisabledRule.make({
     rule: "experimentalApiUsage",
     reason: "Experimental-tagged Effect APIs are adopted deliberately; the stability tag is not a defect signal here.",
   }),
   TsgoDisabledRule.make({
     rule: "unstableApiUsage",
-    reason: "The repository builds on effect/unstable/* modules by design, so every import would be reported.",
+    reason: "The repository builds on @stability unstable Effect modules by design, so every import would be reported.",
   }),
 ];
 
@@ -3422,6 +3430,7 @@ export const runJSDocInventory = Effect.fn("QualityScriptCommands.runJSDocInvent
     rootDir: repoRoot,
     ...OptionUtils.getSomesStruct({ outputJsonPath, outputMarkdownPath, ciOutputJsonPath, ciOutputMarkdownPath }),
   }).pipe(
+    Effect.tapError(flow(Cause.fail, Cause.pretty, Console.error)),
     QualityScriptCommandError.mapError("Failed to generate JSDoc documentation inventory.", {
       command: "bun run beep quality jsdoc-inventory",
       exitCode: 1,
@@ -3770,27 +3779,6 @@ const jsdocMigrateCommand = Command.make("jsdoc-migrate", {}, () =>
     jsdocMigrateVerifyCommand,
   ])
 );
-
-const knipCommand = Command.make(
-  "knip",
-  {
-    baseline: Flag.String("baseline").pipe(
-      Flag.withDefault(defaultKnipBaselinePath),
-      Flag.withDescription("Committed Knip regression baseline JSONC path")
-    ),
-    writeBaseline: Flag.Boolean("write-baseline").pipe(
-      Flag.withDefault(false),
-      Flag.withDescription("Rewrite the Knip regression baseline from the current normalized finding set")
-    ),
-  },
-  ({ baseline, writeBaseline }) =>
-    runQualityProgram(
-      runKnipRatchet({
-        baselinePath: baseline,
-        writeBaseline,
-      })
-    )
-).pipe(Command.withDescription("Run Knip as a fail-on-growth regression-baseline gate"));
 
 const cachePolicyCommand = Command.make("cache-policy", {}, () =>
   findRepoRoot().pipe(Effect.flatMap((root) => runCachePolicyAudit(root, false)))
@@ -4465,8 +4453,6 @@ export const qualityCommand = Command.make("quality", {}, () =>
     "- bun run beep quality jsdoc-ratchet --write-baseline",
     "- bun run beep quality jsdoc-migrate extract",
     "- bun run beep quality jsdoc-migrate apply --dry-run --synthetic-titles",
-    "- bun run beep quality knip",
-    "- bun run beep quality knip --write-baseline",
     "- bun run beep quality turbo-config-proof --base origin/main --head HEAD",
     "- bun run beep quality profile detect",
     "- bun run beep quality tmpfs-reap [--apply] [--json]",
@@ -4491,7 +4477,6 @@ export const qualityCommand = Command.make("quality", {}, () =>
     jsdocQualityCommand,
     jsdocRatchetCommand,
     jsdocMigrateCommand,
-    knipCommand,
     turboConfigProofCommand,
     cachePolicyCommand,
     qualityProfileCommand,

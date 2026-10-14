@@ -12,6 +12,11 @@
     // The `service` AppKind's entry point; peer of the labs-depth glob below.
     "apps/*/src/main.ts",
     "apps/*/src/index.ts",
+    // The builder is invoked by plugin:build; its generated entry imports
+    // these hooks, and Claude Code loads engine tests outside Vitest.
+    "apps/practice-claude-mod/src/build-plugin.ts",
+    "apps/practice-claude-mod/src/PracticeMod.hooks.ts",
+    "apps/practice-claude-mod/plugin-test/*.test.ts",
     "apps/*/next.config.ts",
     "apps/*/vite.config.ts",
     "apps/*/src/app/layout.tsx",
@@ -104,10 +109,13 @@
     "packages/ontology/ui/src/aggregates/Session/Session.validation.tsx",
     "packages/ontology/ui/src/aggregates/Session/Session.workbench.tsx"
   ],
-  // Approximates dead-code path suppression; Knip remains authoritative for unmigrated workspace/binary policy.
+  // Approximates dead-code path suppression; Knip retired in October 2026; narrower detection is accepted.
   "ignorePatterns": [
     // The GitHub Copilot Impeccable tree mirrors the analyzed Claude Code source.
     ".github/skills/impeccable/**",
+    // Vendored upstream skill tree (shadcn showcase assets and scripts) pinned by
+    // skills-lock.json; beep skills update rewrites it byte-for-byte from upstream.
+    ".claude/skills/shadcn/**",
     // Claude Code launches these by path from .claude/settings.json (the two
     // graft shims and the repo-owned loader); no import graph reaches them.
     ".claude/helpers/**",
@@ -202,6 +210,8 @@
     "**/plugins.ts"
   ],
   "ignoreDependencies": [
+    // The host engine supplies claude-code and claude-code/testing at runtime.
+    "claude-code",
     // brace-expansion, fast-uri, hono, nanoid: root `dependencies` entries that exist solely to
     // back the security-pin `overrides` in package.json; nothing imports them at root.
     "brace-expansion",
@@ -224,6 +234,10 @@
     // statelyai is the Stately CLI (`bunx statelyai scan|open`, see
     // docs/runbooks/xstate-effect-statecharts.md): invoked as a binary, never imported.
     "statelyai",
+    // opentype.js: @beep/technical-drawing loads the font parser for its operator font-file
+    // route through a non-literal dynamic import, so its DOM-typed declarations stay out of
+    // the type program (same ignore in knip.jsonc); fallow cannot trace that import.
+    "opentype.js",
     "babel-plugin-transform-next-use-client",
     "@babel/plugin-transform-export-namespace-from",
     "@babel/plugin-transform-modules-commonjs",
@@ -355,7 +369,11 @@
     // Vendored Impeccable scripts keep their upstream shape; dependency graph
     // analysis above must not opt that vendor tree into authored-code cloning.
     // The two graft shims are one-line delegations to the repo-owned loader.
-    "ignore": [".claude/skills/impeccable/**", ".claude/helpers/**"]
+    "ignore": [
+      ".claude/skills/impeccable/**",
+      ".claude/skills/shadcn/**",
+      ".claude/helpers/**"
+    ]
   },
   "health": {
     // Complexity ceilings — ratified 2026-07-30 (law in standards/effect-laws-v1.md;
@@ -372,7 +390,11 @@
     // while its module graph remains visible to dead-code dependency analysis.
     // The graft shims are generated; the loader's platform trust checks are
     // security-boundary code kept whole rather than split for a ceiling.
-    "ignore": [".claude/skills/impeccable/**", ".claude/helpers/**"],
+    "ignore": [
+      ".claude/skills/impeccable/**",
+      ".claude/skills/shadcn/**",
+      ".claude/helpers/**"
+    ],
     "thresholdOverrides": [
       {
         "files": [

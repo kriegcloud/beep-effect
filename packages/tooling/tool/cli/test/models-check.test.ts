@@ -32,6 +32,7 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import {
   FixtureCatalogSources,
+  FixtureCatalogSourcesCursorOnly,
   FixtureCatalogSourcesWithoutProxy,
   readFixtureText,
 } from "./helpers/models-fixtures.ts";
@@ -176,27 +177,30 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       const settingsPath = path.join(root, "settings.json");
       yield* fs.writeFileString(
         manifestPath,
-        [
-          "version: beep-models/v1",
-          "bindings:",
-          "  - role: orchestrator",
-          "    surface: claude-code",
-          "    modelId: claude-opus-5",
-          "    effort: medium",
-          "targets:",
-          "  - id: claude.settings",
-          "    root: repo",
-          "    path: settings.json",
-          "    optional: false",
-          "    locators:",
-          "      - _tag: json-key",
-          "        binding: { role: orchestrator, surface: claude-code, field: effort }",
-          "        render: { _tag: verbatim }",
-          '        pointer: [modelSettings, "{model}", effortLevel]',
-          "        fallbacks: [[effortLevel]]",
-          "superseded: []",
-          "",
-        ].join("\n")
+        A.join(
+          [
+            "version: beep-models/v1",
+            "bindings:",
+            "  - role: orchestrator",
+            "    surface: claude-code",
+            "    modelId: claude-opus-5",
+            "    effort: medium",
+            "targets:",
+            "  - id: claude.settings",
+            "    root: repo",
+            "    path: settings.json",
+            "    optional: false",
+            "    locators:",
+            "      - _tag: json-key",
+            "        binding: { role: orchestrator, surface: claude-code, field: effort }",
+            "        render: { _tag: verbatim }",
+            '        pointer: [modelSettings, "{model}", effortLevel]',
+            "        fallbacks: [[effortLevel]]",
+            "superseded: []",
+            "",
+          ],
+          "\n"
+        )
       );
       const effortFindings = Effect.fnUntraced(function* (settings: unknown) {
         yield* fs.writeFileString(settingsPath, yield* encodeJsonText(settings));
@@ -341,6 +345,26 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
     })
   );
 
+  it.effect("reports a retired model before invalid effort when grok-cache and router-for-me answer", () =>
+    Effect.gen(function* () {
+      const workspace = yield* stageWorkspace("manifest-retired-effort.yaml");
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.writeFileString(`${workspace.root}/locators.env`, "GROK_RETIRED_MODEL=grok-4.5\n");
+      const check = yield* ModelsCheck;
+      const report = yield* check.run(
+        ModelsCheckOptions.make({
+          home: workspace.root,
+          repo: workspace.root,
+          manifestPath: workspace.manifestPath,
+          offline: false,
+        })
+      );
+      expect(report.catalog.sources).toContain("grok-cache");
+      expect(report.catalog.sources).toContain("router-for-me");
+      expect(kindsOf(report)).toEqual(["retired.grok:unknown-model"]);
+    })
+  );
+
   it.effect("round-trips the report through its encoded form", () =>
     Effect.gen(function* () {
       const report = yield* runCheck("manifest.yaml");
@@ -363,6 +387,13 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       // binding names a model this box cannot route on that surface — even
       // though the file already holds the id the manifest asks for.
       expect(kindsOf(report)).toEqual(["proxy.env:unknown-model"]);
+    })
+  );
+
+  it.effect("accepts a Junie binding without a catalog overlay for JetBrains-route models", () =>
+    Effect.gen(function* () {
+      const report = yield* runCheck("manifest-junie.yaml");
+      expect(report.findings).toEqual([]);
     })
   );
 
@@ -409,6 +440,28 @@ layer(Layer.mergeAll(platform, modelsWithoutProxy), { timeout: "30 seconds" })((
 
       strictEqual(report.hasDrift, false);
       expect(A.map(report.findings, (entry) => entry.targetId)).not.toContain("proxy.env");
+    })
+  );
+});
+
+layer(
+  Layer.mergeAll(
+    platform,
+    Layer.mergeAll(
+      ModelsCatalogLive,
+      ModelsCheckLive,
+      ModelsLedgerLive,
+      ModelsLocatorReaderLive,
+      ModelsManifestStoreLive,
+      FixtureCatalogSourcesCursorOnly
+    ).pipe(Layer.provide(platform))
+  ),
+  { timeout: "30 seconds" }
+)((it) => {
+  it.effect("does not infer Codex retirement from a Cursor-only offline catalog", () =>
+    Effect.gen(function* () {
+      const { report } = yield* runCheckIn("manifest-codex-current.yaml", true);
+      expect(report.findings).toEqual([]);
     })
   );
 });

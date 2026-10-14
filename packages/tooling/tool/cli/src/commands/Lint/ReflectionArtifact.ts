@@ -16,7 +16,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { A, thunkFalse } from "@beep/utils";
+import { A, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as Console from "effect/Console";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -31,6 +31,7 @@ import { parse } from "jsonc-parser";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { optionalProp } from "../../internal/cli/OptionRecord.ts";
 import { makePolicyFindingLogger } from "../../internal/cli/PolicyFindingLogger.ts";
+import { extractFrontmatter } from "../../internal/schema/Frontmatter.ts";
 import { decodeYamlTextWith } from "../../internal/schema/TextCodec.ts";
 import { GoalStatus } from "../Goals/Goals.schemas.ts";
 
@@ -162,20 +163,6 @@ const { log: logPolicyFinding } = makePolicyFindingLogger({
 
 const decodeFrontmatter = decodeYamlTextWith(S.decodeUnknownEffect(ReflectionFrontmatter));
 
-const normalizeFrontmatterNewlines = Str.replace(/\r\n/g, "\n");
-
-const extractFrontmatter = (raw: string): O.Option<string> => {
-  const normalized = normalizeFrontmatterNewlines(raw);
-  if (!Str.startsWith("---")(normalized)) {
-    return O.none();
-  }
-  const rest = Str.slice(3)(normalized);
-  return pipe(
-    Str.indexOf("\n---")(rest),
-    O.map((endIndex) => Str.trim(Str.slice(0, endIndex)(rest)))
-  );
-};
-
 const frontmatterIsValid = (raw: string): Effect.Effect<boolean> =>
   O.match(extractFrontmatter(raw), {
     onNone: () => Effect.succeed(false),
@@ -233,11 +220,14 @@ export const reflectionFileNameIsArtifact = (file: string): boolean => REFLECTIO
 const readManifestStatus = (manifest: unknown): { readonly status: string; readonly reflectionRequired: boolean } => {
   const record = (manifest ?? {}) as Record<string, unknown>;
   const initiative = (record.initiative ?? {}) as Record<string, unknown>;
-  const status = [initiative.status, record.status, record.lifecycle]
-    .map((value) => (P.isString(value) ? value : ""))
-    .find((value) => value.length > 0);
+  const status = pipe(
+    [initiative.status, record.status, record.lifecycle],
+    A.map((value) => (P.isString(value) ? value : "")),
+    A.findFirst((value) => value.length > 0),
+    O.getOrElse(thunkEmptyStr)
+  );
   const reflectionRequired = record.reflectionRequired === true || initiative.reflectionRequired === true;
-  return { status: status ?? "", reflectionRequired };
+  return { status, reflectionRequired };
 };
 
 const makeFinding = (

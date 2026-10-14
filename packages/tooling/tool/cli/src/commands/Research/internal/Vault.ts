@@ -2,13 +2,13 @@
  * Vault filesystem helpers for research knowledge cards.
  *
  * The vault is a plain-markdown, Obsidian-compatible directory tree. Cards are
- * rendered with strict, stable YAML frontmatter but parsed leniently because
- * the owner hand-edits them.
+ * rendered with strict, stable YAML frontmatter for the owner to hand-edit.
  *
  * @internal
  * @packageDocumentation
  * @since 0.0.0
  */
+import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
@@ -19,11 +19,10 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Yaml from "yaml";
 import { ResearchCommandError } from "../Research.errors.ts";
-import { KnowledgeCardFrontmatter } from "../Research.schemas.ts";
+import type { KnowledgeCardFrontmatter } from "../Research.schemas.ts";
 
 /**
  * Environment variable naming the default vault root.
@@ -31,7 +30,7 @@ import { KnowledgeCardFrontmatter } from "../Research.schemas.ts";
  * @internal
  * @category utilities
  */
-export const VAULT_ENV_VAR = "BEEP_KNOWLEDGE_VAULT";
+const VAULT_ENV_VAR = "BEEP_KNOWLEDGE_VAULT";
 
 const DEFAULT_VAULT_RELATIVE = "YeeBois/knowledge";
 
@@ -49,8 +48,6 @@ export const VAULT_DIRS = {
   state: ".beep",
   xPosts: "sources/x-posts",
 } as const;
-
-const decodeFrontmatter = S.decodeUnknownEffect(KnowledgeCardFrontmatter);
 
 /** Frontmatter property to YAML key mapping, in render order. */
 const FRONTMATTER_KEYS = [
@@ -117,11 +114,12 @@ export const normalizeUrl = (rawUrl: string): Effect.Effect<string, ResearchComm
     try: () => {
       const url = new URL(rawUrl);
       url.hash = "";
-      const params = [...url.searchParams.entries()]
-        .filter(([key]) => !key.startsWith("utm_") && key !== "fbclid" && key !== "gclid" && key !== "ref")
-        .sort(([a], [b]) => a.localeCompare(b));
+      const params = A.filter(
+        [...url.searchParams.entries()],
+        ([key]) => !key.startsWith("utm_") && key !== "fbclid" && key !== "gclid" && key !== "ref"
+      ).sort(([a], [b]) => a.localeCompare(b));
       url.search = "";
-      params.forEach(([key, value]) => url.searchParams.append(key, value));
+      A.forEach(params, ([key, value]) => url.searchParams.append(key, value));
       if (url.pathname !== "/" && url.pathname.endsWith("/")) {
         url.pathname = url.pathname.slice(0, -1);
       }
@@ -187,45 +185,12 @@ export const renderCard: {
   (body: string): (frontmatter: KnowledgeCardFrontmatter) => string;
   (frontmatter: KnowledgeCardFrontmatter, body: string): string;
 } = dual(2, (frontmatter: KnowledgeCardFrontmatter, body: string): string => {
-  const yamlSource: Array<readonly [string, unknown]> = FRONTMATTER_KEYS.flatMap(([prop, key]) => {
+  const yamlSource: Array<readonly [string, unknown]> = A.flatMap(FRONTMATTER_KEYS, ([prop, key]) => {
     const value = frontmatter[prop];
     return P.isUndefined(value) ? [] : [[key, value] as const];
   });
   const rendered = Yaml.stringify(R.fromEntries(yamlSource), { lineWidth: 0 });
   return `---\n${rendered}---\n\n${body.trimEnd()}\n`;
-});
-
-/**
- * Parse a knowledge card leniently: tolerate missing collection fields and
- * unknown keys, but fail on a missing or malformed frontmatter fence.
- *
- * @internal
- * @category utilities
- */
-export const parseCard = Effect.fn("ResearchVault.parseCard")(function* (
-  cardPath: string,
-  content: string
-): Effect.fn.Return<{ readonly body: string; readonly frontmatter: KnowledgeCardFrontmatter }, ResearchCommandError> {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n?/);
-  if (P.isNull(match)) {
-    return yield* ResearchCommandError.make({ message: `Card "${cardPath}" has no YAML frontmatter fence.` });
-  }
-  const raw = yield* Effect.try({
-    catch: (cause) => ResearchCommandError.new(cause, `Card "${cardPath}" has malformed YAML frontmatter.`),
-    try: () => Yaml.parse(match[1] ?? "") as Record<string, unknown>,
-  });
-  const presentEntries: Array<readonly [string, unknown]> = FRONTMATTER_KEYS.flatMap(([prop, key]) =>
-    P.isUndefined(raw[key]) ? [] : [[prop, raw[key]] as const]
-  );
-  const withDefaults = {
-    related: [],
-    tags: [],
-    ...R.fromEntries(presentEntries),
-  };
-  const frontmatter = yield* decodeFrontmatter(withDefaults).pipe(
-    ResearchCommandError.mapError(`Card "${cardPath}" frontmatter failed schema validation.`)
-  );
-  return { body: content.slice(match[0].length).replace(/^\n+/, ""), frontmatter };
 });
 
 /**

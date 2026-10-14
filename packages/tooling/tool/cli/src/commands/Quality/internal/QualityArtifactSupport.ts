@@ -180,7 +180,7 @@ export const defaultRepoRoot = fileURLToPath(new URL("../../../../../../../..", 
  * @category configuration
  * @since 0.0.0
  */
-export const sourceExtensions = [".ts", ".tsx"];
+const sourceExtensions = [".ts", ".tsx"];
 
 /**
  * Source filename suffixes ignored by Quality artifact generators.
@@ -188,7 +188,7 @@ export const sourceExtensions = [".ts", ".tsx"];
  * @category configuration
  * @since 0.0.0
  */
-export const ignoredSourceSuffixes = [".d.ts"];
+const ignoredSourceSuffixes = [".d.ts"];
 
 /**
  * Read a UTF-8 text file through the Effect filesystem service.
@@ -196,7 +196,7 @@ export const ignoredSourceSuffixes = [".d.ts"];
  * @category filesystem
  * @since 0.0.0
  */
-export const readText = Effect.fn("QualityArtifactSupport.readText")(function* (
+const readText = Effect.fn("QualityArtifactSupport.readText")(function* (
   filePath: string
 ): Effect.fn.Return<string, QualityArtifactGeneratorError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
@@ -281,7 +281,7 @@ export const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|
  * @category paths
  * @since 0.0.0
  */
-export const resolveEntryWithinRoot = Effect.fn("QualityArtifactSupport.resolveEntryWithinRoot")(function* (
+const resolveEntryWithinRoot = Effect.fn("QualityArtifactSupport.resolveEntryWithinRoot")(function* (
   root: string,
   entryPath: string,
   path: Path.Path
@@ -299,7 +299,7 @@ export const resolveEntryWithinRoot = Effect.fn("QualityArtifactSupport.resolveE
  * @category filesystem
  * @since 0.0.0
  */
-export const readPackageJson = Effect.fn("QualityArtifactSupport.readPackageJson")(function* (
+const readPackageJson = Effect.fn("QualityArtifactSupport.readPackageJson")(function* (
   filePath: string
 ): Effect.fn.Return<PackageJson, QualityArtifactGeneratorError, FileSystem.FileSystem> {
   const json = yield* readJsonc(filePath);
@@ -318,7 +318,7 @@ export const readPackageJson = Effect.fn("QualityArtifactSupport.readPackageJson
  * @category filesystem
  * @since 0.0.0
  */
-export const readRootPackage = Effect.fn("QualityArtifactSupport.readRootPackage")(function* (
+const readRootPackage = Effect.fn("QualityArtifactSupport.readRootPackage")(function* (
   repoRoot: string,
   path: Path.Path
 ): Effect.fn.Return<PackageJson, QualityArtifactGeneratorError, FileSystem.FileSystem> {
@@ -333,7 +333,7 @@ export const readRootPackage = Effect.fn("QualityArtifactSupport.readRootPackage
  * @category workspaces
  * @since 0.0.0
  */
-export const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string> => {
+const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string> => {
   if (A.isArray(workspaces)) {
     return A.filter(workspaces, P.isString);
   }
@@ -353,7 +353,7 @@ export const workspacePatternsFrom = (workspaces: unknown): ReadonlyArray<string
  * @category workspaces
  * @since 0.0.0
  */
-export const expandWorkspacePattern: {
+const expandWorkspacePattern: {
   (
     pattern: string,
     repoRoot: string,
@@ -582,9 +582,21 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
         continue;
       }
       const absolutePath = safeEntry.value;
-      const stat = yield* fs
-        .stat(absolutePath)
-        .pipe(QualityArtifactGeneratorError.mapError(`Failed to stat ${absolutePath}.`, { filePath: absolutePath }));
+      // The containment guard also accepts not-yet-created write targets by
+      // canonicalizing their existing ancestors. Broken symlinks (or entries
+      // removed after enumeration) can therefore pass it but have no stat.
+      const maybeStat = yield* fs.stat(absolutePath).pipe(
+        Effect.asSome,
+        Effect.catchIf(
+          (error) => P.isTagged("NotFound")(error.reason),
+          () => Effect.succeedNone
+        ),
+        QualityArtifactGeneratorError.mapError(`Failed to stat ${absolutePath}.`, { filePath: absolutePath })
+      );
+      if (O.isNone(maybeStat)) {
+        continue;
+      }
+      const stat = maybeStat.value;
 
       if (stat.type === "Directory") {
         if (entry === "node_modules" || entry === "dist" || entry === "build" || entry === ".turbo") {

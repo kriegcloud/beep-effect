@@ -167,7 +167,7 @@ describe("yeet merge-loop command wiring", () => {
       yield* fs.writeFileString(`${root}/bun.lock`, "");
       yield* fs.writeFileString(
         `${root}/package.json`,
-        yield* S.encodeUnknownEffect(S.fromJsonString(S.Unknown))({ name: "yeet-command-fixture", workspaces: [] })
+        yield* S.encodeUnknownEffect(FixturePackageJson)({ name: "yeet-command-fixture", workspaces: [] })
       );
       const encoder = new TextEncoder();
       const handle = (output: string) =>
@@ -542,7 +542,7 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("push-first publish gate",
           mutability: "readonly",
           resume: "never",
         });
-      const gate = step("full:00-cheap-gates", "full", 'console.log("knip: 1 unused export"); process.exitCode = 23');
+      const gate = step("full:00-cheap-gates", "full", 'console.log("fallow: 1 unused export"); process.exitCode = 23');
       const push = step("publish:01-git-push", "publish", 'console.log("must not push")');
       const create = step("publish:02-pr-create", "publish", 'console.log("must not open a PR")');
       const submit = step(MONITOR_READY_SUBMIT_STEP_ID, "monitor", 'console.log("must not submit")');
@@ -568,7 +568,7 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("push-first publish gate",
       expect(error.message).toContain("cheap-gates failed");
       expect(error.message).toContain("nothing was pushed");
       expect(A.map(yield* Ref.get(recorder), (entry) => entry.step.id)).toEqual(["full:00-cheap-gates"]);
-    }, provideScopedLayer(commandTestLayer))
+    })
   );
 });
 
@@ -580,12 +580,9 @@ describe("yeet monitor command routing", () => {
     [false, false, true, false, "merge-loop"],
     [false, true, false, true, "watch"],
     [false, false, false, false, "classic"],
-  ] as const)(
-    "routes plan=%s untilEvent=%s untilMerged=%s watch=%s to %s",
-    (plan, untilEvent, untilMerged, watch, route) => {
-      expect(yeetMonitorCommandRoute({ plan, untilEvent, untilMerged, watch })).toBe(route);
-    }
-  );
+  ] as const)("routes plan=%s untilEvent=%s untilMerged=%s watch=%s to %s", (plan, untilEvent, untilMerged, watch, route) => {
+    expect(yeetMonitorCommandRoute({ plan, untilEvent, untilMerged, watch })).toBe(route);
+  });
 
   it.effect("rejects --until-event before hydrating a monitor when --watch is absent", () =>
     Effect.gen(function* () {
@@ -979,12 +976,15 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("publish readiness-monitor
       const registered = `${root}/registered.txt`;
       // The fake submit takes long enough that an unlocked second publish would
       // read the registry before this one registers its job.
-      const submitSource = [
-        'const fs = require("node:fs");',
-        "Bun.sleepSync(400);",
-        `fs.appendFileSync("${submits}", "submitted\\n");`,
-        `fs.writeFileSync("${registered}", "1");`,
-      ].join(" ");
+      const submitSource = A.join(
+        [
+          'const fs = require("node:fs");',
+          "Bun.sleepSync(400);",
+          `fs.appendFileSync("${submits}", "submitted\\n");`,
+          `fs.writeFileSync("${registered}", "1");`,
+        ],
+        " "
+      );
       const first = yield* tailFixture(root, submitSource);
       const second = yield* tailFixture(root, submitSource);
       const listJobs = () =>
@@ -1060,3 +1060,4 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("publish readiness-monitor
     })
   );
 });
+const FixturePackageJson = S.fromJsonString(S.Unknown);

@@ -546,6 +546,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
             [
               ["log --no-merges", 0, "feat(repo-cli): ship\n"],
               ["log --reverse", 0, "## feat(repo-cli): ship\n"],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "main\n"],
               ["gh pr create", 0, `${PR_URL}\n`],
               ["gh pr view", 0, prView()],
             ],
@@ -556,7 +557,10 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
         expect(pullRequest.created).toBe(true);
         assertSome(pullRequest.url, PR_URL);
         const create = A.findFirst(yield* Ref.get(commands), Str.startsWith("gh pr create"));
-        assertSome(O.map(create, Str.startsWith("gh pr create --title feat(repo-cli): ship --body-file ")), true);
+        assertSome(
+          O.map(create, Str.startsWith("gh pr create --base main --title feat(repo-cli): ship --body-file ")),
+          true
+        );
         expect(laneRows(yield* Ref.get(recorder))).toEqual([
           [createStep.id, undefined, 0, PR_URL],
           [
@@ -582,6 +586,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
             [
               ["log --no-merges", 0, "feat(repo-cli): ship\n"],
               ["log --reverse", 0, "## feat(repo-cli): ship\n"],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "main\n"],
               ["gh pr create --draft", 0, ""],
               ["gh pr view", 0, prView({ url: PR_URL })],
             ],
@@ -616,6 +621,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
               ["gh pr create", 1, "GraphQL: API rate limit exceeded"],
               ["git remote get-url --push origin", 0, "git@github.com:fork-owner/beep-effect.git"],
               ["gh api repos/{owner}/{repo}/pulls?head=", 0, "[]"],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "main\n"],
               ["gh api -X POST repos/{owner}/{repo}/pulls", 0, `${PR_URL}\n`],
               ["gh pr view", 0, prView({ headRefName: branch })],
             ],
@@ -633,6 +639,90 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
       })
     );
 
+    it.effect("opens both creation paths on the default branch, not the --base planning ref", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-pr-rest-default-" });
+        const commands = yield* makeCommands;
+        const recorder = yield* makeRecorder;
+        const context = RepoRunContext.make({ ...contextAt(root), base: "origin/goals/push-first-publish" });
+        const pullRequest = yield* ensurePullRequest(context, recorder, O.some(createStep), O.none(), {
+          findOpen: () => Effect.succeedNone,
+        }).pipe(
+          withProcesses(
+            [
+              ["log --no-merges", 0, "feat(repo-cli): ship\n"],
+              ["log --reverse", 0, "## feat(repo-cli): ship\n"],
+              ["gh pr create", 1, "GraphQL: API rate limit exceeded"],
+              ["git remote get-url --push origin", 0, "git@github.com:beep-effect/beep-effect.git"],
+              ["gh api repos/{owner}/{repo}/pulls?head=", 0, "[]"],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "trunk\n"],
+              ["gh api -X POST repos/{owner}/{repo}/pulls", 0, `${PR_URL}\n`],
+              ["gh pr view", 0, prView({ url: PR_URL })],
+            ],
+            commands
+          )
+        );
+        expect(pullRequest.created).toBe(true);
+        const issued = yield* Ref.get(commands);
+        expect(A.some(issued, Str.includes("base=trunk"))).toBe(true);
+        expect(A.some(issued, Str.includes("gh pr create --base trunk"))).toBe(true);
+        expect(A.some(issued, Str.includes("base=goals/push-first-publish"))).toBe(false);
+      })
+    );
+
+    it.effect("fails PR creation before gh pr create when the default branch read fails", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-pr-no-default-" });
+        const commands = yield* makeCommands;
+        const recorder = yield* makeRecorder;
+        const error = yield* ensurePullRequest(contextAt(root), recorder, O.some(createStep), O.none(), {
+          findOpen: () => Effect.succeedNone,
+        }).pipe(
+          Effect.flip,
+          withProcesses(
+            [
+              ["log --no-merges", 0, "feat(repo-cli): ship\n"],
+              ["log --reverse", 0, "## feat(repo-cli): ship\n"],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 1, "HTTP 502: Bad Gateway"],
+            ],
+            commands
+          )
+        );
+        expect(error.message).toBe("GitHub REST default branch read failed:\nHTTP 502: Bad Gateway");
+        expect(error.exitCode).toBe(1);
+        const issued = yield* Ref.get(commands);
+        expect(A.some(issued, Str.startsWith("gh pr create"))).toBe(false);
+        expect(A.some(issued, Str.includes("-X POST"))).toBe(false);
+      })
+    );
+
+    it.effect("fails PR creation with a nonzero exit when the default branch read prints nothing", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-pr-empty-default-" });
+        const commands = yield* makeCommands;
+        const recorder = yield* makeRecorder;
+        const error = yield* ensurePullRequest(contextAt(root), recorder, O.some(createStep), O.none(), {
+          findOpen: () => Effect.succeedNone,
+        }).pipe(
+          Effect.flip,
+          withProcesses(
+            [
+              ["log --no-merges", 0, "feat(repo-cli): ship\n"],
+              ["log --reverse", 0, "## feat(repo-cli): ship\n"],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "\n"],
+            ],
+            commands
+          )
+        );
+        expect(error.message).toBe("GitHub REST default branch read returned no branch.");
+        expect(error.exitCode).toBe(1);
+        expect(A.some(yield* Ref.get(commands), Str.startsWith("gh pr create"))).toBe(false);
+      })
+    );
+
     it.effect("reuses the existing PR when REST finds one after a GraphQL creation failure", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -646,6 +736,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
             [
               ["log --no-merges", 0, "feat(repo-cli): ship\n"],
               ["log --reverse", 0, "## feat(repo-cli): ship\n"],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "main\n"],
               ["gh pr create", 1, "GraphQL: API rate limit already exceeded"],
               ["git remote get-url --push origin", 0, "git@github.com:beep-effect/beep-effect.git"],
               ["gh api repos/{owner}/{repo}/pulls?head=", 0, `[${prView({ url: PR_URL })}]`],
@@ -672,6 +763,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
             [
               ["log --no-merges", 0, "feat(repo-cli): ship\n"],
               ["log --reverse", 0, "## feat(repo-cli): ship\n"],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "main\n"],
               ["gh pr create", 1, "a pull request for this branch already exists"],
             ],
             commands
@@ -716,6 +808,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
           withProcesses(
             [
               ["log --reverse", 0, `## ${MERGE_TITLE}\n`],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "main\n"],
               ["gh pr create --draft", 0, `${PR_URL}\n`],
               ["gh pr view", 0, prView()],
             ],
@@ -726,7 +819,10 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
         const lines = yield* Ref.get(commands);
         const create = A.findFirst(lines, Str.startsWith("gh pr create"));
         assertSome(
-          O.map(create, Str.startsWith("gh pr create --draft --title feat(repo-cli): title from message --body-file ")),
+          O.map(
+            create,
+            Str.startsWith("gh pr create --draft --base main --title feat(repo-cli): title from message --body-file ")
+          ),
           true
         );
         expect(A.some(lines, Str.includes("--pretty=%s"))).toBe(false);
@@ -746,6 +842,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
             [
               ["log --no-merges", 0, "feat(repo-cli): first real change\nfix(repo-cli): follow-up\n"],
               ["log --reverse", 0, `## feat(repo-cli): first real change\n\n## ${MERGE_TITLE}\n`],
+              ["gh api repos/{owner}/{repo} --jq .default_branch", 0, "main\n"],
               ["gh pr create", 0, `${PR_URL}\n`],
               ["gh pr view", 0, prView()],
             ],
@@ -757,7 +854,10 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet pull request l
         expect(A.some(lines, Str.includes("log -1 --pretty=%s"))).toBe(false);
         const create = A.findFirst(lines, Str.startsWith("gh pr create"));
         assertSome(
-          O.map(create, Str.startsWith("gh pr create --title feat(repo-cli): first real change --body-file ")),
+          O.map(
+            create,
+            Str.startsWith("gh pr create --base main --title feat(repo-cli): first real change --body-file ")
+          ),
           true
         );
       })
@@ -1220,7 +1320,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       _tag: "blocked",
       blocker: "no-required-red",
       detail:
-        "1 required check(s) are failing on head unknown; a red required check means the content is not final. Pending checks and optional lanes do not hold the flip",
+        '1 required check(s) are failing on head unknown; a red required check means the content is not final. Pending checks and optional lanes do not hold the flip; under S11, attribute a red inherited from main with --inherited "<check>=<attribution>"',
     });
     // Every criterion holds, yet the read carries no pull request number to
     // flip: the gate refuses on its first criterion instead of guessing one.
@@ -1235,18 +1335,19 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
     });
   });
 
-  it.effect("flips the draft when its own status read holds the gate, twice", () =>
+  it.effect("flips the draft after three status reads with an injected body recorder", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const root = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-ready-flip-" });
       const commands = yield* makeCommands;
       const flips = yield* Ref.make<ReadonlyArray<number>>([]);
       const decision = yield* runYeetReadyGate(contextAt(root), {
+        recordInherited: () => Effect.void,
         markReady: (prNumber) => Ref.update(flips, A.append(prNumber)),
       }).pipe(withProcesses(greenDraft, commands));
       expect(decision).toMatchObject({ _tag: "flip", prNumber: 7 });
       const ran = yield* Ref.get(commands);
-      expect(A.length(A.filter(ran, Str.startsWith("gh pr view --json id,number")))).toBe(2);
+      expect(A.length(A.filter(ran, Str.startsWith("gh pr view --json id,number")))).toBe(3);
       expect(yield* Ref.get(flips)).toEqual([7]);
     })
   );
@@ -1261,6 +1362,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       yield* fs.writeFileString(path.join(root, ".beep", "yeet", "jobs"), "not a directory");
       const commands = yield* makeCommands;
       const decision = yield* runYeetReadyGate(contextAt(root), {
+        recordInherited: () => Effect.void,
         markReady: () => Effect.void,
         read: () => Effect.succeed(readOf(remoteOf())),
       }).pipe(withProcesses([], commands));
@@ -1304,6 +1406,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       });
       const asked = yield* Ref.make<ReadonlyArray<number>>([]);
       const decision = yield* runYeetReadyGate(contextAt("/repo"), {
+        recordInherited: () => Effect.void,
         markReady: () => Effect.void,
         findMonitor: (_context, prNumber) => Ref.update(asked, A.append(prNumber)).pipe(Effect.as(O.some(monitor))),
         read: () => Effect.succeed(readOf(remoteOf())),
@@ -1341,7 +1444,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready native repo 
       const fs = yield* FileSystem.FileSystem;
       const packetDir = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-ready-command-" });
       const commands = yield* makeCommands;
-      const error = yield* runYeetReady(YeetReadyOptions.make({ base: "origin/main", head: "HEAD", packetDir })).pipe(
+      const error = yield* runYeetReady(
+        YeetReadyOptions.make({ base: "origin/main", head: "HEAD", packetDir, inherited: [] })
+      ).pipe(
         Effect.flip,
         withProcesses(
           [

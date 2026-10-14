@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -42,13 +42,21 @@ in [`MAP.md`](../../explorations/domain-layer-hardening/MAP.md).
 
 ## Current Phase
 
-`P1 Implement` — apply the measured GeneratedByApp nullable codecs with
-constructor and decoding defaults; add the error role module and generated
-migration under the explicit SPEC contract. P0 prototype has been reverted.
+`P3 Close` — complete. P0/P1/P2 merged via #1577, #1593 and #1599;
+this wave retains the packet with its reflection and owner-command completion
+transition. Implementation is merged; P3 publication readiness is recorded in
+the handoff separately from hosted merge readiness.
 
 ## Latest Evidence
 
-`research/p0-kernel-surface-2026-10-09.md` — completed surface map, both encoding measurements, chosen design and migration preview.
+[`history/reflections/2026-10-09-codex.md`](history/reflections/2026-10-09-codex.md)
+critiques tooling, implementation and the prompt, with owner follow-ups.
+[`history/handoffs/domain-kernel-2026-10-09.md`](history/handoffs/domain-kernel-2026-10-09.md)
+retains the P0-P3 receipts and proof limits: four default P2 package proofs,
+492 six-server tests (one skipped), 120 coverage tests with executable entity
+rows at 100%, migration drift and desktop bundle parity. P2 inherited UI,
+Accounts and JSDoc failures remain attributed under D27; no baseline waiver.
+P0 grounding remains at `research/p0-kernel-surface-2026-10-09.md`.
 
 ## Notes
 

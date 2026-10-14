@@ -48,7 +48,6 @@ import {
   compareCoverageRegressionSnapshotsForTesting,
   compareCoverageRegressionSnapshotsWithProposedForTesting,
   compareJSDocTotalsForTesting,
-  compareKnipFindingsForTesting,
   coverageBaselineChangeSetFromChangedFiles,
   coverageBaselineRowDelta,
   coverageBaselineRowDeltaFromBase,
@@ -88,11 +87,9 @@ import {
   githubCheckQualityLanesForTesting,
   githubCheckRepoSanityLanesForTesting,
   githubCheckTierConcurrency,
-  KnipFinding,
   LaneProofSession,
   lintFixChangedStepForTesting,
   missingTestTsgoTaskMessageForTesting,
-  normalizeKnipReportForTesting,
   parseQualityTaskInvocation,
   persistLaneProofs,
   planCoverageAffectedScope,
@@ -687,23 +684,26 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             const repoRoot = yield* fs.makeTempDirectoryScoped({ prefix: "quality-bun-audit-" });
             yield* fs.writeFileString(
               path.join(repoRoot, "osv-scanner.toml"),
-              [
-                "[[IgnoredVulns]]",
-                'id = "GHSA-active"',
-                "",
-                "[[IgnoredVulns]]",
-                'id = "GHSA-expired"',
-                "ignoreUntil = definitely-not-a-date",
-                "",
-                "[[PackageOverrides]]",
-                'name = "braces"',
-                'version = "3.0.3"',
-                'ecosystem = "npm"',
-                "ignore = true",
-                "effectiveUntil = 2999-01-01T00:00:00Z",
-                'reason = "GHSA-vfj7-8cjw-p6xm is reviewed for this exact package version."',
-                "",
-              ].join("\n")
+              A.join(
+                [
+                  "[[IgnoredVulns]]",
+                  'id = "GHSA-active"',
+                  "",
+                  "[[IgnoredVulns]]",
+                  'id = "GHSA-expired"',
+                  "ignoreUntil = definitely-not-a-date",
+                  "",
+                  "[[PackageOverrides]]",
+                  'name = "braces"',
+                  'version = "3.0.3"',
+                  'ecosystem = "npm"',
+                  "ignore = true",
+                  "effectiveUntil = 2999-01-01T00:00:00Z",
+                  'reason = "GHSA-vfj7-8cjw-p6xm is reviewed for this exact package version."',
+                  "",
+                ],
+                "\n"
+              )
             );
             yield* fs.writeFileString(path.join(repoRoot, "bun.lock"), '{"packages":{"braces":["braces@3.0.3"]}}');
 
@@ -722,15 +722,18 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
     );
 
     it("mirrors exact package overrides only for their sole unexpired lockfile version", () => {
-      const config = [
-        "[[PackageOverrides]]",
-        'name = "braces"',
-        'version = "3.0.3"',
-        'ecosystem = "npm"',
-        "ignore = true",
-        "effectiveUntil = 2026-10-16T00:00:00Z",
-        'reason = "GHSA-vfj7-8cjw-p6xm reviewed."',
-      ].join("\n");
+      const config = A.join(
+        [
+          "[[PackageOverrides]]",
+          'name = "braces"',
+          'version = "3.0.3"',
+          'ecosystem = "npm"',
+          "ignore = true",
+          "effectiveUntil = 2026-10-16T00:00:00Z",
+          'reason = "GHSA-vfj7-8cjw-p6xm reviewed."',
+        ],
+        "\n"
+      );
       const now = DateTime.makeUnsafe("2026-10-02T00:00:00Z");
       const select = (lock: string, at = now) => selectOsvPackageOverrideIdsForAudit(config, lock, at);
 
@@ -827,25 +830,27 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         });
       }));
 
-    it.each(["op://vault/item/field", "postgres://user:op://vault/item/password@host/db"])(
-      "clears unresolved SQL test references for package audit: %s",
-      (value) =>
-        withEnvVar("BEEP_TEST_DATABASE_URL", value, () => {
-          const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "packages"]));
+    it.each([
+      "op://vault/item/field",
+      "postgres://user:op://vault/item/password@host/db",
+    ])("clears unresolved SQL test references for package audit: %s", (value) =>
+      withEnvVar("BEEP_TEST_DATABASE_URL", value, () => {
+        const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "packages"]));
 
-          expect(steps[0]?.env?.BEEP_TEST_DATABASE_URL).toBe("");
-        })
-    );
+        expect(steps[0]?.env?.BEEP_TEST_DATABASE_URL).toBe("");
+      }));
 
-    it.each([undefined, "", "postgres://localhost/beep_test", "postgresql://localhost/beep_test"])(
-      "preserves ordinary SQL test configuration for package audit: %s",
-      (value) =>
-        withEnvVar("BEEP_TEST_DATABASE_URL", value, () => {
-          const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "packages"]));
+    it.each([
+      undefined,
+      "",
+      "postgres://localhost/beep_test",
+      "postgresql://localhost/beep_test",
+    ])("preserves ordinary SQL test configuration for package audit: %s", (value) =>
+      withEnvVar("BEEP_TEST_DATABASE_URL", value, () => {
+        const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "packages"]));
 
-          expect(steps[0]?.env?.BEEP_TEST_DATABASE_URL).toBeUndefined();
-        })
-    );
+        expect(steps[0]?.env?.BEEP_TEST_DATABASE_URL).toBeUndefined();
+      }));
 
     it("keeps package audit cacheable by default for local runs", () =>
       withEnvVar("CI", undefined, () => {
@@ -1014,7 +1019,6 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:lint",
         "quality:lint-policy",
         "quality:check",
-        "quality:knip",
         "quality:shadcn-lint",
         "quality:jsdoc-ratchet",
         "quality:docgen",
@@ -1040,7 +1044,6 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "origin/main",
         "--summarize",
       ]);
-      expect(qualityLaneArgs(lanes, "quality:knip")).toEqual(expectedTurboArgs("knip:check", ["--summarize"]));
       expect(qualityLaneArgs(lanes, "quality:shadcn-lint")).toEqual(["run", "beep", "ci", "lane", "shadcn-lint"]);
       assert.deepStrictEqual(
         O.map(
@@ -1072,12 +1075,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "repo-sanity:tsconfig-sync",
         "lint:effect-imports",
         "lint:effect-imports-markdown",
+        "lint:retired-effect-paths",
         "lint:schema-first",
         "lint:effect-vitest",
         "lint:allowlist",
         "goals:doctor",
         "quality:jsdoc-ratchet:committed",
-        "quality:knip",
         "fallow:audit",
         "fallow:dead-code",
         "fallow:health",
@@ -1092,6 +1095,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       );
       expect(qualityLaneArgs(lanes, "lint:effect-imports-markdown")).toEqual(
         expectedTurboArgs("lint:effect-imports-markdown", ["--summarize"])
+      );
+      expect(qualityLaneArgs(lanes, "lint:retired-effect-paths")).toEqual(
+        expectedTurboArgs("lint:retired-effect-paths", ["--summarize"])
       );
       expect(qualityLaneArgs(lanes, "lint:effect-vitest")).toEqual(["run", "beep", "lint", "effect-vitest"]);
       expect(qualityLaneArgs(lanes, "quality:jsdoc-ratchet:committed")).toEqual([
@@ -1129,13 +1135,6 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       // D9: the cheap tier runs four abreast; heavy pre-push lanes stay serial.
       expect(githubCheckTierConcurrency("cheap-gates")).toBe(4);
       expect(githubCheckTierConcurrency("pre-push")).toBe(1);
-      // The same command keeps its id across tiers, so the lane-proof ledger can match it.
-      expect(
-        A.map(
-          A.filter(cheapGateLanes, (lane) => lane.id === "quality:knip"),
-          (lane) => lane.step.args
-        )
-      ).toEqual([qualityLaneArgs(prePushLanes, "quality:knip")]);
     });
 
     // ship-velocity B1: a local green must mean what a hosted green means, so the
@@ -3511,10 +3510,13 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
     it("collects Effect tsgo warnings from successful package results", () => {
       const diagnostics = collectEffectTsgoDiagnosticLines([
         {
-          output: [
-            "src/example.test.ts:1:1 - warning TS90001: unsafe effect(service) usage",
-            "src/example.test.ts:2:1 - warning TS99999: unrelated diagnostic",
-          ].join("\n"),
+          output: A.join(
+            [
+              "src/example.test.ts:1:1 - warning TS90001: unsafe effect(service) usage",
+              "src/example.test.ts:2:1 - warning TS99999: unrelated diagnostic",
+            ],
+            "\n"
+          ),
         },
       ]);
 
@@ -3598,51 +3600,6 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         );
       }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
-
-    it.effect("normalizes Knip findings with stable ordering and without position fields", () =>
-      Effect.gen(function* () {
-        const findings = yield* normalizeKnipReportForTesting(
-          yield* encodeJson({
-            issues: [
-              {
-                file: "b.ts",
-                exports: [{ name: "Beta", line: 5, col: 14, pos: 100 }],
-              },
-              {
-                file: "a.ts",
-                dependencies: [{ name: "left-pad", line: 10, col: 6, pos: 220 }],
-                files: [{ name: "a.ts" }],
-              },
-            ],
-          })
-        );
-
-        expect(findings).toEqual([
-          KnipFinding.make({ kind: "dependencies", file: "a.ts", name: "left-pad" }),
-          KnipFinding.make({ kind: "exports", file: "b.ts", name: "Beta" }),
-          KnipFinding.make({ kind: "files", file: "a.ts", name: "a.ts" }),
-        ]);
-      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make), TestClock.withLive)
-    );
-
-    it("compares Knip findings as fail-on-growth and advisory shrinkage", () => {
-      const inherited = KnipFinding.make({ kind: "exports", file: "src/a.ts", name: "legacy" });
-      const removed = KnipFinding.make({ kind: "dependencies", file: "package.json", name: "unused-lib" });
-      const introduced = KnipFinding.make({ kind: "types", file: "src/b.ts", name: "NewType" });
-
-      expect(compareKnipFindingsForTesting([inherited], [removed, inherited])).toMatchObject({
-        current_count: 1,
-        baseline_count: 2,
-        introduced: [],
-        resolved: [removed],
-      });
-      expect(compareKnipFindingsForTesting([inherited, introduced], [inherited])).toMatchObject({
-        current_count: 2,
-        baseline_count: 1,
-        introduced: [introduced],
-        resolved: [],
-      });
-    });
 
     it("compares JSDoc totals as fail-on-growth and advisory shrinkage", () => {
       expect(
@@ -3744,6 +3701,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:policy:cheap",
         "lint:policy:medium",
         "lint:policy:state",
+        "knowledge:doctor",
         "lint:deprecated-apis",
         "quality:test-tsgo",
       ]);
@@ -3768,6 +3726,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "lint:circular",
         "lint:effect-imports",
         "lint:effect-imports-markdown",
+        "lint:retired-effect-paths",
         "lint:tsconfig-overlay",
         "lint:package-test-typecheck",
         "lint:effect-vitest",
@@ -3785,7 +3744,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "jsdoc:inventory:check",
         "jsdoc:ratchet:check",
       ]);
-      for (const index of [0, 1, 3]) {
+      for (const index of [0, 1, 4]) {
         const step = O.getOrThrow(A.get(local, index));
         expect(step.args).toContain("--affected");
         expect(policyTurboScmBase(step)).toBe("review-base");
@@ -3793,7 +3752,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       }
       expect(local[2]?.args).not.toContain("--affected");
       expect(policyTurboScmBase(O.getOrThrow(A.get(local, 2)))).toBeUndefined();
-      for (const step of A.take(local, 4)) {
+      expect(O.getOrThrow(A.get(local, 3)).args).toEqual(repoCliEntryArgs("knowledge", "doctor", "--report"));
+      for (const step of A.filter(A.take(local, 5), (planned) => planned.label !== "knowledge:doctor")) {
         expect(step.args).toContain("--summarize");
         expect(step.args).toContain("--continue=dependencies-successful");
         expect(step.args).not.toContain(LABS_EXCLUDE_FILTER);
@@ -3810,18 +3770,24 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(A.map(full, (step) => step.label)).toEqual([
         "lint:policy:cheap",
         "lint:policy:medium",
+        "knowledge:doctor",
         "lint:jsdoc",
         "lint:deprecated-apis",
         "quality:test-tsgo",
       ]);
       expect(taskNames(O.getOrThrow(A.get(full, 1)))).toEqual([
-        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(10)),
+        ...pipe(A.get(local, 1), O.getOrThrow, taskNames, A.take(11)),
         ...pipe(A.get(local, 2), O.getOrThrow, taskNames),
       ]);
-      // A local full-scope plan (no review base) leaves the two git-delta knowledge checks
-      // to the hosted plan; the changed-scope state phase still carries them.
+      // A local full-scope plan (no review base) leaves the two git-delta knowledge checks and the
+      // report-only knowledge doctor to the hosted plan; the changed-scope plan still carries them.
       const localFull = rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, false);
-      expect(A.map(localFull, (step) => step.label)).toEqual(A.map(full, (step) => step.label));
+      expect(A.map(localFull, (step) => step.label)).toEqual(
+        A.filter(
+          A.map(full, (step) => step.label),
+          (label) => label !== "knowledge:doctor"
+        )
+      );
       expect(pipe(A.get(localFull, 1), O.getOrThrow, taskNames)).toEqual(
         pipe(
           A.get(full, 1),
@@ -3909,7 +3875,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "jsdoc:ratchet:check",
           "lint:shadcn",
           "lint:effect-vitest",
+          "lint:retired-effect-paths",
           "quality:test-tsgo",
+          "knowledge:doctor",
         ];
         expect(
           A.sort(
@@ -3984,8 +3952,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             '{"schemaVersion":"lint-policy-sweeps/v1","deprecatedApis":"shards"}'
           );
           yield* fs.makeDirectory(binDir, { recursive: true });
-          yield* fs.writeFileString(fakeBunxPath, ["#!/usr/bin/env sh", "exit 0", ""].join("\n"));
-          yield* fs.writeFileString(fakeBunPath, ["#!/usr/bin/env sh", "exit 0", ""].join("\n"));
+          yield* fs.writeFileString(fakeBunxPath, A.join(["#!/usr/bin/env sh", "exit 0", ""], "\n"));
+          yield* fs.writeFileString(fakeBunPath, A.join(["#!/usr/bin/env sh", "exit 0", ""], "\n"));
           yield* fs.chmod(fakeBunxPath, 0o755);
           yield* fs.chmod(fakeBunPath, 0o755);
 
@@ -6546,7 +6514,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           packageNames: ["@beep/a"],
           dependentPackageNames: [],
         });
-        expect(planCoverageAffectedScope(owners, ["standards/knip.regression-baseline.jsonc"])).toMatchObject({
+        expect(planCoverageAffectedScope(owners, ["standards/jsdoc-totals.regression-baseline.jsonc"])).toMatchObject({
           _tag: "full",
         });
       });
@@ -7403,7 +7371,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           const repoRoot = process.cwd();
           const filePath = path.join(repoRoot, "packages/example/src/Index.ts");
           const fileWith = (tag: string) =>
-            ["/**", " * Fixture module.", " *", ` * @${tag} example`, " */", "export const v = 1;", ""].join("\n");
+            A.join(["/**", " * Fixture module.", " *", ` * @${tag} example`, " */", "export const v = 1;", ""], "\n");
 
           yield* fs.makeDirectory(path.dirname(filePath), { recursive: true });
           yield* fs.writeFileString(filePath, fileWith("module"));
@@ -8108,25 +8076,31 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory(binDir, { recursive: true });
           yield* fs.writeFileString(
             fakeBunxPath,
-            [
-              "#!/usr/bin/env sh",
-              "printf 'bunx %s\\n' \"$*\" >> quality-commands.log",
-              'if [ "$1" = "turbo" ] && [ "$2" = "run" ] && [ "$3" = "lint" ]; then',
-              "  exit 7",
-              "fi",
-              "exit 0",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                "#!/usr/bin/env sh",
+                "printf 'bunx %s\\n' \"$*\" >> quality-commands.log",
+                'if [ "$1" = "turbo" ] && [ "$2" = "run" ] && [ "$3" = "lint" ]; then',
+                "  exit 7",
+                "fi",
+                "exit 0",
+                "",
+              ],
+              "\n"
+            )
           );
           yield* fs.writeFileString(
             fakeBunPath,
-            [
-              "#!/usr/bin/env sh",
-              "printf 'bun %s\\n' \"$*\" >> quality-commands.log",
-              'case " $* " in *" cache execute -- run lint "*) exit 7 ;; esac',
-              "exit 0",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                "#!/usr/bin/env sh",
+                "printf 'bun %s\\n' \"$*\" >> quality-commands.log",
+                'case " $* " in *" cache execute -- run lint "*) exit 7 ;; esac',
+                "exit 0",
+                "",
+              ],
+              "\n"
+            )
           );
           yield* fs.chmod(fakeBunxPath, 0o755);
           yield* fs.chmod(fakeBunPath, 0o755);
@@ -8544,13 +8518,71 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 // an in-repo rule module (which ESLint's own config digest cannot see) starts an empty cache.
 describe("root ESLint cache key", () => {
   it.layer(FileSystemLayer, { timeout: "30 seconds" })((it) => {
-    it.effect("digests the flat config, tsdoc tags and every policy-pack ESLint source", () =>
+    it.effect("skips nested package markers without losing installed or workspace package identities", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped();
+        yield* fs.makeDirectory(path.join(root, "packages/tooling/policy-pack/repo-configs/src"), { recursive: true });
+        yield* fs.makeDirectory(path.join(root, "node_modules/eslint"), { recursive: true });
+        yield* fs.writeFileString(
+          path.join(root, "node_modules/eslint/package.json"),
+          '{"name":"eslint","version":"9.0.0","main":"index.js"}'
+        );
+        yield* fs.writeFileString(path.join(root, "node_modules/eslint/index.js"), "module.exports = {};\n");
+        const installed = path.join(root, "node_modules/eslint-plugin-fixture");
+        const first = path.join(root, "workspace/eslint-plugin-first");
+        const second = path.join(root, "workspace/eslint-plugin-second");
+        for (const directory of [installed, first, second]) {
+          yield* fs.makeDirectory(path.join(directory, "dist/cjs"), { recursive: true });
+          yield* fs.writeFileString(path.join(directory, "dist/cjs/package.json"), '{"type":"commonjs"}');
+          yield* fs.writeFileString(path.join(directory, "dist/cjs/index.js"), "module.exports = { rules: {} };\n");
+        }
+        const writeManifest = Effect.fnUntraced(function* (directory: string, name: string, version: string) {
+          yield* fs.writeFileString(
+            path.join(directory, "package.json"),
+            `{"name":"${name}","version":"${version}","main":"dist/cjs/index.js"}`
+          );
+        });
+        yield* writeManifest(installed, "eslint-plugin-fixture", "1.0.0");
+        yield* writeManifest(first, "eslint-plugin-first", "1.0.0");
+        yield* writeManifest(second, "eslint-plugin-second", "1.0.0");
+        yield* fs.symlink(first, path.join(root, "node_modules/eslint-plugin-first"));
+        yield* fs.symlink(second, path.join(root, "node_modules/eslint-plugin-second"));
+        yield* fs.writeFileString(
+          path.join(root, "eslint.config.mjs"),
+          'import installed from "eslint-plugin-fixture"; import first from "eslint-plugin-first"; import second from "eslint-plugin-second"; export default [{ plugins: { installed, first, second } }];\n'
+        );
+        yield* fs.writeFileString(path.join(root, "tsdoc.json"), "{}\n");
+        const initial = yield* rootEslintCacheKey(root);
+        expect(initial).toMatch(/^[0-9a-f]{16}$/);
+        expect(yield* rootEslintCacheKey(root)).toBe(initial);
+        for (const directory of [installed, first, second]) {
+          const name = path.basename(directory);
+          yield* writeManifest(directory, name, "1.0.1");
+          const bumped = yield* rootEslintCacheKey(root);
+          expect(bumped).toMatch(/^[0-9a-f]{16}$/);
+          expect(bumped).not.toBe(initial);
+          expect(yield* rootEslintCacheKey(root)).toBe(bumped);
+          yield* writeManifest(directory, name, "1.0.0");
+          expect(yield* rootEslintCacheKey(root)).toBe(initial);
+        }
+      })
+    );
+
+    it.effect("keys installed plugin versions and workspace inputs while keeping unchanged inputs stable", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped();
         const rule = path.join(root, "packages/tooling/policy-pack/repo-configs/src/eslint/RequireCategoryTagRule.ts");
         yield* fs.makeDirectory(path.dirname(rule), { recursive: true });
+        yield* fs.makeDirectory(path.join(root, "node_modules/eslint"), { recursive: true });
+        yield* fs.writeFileString(
+          path.join(root, "node_modules/eslint/package.json"),
+          '{"name":"eslint","version":"9.0.0","main":"index.js"}'
+        );
+        yield* fs.writeFileString(path.join(root, "node_modules/eslint/index.js"), "module.exports = {}\n");
         yield* fs.writeFileString(path.join(root, "eslint.config.mjs"), "export default []\n");
         yield* fs.writeFileString(path.join(root, "tsdoc.json"), "{}\n");
         yield* fs.writeFileString(rule, "const CATEGORY_PATTERN = /@category/\n");
@@ -8570,6 +8602,112 @@ describe("root ESLint cache key", () => {
         expect(withHelper).not.toBe(edited);
         yield* fs.writeFileString(helper, "export const optionToReadonlyArray = 2\n");
         expect(yield* rootEslintCacheKey(root)).not.toBe(withHelper);
+        // A valid meta-less plugin is imported under an arbitrary namespace. Versions
+        // come from its installed manifest, never the namespace or plugin object.
+        const plugin = path.join(root, "node_modules/eslint-plugin-fixture");
+        yield* fs.makeDirectory(plugin, { recursive: true });
+        const pluginManifest = (version: string) =>
+          `{ "name": "eslint-plugin-fixture", "version": "${version}", "main": "index.js" }`;
+        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.0"));
+        yield* fs.writeFileString(path.join(plugin, "index.js"), "module.exports = { rules: {} }\n");
+        const shared = path.join(root, "shared/eslint.mjs");
+        const localRule = path.join(root, "shared/rule.mjs");
+        yield* fs.makeDirectory(path.dirname(shared), { recursive: true });
+        yield* fs.writeFileString(
+          shared,
+          'import plugin from "eslint-plugin-fixture"; import rule from "./rule.mjs"; export default [{ plugins: { arbitrary: plugin, local: { rules: { fixture: rule } } } }];\n'
+        );
+        yield* fs.writeFileString(localRule, "export default { create() { return {} } };\n");
+        yield* fs.writeFileString(
+          path.join(root, "eslint.config.mjs"),
+          'export { default } from "./shared/eslint.mjs";\n'
+        );
+        const withPlugin = yield* rootEslintCacheKey(root);
+        expect(withPlugin).toMatch(/^[0-9a-f]{16}$/);
+        expect(yield* rootEslintCacheKey(root)).toBe(withPlugin);
+        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.1"));
+        const bumpedPlugin = yield* rootEslintCacheKey(root);
+        expect(bumpedPlugin).toMatch(/^[0-9a-f]{16}$/);
+        expect(bumpedPlugin).not.toBe(withPlugin);
+        expect(yield* rootEslintCacheKey(root)).toBe(bumpedPlugin);
+        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.0"));
+        expect(yield* rootEslintCacheKey(root)).toBe(withPlugin);
+        yield* fs.writeFileString(localRule, "export default { create() { return { Program() {} } } };\n");
+        const changedWorkspace = yield* rootEslintCacheKey(root);
+        expect(changedWorkspace).toMatch(/^[0-9a-f]{16}$/);
+        expect(changedWorkspace).not.toBe(withPlugin);
+        expect(yield* rootEslintCacheKey(root)).toBe(changedWorkspace);
+        yield* fs.writeFileString(
+          shared,
+          'import plugin from "eslint-plugin-fixture"; export default [{ plugins: { arbitrary: plugin } }];\n'
+        );
+        const changedShared = yield* rootEslintCacheKey(root);
+        expect(changedShared).not.toBe(changedWorkspace);
+        yield* fs.writeFileString(
+          path.join(root, "node_modules/eslint/package.json"),
+          '{"name":"eslint","version":"9.0.1","main":"index.js"}'
+        );
+        expect(yield* rootEslintCacheKey(root)).not.toBe(changedShared);
+        // External configs can obtain a meta-less plugin through peers, including a
+        // package whose exports hide package.json. Manifest discovery bypasses exports.
+        const externalConfig = path.join(root, "node_modules/eslint-config-fixture");
+        yield* fs.makeDirectory(externalConfig, { recursive: true });
+        yield* fs.writeFileString(
+          path.join(externalConfig, "package.json"),
+          '{"name":"eslint-config-fixture","version":"1.0.0","exports":"./index.js","peerDependencies":{"eslint-plugin-fixture":"*","missing-optional-peer":"*"}}'
+        );
+        yield* fs.writeFileString(
+          path.join(externalConfig, "index.js"),
+          'module.exports = [{ plugins: { arbitrary: require("eslint-plugin-fixture") } }];\n'
+        );
+        yield* fs.writeFileString(
+          path.join(root, "eslint.config.mjs"),
+          'export { default } from "eslint-config-fixture";\n'
+        );
+        const indirectPlugin = yield* rootEslintCacheKey(root);
+        expect(indirectPlugin).toMatch(/^[0-9a-f]{16}$/);
+        expect(yield* rootEslintCacheKey(root)).toBe(indirectPlugin);
+        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("2.0.0"));
+        const indirectBump = yield* rootEslintCacheKey(root);
+        expect(indirectBump).toMatch(/^[0-9a-f]{16}$/);
+        expect(indirectBump).not.toBe(indirectPlugin);
+        const linked = path.join(root, "workspace/eslint-plugin-linked");
+        yield* fs.makeDirectory(linked, { recursive: true });
+        yield* fs.writeFileString(
+          path.join(linked, "package.json"),
+          '{"name":"eslint-plugin-linked","version":"1.0.0","main":"index.js"}'
+        );
+        yield* fs.writeFileString(path.join(linked, "index.js"), "module.exports = { rules: {} };\n");
+        yield* fs.symlink(linked, path.join(root, "node_modules/eslint-plugin-linked"));
+        yield* fs.writeFileString(
+          path.join(externalConfig, "package.json"),
+          '{"name":"eslint-config-fixture","version":"1.0.0","exports":"./index.js","dependencies":{"eslint-plugin-linked":"*"}}'
+        );
+        yield* fs.writeFileString(
+          path.join(externalConfig, "index.js"),
+          'module.exports = [{ plugins: { linked: require("eslint-plugin-linked") } }];\n'
+        );
+        const linkedInitial = yield* rootEslintCacheKey(root);
+        expect(linkedInitial).toMatch(/^[0-9a-f]{16}$/);
+        yield* fs.writeFileString(path.join(linked, "index.js"), "module.exports = { rules: { changed: {} } };\n");
+        const linkedEdited = yield* rootEslintCacheKey(root);
+        expect(linkedEdited).toMatch(/^[0-9a-f]{16}$/);
+        expect(linkedEdited).not.toBe(linkedInitial);
+        yield* fs.writeFileString(
+          path.join(root, "eslint.config.mjs"),
+          'import plugin from "eslint-plugin-linked"; export default [{ plugins: { linked: plugin } }];\n'
+        );
+        const linkedDirect = yield* rootEslintCacheKey(root);
+        expect(linkedDirect).toMatch(/^[0-9a-f]{16}$/);
+        yield* fs.writeFileString(
+          path.join(linked, "package.json"),
+          '{"name":"eslint-plugin-linked","version":"1.0.1","main":"index.js"}'
+        );
+        expect(yield* rootEslintCacheKey(root)).not.toBe(linkedDirect);
+        // Unrelated workspace source does not enter the closure.
+        const beforeUnrelated = yield* rootEslintCacheKey(root);
+        yield* fs.writeFileString(path.join(root, "unrelated.ts"), "export const unused = 1;\n");
+        expect(yield* rootEslintCacheKey(root)).toBe(beforeUnrelated);
         // A repository without the sources falls back to the shared unkeyed directory.
         expect(yield* rootEslintCacheKey(yield* fs.makeTempDirectoryScoped())).toBe("unkeyed");
       })

@@ -456,21 +456,24 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           );
           yield* fs.writeFileString(
             "syncpack.config.ts",
-            [
-              'import type { RcFile } from "syncpack";',
-              "",
-              "const config = {",
-              "  source: [",
-              '    "package.json",',
-              '    "packages/drivers/courtlistener/package.json",',
-              "  ],",
-              "  customTypes: {},",
-              "  versionGroups: [],",
-              "} satisfies RcFile;",
-              "",
-              "export default config;",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'import type { RcFile } from "syncpack";',
+                "",
+                "const config = {",
+                "  source: [",
+                '    "package.json",',
+                '    "packages/drivers/courtlistener/package.json",',
+                "  ],",
+                "  customTypes: {},",
+                "  versionGroups: [],",
+                "} satisfies RcFile;",
+                "",
+                "export default config;",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const packageDir = path.join("packages", "drivers", "courtlistener");
@@ -485,11 +488,14 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           yield* fs.makeDirectory(identityDir, { recursive: true });
           yield* fs.writeFileString(
             path.join(identityDir, "packages.ts"),
-            [
-              'const composers = $I.compose("courtlistener");',
-              "export const $CourtlistenerId = composers.$CourtlistenerId;",
-              "",
-            ].join("\n")
+            A.join(
+              [
+                'const composers = $I.compose("courtlistener");',
+                "export const $CourtlistenerId = composers.$CourtlistenerId;",
+                "",
+              ],
+              "\n"
+            )
           );
 
           const exit = yield* Effect.exit(
@@ -676,16 +682,15 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       ],
     ];
 
-    it.each(cases)(
-      "refuses %s and retains printable cascade evidence",
-      (_label, caseTarget, report, casePolicy, expectedKind) => {
-        const refusals = DeletePackagePolicyEvaluation.refusalReasons(caseTarget, report, casePolicy);
-        expect(A.some(refusals, (refusal) => refusal.kind === expectedKind && refusal.severity === "hard")).toBe(true);
-        const cascade = DeletePackagePolicyEvaluation.dependentsCascadeLines(report);
-        expect(cascade[0]).toContain("direct:");
-        expect(cascade[1]).toContain("transitive:");
-      }
-    );
+    it.each(
+      cases
+    )("refuses %s and retains printable cascade evidence", (_label, caseTarget, report, casePolicy, expectedKind) => {
+      const refusals = DeletePackagePolicyEvaluation.refusalReasons(caseTarget, report, casePolicy);
+      expect(A.some(refusals, (refusal) => refusal.kind === expectedKind && refusal.severity === "hard")).toBe(true);
+      const cascade = DeletePackagePolicyEvaluation.dependentsCascadeLines(report);
+      expect(cascade[0]).toContain("direct:");
+      expect(cascade[1]).toContain("transitive:");
+    });
   });
 
   describe("delete-package baseline writer stage", () => {
@@ -763,7 +768,6 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             "bun run beep lint package-test-typecheck --write-baseline",
             "bun run beep lint schema-catalog --write",
             "bun run beep lint package-scripts --write",
-            "bun run beep quality knip --write-baseline",
           ]);
         })
       ).pipe(

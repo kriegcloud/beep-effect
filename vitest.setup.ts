@@ -29,7 +29,8 @@ import { readdirSync, statSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { join } from "node:path";
-import { P } from "@beep/utils";
+import * as NodeStream from "node:stream";
+import { A, O, P, R } from "@beep/utils";
 import { addEqualityTesters } from "@effect/vitest";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
@@ -155,6 +156,8 @@ type BunTestShim = {
     options?: BunSpawnSyncOptions
   ) => {
     readonly exited: Promise<number>;
+    readonly stderr: ReturnType<typeof NodeStream.Readable.toWeb> | undefined;
+    readonly stdout: ReturnType<typeof NodeStream.Readable.toWeb> | undefined;
   };
   readonly spawnSync: (
     commandOrOptions: BunSpawnSyncObject | ReadonlyArray<string>,
@@ -240,6 +243,8 @@ const spawn = (commandOrOptions: BunSpawnSyncObject | ReadonlyArray<string>, opt
   });
 
   return {
+    stderr: child.stderr === null ? undefined : NodeStream.Readable.toWeb(child.stderr),
+    stdout: child.stdout === null ? undefined : NodeStream.Readable.toWeb(child.stdout),
     exited: new Promise<number>((resolve, reject) => {
       child.on("error", reject);
       child.on("exit", (code, signal) => {
@@ -302,7 +307,7 @@ const responseHeaders = (response: Response): Record<string, string> => {
 // fallow-ignore-next-line complexity -- Node-to-Fetch bridge preserves repeated and optional request headers
 const requestHeaders = (messageHeaders: NodeJS.Dict<string | readonly string[]>): Headers => {
   const headers = new Headers();
-  for (const [key, value] of Object.entries(messageHeaders)) {
+  for (const [key, value] of R.toEntries(messageHeaders)) {
     if (P.isUndefined(value)) {
       continue;
     }
@@ -380,11 +385,11 @@ const serve = (options: BunServeOptions): ReturnType<BunTestShim["serve"]> => {
 };
 
 const normalizeTomlValue = (value: unknown): unknown => {
-  if (Array.isArray(value)) {
-    return value.map(normalizeTomlValue);
+  if (A.isArray(value)) {
+    return A.map(value, normalizeTomlValue);
   }
   if (P.isObjectKeyword(value) && P.isNotNull(value)) {
-    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, normalizeTomlValue(item)] as const));
+    return R.fromEntries(A.map(R.toEntries(value), ([key, item]) => [key, normalizeTomlValue(item)] as const));
   }
   return value;
 };
@@ -438,9 +443,14 @@ const globMetaPattern = /[*?[{(!]/u;
 
 const scanRootForGlobPattern = (pattern: string): string => {
   const segments = normalizeFilePath(pattern).split("/");
-  const firstMetaSegment = segments.findIndex((segment) => globMetaPattern.test(segment));
-  const staticSegments = firstMetaSegment === -1 ? segments.slice(0, -1) : segments.slice(0, firstMetaSegment);
-  return staticSegments.join("/");
+  const staticSegments = O.match(
+    A.findFirstIndex(segments, (segment) => globMetaPattern.test(segment)),
+    {
+      onNone: () => segments.slice(0, -1),
+      onSome: (firstMetaSegment) => segments.slice(0, firstMetaSegment),
+    }
+  );
+  return A.join(staticSegments, "/");
 };
 
 const isMissingPathError = (cause: unknown): boolean =>

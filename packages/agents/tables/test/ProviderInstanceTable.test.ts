@@ -39,6 +39,8 @@ const providerInstanceEnvVars: ProviderInstanceRow["envVars"] = {};
 
 const providerInstanceRow = {
   ...productEntityFixtureInput("AgentsProviderInstance", 10),
+  deletedAt: null,
+  deletedByPrincipal: null,
   binaryPath: "/usr/local/bin/codex",
   entityType: "AgentsProviderInstance" as const,
   envVars: providerInstanceEnvVars,
@@ -71,7 +73,7 @@ describe("ProviderInstance table", () => {
     expect(columns.label.name).toBe("label");
     expect(columns.lastProbe.name).toBe("last_probe");
     expect(columns.lastProbe.notNull).toBe(false);
-    const indexNames = getTableConfig(providerInstanceTable).indexes.map((index) => index.config.name);
+    const indexNames = A.map(getTableConfig(providerInstanceTable).indexes, (index) => index.config.name);
     expect(indexNames).toHaveLength(3);
     expect(indexNames).toEqual(
       expect.arrayContaining([
@@ -91,6 +93,8 @@ describe("ProviderInstance table", () => {
       "schema_version",
       "created_at",
       "created_by_principal",
+      "deleted_at",
+      "deleted_by_principal",
       "updated_at",
       "updated_by_principal",
       "source",
@@ -130,6 +134,8 @@ describe("ProviderInstance table", () => {
       const roundTripped = yield* Effect.fromResult(
         fromProviderInstanceRow({
           ...insert,
+          deletedAt: insert.deletedAt ?? null,
+          deletedByPrincipal: insert.deletedByPrincipal ?? null,
           id: 10,
           homePath: insert.homePath ?? null,
           lastProbe: insert.lastProbe ?? null,
@@ -151,6 +157,8 @@ describe("ProviderInstance table", () => {
       }
       const decoded = fromProviderInstanceRow({
         ...insert.success,
+        deletedAt: insert.success.deletedAt ?? null,
+        deletedByPrincipal: insert.success.deletedByPrincipal ?? null,
         id: providerInstance.id,
         homePath: insert.success.homePath ?? null,
         lastProbe: insert.success.lastProbe ?? null,

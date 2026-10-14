@@ -393,6 +393,16 @@ const REAL_APP_DOC_TEMPLATE_PAIRS: ReadonlyArray<TemplateSpecPair> = [
 
 const CHECK_TSCONFIG_TEMPLATE_PAIR: TemplateSpecPair = ["tsconfig.check.json.hbs", "tsconfig.check.json"];
 
+// Scaffolds whose `build` is the `noEmit` check (`tsc-rs -p tsconfig.check.json`)
+// write nothing to disk, so they declare `build.outputs: []`; otherwise Turbo
+// warns "no output files found" on every root build.
+const NOEMIT_TURBO_TEMPLATE_PAIR: TemplateSpecPair = ["app-noemit-turbo.json.hbs", "turbo.json"];
+const NOEMIT_TURBO_TEMPLATE_SPEC = TemplateSpec.make({
+  templateName: NOEMIT_TURBO_TEMPLATE_PAIR[0],
+  outputPath: NOEMIT_TURBO_TEMPLATE_PAIR[1],
+});
+const NOEMIT_TURBO_FILE = NOEMIT_TURBO_TEMPLATE_PAIR[1];
+
 const NEXTJS_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = templateSpecsFrom([
   ["app-next-tsconfig.json.hbs", "tsconfig.json"],
   CHECK_TSCONFIG_TEMPLATE_PAIR,
@@ -475,6 +485,7 @@ const SERVICE_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = templateSpecsFro
   ["app-service-src-main.ts.hbs", "src/main.ts"],
   ["app-service-test-health.test.ts.hbs", "test/health.test.ts"],
   ["app-service-vitest.config.ts.hbs", "vitest.config.ts"],
+  NOEMIT_TURBO_TEMPLATE_PAIR,
   ...REAL_APP_DOC_TEMPLATE_PAIRS,
 ]);
 
@@ -499,7 +510,7 @@ const packageTemplateSpecsFor = (withStoriesTsconfig: boolean): ReadonlyArray<Te
     : PACKAGE_TEMPLATE_SPECS;
 
 // A library ships one real test so the declared `effect` and `@effect/vitest`
-// dependencies are used from the first commit (Knip) and the alias path is
+// dependencies are used from the first commit and the alias path is
 // exercised. The runtime-proof app reuses the package shape without a root
 // `@beep/*` alias, so it keeps the empty `test/` placeholder instead.
 const PACKAGE_TEST_TEMPLATE_SPEC = TemplateSpec.make({
@@ -513,7 +524,7 @@ const appTemplateSpecsFor = (shape: ScaffoldShape, kind: AppKind): ReadonlyArray
     return shape.lab ? A.append(VITE_APP_TEMPLATE_SPECS, VITE_LAB_POSTCSS_TEMPLATE_SPEC) : VITE_APP_TEMPLATE_SPECS;
   if (appKindEquivalence(kind, "service")) return SERVICE_APP_TEMPLATE_SPECS;
   if (appKindEquivalence(kind, "tauri")) return TAURI_APP_TEMPLATE_SPECS;
-  return packageTemplateSpecsFor(shape.withStoriesTsconfig);
+  return A.append(packageTemplateSpecsFor(shape.withStoriesTsconfig), NOEMIT_TURBO_TEMPLATE_SPEC);
 };
 
 const templateSpecsFor = (shape: ScaffoldShape): ReadonlyArray<TemplateSpec> =>
@@ -646,6 +657,7 @@ const SERVICE_APP_FILES = [
   "src/runtime/Layer.ts",
   "test/health.test.ts",
   "vitest.config.ts",
+  "turbo.json",
   "LICENSE",
   "README.md",
   "AGENTS.md",
@@ -663,7 +675,7 @@ const appFilesFor = (shape: ScaffoldShape, kind: AppKind): ReadonlyArray<string>
     return shape.lab ? A.append(VITE_APP_FILES, VITE_LAB_POSTCSS_FILE) : VITE_APP_FILES;
   if (appKindEquivalence(kind, "service")) return SERVICE_APP_FILES;
   if (appKindEquivalence(kind, "tauri")) return TAURI_APP_FILES;
-  return packageFilesFor(shape.withStoriesTsconfig);
+  return A.append(packageFilesFor(shape.withStoriesTsconfig), NOEMIT_TURBO_FILE);
 };
 
 const filesFor = (shape: ScaffoldShape): ReadonlyArray<string> =>
@@ -1740,7 +1752,7 @@ const generateEcosystemPackageJson = Effect.fn("CreatePackage.generateEcosystemP
     devDependencies: {
       "@types/node": "catalog:",
       "@effect/vitest": "catalog:",
-      // tsconfig.test.json lists `bun-types`; Knip reports it unresolved
+      // tsconfig.test.json lists `bun-types`; the type resolver needs its declaration
       // unless the package declares it.
       "bun-types": "catalog:",
       effect: "catalog:",
@@ -1799,7 +1811,7 @@ const appBaseScripts = (dev: string, build: string, lab: boolean) => ({
 // Lab-only workspace dependencies layered onto Next.js lab app manifests.
 // Only what the emitted templates actually consume: `@beep/repo-configs` in
 // next.config.ts, `@beep/ui` via postcss.config.mjs and the globals.css import.
-// Declaring more would fail the required Knip context on the first lab — labs
+// Declare only dependencies used by the generated lab — labs
 // are ceremony-exempt, never code-law exempt (D2). Lab authors add what they
 // import, like any other workspace.
 const NEXTJS_LAB_DEPENDENCIES: Readonly<Record<string, string>> = {
@@ -1823,7 +1835,7 @@ const labDependenciesFor = (
 // Dev-dependency table shared by React-flavored app manifests.
 // No `@effect/vitest`: the React app test templates use plain `vitest` plus
 // @testing-library. Only the `service` kind's test imports it, and that kind
-// declares it in its own devDependencies. Declaring it here fails Knip on the
+// declares it in its own devDependencies. Declaring it here adds an unused dependency to the
 // generated app.
 const REACT_APP_DEV_DEPENDENCIES = {
   "@testing-library/dom": "catalog:",
@@ -1884,21 +1896,21 @@ const serviceAppManifest: AppManifestBuilder = ({ baseManifest, lab, portlessLab
   ...baseManifest,
   scripts: appBaseScripts(
     portlessDev(portlessLabel, "sh -c 'bun --watch src/main.ts'"),
-    "tsgo -p tsconfig.check.json",
+    "tsc-rs -p tsconfig.check.json",
     lab
   ),
   dependencies: {
     // src/Api.ts imports the identity accessor; main.ts imports platform-bun
     // and effect. `@beep/schema`/`@beep/utils` are not imported by any emitted
     // file (the `S` in the templates is `effect/Schema`), so declaring them
-    // would fail the required Knip context on the first service app.
+    // would add unused dependencies to the first service app.
     "@beep/identity": "workspace:^",
     "@effect/platform-bun": "catalog:",
     effect: "catalog:",
   },
   devDependencies: {
     // test/health.test.ts provides its server and client through `it.layer`,
-    // so no test-utils layer helper is imported (declaring one fails Knip).
+    // so no test-utils layer helper is imported (no extra dependency is needed).
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
     typescript: "catalog:",
@@ -1948,11 +1960,11 @@ type PackageScriptsKind = Exclude<ScriptsPackageKind, "lab">;
 const packageScripts = (kind: PackageScriptsKind, withStoriesTsconfig: boolean) => ({
   ...scaffoldPackageScripts(kind, ["lint:fix", "test:integration", "docgen"]),
   babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-  "beep:check:tests": "tsgo -p tsconfig.test.json --noEmit",
+  "beep:check:tests": "tsc-rs -p tsconfig.test.json --noEmit",
   ...(withStoriesTsconfig
     ? {
-        "beep:check": "tsgo -p tsconfig.check.json && bun run beep:check:tests && bun run beep:check:stories",
-        "beep:check:stories": "tsc -p tsconfig.stories.json --noEmit",
+        "beep:check": "tsc-rs -p tsconfig.check.json && bun run beep:check:tests && bun run beep:check:stories",
+        "beep:check:stories": "tsc-rs -p tsconfig.stories.json --noEmit",
       }
     : {}),
   coverage: "bunx vitest run --coverage --exclude=test/integration/**",
@@ -1965,8 +1977,8 @@ const packageScripts = (kind: PackageScriptsKind, withStoriesTsconfig: boolean) 
  *
  * ```ts
  * import { CreatePackageScripts } from "@beep/repo-cli/commands/CreatePackage"
- * const scripts = CreatePackageScripts.app("portless api.beep bun src/main.ts", "tsgo -p tsconfig.check.json", false)
- * console.log(scripts["beep:build"]) // "tsgo -p tsconfig.check.json"
+ * const scripts = CreatePackageScripts.app("portless api.beep bun src/main.ts", "tsc-rs -p tsconfig.check.json", false)
+ * console.log(scripts["beep:build"]) // "tsc-rs -p tsconfig.check.json"
  * ```
  *
  * @internal
@@ -2082,7 +2094,7 @@ const generatePackageJson: (
       devDependencies: {
         "@types/node": "catalog:",
         "@effect/vitest": "catalog:",
-        // tsconfig.test.json lists `bun-types`; Knip reports it unresolved
+        // tsconfig.test.json lists `bun-types`; the type resolver needs its declaration
         // unless the package declares it.
         "bun-types": "catalog:",
       },

@@ -106,7 +106,7 @@ maintained representation of the scanner's workspace discovery.
 | `lint:effect-imports-markdown` | Retain authored Markdown consumed by the scanner, including internal docs it actually reads. |
 | `goals:index-check` | Retain goal inputs and implementation dependency. |
 | `knowledge:semantic-delta`, `knowledge:refs-check`, `goals:doctor`, `changeset:status` | Remain uncached; Git state and reference/packet checks are not qualified for result replay. |
-| `lint:oxlint`, `lint:shadcn`, `lint:jsdoc-module-tags`, `lint:typos`, `knip:check` | Remain uncached; preserve each scanner/report contract. `lint:shadcn` also reads the theme stylesheets, `components.json`, tsconfig paths, and package exports. |
+| `lint:oxlint`, `lint:shadcn`, `lint:jsdoc-module-tags`, `lint:typos` | Remain uncached; preserve each scanner/report contract. `lint:shadcn` also reads the theme stylesheets, `components.json`, tsconfig paths, and package exports. |
 | `jsdoc:inventory:check` | Cached since 2026-10-06: the inventory is a pure function of workspace manifests, `docgen.json`, `tsdoc.json` and the TypeScript sources of every workspace, so the inputs cover `{packages,apps,infra}` plus the `scratchpad` (srcDir `.`, minus its docgen excludes) and `tools` workspaces; artifact directories are excluded. The declared `.beep/ci/jsdoc-documentation.inventory.*` outputs restore on a hit. It was the single largest cost of a warm `bun run lint` (about 250 s). |
 | `jsdoc:ratchet:check` | Depends on `jsdoc:inventory:check` and the fingerprint; inputs are the committed totals baseline and every `{packages,apps}/**/src/**` TypeScript file, fixture trees included, because the zero-legacy gate reads every tracked `src` file (`isPackageSourceFile`). Turbo skips it when the inventory task is red. |
 | `lint:tsconfig-overlay` | Every `tsconfig*.json` under `apps`, `infra` and `packages` (overlays, owners and build configs), artifact directories excluded. |
@@ -142,7 +142,19 @@ zero seconds. Three decisions follow:
   `eslint.config.mjs`, `tsdoc.json` and the whole policy-pack configs package
   source (rule modules import helpers from `src/internal/eslint`): ESLint keys
   its own cache on the serialized config, which cannot see an edit inside an
-  in-repo rule module or its helpers, so the directory moves instead.
+  in-repo rule module or its helpers, so the directory moves instead. The key also
+  follows the flat config's static runtime imports/re-exports (including literal
+  `import()` and `require()` calls) through workspace source, hashing shared
+  config files, local plugin/rule helpers outside `repo-configs/src`, and owning
+  workspace manifests for package imports. Installed
+  ESLint, parser and plugin versions come from their resolved `package.json`,
+  including plugins without `meta` and arbitrary config namespace aliases.
+  Runtime, installed peer and optional dependency manifests of external config
+  packages are followed as well.
+  This is a conservative closure: both statically imported config profiles and
+  declared runtime dependencies contribute, even when the selected profile does
+  not execute them. Sorted relative paths, source contents and package identities
+  keep unchanged runs stable; unrelated workspace files do not enter the closure.
 
 ## Workspace overrides
 

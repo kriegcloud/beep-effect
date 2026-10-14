@@ -74,6 +74,28 @@ done
 exit 0
 `;
 
+const backslashNameStub = `#!/usr/bin/env bash
+${stubVersionBanner}
+target=""
+prev=""
+for arg in "$@"; do
+  if [ "$prev" = "-t" ]; then target="$arg"; fi
+  prev="$arg"
+done
+item="$target.export/folder\\\\part/Message00001"
+mkdir -p "$item/Attachments"
+printf 'Subject: synthetic\\n' > "$item/OutlookHeaders.txt"
+printf 'synthetic body' > "$item/Message.txt"
+printf 'original' > "$item/Attachments/a\\\\b.pdf"
+exit 0
+`;
+
+const backslashCollisionStub = Str.replace(
+  "printf 'original'",
+  `printf 'preserved' > "$item/Attachments/a%5Cb.pdf"
+printf 'original'`
+)(backslashNameStub);
+
 const unevenBudgetStub = `#!/usr/bin/env bash
 ${stubVersionBanner}
 target=""
@@ -304,6 +326,55 @@ describe("makePffexportFileProcessingEngine", { concurrent: false }, () => {
     }),
     { arbitrary: fcRuns(25) }
   );
+
+  it.layer(NodeServices.layer, { timeout: 30_000 })("portable engine names", (it) => {
+    it.effect(
+      "escapes backslash files and folders while preserving EML display names",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const { exportRoot, operation, stubPath } = yield* fixture(backslashNameStub);
+        const engine = yield* makePffexportFileProcessingEngine(
+          PffexportEngineConfig.make({ exportRoot, pffexportPath: stubPath })
+        );
+        const result = yield* engine.exportArchive(operation);
+        expect(result.warnings).toEqual([]);
+        for (const child of result.children) {
+          expect(S.is(PosixPath)(child.relativePath)).toBe(true);
+          expect(yield* fs.exists(path.join(exportRoot, child.relativePath))).toBe(true);
+          expect(yield* fs.realPath(path.join(exportRoot, child.relativePath))).toBe(
+            path.join(exportRoot, child.relativePath)
+          );
+        }
+        const item = path.join(exportRoot, `${operation.source.id}.export`, "folder%5Cpart", "Message00001");
+        expect(yield* fs.readFileString(path.join(item, "Attachments", "a%5Cb.pdf"))).toBe("original");
+        expect(yield* fs.readFileString(path.join(item, "Message.eml"))).toContain('filename="a\\\\b.pdf"');
+      })
+    );
+
+    it.effect(
+      "refuses backslash escape collisions without renaming or overwriting",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const { exportRoot, operation, stubPath } = yield* fixture(backslashCollisionStub);
+        const engine = yield* makePffexportFileProcessingEngine(
+          PffexportEngineConfig.make({ exportRoot, pffexportPath: stubPath })
+        );
+        const result = yield* engine.exportArchive(operation);
+        expect(A.some(result.warnings, Str.includes("non-portable path"))).toBe(true);
+        const root = path.join(
+          exportRoot,
+          `${operation.source.id}.export`,
+          "folder%5Cpart",
+          "Message00001",
+          "Attachments"
+        );
+        expect(yield* fs.readFileString(path.join(root, "a\\b.pdf"))).toBe("original");
+        expect(yield* fs.readFileString(path.join(root, "a%5Cb.pdf"))).toBe("preserved");
+      })
+    );
+  });
 
   it.layer(NodeServices.layer)("exports directly from a file locator when the caller omits source bytes", (it) => {
     it.effect(
@@ -710,7 +781,7 @@ exec "$mapped_command" "\${mapped[@]}"`
 
         const result = yield* engine.exportArchive(operation);
 
-        expect(result.children.some((child) => child.relativePath.endsWith("/Message.eml"))).toBe(false);
+        expect(A.some(result.children, (child) => child.relativePath.endsWith("/Message.eml"))).toBe(false);
       })
     );
   });
@@ -843,17 +914,17 @@ exec "$mapped_command" "\${mapped[@]}"`
         expect(result.engine).toBe("libpff");
         expect(result.sourceArtifactId).toBe(operation.source.id);
 
-        const relativePaths = result.children.map((child) => child.relativePath);
+        const relativePaths = A.map(result.children, (child) => child.relativePath);
         expect(relativePaths).toStrictEqual([...relativePaths].sort());
-        expect(result.children.every((child) => child.id.startsWith("artifact:"))).toBe(true);
+        expect(A.every(result.children, (child) => child.id.startsWith("artifact:"))).toBe(true);
 
-        const emlChildren = result.children.filter((child) => child.relativePath.endsWith("/Message.eml"));
+        const emlChildren = A.filter(result.children, (child) => child.relativePath.endsWith("/Message.eml"));
         expect(emlChildren).toHaveLength(2);
-        expect(emlChildren.every((child) => child.mediaType === "message/rfc822")).toBe(true);
+        expect(A.every(emlChildren, (child) => child.mediaType === "message/rfc822")).toBe(true);
 
         const jsonlName = `${operation.source.id}${PFFEXPORT_MESSAGES_SUFFIX}`;
         expect(relativePaths).toContain(jsonlName);
-        expect(relativePaths.some((value) => value.endsWith("Attachments/report.pdf"))).toBe(true);
+        expect(A.some(relativePaths, (value) => value.endsWith("Attachments/report.pdf"))).toBe(true);
         expect(result.children).toHaveLength(9);
 
         const inboxEml = yield* readExported(
@@ -911,10 +982,10 @@ exec "$mapped_command" "\${mapped[@]}"`
         const result = yield* engine.exportArchive(operation);
 
         expect(result.children.length).toBeGreaterThan(0);
-        expect(result.children.some((child) => child.relativePath.includes(".orphans/"))).toBe(true);
-        expect(result.children.some((child) => child.relativePath.includes(".recovered/"))).toBe(true);
-        expect(result.children.some((child) => child.relativePath.includes(".export/"))).toBe(false);
-        expect(result.children.some((child) => child.relativePath.endsWith("/Message.eml"))).toBe(true);
+        expect(A.some(result.children, (child) => child.relativePath.includes(".orphans/"))).toBe(true);
+        expect(A.some(result.children, (child) => child.relativePath.includes(".recovered/"))).toBe(true);
+        expect(A.some(result.children, (child) => child.relativePath.includes(".export/"))).toBe(false);
+        expect(A.some(result.children, (child) => child.relativePath.endsWith("/Message.eml"))).toBe(true);
       })
     );
   });
@@ -930,9 +1001,9 @@ exec "$mapped_command" "\${mapped[@]}"`
 
         const result = yield* engine.exportArchive(operation);
 
-        expect(result.children.some((child) => child.relativePath.includes(".export/"))).toBe(true);
-        expect(result.children.some((child) => child.relativePath.includes(".orphans/"))).toBe(true);
-        expect(result.children.some((child) => child.relativePath.includes(".recovered/"))).toBe(true);
+        expect(A.some(result.children, (child) => child.relativePath.includes(".export/"))).toBe(true);
+        expect(A.some(result.children, (child) => child.relativePath.includes(".orphans/"))).toBe(true);
+        expect(A.some(result.children, (child) => child.relativePath.includes(".recovered/"))).toBe(true);
       })
     );
   });
@@ -948,7 +1019,7 @@ exec "$mapped_command" "\${mapped[@]}"`
 
         const result = yield* engine.exportArchive(operation);
 
-        expect(result.children.some((child) => child.relativePath.endsWith("/Message.eml"))).toBe(true);
+        expect(A.some(result.children, (child) => child.relativePath.endsWith("/Message.eml"))).toBe(true);
 
         const eml = yield* readExported(
           exportRoot,
@@ -958,8 +1029,8 @@ exec "$mapped_command" "\${mapped[@]}"`
         expect(eml).toContain("Content-Transfer-Encoding: base64");
 
         const payload = eml.slice(eml.indexOf("\r\n\r\n") + 4);
-        expect(payload.split("\r\n").every((line) => line.length <= 76)).toBe(true);
-        expect(Result.getOrElse(Base64.decodeString(payload.split("\r\n").join("")), () => "")).toBe(
+        expect(A.every(payload.split("\r\n"), (line) => line.length <= 76)).toBe(true);
+        expect(Result.getOrElse(Base64.decodeString(A.join(payload.split("\r\n"), "")), () => "")).toBe(
           `<p>${"x".repeat(1200)}</p>`
         );
       })
@@ -977,8 +1048,8 @@ exec "$mapped_command" "\${mapped[@]}"`
 
         const result = yield* engine.exportArchive(operation);
 
-        expect(result.warnings.some((warning) => warning.includes("already contains Message.eml"))).toBe(true);
-        const relativePaths = result.children.map((child) => child.relativePath);
+        expect(A.some(result.warnings, (warning) => warning.includes("already contains Message.eml"))).toBe(true);
+        const relativePaths = A.map(result.children, (child) => child.relativePath);
         expect(new Set(relativePaths).size).toBe(relativePaths.length);
 
         const engineEml = yield* readExported(
@@ -1062,9 +1133,9 @@ exec "$mapped_command" "\${mapped[@]}"`
           ExportArchiveOperation.make({ ...operation, maxMaterializedBytes: 1 })
         );
 
-        expect(result.children.some((child) => child.relativePath.endsWith("/Message.eml"))).toBe(false);
+        expect(A.some(result.children, (child) => child.relativePath.endsWith("/Message.eml"))).toBe(false);
         expect(
-          result.warnings.filter((warning) => warning.includes("materialization budget was exceeded"))
+          A.filter(result.warnings, (warning) => warning.includes("materialization budget was exceeded"))
         ).toHaveLength(2);
 
         const jsonlName = `${operation.source.id}${PFFEXPORT_MESSAGES_SUFFIX}`;
@@ -1090,12 +1161,12 @@ exec "$mapped_command" "\${mapped[@]}"`
           const result = yield* engine.exportArchive(
             ExportArchiveOperation.make({ ...operation, maxMaterializedBytes: 1024 })
           );
-          const emlChildren = result.children.filter((child) => child.relativePath.endsWith("/Message.eml"));
+          const emlChildren = A.filter(result.children, (child) => child.relativePath.endsWith("/Message.eml"));
 
           expect(emlChildren).toHaveLength(1);
           expect(emlChildren[0]?.relativePath).toContain("Message00002/Message.eml");
           expect(
-            result.warnings.filter((warning) => warning.includes("materialization budget was exceeded"))
+            A.filter(result.warnings, (warning) => warning.includes("materialization budget was exceeded"))
           ).toHaveLength(1);
         })
       );
@@ -1238,6 +1309,76 @@ exec "$@"
     );
   });
 
+  it.layer(NodeServices.layer, { timeout: 30_000 })("portable quota handoff", (it) => {
+    it.effect(
+      "validates raw backslash folders before escaping a bounded quota handoff",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const { operation, exportRoot, stubPath } = yield* fixture(stubPffexport);
+        const fixtureRoot = path.dirname(stubPath);
+        const handoffSource = path.join(fixtureRoot, "quota-handoff-source");
+        const item = path.join(handoffSource, `${operation.source.id}.export`, "folder\\part", "Message00001");
+        const bwrapPath = path.join(fixtureRoot, "successful-quota-bwrap-stub");
+        const systemdRunPath = path.join(fixtureRoot, "successful-systemd-run-stub");
+        yield* fs.makeDirectory(path.join(item, "Attachments"), { recursive: true });
+        yield* fs.writeFileString(path.join(item, "OutlookHeaders.txt"), "Subject: synthetic\n");
+        yield* fs.writeFileString(path.join(item, "Message.txt"), "synthetic body");
+        yield* fs.writeFileString(path.join(item, "Attachments", "a\\b.pdf"), "original");
+        yield* fs.writeFileString(
+          bwrapPath,
+          `#!/usr/bin/env bash
+exec /usr/bin/tar -C "${handoffSource}" -cf - .
+`
+        );
+        yield* fs.writeFileString(
+          systemdRunPath,
+          `#!/usr/bin/env bash
+set -eu
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = "--" ]; then shift; break; fi
+  shift
+done
+exec "$@"
+`
+        );
+        yield* Effect.forEach([bwrapPath, systemdRunPath], (file) => fs.chmod(file, 0o755), { discard: true });
+        const engine = yield* makePffexportFileProcessingEngine(
+          PffexportEngineConfig.make({
+            bwrapPath: O.some(bwrapPath),
+            exportRoot,
+            maxOutputBytes: O.some(PosInt.make(1_000_000)),
+            pffexportPath: stubPath,
+            systemdRunPath,
+          })
+        );
+        const result = yield* engine.exportArchive(operation);
+        expect(result.warnings).toStrictEqual([]);
+        expect(result.children.length).toBe(5);
+        for (const child of result.children) {
+          expect(S.is(PosixPath)(child.relativePath)).toBe(true);
+          expect(yield* fs.exists(path.join(exportRoot, child.relativePath))).toBe(true);
+        }
+        const escapedItem = path.join(exportRoot, `${operation.source.id}.export`, "folder%5Cpart", "Message00001");
+        expect(yield* fs.readFileString(path.join(escapedItem, "Attachments", "a%5Cb.pdf"))).toBe("original");
+        expect(yield* fs.readFileString(path.join(escapedItem, "Message.eml"))).toContain('filename="a\\\\b.pdf"');
+        yield* fs.symlink("/etc/passwd", path.join(item, "Attachments", "unsafe\\link"));
+        const unsafeEngine = yield* makePffexportFileProcessingEngine(
+          PffexportEngineConfig.make({
+            bwrapPath: O.some(bwrapPath),
+            exportRoot,
+            existingExportPolicy: "replace",
+            maxOutputBytes: O.some(PosInt.make(1_000_000)),
+            pffexportPath: stubPath,
+            systemdRunPath,
+          })
+        );
+        const unsafeResult = yield* unsafeEngine.exportArchive(operation).pipe(Effect.flip);
+        expect(unsafeResult.reason).toBe("archive-export-failed");
+      })
+    );
+  });
+
   it.layer(NodeServices.layer)("rejects symbolic links in untrusted pffexport output", (it) => {
     it.effect(
       "rejects symbolic links in untrusted pffexport output",
@@ -1316,7 +1457,7 @@ exec "$@"
         const result = yield* engine.exportArchive(operation);
 
         expect(result.children.length).toBeGreaterThan(0);
-        expect(result.children.some((child) => child.relativePath.includes("stale-junk"))).toBe(false);
+        expect(A.some(result.children, (child) => child.relativePath.includes("stale-junk"))).toBe(false);
         expect(yield* fs.exists(path.join(exportRoot, `${operation.source.id}.claim`))).toBe(false);
       })
     );

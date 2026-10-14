@@ -20,9 +20,10 @@ import {
 import { $EcfrId } from "@beep/identity";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
-import { O } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import { describe, expect } from "@effect/vitest";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -97,7 +98,14 @@ const titlesBody = {
 const responseFor = (url: string): Response =>
   Match.value(url).pipe(
     Match.when(Str.includes("/api/admin/v1/agencies.json"), () =>
-      Response.json({ agencies: [{ name: "Example Agency", slug: "example-agency" }] })
+      Response.json({
+        agencies: [
+          {
+            name: "Example Agency",
+            slug: "example-agency",
+          },
+        ],
+      })
     ),
     Match.when(Str.includes("/api/admin/v1/corrections"), () =>
       Response.json({ ecfr_corrections: [{ id: 1, title: 1 }] })
@@ -105,7 +113,11 @@ const responseFor = (url: string): Response =>
     Match.when(Str.includes("/api/search/v1/results"), () => {
       const secondPage = Str.includes("page=2")(url);
       return Response.json({
-        meta: { current_page: secondPage ? 2 : 1, total_count: 2, total_pages: 2 },
+        meta: {
+          current_page: secondPage ? 2 : 1,
+          total_count: 2,
+          total_pages: 2,
+        },
         results: [{ full_text_excerpt: secondPage ? "second" : "first" }],
       });
     }),
@@ -126,7 +138,12 @@ const responseFor = (url: string): Response =>
       Response.json({ identifier: "1", label: "Title 1", type: "title" })
     ),
     Match.when(Str.includes("/api/versioner/v1/titles.json"), () => Response.json(titlesBody)),
-    Match.when(Str.includes("/api/versioner/v1/versions"), () => Response.json({ content_versions: [], meta: {} })),
+    Match.when(Str.includes("/api/versioner/v1/versions"), () =>
+      Response.json({
+        content_versions: [],
+        meta: {},
+      })
+    ),
     Match.orElse(() => Response.json({}, { status: 404 }))
   );
 
@@ -142,7 +159,13 @@ const EcfrTestHttpLayer = Layer.effect(
           O.map((value) => value.toString()),
           O.getOrElse(() => request.url)
         );
-        yield* Ref.update(capturesRef, (xs) => [...xs, { method: request.method, url }]);
+        yield* Ref.update(capturesRef, (xs) => [
+          ...xs,
+          {
+            method: request.method,
+            url,
+          },
+        ]);
         return responseFor(url);
       }),
     });
@@ -257,9 +280,9 @@ describe("@beep/ecfr", () => {
         yield* ecfr.listTitleCorrections(EcfrTitleParams.make({ title: "7" }));
 
         const captures = yield* testHttp.captures;
-        const urls = captures.map((capture) => capture.url);
+        const urls = A.map(captures, (capture) => capture.url);
         expect(captures).toHaveLength(3);
-        expect(captures.every((capture) => capture.method === "GET")).toBe(true);
+        expect(A.every(captures, (capture) => capture.method === "GET")).toBe(true);
         expect(urls[0]).toBe("https://www.ecfr.gov/api/admin/v1/agencies.json");
         expect(urls[1]).toContain("/api/admin/v1/corrections.json?");
         expect(urls[1]).toContain("error_corrected_date=2026-07-02");
@@ -292,9 +315,9 @@ describe("@beep/ecfr", () => {
         yield* ecfr.searchSuggestions(search);
 
         const captures = yield* testHttp.captures;
-        const urls = captures.map((capture) => capture.url);
+        const urls = A.map(captures, (capture) => capture.url);
         expect(captures).toHaveLength(7);
-        expect(captures.every((capture) => capture.method === "GET")).toBe(true);
+        expect(A.every(captures, (capture) => capture.method === "GET")).toBe(true);
         expect(urls[0]).toContain("/api/search/v1/results?");
         expect(urls[0]).toContain("query=clean+water");
         expect(urls[0]).toContain("agency_slugs%5B%5D=example-agency");
@@ -325,7 +348,12 @@ describe("@beep/ecfr", () => {
         });
         yield* ecfr.getAncestry(versioner);
         const xml = yield* ecfr.getFullTitleXml(versioner);
-        yield* ecfr.getStructure(EcfrDatedTitleParams.make({ date: "2026-07-01", title: "1" }));
+        yield* ecfr.getStructure(
+          EcfrDatedTitleParams.make({
+            date: "2026-07-01",
+            title: "1",
+          })
+        );
         yield* ecfr.listTitles;
         yield* ecfr.listVersions(
           EcfrVersionsParams.make({
@@ -337,9 +365,9 @@ describe("@beep/ecfr", () => {
         );
 
         const captures = yield* testHttp.captures;
-        const urls = captures.map((capture) => capture.url);
+        const urls = A.map(captures, (capture) => capture.url);
         expect(captures).toHaveLength(5);
-        expect(captures.every((capture) => capture.method === "GET")).toBe(true);
+        expect(A.every(captures, (capture) => capture.method === "GET")).toBe(true);
         expect(urls[0]).toContain("/api/versioner/v1/ancestry/2026-07-01/title-1.json?");
         expect(urls[0]).toContain("part=1");
         expect(urls[1]).toContain("/api/versioner/v1/full/2026-07-01/title-1.xml?");
@@ -361,7 +389,12 @@ describe("@beep/ecfr", () => {
         const ecfr = yield* Ecfr;
 
         const results = yield* ecfr
-          .searchResultsAll(EcfrSearchParams.make({ query: O.some("water"), perPage: O.some(S.Natural.make(1)) }))
+          .searchResultsAll(
+            EcfrSearchParams.make({
+              query: O.some("water"),
+              perPage: O.some(S.Natural.make(1)),
+            })
+          )
           .pipe(Stream.runCollect);
         const captures = yield* testHttp.captures;
 

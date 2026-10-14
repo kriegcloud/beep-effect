@@ -1562,14 +1562,25 @@ const inlineSpanOf = (match: RegExpExecArray): O.Option<KnowledgeInlineSpan> => 
 export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeInlineSpan> =>
   A.getSomes(A.map(knowledgeLineMatches(/(^|[^`\\])(`+)([^\r\n]*?)\2(?!`)/gu, lineText), inlineSpanOf));
 
+// A complete single- or double-quoted shell argument; an unterminated quote never matches.
+const QUOTED_ARGUMENT_PATTERN = /"[^"]*"|'[^']*'/gu;
+
 /**
  * Whether an inline span documents a `bun run beep` invocation rather than a path.
  *
  * **Details**
  *
  * A span qualifies only when it starts with the exact command prefix and carries no shell
- * composition — pipes, sequencing, redirection, substitution, or a comment. Everything else is read
- * by the path bus instead, which is why the two readers share this one predicate.
+ * composition — pipes, sequencing, redirection, substitution, or a comment — and no arrow-chain
+ * notation (a whitespace-delimited `→`, or `->`), which writes a pipeline of several commands
+ * rather than one invocation. An arrow inside a single argument, such as a quoted description,
+ * does not make a chain.
+ * Everything else is read by the path bus instead, which is why the two readers share this one
+ * predicate.
+ *
+ * Composition characters and arrows count only outside single- and double-quoted arguments, so
+ * `--description "Doc → KG"` stays one command; command substitution (`$(`) counts anywhere, because
+ * the shell expands it inside double quotes too.
  *
  * **Example** (Separate a documented command from a path)
  *
@@ -1578,6 +1589,9 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  *
  * console.log(isKnowledgeCommandSpan("bun run beep goals doctor")) // true
  * console.log(isKnowledgeCommandSpan("goals/INDEX.md")) // false
+ * console.log(isKnowledgeCommandSpan("bun run beep yeet repair → verify → publish --pr")) // false
+ * console.log(isKnowledgeCommandSpan('bun run beep create-package demo --description "Doc→KG"')) // true
+ * console.log(isKnowledgeCommandSpan('bun run beep create-package demo --description "Doc → KG"')) // true
  * ```
  *
  * @param span - Inline code span content, with CommonMark padding already stripped.
@@ -1586,7 +1600,84 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * @since 0.0.0
  */
 export const isKnowledgeCommandSpan = (span: string): boolean =>
-  /^bun run beep(?:$|[ \t])/u.test(span) && !/[|;&<>]|\$\(|(?:^|[ \t])#/u.test(span);
+  /^bun run beep(?:$|[ \t])/u.test(span) &&
+  !/\$\(/u.test(span) &&
+  !/[|;&<>]|[ \t]→[ \t]|(?:^|[ \t])#/u.test(Str.replace(QUOTED_ARGUMENT_PATTERN, "")(span));
+
+// CommonMark starts an HTML block at up to three spaces of indentation; four spaces or a
+// tab make the line an indented code block, which is literal syntax and asserts nothing.
+const PATH_ASSERTION_LINE_PATTERN = /^( {0,3})<!-- beep:assert path-exists (\S+) -->[ \t]*$/u;
+
+/**
+ * A `beep:assert path-exists` marker and the 1-based column its comment opens at.
+ *
+ * **Example** (Build an assertion at the start of a line)
+ *
+ * ```ts
+ * import { KnowledgePathAssertion } from "@beep/repo-cli/commands/Knowledge/Knowledge.refs"
+ *
+ * const assertion = KnowledgePathAssertion.make({ path: "AGENTS.md", column: 1 })
+ * console.log(assertion.path) // "AGENTS.md"
+ * ```
+ *
+ * @see {@link knowledgePathAssertion} for the reader that produces it.
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgePathAssertion extends S.Class<KnowledgePathAssertion>($I`KnowledgePathAssertion`)(
+  {
+    path: S.String,
+    column: S.Int,
+  },
+  $I.annote("KnowledgePathAssertion", {
+    description: "A whole-line path-exists assertion marker and the 1-based column its comment opens at.",
+  })
+) {}
+
+/**
+ * Reads the path assertion a prose line makes, if it makes one.
+ *
+ * **Details**
+ *
+ * A line asserts only when the whole line is the HTML comment
+ * `<!-- beep:assert path-exists <path> -->`, indented by at most three spaces and followed only by
+ * spaces or tabs. A marker quoted inside an inline code span, written mid-line in prose, followed
+ * by extra tokens, or indented four spaces or a tab (a CommonMark indented code block) is syntax
+ * documentation and asserts nothing. Fenced
+ * lines never reach this reader. Stage-1 refs and semantic delta and the Stage-2 doctor share this
+ * one reader so the two stages agree on what an assertion is.
+ *
+ * **Gotchas**
+ *
+ * A marker behind a blockquote or list prefix is not a whole comment line, so it does not assert.
+ *
+ * **Example** (Separate a real marker from documented syntax)
+ *
+ * ```ts
+ * import { knowledgePathAssertion } from "@beep/repo-cli/commands/Knowledge/Knowledge.refs"
+ * import * as O from "effect/Option"
+ *
+ * const real = knowledgePathAssertion("<!-- beep:assert path-exists docs/README.md -->")
+ * console.log(O.map(real, (assertion) => assertion.path)) // Option.some("docs/README.md")
+ *
+ * const quoted = knowledgePathAssertion("write `<!-- beep:assert path-exists docs/README.md -->`")
+ * console.log(O.isNone(quoted)) // true
+ * ```
+ *
+ * @param lineText - One document line, already known to sit outside every fence.
+ * @returns The asserted path spelling and marker column, or `O.none()` when the line asserts nothing.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const knowledgePathAssertion = (lineText: string): O.Option<KnowledgePathAssertion> =>
+  pipe(
+    O.fromNullishOr(PATH_ASSERTION_LINE_PATTERN.exec(lineText)),
+    O.flatMap(([, indent, path]) =>
+      P.isString(indent) && P.isString(path)
+        ? O.some(KnowledgePathAssertion.make({ path, column: Str.length(indent) + 1 }))
+        : O.none()
+    )
+  );
 
 const FENCE_PATTERN = /^(`{3,}|~{3,})(.*)$/u;
 const QUOTE_PREFIX_PATTERN = /^(?:[ \t]*>[ \t]?)+/u;
@@ -1625,6 +1716,7 @@ type OpenFence = {
   readonly marker: string;
   readonly length: number;
   readonly depth: number;
+  readonly info: string;
 };
 
 const openedFence = (line: ContainerLine): O.Option<OpenFence> => {
@@ -1632,7 +1724,12 @@ const openedFence = (line: ContainerLine): O.Option<OpenFence> => {
   if (fence === null || !P.isString(fence[1]) || !P.isString(fence[1][0])) {
     return O.none();
   }
-  return O.some({ marker: fence[1][0], length: Str.length(fence[1]), depth: line.depth });
+  return O.some({
+    marker: fence[1][0],
+    length: Str.length(fence[1]),
+    depth: line.depth,
+    info: Str.trim(P.isString(fence[2]) ? fence[2] : ""),
+  });
 };
 
 const closesFence = (line: ContainerLine, open: OpenFence): boolean => {
@@ -1710,7 +1807,56 @@ export type KnowledgeDocumentLine = {
  * @category parsing
  * @since 0.0.0
  */
-export const knowledgeDocumentLines = (text: string): ReadonlyArray<KnowledgeDocumentLine> => {
+export const knowledgeDocumentLines = (text: string): ReadonlyArray<KnowledgeDocumentLine> =>
+  A.map(knowledgeDocumentFenceLines(text), (line) => ({ text: line.text, number: line.number, prose: line.prose }));
+
+/**
+ * One document line with its fence verdict and the info string of the fence it belongs to.
+ *
+ * @see {@link knowledgeDocumentFenceLines} for the reader that produces them.
+ * @category models
+ * @since 0.0.0
+ */
+export type KnowledgeDocumentFenceLine = KnowledgeDocumentLine & {
+  readonly fenceInfo: O.Option<string>;
+  readonly opensFence: boolean;
+};
+
+/**
+ * Splits a decoded document into numbered lines carrying the fence verdict and fence info string.
+ *
+ * **Details**
+ *
+ * `fenceInfo` is the trimmed info string of the fence a line belongs to — its opening delimiter, its
+ * content, and its closing delimiter — and `O.none()` for prose. `opensFence` is true only on an
+ * opening delimiter, which is what separates two adjacent fences. It is read from the opening
+ * delimiter only, so a marker written in prose, or inside an HTML comment within the fence body,
+ * never makes a fence carry it. The `prose` verdict is exactly the one {@link knowledgeDocumentLines}
+ * reports, because that reader is a projection of this one.
+ *
+ * **Example** (Read the info string of a fenced line)
+ *
+ * The delimiter is assembled rather than written literally, because a fence cannot appear inside
+ * this documentation block.
+ *
+ * ```ts
+ * import { knowledgeDocumentFenceLines } from "@beep/repo-cli/commands/Knowledge/Knowledge.refs"
+ * import * as A from "effect/Array"
+ * import * as O from "effect/Option"
+ *
+ * const fence = A.join(A.replicate("~", 3), "")
+ * const lines = knowledgeDocumentFenceLines(A.join(["intro", `${fence}text beep:generated=x`, "body", fence], "\n"))
+ *
+ * console.log(A.map(lines, (line) => O.getOrNull(line.fenceInfo)))
+ * // [ null, "text beep:generated=x", "text beep:generated=x", "text beep:generated=x" ]
+ * ```
+ *
+ * @param text - Whole decoded document text.
+ * @returns Every line, 1-based numbered, with its fence verdict and fence info string.
+ * @category parsing
+ * @since 0.0.0
+ */
+export const knowledgeDocumentFenceLines = (text: string): ReadonlyArray<KnowledgeDocumentFenceLine> => {
   // Single-allocation map with fence state threaded through the closure: per-line `A.append`
   // re-copies the whole accumulator and turns a large document quadratic.
   let fence = O.none<OpenFence>();
@@ -1718,8 +1864,13 @@ export const knowledgeDocumentLines = (text: string): ReadonlyArray<KnowledgeDoc
     const nextFence = advanceFence(fence, containerLine(lineText));
     // Prose only: fence delimiters and fenced content alike are excluded.
     const prose = O.isNone(fence) && O.isNone(nextFence);
+    const fenceInfo = O.map(
+      O.orElse(fence, () => nextFence),
+      (open) => open.info
+    );
+    const opensFence = O.isNone(fence) && O.isSome(nextFence);
     fence = nextFence;
-    return { text: lineText, number: index + 1, prose };
+    return { text: lineText, number: index + 1, prose, fenceInfo, opensFence };
   });
 };
 

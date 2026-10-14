@@ -14,6 +14,7 @@
 export {
   applyKnowledgeRefsCheck,
   knowledgeCommand,
+  knowledgeDoctorCommand,
   knowledgeRefsCheckFailure,
   knowledgeRefsCommand,
   knowledgeSemanticDeltaCommand,
@@ -50,12 +51,35 @@ export {
   guardKnowledgeCloneAttributes,
   KnowledgeService,
   KnowledgeServiceLive,
+  knowledgeCommandWords,
+  knowledgeFindingsFromCandidates,
   makeKnowledgeFindingId,
   makeKnowledgeTreeOracle,
+  materializeKnowledgeTree,
+  readKnowledgeGitRefNames,
   resolveKnowledgeProbePolicy,
   rewriteKnowledgeReferences,
   scanKnowledgePair,
 } from "./Knowledge.service.ts";
+/**
+ * Stage-2 knowledge-doctor schemas: span classes, resolution witnesses, outcomes, and the report.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./KnowledgeDoctor.baseline.ts";
+export * from "./KnowledgeDoctor.domain.ts";
+export * from "./KnowledgeDoctor.evaluators.ts";
+export * from "./KnowledgeDoctor.grouping.ts";
+export * from "./KnowledgeDoctor.leases.ts";
+export * from "./KnowledgeDoctor.schemas.ts";
+/**
+ * Stage-2 knowledge doctor: extraction, classification, evaluators, overlay, and service.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./KnowledgeDoctor.service.ts";
 /**
  * Paired-archive scanner service contracts.
  *
@@ -64,6 +88,7 @@ export {
  */
 export type {
   KnowledgeArchiveOracle,
+  KnowledgeMaterializedTree,
   KnowledgePairedOracleInput,
   KnowledgeServiceShape,
   KnowledgeTreeOracle,

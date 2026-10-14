@@ -6,6 +6,7 @@ import {
   CorpusArchiveMoveOptions,
   CorpusCatalogOptions,
   CorpusCommandServiceLive,
+  CorpusExtractOcrCounts,
   CorpusExtractOptions,
   CorpusPageReadingRecordJson,
   CorpusProvenanceRecord,
@@ -20,6 +21,7 @@ import {
   encodeCorpusProvenanceRecordJson,
   encodeTransformationLedgerRecordJson,
   extractCorpus,
+  MailOccurrenceMembership,
   pairRecycleBinEntries,
   parseRecycleBinMetadata,
   preserveRestorationArchive,
@@ -63,6 +65,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import { ChildProcess } from "effect/process";
+import * as R from "effect/Record";
 import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
@@ -295,6 +298,10 @@ const rejectsLegacyPassField = S.is(LiteralKit(["attemptId", "originalSha256", "
 const copiedDerivativeField = S.is(LiteralKit(["childRelativePath", "sha256", "sizeBytes", "sourceObjectId"]));
 const tikaDerivativeField = S.is(LiteralKit(["childRelativePath", "sourceObjectId"]));
 
+// Spreading copies the same own enumerable fields `Object.entries` read, as a plain record.
+const ledgerRecordEntries = (record: TransformationLedgerRecord): ReadonlyArray<readonly [string, unknown]> =>
+  R.toEntries<string, unknown>({ ...record });
+
 const expectedStructuralMutation = (record: TransformationLedgerRecord, field: string): boolean =>
   Match.value(record).pipe(
     Match.when({ recordType: "family-run-start" }, () => !rejectsRunStartField(field)),
@@ -332,7 +339,7 @@ const expectedStructuralMutation = (record: TransformationLedgerRecord, field: s
 
 const expectedSystematicStructuralVerdicts = (records: ReadonlyArray<TransformationLedgerRecord>) =>
   A.flatMap(records, (record) =>
-    A.flatMap(Object.entries(record), ([field, value]) =>
+    A.flatMap(ledgerRecordEntries(record), ([field, value]) =>
       O.match(mutatedEvidenceValue(value), {
         onNone: A.empty,
         onSome: () => [expectedStructuralMutation(record, field)],
@@ -673,7 +680,7 @@ const mutatedEvidenceValue = (value: unknown): O.Option<unknown> => {
   if (typeof value === "string") return O.some(`${value}/mutated`);
   if (typeof value === "number") return O.some(value + 1);
   if (typeof value === "boolean") return O.some(!value);
-  if (Array.isArray(value)) return O.some(A.append(value, value[0] ?? "mutated"));
+  if (A.isArray(value)) return O.some(A.append(value, value[0] ?? "mutated"));
   if (value === undefined) return O.some("mutated");
   return O.none();
 };
@@ -682,7 +689,7 @@ const systematicEvidenceMutations = (
   records: ReadonlyArray<TransformationLedgerRecord>
 ): ReadonlyArray<ReadonlyArray<TransformationLedgerRecord>> =>
   A.flatMap(records, (record, recordIndex) =>
-    A.flatMap(Object.entries(record), ([field, value]) =>
+    A.flatMap(ledgerRecordEntries(record), ([field, value]) =>
       O.match(mutatedEvidenceValue(value), {
         onNone: A.empty,
         onSome: (mutatedValue) => {
@@ -839,7 +846,7 @@ const helperVariantVerdicts = (
   summary: FamilySummary
 ): ReadonlyArray<EvidenceVerdicts> => {
   const fieldExpected = A.flatMap(records, (record) =>
-    A.flatMap(Object.entries(record), ([field, value]) =>
+    A.flatMap(ledgerRecordEntries(record), ([field, value]) =>
       O.match(mutatedEvidenceValue(value), {
         onNone: A.empty,
         onSome: () => [
@@ -874,7 +881,7 @@ const assertDecodedMutations = (
   // typed mutations beside the original whole-ledger-clone exercise.
   let typedIndex = 6;
   A.forEach(records, (record) =>
-    A.forEach(Object.entries(record), ([field, value]) =>
+    A.forEach(ledgerRecordEntries(record), ([field, value]) =>
       O.match(mutatedEvidenceValue(value), {
         onNone: () => {},
         onSome: () => {
@@ -1093,7 +1100,7 @@ const setUint64 = (view: DataView, offset: number, value: bigint): void => {
 };
 
 const writeUtf16 = (view: DataView, offset: number, text: string): void => {
-  Array.from(text).forEach((char, index) => {
+  A.forEach(Array.from(text), (char, index) => {
     view.setUint16(offset + index * 2, char.charCodeAt(0), true);
   });
 };
@@ -1182,9 +1189,9 @@ it.layer(testLayer, { timeout: "30 seconds" })("Corpus recycle-bin parsing", (it
       RecycleBinScanEntry.make({ kind: "content", pairKey: "C3.txt", relativePath: "$RC3.txt" }),
     ]);
 
-    expect(pairing.matched.map((pair) => pair.pairKey)).toStrictEqual(["A1.docx"]);
-    expect(pairing.unmatchedMetadata.map((entry) => entry.relativePath)).toStrictEqual(["$IB2.pdf"]);
-    expect(pairing.unmatchedContent.map((entry) => entry.relativePath)).toStrictEqual(["$RC3.txt"]);
+    expect(A.map(pairing.matched, (pair) => pair.pairKey)).toStrictEqual(["A1.docx"]);
+    expect(A.map(pairing.unmatchedMetadata, (entry) => entry.relativePath)).toStrictEqual(["$IB2.pdf"]);
+    expect(A.map(pairing.unmatchedContent, (entry) => entry.relativePath)).toStrictEqual(["$RC3.txt"]);
   });
 });
 
@@ -1235,7 +1242,7 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus catalog", (it) => {
         record("source-a", "$RAB12CD.docx", digestContent, 1_024, path.join(sourceADir, "$RAB12CD.docx")),
         record("source-a", "$RZZ99XX.pdf", digestLoose, 5_000, path.join(sourceADir, "$RZZ99XX.pdf")),
       ];
-      yield* fs.writeFileString(path.join(rawDir, "provenance.jsonl"), `${manifestLines.join("\n")}\n`);
+      yield* fs.writeFileString(path.join(rawDir, "provenance.jsonl"), `${A.join(manifestLines, "\n")}\n`);
 
       const summary = yield* catalogCorpus(CorpusCatalogOptions.make({ corpusRoot }));
 
@@ -1520,6 +1527,8 @@ const makeExtractResumeFixture = Effect.fn("CorpusTest.makeExtractResumeFixture"
     rawDir,
     readText,
     recognitionCalls,
+    installLanguages: (languages: ReadonlyArray<string>) =>
+      writeStub(ocrTesseractStub(callLog, languages), tesseractPath),
     run: (
       overrides: {
         readonly exportChildren?: boolean;
@@ -1560,6 +1569,8 @@ const readProvenanceRecords = Effect.fn("CorpusTest.readProvenanceRecords")(func
 });
 
 const decodeArchiveMoveManifestRecordJson = S.decodeUnknownEffect(S.fromJsonString(CorpusArchiveMoveManifestRecord));
+const encodeMailOccurrenceMembershipJson = S.encodeEffect(S.fromJsonString(MailOccurrenceMembership));
+const unknownJson = S.fromJsonString(S.Unknown);
 
 const readArchiveMoveManifestRecords = Effect.fn("CorpusTest.readArchiveMoveManifestRecords")(function* (
   manifestPath: string
@@ -1753,7 +1764,7 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus extract and salvage", (it
         record("note.txt", txtDigest, 14, txtPath),
         record("copy/note-copy.txt", txtDigest, 14, txtPath),
       ];
-      yield* fs.writeFileString(path.join(corpusRoot, "raw", "provenance.jsonl"), `${manifestLines.join("\n")}\n`);
+      yield* fs.writeFileString(path.join(corpusRoot, "raw", "provenance.jsonl"), `${A.join(manifestLines, "\n")}\n`);
 
       const summary = yield* extractCorpus(
         CorpusExtractOptions.make({
@@ -2226,6 +2237,60 @@ it.layer(testLayer, { excludeTestServices: true, timeout: "60 seconds" })("corpu
       expect(resumed.alreadyCompleteCount).toBe(3);
       expect(resumed.failedCount).toBe(1);
       expect(resumed.ocrPageCount).toBe(4);
+    })
+  );
+
+  it.effect(
+    "decodes legacy OCR counts without missing models",
+    Effect.fnUntraced(function* () {
+      const counts = yield* S.decodeEffect(CorpusExtractOcrCounts)({ failedPageCount: 0, readPageCount: 1 });
+      assertNone(counts.missingLanguages);
+      expect(counts.completed).toBe(true);
+    })
+  );
+
+  it.effect(
+    "keeps missing models on resume and rereads Han pages when any missing model is installed",
+    Effect.fnUntraced(function* () {
+      const han = "pages=1 p1=han";
+      const fixture = yield* makeExtractResumeFixture([{ content: han, name: "notice.pdf" }]);
+      yield* fixture.run({ ocr: true });
+      const resumed = yield* fixture.run({ ocr: true });
+      expect(resumed.alreadyCompleteCount).toBe(1);
+      expect(yield* fixture.recognitionCalls()).toHaveLength(1);
+      expect(yield* fixture.readText("ocr/languages.json")).toContain('"missing":["chi_sim","chi_tra"]');
+
+      yield* fixture.installLanguages(["chi_sim", "eng", "osd"]);
+      const installed = yield* fixture.run({ ocr: true });
+      expect(installed.alreadyCompleteCount).toBe(0);
+      expect(yield* fixture.recognitionCalls()).toHaveLength(2);
+      expect(A.map(yield* fixture.pageRows(han), (row) => row.languages)).toEqual([["chi_sim", "eng"]]);
+      expect(yield* fixture.readText("ocr/languages.json")).toContain('"missing":["chi_tra"]');
+      expect((yield* fixture.run({ ocr: true })).alreadyCompleteCount).toBe(1);
+      expect(yield* fixture.readText("ocr/languages.json")).toContain('"missing":["chi_tra"]');
+    })
+  );
+
+  it.effect(
+    "retries an empty language plan while keeping sources that need no OCR settled",
+    Effect.fnUntraced(function* () {
+      const han = "pages=1 p1=han";
+      const fixture = yield* makeExtractResumeFixture(
+        [
+          { content: han, name: "notice.pdf" },
+          { content: "plain text", name: "note.txt" },
+        ],
+        ["osd"]
+      );
+      yield* fixture.run({ ocr: true });
+      expect(yield* fixture.recognitionCalls()).toHaveLength(0);
+      expect(yield* fixture.readText(`outcomes/${contentDigest(han)}.json`)).toContain('"ocrEnabled":false');
+      expect((yield* fixture.run({ ocr: true })).alreadyCompleteCount).toBe(1);
+      expect(yield* fixture.readText("ocr/languages.json")).toContain('"missing":["chi_sim","chi_tra","eng"]');
+      yield* fixture.installLanguages(["chi_sim", "eng", "osd"]);
+      expect((yield* fixture.run({ ocr: true })).alreadyCompleteCount).toBe(1);
+      expect(yield* fixture.recognitionCalls()).toHaveLength(1);
+      expect((yield* fixture.run({ ocr: true })).alreadyCompleteCount).toBe(2);
     })
   );
 
@@ -3862,7 +3927,8 @@ exit 0
 
 const makeMailRestorationFixture = Effect.fn("CorpusTest.makeMailRestorationFixture")(function* (
   pffexportScript: string,
-  tikaScript: string = restorationTikaStub
+  tikaScript: string = restorationTikaStub,
+  additionalStore: O.Option<number> = O.none()
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -3883,6 +3949,9 @@ const makeMailRestorationFixture = Effect.fn("CorpusTest.makeMailRestorationFixt
   const mailBytes = new Uint8Array(1024 * 1024 + 31);
   mailBytes.fill(0x42);
   yield* fs.writeFile(mailPath, mailBytes);
+  if (O.isSome(additionalStore)) {
+    yield* fs.writeFile(path.join(sourceRoot, "second.pst"), new Uint8Array(additionalStore.value));
+  }
   yield* fs.writeFileString(rootArchive, "verbatim-root-archive");
   const collectorRow = yield* S.encodeEffect(collectorManifestJson)(
     CollectorManifestRecord.cases.copied.make({
@@ -4030,6 +4099,35 @@ const tamperRestartedMailSegment = (
     Match.exhaustive
   );
 
+const makeMailMembershipFixture = Effect.fnUntraced(function* (
+  fixture: { readonly corpusRoot: string },
+  preservationLabel: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const text = yield* fs.readFileString(
+    path.join(fixture.corpusRoot, "raw", preservationLabel, "archive-ledger.jsonl")
+  );
+  const records = yield* Effect.forEach(
+    A.filter(Str.split(/\r?\n/u)(text), Str.isNonEmpty),
+    decodeArchiveLedgerRecordJson
+  );
+  const pass = yield* Effect.fromOption(
+    A.findFirst(records, (row) => row.recordType === "archive-file-pass" && row.sizeBytes === 1024 * 1024 + 64)
+  );
+  if (pass.recordType !== "archive-file-pass") return yield* Effect.die("Expected synthetic PST pass.");
+  const membership = yield* S.decodeEffect(MailOccurrenceMembership)({
+    schema: "mail-occurrence-membership/v1",
+    preservationLabel,
+    maxInputBytes: 536870912,
+    members: [{ objectId: pass.objectId, sha256: pass.sha256, sizeBytes: pass.sizeBytes }],
+  });
+  const membershipFile = path.join(fixture.corpusRoot, "membership.json");
+  yield* fs.writeFileString(membershipFile, yield* encodeMailOccurrenceMembershipJson(membership));
+  const member = yield* Effect.fromOption(A.head(membership.members));
+  return { membershipFile, member, membership };
+});
+
 it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restoration mail", (it) => {
   it.effect(
     "runs the public source-path engine with all-item mode and accounts every raw and repaired child",
@@ -4073,6 +4171,445 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
   );
 
   it.effect(
+    "decodes bounded occurrence selection and rejects malformed identities",
+    Effect.fnUntraced(function* () {
+      const fixture = yield* makeMailRestorationFixture(restorationPffexportStub);
+      const encoded = yield* S.encodeEffect(RestorationMailOptions)(mailRestorationOptions(fixture));
+      const options = yield* S.decodeEffect(RestorationMailOptions)({
+        ...encoded,
+        occurrence: Str.repeat(64)("a"),
+        membershipFile: "membership.json",
+      });
+      assertSome(options.occurrence, Sha256Hex.make(Str.repeat(64)("a")));
+      assertSome(options.membershipFile, "membership.json");
+      const invalid = yield* S.decodeEffect(RestorationMailOptions)({
+        ...encoded,
+        occurrence: "outside-plan",
+      }).pipe(Effect.exit);
+      invalid.pipe(Exit.isFailure, assertTrue);
+    })
+  );
+
+  it.effect(
+    "selects a planned occurrence and derives expectedCount one while default remains slice",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(
+        restorationPffexportStub,
+        restorationTikaStub,
+        O.some(1024 * 1024 + 64)
+      );
+      const defaults = mailRestorationOptions(fixture);
+      assertNone(defaults.occurrence);
+      assertNone(defaults.membershipFile);
+      yield* restoreMail(defaults);
+      const originalLedger = path.join(
+        fixture.corpusRoot,
+        "staging/restoration/runs",
+        defaults.runLabel,
+        "ledgers/mail/slice.jsonl"
+      );
+      const originalBytes = yield* fs.readFileString(originalLedger);
+      const { member, membershipFile } = yield* makeMailMembershipFixture(fixture, defaults.runLabel);
+      const options = yield* S.decodeEffect(RestorationMailOptions)({
+        ...(yield* S.encodeEffect(RestorationMailOptions)(defaults)),
+        runLabel: "planned-occurrence",
+        preservationLabel: defaults.runLabel,
+        occurrence: member.objectId,
+        membershipFile,
+        expectedStoreCount: 1,
+      });
+      const summary = yield* restoreMail(options);
+      const { records } = yield* readTransformationLedgerFixture(
+        path.join(fixture.corpusRoot, "staging/restoration/runs/planned-occurrence/ledgers/mail/slice.jsonl")
+      );
+      expect(
+        A.map(
+          A.filter(records, (row) => row.recordType === "family-run-start"),
+          (row) => row.expectedCount
+        )
+      ).toEqual([1]);
+      expect(summary.passCount).toBe(1);
+      const passes = A.filter(records, isTransformationLedgerRecordCasesMailStorePass);
+      expect(A.map(passes, (pass) => pass.objectId)).toEqual([member.objectId]);
+      const original = yield* readTransformationLedgerFixture(originalLedger);
+      expect(
+        A.map(A.filter(original.records, isTransformationLedgerRecordCasesMailStorePass), (pass) => pass.objectId)
+      ).not.toEqual([member.objectId]);
+      expect(yield* fs.readFileString(originalLedger)).toBe(originalBytes);
+      const oldStart = O.getOrThrow(A.findFirst(original.records, (row) => row.recordType === "family-run-start"));
+      const newStart = O.getOrThrow(A.findFirst(records, (row) => row.recordType === "family-run-start"));
+      expect(newStart.policySha256).not.toBe(oldStart.policySha256);
+      const implicitFixture = yield* makeMailRestorationFixture(
+        restorationPffexportStub,
+        restorationTikaStub,
+        O.some(1024 * 1024 + 64)
+      );
+      const implicitDefaults = mailRestorationOptions(implicitFixture);
+      const implicitPlan = yield* makeMailMembershipFixture(implicitFixture, implicitDefaults.runLabel);
+      const implicitOptions = yield* S.decodeEffect(RestorationMailOptions)({
+        ...(yield* S.encodeEffect(RestorationMailOptions)(implicitDefaults)),
+        occurrence: implicitPlan.member.objectId,
+        membershipFile: implicitPlan.membershipFile,
+      });
+      assertNone(implicitOptions.preservationLabel);
+      expect((yield* restoreMail(implicitOptions)).passCount).toBe(1);
+    })
+  );
+
+  it.effect(
+    "refuses out-of-plan occurrences and full selection before creating family state",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(
+        restorationPffexportStub,
+        restorationTikaStub,
+        O.some(1024 * 1024 + 64)
+      );
+      const defaults = mailRestorationOptions(fixture);
+      const { member, membershipFile } = yield* makeMailMembershipFixture(fixture, defaults.runLabel);
+      for (const encoded of [
+        { occurrence: Str.repeat(64)("f"), membershipFile, scope: "slice" },
+        { occurrence: member.objectId, membershipFile, scope: "full" },
+        { occurrence: member.objectId, scope: "slice" },
+        { membershipFile, scope: "slice" },
+        { occurrence: member.objectId, membershipFile, scope: "slice", expectedStoreCount: 99 },
+      ]) {
+        const options = yield* S.decodeUnknownEffect(RestorationMailOptions)({
+          ...(yield* S.encodeEffect(RestorationMailOptions)(defaults)),
+          ...encoded,
+          runLabel: "refused-plan",
+          preservationLabel: defaults.runLabel,
+        });
+        const error = yield* restoreMail(options).pipe(Effect.flip);
+        expect(error._tag).toBe("CorpusCommandError");
+        expect(yield* fs.exists(path.join(fixture.corpusRoot, "staging/restoration/runs/refused-plan"))).toBe(false);
+      }
+    })
+  );
+
+  it.effect(
+    "refuses malformed bounded plans and archive identity drift before family start",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(
+        restorationPffexportStub,
+        restorationTikaStub,
+        O.some(1024 * 1024 + 64)
+      );
+      const defaults = mailRestorationOptions(fixture);
+      const { member, membershipFile, membership } = yield* makeMailMembershipFixture(fixture, defaults.runLabel);
+      const encoded = yield* encodeMailOccurrenceMembershipJson(membership);
+      const options = yield* S.decodeEffect(RestorationMailOptions)({
+        ...(yield* S.encodeEffect(RestorationMailOptions)(defaults)),
+        occurrence: member.objectId,
+        membershipFile,
+        runLabel: "refused-plan",
+        preservationLabel: defaults.runLabel,
+      });
+      for (const text of [
+        "invalid json",
+        Str.replace(defaults.runLabel, "wrong-archive")(encoded),
+        yield* S.encodeEffect(unknownJson)({ ...membership, members: [member, member] }),
+      ]) {
+        yield* fs.writeFileString(membershipFile, text);
+        yield* restoreMail(options).pipe(Effect.flip);
+        expect(yield* fs.exists(path.join(fixture.corpusRoot, "staging/restoration/runs/refused-plan"))).toBe(false);
+      }
+      yield* fs.writeFileString(membershipFile, encoded);
+      yield* restoreMail(RestorationMailOptions.make({ ...options, maxTotalOutputBytes: PosInt.make(1) })).pipe(
+        Effect.flip
+      );
+      yield* fs.remove(membershipFile);
+      yield* restoreMail(options).pipe(Effect.flip);
+      for (const changed of [
+        { ...member, objectId: Sha256Hex.make(Str.repeat(64)("f")) },
+        { ...member, sha256: Sha256Hex.make(Str.repeat(64)("f")) },
+        { ...member, sizeBytes: PosInt.make(member.sizeBytes + 1) },
+      ]) {
+        const changedMembership = yield* S.decodeEffect(MailOccurrenceMembership)({
+          ...(yield* S.encodeEffect(MailOccurrenceMembership)(membership)),
+          members: [changed],
+        });
+        yield* fs.writeFileString(membershipFile, yield* encodeMailOccurrenceMembershipJson(changedMembership));
+        const changedOptions = yield* S.decodeEffect(RestorationMailOptions)({
+          ...(yield* S.encodeEffect(RestorationMailOptions)(options)),
+          occurrence: changed.objectId,
+        });
+        yield* restoreMail(changedOptions).pipe(Effect.flip);
+        expect(yield* fs.exists(path.join(fixture.corpusRoot, "staging/restoration/runs/refused-plan"))).toBe(false);
+      }
+    })
+  );
+
+  it.effect(
+    "rejects duplicate unselected occurrence objectIds when decoding the bounded plan",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(
+        restorationPffexportStub,
+        restorationTikaStub,
+        O.some(1024 * 1024 + 64)
+      );
+      const defaults = mailRestorationOptions(fixture);
+      const { member, membershipFile, membership } = yield* makeMailMembershipFixture(fixture, defaults.runLabel);
+      const unselected = { ...member, objectId: Sha256Hex.make(Str.repeat(64)("f")) };
+      const invalid = {
+        ...(yield* S.encodeEffect(MailOccurrenceMembership)(membership)),
+        members: [member, unselected, { ...unselected, sha256: Sha256Hex.make(Str.repeat(64)("e")) }],
+      };
+      const decoded = yield* S.decodeEffect(MailOccurrenceMembership)(invalid).pipe(Effect.exit);
+      decoded.pipe(Exit.isFailure, assertTrue);
+      yield* fs.writeFileString(membershipFile, yield* S.encodeEffect(unknownJson)(invalid));
+      const options = yield* S.decodeEffect(RestorationMailOptions)({
+        ...(yield* S.encodeEffect(RestorationMailOptions)(defaults)),
+        occurrence: member.objectId,
+        membershipFile,
+        runLabel: "refused-duplicate-plan",
+        preservationLabel: defaults.runLabel,
+      });
+      const error = yield* restoreMail(options).pipe(Effect.flip);
+      expect(error._tag).toBe("CorpusCommandError");
+      expect(yield* fs.exists(path.join(fixture.corpusRoot, "staging/restoration/runs/refused-duplicate-plan"))).toBe(
+        false
+      );
+    })
+  );
+
+  it.effect(
+    "retains message-free Tika failure evidence without approving parser failures",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      for (const exitCode of [0, 1]) {
+        const fixture = yield* makeMailRestorationFixture(
+          Str.replace("%%PDF-1.4 synthetic attachment", "GIF89a synthetic attachment")(restorationPffexportStub),
+          `#!/bin/sh\nprintf 'private parser detail' >&2\nexit ${exitCode}\n`
+        );
+        yield* restoreMail(mailRestorationOptions(fixture)).pipe(Effect.flip);
+        const runRoot = path.join(fixture.corpusRoot, "staging/restoration/runs/synthetic-mail-restoration");
+        const { records } = yield* readTransformationLedgerFixture(path.join(runRoot, "ledgers/mail/slice.jsonl"));
+        const terminal = A.findFirst(records, isTransformationLedgerRecordCasesMailStoreException);
+        terminal.pipe(O.isSome, assertTrue);
+        if (O.isNone(terminal)) return;
+        expect(terminal.value.failureCause).toEqual({
+          _tag: "TikaSecondPassFailure",
+          emptyOutput: true,
+          exitCode,
+          truncated: false,
+        });
+        expect(terminal.value.approved).toBe(false);
+        expect(terminal.value.exceptionKind).toBe("engine-failure");
+        expect(
+          A.last(records).pipe(
+            O.map((row) => row.recordType),
+            O.getOrUndefined
+          )
+        ).toBe("family-acceptance-failure");
+        expect(A.filter(records, isTransformationLedgerRecordCasesMailChildPass)).toHaveLength(0);
+        const encoded = yield* encodeTransformationLedgerRecordJson(terminal.value);
+        expect(encoded).not.toContain("private parser detail");
+        expect(encoded).not.toContain(fixture.tikaPath);
+        const decoded = yield* decodeTransformationLedgerRecordJson(encoded);
+        expect(decoded).toEqual(terminal.value);
+        const legacy = yield* S.decodeEffect(TransformationLedgerRecord)(Struct.omit(terminal.value, ["failureCause"]));
+        expect(isTransformationLedgerRecordCasesMailStoreException(legacy) && legacy.failureCause).toBeUndefined();
+        expect(
+          yield* fs.exists(path.join(runRoot, "output/mail/slice/attempts", `${terminal.value.attemptId}.partial`))
+        ).toBe(true);
+      }
+    })
+  );
+
+  it.effect(
+    "uses the separately frozen recovery elapsed ceiling while retaining the family time bound",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(restorationPffexportStub);
+      const derivedPath = path.join(fixture.corpusRoot, "synthetic-repair.bin");
+      yield* fs.writeFileString(derivedPath, "%PDF-1.4 synthetic repair");
+      const now = yield* Clock.currentTimeMillis;
+      const startedAt = now - 7_222_485;
+      const context = {
+        archiveRoot: fixture.corpusRoot,
+        corpusRoot: fixture.corpusRoot,
+        family: "mail" as const,
+        ledgerPath: path.join(fixture.corpusRoot, "unused.jsonl"),
+        mailScope: O.some<"slice" | "full">("slice"),
+        outputRoot: fixture.corpusRoot,
+        preservationRecords: [],
+        preservationRunId: "synthetic",
+        preservationSealSha256: RT.digestString("synthetic"),
+        runLabel: "synthetic-recovery",
+        runRoot: fixture.corpusRoot,
+        startedAt,
+        transformationRunId: "synthetic-recovery",
+      };
+      const oldOptions = RestorationMailOptions.make({
+        ...mailRestorationOptions(fixture),
+        maxElapsedMillis: PosInt.make(7_200_000),
+        maxTotalElapsedMillis: PosInt.make(43_200_000),
+      });
+      const exhausted = yield* RT.extractAttachmentText(
+        derivedPath,
+        "synthetic",
+        oldOptions,
+        context,
+        startedAt,
+        fixture.corpusRoot,
+        1024 * 1024 * 1024
+      ).pipe(Effect.flip);
+      expect(exhausted.cause).toMatchObject({
+        _tag: "AttachmentRepairElapsedBudget",
+        maxElapsedMillis: 7_200_000,
+        maxTotalElapsedMillis: 43_200_000,
+      });
+      const recoveryOptions = RestorationMailOptions.make({ ...oldOptions, maxElapsedMillis: PosInt.make(22_320_000) });
+      expect(
+        yield* RT.extractAttachmentText(
+          derivedPath,
+          "synthetic",
+          recoveryOptions,
+          context,
+          startedAt,
+          fixture.corpusRoot,
+          1024 * 1024 * 1024
+        )
+      ).toBe("synthetic extracted attachment text\n");
+      const familyExpired = yield* RT.extractAttachmentText(
+        derivedPath,
+        "synthetic",
+        recoveryOptions,
+        { ...context, startedAt: now - 43_200_001 },
+        startedAt,
+        fixture.corpusRoot,
+        1024 * 1024 * 1024
+      ).pipe(Effect.flip);
+      expect(familyExpired.cause).toMatchObject({
+        _tag: "AttachmentRepairElapsedBudget",
+        maxTotalElapsedMillis: 43_200_000,
+      });
+    })
+  );
+
+  it.effect(
+    "retains full Tika text beyond 4096 characters within the remaining output budget",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(
+        restorationPffexportStub,
+        "#!/bin/sh\nhead -c 8192 /dev/zero | tr '\\000' x\n"
+      );
+      const summary = yield* restoreMail(mailRestorationOptions(fixture));
+      const runRoot = path.join(fixture.corpusRoot, "staging/restoration/runs/synthetic-mail-restoration");
+      const { records } = yield* readTransformationLedgerFixture(path.join(runRoot, "ledgers/mail/slice.jsonl"));
+      const textChild = A.findFirst(
+        records,
+        (record) => record.recordType === "mail-child-pass" && Str.endsWith(".tika.txt")(record.childRelativePath)
+      );
+      expect(summary.passCount).toBe(1);
+      textChild.pipe(O.isSome, assertTrue);
+      if (O.isSome(textChild) && textChild.value.recordType === "mail-child-pass") {
+        expect(textChild.value.sizeBytes).toBe(8193);
+        expect(textChild.value.engineReported).toBe(false);
+        const text = yield* fs.readFileString(
+          path.join(runRoot, "output/mail/slice/attempts", textChild.value.attemptId, textChild.value.childRelativePath)
+        );
+        expect(text).toBe(`${Str.repeat(8192)("x")}\n`);
+      }
+    })
+  );
+
+  it.effect(
+    "selects one sealed preservation archive for a fresh mail run without changing the sealed family",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(restorationPffexportStub);
+      const originalOptions = mailRestorationOptions(fixture);
+      assertNone(originalOptions.preservationLabel);
+      yield* restoreMail(originalOptions);
+      const originalLedger = path.join(
+        fixture.corpusRoot,
+        "staging/restoration/runs/synthetic-mail-restoration/ledgers/mail/slice.jsonl"
+      );
+      const sealedText = yield* fs.readFileString(originalLedger);
+      const freshLabel = "synthetic-mail-restoration-fresh";
+      const freshOptions = yield* S.decodeEffect(RestorationMailOptions)({
+        ...(yield* S.encodeEffect(RestorationMailOptions)(originalOptions)),
+        preservationLabel: originalOptions.runLabel,
+        runLabel: freshLabel,
+      });
+      assertSome(freshOptions.preservationLabel, originalOptions.runLabel);
+      const summary = yield* restoreMail(freshOptions);
+      const freshRoot = path.join(fixture.corpusRoot, "staging/restoration/runs", freshLabel);
+      const original = yield* readTransformationLedgerFixture(originalLedger);
+      const fresh = yield* readTransformationLedgerFixture(path.join(freshRoot, "ledgers/mail/slice.jsonl"));
+      const originalStart = A.findFirst(original.records, (row) => row.recordType === "family-run-start");
+      const freshStart = A.findFirst(fresh.records, (row) => row.recordType === "family-run-start");
+      originalStart.pipe(O.getOrUndefined, assertDefined);
+      freshStart.pipe(O.getOrUndefined, assertDefined);
+      if (O.isSome(originalStart) && O.isSome(freshStart)) {
+        expect(freshStart.value.preservationRunId).toBe(originalStart.value.preservationRunId);
+        expect(freshStart.value.transformationRunId).not.toBe(originalStart.value.transformationRunId);
+        expect(freshStart.value.runLabel).toBe(freshLabel);
+      }
+      expect(summary.passCount).toBe(1);
+      expect(
+        A.last(fresh.records).pipe(
+          O.map((row) => row.recordType),
+          O.getOrUndefined
+        )
+      ).toBe("family-acceptance-pass");
+      expect(yield* fs.exists(path.join(freshRoot, "output/mail/slice/attempts"))).toBe(true);
+      expect(yield* fs.exists(path.join(fixture.corpusRoot, "raw", freshLabel))).toBe(false);
+      expect(yield* fs.readFileString(originalLedger)).toBe(sealedText);
+    })
+  );
+
+  it.effect(
+    "fails closed when Tika text exceeds the remaining output budget",
+    Effect.fnUntraced(function* () {
+      const path = yield* Path.Path;
+      for (const tikaScript of [
+        "#!/bin/sh\nhead -c 120000 /dev/zero | tr '\\000' x\n",
+        `#!/bin/sh
+awk 'BEGIN { for (i = 0; i < 6000; i++) printf "é" }'
+`,
+      ]) {
+        const fixture = yield* makeMailRestorationFixture(restorationPffexportStub, tikaScript);
+        const options = RestorationMailOptions.make({
+          ...mailRestorationOptions(fixture),
+          maxAmplificationRatio: 0.01,
+        });
+        yield* restoreMail(options).pipe(Effect.flip);
+        const { records } = yield* readTransformationLedgerFixture(
+          path.join(fixture.corpusRoot, "staging/restoration/runs/synthetic-mail-restoration/ledgers/mail/slice.jsonl")
+        );
+        expect(A.some(records, (record) => record.recordType === "family-acceptance-failure")).toBe(true);
+        expect(
+          A.some(
+            records,
+            (record) => record.recordType === "mail-store-exception" && record.exceptionKind === "engine-failure"
+          )
+        ).toBe(true);
+        expect(
+          A.some(
+            records,
+            (record) => record.recordType === "mail-child-pass" && Str.endsWith(".tika.txt")(record.childRelativePath)
+          )
+        ).toBe(false);
+      }
+    })
+  );
+
+  it.effect(
     "reuses identical content-addressed attachment derivatives",
     Effect.fnUntraced(function* () {
       const path = yield* Path.Path;
@@ -4099,6 +4636,33 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
       expect(summary.unapprovedCount).toBe(0);
       expect(repairs).toHaveLength(2);
       expect(new Set(derivativePaths).size).toBe(1);
+    })
+  );
+
+  it.effect(
+    "reuses the first Tika evidence for duplicate attachments with volatile parser metadata",
+    Effect.fnUntraced(function* () {
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(
+        duplicateAttachmentPffexportStub,
+        "#!/bin/sh\ncat /proc/sys/kernel/random/uuid\n"
+      );
+      const summary = yield* restoreMail(mailRestorationOptions(fixture));
+      const { records } = yield* readTransformationLedgerFixture(
+        path.join(fixture.corpusRoot, "staging/restoration/runs/synthetic-mail-restoration/ledgers/mail/slice.jsonl")
+      );
+      const repairs = A.filter(
+        records,
+        (record) => record.recordType === "attachment-type-repair" && record.repairStatus === "repaired"
+      );
+      const textChildren = A.filter(
+        records,
+        (record) => record.recordType === "mail-child-pass" && Str.endsWith(".tika.txt")(record.childRelativePath)
+      );
+      expect(summary.passCount).toBe(1);
+      expect(summary.unapprovedCount).toBe(0);
+      expect(repairs).toHaveLength(2);
+      expect(textChildren).toHaveLength(1);
     })
   );
 

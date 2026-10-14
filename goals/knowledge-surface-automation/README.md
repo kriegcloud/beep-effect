@@ -40,18 +40,89 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P4 in progress — Workstream D's projection slice. The design
-([`research/p4-goals-projection-design.md`](./research/p4-goals-projection-design.md))
-and its mini-grill outcomes
-([`research/p4-goals-projection-decisions.md`](./research/p4-goals-projection-decisions.md),
-2026-10-09) are settled; next is PR 1: `beep goals next|explain|catalog` over a
-`bun:sqlite` projection, differential-tested against a pure-TS evaluator, plus the
-committed catalog FP-eyeball report. P1-P3 outcomes stay as recorded: all 24 P2
-decisions in [`research/p2-grill-decisions.md`](./research/p2-grill-decisions.md),
-A/B/C/D Phase-0 verdicts in
-[`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
-Workstream E's pure-plan report still awaits its eyeball verdict before any
-materializer exists.
+P4 in progress. Shipped on main so far:
+
+- **D:** `beep goals next|explain|catalog` (in-memory SQLite projection,
+  differential-tested) and the Mermaid capability-graph section in `goals/INDEX.md`.
+- **E:** `goals bootstrap|adopt --write --expect <planId>` (atomic publish, exclusive
+  adoption). This packet adopted itself with its own executor (self-hosting test case
+  #1).
+- **E-3b:** the read-only `beep explore graduate <exploration> --goal <slug>=<title>
+  --plan [--json]` compiles a content-addressed `graduation-plan/v1` (one bootstrap
+  plan per child, the hash-pinned exploration manifest edit, the refusal matrix, and
+  `alreadyPublished` replay classification).
+- **E-3c:** `explore graduate --write --expect <planId>` publishes the remaining children
+  through `publishBootstrapPlan`, then flips the exploration manifest through the
+  pre-image check adoption shares (`replacePinnedFile`), appends `stage-entered` and
+  `status-set` for explorations with `ops/events/`, and prints a `graduation-receipt/v1`.
+  A crash between children resumes by re-running the same command. Bootstrap, adopt,
+  and graduate are now all self-hosted: this PR graduated
+  `explorations/typed-agent-skill-contracts` with its own executor, publishing
+  `goals/skill-contract-gate-certificates` beside the already-published
+  `goals/skill-contract-kernel` (E17).
+- **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds;
+  B-3a classifies drift against upstream path history. B-3b adds
+  `lock-plan --write --expect <planDigest>`, flips `skills-lock.json` to v2 (6 vendored,
+  31 local), and records the remaining local edits as pinned patch series under
+  `.agents/skill-patches/`; receipt in [`research/p4-report-skills-lock-plan.md`](./research/p4-report-skills-lock-plan.md).
+- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
+  FP-eyeball report
+  ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
+- **Designs:** B, E, and C Stage 2
+  ([`research/p4-skills-warehouse-design.md`](./research/p4-skills-warehouse-design.md),
+  [`research/p4-goals-materialize-design.md`](./research/p4-goals-materialize-design.md),
+  [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)),
+  plus E-3 graduation
+  ([`research/p4-explore-graduate-design.md`](./research/p4-explore-graduate-design.md)).
+- **D (PR 3):** `beep goals doctor` emits `capability-duplicate-declaration`,
+  `capability-reference-provides` and `capability-packet-id-mismatch` (blocking,
+  ratcheted) and `capability-stranded` (advisory), all zero on the live census; the
+  four missing `provides` are declared.
+- **B-3a:** `skills lock-plan` classifies drift against upstream path history (B11).
+- **B-3b:** `lock-plan --write --expect <planDigest>` flipped `skills-lock.json` to v2
+  (#1679).
+- **B-4 (#1709):** `beep skills materialize [--check] [--skill <name>]` rebuilds every
+  vendored skill from its pinned upstream plus its patch series, verified before it
+  writes, through one clearing-house writer for both install targets; `skills update
+  --check` reports hand-edited vendored output (`hand-edited-vendored-output`) and
+  names both remedies. Decisions B24–B27 in
+  [`research/p5-warehouse-update-train-design.md`](./research/p5-warehouse-update-train-design.md).
+- **C (PR 4, #1734):** the knowledge-doctor gate. It has the sealed-baseline,
+  promotions, identity, and lease schemas, the seal guard, `verify-mint`, and
+  `leases [--json]`, with `knowledge:doctor` running report-only in `lint:policy` and
+  lease warnings in yeet's verify step. Nothing is sealed yet: PR 5's CI mint opens
+  the first baseline (882 entries in six named groups on the live tree,
+  [`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
+- **B-5 (this PR, opens P5):** `beep skills relock --skill <name> [--expect <planDigest>]`
+  records a bumped pin's snapshot and effective hashes after a clean replay, and refuses
+  (lock untouched) when a hunk conflicts, matches only at a shifted line, or the license
+  bytes changed; `beep skills replay` is the read-only per-hunk report, and
+  `beep skills train-issue` renders the batch's parent issue. `renovate.json` gains the
+  per-skill `git-refs` regex manager over `skills-lock.json`, and
+  `.github/workflows/skills-update-train.yml` replays every lock or patch change, relocks
+  and rebuilds clean Renovate bumps, and writes the weekly batch issue. Decisions B28–B33
+  in the same design doc.
+
+C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
+command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling),
+C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and flip) are
+on main.
+
+B-4 (`beep skills materialize`, #1709) and C Stage-2 PR 4 (the knowledge-doctor gate,
+#1734) are on main. This PR is B-5, the first P5 piece:
+`skills relock`, `skills replay`, `skills train-issue`, the Renovate custom manager, and
+the update-train workflow. B-6 (the hunk ledger, `--ghost`, `skills patch add`, and
+`skills review`) is next for Workstream B, then Ritual 1 (the operator's classification).
+
+C Stage-2 PR 3 (stacked on PR 2b) adds causal grouping and root attribution,
+report-only: one cause group per missing target or delegated goals-doctor finding, each
+root attributed to the commit that removed its path, with roots listed by dependent
+count. The goals packet core now reads through a reader, so the knowledge doctor lists
+goals-doctor findings as delegated roots while `goals doctor` output stays
+byte-identical. Design K18–K23; the live run (883 blocking findings under 341 roots) and
+four candidate wrong groupings are in the report's "PR 3" section.
+
+Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 
 ## Latest Evidence
 

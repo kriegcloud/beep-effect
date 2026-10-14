@@ -630,6 +630,12 @@
         ]
       },
       {
+        "name": "@beep/practice-claude-mod",
+        "patterns": [
+          "apps/practice-claude-mod/src/**"
+        ]
+      },
+      {
         "name": "@beep/practice-identify",
         "patterns": [
           "apps/practice-identify/src/**"
@@ -639,6 +645,12 @@
         "name": "@beep/practice-kg-mcp",
         "patterns": [
           "apps/practice-kg-mcp/src/**"
+        ]
+      },
+      {
+        "name": "@beep/practice-m365-contacts",
+        "patterns": [
+          "apps/practice-m365-contacts/src/**"
         ]
       },
       {
@@ -1843,12 +1855,14 @@
           "@beep/effect-drizzle",
           "@beep/fc-runs",
           "@beep/pglite",
+          "@beep/repo-utils",
           "@beep/test-runner"
         ],
         "allowTypeOnly": [
           "@beep/effect-drizzle",
           "@beep/fc-runs",
           "@beep/pglite",
+          "@beep/repo-utils",
           "@beep/test-runner"
         ]
       },
@@ -2158,7 +2172,6 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/test-runner",
-          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
@@ -2166,7 +2179,6 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/test-runner",
-          "@beep/test-utils",
           "@beep/utils"
         ]
       },
@@ -2380,6 +2392,7 @@
           "@beep/nlp",
           "@beep/pglite",
           "@beep/postgres",
+          "@beep/provenance",
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/shared-use-cases",
@@ -2410,6 +2423,7 @@
           "@beep/nlp",
           "@beep/pglite",
           "@beep/postgres",
+          "@beep/provenance",
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/shared-use-cases",
@@ -3246,6 +3260,21 @@
         ]
       },
       {
+        "from": "@beep/practice-claude-mod",
+        "allow": [
+          "@beep/identity",
+          "@beep/practice-claude-mod",
+          "@beep/schema",
+          "@beep/test-runner"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/practice-claude-mod",
+          "@beep/schema",
+          "@beep/test-runner"
+        ]
+      },
+      {
         "from": "@beep/practice-identify",
         "allow": [
           "@beep/identity",
@@ -3289,6 +3318,27 @@
           "@beep/test-runner",
           "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/practice-m365-contacts",
+        "allow": [
+          "@beep/identity",
+          "@beep/law-practice-server",
+          "@beep/law-practice-use-cases",
+          "@beep/m365",
+          "@beep/practice-m365-contacts",
+          "@beep/schema",
+          "@beep/test-runner"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/law-practice-server",
+          "@beep/law-practice-use-cases",
+          "@beep/m365",
+          "@beep/practice-m365-contacts",
+          "@beep/schema",
+          "@beep/test-runner"
         ]
       },
       {
@@ -3552,6 +3602,7 @@
       {
         "from": "@beep/repo-cli",
         "allow": [
+          "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
           "@beep/duckdb",
@@ -3589,6 +3640,7 @@
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
           "@beep/duckdb",
@@ -3754,6 +3806,7 @@
           "@beep/drizzle",
           "@beep/effect-drizzle",
           "@beep/epistemic-domain",
+          "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/md",
@@ -3767,11 +3820,13 @@
           "@beep/pretext",
           "@beep/provenance",
           "@beep/rdf",
+          "@beep/repo-cli",
           "@beep/repo-utils",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
           "@beep/shacl",
+          "@beep/test-utils",
           "@beep/utils",
           "@beep/wink"
         ],
@@ -3781,6 +3836,7 @@
           "@beep/drizzle",
           "@beep/effect-drizzle",
           "@beep/epistemic-domain",
+          "@beep/fc-runs",
           "@beep/file-processing",
           "@beep/identity",
           "@beep/md",
@@ -3794,11 +3850,13 @@
           "@beep/pretext",
           "@beep/provenance",
           "@beep/rdf",
+          "@beep/repo-cli",
           "@beep/repo-utils",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/semantic-web",
           "@beep/shacl",
+          "@beep/test-utils",
           "@beep/utils",
           "@beep/wink"
         ]

@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -35,15 +35,34 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — operator-attended Entra app registration (certificate
-credential; mailbox access granted exclusively via the Exchange
-RBAC-for-Applications assignment scoped to the attorney's mailbox — never
-the unscoped tenant-wide contacts role), seeding-job home choice, and a
-headers/counts-only census of the salvaged contact CSVs.
+P0–P4 closeout content is complete. PR 1 #1591 and reviewed follow-up #1595
+are merged; PR 2 carries the bounded zero-create repair, live receipts and
+reflection. All 480 identifiable CSV contacts already resolve mailbox-wide;
+apply created zero contacts and skipped seven unidentifiable cards. Existing
+contacts were never duplicated, patched or tagged.
+
+The scoped grant and runtime read passed. The pre-seed export contains 536
+contacts; SPEC records its full hash. Contacts-only smoke created and deleted
+one synthetic contact. A durable empty journal records apply and no-op undo;
+per-run and category undo dry-runs both plan zero deletions. The final handoff
+records Yeet readiness separately from the live proof. The orchestrator merges
+and removes the contacts grant afterward using runbook section 4.
 
 ## Latest Evidence
 
-Not started.
+- [Contact census](./history/2026-10-09-p0-contact-census.md): 533 CSV records,
+  487 normalized contacts; four inputs share one byte hash. VCF is census-only.
+- [Offline dry run](./history/2026-10-09-seeding-dry-run.md): 480 creates, seven
+  unidentifiable skips, zero conflicts and zero untracked tags.
+- [Earlier lane handoff](./history/handoffs/m365-contacts-2026-10-09.md): setup, decisions
+  and historical qualification evidence.
+- [Grant observations](./history/2026-10-13-p0-grant-proof.md): scoped
+  administrative handback and passing runtime read after admission queueing.
+- [Resume handoff](./history/handoffs/m365-contacts-2026-10-13.md): deadline
+  boundary, terminal unit evidence and remaining live steps.
+
+- [Online plan](./history/2026-10-13-seeding-dry-run-online.md): zero creates,
+  480 existing skips; the later Run 4 ruling accepts mailbox-wide resolution.
 
 ## Notes
 
@@ -55,3 +74,8 @@ Not started.
   HTTP-executor design only; those verbs are out of scope.
 - Contact content, real mailbox addresses, and machine-local salvage paths
   never enter this public repo — evidence uses counts, headers, and tags.
+
+- [Live receipt and rollback proof](./history/2026-10-13-seeding-receipt.md):
+  480 matched existing, zero creates, empty-run undo persisted, smoke self-cleaned.
+- [Closeout reflection](./history/reflections/2026-10-13-codex.md): no-op
+  receipt semantics, acceptance clarification and qualification friction.

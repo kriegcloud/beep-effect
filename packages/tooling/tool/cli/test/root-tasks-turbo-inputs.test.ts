@@ -79,7 +79,6 @@ const nonReusableTasks: ReadonlyArray<string> = [
   "lint:jsdoc-module-tags",
   "goals:doctor",
   "lint:typos",
-  "knip:check",
   "fallow:audit:check",
   "fallow:health:check",
   "fallow:health:advisory",
@@ -91,6 +90,7 @@ const nonReusableTasks: ReadonlyArray<string> = [
   "fallow:dead-code:check",
   "repo-sanity:bun-audit",
   "fallow:boundaries:config-check",
+  "lint:retired-effect-paths",
 ];
 
 const directInputs: Readonly<Record<string, string>> = {
@@ -105,6 +105,7 @@ const directInputs: Readonly<Record<string, string>> = {
   "lint:circular": "packages/foundation/fixture/src/c3-probe.ts",
   "lint:effect-imports": "apps/fixture/c3-probe.mts",
   "lint:effect-imports-markdown": ".patterns/c3-probe.md",
+  "lint:retired-effect-paths": "explorations/fixture/c3-probe.json",
   "lint:tsgo-rules": "tooling/c3-probe.cts",
   "lint:oxlint": "scripts/c3-probe.ts",
   "lint:shadcn": ".oxlintrc.shadcn.json",
@@ -117,7 +118,6 @@ const directInputs: Readonly<Record<string, string>> = {
   "lint:roadmap-refs": "docs/ROADMAP.md",
   "lint:judge-rubric": ".claude/skills/browser-qa-loop/resources/judge-prompt.md",
   "lint:typos": "docs/c3-probe.md",
-  "knip:check": "standards/knip.regression-baseline.jsonc",
   "fallow:audit:check": ".fallow/plugins/c3-probe.ts",
   "fallow:dead-code:check": ".fallow/plugins/c3-probe.ts",
   "fallow:health:check": ".fallow/plugins/c3-probe.ts",
@@ -492,8 +492,8 @@ describe("Stage C root task inputs", { concurrent: false }, () => {
         for (const [id, task] of R.toEntries(tasks)) {
           if (!A.contains(task.dependsOn, fingerprintId)) continue;
           const outside = A.findFirst(closureInputs, (file) => !R.has(rowFor(baseline, id).inputs, file));
-          // Roadmap's whole-tree contract already includes every candidate tool read.
-          if (O.isNone(outside)) expect(id).toBe("//#lint:roadmap-refs");
+          // The roadmap and retired-path whole-tree contracts already include every candidate tool read.
+          if (O.isNone(outside)) expect(["//#lint:roadmap-refs", "//#lint:retired-effect-paths"]).toContain(id);
           const candidate = O.getOrElse(outside, () => "packages/tooling/tool/cli/src/c3-probe.ts");
           expect(R.has(rowFor(baseline, fingerprintId).inputs, candidate), candidate).toBe(true);
           expect(rowFor(baseline, id).dependencies, id).toContain(fingerprintId);

@@ -2,9 +2,28 @@
 
 ## Status
 
+B first-wave publication snapshot is regenerated at `80fe0135ff` from fetched
+main `f21e2a8563`. Its generated candidate remains subject to publication-head
+parity, named review and the serialized R14 merge. Cap released; later R20
+guidance and detector work stays pending. Candidate counts are not accepted
+program baselines and no zero-debt result is claimed.
+
 Lifecycle: `active`
 
+Program resumed on October 14. H2 is content-final in reopened PR #1574; local qualification and all four review
+fixes are complete, with inherited knowledge-reference attribution.
+Historical inventory completeness remains explicitly unknown.
+Completed lane evidence and remaining program work are tracked in PLAN.md.
+
+Program resumed on 2026-10-14. B integrated current main and completed
+the first R20 owner refresh; committed-candidate qualification follows. Its [current handoff](history/handoffs/rsc-b-standards-2026-10-14.md)
+records the five resolved old-head inbox rows and the remaining publication
+and serialization gates. Earlier lane evidence below retains its recorded
+head and date; it does not certify current program completion.
+
 Latest E evidence: [GitHub audit](./history/receipts/stage-4-github-audit.md), [settings snapshots](./history/receipts/stage-3-github-settings.md), and [lane handoff](./history/handoffs/rsc-e-github-2026-10-09.md). E source repairs are final in ready PR #1568. Both integrated full package gates and all local hosted-parity lanes pass; focused fixtures pass 127 tests and scoped coverage passes 396 tests across all seven touched baseline files. The actual GITHUB_TOKEN hosted governance step passes. Cross-lane, trusted-main writer and post-merge acceptance remain open; inherited hosted coverage reds remain attributed for the consolidated repair.
+
+The program resumed on October 14. A wave 1 is implemented locally in the PR #1584 lane, with zero scoped source-review findings. Publication is blocked on the orchestrator-owned five-row coverage-baseline splice: the normal writer also weakens live floors, so A preserved the committed baseline. All eleven default package gates and serial scoped coverage passed on the recorded source; later main integrations have separate owner and targeted-test evidence. [Current A handoff](./history/handoffs/rsc-a-retire-2026-10-14.md) records the exact boundaries. The remote PR head has not moved in this resumed run. Later A waves and program acceptance remain open.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -60,6 +79,22 @@ the stage-1 copies of the three global configuration files are recorded, and
 nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
+
+[A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): latest main is integrated and all ten owner commands pass. The targeted incoming/A suite passes 586 tests in ten files. The live Knip workflow job and FQE helper wiring are removed locally; five obsolete generated coverage rows await the orchestrator splice. The writer artifact is archived and all live floors remain unchanged. Latest CLI quick/type/docgen/Fallow/law checks pass; the newest JSDoc and paper-link reds are inherited and attributed in the handoff. The orchestrator also owns required-context removal before merge.
+
+H2 is content-final in reopened PR #1574: [stage-4 completion receipts](./history/receipts/stage-4-completion-receipts.md) and [October 14 handoff](./history/handoffs/rsc-h2-completion-2026-10-14.md). Final repaired full package audit/docgen pass 844.8s/27.2s; native-property schema-first, Effect/Vitest, 51 focused tests, after consolidated main repairs, schema-first, Effect/Vitest, test-tsgo, bounded docgen, JSDoc, knowledge refs, Fallow, retired paths and 291 scoped tests pass. Earlier inherited reds retain their source-bound attribution; final knowledge refs passes. All five hosted review threads are answered and resolved; pinned independent medium Opus follow-up, including the approved Cursor fallback, has zero actionable findings. Historical inventory incompleteness keeps all three live overall outcomes unknown while preserving observed merge/context facts. Final dispatch records the published tip and hosted/monitor state; post-merge refresh and retirement remain orchestrator-owned.
+
+B's October 13 bounded baseline repair landed in
+[PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
+codec properties for the three inherited arbitrary-test findings. After
+integrating #1612, the schema-first owner removes their three superseded
+exception rows; the fresh check passes. Integrated local verification is
+settled, with eight inherited JSDoc ratchet increases at that proof head.
+The subsequently landed #1617 repairs its hosted traversal and Sherif
+failures; the October 14 current-head baseline is recorded separately.
+[October 13 B handoff](history/handoffs/rsc-b-standards-2026-10-13.md) records
+terminal package and parity results. The original refresh, guidance, and
+detector/provenance waves remain open.
 
 Lane V [PR #1575](https://github.com/beep-effect/beep-effect/pull/1575) is published and ready. [Stage 4 reconciliation](./history/receipts/stage-4-vitest-reconciliation.md) preserves all 46 source worktrees, records every disposition, and ties the generated 1,853 / 716 open / 1,137 exceptions inventory to final code. Full repo-cli verification and every local parity stage pass; independent source review is terminal zero and both actionable hosted threads are resolved. The R105 repair preview, 716-row R102 frontier, hosted merge gate and retirement remain separate open work.
 
@@ -135,6 +170,11 @@ updated-head hosted evidence and the orchestrator gate remain open.
   including P2 and below; the round-2 review cap does not apply (SPEC.md
   Exception Ledger).
 
+A run 3: recovered terminal transfer gates; all eleven pass. The final patched
+Knip cross-check reports the sole documented Govinfo drift oracle, and every
+transferred finding has a disposition. Knip retirement wave 1 is in local
+verification; see the lane handoff and `history/receipts/knip-cache-policy-review.md`.
+
 D latest evidence: [release policy and census](history/receipts/stage-2-policy.md)
 and [Run 2 lane handoff](history/handoffs/rsc-d-release-2026-10-09.md).
 The census preceded the committed 939-note reset. Crash resumption merged the
@@ -142,3 +182,11 @@ owner's inherited repairs; independent source/scope review has zero actionable
 findings. Local package/parity proof passes; PR #1566 is ready for the orchestrator gate.
 Hosted success is pending. E owns desktop
 verification; GitHub Packages census remains externally blocked on token scope.
+
+## Pre-reboot publication — 2026-10-14
+
+The operator requested publication of the prepared A wave, current-main
+integration and both review fixes with local verification and checks waived.
+This supersedes the earlier publication hold; prior proof stays bound to its
+recorded source. Hosted CI qualifies this new integration. Later A waves
+and overall program acceptance remain open.

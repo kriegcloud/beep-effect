@@ -1043,10 +1043,13 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
           const dataRoot = path.join(tmpDir, "metrics");
           const duckDbPath = path.join(dataRoot, "derived/ai-metrics.duckdb");
           const sourcePath = path.join(tmpDir, "home/.codex/sessions/codex.jsonl");
-          const content = [
-            '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}',
-            '{"type":"event_msg","timestamp":"2026-05-05T10:02:00Z"}',
-          ].join("\n");
+          const content = A.join(
+            [
+              '{"type":"event_msg","timestamp":"2026-05-05T10:01:00Z"}',
+              '{"type":"event_msg","timestamp":"2026-05-05T10:02:00Z"}',
+            ],
+            "\n"
+          );
 
           yield* writeText(path.join(tmpDir, "repo", "AGENTS.md"), "# Test agent guide\n");
 
