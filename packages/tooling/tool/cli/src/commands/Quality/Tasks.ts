@@ -3251,6 +3251,10 @@ const rootRepoLintPolicySteps = (
         base
       ),
       ...(full ? [] : [policyLintTurboStep(repoRoot, "lint:policy:state", policyStateTasks)]),
+      // The Stage-2 knowledge doctor follows the semantic delta wherever that runs. It stays
+      // report-only (exit 0 on findings) until a kind's promotion row lands; the gating form
+      // needs the sealed baseline the CI mint opens.
+      ...(full && !hosted ? [] : [repoCliStep(repoRoot, "knowledge:doctor", ["knowledge", "doctor", "--report"])]),
       // Ruling 31 retains the hosted root ESLint program independently of the
       // deprecated-API sweep switch. It has no Turbo summary of its own.
       ...(full ? [bunxStep(repoRoot, "lint:jsdoc", rootEslintArgs(eslintCacheKey))] : []),
@@ -3311,7 +3315,8 @@ const runPolicySteps = Effect.fn("QualityTasks.runPolicySteps")(function* (
  * @param base - Caller base for affected Turbo tasks; omitted for full scope.
  * @param sweeps - Explicit sweep selection; pure test plans default to shards.
  * @param hosted - Whether the plan is a hosted (CI) plan; a local full-scope plan leaves the
- *   git-delta knowledge checks to the hosted run. Defaults to the live CI detection.
+ *   git-delta knowledge checks and the report-only knowledge doctor to the hosted run. Defaults to
+ *   the live CI detection.
  * @param eslintCacheKey - Root ESLint cache directory key; the runtime digests the ESLint
  *   configuration sources, a pure plan carries `unkeyed`.
  * @returns Planned subprocess steps for policy-only lint verification.

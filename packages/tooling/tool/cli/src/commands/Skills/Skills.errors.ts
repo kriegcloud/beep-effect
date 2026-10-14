@@ -455,3 +455,286 @@ export class SkillFrontmatterError extends S.TaggedError<SkillFrontmatterError>(
       message: `${issues.length} repo-authored skill frontmatter issue(s); repo extras belong under metadata.`,
     });
 }
+
+/**
+ * Why a strict unified-diff apply refused a patch.
+ *
+ * **Details**
+ *
+ * `malformed-patch`: the text is not a Git unified diff (bad header, hunk
+ * range, or body). `unsupported-patch`: a rename, copy, or binary diff, which
+ * the skill patch series never carries. `context-mismatch`: a hunk's context
+ * or removed lines are not the file's lines at the recorded position; the
+ * applier never searches nearby lines or fuzzes. `file-exists` and
+ * `file-missing`: a new-file patch over an existing file, or a change to a
+ * file that is not there. `mode-mismatch`: the file's mode is not the
+ * patch's old mode. `binary-content`: the patched file is not UTF-8 text.
+ * `incomplete-delete`: a delete patch leaves lines behind.
+ *
+ * **Example** (Check a reason)
+ *
+ * ```ts
+ * import { SkillPatchApplyReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * console.log(SkillPatchApplyReason.is["context-mismatch"]("context-mismatch")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const SkillPatchApplyReason = LiteralKit([
+  "malformed-patch",
+  "unsupported-patch",
+  "context-mismatch",
+  "file-exists",
+  "file-missing",
+  "mode-mismatch",
+  "binary-content",
+  "incomplete-delete",
+]).pipe(
+  $I.annoteSchema("SkillPatchApplyReason", {
+    description: "Why a strict unified-diff apply refused a skill patch.",
+  })
+);
+
+/**
+ * Why a strict unified-diff apply refused a patch.
+ *
+ * **Example** (Annotate an apply reason)
+ *
+ * ```ts
+ * import type { SkillPatchApplyReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const reason: SkillPatchApplyReason = "context-mismatch"
+ * console.log(reason)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillPatchApplyReason = typeof SkillPatchApplyReason.Type;
+
+/**
+ * A skill patch did not apply exactly to the tree it was replayed onto.
+ *
+ * **Details**
+ *
+ * Raised before anything is written: the materializer applies the whole
+ * series in memory, so a refused patch leaves every installed target as it
+ * was. `patch` names the patch file, `file` the skill-relative path the
+ * failing section targets (empty for a header-level failure).
+ *
+ * **Example** (Create a context-mismatch failure)
+ *
+ * ```ts
+ * import { SkillPatchApplyError } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillPatchApplyError.make({
+ *   patch: ".agents/skill-patches/oracle/0001-skill-md.patch",
+ *   file: "SKILL.md",
+ *   reason: "context-mismatch",
+ *   message: "Hunk 1 does not match SKILL.md at line 1.",
+ * })
+ * console.log(error.reason) // "context-mismatch"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillPatchApplyError extends S.TaggedError<SkillPatchApplyError>($I`SkillPatchApplyError`)(
+  "SkillPatchApplyError",
+  {
+    patch: S.String,
+    file: S.String,
+    reason: SkillPatchApplyReason,
+    message: S.String,
+  },
+  $I.annoteError<SkillPatchApplyError>("SkillPatchApplyError", {
+    title: "Skill Patch Apply Error",
+    description: "A skill patch did not apply exactly; no fuzz and no offset search are attempted.",
+  })
+) {}
+
+/**
+ * Why `skills materialize` refused to rebuild a vendored skill.
+ *
+ * **Details**
+ *
+ * `pristine-mismatch`: the tree loaded at `upstream.sourceRevision` does not
+ * hash to the lock's snapshot tree or manifest hash. `patch-digest-mismatch`:
+ * a patch file's bytes differ from its recorded sha256, or the series' set
+ * hash differs from `patches.patchSetHash`. `effective-mismatch`: the replayed
+ * tree does not hash to `effective.treeHash`. `unknown-skill`: `--skill`
+ * names no lock entry. `unsafe-target`: an installed target is not a
+ * contained repo-relative path. `post-write-divergence`: after publication the
+ * targets still disagree with the effective tree.
+ *
+ * **Example** (Check a reason)
+ *
+ * ```ts
+ * import { SkillMaterializeRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * console.log(SkillMaterializeRefusalReason.is["pristine-mismatch"]("pristine-mismatch")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const SkillMaterializeRefusalReason = LiteralKit([
+  "pristine-mismatch",
+  "patch-digest-mismatch",
+  "effective-mismatch",
+  "unknown-skill",
+  "unsafe-target",
+  "post-write-divergence",
+]).pipe(
+  $I.annoteSchema("SkillMaterializeRefusalReason", {
+    description: "Why skills materialize refused: an unverified pristine tree, patch, or reconstruction.",
+  })
+);
+
+/**
+ * Why `skills materialize` refused to rebuild a vendored skill.
+ *
+ * **Example** (Annotate a refusal reason)
+ *
+ * ```ts
+ * import type { SkillMaterializeRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const reason: SkillMaterializeRefusalReason = "effective-mismatch"
+ * console.log(reason)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillMaterializeRefusalReason = typeof SkillMaterializeRefusalReason.Type;
+
+/**
+ * `skills materialize` refused because a verification step failed.
+ *
+ * **Details**
+ *
+ * Every verification runs before the first write (B17), so a refusal other
+ * than `post-write-divergence` leaves the installed targets untouched.
+ *
+ * **Example** (Create a pristine-mismatch refusal)
+ *
+ * ```ts
+ * import { SkillMaterializeRefusal } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillMaterializeRefusal.make({
+ *   skill: "oracle",
+ *   reason: "pristine-mismatch",
+ *   message: "The pinned tree does not match the snapshot.",
+ * })
+ * console.log(error.reason) // "pristine-mismatch"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillMaterializeRefusal extends S.TaggedError<SkillMaterializeRefusal>($I`SkillMaterializeRefusal`)(
+  "SkillMaterializeRefusal",
+  {
+    skill: S.String,
+    reason: SkillMaterializeRefusalReason,
+    message: S.String,
+  },
+  $I.annoteError<SkillMaterializeRefusal>("SkillMaterializeRefusal", {
+    title: "Skill Materialize Refusal",
+    description: "A vendored skill was not rebuilt because a pristine, patch, or reconstruction check failed.",
+  })
+) {}
+
+/**
+ * Why `skills relock` refused to record new hashes.
+ *
+ * **Details**
+ *
+ * `unknown-skill`: the lock has no entry by that name. `not-vendored`: the
+ * entry is local, so it has no pin to relock. `replay-conflicted`: at least
+ * one hunk of the patch series conflicts at the new pin. `replay-fuzz-only`:
+ * no hunk conflicts, but at least one matches only at a shifted position, so
+ * the strict applier cannot reproduce a tree (B27). `license-changed`: the
+ * license bytes at the new pin no longer hash to the recorded digest.
+ *
+ * **Example** (Check a refusal reason)
+ *
+ * ```ts
+ * import { SkillRelockRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * console.log(SkillRelockRefusalReason.is["replay-conflicted"]("replay-conflicted")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const SkillRelockRefusalReason = LiteralKit([
+  "unknown-skill",
+  "not-vendored",
+  "replay-conflicted",
+  "replay-fuzz-only",
+  "license-changed",
+]).pipe(
+  $I.annoteSchema("SkillRelockRefusalReason", {
+    description: "Why skills relock refused: no such vendored entry, an unclean replay, or a changed license.",
+  })
+);
+
+/**
+ * Why `skills relock` refused to record new hashes.
+ *
+ * **Example** (Annotate a refusal reason)
+ *
+ * ```ts
+ * import type { SkillRelockRefusalReason } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const reason: SkillRelockRefusalReason = "license-changed"
+ * console.log(reason)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SkillRelockRefusalReason = typeof SkillRelockRefusalReason.Type;
+
+/**
+ * `skills relock` refused, and `skills-lock.json` was left untouched.
+ *
+ * **Details**
+ *
+ * Every refusal happens before the lock is staged, so a refused relock never
+ * leaves a partial lock or a stage file behind. That is what holds a
+ * conflicted pin bump for the review ritual (B19): the Renovate branch keeps
+ * the old pin's hashes and `materialize --check` stays red until a human
+ * decides the conflicted hunks.
+ *
+ * **Example** (Create a conflict refusal)
+ *
+ * ```ts
+ * import { SkillRelockRefusal } from "@beep/repo-cli/commands/Skills/Skills.errors"
+ *
+ * const error = SkillRelockRefusal.make({
+ *   skill: "oracle",
+ *   reason: "replay-conflicted",
+ *   message: "1 hunk conflicts at the new pin.",
+ * })
+ * console.log(error.reason) // "replay-conflicted"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillRelockRefusal extends S.TaggedError<SkillRelockRefusal>($I`SkillRelockRefusal`)(
+  "SkillRelockRefusal",
+  {
+    skill: S.String,
+    reason: SkillRelockRefusalReason,
+    message: S.String,
+  },
+  $I.annoteError<SkillRelockRefusal>("SkillRelockRefusal", {
+    title: "Skill Relock Refusal",
+    description: "A vendored skill's new pin was not recorded because its replay or license check failed.",
+  })
+) {}

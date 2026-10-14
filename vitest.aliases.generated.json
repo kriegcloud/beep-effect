@@ -1910,23 +1910,28 @@
   "@beep/epistemic-domain/values/ContradictionDetection": [
     "./packages/epistemic/domain/src/values/ContradictionDetection/index.ts"
   ],
+  "@beep/repo-cli/commands/AgentMessage": [
+    "./packages/tooling/tool/cli/src/commands/AgentMessage/index.ts"
+  ],
+  "@beep/t3-code": ["./packages/drivers/t3-code/src/index.ts"],
+  "@beep/t3-code/*": ["./packages/drivers/t3-code/src/*"],
   "@beep/law-practice-domain/values/PracticeProfile": [
     "./packages/law-practice/domain/src/values/PracticeProfile/index.ts"
   ],
   "@beep/law-practice-domain/values/SetupRequirement": [
     "./packages/law-practice/domain/src/values/SetupRequirement/index.ts"
   ],
+  "@beep/law-practice-server/PracticeKgHost": [
+    "./packages/law-practice/server/src/PracticeKgHost/index.ts"
+  ],
   "@beep/law-practice-use-cases/PracticeSetup": [
     "./packages/law-practice/use-cases/src/PracticeSetup/index.ts"
   ],
+  "@beep/practice-gateway": ["./apps/practice-gateway/src/index.ts"],
+  "@beep/practice-gateway/*": ["./apps/practice-gateway/src/*"],
   "@beep/windows-secrets": ["./packages/drivers/windows-secrets/src/index.ts"],
   "@beep/windows-secrets/*": ["./packages/drivers/windows-secrets/src/*"],
   "@beep/windows-secrets/internal/*": [
     "./packages/drivers/windows-secrets/src/internal/*"
-  ],
-  "@beep/law-practice-server/PracticeKgHost": [
-    "./packages/law-practice/server/src/PracticeKgHost/index.ts"
-  ],
-  "@beep/practice-gateway": ["./apps/practice-gateway/src/index.ts"],
-  "@beep/practice-gateway/*": ["./apps/practice-gateway/src/*"]
+  ]
 }

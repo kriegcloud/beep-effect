@@ -16,6 +16,9 @@
       "path": "apps/oip-web"
     },
     {
+      "path": "apps/practice-claude-mod"
+    },
+    {
       "path": "apps/practice-gateway"
     },
     {
@@ -221,6 +224,9 @@
     },
     {
       "path": "packages/drivers/shacl"
+    },
+    {
+      "path": "packages/drivers/t3-code"
     },
     {
       "path": "packages/drivers/tailscale"

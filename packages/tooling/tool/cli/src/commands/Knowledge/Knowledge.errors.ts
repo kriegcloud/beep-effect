@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
 import { Err } from "@beep/utils";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
@@ -327,3 +328,250 @@ export class KnowledgeCloneAttributesError extends S.TaggedError<KnowledgeCloneA
         "Move or delete the file; attribute rules belong in the repository's tracked .gitattributes.",
     });
 }
+
+/**
+ * Why a knowledge-doctor gating input could not be read.
+ *
+ * **Details**
+ *
+ * Each reason names one degraded input of the gating form (contract 13): an absent base ref, shallow
+ * history, a file that is not UTF-8, a baseline, promotions, lease, or identity file that does not
+ * decode, a missing `.github/CODEOWNERS` while leases exist, and the absent sealed baseline, which
+ * keeps the gate unavailable until the first CI mint.
+ *
+ * **Example** (Recognize the absent-baseline reason)
+ *
+ * ```ts
+ * import { KnowledgeDoctorInputReason } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+ *
+ * console.log(KnowledgeDoctorInputReason.is["missing-baseline"]("missing-baseline")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const KnowledgeDoctorInputReason = LiteralKit([
+  "absent-ref",
+  "shallow-history",
+  "malformed-utf8",
+  "undecodable-baseline",
+  "undecodable-promotions",
+  "undecodable-leases",
+  "undecodable-identity",
+  "missing-codeowners",
+  "missing-baseline",
+]).pipe(
+  $I.annoteSchema("KnowledgeDoctorInputReason", {
+    description: "Which gating input of the knowledge doctor was absent, shallow, or undecodable.",
+  })
+);
+
+/**
+ * Why a knowledge-doctor gating input could not be read.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type KnowledgeDoctorInputReason = typeof KnowledgeDoctorInputReason.Type;
+
+/**
+ * The message the gating form prints while no sealed baseline exists.
+ *
+ * **Example** (Read the refusal)
+ *
+ * ```ts
+ * import { KNOWLEDGE_DOCTOR_BASELINE_PENDING_MESSAGE } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+ *
+ * console.log(KNOWLEDGE_DOCTOR_BASELINE_PENDING_MESSAGE.endsWith("rerun with --report.")) // true
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const KNOWLEDGE_DOCTOR_BASELINE_PENDING_MESSAGE =
+  "knowledge doctor: only the read-only report is available until the sealed baseline lands; rerun with --report.";
+
+const INPUT_REMEDIATION: Readonly<Record<KnowledgeDoctorInputReason, string>> = {
+  "absent-ref":
+    "Fetch the base branch (`git fetch origin main`) or pass an existing local ref with --base; the doctor never fetches.",
+  "shallow-history": KNOWLEDGE_HISTORY_REMEDIATION,
+  "malformed-utf8": "Re-save the file as UTF-8.",
+  "undecodable-baseline":
+    "Restore the file from the default branch; only the CI mint writes the sealed baseline, and a branch may only delete entries.",
+  "undecodable-promotions":
+    "Restore the existing rows from the default branch and append one row matching knowledge-doctor-promotions/v1.",
+  "undecodable-leases": "Fix the lease file so every row matches knowledge-doctor-leases/v1.",
+  "undecodable-identity": "Fix the identity sidecar so every mapping matches knowledge-doctor-identity/v1.",
+  "missing-codeowners": "Restore .github/CODEOWNERS on the base branch; lease owners resolve from it.",
+  "missing-baseline": "Run `bun run beep knowledge doctor --report` until the CI mint opens the first sealed baseline.",
+};
+
+/**
+ * A gating input of the knowledge doctor that is absent, shallow, or undecodable.
+ *
+ * **Details**
+ *
+ * The gate fails closed on these (contract 13 and C4): they are never findings and never skips.
+ * `subject` is the ref or repository path at fault and `remediation` the one fix for its reason.
+ *
+ * **Example** (Refuse an undecodable lease file)
+ *
+ * ```ts
+ * import { KnowledgeDoctorInputError } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+ *
+ * const error = KnowledgeDoctorInputError.of("undecodable-leases", "goals/knowledge-doctor.leases.jsonc", "Missing key.")
+ *
+ * console.log(error.reason) // "undecodable-leases"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class KnowledgeDoctorInputError extends S.TaggedError<KnowledgeDoctorInputError>($I`KnowledgeDoctorInputError`)(
+  "KnowledgeDoctorInputError",
+  {
+    reason: KnowledgeDoctorInputReason,
+    subject: S.String,
+    message: S.String,
+    remediation: S.String,
+  },
+  $I.annoteError<KnowledgeDoctorInputError>("KnowledgeDoctorInputError", {
+    description: "A knowledge-doctor gating input that is absent, shallow, or undecodable, with its remediation.",
+  })
+) {
+  /**
+   * Builds the error for one reason, appending the reason's remediation to the message.
+   *
+   * **Example** (Report a shallow clone)
+   *
+   * ```ts
+   * import { KnowledgeDoctorInputError } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+   *
+   * const error = KnowledgeDoctorInputError.of("shallow-history", "origin/main", "The clone is shallow.")
+   *
+   * console.log(error.message.includes("fetch-depth: 0")) // true
+   * ```
+   *
+   * @param reason - Which input degraded.
+   * @param subject - The ref or repository path at fault.
+   * @param detail - What was observed, without the remediation.
+   * @returns The typed failure carrying the reason's remediation.
+   * @category constructors
+   * @since 0.0.0
+   */
+  static readonly of = (
+    reason: KnowledgeDoctorInputReason,
+    subject: string,
+    detail: string
+  ): KnowledgeDoctorInputError =>
+    KnowledgeDoctorInputError.make({
+      reason,
+      subject,
+      message: `${detail} ${INPUT_REMEDIATION[reason]}`,
+      remediation: INPUT_REMEDIATION[reason],
+    });
+}
+
+/**
+ * The gate failure raised after a checked report carries blocking knowledge-doctor findings.
+ *
+ * **Details**
+ *
+ * `introducedCount` counts introduced findings of promoted kinds, which no baseline key or active
+ * lease covers; `governanceCount` counts `baseline-tamper` and lease findings. The report prints first.
+ *
+ * **Example** (Signal one introduced finding)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { KnowledgeDoctorGateError } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+ *
+ * const error = KnowledgeDoctorGateError.make({
+ *   message: "knowledge doctor: 1 introduced, 0 governance finding(s).",
+ *   introducedCount: S.Natural.make(1),
+ *   governanceCount: S.Natural.make(0),
+ * })
+ *
+ * console.log(error.introducedCount) // 1
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class KnowledgeDoctorGateError extends S.TaggedError<KnowledgeDoctorGateError>($I`KnowledgeDoctorGateError`)(
+  "KnowledgeDoctorGateError",
+  {
+    message: S.String,
+    introducedCount: S.Natural,
+    governanceCount: S.Natural,
+  },
+  $I.annoteError<KnowledgeDoctorGateError>("KnowledgeDoctorGateError", {
+    description: "The checked knowledge-doctor report carries introduced or governance blocking findings.",
+  })
+) {}
+
+/**
+ * The mint refusing to seal because the minted tree carries blocking findings it may not absorb.
+ *
+ * **Details**
+ *
+ * The mint absorbs only previous keys, findings of kinds promoted since the previous mint, and, on the
+ * first seal, everything (contract 9). Any other blocking finding is listed in `refused` by finding
+ * id, so a main-red finding or an expired lease never launders into the sealed baseline.
+ *
+ * **Example** (Refuse one finding)
+ *
+ * ```ts
+ * import { KnowledgeMintRefusal } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+ *
+ * const refusal = KnowledgeMintRefusal.make({
+ *   message: "knowledge doctor mint: 1 blocking finding(s) cannot be sealed.",
+ *   refused: ["knowledge-finding/v1:1111111111111111111111111111111111111111111111111111111111111111"],
+ * })
+ *
+ * console.log(refusal.refused.length) // 1
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class KnowledgeMintRefusal extends S.TaggedError<KnowledgeMintRefusal>($I`KnowledgeMintRefusal`)(
+  "KnowledgeMintRefusal",
+  {
+    message: S.String,
+    refused: S.Array(S.String),
+  },
+  $I.annoteError<KnowledgeMintRefusal>("KnowledgeMintRefusal", {
+    description: "The mint refused to seal blocking findings it may not absorb.",
+  })
+) {}
+
+/**
+ * A committed baseline that a re-mint at its `mintedAt` does not reproduce byte for byte.
+ *
+ * **Example** (Report a broken seal)
+ *
+ * ```ts
+ * import { KnowledgeSealBroken } from "@beep/repo-cli/commands/Knowledge/Knowledge.errors"
+ *
+ * const error = KnowledgeSealBroken.make({
+ *   message: "The committed baseline differs from the re-mint.",
+ *   mintedAt: "1111111111111111111111111111111111111111",
+ * })
+ *
+ * console.log(error.mintedAt.length) // 40
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class KnowledgeSealBroken extends S.TaggedError<KnowledgeSealBroken>($I`KnowledgeSealBroken`)(
+  "KnowledgeSealBroken",
+  {
+    message: S.String,
+    mintedAt: S.String,
+  },
+  $I.annoteError<KnowledgeSealBroken>("KnowledgeSealBroken", {
+    description: "The committed knowledge-doctor baseline is not byte-reproducible from its mintedAt commit.",
+  })
+) {}
