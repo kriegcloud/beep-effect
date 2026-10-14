@@ -463,7 +463,10 @@ export class WorktreeInvokerExemption extends S.Class<WorktreeInvokerExemption>(
  * by Yeet. It takes precedence over `exemptInvokerSession`, even when its
  * marker cannot be proven. Callers that omit `exemptInvoker` may request
  * command-name inference with `exemptInvokerSession`; without either request,
- * every attached process remains a holder.
+ * every attached process remains a holder. Either request also leaves an idle
+ * Claude Desktop Terminal panel shell that stands in the checkout only by cwd
+ * (the receipt's `idleTerminalShells` names it); one running a command still
+ * blocks.
  *
  * **Example** (Request archive retirement)
  *
@@ -564,6 +567,9 @@ export class WorktreeUnpushedInspection extends S.Class<WorktreeUnpushedInspecti
  * commits. Clean archive removals therefore leave no residue directory.
  * `unpushedInspection` records how archive mode judged unpushed commits and
  * is absent for legacy removals, which never inspect them.
+ * `idleTerminalShells` names the idle Claude Desktop Terminal panel shells the
+ * archive fence left standing in the checkout: the checkout was removed under
+ * them, so each one's working directory is now gone.
  *
  * **Example** (Represent a clean archive removal)
  *
@@ -594,6 +600,10 @@ export class WorktreeRemovalReceipt extends S.Class<WorktreeRemovalReceipt>($I`W
     unpushedInspection: S.OptionFromNullOr(WorktreeUnpushedInspection).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.withDecodingDefaultKey(Effect.succeed(null))
+    ),
+    idleTerminalShells: S.Array(ProcessPid).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<ProcessPid>())),
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<ProcessPid>()))
     ),
   },
   $I.annote("WorktreeRemovalReceipt", {

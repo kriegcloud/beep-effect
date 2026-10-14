@@ -81,7 +81,7 @@
  *
  * Open question: whether to also refuse the worktree-mutating steps while a
  * process is working in the clone. The retire fence's holder scan
- * (`blockingHolders` in `Worktree.service.ts`) is not reusable as-is: its
+ * (`holdersOutsideInvoker` in `Worktree.service.ts`) is not reusable as-is: its
  * `CLAUDE_PID` session exemption would hide a verify launched by the sweeping
  * session itself, and `isPathWithin` in `ProcessAttachment.ts` is a path-prefix
  * match, so applied to the clone it would count every lane nested under
@@ -429,7 +429,26 @@ const ffMainPlanStep = (state: SweepGitState): SweepPlanStep =>
         requiresOperator: false,
       });
 
+// A branch whose ref is already absent has nothing left to delete: `--retire`
+// deleted it before the sweep observed the clone, or an earlier sweep did. The
+// step reports that as done rather than as blocked on a missing branch.
+const alreadyDeletedPlanStep = (id: SweepStepId, action: string, observation: string): SweepPlanStep =>
+  SweepPlanStep.make({
+    id,
+    action,
+    preconditions: [],
+    requiresOperator: false,
+    alreadyDone: O.some(observation),
+  });
+
 const deleteLocalBranchPlanStep = (state: SweepGitState): SweepPlanStep => {
+  if (O.isNone(state.localTip)) {
+    return alreadyDeletedPlanStep(
+      "delete-local-branch",
+      `git branch -d ${shellQuote(state.branch)}`,
+      `local branch ${state.branch} is already deleted`
+    );
+  }
   const shared = [
     precondition(`local branch ${state.branch} exists`, O.isSome(state.localTip)),
     precondition(`pull request for ${state.branch} is MERGED`, pullRequestIsMerged(state)),
@@ -461,6 +480,13 @@ const deleteLocalBranchPlanStep = (state: SweepGitState): SweepPlanStep => {
 };
 
 const deleteRemoteBranchPlanStep = (state: SweepGitState): SweepPlanStep => {
+  if (O.isNone(state.remoteTip)) {
+    return alreadyDeletedPlanStep(
+      "delete-remote-branch",
+      leasedRemoteDeletionCommand(state),
+      `remote branch origin/${state.branch} is already deleted (no remote-tracking ref)`
+    );
+  }
   const preconditions = [
     precondition(`remote branch origin/${state.branch} exists`, O.isSome(state.remoteTip)),
     precondition(`pull request for ${state.branch} is MERGED`, pullRequestIsMerged(state)),
@@ -1408,14 +1434,16 @@ const runSweepStep = Effect.fn("Yeet.runSweepStep")(function* (
 > {
   const startedAt = yield* Clock.currentTimeMillis;
   const blocked = sweepStepBlockers(planStep);
-  const outcome = A.isReadonlyArrayEmpty(blocked)
-    ? yield* performSweepStep(context, state, planStep, priorSteps)
-    : SweepStepSkipped.make({
-        reason: `blocked: ${A.join(
-          A.map(blocked, (observed) => observed.description),
-          "; "
-        )}`,
-      });
+  const outcome = O.isSome(planStep.alreadyDone)
+    ? SweepStepSkipped.make({ reason: planStep.alreadyDone.value })
+    : A.isReadonlyArrayEmpty(blocked)
+      ? yield* performSweepStep(context, state, planStep, priorSteps)
+      : SweepStepSkipped.make({
+          reason: `blocked: ${A.join(
+            A.map(blocked, (observed) => observed.description),
+            "; "
+          )}`,
+        });
   const endedAt = yield* Clock.currentTimeMillis;
   return SweepReportStep.make({ id: planStep.id, outcome, durationMs: O.some(endedAt - startedAt) });
 });

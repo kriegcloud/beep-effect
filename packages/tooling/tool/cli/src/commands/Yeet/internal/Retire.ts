@@ -228,10 +228,13 @@ const discardLaneFallowBaseCache = Effect.fn("Yeet.discardLaneFallowBaseCache")(
  * started it) plus, when the harness names the session process through
  * `CLAUDE_PID` and the fence can prove it did, everything that session
  * spawned into the lane (its MCP servers, tool shells, and background
- * jobs). Retiring the lane one is
- * standing in therefore works from a desktop session too, while any other
- * holder (a terminal panel, an editor, another session) still refuses it
- * and the message names what to close.
+ * jobs). The fence also leaves an idle Claude Desktop Terminal panel shell
+ * standing in the lane, which the app starts in the session folder whether
+ * or not the operator ever opened the panel; the lane is removed under it
+ * and the report says to `cd` out of it. Retiring the lane one is standing
+ * in therefore works from a desktop session too, while any other holder (a
+ * panel shell running a command, an editor, another session) still refuses
+ * it and the message names what to close.
  *
  * **Example** (Build the retirement effect)
  *
@@ -431,10 +434,12 @@ const isWithin = (path: Path.Path, root: string, candidate: string): boolean =>
  * **Details**
  *
  * A holder the fence could not exempt is a process outside the invoking
- * session: a desktop terminal panel, an editor, a dev server, another agent
- * session standing in the lane, or, outside Claude Code, the other stages of
- * a shell pipeline this command's output was piped into. The service names
- * each one; this message says to leave or close them, redirect output to a
+ * session: a Claude Desktop Terminal panel shell running a command, an
+ * editor, a dev server, another agent session standing in the lane, or,
+ * outside Claude Code, the other stages of a shell pipeline this command's
+ * output was piped into. The service names each one (and says to `cd ~` in a
+ * panel shell, since closing its tab starts a new shell in the lane); this
+ * message says to move them out of the lane or close them, redirect output to a
  * file instead of piping it, and rerun from the lane, because `bun run beep`
  * resolves the CLI from the checkout it runs in. It appends the form that
  * retires the lane from the owning clone through the lane's own CLI, which
@@ -462,7 +467,7 @@ export const retirementFailureMessage: {
   (message: string): (plan: YeetRetirePlan) => string;
 } = dual(2, (plan: YeetRetirePlan, message: string): string =>
   Str.includes("still hold it")(message)
-    ? `yeet sweep --retire could not retire ${plan.worktreePath}: ${message} Those holders are outside this command's own session (a desktop terminal panel, an editor, another shell or agent session, or the other stages of a pipeline its output was piped into): leave or close them, redirect output to a file instead of piping it, and rerun from the lane: bun run beep yeet sweep --retire. From the owning clone, run the lane's own CLI: cd "${plan.owningClone}" && bun run "${plan.worktreePath}/${REPO_CLI_ENTRY_PATH}" -- yeet sweep --retire --lane "${plan.worktreePath}"`
+    ? `yeet sweep --retire could not retire ${plan.worktreePath}: ${message} Those holders are outside this command's own session (a Claude Desktop Terminal panel shell running a command, an editor, another shell or agent session, or the other stages of a pipeline its output was piped into): move them out of the lane or close them, redirect output to a file instead of piping it, and rerun from the lane: bun run beep yeet sweep --retire. From the owning clone, run the lane's own CLI: cd "${plan.owningClone}" && bun run "${plan.worktreePath}/${REPO_CLI_ENTRY_PATH}" -- yeet sweep --retire --lane "${plan.worktreePath}"`
     : `yeet sweep --retire could not retire ${plan.worktreePath}: ${message}`
 );
 
@@ -530,6 +535,12 @@ export const renderRetirePlan: {
 /**
  * Render what a retirement did.
  *
+ * **Details**
+ *
+ * An idle Claude Desktop Terminal panel shell the fence left in the lane gets
+ * a note: the lane was removed under it, so its working directory no longer
+ * exists until the operator runs `cd ~` in that Terminal tab.
+ *
  * **Example** (Render a receipt)
  *
  * ```ts
@@ -556,6 +567,11 @@ export const renderRetirement: {
         onSome: (manifest) => ` (archived under ${manifest.residueRoot})`,
       })}`,
       `  branch ${plan.branch}: ${receipt.branchDeleted ? "deleted" : "kept"}`,
+      ...A.map(
+        receipt.idleTerminalShells,
+        (pid) =>
+          `  note: the idle Claude Desktop Terminal panel shell (pid ${pid}) stood in the lane and was left running; the lane was removed under it, so run \`cd ~\` in that Terminal tab before using it`
+      ),
     ],
     "\n"
   )

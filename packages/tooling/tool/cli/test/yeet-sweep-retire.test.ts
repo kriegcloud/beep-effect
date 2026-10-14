@@ -1,15 +1,25 @@
 import {
   CLAUDE_WORKTREES_RELATIVE_ROOT,
   WorktreeRemovalReceipt,
+  WorktreeRemovalRequest,
+  WorktreeRemovalService,
   WorktreeRemovalServiceLive,
 } from "@beep/repo-cli/commands/Worktree";
-import { RepoRunContext } from "@beep/repo-cli/test/RepoRun";
+import {
+  ProcessTable,
+  ProcessTableEntry,
+  processTableWithLineage,
+  procProcessTable,
+  RepoRunContext,
+} from "@beep/repo-cli/test/RepoRun";
 import { GhPrView } from "@beep/repo-cli/test/SharedInternals";
 import {
   planRetire,
   renderRetirement,
+  retireInvokingWorktree,
   retirementFailureMessage,
   runYeetSweep,
+  SweepGitState,
   YeetRetirePlan,
   YeetRetireSweepPlanJson,
   YeetRetireSweepReportJson,
@@ -18,6 +28,7 @@ import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
@@ -250,6 +261,59 @@ const spawnLaneHolder = (lane: string) =>
     stderr: "ignore",
   });
 
+// A real lane holder dressed, through scripted lineage, as the Claude Desktop
+// app's Terminal-panel shell: a `zsh` row whose parent is the app (55) and that
+// owns a pty. At its prompt the terminal's foreground group is its own pid;
+// `foregroundGroup` set to anything else is a command running in it.
+const desktopPanelTable = (holder: number, foregroundGroup = holder) =>
+  processTableWithLineage({
+    base: procProcessTable,
+    self: process.pid,
+    entries: [
+      ProcessTableEntry.make({ pid: 55, parent: 1, command: "claude-desktop" }),
+      ProcessTableEntry.make({ pid: holder, parent: 55, command: "zsh", terminal: 34823, foregroundGroup }),
+    ],
+  });
+
+const spawnSleepIn = (cwd: string) =>
+  ChildProcess.make("sleep", ["60"], { cwd, stdin: "ignore", stdout: "ignore", stderr: "ignore" });
+
+// A holder that stands outside the lane but keeps `lane.txt` open: it opens the
+// file, leaves for `/`, says so on stdout, and execs into `sleep`. The retirement
+// starts only after that line, so the fence sees only the descriptor.
+const spawnDescriptorHolder = Effect.fn("YeetRetireTest.spawnDescriptorHolder")(function* (lane: string) {
+  const holder = yield* ChildProcess.make("sh", ["-c", "exec 3<lane.txt; cd /; echo held; exec sleep 60"], {
+    cwd: lane,
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "ignore",
+  });
+  const ready = yield* holder.stdout.pipe(Stream.decodeText(), Stream.splitLines, Stream.runHead);
+  assertSome(ready, "held");
+  return holder;
+});
+
+// The facts the retirement gate reads for a merged lane, as the support invoker
+// states them: the lane's pull request is MERGED and heads its branch.
+const retireMergedLane = (repoRoot: string, lane: string) =>
+  retireInvokingWorktree(
+    YeetRetirePlan.make({ worktreePath: lane, owningClone: repoRoot, name: "lane", branch: "claude/lane" }),
+    SweepGitState.make({
+      branch: "claude/lane",
+      mainBranch: "main",
+      headBranch: "claude/lane",
+      worktreeDirty: false,
+      mainCheckedOutElsewhere: false,
+      branchCheckedOutElsewhere: false,
+      branchMergedIntoBase: true,
+      lockfileMovedOnMainUpdate: false,
+      statusProbeUnreliable: false,
+      worktreeProbeUnreliable: false,
+      pullRequestState: O.some("MERGED"),
+      pullRequestHeadBranch: O.some("claude/lane"),
+    })
+  );
+
 const RETIRE_FENCE_INVOKER = new URL("./support/RetireFenceInvoker.ts", import.meta.url).pathname;
 
 const RetireInvokerOutcome = S.Struct({ ok: S.Boolean, message: S.String });
@@ -319,6 +383,9 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
         expect(yield* runGitText(repoRoot, ["rev-parse", "origin/main"])).toBe(tip);
         expect(output).toContain("[yeet] retired");
         expect(output).toContain("branch claude/lane: deleted");
+        // The retirement deleted the branch before the sweep observed the clone.
+        expect(output).toContain("delete-local-branch: skipped: local branch claude/lane is already deleted");
+        expect(output).not.toContain("local tip <absent>");
       })
     )
   );
@@ -591,6 +658,100 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
           expect(yield* fs.exists(lane)).toBe(true);
         })
       )
+    )
+  );
+
+  it.effect("retires the lane under an idle Claude Desktop Terminal panel shell and says to cd out of it", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        // The app starts this shell in the session folder whether or not the
+        // operator ever opened the panel; at its prompt it writes nothing.
+        const holder = yield* spawnSleepIn(lane);
+        const receipt = yield* retireMergedLane(repoRoot, lane).pipe(
+          Effect.provideService(ProcessTable, desktopPanelTable(holder.pid)),
+          Effect.ensuring(Effect.ignore(holder.kill()))
+        );
+        expect(receipt.idleTerminalShells).toEqual([holder.pid]);
+        expect(
+          renderRetirement(
+            YeetRetirePlan.make({ worktreePath: lane, owningClone: repoRoot, name: "lane", branch: "claude/lane" }),
+            receipt
+          )
+        ).toContain(
+          `note: the idle Claude Desktop Terminal panel shell (pid ${holder.pid}) stood in the lane and was left running; the lane was removed under it, so run \`cd ~\` in that Terminal tab before using it`
+        );
+        expect(yield* fs.exists(lane)).toBe(false);
+        expect(yield* runGitText(repoRoot, ["branch", "--list", "claude/lane"])).toBe("");
+      })
+    )
+  );
+
+  it.effect("refuses a Claude Desktop Terminal panel shell running a command and says to cd ~ in its tab", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const holder = yield* spawnSleepIn(lane);
+        const error = yield* Effect.flip(retireMergedLane(repoRoot, lane)).pipe(
+          Effect.provideService(ProcessTable, desktopPanelTable(holder.pid, holder.pid + 1)),
+          Effect.ensuring(Effect.ignore(holder.kill()))
+        );
+        expect(error.message).toContain(
+          `pid ${holder.pid} (sleep) via cwd (the Claude Desktop Terminal panel shell, running a command) still hold it`
+        );
+        expect(error.message).toContain("closing the tab does not free the checkout");
+        expect(error.message).toContain("run `cd ~` in that Terminal tab, then rerun");
+        expect(yield* fs.exists(lane)).toBe(true);
+      })
+    )
+  );
+
+  it.effect("refuses an idle Claude Desktop Terminal panel shell that holds a descriptor in the lane", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        // Only standing in the lane by cwd is harmless; an open file is a writer.
+        const holder = yield* spawnDescriptorHolder(lane);
+        const error = yield* Effect.flip(retireMergedLane(repoRoot, lane)).pipe(
+          Effect.provideService(ProcessTable, desktopPanelTable(holder.pid)),
+          Effect.ensuring(Effect.ignore(holder.kill()))
+        );
+        expect(error.message).toContain(
+          `pid ${holder.pid} (sleep) via descriptor (the Claude Desktop Terminal panel shell) still hold it`
+        );
+        expect(yield* fs.exists(lane)).toBe(true);
+      })
+    )
+  );
+
+  it.effect("keeps an idle Claude Desktop Terminal panel shell blocking a removal that exempts no invoker", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const removal = yield* WorktreeRemovalService;
+        const holder = yield* spawnSleepIn(lane);
+        const error = yield* Effect.flip(
+          removal.remove(
+            WorktreeRemovalRequest.make({
+              name: "lane",
+              targetPath: lane,
+              mainCheckout: repoRoot,
+              branch: O.some("claude/lane"),
+              archive: true,
+              deleteBranch: true,
+              expectedHead: O.none(),
+            })
+          )
+        ).pipe(
+          Effect.provideService(ProcessTable, desktopPanelTable(holder.pid)),
+          Effect.ensuring(Effect.ignore(holder.kill()))
+        );
+        expect(error.message).toContain(
+          `pid ${holder.pid} (sleep) via cwd (the Claude Desktop Terminal panel shell) still hold it`
+        );
+        expect(error.message).toContain("run `cd ~` in that Terminal tab");
+        expect(yield* fs.exists(lane)).toBe(true);
+      })
     )
   );
 
