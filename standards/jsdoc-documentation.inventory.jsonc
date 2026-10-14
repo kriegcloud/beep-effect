@@ -1,7 +1,7 @@
 {
   "standard": "jsdoc-documentation",
   "version": 1,
-  "generatedAt": "2026-10-14T11:27:46.002Z",
+  "generatedAt": "2026-10-14T12:44:48.308Z",
   "source": {
     "packageUniverseCommand": "bun run topo-sort",
     "generator": "bun run beep quality jsdoc-inventory",
@@ -65,8 +65,8 @@
     "cleanPackages": 64,
     "packagesWithoutPublicSrcSurface": 2,
     "packagesNeedingRemediation": 81,
-    "publicModules": 3464,
-    "publicExports": 23464,
+    "publicModules": 3467,
+    "publicExports": 23499,
     "openModules": 912,
     "openExports": 1388,
     "missingExportExamples": 8,
@@ -368895,9 +368895,9 @@
       "status": "needs-remediation",
       "sourceCoverage": {
         "srcDir": "src",
-        "sourceFileCount": 385,
-        "publicModuleCount": 383,
-        "publicExportCount": 3392
+        "sourceFileCount": 388,
+        "publicModuleCount": 386,
+        "publicExportCount": 3427
       },
       "docgenCoverage": {
         "hasDocgenConfig": true,
@@ -369175,7 +369175,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 20,
+          "exportCount": 26,
           "remediationStatus": "resolved"
         },
         {
@@ -369241,7 +369241,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 13,
+          "exportCount": 15,
           "remediationStatus": "resolved"
         },
         {
@@ -376532,6 +376532,28 @@
         },
         {
           "docKind": "packageDocumentation",
+          "filePath": "src/commands/Skills/SkillPatches.apply.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillPatches.apply.ts",
+          "line": 1,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillpatches-apply-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "exportCount": 1,
+          "remediationStatus": "resolved"
+        },
+        {
+          "docKind": "packageDocumentation",
           "filePath": "src/commands/Skills/Skills.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts",
           "line": 1,
@@ -376571,7 +376593,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 13,
+          "exportCount": 19,
           "remediationStatus": "resolved"
         },
         {
@@ -376615,7 +376637,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 5,
+          "exportCount": 6,
           "remediationStatus": "resolved"
         },
         {
@@ -376681,7 +376703,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 13,
+          "exportCount": 14,
           "remediationStatus": "resolved"
         },
         {
@@ -376730,6 +376752,50 @@
         },
         {
           "docKind": "packageDocumentation",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 1,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "exportCount": 9,
+          "remediationStatus": "resolved"
+        },
+        {
+          "docKind": "packageDocumentation",
+          "filePath": "src/commands/Skills/SkillsMaterialize.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.service.ts",
+          "line": 1,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-service-ts-1-module",
+          "currentTags": [
+            "@packageDocumentation",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "exportCount": 6,
+          "remediationStatus": "resolved"
+        },
+        {
+          "docKind": "packageDocumentation",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
           "line": 1,
@@ -376747,7 +376813,7 @@
           "schemaAnnotationGaps": [],
           "categoryViolations": [],
           "documentationShapeViolations": [],
-          "exportCount": 10,
+          "exportCount": 13,
           "remediationStatus": "resolved"
         },
         {
@@ -378041,8 +378107,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 131,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-131-accountref",
+          "line": 133,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-133-accountref",
           "currentTags": [
             "@category",
             "@since"
@@ -378063,8 +378129,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 150,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-150-usagewindowkind",
+          "line": 152,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-152-usagewindowkind",
           "currentTags": [
             "@category",
             "@since"
@@ -378085,8 +378151,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 164,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-164-usagewindowkind",
+          "line": 166,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-166-usagewindowkind",
           "currentTags": [
             "@category",
             "@since"
@@ -378107,8 +378173,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 187,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-187-usagewindow",
+          "line": 189,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-189-usagewindow",
           "currentTags": [
             "@category",
             "@since"
@@ -378129,8 +378195,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 211,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-211-creditunit",
+          "line": 213,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-213-creditunit",
           "currentTags": [
             "@category",
             "@since"
@@ -378151,8 +378217,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 221,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-221-creditunit",
+          "line": 223,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-223-creditunit",
           "currentTags": [
             "@category",
             "@since"
@@ -378173,8 +378239,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 240,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-240-creditbalance",
+          "line": 242,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-242-creditbalance",
           "currentTags": [
             "@category",
             "@since"
@@ -378195,8 +378261,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 276,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-276-accountusageoutcome",
+          "line": 278,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-278-accountusageoutcome",
           "currentTags": [
             "@category",
             "@since"
@@ -378217,8 +378283,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 295,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-295-accountusageoutcome",
+          "line": 297,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-297-accountusageoutcome",
           "currentTags": [
             "@category",
             "@since"
@@ -378239,8 +378305,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 315,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-315-accountusage",
+          "line": 317,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-317-accountusage",
           "currentTags": [
             "@category",
             "@since"
@@ -378261,8 +378327,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 341,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-341-accountsection",
+          "line": 343,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-343-accountsection",
           "currentTags": [
             "@category",
             "@since"
@@ -378283,8 +378349,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 353,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-353-accountsection",
+          "line": 355,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-355-accountsection",
           "currentTags": [
             "@category",
             "@since"
@@ -378305,8 +378371,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 381,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-381-accountsection",
+          "line": 384,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-384-accountsection",
           "currentTags": [
             "@param",
             "@returns",
@@ -378329,8 +378395,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 397,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-397-signedinlogin",
+          "line": 400,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-400-signedinlogin",
           "currentTags": [
             "@category",
             "@since"
@@ -378351,8 +378417,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 416,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-416-accountavailability",
+          "line": 419,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-419-accountavailability",
           "currentTags": [
             "@category",
             "@since"
@@ -378373,8 +378439,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 429,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-429-accountavailability",
+          "line": 432,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-432-accountavailability",
           "currentTags": [
             "@category",
             "@since"
@@ -378395,8 +378461,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 460,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-460-accountranking",
+          "line": 463,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-463-accountranking",
           "currentTags": [
             "@category",
             "@since"
@@ -378417,8 +378483,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 496,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-496-accountsnapshot",
+          "line": 499,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-499-accountsnapshot",
           "currentTags": [
             "@category",
             "@since"
@@ -378439,8 +378505,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 523,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-523-accountsnapshotjson",
+          "line": 526,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-526-accountsnapshotjson",
           "currentTags": [
             "@category",
             "@since"
@@ -378461,8 +378527,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 539,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-539-accountgroup",
+          "line": 542,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-542-accountgroup",
           "currentTags": [
             "@category",
             "@since"
@@ -378483,8 +378549,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 558,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-558-accountsstatusreport",
+          "line": 561,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-561-accountsstatusreport",
           "currentTags": [
             "@category",
             "@since"
@@ -378505,8 +378571,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 584,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-584-accountsstatusreportjson",
+          "line": 587,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-587-accountsstatusreportjson",
           "currentTags": [
             "@category",
             "@since"
@@ -378527,8 +378593,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 694,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-694-rankaccount",
+          "line": 700,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-700-rankaccount",
           "currentTags": [
             "@param",
             "@returns",
@@ -378551,8 +378617,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 747,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-747-rankaccounts",
+          "line": 753,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-753-rankaccounts",
           "currentTags": [
             "@param",
             "@returns",
@@ -378575,8 +378641,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.schemas.ts",
-          "line": 789,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-789-groupaccounts",
+          "line": 795,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-schemas-ts-795-groupaccounts",
           "currentTags": [
             "@param",
             "@returns",
@@ -378669,8 +378735,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.view.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.view.ts",
-          "line": 447,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-view-ts-447-renderaccountsboard",
+          "line": 448,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-view-ts-448-renderaccountsboard",
           "currentTags": [
             "@param",
             "@returns",
@@ -378693,8 +378759,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 45,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-45-proxyauthfile",
+          "line": 46,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-46-proxyauthfile",
           "currentTags": [
             "@category",
             "@since"
@@ -378715,8 +378781,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 72,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-72-proxyauthfilejson",
+          "line": 73,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-73-proxyauthfilejson",
           "currentTags": [
             "@category",
             "@since"
@@ -378737,8 +378803,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 110,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-110-claudeusagebody",
+          "line": 111,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-111-claudeusagebody",
           "currentTags": [
             "@category",
             "@since"
@@ -378759,8 +378825,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 135,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-135-claudeusagebodyjson",
+          "line": 136,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-136-claudeusagebodyjson",
           "currentTags": [
             "@category",
             "@since"
@@ -378781,8 +378847,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 182,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-182-claudeusagewindows",
+          "line": 183,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-183-claudeusagewindows",
           "currentTags": [
             "@param",
             "@returns",
@@ -378805,8 +378871,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 212,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-212-codexusagebody",
+          "line": 213,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-213-codexusagebody",
           "currentTags": [
             "@category",
             "@since"
@@ -378827,8 +378893,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 243,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-243-codexusagebodyjson",
+          "line": 244,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-244-codexusagebodyjson",
           "currentTags": [
             "@category",
             "@since"
@@ -378849,8 +378915,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 275,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-275-codexusagewindows",
+          "line": 276,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-276-codexusagewindows",
           "currentTags": [
             "@param",
             "@returns",
@@ -378873,8 +378939,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 311,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-311-claudecreditbalances",
+          "line": 312,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-312-claudecreditbalances",
           "currentTags": [
             "@param",
             "@returns",
@@ -378897,8 +378963,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 347,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-347-codexcreditbalances",
+          "line": 348,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-348-codexcreditbalances",
           "currentTags": [
             "@param",
             "@returns",
@@ -378921,8 +378987,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 374,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-374-codexlimitresets",
+          "line": 375,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-375-codexlimitresets",
           "currentTags": [
             "@param",
             "@returns",
@@ -378945,8 +379011,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 400,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-400-musekeybody",
+          "line": 401,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-401-musekeybody",
           "currentTags": [
             "@category",
             "@since"
@@ -378967,8 +379033,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 426,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-426-musekeybodyjson",
+          "line": 427,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-427-musekeybodyjson",
           "currentTags": [
             "@category",
             "@since"
@@ -378989,8 +379055,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 457,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-457-museusagewindows",
+          "line": 458,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-458-museusagewindows",
           "currentTags": [
             "@param",
             "@returns",
@@ -379013,8 +379079,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 578,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-578-grokusagewindows",
+          "line": 579,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-579-grokusagewindows",
           "currentTags": [
             "@param",
             "@returns",
@@ -379037,8 +379103,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 610,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-610-claudecliconfig",
+          "line": 611,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-611-claudecliconfig",
           "currentTags": [
             "@category",
             "@since"
@@ -379059,8 +379125,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 631,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-631-claudecliconfigjson",
+          "line": 632,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-632-claudecliconfigjson",
           "currentTags": [
             "@category",
             "@since"
@@ -379081,8 +379147,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 654,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-654-codexcliauth",
+          "line": 655,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-655-codexcliauth",
           "currentTags": [
             "@category",
             "@since"
@@ -379103,8 +379169,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 674,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-674-codexcliauthjson",
+          "line": 675,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-675-codexcliauthjson",
           "currentTags": [
             "@category",
             "@since"
@@ -379125,11 +379191,143 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
-          "line": 697,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-697-codexsignedinemail",
+          "line": 698,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-698-codexsignedinemail",
           "currentTags": [
             "@param",
             "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "JunieStoredCredential",
+          "exportKind": "class",
+          "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+          "line": 723,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-723-juniestoredcredential",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "JunieStoredCredentialJson",
+          "exportKind": "const",
+          "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+          "line": 752,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-752-juniestoredcredentialjson",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "JunieRefreshBody",
+          "exportKind": "class",
+          "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+          "line": 769,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-769-junierefreshbody",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "JunieRefreshBodyJson",
+          "exportKind": "const",
+          "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+          "line": 794,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-794-junierefreshbodyjson",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "JunieAuthTestBody",
+          "exportKind": "class",
+          "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+          "line": 811,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-811-junieauthtestbody",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "JunieAuthTestBodyJson",
+          "exportKind": "const",
+          "filePath": "src/commands/Accounts/Accounts.wire.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+          "line": 838,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accounts-wire-schemas-ts-838-junieauthtestbodyjson",
+          "currentTags": [
             "@category",
             "@since"
           ],
@@ -379347,8 +379545,8 @@
           "exportKind": "interface",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 94,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-94-accountsusageshape",
+          "line": 107,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-107-accountsusageshape",
           "currentTags": [
             "@category",
             "@since"
@@ -379369,8 +379567,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 116,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-116-accountsusage",
+          "line": 129,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-129-accountsusage",
           "currentTags": [
             "@category",
             "@since"
@@ -379391,8 +379589,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 205,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-205-claudeusageoutcome",
+          "line": 230,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-230-claudeusageoutcome",
           "currentTags": [
             "@param",
             "@returns",
@@ -379415,8 +379613,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 243,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-243-codexusageoutcome",
+          "line": 268,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-268-codexusageoutcome",
           "currentTags": [
             "@param",
             "@returns",
@@ -379439,8 +379637,56 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 275,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-275-museusageoutcome",
+          "line": 300,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-300-museusageoutcome",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "junieUsageOutcome",
+          "exportKind": "const",
+          "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
+          "line": 362,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-362-junieusageoutcome",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "junieRefreshOutcome",
+          "exportKind": "const",
+          "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
+          "line": 387,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-387-junierefreshoutcome",
           "currentTags": [
             "@param",
             "@returns",
@@ -379463,8 +379709,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 306,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-306-grokusageoutcome",
+          "line": 438,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-438-grokusageoutcome",
           "currentTags": [
             "@param",
             "@returns",
@@ -379487,8 +379733,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 350,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-350-dedupeaccountusages",
+          "line": 478,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-478-dedupeaccountusages",
           "currentTags": [
             "@param",
             "@returns",
@@ -379511,8 +379757,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 373,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-373-resolveaccountsauthdir",
+          "line": 501,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-501-resolveaccountsauthdir",
           "currentTags": [
             "@category",
             "@since"
@@ -379533,8 +379779,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 400,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-400-makeaccountsusagelive",
+          "line": 528,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-528-makeaccountsusagelive",
           "currentTags": [
             "@category",
             "@since"
@@ -379555,8 +379801,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 609,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-609-layeraccountsusagelive",
+          "line": 874,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-874-layeraccountsusagelive",
           "currentTags": [
             "@category",
             "@since"
@@ -379577,8 +379823,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 626,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-626-pollaccounts",
+          "line": 891,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-891-pollaccounts",
           "currentTags": [
             "@category",
             "@since"
@@ -379599,8 +379845,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 660,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-660-retainlastgood",
+          "line": 928,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-928-retainlastgood",
           "currentTags": [
             "@param",
             "@returns",
@@ -379623,8 +379869,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Accounts/AccountsUsage.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Accounts/AccountsUsage.service.ts",
-          "line": 726,
-          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-726-loadaccountsreport",
+          "line": 994,
+          "anchor": "packages-tooling-tool-cli-src-commands-accounts-accountsusage-service-ts-994-loadaccountsreport",
           "currentTags": [
             "@param",
             "@returns",
@@ -426344,8 +426590,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 83,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-83-routingrole",
+          "line": 92,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-92-routingrole",
           "currentTags": [
             "@category",
             "@since"
@@ -426366,8 +426612,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 96,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-96-routingrole",
+          "line": 105,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-105-routingrole",
           "currentTags": [
             "@see",
             "@category",
@@ -426389,8 +426635,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 112,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-112-routingroleoptions",
+          "line": 121,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-121-routingroleoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -426411,8 +426657,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 128,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-128-routingroleis",
+          "line": 137,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-137-routingroleis",
           "currentTags": [
             "@category",
             "@since"
@@ -426433,8 +426679,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 163,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-163-routingsurface",
+          "line": 173,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-173-routingsurface",
           "currentTags": [
             "@category",
             "@since"
@@ -426455,8 +426701,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 176,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-176-routingsurface",
+          "line": 186,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-186-routingsurface",
           "currentTags": [
             "@see",
             "@category",
@@ -426478,8 +426724,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 192,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-192-routingsurfaceoptions",
+          "line": 202,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-202-routingsurfaceoptions",
           "currentTags": [
             "@category",
             "@since"
@@ -426500,8 +426746,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 208,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-208-routingsurfaceis",
+          "line": 218,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-218-routingsurfaceis",
           "currentTags": [
             "@category",
             "@since"
@@ -426522,8 +426768,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 260,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-260-surfaceeffortdomain",
+          "line": 270,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-270-surfaceeffortdomain",
           "currentTags": [
             "@category",
             "@since"
@@ -426544,8 +426790,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 299,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-299-iseffortallowedonsurface",
+          "line": 310,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-310-iseffortallowedonsurface",
           "currentTags": [
             "@param",
             "@returns",
@@ -426568,8 +426814,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 343,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-343-modelbinding",
+          "line": 354,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-354-modelbinding",
           "currentTags": [
             "@category",
             "@since"
@@ -426590,8 +426836,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 383,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-383-targetroot",
+          "line": 394,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-394-targetroot",
           "currentTags": [
             "@category",
             "@since"
@@ -426612,8 +426858,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 396,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-396-targetroot",
+          "line": 407,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-407-targetroot",
           "currentTags": [
             "@see",
             "@category",
@@ -426635,8 +426881,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 412,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-412-targetrootis",
+          "line": 423,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-423-targetrootis",
           "currentTags": [
             "@category",
             "@since"
@@ -426657,8 +426903,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 429,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-429-targetid",
+          "line": 440,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-440-targetid",
           "currentTags": [
             "@category",
             "@since"
@@ -426679,8 +426925,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 443,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-443-targetid",
+          "line": 454,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-454-targetid",
           "currentTags": [
             "@see",
             "@category",
@@ -426702,8 +426948,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 472,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-472-locatorfield",
+          "line": 483,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-483-locatorfield",
           "currentTags": [
             "@category",
             "@since"
@@ -426724,8 +426970,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 485,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-485-locatorfield",
+          "line": 496,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-496-locatorfield",
           "currentTags": [
             "@see",
             "@category",
@@ -426747,8 +426993,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 502,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-502-locatorfieldis",
+          "line": 513,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-513-locatorfieldis",
           "currentTags": [
             "@category",
             "@since"
@@ -426769,8 +427015,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 529,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-529-locatorbinding",
+          "line": 540,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-540-locatorbinding",
           "currentTags": [
             "@category",
             "@since"
@@ -426791,8 +427037,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 563,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-563-bindingfilter",
+          "line": 574,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-574-bindingfilter",
           "currentTags": [
             "@category",
             "@since"
@@ -426813,8 +427059,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 588,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-588-effortdisplaylabel",
+          "line": 599,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-599-effortdisplaylabel",
           "currentTags": [
             "@category",
             "@since"
@@ -426835,8 +427081,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 621,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-621-locatorrender",
+          "line": 632,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-632-locatorrender",
           "currentTags": [
             "@category",
             "@since"
@@ -426857,8 +427103,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 641,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-641-locatorrender",
+          "line": 652,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-652-locatorrender",
           "currentTags": [
             "@see",
             "@category",
@@ -426880,8 +427126,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 682,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-682-locator",
+          "line": 693,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-693-locator",
           "currentTags": [
             "@category",
             "@since"
@@ -426902,8 +427148,8 @@
           "exportKind": "type",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 776,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-776-locator",
+          "line": 787,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-787-locator",
           "currentTags": [
             "@see",
             "@category",
@@ -426925,8 +427171,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 806,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-806-modelsynctarget",
+          "line": 817,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-817-modelsynctarget",
           "currentTags": [
             "@category",
             "@since"
@@ -426947,8 +427193,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 852,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-852-supersededmodel",
+          "line": 863,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-863-supersededmodel",
           "currentTags": [
             "@category",
             "@since"
@@ -426969,8 +427215,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Models/Models.manifest.schemas.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.manifest.schemas.ts",
-          "line": 891,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-891-modelsmanifest",
+          "line": 902,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-manifest-schemas-ts-902-modelsmanifest",
           "currentTags": [
             "@category",
             "@since"
@@ -427688,8 +427934,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.seed.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.seed.ts",
-          "line": 494,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-seed-ts-494-seedmodelsmanifest",
+          "line": 548,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-seed-ts-548-seedmodelsmanifest",
           "currentTags": [
             "@category",
             "@since"
@@ -427864,8 +428110,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.service.ts",
-          "line": 483,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-service-ts-483-modelschecklive",
+          "line": 494,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-service-ts-494-modelschecklive",
           "currentTags": [
             "@category",
             "@since"
@@ -427886,8 +428132,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Models/Models.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Models/Models.service.ts",
-          "line": 500,
-          "anchor": "packages-tooling-tool-cli-src-commands-models-models-service-ts-500-modelslive",
+          "line": 511,
+          "anchor": "packages-tooling-tool-cli-src-commands-models-models-service-ts-511-modelslive",
           "currentTags": [
             "@category",
             "@since"
@@ -443762,12 +444008,37 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "applySkillPatch",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/SkillPatches.apply.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillPatches.apply.ts",
+          "line": 516,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillpatches-apply-ts-516-applyskillpatch",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@effects",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "RemoteSkillSource",
           "exportKind": "class",
           "filePath": "src/commands/Skills/Skills.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts",
-          "line": 129,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-129-remoteskillsource",
+          "line": 131,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-131-remoteskillsource",
           "currentTags": [
             "@category",
             "@since"
@@ -443788,8 +444059,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Skills/Skills.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts",
-          "line": 159,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-159-skilllockentry",
+          "line": 161,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-161-skilllockentry",
           "currentTags": [
             "@category",
             "@since"
@@ -443810,8 +444081,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Skills/Skills.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts",
-          "line": 189,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-189-skilllockfile",
+          "line": 191,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-191-skilllockfile",
           "currentTags": [
             "@category",
             "@since"
@@ -443832,8 +444103,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts",
-          "line": 292,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-292-remoteskillsources",
+          "line": 294,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-294-remoteskillsources",
           "currentTags": [
             "@category",
             "@since"
@@ -443854,8 +444125,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts",
-          "line": 763,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-763-rendercodexconfigwithskills",
+          "line": 765,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-765-rendercodexconfigwithskills",
           "currentTags": [
             "@param",
             "@returns",
@@ -443878,8 +444149,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts",
-          "line": 1155,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-1155-runskillsupdate",
+          "line": 1159,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-1159-runskillsupdate",
           "currentTags": [
             "@category",
             "@since"
@@ -443900,8 +444171,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.command.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.command.ts",
-          "line": 1344,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-1344-skillscommand",
+          "line": 1408,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-command-ts-1408-skillscommand",
           "currentTags": [
             "@category",
             "@since"
@@ -444204,12 +444475,144 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "SkillPatchApplyReason",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/Skills.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+          "line": 485,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-errors-ts-485-skillpatchapplyreason",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillPatchApplyReason",
+          "exportKind": "type",
+          "filePath": "src/commands/Skills/Skills.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+          "line": 515,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-errors-ts-515-skillpatchapplyreason",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillPatchApplyError",
+          "exportKind": "class",
+          "filePath": "src/commands/Skills/Skills.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+          "line": 544,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-errors-ts-544-skillpatchapplyerror",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeRefusalReason",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/Skills.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+          "line": 583,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-errors-ts-583-skillmaterializerefusalreason",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeRefusalReason",
+          "exportKind": "type",
+          "filePath": "src/commands/Skills/Skills.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+          "line": 611,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-errors-ts-611-skillmaterializerefusalreason",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeRefusal",
+          "exportKind": "class",
+          "filePath": "src/commands/Skills/Skills.errors.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.errors.ts",
+          "line": 637,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-errors-ts-637-skillmaterializerefusal",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "renderUnifiedHunks",
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.patches.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.patches.ts",
-          "line": 184,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-184-renderunifiedhunks",
+          "line": 171,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-171-renderunifiedhunks",
           "currentTags": [
             "@param",
             "@returns",
@@ -444232,8 +444635,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.patches.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.patches.ts",
-          "line": 261,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-261-resolvecodeownersowner",
+          "line": 248,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-248-resolvecodeownersowner",
           "currentTags": [
             "@param",
             "@returns",
@@ -444256,8 +444659,8 @@
           "exportKind": "interface",
           "filePath": "src/commands/Skills/Skills.patches.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.patches.ts",
-          "line": 279,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-279-skillpatchownersourceshape",
+          "line": 266,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-266-skillpatchownersourceshape",
           "currentTags": [
             "@see",
             "@category",
@@ -444279,8 +444682,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Skills/Skills.patches.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.patches.ts",
-          "line": 313,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-313-skillpatchownersource",
+          "line": 300,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-300-skillpatchownersource",
           "currentTags": [
             "@see",
             "@category",
@@ -444302,8 +444705,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.patches.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.patches.ts",
-          "line": 346,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-346-skillpatchownersourcefromcodeowners",
+          "line": 333,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-333-skillpatchownersourcefromcodeowners",
           "currentTags": [
             "@param",
             "@returns",
@@ -444326,8 +444729,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.patches.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.patches.ts",
-          "line": 426,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-426-skillpatchownersourcelive",
+          "line": 413,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-patches-ts-413-skillpatchownersourcelive",
           "currentTags": [
             "@category",
             "@since"
@@ -444348,8 +444751,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.render.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.render.ts",
-          "line": 91,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-91-renderskillprovenancejson",
+          "line": 92,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-92-renderskillprovenancejson",
           "currentTags": [
             "@param",
             "@returns",
@@ -444374,8 +444777,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.render.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.render.ts",
-          "line": 172,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-172-renderskillprovenancesummary",
+          "line": 173,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-173-renderskillprovenancesummary",
           "currentTags": [
             "@param",
             "@returns",
@@ -444399,8 +444802,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.render.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.render.ts",
-          "line": 220,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-220-renderskillslockmigrationplanjson",
+          "line": 221,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-221-renderskillslockmigrationplanjson",
           "currentTags": [
             "@param",
             "@returns",
@@ -444429,8 +444832,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.render.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.render.ts",
-          "line": 294,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-294-renderskillslockmigrationplansummary",
+          "line": 295,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-295-renderskillslockmigrationplansummary",
           "currentTags": [
             "@param",
             "@returns",
@@ -444459,8 +444862,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.render.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.render.ts",
-          "line": 347,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-347-renderskillslockwritereceiptjson",
+          "line": 348,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-348-renderskillslockwritereceiptjson",
           "currentTags": [
             "@param",
             "@returns",
@@ -444483,6 +444886,30 @@
           "categoryViolations": [],
           "documentationShapeViolations": [],
           "remediationStatus": "open"
+        },
+        {
+          "symbolName": "renderSkillMaterializeSummary",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/Skills.render.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.render.ts",
+          "line": 391,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-render-ts-391-renderskillmaterializesummary",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
         },
         {
           "symbolName": "SkillSourceType",
@@ -445797,8 +446224,8 @@
           "exportKind": "interface",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 675,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-675-skillupstreamcontentsourceshape",
+          "line": 480,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-480-skillupstreamcontentsourceshape",
           "currentTags": [
             "@see",
             "@category",
@@ -445820,8 +446247,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 753,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-753-skillupstreamcontentsource",
+          "line": 558,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-558-skillupstreamcontentsource",
           "currentTags": [
             "@see",
             "@category",
@@ -445843,9 +446270,33 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 823,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-823-skillupstreamcontentsourcelive",
+          "line": 628,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-628-skillupstreamcontentsourcelive",
           "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "skillResolutionOfEntry",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/Skills.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
+          "line": 675,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-675-skillresolutionofentry",
+          "currentTags": [
+            "@param",
+            "@returns",
             "@category",
             "@since"
           ],
@@ -445865,8 +446316,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1151,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1151-resolveskillprovenance",
+          "line": 983,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-983-resolveskillprovenance",
           "currentTags": [
             "@see",
             "@category",
@@ -445888,8 +446339,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1184,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1184-computelocalskilllockentry",
+          "line": 1016,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1016-computelocalskilllockentry",
           "currentTags": [
             "@param",
             "@returns",
@@ -445912,8 +446363,8 @@
           "exportKind": "interface",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1208,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1208-skillprovenanceserviceshape",
+          "line": 1040,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1040-skillprovenanceserviceshape",
           "currentTags": [
             "@see",
             "@category",
@@ -445935,8 +446386,8 @@
           "exportKind": "class",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1249,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1249-skillprovenanceservice",
+          "line": 1081,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1081-skillprovenanceservice",
           "currentTags": [
             "@see",
             "@category",
@@ -445958,8 +446409,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1317,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1317-skillprovenanceservicelayer",
+          "line": 1149,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1149-skillprovenanceservicelayer",
           "currentTags": [
             "@category",
             "@since"
@@ -445980,8 +446431,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1345,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1345-skillprovenanceservicelive",
+          "line": 1177,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1177-skillprovenanceservicelive",
           "currentTags": [
             "@see",
             "@category",
@@ -446003,8 +446454,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1384,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1384-runskillprovenance",
+          "line": 1216,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1216-runskillprovenance",
           "currentTags": [
             "@category",
             "@since"
@@ -446025,8 +446476,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1514,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1514-listinstalledskillnames",
+          "line": 1346,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1346-listinstalledskillnames",
           "currentTags": [
             "@param",
             "@returns",
@@ -446049,8 +446500,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1719,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1719-compileskillslockmigration",
+          "line": 1551,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1551-compileskillslockmigration",
           "currentTags": [
             "@param",
             "@returns",
@@ -446073,8 +446524,8 @@
           "exportKind": "const",
           "filePath": "src/commands/Skills/Skills.service.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
-          "line": 1769,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1769-planskillslockmigration",
+          "line": 1601,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skills-service-ts-1601-planskillslockmigration",
           "currentTags": [
             "@param",
             "@returns",
@@ -446985,6 +447436,340 @@
           "remediationStatus": "resolved"
         },
         {
+          "symbolName": "SkillMaterializeMode",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 39,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-39-skillmaterializemode",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeMode",
+          "exportKind": "type",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 60,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-60-skillmaterializemode",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeTargetState",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 81,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-81-skillmaterializetargetstate",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeTargetState",
+          "exportKind": "type",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 102,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-102-skillmaterializetargetstate",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeStatus",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 126,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-126-skillmaterializestatus",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeStatus",
+          "exportKind": "type",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 147,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-147-skillmaterializestatus",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeTarget",
+          "exportKind": "class",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 164,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-164-skillmaterializetarget",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeRow",
+          "exportKind": "class",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 201,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-201-skillmaterializerow",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeReport",
+          "exportKind": "class",
+          "filePath": "src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.schemas.ts",
+          "line": 229,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-schemas-ts-229-skillmaterializereport",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializeFailure",
+          "exportKind": "type",
+          "filePath": "src/commands/Skills/SkillsMaterialize.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.service.ts",
+          "line": 73,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-service-ts-73-skillmaterializefailure",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "reconstructVendoredSkill",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/SkillsMaterialize.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.service.ts",
+          "line": 235,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-service-ts-235-reconstructvendoredskill",
+          "currentTags": [
+            "@param",
+            "@returns",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializerShape",
+          "exportKind": "interface",
+          "filePath": "src/commands/Skills/SkillsMaterialize.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.service.ts",
+          "line": 361,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-service-ts-361-skillmaterializershape",
+          "currentTags": [
+            "@see",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializer",
+          "exportKind": "class",
+          "filePath": "src/commands/Skills/SkillsMaterialize.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.service.ts",
+          "line": 401,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-service-ts-401-skillmaterializer",
+          "currentTags": [
+            "@see",
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializerLayer",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/SkillsMaterialize.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.service.ts",
+          "line": 461,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-service-ts-461-skillmaterializerlayer",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "SkillMaterializerLive",
+          "exportKind": "const",
+          "filePath": "src/commands/Skills/SkillsMaterialize.service.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.service.ts",
+          "line": 485,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-skillsmaterialize-service-ts-485-skillmaterializerlive",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
           "symbolName": "export * from \"./SkillFrontmatter.schemas.ts\";",
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
@@ -447007,12 +447792,34 @@
           "remediationStatus": "resolved"
         },
         {
-          "symbolName": "export * from \"./Skills.command.ts\";",
+          "symbolName": "export * from \"./SkillPatches.apply.ts\";",
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
           "line": 21,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-21-export-from-skills-command-ts",
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-21-export-from-skillpatches-apply-ts",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "export * from \"./Skills.command.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/commands/Skills/index.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
+          "line": 28,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-28-export-from-skills-command-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -447033,8 +447840,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
-          "line": 28,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-28-export-from-skills-errors-ts",
+          "line": 35,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-35-export-from-skills-errors-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -447055,8 +447862,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
-          "line": 35,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-35-export-from-skills-patches-ts",
+          "line": 42,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-42-export-from-skills-patches-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -447077,8 +447884,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
-          "line": 42,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-42-export-from-skills-render-ts",
+          "line": 49,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-49-export-from-skills-render-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -447099,8 +447906,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
-          "line": 49,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-49-export-from-skills-schemas-ts",
+          "line": 56,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-56-export-from-skills-schemas-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -447121,8 +447928,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
-          "line": 56,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-56-export-from-skills-seeds-ts",
+          "line": 63,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-63-export-from-skills-seeds-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -447143,8 +447950,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
-          "line": 63,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-63-export-from-skills-service-ts",
+          "line": 70,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-70-export-from-skills-service-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -447165,8 +447972,8 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
-          "line": 70,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-70-export-from-skillslock-schemas-ts",
+          "line": 77,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-77-export-from-skillslock-schemas-ts",
           "currentTags": [
             "@category",
             "@since"
@@ -447187,8 +447994,52 @@
           "exportKind": "re-export",
           "filePath": "src/commands/Skills/index.ts",
           "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
-          "line": 77,
-          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-77-export-from-skillslock-write-ts",
+          "line": 84,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-84-export-from-skillslock-write-ts",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "export * from \"./SkillsMaterialize.schemas.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/commands/Skills/index.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
+          "line": 91,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-91-export-from-skillsmaterialize-schemas-ts",
+          "currentTags": [
+            "@category",
+            "@since"
+          ],
+          "missingRequiredTags": [],
+          "forbiddenTags": [],
+          "missingSummary": false,
+          "malformedConditionalTags": [],
+          "exampleImportViolations": [],
+          "unsafeExampleViolations": [],
+          "schemaAnnotationGaps": [],
+          "categoryViolations": [],
+          "documentationShapeViolations": [],
+          "remediationStatus": "resolved"
+        },
+        {
+          "symbolName": "export * from \"./SkillsMaterialize.service.ts\";",
+          "exportKind": "re-export",
+          "filePath": "src/commands/Skills/index.ts",
+          "repoPath": "packages/tooling/tool/cli/src/commands/Skills/index.ts",
+          "line": 98,
+          "anchor": "packages-tooling-tool-cli-src-commands-skills-index-ts-98-export-from-skillsmaterialize-service-ts",
           "currentTags": [
             "@category",
             "@since"

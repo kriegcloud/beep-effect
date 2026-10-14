@@ -125,3 +125,15 @@ The retired-path law initially fails on 19 path occurrences in six Palantiri Mar
 ## Moving-base correction
 
 Remote main advanced during proof to `4e66575c646c282169021a6d5eb3d01129617bcf`, including #1721 path corrections, #1716 merge-gate changes and #1709 skills materialization. Before push A will integrate that source and regenerate shared outputs. The original 19-path law red is inherited from immutable integrated main `3749e7ca4a`; a full six-file diff against that SHA is empty. The ten corrected lines match new main exactly, as independently reviewed. No package/parity pass on the earlier source is silently relabelled as covering new CLI source.
+
+## Third main integration and terminal prior-source proof
+
+All prior-source default package gates passed, including CLI audit/docgen at 1,210.1s/39.3s. Full local docgen (`--full`, planner-required) passed, including 135-package metadata, Turbo generation and aggregation; the Turbo stage took 5m12s. The restored-path law passes with zero findings across 39,663 text files.
+
+Scoped coverage failed environment-only on the unchanged cache-protocol fixture: `EADDRINUSE` port 49312, then test/hook timeouts. CLI: 6,170 passed, one failed, five skipped; all nine other shards passed. No baseline was written. The port is now free; A leaves all other sessions untouched and serializes its next CLI audit and coverage. Every own unit from that proof is terminal.
+
+Fetched and merged main at integration `312b0cf01d2b28d4ca9968cf58b641cd6778a93e`, retaining main semantics without conflicts. The next owner batch uses distinct ignored `main3-` receipts. New CLI source from main requires fresh CLI and commit-bound parity proof; other A package source surfaces remain unchanged. S5 remains ended by the verified port closeout.
+
+## Third integrated owners and source review
+
+All ten `main3-` owner commands pass. Frozen install changes no lock; catalog adds 126 lines for incoming source. JSDoc totals remain 147/81/1,388/912/0. Skills owner updates only Browser QA Loop's tree hash after its incoming main edits. The independent reviewer finds zero scoped source findings against pinned main `09b24dba55861cf6e69e2c4aa81ac05ad66b00b6`. The isolated cache fixture passes 16/16 tests in 4.74s; this does not relabel the earlier failed full coverage as a pass. Fresh CLI default audit and scoped coverage now run serially; commit-bound policy/documentation parity runs separately.

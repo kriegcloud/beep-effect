@@ -15,8 +15,10 @@ live PDF raster-coverage importer, so its internal parser export is retained.
 
 Under the 11:01Z ruling, A removes the `check.yml` Knip job and historical
 Knip parity helper in this wave. The orchestrator still removes the required
-context at the S3 gate. Additional generated lock hoists require the S5 effected-port
-notice before publication. No final retirement acceptance is claimed.
+context at the S3 gate. S5 notification has ended: port branches and closeout
+#1662 are merged, with its completion commit in this lane ancestry. The
+additional generated lock hoists remain documented. No final retirement
+acceptance is claimed.
 Other retirement surfaces belong to the next A wave.
 
 ## Retained tools
@@ -36,8 +38,11 @@ Pending the compact-presentation wave. Append-only rows remain untouched.
 
 ## Package gates
 
-Fresh integrated package qualification is pending. October 9 package passes
-remain historical and are not substituted for current-head acceptance.
+Ten non-CLI packages have current default audit/docgen passes; their source
+trees are unchanged by the latest main integration. CLI passed its previous
+integrated default gate and needs a fresh check after incoming main source.
+October 9 passes remain historical. Exact commands, source boundaries and
+parity results appear in the resumed handoff.
 
 ## Scope
 

@@ -348,16 +348,10 @@ Reproduced from brief section 1.
   `CLAUDE.md` symlink follows it), shared policy files, generated
   inventories, and `turbo.json` task declarations. Workers
   preserve each other's edits and report durable handoff files.
-- Any lane that edits `standards/effect-laws.allowlist.jsonc` or the
-  generated
-  `packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts`
-  on `main` notifies the effected-port session (through the orchestrator)
-  before publishing, so that session can merge `main` and regenerate. Its
-  branch rewrites both files (cross-session constraint recorded at take-over,
-  2026-10-09T13:55Z). The same rule covers `scratchpad/package.json` and
-  `bun.lock`: any lane editing them on `main` notifies the effected-port
-  session through the orchestrator before publishing, because that branch
-  also rewrites both files.
+- The effected-port shared-file notification dependency ended when the port
+  landed (#1592, #1628, #1659) and closeout #1662 recorded 29/29 done.
+  The Decision Log retains its original scope and exit condition; shared-file
+  serialization through the orchestrator remains active.
 - The build-pipeline session owns `explorations/build-pipeline-simplification/`
   and its PR #1558; that boundary is the whole of its overlap with this
   program. No program lane edits that exploration, and the build-pipeline

@@ -61,7 +61,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-[A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): PR #1584 is reopened and ready. The lane completed the interrupted main merge and preserved the new PDF coverage consumer. All 41 transferred findings retain final dispositions; the saved one-Govinfo scan applies to its October 9 revision. Current owner, package and parity results are being refreshed. A now removes the hosted Knip job and its historical parity-helper wiring in this wave under the 11:01Z ruling. The orchestrator must remove the required context before A merges.
+[A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): PR #1584 is reopened and ready. The lane completed the interrupted main merge and preserved the new PDF coverage consumer. All 41 transferred findings retain final dispositions; the saved one-Govinfo scan applies to its October 9 revision. The third main integration and all owner commands are complete. Ten non-CLI default package gates pass with unchanged source; fresh CLI and parity proof follow incoming main changes. A removes the hosted Knip job and its historical parity-helper wiring under the 11:01Z ruling. S5 publishing coordination ended when the effected port and its closeout landed. The orchestrator must remove the required context before A merges.
 B's October 13 bounded baseline repair is published in
 [PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
 codec properties for the three inherited arbitrary-test findings. After
