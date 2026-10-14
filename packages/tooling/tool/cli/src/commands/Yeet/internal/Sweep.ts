@@ -169,6 +169,11 @@ const permissionDenialMarkers = [
  * check it, so a pull request `gh` resolved by some other route cannot authorize
  * deleting a branch it never belonged to.
  *
+ * `remoteBranchAbsent` is true only when the remote itself answered that it has
+ * no `refs/heads/<branch>`. A missing remote-tracking ref proves nothing (it may
+ * never have been fetched), so the observer asks `git ls-remote` before the
+ * remote deletion may be reported as already done.
+ *
  * **Gotchas**
  *
  * `statusProbeUnreliable` and `worktreeProbeUnreliable` are the "this fact is
@@ -223,6 +228,7 @@ export class SweepGitState extends S.Class<SweepGitState>($I`SweepGitState`)(
     mainTip: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     localTip: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     remoteTip: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
+    remoteBranchAbsent: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     pullRequestState: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     pullRequestHeadBranch: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     pullRequestHeadOid: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -430,8 +436,10 @@ const ffMainPlanStep = (state: SweepGitState): SweepPlanStep =>
       });
 
 // A branch whose ref is already absent has nothing left to delete: `--retire`
-// deleted it before the sweep observed the clone, or an earlier sweep did. The
-// step reports that as done rather than as blocked on a missing branch.
+// deleted the local branch before the sweep observed the clone, or an earlier
+// sweep or the merge itself removed it. The step reports that as done rather
+// than as blocked on a missing branch; the remote side counts as absent only
+// when the remote said so (`remoteBranchAbsent`).
 const alreadyDeletedPlanStep = (id: SweepStepId, action: string, observation: string): SweepPlanStep =>
   SweepPlanStep.make({
     id,
@@ -480,11 +488,11 @@ const deleteLocalBranchPlanStep = (state: SweepGitState): SweepPlanStep => {
 };
 
 const deleteRemoteBranchPlanStep = (state: SweepGitState): SweepPlanStep => {
-  if (O.isNone(state.remoteTip)) {
+  if (state.remoteBranchAbsent) {
     return alreadyDeletedPlanStep(
       "delete-remote-branch",
       leasedRemoteDeletionCommand(state),
-      `remote branch origin/${state.branch} is already deleted (no remote-tracking ref)`
+      `remote branch origin/${state.branch} is already deleted`
     );
   }
   const preconditions = [
@@ -739,6 +747,14 @@ const worktreeHolding = (worktrees: ReadonlyArray<WorktreeEntry>, branch: string
 const heldByOtherWorktree = (worktrees: ReadonlyArray<WorktreeEntry>, branch: string, selfPath: string): boolean =>
   O.isSome(worktreeHolding(worktrees, branch, selfPath));
 
+// `git ls-remote origin refs/heads/<branch>` prints `<sha>\t<ref>` for a branch
+// the remote has and nothing for one it does not.
+const lsRemoteTip = (output: string): O.Option<string> =>
+  pipe(
+    optionFromNonEmpty(output),
+    O.flatMap((line) => pipe(Str.split(line, "\t"), A.head, O.flatMap(flow(Str.trim, optionFromNonEmpty))))
+  );
+
 const observeSha = (
   cwd: string,
   ref: string
@@ -872,7 +888,18 @@ export const observeSweepGitState = Effect.fn("Yeet.observeSweepGitState")(funct
   const worktreeList = yield* captureGit(repoRoot, ["worktree", "list", "--porcelain"]);
   const mainTip = yield* observeSha(repoRoot, `refs/heads/${mainBranch}`);
   const localTip = yield* observeSha(repoRoot, `refs/heads/${branch}`);
-  const remoteTip = yield* observeSha(repoRoot, `refs/remotes/origin/${branch}`);
+  const trackedTip = yield* observeSha(repoRoot, `refs/remotes/origin/${branch}`);
+  // Without a remote-tracking ref, ask the remote: it either still has the
+  // branch (its tip feeds the leased deletion) or confirms it is gone. An
+  // unreadable answer leaves both unknown, so the deletion stays blocked.
+  const remote = O.isSome(trackedTip)
+    ? { tip: trackedTip, absent: false }
+    : yield* captureGit(repoRoot, ["ls-remote", "origin", `refs/heads/${branch}`]).pipe(
+        Effect.map((probe) => {
+          const tip = probeUnreliable(probe) ? O.none<string>() : lsRemoteTip(probe.output);
+          return { tip, absent: !probeUnreliable(probe) && O.isNone(tip) };
+        })
+      );
   const ancestry = yield* captureGit(repoRoot, [
     "merge-base",
     "--is-ancestor",
@@ -912,7 +939,8 @@ export const observeSweepGitState = Effect.fn("Yeet.observeSweepGitState")(funct
       : worktreeHolding(worktrees, mainBranch, toplevel.output),
     mainTip,
     localTip,
-    remoteTip,
+    remoteTip: remote.tip,
+    remoteBranchAbsent: remote.absent,
     pullRequestState: O.flatMap(pullRequest, (view) => optionFromNonEmpty(view.state)),
     pullRequestHeadBranch: O.flatMap(pullRequest, (view) => optionFromNonEmpty(view.headRefName)),
     pullRequestHeadOid: O.flatMap(pullRequest, (view) =>
@@ -1111,10 +1139,7 @@ export const revalidateRemoteDeletion: {
         if (probeUnreliable(probe)) {
           return O.some(`could not re-verify origin/${state.branch} before deletion: ${probeFailureText(probe)}`);
         }
-        const fresh = pipe(
-          optionFromNonEmpty(probe.output),
-          O.flatMap((line) => pipe(Str.split(line, "\t"), A.head, O.flatMap(flow(Str.trim, optionFromNonEmpty))))
-        );
+        const fresh = lsRemoteTip(probe.output);
         if (O.isNone(fresh)) {
           return O.some(`origin/${state.branch} no longer exists; nothing to delete`);
         }

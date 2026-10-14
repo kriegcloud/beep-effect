@@ -860,7 +860,12 @@ const isShellCommand = S.is(ProcessShellCommand);
 // Nothing but the shell itself may belong to its group: a shell without job
 // control runs its foreground commands in its own group, so the foreground
 // group alone would read such a shell as idle mid-command. A table that cannot
-// be listed proves nothing, so the shell counts as busy.
+// be listed proves nothing, so the shell counts as busy. A listed pid whose
+// stat cannot be read is skipped: `/proc/<pid>/stat` is world-readable, so an
+// unreadable one has exited between the listing and the read and belongs to no
+// group. Counting it as a member would read every shell as busy whenever any
+// process on the machine exits mid-scan. A foreground job under job control is
+// caught by the foreground-group check, which does not depend on this scan.
 const groupHasOtherMembers = Effect.fnUntraced(function* (
   table: ProcessTableShape,
   shell: number
