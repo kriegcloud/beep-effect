@@ -243,3 +243,32 @@
   owner; dependent lanes should integrate that repair once instead of copying it.
 - Would have prevented it: the skills import proof running the host-path gate
   on the imported Markdown references before the merge.
+
+## 2026-10-14: Ready regression fixture needed its actual service contract
+
+- Doing: adding the Run 5 REST-read failure regression for an empty inherited set.
+- Evidence: the focused test found two fixture callbacks outside their describe
+  scope, then a GitHubError constructor missing its required `operation` field.
+  Local callbacks and the service error contract now replace those assumptions.
+- Would have prevented it: checking fixture scope and the exported error shape
+  before reusing helpers; test-only TSGo also catches both before publication.
+
+## 2026-10-14: Stable qualification must start after fixture repair
+
+- Doing: running the full S11 Run 5 package audit while its new failure fixture
+  was still being corrected.
+- Evidence: the audit loaded the missing `GitHubError.reason` at startup and
+  retained that one failure for its 840-second run; 6,110 other tests passed.
+  Fresh focused tests passed after the correction, but cannot make that audit
+  green retroactively. A stable full audit is required after the main merge.
+- Would have prevented it: waiting for the focused fixture test to pass before
+  launching the full audit; buffered shard logs also hid the early failure.
+
+## 2026-10-14: Test-only compiler enforced schema constructor form
+
+- Doing: running Run 5 parity after the stable package audit and docgen passed.
+- Evidence: `quality test-tsgo` reported TS377094 (`effect(newSchemaClass)`)
+  for the scripted REST failure fixture. Replaced `new GitHubError(...)` with
+  the equivalent `GitHubError.make(...)`; production behavior is unchanged.
+- Would have prevented it: using the schema constructor consistently in test
+  fixtures and running test-only parity before the long package audit.

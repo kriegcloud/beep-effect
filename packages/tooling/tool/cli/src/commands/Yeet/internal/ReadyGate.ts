@@ -488,12 +488,14 @@ const markReadyThroughBudget = (prNumber: number) =>
     )
   );
 
-// S11 requires the record, so a failed write refuses the flip.
+// S11 requires non-empty attributions; empty-section cleanup is best effort.
 const recordInheritedThroughRest = (prNumber: number, entries: ReadonlyArray<YeetReadyInheritedRed>, headSha: string) =>
   recordInheritedRedsInPullRequestBody(prNumber, entries, headSha).pipe(
     Effect.mapError((cause) =>
       YeetCommandError.make({
-        message: `yeet ready refused: could not record the inherited reds in the body of #${prNumber} (${cause.message}); S11 requires the record before the flip`,
+        message: A.isReadonlyArrayNonEmpty(entries)
+          ? `yeet ready refused: could not record the inherited reds in the body of #${prNumber} (${cause.message}); S11 requires the record before the flip`
+          : `could not reconcile the inherited-reds section in the body of #${prNumber} (${cause.message})`,
         exitCode: 1,
       })
     )
@@ -522,27 +524,30 @@ const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(fu
   context: RepoRunContext,
   dependencies: YeetReadyGateDependencies,
   confirmation: YeetReadyGateFlip,
-  inherited: ReadonlyArray<YeetReadyInheritedRed>
+  inherited: ReadonlyArray<YeetReadyInheritedRed>,
+  headSha: string
 ) {
   const applied = confirmation.inherited;
-  yield* (dependencies.recordInherited ?? recordInheritedThroughRest)(
-    confirmation.prNumber,
-    applied,
-    O.getOrElse(confirmation.headSha, () => "unknown")
-  );
+  const record = (dependencies.recordInherited ?? recordInheritedThroughRest)(confirmation.prNumber, applied, headSha);
+  yield* A.isReadonlyArrayNonEmpty(applied)
+    ? record
+    : record.pipe(
+        Effect.catchTag("YeetCommandError", (cause) =>
+          Console.log(`[yeet] warning: ${cause.message}; continuing the ready flip with no applied inherited reds`)
+        )
+      );
   // Recording takes time; confirm the whole gate against the recorded head and
   // attributions before allowing the caller to flip.
   const afterRecord = decideYeetReadyGate(yield* (dependencies.read ?? readPullRequestForReady)(context), inherited);
   if (
     afterRecord._tag !== "flip" ||
-    !O.contains(
-      afterRecord.headSha,
-      O.getOrElse(confirmation.headSha, () => "unknown")
-    ) ||
+    !O.contains(afterRecord.headSha, headSha) ||
     !inheritedRedsEquivalence(afterRecord.inherited, applied)
   ) {
     return yield* YeetCommandError.make({
-      message: `yeet ready refused: the pull request changed while recording inherited reds; re-run \`${YEET_READY_COMMAND}\` so the current state is gated and recorded.`,
+      message: A.isReadonlyArrayNonEmpty(applied)
+        ? `yeet ready refused: the pull request changed while recording inherited reds; re-run \`${YEET_READY_COMMAND}\` so the current state is gated and recorded.`
+        : `yeet ready refused: the pull request changed while reconciling the inherited-reds section; re-run \`${YEET_READY_COMMAND}\` so the current state is gated.`,
       exitCode: 1,
     });
   }
@@ -562,7 +567,10 @@ const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(fu
  * the applied ones in the PR body (REST), and a failed record refuses the flip
  * with `YeetCommandError`. A second confirmation after the body write requires
  * the same head, a passing gate, and the same applied attributions before flipping.
- * Every flip reconciles the body, rewriting a stale section to a head-pinned None record when no reds apply.
+ * When no reds apply, stale-section cleanup is best effort: an existing section
+ * is rewritten to a head-pinned None record, but a failed read or write only
+ * warns. An empty set without a section adds nothing. The post-record gate
+ * confirmation still requires the same head and passing checks and threads.
  *
  * **Example** (Build the gate effect)
  *
@@ -632,9 +640,9 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
         });
       }
       // S11: the attributions the confirmation applied are written before the
-      // flip; a failed write refuses it, because the ruling requires the record.
+      // flip; a failed non-empty write refuses it. Empty-section cleanup warns.
       const applied = confirmation.inherited;
-      yield* recordAndConfirmInherited(context, dependencies, confirmation, inherited);
+      yield* recordAndConfirmInherited(context, dependencies, confirmation, inherited, sameHead);
       // markPullRequestReadyForReview is GraphQL-only; the default flip spends it
       // through the GraphQL budget guard, waiting for the hourly reset when the
       // shared budget is spent instead of failing the way `gh pr ready` did.

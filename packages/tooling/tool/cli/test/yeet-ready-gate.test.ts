@@ -8,6 +8,7 @@ import {
   ProofJobUnit,
   parseYeetReadyInheritedRed,
   RepoRunContext,
+  recordInheritedRedsWithRest,
   runYeetReady,
   runYeetReadyGate,
   spliceYeetInheritedRedsSection,
@@ -23,6 +24,7 @@ import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
+import { GitHubError } from "@effected/github";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -728,6 +730,22 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       expect(error.message).toContain("changed while recording inherited reds");
     })
   );
+  it.effect("refuses a new blocker after empty-section cleanup without inherited-red refusal wording", () =>
+    Effect.gen(function* () {
+      const reads = yield* Ref.make(0);
+      const error = yield* runYeetReadyGate(context, {
+        read: () =>
+          Ref.getAndUpdate(reads, (n) => n + 1).pipe(
+            Effect.map((n) => prView({ unresolvedReviewThreadCount: n < 2 ? 0 : 1 }))
+          ),
+        recordInherited: () => Effect.void,
+        markReady: () => Effect.die("a new blocker must still refuse the default flip"),
+      }).pipe(Effect.flip);
+      expect(error.message).toContain("changed while reconciling the inherited-reds section");
+      expect(error.message).not.toContain("changed while recording inherited reds");
+      expect(error.message).not.toContain("S11 requires the record");
+    })
+  );
   it.effect("refuses another flip after an actor already marked the PR ready", () =>
     Effect.gen(function* () {
       const count = yield* Ref.make(0);
@@ -752,11 +770,66 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       // Every child process (`gh auth token`) fails, so no request reaches GitHub.
       const refusing = ChildProcessSpawner.make(() => Effect.succeed(fakeHandle("", 1)));
       const error = yield* runYeetReadyGate(context, {
-        recordInherited: () => Effect.void,
         read: () => Effect.succeed(prView()),
       }).pipe(Effect.flip, Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, refusing));
       expect(error).toMatchObject({ _tag: "YeetCommandError", command: "bun run beep yeet gh pr ready 42" });
       expect(error.message).toContain("could not mark pull request #42 ready for review");
+      const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
+      expect(printed).toContain("[yeet] warning:");
+      expect(printed).not.toContain("S11 requires the record");
+    })
+  );
+  it.effect("flips with a warning when the REST body read fails with no applied inherited reds", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      const reads = yield* Ref.make(0);
+      const rest = {
+        pullRequest: () =>
+          Ref.update(reads, (n) => n + 1).pipe(
+            Effect.andThen(
+              Effect.fail(
+                GitHubError.make({ kind: "rateLimited", operation: "pullRequest", reason: "REST body read failed" })
+              )
+            )
+          ),
+        updatePullRequest: () => Effect.die("a failed body read must not write"),
+      };
+      const decision = yield* runYeetReadyGate(context, {
+        read: () => Effect.succeed(prView()),
+        recordInherited: (prNumber, entries, head) =>
+          recordInheritedRedsWithRest(rest, prNumber, entries, head).pipe(
+            Effect.mapError((cause) => YeetCommandError.make({ message: cause.message, exitCode: 1 }))
+          ),
+        markReady: (prNumber) => Ref.update(calls, A.append(["ready", `${prNumber}`])),
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* Ref.get(reads)).toBe(1);
+      expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
+      const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
+      expect(printed).toContain("[yeet] warning:");
+      expect(printed).toContain("REST body read failed");
+      expect(printed).not.toContain("S11 requires the record");
+    })
+  );
+  it.effect("flips with a warning when empty inherited-red cleanup fails to write", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      const decision = yield* runYeetReadyGate(context, {
+        read: () => Effect.succeed(prView()),
+        recordInherited: (prNumber) =>
+          Ref.update(calls, A.append(["record", `${prNumber}`])).pipe(
+            Effect.andThen(Effect.fail(YeetCommandError.make({ message: "body write failed", exitCode: 1 })))
+          ),
+        markReady: (prNumber) => Ref.update(calls, A.append(["ready", `${prNumber}`])),
+        findMonitor: () => Effect.succeedNone,
+      });
+      expect(decision._tag).toBe("flip");
+      expect(yield* Ref.get(calls)).toEqual([
+        ["record", "42"],
+        ["ready", "42"],
+      ]);
+      expect(A.join(A.map(yield* TestConsole.logLines, String), "\n")).toContain("[yeet] warning:");
     })
   );
   it.effect("refuses the flip when the default inherited-red recorder cannot acquire its identity", () =>
