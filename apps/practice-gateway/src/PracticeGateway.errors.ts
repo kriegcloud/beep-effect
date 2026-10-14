@@ -32,7 +32,9 @@ const OptionalCause = S.optionalKey(
  * @category errors
  * @since 0.0.0
  */
-export class ProfileStoreFailure extends S.TaggedError<ProfileStoreFailure>($I`ProfileStoreFailure`)(
+export class ProfileStoreFailure extends S.TaggedError<ProfileStoreFailure, { readonly brand: unique symbol }>(
+  $I`ProfileStoreFailure`
+)(
   "ProfileStoreFailure",
   {
     cause: OptionalCause,
@@ -64,7 +66,9 @@ export class ProfileStoreFailure extends S.TaggedError<ProfileStoreFailure>($I`P
  * @category errors
  * @since 0.0.0
  */
-export class WindowsHostFailure extends S.TaggedError<WindowsHostFailure>($I`WindowsHostFailure`)(
+export class WindowsHostFailure extends S.TaggedError<WindowsHostFailure, { readonly brand: unique symbol }>(
+  $I`WindowsHostFailure`
+)(
   "WindowsHostFailure",
   {
     cause: OptionalCause,
@@ -96,7 +100,9 @@ export class WindowsHostFailure extends S.TaggedError<WindowsHostFailure>($I`Win
  * @category errors
  * @since 0.0.0
  */
-export class SelfCheckFailure extends S.TaggedError<SelfCheckFailure>($I`SelfCheckFailure`)(
+export class SelfCheckFailure extends S.TaggedError<SelfCheckFailure, { readonly brand: unique symbol }>(
+  $I`SelfCheckFailure`
+)(
   "SelfCheckFailure",
   {
     cause: OptionalCause,
@@ -134,7 +140,9 @@ export class SelfCheckFailure extends S.TaggedError<SelfCheckFailure>($I`SelfChe
  * @category errors
  * @since 0.0.0
  */
-export class ProviderUnavailable extends S.TaggedError<ProviderUnavailable>($I`ProviderUnavailable`)(
+export class ProviderUnavailable extends S.TaggedError<ProviderUnavailable, { readonly brand: unique symbol }>(
+  $I`ProviderUnavailable`
+)(
   "ProviderUnavailable",
   {
     cause: OptionalCause,
@@ -162,7 +170,9 @@ export class ProviderUnavailable extends S.TaggedError<ProviderUnavailable>($I`P
  * @category errors
  * @since 0.0.0
  */
-export class M365SignInFailure extends S.TaggedError<M365SignInFailure>($I`M365SignInFailure`)(
+export class M365SignInFailure extends S.TaggedError<M365SignInFailure, { readonly brand: unique symbol }>(
+  $I`M365SignInFailure`
+)(
   "M365SignInFailure",
   {
     cause: OptionalCause,
@@ -188,7 +198,9 @@ export class M365SignInFailure extends S.TaggedError<M365SignInFailure>($I`M365S
  * @category errors
  * @since 0.0.0
  */
-export class BrowserOpenFailure extends S.TaggedError<BrowserOpenFailure>($I`BrowserOpenFailure`)(
+export class BrowserOpenFailure extends S.TaggedError<BrowserOpenFailure, { readonly brand: unique symbol }>(
+  $I`BrowserOpenFailure`
+)(
   "BrowserOpenFailure",
   {
     cause: OptionalCause,

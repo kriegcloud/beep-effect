@@ -121,13 +121,14 @@ export const ONBOARDING_GUIDE_DESCRIPTION =
  * @category models
  * @since 0.0.0
  */
-export class OnboardingGuideText extends S.Class<OnboardingGuideText>($I`OnboardingGuideText`)(
-  {
+export class OnboardingGuideText extends S.Opaque<OnboardingGuideText, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.NonEmptyString.annotateKey({ description: "The onboarding steps, as Markdown." }),
-  },
-  $I.annote("OnboardingGuideText", {
-    description: "The onboarding steps the practice gateway serves.",
-  })
+  }).pipe(
+    $I.annoteSchema("OnboardingGuideText", {
+      description: "The onboarding steps the practice gateway serves.",
+    })
+  )
 ) {}
 
 /**

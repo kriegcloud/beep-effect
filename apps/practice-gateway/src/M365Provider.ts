@@ -7,6 +7,7 @@
  */
 
 import { M365, M365Error } from "@beep/m365";
+import { M365ConfigInput } from "@beep/m365/M365.config";
 import { M365McpRegistrationsLive } from "@beep/m365-mcp/Server";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
@@ -59,7 +60,7 @@ export const M365ProviderLayer = Layer.unwrap(
     }
     return M365McpRegistrationsLive.pipe(
       Layer.provide(
-        M365.makeLiveLayer(connection.config, {
+        M365.makeLiveLayer(M365ConfigInput.make(connection.config), {
           interactiveAuthorizer: signInThroughSetup,
           tokenCache: connection.tokenCache,
         })

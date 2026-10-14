@@ -88,7 +88,9 @@ export type SetupGraphProblem = typeof SetupGraphProblem.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SetupGraphInvalid extends S.TaggedError<SetupGraphInvalid>($I`SetupGraphInvalid`)(
+export class SetupGraphInvalid extends S.TaggedError<SetupGraphInvalid, { readonly brand: unique symbol }>(
+  $I`SetupGraphInvalid`
+)(
   "SetupGraphInvalid",
   {
     problem: SetupGraphProblem.annotateKey({ description: "What is wrong with the graph." }),

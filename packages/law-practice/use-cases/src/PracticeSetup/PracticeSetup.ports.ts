@@ -36,7 +36,9 @@ const $I = $LawPracticeUseCasesId.create("PracticeSetup/PracticeSetup.ports");
  * @category errors
  * @since 0.0.0
  */
-export class SetupProbeUnavailable extends S.TaggedError<SetupProbeUnavailable>($I`SetupProbeUnavailable`)(
+export class SetupProbeUnavailable extends S.TaggedError<SetupProbeUnavailable, { readonly brand: unique symbol }>(
+  $I`SetupProbeUnavailable`
+)(
   "SetupProbeUnavailable",
   {
     requirement: SetupRequirementId.annotateKey({ description: "The requirement whose probe could not run." }),
@@ -68,7 +70,9 @@ export class SetupProbeUnavailable extends S.TaggedError<SetupProbeUnavailable>(
  * @category errors
  * @since 0.0.0
  */
-export class SetupRepairFailed extends S.TaggedError<SetupRepairFailed>($I`SetupRepairFailed`)(
+export class SetupRepairFailed extends S.TaggedError<SetupRepairFailed, { readonly brand: unique symbol }>(
+  $I`SetupRepairFailed`
+)(
   "SetupRepairFailed",
   {
     requirement: SetupRequirementId.annotateKey({ description: "The requirement whose repair failed." }),
@@ -92,8 +96,8 @@ export class SetupRepairFailed extends S.TaggedError<SetupRepairFailed>($I`Setup
  * @category models
  * @since 0.0.0
  */
-export class SetupProbesShape extends S.Class<SetupProbesShape>($I`SetupProbesShape`)(
-  {
+export class SetupProbesShape extends S.Opaque<SetupProbesShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     probe: Fn({
       input: SetupRequirement,
       output: EffectOutput<ProbeResult, SetupProbeUnavailable>(),
@@ -102,10 +106,11 @@ export class SetupProbesShape extends S.Class<SetupProbesShape>($I`SetupProbesSh
       input: SetupRequirement,
       output: EffectOutput<void, SetupRepairFailed>(),
     }).annotateKey({ description: "Perform one requirement's automatic remediation." }),
-  },
-  $I.annote("SetupProbesShape", {
-    description: "Host service shape for probing and repairing setup requirements.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupProbesShape", {
+      description: "Host service shape for probing and repairing setup requirements.",
+    })
+  )
 ) {}
 
 /**
@@ -170,18 +175,19 @@ export type RepairDecision = typeof RepairDecision.Type;
  * @category models
  * @since 0.0.0
  */
-export class SetupApprovalsShape extends S.Class<SetupApprovalsShape>($I`SetupApprovalsShape`)(
-  {
+export class SetupApprovalsShape extends S.Opaque<SetupApprovalsShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     approveRepair: Fn({
       input: SetupRequirement,
       output: EffectOutput<RepairDecision>(),
     }).annotateKey({
       description: "Show the repair's plain-language summary and return the lawyer's decision.",
     }),
-  },
-  $I.annote("SetupApprovalsShape", {
-    description: "Host service shape for asking the lawyer to approve an automatic repair.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupApprovalsShape", {
+      description: "Host service shape for asking the lawyer to approve an automatic repair.",
+    })
+  )
 ) {}
 
 /**

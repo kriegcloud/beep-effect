@@ -48,8 +48,8 @@ const $I = $PracticeGatewayId.create("GatewaySettings");
  * @category models
  * @since 0.0.0
  */
-export class GatewaySettingsValues extends S.Class<GatewaySettingsValues>($I`GatewaySettingsValues`)(
-  {
+export class GatewaySettingsValues extends S.Opaque<GatewaySettingsValues, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataDir: S.NonEmptyString.annotateKey({ description: "Directory the gateway keeps its own data in." }),
     isWindows: S.Boolean.annotateKey({ description: "True when the gateway runs on Windows." }),
     bundleDir: S.Option(S.NonEmptyString).annotateKey({
@@ -62,10 +62,11 @@ export class GatewaySettingsValues extends S.Class<GatewaySettingsValues>($I`Gat
       description:
         "Microsoft 365 app (client) id from the extension settings; Microsoft 365 is unconfigured without it.",
     }),
-  },
-  $I.annote("GatewaySettingsValues", {
-    description: "Resolved process-level settings of the practice gateway.",
-  })
+  }).pipe(
+    $I.annoteSchema("GatewaySettingsValues", {
+      description: "Resolved process-level settings of the practice gateway.",
+    })
+  )
 ) {}
 
 /**

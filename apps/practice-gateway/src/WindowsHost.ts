@@ -148,14 +148,15 @@ export const WindowsHostOutput = <A>() =>
  * @category models
  * @since 0.0.0
  */
-export class RegistryValueQuery extends S.Class<RegistryValueQuery>($I`RegistryValueQuery`)(
-  {
+export class RegistryValueQuery extends S.Opaque<RegistryValueQuery, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: S.String.annotateKey({ description: "Registry key path, such as `HKCU\\Software\\Example`." }),
     name: S.String.annotateKey({ description: "Value name under the key." }),
-  },
-  $I.annote("RegistryValueQuery", {
-    description: "One registry value to read: the key path and the value name under it.",
-  })
+  }).pipe(
+    $I.annoteSchema("RegistryValueQuery", {
+      description: "One registry value to read: the key path and the value name under it.",
+    })
+  )
 ) {}
 
 /**
@@ -184,8 +185,8 @@ export class RegistryValueQuery extends S.Class<RegistryValueQuery>($I`RegistryV
  * @category models
  * @since 0.0.0
  */
-export class WindowsHostShape extends S.Class<WindowsHostShape>($I`WindowsHostShape`)(
-  {
+export class WindowsHostShape extends S.Opaque<WindowsHostShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     appxPackageFamilies: Fn({
       input: S.String,
       output: WindowsHostOutput<ReadonlyArray<string>>(),
@@ -222,10 +223,11 @@ export class WindowsHostShape extends S.Class<WindowsHostShape>($I`WindowsHostSh
     }).annotateKey({
       description: "Read one registry value through `reg.exe query`; `None` when the key or value does not exist.",
     }),
-  },
-  $I.annote("WindowsHostShape", {
-    description: "The Windows facts the setup probes read.",
-  })
+  }).pipe(
+    $I.annoteSchema("WindowsHostShape", {
+      description: "The Windows facts the setup probes read.",
+    })
+  )
 ) {}
 
 /**

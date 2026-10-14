@@ -27,7 +27,7 @@ const $I = $PracticeSetupId.create("Setup.errors");
  * @category errors
  * @since 0.0.0
  */
-export class SetupFailure extends S.TaggedError<SetupFailure>($I`SetupFailure`)(
+export class SetupFailure extends S.TaggedError<SetupFailure, { readonly brand: unique symbol }>($I`SetupFailure`)(
   "SetupFailure",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),

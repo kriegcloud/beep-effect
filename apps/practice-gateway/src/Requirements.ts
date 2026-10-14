@@ -97,8 +97,8 @@ export type GatewayRequirementId = typeof GatewayRequirementId.Type;
  * @category models
  * @since 0.0.0
  */
-export class RequirementTemplate extends S.Class<RequirementTemplate>($I`RequirementTemplate`)(
-  {
+export class RequirementTemplate extends S.Opaque<RequirementTemplate, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: GatewayRequirementId.annotateKey({ description: "Stable identifier of the requirement." }),
     provider: SetupProvider.annotateKey({ description: "The provider or host the requirement belongs to." }),
     dependsOn: S.Array(GatewayRequirementId).annotateKey({
@@ -106,10 +106,11 @@ export class RequirementTemplate extends S.Class<RequirementTemplate>($I`Require
     }),
     remediation: Remediation.annotateKey({ description: "How the requirement is repaired." }),
     explain: S.NonEmptyString.annotateKey({ description: "Plain-language reason shown to the lawyer." }),
-  },
-  $I.annote("RequirementTemplate", {
-    description: "A setup requirement catalog entry without its capability.",
-  })
+  }).pipe(
+    $I.annoteSchema("RequirementTemplate", {
+      description: "A setup requirement catalog entry without its capability.",
+    })
+  )
 ) {}
 
 const human = (step: HumanRemediation["step"], instruction: string) => HumanRemediation.make({ step, instruction });

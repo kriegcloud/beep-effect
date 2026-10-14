@@ -32,7 +32,9 @@ const $I = $McpbKitId.create("McpbKit.errors");
  * @category errors
  * @since 0.0.0
  */
-export class McpbPackageFailure extends S.TaggedError<McpbPackageFailure>($I`McpbPackageFailure`)(
+export class McpbPackageFailure extends S.TaggedError<McpbPackageFailure, { readonly brand: unique symbol }>(
+  $I`McpbPackageFailure`
+)(
   "McpbPackageFailure",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),

@@ -20,8 +20,8 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { assertArchive, copyDirectory, ensureWindowsBindings, NativeAddonExternals, run } from "./internal/steps.ts";
 import { McpbPackageFailure } from "./McpbKit.errors.ts";
-import { McpbManifest, McpbTarget, McpbTargetSelection, McpbTargetSpec } from "./McpbKit.models.ts";
-import type { McpbManifestFields, McpbPackageSpec } from "./McpbKit.models.ts";
+import { McpbManifest, McpbManifestFields, McpbTarget, McpbTargetSelection, McpbTargetSpec } from "./McpbKit.models.ts";
+import type { McpbPackageSpec } from "./McpbKit.models.ts";
 
 /**
  * The compile and bindings settings of one target for an app's executable.
@@ -169,7 +169,7 @@ const packageTarget = Effect.fn("McpbPackage.packageTarget")(function* (
       : path.resolve(repoRoot, "node_modules", "@duckdb", nativePackage);
   yield* fs.remove(bundleDir, { recursive: true, force: true });
   yield* fs.makeDirectory(bundleDir, { recursive: true });
-  const manifest = yield* encodeManifest(mcpbManifest(spec.manifest, targetSpec)).pipe(
+  const manifest = yield* encodeManifest(mcpbManifest(McpbManifestFields.make(spec.manifest), targetSpec)).pipe(
     Effect.mapError((cause) => McpbPackageFailure.make({ cause, message: `Failed encoding the ${target} manifest.` }))
   );
   yield* fs.writeFileString(path.join(bundleDir, "manifest.json"), `${manifest}\n`);

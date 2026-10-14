@@ -188,16 +188,17 @@ export type BoxEntryKind = typeof BoxEntryKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxEntry extends S.Class<BoxEntry>($I`BoxEntry`)(
-  {
+export class BoxEntry extends S.Opaque<BoxEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String.annotateKey({ description: "File or folder name." }),
     path: S.String.annotateKey({ description: "Path inside the Box folder, with `/` separators." }),
     kind: BoxEntryKind.annotateKey({ description: "Whether the entry is a file or a folder." }),
     sizeBytes: S.OptionFromNullOr(S.Natural).annotateKey({ description: "File size in bytes; null for folders." }),
-  },
-  $I.annote("BoxEntry", {
-    description: "One file or folder in a Box listing.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxEntry", {
+      description: "One file or folder in a Box listing.",
+    })
+  )
 ) {}
 
 /**
@@ -214,17 +215,18 @@ export class BoxEntry extends S.Class<BoxEntry>($I`BoxEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class BoxListing extends S.Class<BoxListing>($I`BoxListing`)(
-  {
+export class BoxListing extends S.Opaque<BoxListing, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String.annotateKey({ description: "The listed folder inside Box; empty for the Box folder itself." }),
     entries: S.Array(BoxEntry).annotateKey({ description: "Folders first, then files, by name." }),
     truncated: S.Boolean.annotateKey({
       description: `True when the folder holds more than ${BOX_LIST_MAX_ENTRIES} entries and the rest were left out.`,
     }),
-  },
-  $I.annote("BoxListing", {
-    description: "The entries of one Box folder.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxListing", {
+      description: "The entries of one Box folder.",
+    })
+  )
 ) {}
 
 /**
@@ -241,17 +243,18 @@ export class BoxListing extends S.Class<BoxListing>($I`BoxListing`)(
  * @category models
  * @since 0.0.0
  */
-export class BoxTextContent extends S.Class<BoxTextContent>($I`BoxTextContent`)(
-  {
+export class BoxTextContent extends S.Opaque<BoxTextContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("text"),
     text: S.String.annotateKey({ description: "The file's text." }),
     truncated: S.Boolean.annotateKey({
       description: `True when the text was longer than ${BOX_READ_MAX_CHARACTERS} characters and was cut.`,
     }),
-  },
-  $I.annote("BoxTextContent", {
-    description: "Text read from a Box file.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxTextContent", {
+      description: "Text read from a Box file.",
+    })
+  )
 ) {}
 
 /**
@@ -268,14 +271,15 @@ export class BoxTextContent extends S.Class<BoxTextContent>($I`BoxTextContent`)(
  * @category models
  * @since 0.0.0
  */
-export class BoxMetadataOnly extends S.Class<BoxMetadataOnly>($I`BoxMetadataOnly`)(
-  {
+export class BoxMetadataOnly extends S.Opaque<BoxMetadataOnly, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("metadata-only"),
     reason: S.NonEmptyString.annotateKey({ description: "Why no text was returned, in plain language." }),
-  },
-  $I.annote("BoxMetadataOnly", {
-    description: "A Box file whose text was not read, and why.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxMetadataOnly", {
+      description: "A Box file whose text was not read, and why.",
+    })
+  )
 ) {}
 
 /**
@@ -338,16 +342,17 @@ export type BoxContent = typeof BoxContent.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxDocument extends S.Class<BoxDocument>($I`BoxDocument`)(
-  {
+export class BoxDocument extends S.Opaque<BoxDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String.annotateKey({ description: "File name." }),
     path: S.String.annotateKey({ description: "Path inside the Box folder, with `/` separators." }),
     sizeBytes: S.Natural.annotateKey({ description: "File size in bytes." }),
     content: BoxContent.annotateKey({ description: "The file's text, or why there is none." }),
-  },
-  $I.annote("BoxDocument", {
-    description: "A Box file and its content.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxDocument", {
+      description: "A Box file and its content.",
+    })
+  )
 ) {}
 
 /**
@@ -409,15 +414,16 @@ export type BoxToolFailureReason = typeof BoxToolFailureReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxToolError extends S.Class<BoxToolError>($I`BoxToolError`)(
-  {
+export class BoxToolError extends S.Opaque<BoxToolError, { readonly brand: unique symbol }>()(
+  S.Struct({
     tool: S.NonEmptyString.annotateKey({ description: "The tool that failed." }),
     reason: BoxToolFailureReason.annotateKey({ description: "Why it failed." }),
     message: S.NonEmptyString.annotateKey({ description: "What happened and what to do next, in plain language." }),
-  },
-  $I.annote("BoxToolError", {
-    description: "Plain-language failure returned by a Box Drive tool.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxToolError", {
+      description: "Plain-language failure returned by a Box Drive tool.",
+    })
+  )
 ) {}
 
 /**
@@ -434,15 +440,16 @@ export class BoxToolError extends S.Class<BoxToolError>($I`BoxToolError`)(
  * @category models
  * @since 0.0.0
  */
-export class BoxListRequest extends S.Class<BoxListRequest>($I`BoxListRequest`)(
-  {
+export class BoxListRequest extends S.Opaque<BoxListRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.optionalKey(S.String).annotateKey({
       description: 'Folder inside Box, such as "Clients/Smith"; omit for the Box folder itself.',
     }),
-  },
-  $I.annote("BoxListRequest", {
-    description: "Which Box folder to list.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxListRequest", {
+      description: "Which Box folder to list.",
+    })
+  )
 ) {}
 
 /**
@@ -459,13 +466,14 @@ export class BoxListRequest extends S.Class<BoxListRequest>($I`BoxListRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class BoxReadRequest extends S.Class<BoxReadRequest>($I`BoxReadRequest`)(
-  {
+export class BoxReadRequest extends S.Opaque<BoxReadRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String.annotateKey({ description: 'File inside Box, such as "Clients/Smith/letter.docx".' }),
-  },
-  $I.annote("BoxReadRequest", {
-    description: "Which Box file to read.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxReadRequest", {
+      description: "Which Box file to read.",
+    })
+  )
 ) {}
 
 const readHints = FourHintAnnotations.make({ destructive: false, idempotent: true, openWorld: false, readOnly: true });

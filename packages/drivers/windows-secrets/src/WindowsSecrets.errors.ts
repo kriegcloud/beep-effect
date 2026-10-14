@@ -38,7 +38,9 @@ const $I = $WindowsSecretsId.create("WindowsSecrets.errors");
  * @category errors
  * @since 0.0.0
  */
-export class SecretStoreFailure extends S.TaggedError<SecretStoreFailure>($I`SecretStoreFailure`)(
+export class SecretStoreFailure extends S.TaggedError<SecretStoreFailure, { readonly brand: unique symbol }>(
+  $I`SecretStoreFailure`
+)(
   "SecretStoreFailure",
   {
     operation: SecretStoreOperation.annotateKey({
@@ -82,7 +84,9 @@ export class SecretStoreFailure extends S.TaggedError<SecretStoreFailure>($I`Sec
  * @category errors
  * @since 0.0.0
  */
-export class SecretTooLarge extends S.TaggedError<SecretTooLarge>($I`SecretTooLarge`)(
+export class SecretTooLarge extends S.TaggedError<SecretTooLarge, { readonly brand: unique symbol }>(
+  $I`SecretTooLarge`
+)(
   "SecretTooLarge",
   {
     target: SecretTarget.annotateKey({
@@ -120,7 +124,9 @@ export class SecretTooLarge extends S.TaggedError<SecretTooLarge>($I`SecretTooLa
  * @category errors
  * @since 0.0.0
  */
-export class SecretStoreUnsupported extends S.TaggedError<SecretStoreUnsupported>($I`SecretStoreUnsupported`)(
+export class SecretStoreUnsupported extends S.TaggedError<SecretStoreUnsupported, { readonly brand: unique symbol }>(
+  $I`SecretStoreUnsupported`
+)(
   "SecretStoreUnsupported",
   {
     platform: S.NonEmptyString.annotateKey({

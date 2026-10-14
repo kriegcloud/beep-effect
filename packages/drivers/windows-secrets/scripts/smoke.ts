@@ -37,7 +37,7 @@ const sameBytes = (left: Uint8Array, right: Uint8Array): boolean =>
 const holds = (value: O.Option<Redacted.Redacted<string>>, expected: string): boolean =>
   O.exists(value, (secret) => Redacted.value(secret) === expected);
 
-class SmokeFailed extends S.TaggedError<SmokeFailed>()("SmokeFailed", {
+class SmokeFailed extends S.TaggedError<SmokeFailed, { readonly brand: unique symbol }>()("SmokeFailed", {
   failedSteps: S.Int,
 }) {
   override get message() {

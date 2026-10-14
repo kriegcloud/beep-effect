@@ -27,7 +27,7 @@ const $I = $PracticeKgMcpId.create("PracticeKgMcp.errors");
  * @category errors
  * @since 0.0.0
  */
-export class SmokeFailure extends S.TaggedError<SmokeFailure>($I`SmokeFailure`)(
+export class SmokeFailure extends S.TaggedError<SmokeFailure, { readonly brand: unique symbol }>($I`SmokeFailure`)(
   "SmokeFailure",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
@@ -58,7 +58,9 @@ export class SmokeFailure extends S.TaggedError<SmokeFailure>($I`SmokeFailure`)(
  * @category errors
  * @since 0.0.0
  */
-export class SelfCheckFailure extends S.TaggedError<SelfCheckFailure>($I`SelfCheckFailure`)(
+export class SelfCheckFailure extends S.TaggedError<SelfCheckFailure, { readonly brand: unique symbol }>(
+  $I`SelfCheckFailure`
+)(
   "SelfCheckFailure",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),

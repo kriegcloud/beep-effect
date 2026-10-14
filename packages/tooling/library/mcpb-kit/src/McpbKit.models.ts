@@ -144,8 +144,8 @@ export type McpbPlatform = typeof McpbPlatform.Type;
  * @category models
  * @since 0.0.0
  */
-export class McpbTargetSpec extends S.Class<McpbTargetSpec>($I`McpbTargetSpec`)(
-  {
+export class McpbTargetSpec extends S.Opaque<McpbTargetSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     target: McpbTarget.annotateKey({ description: "The platform this spec builds." }),
     bunTarget: S.NonEmptyString.annotateKey({ description: "The `bun build --compile --target` value." }),
     executable: S.NonEmptyString.annotateKey({ description: "File name of the compiled executable in the bundle." }),
@@ -153,10 +153,11 @@ export class McpbTargetSpec extends S.Class<McpbTargetSpec>($I`McpbTargetSpec`)(
       description: "The `@duckdb/<name>` native bindings package shipped beside the executable.",
     }),
     platform: McpbPlatform.annotateKey({ description: "The platform the manifest declares." }),
-  },
-  $I.annote("McpbTargetSpec", {
-    description: "How one target is compiled and which executable it ships.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpbTargetSpec", {
+      description: "How one target is compiled and which executable it ships.",
+    })
+  )
 ) {}
 
 /**
@@ -216,16 +217,17 @@ export type McpbUserConfigType = typeof McpbUserConfigType.Type;
  * @category models
  * @since 0.0.0
  */
-export class McpbUserConfigField extends S.Class<McpbUserConfigField>($I`McpbUserConfigField`)(
-  {
+export class McpbUserConfigField extends S.Opaque<McpbUserConfigField, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: McpbUserConfigType.annotateKey({ description: "The kind of value the setting holds." }),
     title: S.NonEmptyString.annotateKey({ description: "Setting label shown in Claude Desktop." }),
     description: S.NonEmptyString.annotateKey({ description: "Help text shown under the setting." }),
     required: S.Boolean.annotateKey({ description: "Whether the extension refuses to start without it." }),
-  },
-  $I.annote("McpbUserConfigField", {
-    description: "One extension setting the user fills in when installing the bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpbUserConfigField", {
+      description: "One extension setting the user fills in when installing the bundle.",
+    })
+  )
 ) {}
 
 /**
@@ -243,14 +245,15 @@ export class McpbUserConfigField extends S.Class<McpbUserConfigField>($I`McpbUse
  * @category models
  * @since 0.0.0
  */
-export class McpbTool extends S.Class<McpbTool>($I`McpbTool`)(
-  {
+export class McpbTool extends S.Opaque<McpbTool, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Tool name as the server registers it." }),
     description: S.String.annotateKey({ description: "One-line tool description." }),
-  },
-  $I.annote("McpbTool", {
-    description: "One tool the bundle's server declares in its manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpbTool", {
+      description: "One tool the bundle's server declares in its manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -268,15 +271,16 @@ export class McpbTool extends S.Class<McpbTool>($I`McpbTool`)(
  * @category models
  * @since 0.0.0
  */
-export class McpbPrompt extends S.Class<McpbPrompt>($I`McpbPrompt`)(
-  {
+export class McpbPrompt extends S.Opaque<McpbPrompt, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Prompt name as the server registers it." }),
     description: S.String.annotateKey({ description: "One-line prompt description." }),
     text: S.NonEmptyString.annotateKey({ description: "The prompt text." }),
-  },
-  $I.annote("McpbPrompt", {
-    description: "One prompt template the bundle's server declares in its manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpbPrompt", {
+      description: "One prompt template the bundle's server declares in its manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -310,8 +314,8 @@ export class McpbPrompt extends S.Class<McpbPrompt>($I`McpbPrompt`)(
  * @category models
  * @since 0.0.0
  */
-export class McpbManifestFields extends S.Class<McpbManifestFields>($I`McpbManifestFields`)(
-  {
+export class McpbManifestFields extends S.Opaque<McpbManifestFields, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Extension id." }),
     displayName: S.NonEmptyString.annotateKey({ description: "Extension name shown in Claude Desktop." }),
     version: S.NonEmptyString.annotateKey({ description: "Extension version." }),
@@ -326,10 +330,11 @@ export class McpbManifestFields extends S.Class<McpbManifestFields>($I`McpbManif
     prompts: S.Array(McpbPrompt)
       .pipe(S.withConstructorDefault(Effect.succeed([])))
       .annotateKey({ description: "Prompt templates the server declares; omitted from the manifest when empty." }),
-  },
-  $I.annote("McpbManifestFields", {
-    description: "The app-specific fields of an .mcpb manifest.json.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpbManifestFields", {
+      description: "The app-specific fields of an .mcpb manifest.json.",
+    })
+  )
 ) {}
 
 /**
@@ -368,8 +373,8 @@ export class McpbManifestFields extends S.Class<McpbManifestFields>($I`McpbManif
  * @category models
  * @since 0.0.0
  */
-export class McpbPackageSpec extends S.Class<McpbPackageSpec>($I`McpbPackageSpec`)(
-  {
+export class McpbPackageSpec extends S.Opaque<McpbPackageSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     appName: S.NonEmptyString.annotateKey({
       description: "The app directory under apps/, also the executable and archive base name.",
     }),
@@ -379,10 +384,11 @@ export class McpbPackageSpec extends S.Class<McpbPackageSpec>($I`McpbPackageSpec
       description: "Substrings that must not appear in any archive entry; a match deletes the archive and fails.",
     }),
     manifest: McpbManifestFields.annotateKey({ description: "The app-specific manifest fields." }),
-  },
-  $I.annote("McpbPackageSpec", {
-    description: "The per-app part of an .mcpb packaging command.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpbPackageSpec", {
+      description: "The per-app part of an .mcpb packaging command.",
+    })
+  )
 ) {}
 
 /**
@@ -399,8 +405,8 @@ export class McpbPackageSpec extends S.Class<McpbPackageSpec>($I`McpbPackageSpec
  * @category models
  * @since 0.0.0
  */
-export class McpbManifest extends S.Class<McpbManifest>($I`McpbManifest`)(
-  {
+export class McpbManifest extends S.Opaque<McpbManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifest_version: S.Literal("0.3"),
     name: S.String,
     display_name: S.String,
@@ -421,8 +427,9 @@ export class McpbManifest extends S.Class<McpbManifest>($I`McpbManifest`)(
     ),
     tools: S.Array(S.Struct({ name: S.String, description: S.String })),
     prompts: S.Struct({ name: S.String, description: S.String, text: S.String }).pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("McpbManifest", {
-    description: "A complete .mcpb manifest.json, in the field order the kit writes it.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpbManifest", {
+      description: "A complete .mcpb manifest.json, in the field order the kit writes it.",
+    })
+  )
 ) {}

@@ -14,7 +14,7 @@ import { fcRuns } from "@beep/test-utils";
 import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect } from "@effect/vitest";
-import { deepStrictEqual } from "@effect/vitest/utils";
+import { assertTrue, deepStrictEqual } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as McpServer from "effect/ai/McpServer";
@@ -203,8 +203,20 @@ describe("Box tool results", () => {
       Effect.gen(function* () {
         const ListingJson = S.fromJsonString(BoxListing);
         const DocumentJson = S.fromJsonString(BoxDocument);
-        deepStrictEqual(yield* S.decodeEffect(ListingJson)(yield* S.encodeEffect(ListingJson)(listing)), listing);
-        deepStrictEqual(yield* S.decodeEffect(DocumentJson)(yield* S.encodeEffect(DocumentJson)(document)), document);
+        // Schema equivalence, not deepStrictEqual: Opaque struct arbitraries build
+        // null-prototype objects while decoding builds plain ones.
+        assertTrue(
+          S.toEquivalence(BoxListing)(
+            yield* S.decodeEffect(ListingJson)(yield* S.encodeEffect(ListingJson)(listing)),
+            listing
+          )
+        );
+        assertTrue(
+          S.toEquivalence(BoxDocument)(
+            yield* S.decodeEffect(DocumentJson)(yield* S.encodeEffect(DocumentJson)(document)),
+            document
+          )
+        );
       }),
     { arbitrary: fcRuns(50) }
   );

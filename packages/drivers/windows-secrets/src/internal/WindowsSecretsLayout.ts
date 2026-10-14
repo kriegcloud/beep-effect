@@ -84,14 +84,15 @@ export const DataBlob = {
  *
  * @internal
  */
-export class NativeRegion extends S.Class<NativeRegion>($I`NativeRegion`)(
-  {
+export class NativeRegion extends S.Opaque<NativeRegion, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: S.BigInt,
     byteLength: S.Int,
-  },
-  $I.annote("NativeRegion", {
-    description: "Native address and byte length of a buffer owned by Windows.",
-  })
+  }).pipe(
+    $I.annoteSchema("NativeRegion", {
+      description: "Native address and byte length of a buffer owned by Windows.",
+    })
+  )
 ) {}
 
 const encodeUtf16Le = (value: string, terminatorUnits: number): Uint8Array<ArrayBuffer> => {
@@ -108,14 +109,15 @@ const encodeUtf16Le = (value: string, terminatorUnits: number): Uint8Array<Array
  *
  * @internal
  */
-export class CredentialWFields extends S.Class<CredentialWFields>($I`CredentialWFields`)(
-  {
+export class CredentialWFields extends S.Opaque<CredentialWFields, { readonly brand: unique symbol }>()(
+  S.Struct({
     targetName: S.BigInt,
     credentialBlob: NativeRegion,
-  },
-  $I.annote("CredentialWFields", {
-    description: "Target-name address and credential blob region for a generic credential write.",
-  })
+  }).pipe(
+    $I.annoteSchema("CredentialWFields", {
+      description: "Target-name address and credential blob region for a generic credential write.",
+    })
+  )
 ) {}
 
 /**

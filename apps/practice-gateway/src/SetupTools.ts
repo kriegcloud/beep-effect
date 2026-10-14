@@ -102,15 +102,16 @@ export type SetupToolFailureReason = typeof SetupToolFailureReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class SetupToolError extends S.Class<SetupToolError>($I`SetupToolError`)(
-  {
+export class SetupToolError extends S.Opaque<SetupToolError, { readonly brand: unique symbol }>()(
+  S.Struct({
     tool: S.NonEmptyString.annotateKey({ description: "The tool that failed." }),
     reason: SetupToolFailureReason.annotateKey({ description: "Why it failed." }),
     message: S.NonEmptyString.annotateKey({ description: "What happened and what to do next, in plain language." }),
-  },
-  $I.annote("SetupToolError", {
-    description: "Plain-language failure returned by a practice gateway setup tool.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupToolError", {
+      description: "Plain-language failure returned by a practice gateway setup tool.",
+    })
+  )
 ) {}
 
 /**
@@ -128,15 +129,16 @@ export class SetupToolError extends S.Class<SetupToolError>($I`SetupToolError`)(
  * @category models
  * @since 0.0.0
  */
-export class SetupProfileView extends S.Class<SetupProfileView>($I`SetupProfileView`)(
-  {
+export class SetupProfileView extends S.Opaque<SetupProfileView, { readonly brand: unique symbol }>()(
+  S.Struct({
     profile: S.OptionFromNullOr(PracticeProfile).annotateKey({
       description: "The saved practice profile, or null when the onboarding interview has not saved one.",
     }),
-  },
-  $I.annote("SetupProfileView", {
-    description: "The saved practice profile, if any.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupProfileView", {
+      description: "The saved practice profile, if any.",
+    })
+  )
 ) {}
 
 /**
@@ -159,18 +161,19 @@ export class SetupProfileView extends S.Class<SetupProfileView>($I`SetupProfileV
  * @category models
  * @since 0.0.0
  */
-export class SetupStatus extends S.Class<SetupStatus>($I`SetupStatus`)(
-  {
+export class SetupStatus extends S.Opaque<SetupStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     report: SetupReport.annotateKey({ description: "One verdict per requirement plus the batched human steps." }),
     summary: S.NonEmptyString.annotateKey({ description: "The report in plain language for the lawyer." }),
     repairable: S.Array(SetupRequirementId).annotateKey({
       description:
         "Requirements setup_repair can fix now: probed and unsatisfied, with an automatic remediation and every dependency satisfied.",
     }),
-  },
-  $I.annote("SetupStatus", {
-    description: "Setup doctor report with a plain-language summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupStatus", {
+      description: "Setup doctor report with a plain-language summary.",
+    })
+  )
 ) {}
 
 /**
@@ -189,15 +192,16 @@ export class SetupStatus extends S.Class<SetupStatus>($I`SetupStatus`)(
  * @category models
  * @since 0.0.0
  */
-export class SetupRepairRequest extends S.Class<SetupRepairRequest>($I`SetupRepairRequest`)(
-  {
+export class SetupRepairRequest extends S.Opaque<SetupRepairRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     requirement: SetupRequirementId.annotateKey({
       description: "Id of the requirement to repair, as reported by setup_status.",
     }),
-  },
-  $I.annote("SetupRepairRequest", {
-    description: "Which setup requirement to repair.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupRepairRequest", {
+      description: "Which setup requirement to repair.",
+    })
+  )
 ) {}
 
 const readHints = FourHintAnnotations.make({ destructive: false, idempotent: true, openWorld: false, readOnly: true });
@@ -330,13 +334,14 @@ export const SetupRepairTool = setupTool(
  * @category models
  * @since 0.0.0
  */
-export class SetupOnboardingGuide extends S.Class<SetupOnboardingGuide>($I`SetupOnboardingGuide`)(
-  {
+export class SetupOnboardingGuide extends S.Opaque<SetupOnboardingGuide, { readonly brand: unique symbol }>()(
+  S.Struct({
     guide: S.NonEmptyString.annotateKey({ description: "The onboarding steps to follow, as Markdown." }),
-  },
-  $I.annote("SetupOnboardingGuide", {
-    description: "The onboarding steps Claude follows to set up this computer.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupOnboardingGuide", {
+      description: "The onboarding steps Claude follows to set up this computer.",
+    })
+  )
 ) {}
 
 /**

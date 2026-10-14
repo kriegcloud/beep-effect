@@ -37,7 +37,9 @@ const $I = $LawPracticeServerId.create("PracticeKgHost/PracticeKgHost.errors");
  * @category errors
  * @since 0.0.0
  */
-export class PracticeKgHostError extends S.TaggedError<PracticeKgHostError>($I`PracticeKgHostError`)(
+export class PracticeKgHostError extends S.TaggedError<PracticeKgHostError, { readonly brand: unique symbol }>(
+  $I`PracticeKgHostError`
+)(
   "PracticeKgHostError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),

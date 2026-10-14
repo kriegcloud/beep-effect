@@ -35,16 +35,17 @@ const $I = $PracticeGatewayId.create("Approvals");
  * @category models
  * @since 0.0.0
  */
-export class RepairApprovalAnswer extends S.Class<RepairApprovalAnswer>($I`RepairApprovalAnswer`)(
-  {
+export class RepairApprovalAnswer extends S.Opaque<RepairApprovalAnswer, { readonly brand: unique symbol }>()(
+  S.Struct({
     approve: S.Boolean.annotateKey({
       title: "Approve this change",
       description: "Check the box to let the practice gateway make this change.",
     }),
-  },
-  $I.annote("RepairApprovalAnswer", {
-    description: "The lawyer's yes/no answer to a repair approval prompt.",
-  })
+  }).pipe(
+    $I.annoteSchema("RepairApprovalAnswer", {
+      description: "The lawyer's yes/no answer to a repair approval prompt.",
+    })
+  )
 ) {}
 
 /**

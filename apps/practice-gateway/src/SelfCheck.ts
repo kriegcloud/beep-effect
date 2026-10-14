@@ -53,17 +53,18 @@ const $I = $PracticeGatewayId.create("SelfCheck");
  * @category models
  * @since 0.0.0
  */
-export class GatewaySelfCheckReport extends S.Class<GatewaySelfCheckReport>($I`GatewaySelfCheckReport`)(
-  {
+export class GatewaySelfCheckReport extends S.Opaque<GatewaySelfCheckReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     ok: S.Literal(true).annotateKey({ description: "The doctor ran." }),
     extensionVersion: S.NonEmptyString.annotateKey({ description: "The gateway version." }),
     profileSaved: S.Boolean.annotateKey({ description: "Whether a practice profile is saved." }),
     summary: S.NonEmptyString.annotateKey({ description: "The report in plain language." }),
     report: SetupReport.annotateKey({ description: "The setup doctor's report." }),
-  },
-  $I.annote("GatewaySelfCheckReport", {
-    description: "Self-check line printed when the setup doctor ran.",
-  })
+  }).pipe(
+    $I.annoteSchema("GatewaySelfCheckReport", {
+      description: "Self-check line printed when the setup doctor ran.",
+    })
+  )
 ) {}
 
 /**
@@ -80,14 +81,15 @@ export class GatewaySelfCheckReport extends S.Class<GatewaySelfCheckReport>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GatewaySelfCheckRefusal extends S.Class<GatewaySelfCheckRefusal>($I`GatewaySelfCheckRefusal`)(
-  {
+export class GatewaySelfCheckRefusal extends S.Opaque<GatewaySelfCheckRefusal, { readonly brand: unique symbol }>()(
+  S.Struct({
     ok: S.Literal(false).annotateKey({ description: "The doctor did not run." }),
     message: S.NonEmptyString.annotateKey({ description: "Why it did not run." }),
-  },
-  $I.annote("GatewaySelfCheckRefusal", {
-    description: "Self-check line printed when the setup doctor could not run.",
-  })
+  }).pipe(
+    $I.annoteSchema("GatewaySelfCheckRefusal", {
+      description: "Self-check line printed when the setup doctor could not run.",
+    })
+  )
 ) {}
 
 const encodeReport = S.encodeEffect(S.fromJsonString(GatewaySelfCheckReport));

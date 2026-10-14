@@ -210,16 +210,17 @@ export type SetupProvider = typeof SetupProvider.Type;
  * @category models
  * @since 0.0.0
  */
-export class AutomaticRemediation extends S.Class<AutomaticRemediation>($I`AutomaticRemediation`)(
-  {
+export class AutomaticRemediation extends S.Opaque<AutomaticRemediation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("automatic"),
     summary: LawPracticeText.annotateKey({
       description: "Plain-language description of the repair, shown before approval.",
     }),
-  },
-  $I.annote("AutomaticRemediation", {
-    description: "A repair the gateway performs after the lawyer approves it.",
-  })
+  }).pipe(
+    $I.annoteSchema("AutomaticRemediation", {
+      description: "A repair the gateway performs after the lawyer approves it.",
+    })
+  )
 ) {}
 
 /**
@@ -240,17 +241,18 @@ export class AutomaticRemediation extends S.Class<AutomaticRemediation>($I`Autom
  * @category models
  * @since 0.0.0
  */
-export class HumanRemediation extends S.Class<HumanRemediation>($I`HumanRemediation`)(
-  {
+export class HumanRemediation extends S.Opaque<HumanRemediation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("needs-human"),
     step: HumanStep.annotateKey({ description: "The kind of step the lawyer performs." }),
     instruction: LawPracticeText.annotateKey({
       description: "Plain-language instruction for the lawyer.",
     }),
-  },
-  $I.annote("HumanRemediation", {
-    description: "A repair that needs the lawyer to act.",
-  })
+  }).pipe(
+    $I.annoteSchema("HumanRemediation", {
+      description: "A repair that needs the lawyer to act.",
+    })
+  )
 ) {}
 
 /**
@@ -330,8 +332,8 @@ export type Remediation = typeof Remediation.Type;
  * @category models
  * @since 0.0.0
  */
-export class SetupRequirement extends S.Class<SetupRequirement>($I`SetupRequirement`)(
-  {
+export class SetupRequirement extends S.Opaque<SetupRequirement, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: SetupRequirementId.annotateKey({ description: "Stable identifier of the requirement." }),
     capability: SetupCapability.annotateKey({ description: "The capability this requirement serves." }),
     provider: SetupProvider.annotateKey({ description: "The provider or host this requirement belongs to." }),
@@ -342,10 +344,11 @@ export class SetupRequirement extends S.Class<SetupRequirement>($I`SetupRequirem
     explain: LawPracticeText.annotateKey({
       description: "Plain-language reason the lawyer sees for this requirement.",
     }),
-  },
-  $I.annote("SetupRequirement", {
-    description: "One checkable condition a lawyer's workstation must meet.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupRequirement", {
+      description: "One checkable condition a lawyer's workstation must meet.",
+    })
+  )
 ) {}
 
 /**
@@ -362,13 +365,14 @@ export class SetupRequirement extends S.Class<SetupRequirement>($I`SetupRequirem
  * @category models
  * @since 0.0.0
  */
-export class ProbeSatisfied extends S.Class<ProbeSatisfied>($I`ProbeSatisfied`)(
-  {
+export class ProbeSatisfied extends S.Opaque<ProbeSatisfied, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("satisfied"),
-  },
-  $I.annote("ProbeSatisfied", {
-    description: "The requirement holds.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProbeSatisfied", {
+      description: "The requirement holds.",
+    })
+  )
 ) {}
 
 /**
@@ -385,14 +389,15 @@ export class ProbeSatisfied extends S.Class<ProbeSatisfied>($I`ProbeSatisfied`)(
  * @category models
  * @since 0.0.0
  */
-export class ProbeMissing extends S.Class<ProbeMissing>($I`ProbeMissing`)(
-  {
+export class ProbeMissing extends S.Opaque<ProbeMissing, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("missing"),
     detail: LawPracticeText.annotateKey({ description: "What is missing, in plain language." }),
-  },
-  $I.annote("ProbeMissing", {
-    description: "The requirement is not set up yet.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProbeMissing", {
+      description: "The requirement is not set up yet.",
+    })
+  )
 ) {}
 
 /**
@@ -409,14 +414,15 @@ export class ProbeMissing extends S.Class<ProbeMissing>($I`ProbeMissing`)(
  * @category models
  * @since 0.0.0
  */
-export class ProbeBroken extends S.Class<ProbeBroken>($I`ProbeBroken`)(
-  {
+export class ProbeBroken extends S.Opaque<ProbeBroken, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("broken"),
     detail: LawPracticeText.annotateKey({ description: "What broke, in plain language." }),
-  },
-  $I.annote("ProbeBroken", {
-    description: "The requirement was set up but no longer works.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProbeBroken", {
+      description: "The requirement was set up but no longer works.",
+    })
+  )
 ) {}
 
 /**
@@ -477,15 +483,16 @@ export type ProbeResult = typeof ProbeResult.Type;
  * @category models
  * @since 0.0.0
  */
-export class CheckProbed extends S.Class<CheckProbed>($I`CheckProbed`)(
-  {
+export class CheckProbed extends S.Opaque<CheckProbed, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("probed"),
     requirement: SetupRequirementId.annotateKey({ description: "The requirement that was probed." }),
     result: ProbeResult.annotateKey({ description: "What the probe found." }),
-  },
-  $I.annote("CheckProbed", {
-    description: "A requirement the doctor probed, with what the probe found.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckProbed", {
+      description: "A requirement the doctor probed, with what the probe found.",
+    })
+  )
 ) {}
 
 /**
@@ -508,17 +515,18 @@ export class CheckProbed extends S.Class<CheckProbed>($I`CheckProbed`)(
  * @category models
  * @since 0.0.0
  */
-export class CheckBlocked extends S.Class<CheckBlocked>($I`CheckBlocked`)(
-  {
+export class CheckBlocked extends S.Opaque<CheckBlocked, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: S.tag("blocked"),
     requirement: SetupRequirementId.annotateKey({ description: "The requirement that was not probed." }),
     waitingOn: S.NonEmptyArray(SetupRequirementId).annotateKey({
       description: "Unsatisfied requirements this one depends on.",
     }),
-  },
-  $I.annote("CheckBlocked", {
-    description: "A requirement not probed because a dependency is not satisfied.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckBlocked", {
+      description: "A requirement not probed because a dependency is not satisfied.",
+    })
+  )
 ) {}
 
 /**
@@ -586,14 +594,15 @@ export type RequirementCheck = typeof RequirementCheck.Type;
  * @category models
  * @since 0.0.0
  */
-export class PendingHumanStep extends S.Class<PendingHumanStep>($I`PendingHumanStep`)(
-  {
+export class PendingHumanStep extends S.Opaque<PendingHumanStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     requirement: SetupRequirementId.annotateKey({ description: "The requirement the step repairs." }),
     remediation: HumanRemediation.annotateKey({ description: "What the lawyer must do." }),
-  },
-  $I.annote("PendingHumanStep", {
-    description: "A step the lawyer must take, tied to the requirement it repairs.",
-  })
+  }).pipe(
+    $I.annoteSchema("PendingHumanStep", {
+      description: "A step the lawyer must take, tied to the requirement it repairs.",
+    })
+  )
 ) {}
 
 /**
@@ -619,8 +628,8 @@ export class PendingHumanStep extends S.Class<PendingHumanStep>($I`PendingHumanS
  * @category models
  * @since 0.0.0
  */
-export class SetupReport extends S.Class<SetupReport>($I`SetupReport`)(
-  {
+export class SetupReport extends S.Opaque<SetupReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     checks: S.Array(RequirementCheck).annotateKey({
       description: "A verdict per requirement, in dependency order.",
     }),
@@ -628,8 +637,9 @@ export class SetupReport extends S.Class<SetupReport>($I`SetupReport`)(
       description: "Human steps that can be asked for now, batched.",
     }),
     complete: S.Boolean.annotateKey({ description: "True when every requirement is satisfied." }),
-  },
-  $I.annote("SetupReport", {
-    description: "One setup doctor pass over a practice's requirements.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupReport", {
+      description: "One setup doctor pass over a practice's requirements.",
+    })
+  )
 ) {}

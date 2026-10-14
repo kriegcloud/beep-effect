@@ -97,9 +97,10 @@ const StepDetail = S.NonEmptyString.annotateKey({ description: "What happened, i
  * @category models
  * @since 0.0.0
  */
-export class StepDone extends S.Class<StepDone>($I`StepDone`)(
-  { outcome: S.tag("done"), step: SetupStep, detail: StepDetail },
-  $I.annote("StepDone", { description: "A bootstrapper step that ran and did its job." })
+export class StepDone extends S.Opaque<StepDone, { readonly brand: unique symbol }>()(
+  S.Struct({ outcome: S.tag("done"), step: SetupStep, detail: StepDetail }).pipe(
+    $I.annoteSchema("StepDone", { description: "A bootstrapper step that ran and did its job." })
+  )
 ) {}
 
 /**
@@ -116,9 +117,10 @@ export class StepDone extends S.Class<StepDone>($I`StepDone`)(
  * @category models
  * @since 0.0.0
  */
-export class StepSkipped extends S.Class<StepSkipped>($I`StepSkipped`)(
-  { outcome: S.tag("skipped"), step: SetupStep, detail: StepDetail },
-  $I.annote("StepSkipped", { description: "A bootstrapper step with nothing to do." })
+export class StepSkipped extends S.Opaque<StepSkipped, { readonly brand: unique symbol }>()(
+  S.Struct({ outcome: S.tag("skipped"), step: SetupStep, detail: StepDetail }).pipe(
+    $I.annoteSchema("StepSkipped", { description: "A bootstrapper step with nothing to do." })
+  )
 ) {}
 
 /**
@@ -135,9 +137,10 @@ export class StepSkipped extends S.Class<StepSkipped>($I`StepSkipped`)(
  * @category models
  * @since 0.0.0
  */
-export class StepFailed extends S.Class<StepFailed>($I`StepFailed`)(
-  { outcome: S.tag("failed"), step: SetupStep, detail: StepDetail },
-  $I.annote("StepFailed", { description: "A bootstrapper step that failed; later steps do not run." })
+export class StepFailed extends S.Opaque<StepFailed, { readonly brand: unique symbol }>()(
+  S.Struct({ outcome: S.tag("failed"), step: SetupStep, detail: StepDetail }).pipe(
+    $I.annoteSchema("StepFailed", { description: "A bootstrapper step that failed; later steps do not run." })
+  )
 ) {}
 
 /**
@@ -199,15 +202,16 @@ export type StepOutcome = typeof StepOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class SetupReport extends S.Class<SetupReport>($I`SetupReport`)(
-  {
+export class SetupReport extends S.Opaque<SetupReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcomes: S.Array(StepOutcome).annotateKey({ description: "Each step's outcome in run order." }),
     complete: S.Boolean.annotateKey({ description: "True when the run reached the onboarding hand-off." }),
     finishedAt: S.DateTimeUtcFromMillis.annotateKey({ description: "When the run ended." }),
-  },
-  $I.annote("SetupReport", {
-    description: "The structured result of one bootstrapper run, written beside its state for the evidence bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupReport", {
+      description: "The structured result of one bootstrapper run, written beside its state for the evidence bundle.",
+    })
+  )
 ) {}
 
 /**
@@ -230,18 +234,19 @@ export class SetupReport extends S.Class<SetupReport>($I`SetupReport`)(
  * @category models
  * @since 0.0.0
  */
-export class PinnedInstaller extends S.Class<PinnedInstaller>($I`PinnedInstaller`)(
-  {
+export class PinnedInstaller extends S.Opaque<PinnedInstaller, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.NonEmptyString.annotateKey({ description: "Claude Desktop version the installer installs." }),
     url: S.NonEmptyString.annotateKey({ description: "Official download URL of the installer." }),
     sha256: S.String.check(S.isPattern(/^[0-9a-f]{64}$/)).annotateKey({
       description: "Lower-case hex SHA-256 of the installer, checked before it runs.",
     }),
     silentArgs: S.Array(S.String).annotateKey({ description: "Arguments that run the installer without UI." }),
-  },
-  $I.annote("PinnedInstaller", {
-    description: "A Claude Desktop installer pinned by URL and SHA-256.",
-  })
+  }).pipe(
+    $I.annoteSchema("PinnedInstaller", {
+      description: "A Claude Desktop installer pinned by URL and SHA-256.",
+    })
+  )
 ) {}
 
 /**

@@ -89,7 +89,9 @@ export type RepairRefusal = typeof RepairRefusal.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SetupRepairRefused extends S.TaggedError<SetupRepairRefused>($I`SetupRepairRefused`)(
+export class SetupRepairRefused extends S.TaggedError<SetupRepairRefused, { readonly brand: unique symbol }>(
+  $I`SetupRepairRefused`
+)(
   "SetupRepairRefused",
   {
     requirement: SetupRequirementId.annotateKey({ description: "The requirement whose repair was refused." }),
@@ -107,8 +109,8 @@ export class SetupRepairRefused extends S.TaggedError<SetupRepairRefused>($I`Set
  * @category models
  * @since 0.0.0
  */
-export class SetupDoctorShape extends S.Class<SetupDoctorShape>($I`SetupDoctorShape`)(
-  {
+export class SetupDoctorShape extends S.Opaque<SetupDoctorShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: Fn({
       input: S.Array(SetupRequirement),
       output: EffectOutput<SetupReport, SetupGraphInvalid | SetupProbeUnavailable>(),
@@ -124,10 +126,11 @@ export class SetupDoctorShape extends S.Class<SetupDoctorShape>($I`SetupDoctorSh
     }).annotateKey({
       description: "Run one approved automatic repair and return the requirement's new probe result.",
     }),
-  },
-  $I.annote("SetupDoctorShape", {
-    description: "Service shape of the setup doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("SetupDoctorShape", {
+      description: "Service shape of the setup doctor.",
+    })
+  )
 ) {}
 
 /**

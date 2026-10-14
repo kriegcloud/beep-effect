@@ -118,15 +118,16 @@ export type PracticeProvider = typeof PracticeProvider.Type;
  * @category models
  * @since 0.0.0
  */
-export class CapabilitySupported extends S.Class<CapabilitySupported>($I`CapabilitySupported`)(
-  {
+export class CapabilitySupported extends S.Opaque<CapabilitySupported, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("supported"),
     capability: PracticeCapability.annotateKey({ description: "The capability being served." }),
     provider: PracticeProvider.annotateKey({ description: "The supported provider serving it." }),
-  },
-  $I.annote("CapabilitySupported", {
-    description: "A capability served by a supported provider.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilitySupported", {
+      description: "A capability served by a supported provider.",
+    })
+  )
 ) {}
 
 /**
@@ -156,8 +157,8 @@ export class CapabilitySupported extends S.Class<CapabilitySupported>($I`Capabil
  * @category models
  * @since 0.0.0
  */
-export class CapabilityGap extends S.Class<CapabilityGap>($I`CapabilityGap`)(
-  {
+export class CapabilityGap extends S.Opaque<CapabilityGap, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("gap"),
     capability: PracticeCapability.annotateKey({ description: "The capability the practice wants." }),
     namedProvider: LawPracticeText.annotateKey({
@@ -167,10 +168,11 @@ export class CapabilityGap extends S.Class<CapabilityGap>($I`CapabilityGap`)(
       S.OptionFromOptionalKey,
       S.annotateKey({ description: "A supported provider covering the capability meanwhile." })
     ),
-  },
-  $I.annote("CapabilityGap", {
-    description: "A wanted capability whose named provider has no adapter yet.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityGap", {
+      description: "A wanted capability whose named provider has no adapter yet.",
+    })
+  )
 ) {}
 
 /**
@@ -188,14 +190,15 @@ export class CapabilityGap extends S.Class<CapabilityGap>($I`CapabilityGap`)(
  * @category models
  * @since 0.0.0
  */
-export class CapabilityDeclined extends S.Class<CapabilityDeclined>($I`CapabilityDeclined`)(
-  {
+export class CapabilityDeclined extends S.Opaque<CapabilityDeclined, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("declined"),
     capability: PracticeCapability.annotateKey({ description: "The capability the practice declined." }),
-  },
-  $I.annote("CapabilityDeclined", {
-    description: "A capability the practice chose not to set up.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityDeclined", {
+      description: "A capability the practice chose not to set up.",
+    })
+  )
 ) {}
 
 /**
@@ -326,14 +329,15 @@ export type NetworkProxy = typeof NetworkProxy.Type;
  * @category models
  * @since 0.0.0
  */
-export class ItLimits extends S.Class<ItLimits>($I`ItLimits`)(
-  {
+export class ItLimits extends S.Opaque<ItLimits, { readonly brand: unique symbol }>()(
+  S.Struct({
     adminRights: AdminRights.annotateKey({ description: "Whether admin prompts can be approved." }),
     proxy: NetworkProxy.annotateKey({ description: "Whether a network proxy is in the path." }),
-  },
-  $I.annote("ItLimits", {
-    description: "Firm IT limits that shape which remediations the doctor may attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("ItLimits", {
+      description: "Firm IT limits that shape which remediations the doctor may attempt.",
+    })
+  )
 ) {}
 
 /**
@@ -365,8 +369,8 @@ export class ItLimits extends S.Class<ItLimits>($I`ItLimits`)(
  * @category models
  * @since 0.0.0
  */
-export class PracticeProfile extends S.Class<PracticeProfile>($I`PracticeProfile`)(
-  {
+export class PracticeProfile extends S.Opaque<PracticeProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     choices: S.NonEmptyArray(CapabilityChoice).annotateKey({
       description: "One interview outcome per capability discussed.",
     }),
@@ -374,8 +378,9 @@ export class PracticeProfile extends S.Class<PracticeProfile>($I`PracticeProfile
     recordedAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "When the interview produced this profile.",
     }),
-  },
-  $I.annote("PracticeProfile", {
-    description: "The outcome of an onboarding interview: capability choices and IT limits.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeProfile", {
+      description: "The outcome of an onboarding interview: capability choices and IT limits.",
+    })
+  )
 ) {}

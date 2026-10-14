@@ -130,16 +130,17 @@ export const M365_SIGN_IN_TIMEOUT = Duration.minutes(10);
  * @category models
  * @since 0.0.0
  */
-export class LoopbackCallback extends S.Class<LoopbackCallback>($I`LoopbackCallback`)(
-  {
+export class LoopbackCallback extends S.Opaque<LoopbackCallback, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.optionalKey(S.String).annotateKey({ description: "Authorization code, on success." }),
     state: S.optionalKey(S.String).annotateKey({ description: "State echoed from the authorization request." }),
     error: S.optionalKey(S.String).annotateKey({ description: "OAuth error code, on failure." }),
     error_description: S.optionalKey(S.String).annotateKey({ description: "OAuth error description, on failure." }),
-  },
-  $I.annote("LoopbackCallback", {
-    description: "Query parameters of the Microsoft sign-in redirect to the loopback listener.",
-  })
+  }).pipe(
+    $I.annoteSchema("LoopbackCallback", {
+      description: "Query parameters of the Microsoft sign-in redirect to the loopback listener.",
+    })
+  )
 ) {}
 
 /**
@@ -385,16 +386,17 @@ const TokenCachePersistenceFromSelf = S.declare(
  * @category models
  * @since 0.0.0
  */
-export class M365Connection extends S.Class<M365Connection>($I`M365Connection`)(
-  {
+export class M365Connection extends S.Opaque<M365Connection, { readonly brand: unique symbol }>()(
+  S.Struct({
     config: M365ConfigInput.annotateKey({
       description: "Driver configuration: the configured client id and the organizations tenant.",
     }),
     tokenCache: TokenCachePersistenceFromSelf.annotateKey({ description: "The DPAPI-protected token cache." }),
-  },
-  $I.annote("M365Connection", {
-    description: "Microsoft 365 connection settings of the practice gateway.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365Connection", {
+      description: "Microsoft 365 connection settings of the practice gateway.",
+    })
+  )
 ) {}
 
 /**
