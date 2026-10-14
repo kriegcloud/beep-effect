@@ -2001,3 +2001,41 @@ the downstream integration delay. No coverage floor or security rule is relaxed.
   completed cheap gates and isolated install before opening #1743; the fresh
   main follow-up stopped on the cache-policy cheap gate before isolated install.
   Name each run explicitly; do not infer the exact in-flight phase at merge.
+### H4 — heavy admission needs the user bus (2026-10-14)
+
+While starting `beep-heavy bun run beep quality test-tsgo`, admission exited
+before running the check: `Failed to connect to user scope bus` because
+`DBUS_SESSION_BUS_ADDRESS` and `XDG_RUNTIME_DIR` were absent. Retry the same
+admission command with the workstation's existing user-bus environment.
+Prevent recurrence by having the launcher export those two user-manager
+variables; no bypass, service restart or permission grant is needed.
+
+### H4 — test entry point lost a fixture run (2026-10-14)
+
+The first focused command passed a package config from the repository root,
+but its package-relative include found no test files. Running from the CLI
+package fixed discovery. The subsequent Node-based run exited 143 before
+reporting cases; the canonical package Bun Vitest route completed all 13
+synthetic cases in 5.07 seconds. Keep the package cwd and its Bun runner in
+copied commands. The failed attempts are not passing evidence.
+
+### H4 — package verifier buffers long-running audit progress (2026-10-14)
+
+`beep-heavy bun run beep quality package-verify @beep/repo-cli` emitted only
+its invocation for more than 20 minutes while CPU usage and child-process
+changes showed ongoing work. The lane had to inspect its own process tree
+to distinguish a progressing audit from a silent stall. Emit a step-start
+line and periodic progress summary, or persist the active step's output to
+a named receipt, while preserving the final collected report. This is a
+usability observation, not a passing or failing package-gate result.
+
+### H4 — integration and coverage reporting corrections (2026-10-14)
+
+After merging main's native/T3 messaging work, the post-merge version hook
+could not resolve the new `@beep/t3-code` workspace. A frozen-lockfile install
+restored workspace wiring; no manifest or lock edit was needed. The first
+scoped V8 run passed 38 cases, but repeated coverage include flags selected
+only the last pattern. The reporting helper also rejected JSONC trailing
+commas. Use one brace-glob for the touched files and the existing JSONC parser
+for the read-only baseline comparison. These were setup/reporting failures;
+no coverage floor was weakened and no production failure was attributed to them.

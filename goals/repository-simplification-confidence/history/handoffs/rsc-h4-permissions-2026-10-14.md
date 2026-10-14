@@ -1,0 +1,98 @@
+# H4 permission continuity handoff — 2026-10-14
+
+```text
+lane: rsc-h4-permissions
+head: pending   pr: none
+package-verify: @beep/repo-cli pass (audit 1257.0s; docgen 42.2s)
+hosted-parity: test-tsgo=pass (354 files); docgen local=pass; jsdoc-ratchet / knowledge refs / fallow audit+health / coverage read=pending
+routes: ChatGPT Desktop x fresh/dormant-idle/dormant-relaunch/background/subagent-followup -> unknown, build 26.1007.71326-1, fixture none; Claude Desktop x same routes in bypass/auto -> unknown, build 2.37337.1-1, fixture none
+config: no backups created or writes; legacy sandbox_mode still present with default_permissions; F writer and drift check pending
+handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h4-permissions-2026-10-14.md
+open: local gates, publication, operator Desktop fixture batch, F owned-field config repair
+```
+
+## Delivered scope
+
+The existing Session family now offers `session continuity --input` with
+schema-first PermissionTuple, ContinuityRoute and ContinuityVerdict models,
+an explicit read-only Context service and command. All paths are selected by
+manifest, resolved relative to it, and read without launching/resuming a
+session. Codex history is keyed by first metadata thread ID, family-tagged,
+ordered across supplied segments, and compared against the chosen tuple.
+Settings/segment boundaries and missing evidence are conservative. Claude
+compares the app with the last mode-bearing CLI user row, bound to that row's
+session identity. Config coexistence uses the existing Models locator reader.
+Output excludes transcript text and config values. It is metadata evidence,
+not proof that Desktop exercised a particular route.
+
+The new runbook documents both apps, all route variants, effective readers,
+probe commands, stop-on-mismatch behaviour, candidate safe routes, backup
+ownership and fixture cleanup. Agent-pools links it. PLAN, README, SPEC
+Decision Log, acceptance and friction records carry the same partial state.
+No unrelated refactoring, generated inventory, manifest, lock, home config,
+Claude harness or AGENTS file changed. No new changeset follows D's landed
+private release-note policy.
+
+## Decisions and reversals
+
+R98: Session owns the census, Models owns its existing locator and F owns the
+writer. R97: retain project Claude `defaultMode=default` and the settings-edit
+deny. No fixture evidence justifies a project-wide change. R99/R101: report
+legacy Codex key coexistence to F; no one-off repair. Reversal is `git revert`
+of the H4 PR. No workstation rollback is needed because none was changed.
+
+## Evidence and qualification
+
+- Step 0 `git fetch origin && git merge origin/main` fast-forwarded the lane
+  from `e62411d63f` to `529d77338d`; `bun install` completed successfully.
+- `bun run beep session open` read the live roster without taking over peers.
+- `bun run beep architecture --help` and `architecture plan --help` checked
+  the existing command-family topology workflow before creating role files.
+- Live package versions: `pacman -Q chatgpt-bin claude-desktop` returns the
+  versions in the report. No app was restarted or messaged.
+- Sanitized top-level config inspection confirms both Codex permission keys
+  are present. Model/effort match the required defaults. Project mode is
+  `default`; the settings-edit deny remains present.
+- `bun run beep session continuity --input .beep/h4-smoke/input.json` returns
+  the expected verified **metadata-only** tuple for a synthetic thread.
+- The same command against the selected live home/project configs reports
+  home permission-key coexistence as unsatisfied and project policy as unknown;
+  no configuration value or transcript text is emitted.
+- Focused synthetic tests pass 13/13 in 5.07s via
+  `beep-heavy bunx --bun vitest run test/session-continuity.test.ts` from the
+  CLI package. The tests include a schema-derived tuple JSON property and
+  both independent-review regressions.
+- Focused synthetic tests and the package audit run through `beep-heavy`.
+  Initial test-tsgo found introduced API/callback errors; repaired before
+  requalification. Its next run found test-helper layer/decoder diagnostics;
+  the helper now uses the Vitest layer entry point and typed decodeResult.
+  The repaired typecheck exits 0 across 354 files. The first Node test attempt exited 143 before cases;
+  the package's Bun test route passes the rerun. Logs remain under
+  the lane's ignored `.beep/h4-*` paths.
+- Separate pinned `gpt-6.1-sol` medium source review identified two P2 false
+  verified cases: equal-timestamp settings ordering and mode-row/session
+  identity. Both are repaired with regression fixtures. Review corrected the
+  equal-timestamp test to distinguish the previous implementation. Final
+  read-only review after the helper/equivalence cleanup has zero outstanding
+  actionable findings; runtime and hosted proof remain separate.
+
+## External dependencies, delivered to the orchestrator
+
+R96/S8 reserve Desktop GUI actions and app restarts to the orchestrator's
+batched operator window. This worker has no Desktop session creation or
+continuation connector and the user's checkout-only write boundary excludes
+creating the external fixture root. Prepare the root and use the runbook
+matrix. No route, safe alternative, CLI version, fixture ID or probe result is
+invented. Permission continuity acceptance stays open. The historic ChatGPT
+app-level send path remains unsupported for live unrestricted work; the
+current build is not claimed to reproduce it.
+
+F must remove only top-level legacy `sandbox_mode`, preserve
+`default_permissions`, retain the `$HOME/.config-backups/` backup name and
+run the return-of-key drift check before its final fingerprint panel.
+No project Claude permission change needs to be included in that fingerprint.
+
+The known inherited resume-wave reds (skills test HttpClient, schema-hoist
+on tests, cache-policy receipt digest, and Coverage Regression) belong to
+the consolidated main owner. Actual local results will be recorded separately;
+no diagnostic is assumed inherited merely because its category is listed.

@@ -27,9 +27,24 @@ Verification: the same hashes remain after the ignore edits; `git ls-files harne
 
 ## Package gates
 
+H4, 2026-10-14: the default `@beep/repo-cli` package gate passes audit in
+1,257.0 seconds and docgen in 42.2 seconds. The reader's 13 synthetic cases
+pass; a separate source review has zero outstanding findings. Subsequent
+bounded docgen and all nine doctest marker checks pass. The test helper's
+introduced tsgo diagnostics are repaired; the fresh 354-file typecheck passes.
+Remaining parity, integration and publication results are recorded in the
+[H4 handoff](../handoffs/rsc-h4-permissions-2026-10-14.md). These are reader
+qualification results; Desktop route acceptance remains open below.
+
 All eleven touched packages passed full run-5 package verification before E's main merge: box-provisioning, box, freshbooks, occt, pdf-tools, wink, colors, data, repo-ai-metrics, codegen-kit and repo-cli. The refreshed post-D CLI audit passed in 785 seconds with docgen in 28 seconds; test TSGo and full docgen also passed. E changes CLI source, so those CLI/parity passes are now historical. Ten unchanged package gates remain valid. Post-E full CLI verification fails only the live Knip workflow contract. Its docgen and the subsequent post-E parity/coverage sequence are not run. This is an S3 integration blocker requiring E-owned workflow retirement, followed by a fresh CLI/package/parity/coverage run.
 
 ## Scope
+
+H4 contributes only the Session census, synthetic tests, continuity runbook,
+agent-pools link and packet records. No home config, Claude harness setting,
+AGENTS file, manifest, lockfile or coverage baseline is changed. The independent
+source reviewer found no additional scope or privacy issue. Operator GUI
+fixtures remain external; H4 has resumed no live session and restarted no app.
 
 All writes are inside the assigned lane. No foreign worktree, clone-local residue, home configuration, hosted ruleset or other lane's owned files were changed. Local residue is deferred until post-merge, with orchestrator routing required for paths outside this lane.
 
@@ -479,3 +494,39 @@ owner with no tracked delta; all 126 entry bodies are unchanged. It changes no p
 snapshot, root manifest, lockfile or agent-loaded guidance. The reconciled
 guidance previews stay private until the serialized first refresh lands.
 No source debt is relabelled an exception in this wave.
+
+## Permission continuity
+
+H4 checkpoint, 2026-10-14. Acceptance is **open**. The lane's read-only census
+and synthetic fixtures qualify the reader, not Desktop transport behaviour.
+No app was restarted, live thread resumed, outside-root Desktop write run,
+or home configuration changed. App versions were read with `pacman -Q`:
+ChatGPT Desktop `26.1007.71326-1`; Claude Desktop `2.37337.1-1`.
+
+| App | Route | Fixture ID | Before / after tuple | CLI build | Verdict | Missing evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| ChatGPT Desktop | Fresh | Not created | Not observed | Not observed | unknown | Operator-created fixture, self-report, marker and current effective record |
+| ChatGPT Desktop | Dormant idle | Not created | Not observed | Not observed | unknown | Typing and fixture-parent app-send variants |
+| ChatGPT Desktop | Dormant relaunch | Not created | Not observed | Not observed | unknown | Operator restart; typing, explicit reselect and app-send variants |
+| ChatGPT Desktop | Background | Not created | Not observed | Not observed | unknown | Fixture-parent app-send route; remains unsupported for live unrestricted work under standing guidance |
+| ChatGPT Desktop | Native subagent follow-up | Not created | Not observed | Not observed | unknown | Desktop fixture parent, child follow-up, child record and marker |
+| Claude Desktop | Fresh, bypass and auto | Not created | Not observed | Not observed | unknown | Separate fixture parents, app/CLI mode and markers |
+| Claude Desktop | Dormant idle, bypass and auto | Not created | Not observed | Not observed | unknown | Typing and fixture-parent send variants |
+| Claude Desktop | Dormant relaunch, bypass and auto | Not created | Not observed | Not observed | unknown | Operator restart and both continuation variants |
+| Claude Desktop | Background, bypass and auto | Not created | Not observed | Not observed | unknown | App-send and peer-message variants |
+| Claude Desktop | Native subagent follow-up, bypass and auto | Not created | Not observed | Not observed | unknown | Desktop Agent fixture, SendMessage, child record and marker |
+
+Run each row with the installed app build stated above, recording the actual
+fixture CLI version, timestamp, ID, command and tuple before/after. The
+[runbook](../../../../docs/runbooks/agent-permission-continuity.md) contains the
+reproducer protocol and candidate safe routes. Those safe alternatives have
+not been behaviourally verified on these installed builds, so H4 does not
+invoke the upstream-defect acceptance exception. R96 leaves this work with
+the orchestrator's batched GUI window. The worker has no Desktop session
+creation/continuation connector and is limited to its assigned checkout.
+
+F dependency: remove top-level legacy `sandbox_mode` only via the owned-field
+writer, preserve `default_permissions`, retain its config-backup name and
+check for key return. No backup or successful drift check is claimed by H4.
+Project Claude `permissions.defaultMode` remains `default` (R97); its edit deny
+rule is untouched. Reversal of this lane is `git revert` of its PR.

@@ -367,3 +367,15 @@ integration and both review fixes with local verification and checks waived.
 This supersedes the earlier publication hold; prior proof stays bound to its
 recorded source. Hosted CI qualifies this new integration. Later A waves
 and overall program acceptance remain open.
+
+## H4 lane status — 2026-10-14
+
+The Session census and Desktop continuity runbook are implemented in
+`rsc-h4-permissions`; local qualification is running. No home or Claude
+harness settings changed. R97 keeps the project default. F still owns the
+legacy Codex key removal, backup and drift check. R96's operator-driven
+Desktop fixture batch remains an external dependency; current installed-build
+route results are unknown and Permission continuity remains open.
+
+Evidence map: [permission continuity](history/receipts/stage-5-acceptance.md#permission-continuity),
+[H4 handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md).

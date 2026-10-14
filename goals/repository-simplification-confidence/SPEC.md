@@ -1224,3 +1224,23 @@ train-issue test on main also lacks the mock `HttpClient` used by adjacent CLI
 tests; provide that local test service to restore the test typecheck. Revert
 this unblocker PR to restore the prior references and test fixture; re-record
 the cache review if the receipt changes again.
+
+### 2026-10-14 — H4 uses Session and retains explicit permission choices
+
+Place the read-only permission census in the existing Session family (R98),
+with explicit input manifests and sanitized output. Reuse the Models locator
+reader for top-level permission-key coexistence without editing Models or
+adding a second config writer. Compare all supplied segment turns against
+the chosen policy; missing evidence stays unknown. Metadata agreement alone
+does not certify behavioural route acceptance.
+
+Keep project Claude `permissions.defaultMode` at `default` (R97). There is no
+fixture evidence justifying a changed project-wide default; per-session
+bypass/auto choices remain explicit. No Claude harness or home config is
+changed. F owns removal of legacy Codex `sandbox_mode` and its return-of-key
+check with the owned-field writer, backup and rollback (R99/R101).
+
+The worker's checkout-only boundary and R96/S8 leave Desktop fixture roots,
+GUI actions and restarts with the orchestrator. Publish useful census and
+fixture documentation without claiming Permission continuity complete.
+Reversal: revert the H4 PR; no workstation rollback is required for this lane.
