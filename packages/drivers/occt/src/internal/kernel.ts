@@ -38,7 +38,7 @@ const place = (shape: Shape3D, rotate: ReadonlyArray<Rotation>, translate: reado
 const buildPrimitive: (primitive: Primitive) => Shape3D = Primitive.match({
   box: (box) => place(replicad.makeBox([...box.min], [...box.max]), box.rotate, box.translate),
   prism: (prism) => {
-    const face = replicad.makePolygon(prism.profile.map((p) => [...p] as const));
+    const face = replicad.makePolygon(A.map(prism.profile, (p) => [...p] as const));
     const solid = replicad.basicFaceExtrusion(face, new replicad.Vector([...prism.extrusion]));
     return place(solid, prism.rotate, prism.translate);
   },
@@ -245,7 +245,7 @@ const edgesOf = (shape: Parameters<typeof replicad.cast>[0], oc: OpenCascadeInst
     return [] as ReadonlyArray<replicad.Edge>;
   }
   const edges = replicad.cast(shape).edges;
-  edges.forEach((e) => oc.BRepLib.BuildCurves3d(e.wrapped));
+  A.forEach(edges, (e) => oc.BRepLib.BuildCurves3d(e.wrapped));
   return edges;
 };
 
