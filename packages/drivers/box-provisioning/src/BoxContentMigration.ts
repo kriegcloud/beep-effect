@@ -1226,7 +1226,7 @@ const makeService = (
       });
     }
     const attemptId = yield* O.match(options.attemptId, {
-      onNone: () => Effect.map(crypto.randomUUIDv4, BoxApplyAttemptId.make),
+      onNone: () => Effect.map(crypto.randomUUIDv4(), BoxApplyAttemptId.make),
       onSome: Effect.succeed,
     });
     const write = yield* makeJournalWriter(journal, attemptId, reviewedPlan.planDigest);
