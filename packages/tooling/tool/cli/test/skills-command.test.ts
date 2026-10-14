@@ -91,7 +91,12 @@ const makeWebHandlerClient = (handler: (request: Request) => Promise<Response>) 
     })
   );
 
-const makeSkillsClient = () =>
+const remoteGrillMeSkillWithVersion = remoteGrillMeSkill.replace(
+  "---\n\n# Grill Me",
+  "version: 1.0\n---\n\n# Grill Me"
+);
+
+const makeSkillsClient = (skillText: string = remoteGrillMeSkill) =>
   makeWebHandlerClient((request) =>
     Effect.runPromise(
       Effect.gen(function* () {
@@ -106,7 +111,7 @@ const makeSkillsClient = () =>
           request.url ===
           "https://raw.githubusercontent.com/mattpocock/skills/main/skills/productivity/grill-me/SKILL.md"
         ) {
-          return new Response(remoteGrillMeSkill, {
+          return new Response(skillText, {
             status: 200,
             headers: { "content-type": "text/markdown" },
           });
@@ -281,6 +286,29 @@ describe("skills command", () => {
         expect(A.some(logs, (line) => line.startsWith("- misnamed:") && line.includes("other-name"))).toBe(true);
         expect(A.some(logs, (line) => line.includes("advisory long-one/SKILL.md has 604 lines"))).toBe(true);
       }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+    );
+  });
+
+  it.layer(CommandTestLayer, { timeout: "30 seconds" })((it) => {
+    it.effect("reports a non-spec key on an upstream mirror as an advisory instead of failing", () =>
+      Effect.gen(function* () {
+        yield* temporaryRepository;
+        yield* writeProjectFile(".claude/skills/grill-me/SKILL.md", "old skill\n");
+        yield* writeProjectFile(".codex/config.toml", "[skills]\n  include_instructions = true\n");
+
+        const drift = yield* runSkillsUpdate({ mode: "write", skill: O.some("grill-me") });
+        const logs = A.filter(yield* TestConsole.logLines, P.isString);
+
+        expect(A.some(drift, (entry) => entry._tag === "RemoteSkillDrift")).toBe(true);
+        expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe(remoteGrillMeSkillWithVersion);
+        expect(
+          A.some(
+            logs,
+            (line) => line.startsWith("skills:update: advisory upstream skill grill-me:") && line.includes("version")
+          )
+        ).toBe(true);
+        expect(A.some(logs, (line) => line.startsWith("skills:update: frontmatter issues"))).toBe(false);
+      }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient(remoteGrillMeSkillWithVersion)))
     );
   });
 

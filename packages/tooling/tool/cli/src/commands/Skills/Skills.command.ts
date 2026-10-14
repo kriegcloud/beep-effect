@@ -16,6 +16,7 @@ import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
+import * as HashSet from "effect/HashSet";
 import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -905,6 +906,11 @@ const printFrontmatterReport = Effect.fn("Skills.printFrontmatterReport")(functi
       `skills:update: advisory ${advisory.skill}/SKILL.md has ${advisory.lines} lines; the Agent Skills format recommends at most ${advisory.limit}. Move detail into references/.`
     );
   }
+  for (const issue of report.upstreamIssues) {
+    yield* Console.log(
+      `skills:update: advisory upstream skill ${frontmatterIssueLine(issue.skill, issue.message).slice(2)}; fix it upstream or patch it through skills-lock, never by editing the mirror.`
+    );
+  }
   if (report.issues.length === 0) {
     return;
   }
@@ -1034,7 +1040,8 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
   const remoteDrift = yield* evaluateRemoteSkillDrift(repoRoot, fetchedSnapshots, options.mode);
   const frontmatterReport = yield* checkInstalledSkills(
     path.join(repoRoot, CLAUDE_SKILLS_DIR),
-    yield* readInstalledSkillNames(repoRoot)
+    yield* readInstalledSkillNames(repoRoot),
+    HashSet.fromIterable(A.map(remoteSkillSources, (source) => source.name))
   );
   const lockDrift = yield* evaluateLockDrift(repoRoot, snapshotsByName, options.mode);
   const configDrift = yield* evaluateCodexConfigDrift(repoRoot, options.mode);

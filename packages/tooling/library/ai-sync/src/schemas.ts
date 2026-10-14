@@ -10,7 +10,7 @@ import { LiteralKit, SchemaUtils, SlugChecks } from "@beep/schema";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
-import { dual, flow, identity } from "effect/Function";
+import { flow, identity } from "effect/Function";
 import * as S from "effect/Schema";
 import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
@@ -490,18 +490,19 @@ export class AgentSkillFrontmatter extends S.Class<AgentSkillFrontmatter>($I`Age
 }
 
 /**
- * Parse options that make {@link decodeAgentSkillFrontmatter} enforce the
- * Agent Skills key space: unknown keys fail and every issue is reported.
+ * Parse options behind {@link decodeAgentSkillFrontmatterStrict}: unknown keys
+ * fail and every issue is reported.
  *
- * **Example** (Reject a repo extra that is not under metadata)
+ * **Example** (Decode under the strict options by hand)
  *
  * ```ts
- * import { AgentSkillFrontmatterStrictParseOptions, decodeAgentSkillFrontmatter } from "@beep/ai-sync"
+ * import { AgentSkillFrontmatter, AgentSkillFrontmatterStrictParseOptions } from "@beep/ai-sync"
  * import * as Effect from "effect/Effect"
  * import * as Exit from "effect/Exit"
+ * import * as S from "effect/Schema"
  *
  * const exit = Effect.runSyncExit(
- *   decodeAgentSkillFrontmatter({ name: "yeet", description: "Ship", version: "1.0" }, AgentSkillFrontmatterStrictParseOptions)
+ *   S.decodeUnknownEffect(AgentSkillFrontmatter)({ name: "yeet", description: "Ship", version: "1.0" }, AgentSkillFrontmatterStrictParseOptions)
  * )
  * console.log(Exit.isFailure(exit)) // true
  * ```
@@ -514,14 +515,19 @@ export const AgentSkillFrontmatterStrictParseOptions: AST.ParseOptions = {
   onExcessProperty: "error",
 };
 
+const decodeUnknownAgentSkillFrontmatter = S.decodeUnknownEffect(AgentSkillFrontmatter);
+
 /**
- * Decode parsed YAML frontmatter into {@link AgentSkillFrontmatter}.
+ * Decode parsed YAML frontmatter into {@link AgentSkillFrontmatter}, ignoring
+ * unknown keys.
  *
  * **Details**
  *
- * Without options unknown keys are ignored, the lenient loading the Agent
- * Skills client guide recommends. Pass
- * {@link AgentSkillFrontmatterStrictParseOptions} to validate authored skills.
+ * This is the lenient loading the Agent Skills client guide recommends: a key
+ * the schema does not model is dropped, never an error. It takes the input
+ * alone, so frontmatter that happens to carry a `ParseOptions`-shaped key such
+ * as `errors` or `concurrency` is still data. Use
+ * {@link decodeAgentSkillFrontmatterStrict} to validate authored skills.
  *
  * **Example** (Decode a minimal skill)
  *
@@ -533,13 +539,39 @@ export const AgentSkillFrontmatterStrictParseOptions: AST.ParseOptions = {
  * console.log(frontmatter.name) // "pdf"
  * ```
  *
+ * @param input - The parsed frontmatter value.
+ * @returns The decoded frontmatter, or the schema error.
  * @category codecs
  * @since 0.0.0
  */
-export const decodeAgentSkillFrontmatter: {
-  (options?: AST.ParseOptions): (input: unknown) => Effect.Effect<AgentSkillFrontmatter, S.SchemaError>;
-  (input: unknown, options?: AST.ParseOptions): Effect.Effect<AgentSkillFrontmatter, S.SchemaError>;
-} = dual(SchemaUtils.isCodecDataFirst, S.decodeUnknownEffect(AgentSkillFrontmatter));
+export const decodeAgentSkillFrontmatter = (input: unknown): Effect.Effect<AgentSkillFrontmatter, S.SchemaError> =>
+  decodeUnknownAgentSkillFrontmatter(input);
+
+/**
+ * Decode parsed YAML frontmatter into {@link AgentSkillFrontmatter} under
+ * {@link AgentSkillFrontmatterStrictParseOptions}: unknown keys fail and every
+ * issue is reported.
+ *
+ * **Example** (Reject a repo extra that is not under metadata)
+ *
+ * ```ts
+ * import { decodeAgentSkillFrontmatterStrict } from "@beep/ai-sync"
+ * import * as Effect from "effect/Effect"
+ * import * as Exit from "effect/Exit"
+ *
+ * const exit = Effect.runSyncExit(decodeAgentSkillFrontmatterStrict({ name: "yeet", description: "Ship", version: "1.0" }))
+ * console.log(Exit.isFailure(exit)) // true
+ * ```
+ *
+ * @param input - The parsed frontmatter value.
+ * @returns The decoded frontmatter, or the schema error listing every violation.
+ * @category codecs
+ * @since 0.0.0
+ */
+export const decodeAgentSkillFrontmatterStrict = (
+  input: unknown
+): Effect.Effect<AgentSkillFrontmatter, S.SchemaError> =>
+  decodeUnknownAgentSkillFrontmatter(input, AgentSkillFrontmatterStrictParseOptions);
 
 /**
  * Unknown native schema marker for documented-but-undisclosed surfaces.

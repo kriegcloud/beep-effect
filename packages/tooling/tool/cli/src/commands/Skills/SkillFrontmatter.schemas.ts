@@ -89,14 +89,16 @@ export class SkillBodyAdvisory extends S.Class<SkillBodyAdvisory>($I`SkillBodyAd
 ) {}
 
 /**
- * Outcome of checking every installed skill: blocking issues and advisories.
+ * Outcome of checking every installed skill: blocking issues on repo-authored
+ * skills, advisory issues on lock-managed upstream mirrors, and body-length
+ * advisories.
  *
  * **Example** (An empty report is a clean tree)
  *
  * ```ts
  * import { SkillFrontmatterReport } from "@beep/repo-cli/commands/Skills"
  *
- * const report = SkillFrontmatterReport.make({ issues: [], advisories: [] })
+ * const report = SkillFrontmatterReport.make({ issues: [], upstreamIssues: [], advisories: [] })
  * console.log(report.issues.length) // 0
  * ```
  *
@@ -106,10 +108,12 @@ export class SkillBodyAdvisory extends S.Class<SkillBodyAdvisory>($I`SkillBodyAd
 export class SkillFrontmatterReport extends S.Class<SkillFrontmatterReport>($I`SkillFrontmatterReport`)(
   {
     issues: S.Array(SkillFrontmatterIssue),
+    upstreamIssues: S.Array(SkillFrontmatterIssue),
     advisories: S.Array(SkillBodyAdvisory),
   },
   $I.annote("SkillFrontmatterReport", {
     title: "Skill Frontmatter Report",
-    description: "Frontmatter issues that fail the skills check plus body-length advisories that do not.",
+    description:
+      "Frontmatter issues that fail the skills check (repo-authored skills), the same findings on upstream mirrors (advisory), and body-length advisories.",
   })
 ) {}

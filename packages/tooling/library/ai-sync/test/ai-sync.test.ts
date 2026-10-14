@@ -2,7 +2,6 @@ import {
   AgentCommandMetadata,
   AgentPluginManifestMetadata,
   AgentSkillFrontmatter,
-  AgentSkillFrontmatterStrictParseOptions,
   AiSyncContentHash,
   AiSyncDriftFinding,
   AiSyncDriftReport,
@@ -21,6 +20,7 @@ import {
   claudeMcpJsonToCodexConfig,
   codexMcpServersToClaudeMcpJson,
   decodeAgentSkillFrontmatter,
+  decodeAgentSkillFrontmatterStrict,
   junieMcpJsonToClaudeMcpJson,
   NormalizedAgentInstructionDocument,
   NormalizedAgentInstructionDocumentArbitrary,
@@ -812,22 +812,19 @@ it.layer(Layer.merge(MemoryFileSystem.layer, Path.layer), { timeout: "30 seconds
 it.effect(
   "accepts Agent Skills specification frontmatter with Claude Code extension keys",
   Effect.fn(function* () {
-    const decoded = yield* decodeAgentSkillFrontmatter(
-      {
-        name: "pdf-processing",
-        description: "Extract PDF text. Use when handling PDFs.",
-        license: "Apache-2.0",
-        compatibility: "Requires git and jq",
-        metadata: { version: "1.0", status: "active" },
-        "allowed-tools": ["Read", "Bash(git:*)"],
-        "argument-hint": "[file]",
-        "disable-model-invocation": true,
-        "user-invocable": false,
-        effort: "medium",
-        context: "fork",
-      },
-      AgentSkillFrontmatterStrictParseOptions
-    );
+    const decoded = yield* decodeAgentSkillFrontmatterStrict({
+      name: "pdf-processing",
+      description: "Extract PDF text. Use when handling PDFs.",
+      license: "Apache-2.0",
+      compatibility: "Requires git and jq",
+      metadata: { version: "1.0", status: "active" },
+      "allowed-tools": ["Read", "Bash(git:*)"],
+      "argument-hint": "[file]",
+      "disable-model-invocation": true,
+      "user-invocable": false,
+      effort: "medium",
+      context: "fork",
+    });
     expect(decoded.name).toBe("pdf-processing");
     expect(decoded.metadata?.version).toBe("1.0");
     expect(decoded["allowed-tools"]).toEqual(["Read", "Bash(git:*)"]);
@@ -853,10 +850,13 @@ it.effect(
       { description: "Read PDFs." },
     ];
     for (const input of rejected) {
-      const exit = yield* decodeAgentSkillFrontmatter(input, AgentSkillFrontmatterStrictParseOptions).pipe(Effect.exit);
+      const exit = yield* decodeAgentSkillFrontmatterStrict(input).pipe(Effect.exit);
       exit.pipe(Exit.isFailure, assertTrue);
     }
     const lenient = yield* decodeAgentSkillFrontmatter({ name: "yeet", description: "Ship.", version: "1.0" });
     expect(lenient.name).toBe("yeet");
+    const optionsShaped = decodeAgentSkillFrontmatter({ name: "x", description: "d", concurrency: 2, errors: "all" });
+    expect(Effect.isEffect(optionsShaped)).toBe(true);
+    expect((yield* optionsShaped).name).toBe("x");
   })
 );

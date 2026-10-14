@@ -283,14 +283,16 @@ export class SkillUpstreamContentError extends S.TaggedError<SkillUpstreamConten
 ) {}
 
 /**
- * Installed skills whose `SKILL.md` frontmatter violates the Agent Skills
+ * Repo-authored skills whose `SKILL.md` frontmatter violates the Agent Skills
  * format or the Claude Code extension keys.
  *
  * **Details**
  *
- * Raised in every mode of `beep skills update`: the installer cannot rewrite
- * an author's frontmatter, so the only fix is to edit the skill (repo extras
- * go under `metadata`).
+ * Raised in every mode of `beep skills update`, and only for skills this
+ * repository authors: the installer cannot rewrite an author's frontmatter, so
+ * the fix is to edit the skill (repo extras go under `metadata`). The same
+ * finding on a lock-managed upstream mirror is printed as an advisory instead,
+ * because editing the mirror would only drift it from its pinned snapshot.
  *
  * **Example** (Build the error from a report)
  *
@@ -327,6 +329,6 @@ export class SkillFrontmatterError extends S.TaggedError<SkillFrontmatterError>(
   static readonly new = (issues: ReadonlyArray<SkillFrontmatterIssue>): SkillFrontmatterError =>
     SkillFrontmatterError.make({
       issues,
-      message: `${issues.length} skill frontmatter issue(s); repo extras belong under metadata.`,
+      message: `${issues.length} repo-authored skill frontmatter issue(s); repo extras belong under metadata.`,
     });
 }
