@@ -791,9 +791,11 @@ const HatchAxisBase = LiteralKit(["longest-edge", "surface-class"]);
  *
  * `longest-edge` (the default) runs lines along the face's longest straight
  * edge. `surface-class` runs them along +Z on upright faces (walls read
- * vertical in every elevation and pictorial), along the level line on
- * inclined faces (a hinged flap is hatched parallel to its hinge), and along
- * the longest edge on level faces.
+ * vertical in every elevation and pictorial) and, on inclined and level
+ * faces, along the major straight edge whose outward side faces most away
+ * from the 1.84(m) light (a hanging flap is hatched along its lower-right
+ * edge, a lid along its lower-right edge); without a light, inclined faces
+ * take their level line and level faces their longest edge.
  *
  * **Example** (Read the axes)
  *
@@ -926,10 +928,17 @@ export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
           "Projected length, in model units, below which a cut chord is dropped instead of drawn: near a pointed corner the strokes would read as a dot ladder (the 1993 Guide's strokes are 2-8 mm on the sheet). Defaults to 0 (every chord is drawn).",
       })
     ),
+    clearance: S.OptionFromOptionalKey(PositiveLength).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({
+        description:
+          "Distance, in model units, a graded stroke end keeps from every drawn outline after hidden-line removal; none means half the minimum pitch. A sheet sets it to the larger of half its pitch and the validator's spacing floor, so a render passes its own check.",
+      })
+    ),
   },
   $I.annote("ShadingPlan", {
     description:
-      "Pitch range, lit threshold, style, hatch axis, sliver width, and minimum stroke of straight-line shading, in model units.",
+      "Pitch range, lit threshold, style, hatch axis, sliver width, minimum stroke, and outline clearance of straight-line shading, in model units.",
   })
 ) {}
 

@@ -12,8 +12,9 @@
  * planar face: the first line sits one minimum pitch from the shadow edge and
  * the gaps grow geometrically toward the lit side, as in the USPTO Guide's
  * spaced-line examples. The opt-in `surface-class` axis hatches walls along
- * +Z, inclined faces along their level line, and level faces along their
- * longest edge, so a wall reads the same way in every view.
+ * +Z and inclined and level faces along the major edge turned away from the
+ * light, so a wall reads the same way in every view and a flap or lid bunches
+ * its band on its darkest edge.
  *
  * @packageDocumentation
  * @since 0.0.0

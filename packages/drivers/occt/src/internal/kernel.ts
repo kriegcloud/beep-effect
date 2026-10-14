@@ -299,31 +299,63 @@ type ProbeLine = {
   readonly point: readonly [number, number];
   readonly along: readonly [number, number];
   readonly length: number;
+  // the two ends' distances from the eye along the view direction under a
+  // perspective camera (both 1 for an orthographic one), for walking back
+  // from a view-plane fraction to a fraction of the probe in space
+  readonly depth: readonly [number, number];
 };
 
 // A probe's line on the view plane, in the projector's own frame (the frame
-// the hidden-line pass reports its edges in); none when it projects to a point.
+// the hidden-line pass reports its edges in) and under its own projection: a
+// camera with a focus projects in perspective, the eye `focus` along the view
+// direction from the target, exactly as `makeProjector` sets the HLR up.
+// None when the probe projects to a point.
 const projectedProbe = (camera: Camera, probe: ShadingProbe): O.Option<ProbeLine> => {
   const direction = normalize(camera.eye);
   const right = normalize(cross(normalize(camera.up), direction));
   const up = cross(direction, right);
-  const to2d = (p: V3): readonly [number, number] => {
+  const frame = (p: V3): readonly [number, number, number] => {
     const d: V3 = [p[0] - camera.target[0], p[1] - camera.target[1], p[2] - camera.target[2]];
-    return [d[0] * right[0] + d[1] * right[1] + d[2] * right[2], d[0] * up[0] + d[1] * up[1] + d[2] * up[2]];
+    return [
+      d[0] * right[0] + d[1] * right[1] + d[2] * right[2],
+      d[0] * up[0] + d[1] * up[1] + d[2] * up[2],
+      d[0] * direction[0] + d[1] * direction[1] + d[2] * direction[2],
+    ];
   };
-  const point = to2d(probe.from);
-  const end = to2d(probe.to);
-  const length = Math.hypot(end[0] - point[0], end[1] - point[1]);
+  const project = (p: V3): { readonly at: readonly [number, number]; readonly depth: number } => {
+    const [u, v, w] = frame(p);
+    return O.match(camera.focus, {
+      onNone: () => ({ at: [u, v] as const, depth: 1 }),
+      onSome: (focus) => ({ at: [(u * focus) / (focus - w), (v * focus) / (focus - w)] as const, depth: focus - w }),
+    });
+  };
+  const from = project(probe.from);
+  const to = project(probe.to);
+  const length = Math.hypot(to.at[0] - from.at[0], to.at[1] - from.at[1]);
   return length < 1e-9
     ? O.none()
-    : O.some({ probe, point, length, along: [(end[0] - point[0]) / length, (end[1] - point[1]) / length] });
+    : O.some({
+        probe,
+        point: from.at,
+        length,
+        along: [(to.at[0] - from.at[0]) / length, (to.at[1] - from.at[1]) / length],
+        depth: [from.depth, to.depth],
+      });
 };
 
 // Offset along the face's step, from its shadow anchor, of the point of a
-// probe's line nearest a view-plane point.
+// probe's line nearest a view-plane point. A fraction of the projected line
+// is a fraction of the probe in space only under an orthographic camera;
+// under perspective the far end is foreshortened, so the fraction is walked
+// back through the two ends' depths.
 const offsetAt = (line: ProbeLine, x: number, y: number): number => {
-  const t = (x - line.point[0]) * line.along[0] + (y - line.point[1]) * line.along[1];
-  return line.probe.start + (Math.min(Math.max(t, 0), line.length) / line.length) * (line.probe.end - line.probe.start);
+  const t = Math.min(
+    Math.max(((x - line.point[0]) * line.along[0] + (y - line.point[1]) * line.along[1]) / line.length, 0),
+    1
+  );
+  const [near, far] = line.depth;
+  const s = (t * near) / (t * near + (1 - t) * far);
+  return line.probe.start + s * (line.probe.end - line.probe.start);
 };
 
 type Stretch = {
@@ -534,7 +566,8 @@ export const project = (options: {
               minSpacing: plan.minPitch / 2,
               inset: plan.minPitch,
               outlines: [...visible, ...broken],
-              clearance: plan.minPitch / 3,
+              // the sheet carries the validator's floor on the plan; a bare plan clears half a pitch
+              clearance: O.getOrElse(plan.clearance, () => plan.minPitch / 2),
             })
           : segments,
     });
@@ -548,11 +581,14 @@ export const project = (options: {
     A.getSomes,
     HashSet.fromIterable
   );
-  const lostFaces = pipe(
-    faces,
-    A.filter((face, index) => face.treatment.kind === "lines" && !HashSet.has(drawnFaces, index)),
-    A.length
-  );
+  // only graded faces are planned per visible stretch; a uniform face hidden behind another part is not lost
+  const lostFaces = graded
+    ? pipe(
+        faces,
+        A.filter((face, index) => face.treatment.kind === "lines" && !HashSet.has(drawnFaces, index)),
+        A.length
+      )
+    : 0;
   return EdgeSet.make({
     visible,
     hidden: toSegments(lines.hidden),

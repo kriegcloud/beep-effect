@@ -88,14 +88,18 @@ const fakeEngineWith = (plans: Array<ShadingPlan>) =>
         });
       }),
       project: Effect.fnUntraced(function* (model, cameras, shading) {
-        // uniform shading carries one diagonal hatch line per view; graded shading
-        // two lines a hair apart, which the spacing rule must flag; a model with a
-        // broken-line part carries one broken segment per view
+        // uniform shading carries one diagonal hatch line per view that starts on the
+        // outline (uniform strokes end on the face edge by design, and only graded
+        // output is held to the outline checks); graded shading two lines a hair
+        // apart, which the spacing rule must flag; a model with a broken-line part
+        // carries one broken segment per view
         O.map(shading, (plan) => plans.push(plan));
         const hatch = O.match(shading, {
           onNone: () => [],
           onSome: (plan) =>
-            plan.style === "graded" ? [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const] : [[1, 1, 4, 4] as const],
+            plan.style === "graded"
+              ? [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const]
+              : [[0.2, 0.2, 4, 4] as const],
         });
         const coverage = O.map(shading, () =>
           ShadingCoverage.make({
@@ -1477,6 +1481,20 @@ describe("graded shading through fake ports", () => {
         assertSome(
           O.map(plain.validation, (v) => v.findings.length),
           0
+        );
+        // a default (uniform) shaded render is not held to the graded outline checks, although its
+        // hatch starts on the outline
+        const uniformSpec = path.join(dir, "uniform.json");
+        yield* fs.writeFileString(
+          uniformSpec,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {})
+        );
+        const uniform = yield* service.render(
+          RenderRequest.make({ specPath: uniformSpec, outputDir: path.join(dir, "uniform"), shade: true })
+        );
+        assertSome(
+          O.map(uniform.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
         );
       })
     );

@@ -845,7 +845,7 @@ export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
       S.withDecodingDefaultTypeKey(Effect.succeed("longest-edge" as const)),
       S.annotateKey({
         description:
-          "Shading line direction: `longest-edge` (the default) or `surface-class` (walls vertical, inclined faces along their level line).",
+          "Shading line direction: `longest-edge` (the default) or `surface-class` (walls vertical; inclined and level faces along their darkest major edge).",
       })
     ),
     shadingMinFaceSpanMm: S.Finite.check(

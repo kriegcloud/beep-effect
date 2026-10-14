@@ -83,6 +83,7 @@ const graded = (fields?: {
   readonly axis?: "longest-edge" | "surface-class";
   readonly minFaceSpan?: number;
   readonly minStroke?: number;
+  readonly clearance?: number | undefined;
 }) =>
   ShadingPlan.make({
     minPitch: 1,
@@ -92,6 +93,7 @@ const graded = (fields?: {
     axis: fields?.axis ?? "surface-class",
     minFaceSpan: fields?.minFaceSpan ?? 0,
     minStroke: fields?.minStroke ?? 0,
+    clearance: O.fromNullishOr(fields?.clearance),
   });
 
 const isVertical = ([x1, , x2]: Segment) => Math.abs(x1 - x2) < 1e-6;
@@ -238,6 +240,79 @@ describe("@beep/occt shading", () => {
           O.flatMap(O.fromNullishOr(views[0]), (v) => O.map(v.shadingCoverage, (c) => c.lostFaces)),
           0
         );
+      })
+    );
+
+    it.effect(
+      "keeps graded stroke ends the plan's clearance from the outlines",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-20, -15, 0], max: [20, 15, 20] })] });
+        // lowest and highest end of the wall's vertical strokes in the front view (y is z there)
+        const ends = (clearance?: number) =>
+          occt
+            .project(
+              ProjectionRequest.make({
+                solid: ModelSpec.make({ parts: [wall] }),
+                cameras: [front],
+                shading: O.some(graded({ minStroke: 0.5, clearance })),
+              })
+            )
+            .pipe(
+              Effect.map((views) => {
+                const ys = A.flatMap(A.filter(views[0]?.shading ?? [], isVertical), (s: Segment) => [s[1], s[3]]);
+                return [Math.min(...ys), Math.max(...ys)] as const;
+              })
+            );
+        // a bare plan draws the strokes back one pitch from the outlines they ended on
+        // (0 and 20) and clears half a pitch, which that already satisfies
+        const [low, high] = yield* ends();
+        expect(low).toBeGreaterThanOrEqual(0.9);
+        expect(low).toBeLessThanOrEqual(1.1);
+        expect(high).toBeGreaterThanOrEqual(18.9);
+        expect(high).toBeLessThanOrEqual(19.1);
+        // a plan that carries a clearance keeps the ends at least that far away
+        const [lowCleared, highCleared] = yield* ends(3);
+        expect(lowCleared).toBeGreaterThanOrEqual(3);
+        expect(highCleared).toBeLessThanOrEqual(17);
+      })
+    );
+
+    it.effect(
+      "maps graded probes through a perspective camera the way the hidden-line pass projects",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-20, -15, 0], max: [20, 15, 20] })] });
+        const post = Part.make({ name: "post", add: [Box.make({ min: [-2, -40, -5], max: [2, -25, 25] })] });
+        // stroke count, shaded faces and lost faces of a view
+        const summary = (view: EdgeSet) => [
+          A.length(view.shading),
+          ...O.getOrElse(
+            O.map(view.shadingCoverage, (c) => [c.shadedFaces, c.lostFaces]),
+            () => [-1, -1]
+          ),
+        ];
+        const views = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [wall, post] }),
+            cameras: [
+              front,
+              Camera.make({ eye: [0, -1, 0], up: [0, 0, 1], focus: O.some(300) }),
+              Camera.make({ eye: [-90, -120, 65], up: [0, 0, 1], target: [0, 0, 10] }),
+              Camera.make({ eye: [-90, -120, 65], up: [0, 0, 1], target: [0, 0, 10], focus: O.some(300) }),
+            ],
+            shading: O.some(graded({ minStroke: 0.5 })),
+          })
+        );
+        // a perspective camera draws the same strokes on the same faces as its orthographic
+        // twin, from the front (both probe ends at one depth) and from an oblique eye (the far
+        // end foreshortened): the window of each partly hidden probe is walked back through
+        // the camera's own projection, not read as a fraction of the projected line
+        expect(summary(views[1]!)).toEqual(summary(views[0]!));
+        expect(summary(views[3]!)).toEqual(summary(views[2]!));
+        // from the pictorial eye the post's 4 mm faces plan a single stroke each and are
+        // dropped by design (a lone line beside an outline reads as a doubled edge)
+        expect(summary(views[2]!)).toEqual([13, 6, 2]);
       })
     );
 
