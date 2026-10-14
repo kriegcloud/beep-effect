@@ -9,13 +9,13 @@ dated heading at the bottom.
 
 ## 2026-10-14
 
-Operator, verbatim:
+Operator, verbatim, with the download link normalized to the versioned public PDF:
 
 > Ok I want to do a new similar thing but for just this & also other relevant papers we haven't
 > yet encountered at the intersection of patent law, ai, neural symbolic ai, agents, legal,
 > ontologies etc.:
 > I just found this [highly relevant research paper](https://arxiv.org/abs/2610.01553) which I
-> downloaded [here](~/Downloads/2610.01553v1.pdf)
+> downloaded [here](https://arxiv.org/pdf/2610.01553v1)
 >
 > the alphaxiv mcp should be available to you.
 > https://www.alphaxiv.org/abs/2610.01553

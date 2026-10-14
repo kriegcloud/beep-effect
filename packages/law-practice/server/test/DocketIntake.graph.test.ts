@@ -243,6 +243,7 @@ const firstPage = {
       body: { content: "Synthetic fixture body one.", contentType: "text" },
       from: fromOther,
       id: "m1",
+      conversationId: "thread-fixture",
       internetMessageId: "<m1@fixture.invalid>",
       receivedDateTime: "2030-01-10T03:30:00Z",
       subject: "Fixture subject",
@@ -422,6 +423,15 @@ describe("@beep/law-practice-server DocketIntake Graph adapters", () => {
           O.map(firstUrl, (url) => url.pathname),
           `/v1.0/users/${MAILBOX}/messages`
         );
+        assertSome(
+          O.map(firstUrl, (url) => url.searchParams.get("$select")),
+          "id,conversationId,internetMessageId,receivedDateTime,body,from,sender,isDraft,parentFolderId,subject,webLink"
+        );
+        assertSome(
+          O.flatMap(A.head(messages), (received) => received.conversationId),
+          "thread-fixture"
+        );
+        assertNone(O.flatMap(A.get(messages, 1), (received) => received.conversationId));
         assertSome(O.flatMap(first, filterOf), `receivedDateTime ge ${INITIAL_SINCE}`);
         assertSome(
           O.map(firstUrl, (url) => url.searchParams.get("$orderby")),
@@ -648,6 +658,26 @@ describe("@beep/law-practice-server DocketIntake Graph adapters", () => {
   });
 
   it.layer(graphLayer(), { timeout: "5 seconds" })((it) => {
+    it.effect(
+      "rejects an all-day start whose exclusive end is outside LocalDate before calling Graph",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* GraphTestHttp;
+        const calendar = yield* DocketCalendar;
+        const entry = DocketCalendarEntry.make({
+          ...calendarEntry(true),
+          date: LocalDate.make({ year: 9999, month: 12, day: 31 }),
+        });
+
+        const failure = yield* failureOf(calendar.create(entry));
+
+        assertSome(
+          O.map(failure, (error) => [error.stage, error.cause]),
+          ["calendar", "all-day-date-out-of-range"]
+        );
+        expect(yield* testHttp.calls).toStrictEqual([]);
+      })
+    );
+
     it.effect(
       "creates an all-day entry in the practice time zone with its category, status and idempotency key",
       Effect.fnUntraced(function* () {

@@ -7,6 +7,7 @@ import {
   KnowledgeSkillsLocalEvaluator,
   knowledgeCounterfactualVerdicts,
   knowledgeDomainLineSpans,
+  knowledgeGoalsDoctorCauseKey,
   LockEntryWitness,
   ManifestFieldWitness,
   makeKnowledgeDoctorMemoryTree,
@@ -30,6 +31,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type {
   KnowledgeCounterfactualVerdict,
@@ -297,6 +299,67 @@ describe("knowledge doctor domain evaluators", () => {
       })
     );
 
+    it.effect(
+      "names the search bound and the unfollowed package stars instead of claiming an export is absent",
+      Effect.fnUntraced(function* () {
+        const chain = R.fromEntries(
+          A.makeBy(
+            300,
+            (index) =>
+              [
+                `packages/deep/src/f${index}.ts`,
+                index === 299 ? "export const Far = 1" : `export * from "./f${index + 1}.ts"`,
+              ] as const
+          )
+        );
+        const tree = makeKnowledgeDoctorMemoryTree({
+          files: {
+            "package.json": `{ "name": "@beep/root", "workspaces": ["packages/*"] }`,
+            "packages/deep/package.json": `{ "name": "@beep/deep", "exports": { ".": "./src/f0.ts" } }`,
+            ...chain,
+            "packages/wide/package.json": `{ "name": "@beep/wide", "exports": { ".": "./src/index.ts" } }`,
+            "packages/wide/src/index.ts": doc('export * from "@beep/deep"', "export const Own = 1"),
+            "docs/symbols.md": doc(
+              "Use `Far` from `@beep/deep`.",
+              "Use `Far` from `@beep/wide`.",
+              "Use `Own` from `@beep/wide`."
+            ),
+          },
+        });
+        const report = yield* scanKnowledgeDoctorTree(tree);
+        const messages = A.map(
+          A.filter(report.findings, (row) => row.finding.kind === "unknown-beep-symbol"),
+          (row) => `${row.finding.subject} | ${row.finding.message}`
+        );
+        assert.deepStrictEqual(A.sort(messages, Str.Order), [
+          "beep-export:@beep/deep Far | Far was not found in the first 256 files re-exported by @beep/deep; the search stopped at its bound, so absence is unproven.",
+          "beep-export:@beep/wide Far | @beep/wide does not visibly export Far; not followed: export * from @beep/deep.",
+        ]);
+      })
+    );
+
+    it.effect(
+      "keeps detailed packet causes distinct and reports an unspecified upstream revision",
+      Effect.fnUntraced(function* () {
+        const first = knowledgeGoalsDoctorCauseKey({ kind: "manifest-invalid", slug: "demo", detail: "first" });
+        const second = knowledgeGoalsDoctorCauseKey({ kind: "manifest-invalid", slug: "demo", detail: "second" });
+        assert.notStrictEqual(first, second);
+        const report = yield* scanKnowledgeDoctorTree(
+          makeKnowledgeDoctorMemoryTree({
+            files: {
+              "skills-lock.json":
+                '{"version":1,"skills":{"beta":{"source":"owner/repo","sourceType":"github","computedHash":"h","skillPath":"skills/beta"}}}',
+              ".claude/skills/beta/SKILL.md": "# beta",
+            },
+          })
+        );
+        const revision = A.findFirst(
+          report.findings,
+          (row) => row.finding.kind === "floating-github-skill-source"
+        ).pipe(O.getOrThrow);
+        assert.include(revision.finding.message, "(none)");
+      })
+    );
     it.effect(
       "evaluates v1 skills hermetically: coverage, floating sources, and missing licenses",
       Effect.fnUntraced(function* () {

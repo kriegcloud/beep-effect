@@ -144,12 +144,12 @@ export const decodeCreateTaskInput = (input: unknown) =>
   - `import * as P from "effect/Predicate"`
   - `import * as R from "effect/Record"`
   - `import * as S from "effect/Schema"`
-- Prefer dedicated namespace imports for stable helper/data modules:
+- Prefer dedicated namespace imports for helper/data modules:
   - `import * as Str from "effect/String"`
   - `import * as Eq from "effect/Equal"`
   - `import * as Bool from "effect/Boolean"`
-- Reserve root imports from `"effect"` for core combinators/types such as `Effect`, `Match`, `pipe`, and `flow`.
-- Keep unstable imports deliberate and local.
+- Never import from the root `"effect"` barrel: `Effect`, `Match`, and every other module come from `effect/<Module>`; `pipe`, `flow`, and `identity` come from `effect/Function`.
+- Use `@stability unstable` modules wherever they fit: the tag means the API may change on a bump, not that the module is unfit for production (AGENTS.md Code Laws).
 
 ### EF-5: Effect modules over native collection helpers
 

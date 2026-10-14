@@ -95,7 +95,7 @@ const writeAtomically = Effect.fnUntraced(function* (
   const temporary = yield* uniqueName(path, pid, "tmp");
   yield* Effect.scoped(
     Effect.gen(function* () {
-      const file = yield* fs.open(temporary, { flag: "wx" });
+      const file = yield* fs.open(temporary, { flag: "wx", mode: 0o600 });
       yield* file.writeAll(textEncoder.encode(contents));
       yield* file.sync;
     })
@@ -162,7 +162,7 @@ const placeLock = Effect.fnUntraced(function* (
   contents: string
 ): Effect.fn.Return<boolean, DocketIntakeError> {
   const temporary = yield* uniqueName(lockPath, pid, "tmp");
-  yield* fs.writeFileString(temporary, contents, { flag: "wx" }).pipe(Effect.mapError(lockWriteFailed));
+  yield* fs.writeFileString(temporary, contents, { flag: "wx", mode: 0o600 }).pipe(Effect.mapError(lockWriteFailed));
   return yield* fs.link(temporary, lockPath).pipe(
     Effect.as(true),
     Effect.catchIf(lockExists, () => Effect.succeed(false)),
@@ -281,7 +281,9 @@ export const makeDocketFileStoreLayer = (
       const path = yield* Path.Path;
       const statePath = path.join(options.directory, STATE_FILE);
       const lockPath = path.join(options.directory, LOCK_FILE);
-      yield* fs.makeDirectory(options.directory, { recursive: true }).pipe(Effect.mapError(storeError("directory")));
+      yield* fs
+        .makeDirectory(options.directory, { recursive: true, mode: 0o700 })
+        .pipe(Effect.andThen(fs.chmod(options.directory, 0o700)), Effect.mapError(storeError("directory")));
       yield* Effect.acquireRelease(acquireLock(fs, lockPath), () => discard(fs, lockPath));
 
       return DocketIntakeStore.of({
@@ -326,7 +328,9 @@ export const writeDigestFile: (input: {
   const path = yield* Path.Path;
   const digests = path.join(input.directory, DIGEST_DIRECTORY);
   const file = path.join(digests, `${input.day.toISOString()}.md`);
-  yield* fs.makeDirectory(digests, { recursive: true }).pipe(Effect.mapError(storeError("directory")));
+  yield* fs
+    .makeDirectory(digests, { recursive: true, mode: 0o700 })
+    .pipe(Effect.andThen(fs.chmod(digests, 0o700)), Effect.mapError(storeError("directory")));
   yield* writeAtomically(fs, file, input.text);
   return file;
 });

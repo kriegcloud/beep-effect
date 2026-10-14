@@ -906,8 +906,17 @@ export const printCorpusIndex = printLines([
 ]);
 
 /**
- * Delegate indexMailExportTrees to the corpus service.
- * **Example** (Reference the operation) `const operation = indexMailExportTrees`
+ * Index exported mail trees through the configured corpus service.
+ *
+ * **Example** (Build a mail index operation)
+ *
+ * ```ts
+ * import { indexMailExportTrees, ProvenanceMessagesOptions } from "@beep/repo-cli/commands/Corpus"
+ * import * as Effect from "effect/Effect"
+ *
+ * const options = ProvenanceMessagesOptions.make({ corpusRoot: "/data/corpus", trees: ["extract"] })
+ * console.log(Effect.isEffect(indexMailExportTrees(options))) // true
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -919,8 +928,17 @@ export const indexMailExportTrees = Effect.fn("Corpus.indexMailExportTrees")(fun
 });
 
 /**
- * Delegate repairAttachmentExtensions to the corpus service.
- * **Example** (Reference the operation) `const operation = repairAttachmentExtensions`
+ * Plan or apply attachment extension repairs through the configured corpus service.
+ *
+ * **Example** (Build a repair plan operation)
+ *
+ * ```ts
+ * import { AttachmentRepairOptions, repairAttachmentExtensions } from "@beep/repo-cli/commands/Corpus"
+ * import * as Effect from "effect/Effect"
+ *
+ * const options = AttachmentRepairOptions.make({ corpusRoot: "/data/corpus", mode: "plan", trees: ["extract"] })
+ * console.log(Effect.isEffect(repairAttachmentExtensions(options))) // true
+ * ```
  *
  * @category use-cases
  * @since 0.0.0
@@ -932,8 +950,17 @@ export const repairAttachmentExtensions = Effect.fn("Corpus.repairAttachmentExte
 });
 
 /**
- * Delegate runMetadataCensus to the corpus service.
- * **Example** (Reference the operation) `const operation = runMetadataCensus`
+ * Census metadata in selected corpus roots through the configured corpus service.
+ *
+ * **Example** (Build a metadata census operation)
+ *
+ * ```ts
+ * import { MetadataCensusOptions, runMetadataCensus } from "@beep/repo-cli/commands/Corpus"
+ * import * as Effect from "effect/Effect"
+ *
+ * const options = MetadataCensusOptions.make({ corpusRoot: "/data/corpus", roots: ["raw"] })
+ * console.log(Effect.isEffect(runMetadataCensus(options))) // true
+ * ```
  *
  * @category use-cases
  * @since 0.0.0

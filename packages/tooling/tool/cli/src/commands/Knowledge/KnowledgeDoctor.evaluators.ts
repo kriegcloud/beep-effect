@@ -632,23 +632,54 @@ const resolveEntry = Effect.fn("KnowledgeDoctor.resolveSymbolEntry")(function* (
   );
 });
 
+// The export search's verdict: the declaring file, or why no file was found. `bounded` means the
+// search stopped at MAX_EXPORT_SEARCH_FILES; `opaque` lists the star specifiers it could not follow.
+type ExportSearch =
+  | { readonly _tag: "Found"; readonly file: string }
+  | { readonly _tag: "Missing"; readonly bounded: boolean; readonly opaque: ReadonlyArray<string> };
+
 const searchExport = (
   domain: KnowledgeDoctorDomain,
   name: string,
   frontier: ReadonlyArray<string>,
-  seen: HashSet.HashSet<string>
-): Effect.Effect<O.Option<string>, KnowledgeOperationalError> =>
+  seen: HashSet.HashSet<string>,
+  opaque: ReadonlyArray<string>
+): Effect.Effect<ExportSearch, KnowledgeOperationalError> =>
   A.match(frontier, {
-    onEmpty: () => Effect.succeedNone,
-    onNonEmpty: ([file, ...rest]) =>
-      HashSet.has(seen, file) || HashSet.size(seen) >= MAX_EXPORT_SEARCH_FILES
-        ? searchExport(domain, name, rest, seen)
-        : Effect.flatMap(domain.fileExports(file), (scan) =>
-            A.contains(scan.names, name)
-              ? Effect.succeedSome(file)
-              : searchExport(domain, name, A.appendAll(rest, scan.stars), HashSet.add(seen, file))
-          ),
+    onEmpty: () => Effect.succeed<ExportSearch>({ _tag: "Missing", bounded: false, opaque: A.dedupe(opaque) }),
+    onNonEmpty: ([file, ...rest]) => {
+      if (HashSet.has(seen, file)) {
+        return searchExport(domain, name, rest, seen, opaque);
+      }
+      if (HashSet.size(seen) >= MAX_EXPORT_SEARCH_FILES) {
+        return Effect.succeed<ExportSearch>({ _tag: "Missing", bounded: true, opaque: A.dedupe(opaque) });
+      }
+      return Effect.flatMap(domain.fileExports(file), (scan) =>
+        A.contains(scan.names, name)
+          ? Effect.succeed<ExportSearch>({ _tag: "Found", file })
+          : searchExport(
+              domain,
+              name,
+              A.appendAll(rest, scan.stars),
+              HashSet.add(seen, file),
+              A.appendAll(opaque, scan.opaqueStars)
+            )
+      );
+    },
   });
+
+const missingExportMessage = (
+  specifier: string,
+  name: string,
+  search: Extract<ExportSearch, { readonly _tag: "Missing" }>
+): string => {
+  if (search.bounded) {
+    return `${name} was not found in the first ${MAX_EXPORT_SEARCH_FILES} files re-exported by ${specifier}; the search stopped at its bound, so absence is unproven.`;
+  }
+  return A.isReadonlyArrayNonEmpty(search.opaque)
+    ? `${specifier} does not visibly export ${name}; not followed: export * from ${A.join(search.opaque, ", ")}.`
+    : `${specifier} does not export ${name}.`;
+};
 
 const evaluateExport = Effect.fn("KnowledgeDoctor.evaluateSymbolExport")(function* (
   span: KnowledgeSpan,
@@ -661,18 +692,18 @@ const evaluateExport = Effect.fn("KnowledgeDoctor.evaluateSymbolExport")(functio
     return resolvedBy(...witnesses);
   }
   const name = claim.exportName.value;
-  const declaring = yield* searchExport(tree.domain, name, [target], HashSet.empty());
-  return O.match(declaring, {
-    onNone: (): KnowledgeEvaluationOutcome =>
-      symbolFailure(
+  const search = yield* searchExport(tree.domain, name, [target], HashSet.empty(), []);
+  return search._tag === "Found"
+    ? resolvedBy(
+        ...witnesses,
+        ExportWitness.make({ packageName: claim.packageName, file: search.file, exportName: name })
+      )
+    : symbolFailure(
         span,
         `beep-export:${claim.specifier} ${name}`,
-        `${claim.specifier} does not export ${name}.`,
+        missingExportMessage(claim.specifier, name, search),
         `beep-export:${claim.specifier}:${name}`
-      ),
-    onSome: (file): KnowledgeEvaluationOutcome =>
-      resolvedBy(...witnesses, ExportWitness.make({ packageName: claim.packageName, file, exportName: name })),
-  });
+      );
 });
 
 const evaluateSubpath = Effect.fn("KnowledgeDoctor.evaluateSymbolSubpath")(function* (
@@ -736,7 +767,9 @@ const evaluateSymbolSpan = Effect.fn("KnowledgeDoctor.evaluateSymbolSpan")(funct
  * `exports` map (exact key, then the longest wildcard key; a `null` value blocks it) or, failing
  * that, a root `tsconfig.json` `paths` alias, and its target file must be tracked. An imported
  * identifier is found by a declaration scan of the target file and the files it star re-exports,
- * never by the compiler. A Turborepo task id is read for its package only.
+ * never by the compiler. A Turborepo task id is read for its package only. A missing identifier's
+ * message says when the search stopped at its 256-file bound, or which `export *` specifiers it could
+ * not follow, so an unproven absence never reads as a plain "does not export".
  *
  * **Example** (Read the evaluator identity)
  *

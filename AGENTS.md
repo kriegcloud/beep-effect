@@ -170,6 +170,10 @@ Runbook: `docs/runbooks/agent-pools.md`.
   (`.patterns/effect-module-paths.md`). Import `pipe`,
   `flow`, and `identity` from `effect/Function`. Do not import from the root
   `effect` barrel in code, JSDoc examples, or Markdown code blocks.
+- Use every module and feature Effect ships, `@stability unstable` ones
+  included: the tag means the API may change on a bump, not that it is unfit
+  for production. Never hand-roll what an Effect module provides (e.g.
+  `effect/Graph` algorithms) because of the tag.
 - Prefer match helpers over conditional chains; prefer service composition
   over global state; keep service boundaries explicit.
 - Prefer the tersest equivalent helper form when behavior is unchanged: direct
@@ -244,7 +248,7 @@ needed only for the escalation list below.
 
 - Every workspace manifest's scripts block is generated: run
   `bun run beep lint package-scripts --write` instead of hand-editing task-facing keys.
-- Quality lane ids name the command they run (`quality:knip`, `lint:schema-first`);
+- Quality lane ids name the command they run (`quality:fallow`, `lint:schema-first`);
   the tier is `GithubCheckLaneSpec.tier`, never an id prefix, and the step label
   is the log prefix (TTC ruling 28).
 - Yeet is the canonical repo-quality path: `bun run beep yeet repair`,

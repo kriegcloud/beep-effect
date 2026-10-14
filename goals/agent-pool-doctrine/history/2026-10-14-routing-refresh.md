@@ -66,3 +66,34 @@ skew), then the stored one, and spends a refresh grant only when `auth/test` ans
 `accounts watch` costs about one grant per token lifetime instead of one per poll. Rotation,
 `invalid_grant` and an inactive licence are `NeedsLogin`; timeouts stay `Failed` and keep the
 last good reading.
+
+
+## R9 — proven JetBrains cycle meter
+
+The 2026-10-14 read-only proof established this chain: refresh-on-rejection OAuth
+access token → ingrazzio `/auth/test` balance and `licenseType`; OAuth
+`switch_audience` for `jcp-user-management` → JetBrains Cloud
+`/user-management/api/ai-access-options`; select the enabled, unexpired license
+matching `licenseType` (otherwise the single eligible license); refresh ID token →
+JetBrains AI `/auth/jetbrains-jwt/provide-access/license/v2`; returned Grazie JWT →
+`/user/v5/quota/get` and `/user/v5/quota/metadata/refill`, with empty JSON objects
+and `Grazie-Agent` identifying `junie:cli` version `3659.4`.
+
+The live AI Pro tariff was 1,000,000 units for the documented 10 credits:
+100,000 wire units per JetBrains credit. Tariff available matched `balanceLeft`.
+Cycle percentage divides tariff used by positive tariff maximum; refill `next`
+provides the reset date. Top-up credits remain separate. No license-expiry date
+is substituted for a cycle reset. The wire API did not supply a credit count,
+so the adapter documents this proven divisor rather than deriving a fictitious one.
+
+Both OAuth grants reject refresh-token rotation without using or persisting the
+replacement. Detailed-quota failures preserve the normal balance outcome.
+Access and ID tokens and the Grazie exchange remain in memory; the exchange is
+bound to the refresh-token fingerprint and expires at its JWT expiry or a
+10-minute fallback bound. A valid stored access token without an ID token does
+not force a refresh. Remove these detailed calls to reverse the cycle meter.
+
+JetBrains' ingrazzio gateway answers an expired bearer token with **HTTP 407**, not 401/403, and
+Junie keeps only a stale access token in the keyring, so #1715 as merged never refreshed and the
+JetBrains row failed. The poller now treats 407 like 401/403 (one refresh, then the detailed quota).
+Live after the fix: cycle 12.0% used, resets 2026-10-18T00:00Z, 8.80 of 10 credits left.
