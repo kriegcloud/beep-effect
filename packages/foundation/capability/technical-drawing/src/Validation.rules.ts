@@ -312,10 +312,10 @@ export const purityFindings = (input: {
  * **Example** (Two lines 0.3 mm apart)
  *
  * ```ts
- * import { ValidationOptions, shadingSpacingFindings } from "@beep/technical-drawing"
+ * import { Segment2, ValidationOptions, shadingSpacingFindings } from "@beep/technical-drawing"
  * import * as O from "effect/Option"
  *
- * const segmentsMm = [[0, 0, 10, 0], [0, 0.3, 10, 0.3]] as const
+ * const segmentsMm = [Segment2.make([0, 0, 10, 0]), Segment2.make([0, 0.3, 10, 0.3])]
  * console.log(shadingSpacingFindings({ page: 1, segmentsMm, options: ValidationOptions.make({ expectedPages: O.none() }) }).map((f) => f.code))
  * ```
  *
@@ -394,8 +394,9 @@ export const shadingCoverageFindings = (input: {
  * ```ts
  * import { Segment2, ValidationOptions } from "@beep/technical-drawing"
  * import { shadingOutlineClearanceFindings } from "@beep/technical-drawing/Validation.rules"
+ * import * as O from "effect/Option"
  *
- * const options = ValidationOptions.make({})
+ * const options = ValidationOptions.make({ expectedPages: O.none() })
  * const outlineMm = [Segment2.make([0, 0, 0, 40])]
  * const shadingMm = [Segment2.make([0.1, 10, 20, 10])]
  * console.log(shadingOutlineClearanceFindings({ page: 1, shadingMm, outlineMm, options }).length) // 1
@@ -454,8 +455,9 @@ export const shadingOutlineClearanceFindings = (input: {
  * ```ts
  * import { Segment2, ValidationOptions } from "@beep/technical-drawing"
  * import { shadingLoneLineFindings } from "@beep/technical-drawing/Validation.rules"
+ * import * as O from "effect/Option"
  *
- * const options = ValidationOptions.make({})
+ * const options = ValidationOptions.make({ expectedPages: O.none() })
  * const outlineMm = [Segment2.make([0, 0, 0, 40])]
  * console.log(shadingLoneLineFindings({ page: 1, shadingMm: [Segment2.make([1.5, 5, 1.5, 35])], outlineMm, options }).length) // 1
  * ```

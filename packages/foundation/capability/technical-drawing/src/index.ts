@@ -67,7 +67,7 @@ export * from "./Manifest.schemas.ts";
  * Pure 1.84(m) surface-shading rules.
  *
  * @since 0.0.0
- * @category shading
+ * @category utilities
  */
 export * from "./Shading.rules.ts";
 /**

@@ -1,6 +1,8 @@
 /**
  * Repo-local retired Effect module path law.
  *
+ * **Details**
+ *
  * Effect moved every module out of its `unstable` namespace with no
  * compatibility re-exports (`.patterns/effect-module-paths.md`). This law
  * scans every git-tracked text file for a retired path and suggests the
