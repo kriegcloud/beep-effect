@@ -218,9 +218,11 @@ const offLine = (
 ): number => Math.abs((x - line.point[0]) * line.along[1] - (y - line.point[1]) * line.along[0]);
 
 // Of a graded view's visible strokes, those on the first `keep` cuts of each
-// face that hidden-line removal left with a stroke at least `minStroke` long:
-// a face whose shadow edge is behind another part draws its strokes on the
-// spare positions further in instead of nothing.
+// run of consecutive visible cuts of a face (a cut shows when hidden-line
+// removal left it a stroke at least `minStroke` long): a face whose shadow
+// edge is behind another part draws its strokes on the spare positions
+// further in, and a face that other parts split into several visible regions
+// tones each region at its own shadow side, as a draftsperson would.
 const visibleCuts = (options: {
   readonly camera: Camera;
   readonly cuts: ReadonlyArray<HatchCut>;
@@ -246,22 +248,26 @@ const visibleCuts = (options: {
       (o) =>
         O.exists(o.owner, (c) => c.face === cut.face && c.rank === cut.rank) && length(o.segment) >= options.minStroke
     );
-  // per face: the first `keep` cuts, by rank, that show a stroke
+  // per face, by rank: the first `keep` cuts of every run of cuts that show a stroke
   const key = (cut: HatchCut) => `${cut.face}:${cut.rank}`;
+  const firstOfRuns = (group: A.NonEmptyReadonlyArray<HatchCut>): ReadonlyArray<HatchCut> =>
+    pipe(
+      A.sort(
+        group,
+        Order.mapInput(Order.Number, (cut: HatchCut) => cut.rank)
+      ),
+      A.reduce({ kept: A.empty<HatchCut>(), run: 0 }, (state, cut) =>
+        shows(cut)
+          ? { kept: state.run < group[0].keep ? [...state.kept, cut] : state.kept, run: state.run + 1 }
+          : { kept: state.kept, run: 0 }
+      ),
+      (state) => state.kept
+    );
   const chosen = pipe(
     options.cuts,
     A.groupBy((cut) => `${cut.face}`),
     R.values,
-    A.flatMap((group) =>
-      pipe(
-        A.sort(
-          group,
-          Order.mapInput(Order.Number, (cut: HatchCut) => cut.rank)
-        ),
-        A.filter(shows),
-        A.take(group[0].keep)
-      )
-    ),
+    A.flatMap(firstOfRuns),
     A.map(key),
     HashSet.fromIterable
   );

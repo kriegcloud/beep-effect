@@ -194,12 +194,14 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
-      "draws a wall's strokes on the spare positions when another part hides its shadow edge",
+      "draws a wall's strokes on the spare positions when another part hides its shadow edge, and tones every visible region",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;
         // a wall whose shadow edge (its right end, x = 20) is behind a slab standing in front of x >= 8
         const wall = Part.make({ name: "wall", add: [Box.make({ min: [-20, -15, 0], max: [20, 15, 20] })] });
         const slab = Part.make({ name: "slab", add: [Box.make({ min: [8, -40, -5], max: [26, -25, 25] })] });
+        // a post in front of the wall's middle splits its visible area in two
+        const post = Part.make({ name: "post", add: [Box.make({ min: [-2, -40, -5], max: [2, -25, 25] })] });
         const strokesLeftOf = (solid: ModelSpec, limit: number) =>
           occt
             .project(ProjectionRequest.make({ solid, cameras: [front], shading: O.some(graded({ minStroke: 0.5 })) }))
@@ -214,6 +216,8 @@ describe("@beep/occt shading", () => {
             );
         expect(yield* strokesLeftOf(ModelSpec.make({ parts: [wall] }), 7)).toBe(0);
         expect(yield* strokesLeftOf(ModelSpec.make({ parts: [wall, slab] }), 7)).toBeGreaterThan(0);
+        // the region left of the post gets its own strokes at its shadow side, next to the post
+        expect(yield* strokesLeftOf(ModelSpec.make({ parts: [wall, post] }), -2)).toBeGreaterThan(0);
       })
     );
 
