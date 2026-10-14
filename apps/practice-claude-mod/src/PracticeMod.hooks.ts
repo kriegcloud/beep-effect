@@ -59,6 +59,14 @@ const VerdictLabel: Record<Verdict, string> = { right: "Right", wrong: "Wrong", 
 /**
  * The slash commands the mod registers.
  *
+ * **Example** (List the commands)
+ *
+ * ```ts
+ * import { PracticeCommands } from "@/PracticeMod.hooks"
+ *
+ * console.log(PracticeCommands.map((command) => command.name)) // ["right", "wrong", "partly", "practice"]
+ * ```
+ *
  * @category constants
  * @since 0.0.0
  */
@@ -96,6 +104,15 @@ const noteOf = (args: string): O.Option<string> => O.liftPredicate(Str.trim(args
  * Applies the plugin's options: `servers` names the MCP servers whose
  * practice-kg tools are redrawn (default `practice-kg`).
  *
+ * **Example** (Reference configure)
+ *
+ * ```ts
+ * import * as P from "effect/Predicate"
+ * import { configure } from "@/PracticeMod.hooks"
+ *
+ * console.log(P.isFunction(configure)) // true
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */
@@ -109,6 +126,15 @@ export const configure = (options: PluginOptions): void => {
 /**
  * Registers the mod's slash commands.
  *
+ * **Example** (Reference registerCommands)
+ *
+ * ```ts
+ * import * as P from "effect/Predicate"
+ * import { registerCommands } from "@/PracticeMod.hooks"
+ *
+ * console.log(P.isFunction(registerCommands)) // true
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */
@@ -121,6 +147,15 @@ export const registerCommands = ($: Engine) => (): Promise<void> =>
 
 /**
  * Remembers the latest main-loop answer as the verdict target.
+ *
+ * **Example** (Reference rememberAnswer)
+ *
+ * ```ts
+ * import * as P from "effect/Predicate"
+ * import { rememberAnswer } from "@/PracticeMod.hooks"
+ *
+ * console.log(P.isFunction(rememberAnswer)) // true
+ * ```
  *
  * @category hooks
  * @since 0.0.0
@@ -183,6 +218,15 @@ const recordVerdict =
 /**
  * Answers `/right`, `/wrong` and `/partly`.
  *
+ * **Example** (Reference verdictCommand)
+ *
+ * ```ts
+ * import * as P from "effect/Predicate"
+ * import { verdictCommand } from "@/PracticeMod.hooks"
+ *
+ * console.log(P.isFunction(verdictCommand)) // true
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */
@@ -193,6 +237,15 @@ export const verdictCommand =
 
 /**
  * Answers `/practice export | undo | raw`.
+ *
+ * **Example** (Reference practiceCommand)
+ *
+ * ```ts
+ * import * as P from "effect/Predicate"
+ * import { practiceCommand } from "@/PracticeMod.hooks"
+ *
+ * console.log(P.isFunction(practiceCommand)) // true
+ * ```
  *
  * @category hooks
  * @since 0.0.0
@@ -225,6 +278,15 @@ export const practiceCommand =
  * The plain-language row for a practice-kg tool call, or undefined to keep
  * the engine's own row.
  *
+ * **Example** (Reference toolRow)
+ *
+ * ```ts
+ * import * as P from "effect/Predicate"
+ * import { toolRow } from "@/PracticeMod.hooks"
+ *
+ * console.log(P.isFunction(toolRow)) // true
+ * ```
+ *
  * @category hooks
  * @since 0.0.0
  */
@@ -249,6 +311,15 @@ export const toolRow =
 
 /**
  * The verdict band for the latest answer, or undefined when there is none.
+ *
+ * **Example** (Reference verdictBand)
+ *
+ * ```ts
+ * import * as P from "effect/Predicate"
+ * import { verdictBand } from "@/PracticeMod.hooks"
+ *
+ * console.log(P.isFunction(verdictBand)) // true
+ * ```
  *
  * @category hooks
  * @since 0.0.0
