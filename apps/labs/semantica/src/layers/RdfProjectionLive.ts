@@ -1,4 +1,5 @@
 import * as Rdf from "@beep/rdf/Rdf";
+import { MakeQuadOptionsInput } from "@beep/rdf/Rdf";
 import { SparqlQueryRequest, SparqlQueryService } from "@beep/semantic-web/services/sparql-query";
 import * as A from "effect/Array";
 import * as Duration from "effect/Duration";
@@ -41,7 +42,7 @@ const chunkNode = (id: string) => Rdf.makeNamedNode(`${BASE}chunk/${id}`);
 const graphNode = (id: string) => Rdf.makeNamedNode(`${BASE}provenance/batch/${id}`);
 const stringLiteral = (value: string) => Rdf.makeLiteral(value, XSD_STRING);
 const quad = (claim: EvidenceClaim, graph: Rdf.NamedNode, predicate: Rdf.NamedNode, object: Rdf.ObjectTerm) =>
-  Rdf.makeQuad(claimNode(claim.id), predicate, { graph, object });
+  Rdf.makeQuad(claimNode(claim.id), predicate, MakeQuadOptionsInput.make({ graph, object }));
 
 const claimQuads = (batch: EvidenceBatch, claim: EvidenceClaim): ReadonlyArray<Rdf.Quad> => {
   const graph = graphNode(batch.id);
