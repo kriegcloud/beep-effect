@@ -20,6 +20,22 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const Json = S.fromJsonString(S.Unknown);
+const encodeJson = S.encodeEffect(Json);
+const SchemaFields = S.Array(S.String);
+const SchemaProperties = S.Record(S.String, S.Struct({ required: S.optionalKey(SchemaFields) }));
+const SchemaItems = S.Struct({
+  required: S.optionalKey(SchemaFields),
+  properties: S.optionalKey(SchemaProperties),
+});
+const SchemaDocument = S.Struct({
+  required: SchemaFields,
+  additionalProperties: S.optionalKey(S.Boolean),
+  properties: S.Record(S.String, S.Struct({ items: S.optionalKey(SchemaItems) })),
+});
+const decodeSchemaDocument = SchemaDocument.pipe(S.fromJsonString, S.decodeUnknownEffect);
 
 const accept = (reviewer: string): CriticReport =>
   CriticReport.make({
@@ -54,7 +70,7 @@ describe("critic report contract", () => {
         priorAssessment: [{ id: "A-01", stance: "confirm", note: "Measured 1.50 mm." }],
         findings: [finding("G-01"), finding("G-02", O.some("A-01"))],
       });
-      const text = JSON.stringify({
+      const text = yield* encodeJson({
         reviewer: "grok-4.7",
         verdict: "accept",
         blockers: [],
@@ -74,19 +90,7 @@ describe("critic report contract", () => {
 
   it.effect("derives a JSON Schema in which every key is required and no excess property is allowed", () =>
     Effect.gen(function* () {
-      const schema = JSON.parse(criticReportJsonSchema()) as {
-        readonly required: ReadonlyArray<string>;
-        readonly additionalProperties?: boolean;
-        readonly properties: Record<
-          string,
-          {
-            readonly items?: {
-              readonly required?: ReadonlyArray<string>;
-              readonly properties?: Record<string, { readonly required?: ReadonlyArray<string> }>;
-            };
-          }
-        >;
-      };
+      const schema = yield* decodeSchemaDocument(criticReportJsonSchema());
       expect(schema.required).toStrictEqual([
         "reviewer",
         "verdict",
@@ -106,7 +110,7 @@ describe("critic report contract", () => {
 
   it.effect("rejects a report whose finding carries an unknown category", () =>
     Effect.gen(function* () {
-      const text = JSON.stringify({
+      const text = yield* encodeJson({
         ...accept("x"),
         findings: [{ ...finding("X-01"), relation: { kind: "new", of: null }, category: "taste" }],
       });
