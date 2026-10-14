@@ -1238,6 +1238,18 @@ const driftRows = (
     })
   );
 
+// Records `revision` for every drifted path that has no newer match yet and whose
+// file at this revision equals the installed one.
+const recordRevisionMatches = (
+  matches: HashMap.HashMap<string, SkillGitRevision>,
+  driftPaths: ReadonlyArray<string>,
+  revision: SkillGitRevision,
+  matchesInstalled: (filePath: string) => boolean
+): HashMap.HashMap<string, SkillGitRevision> =>
+  A.reduce(driftPaths, matches, (acc, filePath) =>
+    !HashMap.has(acc, filePath) && matchesInstalled(filePath) ? HashMap.set(acc, filePath, revision) : acc
+  );
+
 // Walks the path history newest to oldest. The first revision whose whole mode-aware
 // tree hash equals the installed tree's is the proposed pin and ends the walk. Until
 // then each drifted path remembers the newest revision whose bytes and mode equal the
@@ -1259,14 +1271,12 @@ const classifyAgainstPathHistory = Effect.fn("SkillsLock.classifyAgainstPathHist
   for (const revision of history.revisions) {
     const tree = yield* loadTreeAtRevision(seed, revision);
     const pristine = Str.Equivalence(tree.treeHash, localTree.treeHash);
-    for (const filePath of driftPaths) {
-      if (
-        !HashMap.has(matches, filePath) &&
-        (pristine || sameInstalledFile(findFile(localTree.files, filePath), findFile(tree.files, filePath)))
-      ) {
-        matches = HashMap.set(matches, filePath, revision);
-      }
-    }
+    matches = recordRevisionMatches(
+      matches,
+      driftPaths,
+      revision,
+      (filePath) => pristine || sameInstalledFile(findFile(localTree.files, filePath), findFile(tree.files, filePath))
+    );
     if (pristine) {
       return { pin: PristineAtRevisionPin.make({ revision }), drift: driftRows(driftPaths, matches) };
     }
