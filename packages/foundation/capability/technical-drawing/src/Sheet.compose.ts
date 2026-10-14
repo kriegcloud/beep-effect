@@ -587,16 +587,16 @@ const GAP_TOLERANCE_MM = 1e-9;
  * **Example** (A heavy weight widens the default gap)
  *
  * ```ts
- * import { SheetOptions, visibleBrokenGapMm } from "@beep/technical-drawing"
+ * import { SheetOptions, drawnBrokenGapMm } from "@beep/technical-drawing"
  *
- * console.log(visibleBrokenGapMm(SheetOptions.make({ lineWeightMm: 1.2 }))) // 1.6
- * console.log(visibleBrokenGapMm(SheetOptions.make({}))) // 1.5
+ * console.log(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 1.2 }))) // 1.6
+ * console.log(drawnBrokenGapMm(SheetOptions.make({}))) // 1.5
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const visibleBrokenGapMm = (options: SheetOptions): number => {
+export const drawnBrokenGapMm = (options: SheetOptions): number => {
   const floor = options.lineWeightMm + MIN_VISIBLE_BROKEN_GAP_MM;
   return options.brokenGapMm >= floor - GAP_TOLERANCE_MM ? options.brokenGapMm : floor;
 };
@@ -710,7 +710,7 @@ export const composeSheet = (input: {
       ? []
       : [`<path id="shading" d="${pathOf(input.shading)}" ${attrsFor(options.shadingWeightMm * PT_PER_MM)}/>`];
   // the gap widens with a heavy line weight so the round caps never close it
-  const dash = `${r3(options.brokenDashMm * PT_PER_MM)} ${r3(visibleBrokenGapMm(options) * PT_PER_MM)}`;
+  const dash = `${r3(options.brokenDashMm * PT_PER_MM)} ${r3(drawnBrokenGapMm(options) * PT_PER_MM)}`;
   const brokenLayer =
     A.length(broken) === 0 ? [] : [`<path id="broken" d="${pathOf(broken)}" ${attrs} stroke-dasharray="${dash}"/>`];
   // Each label layer is emitted only when it has marks, so a sheet without

@@ -5,6 +5,7 @@ import {
   cameraForView,
   composeSheet,
   DrawingError,
+  drawnBrokenGapMm,
   EdgeSet,
   EngineInfo,
   FigureRecord,
@@ -37,7 +38,6 @@ import {
   sheetGeometry,
   structuralFindings,
   ValidationOptions,
-  visibleBrokenGapMm,
 } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
@@ -427,8 +427,8 @@ describe("@beep/technical-drawing", () => {
         // round caps eat the line weight: a heavy stroke would close a gap that is valid on its own, so the
         // drawn gap widens at emit time; the options themselves stay usable on a solid-only sheet
         expect(SheetOptions.make({ lineWeightMm: 1.2 }).brokenGapMm).toBe(1.5);
-        expect(visibleBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 0.75 }))).toBeCloseTo(1.2, 9);
-        expect(visibleBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 1.2 }))).toBe(1.2);
+        expect(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 0.75 }))).toBeCloseTo(1.2, 9);
+        expect(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 1.2 }))).toBe(1.2);
         const widened = composeSheet({
           ...base,
           shading: [],

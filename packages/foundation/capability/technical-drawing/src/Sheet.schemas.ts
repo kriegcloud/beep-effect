@@ -670,7 +670,7 @@ export class SheetFonts extends S.Class<SheetFonts>($I`SheetFonts`)(
  *
  * Round caps eat half the line weight from each end of a dash. When
  * `brokenGapMm - lineWeightMm` falls under 0.4 mm the broken layer is drawn
- * with a gap of `lineWeightMm + 0.4` instead (see `visibleBrokenGapMm` in the composer),
+ * with a gap of `lineWeightMm + 0.4` instead (see `drawnBrokenGapMm` in the composer),
  * so a broken (unclaimed) outline never prints as a solid line and a heavy
  * line weight stays usable on a sheet without broken lines.
  *
