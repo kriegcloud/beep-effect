@@ -98,6 +98,7 @@ exact captured findings until no packet-applicable finding remains open.
 
 | Decision | Reason | Reversal path |
 | --- | --- | --- |
+| Limit drawing models to 256 parts (CSF-022). | It bounds synchronous overlap comparisons at 32,640 and avoids unbounded local resource use; ordinary figure sets are much smaller. | Replace the quadratic comparison with a measured spatial index and worker budget, then raise the schema cap with performance proof. |
 | Anchor Claude hook executables to the launch project (CSF-012). | A current checkout can contain attacker-controlled code even when its settings were never trusted; directory presence cannot authenticate a hook. | Add an explicit trusted-checkout approval mechanism with a binding to hook contents, then permit controlled root switching with a regression. |
 | Disable automated M365 draft sending (CSF-003). | Graph's send-draft action accepts a mutable draft id without a documented version precondition; the checked bytes can change before send. Draft preparation and manual Outlook send remain available. | Implement an immutable message send or documented version-bound action with a concurrent-edit regression, then restore the tool under review. |
 | Remove the two raw Beep log/status Bash grants (CSF-033). | Their prefix patterns allow extra unit selectors and do not enforce the documented Beep-only boundary. Existing Beep CLI and timer-list commands remain available. | Add a separate argument-validating, read-only Beep unit wrapper with tests, then grant only that wrapper. |

@@ -737,15 +737,28 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "01d2c6c35f1dbdef5716d5b3efc5f1233e4a7a35",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The prior A.flatMap allocated all unordered part pairs before filtering and ModelSpec had no maximum part count."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/drivers/occt/src/internal/kernel.ts",
+          "packages/drivers/occt/test/Occt.service.test.ts",
+          "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts"
+        ],
+        "verificationCommands": [
+          "bun run beep quality package-verify @beep/occt",
+          "bun run beep quality package-verify @beep/technical-drawing"
+        ],
+        "summary": "Count overlaps incrementally and reject models above 256 parts at schema decoding; boundary regression passes."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "OCCT overlap counting and model schema",
+      "lane": "L35"
     },
     {
       "id": "CSF-023",

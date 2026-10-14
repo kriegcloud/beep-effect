@@ -38,7 +38,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-019](./CSF-019.md) | Informational | repair implemented | Repository\-controlled ignore globs can hang Graft via ReDoS | Graft deep-ignore patch |
 | [CSF-020](./CSF-020.md) | Informational | repair implemented | Adoption writes outside the packet through directory symlinks | goal adoption materializer |
 | [CSF-021](./CSF-021.md) | Informational | captured | Predictable codemod staging paths allow symlink file overwrite | _pending P2_ |
-| [CSF-022](./CSF-022.md) | Informational | captured | Quadratic overlap enumeration enables drawing\-spec denial of service | _pending P2_ |
+| [CSF-022](./CSF-022.md) | Informational | repair implemented | Quadratic overlap enumeration enables drawing\-spec denial of service | OCCT overlap counting and model schema |
 | [CSF-023](./CSF-023.md) | Informational | captured | Intake inspector can leak document bytes to the hosted relay | _pending P2_ |
 | [CSF-024](./CSF-024.md) | Informational | repair implemented | New line\-value locator permits repository\-triggered ReDoS | Models locator parsing |
 | [CSF-025](./CSF-025.md) | Informational | already fixed | Artifact upload allows command execution through zip filenames | scratchpad artifact archive command |

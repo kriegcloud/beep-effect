@@ -167,13 +167,17 @@ const commonVolume = (a: Shape3D, b: Shape3D): number => {
  *
  * @internal
  */
-export const countOverlaps = (parts: ReadonlyArray<BuiltPart>): number =>
-  pipe(
-    parts,
-    A.flatMap((a, i) => A.map(A.drop(parts, i + 1), (b) => [a.shape, b.shape] as const)),
-    A.filter(([a, b]) => boxesMeet(a, b) && commonVolume(a, b) > OVERLAP_TOLERANCE),
-    A.length
-  );
+export const countOverlaps = (parts: ReadonlyArray<BuiltPart>): number => {
+  let count = 0;
+  for (const [index, part] of A.entries(parts)) {
+    for (const other of A.drop(parts, index + 1)) {
+      if (boxesMeet(part.shape, other.shape) && commonVolume(part.shape, other.shape) > OVERLAP_TOLERANCE) {
+        count++;
+      }
+    }
+  }
+  return count;
+};
 
 /**
  * Measure a built model.
