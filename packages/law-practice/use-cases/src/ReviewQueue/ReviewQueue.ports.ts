@@ -103,8 +103,8 @@ export class VerdictLog extends Context.Service<VerdictLog, VerdictLogShape>()($
  * @category models
  * @since 0.0.0
  */
-export class RecordVerdictInput extends S.Class<RecordVerdictInput>($I`RecordVerdictInput`)(
-  {
+export class RecordVerdictInput extends S.Opaque<RecordVerdictInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemId: ReviewItemId.annotateKey({
       description: "Review item the verdict judges.",
     }),
@@ -121,10 +121,11 @@ export class RecordVerdictInput extends S.Class<RecordVerdictInput>($I`RecordVer
         description: "Optional note the attorney typed with the verdict.",
       })
     ),
-  },
-  $I.annote("RecordVerdictInput", {
-    description: "The attorney's verdict on one review item, before the queue assigns its revision and timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecordVerdictInput", {
+      description: "The attorney's verdict on one review item, before the queue assigns its revision and timestamp.",
+    })
+  )
 ) {}
 
 /**

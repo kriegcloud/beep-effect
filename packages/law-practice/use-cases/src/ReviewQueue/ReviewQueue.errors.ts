@@ -38,7 +38,9 @@ const $I = $LawPracticeUseCasesId.create("ReviewQueue/ReviewQueue.errors");
  * @category errors
  * @since 0.0.0
  */
-export class VerdictBatchLockedError extends S.TaggedError<VerdictBatchLockedError>($I`VerdictBatchLockedError`)(
+export class VerdictBatchLockedError extends S.TaggedError<VerdictBatchLockedError, { readonly brand: unique symbol }>(
+  $I`VerdictBatchLockedError`
+)(
   "VerdictBatchLockedError",
   {
     batchId: ReviewBatchId.annotateKey({
@@ -74,7 +76,9 @@ export class VerdictBatchLockedError extends S.TaggedError<VerdictBatchLockedErr
  * @category errors
  * @since 0.0.0
  */
-export class VerdictBatchEmptyError extends S.TaggedError<VerdictBatchEmptyError>($I`VerdictBatchEmptyError`)(
+export class VerdictBatchEmptyError extends S.TaggedError<VerdictBatchEmptyError, { readonly brand: unique symbol }>(
+  $I`VerdictBatchEmptyError`
+)(
   "VerdictBatchEmptyError",
   {
     batchId: ReviewBatchId.annotateKey({
@@ -142,7 +146,9 @@ export type VerdictLogOperation = typeof VerdictLogOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class VerdictLogError extends S.TaggedError<VerdictLogError>($I`VerdictLogError`)(
+export class VerdictLogError extends S.TaggedError<VerdictLogError, { readonly brand: unique symbol }>(
+  $I`VerdictLogError`
+)(
   "VerdictLogError",
   {
     cause: DefectCause.annotateKey({

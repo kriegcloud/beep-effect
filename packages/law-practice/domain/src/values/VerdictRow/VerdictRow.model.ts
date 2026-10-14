@@ -135,8 +135,8 @@ export type ReviewBatchId = typeof ReviewBatchId.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class VerdictRow extends S.Class<VerdictRow>($I`VerdictRow`)(
-  {
+export class VerdictRow extends S.Opaque<VerdictRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemId: ReviewItemId.annotateKey({
       description: "Review item this verdict judges.",
     }),
@@ -166,10 +166,11 @@ export class VerdictRow extends S.Class<VerdictRow>($I`VerdictRow`)(
         description: "When this row's batch was locked; a locked batch accepts no further rows.",
       })
     ),
-  },
-  $I.annote("VerdictRow", {
-    description: "One append-only entry in the attorney's verdict log for a review item.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerdictRow", {
+      description: "One append-only entry in the attorney's verdict log for a review item.",
+    })
+  )
 ) {}
 
 /**

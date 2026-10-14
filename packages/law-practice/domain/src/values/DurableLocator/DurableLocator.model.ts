@@ -44,8 +44,8 @@ const DurableLocatorSpace = LiteralKit(["original", "clean"]);
  * @category value-objects
  * @since 0.0.0
  */
-export class TextQuote extends S.Class<TextQuote>($I`TextQuote`)(
-  {
+export class TextQuote extends S.Opaque<TextQuote, { readonly brand: unique symbol }>()(
+  S.Struct({
     exact: S.String.annotateKey({
       description: "The exact quoted text — the anchor of record.",
     }),
@@ -63,10 +63,11 @@ export class TextQuote extends S.Class<TextQuote>($I`TextQuote`)(
         description: "Text immediately following the exact quote.",
       })
     ),
-  },
-  $I.annote("TextQuote", {
-    description: "W3C TextQuoteSelector: the exact quoted text with optional prefix and suffix context.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextQuote", {
+      description: "W3C TextQuoteSelector: the exact quoted text with optional prefix and suffix context.",
+    })
+  )
 ) {}
 
 /**
