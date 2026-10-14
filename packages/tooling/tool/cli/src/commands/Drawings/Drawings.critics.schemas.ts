@@ -110,8 +110,8 @@ export type CriticScope = typeof CriticScope.Type;
  * @category models
  * @since 0.0.0
  */
-export class CriticReviewer extends S.Class<CriticReviewer>($I`CriticReviewer`)(
-  {
+export class CriticReviewer extends S.Opaque<CriticReviewer, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Reviewer name written into every report." }),
     idPrefix: S.NonEmptyString.check(S.isMaxLength(3)).annotateKey({
       description: "Prefix of the reviewer's finding ids (`A` gives A-01, A-02, …).",
@@ -123,8 +123,11 @@ export class CriticReviewer extends S.Class<CriticReviewer>($I`CriticReviewer`)(
       S.annotateKey({ description: "Reasoning effort passed to the route when it accepts one." })
     ),
     scope: CriticScope.annotateKey({ description: "Which pack the reviewer may see." }),
-  },
-  $I.annote("CriticReviewer", { description: "Name, id prefix, route, model, effort, and scope of one reviewer." })
+  }).pipe(
+    $I.annoteSchema("CriticReviewer", {
+      description: "Name, id prefix, route, model, effort, and scope of one reviewer.",
+    })
+  )
 ) {}
 
 const CriticRelationKindBase = LiteralKit(["new", "extends"]);
@@ -166,14 +169,13 @@ export const CriticRelationKind = CriticRelationKindBase.pipe(
  * @category models
  * @since 0.0.0
  */
-export class CriticFindingRelation extends S.Class<CriticFindingRelation>($I`CriticFindingRelation`)(
-  {
+export class CriticFindingRelation extends S.Opaque<CriticFindingRelation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: CriticRelationKind.annotateKey({ description: "new or extends." }),
     of: S.OptionFromNullOr(S.NonEmptyString).annotateKey({
       description: "Id of the earlier finding this one extends; null for a new finding.",
     }),
-  },
-  $I.annote("CriticFindingRelation", { description: "new, or extends an earlier finding by id." })
+  }).pipe($I.annoteSchema("CriticFindingRelation", { description: "new, or extends an earlier finding by id." }))
 ) {}
 
 const CriticFindingScopeBase = LiteralKit(["this-render", "pending-branch"]);
@@ -259,8 +261,8 @@ const Confidence = S.Finite.check(S.isBetween({ minimum: 0, maximum: 1 }));
  * @category models
  * @since 0.0.0
  */
-export class CriticFinding extends S.Class<CriticFinding>($I`CriticFinding`)(
-  {
+export class CriticFinding extends S.Opaque<CriticFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString.annotateKey({ description: "<prefix>-<nn>, numbered within the reviewer." }),
     relation: CriticFindingRelation.annotateKey({ description: "new, or extends an earlier finding." }),
     severity: QaSeverity.annotateKey({ description: "P0 blocks filing, P1 the attorney would send back, P2 polish." }),
@@ -274,10 +276,12 @@ export class CriticFinding extends S.Class<CriticFinding>($I`CriticFinding`)(
     observation: S.NonEmptyString.annotateKey({ description: "What the reviewer saw or measured." }),
     proposedFix: S.NonEmptyString.annotateKey({ description: "The change that would correct it." }),
     confidence: Confidence.annotateKey({ description: "0 to 1." }),
-  },
-  $I.annote("CriticFinding", {
-    description: "Id, relation, severity, scope, category, figures, location, basis, observation, fix, and confidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("CriticFinding", {
+      description:
+        "Id, relation, severity, scope, category, figures, location, basis, observation, fix, and confidence.",
+    })
+  )
 ) {}
 
 const CriticPriorStanceBase = LiteralKit(["confirm", "refute", "cannot-verify"]);
@@ -317,13 +321,12 @@ export const CriticPriorStance = CriticPriorStanceBase.pipe(
  * @category models
  * @since 0.0.0
  */
-export class CriticPriorAssessment extends S.Class<CriticPriorAssessment>($I`CriticPriorAssessment`)(
-  {
+export class CriticPriorAssessment extends S.Opaque<CriticPriorAssessment, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString.annotateKey({ description: "Earlier finding id." }),
     stance: CriticPriorStance.annotateKey({ description: "confirm, refute, or cannot-verify." }),
     note: S.NonEmptyString.annotateKey({ description: "What was measured, or why it could not be." }),
-  },
-  $I.annote("CriticPriorAssessment", { description: "Stance and note on one earlier finding." })
+  }).pipe($I.annoteSchema("CriticPriorAssessment", { description: "Stance and note on one earlier finding." }))
 ) {}
 
 const CriticVerdictBase = LiteralKit(["accept", "accept-with-fixes", "reject"]);
@@ -364,8 +367,8 @@ export const CriticVerdict = CriticVerdictBase.pipe(
  * @category models
  * @since 0.0.0
  */
-export class CriticReport extends S.Class<CriticReport>($I`CriticReport`)(
-  {
+export class CriticReport extends S.Opaque<CriticReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     reviewer: S.NonEmptyString.annotateKey({ description: "Reviewer name." }),
     verdict: CriticVerdict.annotateKey({ description: "Verdict on the set." }),
     blockers: S.Array(S.String).annotateKey({ description: "One line per blocker." }),
@@ -374,11 +377,12 @@ export class CriticReport extends S.Class<CriticReport>($I`CriticReport`)(
     }),
     findings: S.Array(CriticFinding).annotateKey({ description: "New or extending findings only." }),
     couldNotAssess: S.Array(S.String).annotateKey({ description: "What the reviewer could not examine, and why." }),
-  },
-  $I.annote("CriticReport", {
-    description:
-      "Reviewer, verdict, blockers, assessment of earlier findings, findings, and what could not be assessed.",
-  })
+  }).pipe(
+    $I.annoteSchema("CriticReport", {
+      description:
+        "Reviewer, verdict, blockers, assessment of earlier findings, findings, and what could not be assessed.",
+    })
+  )
 ) {}
 
 const reportCodec = S.fromJsonString(CriticReport);
@@ -492,16 +496,15 @@ const strictKeywords = (node: unknown): unknown =>
  * @category models
  * @since 0.0.0
  */
-export class CriticZoom extends S.Class<CriticZoom>($I`CriticZoom`)(
-  {
+export class CriticZoom extends S.Opaque<CriticZoom, { readonly brand: unique symbol }>()(
+  S.Struct({
     figure: FigureNumber.annotateKey({ description: "FIG. the crop is cut from." }),
     label: S.NonEmptyString.annotateKey({ description: "Short name used in the file name." }),
     x: S.Natural.annotateKey({ description: "Left edge, px at 300 dpi." }),
     y: S.Natural.annotateKey({ description: "Top edge, px at 300 dpi." }),
     width: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "Width, px at 300 dpi." }),
     height: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "Height, px at 300 dpi." }),
-  },
-  $I.annote("CriticZoom", { description: "Figure, label, and crop rectangle of a 300 dpi zoom." })
+  }).pipe($I.annoteSchema("CriticZoom", { description: "Figure, label, and crop rectangle of a 300 dpi zoom." }))
 ) {}
 
 /**
@@ -518,8 +521,8 @@ export class CriticZoom extends S.Class<CriticZoom>($I`CriticZoom`)(
  * @category models
  * @since 0.0.0
  */
-export class CriticPackManifest extends S.Class<CriticPackManifest>($I`CriticPackManifest`)(
-  {
+export class CriticPackManifest extends S.Opaque<CriticPackManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("drawing-critic-pack/v1").annotateKey({ description: "Schema version." }),
     title: S.NonEmptyString.annotateKey({ description: "Title from the render manifest." }),
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF the pack was built from." }),
@@ -532,8 +535,7 @@ export class CriticPackManifest extends S.Class<CriticPackManifest>($I`CriticPac
     }),
     strokeTable: S.NonEmptyString.annotateKey({ description: "Pack-relative stroke table (RENDER.md)." }),
     brief: S.NonEmptyString.annotateKey({ description: "Pack-relative brief every reviewer reads first." }),
-  },
-  $I.annote("CriticPackManifest", { description: "Hashes and pack-relative files of a critic pack." })
+  }).pipe($I.annoteSchema("CriticPackManifest", { description: "Hashes and pack-relative files of a critic pack." }))
 ) {}
 
 /**
@@ -576,8 +578,8 @@ export const encodeCriticPackManifest = (manifest: CriticPackManifest) => encode
  * @category models
  * @since 0.0.0
  */
-export class CriticRunRecord extends S.Class<CriticRunRecord>($I`CriticRunRecord`)(
-  {
+export class CriticRunRecord extends S.Opaque<CriticRunRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     order: S.Int.check(S.isGreaterThanOrEqualTo(1)).annotateKey({ description: "Position in the sequence, from 1." }),
     reviewer: CriticReviewer.annotateKey({ description: "The reviewer." }),
     exitCode: S.Int.annotateKey({ description: "Exit code of the route's CLI." }),
@@ -588,10 +590,11 @@ export class CriticRunRecord extends S.Class<CriticRunRecord>($I`CriticRunRecord
     findings: S.Natural.annotateKey({ description: "Findings in the report; 0 when absent." }),
     startedAt: S.NonEmptyString.annotateKey({ description: "ISO-8601 start." }),
     finishedAt: S.NonEmptyString.annotateKey({ description: "ISO-8601 end." }),
-  },
-  $I.annote("CriticRunRecord", {
-    description: "Order, reviewer, exit code, report file, hash, count, and times of one run.",
-  })
+  }).pipe(
+    $I.annoteSchema("CriticRunRecord", {
+      description: "Order, reviewer, exit code, report file, hash, count, and times of one run.",
+    })
+  )
 ) {}
 
 /**
@@ -608,14 +611,13 @@ export class CriticRunRecord extends S.Class<CriticRunRecord>($I`CriticRunRecord
  * @category models
  * @since 0.0.0
  */
-export class CriticLoopRecord extends S.Class<CriticLoopRecord>($I`CriticLoopRecord`)(
-  {
+export class CriticLoopRecord extends S.Opaque<CriticLoopRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("drawing-critic-loop/v1").annotateKey({ description: "Schema version." }),
     loop: S.Int.check(S.isGreaterThanOrEqualTo(1)).annotateKey({ description: "One-based loop number." }),
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet set reviewed." }),
     runs: S.Array(CriticRunRecord).annotateKey({ description: "Every run, in order." }),
-  },
-  $I.annote("CriticLoopRecord", { description: "Loop number, sheet-set hash, and runs of one loop." })
+  }).pipe($I.annoteSchema("CriticLoopRecord", { description: "Loop number, sheet-set hash, and runs of one loop." }))
 ) {}
 
 /**

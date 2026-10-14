@@ -373,13 +373,7 @@ export const extractReportText = (input: { readonly route: CriticRoute; readonly
     const end = text.lastIndexOf("}");
     return start >= 0 && end > start ? O.some(text.slice(start, end + 1)) : O.none();
   };
-  const parseJson = (text: string): O.Option<unknown> => {
-    try {
-      return O.some(JSON.parse(text));
-    } catch {
-      return O.none();
-    }
-  };
+  const parseJson = S.decodeUnknownOption(S.fromJsonString(S.Unknown));
   const field = (value: unknown, key: string): O.Option<unknown> =>
     typeof value === "object" && value !== null && key in value
       ? O.fromNullishOr((value as Record<string, unknown>)[key])

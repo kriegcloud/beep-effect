@@ -557,8 +557,8 @@ const OverlayFacing = Vec3.check(
  * @category models
  * @since 0.0.0
  */
-export class OverlayLine extends S.Class<OverlayLine>($I`OverlayLine`)(
-  {
+export class OverlayLine extends S.Opaque<OverlayLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Stable overlay name used in diagnostics." }),
     style: OverlayStyle.annotateKey({ description: "Line class: emphasis or broken." }),
     points: S.Array(Vec3)
@@ -586,11 +586,12 @@ export class OverlayLine extends S.Class<OverlayLine>($I`OverlayLine`)(
           "Model units the line is moved along its facing, toward the viewer, so hidden-line removal sees it in front of the face it lies on. Ignored without a facing. Defaults to 0.01.",
       })
     ),
-  },
-  $I.annote("OverlayLine", {
-    description:
-      "Authored open 3D polyline drawn as an emphasis or broken line, culled by an optional face normal and lifted off its face.",
-  })
+  }).pipe(
+    $I.annoteSchema("OverlayLine", {
+      description:
+        "Authored open 3D polyline drawn as an emphasis or broken line, culled by an optional face normal and lifted off its face.",
+    })
+  )
 ) {}
 
 const LengthUnitBase = LiteralKit(["mm", "in"]);

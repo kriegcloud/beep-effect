@@ -1,6 +1,7 @@
 import { Box, Cylinder, ModelSpec, Part, Prism } from "@beep/technical-drawing";
 import { A, O } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
+import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
@@ -15,6 +16,8 @@ const PrimitiveKeys = S.Struct({
   parts: S.Array(S.Struct({ add: S.Array(S.Struct({ lineStyle: S.optionalKey(S.String) })) })),
 });
 const decodePrimitiveKeys = S.decodeUnknownEffect(PrimitiveKeys);
+const encodeBox = S.encodeEffect(Box);
+const decodeBox = S.decodeUnknownEffect(Box);
 
 // A flap with a coplanar tab fused into it: the tab primitive alone is unclaimed.
 const flapInput = {
@@ -95,5 +98,14 @@ describe("Geometry.schemas primitive line style", () => {
         "solid",
       ]);
     })
+  );
+
+  it.effect.prop(
+    "round-trips any box, its line style included, through its encoded form",
+    [Arbitrary.schema(Box)],
+    Effect.fnUntraced(function* ([box]) {
+      expect(yield* decodeBox(yield* encodeBox(box))).toEqual(box);
+    }),
+    { arbitrary: { numRuns: 50 } }
   );
 });
