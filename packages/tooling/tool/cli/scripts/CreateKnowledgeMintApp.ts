@@ -146,6 +146,7 @@ const report = (outcome: Outcome): Response =>
  * @param manifestJson - Serialized App manifest posted to GitHub.
  * @returns A fetch handler for `Bun.serve`.
  */
+// fallow-ignore-next-line unused-export -- imported by test/knowledge-mint-bootstrap.test.ts through a dynamic import fallow cannot follow
 export const makeKnowledgeMintHandler = (nonce: string, manifestJson: string) => {
   const escaped = manifestJson.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
   let attempted = false;
