@@ -770,7 +770,6 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
             "bun run beep lint schema-catalog --write",
             "bun run beep observability catalog --write",
             "bun run beep lint package-scripts --write",
-            "bun run beep quality knip --write-baseline",
           ]);
         })
       ).pipe(

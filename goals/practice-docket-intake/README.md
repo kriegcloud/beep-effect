@@ -52,6 +52,14 @@ Open operational items, outside the code deliverable: the attorney spot-check
 of the first tentative entries (PLAN operator-attended step 2), and the
 runbook path form fix on `main` (#1533).
 
+## Follow-up spot-check, 2026-10-14
+
+After completed-retained, the operator observed five replies in one EP search-report
+thread creating five entries on the same past date, and two undated entries whose
+subjects looked like deadlines. Decisions D-47 to D-49 add thread/date deduplication,
+reuse-safe undo, past-date review on today, and explicit undated labels.
+The follow-up leaves the packet lifecycle completed-retained.
+
 ## Latest Evidence
 
 - Package handoffs pass for `@beep/m365`, `@beep/m365-mcp`,
