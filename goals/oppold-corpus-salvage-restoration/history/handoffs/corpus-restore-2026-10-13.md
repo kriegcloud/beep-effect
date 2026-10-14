@@ -948,3 +948,40 @@ Renewed focused restoration proof: four passed, 78 skipped, 3.04 seconds
 through beep-heavy. The admitted wrapper ended; brief shared queue wait
 resolved without bypass or outside-job changes. Both real engine smokes pass.
 Full sixty-second interval begins after this proof. No new probe or fix.
+
+
+## Standing continuation: ordinal 7 submitted
+
+Full interval: 2026-10-14T02:52:32Z to 02:53:32Z.
+Final capacity recheck: 407,244,369,920 free bytes, above the 100 GB floor.
+Submitted 2026-10-14T02:53:40Z with the SAME frozen script and ordinal 7.
+Started stamp: 2026-10-14T02:53:40.233Z.
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-7.service.
+Active/running, sole wave family unit. MemoryMax 34,359,738,368 bytes,
+MemorySwapMax zero, agent-runs.slice. Result absent, private log one line.
+Runtime policy comparison awaits family-run-start after archive verification.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-07/ledgers/mail/slice.jsonl`.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-07-run-manifest.json.
+Expected policy:
+d83ec6f1f2dfc1db153b9b0c36bab3274e9aca6a57449e29060c34825b29fc8e.
+
+Six of nine sealed, five accepted and family 5 failed; ordinals 8-9 unstarted.
+The driver resumes only after unit 7 ends. Reconcile result, seal, source and
+policy identities, children/repair digest pairs and ceilings before renewed
+admitted preflight, the full sixty-second interval and ordinal 8. Stop and
+diagnose any further failure; never retry a sealed family. Family 5 recovery
+remains separate after the wave. P2 stays incomplete; eighteen larger inputs
+and estate/recycle/DOC obligations remain open.
+
+Knowledge refs passed through beep-heavy at pre-commit head e471c67711,
+zero live gated observations. Packet adoption and doctor pass; zero blockers,
+same three unrelated advisories; index matches. Launcher size, manifest JSON,
+whitespace, added-line public hygiene, gitleaks, typos and commitlint pass.
+No package source edited; package-verify and other source hosted-parity lanes
+not run (docs-only). No push, main integration, engine/launcher change,
+sealed-family retry or worker-owned gate. The sole live family unit transfers
+to the driver under standing Runs 12+/13+ and Run 17. Reversal retains every
+ledger, output, claim and immutable freeze record. PR #1646 merged per the
+orchestrator note; terminal PR7 follows the remaining seals and one main merge.
+Graft saved approximately 93,246 tokens across two retrievals.
