@@ -1,6 +1,6 @@
 # Deprecated-API law lane on oxlint type-aware
 
-Lifecycle: active. Parent: [lint-policy-single-digit](../lint-policy-single-digit/README.md).
+Lifecycle: `completed-retained`. Parent: [lint-policy-single-digit](../lint-policy-single-digit/README.md).
 
 **GO for local cutover; hosted <=150s timing remains pending.** The initial
 2026-10-14 NO-GO wording is retained in the history and Decision Log next to the

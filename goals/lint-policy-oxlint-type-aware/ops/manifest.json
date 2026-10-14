@@ -4,13 +4,13 @@
     "id": "lint-policy-oxlint-type-aware",
     "packetId": "goal-packet/v1:4bfc00ef421054b3569815d001a38142cbed5e97c5e3a484cdd5aaad4c3edb76",
     "title": "Deprecated-API law lane on oxlint type-aware",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/lint-policy-oxlint-type-aware",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "P2b re-spike of lint-policy-single-digit: move the deprecated-API law lane from ESLint to oxlint type-aware behind the packet's hard gates",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -69,18 +69,18 @@
     {
       "id": "P2",
       "name": "Verify",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "pending",
+      "status": "complete",
       "owner": "Claude orchestrator"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending",
+      "status": "complete",
       "owner": "Claude orchestrator"
     }
   ],
