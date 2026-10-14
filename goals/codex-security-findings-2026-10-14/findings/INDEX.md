@@ -66,9 +66,9 @@ auth values, email addresses, and raw local paths.
 | [CSF-047](./CSF-047.md) | Informational | repair implemented | Provenance outputs follow symlinks outside the corpus root | Corpus provenance output |
 | [CSF-048](./CSF-048.md) | Low | repair implemented | Unbounded LCS allocation enables skill\-review denial of service | Skills provenance patch rendering |
 | [CSF-049](./CSF-049.md) | Informational | repair implemented | Materialize follows install symlinks outside the repository | Skills materializer target containment |
-| [CSF-050](./CSF-050.md) | Low | captured | Verdict export lacks symlink protection for its output file | _pending P2_ |
-| [CSF-051](./CSF-051.md) | Low | captured | Untrusted PR comments can forge bot\-published replay verdicts | _pending P2_ |
-| [CSF-052](./CSF-052.md) | Informational | captured | Future\-dated leases bypass the 30\-day suppression limit | _pending P2_ |
+| [CSF-050](./CSF-050.md) | Low | repair implemented | Verdict export lacks symlink protection for its output file | Practice Claude mod verdict export |
+| [CSF-051](./CSF-051.md) | Low | repair implemented | Untrusted PR comments can forge bot\-published replay verdicts | Skills update train replay attribution |
+| [CSF-052](./CSF-052.md) | Informational | repair implemented | Future\-dated leases bypass the 30\-day suppression limit | Knowledge doctor lease governance |
 
 ## Closeout Mapping
 
@@ -80,5 +80,5 @@ auth values, email addresses, and raw local paths.
 - Accepted risk / `Won't fix` does not satisfy this packet's completion gate.
 
 <!-- codex-findings-refresh:start -->
-Refresh capture: the original 49 records retain their prior triage and proof; 3 newly captured record(s) await P2 validation and P3 lane assignment.
+Refresh capture: the original 49 records retain their prior triage and proof; CSF-050 through CSF-052 are validated and remediated.
 <!-- codex-findings-refresh:end -->

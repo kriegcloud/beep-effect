@@ -59,13 +59,13 @@
       "Informational": 32
     },
     "dispositionCounts": {
-      "remediate": 48,
+      "remediate": 51,
       "already-fixed": 1,
       "false-positive": 0,
       "out-of-scope": 0,
-      "untriaged": 3
+      "untriaged": 0
     },
-    "note": "All 49 findings have current-HEAD dispositions: 48 repairs and one already fixed. The refreshed signed-in CSV added CSF-049 while preserving the previous 48 verdicts. Refresh capture: the original 49 records retain their prior triage and proof; 3 newly captured record(s) await P2 validation and P3 lane assignment."
+    "note": "All 52 findings have current-HEAD dispositions: 51 repairs and one already fixed. The refreshed signed-in CSV preserved the first 49 records and appended CSF-050 through CSF-052; all three appended findings are validated and remediated."
   },
   "closeoutPolicy": {
     "fixed": "Fixed",
