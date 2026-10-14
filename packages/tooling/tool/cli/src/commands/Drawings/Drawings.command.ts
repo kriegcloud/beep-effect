@@ -131,6 +131,8 @@ const projectionNote = (figure: RenderManifest["figures"][number]): string =>
  * console.log(renderManifestSummary({ manifest, requested: SheetOptions.make({}) }).join("\n"))
  * ```
  *
+ * @param root0 - Render result and the originally requested sheet options.
+ * @returns Console lines describing sheets, projections, omissions, and validation findings.
  * @category utilities
  * @since 0.0.0
  */

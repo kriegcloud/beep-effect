@@ -1349,7 +1349,7 @@ const textEncoder = new TextEncoder();
  * ```
  *
  * @param input - Files plus optional command surface, ancestry, history, and producers.
- * @returns The in-memory doctor tree.
+ * @returns A tracked-file snapshot with deterministic ancestry and historical reads.
  * @category testing
  * @since 0.0.0
  */

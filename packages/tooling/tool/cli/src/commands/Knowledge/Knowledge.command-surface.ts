@@ -634,7 +634,12 @@ const isFlagMember = (expression: Expression, memberName: string): boolean =>
 const isArgumentMember = (expression: Expression, memberName: string): boolean =>
   isImportedBindingMember(expression, "Argument", memberName, "effect/cli");
 
-/** The member name of a `Namespace.member` callee, or `O.none()` for any other callee shape. */
+/**
+ * The member name of a `Namespace.member` callee, or `O.none()` for any other callee shape.
+ *
+ * @param expression - Callee syntax to inspect for a namespace-qualified property access.
+ * @returns An optional property name for the static command evaluator.
+ */
 const memberName = (expression: Expression): O.Option<string> =>
   Node.isPropertyAccessExpression(expression) && Node.isIdentifier(expression.getExpression())
     ? O.some(expression.getName())
@@ -875,6 +880,10 @@ const evaluateConfigOrParam = (
  * The flags one `Command.make` call declares, or `O.none()` when its config is not statically
  * derivable. Unlike the command names, an underivable option set never fails the surface closed: the
  * Stage-1 gate does not read options, and the doctor reports such commands as unchecked instead.
+ *
+ * @param call - Parsed command declaration whose configuration supplies flags.
+ * @param bindings - Literal values available while evaluating the configuration.
+ * @returns Declared flags, or absence when their configuration cannot be derived statically.
  */
 const commandMakeOptions = (
   call: CallExpression,
@@ -1098,14 +1107,27 @@ const updateStaticCommandAt = (
       ),
   });
 
-/** The surface without the command at `path`; the root itself cannot be pruned this way. */
+/**
+ * The surface without the command at `path`; the root itself cannot be pruned this way.
+ *
+ * @param root - Starting command tree for the counterfactual probe.
+ * @param path - Child-command segments selecting the subtree to remove.
+ * @returns A pruned tree, preserving the original root when removal is impossible.
+ */
 const pruneStaticCommand = (root: StaticCommandNode, path: ReadonlyArray<string>): StaticCommandNode =>
   O.getOrElse(
     updateStaticCommandAt(root, path, () => O.none()),
     () => root
   );
 
-/** The surface with the flag named `option` (canonical name) removed from the command at `path`. */
+/**
+ * The surface with the flag named `option` (canonical name) removed from the command at `path`.
+ *
+ * @param root - Starting command tree for the counterfactual probe.
+ * @param path - Child-command segments selecting the declaration to alter.
+ * @param option - Canonical flag name whose aliases are removed with it.
+ * @returns A command tree with the selected flag omitted when the path exists.
+ */
 const withoutStaticCommandOption = (
   root: StaticCommandNode,
   path: ReadonlyArray<string>,
