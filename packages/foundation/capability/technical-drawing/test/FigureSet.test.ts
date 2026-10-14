@@ -5,6 +5,7 @@ import {
   cameraForView,
   composeSheet,
   DrawingError,
+  drawnBrokenGapMm,
   EdgeSet,
   EngineInfo,
   FigureRecord,
@@ -49,6 +50,7 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -69,19 +71,23 @@ const fakeEngine = Layer.succeed(
   GeometryEngine,
   GeometryEngine.of({
     info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
-    summarize: Effect.fnUntraced(function* () {
+    // a model with more than one part reports one overlapping pair
+    summarize: Effect.fnUntraced(function* (model) {
       return ModelSummary.make({
         boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
         volume: 250,
         faceCount: 6,
         edgeCount: 12,
+        partOverlaps: A.length(model.parts) > 1 ? 1 : 0,
       });
     }),
-    project: Effect.fnUntraced(function* (_, cameras, shading) {
-      // shaded projections carry one diagonal hatch line per view
+    project: Effect.fnUntraced(function* (model, cameras, shading) {
+      // shaded projections carry one diagonal hatch line per view; a model
+      // with a broken-line part carries one broken segment per view
       const hatch = O.match(shading, { onNone: () => [], onSome: () => [[1, 1, 4, 4] as const] });
+      const broken = A.some(model.parts, (part) => part.lineStyle === "broken") ? [[2, 1, 8, 1] as const] : [];
       return A.map(cameras, (camera) =>
-        EdgeSet.make({ visible: camera.eye[1] > 0 ? shifted : square, hidden: [], shading: hatch })
+        EdgeSet.make({ visible: camera.eye[1] > 0 ? shifted : square, hidden: [], shading: hatch, broken })
       );
     }),
   })
@@ -152,15 +158,19 @@ const fakeBackend = Layer.effect(
   })
 );
 
+const body = { name: "body", add: [{ kind: "box", min: [0, 0, 0], max: [10, 5, 5] }] };
+
 const spec = (
   figures: ReadonlyArray<{ view: string; description: string; projection?: string }>,
   omissions: ReadonlyArray<unknown> = [],
-  extra: Readonly<Record<string, unknown>> = {}
+  extra: Readonly<Record<string, unknown>> = {},
+  part: Readonly<Record<string, unknown>> = body,
+  moreParts: ReadonlyArray<Readonly<Record<string, unknown>>> = []
 ) =>
   JSON.stringify({
     ...extra,
     title: "Synthetic block",
-    model: { parts: [{ name: "body", add: [{ kind: "box", min: [0, 0, 0], max: [10, 5, 5] }] }] },
+    model: { parts: [part, ...moreParts] },
     figures,
     omissions,
   });
@@ -377,6 +387,55 @@ describe("@beep/technical-drawing", () => {
           expect(y).toBeGreaterThanOrEqual(2.5 * 28.3464);
           expect(y).toBeLessThanOrEqual(792 - 1.0 * 28.3464);
         }
+      })
+    );
+
+    it.effect(
+      "composeSheet adds a dashed broken layer only when broken lines exist",
+      Effect.fnUntraced(function* () {
+        const options = SheetOptions.make({});
+        const base = { segments: square, figure: 1, sheet: 1, sheets: 1, scale: 20, options } as const;
+        const plain = composeSheet({ ...base, shading: [] });
+        // an empty broken layer leaves the sheet byte-identical
+        expect(composeSheet({ ...base, shading: [], broken: [] })).toBe(plain);
+        expect(plain).not.toContain('id="broken"');
+        expect(plain).not.toContain("stroke-dasharray");
+        const withBroken = composeSheet({ ...base, shading: [[1, 1, 4, 4]], broken: [[2, 1, 8, 1]] });
+        // 3 mm dashes, 1.5 mm gaps, the outline weight, between shading and figure
+        expect(withBroken).toContain(
+          'stroke-width="0.992" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8.504 4.252"/>'
+        );
+        const order = A.map(['id="labels"', 'id="shading"', 'id="broken"', 'id="figure"'], (id) =>
+          withBroken.indexOf(id)
+        );
+        expect(order).toEqual(A.sort(order, Order.Number));
+        expect(A.every(order, (index) => index > 0)).toBe(true);
+        const custom = composeSheet({
+          ...base,
+          shading: [],
+          broken: [[2, 1, 8, 1]],
+          options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 1 }),
+        });
+        expect(custom).toContain('stroke-dasharray="5.669 2.835"');
+        // broken lines inside the outline do not move it; outside it they re-centre the view
+        const figureOf = (svg: string) => svg.slice(svg.indexOf('<path id="figure"'));
+        expect(figureOf(withBroken)).toBe(figureOf(plain));
+        expect(figureOf(composeSheet({ ...base, shading: [], broken: [[-10, 0, 0, 0]] }))).not.toBe(figureOf(plain));
+        expect(SheetOptions.make({}).brokenGapMm).toBe(1.5);
+        expect(() => SheetOptions.make({ brokenDashMm: 0.5 })).toThrow();
+        expect(() => SheetOptions.make({ brokenGapMm: 0.5 })).toThrow();
+        // round caps eat the line weight: a heavy stroke would close a gap that is valid on its own, so the
+        // drawn gap widens at emit time; the options themselves stay usable on a solid-only sheet
+        expect(SheetOptions.make({ lineWeightMm: 1.2 }).brokenGapMm).toBe(1.5);
+        expect(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 0.75 }))).toBeCloseTo(1.2, 9);
+        expect(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 1.2 }))).toBe(1.2);
+        const widened = composeSheet({
+          ...base,
+          shading: [],
+          broken: [[2, 1, 8, 1]],
+          options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 0.75, lineWeightMm: 0.8 }),
+        });
+        expect(widened).toContain('stroke-dasharray="5.669 3.402"');
       })
     );
 
@@ -903,6 +962,35 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "draws broken-line parts as a dashed layer, counts them, and proves omissions over both layers",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const service = yield* FigureSet;
+          const figures = [{ view: "front", description: "is a front elevation view" }];
+          const omissions = [{ omitted: "left", shown: "front", relation: "identical" }];
+          const render = Effect.fnUntraced(function* (name: string, text: string) {
+            const specPath = path.join(dir, `${name}.json`);
+            yield* fs.writeFileString(specPath, text);
+            const out = path.join(dir, name);
+            const manifest = yield* service.render(RenderRequest.make({ specPath, outputDir: out, validate: false }));
+            return { manifest, svg: yield* fs.readFileString(path.join(out, "fig-1.svg")) };
+          });
+          const solid = yield* render("solid", spec(figures, omissions));
+          const broken = yield* render("broken", spec(figures, omissions, {}, { ...body, lineStyle: "broken" }));
+          expect(A.map(solid.manifest.figures, (f) => f.brokenSegments)).toEqual([0]);
+          expect(A.map(broken.manifest.figures, (f) => f.brokenSegments)).toEqual([1]);
+          expect(solid.svg).not.toContain('id="broken"');
+          expect(broken.svg).toContain('<path id="broken"');
+          expect(broken.svg).toContain('stroke-dasharray="8.504 4.252"');
+          expect(A.map(broken.manifest.omissions, (o) => o.proven)).toEqual([true]);
+          // the broken segment lies inside the outline, so the scale is unchanged
+          expect(broken.manifest.scale).toBe(solid.manifest.scale);
+        })
+      );
+
+      it.effect(
         "records the effective sheet and cameras; a spec's sheet wins over the request's",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1192,6 +1280,38 @@ describe("@beep/technical-drawing", () => {
           );
           assertInstanceOf(error, DrawingError);
           expect(error.reason).toBe("omission");
+        })
+      );
+
+      it.effect(
+        "refuses a model whose parts overlap unless the request allows it",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          yield* fs.writeFileString(
+            specPath,
+            spec([{ view: "front", description: "is a front elevation view" }], [], {}, body, [
+              { ...body, name: "lid" },
+            ])
+          );
+          const service = yield* FigureSet;
+          const error = yield* Effect.flip(
+            service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "refused"), validate: false }))
+          );
+          assertInstanceOf(error, DrawingError);
+          expect(error.reason).toBe("geometry");
+          expect(error.message).toContain("1 pair(s) of parts overlap");
+          const allowed = yield* service.render(
+            RenderRequest.make({
+              specPath,
+              outputDir: path.join(dir, "allowed"),
+              validate: false,
+              allowPartOverlaps: true,
+            })
+          );
+          expect(allowed.model.partOverlaps).toBe(1);
         })
       );
 

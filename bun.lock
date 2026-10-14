@@ -3246,6 +3246,7 @@
         "beep-cli": "./src/bin.ts",
       },
       "dependencies": {
+        "@beep/ai-sync": "workspace:^",
         "@beep/chalk": "workspace:^",
         "@beep/colors": "workspace:^",
         "@beep/duckdb": "workspace:^",
