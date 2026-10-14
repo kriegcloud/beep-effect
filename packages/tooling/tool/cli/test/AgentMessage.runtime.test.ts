@@ -202,11 +202,14 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
     it.effect("enrolls a real Bun synthetic native worker and terminates it when serve is cancelled", () =>
       Effect.gen(function* () {
         const f = yield* managedCommandFixture();
+        const path = yield* Path.Path;
         const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
         const started = yield* Deferred.make<ChildProcessHandle>();
         const enrolled = yield* Deferred.make<void>();
         const rejected = yield* Deferred.make<Receipt, S.SchemaError>();
         const delivered = yield* Deferred.make<Receipt, S.SchemaError>();
+        const expired = yield* Deferred.make<Receipt, S.SchemaError>();
+        const afterExpired = yield* Deferred.make<Receipt, S.SchemaError>();
         const watched = ChildProcessSpawner.make((command) =>
           spawner.spawn(command).pipe(Effect.tap((child) => Deferred.succeed(started, child)))
         );
@@ -219,6 +222,8 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
             Deferred.doneUnsafe(enrolled, Effect.void);
             if (++printed === 2) Deferred.doneUnsafe(rejected, S.decodeUnknownEffect(ReceiptJson)(args[0]));
             if (printed === 3) Deferred.doneUnsafe(delivered, S.decodeUnknownEffect(ReceiptJson)(args[0]));
+            if (printed === 4) Deferred.doneUnsafe(expired, S.decodeUnknownEffect(ReceiptJson)(args[0]));
+            if (printed === 5) Deferred.doneUnsafe(afterExpired, S.decodeUnknownEffect(ReceiptJson)(args[0]));
           },
         });
         const fiber = yield* f.execute.pipe(
@@ -314,6 +319,41 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
         });
         expect((yield* store.receipts("native-delivery"))[2]?.status).toBe("delivered");
         expect((yield* store.receipts("outside-conversation"))[2]?.status).toBe("failed");
+        // Advance the persisted grant past expiry without waiting an hour of wall time.
+        const sql = yield* makeAgentMessageSqliteClient(path.join(f.state, "messages.sqlite")).pipe(
+          Effect.provide(Reactivity.layer)
+        );
+        const expiredGrant = LaunchGrant.make({ ...f.grant, expiresAt: now - 1 });
+        const expiredPayload = yield* S.encodeEffect(GrantJson)(expiredGrant);
+        yield* sql`UPDATE agent_message_grants SET payload = ${expiredPayload} WHERE id = ${f.grant.grantId}`;
+        const expiredEnvelope = Envelope.make({
+          messageId: "expired-grant-delivery",
+          idempotencyKey: "expired-grant-delivery",
+          conversationId: "conversation",
+          from: "sender",
+          to: { kind: "direct", endpointId: "managed" },
+          repositoryScope: "fixture",
+          body: "must-not-reach-expired-worker",
+          createdAt: now,
+          expiresAt: now + 60000,
+          capabilityFingerprint: binding.capabilityFingerprint,
+          policyFingerprint: binding.policyFingerprint,
+        });
+        yield* store.accept(expiredEnvelope, now);
+        expect(yield* Deferred.await(expired)).toMatchObject({ messageId: "expired-grant-delivery", status: "failed" });
+        yield* store.accept(
+          Envelope.make({
+            ...expiredEnvelope,
+            messageId: "after-expired-grant",
+            idempotencyKey: "after-expired-grant",
+          }),
+          now
+        );
+        expect(yield* Deferred.await(afterExpired)).toMatchObject({
+          messageId: "after-expired-grant",
+          status: "failed",
+        });
+        expect(yield* child.isRunning).toBe(true);
         yield* Fiber.interrupt(fiber);
         expect(yield* child.isRunning).toBe(false);
       }).pipe(TestClock.withLive)

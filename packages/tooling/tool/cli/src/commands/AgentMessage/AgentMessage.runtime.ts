@@ -244,8 +244,11 @@ export const agentMessageServeCommand = Command.make(
             message: "Native ownership or policy changed before inference.",
           });
         }
-        const grant = yield* store.validateGrant(expectedGrant.grantId, yield* Clock.currentTimeMillis);
-        if (!permitsReceivedEnvelope(grant, claim.envelope)) {
+        const receivingGrant = yield* store.validateGrant(expectedGrant.grantId, yield* Clock.currentTimeMillis).pipe(
+          Effect.map(O.some),
+          Effect.catchTag("RouterError", (error) => (error.code === "invalidGrant" ? Effect.succeed(O.none()) : error))
+        );
+        if (O.isNone(receivingGrant) || !permitsReceivedEnvelope(receivingGrant.value, claim.envelope)) {
           return "failed";
         }
         const body = yield* S.encodeEffect(EnvelopeJson)(claim.envelope).pipe(
