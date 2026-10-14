@@ -6,13 +6,14 @@
  */
 
 import * as A from "effect/Array";
+import * as Match from "effect/Match";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import { SkillsLockMigrationPlan } from "./SkillsLock.schemas.ts";
 import type { SkillProvenanceReport } from "./Skills.schemas.ts";
-import type { VendoredMigrationRow } from "./SkillsLock.schemas.ts";
+import type { SkillMigrationRow, VendoredMigrationRow } from "./SkillsLock.schemas.ts";
 
 const encodeUnknownJson = S.encodeUnknownResult(S.fromJsonString(S.Unknown));
 
@@ -276,16 +277,17 @@ const describeHistory = (row: VendoredMigrationRow): string =>
 export const renderSkillsLockMigrationPlanSummary = (plan: SkillsLockMigrationPlan): string => {
   const count = (disposition: string): number =>
     A.length(A.filter(plan.rows, (row) => row.disposition === disposition));
-  const lines = A.map(plan.rows, (row) => {
-    switch (row.disposition) {
-      case "vendored":
-        return `  ${row.skill}: vendored; ${describePin(row)}; ${describeDrift(row)}; ${describeHistory(row)}`;
-      case "unresolved":
-        return `  ${row.skill}: unresolved (${row.note})`;
-      case "local":
-        return `  ${row.skill}: local`;
-    }
-  });
+  const lines = A.map(
+    plan.rows,
+    Match.type<SkillMigrationRow>().pipe(
+      Match.discriminatorsExhaustive("disposition")({
+        vendored: (row) =>
+          `  ${row.skill}: vendored; ${describePin(row)}; ${describeDrift(row)}; ${describeHistory(row)}`,
+        unresolved: (row) => `  ${row.skill}: unresolved (${row.note})`,
+        local: (row) => `  ${row.skill}: local`,
+      })
+    )
+  );
   return A.join(
     [
       `skills lock-plan: ${count("vendored")} vendored, ${count("local")} local, ${count("unresolved")} unresolved`,
