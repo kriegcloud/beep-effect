@@ -127,7 +127,7 @@ export const GoalDoctorFindingKind = LiteralKit([
   "packet-fleet-unreachable",
   "packet-fleet-unmigrated-reference",
   "capability-duplicate-declaration",
-  "capability-duplicate-packet-id",
+  "capability-packet-id-mismatch",
   "capability-reference-provides",
   "capability-stranded",
 ]).pipe(
@@ -851,15 +851,16 @@ export const capabilityDoctorFindings = (projection: CapabilityProjection): Read
 };
 
 /**
- * Capability findings over every decodable packet manifest, collisions included.
+ * Capability findings over every decodable packet manifest.
  *
  * **Details**
  *
- * The capability projection requires unique packet ids, so manifests that share
- * an `initiative.id` are left out of it and each one gets a blocking
- * `capability-duplicate-packet-id` finding instead. The remaining manifests
- * compile into the projection that {@link capabilityDoctorFindings} reads, so a
- * collision never aborts the doctor.
+ * The capability graph only admits a manifest whose `initiative.id` equals its
+ * packet directory, the same law `goals next|explain|catalog` enforces and the
+ * `goals/INDEX.md` graph applies. A manifest that breaks it is left out of the
+ * projection and gets a blocking `capability-packet-id-mismatch` finding. Because
+ * packet directories are unique, this also covers two packets sharing an id, so
+ * the projection never sees a duplicate and the doctor never aborts.
  *
  * **Example** (No packets yield no capability findings)
  *
@@ -870,7 +871,7 @@ export const capabilityDoctorFindings = (projection: CapabilityProjection): Read
  * ```
  *
  * @param packets - Packet slugs with their decoded manifest, when it decoded.
- * @returns Packet-id collision findings followed by the projection's capability findings.
+ * @returns Id-mismatch findings followed by the projection's capability findings.
  * @category validation
  * @since 0.0.0
  */
@@ -880,25 +881,22 @@ export const capabilityPacketFindings = (
   const decoded = A.getSomes(
     A.map(packets, (packet) => O.map(packet.manifest, (manifest) => ({ slug: packet.slug, manifest })))
   );
-  const groups = R.values(A.groupBy(decoded, (entry) => entry.manifest.initiative.id));
-  const unique = A.flatMap(groups, (group) => (A.length(group) === 1 ? [group[0].manifest] : []));
-  const collisions = A.flatMap(groups, (group) =>
-    A.length(group) === 1
-      ? A.empty<GoalDoctorFinding>()
-      : A.map(group, (entry) =>
-          finding(
-            entry.slug,
-            "capability-duplicate-packet-id",
-            "blocking",
-            `initiative.id ${entry.manifest.initiative.id} is shared by ${A.join(
-              A.map(group, (other) => other.slug),
-              ", "
-            )}; the capability graph leaves these packets out until each id is unique.`,
-            entry.manifest.initiative.id
-          )
-        )
+  const matchesDirectory = (entry: (typeof decoded)[number]) => entry.manifest.initiative.id === entry.slug;
+  const admitted = A.filter(decoded, matchesDirectory);
+  const mismatched = A.filter(decoded, (entry) => !matchesDirectory(entry));
+  const mismatches = A.map(mismatched, (entry) =>
+    finding(
+      entry.slug,
+      "capability-packet-id-mismatch",
+      "blocking",
+      `initiative.id ${entry.manifest.initiative.id} does not match the packet directory goals/${entry.slug}; the capability graph leaves this packet out until they agree.`,
+      entry.manifest.initiative.id
+    )
   );
-  return A.appendAll(collisions, capabilityDoctorFindings(compileCapabilityProjection(unique)));
+  return A.appendAll(
+    mismatches,
+    capabilityDoctorFindings(compileCapabilityProjection(A.map(admitted, (entry) => entry.manifest)))
+  );
 };
 
 const findingLine = (item: GoalDoctorFinding): string => `- ${item.slug} [${item.kind}] ${item.message}`;

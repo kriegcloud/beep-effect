@@ -329,7 +329,7 @@ describe("capabilityDoctorFindings", () => {
     expect(capabilityDoctorFindings(projection)).toEqual([]);
   });
 
-  it("reports packets sharing an initiative id instead of crashing the projection", () => {
+  it("holds packets whose id does not match their directory out of the projection", () => {
     const manifest = (id: string, provides: ReadonlyArray<GraphCapabilityEdge["capability"]>) =>
       GoalManifest.make({
         initiative: { id, status: "active", title: `Title ${id}` },
@@ -339,9 +339,12 @@ describe("capabilityDoctorFindings", () => {
         requires: [],
       });
 
+    // Two directories sharing an id (the collision that used to throw) and one
+    // single mismatched packet; the admitted reference packet still reports.
     const findings = capabilityPacketFindings([
       { slug: "copy-a", manifest: O.some(manifest("shared", ["box/driver"])) },
       { slug: "copy-b", manifest: O.some(manifest("shared", [])) },
+      { slug: "renamed", manifest: O.some(manifest("old-name", [])) },
       {
         slug: "docs",
         manifest: O.some(
@@ -355,8 +358,9 @@ describe("capabilityDoctorFindings", () => {
     ]);
 
     expect(keysOf(findings)).toEqual([
-      "blocking copy-a capability-duplicate-packet-id shared",
-      "blocking copy-b capability-duplicate-packet-id shared",
+      "blocking copy-a capability-packet-id-mismatch shared",
+      "blocking copy-b capability-packet-id-mismatch shared",
+      "blocking renamed capability-packet-id-mismatch old-name",
       "blocking docs capability-reference-provides kg/lookup",
     ]);
   });

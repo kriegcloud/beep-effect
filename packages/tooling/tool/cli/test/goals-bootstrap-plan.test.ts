@@ -500,7 +500,7 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
       "phases-terminal-but-active",
       "reflection-frontmatter-invalid",
       "capability-duplicate-declaration",
-      "capability-duplicate-packet-id",
+      "capability-packet-id-mismatch",
       "capability-reference-provides",
     ];
 
