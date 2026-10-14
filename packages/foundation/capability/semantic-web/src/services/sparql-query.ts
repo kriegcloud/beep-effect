@@ -405,7 +405,7 @@ export class SparqlQueryService extends Context.Service<SparqlQueryService, Spar
 export const UnsupportedSparqlQueryServiceLive = Layer.succeed(
   SparqlQueryService,
   SparqlQueryService.of({
-    execute: Effect.fn("SparqlQueryService.execute")(() =>
+    execute: Effect.fn("UnsupportedSparqlQueryService.execute")(() =>
       Effect.fail(
         SparqlQueryError.make({
           reason: "unimplemented",

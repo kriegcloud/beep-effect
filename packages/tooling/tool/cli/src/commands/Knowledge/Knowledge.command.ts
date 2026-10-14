@@ -23,6 +23,7 @@ import { isCi } from "../../internal/cli/EnvConfig.ts";
 import {
   KnowledgeHostPathDebtError,
   KnowledgeIntroducedFindingsError,
+  KnowledgeMintContextRefusal,
   KnowledgeOperationalError,
 } from "./Knowledge.errors.ts";
 import {
@@ -43,16 +44,24 @@ import {
 import { KnowledgeService, KnowledgeServiceLive } from "./Knowledge.service.ts";
 import { isKnowledgeGovernanceKind, knowledgeDoctorGateFailure } from "./KnowledgeDoctor.baseline.ts";
 import { encodeKnowledgeLeasesReportJson, knowledgeLeaseWarnings } from "./KnowledgeDoctor.leases.ts";
+import {
+  KNOWLEDGE_MINT_BRANCH,
+  KnowledgeDoctorCiMode,
+  knowledgeMintPullRequestRefusals,
+  readKnowledgeMintPullRequest,
+} from "./KnowledgeDoctor.mint.ts";
 import { encodeKnowledgeDoctorReportJson, KnowledgeSpanClass } from "./KnowledgeDoctor.schemas.ts";
 import {
   KnowledgeDoctor,
   KnowledgeDoctorCheckOptions,
   KnowledgeDoctorLeasesOptions,
   KnowledgeDoctorLive,
+  KnowledgeDoctorMintOptions,
 } from "./KnowledgeDoctor.service.ts";
 import type { KnowledgeRef, KnowledgeRefObservation, KnowledgeRefsReport } from "./Knowledge.refs.ts";
 import type { KnowledgeFinding, KnowledgeFindingId, KnowledgeSemanticDeltaReport } from "./Knowledge.schemas.ts";
 import type { KnowledgeLeasesReport } from "./KnowledgeDoctor.leases.ts";
+import type { KnowledgeMintOutcome } from "./KnowledgeDoctor.mint.ts";
 import type {
   KnowledgeCauseGroup,
   KnowledgeDoctorRatchet,
@@ -946,15 +955,37 @@ export const renderKnowledgeLeasesReport = (report: KnowledgeLeasesReport): stri
     "\n"
   );
 
+// C8 condition (i): `--accept-mint` applies only in CI, to the mint App's pull request from the mint
+// branch of this repository. The command checks it itself instead of trusting its caller.
+const mintPullRequestReasons = Effect.gen(function* () {
+  const ci = yield* isCi;
+  const reasons = knowledgeMintPullRequestRefusals(yield* readKnowledgeMintPullRequest());
+  return ci ? reasons : A.prepend(reasons, "CI is not true; --accept-mint is CI-only.");
+});
+
+const requireMintPullRequest = Effect.gen(function* () {
+  const reasons = yield* mintPullRequestReasons;
+  if (A.isReadonlyArrayNonEmpty(reasons)) {
+    yield* Console.error(
+      A.join(
+        A.map(reasons, (reason) => `  ${reason}`),
+        "\n"
+      )
+    );
+    return yield* KnowledgeMintContextRefusal.make({
+      message: `knowledge doctor --accept-mint: C8 condition (i) fails (${A.length(reasons)} reason(s)).`,
+      reasons,
+    });
+  }
+});
+
 const runDoctorCheck = Effect.fn("KnowledgeCommand.runDoctorCheck")(function* (options: {
   readonly base: string;
   readonly acceptMint: boolean;
   readonly json: boolean;
 }) {
-  if (options.acceptMint && !(yield* isCi)) {
-    return yield* KnowledgeOperationalError.make({
-      message: "knowledge doctor: --accept-mint is CI-only; the mint workflow passes it for the mint App's branch.",
-    });
+  if (options.acceptMint) {
+    yield* requireMintPullRequest;
   }
   const doctor = yield* KnowledgeDoctor;
   const report = yield* doctor.check(
@@ -1009,6 +1040,144 @@ const knowledgeDoctorVerifyMintCommand = Command.make(
   })
 ).pipe(Command.withDescription("Re-mint the committed baseline at its mintedAt and byte-compare"));
 
+const doctorMintAtFlag = Flag.String("at").pipe(
+  Flag.withDescription("Commit-ish to mint; --write requires it to be HEAD"),
+  Flag.withDefault("HEAD")
+);
+const doctorMintWriteFlag = Flag.Boolean("write").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription(
+    "CI-only: write goals/knowledge-doctor.baseline.jsonc when the mint changes it (clean checkout, HEAD minted, on --base)"
+  )
+);
+
+/**
+ * Renders one mint outcome: the minted commit, entry counts per named group, and what was written.
+ *
+ * **Details**
+ *
+ * The output never carries the file text: the mint workflow writes the file itself, and a dry run is
+ * a preview, not a way to hand-author the sealed baseline.
+ *
+ * **Example** (A dry run of an empty first seal)
+ *
+ * ```ts
+ * import { KNOWLEDGE_DOCTOR_BASELINE_NOTE, KnowledgeDoctorBaseline } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.baseline"
+ * import { KnowledgeMintOutcome } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.mint"
+ * import { renderKnowledgeMintOutcome } from "@beep/repo-cli/test/Knowledge"
+ *
+ * const output = renderKnowledgeMintOutcome(
+ *   KnowledgeMintOutcome.make({
+ *     baseline: KnowledgeDoctorBaseline.make({
+ *       mintedAt: "1111111111111111111111111111111111111111",
+ *       note: KNOWLEDGE_DOCTOR_BASELINE_NOTE,
+ *       entries: [],
+ *     }),
+ *     text: "{}\n",
+ *     changed: true,
+ *   }),
+ *   false
+ * )
+ *
+ * console.log(output.includes("dry run")) // true
+ * ```
+ *
+ * @internal
+ * @param outcome - Entry counts per group and whether the minted text differs from the committed baseline.
+ * @param write - Whether the run was allowed to write.
+ * @returns A stable multiline summary.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderKnowledgeMintOutcome: {
+  (write: boolean): (outcome: KnowledgeMintOutcome) => string;
+  (outcome: KnowledgeMintOutcome, write: boolean): string;
+} = dual(2, (outcome: KnowledgeMintOutcome, write: boolean): string =>
+  A.join(
+    [
+      `knowledge doctor mint @ ${outcome.baseline.mintedAt}: ${A.length(outcome.baseline.entries)} sealed entr(ies)`,
+      ...A.map(
+        countBy(A.map(outcome.baseline.entries, (entry) => entry.group)),
+        ([group, count]) => `  ${Str.padStart(6)(`${count}`)} ${group}`
+      ),
+      Match.value({ write, changed: outcome.changed }).pipe(
+        Match.when(
+          { changed: false },
+          () => "unchanged: the committed baseline already holds these entries; nothing written"
+        ),
+        Match.when({ write: true }, () => "written: goals/knowledge-doctor.baseline.jsonc"),
+        Match.orElse(() => "dry run: the baseline would change; nothing written (the mint workflow passes --write)")
+      ),
+    ],
+    "\n"
+  )
+);
+
+const knowledgeDoctorMintCommand = Command.make(
+  "mint",
+  { at: doctorMintAtFlag, base: doctorBaseFlag, write: doctorMintWriteFlag },
+  Effect.fn("KnowledgeCommand.mint")(function* (options) {
+    const doctor = yield* KnowledgeDoctor;
+    const outcome = yield* doctor
+      .mintFile(KnowledgeDoctorMintOptions.make({ at: options.at, baseRef: options.base, write: options.write }))
+      .pipe(
+        Effect.catchTags({
+          KnowledgeMintRefusal: (refusal) =>
+            Console.error(
+              A.join(
+                A.map(refusal.refused, (id) => `  refused ${id}`),
+                "\n"
+              )
+            ).pipe(Effect.andThen(Effect.fail(refusal))),
+          KnowledgeMintContextRefusal: (refusal) =>
+            Console.error(
+              A.join(
+                A.map(refusal.reasons, (reason) => `  ${reason}`),
+                "\n"
+              )
+            ).pipe(Effect.andThen(Effect.fail(refusal))),
+        })
+      );
+    yield* Console.log(renderKnowledgeMintOutcome(outcome, options.write));
+  })
+).pipe(
+  Command.withDescription(
+    "Mint the sealed baseline at a default-branch commit; refuses to launder, and only --write in CI writes the file"
+  )
+);
+
+const knowledgeDoctorCiCommand = Command.make(
+  "ci",
+  { base: doctorBaseFlag },
+  Effect.fn("KnowledgeCommand.ci")(function* (options) {
+    const doctor = yield* KnowledgeDoctor;
+    const mode = yield* doctor.ciMode(options.base);
+    if (mode === KnowledgeDoctorCiMode.Enum.report) {
+      yield* Console.log(
+        "knowledge doctor ci: no sealed baseline at the merge-base and none touched; read-only report."
+      );
+      return yield* runDoctor({ report: true, tree: "HEAD", json: false, base: options.base, acceptMint: false });
+    }
+    const reasons = yield* mintPullRequestReasons;
+    yield* Console.log(
+      A.isReadonlyArrayEmpty(reasons)
+        ? `knowledge doctor ci: gate with --accept-mint (the mint App's pull request from ${KNOWLEDGE_MINT_BRANCH}).`
+        : A.join(
+            [
+              "knowledge doctor ci: gate; baseline changes are baseline-tamper unless the CI mint opened this branch:",
+              ...A.map(reasons, (reason) => `  ${reason}`),
+            ],
+            "\n"
+          )
+    );
+    return yield* runDoctorCheck({ base: options.base, acceptMint: A.isReadonlyArrayEmpty(reasons), json: false });
+  })
+).pipe(
+  Command.withDescription(
+    "Quality-lane form: the read-only report until the merge-base is sealed or the branch touches the seal, then the gate"
+  )
+);
+
 const knowledgeDoctorLeasesCommand = Command.make(
   "leases",
   { base: doctorBaseFlag, json: leasesJsonFlag },
@@ -1041,8 +1210,11 @@ const knowledgeDoctorLeasesCommand = Command.make(
  * Without `--report` the command is the gate: it scans `HEAD`, classifies every baselineable finding
  * against the sealed baseline (introduced, pending, inherited, leased, resolved), runs the seal
  * guard against the merge-base with `--base`, evaluates the debt leases, and fails on introduced or
- * governance findings. `--accept-mint` is CI-only. `verify-mint` re-mints the committed baseline at
- * its `mintedAt` and byte-compares; `leases [--json]` lists the leases without scanning the corpus.
+ * governance findings. `--accept-mint` checks C8 condition (i) itself: CI, the mint branch, and the
+ * mint App as the pull request author. `mint` is the only writer of the sealed baseline (`--write`,
+ * CI-only); `verify-mint` re-mints the committed baseline at its `mintedAt` and byte-compares; `ci`
+ * is the quality-lane form, report-only until the merge-base is sealed or the branch touches the
+ * seal; `leases [--json]` lists the leases without scanning the corpus.
  *
  * **Gotchas**
  *
@@ -1075,7 +1247,12 @@ export const knowledgeDoctorCommand = Command.make(
   Command.withDescription(
     "Classify and check every knowledge reference span; --report is read-only, the bare form gates on the sealed baseline"
   ),
-  Command.withSubcommands([knowledgeDoctorVerifyMintCommand, knowledgeDoctorLeasesCommand]),
+  Command.withSubcommands([
+    knowledgeDoctorMintCommand,
+    knowledgeDoctorVerifyMintCommand,
+    knowledgeDoctorCiCommand,
+    knowledgeDoctorLeasesCommand,
+  ]),
   Command.provide(KnowledgeDoctorLive)
 );
 
@@ -1107,7 +1284,7 @@ export const knowledgeDoctorCommand = Command.make(
  */
 export const knowledgeCommand = Command.make("knowledge", {}, () =>
   Console.log(
-    "Knowledge commands: refs [--tree <rev>] [--surface live|archival|all] [--json] [--check] [--verbose], semantic-delta [--base <ref>] [--json], doctor [--report [--tree <rev>]] [--base <ref>] [--json], doctor verify-mint, doctor leases [--json]"
+    "Knowledge commands: refs [--tree <rev>] [--surface live|archival|all] [--json] [--check] [--verbose], semantic-delta [--base <ref>] [--json], doctor [--report [--tree <rev>]] [--base <ref>] [--json], doctor mint [--at <rev>] [--write], doctor verify-mint, doctor ci [--base <ref>], doctor leases [--json]"
   )
 ).pipe(
   Command.withDescription("Knowledge-surface verification commands"),

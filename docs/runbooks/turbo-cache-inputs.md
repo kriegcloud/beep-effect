@@ -50,7 +50,7 @@ match the actual task implementation were discarded.
 | Task | Cache boundary |
 | --- | --- |
 | `doctest` | Source, tests, shared Vitest files and the utils dependency graph; no file outputs required. |
-| `lint:deprecated-apis` | Explicit source globs must follow the ESLint scanner's output exclusions; policy fingerprint and transit carry implementation dependencies. |
+| `lint:deprecated-apis` | Explicit source globs must follow the dedicated type-aware Oxlint profile's output exclusions; policy fingerprint and transit carry implementation dependencies. |
 | `lint:jsdoc` | Explicit source globs exclude artifacts ignored by the JSDoc scanner; policy fingerprint carries implementation changes. |
 | `lint:laws` | Law inputs retain authored source and policy files; generated declarations and reports are excluded when the scanner excludes them. |
 | `build` | Defaults retain package source and configuration; the workspace tsgo wrapper is an explicit input. Declared outputs restore build products. App exceptions are below. |
