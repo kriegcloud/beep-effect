@@ -21,7 +21,7 @@ const $I = $ScratchpadId.create("effected/npm/RegistryCredential");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidBasicAuthUsernameError extends S.TaggedError<InvalidBasicAuthUsernameError>($I`InvalidBasicAuthUsernameError`)(
+export class InvalidBasicAuthUsernameError extends S.TaggedError<InvalidBasicAuthUsernameError, { readonly brand: unique symbol }>($I`InvalidBasicAuthUsernameError`)(
 	"InvalidBasicAuthUsernameError",
 	{ message: S.String },
 	$I.annote("InvalidBasicAuthUsernameError", { description: "A basic-auth username contains the credential separator." }),

@@ -35,7 +35,7 @@ const $I = $ScratchpadId.create("effected/config-file/ConfigMigration");
  * @category errors
  * @since 0.0.0
  */
-export class ConfigMigrationError extends S.TaggedError<ConfigMigrationError>($I`ConfigMigrationError`)("ConfigMigrationError", {
+export class ConfigMigrationError extends S.TaggedError<ConfigMigrationError, { readonly brand: unique symbol }>($I`ConfigMigrationError`)("ConfigMigrationError", {
 	/**
 	 * The target version of the step that failed. `0` when reading the version failed.
 	 *
@@ -142,7 +142,7 @@ export interface VersionAccess<E = unknown> {
 	readonly set: (raw: unknown, version: number) => Effect.Effect<unknown, E>;
 }
 
-class VersionAccessError extends S.TaggedError<VersionAccessError>($I`VersionAccessError`)("VersionAccessError", { message: S.String.annotateKey({ description: "Why the parsed config cannot supply its current version: it is not an object or lacks a numeric `version`" }) }, $I.annote("VersionAccessError", { description: "The default version reader could not read a numeric top-level `version` from the parsed config" })) {
+class VersionAccessError extends S.TaggedError<VersionAccessError, { readonly brand: unique symbol }>($I`VersionAccessError`)("VersionAccessError", { message: S.String.annotateKey({ description: "Why the parsed config cannot supply its current version: it is not an object or lacks a numeric `version`" }) }, $I.annote("VersionAccessError", { description: "The default version reader could not read a numeric top-level `version` from the parsed config" })) {
 	override name = "Error";
 }
 

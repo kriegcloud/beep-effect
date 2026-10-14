@@ -157,7 +157,7 @@ export type LedgerRowIndexState = typeof LedgerRowIndexState.Type;
  * @category errors
  * @since 0.0.0
  */
-export class InvalidLedgerKinds extends S.TaggedError<InvalidLedgerKinds>()(
+export class InvalidLedgerKinds extends S.TaggedError<InvalidLedgerKinds, { readonly brand: unique symbol }>()(
   "InvalidLedgerKinds",
   { message: S.String },
   $I.annoteError<InvalidLedgerKinds>("InvalidLedgerKinds", {

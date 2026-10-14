@@ -37,8 +37,8 @@ const $I = $LawPracticeDomainId.create("values/SurroundingContext/SurroundingCon
  * @category models
  * @since 0.0.0
  */
-export class SurroundingContext extends S.Class<SurroundingContext>($I`SurroundingContext`)(
-  {
+export class SurroundingContext extends S.Opaque<SurroundingContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "The sentence or paragraph text.",
     }),
@@ -52,10 +52,11 @@ export class SurroundingContext extends S.Class<SurroundingContext>($I`Surroundi
     }).annotateKey({
       description: "Absolute character offsets in the source document.",
     }),
-  },
-  $I.annote("SurroundingContext", {
-    description: "Result of surrounding context extraction.",
-  })
+  }).pipe(
+    $I.annoteSchema("SurroundingContext", {
+      description: "Result of surrounding context extraction.",
+    })
+  )
 ) {}
 
 /**

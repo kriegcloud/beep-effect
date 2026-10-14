@@ -87,7 +87,7 @@ const materializeError = (text: string, defect: unknown): TomlParseError => {
  * @category models
  * @since 0.0.0
  */
-export class TomlDocument extends S.Class<TomlDocument>($I`TomlDocument`)({
+export class TomlDocument extends S.Class<TomlDocument, { readonly brand: unique symbol }>($I`TomlDocument`)({
 	source: S.String.annotateKey({ description: "Original TOML text preserved exactly, including comments, whitespace and line endings" }),
 	expressions: S.Array(TomlExpression).annotateKey({ description: "Top-level constructs and trivia in document order, with spans covering the original text exactly" }),
 	diagnostics: S.Array(TomlDiagnostic).annotateKey({ description: "Semantic violations recorded during parsing that prevent conversion to a plain value" }),

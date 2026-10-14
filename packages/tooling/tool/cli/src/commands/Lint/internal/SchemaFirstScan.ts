@@ -11,6 +11,7 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
@@ -38,6 +39,7 @@ import {
   makeSchemaFirstOwnerResolver,
   makeSchemaFirstProject,
 } from "./SchemaFirstProject.ts";
+import { SchemaFirstSchemaClass } from "./SchemaFirstSchemaClass.ts";
 import {
   readCrispeningPolicyDocument,
   readSchemaFirstInventoryDocument,
@@ -53,6 +55,7 @@ import type {
 } from "../Lint.schemas.ts";
 import type { SchemaFirstLintFindings } from "../SchemaFirst.render.ts";
 import type { FunctionLikeDeclarationNode } from "./SchemaFirstDetectors.ts";
+import type { SchemaClassDeclaration } from "./SchemaFirstSchemaClass.ts";
 
 const isLiteralKitConstAssertionArgument = (argument: Node): boolean =>
   Node.isAsExpression(argument) &&
@@ -208,9 +211,49 @@ const appendStructOrBoundaryEntry = (
     filePath,
     SchemaFirstDetectors.inferStructSymbol(callExpression),
     "object-struct-schema",
-    "Object schema should prefer an annotated S.Class over S.Struct.",
+    "Exported bare S.Struct schema should be a branded S.Opaque over that S.Struct with $I.annoteSchema metadata (D1).",
     owner
   );
+};
+
+type PlainDataSchemaClassCandidate = {
+  readonly declaration: SchemaClassDeclaration;
+  readonly file: string;
+  readonly owner: string;
+};
+
+// Records every class name the file references (tests included, so `instanceof` assertions keep a class) and, for
+// scanned files, the brand findings plus the plain-data candidates that are resolved once the whole project is read.
+const appendSchemaClassEntries = (
+  entries: Array<SchemaFirstInventoryEntry>,
+  plainDataCandidates: Array<PlainDataSchemaClassCandidate>,
+  referencedNames: MutableHashSet.MutableHashSet<string>,
+  sourceFile: SourceFile,
+  filePath: string,
+  owner: string,
+  scanned: boolean
+) => {
+  const scan = SchemaFirstSchemaClass.scanSourceFile(sourceFile.compilerNode);
+  A.forEach(scan.referencedNames, (name) => MutableHashSet.add(referencedNames, name));
+  if (!scanned) return;
+  const plainDataEligible =
+    SchemaFirstSchemaClass.isPlainDataEligibleFilePath(filePath) &&
+    !SchemaFirstSchemaClass.isGeneratedSourceText(sourceFile.getFullText());
+  for (const declaration of scan.declarations) {
+    appendOptionEntry(entries, SchemaFirstSchemaClass.unbrandedEntry(declaration, filePath, owner));
+    if (plainDataEligible) A.appendInPlace(plainDataCandidates, { declaration, file: filePath, owner });
+  }
+};
+
+const appendPlainDataSchemaClassEntries = (
+  entries: Array<SchemaFirstInventoryEntry>,
+  plainDataCandidates: ReadonlyArray<PlainDataSchemaClassCandidate>,
+  referencedNames: MutableHashSet.MutableHashSet<string>
+) => {
+  const names = HashSet.fromIterable(referencedNames);
+  for (const { declaration, file, owner } of plainDataCandidates) {
+    appendOptionEntry(entries, SchemaFirstSchemaClass.plainDataEntry(declaration, file, owner, names));
+  }
 };
 
 const appendCallEntries = (
@@ -313,12 +356,24 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
   const entries = A.empty<SchemaFirstInventoryEntry>();
   const scannedFiles = A.empty<string>();
   const parityEntries = A.empty<SchemaFirstInventoryEntry>();
+  const plainDataCandidates = A.empty<PlainDataSchemaClassCandidate>();
+  const referencedClassNames = MutableHashSet.empty<string>();
 
   for (const sourceFile of project.getSourceFiles()) {
     const filePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
     const owner = ownerResolver(sourceFile.getFilePath());
     appendArbitraryEntries(entries, sourceFile, filePath, owner);
-    if (isSchemaFirstExcludedFile(filePath)) continue;
+    const excluded = isSchemaFirstExcludedFile(filePath);
+    appendSchemaClassEntries(
+      entries,
+      plainDataCandidates,
+      referencedClassNames,
+      sourceFile,
+      filePath,
+      owner,
+      !excluded
+    );
+    if (excluded) continue;
     A.appendInPlace(scannedFiles, filePath);
     A.appendAllInPlace(
       parityEntries,
@@ -333,6 +388,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     appendDefaultsEntries(entries, sourceFile, filePath, owner);
     appendEquivalenceEntries(entries, sourceFile, filePath, owner);
   }
+  appendPlainDataSchemaClassEntries(entries, plainDataCandidates, referencedClassNames);
 
   return {
     document: SchemaFirstInventoryDocument.make({

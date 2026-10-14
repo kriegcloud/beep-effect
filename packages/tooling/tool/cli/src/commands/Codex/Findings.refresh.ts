@@ -22,7 +22,7 @@ import { pipe } from "effect/Function";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { applyJsoncModification } from "../../internal/cli/Jsonc.ts";
+import { applyJsoncModification, JsoncModification } from "../../internal/cli/Jsonc.ts";
 import { CodexFindingSeverity } from "./Findings.capture.schemas.ts";
 import { CodexFindingsIngestError, CodexPacketWriteError } from "./Findings.errors.ts";
 import { ordinalOfRecordId, priorIdsOfEntries, recordIdForOrdinal, severityCountsOf } from "./Findings.normalize.ts";
@@ -103,14 +103,15 @@ const RefreshManifest = S.Struct({
 
 const decodeRefreshManifest = S.decodeUnknownEffect(RefreshManifest);
 
-class PacketSnapshotFile extends S.Class<PacketSnapshotFile>($I`PacketSnapshotFile`)(
-  {
+class PacketSnapshotFile extends S.Opaque<PacketSnapshotFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     contents: S.String,
-  },
-  $I.annote("PacketSnapshotFile", {
-    description: "One regular text file in an existing Codex findings packet snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketSnapshotFile", {
+      description: "One regular text file in an existing Codex findings packet snapshot.",
+    })
+  )
 ) {}
 
 /**
@@ -127,14 +128,15 @@ class PacketSnapshotFile extends S.Class<PacketSnapshotFile>($I`PacketSnapshotFi
  * @category models
  * @since 0.0.0
  */
-export class CodexRefreshLedgerSource extends S.Class<CodexRefreshLedgerSource>($I`CodexRefreshLedgerSource`)(
-  {
+export class CodexRefreshLedgerSource extends S.Opaque<CodexRefreshLedgerSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     contents: S.String,
     ledger: CodexTriageLedger,
-  },
-  $I.annote("CodexRefreshLedgerSource", {
-    description: "Decoded existing ledger plus its original bytes for refresh concurrency checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexRefreshLedgerSource", {
+      description: "Decoded existing ledger plus its original bytes for refresh concurrency checks.",
+    })
+  )
 ) {}
 
 /**
@@ -160,20 +162,22 @@ export class CodexRefreshLedgerSource extends S.Class<CodexRefreshLedgerSource>(
  * @category models
  * @since 0.0.0
  */
-export class CodexFindingsRefreshReconciliation extends S.Class<CodexFindingsRefreshReconciliation>(
-  $I`CodexFindingsRefreshReconciliation`
-)(
-  {
+export class CodexFindingsRefreshReconciliation extends S.Opaque<
+  CodexFindingsRefreshReconciliation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.Literals(["updated", "no-new-findings"]),
     priorCount: S.Int,
     capturedCount: S.Int,
     preservedIds: S.Array(S.String),
     appendedIds: S.Array(S.String),
     updatedPaths: S.Array(S.String),
-  },
-  $I.annote("CodexFindingsRefreshReconciliation", {
-    description: "Observable result of preserving prior packet work and appending unseen findings.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexFindingsRefreshReconciliation", {
+      description: "Observable result of preserving prior packet work and appending unseen findings.",
+    })
+  )
 ) {}
 
 const ingestFailure = (
@@ -631,11 +635,13 @@ const reopenManifestPhases = Effect.fnUntraced(function* (
         `The existing manifest is missing ${phaseId}; refresh cannot reopen validation safely.`
       );
     }
-    merged = applyJsoncModification({
-      content: merged,
-      path: ["phases", index.value, "status"],
-      value: "in-progress",
-    });
+    merged = applyJsoncModification(
+      JsoncModification.make({
+        content: merged,
+        path: ["phases", index.value, "status"],
+        value: "in-progress",
+      })
+    );
   }
   return merged;
 });
@@ -665,7 +671,7 @@ const mergeManifest = Effect.fnUntraced(function* (
   const dispositionCounts = { ...priorDispositionCounts, untriaged: priorDispositionCounts.untriaged + appendedCount };
   let merged = text;
   const modify = (path: ReadonlyArray<string | number>, value: unknown): void => {
-    merged = applyJsoncModification({ content: merged, path, value });
+    merged = applyJsoncModification(JsoncModification.make({ content: merged, path, value }));
   };
   modify(["mission"], Str.replace(`the ${priorCount} Codex`, `the ${capturedCount} Codex`)(parsed.mission));
   modify(
@@ -711,12 +717,14 @@ const mergeTriage = Effect.fnUntraced(function* (
 ) {
   let merged = text;
   const modify = (path: ReadonlyArray<string | number>, value: unknown, isArrayInsertion = false): void => {
-    merged = applyJsoncModification({
-      content: merged,
-      path,
-      value,
-      ...(isArrayInsertion ? { isArrayInsertion: true } : {}),
-    });
+    merged = applyJsoncModification(
+      JsoncModification.make({
+        content: merged,
+        path,
+        value,
+        ...(isArrayInsertion ? { isArrayInsertion: true } : {}),
+      })
+    );
   };
   modify(["meta", "expectedCount"], plan.records.length);
   modify(["meta", "capturedCount"], plan.records.length);

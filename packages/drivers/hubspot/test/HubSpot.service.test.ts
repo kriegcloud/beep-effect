@@ -8,6 +8,7 @@ import {
   HubSpotUpsertContactRequest,
   HubSpotUpsertContactResponse,
 } from "@beep/hubspot";
+import { HubSpotErrorOptions } from "@beep/hubspot/HubSpot.errors";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { A } from "@beep/utils";
@@ -183,11 +184,14 @@ describe("@beep/hubspot", () => {
       results: [{ id: "contact-id" }],
       status: "COMPLETE",
     });
-    const error = HubSpotError.fromReason("response status", {
-      formGuid: "form-guid",
-      status: 401,
-      url: "https://api.hsforms.com/submissions/v3/integration/secure/submit/12345/form-guid",
-    });
+    const error = HubSpotError.fromReason(
+      "response status",
+      HubSpotErrorOptions.make({
+        formGuid: "form-guid",
+        status: 401,
+        url: "https://api.hsforms.com/submissions/v3/integration/secure/submit/12345/form-guid",
+      })
+    );
 
     expect(encode(HubSpotConfigInput, config)).toEqual({
       accountId: "12345",

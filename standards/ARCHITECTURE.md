@@ -1389,7 +1389,7 @@ const $I = $DrizzleId.create("Drizzle.service");
  * @category errors
  * @since 0.0.0
  */
-export class DrizzleError extends S.TaggedError<DrizzleError>($I`DrizzleError`)(
+export class DrizzleError extends S.TaggedError<DrizzleError, { readonly brand: unique symbol }>($I`DrizzleError`)(
   "DrizzleError",
   {
     operation: S.String,
@@ -1714,7 +1714,7 @@ const $I = $IamDomainId.create("entities/Membership/Membership.errors");
  * @category errors
  * @since 0.0.0
  */
-export class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked>(
+export class MembershipAlreadyRevoked extends S.TaggedError<MembershipAlreadyRevoked, { readonly brand: unique symbol }>(
   $I`MembershipAlreadyRevoked`
 )(
   "MembershipAlreadyRevoked",
@@ -1806,10 +1806,14 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
     description: "Account participation in an organization.",
   })
 ) {
-  readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status);
+  // Prototype methods, not arrow fields: an arrow field is an own property per
+  // instance and breaks Equal.equals between decodes of the same row.
+  canRevoke(): boolean {
+    return !MembershipStatus.is.revoked(this.status);
+  }
 
-  readonly revoke = (): Effect.Effect<Membership, MembershipAlreadyRevoked> =>
-    this.canRevoke()
+  revoke(): Effect.Effect<Membership, MembershipAlreadyRevoked> {
+    return this.canRevoke()
       ? Effect.succeed(
           Membership.make({
             id: this.id,
@@ -1820,6 +1824,7 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
           })
         )
       : Effect.fail(new MembershipAlreadyRevoked());
+  }
 }
 ````
 

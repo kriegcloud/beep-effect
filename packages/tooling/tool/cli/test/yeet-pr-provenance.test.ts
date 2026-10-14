@@ -247,7 +247,7 @@ it.layer(PlatformLayer, { timeout: "30 seconds" })("Yeet PR provenance v2", (it)
       recordedAt: "2026-09-03T13:00:00Z",
     });
     const publicValue = toPublicPrProvenance([claude, codex], O.some(42), true);
-    expect(publicValue).toBeInstanceOf(PublicPrProvenance);
+    expect(S.is(PublicPrProvenance)(publicValue)).toBe(true);
     {
       const optionUnderTest = publicValue.agents[0]?.label;
       assertDefined(optionUnderTest);

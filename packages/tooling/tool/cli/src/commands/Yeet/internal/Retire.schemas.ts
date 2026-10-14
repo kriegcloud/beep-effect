@@ -40,16 +40,17 @@ const $I = $RepoCliId.create("commands/Yeet/internal/Retire.schemas");
  * @category models
  * @since 0.0.0
  */
-export class YeetRetirePlan extends S.Class<YeetRetirePlan>($I`YeetRetirePlan`)(
-  {
+export class YeetRetirePlan extends S.Opaque<YeetRetirePlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     worktreePath: S.NonEmptyString,
     owningClone: S.NonEmptyString,
     name: S.NonEmptyString,
     branch: S.NonEmptyString,
-  },
-  $I.annote("YeetRetirePlan", {
-    description: "The linked worktree a sweep retires, the clone that owns it, and the merged branch it carried.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRetirePlan", {
+      description: "The linked worktree a sweep retires, the clone that owns it, and the merged branch it carried.",
+    })
+  )
 ) {}
 
 /**
@@ -66,18 +67,19 @@ export class YeetRetirePlan extends S.Class<YeetRetirePlan>($I`YeetRetirePlan`)(
  * @category models
  * @since 0.0.0
  */
-export class YeetRetireSweepPlan extends S.Class<YeetRetireSweepPlan>($I`YeetRetireSweepPlan`)(
-  {
+export class YeetRetireSweepPlan extends S.Opaque<YeetRetireSweepPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-retire-sweep-plan/v1"),
     retire: YeetRetirePlan,
     blocker: S.OptionFromNullOr(S.String),
     activePackets: S.Array(S.String),
     sweep: SweepPlan,
-  },
-  $I.annote("YeetRetireSweepPlan", {
-    description:
-      "Dry-run document for a retirement: the lane plan, why it would be refused if at all, the touched packets still active, and the owning clone's sweep plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRetireSweepPlan", {
+      description:
+        "Dry-run document for a retirement: the lane plan, why it would be refused if at all, the touched packets still active, and the owning clone's sweep plan.",
+    })
+  )
 ) {}
 
 /**
@@ -102,18 +104,19 @@ export const YeetRetireSweepPlanJson = JsonStringCodec(YeetRetireSweepPlan);
  * @category models
  * @since 0.0.0
  */
-export class YeetRetireSweepReport extends S.Class<YeetRetireSweepReport>($I`YeetRetireSweepReport`)(
-  {
+export class YeetRetireSweepReport extends S.Opaque<YeetRetireSweepReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-retire-sweep-report/v1"),
     retire: YeetRetirePlan,
     receipt: WorktreeRemovalReceipt,
     activePackets: S.Array(S.String),
     sweep: SweepReport,
-  },
-  $I.annote("YeetRetireSweepReport", {
-    description:
-      "Result document for a retirement: the lane plan, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRetireSweepReport", {
+      description:
+        "Result document for a retirement: the lane plan, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report.",
+    })
+  )
 ) {}
 
 /**

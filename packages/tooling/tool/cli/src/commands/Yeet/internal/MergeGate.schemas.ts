@@ -24,12 +24,15 @@ const $I = $RepoCliId.create("commands/Yeet/internal/MergeGate");
  * @category models
  * @since 0.0.0
  */
-export class MergeGateCheckRun extends S.Class<MergeGateCheckRun>($I`MergeGateCheckRun`)(
-  {
+export class MergeGateCheckRun extends S.Opaque<MergeGateCheckRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Finite,
     name: S.NonEmptyString,
     status: S.String,
     conclusion: S.NullOr(S.String),
-  },
-  $I.annote("MergeGateCheckRun", { description: "One check run on the pull request head, as the gate reads it." })
+  }).pipe(
+    $I.annoteSchema("MergeGateCheckRun", {
+      description: "One check run on the pull request head, as the gate reads it.",
+    })
+  )
 ) {}

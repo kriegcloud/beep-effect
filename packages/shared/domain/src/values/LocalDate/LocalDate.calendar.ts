@@ -31,11 +31,12 @@ const $I = $SharedDomainId.create("values/LocalDate/LocalDate.calendar");
  * @category schemas
  * @since 0.0.0
  */
-export class CalendarParts extends S.Class<CalendarParts>($I`CalendarParts`)(
-  CanonicalLocalDate.fields,
-  $I.annote("CalendarParts", {
-    description: "Raw Gregorian calendar fields used before LocalDate class construction.",
-  })
+export class CalendarParts extends S.Opaque<CalendarParts, { readonly brand: unique symbol }>()(
+  S.Struct(CanonicalLocalDate.fields).pipe(
+    $I.annoteSchema("CalendarParts", {
+      description: "Raw Gregorian calendar fields used before LocalDate class construction.",
+    })
+  )
 ) {}
 
 /**
@@ -90,5 +91,5 @@ export const daysInGregorianMonth: {
  * @category predicates
  * @since 0.0.0
  */
-export const isValidGregorianDate = ({ day, month, year }: CalendarParts): boolean =>
+export const isValidGregorianDate = ({ day, month, year }: typeof CalendarParts.Encoded): boolean =>
   year >= 1 && year <= 9999 && month >= 1 && month <= 12 && day >= 1 && day <= daysInGregorianMonth(year, month);

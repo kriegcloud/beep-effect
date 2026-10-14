@@ -50,7 +50,7 @@ const csvCodecOptionsSkipRowsDefault = S.Natural.make(0);
  * @category configuration
  * @since 0.0.0
  */
-export class CsvCodecOptions extends S.Class<CsvCodecOptions>($I`CsvCodecOptions`)(
+export class CsvCodecOptions extends S.Class<CsvCodecOptions, { readonly brand: unique symbol }>($I`CsvCodecOptions`)(
   {
     delimiter: SingleCharacterText.pipe(
       S.withConstructorDefault(Effect.succeed(",")),

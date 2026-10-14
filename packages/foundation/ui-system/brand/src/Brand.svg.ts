@@ -8,14 +8,8 @@ import { A, Str } from "@beep/utils";
 import { flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import { fontStack } from "./Brand.css.ts";
-import type {
-  BrandMark,
-  MarkGround,
-  MarkPaint,
-  MarkSvgRequest,
-  PixelGlasses,
-  WordmarkSvgRequest,
-} from "./Brand.schema.ts";
+import { BrandMark, FontStack, MarkPaint, PixelGlasses } from "./Brand.schema.ts";
+import type { MarkGround, MarkSvgRequest, WordmarkSvgRequest } from "./Brand.schema.ts";
 
 const WORDMARK_HEIGHT = 24;
 const WORDMARK_TEXT_X = 30;
@@ -39,9 +33,9 @@ const escapeXmlAttribute = (value: string): string =>
  * **Example** (Read the glasses transform)
  *
  * ```ts
- * import { beep, glassesTransform } from "@beep/brand"
+ * import { beep, glassesTransform, PixelGlasses } from "@beep/brand"
  *
- * console.log(glassesTransform(beep.mark.glasses))
+ * console.log(glassesTransform(PixelGlasses.make(beep.mark.glasses)))
  * ```
  *
  * @param glasses - Glasses placement and geometry.
@@ -65,7 +59,7 @@ const fillPath =
 const glassesGroup = (mark: BrandMark, paint: MarkPaint): string =>
   pipe(
     [
-      `<g transform="${glassesTransform(mark.glasses)}">`,
+      `<g transform="${glassesTransform(PixelGlasses.make(mark.glasses))}">`,
       fillPath(paint.frame)(mark.glasses.frame),
       ...A.map(mark.glasses.lenses, fillPath(paint.lens)),
       "</g>",
@@ -123,7 +117,7 @@ export const renderMarkSvg = (request: MarkSvgRequest): string =>
     [
       svgOpen(request.size, request.size, request.mark.name),
       O.getOrElse(O.map(request.ground, groundRect(request.size)), () => ""),
-      scaledMark(request.mark, request.paint, request.size),
+      scaledMark(BrandMark.make(request.mark), MarkPaint.make(request.paint), request.size),
       "</svg>",
     ],
     A.join(""),
@@ -131,7 +125,7 @@ export const renderMarkSvg = (request: MarkSvgRequest): string =>
   );
 
 const wordmarkText = (request: WordmarkSvgRequest): string =>
-  `<text x="${WORDMARK_TEXT_X}" y="17.5" font-family="${escapeXmlAttribute(fontStack(request.identity.typography.sans))}" font-size="18" font-weight="700" letter-spacing="-0.02em" fill="${request.textFill}">${escapeXmlText(request.identity.name)}</text>`;
+  `<text x="${WORDMARK_TEXT_X}" y="17.5" font-family="${escapeXmlAttribute(fontStack(FontStack.make(request.identity.typography.sans)))}" font-size="18" font-weight="700" letter-spacing="-0.02em" fill="${request.textFill}">${escapeXmlText(request.identity.name)}</text>`;
 
 /**
  * Render the mark beside the brand name as a horizontal wordmark SVG.
@@ -164,7 +158,7 @@ export const renderWordmarkSvg = (request: WordmarkSvgRequest): string =>
         WORDMARK_HEIGHT,
         request.identity.name
       ),
-      scaledMark(request.identity.mark, request.paint, WORDMARK_HEIGHT),
+      scaledMark(BrandMark.make(request.identity.mark), MarkPaint.make(request.paint), WORDMARK_HEIGHT),
       wordmarkText(request),
       "</svg>",
     ],

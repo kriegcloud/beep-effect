@@ -353,7 +353,7 @@ const intMap = (column: string) =>
  * @category errors
  * @since 0.0.0
  */
-export class FeedbackContractError extends S.TaggedError<FeedbackContractError>()(
+export class FeedbackContractError extends S.TaggedError<FeedbackContractError, { readonly brand: unique symbol }>()(
   "FeedbackContractError",
   { message: S.String },
   $I.annoteError<FeedbackContractError>("FeedbackContractError", {

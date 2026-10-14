@@ -34,7 +34,7 @@ const $I = $GovinfoId.create("domain/values/Sort/Sort.model");
  * @category dtos
  * @since 0.0.0
  */
-export class SortBase extends S.Class<SortBase>($I`SortBase`)(
+export class SortBase extends S.Class<SortBase, { readonly brand: unique symbol }>($I`SortBase`)(
   {
     field: S.NonEmptyString.annotateKey({
       description: "GovInfo search field used for ordering results.",

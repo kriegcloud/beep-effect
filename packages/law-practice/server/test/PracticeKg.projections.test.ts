@@ -26,6 +26,7 @@ import {
   PracticeKgPatentDocumentInput,
   PracticeKgProjectionsLive,
   PracticeKgQueries,
+  PracticeKgResolveAnchorsInput,
   PracticeKgToolkitLayer,
   practiceKgClaimsPhysicalColumns,
   practiceKgMcpProtocols,
@@ -86,41 +87,55 @@ const json = (value: unknown): Effect.Effect<string> => Effect.orDie(encodeJson(
 const isPracticeKgCandidateClaimsNotLoadedResult = S.is(PracticeKgCandidateClaimsNotLoadedResult);
 const isString = S.is(S.String);
 
-class FixtureSourceRow extends S.Class<FixtureSourceRow>("FixtureSourceRow")({
-  artifactId: S.String,
-  digest: S.String,
-  engine: S.String,
-  format: S.String,
-  operationId: S.String,
-  relativePath: S.String,
-  sizeBytes: S.Finite,
-  status: S.String,
-}) {}
+class FixtureSourceRow extends S.Opaque<FixtureSourceRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    artifactId: S.String,
+    digest: S.String,
+    engine: S.String,
+    format: S.String,
+    operationId: S.String,
+    relativePath: S.String,
+    sizeBytes: S.Finite,
+    status: S.String,
+  }).annotate({ identifier: "FixtureSourceRow" })
+) {}
 
-class DumpLine extends S.Class<DumpLine>("DumpLine")({
-  line: S.String,
-}) {}
+class DumpLine extends S.Opaque<DumpLine, { readonly brand: unique symbol }>()(
+  S.Struct({
+    line: S.String,
+  }).annotate({ identifier: "DumpLine" })
+) {}
 
-class CountRow extends S.Class<CountRow>("CountRow")({
-  count: S.Finite,
-}) {}
+class CountRow extends S.Opaque<CountRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    count: S.Finite,
+  }).annotate({ identifier: "CountRow" })
+) {}
 
-class IriRow extends S.Class<IriRow>("IriRow")({
-  iri: S.String,
-}) {}
+class IriRow extends S.Opaque<IriRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    iri: S.String,
+  }).annotate({ identifier: "IriRow" })
+) {}
 
-class ColumnRow extends S.Class<ColumnRow>("ColumnRow")({
-  columnName: S.String,
-}) {}
+class ColumnRow extends S.Opaque<ColumnRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    columnName: S.String,
+  }).annotate({ identifier: "ColumnRow" })
+) {}
 
-class ToolTextContent extends S.Class<ToolTextContent>("PracticeKgToolTextContent")({
-  text: S.String,
-  type: S.Literal("text"),
-}) {}
+class ToolTextContent extends S.Opaque<ToolTextContent, { readonly brand: unique symbol }>()(
+  S.Struct({
+    text: S.String,
+    type: S.Literal("text"),
+  }).annotate({ identifier: "PracticeKgToolTextContent" })
+) {}
 
-class ToolTextResult extends S.Class<ToolTextResult>("PracticeKgToolTextResult")({
-  content: S.NonEmptyArray(ToolTextContent),
-}) {}
+class ToolTextResult extends S.Opaque<ToolTextResult, { readonly brand: unique symbol }>()(
+  S.Struct({
+    content: S.NonEmptyArray(ToolTextContent),
+  }).annotate({ identifier: "PracticeKgToolTextResult" })
+) {}
 
 const encodeFixtureSource = S.encodeUnknownEffect(S.fromJsonString(FixtureSourceRow));
 const decodeFixtureSource = S.decodeUnknownEffect(S.fromJsonString(FixtureSourceRow));
@@ -2481,11 +2496,13 @@ describe("patent-only filename anchors", () => {
         expect.objectContaining({ applicationNumber: null, patentNumber: null, numbers: ["7654321"] }),
       ])
     );
-    const resolutions = resolveAnchors({
-      anchors,
-      attributions,
-      numberMentions: [PracticeKgNumberMentionRow.make({ digest: "mapped", number: "1234567", source: "filename" })],
-    });
+    const resolutions = resolveAnchors(
+      PracticeKgResolveAnchorsInput.make({
+        anchors,
+        attributions,
+        numberMentions: [PracticeKgNumberMentionRow.make({ digest: "mapped", number: "1234567", source: "filename" })],
+      })
+    );
     expect(resolutions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

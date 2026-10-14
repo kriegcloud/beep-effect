@@ -74,12 +74,11 @@ export const markPullRequestReadyDocument = GraphQLDocument.make({
  * @category models
  * @since 0.0.0
  */
-export class GithubThreadComment extends S.Class<GithubThreadComment>($I`GithubThreadComment`)(
-  {
+export class GithubThreadComment extends S.Opaque<GithubThreadComment, { readonly brand: unique symbol }>()(
+  S.Struct({
     author: S.NullOr(S.Struct({ __typename: S.optionalKey(S.String), login: S.String })),
     createdAt: S.optionalKey(S.String),
-  },
-  $I.annote("GithubThreadComment", { description: "The newest comment on a review thread." })
+  }).pipe($I.annoteSchema("GithubThreadComment", { description: "The newest comment on a review thread." }))
 ) {}
 
 /**
@@ -105,8 +104,8 @@ export class GithubThreadComment extends S.Class<GithubThreadComment>($I`GithubT
  * @category models
  * @since 0.0.0
  */
-export class GithubReviewThreadNode extends S.Class<GithubReviewThreadNode>($I`GithubReviewThreadNode`)(
-  {
+export class GithubReviewThreadNode extends S.Opaque<GithubReviewThreadNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     isResolved: S.Boolean,
     isOutdated: S.Boolean,
@@ -114,8 +113,7 @@ export class GithubReviewThreadNode extends S.Class<GithubReviewThreadNode>($I`G
     line: S.NullOr(S.Finite),
     resolvedBy: S.NullOr(S.Struct({ login: S.String })),
     comments: S.Struct({ nodes: S.Array(GithubThreadComment) }),
-  },
-  $I.annote("GithubReviewThreadNode", { description: "One review thread with its resolution state." })
+  }).pipe($I.annoteSchema("GithubReviewThreadNode", { description: "One review thread with its resolution state." }))
 ) {}
 
 const ReviewThreadsData = S.Struct({
@@ -150,9 +148,10 @@ export const reviewThreadsPageDocument = GraphQLDocument.make({
  * @category models
  * @since 0.0.0
  */
-export class GithubReviewThreads extends S.Class<GithubReviewThreads>($I`GithubReviewThreads`)(
-  { author: S.Option(S.String), threads: S.Array(GithubReviewThreadNode) },
-  $I.annote("GithubReviewThreads", { description: "Every review thread on a pull request." })
+export class GithubReviewThreads extends S.Opaque<GithubReviewThreads, { readonly brand: unique symbol }>()(
+  S.Struct({ author: S.Option(S.String), threads: S.Array(GithubReviewThreadNode) }).pipe(
+    $I.annoteSchema("GithubReviewThreads", { description: "Every review thread on a pull request." })
+  )
 ) {}
 
 const MAX_THREAD_PAGES = 20;

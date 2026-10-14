@@ -12,7 +12,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaGetter from "effect/SchemaGetter";
 import { HexColor, hexToRgbValue, NormalizeHexColor, rgbToHexValue } from "./Color.hex.ts";
-import { $I, schemaIssueToError } from "./Color.shared.ts";
+import { $I, OklchEncoded, RgbEncoded, schemaIssueToError } from "./Color.shared.ts";
 import { hexToOklchValue, oklchToHexValue } from "./Color.transforms.ts";
 
 const HexColorScale12Checks = S.makeFilterGroup(
@@ -58,11 +58,13 @@ const generateScaleValues = ({ seed, isDark }: GenerateScaleInput): HexColorScal
   return Result.getOrThrowWith(
     S.decodeResult(HexColorScale12)(
       A.zipWith(lightSteps, chromaMultipliers, (lightness, multiplier) =>
-        oklchToHexValue({
-          l: lightness,
-          c: base.c * multiplier,
-          h: base.h,
-        })
+        oklchToHexValue(
+          OklchEncoded.make({
+            l: lightness,
+            c: base.c * multiplier,
+            h: base.h,
+          })
+        )
       )
     ),
     schemaIssueToError
@@ -80,11 +82,13 @@ const generateNeutralScaleValues = ({ seed, isDark }: GenerateNeutralScaleInput)
   return Result.getOrThrowWith(
     S.decodeResult(HexColorScale12)(
       A.map(lightSteps, (lightness) =>
-        oklchToHexValue({
-          l: lightness,
-          c: neutralChroma,
-          h: base.h,
-        })
+        oklchToHexValue(
+          OklchEncoded.make({
+            l: lightness,
+            c: neutralChroma,
+            h: base.h,
+          })
+        )
       )
     ),
     schemaIssueToError
@@ -106,11 +110,13 @@ const generateAlphaScaleValues = ({ scale, isDark }: GenerateAlphaScaleInput): H
       A.zipWith(scale, alphas, (hex, alpha) => {
         const { r, g, b } = hexToRgbValue(hex);
 
-        return rgbToHexValue({
-          r: r * alpha + background * (1 - alpha),
-          g: g * alpha + background * (1 - alpha),
-          b: b * alpha + background * (1 - alpha),
-        });
+        return rgbToHexValue(
+          RgbEncoded.make({
+            r: r * alpha + background * (1 - alpha),
+            g: g * alpha + background * (1 - alpha),
+            b: b * alpha + background * (1 - alpha),
+          })
+        );
       })
     ),
     schemaIssueToError
@@ -194,14 +200,15 @@ const HexColorScale12Input = S.Array(NormalizeHexColor)
  * @category validation
  * @since 0.0.0
  */
-export class GenerateScaleInput extends S.Class<GenerateScaleInput>($I`GenerateScaleInput`)(
-  {
+export class GenerateScaleInput extends S.Opaque<GenerateScaleInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     seed: NormalizeHexColor.annotateKey({ description: "Seed color for the generated scale." }),
     isDark: S.Boolean.annotateKey({ description: "Whether to generate the dark variant scale." }),
-  },
-  $I.annote("GenerateScaleInput", {
-    description: "Input payload for generating a 12-step chromatic color scale.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerateScaleInput", {
+      description: "Input payload for generating a 12-step chromatic color scale.",
+    })
+  )
 ) {}
 
 /**
@@ -266,14 +273,15 @@ export type GenerateScale = typeof GenerateScale.Type;
  * @category validation
  * @since 0.0.0
  */
-export class GenerateNeutralScaleInput extends S.Class<GenerateNeutralScaleInput>($I`GenerateNeutralScaleInput`)(
-  {
+export class GenerateNeutralScaleInput extends S.Opaque<GenerateNeutralScaleInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     seed: NormalizeHexColor.annotateKey({ description: "Seed color for the neutral scale." }),
     isDark: S.Boolean.annotateKey({ description: "Whether to generate the dark neutral variant." }),
-  },
-  $I.annote("GenerateNeutralScaleInput", {
-    description: "Input payload for generating a 12-step neutral color scale.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerateNeutralScaleInput", {
+      description: "Input payload for generating a 12-step neutral color scale.",
+    })
+  )
 ) {}
 
 /**
@@ -346,14 +354,15 @@ export type GenerateNeutralScale = typeof GenerateNeutralScale.Type;
  * @category validation
  * @since 0.0.0
  */
-export class GenerateAlphaScaleInput extends S.Class<GenerateAlphaScaleInput>($I`GenerateAlphaScaleInput`)(
-  {
+export class GenerateAlphaScaleInput extends S.Opaque<GenerateAlphaScaleInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     scale: HexColorScale12Input.annotateKey({ description: "Base 12-step scale used for alpha blending." }),
     isDark: S.Boolean.annotateKey({ description: "Whether to blend against a dark background." }),
-  },
-  $I.annote("GenerateAlphaScaleInput", {
-    description: "Input payload for generating a 12-step alpha-blended color scale.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerateAlphaScaleInput", {
+      description: "Input payload for generating a 12-step alpha-blended color scale.",
+    })
+  )
 ) {}
 
 /**

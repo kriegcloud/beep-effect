@@ -100,7 +100,7 @@ describe("OperationCost", () => {
 
   it("scales O(n) time linearly", () => {
     const scaled = Types.OperationCost.scale(
-      { complexity: "O(n)", estimatedTime: Duration.millis(3), memoryCost: 0, tokenCost: 0 },
+      Types.OperationCost.cases["O(n)"].make({ estimatedTime: Duration.millis(3), memoryCost: 0, tokenCost: 0 }),
       4
     );
     expect(Duration.toMillis(scaled.estimatedTime)).toBe(12);
@@ -187,7 +187,7 @@ describe("ResultStore", () => {
     };
   });
 
-  const mkResult = Effect.map(mkResultFixture, ({ result }) => result);
+  const mkResult = Effect.map(mkResultFixture, ({ result }) => ResultStore.AnyOperationResult.make(result));
 
   it.effect(
     "round-trips schema-backed cache entries with type-erased operation results",

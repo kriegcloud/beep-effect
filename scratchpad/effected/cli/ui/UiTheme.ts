@@ -27,7 +27,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/UiTheme");
  * @category errors
  * @since 0.0.0
  */
-export class MissingUiThemeError extends S.TaggedError<MissingUiThemeError>($I`MissingUiThemeError`)(
+export class MissingUiThemeError extends S.TaggedError<MissingUiThemeError, { readonly brand: unique symbol }>($I`MissingUiThemeError`)(
 	"MissingUiThemeError",
 	{
 		message: S.String.annotate($I.annote("MissingUiThemeError.message", { description: "The missing screen or UiProvider context required by a theme hook." })),

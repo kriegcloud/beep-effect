@@ -142,8 +142,8 @@ export type DatasetSourceType = typeof DatasetSourceType.Type;
  * @since 0.0.0
  * @category models
  */
-export class DatasetMeta extends S.Class<DatasetMeta>($I`DatasetMeta`)(
-  {
+export class DatasetMeta extends S.Opaque<DatasetMeta, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Detected dataset format (`"text"`, `"lines"`, `"jsonl"`, or `"json"`). */
     format: DatasetFormat.annotateKey({
       description: 'Detected dataset format (`"text"`, `"lines"`, `"jsonl"`, or `"json"`).',
@@ -166,10 +166,11 @@ export class DatasetMeta extends S.Class<DatasetMeta>($I`DatasetMeta`)(
     sourceType: DatasetSourceType.annotateKey({
       description: 'Source channel: `"file"` or `"url"`.',
     }),
-  },
-  $I.annote("DatasetMeta", {
-    description: "Provenance metadata returned alongside every loaded dataset.",
-  })
+  }).pipe(
+    $I.annoteSchema("DatasetMeta", {
+      description: "Provenance metadata returned alongside every loaded dataset.",
+    })
+  )
 ) {}
 
 /**
@@ -225,8 +226,8 @@ export const DatasetResult = <Data extends S.Top>(data: Data) =>
  * @since 0.0.0
  * @category models
  */
-export class DatasetLoadTextOptions extends S.Class<DatasetLoadTextOptions>($I`DatasetLoadTextOptions`)(
-  {
+export class DatasetLoadTextOptions extends S.Opaque<DatasetLoadTextOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     encoding: TextEncoding.pipe(
       S.withConstructorDefault(Effect.succeed("utf-8" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("utf-8" as const))
@@ -239,10 +240,11 @@ export class DatasetLoadTextOptions extends S.Class<DatasetLoadTextOptions>($I`D
     ).annotateKey({
       description: "Remote URL load timeout in milliseconds.",
     }),
-  },
-  $I.annote("DatasetLoadTextOptions", {
-    description: "Options for loading a dataset as raw text.",
-  })
+  }).pipe(
+    $I.annoteSchema("DatasetLoadTextOptions", {
+      description: "Options for loading a dataset as raw text.",
+    })
+  )
 ) {}
 
 /**
@@ -260,8 +262,8 @@ export class DatasetLoadTextOptions extends S.Class<DatasetLoadTextOptions>($I`D
  * @since 0.0.0
  * @category models
  */
-export class DatasetLoadLinesOptions extends S.Class<DatasetLoadLinesOptions>($I`DatasetLoadLinesOptions`)(
-  {
+export class DatasetLoadLinesOptions extends S.Opaque<DatasetLoadLinesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     skipEmpty: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
       description: "Drop empty lines after optional trimming.",
     }),
@@ -274,10 +276,11 @@ export class DatasetLoadLinesOptions extends S.Class<DatasetLoadLinesOptions>($I
     trim: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
       description: "Trim surrounding whitespace from loaded lines.",
     }),
-  },
-  $I.annote("DatasetLoadLinesOptions", {
-    description: "Options for loading a dataset as text lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("DatasetLoadLinesOptions", {
+      description: "Options for loading a dataset as text lines.",
+    })
+  )
 ) {}
 
 /**
@@ -295,8 +298,8 @@ export class DatasetLoadLinesOptions extends S.Class<DatasetLoadLinesOptions>($I
  * @since 0.0.0
  * @category models
  */
-export class DatasetLoadJsonlOptions extends S.Class<DatasetLoadJsonlOptions>($I`DatasetLoadJsonlOptions`)(
-  {
+export class DatasetLoadJsonlOptions extends S.Opaque<DatasetLoadJsonlOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     skipInvalid: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
       description: "Drop malformed JSONL records instead of failing the load.",
     }),
@@ -306,10 +309,11 @@ export class DatasetLoadJsonlOptions extends S.Class<DatasetLoadJsonlOptions>($I
     ).annotateKey({
       description: "Remote URL load timeout in milliseconds.",
     }),
-  },
-  $I.annote("DatasetLoadJsonlOptions", {
-    description: "Options for loading a dataset as JSONL records.",
-  })
+  }).pipe(
+    $I.annoteSchema("DatasetLoadJsonlOptions", {
+      description: "Options for loading a dataset as JSONL records.",
+    })
+  )
 ) {}
 
 /**
@@ -327,18 +331,19 @@ export class DatasetLoadJsonlOptions extends S.Class<DatasetLoadJsonlOptions>($I
  * @since 0.0.0
  * @category models
  */
-export class DatasetLoadJsonOptions extends S.Class<DatasetLoadJsonOptions>($I`DatasetLoadJsonOptions`)(
-  {
+export class DatasetLoadJsonOptions extends S.Opaque<DatasetLoadJsonOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     timeout: PositiveInteger.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_TIMEOUT_MS)),
       S.withDecodingDefaultTypeKey(Effect.succeed(DEFAULT_TIMEOUT_MS))
     ).annotateKey({
       description: "Remote URL load timeout in milliseconds.",
     }),
-  },
-  $I.annote("DatasetLoadJsonOptions", {
-    description: "Options for loading a dataset as a single JSON document.",
-  })
+  }).pipe(
+    $I.annoteSchema("DatasetLoadJsonOptions", {
+      description: "Options for loading a dataset as a single JSON document.",
+    })
+  )
 ) {}
 
 /**
@@ -347,12 +352,19 @@ export class DatasetLoadJsonOptions extends S.Class<DatasetLoadJsonOptions>($I`D
  * **Example** (Typing a load result)
  *
  * ```ts
+ * import { DatasetMeta } from "@beep/nlp-mcp/Streaming/DatasetLoader"
  * import type { DatasetResult } from "@beep/nlp-mcp/Streaming/DatasetLoader"
  * import * as O from "effect/Option"
  *
  * const result: DatasetResult<string> = {
  *   data: "hello",
- *   meta: { format: "text", loadedAt: 0, location: "/tmp/data.txt", sizeBytes: O.none(), sourceType: "file" }
+ *   meta: DatasetMeta.make({
+ *     format: "text",
+ *     loadedAt: 0,
+ *     location: "/tmp/data.txt",
+ *     sizeBytes: O.none(),
+ *     sourceType: "file"
+ *   })
  * }
  * console.log(result.data)
  * ```
@@ -377,7 +389,9 @@ export type DatasetResult<A> = S.Schema.Type<ReturnType<typeof DatasetResult<S.S
  * @since 0.0.0
  * @category errors
  */
-export class DatasetLoadError extends S.TaggedError<DatasetLoadError>($I`DatasetLoadError`)(
+export class DatasetLoadError extends S.TaggedError<DatasetLoadError, { readonly brand: unique symbol }>(
+  $I`DatasetLoadError`
+)(
   "DatasetLoadError",
   {
     cause: S.OptionFromOptionalKey(

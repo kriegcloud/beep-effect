@@ -15,6 +15,7 @@ import {
   SkippedProcessFileResult,
 } from "../Extraction/Extraction.schema.ts";
 import { FileProcessingOperationError } from "../Operation/Operation.errors.ts";
+import { DetectFileOperation, ExportArchiveOperation, ExtractFileOperation } from "../Operation/Operation.schema.ts";
 import { FileFormatFamily as FileFormatFamilySchema } from "../Strategy/Strategy.schema.ts";
 import { FileProcessingService } from "./FileProcessing.service.ts";
 import type * as Crypto from "effect/Crypto";
@@ -60,12 +61,14 @@ const detectWithAvailableEngine = Effect.fn("FileProcessingService.detectWithAva
   let lastDetected = O.none<readonly [FileProcessingEngineShape, DetectionResult]>();
 
   for (const engine of candidates) {
-    const detected = yield* engine.detect({
-      operationId: operation.operationId,
-      operationKind: "detect",
-      preference: operation.preference,
-      source: operation.source,
-    });
+    const detected = yield* engine.detect(
+      DetectFileOperation.make({
+        operationId: operation.operationId,
+        operationKind: "detect",
+        preference: operation.preference,
+        source: operation.source,
+      })
+    );
 
     if (detected.format !== "unknown") {
       return [engine, detected];
@@ -151,16 +154,18 @@ export const makeFileProcessingServiceLayer = (
               detected.format
             );
             const archiveExport = yield* archiveEngine
-              .exportArchive({
-                format: detected.format,
-                operationId: operation.operationId,
-                operationKind: "export-archive",
-                preference: operation.preference,
-                source: operation.source,
-                ...O.getSomesStruct({
-                  maxMaterializedBytes: O.fromUndefinedOr(operation.maxMaterializedBytes),
-                }),
-              })
+              .exportArchive(
+                ExportArchiveOperation.make({
+                  format: detected.format,
+                  operationId: operation.operationId,
+                  operationKind: "export-archive",
+                  preference: operation.preference,
+                  source: operation.source,
+                  ...O.getSomesStruct({
+                    maxMaterializedBytes: O.fromUndefinedOr(operation.maxMaterializedBytes),
+                  }),
+                })
+              )
               .pipe(Effect.provide(cryptoContext));
 
             return ArchiveExportProcessFileResult.make({
@@ -180,16 +185,18 @@ export const makeFileProcessingServiceLayer = (
             FileFormatFamilySchema.processCapability(detected.format),
             detected.format
           );
-          const extraction = yield* extractionEngine.extract({
-            format: detected.format,
-            operationId: operation.operationId,
-            operationKind: "extract",
-            preference: operation.preference,
-            source: operation.source,
-            ...O.getSomesStruct({
-              maxMaterializedBytes: O.fromUndefinedOr(operation.maxMaterializedBytes),
-            }),
-          });
+          const extraction = yield* extractionEngine.extract(
+            ExtractFileOperation.make({
+              format: detected.format,
+              operationId: operation.operationId,
+              operationKind: "extract",
+              preference: operation.preference,
+              source: operation.source,
+              ...O.getSomesStruct({
+                maxMaterializedBytes: O.fromUndefinedOr(operation.maxMaterializedBytes),
+              }),
+            })
+          );
 
           return ExtractedProcessFileResult.make({
             engine: extractionEngine.descriptor.name,

@@ -60,15 +60,16 @@ const $I = $EpistemicUseCasesId.create("ClaimDisposition/ClaimDisposition.comman
  * @category commands
  * @since 0.0.0
  */
-export class ClaimDispositionAppend extends S.Class<ClaimDispositionAppend>($I`ClaimDispositionAppend`)(
-  {
+export class ClaimDispositionAppend extends S.Opaque<ClaimDispositionAppend, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...ClaimDisposition.fields,
     entityType: S.tag(Epistemic.ClaimDispositionId.entityType),
     id: Epistemic.ClaimDispositionId,
-  },
-  $I.annote("ClaimDispositionAppend", {
-    description: "Decoded append payload for one durable claim disposition.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimDispositionAppend", {
+      description: "Decoded append payload for one durable claim disposition.",
+    })
+  )
 ) {}
 
 /**

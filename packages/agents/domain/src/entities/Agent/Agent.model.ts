@@ -46,12 +46,15 @@ export class Agent extends ProductEntity.Entity<Agent>()(Agents.AgentId)(
       .mapMembers(
         Tuple.evolve([
           () => {
-            class AgentDeterministicFixtureMember extends S.Class<AgentDeterministicFixtureMember>(
-              $I`AgentDeterministicFixtureMember`
-            )({
-              ...Agent.fields,
-              mode: S.tag("deterministic_fixture"),
-            }) {}
+            class AgentDeterministicFixtureMember extends S.Opaque<
+              AgentDeterministicFixtureMember,
+              { readonly brand: unique symbol }
+            >()(
+              S.Struct({
+                ...Agent.fields,
+                mode: S.tag("deterministic_fixture"),
+              }).pipe($I.annoteSchema("AgentDeterministicFixtureMember"))
+            ) {}
             return AgentDeterministicFixtureMember;
           },
         ])

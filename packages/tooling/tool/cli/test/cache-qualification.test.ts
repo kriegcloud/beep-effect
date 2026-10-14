@@ -96,7 +96,7 @@ it.layer(testLayer, { timeout: "30 seconds" })("Cache qualification writer", (it
     [CacheQualificationStore],
     ([value]) =>
       Effect.sync(() => {
-        const encoded = R.getOrThrow(encodeCacheQualificationStoreJsonResult(value));
+        const encoded = R.getOrThrow(encodeCacheQualificationStoreJsonResult(CacheQualificationStore.make(value)));
         const decoded = R.getOrThrow(decodeCacheQualificationStoreJsonResult(encoded));
         expect(equivalent(value, decoded)).toBe(true);
       }),

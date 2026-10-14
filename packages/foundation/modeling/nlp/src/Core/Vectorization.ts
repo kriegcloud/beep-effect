@@ -97,16 +97,17 @@ export type BM25Norm = typeof BM25Norm.Type;
  * @category models
  * @since 0.0.0
  */
-export class BM25Config extends S.Class<BM25Config>($I`BM25Config`)(
-  {
+export class BM25Config extends S.Opaque<BM25Config, { readonly brand: unique symbol }>()(
+  S.Struct({
     b: UnitInterval,
     k: PositiveNumber,
     k1: PositiveNumber,
     norm: BM25Norm,
-  },
-  $I.annote("BM25Config", {
-    description: "Resolved BM25 hyperparameters used by vectorization services.",
-  })
+  }).pipe(
+    $I.annoteSchema("BM25Config", {
+      description: "Resolved BM25 hyperparameters used by vectorization services.",
+    })
+  )
 ) {}
 
 /**
@@ -151,15 +152,16 @@ export const DefaultBM25Config = BM25Config.make({
  * @category models
  * @since 0.0.0
  */
-export class DocumentVector extends S.Class<DocumentVector>($I`DocumentVector`)(
-  {
+export class DocumentVector extends S.Opaque<DocumentVector, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentId: DocumentId,
     terms: S.Array(S.String),
     vector: S.Array(S.Finite),
-  },
-  $I.annote("DocumentVector", {
-    description: "Dense vector representation for a document-like input.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentVector", {
+      description: "Dense vector representation for a document-like input.",
+    })
+  )
 ) {}
 
 /**
@@ -182,14 +184,15 @@ export class DocumentVector extends S.Class<DocumentVector>($I`DocumentVector`)(
  * @category models
  * @since 0.0.0
  */
-export class BagOfWords extends S.Class<BagOfWords>($I`BagOfWords`)(
-  {
+export class BagOfWords extends S.Opaque<BagOfWords, { readonly brand: unique symbol }>()(
+  S.Struct({
     bow: S.Record(S.String, S.Finite),
     documentId: DocumentId,
-  },
-  $I.annote("BagOfWords", {
-    description: "Bag-of-words term-frequency representation for a document-like input.",
-  })
+  }).pipe(
+    $I.annoteSchema("BagOfWords", {
+      description: "Bag-of-words term-frequency representation for a document-like input.",
+    })
+  )
 ) {}
 
 /**
@@ -211,12 +214,13 @@ export class BagOfWords extends S.Class<BagOfWords>($I`BagOfWords`)(
  * @category models
  * @since 0.0.0
  */
-export class TermFrequency extends S.Class<TermFrequency>($I`TermFrequency`)(
-  {
+export class TermFrequency extends S.Opaque<TermFrequency, { readonly brand: unique symbol }>()(
+  S.Struct({
     frequency: S.Finite,
     term: S.String,
-  },
-  $I.annote("TermFrequency", {
-    description: "Normalized term contribution for a learned document.",
-  })
+  }).pipe(
+    $I.annoteSchema("TermFrequency", {
+      description: "Normalized term contribution for a learned document.",
+    })
+  )
 ) {}

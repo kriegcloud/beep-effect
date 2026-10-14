@@ -48,7 +48,10 @@ import { aiMetricsDataRootFlag as dataRootFlag, jsonFlag } from "../../internal/
 import { printLines } from "../../internal/cli/Printer.ts";
 import { resolveDataRoot } from "../AIMetrics/AIMetrics.config.ts";
 import { runAgentConventionComparison } from "./internal/EvalComparison.ts";
-import { runAgentEffectivenessEvalScoreCommand } from "./internal/EvalScorer.ts";
+import {
+  RunAgentEffectivenessEvalScoreCommandOptions,
+  runAgentEffectivenessEvalScoreCommand,
+} from "./internal/EvalScorer.ts";
 import type {
   AgentEffectivenessAnnotationCheckReport,
   AgentEffectivenessAnnotationPlan,
@@ -331,7 +334,9 @@ const renderPhoenixSyncResult: {
   })
 );
 
-class MakeDoctorProgramOptions extends S.Class<MakeDoctorProgramOptions>($I`MakeDoctorProgramOptions`)(
+class MakeDoctorProgramOptions extends S.Class<MakeDoctorProgramOptions, { readonly brand: unique symbol }>(
+  $I`MakeDoctorProgramOptions`
+)(
   {
     dataRoot: S.Option(S.String),
     json: S.Boolean,
@@ -349,7 +354,7 @@ class MakeDoctorProgramOptions extends S.Class<MakeDoctorProgramOptions>($I`Make
 // `AgentEffectivenessDoctorInput`, and provides the same layers around whatever it derives
 // from that input; only the derivation and the rendering tail differ.
 const runDoctorInputProgram = Effect.fn("AgentEffectiveness.runDoctorInputProgram")(function* <A, E, R>(
-  { dataRoot, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }: MakeDoctorProgramOptions,
+  { dataRoot, noPhoenix, phoenixBaseUrl, target, workerEvalReportPath }: typeof MakeDoctorProgramOptions.Encoded,
   derive: (input: AgentEffectivenessDoctorInput) => Effect.Effect<A, E, R>
 ) {
   const resolvedDataRoot = yield* resolveDataRoot(dataRoot, target);
@@ -369,21 +374,21 @@ const runDoctorInputProgram = Effect.fn("AgentEffectiveness.runDoctorInputProgra
 const deriveAnnotationPlan = flow(AgentEffectivenessAnnotationPlanInput.new, makeAgentEffectivenessAnnotationPlan);
 
 const makeDoctorProgram = Effect.fn("AgentEffectiveness.makeDoctorProgram")(function* (
-  options: MakeDoctorProgramOptions
+  options: typeof MakeDoctorProgramOptions.Encoded
 ) {
   const report = yield* runDoctorInputProgram(options, makeAgentEffectivenessDoctorReport);
   return yield* renderDoctorReport(report, options.json);
 });
 
 const makeAnnotationPlanProgram = Effect.fn("AgentEffectiveness.makeAnnotationPlanProgram")(function* (
-  options: MakeDoctorProgramOptions
+  options: typeof MakeDoctorProgramOptions.Encoded
 ) {
   const plan = yield* runDoctorInputProgram(options, deriveAnnotationPlan);
   return yield* renderAnnotationPlan(plan, options.json);
 });
 
 const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationCheckProgram")(function* (
-  options: MakeDoctorProgramOptions
+  options: typeof MakeDoctorProgramOptions.Encoded
 ) {
   const plan = yield* runDoctorInputProgram(options, deriveAnnotationPlan);
   const report = makeAgentEffectivenessAnnotationCheckReport(plan);
@@ -394,14 +399,14 @@ const makeAnnotationCheckProgram = Effect.fn("AgentEffectiveness.makeAnnotationC
 });
 
 const makeDatasetBundleProgram = Effect.fn("AgentEffectiveness.makeDatasetBundleProgram")(function* (
-  options: MakeDoctorProgramOptions
+  options: typeof MakeDoctorProgramOptions.Encoded
 ) {
   const report = yield* runDoctorInputProgram(options, makeAgentEffectivenessDoctorReport);
   return yield* renderDatasetBundle(makeAgentEffectivenessDatasetBundle(report), options.json);
 });
 
 const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundleProgram")(function* (
-  params: MakeDoctorProgramOptions
+  params: typeof MakeDoctorProgramOptions.Encoded
 ) {
   return yield* pipe(
     DateTime.now,
@@ -412,7 +417,7 @@ const makePromptBundleProgram = Effect.fn("AgentEffectiveness.makePromptBundlePr
 });
 
 const makeExperimentBundleProgram = Effect.fn("AgentEffectiveness.makeExperimentBundleProgram")(function* (
-  options: MakeDoctorProgramOptions
+  options: typeof MakeDoctorProgramOptions.Encoded
 ) {
   const report = yield* runDoctorInputProgram(options, makeAgentEffectivenessDoctorReport);
   return yield* pipe(
@@ -444,7 +449,7 @@ const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProg
   target,
   workerEvalReportPath,
   write,
-}: MakePhoenixSyncProgramOptions) {
+}: typeof MakePhoenixSyncProgramOptions.Encoded) {
   const resolvedDataRoot = yield* resolveDataRoot(dataRoot, target);
   const makePhoenixSyncInput = pipe(
     confirmPhoenixWrite,
@@ -475,8 +480,8 @@ const makePhoenixSyncProgram = Effect.fn("AgentEffectiveness.makePhoenixSyncProg
   );
 });
 
-class MakeEvalScoreProgramOptions extends S.Class<MakeEvalScoreProgramOptions>($I`MakeEvalScoreProgramOptions`)(
-  {
+class MakeEvalScoreProgramOptions extends S.Opaque<MakeEvalScoreProgramOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataRoot: S.Option(S.String),
     dir: S.String,
     json: S.Boolean,
@@ -484,10 +489,11 @@ class MakeEvalScoreProgramOptions extends S.Class<MakeEvalScoreProgramOptions>($
     reasoningEffort: S.Option(S.NonEmptyString),
     record: S.Boolean,
     taskPath: S.String,
-  },
-  $I.annote("MakeEvalScoreProgramOptions", {
-    description: "Eval scorer flags before the AI metrics data root is resolved.",
-  })
+  }).pipe(
+    $I.annoteSchema("MakeEvalScoreProgramOptions", {
+      description: "Eval scorer flags before the AI metrics data root is resolved.",
+    })
+  )
 ) {}
 
 // `evals score` carries no `--target` flag, so the fallback rung is always the
@@ -506,15 +512,17 @@ const makeEvalScoreProgram = Effect.fn("AgentEffectiveness.makeEvalScoreProgram"
   const resolvedDataRoot = record
     ? O.some(yield* resolveDataRoot(dataRoot, AiMetricsDeployTarget.Enum.local))
     : O.none<string>();
-  return yield* runAgentEffectivenessEvalScoreCommand({
-    dataRoot: resolvedDataRoot,
-    dir,
-    json,
-    modelId,
-    reasoningEffort,
-    record,
-    taskPath,
-  });
+  return yield* runAgentEffectivenessEvalScoreCommand(
+    RunAgentEffectivenessEvalScoreCommandOptions.make({
+      dataRoot: resolvedDataRoot,
+      dir,
+      json,
+      modelId,
+      reasoningEffort,
+      record,
+      taskPath,
+    })
+  );
 });
 
 const doctorCommand = Command.make(
@@ -653,7 +661,7 @@ const evalsScoreCommand = Command.make(
     record: evalRecordFlag,
     taskPath: evalTaskManifestFlag,
   },
-  flow(makeEvalScoreProgram, runAgentEffectivenessProgram)
+  flow(MakeEvalScoreProgramOptions.make, makeEvalScoreProgram, runAgentEffectivenessProgram)
 ).pipe(Command.withDescription("Score a SkillOpt eval fixture with completion and repo-law checks"));
 
 const evalsCompareCommand = Command.make(

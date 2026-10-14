@@ -30,8 +30,8 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.corrections");
  * @category models
  * @since 0.0.0
  */
-export class LibraryCaptureCorrection extends S.Class<LibraryCaptureCorrection>($I`LibraryCaptureCorrection`)(
-  {
+export class LibraryCaptureCorrection extends S.Opaque<LibraryCaptureCorrection, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema: S.Literal("beep.research.capture-correction/v1"),
     captureId: S.String,
     sourceId: S.String,
@@ -41,11 +41,12 @@ export class LibraryCaptureCorrection extends S.Class<LibraryCaptureCorrection>(
     before: LibraryArtifact,
     after: LibraryCapture,
     afterSha256: S.String.check(S.isPattern(/^[0-9a-f]{64}$/)),
-  },
-  $I.annote("LibraryCaptureCorrection", {
-    description:
-      "Hash-bound before snapshot and demoted after state, excluding the correction artifact itself to avoid recursive hashes.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryCaptureCorrection", {
+      description:
+        "Hash-bound before snapshot and demoted after state, excluding the correction artifact itself to avoid recursive hashes.",
+    })
+  )
 ) {}
 
 /**

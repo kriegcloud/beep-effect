@@ -57,22 +57,24 @@ const adapterMetadata = (canonicalName: string, overview: string) =>
  * @category models
  * @since 0.0.0
  */
-export class WebAnnotationTextQuoteSelector extends S.Class<WebAnnotationTextQuoteSelector>(
-  $I`WebAnnotationTextQuoteSelector`
-)(
-  {
+export class WebAnnotationTextQuoteSelector extends S.Opaque<
+  WebAnnotationTextQuoteSelector,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     type: S.tag("TextQuoteSelector"),
     exact: S.NonEmptyString,
     prefix: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     suffix: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("WebAnnotationTextQuoteSelector", {
-    description: "Web Annotation text-quote selector DTO.",
-    semanticSchemaMetadata: adapterMetadata(
-      "WebAnnotationTextQuoteSelector",
-      "Web Annotation text-quote selector DTO."
-    ),
-  })
+  }).pipe(
+    $I.annoteSchema("WebAnnotationTextQuoteSelector", {
+      description: "Web Annotation text-quote selector DTO.",
+      semanticSchemaMetadata: adapterMetadata(
+        "WebAnnotationTextQuoteSelector",
+        "Web Annotation text-quote selector DTO."
+      ),
+    })
+  )
 ) {}
 
 /**
@@ -95,21 +97,23 @@ export class WebAnnotationTextQuoteSelector extends S.Class<WebAnnotationTextQuo
  * @category models
  * @since 0.0.0
  */
-export class WebAnnotationTextPositionSelector extends S.Class<WebAnnotationTextPositionSelector>(
-  $I`WebAnnotationTextPositionSelector`
-)(
-  {
+export class WebAnnotationTextPositionSelector extends S.Opaque<
+  WebAnnotationTextPositionSelector,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     type: S.tag("TextPositionSelector"),
     start: S.Natural,
     end: S.Natural,
-  },
-  $I.annote("WebAnnotationTextPositionSelector", {
-    description: "Web Annotation text-position selector DTO.",
-    semanticSchemaMetadata: adapterMetadata(
-      "WebAnnotationTextPositionSelector",
-      "Web Annotation text-position selector DTO."
-    ),
-  })
+  }).pipe(
+    $I.annoteSchema("WebAnnotationTextPositionSelector", {
+      description: "Web Annotation text-position selector DTO.",
+      semanticSchemaMetadata: adapterMetadata(
+        "WebAnnotationTextPositionSelector",
+        "Web Annotation text-position selector DTO."
+      ),
+    })
+  )
 ) {}
 
 /**
@@ -131,18 +135,20 @@ export class WebAnnotationTextPositionSelector extends S.Class<WebAnnotationText
  * @category models
  * @since 0.0.0
  */
-export class WebAnnotationFragmentSelector extends S.Class<WebAnnotationFragmentSelector>(
-  $I`WebAnnotationFragmentSelector`
-)(
-  {
+export class WebAnnotationFragmentSelector extends S.Opaque<
+  WebAnnotationFragmentSelector,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     type: S.tag("FragmentSelector"),
     value: S.NonEmptyString,
     conformsTo: S.OptionFromOptionalKey(IRIReference).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("WebAnnotationFragmentSelector", {
-    description: "Web Annotation fragment selector DTO.",
-    semanticSchemaMetadata: adapterMetadata("WebAnnotationFragmentSelector", "Web Annotation fragment selector DTO."),
-  })
+  }).pipe(
+    $I.annoteSchema("WebAnnotationFragmentSelector", {
+      description: "Web Annotation fragment selector DTO.",
+      semanticSchemaMetadata: adapterMetadata("WebAnnotationFragmentSelector", "Web Annotation fragment selector DTO."),
+    })
+  )
 ) {}
 
 /**
@@ -212,15 +218,16 @@ export type WebAnnotationSelector = typeof WebAnnotationSelector.Type;
  * @category models
  * @since 0.0.0
  */
-export class WebAnnotationTarget extends S.Class<WebAnnotationTarget>($I`WebAnnotationTarget`)(
-  {
+export class WebAnnotationTarget extends S.Opaque<WebAnnotationTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: IRIReference,
     selector: WebAnnotationSelector,
-  },
-  $I.annote("WebAnnotationTarget", {
-    description: "Web Annotation target DTO.",
-    semanticSchemaMetadata: adapterMetadata("WebAnnotationTarget", "Web Annotation target DTO."),
-  })
+  }).pipe(
+    $I.annoteSchema("WebAnnotationTarget", {
+      description: "Web Annotation target DTO.",
+      semanticSchemaMetadata: adapterMetadata("WebAnnotationTarget", "Web Annotation target DTO."),
+    })
+  )
 ) {}
 
 /**
@@ -247,17 +254,18 @@ export class WebAnnotationTarget extends S.Class<WebAnnotationTarget>($I`WebAnno
  * @category models
  * @since 0.0.0
  */
-export class WebAnnotation extends S.Class<WebAnnotation>($I`WebAnnotation`)(
-  {
+export class WebAnnotation extends S.Opaque<WebAnnotation, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: IRIReference,
     type: S.tag("Annotation"),
     bodyValue: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     target: WebAnnotationTarget,
-  },
-  $I.annote("WebAnnotation", {
-    description: "Web Annotation DTO.",
-    semanticSchemaMetadata: adapterMetadata("WebAnnotation", "Web Annotation DTO."),
-  })
+  }).pipe(
+    $I.annoteSchema("WebAnnotation", {
+      description: "Web Annotation DTO.",
+      semanticSchemaMetadata: adapterMetadata("WebAnnotation", "Web Annotation DTO."),
+    })
+  )
 ) {}
 
 const evidenceSelectorToWebAnnotationSelectorEncoded = (

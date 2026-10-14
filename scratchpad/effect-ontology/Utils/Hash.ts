@@ -35,7 +35,7 @@ const $I = $ScratchpadId.create("effect-ontology/Utils/Hash");
  * @category errors
  * @since 0.0.0
  */
-export class HashingError extends S.TaggedError<HashingError>($I`HashingError`)(
+export class HashingError extends S.TaggedError<HashingError, { readonly brand: unique symbol }>($I`HashingError`)(
   "HashingError",
   {
     operation: S.Literals(["sha256", "sha256-bytes"]),

@@ -198,12 +198,11 @@ type Provenance = typeof Provenance.Type;
  * @category models
  * @since 0.0.0
  */
-export class SpanRef extends S.Class<SpanRef>($I`SpanRef`)(
-  {
+export class SpanRef extends S.Opaque<SpanRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: RecordNumber,
     span: SpanId,
-  },
-  $I.annote("SpanRef", { description: "A source record number and a span inside it." })
+  }).pipe($I.annoteSchema("SpanRef", { description: "A source record number and a span inside it." }))
 ) {}
 
 /**
@@ -237,13 +236,12 @@ export const spanRefLabel = (ref: SpanRef): string => `${ref.source}·${ref.span
  * @category models
  * @since 0.0.0
  */
-export class SourceSpan extends S.Class<SourceSpan>($I`SourceSpan`)(
-  {
+export class SourceSpan extends S.Opaque<SourceSpan, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: SpanId,
     text: S.String,
     fixtureId: S.String,
-  },
-  $I.annote("SourceSpan", { description: "A verbatim span of a source artifact." })
+  }).pipe($I.annoteSchema("SourceSpan", { description: "A verbatim span of a source artifact." }))
 ) {}
 
 /**
@@ -262,8 +260,8 @@ export class SourceSpan extends S.Class<SourceSpan>($I`SourceSpan`)(
  * @category models
  * @since 0.0.0
  */
-export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
-  {
+export class SourceArtifact extends S.Opaque<SourceArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     no: RecordNumber,
     kind: LiteralKit(["EMAIL", "CALL NOTE"]),
     from: Actor,
@@ -273,8 +271,7 @@ export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
     fixtureId: S.String,
     provenance: Provenance,
     spans: S.NonEmptyArray(SourceSpan),
-  },
-  $I.annote("SourceArtifact", { description: "A source artifact and its verbatim spans." })
+  }).pipe($I.annoteSchema("SourceArtifact", { description: "A source artifact and its verbatim spans." }))
 ) {}
 
 /**
@@ -293,8 +290,8 @@ export class SourceArtifact extends S.Class<SourceArtifact>($I`SourceArtifact`)(
  * @category models
  * @since 0.0.0
  */
-export class Receipt extends S.Class<Receipt>($I`Receipt`)(
-  {
+export class Receipt extends S.Opaque<Receipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     requestedAction: S.String,
     reviewer: Actor,
     candidateRef: RecordNumber,
@@ -303,8 +300,7 @@ export class Receipt extends S.Class<Receipt>($I`Receipt`)(
     state: RecordState,
     time: S.String,
     producer: S.Literal(PRODUCER),
-  },
-  $I.annote("Receipt", { description: "Activity receipt fields for one record." })
+  }).pipe($I.annoteSchema("Receipt", { description: "Activity receipt fields for one record." }))
 ) {}
 
 /**
@@ -323,8 +319,8 @@ export class Receipt extends S.Class<Receipt>($I`Receipt`)(
  * @category models
  * @since 0.0.0
  */
-export class SessionRecord extends S.Class<SessionRecord>($I`SessionRecord`)(
-  {
+export class SessionRecord extends S.Opaque<SessionRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     no: RecordNumber,
     kind: RecordKind,
     text: S.String,
@@ -341,8 +337,7 @@ export class SessionRecord extends S.Class<SessionRecord>($I`SessionRecord`)(
     priorState: S.optionalKey(RecordState),
     supersededBy: S.optionalKey(RecordNumber),
     supersededOn: S.optionalKey(S.String),
-  },
-  $I.annote("SessionRecord", { description: "An addressable record row with its receipt." })
+  }).pipe($I.annoteSchema("SessionRecord", { description: "An addressable record row with its receipt." }))
 ) {}
 
 /**
@@ -367,16 +362,15 @@ export class SessionRecord extends S.Class<SessionRecord>($I`SessionRecord`)(
  * @category models
  * @since 0.0.0
  */
-export class ApprovalGate extends S.Class<ApprovalGate>($I`ApprovalGate`)(
-  {
+export class ApprovalGate extends S.Opaque<ApprovalGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     no: RecordNumber,
     reviewer: Actor,
     state: RecordState,
     policyBasis: S.String,
     requestedActions: S.NonEmptyArray(S.String),
     fixtureId: S.String,
-  },
-  $I.annote("ApprovalGate", { description: "The pending approval gate and its policy basis." })
+  }).pipe($I.annoteSchema("ApprovalGate", { description: "The pending approval gate and its policy basis." }))
 ) {}
 
 /**
@@ -394,12 +388,11 @@ export class ApprovalGate extends S.Class<ApprovalGate>($I`ApprovalGate`)(
  * @category models
  * @since 0.0.0
  */
-export class Chain extends S.Class<Chain>($I`Chain`)(
-  {
+export class Chain extends S.Opaque<Chain, { readonly brand: unique symbol }>()(
+  S.Struct({
     from: RecordNumber,
     to: RecordNumber,
-  },
-  $I.annote("Chain", { description: "Prior record and the record that supersedes it." })
+  }).pipe($I.annoteSchema("Chain", { description: "Prior record and the record that supersedes it." }))
 ) {}
 
 /**
@@ -416,8 +409,8 @@ export class Chain extends S.Class<Chain>($I`Chain`)(
  * @category models
  * @since 0.0.0
  */
-export class ScreenPassage extends S.Class<ScreenPassage>($I`ScreenPassage`)(
-  {
+export class ScreenPassage extends S.Opaque<ScreenPassage, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     beat: S.String,
     clock: S.String,
@@ -428,8 +421,7 @@ export class ScreenPassage extends S.Class<ScreenPassage>($I`ScreenPassage`)(
     records: S.NonEmptyArray(SessionRecord),
     cursor: RecordNumber,
     defaultOpen: S.optionalKey(RecordNumber),
-  },
-  $I.annote("ScreenPassage", { description: "A screen beat: sources, gate, chain, records." })
+  }).pipe($I.annoteSchema("ScreenPassage", { description: "A screen beat: sources, gate, chain, records." }))
 ) {}
 
 /**
@@ -451,13 +443,12 @@ export class ScreenPassage extends S.Class<ScreenPassage>($I`ScreenPassage`)(
  * @category models
  * @since 0.0.0
  */
-export class PacketEntry extends S.Class<PacketEntry>($I`PacketEntry`)(
-  {
+export class PacketEntry extends S.Opaque<PacketEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String,
     refs: S.Array(RecordNumber),
     evidence: S.Array(SpanRef),
-  },
-  $I.annote("PacketEntry", { description: "A packet line with its record and span references." })
+  }).pipe($I.annoteSchema("PacketEntry", { description: "A packet line with its record and span references." }))
 ) {}
 
 /**
@@ -475,12 +466,11 @@ export class PacketEntry extends S.Class<PacketEntry>($I`PacketEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class PacketSection extends S.Class<PacketSection>($I`PacketSection`)(
-  {
+export class PacketSection extends S.Opaque<PacketSection, { readonly brand: unique symbol }>()(
+  S.Struct({
     heading: S.String,
     entries: S.NonEmptyArray(PacketEntry),
-  },
-  $I.annote("PacketSection", { description: "A headed packet section." })
+  }).pipe($I.annoteSchema("PacketSection", { description: "A headed packet section." }))
 ) {}
 
 /**
@@ -497,8 +487,8 @@ export class PacketSection extends S.Class<PacketSection>($I`PacketSection`)(
  * @category models
  * @since 0.0.0
  */
-export class Packet extends S.Class<Packet>($I`Packet`)(
-  {
+export class Packet extends S.Opaque<Packet, { readonly brand: unique symbol }>()(
+  S.Struct({
     no: RecordNumber,
     forCall: S.String,
     sections: S.NonEmptyArray(PacketSection),
@@ -506,6 +496,5 @@ export class Packet extends S.Class<Packet>($I`Packet`)(
     focal: PacketEntry,
     receipt: Receipt,
     fixtureId: S.String,
-  },
-  $I.annote("Packet", { description: "The bounded context packet and its activity receipt." })
+  }).pipe($I.annoteSchema("Packet", { description: "The bounded context packet and its activity receipt." }))
 ) {}

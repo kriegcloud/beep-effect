@@ -33,7 +33,7 @@ const $I = $ScratchpadId.create("effected/xdg/AppDirs");
  * @category errors
  * @since 0.0.0
  */
-export class AppDirsNamespaceError extends S.TaggedError<AppDirsNamespaceError>($I`AppDirsNamespaceError`)(
+export class AppDirsNamespaceError extends S.TaggedError<AppDirsNamespaceError, { readonly brand: unique symbol }>($I`AppDirsNamespaceError`)(
 	"AppDirsNamespaceError",
 	{ message: S.String.annotateKey({ description: "Explains why the namespace cannot name an application directory." }) },
 	$I.annote("AppDirsNamespaceError", { description: "An invalid application directory namespace." }),
@@ -90,7 +90,7 @@ export type AppDirKind = typeof AppDirKind.Type;
  * @category errors
  * @since 0.0.0
  */
-export class AppDirsError extends S.TaggedError<AppDirsError>($I`AppDirsError`)("AppDirsError", {
+export class AppDirsError extends S.TaggedError<AppDirsError, { readonly brand: unique symbol }>($I`AppDirsError`)("AppDirsError", {
 	/** Which directory kind failed. */
 	directory: AppDirKind.annotateKey({ description: "Which directory kind failed." }),
 	/** The path that could not be created. */
@@ -136,7 +136,7 @@ export class AppDirsError extends S.TaggedError<AppDirsError>($I`AppDirsError`)(
  * @category models
  * @since 0.0.0
  */
-export class ResolvedAppDirs extends S.Class<ResolvedAppDirs>($I`ResolvedAppDirs`)({
+export class ResolvedAppDirs extends S.Class<ResolvedAppDirs, { readonly brand: unique symbol }>($I`ResolvedAppDirs`)({
 	/** The app's configuration directory. */
 	config: S.String.annotateKey({ description: "The app's configuration directory." }),
 	/** The app's data directory. */

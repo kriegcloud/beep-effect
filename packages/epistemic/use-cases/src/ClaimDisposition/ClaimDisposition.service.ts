@@ -108,8 +108,8 @@ const rejectionReason: (violations: ReadonlyArray<ClaimGateViolation>) => string
  * @category commands
  * @since 0.0.0
  */
-export class ClaimGateOutcomeInput extends S.Class<ClaimGateOutcomeInput>($I`ClaimGateOutcomeInput`)(
-  {
+export class ClaimGateOutcomeInput extends S.Opaque<ClaimGateOutcomeInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     claim: DomainCandidateClaim.CandidateClaim.annotateKey({
       description: "Candidate claim the gate verdict was produced for.",
     }),
@@ -131,10 +131,11 @@ export class ClaimGateOutcomeInput extends S.Class<ClaimGateOutcomeInput>($I`Cla
     source: SourceKind.annotateKey({
       description: "Origin kind stamped on a recorded disposition.",
     }),
-  },
-  $I.annote("ClaimGateOutcomeInput", {
-    description: "Input resolving one claim gate verdict into a lifecycle advance or a durable disposition.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimGateOutcomeInput", {
+      description: "Input resolving one claim gate verdict into a lifecycle advance or a durable disposition.",
+    })
+  )
 ) {}
 
 /**
@@ -175,18 +176,19 @@ export class ClaimGateOutcomeInput extends S.Class<ClaimGateOutcomeInput>($I`Cla
  * @category value-objects
  * @since 0.0.0
  */
-export class ClaimGateOutcome extends S.Class<ClaimGateOutcome>($I`ClaimGateOutcome`)(
-  {
+export class ClaimGateOutcome extends S.Opaque<ClaimGateOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     claim: DomainCandidateClaim.CandidateClaim.annotateKey({
       description: "Claim as it stands after the verdict was resolved.",
     }),
     disposition: ClaimDisposition.pipe(S.OptionFromNullOr).annotateKey({
       description: "Disposition recorded for a rejected verdict; absent when the claim advanced.",
     }),
-  },
-  $I.annote("ClaimGateOutcome", {
-    description: "Outcome of resolving one claim gate verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimGateOutcome", {
+      description: "Outcome of resolving one claim gate verdict.",
+    })
+  )
 ) {}
 
 /**

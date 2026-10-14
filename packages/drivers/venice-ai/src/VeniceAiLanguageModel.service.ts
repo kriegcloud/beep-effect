@@ -48,19 +48,21 @@ const $I = $VeniceAiId.create("VeniceAiLanguageModel.service");
  * @category models
  * @since 0.0.0
  */
-export class VeniceAiLanguageModelOptions extends S.Class<VeniceAiLanguageModelOptions>(
-  $I`VeniceAiLanguageModelOptions`
-)(
-  {
+export class VeniceAiLanguageModelOptions extends S.Opaque<
+  VeniceAiLanguageModelOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     config: S.OptionFromOptionalKey(OpenAiCompatLanguageModelConfig).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional OpenAI-compatible adapter configuration." })
     ),
     model: S.NonEmptyString.annotateKey({ description: "Venice model id forwarded to chat-completion requests." }),
-  },
-  $I.annote("VeniceAiLanguageModelOptions", {
-    description: "Options accepted by the Venice Effect AI language-model adapter.",
-  })
+  }).pipe(
+    $I.annoteSchema("VeniceAiLanguageModelOptions", {
+      description: "Options accepted by the Venice Effect AI language-model adapter.",
+    })
+  )
 ) {}
 
 type VeniceAiLanguageModelOptionsInput = {

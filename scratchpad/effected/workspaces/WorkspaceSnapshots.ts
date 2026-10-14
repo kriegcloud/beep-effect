@@ -292,7 +292,7 @@ type LockfileRecord = typeof LockfileRecord.Type;
 /** The contribution of an absent or malformed lockfile: nothing, on both counts. */
 const EMPTY_LOCKFILE_RECORD: LockfileRecord = { catalogs: CatalogSet.empty(), importerVersions: {} };
 
-class WorkspaceSnapshotsTestDoubleError extends S.TaggedError<WorkspaceSnapshotsTestDoubleError>($I`WorkspaceSnapshotsTestDoubleError`)("WorkspaceSnapshotsTestDoubleError", {
+class WorkspaceSnapshotsTestDoubleError extends S.TaggedError<WorkspaceSnapshotsTestDoubleError, { readonly brand: unique symbol }>($I`WorkspaceSnapshotsTestDoubleError`)("WorkspaceSnapshotsTestDoubleError", {
 	message: S.String,
 }, $I.annote("WorkspaceSnapshotsTestDoubleError", { description: "An unstubbed workspace snapshot test-double method." })) {}
 

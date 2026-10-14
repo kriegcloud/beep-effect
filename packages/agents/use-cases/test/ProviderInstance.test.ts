@@ -120,8 +120,8 @@ describe("@beep/agents-use-cases ProviderInstance", () => {
         probe: () => Effect.succeed(snapshot),
       });
       const result = yield* useCases.probe(ProbeProviderInstanceCommand.make({ id }));
-      expect(O.getOrThrow(result.lastProbe)).toBe(snapshot);
-      expect(O.getOrThrow(state.read()[0]?.lastProbe ?? O.none())).toBe(snapshot);
+      expect(O.getOrThrow(result.lastProbe)).toStrictEqual(snapshot);
+      expect(O.getOrThrow(state.read()[0]?.lastProbe ?? O.none())).toStrictEqual(snapshot);
     })
   );
 
@@ -142,7 +142,7 @@ describe("@beep/agents-use-cases ProviderInstance", () => {
         if (isProviderUnauthenticated(failure)) {
           expect(failure.guidance).toContain(command);
         }
-        expect(O.getOrThrow(state.read()[0]?.lastProbe ?? O.none())).toBe(snapshot);
+        expect(O.getOrThrow(state.read()[0]?.lastProbe ?? O.none())).toStrictEqual(snapshot);
       })
     );
   }

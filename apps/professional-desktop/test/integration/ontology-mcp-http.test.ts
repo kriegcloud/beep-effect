@@ -147,8 +147,8 @@ describe("professional desktop ontology MCP streamable HTTP mount", { concurrent
       "round-trips MCP request codecs with schema-derived arbitraries",
       { openInspect: OpenInspectRequest, query: OntologySparqlQueryRequest },
       ({ openInspect, query }) => {
-        assertSchemaRoundTrip(OpenInspectRequest, openInspect);
-        assertSchemaRoundTrip(OntologySparqlQueryRequest, query);
+        assertSchemaRoundTrip(OpenInspectRequest, OpenInspectRequest.make(openInspect));
+        assertSchemaRoundTrip(OntologySparqlQueryRequest, OntologySparqlQueryRequest.make(query));
       },
       { arbitrary: fcRuns(10) }
     );

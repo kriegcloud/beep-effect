@@ -603,7 +603,7 @@ const decodeJITProactivityEventReceipt = S.decodeUnknownEffect(JITProactivityEve
  * @category errors
  * @since 0.0.0
  */
-export class JitTriggerPairInvalid extends S.TaggedError<JitTriggerPairInvalid>()(
+export class JitTriggerPairInvalid extends S.TaggedError<JitTriggerPairInvalid, { readonly brand: unique symbol }>()(
   "JitTriggerPairInvalid",
   { reason: S.String },
   $I.annoteError<JitTriggerPairInvalid>("JitTriggerPairInvalid", {

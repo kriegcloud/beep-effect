@@ -34,18 +34,19 @@ const $I = $RepoCliId.create("commands/Files/internal/SortAndRename.schemas");
  * @category models
  * @since 0.0.0
  */
-export class SortableFile extends S.Class<SortableFile>($I`SortableFile`)(
-  {
+export class SortableFile extends S.Opaque<SortableFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalPath: S.String,
     extension: S.String,
     mediaKind: S.Option(MediaKind).pipe(S.withConstructorDefault(Effect.succeed(O.none<MediaKind>()))),
     name: S.String,
     size: S.BigInt,
     sourcePath: S.String,
-  },
-  $I.annote("SortableFile", {
-    description: "A direct regular file selected for size-based rename planning.",
-  })
+  }).pipe(
+    $I.annoteSchema("SortableFile", {
+      description: "A direct regular file selected for size-based rename planning.",
+    })
+  )
 ) {}
 
 /**
@@ -63,8 +64,8 @@ export class SortableFile extends S.Class<SortableFile>($I`SortableFile`)(
  * @category models
  * @since 0.0.0
  */
-export class RenamePlanEntry extends S.Class<RenamePlanEntry>($I`RenamePlanEntry`)(
-  {
+export class RenamePlanEntry extends S.Opaque<RenamePlanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalSourcePath: S.String,
     dimensions: S.Option(S.suspend(() => MediaDimensions)).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<MediaDimensions>()))
@@ -76,10 +77,11 @@ export class RenamePlanEntry extends S.Class<RenamePlanEntry>($I`RenamePlanEntry
     sourcePath: S.String,
     targetName: S.String,
     targetPath: S.String,
-  },
-  $I.annote("RenamePlanEntry", {
-    description: "A single source-to-target file rename planned by a files operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenamePlanEntry", {
+      description: "A single source-to-target file rename planned by a files operation.",
+    })
+  )
 ) {}
 
 /**
@@ -97,18 +99,19 @@ export class RenamePlanEntry extends S.Class<RenamePlanEntry>($I`RenamePlanEntry
  * @category models
  * @since 0.0.0
  */
-export class SortAndRenameSummary extends S.Class<SortAndRenameSummary>($I`SortAndRenameSummary`)(
-  {
+export class SortAndRenameSummary extends S.Opaque<SortAndRenameSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: S.String,
     dryRun: S.Boolean,
     plannedCount: S.Finite,
     renamedCount: S.Finite,
     skippedCount: S.Finite,
     withDimensions: S.Boolean,
-  },
-  $I.annote("SortAndRenameSummary", {
-    description: "Summary counts for a sort-and-rename file curation run.",
-  })
+  }).pipe(
+    $I.annoteSchema("SortAndRenameSummary", {
+      description: "Summary counts for a sort-and-rename file curation run.",
+    })
+  )
 ) {}
 
 /**
@@ -126,14 +129,15 @@ export class SortAndRenameSummary extends S.Class<SortAndRenameSummary>($I`SortA
  * @category models
  * @since 0.0.0
  */
-export class SortableFileCollection extends S.Class<SortableFileCollection>($I`SortableFileCollection`)(
-  {
+export class SortableFileCollection extends S.Opaque<SortableFileCollection, { readonly brand: unique symbol }>()(
+  S.Struct({
     files: S.Array(SortableFile),
     skippedCount: S.Finite,
-  },
-  $I.annote("SortableFileCollection", {
-    description: "Files selected for rename planning plus direct regular files skipped by media filtering.",
-  })
+  }).pipe(
+    $I.annoteSchema("SortableFileCollection", {
+      description: "Files selected for rename planning plus direct regular files skipped by media filtering.",
+    })
+  )
 ) {}
 
 /**
@@ -151,12 +155,13 @@ export class SortableFileCollection extends S.Class<SortableFileCollection>($I`S
  * @category models
  * @since 0.0.0
  */
-export class RenamePlan extends S.Class<RenamePlan>($I`RenamePlan`)(
-  {
+export class RenamePlan extends S.Opaque<RenamePlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     entries: S.Array(RenamePlanEntry),
     skippedCount: S.Finite,
-  },
-  $I.annote("RenamePlan", {
-    description: "Planned rename entries plus direct regular files skipped before planning.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenamePlan", {
+      description: "Planned rename entries plus direct regular files skipped before planning.",
+    })
+  )
 ) {}

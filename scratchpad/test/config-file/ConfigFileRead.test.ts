@@ -25,7 +25,7 @@ import { JsoncCodec } from "../../effected/config-file/JsoncCodec.ts";
 
 const JsonValue = S.fromJsonString(S.Unknown);
 
-class AppShape extends S.Class<AppShape>("AppShape")({ port: S.Finite }) {}
+class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({ port: S.Finite }) {}
 
 const platform = (files: Record<string, string>): Layer.Layer<FileSystem.FileSystem | Path.Path> =>
 	Layer.mergeAll(MemoryFileSystem.layerWith(files), Path.layer);
@@ -115,7 +115,7 @@ describe("ConfigFile.read", () => {
 			// The shape `ConfigFile.layer` cannot express without a second service class:
 			// schema is per CALL here, not per layer.
 			Effect.gen(function* () {
-				class NameShape extends S.Class<NameShape>("NameShape")({ name: S.String }) {}
+				class NameShape extends S.Class<NameShape, { readonly brand: unique symbol }>("NameShape")({ name: S.String }) {}
 				const asPort = yield* ConfigFile.read("/app/.apprc", { schema: AppShape, codec: JsonCodec });
 				const asName = yield* ConfigFile.read("/app/.apprc", { schema: NameShape, codec: JsonCodec });
 				assert.strictEqual(asPort.port, 8080);

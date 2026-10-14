@@ -20,6 +20,7 @@
  */
 
 import { AssistantContent } from "@beep/agents-domain/values/AssistantContent";
+import { IndexedBlock } from "@beep/agents-use-cases/AssistantTurn.contracts";
 import {
   AgentTurnKernel,
   AssistantTurnBlockEvent,
@@ -42,7 +43,6 @@ import * as Stream from "effect/Stream";
 import { assistantBlockOutput } from "./AnthropicTurnCodec.ts";
 import { IssueReport, repairInvalidBlocks } from "./BlockRepair.ts";
 import { initialScanState, scanChunk } from "./ScanState.ts";
-import type { IndexedBlock } from "@beep/agents-use-cases/AssistantTurn.contracts";
 import type { BlockRepairFailed } from "@beep/agents-use-cases/AssistantTurn.repair-errors";
 import type { AssistantTurnEvent, TurnHistoryItem } from "@beep/agents-use-cases/public";
 import type { AiError, Response } from "effect/ai";
@@ -99,7 +99,7 @@ const routeBlock =
     Effect.matchEffect(decodeSlice(slice), {
       onSuccess: Effect.fn("AnthropicTurnKernel.routeBlock.valid")(function* (block) {
         yield* markValid;
-        const indexed = { index, block };
+        const indexed = IndexedBlock.make({ index, block });
         if (yield* Ref.get(holdingAfterFailure)) {
           yield* Ref.update(buffered, A.append(indexed));
           return A.empty<IndexedBlock>();
@@ -269,13 +269,13 @@ const streamTurn = (
  * **Example** (Use AnthropicTurnKernel)
  *
  * ```ts
- * import { AgentTurnKernel } from "@beep/agents-use-cases/public"
+ * import { AgentTurnKernel, UserTurnHistoryItem } from "@beep/agents-use-cases/public"
  * import { AnthropicTurnKernel } from "@beep/agents-server/AnthropicTurnKernel"
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
  * const program = Effect.gen(function* () {
  *   const kernel = yield* AgentTurnKernel
- *   return yield* kernel.streamTurn([{ role: "user", text: "Summarize this" }]).pipe(
+ *   return yield* kernel.streamTurn([UserTurnHistoryItem.make({ text: "Summarize this" })]).pipe(
  *     Stream.take(0),
  *     Stream.runCollect
  *   )

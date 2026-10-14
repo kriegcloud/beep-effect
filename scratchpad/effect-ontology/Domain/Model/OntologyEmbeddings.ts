@@ -50,8 +50,7 @@ const EmbeddingVector = S.NonEmptyArray(S.Finite).pipe(
  * @category models
  * @since 0.0.0
  */
-export class ElementEmbedding extends S.Class<ElementEmbedding>($I`ElementEmbedding`)(
-  {
+export class ElementEmbedding extends S.Opaque<ElementEmbedding, { readonly brand: unique symbol }>()(S.Struct({
     iri: IRI.annotateKey({
       description: "IRI of the embedded ontology class or property.",
     }),
@@ -61,11 +60,9 @@ export class ElementEmbedding extends S.Class<ElementEmbedding>($I`ElementEmbedd
     embedding: EmbeddingVector.annotateKey({
       description: "Finite vector returned by the embedding model.",
     }),
-  },
-  $I.annote("ElementEmbedding", {
+  }).pipe($I.annoteSchema("ElementEmbedding", {
     description: "Semantic text and finite embedding vector for one ontology element.",
-  })
-) {
+  }))) {
   /** Schema-derived guard for ontology-element embeddings. */
   static readonly is = S.is(ElementEmbedding);
 
@@ -108,8 +105,7 @@ export class ElementEmbedding extends S.Class<ElementEmbedding>($I`ElementEmbedd
 
 const ontologyEmbeddingsFieldsModelClassesDefault = A.empty<ElementEmbedding>();
 const ontologyEmbeddingsFieldsModelPropertiesDefault = A.empty<ElementEmbedding>();
-class OntologyEmbeddingsFieldsModel extends S.Class<OntologyEmbeddingsFieldsModel>($I`OntologyEmbeddingsFieldsModel`)(
-  {
+class OntologyEmbeddingsFieldsModel extends S.Opaque<OntologyEmbeddingsFieldsModel, { readonly brand: unique symbol }>()(S.Struct({
     ontologyUri: GcsUri.annotateKey({
       description: "Canonical GCS URI of the ontology represented by this artifact.",
     }),
@@ -140,11 +136,9 @@ class OntologyEmbeddingsFieldsModel extends S.Class<OntologyEmbeddingsFieldsMode
       S.withConstructorDefault(Effect.succeed(ontologyEmbeddingsFieldsModelPropertiesDefault)), S.withDecodingDefaultType(Effect.succeed(ontologyEmbeddingsFieldsModelPropertiesDefault)),
       S.annotateKey({ description: "Embeddings for ontology property definitions." })
     ),
-  },
-  $I.annote("OntologyEmbeddingsFieldsModel", {
+  }).pipe($I.annoteSchema("OntologyEmbeddingsFieldsModel", {
     description: "Internal field model for a versioned ontology-embedding artifact.",
-  })
-) {}
+  }))) {}
 
 const hasConsistentEmbeddingDimension = (artifact: OntologyEmbeddingsFieldsModel): boolean =>
   A.every(A.appendAll(artifact.classes, artifact.properties), (element) =>

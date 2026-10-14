@@ -146,8 +146,8 @@ const RuntimeContextPacketSchemaVersion = S.Literal("runtime-data-loop.expected.
  * @category models
  * @since 0.0.0
  */
-export class RuntimeScope extends S.Class<RuntimeScope>($I`RuntimeScope`)(
-  {
+export class RuntimeScope extends S.Opaque<RuntimeScope, { readonly brand: unique symbol }>()(
+  S.Struct({
     organizationId: RuntimeOrganizationId.annotateKey({
       description: "Organization scope identifier for the runtime request.",
     }),
@@ -155,10 +155,11 @@ export class RuntimeScope extends S.Class<RuntimeScope>($I`RuntimeScope`)(
     workspaceId: RuntimeWorkspaceId.annotateKey({
       description: "Workspace scope identifier for the runtime request.",
     }),
-  },
-  $I.annote("RuntimeScope", {
-    description: "Tenant, workspace, and thread scope for an SDK request.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeScope", {
+      description: "Tenant, workspace, and thread scope for an SDK request.",
+    })
+  )
 ) {}
 
 /**
@@ -180,14 +181,15 @@ export class RuntimeScope extends S.Class<RuntimeScope>($I`RuntimeScope`)(
  * @category models
  * @since 0.0.0
  */
-export class RuntimeEntityRef extends S.Class<RuntimeEntityRef>($I`RuntimeEntityRef`)(
-  {
+export class RuntimeEntityRef extends S.Opaque<RuntimeEntityRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: RuntimeEntityId.annotateKey({ description: "Identifier of the referenced runtime or vertical entity." }),
     kind: RuntimeEntityKind.annotateKey({ description: "Kind of the referenced runtime or vertical entity." }),
-  },
-  $I.annote("RuntimeEntityRef", {
-    description: "Kind/id reference to a vertical or runtime entity.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeEntityRef", {
+      description: "Kind/id reference to a vertical or runtime entity.",
+    })
+  )
 ) {}
 
 /**
@@ -210,8 +212,8 @@ export class RuntimeEntityRef extends S.Class<RuntimeEntityRef>($I`RuntimeEntity
  * @category models
  * @since 0.0.0
  */
-export class RuntimeEvidenceRef extends S.Class<RuntimeEvidenceRef>($I`RuntimeEvidenceRef`)(
-  {
+export class RuntimeEvidenceRef extends S.Opaque<RuntimeEvidenceRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactId: RuntimeArtifactId.annotateKey({ description: "Source artifact identifier carrying the evidence." }),
     spanId: RuntimeSpanId.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional single source span identifier.",
@@ -221,10 +223,11 @@ export class RuntimeEvidenceRef extends S.Class<RuntimeEvidenceRef>($I`RuntimeEv
       .annotateKey({
         description: "Optional source span identifiers when evidence covers multiple spans.",
       }),
-  },
-  $I.annote("RuntimeEvidenceRef", {
-    description: "Reference to one or more source spans on an artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeEvidenceRef", {
+      description: "Reference to one or more source spans on an artifact.",
+    })
+  )
 ) {
   static readonly encodeResult = S.encodeResult(RuntimeEvidenceRef);
 }
@@ -259,8 +262,8 @@ export class RuntimeEvidenceRef extends S.Class<RuntimeEvidenceRef>($I`RuntimeEv
  * @category models
  * @since 0.0.0
  */
-export class RuntimeCandidateClaim extends S.Class<RuntimeCandidateClaim>($I`RuntimeCandidateClaim`)(
-  {
+export class RuntimeCandidateClaim extends S.Opaque<RuntimeCandidateClaim, { readonly brand: unique symbol }>()(
+  S.Struct({
     claimId: RuntimeClaimId.annotateKey({ description: "Candidate claim identifier." }),
     claimType: S.NonEmptyString.annotateKey({ description: "Domain-specific candidate claim type." }),
     confidence: RuntimeClaimConfidence.annotateKey({ description: "Confidence assigned to the candidate claim." }),
@@ -277,10 +280,11 @@ export class RuntimeCandidateClaim extends S.Class<RuntimeCandidateClaim>($I`Run
     }),
     statement: S.NonEmptyString.annotateKey({ description: "Human-readable candidate claim statement." }),
     subjectRef: RuntimeEntityRef.annotateKey({ description: "Subject entity that the claim is about." }),
-  },
-  $I.annote("RuntimeCandidateClaim", {
-    description: "Candidate claim with source evidence and producing principal provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeCandidateClaim", {
+      description: "Candidate claim with source evidence and producing principal provenance.",
+    })
+  )
 ) {
   static readonly encodeResult = S.encodeResult(RuntimeCandidateClaim);
 }
@@ -315,8 +319,8 @@ export class RuntimeCandidateClaim extends S.Class<RuntimeCandidateClaim>($I`Run
  * @category models
  * @since 0.0.0
  */
-export class RuntimeCandidateProject extends S.Class<RuntimeCandidateProject>($I`RuntimeCandidateProject`)(
-  {
+export class RuntimeCandidateProject extends S.Opaque<RuntimeCandidateProject, { readonly brand: unique symbol }>()(
+  S.Struct({
     evidence: S.Array(RuntimeEvidenceRef).annotateKey({ description: "Evidence references supporting the project." }),
     lifecycle: RuntimeCandidateLifecycle.annotateKey({ description: "Lifecycle state of the candidate project." }),
     projectId: RuntimeProjectId.annotateKey({ description: "Candidate project identifier." }),
@@ -325,10 +329,11 @@ export class RuntimeCandidateProject extends S.Class<RuntimeCandidateProject>($I
       description: "Vertical context entities attached to the candidate project.",
     }),
     workspaceId: RuntimeWorkspaceId.annotateKey({ description: "Workspace identifier for the candidate project." }),
-  },
-  $I.annote("RuntimeCandidateProject", {
-    description: "Candidate project with workspace, context references, and source evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeCandidateProject", {
+      description: "Candidate project with workspace, context references, and source evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -356,8 +361,8 @@ export class RuntimeCandidateProject extends S.Class<RuntimeCandidateProject>($I
  * @category models
  * @since 0.0.0
  */
-export class RuntimeCandidateTask extends S.Class<RuntimeCandidateTask>($I`RuntimeCandidateTask`)(
-  {
+export class RuntimeCandidateTask extends S.Opaque<RuntimeCandidateTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     assigneePrincipalId: RuntimePrincipalId.annotateKey({
       description: "Principal identifier assigned to the candidate task.",
     }),
@@ -367,10 +372,11 @@ export class RuntimeCandidateTask extends S.Class<RuntimeCandidateTask>($I`Runti
     projectId: RuntimeProjectId.annotateKey({ description: "Candidate project identifier for this task." }),
     taskId: RuntimeTaskId.annotateKey({ description: "Candidate task identifier." }),
     title: S.NonEmptyString.annotateKey({ description: "Candidate task title." }),
-  },
-  $I.annote("RuntimeCandidateTask", {
-    description: "Candidate task with assignee, due date, and source evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeCandidateTask", {
+      description: "Candidate task with assignee, due date, and source evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -394,14 +400,15 @@ export class RuntimeCandidateTask extends S.Class<RuntimeCandidateTask>($I`Runti
  * @category models
  * @since 0.0.0
  */
-export class RuntimeDraftRecipient extends S.Class<RuntimeDraftRecipient>($I`RuntimeDraftRecipient`)(
-  {
+export class RuntimeDraftRecipient extends S.Opaque<RuntimeDraftRecipient, { readonly brand: unique symbol }>()(
+  S.Struct({
     displayName: S.NonEmptyString.annotateKey({ description: "Display name for the draft recipient." }),
     email: EmailString.annotateKey({ description: "Email address for the draft recipient." }),
-  },
-  $I.annote("RuntimeDraftRecipient", {
-    description: "Draft recipient display name and email address.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeDraftRecipient", {
+      description: "Draft recipient display name and email address.",
+    })
+  )
 ) {}
 
 /**
@@ -443,8 +450,8 @@ export class RuntimeDraftRecipient extends S.Class<RuntimeDraftRecipient>($I`Run
  * @category models
  * @since 0.0.0
  */
-export class RuntimeCandidateDraft extends S.Class<RuntimeCandidateDraft>($I`RuntimeCandidateDraft`)(
-  {
+export class RuntimeCandidateDraft extends S.Opaque<RuntimeCandidateDraft, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactId: RuntimeArtifactId.annotateKey({ description: "Draft artifact identifier." }),
     body: S.NonEmptyString.annotateKey({ description: "Draft body text proposed by the runtime." }),
     draftId: RuntimeDraftId.annotateKey({ description: "Candidate draft identifier." }),
@@ -457,10 +464,11 @@ export class RuntimeCandidateDraft extends S.Class<RuntimeCandidateDraft>($I`Run
     requiresApproval: S.Boolean.annotateKey({ description: "Whether the draft requires approval before use." }),
     subject: S.NonEmptyString.annotateKey({ description: "Draft subject line." }),
     to: S.Array(RuntimeDraftRecipient).annotateKey({ description: "Draft recipients." }),
-  },
-  $I.annote("RuntimeCandidateDraft", {
-    description: "Candidate draft artifact with approval requirement, evidence, and producing principal.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeCandidateDraft", {
+      description: "Candidate draft artifact with approval requirement, evidence, and producing principal.",
+    })
+  )
 ) {}
 
 /**
@@ -489,8 +497,8 @@ export class RuntimeCandidateDraft extends S.Class<RuntimeCandidateDraft>($I`Run
  * @category models
  * @since 0.0.0
  */
-export class RuntimeApprovalGate extends S.Class<RuntimeApprovalGate>($I`RuntimeApprovalGate`)(
-  {
+export class RuntimeApprovalGate extends S.Opaque<RuntimeApprovalGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     approvalGateId: RuntimeApprovalGateId.annotateKey({ description: "Candidate approval-gate identifier." }),
     candidateRefs: S.Array(S.NonEmptyString).annotateKey({
       description: "Candidate claim, task, draft, or project identifiers covered by the gate.",
@@ -503,10 +511,11 @@ export class RuntimeApprovalGate extends S.Class<RuntimeApprovalGate>($I`Runtime
       description: "Actions requested from the reviewer.",
     }),
     reviewerPrincipalId: RuntimePrincipalId.annotateKey({ description: "Principal identifier for the reviewer." }),
-  },
-  $I.annote("RuntimeApprovalGate", {
-    description: "Human approval gate over candidate claims, tasks, and drafts.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeApprovalGate", {
+      description: "Human approval gate over candidate claims, tasks, and drafts.",
+    })
+  )
 ) {}
 
 /**
@@ -528,16 +537,20 @@ export class RuntimeApprovalGate extends S.Class<RuntimeApprovalGate>($I`Runtime
  * @category models
  * @since 0.0.0
  */
-export class RuntimeContextPacketRequest extends S.Class<RuntimeContextPacketRequest>($I`RuntimeContextPacketRequest`)(
-  {
+export class RuntimeContextPacketRequest extends S.Opaque<
+  RuntimeContextPacketRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     artifactId: RuntimeArtifactId.annotateKey({
       description: "Source artifact identifier that triggered the context packet.",
     }),
     kind: RuntimeRequestKind.annotateKey({ description: "Runtime request kind summarized by the packet." }),
-  },
-  $I.annote("RuntimeContextPacketRequest", {
-    description: "Original runtime request summarized inside a context packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeContextPacketRequest", {
+      description: "Original runtime request summarized inside a context packet.",
+    })
+  )
 ) {}
 
 /**
@@ -559,14 +572,15 @@ export class RuntimeContextPacketRequest extends S.Class<RuntimeContextPacketReq
  * @category models
  * @since 0.0.0
  */
-export class RuntimeSourceSpanRef extends S.Class<RuntimeSourceSpanRef>($I`RuntimeSourceSpanRef`)(
-  {
+export class RuntimeSourceSpanRef extends S.Opaque<RuntimeSourceSpanRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     purpose: S.NonEmptyString.annotateKey({ description: "Evidence purpose represented by the source span." }),
     spanId: RuntimeSpanId.annotateKey({ description: "Source span identifier declared by the artifact." }),
-  },
-  $I.annote("RuntimeSourceSpanRef", {
-    description: "Declared source span and its evidence purpose.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeSourceSpanRef", {
+      description: "Declared source span and its evidence purpose.",
+    })
+  )
 ) {}
 
 /**
@@ -592,18 +606,19 @@ export class RuntimeSourceSpanRef extends S.Class<RuntimeSourceSpanRef>($I`Runti
  * @category models
  * @since 0.0.0
  */
-export class RuntimeSourceArtifact extends S.Class<RuntimeSourceArtifact>($I`RuntimeSourceArtifact`)(
-  {
+export class RuntimeSourceArtifact extends S.Opaque<RuntimeSourceArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactId: RuntimeArtifactId.annotateKey({ description: "Source artifact identifier." }),
     sourceKind: RuntimeSourceKind.annotateKey({ description: "Source artifact kind." }),
     spanRefs: S.Array(RuntimeSourceSpanRef).annotateKey({
       description: "Source spans declared on the artifact.",
     }),
     title: S.NonEmptyString.annotateKey({ description: "Human-readable source artifact title." }),
-  },
-  $I.annote("RuntimeSourceArtifact", {
-    description: "Source artifact and the spans available for evidence references.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeSourceArtifact", {
+      description: "Source artifact and the spans available for evidence references.",
+    })
+  )
 ) {}
 
 /**
@@ -628,8 +643,8 @@ export class RuntimeSourceArtifact extends S.Class<RuntimeSourceArtifact>($I`Run
  * @category models
  * @since 0.0.0
  */
-export class RuntimeActivity extends S.Class<RuntimeActivity>($I`RuntimeActivity`)(
-  {
+export class RuntimeActivity extends S.Opaque<RuntimeActivity, { readonly brand: unique symbol }>()(
+  S.Struct({
     activityId: S.NonEmptyString.annotateKey({ description: "Runtime provenance activity identifier." }),
     activityType: RuntimeActivityType.annotateKey({ description: "Runtime provenance activity type." }),
     artifactId: RuntimeArtifactId.pipe(
@@ -644,10 +659,11 @@ export class RuntimeActivity extends S.Class<RuntimeActivity>($I`RuntimeActivity
       .annotateKey({
         description: "Optional span identifiers linked to the activity.",
       }),
-  },
-  $I.annote("RuntimeActivity", {
-    description: "Provenance activity for ingestion and candidate proposal events.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeActivity", {
+      description: "Provenance activity for ingestion and candidate proposal events.",
+    })
+  )
 ) {
   static readonly encodeResult = S.encodeResult(RuntimeActivity);
 }
@@ -673,16 +689,17 @@ export class RuntimeActivity extends S.Class<RuntimeActivity>($I`RuntimeActivity
  * @category models
  * @since 0.0.0
  */
-export class RuntimeUsageRecord extends S.Class<RuntimeUsageRecord>($I`RuntimeUsageRecord`)(
-  {
+export class RuntimeUsageRecord extends S.Opaque<RuntimeUsageRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: RuntimeUsageMode.annotateKey({ description: "Runtime usage mode." }),
     model: S.NonEmptyString.annotateKey({ description: "Model name or sentinel used by the runtime path." }),
     provider: S.NonEmptyString.annotateKey({ description: "Provider name or sentinel used by the runtime path." }),
     usageRecordId: RuntimeUsageRecordId.annotateKey({ description: "Runtime usage attribution record identifier." }),
-  },
-  $I.annote("RuntimeUsageRecord", {
-    description: "Usage attribution for the runtime path that produced candidate work.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeUsageRecord", {
+      description: "Usage attribution for the runtime path that produced candidate work.",
+    })
+  )
 ) {}
 
 /**
@@ -760,8 +777,8 @@ export class RuntimeUsageRecord extends S.Class<RuntimeUsageRecord>($I`RuntimeUs
  * @category models
  * @since 0.0.0
  */
-export class SdkContextPacket extends S.Class<SdkContextPacket>($I`SdkContextPacket`)(
-  {
+export class SdkContextPacket extends S.Opaque<SdkContextPacket, { readonly brand: unique symbol }>()(
+  S.Struct({
     activities: S.Array(RuntimeActivity).annotateKey({ description: "Runtime provenance activities in the packet." }),
     approvalGates: S.Array(RuntimeApprovalGateId).annotateKey({
       description: "Approval-gate identifiers included in the packet.",
@@ -796,10 +813,11 @@ export class SdkContextPacket extends S.Class<SdkContextPacket>($I`SdkContextPac
     verticalContext: S.Array(RuntimeEntityRef).annotateKey({
       description: "Vertical context entities relevant to the packet.",
     }),
-  },
-  $I.annote("SdkContextPacket", {
-    description: "Evidence-bounded context packet returned through the runtime SDK.",
-  })
+  }).pipe(
+    $I.annoteSchema("SdkContextPacket", {
+      description: "Evidence-bounded context packet returned through the runtime SDK.",
+    })
+  )
 ) {}
 
 /**
@@ -840,8 +858,8 @@ export class SdkContextPacket extends S.Class<SdkContextPacket>($I`SdkContextPac
  * @category models
  * @since 0.0.0
  */
-export class CandidateOutputSet extends S.Class<CandidateOutputSet>($I`CandidateOutputSet`)(
-  {
+export class CandidateOutputSet extends S.Opaque<CandidateOutputSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     approvalGates: S.Array(RuntimeApprovalGate).annotateKey({
       description: "Candidate approval gates proposed by the runtime.",
     }),
@@ -855,10 +873,11 @@ export class CandidateOutputSet extends S.Class<CandidateOutputSet>($I`Candidate
       description: "Fixture scenario identifier for the output set.",
     }),
     tasks: S.Array(RuntimeCandidateTask).annotateKey({ description: "Candidate tasks proposed by the runtime." }),
-  },
-  $I.annote("CandidateOutputSet", {
-    description: "Structured candidate claims, project, tasks, drafts, gates, and context packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandidateOutputSet", {
+      description: "Structured candidate claims, project, tasks, drafts, gates, and context packet.",
+    })
+  )
 ) {
   static readonly encodeResult = S.encodeResult(CandidateOutputSet);
 }

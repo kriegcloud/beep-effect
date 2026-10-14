@@ -98,7 +98,10 @@ it.effect.prop(
     Effect.gen(function* () {
       const encoded = yield* encodeCensusJson(rows);
       const decoded = yield* decodeCensusJson(encoded);
-      deepStrictEqual(decoded, rows);
+      deepStrictEqual(
+        decoded,
+        A.map(rows, (row) => EffectVitestCensusRow.make(row))
+      );
       deepStrictEqual(yield* encodeCensusJson(decoded), encoded);
     }),
   { arbitrary: fcRuns(25) }

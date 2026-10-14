@@ -18,7 +18,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { DomainError } from "./errors/index.ts";
-import { FsUtils } from "./FsUtils.ts";
+import { FsUtils, GlobOptions } from "./FsUtils.ts";
 import { decodePackageJsonEffect, PackageJson, readPackageJsonFile } from "./schemas/PackageJson.ts";
 import type * as FileSystem from "effect/FileSystem";
 import type { NoSuchFileError } from "./errors/index.ts";
@@ -156,11 +156,14 @@ export const resolveWorkspaceDirs: (
       .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve repository root "${rootDir}"`)));
 
     // Expand all workspace globs
-    const dirs = yield* fsUtils.glob(workspaceGlobs, {
-      cwd: rootDir,
-      absolute: true,
-      ignore: IGNORED_DIRS,
-    });
+    const dirs = yield* fsUtils.glob(
+      workspaceGlobs,
+      GlobOptions.make({
+        cwd: rootDir,
+        absolute: true,
+        ignore: IGNORED_DIRS,
+      })
+    );
 
     // For each directory, read package.json and extract name
     let result = HashMap.empty<string, string>();
@@ -260,18 +263,19 @@ export const getWorkspaceDir: {
  * @category models
  * @since 0.0.0
  */
-export class WorkspacePackage extends S.Class<WorkspacePackage>($I`WorkspacePackage`)(
-  {
+export class WorkspacePackage extends S.Opaque<WorkspacePackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     dir: S.String.annotateKey({ description: "Absolute, canonical directory of the workspace package." }),
     manifest: S.instanceOf(PackageJson).annotateKey({ description: "The package's strictly decoded manifest." }),
     scripts: S.Record(S.String, S.String).annotateKey({
       description: "The manifest's scripts field flattened to a plain record.",
     }),
-  },
-  $I.annote("WorkspacePackage", {
-    description:
-      "A resolved workspace package: its absolute directory, strictly decoded manifest, and flattened scripts record.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspacePackage", {
+      description:
+        "A resolved workspace package: its absolute directory, strictly decoded manifest, and flattened scripts record.",
+    })
+  )
 ) {}
 
 /**

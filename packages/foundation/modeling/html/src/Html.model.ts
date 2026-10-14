@@ -144,7 +144,7 @@ export declare namespace HtmlChildren {
  * @category models
  * @since 0.0.0
  */
-export class Fragment extends S.TaggedClass<Fragment>($I`Fragment`)(
+export class Fragment extends S.TaggedClass<Fragment, { readonly brand: unique symbol }>($I`Fragment`)(
   "#fragment",
   { children: HtmlChildren },
   $I.annote("Fragment", { description: "A document fragment node (a detached group of children)." })
@@ -186,7 +186,7 @@ export declare namespace Fragment {
  * @category models
  * @since 0.0.0
  */
-export class Document extends S.TaggedClass<Document>($I`Document`)(
+export class Document extends S.TaggedClass<Document, { readonly brand: unique symbol }>($I`Document`)(
   "#document",
   {
     doctype: S.OptionFromOptionalKey(Doctype).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -280,7 +280,9 @@ export type ForeignNamespace = typeof ForeignNamespace.Type;
  * @category models
  * @since 0.0.0
  */
-export class ForeignElement extends S.TaggedClass<ForeignElement>($I`ForeignElement`)(
+export class ForeignElement extends S.TaggedClass<ForeignElement, { readonly brand: unique symbol }>(
+  $I`ForeignElement`
+)(
   "#foreign",
   {
     namespace: ForeignNamespace,
@@ -347,7 +349,7 @@ export declare namespace ForeignElement {
  * @category elements
  * @since 0.0.0
  */
-export class A extends S.TaggedClass<A>($I`A`)(
+export class A extends S.TaggedClass<A, { readonly brand: unique symbol }>($I`A`)(
   "a",
   {
     ...GlobalAttributes,
@@ -453,7 +455,7 @@ export declare namespace A {
  * @category elements
  * @since 0.0.0
  */
-export class Abbr extends S.TaggedClass<Abbr>($I`Abbr`)(
+export class Abbr extends S.TaggedClass<Abbr, { readonly brand: unique symbol }>($I`Abbr`)(
   "abbr",
   {
     ...GlobalAttributes,
@@ -504,7 +506,7 @@ export declare namespace Abbr {
  * @category elements
  * @since 0.0.0
  */
-export class Acronym extends S.TaggedClass<Acronym>($I`Acronym`)(
+export class Acronym extends S.TaggedClass<Acronym, { readonly brand: unique symbol }>($I`Acronym`)(
   "acronym",
   {
     ...GlobalAttributes,
@@ -555,7 +557,7 @@ export declare namespace Acronym {
  * @category elements
  * @since 0.0.0
  */
-export class Address extends S.TaggedClass<Address>($I`Address`)(
+export class Address extends S.TaggedClass<Address, { readonly brand: unique symbol }>($I`Address`)(
   "address",
   {
     ...GlobalAttributes,
@@ -606,7 +608,7 @@ export declare namespace Address {
  * @category elements
  * @since 0.0.0
  */
-export class Applet extends S.TaggedClass<Applet>($I`Applet`)(
+export class Applet extends S.TaggedClass<Applet, { readonly brand: unique symbol }>($I`Applet`)(
   "applet",
   {
     ...GlobalAttributes,
@@ -657,7 +659,7 @@ export declare namespace Applet {
  * @category elements
  * @since 0.0.0
  */
-export class Area extends S.TaggedClass<Area>($I`Area`)(
+export class Area extends S.TaggedClass<Area, { readonly brand: unique symbol }>($I`Area`)(
   "area",
   {
     ...GlobalAttributes,
@@ -753,7 +755,7 @@ export declare namespace Area {
  * @category elements
  * @since 0.0.0
  */
-export class Article extends S.TaggedClass<Article>($I`Article`)(
+export class Article extends S.TaggedClass<Article, { readonly brand: unique symbol }>($I`Article`)(
   "article",
   {
     ...GlobalAttributes,
@@ -804,7 +806,7 @@ export declare namespace Article {
  * @category elements
  * @since 0.0.0
  */
-export class Aside extends S.TaggedClass<Aside>($I`Aside`)(
+export class Aside extends S.TaggedClass<Aside, { readonly brand: unique symbol }>($I`Aside`)(
   "aside",
   {
     ...GlobalAttributes,
@@ -855,7 +857,7 @@ export declare namespace Aside {
  * @category elements
  * @since 0.0.0
  */
-export class Audio extends S.TaggedClass<Audio>($I`Audio`)(
+export class Audio extends S.TaggedClass<Audio, { readonly brand: unique symbol }>($I`Audio`)(
   "audio",
   {
     ...GlobalAttributes,
@@ -934,7 +936,7 @@ export declare namespace Audio {
  * @category elements
  * @since 0.0.0
  */
-export class B extends S.TaggedClass<B>($I`B`)(
+export class B extends S.TaggedClass<B, { readonly brand: unique symbol }>($I`B`)(
   "b",
   {
     ...GlobalAttributes,
@@ -985,7 +987,7 @@ export declare namespace B {
  * @category elements
  * @since 0.0.0
  */
-export class Base extends S.TaggedClass<Base>($I`Base`)(
+export class Base extends S.TaggedClass<Base, { readonly brand: unique symbol }>($I`Base`)(
   "base",
   {
     ...GlobalAttributes,
@@ -1039,7 +1041,7 @@ export declare namespace Base {
  * @category elements
  * @since 0.0.0
  */
-export class Basefont extends S.TaggedClass<Basefont>($I`Basefont`)(
+export class Basefont extends S.TaggedClass<Basefont, { readonly brand: unique symbol }>($I`Basefont`)(
   "basefont",
   {
     ...GlobalAttributes,
@@ -1087,7 +1089,7 @@ export declare namespace Basefont {
  * @category elements
  * @since 0.0.0
  */
-export class Bdi extends S.TaggedClass<Bdi>($I`Bdi`)(
+export class Bdi extends S.TaggedClass<Bdi, { readonly brand: unique symbol }>($I`Bdi`)(
   "bdi",
   {
     ...GlobalAttributes,
@@ -1138,7 +1140,7 @@ export declare namespace Bdi {
  * @category elements
  * @since 0.0.0
  */
-export class Bdo extends S.TaggedClass<Bdo>($I`Bdo`)(
+export class Bdo extends S.TaggedClass<Bdo, { readonly brand: unique symbol }>($I`Bdo`)(
   "bdo",
   {
     ...GlobalAttributes,
@@ -1189,7 +1191,7 @@ export declare namespace Bdo {
  * @category elements
  * @since 0.0.0
  */
-export class Bgsound extends S.TaggedClass<Bgsound>($I`Bgsound`)(
+export class Bgsound extends S.TaggedClass<Bgsound, { readonly brand: unique symbol }>($I`Bgsound`)(
   "bgsound",
   {
     ...GlobalAttributes,
@@ -1237,7 +1239,7 @@ export declare namespace Bgsound {
  * @category elements
  * @since 0.0.0
  */
-export class Big extends S.TaggedClass<Big>($I`Big`)(
+export class Big extends S.TaggedClass<Big, { readonly brand: unique symbol }>($I`Big`)(
   "big",
   {
     ...GlobalAttributes,
@@ -1288,7 +1290,7 @@ export declare namespace Big {
  * @category elements
  * @since 0.0.0
  */
-export class Blink extends S.TaggedClass<Blink>($I`Blink`)(
+export class Blink extends S.TaggedClass<Blink, { readonly brand: unique symbol }>($I`Blink`)(
   "blink",
   {
     ...GlobalAttributes,
@@ -1339,7 +1341,7 @@ export declare namespace Blink {
  * @category elements
  * @since 0.0.0
  */
-export class Blockquote extends S.TaggedClass<Blockquote>($I`Blockquote`)(
+export class Blockquote extends S.TaggedClass<Blockquote, { readonly brand: unique symbol }>($I`Blockquote`)(
   "blockquote",
   {
     ...GlobalAttributes,
@@ -1393,7 +1395,7 @@ export declare namespace Blockquote {
  * @category elements
  * @since 0.0.0
  */
-export class Body extends S.TaggedClass<Body>($I`Body`)(
+export class Body extends S.TaggedClass<Body, { readonly brand: unique symbol }>($I`Body`)(
   "body",
   {
     ...GlobalAttributes,
@@ -1531,7 +1533,7 @@ export declare namespace Body {
  * @category elements
  * @since 0.0.0
  */
-export class Br extends S.TaggedClass<Br>($I`Br`)(
+export class Br extends S.TaggedClass<Br, { readonly brand: unique symbol }>($I`Br`)(
   "br",
   {
     ...GlobalAttributes,
@@ -1582,7 +1584,7 @@ export declare namespace Br {
  * @category elements
  * @since 0.0.0
  */
-export class Button extends S.TaggedClass<Button>($I`Button`)(
+export class Button extends S.TaggedClass<Button, { readonly brand: unique symbol }>($I`Button`)(
   "button",
   {
     ...GlobalAttributes,
@@ -1703,7 +1705,7 @@ export declare namespace Button {
  * @category elements
  * @since 0.0.0
  */
-export class Canvas extends S.TaggedClass<Canvas>($I`Canvas`)(
+export class Canvas extends S.TaggedClass<Canvas, { readonly brand: unique symbol }>($I`Canvas`)(
   "canvas",
   {
     ...GlobalAttributes,
@@ -1760,7 +1762,7 @@ export declare namespace Canvas {
  * @category elements
  * @since 0.0.0
  */
-export class Caption extends S.TaggedClass<Caption>($I`Caption`)(
+export class Caption extends S.TaggedClass<Caption, { readonly brand: unique symbol }>($I`Caption`)(
   "caption",
   {
     ...GlobalAttributes,
@@ -1814,7 +1816,7 @@ export declare namespace Caption {
  * @category elements
  * @since 0.0.0
  */
-export class Center extends S.TaggedClass<Center>($I`Center`)(
+export class Center extends S.TaggedClass<Center, { readonly brand: unique symbol }>($I`Center`)(
   "center",
   {
     ...GlobalAttributes,
@@ -1865,7 +1867,7 @@ export declare namespace Center {
  * @category elements
  * @since 0.0.0
  */
-export class Cite extends S.TaggedClass<Cite>($I`Cite`)(
+export class Cite extends S.TaggedClass<Cite, { readonly brand: unique symbol }>($I`Cite`)(
   "cite",
   {
     ...GlobalAttributes,
@@ -1916,7 +1918,7 @@ export declare namespace Cite {
  * @category elements
  * @since 0.0.0
  */
-export class Code extends S.TaggedClass<Code>($I`Code`)(
+export class Code extends S.TaggedClass<Code, { readonly brand: unique symbol }>($I`Code`)(
   "code",
   {
     ...GlobalAttributes,
@@ -1967,7 +1969,7 @@ export declare namespace Code {
  * @category elements
  * @since 0.0.0
  */
-export class Col extends S.TaggedClass<Col>($I`Col`)(
+export class Col extends S.TaggedClass<Col, { readonly brand: unique symbol }>($I`Col`)(
   "col",
   {
     ...GlobalAttributes,
@@ -2033,7 +2035,7 @@ export declare namespace Col {
  * @category elements
  * @since 0.0.0
  */
-export class Colgroup extends S.TaggedClass<Colgroup>($I`Colgroup`)(
+export class Colgroup extends S.TaggedClass<Colgroup, { readonly brand: unique symbol }>($I`Colgroup`)(
   "colgroup",
   {
     ...GlobalAttributes,
@@ -2087,7 +2089,7 @@ export declare namespace Colgroup {
  * @category elements
  * @since 0.0.0
  */
-export class Data extends S.TaggedClass<Data>($I`Data`)(
+export class Data extends S.TaggedClass<Data, { readonly brand: unique symbol }>($I`Data`)(
   "data",
   {
     ...GlobalAttributes,
@@ -2141,7 +2143,7 @@ export declare namespace Data {
  * @category elements
  * @since 0.0.0
  */
-export class Datalist extends S.TaggedClass<Datalist>($I`Datalist`)(
+export class Datalist extends S.TaggedClass<Datalist, { readonly brand: unique symbol }>($I`Datalist`)(
   "datalist",
   {
     ...GlobalAttributes,
@@ -2192,7 +2194,7 @@ export declare namespace Datalist {
  * @category elements
  * @since 0.0.0
  */
-export class Dd extends S.TaggedClass<Dd>($I`Dd`)(
+export class Dd extends S.TaggedClass<Dd, { readonly brand: unique symbol }>($I`Dd`)(
   "dd",
   {
     ...GlobalAttributes,
@@ -2243,7 +2245,7 @@ export declare namespace Dd {
  * @category elements
  * @since 0.0.0
  */
-export class Del extends S.TaggedClass<Del>($I`Del`)(
+export class Del extends S.TaggedClass<Del, { readonly brand: unique symbol }>($I`Del`)(
   "del",
   {
     ...GlobalAttributes,
@@ -2300,7 +2302,7 @@ export declare namespace Del {
  * @category elements
  * @since 0.0.0
  */
-export class Details extends S.TaggedClass<Details>($I`Details`)(
+export class Details extends S.TaggedClass<Details, { readonly brand: unique symbol }>($I`Details`)(
   "details",
   {
     ...GlobalAttributes,
@@ -2357,7 +2359,7 @@ export declare namespace Details {
  * @category elements
  * @since 0.0.0
  */
-export class Dfn extends S.TaggedClass<Dfn>($I`Dfn`)(
+export class Dfn extends S.TaggedClass<Dfn, { readonly brand: unique symbol }>($I`Dfn`)(
   "dfn",
   {
     ...GlobalAttributes,
@@ -2408,7 +2410,7 @@ export declare namespace Dfn {
  * @category elements
  * @since 0.0.0
  */
-export class Dialog extends S.TaggedClass<Dialog>($I`Dialog`)(
+export class Dialog extends S.TaggedClass<Dialog, { readonly brand: unique symbol }>($I`Dialog`)(
   "dialog",
   {
     ...GlobalAttributes,
@@ -2467,7 +2469,7 @@ export declare namespace Dialog {
  * @category elements
  * @since 0.0.0
  */
-export class DirElement extends S.TaggedClass<DirElement>($I`DirElement`)(
+export class DirElement extends S.TaggedClass<DirElement, { readonly brand: unique symbol }>($I`DirElement`)(
   "dir",
   {
     ...GlobalAttributes,
@@ -2518,7 +2520,7 @@ export declare namespace DirElement {
  * @category elements
  * @since 0.0.0
  */
-export class Div extends S.TaggedClass<Div>($I`Div`)(
+export class Div extends S.TaggedClass<Div, { readonly brand: unique symbol }>($I`Div`)(
   "div",
   {
     ...GlobalAttributes,
@@ -2572,7 +2574,7 @@ export declare namespace Div {
  * @category elements
  * @since 0.0.0
  */
-export class Dl extends S.TaggedClass<Dl>($I`Dl`)(
+export class Dl extends S.TaggedClass<Dl, { readonly brand: unique symbol }>($I`Dl`)(
   "dl",
   {
     ...GlobalAttributes,
@@ -2626,7 +2628,7 @@ export declare namespace Dl {
  * @category elements
  * @since 0.0.0
  */
-export class Dt extends S.TaggedClass<Dt>($I`Dt`)(
+export class Dt extends S.TaggedClass<Dt, { readonly brand: unique symbol }>($I`Dt`)(
   "dt",
   {
     ...GlobalAttributes,
@@ -2677,7 +2679,7 @@ export declare namespace Dt {
  * @category elements
  * @since 0.0.0
  */
-export class Em extends S.TaggedClass<Em>($I`Em`)(
+export class Em extends S.TaggedClass<Em, { readonly brand: unique symbol }>($I`Em`)(
   "em",
   {
     ...GlobalAttributes,
@@ -2728,7 +2730,7 @@ export declare namespace Em {
  * @category elements
  * @since 0.0.0
  */
-export class Embed extends S.TaggedClass<Embed>($I`Embed`)(
+export class Embed extends S.TaggedClass<Embed, { readonly brand: unique symbol }>($I`Embed`)(
   "embed",
   {
     ...GlobalAttributes,
@@ -2800,7 +2802,7 @@ export declare namespace Embed {
  * @category elements
  * @since 0.0.0
  */
-export class Fieldset extends S.TaggedClass<Fieldset>($I`Fieldset`)(
+export class Fieldset extends S.TaggedClass<Fieldset, { readonly brand: unique symbol }>($I`Fieldset`)(
   "fieldset",
   {
     ...GlobalAttributes,
@@ -2863,7 +2865,7 @@ export declare namespace Fieldset {
  * @category elements
  * @since 0.0.0
  */
-export class Figcaption extends S.TaggedClass<Figcaption>($I`Figcaption`)(
+export class Figcaption extends S.TaggedClass<Figcaption, { readonly brand: unique symbol }>($I`Figcaption`)(
   "figcaption",
   {
     ...GlobalAttributes,
@@ -2914,7 +2916,7 @@ export declare namespace Figcaption {
  * @category elements
  * @since 0.0.0
  */
-export class Figure extends S.TaggedClass<Figure>($I`Figure`)(
+export class Figure extends S.TaggedClass<Figure, { readonly brand: unique symbol }>($I`Figure`)(
   "figure",
   {
     ...GlobalAttributes,
@@ -2965,7 +2967,7 @@ export declare namespace Figure {
  * @category elements
  * @since 0.0.0
  */
-export class Font extends S.TaggedClass<Font>($I`Font`)(
+export class Font extends S.TaggedClass<Font, { readonly brand: unique symbol }>($I`Font`)(
   "font",
   {
     ...GlobalAttributes,
@@ -3016,7 +3018,7 @@ export declare namespace Font {
  * @category elements
  * @since 0.0.0
  */
-export class Footer extends S.TaggedClass<Footer>($I`Footer`)(
+export class Footer extends S.TaggedClass<Footer, { readonly brand: unique symbol }>($I`Footer`)(
   "footer",
   {
     ...GlobalAttributes,
@@ -3067,7 +3069,7 @@ export declare namespace Footer {
  * @category elements
  * @since 0.0.0
  */
-export class Form extends S.TaggedClass<Form>($I`Form`)(
+export class Form extends S.TaggedClass<Form, { readonly brand: unique symbol }>($I`Form`)(
   "form",
   {
     ...GlobalAttributes,
@@ -3167,7 +3169,7 @@ export declare namespace Form {
  * @category elements
  * @since 0.0.0
  */
-export class Frame extends S.TaggedClass<Frame>($I`Frame`)(
+export class Frame extends S.TaggedClass<Frame, { readonly brand: unique symbol }>($I`Frame`)(
   "frame",
   {
     ...GlobalAttributes,
@@ -3215,7 +3217,7 @@ export declare namespace Frame {
  * @category elements
  * @since 0.0.0
  */
-export class Frameset extends S.TaggedClass<Frameset>($I`Frameset`)(
+export class Frameset extends S.TaggedClass<Frameset, { readonly brand: unique symbol }>($I`Frameset`)(
   "frameset",
   {
     ...GlobalAttributes,
@@ -3266,7 +3268,7 @@ export declare namespace Frameset {
  * @category elements
  * @since 0.0.0
  */
-export class H1 extends S.TaggedClass<H1>($I`H1`)(
+export class H1 extends S.TaggedClass<H1, { readonly brand: unique symbol }>($I`H1`)(
   "h1",
   {
     ...GlobalAttributes,
@@ -3320,7 +3322,7 @@ export declare namespace H1 {
  * @category elements
  * @since 0.0.0
  */
-export class H2 extends S.TaggedClass<H2>($I`H2`)(
+export class H2 extends S.TaggedClass<H2, { readonly brand: unique symbol }>($I`H2`)(
   "h2",
   {
     ...GlobalAttributes,
@@ -3374,7 +3376,7 @@ export declare namespace H2 {
  * @category elements
  * @since 0.0.0
  */
-export class H3 extends S.TaggedClass<H3>($I`H3`)(
+export class H3 extends S.TaggedClass<H3, { readonly brand: unique symbol }>($I`H3`)(
   "h3",
   {
     ...GlobalAttributes,
@@ -3428,7 +3430,7 @@ export declare namespace H3 {
  * @category elements
  * @since 0.0.0
  */
-export class H4 extends S.TaggedClass<H4>($I`H4`)(
+export class H4 extends S.TaggedClass<H4, { readonly brand: unique symbol }>($I`H4`)(
   "h4",
   {
     ...GlobalAttributes,
@@ -3482,7 +3484,7 @@ export declare namespace H4 {
  * @category elements
  * @since 0.0.0
  */
-export class H5 extends S.TaggedClass<H5>($I`H5`)(
+export class H5 extends S.TaggedClass<H5, { readonly brand: unique symbol }>($I`H5`)(
   "h5",
   {
     ...GlobalAttributes,
@@ -3536,7 +3538,7 @@ export declare namespace H5 {
  * @category elements
  * @since 0.0.0
  */
-export class H6 extends S.TaggedClass<H6>($I`H6`)(
+export class H6 extends S.TaggedClass<H6, { readonly brand: unique symbol }>($I`H6`)(
   "h6",
   {
     ...GlobalAttributes,
@@ -3590,7 +3592,7 @@ export declare namespace H6 {
  * @category elements
  * @since 0.0.0
  */
-export class Head extends S.TaggedClass<Head>($I`Head`)(
+export class Head extends S.TaggedClass<Head, { readonly brand: unique symbol }>($I`Head`)(
   "head",
   {
     ...GlobalAttributes,
@@ -3644,7 +3646,7 @@ export declare namespace Head {
  * @category elements
  * @since 0.0.0
  */
-export class Header extends S.TaggedClass<Header>($I`Header`)(
+export class Header extends S.TaggedClass<Header, { readonly brand: unique symbol }>($I`Header`)(
   "header",
   {
     ...GlobalAttributes,
@@ -3695,7 +3697,7 @@ export declare namespace Header {
  * @category elements
  * @since 0.0.0
  */
-export class Hgroup extends S.TaggedClass<Hgroup>($I`Hgroup`)(
+export class Hgroup extends S.TaggedClass<Hgroup, { readonly brand: unique symbol }>($I`Hgroup`)(
   "hgroup",
   {
     ...GlobalAttributes,
@@ -3746,7 +3748,7 @@ export declare namespace Hgroup {
  * @category elements
  * @since 0.0.0
  */
-export class Hr extends S.TaggedClass<Hr>($I`Hr`)(
+export class Hr extends S.TaggedClass<Hr, { readonly brand: unique symbol }>($I`Hr`)(
   "hr",
   {
     ...GlobalAttributes,
@@ -3809,7 +3811,7 @@ export declare namespace Hr {
  * @category elements
  * @since 0.0.0
  */
-export class Html extends S.TaggedClass<Html>($I`Html`)(
+export class Html extends S.TaggedClass<Html, { readonly brand: unique symbol }>($I`Html`)(
   "html",
   {
     ...GlobalAttributes,
@@ -3866,7 +3868,7 @@ export declare namespace Html {
  * @category elements
  * @since 0.0.0
  */
-export class I extends S.TaggedClass<I>($I`I`)(
+export class I extends S.TaggedClass<I, { readonly brand: unique symbol }>($I`I`)(
   "i",
   {
     ...GlobalAttributes,
@@ -3917,7 +3919,7 @@ export declare namespace I {
  * @category elements
  * @since 0.0.0
  */
-export class Iframe extends S.TaggedClass<Iframe>($I`Iframe`)(
+export class Iframe extends S.TaggedClass<Iframe, { readonly brand: unique symbol }>($I`Iframe`)(
   "iframe",
   {
     ...GlobalAttributes,
@@ -4056,7 +4058,7 @@ export declare namespace Iframe {
  * @category elements
  * @since 0.0.0
  */
-export class Img extends S.TaggedClass<Img>($I`Img`)(
+export class Img extends S.TaggedClass<Img, { readonly brand: unique symbol }>($I`Img`)(
   "img",
   {
     ...GlobalAttributes,
@@ -4183,7 +4185,7 @@ export declare namespace Img {
  * @category elements
  * @since 0.0.0
  */
-export class Input extends S.TaggedClass<Input>($I`Input`)(
+export class Input extends S.TaggedClass<Input, { readonly brand: unique symbol }>($I`Input`)(
   "input",
   {
     ...GlobalAttributes,
@@ -4407,7 +4409,7 @@ export declare namespace Input {
  * @category elements
  * @since 0.0.0
  */
-export class Ins extends S.TaggedClass<Ins>($I`Ins`)(
+export class Ins extends S.TaggedClass<Ins, { readonly brand: unique symbol }>($I`Ins`)(
   "ins",
   {
     ...GlobalAttributes,
@@ -4464,7 +4466,7 @@ export declare namespace Ins {
  * @category elements
  * @since 0.0.0
  */
-export class Isindex extends S.TaggedClass<Isindex>($I`Isindex`)(
+export class Isindex extends S.TaggedClass<Isindex, { readonly brand: unique symbol }>($I`Isindex`)(
   "isindex",
   {
     ...GlobalAttributes,
@@ -4512,7 +4514,7 @@ export declare namespace Isindex {
  * @category elements
  * @since 0.0.0
  */
-export class Kbd extends S.TaggedClass<Kbd>($I`Kbd`)(
+export class Kbd extends S.TaggedClass<Kbd, { readonly brand: unique symbol }>($I`Kbd`)(
   "kbd",
   {
     ...GlobalAttributes,
@@ -4563,7 +4565,7 @@ export declare namespace Kbd {
  * @category elements
  * @since 0.0.0
  */
-export class Keygen extends S.TaggedClass<Keygen>($I`Keygen`)(
+export class Keygen extends S.TaggedClass<Keygen, { readonly brand: unique symbol }>($I`Keygen`)(
   "keygen",
   {
     ...GlobalAttributes,
@@ -4611,7 +4613,7 @@ export declare namespace Keygen {
  * @category elements
  * @since 0.0.0
  */
-export class Label extends S.TaggedClass<Label>($I`Label`)(
+export class Label extends S.TaggedClass<Label, { readonly brand: unique symbol }>($I`Label`)(
   "label",
   {
     ...GlobalAttributes,
@@ -4665,7 +4667,7 @@ export declare namespace Label {
  * @category elements
  * @since 0.0.0
  */
-export class Legend extends S.TaggedClass<Legend>($I`Legend`)(
+export class Legend extends S.TaggedClass<Legend, { readonly brand: unique symbol }>($I`Legend`)(
   "legend",
   {
     ...GlobalAttributes,
@@ -4719,7 +4721,7 @@ export declare namespace Legend {
  * @category elements
  * @since 0.0.0
  */
-export class Li extends S.TaggedClass<Li>($I`Li`)(
+export class Li extends S.TaggedClass<Li, { readonly brand: unique symbol }>($I`Li`)(
   "li",
   {
     ...GlobalAttributes,
@@ -4776,7 +4778,7 @@ export declare namespace Li {
  * @category elements
  * @since 0.0.0
  */
-export class Link extends S.TaggedClass<Link>($I`Link`)(
+export class Link extends S.TaggedClass<Link, { readonly brand: unique symbol }>($I`Link`)(
   "link",
   {
     ...GlobalAttributes,
@@ -4931,7 +4933,7 @@ export declare namespace Link {
  * @category elements
  * @since 0.0.0
  */
-export class Listing extends S.TaggedClass<Listing>($I`Listing`)(
+export class Listing extends S.TaggedClass<Listing, { readonly brand: unique symbol }>($I`Listing`)(
   "listing",
   {
     ...GlobalAttributes,
@@ -4982,7 +4984,7 @@ export declare namespace Listing {
  * @category elements
  * @since 0.0.0
  */
-export class Main extends S.TaggedClass<Main>($I`Main`)(
+export class Main extends S.TaggedClass<Main, { readonly brand: unique symbol }>($I`Main`)(
   "main",
   {
     ...GlobalAttributes,
@@ -5033,7 +5035,7 @@ export declare namespace Main {
  * @category elements
  * @since 0.0.0
  */
-export class MapElement extends S.TaggedClass<MapElement>($I`MapElement`)(
+export class MapElement extends S.TaggedClass<MapElement, { readonly brand: unique symbol }>($I`MapElement`)(
   "map",
   {
     ...GlobalAttributes,
@@ -5087,7 +5089,7 @@ export declare namespace MapElement {
  * @category elements
  * @since 0.0.0
  */
-export class Mark extends S.TaggedClass<Mark>($I`Mark`)(
+export class Mark extends S.TaggedClass<Mark, { readonly brand: unique symbol }>($I`Mark`)(
   "mark",
   {
     ...GlobalAttributes,
@@ -5138,7 +5140,7 @@ export declare namespace Mark {
  * @category elements
  * @since 0.0.0
  */
-export class Marquee extends S.TaggedClass<Marquee>($I`Marquee`)(
+export class Marquee extends S.TaggedClass<Marquee, { readonly brand: unique symbol }>($I`Marquee`)(
   "marquee",
   {
     ...GlobalAttributes,
@@ -5201,7 +5203,7 @@ export declare namespace Marquee {
  * @category elements
  * @since 0.0.0
  */
-export class Menu extends S.TaggedClass<Menu>($I`Menu`)(
+export class Menu extends S.TaggedClass<Menu, { readonly brand: unique symbol }>($I`Menu`)(
   "menu",
   {
     ...GlobalAttributes,
@@ -5261,7 +5263,7 @@ export declare namespace Menu {
  * @category elements
  * @since 0.0.0
  */
-export class Menuitem extends S.TaggedClass<Menuitem>($I`Menuitem`)(
+export class Menuitem extends S.TaggedClass<Menuitem, { readonly brand: unique symbol }>($I`Menuitem`)(
   "menuitem",
   {
     ...GlobalAttributes,
@@ -5312,7 +5314,7 @@ export declare namespace Menuitem {
  * @category elements
  * @since 0.0.0
  */
-export class Meta extends S.TaggedClass<Meta>($I`Meta`)(
+export class Meta extends S.TaggedClass<Meta, { readonly brand: unique symbol }>($I`Meta`)(
   "meta",
   {
     ...GlobalAttributes,
@@ -5388,7 +5390,7 @@ export declare namespace Meta {
  * @category elements
  * @since 0.0.0
  */
-export class Meter extends S.TaggedClass<Meter>($I`Meter`)(
+export class Meter extends S.TaggedClass<Meter, { readonly brand: unique symbol }>($I`Meter`)(
   "meter",
   {
     ...GlobalAttributes,
@@ -5457,7 +5459,7 @@ export declare namespace Meter {
  * @category elements
  * @since 0.0.0
  */
-export class Multicol extends S.TaggedClass<Multicol>($I`Multicol`)(
+export class Multicol extends S.TaggedClass<Multicol, { readonly brand: unique symbol }>($I`Multicol`)(
   "multicol",
   {
     ...GlobalAttributes,
@@ -5508,7 +5510,7 @@ export declare namespace Multicol {
  * @category elements
  * @since 0.0.0
  */
-export class Nav extends S.TaggedClass<Nav>($I`Nav`)(
+export class Nav extends S.TaggedClass<Nav, { readonly brand: unique symbol }>($I`Nav`)(
   "nav",
   {
     ...GlobalAttributes,
@@ -5559,7 +5561,7 @@ export declare namespace Nav {
  * @category elements
  * @since 0.0.0
  */
-export class Nextid extends S.TaggedClass<Nextid>($I`Nextid`)(
+export class Nextid extends S.TaggedClass<Nextid, { readonly brand: unique symbol }>($I`Nextid`)(
   "nextid",
   {
     ...GlobalAttributes,
@@ -5607,7 +5609,7 @@ export declare namespace Nextid {
  * @category elements
  * @since 0.0.0
  */
-export class Nobr extends S.TaggedClass<Nobr>($I`Nobr`)(
+export class Nobr extends S.TaggedClass<Nobr, { readonly brand: unique symbol }>($I`Nobr`)(
   "nobr",
   {
     ...GlobalAttributes,
@@ -5658,7 +5660,7 @@ export declare namespace Nobr {
  * @category elements
  * @since 0.0.0
  */
-export class Noembed extends S.TaggedClass<Noembed>($I`Noembed`)(
+export class Noembed extends S.TaggedClass<Noembed, { readonly brand: unique symbol }>($I`Noembed`)(
   "noembed",
   {
     ...GlobalAttributes,
@@ -5709,7 +5711,7 @@ export declare namespace Noembed {
  * @category elements
  * @since 0.0.0
  */
-export class Noframes extends S.TaggedClass<Noframes>($I`Noframes`)(
+export class Noframes extends S.TaggedClass<Noframes, { readonly brand: unique symbol }>($I`Noframes`)(
   "noframes",
   {
     ...GlobalAttributes,
@@ -5760,7 +5762,7 @@ export declare namespace Noframes {
  * @category elements
  * @since 0.0.0
  */
-export class Noscript extends S.TaggedClass<Noscript>($I`Noscript`)(
+export class Noscript extends S.TaggedClass<Noscript, { readonly brand: unique symbol }>($I`Noscript`)(
   "noscript",
   {
     ...GlobalAttributes,
@@ -5811,7 +5813,7 @@ export declare namespace Noscript {
  * @category elements
  * @since 0.0.0
  */
-export class ObjectElement extends S.TaggedClass<ObjectElement>($I`ObjectElement`)(
+export class ObjectElement extends S.TaggedClass<ObjectElement, { readonly brand: unique symbol }>($I`ObjectElement`)(
   "object",
   {
     ...GlobalAttributes,
@@ -5925,7 +5927,7 @@ export declare namespace ObjectElement {
  * @category elements
  * @since 0.0.0
  */
-export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
+export class Ol extends S.TaggedClass<Ol, { readonly brand: unique symbol }>($I`Ol`)(
   "ol",
   {
     ...GlobalAttributes,
@@ -5990,7 +5992,7 @@ export declare namespace Ol {
  * @category elements
  * @since 0.0.0
  */
-export class Optgroup extends S.TaggedClass<Optgroup>($I`Optgroup`)(
+export class Optgroup extends S.TaggedClass<Optgroup, { readonly brand: unique symbol }>($I`Optgroup`)(
   "optgroup",
   {
     ...GlobalAttributes,
@@ -6047,7 +6049,7 @@ export declare namespace Optgroup {
  * @category elements
  * @since 0.0.0
  */
-export class Option extends S.TaggedClass<Option>($I`Option`)(
+export class Option extends S.TaggedClass<Option, { readonly brand: unique symbol }>($I`Option`)(
   "option",
   {
     ...GlobalAttributes,
@@ -6113,7 +6115,7 @@ export declare namespace Option {
  * @category elements
  * @since 0.0.0
  */
-export class Output extends S.TaggedClass<Output>($I`Output`)(
+export class Output extends S.TaggedClass<Output, { readonly brand: unique symbol }>($I`Output`)(
   "output",
   {
     ...GlobalAttributes,
@@ -6179,7 +6181,7 @@ export declare namespace Output {
  * @category elements
  * @since 0.0.0
  */
-export class P extends S.TaggedClass<P>($I`P`)(
+export class P extends S.TaggedClass<P, { readonly brand: unique symbol }>($I`P`)(
   "p",
   {
     ...GlobalAttributes,
@@ -6233,7 +6235,7 @@ export declare namespace P {
  * @category elements
  * @since 0.0.0
  */
-export class Param extends S.TaggedClass<Param>($I`Param`)(
+export class Param extends S.TaggedClass<Param, { readonly brand: unique symbol }>($I`Param`)(
   "param",
   {
     ...GlobalAttributes,
@@ -6281,7 +6283,7 @@ export declare namespace Param {
  * @category elements
  * @since 0.0.0
  */
-export class Picture extends S.TaggedClass<Picture>($I`Picture`)(
+export class Picture extends S.TaggedClass<Picture, { readonly brand: unique symbol }>($I`Picture`)(
   "picture",
   {
     ...GlobalAttributes,
@@ -6332,7 +6334,7 @@ export declare namespace Picture {
  * @category elements
  * @since 0.0.0
  */
-export class Plaintext extends S.TaggedClass<Plaintext>($I`Plaintext`)(
+export class Plaintext extends S.TaggedClass<Plaintext, { readonly brand: unique symbol }>($I`Plaintext`)(
   "plaintext",
   {
     ...GlobalAttributes,
@@ -6383,7 +6385,7 @@ export declare namespace Plaintext {
  * @category elements
  * @since 0.0.0
  */
-export class Pre extends S.TaggedClass<Pre>($I`Pre`)(
+export class Pre extends S.TaggedClass<Pre, { readonly brand: unique symbol }>($I`Pre`)(
   "pre",
   {
     ...GlobalAttributes,
@@ -6437,7 +6439,7 @@ export declare namespace Pre {
  * @category elements
  * @since 0.0.0
  */
-export class Progress extends S.TaggedClass<Progress>($I`Progress`)(
+export class Progress extends S.TaggedClass<Progress, { readonly brand: unique symbol }>($I`Progress`)(
   "progress",
   {
     ...GlobalAttributes,
@@ -6494,7 +6496,7 @@ export declare namespace Progress {
  * @category elements
  * @since 0.0.0
  */
-export class Q extends S.TaggedClass<Q>($I`Q`)(
+export class Q extends S.TaggedClass<Q, { readonly brand: unique symbol }>($I`Q`)(
   "q",
   {
     ...GlobalAttributes,
@@ -6548,7 +6550,7 @@ export declare namespace Q {
  * @category elements
  * @since 0.0.0
  */
-export class Rb extends S.TaggedClass<Rb>($I`Rb`)(
+export class Rb extends S.TaggedClass<Rb, { readonly brand: unique symbol }>($I`Rb`)(
   "rb",
   {
     ...GlobalAttributes,
@@ -6599,7 +6601,7 @@ export declare namespace Rb {
  * @category elements
  * @since 0.0.0
  */
-export class Rp extends S.TaggedClass<Rp>($I`Rp`)(
+export class Rp extends S.TaggedClass<Rp, { readonly brand: unique symbol }>($I`Rp`)(
   "rp",
   {
     ...GlobalAttributes,
@@ -6650,7 +6652,7 @@ export declare namespace Rp {
  * @category elements
  * @since 0.0.0
  */
-export class Rt extends S.TaggedClass<Rt>($I`Rt`)(
+export class Rt extends S.TaggedClass<Rt, { readonly brand: unique symbol }>($I`Rt`)(
   "rt",
   {
     ...GlobalAttributes,
@@ -6701,7 +6703,7 @@ export declare namespace Rt {
  * @category elements
  * @since 0.0.0
  */
-export class Rtc extends S.TaggedClass<Rtc>($I`Rtc`)(
+export class Rtc extends S.TaggedClass<Rtc, { readonly brand: unique symbol }>($I`Rtc`)(
   "rtc",
   {
     ...GlobalAttributes,
@@ -6752,7 +6754,7 @@ export declare namespace Rtc {
  * @category elements
  * @since 0.0.0
  */
-export class Ruby extends S.TaggedClass<Ruby>($I`Ruby`)(
+export class Ruby extends S.TaggedClass<Ruby, { readonly brand: unique symbol }>($I`Ruby`)(
   "ruby",
   {
     ...GlobalAttributes,
@@ -6803,7 +6805,7 @@ export declare namespace Ruby {
  * @category elements
  * @since 0.0.0
  */
-export class SElement extends S.TaggedClass<SElement>($I`SElement`)(
+export class SElement extends S.TaggedClass<SElement, { readonly brand: unique symbol }>($I`SElement`)(
   "s",
   {
     ...GlobalAttributes,
@@ -6854,7 +6856,7 @@ export declare namespace SElement {
  * @category elements
  * @since 0.0.0
  */
-export class Samp extends S.TaggedClass<Samp>($I`Samp`)(
+export class Samp extends S.TaggedClass<Samp, { readonly brand: unique symbol }>($I`Samp`)(
   "samp",
   {
     ...GlobalAttributes,
@@ -6905,7 +6907,7 @@ export declare namespace Samp {
  * @category elements
  * @since 0.0.0
  */
-export class Script extends S.TaggedClass<Script>($I`Script`)(
+export class Script extends S.TaggedClass<Script, { readonly brand: unique symbol }>($I`Script`)(
   "script",
   {
     ...GlobalAttributes,
@@ -7012,7 +7014,7 @@ export declare namespace Script {
  * @category elements
  * @since 0.0.0
  */
-export class Search extends S.TaggedClass<Search>($I`Search`)(
+export class Search extends S.TaggedClass<Search, { readonly brand: unique symbol }>($I`Search`)(
   "search",
   {
     ...GlobalAttributes,
@@ -7063,7 +7065,7 @@ export declare namespace Search {
  * @category elements
  * @since 0.0.0
  */
-export class Section extends S.TaggedClass<Section>($I`Section`)(
+export class Section extends S.TaggedClass<Section, { readonly brand: unique symbol }>($I`Section`)(
   "section",
   {
     ...GlobalAttributes,
@@ -7114,7 +7116,7 @@ export declare namespace Section {
  * @category elements
  * @since 0.0.0
  */
-export class Select extends S.TaggedClass<Select>($I`Select`)(
+export class Select extends S.TaggedClass<Select, { readonly brand: unique symbol }>($I`Select`)(
   "select",
   {
     ...GlobalAttributes,
@@ -7186,7 +7188,9 @@ export declare namespace Select {
  * @category elements
  * @since 0.0.0
  */
-export class Selectedcontent extends S.TaggedClass<Selectedcontent>($I`Selectedcontent`)(
+export class Selectedcontent extends S.TaggedClass<Selectedcontent, { readonly brand: unique symbol }>(
+  $I`Selectedcontent`
+)(
   "selectedcontent",
   {
     ...GlobalAttributes,
@@ -7237,7 +7241,7 @@ export declare namespace Selectedcontent {
  * @category elements
  * @since 0.0.0
  */
-export class Slot extends S.TaggedClass<Slot>($I`Slot`)(
+export class Slot extends S.TaggedClass<Slot, { readonly brand: unique symbol }>($I`Slot`)(
   "slot",
   {
     ...GlobalAttributes,
@@ -7291,7 +7295,7 @@ export declare namespace Slot {
  * @category elements
  * @since 0.0.0
  */
-export class Small extends S.TaggedClass<Small>($I`Small`)(
+export class Small extends S.TaggedClass<Small, { readonly brand: unique symbol }>($I`Small`)(
   "small",
   {
     ...GlobalAttributes,
@@ -7342,7 +7346,7 @@ export declare namespace Small {
  * @category elements
  * @since 0.0.0
  */
-export class Source extends S.TaggedClass<Source>($I`Source`)(
+export class Source extends S.TaggedClass<Source, { readonly brand: unique symbol }>($I`Source`)(
   "source",
   {
     ...GlobalAttributes,
@@ -7411,7 +7415,7 @@ export declare namespace Source {
  * @category elements
  * @since 0.0.0
  */
-export class Spacer extends S.TaggedClass<Spacer>($I`Spacer`)(
+export class Spacer extends S.TaggedClass<Spacer, { readonly brand: unique symbol }>($I`Spacer`)(
   "spacer",
   {
     ...GlobalAttributes,
@@ -7459,7 +7463,7 @@ export declare namespace Spacer {
  * @category elements
  * @since 0.0.0
  */
-export class Span extends S.TaggedClass<Span>($I`Span`)(
+export class Span extends S.TaggedClass<Span, { readonly brand: unique symbol }>($I`Span`)(
   "span",
   {
     ...GlobalAttributes,
@@ -7510,7 +7514,7 @@ export declare namespace Span {
  * @category elements
  * @since 0.0.0
  */
-export class Strike extends S.TaggedClass<Strike>($I`Strike`)(
+export class Strike extends S.TaggedClass<Strike, { readonly brand: unique symbol }>($I`Strike`)(
   "strike",
   {
     ...GlobalAttributes,
@@ -7561,7 +7565,7 @@ export declare namespace Strike {
  * @category elements
  * @since 0.0.0
  */
-export class Strong extends S.TaggedClass<Strong>($I`Strong`)(
+export class Strong extends S.TaggedClass<Strong, { readonly brand: unique symbol }>($I`Strong`)(
   "strong",
   {
     ...GlobalAttributes,
@@ -7612,7 +7616,7 @@ export declare namespace Strong {
  * @category elements
  * @since 0.0.0
  */
-export class Style extends S.TaggedClass<Style>($I`Style`)(
+export class Style extends S.TaggedClass<Style, { readonly brand: unique symbol }>($I`Style`)(
   "style",
   {
     ...GlobalAttributes,
@@ -7674,7 +7678,7 @@ export declare namespace Style {
  * @category elements
  * @since 0.0.0
  */
-export class Sub extends S.TaggedClass<Sub>($I`Sub`)(
+export class Sub extends S.TaggedClass<Sub, { readonly brand: unique symbol }>($I`Sub`)(
   "sub",
   {
     ...GlobalAttributes,
@@ -7725,7 +7729,7 @@ export declare namespace Sub {
  * @category elements
  * @since 0.0.0
  */
-export class Summary extends S.TaggedClass<Summary>($I`Summary`)(
+export class Summary extends S.TaggedClass<Summary, { readonly brand: unique symbol }>($I`Summary`)(
   "summary",
   {
     ...GlobalAttributes,
@@ -7776,7 +7780,7 @@ export declare namespace Summary {
  * @category elements
  * @since 0.0.0
  */
-export class Sup extends S.TaggedClass<Sup>($I`Sup`)(
+export class Sup extends S.TaggedClass<Sup, { readonly brand: unique symbol }>($I`Sup`)(
   "sup",
   {
     ...GlobalAttributes,
@@ -7827,7 +7831,7 @@ export declare namespace Sup {
  * @category elements
  * @since 0.0.0
  */
-export class Table extends S.TaggedClass<Table>($I`Table`)(
+export class Table extends S.TaggedClass<Table, { readonly brand: unique symbol }>($I`Table`)(
   "table",
   {
     ...GlobalAttributes,
@@ -7914,7 +7918,7 @@ export declare namespace Table {
  * @category elements
  * @since 0.0.0
  */
-export class Tbody extends S.TaggedClass<Tbody>($I`Tbody`)(
+export class Tbody extends S.TaggedClass<Tbody, { readonly brand: unique symbol }>($I`Tbody`)(
   "tbody",
   {
     ...GlobalAttributes,
@@ -7980,7 +7984,7 @@ export declare namespace Tbody {
  * @category elements
  * @since 0.0.0
  */
-export class Td extends S.TaggedClass<Td>($I`Td`)(
+export class Td extends S.TaggedClass<Td, { readonly brand: unique symbol }>($I`Td`)(
   "td",
   {
     ...GlobalAttributes,
@@ -8077,7 +8081,7 @@ export declare namespace Td {
  * @category elements
  * @since 0.0.0
  */
-export class Template extends S.TaggedClass<Template>($I`Template`)(
+export class Template extends S.TaggedClass<Template, { readonly brand: unique symbol }>($I`Template`)(
   "template",
   {
     ...GlobalAttributes,
@@ -8156,7 +8160,7 @@ export declare namespace Template {
  * @category elements
  * @since 0.0.0
  */
-export class Textarea extends S.TaggedClass<Textarea>($I`Textarea`)(
+export class Textarea extends S.TaggedClass<Textarea, { readonly brand: unique symbol }>($I`Textarea`)(
   "textarea",
   {
     ...GlobalAttributes,
@@ -8248,7 +8252,7 @@ export declare namespace Textarea {
  * @category elements
  * @since 0.0.0
  */
-export class Tfoot extends S.TaggedClass<Tfoot>($I`Tfoot`)(
+export class Tfoot extends S.TaggedClass<Tfoot, { readonly brand: unique symbol }>($I`Tfoot`)(
   "tfoot",
   {
     ...GlobalAttributes,
@@ -8299,7 +8303,7 @@ export declare namespace Tfoot {
  * @category elements
  * @since 0.0.0
  */
-export class Th extends S.TaggedClass<Th>($I`Th`)(
+export class Th extends S.TaggedClass<Th, { readonly brand: unique symbol }>($I`Th`)(
   "th",
   {
     ...GlobalAttributes,
@@ -8398,7 +8402,7 @@ export declare namespace Th {
  * @category elements
  * @since 0.0.0
  */
-export class Thead extends S.TaggedClass<Thead>($I`Thead`)(
+export class Thead extends S.TaggedClass<Thead, { readonly brand: unique symbol }>($I`Thead`)(
   "thead",
   {
     ...GlobalAttributes,
@@ -8449,7 +8453,7 @@ export declare namespace Thead {
  * @category elements
  * @since 0.0.0
  */
-export class Time extends S.TaggedClass<Time>($I`Time`)(
+export class Time extends S.TaggedClass<Time, { readonly brand: unique symbol }>($I`Time`)(
   "time",
   {
     ...GlobalAttributes,
@@ -8503,7 +8507,7 @@ export declare namespace Time {
  * @category elements
  * @since 0.0.0
  */
-export class Title extends S.TaggedClass<Title>($I`Title`)(
+export class Title extends S.TaggedClass<Title, { readonly brand: unique symbol }>($I`Title`)(
   "title",
   {
     ...GlobalAttributes,
@@ -8554,7 +8558,7 @@ export declare namespace Title {
  * @category elements
  * @since 0.0.0
  */
-export class Tr extends S.TaggedClass<Tr>($I`Tr`)(
+export class Tr extends S.TaggedClass<Tr, { readonly brand: unique symbol }>($I`Tr`)(
   "tr",
   {
     ...GlobalAttributes,
@@ -8623,7 +8627,7 @@ export declare namespace Tr {
  * @category elements
  * @since 0.0.0
  */
-export class Track extends S.TaggedClass<Track>($I`Track`)(
+export class Track extends S.TaggedClass<Track, { readonly brand: unique symbol }>($I`Track`)(
   "track",
   {
     ...GlobalAttributes,
@@ -8688,7 +8692,7 @@ export declare namespace Track {
  * @category elements
  * @since 0.0.0
  */
-export class Tt extends S.TaggedClass<Tt>($I`Tt`)(
+export class Tt extends S.TaggedClass<Tt, { readonly brand: unique symbol }>($I`Tt`)(
   "tt",
   {
     ...GlobalAttributes,
@@ -8739,7 +8743,7 @@ export declare namespace Tt {
  * @category elements
  * @since 0.0.0
  */
-export class U extends S.TaggedClass<U>($I`U`)(
+export class U extends S.TaggedClass<U, { readonly brand: unique symbol }>($I`U`)(
   "u",
   {
     ...GlobalAttributes,
@@ -8790,7 +8794,7 @@ export declare namespace U {
  * @category elements
  * @since 0.0.0
  */
-export class Ul extends S.TaggedClass<Ul>($I`Ul`)(
+export class Ul extends S.TaggedClass<Ul, { readonly brand: unique symbol }>($I`Ul`)(
   "ul",
   {
     ...GlobalAttributes,
@@ -8847,7 +8851,7 @@ export declare namespace Ul {
  * @category elements
  * @since 0.0.0
  */
-export class Var extends S.TaggedClass<Var>($I`Var`)(
+export class Var extends S.TaggedClass<Var, { readonly brand: unique symbol }>($I`Var`)(
   "var",
   {
     ...GlobalAttributes,
@@ -8898,7 +8902,7 @@ export declare namespace Var {
  * @category elements
  * @since 0.0.0
  */
-export class Video extends S.TaggedClass<Video>($I`Video`)(
+export class Video extends S.TaggedClass<Video, { readonly brand: unique symbol }>($I`Video`)(
   "video",
   {
     ...GlobalAttributes,
@@ -8989,7 +8993,7 @@ export declare namespace Video {
  * @category elements
  * @since 0.0.0
  */
-export class Wbr extends S.TaggedClass<Wbr>($I`Wbr`)(
+export class Wbr extends S.TaggedClass<Wbr, { readonly brand: unique symbol }>($I`Wbr`)(
   "wbr",
   {
     ...GlobalAttributes,
@@ -9037,7 +9041,7 @@ export declare namespace Wbr {
  * @category elements
  * @since 0.0.0
  */
-export class Xmp extends S.TaggedClass<Xmp>($I`Xmp`)(
+export class Xmp extends S.TaggedClass<Xmp, { readonly brand: unique symbol }>($I`Xmp`)(
   "xmp",
   {
     ...GlobalAttributes,

@@ -39,7 +39,7 @@ const $I = $NlpProcessingId.create("Graph/GraphOperations/ResultStore");
 const AnyGraphNode = S.Struct({
   data: S.Unknown,
   id: NodeId,
-  metadata: S.Struct(NodeMetadata.fields),
+  metadata: NodeMetadata,
   parentId: S.Option(NodeId),
 }).pipe(
   $I.annoteSchema("AnyGraphNode", {
@@ -70,18 +70,19 @@ const AnyGraphNode = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class AnyOperationResult extends S.Class<AnyOperationResult>($I`AnyOperationResult`)(
-  {
+export class AnyOperationResult extends S.Opaque<AnyOperationResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     errors: S.Array(S.Unknown),
     executionId: ExecutionId,
     metrics: S.Struct(ExecutionMetrics.fields),
     newNodes: S.Array(AnyGraphNode),
     originalGraph: S.Unknown,
     timestamp: S.Finite,
-  },
-  $I.annote("AnyOperationResult", {
-    description: "Type-erased operation result stored in the heterogeneous graph-operation cache.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnyOperationResult", {
+      description: "Type-erased operation result stored in the heterogeneous graph-operation cache.",
+    })
+  )
 ) {}
 
 // =============================================================================
@@ -112,24 +113,26 @@ export class AnyOperationResult extends S.Class<AnyOperationResult>($I`AnyOperat
  * @category models
  * @since 0.0.0
  */
-export class ResultKey extends S.Class<ResultKey>($I`ResultKey`)(
-  {
+export class ResultKey extends S.Opaque<ResultKey, { readonly brand: unique symbol }>()(
+  S.Struct({
     nodeId: NodeId,
     operationName: S.String,
-  },
-  $I.annote("ResultKey", {
-    description: "Cache key: an operation name paired with a node id.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResultKey", {
+      description: "Cache key: an operation name paired with a node id.",
+    })
+  )
 ) {
   static readonly new: {
     (operationName: string, nodeId: NodeId): ResultKey;
     (nodeId: NodeId): (operationName: string) => ResultKey;
   } = dual(
     2,
-    (operationName: string, nodeId: NodeId): ResultKey => ({
-      nodeId,
-      operationName,
-    })
+    (operationName: string, nodeId: NodeId): ResultKey =>
+      ResultKey.make({
+        nodeId,
+        operationName,
+      })
   );
 
   static override readonly toString = (key: ResultKey): string => `${key.operationName}:${key.nodeId}`;
@@ -150,16 +153,17 @@ export class ResultKey extends S.Class<ResultKey>($I`ResultKey`)(
  * @category models
  * @since 0.0.0
  */
-export class StoredResult extends S.Class<StoredResult>($I`StoredResult`)(
-  {
+export class StoredResult extends S.Opaque<StoredResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     hits: S.Natural,
     key: S.Struct(ResultKey.fields),
     result: AnyOperationResult,
     timestamp: S.Finite,
-  },
-  $I.annote("StoredResult", {
-    description: "Cached graph-operation result with its key, insertion timestamp, and accumulated hit count.",
-  })
+  }).pipe(
+    $I.annoteSchema("StoredResult", {
+      description: "Cached graph-operation result with its key, insertion timestamp, and accumulated hit count.",
+    })
+  )
 ) {}
 
 /**
@@ -185,16 +189,17 @@ export class StoredResult extends S.Class<StoredResult>($I`StoredResult`)(
  * @category models
  * @since 0.0.0
  */
-export class CacheStats extends S.Class<CacheStats>($I`CacheStats`)(
-  {
+export class CacheStats extends S.Opaque<CacheStats, { readonly brand: unique symbol }>()(
+  S.Struct({
     newestEntry: S.Option(S.Finite),
     oldestEntry: S.Option(S.Finite),
     size: S.Natural,
     totalHits: S.Natural,
-  },
-  $I.annote("CacheStats", {
-    description: "Statistics about the cache.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheStats", {
+      description: "Statistics about the cache.",
+    })
+  )
 ) {}
 
 // =============================================================================

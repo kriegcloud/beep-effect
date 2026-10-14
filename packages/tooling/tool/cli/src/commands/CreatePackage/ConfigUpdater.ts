@@ -23,7 +23,11 @@ import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { applyJsoncModification as applySharedJsoncModification, decodeJsoncTextAs } from "../../internal/cli/Jsonc.ts";
+import {
+  applyJsoncModification as applySharedJsoncModification,
+  decodeJsoncTextAs,
+  JsoncModification,
+} from "../../internal/cli/Jsonc.ts";
 
 const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
 
@@ -48,14 +52,15 @@ const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
  * @category models
  * @since 0.0.0
  */
-export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpdateResult`)(
-  {
+export class ConfigUpdateResult extends S.Opaque<ConfigUpdateResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     tsconfigPackages: SchemaUtils.BoolKeyDefaultFalse,
     tsconfigPaths: SchemaUtils.BoolKeyDefaultFalse,
-  },
-  $I.annote("ConfigUpdateResult", {
-    description: "Summary of root configuration files modified during a config update pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConfigUpdateResult", {
+      description: "Summary of root configuration files modified during a config update pass.",
+    })
+  )
 ) {}
 
 /**
@@ -74,16 +79,17 @@ export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpd
  * @category models
  * @since 0.0.0
  */
-export class ConfigUpdateTarget extends S.Class<ConfigUpdateTarget>($I`ConfigUpdateTarget`)(
-  {
+export class ConfigUpdateTarget extends S.Opaque<ConfigUpdateTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     packagePath: S.String,
     rootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
     wildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
-  },
-  $I.annote("ConfigUpdateTarget", {
-    description: "Config update target for a package registered in root tsconfig files.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConfigUpdateTarget", {
+      description: "Config update target for a package registered in root tsconfig files.",
+    })
+  )
 ) {}
 
 /**
@@ -102,14 +108,15 @@ export class ConfigUpdateTarget extends S.Class<ConfigUpdateTarget>($I`ConfigUpd
  * @category models
  * @since 0.0.0
  */
-export class ConfigUpdateTargetResult extends S.Class<ConfigUpdateTargetResult>($I`ConfigUpdateTargetResult`)(
-  {
+export class ConfigUpdateTargetResult extends S.Opaque<ConfigUpdateTargetResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     target: ConfigUpdateTarget,
     result: ConfigUpdateResult,
-  },
-  $I.annote("ConfigUpdateTargetResult", {
-    description: "Per-target config update summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConfigUpdateTargetResult", {
+      description: "Per-target config update summary.",
+    })
+  )
 ) {}
 
 const defaultedConfigUpdateTargetResultsDefault = A.empty<ConfigUpdateTargetResult>();
@@ -137,15 +144,16 @@ const DefaultedConfigUpdateTargetResults = S.Array(ConfigUpdateTargetResult).pip
  * @category models
  * @since 0.0.0
  */
-export class ConfigUpdateBatchResult extends S.Class<ConfigUpdateBatchResult>($I`ConfigUpdateBatchResult`)(
-  {
+export class ConfigUpdateBatchResult extends S.Opaque<ConfigUpdateBatchResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     targets: DefaultedConfigUpdateTargetResults,
     tsconfigPackages: SchemaUtils.BoolKeyDefaultFalse,
     tsconfigPaths: SchemaUtils.BoolKeyDefaultFalse,
-  },
-  $I.annote("ConfigUpdateBatchResult", {
-    description: "Batch config orchestration result for one or more package targets.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConfigUpdateBatchResult", {
+      description: "Batch config orchestration result for one or more package targets.",
+    })
+  )
 ) {}
 
 // ── Internal helpers ─────────────────────────────────────────────────────────
@@ -228,12 +236,14 @@ const applyJsoncModification = (
   value: unknown,
   options?: { readonly isArrayInsertion?: boolean }
 ): string =>
-  applySharedJsoncModification({
-    content,
-    path,
-    value,
-    ...(options?.isArrayInsertion === true ? { isArrayInsertion: true } : {}),
-  });
+  applySharedJsoncModification(
+    JsoncModification.make({
+      content,
+      path,
+      value,
+      ...(options?.isArrayInsertion === true ? { isArrayInsertion: true } : {}),
+    })
+  );
 
 /**
  * Read → transform → write-if-changed. Returns `true` when the file was

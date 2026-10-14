@@ -38,7 +38,7 @@ const descriptionBounds = { maxLength: 500 };
  * @category errors
  * @since 0.0.0
  */
-export class FolderContractError extends S.TaggedError<FolderContractError>()(
+export class FolderContractError extends S.TaggedError<FolderContractError, { readonly brand: unique symbol }>()(
   "FolderContractError",
   { message: S.String },
   $I.annoteError<FolderContractError>("FolderContractError", {

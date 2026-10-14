@@ -41,7 +41,7 @@ const classifyDiff = (a: SemVer, b: SemVer): "major" | "minor" | "patch" | "prer
  * @category models
  * @since 0.0.0
  */
-export class VersionDiff extends S.TaggedClass<VersionDiff>($I`VersionDiff`)("VersionDiff", {
+export class VersionDiff extends S.TaggedClass<VersionDiff, { readonly brand: unique symbol }>($I`VersionDiff`)("VersionDiff", {
 	/** The highest-precedence field that differs between `from` and `to`; see the class doc for the classification order. */
 	type: S.Literals(["major", "minor", "patch", "prerelease", "build", "none"]).annotateKey({ description: "The highest-precedence field that differs between `from` and `to`; see the class doc for the classification order." }),
 	/** The earlier version being compared. */

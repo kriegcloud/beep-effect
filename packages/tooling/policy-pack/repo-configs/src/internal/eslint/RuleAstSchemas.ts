@@ -47,25 +47,28 @@ export type ImportKind = typeof ImportKind.Type;
 
 const isImportKind = S.is(ImportKind);
 
-export class IdentifierNode extends S.Class<IdentifierNode>($I`IdentifierNode`)(
-  {
+export class IdentifierNode extends S.Opaque<IdentifierNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
-  },
-  $I.annote("IdentifierNode", {
-    description: "Identifier node fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdentifierNode", {
+      description: "Identifier node fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {}
 
-export class ImportNamespaceSpecifierNode extends S.Class<ImportNamespaceSpecifierNode>(
-  $I`ImportNamespaceSpecifierNode`
-)(
-  {
+export class ImportNamespaceSpecifierNode extends S.Opaque<
+  ImportNamespaceSpecifierNode,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     type: S.tag("ImportNamespaceSpecifier"),
     local: IdentifierNode,
-  },
-  $I.annote("ImportNamespaceSpecifierNode", {
-    description: "Namespace import specifier node fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImportNamespaceSpecifierNode", {
+      description: "Namespace import specifier node fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(ImportNamespaceSpecifierNode);
 }
@@ -76,32 +79,34 @@ export class ImportNamespaceSpecifierNode extends S.Class<ImportNamespaceSpecifi
  * @since 0.0.0
  * @category models
  */
-export class ImportSpecifierNode extends S.Class<ImportSpecifierNode>($I`ImportSpecifierNode`)(
-  {
+export class ImportSpecifierNode extends S.Opaque<ImportSpecifierNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("ImportSpecifier"),
     importKind: S.optionalKey(ImportKind),
     imported: IdentifierNode,
     local: IdentifierNode,
-  },
-  $I.annote("ImportSpecifierNode", {
-    description: "Named import specifier node fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImportSpecifierNode", {
+      description: "Named import specifier node fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(ImportSpecifierNode);
 }
 
-export class ImportSourceLiteralNode extends S.Class<ImportSourceLiteralNode>($I`ImportSourceLiteralNode`)(
-  {
+export class ImportSourceLiteralNode extends S.Opaque<ImportSourceLiteralNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("Literal"),
     value: S.String,
-  },
-  $I.annote("ImportSourceLiteralNode", {
-    description: "String literal import source node fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImportSourceLiteralNode", {
+      description: "String literal import source node fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {}
 
-export class ImportDeclarationNode extends S.Class<ImportDeclarationNode>($I`ImportDeclarationNode`)(
-  {
+export class ImportDeclarationNode extends S.Opaque<ImportDeclarationNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("ImportDeclaration"),
     source: ImportSourceLiteralNode,
     importKind: S.optionalKey(ImportKind),
@@ -109,56 +114,62 @@ export class ImportDeclarationNode extends S.Class<ImportDeclarationNode>($I`Imp
       S.withConstructorDefault(Effect.succeed(A.empty<unknown>())),
       S.withDecodingDefault(Effect.succeed(A.empty<unknown>()))
     ),
-  },
-  $I.annote("ImportDeclarationNode", {
-    description: "Import declaration node fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImportDeclarationNode", {
+      description: "Import declaration node fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(ImportDeclarationNode);
 }
 
-export class NamedDeclarationNode extends S.Class<NamedDeclarationNode>($I`NamedDeclarationNode`)(
-  {
+export class NamedDeclarationNode extends S.Opaque<NamedDeclarationNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: IdentifierNode,
-  },
-  $I.annote("NamedDeclarationNode", {
-    description: "Named declaration node fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("NamedDeclarationNode", {
+      description: "Named declaration node fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(NamedDeclarationNode);
 }
 
-export class VariableDeclaratorIdentifierNode extends S.Class<VariableDeclaratorIdentifierNode>(
-  $I`VariableDeclaratorIdentifierNode`
-)(
-  {
+export class VariableDeclaratorIdentifierNode extends S.Opaque<
+  VariableDeclaratorIdentifierNode,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: IdentifierNode,
-  },
-  $I.annote("VariableDeclaratorIdentifierNode", {
-    description: "Variable declarator with identifier id fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("VariableDeclaratorIdentifierNode", {
+      description: "Variable declarator with identifier id fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {}
 
-export class VariableDeclarationNode extends S.Class<VariableDeclarationNode>($I`VariableDeclarationNode`)(
-  {
+export class VariableDeclarationNode extends S.Opaque<VariableDeclarationNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("VariableDeclaration"),
     declarations: S.Array(VariableDeclaratorIdentifierNode),
-  },
-  $I.annote("VariableDeclarationNode", {
-    description: "Variable declaration node fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("VariableDeclarationNode", {
+      description: "Variable declaration node fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(VariableDeclarationNode);
 }
 
-export class BlockCommentNode extends S.Class<BlockCommentNode>($I`BlockCommentNode`)(
-  {
+export class BlockCommentNode extends S.Opaque<BlockCommentNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("Block"),
     value: S.String,
-  },
-  $I.annote("BlockCommentNode", {
-    description: "Block comment node fragment used by repo ESLint rule AST decoders.",
-  })
+  }).pipe(
+    $I.annoteSchema("BlockCommentNode", {
+      description: "Block comment node fragment used by repo ESLint rule AST decoders.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(BlockCommentNode);
 }

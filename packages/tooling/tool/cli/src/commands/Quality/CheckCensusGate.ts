@@ -136,7 +136,9 @@ const checkCensusSampleFields = {
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusTarget extends S.Class<CheckCensusTarget>($I`CheckCensusTarget`)(
+export class CheckCensusTarget extends S.Class<CheckCensusTarget, { readonly brand: unique symbol }>(
+  $I`CheckCensusTarget`
+)(
   {
     name: S.String,
     tsconfig: S.String,
@@ -170,14 +172,15 @@ export class CheckCensusTarget extends S.Class<CheckCensusTarget>($I`CheckCensus
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusTargets extends S.Class<CheckCensusTargets>($I`CheckCensusTargets`)(
-  {
+export class CheckCensusTargets extends S.Opaque<CheckCensusTargets, { readonly brand: unique symbol }>()(
+  S.Struct({
     packages: S.Array(CheckCensusTarget),
     typeperfFixtures: S.Array(CheckCensusTarget),
-  },
-  $I.annote("CheckCensusTargets", {
-    description: "Workspace-package and typeperf-fixture programs measured by the check-census gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusTargets", {
+      description: "Workspace-package and typeperf-fixture programs measured by the check-census gate.",
+    })
+  )
 ) {}
 
 /**
@@ -196,11 +199,12 @@ export class CheckCensusTargets extends S.Class<CheckCensusTargets>($I`CheckCens
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusSample extends S.Class<CheckCensusSample>($I`CheckCensusSample`)(
-  checkCensusSampleFields,
-  $I.annote("CheckCensusSample", {
-    description: "Instantiations, types, and check time of one single-checker tsc --extendedDiagnostics run.",
-  })
+export class CheckCensusSample extends S.Opaque<CheckCensusSample, { readonly brand: unique symbol }>()(
+  S.Struct(checkCensusSampleFields).pipe(
+    $I.annoteSchema("CheckCensusSample", {
+      description: "Instantiations, types, and check time of one single-checker tsc --extendedDiagnostics run.",
+    })
+  )
 ) {}
 
 /**
@@ -266,8 +270,8 @@ export class CheckCensusBaselineRow extends CheckCensusTarget.extend<CheckCensus
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusBaseline extends S.Class<CheckCensusBaseline>($I`CheckCensusBaseline`)(
-  {
+export class CheckCensusBaseline extends S.Opaque<CheckCensusBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("check-census-baseline/v1"),
     measuredAt: S.String,
     commit: S.String,
@@ -277,10 +281,11 @@ export class CheckCensusBaseline extends S.Class<CheckCensusBaseline>($I`CheckCe
     checkTimeBandPercent: S.Literal(CHECK_CENSUS_CHECK_TIME_BAND_PERCENT),
     packages: S.Array(CheckCensusBaselineRow),
     typeperfFixtures: S.Array(CheckCensusBaselineRow),
-  },
-  $I.annote("CheckCensusBaseline", {
-    description: "Committed single-checker instantiation, type, and check-time baseline of the check-census gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusBaseline", {
+      description: "Committed single-checker instantiation, type, and check-time baseline of the check-census gate.",
+    })
+  )
 ) {}
 
 /**
@@ -382,18 +387,19 @@ export type CheckCensusCheckTimeVerdict = typeof CheckCensusCheckTimeVerdict.Typ
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusComparison extends S.Class<CheckCensusComparison>($I`CheckCensusComparison`)(
-  {
+export class CheckCensusComparison extends S.Opaque<CheckCensusComparison, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     baseline: CheckCensusSample,
     current: CheckCensusSample,
     instantiations: CheckCensusInstantiationVerdict,
     checkTime: CheckCensusCheckTimeVerdict,
-  },
-  $I.annote("CheckCensusComparison", {
-    description:
-      "Committed and fresh single-checker samples of one program with their instantiation and check-time verdicts.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusComparison", {
+      description:
+        "Committed and fresh single-checker samples of one program with their instantiation and check-time verdicts.",
+    })
+  )
 ) {}
 
 /**
@@ -425,18 +431,19 @@ export class CheckCensusComparison extends S.Class<CheckCensusComparison>($I`Che
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusGateReport extends S.Class<CheckCensusGateReport>($I`CheckCensusGateReport`)(
-  {
+export class CheckCensusGateReport extends S.Opaque<CheckCensusGateReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     baselinePath: S.String.pipe(S.withConstructorDefault(Effect.succeed(CHECK_CENSUS_BASELINE_PATH))),
     baselineCommit: S.String,
     baselineCompiler: S.String,
     compiler: S.String,
     filter: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     comparisons: S.Array(CheckCensusComparison),
-  },
-  $I.annote("CheckCensusGateReport", {
-    description: "Single-checker comparisons of every selected baseline row against fresh samples.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusGateReport", {
+      description: "Single-checker comparisons of every selected baseline row against fresh samples.",
+    })
+  )
 ) {}
 
 /**
@@ -460,7 +467,10 @@ export class CheckCensusGateReport extends S.Class<CheckCensusGateReport>($I`Che
  * @category errors
  * @since 0.0.0
  */
-export class CheckCensusSampleRefused extends S.TaggedError<CheckCensusSampleRefused>($I`CheckCensusSampleRefused`)(
+export class CheckCensusSampleRefused extends S.TaggedError<
+  CheckCensusSampleRefused,
+  { readonly brand: unique symbol }
+>($I`CheckCensusSampleRefused`)(
   "CheckCensusSampleRefused",
   {
     target: S.String,
@@ -492,7 +502,10 @@ export class CheckCensusSampleRefused extends S.TaggedError<CheckCensusSampleRef
  * @category errors
  * @since 0.0.0
  */
-export class CheckCensusMetricMissing extends S.TaggedError<CheckCensusMetricMissing>($I`CheckCensusMetricMissing`)(
+export class CheckCensusMetricMissing extends S.TaggedError<
+  CheckCensusMetricMissing,
+  { readonly brand: unique symbol }
+>($I`CheckCensusMetricMissing`)(
   "CheckCensusMetricMissing",
   {
     target: S.String,
@@ -1021,14 +1034,15 @@ export const CHECK_CENSUS_DEFAULT_TARGETS: CheckCensusTargets = CheckCensusTarge
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusSamplerOptions extends S.Class<CheckCensusSamplerOptions>($I`CheckCensusSamplerOptions`)(
-  {
+export class CheckCensusSamplerOptions extends S.Opaque<CheckCensusSamplerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.String,
     tscPath: S.String,
-  },
-  $I.annote("CheckCensusSamplerOptions", {
-    description: "Repository root and tsc binary used by the live check-census sampler.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusSamplerOptions", {
+      description: "Repository root and tsc binary used by the live check-census sampler.",
+    })
+  )
 ) {}
 
 /**
@@ -1223,17 +1237,19 @@ export const runCheckCensusGate = Effect.fn("CheckCensusGate.run")(function* (
  * @category models
  * @since 0.0.0
  */
-export class CheckCensusBaselineProvenance extends S.Class<CheckCensusBaselineProvenance>(
-  $I`CheckCensusBaselineProvenance`
-)(
-  {
+export class CheckCensusBaselineProvenance extends S.Opaque<
+  CheckCensusBaselineProvenance,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     measuredAt: S.String,
     commit: S.String,
     dirtyWorktree: S.Boolean,
-  },
-  $I.annote("CheckCensusBaselineProvenance", {
-    description: "When, at which commit, and on how clean a tree a check-census baseline was measured.",
-  })
+  }).pipe(
+    $I.annoteSchema("CheckCensusBaselineProvenance", {
+      description: "When, at which commit, and on how clean a tree a check-census baseline was measured.",
+    })
+  )
 ) {}
 
 /**

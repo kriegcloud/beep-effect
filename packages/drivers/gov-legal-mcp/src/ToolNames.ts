@@ -108,18 +108,19 @@ const jsonEntryOrder = Order.mapInput(Order.String, ([key]: readonly [string, un
  * @category models
  * @since 0.0.0
  */
-export class ToolNameCandidate extends S.Class<ToolNameCandidate>($I`ToolNameCandidate`)(
-  {
+export class ToolNameCandidate extends S.Opaque<ToolNameCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     operationId: S.NonEmptyString.annotateKey({
       description: "Public upstream operation identifier preserved in report metadata.",
     }),
     source: S.NonEmptyString.annotateKey({
       description: "Driver prefix prepended to the upstream operation identifier.",
     }),
-  },
-  $I.annote("ToolNameCandidate", {
-    description: "One source and upstream operation identifier submitted to deterministic MCP name generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ToolNameCandidate", {
+      description: "One source and upstream operation identifier submitted to deterministic MCP name generation.",
+    })
+  )
 ) {}
 
 /**
@@ -147,8 +148,8 @@ export class ToolNameCandidate extends S.Class<ToolNameCandidate>($I`ToolNameCan
  * @category models
  * @since 0.0.0
  */
-export class ToolNameCollisionRow extends S.Class<ToolNameCollisionRow>($I`ToolNameCollisionRow`)(
-  {
+export class ToolNameCollisionRow extends S.Opaque<ToolNameCollisionRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidate: S.NonEmptyString,
     digest: S.NullOr(S.String),
     duplicateVerdict: RowDuplicateVerdict,
@@ -157,10 +158,11 @@ export class ToolNameCollisionRow extends S.Class<ToolNameCollisionRow>($I`ToolN
     originalOperationId: S.NonEmptyString,
     source: S.NonEmptyString,
     truncated: S.Boolean,
-  },
-  $I.annote("ToolNameCollisionRow", {
-    description: "One deterministic candidate row in the gov-legal MCP tool-name collision report.",
-  })
+  }).pipe(
+    $I.annoteSchema("ToolNameCollisionRow", {
+      description: "One deterministic candidate row in the gov-legal MCP tool-name collision report.",
+    })
+  )
 ) {}
 
 /**
@@ -178,15 +180,16 @@ export class ToolNameCollisionRow extends S.Class<ToolNameCollisionRow>($I`ToolN
  * @category models
  * @since 0.0.0
  */
-export class ToolNameCollisionReport extends S.Class<ToolNameCollisionReport>($I`ToolNameCollisionReport`)(
-  {
+export class ToolNameCollisionReport extends S.Opaque<ToolNameCollisionReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidates: S.Array(ToolNameCollisionRow),
     duplicateVerdict: ReportDuplicateVerdict,
     schemaVersion: S.tag("gov-legal-mcp/tool-name-collision-report/v1"),
-  },
-  $I.annote("ToolNameCollisionReport", {
-    description: "Versioned deterministic collision report for all gov-legal MCP candidate tool names.",
-  })
+  }).pipe(
+    $I.annoteSchema("ToolNameCollisionReport", {
+      description: "Versioned deterministic collision report for all gov-legal MCP candidate tool names.",
+    })
+  )
 ) {}
 
 /**
@@ -207,9 +210,10 @@ export class ToolNameCollisionReport extends S.Class<ToolNameCollisionReport>($I
  * @category errors
  * @since 0.0.0
  */
-export class ToolNameNormalizationError extends S.TaggedError<ToolNameNormalizationError>(
-  $I`ToolNameNormalizationError`
-)(
+export class ToolNameNormalizationError extends S.TaggedError<
+  ToolNameNormalizationError,
+  { readonly brand: unique symbol }
+>($I`ToolNameNormalizationError`)(
   "ToolNameNormalizationError",
   {
     candidate: S.String,
@@ -251,7 +255,9 @@ export class ToolNameNormalizationError extends S.TaggedError<ToolNameNormalizat
  * @category errors
  * @since 0.0.0
  */
-export class ToolNameCollisionError extends S.TaggedError<ToolNameCollisionError>($I`ToolNameCollisionError`)(
+export class ToolNameCollisionError extends S.TaggedError<ToolNameCollisionError, { readonly brand: unique symbol }>(
+  $I`ToolNameCollisionError`
+)(
   "ToolNameCollisionError",
   {
     collisionKeys: S.Array(S.String),
@@ -289,7 +295,10 @@ export class ToolNameCollisionError extends S.TaggedError<ToolNameCollisionError
  * @category errors
  * @since 0.0.0
  */
-export class ToolNameRegistrationError extends S.TaggedError<ToolNameRegistrationError>($I`ToolNameRegistrationError`)(
+export class ToolNameRegistrationError extends S.TaggedError<
+  ToolNameRegistrationError,
+  { readonly brand: unique symbol }
+>($I`ToolNameRegistrationError`)(
   "ToolNameRegistrationError",
   {
     candidate: ToolNameCandidate,

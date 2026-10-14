@@ -39,7 +39,9 @@ import type * as Meta from "./Meta.ts";
  * @category utilities
  * @since 0.0.0
  */
-export class DeriveColumnError extends TaggedError<DeriveColumnError>("@beep/effect-drizzle/DeriveColumnError")(
+export class DeriveColumnError extends TaggedError<DeriveColumnError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/DeriveColumnError"
+)(
   "DeriveColumnError",
   {
     message: StringSchema,

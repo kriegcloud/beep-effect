@@ -62,17 +62,18 @@ export type SupportedMetadataImageExtension = typeof SupportedMetadataImageExten
  * @category models
  * @since 0.0.0
  */
-export class StripMetadataPlanEntry extends S.Class<StripMetadataPlanEntry>($I`StripMetadataPlanEntry`)(
-  {
+export class StripMetadataPlanEntry extends S.Opaque<StripMetadataPlanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     extension: S.String,
     mediaKind: MediaKind,
     size: S.BigInt,
     sourceName: S.String,
     sourcePath: S.String,
-  },
-  $I.annote("StripMetadataPlanEntry", {
-    description: "A direct media file selected for metadata stripping.",
-  })
+  }).pipe(
+    $I.annoteSchema("StripMetadataPlanEntry", {
+      description: "A direct media file selected for metadata stripping.",
+    })
+  )
 ) {}
 
 /**
@@ -90,8 +91,8 @@ export class StripMetadataPlanEntry extends S.Class<StripMetadataPlanEntry>($I`S
  * @category models
  * @since 0.0.0
  */
-export class StripMetadataSummary extends S.Class<StripMetadataSummary>($I`StripMetadataSummary`)(
-  {
+export class StripMetadataSummary extends S.Opaque<StripMetadataSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: S.String,
     dryRun: S.Boolean,
     imageCount: S.Finite,
@@ -99,10 +100,11 @@ export class StripMetadataSummary extends S.Class<StripMetadataSummary>($I`Strip
     skippedCount: S.Finite,
     strippedCount: S.Finite,
     videoCount: S.Finite,
-  },
-  $I.annote("StripMetadataSummary", {
-    description: "Summary counts for an image and video metadata stripping run.",
-  })
+  }).pipe(
+    $I.annoteSchema("StripMetadataSummary", {
+      description: "Summary counts for an image and video metadata stripping run.",
+    })
+  )
 ) {}
 
 /**
@@ -120,14 +122,15 @@ export class StripMetadataSummary extends S.Class<StripMetadataSummary>($I`Strip
  * @category models
  * @since 0.0.0
  */
-export class StripMetadataPlan extends S.Class<StripMetadataPlan>($I`StripMetadataPlan`)(
-  {
+export class StripMetadataPlan extends S.Opaque<StripMetadataPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     entries: S.Array(StripMetadataPlanEntry),
     imageCount: S.Finite,
     skippedCount: S.Finite,
     videoCount: S.Finite,
-  },
-  $I.annote("StripMetadataPlan", {
-    description: "Planned metadata stripping entries plus direct media files skipped before processing.",
-  })
+  }).pipe(
+    $I.annoteSchema("StripMetadataPlan", {
+      description: "Planned metadata stripping entries plus direct media files skipped before processing.",
+    })
+  )
 ) {}

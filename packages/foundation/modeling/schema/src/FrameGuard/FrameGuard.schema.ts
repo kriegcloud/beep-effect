@@ -80,13 +80,14 @@ export type FrameGuardMode = typeof FrameGuardMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class FrameGuardAllowFromConfig extends S.Class<FrameGuardAllowFromConfig>($I`FrameGuardAllowFromConfig`)(
-  {
+export class FrameGuardAllowFromConfig extends S.Opaque<FrameGuardAllowFromConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     uri: internal.StringOrUrl,
-  },
-  $I.annote("FrameGuardAllowFromConfig", {
-    description: "Configuration for the deprecated `allow-from` `X-Frame-Options` variant.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrameGuardAllowFromConfig", {
+      description: "Configuration for the deprecated `allow-from` `X-Frame-Options` variant.",
+    })
+  )
 ) {}
 
 /**
@@ -185,14 +186,15 @@ export type FrameGuardOption = typeof FrameGuardOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class FrameGuardResponseHeader extends S.Class<FrameGuardResponseHeader>($I`FrameGuardResponseHeader`)(
-  {
+export class FrameGuardResponseHeader extends S.Opaque<FrameGuardResponseHeader, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("FrameGuardResponseHeader", {
-    description: "The `X-Frame-Options` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrameGuardResponseHeader", {
+      description: "The `X-Frame-Options` response header.",
+    })
+  )
 ) {}
 
 type FrameGuardResponseHeaderEncoded = typeof FrameGuardResponseHeader.Encoded;

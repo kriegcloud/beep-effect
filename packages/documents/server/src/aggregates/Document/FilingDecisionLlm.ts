@@ -26,15 +26,16 @@ const $I = $DocumentsServerId.create("aggregates/Document/FilingDecisionLlm");
 const FilingDecision = DocumentUseCases.Document.FilingDecision;
 const MODEL_TIMEOUT = Duration.seconds(30);
 
-class FilingProposal extends S.Class<FilingProposal>($I`FilingProposal`)(
-  {
+class FilingProposal extends S.Opaque<FilingProposal, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidence: UnitInterval,
     rationale: S.NonEmptyString,
     taxonomyConceptId: S.NonEmptyString,
-  },
-  $I.annote("FilingProposal", {
-    description: "Schema-validated structured proposal returned by the filing language model.",
-  })
+  }).pipe(
+    $I.annoteSchema("FilingProposal", {
+      description: "Schema-validated structured proposal returned by the filing language model.",
+    })
+  )
 ) {}
 
 const taxonomyPrompt = pipe(

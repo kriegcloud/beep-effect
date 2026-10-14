@@ -43,9 +43,10 @@ export type VocabularySchemeKind = typeof VocabularySchemeKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class VocabularyPin extends S.Class<VocabularyPin>($I`VocabularyPin`)(
-  { kind: VocabularySchemeKind, version: S.NonEmptyString },
-  $I.annote("VocabularyPin", { description: "Explicit version selection without a latest alias." })
+export class VocabularyPin extends S.Opaque<VocabularyPin, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: VocabularySchemeKind, version: S.NonEmptyString }).pipe(
+    $I.annoteSchema("VocabularyPin", { description: "Explicit version selection without a latest alias." })
+  )
 ) {}
 
 /**
@@ -59,8 +60,8 @@ export class VocabularyPin extends S.Class<VocabularyPin>($I`VocabularyPin`)(
  * @category models
  * @since 0.0.0
  */
-export class VocabularyConcept extends S.Class<VocabularyConcept>($I`VocabularyConcept`)(
-  {
+export class VocabularyConcept extends S.Opaque<VocabularyConcept, { readonly brand: unique symbol }>()(
+  S.Struct({
     iri: IRIReference,
     notation: S.NonEmptyString,
     prefLabel: S.NonEmptyString,
@@ -69,8 +70,11 @@ export class VocabularyConcept extends S.Class<VocabularyConcept>($I`VocabularyC
     sourceIri: IRIReference,
     sourceNote: S.NonEmptyString,
     alignments: S.Array(ConceptAlignment),
-  },
-  $I.annote("VocabularyConcept", { description: "Repo-owned vocabulary term; no entity or legal-action computation." })
+  }).pipe(
+    $I.annoteSchema("VocabularyConcept", {
+      description: "Repo-owned vocabulary term; no entity or legal-action computation.",
+    })
+  )
 ) {}
 
 /**
@@ -84,15 +88,16 @@ export class VocabularyConcept extends S.Class<VocabularyConcept>($I`VocabularyC
  * @category models
  * @since 0.0.0
  */
-export class VocabularySeed extends S.Class<VocabularySeed>($I`VocabularySeed`)(
-  {
+export class VocabularySeed extends S.Opaque<VocabularySeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: VocabularySchemeKind,
     version: S.NonEmptyString,
     schemeIri: IRIReference,
     title: S.NonEmptyString,
     concepts: S.Array(VocabularyConcept),
-  },
-  $I.annote("VocabularySeed", { description: "Versioned SKOS seed for a single separate vocabulary family." })
+  }).pipe(
+    $I.annoteSchema("VocabularySeed", { description: "Versioned SKOS seed for a single separate vocabulary family." })
+  )
 ) {}
 
 /**
@@ -129,7 +134,9 @@ export type VocabularyFailureReason = typeof VocabularyFailureReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class VocabularyError extends S.TaggedError<VocabularyError>($I`VocabularyError`)(
+export class VocabularyError extends S.TaggedError<VocabularyError, { readonly brand: unique symbol }>(
+  $I`VocabularyError`
+)(
   "VocabularyError",
   { reason: VocabularyFailureReason, detail: S.String },
   $I.annoteError<VocabularyError>("VocabularyError", { description: "Failed version admission or concept resolution." })

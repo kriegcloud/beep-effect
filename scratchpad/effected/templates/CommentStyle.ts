@@ -57,7 +57,7 @@ const Delimiter = S.String.check(
  * @category models
  * @since 0.0.0
  */
-export class CommentStyle extends S.Class<CommentStyle>($I`CommentStyle`)({
+export class CommentStyle extends S.Class<CommentStyle, { readonly brand: unique symbol }>($I`CommentStyle`)({
 	/**
 	 * Opens the comment. Non-empty, single-line.
 	 *

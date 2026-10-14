@@ -27,7 +27,7 @@ import {
   parseCsvSource,
   sourceMetadata,
 } from "../internal/Source.ts";
-import { SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
+import { SyncDataTargetMetadata, SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
 import type { ParsedCsvRecords } from "../internal/Source.ts";
 import type { SyncDataSourceMetadata, SyncDataTarget } from "../SyncDataToTs.schemas.ts";
 
@@ -68,31 +68,33 @@ export const ISO3166_PART2_CSV_URL_ENV = "BEEP_ISO3166_PART2_CSV_URL" as const;
  */
 export const ISO3166_AUTH_HEADER_ENV = "BEEP_ISO3166_AUTH_HEADER" as const;
 
-class Iso3166CountryEntry extends S.Class<Iso3166CountryEntry>($I`Iso3166CountryEntry`)(
-  {
+class Iso3166CountryEntry extends S.Opaque<Iso3166CountryEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     alpha2: S.String,
     alpha3: S.String,
     numeric: S.String,
     name: S.String,
     flagEmoji: S.String,
-  },
-  $I.annote("Iso3166CountryEntry", {
-    description: "Normalized ISO 3166-1 country entry rendered into @beep/data.",
-  })
+  }).pipe(
+    $I.annoteSchema("Iso3166CountryEntry", {
+      description: "Normalized ISO 3166-1 country entry rendered into @beep/data.",
+    })
+  )
 ) {}
 
-class Iso3166SubdivisionEntry extends S.Class<Iso3166SubdivisionEntry>($I`Iso3166SubdivisionEntry`)(
-  {
+class Iso3166SubdivisionEntry extends S.Opaque<Iso3166SubdivisionEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.String,
     countryAlpha2: S.String,
     localCode: S.String,
     name: S.String,
     type: S.String,
     parentCode: S.optionalKey(S.String),
-  },
-  $I.annote("Iso3166SubdivisionEntry", {
-    description: "Normalized ISO 3166-2 subdivision entry rendered into @beep/data.",
-  })
+  }).pipe(
+    $I.annoteSchema("Iso3166SubdivisionEntry", {
+      description: "Normalized ISO 3166-2 subdivision entry rendered into @beep/data.",
+    })
+  )
 ) {}
 
 type Iso3166CountryEntryType = Iso3166CountryEntry;
@@ -642,9 +644,11 @@ const acquireIso3166Projection = Effect.fn("SyncDataToTs.Iso3166.acquire")(funct
  * @since 0.0.0
  */
 export const iso3166Target: SyncDataTarget = {
-  id: targetId,
-  access: "authenticated",
-  description: "Sync official ISO 3166-1 country and ISO 3166-2 subdivision codes from the Country Codes Collection.",
-  sourceUrls: [ISO3166_SOURCE_URL],
+  ...SyncDataTargetMetadata.make({
+    id: targetId,
+    access: "authenticated",
+    description: "Sync official ISO 3166-1 country and ISO 3166-2 subdivision codes from the Country Codes Collection.",
+    sourceUrls: [ISO3166_SOURCE_URL],
+  }),
   acquire: acquireIso3166Projection(),
 };

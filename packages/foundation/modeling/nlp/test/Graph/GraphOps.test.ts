@@ -142,7 +142,10 @@ describe("GraphOps filtering & folds", () => {
 
   it("collectTraversal yields nodes in dfs order from roots", () => {
     const g = sample();
-    const order = GraphOps.collectTraversal(g, { start: GraphOps.getRoots(g), order: "dfs" });
+    const order = GraphOps.collectTraversal(
+      g,
+      GraphOps.TraversalStart.make({ start: GraphOps.getRoots(g), order: "dfs" })
+    );
     expect(order.length).toBe(4);
     expect(order[0]).toBe("a");
   });
@@ -180,8 +183,10 @@ describe("GraphOps effectful operations", () => {
     "traverseNodesCollect runs an effect per node",
     Effect.fnUntraced(function* () {
       const g = sample();
-      const out = yield* GraphOps.traverseNodesCollect(g, { start: GraphOps.getRoots(g), order: "bfs" }, (n) =>
-        Effect.succeed(n.toUpperCase())
+      const out = yield* GraphOps.traverseNodesCollect(
+        g,
+        GraphOps.TraversalStart.make({ start: GraphOps.getRoots(g), order: "bfs" }),
+        (n) => Effect.succeed(n.toUpperCase())
       );
       expect(out.length).toBe(4);
       expect(out.includes("A")).toBe(true);
@@ -206,7 +211,7 @@ describe("GraphOps streaming & merge", () => {
     Effect.fnUntraced(function* () {
       const g = sample();
       const collected = yield* Stream.runCollect(
-        GraphOps.streamNodes(g, { start: GraphOps.getRoots(g), order: "dfs" })
+        GraphOps.streamNodes(g, GraphOps.TraversalStart.make({ start: GraphOps.getRoots(g), order: "dfs" }))
       );
       expect(collected.length).toBe(4);
     })
@@ -217,7 +222,10 @@ describe("GraphOps streaming & merge", () => {
     Effect.fnUntraced(function* () {
       const g = sample();
       const batches = yield* Stream.runCollect(
-        GraphOps.batchNodes(g, { start: GraphOps.getRoots(g), order: "dfs", batchSize: 2 })
+        GraphOps.batchNodes(g, {
+          ...GraphOps.TraversalStart.make({ start: GraphOps.getRoots(g), order: "dfs" }),
+          batchSize: 2,
+        })
       );
       expect(batches.length).toBe(2);
     })

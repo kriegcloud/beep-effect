@@ -139,7 +139,7 @@ describe("title minima projections", () => {
   it("omits groups with no measurable titles", () => {
     const workspace = PopulatedWorkspace.make({ root: tabs(groupOne, ["wyvern", "griffin"]) });
 
-    expect(titleMinima(metrics, workspace, TabChrome.make())).toEqual({});
+    expect(titleMinima(metrics, workspace, TabChrome.make({}))).toEqual({});
   });
 
   it("includes floating-member groups", () => {
@@ -147,7 +147,7 @@ describe("title minima projections", () => {
       root: tabs(groupOne, ["The"]),
       floating: [floating(tabs(groupFloating, ["dragon"]))],
     });
-    const minima = titleMinima(metrics, workspace, TabChrome.make());
+    const minima = titleMinima(metrics, workspace, TabChrome.make({}));
 
     expect(R.get(minima, groupOne)).toEqual(naturalWidth(metrics, "The"));
     expect(R.get(minima, groupFloating)).toEqual(naturalWidth(metrics, "dragon"));

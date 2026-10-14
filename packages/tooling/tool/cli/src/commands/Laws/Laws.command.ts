@@ -44,8 +44,8 @@ const $I = $RepoCliId.create("commands/Laws/Laws.command");
  * @category models
  * @since 0.0.0
  */
-class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($I`EffectImportsCommandOptions`)(
-  {
+class EffectImportsCommandOptions extends S.Opaque<EffectImportsCommandOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -73,10 +73,11 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefault(Effect.succeed(""))
     ),
-  },
-  $I.annote("EffectImportsCommandOptions", {
-    description: "CLI options for effect import governance command.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectImportsCommandOptions", {
+      description: "CLI options for effect import governance command.",
+    })
+  )
 ) {}
 
 /**
@@ -91,8 +92,8 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
  * @category models
  * @since 0.0.0
  */
-class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`TerseEffectCommandOptions`)(
-  {
+class TerseEffectCommandOptions extends S.Opaque<TerseEffectCommandOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     write: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -107,10 +108,11 @@ class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`Te
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
     ),
-  },
-  $I.annote("TerseEffectCommandOptions", {
-    description: "CLI options for terse Effect style command.",
-  })
+  }).pipe(
+    $I.annoteSchema("TerseEffectCommandOptions", {
+      description: "CLI options for terse Effect style command.",
+    })
+  )
 ) {}
 
 /**
@@ -125,18 +127,19 @@ class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`Te
  * @category models
  * @since 0.0.0
  */
-class EffectFnCommandOptions extends S.Class<EffectFnCommandOptions>($I`EffectFnCommandOptions`)(
-  {
+class EffectFnCommandOptions extends S.Opaque<EffectFnCommandOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
     ),
     exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
     include: S.String.pipe(S.withConstructorDefault(Effect.succeed("*")), S.withDecodingDefault(Effect.succeed("*"))),
-  },
-  $I.annote("EffectFnCommandOptions", {
-    description: "CLI options for the Effect.fn supplemental law.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectFnCommandOptions", {
+      description: "CLI options for the Effect.fn supplemental law.",
+    })
+  )
 ) {}
 
 /**
@@ -151,18 +154,19 @@ class EffectFnCommandOptions extends S.Class<EffectFnCommandOptions>($I`EffectFn
  * @category models
  * @since 0.0.0
  */
-class FrozenGrantSetCommandOptions extends S.Class<FrozenGrantSetCommandOptions>($I`FrozenGrantSetCommandOptions`)(
-  {
+class FrozenGrantSetCommandOptions extends S.Opaque<FrozenGrantSetCommandOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     check: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
     ),
     exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
     include: S.String.pipe(S.withConstructorDefault(Effect.succeed("*")), S.withDecodingDefault(Effect.succeed("*"))),
-  },
-  $I.annote("FrozenGrantSetCommandOptions", {
-    description: "CLI options for the FrozenGrantSet construction law.",
-  })
+  }).pipe(
+    $I.annoteSchema("FrozenGrantSetCommandOptions", {
+      description: "CLI options for the FrozenGrantSet construction law.",
+    })
+  )
 ) {}
 
 /**
@@ -177,8 +181,11 @@ class FrozenGrantSetCommandOptions extends S.Class<FrozenGrantSetCommandOptions>
  * @category models
  * @since 0.0.0
  */
-class NoNativeRuntimeCommandOptions extends S.Class<NoNativeRuntimeCommandOptions>($I`NoNativeRuntimeCommandOptions`)(
-  {
+class NoNativeRuntimeCommandOptions extends S.Opaque<
+  NoNativeRuntimeCommandOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     check: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -189,10 +196,11 @@ class NoNativeRuntimeCommandOptions extends S.Class<NoNativeRuntimeCommandOption
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefault(Effect.succeed(""))
     ),
-  },
-  $I.annote("NoNativeRuntimeCommandOptions", {
-    description: "CLI options for native runtime parity checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("NoNativeRuntimeCommandOptions", {
+      description: "CLI options for native runtime parity checks.",
+    })
+  )
 ) {}
 
 const parseExcludePaths = (excludeValue: string): ReadonlyArray<string> =>

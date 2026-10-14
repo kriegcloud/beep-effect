@@ -39,23 +39,30 @@ const channelId = "123456789012345678";
 const guildId = "987654321098765432";
 const messageId = "111111111111111111";
 
-class CapturedDiscordRequest extends S.Class<CapturedDiscordRequest>("CapturedDiscordRequest")({
-  bodyText: S.OptionFromOptionalKey(S.String),
-  headers: S.Record(S.String, S.String),
-  method: S.String,
-  url: S.String,
-}) {}
+class CapturedDiscordRequest extends S.Opaque<CapturedDiscordRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
+    bodyText: S.OptionFromOptionalKey(S.String),
+    headers: S.Record(S.String, S.String),
+    method: S.String,
+    url: S.String,
+  }).annotate({ identifier: "CapturedDiscordRequest" })
+) {}
 
-class CapturedDiscordMessageAllowedMentions extends S.Class<CapturedDiscordMessageAllowedMentions>(
-  "CapturedDiscordMessageAllowedMentions"
-)({
-  parse: S.Array(S.String),
-}) {}
+class CapturedDiscordMessageAllowedMentions extends S.Opaque<
+  CapturedDiscordMessageAllowedMentions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    parse: S.Array(S.String),
+  }).annotate({ identifier: "CapturedDiscordMessageAllowedMentions" })
+) {}
 
-class CapturedDiscordMessageBody extends S.Class<CapturedDiscordMessageBody>("CapturedDiscordMessageBody")({
-  allowed_mentions: CapturedDiscordMessageAllowedMentions,
-  content: S.String,
-}) {}
+class CapturedDiscordMessageBody extends S.Opaque<CapturedDiscordMessageBody, { readonly brand: unique symbol }>()(
+  S.Struct({
+    allowed_mentions: CapturedDiscordMessageAllowedMentions,
+    content: S.String,
+  }).annotate({ identifier: "CapturedDiscordMessageBody" })
+) {}
 
 type DiscordTestHttpShape = {
   readonly capture: (request: HttpClientRequest.HttpClientRequest) => Effect.Effect<void>;

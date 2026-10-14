@@ -51,7 +51,7 @@ const OntologyIdentifierType = LiteralKit(["id", "iri"]).pipe(
  * @category errors
  * @since 0.0.0
  */
-export class RegistryNotFoundError extends S.TaggedError<RegistryNotFoundError>($I`RegistryNotFoundError`)(
+export class RegistryNotFoundError extends S.TaggedError<RegistryNotFoundError, { readonly brand: unique symbol }>($I`RegistryNotFoundError`)(
   "RegistryNotFoundError",
   {
     path: S.String.annotateKey({
@@ -83,7 +83,7 @@ export class RegistryNotFoundError extends S.TaggedError<RegistryNotFoundError>(
  * @category errors
  * @since 0.0.0
  */
-export class RegistryParseError extends S.TaggedError<RegistryParseError>($I`RegistryParseError`)(
+export class RegistryParseError extends S.TaggedError<RegistryParseError, { readonly brand: unique symbol }>($I`RegistryParseError`)(
   "RegistryParseError",
   {
     path: S.String.annotateKey({
@@ -118,7 +118,7 @@ export class RegistryParseError extends S.TaggedError<RegistryParseError>($I`Reg
  * @category errors
  * @since 0.0.0
  */
-export class OntologyNotFoundError extends S.TaggedError<OntologyNotFoundError>($I`OntologyNotFoundError`)(
+export class OntologyNotFoundError extends S.TaggedError<OntologyNotFoundError, { readonly brand: unique symbol }>($I`OntologyNotFoundError`)(
   "OntologyNotFoundError",
   {
     identifier: S.String.annotateKey({

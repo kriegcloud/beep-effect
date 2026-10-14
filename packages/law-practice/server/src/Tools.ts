@@ -82,14 +82,15 @@ export const PracticeKgSourceAuthRegistration = SourceAuthRegistration.make({
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgMcpServerConfig extends S.Class<PracticeKgMcpServerConfig>($I`PracticeKgMcpServerConfig`)(
-  {
+export class PracticeKgMcpServerConfig extends S.Opaque<PracticeKgMcpServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     version: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgMcpServerConfig", {
-    description: "Protocol-facing name and version for the practice KG MCP server.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMcpServerConfig", {
+      description: "Protocol-facing name and version for the practice KG MCP server.",
+    })
+  )
 ) {}
 
 /**

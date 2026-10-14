@@ -58,8 +58,7 @@ import { PosInt } from "../Schema/PosInt.ts";
 
 const $I = $ScratchpadId.create("effect-ontology/Cluster/ExtractionEntityHandler");
 
-class ExtractionStats extends S.Class<ExtractionStats>($I`ExtractionStats`)(
-  {
+class ExtractionStats extends S.Opaque<ExtractionStats, { readonly brand: unique symbol }>()(S.Struct({
     totalEntities: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(S.Natural.make(0)))).annotateKey({
       description: "Total entities extracted across completed chunks.",
     }),
@@ -87,11 +86,9 @@ class ExtractionStats extends S.Class<ExtractionStats>($I`ExtractionStats`)(
     tokensUsed: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(S.Natural.make(0)))).annotateKey({
       description: "Estimated language-model tokens consumed.",
     }),
-  },
-  $I.annote("ExtractionStats", {
+  }).pipe($I.annoteSchema("ExtractionStats", {
     description: "Running extraction counters with schema-owned empty defaults.",
-  })
-) {}
+  }))) {}
 
 const emptyStats = ExtractionStats.make({});
 

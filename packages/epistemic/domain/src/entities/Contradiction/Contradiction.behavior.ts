@@ -21,14 +21,13 @@ import * as S from "effect/Schema";
 import type {
   CanonicalContradictionBeliefPair,
   ContradictionAssessment,
-  ContradictionCandidateContent,
 } from "@beep/epistemic-domain/values/Contradiction";
 import type { ContradictionCandidate } from "./Contradiction.model.ts";
 
 const beliefVersionRefEquivalence = S.toEquivalence(BeliefVersionRef);
 
 const proposalTargetsPair = (
-  pair: CanonicalContradictionBeliefPair,
+  pair: S.Struct.Type<typeof CanonicalContradictionBeliefPair.fields>,
   proposal: ContradictionAssessment["proposals"][number]
 ): boolean =>
   beliefVersionRefEquivalence(proposal.losingBelief, pair.left) ||
@@ -80,7 +79,7 @@ export const hasValidSeals = (candidate: ContradictionCandidate): Result.Result<
     pair: candidate.pair,
     validFrom: candidate.validFrom,
     validTo: candidate.validTo,
-  } satisfies ContradictionCandidateContent;
+  };
 
   return Result.flatMap(proposalSeals, (validProposalSeals) =>
     Result.map(contradictionCandidateDigest(candidateContent), (candidateDigest) =>

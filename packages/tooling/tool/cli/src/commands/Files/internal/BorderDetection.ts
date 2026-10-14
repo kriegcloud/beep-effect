@@ -23,38 +23,53 @@ import type { BorderDetectionKind, BorderSide } from "../Files.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Files/internal/BorderDetection");
 
-class RawImagePixelData extends S.Class<RawImagePixelData>($I`RawImagePixelData`)(
-  {
+/**
+ * Decoded raw image pixels in channel-interleaved byte order.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RawImagePixelData extends S.Opaque<RawImagePixelData, { readonly brand: unique symbol }>()(
+  S.Struct({
     channels: S.Finite,
     data: S.Uint8Array,
     height: S.Finite,
     width: S.Finite,
-  },
-  $I.annote("RawImagePixelData", {
-    description: "Decoded raw image pixels in channel-interleaved byte order.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawImagePixelData", {
+      description: "Decoded raw image pixels in channel-interleaved byte order.",
+    })
+  )
 ) {}
 
-class BorderDetectionThresholds extends S.Class<BorderDetectionThresholds>($I`BorderDetectionThresholds`)(
-  {
+/**
+ * Thresholds used while scanning raw image pixels for solid borders.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BorderDetectionThresholds extends S.Opaque<BorderDetectionThresholds, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxScanPct: BorderDetectionMaxScanPercentage,
     minSolidPct: BorderDetectionPercentage,
     minWidthPct: BorderDetectionPercentage,
     tolerance: BorderDetectionTolerance,
-  },
-  $I.annote("BorderDetectionThresholds", {
-    description: "Thresholds used while scanning raw image pixels for solid borders.",
-  })
+  }).pipe(
+    $I.annoteSchema("BorderDetectionThresholds", {
+      description: "Thresholds used while scanning raw image pixels for solid borders.",
+    })
+  )
 ) {}
 
-class BorderLineStats extends S.Class<BorderLineStats>($I`BorderLineStats`)(
-  {
+class BorderLineStats extends S.Opaque<BorderLineStats, { readonly brand: unique symbol }>()(
+  S.Struct({
     averageDistance: S.Finite,
     solidPct: S.Finite,
-  },
-  $I.annote("BorderLineStats", {
-    description: "Per-line border color match metrics.",
-  })
+  }).pipe(
+    $I.annoteSchema("BorderLineStats", {
+      description: "Per-line border color match metrics.",
+    })
+  )
 ) {}
 
 const borderSides: ReadonlyArray<BorderSide> = ["top", "right", "bottom", "left"];

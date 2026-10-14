@@ -3,11 +3,14 @@ import {
   Agent,
   AgentMode,
   assistantContentToDocument,
+  CodeBlock,
   AssistantBlock as RootAssistantBlock,
   AssistantContent as RootAssistantContent,
   Skill,
   SkillFrontmatter,
   TableBlock,
+  TableCellBlock,
+  TableRowBlock,
   YouTubeBlock,
 } from "@beep/agents-domain";
 import * as AssistantContentSubpath from "@beep/agents-domain/values/AssistantContent";
@@ -112,8 +115,8 @@ describe("@beep/agents-domain", () => {
       const constructed = Agent.make(decoded);
       const tagged = Result.getOrThrow(decodeUnknownTaggedAgentResult(encoded));
 
-      expect(decoded).toBeInstanceOf(Agent);
-      expect(constructed).toBeInstanceOf(Agent);
+      expect(S.is(Agent)(decoded)).toBe(true);
+      expect(S.is(Agent)(constructed)).toBe(true);
       expect(constructed.entityType).toBe("AgentsAgent");
       expect(constructed.mode).toBe("deterministic_fixture");
       expect(constructed.skillFixtureKey).toBe("skill.review");
@@ -223,7 +226,7 @@ describe("@beep/agents-domain", () => {
       const assistantContentDefinitionName = decodeJsonPointerSegment(
         assistantContentSchema.$ref.slice("#/$defs/".length)
       );
-      expect(assistantContentSchema.$ref).toMatch(/^#\/\$defs\/.+AssistantContentEncoded$/);
+      expect(assistantContentSchema.$ref).toMatch(/^#\/\$defs\/.+AssistantContent$/);
       expect(R.has(assistantContentDocument.definitions, assistantContentDefinitionName)).toBe(true);
       expect(S.toJsonSchemaDocument(RootAssistantBlock)).toStrictEqual(S.toJsonSchemaDocument(AssistantBlock));
       expect(S.toJsonSchemaDocument(AssistantContentSubpath.AssistantBlock)).toStrictEqual(
@@ -343,27 +346,27 @@ describe("@beep/agents-domain", () => {
 
   it("lifts rich assistant blocks into canonical Md nodes", () => {
     const document = assistantContentToDocument([
-      {
+      CodeBlock.make({
         type: "code",
         language: "mermaid",
         code: "flowchart TD\nA --> B",
-      },
-      {
+      }),
+      TableBlock.make({
         type: "table",
         headerRow: true,
         rows: [
-          {
+          TableRowBlock.make({
             cells: [
-              { children: [{ type: "text", text: "Name" }] },
-              { children: [{ type: "text", text: "Value", code: true }] },
+              TableCellBlock.make({ children: [TextInline.make({ type: "text", text: "Name" })] }),
+              TableCellBlock.make({ children: [TextInline.make({ type: "text", text: "Value", code: true })] }),
             ],
-          },
+          }),
         ],
-      },
-      {
+      }),
+      YouTubeBlock.make({
         type: "youtube",
         videoId: "dQw4w9WgXcQ",
-      },
+      }),
     ]);
 
     expect(document.children).toEqual([

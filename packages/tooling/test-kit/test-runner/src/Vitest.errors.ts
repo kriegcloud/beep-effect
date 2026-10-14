@@ -43,7 +43,7 @@ const PositiveTimeoutMillis = S.Finite.check(
  * @category errors
  * @since 0.0.0
  */
-export class TestContextUnavailable extends S.TaggedError<TestContextUnavailable>(
+export class TestContextUnavailable extends S.TaggedError<TestContextUnavailable, { readonly brand: unique symbol }>(
   "@beep/test-utils/Vitest/TestContextUnavailable"
 )(
   "TestContextUnavailable",
@@ -108,7 +108,9 @@ export class TestContextUnavailable extends S.TaggedError<TestContextUnavailable
  * @category errors
  * @since 0.0.0
  */
-export class TestHang extends S.TaggedError<TestHang>("@beep/test-utils/Vitest/TestHang")(
+export class TestHang extends S.TaggedError<TestHang, { readonly brand: unique symbol }>(
+  "@beep/test-utils/Vitest/TestHang"
+)(
   "TestHang",
   {
     lastLogLine: S.OptionFromOptionalKey(S.NonEmptyString).pipe(

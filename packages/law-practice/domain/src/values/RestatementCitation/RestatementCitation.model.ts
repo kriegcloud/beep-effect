@@ -52,8 +52,8 @@ const $I = $LawPracticeDomainId.create("values/RestatementCitation/RestatementCi
  * @category models
  * @since 0.0.0
  */
-export class RestatementCitation extends S.Class<RestatementCitation>($I`RestatementCitation`)(
-  {
+export class RestatementCitation extends S.Opaque<RestatementCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("restatement"),
     edition: S.Literals(["First", "Second", "Third", "Fourth"]).annotateKey({
@@ -79,10 +79,11 @@ export class RestatementCitation extends S.Class<RestatementCitation>($I`Restate
         description: "Component spans locating this citation's sub-parts within the source text.",
       })
     ),
-  },
-  $I.annote("RestatementCitation", {
-    description: "Restatement citation: secondary authority published by the American Law Institute (#578).",
-  })
+  }).pipe(
+    $I.annoteSchema("RestatementCitation", {
+      description: "Restatement citation: secondary authority published by the American Law Institute (#578).",
+    })
+  )
 ) {}
 
 /**

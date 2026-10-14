@@ -526,8 +526,8 @@ export const scoreRound = (evidence: ReviewEvidence): UnitInterval =>
  * @category models
  * @since 0.0.0
  */
-export class ReviewRoundDraft extends S.Class<ReviewRoundDraft>($I`ReviewRoundDraft`)(
-  {
+export class ReviewRoundDraft extends S.Opaque<ReviewRoundDraft, { readonly brand: unique symbol }>()(
+  S.Struct({
     entry: ParalegalEntry.annotateKey({ description: "The extractor's entry for the round." }),
     extractorConfidence: opt(UnitInterval, "The extractor's own confidence; recorded, never scored."),
     extractorResponse: S.Array(ExtractorFieldResponse)
@@ -537,8 +537,7 @@ export class ReviewRoundDraft extends S.Class<ReviewRoundDraft>($I`ReviewRoundDr
     index: S.Int.check(S.isGreaterThan(0)).annotateKey({ description: "1-based number of the round." }),
     reading: SecretaryReview.annotateKey({ description: "The critic's own reading for the round." }),
     source: ReviewSourceText.annotateKey({ description: "The text citations are checked against." }),
-  },
-  $I.annote("ReviewRoundDraft", { description: "What a docket review round is assessed from." })
+  }).pipe($I.annoteSchema("ReviewRoundDraft", { description: "What a docket review round is assessed from." }))
 ) {}
 
 // The values of an entry that the text quoted for one field must contain. A field that holds no
@@ -636,17 +635,17 @@ const sourceDateFindings = (reading: SecretaryReview): ReadonlyArray<ReviewFindi
  */
 export const assessReviewRound = (draft: ReviewRoundDraft): ReviewRound => {
   const evidence = ReviewEvidence.make({
-    agreement: compareReadings(draft.entry, draft.reading),
+    agreement: compareReadings(draft.entry, SecretaryReview.make(draft.reading)),
     checks: [
-      ...runDeterministicChecks(draft.entry, draft.source),
-      ...quotedTextChecks(draft.entry, draft.extractorResponse, draft.source),
-      ...runCriticChecks(draft.reading, draft.source),
+      ...runDeterministicChecks(draft.entry, ReviewSourceText.make(draft.source)),
+      ...quotedTextChecks(draft.entry, draft.extractorResponse, ReviewSourceText.make(draft.source)),
+      ...runCriticChecks(SecretaryReview.make(draft.reading), ReviewSourceText.make(draft.source)),
     ],
     // The finding about the source's own dates is written here from the reading of this round;
     // one carried over from an earlier round is dropped first, so it never outlives its cause.
     findings: [
       ...A.filter(draft.findings, (finding) => !sameFinding(finding, SOURCE_DATES_DIFFER)),
-      ...sourceDateFindings(draft.reading),
+      ...sourceDateFindings(SecretaryReview.make(draft.reading)),
     ],
   });
   return ReviewRound.make({
@@ -681,8 +680,8 @@ export const assessReviewRound = (draft: ReviewRoundDraft): ReviewRound => {
  * @category models
  * @since 0.0.0
  */
-export class ReviewDecisionInput extends S.Class<ReviewDecisionInput>($I`ReviewDecisionInput`)(
-  {
+export class ReviewDecisionInput extends S.Opaque<ReviewDecisionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     config: DocketReviewConfig.annotateKey({ description: "Settings of the review loop." }),
     earlier: S.Array(ReviewRound)
       .pipe(S.withConstructorDefault(Effect.succeed([])), S.withDecodingDefaultTypeKey(Effect.succeed([])))
@@ -690,8 +689,11 @@ export class ReviewDecisionInput extends S.Class<ReviewDecisionInput>($I`ReviewD
     gatePassed: S.Boolean.annotateKey({ description: "Whether every deterministic check of the round passed." }),
     isLastRound: S.Boolean.annotateKey({ description: "Whether the round limit is reached." }),
     round: ReviewRound.annotateKey({ description: "The round being decided." }),
-  },
-  $I.annote("ReviewDecisionInput", { description: "What the decision at the end of a docket review round uses." })
+  }).pipe(
+    $I.annoteSchema("ReviewDecisionInput", {
+      description: "What the decision at the end of a docket review round uses.",
+    })
+  )
 ) {}
 
 const disagreedFields = (round: ReviewRound): ReadonlyArray<ReviewField> =>
@@ -702,7 +704,7 @@ const disagreedFields = (round: ReviewRound): ReadonlyArray<ReviewField> =>
 
 // A disagreement never changed when the same field failed its comparison in every round.
 const hasStandingDisagreement = (input: ReviewDecisionInput): boolean =>
-  A.some(disagreedFields(input.round), (field) =>
+  A.some(disagreedFields(ReviewRound.make(input.round)), (field) =>
     A.every(input.earlier, (earlier) => A.contains(disagreedFields(earlier), field))
   );
 
@@ -894,13 +896,12 @@ export const rereadFields = (disputes: ReadonlyArray<ReviewDispute>): ReadonlyAr
  * @category models
  * @since 0.0.0
  */
-export class RereadMerge extends S.Class<RereadMerge>($I`RereadMerge`)(
-  {
+export class RereadMerge extends S.Opaque<RereadMerge, { readonly brand: unique symbol }>()(
+  S.Struct({
     fields: S.Array(ReviewField).annotateKey({ description: "The fields that were read again." }),
     previous: SecretaryReview.annotateKey({ description: "The critic's reading before the re-reading." }),
     reread: SecretaryReview.annotateKey({ description: "What the critic read this time." }),
-  },
-  $I.annote("RereadMerge", { description: "A critic re-reading to merge into its earlier reading." })
+  }).pipe($I.annoteSchema("RereadMerge", { description: "A critic re-reading to merge into its earlier reading." }))
 ) {}
 
 const DATE_FIELDS: ReadonlyArray<ReviewField> = ["mail-date", "due-date"];
@@ -966,7 +967,11 @@ export const mergeRereading = (merge: RereadMerge): SecretaryReview => {
   const pick = <Value>(readAgain: ReadonlyArray<ReviewField>, next: Value, kept: Value): Value =>
     A.some(readAgain, (field) => A.contains(fields, field)) ? next : kept;
   return SecretaryReview.make({
-    citedText: pick(SOURCE_FIELDS, mergedCitation(fields, previous, reread), previous.citedText),
+    citedText: pick(
+      SOURCE_FIELDS,
+      mergedCitation(fields, SecretaryReview.make(previous), SecretaryReview.make(reread)),
+      previous.citedText
+    ),
     isDocketItem: pick(["classification"], reread.isDocketItem, previous.isDocketItem),
     mailDate: pick(DATE_FIELDS, reread.mailDate, previous.mailDate),
     matterReferences: pick(["matter-references"], reread.matterReferences, previous.matterReferences),
