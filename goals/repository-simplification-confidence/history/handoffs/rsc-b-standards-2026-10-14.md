@@ -276,7 +276,9 @@ at `80fe0135fffc988c0dd53bb7a7d2678031d7135e`, including #1715
 model routing, #1727 observability, #1714 knowledge grouping and #1712 packets.
 Every admitted owner command and full build passes except raw health exit 1,
 which writes its baseline. The cap file remains present. Publication uses
-Yeet's cheap-gates and head-install preflight; pre-final parity must terminate
+Yeet's cheap-gates and head-install preflight under the AGENTS.md Quality
+Operator push-first rule (SPEC Decision Log, publication ordering); pre-final
+parity must terminate
 and be attributed on the published head before the final report. No queued
 full proof is used as an additional publication gate.
 
@@ -304,3 +306,17 @@ reviews remain pinned to c12/b69; a bounded publication-candidate review
 follows with the updated measured values. Source/registry/coverage edits by
 B remain absent. The private taxonomy/exception/directive preparations are
 not silently recertified after these upstream source changes.
+
+## Publication review and argument correction
+
+The same named Claude Opus 5.5 medium reviewer checks candidate
+`37ba9cb2b8284e9ba9236f1347785a0385a3584e` against main `f21e2a8563`.
+No P0/P1/P2 or generated-value blocker is found. Two P3 wording corrections
+cite the binding push-first rule in SPEC and explicitly mark the c12 package
+qualification paragraph historical. No measured value changes.
+
+The first publish invocation stops in argument validation:
+`--job-max-runtime requires --detach.` It never reaches push or PR creation.
+Retry uses the canonical publish form without that option; the later explicit
+detached readiness monitor receives the bounded runtime. This is a corrected
+local invocation, not a successful publication or a failed hosted check.

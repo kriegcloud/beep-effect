@@ -427,10 +427,10 @@ No workspace package is edited by this first R20 wave. Package verification
 and scoped source coverage are not applicable to generated standards and
 packet evidence alone. The existing fourteen-test artifact-generator suite
 and Sherif pass as qualification of the already landed #1617 repair; they
-are not substitutes for a package gate or a new source repair. Candidate `c12a1cf298` passes test-tsgo, bounded docgen, CI JSDoc ratchet,
+are not substitutes for a package gate or a new source repair. Historical candidate `c12a1cf298` passes test-tsgo, bounded docgen, CI JSDoc ratchet,
 Fallow audit/health and retired-effect-paths. Knowledge refs fails only on
 fourteen inherited observations, each affected file byte-identical to main.
-Final packet-head parity remains separately recorded in the
+Publication-head parity is still pending and is separately recorded in the
 [B handoff](../handoffs/rsc-b-standards-2026-10-14.md).
 
 ## Scope

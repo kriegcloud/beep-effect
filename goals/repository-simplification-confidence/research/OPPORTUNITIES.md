@@ -1150,3 +1150,13 @@ regenerate the fresh publication snapshot, and use Yeet's prescribed cheap
 push preflight while pre-final parity qualifies the exact published head.
 Hosted proof remains authoritative. Candidate counts remain source-pinned;
 new source findings are shown rather than presented as B repairs.
+
+
+### B publish runtime flag rejected before execution
+
+`yeet publish --job-max-runtime "40 minutes"` returned
+`--job-max-runtime requires --detach.` Argument validation stopped before
+any push. The flag is general in help but requires an explicit detached
+operation. Retry canonical publication without it; apply the runtime bound
+to the explicit detached readiness monitor. Conditional flag requirements
+should be rendered beside the option in command help.

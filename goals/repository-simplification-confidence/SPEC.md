@@ -983,3 +983,15 @@ review's ambiguity without inferring an additional approval requirement.
 No revocation or absent file is overridden. Recovery: stop before publication
 if the gate is removed; after publication, revert the generated refresh PR
 and regenerate through its owners. R14 merge serialization remains required.
+
+
+### 2026-10-14 B publication and pre-final proof ordering
+
+Decision: follow AGENTS.md Quality Operator's push-first publication rule:
+`publish` gates the push on cheap gates and the head-install preflight only;
+never wait on a queued local full proof to publish. The resume addendum's
+parity requirement applies before the final report. The fresh publication
+snapshot is owner-regenerated before push; exact-head parity and independent
+review remain mandatory qualification, and R14 merge belongs to the driver.
+No failing check is relabelled a pass. Recovery: repair any introduced red
+in a fully addressed wave before calling final; revert the PR if necessary.
