@@ -19,7 +19,7 @@ import {
   seedModelsManifest,
   UpstreamCatalog,
 } from "@beep/repo-cli/commands/Models";
-import { fcRuns } from "@beep/test-utils";
+import { fcRuns, provideScopedLayer } from "@beep/test-utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { assertNone, assertSome, strictEqual } from "@effect/vitest/utils";
@@ -32,6 +32,7 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import {
   FixtureCatalogSources,
+  FixtureCatalogSourcesCursorOnly,
   FixtureCatalogSourcesWithoutProxy,
   readFixtureText,
 } from "./helpers/models-fixtures.ts";
@@ -366,6 +367,22 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
       // binding names a model this box cannot route on that surface — even
       // though the file already holds the id the manifest asks for.
       expect(kindsOf(report)).toEqual(["proxy.env:unknown-model"]);
+    })
+  );
+
+  it.effect("does not infer Codex retirement from a Cursor-only offline catalog", () =>
+    Effect.gen(function* () {
+      const { report } = yield* runCheckIn("manifest-codex-current.yaml", true).pipe(
+        provideScopedLayer(FixtureCatalogSourcesCursorOnly)
+      );
+      expect(report.findings).toEqual([]);
+    })
+  );
+
+  it.effect("accepts a Junie binding without a catalog overlay for JetBrains-route models", () =>
+    Effect.gen(function* () {
+      const report = yield* runCheck("manifest-junie.yaml");
+      expect(report.findings).toEqual([]);
     })
   );
 

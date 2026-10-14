@@ -80,6 +80,12 @@ screenshots-only loop.
    evidence; reference them from the milestone PR body. GIFs may be embedded
    in PR bodies for humans.
 
+<!-- beep-models:begin qa-judge -->
+| Role | Surface | Model | Effort |
+| --- | --- | --- | --- |
+| qa.judge | claude-code | `claude-opus-5-5` | — |
+<!-- beep-models:end qa-judge -->
+
 ## Evidence policy
 
 - **The judge never ingests GIFs or video** — animated media is unreliable for
