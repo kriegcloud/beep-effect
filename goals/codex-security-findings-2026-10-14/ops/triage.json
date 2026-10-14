@@ -4,156 +4,176 @@
     "repository": "kriegcloud/beep-effect",
     "findingsView": "repo-scoped, status=new",
     "branch": "codex/security-findings-2026-10-14",
-    "expectedCount": 47,
-    "capturedCount": 47,
+    "expectedCount": 48,
+    "capturedCount": 48,
     "capturedAt": "2026-10-14",
     "captureMethod": "signed-in-csv-export",
-    "note": "Generated skeleton. ownerArea, verdict, and lane are absent until P2 assigns them."
+    "note": "All 48 finding IDs are bound to current-HEAD triage; the 48th was appended from the later signed-in CSV export while preserving prior decisions."
   },
   "lanes": {
-    "L1": {
+    "L1-remediation": {
       "status": "implemented",
       "findings": ["CSF-001"]
     },
-    "L2": {
+    "L2-remediation": {
       "status": "implemented",
       "findings": ["CSF-002"]
     },
-    "L3": {
+    "L3-remediation": {
       "status": "implemented",
       "findings": ["CSF-004"]
     },
-    "L4": {
+    "L4-remediation": {
       "status": "implemented",
       "findings": ["CSF-005", "CSF-032"]
     },
-    "L5": {
+    "L5-remediation": {
       "status": "implemented",
       "findings": ["CSF-006", "CSF-007"]
     },
-    "L6": {
+    "L6-remediation": {
       "status": "implemented",
       "findings": ["CSF-008"]
     },
-    "L7": {
+    "L7-remediation": {
       "status": "implemented",
       "findings": ["CSF-014"]
     },
-    "L8": {
+    "L8-remediation": {
       "status": "implemented",
       "findings": ["CSF-009"]
     },
-    "L9": {
+    "L9-remediation": {
       "status": "implemented",
       "findings": ["CSF-010"]
     },
-    "L10": {
+    "L10-remediation": {
       "status": "implemented",
       "findings": ["CSF-011"]
     },
-    "L11": {
+    "L11-remediation": {
       "status": "implemented",
       "findings": ["CSF-013"]
     },
-    "L12": {
+    "L12-remediation": {
       "status": "implemented",
       "findings": ["CSF-015"]
     },
-    "L13": {
+    "L13-remediation": {
       "status": "implemented",
       "findings": ["CSF-017"]
     },
-    "L14": {
-      "status": "already-fixed",
+    "L14-remediation": {
+      "status": "not-required",
       "findings": ["CSF-025"]
     },
-    "L15": {
+    "L15-remediation": {
       "status": "implemented",
       "findings": ["CSF-018"]
     },
-    "L16": {
+    "L16-remediation": {
       "status": "implemented",
       "findings": ["CSF-019"]
     },
-    "L17": {
+    "L17-remediation": {
       "status": "implemented",
       "findings": ["CSF-026"]
     },
-    "L18": {
+    "L18-remediation": {
       "status": "implemented",
       "findings": ["CSF-020", "CSF-028"]
     },
-    "L19": {
+    "L19-remediation": {
       "status": "implemented",
       "findings": ["CSF-027"]
     },
-    "L20": {
+    "L20-remediation": {
       "status": "implemented",
       "findings": ["CSF-029"]
     },
-    "L21": {
+    "L21-remediation": {
       "status": "implemented",
       "findings": ["CSF-030"]
     },
-    "L22": {
+    "L22-remediation": {
       "status": "implemented",
       "findings": ["CSF-033"]
     },
-    "L23": {
+    "L23-remediation": {
       "status": "implemented",
       "findings": ["CSF-034"]
     },
-    "L24": {
+    "L24-remediation": {
       "status": "implemented",
       "findings": ["CSF-036"]
     },
-    "L25": {
+    "L25-remediation": {
       "status": "implemented",
       "findings": ["CSF-035"]
     },
-    "L26": {
+    "L26-remediation": {
       "status": "implemented",
       "findings": ["CSF-037"]
     },
-    "L27": {
+    "L27-remediation": {
       "status": "implemented",
       "findings": ["CSF-038"]
     },
-    "L30": {
+    "L30-remediation": {
       "status": "implemented",
       "findings": ["CSF-040"]
     },
-    "L28": {
+    "L28-remediation": {
       "status": "implemented",
       "findings": ["CSF-043"]
     },
-    "L29": {
+    "L29-remediation": {
       "status": "implemented",
       "findings": ["CSF-044"]
     },
-    "L31": {
+    "L31-remediation": {
       "status": "implemented",
       "findings": ["CSF-046"]
     },
-    "L33": {
+    "L33-remediation": {
       "status": "implemented",
       "findings": ["CSF-024"]
     },
-    "L32": {
+    "L32-remediation": {
       "status": "implemented",
       "findings": ["CSF-047"]
     },
-    "L38": {
+    "L38-remediation": {
       "status": "implemented",
       "findings": ["CSF-031"]
     },
-    "L39": {
+    "L39-remediation": {
       "status": "implemented",
       "findings": ["CSF-042"]
     },
-    "L40": {
+    "L40-remediation": {
       "status": "implemented",
       "findings": ["CSF-045"]
+    },
+    "L34-remediation": {
+      "status": "implemented",
+      "findings": ["CSF-012"]
+    },
+    "L35-remediation": {
+      "status": "implemented",
+      "findings": ["CSF-022"]
+    },
+    "L37-remediation": {
+      "status": "implemented",
+      "findings": ["CSF-039"]
+    },
+    "L36-remediation": {
+      "status": "implemented",
+      "findings": ["CSF-041"]
+    },
+    "L38-skill-patch-budget": {
+      "status": "implemented",
+      "findings": ["CSF-048"]
     }
   },
   "findings": [
@@ -183,7 +203,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Yeet review body parsing",
-      "lane": "L1"
+      "lane": "L1-remediation"
     },
     {
       "id": "CSF-002",
@@ -212,7 +232,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "canonical credential pattern bank",
-      "lane": "L2"
+      "lane": "L2-remediation"
     },
     {
       "id": "CSF-003",
@@ -247,7 +267,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "M365 outbox draft sending",
-      "lane": "L33"
+      "lane": "L33-remediation"
     },
     {
       "id": "CSF-004",
@@ -277,7 +297,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "mail attachment filing",
-      "lane": "L3"
+      "lane": "L3-remediation"
     },
     {
       "id": "CSF-005",
@@ -305,7 +325,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "docket Graph calendar adapter",
-      "lane": "L4"
+      "lane": "L4-remediation"
     },
     {
       "id": "CSF-006",
@@ -334,7 +354,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "docket intake file store",
-      "lane": "L5"
+      "lane": "L5-remediation"
     },
     {
       "id": "CSF-007",
@@ -365,7 +385,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "mail-tagging state and lock",
-      "lane": "L5"
+      "lane": "L5-remediation"
     },
     {
       "id": "CSF-008",
@@ -393,7 +413,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "gh-fix-ci job-log inspector",
-      "lane": "L6"
+      "lane": "L6-remediation"
     },
     {
       "id": "CSF-009",
@@ -421,7 +441,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "corpus OCR raster intake",
-      "lane": "L8"
+      "lane": "L8-remediation"
     },
     {
       "id": "CSF-010",
@@ -449,7 +469,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "drawing intake terminal summary",
-      "lane": "L9"
+      "lane": "L9-remediation"
     },
     {
       "id": "CSF-011",
@@ -477,7 +497,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "signed cache pilot supervisor",
-      "lane": "L10"
+      "lane": "L10-remediation"
     },
     {
       "id": "CSF-012",
@@ -507,7 +527,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Claude hook executable root",
-      "lane": "L34"
+      "lane": "L34-remediation"
     },
     {
       "id": "CSF-013",
@@ -535,7 +555,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Bun audit OSV override selection",
-      "lane": "L11"
+      "lane": "L11-remediation"
     },
     {
       "id": "CSF-014",
@@ -564,7 +584,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Yeet REST merge review window",
-      "lane": "L7"
+      "lane": "L7-remediation"
     },
     {
       "id": "CSF-015",
@@ -592,7 +612,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "mail sender address normalization",
-      "lane": "L12"
+      "lane": "L12-remediation"
     },
     {
       "id": "CSF-016",
@@ -622,7 +642,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "research library paper acquisition",
-      "lane": "L39"
+      "lane": "L39-remediation"
     },
     {
       "id": "CSF-017",
@@ -650,7 +670,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "practice KG correspondent parser",
-      "lane": "L13"
+      "lane": "L13-remediation"
     },
     {
       "id": "CSF-018",
@@ -678,7 +698,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "agent effectiveness law-lane staging",
-      "lane": "L15"
+      "lane": "L15-remediation"
     },
     {
       "id": "CSF-019",
@@ -707,7 +727,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Graft deep-ignore patch",
-      "lane": "L16"
+      "lane": "L16-remediation"
     },
     {
       "id": "CSF-020",
@@ -736,7 +756,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "goal adoption materializer",
-      "lane": "L18"
+      "lane": "L18-remediation"
     },
     {
       "id": "CSF-021",
@@ -765,7 +785,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "schema-parity codemod staging",
-      "lane": "L38"
+      "lane": "L38-remediation"
     },
     {
       "id": "CSF-022",
@@ -795,7 +815,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "OCCT overlap counting and model schema",
-      "lane": "L35"
+      "lane": "L35-remediation"
     },
     {
       "id": "CSF-023",
@@ -824,7 +844,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Stately inspector event projection",
-      "lane": "L40"
+      "lane": "L40-remediation"
     },
     {
       "id": "CSF-024",
@@ -853,7 +873,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Models locator parsing",
-      "lane": "L33"
+      "lane": "L33-remediation"
     },
     {
       "id": "CSF-025",
@@ -869,7 +889,7 @@
         "rationale": "The current POSIX zip command places -- before every file operand. Commit 58766950c5 added the terminator after the reported source commit, and a focused scratchpad test covers leading-dash filenames."
       },
       "remediation": {
-        "status": "already-fixed",
+        "status": "not-required",
         "changedFiles": [],
         "verificationCommands": [
           "bunx vitest run --config scratchpad/vitest.config.ts scratchpad/test/github-actions/archiveCommands.test.ts --pool=threads --maxWorkers=1 -t 'leading-dash paths follow'"
@@ -878,7 +898,7 @@
       },
       "verdict": "already-fixed",
       "ownerArea": "scratchpad artifact archive command",
-      "lane": "L14"
+      "lane": "L14-remediation"
     },
     {
       "id": "CSF-026",
@@ -906,7 +926,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "M365 Graph path segment schema",
-      "lane": "L17"
+      "lane": "L17-remediation"
     },
     {
       "id": "CSF-027",
@@ -929,7 +949,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "cloud bootstrap 1Password status",
-      "lane": "L19"
+      "lane": "L19-remediation"
     },
     {
       "id": "CSF-028",
@@ -957,7 +977,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "goal bootstrap staging sweep",
-      "lane": "L18"
+      "lane": "L18-remediation"
     },
     {
       "id": "CSF-029",
@@ -985,7 +1005,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "models report writer",
-      "lane": "L20"
+      "lane": "L20-remediation"
     },
     {
       "id": "CSF-030",
@@ -1013,7 +1033,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "office action text recognizer",
-      "lane": "L21"
+      "lane": "L21-remediation"
     },
     {
       "id": "CSF-031",
@@ -1047,7 +1067,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "docket undo and M365 event writes",
-      "lane": "L38"
+      "lane": "L38-remediation"
     },
     {
       "id": "CSF-032",
@@ -1075,7 +1095,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "docket reminder ladder",
-      "lane": "L4"
+      "lane": "L4-remediation"
     },
     {
       "id": "CSF-033",
@@ -1104,7 +1124,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Claude Bash permission allowlist",
-      "lane": "L22"
+      "lane": "L22-remediation"
     },
     {
       "id": "CSF-034",
@@ -1132,7 +1152,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "PDF font structure inspector",
-      "lane": "L23"
+      "lane": "L23-remediation"
     },
     {
       "id": "CSF-035",
@@ -1161,7 +1181,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Knowledge doctor historical citations",
-      "lane": "L25"
+      "lane": "L25-remediation"
     },
     {
       "id": "CSF-036",
@@ -1189,7 +1209,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Yeet PR title recovery",
-      "lane": "L24"
+      "lane": "L24-remediation"
     },
     {
       "id": "CSF-037",
@@ -1217,7 +1237,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Repository residue cleanup",
-      "lane": "L26"
+      "lane": "L26-remediation"
     },
     {
       "id": "CSF-038",
@@ -1243,7 +1263,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Technical drawing glyph generator",
-      "lane": "L27"
+      "lane": "L27-remediation"
     },
     {
       "id": "CSF-039",
@@ -1272,7 +1292,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "corpus extract output preparation",
-      "lane": "L37"
+      "lane": "L37-remediation"
     },
     {
       "id": "CSF-040",
@@ -1300,7 +1320,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Cursor shell guard",
-      "lane": "L30"
+      "lane": "L30-remediation"
     },
     {
       "id": "CSF-041",
@@ -1328,7 +1348,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "scratchpad memory access policy",
-      "lane": "L36"
+      "lane": "L36-remediation"
     },
     {
       "id": "CSF-042",
@@ -1358,7 +1378,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Worktree retirement fence",
-      "lane": "L39"
+      "lane": "L39-remediation"
     },
     {
       "id": "CSF-043",
@@ -1386,7 +1406,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Mail attachment filing reconciliation",
-      "lane": "L28"
+      "lane": "L28-remediation"
     },
     {
       "id": "CSF-044",
@@ -1414,7 +1434,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Tmpfs Fallow cache janitor",
-      "lane": "L29"
+      "lane": "L29-remediation"
     },
     {
       "id": "CSF-045",
@@ -1443,7 +1463,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Box content migration",
-      "lane": "L40"
+      "lane": "L40-remediation"
     },
     {
       "id": "CSF-046",
@@ -1472,7 +1492,7 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Drawing review round storage",
-      "lane": "L31"
+      "lane": "L31-remediation"
     },
     {
       "id": "CSF-047",
@@ -1501,7 +1521,37 @@
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Corpus provenance output",
-      "lane": "L32"
+      "lane": "L32-remediation"
+    },
+    {
+      "id": "CSF-048",
+      "codexId": "commit:e9c4b8dbfb9c819188c33e36b3bea73c",
+      "title": "Unbounded LCS allocation enables skill-review denial of service",
+      "severity": "Low",
+      "codexStatus": "New",
+      "commit": "08fa45bd98cacd178c6214259aaf4c4b0c23f865",
+      "disposition": "remediate",
+      "validation": {
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The authenticated finding report traces repository-controlled skill text through the read-only provenance and lock-plan commands into an unbounded quadratic LCS table. The pre-fix source had no cell or work budget. The local service regression exercises a 100,001-newline installed skill and verifies a typed refusal before hunk generation."
+      },
+      "remediation": {
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Skills/Skills.patches.ts",
+          "packages/tooling/tool/cli/src/commands/Skills/Skills.service.ts",
+          "packages/tooling/tool/cli/test/skills-provenance.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/skills-provenance.test.ts --pool=threads --maxWorkers=1",
+          "bun run beep quality package-verify @beep/repo-cli"
+        ],
+        "summary": "Bound combined patch inputs to 100,000 lines with a typed error, trim unchanged prefix and suffix, and cap the LCS matrix at four million cells. Large changed regions fall back to a valid linear-size replacement hunk."
+      },
+      "ownerArea": "Skills provenance patch rendering",
+      "verdict": "confirmed-vulnerable",
+      "lane": "L38-skill-patch-budget"
     }
   ]
 }

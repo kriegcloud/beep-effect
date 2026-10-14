@@ -34,6 +34,7 @@ import type { ChildProcessSpawner } from "effect/process";
 const $I = $RepoCliId.create("commands/Skills/Skills.patches");
 
 const UNIFIED_CONTEXT = 3;
+const MAX_LCS_CELLS = 4_000_000;
 const NO_NEWLINE_MARKER = "\\ No newline at end of file";
 
 type DiffLine = { readonly text: string; readonly eol: boolean };
@@ -98,12 +99,40 @@ const nextOpKind = (
 };
 
 const editScript = (before: ReadonlyArray<DiffLine>, after: ReadonlyArray<DiffLine>): ReadonlyArray<DiffOp> => {
-  const table = lcsTable(before, after);
+  // A large changed region gets a valid whole-region replacement instead of a
+  // quadratic LCS table. Equal prefixes and suffixes still retain their context.
+  let prefix = 0;
+  while (
+    prefix < A.length(before) &&
+    prefix < A.length(after) &&
+    sameLine(A.getUnsafe(before, prefix), A.getUnsafe(after, prefix))
+  ) {
+    prefix++;
+  }
+  let suffix = 0;
+  while (
+    suffix < A.length(before) - prefix &&
+    suffix < A.length(after) - prefix &&
+    sameLine(A.getUnsafe(before, A.length(before) - suffix - 1), A.getUnsafe(after, A.length(after) - suffix - 1))
+  ) {
+    suffix++;
+  }
+  const changedBefore = A.take(A.drop(before, prefix), A.length(before) - prefix - suffix);
+  const changedAfter = A.take(A.drop(after, prefix), A.length(after) - prefix - suffix);
+  const useLcs = (A.length(changedBefore) + 1) * (A.length(changedAfter) + 1) <= MAX_LCS_CELLS;
+  const table = useLcs ? lcsTable(changedBefore, changedAfter) : undefined;
   const ops: Array<DiffOp> = [];
   let i = 0;
   let j = 0;
   while (i < A.length(before) || j < A.length(after)) {
-    const kind = nextOpKind(before, after, table, i, j);
+    let kind: DiffOpKind;
+    if (i < prefix || (i >= A.length(before) - suffix && j >= A.length(after) - suffix)) {
+      kind = "equal";
+    } else if (table === undefined) {
+      kind = i < A.length(before) - suffix ? "delete" : "insert";
+    } else {
+      kind = nextOpKind(changedBefore, changedAfter, table, i - prefix, j - prefix);
+    }
     const line = kind === "insert" ? A.getUnsafe(after, j) : A.getUnsafe(before, i);
     ops.push({ kind, line, oldBefore: i, newBefore: j });
     i += kind === "insert" ? 0 : 1;

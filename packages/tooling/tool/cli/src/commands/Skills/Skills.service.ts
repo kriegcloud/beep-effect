@@ -330,12 +330,37 @@ const patchHeader = (filePath: string): string => `diff --git a/${filePath} b/${
 
 const abbreviatedSha = Str.slice(0, 12);
 
+const MAX_PATCH_LINES = 100_000;
+
+const ensurePatchLineBudget = (skill: string, filePath: string, before: string, after: string) => {
+  let lines = 0;
+  for (const content of [before, after]) {
+    if (Str.isEmpty(content)) {
+      continue;
+    }
+    lines++;
+    for (const character of content) {
+      if (character === "\n" && ++lines > MAX_PATCH_LINES) {
+        return Effect.fail(
+          SkillsCommandError.make({
+            message: `Skill patch exceeds the ${MAX_PATCH_LINES} line review limit`,
+            skill,
+            file: filePath,
+          })
+        );
+      }
+    }
+  }
+  return Effect.void;
+};
+
 const renderAddedFilePatch = Effect.fn("SkillsProvenance.renderAddedFilePatch")(function* (
   skill: string,
   filePath: string,
   local: HashedSkillFile
 ): Effect.fn.Return<string, SkillsCommandError> {
   const after = yield* decodeTextFile(local, skill);
+  yield* ensurePatchLineBudget(skill, filePath, "", after);
   const headerLines = [
     patchHeader(filePath),
     `new file mode ${local.mode}`,
@@ -355,6 +380,7 @@ const renderDeletedFilePatch = Effect.fn("SkillsProvenance.renderDeletedFilePatc
   upstream: HashedSkillFile
 ): Effect.fn.Return<string, SkillsCommandError> {
   const before = yield* decodeTextFile(upstream, skill);
+  yield* ensurePatchLineBudget(skill, filePath, before, "");
   const headerLines = [
     patchHeader(filePath),
     `deleted file mode ${upstream.mode}`,
@@ -380,6 +406,7 @@ const renderModifiedFilePatch = Effect.fn("SkillsProvenance.renderModifiedFilePa
   }
   const before = yield* decodeTextFile(upstream, skill);
   const after = yield* decodeTextFile(local, skill);
+  yield* ensurePatchLineBudget(skill, filePath, before, after);
   return A.join(
     [
       patchHeader(filePath),

@@ -1,5 +1,17 @@
 # Friction receipts
 
+## 2026-10-14: capture refresh rejected prior triage lane syntax
+
+- Doing: appending one newly detected finding from a full 48-record CSV export.
+- Evidence: `beep codex findings ingest --refresh` rejected the existing
+  `ops/triage.json` as not decodable. The prior hand-authored ledger used bare
+  `L<n>` lane IDs and `already-fixed` as a work status; the current schema
+  requires `L<n>-<slug>` and `not-required`. Four finding lane references had
+  no matching lane record. Repairing those metadata values let the dry run
+  preserve all 47 IDs and append CSF-048.
+- Would have prevented it: schema validation of packet ledgers before the
+  original P2 edits, with a diagnostic pointing to the invalid field.
+
 ## 2026-10-14: fresh worktree package check lacks built dependency declarations
 
 - Doing: verifying the first `@beep/repo-cli` security repair in a newly

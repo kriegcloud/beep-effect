@@ -10,14 +10,14 @@
   },
   "packetPath": "goals/codex-security-findings-2026-10-14",
   "lifecycle": "active",
-  "mission": "Remediate and close the 47 Codex security findings captured on 2026-10-14.",
+  "mission": "Remediate and close the 48 Codex security findings captured on 2026-10-14.",
   "executionCapable": true,
   "reflectionRequired": true,
   "completionGate": {
     "operator": "yeet",
     "requiresPullRequest": true,
     "requiresMergeable": true,
-    "statement": "Not achieved until the work ships as a Yeet-driven mergeable PR, is merged, and the exact 47 Codex findings are resolved with zero packet-applicable open findings.",
+    "statement": "Not achieved until the work ships as a Yeet-driven mergeable PR, is merged, and the exact 48 Codex findings are resolved with zero packet-applicable open findings.",
     "grandfathered": false
   },
   "branch": "codex/security-findings-2026-10-14",
@@ -50,22 +50,22 @@
     "rawCaptureTracked": false
   },
   "catalog": {
-    "expectedCount": 47,
-    "capturedCount": 47,
+    "expectedCount": 48,
+    "capturedCount": 48,
     "severityCountsKnown": true,
     "severityCounts": {
       "Medium": 5,
-      "Low": 12,
+      "Low": 13,
       "Informational": 30
     },
     "dispositionCounts": {
-      "remediate": 46,
+      "remediate": 47,
       "already-fixed": 1,
       "false-positive": 0,
       "out-of-scope": 0,
       "untriaged": 0
     },
-    "note": "All 47 findings have a current-HEAD disposition: 46 repairs and one already fixed."
+    "note": "All 48 findings have a current-HEAD disposition: 47 repairs and one already fixed."
   },
   "closeoutPolicy": {
     "fixed": "Fixed",
@@ -143,7 +143,7 @@
     "test \"$(wc -m < goals/codex-security-findings-2026-10-14/GOAL.md)\" -le 4000",
     "jq . goals/codex-security-findings-2026-10-14/ops/manifest.json",
     "jq . goals/codex-security-findings-2026-10-14/ops/triage.json",
-    "test \"$(find goals/codex-security-findings-2026-10-14/findings -maxdepth 1 -name 'CSF-*.md' | wc -l | tr -d ' ')\" = 47",
+    "test \"$(find goals/codex-security-findings-2026-10-14/findings -maxdepth 1 -name 'CSF-*.md' | wc -l | tr -d ' ')\" = 48",
     "git diff --check -- goals/codex-security-findings-2026-10-14",
     "jq -r '.findings[].commit' goals/codex-security-findings-2026-10-14/ops/triage.json | while read -r c; do git merge-base --is-ancestor \"$c\" HEAD || echo \"not-an-ancestor: $c\"; done",
     "bun run beep lint reflection-artifacts"

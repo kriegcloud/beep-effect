@@ -9,7 +9,7 @@ Source: [`ops/manifest.json`](./ops/manifest.json)
 ## Mission
 
 Capture, validate, remediate, and close every open Codex Cloud security finding
-for `kriegcloud/beep-effect` in the 47-finding batch captured on 2026-10-14.
+for `kriegcloud/beep-effect` in the 48-finding batch captured on 2026-10-14.
 Ship the fixes through one Yeet-driven PR, close the exact captured findings, and
 leave no packet-applicable finding open.
 
@@ -32,13 +32,16 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P2 validate` - all 47 findings are captured; seventeen have current-HEAD verdicts
-(16 repairs implemented, one already fixed). Reproduce the remaining reports, then
-record a verdict, disposition, and owner surface.
+<!-- codex-findings-refresh:start -->
+Refresh capture: the original 47 records retain their prior triage and proof; CSF-048 was added from the later full CSV export and has a validated repair.
+<!-- codex-findings-refresh:end -->
+
+`P5 repo-proof` - all 48 findings have current-HEAD verdicts and targeted
+repairs or already-fixed proof. Run package and Yeet checks before publication.
 
 ## Findings at a glance
 
-5 Medium, 12 Low, 30 Informational findings. Accepted risk is unavailable; each item must be
+5 Medium, 13 Low, 30 Informational findings. Accepted risk is unavailable; each item must be
 fixed or closed only with strict proof that the report is already fixed or
 materially invalid.
 

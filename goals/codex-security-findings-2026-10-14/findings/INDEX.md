@@ -10,7 +10,7 @@ auth values, email addresses, and raw local paths.
 | Severity | Count |
 | --- | ---: |
 | Medium | 5 |
-| Low | 12 |
+| Low | 13 |
 | Informational | 30 |
 
 ## Findings
@@ -64,6 +64,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-045](./CSF-045.md) | Informational | repair implemented | Chunked uploads commit swapped sources before checking integrity | Box content migration |
 | [CSF-046](./CSF-046.md) | Informational | repair implemented | Review round writes follow symlinks outside the corpus root | Drawing review round storage |
 | [CSF-047](./CSF-047.md) | Informational | repair implemented | Provenance outputs follow symlinks outside the corpus root | Corpus provenance output |
+| [CSF-048](./CSF-048.md) | Low | repair implemented | Unbounded LCS allocation enables skill\-review denial of service | Skills provenance patch rendering |
 
 ## Closeout Mapping
 
@@ -73,3 +74,7 @@ auth values, email addresses, and raw local paths.
 - Before P2 verdicts, obtain Validation, Evidence, and Attack-path analysis from each finding detail.
 - Record missing detail evidence explicitly and hold unsupported verdicts; the CSV contains Summary only.
 - Accepted risk / `Won't fix` does not satisfy this packet's completion gate.
+
+<!-- codex-findings-refresh:start -->
+Refresh capture: the original 47 records retain their prior triage and proof; CSF-048 was added from the later full CSV export and has a validated repair.
+<!-- codex-findings-refresh:end -->
