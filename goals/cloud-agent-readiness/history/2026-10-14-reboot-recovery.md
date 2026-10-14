@@ -1,7 +1,7 @@
 # Reboot recovery qualification — 2026-10-14
 
 Status: **boot/access and core services recovered after firmware correction;
-Muse proxy catalog recovery remains open**.
+Muse proxy recovered; guarded service restart passes; repeat machine boot remains open**.
 The operator selected reboot recovery after the proxy route receipt. The
 worker readiness checkout was at
 `6d6cec22b5164ef9830b5171e7c7ad580b098d96` before reboot.
@@ -89,3 +89,45 @@ Private post-boot evidence is saved under ~/.cache/beep/readiness/reboot/.
 Core service/access recovery passes for this observed boot after the firmware
 correction; automatic Muse proxy registration remains unqualified. No second
 OS-driven reboot after the BIOS correction has been performed.
+
+## Muse recovery and bounded startup guards after workstation reboot
+
+On resuming after DankStation reboot, fresh canonical YubiKey SSH reached the
+same worker boot id 3f6b96f1-c326-4f3d-87d4-bec52b1f3acd. The worker proxy was
+still active with 58 models and no Wonder route. No proxy TCP connections were
+established. Restarting only the user proxy restored 62 models, including all
+four Wonder variants, using the existing four auth records. Auth/configuration
+values were not printed or changed. A bounded Muse Wonder medium arithmetic
+inference returned HTTP 200, model muse-wonder-1.0, answer 4, zero tool calls,
+in 3.43 seconds. Private receipt: worker
+~/.cache/beep/readiness/reboot/muse-warm-restart.json.
+
+Source inspection at installed commit bf934162 establishes an immediate
+catalog fetch followed by a three-hour refresh interval; failed fetches retain
+the previous catalog. Together with boot DNS failures and the warm restart,
+this supports the startup network/catalog race diagnosis. Sources:
+https://github.com/router-for-me/CLIProxyAPI/blob/bf934162/internal/registry/catalog_sources.go
+and
+https://github.com/router-for-me/CLIProxyAPI/blob/bf934162/internal/registry/model_updater.go.
+
+Installed the tracked ops/cli-proxy-startup-check.py at
+~/.local/lib/beep/cli-proxy-startup-check.py and ops/cli-proxy-startup.conf at
+~/.config/systemd/user/cli-proxy-api.service.d/startup.conf. ExecStartPre checks
+both official catalog sources and requires Wonder in the Meta catalog.
+ExecStartPost checks authenticated local model discovery for GPT-6.1-Sol,
+Grok 4.7, Claude Fable 5.1 and Muse Wonder 1.0. Neither check runs inference or
+refreshes credentials. Each check retries for a 45-second window with bounded
+HTTP timeouts; systemd TimeoutStartSec=120 provides the outer bound. Existing
+Restart=on-failure and RestartSec=5 retry failed startup. An unavailable remote
+catalog deliberately holds the service unavailable rather than accepting an
+incomplete startup as ready. Existing config, credentials and binary unchanged.
+
+Validation: Python compilation, simulated offline source and finite failure
+path checks pass. Live network and registered checks pass. After daemon-reload
+and a guarded restart, both ExecStartPre and ExecStartPost exit zero; service
+ActiveState=active, SubState=running, Result=success. The checks are startup
+checks, not ongoing provider health monitors. Rollback removes the startup.conf
+drop-in, daemon-reloads and restarts the service; the unused helper may then be
+removed. No full worker reboot was performed in this continuation. Repeat boot
+acceptance remains open to qualify the corrected firmware priority and guarded
+service startup together. The worker's eight pre-existing edits remain intact.
