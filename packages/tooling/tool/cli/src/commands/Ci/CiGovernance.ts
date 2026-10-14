@@ -397,17 +397,21 @@ const expectedContexts = () =>
 /**
  * Validate the exact required workflow and external App check-name set.
  *
+ * **Details**
+ *
  * GitHub's live ruleset retains the App integration binding; this validator
  * checks names without changing that binding or accepting arbitrary extras.
  *
- * @param contexts - Required check names decoded from the live ruleset.
- * @returns A program that fails when a required name is missing or unexpected.
- * @example
+ * **Example** (Detect Missing Required Checks)
+ *
  * ```ts
  * import { validateRequiredContexts } from "@beep/repo-cli/commands/Ci"
  * import * as Effect from "effect/Effect"
  * const missing = Effect.isFailure(validateRequiredContexts([]))
  * ```
+ *
+ * @param contexts - Required check names decoded from the live ruleset.
+ * @returns A program that fails when a required name is missing or unexpected.
  * @category validation
  * @since 0.0.0
  */

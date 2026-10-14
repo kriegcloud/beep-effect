@@ -38,3 +38,17 @@ The YubiKey SSH notification/sound wrapper fix is tracked separately in
 2026-10-14-yubikey-prompt-ergonomics.md. Privilege and authentication remain on
 the canonical hardware-key routes. PR 1750 remains a draft; pending hosted
 checks, deployment quota failures and actual review must be assessed separately.
+
+## Proof at 2ffbe50223 and documentation correction
+
+Worker job 90362dfc-91db-496a-8aef-ab70abc2385d settled red normally. Its only
+failed lane is quality:jsdoc-ratchet:committed: the new validator example used a
+legacy @example carrier. All other cheap lanes passed, including fresh import,
+schema-first, Fallow audit, dead-code and health checks. Observed memory peak
+7,350,169,600 bytes stayed below the existing worker soft limit. This is a
+failed overall proof and must not be recorded as green.
+
+Corrected the example to the titled section required by main's binding
+.patterns/jsdoc-documentation.md law, with a Details section for the App-binding
+explanation. The local JSDoc ratchet then reports zero legacy findings and no
+increased totals. Source behavior and test expectations are unchanged.
