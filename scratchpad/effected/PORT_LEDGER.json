@@ -376,6 +376,12 @@
           "round": 1,
           "finding": "follow-up to sol-1-1: reconcile takes the identity from fs.stat(path) and, when it probes, the BOM width from a separate open",
           "reason": "found by reading while fixing sol-1-1, not probed; a mismatched pair is caught as replaced at the next reconciliation"
+        },
+        {
+          "seat": "sol",
+          "round": 2,
+          "finding": "sol-2-2 — Runtime-boundary documentation describes removed allowlist exceptions (scratchpad/effected/jsonl/README.md:145)",
+          "reason": "docs: During the documentation wave, replace those obsolete sentences with the current owned registry, service subclass, and structural patch approach. Do not hand-edit Port notes or the central ledger."
         }
       ],
       "reviewRounds": [
@@ -394,6 +400,24 @@
             "fable": {
               "required": 5,
               "backlog": 4
+            }
+          }
+        },
+        {
+          "round": 2,
+          "commit": "a67fdb1f52f7bd981bd8345a5f3ba4ef3bd6cd56",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 1,
+              "backlog": 1
+            },
+            "fable": {
+              "required": 2,
+              "backlog": 1
             }
           }
         }

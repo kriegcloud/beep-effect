@@ -10,13 +10,14 @@ import * as Effect from "effect/Effect";
 import * as A from "effect/Array";
 import { constant, dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
-import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as SchemaAST from "effect/SchemaAST";
+import type * as SchemaIssue from "effect/SchemaIssue";
 import * as Tuple from "effect/Tuple";
 import { InvalidData, type MalformedLine, UnknownEvent, UnserializableData } from "./JsonlError.ts";
 import type { DataSchema, JsonlEvent } from "./JsonlEvent.ts";
+import { isRecordLike } from "./internal/merge.ts";
 import { Line } from "./Line.ts";
 import { LineSlice } from "./LineSlice.ts";
 
@@ -248,18 +249,53 @@ const lastValidResult: {
   }
 );
 
-// A Schema.Class declaration's first type parameter is its structural field
-// codec. The registered codec has no services, so neither do those fields.
-// Encode a plain decoded patch through that codec; the envelope decoder then
-// creates the class instance once, before any bytes are written.
-const patchCodec = (data: DataSchema): DataSchema => {
-  const ast = data.ast;
-  if (!P.isFunction(data) || !SchemaAST.isDeclaration(ast)) return data;
-  return A.head(ast.typeParameters).pipe(
-    O.map((fields) => S.make<DataSchema>(fields)),
-    O.getOrElse(constant(data))
-  );
+// A patch merge is a transient record. Relax only the declaration's instance
+// gate on the encoding path; retain every field codec, check and transformation.
+// This also reaches class members of unions and declarations behind decodeTo.
+// The original registered codec validates the result before persistence.
+const patchAst = (ast: SchemaAST.AST): SchemaAST.AST => {
+  const encoding = ast.encoding === undefined
+    ? undefined
+    : A.map(ast.encoding, (link) => new SchemaAST.Link(patchAst(link.to), link.transformation));
+  if (SchemaAST.isUnion(ast)) {
+    return new SchemaAST.Union(
+      A.map(ast.types, patchAst),
+      ast.options,
+      ast.annotations,
+      ast.checks,
+      encoding,
+      ast.context,
+      ast.encodingChecks
+    );
+  }
+  if (
+    SchemaAST.isDeclaration(ast) &&
+    ast.encoding !== undefined &&
+    A.some(ast.encoding, (link) => SchemaAST.isObjects(link.to))
+  ) {
+    return new SchemaAST.Declaration(
+      ast.typeParameters,
+      ast.run,
+      ast.annotations,
+      ast.checks,
+      encoding,
+      ast.context,
+      ast.encodingChecks,
+      () =>
+        Effect.fnUntraced(function* (
+          value: unknown,
+          self: SchemaAST.Declaration,
+          options: SchemaAST.ParseOptions
+        ): Effect.fn.Return<unknown, SchemaIssue.Issue> {
+          if (isRecordLike(value)) return value;
+          return yield* (ast.encodingRun ?? ast.run)(ast.typeParameters)(value, self, options);
+        })
+    );
+  }
+  return ast;
 };
+
+const patchCodec = (data: DataSchema): DataSchema => S.make<DataSchema>(patchAst(data.ast));
 
 const encodeResultWith = <R extends JsonlEvent.Registry>(
   envelope: Encoding<NoInfer<R>>,
