@@ -127,6 +127,7 @@ export const GoalDoctorFindingKind = LiteralKit([
   "packet-fleet-unreachable",
   "packet-fleet-unmigrated-reference",
   "capability-duplicate-declaration",
+  "capability-duplicate-packet-id",
   "capability-reference-provides",
   "capability-stranded",
 ]).pipe(
@@ -849,6 +850,57 @@ export const capabilityDoctorFindings = (projection: CapabilityProjection): Read
   return A.appendAll(duplicates, perCapability);
 };
 
+/**
+ * Capability findings over every decodable packet manifest, collisions included.
+ *
+ * **Details**
+ *
+ * The capability projection requires unique packet ids, so manifests that share
+ * an `initiative.id` are left out of it and each one gets a blocking
+ * `capability-duplicate-packet-id` finding instead. The remaining manifests
+ * compile into the projection that {@link capabilityDoctorFindings} reads, so a
+ * collision never aborts the doctor.
+ *
+ * **Example** (No packets yield no capability findings)
+ *
+ * ```ts
+ * import { capabilityPacketFindings } from "@beep/repo-cli/commands/Goals/Doctor"
+ *
+ * console.log(capabilityPacketFindings([])) // []
+ * ```
+ *
+ * @param packets - Packet slugs with their decoded manifest, when it decoded.
+ * @returns Packet-id collision findings followed by the projection's capability findings.
+ * @category validation
+ * @since 0.0.0
+ */
+export const capabilityPacketFindings = (
+  packets: ReadonlyArray<{ readonly slug: string; readonly manifest: O.Option<GoalManifest> }>
+): ReadonlyArray<GoalDoctorFinding> => {
+  const decoded = A.getSomes(
+    A.map(packets, (packet) => O.map(packet.manifest, (manifest) => ({ slug: packet.slug, manifest })))
+  );
+  const groups = R.values(A.groupBy(decoded, (entry) => entry.manifest.initiative.id));
+  const unique = A.flatMap(groups, (group) => (A.length(group) === 1 ? [group[0].manifest] : []));
+  const collisions = A.flatMap(groups, (group) =>
+    A.length(group) === 1
+      ? A.empty<GoalDoctorFinding>()
+      : A.map(group, (entry) =>
+          finding(
+            entry.slug,
+            "capability-duplicate-packet-id",
+            "blocking",
+            `initiative.id ${entry.manifest.initiative.id} is shared by ${A.join(
+              A.map(group, (other) => other.slug),
+              ", "
+            )}; the capability graph leaves these packets out until each id is unique.`,
+            entry.manifest.initiative.id
+          )
+        )
+  );
+  return A.appendAll(collisions, capabilityDoctorFindings(compileCapabilityProjection(unique)));
+};
+
 const findingLine = (item: GoalDoctorFinding): string => `- ${item.slug} [${item.kind}] ${item.message}`;
 
 /**
@@ -972,8 +1024,8 @@ export const runGoalsDoctor = Effect.fn("Goals.runGoalsDoctor")(function* (optio
   }
 
   const advisoriesFromGit = yield* gitAdvisories(packets);
-  const capabilityFindings = capabilityDoctorFindings(
-    compileCapabilityProjection(A.getSomes(A.map(packets, (packet) => packet.manifest)))
+  const capabilityFindings = capabilityPacketFindings(
+    A.map(packets, (packet) => ({ slug: packet.record.slug, manifest: packet.manifest }))
   );
   const allFindings = [
     ...A.flatMap(packets, (packet) => packet.findings),

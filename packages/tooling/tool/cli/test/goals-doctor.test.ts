@@ -2,9 +2,11 @@ import { lintCommand } from "@beep/repo-cli";
 import {
   CapabilityProjection,
   capabilityDoctorFindings,
+  capabilityPacketFindings,
   classifyGoalDoctorFindings,
   DuplicateCapabilityDeclaration,
   GoalDoctorFinding,
+  GoalManifest,
   GraphCapabilityEdge,
   GraphPacketRow,
   goalsCommand,
@@ -24,6 +26,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import { ChildProcess } from "effect/process";
 import * as Result from "effect/Result";
 import * as Runtime from "effect/Runtime";
@@ -324,5 +327,37 @@ describe("capabilityDoctorFindings", () => {
     });
 
     expect(capabilityDoctorFindings(projection)).toEqual([]);
+  });
+
+  it("reports packets sharing an initiative id instead of crashing the projection", () => {
+    const manifest = (id: string, provides: ReadonlyArray<GraphCapabilityEdge["capability"]>) =>
+      GoalManifest.make({
+        initiative: { id, status: "active", title: `Title ${id}` },
+        completionGate: COMPLETION_GATE,
+        executionCapable: true,
+        provides: [...provides],
+        requires: [],
+      });
+
+    const findings = capabilityPacketFindings([
+      { slug: "copy-a", manifest: O.some(manifest("shared", ["box/driver"])) },
+      { slug: "copy-b", manifest: O.some(manifest("shared", [])) },
+      {
+        slug: "docs",
+        manifest: O.some(
+          GoalManifest.make({
+            ...manifest("docs", ["kg/lookup"]),
+            initiative: { id: "docs", status: "reference", title: "Docs" },
+          })
+        ),
+      },
+      { slug: "broken", manifest: O.none() },
+    ]);
+
+    expect(keysOf(findings)).toEqual([
+      "blocking copy-a capability-duplicate-packet-id shared",
+      "blocking copy-b capability-duplicate-packet-id shared",
+      "blocking docs capability-reference-provides kg/lookup",
+    ]);
   });
 });
