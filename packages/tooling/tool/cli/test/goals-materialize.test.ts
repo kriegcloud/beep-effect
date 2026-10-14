@@ -4,6 +4,7 @@ import {
   compileAdoptionPlan,
   compileMaterializationPlan,
   goalsCommand,
+  listGoalPackets,
   MaterializationPlan,
   PacketEventStoreLive,
   PlanEntry,
@@ -114,6 +115,64 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
           expect(String(exit)).toContain("already exists");
           expect(yield* fs.readDirectory("goals/fresh-goal")).toEqual(["NOTES.md"]);
           expect(yield* listGoals).toEqual(["fresh-goal"]);
+        })
+      )
+    );
+
+    it.effect("recovers from a crashed attempt: stale stages are swept and an empty claim is reclaimed", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const plan = yield* compileMaterializationPlan(input, []);
+          const ownStage = `goals/.staging-${Str.slice(-16)(plan.planId)}`;
+          // A crash after staging (own digest), a foreign attempt's stage, and a crash
+          // between claim and rename (empty slug directory).
+          yield* writeProjectFile(`${ownStage}/README.md`, "half-written\n");
+          yield* writeProjectFile("goals/.staging-0000000000000000/GOAL.md", "foreign\n");
+          yield* fs.makeDirectory("goals/fresh-goal", { recursive: true });
+
+          // E11: the inventory does not count the abandoned claim as a packet.
+          expect(A.map(yield* listGoalPackets(), (record) => record.slug)).toEqual([]);
+
+          const receipt = yield* publishBootstrapPlan(plan);
+          expect(receipt.slug).toBe("fresh-goal");
+          expect(yield* listGoals).toEqual(["fresh-goal"]);
+          expect(A.map(yield* listGoalPackets(), (record) => record.slug)).toEqual(["fresh-goal"]);
+        })
+      )
+    );
+
+    it.effect("keeps a packet whose directory cannot be listed in the permissive inventory", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* writeProjectFile("goals/locked-goal/README.md", "# Locked\n");
+          yield* fs.makeDirectory("goals/abandoned", { recursive: true });
+          // An unlistable directory is not an abandoned claim.
+          yield* fs.chmod("goals/locked-goal", 0o111);
+          const slugs = A.map(yield* listGoalPackets(), (record) => record.slug);
+          yield* fs.chmod("goals/locked-goal", 0o755);
+          expect(slugs).toEqual(["locked-goal"]);
+        })
+      )
+    );
+
+    it.effect("names every stale stage it could not remove instead of failing later", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const plan = yield* compileMaterializationPlan(input, []);
+          yield* writeProjectFile("goals/.staging-0000000000000000/GOAL.md", "foreign\n");
+          // A read-only goals/ makes the stale stage unremovable.
+          yield* fs.chmod("goals", 0o555);
+          const exit = yield* Effect.exit(publishBootstrapPlan(plan));
+          yield* fs.chmod("goals", 0o755);
+          exit.pipe(Exit.isFailure, assertTrue);
+          expect(String(exit)).toContain("could not remove stale staging directory goals/.staging-0000000000000000");
+          expect(yield* listGoals).toEqual([".staging-0000000000000000"]);
         })
       )
     );

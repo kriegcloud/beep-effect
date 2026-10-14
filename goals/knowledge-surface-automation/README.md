@@ -53,7 +53,9 @@ P4 in progress. Shipped on main so far:
 - **Designs:** B, E, and C Stage 2
   ([`research/p4-skills-warehouse-design.md`](./research/p4-skills-warehouse-design.md),
   [`research/p4-goals-materialize-design.md`](./research/p4-goals-materialize-design.md),
-  [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)).
+  [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)),
+  plus E-3 graduation
+  ([`research/p4-explore-graduate-design.md`](./research/p4-explore-graduate-design.md)).
 
 The D and B verdicts are recorded. The D verdict unlocked this PR (design PR 3):
 `beep goals doctor` now emits `capability-duplicate-declaration` and
