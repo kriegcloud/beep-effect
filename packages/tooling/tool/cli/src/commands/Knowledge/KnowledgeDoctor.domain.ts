@@ -21,6 +21,7 @@ import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { ts } from "ts-morph";
 import { optionalProp } from "../../internal/cli/OptionRecord.ts";
 import { capabilityPacketFindings, GoalExplorationPathState, goalPacketFindings } from "../Goals/Doctor.ts";
 import { decodeGoalManifest } from "../Goals/Goals.schemas.ts";
@@ -631,9 +632,52 @@ const resolveStar = (paths: HashSet.HashSet<string>, file: string, specifier: st
 
 // A line-leading `export` inside a `/* … */` block is commentary, not a declaration. Blanking
 // the comment (newlines kept) leaves every real line where it was.
-const BLOCK_COMMENT_PATTERN = /\/\*[\s\S]*?\*\//gu;
+// Block comments are found with TypeScript's own scanner, so a `/*` inside a string,
+// a template, a `//` comment, or a regex literal is never mistaken for an opener (#1702).
+const REGEX_ALLOWED_AFTER = HashSet.make(
+  ts.SyntaxKind.Unknown,
+  ts.SyntaxKind.OpenParenToken,
+  ts.SyntaxKind.CommaToken,
+  ts.SyntaxKind.EqualsToken,
+  ts.SyntaxKind.ColonToken,
+  ts.SyntaxKind.OpenBracketToken,
+  ts.SyntaxKind.ExclamationToken,
+  ts.SyntaxKind.AmpersandAmpersandToken,
+  ts.SyntaxKind.BarBarToken,
+  ts.SyntaxKind.QuestionToken,
+  ts.SyntaxKind.OpenBraceToken,
+  ts.SyntaxKind.CloseBraceToken,
+  ts.SyntaxKind.SemicolonToken,
+  ts.SyntaxKind.ReturnKeyword
+);
+const isSlash = (kind: ts.SyntaxKind): boolean =>
+  kind === ts.SyntaxKind.SlashToken || kind === ts.SyntaxKind.SlashEqualsToken;
+const isTrivia = (kind: ts.SyntaxKind): boolean =>
+  kind >= ts.SyntaxKind.FirstTriviaToken && kind <= ts.SyntaxKind.LastTriviaToken;
+
+const blockCommentRanges = (text: string): ReadonlyArray<readonly [number, number]> => {
+  const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, text);
+  const ranges: Array<readonly [number, number]> = [];
+  let previous: ts.SyntaxKind = ts.SyntaxKind.Unknown;
+  for (let kind = scanner.scan(); kind !== ts.SyntaxKind.EndOfFileToken; kind = scanner.scan()) {
+    const token: ts.SyntaxKind =
+      isSlash(kind) && HashSet.has(REGEX_ALLOWED_AFTER, previous) ? scanner.reScanSlashToken() : kind;
+    if (token === ts.SyntaxKind.MultiLineCommentTrivia) {
+      ranges.push([scanner.getTokenStart(), scanner.getTokenEnd()]);
+    }
+    previous = isTrivia(token) ? previous : token;
+  }
+  return ranges;
+};
+
 const blankCommentText = Str.replace(/[^\n]/gu, " ");
-const blankBlockComments = (text: string): string => text.replace(BLOCK_COMMENT_PATTERN, blankCommentText);
+const blankBlockComments = (text: string): string =>
+  A.reduce(
+    blockCommentRanges(text),
+    text,
+    (current, [start, end]) =>
+      `${Str.slice(0, start)(current)}${blankCommentText(Str.slice(start, end)(current))}${Str.slice(end)(current)}`
+  );
 
 /**
  * Scans one source file's export declarations without the compiler.
@@ -752,11 +796,17 @@ const v2Facts = (lock: SkillsLockDocument, lockText: string): ReadonlyArray<Know
         })
   );
 
+const DECLARES_LOCK_V1 = /"version"\s*:\s*1\b/u;
+
 const decodeLockFacts = (lockText: string) =>
   decodeLockV2(lockText).pipe(
     Effect.map((lock) => ({ version: 2 as const, entries: v2Facts(lock, lockText) })),
-    Effect.catch(() =>
-      Effect.map(decodeLockV1(lockText), (lock) => ({ version: 1 as const, entries: v1Facts(lock, lockText) }))
+    // A lock that does not declare version 1 is a broken v2 lock: report the v2 error,
+    // not the v1 fallback's (#1702).
+    Effect.catch((v2Error) =>
+      Effect.map(decodeLockV1(lockText), (lock) => ({ version: 1 as const, entries: v1Facts(lock, lockText) })).pipe(
+        Effect.mapError((v1Error) => (DECLARES_LOCK_V1.test(lockText) ? v1Error : v2Error))
+      )
     ),
     KnowledgeOperationalError.mapError(
       `${KNOWLEDGE_SKILLS_LOCK_PATH} decodes as neither skills-lock v2 nor the v1 lock file.`

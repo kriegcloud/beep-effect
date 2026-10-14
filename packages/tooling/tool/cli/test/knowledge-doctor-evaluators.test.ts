@@ -230,6 +230,40 @@ describe("knowledge doctor domain evaluators", () => {
           HashSet.empty<string>()
         );
         assert.deepStrictEqual(exports.names, ["Real"]);
+        // A `/*` inside a string, a line comment, or a regex literal opens no comment (#1702).
+        const decoys = scanKnowledgeFileExports(
+          "packages/a/src/index.ts",
+          [
+            'const glob = "src/*";',
+            "export const AfterString = 1;",
+            "// see src/*.ts",
+            "export const AfterLineComment = 2;",
+            "const pattern = /a\\/*b/;",
+            "export const AfterRegex = 3;",
+            "/* real",
+            "export const Hidden = 4;",
+            "*/",
+          ].join("\n"),
+          HashSet.empty<string>()
+        );
+        assert.deepStrictEqual(decoys.names, ["AfterString", "AfterLineComment", "AfterRegex"]);
+      })
+    );
+
+    it.effect(
+      "reports the v2 decode error for a broken v2 lock instead of the v1 fallback's",
+      Effect.fnUntraced(function* () {
+        // The lock is v2 since #1679; a broken v2 lock must not surface a v1 complaint (#1702).
+        const tree = makeKnowledgeDoctorMemoryTree({
+          files: {
+            "skills-lock.json": `{ "version": 2, "skills": { "alpha": { "_tag": "vendored", "sourceType": "github" } } }`,
+            ".claude/skills/alpha/SKILL.md": "# alpha",
+          },
+        });
+        const error = yield* Effect.flip(scanKnowledgeDoctorTree(tree));
+        const detail = String(error.cause);
+        // v2 fails on the vendored entry's missing `upstream`; the v1 fallback would fail on `source`.
+        assert.include(detail, '["upstream"]');
       })
     );
 
