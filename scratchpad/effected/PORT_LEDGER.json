@@ -8398,6 +8398,12 @@
           "round": 2,
           "finding": "codemod-1 — Record added runtime schema exports centrally (scratchpad/effected/walker/README.md:95)",
           "reason": "docs: outside the port's write surface; added-export and Port-notes bookkeeping remains central."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "backlog-1 — Add round-trip properties for the two new schema exports (scratchpad/effected/walker/Descend.ts:51)",
+          "reason": "test: During S3 add it.effect.prop round-trip properties for DepthCap and OnUnreadableArray using Arbitrary.schema, fcRuns and Schema codecs; retain enclosing-schema properties and depth acceptance tables."
         }
       ],
       "reviewRounds": [
@@ -8434,6 +8440,24 @@
             "fable": {
               "required": 4,
               "backlog": 12
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 1,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 3,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 3,
+              "backlog": 0
             }
           }
         }
