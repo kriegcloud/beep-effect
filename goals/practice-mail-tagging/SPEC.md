@@ -203,6 +203,8 @@ with `mode: dry-run | apply`, `AttachmentFiler.file`, `MailTaggingUndo.run`.
 | D-46 | 2026-10-06 | Contact evidence comes from the practice KG's correspondent lookup (store format 4), replacing the draft contact overlay: an address the KG resolves `unique` to one matter, from the attorney's own records, is contact evidence for that matter; a `candidate` is a suggestion only and never tags or files; role mailboxes and the practice's own addresses never count. Weights unchanged. It stays switched off in the live job until the attorney's spot-check of the current tags. Orchestrator ruling; implemented in #1525. Practice KG contract check (2026-10-06): no bundle change needed; `kg` needs store format 4, so the flag flip ships with the bundle path moved to `-04` (`practice-kg-bundle-2026-10-07-01`) and `-03` is released once the job runs on `-04`; across `-05` the `unique` set changes only if the Box contacts export changes, since the PST header index feeds `matter_correspondents`, not the `unique` rule. | One owner for the correspondent rule (the KG contract) instead of a second, hand-curated list. |
 
 | D-47 | 2026-10-13 | For #1537, merge each contact owner's `roleAddress` and `isPracticeAddress` flags with OR across all rows that normalize to one address. Treat a flagged practice domain and every dot-delimited subdomain as practice addresses, matching the KG builder. | Keeping the first spelling can lose an exclusion flag; exact-domain matching can admit a practice subdomain as client evidence. Synthetic DuckDB fixtures retain an unflagged first spelling and an unflagged nested-subdomain sibling, with both excluded from the unique set. Reverse by reverting this repair; no stored data or service contract changes. |
+| D-48 | 2026-10-14 | The attorney spot-check (P2, D-46) is run as the S15 agent pipeline: every tag decision is re-read blind by a second model and compared mechanically; only unresolved items would reach the attorney (none did). Corrections found by the comparison are applied with operator approval, journaled per message. | The 2026-10-09 ruling makes agent evaluation the default; asking the attorney to review 380 messages fails the S15 ergonomics bar. Result: [history](history/2026-10-14-agent-spot-check.md). To reverse: restore each message's categories from the private write journal. |
+| D-49 | 2026-10-14 | Contact evidence is `kg` on bundle `practice-kg-bundle-2026-10-07-04` (store format 4, carries the correspondent tables). The service runs as the user unit from the operator's pinned deploy checkout (`docs/runbooks/practice-services.md`). | D-46 gated `kg` on the spot-check, now recorded (D-48). To reverse: set `PRACTICE_MAIL_TAGGING_CONTACT_EVIDENCE=off` and restart the unit. |
 
 ## Acceptance Criteria
 
@@ -223,10 +225,10 @@ with `mode: dry-run | apply`, `AttachmentFiler.file`, `MailTaggingUndo.run`.
       directory, `@beep/m365` mailbox, folder map, known-documents index,
       Box call metering, composed behind one service layer.
 - [x] A `bin` subcommand (dry-run, apply, undo) with a sample user unit.
-- [ ] A live dry-run report (counts only) over mail since 2026-07-01 is
+- [x] A live dry-run report (counts only) over mail since 2026-07-01 is
       recorded in `history/`, followed by an operator-attended apply.
 - [x] `bun run beep quality package-verify` passes for each touched package.
-- [ ] No unrelated refactors or formatting churn.
+- [x] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
 
