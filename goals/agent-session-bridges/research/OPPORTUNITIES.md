@@ -423,3 +423,16 @@ where a literal sentinel can trigger a multi-line secret detector during merges.
 - Action: route the exact completed-job diagnostics to the shared owner for
   focused test coverage. Preserve all baseline floors and avoid duplicate repairs
   in dependent lanes.
+
+## 2026-10-14: a newly landed doctor adds a documentation blocker
+
+- Work: inspect the shared repair's completed policy job before integration.
+- Evidence: #1640 at `4c185d83ca` passes its other completed checks, while
+  policy lint rejects `KnowledgeDoctor.service.ts:1352` with
+  `jsdoc/informative-docs`. The tag description repeats its name. The source
+  belongs to the newly landed knowledge-doctor feature.
+- Prevention: run the same documentation lint on owning source exports before
+  landing a feature, alongside the inventory and example compilation checks.
+- Action: route the exact diagnostic to the existing owner for an informative
+  description. Preserve runtime code, coverage measurements and all baselines;
+  a rerun cannot repair the source text.
