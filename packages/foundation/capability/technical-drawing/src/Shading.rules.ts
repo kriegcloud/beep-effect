@@ -55,6 +55,11 @@ const COS_TOLERANCE = Math.cos(Math.PI / 180);
 // on the model.
 const MIN_SPREAD = 0.2;
 const BACK_FACING = 1e-9;
+// Below this share of the light along a face's step the face is lit edge-on
+// to its lines and the shadow side is read from the sheet instead (the lower
+// right): a wall the sheet light runs straight across in an isometric would
+// otherwise flip sides on rounding.
+const EDGE_ON_LIGHT = 0.2;
 // Graded gaps grow by this factor from the shadow edge toward the lit side.
 const GROWTH = 1.4;
 // Graded strokes: this many full-length lines at the shadow edge, then a taper.
@@ -408,6 +413,32 @@ export const pointToSegmentDistance = (input: {
 };
 
 /**
+ * Distance from a point to the nearest of a set of outline segments;
+ * infinity when there are none.
+ *
+ * **Example** (The nearest of two outlines)
+ *
+ * ```ts
+ * import { nearestOutlineDistance } from "@beep/technical-drawing/Shading.rules"
+ *
+ * console.log(nearestOutlineDistance({ x: 5, y: 3, outlines: [[0, 0, 10, 0], [0, 10, 10, 10]] })) // 3
+ * ```
+ *
+ * @category shading
+ * @since 0.0.0
+ */
+export const nearestOutlineDistance = (input: {
+  readonly x: number;
+  readonly y: number;
+  readonly outlines: ReadonlyArray<Segment2>;
+}): number =>
+  pipe(
+    input.outlines,
+    A.map((segment) => pointToSegmentDistance({ x: input.x, y: input.y, segment })),
+    A.reduce(Number.POSITIVE_INFINITY, (least, d) => Math.min(least, d))
+  );
+
+/**
  * Shading segments kept legible after hidden-line removal: every piece is
  * drawn back `inset` from both of its ends (so a stroke stops short of the
  * outline it would otherwise touch, whether that is the face's own edge or a
@@ -455,12 +486,7 @@ export const legibleShading = (input: {
   // an end that met an outline at a shallow angle sits almost on it after the
   // inset along the stroke: each end is drawn back further, half a clearance
   // at a time and at most two clearances, until it stands clear of every outline
-  const nearest = (x: number, y: number): number =>
-    pipe(
-      outlines,
-      A.map((segment) => pointToSegmentDistance({ x, y, segment })),
-      A.reduce(Number.POSITIVE_INFINITY, (least, d) => Math.min(least, d))
-    );
+  const nearest = (x: number, y: number): number => nearestOutlineDistance({ x, y, outlines });
   const cleared = (s: Segment2): Segment2 => {
     const length = segmentLength(s);
     if (clearance <= 0 || A.length(outlines) === 0 || length <= 0) {
@@ -675,8 +701,11 @@ export const anchorOf = (input: {
   const sheetLight = minus(view.light, times(view.eye, dot(view.light, view.eye)));
   const inPlaneLight = minus(sheetLight, times(normal, dot(sheetLight, normal)));
   const toLight = dot(across, inPlaneLight);
-  const sheetShadow = dot(across, minus(view.right, view.up));
-  const toShadow = Math.abs(toLight) > 1e-9 ? -sign(toLight) : sign(sheetShadow);
+  // lit edge-on to its lines, a face shades its sheet-right side, or its
+  // bottom when its step runs straight up the sheet
+  const sheetRight = dot(across, view.right);
+  const sheetShadow = Math.abs(sheetRight) > 1e-6 ? sheetRight : -dot(across, view.up);
+  const toShadow = Math.abs(toLight) > EDGE_ON_LIGHT ? -sign(toLight) : sign(sheetShadow);
   const shadow = times(across, toShadow);
   // the anchor is read from the face's major edges, so a tab or chamfer that
   // sticks out past the face's side cannot pull the band outside it

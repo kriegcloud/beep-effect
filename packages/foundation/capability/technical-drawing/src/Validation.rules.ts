@@ -21,7 +21,7 @@
 import { A, O, Str } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as Regex from "effect/RegExp";
-import { pointToSegmentDistance, sideBySideGap } from "./Shading.rules.ts";
+import { nearestOutlineDistance, sideBySideGap } from "./Shading.rules.ts";
 import { MARGINS_CM, pageSizePt } from "./Sheet.schemas.ts";
 import { SheetFinding, SheetLabel } from "./Validation.schemas.ts";
 import type { Segment2, ShadingCoverage } from "./Geometry.schemas.ts";
@@ -411,12 +411,7 @@ export const shadingOutlineClearanceFindings = (input: {
   readonly options: ValidationOptions;
 }): ReadonlyArray<SheetFinding> => {
   const floor = input.options.minShadingSpacingMm;
-  const nearest = (x: number, y: number): number =>
-    pipe(
-      input.outlineMm,
-      A.map((segment) => pointToSegmentDistance({ x, y, segment })),
-      A.reduce(Number.POSITIVE_INFINITY, (least, d) => Math.min(least, d))
-    );
+  const nearest = (x: number, y: number): number => nearestOutlineDistance({ x, y, outlines: input.outlineMm });
   const close = pipe(
     input.shadingMm,
     A.flatMap((s) => [nearest(s[0], s[1]), nearest(s[2], s[3])]),

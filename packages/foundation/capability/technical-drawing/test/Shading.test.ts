@@ -160,6 +160,19 @@ describe("Shading.rules", () => {
       ]
     );
     expect(anchorOf({ face: receding, view: front, direction: [0, 0, 1] }).point[0]).toBe(0);
+    // a wall the sheet light runs straight across (seen from below, at 60° to the sheet) anchors on
+    // its sheet-right end, here the end with the smaller y
+    const fromBelow = viewFactsOf(Camera.make({ eye: [-0.82, 0, -0.58], up: [0, 0, 1] }));
+    const acrossLit = quad(
+      [-0.5, 0.866, 0],
+      [
+        [-200, 0, 0],
+        [-100, 57.7, 0],
+        [-100, 57.7, 400],
+        [-200, 0, 400],
+      ]
+    );
+    expect(anchorOf({ face: acrossLit, view: fromBelow, direction: [0, 0, 1] }).point[1]).toBe(0);
     // a tab sticking out past the wall's right side does not move the anchor off the wall
     const tabbed = FaceFacts.make({
       ...wall,
