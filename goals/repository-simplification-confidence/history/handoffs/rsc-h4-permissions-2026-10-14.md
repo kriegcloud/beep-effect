@@ -136,3 +136,22 @@ baseline; no new floor is silently minted.
 No hosted review thread exists before publication. Reply/thread IDs will be
 recorded if publication produces actionable review. The orchestrator owns
 merge-gate and retirement; the lane never merges itself.
+
+## Publication preflight correction
+
+The first Yeet publication attempt pushed nothing: the Effect Vitest ratchet
+reported 15 introduced instances in the new test file. Commit
+`1105fd8556af2e71bbb83dd361e8d121a6711dd9` removes 13 redundant whole-body
+scopes, replaces incidental Node services with the existing in-memory
+filesystem and Path layer, and gives shared-layer acquisition an explicit
+30-second timeout. The reference harness already scopes each Effect test;
+fixture cleanup and all assertions remain intact. Independent pinned review
+of this cleanup has zero actionable findings. The P0 publication row is
+acknowledged with this fix commit. No detector inventory or exception changed.
+
+A full package verification and the full pre-final parity sequence are running
+again through admission against this cleanup. Results above remain the
+previous qualification until the new sequence returns. Per the MAIN MERGE
+FREEZE ruling, a `final` marker must also wait for #1758 to merge, a main
+integration and another parity pass. Desktop fixture and F-writer dependencies
+remain open independently.

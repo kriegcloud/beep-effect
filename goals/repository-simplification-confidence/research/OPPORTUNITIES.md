@@ -2039,3 +2039,12 @@ only the last pattern. The reporting helper also rejected JSONC trailing
 commas. Use one brace-glob for the touched files and the existing JSONC parser
 for the read-only baseline comparison. These were setup/reporting failures;
 no coverage floor was weakened and no production failure was attributed to them.
+
+### H4 — publication found test-harness canon drift (2026-10-14)
+
+The publish preflight rejected 15 newly introduced Effect Vitest findings:
+13 redundant whole-body scopes, an incidental Node-services import and a
+missing resource-layer timeout. The earlier package/parity commands did not
+include this full-scan ratchet. Use the existing in-memory filesystem, rely
+on the harness's per-test scope and set the layer hook budget. No inventory
+refresh or exception was used; rerun the canon ratchet before publication.
