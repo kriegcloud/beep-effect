@@ -354,7 +354,7 @@ export class SkillRelockReceipt extends S.Class<SkillRelockReceipt>($I`SkillRelo
  * import * as S from "effect/Schema"
  *
  * const comment = S.decodeUnknownSync(SkillTrainPullRequestComment)({
- *   author: { login: "github-actions[bot]" }, body: "hi", createdAt: "2026-10-14T00:00:00Z",
+ *   author: { login: "github-actions" }, body: "hi", createdAt: "2026-10-14T00:00:00Z",
  * })
  * console.log(comment.body) // "hi"
  * ```

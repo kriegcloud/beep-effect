@@ -109,3 +109,13 @@
 - Would have prevented it: a durable runner heartbeat and a small final lane
   summary uploaded independently of the large test stream, plus runner health
   telemetry for memory, CPU, and network loss.
+
+## 2026-10-14: main merge revived assertions for a removed export write
+
+- Doing: integrating the current `main` into security PR #1728 before review.
+- Evidence: the merged `PracticeMod.hooks.test.ts` still expected
+  `practice-verdicts.jsonl`, `fs.write`, and `host.writeText`; this branch's
+  CSF-050 repair returns JSONL for explicit saving. Three hook tests and hosted
+  `Test Unit (unit-b)` failed until the test asserted the copy-out contract.
+- Would have prevented it: run the affected package's focused tests after each
+  base merge, before pushing the merged head.

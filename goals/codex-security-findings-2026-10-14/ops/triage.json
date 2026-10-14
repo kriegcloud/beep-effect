@@ -1648,7 +1648,7 @@
           "bunx --bun vitest run test/skills-relock.test.ts",
           "bun run beep quality package-verify @beep/repo-cli"
         ],
-        "summary": "Accept replay markers only from github-actions[bot] comments bound to the PR current head SHA. The posting workflow tags its comment with that SHA and updates only its own sticky comment. Forged later and stale-head comments are ignored."
+        "summary": "The REST posting workflow tags its sticky comment with the PR head SHA and updates only github-actions[bot]. The issue renderer reads GraphQL comments and accepts markers only from github-actions on the current head. Forged later and stale-head comments are ignored."
       },
       "verdict": "confirmed-vulnerable",
       "ownerArea": "Skills update train replay attribution",
