@@ -268,14 +268,18 @@ if [ "${need_node}" = "1" ] && [ "${node_ok}" = "1" ]; then
   fi
 fi
 
+op_path=""
 if [ "${op_ok}" = "1" ] && [ -f "${run_dir}/op.verified" ]; then
   op_work="${run_dir}/op"
   if [ -w /usr/local/bin ]; then
     install -m 0755 "${op_work}/op" /usr/local/bin/op
+    op_path=/usr/local/bin/op
   elif command -v sudo >/dev/null 2>&1 && sudo -n true 2>/dev/null; then
     sudo -n install -m 0755 "${op_work}/op" /usr/local/bin/op
+    op_path=/usr/local/bin/op
   else
     install -m 0755 "${op_work}/op" "${BUN_INSTALL}/bin/op"
+    op_path="${BUN_INSTALL}/bin/op"
   fi
 fi
 
@@ -335,4 +339,8 @@ else
   printf '%s' "${prepare_hash}" > "${prepare_stamp}"
 fi
 
-log "ready: bun $(bun --version), node $(node --version 2>/dev/null || echo missing), portless $(portless --version 2>/dev/null || echo missing), op $(op --version 2>/dev/null || echo missing)"
+op_version=missing
+if [ -n "${op_path}" ]; then
+  op_version="$("${op_path}" --version 2>/dev/null || echo missing)"
+fi
+log "ready: bun $(bun --version), node $(node --version 2>/dev/null || echo missing), portless $(portless --version 2>/dev/null || echo missing), op ${op_version}"

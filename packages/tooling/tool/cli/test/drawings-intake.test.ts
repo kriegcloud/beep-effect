@@ -129,7 +129,13 @@ const ATTACHMENTS: Readonly<Record<string, ReadonlyArray<unknown>>> = {
   AAMkMsgNew: [
     file("fig1", "Fig1.pdf"),
     file("sheet2", "Sheet 2.pdf", false),
-    { id: "inline", "@odata.type": "#microsoft.graph.fileAttachment", name: "image001.png", isInline: true, size: 9 },
+    {
+      id: "inline",
+      "@odata.type": "#microsoft.graph.fileAttachment",
+      name: "image\u001b[2J\u001b[H.png",
+      isInline: true,
+      size: 9,
+    },
     { id: "item", "@odata.type": "#microsoft.graph.itemAttachment", name: "Forwarded", size: 99 },
     file("escape", "../evil/name.pdf"),
   ],
@@ -316,6 +322,7 @@ describe("DrawingIntake over a fake mailbox", () => {
         const fig1 = yield* fs.readFile(path.join(out, "Fig1.pdf"));
         assertSome(written.attachments[0]?.sha256 ?? O.none(), yield* sha256Of(fig1));
         assertNone(written.attachments[2]?.sha256 ?? O.some("unexpected"));
+        strictEqual(written.attachments[2]?.name, "image\u001b[2J\u001b[H.png");
       })
     );
 
@@ -574,6 +581,8 @@ describe("beep drawings intake", () => {
         assertInclude(output, "--pick chose among 2 message(s), newest first (2 draft or own message(s) set aside)");
         assertInclude(output, "Fig1.pdf  19 bytes  sha256 ");
         assertInclude(output, "skipped-inline");
+        assertInclude(output, "image�[2J�[H.png");
+        assertFalse(Str.includes("\u001b")(output));
         assertInclude(output, "record: ");
         assertFalse(Str.includes(SUBJECT)(output));
         assertFalse(Str.includes(SENDER)(output));

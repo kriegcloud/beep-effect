@@ -462,6 +462,40 @@ layer(TestLayer, { timeout: "60 seconds" })("schema-parity codemod run", (it) =>
     })
   );
 
+  it.effect("does not follow or remove a planted predictable staging symlink", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* fs.makeTempDirectoryScoped({ prefix: "schema-parity-stage-link-" });
+      const outside = yield* fs.makeTempDirectoryScoped({ prefix: "schema-parity-outside-" });
+      const sentinel = path.join(outside, "sentinel.ts");
+      const original = `${kitHeader}export const all = Status.Options;\n`;
+      yield* fs.makeDirectory(path.join(root, path.dirname(KIT_MODULE)), { recursive: true });
+      yield* fs.makeDirectory(path.join(root, path.dirname(FIXTURE_MODULE)), { recursive: true });
+      yield* fs.writeFileString(path.join(root, "tsconfig.json"), '{ "compilerOptions": { "strict": true } }\n');
+      yield* fs.writeFileString(path.join(root, KIT_MODULE), KIT_STUB);
+      yield* fs.writeFileString(path.join(root, FIXTURE_MODULE), original);
+      yield* fs.writeFileString(sentinel, "outside untouched\n");
+      const predictable = path.join(root, Str.replace(".ts", ".schema-parity-codemod-staged.ts")(FIXTURE_MODULE));
+      yield* fs.symlink(sentinel, predictable);
+
+      const report = yield* runSchemaParityCodemod(
+        SchemaParityCodemodOptions.make({
+          rules: ["literal-kit-facets"],
+          paths: ["packages/example"],
+          root,
+          write: true,
+          format: false,
+        })
+      );
+
+      assert.deepStrictEqual(report.filesChanged, [FIXTURE_MODULE]);
+      assert.strictEqual(yield* fs.readFileString(sentinel), "outside untouched\n");
+      assert.strictEqual(yield* fs.readLink(predictable), sentinel);
+      assert.include(yield* fs.readFileString(path.join(root, FIXTURE_MODULE)), "Status.literals");
+    })
+  );
+
   it.effect("leaves files untouched on a dry run", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;

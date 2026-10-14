@@ -127,7 +127,8 @@ type KnowledgePublicDetail = typeof KnowledgePublicDetail.Type;
  * it reads from the tree as one `delegated-goals-doctor-finding`, whose gate stays with `goals doctor`.
  * The gating form adds the governance kinds: `baseline-tamper` for a non-mint edit of the sealed
  * baseline or the promotions file, and `lease-expired`, `lease-owner-unresolved`,
- * `lease-lifetime-exceeded`, and `lease-quota-exceeded` for debt-lease violations. Members are only ever
+ * `lease-issued-in-future`, `lease-lifetime-exceeded`, and `lease-quota-exceeded` for debt-lease
+ * violations. Members are only ever
  * added, never repurposed. The remaining members are reserved for later evaluators.
  *
  * **Example** (Classify a Stage-1 finding kind)
@@ -136,7 +137,7 @@ type KnowledgePublicDetail = typeof KnowledgePublicDetail.Type;
  * import { KnowledgeFindingKind } from "@beep/repo-cli/commands/Knowledge/Knowledge.schemas"
  *
  * console.log(KnowledgeFindingKind.is["index-drift"]("index-drift")) // true
- * console.log(KnowledgeFindingKind.literals.length) // 27
+ * console.log(KnowledgeFindingKind.literals.length) // 28
  * ```
  *
  * @category models
@@ -168,6 +169,7 @@ export const KnowledgeFindingKind = LiteralKit([
   "baseline-tamper",
   "lease-expired",
   "lease-owner-unresolved",
+  "lease-issued-in-future",
   "lease-lifetime-exceeded",
   "lease-quota-exceeded",
 ]).pipe(
