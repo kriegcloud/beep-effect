@@ -118,8 +118,8 @@ const readCodex = (contents: ReadonlyArray<string>, expected: PermissionTuple) =
   A.forEach(contents, (content, segment) => {
     const raw = lines(content);
     const envelopes = A.map(raw, (line) => decodeEnvelope(line));
-    const policies = A.filterMap(A.getSomes(envelopes), (row) =>
-      row.type === "turn_context" ? decodeTuple(row.payload) : O.none()
+    const policies = A.getSomes(
+      A.map(A.getSomes(envelopes), (row) => (row.type === "turn_context" ? decodeTuple(row.payload) : O.none()))
     );
     const first = A.findFirst(A.getSomes(envelopes), (row) => row.type === "session_meta");
     const meta = O.flatMap(first, (row) => decodeMeta(row.payload));
