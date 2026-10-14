@@ -87,6 +87,8 @@
     "syncpack.config.ts",
     "eslint.config.mjs",
     "scripts/changeset-changelog.cjs",
+    // Human-operated, memory-only GitHub App registration, invoked directly with Bun.
+    "scripts/github-app/create-beep-knowledge-mint.ts",
     "packages/tooling/tool/cli/test/global-cleanup.ts",
     // Standalone article builder, invoked by path rather than imported.
     "explorations/beep-ci-operational-ontology/assets/agentic-yoyo/build.mjs",
@@ -323,6 +325,12 @@
   // recognize it, and deleting it breaks `next build` (proven 2026-06-11 in
   // goals/fallow-zero-dead-code).
   "ignoreExports": [
+    // Knowledge mint App bootstrap: its test drives the handler from a Bun child
+    // (`bun --eval` with a dynamic import), which static analysis cannot follow.
+    {
+      "file": "packages/tooling/tool/cli/scripts/CreateKnowledgeMintApp.ts",
+      "exports": ["makeKnowledgeMintHandler"]
+    },
     // @beep/canvas command bridge: documented request/schema values kept as
     // public bridge contracts for typed host integrations.
     {

@@ -14,6 +14,7 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { PrNumber } from "../Yeet/internal/Provenance.ts";
+import { sessionContinuityCommand } from "./Continuity.command.ts";
 import { sessionRegisterCommand } from "./Register.command.ts";
 import { reportSessionFailure, SessionLedgerError, sessionUsageError } from "./Session.errors.ts";
 import {
@@ -249,6 +250,7 @@ export const sessionCommand = Command.make("session", {}, () =>
         "Session commands:",
         '- bun run beep session note --state <open|blocked|done> --next "<one line>" [--summary "<one line>"] [--pr <n>] [--role orchestrator|member]',
         "- bun run beep session open [--json]",
+        "- bun run beep session continuity --input <manifest.json>",
         "- bun run beep session register add|list",
       ],
       "\n"
@@ -256,5 +258,5 @@ export const sessionCommand = Command.make("session", {}, () =>
   )
 ).pipe(
   Command.withDescription("Record and read where harness sessions stopped across every clone on this machine"),
-  Command.withSubcommands([sessionNoteCommand, sessionOpenCommand, sessionRegisterCommand])
+  Command.withSubcommands([sessionNoteCommand, sessionOpenCommand, sessionRegisterCommand, sessionContinuityCommand])
 );

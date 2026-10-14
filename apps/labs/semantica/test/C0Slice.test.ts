@@ -40,6 +40,8 @@ import { it } from "@beep/test-runner";
 import { fcRuns, provideScopedLayer } from "@beep/test-utils";
 import { assertNone, assertTrue } from "@effect/vitest/utils";
 import { GoldSource } from "@/services/GoldSource";
+import { CanaryOptions } from "../src/canary/Command.ts";
+import { LabConfigValue } from "../src/runtime/Config.ts";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
 
@@ -108,22 +110,24 @@ describe("C0 F1 live-to-replay slice", () => {
 
         const config = Layer.succeed(
           LabConfig,
-          LabConfig.of({
-            corpusRoot: O.none(),
-            embeddingDimension: PosInt.make(1536),
-            embeddingModel: "text-embedding-3-small",
-            embeddingRevision: "text-embedding-3-small@2024-01-25",
-            extractionTimeout: Duration.minutes(15),
-            extractorModel: "stub-extractor-20260826",
-            goldDirectory,
-            goldGenerationTimeout: Duration.minutes(45),
-            goldModel: "stub-gold-20260826",
-            ledgerRoot,
-            mode: "live",
-            offline: false,
-            projectionTimeout: Duration.seconds(30),
-            providerCacheDirectory: cacheDirectory,
-          })
+          LabConfig.of(
+            LabConfigValue.make({
+              corpusRoot: O.none(),
+              embeddingDimension: PosInt.make(1536),
+              embeddingModel: "text-embedding-3-small",
+              embeddingRevision: "text-embedding-3-small@2024-01-25",
+              extractionTimeout: Duration.minutes(15),
+              extractorModel: "stub-extractor-20260826",
+              goldDirectory,
+              goldGenerationTimeout: Duration.minutes(45),
+              goldModel: "stub-gold-20260826",
+              ledgerRoot,
+              mode: "live",
+              offline: false,
+              projectionTimeout: Duration.seconds(30),
+              providerCacheDirectory: cacheDirectory,
+            })
+          )
         );
         const manifestBuilder = CorpusManifestBuilderLive.pipe(Layer.provide(config), Layer.provide(BunServices.layer));
         const fixtureCatalog = F1CatalogLive.pipe(Layer.provide(BunServices.layer));
@@ -165,21 +169,25 @@ describe("C0 F1 live-to-replay slice", () => {
 
         yield* Effect.gen(function* () {
           const service = yield* CanaryC0;
-          const live = yield* service.run({
-            manifest: "fixtures/w1.manifest.json",
-            offline: false,
-            out: O.some(liveOut),
-            paper: O.none(),
-            selection: "f1",
-          });
+          const live = yield* service.run(
+            CanaryOptions.make({
+              manifest: "fixtures/w1.manifest.json",
+              offline: false,
+              out: O.some(liveOut),
+              paper: O.none(),
+              selection: "f1",
+            })
+          );
           const callsAfterLive = yield* Ref.get(providerCalls);
-          const replay = yield* service.run({
-            manifest: "fixtures/w1.manifest.json",
-            offline: true,
-            out: O.some(replayOut),
-            paper: O.none(),
-            selection: "f1",
-          });
+          const replay = yield* service.run(
+            CanaryOptions.make({
+              manifest: "fixtures/w1.manifest.json",
+              offline: true,
+              out: O.some(replayOut),
+              paper: O.none(),
+              selection: "f1",
+            })
+          );
           const callsAfterReplay = yield* Ref.get(providerCalls);
           const writtenLive = yield* fs
             .readFileString(path.join(liveOut, "eval-report.json"))
@@ -218,26 +226,30 @@ describe("C0 F1 live-to-replay slice", () => {
 
           yield* fs.remove(cacheDirectory, { force: true, recursive: true });
           const replayAfterCacheRemoval = yield* service
-            .run({
-              manifest: "fixtures/w1.manifest.json",
-              offline: true,
-              out: O.some(replayOut),
-              paper: O.none(),
-              selection: "f1",
-            })
+            .run(
+              CanaryOptions.make({
+                manifest: "fixtures/w1.manifest.json",
+                offline: true,
+                out: O.some(replayOut),
+                paper: O.none(),
+                selection: "f1",
+              })
+            )
             .pipe(Effect.flip);
           expect(replayAfterCacheRemoval).toBeInstanceOf(ReportInvalid);
 
           const goldPath = path.join(goldDirectory, "gold.json");
           yield* fs.remove(goldPath);
           const missingGold = yield* service
-            .run({
-              manifest: "fixtures/w1.manifest.json",
-              offline: true,
-              out: O.some(replayOut),
-              paper: O.none(),
-              selection: "f1",
-            })
+            .run(
+              CanaryOptions.make({
+                manifest: "fixtures/w1.manifest.json",
+                offline: true,
+                out: O.some(replayOut),
+                paper: O.none(),
+                selection: "f1",
+              })
+            )
             .pipe(Effect.flip);
           expect(missingGold).toBeInstanceOf(GoldUnavailable);
           expect(missingGold.message).toContain(goldPath);
