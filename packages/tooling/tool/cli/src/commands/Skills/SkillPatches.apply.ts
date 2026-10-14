@@ -427,6 +427,26 @@ const requireOldMode = (
   });
 };
 
+// The patched file takes the section's new mode, else its old mode, else a plain file's.
+const setSectionLines = (
+  tree: HashMap.HashMap<string, SkillUpstreamContentFile>,
+  section: FileSection,
+  existing: O.Option<SkillUpstreamContentFile>,
+  lines: ReadonlyArray<DiffLine>
+): HashMap.HashMap<string, SkillUpstreamContentFile> =>
+  HashMap.set(
+    tree,
+    section.path,
+    SkillUpstreamContentFile.make({
+      path: section.path,
+      mode: O.getOrElse(
+        O.orElse(section.newMode, () => O.map(existing, (file) => file.mode)),
+        (): SkillTreeMode => "100644"
+      ),
+      bytes: textEncoder.encode(joinDiffLines(lines)),
+    })
+  );
+
 const applySection = Effect.fn("SkillPatches.applySection")(function* (
   patch: string,
   tree: HashMap.HashMap<string, SkillUpstreamContentFile>,
@@ -462,15 +482,7 @@ const applySection = Effect.fn("SkillPatches.applySection")(function* (
           "incomplete-delete"
         )(`Delete patch for ${section.path} leaves ${A.length(after)} line(s).`);
   }
-  const mode = O.getOrElse(
-    O.orElse(section.newMode, () => O.map(existing, (file) => file.mode)),
-    (): SkillTreeMode => "100644"
-  );
-  return HashMap.set(
-    tree,
-    section.path,
-    SkillUpstreamContentFile.make({ path: section.path, mode, bytes: textEncoder.encode(joinDiffLines(after)) })
-  );
+  return setSectionLines(tree, section, existing, after);
 });
 
 /**
@@ -705,17 +717,9 @@ const classifySection = Effect.fn("SkillPatches.classifySection")(function* (
       tree: leftover ? tree : HashMap.remove(tree, section.path),
     };
   }
-  const mode = O.getOrElse(
-    O.orElse(section.newMode, () => O.map(existing, (file) => file.mode)),
-    (): SkillTreeMode => "100644"
-  );
   return {
     verdicts: A.appendAll(headerRow, verdicts),
-    tree: HashMap.set(
-      tree,
-      section.path,
-      SkillUpstreamContentFile.make({ path: section.path, mode, bytes: textEncoder.encode(joinDiffLines(lines)) })
-    ),
+    tree: setSectionLines(tree, section, existing, lines),
   };
 });
 
