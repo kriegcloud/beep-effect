@@ -35,7 +35,8 @@
         "changedFiles": [
           "packages/tooling/tool/cli/src/commands/AgentMessage/AgentMessage.runtime.ts",
           "packages/tooling/tool/cli/test/AgentMessage.runtime.test.ts",
-          "docs/runbooks/agent-messaging.md"
+          "docs/runbooks/agent-messaging.md",
+          "goals/agent-session-bridges/research/probes/managed-roundtrip.py"
         ],
         "verificationCommands": [
           "bunx vitest run test/AgentMessage.runtime.test.ts --pool=threads --maxWorkers=1",
