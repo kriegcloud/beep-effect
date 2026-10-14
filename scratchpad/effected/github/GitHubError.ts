@@ -1,6 +1,7 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as HashSet from "effect/HashSet";
 import { headerNumber, headerString, retryAfterMillisFrom } from "./internal/headers.ts";
@@ -371,7 +372,7 @@ export class GitHubError extends S.TaggedError<GitHubError>($I`GitHubError`)("Gi
 		return GitHubError.make({
     kind,
     operation,
-    reason: facts.reason,
+    reason: P.isObject(error) ? sanitizeReason(facts.reason) : facts.reason,
     ...O.getSomesStruct({ status: O.fromUndefinedOr(facts.status) }),
     ...O.getSomesStruct({ retryAfterMillis: O.fromUndefinedOr(retryAfterMillis) }),
     ...(facts.validation.length > 0 ? { validation: facts.validation } : {}),
@@ -448,6 +449,9 @@ interface Throwable {
 	readonly validation: ReadonlyArray<GitHubValidationEntry>;
 }
 
+const describeThrowable = (value: unknown): string =>
+	Result.getOrElse(Result.try(() => String(value)), () => "Unable to describe GitHub REST failure");
+
 /**
  * Read an unknown throwable structurally.
  *
@@ -460,25 +464,25 @@ interface Throwable {
  * stable and public.
  */
 const readThrowable = (error: unknown): Throwable => {
-	if (!isRecord(error)) {
-		return { status: undefined, headers: undefined, reason: String(error), validation: [] };
+	if (!P.isObject(error)) {
+		return { status: undefined, headers: undefined, reason: describeThrowable(error), validation: [] };
 	}
 	const record = error;
 	const response = asRecord(record.response);
 	const headers = asRecord(response?.headers);
 	const data = asRecord(response?.data);
 	return {
-		status: P.isNumber(record.status) ? record.status : undefined,
+		status: isStatus(record.status) ? record.status : undefined,
 		headers,
-		reason: sanitizeReason(P.isString(record.message) ? record.message : String(error)),
+		reason: P.isString(record.message) ? record.message : describeThrowable(error),
 		validation: readValidation(data),
 	};
 };
 
-const isRecord = (value: unknown): value is Record<string, unknown> => P.isObjectOrArray(value);
+const isStatus = S.is(S.Int);
 
 const asRecord = (value: unknown): Record<string, unknown> | undefined =>
-	isRecord(value) ? value : undefined;
+	P.isObject(value) ? value : undefined;
 
 /**
  * GitHub answers some requests with an HTML error page whose body becomes a

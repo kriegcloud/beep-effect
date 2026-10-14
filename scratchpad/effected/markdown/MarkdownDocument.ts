@@ -8,6 +8,7 @@
 
 import * as Match from "effect/Match";
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
@@ -18,7 +19,7 @@ import { MAX_NESTING_DEPTH } from "./internal/limits.ts";
 import { preprocessLines } from "./internal/preprocess.ts";
 import { normalizeLabelText } from "./internal/references.ts";
 import type { MarkdownParseError, MarkdownParseOptions } from "./Markdown.ts";
-import { parsePassResult } from "./Markdown.ts";
+import { MarkdownDialect, parsePassResult } from "./Markdown.ts";
 import { MarkdownDiagnostic } from "./MarkdownDiagnostic.ts";
 import { MarkdownRange } from "./MarkdownEdit.ts";
 import type {
@@ -557,6 +558,7 @@ const phrasingText = (nodes: ReadonlyArray<PhrasingContent>): string => {
  */
 export class MarkdownDocument extends S.Class<MarkdownDocument>($I`MarkdownDocument`)({
 	source: S.String.annotateKey({ description: "Original markdown text retained so tree positions and surgical edits refer to the exact parsed source" }),
+	dialect: MarkdownDialect.pipe(S.withDecodingDefault(Effect.succeed<MarkdownDialect>("gfm")), S.withConstructorDefault(Effect.succeed<MarkdownDialect>("gfm"))).annotateKey({ description: "Resolved grammar used for parsing and contextual modification checks; defaults to gfm" }),
 	root: Root.annotateKey({ description: "Parsed mdast-shaped document tree carrying source positions and fidelity details" }),
 	diagnostics: S.Array(MarkdownDiagnostic).annotateKey({ description: "Non-fatal conditions reported during parsing; currently empty for every accepted document" }),
 	definitions: S.HashMap(S.String, Definition).annotateKey({ description: "Link-reference definitions indexed by normalized, case-folded label, with the first definition winning and nodes retained in the tree" }),
@@ -718,9 +720,8 @@ export class MarkdownDocument extends S.Class<MarkdownDocument>($I`MarkdownDocum
 			undefined,
 		];
 		const boundaryByHeading = new Array<number | undefined>(headings.length);
-		for (let index = headings.length - 1; index >= 0; index -= 1) {
-			const current = headings[index]?.node;
-			if (current === undefined) continue;
+		for (const [entry, index] of A.reverse(A.map(headings, (entry, index) => [entry, index] as const))) {
+			const current = entry.node;
 			let boundary: number | undefined;
 			for (let depth = 1; depth <= current.depth; depth += 1) {
 				const candidate = nextByDepth[depth];
@@ -731,14 +732,12 @@ export class MarkdownDocument extends S.Class<MarkdownDocument>($I`MarkdownDocum
 			boundaryByHeading[index] = boundary;
 			nextByDepth[current.depth] = index;
 		}
-		for (let index = 0; index < headings.length; index += 1) {
-			const current = headings[index];
-			if (current === undefined) continue;
+		for (const [current, index] of A.map(headings, (entry, index) => [entry, index] as const)) {
 			const block = current.node;
 			const boundaryHeading = boundaryByHeading[index];
-			const boundaryNode = boundaryHeading === undefined ? undefined : headings[boundaryHeading]?.node;
+			const boundaryNode = boundaryHeading === undefined ? undefined : A.getUnsafe(headings, boundaryHeading).node;
 			const boundary = boundaryNode === undefined ? this.source.length : boundaryNode.position.start.offset;
-			const end = boundaryHeading === undefined ? blocks.length : (headings[boundaryHeading]?.index ?? blocks.length);
+			const end = boundaryHeading === undefined ? blocks.length : A.getUnsafe(headings, boundaryHeading).index;
 			const start = block.position.start.offset;
 			const bodyStart = block.position.end.offset;
 			sections.push(
@@ -1004,8 +1003,9 @@ export class MarkdownDocument extends S.Class<MarkdownDocument>($I`MarkdownDocum
 		return Result.map(parsePassResult(text, options), (pass) =>
 			MarkdownDocument.make({
 				source: text,
+				dialect: options?.dialect ?? "gfm",
 				root: pass.root,
-				diagnostics: pass.carriers.map((carrier) => MarkdownDiagnostic.fromRaw(text, carrier)),
+				diagnostics: [],
 				definitions: pass.refmap,
 				definitionOrder: pass.definitionOrder,
 			}),

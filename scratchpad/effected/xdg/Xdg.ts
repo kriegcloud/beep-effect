@@ -1,5 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as A from "effect/Array";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -59,7 +60,7 @@ const detectPlatform = (): XdgPlatform => {
 	const platform = globalThis.process?.platform;
 	// A platform Node does not report — or no `process` at all, as in a browser
 	// or a worker — behaves as Linux: XDG is the convention, no native override.
-	return S.is(XdgPlatform)(platform) ? platform : "linux";
+	return O.getOrElse(S.decodeOption(XdgPlatform)(platform), () => "linux");
 };
 
 /**
@@ -200,7 +201,7 @@ export class XdgPaths extends S.Class<XdgPaths>($I`XdgPaths`)({
 const splitDirs = (raw: string | undefined, fallback: ReadonlyArray<string>): ReadonlyArray<string> => {
 	if (raw === undefined) return fallback;
 	const parts = raw.split(":").filter((entry) => entry.length > 0);
-	return parts.length === 0 ? fallback : parts;
+	return A.match(parts, { onEmpty: () => fallback, onNonEmpty: () => parts });
 };
 
 /**

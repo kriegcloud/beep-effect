@@ -69,14 +69,16 @@ export class CyclicDependencyError extends S.TaggedError<CyclicDependencyError>(
 	}
 }
 
-interface Edges {
+const Edges = S.Struct({
 	/** Vertex order, independent of the hash map's iteration order. */
-	readonly order: ReadonlyArray<string>;
+	order: S.Array(S.String).annotateKey({ description: "Vertex order, independent of the hash map's iteration order." }),
 	/** name → the workspace packages it depends on. */
-	readonly forward: HashMap.HashMap<string, HashSet.HashSet<string>>;
+	forward: S.HashMap(S.String, S.HashSet(S.String)).annotateKey({ description: "Each workspace package's direct workspace dependencies." }),
 	/** name → the workspace packages that depend on it. */
-	readonly reverse: HashMap.HashMap<string, HashSet.HashSet<string>>;
-}
+	reverse: S.HashMap(S.String, S.HashSet(S.String)).annotateKey({ description: "Each workspace package's direct workspace dependents." }),
+}).annotate($I.annote("Edges", { description: "The graph's ordered vertices and immutable forward and reverse dependency indexes." }));
+
+type Edges = typeof Edges.Type;
 
 // Core's `Graph` is already adopted in this file — `stronglyConnectedComponents`
 // for the cycle payload, and `directed`/`addNode`/`addEdge`/`toMermaid` over the
@@ -302,16 +304,14 @@ export class DependencyGraph extends S.Class<DependencyGraph>($I`DependencyGraph
 			MutableHashSet.add(onStack, start);
 
 			while (stack.length > 0) {
-				const frame = stack[stack.length - 1];
-				if (frame === undefined) break;
+				const frame = O.getOrThrow(A.last(stack));
 				if (frame.cursor >= frame.deps.length) {
 					MutableHashSet.remove(onStack, frame.node);
 					stack.pop();
 					continue;
 				}
-				const next = frame.deps[frame.cursor];
+				const next = O.getOrThrow(A.get(frame.deps, frame.cursor));
 				frame.cursor += 1;
-				if (next === undefined) continue;
 				if (MutableHashSet.has(onStack, next)) return true;
 				if (MutableHashSet.has(visited, next)) continue;
 				MutableHashSet.add(visited, next);
@@ -423,9 +423,7 @@ export class DependencyGraph extends S.Class<DependencyGraph>($I`DependencyGraph
 			const { reverse } = this.#index();
 			const affected = MutableHashSet.empty<string>();
 			const queue = [...names];
-			for (let head = 0; head < queue.length; head += 1) {
-				const current = queue[head];
-				if (current === undefined) continue;
+			for (const current of queue) {
 				if (MutableHashSet.has(affected, current)) continue;
 				MutableHashSet.add(affected, current);
 				for (const dependent of O.getOrElse(HashMap.get(reverse, current), HashSet.empty<string>)) {
@@ -555,9 +553,7 @@ export class DependencyGraph extends S.Class<DependencyGraph>($I`DependencyGraph
 
 				const needed = MutableHashSet.empty<string>();
 				const queue = [...names];
-				for (let head = 0; head < queue.length; head += 1) {
-					const current = queue[head];
-					if (current === undefined) continue;
+				for (const current of queue) {
 					if (MutableHashSet.has(needed, current)) continue;
 					MutableHashSet.add(needed, current);
 					for (const dependency of O.getOrElse(HashMap.get(forward, current), HashSet.empty<string>)) {
@@ -645,11 +641,10 @@ const materialize = (
 		const indexOf = MutableHashMap.empty<string, Graph.NodeIndex>();
 		for (const name of names) MutableHashMap.set(indexOf, name, Graph.addNode(mutable, name));
 		for (const name of names) {
-			const source = O.getOrUndefined(MutableHashMap.get(indexOf, name));
-			if (source === undefined) continue;
+			const source = O.getOrThrow(MutableHashMap.get(indexOf, name));
 			for (const dependency of A.sort(A.fromIterable(O.getOrElse(HashMap.get(edges.forward, name), HashSet.empty<string>)), Str.Order)) {
-				const target = O.getOrUndefined(MutableHashMap.get(indexOf, dependency));
-				if (target !== undefined) Graph.addEdge(mutable, source, target, "");
+				const target = O.getOrThrow(MutableHashMap.get(indexOf, dependency));
+				Graph.addEdge(mutable, source, target, "");
 			}
 		}
 	});
@@ -668,8 +663,8 @@ const cycleMembers = (edges: Edges): ReadonlyArray<string> => {
 	for (const component of Graph.stronglyConnectedComponents(graph)) {
 		if (component.length < 2) continue;
 		for (const index of component) {
-			const name = names[index];
-			if (name !== undefined) MutableHashSet.add(members, name);
+			const name = O.getOrThrow(A.get(names, index));
+			MutableHashSet.add(members, name);
 		}
 	}
 	return A.sort(A.fromIterable(members), Str.Order);
@@ -702,8 +697,7 @@ const kahn = (
 		for (const done of current) {
 			MutableHashMap.remove(remaining, done);
 			for (const dependent of O.getOrElse(HashMap.get(edges.reverse, done), HashSet.empty<string>)) {
-				const count = O.getOrUndefined(MutableHashMap.get(remaining, dependent));
-				if (count === undefined) continue;
+				const count = O.getOrThrow(MutableHashMap.get(remaining, dependent));
 				const decremented = count - 1;
 				MutableHashMap.set(remaining, dependent, decremented);
 				if (decremented === 0) next.push(dependent);

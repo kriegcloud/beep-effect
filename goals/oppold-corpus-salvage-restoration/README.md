@@ -9,11 +9,12 @@ digests while retaining the originals.
 
 ## Next action
 
-P1 is complete. Run-9 corrects the first P2 wave to nine occurrences within
-both retained output ceilings and authorizes a bounded occurrence selector in
-PR6. The committed membership pins source identities and sizes. Run 10 owns
-the sequential wave after the selector is content-final; no P2 family has started.
-Retain both sealed P1 families and freeze records.
+The bounded P2 wave stopped at family 8 after its further sealed failure.
+Eight families sealed: five accepted, families 5, 7 and 8 failed. Ordinal 9
+remains unstarted. Retain all evidence and report the PDF second-pass parser
+diagnosis to the orchestrator; no retry or next launch is authorized.
+P2 remains in-progress, P3 pending. Separate recovery of families 5/7,
+family-8 recovery scope and eighteen larger occurrences remain open.
 
 ## Launcher
 
@@ -39,6 +40,65 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-14: Family 8 sealed failure, result 1 and one unapproved engine-failure.
+Retained output 1,037,230,305 bytes from 436,306,944 input bytes; family
+elapsed 2,996,198 ms, within retained ceilings. Partial dispositions: 109
+repaired occurrences / 95 distinct digests, 95 unsupported, zero unchanged.
+96 copies and 95 Tika outputs; the unmatched PDF copy reproduces Tika exit
+1, empty stdout and TikaException/IOException counts. No accepted store
+or child rows. Retained digests independently match; eight sealed, five
+accepted and three failed, ordinal 9 unstarted. No retry or next launch.
+See history/p2/2026-10-14-family-08-stop.md.
+
+2026-10-14: Family 7 sealed failure, result 1 and one unapproved engine-failure.
+Retained output 910,603,343 bytes from 354,026,496 input bytes (2.572133310x).
+Family elapsed 7,211,513 ms; no accepted store or terminal child rows.
+Partial dispositions: 288 repaired occurrences / 245 distinct digests,
+217 unsupported; 246 repair copies and 245 Tika files. One unmatched PDF
+copy near the attempt time cap supports elapsed-budget exhaustion; exact
+cause is unresolved because the generic catch discarded it. Five accepted,
+two failed, two unstarted; no next launch or retry.
+See history/p2/2026-10-14-family-07-stop.md.
+
+
+2026-10-14: First bounded wave stopped at family 5. Result 1, one unapproved
+engine-failure, zero store or terminal child passes, zero warnings and
+interruptions. Input 157,975,552 bytes; retained output 354,621,626 bytes,
+amplification 2.244788016x; family 1,491,085 ms, within retained ceilings.
+Partial dispositions: 108 repaired occurrences / 98 distinct digests,
+217 unsupported, zero unchanged. Retained copies/Tika outputs 99/98.
+The unmatched 3,020-byte GIF reproduces Tika exit 1, empty stdout and
+TikaException. All nine frozen identities match. Four accepted, one failed,
+four unstarted; P2 remains in-progress. No next launch or retry.
+See history/p2/2026-10-14-first-wave-stop.md.
+
+
+2026-10-14 — Fourth bounded P2 family accepted: one store, 836 accounted
+children (796 engine plus 20 repair-copy and 20 Tika children), zero warnings,
+exceptions or interruptions. Both derived digest sets match 20 distinct
+repaired digests; 23 repaired occurrences, 62 unsupported, zero unchanged.
+Input 119,120,896 bytes; output 337,512,124 bytes (2.833357835x); attempt
+4,789,718 ms, family 4,797,300 ms. All ceilings and frozen identities hold.
+Four of nine accepted; ordinal 5 is the sole active family after renewed
+admitted preflight, sixty seconds and the 100 GB floor. P2 remains incomplete.
+
+2026-10-13 — Second bounded P2 family accepted: one store, 4,310 accounted
+children (4,064 engine plus 123 repair-copy and 123 Tika children), zero
+warnings, exceptions or interruptions. Both derived digest sets equal the
+123 distinct repaired digests; 125 repaired occurrences, 218 unsupported,
+zero unchanged. Input 98,804,736 bytes; output 265,766,621 bytes
+(2.689816620x); attempt 2,588,015 ms, family 2,611,137 ms. All ceilings
+and frozen identities hold. Two of nine sealed; next ordinal awaits preflight.
+P2 remains in-progress and incomplete.
+
+2026-10-13 — First bounded P2 family accepted: one store, 3,785 accounted
+children (3,623 engine plus 81 repair-copy and 81 Tika children), zero warnings,
+exceptions or interruptions. Dispositions: 82 repaired occurrences / 81
+distinct digests, 233 unsupported, zero unchanged. Input 61,727,744 bytes;
+output 147,490,617 bytes (2.389373197x); attempt 769,470 ms, family 847,540 ms.
+All ceilings and frozen identities hold. Family 2 is active, seven unstarted;
+P2 remains in-progress. Both real smokes and four focused tests pass again.
 
 2026-10-10 — Fresh P1 slice sealed acceptance: one store pass, zero warnings,
 exceptions or interruptions, 3,339 accounted children (3,237 engine plus 51

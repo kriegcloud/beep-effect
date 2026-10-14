@@ -5,9 +5,9 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Stdio from "effect/Stdio";
+import * as Struct from "effect/Struct";
 import * as Terminal from "effect/Terminal";
 import { ColorLevel } from "./ColorLevel.ts";
 import { colorDepth, colorKeys } from "./internal/colorDepth.ts";
@@ -25,6 +25,9 @@ const $I = $ScratchpadId.create("effected/env/TerminalEnv");
  * ```ts
  * import { StreamEnv } from "@beep/scratchpad/effected/env/TerminalEnv";
  * import * as S from "effect/Schema";
+import * as P from "effect/Predicate";
+import * as SchemaGetter from "effect/SchemaGetter";
+import { identity } from "effect/Function";
  * import * as O from "effect/Option";
  * console.log(S.is(StreamEnv)({
  *   isTerminal: false, color: "none", hyperlinks: false, columns: O.none(),
@@ -60,9 +63,8 @@ export const StreamEnv = S.Struct({
   *
   * Core's `Terminal` exposes one width, so `stderr.columns` reports stdout's width.
   */
-	columns: S.Option(S.declare(P.isNumber, $I.annote("StreamColumns", {
-		description: "A stream column number, retaining the full JavaScript number domain accepted by stream snapshots.",
-	}))).pipe($I.annoteKey("StreamEnv.columns", { description: "The terminal width in columns, or None when it is unknown." })),
+	// @effect-diagnostics-next-line schemaNumber:off -- Upstream Option<number> accepts NaN and infinities; S.Finite would narrow its domain.
+	columns: S.Option(S.Number).pipe($I.annoteKey("StreamEnv.columns", { description: "The terminal width in columns, or None when it is unknown." })),
 }).annotate($I.annote("StreamEnv", { description: "What one output stream can do: terminal attachment, colour, hyperlinks and optional columns." }));
 
 /**
@@ -85,21 +87,41 @@ export interface TerminalEnvOptions {
 	readonly stderrIsTerminal?: Effect.Effect<boolean>;
 }
 
+const PartialStreamEnv = StreamEnv.mapFields(Struct.map(S.optionalKey)).annotate(
+	$I.annote("PartialStreamEnv", { description: "Optional stream capabilities merged over a quiet terminal snapshot." }),
+);
+
 /**
  * The options {@link TerminalEnv.layerTest} takes: fields to set over the quiet terminal.
+ *
+ * **Example** (Validate a partial terminal override)
+ *
+ * ```ts
+ * import { TerminalEnvTestOptions } from "@beep/scratchpad/effected/env/TerminalEnv";
+ * import * as S from "effect/Schema";
+ * console.log(S.is(TerminalEnvTestOptions)({ stdout: { isTerminal: true } })) // true
+ * ```
  *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface TerminalEnvTestOptions {
+export const TerminalEnvTestOptions = S.Struct({
 	/** Whether standard input is a terminal. */
-	readonly stdinIsTerminal?: boolean;
+	stdinIsTerminal: S.optionalKey(S.Boolean).pipe($I.annoteKey("TerminalEnvTestOptions.stdinIsTerminal", { description: "Whether standard input is a terminal." })),
 	/** Fields merged over the quiet stdout. */
-	readonly stdout?: Partial<StreamEnv>;
+	stdout: S.optionalKey(PartialStreamEnv).pipe($I.annoteKey("TerminalEnvTestOptions.stdout", { description: "Fields merged over the quiet stdout." })),
 	/** Fields merged over the quiet stderr. */
-	readonly stderr?: Partial<StreamEnv>;
-}
+	stderr: S.optionalKey(PartialStreamEnv).pipe($I.annoteKey("TerminalEnvTestOptions.stderr", { description: "Fields merged over the quiet stderr." })),
+}).annotate($I.annote("TerminalEnvTestOptions", { description: "Optional fields to set over the quiet terminal in layerTest." }));
+
+/**
+ * The optional fields accepted by {@link TerminalEnv.layerTest}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type TerminalEnvTestOptions = typeof TerminalEnvTestOptions.Type;
 
 /**
  * The shape of the {@link TerminalEnv} service: a snapshot taken when the layer is built, not a live view.

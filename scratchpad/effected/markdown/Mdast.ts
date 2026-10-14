@@ -3,25 +3,24 @@
 // the exported `Mdast` class.
 
 import * as Match from "effect/Match";
-import * as HashMap from "effect/HashMap";
+import * as MutableList from "effect/MutableList";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as SchemaIssue from "effect/SchemaIssue";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { unescapeString } from "./internal/unescape.ts";
 import type {
 	FlowContent,
 	Frontmatter,
-	FrontmatterFormat,
 	List,
 	MarkdownNode,
 	MdxJsxAttributeContent,
 	PhrasingContent,
-	Position,
 } from "./MarkdownNode.ts";
-import { Root } from "./MarkdownNode.ts";
+import { FrontmatterFormat, Position, Root } from "./MarkdownNode.ts";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as O from "@beep/utils/Option";
@@ -113,9 +112,10 @@ const projectChildren = (children: ReadonlyArray<AnyNode>): Array<Record<string,
 // This package's Code.value carries its final line terminator (the engine's
 // convention); mdast-util-from-markdown stores the value
 // without it and lets renderers re-add it. The projection translates: strip
-// one final line ending going out, restore it coming back in.
+// one carried LF going out, restore it coming back in. A preceding CR is
+// content and must survive both projection and stringify.
 const stripFinalLineEnding = (value: string): string =>
-	Str.endsWith("\r\n")(value) ? value.slice(0, -2) : Str.endsWith("\n")(value) ? value.slice(0, -1) : value;
+	Str.endsWith("\n")(value) ? Str.slice(0, -1)(value) : value;
 
 // mdast's Association rules that `label` is a *parsed* value — character
 // escapes and character references decoded — while this package's nodes keep
@@ -130,9 +130,17 @@ const projectLabel = (label: string | undefined): Record<string, unknown> =>
 // records CommonMark looseness (a blank line between items OR between the
 // blocks inside one item; the rendering contract). The between-items reading
 // is recomputable from item positions, so the projection derives it instead
-// of forwarding the looseness bit.
+// of forwarding the looseness bit. Synthetic item positions cannot encode
+// those gaps, so foreign positionless lists keep their admitted spread bit.
+const equivalentPosition = S.toEquivalence(Position);
 const listSpread = (node: List): boolean => {
-	for (const [current, next] of A.zip(node.children, node.children.slice(1))) {
+	const positioned = A.filter(node.children, (item) => !equivalentPosition(item.position, Position.synthetic));
+	// A fully positioned singleton still has no between-item gap, even when
+	// its internal blocks make it loose. Only missing positions need fallback.
+	if (positioned.length === 0 || (positioned.length < 2 && positioned.length < node.children.length)) {
+		return node.spread ?? false;
+	}
+	for (const [current, next] of A.zip(positioned, A.drop(positioned, 1))) {
 		if (next.position.start.line - current.position.end.line >= 2) {
 			return true;
 		}
@@ -296,12 +304,8 @@ const projectMdxAttribute = (attribute: MdxJsxAttributeContent): Record<string, 
 	};
 };
 
-/** The frontmatter literal node types foreign mdast spells per format. */
-const frontmatterTypes = HashMap.fromIterable<string, FrontmatterFormat>([
-	["yaml", "yaml"],
-	["toml", "toml"],
-	["json", "json"],
-]);
+/** Membership follows the format schema rather than a second vocabulary. */
+const isFrontmatterFormat = S.is(FrontmatterFormat);
 
 /**
  * Fields admitted per foreign node type, beyond `type`/`position`/`children`.
@@ -367,21 +371,61 @@ const normalizePosition = (value: unknown): Record<string, unknown> => {
 	return sentinelPosition;
 };
 
+// Root depth is zero. This admission budget protects both recursive
+// normalization and Schema decoding; it is deliberately independent of the
+// visitor's 256-level traversal guard, so deeper foreign trees remain usable.
+const maxForeignTreeDepth = 512;
+
+const admitForeignTree = (input: unknown): Result.Result<unknown, MdastDecodeError> => {
+	const pending = MutableList.make<readonly [unknown, number, ReadonlyArray<object>]>();
+	MutableList.append(pending, [input, 0, []]);
+	for (let frame = MutableList.take(pending); frame !== MutableList.Empty; frame = MutableList.take(pending)) {
+		const [value, depth, ancestors] = frame;
+		if (depth > maxForeignTreeDepth) {
+			return Result.fail(MdastDecodeError.make({
+				issue: new SchemaIssue.InvalidValue(
+					{ message: `Foreign mdast depth exceeds the admission limit of ${maxForeignTreeDepth}.` },
+					{ depth, maxDepth: maxForeignTreeDepth },
+					{ reportInput: true },
+				),
+			}));
+		}
+		if (!isRecord(value) || !P.isString(value.type)) {
+			continue;
+		}
+		if (A.some(ancestors, (ancestor) => ancestor === value)) {
+			return Result.fail(MdastDecodeError.make({
+				issue: new SchemaIssue.InvalidValue({ message: "A foreign mdast node cannot contain an ancestor as a child." }),
+			}));
+		}
+		// Follow exactly the child edges normalization recurses into. Literal
+		// frontmatter and unknown kinds are shallow admissions; their foreign
+		// extension fields cannot increase the normalized tree's depth.
+		if (isFrontmatterFormat(value.type) ||
+			(!R.has(admittedFields, value.type) && value.type !== "mdxJsxFlowElement" && value.type !== "mdxJsxTextElement") ||
+			!A.isArray(value.children)) {
+			continue;
+		}
+		const stack = A.append(ancestors, value);
+		MutableList.prependAll(pending, A.map(value.children, (child) => [child, depth + 1, stack] as const));
+	}
+	return Result.succeed(input);
+};
+
 // Normalize one foreign node: admit whitelisted fields (dropping nulls on
 // optional ones), synthesize sentinel positions, map frontmatter literal
 // types onto the Frontmatter capture shape, and recurse into children.
 // Unrecognized types pass through shallowly so schema decoding reports them
 // as typed failures rather than this walk throwing.
-const normalizeNode = (value: unknown): unknown => {
+const normalizeNode = (value: unknown): Result.Result<unknown, MdastDecodeError> => Result.gen(function* () {
 	if (!isRecord(value) || !P.isString(value.type)) {
 		return value;
 	}
 	const type = value.type;
-	const format = O.getOrUndefined(HashMap.get(frontmatterTypes, type));
-	if (format !== undefined) {
+	if (isFrontmatterFormat(type)) {
 		return {
 			type: "frontmatter",
-			format,
+			format: type,
 			value: value.value,
 			position: normalizePosition(value.position),
 		};
@@ -401,7 +445,9 @@ const normalizeNode = (value: unknown): unknown => {
 			type,
 			name: value.name,
 			attributes: A.isArray(value.attributes) ? value.attributes.map(normalizeMdxAttribute) : value.attributes,
-			children: A.isArray(value.children) ? value.children.map(normalizeNode) : value.children,
+			children: A.isArray(value.children)
+				? yield* Result.all(A.map(value.children, normalizeNode))
+				: value.children,
 			position: normalizePosition(value.position),
 		};
 	}
@@ -423,16 +469,14 @@ const normalizeNode = (value: unknown): unknown => {
 	// Restore the engine's carried-terminator convention on code values (the
 	// inverse of toMdast's strip).
 	if (type === "code" && P.isString(normalized.value) && normalized.value !== "") {
-		// Use CRLF after a content-final CR so stripping the carried line ending
-		// cannot consume that content character as half of a CRLF pair.
-		normalized.value = `${normalized.value}${Str.endsWith("\r")(normalized.value) ? "\r\n" : "\n"}`;
+		normalized.value = `${normalized.value}\n`;
 	}
 	if (A.isArray(value.children)) {
-		normalized.children = value.children.map(normalizeNode);
+		normalized.children = yield* Result.all(A.map(value.children, normalizeNode));
 	}
 	normalized.position = normalizePosition(value.position);
 	return normalized;
-};
+});
 
 // One foreign JSX attribute node: positions synthesized like tree nodes,
 // a string/null value passed through (both spellings are the contract), a
@@ -568,6 +612,13 @@ export class Mdast {
 	 * decode into the {@link Frontmatter} capture. Unknown node types fail
 	 * typed.
 	 *
+	 * Admission first checks child edges iteratively, rejecting ancestor cycles
+	 * and depths above 512 (root depth 0) with a structured
+	 * `SchemaIssue.InvalidValue` in {@link MdastDecodeError}, before recursive
+	 * normalization or schema decoding. Shared acyclic subtrees are accepted.
+	 * This stack-safety budget is separate from the visitor's 256-level guard;
+	 * foreign trees beyond that traversal limit can still decode successfully.
+	 *
 	 * **This package's fidelity fields are among the fields dropped**, because
 	 * they are not spec mdast. A `fenceChar`, `headingStyle`, `markerChar` or
 	 * `delimiter` set on the tree BEFORE admission is silently discarded, and
@@ -599,7 +650,9 @@ export class Mdast {
 	 * @since 0.0.0
 	 */
 	static fromMdastResult(input: unknown): Result.Result<Root, MdastDecodeError> {
-		return Result.mapError(decodeRoot(normalizeNode(input)), (error) => MdastDecodeError.make({ issue: error.issue }));
+		return Result.flatMap(Result.flatMap(admitForeignTree(input), normalizeNode), (normalized) =>
+			Result.mapError(decodeRoot(normalized), (error) => MdastDecodeError.make({ issue: error.issue })),
+		);
 	}
 
 	/**

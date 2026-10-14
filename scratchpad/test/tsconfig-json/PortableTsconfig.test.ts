@@ -1,9 +1,12 @@
 import { assert, describe, it } from "@effect/vitest";
+import { assertFailure } from "@effect/vitest/utils";
 import type { CompilerOptions } from "../../effected/tsconfig-json/CompilerOptions.ts";
 import { PortableTsconfig, PortableTsconfigOptions } from "../../effected/tsconfig-json/PortableTsconfig.ts";
 import type { ResolvedTsconfig } from "../../effected/tsconfig-json/ResolvedTsconfig.ts";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
 
 describe("PortableTsconfig runtime models", () => {
 	it("validates and decodes plain projection results and exact optional options", () => {
@@ -15,6 +18,84 @@ describe("PortableTsconfig runtime models", () => {
 		assert.isTrue(S.is(PortableTsconfigOptions)({ includeTypes: true }));
 		assert.isFalse(S.is(PortableTsconfigOptions)({ includeTypes: undefined }));
 	});
+
+	it.effect("normalizes uppercase and mixed-case enum options and encodes canonical spellings", () =>
+		Effect.gen(function* () {
+			const expected = PortableTsconfig.make({
+				target: "es2022",
+				module: "nodenext",
+				jsx: "react-jsx",
+				moduleResolution: "bundler",
+				moduleDetection: "force",
+			});
+			for (const compilerOptions of [
+				{ target: "ES2022", module: "NODENEXT", jsx: "REACT-JSX", moduleResolution: "BUNDLER", moduleDetection: "FORCE" },
+				{ target: "Es2022", module: "NodeNext", jsx: "React-JsX", moduleResolution: "Bundler", moduleDetection: "Force" },
+			]) {
+				const input = { ...expected, compilerOptions: { ...expected.compilerOptions, ...compilerOptions } };
+				const decoded = yield* S.decodeEffect(PortableTsconfig)(input);
+				assert.deepStrictEqual(decoded, expected);
+				assert.deepStrictEqual(yield* S.encodeEffect(PortableTsconfig)(decoded), expected);
+			}
+		}));
+
+	it.effect("normalizes uppercase and mixed-case lib options and encodes canonical spellings", () =>
+		Effect.gen(function* () {
+			const expected = PortableTsconfig.make({ lib: ["esnext", "dom", "dom.iterable"] });
+			for (const lib of [["ESNEXT", "DOM", "DOM.ITERABLE"], ["EsNext", "Dom", "Dom.Iterable"]]) {
+				const input = { ...expected, compilerOptions: { ...expected.compilerOptions, lib } };
+				const decoded = yield* S.decodeEffect(PortableTsconfig)(input);
+				assert.deepStrictEqual(decoded, expected);
+				assert.deepStrictEqual(yield* S.encodeEffect(PortableTsconfig)(decoded), expected);
+			}
+		}));
+
+	it("rejects missing and reversed portable flags at decode and encode boundaries", () => {
+		for (const compilerOptions of [
+			{},
+			{ noEmit: true },
+			{ composite: false },
+			{ noEmit: false, composite: false },
+			{ noEmit: true, composite: true },
+			{ noEmit: false, composite: true },
+		]) {
+			const input = { $schema: "https://json.schemastore.org/tsconfig", compilerOptions };
+			assert.isFalse(S.is(PortableTsconfig)(input));
+			assertFailure(Result.mapError(S.decodeUnknownResult(PortableTsconfig)(input), () => "decode failed"), "decode failed");
+			assertFailure(Result.mapError(S.encodeUnknownResult(PortableTsconfig)(input), () => "encode failed"), "encode failed");
+		}
+	});
+
+	it("validates preserved compiler-option fields and optional type packages", () => {
+		const portable = PortableTsconfig.make({ strict: true });
+		for (const invalidOptions of [
+			{ strict: "true" },
+			{ target: "not-a-target" },
+			{ lib: ["not-a-lib"] },
+			{ types: ["node", 42] },
+			{ types: undefined },
+		]) {
+			const input = { ...portable, compilerOptions: { ...portable.compilerOptions, ...invalidOptions } };
+			assertFailure(Result.mapError(S.decodeUnknownResult(PortableTsconfig)(input), () => "decode failed"), "decode failed");
+			assertFailure(Result.mapError(S.encodeUnknownResult(PortableTsconfig)(input), () => "encode failed"), "encode failed");
+		}
+	});
+
+	it.effect("excludes machine paths and unclassified options from decoded and encoded output", () =>
+		Effect.gen(function* () {
+			const portable = PortableTsconfig.make({ strict: true, types: ["node"] }, { includeTypes: true });
+			const input = {
+				...portable,
+				compilerOptions: {
+					...portable.compilerOptions,
+					outDir: "/machine/dist",
+					typeRoots: ["/machine/types"],
+					futureOption: "nonportable",
+				},
+			};
+			assert.deepStrictEqual(yield* S.decodeEffect(PortableTsconfig)(input), portable);
+			assert.deepStrictEqual(yield* S.encodeEffect(PortableTsconfig)(input), portable);
+		}));
 });
 
 // A "full option zoo" compilerOptions object: at least one representative from

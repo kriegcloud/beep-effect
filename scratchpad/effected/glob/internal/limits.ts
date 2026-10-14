@@ -2,7 +2,9 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as Equivalence from "effect/Equivalence";
 import * as S from "effect/Schema";
+import * as SchemaGetter from "effect/SchemaGetter";
 
 import { dual } from "effect/Function";
 
@@ -24,7 +26,7 @@ const $I = $ScratchpadId.create("effected/glob/internal/limits");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidCap extends S.TaggedError<InvalidCap>($I`InvalidCap`)("InvalidCap", {
+export class InvalidCap extends S.TaggedError<InvalidCap, { readonly brand: unique symbol }>($I`InvalidCap`)("InvalidCap", {
 	message: S.String.annotateKey({ description: "Why the programmer-supplied internal cap is invalid." }),
 }, $I.annote("InvalidCap", {
 	title: "Invalid internal glob cap",
@@ -171,7 +173,18 @@ export type GuardReason = typeof GuardReason.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const GuardMeasurement = S.declare((value): value is number => S.is(S.Finite)(value) || value === Infinity).annotate(
+export const GuardMeasurement = S.Union([
+	S.Finite,
+	S.declare((value): value is number => value === Infinity, {
+		title: "Positive infinity",
+		description: "The positive-infinity sentinel produced by expansion-count overflow.",
+		toCodecArbitrary: () => S.link<number>()(S.Null, {
+			decode: SchemaGetter.transform(() => Infinity),
+			encode: SchemaGetter.forbiddenEncoding,
+		}),
+		toEquivalence: Equivalence.strictEqual<number>,
+	}),
+]).annotate(
 	$I.annote("GuardMeasurement", {
 		title: "Glob guard measurement",
 		description: "A finite guard measurement or positive infinity when an expansion count overflows.",
@@ -212,7 +225,7 @@ export type GuardMeasurement = typeof GuardMeasurement.Type;
  * @category errors
  * @since 0.0.0
  */
-export class GuardExceeded extends S.TaggedError<GuardExceeded>($I`GuardExceeded`)("GuardExceeded", {
+export class GuardExceeded extends S.TaggedError<GuardExceeded, { readonly brand: unique symbol }>($I`GuardExceeded`)("GuardExceeded", {
 	reason: GuardReason.annotateKey({ description: "The compile-time guard whose cap was exceeded." }),
 	limit: S.Finite.annotateKey({ description: "The finite cap enforced by the compile-time guard." }),
 	// Expansion arithmetic intentionally overflows to Infinity; retain the oracle measurement.

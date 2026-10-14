@@ -1,6 +1,7 @@
 import * as S from "effect/Schema";
 import { $ScratchpadId } from "@beep/identity/packages";
-import type { AudienceKind, AudienceShape } from "../env/index.ts";
+import { AudienceKind } from "../env/Audience.ts";
+import type { AudienceShape } from "../env/index.ts";
 import { Audience, TerminalEnv } from "../env/index.ts";
 import type * as Terminal from "effect/Terminal";
 import * as Effect from "effect/Effect";
@@ -11,7 +12,7 @@ import { CliConfig, CliError, Command as CommandModule, Flag, GlobalFlag } from 
 import { CliInteractive } from "./CliInteractive.ts";
 import { canPrompt } from "./internal/canPrompt.ts";
 import { refreshFailureTarget } from "./internal/failureTarget.ts";
-import { scanAudience, tallyAudience } from "./internal/scanAudience.ts";
+import { AudienceFlagValues, scanAudience, tallyAudience } from "./internal/scanAudience.ts";
 import { WizardDropped } from "./internal/wizardGate.ts";
 
 const $I = $ScratchpadId.create("effected/cli/CliAudience");
@@ -23,8 +24,6 @@ class AudienceConflictError extends S.TaggedError<AudienceConflictError>($I`Audi
 	},
 	$I.annote("AudienceConflictError", { description: "More than one audience flag occurrence was supplied to a CLI run." }),
 ) {}
-
-const KINDS: ReadonlyArray<AudienceKind> = ["human", "agent", "ci"];
 
 /**
  * Whether the run may prompt once a flag has named the audience.
@@ -46,35 +45,62 @@ const interactiveWhenFlagged = (kind: AudienceKind, current: boolean): Effect.Ef
 /**
  * The four parsed audience flags a root command carries once {@link CliAudience.flags} is shared onto it.
  *
+ * **Example** (Validate shared audience flags)
+ *
+ * ```ts
+ * import { AudienceFlagInput } from "@beep/scratchpad/effected/cli/CliAudience";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(AudienceFlagInput)({ audience: [], human: [], agent: [true], ci: [] })) // true
+ * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface AudienceFlagInput {
-	/** Every `--audience <kind>` occurrence. */
-	readonly audience: ReadonlyArray<AudienceKind>;
-	/** Every `--human` occurrence. */
-	readonly human: ReadonlyArray<boolean>;
-	/** Every `--agent` occurrence. */
-	readonly agent: ReadonlyArray<boolean>;
-	/** Every `--ci` occurrence. */
-	readonly ci: ReadonlyArray<boolean>;
-}
+export const AudienceFlagInput = S.Struct(AudienceFlagValues.fields).annotate(
+	$I.annote("AudienceFlagInput", { description: "The four audience flag arrays shared onto a root command." }),
+);
+
+/**
+ * The plain audience flags carried by a root command.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type AudienceFlagInput = typeof AudienceFlagInput.Type;
 
 /**
  * Options for {@link CliAudience.flags}.
+ *
+ * **Example** (Hide shared flags from help)
+ *
+ * ```ts
+ * import { CliAudienceFlagsOptions } from "@beep/scratchpad/effected/cli/CliAudience";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(CliAudienceFlagsOptions)({ hidden: true })) // true
+ * ```
  *
  * @public
  * @category configuration
  * @since 0.0.0
  */
-export interface CliAudienceFlagsOptions {
+export const CliAudienceFlagsOptions = S.Struct({
 	/**
 	 * Hide all four flags from every help screen. They still parse and resolve; describe them in the root
 	 * command's description instead.
 	 */
-	readonly hidden?: boolean | undefined;
-}
+	hidden: S.optional(S.Boolean).annotate($I.annote("CliAudienceFlagsOptions.hidden", { description: "Hide the audience flags without changing parsing or resolution." })),
+}).annotate($I.annote("CliAudienceFlagsOptions", { description: "Presentation options for shared audience flags." }));
+
+/**
+ * The plain audience flag presentation options.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type CliAudienceFlagsOptions = typeof CliAudienceFlagsOptions.Type;
 
 /**
  * Resolves to nothing for a command that carries the four audience flags, and to an unsatisfiable marker otherwise,
@@ -196,7 +222,7 @@ export class CliAudience {
 		const maybeHide = <A>(flag: Flag.Flag<A>): Flag.Flag<A> => (hide ? Flag.withHidden(flag) : flag);
 		return {
 			audience: maybeHide(
-				Flag.Literals("audience", KINDS).pipe(
+				Flag.Literals("audience", AudienceKind.literals).pipe(
 					Flag.atLeast(0),
 					// No metavar of its own: core appends "(choices: human, agent, ci)" to the description, and a
 					// `<human|agent|ci>` placeholder would name the choices a second time.

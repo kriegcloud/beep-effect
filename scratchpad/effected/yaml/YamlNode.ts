@@ -9,12 +9,15 @@
 
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import type { YamlPath } from "./YamlEdit.ts";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import type { Mutable } from "effect/Struct";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlNode");
 
@@ -361,6 +364,45 @@ export class YamlAlias extends S.TaggedClass<YamlAlias>($I`YamlAlias`)("YamlAlia
 	spaceBefore: S.optionalKey(S.Boolean).annotateKey({ description: "Whether a blank line precedes the alias and any leading comment block in the source" }),
 }, $I.annote("YamlAlias", { description: "A YAML alias AST node, referencing a previously defined anchor by name (without the leading `*`)." })) {
 	/**
+	 * Retain the alias target for one extraction scope so later anchor updates
+	 * cannot change a reference already resolved in source order.
+	 *
+	 * **Example** (Extract an unresolved alias)
+	 *
+	 * ```ts
+	 * import { YamlAlias } from "@beep/scratchpad/effected/yaml/YamlNode"
+	 * const alias = YamlAlias.make({ name: "missing", offset: 0, length: 8 })
+	 * console.log(alias.toValue()) // null
+	 * ```
+	 *
+	 * @internal
+	 * @category decoding
+	 * @since 0.0.0
+	 */
+	#extractionBinding?: { readonly scope: ExpansionBudget; readonly target: YamlNode | undefined };
+
+	/**
+	 * Resolve once within an extraction, retaining the source-order target.
+	 *
+	 * **Example** (Extract with a fresh binding scope)
+	 *
+	 * ```ts
+	 * import { YamlAlias } from "@beep/scratchpad/effected/yaml/YamlNode"
+	 * console.log(YamlAlias.make({ name: "missing", offset: 0, length: 8 }).toValue()) // null
+	 * ```
+	 *
+	 * @internal
+	 * @category decoding
+	 * @since 0.0.0
+	 */
+	resolveTarget(anchors: MutableHashMap.MutableHashMap<string, YamlNode> | undefined, scope: ExpansionBudget): YamlNode | undefined {
+		if (this.#extractionBinding?.scope !== scope) {
+			this.#extractionBinding = { scope, target: anchors === undefined ? undefined : O.getOrUndefined(MutableHashMap.get(anchors, this.name)) };
+		}
+		return this.#extractionBinding.target;
+	}
+
+	/**
 	 * Navigate to a descendant by mapping-key or sequence-index path.
 	 *
 	 * **Details**
@@ -510,20 +552,16 @@ export interface YamlAliasEncoded extends S.Codec.Encoded<typeof YamlAlias> {}
 /**
  * A discriminated-union schema covering all four YAML AST value node types:
  * {@link YamlScalar}, {@link YamlMap}, {@link YamlSeq} and {@link YamlAlias}.
- *
- *
  * **Details**
  *
  * Defined lazily via `Schema.suspend` to break the recursive reference chain
  * `YamlNode → YamlMap → YamlPair → YamlNode`.
- *
  * **Gotchas**
  *
  * Construct member nodes via their `.make(...)` static (e.g.
  * `YamlScalar.make(...)`), never `new YamlScalar(...)` — the internal
  * composer's hot-path `new` construction is the one recorded exception, kept
  * internal to the engine for its allocation-sensitive walk.
- *
  * **Example** (Recognize a scalar union member)
  *
  * ```ts
@@ -533,7 +571,6 @@ export interface YamlAliasEncoded extends S.Codec.Encoded<typeof YamlAlias> {}
  * const scalar = YamlScalar.make({ value: "hello", style: "plain", offset: 0, length: 5 })
  * console.log(S.is(YamlNode)(scalar)) // true
  * ```
- *
  * @public
  * @category schemas
  * @since 0.0.0
@@ -877,7 +914,6 @@ export class YamlSeq extends S.TaggedClass<YamlSeq>($I`YamlSeq`)("YamlSeq", {
 const isScalar = S.is(YamlScalar);
 const isMap = S.is(YamlMap);
 const isSeq = S.is(YamlSeq);
-const isAlias = S.is(YamlAlias);
 
 // ── Shared method implementations ───────────────────────────────────────────
 // Module-level so the four union classes share one body each. Declared after
@@ -999,13 +1035,7 @@ function descendToNode(node: YamlNode, target: YamlNode, path: Array<string | nu
 
 /** Set a mapping key as an own data property — `__proto__` included. */
 function setOwnProperty(obj: Record<string, unknown>, key: string, value: unknown): void {
-	if (key === "__proto__") {
-		// Own data property, not a prototype mutation — matches JSON.parse
-		// semantics and the jsonc precedent.
-		Object.defineProperty(obj, key, { value, writable: true, enumerable: true, configurable: true });
-	} else {
-		obj[key] = value;
-	}
+	R.assignProperty(obj, key, value);
 }
 
 /**
@@ -1085,10 +1115,11 @@ export function aliasExpansionLimit(maxAliasCount: number): number {
 const DEFAULT_ALIAS_EXPANSION_LIMIT = aliasExpansionLimit(100);
 
 /** Mutable counter carried through one value-extraction walk. */
-interface ExpansionBudget {
-	count: number;
-	readonly limit: number;
-}
+const ExpansionBudget = S.Struct({
+	count: S.Finite.annotateKey({ description: "Number of output nodes materialized through alias expansion during this walk." }),
+	limit: S.declare(P.isNumber).annotateKey({ description: "Calculated output-node cap; retains the full numeric domain of the existing budget calculation, including overflow." }),
+}).annotate($I.annote("ExpansionBudget", { description: "Shared output-node budget for one recursive value-extraction walk." }));
+type ExpansionBudget = Omit<typeof ExpansionBudget.Type, "count"> & Mutable<Pick<typeof ExpansionBudget.Type, "count">>;
 
 /** A fresh default budget for a direct `toValue()` call. */
 function defaultBudget(): ExpansionBudget {
@@ -1125,50 +1156,58 @@ export const nodeToJsValue: {
 function nodeToValue(
 	node: YamlNode | null,
 	anchors?: MutableHashMap.MutableHashMap<string, YamlNode>,
-	budget?: ExpansionBudget,
+	budget: ExpansionBudget = defaultBudget(),
 	counting = false,
+	ancestors: ReadonlyArray<YamlNode> = [],
 ): unknown {
 	if (node === null) return null;
 	// Count only nodes materialized *through* an alias expansion (counting=true).
 	// Alias-free content never ticks the counter, so large but benign documents
 	// are not falsely rejected; an exponential alias chain accumulates across the
 	// shared budget and trips the cap before the heap is exhausted.
-	if (counting && budget !== undefined) {
+	if (counting) {
 		budget.count++;
 		if (budget.count > budget.limit) {
 			throw AliasExpansionBudgetExceeded.make({ message: `Alias expansion exceeded budget of ${budget.limit} nodes` });
 		}
 	}
+	// The input is already a typed AST node. Dispatch on its schema tag here;
+	// revalidating recursive schemas for every expanded node makes the budget
+	// guard itself expensive under coverage instrumentation.
 	// Register this node's anchor incrementally so aliases resolve to the most
 	// recent anchor at the point of reference (not the last definition in the
 	// entire document).
-	if (anchors !== undefined && !isAlias(node) && node.anchor !== undefined) {
+	if (!counting && anchors !== undefined && node._tag !== "YamlAlias" && node.anchor !== undefined) {
 		MutableHashMap.set(anchors, node.anchor, node);
 	}
-	if (isScalar(node)) return node.value;
-	if (isMap(node)) {
+	if (node._tag === "YamlScalar") return node.value;
+	if (node._tag === "YamlMap") {
 		const result: Record<string, unknown> = {};
 		for (const pair of node.items) {
 			let key: string;
-			if (isScalar(pair.key)) {
+			if (pair.key._tag === "YamlScalar") {
 				// Register key anchor before resolving value
-				if (anchors !== undefined && pair.key.anchor !== undefined) {
+				if (!counting && anchors !== undefined && pair.key.anchor !== undefined) {
 					MutableHashMap.set(anchors, pair.key.anchor, pair.key);
 				}
 				key = String(pair.key.value ?? "");
-			} else if (isAlias(pair.key)) {
-				const resolved = anchors === undefined ? undefined : O.getOrUndefined(MutableHashMap.get(anchors, pair.key.name));
-				// Resolving an alias key enters alias expansion → count its subtree.
-				key = resolved !== undefined ? String(nodeToValue(resolved, anchors, budget, true) ?? "") : "";
+			} else if (pair.key._tag === "YamlAlias") {
+				// Resolving an alias key uses the same historical binding and cycle guard.
+				key = String(nodeToValue(pair.key, anchors, budget, false, ancestors) ?? "");
 			} else {
 				key = "";
 			}
-			setOwnProperty(result, key, nodeToValue(pair.value, anchors, budget, counting));
+			setOwnProperty(result, key, nodeToValue(pair.value, anchors, budget, counting, ancestors));
 		}
 		return result;
 	}
-	if (isSeq(node)) return node.items.map((item) => nodeToValue(item, anchors, budget, counting));
-	const resolved = anchors === undefined ? undefined : O.getOrUndefined(MutableHashMap.get(anchors, node.name));
-	// The remaining union member is an alias; resolving it enters alias expansion.
-	return resolved !== undefined ? nodeToValue(resolved, anchors, budget, true) : null;
+	if (node._tag === "YamlSeq") return node.items.map((item) => nodeToValue(item, anchors, budget, counting, ancestors));
+	const resolved = node.resolveTarget(anchors, budget);
+	if (resolved === undefined) return null;
+	// Identity is essential here: structurally equal sibling nodes are not cycles.
+	if (A.some(ancestors, (ancestor) => ancestor === resolved)) {
+		throw AliasExpansionBudgetExceeded.make({ message: `Alias expansion exceeded budget of ${budget.limit} nodes (cyclic alias)` });
+	}
+	// Historical expansion reuses bindings without changing the live anchor map.
+	return nodeToValue(resolved, anchors, budget, true, [...ancestors, resolved]);
 }

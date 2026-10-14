@@ -4,6 +4,7 @@ import * as O from "@beep/utils/Option";
 import * as Stream from "effect/Stream";
 import { ChildProcess } from "effect/process";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/git/GitCommand");
 
@@ -46,18 +47,29 @@ export interface GitInvocation {
 /** The mask every whole-value sensitive positional is replaced with. */
 const REDACTED = "<redacted>";
 
+const GitArgRedaction = LiteralKit(["value", "url"]).annotate(
+	$I.annote("GitArgRedaction", { description: "The mask applied to a sensitive Git argv segment." }),
+);
+
 /**
  * One argv segment: a plain string, or a sensitive positional tagged with the
  * mask to apply in `redactedArgs` — `"value"` replaces the whole segment,
  * `"url"` masks only an embedded `scheme://userinfo@` credential.
  */
-type GitArg = string | { readonly redact: "value" | "url"; readonly value: string };
+const GitArg = S.Union([
+	S.String,
+	S.Struct({
+		redact: GitArgRedaction.annotateKey({ description: "The redaction policy for this segment." }),
+		value: S.String.annotateKey({ description: "The raw argv segment passed to Git." }),
+	}).annotate($I.annote("SensitiveGitArg", { description: "A private sensitive Git argv carrier." })),
+]).annotate($I.annote("GitArg", { description: "A plain or sensitive Git argv segment." }));
+type GitArg = typeof GitArg.Type;
 
 // Tags a whole-value sensitive positional (a config value that may be a secret).
-const secretValue = (value: string): GitArg => ({ redact: "value", value });
+const secretValue = (value: string): GitArg => ({ redact: GitArgRedaction.Enum.value, value });
 
 // Tags a URL positional whose embedded userinfo (if any) must be masked.
-const secretUrl = (value: string): GitArg => ({ redact: "url", value });
+const secretUrl = (value: string): GitArg => ({ redact: GitArgRedaction.Enum.url, value });
 
 /**
  * Masks the userinfo component of a URL (`scheme://user:token@host/...` →
@@ -109,7 +121,7 @@ const redactUrlUserinfo = (value: string): string =>
 const git = (args: ReadonlyArray<GitArg>, stdin?: string): GitInvocation => {
 	const raw = args.map((arg) => (P.isString(arg) ? arg : arg.value));
 	const redactedArgs = args.map((arg) =>
-		P.isString(arg) ? arg : arg.redact === "value" ? REDACTED : redactUrlUserinfo(arg.value),
+		P.isString(arg) ? arg : arg.redact === GitArgRedaction.Enum.value ? REDACTED : redactUrlUserinfo(arg.value),
 	);
 	return {
 		command: ChildProcess.make("git", raw, {
@@ -280,7 +292,7 @@ const repoRoot = (): GitInvocation => git(["rev-parse", "--show-toplevel"]);
 const commonDir = (): GitInvocation => git(["rev-parse", "--path-format=absolute", "--git-common-dir"]);
 
 // Implementation of GitCommand.commitInfo; the public contract lives on the static.
-const commitInfo = (ref = "HEAD"): GitInvocation => git(["log", "-1", "--format=%H%x00%G?%x00%B", ref]);
+const commitInfo = (ref = "HEAD"): GitInvocation => git(["log", "--no-show-signature", "-1", "--format=%H%x00%G?%x00%B", ref]);
 
 /**
  * The `git log` record format: a NUL record opener followed by the five
@@ -303,6 +315,7 @@ const log = (
 ): GitInvocation =>
 	git([
 		"log",
+		"--no-show-signature",
 		"-z",
 		LOG_FORMAT,
 		"--name-only",

@@ -1,3 +1,4 @@
+import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Config from "effect/Config";
@@ -15,6 +16,7 @@ import * as PathModule from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as References from "effect/References";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { AudienceKind, RuntimeEnv } from "../env/index.ts";
 import { Audience, CurrentRuntimeEnv, TerminalEnv } from "../env/index.ts";
@@ -31,26 +33,49 @@ import { scanAudience } from "./internal/scanAudience.ts";
 import type { Status } from "./Status.ts";
 import type { Style } from "./Token.ts";
 
+const $I = $ScratchpadId.create("effected/cli/CliLog");
+
 /**
  * Options for `CliLog.status`.
+ *
+ * **Example** (Validate plain status options)
+ *
+ * ```ts
+ * import { CliLogStatusOptions } from "@beep/scratchpad/effected/cli/CliLog"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(CliLogStatusOptions)({ level: "Warn", indent: 2 })) // true
+ * ```
  *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface CliLogStatusOptions {
+export const CliLogStatusOptions = S.Struct({
 	/**
 	 * The level the line is logged at. By default it follows the status's rank in its vocabulary: `Error` at or above
 	 * `failure`'s rank, `Warn` at or above `warning`'s, and `Info` below that.
 	 */
-	readonly level?: LogLevel.Severity | undefined;
+	level: S.optional(S.Literals(["Fatal", "Error", "Warn", "Info", "Debug", "Trace"])).annotate(
+		$I.annote("CliLogStatusOptions.level", { description: "The message severity overriding the status vocabulary's rank." }),
+	),
 	/**
 	 * What the line starts with, before the glyph, so an indented report line keeps its place in a block: a number of
 	 * spaces (floored, at most 64; zero, a negative or a non-finite number is none), or a string. A string is sanitised as text is (escapes and controls removed, a tab a space) and its line
 	 * breaks dropped, so the indent can never carry an escape onto the trusted line. None by default.
 	 */
-	readonly indent?: number | string | undefined;
-}
+	indent: S.optional(S.Union([S.declare(P.isNumber).annotate(
+		$I.annote("CliLogStatusOptions.NumericIndent", { description: "Every JavaScript number, including non-finite values that the status renderer treats as no indent." }),
+	), S.String])).annotate(
+		$I.annote("CliLogStatusOptions.indent", { description: "Spaces or sanitized text before the glyph; non-finite numbers produce no indent." }),
+	),
+}).annotate($I.annote("CliLogStatusOptions", { description: "Plain optional severity and indentation settings for a status log line." }));
+
+/**
+ * Plain options validated by {@link CliLogStatusOptions}.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type CliLogStatusOptions = typeof CliLogStatusOptions.Type;
 
 /** The most spaces a numeric `indent` writes. */
 const MAX_INDENT = 64;
@@ -172,14 +197,41 @@ export interface CliLogOptions {
 	readonly runtimeEnv?: RuntimeEnv | undefined;
 }
 
+const CliLogFilePath = S.Struct({
+	path: S.String.annotate($I.annote("CliLogFile.Path.path", { description: "The literal log path; an empty path disables file logging." })),
+}).annotate($I.annote("CliLogFile.Path", { description: "A directly supplied file-sink location." }));
+
+const CliLogFileEnvironment = S.Struct({
+	envVar: S.String.annotate($I.annote("CliLogFile.Environment.envVar", { description: "The variable holding the log path; unset or empty disables file logging." })),
+}).annotate($I.annote("CliLogFile.Environment", { description: "A file-sink location read from an environment variable." }));
+
 /**
  * Where the file sink writes: a literal path, or the environment variable that holds it.
+ *
+ * **Example** (Validate either file-sink configuration)
+ *
+ * ```ts
+ * import { CliLogFile } from "@beep/scratchpad/effected/cli/CliLog"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(CliLogFile)({ path: "logs/run.ndjson" })) // true
+ * console.log(S.is(CliLogFile)({ envVar: "TOOL_LOG_FILE" })) // true
+ * ```
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export type CliLogFile = { readonly envVar: string } | { readonly path: string };
+export const CliLogFile = S.Union([
+	CliLogFilePath,
+	CliLogFileEnvironment,
+]).annotate($I.annote("CliLogFile", { description: "A plain file-sink configuration using a path or an environment variable." }));
+
+/**
+ * The plain configuration cases validated by {@link CliLogFile}.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type CliLogFile = typeof CliLogFile.Type;
 
 /**
  * {@link CliLogOptions} with a file sink, which is what makes the layer require `FileSystem` and `Path`.
@@ -619,12 +671,14 @@ export class CliLog {
 								...extras,
 							];
 							if (file !== undefined) {
-								const target =
-									"path" in file
-										? O.some(file.path)
-										: yield* Config.option(Config.String(file.envVar)).pipe(
-												Effect.orElseSucceed(O.none<string>),
-											);
+								let target: O.Option<string>;
+								if (S.is(CliLogFilePath)(file)) {
+									target = O.some(file.path);
+								} else {
+									target = yield* Config.option(Config.String(file.envVar)).pipe(
+										Effect.orElseSucceed(O.none<string>),
+									);
+								}
 								if (O.isSome(target) && target.value !== "") {
 									const location = yield* PathModule.Path;
 									loggers.push(yield* makeFileSink(location.resolve(target.value), lowered, underActionsIn));

@@ -22,6 +22,7 @@ import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import { indexInstances, rootInstances } from "./internal/roots.ts";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 
 const $I = $ScratchpadId.create("effected/workspaces/DuplicateCheck");
 
@@ -95,6 +96,11 @@ export const Dependent = S.Union([
  * @since 0.0.0
  */
 export type Dependent = typeof Dependent.Type;
+
+const RelationshipKey = S.fromJsonString(S.Tuple([S.String, Dependent])).pipe(
+	$I.annoteSchema("RelationshipKey", { description: "An unambiguous key for one target instance and its dependent." }),
+);
+const encodeRelationshipKey = S.encodeResult(RelationshipKey);
 
 /**
  * One resolved instance of a duplicated version, with everything that pulls it.
@@ -359,10 +365,10 @@ export class DuplicateCheck extends S.Class<DuplicateCheck>($I`DuplicateCheck`)(
 		const index = indexInstances(lockfile);
 		const { byId } = index;
 
-		// Roots taken directly by an importer entry (no workspace row), keyed by
-		// the instance they resolved to. A workspace row's edges are attributed
-		// below, when the walk leaves the row.
-		const importerRoots = MutableHashMap.empty<string, Array<string>>();
+		// Roots taken directly by importer entries (no workspace row), recorded
+		// in importer order so provenance visits each relationship only once.
+		// A workspace row's edges are attributed below, when the walk leaves it.
+		const importerRoots: Array<readonly [instanceId: string, importerPath: string]> = [];
 		const unresolved: Array<string> = [];
 		const queue: Array<ResolvedPackage> = [];
 
@@ -377,9 +383,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck>($I`DuplicateCheck`)(
 				continue;
 			}
 			for (const instance of roots.instances) {
-				const paths = O.getOrElse(MutableHashMap.get(importerRoots, instance.instanceId), (): Array<string> => []);
-				paths.push(importer.path);
-				MutableHashMap.set(importerRoots, instance.instanceId, paths);
+				importerRoots.push([instance.instanceId, importer.path]);
 				queue.push(instance);
 			}
 		}
@@ -387,9 +391,7 @@ export class DuplicateCheck extends S.Class<DuplicateCheck>($I`DuplicateCheck`)(
 		// One global walk: reachability is a property of the graph, not of any
 		// single importer, and every reached edge is a dependent to record.
 		const reached = MutableHashSet.empty<string>();
-		while (queue.length > 0) {
-			const current = queue.shift();
-			if (current === undefined) break;
+		for (const current of queue) {
 			if (MutableHashSet.has(reached, current.instanceId)) continue;
 			MutableHashSet.add(reached, current.instanceId);
 			for (const targetId of R.values(current.resolved)) {
@@ -405,17 +407,15 @@ export class DuplicateCheck extends S.Class<DuplicateCheck>($I`DuplicateCheck`)(
 		const dependents = MutableHashMap.empty<string, Array<Dependent>>();
 		const seen = MutableHashSet.empty<string>();
 		const record = (targetId: string, dependent: Dependent): void => {
-			const key = `${targetId}\0${renderKey(dependent)}`;
+			const key = Result.getOrThrow(encodeRelationshipKey([targetId, dependent]));
 			if (MutableHashSet.has(seen, key)) return;
 			MutableHashSet.add(seen, key);
 			const list = O.getOrElse(MutableHashMap.get(dependents, targetId), (): Array<Dependent> => []);
 			list.push(dependent);
 			MutableHashMap.set(dependents, targetId, list);
 		};
-		for (const importer of lockfile.importers) {
-			for (const [instanceId, paths] of importerRoots) {
-				if (paths.includes(importer.path)) record(instanceId, { _tag: "importer", path: importer.path });
-			}
+		for (const [instanceId, path] of importerRoots) {
+			record(instanceId, { _tag: "importer", path });
 		}
 		for (const pkg of lockfile.packages) {
 			if (!MutableHashSet.has(reached, pkg.instanceId)) continue;
@@ -481,11 +481,3 @@ const dependentOf = (from: ResolvedPackage): Dependent =>
 	from.isWorkspace && from.relativePath !== undefined
 		? { _tag: "importer", path: from.relativePath }
 		: { _tag: "package", name: from.name, version: from.version };
-
-/**
- * Builds a stable deduplication key for an importer or package dependent.
- *
- * @internal
- */
-const renderKey = (dependent: Dependent): string =>
-	dependent._tag === "importer" ? `importer\0${dependent.path}` : `package\0${dependent.name}\0${dependent.version}`;

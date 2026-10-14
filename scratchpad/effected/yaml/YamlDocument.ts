@@ -88,7 +88,7 @@ export class YamlDirective extends S.Class<YamlDirective>($I`YamlDirective`)({
  * @since 0.0.0
  */
 export class YamlDocument extends S.Class<YamlDocument>($I`YamlDocument`)({
-	contents: S.NullOr(S.suspend((): S.Schema<YamlNodeType> => YamlNode)).annotateKey({ description: "Root YAML syntax node, or `null` for an empty document" }),
+	contents: S.NullOr(S.suspend((): typeof YamlNode => YamlNode)).annotateKey({ description: "Root YAML syntax node, or `null` for an empty document" }),
 	errors: S.Array(YamlDiagnostic).annotateKey({ description: "Error diagnostics retained during document composition; successful parsing retains only non-fatal errors" }),
 	warnings: S.Array(YamlDiagnostic).annotateKey({ description: "Warning diagnostics retained during document composition" }),
 	directives: S.Array(YamlDirective).annotateKey({ description: "Ordered directives preceding the document, including YAML version, tag declarations, and reserved directives" }),
@@ -123,15 +123,16 @@ export class YamlDocument extends S.Class<YamlDocument>($I`YamlDocument`)({
 	 * @since 0.0.0
 	 */
 	static readonly parse = Effect.fn("YamlDocument.parse")(function* (text: string, options?: YamlParseOptions) {
+		const index = YamlDiagnostic.positionIndex(text);
 		const raw = composeFirstDocument(text, toParseInput(options));
 		const fatal = raw.errors.filter((e) => isFatalCode(e.code));
 		if (fatal.length > 0) {
 			return yield* YamlParseError.make({
-				diagnostics: fatal.map((e) => YamlDiagnostic.fromRaw(e, text)),
+				diagnostics: YamlDiagnostic.fromRawBatch(fatal, text, index),
 				input: text,
 			});
 		}
-		return fromRawDocument(raw, text);
+		return fromRawDocument(raw, text, index);
 	});
 
 	/**
@@ -158,18 +159,19 @@ export class YamlDocument extends S.Class<YamlDocument>($I`YamlDocument`)({
 	 * @since 0.0.0
 	 */
 	static readonly parseAll = Effect.fn("YamlDocument.parseAll")(function* (text: string, options?: YamlParseOptions) {
+		const index = YamlDiagnostic.positionIndex(text);
 		const { documents, streamErrors } = composeAllDocuments(text, toParseInput(options));
 		const fatal = [
-			...streamErrors.filter((e) => e.code === "InvalidDirective"),
+			...streamErrors.filter((e) => isFatalCode(e.code)),
 			...documents.flatMap((d) => d.errors.filter((e) => isFatalCode(e.code))),
 		];
 		if (fatal.length > 0) {
 			return yield* YamlParseError.make({
-				diagnostics: fatal.map((e) => YamlDiagnostic.fromRaw(e, text)),
+				diagnostics: YamlDiagnostic.fromRawBatch(fatal, text, index),
 				input: text,
 			});
 		}
-		return documents.map((raw) => fromRawDocument(raw, text));
+		return documents.map((raw) => fromRawDocument(raw, text, index));
 	});
 
 	/**
@@ -378,11 +380,11 @@ export const documentFromRaw: {
 } = dual(2, (raw: RawYamlDocument, text: string): YamlDocument => fromRawDocument(raw, text));
 
 /** Materialize a raw engine document into the public class. */
-function fromRawDocument(raw: RawYamlDocument, text: string): YamlDocument {
+function fromRawDocument(raw: RawYamlDocument, text: string, index = YamlDiagnostic.positionIndex(text)): YamlDocument {
 	return YamlDocument.make({
 		contents: raw.contents,
-		errors: raw.errors.map((e) => YamlDiagnostic.fromRaw(e, text)),
-		warnings: raw.warnings.map((w) => YamlDiagnostic.fromRaw(w, text)),
+		errors: YamlDiagnostic.fromRawBatch(raw.errors, text, index),
+		warnings: YamlDiagnostic.fromRawBatch(raw.warnings, text, index),
 		directives: raw.directives.map((d) => YamlDirective.make({ name: d.name, parameters: d.parameters })),
 		...O.getSomesStruct({ commentBefore: O.fromUndefinedOr(raw.commentBefore) }),
 		...O.getSomesStruct({ comment: O.fromUndefinedOr(raw.comment) }),

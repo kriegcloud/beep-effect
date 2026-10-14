@@ -344,8 +344,8 @@ export function createScanner(text: string): YamlScanner {
 	 */
 	function isPlainScalarBreak(ch: string): boolean {
 		if (ch === "" || isNewline(ch)) return true;
-		if (flowDepth > 0 && isFlowIndicator(ch)) return true;
-		return false;
+		return flowDepth > 0 && isFlowIndicator(ch);
+
 	}
 
 	// -----------------------------------------------------------------------
@@ -581,10 +581,10 @@ export function createScanner(text: string): YamlScanner {
 					advance();
 					return makeToken("scalar", value, start, sLine, sCol, pos - start);
 				}
-			} else if (ch === "\n" || (ch === "\r" && peek(1) === "\n")) {
+			} else if (isNewline(ch)) {
 				// multi-line: newline becomes space (fold)
 				value += " ";
-				if (ch === "\r") advance(2);
+				if (ch === "\r" && peek(1) === "\n") advance(2);
 				else advance();
 				// Document markers (--- or ...) at column 0 terminate the scalar
 				if (col === 0 && isDocumentMarkerAhead()) {
@@ -671,9 +671,9 @@ export function createScanner(text: string): YamlScanner {
 					// Invalid escape sequence — emit error token
 					return makeToken("error", text.slice(start, pos), start, sLine, sCol);
 				}
-			} else if (ch === "\n" || (ch === "\r" && peek(1) === "\n")) {
+			} else if (isNewline(ch)) {
 				value += " ";
-				if (ch === "\r") advance(2);
+				if (ch === "\r" && peek(1) === "\n") advance(2);
 				else advance();
 				// Document markers (--- or ...) at column 0 terminate the scalar
 				if (col === 0 && isDocumentMarkerAhead()) {
@@ -708,17 +708,23 @@ export function createScanner(text: string): YamlScanner {
 		// Parse header: optional chomping and/or indentation indicator
 		let chomp: "clip" | "strip" | "keep" = "clip";
 		let explicitIndent = 0;
+		let hadChompingIndicator = false;
 
 		// Parse header characters
 		for (let hc = 0; hc < 2 && pos < text.length && !isNewline(peek()); hc++) {
 			const ch = peek();
 			if (ch === "-") {
+				if (hadChompingIndicator) break;
+				hadChompingIndicator = true;
 				chomp = "strip";
 				advance();
 			} else if (ch === "+") {
+				if (hadChompingIndicator) break;
+				hadChompingIndicator = true;
 				chomp = "keep";
 				advance();
 			} else if (ch >= "1" && ch <= "9") {
+				if (explicitIndent > 0) break;
 				explicitIndent = Number.parseInt(ch, 10);
 				advance();
 			} else {
@@ -743,10 +749,31 @@ export function createScanner(text: string): YamlScanner {
 			} else {
 				// Invalid content after block scalar indicator:
 				// either # without preceding whitespace, or arbitrary text
+				let inSingleQuote = false;
+				let inDoubleQuote = false;
 				while (pos < text.length && !isNewline(peek())) {
+					const ch = peek();
+					if (inDoubleQuote && ch === "\\") {
+						advance();
+						if (pos < text.length && !isNewline(peek())) advance();
+						continue;
+					}
+					if (ch === "'" && !inDoubleQuote) {
+						if (inSingleQuote && peek(1) === "'") {
+							advance(2);
+							continue;
+						}
+						inSingleQuote = !inSingleQuote;
+					} else if (ch === '"' && !inSingleQuote) {
+						inDoubleQuote = !inDoubleQuote;
+					} else if (ch === "#" && !inSingleQuote && !inDoubleQuote && isWhitespace(charAt(pos - 1))) {
+						break;
+					}
 					advance();
 				}
-				return makeToken("error", text.slice(start, pos), start, sLine, sCol);
+				const error = makeToken("error", text.slice(start, pos), start, sLine, sCol);
+				if (peek() === "#") pending.push(scanComment());
+				return error;
 			}
 		}
 

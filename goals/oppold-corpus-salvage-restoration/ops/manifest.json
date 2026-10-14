@@ -5,12 +5,12 @@
     "title": "Oppold Corpus Salvage Restoration",
     "status": "active",
     "created": "2026-08-24",
-    "updated": "2026-10-10",
+    "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/oppold-corpus-salvage-restoration",
   "lifecycle": "active",
-  "statusNote": "2026-10-10: P0/P1/P4 complete; run-9 first wave has nine bounded occurrences. PR6 adds the authorized selector; run 10 owns execution after content-final. Zero P2 families started; P2/P3 pending, lifecycle active.",
+  "statusNote": "2026-10-14: P0/P1/P4 complete; P2 in-progress, bounded wave stopped at family 8. Eight sealed: five accepted, families 5/7/8 failed; ordinal 9 unstarted. Family-8 unmatched PDF repair copy reproduces a nonzero/empty frozen Tika second pass; input-sensitive parser attribution, precise original cause unresolved. No next launch or retry. Separate family-5/7 recovery, family-8 recovery scope, eighteen larger occurrences and estate/recycle/DOC gates remain open; P3 pending, lifecycle active.",
   "mission": "Preserve and verify the current T7 salvage state, then restore mail, reconcile all three recycle volumes, and convert distinct legacy-Word digests with originals retained.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -58,7 +58,7 @@
     {
       "id": "P2",
       "name": "Full transformation wave",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P3",

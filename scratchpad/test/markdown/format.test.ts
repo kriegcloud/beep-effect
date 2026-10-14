@@ -16,8 +16,8 @@ import { Markdown } from "../../effected/markdown/Markdown.ts";
 import { MarkdownDocument } from "../../effected/markdown/MarkdownDocument.ts";
 import { MarkdownEdit } from "../../effected/markdown/MarkdownEdit.ts";
 import { MarkdownFormat, MarkdownFormattingOptions, MarkdownModificationError } from "../../effected/markdown/MarkdownFormat.ts";
-import type { MarkdownNode } from "../../effected/markdown/MarkdownNode.ts";
-import { Blockquote, Heading, InlineCode, Paragraph, Point, Position, Text } from "../../effected/markdown/MarkdownNode.ts";
+import type { MarkdownNode, PhrasingContent } from "../../effected/markdown/MarkdownNode.ts";
+import { Blockquote, Code, Definition, Emphasis, Heading, InlineCode, Link, LinkReference, Paragraph, Point, Position, Table, TableCell, TableRow, Text } from "../../effected/markdown/MarkdownNode.ts";
 import { renderHtml } from "./e2e/support/htmlWriter.ts";
 
 /** A throwaway span for hand-built fragments; modify never reads fragment offsets. */
@@ -268,6 +268,98 @@ describe("MarkdownFormat.format", () => {
 		});
 	});
 
+	describe("round-2 formatting fidelity", () => {
+		it("keeps interrupting ATX headings after paragraphs, quotes and lists", () => {
+			for (const newline of ["\n", "\r", "\r\n"]) {
+				for (const preceding of ["intro", "> quote", "- item"]) {
+					const source = `${preceding}${newline}# Title${newline}`;
+					const result = fmt(source, { headingStyle: "setext" });
+					assert.strictEqual(result, source);
+					assertEquivalent(source, result);
+				}
+				const source = `intro${newline}${newline}# Title${newline}`;
+				assertEquivalent(source, fmt(source, { headingStyle: "setext" }));
+			}
+		});
+
+		it("retains setext headings with literal trailing hashes", () => {
+			for (const source of ["title #\n=======\n", "title ### \t\n=======\n", "#\n===\n"]) {
+				const result = fmt(source, { headingStyle: "atx" });
+				assert.strictEqual(result, source);
+				assertEquivalent(source, result);
+			}
+			const escaped = "title \\#\n=======\n";
+			assert.strictEqual(fmt(escaped, { headingStyle: "atx" }), "# title \\#\n");
+			assertEquivalent(escaped, fmt(escaped, { headingStyle: "atx" }));
+		});
+
+		it("recognizes lone CR and mixed terminators in the preceding-line guard", () => {
+			for (const source of ["para\r***\r", "para\r\r***\r", "para\n\r***\n", "para\r\n***\r"]) {
+				const result = fmt(source, { thematicBreakChar: "-" });
+				assertEquivalent(source, result);
+			}
+			assert.strictEqual(fmt("para\r***\r", { thematicBreakChar: "-" }), "para\r***\r");
+			assert.strictEqual(fmt("para\r\r***\r", { thematicBreakChar: "-" }), "para\r\r---\r");
+		});
+
+		it("retains emphasis with left, right and two-sided astral-letter flanks", () => {
+			for (const source of ["𐐀*hi*\n", "*hi*𐐀\n", "𐐀*hi*𐐀\n"]) {
+				const result = fmt(source, { emphasisChar: "_" });
+				assert.strictEqual(result, source);
+				assertEquivalent(source, result);
+			}
+		});
+
+		it("changes only the opening fence of unclosed foo-backtick blocks", () => {
+			for (const source of ["```\nfoo```", "```\nfoo```\n"]) {
+				const result = fmt(source, { fenceChar: "~" });
+				assert.strictEqual(result, `~~~${source.slice(3)}`);
+				assertEquivalent(source, result);
+			}
+		});
+
+		it("recognizes genuine closing fences in CR and container context", () => {
+			for (const newline of ["\n", "\r", "\r\n"]) {
+				for (const [source, expected] of [
+					[`\`\`\`${newline}> \`\`\`${newline}`, `~~~${newline}> \`\`\`${newline}`],
+					[`> \`\`\`${newline}> foo${newline}> \`\`\`  ${newline}`, `> ~~~${newline}> foo${newline}> ~~~  ${newline}`],
+					[`- \`\`\`${newline}  foo${newline}  \`\`\`${newline}`, `- ~~~${newline}  foo${newline}  ~~~${newline}`],
+				] as const) {
+					const result = fmt(source, { fenceChar: "~" });
+					assert.strictEqual(result, expected);
+					assertEquivalent(source, result);
+				}
+			}
+		});
+
+		it("suppresses the combined bullet wave when a nested-list line becomes a break", () => {
+			for (const [source, bulletChar] of [["* - -\n", "-"], ["- * *\n", "*"], ["* + +\n", "-"]] as const) {
+				const result = fmt(source, { bulletChar });
+				assert.strictEqual(result, source);
+				assertEquivalent(source, result);
+			}
+			const source = "* + +\n\n* safe\n";
+			assert.strictEqual(fmt(source, { bulletChar: "-" }), "* + +\n\n- safe\n");
+		});
+
+		it("keeps safe bullet edits around an existing nested thematic break", () => {
+			const source = "- ***\n";
+			const result = fmt(source, { bulletChar: "+" });
+			assert.strictEqual(result, "+ ***\n");
+			assert.strictEqual(fmt(source, { bulletChar: "*" }), source);
+			assertEquivalent(source, result);
+		});
+
+		it("projects only bullet edits whose owning lists intersect the requested range", () => {
+			const source = "* + +\n";
+			const result = MarkdownFormat.formatToString(source, { offset: 0, length: 1 }, MarkdownFormattingOptions.make({ bulletChar: "-" }));
+			assert.strictEqual(result, "- + +\n");
+			assertEquivalent(source, result);
+			const hazardous = "* - -\n";
+			assert.strictEqual(MarkdownFormat.formatToString(hazardous, { offset: 0, length: 1 }, MarkdownFormattingOptions.make({ bulletChar: "-" })), hazardous);
+		});
+	});
+
 	describe("composition and stability", () => {
 		it("applies several options in one pass", () => {
 			const result = fmt("* a\n\n***\n\n_x_\n", { bulletChar: "-", thematicBreakChar: "*", emphasisChar: "*" });
@@ -333,6 +425,147 @@ describe("MarkdownFormat.format", () => {
 			assert.strictEqual(edits.length, 0);
 		});
 	});
+});
+
+describe("MarkdownFormat round-3 boundary regressions", () => {
+	const firstChild = (document: MarkdownDocument): MarkdownNode => {
+		const child = document.root.children[0];
+		if (child === undefined) assert.fail("expected a flow block");
+		return child;
+	};
+	it.effect("rejects replacements that absorb a following flow sibling", () =>
+		Effect.gen(function* () {
+			const listDoc = yield* parseDoc("- new\n");
+			const fixtures: ReadonlyArray<readonly [string, MarkdownNode | string]> = [
+				["# title\nbody\n", "new"],
+				["# title\n\n- kept\n", firstChild(listDoc)],
+				["# title\n\n    kept\n", Code.make({ value: "new\n" })],
+				["# title\n> kept\n", Blockquote.make({ children: [Paragraph.make({ children: [Text.make({ value: "new" })] })] })],
+				["# title\n| kept |\n", Table.make({ children: [TableRow.make({ children: [TableCell.make({ children: [Text.make({ value: "new" })] })] })] })],
+				['# title\n"kept"\n', Definition.make({ identifier: "a", url: "/url" })],
+			];
+			for (const [source, replacement] of fixtures) {
+				const doc = yield* parseDoc(source);
+				assert.strictEqual(doc.root.children.length, 2);
+				const error = yield* Effect.flip(MarkdownFormat.modify(doc, firstChild(doc), replacement));
+				assert.instanceOf(error, MarkdownModificationError);
+				assert.strictEqual(error.code, "UnsupportedTarget", source);
+			}
+		}),
+	);
+
+	it.effect("rejects an empty flow replacement that merges its neighboring lists", () =>
+		Effect.gen(function* () {
+			const doc = yield* parseDoc("- before\n# separator\n- after\n");
+			const target = doc.find("heading");
+			if (target === undefined) assert.fail("expected a separating heading");
+			const error = yield* Effect.flip(MarkdownFormat.modify(doc, target, ""));
+			assert.strictEqual(error.code, "UnsupportedTarget");
+			assert.strictEqual(error.detail, "the flow replacement would absorb or change its following sibling");
+			assert.strictEqual(doc.root.children.length, 3);
+		}),
+	);
+
+	it("preserves punctuation-flanked emphasis while requesting underscores", () => {
+		for (const [source, expected] of [["a*?hi*\n", "a*?hi*\n"], ["(*?hi*)\n", "(_?hi_)\n"]] as const) {
+			const out = fmt(source, { emphasisChar: "_" });
+			assert.strictEqual(out, expected);
+			assertEquivalent(source, out);
+		}
+	});
+
+	it.effect("retains the following sibling boundaries after a safe length-changing replacement", () =>
+		Effect.gen(function* () {
+			const doc = yield* parseDoc("# old\nbody\n");
+			const out = yield* MarkdownFormat.modifyToString(doc, firstChild(doc), Heading.make({ depth: 2, children: [Text.make({ value: "longer" })] }));
+			assert.strictEqual(out, "## longer\nbody\n");
+			const reparsed = yield* parseDoc(out);
+			assert.strictEqual(reparsed.root.children[1]?.type, "paragraph");
+			assert.strictEqual(reparsed.root.children[1]?.position.start.offset, "## longer\n".length);
+			assert.strictEqual(reparsed.root.children[1]?.position.end.offset, out.length - 1);
+			const quoted = yield* parseDoc("# old\n\n> kept\n");
+			const quoteOut = yield* MarkdownFormat.modifyToString(quoted, firstChild(quoted), Blockquote.make({ children: [Paragraph.make({ children: [Text.make({ value: "new" })] })] }));
+			assert.strictEqual(quoteOut, "> new\n\n> kept\n");
+			assert.strictEqual((yield* parseDoc(quoteOut)).root.children.length, 2);
+		}),
+	);
+
+	it.effect("protects terminal whitespace at emphasis, strong and delete closing delimiters", () =>
+		Effect.gen(function* () {
+			for (const [source, type] of [["*old*\n", "emphasis"], ["**old**\n", "strong"], ["~~old~~\n", "delete"], ["~old~\n", "delete"]] as const) {
+				for (const value of ["new ", "new\t", "new \t", "new\u00a0"]) {
+					const doc = yield* parseDoc(source);
+					const target = doc.find("text");
+					if (target === undefined) assert.fail("expected text");
+					for (const replacement of [value, Text.make({ value })]) {
+						const out = yield* MarkdownFormat.modifyToString(doc, target, replacement);
+						const reparsed = yield* parseDoc(out);
+						assert.strictEqual(reparsed.find(type)?.type, type);
+						assert.strictEqual(reparsed.find("text")?.value, value);
+						assert.include(out, "&#");
+					}
+				}
+			}
+		}),
+	);
+
+	it("preserves emphasis beside combining marks and format characters when requesting underscores", () => {
+		for (const neighbor of ["\u0301", "\u200c"]) {
+			for (const marker of ["*", "**"]) {
+				for (const source of [`${neighbor}${marker}hi${marker}\n`, `${marker}hi${marker}${neighbor}\n`, `${neighbor}${marker}hi${marker}${neighbor}\n`]) {
+					const out = fmt(source, { emphasisChar: "_" });
+					assert.strictEqual(out, source);
+					assertEquivalent(source, out);
+				}
+			}
+		}
+	});
+
+	it.effect("returns FragmentUnrenderable for an over-deep fragment inside a link", () =>
+		Effect.gen(function* () {
+			let fragment: PhrasingContent = Text.make({ value: "new" });
+			for (let depth = 0; depth < 30000; depth++) fragment = Emphasis.make({ children: [fragment] });
+			for (const source of ["[old](/a)\n", "[old][a]\n\n[a]: /a\n"]) {
+				const doc = yield* parseDoc(source);
+				const target = doc.find("text");
+				if (target === undefined) assert.fail("expected link text");
+				const error: MarkdownModificationError = yield* Effect.flip(MarkdownFormat.modify(doc, target, fragment));
+				assert.instanceOf(error, MarkdownModificationError);
+				assert.strictEqual(error.code, "FragmentUnrenderable");
+				assert.include(error.detail, "NestingDepthExceeded");
+			}
+		}),
+	);
+
+	it("skips setext conversions that parse as HTML or reference definitions in either dialect", () => {
+		for (const dialect of ["commonmark", "gfm"] as const) {
+			for (const content of ["<div>", "<script>text</script>", "<!-- comment -->", "[foo]: /url", '[foo]: /url "title"']) {
+				for (const marker of ["#", "##"]) {
+					const source = `${marker} ${content}\n`;
+					assert.strictEqual(fmt(source, { dialect, headingStyle: "setext" }), source);
+				}
+			}
+			assert.strictEqual(fmt("# <span>hi</span>\n", { dialect, headingStyle: "setext" }), "<span>hi</span>\n===============\n");
+		}
+	});
+
+	it.effect("checks flow boundaries using the document's commonmark or GFM dialect", () =>
+		Effect.gen(function* () {
+			const source = "# Title\n| a |\n| --- |\n| b |\n";
+			const commonmark = yield* MarkdownDocument.parse(source, { dialect: "commonmark" });
+			const error = yield* Effect.flip(MarkdownFormat.modify(commonmark, firstChild(commonmark), "Hello"));
+			assert.strictEqual(error.code, "UnsupportedTarget");
+			for (const dialect of ["commonmark", "gfm"] as const) {
+				const separated = "# Title\n\n| a |\n| --- |\n| b |\n";
+				const doc = yield* MarkdownDocument.parse(separated, { dialect });
+				const out = yield* MarkdownFormat.modifyToString(doc, firstChild(doc), "Hello");
+				assert.strictEqual(out, "Hello\n\n| a |\n| --- |\n| b |\n");
+				const reparsed = yield* MarkdownDocument.parse(out, { dialect: doc.dialect });
+				assert.strictEqual(reparsed.root.children[0]?.type, "paragraph");
+				assert.strictEqual(reparsed.root.children[1]?.type, dialect === "gfm" ? "table" : "paragraph");
+			}
+		}),
+	);
 });
 
 describe("MarkdownFormat.modify", () => {
@@ -478,7 +711,7 @@ describe("MarkdownFormat.modify", () => {
 				],
 				position: span(),
 			});
-			const error = yield* Effect.flip(MarkdownFormat.modify(doc, target, fragment));
+			const error: MarkdownModificationError = yield* Effect.flip(MarkdownFormat.modify(doc, target, fragment));
 			assert.instanceOf(error, MarkdownModificationError);
 			assert.strictEqual(error.code, "UnsupportedTarget");
 		}),
@@ -493,6 +726,111 @@ describe("MarkdownFormat.modify", () => {
 			if (target === undefined) assert.fail("expected a blockquote child");
 			const out = yield* MarkdownFormat.modifyToString(doc, target, "q");
 			assert.strictEqual(out, "> q\n");
+		}),
+	);
+
+	it.effect("rejects bare-CR replacements inside blockquotes, headings and table cells", () =>
+		Effect.gen(function* () {
+			for (const source of ["> before\n", "# before\n", "| h |\n| - |\n| before |\n"]) {
+				const doc = yield* parseDoc(source);
+				const target = doc.find("text");
+				if (target === undefined) assert.fail("expected text");
+				const error = yield* Effect.flip(MarkdownFormat.modify(doc, target, "one\r# ESCAPE"));
+				assert.instanceOf(error, MarkdownModificationError);
+				assert.strictEqual(error.code, "UnsupportedTarget");
+			}
+			const doc = yield* parseDoc("| h |\n| - |\n| before |\n");
+			const target = doc.find("tableCell");
+			if (target === undefined) assert.fail("expected a table cell");
+			const error = yield* Effect.flip(MarkdownFormat.modify(doc, target, "one\rtwo"));
+			assert.instanceOf(error, MarkdownModificationError);
+			assert.strictEqual(error.code, "UnsupportedTarget");
+		}),
+	);
+
+	it.effect("preserves trailing literal hashes in ATX heading text replacements", () =>
+		Effect.gen(function* () {
+			for (const [source, value, expected] of [
+				["# before\n", "after #", "<h1>after #</h1>\n"],
+				["# before ###\n", "after #", "<h1>after #</h1>\n"],
+				["# before\n", "#", "<h1>#</h1>\n"],
+				["# *middle* before\n", " after ### \t", "<h1><em>middle</em> after ###</h1>\n"],
+			] as const) {
+				const doc = yield* parseDoc(source);
+				const heading = firstChild(doc);
+				if (heading.type !== "heading") assert.fail("expected a heading");
+				const target = heading.children[heading.children.length - 1];
+				if (target === undefined) assert.fail("expected heading text");
+				const out = yield* MarkdownFormat.modifyToString(doc, target, value);
+				const reparsed = yield* parseDoc(out);
+				assert.strictEqual(renderHtml(reparsed.root, { gfm: true }), expected);
+			}
+		}),
+	);
+
+	it.effect("rejects direct and descendant links inside both link destination contexts", () =>
+		Effect.gen(function* () {
+			for (const source of ["[outer](/a)\n", "[outer][a]\n\n[a]: /a\n"]) {
+				const doc = yield* parseDoc(source);
+				const target = doc.find("text");
+				if (target === undefined) assert.fail("expected link text");
+				const link = Link.make({ url: "/b", children: [Text.make({ value: "inner" })] });
+				const reference = LinkReference.make({ identifier: "b", referenceType: "full", children: [Text.make({ value: "inner" })] });
+				for (const fragment of [link, reference, Emphasis.make({ children: [link] }), Emphasis.make({ children: [reference] })]) {
+					const error: MarkdownModificationError = yield* Effect.flip(MarkdownFormat.modify(doc, target, fragment));
+					assert.instanceOf(error, MarkdownModificationError);
+					assert.strictEqual(error.code, "UnsupportedTarget");
+					assert.include(renderHtml(doc.root, { gfm: true }), 'href="/a"');
+				}
+			}
+		}),
+	);
+
+	it.effect("rejects flow replacements absorbed by preceding paragraphs, lists or footnotes", () =>
+		Effect.gen(function* () {
+			for (const source of ["para\n# h\n", "para\n- a\n", "- item\n\npara\n", "[^a]: item\n\npara\n"]) {
+				const doc = yield* parseDoc(source);
+				const target = doc.root.children[1];
+				if (target === undefined) assert.fail("expected the second flow block");
+				const paragraph = Paragraph.make({ children: [Text.make({ value: "x" })] });
+				const fragments = source === "para\n# h\n" || source === "para\n- a\n" ? ["x", paragraph, Code.make({ value: "x" })] : [Code.make({ value: "x" })];
+				for (const fragment of fragments) {
+					const error: MarkdownModificationError = yield* Effect.flip(MarkdownFormat.modify(doc, target, fragment));
+					assert.instanceOf(error, MarkdownModificationError);
+					assert.strictEqual(error.code, "UnsupportedTarget");
+				}
+			}
+		}),
+	);
+
+	it.effect("rejects flow replacements absorbed inside blockquotes and list items", () =>
+		Effect.gen(function* () {
+			for (const source of ["> para\n> # h\n", "- para\n  # h\n"]) {
+				const doc = yield* parseDoc(source);
+				const target = doc.find("heading");
+				if (target === undefined) assert.fail("expected a heading");
+				const error = yield* Effect.flip(MarkdownFormat.modify(doc, target, "x"));
+				assert.instanceOf(error, MarkdownModificationError);
+				assert.strictEqual(error.code, "UnsupportedTarget");
+				const heading = Heading.make({ depth: 2, children: [Text.make({ value: "x" })] });
+				const out = yield* MarkdownFormat.modifyToString(doc, target, heading);
+				const reparsed = yield* parseDoc(out);
+				assert.strictEqual(reparsed.find("heading")?.depth, 2);
+			}
+		}),
+	);
+
+	it.effect("accepts flow replacements that actually interrupt the preceding paragraph", () =>
+		Effect.gen(function* () {
+			const doc = yield* parseDoc("para\n# h\n");
+			const target = doc.root.children[1];
+			if (target === undefined) assert.fail("expected the heading");
+			const fragment = Heading.make({ depth: 2, children: [Text.make({ value: "x" })] });
+			const out = yield* MarkdownFormat.modifyToString(doc, target, fragment);
+			assert.strictEqual(out, "para\n## x\n");
+			const reparsed = yield* parseDoc(out);
+			assert.strictEqual(reparsed.root.children[0]?.type, "paragraph");
+			assert.strictEqual(reparsed.root.children[1]?.type, "heading");
 		}),
 	);
 

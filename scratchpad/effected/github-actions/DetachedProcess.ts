@@ -1,4 +1,5 @@
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as Bool from "effect/Boolean";
 import type * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
@@ -362,25 +363,42 @@ export const ProcessId = S.Number.pipe(
 );
 
 /**
- * How a detached child is started.
+ * Decoded value produced by {@link ProcessId}.
  *
- * @public
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
-export interface DetachedSpawnOptions {
+export type ProcessId = typeof ProcessId.Type;
+
+/**
+ * How a detached child is started.
+ *
+ * **Example** (Validate detached launch options)
+ *
+ * ```ts
+ * import { DetachedSpawnOptions } from "@beep/scratchpad/effected/github-actions/DetachedProcess";
+ * import * as S from "effect/Schema";
+ *
+ * console.log(S.is(DetachedSpawnOptions)({ command: "node", logFile: "/tmp/server.log" })) // true
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const DetachedSpawnOptions = S.Struct({
 	/**
 	 * The executable.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly command: string;
+	command: S.String.annotateKey({ description: "The executable to start." }),
 	/**
 	 * Its arguments.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly args?: ReadonlyArray<string> | undefined;
+	args: S.String.pipe(S.Array, S.optional).annotateKey({ description: "The executable arguments, omitted for none." }),
 	/**
 	 * Where the child's stdout and stderr go, opened for append.
 	 *
@@ -394,13 +412,13 @@ export interface DetachedSpawnOptions {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly logFile: string;
+	logFile: S.String.annotateKey({ description: "The file opened for append for stdout and stderr." }),
 	/**
 	 * The working directory.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly cwd?: string | undefined;
+	cwd: S.optional(S.String).annotateKey({ description: "The child working directory, omitted to inherit it." }),
 	/**
 	 * The environment the child inherits, before `env` is merged over it.
 	 *
@@ -419,7 +437,7 @@ export interface DetachedSpawnOptions {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly base?: Readonly<Record<string, string | undefined>> | undefined;
+	base: S.optional(S.Record(S.String, S.UndefinedOr(S.String))).annotateKey({ description: "The base environment; omitted uses process.env at spawn time." }),
 	/**
 	 * Environment additions.
 	 *
@@ -434,8 +452,17 @@ export interface DetachedSpawnOptions {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly env?: Readonly<Record<string, string>> | undefined;
-}
+	env: S.optional(S.Record(S.String, S.String)).annotateKey({ description: "Environment additions merged over the base." }),
+}).annotate($I.annote("DetachedSpawnOptions", { description: "Plain-object detached child launch options retaining optional and explicit-undefined inputs." }));
+
+/**
+ * The launch options type accepted by {@link DetachedSpawnOptions}.
+ *
+ * @public
+ * @category type-level
+ * @since 0.0.0
+ */
+export type DetachedSpawnOptions = typeof DetachedSpawnOptions.Type;
 
 /**
  * How long to wait for a child to become ready.
@@ -549,8 +576,7 @@ const dies = unstubbed("DetachedProcess.makeTestOps");
  * @category processes
  * @since 0.0.0
  */
-export class DetachedProcess {
-	private constructor() {}
+export abstract class DetachedProcess {
 
 	/**
 	 * Start a detached child with its output routed to a log file.
@@ -753,9 +779,10 @@ export class DetachedProcess {
 			} catch (cause) {
 				// ESRCH is "no such process", which for a `post` phase means the child
 				// has already exited — the normal ending, not a failure.
-				return isErrno(cause, "ESRCH")
-					? Effect.succeed(false)
-					: Effect.fail(DetachedSignalFailedError.make({ pid, cause }));
+				return Bool.match(isErrno(cause, "ESRCH"), {
+					onTrue: () => Effect.succeed(false),
+					onFalse: () => Effect.fail(DetachedSignalFailedError.make({ pid, cause })),
+				});
 			}
 		});
 	});

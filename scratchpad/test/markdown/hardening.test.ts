@@ -55,6 +55,13 @@
 // defect) belongs with the facade and lands in Task 11.
 
 import { assert, describe, it } from "@effect/vitest";
+import { assertSuccess } from "@effect/vitest/utils";
+import * as Effect from "effect/Effect";
+import * as Result from "effect/Result";
+import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
+import { Markdown } from "../../effected/markdown/Markdown.ts";
+import { MarkdownVisitor } from "../../effected/markdown/MarkdownVisitor.ts";
 import * as HashMap from "effect/HashMap";
 import * as O from "effect/Option";
 import { parseBlocks } from "../../effected/markdown/internal/blockParser.ts";
@@ -63,6 +70,32 @@ import { MAX_NESTING_DEPTH } from "../../effected/markdown/internal/limits.ts";
 import { InvalidLineTableError, LineIndex } from "../../effected/markdown/internal/lineIndex.ts";
 import { preprocessLines } from "../../effected/markdown/internal/preprocess.ts";
 import { renderHtml } from "./e2e/support/htmlWriter.ts";
+
+// Vitest's threads pool runs this regression in Node, whose argument limit
+// rejects the former segment spread even though Bun accepts it.
+it.effect("retains positions when promoting a 150,000-line setext heading", () => Effect.sync(() => {
+	const lines = 150_000;
+	const source = `${Str.repeat(lines)("x\n")}---\n`;
+	const parsed = Markdown.parseResult(source);
+	assertSuccess(parsed, parseBlocks(source).root);
+	const heading = parsed.success.children[0];
+	assert.strictEqual(parsed.success.children.length, 1);
+	assert.ok(heading?.type === "heading");
+	if (heading?.type === "heading") {
+		assert.strictEqual(heading.depth, 2);
+		assert.deepStrictEqual({ ...heading.position.start }, { line: 1, column: 1, offset: 0 });
+		assert.deepStrictEqual({ ...heading.position.end }, { line: lines + 1, column: 4, offset: source.length - 1 });
+		const text = heading.children[0];
+		assert.strictEqual(heading.children.length, 1);
+		assert.ok(text?.type === "text");
+		if (text?.type === "text") {
+			assert.strictEqual(text.value, Str.slice(0, lines * 2 - 1)(source));
+			assert.deepStrictEqual({ ...text.position.start }, { line: 1, column: 1, offset: 0 });
+			assert.deepStrictEqual({ ...text.position.end }, { line: lines, column: 2, offset: lines * 2 - 1 });
+		}
+	}
+	assert.strictEqual(parsed.success.position.end.offset, source.length);
+}));
 
 describe("recursion surfaces", () => {
 	describe("container nesting (surfaces 1, 2 and 3)", () => {
@@ -123,6 +156,49 @@ describe("recursion surfaces", () => {
 			const source = `${">".repeat(10)} ${"*".repeat(20)}a${"*".repeat(20)}\n`;
 			assert.doesNotThrow(() => parseBlocks(source));
 		});
+	});
+
+	describe("combined materialized tree depth", () => {
+		it("accepts the whole-tree boundary and rejects one deeper with a typed facade failure", () => {
+			const atLimit = `${"> ".repeat(MAX_NESTING_DEPTH - 4)}***x***\n`;
+			assert.doesNotThrow(() => parseBlocks(atLimit));
+			for (const quotes of [MAX_NESTING_DEPTH - 3, MAX_NESTING_DEPTH - 2]) {
+				const source = `${"> ".repeat(quotes)}***x***\n`;
+				let caught: unknown;
+				try { parseBlocks(source); } catch (error) { caught = error; }
+				assert.isTrue(isGuardExceeded(caught));
+				if (isGuardExceeded(caught)) {
+					assert.strictEqual(caught.limit, MAX_NESTING_DEPTH);
+					assert.strictEqual(caught.actual, MAX_NESTING_DEPTH + 1);
+					assert.strictEqual(caught.message, `NestingDepthExceeded: limit ${MAX_NESTING_DEPTH}, actual ${MAX_NESTING_DEPTH + 1}`);
+				}
+				const parsed = Markdown.parseResult(source);
+				assertSuccess(
+					Result.map(Result.flip(parsed), (failure) => [failure._tag, failure.diagnostic.code]),
+					["MarkdownParseError", "NestingDepthExceeded"],
+				);
+			}
+		});
+
+		it.effect("visits and stringifies parsed boundary trees without tripping either guard", Effect.fnUntraced(function* () {
+			const sources = [
+				`${"> ".repeat(MAX_NESTING_DEPTH - 2)}x\n`,
+				`${"> ".repeat(MAX_NESTING_DEPTH - 3)}*x*\n`,
+				`${"> ".repeat(MAX_NESTING_DEPTH - 4)}***x***\n`,
+				`${"> ".repeat(200)}${"*".repeat(108)}x${"*".repeat(108)}\n`,
+			];
+			for (const source of sources) {
+				const root = yield* Markdown.parse(source);
+				const events = yield* MarkdownVisitor.visit(root).pipe(Stream.runCollect);
+				assert.isFalse(events.some((event) => event._tag === "Error"));
+				assert.isTrue(events.some((event) => event.depth === MAX_NESTING_DEPTH));
+				const serialized = yield* Markdown.stringify(root);
+				assertSuccess(Markdown.stringifyResult(root), serialized);
+				const reparsed = yield* Markdown.parse(serialized);
+				const repeated = yield* Markdown.stringify(reparsed);
+				assert.strictEqual(repeated, serialized);
+			}
+		}));
 	});
 
 	describe("image alt flattening (surface 9)", () => {

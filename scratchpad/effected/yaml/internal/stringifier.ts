@@ -8,11 +8,12 @@
 // round-trip preservation of AST node styles.
 
 import { $ScratchpadId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Str from "effect/String";
 import * as Order from "effect/Order";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as P from "effect/Predicate";
-import type { CollectionStyle, QuoteCompat, QuoteStyle, ScalarStyle, YamlNode } from "../YamlNode.ts";
+import { CollectionStyle, QuoteCompat, QuoteStyle, ScalarChomp, ScalarStyle, type YamlNode } from "../YamlNode.ts";
 import { YamlAlias, YamlMap, YamlPair, YamlScalar, YamlSeq } from "../YamlNode.ts";
 import { MAX_NESTING_DEPTH } from "./composer/state.ts";
 import {
@@ -444,22 +445,28 @@ export function renderDoubleQuoted(s: string, ...[canonical = false]: [canonical
  * @since 0.0.0
  */
 export function renderSingleQuoted(s: string): string {
-	return `'${s.replace(/'/g, "''")}'`;
+	return `'${Str.replaceAll("'", "''")(s)}'`;
 }
 
-interface StringRenderContext {
-	readonly s: string;
-	readonly indent: string;
-	readonly ignoreType: boolean;
-	readonly canonical: boolean;
-	readonly explicitChomp: "strip" | "clip" | "keep" | undefined;
-	readonly parentPosition: "block-map-value" | "block-seq-item" | undefined;
-	readonly quoteStyle: QuoteStyle;
-	readonly fidelity: boolean;
-	readonly fidelityIndent: number | undefined;
-	readonly quoteCompat: QuoteCompat | undefined;
-	readonly inFlow: boolean;
-}
+const ParentPosition = LiteralKit(["block-map-value", "block-seq-item"]).pipe(
+	$I.annoteSchema("ParentPosition", { description: "The block parent position that controls scalar header rendering." }),
+);
+type ParentPosition = typeof ParentPosition.Type;
+
+const StringRenderContext = S.Struct({
+	s: S.String.annotateKey({ description: "The resolved scalar value to render." }),
+	indent: S.String.annotateKey({ description: "Whitespace prepended to scalar continuation lines." }),
+	ignoreType: S.Boolean.annotateKey({ description: "Whether an explicit tag prevents implicit type coercion." }),
+	canonical: S.Boolean.annotateKey({ description: "Whether canonical presentation rules apply." }),
+	explicitChomp: S.UndefinedOr(ScalarChomp).annotateKey({ description: "The source block chomping indicator, when present." }),
+	parentPosition: S.UndefinedOr(ParentPosition).annotateKey({ description: "The enclosing block entry position, when present." }),
+	quoteStyle: QuoteStyle.annotateKey({ description: "The preferred quoting fallback for plain scalars." }),
+	fidelity: S.Boolean.annotateKey({ description: "Whether redundant source header indicators are preserved." }),
+	fidelityIndent: S.UndefinedOr(S.Finite).annotateKey({ description: "The source indentation indicator preserved in fidelity mode." }),
+	quoteCompat: S.UndefinedOr(QuoteCompat).annotateKey({ description: "The optional foreign dialect whose implicit coercions require quoting." }),
+	inFlow: S.Boolean.annotateKey({ description: "Whether flow collection syntax constrains scalar rendering." }),
+}).annotate($I.annote("StringRenderContext", { description: "Resolved presentation settings for one string scalar." }));
+type StringRenderContext = typeof StringRenderContext.Type;
 
 const stringStyleRenderers: Record<ScalarStyle, (input: StringRenderContext) => string> = {
 	plain: ({ s, ignoreType, quoteCompat, inFlow, canonical, quoteStyle }) => {
@@ -468,11 +475,8 @@ const stringStyleRenderers: Record<ScalarStyle, (input: StringRenderContext) => 
 			// double-quoted under either quoteStyle — single quotes cannot
 			// express them. Backslashes are literal in single-quoted YAML
 			// and do NOT need double-quoting.
-			if (s.includes("\t") || s.includes("\r")) {
+			if (s.includes("\t")) {
 				return renderDoubleQuoted(s, canonical);
-			}
-			for (let i = 0; i < s.length; i++) {
-				if (isControlChar(s.charCodeAt(i))) return renderDoubleQuoted(s, canonical);
 			}
 			// Otherwise the caller's fallback preference decides: single-quoted
 			// by default (the released byte-compatible form), double-quoted
@@ -483,10 +487,10 @@ const stringStyleRenderers: Record<ScalarStyle, (input: StringRenderContext) => 
 	},
 	"single-quoted": ({ s }) => renderSingleQuoted(s),
 	"double-quoted": ({ s, canonical }) => renderDoubleQuoted(s, canonical),
-	"block-literal": ({ s, indent, explicitChomp, parentPosition, fidelity, fidelityIndent }) =>
-		renderBlockLiteral(s, indent, explicitChomp, parentPosition, fidelity, fidelityIndent),
-	"block-folded": ({ s, indent, explicitChomp, fidelity, fidelityIndent }) =>
-		renderBlockFolded(s, indent, fidelity ? explicitChomp : undefined, fidelityIndent),
+	"block-literal": ({ s, indent, explicitChomp, parentPosition, fidelity, fidelityIndent, canonical }) =>
+		O.getOrElse(O.fromNullOr(renderBlockLiteral(s, indent, explicitChomp, parentPosition, fidelity, fidelityIndent)), () => renderDoubleQuoted(s, canonical)),
+	"block-folded": ({ s, indent, explicitChomp, fidelity, fidelityIndent, canonical }) =>
+		O.getOrElse(O.fromNullOr(renderBlockFolded(s, indent, fidelity ? explicitChomp : undefined, fidelityIndent)), () => renderDoubleQuoted(s, canonical)),
 };
 
 /**
@@ -509,30 +513,30 @@ function renderString(
 	indent: string,
 	ignoreType = false,
 	canonical: boolean = false,
-	explicitChomp?: "strip" | "clip" | "keep",
-	parentPosition?: "block-map-value" | "block-seq-item",
+	explicitChomp?: ScalarChomp,
+	parentPosition?: ParentPosition,
 	quoteStyle: QuoteStyle = "single",
 	explicitIndent?: number,
 	quoteCompat?: QuoteCompat,
 	inFlow = false,
+	nested = false,
 ): string {
 	// Fidelity mode (everything but canonical) re-emits the EXPLICIT header
 	// indicators the source spelled — a redundant `+` keep-chomp or `|2`
 	// indentation indicator is normalized away only under forceDefaultStyles.
 	const fidelity = !canonical;
 	const fidelityIndent = fidelity ? explicitIndent : undefined;
+	// Flow collections join rendered lines, so their scalars must keep newlines
+	// escaped and cannot use block headers, including on mapping keys.
+	if (inFlow && (s.includes("\n") || style === "block-literal" || style === "block-folded")) {
+		return renderDoubleQuoted(s, canonical);
+	}
+	// CR and controls need escaping under every requested presentation style.
+	for (let i = 0; i < s.length; i++) {
+		const code = s.charCodeAt(i);
+		if (isControlChar(code) || code === 0x0d) return renderDoubleQuoted(s, canonical);
+	}
 	if (s.includes("\n")) {
-		// If the value contains C0 control chars (except tab) or carriage
-		// returns, block styles can't represent them — use double-quoted
-		let hasControl = false;
-		for (let i = 0; i < s.length; i++) {
-			const code = s.charCodeAt(i);
-			if (isControlChar(code) || code === 0x0d) {
-				hasControl = true;
-				break;
-			}
-		}
-		if (hasControl) return renderDoubleQuoted(s, canonical);
 		// If the value is only spaces and newlines (no text/tab content),
 		// block scalars can't represent it faithfully — use double-quoted.
 		// Exception: when the original style is block-literal with keep-chomp
@@ -558,20 +562,20 @@ function renderString(
 		}
 		// Multi-line: prefer block styles
 		if (style === "block-literal")
-			return renderBlockLiteral(s, indent, explicitChomp, parentPosition, fidelity, fidelityIndent);
+			return O.getOrElse(O.fromNullOr(renderBlockLiteral(s, indent, explicitChomp, parentPosition, fidelity, fidelityIndent)), () => renderDoubleQuoted(s, canonical));
 		if (style === "block-folded")
-			return renderBlockFolded(s, indent, fidelity ? explicitChomp : undefined, fidelityIndent);
+			return O.getOrElse(O.fromNullOr(renderBlockFolded(s, indent, fidelity ? explicitChomp : undefined, fidelityIndent)), () => renderDoubleQuoted(s, canonical));
 		// In canonical mode, prefer single-quoted with fold encoding for plain
 		// and single-quoted multi-line scalars — matches libyaml canonical form.
 		if (style === "plain" || style === "single-quoted") {
 			if (canonical) {
+				// A root-level closing quote is invalid inside a block collection.
+				if (nested && s.endsWith("\n")) return renderDoubleQuoted(s, canonical);
 				// Flow-quoted continuation whitespace is folded away by YAML readers.
 				if (/\n[ \t]/.test(s)) return renderDoubleQuoted(s, canonical);
-				// Controls and CR were excluded above, so the SQ renderer cannot reject.
-				const sq = O.getOrThrow(O.fromNullOr(renderSingleQuotedMultiline(s, indent)));
-				return sq.replace(/\n'$/, `\n${indent}'`);
+				return O.getOrElse(O.fromNullOr(renderSingleQuotedMultiline(s, indent)), () => renderDoubleQuoted(s, canonical));
 			}
-			return renderBlockLiteral(s, indent, explicitChomp, parentPosition, fidelity, fidelityIndent);
+			return O.getOrElse(O.fromNullOr(renderBlockLiteral(s, indent, explicitChomp, parentPosition, fidelity, fidelityIndent)), () => renderDoubleQuoted(s, canonical));
 		}
 		return renderDoubleQuoted(s, canonical);
 	}
@@ -656,33 +660,21 @@ function detectCircular(value: object, seen: object[]): void {
 // Core stringification
 // ---------------------------------------------------------------------------
 
-interface StringifyContext {
-	indent: number;
-	lineWidth: number;
-	defaultScalarStyle: ScalarStyle;
-	defaultCollectionStyle: CollectionStyle;
-	sortKeys: boolean;
-	indentSequences: boolean;
-	/** Fallback quote style for plain scalars that require quoting. */
-	quoteStyle: QuoteStyle;
-	/** Foreign dialect whose implicit coercions additionally force quoting. */
-	quoteCompat: QuoteCompat | undefined;
-	forceDefaultStyles: boolean;
-	seen: object[];
-	/**
-	 * Position of the current node within its parent. Used by canonical-mode
-	 * stringifier rules that need to differentiate "block-map value position"
-	 * from "block-seq item position" (e.g., K858 explicit indent indicator
-	 * for empty keep-chomp scalars only fires under block-map values).
-	 */
-	parentPosition?: "block-map-value" | "block-seq-item";
-	/**
-	 * True while rendering inside a flow collection, where the flow
-	 * indicators `,[]{}` make a plain scalar unsafe. Set by every flow
-	 * branch for its children; a bare root scalar is block context.
-	 */
-	inFlow: boolean;
-}
+const StringifyContext = S.Struct({
+	indent: S.Finite.annotateKey({ description: "The number of spaces per indentation level." }),
+	lineWidth: S.Finite.annotateKey({ description: "The preferred output width, with nonpositive values disabling folding." }),
+	defaultScalarStyle: ScalarStyle.annotateKey({ description: "The presentation style for value-path string scalars." }),
+	defaultCollectionStyle: CollectionStyle.annotateKey({ description: "The default block or flow collection presentation." }),
+	sortKeys: S.Boolean.annotateKey({ description: "Whether mapping entries are sorted lexically." }),
+	indentSequences: S.Boolean.annotateKey({ description: "Whether sequences under mappings receive an extra indentation level." }),
+	quoteStyle: QuoteStyle.annotateKey({ description: "The quoting fallback for plain scalars." }),
+	quoteCompat: S.UndefinedOr(QuoteCompat).annotateKey({ description: "The optional foreign dialect whose coercions require quoting." }),
+	forceDefaultStyles: S.Boolean.annotateKey({ description: "Whether canonical rendering replaces source presentation." }),
+	seen: S.ObjectKeyword.pipe(S.Array, S.mutable).annotateKey({ description: "The mutable ancestor stack scanned by reference for cycle detection." }),
+	parentPosition: S.optionalKey(ParentPosition).annotateKey({ description: "The current node's enclosing block entry position." }),
+	inFlow: S.Boolean.annotateKey({ description: "Whether the current node is inside a flow collection." }),
+}).annotate($I.annote("StringifyContext", { description: "Resolved stringify options and traversal state shared by recursive renderers." }));
+type StringifyContext = typeof StringifyContext.Type;
 
 /** Resolves optional stringify options into a fully-defaulted context. */
 function createContext(options?: StringifyOptionsInput): StringifyContext {
@@ -753,6 +745,7 @@ function stringifyLines(value: unknown, ctx: StringifyContext, depth: number, al
 			undefined,
 			ctx.quoteCompat,
 			ctx.inFlow,
+			depth > 0,
 		);
 		// Column-based folding only fires in block contexts (not flow items, whose
 		// lines are re-joined with spaces) and only for a positive lineWidth. The
@@ -1120,12 +1113,9 @@ function normalizeNodeTags(node: YamlNode, tagMap: MutableHashMap.MutableHashMap
 
 /**
  * Recursively strips all comment fields from AST nodes.
- *
- *
  * **Details**
  *
  * Used when forceDefaultStyles is true to produce canonical output.
- *
  * **Example** (Remove a scalar comment while retaining its value)
  *
  * ```ts
@@ -1138,7 +1128,6 @@ function normalizeNodeTags(node: YamlNode, tagMap: MutableHashMap.MutableHashMap
  * const stripped = stripNodeComments(node)
  * console.log(stripped.comment) // undefined
  * ```
- *
  * @category formatting
  * @since 0.0.0
  */
@@ -1209,7 +1198,7 @@ function stringifyNodeLines(node: YamlNode, ctx: StringifyContext, depth: number
 		throw StringifyDepthExceeded.make({ message: `Nesting depth exceeded maximum of ${MAX_NESTING_DEPTH}` });
 
 	if (isYamlScalar(node)) {
-		return stringifyScalarNodeLines(node, ctx);
+		return stringifyScalarNodeLines(node, ctx, depth);
 	}
 	if (isYamlMap(node)) {
 		return stringifyMapNodeLines(node, ctx, depth);
@@ -1223,7 +1212,7 @@ function stringifyNodeLines(node: YamlNode, ctx: StringifyContext, depth: number
 /**
  * Stringifies a YamlScalar node into lines, using the node's style metadata.
  */
-function stringifyScalarNodeLines(node: YamlScalar, ctx: StringifyContext): string[] {
+function stringifyScalarNodeLines(node: YamlScalar, ctx: StringifyContext, depth: number): string[] {
 	// When forcing default styles, preserve the node's original style for multiline
 	// strings (block-literal vs block-folded vs double-quoted) since the canonical
 	// output retains scalar presentation style even in normalized form.
@@ -1271,6 +1260,7 @@ function stringifyScalarNodeLines(node: YamlScalar, ctx: StringifyContext): stri
 			node.blockIndent,
 			ctx.quoteCompat,
 			ctx.inFlow,
+			depth > 0,
 		);
 		lines = rendered.split("\n");
 	} else {
@@ -1478,6 +1468,14 @@ function pushExplicitKeyValueLines(
 		return colonIdx;
 	}
 	if (valLines.length === 1) {
+		// A one-pair block map needs its own indented line: compact `: k: v`
+		// is flattened into two pairs by the composer after an explicit key.
+		if (isYamlMap(valNode) && valNode.items.length > 0 &&
+			(ctx.forceDefaultStyles ? ctx.defaultCollectionStyle : valNode.style) === "block") {
+			const colonIdx = lines.length;
+			lines.push(":", `${pad}${A.getUnsafe(valLines, 0)}`);
+			return colonIdx;
+		}
 		lines.push(`: ${valLines[0]}`);
 		return lines.length - 1;
 	}
@@ -1555,49 +1553,55 @@ function stringifyMapNodeLines(node: YamlMap, ctx: StringifyContext, depth: numb
 	if (style === "flow") {
 		const flowPrefix = buildMetadataPrefix(node.tag, node.anchor);
 		const flowCtx: StringifyContext = { ...ctx, inFlow: true };
-		// Mirrors `rendersAcrossLines`: inner comments force the layout, and so
-		// does a terminal run that was written INSIDE the braces. A trailing
-		// comment written after the closing brace does not — it renders past
-		// the closer and the entry keeps its single line.
+		const emitComments = !ctx.forceDefaultStyles;
+		const rendered = A.map(items, (pair) => {
+			const keyLines = stringifyMappingKeyLines(pair.key, flowCtx, depth + 1);
+			const valLines = pair.value !== null ? stringifyNodeLines(pair.value, flowCtx, depth + 1) : ["null"];
+			const keyIsAnchoredOrTaggedEmpty =
+				isYamlScalar(pair.key) &&
+				pair.key.length === 0 &&
+				(pair.key.value === null || pair.key.value === undefined || pair.key.value === "") &&
+				(pair.key.anchor !== undefined || pair.key.tag !== undefined);
+			const sep = isYamlAlias(pair.key) || keyIsAnchoredOrTaggedEmpty ? " :" : ":";
+			const lines = Str.split(`${A.join(keyLines, "\n")}${sep} ${A.join(valLines, "\n")}`, "\n");
+			return { pair, lines,
+				leading: emitComments ? pairLeading(pair) : undefined,
+				trailing: emitComments ? (pair.key.comment ?? pairTrailing(pair)) : undefined,
+			};
+		});
 		const flowHasComments =
-			!ctx.forceDefaultStyles &&
-			(items.some(
+			emitComments &&
+			(A.some(items,
 				(p) => pairLeading(p) !== undefined || pairTrailing(p) !== undefined || pairSpaceBefore(p) === true,
 			) ||
 				(node.comment !== undefined && node.sourceMultiline === true));
-		if (flowHasComments) {
-			// Comment-carrying flow mapping: one entry per line (multi-line
-			// flow layout), so a `#` comment cannot swallow the closing brace.
+		if (flowHasComments || A.some(rendered, ({ lines }) => lines.length > 1)) {
 			const flowPad = " ".repeat(ctx.indent);
 			const flowLines: string[] = [flowPrefix !== undefined && flowPrefix !== "" ? `${flowPrefix} {` : "{"];
-			for (const [fi, pair] of items.entries()) {
-				if (pairSpaceBefore(pair) === true) flowLines.push("");
-				const flowLeading = pairLeading(pair);
+			for (let fi = 0; fi < rendered.length; fi++) {
+				const entry = A.getUnsafe(rendered, fi);
+				const { pair, lines } = entry;
+				if (emitComments && pairSpaceBefore(pair) === true) flowLines.push("");
+				const flowLeading = entry.leading;
 				if (flowLeading !== undefined) {
-					// An embedded blank line (`""`) stays unpadded — padding it
-					// would emit a whitespace-only line.
 					for (const cl of commentBlockLines(flowLeading)) flowLines.push(cl === "" ? "" : `${flowPad}${cl}`);
 				}
-				const keyStr =
-					stringifyMappingKeyLines(pair.key, flowCtx, depth + 1).join(" ");
-				const valStr = pair.value !== null ? stringifyNodeLines(pair.value, flowCtx, depth + 1).join(" ") : "null";
 				const comma = fi < items.length - 1 ? "," : "";
-				const flowTrailing = pairTrailing(pair);
+				const flowTrailing = entry.trailing;
 				const trailing = flowTrailing !== undefined ? renderTrailingComment(flowTrailing) : "";
-				flowLines.push(`${flowPad}${keyStr}: ${valStr}${comma}${trailing}`);
+				for (let li = 0; li < lines.length; li++) {
+					const line = A.getUnsafe(lines, li);
+					const suffix = li === lines.length - 1 ? `${comma}${trailing}` : "";
+					flowLines.push(line === "" ? "" : `${flowPad}${line}${suffix}`);
+				}
 			}
-			if (node.comment !== undefined) {
+			if (emitComments && !ctx.inFlow && node.comment !== undefined) {
 				for (const cl of commentBlockLines(node.comment)) flowLines.push(cl === "" ? "" : `${flowPad}${cl}`);
 			}
 			flowLines.push("}");
 			return flowLines;
 		}
-		const pairs = items.map((pair) => {
-			const keyStr = stringifyMappingKeyLines(pair.key, flowCtx, depth + 1).join(" ");
-			const valStr = pair.value !== null ? stringifyNodeLines(pair.value, flowCtx, depth + 1).join(" ") : "null";
-			return `${keyStr}: ${valStr}`;
-		});
-		let line = `{${pairs.join(", ")}}`;
+		let line = `{${A.join(A.map(rendered, ({ lines }) => A.join(lines, "")), ", ")}}`;
 		if (flowPrefix !== undefined && flowPrefix !== "") line = `${flowPrefix} ${line}`;
 		return [line];
 	}
@@ -1950,40 +1954,37 @@ function stringifySeqNodeLines(node: YamlSeq, ctx: StringifyContext, depth: numb
 	if (style === "flow") {
 		const flowPrefix = buildMetadataPrefix(node.tag, node.anchor);
 		const flowCtx: StringifyContext = { ...ctx, inFlow: true };
-		// Mirrors `rendersAcrossLines`: inner comments force the layout, and so
-		// does a terminal run that was written INSIDE the brackets. A trailing
-		// comment written after the closing bracket does not — it renders past
-		// the closer and the entry keeps its single line.
+		const rendered = A.map(items, (item) => stringifyNodeLines(item, flowCtx, depth + 1));
 		const flowHasComments =
 			emitComments &&
-			(items.some((it) => itemFields(it) !== undefined) ||
+			(A.some(items, (item) => itemFields(item) !== undefined) ||
 				(node.comment !== undefined && node.sourceMultiline === true));
-		if (flowHasComments) {
-			// Comment-carrying flow sequence: one entry per line (multi-line
-			// flow layout), so a `#` comment cannot swallow the closing bracket.
+		if (flowHasComments || A.some(rendered, (lines) => lines.length > 1)) {
 			const flowPad = " ".repeat(ctx.indent);
 			const flowLines: string[] = [flowPrefix !== undefined && flowPrefix !== "" ? `${flowPrefix} [` : "["];
-			for (const [fi, item] of items.entries()) {
+			for (let fi = 0; fi < items.length; fi++) {
+				const item = A.getUnsafe(items, fi);
 				const fields = itemFields(item);
 				if (fields?.spaceBefore === true) flowLines.push("");
 				if (fields?.commentBefore !== undefined) {
-					// An embedded blank line (`""`) stays unpadded — padding it
-					// would emit a whitespace-only line.
 					for (const cl of commentBlockLines(fields.commentBefore)) flowLines.push(cl === "" ? "" : `${flowPad}${cl}`);
 				}
-				const itemStr = stringifyNodeLines(item, flowCtx, depth + 1).join(" ");
+				const itemLines = A.getUnsafe(rendered, fi);
 				const comma = fi < items.length - 1 ? "," : "";
 				const trailing = fields?.comment !== undefined ? renderTrailingComment(fields.comment) : "";
-				flowLines.push(`${flowPad}${itemStr}${comma}${trailing}`);
+				for (let li = 0; li < itemLines.length; li++) {
+					const line = A.getUnsafe(itemLines, li);
+					const suffix = li === itemLines.length - 1 ? `${comma}${trailing}` : "";
+					flowLines.push(line === "" ? "" : `${flowPad}${line}${suffix}`);
+				}
 			}
-			if (node.comment !== undefined) {
+			if (emitComments && !ctx.inFlow && node.comment !== undefined) {
 				for (const cl of commentBlockLines(node.comment)) flowLines.push(cl === "" ? "" : `${flowPad}${cl}`);
 			}
 			flowLines.push("]");
 			return flowLines;
 		}
-		const parts = items.map((item) => stringifyNodeLines(item, flowCtx, depth + 1).join(" "));
-		let line = `[${parts.join(", ")}]`;
+		let line = `[${A.join(A.map(rendered, (lines) => A.join(lines, "")), ", ")}]`;
 		if (flowPrefix !== undefined && flowPrefix !== "") line = `${flowPrefix} ${line}`;
 		return [line];
 	}
@@ -2135,7 +2136,8 @@ export function stringifyDocument(doc: RawYamlDocument, ...[options]: [options?:
 			// Bare ... (no doc-start, no content) produces empty output.
 			if (doc.hasDocumentStart) {
 				const docEnd = doc.hasDocumentEnd ? "...\n" : "";
-				return `---\n${docEnd}`;
+				const out = `---\n${docEnd}`;
+				return finalNewline ? out : Str.replace(/\n$/, "")(out);
 			}
 			return "";
 		}

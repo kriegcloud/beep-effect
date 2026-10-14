@@ -12,6 +12,7 @@
 // untouched and flattens back to the top level on encode.
 
 import { $ScratchpadId } from "@beep/identity/packages";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as HashSet from "effect/HashSet";
 import * as O from "@beep/utils/Option";
@@ -311,11 +312,11 @@ export class Manifest extends S.Class<Manifest>($I`Manifest`)({
 	 * @since 0.0.0
 	 */
 	get needsResolution(): boolean {
-		return DependencyField.literals.some((field) => {
+		return A.some(DependencyField.literals, (field) => {
 			const section = this[field];
 			return (
 				section !== undefined &&
-				R.values(section).some(
+				A.some(R.values(section),
 					(specifier) => DependencySpecifier.isCatalog(specifier) || DependencySpecifier.isWorkspace(specifier),
 				)
 			);
@@ -400,15 +401,13 @@ const resolveManifest = Effect.fn("Manifest.resolve")(function* (manifest: Manif
 	for (const field of DependencyField.literals) {
 		const section = manifest[field];
 		if (section === undefined) continue;
-		const resolved: Record<string, string> = {};
-		for (const [dependency, specifier] of R.toEntries(section)) {
+		const resolved = yield* Effect.forEach(R.toEntries(section), Effect.fnUntraced(function* ([dependency, specifier]) {
 			if (DependencySpecifier.isCatalog(specifier)) {
 				const range = yield* catalogs.rangeOf(dependency, DependencySpecifier.catalogNameOf(specifier));
 				if (O.isNone(range)) {
 					return yield* UnresolvedDependencyError.make({ field, dependency, specifier, reason: "catalog-entry-missing" });
 				}
-				resolved[dependency] = range.value;
-				continue;
+				return [dependency, range.value] as const;
 			}
 			if (DependencySpecifier.isWorkspace(specifier)) {
 				// pnpm's alias form (`workspace:<name>@<range>`) resolves the TARGET
@@ -425,12 +424,11 @@ const resolveManifest = Effect.fn("Manifest.resolve")(function* (manifest: Manif
 							reason: "workspace-package-missing",
 						});
 				}
-				resolved[dependency] = DependencySpecifier.resolveWorkspace(specifier, version.value);
-				continue;
+				return [dependency, DependencySpecifier.resolveWorkspace(specifier, version.value)] as const;
 			}
-			resolved[dependency] = specifier;
-		}
-		output[field] = resolved;
+			return [dependency, specifier] as const;
+		}));
+		output[field] = R.fromEntries(resolved);
 	}
 	return Manifest.make({
 		...output,

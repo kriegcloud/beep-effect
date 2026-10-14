@@ -1,11 +1,13 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
+import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
 import { GitHubClient } from "./GitHubClient.ts";
 import { GitHubError } from "./GitHubError.ts";
 import type { PageSource } from "./internal/paginate.ts";
@@ -22,7 +24,6 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
 /**
  * A commit, projected to what callers read.
  *
-
  * **Example** (Read a commit subject)
  *
  * ```ts
@@ -67,7 +68,6 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
 	/**
  * The message's first line.
  *
-
  * **Example** (Extract the first message line)
  *
  * ```ts
@@ -87,14 +87,16 @@ export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
  * @since 0.0.0
  */
 	get subject(): string {
-		return this.message.split("\n", 1)[0] ?? "";
+		return O.match(Str.indexOf("\n")(this.message), {
+			onNone: () => this.message,
+			onSome: (end) => Str.takeLeft(this.message, end),
+		});
 	}
 }
 
 /**
  * How a file changed in a commit or a comparison.
  *
-
  * **Example** (Validate a renamed file status)
  *
  * ```ts
@@ -130,7 +132,6 @@ export type FileStatus = typeof FileStatus.Type;
 /**
  * One changed file.
  *
-
  * **Example** (Inspect the path before a rename)
  *
  * ```ts
@@ -166,7 +167,6 @@ export class CommitFile extends S.Class<CommitFile>($I`CommitFile`)({
 /**
  * The result of comparing two refs.
  *
-
  * **Example** (Inspect commits ahead of base)
  *
  * ```ts
@@ -267,7 +267,6 @@ export class GitHubCommit extends Context.Service<GitHubCommit, GitHubCommitShap
 	/**
  * The live service, built over a `GitHubClient`.
  *
-
  * **Example** (Construct a commit read with the live layer)
  *
  * ```ts
@@ -291,7 +290,6 @@ export class GitHubCommit extends Context.Service<GitHubCommit, GitHubCommitShap
 	/**
  * An in-memory double; unstubbed members die naming themselves.
  *
-
  * **Example** (Override the commit listing)
  *
  * ```ts
@@ -315,7 +313,6 @@ export class GitHubCommit extends Context.Service<GitHubCommit, GitHubCommitShap
 	/**
  * {@link GitHubCommit.makeTest} behind a `Layer`.
  *
-
  * **Example** (Provide a commit test layer)
  *
  * ```ts
@@ -348,23 +345,44 @@ const unstubbed = (member: string): never => {
  * empty object — typed `Record<string, never>` — for a commit it cannot
  * attribute to an account.
  */
-interface RawCommit {
-	readonly sha: string;
-	readonly html_url: string;
-	readonly commit: { readonly message: string; readonly author?: { readonly name?: string | null } | null };
-	readonly author?: { readonly login?: string } | null;
-	readonly parents: ReadonlyArray<{ readonly sha: string }>;
-}
+const CommitResponse = S.Struct({
+	sha: S.String,
+	html_url: S.String,
+	commit: S.Struct({
+		message: S.String,
+		author: S.Struct({ name: S.String.pipe(S.NullOr, S.optional) }).pipe(S.NullOr, S.optional),
+	}),
+	author: S.Struct({ login: S.optional(S.String) }).pipe(S.NullOr, S.optional),
+	parents: S.Array(S.Struct({ sha: S.String })),
+}).annotate($I.annote("CommitResponse", { description: "The selected fields used to summarize a commit response." }));
 
-const summarize = (raw: RawCommit): CommitSummary =>
-	CommitSummary.make({
+const summarize = Effect.fn("GitHubCommit.summarize")(function* (input: unknown, operation: string) {
+	const raw = yield* S.decodeUnknownEffect(CommitResponse)(input).pipe(
+		Effect.mapError((error) => GitHubError.decode(operation, "GitHub returned an unexpected commit", error)),
+	);
+	return CommitSummary.make({
 		sha: raw.sha,
 		message: raw.commit.message,
 		author: raw.commit.author?.name ?? "Unknown",
 		...O.getSomesStruct({ authorLogin: O.fromUndefinedOr(raw.author?.login) }),
 		url: raw.html_url,
-		parents: raw.parents.map((parent) => parent.sha),
+		parents: A.map(raw.parents, (parent) => parent.sha),
 	});
+});
+
+const ComparisonResponse = S.Struct({
+	status: S.String,
+	ahead_by: S.Finite,
+	behind_by: S.Finite,
+	commits: S.Array(CommitResponse),
+	files: S.Array(S.Struct({
+		filename: S.String,
+		status: S.String,
+		additions: S.Finite,
+		deletions: S.Finite,
+		previous_filename: S.optional(S.String),
+	})).pipe(S.NullOr, S.optional),
+}).annotate($I.annote("ComparisonResponse", { description: "The selected comparison fields, including nested commits and diff entries." }));
 
 /**
  * The minimum of GitHub's `diff-entry` payload the {@link CommitFile}
@@ -387,7 +405,6 @@ export interface RawFile {
  * Project a `diff-entry` to a {@link CommitFile}. Shared with
  * `PullRequest.listFiles`; not re-exported from the package entrypoint.
  *
-
  * **Example** (Project a GitHub diff entry)
  *
  * ```ts
@@ -423,7 +440,7 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 		const { owner, repo } = yield* Repo;
 		yield* Effect.annotateCurrentSpan({ owner, repo, ref });
 		const commit = yield* client.request("GET /repos/{owner}/{repo}/commits/{ref}", { owner, repo, ref });
-		return summarize(commit);
+		return yield* summarize(commit, "GitHubCommit.get");
 	}),
 
 	list: Effect.fn("GitHubCommit.list")(function* (options?: {
@@ -443,7 +460,7 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 			},
 			options?.page,
 		);
-		return commits.map(summarize);
+		return yield* Effect.forEach(commits, (commit) => summarize(commit, "GitHubCommit.list"));
 	}),
 
 	compare: Effect.fn("GitHubCommit.compare")(function* (base: string, head: string) {
@@ -454,13 +471,18 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 			repo,
 			basehead: `${base}...${head}`,
 		});
-		return CommitComparison.make({
-			status: comparison.status,
-			aheadBy: comparison.ahead_by,
-			behindBy: comparison.behind_by,
-			commits: comparison.commits.map(summarize),
-			files: yield* Effect.forEach(comparison.files ?? [], (file) => fileOf(file, "GitHubCommit.compare")),
-		});
+		const selected = yield* S.decodeEffect(ComparisonResponse)(comparison).pipe(
+			Effect.mapError((error) => GitHubError.decode("GitHubCommit.compare", "GitHub returned an unexpected commit comparison", error)),
+		);
+		return yield* S.decodeUnknownEffect(CommitComparison)({
+			status: selected.status,
+			aheadBy: selected.ahead_by,
+			behindBy: selected.behind_by,
+			commits: yield* Effect.forEach(selected.commits, (commit) => summarize(commit, "GitHubCommit.compare")),
+			files: yield* Effect.forEach(selected.files ?? [], (file) => fileOf(file, "GitHubCommit.compare")),
+		}).pipe(
+			Effect.mapError((error) => GitHubError.decode("GitHubCommit.compare", "GitHub returned an unexpected commit comparison", error)),
+		);
 	}),
 
 	changedFiles: Effect.fn("GitHubCommit.changedFiles")(function* (
@@ -481,7 +503,7 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 			let finished = false;
 			return {
 				next: Effect.suspend(() => {
-					if (finished) return Effect.succeed(O.none<ReadonlyArray<CommitFile>>());
+					if (finished) return Effect.succeedNone;
 					page += 1;
 					return client
 						.request("GET /repos/{owner}/{repo}/commits/{ref}", { owner, repo, ref, page, per_page: perPage })
@@ -490,7 +512,7 @@ const make = (client: GitHubClient["Service"]): GitHubCommitShape => ({
 								const files = commit.files ?? [];
 								if (files.length < perPage) finished = true;
 								return files.length === 0
-									? Effect.succeed(O.none<ReadonlyArray<CommitFile>>())
+									? Effect.succeedNone
 									: Effect.asSome(Effect.forEach(files, (file) => fileOf(file, "GitHubCommit.changedFiles")));
 							}),
 						);

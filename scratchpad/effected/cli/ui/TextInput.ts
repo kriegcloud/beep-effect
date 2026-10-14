@@ -1,9 +1,12 @@
+import { $ScratchpadId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 import * as A from "effect/Array";
 import type { ReactElement } from "react";
 import { Fmt } from "../Fmt.ts";
+import { graphemes } from "../internal/displayWidth.ts";
 import type { Screen } from "./CliUi.ts";
 import { inkModules } from "./internal/ink.ts";
-import { lineText } from "./internal/lineText.ts";
+import { lineText, lineTextAround } from "./internal/lineText.ts";
 import { useScreenGuard } from "./internal/ScreenContext.ts";
 import { KeyHelp } from "./KeyHelp.ts";
 import { KeyTable } from "./KeyTable.ts";
@@ -12,25 +15,36 @@ import { Styled, useGlyphs, useTerminalSize } from "./UiTheme.ts";
 import * as P from "effect/Predicate";
 import * as Match from "effect/Match";
 
+const $I = $ScratchpadId.create("effected/cli/ui/TextInput");
+
 /**
  * Where a {@link TextInput} is: its value, the cursor within it, and whether enter was pressed.
  *
+ * **Example** (Validate a TextInputState payload)
+ *
+ * ```ts
+ * import { TextInputState } from "@beep/scratchpad/effected/cli/ui/TextInput"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(TextInputState)({ value: "Ada", cursor: 3, submitted: false })) // true
+ * ```
+ *
  * @public
- * @category models
+ * @category schemas
  * @since 0.0.0
  */
-export interface TextInputState {
-	/** The text. */
-	readonly value: string;
-	/**
-	 * The insertion point, from 0 to the value's length, in UTF-16 code units. Left, right, backspace and delete move
-	 * and delete by grapheme, so a character built from several code points (an emoji, a flag, a letter with a
-	 * combining accent) is crossed and deleted whole, and the cursor never stops inside one it moved over.
-	 */
-	readonly cursor: number;
-	/** Whether enter was pressed; the view submits only when the value also validates. */
-	readonly submitted: boolean;
-}
+export const TextInputState = S.Struct({
+	value: S.String.annotateKey($I.annote("TextInputState.value", { description: "The raw text retained for editing, validation and submission." })),
+	cursor: S.Finite.annotateKey($I.annote("TextInputState.cursor", { description: "The raw insertion position in UTF-16 code units; navigation crosses whole graphemes." })),
+	submitted: S.Boolean.annotateKey($I.annote("TextInputState.submitted", { description: "Whether Enter requested submission; validation still decides acceptance." })),
+}).annotate($I.annote("TextInputState", { description: "The plain raw editing state of a one-line text input." }));
+/**
+ * Plain payload accepted by {@link TextInputState}; reducers retain this structural representation.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type TextInputState = typeof TextInputState.Type;
 
 /**
  * Options for {@link TextInput.init}.
@@ -161,6 +175,9 @@ const typedKeys = (input: string, key: Parameters<typeof UiKey.fromInk>[1]): Rea
 };
 
 const step = (state: TextInputState, key: UiKey): TextInputState => {
+	// A submitted input awaits validation: keys read in the same chunk after enter must not cancel or change it. A
+	// rejected value re-enables editing by clearing `submitted`.
+	if (state.submitted) return state;
 	if (key._tag === "Char") return insert(state, key.char);
 	const { value, cursor } = state;
 	return Match.value(key.name).pipe(
@@ -182,29 +199,29 @@ const step = (state: TextInputState, key: UiKey): TextInputState => {
 	);
 };
 
-/** Take code points from the end of `text` while they fit in `width` cells. */
+/** Take whole graphemes from the end of `text` while they fit in `width` cells. */
 const tail = (text: string, width: number): string => {
-	const points = [...text];
+	const clusters = graphemes(text);
 	let out = "";
 	let used = 0;
-	for (let index = points.length - 1; index >= 0; index--) {
-		const point = A.getUnsafe(points, index);
-		const cells = Fmt.width(point);
+	for (let index = clusters.length - 1; index >= 0; index--) {
+		const cluster = A.getUnsafe(clusters, index);
+		const cells = Fmt.width(cluster);
 		if (used + cells > width) break;
-		out = point + out;
+		out = cluster + out;
 		used += cells;
 	}
 	return out;
 };
 
-/** Take code points from the start of `text` while they fit in `width` cells. */
+/** Take whole graphemes from the start of `text` while they fit in `width` cells. */
 const head = (text: string, width: number): string => {
 	let out = "";
 	let used = 0;
-	for (const point of text) {
-		const cells = Fmt.width(point);
+	for (const cluster of graphemes(text)) {
+		const cells = Fmt.width(cluster);
 		if (used + cells > width) break;
-		out += point;
+		out += cluster;
 		used += cells;
 	}
 	return out;
@@ -306,7 +323,7 @@ export abstract class TextInput {
 	/**
 	 * Apply a key: a typed character (every character, `q` included) or space is inserted at the cursor; backspace and delete
 	 * remove the grapheme before or after it; left and right move it a grapheme, home and end to either end, clamped
-	 * to the text; enter marks it submitted. Every other key changes nothing.
+	 * to the text; enter marks it submitted. Every other key changes nothing, and so does every key while it is submitted.
 	 *
 	 * **Example** (Delete a whole emoji grapheme)
 	 *
@@ -411,20 +428,21 @@ export abstract class TextInput {
 					: lineText(masking);
 		const [shownBefore, shownAfter] =
 			mask === undefined
-				? [lineText(state.value.slice(0, state.cursor)), lineText(state.value.slice(state.cursor))]
+				? lineTextAround(state.value, state.cursor)
 				: maskedAround(state.value, state.cursor, mask);
 		const [before, after] = windowAround(shownBefore, shownAfter, columns - Fmt.width(cursorGlyph), glyphs.ellipsis);
 		return react.createElement(
 			ink.Box,
-			{ flexDirection: "column" },
+			{ flexDirection: "column", marginRight: 1 },
 			react.createElement(
-				Styled,
-				{ token: "emphasis" },
-				Fmt.truncate(lineText(props.message), columns, { ellipsis: glyphs.ellipsis }),
+				ink.Box,
+				{ height: 1, overflow: "hidden" },
+				react.createElement(Styled, { token: "emphasis" },
+					Fmt.truncate(lineText(props.message), columns, { ellipsis: glyphs.ellipsis })),
 			),
 			react.createElement(
 				ink.Text,
-				null,
+				{ wrap: "truncate-end" },
 				before,
 				cursorGlyph,
 				after,
@@ -441,11 +459,13 @@ export abstract class TextInput {
 			error === undefined
 				? null
 				: react.createElement(
-						Styled,
-						{ token: "error" },
-						Fmt.truncate(lineText(error), columns, { ellipsis: glyphs.ellipsis }),
+						ink.Box,
+						{ height: 1, overflow: "hidden" },
+						react.createElement(Styled, { token: "error" },
+							Fmt.truncate(lineText(error), columns, { ellipsis: glyphs.ellipsis })),
 					),
-			react.createElement(KeyHelp, { tables: [HELP] }),
+			react.createElement(ink.Box, { height: 1, overflow: "hidden" },
+				react.createElement(KeyHelp, { tables: [HELP] })),
 		);
 	};
 

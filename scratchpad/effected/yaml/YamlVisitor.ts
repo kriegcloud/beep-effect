@@ -24,6 +24,10 @@ import * as P from "effect/Predicate";
 import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/yaml/YamlVisitor");
+const isScalar = S.is(YamlScalar);
+const isAlias = S.is(YamlAlias);
+const isMap = S.is(YamlMap);
+const isFiniteNumber = S.is(S.Finite);
 
 const eventContext = {
 	path: S.Array(S.Union([S.String, S.Finite])).annotateKey({ description: "Ordered mapping keys and sequence indices from the document root." }),
@@ -82,7 +86,6 @@ const visitorEvent = S.TaggedUnion({
  * level); collection/scalar begin events also carry `style` and the optional
  * `tag`/`anchor`. `Error` carries a materialized {@link YamlDiagnostic} for
  * every diagnostic recorded while composing the document — fatal or not.
- *
  * @public
  * @category type-level
  * @since 0.0.0
@@ -94,7 +97,6 @@ export type YamlVisitorEvent = typeof visitorEvent.Type;
  * `YamlVisitorEvent.Scalar({ path, depth, value, style })`,
  * `YamlVisitorEvent.$is("MapStart")`).
  *
-
  * **Example** (Construct and identify a scalar event)
  *
  * ```ts
@@ -176,27 +178,28 @@ export class YamlVisitor {
  * @since 0.0.0
  */
 	static visit(text: string, options?: YamlParseOptions): Stream.Stream<YamlVisitorEvent> {
-		return Stream.fromIterable(visitGen(text, options));
+		return Stream.suspend(() => Stream.fromIterable(visitGen(text, options)));
 	}
 }
 
 function* visitGen(text: string, options?: YamlParseOptions): Generator<YamlVisitorEvent> {
+	const index = YamlDiagnostic.positionIndex(text);
 	const { documents, streamErrors } = composeAllDocuments(text, {
 		strict: options?.strict,
 		maxAliasCount: options?.maxAliasCount,
 		uniqueKeys: options?.uniqueKeys,
 	});
 
-	for (const raw of streamErrors) {
-		yield YamlVisitorEvent.Error({ path: [], depth: 0, diagnostic: YamlDiagnostic.fromRaw(raw, text) });
+	for (const diagnostic of YamlDiagnostic.fromRawBatch(streamErrors, text, index)) {
+		yield YamlVisitorEvent.Error({ path: [], depth: 0, diagnostic });
 	}
 
 	for (const doc of documents) {
-		yield* walkDocument(doc, text);
+		yield* walkDocument(doc, text, index);
 	}
 }
 
-function* walkDocument(doc: RawYamlDocument, text: string): Generator<YamlVisitorEvent> {
+function* walkDocument(doc: RawYamlDocument, text: string, index: ReturnType<typeof YamlDiagnostic.positionIndex>): Generator<YamlVisitorEvent> {
 	const path: YamlPath = [];
 	const depth = 0;
 
@@ -210,11 +213,11 @@ function* walkDocument(doc: RawYamlDocument, text: string): Generator<YamlVisito
 		directives: doc.directives.map((d) => ({ name: d.name, parameters: d.parameters })),
 	});
 
-	for (const raw of doc.errors) {
-		yield YamlVisitorEvent.Error({ path, depth, diagnostic: YamlDiagnostic.fromRaw(raw, text) });
+	for (const diagnostic of YamlDiagnostic.fromRawBatch(doc.errors, text, index)) {
+		yield YamlVisitorEvent.Error({ path, depth, diagnostic });
 	}
-	for (const raw of doc.warnings) {
-		yield YamlVisitorEvent.Error({ path, depth, diagnostic: YamlDiagnostic.fromRaw(raw, text) });
+	for (const diagnostic of YamlDiagnostic.fromRawBatch(doc.warnings, text, index)) {
+		yield YamlVisitorEvent.Error({ path, depth, diagnostic });
 	}
 
 	if (doc.commentBefore !== undefined) {
@@ -233,7 +236,7 @@ function* walkDocument(doc: RawYamlDocument, text: string): Generator<YamlVisito
 }
 
 function* walkNode(node: YamlNode, path: YamlPath, depth: number): Generator<YamlVisitorEvent> {
-	if (S.is(YamlScalar)(node)) {
+	if (isScalar(node)) {
 		if (node.commentBefore !== undefined) {
 			yield YamlVisitorEvent.Comment({ path, depth, text: node.commentBefore, placement: "leading" });
 		}
@@ -248,7 +251,7 @@ function* walkNode(node: YamlNode, path: YamlPath, depth: number): Generator<Yam
 			...O.getSomesStruct({ tag: O.fromUndefinedOr(node.tag) }),
 			...O.getSomesStruct({ anchor: O.fromUndefinedOr(node.anchor) }),
 		});
-	} else if (S.is(YamlAlias)(node)) {
+	} else if (isAlias(node)) {
 		if (node.commentBefore !== undefined) {
 			yield YamlVisitorEvent.Comment({ path, depth, text: node.commentBefore, placement: "leading" });
 		}
@@ -256,7 +259,7 @@ function* walkNode(node: YamlNode, path: YamlPath, depth: number): Generator<Yam
 			yield YamlVisitorEvent.Comment({ path, depth, text: node.comment, placement: "trailing" });
 		}
 		yield YamlVisitorEvent.Alias({ path, depth, name: node.name });
-	} else if (S.is(YamlMap)(node)) {
+	} else if (isMap(node)) {
 		if (node.commentBefore !== undefined) {
 			yield YamlVisitorEvent.Comment({ path, depth, text: node.commentBefore, placement: "leading" });
 		}
@@ -296,11 +299,11 @@ function* walkNode(node: YamlNode, path: YamlPath, depth: number): Generator<Yam
 }
 
 function* walkPair(pair: YamlPair, parentPath: YamlPath, depth: number): Generator<YamlVisitorEvent> {
-	const resolvedKey = S.is(YamlScalar)(pair.key) ? pair.key.value : null;
-	const resolvedValue = S.is(YamlScalar)(pair.value) ? pair.value.value : null;
+	const resolvedKey = isScalar(pair.key) ? pair.key.value : null;
+	const resolvedValue = isScalar(pair.value) ? pair.value.value : null;
 
 	const keySegment: string | number =
-		P.isString(resolvedKey) ? resolvedKey : P.isNumber(resolvedKey) ? resolvedKey : String(resolvedKey);
+		P.isString(resolvedKey) ? resolvedKey : isFiniteNumber(resolvedKey) ? resolvedKey : String(resolvedKey);
 
 	const pairPath: YamlPath = [...parentPath, keySegment];
 

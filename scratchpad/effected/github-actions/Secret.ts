@@ -63,8 +63,7 @@ import * as R from "effect/Record";
  * @category utilities
  * @since 0.0.0
  */
-export class Secret {
-	private constructor() {}
+export abstract class Secret {
 
 	/**
 	 * Declassify a set of secrets for a child process's environment.
@@ -103,7 +102,7 @@ export class Secret {
 			for (const [name, secret] of R.toEntries(entries)) {
 				const plaintext = Redacted.value(secret);
 				yield* outputs.setSecret(plaintext);
-				declassified[name] = plaintext;
+				R.assignProperty(declassified, name, plaintext);
 			}
 			return declassified;
 		});

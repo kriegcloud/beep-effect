@@ -55,6 +55,12 @@ const fileMap = (files: ReadonlyArray<{ readonly file: string; readonly content:
 	Object.fromEntries(files.map(({ file, content }) => [file, content]));
 
 describe("scrubEnv", () => {
+	it("keeps an own __proto__ environment variable while removing traps and undefined values", () => {
+		const env = scrubEnv({ ["__proto__"]: "own variable", CI: "true", EMPTY: undefined });
+		assert.deepStrictEqual(env, { ["__proto__"]: "own variable" });
+		assert.isTrue(R.has(env, "__proto__"));
+	});
+
 	it("drops the parent package manager's context and undefined values, keeps the rest", () => {
 		assert.deepStrictEqual(
 			scrubEnv({
@@ -115,6 +121,7 @@ describe("consumerFiles", () => {
 	it("npm: overrides in the manifest, the carrier a dependency (never dev, never an override), the probed version pinned", () => {
 		const files = fileMap(consumerFiles({ ...INPUT, manager: "npm", version: "11.19.1" }));
 		assert.deepStrictEqual(Object.keys(files), ["package.json"]);
+		assert.strictEqual(files["package.json"], '{\n  "name": "packed-install-npm",\n  "version": "0.0.0",\n  "private": true,\n  "packageManager": "npm@11.19.1",\n  "dependencies": {\n    "@x/carrier": "file:/t/carrier.tgz",\n    "effect": "4.0.0-rc.117"\n  },\n  "overrides": {\n    "@x/lib": "file:/t/lib.tgz"\n  }\n}\n');
 		const manifest = Result.getOrThrow(S.decodeResult(JsonObject)(files["package.json"] ?? "{}"));
 		assert.strictEqual(manifest.packageManager, "npm@11.19.1");
 		assert.deepStrictEqual(manifest.dependencies, { "@x/carrier": "file:/t/carrier.tgz", effect: "4.0.0-rc.117" });
@@ -271,6 +278,7 @@ describe("readPackedManifest", () => {
 		assertFailure(nil, nil.pipe(Result.flip, Result.getOrThrow));
 		const malformed = readPackedManifest("{ nope");
 		assertFailure(malformed, malformed.pipe(Result.flip, Result.getOrThrow));
+		assert.instanceOf(malformed.pipe(Result.flip, Result.getOrThrow), S.SchemaError);
 	});
 });
 

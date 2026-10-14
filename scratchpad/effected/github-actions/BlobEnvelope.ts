@@ -331,6 +331,10 @@ export class BlobEnvelope {
 		if (Result.isFailure(encoded)) {
 			return Result.fail(BlobMetadataEncodeError.make({ cause: encoded.failure }));
 		}
+		const decoded = S.decodeResult(S.fromJsonString(schema))(encoded.success);
+		if (Result.isFailure(decoded)) {
+			return Result.fail(BlobMetadataEncodeError.make({ cause: decoded.failure }));
+		}
 		const metaBytes = new TextEncoder().encode(encoded.success);
 		const out = new Uint8Array(HEADER_BYTES + metaBytes.length + body.length);
 		out.set(MAGIC, 0);
@@ -375,7 +379,7 @@ export class BlobEnvelope {
 		if (bytes.length < HEADER_BYTES) {
 			return Result.fail(TruncatedBlobEnvelopeError.make({}));
 		}
-		const version = bytes[MAGIC.length] ?? 0;
+		const version = new DataView(bytes.buffer, bytes.byteOffset).getUint8(MAGIC.length);
 		if (version !== VERSION) {
 			return Result.fail(UnsupportedBlobEnvelopeVersionError.make({ version }));
 		}

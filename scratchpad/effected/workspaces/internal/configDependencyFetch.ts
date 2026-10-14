@@ -1,4 +1,8 @@
-import { dual } from "effect/Function";
+import { $ScratchpadId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
+import { dual, flow, identity } from "effect/Function";
+import * as S from "effect/Schema";
+import * as Result from "effect/Result";
 // The fetch rung of the config-dependency ladder: when neither
 // `node_modules/.pnpm-config` nor any discovered store holds the version a
 // side DECLARES, have pnpm put exactly that version into the store, verified
@@ -55,6 +59,13 @@ import { carries, manifestVersion, messageOf, sideLabel } from "./configDependen
 import { splitConfigDependencySpec } from "./configDependencySpecGrammar.ts";
 import * as R from "effect/Record";
 
+const $I = $ScratchpadId.create("effected/workspaces/internal/configDependencyFetch");
+
+const JsonString = S.fromJsonString(S.String).annotate(
+	$I.annote("JsonString", { description: "A JSON-quoted YAML scalar retaining dependency and registry text." }),
+);
+const quote = flow(S.encodeResult(JsonString), Result.getOrThrowWith(identity));
+
 // The caller's Effect FileSystem may be virtual; fetching must use the real scratch workspace and store.
 const { copyFile, mkdtemp, readFile, realpath, rm, writeFile } = process.getBuiltinModule("node:fs/promises");
 const { basename, dirname, join } = process.getBuiltinModule("node:path");
@@ -101,26 +112,64 @@ export interface FetchRequest {
 /**
  * Why the fetch rung failed: the public `CatalogAssemblyError` reasons it can report.
  *
+ * **Example** (Recognize an integrity refusal)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { FetchFailureReason } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch";
+ *
+ * console.log(S.is(FetchFailureReason)("integrityMismatch")) // true
+ * console.log(S.is(FetchFailureReason)(null)) // false
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const FetchFailureReason = LiteralKit(["fetchFailed", "integrityMismatch", "integrityUnavailable"]).pipe(
+	$I.annoteSchema("FetchFailureReason", { description: "The reason a verified config-dependency fetch could not complete." }),
+);
+
+/**
+ * Identifies why a verified config-dependency fetch could not complete.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export type FetchFailureReason = "fetchFailed" | "integrityMismatch" | "integrityUnavailable";
+export type FetchFailureReason = typeof FetchFailureReason.Type;
 
 /**
  * The fetch rung's internal failure record. The ladder, not the rung, builds
  * the one public `CatalogAssemblyError` from it, folding `message` into the
  * not-installed diagnosis and keeping `cause` on the chain.
  *
+ * **Example** (Validate a fetch refusal without a foreign cause)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { FetchFailure } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch";
+ *
+ * console.log(S.is(FetchFailure)({ reason: "fetchFailed", message: "The registry request failed." })) // true
+ * console.log(S.is(FetchFailure)(null)) // false
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const FetchFailure = S.Struct({
+	reason: FetchFailureReason.pipe($I.annoteKey("FetchFailure.reason", { description: "The public catalog-assembly reason reported by the fetch rung." })),
+	/** The complete sentence(s) the ladder splices into its message. */
+	message: S.String.pipe($I.annoteKey("FetchFailure.message", { description: "The complete diagnosis the resolution ladder includes in its message." })),
+	/** The underlying failure, when there is one. */
+	cause: S.optionalKey(S.Unknown).pipe($I.annoteKey("FetchFailure.cause", { description: "The underlying failure, omitted when there is none." })),
+}).pipe($I.annoteSchema("FetchFailure", { description: "A plain internal fetch failure retained by the resolution ladder." }));
+
+/**
+ * Retains the fetch failure message and optional cause for the resolution ladder.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface FetchFailure {
-	readonly reason: FetchFailureReason;
-	/** The complete sentence(s) the ladder splices into its message. */
-	readonly message: string;
-	/** The underlying failure, when there is one. */
-	readonly cause?: unknown;
-}
+export type FetchFailure = typeof FetchFailure.Type;
 
 const fetchFailure = (reason: FetchFailureReason, message: string, cause?: unknown): FetchFailure =>
 	cause === undefined ? { reason, message } : { reason, message, cause };
@@ -231,13 +280,31 @@ export const expectedIntegrity = Effect.fn("expectedIntegrity")(function* (
  * `registry` and the per-scope `registries` map. Anything that is not a string
  * is dropped, as pnpm would not use it.
  *
+ * **Example** (Validate scoped registry selection)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { RegistrySettings } from "@beep/scratchpad/effected/workspaces/internal/configDependencyFetch";
+ *
+ * console.log(S.is(RegistrySettings)({ registry: "https://registry.npmjs.org/", registries: { "@x": "https://registry.example.com/" } })) // true
+ * console.log(S.is(RegistrySettings)(null)) // false
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const RegistrySettings = S.Struct({
+	registry: S.optionalKey(S.String).pipe($I.annoteKey("RegistrySettings.registry", { description: "The default registry URL, omitted when none was declared." })),
+	registries: S.Record(S.String, S.String).pipe($I.annoteKey("RegistrySettings.registries", { description: "String-valued registry URLs by scope." })),
+}).pipe($I.annoteSchema("RegistrySettings", { description: "The plain registry settings retained from a declaring workspace." }));
+
+/**
+ * Carries registry selection and package-manager settings retained from the declaring workspace.
+ *
  * @category type-level
  * @since 0.0.0
  */
-export interface RegistrySettings {
-	readonly registry?: string;
-	readonly registries: Readonly<Record<string, string>>;
-}
+export type RegistrySettings = typeof RegistrySettings.Type;
 
 /**
  * Extracts the {@link RegistrySettings} from a parsed `pnpm-workspace.yaml` document.
@@ -267,7 +334,7 @@ export const registrySettingsOf = (document: unknown): RegistrySettings => {
 	const registries: Record<string, string> = {};
 	if (P.isObject(document.registries)) {
 		for (const [scope, url] of R.toEntries(document.registries)) {
-			if (P.isString(url)) registries[scope] = url;
+			if (P.isString(url)) R.assignProperty(registries, scope, url);
 		}
 	}
 	return P.isString(document.registry) ? { registry: document.registry, registries } : { registries };
@@ -300,12 +367,12 @@ export const scratchWorkspaceYaml: {
 	version: string,
 	settings: RegistrySettings = { registries: {} },
 ): string => {
-	const lines = ["configDependencies:", `  ${JSON.stringify(name)}: ${JSON.stringify(version)}`];
-	if (settings.registry !== undefined) lines.push(`registry: ${JSON.stringify(settings.registry)}`);
+	const lines = ["configDependencies:", `  ${quote(name)}: ${quote(version)}`];
+	if (settings.registry !== undefined) lines.push(`registry: ${quote(settings.registry)}`);
 	const scopes = R.toEntries(settings.registries);
 	if (scopes.length > 0) {
 		lines.push("registries:");
-		for (const [scope, url] of scopes) lines.push(`  ${JSON.stringify(scope)}: ${JSON.stringify(url)}`);
+		for (const [scope, url] of scopes) lines.push(`  ${quote(scope)}: ${quote(url)}`);
 	}
 	return `${lines.join("\n")}\n`;
 });
@@ -319,7 +386,7 @@ const isNotFound = (error: unknown): boolean => P.isObject(error) && error.code 
  * empty lockfile document they write when there are no projects.
  */
 const scratchLockfile = (name: string, version: string, integrity: string): string => {
-	const key = JSON.stringify(`${name}@${version}`);
+	const key = quote(`${name}@${version}`);
 	return [
 		"---",
 		"lockfileVersion: '9.0'",
@@ -328,14 +395,14 @@ const scratchLockfile = (name: string, version: string, integrity: string): stri
 		"",
 		"  .:",
 		"    configDependencies:",
-		`      ${JSON.stringify(name)}:`,
-		`        specifier: ${JSON.stringify(version)}`,
-		`        version: ${JSON.stringify(version)}`,
+		`      ${quote(name)}:`,
+		`        specifier: ${quote(version)}`,
+		`        version: ${quote(version)}`,
 		"",
 		"packages:",
 		"",
 		`  ${key}:`,
-		`    resolution: {integrity: ${JSON.stringify(integrity)}}`,
+		`    resolution: {integrity: ${quote(integrity)}}`,
 		"",
 		"snapshots:",
 		"",

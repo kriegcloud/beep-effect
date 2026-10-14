@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
-import * as A from "effect/Array";
 import { $ScratchpadId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
 import type { ReactElement } from "react";
 import { Fmt } from "../Fmt.ts";
@@ -11,60 +11,140 @@ import { useScreenCancel } from "./internal/ScreenContext.ts";
 import { KeyHelp } from "./KeyHelp.ts";
 import { KeyTable, useKeys } from "./KeyTable.ts";
 import { Styled, useGlyphs, useTerminalSize, useTheme } from "./UiTheme.ts";
-import type { ViewportMove, ViewportRow, ViewportState } from "./Viewport.ts";
-import { Viewport } from "./Viewport.ts";
+import type { ViewportRow } from "./Viewport.ts";
+import { Viewport, ViewportState } from "./Viewport.ts";
 
 const $I = $ScratchpadId.create("effected/cli/ui/Select");
 
-class NoEnabledChoiceError extends S.TaggedError<NoEnabledChoiceError>($I`NoEnabledChoiceError`)(
+/**
+ * Reports a selection with no enabled choice to highlight or submit.
+ *
+ * **Example** (Describe the failure)
+ *
+ * ```ts
+ * import { NoEnabledChoiceError } from "./Select.ts"
+ * const error = NoEnabledChoiceError.make({ message: "Select needs at least one enabled choice." })
+ * console.log(error._tag) // NoEnabledChoiceError
+ * ```
+ *
+ * @internal
+ * @category errors
+ * @since 0.0.0
+ */
+export class NoEnabledChoiceError extends S.TaggedError<NoEnabledChoiceError>($I`NoEnabledChoiceError`)(
 	"NoEnabledChoiceError",
 	{
-		message: S.String,
+		message: S.String.annotate($I.annote("NoEnabledChoiceError.message", {
+			description: "Explains that the selection requires at least one enabled choice.",
+		})),
 	},
+	$I.annote("NoEnabledChoiceError", { description: "A selection cannot start without an enabled choice." }),
 ) {}
 
 /**
- * One choice of a {@link Select}.
+ * One choice of a {@link Select}, as a schema over the value schema: `label` is what the row shows, `value` what
+ * choosing it returns, `detail` a line shown muted beneath the list while it is highlighted, and `disabled` shows it
+ * muted and never highlighted, so moves skip it.
  *
+ * **Example** (Validate a choice payload)
+ *
+ * ```ts
+ * import { SelectChoice } from "@beep/scratchpad/effected/cli/ui/Select"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(SelectChoice(S.String))({ label: "Staging", value: "staging", detail: "Safe" })) // true
+ * ```
+ *
+ * @param value - the schema of the value choosing it returns
  * @public
- * @category models
+ * @category schemas
  * @since 0.0.0
  */
-export interface SelectChoice<A> {
-	/** What the row shows. */
-	readonly label: string;
-	/** What choosing it returns. */
-	readonly value: A;
-	/** A line shown, muted, beneath the list while this choice is highlighted. */
-	readonly detail?: string;
-	/** Shown muted and never highlighted: moves skip it. */
-	readonly disabled?: boolean;
-}
+export const SelectChoice = <Value extends S.Top>(value: Value) =>
+	S.Struct({
+		label: S.String.annotateKey($I.annote("SelectChoice.label", { description: "What the row shows." })),
+		value,
+		detail: S.optionalKey(S.String).annotateKey($I.annote("SelectChoice.detail", {
+			description: "A line shown, muted, beneath the list while this choice is highlighted.",
+		})),
+		disabled: S.optionalKey(S.Boolean).annotateKey($I.annote("SelectChoice.disabled", {
+			description: "Shown muted and never highlighted: moves skip it.",
+		})),
+	}).annotate($I.annote("SelectChoice", { description: "One labelled, optionally disabled choice of a selection." }));
 
 /**
- * Where a {@link Select} is: its choices, the viewport over them, and whether one was submitted.
+ * Plain payload accepted by {@link SelectChoice}; reducers retain this structural representation.
  *
- * @public
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
-export interface SelectState<A> {
-	/** The choices. */
-	readonly choices: ReadonlyArray<SelectChoice<A>>;
-	/** The highlighted choice and the window over the list. */
-	readonly viewport: ViewportState;
-	/** Whether the highlighted choice was submitted. */
-	readonly submitted: boolean;
-}
+export type SelectChoice<A> = ReturnType<typeof SelectChoice<S.Codec<A>>>["Type"];
+
+/**
+ * Where a {@link Select} is, as a schema over the value schema: its choices, the viewport over them (the highlighted
+ * choice and the window), and whether one was submitted.
+ *
+ * **Example** (Validate a selection state)
+ *
+ * ```ts
+ * import { Select, SelectState } from "@beep/scratchpad/effected/cli/ui/Select"
+ * import * as S from "effect/Schema"
+ *
+ * const state = Select.init([{ label: "Staging", value: "staging" }])
+ * console.log(S.is(SelectState(S.String))(state)) // true
+ * ```
+ *
+ * @param value - the schema of the choices' values
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SelectState = <Value extends S.Top>(value: Value) =>
+	S.Struct({
+		choices: value.pipe(SelectChoice, S.Array).annotateKey($I.annote("SelectState.choices", { description: "The choices." })),
+		viewport: ViewportState.annotateKey($I.annote("SelectState.viewport", {
+			description: "The highlighted choice and the window over the list.",
+		})),
+		submitted: S.Boolean.annotateKey($I.annote("SelectState.submitted", {
+			description: "Whether the highlighted choice was submitted.",
+		})),
+	}).annotate($I.annote("SelectState", { description: "The plain reducer state of a single-choice selection." }));
+
+/**
+ * Plain payload accepted by {@link SelectState}; reducers retain this structural representation.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type SelectState<A> = ReturnType<typeof SelectState<S.Codec<A>>>["Type"];
 
 /**
  * What a key does in a {@link Select}: a viewport move, submit, or cancel.
+ *
+ * **Example** (Recognize a submission action)
+ *
+ * ```ts
+ * import { SelectAction } from "@beep/scratchpad/effected/cli/ui/Select"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(SelectAction)("submit")) // true
+ * ```
+ *
+ * @public
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SelectAction = LiteralKit(["up", "down", "home", "end", "pageup", "pagedown", "submit", "cancel"]).annotate(
+	$I.annote("SelectAction", { description: "The viewport, submission and cancellation actions of a selection." }),
+);
+
+/**
+ * A viewport or interaction action accepted by {@link SelectAction}.
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export type SelectAction = ViewportMove | "submit" | "cancel";
+export type SelectAction = typeof SelectAction.Type;
 
 /**
  * Options for {@link Select.init}.
@@ -121,8 +201,10 @@ export interface SelectScreenOptions<A> {
 	readonly height?: number;
 }
 
-const enabled = <A>(choices: ReadonlyArray<SelectChoice<A>>, index: number): boolean =>
-	index >= 0 && index < choices.length && choices[index]?.disabled !== true;
+const enabled = <A>(choices: ReadonlyArray<SelectChoice<A>>, index: number): boolean => {
+	const choice = choices[index];
+	return index >= 0 && index < choices.length && choice !== undefined && choice.disabled !== true;
+};
 
 /** The nearest enabled index from `from` in `direction`, or `undefined`. */
 const nearest = <A>(
@@ -153,12 +235,14 @@ const init = <A>(
 	if (!choices.some((choice) => choice.disabled !== true))
 		throw NoEnabledChoiceError.make({ message: NO_ENABLED_CHOICE });
 	const height = options.height ?? 10;
-	const start = Math.min(Math.max(options.initial ?? 0, 0), choices.length - 1);
+	const initial = Math.trunc(options.initial ?? 0);
+	const start = Math.min(Math.max(Number.isNaN(initial) ? 0 : initial, 0), choices.length - 1);
 	const first = nearest(choices, start, 1) ?? nearest(choices, start, -1) ?? 0;
 	return { choices, viewport: moveTo(Viewport.init(choices.length, height), first), submitted: false };
 };
 
 const step = <A>(state: SelectState<A>, action: SelectAction): SelectState<A> => {
+	if (state.submitted) return state;
 	const { choices, viewport } = state;
 	if (action === "cancel") return state;
 	if (action === "submit") return enabled(choices, viewport.cursor) ? { ...state, submitted: true } : state;
@@ -366,41 +450,45 @@ export abstract class Select {
 			if (action === "cancel") cancel("escape");
 			else setState((current) => step(current, action));
 		});
-		const rows: ReadonlyArray<ViewportRow> = props.choices.map((_, index) => ({
+		const rows: ReadonlyArray<ViewportRow> = state.choices.map((_, index) => ({
 			_tag: "Item",
 			key: String(index),
 		}));
 		const blank = " ".repeat(Fmt.width(glyphs.arrow));
 		const renderRow = (row: ViewportRow, highlighted: boolean): ReactElement => {
-			const choice = A.getUnsafe(props.choices, rows.indexOf(row));
-			const line = `${highlighted ? glyphs.arrow : blank} ${lineText(choice.label)}`;
+			const choice = row._tag === "Item" ? state.choices[Number(row.key)] : undefined;
+			const line = `${highlighted ? glyphs.arrow : blank} ${lineText(choice?.label ?? "")}`;
 			// At colour none the muted token paints nothing, so a disabled row says so in text; the label is cut, never the mark.
-			const marked = choice.disabled === true && theme.color === "none";
+			const marked = choice?.disabled === true && theme.color === "none";
 			const text = marked
 				? `${Fmt.truncate(line, Math.max(0, columns - Fmt.width(DISABLED)), { ellipsis: glyphs.ellipsis })}${DISABLED}`
 				: Fmt.truncate(line, columns, { ellipsis: glyphs.ellipsis });
 			if (highlighted) return react.createElement(Styled, { token: "accent" }, text);
-			if (choice.disabled === true) return react.createElement(Styled, { token: "muted" }, text);
+			if (choice?.disabled === true) return react.createElement(Styled, { token: "muted" }, text);
 			return react.createElement(ink.Text, null, text);
 		};
-		const detail = props.choices[state.viewport.cursor]?.detail;
+		const detail = state.choices[state.viewport.cursor]?.detail;
+		// One row each, clipped at layout time with the cursor column reserved: during Ink's immediate resize repaint the
+		// width above is one paint stale, and an unclipped row would wrap past the screen's row budget.
+		const line = (child: ReactElement): ReactElement =>
+			react.createElement(ink.Box, { height: 1, overflow: "hidden", marginRight: 1 }, child);
 		return react.createElement(
 			ink.Box,
 			{ flexDirection: "column" },
-			react.createElement(
+			line(react.createElement(
 				Styled,
 				{ token: "emphasis" },
 				Fmt.truncate(lineText(props.message), columns, { ellipsis: glyphs.ellipsis }),
-			),
+			)),
 			react.createElement(Viewport.View, { rows, state: state.viewport, renderRow, reserved: RESERVED }),
 			detail === undefined
 				? null
-				: react.createElement(
+				: line(react.createElement(
 						Styled,
 						{ token: "muted" },
 						Fmt.truncate(lineText(detail), columns, { ellipsis: glyphs.ellipsis }),
-					),
-			react.createElement(KeyHelp, { tables: [KEYS] }),
+					)),
+			line(react.createElement(KeyHelp, { tables: [KEYS] })),
 		);
 	};
 

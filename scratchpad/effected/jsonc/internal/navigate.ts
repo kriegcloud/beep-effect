@@ -42,6 +42,14 @@ export const NavigateContainer = LiteralKit(["object", "array"]).pipe(
 );
 
 /**
+ * Decoded value produced by {@link NavigateContainer}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type NavigateContainer = typeof NavigateContainer.Type;
+
+/**
  * Structural outcomes of locating a path in the original JSONC text.
  *
  * **Details**
@@ -152,7 +160,7 @@ export const navigate: {
   const skipValue = (): number => skipBalancedValue(skipCursor);
 
   const located = (
-    container: typeof NavigateContainer.Type,
+    container: NavigateContainer,
     keyStart: number,
     commaBefore: O.Option<number>
   ): NavigateResult => {

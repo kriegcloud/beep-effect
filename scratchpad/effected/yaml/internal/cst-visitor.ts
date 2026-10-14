@@ -21,8 +21,11 @@
 // is a value when the first key is external. Compact mappings in sequences
 // contain their first key; indicators also delimit omitted values.
 
+import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 import type { CstNode } from "./cst.ts";
 import { parseCSTAll } from "./cst-parser.ts";
@@ -31,7 +34,37 @@ import { parseCSTAll } from "./cst-parser.ts";
 // Internal path type
 // ---------------------------------------------------------------------------
 
-type Path = ReadonlyArray<string | number>;
+const $I = $ScratchpadId.create("effected/yaml/internal/cst-visitor");
+const Path = S.Array(S.Union([S.String, S.Finite])).annotate($I.annote("Path", {
+	description: "Ordered mapping names and sequence indices locating a CST event.",
+}));
+type Path = typeof Path.Type;
+
+const eventFields = {
+	path: Path.annotateKey({ description: "Location of the event in document traversal." }),
+	depth: S.Finite.annotateKey({ description: "Nesting depth, with the document at zero." }),
+};
+const sourceEventFields = {
+	...eventFields,
+	source: S.String.annotateKey({ description: "Raw source content associated with the event." }),
+};
+const CstVisitorEvent = S.TaggedUnion({
+	CstDocumentStartEvent: eventFields,
+	CstDocumentEndEvent: eventFields,
+	CstMapStartEvent: sourceEventFields,
+	CstMapEndEvent: eventFields,
+	CstSeqStartEvent: sourceEventFields,
+	CstSeqEndEvent: eventFields,
+	CstKeyEvent: sourceEventFields,
+	CstValueEvent: sourceEventFields,
+	CstScalarEvent: sourceEventFields,
+	CstAliasEvent: sourceEventFields,
+	CstCommentEvent: sourceEventFields,
+	CstDirectiveEvent: sourceEventFields,
+	CstErrorEvent: sourceEventFields,
+}).annotate($I.annote("CstVisitorEvent", {
+	description: "Thirteen tagged SAX event payloads emitted in raw document order.",
+}));
 
 /** Normalize optional CST children without inventing sparse entries. */
 const childrenOf = (node: CstNode): ReadonlyArray<CstNode> => O.fromNullishOr(node.children).pipe(O.getOrElse(A.empty));
@@ -46,11 +79,7 @@ const childrenOf = (node: CstNode): ReadonlyArray<CstNode> => O.fromNullishOr(no
  * @category type-level
  * @since 0.0.0
  */
-export interface CstDocumentStartEvent {
-	readonly _tag: "CstDocumentStartEvent";
-	readonly path: Path;
-	readonly depth: number;
-}
+export type CstDocumentStartEvent = typeof CstVisitorEvent.cases.CstDocumentStartEvent.Type;
 
 /**
  * Emitted when the CST visitor exits a document node.
@@ -58,11 +87,7 @@ export interface CstDocumentStartEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstDocumentEndEvent {
-	readonly _tag: "CstDocumentEndEvent";
-	readonly path: Path;
-	readonly depth: number;
-}
+export type CstDocumentEndEvent = typeof CstVisitorEvent.cases.CstDocumentEndEvent.Type;
 
 /**
  * Emitted when the CST visitor enters a block-map or flow-map node.
@@ -70,12 +95,7 @@ export interface CstDocumentEndEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstMapStartEvent {
-	readonly _tag: "CstMapStartEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstMapStartEvent = typeof CstVisitorEvent.cases.CstMapStartEvent.Type;
 
 /**
  * Emitted when the CST visitor exits a block-map or flow-map node.
@@ -83,11 +103,7 @@ export interface CstMapStartEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstMapEndEvent {
-	readonly _tag: "CstMapEndEvent";
-	readonly path: Path;
-	readonly depth: number;
-}
+export type CstMapEndEvent = typeof CstVisitorEvent.cases.CstMapEndEvent.Type;
 
 /**
  * Emitted when the CST visitor enters a block-seq or flow-seq node.
@@ -95,12 +111,7 @@ export interface CstMapEndEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstSeqStartEvent {
-	readonly _tag: "CstSeqStartEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstSeqStartEvent = typeof CstVisitorEvent.cases.CstSeqStartEvent.Type;
 
 /**
  * Emitted when the CST visitor exits a block-seq or flow-seq node.
@@ -108,11 +119,7 @@ export interface CstSeqStartEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstSeqEndEvent {
-	readonly _tag: "CstSeqEndEvent";
-	readonly path: Path;
-	readonly depth: number;
-}
+export type CstSeqEndEvent = typeof CstVisitorEvent.cases.CstSeqEndEvent.Type;
 
 /**
  * Emitted when the CST visitor encounters a scalar that is a map key.
@@ -120,12 +127,7 @@ export interface CstSeqEndEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstKeyEvent {
-	readonly _tag: "CstKeyEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstKeyEvent = typeof CstVisitorEvent.cases.CstKeyEvent.Type;
 
 /**
  * Emitted when the CST visitor encounters a scalar that is a map value.
@@ -133,12 +135,7 @@ export interface CstKeyEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstValueEvent {
-	readonly _tag: "CstValueEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstValueEvent = typeof CstVisitorEvent.cases.CstValueEvent.Type;
 
 /**
  * Emitted when the CST visitor encounters a standalone scalar (not a map key
@@ -147,12 +144,7 @@ export interface CstValueEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstScalarEvent {
-	readonly _tag: "CstScalarEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstScalarEvent = typeof CstVisitorEvent.cases.CstScalarEvent.Type;
 
 /**
  * Emitted when the CST visitor encounters an alias reference node (including the leading `*`).
@@ -160,12 +152,7 @@ export interface CstScalarEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstAliasEvent {
-	readonly _tag: "CstAliasEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstAliasEvent = typeof CstVisitorEvent.cases.CstAliasEvent.Type;
 
 /**
  * Emitted when the CST visitor encounters a comment node (including the leading `#`).
@@ -173,12 +160,7 @@ export interface CstAliasEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstCommentEvent {
-	readonly _tag: "CstCommentEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstCommentEvent = typeof CstVisitorEvent.cases.CstCommentEvent.Type;
 
 /**
  * Emitted when the CST visitor encounters a directive node (e.g., `%YAML 1.2`).
@@ -186,12 +168,7 @@ export interface CstCommentEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstDirectiveEvent {
-	readonly _tag: "CstDirectiveEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstDirectiveEvent = typeof CstVisitorEvent.cases.CstDirectiveEvent.Type;
 
 /**
  * Emitted when the CST visitor encounters an error node in the CST.
@@ -199,12 +176,7 @@ export interface CstDirectiveEvent {
  * @category type-level
  * @since 0.0.0
  */
-export interface CstErrorEvent {
-	readonly _tag: "CstErrorEvent";
-	readonly path: Path;
-	readonly depth: number;
-	readonly source: string;
-}
+export type CstErrorEvent = typeof CstVisitorEvent.cases.CstErrorEvent.Type;
 
 /**
  * A discriminated union of all thirteen SAX-style YAML CST visitor events.
@@ -212,20 +184,7 @@ export interface CstErrorEvent {
  * @category type-level
  * @since 0.0.0
  */
-export type CstVisitorEvent =
-	| CstDocumentStartEvent
-	| CstDocumentEndEvent
-	| CstMapStartEvent
-	| CstMapEndEvent
-	| CstSeqStartEvent
-	| CstSeqEndEvent
-	| CstKeyEvent
-	| CstValueEvent
-	| CstScalarEvent
-	| CstAliasEvent
-	| CstCommentEvent
-	| CstDirectiveEvent
-	| CstErrorEvent;
+export type CstVisitorEvent = typeof CstVisitorEvent.Type;
 
 // ---------------------------------------------------------------------------
 // Node classification helpers
@@ -401,10 +360,17 @@ function findNextContent(nodes: ReadonlyArray<CstNode>, startIdx: number): CstNo
 	return undefined;
 }
 
-/** Find content or a mapping indicator, preserving entry-boundary punctuation. */
+/** Find content or an indicator without crossing a physical entry boundary. */
 function findMapContent(nodes: ReadonlyArray<CstNode>, startIdx: number): CstNode | undefined {
+	// A scalar or collection can absorb the newline terminating an entry.
+	// Include that preceding source span in the same-line lookahead.
+	if (startIdx > 0) {
+		const source = A.getUnsafe(nodes, startIdx - 1).source;
+		if (Str.includes("\n")(source) || Str.includes("\r")(source)) return undefined;
+	}
 	for (let i = startIdx; i < nodes.length; i++) {
 		const node = A.getUnsafe(nodes, i);
+		if (isTriviaCstNode(node) && (Str.includes("\n")(node.source) || Str.includes("\r")(node.source))) return undefined;
 		if (node.type === "comment") continue;
 		if (node.type === "whitespace" && (node.source === ":" || node.source === "?")) return node;
 		if (!isTriviaCstNode(node)) return node;
@@ -436,8 +402,16 @@ function* walkBlockMapChildren(
 	// instead contain their first key, so start by expecting that key.
 	const firstKeyExternal = findMapContent(children, 0)?.source === ":";
 	let expectingKey = !firstKeyExternal;
+	let keyHasContent = false;
+	let crossedNewline = false;
 
 	for (const [i, child] of children.entries()) {
+		// The preceding child may contain the boundary instead of leaving a
+		// separate newline sibling, including inside a nested collection.
+		if (i > 0) {
+			const source = A.getUnsafe(children, i - 1).source;
+			crossedNewline ||= Str.includes("\n")(source) || Str.includes("\r")(source);
+		}
 		// Always emit comments
 		if (child.type === "comment") {
 			yield { _tag: "CstCommentEvent", path, depth, source: child.source };
@@ -445,8 +419,21 @@ function* walkBlockMapChildren(
 		}
 
 		// Entry indicators determine state even when the preceding value was omitted.
-		if (child.type === "whitespace" && child.source === ":") expectingKey = false;
-		if (child.type === "whitespace" && child.source === "?") expectingKey = true;
+		if (child.type === "newline") crossedNewline = true;
+		if (child.type === "whitespace" && child.source === ":") {
+			if (crossedNewline && !expectingKey) {
+				expectingKey = true;
+				keyHasContent = false;
+			}
+			if (expectingKey && !keyHasContent) yield { _tag: "CstKeyEvent", path, depth, source: "" };
+			expectingKey = false;
+			keyHasContent = false;
+			crossedNewline = false;
+		}
+		if (child.type === "whitespace" && child.source === "?") {
+			expectingKey = true;
+			keyHasContent = false;
+		}
 
 		// Skip trivia
 		if (isTriviaCstNode(child)) {
@@ -464,28 +451,26 @@ function* walkBlockMapChildren(
 		}
 
 		if (isScalarCstNode(child)) {
+			const nextContent = findMapContent(children, i + 1);
 			// A separator after this scalar identifies the next entry's key even
 			// when the previous entry had no value to toggle the state.
-			if (findMapContent(children, i + 1)?.source === ":") expectingKey = true;
+			if (!expectingKey && nextContent?.source === ":") {
+				expectingKey = true;
+				keyHasContent = false;
+			}
+			crossedNewline = false;
 			// Look ahead to detect if this scalar is followed by a block-map
 			// (meaning it is a key for a nested mapping).
-			const nextContent = findNextContent(children, i + 1);
 			if (!expectingKey && nextContent !== undefined && isBlockMapCstNode(nextContent)) {
 				// This scalar is a key for a nested block-map that follows.
 				// The nested map's first value will be the value for this key.
 				yield { _tag: "CstKeyEvent", path, depth, source: child.source };
-				// expectingKey stays false because the nested block-map will
-				// handle the value; after the nested map we'll be back to
-				// expecting a key (reset in the isMapCstNode branch).
-				// Actually: expectingKey was false, and this is a key, so after
-				// emitting the key event we should remain expecting value (false).
-				// The nested block-map will consume the value. Don't toggle here.
+				keyHasContent = true;
 			} else if (expectingKey) {
 				yield { _tag: "CstKeyEvent", path, depth, source: child.source };
-				expectingKey = false;
+				keyHasContent = true;
 			} else {
 				yield { _tag: "CstValueEvent", path, depth, source: child.source };
-				expectingKey = true;
 			}
 			continue;
 		}
@@ -495,8 +480,7 @@ function* walkBlockMapChildren(
 			yield { _tag: "CstMapStartEvent", path, depth, source: child.source };
 			yield* walkBlockMapChildren(childrenOf(child), path, depth + 1);
 			yield { _tag: "CstMapEndEvent", path, depth };
-			// After a nested block-map value, next scalar is a key
-			expectingKey = true;
+			if (expectingKey) keyHasContent = true;
 			continue;
 		}
 
@@ -505,7 +489,7 @@ function* walkBlockMapChildren(
 			yield { _tag: "CstMapStartEvent", path, depth, source: child.source };
 			yield* walkFlowMapChildren(childrenOf(child), path, depth + 1);
 			yield { _tag: "CstMapEndEvent", path, depth };
-			expectingKey = true;
+			if (expectingKey) keyHasContent = true;
 			continue;
 		}
 
@@ -513,13 +497,13 @@ function* walkBlockMapChildren(
 			yield { _tag: "CstSeqStartEvent", path, depth, source: child.source };
 			yield* walkSiblings(childrenOf(child), path, depth + 1);
 			yield { _tag: "CstSeqEndEvent", path, depth };
-			expectingKey = true;
+			if (expectingKey) keyHasContent = true;
 			continue;
 		}
 
 		// Every remaining parser-produced child is an alias value.
 		yield { _tag: "CstAliasEvent", path, depth, source: child.source };
-		expectingKey = true;
+		if (expectingKey) keyHasContent = true;
 	}
 }
 
@@ -532,18 +516,14 @@ function* walkBlockMapChildren(
  *
  * **Details**
  *
- * Flow maps include all their content (including the opening `{` key scalars,
- * `:` separators, and closing `}`) as children. All structural punctuation
- * is typed as `whitespace`. Scalars alternate key/value starting with key.
- *
- * Unlike block maps, flow maps contain their own keys as children, so
- * `expectingKey` starts as `true`. Structural punctuation (`{`, `}`, `:`,
- * `,`) is classified as `whitespace` by the CST parser and skipped as
- * trivia. Nested collections (maps or sequences) found in the value
- * position reset the state to expecting a key after they are fully walked.
+ * Flow maps contain their keys, separators, and delimiters as children.
+ * Structural punctuation is typed as `whitespace`; ':' starts a value and
+ * ',' starts the next key. Scalar fragments and nested collections retain
+ * their role until an indicator changes it, including multiline plain text.
  */
 function* walkFlowMapChildren(children: ReadonlyArray<CstNode>, path: Path, depth: number): Generator<CstVisitorEvent> {
 	let expectingKey = true;
+	let keyHasContent = false;
 
 	for (const child of children) {
 		// Always emit comments
@@ -553,9 +533,15 @@ function* walkFlowMapChildren(children: ReadonlyArray<CstNode>, path: Path, dept
 		}
 
 		// Separators delimit entries, including entries with omitted values.
-		if (child.type === "whitespace" && child.source === ",") expectingKey = true;
-		if (child.type === "whitespace" && child.source === ":") expectingKey = false;
-		if (child.type === "whitespace" && child.source === "?") expectingKey = true;
+		if (child.type === "whitespace" && (child.source === "," || child.source === "?")) {
+			expectingKey = true;
+			keyHasContent = false;
+		}
+		if (child.type === "whitespace" && child.source === ":") {
+			if (expectingKey && !keyHasContent) yield { _tag: "CstKeyEvent", path, depth, source: "" };
+			expectingKey = false;
+			keyHasContent = false;
+		}
 
 		// Skip trivia (includes structural whitespace like "{", "}", ":", ",")
 		if (isTriviaCstNode(child)) {
@@ -570,10 +556,9 @@ function* walkFlowMapChildren(children: ReadonlyArray<CstNode>, path: Path, dept
 		if (isScalarCstNode(child)) {
 			if (expectingKey) {
 				yield { _tag: "CstKeyEvent", path, depth, source: child.source };
-				expectingKey = false;
+				keyHasContent = true;
 			} else {
 				yield { _tag: "CstValueEvent", path, depth, source: child.source };
-				expectingKey = true;
 			}
 			continue;
 		}
@@ -582,7 +567,7 @@ function* walkFlowMapChildren(children: ReadonlyArray<CstNode>, path: Path, dept
 			yield { _tag: "CstMapStartEvent", path, depth, source: child.source };
 			yield* walkFlowMapChildren(childrenOf(child), path, depth + 1);
 			yield { _tag: "CstMapEndEvent", path, depth };
-			expectingKey = true;
+			if (expectingKey) keyHasContent = true;
 			continue;
 		}
 
@@ -590,14 +575,14 @@ function* walkFlowMapChildren(children: ReadonlyArray<CstNode>, path: Path, dept
 			yield { _tag: "CstSeqStartEvent", path, depth, source: child.source };
 			yield* walkSiblings(childrenOf(child), path, depth + 1);
 			yield { _tag: "CstSeqEndEvent", path, depth };
-			expectingKey = true;
+			if (expectingKey) keyHasContent = true;
 			continue;
 		}
 
 		// Flow lexing cannot produce directive or document children.
 		// Every remaining child is an alias value.
 		yield { _tag: "CstAliasEvent", path, depth, source: child.source };
-		expectingKey = true;
+		if (expectingKey) keyHasContent = true;
 	}
 }
 

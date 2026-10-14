@@ -373,7 +373,7 @@ const toStringifyInput = (options?: YamlStringifyOptions): StringifyOptionsInput
 			};
 
 const toDiagnostics = (text: string, records: ReadonlyArray<RawDiagnostic>): ReadonlyArray<YamlDiagnostic> =>
-	records.map((r) => YamlDiagnostic.fromRaw(r, text));
+	YamlDiagnostic.fromRawBatch(records, text);
 
 /**
  * Build the fatal {@link YamlParseError} for an alias-expansion "billion
@@ -884,11 +884,9 @@ export class Yaml {
 			// its indicator separately, so its comment gets an actual token span.
 			if (token.kind === "scalar" && (text[token.offset] === "|" || text[token.offset] === ">")) {
 				const raw = Str.slice(token.offset + 1, token.offset + token.length)(text);
-				const header = A.head(Str.split(/\r|\n/)(raw));
-				if (header._tag === "Some") {
-					for (const part of lexAll(header.value)) {
-						if (part.kind === "comment") spans.push({ ...part, offset: token.offset + 1 + part.offset });
-					}
+				const header = A.headNonEmpty(Str.split(/\r|\n/)(raw));
+				for (const part of lexAll(header)) {
+					if (part.kind === "comment") spans.push({ ...part, offset: token.offset + 1 + part.offset });
 				}
 			}
 			for (const span of spans) {

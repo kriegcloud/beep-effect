@@ -2,8 +2,7 @@ import { $ScratchpadId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import * as P from "effect/Predicate";
-import { RunOptions } from "./Run.ts";
+import { ExitCode, RunOptions } from "./Run.ts";
 import * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
@@ -14,7 +13,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 const $I = $ScratchpadId.create("effected/commands/ScriptedSpawner");
 
 /** A pipeline reached a test double that only scripts standard commands. */
-class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError>($I`ScriptedPipelineError`)(
+class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError, { readonly brand: unique symbol }>($I`ScriptedPipelineError`)(
 	"ScriptedPipelineError",
 	{ message: S.String },
 	$I.annote("ScriptedPipelineError", { description: "A piped command reached the standard-command-only scripted spawner." }),
@@ -51,7 +50,7 @@ export const ScriptResult = S.Union([
  S.Struct({
   stdout: S.optional(S.String).annotateKey({ description: "Scripted standard output." }),
   stderr: S.optional(S.String).annotateKey({ description: "Scripted standard error." }),
-  exit: S.optional(S.declare(P.isNumber)).annotateKey({ description: "Scripted exit number, preserving the upstream domain." }),
+  exit: S.optional(ExitCode).annotateKey({ description: "Scripted integer process exit code." }),
   hang: S.optional(S.Boolean).annotateKey({ description: "Whether exitCode remains unresolved." }),
  }),
 ]).pipe($I.annoteSchema("ScriptResult", { description: "A scripted completed run or an opaque platform spawn failure." }));
@@ -95,6 +94,11 @@ const Signal = LiteralKit(["SIGABRT", "SIGALRM", "SIGBUS", "SIGCHLD", "SIGCONT",
 const Environment = S.Record(S.String, S.UndefinedOr(S.String)).pipe(
  $I.annoteSchema("Environment", { description: "Platform environment values, including explicitly undefined entries." }),
 );
+/** Core's numeric-template keys include whitespace and radix spellings, unlike Schema's numeric template matcher. */
+const AdditionalFdKey = S.TemplateLiteral(["fd", S.String.check(S.isPattern(
+ /^\s*(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?|0[xX][\da-fA-F]+|0[bB][01]+|0[oO][0-7]+|\s)\s*$/u,
+ { identifier: $I`AdditionalFdNumber`, title: "Additional FD number", description: "A numeric-template spelling, including whitespace, radix prefixes and exponents." },
+))]).pipe($I.annoteSchema("AdditionalFdKey", { description: "Core fd${number} option keys without narrowing their numeric spellings." }));
 /** Validate all known platform options while retaining the original external object. */
 const CommandOptions = S.Struct({
  killSignal: S.optional(Signal),
@@ -104,7 +108,7 @@ const CommandOptions = S.Struct({
  stdin: S.optional(S.Union([CommandInput, S.Struct({ stream: CommandInput, endOnDone: S.optional(S.Boolean), encoding: S.optional(Encoding) })])),
  stdout: S.optional(S.Union([CommandOutput, S.Struct({ stream: S.optional(CommandOutput) })])),
  stderr: S.optional(S.Union([CommandOutput, S.Struct({ stream: S.optional(CommandOutput) })])),
- additionalFds: S.optional(S.Record(S.TemplateLiteral(["fd", S.Finite]), S.Union([
+ additionalFds: S.optional(S.Record(AdditionalFdKey, S.Union([
   S.Struct({ type: S.Literal("input"), stream: S.optional(InputStream) }),
   S.Struct({ type: S.Literal("output"), sink: S.optional(OutputSink) }),
  ]))),

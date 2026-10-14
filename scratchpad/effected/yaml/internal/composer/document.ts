@@ -1,3 +1,4 @@
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -18,7 +19,7 @@ import type { RawDiagnostic } from "../diagnostics.ts";
 import type { ParseOptionsInput } from "../options.ts";
 import type { RawDirective, RawYamlDocument } from "../raw-document.ts";
 import { checkAnchorOnAlias, getAnchorName, makeAlias, registerAnchor } from "./anchors.ts";
-import { composeBlockMap, composeBlockSeq, composeFlatBlockMap } from "./block.ts";
+import { composeBlockMap, composeBlockSeq, composeFlatBlockMap, validatePendingProperty } from "./block.ts";
 import { hasBlankLineAbove, hasBlankLineBelow, rawCommentText, withCommentFields } from "./comments.ts";
 import { composeFlowMap, composeFlowSeq } from "./flow.ts";
 import {
@@ -299,9 +300,15 @@ export const composeDocument: {
 	// later meta would silently overwrite the earlier one.
 	const outerMeta: NodeMeta = {};
 	let sawNewlineSinceMeta = false;
-	const commitMetaAcrossNewline = () => {
+	const validateMetaMerge = (child: CstNode): void => {
+		if (meta.anchor !== undefined) validatePendingProperty({ ...child, type: "anchor" }, outerMeta, state);
+		if (meta.tag !== undefined) validatePendingProperty({ ...child, type: "tag", ...meta.tagSpan }, outerMeta, state);
+	};
+	const commitMetaAcrossNewline = (child: CstNode) => {
 		if (sawNewlineSinceMeta && hasMeta(meta)) {
+			validateMetaMerge(child);
 			if (meta.tag !== undefined) outerMeta.tag = meta.tag;
+			if (meta.tagSpan !== undefined) outerMeta.tagSpan = meta.tagSpan;
 			if (meta.anchor !== undefined) outerMeta.anchor = meta.anchor;
 			clearMeta(meta);
 		}
@@ -409,15 +416,19 @@ export const composeDocument: {
 			// SAME line is invalid. Anchors must be followed by a node, not a
 			// new block-seq indicator on the same line.
 			validateAnchorTagNotFollowedBySeqDashOnSameLine(child, children, i, state);
-			commitMetaAcrossNewline();
+			commitMetaAcrossNewline(child);
+			validatePendingProperty(child, meta, state);
 			meta.anchor = getAnchorName(child, state.text);
 			i++;
 			continue;
 		}
 		if (child.type === "tag") {
 			validateAnchorTagNotFollowedBySeqDashOnSameLine(child, children, i, state);
-			commitMetaAcrossNewline();
+			commitMetaAcrossNewline(child);
+			validatePendingProperty(child, meta, state);
 			meta.tag = child.source;
+			meta.tagSpan = { offset: child.offset, length: child.length };
+			MutableHashSet.add(state.tagOffsets, child.offset);
 			i++;
 			continue;
 		}
@@ -485,6 +496,7 @@ export const composeDocument: {
 				contents = composeFlatBlockMap(children, i + 1, cst, state, key, mapMeta);
 				break; // consumed all remaining children
 			}
+			validateMetaMerge(child);
 			// Standalone scalar — try multi-line plain scalar merging
 			if (child.type === "flow-scalar" && getScalarStyle(child) === "plain") {
 				const { value, nextIdx, partsCount, endOffset } = collectMultilinePlainScalar(
@@ -496,8 +508,9 @@ export const composeDocument: {
 				// Combine outer + inner meta — for a scalar root, both apply to it.
 				const combined: NodeMeta = { ...outerMeta };
 				if (meta.tag !== undefined) combined.tag = meta.tag;
+				if (meta.tagSpan !== undefined) combined.tagSpan = meta.tagSpan;
 				if (meta.anchor !== undefined) combined.anchor = meta.anchor;
-				const resolved = resolveScalar(value, ["plain", combined.tag, state]);
+				const resolved = resolveScalar(value, ["plain", combined.tag, state, combined.tagSpan]);
 				// Span the full source range when multi-line plain folding merged
 				// multiple children — `endOffset` is the end of the last consumed
 				// fragment, including directives and other non-scalar
@@ -551,6 +564,7 @@ export const composeDocument: {
 			// Combine outer + inner meta for scalar root.
 			const combined: NodeMeta = { ...outerMeta };
 			if (meta.tag !== undefined) combined.tag = meta.tag;
+			if (meta.tagSpan !== undefined) combined.tagSpan = meta.tagSpan;
 			if (meta.anchor !== undefined) combined.anchor = meta.anchor;
 			contents = makeScalar(child, state, hasMeta(combined) ? combined : undefined);
 			clearMeta(meta);
@@ -561,10 +575,12 @@ export const composeDocument: {
 		}
 
 		if (child.type === "block-map") {
+			validateMetaMerge(child);
 			// Outer meta belongs to the map; remaining `meta` would belong to the
 			// first key inside, but block-map's own children carry that context.
 			const combined: NodeMeta = { ...outerMeta };
 			if (meta.tag !== undefined) combined.tag = meta.tag;
+			if (meta.tagSpan !== undefined) combined.tagSpan = meta.tagSpan;
 			if (meta.anchor !== undefined) combined.anchor = meta.anchor;
 			contents = composeBlockMap(child, state, undefined, hasMeta(combined) ? combined : undefined);
 			clearMeta(meta);
@@ -575,9 +591,11 @@ export const composeDocument: {
 		}
 
 		if (child.type === "block-seq") {
+			validateMetaMerge(child);
 			const isRootSeq = contents === null;
 			const combined: NodeMeta = { ...outerMeta };
 			if (meta.tag !== undefined) combined.tag = meta.tag;
+			if (meta.tagSpan !== undefined) combined.tagSpan = meta.tagSpan;
 			if (meta.anchor !== undefined) combined.anchor = meta.anchor;
 			contents = composeBlockSeq(child, state, hasMeta(combined) ? combined : undefined);
 			clearMeta(meta);
@@ -602,8 +620,10 @@ export const composeDocument: {
 				mapMeta = { ...outerMeta };
 				flowMeta = { ...meta };
 			} else {
+				validateMetaMerge(child);
 				const combined: NodeMeta = { ...outerMeta };
 				if (meta.tag !== undefined) combined.tag = meta.tag;
+				if (meta.tagSpan !== undefined) combined.tagSpan = meta.tagSpan;
 				if (meta.anchor !== undefined) combined.anchor = meta.anchor;
 				flowMeta = hasMeta(combined) ? combined : undefined;
 			}
@@ -633,8 +653,10 @@ export const composeDocument: {
 				mapMeta = { ...outerMeta };
 				flowMeta = { ...meta };
 			} else {
+				validateMetaMerge(child);
 				const combined: NodeMeta = { ...outerMeta };
 				if (meta.tag !== undefined) combined.tag = meta.tag;
+				if (meta.tagSpan !== undefined) combined.tagSpan = meta.tagSpan;
 				if (meta.anchor !== undefined) combined.anchor = meta.anchor;
 				flowMeta = hasMeta(combined) ? combined : undefined;
 			}
@@ -754,6 +776,7 @@ export const composeDocument: {
 			headerForDocument === undefined ? afterMarkerComment : `${headerForDocument}\n${afterMarkerComment}`;
 	}
 
+	validateTagHandlesInDocument(cst, state, "properties");
 	return {
 		contents: decorated,
 		errors: [...state.errors],
@@ -815,7 +838,7 @@ function validateDirectives(
 
 		// Check for comment without preceding whitespace (e.g., %YAML 1.1#...)
 		// The lexer consumes the entire line, so we check the raw source
-		const hashIdx = src.indexOf("#");
+		const hashIdx = directiveName === "%TAG" ? src.search(/[ \t]#/) + 1 : src.indexOf("#");
 		if (hashIdx > 0) {
 			const before = src[hashIdx - 1];
 			if (before !== " " && before !== "\t") {
@@ -985,13 +1008,6 @@ export const validateCrossDocumentDirectives: {
 	for (let docIdx = 1; docIdx < cstNodes.length; docIdx++) {
 		const cst = A.getUnsafe(cstNodes, docIdx);
 		const children = cst.children ?? [];
-
-		// QLJ7: directives are local to a single document. Subsequent
-		// documents do not inherit %TAG handles from earlier documents,
-		// so a `!handle!` reference here without a local %TAG is unresolved.
-		// Run this for every doc >= 1 — even docs that DO declare directives
-		// can reference handles those directives didn't define.
-		validateTagHandlesInDocument(cst, state);
 
 		// Check if this document has directives
 		const hasDirectives = children.some((c) => c.type === "directive");
@@ -1238,7 +1254,20 @@ export const composeFirstDocumentCounted: {
 	const doc = A.getUnsafe(cstNodes, 0);
 
 	const result = composeDocument(doc, state, cstNodes.length > 1, cstNodes[1]);
-	return { document: decorateDocumentSourceMultiline(result, text), documentCount: cstNodes.length };
+	// The first-document parser has always rejected undeclared handles in
+	// later documents too (QLJ7). Discover actual properties by composing each
+	// later document in isolation, rather than validating tag-shaped CST text.
+	const laterHandleErrors: RawDiagnostic[] = [];
+	for (let i = 1; i < cstNodes.length; i++) {
+		const later = composeDocument(A.getUnsafe(cstNodes, i), createState(text, FLOW, options), i < cstNodes.length - 1, cstNodes[i + 1]);
+		for (const error of later.errors) {
+			if (error.code === "UnresolvedTag" && error.message.startsWith("Tag handle ")) laterHandleErrors.push(error);
+		}
+	}
+	return {
+		document: decorateDocumentSourceMultiline({ ...result, errors: [...result.errors, ...laterHandleErrors] }, text),
+		documentCount: cstNodes.length,
+	};
 });
 
 /**

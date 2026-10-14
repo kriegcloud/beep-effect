@@ -309,6 +309,38 @@ describe("GlobPattern oracle (public seam)", () => {
 });
 
 describe("GlobPattern.compileResult", () => {
+	it.effect("terminates large singletons and non-advancing ranges in both compile forms", () =>
+		Effect.gen(function* () {
+			for (const source of ["{9007199254740992..9007199254740992}", "{9007199254740991..9007199254740992}", "{9007199254740992..9007199254740994}"]) {
+				const sync = GlobPattern.compileResult(source);
+				const compiled = yield* GlobPattern.compile(source);
+				assertSuccess(sync, Result.getOrThrow(sync));
+				assert.isTrue(sync.success.matches("9007199254740992"));
+				assert.isTrue(compiled.matches("9007199254740992"));
+				assert.isFalse(sync.success.matches("other"));
+				assert.isFalse(compiled.matches("other"));
+			}
+		}),
+	);
+
+	it.effect("returns typed failures for non-finite member arithmetic in both compile forms", () =>
+		Effect.gen(function* () {
+			const huge = "9".repeat(310);
+			const finite = `1${"0".repeat(308)}`;
+			for (const source of [`{${huge}..${huge}}`, `{1..${huge}..${huge}}`, `{-${finite}..${finite}}`, `{-${finite}..${finite}..${huge}}`]) {
+				const sync = GlobPattern.compileResult(source);
+				const error = yield* Effect.flip(GlobPattern.compile(source));
+				assertFailure(sync, error);
+				assert.instanceOf(error, GlobPatternError);
+				assert.strictEqual(error._tag, "GlobPatternError");
+				assert.strictEqual(error.pattern, source);
+				assert.strictEqual(error.reason, "ExpansionBudgetExceeded");
+				assert.strictEqual(error.limit, 100_000);
+				assert.strictEqual(error.actual, Infinity);
+			}
+		}),
+	);
+
 	it("preserves an overflowing expansion count in a synchronous typed failure", () => {
 		const source = `{1..${"9".repeat(310)}}`;
 		const result = GlobPattern.compileResult(source);
@@ -398,4 +430,41 @@ describe("GlobPattern.compileResult", () => {
 		const r = GlobPattern.compileResult("{a,b}".repeat(17), GlobPatternOptions.make({ nobrace: true }));
 		assertFailure(r, r.pipe(Result.flip, Result.getOrThrow));
 	});
+});
+
+
+describe("GlobPattern round-3 regressions", () => {
+	it.effect("matches the rounded range endpoint and preserves max-five failures in both APIs", () =>
+		Effect.gen(function* () {
+			const source = "{18014398509481984..18014398509482004..5}";
+			const sync = GlobPattern.compileResult(source);
+			assertSuccess(sync, Result.getOrThrow(sync));
+			const compiled = yield* GlobPattern.compile(source);
+			assert.isTrue(sync.success.matches("18014398509482004"));
+			assert.isTrue(compiled.matches("18014398509482004"));
+			const options = GlobPatternOptions.make({ braceExpandMax: 5 });
+			const failed = GlobPattern.compileResult(source, options);
+			const error = yield* Effect.flip(GlobPattern.compile(source, options));
+			assertFailure(failed, error);
+			assert.instanceOf(error, GlobPatternError);
+			assert.strictEqual(error.reason, "ExpansionBudgetExceeded");
+			assert.strictEqual(error.limit, 5);
+			assert.strictEqual(error.actual, 6);
+		}),
+	);
+
+	it.effect("matches overlapping repetition through both public compilation APIs", () =>
+		Effect.gen(function* () {
+			for (const options of [{}, { nocase: true }, { dot: true }]) {
+				const pattern = "*(a|aa)b";
+				const sync = GlobPattern.compileResult(pattern, GlobPatternOptions.make(options));
+				assertSuccess(sync, Result.getOrThrow(sync));
+				const compiled = yield* GlobPattern.compile(pattern, GlobPatternOptions.make(options));
+				for (const candidate of ["b", "aaaab", "aaaaac", "Ab", ".ab", "a/b"]) {
+					assert.strictEqual(sync.success.matches(candidate), oracle(candidate, pattern, options));
+					assert.strictEqual(compiled.matches(candidate), oracle(candidate, pattern, options));
+				}
+			}
+		}),
+	);
 });

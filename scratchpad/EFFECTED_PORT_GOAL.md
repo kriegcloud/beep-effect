@@ -110,6 +110,14 @@ Launch, from a `claude` session in `~/YeeBois/projects/beep-effect` on branch
 > `bun run beep yeet publish` and merged into `main` at the gate (the 2026-10-09 merge-with-reds
 > ruling applies). Supersedes "local commits only; never push, never open a PR, never touch `main`"
 > for this and later progress PRs; the remaining stages continue on a branch and land the same way.
+>
+> **Seat fallback, 2026-10-09 (agent decision, delegation policy 2026-10-01).** Round 2 hit the
+> Fable weekly limit (100 percent) and the Cursor Opus usage limit (until 2026-10-11) while the
+> Anthropic weekly pool stood at 92 percent, so direct Opus seats would starve every Claude session.
+> The third seat therefore runs on the chain's final route, `grok -m grok-4.7 --reasoning-effort
+> medium`, as a session separate from the grok xhigh seat, with the same brief, merge and gates.
+> Seat files keep the name `fable.md` with a route header. Reverse: rerun the `fable` seat once its
+> limit resets (2026-10-16) and re-merge.
 
 This file is the whole contract. The `/goal` evaluator only reads the
 transcript, so section 0 defines what you print and when. Everything else is
@@ -543,8 +551,8 @@ Built in wave 0, before any copy. Design order: schema → service → CLI.
 - Service: `Audit` (`Context.Service`) with `copy`, `parity`, `check`, `lint`,
   `test`, `docgen`, `audit`, `ledger` methods; `Effect.fn` everywhere;
   `effect/cli` for the command surface (installed 4.0.1 exports `./cli`,
-  `./http`, `./http-api`; there is no `./unstable/*` entry, so the
-  "effect/unstable/http" wording in the standing coding rules means these
+  `./http`, `./http-api`; there is no pre-#8354 namespace entry, so the
+  "effect/http" wording in the standing coding rules means these
   modules); `effect/ChildProcess` (or the
   platform spawner the repo already uses in `packages/tooling/tool/cli`) for
   subprocesses; no `node:http`, no native `Set`/`Map`.
@@ -968,3 +976,16 @@ EFFECTED_PORT_COMPLETE
 - Session ledger rows through `bun run beep session note` at every checkpoint.
 - Commit history on `@lab/effected` with the `(effected-port S<n>)` suffix is
   the audit trail; `git log --grep effected-port` reconstructs progress.
+
+---
+
+## Port complete, 2026-10-14
+
+`bun run --cwd scratchpad audit:effected -- ledger --verify` printed `ledger: 29/29 done` on `main` at
+7df7305dd7, after #1659 merged as 58766950c5. It printed no `stale:`, `blocked` or `open:` line and
+exited 0. The CLI exits non-zero unless the verify report is `ok`, so the full result was `ok: true`.
+The work landed through #1592 (round 1 and S2), #1628 (S3, round 2 and the first round-3 modules) and
+#1659 (round 3 for the rest and the S5 close), with main-red fixes in #1597, #1601, #1621, #1631 and
+#1637. Review leftovers are ledgered per module in `scratchpad/effected/PORT_LEDGER.json`, including the
+cli `CliUiTest.live` race under parallel load. Friction receipts are in
+`scratchpad/effected/OPPORTUNITIES.md`.

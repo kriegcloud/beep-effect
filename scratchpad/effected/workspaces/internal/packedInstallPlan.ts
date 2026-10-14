@@ -1,6 +1,6 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, flow, identity } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as Match from "effect/Match";
 import * as MutableHashMap from "effect/MutableHashMap";
@@ -16,11 +16,24 @@ import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { PackageManagerName } from "../PackageManagerName.ts";
+import { PackageManagerName } from "../PackageManagerName.ts";
 import type { WorkspacePackage } from "../WorkspacePackage.ts";
 import { RUNTIME_DEPENDENCY_FIELDS } from "./dependencyFields.ts";
 
 const $I = $ScratchpadId.create("effected/workspaces/internal/packedInstallPlan");
+
+const JsonValue = S.fromJsonString(S.Unknown).annotate(
+	$I.annote("JsonValue", { description: "A JSON value inspected with tolerant packed-manifest checks." }),
+);
+const JsonString = S.fromJsonString(S.String).annotate(
+	$I.annote("JsonString", { description: "A JSON-quoted YAML scalar retaining its exact string value." }),
+);
+const ConsumerDocument = S.fromJsonString(S.JsonObject, { space: 2 }).annotate(
+	$I.annote("ConsumerDocument", { description: "The formatted JSON object written as the consumer package.json." }),
+);
+const decodeJson = S.decodeResult(JsonValue);
+const quote = flow(S.encodeResult(JsonString), Result.getOrThrowWith(identity));
+const encodeConsumerDocument = flow(S.encodeResult(ConsumerDocument), Result.getOrThrowWith(identity));
 
 class PackedManifestError extends S.TaggedError<PackedManifestError>($I`PackedManifestError`)("PackedManifestError", {
 	message: S.String,
@@ -65,7 +78,7 @@ const TRAP_PREFIXES = /^(npm_|pnpm_config_|yarn_)/i;
  * import { scrubEnv } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
  *
  * const env = scrubEnv({ HOME: "/home/consumer", CI: "true", npm_config_user_agent: "pnpm", EMPTY: undefined });
- * console.log(JSON.stringify(env)) // {"HOME":"/home/consumer"}
+ * console.log(env) // { HOME: "/home/consumer" }
  * ```
  *
  * @category utilities
@@ -74,7 +87,7 @@ const TRAP_PREFIXES = /^(npm_|pnpm_config_|yarn_)/i;
 export const scrubEnv = (env: Readonly<Record<string, string | undefined>>): Record<string, string> => {
 	const out: Record<string, string> = {};
 	for (const [key, value] of R.toEntries(env)) {
-		if (value !== undefined && !TRAP_PREFIXES.test(key) && !MutableHashSet.has(TRAPS, key)) out[key] = value;
+		if (value !== undefined && !TRAP_PREFIXES.test(key) && !MutableHashSet.has(TRAPS, key)) R.assignProperty(out, key, value);
 	}
 	return out;
 };
@@ -137,9 +150,7 @@ export const closureOf: {
 	}
 	const ordered: Array<WorkspacePackage> = [root];
 	const seen = MutableHashSet.make(carrier);
-	for (let head = 0; head < ordered.length; head++) {
-		const current = ordered[head];
-		if (current === undefined) continue;
+	for (const current of ordered) {
 		for (const field of RUNTIME_DEPENDENCY_FIELDS) {
 			for (const name of A.sort(R.keys(current[field]), Str.Order)) {
 				const dependency = O.getOrUndefined(MutableHashMap.get(byName, name));
@@ -156,20 +167,38 @@ export const closureOf: {
 /**
  * What one consumer project needs.
  *
+ * **Example** (Validate a packed consumer plan)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { ConsumerInput } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ *
+ * console.log(S.is(ConsumerInput)({ manager: "pnpm", version: "10.0.0", carrier: { name: "@x/cli", tarball: "/packs/cli.tgz" }, overrides: {}, dependencies: {} })) // true
+ * console.log(S.is(ConsumerInput)(null)) // false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export interface ConsumerInput {
-	readonly manager: PackageManagerName;
+export const ConsumerInput = S.Struct({
+	manager: PackageManagerName.annotateKey($I.annote("manager", { description: "The consumer package manager." })),
 	/** The version `--version` reported, pinned so the consumer runs the manager that was probed. */
-	readonly version: string;
-	readonly carrier: { readonly name: string; readonly tarball: string };
+	version: S.String.annotateKey($I.annote("version", { description: "The probed package manager version to pin." })),
+	carrier: S.Struct({ name: S.String, tarball: S.String }).annotateKey($I.annote("carrier", { description: "The carrier package to install directly." })),
 	/** Every packed package except the carrier: name to absolute tarball path. */
-	readonly overrides: Readonly<Record<string, string>>;
-	readonly dependencies: Readonly<Record<string, string>>;
-}
+	overrides: S.Record(S.String, S.String).annotateKey($I.annote("overrides", { description: "External replacements keyed by package name." })),
+	dependencies: S.Record(S.String, S.String).annotateKey($I.annote("dependencies", { description: "Additional consumer dependency specifiers." })),
+}).annotate($I.annote("ConsumerInput", { description: "Package manager, packed carrier and dependency inputs for a scratch consumer." }));
 
-const major = (version: string): number => Number.parseInt(version.split(".")[0] ?? "", 10);
+/**
+ * Supplies the package manager, packed carrier, replacements, and dependencies for a scratch consumer.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ConsumerInput = typeof ConsumerInput.Type;
+
+const major = (version: string): number => Number.parseInt(version, 10);
 
 const minor = (version: string): number => Number.parseInt(version.split(".")[1] ?? "", 10);
 
@@ -196,7 +225,7 @@ const pnpmWorkspaceYaml = (specs: Readonly<Record<string, string>>): string => {
 	const entries = R.toEntries(specs);
 	return entries.length === 0
 		? "minimumReleaseAge: 0\noverrides: {}\n"
-		: `minimumReleaseAge: 0\noverrides:\n${entries.map(([name, spec]) => `  ${JSON.stringify(name)}: ${JSON.stringify(spec)}`).join("\n")}\n`;
+		: `minimumReleaseAge: 0\noverrides:\n${entries.map(([name, spec]) => `  ${quote(name)}: ${quote(spec)}`).join("\n")}\n`;
 };
 
 /**
@@ -262,7 +291,7 @@ export const consumerFiles = (
 		...(input.manager === "npm" || input.manager === "bun" ? { overrides: specs } : {}),
 		...(input.manager === "yarn" ? { resolutions: specs } : {}),
 	};
-	const files = [{ file: "package.json", content: `${JSON.stringify(manifest, null, 2)}\n` }];
+	const files = [{ file: "package.json", content: `${encodeConsumerDocument(manifest)}\n` }];
 	if (input.manager === "pnpm") files.push({ file: "pnpm-workspace.yaml", content: pnpmWorkspaceYaml(specs) });
 	if (input.manager === "yarn" && major(input.version) >= 2)
 		files.push({ file: ".yarnrc.yml", content: yarnrc(input.version) });
@@ -308,20 +337,38 @@ const UNRESOLVABLE = /^(?:workspace:|catalog:|link:|file:(?!\/))/;
 /**
  * What a packed `package.json` says that the run checks before any install.
  *
+ * **Example** (Validate packed executable facts)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import { PackedManifest } from "@beep/scratchpad/effected/workspaces/internal/packedInstallPlan";
+ *
+ * console.log(S.is(PackedManifest)({ name: "@x/cli", unresolved: ["dependencies.member: workspace:*"], bins: ["cli"] })) // true
+ * console.log(S.is(PackedManifest)(null)) // false
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
-export interface PackedManifest {
+export const PackedManifest = S.Struct({
 	/** Its `name`, when that is a string. */
-	readonly name: string | undefined;
+	name: S.UndefinedOr(S.String).annotateKey($I.annote("name", { description: "The packed package name, or explicit undefined." })),
 	/** Every runtime specifier only the workspace could resolve (see `UNRESOLVABLE`), as `field.name: spec`. */
-	readonly unresolved: ReadonlyArray<string>;
+	unresolved: S.Array(S.String).annotateKey($I.annote("unresolved", { description: "Runtime specifiers requiring workspace resolution." })),
 	/**
 	 * The bin names it declares: the keys of a `bin` object, or for a `bin`
 	 * string the package name without its scope, as npm links it.
 	 */
-	readonly bins: ReadonlyArray<string>;
-}
+	bins: S.Array(S.String).annotateKey($I.annote("bins", { description: "Declared executable names." })),
+}).annotate($I.annote("PackedManifest", { description: "Tolerant packed manifest facts used to check runtime specifiers and bins." }));
+
+/**
+ * Retains the package name, executable names, and unresolved runtime specifiers from a packed manifest.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type PackedManifest = typeof PackedManifest.Type;
 
 /**
  * Parse a packed manifest into the facts the run checks; the failure is the parse error or a non-object.
@@ -341,12 +388,9 @@ export interface PackedManifest {
  * @since 0.0.0
  */
 export const readPackedManifest = (manifestJson: string): Result.Result<PackedManifest, unknown> => {
-	let manifest: unknown;
-	try {
-		manifest = JSON.parse(manifestJson);
-	} catch (cause) {
-		return Result.fail(cause);
-	}
+	const decoded = decodeJson(manifestJson);
+	if (Result.isFailure(decoded)) return Result.fail(decoded.failure);
+	const manifest = decoded.success;
 	if (!P.isObject(manifest))
 		return Result.fail(PackedManifestError.make({ message: "package.json is not an object" }));
 	const record = manifest;
@@ -390,12 +434,9 @@ export const binTargetOf: {
 	(name: string): (manifestJson: string) => string | undefined;
 	(manifestJson: string, name: string): string | undefined;
 } = dual(2, (manifestJson: string, name: string): string | undefined => {
-	let manifest: unknown;
-	try {
-		manifest = JSON.parse(manifestJson);
-	} catch {
-		return undefined;
-	}
+	const decoded = S.decodeOption(JsonValue)(manifestJson);
+	if (O.isNone(decoded)) return undefined;
+	const manifest = decoded.value;
 	if (!P.isObject(manifest)) return undefined;
 	const bin = manifest.bin;
 	if (P.isString(bin)) {
@@ -492,7 +533,7 @@ const BARE_NAME = /^(?:@[^/@\s>]+\/)?[^/@\s>]+$/;
  *   "core@1": "file:./old-core.tgz",
  *   external: "^1.0.0",
  * } });
- * console.log(JSON.stringify(overrides)) // {"@demo/core":"./core.tgz"}
+ * console.log(overrides) // { "@demo/core": "./core.tgz" }
  * ```
  *
  * @category parsing

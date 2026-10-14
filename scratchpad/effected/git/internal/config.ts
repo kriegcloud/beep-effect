@@ -22,11 +22,16 @@
 import { $ScratchpadId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as O from "@beep/utils/Option";
-import { dual } from "effect/Function";
+import { dual, identity } from "effect/Function";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $ScratchpadId.create("effected/git/internal/config");
+const DiagnosticJsonString = S.fromJsonString(S.String).annotate(
+  $I.annote("DiagnosticJsonString", { description: "JSON quoting for synchronous scanner diagnostics." }),
+);
+const encodeDiagnosticJsonString = S.encodeResult(DiagnosticJsonString);
 
 /**
  * The shared diagnostic vocabulary emitted by the scanner.
@@ -48,12 +53,20 @@ export const GitConfigDiagnosticCode = LiteralKit([
 ]).annotate($I.annote("GitConfigDiagnosticCode", { description: "The diagnostic codes emitted by the git-config scanner." }));
 
 /**
+ * Decoded value produced by {@link GitConfigDiagnosticCode}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GitConfigDiagnosticCode = typeof GitConfigDiagnosticCode.Type;
+
+/**
  * The scanner's schema-derived diagnostic code type.
  *
  * @category type-level
  * @since 0.0.0
  */
-export type RawDiagnosticCode = typeof GitConfigDiagnosticCode.Type;
+export type RawDiagnosticCode = GitConfigDiagnosticCode;
 
 /**
  * One raw scanner diagnostic, positions in character offsets.
@@ -300,7 +313,8 @@ const scanHeader = (
 	let i = bracketOffset + 1;
 	const nameStart = i;
 	while (i < len && isNameChar(text.charAt(i))) i += 1;
-	let name = text.slice(nameStart, i);
+	const nameEnd = i;
+	let name = text.slice(nameStart, nameEnd);
 	const fail = (message: string): HeaderScan => {
 		const next = skipToLineEnd(text, i);
 		diagnostics.push({ code: "invalidSectionHeader", message, offset: lineStart, length: next - lineStart });
@@ -311,6 +325,7 @@ const scanHeader = (
 	let subsection: string | undefined;
 	let quoted = false;
 	if (text[i] === '"') {
+		if (i === nameEnd) return fail("expected whitespace before quoted subsection");
 		quoted = true;
 		i += 1;
 		let value = "";
@@ -363,7 +378,7 @@ const scanHeader = (
 		subsection = Str.toLowerCase(name.slice(dot + 1));
 		name = name.slice(0, dot);
 		fold = true;
-		if (name === "" || subsection === "") return fail("malformed dotted section header");
+		if (name === "") return fail("malformed dotted section header");
 	}
 	const inline = !isLineEnd(text, i) && trailing !== "#" && trailing !== ";"
 		? scanEntry(text, entryStart, i, diagnostics)
@@ -418,7 +433,7 @@ const scanEntry = (text: string, lineStart: number, keyStart: number, diagnostic
 		const next = skipToLineEnd(text, i);
 		diagnostics.push({
 			code: "invalidLine",
-			message: `unexpected character ${JSON.stringify(after)} after variable name "${key}"`,
+			message: `unexpected character ${Result.getOrThrowWith(encodeDiagnosticJsonString(text.charAt(i)), identity)} after variable name "${key}"`,
 			offset: lineStart,
 			length: next - lineStart,
 		});
@@ -436,16 +451,26 @@ const scanEntry = (text: string, lineStart: number, keyStart: number, diagnostic
 	while (i < len) {
 		const ch = text.charAt(i);
 		if (ch === "\n") break;
-		if (ch === "\r" && text[i + 1] === "\n") break;
+		if (ch === "\r" && isLineEnd(text, i)) break;
 		if (ch === "\\") {
 			const next = text[i + 1];
+			if (next === undefined && !inQuotes) {
+				significantDecoded = decoded.length;
+				significantEnd = i;
+				i += 1;
+				break;
+			}
 			if (next === "\n") {
 				// Line continuation: the backslash and newline are both dropped.
 				i += 2;
+				significantDecoded = decoded.length;
+				significantEnd = i - 1;
 				continue;
 			}
 			if (next === "\r" && text[i + 2] === "\n") {
 				i += 3;
+				significantDecoded = decoded.length;
+				significantEnd = i - 1;
 				continue;
 			}
 			const mapped =
@@ -486,6 +511,10 @@ const scanEntry = (text: string, lineStart: number, keyStart: number, diagnostic
 		if (!inQuotes && (ch === "#" || ch === ";")) {
 			// Trailing comment: the value ended at the last significant character.
 			break;
+		}
+		if (!inQuotes && decoded === "" && isWs(ch)) {
+			i += 1;
+			continue;
 		}
 		decoded += ch;
 		i += 1;
