@@ -48,7 +48,7 @@ it.layer(PlatformLayer, { timeout: "120 seconds" })((it) => {
           RetiredEffectPathsOptions.make({ cwd: root, strictCheck: true })
         ).pipe(Effect.exit);
 
-        assertTrue(Exit.isFailure(exit));
+        exit.pipe(Exit.isFailure, assertTrue);
         expect(failureText(exit)).toContain("RetiredEffectPathsExecutionError");
       })
     );
