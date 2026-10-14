@@ -1,7 +1,7 @@
 # Reboot recovery qualification — 2026-10-14
 
 Status: **boot/access and core services recovered after firmware correction;
-Muse proxy recovered; guarded service restart passes; repeat machine boot remains open**.
+repeat machine boot and guarded proxy recovery pass; post-boot GitHub authentication gap remains open**.
 The operator selected reboot recovery after the proxy route receipt. The
 worker readiness checkout was at
 `6d6cec22b5164ef9830b5171e7c7ad580b098d96` before reboot.
@@ -131,3 +131,40 @@ drop-in, daemon-reloads and restarts the service; the unused helper may then be
 removed. No full worker reboot was performed in this continuation. Repeat boot
 acceptance remains open to qualify the corrected firmware priority and guarded
 service startup together. The worker's eight pre-existing edits remain intact.
+
+## Repeat machine reboot qualification
+
+The operator selected a repeat beep-worker reboot. Preflight found no active
+user-systemd jobs, detached proof services, headless agent runs or proxy TCP
+connections. Recorded source 2137396c2667b5dcfb1c5ed21e6fe4f383b71a30,
+eight existing-edit hashes and manifest/startup-guard hashes in private worker
+~/.cache/beep/readiness/reboot/repeat-preflight.json. Reboot used the canonical
+YubiKey SSH admin wrapper and touch-authenticated sudo; the command exited
+zero and closed SSH.
+
+Ubuntu returned without physical boot selection or service intervention.
+Fresh YubiKey SSH passes. Boot id changed from
+3f6b96f1-c326-4f3d-87d4-bec52b1f3acd to
+e1bae645-1ac1-488b-b73d-78fc2c3681ee. Source, all eight edits, manifest and
+startup checks match preflight. Linger=yes; Tailscale, SSH, UFW and fail2ban
+are active; user Docker, T3 and CLIProxyAPI are active. T3 tailnet HTTPS is
+200. The proxy network precheck ran 13:29:18–13:29:22 CDT and registration
+postcheck ran 13:29:22–13:29:24, both exit zero, Result=success. Catalog has
+62 models with all four configured routes present. No warm restart was needed.
+
+Post-boot medium inference returns HTTP 200, answer 4, zero tool calls for
+GPT-6.1-Sol (2.58 seconds) and Muse Wonder 1.0 (2.78 seconds). Ordinary model
+checking has zero findings across 360 models and zero catalog diff. Docker info
+passes, with the previously observed unsupported cpuset/io controller warnings.
+The 1Password service-account vault-list probe passes with output suppressed.
+Private receipts: repeat-postboot.json and repeat-inference.json alongside the
+preflight receipt. This completes observed boot selection and proxy startup
+recovery acceptance, not every provider's inference or full fleet readiness.
+
+A separate credential recovery gap appeared: gh auth status exits 1 and reports
+the active kriegcloud saved token in default invalid. Authenticated user lookup
+also exits 1. Public repository lookup exits zero and is not authentication
+proof. The prior pre-reboot GitHub receipt remains historical. No raw token was
+printed, no credential was deleted, and no new login was started. Investigate
+credential storage/retrieval and validate authenticated GitHub access before
+closing unattended developer authentication across reboot.
