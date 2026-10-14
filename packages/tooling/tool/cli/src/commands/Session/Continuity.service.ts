@@ -10,7 +10,7 @@ import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
@@ -26,7 +26,7 @@ import { SessionLedgerError } from "./Session.errors.ts";
 
 const $I = $RepoCliId.create("commands/Session/Continuity.service");
 const optionalText = S.OptionFromOptionalKey(S.NonEmptyString);
-const Envelope = S.Struct({ type: S.String, timestamp: S.optionalKey(S.DateTimeUtcFromString), payload: S.Unknown });
+const Envelope = S.Struct({ type: S.String, timestamp: S.optionalKey(S.Unknown), payload: S.Unknown });
 const Meta = S.Struct({ id: S.NonEmptyString, session_id: optionalText });
 const Turn = S.Struct({
   approval_policy: S.NonEmptyString,
@@ -42,7 +42,17 @@ const ClaudeLine = S.Struct({
 });
 const decodeEnvelope = S.decodeUnknownOption(S.fromJsonString(Envelope));
 const decodeMeta = S.decodeUnknownOption(Meta);
-const decodeTurn = S.decodeUnknownOption(Turn);
+const decodeTimestamp = S.decodeUnknownOption(S.DateTimeUtcFromString);
+const decodeTuple = flow(
+  S.decodeUnknownOption(Turn),
+  O.map((value) =>
+    PermissionTuple.make({
+      approval: value.approval_policy,
+      sandbox: value.sandbox_policy.type,
+      profile: value.permission_profile.type,
+    })
+  )
+);
 const isSettings = S.is(Settings);
 const decodeClaudeLine = S.decodeUnknownOption(S.fromJsonString(ClaudeLine));
 const equivalentPolicy = S.toEquivalence(PermissionTuple);
@@ -50,27 +60,32 @@ const tupleText = (tuple: PermissionTuple): string => `${tuple.approval}/${tuple
 const lines = (text: string) => A.filter(A.map(Str.split(text, "\n"), Str.trim), Str.isNonEmpty);
 const failure = (message: string) => SessionLedgerError.make({ reason: "decode", message });
 
-class ObservationEvent extends S.Class<ObservationEvent>($I`ObservationEvent`)(
-  {
+class ObservationEvent extends S.Opaque<ObservationEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     at: S.Finite,
     position: S.Int,
     segment: S.Int,
     boundary: S.Boolean,
     tuple: S.Option(PermissionTuple),
-  },
-  $I.annote("ObservationEvent", {
-    description: "Projected effective turn or settings boundary, without transcript content.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObservationEvent", {
+      description: "Projected effective turn or settings boundary, without transcript content.",
+    })
+  )
 ) {}
-class ThreadHistory extends S.Class<ThreadHistory>($I`ThreadHistory`)(
-  {
+class ThreadHistory extends S.Opaque<ThreadHistory, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     family: S.String,
     incomplete: S.Boolean,
     segments: S.Int,
     events: S.Array(ObservationEvent),
-  },
-  $I.annote("ThreadHistory", { description: "Thread-keyed projected history across selected rollout segments." })
+    policies: S.Array(PermissionTuple),
+  }).pipe(
+    $I.annoteSchema("ThreadHistory", {
+      description: "Thread-keyed projected history across selected rollout segments.",
+    })
+  )
 ) {}
 
 /**
@@ -94,12 +109,18 @@ export class PermissionContinuity extends Context.Service<
   }
 >()($I`PermissionContinuity`) {}
 
+const precedes = (left: ObservationEvent, right: ObservationEvent) =>
+  left.at < right.at || (left.at === right.at && left.segment === right.segment && left.position < right.position);
+
 const readCodex = (contents: ReadonlyArray<string>, expected: PermissionTuple) => {
   const threads = MutableHashMap.empty<string, ThreadHistory>();
   let orphaned = A.empty<ContinuityObservation>();
   A.forEach(contents, (content, segment) => {
     const raw = lines(content);
     const envelopes = A.map(raw, (line) => decodeEnvelope(line));
+    const policies = A.filterMap(A.getSomes(envelopes), (row) =>
+      row.type === "turn_context" ? decodeTuple(row.payload) : O.none()
+    );
     const first = A.findFirst(A.getSomes(envelopes), (row) => row.type === "session_meta");
     const meta = O.flatMap(first, (row) => decodeMeta(row.payload));
     if (O.isNone(meta)) {
@@ -109,10 +130,10 @@ const readCodex = (contents: ReadonlyArray<string>, expected: PermissionTuple) =
           app: "codex",
           id: `unidentified-${segment}`,
           family: "unknown",
-          verdict: "unknown",
-          tuples: [],
+          verdict: A.some(policies, (tuple) => !equivalentPolicy(tuple, expected)) ? "unsatisfied" : "unknown",
+          tuples: A.dedupe(A.map(policies, tupleText)),
           boundaries: 0,
-          detail: "Missing or invalid first session metadata",
+          detail: "Missing or invalid first session metadata; any decoded effective tuples are retained",
         })
       );
       return;
@@ -125,24 +146,16 @@ const readCodex = (contents: ReadonlyArray<string>, expected: PermissionTuple) =
     A.forEach(A.getSomes(envelopes), (row, position) => {
       const boundary = row.type === "thread_settings_applied" || (row.type === "event_msg" && isSettings(row.payload));
       if (row.type !== "turn_context" && !boundary) return;
-      if (row.timestamp === undefined) {
+      const timestamp = decodeTimestamp(row.timestamp);
+      if (O.isNone(timestamp)) {
         incomplete = true;
         return;
       }
-      const turn = decodeTurn(row.payload);
-      const tuple = boundary
-        ? O.none<PermissionTuple>()
-        : O.map(turn, (value) =>
-            PermissionTuple.make({
-              approval: value.approval_policy,
-              sandbox: value.sandbox_policy.type,
-              profile: value.permission_profile.type,
-            })
-          );
+      const tuple = boundary ? O.none<PermissionTuple>() : decodeTuple(row.payload);
       if (!boundary && O.isNone(tuple)) incomplete = true;
       events = A.append(
         events,
-        ObservationEvent.make({ at: DateTime.toEpochMillis(row.timestamp), position, segment, boundary, tuple })
+        ObservationEvent.make({ at: DateTime.toEpochMillis(timestamp.value), position, segment, boundary, tuple })
       );
     });
     MutableHashMap.set(
@@ -154,6 +167,10 @@ const readCodex = (contents: ReadonlyArray<string>, expected: PermissionTuple) =
         incomplete: incomplete || O.exists(previous, (row) => row.incomplete || row.family !== family),
         segments: O.match(previous, { onNone: () => 1, onSome: (row) => row.segments + 1 }),
         events: [...O.match(previous, { onNone: A.empty<ObservationEvent>, onSome: (row) => row.events }), ...events],
+        policies: [
+          ...O.match(previous, { onNone: A.empty<PermissionTuple>, onSome: (row) => row.policies }),
+          ...policies,
+        ],
       })
     );
   });
@@ -168,31 +185,23 @@ const readCodex = (contents: ReadonlyArray<string>, expected: PermissionTuple) =
           Order.mapInput(Order.Number, (event: ObservationEvent) => event.position),
         ])
       );
-      const turns = A.getSomes(A.map(events, (row) => row.tuple));
-      const tuples = A.dedupe(A.map(turns, tupleText));
+      const turns = thread.policies;
+      const effective = A.filter(events, (row) => O.isSome(row.tuple));
+      const orderedPolicies = A.getSomes(A.map(events, (row) => row.tuple));
+      const tuples = A.dedupe(A.map([...orderedPolicies, ...turns], tupleText));
       const settings = A.filter(events, (row) => row.boundary);
       // A settings event without an effective turn on each side cannot prove continuity.
       const openBoundary = A.some(
-        events,
-        (boundary, index) =>
-          boundary.boundary &&
-          (!A.some(A.take(events, index), (row) => O.isSome(row.tuple)) ||
-            !A.some(A.drop(events, index + 1), (row) => O.isSome(row.tuple)))
+        settings,
+        (boundary) =>
+          !A.some(effective, (row) => precedes(row, boundary)) || !A.some(effective, (row) => precedes(boundary, row))
       );
       const mismatch = A.some(turns, (tuple) => !equivalentPolicy(tuple, expected));
       const incomplete =
         thread.incomplete ||
         openBoundary ||
         !A.isReadonlyArrayNonEmpty(turns) ||
-        (thread.segments > 1 &&
-          A.length(
-            A.dedupe(
-              A.map(
-                A.filter(events, (row) => O.isSome(row.tuple)),
-                (row) => row.segment
-              )
-            )
-          ) < thread.segments);
+        (thread.segments > 1 && A.length(A.dedupe(A.map(effective, (row) => row.segment))) < thread.segments);
       return ContinuityObservation.make({
         app: "codex",
         id: thread.id,

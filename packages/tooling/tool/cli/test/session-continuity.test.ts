@@ -281,4 +281,55 @@ it.layer(PermissionContinuityLive.pipe(Layer.provideMerge(commandEnvironment)), 
       expect(yield* fixture([])).toEqual([]);
     })
   );
+
+  it.effect("retains a known downgrade in an unidentified segment", () =>
+    Effect.gen(function* () {
+      const rows = yield* fixture([[meta(), turn(at(0))], [turn(at(1), "workspace-write", "on-request", "managed")]]);
+      expect(rows[0]?.id).toBe("unidentified-1");
+      expect(rows[0]?.verdict).toBe("unsatisfied");
+      expect(rows[0]?.tuples).toEqual(["on-request/workspace-write/managed"]);
+      expect(rows[1]?.verdict).toBe("verified");
+    })
+  );
+  it.effect("retains known mismatches when turn timestamps are absent or malformed", () =>
+    Effect.gen(function* () {
+      const payload = {
+        approval_policy: "on-request",
+        sandbox_policy: { type: "workspace-write" },
+        permission_profile: { type: "managed" },
+      };
+      const observations = yield* Effect.all([
+        fixture([[meta(), { type: "turn_context", payload }]]),
+        fixture([[meta(), { type: "turn_context", timestamp: "invalid", payload }]]),
+        fixture([[{ type: "turn_context", payload }]]),
+      ]);
+      expect(A.map(observations, (rows) => rows[0]?.verdict)).toEqual(["unsatisfied", "unsatisfied", "unsatisfied"]);
+      expect(A.map(observations, (rows) => rows[0]?.tuples)).toEqual([
+        ["on-request/workspace-write/managed"],
+        ["on-request/workspace-write/managed"],
+        ["on-request/workspace-write/managed"],
+      ]);
+    })
+  );
+  it.effect("does not use manifest order as evidence for cross-segment timestamp ties", () =>
+    Effect.gen(function* () {
+      const boundarySegment = [
+        meta(),
+        turn(at(0)),
+        { type: "event_msg", timestamp: at(1), payload: { type: "thread_settings_applied" } },
+      ];
+      const tiedSegment = [meta(), turn(at(1))];
+      const ambiguous = yield* Effect.all([
+        fixture([boundarySegment, tiedSegment]),
+        fixture([tiedSegment, boundarySegment]),
+      ]);
+      expect(A.map(ambiguous, (rows) => rows[0]?.verdict)).toEqual(["unknown", "unknown"]);
+      const supportedSegment = [meta(), turn(at(1)), turn(at(2))];
+      const supported = yield* Effect.all([
+        fixture([boundarySegment, supportedSegment]),
+        fixture([supportedSegment, boundarySegment]),
+      ]);
+      expect(A.map(supported, (rows) => rows[0]?.verdict)).toEqual(["verified", "verified"]);
+    })
+  );
 });
