@@ -57,6 +57,8 @@ const item = KgAnswerItem.make({
 const verdict = (value: O.Option<"right" | "wrong" | "partly">, note: O.Option<string> = O.none()) =>
   VerdictInput.make({ item, verdict: value, note });
 
+const VerdictRows = S.Array(VerdictRow);
+
 describe("VerdictLog", () => {
   it.layer(testLayer(), { timeout: "5 seconds" })("revisions", (it) => {
     it.effect(
@@ -91,7 +93,7 @@ describe("VerdictLog", () => {
           recordedAt: DateTime.makeUnsafe(0),
           lockedAt: O.some(DateTime.makeUnsafe(0)),
         });
-        MutableHashMap.set(store, "verdict-rows", yield* S.encodeEffect(S.Array(VerdictRow))([locked]));
+        MutableHashMap.set(store, "verdict-rows", yield* S.encodeEffect(VerdictRows)([locked]));
 
         const log = yield* VerdictLog;
         const error = yield* Effect.flip(log.record(verdict(O.some("wrong"))));
@@ -139,7 +141,7 @@ describe("VerdictLog", () => {
         const stored = yield* store.pipe(
           MutableHashMap.get("verdict-rows"),
           O.getOrUndefined,
-          S.decodeUnknownEffect(S.Array(VerdictRow))
+          S.decodeUnknownEffect(VerdictRows)
         );
         expect(stored).toHaveLength(2);
       })

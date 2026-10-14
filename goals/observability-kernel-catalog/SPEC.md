@@ -43,7 +43,6 @@ Higher sources outrank lower sources when they conflict.
 - `TelemetryTier` LiteralKit `shape-only | standard | dev-verbose`; untagged or unresolvable resolves to `shape-only`.
 - Effect bump to ≥ 4.0.3 via the repo's update policy (pkg.pr.new snapshot, never the rc).
 - Schema → `Context.Service` contract → implementation; Effect v4 only, validated against `.repos/effect`; `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
-- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against the local reference checkout of [Effect](https://github.com/Effect-TS/effect); `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
 - Names, metrics, events and attribute keys come from the instrumentation catalog (`goals/observability-kernel-catalog`); names are static literals, never interpolated.
 - Public repo: no client data, tokens, `op://` resolutions, LAN IPs, tailnet suffixes or account identifiers in packet or code.
 - Totals use `increase()` over the panel range; per-process identity never becomes a metric label; promoted labels come only from the registry's metric-safe set.

@@ -251,30 +251,24 @@ const replayEntry = Effect.fn("SkillsRelock.replayEntry")(function* (
  * **Example** (Check a replay report)
  *
  * ```ts
- * import { SkillGitRevision } from "@beep/repo-cli/commands/Skills/Skills.schemas"
- * import { SkillReplayReport } from "@beep/repo-cli/commands/Skills/SkillsRelock.schemas"
- * import { isSkillReplayClean } from "@beep/repo-cli/commands/Skills/SkillsRelock.service"
+ * import { isSkillReplayClean, SkillGitRevision, SkillReplayReport } from "@beep/repo-cli/commands/Skills"
  * import { Sha256Hex } from "@beep/schema/Sha256"
  * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
  * const digest = Sha256Hex.make("0".repeat(64))
- * const revision = await Effect.runPromise(S.decodeEffect(SkillGitRevision)("d6e773a562dc85c2a81b7c571f40ca2d81896679"))
- * const report = SkillReplayReport.make({
- *   skill: "oracle",
- *   repository: "steipete/oracle",
- *   sourceRevision: revision,
- *   pristineTreeHash: digest,
- *   patchSetHash: digest,
- *   status: "clean",
- *   recorded: true,
- *   licenseMatches: true,
- *   effectiveTreeHash: O.some(digest),
- *   hunks: [],
- *   diff: "",
+ * const check = Effect.gen(function* () {
+ *   const sourceRevision = yield* S.decodeEffect(SkillGitRevision)("d6e773a562dc85c2a81b7c571f40ca2d81896679")
+ *   const report = SkillReplayReport.make({
+ *     skill: "oracle", repository: "steipete/oracle", sourceRevision,
+ *     pristineTreeHash: digest, patchSetHash: digest, status: "clean",
+ *     recorded: true, licenseMatches: true, effectiveTreeHash: O.some(digest),
+ *     hunks: [], diff: "",
+ *   })
+ *   return isSkillReplayClean(report)
  * })
- * console.log(isSkillReplayClean(report)) // true
+ * Effect.runPromise(check).then(console.log) // true
  * ```
  *
  * @param report - One skill's replay outcome.

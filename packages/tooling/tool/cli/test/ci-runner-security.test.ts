@@ -1333,7 +1333,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
     })
   );
 
-  // Reusable Heavy is trusted at main; caller and scheduled names are orchestration exemptions.
+  // Reusable Heavy is trusted at main; caller, scheduled, and skill-train orchestration jobs are exemptions.
+  // Skills Replay comments on PRs; Relock and Batch Issue are the skill-train writers.
   it.effect(
     "maps every hosted job to a descriptor or explicit orchestration exemption",
     Effect.fnUntraced(function* () {
@@ -1358,8 +1359,6 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
         "release-desktop.yml:Windows x64",
         "release-desktop.yml:Desktop release draft ready",
         "rerun-runner-loss.yml:Rerun Runner Loss",
-        // Upstream replay, bot-branch relocking, and issue publication are domain automation.
-        // workflowPolicyDiagnostics still enforces runner and credential policy for every job.
         "skills-update-train.yml:Skills Replay",
         "skills-update-train.yml:Skills Relock",
         "skills-update-train.yml:Skills Train Batch Issue",

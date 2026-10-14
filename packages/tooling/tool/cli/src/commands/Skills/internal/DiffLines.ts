@@ -81,6 +81,9 @@ export const joinDiffLines = (lines: ReadonlyArray<DiffLine>): string =>
  * Two lines are the same when their text and their newline state agree.
  *
  * @internal
+ * @param left - First line to compare.
+ * @param right - Second line to compare.
+ * @returns Whether the lines have equal text and newline state.
  * @category predicates
  * @since 0.0.0
  */

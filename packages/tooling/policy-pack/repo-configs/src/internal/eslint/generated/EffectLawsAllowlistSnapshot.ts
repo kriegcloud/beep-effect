@@ -8,9 +8,9 @@ export const ALLOWLIST_SNAPSHOT = {
       "rule": "beep-laws/no-native-runtime",
       "file": "packages/foundation/capability/observability/src/server/DevTools.ts",
       "kind": "new-map-set",
-      "reason": "The Effect DevTools wire schema requires native Map attributes. Copying each tracer attribute map at publication preserves the start and end snapshots while the tracer continues mutating its own attributes; the DevTools regression checks that the start message stays empty and the end message carries later attributes. Effect HashMap is not the vendor wire type.",
+      "reason": "Effect DevToolsSchema.Span requires ReadonlyMap attributes at the protocol boundary. Tracer spans expose iterable attributes, so copying them to a native Map preserves the upstream wire contract without changing domain collection policy.",
       "owner": "@beep/observability",
-      "issue": "DEVTOOLS-NATIVE-MAP-WIRE-SNAPSHOTS"
+      "issue": "OBSERVABILITY-DEVTOOLS-READONLYMAP-BOUNDARY"
     },
     {
       "rule": "beep-laws/no-native-runtime",

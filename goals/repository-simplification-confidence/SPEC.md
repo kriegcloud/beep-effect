@@ -976,6 +976,15 @@ helper to the missing variant its sole caller passes; remove the impossible
 success branch. Select only the three newly measured knowledge baseline,
 grouping, and lease identities from the passing combined report through the
 canonical writer. Verify structural equality of all incumbent baseline fields.
+The historical combined run is bound to the reviewed revision, source/test and
+configuration hashes, log digest, and measurements in
+[the owner attestation](research/knowledge-coverage-owner-attestation-20261014.json).
+[The captured producer receipt](research/knowledge-coverage-producer-20261014.json)
+also records an exact input fence and producing command at its stated revision.
+Its narrower grouping result does not reproduce the admitted branch floor;
+the duplicate-root regression added in `fb7761e9d8` addresses that path.
+These are historical evidence, with their provenance limits stated explicitly,
+not proof of the current merge commit. Every admitted floor remains unchanged.
 The lease-warning boundary reaches full coverage and needs no partial identity.
 Reversal is a repair PR reverting these tests, the private narrowing, or new
 rows; it does not lower an existing floor. The broader program remains active.
