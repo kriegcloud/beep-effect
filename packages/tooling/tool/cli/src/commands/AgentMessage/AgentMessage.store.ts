@@ -634,6 +634,17 @@ export const makeAgentMessageStore = (
         return yield* error("conflict", "Only an ambiguous native attempt can receive an operator resolution.");
       return current;
     });
+    const validateResolutionEvidence = Effect.fn("AgentMessageStore.validateResolutionEvidence")(function* (
+      request: AmbiguityResolution
+    ) {
+      if (request.disposition !== "failed") return;
+      const confirmed = A.some(
+        yield* receipts(request.messageId),
+        (receipt) => receipt.status === "delivered" && receipt.attemptGeneration === request.attemptGeneration
+      );
+      if (confirmed)
+        return yield* error("conflict", "Failed resolution contradicts the original attempt's confirmed delivery.");
+    });
     const resolveAmbiguity = Effect.fn("AgentMessageStore.resolveAmbiguity")(function* (
       request: AmbiguityResolution,
       now: number
@@ -646,6 +657,7 @@ export const makeAgentMessageStore = (
           const replay = yield* replayResolution(validated, payload);
           if (O.isSome(replay)) return replay.value;
           const current = yield* validateResolutionAttempt(validated);
+          yield* validateResolutionEvidence(validated);
           const nextState = current.state === "acknowledged" ? "acknowledged" : validated.disposition;
           yield* sql`UPDATE agent_messages SET state = ${nextState}, dispatch_active = 0 WHERE id = ${validated.messageId}`;
           const receipt = yield* append(

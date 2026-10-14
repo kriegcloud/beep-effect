@@ -146,7 +146,9 @@ The store atomically retains the complete decision, timestamp and original
 receipt sequence. An identical request returns the same receipt after a restart;
 changed content or a second decision for the same attempt is rejected. An
 ordinary ambiguous message becomes `delivered` or `failed`, without returning
-to the send queue. Delivery still requires participant acknowledgement. If an
+to the send queue. A `failed` decision is rejected when that exact attempt already
+has a confirmed `delivered` receipt; an expired ACK deadline cannot overturn
+recorded delivery. Delivery still requires participant acknowledgement. If an
 ACK was already recorded, it remains recorded while the native dispatch hold is
 released. An operator decision is distinct from adapter-verified reconciliation;
 adapter-specific automatic evidence qualification remains separate work.

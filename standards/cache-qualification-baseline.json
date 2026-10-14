@@ -466,11 +466,11 @@
       }
     },
     "@beep/freshbooks": {
-      "reviewer": "GPT-6.1-Sol medium (independent FreshBooks evidence-reference correction review)",
-      "reason": "Repair inherited stale review evidence only; unchanged FreshBooks executable contracts and unchanged qualification ledger. No coverage or qualification changes.",
+      "reviewer": "Codex GPT-6.1-Sol medium (rsc-a-retire)",
+      "reason": "Retire Knip root scripts, task and fingerprint input; preserve incoming main cache reviews and directly declare FreshBooks bun-types. No qualification or TTC proof reuse.",
       "basis": {
-        "path": "goals/agent-session-bridges/research/CACHE-RECEIPT-REFERENCE-CORRECTION-20261014.md",
-        "sha256": "e52c3af409833fa7ac5b1e0e2099f78c65aeaf8d31e309963fd5b27f8bedbdac"
+        "path": "goals/repository-simplification-confidence/history/receipts/knip-cache-policy-review.md",
+        "sha256": "aa3b409668e97612e189d3bfe2507ae2a74fa0babb72647208877100ca4310cd"
       }
     },
     "@beep/gov-legal-mcp": {

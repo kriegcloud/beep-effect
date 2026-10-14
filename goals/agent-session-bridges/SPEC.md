@@ -274,7 +274,7 @@ Hosted checks and the complete green merge gate remain required.
 
 Canonical publication stopped on a stale inherited FreshBooks review basis.
 Independently re-review only that unchanged subject against a new immutable
-source-bound correction basis; retain the other154 reviews and every
+source-bound correction basis; retain the other 154 reviews and every
 qualification tuple, executable contract and floor. The original main owner
 was notified on PR1584. Revert this correction to recover the carried reference.
 

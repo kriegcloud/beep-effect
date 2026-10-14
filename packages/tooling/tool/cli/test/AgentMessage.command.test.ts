@@ -264,8 +264,8 @@ it.layer(
       });
       const filename = yield* f.write("resolution.json", yield* S.encodeEffect(AmbiguityResolution)(resolution));
       const invoke = () => f.execute(["resolve-ambiguity", "--file", filename]);
-      const first = yield* S.decodeUnknownEffect(Receipt)(O.getOrThrow(A.head(yield* invoke())));
-      const repeated = yield* S.decodeUnknownEffect(Receipt)(O.getOrThrow(A.head(yield* invoke())));
+      const first = yield* A.head(yield* invoke()).pipe(O.getOrThrow, S.decodeUnknownEffect(Receipt));
+      const repeated = yield* A.head(yield* invoke()).pipe(O.getOrThrow, S.decodeUnknownEffect(Receipt));
       expect(first.status).toBe("delivered");
       expect(repeated.sequence).toBe(first.sequence);
       expect(yield* f.store.receipts("operator-resolution")).toHaveLength(4);

@@ -660,9 +660,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
             const persisted = O.getOrThrow(A.head(rows));
             expect(persisted.decided_at).toBe(202);
             expect(persisted.receipt_sequence).toBe(receipt.sequence);
-            expect(yield* S.decodeUnknownEffect(S.fromJsonString(AmbiguityResolution))(persisted.payload)).toEqual(
-              request
-            );
+            expect(yield* S.decodeEffect(S.fromJsonString(AmbiguityResolution))(persisted.payload)).toEqual(request);
           })
         )
     );
@@ -788,6 +786,53 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
           expect(yield* store.receipts(request.messageId)).toHaveLength(4);
           const rows = yield* client`SELECT count(*) AS count FROM agent_message_resolutions`;
           expect(rows).toEqual([{ count: 1 }]);
+        })
+      )
+    );
+
+    it.effect("failed operator assertion cannot contradict confirmed delivery for the original attempt", () =>
+      fixture((store, filename) =>
+        Effect.gen(function* () {
+          yield* store.accept(envelope("confirmed-delivery-resolution", "a", "b", 110), 100);
+          const claim = O.getOrThrow(yield* store.claimNext("b", "b-owner", 101, 201));
+          yield* store.complete(claim, "delivered", 102);
+          expect(yield* store.recover(110)).toBe(1);
+          const before = yield* store.receipts(claim.envelope.messageId);
+          const request = AmbiguityResolution.make({
+            resolutionId: "confirmed-delivery-decision",
+            messageId: claim.envelope.messageId,
+            endpointId: "b",
+            endpointGeneration: 1,
+            attemptGeneration: claim.generation,
+            attemptOwnerId: claim.ownerId,
+            operatorId: "fixture-operator",
+            disposition: "failed",
+            evidence: "Fixture operator assertion conflicting with stored delivery",
+            reason: "Reject contradictory assertion",
+          });
+          expect((yield* Effect.flip(store.resolveAmbiguity(request, 111))).code).toBe("conflict");
+          expect(yield* store.receipts(request.messageId)).toEqual(before);
+          const client = yield* makeAgentMessageSqliteClient(filename);
+          expect(
+            yield* client`SELECT state, dispatch_active, attempt_generation FROM agent_messages WHERE id = ${request.messageId}`
+          ).toEqual([{ state: "ambiguous", dispatch_active: 0, attempt_generation: 1 }]);
+          expect(
+            yield* client`SELECT count(*) AS count FROM agent_message_resolutions WHERE message_id = ${request.messageId}`
+          ).toEqual([{ count: 0 }]);
+          const delivered = AmbiguityResolution.make({
+            ...request,
+            disposition: "delivered",
+            evidence: "Stored fixture original attempt terminal delivery",
+            reason: "Confirm known terminal result",
+          });
+          const resolved = yield* store.resolveAmbiguity(delivered, 112);
+          expect(resolved.status).toBe("delivered");
+          expect(yield* store.resolveAmbiguity(delivered, 113)).toEqual(resolved);
+          expect(yield* store.receipts(request.messageId)).toHaveLength(A.length(before) + 1);
+          expect(
+            yield* client`SELECT count(*) AS count FROM agent_message_resolutions WHERE message_id = ${request.messageId}`
+          ).toEqual([{ count: 1 }]);
+          expect(yield* store.recover(114)).toBe(0);
         })
       )
     );
@@ -960,12 +1005,13 @@ it.layer(Layer.mergeAll(NodeServices.layer, Reactivity.layer), { timeout: "10 se
                 attemptGeneration: 1,
                 attemptOwnerId: "b-owner",
                 operatorId: "fixture-operator",
-                disposition: "failed",
-                evidence: "Fixture terminal failure",
+                disposition: "delivered",
+                evidence: "Fixture confirmed terminal delivery",
                 reason: "Known fixture result",
               }),
               112
             );
+            yield* store.acknowledge("retained-cap", "b", 112);
             yield* store.accept(envelope("ack-cap"), 113);
             yield* store.claimNext("b", "b-owner", 114, 214);
             yield* store.acknowledge("ack-cap", "b", 115);

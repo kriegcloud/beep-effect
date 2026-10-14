@@ -502,3 +502,12 @@ While resuming PR1571's 5/5 cycle, the latest 3/5 was a human-account
 its Greptile advisory. The operator selected the existing PR reviewer. Preserve
 that reviewer provenance and request a fresh assessment after the source fixes;
 do not label a local or human-account score as a Greptile bot verdict.
+
+### 2026-10-14: source checks omit strict fixture diagnostics
+
+The first reviewer fix wave passed CLI source checks and runtime fixtures, but
+hosted Heavy Check reported two `missedPipeableOpportunity` fixture diagnostics
+and one `preferTypedSchemaDecoder` diagnostic. The same log carried the main-owned
+Skills test context error, now corrected by landed #1745. Keep attribution
+separate and run the package-owned strict test task for changed fixtures; a source
+check alone does not validate those fixtures. Logs: PR #1571, job 116038351034.
