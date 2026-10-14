@@ -216,7 +216,7 @@ export type ClaimTermHead = typeof ClaimTermHead.Type;
 
 // How each determiner opens a term's quote; a bare term opens with none of them.
 const determinerSurfaces: { readonly [K in ClaimTermDeterminer]: RegExp } = {
-  a: /^a\s/u,
+  a: /^a\s+(?!plurality\s+of\s)/u,
   an: /^an\s/u,
   the: /^the\s/u,
   said: /^said\s/u,
