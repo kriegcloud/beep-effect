@@ -156,7 +156,7 @@ constraints; the locked dispositions are unchanged.
 | Repository Impeccable is live via `.codex/hooks.json` hooks and the `.agents/skills` symlink; removal drops 4 root dependencies and the 4 repository `Models.seed` seats; the 4 home seats follow workstream F's evidence policy. | `rsc-a-retire` removes hooks, symlink target, and dependencies together through `rsc-shared`; the 4 home seats and the global Impeccable installs go to `rsc-f-agents`; the 4 repository `Models.seed.ts` Impeccable seats (lines 290-309) and the seat-count tests are removed through `rsc-shared` (model policy), and `bun run beep models check` agrees with the manifest projection afterward. | `rsc-a-retire`, `rsc-shared`, `rsc-f-agents` | `research/sweeps/2026-10-09/A-retire.md` |
 | The SkillOpt scorer (`agent-effectiveness evals score`, `SkillOptTaskManifest`) is independently useful functionality, not pilot integration. | `rsc-a-retire` removes the training runner and all pilot integration (`tools/skillopt/**`, `docs/runbooks/skillopt-rerun.md`, SkillOpt `.gitignore`/`beep-effect.iml` entries, `flake.nix` comment, local `.venv` residue) and writes the compact results record. The scorer stays under brief 2.A (preserve independently useful functionality) and gets a surviving-capabilities row. | `rsc-a-retire` | `research/sweeps/2026-10-09/A-retire.md` |
 | `map.html` exists only in the `beep-effect2` clone; `.serena/` is untracked in 13 clones with no unique records; SST residue is `.gitignore` 107-109, two ESLint `.sst/**` globs, and local `sst-env.d.ts` files. | Local-residue archiving covers every clone that holds residue, recorded in `history/receipts/stage-3-a-local-residue.md` before deletion. | `rsc-a-retire` | `research/sweeps/2026-10-09/A-retire.md` |
-| The `effect`, `@xstate/effect`, and `drizzle-orm` patches have no focused regression test; the ONNX override and patch keys are exact-version. | `rsc-a-retire` adds one focused regression test per retained patch before the Retained patches row is claimed, and records the ONNX exact-version exit condition (a 1.30.x bump drops both silently) with `rsc-h1-catalog`; `rsc-a-retire` corrects `docs/runbooks/xstate-effect-statecharts.md` item 1 (alpha.6 patch has no import-rewrite hunk) and the `check.yml:1073` step wording (through `rsc-e-github`); moving `scripts/test-onnxruntime-installer-patch.mjs` into face-detection tests rewires `check.yml:1073-1076` and `runSecurityScan` (`Quality.command.ts`) in the same PR; each of the five focused regressions (including the existing platform-filesystem and ONNX tests) is shown to fail with its patch reverted and pass with it applied, recorded in `history/receipts/stage-5-acceptance.md#retained-patches`; the effect test constructs errors with `new` on different source lines; the drizzle test asserts `SqlError` is not `any` (tstyche, independent of `skipLibCheck`); the xstate test runs a declaration-emitting typecheck that fails with TS4023 unpatched (A-patches.md proposed plan item 2). | `rsc-a-retire`, `rsc-h1-catalog`, `rsc-e-github`, `rsc-c-scripts` | `research/sweeps/2026-10-09/A-patches.md` |
+| The `effect`, `@xstate/effect`, and `drizzle-orm` patches have no focused regression test; the ONNX override and patch keys are exact-version. | `rsc-a-retire` adds one focused regression test per retained patch before the Retained patches row is claimed, and records the ONNX exact-version exit condition (a 1.30.x bump drops both silently) with `rsc-h1-catalog`; `rsc-a-retire` corrects `docs/runbooks/xstate-effect-statecharts.md` item 1 (alpha.6 patch has no import-rewrite hunk) and the `check.yml:1073` step wording (through `rsc-e-github`); moving `scripts/test-onnxruntime-installer-patch.mjs` into face-detection tests rewires `check.yml:1073-1076` and `runSecurityScan` (`Quality.command.ts`) in the same PR; each of the five focused regressions (including the existing platform-filesystem and ONNX tests) is shown to fail with its patch reverted and pass with it applied, recorded in `history/receipts/stage-5-a-retire.md#retained-patches`; the effect test constructs errors with `new` on different source lines; the drizzle test asserts `SqlError` is not `any` (tstyche, independent of `skipLibCheck`); the xstate test runs a declaration-emitting typecheck that fails with TS4023 unpatched (A-patches.md proposed plan item 2). | `rsc-a-retire`, `rsc-h1-catalog`, `rsc-e-github`, `rsc-c-scripts` | `research/sweeps/2026-10-09/A-patches.md` |
 | Semgrep has no rule fixtures. | `rsc-a-retire` adds positive and negative regression fixtures for the first-party rules (brief 2.A `.semgrep/`). | `rsc-a-retire` | `research/sweeps/2026-10-09/A-retained-tools.md` |
 | `_typos.toml` has 4 stale words and 3 stale excludes; CI pins typos 1.44.0, local runs 1.50.3. `beep-effect.iml` has 181 `excludeFolder` entries, 140 packet folders uncovered. | Corrected after the removals they depend on; the typos version split is reconciled with `rsc-e-github` (CI pin) through `rsc-shared`; the `turbo.json` `//#lint:typos` inputs are corrected in the same `rsc-shared` change as `_typos.toml` (including the 2 redundant excludes); the iml `.impeccable` and `.serena` entries are removed with their A removals; the `docs`/`.patterns`/`research` exclusions get a recorded reason or are dropped (surviving-capabilities row for `beep-effect.iml`); the 159 per-packet `excludeFolder` entries are replaced by whole `goals/` and `explorations/` exclusions or generated, as a recorded Decision Log choice, so that no packet folder at head is uncovered; the redundant `docs/generated` and `tools/skillopt/.venv` entries are removed (A-retained-tools.md item 4); `standards/policy-tools.fingerprint.json` is regenerated with `bun run beep lint policy-fingerprint --write` through `rsc-shared` in the same change as each edit to its inputs (`_typos.toml`, ESLint configs, `knip.jsonc` removal). | `rsc-a-retire`, `rsc-e-github`, `rsc-shared` | `research/sweeps/2026-10-09/A-retained-tools.md` |
 | Reduced harness-ledger exposure means adding `harness-ledger/rows/` to `.rgignore`/`.aiignore`/`.graftignore` (never `.gitignore`), rows stay tracked; `biome.identity.jsonc` copies stale entries. | Ignore-file edits ride `rsc-a-retire`; `biome.jsonc` drops `!standards/repo-exports.catalog.jsonc`, `!specs` and the Impeccable entries first; then `biome.identity.jsonc` is regenerated with `beep cache profile --write` after the last removal. | `rsc-a-retire`, `rsc-shared` | `research/sweeps/2026-10-09/A-retained-tools.md` |
@@ -239,15 +239,15 @@ produces them.
 
 | SPEC criterion | Owning lane | Evidence file |
 | --- | --- | --- |
-| Removals | `rsc-a-retire` + `rsc-e-github` | `history/receipts/stage-5-acceptance.md#removals` |
-| Retained tools | `rsc-a-retire` | `history/receipts/stage-5-acceptance.md#retained-tools` |
+| Removals | `rsc-a-retire` + `rsc-e-github` | `history/receipts/stage-5-a-retire.md#removals` |
+| Retained tools | `rsc-a-retire` | `history/receipts/stage-5-a-retire.md#retained-tools` |
 | Surviving capabilities | `rsc-a-retire` (repository tools) + `rsc-f-agents` (agent capabilities) | `history/receipts/surviving-capabilities.md` |
-| Harness ledger presentation and decision links | `rsc-a-retire` (compact presentation) + `rsc-f-agents` (decision links via the supported writer) | `history/receipts/stage-5-acceptance.md#harness-ledger` |
+| Harness ledger presentation and decision links | `rsc-a-retire` (compact presentation) + `rsc-f-agents` (decision links via the supported writer) | `history/receipts/stage-5-a-retire.md#harness-ledger` |
 | Detector repairs | `rsc-b-standards` | **Pending** — detector fixtures and individual exception admission remain open |
 | Standards and documentation currency (brief 2.B) | `rsc-b-standards` | `history/receipts/stage-4-standards-docs.md` |
 | Script ports | `rsc-c-scripts` | `history/receipts/stage-5-acceptance.md#script-ports` |
 | Sensitive scripts | `rsc-c-scripts` | `history/receipts/stage-5-acceptance.md#sensitive-scripts` |
-| Retained patches | `rsc-a-retire` | `history/receipts/stage-5-acceptance.md#retained-patches` |
+| Retained patches | `rsc-a-retire` | `history/receipts/stage-5-a-retire.md#retained-patches` |
 | Release policy | `rsc-d-release` | `history/receipts/stage-2-policy.md` (`#external-contracts`, baseline, `#desktop-release` pending E-09); `history/handoffs/rsc-d-release-2026-10-09.md` (gates) |
 | GitHub workflows and hosted configuration (brief 2.E) | `rsc-e-github` | `history/receipts/stage-4-github-audit.md` |
 | Completion receipts | `rsc-h2-completion` | `history/receipts/stage-4-completion-receipts.md` |
@@ -324,21 +324,18 @@ bun run beep lint reflection-artifacts
 bun run beep quality package-verify <@beep/package>
 ```
 
-## A lane execution status (2026-10-09)
+## A lane execution status (2026-10-14)
 
-`rsc-a-retire`: wave 1 is published as draft PR #1584 at `b403cd2b9b`.
-All 41 findings have final dispositions: 40 fixed and one documented Govinfo
-drift oracle; the saved patched scan reports that oracle alone. Run 5 merges
-D #1566 and E #1568 (local merge `2f4979d2e7`); source collision review is
-zero findings. E preserves the Knip workflow for the separate S3 window.
-Post-E owner regeneration and semantic delta pass. Full CLI verification
-fails only the live workflow parity test (5,801 tests pass): E still retains
-the Knip job. Subsequent post-E parity/coverage is not run. Completed pre-E
-proof is historical; final-head acceptance and ready remain blocked by S3.
-See `history/handoffs/rsc-a-retire-2026-10-09.md` and
-`history/receipts/knip-cache-policy-review.md`. E owns the job removal; the
-orchestrator owns the required context and merge gate. Waves 2/3 and
-post-merge residue remain open.
+`rsc-a-retire`: wave 1 is reopened and ready in PR #1584. Current main
+`aeb2a85cc5` is integrated at `521dd7e33a`. All 41 findings have final
+dispositions; the historical one-Govinfo scan remains revision-bound. The
+new main PDF raster-coverage consumer needs the restored internal parser
+export. Current owner, package and hosted-parity qualification is in progress.
+The live Knip workflow and required context remain E/orchestrator-owned
+S3 blockers. Waves 2/3 and post-merge residue remain open.
+See `history/handoffs/rsc-a-retire-2026-10-14.md`, the preserved
+`history/handoffs/rsc-a-retire-2026-10-09.md` and
+`history/receipts/knip-cache-policy-review.md`.
 
 ### D lane progress (2026-10-09)
 

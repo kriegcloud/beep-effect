@@ -318,12 +318,15 @@ describe("yeet merge-gate --relaxed decision (S11)", () => {
   });
 
   it("records a pending and an unregistered required context as pending", () => {
-    const runs = A.filter(withRun("Lint", { status: "in_progress", conclusion: null }), (run) => run.name !== "Knip");
-    expect(requiredContexts).toContain("Knip");
+    const runs = A.filter(
+      withRun("Lint", { status: "in_progress", conclusion: null }),
+      (run) => run.name !== "Codegen Drift"
+    );
+    expect(requiredContexts).toContain("Codegen Drift");
     const decision = decideMergeGate({ read: read({ checkRuns: runs }), options: relaxed() });
     expect(decision._tag).toBe("merge");
     expect(A.map(atMergeOf(decision), (entry) => [entry.check, entry.state, entry.required])).toEqual([
-      ["Knip", "pending", true],
+      ["Codegen Drift", "pending", true],
       ["Lint", "pending", true],
     ]);
   });
@@ -379,7 +382,7 @@ describe("yeet merge-gate --relaxed decision (S11)", () => {
       A.map(withRun("Lint", { conclusion: "failure" }), (run) =>
         run.name === coverage ? MergeGateCheckRun.make({ ...run, status: "queued", conclusion: null }) : run
       ),
-      (run) => run.name !== "Knip"
+      (run) => run.name !== "Codegen Drift"
     );
     const line = renderMergeGateDecision(
       decideMergeGate({
@@ -390,7 +393,7 @@ describe("yeet merge-gate --relaxed decision (S11)", () => {
     expect(line).toMatch(/^#1459 GATE-MET \(S11\) at 212fe39b4f \(window \d+s\)/u);
     expect(line).toContain(` reds at merge: Lint [${MERGE_GATE_S11_DEFAULT_ATTRIBUTION}]`);
     expect(line).toContain(
-      ` pending at merge: Knip [${MERGE_GATE_S11_DEFAULT_ATTRIBUTION}]; ${coverage} [rate limited]`
+      ` pending at merge: Codegen Drift [${MERGE_GATE_S11_DEFAULT_ATTRIBUTION}]; ${coverage} [rate limited]`
     );
     expect(line).not.toContain("tolerated:");
   });

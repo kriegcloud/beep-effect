@@ -758,3 +758,12 @@ failed solely on the live Knip job; current workflow cases pass 28/29.
 
 Graft savings: approximately 237,531 tokens across seven parent retrieval
 calls, excluding separate reviewer estimates.
+
+## Run 6 — program resumed on 2026-10-14
+
+The interrupted main merge is complete and current main is integrated. The
+resumed report and live proof are in
+`history/handoffs/rsc-a-retire-2026-10-14.md`; this append preserves every
+October 9 result and its revision boundary. Current acceptance uses the
+per-lane `history/receipts/stage-5-a-retire.md` under SPEC's receipt rule.
+No historical gate is relabelled as current proof.

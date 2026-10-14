@@ -4,7 +4,7 @@
 
 Lifecycle: `active`
 
-Latest E evidence: [GitHub audit](./history/receipts/stage-4-github-audit.md), [settings snapshots](./history/receipts/stage-3-github-settings.md), and [lane handoff](./history/handoffs/rsc-e-github-2026-10-09.md). E source repairs are final in ready PR #1568. Both integrated full package gates and all local hosted-parity lanes pass; focused fixtures pass 127 tests and scoped coverage passes 396 tests across all seven touched baseline files. The actual GITHUB_TOKEN hosted governance step passes. Cross-lane, trusted-main writer and post-merge acceptance remain open; inherited hosted coverage reds remain attributed for the consolidated repair.
+The program resumed on October 14. A wave 1 is open and ready in PR #1584; the lane integrates current main and refreshes owner/package/parity proof. The live Knip workflow and required context remain E/orchestrator-owned merge blockers. [Current A handoff](./history/handoffs/rsc-a-retire-2026-10-14.md) records current progress and preserves the October 9 proof as historical evidence. Later A waves and program acceptance remain open.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -61,7 +61,7 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-[A lane handoff](./history/handoffs/rsc-a-retire-2026-10-09.md): wave 1 is draft PR #1584 (`b403cd2b9b`). Forty findings are fixed and one Govinfo oracle is documented; the saved scan reports that oracle alone. D #1566 and E #1568 are integrated locally at `2f4979d2e7`, with zero source collisions. Post-E owners and semantic delta pass; full CLI verification fails the live Knip workflow parity test. Subsequent parity/coverage refresh is blocked, with first-head hosted coverage debt recorded. E's separate Knip workflow window and the orchestrator's required-context gate remain pending (2026-10-09).
+[A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): PR #1584 is reopened and ready. The lane completed the interrupted main merge and preserved the new PDF coverage consumer. All 41 transferred findings retain final dispositions; the saved one-Govinfo scan applies to its October 9 revision. Current owner, package and parity results are being refreshed. E must remove the live Knip job and the orchestrator must remove its required context before A merges.
 B's October 13 bounded baseline repair is published in
 [PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
 codec properties for the three inherited arbitrary-test findings. After

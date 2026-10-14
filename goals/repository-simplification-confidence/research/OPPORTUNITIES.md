@@ -1330,3 +1330,11 @@ Hosted Repo Sanity job 115502999707 fails old-head Syncpack on minimatch
 repairs both; acknowledge with the actual main merge commit, not a waiver.
 The separately reported Sherif ordering issue still requires live attribution
 on the new head if it appears.
+
+### 2026-10-14 — A resumed integration reveals a new internal consumer
+
+The first `beep session open` failed with `Export named parseP6Header not found`. Main added `packages/drivers/pdf-tools/src/internal/coverage.ts` after the saved Knip scan. The lane restored the internal export during merge resolution rather than removing the live consumer. A consumer check at integration would have prevented this failure. The recorded October 9 scan remains historical evidence.
+
+### 2026-10-14 — A focused Vitest command used the wrong root
+
+Running the CLI Vitest config from the repository root returned `No test files found`, exit 1. The shared include is package-relative `test/**/*.test.{ts,tsx}`. The corrected invocation is `bun run --cwd packages/tooling/tool/cli beep:test -- test/yeet-merge-gate.test.ts test/research-command.test.ts`, through admission. A package-local invocation helper or the existing package script would have prevented the root mismatch; the first attempt is not test proof.

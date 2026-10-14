@@ -971,3 +971,7 @@ prior gates and quick integrated gates separately; hosted exact-head checks
 remain authoritative.
 
 - B (2026-10-13): keep detector acceptance pending until its durable final receipt exists. The codec-test handoff records bounded progress only; the valid #1616 review identified an ambiguous evidence-map link. Reversal: restore the final receipt link when detector fixtures and individual admissions are complete.
+
+### 2026-10-14 — A preserves the new raster-coverage consumer
+
+Restore the internal `parseP6Header` export when integrating main: `pdf-tools/src/internal/coverage.ts` now imports it. The October 9 finding was repaired at its recorded revision; the new consumer makes the export necessary today. This does not restore Knip or expand the package export map. Reversal: remove the export after that internal consumer disappears, then verify the package.
