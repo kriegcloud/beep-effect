@@ -110,13 +110,65 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   during the check (review on #1689). Reverse: let `materialize --record` write the
   hashes in the same run.
 
+## Decisions recorded while landing B-4 (B24–B27)
+
+- **B24 — the clearing house resolves targets physically; here they collapse to one
+  tree.** Verified on main: `.agents/skills` is a committed symlink onto
+  `../.claude/skills` (and `skills update` keeps it one through its `.agents/skills`
+  mirror check), so `.claude/skills/<name>` and `.agents/skills/<name>` are the same
+  directory. The writer resolves each target's parent through `realPath`, drops
+  duplicates, and stages and swaps once per *physical* target. On this repository
+  that is one stage and one swap (set the old tree aside, rename the stage in), so the
+  two targets cannot skew here. A crash inside that swap leaves the target missing,
+  which `--check` reports and a re-run rebuilds. The cross-target equivalence check
+  still reads both *logical* paths after every write and in `--check`. The writer stays
+  general: a checkout whose `.agents/skills` is a real directory gets two stages renamed
+  back to back, and the tests cover that layout (caught-failure restore, crash skew
+  detected then repaired by a re-run). Reason: B16's "one writer" holds whatever the
+  link layout is, and the link's own integrity already belongs to `skills update`.
+  Reverse: drop `realPath` resolution and always write both logical targets (wrong
+  for the symlinked layout, since the second write would land on the first), or
+  replace the symlink with two real trees, which the writer already handles.
+- **B25 — stages and set-aside trees live in a sibling work directory, never inside
+  the skills directory.** They go under `<parent of the skills dir>/.skills-materialize/`
+  (here `.claude/.skills-materialize/`), on the same filesystem, so every rename stays
+  atomic. Reason: `listInstalledSkillNames` treats any directory with a `SKILL.md` under
+  `.claude/skills` as an installed skill, so a stage left by a crash there would register
+  as a skill. Both work directories are gitignored, the next publish of the skill sweeps
+  that skill's leftovers, and an emptied work directory is removed. Reverse: stage as
+  dot-prefixed siblings inside the skills directory and teach the lister to skip them.
+- **B26 — local drift fails `materialize` in both modes.** `--check` fails on anything
+  not `current`. A write run rebuilds vendored drift and still fails on `local-drift`,
+  because it cannot rebuild a local skill and its postcondition ("every installed tree
+  equals the lock") is unmet. The message names `skills update` as the remedy. Reason:
+  a green write run must mean the tree matches the lock. Reverse: report local drift as
+  an advisory in write mode.
+- **B27 — the materialize applier is exact; fuzz is never a write path.** Every hunk
+  must match at the line its header records, newline state included. There is no
+  offset search and no fuzz. Renames, copies, and binary diffs are refused. Reason: the
+  result must hash to `effective.treeHash` anyway, so a fuzzed apply either fails that
+  check later with a worse message or reproduces a tree nobody reviewed. Contract 6's
+  `fuzz-applied` column stays a B-5 *report* classification only. Reverse: let the
+  replay report attempt a fuzzed apply to classify hunks, still never writing from it.
+
 ## Sequencing
 
-- **B-4 (P4):** `materialize [--check]`, the clearing-house writer and equivalence
-  check, and `update --check` hand-edit detection, with tests: reconstruction parity
-  for oracle (pristine plus 2 patches equals the installed files byte for byte), a
-  hand-edit refusal, and a target-drift refusal. Run live: `materialize --check` is
-  green on main.
+- **B-4 (P4) — landed.** `beep skills materialize [--check] [--skill <name>]`
+  (`SkillMaterializer` service), the strict patch applier
+  (`SkillPatches.apply.ts`), the clearing-house writer and post-write equivalence
+  check (B24, B25), and `update --check` reporting `hand-edited-vendored-output` with
+  both remedies. Tests: reconstruction parity on a fixture (pristine plus a two-patch
+  series covering modify with a no-newline tail, delete, mode change, and new file
+  reproduces the installed tree byte for byte), strict-apply refusals (shifted
+  context, changed context, file exists, malformed, rename), the hand-edit report,
+  target skew detected by `--check` and repaired by a re-run, a caught rename failure
+  after the first target was published restoring both targets, and pristine and patch
+  digest refusals before any write. Live on the lane: `materialize --check` is green
+  (6 vendored current, oracle pristine plus 2 patches and shadcn pristine at `2d3f1cd4`
+  plus 1 patch reproduce the installed bytes, 31 local current) and a write run is a
+  no-op. Main's lock carried stale local hashes for `orchestrate` and `yeet` (edited
+  after #1679 recorded the lock), so `skills update --check` was red at `08fa45bd98`;
+  this lane refreshed those two local entries with `beep skills update`.
 - **B-5 (P5):** `skills relock`, the Renovate custom manager, the reconstruction workflow and per-hunk
   report, and the parent batch issue writer. Proof: a dry-run Renovate config
   validation (`renovate-config-validator`) plus a workflow run on a synthetic bump

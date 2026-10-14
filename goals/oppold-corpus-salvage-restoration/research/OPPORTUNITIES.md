@@ -932,3 +932,51 @@ that integrated main commit. No fix or base merge inside the frozen launch.
   but packet/source discovery finds only the current Java/Tika second pass.
   Prevention: name the ordered engine ids, versions, format coverage and
   ledger contract in the scope ruling. No substitute or recovery launched.
+
+
+## 2026-10-14 — Recovery terminal catch discarded the attributable cause
+
+- **Doing:** deriving the bounded recovery budget from family 9's sealed
+  failure while preserving all immutable evidence.
+- **Evidence:** family elapsed 7,222,485 ms and an unmatched copy written
+  after 7,200,000 ms support elapsed-budget exhaustion. The terminal catch
+  kept only engine-failure and a generic message, so exact cause and parser
+  status could not be established. Add allowlisted schema evidence and
+  synthetic nonzero/empty/elapsed cases without approving engine failures.
+- **Prevented by:** persist the original class and stable numeric/status
+  fields at the terminal boundary; exclude all messages, paths and tool output.
+
+## 2026-10-14 — Worker omitted the user-manager environment
+
+- **Doing:** starting required package verification through beep-heavy.
+- **Evidence:** the first admission returned `Failed to connect to user
+  scope bus` before any workload started. UID and existing bus socket were
+  verified; subsequent invocations set the standard runtime/bus environment.
+- **Prevented by:** forward XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS
+  into the worker as the lane launcher contract specifies. Do not bypass
+  heavy admission or alter user-manager configuration.
+
+
+## 2026-10-14 — Main integration inherits eleven knowledge host-path gates
+
+- **Doing:** running hosted-parity knowledge refs before the recovery engine PR.
+- **Evidence:** `knowledge refs --check: 11 live host-path observation(s).`
+  All observed files belong to the Palantiri exploration and its six
+  graduated telemetry packets; each file matches origin/main exactly.
+  None is a recovery-lane change. Attribute inherited and preserve ownership.
+- **Prevented by:** close host-path observations before upstream packet
+  graduation, or make the declared consolidated unblocker clear the gates
+  once on main. This lane does not copy fixes into other packets.
+
+
+## 2026-10-14 — Dirty packet data invalidates the checkout-integrity test
+
+- **Doing:** default package verification before the recovery engine commit.
+- **Evidence:** `reads the same packets, workspace packages, and installed
+  skills as the live filesystem` failed because committed statusNote and
+  working-tree statusNote differed. The package audit ran 6,184 tests and
+  took 1,153.6 seconds; the other failure was an introduced Struct.omit
+  fixture API mistake, corrected against local Effect v4 source.
+- **Prevented by:** commit completed packet edits before running a suite
+  whose contract compares git HEAD and working-tree bytes. Verify new
+  helper signatures from installed Effect before using them in fixtures.

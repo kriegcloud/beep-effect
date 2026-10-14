@@ -284,6 +284,7 @@ const planMessage = Effect.fnUntraced(function* (m365: M365Shape, userId: O.Opti
   return DocketUndoMessage.make({ action, messageId: marked.messageId, receivedAt: marked.receivedAt });
 });
 
+// Reuse never transfers event ownership: undo only reaches created/adopted entries.
 const isEventWrite = (line: DocketJournalEntry) =>
   line.kind === DocketJournalKind.Enum["event-created"] || line.kind === DocketJournalKind.Enum["event-adopted"];
 
