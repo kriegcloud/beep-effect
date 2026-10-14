@@ -2,9 +2,9 @@
 
 ```text
 lane: rsc-h2-completion
-head: fd1b225983610c59ca63b8dc02a7455672b87330 (qualified source; report-only delivery tip in final dispatch)   PR: #1574
-package-verify @beep/repo-cli: pass (final repaired integration audit 844.8s/docgen 27.2s)
-hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=pass fallow=pass coverage=pass (291 tests; existing touched floors/ceilings met)
+head: 8c00bdb927 (qualified source; accepted publication c6e855d8b9; report-only delivery tip in final dispatch)   PR: #1574
+package-verify @beep/repo-cli: pass (final repaired integration audit 868.0s/docgen 27.1s)
+hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=pass fallow=pass coverage=pass (293 tests; existing touched floors/ceilings met)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
 post-merge refresh: pending merge; orchestrator owns three-packet refresh
@@ -480,3 +480,34 @@ resolved thread/reply pairs are:
 
 No merge, lifecycle reset or real completion refresh is performed by H2.
 The orchestrator owns the S11 gate, post-merge three-packet refresh and retirement.
+
+## Sixth review: fail closed on unresolved default-branch tokens
+
+Source `8c00bdb927` addresses thread `PRRT_kwDOPbO_N86sbN_W`, comment
+`4273726672`. A non-main base encountering DEFAULT_BRANCH in either include
+or exclude now fails that per-ruleset read instead of silently declaring it
+non-applicable. Main-domain matching is unchanged; ALL and literal refs remain
+supported. Existing partial-read/older-definite safeguards apply. Fixtures
+cover both unresolved token positions and supported non-main literal/ALL reds.
+Independent medium Opus follow-up returns ZERO ACTIONABLE FINDINGS.
+
+Current local qualification is fully green: full package audit 868.0s/docgen
+27.1s; schema-first, Effect/Vitest, test-tsgo, docgen, JSDoc, knowledge refs,
+Fallow audit/health, retired paths and 293 scoped tests pass. Existing touched
+coverage floors/ceilings pass; Completion reads 86.59/83.05/68.64/77.35 percent.
+No baseline is changed. No additional implementation edit follows this proof.
+
+A parallel checkout publishes this same source in `c6e855d8b9`, with current
+main's Actions dependency update. Its H2 source/tests are byte-identical to
+our qualified source. Preserve that publication through a fast-forward; do
+not overwrite another checkout's head. That checkout answers and resolves
+the thread with REST reply `4273798919`; later bot reply `4273807201`
+acknowledges it. Our prepared `yeet reply` correctly returns stale/already
+resolved and posts nothing. Six threads are resolved, with each response's
+actual provenance retained. The other checkout's pre-reboot verification
+waiver does not replace this worker's completed local proof.
+
+The prior bounded monitor is cancelled for the source wave, not counted
+ready. Final evidence publication and dispatch bind the actual report-only
+head, fresh thread read and a new bounded readiness result. H2 does not merge;
+post-merge three-packet refresh and retirement stay orchestrator-owned.

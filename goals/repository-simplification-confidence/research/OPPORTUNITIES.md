@@ -1656,3 +1656,13 @@ should be rendered beside the option in command help.
   include and exclude tokens; preserve ALL and explicit branch matching.
 - Stop only the owned readiness monitor for the new wave, requalify frozen
   source, answer and resolve the thread. No default-branch history is inferred.
+
+### 2026-10-14 — H2 parallel publication continuity
+
+- Another checkout incorporates and publishes `8c00bdb927` in `c6e855d8b9`,
+  then answers/resolves the default-branch thread for a pre-reboot push. Fetch
+  and prove ancestry/source equality; fast-forward this lane rather than
+  replacing the remote head. Our prepared reply is stale and posts nothing.
+- Retain our full 868.0s/27.1s and 293-test proof independently of that
+  checkout's verification waiver. Shared publication ownership needs a
+  source/head receipt; commit hashes alone do not authorize overwriting it.
