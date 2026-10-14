@@ -434,11 +434,14 @@ const requiredContexts = (ruleset: Ruleset): ReadonlyArray<string> =>
     A.dedupe,
     A.sort(Order.String)
   );
+// The dedicated reviewer App publishes this check outside the CI workflow lane inventory.
+const EXTERNAL_REQUIRED_CONTEXTS = ["beep-reviewer"] as const;
 const expectedContexts = () =>
   pipe(
     CI_LANE_DESCRIPTORS,
     A.filter((lane) => lane.required),
     A.map((lane) => lane.contextName),
+    A.appendAll(EXTERNAL_REQUIRED_CONTEXTS),
     A.dedupe,
     A.sort(Order.String)
   );
