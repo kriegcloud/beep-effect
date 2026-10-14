@@ -7,7 +7,9 @@ import {
   DuplicateCapabilityDeclaration,
   GoalAcceptanceEvidenceRef,
   GoalCompletionIo,
+  GoalCompletionObservation,
   GoalCompletionReceipt,
+  GoalCompletionVerifier,
   GoalDoctorFinding,
   GoalEvidenceCheck,
   GoalManifest,
@@ -24,6 +26,7 @@ import { it } from "@beep/test-runner";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as Cause from "effect/Cause";
 import * as Console from "effect/Console";
@@ -242,6 +245,21 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
         outcome: "unknown",
         verifiedAt: time,
       });
+      yield* Arbitrary.checkEffect(
+        Arbitrary.schema(GoalRequiredCheckSnapshot),
+        Effect.fn("GoalsDoctorTest.inventoryOutcome")(function* (snapshot) {
+          const resolved = yield* GoalCompletionVerifier.resolve(
+            GoalCompletionObservation.make({
+              ...receipt,
+              requiredChecks: O.some(snapshot),
+              merged: O.some(true),
+              grandfathered: false,
+            })
+          );
+          expect(resolved.outcome).toBe(snapshot.inventoryComplete ? "verified" : "unknown");
+        }),
+        { numRuns: 20 }
+      );
       const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(receipt);
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
       const output = yield* captureOutput(
