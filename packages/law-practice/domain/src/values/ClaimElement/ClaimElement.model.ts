@@ -9,7 +9,7 @@ import { $LawPracticeDomainId } from "@beep/identity/packages";
 import { TextAnchor } from "@beep/provenance/TextAnchor";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
-import { flow } from "effect/Function";
+import { constant, flow, identity } from "effect/Function";
 import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -94,7 +94,7 @@ export const claimNumberOfPath: (path: ClaimElementPath) => number = flow(
   Str.split("."),
   A.headNonEmpty,
   N.parse,
-  O.getOrElse(() => 0)
+  O.getOrElse(constant(0))
 );
 
 /**
@@ -236,15 +236,10 @@ const determinerSurfaceText: { readonly [K in ClaimTermDeterminer]: string } = {
   bare: "",
 };
 
-// Keep a generated head short enough for its quote, and keep a bare head from
-// opening with a determiner word.
-const arbitraryHead = (determiner: ClaimTermDeterminer, head: string): string => {
-  const short = Str.trim(Str.slice(0, 200)(head));
-  return ClaimTermDeterminer.is.bare(determiner) &&
-    O.isSome(Str.match(/^(?:a|an|the|said|at|one|plurality)(?:\s|$)/u)(short))
-    ? `x${short}`
-    : short;
-};
+// Keep a generated head short enough for its quote, and never let it open with
+// a determiner word, so a bare term's quote recites none.
+const arbitraryHead = (head: string): string =>
+  Str.replace(/^(a|an|the|said|at|one|plurality)(?=\s|$)/u, "x$1")(Str.trim(Str.slice(0, 200)(head)));
 
 const ClaimTermDeterminerSurfaceCheck = S.makeFilter(
   ({ anchor, determiner }: { readonly anchor: TextAnchor; readonly determiner: ClaimTermDeterminer }): boolean =>
@@ -300,14 +295,10 @@ export class ClaimTerm extends S.Class<ClaimTerm, { readonly brand: unique symbo
   $I.annote("ClaimTerm", {
     toCodecArbitrary: (): SchemaAST.Link =>
       S.link<ClaimTerm>()(
-        S.Struct({
-          startChar: S.Natural.check(S.isLessThanOrEqualTo(9_000)),
-          determiner: ClaimTermDeterminer,
-          head: ClaimTermHead,
-        }),
+        S.Struct({ anchor: TextAnchor, determiner: ClaimTermDeterminer, head: ClaimTermHead }),
         SchemaTransformation.transform({
-          decode: ({ startChar, determiner, head }) => {
-            const safeHead = arbitraryHead(determiner, head);
+          decode: ({ anchor: { startChar }, determiner, head }) => {
+            const safeHead = arbitraryHead(head);
             const quote = `${determinerSurfaceText[determiner]}${safeHead}`;
             return ClaimTerm.make({
               anchor: TextAnchor.make({ startChar, endChar: S.Natural.make(startChar + Str.length(quote)), quote }),
@@ -315,7 +306,7 @@ export class ClaimTerm extends S.Class<ClaimTerm, { readonly brand: unique symbo
               head: safeHead,
             });
           },
-          encode: ({ anchor, determiner, head }) => ({ startChar: anchor.startChar, determiner, head }),
+          encode: identity,
         })
       ),
     description: "Span-anchored determiner and normalized head noun phrase recited in a claim element.",
