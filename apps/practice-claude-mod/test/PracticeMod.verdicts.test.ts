@@ -24,8 +24,9 @@ class FakeHostState extends Context.Service<
 const fakeHost = Layer.effect(ModHost)(
   Effect.map(FakeHostState, ({ store, written }) =>
     ModHost.of({
+      // Yield after each read so concurrent records interleave between read and write.
       storeGet: Effect.fn("FakeHost.storeGet")((key: string) =>
-        Effect.sync(() => O.getOrUndefined(MutableHashMap.get(store, key)))
+        Effect.sync(() => O.getOrUndefined(MutableHashMap.get(store, key))).pipe(Effect.tap(() => Effect.yieldNow))
       ),
       storeSet: Effect.fn("FakeHost.storeSet")((key: string, value: unknown) =>
         Effect.sync(() => void MutableHashMap.set(store, key, value))
@@ -120,6 +121,27 @@ describe("VerdictLog", () => {
           2
         );
         expect(O.exists(file, (entry) => entry.text.includes('"verdict":"partly"'))).toBe(true);
+      })
+    );
+  });
+
+  it.layer(testLayer(), { timeout: "5 seconds" })("concurrency", (it) => {
+    it.effect(
+      "keeps both revisions when two records overlap",
+      Effect.fnUntraced(function* () {
+        const log = yield* VerdictLog;
+        const rows = yield* Effect.all([log.record(verdict(O.some("wrong"))), log.record(verdict(O.some("right")))], {
+          concurrency: 2,
+        });
+
+        expect(A.map(rows, (row) => row.revision).toSorted()).toEqual([0, 1]);
+        const { store } = yield* FakeHostState;
+        const stored = yield* store.pipe(
+          MutableHashMap.get("verdict-rows"),
+          O.getOrUndefined,
+          S.decodeUnknownEffect(S.Array(VerdictRow))
+        );
+        expect(stored).toHaveLength(2);
       })
     );
   });

@@ -14,6 +14,7 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Semaphore from "effect/Semaphore";
 import { ModHost } from "./PracticeMod.host.ts";
 import { KgAnswerItem, Verdict, VerdictRow } from "./PracticeMod.values.ts";
 import type { ModHostError } from "./PracticeMod.host.ts";
@@ -145,13 +146,16 @@ const latestFor = (rows: ReadonlyArray<VerdictRow>, itemId: string): O.Option<Ve
  */
 export const makeVerdictLog = Effect.gen(function* () {
   const host = yield* ModHost;
+  // record reads, appends and writes the stored rows; serialize it so two
+  // overlapping records cannot both append to the same snapshot.
+  const writes = yield* Semaphore.make(1);
 
   const current = Effect.fn("VerdictLog.current")(function* (itemId: string) {
     const rows = yield* readStored(host, RowsKey, StoredRows);
     return latestFor(rows, itemId);
   });
 
-  const record = Effect.fn("VerdictLog.record")(function* (input: VerdictInput) {
+  const recordUnserialized = Effect.fn("VerdictLog.record")(function* (input: VerdictInput) {
     const rows = yield* readStored(host, RowsKey, StoredRows);
     const previous = latestFor(rows, input.item.itemId);
     if (O.isSome(previous) && O.isSome(previous.value.lockedAt)) {
@@ -182,6 +186,8 @@ export const makeVerdictLog = Effect.gen(function* () {
     yield* host.writeText(path, A.join(lines, "\n") + (lines.length > 0 ? "\n" : ""));
     return rows.length;
   });
+
+  const record = (input: VerdictInput) => Semaphore.withPermit(writes)(recordUnserialized(input));
 
   return VerdictLog.of({ record, current, exportJsonl });
 });
