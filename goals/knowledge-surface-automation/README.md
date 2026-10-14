@@ -60,7 +60,11 @@ P4 in progress. Shipped on main so far:
   `explorations/typed-agent-skill-contracts` with its own executor, publishing
   `goals/skill-contract-gate-certificates` beside the already-published
   `goals/skill-contract-kernel` (E17).
-- **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds.
+- **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds;
+  B-3a classifies drift against upstream path history. B-3b (this PR) adds
+  `lock-plan --write --expect <planDigest>`, flips `skills-lock.json` to v2 (6 vendored,
+  31 local), and records the remaining local edits as pinned patch series under
+  `.agents/skill-patches/`; receipt in [`research/p4-report-skills-lock-plan.md`](./research/p4-report-skills-lock-plan.md).
 - **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
   FP-eyeball report
   ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
@@ -76,11 +80,9 @@ P4 in progress. Shipped on main so far:
   four missing `provides` are declared.
 - **B-3a:** `skills lock-plan` classifies drift against upstream path history (B11).
 
-This PR adds C Stage-2 PR 2, the fixes from the C report's verdict: an assertion
-marker asserts only as a whole comment line (both stages), an arrow chain of commands
-is never one command span (both stages), the accepted doc fixes, and the planned-command
-spelling (`beep <cmd>` in prose) in the `SPEC.md` authoring note. The domain evaluators
-are the next C PR. B-3b (the lock write and flip) is in progress.
+C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
+command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling) is on
+main. The domain evaluators are the next C PR. This PR is B-3b, the lock write and flip.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 

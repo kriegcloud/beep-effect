@@ -341,6 +341,10 @@ Each entry names its record, which carries the reason and the reversal path.
   leases, causal grouping, append-only promotions file): `research/p4-knowledge-doctor-design.md`.
 - 2026-10-14 — #1626 round-3 follow-ups recorded as K12 (narrow promotion-row admission)
   and E12 (publish sweeps stale staging directories): the two design docs.
+- 2026-10-14 — Workstream B lock write B12–B15 (every drifted file of a kept pin is a
+  line-level `temporary-drift` patch, no pristine-snapshot disk cache, the write is a
+  digest-sealed fixed point, every installed skill gets a plan row):
+  `research/p4-skills-warehouse-design.md`.
 - 2026-10-14 — Workstream C Stage-2 PR 1 deviations (line-based historical-marker
   block scope, three-verdict counterfactual harness, multi-failure `Failed`, gating
   mode refuses until a sealed baseline exists): `research/p4-report-knowledge-doctor.md`.
