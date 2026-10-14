@@ -1920,5 +1920,8 @@
   ],
   "@beep/law-practice-use-cases/ClaimSelfCheck": [
     "./packages/law-practice/use-cases/src/ClaimSelfCheck/index.ts"
+  ],
+  "@beep/law-practice-server/UsptoClaims": [
+    "./packages/law-practice/server/src/UsptoClaims/index.ts"
   ]
 }

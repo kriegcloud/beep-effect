@@ -79,16 +79,24 @@ const anchorsIn = ({ claimText }: PatentClaim) => {
     const startChar = A.reduce(A.replicate(0, occurrence + 1), -1, (from) => claimText.indexOf(quote, from + 1));
     return TextAnchor.make({ startChar, endChar: startChar + quote.length, quote });
   };
+  const term = (quote: string, determiner: ClaimTermDeterminer, head: string, occurrence = 0): ClaimTerm =>
+    ClaimTerm.make({ anchor: anchor(quote, occurrence), determiner, head });
+  const element = (
+    elementPath: string,
+    kind: ClaimElementKind,
+    quote: string,
+    terms: ReadonlyArray<ClaimTerm>,
+    occurrence = 0
+  ): ClaimElement => ClaimElement.make({ path: path(elementPath), anchor: anchor(quote, occurrence), kind, terms });
   return {
-    term: (quote: string, determiner: ClaimTermDeterminer, head: string, occurrence = 0): ClaimTerm =>
-      ClaimTerm.make({ anchor: anchor(quote, occurrence), determiner, head }),
-    element: (
-      elementPath: string,
-      kind: ClaimElementKind,
-      quote: string,
-      terms: ReadonlyArray<ClaimTerm>,
-      occurrence = 0
-    ): ClaimElement => ClaimElement.make({ path: path(elementPath), anchor: anchor(quote, occurrence), kind, terms }),
+    term,
+    element,
+    /** The limitation "a controller coupled to the sensor". */
+    controller: (elementPath: string): ClaimElement =>
+      element(elementPath, "limitation", "a controller coupled to the sensor", [
+        term("a controller", "a", "controller"),
+        term("the sensor", "the", "sensor"),
+      ]),
     ref: (elementPath: string, quote: string, occurrence = 0): ClaimTermRef =>
       ClaimTermRef.make({ path: path(elementPath), anchor: anchor(quote, occurrence) }),
   };
@@ -151,7 +159,7 @@ const finding = {
     AntecedentFinding.cases["pattern-not-covered"].make({ rule: ruleId(rule), referring }),
 };
 
-/** A claim whose body introduces each term once and refers back to it once. */
+/** Claim 1, "A system comprising: <body>"; every listed limitation gets its part-of edge to the root. */
 const definiteFixture = (
   id: string,
   rule: string,
@@ -173,7 +181,7 @@ const definiteFixture = (
       tree(
         1,
         [at.element("1", "preamble-subject", "A system", [at.term("A system", "a", "system")]), ...elements],
-        edges
+        [...A.map(elements, ({ path: limitation }) => partOf(limitation, "1")), ...edges]
       ),
     ],
     findings: findings(at),
@@ -188,10 +196,7 @@ const systemTree = tree(
   [
     system.element("1", "preamble-subject", "A system", [system.term("A system", "a", "system")]),
     system.element("1.a", "limitation", "a sensor", [system.term("a sensor", "a", "sensor")]),
-    system.element("1.b", "limitation", "a controller coupled to the sensor", [
-      system.term("a controller", "a", "controller"),
-      system.term("the sensor", "the", "sensor"),
-    ]),
+    system.controller("1.b"),
   ],
   [partOf("1.a", "1"), partOf("1.b", "1"), antecedent(system.ref("1.b", "the sensor"), system.ref("1.a", "a sensor"))]
 );
@@ -239,48 +244,65 @@ const lensTree = tree(
   [partOf("2.a", "2"), dependsOn("2", "1")]
 );
 
-/** A dependent claim reciting only "the lens is tinted." */
-const tintedLens = (claimNumber: number, claimReferences: readonly [number, ...Array<number>], subject: string) => {
-  const claim = dependent(claimNumber, claimReferences, `${subject},`, "the lens is tinted.");
+/**
+ * A dependent claim "<subject>, wherein <body>." whose subject recites "The <root head>" and whose
+ * one limitation recites "the <term head>".
+ */
+const whereinClaim = (
+  claimNumber: number,
+  claimReferences: readonly [number, ...Array<number>],
+  subject: string,
+  body: string,
+  rootHead: string,
+  termHead: string
+) => {
+  const claim = dependent(claimNumber, claimReferences, `${subject},`, `${body}.`);
   const at = anchorsIn(claim);
   const root = `${claimNumber}`;
   const limitation = `${root}.a`;
   return {
     claim,
-    lensRef: at.ref(limitation, "the lens"),
+    rootRef: at.ref(root, `The ${rootHead}`),
+    termRef: at.ref(limitation, `the ${termHead}`),
     tree: tree(
       claimNumber,
       [
-        at.element(root, "preamble-subject", subject, [at.term("The camera", "the", "camera")]),
-        at.element(limitation, "limitation", "the lens is tinted", [at.term("the lens", "the", "lens")]),
+        at.element(root, "preamble-subject", subject, [at.term(`The ${rootHead}`, "the", rootHead)]),
+        at.element(limitation, "limitation", body, [at.term(`the ${termHead}`, "the", termHead)]),
       ],
       [partOf(limitation, root), ...A.map(claimReferences, (reference) => dependsOn(root, `${reference}`))]
     ),
   };
 };
 
-const fixture8 = (() => {
-  const claim = dependent(2, [1], "The system of claim 1,", "the sensor is optical.");
-  const at = anchorsIn(claim);
-  return {
-    id: "8",
-    rule: "dependent resolution",
-    context: [systemClaim, claim],
-    claims: [systemClaim, claim],
-    trees: [
-      systemTree,
-      tree(
-        2,
-        [
-          at.element("2", "preamble-subject", "The system of claim 1", [at.term("The system", "the", "system")]),
-          at.element("2.a", "limitation", "the sensor is optical", [at.term("the sensor", "the", "sensor")]),
-        ],
-        [partOf("2.a", "2"), dependsOn("2", "1")]
-      ),
-    ],
-    findings: [],
-  } satisfies RuleFixture;
-})();
+/** A dependent camera claim reciting only "the lens is tinted." */
+const tintedLens = (claimNumber: number, claimReferences: readonly [number, ...Array<number>], subject: string) =>
+  whereinClaim(claimNumber, claimReferences, subject, "the lens is tinted", "camera", "lens");
+
+/** A dependent system claim reciting only "the sensor is optical." */
+const opticalSensor = (claimNumber: number, claimReferences: readonly [number, ...Array<number>], subject: string) =>
+  whereinClaim(claimNumber, claimReferences, subject, "the sensor is optical", "system", "sensor");
+
+const pairFixture = (
+  id: string,
+  rule: string,
+  first: { readonly claim: PatentClaim; readonly tree: ClaimElementTree },
+  second: { readonly claim: PatentClaim; readonly tree: ClaimElementTree }
+): RuleFixture => ({
+  id,
+  rule,
+  context: [first.claim, second.claim],
+  claims: [first.claim, second.claim],
+  trees: [first.tree, second.tree],
+  findings: [],
+});
+
+const fixture8 = pairFixture(
+  "8",
+  "dependent resolution",
+  { claim: systemClaim, tree: systemTree },
+  opticalSensor(2, [1], "The system of claim 1")
+);
 
 const fixture9 = (() => {
   const multiple = tintedLens(3, [1, 2], "The camera of claim 1 or 2");
@@ -290,7 +312,7 @@ const fixture9 = (() => {
     context: [cameraClaim, lensClaim, multiple.claim],
     claims: [cameraClaim, lensClaim, multiple.claim],
     trees: [cameraTree, lensTree, multiple.tree],
-    findings: [finding.outsideChain(multiple.lensRef, [3, 1], lens.ref("2.a", "a lens"))],
+    findings: [finding.outsideChain(multiple.termRef, [3, 1], lens.ref("2.a", "a lens"))],
   } satisfies RuleFixture;
 })();
 
@@ -302,57 +324,23 @@ const fixture10 = (() => {
     context: [cameraClaim, lensClaim, sibling.claim],
     claims: [cameraClaim, lensClaim, sibling.claim],
     trees: [cameraTree, lensTree, sibling.tree],
-    findings: [finding.outsideChain(sibling.lensRef, [3, 1], lens.ref("2.a", "a lens"))],
+    findings: [finding.outsideChain(sibling.termRef, [3, 1], lens.ref("2.a", "a lens"))],
   } satisfies RuleFixture;
 })();
 
-const fixture11 = (() => {
-  const claim = dependent(2, [1], "The system of claim 1,", "the system is portable.");
-  const at = anchorsIn(claim);
-  return {
-    id: "11",
-    rule: "preamble subject",
-    context: [sensorClaim, claim],
-    claims: [sensorClaim, claim],
-    trees: [
-      sensorTree,
-      tree(
-        2,
-        [
-          at.element("2", "preamble-subject", "The system of claim 1", [at.term("The system", "the", "system")]),
-          at.element("2.a", "limitation", "the system is portable", [at.term("the system", "the", "system")]),
-        ],
-        [partOf("2.a", "2"), dependsOn("2", "1")]
-      ),
-    ],
-    findings: [],
-  } satisfies RuleFixture;
-})();
+const fixture11 = pairFixture(
+  "11",
+  "preamble subject",
+  { claim: sensorClaim, tree: sensorTree },
+  whereinClaim(2, [1], "The system of claim 1", "the system is portable", "system", "system")
+);
 
-const fixture14 = (() => {
-  const claim = dependent(2, [1], "The system according to the claim 1,", "the sensor is optical.");
-  const at = anchorsIn(claim);
-  return {
-    id: "14",
-    rule: "claim-reference",
-    context: [sensorClaim, claim],
-    claims: [sensorClaim, claim],
-    trees: [
-      sensorTree,
-      tree(
-        2,
-        [
-          at.element("2", "preamble-subject", "The system according to the claim 1", [
-            at.term("The system", "the", "system"),
-          ]),
-          at.element("2.a", "limitation", "the sensor is optical", [at.term("the sensor", "the", "sensor")]),
-        ],
-        [partOf("2.a", "2"), dependsOn("2", "1")]
-      ),
-    ],
-    findings: [],
-  } satisfies RuleFixture;
-})();
+const fixture14 = pairFixture(
+  "14",
+  "claim-reference",
+  { claim: sensorClaim, tree: sensorTree },
+  opticalSensor(2, [1], "The system according to the claim 1")
+);
 
 const fixture15 = (() => {
   const claim = independent(9, "A lamp", "comprising", "a bulb; and a switch wired to the bulb.");
@@ -388,7 +376,7 @@ const fixture16 = (() => {
     context: [cameraClaim, lensClaim, chained.claim],
     claims: [cameraClaim, lensClaim, chained.claim],
     trees: [cameraTree, chained.tree],
-    findings: [finding.uncovered("chain-through-undecomposed", chained.lensRef)],
+    findings: [finding.uncovered("chain-through-undecomposed", chained.termRef)],
   } satisfies RuleFixture;
 })();
 
@@ -401,33 +389,22 @@ const fixture16b = (() => {
     context: [cameraClaim, lensClaim, cooled, multiple.claim],
     claims: [cameraClaim, lensClaim, cooled, multiple.claim],
     trees: [cameraTree, multiple.tree],
-    findings: [finding.uncovered("chain-through-undecomposed", multiple.lensRef)],
+    findings: [finding.uncovered("chain-through-undecomposed", multiple.termRef)],
   } satisfies RuleFixture;
 })();
 
 const fixture21 = (() => {
   const portable = dependent(2, [1], "The system of claim 1,", "the system is portable.");
-  const claim = dependent(3, [2], "The system of claim 2,", "the sensor is optical.");
-  const at = anchorsIn(claim);
+  const unresolvable = opticalSensor(3, [2], "The system of claim 2");
   return {
     id: "21",
     rule: "chain-unresolvable",
-    context: [sensorClaim, portable, claim],
-    claims: [sensorClaim, claim],
-    trees: [
-      sensorTree,
-      tree(
-        3,
-        [
-          at.element("3", "preamble-subject", "The system of claim 2", [at.term("The system", "the", "system")]),
-          at.element("3.a", "limitation", "the sensor is optical", [at.term("the sensor", "the", "sensor")]),
-        ],
-        [partOf("3.a", "3"), dependsOn("3", "2")]
-      ),
-    ],
+    context: [sensorClaim, portable, unresolvable.claim],
+    claims: [sensorClaim, unresolvable.claim],
+    trees: [sensorTree, unresolvable.tree],
     findings: [
-      finding.uncovered("chain-unresolvable", at.ref("3", "The system")),
-      finding.uncovered("chain-unresolvable", at.ref("3.a", "the sensor")),
+      finding.uncovered("chain-unresolvable", unresolvable.rootRef),
+      finding.uncovered("chain-unresolvable", unresolvable.termRef),
     ],
   } satisfies RuleFixture;
 })();
@@ -455,7 +432,7 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
         at.term("said sensor", "said", "sensor"),
       ]),
     ],
-    [partOf("1.a", "1"), partOf("1.b", "1"), antecedent(at.ref("1.b", "said sensor"), at.ref("1.a", "a sensor"))],
+    [antecedent(at.ref("1.b", "said sensor"), at.ref("1.a", "a sensor"))],
   ]),
   definiteFixture(
     "3",
@@ -469,7 +446,7 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
           at.term("the housing", "the", "housing"),
         ]),
       ],
-      [partOf("1.a", "1"), partOf("1.b", "1")],
+      [],
     ],
     (at) => [finding.missing(at.ref("1.b", "the housing"), [1])]
   ),
@@ -481,12 +458,9 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
       [
         at.element("1.a", "limitation", "a sensor", [at.term("a sensor", "a", "sensor")]),
         at.element("1.b", "limitation", "a sensor", [at.term("a sensor", "a", "sensor", 1)], 1),
-        at.element("1.c", "limitation", "a controller coupled to the sensor", [
-          at.term("a controller", "a", "controller"),
-          at.term("the sensor", "the", "sensor"),
-        ]),
+        at.controller("1.c"),
       ],
-      [partOf("1.a", "1"), partOf("1.b", "1"), partOf("1.c", "1")],
+      [],
     ],
     (at) => [
       finding.ambiguous(
@@ -506,12 +480,9 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
         at.element("1.a", "limitation", "a plurality of sensors", [
           at.term("a plurality of sensors", "plurality-of", "sensors"),
         ]),
-        at.element("1.b", "limitation", "a controller coupled to the sensor", [
-          at.term("a controller", "a", "controller"),
-          at.term("the sensor", "the", "sensor"),
-        ]),
+        at.controller("1.b"),
       ],
-      [partOf("1.a", "1"), partOf("1.b", "1")],
+      [],
     ],
     (at) => [finding.numberMismatch(at.ref("1.b", "the sensor"), [1], at.ref("1.a", "a plurality of sensors"))]
   ),
@@ -529,11 +500,7 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
           at.term("the at least one sensor", "the", "sensor"),
         ]),
       ],
-      [
-        partOf("1.a", "1"),
-        partOf("1.b", "1"),
-        antecedent(at.ref("1.b", "the at least one sensor"), at.ref("1.a", "at least one sensor")),
-      ],
+      [antecedent(at.ref("1.b", "the at least one sensor"), at.ref("1.a", "at least one sensor"))],
     ]
   ),
   definiteFixture("7", "an", "an actuator; and a controller coupled to the actuator.", (at) => [
@@ -544,7 +511,7 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
         at.term("the actuator", "the", "actuator"),
       ]),
     ],
-    [partOf("1.a", "1"), partOf("1.b", "1"), antecedent(at.ref("1.b", "the actuator"), at.ref("1.a", "an actuator"))],
+    [antecedent(at.ref("1.b", "the actuator"), at.ref("1.a", "an actuator"))],
   ]),
   fixture8,
   fixture9,
@@ -573,9 +540,6 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
         ),
       ],
       [
-        partOf("1.a", "1"),
-        partOf("1.b", "1"),
-        partOf("1.c", "1"),
         antecedent(at.ref("1.c", "the first signal"), at.ref("1.a", "a first signal")),
         antecedent(at.ref("1.c", "the second signal"), at.ref("1.b", "a second signal")),
       ],
@@ -633,12 +597,9 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
       [
         at.element("1.a", "limitation", "a first sensor", [at.term("a first sensor", "a", "first sensor")]),
         at.element("1.b", "limitation", "a second sensor", [at.term("a second sensor", "a", "second sensor")]),
-        at.element("1.c", "limitation", "a controller coupled to the sensor", [
-          at.term("a controller", "a", "controller"),
-          at.term("the sensor", "the", "sensor"),
-        ]),
+        at.controller("1.c"),
       ],
-      [partOf("1.a", "1"), partOf("1.b", "1"), partOf("1.c", "1")],
+      [],
     ],
     (at) => [
       finding.ambiguous(
@@ -656,12 +617,9 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
     (at) => [
       [
         at.element("1.a", "limitation", "an optical sensor", [at.term("an optical sensor", "an", "optical sensor")]),
-        at.element("1.b", "limitation", "a controller coupled to the sensor", [
-          at.term("a controller", "a", "controller"),
-          at.term("the sensor", "the", "sensor"),
-        ]),
+        at.controller("1.b"),
       ],
-      [partOf("1.a", "1"), partOf("1.b", "1")],
+      [],
     ]
   ),
   definiteFixture(
@@ -676,11 +634,7 @@ export const ruleFixtures: ReadonlyArray<RuleFixture> = [
           at.term("the sensing element", "the", "sensing element"),
         ]),
       ],
-      [
-        partOf("1.a", "1"),
-        partOf("1.b", "1"),
-        antecedent(at.ref("1.b", "the sensing element"), at.ref("1.a", "a sensing element")),
-      ],
+      [antecedent(at.ref("1.b", "the sensing element"), at.ref("1.a", "a sensing element"))],
     ]
   ),
   fixture21,
