@@ -20,13 +20,14 @@ import type { ColorInfo, ColorSupportLevel as ColorSupportLevelType } from "./Ch
 
 const $I = $ChalkId.create("Domain");
 
-class StreamLikeModel extends S.Class<StreamLikeModel>($I`StreamLike`)(
-  {
+class StreamLikeModel extends S.Opaque<StreamLikeModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     isTTY: S.optionalKey(S.Boolean),
-  },
-  $I.annote("StreamLike", {
-    description: "Minimal output stream metadata used by Chalk color support detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("StreamLike", {
+      description: "Minimal output stream metadata used by Chalk color support detection.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(StreamLikeModel);
   static readonly normalize = flow(
@@ -37,13 +38,14 @@ class StreamLikeModel extends S.Class<StreamLikeModel>($I`StreamLike`)(
 
 type StreamLike = typeof StreamLikeModel.Encoded;
 
-class SupportsColorOptionsModel extends S.Class<SupportsColorOptionsModel>($I`SupportsColorOptions`)(
-  {
+class SupportsColorOptionsModel extends S.Opaque<SupportsColorOptionsModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     sniffFlags: S.optionalKey(S.Boolean),
-  },
-  $I.annote("SupportsColorOptions", {
-    description: "Options that tune Chalk color support detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("SupportsColorOptions", {
+      description: "Options that tune Chalk color support detection.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(SupportsColorOptionsModel);
   static readonly normalize = flow(
@@ -56,8 +58,8 @@ type SupportsColorOptions = typeof SupportsColorOptionsModel.Encoded;
 
 const runtimeProcessLikeModelArgvDefault = A.empty<string>();
 const runtimeProcessLikeModelEnvDefault = {};
-class RuntimeProcessLikeModel extends S.Class<RuntimeProcessLikeModel>($I`RuntimeProcessLike`)(
-  {
+class RuntimeProcessLikeModel extends S.Opaque<RuntimeProcessLikeModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     argv: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(runtimeProcessLikeModelArgvDefault)),
       S.withDecodingDefaultType(Effect.succeed(runtimeProcessLikeModelArgvDefault))
@@ -68,10 +70,11 @@ class RuntimeProcessLikeModel extends S.Class<RuntimeProcessLikeModel>($I`Runtim
     ),
     osRelease: S.optionalKey(S.String),
     platform: S.optionalKey(S.String),
-  },
-  $I.annote("RuntimeProcessLike", {
-    description: "Minimal process metadata used by Chalk color support detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("RuntimeProcessLike", {
+      description: "Minimal process metadata used by Chalk color support detection.",
+    })
+  )
 ) {
   static readonly decodeOption = S.decodeUnknownOption(RuntimeProcessLikeModel);
   static readonly normalize = flow(
@@ -88,24 +91,28 @@ type CreateSupportsColorInput = {
   readonly stream?: StreamLike;
 };
 
-class SupportsColorDecisionInputModel extends S.Class<SupportsColorDecisionInputModel>($I`SupportsColorDecisionInput`)(
-  {
+class SupportsColorDecisionInputModel extends S.Opaque<
+  SupportsColorDecisionInputModel,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     argv: S.Array(S.String),
     env: S.Record(S.String, S.UndefinedOr(S.String)),
     isTTY: S.optionalKey(S.Boolean),
     osRelease: S.optionalKey(S.String),
     platform: S.optionalKey(S.String),
     sniffFlags: S.optionalKey(S.Boolean),
-  },
-  $I.annote("SupportsColorDecisionInput", {
-    description: "Normalized decision input for Chalk color support heuristics.",
-  })
+  }).pipe(
+    $I.annoteSchema("SupportsColorDecisionInput", {
+      description: "Normalized decision input for Chalk color support heuristics.",
+    })
+  )
 ) {}
 
 type SupportsColorDecisionInput = typeof SupportsColorDecisionInputModel.Encoded;
 
-class ColorHeuristicInputModel extends S.Class<ColorHeuristicInputModel>($I`ColorHeuristicInput`)(
-  {
+class ColorHeuristicInputModel extends S.Opaque<ColorHeuristicInputModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     argv: S.Array(S.String),
     env: S.Record(S.String, S.UndefinedOr(S.String)),
     forceColor: S.Option(ColorSupportLevel),
@@ -114,24 +121,26 @@ class ColorHeuristicInputModel extends S.Class<ColorHeuristicInputModel>($I`Colo
     osRelease: S.optionalKey(S.String),
     platform: S.optionalKey(S.String),
     sniffFlags: S.optionalKey(S.Boolean),
-  },
-  $I.annote("ColorHeuristicInput", {
-    description: "Prepared inputs shared by Chalk color support heuristics.",
-  })
+  }).pipe(
+    $I.annoteSchema("ColorHeuristicInput", {
+      description: "Prepared inputs shared by Chalk color support heuristics.",
+    })
+  )
 ) {}
 
 type ColorHeuristicInput = typeof ColorHeuristicInputModel.Encoded;
 
 type ColorLevelHeuristic = (input: ColorHeuristicInput) => O.Option<ColorSupportLevel>;
 
-class WindowsReleaseModel extends S.Class<WindowsReleaseModel>($I`WindowsRelease`)(
-  {
+class WindowsReleaseModel extends S.Opaque<WindowsReleaseModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     build: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     major: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("WindowsRelease", {
-    description: "Parsed Windows release metadata used to infer terminal color support.",
-  })
+  }).pipe(
+    $I.annoteSchema("WindowsRelease", {
+      description: "Parsed Windows release metadata used to infer terminal color support.",
+    })
+  )
 ) {
   static readonly fromOsRelease: (osRelease: O.Option<string>) => WindowsRelease = flow(
     O.getOrElse(() => "0.0.0"),
@@ -146,14 +155,15 @@ class WindowsReleaseModel extends S.Class<WindowsReleaseModel>($I`WindowsRelease
 
 type WindowsRelease = typeof WindowsReleaseModel.Encoded;
 
-class TermProgramInfoModel extends S.Class<TermProgramInfoModel>($I`TermProgramInfo`)(
-  {
+class TermProgramInfoModel extends S.Opaque<TermProgramInfoModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     majorVersion: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     program: S.String,
-  },
-  $I.annote("TermProgramInfo", {
-    description: "Terminal program metadata used to infer color support.",
-  })
+  }).pipe(
+    $I.annoteSchema("TermProgramInfo", {
+      description: "Terminal program metadata used to infer color support.",
+    })
+  )
 ) {
   static readonly fromEnvironment = (
     program: string,

@@ -30,8 +30,12 @@ bun run beep agent-message --help
 bun run beep agent-message serve --help
 ```
 
-`serve` requires an explicit state directory, private launch profile, endpoint,
-participant, owner, repository scope and positive generation. A profile uses the
+`serve` requires an explicit state directory, private launch profile, private
+`--grant-file`, endpoint, participant, owner, repository scope and positive
+generation. The grant file must bind this worker's endpoint, owner, generation
+and repository scope; its optional conversation scope constrains messages
+delivered to the native model. Allowed recipients constrain outbound messages.
+A profile uses the
 `ManagedLaunchProfile` contract in `@beep/ai-provider-cli`. Its executable,
 arguments, environment and MCP servers are trusted host configuration; never build
 one from peer message text. It must select an existing subscription and the
@@ -42,6 +46,13 @@ canonical state directory. Its named native sandbox extends the read-only profil
 with that mailbox allowance. It does not make the repository writable.
 
 The driver starts and verifies its native session before registering the endpoint.
+Managed `serve` then registers and validates its host-issued receiving grant
+before dispatch. Out-of-scope queued messages fail before any native prompt and
+release their claim, so they cannot inject context or leave an ambiguity hold.
+If the receiving grant expires or is replaced, the current claim receives a
+definite failed receipt with an `invalidGrant` detail, then `serve` exits. Later
+queued messages remain untouched by that worker; normal generation replacement
+and reconciliation rules govern them.
 MCP startup may happen before registration; tool calls remain unauthorized until
 the host registers a current grant. The grant binds one endpoint generation and
 owner to a repository scope, allowed recipient list, expiry and persistent message

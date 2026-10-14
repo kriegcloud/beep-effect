@@ -55,7 +55,7 @@ const SCHEMA_VALUE_PATTERN =
 const SCHEMA_FIELDS_CALL_PATTERN =
   /\bS\.(?:Class|Struct|TaggedClass|TaggedStruct|Error|TaggedError)\b|\b[A-Za-z_$][\w$]*Entity\.Entity\b/;
 const SCHEMA_CLASS_FIELDS_CALL_PATTERN =
-  /\bS\.(?:Class|TaggedClass|Error|TaggedError)\b|\b[A-Za-z_$][\w$]*Entity\.Entity\b/;
+  /\bS\.(?:Class|TaggedClass|Error|TaggedError|Opaque)\b|\b[A-Za-z_$][\w$]*Entity\.Entity\b/;
 const NUMERIC_DOMAIN_TOKENS = ["timeout", "count", "size", "rate", "limit", "ms", "seconds"] as const;
 const STATIC_API_SCHEMA_SIGNAL_PATTERN = /\b(?:S\.(?:TaggedUnion|toTaggedUnion)|LiteralKit|MappedLiteralKit)\s*\(/;
 const DEFAULTS_SCHEMA_SIGNAL_PATTERN =

@@ -74,16 +74,13 @@ const NlpIndexKind = LiteralKit(["bm25", "semantic"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class TokenizeResult extends S.Class<TokenizeResult>($I`TokenizeResult`)(
-  {
+export class TokenizeResult extends S.Opaque<TokenizeResult, { readonly brand: unique symbol }>()(S.Struct({
     tokens: S.Array(S.String),
     sentences: S.Array(S.String),
     entities: S.Array(S.String),
-  },
-  $I.annote("TokenizeResult", {
+  }).pipe($I.annoteSchema("TokenizeResult", {
     description: "Token, sentence, and named-entity text emitted by one tokenization pass.",
-  })
-) {}
+  }))) {}
 
 /**
  * BM25 similarity result
@@ -101,28 +98,22 @@ export class TokenizeResult extends S.Class<TokenizeResult>($I`TokenizeResult`)(
  * @category models
  * @since 0.0.0
  */
-export class SimilarityResult extends S.Class<SimilarityResult>($I`SimilarityResult`)(
-  {
+export class SimilarityResult extends S.Opaque<SimilarityResult, { readonly brand: unique symbol }>()(S.Struct({
     doc: S.String,
     score: S.Finite,
     index: S.Natural,
-  },
-  $I.annote("SimilarityResult", {
+  }).pipe($I.annoteSchema("SimilarityResult", {
     description: "Source document, finite similarity score, and stable input position for one ranked match.",
-  })
-) {}
+  }))) {}
 
-class TextChunkModel extends S.Class<TextChunkModel>($I`TextChunkModel`)(
-  {
+class TextChunkModel extends S.Opaque<TextChunkModel, { readonly brand: unique symbol }>()(S.Struct({
     index: S.Natural,
     text: S.String,
     startOffset: S.Natural,
     endOffset: S.Natural,
-  },
-  $I.annote("TextChunkModel", {
+  }).pipe($I.annoteSchema("TextChunkModel", {
     description: "Zero-based source-aligned text chunk with non-negative UTF-16 offsets.",
-  })
-) {}
+  }))) {}
 
 const TextChunkDefinition = TextChunkModel.check(
   S.makeFilter(({ endOffset, startOffset }) => endOffset >= startOffset, {
@@ -169,27 +160,21 @@ export const TextChunk = TextChunkDefinition.pipe(
  */
 export type TextChunk = typeof TextChunk.Type;
 
-class ChunkOptionsInput extends S.Class<ChunkOptionsInput>($I`ChunkOptionsInput`)(
-  {
+class ChunkOptionsInput extends S.Opaque<ChunkOptionsInput, { readonly brand: unique symbol }>()(S.Struct({
     preserveSentences: S.OptionFromOptionalKey(ChunkingParams.fields.preserveSentences),
     maxChunkSize: S.OptionFromOptionalKey(ChunkingParams.fields.chunkSize),
     overlapSentences: S.OptionFromOptionalKey(ChunkingParams.fields.overlapSentences),
     strategy: S.OptionFromOptionalKey(ChunkingStrategy),
-  },
-  $I.annote("ChunkOptionsInput", {
+  }).pipe($I.annoteSchema("ChunkOptionsInput", {
     description: "Optional overrides derived from the canonical chunk-parameter domains and strategy registry.",
-  })
-) {}
+  }))) {}
 
-class ResolvedChunkOptions extends S.Class<ResolvedChunkOptions>($I`ResolvedChunkOptions`)(
-  {
+class ResolvedChunkOptions extends S.Opaque<ResolvedChunkOptions, { readonly brand: unique symbol }>()(S.Struct({
     strategy: ChunkingStrategy,
     params: ChunkingParams,
-  },
-  $I.annote("ResolvedChunkOptions", {
+  }).pipe($I.annoteSchema("ResolvedChunkOptions", {
     description: "Selected chunking strategy paired with one complete canonical parameter set.",
-  })
-) {}
+  }))) {}
 
 const resolveChunkOptions = (options: ChunkOptionsInput): ResolvedChunkOptions => {
   const strategy = O.getOrElse(options.strategy, () => ChunkingStrategy.Enum.standard);
@@ -305,7 +290,7 @@ export interface OntologySemanticIndex {
  * @category errors
  * @since 0.0.0
  */
-export class NlpIndexError extends S.TaggedError<NlpIndexError>($I`NlpIndexError`)(
+export class NlpIndexError extends S.TaggedError<NlpIndexError, { readonly brand: unique symbol }>($I`NlpIndexError`)(
   "NlpIndexError",
   {
     indexKind: NlpIndexKind,
@@ -328,7 +313,7 @@ const OntologySearchResultKind = LiteralKit(["class", "property"]).pipe(
   })
 );
 
-class OntologySearchResultBase extends S.Class<OntologySearchResultBase>($I`OntologySearchResultBase`)(
+class OntologySearchResultBase extends S.Class<OntologySearchResultBase, { readonly brand: unique symbol }>($I`OntologySearchResultBase`)(
   {
     iri: IRI,
     score: S.Finite,

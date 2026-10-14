@@ -170,7 +170,7 @@ export type DocumentsProjectionOutput = typeof DocumentsProjectionOutput.Type;
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { FetchableHandle } from "@beep/mcp-kit"
+ * import { FetchableHandle } from "@beep/mcp-kit/FieldTier"
  * import { MintFetchableHandle } from "@beep/uspto-mcp/UsptoDocumentTiers"
  *
  * const mint = MintFetchableHandle.implementSync((oversized) =>
@@ -202,14 +202,16 @@ export const MintFetchableHandle = Fn({
  * **Example** (Satisfy mint handle type)
  *
  * ```ts
+ * import { FetchableHandle } from "@beep/mcp-kit/FieldTier"
  * import type { MintFetchableHandle } from "@beep/uspto-mcp/UsptoDocumentTiers"
  *
- * const mint = ((oversized) => ({
- *   handleId: "5b1d6a3e-8f3e-4a1a-9c1e-2e6b7a2f9c10",
- *   expiresAt: "2026-07-01T01:00:00.000Z",
- *   sizeBytes: oversized.sizeBytes,
- *   tier: "minimal"
- * })) satisfies MintFetchableHandle
+ * const mint = ((oversized) =>
+ *   FetchableHandle.make({
+ *     handleId: "5b1d6a3e-8f3e-4a1a-9c1e-2e6b7a2f9c10",
+ *     expiresAt: "2026-07-01T01:00:00.000Z",
+ *     sizeBytes: oversized.sizeBytes,
+ *     tier: "minimal"
+ *   })) satisfies MintFetchableHandle
  * console.log(mint)
  * ```
  *
@@ -225,7 +227,7 @@ export type MintFetchableHandle = typeof MintFetchableHandle.Type;
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { FetchableHandle } from "@beep/mcp-kit"
+ * import { FetchableHandle } from "@beep/mcp-kit/FieldTier"
  * import { MintFetchableHandle, ProjectDocumentsWithinBudgetOptions } from "@beep/uspto-mcp/UsptoDocumentTiers"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
@@ -248,20 +250,22 @@ export type MintFetchableHandle = typeof MintFetchableHandle.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProjectDocumentsWithinBudgetOptions extends S.Class<ProjectDocumentsWithinBudgetOptions>(
-  $I`ProjectDocumentsWithinBudgetOptions`
-)(
-  {
+export class ProjectDocumentsWithinBudgetOptions extends S.Opaque<
+  ProjectDocumentsWithinBudgetOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     budgetBytes: PosInt.annotateKey({
       description: "Maximum serialized size, in bytes, the reshaped response must fit within.",
     }),
     mintFetchableHandle: MintFetchableHandle.annotateKey({
       description: "Callback that mints a fetchable handle when the minimal tier is still oversized.",
     }),
-  },
-  $I.annote("ProjectDocumentsWithinBudgetOptions", {
-    description: "Budget and fetchable-handle minting callback for USPTO document projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectDocumentsWithinBudgetOptions", {
+      description: "Budget and fetchable-handle minting callback for USPTO document projection.",
+    })
+  )
 ) {}
 
 /**
@@ -279,22 +283,30 @@ export class ProjectDocumentsWithinBudgetOptions extends S.Class<ProjectDocument
  * ```ts
  * import * as S from "effect/Schema"
  * import { UsptoDocumentReference } from "@beep/uspto"
- * import { FetchableHandle } from "@beep/mcp-kit"
- * import { projectDocumentsWithinBudget } from "@beep/uspto-mcp/UsptoDocumentTiers"
+ * import { FetchableHandle } from "@beep/mcp-kit/FieldTier"
+ * import {
+ *   MintFetchableHandle,
+ *   ProjectDocumentsWithinBudgetOptions,
+ *   projectDocumentsWithinBudget
+ * } from "@beep/uspto-mcp/UsptoDocumentTiers"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
  *
  * const documents = [UsptoDocumentReference.make({ documentIdentifier: "DOC-1" })]
- * const projection = projectDocumentsWithinBudget(documents, {
- *   budgetBytes: PosInt.make(10_000),
- *   mintFetchableHandle: (oversized) =>
- *     FetchableHandle.make({
- *       handleId: "5b1d6a3e-8f3e-4a1a-9c1e-2e6b7a2f9c10",
- *       expiresAt: "2026-07-01T01:00:00.000Z",
- *       sizeBytes: oversized.sizeBytes,
- *       tier: "minimal"
- *     })
- * })
+ * const projection = projectDocumentsWithinBudget(
+ *   documents,
+ *   ProjectDocumentsWithinBudgetOptions.make({
+ *     budgetBytes: PosInt.make(10_000),
+ *     mintFetchableHandle: MintFetchableHandle.implementSync((oversized) =>
+ *       FetchableHandle.make({
+ *         handleId: "5b1d6a3e-8f3e-4a1a-9c1e-2e6b7a2f9c10",
+ *         expiresAt: "2026-07-01T01:00:00.000Z",
+ *         sizeBytes: S.Natural.make(oversized.sizeBytes),
+ *         tier: "minimal"
+ *       })
+ *     )
+ *   })
+ * )
  * console.log(projection._tag)
  * // "Inline"
  * ```

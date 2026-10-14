@@ -51,68 +51,78 @@ export const TsMorphMutationKind = LiteralKit([
  */
 export type TsMorphMutationKind = typeof TsMorphMutationKind.Type;
 
-class TsMorphMutationAddIdentityComposer extends S.Class<TsMorphMutationAddIdentityComposer>(
-  $I`TsMorphMutationAddIdentityComposer`
-)(
-  {
+class TsMorphMutationAddIdentityComposer extends S.Opaque<
+  TsMorphMutationAddIdentityComposer,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("add-identity-composer"),
     filePath: S.String,
     symbolName: S.String,
     importPath: S.Option(S.String),
     statementText: S.Option(S.String),
-  },
-  $I.annote("TsMorphMutationAddIdentityComposer", {
-    description: "Mutation descriptor for adding identity composer exports/imports.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphMutationAddIdentityComposer", {
+      description: "Mutation descriptor for adding identity composer exports/imports.",
+    })
+  )
 ) {
   static readonly thunkThis = () => TsMorphMutationAddIdentityComposer;
 }
 
-class TsMorphMutationAddEntityIdExport extends S.Class<TsMorphMutationAddEntityIdExport>(
-  $I`TsMorphMutationAddEntityIdExport`
-)(
-  {
+class TsMorphMutationAddEntityIdExport extends S.Opaque<
+  TsMorphMutationAddEntityIdExport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("add-entity-id-export"),
     filePath: S.String,
     symbolName: S.String,
     importPath: S.Option(S.String),
     statementText: S.Option(S.String),
-  },
-  $I.annote("TsMorphMutationAddEntityIdExport", {
-    description: "Mutation descriptor for adding entity id exports.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphMutationAddEntityIdExport", {
+      description: "Mutation descriptor for adding entity id exports.",
+    })
+  )
 ) {
   static readonly thunkThis = () => TsMorphMutationAddEntityIdExport;
 }
 
-class TsMorphMutationWirePersistence extends S.Class<TsMorphMutationWirePersistence>(
-  $I`TsMorphMutationWirePersistence`
-)(
-  {
+class TsMorphMutationWirePersistence extends S.Opaque<
+  TsMorphMutationWirePersistence,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("wire-persistence"),
     filePath: S.String,
     symbolName: S.String,
     importPath: S.Option(S.String),
     statementText: S.Option(S.String),
-  },
-  $I.annote("TsMorphMutationWirePersistence", {
-    description: "Mutation descriptor for persistence wiring.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphMutationWirePersistence", {
+      description: "Mutation descriptor for persistence wiring.",
+    })
+  )
 ) {
   static readonly thunkThis = () => TsMorphMutationWirePersistence;
 }
 
-class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAccess>($I`TsMorphMutationWireDataAccess`)(
-  {
+class TsMorphMutationWireDataAccess extends S.Opaque<
+  TsMorphMutationWireDataAccess,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("wire-data-access"),
     filePath: S.String,
     symbolName: S.String,
     importPath: S.Option(S.String),
     statementText: S.Option(S.String),
-  },
-  $I.annote("TsMorphMutationWireDataAccess", {
-    description: "Mutation descriptor for data-access wiring.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphMutationWireDataAccess", {
+      description: "Mutation descriptor for data-access wiring.",
+    })
+  )
 ) {
   static readonly thunkThis = () => TsMorphMutationWireDataAccess;
 }
@@ -156,28 +166,36 @@ export const TsMorphMutation = TsMorphMutationKind.mapMembers(
  */
 export type TsMorphMutation = typeof TsMorphMutation.Type;
 
-class TsMorphMutationOutcomeApplied extends S.Class<TsMorphMutationOutcomeApplied>($I`TsMorphMutationOutcomeApplied`)(
-  {
+class TsMorphMutationOutcomeApplied extends S.Opaque<
+  TsMorphMutationOutcomeApplied,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag("applied"),
     mutation: TsMorphMutation,
     detail: S.String,
-  },
-  $I.annote("TsMorphMutationOutcomeApplied", {
-    description: "Applied mutation outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphMutationOutcomeApplied", {
+      description: "Applied mutation outcome.",
+    })
+  )
 ) {
   static readonly thunkThis = () => this;
 }
 
-class TsMorphMutationOutcomeSkipped extends S.Class<TsMorphMutationOutcomeSkipped>($I`TsMorphMutationOutcomeSkipped`)(
-  {
+class TsMorphMutationOutcomeSkipped extends S.Opaque<
+  TsMorphMutationOutcomeSkipped,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag("skipped"),
     mutation: TsMorphMutation,
     detail: S.String,
-  },
-  $I.annote("TsMorphMutationOutcomeSkipped", {
-    description: "Skipped mutation outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphMutationOutcomeSkipped", {
+      description: "Skipped mutation outcome.",
+    })
+  )
 ) {
   static readonly thunkThis = () => TsMorphMutationOutcomeSkipped;
 }
@@ -222,13 +240,14 @@ export type TsMorphMutationOutcome = typeof TsMorphMutationOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class TsMorphIntegrationResult extends S.Class<TsMorphIntegrationResult>($I`TsMorphIntegrationResult`)(
-  {
+export class TsMorphIntegrationResult extends S.Opaque<TsMorphIntegrationResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcomes: S.Array(TsMorphMutationOutcome),
-  },
-  $I.annote("TsMorphIntegrationResult", {
-    description: "Batch mutation result.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphIntegrationResult", {
+      description: "Batch mutation result.",
+    })
+  )
 ) {
   static readonly new = (outcomes: ReadonlyArray<TsMorphMutationOutcome>) =>
     TsMorphIntegrationResult.make({ outcomes });

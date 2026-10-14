@@ -96,7 +96,7 @@ const EMPTY_EDGE_NAMES: ReadonlyArray<string> = [];
  * @category models
  * @since 0.0.0
  */
-export class ResolvedPackage extends S.Class<ResolvedPackage>($I`ResolvedPackage`)({
+export class ResolvedPackage extends S.Class<ResolvedPackage, { readonly brand: unique symbol }>($I`ResolvedPackage`)({
 	name: S.NonEmptyString.annotateKey({ description: "Resolved package name; pnpm workspace entries initially carry importer paths until rewritten with manifest names" }),
 	version: S.String.annotateKey({ description: "Resolved package version; pnpm workspace entries use `0.0.0` because their actual versions are absent from the lockfile" }),
 	instanceId: S.NonEmptyString.annotateKey({ description: "Opaque, verbatim lockfile identity distinguishing this package instance, including separate peer-resolved variants" }),

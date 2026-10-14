@@ -2,8 +2,8 @@
 
 ## Status
 
-Status: `active`. All 52 findings are validated and repaired or already fixed;
-repository proof is in progress.
+Status: `completed-retained`. PR #1728 merged; all 52 captured findings are
+Fixed in Security Cloud. A later new finding has its own packet.
 
 ## Phases
 
@@ -14,11 +14,11 @@ repository proof is in progress.
 | P2 validate | complete | Validate newly captured reports at current HEAD. | All 52 have verdicts and dispositions. |
 | P3 lane-partition | complete | Assign newly captured findings to disjoint root-cause lanes. | CSF-050–052 assigned to L42. |
 | P4 remediate | complete | Fix all real findings with focused checks. | Changed files and passing targeted proof recorded per finding. |
-| P5 repo-proof | in progress | Run packet validation and Yeet repair/verify. | No packet drift; local proof green. |
-| P6 publish | in progress | Publish one intentional PR through Yeet. | PR #1728 is open; final 52-finding wave awaits push. |
-| P7 monitor | in progress | Close hosted checks and actionable reviews. | First head reviewed; final head must clear checks and review window. |
-| P8 merge-and-close | pending | Merge and close captured findings. | PR merged; all 52 IDs resolved. |
-| P9 close | pending | Record evidence, reflection, and lifecycle. | Packet set to `completed-retained` in the same closeout PR state. |
+| P5 repo-proof | complete | Run packet validation and Yeet checks. | Focused and package proof recorded; S11 attributions retained for optional reds. |
+| P6 publish | complete | Publish one intentional PR through Yeet. | PR #1728 published at final head `fcf21d730d`. |
+| P7 monitor | complete | Close hosted checks and actionable reviews. | Threads resolved; final reviewer summary 5/5; optional reds attributed. |
+| P8 merge-and-close | complete | Merge and close captured findings. | PR #1728 merged; all 52 IDs Fixed. |
+| P9 close | complete | Record evidence, reflection, and lifecycle. | Packet set to `completed-retained` with reflection in this closeout PR. |
 
 ## Execution Rules
 

@@ -35,6 +35,7 @@ import {
   makePublishedReplayAggregate,
   ProjectionStoreMetadata,
   ProjectionStoreMetadataFromJsonString,
+  ProviderRecording,
   RetentionAuthorizationFromJsonString,
 } from "@/domain/Bundle";
 import { buildFixtureArtifacts, RFQ_A_OUTLOOK_BODY } from "@/fixtures/Sources";
@@ -80,18 +81,19 @@ const retentionMetadataEquivalent = S.toEquivalence(MutableRetentionMetadata);
  * @category models
  * @since 0.0.0
  */
-export class BundleBuildInput extends S.Class<BundleBuildInput>($I`BundleBuildInput`)(
-  {
+export class BundleBuildInput extends S.Opaque<BundleBuildInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleRoot: S.NonEmptyString,
     mutableRoot: S.NonEmptyString,
     recordingPath: S.NonEmptyString,
     retentionAuthorizationPath: S.OptionFromOptionalKey(S.NonEmptyString).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("BundleBuildInput", {
-    description: "Caller-selected final roots and frozen provider recording for one transactional bundle build.",
-  })
+  }).pipe(
+    $I.annoteSchema("BundleBuildInput", {
+      description: "Caller-selected final roots and frozen provider recording for one transactional bundle build.",
+    })
+  )
 ) {}
 
 /**
@@ -113,7 +115,9 @@ export class BundleBuildInput extends S.Class<BundleBuildInput>($I`BundleBuildIn
  * @category errors
  * @since 0.0.0
  */
-export class BundleBuildError extends S.TaggedError<BundleBuildError>($I`BundleBuildError`)(
+export class BundleBuildError extends S.TaggedError<BundleBuildError, { readonly brand: unique symbol }>(
+  $I`BundleBuildError`
+)(
   "BundleBuildError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
@@ -140,40 +144,43 @@ export class BundleBuildError extends S.TaggedError<BundleBuildError>($I`BundleB
  * @category models
  * @since 0.0.0
  */
-export class PublicationReadbackInput extends S.Class<PublicationReadbackInput>($I`PublicationReadbackInput`)(
-  {
+export class PublicationReadbackInput extends S.Opaque<PublicationReadbackInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleText: S.NonEmptyString,
     expectedRetentionMetadata: MutableRetentionMetadata,
     ledgerText: S.NonEmptyString,
     projectionMetadataText: S.NonEmptyString,
     receiptText: S.NonEmptyString,
     retentionMetadataText: S.NonEmptyString,
-  },
-  $I.annote("PublicationReadbackInput", {
-    description: "The exact staged JSON bytes and expected mutable policy validated before atomic publication.",
-  })
+  }).pipe(
+    $I.annoteSchema("PublicationReadbackInput", {
+      description: "The exact staged JSON bytes and expected mutable policy validated before atomic publication.",
+    })
+  )
 ) {}
 
-class StagingRoots extends S.Class<StagingRoots>($I`StagingRoots`)(
-  {
+class StagingRoots extends S.Opaque<StagingRoots, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundle: S.NonEmptyString,
     container: S.NonEmptyString,
     mutable: S.NonEmptyString,
-  },
-  $I.annote("StagingRoots", {
-    description: "Builder-owned publication container and child roots pending one atomic directory rename.",
-  })
+  }).pipe(
+    $I.annoteSchema("StagingRoots", {
+      description: "Builder-owned publication container and child roots pending one atomic directory rename.",
+    })
+  )
 ) {}
 
-class PublicationRoots extends S.Class<PublicationRoots>($I`PublicationRoots`)(
-  {
+class PublicationRoots extends S.Opaque<PublicationRoots, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundle: S.NonEmptyString,
     mutable: S.NonEmptyString,
     publication: S.NonEmptyString,
-  },
-  $I.annote("PublicationRoots", {
-    description: "Distinct immutable and mutable children of one dedicated publication root.",
-  })
+  }).pipe(
+    $I.annoteSchema("PublicationRoots", {
+      description: "Distinct immutable and mutable children of one dedicated publication root.",
+    })
+  )
 ) {}
 
 const bundleBuildError = (stage: string, message: string): BundleBuildError =>
@@ -371,7 +378,10 @@ const buildStagedBundle = Effect.fn("LeJeuneBundle.buildStagedBundle")(function*
       bundleBuildErrorWithCause("provider-recording", "The sanitized provider recording is invalid.", cause)
     )
   );
-  const recording = yield* verifyFrozenProviderRecording(decodedRecording, RFQ_A_OUTLOOK_BODY).pipe(
+  const recording = yield* verifyFrozenProviderRecording(
+    ProviderRecording.make(decodedRecording),
+    RFQ_A_OUTLOOK_BODY
+  ).pipe(
     Effect.mapError((cause) =>
       bundleBuildErrorWithCause(
         "provider-recording",
@@ -386,7 +396,9 @@ const buildStagedBundle = Effect.fn("LeJeuneBundle.buildStagedBundle")(function*
   const replay = yield* Layer.build(
     makeProjectionLayer(ProjectionLayerOptions.make({ duckDbPath, pgliteDataDir: O.some(pgliteDataDir) }))
   ).pipe(
-    Effect.flatMap((context) => replayOffline(recording, retentionAuthorization).pipe(Effect.provide(context))),
+    Effect.flatMap((context) =>
+      replayOffline(ProviderRecording.make(recording), retentionAuthorization).pipe(Effect.provide(context))
+    ),
     Effect.scoped,
     Effect.mapError((cause) =>
       bundleBuildErrorWithCause("replay", "The deterministic offline replay could not be built.", cause)

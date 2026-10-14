@@ -59,7 +59,7 @@ import type { AnyModel } from "./model.ts";
  * @category errors
  * @since 0.0.0
  */
-export class VersionConflictError extends TaggedError<VersionConflictError>(
+export class VersionConflictError extends TaggedError<VersionConflictError, { readonly brand: unique symbol }>(
   "@beep/effect-drizzle/VersionConflictError"
 )(
   "VersionConflictError",

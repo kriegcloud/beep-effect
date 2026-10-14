@@ -43,7 +43,9 @@ const validateName = (name: string): string => {
  * @category utilities
  * @since 0.0.0
  */
-export class TableExtraError extends TaggedError<TableExtraError>("@beep/effect-drizzle/sqlite/TableExtraError")(
+export class TableExtraError extends TaggedError<TableExtraError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/sqlite/TableExtraError"
+)(
   "TableExtraError",
   {
     message: StringSchema,

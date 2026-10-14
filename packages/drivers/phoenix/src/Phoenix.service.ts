@@ -40,6 +40,7 @@ import {
   PhoenixDatasetExample,
   PhoenixDatasetExamplesResult,
   PhoenixDatasetInfoResult,
+  PhoenixDatasetSelector,
   PhoenixDatasetSelectorKind,
   PhoenixDoctorResult,
   PhoenixExperimentInfoResult,
@@ -58,7 +59,6 @@ import type {
   PhoenixAnnotationInput,
   PhoenixDatasetAppendInput,
   PhoenixDatasetCreateInput,
-  PhoenixDatasetSelector,
   PhoenixExperimentCreateInput,
   PhoenixPromptCreateInput,
   PhoenixPromptSelector,
@@ -132,8 +132,8 @@ export interface PhoenixShape {
   readonly getExperimentInfo: (experimentId: string) => Effect.Effect<PhoenixExperimentInfoResult, PhoenixError>;
   readonly getPrompt: (selector: PhoenixPromptSelector) => Effect.Effect<PhoenixPromptReadResult, PhoenixError>;
 }
-class ResolvedPhoenixConfig extends S.Class<ResolvedPhoenixConfig>($I`ResolvedPhoenixConfig`)(
-  {
+class ResolvedPhoenixConfig extends S.Opaque<ResolvedPhoenixConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.String.pipe(S.Redacted, S.Option).annotateKey({
       description: "Optional Phoenix API key resolved from config or environment.",
     }),
@@ -143,17 +143,19 @@ class ResolvedPhoenixConfig extends S.Class<ResolvedPhoenixConfig>($I`ResolvedPh
     headers: S.Record(S.String, S.String).annotateKey({
       description: "Resolved Phoenix API request headers.",
     }),
-  },
-  $I.annote("ResolvedPhoenixConfig", {
-    description: "Resolved Phoenix API client configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedPhoenixConfig", {
+      description: "Resolved Phoenix API client configuration.",
+    })
+  )
 ) {}
 
-const resolveConfig = (config: PhoenixConfigInput): ResolvedPhoenixConfig => ({
-  apiKey: config.apiKey,
-  baseUrl: URLStr.make(config.baseUrl),
-  headers: config.headers,
-});
+const resolveConfig = (config: PhoenixConfigInput): ResolvedPhoenixConfig =>
+  ResolvedPhoenixConfig.make({
+    apiKey: config.apiKey,
+    baseUrl: URLStr.make(config.baseUrl),
+    headers: config.headers,
+  });
 
 const resolvedHeaders = (config: ResolvedPhoenixConfig): Readonly<Record<string, string>> => ({
   ...config.headers,
@@ -449,7 +451,7 @@ const makePhoenixSdk = (config: ResolvedPhoenixConfig): PhoenixSdkShape => {
     appendDatasetExamples: (input) =>
       appendDatasetExamples({
         client,
-        dataset: datasetSelectorToSdk(input.dataset),
+        dataset: datasetSelectorToSdk(PhoenixDatasetSelector.make(input.dataset)),
         examples: pipe(input.examples, A.map(datasetExampleToSdk)),
       }).then((result) => PhoenixDatasetAppendResult.make(result)),
     createDataset: (input) =>

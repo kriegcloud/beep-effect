@@ -125,8 +125,8 @@ export const FIRECRAWL_API_URL = "https://api.firecrawl.dev";
  * @category models
  * @since 0.0.0
  */
-export class FirecrawlConfigInput extends S.Class<FirecrawlConfigInput>($I`FirecrawlConfigInput`)(
-  {
+export class FirecrawlConfigInput extends S.Opaque<FirecrawlConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
     apiUrl: FirecrawlApiUrl.pipe(
       S.withConstructorDefault(Effect.succeed(FIRECRAWL_API_URL)),
@@ -135,8 +135,9 @@ export class FirecrawlConfigInput extends S.Class<FirecrawlConfigInput>($I`Firec
     backoffFactor: S.OptionFromOptionalKey(FirecrawlBackoffFactor).pipe(S.withConstructorDefault(Effect.succeedNone)),
     maxRetries: S.OptionFromOptionalKey(FirecrawlRetryCount).pipe(S.withConstructorDefault(Effect.succeedNone)),
     timeoutMs: S.OptionFromOptionalKey(FirecrawlTimeoutMs).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("FirecrawlConfigInput", {
-    description: "Runtime configuration accepted by the Firecrawl technical driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlConfigInput", {
+      description: "Runtime configuration accepted by the Firecrawl technical driver layer.",
+    })
+  )
 ) {}

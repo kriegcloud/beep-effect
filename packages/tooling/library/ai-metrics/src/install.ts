@@ -131,9 +131,10 @@ const requireRawArchiveKeySecretRef = Effect.fn("AiMetrics.requireRawArchiveKeyS
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsInstallConfigurationError extends S.TaggedError<AiMetricsInstallConfigurationError>(
-  $I`AiMetricsInstallConfigurationError`
-)(
+export class AiMetricsInstallConfigurationError extends S.TaggedError<
+  AiMetricsInstallConfigurationError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsInstallConfigurationError`)(
   "AiMetricsInstallConfigurationError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -177,8 +178,8 @@ export class AiMetricsInstallConfigurationError extends S.TaggedError<AiMetricsI
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsInstallInput extends S.Class<AiMetricsInstallInput>($I`AiMetricsInstallInput`)(
-  {
+export class AiMetricsInstallInput extends S.Opaque<AiMetricsInstallInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidateTools: S.Array(AiMetricsTool).pipe(
       S.withConstructorDefault(Effect.succeed(defaultCandidateTools)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultCandidateTools))
@@ -207,10 +208,11 @@ export class AiMetricsInstallInput extends S.Class<AiMetricsInstallInput>($I`AiM
       S.withDecodingDefaultTypeKey(Effect.succeed(AiMetricsDeployTarget.Enum.local))
     ),
     tailnetOnly: SchemaUtils.BoolKeyDefaultTrue,
-  },
-  $I.annote("AiMetricsInstallInput", {
-    description: "User-selectable inputs for the target-agnostic AI metrics install module.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsInstallInput", {
+      description: "User-selectable inputs for the target-agnostic AI metrics install module.",
+    })
+  )
 ) {}
 
 /**
@@ -248,17 +250,18 @@ export class AiMetricsInstallInput extends S.Class<AiMetricsInstallInput>($I`AiM
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsStorageLayout extends S.Class<AiMetricsStorageLayout>($I`AiMetricsStorageLayout`)(
-  {
+export class AiMetricsStorageLayout extends S.Opaque<AiMetricsStorageLayout, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataRoot: S.String,
     derivedDir: S.String,
     duckDbPath: S.String,
     parquetDir: S.String,
     rawArchiveDir: S.String,
-  },
-  $I.annote("AiMetricsStorageLayout", {
-    description: "Canonical raw and derived storage paths for an AI metrics target.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsStorageLayout", {
+      description: "Canonical raw and derived storage paths for an AI metrics target.",
+    })
+  )
 ) {}
 
 /**
@@ -300,8 +303,8 @@ export class AiMetricsStorageLayout extends S.Class<AiMetricsStorageLayout>($I`A
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsServiceSpec extends S.Class<AiMetricsServiceSpec>($I`AiMetricsServiceSpec`)(
-  {
+export class AiMetricsServiceSpec extends S.Opaque<AiMetricsServiceSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     composeServiceName: S.String,
     enabledByDefault: S.Boolean,
     healthUrl: S.String,
@@ -310,10 +313,11 @@ export class AiMetricsServiceSpec extends S.Class<AiMetricsServiceSpec>($I`AiMet
     otlp: AiMetricsOtlpEndpointSpec,
     publicUrl: S.String,
     tool: AiMetricsTool,
-  },
-  $I.annote("AiMetricsServiceSpec", {
-    description: "Candidate observability tool endpoint resolved for a target install.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsServiceSpec", {
+      description: "Candidate observability tool endpoint resolved for a target install.",
+    })
+  )
 ) {}
 
 /**
@@ -363,8 +367,8 @@ export class AiMetricsServiceSpec extends S.Class<AiMetricsServiceSpec>($I`AiMet
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsInstallSpec extends S.Class<AiMetricsInstallSpec>($I`AiMetricsInstallSpec`)(
-  {
+export class AiMetricsInstallSpec extends S.Opaque<AiMetricsInstallSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidateTools: S.Array(AiMetricsTool),
     defaultScoreWeights: AiMetricsScoreWeights,
     defaultTool: AiMetricsTool,
@@ -378,10 +382,11 @@ export class AiMetricsInstallSpec extends S.Class<AiMetricsInstallSpec>($I`AiMet
     storage: AiMetricsStorageLayout,
     tailnetOnly: S.Boolean,
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsInstallSpec", {
-    description: "Resolved install/deploy contract shared by the CLI installer and Pulumi orchestration.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsInstallSpec", {
+      description: "Resolved install/deploy contract shared by the CLI installer and Pulumi orchestration.",
+    })
+  )
 ) {}
 
 /**
@@ -476,8 +481,8 @@ const AiMetricsInstallPlanStepOrder = S.Int.check(S.isGreaterThan(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsInstallPlanStep extends S.Class<AiMetricsInstallPlanStep>($I`AiMetricsInstallPlanStep`)(
-  {
+export class AiMetricsInstallPlanStep extends S.Opaque<AiMetricsInstallPlanStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.NonEmptyString,
     description: S.NonEmptyString,
     mutatesHost: S.Boolean,
@@ -490,10 +495,11 @@ export class AiMetricsInstallPlanStep extends S.Class<AiMetricsInstallPlanStep>(
     stepId: S.NonEmptyString,
     title: S.NonEmptyString,
     kind: AiMetricsInstallPlanStepKind,
-  },
-  $I.annote("AiMetricsInstallPlanStep", {
-    description: "Single ordered operation in the dry-runnable AI metrics install plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsInstallPlanStep", {
+      description: "Single ordered operation in the dry-runnable AI metrics install plan.",
+    })
+  )
 ) {}
 
 /**
@@ -539,8 +545,8 @@ export class AiMetricsInstallPlanStep extends S.Class<AiMetricsInstallPlanStep>(
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsInstallPlan extends S.Class<AiMetricsInstallPlan>($I`AiMetricsInstallPlan`)(
-  {
+export class AiMetricsInstallPlan extends S.Opaque<AiMetricsInstallPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     defaultTool: AiMetricsTool,
     dryRunOnly: S.Boolean,
     services: S.Array(AiMetricsServiceSpec),
@@ -549,10 +555,11 @@ export class AiMetricsInstallPlan extends S.Class<AiMetricsInstallPlan>($I`AiMet
     storage: AiMetricsStorageLayout,
     tailnetOnly: S.Boolean,
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsInstallPlan", {
-    description: "Contract-first install plan consumed by P5a CLI plan, doctor, and dry-run apply workflows.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsInstallPlan", {
+      description: "Contract-first install plan consumed by P5a CLI plan, doctor, and dry-run apply workflows.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeEffect(S.fromJsonString(AiMetricsInstallPlan));
 }
@@ -662,8 +669,11 @@ const aiMetricsInstallDoctorCheckMetadataDefault = {};
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsInstallDoctorCheck extends S.Class<AiMetricsInstallDoctorCheck>($I`AiMetricsInstallDoctorCheck`)(
-  {
+export class AiMetricsInstallDoctorCheck extends S.Opaque<
+  AiMetricsInstallDoctorCheck,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     checkId: S.NonEmptyString,
     message: S.NonEmptyString,
     metadata: S.Record(S.String, S.String).pipe(
@@ -671,10 +681,11 @@ export class AiMetricsInstallDoctorCheck extends S.Class<AiMetricsInstallDoctorC
       S.withDecodingDefaultTypeKey(Effect.succeed(aiMetricsInstallDoctorCheckMetadataDefault))
     ),
     status: AiMetricsInstallDoctorCheckStatus,
-  },
-  $I.annote("AiMetricsInstallDoctorCheck", {
-    description: "Single contract validation result emitted by the AI metrics install doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsInstallDoctorCheck", {
+      description: "Single contract validation result emitted by the AI metrics install doctor.",
+    })
+  )
 ) {}
 
 const aiMetricsInstallDoctorInputInstallDefault = AiMetricsInstallInput.make({});
@@ -704,8 +715,11 @@ const aiMetricsInstallDoctorInputInstallDefault = AiMetricsInstallInput.make({})
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsInstallDoctorInput extends S.Class<AiMetricsInstallDoctorInput>($I`AiMetricsInstallDoctorInput`)(
-  {
+export class AiMetricsInstallDoctorInput extends S.Opaque<
+  AiMetricsInstallDoctorInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     install: AiMetricsInstallInput.pipe(
       S.withConstructorDefault(Effect.succeed(aiMetricsInstallDoctorInputInstallDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(aiMetricsInstallDoctorInputInstallDefault))
@@ -713,10 +727,11 @@ export class AiMetricsInstallDoctorInput extends S.Class<AiMetricsInstallDoctorI
     sourceDiscovery: S.OptionFromOptionalKey(AiMetricsSourceDiscoveryResult).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("AiMetricsInstallDoctorInput", {
-    description: "Install spec and optional source discovery evidence consumed by the P5a doctor.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsInstallDoctorInput", {
+      description: "Install spec and optional source discovery evidence consumed by the P5a doctor.",
+    })
+  )
 ) {}
 
 /**
@@ -770,19 +785,21 @@ export class AiMetricsInstallDoctorInput extends S.Class<AiMetricsInstallDoctorI
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsInstallDoctorResult extends S.Class<AiMetricsInstallDoctorResult>(
-  $I`AiMetricsInstallDoctorResult`
-)(
-  {
+export class AiMetricsInstallDoctorResult extends S.Opaque<
+  AiMetricsInstallDoctorResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     availableSourceCount: S.Natural,
     checks: S.Array(AiMetricsInstallDoctorCheck),
     plan: AiMetricsInstallPlan,
     status: AiMetricsInstallDoctorStatus,
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsInstallDoctorResult", {
-    description: "Aggregate P5a install doctor result with contract and source availability checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsInstallDoctorResult", {
+      description: "Aggregate P5a install doctor result with contract and source availability checks.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeEffect(S.fromJsonString(AiMetricsInstallDoctorResult));
 }
@@ -836,18 +853,20 @@ export class AiMetricsInstallDoctorResult extends S.Class<AiMetricsInstallDoctor
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsInstallApplyDryRunResult extends S.Class<AiMetricsInstallApplyDryRunResult>(
-  $I`AiMetricsInstallApplyDryRunResult`
-)(
-  {
+export class AiMetricsInstallApplyDryRunResult extends S.Opaque<
+  AiMetricsInstallApplyDryRunResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dryRun: S.Literal(true).pipe(S.withConstructorDefault(Effect.succeed(true))),
     message: S.NonEmptyString,
     plan: AiMetricsInstallPlan,
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsInstallApplyDryRunResult", {
-    description: "Dry-run-only P5a apply output that lists the install steps without mutating local or remote state.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsInstallApplyDryRunResult", {
+      description: "Dry-run-only P5a apply output that lists the install steps without mutating local or remote state.",
+    })
+  )
 ) {
   static readonly encodeJsonEffect = S.encodeEffect(S.fromJsonString(AiMetricsInstallApplyDryRunResult));
 }

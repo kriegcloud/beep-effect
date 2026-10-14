@@ -39,9 +39,10 @@ const AiMetricsFileInventoryOperation = LiteralKit(["inspect", "read"]).pipe(
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsFileInventoryError extends S.TaggedError<AiMetricsFileInventoryError>(
-  $I`AiMetricsFileInventoryError`
-)(
+export class AiMetricsFileInventoryError extends S.TaggedError<
+  AiMetricsFileInventoryError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsFileInventoryError`)(
   "AiMetricsFileInventoryError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),

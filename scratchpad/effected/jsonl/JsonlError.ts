@@ -69,7 +69,7 @@ const SchemaErrorFromSelf = S.declare(S.isSchemaError).pipe(
  * @category errors
  * @since 0.0.0
  */
-export class MalformedLine extends S.TaggedError<MalformedLine>($I`MalformedLine`)(
+export class MalformedLine extends S.TaggedError<MalformedLine, { readonly brand: unique symbol }>($I`MalformedLine`)(
   "MalformedLine",
   {
     /** The offending line, with its byte offsets into the source. */
@@ -127,7 +127,7 @@ export class MalformedLine extends S.TaggedError<MalformedLine>($I`MalformedLine
  * @category errors
  * @since 0.0.0
  */
-export class UnknownEvent extends S.TaggedError<UnknownEvent>($I`UnknownEvent`)(
+export class UnknownEvent extends S.TaggedError<UnknownEvent, { readonly brand: unique symbol }>($I`UnknownEvent`)(
   "UnknownEvent",
   {
     /** The offending line, with its byte offsets into the source. */
@@ -205,7 +205,7 @@ export class UnknownEvent extends S.TaggedError<UnknownEvent>($I`UnknownEvent`)(
  * @category errors
  * @since 0.0.0
  */
-export class InvalidData extends S.TaggedError<InvalidData>($I`InvalidData`)(
+export class InvalidData extends S.TaggedError<InvalidData, { readonly brand: unique symbol }>($I`InvalidData`)(
   "InvalidData",
   {
     /** The offending line, with its byte offsets into the source. */
@@ -282,7 +282,7 @@ export class InvalidData extends S.TaggedError<InvalidData>($I`InvalidData`)(
  * @category errors
  * @since 0.0.0
  */
-export class TerminalViolation extends S.TaggedError<TerminalViolation>($I`TerminalViolation`)(
+export class TerminalViolation extends S.TaggedError<TerminalViolation, { readonly brand: unique symbol }>($I`TerminalViolation`)(
   "TerminalViolation",
   {
     /** The tag of the event whose append was refused. */
@@ -340,7 +340,7 @@ export class TerminalViolation extends S.TaggedError<TerminalViolation>($I`Termi
  * @category errors
  * @since 0.0.0
  */
-export class JournalNotFound extends S.TaggedError<JournalNotFound>($I`JournalNotFound`)(
+export class JournalNotFound extends S.TaggedError<JournalNotFound, { readonly brand: unique symbol }>($I`JournalNotFound`)(
   "JournalNotFound",
   {
     /** The path that does not exist. */
@@ -396,7 +396,7 @@ export class JournalNotFound extends S.TaggedError<JournalNotFound>($I`JournalNo
  * @category errors
  * @since 0.0.0
  */
-export class UnserializableData extends S.TaggedError<UnserializableData>($I`UnserializableData`)(
+export class UnserializableData extends S.TaggedError<UnserializableData, { readonly brand: unique symbol }>($I`UnserializableData`)(
   "UnserializableData",
   {
     /** The event tag whose payload could not be serialized. */
@@ -467,7 +467,7 @@ export class UnserializableData extends S.TaggedError<UnserializableData>($I`Uns
  * @category errors
  * @since 0.0.0
  */
-export class JournalClosed extends S.TaggedError<JournalClosed>($I`JournalClosed`)(
+export class JournalClosed extends S.TaggedError<JournalClosed, { readonly brand: unique symbol }>($I`JournalClosed`)(
   "JournalClosed",
   {
     /** The tag of the event whose append was refused. */
@@ -561,7 +561,7 @@ export type JournalResyncReason = typeof JournalResyncReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class JournalResync extends S.TaggedError<JournalResync>($I`JournalResync`)(
+export class JournalResync extends S.TaggedError<JournalResync, { readonly brand: unique symbol }>($I`JournalResync`)(
   "JournalResync",
   {
     /** The journal path whose file changed identity or shrank. */
@@ -627,7 +627,7 @@ export class JournalResync extends S.TaggedError<JournalResync>($I`JournalResync
  * @category errors
  * @since 0.0.0
  */
-export class InvalidJournalConfig extends S.TaggedError<InvalidJournalConfig>($I`InvalidJournalConfig`)(
+export class InvalidJournalConfig extends S.TaggedError<InvalidJournalConfig, { readonly brand: unique symbol }>($I`InvalidJournalConfig`)(
   "InvalidJournalConfig",
   {
     /** The schema issue tree explaining which public input fields failed validation. */
@@ -672,7 +672,7 @@ export class InvalidJournalConfig extends S.TaggedError<InvalidJournalConfig>($I
  * @category errors
  * @since 0.0.0
  */
-export class InvalidSlice extends S.TaggedError<InvalidSlice>($I`InvalidSlice`)(
+export class InvalidSlice extends S.TaggedError<InvalidSlice, { readonly brand: unique symbol }>($I`InvalidSlice`)(
   "InvalidSlice",
   {
     /** The schema issue tree explaining which public input fields failed validation. */
@@ -721,7 +721,7 @@ export class InvalidSlice extends S.TaggedError<InvalidSlice>($I`InvalidSlice`)(
  * @category errors
  * @since 0.0.0
  */
-export class JournalWriteConflict extends S.TaggedError<JournalWriteConflict>($I`JournalWriteConflict`)(
+export class JournalWriteConflict extends S.TaggedError<JournalWriteConflict, { readonly brand: unique symbol }>($I`JournalWriteConflict`)(
   "JournalWriteConflict",
   {
     /** The journal path whose append placement could not be established. */
@@ -784,7 +784,7 @@ export class JournalWriteConflict extends S.TaggedError<JournalWriteConflict>($I
  * @category errors
  * @since 0.0.0
  */
-export class InvalidUtf8 extends S.TaggedError<InvalidUtf8>($I`InvalidUtf8`)(
+export class InvalidUtf8 extends S.TaggedError<InvalidUtf8, { readonly brand: unique symbol }>($I`InvalidUtf8`)(
   "InvalidUtf8",
   {
     /** The journal path whose bytes could not be decoded. */
@@ -845,7 +845,7 @@ export class InvalidUtf8 extends S.TaggedError<InvalidUtf8>($I`InvalidUtf8`)(
  * @category errors
  * @since 0.0.0
  */
-export class JournalUnterminated extends S.TaggedError<JournalUnterminated>($I`JournalUnterminated`)(
+export class JournalUnterminated extends S.TaggedError<JournalUnterminated, { readonly brand: unique symbol }>($I`JournalUnterminated`)(
   "JournalUnterminated",
   {
     /** The journal path containing an unfinished physical suffix. */

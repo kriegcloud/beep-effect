@@ -137,13 +137,14 @@ export type ExitOutcome = typeof ExitOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class CauseFingerprint extends S.Class<CauseFingerprint>($I`CauseFingerprint`)(
-  {
+export class CauseFingerprint extends S.Opaque<CauseFingerprint, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.String,
-  },
-  $I.annote("CauseFingerprint", {
-    description: "Deterministic string fingerprint for a cause.",
-  })
+  }).pipe(
+    $I.annoteSchema("CauseFingerprint", {
+      description: "Deterministic string fingerprint for a cause.",
+    })
+  )
 ) {}
 
 /**

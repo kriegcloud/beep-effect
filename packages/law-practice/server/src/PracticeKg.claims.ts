@@ -51,9 +51,11 @@ const docketPattern = /(?<!\d)(\d{5}[A-Z]{2}\d{2})(?!\d)/iu;
 const leadingDocketPattern = /^(\d{5})(?!\d)/u;
 const maxClaimsInputBytes = 2 * 1024 * 1024;
 const claimsInputExtensions = [".md", ".txt"] as const;
-class ClaimsCountRow extends S.Class<ClaimsCountRow>($I`ClaimsCountRow`)({
-  count: S.Finite,
-}) {}
+class ClaimsCountRow extends S.Opaque<ClaimsCountRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    count: S.Finite,
+  }).pipe($I.annoteSchema("ClaimsCountRow"))
+) {}
 
 const decodeClaimsCountRows = S.decodeUnknownEffect(S.NonEmptyArray(ClaimsCountRow));
 const decodeArtifactId = S.decodeUnknownEffect(ArtifactId);
@@ -77,10 +79,11 @@ const encodeUnknownJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgPatentDocumentInput extends S.Class<PracticeKgPatentDocumentInput>(
-  $I`PracticeKgPatentDocumentInput`
-)(
-  {
+export class PracticeKgPatentDocumentInput extends S.Opaque<
+  PracticeKgPatentDocumentInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     docket: S.NonEmptyString.annotateKey({
       description: "Matter docket associated with the normalized patent document.",
     }),
@@ -93,10 +96,11 @@ export class PracticeKgPatentDocumentInput extends S.Class<PracticeKgPatentDocum
     sourceFile: S.NonEmptyString.annotateKey({
       description: "Traceable source filename retained in candidate snapshots.",
     }),
-  },
-  $I.annote("PracticeKgPatentDocumentInput", {
-    description: "Normalized patent application document and batch persistence provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgPatentDocumentInput", {
+      description: "Normalized patent application document and batch persistence provenance.",
+    })
+  )
 ) {}
 
 /**
@@ -194,8 +198,8 @@ ON CONFLICT (public_id) DO NOTHING`;
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgClaimsOptions extends S.Class<PracticeKgClaimsOptions>($I`PracticeKgClaimsOptions`)(
-  {
+export class PracticeKgClaimsOptions extends S.Opaque<PracticeKgClaimsOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleOut: S.NonEmptyString,
     inputs: S.NonEmptyString,
     patentDocuments: S.Array(PracticeKgPatentDocumentInput)
@@ -203,10 +207,11 @@ export class PracticeKgClaimsOptions extends S.Class<PracticeKgClaimsOptions>($I
       .annotateKey({
         description: "Already-normalized patent documents to persist without heading or claim reparsing.",
       }),
-  },
-  $I.annote("PracticeKgClaimsOptions", {
-    description: "Input directory and existing bundle destination for one candidate-claims batch.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgClaimsOptions", {
+      description: "Input directory and existing bundle destination for one candidate-claims batch.",
+    })
+  )
 ) {}
 
 /**
@@ -228,15 +233,16 @@ export class PracticeKgClaimsOptions extends S.Class<PracticeKgClaimsOptions>($I
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgClaimsSummary extends S.Class<PracticeKgClaimsSummary>($I`PracticeKgClaimsSummary`)(
-  {
+export class PracticeKgClaimsSummary extends S.Opaque<PracticeKgClaimsSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     claims: S.Natural,
     failedFiles: S.Natural,
     files: S.Natural,
-  },
-  $I.annote("PracticeKgClaimsSummary", {
-    description: "Extracted, extraction-failed, and persisted-claim counts for a batch.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgClaimsSummary", {
+      description: "Extracted, extraction-failed, and persisted-claim counts for a batch.",
+    })
+  )
 ) {}
 
 /**
@@ -252,7 +258,9 @@ export class PracticeKgClaimsSummary extends S.Class<PracticeKgClaimsSummary>($I
  * @category errors
  * @since 0.0.0
  */
-export class PracticeKgClaimsError extends S.TaggedError<PracticeKgClaimsError>($I`PracticeKgClaimsError`)(
+export class PracticeKgClaimsError extends S.TaggedError<PracticeKgClaimsError, { readonly brand: unique symbol }>(
+  $I`PracticeKgClaimsError`
+)(
   "PracticeKgClaimsError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
@@ -264,9 +272,11 @@ export class PracticeKgClaimsError extends S.TaggedError<PracticeKgClaimsError>(
 ) {}
 const isPracticeKgClaimsError = S.is(PracticeKgClaimsError);
 
-class SourceDocumentDigestRow extends S.Class<SourceDocumentDigestRow>($I`SourceDocumentDigestRow`)({
-  digest: S.String,
-}) {}
+class SourceDocumentDigestRow extends S.Opaque<SourceDocumentDigestRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    digest: S.String,
+  }).pipe($I.annoteSchema("SourceDocumentDigestRow"))
+) {}
 const decodeSourceDocumentDigestRows = S.decodeUnknownEffect(S.Array(SourceDocumentDigestRow));
 const batchOrdinalPrefix = /^\d+_/u;
 const extensionSuffix = /\.[^.]+$/u;
@@ -596,38 +606,42 @@ export const runPracticeKgClaimsBatch = Effect.fn("PracticeKgClaims.run")(
   )
 );
 
-class CarriedCandidateRow extends S.Class<CarriedCandidateRow>($I`CarriedCandidateRow`)({
-  createdAt: S.Finite,
-  createdByPrincipal: S.String,
-  entityType: S.String,
-  fixtureKey: S.String,
-  lifecycle: S.String,
-  orgId: S.Finite,
-  publicId: S.NonEmptyString,
-  rowVersion: S.Finite,
-  schemaVersion: S.String,
-  snapshot: S.String,
-  source: S.String,
-  sourceFile: S.NullOr(S.String),
-  updatedAt: S.Finite,
-  updatedByPrincipal: S.String,
-}) {}
+class CarriedCandidateRow extends S.Opaque<CarriedCandidateRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    createdAt: S.Finite,
+    createdByPrincipal: S.String,
+    entityType: S.String,
+    fixtureKey: S.String,
+    lifecycle: S.String,
+    orgId: S.Finite,
+    publicId: S.NonEmptyString,
+    rowVersion: S.Finite,
+    schemaVersion: S.String,
+    snapshot: S.String,
+    source: S.String,
+    sourceFile: S.NullOr(S.String),
+    updatedAt: S.Finite,
+    updatedByPrincipal: S.String,
+  }).pipe($I.annoteSchema("CarriedCandidateRow"))
+) {}
 
-class CarriedEvidenceRow extends S.Class<CarriedEvidenceRow>($I`CarriedEvidenceRow`)({
-  artifactFixtureKey: S.String,
-  createdAt: S.Finite,
-  createdByPrincipal: S.String,
-  entityType: S.String,
-  orgId: S.Finite,
-  publicId: S.NonEmptyString,
-  rowVersion: S.Finite,
-  schemaVersion: S.String,
-  source: S.String,
-  span: S.String,
-  spanFixtureKey: S.String,
-  updatedAt: S.Finite,
-  updatedByPrincipal: S.String,
-}) {}
+class CarriedEvidenceRow extends S.Opaque<CarriedEvidenceRow, { readonly brand: unique symbol }>()(
+  S.Struct({
+    artifactFixtureKey: S.String,
+    createdAt: S.Finite,
+    createdByPrincipal: S.String,
+    entityType: S.String,
+    orgId: S.Finite,
+    publicId: S.NonEmptyString,
+    rowVersion: S.Finite,
+    schemaVersion: S.String,
+    source: S.String,
+    span: S.String,
+    spanFixtureKey: S.String,
+    updatedAt: S.Finite,
+    updatedByPrincipal: S.String,
+  }).pipe($I.annoteSchema("CarriedEvidenceRow"))
+) {}
 
 /**
  * Candidate claims and their evidence read out of one bundle so they can be
@@ -645,14 +659,15 @@ class CarriedEvidenceRow extends S.Class<CarriedEvidenceRow>($I`CarriedEvidenceR
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgClaimsCarry extends S.Class<PracticeKgClaimsCarry>($I`PracticeKgClaimsCarry`)(
-  {
+export class PracticeKgClaimsCarry extends S.Opaque<PracticeKgClaimsCarry, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidates: S.Array(CarriedCandidateRow),
     evidence: S.Array(CarriedEvidenceRow),
-  },
-  $I.annote("PracticeKgClaimsCarry", {
-    description: "Candidate-claim and evidence rows lifted verbatim from a source bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgClaimsCarry", {
+      description: "Candidate-claim and evidence rows lifted verbatim from a source bundle.",
+    })
+  )
 ) {}
 
 /**
@@ -673,14 +688,18 @@ export class PracticeKgClaimsCarry extends S.Class<PracticeKgClaimsCarry>($I`Pra
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgClaimsCarryWrite extends S.Class<PracticeKgClaimsCarryWrite>($I`PracticeKgClaimsCarryWrite`)(
-  {
+export class PracticeKgClaimsCarryWrite extends S.Opaque<
+  PracticeKgClaimsCarryWrite,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     bundleOut: S.NonEmptyString,
     carry: PracticeKgClaimsCarry,
-  },
-  $I.annote("PracticeKgClaimsCarryWrite", {
-    description: "Destination bundle directory and the claim rows to write into it.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgClaimsCarryWrite", {
+      description: "Destination bundle directory and the claim rows to write into it.",
+    })
+  )
 ) {}
 
 /**
@@ -703,17 +722,19 @@ export class PracticeKgClaimsCarryWrite extends S.Class<PracticeKgClaimsCarryWri
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgClaimsCarrySummary extends S.Class<PracticeKgClaimsCarrySummary>(
-  $I`PracticeKgClaimsCarrySummary`
-)(
-  {
+export class PracticeKgClaimsCarrySummary extends S.Opaque<
+  PracticeKgClaimsCarrySummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     claims: S.Natural,
     evidence: S.Natural,
     withSourceDocument: S.Natural,
-  },
-  $I.annote("PracticeKgClaimsCarrySummary", {
-    description: "Carried claim and evidence counts, and how many claims resolved to a catalogued document.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgClaimsCarrySummary", {
+      description: "Carried claim and evidence counts, and how many claims resolved to a catalogued document.",
+    })
+  )
 ) {}
 
 const decodeCarriedCandidates = S.decodeUnknownEffect(S.Array(CarriedCandidateRow));

@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/MultiSelect");
  * @category errors
  * @since 0.0.0
  */
-export class DuplicateItemKey extends S.TaggedError<DuplicateItemKey>($I`DuplicateItemKey`)(
+export class DuplicateItemKey extends S.TaggedError<DuplicateItemKey, { readonly brand: unique symbol }>($I`DuplicateItemKey`)(
 	"DuplicateItemKey",
 	{ message: S.String.annotate($I.annote("DuplicateItemKey.message", {
 		description: "Identifies the item key repeated across multi-select sections.",

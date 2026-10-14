@@ -4,6 +4,7 @@
  */
 
 import { BoxApiFailureConflict, BoxApiFailureContext, BoxError } from "@beep/box";
+import { BoxErrorOptionsInput } from "@beep/box/Box.errors";
 import { DocumentFolderId } from "@beep/law-practice-domain/values/MailTagging";
 import { boxConflictingFile, DocumentStoreBox, ProviderCallMeter } from "@beep/law-practice-server/MailTagging";
 import {
@@ -84,15 +85,18 @@ const failureOf = Effect.fn("MailTaggingDocumentsTest.failureOf")(function* (rej
 });
 
 const conflictError = (conflicts: ReadonlyArray<{ readonly id: string; readonly type: "file" | "folder" }>) =>
-  BoxError.fromReason("response status", {
-    status: 409,
-    context: BoxApiFailureContext.make({
-      values: {
-        conflictCount: conflicts.length,
-        conflicts: A.map(conflicts, (conflict) => BoxApiFailureConflict.make(conflict)),
-      },
-    }),
-  });
+  BoxError.fromReason(
+    "response status",
+    BoxErrorOptionsInput.make({
+      status: 409,
+      context: BoxApiFailureContext.make({
+        values: {
+          conflictCount: conflicts.length,
+          conflicts: A.map(conflicts, (conflict) => BoxApiFailureConflict.make(conflict)),
+        },
+      }),
+    })
+  );
 
 describe("MailTagging Box conflicting file", () => {
   it("reads the first file conflict's id and reports no size or hash when the conflict carries none", () => {
@@ -111,7 +115,7 @@ describe("MailTagging Box conflicting file", () => {
 
   it("finds no file in an error without a conflict summary or without a file conflict", () => {
     const unidentified = [
-      BoxError.fromReason("response status", { status: 409 }),
+      BoxError.fromReason("response status", BoxErrorOptionsInput.make({ status: 409 })),
       conflictError([{ id: "8000", type: "folder" }]),
       conflictError([]),
     ];

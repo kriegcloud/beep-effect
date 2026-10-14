@@ -67,16 +67,16 @@ export type BoxContentUploadTransport = typeof BoxContentUploadTransport.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxContentFolderExists extends S.TaggedClass<BoxContentFolderExists>($I`BoxContentFolderExists`)(
-  "FolderExists",
-  {
+export class BoxContentFolderExists extends S.Opaque<BoxContentFolderExists, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("FolderExists", {
     pathDigest: Sha256Hex,
     depth: FolderDepth,
     providerId: BoxProviderId,
-  },
-  $I.annote("BoxContentFolderExists", {
-    description: "Required destination folder already present in Box, identified by path digest and provider id.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentFolderExists", {
+      description: "Required destination folder already present in Box, identified by path digest and provider id.",
+    })
+  )
 ) {}
 
 /**
@@ -99,16 +99,16 @@ export class BoxContentFolderExists extends S.TaggedClass<BoxContentFolderExists
  * @category models
  * @since 0.0.0
  */
-export class BoxContentFolderCreate extends S.TaggedClass<BoxContentFolderCreate>($I`BoxContentFolderCreate`)(
-  "FolderCreate",
-  {
+export class BoxContentFolderCreate extends S.Opaque<BoxContentFolderCreate, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("FolderCreate", {
     pathDigest: Sha256Hex,
     depth: FolderDepth,
     parentPathDigest: Sha256Hex,
-  },
-  $I.annote("BoxContentFolderCreate", {
-    description: "Missing destination folder to create beneath the folder identified by the parent path digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentFolderCreate", {
+      description: "Missing destination folder to create beneath the folder identified by the parent path digest.",
+    })
+  )
 ) {}
 
 /**
@@ -157,16 +157,16 @@ export type BoxContentFolderAction = typeof BoxContentFolderAction.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxContentUpload extends S.TaggedClass<BoxContentUpload>($I`BoxContentUpload`)(
-  "Upload",
-  {
+export class BoxContentUpload extends S.Opaque<BoxContentUpload, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Upload", {
     entryDigest: Sha256Hex,
     sizeBytes: S.Natural,
     transport: BoxContentUploadTransport,
-  },
-  $I.annote("BoxContentUpload", {
-    description: "Verified source file to upload, with its byte size and Box upload route.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentUpload", {
+      description: "Verified source file to upload, with its byte size and Box upload route.",
+    })
+  )
 ) {}
 
 /**
@@ -194,15 +194,15 @@ export class BoxContentUpload extends S.TaggedClass<BoxContentUpload>($I`BoxCont
  * @category models
  * @since 0.0.0
  */
-export class BoxContentSkipIdentical extends S.TaggedClass<BoxContentSkipIdentical>($I`BoxContentSkipIdentical`)(
-  "SkipIdentical",
-  {
+export class BoxContentSkipIdentical extends S.Opaque<BoxContentSkipIdentical, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("SkipIdentical", {
     entryDigest: Sha256Hex,
     providerId: BoxProviderId,
-  },
-  $I.annote("BoxContentSkipIdentical", {
-    description: "Destination already holds a same-name Box file with the local file's SHA-1.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentSkipIdentical", {
+      description: "Destination already holds a same-name Box file with the local file's SHA-1.",
+    })
+  )
 ) {}
 
 /**
@@ -230,17 +230,18 @@ export class BoxContentSkipIdentical extends S.TaggedClass<BoxContentSkipIdentic
  * @category models
  * @since 0.0.0
  */
-export class BoxContentBlockedNameConflict extends S.TaggedClass<BoxContentBlockedNameConflict>(
-  $I`BoxContentBlockedNameConflict`
-)(
-  "BlockedNameConflict",
-  {
+export class BoxContentBlockedNameConflict extends S.Opaque<
+  BoxContentBlockedNameConflict,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("BlockedNameConflict", {
     entryDigest: Sha256Hex,
     providerId: BoxProviderId,
-  },
-  $I.annote("BoxContentBlockedNameConflict", {
-    description: "Destination name is occupied by a Box item whose content differs from the local file.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentBlockedNameConflict", {
+      description: "Destination name is occupied by a Box item whose content differs from the local file.",
+    })
+  )
 ) {}
 
 /**
@@ -259,14 +260,15 @@ export class BoxContentBlockedNameConflict extends S.TaggedClass<BoxContentBlock
  * @category models
  * @since 0.0.0
  */
-export class BoxContentBlockedSourceMissing extends S.TaggedClass<BoxContentBlockedSourceMissing>(
-  $I`BoxContentBlockedSourceMissing`
-)(
-  "BlockedSourceMissing",
-  { entryDigest: Sha256Hex },
-  $I.annote("BoxContentBlockedSourceMissing", {
-    description: "Local source file named by the map is missing or is not a regular file.",
-  })
+export class BoxContentBlockedSourceMissing extends S.Opaque<
+  BoxContentBlockedSourceMissing,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("BlockedSourceMissing", { entryDigest: Sha256Hex }).pipe(
+    $I.annoteSchema("BoxContentBlockedSourceMissing", {
+      description: "Local source file named by the map is missing or is not a regular file.",
+    })
+  )
 ) {}
 
 /**
@@ -285,14 +287,15 @@ export class BoxContentBlockedSourceMissing extends S.TaggedClass<BoxContentBloc
  * @category models
  * @since 0.0.0
  */
-export class BoxContentBlockedSourceChanged extends S.TaggedClass<BoxContentBlockedSourceChanged>(
-  $I`BoxContentBlockedSourceChanged`
-)(
-  "BlockedSourceChanged",
-  { entryDigest: Sha256Hex },
-  $I.annote("BoxContentBlockedSourceChanged", {
-    description: "Local source file size or SHA-256 differs from the value recorded in the map.",
-  })
+export class BoxContentBlockedSourceChanged extends S.Opaque<
+  BoxContentBlockedSourceChanged,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("BlockedSourceChanged", { entryDigest: Sha256Hex }).pipe(
+    $I.annoteSchema("BoxContentBlockedSourceChanged", {
+      description: "Local source file size or SHA-256 differs from the value recorded in the map.",
+    })
+  )
 ) {}
 
 /**
@@ -345,15 +348,16 @@ export type BoxContentFileAction = typeof BoxContentFileAction.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxContentRuleUploadCount extends S.Class<BoxContentRuleUploadCount>($I`BoxContentRuleUploadCount`)(
-  {
+export class BoxContentRuleUploadCount extends S.Opaque<BoxContentRuleUploadCount, { readonly brand: unique symbol }>()(
+  S.Struct({
     ruleId: S.OptionFromOptionalKey(BoxContentMigrationRuleId).pipe(S.withConstructorDefault(Effect.succeedNone)),
     uploadCount: S.Natural,
     uploadBytes: S.Natural,
-  },
-  $I.annote("BoxContentRuleUploadCount", {
-    description: "Planned upload count and bytes for one rule token, or for files without a rule.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentRuleUploadCount", {
+      description: "Planned upload count and bytes for one rule token, or for files without a rule.",
+    })
+  )
 ) {}
 
 /**
@@ -391,10 +395,11 @@ export class BoxContentRuleUploadCount extends S.Class<BoxContentRuleUploadCount
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationPlanSummary extends S.Class<BoxContentMigrationPlanSummary>(
-  $I`BoxContentMigrationPlanSummary`
-)(
-  {
+export class BoxContentMigrationPlanSummary extends S.Opaque<
+  BoxContentMigrationPlanSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     folderExistsCount: S.Natural,
     folderCreateCount: S.Natural,
     uploadCount: S.Natural,
@@ -406,10 +411,11 @@ export class BoxContentMigrationPlanSummary extends S.Class<BoxContentMigrationP
     totalUploadBytes: S.Natural,
     planProviderCalls: S.Natural,
     estimatedProviderCalls: S.Natural,
-  },
-  $I.annote("BoxContentMigrationPlanSummary", {
-    description: "Per-action counts, per-rule upload counts, upload bytes, and provider-call estimates.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentMigrationPlanSummary", {
+      description: "Per-action counts, per-rule upload counts, upload bytes, and provider-call estimates.",
+    })
+  )
 ) {}
 
 /**
@@ -434,8 +440,8 @@ export class BoxContentMigrationPlanSummary extends S.Class<BoxContentMigrationP
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationPlan extends S.Class<BoxContentMigrationPlan>($I`BoxContentMigrationPlan`)(
-  {
+export class BoxContentMigrationPlan extends S.Opaque<BoxContentMigrationPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("box-content-migration-plan/v1").pipe(
       S.withConstructorDefault(Effect.succeed("box-content-migration-plan/v1"))
     ),
@@ -449,10 +455,11 @@ export class BoxContentMigrationPlan extends S.Class<BoxContentMigrationPlan>($I
     folderActions: S.Array(BoxContentFolderAction),
     fileActions: S.Array(BoxContentFileAction),
     summary: BoxContentMigrationPlanSummary,
-  },
-  $I.annote("BoxContentMigrationPlan", {
-    description: "Redacted deterministic content-migration plan sealed by map and plan digests.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentMigrationPlan", {
+      description: "Redacted deterministic content-migration plan sealed by map and plan digests.",
+    })
+  )
 ) {}
 
 const encodeBoxContentMigrationPlanJson = S.encodeEffect(S.fromJsonString(BoxContentMigrationPlan));

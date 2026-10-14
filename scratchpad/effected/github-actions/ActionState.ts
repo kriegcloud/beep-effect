@@ -29,7 +29,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionState");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidActionStateNameError extends S.TaggedError<InvalidActionStateNameError>($I`InvalidActionStateNameError`)("InvalidActionStateNameError", {
+export class InvalidActionStateNameError extends S.TaggedError<InvalidActionStateNameError, { readonly brand: unique symbol }>($I`InvalidActionStateNameError`)("InvalidActionStateNameError", {
 	message: S.String,
 }, $I.annote("InvalidActionStateNameError", { description: "An invalid name cannot head an action-state runner-file entry." })) {}
 
@@ -52,7 +52,7 @@ const Json = S.fromJsonString(S.Unknown);
  * @category errors
  * @since 0.0.0
  */
-export class ActionStateError extends S.TaggedError<ActionStateError>($I`ActionStateError`)("ActionStateError", {
+export class ActionStateError extends S.TaggedError<ActionStateError, { readonly brand: unique symbol }>($I`ActionStateError`)("ActionStateError", {
 	/**
 	 * `missing` — no value was saved under this key in an earlier phase.
 	 * `malformed` — a value is there but is not JSON, or does not satisfy the

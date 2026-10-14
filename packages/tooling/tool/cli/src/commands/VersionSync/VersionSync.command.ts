@@ -10,6 +10,7 @@ import * as Effect from "effect/Effect";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { resolveRunMode } from "../../internal/cli/RunMode.ts";
 import { handleVersionSync } from "./internal/Handler.ts";
+import { VersionSyncOptions } from "./VersionSync.schemas.ts";
 import type { VersionSyncMode } from "./VersionSync.schemas.ts";
 
 /**
@@ -96,16 +97,18 @@ export const versionSyncCommand = Command.make(
   }) {
     const mode = resolveMode(write, dryRun);
 
-    yield* handleVersionSync({
-      mode,
-      skipNetwork,
-      bunOnly,
-      nodeOnly,
-      dockerOnly,
-      biomeOnly,
-      effectOnly,
-      turboOnly,
-    }).pipe(
+    yield* handleVersionSync(
+      VersionSyncOptions.make({
+        mode,
+        skipNetwork,
+        bunOnly,
+        nodeOnly,
+        dockerOnly,
+        biomeOnly,
+        effectOnly,
+        turboOnly,
+      })
+    ).pipe(
       Effect.catchTags({
         VersionSyncDriftError: Effect.fn(function* (error) {
           yield* Console.error(`version-sync: ${error.message}`);

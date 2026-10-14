@@ -68,7 +68,7 @@ export const hexToOklchValue = flow(hexToRgbValue, rgbToOklchValue);
 export const HexToRgb = NormalizeHexColor.pipe(
   S.decodeTo(
     Rgb,
-    SchemaTransformation.transform({
+    SchemaTransformation.transform<typeof Rgb.Encoded, HexColor>({
       decode: hexToRgbValue,
       encode: rgbToHexValue,
     })
@@ -247,7 +247,7 @@ export type OklchToRgb = typeof OklchToRgb.Type;
 export const HexToOklch = NormalizeHexColor.pipe(
   S.decodeTo(
     OklchColor,
-    SchemaTransformation.transform({
+    SchemaTransformation.transform<typeof OklchColor.Encoded, HexColor>({
       decode: hexToOklchValue,
       encode: oklchToHexValue,
     })

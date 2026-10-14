@@ -36,7 +36,9 @@ const getEntityNameOption = (options: { readonly entityName?: string | undefined
  * @category errors
  * @since 0.0.0
  */
-export class WinkEngineError extends S.TaggedError<WinkEngineError>($I`WinkEngineError`)(
+export class WinkEngineError extends S.TaggedError<WinkEngineError, { readonly brand: unique symbol }>(
+  $I`WinkEngineError`
+)(
   "WinkEngineError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -86,7 +88,9 @@ export class WinkEngineError extends S.TaggedError<WinkEngineError>($I`WinkEngin
  * @category errors
  * @since 0.0.0
  */
-export class WinkTokenizationError extends S.TaggedError<WinkTokenizationError>($I`WinkTokenizationError`)(
+export class WinkTokenizationError extends S.TaggedError<WinkTokenizationError, { readonly brand: unique symbol }>(
+  $I`WinkTokenizationError`
+)(
   "WinkTokenizationError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -140,7 +144,9 @@ export class WinkTokenizationError extends S.TaggedError<WinkTokenizationError>(
  * @category errors
  * @since 0.0.0
  */
-export class WinkEntityError extends S.TaggedError<WinkEntityError>($I`WinkEntityError`)(
+export class WinkEntityError extends S.TaggedError<WinkEntityError, { readonly brand: unique symbol }>(
+  $I`WinkEntityError`
+)(
   "WinkEntityError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),

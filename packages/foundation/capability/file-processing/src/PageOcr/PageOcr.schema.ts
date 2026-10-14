@@ -210,17 +210,18 @@ const UnitInterval = S.Finite.check(S.isBetween({ minimum: 0, maximum: 1 }));
  * @category models
  * @since 0.0.0
  */
-export class PageOcrModelIdentity extends S.Class<PageOcrModelIdentity>($I`PageOcrModelIdentity`)(
-  {
+export class PageOcrModelIdentity extends S.Opaque<PageOcrModelIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     modelId: S.NonEmptyString,
     projectorDigest: S.optionalKey(ContentDigest),
     quantization: S.optionalKey(S.NonEmptyString),
     revision: S.optionalKey(S.NonEmptyString),
     weightsDigest: ContentDigest,
-  },
-  $I.annote("PageOcrModelIdentity", {
-    description: "Identity of the model weights a page OCR engine ran, pinned by content digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageOcrModelIdentity", {
+      description: "Identity of the model weights a page OCR engine ran, pinned by content digest.",
+    })
+  )
 ) {}
 
 /**
@@ -248,16 +249,17 @@ export class PageOcrModelIdentity extends S.Class<PageOcrModelIdentity>($I`PageO
  * @category models
  * @since 0.0.0
  */
-export class PageOcrEngineIdentity extends S.Class<PageOcrEngineIdentity>($I`PageOcrEngineIdentity`)(
-  {
+export class PageOcrEngineIdentity extends S.Opaque<PageOcrEngineIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     engineId: S.NonEmptyString,
     family: PageOcrEngineFamily,
     model: S.optionalKey(PageOcrModelIdentity),
     version: S.NonEmptyString,
-  },
-  $I.annote("PageOcrEngineIdentity", {
-    description: "Identity of the engine, runtime version and model that produced a page text.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageOcrEngineIdentity", {
+      description: "Identity of the engine, runtime version and model that produced a page text.",
+    })
+  )
 ) {}
 
 /**
@@ -287,20 +289,21 @@ export class PageOcrEngineIdentity extends S.Class<PageOcrEngineIdentity>($I`Pag
  * @category models
  * @since 0.0.0
  */
-export class PageImage extends S.Class<PageImage>($I`PageImage`)(
-  {
+export class PageImage extends S.Opaque<PageImage, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.Uint8Array,
     digest: ContentDigest,
     dpi: S.optionalKey(PosInt),
     mediaType: PageImageMediaType,
-  },
-  $I.annote("PageImage", {
-    description: "One rendered page image, with the digest of its bytes and its render resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageImage", {
+      description: "One rendered page image, with the digest of its bytes and its render resolution.",
+    })
+  )
 ) {}
 
-class PageOcrRequestBase extends S.Class<PageOcrRequestBase>($I`PageOcrRequest`)(
-  {
+class PageOcrRequestBase extends S.Opaque<PageOcrRequestBase, { readonly brand: unique symbol }>()(
+  S.Struct({
     image: PageImage,
     languages: S.Array(S.NonEmptyString),
     maxOutputChars: S.optionalKey(PosInt),
@@ -310,10 +313,11 @@ class PageOcrRequestBase extends S.Class<PageOcrRequestBase>($I`PageOcrRequest`)
     sourceArtifactId: ArtifactId,
     sourceDigest: ContentDigest,
     textFormat: PageOcrTextFormat,
-  },
-  $I.annote("PageOcrRequest", {
-    description: "Request to read the text of one rendered page of a source artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageOcrRequest", {
+      description: "Request to read the text of one rendered page of a source artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -393,14 +397,15 @@ export type PageOcrRequest = InstanceType<typeof PageOcrRequestBase>;
  * @category models
  * @since 0.0.0
  */
-export class PageOcrTiming extends S.Class<PageOcrTiming>($I`PageOcrTiming`)(
-  {
+export class PageOcrTiming extends S.Opaque<PageOcrTiming, { readonly brand: unique symbol }>()(
+  S.Struct({
     recognizeMillis: NonNegativeMillis,
     renderMillis: S.optionalKey(NonNegativeMillis),
-  },
-  $I.annote("PageOcrTiming", {
-    description: "Wall-clock milliseconds spent rendering and recognizing one page.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageOcrTiming", {
+      description: "Wall-clock milliseconds spent rendering and recognizing one page.",
+    })
+  )
 ) {}
 
 /**
@@ -438,8 +443,8 @@ export class PageOcrTiming extends S.Class<PageOcrTiming>($I`PageOcrTiming`)(
  * @category models
  * @since 0.0.0
  */
-export class PageOcrResult extends S.Class<PageOcrResult>($I`PageOcrResult`)(
-  {
+export class PageOcrResult extends S.Opaque<PageOcrResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidence: S.optionalKey(UnitInterval),
     engine: PageOcrEngineIdentity,
     imageDigest: ContentDigest,
@@ -451,8 +456,9 @@ export class PageOcrResult extends S.Class<PageOcrResult>($I`PageOcrResult`)(
     textFormat: PageOcrTextFormat,
     timing: PageOcrTiming,
     warnings: S.Array(PageOcrWarning),
-  },
-  $I.annote("PageOcrResult", {
-    description: "Text read from one page together with the engine identity, timing and warnings.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageOcrResult", {
+      description: "Text read from one page together with the engine identity, timing and warnings.",
+    })
+  )
 ) {}

@@ -77,8 +77,7 @@ const ontologyPromptContextDatatypePropertiesDefault = A.empty<PropertyDefinitio
  * @category models
  * @since 0.0.0
  */
-export class OntologyPromptContext extends S.Class<OntologyPromptContext>($I`OntologyPromptContext`)(
-  {
+export class OntologyPromptContext extends S.Opaque<OntologyPromptContext, { readonly brand: unique symbol }>()(S.Struct({
     /** Ontology classes available to the extraction stage. */
     classes: S.Array(ClassDefinition).pipe(
       S.withConstructorDefault(Effect.succeed(ontologyPromptContextClassesDefault)), S.withDecodingDefaultType(Effect.succeed(ontologyPromptContextClassesDefault)),
@@ -122,11 +121,9 @@ export class OntologyPromptContext extends S.Class<OntologyPromptContext>($I`Ont
         description: "Optional images available to a multimodal extraction request.",
       })
     ),
-  },
-  $I.annote("OntologyPromptContext", {
+  }).pipe($I.annoteSchema("OntologyPromptContext", {
     description: "Ontology definitions and prior-stage values used to construct an extraction prompt.",
-  })
-) {}
+  }))) {}
 
 const StructuredPromptFields = {
   /** Cacheable extraction rules, ontology schema, and instructions. */
@@ -157,12 +154,9 @@ const StructuredPromptFields = {
  * @category models
  * @since 0.0.0
  */
-export class StructuredPrompt extends S.Class<StructuredPrompt>($I`StructuredPrompt`)(
-  StructuredPromptFields,
-  $I.annote("StructuredPrompt", {
+export class StructuredPrompt extends S.Opaque<StructuredPrompt, { readonly brand: unique symbol }>()(S.Struct(StructuredPromptFields).pipe($I.annoteSchema("StructuredPrompt", {
     description: "Extraction prompt separated into cacheable system and variable user messages.",
-  })
-) {}
+  }))) {}
 
 /**
  * One user or assistant turn in a few-shot extraction example.
@@ -178,8 +172,7 @@ export class StructuredPrompt extends S.Class<StructuredPrompt>($I`StructuredPro
  * @category models
  * @since 0.0.0
  */
-export class ExampleMessage extends S.Class<ExampleMessage>($I`ExampleMessage`)(
-  {
+export class ExampleMessage extends S.Opaque<ExampleMessage, { readonly brand: unique symbol }>()(S.Struct({
     /** Conversation role associated with the example turn. */
     role: PromptRole.pipe(
       $I.annoteKey("ExampleMessage.role", {
@@ -192,11 +185,9 @@ export class ExampleMessage extends S.Class<ExampleMessage>($I`ExampleMessage`)(
         description: "Textual content of the example turn.",
       })
     ),
-  },
-  $I.annote("ExampleMessage", {
+  }).pipe($I.annoteSchema("ExampleMessage", {
     description: "One user or assistant turn in a few-shot extraction example.",
-  })
-) {}
+  }))) {}
 
 /** Retrieved conversation turn accepted before role filtering. */
 const ScoredExampleMessage = S.Struct({
@@ -259,8 +250,7 @@ const NegativeExampleOutput = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class ScoredExample extends S.Class<ScoredExample>($I`ScoredExample`)(
-  {
+export class ScoredExample extends S.Opaque<ScoredExample, { readonly brand: unique symbol }>()(S.Struct({
     /** Source text presented by the example. */
     inputText: S.String.pipe(
       $I.annoteKey("ScoredExample.inputText", {
@@ -296,11 +286,9 @@ export class ScoredExample extends S.Class<ScoredExample>($I`ScoredExample`)(
         description: "Optional explanation of a negative example's prohibited behavior.",
       })
     ),
-  },
-  $I.annote("ScoredExample", {
+  }).pipe($I.annoteSchema("ScoredExample", {
     description: "Retrieved few-shot example with expected output and positive or negative polarity.",
-  })
-) {}
+  }))) {}
 
 const structuredPromptWithExamplesExampleMessagesDefault = A.empty<ExampleMessage>();
 /**
@@ -322,10 +310,7 @@ const structuredPromptWithExamplesExampleMessagesDefault = A.empty<ExampleMessag
  * @category models
  * @since 0.0.0
  */
-export class StructuredPromptWithExamples extends S.Class<StructuredPromptWithExamples>(
-  $I`StructuredPromptWithExamples`
-)(
-  {
+export class StructuredPromptWithExamples extends S.Opaque<StructuredPromptWithExamples, { readonly brand: unique symbol }>()(S.Struct({
     ...StructuredPromptFields,
     /** Positive few-shot example turns inserted before the request. */
     exampleMessages: S.Array(ExampleMessage).pipe(
@@ -341,11 +326,9 @@ export class StructuredPromptWithExamples extends S.Class<StructuredPromptWithEx
         description: "Whether negative-example warnings were included in the system message.",
       })
     ),
-  },
-  $I.annote("StructuredPromptWithExamples", {
+  }).pipe($I.annoteSchema("StructuredPromptWithExamples", {
     description: "Structured extraction prompt augmented with positive and negative examples.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Document Builders - Sections

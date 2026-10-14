@@ -74,7 +74,9 @@ export type SourceTextResolverErrorReason = typeof SourceTextResolverErrorReason
  * @category errors
  * @since 0.0.0
  */
-export class SourceTextResolverError extends S.TaggedError<SourceTextResolverError>($I`SourceTextResolverError`)(
+export class SourceTextResolverError extends S.TaggedError<SourceTextResolverError, { readonly brand: unique symbol }>(
+  $I`SourceTextResolverError`
+)(
   "SourceTextResolverError",
   {
     cause: S.OptionFromOptionalKey(

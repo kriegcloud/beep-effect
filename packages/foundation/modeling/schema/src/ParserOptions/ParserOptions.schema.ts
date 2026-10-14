@@ -112,7 +112,9 @@ export type HeaderValueInput = typeof HeaderValueInput.Type;
  * @category validation
  * @since 0.0.0
  */
-export class ParserOptionsError extends S.TaggedError<ParserOptionsError>($I.make("ParserOptionsError"))(
+export class ParserOptionsError extends S.TaggedError<ParserOptionsError, { readonly brand: unique symbol }>(
+  $I.make("ParserOptionsError")
+)(
   "ParserOptionsError",
   {
     cause: S.OptionFromOptionalKey(
@@ -168,7 +170,7 @@ const parserOptionsSkipRowsDefault = S.Natural.make(0);
  * @category configuration
  * @since 0.0.0
  */
-export class ParserOptions extends S.Class<ParserOptions>($I`ParserOptions`)(
+export class ParserOptions extends S.Class<ParserOptions, { readonly brand: unique symbol }>($I`ParserOptions`)(
   {
     objectMode: SchemaUtils.BoolKeyDefaultTrue,
     delimiter: SingleCharacterText.pipe(

@@ -87,8 +87,7 @@ const InferenceGraphFormat = LiteralKit(["turtle", "trig"]).annotate(
  * @category models
  * @since 0.0.0
  */
-export class InferenceStats extends S.Class<InferenceStats>($I`InferenceStats`)(
-  {
+export class InferenceStats extends S.Opaque<InferenceStats, { readonly brand: unique symbol }>()(S.Struct({
     originalTriples: S.Natural.annotateKey({
       description: "Number of triples in the input graph before reasoning.",
     }),
@@ -107,11 +106,9 @@ export class InferenceStats extends S.Class<InferenceStats>($I`InferenceStats`)(
     durationMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
       description: "Finite non-negative inference duration in milliseconds.",
     }),
-  },
-  $I.annote("InferenceStats", {
+  }).pipe($I.annoteSchema("InferenceStats", {
     description: "Non-negative triple counts, predicate breakdown, ratio, and elapsed time from inference.",
-  })
-) {
+  }))) {
   static readonly is = S.is(InferenceStats);
 
   static readonly decodeEffect = S.decodeEffect(InferenceStats);
@@ -144,8 +141,7 @@ export class InferenceStats extends S.Class<InferenceStats>($I`InferenceStats`)(
  * @category dtos
  * @since 0.0.0
  */
-export class InferenceRunRequest extends S.Class<InferenceRunRequest>($I`InferenceRunRequest`)(
-  {
+export class InferenceRunRequest extends S.Opaque<InferenceRunRequest, { readonly brand: unique symbol }>()(S.Struct({
     inputGraph: S.NonEmptyString.annotateKey({
       description: "Non-empty input RDF graph serialized as Turtle or TriG.",
     }),
@@ -175,11 +171,9 @@ export class InferenceRunRequest extends S.Class<InferenceRunRequest>($I`Inferen
         description: "Whether the response graph contains only newly inferred triples.",
       })
     ),
-  },
-  $I.annote("InferenceRunRequest", {
+  }).pipe($I.annoteSchema("InferenceRunRequest", {
     description: "Inference request with a non-empty RDF graph and schema-owned format, profile, and delta defaults.",
-  })
-) {
+  }))) {
   static readonly is = S.is(InferenceRunRequest);
   static readonly decodeOption = S.decodeUnknownOption(InferenceRunRequest);
 }
@@ -244,8 +238,7 @@ export type InferenceStatus = typeof InferenceStatus.Type;
  * @category dtos
  * @since 0.0.0
  */
-export class InferenceRunResponse extends S.Class<InferenceRunResponse>($I`InferenceRunResponse`)(
-  {
+export class InferenceRunResponse extends S.Opaque<InferenceRunResponse, { readonly brand: unique symbol }>()(S.Struct({
     jobId: S.NonEmptyString.annotateKey({
       description: "Non-empty identifier assigned to the inference job.",
     }),
@@ -270,11 +263,9 @@ export class InferenceRunResponse extends S.Class<InferenceRunResponse>($I`Infer
         description: "Optional non-empty failure diagnostic.",
       })
     ),
-  },
-  $I.annote("InferenceRunResponse", {
+  }).pipe($I.annoteSchema("InferenceRunResponse", {
     description: "Inference job result envelope with Option-normalized graph, statistics, and error fields.",
-  })
-) {
+  }))) {
   static readonly is = S.is(InferenceRunResponse);
 }
 
@@ -297,8 +288,7 @@ export class InferenceRunResponse extends S.Class<InferenceRunResponse>($I`Infer
  * @category dtos
  * @since 0.0.0
  */
-export class InferenceStatusResponse extends S.Class<InferenceStatusResponse>($I`InferenceStatusResponse`)(
-  {
+export class InferenceStatusResponse extends S.Opaque<InferenceStatusResponse, { readonly brand: unique symbol }>()(S.Struct({
     jobId: S.NonEmptyString.annotateKey({
       description: "Non-empty identifier assigned to the inference job.",
     }),
@@ -311,10 +301,8 @@ export class InferenceStatusResponse extends S.Class<InferenceStatusResponse>($I
         description: "Optional complete run response once the result is available.",
       })
     ),
-  },
-  $I.annote("InferenceStatusResponse", {
+  }).pipe($I.annoteSchema("InferenceStatusResponse", {
     description: "Poll response containing current inference status and an Option-normalized final result.",
-  })
-) {
+  }))) {
   static readonly is = S.is(InferenceStatusResponse);
 }

@@ -107,16 +107,17 @@ const EpochMillis = S.Natural.check(S.isLessThanOrEqualTo(8_000_000_000_000_000)
  * @category models
  * @since 0.0.0
  */
-export class SecretRetentionRecord extends S.Class<SecretRetentionRecord>($I`SecretRetentionRecord`)(
-  {
+export class SecretRetentionRecord extends S.Opaque<SecretRetentionRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     retentionClass: SecretRetentionClass,
     createdAtEpochMillis: EpochMillis,
     purposeResolved: S.Boolean,
     pinned: S.Boolean,
-  },
-  $I.annote("SecretRetentionRecord", {
-    description: "Non-secret clock and purpose/pin metadata for a pure purge decision; no stored content.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecretRetentionRecord", {
+      description: "Non-secret clock and purpose/pin metadata for a pure purge decision; no stored content.",
+    })
+  )
 ) {}
 
 /**
@@ -129,14 +130,15 @@ export class SecretRetentionRecord extends S.Class<SecretRetentionRecord>($I`Sec
  * @category models
  * @since 0.0.0
  */
-export class SecretCategoryCount extends S.Class<SecretCategoryCount>($I`SecretCategoryCount`)(
-  {
+export class SecretCategoryCount extends S.Opaque<SecretCategoryCount, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: CredentialCategory,
     count: S.Natural.check(S.isGreaterThan(0)),
-  },
-  $I.annote("SecretCategoryCount", {
-    description: "Independent positive count of supported original-input matches in one category.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecretCategoryCount", {
+      description: "Independent positive count of supported original-input matches in one category.",
+    })
+  )
 ) {}
 
 /**
@@ -150,8 +152,8 @@ export class SecretCategoryCount extends S.Class<SecretCategoryCount>($I`SecretC
  * @category models
  * @since 0.0.0
  */
-export class SecretEvidence extends S.Class<SecretEvidence>($I`SecretEvidence`)(
-  {
+export class SecretEvidence extends S.Opaque<SecretEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: CredentialCategory,
     count: S.Literal(1),
     bankVersion: S.Literal(credentialPatternBankVersion),
@@ -161,10 +163,11 @@ export class SecretEvidence extends S.Class<SecretEvidence>($I`SecretEvidence`)(
     mask: S.Literal("[REDACTED]"),
     state: S.Literals(["matched", "residue", "unresolved"]),
     retention: SecretRetentionRecord,
-  },
-  $I.annote("SecretEvidence", {
-    description: "Mask, versions, counts and half-open UTF-16 original offsets; no raw match, quote or digest input.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecretEvidence", {
+      description: "Mask, versions, counts and half-open UTF-16 original offsets; no raw match, quote or digest input.",
+    })
+  )
 ) {}
 
 /**
@@ -178,18 +181,19 @@ export class SecretEvidence extends S.Class<SecretEvidence>($I`SecretEvidence`)(
  * @category models
  * @since 0.0.0
  */
-export class SecretScrubProof extends S.Class<SecretScrubProof>($I`SecretScrubProof`)(
-  {
+export class SecretScrubProof extends S.Opaque<SecretScrubProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     bankVersion: S.Literal(credentialPatternBankVersion),
     counts: S.Array(SecretCategoryCount),
     evidence: S.Array(SecretEvidence),
     transientRaw: SecretRetentionRecord,
     audit: SecretRetentionRecord,
-  },
-  $I.annote("SecretScrubProof", {
-    description:
-      "Non-secret category/evidence proof with raw-purpose and audit retention metadata; no action or egress verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecretScrubProof", {
+      description:
+        "Non-secret category/evidence proof with raw-purpose and audit retention metadata; no action or egress verdict.",
+    })
+  )
 ) {}
 
 /**
@@ -202,15 +206,16 @@ export class SecretScrubProof extends S.Class<SecretScrubProof>($I`SecretScrubPr
  * @category models
  * @since 0.0.0
  */
-export class SecretScrubInput extends S.Class<SecretScrubInput>($I`SecretScrubInput`)(
-  {
+export class SecretScrubInput extends S.Opaque<SecretScrubInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String,
     coverage: SecretCoverage.pipe(S.withConstructorDefault(Effect.succeed("known"))),
-  },
-  $I.annote("SecretScrubInput", {
-    description:
-      "Transient authorized plain text; known coverage means this versioned bank, never exhaustive secret/PII coverage.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecretScrubInput", {
+      description:
+        "Transient authorized plain text; known coverage means this versioned bank, never exhaustive secret/PII coverage.",
+    })
+  )
 ) {}
 
 /**
@@ -225,16 +230,17 @@ export class SecretScrubInput extends S.Class<SecretScrubInput>($I`SecretScrubIn
  * @category models
  * @since 0.0.0
  */
-export class SecretScrubResult extends S.Class<SecretScrubResult>($I`SecretScrubResult`)(
-  {
+export class SecretScrubResult extends S.Opaque<SecretScrubResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     sanitizedText: S.String,
     coverage: SecretCoverage,
     residue: SecretResidue,
     safeForPrompt: S.Boolean,
     proof: SecretScrubProof,
-  },
-  $I.annote("SecretScrubResult", {
-    description:
-      "Sanitized text plus bounded non-secret proof; false, unknown coverage, unresolved extent or residue blocks prompt admission.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecretScrubResult", {
+      description:
+        "Sanitized text plus bounded non-secret proof; false, unknown coverage, unresolved extent or residue blocks prompt admission.",
+    })
+  )
 ) {}

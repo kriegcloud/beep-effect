@@ -165,8 +165,8 @@ const RECEIPT_PROXY_PATTERNS: ReadonlyArray<readonly [typeof EconomicsReceiptPro
 // counts; a row that fails the projection counts as invalid.
 const LenientString = S.OptionFromOptionalNullOr(S.String);
 
-class EconomicsVerdictLaneRow extends S.Class<EconomicsVerdictLaneRow>($I`EconomicsVerdictLaneRow`)(
-  {
+class EconomicsVerdictLaneRow extends S.Opaque<EconomicsVerdictLaneRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     label: S.String,
     phase: S.String,
@@ -174,14 +174,15 @@ class EconomicsVerdictLaneRow extends S.Class<EconomicsVerdictLaneRow>($I`Econom
     durationMs: S.OptionFromOptionalNullOr(S.Finite),
     repairCommand: LenientString,
     parentLaneId: LenientString,
-  },
-  $I.annote("EconomicsVerdictLaneRow", {
-    description: "The verdict-lane fields the economics fold consumes.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsVerdictLaneRow", {
+      description: "The verdict-lane fields the economics fold consumes.",
+    })
+  )
 ) {}
 
-class EconomicsVerdictRow extends S.Class<EconomicsVerdictRow>($I`EconomicsVerdictRow`)(
-  {
+class EconomicsVerdictRow extends S.Opaque<EconomicsVerdictRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: LenientString,
     attemptId: LenientString,
     branch: LenientString,
@@ -197,59 +198,68 @@ class EconomicsVerdictRow extends S.Class<EconomicsVerdictRow>($I`EconomicsVerdi
     lanes: S.Array(EconomicsVerdictLaneRow).pipe(
       S.withDecodingDefault(Effect.succeed(A.empty<typeof EconomicsVerdictLaneRow.Encoded>()))
     ),
-  },
-  $I.annote("EconomicsVerdictRow", {
-    description: "The verdict fields the economics fold consumes, from a finished row or an orphan verdict file.",
-  })
+  }).pipe(
+    $I.annoteSchema("EconomicsVerdictRow", {
+      description: "The verdict fields the economics fold consumes, from a finished row or an orphan verdict file.",
+    })
+  )
 ) {}
 
 const JournalSchemaVersion = S.Literal("yeet-attempt-journal/v1");
 
-class EconomicsStartedRow extends S.Class<EconomicsStartedRow>($I`EconomicsStartedRow`)(
-  {
+class EconomicsStartedRow extends S.Opaque<EconomicsStartedRow, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("attempt-started", {
     schemaVersion: JournalSchemaVersion,
-    _tag: S.Literal("attempt-started"),
+
     attemptId: S.String,
     startedAt: LenientString,
     branch: LenientString,
     mode: LenientString,
     diffFingerprint: LenientString,
-  },
-  $I.annote("EconomicsStartedRow", { description: "The attempt-started fields the economics fold consumes." })
+  }).pipe(
+    $I.annoteSchema("EconomicsStartedRow", { description: "The attempt-started fields the economics fold consumes." })
+  )
 ) {}
 
-class EconomicsFinishedRow extends S.Class<EconomicsFinishedRow>($I`EconomicsFinishedRow`)(
-  {
+class EconomicsFinishedRow extends S.Opaque<EconomicsFinishedRow, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("attempt-finished", {
     schemaVersion: JournalSchemaVersion,
-    _tag: S.Literal("attempt-finished"),
+
     attemptId: S.String,
     recordedAt: LenientString,
     verdict: EconomicsVerdictRow,
     diffFingerprint: LenientString,
-  },
-  $I.annote("EconomicsFinishedRow", { description: "The attempt-finished fields the economics fold consumes." })
+  }).pipe(
+    $I.annoteSchema("EconomicsFinishedRow", { description: "The attempt-finished fields the economics fold consumes." })
+  )
 ) {}
 
-class EconomicsTerminatedRow extends S.Class<EconomicsTerminatedRow>($I`EconomicsTerminatedRow`)(
-  {
+class EconomicsTerminatedRow extends S.Opaque<EconomicsTerminatedRow, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("attempt-terminated", {
     schemaVersion: JournalSchemaVersion,
-    _tag: S.Literal("attempt-terminated"),
+
     attemptId: S.String,
     recordedAt: LenientString,
     reason: YeetAttemptTerminationReason,
     diffFingerprint: LenientString,
-  },
-  $I.annote("EconomicsTerminatedRow", { description: "The attempt-terminated fields the economics fold consumes." })
+  }).pipe(
+    $I.annoteSchema("EconomicsTerminatedRow", {
+      description: "The attempt-terminated fields the economics fold consumes.",
+    })
+  )
 ) {}
 
-class EconomicsCompactedRow extends S.Class<EconomicsCompactedRow>($I`EconomicsCompactedRow`)(
-  {
+class EconomicsCompactedRow extends S.Opaque<EconomicsCompactedRow, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("journal-compacted", {
     schemaVersion: JournalSchemaVersion,
-    _tag: S.Literal("journal-compacted"),
+
     terminalEvictionCutoffRecordedAt: LenientString,
     oldestEvictedRecordedAt: LenientString,
-  },
-  $I.annote("EconomicsCompactedRow", { description: "The journal-compacted fields the economics fold consumes." })
+  }).pipe(
+    $I.annoteSchema("EconomicsCompactedRow", {
+      description: "The journal-compacted fields the economics fold consumes.",
+    })
+  )
 ) {}
 
 const EconomicsJournalRow = S.Union([

@@ -53,7 +53,9 @@ export const WORK_ITEM_ACTION_UNAVAILABLE_REASON = "WorkItem service is unavaila
  * @category errors
  * @since 0.0.0
  */
-export class WorkItemNotFound extends S.TaggedError<WorkItemNotFound>($I`WorkItemNotFound`)(
+export class WorkItemNotFound extends S.TaggedError<WorkItemNotFound, { readonly brand: unique symbol }>(
+  $I`WorkItemNotFound`
+)(
   "WorkItemNotFound",
   {
     workItemId: DomainWorkItem.WorkItemId,
@@ -85,7 +87,9 @@ export class WorkItemNotFound extends S.TaggedError<WorkItemNotFound>($I`WorkIte
  * @category errors
  * @since 0.0.0
  */
-export class WorkItemConflict extends S.TaggedError<WorkItemConflict>($I`WorkItemConflict`)(
+export class WorkItemConflict extends S.TaggedError<WorkItemConflict, { readonly brand: unique symbol }>(
+  $I`WorkItemConflict`
+)(
   "WorkItemConflict",
   {
     workItemId: DomainWorkItem.WorkItemId.annotateKey({
@@ -122,7 +126,9 @@ export class WorkItemConflict extends S.TaggedError<WorkItemConflict>($I`WorkIte
  * @category errors
  * @since 0.0.0
  */
-export class WorkItemActionRejected extends S.TaggedError<WorkItemActionRejected>($I`WorkItemActionRejected`)(
+export class WorkItemActionRejected extends S.TaggedError<WorkItemActionRejected, { readonly brand: unique symbol }>(
+  $I`WorkItemActionRejected`
+)(
   "WorkItemActionRejected",
   {
     workItemId: DomainWorkItem.WorkItemId.annotateKey({
@@ -154,7 +160,9 @@ export class WorkItemActionRejected extends S.TaggedError<WorkItemActionRejected
  * @category errors
  * @since 0.0.0
  */
-export class WorkItemActionFailed extends S.TaggedError<WorkItemActionFailed>($I`WorkItemActionFailed`)(
+export class WorkItemActionFailed extends S.TaggedError<WorkItemActionFailed, { readonly brand: unique symbol }>(
+  $I`WorkItemActionFailed`
+)(
   "WorkItemActionFailed",
   {
     reason: S.NonEmptyString.annotateKey({

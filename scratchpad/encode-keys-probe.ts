@@ -21,7 +21,7 @@ export const q1Standalone = S.decodeEffect(RenamedStruct)({
 });
 
 // @ts-expect-error decodeTo<...> does not satisfy `S extends Struct<Struct.Fields>`
-export class Q1Class extends S.Class<Q1Class>("Q1Class")(RenamedStruct) {}
+export class Q1Class extends S.Class<Q1Class, { readonly brand: unique symbol }>("Q1Class")(RenamedStruct) {}
 
 // --- Q2: use-site encodeKeys on a model's json variant static ------------
 const kit = EffectDrizzle.make((pg) => ({

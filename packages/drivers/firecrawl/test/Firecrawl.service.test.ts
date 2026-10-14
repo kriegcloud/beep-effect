@@ -1,4 +1,5 @@
 import * as F from "@beep/firecrawl";
+import { FirecrawlErrorOptionsInput } from "@beep/firecrawl/Firecrawl.errors";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { thunkTrue } from "@beep/utils";
@@ -245,7 +246,7 @@ describe("@beep/firecrawl", () => {
         status: 429,
         success: false,
       });
-      assertNone(F.FirecrawlError.fromReason("transport", { status: -1 }).status);
+      assertNone(F.FirecrawlError.fromReason("transport", FirecrawlErrorOptionsInput.make({ status: -1 })).status);
       assertSome(O.map(decodeWatcherEventOption({ error: "watcher error", type: "error" }), thunkTrue), true);
     })
   );
@@ -348,7 +349,7 @@ describe("@beep/firecrawl", () => {
         const firecrawl = yield* F.Firecrawl;
         const response = yield* firecrawl.scrape(F.FirecrawlScrapePayload.make({ url: "https://example.com" }));
 
-        expect(response).toBeInstanceOf(F.FirecrawlScrapeSuccess);
+        expect(S.is(F.FirecrawlScrapeSuccess)(response)).toBe(true);
         expect(response.data.markdown).toBe("ok");
       })
     );
@@ -359,7 +360,7 @@ describe("@beep/firecrawl", () => {
         const firecrawl = yield* F.Firecrawl;
         const response = yield* firecrawl.getQueueStatus(F.FirecrawlGetQueueStatusPayload.make({}));
 
-        expect(response).toBeInstanceOf(F.FirecrawlGetQueueStatusSuccess);
+        expect(S.is(F.FirecrawlGetQueueStatusSuccess)(response)).toBe(true);
         expect(response.data.maxConcurrency).toBe(1);
       })
     );

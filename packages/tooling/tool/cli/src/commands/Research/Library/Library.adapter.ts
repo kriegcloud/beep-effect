@@ -31,15 +31,18 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.adapter");
  * @category models
  * @since 0.0.0
  */
-export class LibraryAdapterResult extends S.Class<LibraryAdapterResult>($I`LibraryAdapterResult`)(
-  {
+export class LibraryAdapterResult extends S.Opaque<LibraryAdapterResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifacts: S.Array(LibraryArtifact),
     revision: S.String,
     complete: S.Boolean,
     reason: S.String,
     status: S.Literals(["readable", "blocked", "failed", "unsupported"]),
-  },
-  $I.annote("LibraryAdapterResult", { description: "Acquisition evidence and explicit completeness disposition." })
+  }).pipe(
+    $I.annoteSchema("LibraryAdapterResult", {
+      description: "Acquisition evidence and explicit completeness disposition.",
+    })
+  )
 ) {}
 
 /**

@@ -146,8 +146,11 @@ export const isRepoRelativeDirectoryPrefix = S.is(RepoRelativeDirectoryPrefix);
  * @category models
  * @since 0.0.0
  */
-export class NoNativeRuntimeRulesOptions extends S.Class<NoNativeRuntimeRulesOptions>($I`NoNativeRuntimeRulesOptions`)(
-  {
+export class NoNativeRuntimeRulesOptions extends S.Opaque<
+  NoNativeRuntimeRulesOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -161,10 +164,11 @@ export class NoNativeRuntimeRulesOptions extends S.Class<NoNativeRuntimeRulesOpt
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
-  },
-  $I.annote("NoNativeRuntimeRulesOptions", {
-    description: "Runtime options for repo-local native runtime checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("NoNativeRuntimeRulesOptions", {
+      description: "Runtime options for repo-local native runtime checks.",
+    })
+  )
 ) {}
 
 const NoNativeRuntimeSeverity = LiteralKit(["warn", "error"]);
@@ -181,18 +185,19 @@ const NoNativeRuntimeSeverity = LiteralKit(["warn", "error"]);
  * @category models
  * @since 0.0.0
  */
-export class NoNativeRuntimeDiagnostic extends S.Class<NoNativeRuntimeDiagnostic>($I`NoNativeRuntimeDiagnostic`)(
-  {
+export class NoNativeRuntimeDiagnostic extends S.Opaque<NoNativeRuntimeDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
     severity: NoNativeRuntimeSeverity,
     file: S.String,
     line: S.Finite,
     column: S.Finite,
     message: S.String,
     messageId: S.String.pipe(S.UndefinedOr, S.optionalKey),
-  },
-  $I.annote("NoNativeRuntimeDiagnostic", {
-    description: "Single repo-local native runtime diagnostic.",
-  })
+  }).pipe(
+    $I.annoteSchema("NoNativeRuntimeDiagnostic", {
+      description: "Single repo-local native runtime diagnostic.",
+    })
+  )
 ) {}
 
 /**
@@ -235,8 +240,11 @@ export declare namespace NoNativeRuntimeDiagnostic {
  * @category models
  * @since 0.0.0
  */
-export class NoNativeRuntimeRulesSummary extends S.Class<NoNativeRuntimeRulesSummary>($I`NoNativeRuntimeRulesSummary`)(
-  {
+export class NoNativeRuntimeRulesSummary extends S.Opaque<
+  NoNativeRuntimeRulesSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     scannedFiles: S.Finite,
     touchedFiles: S.Finite,
     warningCount: S.Finite,
@@ -258,10 +266,11 @@ export class NoNativeRuntimeRulesSummary extends S.Class<NoNativeRuntimeRulesSum
       S.withConstructorDefault(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic>())),
       S.withDecodingDefault(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic.Encoded>()))
     ),
-  },
-  $I.annote("NoNativeRuntimeRulesSummary", {
-    description: "Summary of repo-local native runtime checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("NoNativeRuntimeRulesSummary", {
+      description: "Summary of repo-local native runtime checks.",
+    })
+  )
 ) {}
 
 /**
@@ -276,16 +285,18 @@ export class NoNativeRuntimeRulesSummary extends S.Class<NoNativeRuntimeRulesSum
  * @category models
  * @since 0.0.0
  */
-export class NativeRuntimeViolationKeyOptions extends S.Class<NativeRuntimeViolationKeyOptions>(
-  $I`NativeRuntimeViolationKeyOptions`
-)(
-  {
+export class NativeRuntimeViolationKeyOptions extends S.Opaque<
+  NativeRuntimeViolationKeyOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     relativeFilePath: S.String,
     inHotspotScope: S.Boolean,
-  },
-  $I.annote("NativeRuntimeViolationKeyOptions", {
-    description: "Options for collecting native-runtime allowlist lookup keys.",
-  })
+  }).pipe(
+    $I.annoteSchema("NativeRuntimeViolationKeyOptions", {
+      description: "Options for collecting native-runtime allowlist lookup keys.",
+    })
+  )
 ) {}
 
 type MemberCall = readonly [string, string];

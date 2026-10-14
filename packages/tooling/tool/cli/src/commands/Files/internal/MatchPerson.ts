@@ -27,7 +27,7 @@ import {
   encodeCommandJson,
   renderPrettyCommandJson,
 } from "../../../internal/cli/Json.ts";
-import { FilesCommandError, formatPlatformError } from "../Files.errors.ts";
+import { FilesCommandError, formatPlatformError, mapPlatformError, PlatformErrorOptions } from "../Files.errors.ts";
 import {
   backupStagedFileTarget,
   canonicalizeFileTargetPath,
@@ -225,58 +225,64 @@ export const validatePersonMatchBackendPlatform = Effect.fn("Files.validatePerso
 const approximatelyEqualWorkerScore = (left: number, right: number): boolean =>
   Num.max(Num.subtract(left, right), Num.subtract(right, left)) <= workerScoreRoundingTolerance;
 
-class PersonMatchCopyPlanEntry extends S.Class<PersonMatchCopyPlanEntry>($I`PersonMatchCopyPlanEntry`)(
-  {
+class PersonMatchCopyPlanEntry extends S.Opaque<PersonMatchCopyPlanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourcePath: S.NonEmptyString,
     targetPath: S.NonEmptyString,
-  },
-  $I.annote("PersonMatchCopyPlanEntry", {
-    description: "Canonical immutable source and destination paths for one planned photo copy.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchCopyPlanEntry", {
+      description: "Canonical immutable source and destination paths for one planned photo copy.",
+    })
+  )
 ) {}
 
-class PersonMatchCommitRecord extends S.Class<PersonMatchCommitRecord>($I`PersonMatchCommitRecord`)(
-  {
+class PersonMatchCommitRecord extends S.Opaque<PersonMatchCommitRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...StagedFileCommitRecord.fields,
     temporaryDirectory: S.NonEmptyString,
-  },
-  $I.annote("PersonMatchCommitRecord", {
-    description: "Mutable staged-file transaction state with its owned cleanup directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersonMatchCommitRecord", {
+      description: "Mutable staged-file transaction state with its owned cleanup directory.",
+    })
+  )
 ) {}
 
-class CanonicalMatchPersonCacheChildren extends S.Class<CanonicalMatchPersonCacheChildren>(
-  $I`CanonicalMatchPersonCacheChildren`
-)(
-  {
+class CanonicalMatchPersonCacheChildren extends S.Opaque<
+  CanonicalMatchPersonCacheChildren,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     modelRoot: S.NonEmptyString,
     uvCacheRoot: S.NonEmptyString,
     uvCpuEnvironment: S.NonEmptyString,
     uvEnvironment: S.NonEmptyString,
-  },
-  $I.annote("CanonicalMatchPersonCacheChildren", {
-    description: "Backend-specific canonical model, uv download-cache, and isolated environment paths.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalMatchPersonCacheChildren", {
+      description: "Backend-specific canonical model, uv download-cache, and isolated environment paths.",
+    })
+  )
 ) {}
 
-class ValidatedWorkerReferences extends S.Class<ValidatedWorkerReferences>($I`ValidatedWorkerReferences`)(
-  {
+class ValidatedWorkerReferences extends S.Opaque<ValidatedWorkerReferences, { readonly brand: unique symbol }>()(
+  S.Struct({
     acceptedCount: S.Natural,
     acceptedNames: S.Array(S.NonEmptyString),
-  },
-  $I.annote("ValidatedWorkerReferences", {
-    description: "Accepted reference count and unique names after validating worker reference evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("ValidatedWorkerReferences", {
+      description: "Accepted reference count and unique names after validating worker reference evidence.",
+    })
+  )
 ) {}
 
-class ExpectedPersonMatchFiles extends S.Class<ExpectedPersonMatchFiles>($I`ExpectedPersonMatchFiles`)(
-  {
+class ExpectedPersonMatchFiles extends S.Opaque<ExpectedPersonMatchFiles, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidatePaths: S.Array(S.NonEmptyString),
     referencePaths: S.Array(S.NonEmptyString),
-  },
-  $I.annote("ExpectedPersonMatchFiles", {
-    description: "Canonical supported candidate and reference paths expected at the worker protocol boundary.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExpectedPersonMatchFiles", {
+      description: "Canonical supported candidate and reference paths expected at the worker protocol boundary.",
+    })
+  )
 ) {}
 
 const expectedPersonMatchFilesEquivalence = S.toEquivalence(ExpectedPersonMatchFiles);
@@ -455,10 +461,18 @@ const canonicalizeExistingDirectory = Effect.fn("Files.matchPersonCanonicalizeDi
   const resolved = path.resolve(directory);
   const canonical = yield* fs
     .realPath(resolved)
-    .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to resolve ${description}`, resolved, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError(`Failed to resolve ${description}`, resolved, PlatformErrorOptions.make({ cause }))
+      )
+    );
   const stat = yield* fs
     .stat(canonical)
-    .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to stat ${description}`, canonical, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError(`Failed to stat ${description}`, canonical, PlatformErrorOptions.make({ cause }))
+      )
+    );
 
   if (stat.type !== "Directory") {
     return yield* FilesCommandError.make({ message: `${description} must be a directory: "${canonical}"` });
@@ -569,7 +583,11 @@ const resolveTrustedUvPath = Effect.fn("Files.matchPersonResolveUvPath")(functio
 
     const stat = yield* fs
       .stat(candidate)
-      .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stat uv binary", candidate, { cause })));
+      .pipe(
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to stat uv binary", candidate, PlatformErrorOptions.make({ cause }))
+        )
+      );
     if (stat.type === "File") return candidate;
   }
 
@@ -598,7 +616,11 @@ const preflightManifest = Effect.fn("Files.matchPersonPreflightManifest")(functi
     .exists(manifestPath)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to inspect person-match manifest", manifestPath, { cause })
+        formatPlatformError(
+          "Failed to inspect person-match manifest",
+          manifestPath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   if (!exists) return;
@@ -606,7 +628,9 @@ const preflightManifest = Effect.fn("Files.matchPersonPreflightManifest")(functi
   const stat = yield* fs
     .stat(manifestPath)
     .pipe(
-      Effect.mapError((cause) => formatPlatformError("Failed to stat person-match manifest", manifestPath, { cause }))
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stat person-match manifest", manifestPath, PlatformErrorOptions.make({ cause }))
+      )
     );
   if (stat.type !== "File") {
     return yield* FilesCommandError.make({
@@ -680,7 +704,11 @@ const validateMatchPersonInputs = Effect.fn("Files.validateMatchPersonInputs")(f
     .makeDirectory(cacheRoot, { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create person-match cache directory", cacheRoot, { cause })
+        formatPlatformError(
+          "Failed to create person-match cache directory",
+          cacheRoot,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const canonicalCacheRoot = yield* canonicalizeExistingDirectory(cacheRoot, "person-match cache directory");
@@ -736,7 +764,12 @@ const readBoundedPersonMatchDirectory = Effect.fn("Files.readBoundedPersonMatchD
       }
       return discovered;
     },
-    catch: (cause) => formatPlatformError("Failed to discover person-match image inputs", directory, { cause }),
+    catch: (cause) =>
+      formatPlatformError(
+        "Failed to discover person-match image inputs",
+        directory,
+        PlatformErrorOptions.make({ cause })
+      ),
   });
   if (A.length(names) > remaining) {
     return yield* FilesCommandError.make({
@@ -950,8 +983,8 @@ const safeRelativePath = (
     : O.some(normalized);
 };
 
-class ExpectedPersonMatchComponent extends S.Class<ExpectedPersonMatchComponent>($I`ExpectedPersonMatchComponent`)(
-  {
+class ExpectedPersonMatchComponent extends S.Opaque<ExpectedPersonMatchComponent, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: S.Literals(["detector", "aligner", "recognizer"]),
     name: S.NonEmptyString,
     revision: S.NonEmptyString,
@@ -961,10 +994,11 @@ class ExpectedPersonMatchComponent extends S.Class<ExpectedPersonMatchComponent>
     artifactPath: S.NonEmptyString,
     artifactSha256: S.NonEmptyString,
     artifactSizeBytes: S.Option(S.Finite),
-  },
-  $I.annote("ExpectedPersonMatchComponent", {
-    description: "Exact component and artifact provenance expected from one person-match backend.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExpectedPersonMatchComponent", {
+      description: "Exact component and artifact provenance expected from one person-match backend.",
+    })
+  )
 ) {}
 
 const insightFaceSource = "https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip";
@@ -1577,7 +1611,11 @@ const resolveCopyPlanEntry = Effect.fn("Files.resolvePersonMatchCopyPlanEntry")(
     .realPath(requestedSourcePath)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to resolve person-match source", requestedSourcePath, { cause })
+        formatPlatformError(
+          "Failed to resolve person-match source",
+          requestedSourcePath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const requestedTargetPath = path.resolve(outputDirectory, category.value, relativePath.value);
@@ -1608,7 +1646,13 @@ const preflightCopyPlanEntry = Effect.fn("Files.preflightPersonMatchCopyPlanEntr
   const sourceStat = yield* fs
     .stat(entry.sourcePath)
     .pipe(
-      Effect.mapError((cause) => formatPlatformError("Failed to stat person-match source", entry.sourcePath, { cause }))
+      Effect.mapError((cause) =>
+        formatPlatformError(
+          "Failed to stat person-match source",
+          entry.sourcePath,
+          PlatformErrorOptions.make({ cause })
+        )
+      )
     );
   if (sourceStat.type !== "File") {
     return yield* FilesCommandError.make({
@@ -1620,14 +1664,24 @@ const preflightCopyPlanEntry = Effect.fn("Files.preflightPersonMatchCopyPlanEntr
     .exists(entry.targetPath)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to inspect person-match output", entry.targetPath, { cause })
+        formatPlatformError(
+          "Failed to inspect person-match output",
+          entry.targetPath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   if (!targetExists) return;
   const targetStat = yield* fs
     .stat(entry.targetPath)
     .pipe(
-      Effect.mapError((cause) => formatPlatformError("Failed to stat person-match output", entry.targetPath, { cause }))
+      Effect.mapError((cause) =>
+        formatPlatformError(
+          "Failed to stat person-match output",
+          entry.targetPath,
+          PlatformErrorOptions.make({ cause })
+        )
+      )
     );
   if (targetStat.type !== "File") {
     return yield* FilesCommandError.make({
@@ -1708,20 +1762,32 @@ const stageCopy = Effect.fn("Files.stagePersonMatchCopy")(function* (
     .makeDirectory(parent, { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create person-match output directory", parent, { cause })
+        formatPlatformError(
+          "Failed to create person-match output directory",
+          parent,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const temporaryDirectory = yield* fs
     .makeTempDirectory({ directory: parent, prefix: ".beep-files-person-match-copy-" })
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stage person-match output", parent, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stage person-match output", parent, PlatformErrorOptions.make({ cause }))
+      )
+    );
 
   return yield* Effect.onError(
     Effect.gen(function* () {
       const currentSourcePath = yield* fs.realPath(entry.sourcePath).pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to re-resolve person-match source before staging", entry.sourcePath, {
-            cause,
-          })
+          formatPlatformError(
+            "Failed to re-resolve person-match source before staging",
+            entry.sourcePath,
+            PlatformErrorOptions.make({
+              cause,
+            })
+          )
         )
       );
       if (currentSourcePath !== entry.sourcePath) {
@@ -1732,9 +1798,13 @@ const stageCopy = Effect.fn("Files.stagePersonMatchCopy")(function* (
 
       const sourceStat = yield* fs.stat(currentSourcePath).pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to inspect person-match source metadata before staging", currentSourcePath, {
-            cause,
-          })
+          formatPlatformError(
+            "Failed to inspect person-match source metadata before staging",
+            currentSourcePath,
+            PlatformErrorOptions.make({
+              cause,
+            })
+          )
         )
       );
       if (sourceStat.type !== "File") {
@@ -1747,13 +1817,19 @@ const stageCopy = Effect.fn("Files.stagePersonMatchCopy")(function* (
       yield* fs
         .copyFile(currentSourcePath, stagedPath)
         .pipe(
-          Effect.mapError((cause) => formatPlatformError("Failed to stage person-match output", stagedPath, { cause }))
+          Effect.mapError((cause) =>
+            formatPlatformError("Failed to stage person-match output", stagedPath, PlatformErrorOptions.make({ cause }))
+          )
         );
       const sourceAfterCopy = yield* fs
         .realPath(entry.sourcePath)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError("Failed to re-resolve person-match source after staging", entry.sourcePath, { cause })
+            formatPlatformError(
+              "Failed to re-resolve person-match source after staging",
+              entry.sourcePath,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
       if (sourceAfterCopy !== currentSourcePath) {
@@ -1763,16 +1839,24 @@ const stageCopy = Effect.fn("Files.stagePersonMatchCopy")(function* (
       }
       const sourceStatAfterCopy = yield* fs.stat(sourceAfterCopy).pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to inspect person-match source metadata after staging", sourceAfterCopy, {
-            cause,
-          })
+          formatPlatformError(
+            "Failed to inspect person-match source metadata after staging",
+            sourceAfterCopy,
+            PlatformErrorOptions.make({
+              cause,
+            })
+          )
         )
       );
       const stagedStat = yield* fs
         .stat(stagedPath)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError("Failed to stat staged person-match output", stagedPath, { cause })
+            formatPlatformError(
+              "Failed to stat staged person-match output",
+              stagedPath,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
       if (
@@ -1811,12 +1895,20 @@ const stageManifest = Effect.fn("Files.stagePersonMatchManifest")(function* (
     .makeDirectory(parent, { recursive: true })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create person-match manifest directory", parent, { cause })
+        formatPlatformError(
+          "Failed to create person-match manifest directory",
+          parent,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const temporaryDirectory = yield* fs
     .makeTempDirectory({ directory: parent, prefix: ".beep-files-person-match-manifest-" })
-    .pipe(Effect.mapError((cause) => formatPlatformError("Failed to stage person-match manifest", parent, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to stage person-match manifest", parent, PlatformErrorOptions.make({ cause }))
+      )
+    );
 
   return yield* Effect.onError(
     Effect.gen(function* () {
@@ -1825,7 +1917,11 @@ const stageManifest = Effect.fn("Files.stagePersonMatchManifest")(function* (
         .writeFileString(stagedPath, rendered)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError("Failed to write staged person-match manifest", stagedPath, { cause })
+            formatPlatformError(
+              "Failed to write staged person-match manifest",
+              stagedPath,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
       return PersonMatchCommitRecord.make({
@@ -1855,20 +1951,12 @@ const inspectCommitDestination = Effect.fn("Files.inspectPersonMatchCommitDestin
   }
   const exists = yield* fs
     .exists(record.targetPath)
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError(`Failed to recheck ${record.description}`, record.targetPath, { cause })
-      )
-    );
+    .pipe(mapPlatformError(`Failed to recheck ${record.description}`, record.targetPath));
   if (!exists) return false;
 
   const stat = yield* fs
     .stat(record.targetPath)
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError(`Failed to inspect ${record.description} metadata`, record.targetPath, { cause })
-      )
-    );
+    .pipe(mapPlatformError(`Failed to inspect ${record.description} metadata`, record.targetPath));
   if (stat.type !== "File") {
     return yield* FilesCommandError.make({
       message: `Refusing to replace a non-file ${record.description}: "${record.targetPath}"`,

@@ -32,17 +32,18 @@ const $I = $RepoCliId.create("commands/Docgen/Doctest.schemas");
  * @category models
  * @since 0.0.0
  */
-export class FenceLocation extends S.Class<FenceLocation>($I`FenceLocation`)(
-  {
+export class FenceLocation extends S.Opaque<FenceLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.NonEmptyString,
     startLine: S.Natural,
     endLine: S.Natural,
     enclosingSymbol: S.optionalKey(S.NonEmptyString),
     exampleTitle: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("FenceLocation", {
-    description: "Source location and JSDoc ownership of one TypeScript fence.",
-  })
+  }).pipe(
+    $I.annoteSchema("FenceLocation", {
+      description: "Source location and JSDoc ownership of one TypeScript fence.",
+    })
+  )
 ) {}
 
 /**
@@ -91,15 +92,16 @@ export type FenceLanguage = typeof FenceLanguage.Type;
  * @category models
  * @since 0.0.0
  */
-export class FenceInfo extends S.Class<FenceInfo>($I`FenceInfo`)(
-  {
+export class FenceInfo extends S.Opaque<FenceInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     lang: FenceLanguage,
     markerPresent: S.Boolean,
     name: S.optionalKey(S.String),
-  },
-  $I.annote("FenceInfo", {
-    description: "Normalized language, runnable marker, and optional doctest name.",
-  })
+  }).pipe(
+    $I.annoteSchema("FenceInfo", {
+      description: "Normalized language, runnable marker, and optional doctest name.",
+    })
+  )
 ) {}
 
 /**
@@ -159,10 +161,10 @@ export type ImpurityReason = typeof ImpurityReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class PureFence extends S.TaggedClass<PureFence>($I`PureFence`)(
-  "pure",
-  {},
-  $I.annote("PureFence", { description: "Fence accepted by the purity classifier." })
+export class PureFence extends S.Opaque<PureFence, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("pure", {}).pipe(
+    $I.annoteSchema("PureFence", { description: "Fence accepted by the purity classifier." })
+  )
 ) {}
 
 /**
@@ -180,13 +182,11 @@ export class PureFence extends S.TaggedClass<PureFence>($I`PureFence`)(
  * @category models
  * @since 0.0.0
  */
-export class ImpureFence extends S.TaggedClass<ImpureFence>($I`ImpureFence`)(
-  "impure",
-  {
+export class ImpureFence extends S.Opaque<ImpureFence, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("impure", {
     reason: ImpurityReason,
     evidence: S.NonEmptyString,
-  },
-  $I.annote("ImpureFence", { description: "Fence rejected with a stable reason and evidence." })
+  }).pipe($I.annoteSchema("ImpureFence", { description: "Fence rejected with a stable reason and evidence." }))
 ) {}
 
 /**
@@ -204,12 +204,12 @@ export class ImpureFence extends S.TaggedClass<ImpureFence>($I`ImpureFence`)(
  * @category models
  * @since 0.0.0
  */
-export class TypeOnlyFence extends S.TaggedClass<TypeOnlyFence>($I`TypeOnlyFence`)(
-  "typeOnly",
-  {},
-  $I.annote("TypeOnlyFence", {
-    description: "Markable fence that becomes vacuous after TypeScript syntax is stripped.",
-  })
+export class TypeOnlyFence extends S.Opaque<TypeOnlyFence, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("typeOnly", {}).pipe(
+    $I.annoteSchema("TypeOnlyFence", {
+      description: "Markable fence that becomes vacuous after TypeScript syntax is stripped.",
+    })
+  )
 ) {}
 
 /**
@@ -258,15 +258,16 @@ export type PurityVerdict = typeof PurityVerdict.Type;
  * @category models
  * @since 0.0.0
  */
-export class ConsoleRewrite extends S.Class<ConsoleRewrite>($I`ConsoleRewrite`)(
-  {
+export class ConsoleRewrite extends S.Opaque<ConsoleRewrite, { readonly brand: unique symbol }>()(
+  S.Struct({
     line: S.Natural,
     expression: S.NonEmptyString,
     expectedExpression: S.NonEmptyString,
-  },
-  $I.annote("ConsoleRewrite", {
-    description: "One console observation replaced by an inline doctest assertion.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConsoleRewrite", {
+      description: "One console observation replaced by an inline doctest assertion.",
+    })
+  )
 ) {}
 
 /**
@@ -292,18 +293,19 @@ export class ConsoleRewrite extends S.Class<ConsoleRewrite>($I`ConsoleRewrite`)(
  * @category models
  * @since 0.0.0
  */
-export class MarkPlan extends S.Class<MarkPlan>($I`MarkPlan`)(
-  {
+export class MarkPlan extends S.Opaque<MarkPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     location: FenceLocation,
     sourceDigest: S.NonEmptyString,
     expectedInfoString: S.String,
     addMarker: S.Boolean,
     addName: S.optionalKey(S.NonEmptyString),
     consoleRewrites: S.Array(ConsoleRewrite),
-  },
-  $I.annote("MarkPlan", {
-    description: "Idempotent marker, name, and assertion edits for one fence.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkPlan", {
+      description: "Idempotent marker, name, and assertion edits for one fence.",
+    })
+  )
 ) {}
 
 /**
@@ -367,16 +369,15 @@ export type DoctestFindingKind = typeof DoctestFindingKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class DoctestFinding extends S.Class<DoctestFinding>($I`DoctestFinding`)(
-  {
+export class DoctestFinding extends S.Opaque<DoctestFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: DoctestFindingKind,
     location: FenceLocation,
     info: FenceInfo,
     verdict: PurityVerdict,
     message: S.NonEmptyString,
     plan: S.optionalKey(MarkPlan),
-  },
-  $I.annote("DoctestFinding", { description: "One actionable or informational fence result." })
+  }).pipe($I.annoteSchema("DoctestFinding", { description: "One actionable or informational fence result." }))
 ) {}
 
 /**
@@ -405,8 +406,8 @@ export class DoctestFinding extends S.Class<DoctestFinding>($I`DoctestFinding`)(
  * @category models
  * @since 0.0.0
  */
-export class DoctestCounts extends S.Class<DoctestCounts>($I`DoctestCounts`)(
-  {
+export class DoctestCounts extends S.Opaque<DoctestCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     files: S.Natural,
     fences: S.Natural,
     pure: S.Natural,
@@ -417,8 +418,7 @@ export class DoctestCounts extends S.Class<DoctestCounts>($I`DoctestCounts`)(
     plannedMarkers: S.Natural,
     plannedConsoleRewrites: S.Natural,
     findings: S.Natural,
-  },
-  $I.annote("DoctestCounts", { description: "Aggregate counts for a doctest analysis." })
+  }).pipe($I.annoteSchema("DoctestCounts", { description: "Aggregate counts for a doctest analysis." }))
 ) {}
 
 /**
@@ -436,16 +436,17 @@ export class DoctestCounts extends S.Class<DoctestCounts>($I`DoctestCounts`)(
  * @category models
  * @since 0.0.0
  */
-export class DoctestCliConfig extends S.Class<DoctestCliConfig>($I`DoctestCliConfig`)(
-  {
+export class DoctestCliConfig extends S.Opaque<DoctestCliConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     write: S.Boolean,
     filter: S.optionalKey(S.NonEmptyString),
     include: S.Array(S.NonEmptyString),
     json: S.Boolean,
-  },
-  $I.annote("DoctestCliConfig", {
-    description: "Decoded --write, --filter, --include, and --json command configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("DoctestCliConfig", {
+      description: "Decoded --write, --filter, --include, and --json command configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -480,15 +481,16 @@ export class DoctestCliConfig extends S.Class<DoctestCliConfig>($I`DoctestCliCon
  * @category models
  * @since 0.0.0
  */
-export class DoctestReport extends S.Class<DoctestReport>($I`DoctestReport`)(
-  {
+export class DoctestReport extends S.Opaque<DoctestReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("doctest-report/v1"),
     config: DoctestCliConfig,
     counts: DoctestCounts,
     findings: S.Array(DoctestFinding),
     changedFiles: S.Array(S.NonEmptyString),
-  },
-  $I.annote("DoctestReport", {
-    description: "Machine-readable mark or verify result.",
-  })
+  }).pipe(
+    $I.annoteSchema("DoctestReport", {
+      description: "Machine-readable mark or verify result.",
+    })
+  )
 ) {}

@@ -52,9 +52,10 @@ const $I = $LawPracticeUseCasesId.create("LegalPositionRelatorPolicy/LegalPositi
  * @category errors
  * @since 0.0.0
  */
-export class LegalPositionRelatorAdmissionError extends S.TaggedError<LegalPositionRelatorAdmissionError>(
-  $I`LegalPositionRelatorAdmissionError`
-)(
+export class LegalPositionRelatorAdmissionError extends S.TaggedError<
+  LegalPositionRelatorAdmissionError,
+  { readonly brand: unique symbol }
+>($I`LegalPositionRelatorAdmissionError`)(
   "LegalPositionRelatorAdmissionError",
   {
     message: S.String,

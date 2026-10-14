@@ -501,7 +501,7 @@ export type TsconfigJsonFromString = typeof TsconfigJsonFromString.Type;
  * @category errors
  * @since 0.0.0
  */
-export class TsconfigParseError extends S.TaggedError<TsconfigParseError>($I`TsconfigParseError`)("TsconfigParseError", {
+export class TsconfigParseError extends S.TaggedError<TsconfigParseError, { readonly brand: unique symbol }>($I`TsconfigParseError`)("TsconfigParseError", {
 	/** The file path that failed to parse, or `""` when not file-bound. */
 	path: S.String.annotateKey({ description: "The file path that failed to parse, or `\"\"` when not file-bound." }),
 	/** The underlying decode failure. */

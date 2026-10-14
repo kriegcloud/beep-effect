@@ -504,8 +504,8 @@ export type FrameFilenamePadding = typeof FrameFilenamePadding.Type;
  * @category models
  * @since 0.0.0
  */
-export class FFmpegConfigInput extends S.Class<FFmpegConfigInput>($I`FFmpegConfigInput`)(
-  {
+export class FFmpegConfigInput extends S.Opaque<FFmpegConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     ffmpegPath: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("ffmpeg")),
       S.withDecodingDefaultTypeKey(Effect.succeed("ffmpeg")),
@@ -527,10 +527,11 @@ export class FFmpegConfigInput extends S.Class<FFmpegConfigInput>($I`FFmpegConfi
         description: "Timeout in milliseconds before an interrupted native process is force-killed.",
       })
     ),
-  },
-  $I.annote("FFmpegConfigInput", {
-    description: "Optional runtime path overrides for native FFmpeg binaries.",
-  })
+  }).pipe(
+    $I.annoteSchema("FFmpegConfigInput", {
+      description: "Optional runtime path overrides for native FFmpeg binaries.",
+    })
+  )
 ) {}
 
 /**
@@ -552,8 +553,8 @@ export class FFmpegConfigInput extends S.Class<FFmpegConfigInput>($I`FFmpegConfi
  * @category models
  * @since 0.0.0
  */
-export class FFmpegConfig extends S.Class<FFmpegConfig>($I`FFmpegConfig`)(
-  {
+export class FFmpegConfig extends S.Opaque<FFmpegConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     ffmpegPath: S.String.pipe(
       $I.annoteKey("FFmpegConfig.ffmpegPath", {
         description: "Resolved executable path or command name used for ffmpeg.",
@@ -569,10 +570,11 @@ export class FFmpegConfig extends S.Class<FFmpegConfig>($I`FFmpegConfig`)(
         description: "Resolved timeout in milliseconds before an interrupted native process is force-killed.",
       })
     ),
-  },
-  $I.annote("FFmpegConfig", {
-    description: "Resolved runtime configuration for native FFmpeg command execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("FFmpegConfig", {
+      description: "Resolved runtime configuration for native FFmpeg command execution.",
+    })
+  )
 ) {}
 
 /**
@@ -590,17 +592,18 @@ export class FFmpegConfig extends S.Class<FFmpegConfig>($I`FFmpegConfig`)(
  * @category models
  * @since 0.0.0
  */
-export class ProbeVideoRequest extends S.Class<ProbeVideoRequest>($I`ProbeVideoRequest`)(
-  {
+export class ProbeVideoRequest extends S.Opaque<ProbeVideoRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     videoPath: S.String.pipe(
       $I.annoteKey("ProbeVideoRequest.videoPath", {
         description: "Video file path to inspect with ffprobe.",
       })
     ),
-  },
-  $I.annote("ProbeVideoRequest", {
-    description: "Request to probe a video's first video stream.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProbeVideoRequest", {
+      description: "Request to probe a video's first video stream.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ProbeVideoRequest);
 }
@@ -621,8 +624,8 @@ export class ProbeVideoRequest extends S.Class<ProbeVideoRequest>($I`ProbeVideoR
  * @category models
  * @since 0.0.0
  */
-export class VideoProbe extends S.Class<VideoProbe>($I`VideoProbe`)(
-  {
+export class VideoProbe extends S.Opaque<VideoProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     videoPath: S.String.pipe(
       $I.annoteKey("VideoProbe.videoPath", {
         description: "Resolved video file path that was probed.",
@@ -670,10 +673,11 @@ export class VideoProbe extends S.Class<VideoProbe>($I`VideoProbe`)(
         description: "Detected positive video width in pixels, when ffprobe reported one.",
       })
     ),
-  },
-  $I.annote("VideoProbe", {
-    description: "Video metadata extracted from the first ffprobe video stream.",
-  })
+  }).pipe(
+    $I.annoteSchema("VideoProbe", {
+      description: "Video metadata extracted from the first ffprobe video stream.",
+    })
+  )
 ) {}
 
 /**
@@ -699,8 +703,8 @@ export class VideoProbe extends S.Class<VideoProbe>($I`VideoProbe`)(
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesRequest extends S.Class<ExtractFramesRequest>($I`ExtractFramesRequest`)(
-  {
+export class ExtractFramesRequest extends S.Opaque<ExtractFramesRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     fps: PositiveFrameRate.pipe(
       $I.annoteKey("ExtractFramesRequest.fps", {
         description: "Positive frame extraction rate in frames per second.",
@@ -737,10 +741,11 @@ export class ExtractFramesRequest extends S.Class<ExtractFramesRequest>($I`Extra
         description: "Video file path to extract frames from.",
       })
     ),
-  },
-  $I.annote("ExtractFramesRequest", {
-    description: "Request to extract PNG frames from a video at a fixed frame rate.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesRequest", {
+      description: "Request to extract PNG frames from a video at a fixed frame rate.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ExtractFramesRequest);
 }
@@ -765,8 +770,8 @@ export class ExtractFramesRequest extends S.Class<ExtractFramesRequest>($I`Extra
  * @category models
  * @since 0.0.0
  */
-export class ExtractedFrame extends S.Class<ExtractedFrame>($I`ExtractedFrame`)(
-  {
+export class ExtractedFrame extends S.Opaque<ExtractedFrame, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileName: S.String.pipe(
       $I.annoteKey("ExtractedFrame.fileName", {
         description: "Generated PNG file name for the extracted frame.",
@@ -787,10 +792,11 @@ export class ExtractedFrame extends S.Class<ExtractedFrame>($I`ExtractedFrame`)(
         description: "Frame path relative to the output directory.",
       })
     ),
-  },
-  $I.annote("ExtractedFrame", {
-    description: "A PNG frame written by an extract-frames run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractedFrame", {
+      description: "A PNG frame written by an extract-frames run.",
+    })
+  )
 ) {}
 
 /**
@@ -808,10 +814,11 @@ export class ExtractedFrame extends S.Class<ExtractedFrame>($I`ExtractedFrame`)(
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesManifestOptions extends S.Class<ExtractFramesManifestOptions>(
-  $I`ExtractFramesManifestOptions`
-)(
-  {
+export class ExtractFramesManifestOptions extends S.Opaque<
+  ExtractFramesManifestOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     fps: PositiveFrameRate.pipe(
       $I.annoteKey("ExtractFramesManifestOptions.fps", {
         description: "Frame extraction rate recorded in the manifest.",
@@ -827,10 +834,11 @@ export class ExtractFramesManifestOptions extends S.Class<ExtractFramesManifestO
         description: "Safe filename prefix used for generated PNG frames.",
       })
     ),
-  },
-  $I.annote("ExtractFramesManifestOptions", {
-    description: "Options recorded in an extract-frames manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesManifestOptions", {
+      description: "Options recorded in an extract-frames manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -848,19 +856,21 @@ export class ExtractFramesManifestOptions extends S.Class<ExtractFramesManifestO
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesManifestSummary extends S.Class<ExtractFramesManifestSummary>(
-  $I`ExtractFramesManifestSummary`
-)(
-  {
+export class ExtractFramesManifestSummary extends S.Opaque<
+  ExtractFramesManifestSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     frameCount: FrameCount.pipe(
       $I.annoteKey("ExtractFramesManifestSummary.frameCount", {
         description: "Number of committed frame records in the manifest.",
       })
     ),
-  },
-  $I.annote("ExtractFramesManifestSummary", {
-    description: "Summary recorded in an extract-frames manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesManifestSummary", {
+      description: "Summary recorded in an extract-frames manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -887,8 +897,8 @@ export class ExtractFramesManifestSummary extends S.Class<ExtractFramesManifestS
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesManifest extends S.Class<ExtractFramesManifest>($I`ExtractFramesManifest`)(
-  {
+export class ExtractFramesManifest extends S.Opaque<ExtractFramesManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     frames: S.Array(ExtractedFrame).pipe(
       $I.annoteKey("ExtractFramesManifest.frames", {
         description: "Committed extracted frame records.",
@@ -929,10 +939,11 @@ export class ExtractFramesManifest extends S.Class<ExtractFramesManifest>($I`Ext
         description: "Aggregate frame counts for the extraction run.",
       })
     ),
-  },
-  $I.annote("ExtractFramesManifest", {
-    description: "JSON manifest written by a successful extract-frames run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesManifest", {
+      description: "JSON manifest written by a successful extract-frames run.",
+    })
+  )
 ) {
   static readonly encodeEffect = S.encodeUnknownEffect(ExtractFramesManifest);
 }
@@ -958,8 +969,8 @@ export class ExtractFramesManifest extends S.Class<ExtractFramesManifest>($I`Ext
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesResult extends S.Class<ExtractFramesResult>($I`ExtractFramesResult`)(
-  {
+export class ExtractFramesResult extends S.Opaque<ExtractFramesResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     frameCount: FrameCount.pipe(
       $I.annoteKey("ExtractFramesResult.frameCount", {
         description: "Number of committed PNG frames.",
@@ -985,10 +996,11 @@ export class ExtractFramesResult extends S.Class<ExtractFramesResult>($I`Extract
         description: "Resolved source video path used for extraction.",
       })
     ),
-  },
-  $I.annote("ExtractFramesResult", {
-    description: "Result returned after frames and manifest have been committed.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesResult", {
+      description: "Result returned after frames and manifest have been committed.",
+    })
+  )
 ) {}
 
 /**
@@ -1012,8 +1024,8 @@ export class ExtractFramesResult extends S.Class<ExtractFramesResult>($I`Extract
  * @category events
  * @since 0.0.0
  */
-export class FFmpegStartedEvent extends S.Class<FFmpegStartedEvent>($I`FFmpegStartedEvent`)(
-  {
+export class FFmpegStartedEvent extends S.Opaque<FFmpegStartedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     args: S.Array(S.String).pipe(
       $I.annoteKey("FFmpegStartedEvent.args", {
         description: "Arguments passed to the native ffmpeg command.",
@@ -1039,10 +1051,11 @@ export class FFmpegStartedEvent extends S.Class<FFmpegStartedEvent>($I`FFmpegSta
         description: "Resolved source video path used for extraction.",
       })
     ),
-  },
-  $I.annote("FFmpegStartedEvent", {
-    description: "Event emitted before the ffmpeg extraction process starts.",
-  })
+  }).pipe(
+    $I.annoteSchema("FFmpegStartedEvent", {
+      description: "Event emitted before the ffmpeg extraction process starts.",
+    })
+  )
 ) {}
 
 /**
@@ -1068,8 +1081,8 @@ export class FFmpegStartedEvent extends S.Class<FFmpegStartedEvent>($I`FFmpegSta
  * @category events
  * @since 0.0.0
  */
-export class FFmpegProgressEvent extends S.Class<FFmpegProgressEvent>($I`FFmpegProgressEvent`)(
-  {
+export class FFmpegProgressEvent extends S.Opaque<FFmpegProgressEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     frameCount: FrameCount.pipe(
       $I.annoteKey("FFmpegProgressEvent.frameCount", {
         description: "Frame count reported by ffmpeg progress output.",
@@ -1102,10 +1115,11 @@ export class FFmpegProgressEvent extends S.Class<FFmpegProgressEvent>($I`FFmpegP
         description: "Raw ffmpeg speed text, when ffmpeg reported one.",
       })
     ),
-  },
-  $I.annote("FFmpegProgressEvent", {
-    description: "Event emitted when ffmpeg reports extraction progress.",
-  })
+  }).pipe(
+    $I.annoteSchema("FFmpegProgressEvent", {
+      description: "Event emitted when ffmpeg reports extraction progress.",
+    })
+  )
 ) {}
 
 /**
@@ -1128,8 +1142,8 @@ export class FFmpegProgressEvent extends S.Class<FFmpegProgressEvent>($I`FFmpegP
  * @category events
  * @since 0.0.0
  */
-export class FFmpegCompletedEvent extends S.Class<FFmpegCompletedEvent>($I`FFmpegCompletedEvent`)(
-  {
+export class FFmpegCompletedEvent extends S.Opaque<FFmpegCompletedEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     frameCount: FrameCount.pipe(
       $I.annoteKey("FFmpegCompletedEvent.frameCount", {
         description: "Number of committed PNG frames.",
@@ -1150,10 +1164,11 @@ export class FFmpegCompletedEvent extends S.Class<FFmpegCompletedEvent>($I`FFmpe
         description: "Directory containing committed outputs.",
       })
     ),
-  },
-  $I.annote("FFmpegCompletedEvent", {
-    description: "Event emitted after frames and manifest are committed.",
-  })
+  }).pipe(
+    $I.annoteSchema("FFmpegCompletedEvent", {
+      description: "Event emitted after frames and manifest are committed.",
+    })
+  )
 ) {}
 
 /**

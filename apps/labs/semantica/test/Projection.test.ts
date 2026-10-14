@@ -56,6 +56,7 @@ import { it } from "@beep/test-runner";
 import { provideScopedLayer } from "@beep/test-utils";
 import { assertTrue } from "@effect/vitest/utils";
 import { pipe } from "effect/Function";
+import { LabConfigValue } from "../src/runtime/Config.ts";
 import type { ProviderCacheEntry } from "@/schema/ProviderCache";
 
 const PosInt = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive integer" }));
@@ -78,22 +79,24 @@ const vector = (model: ModelIdentity, chunk: ChunkId, values: A.NonEmptyReadonly
 
 const config = Layer.succeed(
   LabConfig,
-  LabConfig.of({
-    corpusRoot: Option.none(),
-    embeddingDimension: PosInt.make(1536),
-    embeddingModel: "text-embedding-3-small",
-    embeddingRevision: "text-embedding-3-small@2024-01-25",
-    extractionTimeout: Duration.minutes(15),
-    extractorModel: "stub-extractor-20260826",
-    goldDirectory: "fixtures/gold/v1",
-    goldGenerationTimeout: Duration.minutes(45),
-    goldModel: "stub-gold-20260826",
-    ledgerRoot: ".beep/semantica/ledger",
-    mode: "replay",
-    offline: true,
-    projectionTimeout: Duration.seconds(30),
-    providerCacheDirectory: ".beep/semantica/provider-cache",
-  })
+  LabConfig.of(
+    LabConfigValue.make({
+      corpusRoot: Option.none(),
+      embeddingDimension: PosInt.make(1536),
+      embeddingModel: "text-embedding-3-small",
+      embeddingRevision: "text-embedding-3-small@2024-01-25",
+      extractionTimeout: Duration.minutes(15),
+      extractorModel: "stub-extractor-20260826",
+      goldDirectory: "fixtures/gold/v1",
+      goldGenerationTimeout: Duration.minutes(45),
+      goldModel: "stub-gold-20260826",
+      ledgerRoot: ".beep/semantica/ledger",
+      mode: "replay",
+      offline: true,
+      projectionTimeout: Duration.seconds(30),
+      providerCacheDirectory: ".beep/semantica/provider-cache",
+    })
+  )
 );
 
 describe("C1 vector projection", () => {
@@ -202,22 +205,24 @@ describe("C1 embedding cache", () => {
         ),
         Layer.succeed(EmbeddingModel.Dimensions, 3)
       );
-      const liveConfig = LabConfig.of({
-        corpusRoot: Option.none(),
-        embeddingDimension: PosInt.make(3),
-        embeddingModel: model.name,
-        embeddingRevision: model.revision,
-        extractionTimeout: Duration.minutes(15),
-        extractorModel: "stub-extractor-20260826",
-        goldDirectory: "fixtures/gold/v1",
-        goldGenerationTimeout: Duration.minutes(45),
-        goldModel: "stub-gold-20260826",
-        ledgerRoot: ".beep/semantica/ledger",
-        mode: "live",
-        offline: false,
-        projectionTimeout: Duration.seconds(30),
-        providerCacheDirectory: ".beep/semantica/provider-cache",
-      });
+      const liveConfig = LabConfig.of(
+        LabConfigValue.make({
+          corpusRoot: Option.none(),
+          embeddingDimension: PosInt.make(3),
+          embeddingModel: model.name,
+          embeddingRevision: model.revision,
+          extractionTimeout: Duration.minutes(15),
+          extractorModel: "stub-extractor-20260826",
+          goldDirectory: "fixtures/gold/v1",
+          goldGenerationTimeout: Duration.minutes(45),
+          goldModel: "stub-gold-20260826",
+          ledgerRoot: ".beep/semantica/ledger",
+          mode: "live",
+          offline: false,
+          projectionTimeout: Duration.seconds(30),
+          providerCacheDirectory: ".beep/semantica/provider-cache",
+        })
+      );
       const input = EmbeddingInput.make({ chunk: chunkId("8"), text: "semantic projection" });
       const miss = EmbeddingInput.make({ chunk: chunkId("9"), text: "offline miss" });
       const support = (selected: typeof liveConfig) =>

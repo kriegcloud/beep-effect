@@ -35,7 +35,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Error/Jina");
  * @category errors
  * @since 0.0.0
  */
-export class JinaApiError extends S.TaggedError<JinaApiError>($I`JinaApiError`)(
+export class JinaApiError extends S.TaggedError<JinaApiError, { readonly brand: unique symbol }>($I`JinaApiError`)(
   "JinaApiError",
   {
     message: ErrorMessage.annotateKey({
@@ -83,7 +83,7 @@ const JinaRateLimitErrorFields = {
  * @category errors
  * @since 0.0.0
  */
-export class JinaRateLimitError extends S.TaggedError<JinaRateLimitError>($I`JinaRateLimitError`)(
+export class JinaRateLimitError extends S.TaggedError<JinaRateLimitError, { readonly brand: unique symbol }>($I`JinaRateLimitError`)(
   "JinaRateLimitError",
   JinaRateLimitErrorFields,
   {
@@ -129,7 +129,7 @@ export class JinaRateLimitError extends S.TaggedError<JinaRateLimitError>($I`Jin
  * @category errors
  * @since 0.0.0
  */
-export class JinaParseError extends S.TaggedError<JinaParseError>($I`JinaParseError`)(
+export class JinaParseError extends S.TaggedError<JinaParseError, { readonly brand: unique symbol }>($I`JinaParseError`)(
   "JinaParseError",
   {
     message: ErrorMessage.annotateKey({
@@ -167,7 +167,7 @@ export class JinaParseError extends S.TaggedError<JinaParseError>($I`JinaParseEr
  * @category errors
  * @since 0.0.0
  */
-export class JinaTimeoutError extends S.TaggedError<JinaTimeoutError>($I`JinaTimeoutError`)(
+export class JinaTimeoutError extends S.TaggedError<JinaTimeoutError, { readonly brand: unique symbol }>($I`JinaTimeoutError`)(
   "JinaTimeoutError",
   {
     url: URLStr.annotateKey({

@@ -95,7 +95,7 @@ export type MarkdownDialect = typeof MarkdownDialect.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class MarkdownParseOptions extends S.Class<MarkdownParseOptions>($I`MarkdownParseOptions`)({
+export class MarkdownParseOptions extends S.Class<MarkdownParseOptions, { readonly brand: unique symbol }>($I`MarkdownParseOptions`)({
 	dialect: S.optionalKey(MarkdownDialect).annotateKey({ description: "Markdown grammar to apply: `gfm` by default, or `commonmark` without GitHub extensions" }),
 	frontmatter: S.optionalKey(S.Boolean).annotateKey({ description: "Whether to capture an opening YAML, TOML or JSON frontmatter block as a raw node; disabled by default" }),
 }, $I.annote("MarkdownParseOptions", { description: "Options controlling parse behavior: `dialect` (omitted, `\"gfm\"`) and `frontmatter` (omitted, `false` — capture is opt-in)." })) {}
@@ -136,7 +136,7 @@ export class MarkdownParseOptions extends S.Class<MarkdownParseOptions>($I`Markd
  * @category errors
  * @since 0.0.0
  */
-export class MarkdownParseError extends S.TaggedError<MarkdownParseError>($I`MarkdownParseError`)("MarkdownParseError", {
+export class MarkdownParseError extends S.TaggedError<MarkdownParseError, { readonly brand: unique symbol }>($I`MarkdownParseError`)("MarkdownParseError", {
 	diagnostic: MarkdownDiagnostic.annotateKey({ description: "Fatal parse condition and its source position, currently a nesting-depth guard violation" }),
 }, $I.annote("MarkdownParseError", { description: "Parse failure: the MarkdownDiagnostic describing why the document was rejected." })) {
 	/**
@@ -197,7 +197,7 @@ export class MarkdownParseError extends S.TaggedError<MarkdownParseError>($I`Mar
  * @category errors
  * @since 0.0.0
  */
-export class MarkdownStringifyError extends S.TaggedError<MarkdownStringifyError>($I`MarkdownStringifyError`)("MarkdownStringifyError", {
+export class MarkdownStringifyError extends S.TaggedError<MarkdownStringifyError, { readonly brand: unique symbol }>($I`MarkdownStringifyError`)("MarkdownStringifyError", {
 	diagnostic: MarkdownDiagnostic.annotateKey({ description: "Nesting-depth guard violation preventing serialization, carrying the offending node's claimed offset and zero line and character positions" }),
 }, $I.annote("MarkdownStringifyError", { description: "Stringify failure: the MarkdownDiagnostic describing why the tree was refused." })) {
 	/**

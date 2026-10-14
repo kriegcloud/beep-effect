@@ -59,16 +59,17 @@ export type SkillContractId = typeof SkillContractId.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReceiptTypeBindings extends S.Class<ReceiptTypeBindings>($I`ReceiptTypeBindings`)(
-  {
+export class ReceiptTypeBindings extends S.Opaque<ReceiptTypeBindings, { readonly brand: unique symbol }>()(
+  S.Struct({
     failure: EvidencePredicateType,
     gateSummary: EvidencePredicateType,
     ladder: EvidenceLadderReceiptTypes,
     recoveryAttempt: EvidencePredicateType,
-  },
-  $I.annote("ReceiptTypeBindings", {
-    description: "Versioned predicate identities for cross-gate receipt families and evidence-ladder rungs.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReceiptTypeBindings", {
+      description: "Versioned predicate identities for cross-gate receipt families and evidence-ladder rungs.",
+    })
+  )
 ) {}
 
 /**
@@ -91,8 +92,8 @@ export class ReceiptTypeBindings extends S.Class<ReceiptTypeBindings>($I`Receipt
  * @category aggregates
  * @since 0.0.0
  */
-export class SkillContract extends S.Class<SkillContract>($I`SkillContract`)(
-  {
+export class SkillContract extends S.Opaque<SkillContract, { readonly brand: unique symbol }>()(
+  S.Struct({
     evidenceSubject: EvidenceSubject,
     gates: GateRegistry,
     id: SkillContractId,
@@ -102,9 +103,10 @@ export class SkillContract extends S.Class<SkillContract>($I`SkillContract`)(
     receiptTypes: ReceiptTypeBindings,
     recovery: RecoveryPolicy,
     version: SemanticVersion,
-  },
-  $I.annote("SkillContract", {
-    description:
-      "Digest-bound aggregate root for one versioned typed skill promise, its gates, receipts, and recovery policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillContract", {
+      description:
+        "Digest-bound aggregate root for one versioned typed skill promise, its gates, receipts, and recovery policy.",
+    })
+  )
 ) {}

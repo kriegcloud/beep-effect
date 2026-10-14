@@ -104,18 +104,19 @@ export const DOCUMENTS_SYNC_DEFAULT_EVENT_PAGE_LIMIT = PosInt.make(100);
  * @category configuration
  * @since 0.0.0
  */
-export class VaultSyncConfigValue extends S.Class<VaultSyncConfigValue>($I`VaultSyncConfigValue`)(
-  {
+export class VaultSyncConfigValue extends S.Opaque<VaultSyncConfigValue, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventPageLimit: PosInt.annotateKey({
       description: "Maximum remote-event pages polled per sync pass.",
     }),
     maxAttempts: PosInt.annotateKey({
       description: "Maximum push attempts before an operation fails terminally.",
     }),
-  },
-  $I.annote("VaultSyncConfigValue", {
-    description: "Resolved configuration value for the vault sync engine.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultSyncConfigValue", {
+      description: "Resolved configuration value for the vault sync engine.",
+    })
+  )
 ) {}
 
 /**

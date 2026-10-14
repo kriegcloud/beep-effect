@@ -110,11 +110,12 @@ type CandidateAssessment = {
   readonly authorizedHead: O.Option<GitObjectId>;
 };
 
-class GhPr extends S.Class<GhPr>($I`GhPr`)(
-  { number: S.Int, headRefOid: GitObjectId },
-  $I.annote("GhPr", {
-    description: "Minimal pull-request row decoded from gh pr list JSON output.",
-  })
+class GhPr extends S.Opaque<GhPr, { readonly brand: unique symbol }>()(
+  S.Struct({ number: S.Int, headRefOid: GitObjectId }).pipe(
+    $I.annoteSchema("GhPr", {
+      description: "Minimal pull-request row decoded from gh pr list JSON output.",
+    })
+  )
 ) {}
 
 const decodeGhPrList = S.decodeUnknownEffect(S.fromJsonString(S.Array(GhPr)));

@@ -39,15 +39,16 @@ const $I = $SkillContractId.create("EvidenceReceipt");
  * @category models
  * @since 0.0.0
  */
-export class EvidenceDigest extends S.Class<EvidenceDigest>($I`EvidenceDigest`)(
-  {
+export class EvidenceDigest extends S.Opaque<EvidenceDigest, { readonly brand: unique symbol }>()(
+  S.Struct({
     sha256: Sha256Hex.annotateKey({
       description: "Canonical lowercase SHA-256 digest of the named subject.",
     }),
-  },
-  $I.annote("EvidenceDigest", {
-    description: "Current digest family and explicit migration seam for evidence-bound resources.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceDigest", {
+      description: "Current digest family and explicit migration seam for evidence-bound resources.",
+    })
+  )
 ) {}
 
 /**
@@ -71,16 +72,17 @@ export class EvidenceDigest extends S.Class<EvidenceDigest>($I`EvidenceDigest`)(
  * @category models
  * @since 0.0.0
  */
-export class EvidenceSubject extends S.Class<EvidenceSubject>($I`EvidenceSubject`)(
-  {
+export class EvidenceSubject extends S.Opaque<EvidenceSubject, { readonly brand: unique symbol }>()(
+  S.Struct({
     digest: EvidenceDigest,
     name: S.NonEmptyString.annotateKey({
       description: "Stable subject name interpreted by the receipt producer and consumer.",
     }),
-  },
-  $I.annote("EvidenceSubject", {
-    description: "Named evidence subject bound to the current digest family.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceSubject", {
+      description: "Named evidence subject bound to the current digest family.",
+    })
+  )
 ) {}
 
 const evidenceReceiptImpl = <const Type extends EvidencePredicateType, Predicate extends S.Top>(
@@ -154,14 +156,15 @@ export const EvidenceReceipt: {
  * @category models
  * @since 0.0.0
  */
-export class AttestationResource extends S.Class<AttestationResource>($I`AttestationResource`)(
-  {
+export class AttestationResource extends S.Opaque<AttestationResource, { readonly brand: unique symbol }>()(
+  S.Struct({
     digest: EvidenceDigest,
     uri: URLStr,
-  },
-  $I.annote("AttestationResource", {
-    description: "URI-addressed resource bound to the current evidence digest family.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttestationResource", {
+      description: "URI-addressed resource bound to the current evidence digest family.",
+    })
+  )
 ) {}
 
 /**
@@ -178,14 +181,15 @@ export class AttestationResource extends S.Class<AttestationResource>($I`Attesta
  * @category models
  * @since 0.0.0
  */
-export class GateSummaryVerifier extends S.Class<GateSummaryVerifier>($I`GateSummaryVerifier`)(
-  {
+export class GateSummaryVerifier extends S.Opaque<GateSummaryVerifier, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: URLStr,
     version: S.Record(S.NonEmptyString, S.NonEmptyString),
-  },
-  $I.annote("GateSummaryVerifier", {
-    description: "Verifier identity and named component versions used for one gate summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateSummaryVerifier", {
+      description: "Verifier identity and named component versions used for one gate summary.",
+    })
+  )
 ) {}
 
 /**
@@ -278,11 +282,12 @@ const AllowedGateEvidenceCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GateResultSummary extends S.Class<GateResultSummary>($I`GateResultSummary`)(
-  GateResultSummaryFields.check(AllowedGateEvidenceCheck),
-  $I.annote("GateResultSummary", {
-    description: "Normalized common fields for one evaluated gate without consumer-specific audit detail.",
-  })
+export class GateResultSummary extends S.Opaque<GateResultSummary, { readonly brand: unique symbol }>()(
+  GateResultSummaryFields.check(AllowedGateEvidenceCheck).pipe(
+    $I.annoteSchema("GateResultSummary", {
+      description: "Normalized common fields for one evaluated gate without consumer-specific audit detail.",
+    })
+  )
 ) {}
 
 const blockingGateLevel = GateVerifiedLevel.make("BEEP_SKILL_CONTRACT_BLOCKING_GATES");
@@ -355,11 +360,12 @@ const GateSummaryCoherenceCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GateSummary extends S.Class<GateSummary>($I`GateSummary`)(
-  GateSummaryFields.check(GateSummaryCoherenceCheck),
-  $I.annote("GateSummary", {
-    description: "VSA-shaped gate summary with coherent blocking-policy results and no build-level claim.",
-  })
+export class GateSummary extends S.Opaque<GateSummary, { readonly brand: unique symbol }>()(
+  GateSummaryFields.check(GateSummaryCoherenceCheck).pipe(
+    $I.annoteSchema("GateSummary", {
+      description: "VSA-shaped gate summary with coherent blocking-policy results and no build-level claim.",
+    })
+  )
 ) {}
 
 /**

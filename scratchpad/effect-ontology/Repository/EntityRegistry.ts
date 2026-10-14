@@ -133,18 +133,15 @@ export type EntityAliasId = typeof EntityAliasId.Type;
  * @category models
  * @since 0.0.0
  */
-export class BlockingCandidate extends S.Class<BlockingCandidate>($I`BlockingCandidate`)(
-  {
+export class BlockingCandidate extends S.Opaque<BlockingCandidate, { readonly brand: unique symbol }>()(S.Struct({
     canonicalEntityId: CanonicalEntityId,
     iri: IRI,
     mention: S.NonEmptyString,
     types: S.Array(IRI),
     similarity: UnitInterval,
-  },
-  $I.annote("BlockingCandidate", {
+  }).pipe($I.annoteSchema("BlockingCandidate", {
     description: "Ontology-scoped canonical entity candidate returned by token or embedding blocking.",
-  })
-) {}
+  }))) {}
 
 /**
  * Normalizes an entity mention for alias identity and lookup.
@@ -189,17 +186,14 @@ const canonicalEntityFilterOffsetDefault = S.Natural.make(0);
  * @category models
  * @since 0.0.0
  */
-export class CanonicalEntityFilter extends S.Class<CanonicalEntityFilter>($I`CanonicalEntityFilter`)(
-  {
+export class CanonicalEntityFilter extends S.Opaque<CanonicalEntityFilter, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString,
     types: S.Array(IRI).pipe(S.withConstructorDefault(Effect.succeed(canonicalEntityFilterTypesDefault)), S.withDecodingDefaultType(Effect.succeed(canonicalEntityFilterTypesDefault))),
     limit: PosInt.pipe(S.withConstructorDefault(Effect.succeed(canonicalEntityFilterLimitDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(canonicalEntityFilterLimitDefault))),
     offset: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(canonicalEntityFilterOffsetDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(canonicalEntityFilterOffsetDefault))),
-  },
-  $I.annote("CanonicalEntityFilter", {
+  }).pipe($I.annoteSchema("CanonicalEntityFilter", {
     description: "Ontology-scoped canonical-entity filters with schema-owned type and pagination defaults.",
-  })
-) {}
+  }))) {}
 
 const PgVector = S.Finite.pipe(
   S.Array,

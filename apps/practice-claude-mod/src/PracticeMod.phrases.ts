@@ -23,8 +23,8 @@ const $I = $PracticeClaudeModId.create("PracticeMod.phrases");
  * @category models
  * @since 0.0.0
  */
-class PhraseInput extends S.Class<PhraseInput>($I`PhraseInput`)(
-  {
+class PhraseInput extends S.Opaque<PhraseInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: S.optionalKey(S.String),
     application_number: S.optionalKey(S.String),
     docket: S.optionalKey(S.String),
@@ -34,8 +34,11 @@ class PhraseInput extends S.Class<PhraseInput>($I`PhraseInput`)(
     query: S.optionalKey(S.String),
     reference: S.optionalKey(S.String),
     sender: S.optionalKey(S.String),
-  },
-  $I.annote("PhraseInput", { description: "The practice-kg tool input fields a plain-language sentence reads." })
+  }).pipe(
+    $I.annoteSchema("PhraseInput", {
+      description: "The practice-kg tool input fields a plain-language sentence reads.",
+    })
+  )
 ) {}
 
 const decodePhraseInput = S.decodeUnknownOption(PhraseInput);

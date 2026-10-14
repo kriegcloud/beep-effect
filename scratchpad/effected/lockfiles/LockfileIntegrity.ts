@@ -35,7 +35,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/LockfileIntegrity");
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceManifest extends S.Class<WorkspaceManifest>($I`WorkspaceManifest`)({
+export class WorkspaceManifest extends S.Class<WorkspaceManifest, { readonly brand: unique symbol }>($I`WorkspaceManifest`)({
 	name: S.NonEmptyString.annotateKey({ description: "Workspace package identity used to match its manifest against lockfile workspace entries" }),
 	dependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Runtime dependency specifiers declared by the workspace manifest" }),
 	devDependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Development dependency specifiers declared by the workspace manifest" }),
@@ -76,7 +76,7 @@ const decodeSemVer = S.decodeUnknownExit(SemVer.FromString);
  * @category models
  * @since 0.0.0
  */
-export class LockfileIntegrity extends S.Class<LockfileIntegrity>($I`LockfileIntegrity`)({
+export class LockfileIntegrity extends S.Class<LockfileIntegrity, { readonly brand: unique symbol }>($I`LockfileIntegrity`)({
 	valid: S.Boolean.annotateKey({ description: "Whether comparison found no missing workspaces, extra workspaces or unsatisfied constraints among the rows it checked" }),
 	missingWorkspaces: S.Array(S.String).annotateKey({ description: "Workspace package names declared by manifests but absent from the lockfile's workspace entries" }),
 	extraWorkspaces: S.Array(S.String).annotateKey({ description: "Workspace package names recorded in the lockfile without matching manifests" }),

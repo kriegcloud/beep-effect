@@ -31,7 +31,9 @@ const $I = $RepoCliId.create("commands/Codex/Security.errors");
  * @category errors
  * @since 0.0.0
  */
-export class CodexSecurityError extends S.TaggedError<CodexSecurityError>($I`CodexSecurityError`)(
+export class CodexSecurityError extends S.TaggedError<CodexSecurityError, { readonly brand: unique symbol }>(
+  $I`CodexSecurityError`
+)(
   "CodexSecurityError",
   {
     message: S.String,

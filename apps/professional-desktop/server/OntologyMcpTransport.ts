@@ -60,7 +60,9 @@ const ontologyMcpAllowedOrigins: ReadonlyArray<string> = [
   "http://tauri.localhost",
 ];
 
-class OntologyMcpOriginForbidden extends S.TaggedError<OntologyMcpOriginForbidden>($I`OntologyMcpOriginForbidden`)(
+class OntologyMcpOriginForbidden extends S.TaggedError<OntologyMcpOriginForbidden, { readonly brand: unique symbol }>(
+  $I`OntologyMcpOriginForbidden`
+)(
   "OntologyMcpOriginForbidden",
   {
     status: S.Literal(403),

@@ -125,16 +125,17 @@ export const isCuid: (value: string) => value is Cuid = S.is(Cuid);
  * @category models
  * @since 0.0.0
  */
-export class CuidSeed extends S.Class<CuidSeed>($I`CuidSeed`)(
-  {
+export class CuidSeed extends S.Opaque<CuidSeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     timestamp: S.Finite,
     counter: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     random: S.Uint8Array,
     fingerprint: S.String,
-  },
-  $I.annote("CuidSeed", {
-    description: "Seed data used to produce a deterministic CUID value.",
-  })
+  }).pipe(
+    $I.annoteSchema("CuidSeed", {
+      description: "Seed data used to produce a deterministic CUID value.",
+    })
+  )
 ) {}
 
 /**

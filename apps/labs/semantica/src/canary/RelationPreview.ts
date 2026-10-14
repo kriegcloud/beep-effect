@@ -27,11 +27,12 @@ import type { SourceDocument } from "@/schema/Document";
 
 const $I = $SemanticaId.create("canary/RelationPreview");
 
-class RelationPreviewCase extends S.Class<RelationPreviewCase>($I`RelationPreviewCase`)(
-  { cacheDigest: Sha256Hex, paperId: CorpusPaperId },
-  $I.annote("RelationPreviewCase", {
-    description: "Historical cache key and W1 paper identity replayed by one zero-spend preview case.",
-  })
+class RelationPreviewCase extends S.Opaque<RelationPreviewCase, { readonly brand: unique symbol }>()(
+  S.Struct({ cacheDigest: Sha256Hex, paperId: CorpusPaperId }).pipe(
+    $I.annoteSchema("RelationPreviewCase", {
+      description: "Historical cache key and W1 paper identity replayed by one zero-spend preview case.",
+    })
+  )
 ) {}
 
 /**
@@ -48,14 +49,15 @@ class RelationPreviewCase extends S.Class<RelationPreviewCase>($I`RelationPrevie
  * @category models
  * @since 0.0.0
  */
-export class RelationPreviewManifest extends S.Class<RelationPreviewManifest>($I`RelationPreviewManifest`)(
-  {
+export class RelationPreviewManifest extends S.Opaque<RelationPreviewManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     cases: S.NonEmptyArray(RelationPreviewCase),
     schemaVersion: S.Literal("semantica-relation-preview/v1"),
-  },
-  $I.annote("RelationPreviewManifest", {
-    description: "Committed E5 cache-preview case set with a versioned wire contract.",
-  })
+  }).pipe(
+    $I.annoteSchema("RelationPreviewManifest", {
+      description: "Committed E5 cache-preview case set with a versioned wire contract.",
+    })
+  )
 ) {}
 
 /**
@@ -76,38 +78,41 @@ export class RelationPreviewManifest extends S.Class<RelationPreviewManifest>($I
  * @category models
  * @since 0.0.0
  */
-export class RelationPreviewOptions extends S.Class<RelationPreviewOptions>($I`RelationPreviewOptions`)(
-  { cases: S.NonEmptyString, manifest: S.NonEmptyString },
-  $I.annote("RelationPreviewOptions", {
-    description: "Paths to the committed E5 case set and verified W1 manifest.",
-  })
+export class RelationPreviewOptions extends S.Opaque<RelationPreviewOptions, { readonly brand: unique symbol }>()(
+  S.Struct({ cases: S.NonEmptyString, manifest: S.NonEmptyString }).pipe(
+    $I.annoteSchema("RelationPreviewOptions", {
+      description: "Paths to the committed E5 case set and verified W1 manifest.",
+    })
+  )
 ) {}
 
-class RelationPreviewCaseResult extends S.Class<RelationPreviewCaseResult>($I`RelationPreviewCaseResult`)(
-  {
+class RelationPreviewCaseResult extends S.Opaque<RelationPreviewCaseResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     cacheKey: Sha256Hex,
     candidateCount: S.Natural,
     degradedRelations: S.Natural,
     groundedRelations: S.Natural,
     paperId: CorpusPaperId,
     relationCandidates: S.Natural,
-  },
-  $I.annote("RelationPreviewCaseResult", {
-    description: "Parsed, relation-candidate, grounded, and degraded counts for one historical response.",
-  })
+  }).pipe(
+    $I.annoteSchema("RelationPreviewCaseResult", {
+      description: "Parsed, relation-candidate, grounded, and degraded counts for one historical response.",
+    })
+  )
 ) {}
 
-class RelationPreviewReport extends S.Class<RelationPreviewReport>($I`RelationPreviewReport`)(
-  {
+class RelationPreviewReport extends S.Opaque<RelationPreviewReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     cases: S.NonEmptyArray(RelationPreviewCaseResult),
     groundedPapers: S.Natural,
     groundedRelations: S.Natural,
     passed: S.Literal(true),
     schemaVersion: S.Literal("semantica-relation-preview-report/v1"),
-  },
-  $I.annote("RelationPreviewReport", {
-    description: "Successful zero-spend preview with at least one grounded relation on at least one paper.",
-  })
+  }).pipe(
+    $I.annoteSchema("RelationPreviewReport", {
+      description: "Successful zero-spend preview with at least one grounded relation on at least one paper.",
+    })
+  )
 ) {}
 
 const PreviewManifestJson = S.fromJsonString(RelationPreviewManifest);

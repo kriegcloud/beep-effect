@@ -51,16 +51,17 @@ const $I = $LawPracticeDomainId.create("entities/LegalOppositionCandidate/LegalO
  * @category models
  * @since 0.0.0
  */
-export class LegalVerdictAssignment extends S.Class<LegalVerdictAssignment>($I`LegalVerdictAssignment`)(
-  {
+export class LegalVerdictAssignment extends S.Opaque<LegalVerdictAssignment, { readonly brand: unique symbol }>()(
+  S.Struct({
     assignedBy: Principal.annotateKey({
       description: "Principal whose assignment this is; recorded because the family is theirs, not the system's.",
     }),
     family: LegalVerdictFamily.annotateKey({
       description: "Verdict family the attorney assigned, recorded and never derived from the pair.",
     }),
-  },
-  $I.annote("LegalVerdictAssignment", {
-    description: "One attorney's attributed assignment of a legal verdict family to an opposition candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalVerdictAssignment", {
+      description: "One attorney's attributed assignment of a legal verdict family to an opposition candidate.",
+    })
+  )
 ) {}

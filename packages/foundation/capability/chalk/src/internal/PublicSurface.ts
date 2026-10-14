@@ -59,13 +59,14 @@ export const ColorSupportLevelInput = S.Int.check(ColorSupportLevelInputChecks).
   })
 );
 
-class ChalkConstructorOptionsModel extends S.Class<ChalkConstructorOptionsModel>($I`ChalkConstructorOptions`)(
-  {
+class ChalkConstructorOptionsModel extends S.Opaque<ChalkConstructorOptionsModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     level: S.optionalKey(ColorSupportLevelInput),
-  },
-  $I.annote("ChalkConstructorOptions", {
-    description: "Constructor options accepted when creating an isolated Chalk instance.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChalkConstructorOptions", {
+      description: "Constructor options accepted when creating an isolated Chalk instance.",
+    })
+  )
 ) {}
 
 /**

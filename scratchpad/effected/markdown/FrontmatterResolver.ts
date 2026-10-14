@@ -28,7 +28,7 @@ const $I = $ScratchpadId.create("effected/markdown/FrontmatterResolver");
  *
  * @since 0.0.0
  */
-class SchemaRegistryError extends S.TaggedError<SchemaRegistryError>($I`SchemaRegistryError`)(
+class SchemaRegistryError extends S.TaggedError<SchemaRegistryError, { readonly brand: unique symbol }>($I`SchemaRegistryError`)(
 	"SchemaRegistryError",
 	{
 		message: S.String,
@@ -59,7 +59,7 @@ class SchemaRegistryError extends S.TaggedError<SchemaRegistryError>($I`SchemaRe
  * @category schemas
  * @since 0.0.0
  */
-export class SchemaDeclarationByUrl extends S.TaggedClass<SchemaDeclarationByUrl>($I`SchemaDeclarationByUrl`)("ByUrl", {
+export class SchemaDeclarationByUrl extends S.TaggedClass<SchemaDeclarationByUrl, { readonly brand: unique symbol }>($I`SchemaDeclarationByUrl`)("ByUrl", {
 	/**
 	 * The URL as written in the declaration.
 	 *
@@ -89,7 +89,7 @@ export class SchemaDeclarationByUrl extends S.TaggedClass<SchemaDeclarationByUrl
  * @category schemas
  * @since 0.0.0
  */
-export class SchemaDeclarationByPath extends S.TaggedClass<SchemaDeclarationByPath>($I`SchemaDeclarationByPath`)("ByPath", {
+export class SchemaDeclarationByPath extends S.TaggedClass<SchemaDeclarationByPath, { readonly brand: unique symbol }>($I`SchemaDeclarationByPath`)("ByPath", {
 	/**
 	 * The path as written in the declaration.
 	 *
@@ -122,7 +122,7 @@ export class SchemaDeclarationByPath extends S.TaggedClass<SchemaDeclarationByPa
  * @category schemas
  * @since 0.0.0
  */
-export class SchemaDeclarationInline extends S.TaggedClass<SchemaDeclarationInline>($I`SchemaDeclarationInline`)("Inline", {
+export class SchemaDeclarationInline extends S.TaggedClass<SchemaDeclarationInline, { readonly brand: unique symbol }>($I`SchemaDeclarationInline`)("Inline", {
 	/**
 	 * The inline schema document, exactly as decoded from the frontmatter.
 	 *
@@ -158,7 +158,7 @@ export class SchemaDeclarationInline extends S.TaggedClass<SchemaDeclarationInli
  * @category schemas
  * @since 0.0.0
  */
-export class SchemaDeclarationByName extends S.TaggedClass<SchemaDeclarationByName>($I`SchemaDeclarationByName`)("ByName", {
+export class SchemaDeclarationByName extends S.TaggedClass<SchemaDeclarationByName, { readonly brand: unique symbol }>($I`SchemaDeclarationByName`)("ByName", {
 	/**
 	 * The name as written, scope included.
 	 *
@@ -228,7 +228,7 @@ export type SchemaDeclaration =
  * @category errors
  * @since 0.0.0
  */
-export class SchemaDeclarationInvalidError extends S.TaggedError<SchemaDeclarationInvalidError>($I`SchemaDeclarationInvalidError`)(
+export class SchemaDeclarationInvalidError extends S.TaggedError<SchemaDeclarationInvalidError, { readonly brand: unique symbol }>($I`SchemaDeclarationInvalidError`)(
 	"SchemaDeclarationInvalidError",
 	{
 		/**
@@ -282,7 +282,7 @@ export class SchemaDeclarationInvalidError extends S.TaggedError<SchemaDeclarati
  * @category errors
  * @since 0.0.0
  */
-export class SchemaDeclarationMissingError extends S.TaggedError<SchemaDeclarationMissingError>($I`SchemaDeclarationMissingError`)(
+export class SchemaDeclarationMissingError extends S.TaggedError<SchemaDeclarationMissingError, { readonly brand: unique symbol }>($I`SchemaDeclarationMissingError`)(
 	"SchemaDeclarationMissingError",
 	{}, $I.annote("SchemaDeclarationMissingError", { description: "Indicates that frontmatter data carries no `$schema` declaration where one is required — the `requireDeclaration` strictness knob, or a registry resolver that has nothing to dispatch on." }),
 ) {
@@ -323,7 +323,7 @@ export class SchemaDeclarationMissingError extends S.TaggedError<SchemaDeclarati
  * @category errors
  * @since 0.0.0
  */
-export class SchemaNameUnknownError extends S.TaggedError<SchemaNameUnknownError>($I`SchemaNameUnknownError`)("SchemaNameUnknownError", {
+export class SchemaNameUnknownError extends S.TaggedError<SchemaNameUnknownError, { readonly brand: unique symbol }>($I`SchemaNameUnknownError`)("SchemaNameUnknownError", {
 	/**
 	 * The declaration that failed to resolve, when one exists.
 	 *
@@ -371,7 +371,7 @@ export class SchemaNameUnknownError extends S.TaggedError<SchemaNameUnknownError
  * @category errors
  * @since 0.0.0
  */
-export class SchemaVersionUnresolvableError extends S.TaggedError<SchemaVersionUnresolvableError>($I`SchemaVersionUnresolvableError`)(
+export class SchemaVersionUnresolvableError extends S.TaggedError<SchemaVersionUnresolvableError, { readonly brand: unique symbol }>($I`SchemaVersionUnresolvableError`)(
 	"SchemaVersionUnresolvableError",
 	{
 		/**

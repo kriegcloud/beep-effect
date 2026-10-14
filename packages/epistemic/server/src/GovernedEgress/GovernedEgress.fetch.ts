@@ -118,8 +118,8 @@ const outcomeAppendTimeout = Duration.seconds(1);
  * @category models
  * @since 0.0.0
  */
-export class GovernedEgressOptions extends S.Class<GovernedEgressOptions>($I`GovernedEgressOptions`)(
-  {
+export class GovernedEgressOptions extends S.Opaque<GovernedEgressOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     grantTtl: S.Duration.annotateKey({
       description: "Lifetime of the frozen egress grant set, measured from layer build.",
     }),
@@ -132,10 +132,11 @@ export class GovernedEgressOptions extends S.Class<GovernedEgressOptions>($I`Gov
     resource: GrantResource.annotateKey({
       description: "Resource selector recorded on every egress grant.",
     }),
-  },
-  $I.annote("GovernedEgressOptions", {
-    description: "Session-static inputs the composition root supplies to the governed egress boundary.",
-  })
+  }).pipe(
+    $I.annoteSchema("GovernedEgressOptions", {
+      description: "Session-static inputs the composition root supplies to the governed egress boundary.",
+    })
+  )
 ) {
   static readonly is = S.is(GovernedEgressOptions);
 }

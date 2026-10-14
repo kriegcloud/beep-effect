@@ -16,19 +16,29 @@ import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("test/laws-turbo-inputs");
 
-class LawsTaskDefinition extends S.Class<LawsTaskDefinition>($I`LawsTaskDefinition`)(
-  { cache: S.Boolean, outputs: S.Array(S.String), inputs: S.Array(S.String), dependsOn: S.Array(S.String) },
-  $I.annote("LawsTaskDefinition", { description: "Production law task declarations exercised by the hash fixture." })
+class LawsTaskDefinition extends S.Opaque<LawsTaskDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
+    cache: S.Boolean,
+    outputs: S.Array(S.String),
+    inputs: S.Array(S.String),
+    dependsOn: S.Array(S.String),
+  }).pipe(
+    $I.annoteSchema("LawsTaskDefinition", {
+      description: "Production law task declarations exercised by the hash fixture.",
+    })
+  )
 ) {}
 
-class LawsTaskSummary extends S.Class<LawsTaskSummary>($I`LawsTaskSummary`)(
-  { taskId: S.String, hash: S.String, dependencies: S.Array(S.String) },
-  $I.annote("LawsTaskSummary", { description: "Task identity, hash, and edges from a real Turbo dry run." })
+class LawsTaskSummary extends S.Opaque<LawsTaskSummary, { readonly brand: unique symbol }>()(
+  S.Struct({ taskId: S.String, hash: S.String, dependencies: S.Array(S.String) }).pipe(
+    $I.annoteSchema("LawsTaskSummary", { description: "Task identity, hash, and edges from a real Turbo dry run." })
+  )
 ) {}
 
-class LawsRunSummary extends S.Class<LawsRunSummary>($I`LawsRunSummary`)(
-  { tasks: S.Array(LawsTaskSummary) },
-  $I.annote("LawsRunSummary", { description: "Turbo dry-run boundary for package and root law tasks." })
+class LawsRunSummary extends S.Opaque<LawsRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({ tasks: S.Array(LawsTaskSummary) }).pipe(
+    $I.annoteSchema("LawsRunSummary", { description: "Turbo dry-run boundary for package and root law tasks." })
+  )
 ) {}
 
 const LawsConfiguration = S.Struct({

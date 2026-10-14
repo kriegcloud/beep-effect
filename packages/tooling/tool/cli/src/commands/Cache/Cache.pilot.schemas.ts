@@ -33,8 +33,8 @@ const $I = $RepoCliId.create("commands/Cache/Cache.pilot.schemas");
  * @category models
  * @since 0.0.0
  */
-export class CachePilotRequest extends S.Class<CachePilotRequest>($I`CachePilotRequest`)(
-  {
+export class CachePilotRequest extends S.Opaque<CachePilotRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     channel: CacheClientChannel,
     client: CacheClientPin,
     executable: S.NonEmptyString,
@@ -47,11 +47,12 @@ export class CachePilotRequest extends S.Class<CachePilotRequest>($I`CachePilotR
       S.withDecodingDefaultKey(Effect.succeed<"full">("full")),
       S.withConstructorDefault(Effect.succeed<"full">("full"))
     ),
-  },
-  $I.annote("CachePilotRequest", {
-    description:
-      "A bounded real-lint experiment using registered read-only worktrees and a verified activation preview.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePilotRequest", {
+      description:
+        "A bounded real-lint experiment using registered read-only worktrees and a verified activation preview.",
+    })
+  )
 ) {}
 
 /**
@@ -73,8 +74,8 @@ export class CachePilotRequest extends S.Class<CachePilotRequest>($I`CachePilotR
  * @category models
  * @since 0.0.0
  */
-export class CachePilotLogInput extends S.Class<CachePilotLogInput>($I`CachePilotLogInput`)(
-  {
+export class CachePilotLogInput extends S.Opaque<CachePilotLogInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     computation: CacheQualificationKey.fields.computation,
     taskHash: CacheSyntheticRun.fields.taskHash,
     origin: CacheLocalOrigin,
@@ -82,10 +83,12 @@ export class CachePilotLogInput extends S.Class<CachePilotLogInput>($I`CachePilo
     stdout: S.String,
     stderr: S.String,
     truncated: S.Boolean,
-  },
-  $I.annote("CachePilotLogInput", {
-    description: "Bounded separate process streams and the exact selected-task identity observed in a native summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePilotLogInput", {
+      description:
+        "Bounded separate process streams and the exact selected-task identity observed in a native summary.",
+    })
+  )
 ) {}
 
 /**
@@ -104,12 +107,13 @@ export class CachePilotLogInput extends S.Class<CachePilotLogInput>($I`CachePilo
  * @category models
  * @since 0.0.0
  */
-export class CacheSignedPilotLogInput extends S.Class<CacheSignedPilotLogInput>($I`CacheSignedPilotLogInput`)(
-  { ...CachePilotLogInput.fields, origin: LiteralKit(["fresh", "remote-hit"]) },
-  $I.annote("CacheSignedPilotLogInput", {
-    description:
-      "Bounded grouped task streams for the separate signed profile; no local receipt or qualification authority.",
-  })
+export class CacheSignedPilotLogInput extends S.Opaque<CacheSignedPilotLogInput, { readonly brand: unique symbol }>()(
+  S.Struct({ ...CachePilotLogInput.fields, origin: LiteralKit(["fresh", "remote-hit"]) }).pipe(
+    $I.annoteSchema("CacheSignedPilotLogInput", {
+      description:
+        "Bounded grouped task streams for the separate signed profile; no local receipt or qualification authority.",
+    })
+  )
 ) {}
 
 /**
@@ -125,17 +129,18 @@ export class CacheSignedPilotLogInput extends S.Class<CacheSignedPilotLogInput>(
  * @category models
  * @since 0.0.0
  */
-export class CachePilotTask extends S.Class<CachePilotTask>($I`CachePilotTask`)(
-  {
+export class CachePilotTask extends S.Opaque<CachePilotTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     computation: CacheQualificationKey.fields.computation,
     taskHash: CacheSyntheticRun.fields.taskHash,
     origin: CacheLocalOrigin,
     exitCode: S.Int,
     inputsDigest: Sha256Hex,
-  },
-  $I.annote("CachePilotTask", {
-    description: "Observed task identity, local origin, exit verdict and expanded-input digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePilotTask", {
+      description: "Observed task identity, local origin, exit verdict and expanded-input digest.",
+    })
+  )
 ) {}
 
 /**
@@ -186,11 +191,15 @@ export type CachePilotOutcome = typeof CachePilotOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class CachePilotExecutionInterval extends S.Class<CachePilotExecutionInterval>($I`CachePilotExecutionInterval`)(
-  { startTime: S.Natural, endTime: S.Natural },
-  $I.annote("CachePilotExecutionInterval", {
-    description: "Native selected-task timestamps in same-host milliseconds; parent process timing is not evidence.",
-  })
+export class CachePilotExecutionInterval extends S.Opaque<
+  CachePilotExecutionInterval,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ startTime: S.Natural, endTime: S.Natural }).pipe(
+    $I.annoteSchema("CachePilotExecutionInterval", {
+      description: "Native selected-task timestamps in same-host milliseconds; parent process timing is not evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -206,8 +215,8 @@ export class CachePilotExecutionInterval extends S.Class<CachePilotExecutionInte
  * @category models
  * @since 0.0.0
  */
-export class CachePilotRun extends S.Class<CachePilotRun>($I`CachePilotRun`)(
-  {
+export class CachePilotRun extends S.Opaque<CachePilotRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     nativeRuntimeKeyObserved: S.Boolean,
     id: S.NonEmptyString,
     root: LiteralKit(["root-a", "root-b"]),
@@ -220,10 +229,11 @@ export class CachePilotRun extends S.Class<CachePilotRun>($I`CachePilotRun`)(
     dependencies: S.Array(CachePilotTask),
     summarySha256: Sha256Hex,
     sourceTreeUnchanged: S.Boolean,
-  },
-  $I.annote("CachePilotRun", {
-    description: "One bounded local observation; missing tasks are never counted as executions.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePilotRun", {
+      description: "One bounded local observation; missing tasks are never counted as executions.",
+    })
+  )
 ) {}
 
 /**
@@ -239,8 +249,8 @@ export class CachePilotRun extends S.Class<CachePilotRun>($I`CachePilotRun`)(
  * @category models
  * @since 0.0.0
  */
-export class CachePilotShadow extends S.Class<CachePilotShadow>($I`CachePilotShadow`)(
-  {
+export class CachePilotShadow extends S.Opaque<CachePilotShadow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     authoritative: S.NonEmptyString,
     producer: S.NonEmptyString,
@@ -249,11 +259,12 @@ export class CachePilotShadow extends S.Class<CachePilotShadow>($I`CachePilotSha
     expectedInputHash: LiteralKit(["stable", "changed"]),
     inputHashExpectationMet: S.Boolean,
     equivalent: S.Boolean,
-  },
-  $I.annote("CachePilotShadow", {
-    description:
-      "A local cross-worktree replay compared against fresh authority with an explicit perturbation expectation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePilotShadow", {
+      description:
+        "A local cross-worktree replay compared against fresh authority with an explicit perturbation expectation.",
+    })
+  )
 ) {}
 
 /**
@@ -269,8 +280,8 @@ export class CachePilotShadow extends S.Class<CachePilotShadow>($I`CachePilotSha
  * @category models
  * @since 0.0.0
  */
-export class CachePilotMutation extends S.Class<CachePilotMutation>($I`CachePilotMutation`)(
-  {
+export class CachePilotMutation extends S.Opaque<CachePilotMutation, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     changedPath: CacheEvidenceReference.fields.path,
     beforeSha256: Sha256Hex,
@@ -281,11 +292,12 @@ export class CachePilotMutation extends S.Class<CachePilotMutation>($I`CachePilo
     expectedBaselineExit: S.Int,
     expectedChangedExit: S.Int,
     passed: S.Boolean,
-  },
-  $I.annote("CachePilotMutation", {
-    description:
-      "Exact changed file bytes, native run references and expected verdicts for one local invalidation control.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePilotMutation", {
+      description:
+        "Exact changed file bytes, native run references and expected verdicts for one local invalidation control.",
+    })
+  )
 ) {}
 
 /**
@@ -301,8 +313,8 @@ export class CachePilotMutation extends S.Class<CachePilotMutation>($I`CachePilo
  * @category models
  * @since 0.0.0
  */
-export class CachePilotNonExecution extends S.Class<CachePilotNonExecution>($I`CachePilotNonExecution`)(
-  {
+export class CachePilotNonExecution extends S.Opaque<CachePilotNonExecution, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     reason: LiteralKit(["missing-root-config", "malformed-root-config", "malformed-child-config", "absent-script"]),
     exitCode: S.Int,
@@ -311,10 +323,11 @@ export class CachePilotNonExecution extends S.Class<CachePilotNonExecution>($I`C
     summaryPresent: S.Boolean,
     selectedExecutionObserved: S.Boolean,
     passed: S.Boolean,
-  },
-  $I.annote("CachePilotNonExecution", {
-    description: "Bounded native evidence for a setup refusal or a configured task whose package script is absent.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePilotNonExecution", {
+      description: "Bounded native evidence for a setup refusal or a configured task whose package script is absent.",
+    })
+  )
 ) {}
 
 /**
@@ -340,8 +353,8 @@ export class CachePilotNonExecution extends S.Class<CachePilotNonExecution>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CachePilotReceipt extends S.Class<CachePilotReceipt>($I`CachePilotReceipt`)(
-  {
+export class CachePilotReceipt extends S.Opaque<CachePilotReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("cache-pilot-local/v5"),
     clientSelection: S.Literal("pinned-native-skip-infer"),
     runtimeKeying: S.Literal("toolchain-sha256-env/v1"),
@@ -368,8 +381,9 @@ export class CachePilotReceipt extends S.Class<CachePilotReceipt>($I`CachePilotR
     mutations: S.Array(CachePilotMutation),
     nonExecutions: S.Array(CachePilotNonExecution),
     remaining: S.NonEmptyArray(S.NonEmptyString),
-  },
-  $I.annote("CachePilotReceipt", {
-    description: "Versioned local pilot observations; signed replay and full qualification remain separate.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachePilotReceipt", {
+      description: "Versioned local pilot observations; signed replay and full qualification remain separate.",
+    })
+  )
 ) {}

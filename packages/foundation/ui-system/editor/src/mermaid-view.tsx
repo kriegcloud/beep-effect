@@ -49,7 +49,9 @@ const unsafeDiagramMessage = "Diagram output did not satisfy the desktop safety 
  * @category errors
  * @since 0.0.0
  */
-export class MermaidRenderError extends S.TaggedError<MermaidRenderError>($I`MermaidRenderError`)(
+export class MermaidRenderError extends S.TaggedError<MermaidRenderError, { readonly brand: unique symbol }>(
+  $I`MermaidRenderError`
+)(
   "MermaidRenderError",
   {
     message: S.String.annotateKey({ description: "User-safe diagram failure message." }),

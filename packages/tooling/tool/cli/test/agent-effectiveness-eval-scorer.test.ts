@@ -43,6 +43,8 @@ import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import { RunAgentEffectivenessEvalScoreCommandOptions } from "../src/commands/AgentEffectiveness/internal/EvalScorer.ts";
+import { LawComponentScores } from "../src/commands/AgentEffectiveness/internal/EvalScoring.ts";
 
 const temporaryFixture = FileSystem.FileSystem.use((fs) =>
   Effect.acquireRelease(fs.makeTempDirectory(), (directory) =>
@@ -363,7 +365,7 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
     expect(lawComponentScore(0)).toBe(1);
     expect(lawComponentScore(1)).toBe(0.5);
     expect(lawComponentScore(2)).toBe(0.333333);
-    expect(aggregateLawFraction({ schemaFirst: 1, tsgo: 0.5, biome: 0.25 })).toBe(0.583333);
+    expect(aggregateLawFraction(LawComponentScores.make({ schemaFirst: 1, tsgo: 0.5, biome: 0.25 }))).toBe(0.583333);
   });
 
   it.effect.prop(
@@ -681,15 +683,17 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
     Effect.gen(function* () {
       const spawned = yield* Ref.make<ReadonlyArray<string>>([]);
       const configs = yield* Ref.make<ReadonlyArray<string>>([]);
-      const exit = yield* runAgentEffectivenessEvalScoreCommand({
-        dataRoot: O.none(),
-        dir: fixtureRoot,
-        json: false,
-        modelId: O.none(),
-        reasoningEffort: O.none(),
-        record: true,
-        taskPath,
-      }).pipe(
+      const exit = yield* runAgentEffectivenessEvalScoreCommand(
+        RunAgentEffectivenessEvalScoreCommandOptions.make({
+          dataRoot: O.none(),
+          dir: fixtureRoot,
+          json: false,
+          modelId: O.none(),
+          reasoningEffort: O.none(),
+          record: true,
+          taskPath,
+        })
+      ).pipe(
         Effect.provideServiceEffect(
           ChildProcessSpawner.ChildProcessSpawner,
           fakeLawSpawner(spawned, configs, { biome: {} })

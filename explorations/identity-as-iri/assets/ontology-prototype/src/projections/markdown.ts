@@ -29,17 +29,19 @@ export const OntologyMarkdownLinkMode = LiteralKit(["portable", "obsidian"]).pip
 );
 export type OntologyMarkdownLinkMode = typeof OntologyMarkdownLinkMode.Type;
 
-export class OntologyMarkdownProjectionOptions extends S.Class<OntologyMarkdownProjectionOptions>(
-  $I`OntologyMarkdownProjectionOptions`
-)(
-  {
+export class OntologyMarkdownProjectionOptions extends S.Opaque<
+  OntologyMarkdownProjectionOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     linkMode: OntologyMarkdownLinkMode.pipe(
       S.withConstructorDefault(Effect.succeed(OntologyMarkdownLinkMode.Enum.portable))
     ),
-  },
-  $I.annote("OntologyMarkdownProjectionOptions", {
-    description: "Options for ontology Markdown projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyMarkdownProjectionOptions", {
+      description: "Options for ontology Markdown projection.",
+    })
+  )
 ) {}
 
 type MarkdownOptionsInput = Parameters<typeof OntologyMarkdownProjectionOptions.make>[0];

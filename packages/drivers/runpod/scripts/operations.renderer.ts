@@ -29,9 +29,9 @@ const OperationRequestBodyKind = LiteralKit(["json", "none"]);
 const OperationResponseBodyKind = LiteralKit(["json", "none", "text"]);
 type OperationResponseBodyKind = typeof OperationResponseBodyKind.Type;
 
-const JsonSchemaRef = S.suspend((): S.Codec<JsonSchema, JsonSchema> => JsonSchema);
+const JsonSchemaRef = S.suspend((): S.Codec<JsonSchema, JsonSchema.Encoded> => JsonSchema);
 
-class JsonSchema extends S.Class<JsonSchema>($I`JsonSchema`)(
+class JsonSchema extends S.Class<JsonSchema, { readonly brand: unique symbol }>($I`JsonSchema`)(
   {
     $ref: S.optionalKey(S.String),
     type: S.optionalKey(S.Union([S.String, S.Array(S.String)])),
@@ -48,53 +48,72 @@ class JsonSchema extends S.Class<JsonSchema>($I`JsonSchema`)(
   })
 ) {}
 
+declare namespace JsonSchema {
+  /** Encoded (wire) side of the recursive JSON Schema subset; the branded class is the decoded side. */
+  export interface Encoded {
+    readonly $ref?: string;
+    readonly additionalProperties?: Encoded | boolean;
+    readonly enum?: ReadonlyArray<unknown>;
+    readonly format?: string;
+    readonly items?: Encoded;
+    readonly nullable?: boolean;
+    readonly properties?: { readonly [key: string]: Encoded };
+    readonly required?: ReadonlyArray<string>;
+    readonly type?: string | ReadonlyArray<string>;
+  }
+}
+
 const StringJsonSchema = JsonSchema.make({ type: "string" });
 const UnknownJsonSchema = JsonSchema.make({ type: "unknown" });
 
-class OpenApiParameter extends S.Class<OpenApiParameter>($I`OpenApiParameter`)(
-  {
+class OpenApiParameter extends S.Opaque<OpenApiParameter, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     in: S.Literals(["path", "query", "header", "cookie"]),
     required: S.optionalKey(S.Boolean),
     schema: S.optionalKey(JsonSchema),
-  },
-  $I.annote("OpenApiParameter", {
-    description: "OpenAPI parameter subset consumed by the Runpod generator.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenApiParameter", {
+      description: "OpenAPI parameter subset consumed by the Runpod generator.",
+    })
+  )
 ) {}
 
-class OpenApiMedia extends S.Class<OpenApiMedia>($I`OpenApiMedia`)(
-  {
+class OpenApiMedia extends S.Opaque<OpenApiMedia, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema: S.optionalKey(JsonSchema),
-  },
-  $I.annote("OpenApiMedia", {
-    description: "OpenAPI media object subset consumed by the Runpod generator.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenApiMedia", {
+      description: "OpenAPI media object subset consumed by the Runpod generator.",
+    })
+  )
 ) {}
 
-class OpenApiRequestBody extends S.Class<OpenApiRequestBody>($I`OpenApiRequestBody`)(
-  {
+class OpenApiRequestBody extends S.Opaque<OpenApiRequestBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.optionalKey(S.Record(S.String, OpenApiMedia)),
     required: S.optionalKey(S.Boolean),
-  },
-  $I.annote("OpenApiRequestBody", {
-    description: "OpenAPI request body subset consumed by the Runpod generator.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenApiRequestBody", {
+      description: "OpenAPI request body subset consumed by the Runpod generator.",
+    })
+  )
 ) {}
 
-class OpenApiResponse extends S.Class<OpenApiResponse>($I`OpenApiResponse`)(
-  {
+class OpenApiResponse extends S.Opaque<OpenApiResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.optionalKey(S.Record(S.String, OpenApiMedia)),
-  },
-  $I.annote("OpenApiResponse", {
-    description: "OpenAPI response subset consumed by the Runpod generator.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenApiResponse", {
+      description: "OpenAPI response subset consumed by the Runpod generator.",
+    })
+  )
 ) {}
 
 const openApiOperationParametersDefault = A.empty<OpenApiParameter>();
 const openApiOperationResponsesDefault = R.empty();
-class OpenApiOperation extends S.Class<OpenApiOperation>($I`OpenApiOperation`)(
-  {
+class OpenApiOperation extends S.Opaque<OpenApiOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     operationId: S.String,
     summary: S.optionalKey(S.String),
     description: S.optionalKey(S.String),
@@ -109,15 +128,16 @@ class OpenApiOperation extends S.Class<OpenApiOperation>($I`OpenApiOperation`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(openApiOperationResponsesDefault))
     ),
     security: S.Record(S.String, S.Array(S.String)).pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("OpenApiOperation", {
-    description: "OpenAPI operation subset consumed by the Runpod generator.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenApiOperation", {
+      description: "OpenAPI operation subset consumed by the Runpod generator.",
+    })
+  )
 ) {}
 
 const openApiPathItemParametersDefault = A.empty<OpenApiParameter>();
-class OpenApiPathItem extends S.Class<OpenApiPathItem>($I`OpenApiPathItem`)(
-  {
+class OpenApiPathItem extends S.Opaque<OpenApiPathItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     get: S.optionalKey(OpenApiOperation),
     post: S.optionalKey(OpenApiOperation),
     patch: S.optionalKey(OpenApiOperation),
@@ -127,35 +147,38 @@ class OpenApiPathItem extends S.Class<OpenApiPathItem>($I`OpenApiPathItem`)(
       S.withConstructorDefault(Effect.succeed(openApiPathItemParametersDefault)),
       S.withDecodingDefaultType(Effect.succeed(openApiPathItemParametersDefault))
     ),
-  },
-  $I.annote("OpenApiPathItem", {
-    description: "OpenAPI path item subset consumed by the Runpod generator.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenApiPathItem", {
+      description: "OpenAPI path item subset consumed by the Runpod generator.",
+    })
+  )
 ) {}
 
 const openApiComponentsSchemasDefault = R.empty();
-class OpenApiComponents extends S.Class<OpenApiComponents>($I`OpenApiComponents`)(
-  {
+class OpenApiComponents extends S.Opaque<OpenApiComponents, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemas: S.Record(S.String, JsonSchema).pipe(
       S.withConstructorDefault(Effect.succeed(openApiComponentsSchemasDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(openApiComponentsSchemasDefault))
     ),
-  },
-  $I.annote("OpenApiComponents", {
-    description: "OpenAPI components subset consumed by the Runpod generator.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenApiComponents", {
+      description: "OpenAPI components subset consumed by the Runpod generator.",
+    })
+  )
 ) {}
 
-class OpenApiDocument extends S.Class<OpenApiDocument>($I`OpenApiDocument`)(
-  {
+class OpenApiDocument extends S.Opaque<OpenApiDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     openapi: S.String,
     paths: S.Record(S.String, OpenApiPathItem),
     components: S.optionalKey(OpenApiComponents),
     security: S.Record(S.String, S.Array(S.String)).pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("OpenApiDocument", {
-    description: "Runpod OpenAPI document subset consumed by the generator.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenApiDocument", {
+      description: "Runpod OpenAPI document subset consumed by the generator.",
+    })
+  )
 ) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(OpenApiDocument);
 }
@@ -741,7 +764,7 @@ const renderRequestClass = (operation: Operation): string => {
  * @category dtos
  * @since 0.1.0
  */
-export class ${operation.requestClassName} extends S.Class<${operation.requestClassName}>($I\`${operation.requestClassName}\`)(
+export class ${operation.requestClassName} extends S.Class<${operation.requestClassName}, { readonly brand: unique symbol }>($I\`${operation.requestClassName}\`)(
   {
 ${pipe(fields, A.join("\n"))}
   },
@@ -931,7 +954,7 @@ export type RunpodResponseBodyKind = typeof RunpodResponseBodyKind.Type;
  * @category models
  * @since 0.1.0
  */
-export class RunpodOperationDescriptor extends S.Class<RunpodOperationDescriptor>($I\`RunpodOperationDescriptor\`)(
+export class RunpodOperationDescriptor extends S.Class<RunpodOperationDescriptor, { readonly brand: unique symbol }>($I\`RunpodOperationDescriptor\`)(
   {
   authenticated: S.Boolean,
   method: RunpodHttpMethod,

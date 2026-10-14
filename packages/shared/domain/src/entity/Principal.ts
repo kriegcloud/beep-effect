@@ -72,14 +72,15 @@ export type SystemComponent = typeof SystemComponent.Type;
  * @category models
  * @since 0.0.0
  */
-export class UserPrincipal extends S.Class<UserPrincipal>($I`UserPrincipal`)(
-  {
+export class UserPrincipal extends S.Opaque<UserPrincipal, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("User").annotateKey({ description: "Principal discriminator for a user actor." }),
     userId: Shared.UserId.annotateKey({ description: "Shared user id for the actor." }),
-  },
-  $I.annote("UserPrincipal", {
-    description: "Canonical actor reference for a user.",
-  })
+  }).pipe(
+    $I.annoteSchema("UserPrincipal", {
+      description: "Canonical actor reference for a user.",
+    })
+  )
 ) {}
 
 /**
@@ -102,8 +103,8 @@ export class UserPrincipal extends S.Class<UserPrincipal>($I`UserPrincipal`)(
  * @category models
  * @since 0.0.0
  */
-export class ServiceAccountPrincipal extends S.Class<ServiceAccountPrincipal>($I`ServiceAccountPrincipal`)(
-  {
+export class ServiceAccountPrincipal extends S.Opaque<ServiceAccountPrincipal, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("ServiceAccount").annotateKey({
       description: "Principal discriminator for a service-account actor.",
     }),
@@ -114,10 +115,11 @@ export class ServiceAccountPrincipal extends S.Class<ServiceAccountPrincipal>($I
     serviceAccountId: Shared.ServiceAccountId.annotateKey({
       description: "Shared service-account id for the actor.",
     }),
-  },
-  $I.annote("ServiceAccountPrincipal", {
-    description: "Canonical actor reference for a service account.",
-  })
+  }).pipe(
+    $I.annoteSchema("ServiceAccountPrincipal", {
+      description: "Canonical actor reference for a service account.",
+    })
+  )
 ) {}
 
 /**
@@ -142,8 +144,8 @@ export class ServiceAccountPrincipal extends S.Class<ServiceAccountPrincipal>($I
  * @category models
  * @since 0.0.0
  */
-export class AgentPrincipal extends S.Class<AgentPrincipal>($I`AgentPrincipal`)(
-  {
+export class AgentPrincipal extends S.Opaque<AgentPrincipal, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentId: Shared.AgentId.annotateKey({ description: "Shared agent id for the actor." }),
     agentVersionId: Shared.AgentVersionId.annotateKey({
       description: "Shared agent-version id for the actor.",
@@ -154,10 +156,11 @@ export class AgentPrincipal extends S.Class<AgentPrincipal>($I`AgentPrincipal`)(
       S.annotateKey({ description: "Optional team id represented by the agent." })
     ),
     onBehalfOfUserId: Shared.UserId.annotateKey({ description: "User id represented by the agent." }),
-  },
-  $I.annote("AgentPrincipal", {
-    description: "Canonical actor reference for an agent.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentPrincipal", {
+      description: "Canonical actor reference for an agent.",
+    })
+  )
 ) {}
 
 /**
@@ -180,8 +183,8 @@ export class AgentPrincipal extends S.Class<AgentPrincipal>($I`AgentPrincipal`)(
  * @category models
  * @since 0.0.0
  */
-export class ConnectorAccountPrincipal extends S.Class<ConnectorAccountPrincipal>($I`ConnectorAccountPrincipal`)(
-  {
+export class ConnectorAccountPrincipal extends S.Opaque<ConnectorAccountPrincipal, { readonly brand: unique symbol }>()(
+  S.Struct({
     connectorAccountId: Shared.ConnectorAccountId.annotateKey({
       description: "Shared connector-account id for the actor.",
     }),
@@ -192,10 +195,11 @@ export class ConnectorAccountPrincipal extends S.Class<ConnectorAccountPrincipal
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Optional user id represented by the connector account." })
     ),
-  },
-  $I.annote("ConnectorAccountPrincipal", {
-    description: "Canonical actor reference for a connector account.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConnectorAccountPrincipal", {
+      description: "Canonical actor reference for a connector account.",
+    })
+  )
 ) {}
 
 /**
@@ -216,14 +220,15 @@ export class ConnectorAccountPrincipal extends S.Class<ConnectorAccountPrincipal
  * @category models
  * @since 0.0.0
  */
-export class SystemPrincipal extends S.Class<SystemPrincipal>($I`SystemPrincipal`)(
-  {
+export class SystemPrincipal extends S.Opaque<SystemPrincipal, { readonly brand: unique symbol }>()(
+  S.Struct({
     component: SystemComponent.annotateKey({ description: "System component responsible for the action." }),
     kind: S.tag("System").annotateKey({ description: "Principal discriminator for internal system work." }),
-  },
-  $I.annote("SystemPrincipal", {
-    description: "Canonical actor reference for a system component.",
-  })
+  }).pipe(
+    $I.annoteSchema("SystemPrincipal", {
+      description: "Canonical actor reference for a system component.",
+    })
+  )
 ) {}
 
 const PrincipalBase = S.Union([
@@ -280,12 +285,9 @@ export const Principal: PrincipalSchema = PrincipalBase;
  * **Example** (Annotate principal value)
  *
  * ```ts
- * import type { Principal } from "@beep/shared-domain/entity/Principal"
+ * import { type Principal, SystemPrincipal } from "@beep/shared-domain/entity/Principal"
  *
- * const principal: Principal = {
- *   kind: "System",
- *   component: "Runtime",
- * }
+ * const principal: Principal = SystemPrincipal.make({ component: "Runtime" })
  * console.log(principal.kind)
  * ```
  *

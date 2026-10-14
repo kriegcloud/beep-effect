@@ -86,8 +86,8 @@ export const TEMPLATE_SLUG = "_template";
  * @category models
  * @since 0.0.0
  */
-export class GoalPacketRecord extends S.Class<GoalPacketRecord>($I`GoalPacketRecord`)(
-  {
+export class GoalPacketRecord extends S.Opaque<GoalPacketRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     packetPath: S.String,
     manifestPath: S.String,
@@ -95,10 +95,11 @@ export class GoalPacketRecord extends S.Class<GoalPacketRecord>($I`GoalPacketRec
     manifestText: S.optionalKey(S.String),
     readmeText: S.optionalKey(S.String),
     goalMdChars: S.optionalKey(S.Finite),
-  },
-  $I.annote("GoalPacketRecord", {
-    description: "One scanned goal-packet directory with raw manifest/README/launcher surfaces.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalPacketRecord", {
+      description: "One scanned goal-packet directory with raw manifest/README/launcher surfaces.",
+    })
+  )
 ) {}
 
 const recordBySlug = Order.mapInput(Order.String, (record: GoalPacketRecord) => record.slug);

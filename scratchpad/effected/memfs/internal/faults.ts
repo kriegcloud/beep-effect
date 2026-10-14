@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/memfs/internal/faults");
  * @category errors
  * @since 0.0.0
  */
-export class UnknownFaultKeyError extends S.TaggedError<UnknownFaultKeyError>($I`UnknownFaultKeyError`)(
+export class UnknownFaultKeyError extends S.TaggedError<UnknownFaultKeyError, { readonly brand: unique symbol }>($I`UnknownFaultKeyError`)(
 	"UnknownFaultKeyError",
 	{ message: S.String.pipe($I.annoteKey("UnknownFaultKeyError.message", { description: "The unknown fault keys and available members." })) },
  $I.annoteError<UnknownFaultKeyError>("UnknownFaultKeyError", { description: "A fault key does not name a function-valued member." }),

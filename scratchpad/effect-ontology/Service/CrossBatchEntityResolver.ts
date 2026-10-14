@@ -88,17 +88,14 @@ export type CrossBatchResolutionError = AnyEmbeddingError | DrizzleError;
  * @category models
  * @since 0.0.0
  */
-export class CrossBatchResolutionResult extends S.Class<CrossBatchResolutionResult>($I`CrossBatchResolutionResult`)(
-  {
+export class CrossBatchResolutionResult extends S.Opaque<CrossBatchResolutionResult, { readonly brand: unique symbol }>()(S.Struct({
     canonicalMap: S.Record(EntityId, IRI),
     newCanonicals: S.Array(IRI),
     mergedEntities: S.Array(S.suspend(() => MergedEntity)),
     stats: S.suspend(() => ResolutionStats),
-  },
-  $I.annote("CrossBatchResolutionResult", {
+  }).pipe($I.annoteSchema("CrossBatchResolutionResult", {
     description: "Canonical mappings, newly created identities, merges, and counts produced for one extraction batch.",
-  })
-) {}
+  }))) {}
 
 /**
  * Describes the merged entity data exposed by this module.
@@ -128,19 +125,16 @@ export class CrossBatchResolutionResult extends S.Class<CrossBatchResolutionResu
  * @category models
  * @since 0.0.0
  */
-export class MergedEntity extends S.Class<MergedEntity>($I`MergedEntity`)(
-  {
+export class MergedEntity extends S.Opaque<MergedEntity, { readonly brand: unique symbol }>()(S.Struct({
     entity: Entity,
     entityId: EntityId,
     canonicalEntityId: CanonicalEntityId,
     canonicalIri: IRI,
     confidence: UnitInterval,
     method: ResolutionMethod,
-  },
-  $I.annote("MergedEntity", {
+  }).pipe($I.annoteSchema("MergedEntity", {
     description: "Extracted entity identity matched to an existing canonical IRI.",
-  })
-) {}
+  }))) {}
 
 /**
  * Describes the resolution stats data exposed by this module.
@@ -163,30 +157,24 @@ export class MergedEntity extends S.Class<MergedEntity>($I`MergedEntity`)(
  * @category models
  * @since 0.0.0
  */
-export class ResolutionStats extends S.Class<ResolutionStats>($I`ResolutionStats`)(
-  {
+export class ResolutionStats extends S.Opaque<ResolutionStats, { readonly brand: unique symbol }>()(S.Struct({
     totalEntities: S.Natural,
     matchedToExisting: S.Natural,
     createdNew: S.Natural,
     candidatesEvaluated: S.Natural,
-  },
-  $I.annote("ResolutionStats", {
+  }).pipe($I.annoteSchema("ResolutionStats", {
     description: "Non-negative counts describing one cross-batch resolution pass.",
-  })
-) {}
+  }))) {}
 
-class MatchedEntity extends S.Class<MatchedEntity>($I`MatchedEntity`)(
-  {
+class MatchedEntity extends S.Opaque<MatchedEntity, { readonly brand: unique symbol }>()(S.Struct({
     entity: Entity,
     embedding: Embedding,
     candidate: BlockingCandidate,
     confidence: UnitInterval,
     method: ResolutionMethod,
-  },
-  $I.annote("MatchedEntity", {
+  }).pipe($I.annoteSchema("MatchedEntity", {
     description: "Internal lossless match retaining the extracted entity, vector, and selected canonical candidate.",
-  })
-) {}
+  }))) {}
 
 const crossBatchResolverConfigCandidateThresholdDefault = UnitInterval.make(0.6);
 const crossBatchResolverConfigResolutionThresholdDefault = UnitInterval.make(0.8);
@@ -208,8 +196,7 @@ const crossBatchResolverConfigCanonicalNamespaceDefault = IRI.make("https://exam
  * @category schemas
  * @since 0.0.0
  */
-export class CrossBatchResolverConfig extends S.Class<CrossBatchResolverConfig>($I`CrossBatchResolverConfig`)(
-  {
+export class CrossBatchResolverConfig extends S.Opaque<CrossBatchResolverConfig, { readonly brand: unique symbol }>()(S.Struct({
     candidateThreshold: UnitInterval.pipe(
       S.withConstructorDefault(Effect.succeed(crossBatchResolverConfigCandidateThresholdDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(crossBatchResolverConfigCandidateThresholdDefault)),
       S.annotateKey({ description: "Minimum similarity admitted by candidate retrieval." })
@@ -230,11 +217,9 @@ export class CrossBatchResolverConfig extends S.Class<CrossBatchResolverConfig>(
       S.withConstructorDefault(Effect.succeed(crossBatchResolverConfigCanonicalNamespaceDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(crossBatchResolverConfigCanonicalNamespaceDefault)),
       S.annotateKey({ description: "Namespace used for newly created canonical entity IRIs." })
     ),
-  },
-  $I.annote("CrossBatchResolverConfig", {
+  }).pipe($I.annoteSchema("CrossBatchResolverConfig", {
     description: "Schema-defaulted candidate, resolution, and canonical-identity policy.",
-  })
-) {
+  }))) {
   static readonly default = (): CrossBatchResolverConfig => CrossBatchResolverConfig.make({});
 }
 

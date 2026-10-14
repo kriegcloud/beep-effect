@@ -53,8 +53,8 @@ type EffectFnOwner = ArrowFunction | FunctionDeclaration | FunctionExpression | 
  * @category models
  * @since 0.0.0
  */
-export class EffectFnRulesOptions extends S.Class<EffectFnRulesOptions>($I`EffectFnRulesOptions`)(
-  {
+export class EffectFnRulesOptions extends S.Opaque<EffectFnRulesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     strictCheck: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
@@ -64,10 +64,11 @@ export class EffectFnRulesOptions extends S.Class<EffectFnRulesOptions>($I`Effec
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
     includePaths: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("EffectFnRulesOptions", {
-    description: "Runtime options for the repo-local Effect.fn supplemental law.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectFnRulesOptions", {
+      description: "Runtime options for the repo-local Effect.fn supplemental law.",
+    })
+  )
 ) {}
 
 /**
@@ -94,8 +95,8 @@ export class EffectFnRulesOptions extends S.Class<EffectFnRulesOptions>($I`Effec
  * @category models
  * @since 0.0.0
  */
-export class EffectFnDiagnostic extends S.Class<EffectFnDiagnostic>($I`EffectFnDiagnostic`)(
-  {
+export class EffectFnDiagnostic extends S.Opaque<EffectFnDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     line: S.Finite,
     column: S.Finite,
@@ -103,10 +104,11 @@ export class EffectFnDiagnostic extends S.Class<EffectFnDiagnostic>($I`EffectFnD
     ownerName: S.String,
     recommendation: EffectFnRecommendation,
     message: S.String,
-  },
-  $I.annote("EffectFnDiagnostic", {
-    description: "Diagnostic emitted when a reusable function directly returns Effect.gen.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectFnDiagnostic", {
+      description: "Diagnostic emitted when a reusable function directly returns Effect.gen.",
+    })
+  )
 ) {}
 
 /**
@@ -130,8 +132,8 @@ export class EffectFnDiagnostic extends S.Class<EffectFnDiagnostic>($I`EffectFnD
  * @category models
  * @since 0.0.0
  */
-export class EffectFnRulesSummary extends S.Class<EffectFnRulesSummary>($I`EffectFnRulesSummary`)(
-  {
+export class EffectFnRulesSummary extends S.Opaque<EffectFnRulesSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     scannedFiles: S.Finite,
     touchedFiles: S.Finite,
     violationCount: S.Finite,
@@ -144,10 +146,11 @@ export class EffectFnRulesSummary extends S.Class<EffectFnRulesSummary>($I`Effec
       S.withConstructorDefault(Effect.succeed(A.empty<EffectFnDiagnostic>())),
       S.withDecodingDefault(Effect.succeed(A.empty<EffectFnDiagnostic>()))
     ),
-  },
-  $I.annote("EffectFnRulesSummary", {
-    description: "Summary of repo-local Effect.fn supplemental law results.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectFnRulesSummary", {
+      description: "Summary of repo-local Effect.fn supplemental law results.",
+    })
+  )
 ) {}
 
 const isEffectFnOwner = (node: Node): node is EffectFnOwner =>

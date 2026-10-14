@@ -26,7 +26,9 @@ const $I = $WorkspaceTablesId.create("entities/Thread/Thread.errors");
  * @category errors
  * @since 0.0.0
  */
-export class ThreadConverterError extends S.TaggedError<ThreadConverterError>($I`ThreadConverterError`)(
+export class ThreadConverterError extends S.TaggedError<ThreadConverterError, { readonly brand: unique symbol }>(
+  $I`ThreadConverterError`
+)(
   "ThreadConverterError",
   {
     message: S.String.annotateKey({

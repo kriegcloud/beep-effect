@@ -406,7 +406,7 @@ const FileSignatureModel = FileSignatureStruct.check(FileSignatureInvariantsChec
  * @category models
  * @since 0.0.0
  */
-export class FileSignature extends S.Class<FileSignature>($I`FileSignature`)(
+export class FileSignature extends S.Class<FileSignature, { readonly brand: unique symbol }>($I`FileSignature`)(
   FileSignatureModel,
   $I.annote("FileSignature", {
     description:
@@ -499,11 +499,12 @@ const FileTypeInfoModel = FileTypeInfoStruct.check(FileTypeInfoInvariantsCheck);
  * @category models
  * @since 0.0.0
  */
-export class FileTypeInfo extends S.Class<FileTypeInfo>($I`FileTypeInfo`)(
-  FileTypeInfoModel,
-  $I.annote("FileTypeInfo", {
-    description: "A supported file extension, MIME type, description, and one or more identifying signatures.",
-  })
+export class FileTypeInfo extends S.Opaque<FileTypeInfo, { readonly brand: unique symbol }>()(
+  FileTypeInfoModel.pipe(
+    $I.annoteSchema("FileTypeInfo", {
+      description: "A supported file extension, MIME type, description, and one or more identifying signatures.",
+    })
+  )
 ) {}
 
 /**
@@ -570,7 +571,9 @@ const DetectedFileInfoModel = DetectedFileInfoStruct.check(DetectedFileInfoSigna
  * @category models
  * @since 0.0.0
  */
-export class DetectedFileInfo extends S.Class<DetectedFileInfo>($I`DetectedFileInfo`)(
+export class DetectedFileInfo extends S.Class<DetectedFileInfo, { readonly brand: unique symbol }>(
+  $I`DetectedFileInfo`
+)(
   DetectedFileInfoModel,
   $I.annote("DetectedFileInfo", {
     description: "Canonical file-type metadata paired with one of its signatures that matched content.",
@@ -634,16 +637,17 @@ export declare namespace DetectedFileInfo {
  * @category configuration
  * @since 0.0.0
  */
-export class DetectFileOptions extends S.Class<DetectFileOptions>($I`DetectFileOptions`)(
-  {
+export class DetectFileOptions extends S.Opaque<DetectFileOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     chunkSize: ChunkSize.pipe(
       S.withConstructorDefault(Effect.succeed(64)),
       S.withDecodingDefaultTypeKey(Effect.succeed(64))
     ),
-  },
-  $I.annote("DetectFileOptions", {
-    description: "Options controlling how many leading bytes file detection inspects.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectFileOptions", {
+      description: "Options controlling how many leading bytes file detection inspects.",
+    })
+  )
 ) {}
 
 /**
@@ -683,17 +687,18 @@ export declare namespace DetectFileOptions {
  * @category configuration
  * @since 0.0.0
  */
-export class ValidateFileTypeOptions extends S.Class<ValidateFileTypeOptions>($I`ValidateFileTypeOptions`)(
-  {
+export class ValidateFileTypeOptions extends S.Opaque<ValidateFileTypeOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...DetectFileOptions.fields,
     excludeSimilarTypes: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("ValidateFileTypeOptions", {
-    description: "Options controlling byte-window size and acceptance of closely related formats.",
-  })
+  }).pipe(
+    $I.annoteSchema("ValidateFileTypeOptions", {
+      description: "Options controlling byte-window size and acceptance of closely related formats.",
+    })
+  )
 ) {}
 
 /**

@@ -41,8 +41,7 @@ const generateWithFeedbackPolicyRetryPolicyDefault = RetryPolicy.make({});
  * @category models
  * @since 0.0.0
  */
-export class GenerateWithFeedbackPolicy extends S.Class<GenerateWithFeedbackPolicy>($I`GenerateWithFeedbackPolicy`)(
-  {
+export class GenerateWithFeedbackPolicy extends S.Opaque<GenerateWithFeedbackPolicy, { readonly brand: unique symbol }>()(S.Struct({
     objectName: S.NonEmptyString.annotateKey({
       description: "Name supplied to the provider for the requested structured object.",
     }),
@@ -57,11 +56,9 @@ export class GenerateWithFeedbackPolicy extends S.Class<GenerateWithFeedbackPoli
       S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefaultTypeKey(Effect.succeed(false)),
       S.annotateKey({ description: "Whether structured system prompts opt into provider prompt caching." })
     ),
-  },
-  $I.annote("GenerateWithFeedbackPolicy", {
+  }).pipe($I.annoteSchema("GenerateWithFeedbackPolicy", {
     description: "Validated retry, naming, and prompt-caching policy for structured generation.",
-  })
-) {
+  }))) {
   static readonly decodeEffect = S.decodeEffect(GenerateWithFeedbackPolicy);
 }
 

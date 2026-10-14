@@ -8,7 +8,8 @@
  * @since 0.0.0
  */
 
-import { A, O, Str } from "@beep/utils";
+import { O, Str } from "@beep/utils";
+import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
@@ -701,20 +702,23 @@ export const reviewerRequestsSection = (input: {
   readonly sheetSetSha256: Sha256Hex;
   readonly findings: ReadonlyArray<ReviewFinding>;
 }): string =>
-  [
-    `### Reviewer requests (review round ${input.round}, on sheet set ${input.sheetSetSha256.slice(0, 12)})`,
-    "",
-    "The attorney marked up an earlier set with the requests below. Check each one on these sheets.",
-    "A request these sheets still do not meet is a finding whose title starts with the request id (the whole `A<round>-<nn>@<set>` value).",
-    "A request that turns on what the design claims is a question for the attorney, never your ruling.",
-    "",
-    "| Id | FIG. | Request (verbatim) | Disposition |",
-    "| --- | --- | --- | --- |",
-    ...A.map(
-      input.findings,
-      (finding) =>
-        `| ${reviewFindingRef(finding.id, input.sheetSetSha256)} | ${findingFigures(finding)} | ${cell(requestText(finding))} | ${cell(
-          O.match(finding.disposition, { onNone: () => "not planned yet", onSome: dispositionText })
-        )} |`
-    ),
-  ].join("\n");
+  A.join(
+    [
+      `### Reviewer requests (review round ${input.round}, on sheet set ${input.sheetSetSha256.slice(0, 12)})`,
+      "",
+      "The attorney marked up an earlier set with the requests below. Check each one on these sheets.",
+      "A request these sheets still do not meet is a finding whose title starts with the request id (the whole `A<round>-<nn>@<set>` value).",
+      "A request that turns on what the design claims is a question for the attorney, never your ruling.",
+      "",
+      "| Id | FIG. | Request (verbatim) | Disposition |",
+      "| --- | --- | --- | --- |",
+      ...A.map(
+        input.findings,
+        (finding) =>
+          `| ${reviewFindingRef(finding.id, input.sheetSetSha256)} | ${findingFigures(finding)} | ${cell(requestText(finding))} | ${cell(
+            O.match(finding.disposition, { onNone: () => "not planned yet", onSome: dispositionText })
+          )} |`
+      ),
+    ],
+    "\n"
+  );

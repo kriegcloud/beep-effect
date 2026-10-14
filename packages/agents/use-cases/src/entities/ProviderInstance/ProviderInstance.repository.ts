@@ -38,18 +38,22 @@ const $I = $AgentsUseCasesId.create("entities/ProviderInstance/ProviderInstance.
  * @category models
  * @since 0.0.0
  */
-export class ProviderInstanceActorScope extends S.Class<ProviderInstanceActorScope>($I`ProviderInstanceActorScope`)(
-  {
+export class ProviderInstanceActorScope extends S.Opaque<
+  ProviderInstanceActorScope,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     orgId: Shared.OrganizationId.annotateKey({
       description: "Authenticated organization that owns every repository operation.",
     }),
     principal: Principal.annotateKey({
       description: "Authenticated principal attributed to repository writes.",
     }),
-  },
-  $I.annote("ProviderInstanceActorScope", {
-    description: "Trusted server-side actor and organization scope for provider-instance persistence.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProviderInstanceActorScope", {
+      description: "Trusted server-side actor and organization scope for provider-instance persistence.",
+    })
+  )
 ) {}
 
 /**
@@ -140,16 +144,17 @@ export class ProviderInstanceRepository extends Context.Service<
  * @category ports
  * @since 0.0.0
  */
-export class ProviderProbeInput extends S.Class<ProviderProbeInput>($I`ProviderProbeInput`)(
-  {
+export class ProviderProbeInput extends S.Opaque<ProviderProbeInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     binaryPath: Domain.BinaryPath,
     envVars: Domain.EnvVars,
     homePath: S.OptionFromNullOr(Domain.HomePath),
     kind: Domain.ProviderKind,
-  },
-  $I.annote("ProviderProbeInput", {
-    description: "Provider CLI configuration consumed by the product-neutral authentication probe port.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProviderProbeInput", {
+      description: "Provider CLI configuration consumed by the product-neutral authentication probe port.",
+    })
+  )
 ) {}
 
 /**

@@ -85,14 +85,15 @@ const $I = $RepoCliId.create("commands/Yeet/internal/ReviewBodySignal");
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewBodyItem extends S.Class<YeetReviewBodyItem>($I`YeetReviewBodyItem`)(
-  {
+export class YeetReviewBodyItem extends S.Opaque<YeetReviewBodyItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     line: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetReviewBodyItem", {
-    description: "One file location a review body points at.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewBodyItem", {
+      description: "One file location a review body points at.",
+    })
+  )
 ) {}
 
 /**
@@ -110,15 +111,19 @@ export class YeetReviewBodyItem extends S.Class<YeetReviewBodyItem>($I`YeetRevie
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewBodyFindingCounts extends S.Class<YeetReviewBodyFindingCounts>($I`YeetReviewBodyFindingCounts`)(
-  {
+export class YeetReviewBodyFindingCounts extends S.Opaque<
+  YeetReviewBodyFindingCounts,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     p0: S.Finite,
     p1: S.Finite,
     p2: S.Finite,
-  },
-  $I.annote("YeetReviewBodyFindingCounts", {
-    description: "Per-severity counts of the findings a Greptile-format review body reports as new.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewBodyFindingCounts", {
+      description: "Per-severity counts of the findings a Greptile-format review body reports as new.",
+    })
+  )
 ) {}
 
 /**
@@ -127,17 +132,18 @@ export class YeetReviewBodyFindingCounts extends S.Class<YeetReviewBodyFindingCo
  * @category models
  * @since 0.0.0
  */
-export class ReviewBodyCoderabbit extends S.Class<ReviewBodyCoderabbit>($I`ReviewBodyCoderabbit`)(
-  {
+export class ReviewBodyCoderabbit extends S.Opaque<ReviewBodyCoderabbit, { readonly brand: unique symbol }>()(
+  S.Struct({
     signal: S.tag("coderabbit"),
     actionable: S.Finite,
     nitpicks: S.Finite,
     outsideDiff: S.Finite,
     items: S.Array(YeetReviewBodyItem),
-  },
-  $I.annote("ReviewBodyCoderabbit", {
-    description: "A CodeRabbit review body's actionable, nitpick and outside-diff counts with its located findings.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewBodyCoderabbit", {
+      description: "A CodeRabbit review body's actionable, nitpick and outside-diff counts with its located findings.",
+    })
+  )
 ) {}
 
 /**
@@ -146,15 +152,16 @@ export class ReviewBodyCoderabbit extends S.Class<ReviewBodyCoderabbit>($I`Revie
  * @category models
  * @since 0.0.0
  */
-export class ReviewBodyGreptile extends S.Class<ReviewBodyGreptile>($I`ReviewBodyGreptile`)(
-  {
+export class ReviewBodyGreptile extends S.Opaque<ReviewBodyGreptile, { readonly brand: unique symbol }>()(
+  S.Struct({
     signal: S.tag("greptile"),
     confidence: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     newFindings: YeetReviewBodyFindingCounts,
-  },
-  $I.annote("ReviewBodyGreptile", {
-    description: "A Greptile-format review body's confidence fraction and new-finding severity counts.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewBodyGreptile", {
+      description: "A Greptile-format review body's confidence fraction and new-finding severity counts.",
+    })
+  )
 ) {}
 
 /**
@@ -168,13 +175,14 @@ export class ReviewBodyGreptile extends S.Class<ReviewBodyGreptile>($I`ReviewBod
  * @category models
  * @since 0.0.0
  */
-export class ReviewBodyPlain extends S.Class<ReviewBodyPlain>($I`ReviewBodyPlain`)(
-  {
+export class ReviewBodyPlain extends S.Opaque<ReviewBodyPlain, { readonly brand: unique symbol }>()(
+  S.Struct({
     signal: S.tag("plain"),
-  },
-  $I.annote("ReviewBodyPlain", {
-    description: "A review body carrying no recognised structural markers.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewBodyPlain", {
+      description: "A review body carrying no recognised structural markers.",
+    })
+  )
 ) {}
 
 /**
@@ -232,14 +240,15 @@ const isReviewBodyGreptile = S.is(ReviewBodyGreptile);
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewBodySignalInput extends S.Class<YeetReviewBodySignalInput>($I`YeetReviewBodySignalInput`)(
-  {
+export class YeetReviewBodySignalInput extends S.Opaque<YeetReviewBodySignalInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     authorLogin: S.String,
     body: S.String,
-  },
-  $I.annote("YeetReviewBodySignalInput", {
-    description: "One submitted review's author login and body text.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewBodySignalInput", {
+      description: "One submitted review's author login and body text.",
+    })
+  )
 ) {}
 
 /**
@@ -258,16 +267,18 @@ export class YeetReviewBodySignalInput extends S.Class<YeetReviewBodySignalInput
  * @category models
  * @since 0.0.0
  */
-export class YeetReviewBodyThreadLocation extends S.Class<YeetReviewBodyThreadLocation>(
-  $I`YeetReviewBodyThreadLocation`
-)(
-  {
+export class YeetReviewBodyThreadLocation extends S.Opaque<
+  YeetReviewBodyThreadLocation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: S.String,
     line: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetReviewBodyThreadLocation", {
-    description: "The path and line of an existing review thread.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReviewBodyThreadLocation", {
+      description: "The path and line of an existing review thread.",
+    })
+  )
 ) {}
 
 /**

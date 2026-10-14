@@ -19,7 +19,7 @@ import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/github/GitHubIssue");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -42,7 +42,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * @category models
  * @since 0.0.0
  */
-export class IssueInfo extends S.Class<IssueInfo>($I`IssueInfo`)({
+export class IssueInfo extends S.Class<IssueInfo, { readonly brand: unique symbol }>($I`IssueInfo`)({
 	number: S.Int.annotateKey({ description: "The issue's repository-local number, used to read, close and comment on it" }),
 	title: S.String.annotateKey({ description: "The issue's heading as reported by GitHub" }),
 	state: S.Literals(["open", "closed"]).annotateKey({ description: "Whether the issue is `open` or `closed`" }),
@@ -72,7 +72,7 @@ export class IssueInfo extends S.Class<IssueInfo>($I`IssueInfo`)({
  * @category models
  * @since 0.0.0
  */
-export class LinkedIssue extends S.Class<LinkedIssue>($I`LinkedIssue`)({
+export class LinkedIssue extends S.Class<LinkedIssue, { readonly brand: unique symbol }>($I`LinkedIssue`)({
 	number: S.Int.annotateKey({ description: "The repository-local number of an issue the pull request closes" }),
 	title: S.String.annotateKey({ description: "The heading of an issue the pull request closes, as reported by GitHub" }),
 	state: S.String.annotateKey({ description: "The linked issue's state as returned by GitHub's GraphQL closing references, without normalization" }),
@@ -116,7 +116,7 @@ export class LinkedIssue extends S.Class<LinkedIssue>($I`LinkedIssue`)({
  * @category models
  * @since 0.0.0
  */
-export class CommentOnceResult extends S.Class<CommentOnceResult>($I`CommentOnceResult`)({
+export class CommentOnceResult extends S.Class<CommentOnceResult, { readonly brand: unique symbol }>($I`CommentOnceResult`)({
 	/** Did this call post the comment (`true`), or find it already there (`false`)? */
 	wrote: S.Boolean.annotateKey({ description: "Did this call post the comment (`true`), or find it already there (`false`)?" }),
 	/** The marked comment — the one created, or the one that made us skip. */

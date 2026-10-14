@@ -40,20 +40,22 @@ const $I = $LawPracticeServerId.create("PracticeKg.compare");
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgDocketNumbersChange extends S.Class<PracticeKgDocketNumbersChange>(
-  $I`PracticeKgDocketNumbersChange`
-)(
-  {
+export class PracticeKgDocketNumbersChange extends S.Opaque<
+  PracticeKgDocketNumbersChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     applicationNumbersAdded: S.Array(S.String),
     applicationNumbersRemoved: S.Array(S.String),
     docketKey: S.NonEmptyString,
     familyKey: S.NonEmptyString,
     patentNumbersAdded: S.Array(S.String),
     patentNumbersRemoved: S.Array(S.String),
-  },
-  $I.annote("PracticeKgDocketNumbersChange", {
-    description: "Application and patent numbers a docket present in both bundles gained or lost.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgDocketNumbersChange", {
+      description: "Application and patent numbers a docket present in both bundles gained or lost.",
+    })
+  )
 ) {}
 
 /**
@@ -86,19 +88,20 @@ export class PracticeKgDocketNumbersChange extends S.Class<PracticeKgDocketNumbe
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgBundleDiff extends S.Class<PracticeKgBundleDiff>($I`PracticeKgBundleDiff`)(
-  {
+export class PracticeKgBundleDiff extends S.Opaque<PracticeKgBundleDiff, { readonly brand: unique symbol }>()(
+  S.Struct({
     docketsAdded: S.Array(S.NonEmptyString),
     docketsRemoved: S.Array(S.NonEmptyString),
     lost: S.Boolean,
     mattersAdded: S.Array(S.NonEmptyString),
     mattersRemoved: S.Array(S.NonEmptyString),
     numbersChanged: S.Array(PracticeKgDocketNumbersChange),
-  },
-  $I.annote("PracticeKgBundleDiff", {
-    description:
-      "Matters, dockets, and per-docket numbers a rebuilt bundle added or removed against the bundle it replaces.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgBundleDiff", {
+      description:
+        "Matters, dockets, and per-docket numbers a rebuilt bundle added or removed against the bundle it replaces.",
+    })
+  )
 ) {}
 
 /**
@@ -118,16 +121,18 @@ export class PracticeKgBundleDiff extends S.Class<PracticeKgBundleDiff>($I`Pract
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMatterTablesComparison extends S.Class<PracticeKgMatterTablesComparison>(
-  $I`PracticeKgMatterTablesComparison`
-)(
-  {
+export class PracticeKgMatterTablesComparison extends S.Opaque<
+  PracticeKgMatterTablesComparison,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     base: PracticeKgMatterTables,
     next: PracticeKgMatterTables,
-  },
-  $I.annote("PracticeKgMatterTablesComparison", {
-    description: "Matter tables of the bundle being replaced (base) and of the rebuilt bundle (next).",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterTablesComparison", {
+      description: "Matter tables of the bundle being replaced (base) and of the rebuilt bundle (next).",
+    })
+  )
 ) {}
 
 const sortedKeys = A.sort(Order.String);

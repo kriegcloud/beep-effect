@@ -20,7 +20,7 @@ import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { applyJsoncModification } from "../../internal/cli/Jsonc.ts";
+import { applyJsoncModification, JsoncModification } from "../../internal/cli/Jsonc.ts";
 import { optionalProp } from "../../internal/cli/OptionRecord.ts";
 import { GoalStatus, isGoalPhaseStatus, isGoalStatus } from "./Goals.schemas.ts";
 import {
@@ -188,18 +188,19 @@ export const COMPLETION_GATE_STATEMENT =
  * @category models
  * @since 0.0.0
  */
-export class GoalManifestBackfill extends S.Class<GoalManifestBackfill>($I`GoalManifestBackfill`)(
-  {
+export class GoalManifestBackfill extends S.Opaque<GoalManifestBackfill, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     status: GoalStatus,
     packetAnchorDocument: S.String,
     statusNote: S.optionalKey(S.String),
     grandfathered: S.Boolean,
     grandfatheredNote: S.optionalKey(S.String),
-  },
-  $I.annote("GoalManifestBackfill", {
-    description: "Recorded backfill decision for a manifest-less goal packet (status from README evidence).",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalManifestBackfill", {
+      description: "Recorded backfill decision for a manifest-less goal packet (status from README evidence).",
+    })
+  )
 ) {}
 
 /**
@@ -340,18 +341,19 @@ export const buildBackfillManifestText: {
  * @category models
  * @since 0.0.0
  */
-export class GoalPacketMigration extends S.Class<GoalPacketMigration>($I`GoalPacketMigration`)(
-  {
+export class GoalPacketMigration extends S.Opaque<GoalPacketMigration, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     edits: S.Array(S.String),
     manifestText: S.optionalKey(S.String),
     readmeText: S.optionalKey(S.String),
     isBackfill: S.optionalKey(S.Boolean),
     parked: S.optionalKey(S.String),
-  },
-  $I.annote("GoalPacketMigration", {
-    description: "Planned mechanical migration outcome for one goal packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalPacketMigration", {
+      description: "Planned mechanical migration outcome for one goal packet.",
+    })
+  )
 ) {}
 
 const stringField = (record: Readonly<Record<string, unknown>>, key: string): O.Option<string> =>
@@ -573,7 +575,7 @@ export const planGoalPacketMigration = (record: GoalPacketRecord): GoalPacketMig
   let text = originalText;
   let edits = A.empty<string>();
   const edit: ManifestEdit = (path, value, description) => {
-    text = applyJsoncModification({ content: text, path, value });
+    text = applyJsoncModification(JsoncModification.make({ content: text, path, value }));
     edits = A.append(edits, description);
   };
 
