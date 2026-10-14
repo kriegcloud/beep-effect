@@ -64,7 +64,7 @@ The [observed after data](stage-5-f-observed-after.json) repeats the same
 historical-store collector. It is not a matched intervention study. The
 [frozen configuration set](stage-5-f-config-fingerprint.json) covers native
 files plus repository instructions, hooks, specialist bodies and skill lock.
-Its set digest is `0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295`.
+Its set digest is `2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8`.
 A changed native file invalidates that set for panel acceptance.
 
 | Surface | After n | Median first recorded input tokens |
@@ -150,9 +150,29 @@ outside the final set. Live native-client writes can invalidate this observed
 set, and the driver must compare it before accepting a panel verdict.
 
 
-Final expanded capture: `2026-10-14T22:54:37.633568Z`, set `0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295`,
-355 files. This supersedes the earlier narrower captures and starts the
+Final expanded capture: `2026-10-14T22:54:37.633568Z`, set `2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8`,
+356 files. This supersedes the earlier narrower captures and starts the
 recorded current-fingerprint qualification window. Native qualifying count is
 unknown. The set includes canonical hook bodies, Cursor hook scripts, Grok
 workflow definitions, Junie repo state and native agent/hook definitions.
 A change in a delegated canonical hook therefore changes the reviewed set.
+
+
+### Grok header and native tool-event controls
+
+`research/f-grok-header-probe.py` creates only a lane-local fixture. The valid
+environment header connects and discovers 47 tools; the invalid control fails.
+Neither case echoes the header, and the native config bytes stay equal.
+The shared Codex variable is absent in this checked environment, so global
+header migration retains a provider prerequisite rather than breaking Grok.
+
+A controlled native Codex `false` command produces one PreToolUse and one
+PostToolUse row, plus UserPromptSubmit, Stop and SessionEnd. It returns OK as
+instructed. No PostToolUseFailure or SessionStart row is observed in that
+controlled run. These isolated spike observations contribute zero qualifying
+sessions. Ordinary native failure rate remains not recorded.
+
+The collector's `--check <receipt>` mode passes against a current capture and
+rejects an altered receipt. It checks file content and link identity. The
+final configuration gate is run again at publication; the driver repeats it
+before accepting the panel's verdict.

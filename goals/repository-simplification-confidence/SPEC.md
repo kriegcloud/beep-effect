@@ -1461,8 +1461,8 @@ changed. Full package and parity qualification is repeated for this wave.
 
 ### RSC-F-FREEZE-20261014 (2026-10-14): final review input boundary
 
-The final expanded configuration set is `0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295`, captured at
-2026-10-14T22:54:37.633568Z across 355 files. It includes native MCP registries,
+The final expanded configuration set is `2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8`, captured at
+2026-10-14T22:54:37.633568Z across 356 files. It includes native MCP registries,
 installed plugin indices, instructions, specialist definitions, canonical
 hook implementations and their adapters. This supersedes earlier captures;
 the qualification window opens at this capture and its qualifying count is
@@ -1470,3 +1470,22 @@ unknown. The driver compares the set again before panel acceptance. Any
 mutation requires a new input set and review; no earlier verdict closes it.
 Reversal is to recapture through the read-only collector and submit the changed
 set, preserving earlier evidence. No native file is written by collection.
+
+
+### RSC-F-GROK-HEADER-20261014 (2026-10-14): proved expansion, retained provider boundary
+
+The installed Grok doctor completes an authenticated local handshake and
+lists 47 tools when a project fixture uses an environment-backed Authorization
+header. An invalid variable value fails the same handshake. Both cases keep
+the header out of output and leave the native config byte-identical. The
+existing Codex token variable is absent from this checked launch environment.
+Keep the production Grok header until an approved provider is established
+across its real launch routes. Replacing it now would break an existing
+client. Reconsider after that provider and both positive/negative controls
+pass. Apply the eventual owned header span through ModelsApply with a fresh
+backup and journal; reverse with that journal. No native header was changed.
+The read-only probe is research/f-grok-header-probe.py in this packet.
+
+Publication capture supersedes earlier sets: `2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8`,
+2026-10-14T23:36:54.529409Z, 356 files. Window open since that capture;
+qualifying count unknown. The collector check passes at capture.

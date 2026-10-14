@@ -686,3 +686,15 @@ H3 #1590 remains open at this read. Its native/global delivery items remain
 explicit measured gates under RSC-F-DISPOSITIONS-20261014; the local Codex pulse
 adapter and native callbacks do not imply that unmerged collector changes or
 namespace/OTel/archive work have landed.
+
+
+### F current-main inherited test diagnostics
+
+After the drawing-review main merge, test-tsgo reports three TS377026
+raw-JSON diagnostics in drawings-critics.test.ts, in addition to the known
+AgentMessage TS377032. The drawing test matches origin/main byte for byte,
+SHA-256 0d2e5ce9292185850f13c150d9de4d862720119208f6fcc573626297e79c5492.
+Owner: drawing-review-loop, the owner of PR #1780. AgentMessage remains owned
+by the #1767 repair lane. F makes no copy of either inherited fix. Fresh
+upstream declarations restore the package check; the related P0 is acknowledged
+environment-only, and its terminal lint/check rerun passes.

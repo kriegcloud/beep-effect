@@ -6,10 +6,10 @@ The driver owns the independent panel, merge, and any later retirement.
 
 ```text
 lane: rsc-f-agents
-head: 4aa6f2a9e2f4450a3afb252015b417e240827f2c (integrated source)   PR: pending publication
+head: 0b17420839bbe1ad1fb382de07a0da980b05f820 (integrated source)   PR: pending publication
 package-verify: @beep/repo-cli: pass (default audit 1076.0s; full docgen 39.2s)
-hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> inherited fail (AgentMessage TS377032) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
-config fingerprint (final): 0a07cf6f5ce2affab597654e0aed42db37fdb503951be128e6c8dbbe27f4d295   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
+hosted-parity: test-tsgo | docgen local | jsdoc-ratchet | knowledge refs | fallow audit+health | coverage read -> inherited fail (AgentMessage TS377032; drawing tests TS377026) | pass | pass | pass | pass, zero findings | pass, 154 tests and all four floors exceeded
+config fingerprint (final): 2658eaad0ab901432c01e3fb7821232918d9c33cb92f00617a5af302f074add8   backups: models-2026-10-14T222221002Z-16103436.backup; rsc-f-pre-rollback-20261014T222520875693Z.backup; models-2026-10-14T222525456Z-12665845.backup
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-f-agents-2026-10-14.md
 open items: incomplete current-fingerprint 30-session windows; Junie authorization; native SessionStart/root-child and namespace/OTel/archive qualification; Cursor isolated-state qualification; external gateway and operator-run Claude transformations; retained agent projections and native links; matched native measurements; driver panel; hosted PR review
 ```
@@ -42,7 +42,7 @@ online model check has **0 findings**, and the required pinned read-only Codex
 probe **passes**. Codex remains **gpt-6.1-sol / medium**. These checks were
 repeated after native callback probing.
 
-The final configuration set covers 355 files and is recorded in
+The final configuration set covers 356 files and is recorded in
 `history/receipts/stage-5-f-config-fingerprint.json`. The collector reports
 paths, sizes and SHA-256 only. Its final set is rechecked before publication.
 Any change after this freeze requires a new panel input; no earlier panel
@@ -158,3 +158,35 @@ Models/Skills implementation changed in that merge. Fallow audit and health
 pass again. Verification is re-bound to this resolved main revision before
 publication. The refs gate reads the committed recovery notation; its final
 recheck follows this receipt commit. No gate or observation history is waived.
+
+
+## Publication source boundary and remaining owners
+
+The latest merge is pinned through main 9330c23db0. The skill-lock conflict is
+resolved through its owning `skills update` command, and the terminal owner
+check reports current. After upstream builds, package lint/check pass. Local
+docgen, 154 scoped coverage tests, Fallow audit/health, schema-first and retired
+paths pass again. JSDoc and refs passed at the preceding integrated source;
+publication runs the final cheap gates and the pre-final lane checks.
+
+The drawing-review test adds three inherited TS377026 raw-JSON diagnostics.
+Its current source equals origin/main, SHA-256
+0d2e5ce9292185850f13c150d9de4d862720119208f6fcc573626297e79c5492.
+Owner is drawing-review-loop (#1780). AgentMessage remains the #1767 lane's
+inherited red. These are named main-repair owners, not waived F findings.
+The absent observability declarations are rebuilt, and the environment-only
+package P0 acknowledgement is followed by a passing package lint/check.
+
+The read-only Grok header fixture proves valid env expansion and rejects the
+invalid-value control. It discovers 47 tools and leaves native config bytes
+unchanged. The production migration remains blocked on a stable approved
+provider across entrypoints; the checked shared variable is absent. The probe
+source is committed in research/f-grok-header-probe.py. No raw header is printed.
+The native Codex tool probe records PreToolUse and PostToolUse once each;
+SessionStart and PostToolUseFailure remain unobserved, and the population
+failure rate remains not recorded. All these probes are isolated spikes.
+
+Driver configuration gate:
+`python3 goals/repository-simplification-confidence/research/f-config-fingerprint.py --check goals/repository-simplification-confidence/history/receipts/stage-5-f-config-fingerprint.json`.
+It passes for a fresh set and fails for an altered receipt. File and link
+identities are covered. New panel input is required on any configuration change.

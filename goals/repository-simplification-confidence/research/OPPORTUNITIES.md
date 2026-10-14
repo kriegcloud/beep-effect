@@ -2220,3 +2220,13 @@ knowledge mirrors. The receipt now defines the operator-home base explicitly
 and retains each exact relative recovery path. No backup, restore instruction,
 observation history or gate rule was removed. A typed recovery-artifact
 reference would prevent this ambiguity in future packet receipts.
+
+### F final integration requires fresh upstream declarations (2026-10-14)
+
+The last main merge adds the observability catalog. Quick package verification
+runs lint/check but does not build that new upstream declaration output. The
+check reports TS6305 for the catalog entrypoint, followed by unknown/any context
+errors. F acknowledges the P0 as environment-only, rebuilds repo-cli's upstream
+dependencies through admission, and reruns the package check. No source repair
+is inferred from missing declarations. A quick verifier that detects stale
+project outputs and names the required upstream build would prevent this loop.
