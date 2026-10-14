@@ -1969,3 +1969,12 @@ the downstream integration delay. No coverage floor or security rule is relaxed.
   and apply the standing fresh-follow-up rule. Preserve the prepared evidence
   on a fresh main branch, cancel the owned redundant monitor to terminal, and
   close the redundant draft after its replacement is concrete.
+
+### 2026-10-14 — H2 inherited Knip cache-evidence digest fence
+
+- Evidence-only follow-up cheap gates: 15 pass; cache policy reports
+  `Qualification evidence digest mismatch.` The Knip review reference expects
+  `f963ef8f`, while both lane and main file bytes hash `aa3b4096`. H2 changes
+  neither input. Preserve provenance, attribute the main red, and use the
+  already-authorized publication fallback. Owner commands should reconcile
+  evidence references when a reviewed document changes in a main repair.

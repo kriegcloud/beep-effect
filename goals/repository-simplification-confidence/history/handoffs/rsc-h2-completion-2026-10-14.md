@@ -534,3 +534,24 @@ proof for this documentation-only delivery. The three historical packet
 refreshes and lane retirement remain assigned to the orchestrator by the
 resume ruling. Reversal: close the evidence follow-up or revert its five
 documentation files; the merged implementation is unaffected.
+
+### Follow-up cheap proof and inherited publication fence
+
+`yeet publish` completed all 16 cheap gates: 15 passed, while
+`quality:cache-policy` failed with `Qualification evidence digest mismatch.`
+The mismatching reference in `standards/cache-qualification-baseline.json`
+expects `f963ef8f0b9446b69f40b77cefbbbbcb3e2487c3e740b7c4ce1de6b624e591ff`
+for `history/receipts/knip-cache-policy-review.md`; the file in both this lane
+and `origin/main` hashes to
+`aa3b409668e97612e189d3bfe2507ae2a74fa0babb72647208877100ca4310cd`.
+Neither the reference nor the file is in this five-file H2 follow-up diff.
+This is inherited; preserve the reviewed cache provenance and assign the
+repair to the orchestrator's main-red episode. Inbox
+`local-shard-950f82779f62` is acknowledged with this attribution.
+
+Yeet created the local report commit but pushed nothing. Apply the brief's
+authorized fallback: commit this refusal receipt by name, push the fresh
+follow-up branch, create its PR with `ready-for-heavy`, mark content final,
+and run a detached readiness monitor bounded to 40 minutes. Publication
+preflight did not reach the isolated head-install step; this report makes no
+claim that it did. Source qualification remains the full successful H2 proof.
