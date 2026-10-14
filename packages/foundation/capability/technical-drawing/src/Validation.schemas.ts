@@ -10,6 +10,7 @@ import { $TechnicalDrawingId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $TechnicalDrawingId.create("Validation.schemas");
 
@@ -59,7 +60,25 @@ export class PdfFontFact extends S.Class<PdfFontFact>($I`PdfFontFact`)(
   $I.annote("PdfFontFact", {
     description: "Font name and embedding status.",
   })
-) {}
+) {
+  /**
+   * The BaseFont name without its six-letter subset tag (`ABCDEF+`).
+   *
+   * **Example** (A subset font)
+   *
+   * ```ts
+   * import { PdfFontFact } from "@beep/technical-drawing"
+   *
+   * console.log(PdfFontFact.make({ name: "ABCDEF+ArialMT", embedded: true }).baseName) // "ArialMT"
+   * ```
+   *
+   * @category validation
+   * @since 0.0.0
+   */
+  get baseName(): string {
+    return Str.replace(/^[A-Z]{6}\+/, "")(this.name);
+  }
+}
 
 /**
  * Structural facts about a PDF file, as reported by the backend.
@@ -174,6 +193,12 @@ const FindingCodeBase = LiteralKit([
   "margin-bottom",
   "impure-pixels",
   "solid-black-area",
+  "shading-spacing",
+  "shading-lost-face",
+  "shading-outline-clearance",
+  "shading-lone-line",
+  "label-missing",
+  "font-unexpected",
 ]);
 
 /**
@@ -243,6 +268,46 @@ export class SheetFinding extends S.Class<SheetFinding>($I`SheetFinding`)(
   })
 ) {}
 
+const SheetLabelBase = LiteralKit(["figure", "sheet-number"]);
+
+/**
+ * The two labels of a sheet: `FIG. n` and the `n/N` sheet number.
+ *
+ * **Example** (Read the labels)
+ *
+ * ```ts
+ * import { SheetLabel } from "@beep/technical-drawing/Validation.schemas"
+ *
+ * console.log(SheetLabel.literals)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const SheetLabel = SheetLabelBase.pipe(
+  $I.annoteSchema("SheetLabel", {
+    description: "`figure` (the `FIG. n` label) or `sheet-number` (the `n/N` label).",
+  }),
+  SchemaUtils.withLiteralKitStatics(SheetLabelBase)
+);
+
+/**
+ * Type for {@link SheetLabel}.
+ *
+ * **Example** (Annotate a label)
+ *
+ * ```ts
+ * import type { SheetLabel } from "@beep/technical-drawing/Validation.schemas"
+ *
+ * const label: SheetLabel = "figure"
+ * console.log(label)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export type SheetLabel = typeof SheetLabel.Type;
+
 /**
  * Tolerances and expectations the validator checks against.
  *
@@ -269,9 +334,44 @@ export class ValidationOptions extends S.Class<ValidationOptions>($I`ValidationO
       S.withConstructorDefault(Effect.succeed(1)),
       S.annotateKey({ description: "Allowed MediaBox deviation from the format, in points. Defaults to 1." })
     ),
+    minShadingSpacingMm: S.Finite.pipe(
+      S.withConstructorDefault(Effect.succeed(0.5)),
+      S.annotateKey({
+        description:
+          "Closest two side-by-side shading lines may sit on the sheet, in mm; closer lines read as a solid black area. Defaults to 0.5.",
+      })
+    ),
+    loneLineOffsetMm: S.Finite.pipe(
+      S.withConstructorDefault(Effect.succeed(2.5)),
+      S.annotateKey({
+        description:
+          "How close, in mm, a shading stroke may run beside a parallel outline before it must have a companion stroke; alone it reads as a doubled edge. Defaults to 2.5.",
+      })
+    ),
+    loneLineCompanionMm: S.Finite.pipe(
+      S.withConstructorDefault(Effect.succeed(6)),
+      S.annotateKey({
+        description:
+          "How far, in mm, a companion stroke may sit from a stroke that runs beside an outline. Defaults to 6.",
+      })
+    ),
+    textLabels: S.Array(SheetLabel).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Labels set as embedded text, so each page's extracted text must carry them (`FIG. n` on page n, `n/N` of N pages). Defaults to none.",
+      })
+    ),
+    expectedLabelFonts: S.Array(S.NonEmptyString).pipe(
+      S.withConstructorDefault(Effect.succeed([])),
+      S.annotateKey({
+        description:
+          "Font families text labels were set in; every embedded font's base name must contain one of them (case and spaces ignored). Empty skips the check.",
+      })
+    ),
   },
   $I.annote("ValidationOptions", {
-    description: "Expected page count and tolerances of a validation run.",
+    description: "Expected page count, tolerances, text labels, and label font families of a validation run.",
   })
 ) {}
 

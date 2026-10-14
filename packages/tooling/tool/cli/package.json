@@ -170,8 +170,8 @@
     "test": "bun run beep:test",
     "test:property": "bun run beep:test",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:python && bun run beep:lint && bun run beep:lint:python",
-    "beep:build": "tsc -p tsconfig.json && bun run babel",
-    "beep:check": "tsgo -p tsconfig.check.json",
+    "beep:build": "tsc-rs -p tsconfig.json && bun run babel",
+    "beep:check": "tsc-rs -p tsconfig.check.json",
     "beep:docgen": "bunx --bun --no-install docgen",
     "beep:doctest": "BEEP_VITEST_DOCTEST=1 bunx vitest run",
     "beep:lint": "biome check .",
@@ -184,6 +184,7 @@
   },
   "dependencies": {
     "@beep/ai-provider-cli": "workspace:^",
+    "@beep/ai-sync": "workspace:^",
     "@beep/chalk": "workspace:^",
     "@beep/colors": "workspace:^",
     "@beep/duckdb": "workspace:^",
@@ -245,6 +246,7 @@
     "@commitlint/is-ignored": "catalog:",
     "@effect/platform-node-shared": "catalog:",
     "@effect/vitest": "catalog:",
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "pdf-lib": "catalog:"
   }
 }

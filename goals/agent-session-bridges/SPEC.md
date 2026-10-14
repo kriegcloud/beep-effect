@@ -91,6 +91,17 @@ criteria remain unchecked and unfulfilled. Separate-app modes remain gated.
 
 ## Decision Log
 
+### 2026-10-14: integrate the landed consolidated repair
+
+Merge main once after #1666 lands. Keep every incoming main baseline field and
+the thirteen previously admitted messaging identities, regenerate managed
+configuration, and require the actual strict compiler receipt to record exit
+zero. The cache recorder may update only the reviewed root/provider/CLI/T3
+subjects and must preserve qualification state. Evidence is recorded in
+`research/MAIN-1666-INTEGRATION.md`. A recovery ref retains the prior lane head;
+revert the integration commit if this combined configuration regresses behavior.
+Fresh hosted checks and the full green gate remain required before #1571 merges.
+
 | Date | Decision | Reason | Reversal |
 | --- | --- | --- | --- |
 | 2026-10-09 | Graduate the local router and native managed bridges now | Operator selected implementation; native managed edges have bounded receipt evidence | Disable new enrollment/service; retain/export pending messages |

@@ -5,6 +5,7 @@ import {
   cameraForView,
   composeSheet,
   DrawingError,
+  drawnBrokenGapMm,
   EdgeSet,
   EngineInfo,
   FigureRecord,
@@ -14,6 +15,8 @@ import {
   LabelStyle,
   LabelTypeface,
   labelCapHeightCm,
+  labelFontFamily,
+  labelTextFindings,
   ModelSpec,
   ModelSummary,
   marginFindings,
@@ -25,9 +28,13 @@ import {
   PdfFacts,
   PdfFontFact,
   PdfPageSize,
+  PT_PER_MM,
   purityFindings,
   RenderManifest,
   RenderRequest,
+  ShadingCoverage,
+  ShadingSkip,
+  SheetFonts,
   SheetMargins,
   SheetOptions,
   sameSegments,
@@ -38,7 +45,7 @@ import {
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect } from "@effect/vitest";
+import { describe, expect, vi } from "@effect/vitest";
 import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -46,9 +53,11 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { ShadingPlan } from "@beep/technical-drawing";
 
 // A fake engine: every view projects a unit square, except that the "rear"
 // camera (eye +Y) projects the square shifted, so omission proofs can fail.
@@ -62,27 +71,57 @@ const square: ReadonlyArray<readonly [number, number, number, number]> = [
 ];
 const shifted = A.map(square, ([a, b, c, d]) => [a + 1, b, c + 1, d] as const);
 
-const fakeEngine = Layer.succeed(
-  GeometryEngine,
-  GeometryEngine.of({
-    info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
-    summarize: Effect.fnUntraced(function* () {
-      return ModelSummary.make({
-        boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
-        volume: 250,
-        faceCount: 6,
-        edgeCount: 12,
-      });
-    }),
-    project: Effect.fnUntraced(function* (_, cameras, shading) {
-      // shaded projections carry one diagonal hatch line per view
-      const hatch = O.match(shading, { onNone: () => [], onSome: () => [[1, 1, 4, 4] as const] });
-      return A.map(cameras, (camera) =>
-        EdgeSet.make({ visible: camera.eye[1] > 0 ? shifted : square, hidden: [], shading: hatch })
-      );
-    }),
-  })
-);
+// `plans` collects every shading plan the engine is asked for, per layer.
+const fakeEngineWith = (plans: Array<ShadingPlan>) =>
+  Layer.succeed(
+    GeometryEngine,
+    GeometryEngine.of({
+      info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
+      // a model with more than one part reports one overlapping pair
+      summarize: Effect.fnUntraced(function* (model) {
+        return ModelSummary.make({
+          boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
+          volume: 250,
+          faceCount: 6,
+          edgeCount: 12,
+          partOverlaps: A.length(model.parts) > 1 ? 1 : 0,
+        });
+      }),
+      project: Effect.fnUntraced(function* (model, cameras, shading) {
+        // uniform shading carries one diagonal hatch line per view that starts on the
+        // outline (uniform strokes end on the face edge by design, and only graded
+        // output is held to the outline checks); graded shading two lines a hair
+        // apart, which the spacing rule must flag; a model with a broken-line part
+        // carries one broken segment per view
+        O.map(shading, (plan) => plans.push(plan));
+        const hatch = O.match(shading, {
+          onNone: () => [],
+          onSome: (plan) =>
+            plan.style === "graded"
+              ? [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const]
+              : [[0.2, 0.2, 4, 4] as const],
+        });
+        const coverage = O.map(shading, () =>
+          ShadingCoverage.make({
+            shadedFaces: 1,
+            skippedFaces: [ShadingSkip.make({ reason: "back-facing", faces: 5 })],
+          })
+        );
+        const broken = A.some(model.parts, (part) => part.lineStyle === "broken") ? [[2, 1, 8, 1] as const] : [];
+        return A.map(cameras, (camera) =>
+          EdgeSet.make({
+            visible: camera.eye[1] > 0 ? shifted : square,
+            hidden: [],
+            shading: hatch,
+            shadingCoverage: coverage,
+            broken,
+          })
+        );
+      }),
+    })
+  );
+
+const fakeEngine = fakeEngineWith([]);
 
 const letter = PdfPageSize.make({ widthPt: 612, heightPt: 792 });
 const cleanMetrics = (dpi: number, antiAliased: boolean) =>
@@ -104,13 +143,21 @@ const cleanMetrics = (dpi: number, antiAliased: boolean) =>
     largestBlackSquare: 4,
   });
 
+// the fake backend writes the fonts it was given as JSON, and a test reads them back
+const encodeSheetFonts = S.encodeEffect(S.fromJsonString(SheetFonts));
+const decodeJson = S.decodeEffect(S.fromJsonString(S.Unknown));
+
 const fakeBackend = Layer.effect(
   PdfBackend,
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     return PdfBackend.of({
-      svgToPdf: Effect.fnUntraced(function* (svgPaths, outputPath) {
+      svgToPdf: Effect.fnUntraced(function* (svgPaths, outputPath, fonts) {
         yield* fs.writeFileString(outputPath, `%PDF-1.6 fake ${A.length(svgPaths)} pages`);
+        // the pinned fonts land beside the fake PDF, so a test can read what the backend was given
+        if (O.isSome(fonts)) {
+          yield* fs.writeFileString(`${outputPath}.fonts.json`, yield* encodeSheetFonts(fonts.value));
+        }
       }, Effect.orDie),
       inspect: Effect.fnUntraced(function* (pdfPath) {
         const contents = yield* fs.readFileString(pdfPath);
@@ -141,15 +188,19 @@ const fakeBackend = Layer.effect(
   })
 );
 
+const body = { name: "body", add: [{ kind: "box", min: [0, 0, 0], max: [10, 5, 5] }] };
+
 const spec = (
   figures: ReadonlyArray<{ view: string; description: string; projection?: string }>,
   omissions: ReadonlyArray<unknown> = [],
-  extra: Readonly<Record<string, unknown>> = {}
+  extra: Readonly<Record<string, unknown>> = {},
+  part: Readonly<Record<string, unknown>> = body,
+  moreParts: ReadonlyArray<Readonly<Record<string, unknown>>> = []
 ) =>
   JSON.stringify({
     ...extra,
     title: "Synthetic block",
-    model: { parts: [{ name: "body", add: [{ kind: "box", min: [0, 0, 0], max: [10, 5, 5] }] }] },
+    model: { parts: [part, ...moreParts] },
     figures,
     omissions,
   });
@@ -167,7 +218,7 @@ interface OpenTypeBuilder {
     close(): void;
   };
 }
-const labelAlphabetFont = Effect.gen(function* () {
+const makeLabelAlphabetFont = Effect.fnUntraced(function* (alphabet: string) {
   const module: { readonly default?: OpenTypeBuilder } & Partial<OpenTypeBuilder> = yield* Effect.promise(
     () => import(OPENTYPE_MODULE)
   );
@@ -195,10 +246,11 @@ const labelAlphabetFont = Effect.gen(function* () {
     unitsPerEm: 1000,
     ascender: 800,
     descender: -200,
-    glyphs: [notdef, ...A.map(A.fromIterable("0123456789FIG./ "), glyph)],
+    glyphs: [notdef, ...A.map(A.fromIterable(alphabet), glyph)],
   });
   return new Uint8Array(font.toArrayBuffer());
 });
+const labelAlphabetFont = makeLabelAlphabetFont("0123456789FIG./ ");
 
 const makeLayer = () =>
   FigureSet.layer.pipe(Layer.provide(Layer.merge(fakeEngine, fakeBackend)), Layer.provideMerge(NodeServices.layer));
@@ -366,6 +418,55 @@ describe("@beep/technical-drawing", () => {
           expect(y).toBeGreaterThanOrEqual(2.5 * 28.3464);
           expect(y).toBeLessThanOrEqual(792 - 1.0 * 28.3464);
         }
+      })
+    );
+
+    it.effect(
+      "composeSheet adds a dashed broken layer only when broken lines exist",
+      Effect.fnUntraced(function* () {
+        const options = SheetOptions.make({});
+        const base = { segments: square, figure: 1, sheet: 1, sheets: 1, scale: 20, options } as const;
+        const plain = composeSheet({ ...base, shading: [] });
+        // an empty broken layer leaves the sheet byte-identical
+        expect(composeSheet({ ...base, shading: [], broken: [] })).toBe(plain);
+        expect(plain).not.toContain('id="broken"');
+        expect(plain).not.toContain("stroke-dasharray");
+        const withBroken = composeSheet({ ...base, shading: [[1, 1, 4, 4]], broken: [[2, 1, 8, 1]] });
+        // 3 mm dashes, 1.5 mm gaps, the outline weight, between shading and figure
+        expect(withBroken).toContain(
+          'stroke-width="0.992" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8.504 4.252"/>'
+        );
+        const order = A.map(['id="labels"', 'id="shading"', 'id="broken"', 'id="figure"'], (id) =>
+          withBroken.indexOf(id)
+        );
+        expect(order).toEqual(A.sort(order, Order.Number));
+        expect(A.every(order, (index) => index > 0)).toBe(true);
+        const custom = composeSheet({
+          ...base,
+          shading: [],
+          broken: [[2, 1, 8, 1]],
+          options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 1 }),
+        });
+        expect(custom).toContain('stroke-dasharray="5.669 2.835"');
+        // broken lines inside the outline do not move it; outside it they re-centre the view
+        const figureOf = (svg: string) => svg.slice(svg.indexOf('<path id="figure"'));
+        expect(figureOf(withBroken)).toBe(figureOf(plain));
+        expect(figureOf(composeSheet({ ...base, shading: [], broken: [[-10, 0, 0, 0]] }))).not.toBe(figureOf(plain));
+        expect(SheetOptions.make({}).brokenGapMm).toBe(1.5);
+        expect(() => SheetOptions.make({ brokenDashMm: 0.5 })).toThrow();
+        expect(() => SheetOptions.make({ brokenGapMm: 0.5 })).toThrow();
+        // round caps eat the line weight: a heavy stroke would close a gap that is valid on its own, so the
+        // drawn gap widens at emit time; the options themselves stay usable on a solid-only sheet
+        expect(SheetOptions.make({ lineWeightMm: 1.2 }).brokenGapMm).toBe(1.5);
+        expect(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 0.75 }))).toBeCloseTo(1.2, 9);
+        expect(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 1.2 }))).toBe(1.2);
+        const widened = composeSheet({
+          ...base,
+          shading: [],
+          broken: [[2, 1, 8, 1]],
+          options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 0.75, lineWeightMm: 0.8 }),
+        });
+        expect(widened).toContain('stroke-dasharray="5.669 3.402"');
       })
     );
 
@@ -557,6 +658,109 @@ describe("@beep/technical-drawing", () => {
         yield* Effect.flip(decode({ typeface: "serif", sizePt: 13 }));
         yield* Effect.flip(decode({ typeface: "stroke", sizePt: 18, fontFile: "/fonts/arial.ttf" }));
         yield* Effect.flip(decode({ typeface: "sans", sizePt: 18, fontFile: "fonts/arial.ttf" }));
+      })
+    );
+
+    it.effect(
+      "a text label needs an outlined typeface, takes no font file, and defaults to the metric family",
+      Effect.fnUntraced(function* () {
+        const decode = S.decodeUnknownEffect(LabelStyle);
+        const sans = yield* decode({ typeface: "sans", sizePt: 18, render: "text" });
+        expect(labelFontFamily(sans)).toBe("Arial");
+        expect(labelFontFamily(yield* decode({ typeface: "stroke", sizePt: 18 }))).toBe("Times New Roman");
+        expect(labelFontFamily(yield* decode({ typeface: "serif", sizePt: 24, render: "text" }))).toBe(
+          "Times New Roman"
+        );
+        expect(
+          labelFontFamily(
+            yield* decode({ typeface: "sans", sizePt: 18, render: "text", fontFamily: "Liberation Sans" })
+          )
+        ).toBe("Liberation Sans");
+        expect(LabelStyle.make({ typeface: "sans", sizePt: 18 }).render).toBe("outline");
+        yield* Effect.flip(decode({ typeface: "stroke", sizePt: 18, render: "text" }));
+        yield* Effect.flip(decode({ typeface: "sans", sizePt: 18, render: "text", fontFile: "/fonts/arial.ttf" }));
+        yield* Effect.flip(decode({ typeface: "sans", sizePt: 18, fontFamily: "Arial" }));
+        yield* Effect.flip(S.decodeEffect(SheetOptions)({ fontDirectory: "fonts" }));
+      })
+    );
+
+    it.effect(
+      "text labels are <text> elements in the requested family and point size, where the outlines would sit",
+      Effect.fnUntraced(function* () {
+        const text = SheetOptions.make({
+          ...styled,
+          sheetNumberLabel: O.some(LabelStyle.make({ typeface: "sans", sizePt: 18, render: "text" })),
+          figureLabel: O.some(LabelStyle.make({ typeface: "serif", sizePt: 24, render: "text" })),
+        });
+        const g = sheetGeometry(text);
+        const centreX = (g.sight.left + g.sight.right) / 2;
+        const svg = composeStyled(1, text);
+        expect(outlinesOf(svg)).toBe("");
+        expect(svg).not.toContain('id="labels"');
+        const elements = A.fromIterable(
+          svg.matchAll(
+            /<text x="([\d.]+)" y="([\d.]+)" font-family="([^"]+)" font-size="([\d.]+)" text-anchor="middle" fill="#000000">([^<]+)<\/text>/g
+          )
+        );
+        expect(A.map(elements, (m) => [m[3], m[4], m[5]])).toEqual([
+          ["Arial", "18.000", "1/8"],
+          ["Times New Roman", "24.000", "FIG. 1"],
+        ]);
+        for (const m of elements) {
+          expect(Number(m[1])).toBeCloseTo(centreX, 3);
+        }
+        // Baselines: the sheet number's ink top (about one cap height above its baseline)
+        // on the top label line, the FIG. ink bottom (the baseline) on the bottom one.
+        const [top, bottom] = A.map(elements, (m) => Number(m[2]));
+        expect(top! - g.labels.top).toBeGreaterThan(18 * 0.6);
+        expect(top! - g.labels.top).toBeLessThan(18 * 0.8);
+        expect(Math.abs(bottom! - g.labels.bottom)).toBeLessThan(0.5);
+        // the figure area is the outline route's: the bands measure the same face
+        expect(sheetGeometry(text).figure).toEqual(sheetGeometry(styled).figure);
+      })
+    );
+
+    it.effect(
+      "text rules: each page's text must carry its labels, and embedded fonts must be label families",
+      Effect.fnUntraced(function* () {
+        const options = ValidationOptions.make({
+          expectedPages: O.none(),
+          textLabels: ["figure", "sheet-number"],
+          expectedLabelFonts: ["Times New Roman", "Arial"],
+        });
+        expect(labelTextFindings({ page: 1, pages: 8, text: "1/8\n\nFIG. 1\n\f", options })).toEqual([]);
+        // FIG. 10 does not carry FIG. 1; 11/8 does not carry 1/8
+        expect(
+          A.map(labelTextFindings({ page: 1, pages: 8, text: "11/8\nFIG. 10\n", options }), (f) => [f.code, f.page])
+        ).toEqual([
+          ["label-missing", O.some(1)],
+          ["label-missing", O.some(1)],
+        ]);
+        expect(
+          labelTextFindings({
+            page: 2,
+            pages: 8,
+            text: "",
+            options: ValidationOptions.make({ expectedPages: O.none() }),
+          })
+        ).toEqual([]);
+        const facts = PdfFacts.make({
+          headerVersion: "1.6",
+          pages: [letter],
+          fonts: [
+            PdfFontFact.make({ name: "QWERTY+ArialMT", embedded: true }),
+            PdfFontFact.make({ name: "ASDFGH+TimesNewRomanPSMT", embedded: true }),
+            PdfFontFact.make({ name: "ZXCVBN+LiberationSans", embedded: true }),
+          ],
+          annotationCount: 0,
+          hasOptionalContent: false,
+          encrypted: false,
+        });
+        expect(PdfFontFact.make({ name: "ZXCVBN+LiberationSans", embedded: true }).baseName).toBe("LiberationSans");
+        const findings = structuralFindings({ facts, options });
+        expect(A.map(findings, (f) => f.code)).toEqual(["font-unexpected"]);
+        expect(findings[0]?.message).toContain("LiberationSans");
+        expect(structuralFindings({ facts, options: ValidationOptions.make({ expectedPages: O.none() }) })).toEqual([]);
       })
     );
 
@@ -790,6 +994,35 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "draws broken-line parts as a dashed layer, counts them, and proves omissions over both layers",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const service = yield* FigureSet;
+          const figures = [{ view: "front", description: "is a front elevation view" }];
+          const omissions = [{ omitted: "left", shown: "front", relation: "identical" }];
+          const render = Effect.fnUntraced(function* (name: string, text: string) {
+            const specPath = path.join(dir, `${name}.json`);
+            yield* fs.writeFileString(specPath, text);
+            const out = path.join(dir, name);
+            const manifest = yield* service.render(RenderRequest.make({ specPath, outputDir: out, validate: false }));
+            return { manifest, svg: yield* fs.readFileString(path.join(out, "fig-1.svg")) };
+          });
+          const solid = yield* render("solid", spec(figures, omissions));
+          const broken = yield* render("broken", spec(figures, omissions, {}, { ...body, lineStyle: "broken" }));
+          expect(A.map(solid.manifest.figures, (f) => f.brokenSegments)).toEqual([0]);
+          expect(A.map(broken.manifest.figures, (f) => f.brokenSegments)).toEqual([1]);
+          expect(solid.svg).not.toContain('id="broken"');
+          expect(broken.svg).toContain('<path id="broken"');
+          expect(broken.svg).toContain('stroke-dasharray="8.504 4.252"');
+          expect(A.map(broken.manifest.omissions, (o) => o.proven)).toEqual([true]);
+          // the broken segment lies inside the outline, so the scale is unchanged
+          expect(broken.manifest.scale).toBe(solid.manifest.scale);
+        })
+      );
+
+      it.effect(
         "records the effective sheet and cameras; a spec's sheet wins over the request's",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -866,6 +1099,36 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "rejects unreadable font files and missing label glyphs before producing output",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          const outputDir = path.join(dir, "out");
+          const service = yield* FigureSet;
+          const renderWith = Effect.fnUntraced(function* (fontFile: string) {
+            yield* fs.writeFileString(
+              specPath,
+              spec([{ view: "front", description: "is a front elevation view" }], [], {
+                sheet: { figureLabel: { typeface: "serif", sizePt: 24, fontFile } },
+              })
+            );
+            return yield* Effect.flip(service.render(RenderRequest.make({ specPath, outputDir, validate: false })));
+          });
+          const missing = yield* renderWith(path.join(dir, "missing.otf"));
+          expect(missing.reason).toBe("font");
+          expect(missing.message).toContain("Could not read label font");
+          const incompleteFont = path.join(dir, "missing-F.otf");
+          yield* fs.writeFile(incompleteFont, yield* makeLabelAlphabetFont("0123456789IG./ "));
+          const incomplete = yield* renderWith(incompleteFont);
+          expect(incomplete.reason).toBe("font");
+          expect(incomplete.message).toContain('the font has no glyph for "F"');
+          expect(yield* fs.exists(outputDir)).toBe(false);
+        })
+      );
+
+      it.effect(
         "outlines an operator font file on every runner and records its sha256",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -893,6 +1156,171 @@ describe("@beep/technical-drawing", () => {
           // "1/1" in the box face: three 400 x 700 unit boxes, every corner a straight line
           expect(outlinesOf(svg)).toMatch(/^M[\d. LZM-]+$/);
           expect(inkBox(outlinesOf(svg)).maxY - inkBox(outlinesOf(svg)).minY).toBeCloseTo((18 * 700) / 1000, 2);
+        })
+      );
+
+      it.effect(
+        "accepts a default-export font parser with quadratic outlines and rejects an undersized cap height",
+        Effect.fnUntraced(function* () {
+          let capHeight = 700;
+          yield* Effect.sync(() =>
+            vi.doMock(OPENTYPE_MODULE, () => ({
+              default: {
+                parse: () => ({
+                  unitsPerEm: 1000,
+                  tables: { os2: { sCapHeight: capHeight } },
+                  charToGlyph: (char: string) => ({
+                    index: char === " " ? 0 : 1,
+                    advanceWidth: char === " " ? undefined : 500,
+                    path: {
+                      commands:
+                        char === " "
+                          ? []
+                          : [
+                              { type: "M", x: 0, y: 0 },
+                              { type: "Q", x1: 100, y1: 1400, x: 500, y: 0 },
+                              { type: "Q", x1: 500, y1: 350, x: 500, y: 700 },
+                              { type: "L", x: 0, y: 700 },
+                              { type: "Z" },
+                            ],
+                    },
+                  }),
+                }),
+              },
+            }))
+          );
+          yield* Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const dir = yield* fs.makeTempDirectoryScoped();
+            const specPath = path.join(dir, "spec.json");
+            const fontFile = path.join(dir, "quadratic.ttf");
+            const outputDir = path.join(dir, "out");
+            yield* fs.writeFileString(fontFile, "font parser boundary fixture");
+            yield* fs.writeFileString(
+              specPath,
+              spec([{ view: "front", description: "is a front elevation view" }], [], {
+                sheet: {
+                  sheetNumberLabel: { typeface: "sans", sizePt: 18, fontFile },
+                  figureLabel: { typeface: "serif", sizePt: 24, fontFile },
+                },
+              })
+            );
+            const service = yield* FigureSet;
+            const request = RenderRequest.make({ specPath, outputDir, validate: false });
+            const manifest = yield* service.render(request);
+            expect(A.some(manifest.labelFonts, (font) => font.fontFile === fontFile)).toBe(true);
+            expect(yield* fs.readFileString(path.join(outputDir, "fig-1.svg"))).toContain("Q");
+            capHeight = 1;
+            const undersized = yield* Effect.flip(service.render(request));
+            expect(undersized.reason).toBe("font");
+            expect(undersized.message).toContain("under 0.32 cm");
+          }).pipe(Effect.ensuring(Effect.sync(() => vi.doUnmock(OPENTYPE_MODULE))));
+        }),
+        { concurrent: false }
+      );
+
+      it.effect(
+        "sets text labels in a font resolved from the font directory, pins it for the backend, and records it",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const fontDirectory = path.join(dir, "fonts");
+          yield* fs.makeDirectory(path.join(fontDirectory, "nested"), { recursive: true });
+          const bytes = yield* labelAlphabetFont;
+          const fontFile = path.join(fontDirectory, "nested", "boxes.otf");
+          yield* fs.writeFile(fontFile, bytes);
+          yield* fs.writeFileString(path.join(fontDirectory, "README.txt"), "not a font");
+          const specPath = path.join(dir, "spec.json");
+          const textSheet = {
+            fontDirectory,
+            labelGapMm: 1,
+            sheetNumberLabel: { typeface: "sans", sizePt: 18, render: "text", fontFamily: "label boxes" },
+            figureLabel: { typeface: "serif", sizePt: 24, render: "text", fontFamily: "Label Boxes" },
+          };
+          yield* fs.writeFileString(
+            specPath,
+            spec(
+              [
+                { view: "front", description: "is a front elevation view" },
+                { view: "top-plan", description: "is a top plan view" },
+              ],
+              [],
+              { sheet: textSheet }
+            )
+          );
+          const service = yield* FigureSet;
+          const manifest = yield* service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "out") }));
+          const digest = yield* Effect.promise(() => crypto.subtle.digest("SHA-256", bytes.slice().buffer));
+          expect(A.map(manifest.fonts, (pin) => [pin.family, pin.file, pin.sha256])).toEqual([
+            ["label boxes", fontFile, Buffer.from(digest).toString("hex")],
+            ["Label Boxes", fontFile, Buffer.from(digest).toString("hex")],
+          ]);
+          expect(manifest.labelFonts).toEqual([]);
+          const pinned = yield* decodeJson(yield* fs.readFileString(path.join(dir, "out", "sheets.pdf.fonts.json")));
+          expect(pinned).toEqual({
+            directory: fontDirectory,
+            families: [
+              { requested: "label boxes", family: "Label Boxes" },
+              { requested: "Label Boxes", family: "Label Boxes" },
+            ],
+          });
+          const svg = yield* fs.readFileString(path.join(dir, "out", "fig-2.svg"));
+          expect(svg).toContain(
+            'font-family="label boxes" font-size="18.000" text-anchor="middle" fill="#000000">2/2</text>'
+          );
+          expect(svg).toContain(
+            'font-family="Label Boxes" font-size="24.000" text-anchor="middle" fill="#000000">FIG. 2</text>'
+          );
+          // The loaded face places the text: a 700-unit box glyph has its ink top 12.6 pt
+          // (18 pt × 0.7) above the baseline and its ink bottom on it.
+          const g = sheetGeometry(manifest.sheet.pipe(O.getOrThrow));
+          const ys = A.map(A.fromIterable(svg.matchAll(/<text x="[\d.]+" y="([\d.]+)"/g)), (m) => Number(m[1]));
+          expect(ys[0]).toBeCloseTo(g.labels.top + 12.6, 3);
+          expect(ys[1]).toBeCloseTo(g.labels.bottom, 3);
+          // the fake backend extracts no text, so the validator reports both labels missing on both pages
+          const codes = O.map(manifest.validation, (v) => A.map(v.findings, (f) => [f.code, f.page]));
+          assertSome(codes, [
+            ["label-missing", O.some(1)],
+            ["label-missing", O.some(1)],
+            ["label-missing", O.some(2)],
+            ["label-missing", O.some(2)],
+          ]);
+        })
+      );
+
+      it.effect(
+        "refuses text labels without a font directory or without a Regular file of the family",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          const service = yield* FigureSet;
+          const renderWith = Effect.fnUntraced(function* (sheet: Record<string, unknown>) {
+            yield* fs.writeFileString(
+              specPath,
+              spec([{ view: "front", description: "is a front elevation view" }], [], { sheet })
+            );
+            return yield* Effect.flip(
+              service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "out"), validate: false }))
+            );
+          });
+          const label = { typeface: "sans", sizePt: 18, render: "text" };
+          const noDirectory = yield* renderWith({ sheetNumberLabel: label });
+          expect(noDirectory.reason).toBe("font");
+          expect(noDirectory.message).toContain("fontDirectory");
+          yield* fs.writeFile(path.join(dir, "boxes.otf"), yield* labelAlphabetFont);
+          const noArial = yield* renderWith({ sheetNumberLabel: label, fontDirectory: dir });
+          expect(noArial.reason).toBe("font");
+          expect(noArial.message).toContain('no Regular font of the family "Arial"');
+          yield* fs.writeFile(path.join(dir, "boxes-copy.otf"), yield* labelAlphabetFont);
+          const twice = yield* renderWith({
+            sheetNumberLabel: { ...label, fontFamily: "Label Boxes" },
+            fontDirectory: dir,
+          });
+          expect(twice.message).toContain("2 Regular files");
         })
       );
 
@@ -979,6 +1407,38 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "refuses a model whose parts overlap unless the request allows it",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          yield* fs.writeFileString(
+            specPath,
+            spec([{ view: "front", description: "is a front elevation view" }], [], {}, body, [
+              { ...body, name: "lid" },
+            ])
+          );
+          const service = yield* FigureSet;
+          const error = yield* Effect.flip(
+            service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "refused"), validate: false }))
+          );
+          assertInstanceOf(error, DrawingError);
+          expect(error.reason).toBe("geometry");
+          expect(error.message).toContain("1 pair(s) of parts overlap");
+          const allowed = yield* service.render(
+            RenderRequest.make({
+              specPath,
+              outputDir: path.join(dir, "allowed"),
+              validate: false,
+              allowPartOverlaps: true,
+            })
+          );
+          expect(allowed.model.partOverlaps).toBe(1);
+        })
+      );
+
+      it.effect(
         "rejects a spec that repeats a view or lacks a description",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1053,6 +1513,82 @@ describe("@beep/technical-drawing approver binding and empty documents", () => {
         const unbound = yield* render("unbound", spec(figures));
         expect(O.isNone(unbound.manifest.approver)).toBe(true);
         expect(unbound.written).not.toContain("approver");
+      })
+    );
+  });
+});
+
+// The engine records the plans it is asked for; only this block's one test uses this layer,
+// so concurrent tests elsewhere cannot add to it.
+const gradedPlans = A.empty<ShadingPlan>();
+
+describe("graded shading through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(fakeEngineWith(gradedPlans), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "passes a spec's graded shading options to the engine, records coverage, and flags close shading lines",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(
+          specPath,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {
+            sheet: {
+              shadingStyle: "graded",
+              shadingAxis: "surface-class",
+              shadingMinFaceSpanMm: 1.5,
+              shadingMinStrokeMm: 2,
+            },
+          })
+        );
+        const service = yield* FigureSet;
+        const manifest = yield* service.render(
+          RenderRequest.make({ specPath, outputDir: path.join(dir, "out"), shade: true })
+        );
+        expect(A.length(gradedPlans)).toBe(1);
+        const plan = gradedPlans[0];
+        expect([plan?.style, plan?.axis]).toEqual(["graded", "surface-class"]);
+        expect(plan?.minFaceSpan).toBeCloseTo((1.5 * PT_PER_MM) / manifest.scale, 9);
+        expect(plan?.minStroke).toBeCloseTo((2 * PT_PER_MM) / manifest.scale, 9);
+        assertSome(
+          manifest.figures[0]!.shadingCoverage,
+          ShadingCoverage.make({
+            shadedFaces: 1,
+            skippedFaces: [ShadingSkip.make({ reason: "back-facing", faces: 5 })],
+          })
+        );
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => [f.code, f.page])),
+          [["shading-spacing", O.some(1)]]
+        );
+        // the unshaded render records no coverage and no spacing finding
+        const plain = yield* service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "plain") }));
+        assertNone(plain.figures[0]!.shadingCoverage);
+        assertSome(
+          O.map(plain.validation, (v) => v.findings.length),
+          0
+        );
+        // a default (uniform) shaded render is not held to the graded outline checks, although its
+        // hatch starts on the outline
+        const uniformSpec = path.join(dir, "uniform.json");
+        yield* fs.writeFileString(
+          uniformSpec,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {})
+        );
+        const uniform = yield* service.render(
+          RenderRequest.make({ specPath: uniformSpec, outputDir: path.join(dir, "uniform"), shade: true })
+        );
+        assertSome(
+          O.map(uniform.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
+        );
       })
     );
   });
