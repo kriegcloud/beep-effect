@@ -75,6 +75,12 @@ const sectionEdges = (oc: OpenCascadeInstance, face: replicad.Face, point: V3, n
   return edges;
 };
 
+// A stroke shorter than its chord is centred on it (the graded taper).
+const trimTo =
+  (extent: number) =>
+  (edge: replicad.Edge): replicad.Edge =>
+    extent >= 1 ? edge : replicad.makeLine(edge.pointAt(0.5 - extent / 2), edge.pointAt(0.5 + extent / 2));
+
 // Planar faces only: curved faces are counted, never hatched.
 const isPlanar = (face: replicad.Face): boolean => face.geomType === "PLANE";
 
@@ -86,8 +92,11 @@ const shadeFace =
       : ShadingSkipped.make({ reason: "curved" });
     const edges = FaceTreatment.match(treatment, {
       lines: (lines) =>
-        A.flatMap(lines.offsets, (offset) =>
-          sectionEdges(oc, face, add(lines.origin, scale(lines.step, offset)), lines.step)
+        A.flatMap(lines.cuts, (cut) =>
+          A.map(
+            sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
+            trimTo(cut.extent)
+          )
         ),
       skipped: () => A.empty<replicad.Edge>(),
     });

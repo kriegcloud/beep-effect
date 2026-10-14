@@ -7,9 +7,11 @@ import {
   FaceEdge,
   FaceFacts,
   FaceTreatment,
+  gradedExtents,
   gradedOffsets,
   hatchDirectionOf,
   ShadingCoverage,
+  ShadingCut,
   ShadingLines,
   ShadingPlan,
   ShadingSkip,
@@ -145,12 +147,20 @@ describe("Shading.rules", () => {
       )
     ).toBe(true);
     expect(Math.max(...gaps)).toBe(2.5);
-    expect(Math.max(...offsets)).toBeLessThanOrEqual(0.6 * 40 + 2.5);
-    expect(gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint" }).length).toBeLessThanOrEqual(4);
-    expect(gradedOffsets({ span: 400, minPitch: 1, maxPitch: 2.5, tone: "dark" }).length).toBe(40);
+    expect(Math.max(...offsets)).toBeLessThanOrEqual(0.35 * 40 + 2.5);
+    expect(gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint" }).length).toBeLessThanOrEqual(2);
+    expect(gradedOffsets({ span: 400, minPitch: 1, maxPitch: 2.5, tone: "dark" }).length).toBe(8);
     // a narrow face still gets the tone's minimum where it fits, and nothing below one pitch
-    expect(gradedOffsets({ span: 4, minPitch: 1, maxPitch: 2.5, tone: "medium" })).toEqual([1, 2.3]);
+    expect(gradedOffsets({ span: 4, minPitch: 1, maxPitch: 2.5, tone: "medium" })).toEqual([1, 2.4]);
     expect(gradedOffsets({ span: 1.5, minPitch: 1, maxPitch: 2.5, tone: "dark" })).toEqual([]);
+  });
+
+  it("tapers graded strokes: two full lines, then 60% down to 40% of the chord", () => {
+    const rounded = (extents: ReadonlyArray<number>) => A.map(extents, (e) => Math.round(e * 100) / 100);
+    expect(rounded(gradedExtents(5))).toEqual([1, 1, 0.6, 0.5, 0.4]);
+    expect(rounded(gradedExtents(3))).toEqual([1, 1, 0.6]);
+    expect(rounded(gradedExtents(2))).toEqual([1, 1]);
+    expect(gradedExtents(0)).toEqual([]);
   });
 
   it("keeps the original lit cut-off under the default plan and shades the same face when graded", () => {
@@ -166,9 +176,21 @@ describe("Shading.rules", () => {
       ]
     );
     const offsets = O.getOrElse(
-      O.map(lines, (l) => l.offsets),
+      O.map(lines, (l) => A.map(l.cuts, (cut) => cut.offset)),
       () => []
     );
+    // the taper: the first two strokes run the full chord, later ones shorten toward the light
+    const extents = O.getOrElse(
+      O.map(lines, (l) => A.map(l.cuts, (cut) => cut.extent)),
+      () => []
+    );
+    expect(A.take(extents, 2)).toEqual([1, 1]);
+    expect(
+      A.every(
+        A.zipWith(extents, A.drop(extents, 1), (a, b) => b <= a),
+        (shrinks) => shrinks
+      )
+    ).toBe(true);
     const gaps = A.zipWith([0, ...offsets], offsets, (a, b) => b - a);
     expect(gaps[0]).toBe(1);
     expect(
@@ -230,7 +252,7 @@ describe("Shading.rules", () => {
     );
     const offsetsOf = (face: FaceFacts) =>
       O.map(linesOf(treatmentFor({ face, view: top, plan: gradedPlan })), (l) =>
-        A.map(l.offsets, (o) => Math.round(o * 1e9) / 1e9)
+        A.map(l.cuts, (cut) => Math.round(cut.offset * 1e9) / 1e9)
       );
     const first = offsetsOf(one);
     expect(O.isSome(first)).toBe(true);
@@ -265,7 +287,7 @@ describe("Shading.rules", () => {
     expect(sliver).toEqual(ShadingSkipped.make({ reason: "sliver" }));
     const back = treatmentFor({ face: wall, view: top, plan: plan({ style: "graded" }) });
     expect(back).toEqual(ShadingSkipped.make({ reason: "back-facing" }));
-    const lines = ShadingLines.make({ origin: [0, 0, 0], step: [1, 0, 0], offsets: [1] });
+    const lines = ShadingLines.make({ origin: [0, 0, 0], step: [1, 0, 0], cuts: [ShadingCut.make({ offset: 1 })] });
     expect(coverageOf([sliver, lines, back, ShadingSkipped.make({ reason: "curved" }), back])).toEqual(
       ShadingCoverage.make({
         shadedFaces: 1,

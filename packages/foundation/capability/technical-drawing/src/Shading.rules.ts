@@ -26,6 +26,7 @@ import { HatchAxis, ShadingCoverage, ShadingSkip, ShadingSkipReason } from "./Ge
 import {
   FaceAnchor,
   FaceTreatment,
+  ShadingCut,
   ShadingLines,
   ShadingSkipped,
   ShadingTone,
@@ -55,7 +56,11 @@ const COS_TOLERANCE = Math.cos(Math.PI / 180);
 const MIN_SPREAD = 0.2;
 const BACK_FACING = 1e-9;
 // Graded gaps grow by this factor from the shadow edge toward the lit side.
-const GROWTH = 1.3;
+const GROWTH = 1.4;
+// Graded strokes: this many full-length lines at the shadow edge, then a taper.
+const FULL_LINES = 2;
+const TAPER_FROM = 0.6;
+const TAPER_TO = 0.4;
 
 /**
  * Sheet frame and 1.84(m) light of a camera, in model coordinates.
@@ -191,13 +196,16 @@ export const toneOf = (exposure: number): ShadingTone => {
   return exposure >= -0.2 ? "medium" : "dark";
 };
 
-// How much of a face a tone covers from its shadow edge, and how many lines.
+// How much of a face a tone covers from its shadow edge, and how many lines:
+// the 1993 Guide's flat-face examples (Appendix 4, Examples 32 and 36) put a
+// few strokes at the shadow edge, the last within about a third of the span,
+// and leave a face square to the light nearly bare.
 const toneSpacing = (tone: ShadingTone) =>
   ShadingTone.$match(tone, {
-    faint: () => ({ coverage: 0.2, minLines: 2, maxLines: 4 }),
-    light: () => ({ coverage: 0.35, minLines: 2, maxLines: 8 }),
-    medium: () => ({ coverage: 0.6, minLines: 3, maxLines: 14 }),
-    dark: () => ({ coverage: 1, minLines: 4, maxLines: 40 }),
+    faint: () => ({ coverage: 0.15, minLines: 1, maxLines: 2 }),
+    light: () => ({ coverage: 0.3, minLines: 2, maxLines: 5 }),
+    medium: () => ({ coverage: 0.35, minLines: 3, maxLines: 7 }),
+    dark: () => ({ coverage: 0.35, minLines: 4, maxLines: 8 }),
   });
 
 /**
@@ -206,7 +214,7 @@ const toneSpacing = (tone: ShadingTone) =>
  *
  * **Details**
  *
- * The first line sits `minPitch` from the shadow edge; each gap is `1.3`
+ * The first line sits `minPitch` from the shadow edge; each gap is `1.4`
  * times the one before, capped at `maxPitch`. Lines stop when they pass the
  * tone's share of the span (once its minimum count is drawn) or its maximum
  * count, and never come within `minPitch` of the far edge. A face too narrow
@@ -242,6 +250,36 @@ export const gradedOffsets = (input: {
   };
   return next([], 0, minPitch);
 };
+
+/**
+ * Drawn fraction of each graded line's chord, by line count: the first two
+ * lines run full length and the rest shorten evenly from 60% to 40%.
+ *
+ * **Details**
+ *
+ * The taper is the 1993 Guide's (Appendix 4, Examples 32 and 34): strokes
+ * are longest at the shadow edge and shorten toward the light, each centred
+ * on the chord it would have filled.
+ *
+ * **Example** (Five lines)
+ *
+ * ```ts
+ * import { gradedExtents } from "@beep/technical-drawing/Shading.rules"
+ *
+ * console.log(gradedExtents(5)) // [1, 1, 0.6, 0.5, 0.4]
+ * ```
+ *
+ * @category shading
+ * @since 0.0.0
+ */
+export const gradedExtents = (count: number): ReadonlyArray<number> =>
+  count <= 0
+    ? A.empty()
+    : A.makeBy(count, (index) =>
+        index < FULL_LINES
+          ? 1
+          : TAPER_FROM - (TAPER_FROM - TAPER_TO) * ((index - FULL_LINES) / Math.max(1, count - FULL_LINES - 1))
+      );
 
 // Lengths are compared to the micrometre so the equal edges of a regular face
 // tie instead of ordering by floating-point noise.
@@ -406,7 +444,7 @@ const centredLines = (face: FaceFacts, step: V3, pitch: number): FaceTreatment =
   return ShadingLines.make({
     origin: face.center,
     step,
-    offsets: A.makeBy(count + 1, (i) => -reach + pitch * (i + 0.5)),
+    cuts: A.makeBy(count + 1, (i) => ShadingCut.make({ offset: -reach + pitch * (i + 0.5) })),
   });
 };
 
@@ -450,8 +488,11 @@ const gradedTreatment = (input: {
     maxPitch: plan.maxPitch,
     tone: toneOf(dot(face.normal, view.light)),
   });
-  return A.isReadonlyArrayNonEmpty(offsets)
-    ? ShadingLines.make({ origin: anchor.point, step: anchor.step, offsets: A.map(offsets, (o) => o / factor) })
+  const cuts = A.zipWith(offsets, gradedExtents(A.length(offsets)), (offset, extent) =>
+    ShadingCut.make({ offset: offset / factor, extent })
+  );
+  return A.isReadonlyArrayNonEmpty(cuts)
+    ? ShadingLines.make({ origin: anchor.point, step: anchor.step, cuts })
     : skipped("sliver");
 };
 
@@ -537,9 +578,9 @@ export const treatmentFor = (input: {
  *
  * ```ts
  * import { coverageOf } from "@beep/technical-drawing/Shading.rules"
- * import { ShadingLines, ShadingSkipped } from "@beep/technical-drawing/Shading.schemas"
+ * import { ShadingCut, ShadingLines, ShadingSkipped } from "@beep/technical-drawing/Shading.schemas"
  *
- * const lines = ShadingLines.make({ origin: [0, 0, 0], step: [1, 0, 0], offsets: [1] })
+ * const lines = ShadingLines.make({ origin: [0, 0, 0], step: [1, 0, 0], cuts: [ShadingCut.make({ offset: 1 })] })
  * console.log(coverageOf([lines, lines, ShadingSkipped.make({ reason: "sliver" })]))
  * ```
  *

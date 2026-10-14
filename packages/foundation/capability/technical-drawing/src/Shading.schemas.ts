@@ -290,16 +290,69 @@ export class FaceAnchor extends S.Class<FaceAnchor>($I`FaceAnchor`)(
   })
 ) {}
 
+const StrokeExtent = S.Finite.check(
+  S.isGreaterThan(0, {
+    identifier: $I`StrokeExtentMinCheck`,
+    title: "Stroke Extent Minimum",
+    description: "A stroke must have some length.",
+    message: "Expected a stroke extent above 0",
+  }),
+  S.isLessThanOrEqualTo(1, {
+    identifier: $I`StrokeExtentMaxCheck`,
+    title: "Stroke Extent Maximum",
+    description: "A stroke cannot outrun the chord it is cut from.",
+    message: "Expected a stroke extent of at most 1",
+  })
+);
+
 /**
- * Parallel shading lines on one face: section planes through
- * `origin + step × offset`, each with normal `step`.
+ * One shading line on a face: the section plane's position along the step
+ * and the centred fraction of the resulting chord that is drawn.
  *
- * **Example** (Three lines)
+ * **Details**
+ *
+ * Graded shading tapers (1993 Guide, Appendix 4, Examples 32 and 34): the
+ * first strokes run the face's full length and later ones shorten toward the
+ * light, so `extent` is 1 for a full chord and less for a short stroke
+ * centred on it. Uniform shading always draws full chords.
+ *
+ * **Example** (A full-length line two units in)
  *
  * ```ts
- * import { ShadingLines } from "@beep/technical-drawing/Shading.schemas"
+ * import { ShadingCut } from "@beep/technical-drawing/Shading.schemas"
  *
- * console.log(ShadingLines.make({ origin: [20, 0, 0], step: [-1, 0, 0], offsets: [1, 2.3, 4] }).kind)
+ * console.log(ShadingCut.make({ offset: 2 }).extent) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ShadingCut extends S.Class<ShadingCut>($I`ShadingCut`)(
+  {
+    offset: S.Finite.annotateKey({ description: "Plane position along `step`, in model units." }),
+    extent: StrokeExtent.pipe(
+      S.withConstructorDefault(Effect.succeed(1)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(1)),
+      S.annotateKey({ description: "Fraction of the chord drawn, centred on it. Defaults to 1 (the full chord)." })
+    ),
+  },
+  $I.annote("ShadingCut", {
+    description: "A section plane's offset along the step and the drawn fraction of its chord.",
+  })
+) {}
+
+/**
+ * Parallel shading lines on one face: section planes through
+ * `origin + step × offset`, each with normal `step`, drawn over `extent` of
+ * the chord they cut.
+ *
+ * **Example** (Two lines, the second a short stroke)
+ *
+ * ```ts
+ * import { ShadingCut, ShadingLines } from "@beep/technical-drawing/Shading.schemas"
+ *
+ * const cuts = [ShadingCut.make({ offset: 1 }), ShadingCut.make({ offset: 2.3, extent: 0.6 })]
+ * console.log(ShadingLines.make({ origin: [20, 0, 0], step: [-1, 0, 0], cuts }).kind)
  * ```
  *
  * @category models
@@ -310,10 +363,13 @@ export class ShadingLines extends S.Class<ShadingLines>($I`ShadingLines`)(
     kind: S.tag("lines").annotateKey({ description: "Treatment discriminator." }),
     origin: Vec3.annotateKey({ description: "Point the offsets are measured from." }),
     step: Vec3.annotateKey({ description: "Unit in-plane direction across the lines; also each plane's normal." }),
-    offsets: S.Array(S.Finite).annotateKey({ description: "Plane positions along `step`, in model units." }),
+    cuts: S.Array(ShadingCut).annotateKey({
+      description: "Section planes along `step`, each with the fraction of its chord that is drawn.",
+    }),
   },
   $I.annote("ShadingLines", {
-    description: "Section planes, as origin, step, and offsets, that cut one face into shading lines.",
+    description:
+      "Section planes, as origin, step, and cuts, that cut one face into shading lines drawn over a centred fraction of each chord.",
   })
 ) {}
 
