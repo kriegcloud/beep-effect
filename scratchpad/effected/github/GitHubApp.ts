@@ -480,7 +480,7 @@ export interface GitHubAppOptions {
  *
  * const configured = Effect.gen(function* () {
  *   // Load the private key from the environment supplied by your secret store.
- *   const privateKey = yield* Config.redacted("GITHUB_APP_PRIVATE_KEY");
+ *   const privateKey = yield* Config.Redacted("GITHUB_APP_PRIVATE_KEY");
  *   // Mints on build, re-mints before expiry, and revokes on release.
  *   const layer = GitHubApp.clientLayer({ appId: "12345", privateKey, owner: "my-org" });
  *   return yield* Effect.provide(program, layer);
