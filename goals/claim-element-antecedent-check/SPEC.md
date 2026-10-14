@@ -15,8 +15,14 @@ USPTO claims. Observably:
    carries a char-exact `TextAnchor` into the claim text.
 2. A pure decomposer turns normalized `PatentClaim` values into
    `ClaimElementTree`s. A pure antecedent policy turns those trees into typed
-   `AntecedentFinding`s, and each finding cites the rule that fired and both
-   spans. A pattern the rules do not cover yields a `pattern-not-covered`
+   `AntecedentFinding`s. Each finding cites the rule that fired and always carries
+   the referring-term span. Introducing-term spans appear only for finding kinds
+   that have candidates:
+   - `missing-antecedent` has none;
+   - `ambiguous-antecedent` has two or more;
+   - `antecedent-outside-chain` has the non-ancestor introduction;
+   - `number-mismatch` has the introduction;
+   - `pattern-not-covered` carries the referring span only. A pattern the rules do not cover yields a `pattern-not-covered`
    finding; it never passes silently.
 3. A `ClaimSelfCheck` `Context.Service` in `@beep/law-practice-use-cases` runs
    decompose, then check, over a document. It maps findings into epistemic
@@ -158,15 +164,25 @@ Higher sources outrank lower sources when they conflict.
 - [ ] **First vertical slice.** The public claim family with a known §112(b)
       antecedent rejection yields a `missing-antecedent` finding whose span
       matches the examiner's recited phrase, and its tree passes strict
-      equality against the hand-labelled fixture.
+      equality against the hand-labelled fixture. The fixture records its
+      provenance:
+      - the public office action (USPTO document identifier or link);
+      - the claim number;
+      - the rejection's mail date;
+      - the claim text in force at the rejection.
 - [ ] **Labelled set.** About 60 independent-claim families (~500 claims) are
       element-labelled by a bounded extractor/critic agent loop with a
       confidence threshold; unresolved items are flagged. About 10% are
       spot-checked by the attorney, and the agreement is recorded. About 200
       allowed claim sets (~3,000 claims) are fetched. Positives are claims that
-      drew real §112(b) rejections; negatives are allowed claims; both are
-      stratified across CPC sections. All are committed as public USPTO
-      fixtures.
+      drew real §112(b) rejections. Each records the public office action, the
+      claim number, the rejection's mail date and the claim text in force at
+      the rejection. Negatives are allowed claims. Both are stratified across
+      CPC sections, and all are committed as public USPTO fixtures. If
+      `@beep/uspto` cannot supply that office-action evidence, a separate
+      public office-action source (for example the ODP office-action APIs named
+      in `explorations/uspto-patent-driver-depth`) must be bound first. Until
+      then the slice and the set do not count as complete.
 - [ ] **P3 review items.** A practice MCP read tool returns findings as
       `claim-finding` `ReviewItem`s, in plain lawyer language with the claim
       text quoted. A fixture `ReviewItem` round-trips through the
@@ -241,6 +257,8 @@ there.
 | 2026-10-14 | shape-review: findings leave as `claim-finding` `ReviewItem`s, judged in the `practice-claude-mod` review queue; verdicts are `VerdictRow`s projected to `ClaimDisposition`. | Keeps the practice MCP read-only; one review surface for all producers. | Revisit in `attorney-review-workspace`. |
 | 2026-10-14 | graduation-shape: one goal, P0 schema, P1 contract, P2 implementation + adapter, P3 review items + evaluation. | P0 schema churn would break a parallel evaluation goal. | Split P3 into its own goal. |
 | 2026-10-14 | Packet: the USPTO claims adapter is a use-cases port implemented in `@beep/law-practice-server`, which already depends on `@beep/uspto`. | `standards/ARCHITECTURE.md` Core Principle 2 (ports point inward): drivers stay in server. | Move the port if a driver-free source appears. |
+| 2026-10-14 | Every `AntecedentFinding` carries the referring-term span. Introducing-term spans are present only for kinds with candidates; `missing-antecedent` and `pattern-not-covered` have none. | A missing antecedent has no introduction to point at; requiring one made the finding unrepresentable (PR #1712 review). | Require both spans and drop `missing-antecedent` (not recommended). |
+| 2026-10-14 | Positive fixtures record office-action provenance: the public office action, claim number, rejection mail date, and the claim text in force at the rejection. If `@beep/uspto` cannot supply it, a separate public office-action source is bound first. | A positive is only evidence if it traces to the rejection it claims (PR #1712 review). | Accept positives without provenance as weak labels only. |
 
 ## Exception Ledger
 

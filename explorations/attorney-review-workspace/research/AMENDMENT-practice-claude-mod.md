@@ -29,12 +29,16 @@ Desktop Code tab on Windows) and **S3** (Box read tools reachable through `$.mcp
 D8's verdict JSONL rows become `VerdictRow`s from `@beep/law-practice-domain` (import the domain
 subpath only, per the bundle-growth rabbit hole):
 - `itemId`;
+- `batchId`, for the review sitting or queue run;
 - `verdict`: `right | wrong | partly`;
 - an optional `note`;
 - `revision`;
+- `recordedAt`, the time the attorney pressed (required; the projector derives `resolvedAt` from
+  it);
 - an optional `lockedAt`.
 
-Rows are append-only, so undo is a superseding revision. A `kg-answer` `ReviewItem` wraps the answer
+Rows are append-only, so undo is a superseding revision. A lock closes one batch; the next
+review starts a new `batchId` in the same log. A `kg-answer` `ReviewItem` wraps the answer
 row the existing Right/Wrong controls already target, so one log serves both the per-answer controls
 and the queue. D10's app-local schema is promoted out at the point D10 already names: the projector
 in `review-verdict-envelope` is the second consumer.

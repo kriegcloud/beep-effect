@@ -78,7 +78,7 @@ How the structure maps onto the paper's model:
 
 What the JSON does not carry:
 
-- **Edge type.** There is no field for it, so the part-of vs example-of distinction is lost. `meronym`, `hyponym`, `method` and `normal` survive only in `targets/*.csv`.
+- **Edge type.** There is no field for it, so the part-of vs example-of distinction is lost. Typed labels survive only in the word-level `targets/*.csv` of the **training sample** (`train_sample`: `meronym`, `hyponym`, `normal`, `reference`, `syntactic`). The post-acquisition census found every evaluation-archive target row at `parent=0`/`edge=none`, so use `train_sample`, not the evaluation archive, for typed-edge tests.
 - **Source offsets.** There are no character offsets and no token spans. Grounding a node back to the text means re-tokenizing with `tokenize.py` and aligning against the CSV token ids.
 - **Shared node ids.** `build_node_map` raises `CyclicGraphException` when an id repeats, so the JSON is a strict tree of features. The DAG part exists only through `NodeRef`s inside relation values.
 

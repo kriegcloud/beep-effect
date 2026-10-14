@@ -18,9 +18,13 @@ surface it will be judged in before anyone builds that surface. Observably:
      `claimId: CandidateClaimId` (from `@beep/shared-domain/identity/Epistemic`);
    - `SourceRef`: `boxFileId`, an optional `page`, and a `quote` in the W3C TextQuoteSelector
      shape (`exact`, optional `prefix`, optional `suffix`);
-   - `VerdictRow`: `itemId`, `verdict` (`right | wrong | partly`), an optional `note`,
-     `revision`, `recordedAt` (`DateTimeUtcFromMillis`), and an optional `lockedAt`. Rows are append-only; undo is a superseding
-     revision; a lock closes the log.
+   - `VerdictRow`: `itemId`, `batchId` (the review batch, one sitting or queue run), `verdict`
+     (`right | wrong | partly`), an optional `note`, `revision`, `recordedAt`
+     (`DateTimeUtcFromMillis`), and an optional `lockedAt`. Rows are append-only, and undo is a
+     superseding revision. **A lock closes one batch:** after a row with `lockedAt` for a given
+     `batchId`, later writes to that batch fail with a typed error. New items get verdicts in a
+     new batch with a fresh `batchId`. Earlier rows stay in the one log and remain grouped by
+     their `batchId`, so history is never lost.
 3. **Services.** `@beep/law-practice-use-cases` exports `ReviewQueue` and `VerdictProjector` as
    `Context.Service` contracts with implementations. The projector takes the `VerdictRow`s and
    a `resolvedBy: Principal`. For each `claim-finding` item whose latest verdict is final, it
@@ -143,10 +147,15 @@ From the brief's rabbit holes and the repo laws:
 - [ ] **P0** The spike report under `history/` records the one-app answer, S1 and S3 go/no-go
       with evidence (screenshots kept out of the repo, described in text; S1 records pane
       placement, whether resizing works, and whether it coexists with the Browser pane), and results for S2,
-      S4, S6, S8 and the Word check. S3 records p95 latency per page (gate: under 3 s) and the
-      image block present. S2 records whether a 10-pt claim line is legible at the largest size.
+      S4, S6, S8 and the Word check. **S3's gate is the text read:** a successful
+      `get_file_content` with p95 latency under 3 s gates the text review queue.
+      `get_preview_page` is recorded separately: latency, whether an image block came back, and
+      any failure, which counts as an image limitation, not a queue blocker. If the text read
+      itself fails, the handoff falls back to producers embedding the passage text in
+      `SourceRef.quote`, so the pane needs no Box call, and the amendment says so. S2 records whether a 10-pt claim line is legible at the largest size.
 - [ ] **P1** `ReviewItem` decodes all six `kind` members; an unknown `kind` fails to decode.
-      `SourceRef` round-trips with and without `page`, `prefix` and `suffix`. `VerdictRow`
+      `SourceRef` round-trips with and without `page`, `prefix` and `suffix`. A `claim-finding`
+      round-trips its `claimId`. `VerdictRow` round-trips `batchId` and `recordedAt`, and
       rejects a verdict outside `right | wrong | partly`.
 - [ ] **P2** `ReviewQueue` and `VerdictProjector` exist as `Context.Service` contracts with
       typed errors (including a locked-log write error) and Layer implementations.
@@ -214,6 +223,8 @@ Seeded from
 | 2026-10-14 | The projector returns a `ClaimDispositionProjection` value (`claimId`, `status`, `reason`, `resolvedAt`, `resolvedBy`, `violations: []`), not the persisted `ClaimDisposition` entity. `claim-finding` items carry `claimId`, `VerdictRow` gains `recordedAt`, and the caller supplies `resolvedBy`. Fixed reasons cover `right` and a `wrong` row without a note. | `ClaimDisposition` is a `ProductEntity` with ids, audit fields and a required non-empty reason. Building it inside the projector would mean inventing ids and reading the clock. Completion stays with the epistemic owner via `ClaimDispositionAppend`. | Have the projector depend on the epistemic append service and return entities. |
 | 2026-10-14 | A final `partly` verdict produces no disposition. The claim stays unresolved and returns to the queue. | `ClaimDispositionStatus` (`active / rejected / superseded`) has no partial state, and forcing one would misrecord the attorney's judgement. | Map `partly` to `rejected` with the note as the reason. |
 | 2026-10-14 | `requires`/`provides` stay empty in the manifest. | Other manifests use capability tokens, and no capability token exists yet for the dependency on `practice-claude-mod`; it is tracked in `PLAN.md` instead. | Add tokens when a matching `provides` exists. |
+| 2026-10-14 | `VerdictRow` gains `batchId`, and the lock closes one batch, not the whole log. New items get verdicts in a new batch; earlier rows stay grouped by `batchId`. | A log-wide lock would stop every later producer after the first sitting (PR #1712 review). | Drop `batchId` and start a fresh log file per sitting. |
+| 2026-10-14 | S3's gate is the `get_file_content` text read (p95 under 3 s). `get_preview_page` results are recorded as an image capability, not a gate. If the text read fails, producers embed passage text in `SourceRef.quote`. | Text review must not depend on page images, which are optional (PR #1712 review). | Gate on page images again if the pane comes to depend on them. |
 
 ## Exception Ledger
 
