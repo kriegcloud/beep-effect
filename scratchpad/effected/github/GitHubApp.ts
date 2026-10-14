@@ -470,7 +470,7 @@ export interface GitHubAppOptions {
  * import { GitHubApp } from "@beep/scratchpad/effected/github/GitHubApp";
  * import { GitHubClient } from "@beep/scratchpad/effected/github/GitHubClient";
  * import * as Effect from "effect/Effect";
- * import * as Config from "effect/Config";
+ * import * as Redacted from "effect/Redacted";
  *
  * const program = Effect.gen(function* () {
  *   const client = yield* GitHubClient;
@@ -478,15 +478,17 @@ export interface GitHubAppOptions {
  *   return accessible.total_count;
  * });
  *
- * const configured = Effect.gen(function* () {
- *   // Load the private key from the environment supplied by your secret store.
- *   const privateKey = yield* Config.Redacted("GITHUB_APP_PRIVATE_KEY");
- *   // Mints on build, re-mints before expiry, and revokes on release.
- *   const layer = GitHubApp.clientLayer({ appId: "12345", privateKey, owner: "my-org" });
- *   return yield* Effect.provide(program, layer);
+ * // The app's PEM private key; load the real value from your secret store.
+ * const appPrivateKeyPem = "<PEM private key from your secret store>"
+ *
+ * // Mints an installation token on build, re-mints before expiry, revokes on release.
+ * const layer = GitHubApp.clientLayer({
+ *   appId: "12345",
+ *   privateKey: Redacted.make(appPrivateKeyPem),
+ *   owner: "my-org",
  * });
  *
- * console.log(Effect.isEffect(configured)) // true
+ * console.log(Effect.isEffect(Effect.provide(program, layer))) // true
  * ```
  *
  * @public
