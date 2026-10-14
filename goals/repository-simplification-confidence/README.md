@@ -2,12 +2,15 @@
 
 ## Status
 
-Program resumed on October 14. A #1584, H2 #1574 and its follow-up #1744,
-and B #1738 have merged. H3's repository repair and local qualification are
-content-final for reopened #1590. Its [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-14.md)
-records proof provenance and the remaining native, home and remote prerequisites.
-All telemetry non-use windows remain incomplete. F and H4 retain their separately
-owned work, and the overall program stays active.
+Program active after the October 14 resume. A #1584, H2 #1574 and #1744,
+B #1738, and H4 #1770 have merged. H3's reopened #1590 carries the repository
+telemetry repair and is completing its first review wave; its
+[current handoff](history/handoffs/rsc-h3-telemetry-2026-10-14.md) records proof
+provenance and the remaining native, home and remote prerequisites. All telemetry
+non-use windows remain incomplete. H4's read-only permission census and runbook
+are source-qualified; installed Desktop acceptance remains open for the operator
+fixture batch and F's owned-field config writer. F and overall acceptance remain active.
+
 
 Lifecycle: `active`
 
@@ -193,3 +196,9 @@ recorded source. Hosted CI qualifies this new integration. Later A waves
 and overall program acceptance remain open.
 
 H3 resume evidence: [qualification receipt](history/receipts/stage-4-h3-telemetry.md#resume-2026-10-14); [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-14.md).
+
+H4's October 14 implementation adds an explicit-file, read-only Session
+permission census and the [Desktop continuity runbook](../../docs/runbooks/agent-permission-continuity.md).
+[H4 handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md) records the local
+gates and pending operator fixture batch. Installed-build routes remain
+unknown; no home configuration or Claude harness setting has been changed.
