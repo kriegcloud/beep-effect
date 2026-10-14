@@ -33,7 +33,12 @@ import { isRequiredSeverity } from "../Qa/Inventory.schemas.ts";
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import { buildDrawingJudgePack, ingestDrawingJudgeInventory } from "./Drawings.judge.ts";
 import { FigureSetLive, MailReaderM365Live, MailReaderUnavailable, sheetSetApprovalLive } from "./Drawings.layer.ts";
-import { openRequiredFindings, parseFigureOverride } from "./Drawings.review.rules.ts";
+import {
+  findingFigures,
+  openRequiredFindings,
+  parseFigureOverride,
+  reviewFindingRef,
+} from "./Drawings.review.rules.ts";
 import {
   DeliverRequest,
   ReviewIngestRequest,
@@ -43,6 +48,7 @@ import {
 } from "./Drawings.review.schemas.ts";
 import { DrawingReview } from "./Drawings.review.ts";
 import type { OcctError } from "@beep/occt";
+import type { Sha256Hex } from "@beep/schema";
 import type { DrawingError, RenderManifest, ValidationReport } from "@beep/technical-drawing";
 import type { ReviewFinding, ReviewStatus } from "./Drawings.review.schemas.ts";
 
@@ -200,22 +206,32 @@ const reviewDirFlag = Flag.Directory("review-dir", { mustExist: true }).pipe(
   Flag.withDescription("The matter's review/ directory; found from the manifest's ancestors when omitted")
 );
 
+// Shared by `statement` and `sign`: refuse while any review round of the
+// matter is not cleared, else print the guard's warnings.
+const guardApproval = Effect.fn("DrawingsCommand.guardApproval")(function* (
+  what: string,
+  manifest: string,
+  reviewDir: O.Option<string>
+) {
+  const review = yield* DrawingReview;
+  const verdict = yield* review.guard(manifest, reviewDir);
+  if (A.isReadonlyArrayNonEmpty(verdict.refusals)) {
+    return yield* DrawingsCommandError.new(
+      verdict,
+      `No ${what} while a review round of this matter is not cleared:\n${A.join(
+        A.map(verdict.refusals, (line) => `  ${line}`),
+        "\n"
+      )}\nIngest every open round, then resolve or decline each required finding in the round's dispositions (beep drawings review plan). Rendering another set does not clear a round.`
+    );
+  }
+  yield* printLines(A.map(verdict.warnings, (line) => `warning: ${line}`));
+});
+
 const runStatement = Effect.fn("DrawingsCommand.statement")(function* (options: {
   readonly manifest: string;
   readonly reviewDir: O.Option<string>;
 }) {
-  const review = yield* DrawingReview;
-  const verdict = yield* review.guard(options.manifest, options.reviewDir);
-  if (A.isReadonlyArrayNonEmpty(verdict.refusals)) {
-    return yield* DrawingsCommandError.new(
-      verdict,
-      `No approval statement while required review findings are open:\n${A.join(
-        A.map(verdict.refusals, (line) => `  ${line}`),
-        "\n"
-      )}\nResolve or decline them in the round's dispositions, or render a new set.`
-    );
-  }
-  yield* printLines(A.map(verdict.warnings, (line) => `warning: ${line}`));
+  yield* guardApproval("approval statement", options.manifest, options.reviewDir);
   const approval = yield* SheetSetApproval;
   const statement = yield* approval
     .statement(options.manifest)
@@ -230,18 +246,23 @@ const runStatement = Effect.fn("DrawingsCommand.statement")(function* (options: 
 });
 
 // The approver is never a flag: `sign` reads it from the manifest, which carries
-// the address the spec recorded when the set was rendered.
+// the address the spec recorded when the set was rendered. Flags are checked
+// first, then the review guard, so an approval line printed earlier, or derived
+// by hand, cannot be recorded over a round that is not cleared.
 const runSign = (
   source: (options: Record<string, unknown>) => Effect.Effect<ConfirmationSource, DrawingsCommandError>
 ) =>
   Effect.fn("DrawingsCommand.sign")(function* (options: {
     readonly manifest: string;
     readonly by: string;
+    readonly reviewDir: O.Option<string>;
     readonly [key: string]: unknown;
   }) {
+    const confirmation = yield* source(options);
+    yield* guardApproval("approval", options.manifest, options.reviewDir);
     const approval = yield* SheetSetApproval;
     const record = yield* approval
-      .sign(SignRequest.make({ manifestPath: options.manifest, by: options.by, source: yield* source(options) }))
+      .sign(SignRequest.make({ manifestPath: options.manifest, by: options.by, source: confirmation }))
       .pipe(Effect.mapError((cause) => DrawingsCommandError.new(cause, describe(cause))));
     yield* printLines([
       `approved sheet set ${record.sheetSetSha256}`,
@@ -258,20 +279,20 @@ const drawingsStatementCommand = Command.make(
   runStatement
 ).pipe(
   Command.withDescription(
-    "Print the approval line the approver must write for a rendered sheet set; refused while a review round over the set has open required findings"
+    "Print the approval line the approver must write for a rendered sheet set; refused while a review round of the matter is not cleared"
   ),
   Command.provide(Layer.merge(sheetSetApprovalLive(MailReaderUnavailable), drawingReviewLive))
 );
 
 const drawingsSignEmailCommand = Command.make(
   "email",
-  { manifest: manifestFlag, by: byFlag, messageId: messageIdFlag },
+  { manifest: manifestFlag, by: byFlag, messageId: messageIdFlag, reviewDir: reviewDirFlag },
   runSign((options) => Effect.succeed(ConfirmationSource.cases.email.make({ messageId: String(options.messageId) })))
 ).pipe(
   Command.withDescription(
-    "Record an approval from the email reply of the approver recorded in the spec (M365_TENANT_ID, M365_CLIENT_ID)"
+    "Record an approval from the email reply of the approver recorded in the spec (M365_TENANT_ID, M365_CLIENT_ID); refused while a review round of the matter is not cleared"
   ),
-  Command.provide(sheetSetApprovalLive(MailReaderM365Live))
+  Command.provide(Layer.merge(sheetSetApprovalLive(MailReaderM365Live), drawingReviewLive))
 );
 
 const drawingsSignPdfCommand = Command.make(
@@ -284,6 +305,7 @@ const drawingsSignPdfCommand = Command.make(
     attestedBy: attestedByFlag,
     deliveredBy: deliveredByFlag,
     corpusRoot: corpusRootFlag,
+    reviewDir: reviewDirFlag,
   },
   runSign((options) =>
     Effect.map(decodeDeliverer(String(options.deliveredBy)), (deliveredBy) =>
@@ -297,8 +319,10 @@ const drawingsSignPdfCommand = Command.make(
     )
   )
 ).pipe(
-  Command.withDescription("Record an approval from a PDF page the approver initialed"),
-  Command.provide(sheetSetApprovalLive(MailReaderUnavailable))
+  Command.withDescription(
+    "Record an approval from a PDF page the approver initialed; refused while a review round of the matter is not cleared"
+  ),
+  Command.provide(Layer.merge(sheetSetApprovalLive(MailReaderUnavailable), drawingReviewLive))
 );
 
 const drawingsSignCommand = Command.make("sign", {}, () => printLines(["drawings sign commands: email, pdf"])).pipe(
@@ -411,11 +435,10 @@ const locationOf = (options: { readonly corpusRoot: string; readonly matter: str
 
 const oneLine = (text: string): string => text.replace(/\s*\n\s*/g, " / ");
 
-const findingLine = (finding: ReviewFinding): string =>
-  `  ${finding.id} ${finding.severity} ${finding.status} ${O.match(finding.figure, {
-    onNone: () => "all sheets",
-    onSome: (figure) => `FIG. ${figure}`,
-  })}: ${oneLine(finding.notes[0].text)}${A.length(finding.notes) > 1 ? ` (×${A.length(finding.notes)})` : ""}`;
+const findingLine = (finding: ReviewFinding, sheetSetSha256: Sha256Hex): string =>
+  `  ${reviewFindingRef(finding.id, sheetSetSha256)} ${finding.severity} ${finding.status} ${
+    finding.scope === "all-sheets" ? "all sheets" : `FIG. ${findingFigures(finding)}`
+  }: ${oneLine(finding.notes[0].text)}${A.length(finding.notes) > 1 ? ` (×${A.length(finding.notes)})` : ""}`;
 
 const renderReviewStatus = (status: ReviewStatus): ReadonlyArray<string> => [
   `review round ${status.round.round}: ${status.round.status}, sheet set ${status.round.reviewedSheetSetSha256}`,
@@ -435,7 +458,7 @@ const renderReviewStatus = (status: ReviewStatus): ReadonlyArray<string> => [
       `  ${A.length(inventory.findings)} finding(s), ${A.length(openRequiredFindings(inventory.findings))} open required, ${A.length(
         A.filter(inventory.findings, (finding) => isRequiredSeverity(finding.severity))
       )} required in all`,
-      ...A.map(inventory.findings, findingLine),
+      ...A.map(inventory.findings, (finding) => findingLine(finding, inventory.reviewedSheetSetSha256)),
     ],
   }),
 ];

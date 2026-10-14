@@ -1,15 +1,15 @@
 /**
  * Pure review-round rules: match a reviewer page to a sheet of the sent set,
- * read the notes a reviewer left, merge "(all sheets)" notes, number the
- * findings, apply dispositions, and decide whether an approval statement may
- * be printed.
+ * read the notes a reviewer left, merge repeated notes, number the findings,
+ * apply dispositions, and decide whether an approval may be printed or
+ * recorded.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 import { A, O, Str } from "@beep/utils";
-import { pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Order from "effect/Order";
@@ -21,6 +21,7 @@ import {
   MarkupNote,
   ReviewFinding,
   ReviewFindingId,
+  ReviewFindingRef,
   ReviewGuardVerdict,
   SheetMatch,
 } from "./Drawings.review.schemas.ts";
@@ -120,7 +121,7 @@ const pageShare = (candidate: SheetCandidate): number =>
  * ```ts
  * import { matchSheet, SheetCandidate } from "@beep/repo-cli/commands/Drawings"
  * import { InkCoverage } from "@beep/pdf-tools"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  * import * as O from "effect/Option"
  * import * as Result from "effect/Result"
  *
@@ -326,31 +327,38 @@ export const annotationNotes = (input: {
   );
 
 type FindingDraft = {
-  readonly figure: O.Option<number>;
+  readonly marked: boolean;
+  readonly figures: ReadonlyArray<number>;
   readonly notes: A.NonEmptyReadonlyArray<MarkupNote>;
 };
 
 type DraftState = {
   readonly drafts: ReadonlyArray<FindingDraft>;
-  readonly allSheets: HashMap.HashMap<string, number>;
+  readonly byText: HashMap.HashMap<string, number>;
 };
 
+// Every note with the same normalised text joins one draft, wherever it sits.
 const addNote = (state: DraftState, entry: { readonly figure: number; readonly note: MarkupNote }): DraftState => {
-  if (!isAllSheetsNote(entry.note.text)) {
-    return { ...state, drafts: A.append(state.drafts, { figure: O.some(entry.figure), notes: [entry.note] }) };
-  }
   const key = normalize(entry.note.text);
   return pipe(
-    HashMap.get(state.allSheets, key),
+    HashMap.get(state.byText, key),
     O.match({
       onNone: () => ({
-        drafts: A.append(state.drafts, { figure: O.none(), notes: [entry.note] }),
-        allSheets: HashMap.set(state.allSheets, key, A.length(state.drafts)),
+        drafts: A.append(state.drafts, {
+          marked: isAllSheetsNote(entry.note.text),
+          figures: [entry.figure],
+          notes: [entry.note],
+        }),
+        byText: HashMap.set(state.byText, key, A.length(state.drafts)),
       }),
       onSome: (index) => ({
         ...state,
         drafts: pipe(
-          A.modify(state.drafts, index, (draft) => ({ ...draft, notes: A.append(draft.notes, entry.note) })),
+          A.modify(state.drafts, index, (draft) => ({
+            ...draft,
+            figures: A.contains(draft.figures, entry.figure) ? draft.figures : A.append(draft.figures, entry.figure),
+            notes: A.append(draft.notes, entry.note),
+          })),
           O.getOrElse(() => state.drafts)
         ),
       }),
@@ -360,15 +368,24 @@ const addNote = (state: DraftState, entry: { readonly figure: number; readonly n
 
 const MAX_FINDINGS = 99;
 
+// A draft covers every sheet when it is marked "(all sheets)" or was read on
+// every sheet of a set of two or more.
+const coversEverySheet = (draft: FindingDraft, sheets: ReadonlyArray<number>): boolean =>
+  draft.marked || (A.length(sheets) > 1 && A.every(sheets, (sheet) => A.contains(draft.figures, sheet)));
+
 /**
- * Turn ingested pages into numbered findings: one per sheet note, and one per
- * distinct "(all sheets)" note however many pages repeat it.
+ * Turn ingested pages into numbered findings: one per distinct note text,
+ * however many pages, or places on one page, repeat it.
  *
  * **Details**
  *
- * Findings open at `P1` with no lens or disposition: an attorney request is
- * required until it is triaged. Ids run `A<round>-01` upward in page, then
- * reading, order.
+ * Notes are compared by whitespace- and case-normalised text and kept
+ * verbatim. A note marked "(all sheets)", or read on every sheet of the sent
+ * set, becomes one `all-sheets` finding; any other note becomes a `sheet`
+ * finding that lists the FIG.s it was read on. Findings open at `P1` with no
+ * lens or disposition: an attorney request is required until it is triaged.
+ * Ids run `A<round>-01` upward in the order each text first appears (page,
+ * then reading order).
  *
  * **Example** (No pages)
  *
@@ -376,36 +393,69 @@ const MAX_FINDINGS = 99;
  * import { buildFindings } from "@beep/repo-cli/commands/Drawings"
  * import * as Result from "effect/Result"
  *
- * console.log(Result.getOrElse(buildFindings({ round: 1, pages: [] }), () => []).length) // 0
+ * console.log(Result.getOrElse(buildFindings({ round: 1, sheets: [1, 2], pages: [] }), () => []).length) // 0
  * ```
  *
- * @param input - Round number and the ingested pages.
+ * @param input - Round number, the FIG.s of the sent set, and the ingested pages.
  * @returns The findings, or a refusal when they would overflow the two-digit ids.
  * @category rules
  * @since 0.0.0
  */
 export const buildFindings = (input: {
   readonly round: number;
+  readonly sheets: ReadonlyArray<number>;
   readonly pages: ReadonlyArray<ReviewedPage>;
 }): Result.Result<ReadonlyArray<ReviewFinding>, string> => {
   const entries = A.flatMap(input.pages, (page) => A.map(page.notes, (note) => ({ figure: page.match.figure, note })));
-  const { drafts } = A.reduce(entries, { drafts: [], allSheets: HashMap.empty() } as DraftState, addNote);
+  const { drafts } = A.reduce(entries, { drafts: [], byText: HashMap.empty() } as DraftState, addNote);
   if (A.length(drafts) > MAX_FINDINGS) {
     return Result.fail(`${A.length(drafts)} findings exceed the ${MAX_FINDINGS} a round can number`);
   }
   return Result.succeed(
-    A.map(drafts, (draft, index) =>
-      ReviewFinding.make({
+    A.map(drafts, (draft, index) => {
+      const every = coversEverySheet(draft, input.sheets);
+      return ReviewFinding.make({
         id: ReviewFindingId.make(`A${input.round}-${`${index + 1}`.padStart(2, "0")}`),
         severity: "P1",
-        scope: O.isSome(draft.figure) ? "sheet" : "all-sheets",
-        figure: draft.figure,
+        scope: every ? "all-sheets" : "sheet",
+        figures: every ? [] : A.sort(draft.figures, Order.Number),
         notes: draft.notes,
         status: "open",
-      })
-    )
+      });
+    })
   );
 };
+
+/**
+ * Qualify a round-local finding id with the reviewed sheet set, for every use
+ * outside the round's files.
+ *
+ * **Example** (Qualify A1-03)
+ *
+ * ```ts
+ * import { ReviewFindingId, reviewFindingRef } from "@beep/repo-cli/commands/Drawings"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
+ * import { pipe } from "effect/Function"
+ *
+ * const set = Sha256Hex.make("a".repeat(64))
+ * console.log(reviewFindingRef(ReviewFindingId.make("A1-03"), set)) // "A1-03@aaaaaaaaaaaa"
+ * console.log(pipe(ReviewFindingId.make("A1-04"), reviewFindingRef(set))) // "A1-04@aaaaaaaaaaaa"
+ * ```
+ *
+ * @param id - The finding id inside its round.
+ * @param sheetSetSha256 - Hash of the sheet set the round reviewed.
+ * @returns `A<round>-<nn>@<first 12 hex digits of the hash>`.
+ * @category rules
+ * @since 0.0.0
+ */
+export const reviewFindingRef: {
+  (sheetSetSha256: Sha256Hex): (id: ReviewFindingId) => ReviewFindingRef;
+  (id: ReviewFindingId, sheetSetSha256: Sha256Hex): ReviewFindingRef;
+} = dual(
+  2,
+  (id: ReviewFindingId, sheetSetSha256: Sha256Hex): ReviewFindingRef =>
+    ReviewFindingRef.make(`${id}@${sheetSetSha256.slice(0, 12)}`)
+);
 
 const planned = (): ReviewFindingStatus => "planned";
 
@@ -512,74 +562,75 @@ export const openRequiredFindings = (findings: ReadonlyArray<ReviewFinding>): Re
   );
 
 /**
- * Decide whether the approval statement for a sheet set may be printed.
+ * Decide whether an approval for a sheet set may be printed (`statement`) or
+ * recorded (`sign`).
  *
  * **Details**
  *
- * A round over the same set with open required findings refuses. A round over
- * the same set that has not been ingested yet, or a round over another set in
- * the matter that still has open required findings, only warns.
+ * Every round of the matter counts, whatever set it reviewed: a round with
+ * open required findings refuses, and so does a round that has not been
+ * ingested, because unknown findings are not zero findings. Rendering another
+ * set, a shaded twin of the reviewed spec included, never clears a round;
+ * only resolving or declining its findings does. The refusal names how the
+ * target relates to the reviewed set: the same set, another render of the
+ * same spec, or another set of the matter.
  *
  * **Example** (No rounds)
  *
  * ```ts
  * import { statementGuard } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
+ * import * as O from "effect/Option"
  *
- * console.log(statementGuard({ sheetSetSha256: Sha256Hex.make("a".repeat(64)), rounds: [] }).refusals.length) // 0
+ * const verdict = statementGuard({ sheetSetSha256: Sha256Hex.make("a".repeat(64)), specSha256: O.none(), rounds: [] })
+ * console.log(verdict.refusals.length) // 0
  * ```
  *
- * @param input - The set's hash and every round of the matter with its findings.
- * @returns The refusals and warnings.
+ * @param input - The target set's hash and spec hash, and every round of the matter with its findings.
+ * @returns The refusals (warnings stay empty; the service adds its own).
  * @category rules
  * @since 0.0.0
  */
 export const statementGuard = (input: {
   readonly sheetSetSha256: Sha256Hex;
+  readonly specSha256: O.Option<Sha256Hex>;
   readonly rounds: ReadonlyArray<{
     readonly round: ReviewRound;
     readonly findings: O.Option<ReadonlyArray<ReviewFinding>>;
   }>;
 }): ReviewGuardVerdict => {
-  const ids = (findings: ReadonlyArray<ReviewFinding>) =>
+  const refs = (round: ReviewRound, findings: ReadonlyArray<ReviewFinding>) =>
     A.join(
-      A.map(findings, (finding) => finding.id),
+      A.map(findings, (finding) => reviewFindingRef(finding.id, round.reviewedSheetSetSha256)),
       ", "
     );
-  const verdicts = A.map(input.rounds, ({ round, findings }) => {
-    const same = round.reviewedSheetSetSha256 === input.sheetSetSha256;
-    return O.match(findings, {
-      onNone: () => ({
-        refusal: O.none<string>(),
-        warning: same
-          ? O.some(`review round ${round.round} over this sheet set has not been ingested yet`)
-          : O.none<string>(),
-      }),
+  const where = (round: ReviewRound): string => {
+    const set = round.reviewedSheetSetSha256.slice(0, 12);
+    if (round.reviewedSheetSetSha256 === input.sheetSetSha256) {
+      return "this sheet set";
+    }
+    const sameSpec = O.isSome(input.specSha256) && O.contains(round.reviewedSpecSha256, input.specSha256.value);
+    return sameSpec
+      ? `sheet set ${set}, rendered from this set's spec`
+      : `sheet set ${set}, another set of this matter`;
+  };
+  const refusals = A.map(input.rounds, ({ round, findings }) =>
+    O.match(findings, {
+      onNone: () =>
+        O.some(
+          `review round ${round.round} on ${where(round)} has not been ingested; its findings are unknown, not zero`
+        ),
       onSome: (all) => {
         const open = openRequiredFindings(all);
-        if (A.isReadonlyArrayEmpty(open)) {
-          return { refusal: O.none<string>(), warning: O.none<string>() };
-        }
-        return same
-          ? {
-              refusal: O.some(
-                `review round ${round.round} has ${A.length(open)} open required finding(s) on this sheet set: ${ids(open)}`
-              ),
-              warning: O.none<string>(),
-            }
-          : {
-              refusal: O.none<string>(),
-              warning: O.some(
-                `review round ${round.round} on earlier sheet set ${round.reviewedSheetSetSha256.slice(0, 12)} still has ${A.length(open)} open required finding(s): ${ids(open)}`
-              ),
-            };
+        return A.isReadonlyArrayEmpty(open)
+          ? O.none<string>()
+          : O.some(
+              `review round ${round.round} has ${A.length(open)} open required finding(s) on ${where(round)}: ${refs(round, open)}`
+            );
       },
-    });
-  });
-  return ReviewGuardVerdict.make({
-    refusals: A.getSomes(A.map(verdicts, (verdict) => verdict.refusal)),
-    warnings: A.getSomes(A.map(verdicts, (verdict) => verdict.warning)),
-  });
+    })
+  );
+  return ReviewGuardVerdict.make({ refusals: A.getSomes(refusals), warnings: [] });
 };
 
 const cell = (text: string): string => text.replace(/\|/g, "\\|").replace(/\r?\n/g, "<br>");
@@ -602,14 +653,40 @@ const requestText = (finding: ReviewFinding): string =>
   );
 
 /**
+ * FIG.s a finding applies to, for one table cell or status line: "all", or
+ * the listed numbers.
+ *
+ * **Example** (Two sheets)
+ *
+ * ```ts
+ * import { findingFigures } from "@beep/repo-cli/commands/Drawings"
+ *
+ * console.log(findingFigures({ scope: "sheet", figures: [2, 5] })) // "2, 5"
+ * ```
+ *
+ * @param finding - The finding's scope and figures.
+ * @returns "all", or the FIG. numbers joined by commas.
+ * @category rules
+ * @since 0.0.0
+ */
+export const findingFigures = (finding: Pick<ReviewFinding, "scope" | "figures">): string =>
+  finding.scope === "all-sheets"
+    ? "all"
+    : A.join(
+        A.map(finding.figures, (figure) => `${figure}`),
+        ", "
+      );
+
+/**
  * The reviewer-requests section a judge pack carries when it checks a
- * re-render against a review round: one row per finding, verbatim.
+ * re-render against a review round: one row per finding, verbatim, each
+ * named by its {@link ReviewFindingRef}.
  *
  * **Example** (An empty round)
  *
  * ```ts
  * import { reviewerRequestsSection } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * console.log(reviewerRequestsSection({ round: 1, sheetSetSha256: Sha256Hex.make("a".repeat(64)), findings: [] }))
  * ```
@@ -628,7 +705,7 @@ export const reviewerRequestsSection = (input: {
     `### Reviewer requests (review round ${input.round}, on sheet set ${input.sheetSetSha256.slice(0, 12)})`,
     "",
     "The attorney marked up an earlier set with the requests below. Check each one on these sheets.",
-    "A request these sheets still do not meet is a finding whose title starts with the request id.",
+    "A request these sheets still do not meet is a finding whose title starts with the request id (the whole `A<round>-<nn>@<set>` value).",
     "A request that turns on what the design claims is a question for the attorney, never your ruling.",
     "",
     "| Id | FIG. | Request (verbatim) | Disposition |",
@@ -636,7 +713,7 @@ export const reviewerRequestsSection = (input: {
     ...A.map(
       input.findings,
       (finding) =>
-        `| ${finding.id} | ${O.match(finding.figure, { onNone: () => "all", onSome: (figure) => `${figure}` })} | ${cell(requestText(finding))} | ${cell(
+        `| ${reviewFindingRef(finding.id, input.sheetSetSha256)} | ${findingFigures(finding)} | ${cell(requestText(finding))} | ${cell(
           O.match(finding.disposition, { onNone: () => "not planned yet", onSome: dispositionText })
         )} |`
     ),

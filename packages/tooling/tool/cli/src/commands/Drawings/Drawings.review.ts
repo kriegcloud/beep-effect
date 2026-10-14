@@ -7,8 +7,9 @@
  * **Details**
  *
  * Round files live at `<matter>/review/round-<n>/` under the corpus root and
- * nowhere else; reviewer PDFs must live under the corpus root too. A review
- * round never stands in for an approval.
+ * nowhere else; reviewer PDFs must live under the corpus root too. Every read
+ * of a round file is checked against the hash `round.json` recorded for it. A
+ * review round never stands in for an approval.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -44,6 +45,7 @@ import {
   DeliveryWritten,
   ReviewDispositions,
   ReviewedPage,
+  ReviewGuardVerdict,
   ReviewIntake,
   ReviewInventory,
   ReviewPageRef,
@@ -53,7 +55,6 @@ import {
 } from "./Drawings.review.schemas.ts";
 import type {
   DeliverRequest,
-  ReviewGuardVerdict,
   ReviewIngestRequest,
   ReviewOpenRequest,
   ReviewPlanRequest,
@@ -62,8 +63,6 @@ import type {
 
 const $I = $RepoCliId.create("commands/Drawings/Drawings.review");
 const ROUND_DIR = /^round-[1-9][0-9]*$/;
-// Ancestors of a manifest searched for a matter's `review/` directory.
-const REVIEW_SEARCH_DEPTH = 6;
 
 /**
  * Runtime shape of the {@link DrawingReview} service.
@@ -109,6 +108,62 @@ const sha256 = (bytes: Uint8Array): Effect.Effect<Sha256Hex> =>
   );
 
 const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+/**
+ * Read one of a review round's files and check it against the hash
+ * `round.json` recorded for it.
+ *
+ * **Details**
+ *
+ * A file whose bytes no longer hash to the recorded value, a recorded file
+ * that is missing, and (unless `draftAllowed`) a file `round.json` records no
+ * hash for are refused as "changed outside beep drawings review". A missing
+ * file with no recorded hash reads as `None`; so does an unrecorded file when
+ * `draftAllowed` (a dispositions draft put in the round before planning).
+ *
+ * **Example** (Read inventory.json of a round)
+ *
+ * ```ts
+ * import { readRoundFile } from "@beep/repo-cli/commands/Drawings"
+ * import * as O from "effect/Option"
+ *
+ * const text = readRoundFile({ file: "/corpus/m-1/review/round-1/inventory.json", recorded: O.none(), draftAllowed: false })
+ * console.log(text)
+ * ```
+ *
+ * @param input - The file, the hash round.json records for it, and whether an unrecorded file is a draft.
+ * @returns The file's text when it exists and matches, `None` when absent.
+ * @category services
+ * @since 0.0.0
+ */
+export const readRoundFile = Effect.fn("DrawingReview.readRoundFile")(function* (input: {
+  readonly file: string;
+  readonly recorded: O.Option<Sha256Hex>;
+  readonly draftAllowed: boolean;
+}) {
+  const fs = yield* FileSystem.FileSystem;
+  const { file } = input;
+  if (!(yield* fs.exists(file).pipe(Effect.orElseSucceed(() => false)))) {
+    return yield* O.match(input.recorded, {
+      onNone: () => Effect.succeedNone,
+      onSome: (hash) => Effect.fail(refuse(`"${file}" is missing, but round.json records sha256 ${hash} for it.`)),
+    });
+  }
+  if (O.isNone(input.recorded)) {
+    return input.draftAllowed
+      ? O.none<string>()
+      : yield* refuse(`"${file}" changed outside beep drawings review: round.json records no hash for it.`);
+  }
+  const bytes = yield* fs.readFile(file).pipe(Effect.mapError(fail(`Could not read "${file}".`)));
+  const actual = yield* sha256(bytes);
+  if (actual !== input.recorded.value) {
+    return yield* refuse(
+      `"${file}" changed outside beep drawings review (sha256 ${actual}, round.json records ${input.recorded.value}).`
+    );
+  }
+  return O.some(decoder.decode(bytes));
+});
 
 const makeService = Effect.fn("DrawingReview.makeService")(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -120,13 +175,15 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     return relative.length > 0 && !relative.startsWith("..") && !path.isAbsolute(relative);
   };
 
+  const decodeJson =
+    <A, I>(schema: S.Codec<A, I>, file: string, what: string) =>
+    (text: string) =>
+      S.decodeEffect(S.fromJsonString(schema))(text).pipe(Effect.mapError(fail(`"${file}" is not a valid ${what}.`)));
+
   const readJson = <A, I>(schema: S.Codec<A, I>, file: string, what: string) =>
-    fs.readFileString(file).pipe(
-      Effect.mapError(fail(`Could not read ${what} "${file}".`)),
-      Effect.flatMap((text) =>
-        S.decodeEffect(S.fromJsonString(schema))(text).pipe(Effect.mapError(fail(`"${file}" is not a valid ${what}.`)))
-      )
-    );
+    fs
+      .readFileString(file)
+      .pipe(Effect.mapError(fail(`Could not read ${what} "${file}".`)), Effect.flatMap(decodeJson(schema, file, what)));
 
   // Writes `value` as pretty JSON and returns the hash of the bytes written.
   const writeJson = Effect.fn("DrawingReview.writeJson")(function* <A, I>(
@@ -164,26 +221,55 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     if (onDisk !== manifest.pdfSha256) {
       return yield* refuse(`"${pdfPath}" no longer matches its manifest (sha256 ${onDisk} ≠ ${manifest.pdfSha256}).`);
     }
-    return { manifest, manifestDir: path.dirname(resolved), pdfPath, sheetSetSha256: onDisk };
+    return {
+      manifest,
+      manifestDir: path.dirname(resolved),
+      pdfPath,
+      sheetSetSha256: onDisk,
+      specSha256: S.decodeOption(Sha256Hex)(manifest.specSha256),
+    };
   });
 
-  const readStatus = Effect.fn("DrawingReview.readStatus")(function* (roundDir: string, round: number) {
+  const readChecked = (input: Parameters<typeof readRoundFile>[0]) =>
+    readRoundFile(input).pipe(Effect.provideService(FileSystem.FileSystem, fs));
+
+  const readRound = Effect.fn("DrawingReview.readRound")(function* (roundDir: string, round: number) {
     const roundFile = path.join(roundDir, "round.json");
     if (!(yield* fs.exists(roundFile).pipe(Effect.orElseSucceed(() => false)))) {
       return yield* refuse(`Review round ${round} is not open: "${roundFile}" does not exist.`);
     }
-    const record = yield* readJson(ReviewRound, roundFile, "review round");
-    const optional = Effect.fnUntraced(function* <A, I>(schema: S.Codec<A, I>, name: string, what: string) {
+    return yield* readJson(ReviewRound, roundFile, "review round");
+  });
+
+  // `checkDispositions` is false only for plan, which replaces dispositions.json.
+  const readStatus = Effect.fn("DrawingReview.readStatus")(function* (
+    roundDir: string,
+    round: number,
+    checkDispositions: boolean
+  ) {
+    const record = yield* readRound(roundDir, round);
+    const checked = Effect.fnUntraced(function* <A, I>(
+      schema: S.Codec<A, I>,
+      name: string,
+      what: string,
+      recorded: O.Option<Sha256Hex>
+    ) {
       const file = path.join(roundDir, name);
-      return (yield* fs.exists(file).pipe(Effect.orElseSucceed(() => false)))
-        ? O.some(yield* readJson(schema, file, what))
-        : O.none<A>();
+      const text = yield* readChecked({ file, recorded, draftAllowed: false });
+      return O.isSome(text) ? O.some(yield* decodeJson(schema, file, what)(text.value)) : O.none<A>();
     });
+    if (checkDispositions) {
+      yield* readChecked({
+        file: path.join(roundDir, "dispositions.json"),
+        recorded: record.dispositionsSha256,
+        draftAllowed: true,
+      });
+    }
     return ReviewStatus.make({
       roundDir,
       round: record,
-      intake: yield* optional(ReviewIntake, "intake.json", "review intake"),
-      inventory: yield* optional(ReviewInventory, "inventory.json", "review inventory"),
+      intake: yield* checked(ReviewIntake, "intake.json", "review intake", record.intakeSha256),
+      inventory: yield* checked(ReviewInventory, "inventory.json", "review inventory", record.inventorySha256),
     });
   });
 
@@ -208,6 +294,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       round: request.location.round,
       status: "open",
       reviewedSheetSetSha256: set.sheetSetSha256,
+      reviewedSpecSha256: set.specSha256,
       sentMessageId: O.flatMap(delivery, (record) => record.sentMessageId),
     });
     yield* fs
@@ -271,8 +358,8 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
 
   const ingest = Effect.fn("DrawingReview.ingest")(function* (request: ReviewIngestRequest) {
     const { root, roundDir } = yield* roundDirOf(request.location);
-    const current = yield* readStatus(roundDir, request.location.round);
-    const round = current.round;
+    // Ingest rewrites intake.json and inventory.json, so it reads round.json only.
+    const round = yield* readRound(roundDir, request.location.round);
     if (round.status !== "open" && round.status !== "ingested") {
       return yield* refuse(
         `Review round ${round.round} is ${round.status}; ingesting again would drop its dispositions. Open a new round.`
@@ -322,7 +409,8 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
       reviewedSheetSetSha256: round.reviewedSheetSetSha256,
       pages,
     });
-    const findings = yield* Result.match(buildFindings({ round: round.round, pages }), {
+    const sheets = A.map(set.manifest.figures, (figure) => figure.figure);
+    const findings = yield* Result.match(buildFindings({ round: round.round, sheets, pages }), {
       onFailure: (reason) => Effect.fail(refuse(`Review round ${round.round}: ${reason}.`)),
       onSuccess: Effect.succeed,
     });
@@ -346,7 +434,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
 
   const plan = Effect.fn("DrawingReview.plan")(function* (request: ReviewPlanRequest) {
     const { roundDir } = yield* roundDirOf(request.location);
-    const current = yield* readStatus(roundDir, request.location.round);
+    const current = yield* readStatus(roundDir, request.location.round, false);
     const round = current.round;
     if (round.status !== "ingested" && round.status !== "planned") {
       return yield* refuse(
@@ -390,7 +478,7 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
 
   const status = Effect.fn("DrawingReview.status")(function* (location: ReviewRoundLocation) {
     const { roundDir } = yield* roundDirOf(location);
-    return yield* readStatus(roundDir, location.round);
+    return yield* readStatus(roundDir, location.round, true);
   });
 
   const deliver = Effect.fn("DrawingReview.deliver")(function* (request: DeliverRequest) {
@@ -419,12 +507,14 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     return DeliveryWritten.make({ path: out, record });
   });
 
+  const ancestorsOf = (dir: string): A.NonEmptyReadonlyArray<string> => {
+    const parent = path.dirname(dir);
+    return parent === dir ? [dir] : [dir, ...ancestorsOf(parent)];
+  };
+
+  // The nearest `review/` directory in the manifest's directory or any above it.
   const findReviewDir = Effect.fn("DrawingReview.findReviewDir")(function* (manifestDir: string) {
-    const ancestors = A.reduce(
-      A.makeBy(REVIEW_SEARCH_DEPTH, (n) => n),
-      A.empty<string>(),
-      (dirs, n) => (n === 0 ? [manifestDir] : A.append(dirs, path.dirname(dirs[n - 1] ?? manifestDir)))
-    );
+    const ancestors = ancestorsOf(manifestDir);
     const hits = yield* Effect.forEach(ancestors, (dir) =>
       fs.stat(path.join(dir, "review")).pipe(
         Effect.map((info) => (info.type === "Directory" ? O.some(path.join(dir, "review")) : O.none<string>())),
@@ -440,9 +530,8 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
     const manifest = yield* readJson(RenderManifest, resolved, "render manifest").pipe(
       Effect.mapError((error) => DrawingsCommandError.new(error, `Invalid render manifest "${resolved}".`))
     );
-    const dir = O.isSome(reviewDir)
-      ? O.some(path.resolve(reviewDir.value))
-      : yield* findReviewDir(path.dirname(resolved));
+    const manifestDir = path.dirname(resolved);
+    const dir = O.isSome(reviewDir) ? O.some(path.resolve(reviewDir.value)) : yield* findReviewDir(manifestDir);
     const entries = yield* O.match(dir, {
       onNone: () => Effect.succeed(A.empty<string>()),
       onSome: (review) =>
@@ -459,14 +548,27 @@ const makeService = Effect.fn("DrawingReview.makeService")(function* () {
         Effect.orElseSucceed(() => false),
         Effect.flatMap((exists) =>
           exists
-            ? Effect.map(readStatus(roundDir, 0), (status) =>
+            ? Effect.map(readStatus(roundDir, 0, true), (status) =>
                 O.some({ round: status.round, findings: O.map(status.inventory, (inventory) => inventory.findings) })
               )
             : Effect.succeedNone
         )
       )
     );
-    return statementGuard({ sheetSetSha256: Sha256Hex.make(manifest.pdfSha256), rounds: A.getSomes(rounds) });
+    const verdict = statementGuard({
+      sheetSetSha256: Sha256Hex.make(manifest.pdfSha256),
+      specSha256: S.decodeOption(Sha256Hex)(manifest.specSha256),
+      rounds: A.getSomes(rounds),
+    });
+    return O.isSome(dir)
+      ? verdict
+      : ReviewGuardVerdict.make({
+          ...verdict,
+          warnings: A.append(
+            verdict.warnings,
+            `no review/ directory in "${manifestDir}" or any directory above it, so no review round guards this set; pass --review-dir if the matter's rounds live elsewhere`
+          ),
+        });
   });
 
   return DrawingReview.of({ open, ingest, plan, status, deliver, guard });

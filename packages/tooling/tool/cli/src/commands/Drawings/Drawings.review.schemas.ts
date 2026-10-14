@@ -6,9 +6,11 @@
  * **Details**
  *
  * A review round is tied to the sheet set that was sent by its PDF hash
- * (`reviewedSheetSetSha256`), so finding ids (`A<round>-<nn>`) never collide
- * across sets. A review round is never an approval: approval stays the
- * `drawings sign` record keyed to the same hash.
+ * (`reviewedSheetSetSha256`) and the spec it was rendered from. A finding id
+ * (`A<round>-<nn>`) is unique only inside its round; wherever an id leaves the
+ * round's files it travels as a {@link ReviewFindingRef}
+ * (`A<round>-<nn>@<sheet set>`). A review round is never an approval: approval
+ * stays the `drawings sign` record keyed to the same hash.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -18,7 +20,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { Dpi, InkCoverage, PageNumber, PdfRect } from "@beep/pdf-tools";
 import { RoundNumber } from "@beep/qa-capture";
 import { LiteralKit, SchemaUtils, Sha256Hex } from "@beep/schema";
-import { O } from "@beep/utils";
+import { A, O } from "@beep/utils";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { DrawingQaLens, QaFindingOrdinal, QaSeverity } from "../Qa/Inventory.schemas.ts";
@@ -84,8 +86,9 @@ export type FigureNumber = typeof FigureNumber.Type;
  *
  * **Details**
  *
- * The round record carries the hash of the sheet set it reviewed, so the id is
- * unique for that set. Judge ids (`R<round>-<nn>`) are a separate family.
+ * Unique inside one round's files only: rounds of other matters, and later
+ * rounds that reuse a number, mint the same ids. Outside the round's files use
+ * {@link ReviewFindingRef}. Judge ids (`R<round>-<nn>`) are a separate family.
  *
  * **Example** (Validate the id format)
  *
@@ -123,6 +126,62 @@ export const ReviewFindingId = S.TemplateLiteral(["A", RoundNumber, "-", QaFindi
  * @since 0.0.0
  */
 export type ReviewFindingId = typeof ReviewFindingId.Type;
+
+/**
+ * Branded `A<round>-<nn>@<sheet set>` reference to one review finding: the
+ * round-local id qualified by the first 12 hex digits of the reviewed sheet
+ * set's hash.
+ *
+ * **Details**
+ *
+ * Status output, statement refusals, and the judge's reviewer-requests table
+ * name findings by reference, so an id quoted in a Decision Log row, a PR, a
+ * judge finding title, or a reply mail cannot be mistaken for the same id of
+ * another round or matter.
+ *
+ * **Example** (Validate the reference format)
+ *
+ * ```ts
+ * import { ReviewFindingRef } from "@beep/repo-cli/commands/Drawings"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ReviewFindingRef)("A1-03@0123456789ab"), S.is(ReviewFindingRef)("A1-03")) // true false
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ReviewFindingRef = S.String.check(
+  S.isPattern(/^A[1-9][0-9]*-[0-9]{2}@[0-9a-f]{12}$/, {
+    identifier: $I`ReviewFindingRefPatternCheck`,
+    title: "Review Finding Ref Pattern",
+    description: "A<round>-<nn>@ followed by the first 12 hex digits of the reviewed sheet-set hash.",
+    message: "Expected A<round>-<nn>@<12 hex digits>",
+  })
+).pipe(
+  S.brand("ReviewFindingRef"),
+  $I.annoteSchema("ReviewFindingRef", {
+    description: "Branded A<round>-<nn>@<sheet set> reference to one review finding outside its round's files.",
+  })
+);
+
+/**
+ * Type for {@link ReviewFindingRef}.
+ *
+ * **Example** (Make a reference)
+ *
+ * ```ts
+ * import { ReviewFindingRef } from "@beep/repo-cli/commands/Drawings"
+ * import type { ReviewFindingRef as ReviewFindingRefValue } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const ref: ReviewFindingRefValue = ReviewFindingRef.make("A2-01@0123456789ab")
+ * console.log(ref)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ReviewFindingRef = typeof ReviewFindingRef.Type;
 
 const MarkupNoteOriginBase = LiteralKit(["annotation", "text-layer"]);
 
@@ -266,7 +325,7 @@ export type SheetMatchBasis = typeof SheetMatchBasis.Type;
  *
  * ```ts
  * import { SheetMatch } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const match = SheetMatch.make({
  *   sheetSetSha256: Sha256Hex.make("0".repeat(64)),
@@ -295,8 +354,8 @@ export class SheetMatch extends S.Class<SheetMatch>($I`SheetMatch`)(
 const FindingScopeBase = LiteralKit(["sheet", "all-sheets"]);
 
 /**
- * Whether a finding applies to one sheet or to every sheet (notes marked
- * "(all sheets)").
+ * Whether a finding applies to the sheets it names or to every sheet: notes
+ * marked "(all sheets)", and notes repeated on every sheet of the set.
  *
  * **Example** (Read the scopes)
  *
@@ -310,7 +369,7 @@ const FindingScopeBase = LiteralKit(["sheet", "all-sheets"]);
  * @since 0.0.0
  */
 export const FindingScope = FindingScopeBase.pipe(
-  $I.annoteSchema("FindingScope", { description: "One sheet, or every sheet of the set." }),
+  $I.annoteSchema("FindingScope", { description: "The named sheets, or every sheet of the set." }),
   SchemaUtils.withLiteralKitStatics(FindingScopeBase)
 );
 
@@ -477,13 +536,13 @@ export const Disposition = DispositionKind.toTaggedUnion("kind")({
 export type Disposition = typeof Disposition.Type;
 
 const ScopeFigureCheck = S.makeFilter(
-  (finding: { readonly scope: FindingScope; readonly figure: O.Option<number> }) =>
-    finding.scope === "sheet" ? O.isSome(finding.figure) : O.isNone(finding.figure),
+  (finding: { readonly scope: FindingScope; readonly figures: ReadonlyArray<number> }) =>
+    finding.scope === "sheet" ? A.isReadonlyArrayNonEmpty(finding.figures) : A.isReadonlyArrayEmpty(finding.figures),
   {
     identifier: $I`ReviewFindingScopeFigureCheck`,
     title: "Review Finding Scope Figure",
-    description: "A sheet finding names its FIG.; an all-sheets finding names none.",
-    message: "Expected a figure exactly when the scope is sheet",
+    description: "A sheet finding names at least one FIG.; an all-sheets finding names none.",
+    message: "Expected figures exactly when the scope is sheet",
   }
 );
 
@@ -506,7 +565,8 @@ const StatusDispositionCheck = S.makeFilter(
  *
  * Ingest opens each finding at `P1` with no lens (an attorney request is
  * required until triaged); `drawings review plan` sets severity, lens, and
- * disposition from the dispositions file.
+ * disposition from the dispositions file. One finding merges every note with
+ * the same text, on one page or several, and lists the FIG.s it was read on.
  *
  * **Example** (An open sheet finding)
  *
@@ -519,7 +579,7 @@ const StatusDispositionCheck = S.makeFilter(
  *   id: ReviewFindingId.make("A1-01"),
  *   severity: "P1",
  *   scope: "sheet",
- *   figure: O.some(1),
+ *   figures: [1],
  *   notes: [
  *     MarkupNote.make({
  *       text: "Make the box taller",
@@ -530,7 +590,7 @@ const StatusDispositionCheck = S.makeFilter(
  *   ],
  *   status: "open"
  * })
- * console.log(finding.id, O.isNone(finding.disposition))
+ * console.log(finding.id, finding.figures, O.isNone(finding.disposition))
  * ```
  *
  * @category models
@@ -544,11 +604,10 @@ export class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Drawing-rubric lens, set when the finding is planned." })
     ),
-    scope: FindingScope.annotateKey({ description: "One sheet, or every sheet." }),
-    figure: S.OptionFromOptionalKey(FigureNumber).pipe(
-      S.withConstructorDefault(Effect.succeedNone),
-      S.annotateKey({ description: "FIG. a sheet finding applies to; absent for all-sheets findings." })
-    ),
+    scope: FindingScope.annotateKey({ description: "The named sheets, or every sheet." }),
+    figures: S.Array(FigureNumber).annotateKey({
+      description: "FIG.s a sheet finding applies to, ascending; empty for an all-sheets finding.",
+    }),
     notes: S.NonEmptyArray(MarkupNote).annotateKey({ description: "Every note this finding merges, verbatim." }),
     status: ReviewFindingStatus.annotateKey({ description: "Where the finding stands." }),
     disposition: S.OptionFromOptionalKey(Disposition).pipe(
@@ -557,7 +616,7 @@ export class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
     ),
   }).check(ScopeFigureCheck, StatusDispositionCheck),
   $I.annote("ReviewFinding", {
-    description: "Id, severity, lens, scope, figure, verbatim notes, status, and disposition of one review finding.",
+    description: "Id, severity, lens, scope, figures, verbatim notes, status, and disposition of one review finding.",
   })
 ) {}
 
@@ -600,14 +659,21 @@ export const ReviewRoundStatus = ReviewRoundStatusBase.pipe(
 export type ReviewRoundStatus = typeof ReviewRoundStatus.Type;
 
 /**
- * `round.json` of one review round: the sheet set reviewed (by hash) and the
- * hashes of every file the round has produced so far.
+ * `round.json` of one review round: the sheet set reviewed (by hash), the
+ * spec it was rendered from, and the hashes of every file the round has
+ * produced so far.
+ *
+ * **Details**
+ *
+ * Every read of `intake.json`, `inventory.json`, and (once planned)
+ * `dispositions.json` is checked against the hash recorded here, so a file
+ * edited outside `beep drawings review` is refused rather than trusted.
  *
  * **Example** (A freshly opened round)
  *
  * ```ts
  * import { ReviewRound } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const round = ReviewRound.make({
  *   schemaVersion: "drawing-review-round/v1",
@@ -627,6 +693,7 @@ export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     status: ReviewRoundStatus.annotateKey({ description: "Where the round stands." }),
     reviewedSheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF that was sent." }),
+    reviewedSpecSha256: optionalHash("Hash of the spec the reviewed set was rendered from, from its manifest."),
     sentMessageId: optionalText("Graph id of the sent message that carried the set, when recorded."),
     intakeSha256: optionalHash("Hash of intake.json once pages are ingested."),
     inventorySha256: optionalHash("Hash of inventory.json as last written."),
@@ -635,7 +702,8 @@ export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
     judgeInventorySha256: optionalHash("Hash of the judge inventory that checked the re-render."),
   },
   $I.annote("ReviewRound", {
-    description: "Round number, status, reviewed sheet-set hash, and produced-file hashes of a review round.",
+    description:
+      "Round number, status, reviewed sheet-set and spec hashes, and produced-file hashes of a review round.",
   })
 ) {}
 
@@ -647,7 +715,7 @@ export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
  *
  * ```ts
  * import { ReviewedPage, SheetMatch } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const hash = Sha256Hex.make("b".repeat(64))
  * const page = ReviewedPage.make({
@@ -681,7 +749,7 @@ export class ReviewedPage extends S.Class<ReviewedPage>($I`ReviewedPage`)(
  *
  * ```ts
  * import { ReviewIntake } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const intake = ReviewIntake.make({
  *   schemaVersion: "drawing-review-intake/v1",
@@ -712,7 +780,7 @@ export class ReviewIntake extends S.Class<ReviewIntake>($I`ReviewIntake`)(
  *
  * ```ts
  * import { ReviewInventory } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const inventory = ReviewInventory.make({
  *   schemaVersion: "drawing-review-inventory/v1",
@@ -797,7 +865,7 @@ export class ReviewDispositions extends S.Class<ReviewDispositions>($I`ReviewDis
  *
  * ```ts
  * import { DeliveryAttachment } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * console.log(DeliveryAttachment.make({ name: "sheets.pdf", size: 2048, sha256: Sha256Hex.make("c".repeat(64)) }).name)
  * ```
@@ -827,7 +895,7 @@ export class DeliveryAttachment extends S.Class<DeliveryAttachment>($I`DeliveryA
  *
  * ```ts
  * import { DeliveryAttachment, DeliveryRecord } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  * import * as O from "effect/Option"
  *
  * const hash = Sha256Hex.make("c".repeat(64))
@@ -1072,7 +1140,7 @@ export class ReviewPlanRequest extends S.Class<ReviewPlanRequest>($I`ReviewPlanR
  *
  * ```ts
  * import { ReviewRound, ReviewStatus } from "@beep/repo-cli/commands/Drawings"
- * import { Sha256Hex } from "@beep/schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  * import * as O from "effect/Option"
  *
  * const status = ReviewStatus.make({

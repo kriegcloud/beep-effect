@@ -4,11 +4,14 @@ import {
   buildDrawingJudgePack,
   buildFindings,
   DeliverRequest,
+  DeliveryAttachment,
+  DeliveryRecord,
   Disposition,
   DispositionEntry,
   DrawingReview,
   DrawingsCommandError,
   drawingsCommand,
+  findingFigures,
   isAllSheetsNote,
   MarkupNote,
   matchSheet,
@@ -17,6 +20,7 @@ import {
   ReviewedPage,
   ReviewFinding,
   ReviewFindingId,
+  ReviewFindingRef,
   ReviewIngestRequest,
   ReviewInventory,
   ReviewOpenRequest,
@@ -25,6 +29,7 @@ import {
   ReviewRound,
   ReviewRoundLocation,
   reviewerRequestsSection,
+  reviewFindingRef,
   SheetCandidate,
   SheetMatch,
   statementGuard,
@@ -32,9 +37,11 @@ import {
 } from "@beep/repo-cli/commands/Drawings";
 import { Sha256Hex } from "@beep/schema";
 import { it } from "@beep/test-runner";
+import { fcRuns } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertFailure, assertInstanceOf, assertSome, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -56,6 +63,9 @@ import type { PDFPage } from "pdf-lib";
 
 const hashA = Sha256Hex.make("a".repeat(64));
 const hashB = Sha256Hex.make("b".repeat(64));
+const hashC = Sha256Hex.make("c".repeat(64));
+const specX = Sha256Hex.make("e".repeat(64));
+const specY = Sha256Hex.make("f".repeat(64));
 const rect = (yMin: number, xMin = 72) => PdfRect.make({ xMin, yMin, xMax: xMin + 100, yMax: yMin + 12 });
 const coverage = (covered: number, base: number, marked: number) =>
   InkCoverage.make({
@@ -77,8 +87,8 @@ const pageOf = (file: string, figure: number, notes: ReadonlyArray<MarkupNote>) 
     match: SheetMatch.make({ sheetSetSha256: hashA, figure, page: figure, coverage: 1, basis: "ink-coverage" }),
     notes,
   });
-const findingsOf = (pages: ReadonlyArray<ReviewedPage>) =>
-  Result.getOrElse(buildFindings({ round: 1, pages }), () => []);
+const findingsOf = (pages: ReadonlyArray<ReviewedPage>, sheets: ReadonlyArray<number> = [1, 2, 3]) =>
+  Result.getOrElse(buildFindings({ round: 1, sheets, pages }), () => []);
 const nth = <T>(items: ReadonlyArray<T>, index: number): T => O.getOrThrow(A.get(items, index));
 const entry = (id: string, disposition: Disposition, severity: "P0" | "P1" | "P2" = "P1") =>
   DispositionEntry.make({ id: ReviewFindingId.make(id), severity, lens: "sheet-compliance", disposition });
@@ -198,10 +208,10 @@ describe("drawing review rules", () => {
     expect(isAllSheetsNote("Sheet numbers (all sheets)")).toBe(true);
     expect(isAllSheetsNote("all sheets")).toBe(false);
     const findings = findingsOf(sharedPages);
-    expect(findings.map((f) => [f.id, f.scope, O.getOrNull(f.figure), f.notes.length, f.severity, f.status])).toEqual([
-      ["A1-01", "sheet", 1, 1, "P1", "open"],
-      ["A1-02", "all-sheets", null, 2, "P1", "open"],
-      ["A1-03", "sheet", 2, 1, "P1", "open"],
+    expect(findings.map((f) => [f.id, f.scope, f.figures, f.notes.length, f.severity, f.status])).toEqual([
+      ["A1-01", "sheet", [1], 1, "P1", "open"],
+      ["A1-02", "all-sheets", [], 2, "P1", "open"],
+      ["A1-03", "sheet", [2], 1, "P1", "open"],
     ]);
     // the merged finding keeps each page's text exactly as written
     expect(findings[1]?.notes.map((n) => [n.text, n.source.file])).toEqual([
@@ -210,12 +220,44 @@ describe("drawing review rules", () => {
     ]);
   });
 
+  it("merges an untagged note read on every sheet, notes repeated on some sheets, and same-page repeats", () => {
+    const pages = [
+      pageOf("Fig1.pdf", 1, [
+        note("Add a border", "Fig1.pdf", 40),
+        note("Make it taller", "Fig1.pdf", 80),
+        note("make it  taller", "Fig1.pdf", 300),
+      ]),
+      pageOf("Fig2.pdf", 2, [note("Add a border", "Fig2.pdf", 40), note("Flip the oval", "Fig2.pdf", 90)]),
+      pageOf("Fig3.pdf", 3, [note("add a BORDER", "Fig3.pdf", 40), note("Flip the oval", "Fig3.pdf", 90)]),
+    ];
+    const findings = findingsOf(pages);
+    expect(findings.map((f) => [f.id, f.scope, f.figures, f.notes.map((n) => n.text)])).toEqual([
+      ["A1-01", "all-sheets", [], ["Add a border", "Add a border", "add a BORDER"]],
+      ["A1-02", "sheet", [1], ["Make it taller", "make it  taller"]],
+      ["A1-03", "sheet", [2, 3], ["Flip the oval", "Flip the oval"]],
+    ]);
+    expect(findings.map(findingFigures)).toEqual(["all", "1", "2, 3"]);
+    // a fourth sheet that did not come back keeps the border note on the sheets it was read on
+    const partial = findingsOf(pages, [1, 2, 3, 4]);
+    expect([nth(partial, 0).scope, nth(partial, 0).figures]).toEqual(["sheet", [1, 2, 3]]);
+    // a one-sheet set never turns a sheet note into an all-sheets one
+    const single = findingsOf([pageOf("Fig1.pdf", 1, [note("Add a border", "Fig1.pdf")])], [1]);
+    expect([nth(single, 0).scope, nth(single, 0).figures]).toEqual(["sheet", [1]]);
+  });
+
   it("refuses more findings than two-digit ids can number", () => {
     const notes = Array.from({ length: 100 }, (_, i) => note(`note ${i}`, "Fig1.pdf", i));
     assertFailure(
-      buildFindings({ round: 1, pages: [pageOf("Fig1.pdf", 1, notes)] }),
+      buildFindings({ round: 1, sheets: [1], pages: [pageOf("Fig1.pdf", 1, notes)] }),
       "100 findings exceed the 99 a round can number"
     );
+  });
+
+  it("qualifies finding ids with the reviewed sheet set wherever they leave the round", () => {
+    const ref = reviewFindingRef(ReviewFindingId.make("A12-03"), hashA);
+    expect(ref).toBe("A12-03@aaaaaaaaaaaa");
+    assertTrue(S.is(ReviewFindingRef)(ref));
+    expect([S.is(ReviewFindingRef)("A1-03"), S.is(ReviewFindingRef)("A1-03@AAAAAAAAAAAA")]).toEqual([false, false]);
   });
 
   it("blocks a plan with a missing, unknown, or repeated disposition and applies a complete one", () => {
@@ -244,30 +286,50 @@ describe("drawing review rules", () => {
     ]);
   });
 
-  it("refuses the statement on the reviewed set and warns for other sets and un-ingested rounds", () => {
-    const round = (n: number, hash: Sha256Hex) =>
+  it("refuses the statement while any round of the matter is open, naming how the target relates to it", () => {
+    const round = (n: number, hash: Sha256Hex, spec: O.Option<Sha256Hex>) =>
       ReviewRound.make({
         schemaVersion: "drawing-review-round/v1",
         round: n,
         status: "ingested",
         reviewedSheetSetSha256: hash,
+        reviewedSpecSha256: spec,
       });
     const findings = findingsOf(sharedPages);
+    const cleared = Result.getOrElse(
+      applyDispositions({
+        findings,
+        entries: [entry("A1-01", declined), entry("A1-02", specChange, "P2"), entry("A1-03", declined)],
+      }),
+      () => []
+    );
     const guard = statementGuard({
       sheetSetSha256: hashA,
+      specSha256: O.some(specX),
       rounds: [
-        { round: round(1, hashA), findings: O.some(findings) },
-        { round: round(2, hashB), findings: O.some(findings) },
-        { round: round(3, hashA), findings: O.none() },
-        { round: round(4, hashB), findings: O.some([]) },
+        { round: round(1, hashA, O.some(specX)), findings: O.some(findings) },
+        // the shaded twin: another set rendered from the same spec
+        { round: round(2, hashB, O.some(specX)), findings: O.some(findings) },
+        { round: round(3, hashA, O.some(specX)), findings: O.none() },
+        { round: round(4, hashB, O.some(specX)), findings: O.some([]) },
+        { round: round(5, hashC, O.some(specY)), findings: O.some(findings) },
+        { round: round(6, hashC, O.none()), findings: O.some(cleared) },
       ],
     });
     expect(guard.refusals).toEqual([
-      "review round 1 has 3 open required finding(s) on this sheet set: A1-01, A1-02, A1-03",
+      "review round 1 has 3 open required finding(s) on this sheet set: A1-01@aaaaaaaaaaaa, A1-02@aaaaaaaaaaaa, A1-03@aaaaaaaaaaaa",
+      "review round 2 has 3 open required finding(s) on sheet set bbbbbbbbbbbb, rendered from this set's spec: A1-01@bbbbbbbbbbbb, A1-02@bbbbbbbbbbbb, A1-03@bbbbbbbbbbbb",
+      "review round 3 on this sheet set has not been ingested; its findings are unknown, not zero",
+      "review round 5 has 3 open required finding(s) on sheet set cccccccccccc, another set of this matter: A1-01@cccccccccccc, A1-02@cccccccccccc, A1-03@cccccccccccc",
     ]);
-    expect(guard.warnings).toEqual([
-      "review round 2 on earlier sheet set bbbbbbbbbbbb still has 3 open required finding(s): A1-01, A1-02, A1-03",
-      "review round 3 over this sheet set has not been ingested yet",
+    expect(guard.warnings).toEqual([]);
+    const noSpec = statementGuard({
+      sheetSetSha256: hashA,
+      specSha256: O.none(),
+      rounds: [{ round: round(2, hashB, O.some(specX)), findings: O.none() }],
+    });
+    expect(noSpec.refusals).toEqual([
+      "review round 2 on sheet set bbbbbbbbbbbb, another set of this matter has not been ingested; its findings are unknown, not zero",
     ]);
   });
 
@@ -293,9 +355,11 @@ describe("drawing review rules", () => {
       ],
     });
     expect(table).toContain("### Reviewer requests (review round 1, on sheet set aaaaaaaaaaaa)");
-    expect(table).toContain("| A1-01 | 1 | Use \\| pipes<br>and lines | code change in PR-F: Draw the tab. |");
-    expect(table).toContain("| A1-02 | all | Gap (all sheets) | decision D12 (reverses D8) |");
-    expect(table).toContain("| A1-03 | 2 | Rotate | not planned yet |");
+    expect(table).toContain(
+      "| A1-01@aaaaaaaaaaaa | 1 | Use \\| pipes<br>and lines | code change in PR-F: Draw the tab. |"
+    );
+    expect(table).toContain("| A1-02@aaaaaaaaaaaa | all | Gap (all sheets) | decision D12 (reverses D8) |");
+    expect(table).toContain("| A1-03@aaaaaaaaaaaa | 2 | Rotate | not planned yet |");
     const others = reviewerRequestsSection({
       round: 2,
       sheetSetSha256: hashA,
@@ -314,20 +378,51 @@ describe("drawing review rules", () => {
     expect(others).toContain("declined: Already drawn that way.");
   });
 
-  it("rejects a finding whose scope and figure disagree", () => {
+  it("rejects a finding whose scope and figures disagree", () => {
     const decode = S.decodeUnknownResult(ReviewFinding);
     const base = {
       id: "A1-01",
       severity: "P1",
       scope: "all-sheets",
-      figure: 2,
+      figures: [2],
       notes: [S.encodeSync(MarkupNote)(note("x", "Fig1.pdf"))],
       status: "open",
     };
     assertTrue(Result.isFailure(decode(base)));
     assertTrue(Result.isFailure(decode({ ...base, scope: "sheet", status: "planned" })));
+    assertTrue(Result.isFailure(decode({ ...base, scope: "sheet", figures: [] })));
     assertTrue(Result.isSuccess(decode({ ...base, scope: "sheet" })));
+    assertTrue(Result.isSuccess(decode({ ...base, figures: [] })));
   });
+
+  // The round files are JSON on disk: every value the schemas admit must
+  // survive an encode/decode through JSON unchanged.
+  const roundTrips = <A, I>(schema: S.Codec<A, I>, value: A) => {
+    const codec = S.fromJsonString(schema);
+    const decoded = Result.getOrThrow(S.decodeResult(codec)(Result.getOrThrow(S.encodeResult(codec)(value))));
+    expect(S.toEquivalence(schema)(value, decoded)).toBe(true);
+  };
+
+  it.prop(
+    "round-trips review findings through JSON",
+    { value: Arbitrary.schema(ReviewFinding) },
+    ({ value }) => roundTrips(ReviewFinding, value),
+    { arbitrary: fcRuns(25) }
+  );
+
+  it.prop(
+    "round-trips review rounds through JSON",
+    { value: Arbitrary.schema(ReviewRound) },
+    ({ value }) => roundTrips(ReviewRound, value),
+    { arbitrary: fcRuns(25) }
+  );
+
+  it.prop(
+    "round-trips delivery records through JSON",
+    { value: Arbitrary.schema(DeliveryRecord), attachment: Arbitrary.schema(DeliveryAttachment) },
+    ({ value, attachment }) => roundTrips(DeliveryRecord, DeliveryRecord.make({ ...value, attachments: [attachment] })),
+    { arbitrary: fcRuns(25) }
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -389,10 +484,12 @@ const foreignDrawing = (page: PDFPage) => {
   }
 };
 
-const manifestJson = (pdfSha256: string) =>
+const SPEC = "0".repeat(64);
+
+const manifestJson = (pdfSha256: string, specSha256: string) =>
   toJson({
     title: "Synthetic bracket",
-    specSha256: "0".repeat(64),
+    specSha256,
     engine: { name: "synthetic", version: "0", binarySha256: "" },
     model: { boundingBox: { min: [0, 0, 0], max: [1, 1, 1] }, volume: 1, faceCount: 6, edgeCount: 12 },
     scale: 1,
@@ -417,21 +514,23 @@ const makeCorpus = Effect.fnUntraced(function* () {
   const path = yield* Path.Path;
   const root = yield* fs.makeTempDirectoryScoped();
   const matter = path.join(root, "matter");
-  const writeSet = Effect.fnUntraced(function* (name: string, bytes: Uint8Array) {
+  const writeSet = Effect.fnUntraced(function* (name: string, bytes: Uint8Array, spec = SPEC) {
     const dir = path.join(matter, "work", name);
     yield* fs.makeDirectory(dir, { recursive: true });
     yield* fs.writeFile(path.join(dir, "sheets.pdf"), bytes);
     const hash = yield* sha256(bytes);
-    yield* fs.writeFileString(path.join(dir, "manifest.json"), yield* manifestJson(hash));
+    yield* fs.writeFileString(path.join(dir, "manifest.json"), yield* manifestJson(hash, spec));
     return { manifest: path.join(dir, "manifest.json"), hash: Sha256Hex.make(hash), dir };
   });
   const sent = yield* writeSet("sent", yield* sheetSetPdf());
-  // a different set: same sheets plus a blank fourth page, so a different hash
+  // the same spec rendered again (a shaded twin): one more blank page, so another hash
   const other = yield* writeSet("other", yield* sheetSetPdf(1));
+  // a set rendered from another spec of the matter
+  const foreign = yield* writeSet("foreign", yield* sheetSetPdf(2), "1".repeat(64));
   const inputs = path.join(matter, "inputs");
   yield* fs.makeDirectory(inputs, { recursive: true });
   const location = ReviewRoundLocation.make({ corpusRoot: root, matter: "matter", round: 1 });
-  return { root, matter, inputs, sent, other, location };
+  return { root, matter, inputs, sent, other, foreign, location };
 });
 
 const writeReviewerFiles = Effect.fnUntraced(function* (inputs: string) {
@@ -466,30 +565,37 @@ const writeReviewerFiles = Effect.fnUntraced(function* (inputs: string) {
   );
 });
 
+// Writes `value` as JSON and returns the hash of the bytes written.
 const writeJsonFile = <A, I>(schema: S.Codec<A, I>, file: string, value: A) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    yield* fs.writeFileString(file, yield* S.encodeEffect(S.fromJsonString(schema))(value));
+    const bytes = new TextEncoder().encode(yield* S.encodeEffect(S.fromJsonString(schema))(value));
+    yield* fs.writeFile(file, bytes);
+    return Sha256Hex.make(yield* sha256(bytes));
   });
 
-// An ingested round without running poppler: round.json plus a synthetic inventory.
+const inventoryOf = (round: ReviewRound, findings: ReadonlyArray<ReviewFinding>) =>
+  ReviewInventory.make({
+    schemaVersion: "drawing-review-inventory/v1",
+    round: round.round,
+    reviewedSheetSetSha256: round.reviewedSheetSetSha256,
+    findings,
+  });
+
+// An ingested round without running poppler: round.json plus a synthetic
+// inventory, its hash recorded as ingest records it.
 const seedIngested = Effect.fnUntraced(function* (options: { readonly roundDir: string; readonly round: ReviewRound }) {
   const path = yield* Path.Path;
   const findings = findingsOf(sharedPages);
-  yield* writeJsonFile(
+  const inventorySha256 = yield* writeJsonFile(
     ReviewInventory,
     path.join(options.roundDir, "inventory.json"),
-    ReviewInventory.make({
-      schemaVersion: "drawing-review-inventory/v1",
-      round: options.round.round,
-      reviewedSheetSetSha256: options.round.reviewedSheetSetSha256,
-      findings,
-    })
+    inventoryOf(options.round, findings)
   );
   yield* writeJsonFile(
     ReviewRound,
     path.join(options.roundDir, "round.json"),
-    ReviewRound.make({ ...options.round, status: "ingested" })
+    ReviewRound.make({ ...options.round, status: "ingested", inventorySha256: O.some(inventorySha256) })
   );
   return findings;
 });
@@ -546,6 +652,7 @@ describe("beep drawings review", () => {
           })
         );
         expect(opened.round.reviewedSheetSetSha256).toBe(corpus.sent.hash);
+        assertSome(opened.round.reviewedSpecSha256, Sha256Hex.make(SPEC));
         const again = yield* Effect.flip(
           review.open(
             ReviewOpenRequest.make({
@@ -574,10 +681,10 @@ describe("beep drawings review", () => {
         ]);
         expect(intake.pages.every((p) => p.match.coverage >= 0.98)).toBe(true);
         const findings = O.getOrThrow(status.inventory).findings;
-        expect(findings.map((f) => [f.id, f.scope, O.getOrNull(f.figure), f.notes.map((n) => n.text)])).toEqual([
-          ["A1-01", "sheet", 1, ["Make the box taller"]],
-          ["A1-02", "all-sheets", null, ["Margins: 1 inch top (all sheets)", "Margins: 1 inch top (all sheets)"]],
-          ["A1-03", "sheet", 2, ["Flip the oval"]],
+        expect(findings.map((f) => [f.id, f.scope, f.figures, f.notes.map((n) => n.text)])).toEqual([
+          ["A1-01", "sheet", [1], ["Make the box taller"]],
+          ["A1-02", "all-sheets", [], ["Margins: 1 inch top (all sheets)", "Margins: 1 inch top (all sheets)"]],
+          ["A1-03", "sheet", [2], ["Flip the oval"]],
         ]);
         // rects in the top-left frame: the first note's baseline sits 92 pt below the top edge
         const first = findings[0]?.notes[0];
@@ -710,7 +817,9 @@ describe("beep drawings review", () => {
         expect(pack.reviewed).toBe(true);
         const prompt = yield* fs.readFileString(path.join(pack.packDir, "prompt.md"));
         expect(prompt).toContain("### Reviewer requests (review round 1");
-        expect(prompt).toContain("| A1-02 | all | Margins: 1 in (all sheets) | not planned yet |");
+        expect(prompt).toContain(
+          `| A1-02@${corpus.sent.hash.slice(0, 12)} | all | Margins: 1 in (all sheets) | not planned yet |`
+        );
         expect(prompt).toContain("What the design claims is the attorney's call");
         const manifest = yield* fs.readFileString(path.join(pack.packDir, "manifest.json"));
         expect(manifest).toContain('"kind":"sheet"');
@@ -795,7 +904,9 @@ describe("beep drawings review", () => {
         const output = yield* logged;
         expect(output).toContain(`review round 1: planned, sheet set ${corpus.sent.hash}`);
         expect(output).toContain("3 finding(s), 1 open required, 2 required in all");
-        expect(output).toContain("  A1-02 P1 declined all sheets: Margins: 1 in (all sheets) (×2)");
+        expect(output).toContain(
+          `  A1-02@${corpus.sent.hash.slice(0, 12)} P1 declined all sheets: Margins: 1 in (all sheets) (×2)`
+        );
 
         const unopened = yield* Effect.flip(
           review.status(ReviewRoundLocation.make({ corpusRoot: corpus.root, matter: "matter", round: 7 }))
@@ -805,8 +916,10 @@ describe("beep drawings review", () => {
     );
 
     it.effect(
-      "statement refuses while the reviewed set has open required findings and warns for an earlier set",
+      "statement and sign refuse while any round of the matter is not cleared, the shaded twin included",
       Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
         const review = yield* DrawingReview;
         const corpus = yield* makeCorpus();
         const opened = yield* review.open(
@@ -817,23 +930,154 @@ describe("beep drawings review", () => {
           })
         );
         const pending = yield* review.guard(corpus.sent.manifest, O.none());
-        expect(pending.warnings).toEqual(["review round 1 over this sheet set has not been ingested yet"]);
+        expect(pending.refusals).toEqual([
+          "review round 1 on this sheet set has not been ingested; its findings are unknown, not zero",
+        ]);
         yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
 
+        const sent = corpus.sent.hash.slice(0, 12);
         const refused = yield* Effect.flip(runDrawings(["statement", "--manifest", corpus.sent.manifest]));
         assertInstanceOf(refused, DrawingsCommandError);
         expect(refused.message).toContain(
-          "review round 1 has 3 open required finding(s) on this sheet set: A1-01, A1-02, A1-03"
+          `review round 1 has 3 open required finding(s) on this sheet set: A1-01@${sent}, A1-02@${sent}, A1-03@${sent}`
         );
+        expect(refused.message).toContain("Rendering another set does not clear a round.");
+        expect(refused.message).not.toContain("render a new set");
 
+        // the shaded twin: another PDF rendered from the spec the attorney marked up
+        const twin = yield* Effect.flip(runDrawings(["statement", "--manifest", corpus.other.manifest]));
+        expect(twin.message).toContain(`on sheet set ${sent}, rendered from this set's spec: A1-01@${sent}`);
+        const foreign = yield* Effect.flip(runDrawings(["statement", "--manifest", corpus.foreign.manifest]));
+        expect(foreign.message).toContain(`on sheet set ${sent}, another set of this matter: A1-01@${sent}`);
+        expect(yield* logged).not.toContain("I approve design-figure sheet set");
+
+        // sign is guarded as well: an approval line printed earlier, or derived by hand, is not recorded
+        const signed = yield* Effect.flip(
+          runDrawings([
+            "sign",
+            "pdf",
+            "--manifest",
+            corpus.other.manifest,
+            "--by",
+            "operator",
+            "--pdf",
+            path.join(corpus.other.dir, "sheets.pdf"),
+            "--page",
+            "1",
+            "--attested-by",
+            "operator",
+            "--delivered-by",
+            "approver@example.test",
+            "--corpus-root",
+            corpus.root,
+          ])
+        );
+        assertInstanceOf(signed, DrawingsCommandError);
+        expect(signed.message).toContain("No approval while a review round of this matter is not cleared");
+        expect(yield* fs.exists(path.join(corpus.other.dir, "approval.json"))).toBe(false);
+
+        // declining every required finding clears the round for every set of the matter
+        const dispositionsFile = path.join(corpus.matter, "dispositions-draft.json");
+        yield* writeJsonFile(
+          ReviewDispositions,
+          dispositionsFile,
+          ReviewDispositions.make({
+            schemaVersion: "drawing-review-dispositions/v1",
+            round: 1,
+            entries: [entry("A1-01", declined), entry("A1-02", declined), entry("A1-03", specChange, "P2")],
+          })
+        );
+        yield* review.plan(ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: dispositionsFile }));
         yield* runDrawings(["statement", "--manifest", corpus.other.manifest]);
-        const output = yield* logged;
-        expect(output).toContain(`warning: review round 1 on earlier sheet set ${corpus.sent.hash.slice(0, 12)}`);
-        expect(output).toContain(`I approve design-figure sheet set ${corpus.other.hash} for filing.`);
+        expect(yield* logged).toContain(`I approve design-figure sheet set ${corpus.other.hash} for filing.`);
 
-        // no review directory anywhere above the manifest: nothing to guard
+        // an explicit review directory with no rounds guards nothing
         const none = yield* review.guard(corpus.sent.manifest, O.some(corpus.inputs));
         expect([none.refusals, none.warnings]).toEqual([[], []]);
+
+        // no review/ directory at or above the manifest: a warning, never silence
+        const elsewhere = yield* fs.makeTempDirectoryScoped();
+        const loose = path.join(elsewhere, "manifest.json");
+        yield* fs.copyFile(corpus.sent.manifest, loose);
+        const unguarded = yield* review.guard(loose, O.none());
+        expect(unguarded.refusals).toEqual([]);
+        expect(unguarded.warnings.join("\n")).toContain(
+          `no review/ directory in "${elsewhere}" or any directory above it, so no review round guards this set`
+        );
+      })
+    );
+
+    it.effect(
+      "refuses round files edited outside beep drawings review",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const opened = yield* review.open(
+          ReviewOpenRequest.make({
+            location: corpus.location,
+            manifestPath: corpus.sent.manifest,
+            deliveryPath: O.none(),
+          })
+        );
+        const findings = yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        const roundFile = path.join(opened.roundDir, "round.json");
+        const inventoryFile = path.join(opened.roundDir, "inventory.json");
+
+        // marking every finding resolved by hand is caught by status, the guard, and the judge pack
+        const resolved = A.map(findings, (finding) =>
+          ReviewFinding.make({ ...finding, status: "resolved", disposition: O.some(specChange) })
+        );
+        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(opened.round, resolved));
+        const status = yield* Effect.flip(review.status(corpus.location));
+        expect(status.message).toContain(`"${inventoryFile}" changed outside beep drawings review (sha256`);
+        const guarded = yield* Effect.flip(review.guard(corpus.sent.manifest, O.none()));
+        expect(guarded.message).toContain("changed outside beep drawings review");
+        const judged = yield* Effect.flip(
+          buildDrawingJudgePack({
+            manifestPath: corpus.other.manifest,
+            round: 1,
+            photosDir: O.none(),
+            reviewPath: O.some(roundFile),
+          })
+        );
+        expect(judged.message).toContain("changed outside beep drawings review");
+
+        // a recorded file that went missing, and a file round.json records no hash for
+        yield* fs.remove(inventoryFile);
+        const missing = yield* Effect.flip(review.status(corpus.location));
+        expect(missing.message).toContain("is missing, but round.json records sha256");
+        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(opened.round, resolved));
+        yield* writeJsonFile(ReviewRound, roundFile, ReviewRound.make({ ...opened.round, status: "ingested" }));
+        const unrecorded = yield* Effect.flip(review.status(corpus.location));
+        expect(unrecorded.message).toContain("round.json records no hash for it");
+
+        // once planned, dispositions.json is checked too; a draft before planning is not
+        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        const dispositionsFile = path.join(opened.roundDir, "dispositions.json");
+        const write = (entries: ReadonlyArray<DispositionEntry>) =>
+          writeJsonFile(
+            ReviewDispositions,
+            dispositionsFile,
+            ReviewDispositions.make({ schemaVersion: "drawing-review-dispositions/v1", round: 1, entries })
+          );
+        yield* write([entry("A1-01", declined)]);
+        expect((yield* review.status(corpus.location)).round.status).toBe("ingested");
+        yield* write([entry("A1-01", declined), entry("A1-02", declined), entry("A1-03", declined)]);
+        yield* review.plan(ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: dispositionsFile }));
+        // re-planning from the round's own, edited dispositions.json is allowed
+        yield* write([entry("A1-01", declined), entry("A1-02", specChange), entry("A1-03", declined)]);
+        const replanned = yield* review.plan(
+          ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: dispositionsFile })
+        );
+        assertSome(
+          O.map(replanned.inventory, (inventory) => inventory.findings.map((f) => f.status)),
+          ["declined", "planned", "declined"]
+        );
+        yield* write([entry("A1-01", declined)]);
+        const edited = yield* Effect.flip(review.status(corpus.location));
+        expect(edited.message).toContain(`"${dispositionsFile}" changed outside beep drawings review`);
       })
     );
 

@@ -26,6 +26,7 @@ import { DRAWING_JUDGE_PROMPT_TEMPLATE, JudgeEvidenceKind } from "../Qa/JudgePac
 import { DrawingsCommandError } from "./Drawings.errors.ts";
 import { reviewerRequestsSection } from "./Drawings.review.rules.ts";
 import { ReviewInventory, ReviewRound } from "./Drawings.review.schemas.ts";
+import { readRoundFile } from "./Drawings.review.ts";
 
 const $I = $RepoCliId.create("commands/Drawings/Drawings.judge");
 const decodeManifest = S.decodeEffect(S.fromJsonString(RenderManifest));
@@ -135,7 +136,7 @@ const copyPhotos = Effect.fn("DrawingsJudge.copyPhotos")(function* (photosDir: s
 });
 
 // The reviewer-requests section for a judge pack, from a round.json and the
-// inventory.json beside it.
+// inventory.json beside it, checked against the hash round.json records.
 const reviewSection = Effect.fn("DrawingsJudge.reviewSection")(function* (roundPath: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
@@ -144,12 +145,11 @@ const reviewSection = Effect.fn("DrawingsJudge.reviewSection")(function* (roundP
     .readFileString(resolved)
     .pipe(Effect.flatMap(decodeReviewRound), Effect.mapError(fail(`Could not read the review round "${resolved}".`)));
   const inventoryPath = path.join(path.dirname(resolved), "inventory.json");
-  const inventory = yield* fs
-    .readFileString(inventoryPath)
-    .pipe(
-      Effect.flatMap(decodeReviewInventory),
-      Effect.mapError(fail(`Review round ${round.round} has no readable inventory.json; ingest it first.`))
-    );
+  const text = yield* readRoundFile({ file: inventoryPath, recorded: round.inventorySha256, draftAllowed: false });
+  const inventory = yield* Effect.fromOption(text).pipe(
+    Effect.flatMap(decodeReviewInventory),
+    Effect.mapError(fail(`Review round ${round.round} has no readable inventory.json; ingest it first.`))
+  );
   return reviewerRequestsSection({
     round: round.round,
     sheetSetSha256: round.reviewedSheetSetSha256,
