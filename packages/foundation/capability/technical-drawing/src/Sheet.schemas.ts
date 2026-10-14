@@ -601,46 +601,6 @@ export class SheetLabelFaces extends S.Class<SheetLabelFaces>($I`SheetLabelFaces
   })
 ) {}
 
-// Smallest visible gap between broken-line dashes, after the round caps eat
-// half the line weight from each side. 0.4 mm survives two-thirds reduction.
-// The tolerance keeps decimal inputs such as 0.8 + 0.4 against 1.2 on the
-// right side of the floor despite binary rounding.
-const MIN_VISIBLE_BROKEN_GAP_MM = 0.4;
-const GAP_TOLERANCE_MM = 1e-9;
-
-/**
- * The gap the broken (unclaimed) layer is drawn with, in mm on the sheet: the
- * options' `brokenGapMm`, widened to `lineWeightMm + 0.4` when the round caps
- * of that line weight would otherwise close it.
- *
- * **Details**
- *
- * Round caps add half the line weight to each end of every dash, so the
- * visible gap is the drawn gap minus the line weight. The law is applied here,
- * where a broken layer is emitted, rather than on every `SheetOptions`: a
- * heavy line weight stays usable on a solid-only sheet, and an unclaimed
- * outline never prints as a solid line.
- *
- * **Example** (A heavy weight widens the default gap)
- *
- * ```ts
- * import { SheetOptions, visibleBrokenGapMm } from "@beep/technical-drawing"
- *
- * console.log(visibleBrokenGapMm(SheetOptions.make({ lineWeightMm: 1.2 }))) // 1.6
- * console.log(visibleBrokenGapMm(SheetOptions.make({}))) // 1.5
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const visibleBrokenGapMm = (options: {
-  readonly brokenGapMm: number;
-  readonly lineWeightMm: number;
-}): number => {
-  const floor = options.lineWeightMm + MIN_VISIBLE_BROKEN_GAP_MM;
-  return options.brokenGapMm >= floor - GAP_TOLERANCE_MM ? options.brokenGapMm : floor;
-};
-
 /**
  * One family a PDF converter must bind: the family a label requests and the
  * family name of the font file it resolved to.
@@ -710,7 +670,7 @@ export class SheetFonts extends S.Class<SheetFonts>($I`SheetFonts`)(
  *
  * Round caps eat half the line weight from each end of a dash. When
  * `brokenGapMm - lineWeightMm` falls under 0.4 mm the broken layer is drawn
- * with a gap of `lineWeightMm + 0.4` instead (see {@link visibleBrokenGapMm}),
+ * with a gap of `lineWeightMm + 0.4` instead (see `visibleBrokenGapMm` in the composer),
  * so a broken (unclaimed) outline never prints as a solid line and a heavy
  * line weight stays usable on a sheet without broken lines.
  *

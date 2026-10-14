@@ -34,7 +34,6 @@ import {
   PT_PER_MM,
   pageSizePt,
   SheetLabelFaces,
-  visibleBrokenGapMm,
 } from "./Sheet.schemas.ts";
 import type { Segment2 } from "./Geometry.schemas.ts";
 import type { InkBox, LabelFace } from "./internal/LabelOutline.ts";
@@ -563,6 +562,43 @@ const letter = (input: {
       text: `<text x="${r3(centreX)}" y="${r3(inkBaseline(runInk(face, text), scale, edge, anchor))}" font-family="${Html.escapeHtml(family)}" font-size="${r3(sizePt)}" text-anchor="middle" fill="#000000">${Html.escapeHtml(text)}</text>`,
     }),
   });
+};
+
+// Smallest visible gap between broken-line dashes, after the round caps eat
+// half the line weight from each side. 0.4 mm survives two-thirds reduction.
+// The tolerance keeps decimal inputs such as 0.8 + 0.4 against 1.2 on the
+// right side of the floor despite binary rounding.
+const MIN_VISIBLE_BROKEN_GAP_MM = 0.4;
+const GAP_TOLERANCE_MM = 1e-9;
+
+/**
+ * The gap the broken (unclaimed) layer is drawn with, in mm on the sheet: the
+ * options' `brokenGapMm`, widened to `lineWeightMm + 0.4` when the round caps
+ * of that line weight would otherwise close it.
+ *
+ * **Details**
+ *
+ * Round caps add half the line weight to each end of every dash, so the
+ * visible gap is the drawn gap minus the line weight. The law is applied here,
+ * where a broken layer is emitted, rather than on every `SheetOptions`: a
+ * heavy line weight stays usable on a solid-only sheet, and an unclaimed
+ * outline never prints as a solid line.
+ *
+ * **Example** (A heavy weight widens the default gap)
+ *
+ * ```ts
+ * import { SheetOptions, visibleBrokenGapMm } from "@beep/technical-drawing"
+ *
+ * console.log(visibleBrokenGapMm(SheetOptions.make({ lineWeightMm: 1.2 }))) // 1.6
+ * console.log(visibleBrokenGapMm(SheetOptions.make({}))) // 1.5
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const visibleBrokenGapMm = (options: SheetOptions): number => {
+  const floor = options.lineWeightMm + MIN_VISIBLE_BROKEN_GAP_MM;
+  return options.brokenGapMm >= floor - GAP_TOLERANCE_MM ? options.brokenGapMm : floor;
 };
 
 /**
