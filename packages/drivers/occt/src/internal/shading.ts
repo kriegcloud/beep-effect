@@ -75,6 +75,24 @@ const sectionEdges = (oc: OpenCascadeInstance, face: replicad.Face, point: V3, n
   return edges;
 };
 
+// Chords shorter than the plan's minimum on the view plane are dropped: near a
+// pointed corner the graded strokes would otherwise read as a dot ladder.
+const longEnough =
+  (view: ViewFacts, minStroke: number) =>
+  (edge: replicad.Edge): boolean => {
+    if (minStroke <= 0) {
+      return true;
+    }
+    const [sx, sy, sz] = vec(edge.startPoint);
+    const [ex, ey, ez] = vec(edge.endPoint);
+    const length = edge.length;
+    if (length <= 0) {
+      return false;
+    }
+    const along = ((ex - sx) * view.eye[0] + (ey - sy) * view.eye[1] + (ez - sz) * view.eye[2]) / length;
+    return length * Math.sqrt(Math.max(0, 1 - along * along)) >= minStroke;
+  };
+
 // A stroke shorter than its chord is centred on it (the graded taper).
 const trimTo =
   (extent: number) =>
@@ -93,9 +111,10 @@ const shadeFace =
     const edges = FaceTreatment.match(treatment, {
       lines: (lines) =>
         A.flatMap(lines.cuts, (cut) =>
-          A.map(
+          pipe(
             sectionEdges(oc, face, add(lines.origin, scale(lines.step, cut.offset)), lines.step),
-            trimTo(cut.extent)
+            A.map(trimTo(cut.extent)),
+            A.filter(longEnough(view, plan.minStroke))
           )
         ),
       skipped: () => A.empty<replicad.Edge>(),

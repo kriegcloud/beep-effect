@@ -157,10 +157,12 @@ describe("Shading.rules", () => {
 
   it("tapers graded strokes: two full lines, then 60% down to 40% of the chord", () => {
     const rounded = (extents: ReadonlyArray<number>) => A.map(extents, (e) => Math.round(e * 100) / 100);
-    expect(rounded(gradedExtents(5))).toEqual([1, 1, 0.6, 0.5, 0.4]);
-    expect(rounded(gradedExtents(3))).toEqual([1, 1, 0.6]);
-    expect(rounded(gradedExtents(2))).toEqual([1, 1]);
-    expect(gradedExtents(0)).toEqual([]);
+    expect(rounded(gradedExtents({ count: 5 }))).toEqual([1, 1, 0.6, 0.5, 0.4]);
+    expect(rounded(gradedExtents({ count: 3 }))).toEqual([1, 1, 0.6]);
+    expect(rounded(gradedExtents({ count: 2 }))).toEqual([1, 1]);
+    expect(gradedExtents({ count: 0 })).toEqual([]);
+    expect(rounded(gradedExtents({ count: 2, fullLines: 0 }))).toEqual([0.6, 0.4]);
+    expect(rounded(gradedExtents({ count: 1, fullLines: 0 }))).toEqual([0.6]);
   });
 
   it("keeps the original lit cut-off under the default plan and shades the same face when graded", () => {

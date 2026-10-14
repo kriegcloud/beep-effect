@@ -79,7 +79,11 @@ const left = Camera.make({ eye: [-1, 0, 0], up: [0, 0, 1] });
 const right = Camera.make({ eye: [1, 0, 0], up: [0, 0, 1] });
 const top = Camera.make({ eye: [0, 0, 1], up: [0, 1, 0] });
 
-const graded = (fields?: { readonly axis?: "longest-edge" | "surface-class"; readonly minFaceSpan?: number }) =>
+const graded = (fields?: {
+  readonly axis?: "longest-edge" | "surface-class";
+  readonly minFaceSpan?: number;
+  readonly minStroke?: number;
+}) =>
   ShadingPlan.make({
     minPitch: 1,
     maxPitch: 3,
@@ -87,6 +91,7 @@ const graded = (fields?: { readonly axis?: "longest-edge" | "surface-class"; rea
     style: "graded",
     axis: fields?.axis ?? "surface-class",
     minFaceSpan: fields?.minFaceSpan ?? 0,
+    minStroke: fields?.minStroke ?? 0,
   });
 
 const isVertical = ([x1, , x2]: Segment) => Math.abs(x1 - x2) < 1e-6;
@@ -156,6 +161,30 @@ describe("@beep/occt shading", () => {
         assertSome(
           O.map(coverage, (c) => A.map(c.skippedFaces, (s) => s.reason)),
           ["back-facing", "curved", "lit"]
+        );
+      })
+    );
+
+    it.effect(
+      "drops strokes shorter than the plan's minimum on the view plane but still counts the face as shaded",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const solid = box([-20, -15, 0], [20, 15, 20]);
+        const [drawn] = yield* occt.project(
+          ProjectionRequest.make({ solid, cameras: [front], shading: O.some(graded({ minStroke: 8 })) })
+        );
+        const [dropped] = yield* occt.project(
+          ProjectionRequest.make({ solid, cameras: [front], shading: O.some(graded({ minStroke: 25 })) })
+        );
+        // the wall is 20 high: every chord clears 8, the 40% tail strokes do not clear 25 and the full ones do not either
+        expect(drawn?.shading.length).toBeGreaterThan(1);
+        expect(dropped?.shading).toEqual([]);
+        assertSome(
+          O.flatMap(O.fromNullishOr(dropped), (view) => view.shadingCoverage),
+          ShadingCoverage.make({
+            shadedFaces: 1,
+            skippedFaces: [ShadingSkip.make({ reason: "back-facing", faces: 5 })],
+          })
         );
       })
     );

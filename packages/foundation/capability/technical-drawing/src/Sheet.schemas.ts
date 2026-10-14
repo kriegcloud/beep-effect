@@ -667,9 +667,24 @@ export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
           "Width in mm on the sheet below which a face (a thin board edge, a tab root) gets no shading lines. Defaults to 0 (no slivers).",
       })
     ),
+    shadingMinStrokeMm: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`ShadingMinStrokeMmCheck`,
+        title: "Shading Minimum Stroke",
+        description: "A shading stroke shorter than this on the sheet is not drawn.",
+        message: "Expected a non-negative minimum stroke length",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Length in mm on the sheet below which a shading stroke (a chord near a face's pointed corner) is dropped. Defaults to 0 (every chord is drawn).",
+      })
+    ),
   },
   $I.annote("SheetOptions", {
     description:
-      "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis and sliver width, lettering height, label gap and styles, and margin safety gap of a render.",
+      "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, lettering height, label gap and styles, and margin safety gap of a render.",
   })
 ) {}

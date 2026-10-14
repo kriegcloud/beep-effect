@@ -123,6 +123,7 @@ const shadingFor = (input: {
       style: sheet.shadingStyle,
       axis: sheet.shadingAxis,
       minFaceSpan: toModel(sheet.shadingMinFaceSpanMm),
+      minStroke: toModel(sheet.shadingMinStrokeMm),
     })
   );
 };

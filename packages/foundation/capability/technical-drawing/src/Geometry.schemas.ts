@@ -769,7 +769,7 @@ const ExposureThreshold = S.Finite.check(
  * threshold). The `graded` style shades every visible planar face from its
  * shadow edge (see {@link ShadingStyle}); `axis` picks the line direction
  * (see {@link HatchAxis}); faces narrower than `minFaceSpan` are never
- * hatched. Only planar faces turned toward the camera are shaded, and the
+ * hatched, and chords shorter than `minStroke` on the view plane are dropped. Only planar faces turned toward the camera are shaded, and the
  * lines pass through the same hidden-line removal as the outlines. The
  * defaults reproduce the original hatch exactly.
  *
@@ -822,10 +822,25 @@ export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
           "Projected width, in model units, below which a face is a sliver and gets no lines. Defaults to 0 (no slivers).",
       })
     ),
+    minStroke: S.Finite.check(
+      S.isGreaterThanOrEqualTo(0, {
+        identifier: $I`ShadingMinStrokeCheck`,
+        title: "Shading Minimum Stroke",
+        description: "A shading stroke shorter than this on the view plane is not drawn.",
+        message: "Expected a non-negative minimum stroke length",
+      })
+    ).pipe(
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultTypeKey(Effect.succeed(0)),
+      S.annotateKey({
+        description:
+          "Projected length, in model units, below which a cut chord is dropped instead of drawn: near a pointed corner the strokes would read as a dot ladder (the 1993 Guide's strokes are 2-8 mm on the sheet). Defaults to 0 (every chord is drawn).",
+      })
+    ),
   },
   $I.annote("ShadingPlan", {
     description:
-      "Pitch range, lit threshold, style, hatch axis, and sliver width of straight-line shading, in model units.",
+      "Pitch range, lit threshold, style, hatch axis, sliver width, and minimum stroke of straight-line shading, in model units.",
   })
 ) {}
 

@@ -1105,7 +1105,12 @@ describe("graded shading through fake ports", () => {
         yield* fs.writeFileString(
           specPath,
           spec([{ view: "front", description: "is a front elevation view" }], [], {
-            sheet: { shadingStyle: "graded", shadingAxis: "surface-class", shadingMinFaceSpanMm: 1.5 },
+            sheet: {
+              shadingStyle: "graded",
+              shadingAxis: "surface-class",
+              shadingMinFaceSpanMm: 1.5,
+              shadingMinStrokeMm: 2,
+            },
           })
         );
         const service = yield* FigureSet;
@@ -1116,6 +1121,7 @@ describe("graded shading through fake ports", () => {
         const plan = gradedPlans[0];
         expect([plan?.style, plan?.axis]).toEqual(["graded", "surface-class"]);
         expect(plan?.minFaceSpan).toBeCloseTo((1.5 * PT_PER_MM) / manifest.scale, 9);
+        expect(plan?.minStroke).toBeCloseTo((2 * PT_PER_MM) / manifest.scale, 9);
         assertSome(
           manifest.figures[0]!.shadingCoverage,
           ShadingCoverage.make({

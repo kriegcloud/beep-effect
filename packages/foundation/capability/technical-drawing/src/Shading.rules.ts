@@ -252,34 +252,43 @@ export const gradedOffsets = (input: {
 };
 
 /**
- * Drawn fraction of each graded line's chord, by line count: the first two
- * lines run full length and the rest shorten evenly from 60% to 40%.
+ * Drawn fraction of each graded line's chord, by line count: the first
+ * `fullLines` lines (two by default) run full length and the rest shorten
+ * evenly from 60% to 40%.
  *
  * **Details**
  *
  * The taper is the 1993 Guide's (Appendix 4, Examples 32 and 34): strokes
  * are longest at the shadow edge and shorten toward the light, each centred
- * on the chord it would have filled.
+ * on the chord it would have filled. A face turned toward the light gets no
+ * full-length line at all (`fullLines` 0): its one or two strokes are short.
  *
- * **Example** (Five lines)
+ * **Example** (Five lines, and two short strokes on a lit face)
  *
  * ```ts
  * import { gradedExtents } from "@beep/technical-drawing/Shading.rules"
  *
- * console.log(gradedExtents(5)) // [1, 1, 0.6, 0.5, 0.4]
+ * console.log(gradedExtents({ count: 5 })) // [1, 1, 0.6, 0.5, 0.4]
+ * console.log(gradedExtents({ count: 2, fullLines: 0 })) // [0.6, 0.4]
  * ```
  *
  * @category shading
  * @since 0.0.0
  */
-export const gradedExtents = (count: number): ReadonlyArray<number> =>
-  count <= 0
+export const gradedExtents = (input: {
+  readonly count: number;
+  readonly fullLines?: number;
+}): ReadonlyArray<number> => {
+  const { count } = input;
+  const fullLines = input.fullLines ?? FULL_LINES;
+  return count <= 0
     ? A.empty()
     : A.makeBy(count, (index) =>
-        index < FULL_LINES
+        index < fullLines
           ? 1
-          : TAPER_FROM - (TAPER_FROM - TAPER_TO) * ((index - FULL_LINES) / Math.max(1, count - FULL_LINES - 1))
+          : TAPER_FROM - (TAPER_FROM - TAPER_TO) * ((index - fullLines) / Math.max(1, count - fullLines - 1))
       );
+};
 
 // Lengths are compared to the micrometre so the equal edges of a regular face
 // tie instead of ordering by floating-point noise.
@@ -482,14 +491,13 @@ const gradedTreatment = (input: {
       A.map((point) => dot(minus(point, anchor.point), anchor.step)),
       A.reduce(0, (most, reach) => Math.max(most, reach))
     ) * factor;
-  const offsets = gradedOffsets({
-    span,
-    minPitch: plan.minPitch,
-    maxPitch: plan.maxPitch,
-    tone: toneOf(dot(face.normal, view.light)),
-  });
-  const cuts = A.zipWith(offsets, gradedExtents(A.length(offsets)), (offset, extent) =>
-    ShadingCut.make({ offset: offset / factor, extent })
+  const tone = toneOf(dot(face.normal, view.light));
+  const offsets = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone });
+  // a lit face carries short strokes only (Example 32: lit faces are nearly bare)
+  const cuts = A.zipWith(
+    offsets,
+    gradedExtents({ count: A.length(offsets), fullLines: tone === "faint" ? 0 : FULL_LINES }),
+    (offset, extent) => ShadingCut.make({ offset: offset / factor, extent })
   );
   return A.isReadonlyArrayNonEmpty(cuts)
     ? ShadingLines.make({ origin: anchor.point, step: anchor.step, cuts })
