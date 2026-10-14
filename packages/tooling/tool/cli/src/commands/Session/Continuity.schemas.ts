@@ -23,11 +23,12 @@ const $I = $RepoCliId.create("commands/Session/Continuity.schemas");
  * @category models
  * @since 0.0.0
  */
-export class PermissionTuple extends S.Class<PermissionTuple>($I`PermissionTuple`)(
-  { approval: S.NonEmptyString, sandbox: S.NonEmptyString, profile: S.NonEmptyString },
-  $I.annote("PermissionTuple", {
-    description: "Effective approval, sandbox and permission profile recorded by a Codex turn.",
-  })
+export class PermissionTuple extends S.Opaque<PermissionTuple, { readonly brand: unique symbol }>()(
+  S.Struct({ approval: S.NonEmptyString, sandbox: S.NonEmptyString, profile: S.NonEmptyString }).pipe(
+    $I.annoteSchema("PermissionTuple", {
+      description: "Effective approval, sandbox and permission profile recorded by a Codex turn.",
+    })
+  )
 ) {}
 
 /**
@@ -99,11 +100,17 @@ export type ContinuityVerdict = typeof ContinuityVerdict.Type;
  * @category models
  * @since 0.0.0
  */
-export class ClaudeContinuityInput extends S.Class<ClaudeContinuityInput>($I`ClaudeContinuityInput`)(
-  { id: S.NonEmptyString, app: S.NonEmptyString, transcript: S.NonEmptyString, expectedMode: S.NonEmptyString },
-  $I.annote("ClaudeContinuityInput", {
-    description: "Operator-selected app/transcript pair and chosen Claude permission mode.",
-  })
+export class ClaudeContinuityInput extends S.Opaque<ClaudeContinuityInput, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.NonEmptyString,
+    app: S.NonEmptyString,
+    transcript: S.NonEmptyString,
+    expectedMode: S.NonEmptyString,
+  }).pipe(
+    $I.annoteSchema("ClaudeContinuityInput", {
+      description: "Operator-selected app/transcript pair and chosen Claude permission mode.",
+    })
+  )
 ) {}
 
 /**
@@ -119,17 +126,18 @@ export class ClaudeContinuityInput extends S.Class<ClaudeContinuityInput>($I`Cla
  * @category models
  * @since 0.0.0
  */
-export class ContinuityInput extends S.Class<ContinuityInput>($I`ContinuityInput`)(
-  {
+export class ContinuityInput extends S.Opaque<ContinuityInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     route: ContinuityRoute,
     expected: PermissionTuple,
     rollouts: S.Array(S.NonEmptyString),
     configs: S.Array(S.NonEmptyString),
     claude: S.Array(ClaudeContinuityInput),
-  },
-  $I.annote("ContinuityInput", {
-    description: "Explicit files and expected policies for a read-only permission census.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContinuityInput", {
+      description: "Explicit files and expected policies for a read-only permission census.",
+    })
+  )
 ) {}
 
 /**
@@ -145,8 +153,8 @@ export class ContinuityInput extends S.Class<ContinuityInput>($I`ContinuityInput
  * @category models
  * @since 0.0.0
  */
-export class ContinuityObservation extends S.Class<ContinuityObservation>($I`ContinuityObservation`)(
-  {
+export class ContinuityObservation extends S.Opaque<ContinuityObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     app: S.Literals(["codex", "claude", "config"]),
     id: S.NonEmptyString,
     family: S.NonEmptyString,
@@ -154,8 +162,9 @@ export class ContinuityObservation extends S.Class<ContinuityObservation>($I`Con
     tuples: S.Array(S.String),
     boundaries: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     detail: S.NonEmptyString,
-  },
-  $I.annote("ContinuityObservation", {
-    description: "Sanitized effective-policy comparison for one thread, family member, app session or config.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContinuityObservation", {
+      description: "Sanitized effective-policy comparison for one thread, family member, app session or config.",
+    })
+  )
 ) {}
