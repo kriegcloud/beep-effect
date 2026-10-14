@@ -309,3 +309,50 @@ docgen 30.3 seconds. This is new full-package evidence rather than reuse of
 the October 9 qualification. The report-only delivery update changes no source
 or fixtures. Publication and final-head hosted state are separately observed
 by the worker dispatch; no local pass is presented as a hosted pass.
+
+## October 14 review-fix qualification
+
+The second hosted thread, `discussion_r4270037982`, correctly notes that online
+reads and refresh cannot clear unknown historical inventory completeness.
+Doctor now explains that limitation for missing receipts and stored incomplete
+snapshots, and its legacy declaration hint promises inspection rather than
+verification. The fixture supplies a merge, matching accepted head/declaration
+and a positive required check, so incomplete inventory is its sole unknown cause.
+It also refuses any offline GitHub access.
+
+Focused validation passes 51 tests across the three doctor/completion files.
+The full package gate at `44581cec72` passes: audit 1096.1 seconds, docgen
+73.6 seconds. Independent Opus review caught an ambiguity between inspection
+and persistence; the wording correction explicitly distinguishes them.
+Follow-up Opus review of `ea4041cdb6` returns zero actionable findings.
+The final copy correction passes package lint/check (5.0/5.8 seconds).
+
+The final test compiler initially found TS377112 in the new fixture: use
+`decodeEffect` for its statically known encoded input. `ea4041cdb6` fixes the
+decoder without changing runtime validation. That failed attempt is retained;
+the final dispatch records the corrected compiler and scoped coverage results.
+
+The first published head `7912fecf03` has inherited Repo Sanity dependency-key
+ordering and retired-path command fixture failures. Completed child job logs
+show 2947 unit tests and 6205 coverage tests passing, with the retired-path
+fixture failing; the coverage ratchet did not run, so its row attribution is
+unknown. Main #1721 supplies the path repair and #1722 the repo-utils ordering
+repair; H2 integrates those rather than weakening a fixture. Lint Policy's
+exact log fetch returns HTTP 404 three times, so its entire attribution remains
+unknown. The local knowledge-reference lane separately identifies 11 inherited
+host-path observations from main #1713. Vercel statuses are acknowledged as
+environment-only build rate limits. All acknowledgements preserve red/unknown
+verdicts and are not waivers.
+
+Final code qualification at `ea4041cdb6` supersedes the introduced compiler
+failure: test-tsgo passes, all 51 focused tests pass, and scoped coverage
+passes 287 tests across 13 files. Existing floors and uncovered ceilings are
+met or improved. Doctor's final line/statement/branch/function percentages
+are 84.33/84.27/74.63/90, with uncovered counts 47/50/35/9. The other existing
+touched rows remain unchanged; Completion retains its new-file read above.
+No baseline is rewritten. Final Fallow audit/health and retired-path law have
+zero findings. The final offline doctor reports 223 packets, zero blocking
+findings and six advisories: the three specified unknowns and three unrelated
+legacy declarations. Reply `4270777426` resolves the hint thread; reply
+`4269791012` resolves the earlier inventory thread. Final-head hosted readiness
+is reported separately by the worker dispatch.

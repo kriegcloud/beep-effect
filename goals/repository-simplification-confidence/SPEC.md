@@ -916,6 +916,17 @@ review `discussion_r4234859239` exposes deleted rulesets absent from today's
 inventory. Reverse by reverting this review fix and deleting derived receipts;
 optional defaulted fields preserve schema compatibility. An independent
 merge-time inventory provider is a later explicit evidence extension.
+
+### 2026-10-14 — H2 completion advisory clarity
+
+Name the historical inventory blocker in incomplete stored-receipt and absent
+receipt guidance. Online doctor inspects facts; only completion refresh persists
+them. Neither operation is presented as a way to establish completeness from
+GitHub's current inventory. The legacy final-PR hint promises inspection rather
+than verification. Reason: review `discussion_r4270037982`, plus the independent
+Opus wording follow-up. Keep the resolver, receipt schema, lifecycle and writer
+unchanged; a complete historical inventory provider remains a later extension.
+Reversal: revert the advisory/test commits; no stored state migration is needed.
 ### D25 — Repair newly exposed CI causes once on main (2026-10-13)
 
 PR #1571 fresh CI exposes a shared technical-drawing test-fixture race: one

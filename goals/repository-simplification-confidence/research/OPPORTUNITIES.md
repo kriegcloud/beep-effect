@@ -1363,3 +1363,17 @@ on the new head if it appears.
   identifies 11 inherited host-path observations in main #1713 packets;
   H2 changes none of those paths relative to its integrated base `3749e7ca4a`.
   Route the main repair and log investigation to the program orchestrator.
+
+### 2026-10-14 — H2 typed fixture decoder and bounded monitor
+
+- Final test compiler reports TS377112 at `goals-doctor.test.ts:194`:
+  statically known encoded input must use `decodeEffect`. `ea4041cdb6`
+  corrects the fixture without changing runtime validation; retain the failed
+  compiler attempt until the corrected lane completes.
+- Independent Opus review finds ambiguous "record" wording for online reads.
+  `959c533ed9` distinguishes online inspection from refresh persistence.
+  Follow-up review returns zero actionable findings.
+- The first readiness monitor ends at its 40-minute ceiling with no readiness
+  verdict. Treat it as terminated, not merge-ready; submit a new bounded monitor
+  after the complete review-fix wave publishes. Canonical heavy admission delayed
+  the second package command for over 30 minutes before it ran and passed.
