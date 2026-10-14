@@ -206,7 +206,8 @@ const generatedComposers = $I.compose(
   "pdf-tools",
   "technical-drawing",
   "practice-identify",
-  "practice-m365-contacts", "practice-claude-mod"
+  "practice-m365-contacts",
+  "practice-claude-mod"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -2861,4 +2862,5 @@ export const $PracticeM365ContactsId: Identity.IdentityComposer<"@beep/practice-
  * @category configuration
  * @since 0.0.0
  */
-export const $PracticeClaudeModId: Identity.IdentityComposer<"@beep/practice-claude-mod"> = composers.$PracticeClaudeModId;
+export const $PracticeClaudeModId: Identity.IdentityComposer<"@beep/practice-claude-mod"> =
+  composers.$PracticeClaudeModId;
