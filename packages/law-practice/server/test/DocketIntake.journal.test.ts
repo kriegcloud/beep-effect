@@ -411,6 +411,29 @@ describe("@beep/law-practice-server DocketIntake journal", () => {
 
   it.layer(DecoratedLayer, { timeout: "10 seconds" })((it) => {
     it.effect(
+      "journals reuse once in a later run without adopting the earlier run's event",
+      Effect.fnUntraced(function* () {
+        const calendar = yield* DocketCalendar;
+        const inner = yield* InnerPorts;
+        const fs = yield* FileSystem.FileSystem;
+        // An earlier run, as a previous process wrote it, already created the event.
+        yield* fs.writeFileString(
+          JOURNAL,
+          `{"runId":"run-19691231T235959000Z","kind":"event-created","at":"1969-12-31T23:59:59.000Z","eventId":"event-1","idempotencyKey":"${entry.key}"}\n`
+        );
+        yield* Ref.set(inner.found, O.some(written));
+        yield* calendar.findByKey(entry.key);
+        yield* calendar.findByKey(entry.key);
+        expect(A.map(yield* journalLines, (line) => [line.kind, line.runId, O.getOrNull(line.eventId)])).toStrictEqual([
+          ["event-created", "run-19691231T235959000Z", "event-1"],
+          ["event-reused", RUN, "event-1"],
+        ]);
+      })
+    );
+  });
+
+  it.layer(DecoratedLayer, { timeout: "10 seconds" })((it) => {
+    it.effect(
       "stops with a defect when a successful write cannot be journaled",
       Effect.fnUntraced(function* () {
         const calendar = yield* DocketCalendar;

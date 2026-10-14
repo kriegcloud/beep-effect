@@ -476,3 +476,12 @@ Merging main `b096cbd99b` required no conflict resolution; canonical config and
 cache checks remained green, and a fresh actual test compiler receipt recorded
 exit zero. Letting the declared consolidated repair finish before optional
 inventory changes would avoid repeated integration and review work.
+
+
+## 2026-10-14: bootstrap the manifest before querying a conflicted merge
+
+Resolving workspace-registry conflicts temporarily left root `package.json`
+unparseable. The Graft launcher failed with `Failed to parse JSON file` before
+it could inspect the identity registry. Resolve the manifest union first, then
+query source and run canonical projection writers. This preserves both workspace
+entries and keeps the conflict inspection available without bypassing the tools.

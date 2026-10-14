@@ -1562,6 +1562,9 @@ const inlineSpanOf = (match: RegExpExecArray): O.Option<KnowledgeInlineSpan> => 
 export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeInlineSpan> =>
   A.getSomes(A.map(knowledgeLineMatches(/(^|[^`\\])(`+)([^\r\n]*?)\2(?!`)/gu, lineText), inlineSpanOf));
 
+// A complete single- or double-quoted shell argument; an unterminated quote never matches.
+const QUOTED_ARGUMENT_PATTERN = /"[^"]*"|'[^']*'/gu;
+
 /**
  * Whether an inline span documents a `bun run beep` invocation rather than a path.
  *
@@ -1575,6 +1578,10 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * Everything else is read by the path bus instead, which is why the two readers share this one
  * predicate.
  *
+ * Composition characters and arrows count only outside single- and double-quoted arguments, so
+ * `--description "Doc → KG"` stays one command; command substitution (`$(`) counts anywhere, because
+ * the shell expands it inside double quotes too.
+ *
  * **Example** (Separate a documented command from a path)
  *
  * ```ts
@@ -1584,6 +1591,7 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * console.log(isKnowledgeCommandSpan("goals/INDEX.md")) // false
  * console.log(isKnowledgeCommandSpan("bun run beep yeet repair → verify → publish --pr")) // false
  * console.log(isKnowledgeCommandSpan('bun run beep create-package demo --description "Doc→KG"')) // true
+ * console.log(isKnowledgeCommandSpan('bun run beep create-package demo --description "Doc → KG"')) // true
  * ```
  *
  * @param span - Inline code span content, with CommonMark padding already stripped.
@@ -1592,7 +1600,9 @@ export const knowledgeInlineSpans = (lineText: string): ReadonlyArray<KnowledgeI
  * @since 0.0.0
  */
 export const isKnowledgeCommandSpan = (span: string): boolean =>
-  /^bun run beep(?:$|[ \t])/u.test(span) && !/[|;&<>]|[ \t]→[ \t]|\$\(|(?:^|[ \t])#/u.test(span);
+  /^bun run beep(?:$|[ \t])/u.test(span) &&
+  !/\$\(/u.test(span) &&
+  !/[|;&<>]|[ \t]→[ \t]|(?:^|[ \t])#/u.test(Str.replace(QUOTED_ARGUMENT_PATTERN, "")(span));
 
 // CommonMark starts an HTML block at up to three spaces of indentation; four spaces or a
 // tab make the line an indented code block, which is literal syntax and asserts nothing.

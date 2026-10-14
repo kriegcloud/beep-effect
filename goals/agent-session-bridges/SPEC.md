@@ -246,3 +246,15 @@ regression. The narrowed generated diff must retain existing metric percentages,
 uncovered counts, tier minimums, epsilon, exemptions and follow-up policy. It
 must contain measurements from the final test wave and remain subject to hosted
 coverage comparison. No externally lowered floor is precedent for this wave.
+
+
+### 2026-10-14: publish the base conflict resolution first
+
+The operator requested resolving PR #1571's conflicts and publishing before
+waiting for the separate shared coverage repair. Integrate landed main only,
+retain the messaging contracts and baseline floors, and use canonical writers
+for the combined configuration. Hosted CI and the full merge gate remain required.
+The immutable recording basis is `research/MAIN-CONFLICT-INTEGRATION-20261014.md`.
+The recovery ref is `codex/pr1571-before-conflict-push-20261014`; revert the
+integration merge on a feature branch if reversal is needed. Shared repair work
+stays with its existing owner.
