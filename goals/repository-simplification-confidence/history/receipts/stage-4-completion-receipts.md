@@ -381,3 +381,22 @@ test-tsgo and all 51 focused tests pass. No detector baseline is refreshed.
 The intervening audit/publisher exit 130 is retained as interruption, with no
 inferred push or pass; fresh package and publication results are bound by final
 dispatch.
+
+### Final native-property source and package gate
+
+The complete package gate at native-property source `d42750855e` passes: audit
+1020.4s, docgen 27.2s, exit 0. Schema-first, Effect/Vitest, test-tsgo and
+51 focused tests pass. Combined production coverage remains 287 tests, meeting
+all existing touched floors/ceilings; knowledge references retains 15 inherited
+main host paths. Normal publication succeeds at `0f57cb043f`, with cheap gates
+and isolated head installation passing. Fresh review read: zero unresolved
+threads, zero actionable closeout issues. See the October 14 handoff for
+publication/monitor receipts and final dispatch for the report-only tip.
+
+Hosted job `115896273082` fails TS377112 in `skills-relock.test.ts:507`, which
+is absent from H2's head and comes from main #1732 in synthetic merge
+`ec67d2347`. Attribute this to inherited main code and the program
+orchestrator's consolidated repair; do not replace hosted failure with local
+passing test-tsgo. The supplementary native-registration Opus review is
+quota-blocked before reviewing; prior source-bound Opus reviews and current
+four native-registration checks remain explicitly distinct.

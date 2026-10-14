@@ -2,8 +2,8 @@
 
 ```text
 lane: rsc-h2-completion
-head: 69d4ba88008ac5c603cb13b2f760987459abc733 (qualified code; report-only delivery tip in final dispatch)   PR: #1574
-package-verify @beep/repo-cli: pass (full audit 1096.1s/docgen 73.6s at 44581cec72; final copy/type-only lint 5.0s/check 5.8s)
+head: d42750855e11c4e8e15430ec7033188f1734ec1a (qualified code; report-only delivery tip in final dispatch)   PR: #1574
+package-verify @beep/repo-cli: pass (final full audit 1020.4s/docgen 27.2s; native property source d42750855e)
 hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=fail inherited 15 main host paths fallow=pass coverage=pass (287 tests; every existing touched floor/ceiling met or improved)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
@@ -225,3 +225,41 @@ is unknown and neither attempt is a passing qualification. A new full package
 command is admitted on the corrected native-property source while the complete
 publication wave proceeds. Final dispatch records its terminal result and the
 actual published head/monitor.
+
+## Final native-source qualification and successful publication
+
+The full package gate completes with exit 0 on the final native-property source
+`d42750855e11c4e8e15430ec7033188f1734ec1a`: audit 1020.4s, docgen 27.2s.
+Schema-first, Effect/Vitest, test-tsgo and all 51 focused tests also pass.
+Combined-production parity and 287 scoped coverage tests remain qualified;
+production source is unchanged by the native test registration.
+
+Normal `yeet publish --staged-only` succeeds at
+`0f57cb043ff89e79e77a4e26e2d8d141f25220d6`: cheap gates and the isolated
+frozen-lockfile head installation pass. GitHub confirms that exact head in
+open, ready PR #1574 with `ready-for-heavy` and no base conflict. The fresh
+closeout read reports zero unresolved threads and zero actionable issues.
+Resolved threads/replies remain `PRRT_kwDOPbO_N86q9T3Y` / `4269791012` and
+`PRRT_kwDOPbO_N86sSS5T` / `4270777426`.
+
+The publisher submits unbounded monitor `b0cd98d7-af30-4e93-a8cb-ae0b567e23e4`.
+Cancel only this owned monitor via `yeet job cancel`; job wait exits 3 and its
+terminal record says cancelled. The final evidence update is followed by the
+brief's explicit bounded monitor. Neither cancellation nor earlier timeout is
+a readiness pass. Final dispatch binds the report-only published tip and its
+terminal monitor/hosted state. The working lane never merges itself.
+
+Completed hosted Heavy / Check job `115896273082` fails TS377112 at
+`skills-relock.test.ts:507`. That file is absent from H2's head and enters the
+synthetic PR merge through main #1732 (`8858e31070`). The job log explicitly
+checks out `ec67d2347`, merging H2 into `8858e31070`; this is inherited main
+code, with its consolidated fix assigned to the program orchestrator. Local
+test-tsgo passing on H2's own source is not a hosted synthetic-merge pass.
+The new Vercel rate-limit rows are acknowledged environment-only.
+
+A supplementary review of the native registration cannot run: the pinned
+Opus route reports its weekly limit before producing review evidence. Earlier
+independent pinned Opus hint and property reviews returned zero actionable
+findings; those remain source-bound to their recorded heads. The final native
+registration has the four passing detector/compiler/runtime checks above.
+No paid quota increase, model substitution, baseline or inventory change is made.

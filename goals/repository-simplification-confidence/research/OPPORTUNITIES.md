@@ -1415,3 +1415,26 @@ on the new head if it appears.
   exit 130. No agent cancellation was requested; cause is unknown. Confirm both
   calls ended and PR head stayed `7912fecf03` before retrying. Preserve interrupted
   attempts without substituting earlier proof or replaying an uncertain push.
+
+### 2026-10-14 — H2 publisher monitor runtime
+
+- Standard publication succeeds at `0f57cb043f`, including all cheap gates and
+  isolated frozen-lockfile installation, but submits an unbounded monitor.
+  The publisher rejects a job-runtime flag without detached publication;
+  changing the running service runtime property is unsupported.
+- Cancel only that owned monitor through `yeet job cancel`, observe terminal
+  exit 3, and replace it after the final evidence update with the brief's
+  explicit `monitor --until-ready --detach --job-max-runtime "40 minutes"`.
+  The package gate remains running. A publisher runtime option for its
+  automatic monitor would prevent this cleanup step.
+
+### 2026-10-14 — H2 synthetic-merge compiler red and supplemental review limit
+
+- Completed Heavy / Check job `115896273082` reports TS377112 in
+  `skills-relock.test.ts:507`. The file is absent from H2's head; the log
+  checks out synthetic merge `ec67d2347` against main #1732 (`8858e31070`).
+  Route the single-main decoder repair to the program orchestrator, retaining
+  exact local versus hosted provenance.
+- Supplementary pinned Opus review reports its weekly limit before any review
+  evidence. Retain earlier completed reviews at their recorded heads and four
+  passing native-property checks; no quota purchase or substituted review claim.
