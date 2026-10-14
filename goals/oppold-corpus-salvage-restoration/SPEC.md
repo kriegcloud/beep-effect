@@ -1084,3 +1084,24 @@ ledger, output, claim and manifest. Family-5 parser-exception recovery is a
 separate future engine PR and separately frozen execution after this wave.
 P2 remains in-progress; eighteen larger occurrences and estate/recycle/DOC
 obligations remain open. Never merge from this worker.
+
+
+### 2026-10-14: family 6 accepted under the unchanged first-wave freeze
+
+Family 6 result zero and accepted seal reconcile 6,091 children: 5,735 engine,
+178 repair-copy and 178 Tika children. Both derived digest sets match all
+178 distinct repaired digests. Dispositions: 217 repaired occurrences,
+220 unsupported, zero unchanged. Zero warnings, exceptions, interruptions
+or unaccounted children. Input 190,989,312 bytes; output 496,830,967 bytes
+(2.601354818x); attempt 5,724,191 ms, family 5,756,397 ms. Retained ceilings
+and all nine frozen identities hold; earlier ledger digests remain unchanged.
+Six sealed: five accepted, family 5 retained as sealed-failure.
+
+Decision: continue ordinal 7 under Run 17 and standing Runs 12+/13+ only after
+renewed admitted smokes/focused proof, a full sixty-second interval and the
+100 GB floor. No integration of newer main source during this frozen wave.
+Stop and diagnose any further sealed failure; never retry a sealed family.
+Reversal: revert packet decisions while retaining all ledgers, output, claims
+and immutable manifests. P2 remains in-progress; family-5 recovery follows
+as a separate engine PR and newly frozen execution. Eighteen larger inputs
+and estate/recycle/DOC obligations remain open; PR7 follows the terminal wave.
