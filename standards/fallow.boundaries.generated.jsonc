@@ -462,6 +462,12 @@
         ]
       },
       {
+        "name": "@beep/mcpb-kit",
+        "patterns": [
+          "packages/tooling/library/mcpb-kit/src/**"
+        ]
+      },
+      {
         "name": "@beep/md",
         "patterns": [
           "packages/foundation/modeling/md/src/**"
@@ -2676,6 +2682,21 @@
         ]
       },
       {
+        "from": "@beep/mcpb-kit",
+        "allow": [
+          "@beep/identity",
+          "@beep/mcpb-kit",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/mcpb-kit",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/md",
         "allow": [
           "@beep/html",
@@ -3303,10 +3324,12 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/mcp-kit",
+          "@beep/mcpb-kit",
           "@beep/practice-gateway",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
+          "@beep/utils",
           "@beep/windows-secrets"
         ],
         "allowTypeOnly": [
@@ -3316,10 +3339,12 @@
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
           "@beep/mcp-kit",
+          "@beep/mcpb-kit",
           "@beep/practice-gateway",
           "@beep/schema",
           "@beep/test-runner",
           "@beep/test-utils",
+          "@beep/utils",
           "@beep/windows-secrets"
         ]
       },
@@ -3349,6 +3374,7 @@
           "@beep/duckdb",
           "@beep/identity",
           "@beep/law-practice-server",
+          "@beep/mcpb-kit",
           "@beep/practice-kg-mcp",
           "@beep/schema",
           "@beep/test-runner",
@@ -3360,6 +3386,7 @@
           "@beep/duckdb",
           "@beep/identity",
           "@beep/law-practice-server",
+          "@beep/mcpb-kit",
           "@beep/practice-kg-mcp",
           "@beep/schema",
           "@beep/test-runner",

@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 
 import { loadPracticeKgBundleContext, PracticeKgHostError } from "@beep/law-practice-server/PracticeKgHost";
+import { runMcpbEntrypoint } from "@beep/mcpb-kit";
 import * as Bool from "effect/Boolean";
 /**
  * Stdio entrypoint for the portable practice knowledge-graph MCP host.
@@ -14,7 +15,6 @@ import { Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { runEntrypoint } from "./entrypoint.ts";
 import { SelfCheckFailure } from "./PracticeKgMcp.errors.ts";
 import { makePracticeKgHostLayer, printPracticeKgSelfCheck, runPracticeKgMcpSelfCheck } from "./runtime/index.ts";
 import "../../../node_modules/@electric-sql/pglite/dist/initdb.wasm" with { type: "file" };
@@ -82,4 +82,4 @@ const serverCommand = Command.make(
 );
 
 const program = Command.run(serverCommand, { version: "0.0.0" });
-runEntrypoint({ isMain: import.meta.main, program });
+runMcpbEntrypoint({ isMain: import.meta.main, program });

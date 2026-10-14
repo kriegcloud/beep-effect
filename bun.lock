@@ -318,7 +318,9 @@
         "@beep/law-practice-server": "workspace:^",
         "@beep/law-practice-use-cases": "workspace:^",
         "@beep/mcp-kit": "workspace:^",
+        "@beep/mcpb-kit": "workspace:^",
         "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "@beep/windows-secrets": "workspace:^",
         "@effect/platform-bun": "catalog:",
         "@electric-sql/pglite": "catalog:",
@@ -368,6 +370,7 @@
         "@beep/duckdb": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/law-practice-server": "workspace:^",
+        "@beep/mcpb-kit": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
@@ -3174,6 +3177,22 @@
         "bun-types": "catalog:",
       },
     },
+    "packages/tooling/library/mcpb-kit": {
+      "name": "@beep/mcpb-kit",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "packages/tooling/library/qa-capture": {
       "name": "@beep/qa-capture",
       "version": "0.0.0",
@@ -4201,6 +4220,8 @@
     "@beep/m365-mcp": ["@beep/m365-mcp@workspace:packages/drivers/m365-mcp"],
 
     "@beep/mcp-kit": ["@beep/mcp-kit@workspace:packages/foundation/capability/mcp-kit"],
+
+    "@beep/mcpb-kit": ["@beep/mcpb-kit@workspace:packages/tooling/library/mcpb-kit"],
 
     "@beep/md": ["@beep/md@workspace:packages/foundation/modeling/md"],
 

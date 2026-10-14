@@ -11,6 +11,7 @@ import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb";
 import { $PracticeKgMcpId } from "@beep/identity/packages";
 import { buildPracticeKgBundle, PracticeKgOptions, PracticeKgToolkit } from "@beep/law-practice-server";
 import { loadPracticeKgBundleContext, PracticeKgSelfCheckReport } from "@beep/law-practice-server/PracticeKgHost";
+import { runMcpbEntrypoint } from "@beep/mcpb-kit";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -21,7 +22,6 @@ import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { runEntrypoint } from "./entrypoint.ts";
 import { SmokeFailure } from "./PracticeKgMcp.errors.ts";
 import { makePracticeKgBuildLayer } from "./runtime/Layer.ts";
 
@@ -473,4 +473,4 @@ const program = Effect.scoped(
     yield* runCompiledSelfCheck(executable, bundleOut, root);
   })
 );
-runEntrypoint({ isMain: import.meta.main, program });
+runMcpbEntrypoint({ isMain: import.meta.main, program });

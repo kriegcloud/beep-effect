@@ -75,32 +75,6 @@ export class WindowsHostFailure extends S.TaggedError<WindowsHostFailure>($I`Win
 ) {}
 
 /**
- * Sanitized packaging failure for the `.mcpb` build entrypoint.
- *
- * **Example** (Create a packaging failure)
- *
- * ```ts
- * import { PackageFailure } from "@beep/practice-gateway/PracticeGateway.errors"
- *
- * const error = PackageFailure.make({ message: "Packaging failed." })
- * console.log(error._tag)
- * ```
- *
- * @category errors
- * @since 0.0.0
- */
-export class PackageFailure extends S.TaggedError<PackageFailure>($I`PackageFailure`)(
-  "PackageFailure",
-  {
-    cause: OptionalCause,
-    message: S.NonEmptyString,
-  },
-  $I.annoteError<PackageFailure>("PackageFailure", {
-    description: "Sanitized failure from compiling or assembling a gateway MCPB artifact.",
-  })
-) {}
-
-/**
  * Failure of `--self-check` after its refusal line has been printed.
  *
  * **Details**

@@ -7,11 +7,11 @@
  * @since 0.0.0
  */
 
+import { runMcpbEntrypoint } from "@beep/mcpb-kit";
 import * as Bool from "effect/Boolean";
 import { Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { runEntrypoint } from "./entrypoint.ts";
 import { printGatewaySelfCheck, runGatewaySelfCheck } from "./SelfCheck.ts";
 import { GatewayServerLayer, GatewayServicesLayer } from "./Server.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
@@ -46,4 +46,4 @@ const gatewayCommand = Command.make(
 );
 
 const program = Command.run(gatewayCommand, { version: PRACTICE_GATEWAY_VERSION });
-runEntrypoint({ isMain: import.meta.main, program });
+runMcpbEntrypoint({ isMain: import.meta.main, program });

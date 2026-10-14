@@ -1933,5 +1933,7 @@
   "@beep/windows-secrets/*": ["./packages/drivers/windows-secrets/src/*"],
   "@beep/windows-secrets/internal/*": [
     "./packages/drivers/windows-secrets/src/internal/*"
-  ]
+  ],
+  "@beep/mcpb-kit": ["./packages/tooling/library/mcpb-kit/src/index.ts"],
+  "@beep/mcpb-kit/*": ["./packages/tooling/library/mcpb-kit/src/*"]
 }

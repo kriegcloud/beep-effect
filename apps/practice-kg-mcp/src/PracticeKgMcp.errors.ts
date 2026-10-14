@@ -13,32 +13,6 @@ import * as S from "effect/Schema";
 const $I = $PracticeKgMcpId.create("PracticeKgMcp.errors");
 
 /**
- * Sanitized packaging failure for the MCPB build entrypoint.
- *
- * **Example** (Create a packaging failure)
- *
- * ```ts
- * import { PackageFailure } from "../../src/PracticeKgMcp.errors.ts"
- *
- * const error = PackageFailure.make({ message: "Packaging failed." })
- * console.log(error._tag)
- * ```
- *
- * @category errors
- * @since 0.0.0
- */
-export class PackageFailure extends S.TaggedError<PackageFailure>($I`PackageFailure`)(
-  "PackageFailure",
-  {
-    cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
-    message: S.NonEmptyString,
-  },
-  $I.annoteError<PackageFailure>("PackageFailure", {
-    description: "Sanitized failure from compiling or assembling an MCPB artifact.",
-  })
-) {}
-
-/**
  * Sanitized failure from the compiled MCP host smoke test.
  *
  * **Example** (Create a smoke failure)

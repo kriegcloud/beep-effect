@@ -418,6 +418,9 @@
       "path": "packages/tooling/library/codegen-kit"
     },
     {
+      "path": "packages/tooling/library/mcpb-kit"
+    },
+    {
       "path": "packages/tooling/library/qa-capture"
     },
     {

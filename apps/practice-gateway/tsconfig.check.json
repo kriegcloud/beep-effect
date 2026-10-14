@@ -18,6 +18,9 @@
       "path": "../../packages/foundation/modeling/schema/tsconfig.json"
     },
     {
+      "path": "../../packages/foundation/modeling/utils/tsconfig.json"
+    },
+    {
       "path": "../../packages/law-practice/domain/tsconfig.json"
     },
     {
@@ -25,6 +28,9 @@
     },
     {
       "path": "../../packages/law-practice/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../../packages/tooling/library/mcpb-kit/tsconfig.json"
     },
     {
       "path": "../../packages/tooling/test-kit/test-runner/tsconfig.json"

@@ -210,7 +210,8 @@ const generatedComposers = $I.compose(
   "practice-claude-mod",
   "t3-code",
   "windows-secrets",
-  "practice-gateway"
+  "practice-gateway",
+  "mcpb-kit"
 );
 
 // GENERATED LAB COMPOSERS START — synced from apps/labs/* workspace manifests by beep; do not edit by hand. On merge conflict, rerun `bun run beep lint identity-registry --fix`.
@@ -2918,3 +2919,20 @@ export const $WindowsSecretsId: Identity.IdentityComposer<"@beep/windows-secrets
  * @since 0.0.0
  */
 export const $PracticeGatewayId: Identity.IdentityComposer<"@beep/practice-gateway"> = composers.$PracticeGatewayId;
+
+/**
+ * Identity composer for `@beep/mcpb-kit`.
+ *
+ * **Example** (Make package ID)
+ *
+ * ```ts import.meta.vitest name="Make package ID"
+ * import { $McpbKitId } from "@beep/identity/packages"
+ *
+ * const id = $McpbKitId.make("McpbKit")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $McpbKitId: Identity.IdentityComposer<"@beep/mcpb-kit"> = composers.$McpbKitId;
