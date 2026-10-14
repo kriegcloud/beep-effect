@@ -135,7 +135,7 @@ layer(testLayer, { timeout: "30 seconds" })("models init command", (it) => {
           reportDir,
         ])
       );
-      assertTrue(Exit.isFailure(exit));
+      exit.pipe(Exit.isFailure, assertTrue);
       expect(yield* fs.readFileString(sentinel)).toBe("operator routing stays intact\n");
     }).pipe(withFreshConsole)
   );

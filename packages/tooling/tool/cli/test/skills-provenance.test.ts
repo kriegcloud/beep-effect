@@ -1070,7 +1070,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills provenance service", (it) =>
         Effect.provideService(SkillUpstreamContentSource, source),
         Effect.exit
       );
-      assertTrue(Exit.isFailure(exit));
+      exit.pipe(Exit.isFailure, assertTrue);
       expect(String(exit)).toContain("line review limit");
     })
   );

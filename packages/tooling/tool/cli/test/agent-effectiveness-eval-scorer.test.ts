@@ -717,7 +717,7 @@ it.layer(TestLayer, { concurrent: false, timeout: "10 seconds" })("agent-effecti
       expect(paths).toEqual(["../../outside.ts"]);
       const result = yield* evaluateLaw(fixtureDir, repoRoot, paths).pipe(Effect.result);
 
-      assertTrue(Result.isFailure(result));
+      result.pipe(Result.isFailure, assertTrue);
       if (Result.isFailure(result)) {
         expect(result.failure.message).toContain("Fixture source escaped its root");
       }

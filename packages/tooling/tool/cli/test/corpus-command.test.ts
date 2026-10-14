@@ -1508,7 +1508,7 @@ const makeExtractResumeFixture = Effect.fn("CorpusTest.makeExtractResumeFixture"
   });
 
   const readText = (relativePath: string) => fs.readFileString(path.join(outDir, relativePath));
-  const pageRows = Effect.fn("CorpusTest.pageRows")(function* (content: string) {
+  const pageRows = Effect.fn("CorpusTest.pageRows")(function* (content: string | Uint8Array) {
     const lines = yield* readProvenanceLines(path.join(outDir, "ocr", "pages", `${operationIdFor(content)}.jsonl`));
     return yield* Effect.forEach(lines, CorpusPageReadingRecordJson.decode);
   });

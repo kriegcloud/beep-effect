@@ -42,3 +42,15 @@
   reproduction.
 - Would have prevented it: CLI argument-shape tests that execute the pinned
   Bun version instead of checking only a mocked process argument list.
+
+## 2026-10-14: focused package verification missed the test typecheck lane
+
+- Doing: publishing the 48-finding security PR after affected-package quick
+  checks and Yeet cheap gates passed.
+- Evidence: PR #1728 `Heavy / Check` failed in `quality:test-tsgo` on five
+  changed repo-cli tests. Diagnostics included pipeable assertion style,
+  prohibited Node filesystem/path imports, and a byte input passed to a
+  string-only test helper. `package-verify @beep/repo-cli --quick` had passed
+  because it runs package lint and source check, not this test typecheck lane.
+- Would have prevented it: have the quick package verifier name the omitted
+  test typecheck lane, or offer a repo-cli test typecheck profile before push.
