@@ -38,6 +38,8 @@ stack-installer lessons give the repair and evidence discipline for setup.
 - [MyCase — ABA survey on cybersecurity](https://www.mycase.com/blog/general/aba-survey-lawyers-cybersecurity-and-secure-client-portals/)
 - [LexWorkplace — iManage vs. NetDocuments](https://lexworkplace.com/imanage-vs-netdocuments/)
 - [t3code](https://github.com/pingdotgg/t3code)
+- [Azure Artifact Signing pricing](https://azure.microsoft.com/pricing/details/artifact-signing/)
+- [Azure Artifact Signing quickstart](https://learn.microsoft.com/azure/artifact-signing/quickstart)
 
 ## 4. In-repo capability references
 

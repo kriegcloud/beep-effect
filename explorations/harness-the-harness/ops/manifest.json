@@ -4,14 +4,8 @@
     "slug": "harness-the-harness",
     "title": "Harness the Harness: Claude Code for Lawyers Without the Setup",
     "status": "active",
-    "stage": "align",
-    "openQuestions": [
-      "Q1 Wrap vehicle: Claude Desktop/Code extensions only (mcpb gateway + practice-claude-mod), or an own t3code-style desktop app?",
-      "Q2 Bootstrap: how does a lawyer get from nothing to a running onboarding agent (signed bootstrapper vs manual Claude install first)?",
-      "Q3 Gateway shape: grow practice-kg-mcp into the one gateway, or a new gateway that mounts practice-kg as one provider?",
-      "Q4 Proving ground: clean Windows VM first, the attorney's PC re-onboarded, or a second firm?",
-      "Q5 Adoption data: buy the ABA 2024 Legal Technology Survey volumes (money) or rely on free sources plus attorney interviews?"
-    ],
+    "stage": "shape",
+    "openQuestions": [],
     "sources": ["research/SOURCES.md"],
     "links": {
       "goals": [],

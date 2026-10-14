@@ -3,7 +3,7 @@
 ## Status
 
 <!-- BEGIN GENERATED: EXPLORATION STATUS -->
-Stage: `align`
+Stage: `shape`
 Status: `active`
 <!-- END GENERATED: EXPLORATION STATUS -->
 
@@ -22,17 +22,18 @@ technical agent setups in beep-effect (law-practice)".
 
 ## Next Open Question
 
-Align round 1: Q1 wrap vehicle (extensions only vs an own t3code-style app),
-Q2 bootstrap path, Q3 gateway shape, Q4 proving ground, Q5 whether to buy the
-ABA adoption data. See [`ops/manifest.json`](./ops/manifest.json).
+Does [`BRIEF.md`](./BRIEF.md) match the operator's picture? Shape review;
+on confirmation, decompose into MAP.md (first goal: gateway + doctor + clean
+Windows VM proof).
 
 ## Read This First
 
 1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, open questions.
 2. [`CAPTURE.md`](./CAPTURE.md) - the Notion thesis and the operator's own words.
 3. [`RESEARCH.md`](./RESEARCH.md) - t3code, `.mcpb`, Windows, adoption data, in-repo bricks.
-4. [`DECISIONS.md`](./DECISIONS.md) - D1–D5.
-5. [`research/SOURCES.md`](./research/SOURCES.md) - provenance ledger.
+4. [`DECISIONS.md`](./DECISIONS.md) - D1–D12.
+5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (in review).
+6. [`research/SOURCES.md`](./research/SOURCES.md) - provenance ledger.
 
 Siblings: [`claude-mods-law-practice`](../claude-mods-law-practice/README.md)
 owns the in-Claude-Code wrap layer (graduated to `practice-claude-mod`);
@@ -41,6 +42,9 @@ this packet re-enters.
 
 ## Trail
 
+- 2026-10-14: align rounds 1–2 settled D6–D12 (extensions first, signed
+  bootstrapper, clean Windows VM proof, free adoption data, new gateway, sign
+  later, operator entity publishes); BRIEF.md drafted; stopped at shape review.
 - 2026-10-14: packet opened from the Notion item (S23, D1); capture of the
   operator discussion; research pass (t3code, `.mcpb`, Claude Code on
   Windows, solo/small-firm adoption, in-repo inventory); D1–D5 recorded;

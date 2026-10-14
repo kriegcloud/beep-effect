@@ -70,6 +70,18 @@ lawyer's machine needs neither WSL nor virtualization for Claude Code itself.
 - Vendor shares by firm size live in the paid ABA 2024 Legal Technology
   Survey volumes ([ABA Tech Survey](https://www.americanbar.org/groups/law_practice/resources/legal-technology-resource-center/tech-survey/)).
 
+### Windows code signing
+
+Azure Artifact Signing (formerly Trusted Signing) offers Basic and Premium
+tiers and bills from account creation; individuals qualify for public-trust
+certificates only in the US and Canada
+([pricing](https://azure.microsoft.com/pricing/details/artifact-signing/),
+[quickstart](https://learn.microsoft.com/azure/artifact-signing/quickstart)).
+The dollar price did not load from the official page; a forum report of about
+$10/month for Basic is UNVERIFIED. A valid signature does not grant immediate
+SmartScreen reputation; it accrues over releases signed with the same
+identity.
+
 ### Terms
 
 The Notion source page records that Anthropic's Agent SDK documentation
