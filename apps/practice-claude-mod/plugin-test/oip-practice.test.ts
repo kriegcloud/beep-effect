@@ -273,3 +273,18 @@ test("a failed verdict save shows an error toast", async ($, on) => {
   expect(JSON.stringify(result)).toContain("The verdict could not be saved. Try again.");
   expect(toasts).toContain("The verdict could not be saved. Try again.");
 });
+
+test("two overlapping /time start calls start one timer", async ($, on) => {
+  mock.store(on);
+  mock.session(on);
+  mock.clock(on);
+  on("session.id", () => ({ value: "s-1" }));
+  on("ui.toast", () => ({ value: undefined }));
+  const replies = await Promise.all([
+    $.command.run({ command: "time", args: "start", origin, presentation }),
+    $.command.run({ command: "time", args: "start", origin, presentation }),
+  ]);
+  const texts = replies.map((reply) => JSON.stringify(reply));
+  expect(texts.filter((text) => text.includes("Timer started.")).length).toBe(1);
+  expect(texts.filter((text) => text.includes("already running")).length).toBe(1);
+});

@@ -69,7 +69,7 @@ const VerdictLabel: Record<Verdict, string> = { right: "Right", wrong: "Wrong", 
  * ```ts
  * import { PracticeCommands } from "@/PracticeMod.hooks"
  *
- * console.log(PracticeCommands.map((command) => command.name)) // ["right", "wrong", "partly", "practice"]
+ * console.log(PracticeCommands.map((command) => command.name)) // ["matter", "time", "right", "wrong", "partly", "practice"]
  * ```
  *
  * @category constants
@@ -119,7 +119,8 @@ const runWith =
 // One writer at a time: the band and the slash commands can overlap, and
 // each dispatch builds its own VerdictLog over the shared plugin store.
 const verdictWrites = Semaphore.makeUnsafe(1);
-// The same for stopping the timer: two overlapping stops must write one interval.
+// The same for starting and stopping the timer: overlapping starts must not
+// install two tickers, and overlapping stops must write one interval.
 const timerWrites = Semaphore.makeUnsafe(1);
 
 const LockedText = "This answer is locked; the verdict was not saved.";
@@ -516,6 +517,8 @@ export const timeCommand =
       Effect.gen(function* () {
         const host = yield* ModHost;
         return yield* Match.value(Str.trim(args)).pipe(
+          // Start holds the same permit as stop: the running check re-runs under it,
+          // so two overlapping starts cannot both install a ticker.
           Match.when("start", () =>
             Effect.gen(function* () {
               if (pipe(MutableRef.get(timer), O.isSome)) return { text: "Timer is already running." };
@@ -537,7 +540,7 @@ export const timeCommand =
               MutableRef.set(ticker, O.some($.clock.every(minute, () => void updateElapsed($)())));
               $.ui.invalidate("ui.render");
               return { text: "Timer started." };
-            })
+            }).pipe(Semaphore.withPermit(timerWrites))
           ),
           Match.when("stop", () =>
             Effect.gen(function* () {
