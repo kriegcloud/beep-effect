@@ -1,11 +1,11 @@
 {
-  "previous": "320b9f25860e3640cd0a57dde99374f7f091ef1a4ab7cb963bcb023eaefb99fe",
+  "previous": "37a43ef4e3b3c5b4237a2caba86d21cc5e45415cbb3bac5b9a07b78b3afd285d",
   "review": {
     "reviewer": "Codex lane A (feat/ts7-oxlint-deprecated-apis)",
     "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
     "basis": {
       "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-      "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+      "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
     }
   },
   "subjects": [
@@ -142,6 +142,7 @@
     "@beep/shared-use-cases",
     "@beep/skill-contract",
     "@beep/storybook",
+    "@beep/t3-code",
     "@beep/tailscale",
     "@beep/technical-drawing",
     "@beep/tesseract",

@@ -2,15 +2,15 @@
 
 ## Table of Contents
 
-- [Atom constructors](#atom-effectunstablereactivityatom)
+- [Atom constructors](#atom-effectreactivityatom)
 - [Combinators](#combinators)
 - [URL and Persistence](#url-and-persistence)
 - [Effect Interop](#effect-interop)
 - [AtomContext](#atomcontext-available-inside-readablewritable-read-functions)
 - [AtomRuntime](#atomruntime)
-- [AsyncResult](#asyncresult-effectunstablereactivityasyncresult)
-- [Reactivity](#reactivity-effectunstablereactivityreactivity)
-- [AtomRpc](#atomrpc-effectunstablereactivityatomrpc)
+- [AsyncResult](#asyncresult-effectreactivityasyncresult)
+- [Reactivity](#reactivity-effectreactivityreactivity)
+- [AtomRpc](#atomrpc-effectreactivityatomrpc)
 - [React Integration (@effect/atom-react)](#react-integration-effectatom-react)
 
 ## Atom (`effect/reactivity/Atom`)

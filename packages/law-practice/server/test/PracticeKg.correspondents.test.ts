@@ -27,6 +27,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 
@@ -252,11 +253,13 @@ describe("practice KG correspondents", () => {
       );
       const several = yield* Effect.flip(parsePracticeKgCorrespondentAddress("pat@example.com, sam@other.test"));
       const none = yield* Effect.flip(parsePracticeKgCorrespondentAddress("Pat Example"));
+      const longMalformed = yield* Effect.flip(parsePracticeKgCorrespondentAddress(`X${Str.repeat(4_096)(" ")}X`));
       expect([several.addressCount, none.addressCount, none.message]).toStrictEqual([
         2,
         0,
         "Expected one email address; the input holds 0.",
       ]);
+      expect(longMalformed.addressCount).toBe(0);
     })
   );
 

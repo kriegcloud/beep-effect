@@ -756,6 +756,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(select('{"packages":{"braces":["braces@3.0.3"],"braces@other":["braces@3.0.4"]}}')).toEqual([]);
       expect(select('{"packages":{"braces":["braces@3.0.3"],"parent/braces":["braces@3.0.2"]}}')).toEqual([]);
       expect(select('{"packages":{"braces":["braces@3.0.3"],"parent/braces@3.0.2":["braces@3.0.2"]}}')).toEqual([]);
+      expect(select('{"packages":{"braces":["braces@3.0.3"],"braces-legacy":["braces@3.0.2"]}}')).toEqual([]);
+      expect(select('{"packages":{"braces":["braces@3.0.3"],"parent/braces-legacy":["braces@3.0.2"]}}')).toEqual([]);
+      expect(select('{"packages":{"braces":["braces@3.0.3"],"braces-legacy":["braces@3.0.3"]}}')).toEqual([
+        "GHSA-vfj7-8cjw-p6xm",
+      ]);
       expect(select('{"packages":{"braces":["braces@3.0.3"],"parent/braces":["braces@3.0.3"]}}')).toEqual([
         "GHSA-vfj7-8cjw-p6xm",
       ]);

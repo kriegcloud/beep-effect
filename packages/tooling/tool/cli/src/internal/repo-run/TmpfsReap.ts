@@ -55,6 +55,7 @@ const VitestForksChild = LiteralKit(["ssr", "client"]);
 const PROC_ROOT = "/proc";
 const PROC_LOCKS = "/proc/locks";
 const DANGLING_GIT_FILE_BYTE_LIMIT = ByteSize.bytes(4096);
+const FALLOW_SIDECAR_BYTE_LIMIT = 4096;
 
 const ProcPidName = S.String.pipe(
   S.check(S.isPattern(/^[0-9]+$/u)),
@@ -349,11 +350,10 @@ const fallowOwnerRoot = Effect.fnUntraced(function* (
   candidatePath: string,
   siblingNames: ReadonlyArray<string>
 ): Effect.fn.Return<O.Option<string>, never, FileSystem.FileSystem | Path.Path> {
-  const fs = yield* FileSystem.FileSystem;
   const pathService = yield* Path.Path;
   const lastUsedPaths = yield* fallowLastUsedPaths(candidatePath, siblingNames);
   const contents = A.getSomes(
-    yield* Effect.forEach(lastUsedPaths, (lastUsed) => fs.readFileString(lastUsed).pipe(Effect.option), {
+    yield* Effect.forEach(lastUsedPaths, readFallowSidecar, {
       concurrency: 4,
     })
   );
@@ -364,6 +364,30 @@ const fallowOwnerRoot = Effect.fnUntraced(function* (
     O.map(pathService.normalize)
   );
 });
+
+// FileSystem.readFileString can wait forever on a FIFO. Open the sidecar without
+// following its final symlink and in nonblocking mode, then bound the read.
+const readFallowSidecar = (lastUsed: string): Effect.Effect<O.Option<string>> =>
+  Effect.sync(() => {
+    const fs = process.getBuiltinModule("node:fs");
+    let descriptor: number | undefined;
+    try {
+      descriptor = fs.openSync(lastUsed, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
+      const stat = fs.fstatSync(descriptor);
+      if (!stat.isFile() || stat.size > FALLOW_SIDECAR_BYTE_LIMIT) {
+        return O.none();
+      }
+      const bytes = new Uint8Array(FALLOW_SIDECAR_BYTE_LIMIT + 1);
+      const count = fs.readSync(descriptor, bytes, 0, bytes.length, 0);
+      return count > FALLOW_SIDECAR_BYTE_LIMIT ? O.none() : O.some(new TextDecoder().decode(bytes.subarray(0, count)));
+    } catch {
+      return O.none();
+    } finally {
+      if (descriptor !== undefined) {
+        fs.closeSync(descriptor);
+      }
+    }
+  });
 
 const isScopedTempName = (name: string): boolean =>
   A.some(SCOPED_TEMP_PREFIXES, (prefix) => Str.startsWith(prefix)(name));

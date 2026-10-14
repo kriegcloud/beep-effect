@@ -14,7 +14,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/acp": {
@@ -22,7 +22,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/agents-client": {
@@ -30,7 +30,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/agents-domain": {
@@ -38,7 +38,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/agents-server": {
@@ -46,7 +46,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/agents-tables": {
@@ -54,7 +54,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/agents-use-cases": {
@@ -62,7 +62,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ai-provider-cli": {
@@ -70,7 +70,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ai-sync": {
@@ -78,7 +78,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/anthropic": {
@@ -86,7 +86,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/api-docs": {
@@ -94,7 +94,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/api-transport": {
@@ -102,7 +102,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/architecture-lab-client": {
@@ -110,7 +110,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/architecture-lab-config": {
@@ -118,7 +118,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/architecture-lab-domain": {
@@ -126,7 +126,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/architecture-lab-proof": {
@@ -134,7 +134,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/architecture-lab-server": {
@@ -142,7 +142,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/architecture-lab-tables": {
@@ -150,7 +150,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/architecture-lab-ui": {
@@ -158,7 +158,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/architecture-lab-use-cases": {
@@ -166,7 +166,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/box": {
@@ -174,7 +174,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/box-provisioning": {
@@ -182,7 +182,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/brand": {
@@ -190,7 +190,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/chalk": {
@@ -198,7 +198,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ciops": {
@@ -206,7 +206,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/codegen-kit": {
@@ -214,7 +214,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/colors": {
@@ -222,7 +222,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/cosmos": {
@@ -230,7 +230,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/data": {
@@ -238,7 +238,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/db-admin": {
@@ -246,7 +246,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/discord": {
@@ -254,7 +254,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/doc-text": {
@@ -262,7 +262,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/dock": {
@@ -270,7 +270,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/dock-react": {
@@ -278,7 +278,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/docket-intake": {
@@ -286,7 +286,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/documents-domain": {
@@ -294,7 +294,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/documents-server": {
@@ -302,7 +302,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/documents-tables": {
@@ -310,7 +310,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/documents-use-cases": {
@@ -318,7 +318,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/drizzle": {
@@ -326,7 +326,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/duckdb": {
@@ -334,7 +334,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ecfr": {
@@ -342,7 +342,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/editor": {
@@ -350,7 +350,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/effect-drizzle": {
@@ -358,7 +358,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/epistemic-client": {
@@ -366,7 +366,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/epistemic-config": {
@@ -374,7 +374,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/epistemic-domain": {
@@ -382,7 +382,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/epistemic-server": {
@@ -390,7 +390,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/epistemic-tables": {
@@ -398,7 +398,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/epistemic-ui": {
@@ -406,7 +406,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/epistemic-use-cases": {
@@ -414,7 +414,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/exiftool": {
@@ -422,7 +422,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/face-detection": {
@@ -430,7 +430,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/fc-runs": {
@@ -438,7 +438,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ffmpeg": {
@@ -446,7 +446,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/file-processing": {
@@ -454,7 +454,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/firecrawl": {
@@ -462,7 +462,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/freshbooks": {
@@ -470,7 +470,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/gov-legal-mcp": {
@@ -478,7 +478,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/govinfo": {
@@ -486,7 +486,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/graph-3d": {
@@ -494,7 +494,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/html": {
@@ -502,7 +502,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/hubspot": {
@@ -510,7 +510,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/identity": {
@@ -518,7 +518,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/infra": {
@@ -526,7 +526,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/langextract": {
@@ -534,7 +534,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/law-practice-domain": {
@@ -542,7 +542,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/law-practice-server": {
@@ -550,7 +550,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/law-practice-tables": {
@@ -558,7 +558,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/law-practice-use-cases": {
@@ -566,7 +566,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/lejeune-bolt-workbench": {
@@ -574,7 +574,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/lexical-schema": {
@@ -582,7 +582,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/libpff": {
@@ -590,7 +590,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/lint-rules": {
@@ -598,7 +598,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/m365": {
@@ -606,7 +606,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/m365-mcp": {
@@ -614,7 +614,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/mcp-kit": {
@@ -622,7 +622,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/md": {
@@ -630,7 +630,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/n3": {
@@ -638,7 +638,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/nlp": {
@@ -646,7 +646,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/nlp-mcp": {
@@ -654,7 +654,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/nlp-processing": {
@@ -662,7 +662,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/obs": {
@@ -670,7 +670,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/observability": {
@@ -678,7 +678,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/occt": {
@@ -686,7 +686,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/oip-web": {
@@ -694,7 +694,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/onepassword-cli": {
@@ -702,7 +702,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ontology": {
@@ -710,7 +710,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ontology-client": {
@@ -718,7 +718,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ontology-config": {
@@ -726,7 +726,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ontology-domain": {
@@ -734,7 +734,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ontology-server": {
@@ -742,7 +742,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ontology-ui": {
@@ -750,7 +750,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ontology-use-cases": {
@@ -758,7 +758,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/openai": {
@@ -766,7 +766,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/openai-compat": {
@@ -774,7 +774,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/openclaw": {
@@ -782,7 +782,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/oxigraph": {
@@ -790,7 +790,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/pacer": {
@@ -798,7 +798,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/pandoc-ast": {
@@ -806,7 +806,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/pdf-tools": {
@@ -814,7 +814,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/pglite": {
@@ -822,7 +822,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/phoenix": {
@@ -830,7 +830,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/poppler": {
@@ -838,7 +838,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/postgres": {
@@ -846,7 +846,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/practice-claude-mod": {
@@ -854,7 +854,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/practice-identify": {
@@ -862,7 +862,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/practice-kg-mcp": {
@@ -870,7 +870,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/practice-m365-contacts": {
@@ -878,7 +878,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/practice-mail-tagging": {
@@ -886,7 +886,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/pretext": {
@@ -894,7 +894,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/professional-desktop": {
@@ -902,7 +902,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/provenance": {
@@ -910,7 +910,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/qa-capture": {
@@ -918,7 +918,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/rdf": {
@@ -926,7 +926,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/rdf-canonize": {
@@ -934,7 +934,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/repo-ai-metrics": {
@@ -942,7 +942,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/repo-cli": {
@@ -950,7 +950,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/repo-configs": {
@@ -958,7 +958,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/repo-docgen": {
@@ -966,7 +966,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/repo-utils": {
@@ -974,7 +974,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/runpod": {
@@ -982,7 +982,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/sanity": {
@@ -990,7 +990,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/schema": {
@@ -998,7 +998,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/scratchpad": {
@@ -1006,7 +1006,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/semantic-web": {
@@ -1014,7 +1014,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/semantica": {
@@ -1022,7 +1022,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/shacl": {
@@ -1030,7 +1030,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/shared-domain": {
@@ -1038,7 +1038,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/shared-tables": {
@@ -1046,7 +1046,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/shared-use-cases": {
@@ -1054,7 +1054,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/skill-contract": {
@@ -1062,7 +1062,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/storybook": {
@@ -1070,7 +1070,15 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
+      }
+    },
+    "@beep/t3-code": {
+      "reviewer": "Codex lane A (feat/ts7-oxlint-deprecated-apis)",
+      "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
+      "basis": {
+        "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/tailscale": {
@@ -1078,7 +1086,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/technical-drawing": {
@@ -1086,7 +1094,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/tesseract": {
@@ -1094,7 +1102,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/test-runner": {
@@ -1102,7 +1110,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/test-utils": {
@@ -1110,7 +1118,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/tika": {
@@ -1118,7 +1126,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/todox": {
@@ -1126,7 +1134,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/trustgraph-workbench": {
@@ -1134,7 +1142,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/types": {
@@ -1142,7 +1150,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/ui": {
@@ -1150,7 +1158,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/uspto": {
@@ -1158,7 +1166,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/uspto-mcp": {
@@ -1166,7 +1174,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/utils": {
@@ -1174,7 +1182,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/venice-ai": {
@@ -1182,7 +1190,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/wink": {
@@ -1190,7 +1198,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/workspace-domain": {
@@ -1198,7 +1206,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/workspace-server": {
@@ -1206,7 +1214,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/workspace-tables": {
@@ -1214,7 +1222,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/workspace-use-cases": {
@@ -1222,7 +1230,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/xai": {
@@ -1230,7 +1238,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     },
     "@beep/xstate": {
@@ -1238,7 +1246,7 @@
       "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
       "basis": {
         "path": "goals/lint-policy-oxlint-type-aware/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0be56b69a63531369951c08071fe442501fd1c19e5787eeab1d29f58db6edc03"
+        "sha256": "3730b99d5287b51e3f2e595797acfa9ec25cec77f6bdc6dde5b3065688a062a5"
       }
     }
   },
@@ -2556,6 +2564,10 @@
             "biome.jsonc",
             "eslint.config.mjs",
             "package.json",
+            "packages/drivers/acp/package.json",
+            "packages/drivers/acp/src/**",
+            "packages/drivers/ai-provider-cli/package.json",
+            "packages/drivers/ai-provider-cli/src/**",
             "packages/drivers/duckdb/package.json",
             "packages/drivers/duckdb/src/**",
             "packages/drivers/exiftool/package.json",
@@ -2582,6 +2594,8 @@
             "packages/drivers/poppler/src/**",
             "packages/drivers/runpod/package.json",
             "packages/drivers/runpod/src/**",
+            "packages/drivers/t3-code/package.json",
+            "packages/drivers/t3-code/src/**",
             "packages/drivers/tesseract/package.json",
             "packages/drivers/tesseract/src/**",
             "packages/drivers/tika/package.json",
@@ -2594,6 +2608,8 @@
             "packages/foundation/capability/colors/src/**",
             "packages/foundation/capability/file-processing/package.json",
             "packages/foundation/capability/file-processing/src/**",
+            "packages/foundation/capability/mcp-kit/package.json",
+            "packages/foundation/capability/mcp-kit/src/**",
             "packages/foundation/capability/observability/package.json",
             "packages/foundation/capability/observability/src/**",
             "packages/foundation/capability/technical-drawing/package.json",
@@ -7373,6 +7389,7 @@
         "command": "bun run --if-present beep:audit",
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
+          "@beep/acp#audit",
           "@beep/identity#audit",
           "@beep/schema#audit",
           "@beep/test-runner#audit",
@@ -7438,6 +7455,7 @@
         "command": "bun run beep:build",
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
+          "@beep/acp#build",
           "@beep/identity#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -7490,6 +7508,7 @@
         "command": "bun run beep:check",
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
+          "@beep/acp#build",
           "@beep/identity#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -7529,6 +7548,7 @@
         "command": "bunx vitest run --coverage --exclude=test/integration/**",
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
+          "@beep/acp#build",
           "@beep/identity#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -7655,6 +7675,7 @@
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
           "//#lint:policy-fingerprint",
+          "@beep/acp#transit",
           "@beep/identity#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -7860,6 +7881,7 @@
         "command": "beep-cli quality test-tsgo-package",
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
+          "@beep/acp#transit",
           "@beep/identity#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -7905,6 +7927,7 @@
         "command": "bun run beep:test",
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
+          "@beep/acp#transit",
           "@beep/identity#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -7953,6 +7976,7 @@
         "command": "bun run beep:test:integration",
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
+          "@beep/acp#build",
           "@beep/identity#build",
           "@beep/schema#build",
           "@beep/test-runner#build",
@@ -7997,6 +8021,7 @@
         "command": "bun run beep:test",
         "commandDigest": "b504ef5685b24c8b62e9360d9b8637631814b4d583d36a18faa15f7b3ec6eadf",
         "dependencies": [
+          "@beep/acp#transit",
           "@beep/identity#transit",
           "@beep/schema#transit",
           "@beep/test-runner#transit",
@@ -80951,6 +80976,7 @@
         "command": "bun run --if-present beep:audit",
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
+          "@beep/ai-provider-cli#audit",
           "@beep/ai-sync#audit",
           "@beep/chalk#audit",
           "@beep/colors#audit",
@@ -80964,6 +80990,7 @@
           "@beep/identity#audit",
           "@beep/libpff#audit",
           "@beep/m365#audit",
+          "@beep/mcp-kit#audit",
           "@beep/md#audit",
           "@beep/obs#audit",
           "@beep/observability#audit",
@@ -80979,6 +81006,7 @@
           "@beep/runpod#audit",
           "@beep/schema#audit",
           "@beep/skill-contract#audit",
+          "@beep/t3-code#audit",
           "@beep/technical-drawing#audit",
           "@beep/tesseract#audit",
           "@beep/test-runner#audit",
@@ -81046,6 +81074,7 @@
         "command": "bun run beep:build",
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
+          "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
           "@beep/chalk#build",
           "@beep/colors#build",
@@ -81059,6 +81088,7 @@
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
+          "@beep/mcp-kit#build",
           "@beep/md#build",
           "@beep/obs#build",
           "@beep/observability#build",
@@ -81074,6 +81104,7 @@
           "@beep/runpod#build",
           "@beep/schema#build",
           "@beep/skill-contract#build",
+          "@beep/t3-code#build",
           "@beep/technical-drawing#build",
           "@beep/tesseract#build",
           "@beep/test-runner#build",
@@ -81128,6 +81159,7 @@
         "command": "bun run beep:check",
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
+          "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
           "@beep/chalk#build",
           "@beep/colors#build",
@@ -81141,6 +81173,7 @@
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
+          "@beep/mcp-kit#build",
           "@beep/md#build",
           "@beep/obs#build",
           "@beep/observability#build",
@@ -81156,6 +81189,7 @@
           "@beep/runpod#build",
           "@beep/schema#build",
           "@beep/skill-contract#build",
+          "@beep/t3-code#build",
           "@beep/technical-drawing#build",
           "@beep/tesseract#build",
           "@beep/test-runner#build",
@@ -81197,6 +81231,7 @@
         "command": "bunx vitest run --coverage",
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
+          "@beep/ai-provider-cli#build",
           "@beep/ai-sync#build",
           "@beep/chalk#build",
           "@beep/colors#build",
@@ -81210,6 +81245,7 @@
           "@beep/identity#build",
           "@beep/libpff#build",
           "@beep/m365#build",
+          "@beep/mcp-kit#build",
           "@beep/md#build",
           "@beep/obs#build",
           "@beep/observability#build",
@@ -81225,6 +81261,7 @@
           "@beep/runpod#build",
           "@beep/schema#build",
           "@beep/skill-contract#build",
+          "@beep/t3-code#build",
           "@beep/technical-drawing#build",
           "@beep/tesseract#build",
           "@beep/test-runner#build",
@@ -81317,6 +81354,7 @@
         "command": "bun run beep:doctest",
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
+          "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
@@ -81330,6 +81368,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/obs#transit",
           "@beep/observability#transit",
@@ -81345,6 +81384,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
           "@beep/test-runner#transit",
@@ -81433,6 +81473,7 @@
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
           "//#lint:policy-fingerprint",
+          "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
@@ -81446,6 +81487,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/obs#transit",
           "@beep/observability#transit",
@@ -81461,6 +81503,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
           "@beep/test-runner#transit",
@@ -81668,6 +81711,7 @@
         "command": "beep-cli quality test-tsgo-package",
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
+          "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
@@ -81681,6 +81725,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/obs#transit",
           "@beep/observability#transit",
@@ -81696,6 +81741,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
           "@beep/test-runner#transit",
@@ -81743,6 +81789,7 @@
         "command": "bun run beep:test",
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
+          "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
@@ -81756,6 +81803,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/obs#transit",
           "@beep/observability#transit",
@@ -81771,6 +81819,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
           "@beep/test-runner#transit",
@@ -81824,6 +81873,7 @@
         "command": "bun run beep:test",
         "commandDigest": "28fcd9899cc0dd82d8ef8cb707ebb61dbd43586c92d93ab531b209e14834680a",
         "dependencies": [
+          "@beep/ai-provider-cli#transit",
           "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
@@ -81837,6 +81887,7 @@
           "@beep/identity#transit",
           "@beep/libpff#transit",
           "@beep/m365#transit",
+          "@beep/mcp-kit#transit",
           "@beep/md#transit",
           "@beep/obs#transit",
           "@beep/observability#transit",
@@ -81852,6 +81903,7 @@
           "@beep/runpod#transit",
           "@beep/schema#transit",
           "@beep/skill-contract#transit",
+          "@beep/t3-code#transit",
           "@beep/technical-drawing#transit",
           "@beep/tesseract#transit",
           "@beep/test-runner#transit",
@@ -90969,6 +91021,622 @@
             "../../tsconfig.packages.json"
           ],
           "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "^build"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#audit",
+        "command": "bun run --if-present beep:audit",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "@beep/identity#audit",
+          "@beep/mcp-kit#audit",
+          "@beep/schema#audit",
+          "@beep/utils#audit"
+        ],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../biome.jsonc",
+            "../../../package.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            "../../../vitest.shared.ts"
+          ],
+          "env": [
+            "ALLOWED_EMAILS",
+            "APP_ADMINS_EMAILS",
+            "AUTH_*",
+            "BEEP_TEST_*",
+            "BEEP_TIKA_*",
+            "DATABASE_URL",
+            "DATABASE_URL_UNPOOLED",
+            "EMAIL_*",
+            "LIVEBLOCKS_*",
+            "NEXT_PUBLIC_*",
+            "OAUTH_*",
+            "OPENAI_*",
+            "RESEND_*",
+            "SECURITY_*"
+          ],
+          "passThroughEnv": [],
+          "outputs": [
+            "!**/.turbo/**",
+            "!.next/cache/**",
+            "**/node_modules/.tmp/*.tsbuildinfo",
+            ".expo/**",
+            ".next/**",
+            ".output/**",
+            ".vercel/output/**",
+            "_next/**",
+            "build/**",
+            "dist/**",
+            "docs/**",
+            "next-env.d.ts"
+          ],
+          "dependsOn": [
+            "^audit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "new-only"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#build",
+        "command": "bun run beep:build",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "@beep/identity#build",
+          "@beep/mcp-kit#build",
+          "@beep/schema#build",
+          "@beep/utils#build"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../package.json",
+            "../../../tools/tsgo-shim/package.json",
+            "../../../tools/tsgo-shim/tsgo.js",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            ".env",
+            ".env.*"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [
+            "!**/.turbo/**",
+            "!.next/cache/**",
+            "**/node_modules/.tmp/*.tsbuildinfo",
+            ".expo/**",
+            ".next/**",
+            ".output/**",
+            ".vercel/output/**",
+            "_next/**",
+            "build/**",
+            "dist/**",
+            "next-env.d.ts",
+            "storybook-static/**"
+          ],
+          "dependsOn": [
+            "^build"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#check",
+        "command": "bun run beep:check",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "@beep/identity#build",
+          "@beep/mcp-kit#build",
+          "@beep/schema#build",
+          "@beep/utils#build"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../package.json",
+            "../../../tools/tsgo-shim/package.json",
+            "../../../tools/tsgo-shim/tsgo.js",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            ".env",
+            ".env.*"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "^build"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#coverage",
+        "command": "bunx vitest run --coverage --exclude=test/integration/**",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "@beep/identity#build",
+          "@beep/mcp-kit#build",
+          "@beep/schema#build",
+          "@beep/utils#build"
+        ],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../package.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            "../../../vitest.aliases.generated.json",
+            "../../../vitest.setup.ts",
+            "../../../vitest.shared.ts",
+            "package.json",
+            "server/**",
+            "src-tauri/**",
+            "src/**",
+            "test/**",
+            "tsconfig*.json",
+            "vitest.config.ts",
+            "vitest.coverage.config.ts"
+          ],
+          "env": [
+            "BEEP_FC_SEED",
+            "NODE_OPTIONS",
+            "VITEST_COVERAGE_RATCHET",
+            "VITEST_COVERAGE_REPORT_ONLY"
+          ],
+          "passThroughEnv": [],
+          "outputs": [
+            "coverage/**"
+          ],
+          "dependsOn": [
+            "^build"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#docgen",
+        "command": "bun run beep:docgen",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "@beep/repo-docgen#transit",
+          "@beep/t3-code#transit"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../package.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            ".env",
+            ".env.*"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [
+            ".beep/docgen/**",
+            ".jsdoc-loop/generated-docs/**",
+            "docs/**"
+          ],
+          "dependsOn": [
+            "@beep/repo-docgen#transit",
+            "transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#lint",
+        "command": "bun run beep:lint",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!../../../tsconfig*.json",
+            "!.beep/**",
+            "!.beep/**",
+            "!.fallow/**",
+            "!.fallow/**",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../biome.jsonc",
+            "../../../package.json",
+            "../../../packages/tooling/policy-pack/lint-rules/configs/**",
+            "../../../packages/tooling/policy-pack/lint-rules/rules/**",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            ".env",
+            ".env.*"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#lint:deprecated-apis",
+        "command": "beep-cli lint deprecated-apis --package .",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "//#lint:policy-fingerprint",
+          "@beep/identity#transit",
+          "@beep/mcp-kit#transit",
+          "@beep/schema#transit",
+          "@beep/utils#transit"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!**/.cache/**",
+            "!**/.next/**",
+            "!**/.turbo/**",
+            "!**/coverage/**",
+            "!**/dist/**",
+            "!**/docs/**",
+            "!**/generated/**",
+            "!**/node_modules/**",
+            "!**/vendor/**",
+            "!../../../**/.beep/**/package.json",
+            "!../../../**/.next/**/package.json",
+            "!../../../**/.turbo/**/package.json",
+            "!../../../**/build/**/package.json",
+            "!../../../**/coverage/**/package.json",
+            "!../../../**/dist/**/package.json",
+            "!../../../**/node_modules/**/package.json",
+            "!../../../**/storybook-static/**/package.json",
+            "!.beep/**",
+            "!.fallow/**",
+            "!node_modules/**",
+            "**/*.{ts,tsx,js,jsx,mjs,cjs}",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../.oxlintrc.deprecated-apis.jsonc",
+            "../../../apps/**/package.json",
+            "../../../apps/**/tsconfig*.json",
+            "../../../infra/**/tsconfig*.json",
+            "../../../infra/package.json",
+            "../../../package.json",
+            "../../../packages/**/package.json",
+            "../../../packages/**/tsconfig*.json",
+            "../../../tsconfig*.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            ".env",
+            ".env.*",
+            "package.json",
+            "tsconfig*.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "//#lint:policy-fingerprint",
+            "^transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#lint:fix",
+        "command": "bun run beep:lint:fix",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "!../../../tsconfig*.json",
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../biome.jsonc",
+            "../../../package.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#lint:jsdoc",
+        "command": "beep-cli lint jsdoc --package .",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "//#lint:policy-fingerprint"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!**/.next/**",
+            "!**/.turbo/**",
+            "!**/coverage/**",
+            "!**/dist/**",
+            "!**/docs/**",
+            "!**/node_modules/**",
+            "!**/src-tauri/target/**",
+            "!**/storybook-static/**",
+            "!../../../**/.beep/**/package.json",
+            "!../../../**/.next/**/package.json",
+            "!../../../**/.turbo/**/package.json",
+            "!../../../**/build/**/package.json",
+            "!../../../**/coverage/**/package.json",
+            "!../../../**/dist/**/package.json",
+            "!../../../**/node_modules/**/package.json",
+            "!../../../**/storybook-static/**/package.json",
+            "!node_modules/**",
+            "**/*.{ts,tsx,js,jsx,mjs,cjs}",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../eslint.config.mjs",
+            "../../../package.json",
+            "../../../packages/tooling/policy-pack/repo-configs/package.json",
+            "../../../packages/tooling/policy-pack/repo-configs/src/eslint/**",
+            "../../../packages/tooling/policy-pack/repo-configs/src/internal/eslint/**",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            "../../../tsdoc.json",
+            ".env",
+            ".env.*",
+            "package.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "//#lint:policy-fingerprint"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#lint:laws",
+        "command": "beep-cli lint laws --package .",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "//#lint:policy-fingerprint"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!**/.turbo/**",
+            "!**/build/**",
+            "!**/coverage/**",
+            "!**/dist/**",
+            "!**/node_modules/**",
+            "!../../../**/.beep/**/package.json",
+            "!../../../**/.next/**/package.json",
+            "!../../../**/.turbo/**/package.json",
+            "!../../../**/build/**/package.json",
+            "!../../../**/coverage/**/package.json",
+            "!../../../**/dist/**/package.json",
+            "!../../../**/node_modules/**/package.json",
+            "!../../../**/storybook-static/**/package.json",
+            "!node_modules/**",
+            "**/*.{ts,tsx}",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../package.json",
+            "../../../packages/**/package.json",
+            "../../../packages/tooling/policy-pack/repo-configs/src/eslint/EffectLawsAllowlist.ts",
+            "../../../packages/tooling/policy-pack/repo-configs/src/eslint/NoNativeRuntimeHotspots.ts",
+            "../../../packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
+            "../../../standards/effect-laws.allowlist.jsonc",
+            "../../../tsconfig*.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            ".env",
+            ".env.*",
+            "package.json",
+            "tsconfig*.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [],
+          "dependsOn": [
+            "//#lint:policy-fingerprint"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#package-test-typecheck",
+        "command": "beep-cli quality test-tsgo-package",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "@beep/identity#transit",
+          "@beep/mcp-kit#transit",
+          "@beep/schema#transit",
+          "@beep/utils#transit"
+        ],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../package.json",
+            "../../../packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+            "../../../packages/tooling/tool/cli/src/commands/Quality/internal/TestTsgoSyntheticConfig.ts",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            "package.json",
+            "scripts/**",
+            "server/**",
+            "src-tauri/**",
+            "src/**",
+            "test/**",
+            "tsconfig*.json"
+          ],
+          "env": [],
+          "passThroughEnv": [],
+          "outputs": [
+            ".turbo/package-test-typecheck-result.json"
+          ],
+          "dependsOn": [
+            "^transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#test",
+        "command": "bun run beep:test",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "@beep/identity#transit",
+          "@beep/mcp-kit#transit",
+          "@beep/schema#transit",
+          "@beep/utils#transit",
+          "@beep/utils#transit"
+        ],
+        "configuration": {
+          "cache": true,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../package.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            "../../../vitest.aliases.generated.json",
+            "../../../vitest.setup.ts",
+            "../../../vitest.shared.ts",
+            ".env",
+            ".env.*"
+          ],
+          "env": [
+            "BEEP_FC_NUM_RUNS",
+            "BEEP_FC_SEED"
+          ],
+          "passThroughEnv": [
+            "BEEP_CREATE_PACKAGE_BUN_ARGS_FILE",
+            "GITHUB_STEP_SUMMARY"
+          ],
+          "outputs": [],
+          "dependsOn": [
+            "@beep/utils#transit",
+            "^transit"
+          ],
+          "persistent": false,
+          "interactive": false,
+          "interruptible": false,
+          "outputLogs": "full"
+        }
+      },
+      {
+        "computation": "@beep/t3-code#test:integration",
+        "command": "bun run beep:test:integration",
+        "commandDigest": "2789dec78eaab6ca497bb0cd49a9c3cc60d68592d669a9d57123b8e91046d3c9",
+        "dependencies": [
+          "@beep/identity#build",
+          "@beep/mcp-kit#build",
+          "@beep/schema#build",
+          "@beep/utils#build"
+        ],
+        "configuration": {
+          "cache": false,
+          "inputs": [
+            "!.beep/**",
+            "!.fallow/**",
+            "../../../.bun-version",
+            "../../../.nvmrc",
+            "../../../package.json",
+            "../../../tsconfig.base.json",
+            "../../../tsconfig.json",
+            "../../../tsconfig.packages.json",
+            "../../../vitest.aliases.generated.json",
+            "../../../vitest.setup.ts",
+            "../../../vitest.shared.ts"
+          ],
+          "env": [
+            "AI_VENICE_API_KEY",
+            "BEEP_TEST_*",
+            "BEEP_TIKA_*",
+            "CLOUD_BOX_TOKEN",
+            "FIRECRAWL_API_KEY"
+          ],
           "passThroughEnv": [],
           "outputs": [],
           "dependsOn": [
@@ -104722,7 +105390,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "242da911940e03ec47dc93919736cf94af1cf208fd04724cebb654358cb67a03"
+        "sha256": "ee5e558ab10bfe5901cdbb37f3f59225a024ff7392b3cb2afb7428ee52951232"
       }
     ]
   }

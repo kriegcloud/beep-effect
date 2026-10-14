@@ -403,7 +403,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
   );
 
   it.effect(
-    "keeps checked-in Claude grants inside the exact 64-value allow domain",
+    "keeps checked-in Claude grants inside the exact 62-value allow domain",
     Effect.fn(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -411,7 +411,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
       const settingsText = yield* fs.readFileString(path.join(repoRoot, ".claude/settings.json"));
       const settings = yield* decodeStructInlineSchemaJson(settingsText);
 
-      assert.lengthOf(settings.permissions.allow, 64);
+      assert.lengthOf(settings.permissions.allow, 62);
       assert.include(settings.permissions.allow, "Bash(graft ask:*)");
       assert.include(settings.permissions.allow, "Bash(graft grep:*)");
       assert.include(settings.permissions.allow, "Bash(graft skeleton:*)");
@@ -431,8 +431,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/ai-sync", (it) =>
       assert.include(settings.permissions.deny, "Bash(bun run beep refs install-timer)");
       assert.notInclude(settings.permissions.allow, "Bash(bun run beep graft deep install-timer:*)");
       assert.include(settings.permissions.allow, "Bash(systemctl --user list-timers:*)");
-      assert.include(settings.permissions.allow, "Bash(systemctl --user status beep-:*)");
-      assert.include(settings.permissions.allow, "Bash(journalctl --user -u beep-:*)");
+      assert.notInclude(settings.permissions.allow, "Bash(systemctl --user status beep-:*)");
+      assert.notInclude(settings.permissions.allow, "Bash(journalctl --user -u beep-:*)");
       assert.notInclude(settings.permissions.allow, "Bash(systemctl:*)");
       assert.notInclude(settings.permissions.allow, "Bash(systemctl --user:*)");
       assert.notInclude(settings.permissions.allow, "Bash(journalctl:*)");

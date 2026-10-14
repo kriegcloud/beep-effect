@@ -38,4 +38,4 @@ fixture, mock, Accordion and XML behavior fixes independently.
 
 ## Re-record after merging main (2026-10-14 19:30Z)
 
-Main added `@beep/practice-claude-mod` (154 manifests). The lint-policy fingerprint change touches its tasks too, so the reviewed subject list gains it; nothing else changes.
+Main added `@beep/practice-claude-mod` (154 manifests) and later `@beep/t3-code` (155). The lint-policy fingerprint change touches its tasks too, so the reviewed subject list gains both; nothing else changes.
