@@ -14,13 +14,14 @@ const $I = $LawPracticeDomainId.create("values/PatentOffice/PatentOffice");
 /**
  * WIPO ST.16 / office logo + flag metadata, used for jurisdiction-aware UI.
  *
- * **Example** (Create empty Metadata instance)
+ * **Example** (Create empty Metadata value)
  *
  * ```ts
  * import { Metadata } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
  * const metadata = Metadata.make({})
- * console.log(metadata instanceof Metadata)
+ * console.log(S.is(Metadata)(metadata))
  * // true
  * ```
  *

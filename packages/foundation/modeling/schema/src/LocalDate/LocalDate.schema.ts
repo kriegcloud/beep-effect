@@ -86,7 +86,9 @@ export class LocalDate extends S.Class<LocalDate, { readonly brand: unique symbo
    * @returns * @since 0.0.0
    * @category utilities
    */
-  override readonly toString = (): string => this.toISOString();
+  override toString(): string {
+    return this.toISOString();
+  }
 
   /**
    * Value equality for LocalDate instances.
@@ -116,7 +118,9 @@ export class LocalDate extends S.Class<LocalDate, { readonly brand: unique symbo
    * @returns * @since 0.0.0
    * @category utilities
    */
-  readonly toDate = (): Date => localDateToDate(this);
+  toDate(): Date {
+    return localDateToDate(this);
+  }
 }
 
 /**

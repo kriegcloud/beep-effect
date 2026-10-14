@@ -146,7 +146,7 @@ export class SegmentMap extends S.Class<SegmentMap, { readonly brand: unique sym
    * @category utilities
    * @since 0.0.0
    */
-  readonly lookup = (cleanPos: number): number => {
+  lookup(cleanPos: number): number {
     const segments = this.segments;
     if (A.isReadonlyArrayEmpty(segments)) return cleanPos;
 
@@ -175,5 +175,5 @@ export class SegmentMap extends S.Class<SegmentMap, { readonly brand: unique sym
         onSome: (last) => last.origPos + (cleanPos - last.cleanPos),
       })
     );
-  };
+  }
 }
