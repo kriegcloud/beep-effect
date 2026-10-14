@@ -19,7 +19,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 import { GoalSlug, MaterializationPlan, MaterializationReceipt, PlanDigest } from "../Goals/Bootstrap.schemas.ts";
-import { PacketSlug } from "../Goals/PacketCore/PacketCore.schemas.ts";
+import { PacketEventBody, PacketEventTimestamp, PacketSlug } from "../Goals/PacketCore/PacketCore.schemas.ts";
 import { ExplorationStage, ExplorationStatus } from "./Atlas.ts";
 
 const $I = $RepoCliId.create("commands/Explore/Graduate.schemas");
@@ -457,5 +457,103 @@ export class GraduationReceipt extends S.Class<GraduationReceipt>($I`GraduationR
   },
   $I.annote("GraduationReceipt", {
     description: "What a --write replay of a reviewed graduation plan published and edited.",
+  })
+) {}
+
+/**
+ * Path segments of the pending-graduation-events sidecar below an exploration.
+ *
+ * **Example** (Read the sidecar segments)
+ *
+ * ```ts
+ * import { GRADUATION_PENDING_SEGMENTS } from "@beep/repo-cli/commands/Explore"
+ *
+ * console.log(GRADUATION_PENDING_SEGMENTS) // ["ops", ".graduation-pending.json"]
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const GRADUATION_PENDING_SEGMENTS = ["ops", ".graduation-pending.json"] as const;
+
+/**
+ * `graduation-pending/v1`: stream events a graduation owes an opted-in exploration.
+ *
+ * **Details**
+ *
+ * Written atomically to `ops/.graduation-pending.json` before the manifest
+ * flips, and removed once the events and the trace land (E19). It records the
+ * manifest digest the flip produces, the pre-image status and stage (the E18
+ * genesis fields), the event timestamp, and the event bodies planned against
+ * the stream at staging time. `explore graduate --resume-events` replays it
+ * after a crash between the manifest write and the append.
+ *
+ * **Example** (Construct a pending record)
+ *
+ * ```ts
+ * import { GraduationPendingEvents } from "@beep/repo-cli/commands/Explore"
+ *
+ * const pending = GraduationPendingEvents.make({
+ *   planId: "graduation-plan/v1:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   exploration: "demo",
+ *   manifestPath: "explorations/demo/ops/manifest.json",
+ *   manifestAfterDigest: "1".repeat(64),
+ *   previousStatus: "active",
+ *   previousStage: "decompose",
+ *   at: "2026-10-14T00:00:00.000Z",
+ *   events: [{ type: "stage-entered", stage: "graduate", ordinal: 6 }],
+ * })
+ * console.log(pending.events.length) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GraduationPendingEvents extends S.Class<GraduationPendingEvents>($I`GraduationPendingEvents`)(
+  {
+    schemaVersion: S.tag("graduation-pending/v1"),
+    planId: GraduationPlanId,
+    exploration: PacketSlug,
+    manifestPath: S.String,
+    manifestAfterDigest: PlanDigest,
+    previousStatus: ExplorationStatus,
+    previousStage: ExplorationStage,
+    at: PacketEventTimestamp,
+    events: S.Array(PacketEventBody),
+  },
+  $I.annote("GraduationPendingEvents", {
+    description:
+      "Stream events an interrupted graduation still owes an opted-in exploration, pinned to the graduated manifest.",
+  })
+) {}
+
+/**
+ * `graduation-resume-receipt/v1`: what `explore graduate --resume-events` appended.
+ *
+ * **Example** (Construct a resume receipt)
+ *
+ * ```ts
+ * import { GraduationResumeReceipt } from "@beep/repo-cli/commands/Explore"
+ *
+ * const receipt = GraduationResumeReceipt.make({
+ *   planId: "graduation-plan/v1:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   exploration: "demo",
+ *   eventsAppended: 2,
+ * })
+ * console.log(receipt.eventsAppended) // 2
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GraduationResumeReceipt extends S.Class<GraduationResumeReceipt>($I`GraduationResumeReceipt`)(
+  {
+    schemaVersion: S.tag("graduation-resume-receipt/v1"),
+    planId: GraduationPlanId,
+    exploration: S.String,
+    eventsAppended: S.Int,
+  },
+  $I.annote("GraduationResumeReceipt", {
+    description: "Events a --resume-events recovery appended for an interrupted graduation.",
   })
 ) {}

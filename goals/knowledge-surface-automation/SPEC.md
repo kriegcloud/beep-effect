@@ -338,3 +338,7 @@ Each entry names its record, which carries the reason and the reversal path.
   `packet-created` genesis before the graduation events, and the trace is regenerated);
   E17 self-hosting ran on `typed-agent-skill-contracts` after the orchestrator ruled
   Amendment J a new goal: `research/p4-explore-graduate-design.md`.
+- 2026-10-14 — Workstream E-3c E19 (#1688 review): graduation events owed to an
+  opted-in exploration are staged in `ops/.graduation-pending.json` before the
+  manifest flips, and `explore graduate --resume-events` replays them after a crash
+  between the flip and the append: `research/p4-explore-graduate-design.md`.

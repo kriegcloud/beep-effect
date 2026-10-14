@@ -39,5 +39,10 @@ Not started.
 
 ## Notes
 
-<Record high-signal constraints or resume notes that do not belong in the
-normative spec.>
+- Created 2026-10-14 by `beep explore graduate` (the Workstream E self-hosting run)
+  from `explorations/typed-agent-skill-contracts`, after the orchestrator ruled that
+  Amendment J becomes this candidate-7 goal (that exploration's `DECISIONS.md`).
+- The binding Amendment J inputs are copied into `SPEC.md` §Constraints. Their
+  source of truth is the exploration's `MAP.md` §Amendment J re-entry.
+- Reversal: a later MAP amendment can fold this work into a better home. If so, mark
+  this goal superseded with a pointer (never delete it).

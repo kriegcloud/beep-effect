@@ -3,8 +3,11 @@ import {
   exploreCommand,
   GraduationReceipt,
   GraduationRequest,
+  GraduationResumeReceipt,
   parseGraduationGoal,
   readExplorationSnapshot,
+  resumeGraduationEvents,
+  runExploreCheck,
   writeGraduationPlan,
 } from "@beep/repo-cli/test/Explore";
 import {
@@ -12,6 +15,7 @@ import {
   PacketEvent,
   PacketEventStore,
   PacketEventStoreLive,
+  PacketStreamError,
   PacketStreamLocator,
 } from "@beep/repo-cli/test/Goals";
 import { it } from "@beep/test-runner";
@@ -44,6 +48,8 @@ const TODAY = "2026-10-14";
 const AT = "2026-10-14T12:00:00.000Z";
 
 const decodeReceiptJson = S.decodeUnknownEffect(S.fromJsonString(GraduationReceipt));
+const decodeResumeReceiptJson = S.decodeUnknownEffect(S.fromJsonString(GraduationResumeReceipt));
+const PENDING_PATH = `${PROVENANCE}/ops/.graduation-pending.json`;
 const decodeManifestJson = S.decodeUnknownEffect(
   S.fromJsonString(
     S.Struct({
@@ -108,6 +114,39 @@ const exists = Effect.fn(function* (relativePath: string) {
   return yield* fs.exists(relativePath);
 });
 
+const locator = PacketStreamLocator.make({ packet: EXPLORATION, root: "explorations", packetPath: PROVENANCE });
+
+// Stands in for a crash between the manifest flip and the first append: the
+// live store, except that every append fails.
+const crashingAppendStore = Effect.gen(function* () {
+  const live = yield* PacketEventStore;
+  return PacketEventStore.of({
+    ...live,
+    append: Effect.fn("CrashingPacketEventStore.append")(function* (target: PacketStreamLocator) {
+      return yield* PacketStreamError.new(target.packet, "injected crash before the append");
+    }),
+  });
+});
+
+const streamBodies = Effect.gen(function* () {
+  const store = yield* PacketEventStore;
+  return A.map((yield* store.list(locator)).events, (stored) => stored.event.body);
+});
+
+const crashAfterManifestFlip = Effect.gen(function* () {
+  yield* seedFixture;
+  const fs = yield* FileSystem.FileSystem;
+  yield* fs.makeDirectory(`${PROVENANCE}/ops/events`, { recursive: true });
+  const plan = yield* planFor(["first-child=First Child"]);
+  const crashed = yield* Effect.exit(
+    writeGraduationPlan(plan, O.some(plan.planId), AT).pipe(
+      Effect.provideServiceEffect(PacketEventStore, crashingAppendStore)
+    )
+  );
+  crashed.pipe(Exit.isFailure, assertTrue);
+  return plan;
+});
+
 it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
   describe("explore graduate --write", { concurrent: false }, () => {
     it.effect(
@@ -150,10 +189,8 @@ it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
               },
             });
             strictEqual(yield* exists(`${PROVENANCE}/ops/events`), false);
-            strictEqual(
-              yield* exists(`${MANIFEST_PATH}.staging-${Str.slice(0, 16)(receipt.manifestBeforeDigest)}`),
-              false
-            );
+            const fs = yield* FileSystem.FileSystem;
+            expect(A.filter(yield* fs.readDirectory(`${PROVENANCE}/ops`), Str.includes(".staging-"))).toEqual([]);
 
             const again = yield* Effect.exit(
               runExploreCommand(graduateArgs(goals, ["--write", "--expect", plan.planId]))
@@ -227,11 +264,6 @@ it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
             const fs = yield* FileSystem.FileSystem;
             yield* fs.makeDirectory(`${PROVENANCE}/ops/events`, { recursive: true });
             const store = yield* PacketEventStore;
-            const locator = PacketStreamLocator.make({
-              packet: EXPLORATION,
-              root: "explorations",
-              packetPath: PROVENANCE,
-            });
             yield* store.append(
               locator,
               PacketEvent.make({
@@ -260,12 +292,72 @@ it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
             strictEqual(derived.status, "graduated");
             strictEqual(derived.resumeStage, "graduate");
             strictEqual(derived.furthestOrdinal, 6);
+            strictEqual(yield* exists(PENDING_PATH), false);
             expect(yield* readProjectFile(`${PROVENANCE}/ops/trace.json`)).toContain(
               O.getOrElse(
                 O.map(O.fromUndefinedOr(derived.tip), (tip) => tip.id),
                 () => "missing-tip"
               )
             );
+          })
+        ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
+      30_000
+    );
+  });
+
+  describe("explore graduate --resume-events", { concurrent: false }, () => {
+    it.effect(
+      "appends the pending events exactly once, with the pre-image genesis, after a crash past the manifest flip",
+      () =>
+        Effect.andThen(
+          temporaryWorkingDirectory,
+          Effect.gen(function* () {
+            yield* crashAfterManifestFlip;
+            const flipped = yield* decodeManifestJson(yield* readProjectFile(MANIFEST_PATH));
+            strictEqual(flipped.exploration.status, "graduated");
+            strictEqual(yield* exists(PENDING_PATH), true);
+            strictEqual(A.length(yield* streamBodies), 0);
+
+            yield* runExploreCheck();
+            expect(A.join(A.filter(yield* TestConsole.errorLines, P.isString), "\n")).toContain(
+              "[packet-graduation-pending]"
+            );
+
+            const resumed = yield* Effect.exit(runExploreCommand(["graduate", EXPLORATION, "--resume-events"]));
+            resumed.pipe(Exit.isSuccess, assertTrue);
+            const receipt = yield* decodeResumeReceiptJson(yield* lastLogLine);
+            strictEqual(receipt.eventsAppended, 3);
+            expect(yield* streamBodies).toMatchObject([
+              { type: "packet-created", status: "active", stage: "decompose", ordinal: 5 },
+              { type: "stage-entered", stage: "graduate", ordinal: 6 },
+              { type: "status-set", status: "graduated", previous: "active" },
+            ]);
+            strictEqual(yield* exists(PENDING_PATH), false);
+            strictEqual(yield* exists(`${PROVENANCE}/ops/trace.json`), true);
+
+            const again = yield* Effect.exit(runExploreCommand(["graduate", EXPLORATION, "--resume-events"]));
+            expectReportedExit(again);
+            const direct = yield* Effect.flip(resumeGraduationEvents(EXPLORATION));
+            strictEqual(direct._tag, "GraduationRecoveryError");
+            strictEqual(A.length(yield* streamBodies), 3);
+          })
+        ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
+      30_000
+    );
+
+    it.effect(
+      "refuses to resume against a manifest that changed after the flip",
+      () =>
+        Effect.andThen(
+          temporaryWorkingDirectory,
+          Effect.gen(function* () {
+            yield* crashAfterManifestFlip;
+            yield* writeProjectFile(MANIFEST_PATH, `${yield* readProjectFile(MANIFEST_PATH)}\n`);
+            const refused = yield* Effect.flip(resumeGraduationEvents(EXPLORATION));
+            strictEqual(refused._tag, "GraduationRecoveryError");
+            expect(refused.message).toContain("is not the graduated manifest recorded");
+            strictEqual(A.length(yield* streamBodies), 0);
+            strictEqual(yield* exists(PENDING_PATH), true);
           })
         ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make)),
       30_000

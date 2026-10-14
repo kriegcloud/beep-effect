@@ -44,8 +44,16 @@ import {
   replacePinnedFile,
   requireExpectedPlanId,
   requireOneMode,
+  writeFileAtomically,
 } from "../Goals/Materialize.ts";
-import { PacketEvent, PacketSlug } from "../Goals/PacketCore/PacketCore.schemas.ts";
+import {
+  PacketCreatedBody,
+  PacketEvent,
+  PacketEventBody,
+  PacketSlug,
+  StageEnteredBody,
+  StatusSetBody,
+} from "../Goals/PacketCore/PacketCore.schemas.ts";
 import {
   canonicalJsonText,
   canonicalJsonTextPretty,
@@ -56,22 +64,25 @@ import { foldUnambiguousStream, PacketEventStore, PacketStreamLocator } from "..
 import { foldPacketEvents, projectPacketTrace, renderPacketTraceFile } from "../Goals/PacketCore/PacketFold.ts";
 import { PACKET_TRACE_SEGMENTS } from "../Goals/PacketCore/PacketTransitionWriter.ts";
 import { ExplorationManifest, ExplorationStage, ExplorationStatus } from "./Atlas.ts";
+import { GraduationRecoveryError } from "./Explore.errors.ts";
 import {
   ExistingGoalPacket,
   ExplorationManifestEdit,
   ExplorationSnapshot,
+  GRADUATION_PENDING_SEGMENTS,
   GraduationChildInput,
   GraduationChildReceipt,
   GraduationConflict,
+  GraduationPendingEvents,
   GraduationPlan,
   GraduationPublishedChild,
   GraduationReceipt,
   GraduationRequest,
+  GraduationResumeReceipt,
 } from "./Graduate.schemas.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as PlatformError from "effect/PlatformError";
 import type { MaterializationPlan } from "../Goals/Bootstrap.schemas.ts";
-import type { PacketEventBody } from "../Goals/PacketCore/PacketCore.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Explore/Graduate");
 
@@ -83,6 +94,10 @@ const decodeChildInput = S.decodeUnknownEffect(GraduationChildInput);
 const decodeManifestText = S.decodeUnknownOption(S.fromJsonString(ExplorationManifest));
 const encodeGraduationPlan = S.encodeUnknownEffect(GraduationPlan);
 const encodeGraduationReceipt = S.encodeUnknownEffect(GraduationReceipt);
+const encodeResumeReceipt = S.encodeUnknownEffect(GraduationResumeReceipt);
+const encodePendingEvents = S.encodeUnknownEffect(GraduationPendingEvents);
+const decodePendingEvents = S.decodeUnknownEffect(S.fromJsonString(GraduationPendingEvents));
+const encodeEventBodies = S.encodeUnknownEffect(S.Array(PacketEventBody));
 const decodeJsonRecord = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
 const decodeStringArray = S.decodeUnknownOption(S.Array(S.String));
 
@@ -582,73 +597,113 @@ const graduationEventBodies = (
 ): ReadonlyArray<PacketEventBody> => [
   ...(revision === 0
     ? [
-        {
-          type: "packet-created" as const,
+        PacketCreatedBody.make({
+          type: "packet-created",
           status: previous.status,
           stage: previous.stage,
           ordinal: stageOrdinal(previous.stage),
-        },
+        }),
       ]
     : []),
   ...(O.contains(derivedStage, ExplorationStage.Enum.graduate)
     ? []
     : [
-        {
-          type: "stage-entered" as const,
+        StageEnteredBody.make({
+          type: "stage-entered",
           stage: ExplorationStage.Enum.graduate,
           ordinal: stageOrdinal(ExplorationStage.Enum.graduate),
-        },
+        }),
       ]),
   ...(O.contains(derivedStatus, ExplorationStatus.Enum.graduated)
     ? []
     : [
-        {
-          type: "status-set" as const,
+        StatusSetBody.make({
+          type: "status-set",
           status: ExplorationStatus.Enum.graduated,
           previous: O.getOrElse(derivedStatus, () => previous.status),
-        },
+        }),
       ]),
 ];
 
-// E16: only an exploration that already carries `ops/events/` gets events;
-// the trace projection is regenerated after the appends, as the guarded
-// transition writer does.
-const appendGraduationEvents = Effect.fn("Explore.appendGraduationEvents")(function* (
-  exploration: string,
+const explorationLocator = (exploration: string, packetPath: string) =>
+  PacketStreamLocator.make({ packet: exploration, root: "explorations", packetPath });
+
+// E19: the events an opted-in exploration is owed are planned against the
+// stream before the manifest flips and recorded in a sidecar, so a crash
+// between the flip and the append leaves a durable, replayable record.
+const planPendingEvents = Effect.fn("Explore.planPendingEvents")(function* (
+  plan: GraduationPlan,
+  manifestPath: string,
+  manifestAfterDigest: string,
   previous: ManifestPosition,
   at: string,
-  repoRoot: string
+  packetPath: string
 ) {
   const store = yield* PacketEventStore;
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const packetPath = path.join(repoRoot, EXPLORATIONS_DIR, exploration);
-  if (!(yield* store.hasStream(packetPath))) {
-    return 0;
-  }
-  const locator = PacketStreamLocator.make({ packet: exploration, root: "explorations", packetPath });
+  const locator = explorationLocator(plan.exploration, packetPath);
   const derived = yield* foldUnambiguousStream(locator, yield* store.list(locator));
-  const bodies = graduationEventBodies(
+  return GraduationPendingEvents.make({
+    planId: plan.planId,
+    exploration: plan.exploration,
+    manifestPath,
+    manifestAfterDigest,
+    previousStatus: previous.status,
+    previousStage: previous.stage,
+    at,
+    events: graduationEventBodies(
+      derived.revision,
+      O.fromUndefinedOr(derived.status),
+      O.fromUndefinedOr(derived.resumeStage),
+      previous
+    ),
+  });
+});
+
+// Appends whatever suffix of the recorded events the stream still lacks, then
+// regenerates the trace atomically. The recorded events are the authority:
+// the stream must still owe a suffix of them, so a replay after a partial
+// append never duplicates an event, and a stream that moved some other way
+// is refused rather than guessed at.
+const appendPendingEvents = Effect.fn("Explore.appendPendingEvents")(function* (
+  pending: GraduationPendingEvents,
+  packetPath: string
+) {
+  const store = yield* PacketEventStore;
+  const path = yield* Path.Path;
+  const locator = explorationLocator(pending.exploration, packetPath);
+  const derived = yield* foldUnambiguousStream(locator, yield* store.list(locator));
+  const owed = graduationEventBodies(
     derived.revision,
     O.fromUndefinedOr(derived.status),
     O.fromUndefinedOr(derived.resumeStage),
-    previous
+    { status: pending.previousStatus, stage: pending.previousStage }
   );
+  const recordedSuffix = A.takeRight(pending.events, A.length(owed));
+  const owedText = canonicalJsonText(yield* encodeEventBodies(owed));
+  if (
+    A.length(recordedSuffix) !== A.length(owed) ||
+    canonicalJsonText(yield* encodeEventBodies(recordedSuffix)) !== owedText
+  ) {
+    return yield* GraduationRecoveryError.new(
+      pending.exploration,
+      `The ops/events stream of explorations/${pending.exploration} moved since the pending graduation events were recorded; it now owes ${owedText}, which is not what was recorded. Repair the stream by hand.`
+    )();
+  }
   let seq = derived.revision;
   let parent = pipe(
     O.fromUndefinedOr(derived.tip),
     O.map((tip) => tip.id)
   );
-  for (const body of bodies) {
+  for (const body of owed) {
     const stored = yield* store.append(
       locator,
       PacketEvent.make({
         schemaVersion: "packet-event/v1",
-        packet: exploration,
+        packet: pending.exploration,
         root: "explorations",
         seq: seq + 1,
         expectedRevision: seq,
-        at,
+        at: pending.at,
         actor: GRADUATE_ACTOR,
         ...optionalProp("parent", parent),
         body,
@@ -658,10 +713,10 @@ const appendGraduationEvents = Effect.fn("Explore.appendGraduationEvents")(funct
     parent = O.some(stored.id);
   }
   const listing = yield* store.list(locator);
-  const after = foldPacketEvents({ packet: exploration, root: "explorations", events: listing.events });
+  const after = foldPacketEvents({ packet: pending.exploration, root: "explorations", events: listing.events });
   const trace = yield* renderPacketTraceFile(projectPacketTrace(after, listing.events));
-  yield* fs.writeFileString(path.join(packetPath, ...PACKET_TRACE_SEGMENTS), trace);
-  return A.length(bodies);
+  yield* writeFileAtomically(path.join(packetPath, ...PACKET_TRACE_SEGMENTS), trace);
+  return A.length(owed);
 });
 
 const refuseConflictedGraduation = (plan: GraduationPlan) =>
@@ -680,19 +735,22 @@ const refuseConflictedGraduation = (plan: GraduationPlan) =>
  *
  * Refuses unless `expect` names `plan.planId` and the plan has no conflicts.
  * Then each child still to publish goes through `publishBootstrapPlan` in
- * request order; the manifest edit is applied by `replacePinnedFile` only if
- * the manifest still matches the edit's `preImageDigest`; and, when the
- * exploration carries `ops/events/`, `stage-entered: graduate` and
- * `status-set: graduated` are appended through the guarded event store.
- * A crash between children leaves those children with this exploration's
- * provenance; re-running the same command reports them as already published
- * and finishes (E15).
+ * request order. When the exploration carries `ops/events/`, the events it
+ * is owed are then recorded in `ops/.graduation-pending.json` (E19). The
+ * manifest edit is applied by `replacePinnedFile` only if the manifest still
+ * matches the edit's `preImageDigest`, whose second check gates the events.
+ * Last, `stage-entered: graduate` and `status-set: graduated` are appended
+ * through the guarded event store, the trace is rewritten atomically, and the
+ * sidecar is removed. A crash between children leaves those children with
+ * this exploration's provenance; re-running the same command reports them as
+ * already published and finishes (E15).
  *
  * **Gotchas**
  *
- * A crash after the manifest write but before the event append leaves the
- * manifest graduated and the stream behind; `explore --check` reports the
- * status drift, and the plan now refuses (`exploration-closed`).
+ * A crash after the manifest write but before the append leaves the sidecar
+ * behind. The plan now refuses (`exploration-closed`); recover with
+ * {@link resumeGraduationEvents} (`explore graduate <slug> --resume-events`).
+ * `explore --check` reports a leftover sidecar.
  *
  * **Example** (Build the write effect)
  *
@@ -739,27 +797,58 @@ export const writeGraduationPlan = Effect.fn("Explore.writeGraduationPlan")(func
       onSome: ({ exploration }) => Effect.succeed({ status: exploration.status, stage: exploration.stage }),
     })
   );
+  const nextText = yield* Effect.fromOption(renderGraduatedManifest(new TextDecoder().decode(preImage), edit)).pipe(
+    Effect.mapError(GoalPlanOperationalError.new(`${edit.path} is not a JSON manifest object.`))
+  );
   const published = yield* Effect.forEach(plan.children, (child) =>
     publishBootstrapPlan(child, repoRoot).pipe(
       Effect.map((receipt) => GraduationChildReceipt.make({ slug: child.slug, outcome: "published", receipt }))
     )
   );
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const store = yield* PacketEventStore;
+  const packetPath = path.join(repoRoot, EXPLORATIONS_DIR, plan.exploration);
+  const pendingPath = path.join(packetPath, ...GRADUATION_PENDING_SEGMENTS);
+  const streamFailure = (error: { readonly message: string }) =>
+    GoalPlanOperationalError.new(
+      `Recording the graduation events of explorations/${plan.exploration} failed before the manifest changed: ${error.message}`
+    )(error);
+  const pending = (yield* store.hasStream(packetPath))
+    ? O.some(
+        yield* Effect.gen(function* () {
+          const afterDigest = yield* sha256Hex(nextText);
+          const owed = yield* planPendingEvents(plan, edit.path, afterDigest, previous, at, packetPath);
+          const encoded = yield* encodePendingEvents(owed);
+          yield* writeFileAtomically(pendingPath, canonicalJsonTextPretty(encoded));
+          return owed;
+        }).pipe(Effect.mapError(streamFailure))
+      )
+    : O.none<GraduationPendingEvents>();
+  // A sidecar for a manifest that never flipped would only mislead recovery:
+  // drop it when the manifest still holds its pre-image.
+  const discardUnflippedPending = readPinnedFile(edit.path, edit.preImageDigest, repoRoot).pipe(
+    Effect.andThen(fs.remove(pendingPath, { force: true })),
+    Effect.ignore
+  );
   const manifest = yield* replacePinnedFile(
     edit.path,
     edit.preImageDigest,
-    (text) =>
-      Effect.fromOption(renderGraduatedManifest(text, edit)).pipe(
-        Effect.mapError(GoalPlanOperationalError.new(`${edit.path} is not a JSON manifest object.`))
-      ),
+    () => Effect.succeed(nextText),
     repoRoot
-  );
-  const eventsAppended = yield* appendGraduationEvents(plan.exploration, previous, at, repoRoot).pipe(
-    Effect.mapError((error) =>
-      GoalPlanOperationalError.new(
-        `Manifest ${edit.path} is graduated, but appending its ops/events failed: ${error.message}`
-      )(error)
-    )
-  );
+  ).pipe(Effect.onError(() => (O.isSome(pending) ? discardUnflippedPending : Effect.void)));
+  const eventsAppended = yield* O.match(pending, {
+    onNone: () => Effect.succeed(0),
+    onSome: (owed) =>
+      appendPendingEvents(owed, packetPath).pipe(
+        Effect.tap(() => fs.remove(pendingPath)),
+        Effect.mapError((error) =>
+          GoalPlanOperationalError.new(
+            `The graduation events of explorations/${plan.exploration} are still pending in ${pendingPath}; run \`beep explore graduate ${plan.exploration} --resume-events\` to append them (${error.message}).`
+          )(error)
+        )
+      ),
+  });
   return GraduationReceipt.make({
     planId: plan.planId,
     exploration: plan.exploration,
@@ -804,6 +893,78 @@ export const renderGraduationReceiptJson: (receipt: GraduationReceipt) => Effect
   Effect.fnUntraced(function* (receipt: GraduationReceipt) {
     return canonicalJsonTextPretty(yield* encodeGraduationReceipt(receipt));
   });
+
+/**
+ * Appends the graduation events an interrupted `--write` left pending.
+ *
+ * **Details**
+ *
+ * The recovery half of E19. Refuses with a {@link GraduationRecoveryError}
+ * unless `ops/.graduation-pending.json` exists and decodes, the exploration
+ * still carries `ops/events/`, and the manifest's bytes equal the graduated
+ * manifest the sidecar recorded. It then appends only the suffix of the
+ * recorded events the stream still lacks (none, if an earlier attempt
+ * already appended them), rewrites the trace atomically, and removes the
+ * sidecar. A second run therefore refuses: there is nothing left to resume.
+ *
+ * **Example** (Build the recovery effect)
+ *
+ * ```ts
+ * import { resumeGraduationEvents } from "@beep/repo-cli/commands/Explore"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(resumeGraduationEvents("typed-agent-skill-contracts"))) // true
+ * ```
+ *
+ * @param exploration - Exploration slug under `explorations/`.
+ * @param repoRoot - Repository root the `explorations/` tree resolves against.
+ * @returns The resume receipt once the events, trace, and sidecar removal land.
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const resumeGraduationEvents = Effect.fn("Explore.resumeGraduationEvents")(function* (
+  exploration: PacketSlug,
+  repoRoot = "."
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const store = yield* PacketEventStore;
+  const refuse = (message: string) => GraduationRecoveryError.new(exploration, message);
+  const packetPath = path.join(repoRoot, EXPLORATIONS_DIR, exploration);
+  const pendingPath = path.join(packetPath, ...GRADUATION_PENDING_SEGMENTS);
+  const text = yield* fs
+    .readFileString(pendingPath)
+    .pipe(Effect.mapError(refuse(`No pending graduation events are recorded at ${pendingPath}; nothing to resume.`)));
+  const pending = yield* decodePendingEvents(text).pipe(
+    Effect.mapError(refuse(`${pendingPath} does not decode as graduation-pending/v1; repair or remove it by hand.`))
+  );
+  if (pending.exploration !== exploration) {
+    return yield* refuse(`${pendingPath} records exploration "${pending.exploration}", not "${exploration}".`)();
+  }
+  if (!(yield* store.hasStream(packetPath))) {
+    return yield* refuse(`explorations/${exploration} has no ops/events/ stream to resume into.`)();
+  }
+  const manifestBytes = yield* fs
+    .readFile(path.join(repoRoot, pending.manifestPath))
+    .pipe(Effect.mapError(refuse(`Failed to read ${pending.manifestPath}.`)));
+  const manifestDigest = yield* sha256HexBytes(manifestBytes).pipe(
+    Effect.mapError(refuse(`Failed to digest ${pending.manifestPath}.`))
+  );
+  if (manifestDigest !== pending.manifestAfterDigest) {
+    return yield* refuse(
+      `${pending.manifestPath} is not the graduated manifest recorded in ${pendingPath} (expected ${pending.manifestAfterDigest}, found ${manifestDigest}); refusing to append its events.`
+    )();
+  }
+  const eventsAppended = yield* appendPendingEvents(pending, packetPath).pipe(
+    Effect.mapError((error) =>
+      error._tag === "GraduationRecoveryError"
+        ? error
+        : refuse(`Appending the pending graduation events failed: ${error.message}`)(error)
+    )
+  );
+  yield* fs.remove(pendingPath).pipe(Effect.mapError(refuse(`Failed to remove ${pendingPath} after the append.`)));
+  return GraduationResumeReceipt.make({ planId: pending.planId, exploration, eventsAppended });
+});
 
 /**
  * Decodes one `--goal <slug>=<title>` value.
@@ -851,6 +1012,25 @@ const decodeExplorationSnapshotSlug = (raw: string) =>
     Effect.mapError((issue) => GoalPlanInputError.new(`exploration "${raw}" is invalid: ${issue.message}`))
   );
 
+const runResumeEvents = Effect.fn("Explore.runResumeEvents")(function* (options: {
+  readonly exploration: string;
+  readonly goals: ReadonlyArray<string>;
+  readonly plan: boolean;
+  readonly write: boolean;
+}) {
+  if (options.plan || options.write || A.isReadonlyArrayNonEmpty(options.goals)) {
+    return yield* GoalPlanInputError.new(
+      "--resume-events takes only the exploration; drop --plan, --write, and --goal."
+    );
+  }
+  const exploration = yield* decodeExplorationSnapshotSlug(options.exploration);
+  const receipt = yield* resumeGraduationEvents(exploration);
+  const encoded = yield* encodeResumeReceipt(receipt).pipe(
+    Effect.mapError((issue) => GoalPlanInputError.new(`Failed to encode the resume receipt: ${issue.message}`))
+  );
+  yield* Console.log(Str.trimEnd(canonicalJsonTextPretty(encoded)));
+});
+
 const runGraduatePlan = Effect.fn("Explore.runGraduatePlan")(function* (options: {
   readonly exploration: string;
   readonly goals: ReadonlyArray<string>;
@@ -859,7 +1039,11 @@ const runGraduatePlan = Effect.fn("Explore.runGraduatePlan")(function* (options:
   readonly json: boolean;
   readonly write: boolean;
   readonly expect: O.Option<string>;
+  readonly resumeEvents: boolean;
 }) {
+  if (options.resumeEvents) {
+    return yield* runResumeEvents(options);
+  }
   yield* requireOneMode(options);
   const exploration = yield* decodeExplorationSnapshotSlug(options.exploration);
   const children = yield* Effect.forEach(options.goals, parseGraduationGoal);
@@ -896,7 +1080,14 @@ const jsonFlag = Flag.Boolean("json").pipe(
   Flag.withDescription("Print the plan as canonical JSON")
 );
 
-const failGraduate = Effect.fn(function* (error: GoalPlanInputError | GoalPlanOperationalError) {
+const resumeEventsFlag = Flag.Boolean("resume-events").pipe(
+  Flag.withDefault(false),
+  Flag.withDescription("Append the graduation events an interrupted --write left in ops/.graduation-pending.json")
+);
+
+const failGraduate = Effect.fn(function* (
+  error: GoalPlanInputError | GoalPlanOperationalError | GraduationRecoveryError
+) {
   yield* Console.error(`${GRADUATE_LOG_PREFIX} ${error.message}`);
   return yield* failWithReportedExit(`explore graduate: ${error.message}`);
 });
@@ -925,10 +1116,15 @@ export const exploreGraduateCommand = Command.make(
     json: jsonFlag,
     write: materializeWriteFlag,
     expect: materializeExpectFlag,
+    resumeEvents: resumeEventsFlag,
   },
   Effect.fn(function* (options) {
     return yield* runGraduatePlan(options).pipe(
-      Effect.catchTags({ GoalPlanInputError: failGraduate, GoalPlanOperationalError: failGraduate })
+      Effect.catchTags({
+        GoalPlanInputError: failGraduate,
+        GoalPlanOperationalError: failGraduate,
+        GraduationRecoveryError: failGraduate,
+      })
     );
   })
 ).pipe(

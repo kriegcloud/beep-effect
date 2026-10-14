@@ -20,8 +20,13 @@ prose when they conflict.
 
 Scope:
 
-- In: <paths, packages, docs, workflows, or artifacts this goal may change>.
-- Out: <non-goals and areas not to touch>.
+- In: `packages/foundation/modeling/skill-contract` (a new certificate version of the
+  `@beep/skill-contract` kernel), the QA judge settlement in
+  `packages/tooling/tool/cli/src/commands/Qa/` (first certificate producer), their
+  tests, and this packet.
+- Out: signing and external verification of certificates; changing the closed
+  `skill-contract-kernel` goal; Yeet and bounded recovery (candidate 3);
+  `packet-convention-migration`; any other gate consumer beyond the QA judge.
 
 Workflow:
 

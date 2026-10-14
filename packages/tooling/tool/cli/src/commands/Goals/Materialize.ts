@@ -273,16 +273,62 @@ export const readPinnedFile = Effect.fn("Goals.readPinnedFile")(function* (
 });
 
 /**
+ * Writes a file through a staged sibling and an atomic rename.
+ *
+ * **Details**
+ *
+ * Writes `text` exclusively to `<file>.staging-<content digest prefix>`, runs
+ * `beforeRename` (a last guard such as a pre-image re-check), and renames the
+ * stage over the file. A leftover stage from a crashed attempt is removed
+ * first, and any failure removes the stage, so readers see either the old
+ * file or the complete new one, never a partial write. Returns the SHA-256
+ * digest of the written text.
+ *
+ * **Example** (Build the atomic write)
+ *
+ * ```ts
+ * import { writeFileAtomically } from "@beep/repo-cli/commands/Goals/Materialize"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(writeFileAtomically("goals/demo/ops/trace.json", "{}\n"))) // true
+ * ```
+ *
+ * @param target - Path of the file to write.
+ * @param text - The complete new content.
+ * @param beforeRename - Guard run after staging and before the rename; its failure aborts the write.
+ * @returns The SHA-256 hex digest of `text` once the rename lands.
+ * @category commands
+ * @since 0.0.0
+ */
+export const writeFileAtomically = Effect.fn("Goals.writeFileAtomically")(function* <E = never, R = never>(
+  target: string,
+  text: string,
+  beforeRename: Effect.Effect<void, E, R> = Effect.void
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const digest = yield* sha256HexBytes(textEncoder.encode(text));
+  const stage = `${target}.staging-${Str.slice(0, 16)(digest)}`;
+  yield* removeQuietly(stage);
+  yield* Effect.gen(function* () {
+    yield* fs
+      .writeFileString(stage, text, { flag: "wx" })
+      .pipe(Effect.mapError(fileErrorFor(`Refusing to stage ${target}: ${stage} exists or cannot be created.`)));
+    yield* beforeRename;
+    yield* fs.rename(stage, target).pipe(Effect.mapError(fileErrorFor(`Failed to publish the staged ${target}.`)));
+  }).pipe(Effect.onError(() => removeQuietly(stage)));
+  return digest;
+});
+
+/**
  * Replaces a pinned file through a staged sibling and an atomic rename.
  *
  * **Details**
  *
  * Checks the pre-image with {@link readPinnedFile}, renders the replacement
- * from the current text, writes it exclusively to
- * `<file>.staging-<digest prefix>`, checks the pre-image again, and renames
- * the stage over the file. A leftover stage from a crashed attempt is removed
- * first; any failure removes the stage, so the file is either the pre-image
- * or the full replacement. Returns the before and after digests.
+ * from the current text, and publishes it with {@link writeFileAtomically},
+ * re-checking the pre-image between staging and the rename. The file is
+ * either the pre-image or the full replacement. Returns the before and after
+ * digests.
  *
  * **Example** (Build the pinned replacement)
  *
@@ -308,23 +354,14 @@ export const replacePinnedFile = Effect.fn("Goals.replacePinnedFile")(function* 
   render: (text: string) => Effect.Effect<string, GoalPlanOperationalError>,
   repoRoot = "."
 ) {
-  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const target = path.join(repoRoot, relativePath);
-  const stage = `${target}.staging-${Str.slice(0, 16)(preImageDigest)}`;
   const bytes = yield* readPinnedFile(relativePath, preImageDigest, repoRoot);
   const next = yield* render(new TextDecoder().decode(bytes));
-  yield* removeQuietly(stage);
-  yield* Effect.gen(function* () {
-    yield* fs
-      .writeFileString(stage, next, { flag: "wx" })
-      .pipe(Effect.mapError(fileErrorFor(`Refusing to stage ${relativePath}: ${stage} exists or cannot be created.`)));
-    yield* readPinnedFile(relativePath, preImageDigest, repoRoot);
-    yield* fs
-      .rename(stage, target)
-      .pipe(Effect.mapError(fileErrorFor(`Failed to publish the staged ${relativePath}.`)));
-  }).pipe(Effect.onError(() => removeQuietly(stage)));
-  const afterDigest = yield* sha256HexBytes(textEncoder.encode(next));
+  const afterDigest = yield* writeFileAtomically(
+    path.join(repoRoot, relativePath),
+    next,
+    Effect.asVoid(readPinnedFile(relativePath, preImageDigest, repoRoot))
+  );
   return { beforeDigest: preImageDigest, afterDigest };
 });
 

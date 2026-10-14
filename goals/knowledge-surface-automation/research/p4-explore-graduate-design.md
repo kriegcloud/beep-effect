@@ -113,6 +113,29 @@ then disagree with `goals/`.
   re-appended. Reason: a stream that starts at `stage-entered` has no genesis to fold
   `previous` from, and a stale trace would fail `explore --check`. Reverse: refuse
   graduation on an empty stream and require the packet to seed its genesis first.
+- **E19 — pending events are staged before the manifest flips, and recovery
+  replays them.** For an exploration with `ops/events/`, the write plans the owed
+  events against the stream and writes them atomically to
+  `ops/.graduation-pending.json` (`graduation-pending/v1`) before the manifest
+  replace. The record holds the plan id, the post-write manifest digest, the
+  pre-image status and stage (the E18 genesis fields), the event timestamp, and the
+  event bodies. `replacePinnedFile` stays before the append, so its second pre-image
+  check gates the events. After the append, the trace is rewritten with the same
+  staged-sibling-and-rename helper (`writeFileAtomically`) and the sidecar is
+  removed. If the manifest replace fails while the manifest still holds its
+  pre-image, the sidecar is dropped. `explore graduate <slug> --resume-events`
+  refuses with `GraduationRecoveryError` unless the sidecar decodes, the stream
+  exists, and the manifest's digest equals the recorded post-write digest. It then
+  appends only the suffix of the recorded events the stream still lacks, so a crash
+  partway through the append never duplicates an event. A stream that moved some
+  other way is refused. It rewrites the trace and removes the sidecar, which makes a
+  second run a refusal. `explore --check` reports a leftover sidecar as the advisory
+  `packet-graduation-pending`. Reason: E14's ordering left one crash state that
+  re-running could not repair, because the plan refuses an already-graduated
+  exploration (`exploration-closed`). The sidecar makes that state durable and
+  replayable without weakening the refusal. Reverse: drop the sidecar and the flag,
+  and append the events before the manifest flip under a `graduating` stage, if
+  that stage is ever added (E14's own reverse).
 
 ## Sequencing
 
@@ -145,7 +168,12 @@ then disagree with `goals/`.
   pre-image check (`readPinnedFile`, which adoption's preserve rows call) and the staged
   single-file replacement built on it (`replacePinnedFile`: exclusive stage beside the
   file, pre-image re-check, atomic rename, stage removed on failure), plus
-  `requireExpectedPlanId`, which bootstrap, adopt, and graduate share. The edit works on
+  `requireExpectedPlanId`, which bootstrap, adopt, and graduate share. Review round 1
+  (#1688) added E19: the pending-events sidecar, `--resume-events` recovery, the
+  atomic trace write through `writeFileAtomically` (now also under
+  `replacePinnedFile`), and the `packet-graduation-pending` check advisory, with
+  tests for a crash injected after the manifest flip, a tampered-manifest refusal,
+  and a refused second resume. The edit works on
   the raw JSON record, so manifest keys the schema does not model survive. Tests
   (`explore-graduate-write.test.ts`) cover the happy path, refusal without or with a wrong
   `--expect`, a real mid-write failure between two children followed by a resumed write,
