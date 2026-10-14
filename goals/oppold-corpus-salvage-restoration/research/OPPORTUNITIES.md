@@ -910,3 +910,11 @@ family engine failure; no live family was launched before it was repaired.
 - Prevention: resolve the inherited reference in its owning documentation lane.
 - Action: attribute the red as inherited, retain the measured result and
   continue the authorized launch; no unrelated skill edit or link creation.
+
+
+Attribution correction: the cached origin/main ref predates the integrated
+#1685 skill commit. The affected file differs from that stale ref; it matches
+integrated main commit 96f1f5087beb2b937c640843d502ada843b82958 exactly,
+with no lane edit. The earlier statement that it matches origin/main is
+withdrawn. Inherited provenance is #1685, verified by the empty diff from
+that integrated main commit. No fix or base merge inside the frozen launch.

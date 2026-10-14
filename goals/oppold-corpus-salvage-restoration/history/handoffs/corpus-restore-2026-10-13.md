@@ -1505,3 +1505,11 @@ No unrelated repair. Index, reflection-artifacts, launcher size, manifest
 JSON and whitespace pass. No reference links recreated. The current
 source still matches the pre-launch amendment; the documentation red does
 not change engines, selection, policy or ceilings. Retain this proof result.
+
+
+Attribution correction: the cached origin/main ref predates the integrated
+#1685 skill commit. The affected file differs from that stale ref; it matches
+integrated main commit 96f1f5087beb2b937c640843d502ada843b82958 exactly,
+with no lane edit. The earlier statement that it matches origin/main is
+withdrawn. Inherited provenance is #1685, verified by the empty diff from
+that integrated main commit. No fix or base merge inside the frozen launch.
