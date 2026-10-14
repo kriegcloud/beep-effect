@@ -11,6 +11,7 @@
 | 2026-10-14 | Wrangler's first device authorization expired after five minutes; its CLI timeout matches the browser's rejected-code result. | Issue short-lived codes close to the operator's approval, replace expired requests and verify login through the worker CLI. |
 | 2026-10-14 | Azure CLI's successful resource-group read emitted a Python 3.14 invalid-escape SyntaxWarning from its SDK. | Track warning-only runtime compatibility separately from authentication; do not reinterpret a successful read as a failed login. |
 | 2026-10-14 | An initial Pulumi probe targeted the hosted service, while DankStation uses an S3 DIY backend; its bare AWS login had expired. | Match the live backend and use the worker's approved op-run AWS environment. S3 login and four-stack discovery now pass; do not copy workstation credential caches. |
+| 2026-10-14 | Fresh audit inherited a forwarded agent from a reused SSH master despite the new ssh invocation using -a; an independent presence probe confirmed it. | Remove SSH_AUTH_SOCK explicitly from workload process environments and verify inside each profile. Preserve T3's UnsetEnvironment drop-in; first audit launch is not isolation proof. Corrected native reruns are recorded separately. |
 
 ## Headless qualification findings
 
@@ -89,3 +90,19 @@ account discovery and the actual T3 workflow. Native gh authentication alone
 was insufficient proof. GitHub writes/publishing were not exercised.
 
 Evidence: [GitHub qualification](../history/2026-10-14-t3-github-qualification.md).
+
+## Fresh headless follow-up — 2026-10-14
+
+[Combined receipt](../history/2026-10-14-headless-portability-follow-up.md)
+records corrected Codex/Claude runs. Bunx, Graft's executable, the model manifest,
+independent dependencies and upgraded gh now pass inspection. References,
+structural graph/parser, actual MCP connections and detached Yeet remain open.
+Seven model-policy findings reproduce on DankStation; the worker home-config
+locator remains unattributed. Do not turn network-sandbox denials into host-auth
+failures or choose proposed model candidates automatically.
+
+Claude's plan run exceeded the requested mutation/job/batch boundaries with a
+temporary file and transient systemd diagnostic. Future audits need enforceable
+capability/budget boundaries, not reliance on the model's plan-mode description.
+The canonical proxy executable is cli-proxy-api; guessed spellings missing from
+PATH do not establish a provisioning failure.
