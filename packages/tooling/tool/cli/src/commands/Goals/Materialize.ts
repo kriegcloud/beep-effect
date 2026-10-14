@@ -11,7 +11,9 @@
  *   `goals/.staging-<digest>/`, validates the staged tree, claims
  *   `goals/<slug>` with a non-recursive `makeDirectory` (the no-replace
  *   guard), and renames the stage onto the empty claim. Any failure removes
- *   the stage and an empty claim, so a failed write leaves no trace.
+ *   the stage and an empty claim, so a failed write leaves no trace. A retry
+ *   after a crash first sweeps every `goals/.staging-*` (E12) and reclaims an
+ *   empty slug directory (E11), so no crash point blocks the next attempt.
  * - **adopt**: asserts every `preserve` pre-image digest, then writes each
  *   `create` with exclusive-create, so a file that appeared after planning
  *   fails the write instead of being clobbered.
@@ -119,9 +121,25 @@ const removeQuietly = Effect.fn("Goals.removeQuietly")(function* (absolutePath: 
 const removeIfEmpty = Effect.fn("Goals.removeIfEmpty")(function* (absolutePath: string) {
   const fs = yield* FileSystem.FileSystem;
   const entries = yield* fs.readDirectory(absolutePath).pipe(Effect.option);
+  // Node's rm refuses a directory without `recursive`, even an empty one; the
+  // emptiness check above is what keeps this from removing content.
   if (O.exists(entries, A.isReadonlyArrayEmpty)) {
-    yield* fs.remove(absolutePath).pipe(Effect.ignore);
+    yield* fs.remove(absolutePath, { recursive: true }).pipe(Effect.ignore);
   }
+});
+
+// E12: a staging directory is never published content, so every leftover
+// `goals/.staging-*` (a foreign digest, or this plan's own from a crashed attempt)
+// is removed before staging.
+const sweepStaleStages = Effect.fn("Goals.sweepStaleStages")(function* (goalsDir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const entries = yield* fs.readDirectory(goalsDir).pipe(Effect.orElseSucceed(A.empty<string>));
+  yield* Effect.forEach(
+    A.filter(entries, Str.startsWith(".staging-")),
+    (entry) => removeQuietly(path.join(goalsDir, entry)),
+    { discard: true }
+  );
 });
 
 /**
@@ -167,6 +185,7 @@ export const publishBootstrapPlan = Effect.fn("Goals.publishBootstrapPlan")(func
   const creates = writtenCreates(plan);
 
   const run = Effect.gen(function* () {
+    yield* sweepStaleStages(path.join(repoRoot, GOALS_DIR));
     yield* fs
       .makeDirectory(stage)
       .pipe(Effect.mapError(fileErrorFor(`Refusing to stage: ${stage} already exists or cannot be created.`)));
@@ -176,6 +195,8 @@ export const publishBootstrapPlan = Effect.fn("Goals.publishBootstrapPlan")(func
       { discard: true }
     );
     const validations = yield* validateStage(stage);
+    // E11: an empty slug directory is an abandoned claim from a crashed attempt.
+    yield* removeIfEmpty(target);
     yield* fs
       .makeDirectory(target)
       .pipe(Effect.mapError(fileErrorFor(`Refusing to publish: ${plan.packetPath} already exists.`)));

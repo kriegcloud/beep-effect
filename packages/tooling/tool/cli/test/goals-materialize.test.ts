@@ -4,6 +4,7 @@ import {
   compileAdoptionPlan,
   compileMaterializationPlan,
   goalsCommand,
+  listGoalPackets,
   MaterializationPlan,
   PacketEventStoreLive,
   PlanEntry,
@@ -114,6 +115,30 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
           expect(String(exit)).toContain("already exists");
           expect(yield* fs.readDirectory("goals/fresh-goal")).toEqual(["NOTES.md"]);
           expect(yield* listGoals).toEqual(["fresh-goal"]);
+        })
+      )
+    );
+
+    it.effect("recovers from a crashed attempt: stale stages are swept and an empty claim is reclaimed", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const plan = yield* compileMaterializationPlan(input, []);
+          const ownStage = `goals/.staging-${Str.slice(-16)(plan.planId)}`;
+          // A crash after staging (own digest), a foreign attempt's stage, and a crash
+          // between claim and rename (empty slug directory).
+          yield* writeProjectFile(`${ownStage}/README.md`, "half-written\n");
+          yield* writeProjectFile("goals/.staging-0000000000000000/GOAL.md", "foreign\n");
+          yield* fs.makeDirectory("goals/fresh-goal", { recursive: true });
+
+          // E11: the inventory does not count the abandoned claim as a packet.
+          expect(A.map(yield* listGoalPackets(), (record) => record.slug)).toEqual([]);
+
+          const receipt = yield* publishBootstrapPlan(plan);
+          expect(receipt.slug).toBe("fresh-goal");
+          expect(yield* listGoals).toEqual(["fresh-goal"]);
+          expect(A.map(yield* listGoalPackets(), (record) => record.slug)).toEqual(["fresh-goal"]);
         })
       )
     );

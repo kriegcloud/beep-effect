@@ -134,6 +134,10 @@ const scanGoalPacket = Effect.fn("Goals.scanGoalPacket")(function* (
   const readStat = fs.stat(packetPath).pipe(Effect.asSome);
   const stat = yield* mode === "strict" ? readStat : readStat.pipe(Effect.orElseSucceed(O.none));
   if (O.isNone(stat) || stat.value.type !== "Directory") return O.none<GoalPacketRecord>();
+  // E11: an empty slug directory is an abandoned publish claim, not a packet.
+  const readEntries = fs.readDirectory(packetPath);
+  const entries = yield* mode === "strict" ? readEntries : readEntries.pipe(Effect.orElseSucceed(A.empty<string>));
+  if (A.isReadonlyArrayEmpty(entries)) return O.none<GoalPacketRecord>();
 
   const manifestPath = path.join(packetPath, "ops", "manifest.json");
   const readmePath = path.join(packetPath, "README.md");
