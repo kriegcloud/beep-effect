@@ -28,7 +28,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-009](./CSF-009.md) | Low | repair implemented | Tesseract file\-list input bypasses the corpus read boundary | corpus OCR raster intake |
 | [CSF-010](./CSF-010.md) | Low | repair implemented | Mail attachment names inject terminal controls during intake | drawing intake terminal summary |
 | [CSF-011](./CSF-011.md) | Low | repair implemented | Source checkout preloads can forge signed pilot evidence | signed cache pilot supervisor |
-| [CSF-012](./CSF-012.md) | Low | captured | Hook resolver executes code from an untrusted current checkout | _pending P2_ |
+| [CSF-012](./CSF-012.md) | Low | repair implemented | Hook resolver executes code from an untrusted current checkout | Claude hook executable root |
 | [CSF-013](./CSF-013.md) | Low | repair implemented | Aliased packages bypass the exact\-version Bun audit ignore guard | Bun audit OSV override selection |
 | [CSF-014](./CSF-014.md) | Low | repair implemented | Backdated commits bypass the new merge review window | Yeet REST merge review window |
 | [CSF-015](./CSF-015.md) | Low | repair implemented | Address substring parsing bypasses attachment sender restrictions | mail sender address normalization |

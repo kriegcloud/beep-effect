@@ -474,15 +474,28 @@
       "severity": "Low",
       "codexStatus": "New",
       "commit": "650a025a72e7529ff801ba184f1fd08f91c95a71",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Twenty-one current hook commands selected executable code from the current Git checkout based only on .claude/hooks directory presence."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          ".claude/settings.json",
+          "docs/runbooks/graft-local-recovery.md",
+          "packages/tooling/tool/cli/test/claude-hook-root.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/claude-hook-root.test.ts --pool=threads --maxWorkers=1",
+          "bun run beep quality package-verify @beep/repo-cli --quick"
+        ],
+        "summary": "Anchor hook executable paths to CLAUDE_PROJECT_DIR and skip if absent; a crafted-checkout regression exercises the configured shell and Node commands."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "Claude hook executable root",
+      "lane": "L34"
     },
     {
       "id": "CSF-013",

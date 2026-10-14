@@ -92,19 +92,16 @@ Edit `.claude/settings.json` selectively:
   and `15000`. Restore the committed values for the affected hooks.
 - Preserve unrelated settings, including any intentional footer-link setting,
   and leave local backup files alone.
-- Keep the resolver prefix on every hook command. Each command starts with
-  `d="$(git rev-parse --show-toplevel 2>/dev/null)"; [ -n "$d" ] && [ -d "$d/.claude/hooks" ] || d="${CLAUDE_PROJECT_DIR:-$PWD}"; export CLAUDE_PROJECT_DIR="$d"`
-  because Claude Code pins `CLAUDE_PROJECT_DIR` to the launch directory for the
-  whole session, including after `/cd`. Without it, a session that started
-  elsewhere and moved into this checkout fires every hook against the launch
-  directory (`/bin/sh: .../.claude/hooks/hook-pulse.sh: No such file or
-  directory` on each tool call and stop), and a session that moved between two
-  live checkouts keeps reading and writing the launch checkout's inbox. The
-  prefix takes the checkout that contains the hook's working directory whenever
-  that checkout carries `.claude/hooks`, and falls back to the variable only
-  when the working directory is outside such a checkout (a reference clone, a
-  scratch directory). Script paths stay double-quoted. Initialization rewrites
-  drop the prefix; restore it.
+- Keep the trusted-root prefix on every hook command. Each command starts with
+  `d="${CLAUDE_PROJECT_DIR:-}"; [ -n "$d" ] && [ -d "$d/.claude/hooks" ] || exit 0`
+  and executes code only from the session's launch project. Claude Code pins
+  `CLAUDE_PROJECT_DIR` across `/cd`; using the current Git checkout to select
+  executable hooks would run code from an untrusted checkout without loading
+  its settings. A session launched elsewhere may skip these hooks, and a
+  session moved between live checkouts keeps the launch checkout's hooks.
+  Start a fresh session in the intended checkout when its hooks are needed.
+  Script paths stay double-quoted. Initialization rewrites that remove the
+  prefix must be repaired.
 
 Do not replace the whole settings file just to remove these additions. Review
 the resulting diff, then format the edited JSON:
