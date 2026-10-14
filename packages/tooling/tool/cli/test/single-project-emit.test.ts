@@ -90,7 +90,7 @@ const compilerArguments = (words: ReadonlyArray<string>): O.Option<ReadonlyArray
       O.getOrElse(() => remaining.length)
     );
     const command = commandBasename(words[index++] ?? "");
-    if (command === "tsc" || command === "tsgo") {
+    if (command === "tsc" || command === "tsc-rs" || command === "tsgo") {
       return O.some(A.drop(words, index));
     }
     const next = Match.value(command).pipe(
@@ -251,6 +251,9 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) => {
         "echo tsc -b",
         "other-tsc -b",
         "tsc -- -b",
+        "tsc-rs -- -b",
+        "env FOO=x tsc-rs -- --force",
+        "pnpm exec tsc-rs -- -b",
         'echo "ready && tsgo -b"',
       ]) {
         expect(violatesSingleProjectEmit(script), script).toBe(false);
@@ -277,6 +280,8 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) => {
         "bunx tsc --force",
         "npx --no-install tsc -b packages/foo",
         "pnpm exec tsc -b .",
+        "pnpm exec tsc-rs -b .",
+        "bunx tsc-rs --force",
         "pnpm tsc -b .",
         "npm x tsc -b",
         "npm --loglevel silent exec tsc -b .",

@@ -50,12 +50,12 @@ Higher sources outrank lower sources when they conflict.
 
 ## Acceptance Criteria
 
-- [ ] P0: the eleven upstream 7.1 sites typecheck clean under stock
+- [x] P0: the eleven upstream 7.1 sites typecheck clean under stock
       `typescript@7.1.0-dev.20261008.1`, tsc-rs 0.6.0 and tsgo 0.51.1.
-- [ ] P1: `tsc-rs` 0.6.0 pinned in the catalog; generated `beep:check`,
+- [x] P1: `tsc-rs` 0.6.0 pinned in the catalog; generated `beep:check`,
       `beep:check:tests` and `beep:build` run `tsc-rs`; `bun run check` and
       `bun run build` green; the tsgo shim and `@effect/tsgo` untouched.
-- [ ] P1: `EffectTsgoEffectFnPolicy.test.ts` asserts the new version shapes.
+- [x] P1: `EffectTsgoEffectFnPolicy.test.ts` asserts the new version shapes.
 - [ ] P2: hosted cache-cold `Heavy / Check` and `Heavy / Build` times recorded
       against the 2026-10-13 baseline (7m39s turbo time, 268 tasks).
 - [ ] No unrelated refactors or formatting churn.
