@@ -3,10 +3,10 @@
   "effectedCommit": "af7566a9da2eff169cb74955efcc5ede1e5de9f8",
   "startedAt": "2026-10-07T06:36:54.420Z",
   "lastCheckpoint": {
-    "module": "xdg",
+    "module": "jsonc",
     "stage": 5,
     "commit": null,
-    "at": "2026-10-14T00:19:17.930Z"
+    "at": "2026-10-14T00:25:15.049Z"
   },
   "rows": [
     {
@@ -450,8 +450,8 @@
       "module": "jsonc",
       "wave": 0,
       "position": 2,
-      "stage": 3,
-      "status": "in-progress",
+      "stage": 5,
+      "status": "done",
       "provisionalHome": "foundation/modeling",
       "upstreamPaths": {
         "src": "packages/jsonc/src",
@@ -829,6 +829,14 @@
         },
         {
           "stage": 2,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 3,
+          "sha": "7929b1f529759c823571d90423d9aaa5afbcbbb8"
+        },
+        {
+          "stage": 4,
           "sha": null
         }
       ],
@@ -837,9 +845,11 @@
         "2026-10-07T06:56:49.701Z S1: S1 green: strict parity, tsgo+canary, oxlint+4 laws (effect-imports via mirror), 210 tests. Fixed crispening regression (object insert dropped keys), restored upstream NoOp for passed array indices, D15 test casts removed, terse helper-refs, @beep/utils subpath import.",
         "2026-10-07T07:04:12.067Z S2: S2 green: docgen with all enforcement flags, JSDoc law clean over 13 files, README adapted to section 10.3 (badges/install/pre-1.0 removed, examples on lab imports and probed, four Port notes subsections, deviation 5 recorded as not a deviation), KNOWLEDGE.md carried.",
         "2026-10-07T07:33:22.979Z S3: S3 green: 252 tests, every source file at 100 percent (coverage summary verified), canon detectors clean (4 EV005/EV006 fixed), property floor 40 properties over every exported schema/codec plus parser/formatter fidelity. Properties found F1 (port bug: empty arrays failed canonicalize, fixed) and F2 (upstream bug: trailing-comma insertion outside container, fixed, deviation recorded).",
-        "2026-10-07T08:11:21.940Z D19 confirmation round 1 found 15 required findings (crispening regressions plus unrecorded deviations); the exit rule (a round at zero required from all three seats) still binds, so round 2 follows the fixes. Grok seat rerun with the read-only tool allowlist after plan mode returned an empty review."
+        "2026-10-07T08:11:21.940Z D19 confirmation round 1 found 15 required findings (crispening regressions plus unrecorded deviations); the exit rule (a round at zero required from all three seats) still binds, so round 2 follows the fixes. Grok seat rerun with the read-only tool allowlist after plan mode returned an empty review.",
+        "2026-10-14T00:25:11.345Z S4: S4 closed at review round 3 (operator cap: three rounds)",
+        "2026-10-14T00:25:15.049Z S5: done: final round committed and gated (audit, docgen, per-file coverage)"
       ],
-      "closedAt": null
+      "closedAt": "2026-10-14T00:25:15.049Z"
     },
     {
       "id": "w1-memfs",
