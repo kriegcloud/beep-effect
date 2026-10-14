@@ -931,6 +931,61 @@ const applyPlan = Effect.fn("BoxContentMigration.applyPlan")(function* (
     return yield* applied(action.pathDigest, "folder", providerId.value);
   });
 
+  const stageChunkedUpload = Effect.fnUntraced(function* (
+    planned: PlannedFile,
+    action: BoxContentUpload,
+    sourcePath: string
+  ) {
+    // Box commits chunked bytes before returning its SHA-1. Keep a verified
+    // private snapshot alive through stream consumption via the caller's scope.
+    const stage = yield* fs.makeTempDirectoryScoped({ prefix: "beep-box-upload-" }).pipe(Effect.result);
+    if (stage._tag === "Failure") {
+      return {
+        _tag: "Settled",
+        outcome: yield* failed(action.entryDigest, "file", localFailure("provider-error")),
+      } as const;
+    }
+    const path = sourcePaths.join(stage.success, "content");
+    const copied = yield* fs.copyFile(sourcePath, path).pipe(Effect.result);
+    if (copied._tag === "Failure") {
+      return {
+        _tag: "Settled",
+        outcome: yield* failed(action.entryDigest, "file", localFailure("provider-error")),
+      } as const;
+    }
+    const checked = yield* hashFileContent(path).pipe(Effect.provideService(FileSystem.FileSystem, fs), Effect.result);
+    if (checked._tag === "Failure") {
+      return {
+        _tag: "Settled",
+        outcome: yield* failed(action.entryDigest, "file", localFailure("provider-error")),
+      } as const;
+    }
+    if (
+      checked.success.sizeBytes !== planned.file.sizeBytes ||
+      !sha256Equivalence(checked.success.sha256, planned.file.sha256)
+    ) {
+      yield* write((base) =>
+        BoxContentJournalSkipped.make({
+          ...base,
+          actionDigest: action.entryDigest,
+          actionKind: "file",
+          providerId: O.none(),
+          reason: "source-changed",
+        })
+      );
+      return {
+        _tag: "Settled",
+        outcome: BoxContentActionBlocked.make({
+          actionDigest: action.entryDigest,
+          actionKind: "file",
+          providerId: O.none(),
+          reason: "source-changed",
+        }),
+      } as const;
+    }
+    return { _tag: "Ready", path } as const;
+  });
+
   const upload = Effect.fnUntraced(function* (
     planned: PlannedFile,
     action: BoxContentUpload,
@@ -940,49 +995,12 @@ const applyPlan = Effect.fn("BoxContentMigration.applyPlan")(function* (
     return yield* Effect.scoped(
       Effect.gen(function* () {
         const sourcePath = sourcePaths.resolve(map.sourceRoot, planned.file.sourceRelativePath);
-        // Box commits a chunked upload before returning its SHA-1. Copy and verify
-        // approved bytes in a private temporary directory before opening a session.
-        // The staged file lives through stream consumption, then scoped cleanup runs.
-        let uploadPath = sourcePath;
-        if (action.transport === "chunked") {
-          const stage = yield* fs.makeTempDirectoryScoped({ prefix: "beep-box-upload-" }).pipe(Effect.result);
-          if (stage._tag === "Failure") {
-            return yield* failed(action.entryDigest, "file", localFailure("provider-error"));
-          }
-          uploadPath = sourcePaths.join(stage.success, "content");
-          const copied = yield* fs.copyFile(sourcePath, uploadPath).pipe(Effect.result);
-          if (copied._tag === "Failure") {
-            return yield* failed(action.entryDigest, "file", localFailure("provider-error"));
-          }
-          const checked = yield* hashFileContent(uploadPath).pipe(
-            Effect.provideService(FileSystem.FileSystem, fs),
-            Effect.result
-          );
-          if (checked._tag === "Failure") {
-            return yield* failed(action.entryDigest, "file", localFailure("provider-error"));
-          }
-          if (
-            checked.success.sizeBytes !== planned.file.sizeBytes ||
-            !sha256Equivalence(checked.success.sha256, planned.file.sha256)
-          ) {
-            yield* write((base) =>
-              BoxContentJournalSkipped.make({
-                ...base,
-                actionDigest: action.entryDigest,
-                actionKind: "file",
-                providerId: O.none(),
-                reason: "source-changed",
-              })
-            );
-            return BoxContentActionBlocked.make({
-              actionDigest: action.entryDigest,
-              actionKind: "file",
-              providerId: O.none(),
-              reason: "source-changed",
-            });
-          }
-        }
-        const bytes: B.BoxByteStream = fs.stream(uploadPath).pipe(Stream.mapError(sourceReadFailure));
+        const staged =
+          action.transport === "chunked"
+            ? yield* stageChunkedUpload(planned, action, sourcePath)
+            : ({ _tag: "Ready", path: sourcePath } as const);
+        if (staged._tag === "Settled") return staged.outcome;
+        const bytes: B.BoxByteStream = fs.stream(staged.path).pipe(Stream.mapError(sourceReadFailure));
         yield* write((base) =>
           BoxContentJournalStarted.make({
             ...base,

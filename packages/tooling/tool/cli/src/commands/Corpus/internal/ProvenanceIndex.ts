@@ -75,6 +75,24 @@ const checked = Effect.fn("Provenance.checked")(function* (root: string, candida
   return yield* resolveWithinRoot(root, candidate, "Provenance path escapes corpus root");
 });
 
+const writeSyncedFile = (nodeFs: typeof import("node:fs"), file: string, content: string, flags: number): void => {
+  const descriptor = nodeFs.openSync(file, flags, 0o600);
+  try {
+    nodeFs.writeFileSync(descriptor, content);
+    nodeFs.fsyncSync(descriptor);
+  } finally {
+    nodeFs.closeSync(descriptor);
+  }
+};
+
+const bestEffortCleanup = (remove: () => void): void => {
+  try {
+    remove();
+  } catch {
+    // The write error remains authoritative.
+  }
+};
+
 const writeProvenance = Effect.fn("Provenance.writeOutput")(function* (
   output: string,
   file: string,
@@ -102,48 +120,33 @@ const writeProvenance = Effect.fn("Provenance.writeOutput")(function* (
         }
         const target = `/proc/self/fd/${directory}/${path.basename(file)}`;
         if (append === true) {
-          const descriptor = nodeFs.openSync(
+          writeSyncedFile(
+            nodeFs,
             target,
+            content,
             nodeFs.constants.O_WRONLY | nodeFs.constants.O_APPEND | nodeFs.constants.O_NOFOLLOW
           );
-          try {
-            nodeFs.writeFileSync(descriptor, content);
-            nodeFs.fsyncSync(descriptor);
-          } finally {
-            nodeFs.closeSync(descriptor);
-          }
           return;
         }
         temporaryDir = nodeFs.mkdtempSync(`/proc/self/fd/${directory}/.provenance-`);
         temporary = `${temporaryDir}/output.tmp`;
-        const descriptor = nodeFs.openSync(
+        writeSyncedFile(
+          nodeFs,
           temporary,
-          nodeFs.constants.O_WRONLY | nodeFs.constants.O_CREAT | nodeFs.constants.O_EXCL | nodeFs.constants.O_NOFOLLOW,
-          0o600
+          content,
+          nodeFs.constants.O_WRONLY | nodeFs.constants.O_CREAT | nodeFs.constants.O_EXCL | nodeFs.constants.O_NOFOLLOW
         );
-        try {
-          nodeFs.writeFileSync(descriptor, content);
-          nodeFs.fsyncSync(descriptor);
-        } finally {
-          nodeFs.closeSync(descriptor);
-        }
         nodeFs.renameSync(temporary, target);
         temporary = undefined;
         nodeFs.fsyncSync(directory);
       } finally {
         if (temporary !== undefined) {
-          try {
-            nodeFs.unlinkSync(temporary);
-          } catch {
-            // The write error remains authoritative.
-          }
+          const leftover = temporary;
+          bestEffortCleanup(() => nodeFs.unlinkSync(leftover));
         }
         if (temporaryDir !== undefined) {
-          try {
-            nodeFs.rmdirSync(temporaryDir);
-          } catch {
-            // The write error remains authoritative.
-          }
+          const leftoverDir = temporaryDir;
+          bestEffortCleanup(() => nodeFs.rmdirSync(leftoverDir));
         }
         nodeFs.closeSync(directory);
       }

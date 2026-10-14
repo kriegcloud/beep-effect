@@ -471,7 +471,8 @@ describe("@beep/pdf-tools service", () => {
           yield* fs.writeFile(file, yield* Effect.promise(() => doc.save({ useObjectStreams: false })));
 
           const exit = yield* Effect.exit((yield* PdfTools).inspect(file));
-          assertTrue(Exit.isFailure(exit));
+          const isFailure = exit.pipe(Exit.isFailure);
+          assertTrue(isFailure);
           expect(String(exit)).toContain("Cyclic PDF descendant-font graph");
         })
       );

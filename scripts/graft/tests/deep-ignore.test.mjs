@@ -1,6 +1,4 @@
-// fallow-ignore-file unused-file
-// Standalone Node regression for the repository's Graft dist patch; run with
-// `node --test scripts/graft/tests/deep-ignore.test.mjs`.
+// fallow-ignore-file unused-file -- Standalone Node regression for the repository's Graft dist patch; run with `node --test scripts/graft/tests/deep-ignore.test.mjs`.
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
