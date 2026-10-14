@@ -2086,6 +2086,9 @@
       ],
       "@beep/observability/catalog": [
         "./packages/foundation/capability/observability/src/catalog/index.ts"
+      ],
+      "@beep/repo-cli/commands/Observability": [
+        "./packages/tooling/tool/cli/src/commands/Observability/index.ts"
       ]
     }
   }

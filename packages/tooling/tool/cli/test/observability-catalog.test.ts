@@ -25,6 +25,7 @@ import {
 } from "@beep/repo-cli/commands/Observability";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { describe, expect, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
@@ -120,9 +121,10 @@ describe("harvestedSpans", () => {
 
   it("turns a non-conforming row into a harvested span instrument", () => {
     const row = HarvestedSpan.make({ name: "db.query", owner: pkgA, family: "driver", conforms: false });
-    expect(
-      O.map(harvestedSpanInstrument(row), ({ origin, conforms, protocol }) => ({ origin, conforms, protocol }))
-    ).toEqual(O.some({ origin: "harvested", conforms: false, protocol: false }));
+    assertSome(
+      O.map(harvestedSpanInstrument(row), ({ origin, conforms, protocol }) => ({ origin, conforms, protocol })),
+      { origin: "harvested", conforms: false, protocol: false }
+    );
   });
 });
 
@@ -201,7 +203,7 @@ describe("rendering", () => {
     expect(section).toContain("| driver | 2 | 1 | 1 |");
     expect(section).toContain("| **total** | 2 | 1 | 1 |");
     const doc = `# Title\n\n${STANDARD_SECTION_BEGIN}\nold\n${STANDARD_SECTION_END}\n\nrest\n`;
-    expect(spliceStandardSection(doc, section)).toEqual(O.some(`# Title\n\n${section}\n\nrest\n`));
-    expect(spliceStandardSection("# no markers\n", section)).toEqual(O.none());
+    assertSome(spliceStandardSection(doc, section), `# Title\n\n${section}\n\nrest\n`);
+    assertNone(spliceStandardSection("# no markers\n", section));
   });
 });
