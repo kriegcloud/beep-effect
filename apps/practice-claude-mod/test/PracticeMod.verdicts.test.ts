@@ -236,15 +236,17 @@ describe("VerdictLog", () => {
 
   it.layer(testLayer(), { timeout: "5 seconds" })("batch and recency", (it) => {
     it.effect(
-      "orders by timestamp, revision, then append order across batches",
+      "orders by timestamp then append order, ignoring revisions and lock rows",
       Effect.fnUntraced(function* () {
         const { store } = yield* FakeHostState;
         const rows = yield* S.decodeEffect(VerdictRows)([
           { itemId: item.itemId, batchId: "old", verdict: "wrong", revision: 9, recordedAt: 1000 },
           { itemId: item.itemId, batchId: "old", verdict: "right", revision: 1, recordedAt: 2000 },
-          { itemId: item.itemId, batchId: "new", verdict: "partly", revision: 2, recordedAt: 2000 },
-          { itemId: item.itemId, batchId: "new", verdict: "withdrawn", revision: 2, recordedAt: 2000 },
-          { itemId: item.itemId, batchId: "other", verdict: "wrong", revision: 20, recordedAt: 0, lockedAt: 1000 },
+          { itemId: item.itemId, batchId: "new", verdict: "partly", revision: 9, recordedAt: 2000 },
+          // Same timestamp, lower revision, appended later: append order wins.
+          { itemId: item.itemId, batchId: "new2", verdict: "withdrawn", revision: 1, recordedAt: 2000 },
+          // A lock row is never a verdict, however recent.
+          { itemId: item.itemId, batchId: "other", verdict: "wrong", revision: 20, recordedAt: 3000, lockedAt: 3000 },
         ]);
         MutableHashMap.set(store, "verdict-rows/v2", yield* S.encodeEffect(VerdictRows)(rows));
         const log = yield* VerdictLog;
@@ -263,7 +265,7 @@ describe("VerdictLog", () => {
 
   it.layer(testLayer(), { timeout: "5 seconds" })("latest batch lock", (it) => {
     it.effect(
-      "checks the latest row in the target batch even when another batch is newer",
+      "refuses a write to a batch that holds a lock row, even when another batch is newer",
       Effect.fnUntraced(function* () {
         const { store } = yield* FakeHostState;
         const rows = yield* S.decodeEffect(VerdictRows)([

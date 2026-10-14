@@ -196,19 +196,25 @@ const MigratedRows = S.Array(LegacyRow).pipe(
   )
 );
 
-const latestFor = (rows: ReadonlyArray<VerdictRow>, itemId: string, batchId?: string): O.Option<VerdictRow> =>
-  A.reduce(rows, O.none<VerdictRow>(), (latest, row) => {
-    if (row.itemId !== itemId || (batchId !== undefined && row.batchId !== batchId)) return latest;
-    return O.match(latest, {
-      onNone: () => O.some(row),
-      onSome: (previous) =>
-        DateTime.toEpochMillis(row.recordedAt) > DateTime.toEpochMillis(previous.recordedAt) ||
-        (DateTime.toEpochMillis(row.recordedAt) === DateTime.toEpochMillis(previous.recordedAt) &&
-          row.revision >= previous.revision)
-          ? O.some(row)
-          : latest,
-    });
-  });
+// The envelope rule: an item's current verdict is the row with the greatest
+// recordedAt, a tie going to the row appended last; lock rows never count as
+// verdicts. Revisions restart per batch, so they never break ties.
+const currentVerdictFor = (rows: ReadonlyArray<VerdictRow>, itemId: string): O.Option<VerdictRow> =>
+  A.reduce(rows, O.none<VerdictRow>(), (latest, row) =>
+    row.itemId !== itemId || O.isSome(row.lockedAt)
+      ? latest
+      : O.match(latest, {
+          onNone: () => O.some(row),
+          onSome: (previous) =>
+            DateTime.toEpochMillis(row.recordedAt) >= DateTime.toEpochMillis(previous.recordedAt)
+              ? O.some(row)
+              : latest,
+        })
+  );
+
+// A lock closes one batch: any lock row in it refuses further writes.
+const batchLocked = (rows: ReadonlyArray<VerdictRow>, batchId: string): boolean =>
+  A.some(rows, (row) => row.batchId === batchId && O.isSome(row.lockedAt));
 
 /**
  * Builds the verdict log over the mod host's store.
@@ -241,14 +247,13 @@ export const makeVerdictLog = Effect.gen(function* () {
 
   const currentUnserialized = Effect.fn("VerdictLog.current")(function* (itemId: string) {
     const rows = yield* readRows();
-    return latestFor(rows, itemId);
+    return currentVerdictFor(rows, itemId);
   });
 
   const recordUnserialized = Effect.fn("VerdictLog.record")(function* (input: VerdictInput) {
     const rows = yield* readRows();
     const batchId = ReviewBatchId.make(`session:${input.item.sessionId}`);
-    const previous = latestFor(rows, input.item.itemId, batchId);
-    if (O.isSome(previous) && O.isSome(previous.value.lockedAt)) {
+    if (batchLocked(rows, batchId)) {
       return yield* VerdictLocked.make({ itemId: input.item.itemId });
     }
     const row = VerdictRow.make({
