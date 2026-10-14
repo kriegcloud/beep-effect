@@ -33,3 +33,25 @@ was complete; missing-tool findings are timestamped initial-wave evidence.
 | Desktop notifications/hooks lack managed-worker guards and detached Yeet slice/job behavior is unproven. | Inherited workstation coupling | Add explicit supported host capabilities and qualify attached versus detached jobs; never equate help output with full Yeet readiness. |
 | npm skipped native/parser/workerd install scripts. | Package-manager policy difference | Scoped package-script approval plus native runtime proof; no blanket global allow-all. |
 | opencode-ai@2.0.27 absent from npm despite workstation opencode v2.0.27. | Packaging/provenance mismatch | Trace the actual workstation package source and install its correct artifact; do not silently substitute another CLI version or product. |
+
+
+## T3 remote qualification findings — 2026-10-14
+
+- Use the same release channel and compare orchestration protocol versions;
+  two installations labelled 0.0.45 had incompatible protocols. Worker CLI,
+  backend and desktop now use nightly 0.0.46-nightly.20261014.3093 / protocol 2.
+- Separate native saved-environment enablement from a direct browser connection.
+  The operator's native environment was Off, while the test existed on the host.
+- Pairing codes are one-time: opening the URL in a browser spends it before
+  Add environment. Paste fresh links directly into the intended client dialog.
+- Supervised T3 approvals belong to the human UI. Its MCP pending-request tools
+  expose questions, not shell approval resolution. Browser automation can operate
+  specifically authorized read-only approvals without changing runtime mode.
+- Configure enabled T3 provider instances and explicit executable paths for the
+  installed Cursor/Grok/Muse clients, then qualify those providers independently.
+- Version commands may write alias/update metadata. Preserve sandbox protection;
+  record warning-only writes separately from actual CLI execution failures.
+- Headless agent self-reports need comparison against actual activity and elapsed
+  timers. This run inaccurately claimed no approvals and a two-minute duration.
+
+Evidence: [T3 remote smoke](../history/2026-10-14-t3-remote-smoke.md).
