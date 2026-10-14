@@ -139,3 +139,4 @@ qualified by the beep-worker receipts.
 
 - [Fallow closeout and complete worker cheap-gate proof](history/2026-10-14-fallow-closeout.md): main merged, complexity and cache integration fixed; full serial cheap tier succeeds in 613.5 seconds with normal finalization and wait exit 0.
 - [Post-main headless parity audit](history/2026-10-14-post-main-headless-parity.md): fresh native Codex and direct runtime probes pass; installed Muse role spelling blocks the ordinary model check, while an isolated main seed reports zero findings. Box MCP startup lacks authentication.
+- [Worker main manifest adoption](history/2026-10-14-worker-main-manifest-adoption.md): backup verified, main seed deployed, ordinary worker check exits zero with zero findings across 360 models.

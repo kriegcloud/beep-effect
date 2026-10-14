@@ -296,3 +296,10 @@ adoption, then verify the ordinary path; do not change source policy to accept
 an obsolete role. Separately trace an unauthenticated Box MCP startup connection
 to its owning configuration before remediation. Other-provider post-main
 inference and reboot acceptance remain open.
+
+The [main manifest adoption receipt](../history/2026-10-14-worker-main-manifest-adoption.md)
+closes that installed-manifest compatibility gap: canonical adoption preserves
+the verified prior manifest backup, and the ordinary worker model check now
+passes with zero findings across 360 models. Existing service launch-time
+defaults and the older root CLI remain outside this verification. One catalog
+effort-ladder change is reported separately; no candidate model was adopted.
