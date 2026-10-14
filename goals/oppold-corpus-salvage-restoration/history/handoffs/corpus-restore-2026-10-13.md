@@ -766,3 +766,26 @@ Follow-ups: sanitized stage/exception-class preservation and a failing-GIF
 synthetic fixture. Eighteen larger occurrences and estate/recycle/DOC gates
 stay open; P0/P1/P4 complete, P3 pending. No package source edited.
 Graft saved approximately 124,561 tokens across three retrievals.
+
+## Terminal evidence publication checks
+
+Wave failure evidence committed at aaa63f2bd0. After the stopped wave,
+merged origin/main at b77ac5e82f without conflict into local head
+3b852097704bbdd3a4da617b94ac1d33e1490e1c. No Corpus/libpff engine source
+changed; the complete PR diff against main is confined to this packet.
+The merge moved bun.lock, so bun install --frozen-lockfile ran once and passed
+without tracked changes. No main integration occurred during live execution.
+
+Post-merge doctor has zero blockers and the same three unrelated advisories.
+Goals index refreshed its git-ignored projection successfully; launcher,
+manifest, whitespace and added-line public-hygiene checks pass.
+Knowledge refs passed through beep-heavy at merge head
+3b852097704bbdd3a4da617b94ac1d33e1490e1c with zero live gated observations.
+Earlier pre-commit gitleaks, typos, Biome and commitlint hooks passed.
+This is a docs-only evidence PR. Package-verify, test-tsgo, docgen local,
+jsdoc-ratchet, fallow audit+health and scoped coverage are not run because
+no package source changed. Prior merged engine/selector proofs remain
+historical evidence, not a claim that family 5 accepted.
+
+Publication uses Yeet through beep-heavy. P2 remains in-progress and the
+wave remains stopped irrespective of publication state. No merge is authorized.
