@@ -40,3 +40,41 @@ The worker's root checkout remains main because desktop/agent processes are
 active. A matching source-version qualification follows in an isolated checkout;
 new roles cannot be decoded by the older root CLI. No service restart or model
 inference is required merely to verify configuration.
+
+## Worker source-version qualification
+
+Code commit `0ae4401fc9` was transferred by a bounded Git bundle into
+`~/YeeBois/projects/beep-effect-worktrees/linux-agent-readiness`, on
+`feat/linux-agent-readiness`. The shallow worker clone initially lacked the
+bundle prerequisite; fetched only that required base commit before retrying.
+Installed this checkout's frozen lockfile dependencies independently. Both
+worker checkouts are clean and the root checkout stays on main.
+
+Adopted the current 27-binding/38-target seed on the worker with the CLI's
+backup-producing `models init --adopt`. The older root CLI cannot decode the
+new Muse/Junie role vocabulary; run model checks from the readiness worktree
+until the root checkout receives the updated code. This source-version boundary
+is recorded rather than hidden by weakening the schema or dropping bindings.
+
+The first worker check returned zero findings but lacked the proxy overlay.
+A direct authenticated, read-only `/v1/models` request independently confirmed
+GPT-6.1-Sol, GPT-6 Luna, Grok 4.7, Fable 5.1, Opus 5.5 and Muse Wonder 1.0.
+Installed the existing proxy client credential into the catalog reader's
+expected mode-0600 client-token file; no new credential or raw value was exposed.
+The initial direct request used `/models`, returned 404, and was corrected to
+`/v1/models` before recording success.
+
+The repeated worker check reports **zero findings across 360 models**, with
+router-for-me, Codex cache, Grok cache, Cursor and proxy overlays all answering.
+Explicit wrapper inspection additionally found an old lightweight default that
+is outside the current manifest's shell-function locator coverage. Updated
+`ANTHROPIC_DEFAULT_HAIKU_MODEL` in the worker proxy library to GPT-6 Luna,
+retaining a private backup. Shell syntax checks pass. Add portable executable
+wrapper locators to future parity coverage so a green model check also covers
+these installed worker entrypoints.
+
+Optional Junie configuration and the Graft deep environment file are absent on
+the worker; optional-target skips do not prove those integrations are ready.
+No model inference, Junie credits probe, deep Graft job or T3 restart was run.
+Existing processes can retain launch-time defaults until their next session.
+MCP qualification and detached Yeet proof remain separate readiness tasks.

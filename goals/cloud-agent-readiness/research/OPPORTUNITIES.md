@@ -146,3 +146,24 @@ systemd uses OOMPolicy=kill; MemoryOOMGroup assignment was rejected before the
 first probe ran. MCP server lifetime is preserved but protocol requests remain
 unqualified. Alchemy parsing and aggregate coverage remain open; explicit native
 entrypoints need inventory before claiming every workload uses the guard.
+
+
+## Model-policy reconciliation follow-up — 2026-10-14
+
+[Receipt](../history/2026-10-14-model-policy-reconciliation.md) records zero
+findings on DankStation and the worker's matching readiness worktree, including
+the live proxy overlay. Worker config defaults and native/proxy wrappers now
+match October 14 policy. Historical smoke results retain their actual pins.
+
+- Model manifests and CLI schemas need version-compatible rollout; the worker's
+  active root main checkout predates the new role vocabulary. Use the readiness
+  worktree for current checks until root source integration is scheduled.
+- A missing optional proxy token silently omits that catalog overlay; require
+  overlay-presence evidence in parity acceptance. The expected private token
+  path now exists and the live overlay answered.
+- Worker executable wrappers are outside shell-function locator coverage.
+  Add portable wrapper/library locators; explicit inspection caught the stale
+  lightweight default despite the first zero-finding check.
+- Optional Junie/Graft deep targets remain unqualified when absent. Do not
+  interpret their skipped checks as an installed/authenticated integration.
+- Continue with actual MCP tool requests and detached Yeet proof.
