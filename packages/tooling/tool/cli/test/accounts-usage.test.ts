@@ -1025,14 +1025,22 @@ describe("Junie direct balance", () => {
     expect(rankAccount(usage, DateTime.makeUnsafe(0)).availability).toBe("ready");
     expect(accountSection("junie")).toBe("junie");
   });
-  it("does not turn null, absent, or inactive balances into ready accounts", () => {
-    for (const text of [
-      "{}",
-      '{"active":null,"balanceLeft":null}',
-      '{"active":false,"balanceLeft":10,"balanceUnit":"CREDITS","licenseType":"AIP"}',
-    ]) {
-      expect(junieUsageOutcome({ identity: O.none(), status: 200, body: text })._tag).toBe("NeedsLogin");
+  it("retains last-good balances when JetBrains AI activity is absent or null", () => {
+    const account = AccountRef.make({ provider: "junie", label: "synthetic", source: "synthetic" });
+    const previous = [
+      AccountUsage.make({ account, outcome: junieUsageOutcome({ identity: O.none(), status: 200, body }) }),
+    ];
+    for (const text of ["{}", '{"active":null,"balanceLeft":null}']) {
+      const outcome = junieUsageOutcome({ identity: O.none(), status: 200, body: text });
+      expect(outcome).toEqual(
+        AccountUsageOutcome.cases.Failed.make({ detail: "JetBrains AI activity is unavailable" })
+      );
+      const retained = retainLastGood([AccountUsage.make({ account, outcome })], previous, DateTime.makeUnsafe(0))[0]
+        ?.outcome;
+      expect(retained).toMatchObject({ _tag: "Ok", credits: [{ remaining: 880000 }] });
+      if (retained?._tag === "Ok") assertSome(retained.asOf, DateTime.makeUnsafe(0));
     }
+    expect(junieUsageOutcome({ identity: O.none(), status: 200, body: '{"active":false}' })._tag).toBe("NeedsLogin");
   });
   it("uses Junie-specific instructions for a rejected auth/test", () => {
     expect(junieUsageOutcome({ identity: O.none(), status: 401, body: "" })).toEqual(
@@ -1094,6 +1102,37 @@ describe("Junie direct balance", () => {
         },
       })
     );
+  });
+  it("keeps last-good balances for transient OAuth failures and clears definitive rejections", () => {
+    const account = AccountRef.make({ provider: "junie", label: "synthetic", source: "synthetic" });
+    const previous = [
+      AccountUsage.make({ account, outcome: junieUsageOutcome({ identity: O.none(), status: 200, body }) }),
+    ];
+    for (const status of [503, 429, 403]) {
+      const refresh = junieRefreshOutcome({ stored: Redacted.make("synthetic-stored"), status, body: "" });
+      assertFailure(
+        refresh,
+        AccountUsageOutcome.cases.Failed.make({ detail: `JetBrains OAuth refresh answered HTTP ${status}` })
+      );
+      const retained = retainLastGood(
+        [AccountUsage.make({ account, outcome: refresh.failure })],
+        previous,
+        DateTime.makeUnsafe(0)
+      )[0]?.outcome;
+      expect(retained).toMatchObject({ _tag: "Ok", credits: [{ remaining: 880000 }] });
+      if (retained?._tag === "Ok") assertSome(retained.asOf, DateTime.makeUnsafe(0));
+    }
+    for (const status of [400, 401]) {
+      const refresh = junieRefreshOutcome({ stored: Redacted.make("synthetic-stored"), status, body: "" });
+      assertFailure(
+        refresh,
+        AccountUsageOutcome.cases.NeedsLogin.make({
+          detail: `JetBrains OAuth refresh answered HTTP ${status}; run \`junie\` and sign in again`,
+        })
+      );
+      const next = [AccountUsage.make({ account, outcome: refresh.failure })];
+      expect(retainLastGood(next, previous, DateTime.makeUnsafe(0))).toEqual(next);
+    }
   });
   it("rejects rotated refresh tokens and accepts unchanged or omitted ones", () => {
     const stored = Redacted.make("synthetic-stored");
@@ -1223,7 +1262,7 @@ const junieTestLayer = (
       }),
     })
   );
-  return layerAccountsUsageLive.pipe(Layer.provide(services), Layer.provideMerge(requests));
+  return layerAccountsUsageLive.pipe(Layer.provideMerge(services), Layer.provideMerge(requests));
 };
 
 describe("Junie fallback poller", () => {
@@ -1253,6 +1292,27 @@ describe("Junie fallback poller", () => {
             ["GET", "https://ingrazzio-cloud-prod.labs.jb.gg/auth/test", "Bearer synthetic-fresh", "true", "true"],
           ]);
         })
+    );
+  });
+  it.layer(junieTestLayer(credential, false), { timeout: "30 seconds" })("changed stored credential", (it) => {
+    it.effect("drops the cached access token when the stored refresh credential changes", () =>
+      Effect.gen(function* () {
+        const seen = yield* JunieRequests;
+        const fs = yield* FileSystem.FileSystem;
+        const first = yield* pollAccounts;
+        expect(first[0]?.outcome._tag).toBe("Ok");
+        yield* fs.writeFileString(
+          "/accounts-test/.junie/secure_credentials.json",
+          '{"jb-account-stored":{"jbAccount":{"access_token":"synthetic-new-login","refresh_token":"synthetic-new-refresh","expires_in":3600,"name":"New Synthetic Name"}}}'
+        );
+        yield* Ref.set(seen, []);
+        const second = yield* pollAccounts;
+        expect(second[0]?.account.label).toBe("New Synthetic Name");
+        expect(second[0]?.outcome._tag).toBe("Ok");
+        expect(yield* Ref.get(seen)).toEqual([
+          ["GET", "https://ingrazzio-cloud-prod.labs.jb.gg/auth/test", "Bearer synthetic-new-login", "true", "true"],
+        ]);
+      })
     );
   });
   it.layer(junieTestLayer(credential, false, 200), { timeout: "30 seconds" })("stored access", (it) => {

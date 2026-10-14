@@ -315,7 +315,8 @@ const decodedJunieUsageOutcome: (response: UsageTextResponse) => AccountUsageOut
   "JetBrains AI",
   JunieAuthTestBodyJson.decodeOption,
   (body, response) => {
-    if (!O.contains(body.active, true))
+    if (O.isNone(body.active)) return failed("JetBrains AI activity is unavailable");
+    if (O.contains(body.active, false))
       return AccountUsageOutcome.cases.NeedsLogin.make({
         detail: "JetBrains AI is inactive; run `junie` and sign in again",
       });
@@ -350,9 +351,11 @@ const decodedJunieUsageOutcome: (response: UsageTextResponse) => AccountUsageOut
  * import { junieUsageOutcome } from "@beep/repo-cli/test/Accounts"
  * import * as O from "effect/Option"
  *
- * console.log(junieUsageOutcome({ identity: O.none(), status: 200, body: "{}" })._tag) // "NeedsLogin"
+ * console.log(junieUsageOutcome({ identity: O.none(), status: 200, body: "{}" })._tag) // "Failed"
  * ```
  *
+ * @param response - The account identity, HTTP status, and auth/test body text.
+ * @returns The credit balance, a definitive login rejection, or a transient failure.
  * @category utilities
  * @since 0.0.0
  */
@@ -387,9 +390,11 @@ export const junieRefreshOutcome = (
   const { stored, status, body } = response;
   if (status !== 200)
     return Result.fail(
-      AccountUsageOutcome.cases.NeedsLogin.make({
-        detail: `JetBrains OAuth refresh answered HTTP ${status}; run \`junie\` and sign in again`,
-      })
+      status === 400 || status === 401
+        ? AccountUsageOutcome.cases.NeedsLogin.make({
+            detail: `JetBrains OAuth refresh answered HTTP ${status}; run \`junie\` and sign in again`,
+          })
+        : failed(`JetBrains OAuth refresh answered HTTP ${status}`)
     );
   const decoded = JunieRefreshBodyJson.decodeOption(body);
   if (O.isNone(decoded)) return Result.fail(failed("JetBrains OAuth refresh is unavailable"));
@@ -404,8 +409,11 @@ export const junieRefreshOutcome = (
 };
 
 class JunieAccessToken extends S.Class<JunieAccessToken>($I`JunieAccessToken`)(
-  { access_token: S.Redacted(S.String), expiresAt: S.Finite },
-  $I.annote("JunieAccessToken", { description: "A service-local Junie access token and its expiry in milliseconds." })
+  { access_token: S.Redacted(S.String), expiresAt: S.Finite, credentialFingerprint: S.String },
+  $I.annote("JunieAccessToken", {
+    description:
+      "A service-local Junie access token, its expiry in milliseconds, and the stored credential fingerprint.",
+  })
 ) {}
 
 const JunieFallbackJson = JsonStringCodec(S.Struct({ "jb-account-stored": JunieStoredCredential }));
@@ -582,9 +590,18 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
       if (O.isNone(stored.value))
         return failed("Junie credential variant is unsupported; a JetBrains account login is required");
       const account = stored.value.value.jbAccount;
+      const credentialFingerprint = yield* account.refresh_token.pipe(
+        Redacted.value,
+        sha256Hex,
+        Effect.provideService(Crypto.Crypto, crypto)
+      );
       const cached = yield* Ref.get(junieAccessToken);
+      if (O.exists(cached, (value) => value.credentialFingerprint !== credentialFingerprint)) {
+        yield* Ref.set(junieAccessToken, O.none());
+      }
+      const matching = O.filter(cached, (value) => value.credentialFingerprint === credentialFingerprint);
       const now = yield* Clock.currentTimeMillis;
-      const token = O.match(cached, {
+      const token = O.match(matching, {
         onNone: () => account.access_token,
         onSome: (value) =>
           value.expiresAt - Duration.toMillis(Duration.seconds(60)) > now ? value.access_token : account.access_token,
@@ -625,6 +642,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
         O.some(
           JunieAccessToken.make({
             access_token: refresh.success.access_token,
+            credentialFingerprint,
             expiresAt:
               (yield* Clock.currentTimeMillis) + Duration.toMillis(Duration.seconds(refresh.success.expires_in)),
           })
@@ -634,7 +652,10 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
     },
     Effect.timeoutOption(REQUEST_TIMEOUT),
     Effect.map(O.getOrElse(() => failed("JetBrains AI poll timed out"))),
-    Effect.catchTag("HttpClientError", () => Effect.succeed(failed("JetBrains AI request is unavailable")))
+    Effect.catchTags({
+      HttpClientError: () => Effect.succeed(failed("JetBrains AI request is unavailable")),
+      PlatformError: () => Effect.succeed(failed("Junie credential fingerprint is unavailable")),
+    })
   );
 
   const readLogin = (source: string) =>
@@ -884,7 +905,9 @@ export const pollAccounts = Effect.gen(function* () {
  * reading that was already old keeps its original stamp. Only a `Failed`
  * outcome falls back: a rejected login (`NeedsLogin`) is a definite answer and
  * shows at once, so a revoked login is never advertised as ready. Junie
- * failures also show at once, including refresh rotation and inactive licenses.
+ * rotation, a rejected refresh grant and an inactive licence are `NeedsLogin`
+ * and show at once; Junie timeouts keep the last reading like any provider.
+ * A 429/5xx refresh or unknown `active` is `Failed` and keeps the last reading.
  *
  * **Example** (Nothing to keep)
  *
