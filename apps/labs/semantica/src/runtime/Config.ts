@@ -32,7 +32,13 @@ export const RuntimeMode = LiteralKit(["live", "replay"]).pipe(
   })
 );
 
-class LabConfigValue extends S.Opaque<LabConfigValue, { readonly brand: unique symbol }>()(
+/**
+ * Environment-decoded configuration used by the headless Semantica runtime.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LabConfigValue extends S.Opaque<LabConfigValue, { readonly brand: unique symbol }>()(
   S.Struct({
     corpusRoot: S.OptionFromNullOr(S.NonEmptyString),
     embeddingDimension: PosInt,

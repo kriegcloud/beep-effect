@@ -16,6 +16,7 @@ import { DocumentId, RunId } from "@/schema/Ids";
 import { EventBody, makeProvenanceEventId, ProvenanceEvent } from "@/schema/Provenance";
 import { ParseOutcome } from "@/schema/Text";
 import { Ledger } from "@/services/Ledger";
+import { LedgerLiveOptions } from "../src/layers/LedgerLive.ts";
 
 const runId = RunId.make("a".repeat(64));
 const documentId = DocumentId.make("b".repeat(64));
@@ -58,7 +59,7 @@ describe("C0 ledger", () => {
           expect(snapshot.documents).toHaveLength(1);
           expect(snapshot.events).toHaveLength(1);
           expect(snapshot.documents[0]?.outcome).toMatchObject({ kind: "invalid-utf8" });
-        }).pipe(provideScopedLayer(LedgerLive({ ledgerRoot, mode: "replay", runId })));
+        }).pipe(provideScopedLayer(LedgerLive(LedgerLiveOptions.make({ ledgerRoot, mode: "replay", runId }))));
       })
     );
   });
@@ -82,7 +83,7 @@ describe("C0 ledger", () => {
           expect(afterConflict.documents).toHaveLength(1);
           expect(afterConflict.documents[0]?.outcome).toEqual(degraded("invalid-utf8"));
           expect(afterConflict.events).toEqual([ingested]);
-        }).pipe(provideScopedLayer(LedgerLive({ ledgerRoot, mode: "replay", runId })));
+        }).pipe(provideScopedLayer(LedgerLive(LedgerLiveOptions.make({ ledgerRoot, mode: "replay", runId }))));
       })
     );
   });
