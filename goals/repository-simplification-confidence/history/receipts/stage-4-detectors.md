@@ -2,8 +2,10 @@
 
 ## Scan baseline
 
-Status: current-head reproduction and owner refresh completed at
-`01b3d54700fa4327472fb7beb0ed169766902c90`, integrated main on 2026-10-14.
+Status: historical first reproduction completed at
+`01b3d54700fa4327472fb7beb0ed169766902c90`. The latest ordered owner replay
+completed at `49ffd94e5f328bcbd112247c1b3b2e444f2622bc` after main #1709;
+committed-candidate qualification is recorded separately below.
 Raw logs and command exits are retained in `.beep/rsc-resume/`. This receipt
 records a candidate refresh. R14 requires the serialized chore to land
 before its counts become the program baseline. No zero-debt result is claimed.
@@ -129,15 +131,27 @@ catalogs; these values are not B-authored repairs or an accepted zero scan.
 Current raw logs/results are in `.beep/rsc-resume/integrated/`. The earlier
 parity below is historical pending qualification of the newest candidate.
 
-### Committed-head parity
+### Historical f516 parity
 
-The committed candidate is `f5163d65a2b22c8025ddba5ccffd8ae667c2e003`.
+The earlier committed candidate was `f5163d65a2b22c8025ddba5ccffd8ae667c2e003`.
 Its parity passes census, test-tsgo, bounded docgen, CI JSDoc ratchet, Fallow
 audit/health and retired-effect-paths. Knowledge refs exits 1 on fourteen
 inherited observations, each affected file byte-identical to pinned main.
 Subsequent main source movement requires new qualification before publication.
 Required command results are recorded in the
 [current handoff](../handoffs/rsc-b-standards-2026-10-14.md).
+
+### Qualification at c12a1cf298
+
+The latest generated candidate is `c12a1cf29890136de17be1ac818a8685b21d20f8`
+against main `4e66575c64`. Admitted census, test-tsgo, bounded docgen, CI
+JSDoc ratchet, Fallow audit/health and retired-effect-paths all pass. Knowledge
+refs exits 1 on fourteen inherited live host-path observations; exact bytes
+of every affected file equal pinned main. Passing baseline-aware health does
+not supersede the raw health exit 1 or establish zero source complexity.
+No source or coverage floor delta exists, so package gates and scoped source
+coverage execution are not applicable to this wave. Final packet-head parity
+and review closure follow before publication. See the current handoff.
 
 ## Exception schema
 

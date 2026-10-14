@@ -3,15 +3,16 @@
 ## Status
 
 B first-wave owner replay is current to main #1709 at `49ffd94e5f32`. Its
-generated candidate remains unpublished pending committed-head qualification
-and independent review; the publication cap is released. Later R20 guidance
+generated candidate `c12a1cf298` passes local parity except fourteen inherited
+knowledge-refs observations. It remains unpublished pending the final
+packet-head checks and review closure; the publication cap is released. Later R20 guidance
 and detector work remains pending. Counts become accepted program baselines
 only after the serialized R14 merge.
 
 Lifecycle: `active`
 
-Program resumed on 2026-10-14. B integrated current main and is reproducing
-the first R20 generated refresh. Its [current handoff](history/handoffs/rsc-b-standards-2026-10-14.md)
+Program resumed on 2026-10-14. B integrated current main and completed
+the first R20 owner refresh; committed-candidate qualification follows. Its [current handoff](history/handoffs/rsc-b-standards-2026-10-14.md)
 records the five resolved old-head inbox rows and the remaining publication
 and serialization gates. Earlier lane evidence below retains its recorded
 head and date; it does not certify current program completion.

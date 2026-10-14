@@ -1128,3 +1128,14 @@ source-head and base provenance for every run so moving shared refs cannot
 turn an earlier pass into current-head proof. Knowledge refs also reported
 fourteen inherited host-path observations; exact byte comparisons establish
 attribution before any repair.
+
+
+### B pinned history needs explicit archive paths and current status
+
+The named first-wave review found stale current-tense packet lines after
+repeated main integrations, and an older review referenced `integrated/`
+logs that newer owner passes reused. Corrections preserve the pinned review,
+name its immutable private archive, retitle historical parity and update
+current status together. A qualification record should distinguish owner
+source head, generated candidate and final packet head instead of appending
+new evidence beneath an unchanged current-status sentence.

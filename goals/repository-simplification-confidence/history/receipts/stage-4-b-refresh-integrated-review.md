@@ -1,5 +1,9 @@
 # Independent integrated R20 refresh candidate review — 2026-10-14
 
+This is the original pinned review. Its `integrated/` log references now map
+to `.beep/rsc-resume/replay-a00d3fdaf7/`, which preserves that exact run.
+Subsequent runs reuse `integrated/`; they do not replace this review's proof.
+
 ## Verdict and exact scope
 
 **No source or generated-value blocker found for committed candidate `f5163d65a2b22c8025ddba5ccffd8ae667c2e003` against supplied main `a0838402f50a24113748b92b2600d160e62d445d`.** One minor stale receipt sentence requires correction in the qualification receipt: stage-4-detectors.md:115 says “Pending the candidate commit” although this candidate is committed. The owner acknowledged it and plans to replace it with actual committed-candidate parity results. No check not independently qualified by this review is marked pass.

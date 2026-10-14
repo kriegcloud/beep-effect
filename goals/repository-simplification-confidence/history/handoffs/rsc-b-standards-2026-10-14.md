@@ -1,10 +1,10 @@
 lane: rsc-b-standards
-head: 49ffd94e5f328bcbd112247c1b3b2e444f2622bc (latest owner replay source head; committed-candidate qualification follows)
+head: c12a1cf29890136de17be1ac818a8685b21d20f8 (qualified generated candidate; subsequent packet-only qualification commit follows)
 PR: #1616 (merged historical bounded test slice; new refresh PR pending)
 package-verify: not applicable to the current generated refresh; no workspace package edited
-hosted-parity: test-tsgo pending; docgen local pending; jsdoc-ratchet pending; knowledge refs pending; fallow audit+health pending; coverage read pending
+hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet pass; knowledge refs fail (14 inherited, all affected files byte-identical to main); fallow audit pass; fallow health pass (baseline-aware); coverage read not applicable (no touched source/floor); census pass; retired-effect-paths pass
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-b-standards-2026-10-14.md
-open: latest owner replay completed; candidate qualification and named review pending; cap gate released; R14 serialized merge before later R20 waves; S5 notice before effect-laws edits; V owns open canon cohorts
+open: final packet-head parity and review closure; publication pending with cap released; R14 serialized merge before later R20 guidance/provenance waves; S5 notification before effect-laws edits; V open cohorts
 
 ## Resume and inbox disposition
 
@@ -206,3 +206,50 @@ edit or admission. Private occurrence reviews remain pinned to their stated
 source heads and need that inventory delta reconciled before implementation.
 Current owner logs are in `.beep/rsc-resume/integrated/`; prior source passes
 are archived separately. Candidate parity and the named reviewer follow.
+
+## Named review and gate interpretation
+
+Claude Opus 5.5 at medium effort independently reviewed committed candidate
+`c12a1cf29890136de17be1ac818a8685b21d20f8` against main `4e66575c64`.
+The recorded model usage confirms `claude-opus-5-5`. It found no P0/P1 or
+generated-value blocker, and five packet/gate clarity findings. Corrections
+retitle historical f516 parity, refresh current status/PLAN wording, say
+schema-first regeneration has no tracked delta, and map the earlier review's
+logs to `.beep/rsc-resume/replay-a00d3fdaf7/`. The earlier bea replay
+archive is `.beep/rsc-resume/replay-bea70598228b/`. The pinned independent
+review remains unchanged; subsequent qualification records its resolution.
+
+The cap question is resolved by the standing resume contract: authorization
+is the existence of the external cap file, not a SHA-bound approval. The
+same addendum explicitly requires fetching and merging newer main immediately
+before the push. The gate's main SHA records its release-time state; applying
+a new head pin would contradict that required integration. The file remains
+present, no revocation is observed, and latest-main integration is retained.
+No new permission flow or cap override is introduced. Publication still
+waits for current candidate qualification and a final fetch. Reason and
+reversal are recorded in the SPEC Decision Log for asynchronous review.
+
+## Committed-candidate qualification at c12a1cf298
+
+All admitted parity commands terminate on
+`c12a1cf29890136de17be1ac818a8685b21d20f8` against main `4e66575c64`.
+Census, test-tsgo, bounded docgen, CI JSDoc ratchet, Fallow audit, Fallow health
+and retired-effect-paths pass. Knowledge refs fails with the same fourteen
+live host-path observations; every affected file is byte-identical to this
+pinned main. Comparison is retained in
+`.beep/rsc-resume/knowledge-refs-attribution-c12a.json`. No B packet path is
+in that gated set. No waiver or successful refs run is claimed.
+
+All six captured before objects equal pinned main, and all six captured
+after objects equal committed candidate values. The verification is retained
+in `.beep/rsc-resume/candidate-c12a-object-verification.json`. Raw health
+exit 1 remains distinct from the passing baseline-aware parity health gate.
+No package source, coverage baseline row or floor is touched by this wave,
+so package-verify and scoped coverage execution are not applicable.
+
+The named review's packet corrections and cap interpretation are recorded
+in this qualification commit. Final parity checks the resulting packet head;
+the generated source/artifact values are unchanged. Existing reviews remain
+pinned to their explicit candidates. Publication follows a final fetch and
+latest-main check, then Yeet ready and a bounded readiness monitor. B never
+merges this PR; R14 merge belongs to the orchestrator.

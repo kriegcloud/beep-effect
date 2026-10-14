@@ -970,3 +970,16 @@ remain authoritative.
 - Boundaries: no push before the RSC-RESUME cap gate; no effect-laws allowlist
   or snapshot edit before S5 notification confirmation; V retains the open
   canon cohorts under R102.
+
+
+### 2026-10-14 B cap continuity through required main integration
+
+Decision: treat the released B cap file as CI-branch admission, continuing
+through the mandatory latest-main integration. The resume addendum gates on
+file existence and separately requires fetching/merging newer main before
+push; it defines no head-SHA binding. The release-time main SHA is provenance,
+not a replacement for the latter condition. This resolves the independent
+review's ambiguity without inferring an additional approval requirement.
+No revocation or absent file is overridden. Recovery: stop before publication
+if the gate is removed; after publication, revert the generated refresh PR
+and regenerate through its owners. R14 merge serialization remains required.
