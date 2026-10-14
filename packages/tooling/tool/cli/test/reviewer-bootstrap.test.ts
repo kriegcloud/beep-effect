@@ -1,23 +1,29 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { it } from "@beep/test-runner";
-import { describe, expect } from "@effect/vitest";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
 
 const bootstrapUrl = new URL("../scripts/CreateReviewerApp.ts", import.meta.url).href;
 
-describe("reviewer manifest bootstrap", () => {
-  for (const writeExit of [0, 17]) {
-    it.effect(`passes the complete template through a real pipe and handles write exit ${writeExit}`, () =>
-      Effect.sync(() => {
-        const directory = mkdtempSync(join(tmpdir(), "reviewer-bootstrap-test-"));
-        try {
+// The spawned Bun process must execute real fixture files; MemoryFileSystem cannot provide them.
+it.layer(Layer.merge(NodeFileSystem.layer, NodePath.layer), { timeout: "30 seconds" })(
+  "reviewer manifest bootstrap",
+  (it) => {
+    for (const writeExit of [0, 17]) {
+      it.effect(`passes the complete template through a real pipe and handles write exit ${writeExit}`, () =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const directory = yield* fs.makeTempDirectoryScoped({ prefix: "reviewer-bootstrap-test-" });
           // A large public placeholder catches both missing input and incomplete flushing.
           // No real key, credentials, conversion, or vault mutation is involved.
-          writeFileSync(
-            join(directory, "op"),
+          yield* fs.writeFileString(
+            path.join(directory, "op"),
             `#!/usr/bin/env bun
 import { fstatSync } from "node:fs";
 if (!fstatSync(0).isFIFO()) process.exit(80);
@@ -27,10 +33,11 @@ if (input.fields.length !== 4) process.exit(82);
 if (input.fields.find(field => field.id === "private_key")?.value !== "placeholder-only".repeat(4096)) process.exit(83);
 if (process.argv.slice(2).join(" ") !== "item create --vault BEEP_SECRETS -") process.exit(84);
 process.exit(${writeExit});
-`,
-            { mode: 0o700 }
+`
           );
-          writeFileSync(join(directory, "op-doctor"), "#!/bin/sh\nexit 0\n", { mode: 0o700 });
+          yield* fs.chmod(path.join(directory, "op"), 0o700);
+          yield* fs.writeFileString(path.join(directory, "op-doctor"), "#!/bin/sh\nexit 0\n");
+          yield* fs.chmod(path.join(directory, "op-doctor"), 0o700);
           const harness = `
 globalThis.fetch = async () => new Response(JSON.stringify({
   id: 123, client_id: "fixture-client", pem: "placeholder-only".repeat(4096)
@@ -54,20 +61,20 @@ Bun.serve = options => {
 };
 await import(${JSON.stringify(bootstrapUrl)});
 `;
-          const child = spawnSync("bun", ["--eval", harness], {
-            env: { ...process.env, PATH: `${directory}:${process.env.PATH}` },
-            encoding: "utf8",
-            timeout: 15_000,
-          });
+          const child = yield* Effect.sync(() =>
+            spawnSync("bun", ["--eval", harness], {
+              env: { ...process.env, PATH: `${directory}:${process.env.PATH}` },
+              encoding: "utf8",
+              timeout: 15_000,
+            })
+          );
           expect(child.error).toBeUndefined();
           expect(child.status).toBe(0);
           expect(child.stdout).not.toContain("placeholder-only");
           expect(child.stderr).not.toContain("placeholder-only");
           if (writeExit !== 0) expect(child.stderr).toContain("1Password item creation exited 17");
-        } finally {
-          rmSync(directory, { recursive: true, force: true });
-        }
-      })
-    );
+        })
+      );
+    }
   }
-});
+);
