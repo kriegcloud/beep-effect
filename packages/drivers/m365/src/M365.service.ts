@@ -689,11 +689,14 @@ export class M365ListMessagesRequest extends S.Opaque<M365ListMessagesRequest, {
       .annotateKey({ description: "Optional Graph OData `$filter` query value." }),
     nextLink: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description:
-        "Optional `@odata.nextLink` of the previous page; must target the configured Graph origin. When present, filter, orderby and top are ignored.",
+        "Optional `@odata.nextLink` of the previous page; must target the configured Graph origin. When present, filter, orderby, select and top are ignored.",
     }),
     orderby: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional Graph OData `$orderby` query value." }),
+    select: S.OptionFromOptionalKey(S.String)
+      .pipe(S.withConstructorDefault(Effect.succeedNone))
+      .annotateKey({ description: "Optional Graph OData `$select` projection." }),
     top: S.OptionFromOptionalKey(PosInt)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional Graph `$top` page size." }),
@@ -3322,6 +3325,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
           mailboxUrl(runtime.config, request.userId, "messages", "messages", [
             ["$filter", request.filter],
             ["$orderby", request.orderby],
+            ["$select", request.select],
             ["$top", request.top],
           ]),
         onSome: (link) => trustedGraphLink(runtime.config, link, "messages"),

@@ -2092,6 +2092,14 @@
       "reason": "Two-sided comparison boundary that carries the base and HEAD KnowledgeArchiveOracle runtime seams; only renames is data, and it is already schema-backed by KnowledgeRename. The pair is assembled in-process before every scan and is never decoded or persisted."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.baseline.ts",
+      "symbol": "KnowledgeMintInput",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Mint boundary that carries the minted tree's KnowledgeTreeOracle read seam (readBytes is an Effectful archive read) next to the scanned report; every data member is already schema-backed (KnowledgeDoctorReport, KnowledgeSealFiles, KnowledgeDoctorPromotion, KnowledgePathRemoval). It is assembled in-process by the live mint and by fixtures and is never decoded or persisted."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Knowledge/KnowledgeDoctor.service.ts",
       "symbol": "KnowledgeDoctorMemoryTreeInput",
       "kind": "exported-interface",

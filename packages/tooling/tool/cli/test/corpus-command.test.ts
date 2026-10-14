@@ -4392,6 +4392,123 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
   );
 
   it.effect(
+    "retains message-free Tika failure evidence without approving parser failures",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      for (const exitCode of [0, 1]) {
+        const fixture = yield* makeMailRestorationFixture(
+          Str.replace("%%PDF-1.4 synthetic attachment", "GIF89a synthetic attachment")(restorationPffexportStub),
+          `#!/bin/sh\nprintf 'private parser detail' >&2\nexit ${exitCode}\n`
+        );
+        yield* restoreMail(mailRestorationOptions(fixture)).pipe(Effect.flip);
+        const runRoot = path.join(fixture.corpusRoot, "staging/restoration/runs/synthetic-mail-restoration");
+        const { records } = yield* readTransformationLedgerFixture(path.join(runRoot, "ledgers/mail/slice.jsonl"));
+        const terminal = A.findFirst(records, isTransformationLedgerRecordCasesMailStoreException);
+        terminal.pipe(O.isSome, assertTrue);
+        if (O.isNone(terminal)) return;
+        expect(terminal.value.failureCause).toEqual({
+          _tag: "TikaSecondPassFailure",
+          emptyOutput: true,
+          exitCode,
+          truncated: false,
+        });
+        expect(terminal.value.approved).toBe(false);
+        expect(terminal.value.exceptionKind).toBe("engine-failure");
+        expect(
+          A.last(records).pipe(
+            O.map((row) => row.recordType),
+            O.getOrUndefined
+          )
+        ).toBe("family-acceptance-failure");
+        expect(A.filter(records, isTransformationLedgerRecordCasesMailChildPass)).toHaveLength(0);
+        const encoded = yield* encodeTransformationLedgerRecordJson(terminal.value);
+        expect(encoded).not.toContain("private parser detail");
+        expect(encoded).not.toContain(fixture.tikaPath);
+        const decoded = yield* decodeTransformationLedgerRecordJson(encoded);
+        expect(decoded).toEqual(terminal.value);
+        const legacy = yield* S.decodeEffect(TransformationLedgerRecord)(Struct.omit(terminal.value, ["failureCause"]));
+        expect(isTransformationLedgerRecordCasesMailStoreException(legacy) && legacy.failureCause).toBeUndefined();
+        expect(
+          yield* fs.exists(path.join(runRoot, "output/mail/slice/attempts", `${terminal.value.attemptId}.partial`))
+        ).toBe(true);
+      }
+    })
+  );
+
+  it.effect(
+    "uses the separately frozen recovery elapsed ceiling while retaining the family time bound",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const fixture = yield* makeMailRestorationFixture(restorationPffexportStub);
+      const derivedPath = path.join(fixture.corpusRoot, "synthetic-repair.bin");
+      yield* fs.writeFileString(derivedPath, "%PDF-1.4 synthetic repair");
+      const now = yield* Clock.currentTimeMillis;
+      const startedAt = now - 7_222_485;
+      const context = {
+        archiveRoot: fixture.corpusRoot,
+        corpusRoot: fixture.corpusRoot,
+        family: "mail" as const,
+        ledgerPath: path.join(fixture.corpusRoot, "unused.jsonl"),
+        mailScope: O.some<"slice" | "full">("slice"),
+        outputRoot: fixture.corpusRoot,
+        preservationRecords: [],
+        preservationRunId: "synthetic",
+        preservationSealSha256: RT.digestString("synthetic"),
+        runLabel: "synthetic-recovery",
+        runRoot: fixture.corpusRoot,
+        startedAt,
+        transformationRunId: "synthetic-recovery",
+      };
+      const oldOptions = RestorationMailOptions.make({
+        ...mailRestorationOptions(fixture),
+        maxElapsedMillis: PosInt.make(7_200_000),
+        maxTotalElapsedMillis: PosInt.make(43_200_000),
+      });
+      const exhausted = yield* RT.extractAttachmentText(
+        derivedPath,
+        "synthetic",
+        oldOptions,
+        context,
+        startedAt,
+        fixture.corpusRoot,
+        1024 * 1024 * 1024
+      ).pipe(Effect.flip);
+      expect(exhausted.cause).toMatchObject({
+        _tag: "AttachmentRepairElapsedBudget",
+        maxElapsedMillis: 7_200_000,
+        maxTotalElapsedMillis: 43_200_000,
+      });
+      const recoveryOptions = RestorationMailOptions.make({ ...oldOptions, maxElapsedMillis: PosInt.make(22_320_000) });
+      expect(
+        yield* RT.extractAttachmentText(
+          derivedPath,
+          "synthetic",
+          recoveryOptions,
+          context,
+          startedAt,
+          fixture.corpusRoot,
+          1024 * 1024 * 1024
+        )
+      ).toBe("synthetic extracted attachment text\n");
+      const familyExpired = yield* RT.extractAttachmentText(
+        derivedPath,
+        "synthetic",
+        recoveryOptions,
+        { ...context, startedAt: now - 43_200_001 },
+        startedAt,
+        fixture.corpusRoot,
+        1024 * 1024 * 1024
+      ).pipe(Effect.flip);
+      expect(familyExpired.cause).toMatchObject({
+        _tag: "AttachmentRepairElapsedBudget",
+        maxTotalElapsedMillis: 43_200_000,
+      });
+    })
+  );
+
+  it.effect(
     "retains full Tika text beyond 4096 characters within the remaining output budget",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;

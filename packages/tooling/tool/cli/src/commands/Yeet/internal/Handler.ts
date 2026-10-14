@@ -86,6 +86,7 @@ import {
   writeIssueArtifacts,
   writeTextFile,
 } from "./IssueArtifacts.ts";
+import { warnKnowledgeLeases } from "./KnowledgeLeaseWarnings.ts";
 import { recordYeetLocalShardOutcome, YeetLocalShardOutcome } from "./LocalShardPoison.ts";
 import { installYeetMergePreview, withYeetMergePreview, yeetMergedPreviewContext } from "./MergedPreview.ts";
 import {
@@ -617,6 +618,8 @@ const runVerifyMode = Effect.fn("Yeet.runVerifyMode")(function* (
     return yield* failWithIssueArtifacts(context, fullSteps, verifyResults, "yeet verification proof failed.");
   }
   yield* writeVerifiedState(context, tier, fullSteps);
+  // Lease expiry and violations are warnings here; the knowledge doctor's own gate blocks.
+  yield* warnKnowledgeLeases(context.repoRoot);
   return yield* emptyPlanResult(context);
 });
 

@@ -243,6 +243,7 @@ const firstPage = {
       body: { content: "Synthetic fixture body one.", contentType: "text" },
       from: fromOther,
       id: "m1",
+      conversationId: "thread-fixture",
       internetMessageId: "<m1@fixture.invalid>",
       receivedDateTime: "2030-01-10T03:30:00Z",
       subject: "Fixture subject",
@@ -422,6 +423,15 @@ describe("@beep/law-practice-server DocketIntake Graph adapters", () => {
           O.map(firstUrl, (url) => url.pathname),
           `/v1.0/users/${MAILBOX}/messages`
         );
+        assertSome(
+          O.map(firstUrl, (url) => url.searchParams.get("$select")),
+          "id,conversationId,internetMessageId,receivedDateTime,body,from,sender,isDraft,parentFolderId,subject,webLink"
+        );
+        assertSome(
+          O.flatMap(A.head(messages), (received) => received.conversationId),
+          "thread-fixture"
+        );
+        assertNone(O.flatMap(A.get(messages, 1), (received) => received.conversationId));
         assertSome(O.flatMap(first, filterOf), `receivedDateTime ge ${INITIAL_SINCE}`);
         assertSome(
           O.map(firstUrl, (url) => url.searchParams.get("$orderby")),

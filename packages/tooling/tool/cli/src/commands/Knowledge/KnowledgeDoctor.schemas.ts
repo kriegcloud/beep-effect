@@ -7,12 +7,18 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { LiteralKit, SchemaUtils, Sha256Hex } from "@beep/schema";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { GoalStatus } from "../Goals/Goals.schemas.ts";
 import { KnowledgeCommitSha, KnowledgeRefSurface } from "./Knowledge.refs.ts";
-import { KnowledgeFinding, KnowledgeFindingCandidate, KnowledgeFindingLocation } from "./Knowledge.schemas.ts";
+import {
+  KnowledgeFinding,
+  KnowledgeFindingCandidate,
+  KnowledgeFindingId,
+  KnowledgeFindingKind,
+  KnowledgeFindingLocation,
+} from "./Knowledge.schemas.ts";
 import type * as Effect from "effect/Effect";
 import type * as AST from "effect/SchemaAST";
 
@@ -664,14 +670,16 @@ export class KnowledgeWorkspacePackage extends S.Opaque<KnowledgeWorkspacePackag
  *
  * `names` come from a declaration scan (`export const|function|class|interface|type|enum|namespace`,
  * `export { a, b as c }`, `export * as ns from`), never from the compiler. `stars` are the repository
- * paths of relative `export * from` targets that exist in the tree.
+ * paths of relative `export * from` targets that exist in the tree; `opaqueStars` are the specifiers of
+ * every other `export * from` (a package, or a relative target the tree lacks), which the export search
+ * cannot follow, so an identifier missing behind one is unproven rather than absent.
  *
  * **Example** (Describe a barrel)
  *
  * ```ts
  * import { KnowledgeFileExports } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
  *
- * const exports = KnowledgeFileExports.make({ file: "src/index.ts", names: [], stars: ["src/a.ts"] })
+ * const exports = KnowledgeFileExports.make({ file: "src/index.ts", names: [], stars: ["src/a.ts"], opaqueStars: [] })
  *
  * console.log(exports.stars) // [ "src/a.ts" ]
  * ```
@@ -684,9 +692,11 @@ export class KnowledgeFileExports extends S.Opaque<KnowledgeFileExports, { reado
     file: S.String,
     names: S.Array(S.String),
     stars: S.Array(S.String),
+    opaqueStars: S.Array(S.String),
   }).pipe(
     $I.annoteSchema("KnowledgeFileExports", {
-      description: "Identifiers one source file exports itself and the files it star re-exports.",
+      description:
+        "Identifiers one source file exports itself, the files it star re-exports, and the star specifiers it cannot follow.",
     })
   )
 ) {}
@@ -1131,11 +1141,352 @@ export class KnowledgeSpanCounts extends S.Opaque<KnowledgeSpanCounts, { readonl
 ) {}
 
 /**
+ * How a path left the tree's history: deleted outright, or renamed away.
+ *
+ * **Example** (Recognize a rename)
+ *
+ * ```ts
+ * import { KnowledgePathChange } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ *
+ * console.log(KnowledgePathChange.is.renamed("renamed")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const KnowledgePathChange = LiteralKit(["deleted", "renamed"]).pipe(
+  $I.annoteSchema("KnowledgePathChange", {
+    description: "Whether a commit deleted a path or renamed it away.",
+  })
+);
+
+/**
+ * How a path left the tree's history.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type KnowledgePathChange = typeof KnowledgePathChange.Type;
+
+/**
+ * One path a commit deleted or renamed away, read from `git log --diff-filter=DR`.
+ *
+ * **Example** (A rename with its new path)
+ *
+ * ```ts
+ * import { KnowledgePathRemoval } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as O from "effect/Option"
+ *
+ * const removal = KnowledgePathRemoval.make({
+ *   path: "docs/old.md",
+ *   commit: "1111111111111111111111111111111111111111",
+ *   subject: "docs: move the guide",
+ *   change: "renamed",
+ *   renamedTo: O.some("docs/new.md"),
+ * })
+ *
+ * console.log(removal.change) // "renamed"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgePathRemoval extends S.Opaque<KnowledgePathRemoval, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: S.String,
+    commit: KnowledgeCommitSha,
+    subject: S.String,
+    change: KnowledgePathChange,
+    renamedTo: S.OptionFromOptionalKey(S.String),
+  }).pipe(
+    $I.annoteSchema("KnowledgePathRemoval", {
+      description: "A path a commit deleted or renamed away, with the commit's subject and any rename target.",
+    })
+  )
+) {}
+
+/**
+ * The authoring commit of a cause group's root: the commit that removed the missing target.
+ *
+ * **Details**
+ *
+ * `removedPath` is the path the commit removed, which is the target itself or, for a directory
+ * target, a file under it. `repairTarget` is the rename lineage's proposal for where the target went;
+ * prose is never rewritten from it automatically.
+ *
+ * **Example** (Attribute a deleted file)
+ *
+ * ```ts
+ * import { KnowledgeRootAttribution } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as O from "effect/Option"
+ *
+ * const attribution = KnowledgeRootAttribution.make({
+ *   commit: "1111111111111111111111111111111111111111",
+ *   subject: "chore: drop the old guide",
+ *   change: "deleted",
+ *   removedPath: "docs/old.md",
+ *   repairTarget: O.none(),
+ * })
+ *
+ * console.log(attribution.change) // "deleted"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeRootAttribution extends S.Opaque<KnowledgeRootAttribution, { readonly brand: unique symbol }>()(
+  S.Struct({
+    commit: KnowledgeCommitSha,
+    subject: S.String,
+    change: KnowledgePathChange,
+    removedPath: S.String,
+    repairTarget: S.OptionFromOptionalKey(S.String),
+  }).pipe(
+    $I.annoteSchema("KnowledgeRootAttribution", {
+      description: "The commit that removed a cause group's missing target, plus any rename repair proposal.",
+    })
+  )
+) {}
+
+/**
+ * Findings that share one cause: a missing target, or a delegated domain finding.
+ *
+ * **Details**
+ *
+ * `rootOrigin` is `delegated` when a delegated domain finding carries the group's `causeKey`; `root`
+ * is then that finding's id and `dependents` are the owned findings it explains. Otherwise the cause
+ * is a target the knowledge doctor owns (a path, command node, export, or manifest claim), `root` is
+ * absent, and `dependents` are every finding naming it. Dependents are sorted by id.
+ *
+ * **Example** (One deleted file cited twice)
+ *
+ * ```ts
+ * import { KnowledgeCauseGroup } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as O from "effect/Option"
+ *
+ * const group = KnowledgeCauseGroup.make({
+ *   causeKey: "path:docs/old.md",
+ *   rootOrigin: "owned",
+ *   root: O.none(),
+ *   dependents: [
+ *     "knowledge-finding/v1:1111111111111111111111111111111111111111111111111111111111111111",
+ *     "knowledge-finding/v1:2222222222222222222222222222222222222222222222222222222222222222",
+ *   ],
+ *   attribution: O.none(),
+ * })
+ *
+ * console.log(group.dependents.length) // 2
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeCauseGroup extends S.Opaque<KnowledgeCauseGroup, { readonly brand: unique symbol }>()(
+  S.Struct({
+    causeKey: S.String,
+    rootOrigin: KnowledgeFindingOrigin,
+    root: S.OptionFromOptionalKey(KnowledgeFindingId),
+    dependents: S.Array(KnowledgeFindingId),
+    attribution: S.OptionFromOptionalKey(KnowledgeRootAttribution),
+  }).pipe(
+    $I.annoteSchema("KnowledgeCauseGroup", {
+      description:
+        "Every finding sharing one cause key, its delegated root when one exists, and the root's authoring commit.",
+    })
+  )
+) {}
+
+/**
+ * Whether the scanned tree's Git history was available for root attribution.
+ *
+ * **Details**
+ *
+ * `unavailable` (a shallow clone, or no readable history) leaves every group unattributed; the report
+ * itself never fails on missing history.
+ *
+ * **Example** (Recognize available history)
+ *
+ * ```ts
+ * import { KnowledgeRootHistory } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ *
+ * console.log(KnowledgeRootHistory.is.available("available")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const KnowledgeRootHistory = LiteralKit(["available", "unavailable"]).pipe(
+  $I.annoteSchema("KnowledgeRootHistory", {
+    description: "Whether Git history was available to attribute cause-group roots.",
+  })
+);
+
+/**
+ * Whether the scanned tree's Git history was available for root attribution.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type KnowledgeRootHistory = typeof KnowledgeRootHistory.Type;
+
+/**
+ * Whether a doctor report is the read-only census or the gating check.
+ *
+ * **Example** (Recognize the gating form)
+ *
+ * ```ts
+ * import { KnowledgeDoctorMode } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ *
+ * console.log(KnowledgeDoctorMode.is.check("check")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const KnowledgeDoctorMode = LiteralKit(["report", "check"]).pipe(
+  $I.annoteSchema("KnowledgeDoctorMode", {
+    description: "Read-only report or gating check form of a knowledge-doctor run.",
+  })
+);
+
+/**
+ * Whether a doctor report is the read-only census or the gating check.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type KnowledgeDoctorMode = typeof KnowledgeDoctorMode.Type;
+
+/**
+ * The durable identity of one baselineable finding in the sealed baseline.
+ *
+ * **Details**
+ *
+ * The digest covers the length-prefixed key version, kind, durable document identity, NFC subject,
+ * and occurrence. The durable document identity is the path the document had at `mintedAt`, so a
+ * rename since the mint keeps the key (contract 10).
+ *
+ * **Example** (Validate a key)
+ *
+ * ```ts
+ * import { KnowledgeBaselineKey } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(KnowledgeBaselineKey)(`knowledge-doctor/v1:${"a".repeat(64)}`)) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const KnowledgeBaselineKey = S.TemplateLiteral(["knowledge-doctor/v1:", Sha256Hex]).pipe(
+  $I.annoteSchema("KnowledgeBaselineKey", {
+    description: "SHA-256 durable identity of one baselineable knowledge-doctor finding.",
+  })
+);
+
+/**
+ * The durable identity of one baselineable finding in the sealed baseline.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type KnowledgeBaselineKey = typeof KnowledgeBaselineKey.Type;
+
+/**
+ * One finding of the scanned tree with its baseline key.
+ *
+ * **Example** (Pair a finding with its key)
+ *
+ * ```ts
+ * import { KnowledgeRatchetEntry } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ *
+ * const entry = KnowledgeRatchetEntry.make({
+ *   findingId: `knowledge-finding/v1:${"1".repeat(64)}`,
+ *   key: `knowledge-doctor/v1:${"2".repeat(64)}`,
+ * })
+ *
+ * console.log(entry.key.startsWith("knowledge-doctor/v1:")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeRatchetEntry extends S.Opaque<KnowledgeRatchetEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
+    findingId: KnowledgeFindingId,
+    key: KnowledgeBaselineKey,
+  }).pipe(
+    $I.annoteSchema("KnowledgeRatchetEntry", {
+      description: "A finding id of the scanned tree paired with its durable baseline key.",
+    })
+  )
+) {}
+
+/**
+ * How the gating check classified every baselineable finding against the sealed baseline.
+ *
+ * **Details**
+ *
+ * `inherited` findings carry a baseline key and stay advisory. `leased` findings carry an active,
+ * violation-free lease. `introduced` findings carry neither and belong to a kind promoted at the
+ * merge-base, so they block. `pending` findings carry neither but belong to a kind still in its
+ * report-only window, so they are listed and never block (contract 1). `resolved` lists baseline keys
+ * no finding carries any more. `identityRejected` lists identity-sidecar mappings the C6 rules did not
+ * admit, as `from -> to: reason`.
+ *
+ * **Example** (A clean check)
+ *
+ * ```ts
+ * import { KnowledgeDoctorRatchet } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ *
+ * const ratchet = KnowledgeDoctorRatchet.make({
+ *   baseRef: "origin/main",
+ *   mergeBase: "1111111111111111111111111111111111111111",
+ *   mintedAt: "2222222222222222222222222222222222222222",
+ *   promotedKinds: [],
+ *   introduced: [],
+ *   pending: [],
+ *   inherited: [],
+ *   leased: [],
+ *   resolved: [],
+ *   identityRejected: [],
+ * })
+ *
+ * console.log(ratchet.introduced.length) // 0
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeDoctorRatchet extends S.Opaque<KnowledgeDoctorRatchet, { readonly brand: unique symbol }>()(
+  S.Struct({
+    baseRef: S.String,
+    mergeBase: KnowledgeCommitSha,
+    mintedAt: KnowledgeCommitSha,
+    promotedKinds: S.Array(KnowledgeFindingKind),
+    introduced: S.Array(KnowledgeRatchetEntry),
+    pending: S.Array(KnowledgeRatchetEntry),
+    inherited: S.Array(KnowledgeRatchetEntry),
+    leased: S.Array(KnowledgeRatchetEntry),
+    resolved: S.Array(KnowledgeBaselineKey),
+    identityRejected: S.Array(S.String),
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorRatchet", {
+      description: "Introduced, pending, inherited, leased, and resolved buckets of a gating knowledge-doctor check.",
+    })
+  )
+) {}
+
+/**
  * The read-only `knowledge doctor --report` document.
  *
  * **Details**
  *
- * Findings are sorted by `findingId`, so two runs over one tree encode to identical bytes.
+ * Findings are sorted by `findingId` and cause groups by `causeKey`, so two runs over one tree encode
+ * to identical bytes. `findings` keeps every finding, delegated ones included; `groups` collapses
+ * them into causal roots.
+ * `ratchet` is present only in `check` mode, where governance findings (`baseline-tamper`, lease
+ * violations) are listed among `findings` too.
  * `uncheckedOptionCount` totals option tokens on resolved commands whose declared options are not
  * statically derivable; a non-zero count is lost coverage, never a pass.
  *
@@ -1143,6 +1494,7 @@ export class KnowledgeSpanCounts extends S.Opaque<KnowledgeSpanCounts, { readonl
  *
  * ```ts
  * import { KnowledgeDoctorReport, KnowledgeSpanCounts } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as O from "effect/Option"
  *
  * const report = KnowledgeDoctorReport.make({
  *   treeish: "HEAD",
@@ -1155,7 +1507,10 @@ export class KnowledgeSpanCounts extends S.Opaque<KnowledgeSpanCounts, { readonl
  *     unclassified: 0,
  *   }),
  *   uncheckedOptionCount: 0,
+ *   rootHistory: "available",
+ *   groups: [],
  *   findings: [],
+ *   ratchet: O.none(),
  * })
  *
  * console.log(report.schemaVersion) // "knowledge-doctor/v1"
@@ -1169,13 +1524,17 @@ export class KnowledgeDoctorReport extends S.Opaque<KnowledgeDoctorReport, { rea
     schemaVersion: S.tag("knowledge-doctor/v1"),
     treeish: S.String,
     tree: KnowledgeCommitSha,
-    mode: S.Literal("report"),
+    mode: KnowledgeDoctorMode,
     spanCounts: KnowledgeSpanCounts,
     uncheckedOptionCount: S.Natural,
+    rootHistory: KnowledgeRootHistory,
+    groups: S.Array(KnowledgeCauseGroup),
     findings: S.Array(KnowledgeDoctorFinding),
+    ratchet: S.OptionFromOptionalKey(KnowledgeDoctorRatchet),
   }).pipe(
     $I.annoteSchema("KnowledgeDoctorReport", {
-      description: "Read-only knowledge-doctor report: span-class totals and every classified finding.",
+      description:
+        "Knowledge-doctor report: span-class totals, causal groups, every classified finding, and the check ratchet.",
     })
   )
 ) {}
@@ -1192,6 +1551,7 @@ export class KnowledgeDoctorReport extends S.Opaque<KnowledgeDoctorReport, { rea
  *   KnowledgeSpanCounts,
  * } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
  * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
  *
  * const report = KnowledgeDoctorReport.make({
  *   treeish: "HEAD",
@@ -1204,7 +1564,10 @@ export class KnowledgeDoctorReport extends S.Opaque<KnowledgeDoctorReport, { rea
  *     unclassified: 0,
  *   }),
  *   uncheckedOptionCount: 0,
+ *   rootHistory: "available",
+ *   groups: [],
  *   findings: [],
+ *   ratchet: O.none(),
  * })
  *
  * console.log(Effect.isEffect(encodeKnowledgeDoctorReportJson(report))) // true

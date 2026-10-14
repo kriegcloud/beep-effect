@@ -4879,13 +4879,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/knowledge-refs.test.ts:1067:provideScopedLayer@29#1",
+      "id": "EV002:packages/tooling/tool/cli/test/knowledge-refs.test.ts:1117:provideScopedLayer@29#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-refs.test.ts",
-      "line": 1067,
-      "endLine": 1067,
+      "line": 1117,
+      "endLine": 1117,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:145214fd441009fb3e66469b47dce091408a2e18304ee05ea7cb09156a826c9c",
       "class": "unresolved-layer-provide",
@@ -4900,13 +4900,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/knowledge-refs.test.ts:670:provideScopedLayer@12#1",
+      "id": "EV002:packages/tooling/tool/cli/test/knowledge-refs.test.ts:720:provideScopedLayer@12#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-refs.test.ts",
-      "line": 670,
-      "endLine": 670,
+      "line": 720,
+      "endLine": 720,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:74196f8c5974caef1b1c5c69debde6a18667b9523d70d7d14e89039f88f8afc3",
       "class": "unresolved-layer-provide",
@@ -4921,13 +4921,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/knowledge-refs.test.ts:680:provideScopedLayer@12#1",
+      "id": "EV002:packages/tooling/tool/cli/test/knowledge-refs.test.ts:730:provideScopedLayer@12#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-refs.test.ts",
-      "line": 680,
-      "endLine": 680,
+      "line": 730,
+      "endLine": 730,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:1b5d1f65a128d9929ea5d2bdd0d30f6e5557f0583a265d1d3806db44696bbe64",
       "class": "unresolved-layer-provide",
@@ -4942,13 +4942,13 @@
       "status": "open"
     },
     {
-      "id": "EV002:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:119:provideScopedLayer@10#1",
+      "id": "EV002:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:140:provideScopedLayer@10#1",
       "lens": "resource",
       "ruleId": "EV002",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/models-manifest-errors.test.ts",
-      "line": 119,
-      "endLine": 123,
+      "line": 140,
+      "endLine": 144,
       "symbol": "provideScopedLayer",
       "occurrence": "v2:5d5f83e0d96b9a26d6c135ea063cb127753c7393a4f8bbcf6610ce0e1847e923",
       "class": "unresolved-layer-provide",
@@ -13035,6 +13035,48 @@
       "status": "open"
     },
     {
+      "id": "EV004:packages/foundation/capability/observability/test/DevTools.test.ts:81:scoped@8#1",
+      "lens": "resource",
+      "ruleId": "EV004",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/DevTools.test.ts",
+      "line": 81,
+      "endLine": 81,
+      "symbol": "scoped",
+      "occurrence": "v2:9e6761df6c0e487a885208420e5cfca06943ec18476101b1ff6a780f0ca8dc70",
+      "class": "inner-helper-scope-lifetime-review",
+      "evidence": "Effect.scoped",
+      "replacement": {
+        "primitive": "readme.resource-safety",
+        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV004:packages/foundation/capability/observability/test/LocalLgtmServer.test.ts:53:scoped@4#1",
+      "lens": "resource",
+      "ruleId": "EV004",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/LocalLgtmServer.test.ts",
+      "line": 53,
+      "endLine": 53,
+      "symbol": "scoped",
+      "occurrence": "v2:ea3b4d95e6b6ce636a7fa1db7eb2f39f972d87085e7dda05017ac91773e1ca12",
+      "class": "helper-scope-lifetime-review",
+      "evidence": "Effect.scoped",
+      "replacement": {
+        "primitive": "readme.resource-safety",
+        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
       "id": "EV004:packages/foundation/ui-system/dock-react/test/DockviewReact.test.tsx:205:scoped@13#1",
       "lens": "resource",
       "ruleId": "EV004",
@@ -14691,13 +14733,13 @@
       "reason": "runCliCommand deliberately closes the child-process scope after collecting output and awaiting exitCode, before returning to the enclosing test. This is a shorter helper scope, not a redundant whole-test scope; preserve the subprocess lifetime and real BunRuntime entrypoint oracle, whose exit-status mutant fails on Node and Bun."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/knowledge-refs.test.ts:1067:scoped@14#1",
+      "id": "EV004:packages/tooling/tool/cli/test/knowledge-refs.test.ts:1117:scoped@14#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-refs.test.ts",
-      "line": 1067,
-      "endLine": 1067,
+      "line": 1117,
+      "endLine": 1117,
       "symbol": "scoped",
       "occurrence": "v2:145214fd441009fb3e66469b47dce091408a2e18304ee05ea7cb09156a826c9c",
       "class": "helper-scope-lifetime-review",
@@ -14776,13 +14818,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:145:scoped@14#1",
+      "id": "EV004:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:166:scoped@14#1",
       "lens": "detector",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/models-manifest-errors.test.ts",
-      "line": 145,
-      "endLine": 145,
+      "line": 166,
+      "endLine": 166,
       "symbol": "scoped",
       "occurrence": "v2:7bc3532e750f7bb87290dd20858e357bc2b40d14e4c9d001630309ceeb3634c6",
       "class": "redundant-whole-body-scope",
@@ -14797,13 +14839,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:159:scoped@14#1",
+      "id": "EV004:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:180:scoped@14#1",
       "lens": "detector",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/models-manifest-errors.test.ts",
-      "line": 159,
-      "endLine": 159,
+      "line": 180,
+      "endLine": 180,
       "symbol": "scoped",
       "occurrence": "v2:edcd04ad2fe21f9cdbd6389e3282649cd2f9d05154d69ed7f62952bbe663ce56",
       "class": "redundant-whole-body-scope",
@@ -18306,13 +18348,13 @@
       "status": "open"
     },
     {
-      "id": "EV006:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:844:isTrue@10#1",
+      "id": "EV006:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:868:isTrue@10#1",
       "lens": "resource",
       "ruleId": "EV006",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-doctor.test.ts",
-      "line": 844,
-      "endLine": 844,
+      "line": 868,
+      "endLine": 868,
       "symbol": "isTrue",
       "occurrence": "v2:e83c748c2e5b4f2cb38e27c4232f5d3db19fc4fe3f226f7f21b0e3f5d834fdf0",
       "class": "hand-rolled-data-assertion",
@@ -20628,6 +20670,28 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "The subject is the native Chromium DOM/WebGL renderer, including RAF, real canvas hit testing, GPU disposal and remount behavior. TestClock cannot drive those native browser callbacks. Retain it.live for the native browser subject. Instrumented runner adoption is verified in 72ea45def6 and L-OBS-01 is fixed."
+    },
+    {
+      "id": "EV009:packages/foundation/capability/observability/test/LocalLgtmServer.test.ts:62:it.live@2#1",
+      "lens": "resource",
+      "ruleId": "EV009",
+      "package": "@beep/observability",
+      "file": "packages/foundation/capability/observability/test/LocalLgtmServer.test.ts",
+      "line": 62,
+      "endLine": 75,
+      "symbol": "it.live",
+      "occurrence": "v2:d5cde1998e0b3b828593c6038f0ed3941b0f28826a31a668f63be835bb20b07a",
+      "class": "unjustified-live-test",
+      "evidence": "it.live( \"exports spans over OTLP when devtools is also enabled\", Effect.fnUntraced(function* () { const http = makeCapturingHttpClient(); const span = yield* runWithLayer( Effect.currentSpan.pipe(Eff",
+      "replacement": {
+        "primitive": "it.effect",
+        "sketch": "it.effect: Use for runtime-boundary-in-test candidates (EV001, candidate class runtime-boundary-in-test) and unjustified-live-test judgments (EV009, candidate class unjustified-live-test)."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "The DevTools client dials a real websocket and waits out its one-second connect timeout before the OTLP export can be asserted; the TestClock never advances that timeout, so the test must run on the live clock. The test comment states this rationale."
     },
     {
       "id": "EV009:packages/foundation/modeling/schema/test/LocalDate.test.ts:346:it.live@4#1",
@@ -24876,13 +24940,13 @@
       "reason": "Owner repository-simplification-confidence / lane C. Real platform boundary verifies subprocess, symlink, permissions and physical-file behavior; memory cannot model this subject. Reconsider when lane B's census lands."
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/accounts-usage.test.ts:42:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/accounts-usage.test.ts:52:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
-      "line": 42,
-      "endLine": 42,
+      "line": 52,
+      "endLine": 52,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -26918,6 +26982,27 @@
       "status": "open"
     },
     {
+      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor-baseline.test.ts:44:@effect/platform-node@0#1",
+      "lens": "resource",
+      "ruleId": "EV010",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/knowledge-doctor-baseline.test.ts",
+      "line": 44,
+      "endLine": 44,
+      "symbol": "@effect/platform-node",
+      "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
+      "class": "platform-resource-provenance-review",
+      "evidence": "import { NodeCrypto, NodeServices } from \"@effect/platform-node\";",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
       "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor-evaluators.test.ts:23:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
@@ -26925,6 +27010,27 @@
       "file": "packages/tooling/tool/cli/test/knowledge-doctor-evaluators.test.ts",
       "line": 23,
       "endLine": 23,
+      "symbol": "@effect/platform-node",
+      "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
+      "class": "platform-resource-provenance-review",
+      "evidence": "import { NodeCrypto, NodeServices } from \"@effect/platform-node\";",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor-grouping.test.ts:24:@effect/platform-node@0#1",
+      "lens": "resource",
+      "ruleId": "EV010",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/knowledge-doctor-grouping.test.ts",
+      "line": 24,
+      "endLine": 24,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
       "class": "platform-resource-provenance-review",
@@ -27387,13 +27493,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:13:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/models-manifest-errors.test.ts:15:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/models-manifest-errors.test.ts",
-      "line": 13,
-      "endLine": 13,
+      "line": 15,
+      "endLine": 15,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -28238,13 +28344,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/restoration-transformations-coverage.test.ts:28:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/restoration-transformations-coverage.test.ts:29:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/restoration-transformations-coverage.test.ts",
-      "line": 28,
-      "endLine": 28,
+      "line": 29,
+      "endLine": 29,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -29359,13 +29465,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:24:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:26:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 24,
-      "endLine": 24,
+      "line": 26,
+      "endLine": 26,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -40316,13 +40422,13 @@
       "reason": "Reviewed in goals/turborepo-task-qualification/research/test-resource-boundaries.md. The owning closed-issuer suite is explicitly concurrent:false. Every test creates a new issuer and envelope from its current Clock, and the expiry test advances 25 hours to reject that envelope. No issuer or test fiber survives into another test. All 25 producer tests pass. Re-review if the suite becomes concurrent or begins sharing issuer instances or absolute timestamps."
     },
     {
-      "id": "EV015:packages/tooling/tool/cli/test/corpus-command.test.ts:4590:TestClock.adjust@13#1",
+      "id": "EV015:packages/tooling/tool/cli/test/corpus-command.test.ts:4707:TestClock.adjust@13#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/corpus-command.test.ts",
-      "line": 4590,
-      "endLine": 4590,
+      "line": 4707,
+      "endLine": 4707,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:78e07269607a0228485e9b4e0e61577020d539b359b5ed7085820e98df250602",
       "class": "shared-test-clock-adjustment",
@@ -40751,6 +40857,94 @@
       "status": "open"
     },
     {
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1026:TestClock.adjust@13#1",
+      "lens": "resource",
+      "ruleId": "EV015",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
+      "line": 1026,
+      "endLine": 1026,
+      "symbol": "TestClock.adjust",
+      "occurrence": "v2:16af695d6fdd2c50ed44ebc1644b55d8fbbbf2ef74b2adb092cf2a9008c9f844",
+      "class": "shared-test-clock-adjustment",
+      "evidence": "TestClock.adjust(Duration.seconds(1))",
+      "replacement": {
+        "primitive": "TestClock.adjust",
+        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
+    },
+    {
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1030:TestClock.adjust@13#1",
+      "lens": "resource",
+      "ruleId": "EV015",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
+      "line": 1030,
+      "endLine": 1030,
+      "symbol": "TestClock.adjust",
+      "occurrence": "v2:f5f72453e622f338e0862cd4adf4696a1dc053d28b030d2d8f26aab9f844d320",
+      "class": "shared-test-clock-adjustment",
+      "evidence": "TestClock.adjust(Duration.minutes(11))",
+      "replacement": {
+        "primitive": "TestClock.adjust",
+        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
+    },
+    {
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1050:TestClock.adjust@13#1",
+      "lens": "resource",
+      "ruleId": "EV015",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
+      "line": 1050,
+      "endLine": 1050,
+      "symbol": "TestClock.adjust",
+      "occurrence": "v2:7764f481f1365b5a4273608abe4b751cdc34356a2d93d8d9ca1319b390c0a040",
+      "class": "shared-test-clock-adjustment",
+      "evidence": "TestClock.adjust(Duration.minutes(11))",
+      "replacement": {
+        "primitive": "TestClock.adjust",
+        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
+    },
+    {
+      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1078:TestClock.adjust@13#1",
+      "lens": "resource",
+      "ruleId": "EV015",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
+      "line": 1078,
+      "endLine": 1078,
+      "symbol": "TestClock.adjust",
+      "occurrence": "v2:5e21b25388c7682b6f1c4a8ae9855d334f4c5d65d7513ddacb5f7fe24a5fb5fb",
+      "class": "shared-test-clock-adjustment",
+      "evidence": "TestClock.adjust(Duration.minutes(11))",
+      "replacement": {
+        "primitive": "TestClock.adjust",
+        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "exception",
+      "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
+    },
+    {
       "id": "EV015:packages/tooling/tool/cli/test/yeet-review-window.test.ts:191:TestClock.adjust@13#1",
       "lens": "resource",
       "ruleId": "EV015",
@@ -41044,94 +41238,6 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "The audit-timestamp regression is the only test in its independent fresh Cuid layer block. It owns its deterministic TestClock and advances one minute between creation and rename. All exact createdAt/updatedAt assertions remain; no other test or forked task shares this block clock."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1026:TestClock.adjust@13#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 1026,
-      "endLine": 1026,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:16af695d6fdd2c50ed44ebc1644b55d8fbbbf2ef74b2adb092cf2a9008c9f844",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.seconds(1))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1030:TestClock.adjust@13#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 1030,
-      "endLine": 1030,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:f5f72453e622f338e0862cd4adf4696a1dc053d28b030d2d8f26aab9f844d320",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.minutes(11))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1050:TestClock.adjust@13#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 1050,
-      "endLine": 1050,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:7764f481f1365b5a4273608abe4b751cdc34356a2d93d8d9ca1319b390c0a040",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.minutes(11))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
-    },
-    {
-      "id": "EV015:packages/tooling/tool/cli/test/yeet-ready-gate.test.ts:1078:TestClock.adjust@13#1",
-      "lens": "resource",
-      "ruleId": "EV015",
-      "package": "@beep/repo-cli",
-      "file": "packages/tooling/tool/cli/test/yeet-ready-gate.test.ts",
-      "line": 1078,
-      "endLine": 1078,
-      "symbol": "TestClock.adjust",
-      "occurrence": "v2:5e21b25388c7682b6f1c4a8ae9855d334f4c5d65d7513ddacb5f7fe24a5fb5fb",
-      "class": "shared-test-clock-adjustment",
-      "evidence": "TestClock.adjust(Duration.minutes(11))",
-      "replacement": {
-        "primitive": "TestClock.adjust",
-        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
-      },
-      "severity": "info",
-      "confidence": 0.55,
-      "mechanization": "judgment",
-      "status": "exception",
-      "reason": "These budget-wait tests run serially in their it.layer block. Each creates fresh scripted REST and GraphQL refs, owns one forkChild fiber, advances the deterministic TestClock to drive the real budget guard, and joins the fiber before the next test runs. Exact probe, REST-read, mutation-count and typed-error assertions prove the resulting state. The clock wait is the regression subject; replacing it with a live clock would add real ten-minute sleeps."
     }
   ]
 }

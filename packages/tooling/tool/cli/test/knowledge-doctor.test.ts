@@ -318,6 +318,29 @@ describe("knowledge doctor span extraction", () => {
   );
 
   it.effect(
+    "reads a spaced arrow inside a quoted argument as one command, and still drops real chains",
+    Effect.fnUntraced(function* () {
+      const spans = spansOf(
+        "docs/guide.md",
+        doc(
+          '`bun run beep create-package demo --description "Doc → KG"`',
+          "`bun run beep create-package demo --description 'Doc -> KG'`",
+          "`bun run beep yeet repair → verify → publish --pr`",
+          '`bun run beep yeet repair "a" → verify`',
+          '`bun run beep create-package demo --description "Doc → KG`'
+        )
+      );
+      assert.deepStrictEqual(
+        A.map(spans, (span) => [span.form, span.raw]),
+        [
+          ["command", 'bun run beep create-package demo --description "Doc → KG"'],
+          ["command", "bun run beep create-package demo --description 'Doc -> KG'"],
+        ]
+      );
+    })
+  );
+
+  it.effect(
     "never reads a span that exactly names a Git ref as a path",
     Effect.fnUntraced(function* () {
       const extraction = extractKnowledgeDocumentSpans(
@@ -533,7 +556,8 @@ describe("knowledge doctor scan", () => {
         assert.strictEqual(first, second);
         const decoded = yield* decodeKnowledgeDoctorReportJson(first);
         assert.strictEqual(yield* encodeKnowledgeDoctorReportJson(decoded), first);
-        assert.include(renderKnowledgeDoctorHumanReport(decoded), "blocking findings (2)");
+        // goals/demo tracks a file but no manifest, so the goals doctor's manifest-missing is listed as delegated.
+        assert.include(renderKnowledgeDoctorHumanReport(decoded), "blocking findings (3) under 3 root(s):");
       })
     );
   });
@@ -857,4 +881,19 @@ describe("knowledge doctor command boundary", () => {
       )
     );
   });
+});
+
+describe("knowledge doctor branch-name spans", () => {
+  it.effect("reads a span the prose introduces as a branch as a ref, not a path", () =>
+    Effect.sync(() => {
+      const spans = spansOf(
+        "goals/demo/ops/RUNBOOK.md",
+        doc("Work on branch `goals/demo-lane`, then read `goals/INDEX.md`.", "Branches `docs/old` are gone.")
+      );
+      assert.deepStrictEqual(
+        A.map(spans, (span) => span.raw),
+        ["goals/INDEX.md"]
+      );
+    })
+  );
 });

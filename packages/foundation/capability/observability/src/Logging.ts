@@ -424,6 +424,8 @@ const makePrettyConsoleLogger = (pretty: PrettyLoggerConfig): Logger.Logger<unkn
   );
 };
 
+const isLoggingConfig = S.is(LoggingConfig);
+
 const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
   Match.value(format).pipe(
     Match.when("pretty", () => makePrettyConsoleLogger(pretty)),
@@ -439,8 +441,11 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  *
  * **Details**
  *
- * Returns a `Layer<never>` that replaces the default Effect logger with the
- * configured format and sets the minimum log level.
+ * Returns a `Layer<never>` that replaces the default Effect console logger
+ * with the configured format and sets the minimum log level. The tracer bridge
+ * (`Logger.tracerLogger`, which records log lines as events on the current
+ * span) is kept, so logs still reach traces; loggers installed by an earlier
+ * layer are dropped.
  *
  * **Example** (JSON console logger layer)
  *
@@ -451,9 +456,7 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  * const config = LoggingConfig.make({ format: "json", minLogLevel: "Info" })
  * const layer = layerConsoleLogger(config)
  *
- * const program = Effect.log("structured output").pipe(
- *
- * )
+ * const program = Effect.log("structured output").pipe(Effect.provide(layer))
  *
  * console.log(Effect.runPromise(program))
  * ```
@@ -465,7 +468,10 @@ export const layerConsoleLogger: {
   (config: LoggingConfig, pretty?: PrettyLoggerConfig): Layer.Layer<never>;
   (pretty?: PrettyLoggerConfig): (config: LoggingConfig) => Layer.Layer<never>;
 } = dual(
-  2,
+  (args) => isLoggingConfig(args[0]),
   (config: LoggingConfig, pretty: PrettyLoggerConfig = defaultPrettyLoggerConfig): Layer.Layer<never> =>
-    Layer.mergeAll(Logger.layer([resolveLogger(config.format, pretty)]), layerMinimumLogLevel(config.minLogLevel))
+    Layer.mergeAll(
+      Logger.layer([resolveLogger(config.format, pretty), Logger.tracerLogger]),
+      layerMinimumLogLevel(config.minLogLevel)
+    )
 );
