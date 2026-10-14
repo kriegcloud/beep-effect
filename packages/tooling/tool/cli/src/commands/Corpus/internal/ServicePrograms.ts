@@ -1148,8 +1148,11 @@ interface ExtractOcrSourceInput {
 }
 
 interface ExtractOcr {
+  readonly installedLanguages: ReadonlyArray<string>;
   readonly readSource: (input: ExtractOcrSourceInput) => Effect.Effect<CorpusExtractOutcome, CorpusCommandError>;
-  readonly writeLanguageReport: Effect.Effect<void, CorpusCommandError>;
+  readonly writeLanguageReport: (
+    counts: ReadonlyArray<CorpusExtractOcrCounts>
+  ) => Effect.Effect<void, CorpusCommandError>;
 }
 
 // CPU page OCR for corpus extract: PDFs and images whose first reading is
@@ -1203,7 +1206,6 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
     return O.none();
   }
   const scriptDetection = A.contains(engine.installedLanguages, "osd");
-  const missingLanguagesRef = yield* Ref.make(HashSet.empty<string>());
   yield* Console.log(
     `corpus extract: OCR engine ${engine.identity.version}; language models installed: ${A.join(engine.installedLanguages, ", ")}`
   );
@@ -1395,13 +1397,15 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
   const settleOcrOutcome = Effect.fn("CorpusCommandService.ocrSettleOutcome")(function* (
     input: ExtractOcrSourceInput,
     pages: OcrPages,
-    pageResults: ReadonlyArray<readonly [CorpusPageReadingRecord, string]>
+    pageResults: ReadonlyArray<readonly [CorpusPageReadingRecord, string]>,
+    missingLanguages: ReadonlyArray<string>
   ): Effect.fn.Return<CorpusExtractOutcome, CorpusCommandError> {
     const { first, ids, record } = input;
     const readPageCount = A.length(A.filter(pageResults, ([row]) => row.status === "read"));
     const ocr = O.some(
       CorpusExtractOcrCounts.make({
         failedPageCount: S.Natural.make(pages.pageCount - readPageCount),
+        missingLanguages: O.some(missingLanguages),
         readPageCount: S.Natural.make(readPageCount),
       })
     );
@@ -1456,9 +1460,18 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
         ? yield* engine.detectScript(firstImage.success)
         : O.none<TesseractScript>();
     const plan = planTesseractLanguages(script, engine.installedLanguages);
-    yield* Ref.update(missingLanguagesRef, HashSet.union(HashSet.fromIterable(plan.missing)));
     if (A.isReadonlyArrayEmpty(plan.selected)) {
-      return input.first;
+      return {
+        ...input.first,
+        ocr: O.some(
+          CorpusExtractOcrCounts.make({
+            completed: false,
+            failedPageCount: S.Natural.make(0),
+            missingLanguages: O.some(plan.missing),
+            readPageCount: S.Natural.make(0),
+          })
+        ),
+      };
     }
     const pageResults = yield* Effect.forEach(
       A.range(1, pages.pageCount),
@@ -1476,7 +1489,7 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
       path.join(outDir, "ocr", "pages", `${input.ids.operationId}.jsonl`),
       jsonlContent(rowLines)
     );
-    return yield* settleOcrOutcome(input, pages, pageResults);
+    return yield* settleOcrOutcome(input, pages, pageResults, plan.missing);
   });
 
   const readSource = Effect.fn("CorpusCommandService.ocrSource")(function* (
@@ -1501,8 +1514,15 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
     });
   });
 
-  const writeLanguageReport = Effect.gen(function* () {
-    const missing = A.sort(A.fromIterable(yield* Ref.get(missingLanguagesRef)), Order.String);
+  const writeLanguageReport = Effect.fn("CorpusCommandService.ocrWriteLanguageReport")(function* (
+    counts: ReadonlyArray<CorpusExtractOcrCounts>
+  ) {
+    const missing = A.sort(
+      A.fromIterable(
+        HashSet.fromIterable(A.flatMap(counts, (count) => O.getOrElse(count.missingLanguages, A.empty<string>)))
+      ),
+      Order.String
+    );
     const reportJson = yield* encodeCorpusOcrLanguageReportJson(
       CorpusOcrLanguageReport.make({
         engine: engine.identity,
@@ -1517,7 +1537,7 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
     );
   });
 
-  return O.some({ readSource, writeLanguageReport });
+  return O.some({ installedLanguages: engine.installedLanguages, readSource, writeLanguageReport });
 });
 
 const dedupeBySha256 = <A extends { readonly sha256: string }>(
@@ -1693,6 +1713,13 @@ const extractCorpusLocked = Effect.fn("CorpusCommandService.extractCorpusLocked"
           // missing tool turned it off) does not settle the source for a run
           // that does make it. While the pass is off, any marker stands.
           (O.isNone(extractOcr) || candidate.ocrEnabled) &&
+          !O.exists(extractOcr, (engine) =>
+            O.exists(candidate.ocr, (counts) =>
+              O.exists(counts.missingLanguages, (missing) =>
+                A.some(missing, (language) => A.contains(engine.installedLanguages, language))
+              )
+            )
+          ) &&
           candidate.sourceRecord.operationId === ids.operationId &&
           candidate.sourceRecord.relativePath === ids.relativePath &&
           isSettledExtractOutcome(candidate) &&
@@ -1971,7 +1998,7 @@ const extractCorpusLocked = Effect.fn("CorpusCommandService.extractCorpusLocked"
           exportChildren: options.exportChildren,
           failure: outcome.failure,
           ocr: outcome.ocr,
-          ocrEnabled: O.isSome(extractOcr),
+          ocrEnabled: O.isSome(extractOcr) && !O.exists(outcome.ocr, (counts) => !counts.completed),
           routingKey: outcome.routingKey,
           sha256,
           sourceRecord: outcome.sourceRecord,
@@ -2049,7 +2076,7 @@ const extractCorpusLocked = Effect.fn("CorpusCommandService.extractCorpusLocked"
 
   const failedOutcomes = A.filter(outcomes, (outcome) => outcome.sourceRecord.status === "failed");
   const ocrCounts = A.getSomes(A.map(outcomes, (outcome) => outcome.ocr));
-  yield* O.match(extractOcr, { onNone: () => Effect.void, onSome: (ocr) => ocr.writeLanguageReport });
+  yield* O.match(extractOcr, { onNone: () => Effect.void, onSome: (ocr) => ocr.writeLanguageReport(ocrCounts) });
   const reusedFailedCount = A.length(
     A.filter(
       resumeStates,
