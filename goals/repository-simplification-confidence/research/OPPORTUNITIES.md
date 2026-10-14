@@ -1950,3 +1950,27 @@ the downstream integration delay. No coverage floor or security rule is relaxed.
   include and exclude tokens; preserve ALL and explicit branch matching.
 - Stop only the owned readiness monitor for the new wave, requalify frozen
   source, answer and resolve the thread. No default-branch history is inferred.
+
+### 2026-10-14 — F resume brief and current routing truth diverge
+
+- Work: freeze the F before state before owned-field applies.
+- Evidence: `beep models check --offline --json` exits 0 with zero findings,
+  but the live manifest now pins the ordinary Claude route to
+  `claude-fable-5-1`, lightweight to `gpt-6-luna`, and research to `grok-4.7`.
+  The launch brief instead requires Opus 5.5, Luna 5.6, and Grok 4.6.
+  The manifest is owned by `rsc-shared`; no lane override was applied.
+- Scope: the current dispatch limits writes to the lane worktree; home applies
+  and fixed-prompt clients that persist home state cannot run in that boundary.
+- Prevention: reissue the F route/disposition matrix at the current manifest
+  fingerprint and explicitly route external applies through the orchestrator.
+- Boundary: evidence preparation continues; global acceptance and the final
+  panel fingerprint remain open. See the F October 14 handoff.
+
+### 2026-10-14 — F documentation commit admission needs user bus environment
+
+- Work: commit the blocked pre-apply packet evidence through `beep-heavy`.
+- Evidence: wrapper exited before Git ran: `Failed to connect to user scope bus`;
+  `DBUS_SESSION_BUS_ADDRESS` and `XDG_RUNTIME_DIR` were not defined.
+- Fix: supply the workstation user-bus environment to the same admission
+  wrapper; no bypass, privilege escalation, or duplicate running job.
+- Prevention: export the canonical user-bus environment in lane launchers.

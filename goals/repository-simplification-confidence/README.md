@@ -2,28 +2,21 @@
 
 ## Status
 
-B first-wave publication snapshot is regenerated at `80fe0135ff` from fetched
-main `f21e2a8563`. Its generated candidate remains subject to publication-head
-parity, named review and the serialized R14 merge. Cap released; later R20
-guidance and detector work stays pending. Candidate counts are not accepted
-program baselines and no zero-debt result is claimed.
+Lifecycle: `active`. The program remains in implementation; operational
+acceptance and the final F panel are open.
 
-Lifecycle: `active`
+F's October 14 run has current, sanitized pre-apply evidence and is blocked on
+reconciling its launch brief with the newer shared model manifest, plus routing
+home applies outside this lane-only dispatch. No harness configuration changed.
+[Before measurement](history/receipts/stage-3-f-before-measurement.md),
+[inventory](history/receipts/stage-3-f-inventory.md), and
+[blocked handoff](history/handoffs/rsc-f-agents-2026-10-14.md) record the exact
+scope and remaining work. The offline model check is green against its current
+manifest; it does not certify the older brief or F acceptance.
 
-Program resumed on October 14. H2 is content-final in reopened PR #1574; local qualification and all four review
-fixes are complete, with inherited knowledge-reference attribution.
-Historical inventory completeness remains explicitly unknown.
-Completed lane evidence and remaining program work are tracked in PLAN.md.
-
-Program resumed on 2026-10-14. B integrated current main and completed
-the first R20 owner refresh; committed-candidate qualification follows. Its [current handoff](history/handoffs/rsc-b-standards-2026-10-14.md)
-records the five resolved old-head inbox rows and the remaining publication
-and serialization gates. Earlier lane evidence below retains its recorded
-head and date; it does not certify current program completion.
-
-Latest E evidence: [GitHub audit](./history/receipts/stage-4-github-audit.md), [settings snapshots](./history/receipts/stage-3-github-settings.md), and [lane handoff](./history/handoffs/rsc-e-github-2026-10-09.md). E source repairs are final in ready PR #1568. Both integrated full package gates and all local hosted-parity lanes pass; focused fixtures pass 127 tests and scoped coverage passes 396 tests across all seven touched baseline files. The actual GITHUB_TOKEN hosted governance step passes. Cross-lane, trusted-main writer and post-merge acceptance remain open; inherited hosted coverage reds remain attributed for the consolidated repair.
-
-The program resumed on October 14. A wave 1 is implemented locally in the PR #1584 lane, with zero scoped source-review findings. Publication is blocked on the orchestrator-owned five-row coverage-baseline splice: the normal writer also weakens live floors, so A preserved the committed baseline. All eleven default package gates and serial scoped coverage passed on the recorded source; later main integrations have separate owner and targeted-test evidence. [Current A handoff](./history/handoffs/rsc-a-retire-2026-10-14.md) records the exact boundaries. The remote PR head has not moved in this resumed run. Later A waves and program acceptance remain open.
+The October 14 wave-2 resume ruling records A #1584, H2 #1574, and B #1738 as
+merged. Other lane receipts below retain the revisions and dates they actually
+proved. Their historical status text is not a fresh hosted-state census.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -79,6 +72,13 @@ the stage-1 copies of the three global configuration files are recorded, and
 nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
+
+F: [October 14 blocked handoff](history/handoffs/rsc-f-agents-2026-10-14.md).
+Current native fingerprints, source conflicts, missing qualification windows,
+and 47-tool authenticated gateway evidence precede any F apply. Writer,
+rollback fixtures, representative workflow acceptance, after measurements and
+three-model final-fingerprint review remain uncompleted.
+
 
 [A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): latest main is integrated and all ten owner commands pass. The targeted incoming/A suite passes 586 tests in ten files. The live Knip workflow job and FQE helper wiring are removed locally; five obsolete generated coverage rows await the orchestrator splice. The writer artifact is archived and all live floors remain unchanged. Latest CLI quick/type/docgen/Fallow/law checks pass; the newest JSDoc and paper-link reds are inherited and attributed in the handoff. The orchestrator also owns required-context removal before merge.
 

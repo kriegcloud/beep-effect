@@ -479,3 +479,31 @@ owner with no tracked delta; all 126 entry bodies are unchanged. It changes no p
 snapshot, root manifest, lockfile or agent-loaded guidance. The reconciled
 guidance previews stay private until the serialized first refresh lands.
 No source debt is relabelled an exception in this wave.
+
+## Global configuration
+
+F checkpoint, 2026-10-14: **not accepted**. Read-only before evidence at
+`529d77338d` is recorded in [before measurement](stage-3-f-before-measurement.md)
+and [inventory](stage-3-f-inventory.md). All three stage-1 backups were verified;
+no F apply occurred. The offline model check has zero findings against the
+current manifest, whose Claude/lightweight/research pins differ from the lane
+brief. Scope and routing reconciliation precede applies. Native fields survive
+because this lane has not written them; that is **not** a proven owned-field
+transformation or rollback round-trip. Package implementation, synthetic
+preservation/restore fixtures, all harness probes, after measurements and the
+final panel are pending. No frozen panel input is submitted.
+
+### F harness ledger checkpoint — 2026-10-14
+
+The read-only inventory changed no harness surface. No execution row or
+admission was manufactured for it. R51's decision-id mapping, interview
+propose/disposition chains, the hook-window chain and deferred SkillOpt chains
+remain pending through the supported writer. Existing ledger rows were not
+rewritten. This checkpoint does not close the earlier Harness ledger section.
+
+### F scope checkpoint — 2026-10-14
+
+Only packet evidence and status text changed. No workspace package, generated
+projection, model manifest, shared root manifest, allowlist, hook, skill,
+plugin, home setting, or another lane's checkout was edited. This is a blocked
+pre-apply handoff, not a content-final implementation or merge-ready claim.

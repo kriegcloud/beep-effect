@@ -795,6 +795,24 @@ bounded path-inventory handling.
 
 | 2026-10-09 | C integrates V main under resume ruling 7: retain both packet contributions, V first in the add/add Stage 5 receipt, and V scoped Effect harness with C typed installation assertions. | Preserve every decision/friction/acceptance row and all four cleanup witnesses; portable process boundary supports Node and Bun without restoring the retired setup script. | Revert the C integration merge; V main and previous C proof remain in Git history. |
 
+### RSC-F-BOUNDARY-20261014 — Freeze evidence before reconciling routing sources
+
+F's live inventory at source `529d77338d` finds that the current shared model
+manifest pins Claude Fable 5.1, lightweight Luna 6, and research Grok 4.7,
+whereas F's locked launch brief requires Opus 5.5 and preservation of Luna 5.6
+and Grok 4.6. The manifest notes cite newer operator decisions; this lane does
+not replace those decisions or silently downgrade the routes. Its current
+dispatch also limits writes to the lane worktree. Decision: retain all harness
+configuration and publish only sanitized pre-apply evidence in the packet.
+Reason: SPEC's contradictory-source stop condition and `rsc-shared` manifest
+ownership; no safe global apply is in this dispatch's write scope. Reversal:
+reconcile the F route matrix through the orchestrator's ruling/manifest owner,
+then continue the schema-first writer and explicitly routed external applies.
+No capability retirement, harness admission, final fingerprint, or operational
+acceptance is implied. This is an execution-boundary decision, not a change to
+the approved model policy. Evidence: `stage-3-f-before-measurement.md` and
+`stage-3-f-inventory.md` under this packet's history receipts.
+
 ## Exception Ledger
 
 | Exception | Scope | Owner | Rationale | Removal condition |
