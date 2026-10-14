@@ -1,7 +1,9 @@
+// June 2026 measurements and dispositions remain historical.
+// October 2026 retires Knip-dependent acceptance commands; surviving commands check retained artifacts.
 {
   "$schema": "./knip-parity.schema.json",
   "schemaVersion": "fallow-quality-enforcement/knip-parity/v1",
-  "updated": "2026-06-08",
+  "updated": "2026-10-14",
   "validatorVersion": "fallow-quality-enforcement-validator/v1",
   "knipRemovalRecommendation": "keep-knip",
   "rows": [
@@ -18,9 +20,7 @@
       "retirementDecision": "keep-knip",
       "retirementRationale": "Fallow reports 2,491 entry points and skipped parent-traversal package.json entries, so explicit Knip entry behavior is not proven equivalent.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-        "bun run fallow -- list --entry-points --config .fallowrc.jsonc --format json --quiet",
-        "bun run fallow:migrate:dry-run -- --from knip.jsonc"
+        "bun run fallow -- list --entry-points --config .fallowrc.jsonc --format json --quiet"
       ],
       "evidenceRefs": [
         "knip.jsonc",
@@ -42,8 +42,6 @@
       "retirementDecision": "keep-knip",
       "retirementRationale": "Fallow detects 89 workspaces, but Knip project scanning remains plugin/workspace-policy aware in ways the migration dry-run does not preserve.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-        "bun run fallow:migrate:dry-run -- --from knip.jsonc",
         "bun run fallow -- list --workspaces --config .fallowrc.jsonc --format json --quiet"
       ],
       "evidenceRefs": ["knip.jsonc", ".fallowrc.jsonc", "research/dead-code.md"]
@@ -61,7 +59,7 @@
       "retirementDecision": "research-pending",
       "retirementRationale": "Glob behavior must be rechecked after several real branches.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts"
+        "bun goals/fallow-quality-enforcement/ops/validate-packet.ts"
       ],
       "evidenceRefs": ["knip.jsonc", ".fallowrc.jsonc", "research/dead-code.md"]
     },
@@ -78,7 +76,7 @@
       "retirementDecision": "research-pending",
       "retirementRationale": "Needs repeated branch evidence before replacing Knip behavior.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts"
+        "bun goals/fallow-quality-enforcement/ops/validate-packet.ts"
       ],
       "evidenceRefs": ["knip.jsonc", ".fallowrc.jsonc", "research/dead-code.md"]
     },
@@ -95,8 +93,7 @@
       "retirementDecision": "keep-knip",
       "retirementRationale": "Keep Knip while binary ignore parity remains unresolved.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-        "bun run fallow:migrate:dry-run -- --from knip.jsonc"
+        "bun goals/fallow-quality-enforcement/ops/validate-packet.ts"
       ],
       "evidenceRefs": ["knip.jsonc", "research/dead-code.md"]
     },
@@ -113,8 +110,6 @@
       "retirementDecision": "keep-knip",
       "retirementRationale": "Keep Knip until scaffold workspace policy has a Fallow equivalent.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-        "bun run fallow:migrate:dry-run -- --from knip.jsonc",
         "bun run fallow -- list --workspaces --config .fallowrc.jsonc --format json --quiet"
       ],
       "evidenceRefs": ["knip.jsonc", ".fallowrc.jsonc", "research/dead-code.md"]
@@ -132,8 +127,7 @@
       "retirementDecision": "keep-knip",
       "retirementRationale": "Keep Knip while catalog policy parity remains partial and migration reports no equivalent for the Knip catalog rule.",
       "acceptanceCommands": [
-        "bun run fallow:migrate:dry-run -- --from knip.jsonc",
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts"
+        "bun goals/fallow-quality-enforcement/ops/validate-packet.ts"
       ],
       "evidenceRefs": ["knip.jsonc", ".fallowrc.jsonc", "research/dead-code.md"]
     },
@@ -150,7 +144,7 @@
       "retirementDecision": "research-pending",
       "retirementRationale": "Needs repeated branch evidence.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts"
+        "bun goals/fallow-quality-enforcement/ops/validate-packet.ts"
       ],
       "evidenceRefs": ["knip.jsonc", ".fallowrc.jsonc", "research/dead-code.md"]
     },
@@ -167,8 +161,6 @@
       "retirementDecision": "keep-knip",
       "retirementRationale": "Migration reports limited support for per-workspace plugin overrides and Fallow's workspace list still includes ignored scaffold workspaces.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-        "bun run fallow:migrate:dry-run -- --from knip.jsonc",
         "bun run fallow -- list --workspaces --config .fallowrc.jsonc --format json --quiet"
       ],
       "evidenceRefs": ["knip.jsonc", ".fallowrc.jsonc", "research/dead-code.md"]
@@ -186,8 +178,6 @@
       "retirementDecision": "keep-knip",
       "retirementRationale": "Fallow lists 20 active plugins, but migration evidence does not prove semantic parity with Knip plugin behavior or per-workspace overrides.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-        "bun run fallow:migrate:dry-run -- --from knip.jsonc",
         "bun run fallow -- list --plugins --config .fallowrc.jsonc --format json --quiet"
       ],
       "evidenceRefs": ["knip.jsonc", ".fallowrc.jsonc", "research/dead-code.md"]
@@ -205,7 +195,6 @@
       "retirementDecision": "keep-knip",
       "retirementRationale": "Reporter shape parity exists only at the JSON-output level; semantic parity waits for the P1 envelope wrapper and fixture parser.",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
         "bun run fallow -- list --plugins --config .fallowrc.jsonc --format json --quiet"
       ],
       "evidenceRefs": ["package.json", "research/dead-code.md"]
