@@ -5,6 +5,7 @@ import {
   EndpointBinding,
   EndpointDispatch,
   Envelope,
+  LaunchGrant,
   makeAgentMessageStore,
   Receipt,
   RouterError,
@@ -48,6 +49,7 @@ const lockTimeout = RouterError.make({
   message: "Agent message SQL operation failed: LockTimeoutError.",
 });
 const ManagedProfileJson = S.fromJsonString(ManagedLaunchProfile);
+const GrantJson = S.fromJsonString(LaunchGrant);
 const ReceiptJson = S.fromJsonString(Receipt);
 const managedCommandFixture = Effect.fn("AgentMessageTest.managedCommandFixture")(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -60,6 +62,7 @@ const managedCommandFixture = Effect.fn("AgentMessageTest.managedCommandFixture"
   yield* fs.makeDirectory(workspace, { mode: 0o700 });
   const state = path.join(directory, "state");
   const filename = path.join(directory, "profile.json");
+  const grantFile = path.join(directory, "grant.json");
   const profile = ManagedLaunchProfile.make({
     provider: "codex",
     executable: "bun",
@@ -78,12 +81,30 @@ const managedCommandFixture = Effect.fn("AgentMessageTest.managedCommandFixture"
       Effect.flatMap((json) => fs.writeFileString(filename, json, { mode: 0o600 }))
     );
   yield* write(profile);
+  const grant = LaunchGrant.make({
+    grantId: "managed-grant",
+    endpointId: "managed",
+    generation: 1,
+    ownerId: "managed-owner",
+    repositoryScope: "fixture",
+    conversationScope: O.some("conversation"),
+    allowedRecipients: ["other"],
+    expiresAt: (yield* Clock.currentTimeMillis) + Duration.toMillis(Duration.hours(1)),
+    maxMessages: 5,
+  });
+  const writeGrant = (value: LaunchGrant) =>
+    S.encodeEffect(GrantJson)(value).pipe(
+      Effect.flatMap((json) => fs.writeFileString(grantFile, json, { mode: 0o600 }))
+    );
+  yield* writeGrant(grant);
   const run = Command.runWith(agentMessageServeCommand, { version: "test", renderErrors: false });
   const execute = run([
     "--state-dir",
     state,
     "--profile-file",
     filename,
+    "--grant-file",
+    grantFile,
     "--endpoint",
     "managed",
     "--participant",
@@ -95,7 +116,7 @@ const managedCommandFixture = Effect.fn("AgentMessageTest.managedCommandFixture"
     "--generation",
     "1",
   ]);
-  return { fs, state, filename, profile, write, execute };
+  return { fs, state, filename, profile, write, grantFile, grant, writeGrant, execute };
 });
 
 it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer), { timeout: "20 seconds" })(
@@ -117,6 +138,22 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
           )
         ).toBe(true);
         expect(yield* Ref.get(launches)).toBe(0);
+        yield* f.write(f.profile);
+        yield* f.fs.remove(f.grantFile);
+        expect(
+          yield* f.execute.pipe(
+            Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched),
+            Effect.isFailure
+          )
+        ).toBe(true);
+        expect(yield* Ref.get(launches)).toBe(0);
+        yield* f.writeGrant(f.grant);
+        yield* f.fs.chmod(f.grantFile, 0o644);
+        expect(
+          yield* f.execute.pipe(Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, watched), Effect.flip)
+        ).toMatchObject({ _tag: "RouterError", code: "policyMismatch" });
+        expect(yield* Ref.get(launches)).toBe(0);
+        yield* f.fs.chmod(f.grantFile, 0o600);
         for (const sandboxWritablePaths of [[], [f.profile.workspace]]) {
           yield* f.write(ManagedLaunchProfile.make({ ...f.profile, provider: "grok", sandboxWritablePaths }));
           expect(
@@ -162,13 +199,16 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
       }).pipe(TestClock.withLive)
     );
 
-    it.effect("enrolls a real Bun synthetic native worker and terminates it when serve is cancelled", () =>
+    it.effect("enrolls a real Bun worker and stops it after receiving-grant expiry", () =>
       Effect.gen(function* () {
         const f = yield* managedCommandFixture();
+        const path = yield* Path.Path;
         const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
         const started = yield* Deferred.make<ChildProcessHandle>();
         const enrolled = yield* Deferred.make<void>();
+        const rejected = yield* Deferred.make<Receipt, S.SchemaError>();
         const delivered = yield* Deferred.make<Receipt, S.SchemaError>();
+        const expired = yield* Deferred.make<Receipt, S.SchemaError>();
         const watched = ChildProcessSpawner.make((command) =>
           spawner.spawn(command).pipe(Effect.tap((child) => Deferred.succeed(started, child)))
         );
@@ -179,7 +219,9 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
           log: (...args) => {
             originalConsole.log(...args);
             Deferred.doneUnsafe(enrolled, Effect.void);
-            if (++printed === 2) Deferred.doneUnsafe(delivered, S.decodeUnknownEffect(ReceiptJson)(args[0]));
+            if (++printed === 2) Deferred.doneUnsafe(rejected, S.decodeUnknownEffect(ReceiptJson)(args[0]));
+            if (printed === 3) Deferred.doneUnsafe(delivered, S.decodeUnknownEffect(ReceiptJson)(args[0]));
+            if (printed === 4) Deferred.doneUnsafe(expired, S.decodeUnknownEffect(ReceiptJson)(args[0]));
           },
         });
         const fiber = yield* f.execute.pipe(
@@ -217,6 +259,41 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
           })
         );
         const now = yield* Clock.currentTimeMillis;
+        yield* store.registerGrant(
+          LaunchGrant.make({
+            grantId: "sender-grant",
+            endpointId: "sender",
+            generation: 1,
+            ownerId: "sender-owner",
+            repositoryScope: "fixture",
+            conversationScope: O.some("outside"),
+            allowedRecipients: ["managed"],
+            expiresAt: now + Duration.toMillis(Duration.hours(1)),
+            maxMessages: 5,
+          })
+        );
+        yield* store.acceptWithGrant(
+          Envelope.make({
+            messageId: "outside-conversation",
+            idempotencyKey: "outside-conversation",
+            conversationId: "outside",
+            from: "sender",
+            to: { kind: "direct", endpointId: "managed" },
+            repositoryScope: "fixture",
+            body: "must-not-reach-native-worker",
+            createdAt: now,
+            expiresAt: now + 60000,
+            capabilityFingerprint: binding.capabilityFingerprint,
+            policyFingerprint: binding.policyFingerprint,
+          }),
+          "sender-grant",
+          now
+        );
+        expect(yield* Deferred.await(rejected)).toMatchObject({
+          messageId: "outside-conversation",
+          status: "failed",
+          sequence: 3,
+        });
         yield* store.accept(
           Envelope.make({
             messageId: "native-delivery",
@@ -236,10 +313,45 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer, TestConsole.layer)
         expect(yield* Deferred.await(delivered)).toMatchObject({
           messageId: "native-delivery",
           status: "delivered",
-          sequence: 3,
+          sequence: 6,
         });
         expect((yield* store.receipts("native-delivery"))[2]?.status).toBe("delivered");
-        yield* Fiber.interrupt(fiber);
+        expect((yield* store.receipts("outside-conversation"))[2]?.status).toBe("failed");
+        // Advance the persisted grant past expiry without waiting an hour of wall time.
+        const sql = yield* makeAgentMessageSqliteClient(path.join(f.state, "messages.sqlite")).pipe(
+          Effect.provide(Reactivity.layer)
+        );
+        const expiredGrant = LaunchGrant.make({ ...f.grant, expiresAt: now - 1 });
+        const expiredPayload = yield* S.encodeEffect(GrantJson)(expiredGrant);
+        yield* sql`UPDATE agent_message_grants SET payload = ${expiredPayload} WHERE id = ${f.grant.grantId}`;
+        const expiredEnvelope = Envelope.make({
+          messageId: "expired-grant-delivery",
+          idempotencyKey: "expired-grant-delivery",
+          conversationId: "conversation",
+          from: "sender",
+          to: { kind: "direct", endpointId: "managed" },
+          repositoryScope: "fixture",
+          body: "must-not-reach-expired-worker",
+          createdAt: now,
+          expiresAt: now + 60000,
+          capabilityFingerprint: binding.capabilityFingerprint,
+          policyFingerprint: binding.policyFingerprint,
+        });
+        yield* store.accept(expiredEnvelope, now);
+        const expiredReceipt = yield* Deferred.await(expired);
+        expect(expiredReceipt).toMatchObject({ messageId: "expired-grant-delivery", status: "failed" });
+        assertSome(expiredReceipt.detail, "invalidGrant: receiving grant expired or enrollment replaced.");
+        expect(yield* Fiber.join(fiber).pipe(Effect.flip)).toMatchObject({ code: "invalidGrant" });
+        const next = yield* store.accept(
+          Envelope.make({
+            ...expiredEnvelope,
+            messageId: "after-expired-grant",
+            idempotencyKey: "after-expired-grant",
+          }),
+          now
+        );
+        expect(next).toMatchObject({ messageId: "after-expired-grant", status: "accepted" });
+        expect((yield* store.receipts("after-expired-grant"))[0]?.status).toBe("accepted");
         expect(yield* child.isRunning).toBe(false);
       }).pipe(TestClock.withLive)
     );
