@@ -345,6 +345,26 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
     })
   );
 
+  it.effect("reports a retired model before invalid effort when grok-cache and router-for-me answer", () =>
+    Effect.gen(function* () {
+      const workspace = yield* stageWorkspace("manifest-retired-effort.yaml");
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.writeFileString(`${workspace.root}/locators.env`, "GROK_RETIRED_MODEL=grok-4.5\n");
+      const check = yield* ModelsCheck;
+      const report = yield* check.run(
+        ModelsCheckOptions.make({
+          home: workspace.root,
+          repo: workspace.root,
+          manifestPath: workspace.manifestPath,
+          offline: false,
+        })
+      );
+      expect(report.catalog.sources).toContain("grok-cache");
+      expect(report.catalog.sources).toContain("router-for-me");
+      expect(kindsOf(report)).toEqual(["retired.grok:unknown-model"]);
+    })
+  );
+
   it.effect("round-trips the report through its encoded form", () =>
     Effect.gen(function* () {
       const report = yield* runCheck("manifest.yaml");

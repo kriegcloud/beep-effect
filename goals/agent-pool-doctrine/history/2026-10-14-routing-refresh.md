@@ -60,3 +60,9 @@ and reads `GET https://ingrazzio-cloud-prod.labs.jb.gg/auth/test` (`balanceLeft`
 2026-09-25 although Junie refreshed on later runs, and a refresh returned the same refresh
 token; the balance call answered `active: true`, `licenseType: AIP`, unit `CREDITS`. A rotated
 refresh token in a response aborts the poll; nothing is ever written back.
+
+Review round 1 on #1715 tightened the order: the poller tries a cached access token (60 s expiry
+skew), then the stored one, and spends a refresh grant only when `auth/test` answers 401/403, so
+`accounts watch` costs about one grant per token lifetime instead of one per poll. Rotation,
+`invalid_grant` and an inactive licence are `NeedsLogin`; timeouts stay `Failed` and keep the
+last good reading.

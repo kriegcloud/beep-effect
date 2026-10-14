@@ -1031,8 +1031,34 @@ describe("Junie direct balance", () => {
       '{"active":null,"balanceLeft":null}',
       '{"active":false,"balanceLeft":10,"balanceUnit":"CREDITS","licenseType":"AIP"}',
     ]) {
-      expect(junieUsageOutcome({ identity: O.none(), status: 200, body: text })._tag).toBe("Failed");
+      expect(junieUsageOutcome({ identity: O.none(), status: 200, body: text })._tag).toBe("NeedsLogin");
     }
+  });
+  it("uses Junie-specific instructions for a rejected auth/test", () => {
+    expect(junieUsageOutcome({ identity: O.none(), status: 401, body: "" })).toEqual(
+      AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains rejected the Junie login; run `junie` and sign in again",
+      })
+    );
+  });
+  it("retains last-good Junie balances for transient failures and clears inactive accounts", () => {
+    const account = AccountRef.make({ provider: "junie", label: "synthetic", source: "synthetic" });
+    const previous = [
+      AccountUsage.make({ account, outcome: junieUsageOutcome({ identity: O.none(), status: 200, body }) }),
+    ];
+    for (const detail of ["JetBrains AI poll timed out", "JetBrains AI request is unavailable"]) {
+      const next = [AccountUsage.make({ account, outcome: AccountUsageOutcome.cases.Failed.make({ detail }) })];
+      const retained = retainLastGood(next, previous, DateTime.makeUnsafe(0))[0]?.outcome;
+      expect(retained?._tag).toBe("Ok");
+      if (retained?._tag === "Ok") assertSome(retained.asOf, DateTime.makeUnsafe(0));
+    }
+    const inactive = [
+      AccountUsage.make({
+        account,
+        outcome: junieUsageOutcome({ identity: O.none(), status: 200, body: '{"active":false}' }),
+      }),
+    ];
+    expect(retainLastGood(inactive, previous, DateTime.makeUnsafe(0))).toEqual(inactive);
   });
   it("ranks nonpositive balances unavailable without fabricating a window", () => {
     const outcome = junieUsageOutcome({
@@ -1078,8 +1104,8 @@ describe("Junie direct balance", () => {
     });
     assertFailure(
       rotated,
-      AccountUsageOutcome.cases.Failed.make({
-        detail: "JetBrains rotated the refresh token; run junie once before polling again",
+      AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains rotated the refresh token; run `junie` and sign in again",
       })
     );
     for (const body of [
@@ -1100,7 +1126,9 @@ describe("Junie direct balance", () => {
     }
     assertFailure(
       junieRefreshOutcome({ stored, status: 401, body: "" }),
-      AccountUsageOutcome.cases.Failed.make({ detail: "JetBrains OAuth refresh is unavailable" })
+      AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains OAuth refresh answered HTTP 401; run `junie` and sign in again",
+      })
     );
   });
 });
@@ -1109,7 +1137,13 @@ class JunieRequests extends Context.Service<JunieRequests, Ref.Ref<ReadonlyArray
   "@beep/repo-cli/test/accounts-usage.test/JunieRequests"
 ) {}
 
-const junieTestLayer = (files: Readonly<Record<string, string>>, rotated: boolean) => {
+const junieTestLayer = (
+  files: Readonly<Record<string, string>>,
+  rotated: boolean,
+  storedStatus = 401,
+  freshStatus = 200,
+  oauthStatus = 200
+) => {
   const root = "/accounts-test";
   const requests = Layer.effect(JunieRequests, Ref.make<ReadonlyArray<ReadonlyArray<string | undefined>>>(A.empty()));
   const client = Layer.effect(
@@ -1134,7 +1168,12 @@ const junieTestLayer = (files: Readonly<Record<string, string>>, rotated: boolea
                 ? rotated
                   ? '{"access_token":"synthetic-fresh","refresh_token":"synthetic-rotated","expires_in":3600}'
                   : '{"access_token":"synthetic-fresh","refresh_token":"synthetic-refresh","expires_in":3600}'
-                : '{"active":true,"balanceLeft":12,"balanceUnit":"CREDITS","licenseType":"AIP"}'
+                : '{"active":true,"balanceLeft":12,"balanceUnit":"CREDITS","licenseType":"AIP"}',
+              request.url.includes("oauth2")
+                ? oauthStatus
+                : request.headers.authorization === "Bearer synthetic-old"
+                  ? storedStatus
+                  : freshStatus
             )
           )
         )
@@ -1193,18 +1232,59 @@ describe("Junie fallback poller", () => {
       '{"jb-account-stored":{"jbAccount":{"access_token":"synthetic-old","refresh_token":"synthetic-refresh","expires_in":3600,"name":"Synthetic Name"}}}',
   };
   it.layer(junieTestLayer(credential, false), { timeout: "30 seconds" })("unchanged refresh", (it) => {
-    it.effect("refreshes in memory and sends the direct balance headers", () =>
+    it.effect(
+      "refreshes once on stored-token rejection, reuses the cache within expiry, and sends balance headers",
+      () =>
+        Effect.gen(function* () {
+          const seen = yield* JunieRequests;
+          const rows = yield* pollAccounts;
+          expect(rows[0]?.outcome).toMatchObject({ _tag: "Ok" });
+          expect(A.map(rows, (row) => [row.account.provider, row.account.label, row.outcome._tag])).toEqual([
+            ["junie", "Synthetic Name", "Ok"],
+          ]);
+          expect(yield* Ref.get(seen)).toEqual([
+            ["GET", "https://ingrazzio-cloud-prod.labs.jb.gg/auth/test", "Bearer synthetic-old", "true", "true"],
+            ["POST", "https://oauth.account.jetbrains.com/oauth2/token", undefined, undefined, undefined],
+            ["GET", "https://ingrazzio-cloud-prod.labs.jb.gg/auth/test", "Bearer synthetic-fresh", "true", "true"],
+          ]);
+          yield* Ref.set(seen, []);
+          yield* pollAccounts;
+          expect(yield* Ref.get(seen)).toEqual([
+            ["GET", "https://ingrazzio-cloud-prod.labs.jb.gg/auth/test", "Bearer synthetic-fresh", "true", "true"],
+          ]);
+        })
+    );
+  });
+  it.layer(junieTestLayer(credential, false, 200), { timeout: "30 seconds" })("stored access", (it) => {
+    it.effect("uses a valid stored access token without an OAuth request", () =>
       Effect.gen(function* () {
         const seen = yield* JunieRequests;
         const rows = yield* pollAccounts;
-        expect(rows[0]?.outcome).toMatchObject({ _tag: "Ok" });
-        expect(A.map(rows, (row) => [row.account.provider, row.account.label, row.outcome._tag])).toEqual([
-          ["junie", "Synthetic Name", "Ok"],
-        ]);
-        expect(yield* Ref.get(seen)).toEqual([
-          ["POST", "https://oauth.account.jetbrains.com/oauth2/token", undefined, undefined, undefined],
-          ["GET", "https://ingrazzio-cloud-prod.labs.jb.gg/auth/test", "Bearer synthetic-fresh", "true", "true"],
-        ]);
+        expect(rows[0]?.outcome._tag).toBe("Ok");
+        expect(A.map(yield* Ref.get(seen), (request) => request[0])).toEqual(["GET"]);
+      })
+    );
+  });
+  it.layer(junieTestLayer(credential, false, 401, 401), { timeout: "30 seconds" })("rejected fresh access", (it) => {
+    it.effect("reports a Junie login rejection after exactly one refresh", () =>
+      Effect.gen(function* () {
+        const seen = yield* JunieRequests;
+        const rows = yield* pollAccounts;
+        expect(rows[0]?.outcome).toMatchObject({
+          _tag: "NeedsLogin",
+          detail: "JetBrains rejected the Junie login; run `junie` and sign in again",
+        });
+        expect(A.map(yield* Ref.get(seen), (request) => request[0])).toEqual(["GET", "POST", "GET"]);
+      })
+    );
+  });
+  it.layer(junieTestLayer(credential, false, 401, 200, 400), { timeout: "30 seconds" })("invalid grant", (it) => {
+    it.effect("reports an invalid OAuth grant as NeedsLogin before requesting a refreshed balance", () =>
+      Effect.gen(function* () {
+        const seen = yield* JunieRequests;
+        const rows = yield* pollAccounts;
+        expect(rows[0]?.outcome).toMatchObject({ _tag: "NeedsLogin", detail: expect.stringContaining("HTTP 400") });
+        expect(A.map(yield* Ref.get(seen), (request) => request[0])).toEqual(["GET", "POST"]);
       })
     );
   });
@@ -1213,8 +1293,11 @@ describe("Junie fallback poller", () => {
       Effect.gen(function* () {
         const requests = yield* JunieRequests;
         const rows = yield* pollAccounts;
-        expect(A.length(yield* Ref.get(requests))).toBe(1);
-        expect(rows[0]?.outcome).toMatchObject({ _tag: "Failed", detail: expect.stringContaining("run junie once") });
+        expect(A.map(yield* Ref.get(requests), (request) => request[0])).toEqual(["GET", "POST"]);
+        expect(rows[0]?.outcome).toMatchObject({
+          _tag: "NeedsLogin",
+          detail: expect.stringContaining("rotated the refresh token"),
+        });
         const previous = A.map(rows, (row) =>
           AccountUsage.make({
             account: row.account,

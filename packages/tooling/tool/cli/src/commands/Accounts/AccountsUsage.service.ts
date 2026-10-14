@@ -16,6 +16,7 @@ import { userInfo } from "node:os";
 import { $RepoCliId } from "@beep/identity/packages";
 import { sha256Hex } from "@beep/repo-utils/Sha256Hex";
 import * as A from "effect/Array";
+import * as Clock from "effect/Clock";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Crypto from "effect/Crypto";
@@ -32,6 +33,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Redacted from "effect/Redacted";
+import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -72,7 +74,7 @@ import {
 } from "./Accounts.wire.schemas.ts";
 import type * as PlatformError from "effect/PlatformError";
 import type { AccountSnapshot } from "./Accounts.schemas.ts";
-import type { ProxyAuthFile } from "./Accounts.wire.schemas.ts";
+import type { JunieRefreshBody, ProxyAuthFile } from "./Accounts.wire.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Accounts/AccountsUsage.service");
 
@@ -309,26 +311,14 @@ export const museUsageOutcome: (response: UsageTextResponse) => AccountUsageOutc
     })
 );
 
-/**
- * Read Junie's direct credit balance without inventing a cycle limit.
- *
- * **Example** (Reject a missing balance)
- *
- * ```ts
- * import { junieUsageOutcome } from "@beep/repo-cli/test/Accounts"
- * import * as O from "effect/Option"
- *
- * console.log(junieUsageOutcome({ identity: O.none(), status: 200, body: "{}" })._tag) // "Failed"
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const junieUsageOutcome: (response: UsageTextResponse) => AccountUsageOutcome = decodedOutcome(
+const decodedJunieUsageOutcome: (response: UsageTextResponse) => AccountUsageOutcome = decodedOutcome(
   "JetBrains AI",
   JunieAuthTestBodyJson.decodeOption,
   (body, response) => {
-    if (!O.contains(body.active, true)) return failed("JetBrains AI is inactive or its activity is unavailable");
+    if (!O.contains(body.active, true))
+      return AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains AI is inactive; run `junie` and sign in again",
+      });
     if (O.isNone(body.balanceLeft) || !O.contains(body.balanceUnit, "CREDITS") || O.isNone(body.licenseType)) {
       return failed("JetBrains AI balance, unit, or license is unavailable");
     }
@@ -352,6 +342,28 @@ export const junieUsageOutcome: (response: UsageTextResponse) => AccountUsageOut
 );
 
 /**
+ * Read Junie's direct credit balance without inventing a cycle limit.
+ *
+ * **Example** (Reject a missing balance)
+ *
+ * ```ts
+ * import { junieUsageOutcome } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(junieUsageOutcome({ identity: O.none(), status: 200, body: "{}" })._tag) // "NeedsLogin"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const junieUsageOutcome = (response: UsageTextResponse): AccountUsageOutcome =>
+  isRejectedStatus(response.status)
+    ? AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains rejected the Junie login; run `junie` and sign in again",
+      })
+    : decodedJunieUsageOutcome(response);
+
+/**
  * Reject an OAuth response that would strand Junie's stored refresh token.
  *
  * **Example** (Detect rotation using synthetic tokens)
@@ -369,15 +381,32 @@ export const junieUsageOutcome: (response: UsageTextResponse) => AccountUsageOut
  * @category utilities
  * @since 0.0.0
  */
-export const junieRefreshOutcome = (response: JunieRefreshResponse) => {
+export const junieRefreshOutcome = (
+  response: JunieRefreshResponse
+): Result.Result<JunieRefreshBody, AccountUsageOutcome> => {
   const { stored, status, body } = response;
-  const decoded = status === 200 ? JunieRefreshBodyJson.decodeOption(body) : O.none();
+  if (status !== 200)
+    return Result.fail(
+      AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: `JetBrains OAuth refresh answered HTTP ${status}; run \`junie\` and sign in again`,
+      })
+    );
+  const decoded = JunieRefreshBodyJson.decodeOption(body);
   if (O.isNone(decoded)) return Result.fail(failed("JetBrains OAuth refresh is unavailable"));
   if (O.exists(decoded.value.refresh_token, (token) => Redacted.value(token) !== Redacted.value(stored))) {
-    return Result.fail(failed("JetBrains rotated the refresh token; run junie once before polling again"));
+    return Result.fail(
+      AccountUsageOutcome.cases.NeedsLogin.make({
+        detail: "JetBrains rotated the refresh token; run `junie` and sign in again",
+      })
+    );
   }
   return Result.succeed(decoded.value);
 };
+
+class JunieAccessToken extends S.Class<JunieAccessToken>($I`JunieAccessToken`)(
+  { access_token: S.Redacted(S.String), expiresAt: S.Finite },
+  $I.annote("JunieAccessToken", { description: "A service-local Junie access token and its expiry in milliseconds." })
+) {}
 
 const JunieFallbackJson = JsonStringCodec(S.Struct({ "jb-account-stored": JunieStoredCredential }));
 
@@ -493,6 +522,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
   const path = yield* Path.Path;
   const client = yield* HttpClient.HttpClient;
   const directory = yield* resolveAccountsAuthDir;
+  const junieAccessToken = yield* Ref.make(O.none<JunieAccessToken>());
 
   const crypto = yield* Crypto.Crypto;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
@@ -552,6 +582,29 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
       if (O.isNone(stored.value))
         return failed("Junie credential variant is unsupported; a JetBrains account login is required");
       const account = stored.value.value.jbAccount;
+      const cached = yield* Ref.get(junieAccessToken);
+      const now = yield* Clock.currentTimeMillis;
+      const token = O.match(cached, {
+        onNone: () => account.access_token,
+        onSome: (value) =>
+          value.expiresAt - Duration.toMillis(Duration.seconds(60)) > now ? value.access_token : account.access_token,
+      });
+      const authTest = Effect.fnUntraced(function* (accessToken: Redacted.Redacted<string>) {
+        const response = yield* client.execute(
+          HttpClientRequest.get("https://ingrazzio-cloud-prod.labs.jb.gg/auth/test").pipe(
+            HttpClientRequest.bearerToken(Redacted.value(accessToken)),
+            HttpClientRequest.setHeaders({ "X-Accept-EAP-License": "true", "X-Accept-Release-License": "true" })
+          )
+        );
+        return {
+          identity: O.orElse(account.email, () => account.name),
+          status: response.status,
+          body: yield* response.text,
+        } satisfies UsageTextResponse;
+      });
+      const initial = yield* authTest(token);
+      if (!isRejectedStatus(initial.status)) return junieUsageOutcome(initial);
+      yield* Ref.set(junieAccessToken, O.none());
       const refreshed = yield* client.execute(
         HttpClientRequest.post("https://oauth.account.jetbrains.com/oauth2/token").pipe(
           HttpClientRequest.bodyUrlParams({
@@ -567,17 +620,17 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
         body: yield* refreshed.text,
       });
       if (Result.isFailure(refresh)) return refresh.failure;
-      const response = yield* client.execute(
-        HttpClientRequest.get("https://ingrazzio-cloud-prod.labs.jb.gg/auth/test").pipe(
-          HttpClientRequest.bearerToken(Redacted.value(refresh.success.access_token)),
-          HttpClientRequest.setHeaders({ "X-Accept-EAP-License": "true", "X-Accept-Release-License": "true" })
+      yield* Ref.set(
+        junieAccessToken,
+        O.some(
+          JunieAccessToken.make({
+            access_token: refresh.success.access_token,
+            expiresAt:
+              (yield* Clock.currentTimeMillis) + Duration.toMillis(Duration.seconds(refresh.success.expires_in)),
+          })
         )
       );
-      return junieUsageOutcome({
-        identity: O.orElse(account.email, () => account.name),
-        status: response.status,
-        body: yield* response.text,
-      });
+      return junieUsageOutcome(yield* authTest(refresh.success.access_token));
     },
     Effect.timeoutOption(REQUEST_TIMEOUT),
     Effect.map(O.getOrElse(() => failed("JetBrains AI poll timed out"))),
@@ -867,7 +920,7 @@ export const retainLastGood: {
     previousAt: DateTime.Utc
   ): ReadonlyArray<AccountUsage> =>
     A.map(next, (usage) =>
-      usage.outcome._tag !== "Failed" || usage.account.provider === "junie"
+      usage.outcome._tag !== "Failed"
         ? usage
         : O.match(
             A.findFirst(previous, (other) => sameAccount(usage, other) && isOk(other)),

@@ -234,17 +234,17 @@ const absentModelProblem = (
   reference: LocatorBinding,
   answered: ReadonlyArray<CatalogSource>
 ): O.Option<DriftKind> => {
-  const invalidEffort = O.exists(binding.effort, (effort) => !isEffortAllowedOnSurface(binding.surface, effort));
-  if (invalidEffort || (reference.field !== "model" && O.isNone(binding.effort))) {
-    return O.some<DriftKind>("invalid-effort");
-  }
   // Junie has no catalog overlay; only an answering catalog for this surface
   // supplies evidence that an absent id is unknown.
   const catalogAnswered =
     binding.surface !== "junie-cli" &&
     (A.contains(answered, "router-for-me") ||
       O.exists(surfaceOverlay(binding.surface), (source) => A.contains(answered, source)));
-  return catalogAnswered ? O.some<DriftKind>("unknown-model") : O.none<DriftKind>();
+  if (catalogAnswered) return O.some<DriftKind>("unknown-model");
+  const invalidEffort = O.exists(binding.effort, (effort) => !isEffortAllowedOnSurface(binding.surface, effort));
+  return invalidEffort || (reference.field !== "model" && O.isNone(binding.effort))
+    ? O.some<DriftKind>("invalid-effort")
+    : O.none<DriftKind>();
 };
 
 const bindingProblem = (
