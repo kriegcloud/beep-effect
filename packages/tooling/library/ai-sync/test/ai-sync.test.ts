@@ -854,7 +854,7 @@ it.effect(
     ];
     for (const input of rejected) {
       const exit = yield* decodeAgentSkillFrontmatter(input, AgentSkillFrontmatterStrictParseOptions).pipe(Effect.exit);
-      assertTrue(Exit.isFailure(exit));
+      exit.pipe(Exit.isFailure, assertTrue);
     }
     const lenient = yield* decodeAgentSkillFrontmatter({ name: "yeet", description: "Ship.", version: "1.0" });
     expect(lenient.name).toBe("yeet");
