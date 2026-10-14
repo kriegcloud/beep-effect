@@ -5,6 +5,7 @@ import {
   cameraForView,
   composeSheet,
   DrawingError,
+  drawnBrokenGapMm,
   EdgeSet,
   EngineInfo,
   FigureRecord,
@@ -27,9 +28,12 @@ import {
   PdfFacts,
   PdfFontFact,
   PdfPageSize,
+  PT_PER_MM,
   purityFindings,
   RenderManifest,
   RenderRequest,
+  ShadingCoverage,
+  ShadingSkip,
   SheetFonts,
   SheetMargins,
   SheetOptions,
@@ -49,9 +53,11 @@ import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { ShadingPlan } from "@beep/technical-drawing";
 
 // A fake engine: every view projects a unit square, except that the "rear"
 // camera (eye +Y) projects the square shifted, so omission proofs can fail.
@@ -65,27 +71,57 @@ const square: ReadonlyArray<readonly [number, number, number, number]> = [
 ];
 const shifted = A.map(square, ([a, b, c, d]) => [a + 1, b, c + 1, d] as const);
 
-const fakeEngine = Layer.succeed(
-  GeometryEngine,
-  GeometryEngine.of({
-    info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
-    summarize: Effect.fnUntraced(function* () {
-      return ModelSummary.make({
-        boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
-        volume: 250,
-        faceCount: 6,
-        edgeCount: 12,
-      });
-    }),
-    project: Effect.fnUntraced(function* (_, cameras, shading) {
-      // shaded projections carry one diagonal hatch line per view
-      const hatch = O.match(shading, { onNone: () => [], onSome: () => [[1, 1, 4, 4] as const] });
-      return A.map(cameras, (camera) =>
-        EdgeSet.make({ visible: camera.eye[1] > 0 ? shifted : square, hidden: [], shading: hatch })
-      );
-    }),
-  })
-);
+// `plans` collects every shading plan the engine is asked for, per layer.
+const fakeEngineWith = (plans: Array<ShadingPlan>) =>
+  Layer.succeed(
+    GeometryEngine,
+    GeometryEngine.of({
+      info: Effect.succeed(EngineInfo.make({ name: "fake", version: "0", binarySha256: "" })),
+      // a model with more than one part reports one overlapping pair
+      summarize: Effect.fnUntraced(function* (model) {
+        return ModelSummary.make({
+          boundingBox: BoundingBox.make({ min: [0, 0, 0], max: [10, 5, 5] }),
+          volume: 250,
+          faceCount: 6,
+          edgeCount: 12,
+          partOverlaps: A.length(model.parts) > 1 ? 1 : 0,
+        });
+      }),
+      project: Effect.fnUntraced(function* (model, cameras, shading) {
+        // uniform shading carries one diagonal hatch line per view that starts on the
+        // outline (uniform strokes end on the face edge by design, and only graded
+        // output is held to the outline checks); graded shading two lines a hair
+        // apart, which the spacing rule must flag; a model with a broken-line part
+        // carries one broken segment per view
+        O.map(shading, (plan) => plans.push(plan));
+        const hatch = O.match(shading, {
+          onNone: () => [],
+          onSome: (plan) =>
+            plan.style === "graded"
+              ? [[1, 1, 9, 1] as const, [1, 1.01, 9, 1.01] as const]
+              : [[0.2, 0.2, 4, 4] as const],
+        });
+        const coverage = O.map(shading, () =>
+          ShadingCoverage.make({
+            shadedFaces: 1,
+            skippedFaces: [ShadingSkip.make({ reason: "back-facing", faces: 5 })],
+          })
+        );
+        const broken = A.some(model.parts, (part) => part.lineStyle === "broken") ? [[2, 1, 8, 1] as const] : [];
+        return A.map(cameras, (camera) =>
+          EdgeSet.make({
+            visible: camera.eye[1] > 0 ? shifted : square,
+            hidden: [],
+            shading: hatch,
+            shadingCoverage: coverage,
+            broken,
+          })
+        );
+      }),
+    })
+  );
+
+const fakeEngine = fakeEngineWith([]);
 
 const letter = PdfPageSize.make({ widthPt: 612, heightPt: 792 });
 const cleanMetrics = (dpi: number, antiAliased: boolean) =>
@@ -152,15 +188,19 @@ const fakeBackend = Layer.effect(
   })
 );
 
+const body = { name: "body", add: [{ kind: "box", min: [0, 0, 0], max: [10, 5, 5] }] };
+
 const spec = (
   figures: ReadonlyArray<{ view: string; description: string; projection?: string }>,
   omissions: ReadonlyArray<unknown> = [],
-  extra: Readonly<Record<string, unknown>> = {}
+  extra: Readonly<Record<string, unknown>> = {},
+  part: Readonly<Record<string, unknown>> = body,
+  moreParts: ReadonlyArray<Readonly<Record<string, unknown>>> = []
 ) =>
   JSON.stringify({
     ...extra,
     title: "Synthetic block",
-    model: { parts: [{ name: "body", add: [{ kind: "box", min: [0, 0, 0], max: [10, 5, 5] }] }] },
+    model: { parts: [part, ...moreParts] },
     figures,
     omissions,
   });
@@ -377,6 +417,55 @@ describe("@beep/technical-drawing", () => {
           expect(y).toBeGreaterThanOrEqual(2.5 * 28.3464);
           expect(y).toBeLessThanOrEqual(792 - 1.0 * 28.3464);
         }
+      })
+    );
+
+    it.effect(
+      "composeSheet adds a dashed broken layer only when broken lines exist",
+      Effect.fnUntraced(function* () {
+        const options = SheetOptions.make({});
+        const base = { segments: square, figure: 1, sheet: 1, sheets: 1, scale: 20, options } as const;
+        const plain = composeSheet({ ...base, shading: [] });
+        // an empty broken layer leaves the sheet byte-identical
+        expect(composeSheet({ ...base, shading: [], broken: [] })).toBe(plain);
+        expect(plain).not.toContain('id="broken"');
+        expect(plain).not.toContain("stroke-dasharray");
+        const withBroken = composeSheet({ ...base, shading: [[1, 1, 4, 4]], broken: [[2, 1, 8, 1]] });
+        // 3 mm dashes, 1.5 mm gaps, the outline weight, between shading and figure
+        expect(withBroken).toContain(
+          'stroke-width="0.992" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8.504 4.252"/>'
+        );
+        const order = A.map(['id="labels"', 'id="shading"', 'id="broken"', 'id="figure"'], (id) =>
+          withBroken.indexOf(id)
+        );
+        expect(order).toEqual(A.sort(order, Order.Number));
+        expect(A.every(order, (index) => index > 0)).toBe(true);
+        const custom = composeSheet({
+          ...base,
+          shading: [],
+          broken: [[2, 1, 8, 1]],
+          options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 1 }),
+        });
+        expect(custom).toContain('stroke-dasharray="5.669 2.835"');
+        // broken lines inside the outline do not move it; outside it they re-centre the view
+        const figureOf = (svg: string) => svg.slice(svg.indexOf('<path id="figure"'));
+        expect(figureOf(withBroken)).toBe(figureOf(plain));
+        expect(figureOf(composeSheet({ ...base, shading: [], broken: [[-10, 0, 0, 0]] }))).not.toBe(figureOf(plain));
+        expect(SheetOptions.make({}).brokenGapMm).toBe(1.5);
+        expect(() => SheetOptions.make({ brokenDashMm: 0.5 })).toThrow();
+        expect(() => SheetOptions.make({ brokenGapMm: 0.5 })).toThrow();
+        // round caps eat the line weight: a heavy stroke would close a gap that is valid on its own, so the
+        // drawn gap widens at emit time; the options themselves stay usable on a solid-only sheet
+        expect(SheetOptions.make({ lineWeightMm: 1.2 }).brokenGapMm).toBe(1.5);
+        expect(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 0.75 }))).toBeCloseTo(1.2, 9);
+        expect(drawnBrokenGapMm(SheetOptions.make({ lineWeightMm: 0.8, brokenGapMm: 1.2 }))).toBe(1.2);
+        const widened = composeSheet({
+          ...base,
+          shading: [],
+          broken: [[2, 1, 8, 1]],
+          options: SheetOptions.make({ brokenDashMm: 2, brokenGapMm: 0.75, lineWeightMm: 0.8 }),
+        });
+        expect(widened).toContain('stroke-dasharray="5.669 3.402"');
       })
     );
 
@@ -903,6 +992,35 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "draws broken-line parts as a dashed layer, counts them, and proves omissions over both layers",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const service = yield* FigureSet;
+          const figures = [{ view: "front", description: "is a front elevation view" }];
+          const omissions = [{ omitted: "left", shown: "front", relation: "identical" }];
+          const render = Effect.fnUntraced(function* (name: string, text: string) {
+            const specPath = path.join(dir, `${name}.json`);
+            yield* fs.writeFileString(specPath, text);
+            const out = path.join(dir, name);
+            const manifest = yield* service.render(RenderRequest.make({ specPath, outputDir: out, validate: false }));
+            return { manifest, svg: yield* fs.readFileString(path.join(out, "fig-1.svg")) };
+          });
+          const solid = yield* render("solid", spec(figures, omissions));
+          const broken = yield* render("broken", spec(figures, omissions, {}, { ...body, lineStyle: "broken" }));
+          expect(A.map(solid.manifest.figures, (f) => f.brokenSegments)).toEqual([0]);
+          expect(A.map(broken.manifest.figures, (f) => f.brokenSegments)).toEqual([1]);
+          expect(solid.svg).not.toContain('id="broken"');
+          expect(broken.svg).toContain('<path id="broken"');
+          expect(broken.svg).toContain('stroke-dasharray="8.504 4.252"');
+          expect(A.map(broken.manifest.omissions, (o) => o.proven)).toEqual([true]);
+          // the broken segment lies inside the outline, so the scale is unchanged
+          expect(broken.manifest.scale).toBe(solid.manifest.scale);
+        })
+      );
+
+      it.effect(
         "records the effective sheet and cameras; a spec's sheet wins over the request's",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1196,6 +1314,38 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "refuses a model whose parts overlap unless the request allows it",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          yield* fs.writeFileString(
+            specPath,
+            spec([{ view: "front", description: "is a front elevation view" }], [], {}, body, [
+              { ...body, name: "lid" },
+            ])
+          );
+          const service = yield* FigureSet;
+          const error = yield* Effect.flip(
+            service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "refused"), validate: false }))
+          );
+          assertInstanceOf(error, DrawingError);
+          expect(error.reason).toBe("geometry");
+          expect(error.message).toContain("1 pair(s) of parts overlap");
+          const allowed = yield* service.render(
+            RenderRequest.make({
+              specPath,
+              outputDir: path.join(dir, "allowed"),
+              validate: false,
+              allowPartOverlaps: true,
+            })
+          );
+          expect(allowed.model.partOverlaps).toBe(1);
+        })
+      );
+
+      it.effect(
         "rejects a spec that repeats a view or lacks a description",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1270,6 +1420,82 @@ describe("@beep/technical-drawing approver binding and empty documents", () => {
         const unbound = yield* render("unbound", spec(figures));
         expect(O.isNone(unbound.manifest.approver)).toBe(true);
         expect(unbound.written).not.toContain("approver");
+      })
+    );
+  });
+});
+
+// The engine records the plans it is asked for; only this block's one test uses this layer,
+// so concurrent tests elsewhere cannot add to it.
+const gradedPlans = A.empty<ShadingPlan>();
+
+describe("graded shading through fake ports", () => {
+  it.layer(
+    Layer.fresh(FigureSet.layer).pipe(
+      Layer.provide(Layer.merge(fakeEngineWith(gradedPlans), fakeBackend)),
+      Layer.provideMerge(NodeServices.layer)
+    ),
+    { timeout: "30 seconds" }
+  )((it) => {
+    it.effect(
+      "passes a spec's graded shading options to the engine, records coverage, and flags close shading lines",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const dir = yield* fs.makeTempDirectoryScoped();
+        const specPath = path.join(dir, "spec.json");
+        yield* fs.writeFileString(
+          specPath,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {
+            sheet: {
+              shadingStyle: "graded",
+              shadingAxis: "surface-class",
+              shadingMinFaceSpanMm: 1.5,
+              shadingMinStrokeMm: 2,
+            },
+          })
+        );
+        const service = yield* FigureSet;
+        const manifest = yield* service.render(
+          RenderRequest.make({ specPath, outputDir: path.join(dir, "out"), shade: true })
+        );
+        expect(A.length(gradedPlans)).toBe(1);
+        const plan = gradedPlans[0];
+        expect([plan?.style, plan?.axis]).toEqual(["graded", "surface-class"]);
+        expect(plan?.minFaceSpan).toBeCloseTo((1.5 * PT_PER_MM) / manifest.scale, 9);
+        expect(plan?.minStroke).toBeCloseTo((2 * PT_PER_MM) / manifest.scale, 9);
+        assertSome(
+          manifest.figures[0]!.shadingCoverage,
+          ShadingCoverage.make({
+            shadedFaces: 1,
+            skippedFaces: [ShadingSkip.make({ reason: "back-facing", faces: 5 })],
+          })
+        );
+        assertSome(
+          O.map(manifest.validation, (v) => A.map(v.findings, (f) => [f.code, f.page])),
+          [["shading-spacing", O.some(1)]]
+        );
+        // the unshaded render records no coverage and no spacing finding
+        const plain = yield* service.render(RenderRequest.make({ specPath, outputDir: path.join(dir, "plain") }));
+        assertNone(plain.figures[0]!.shadingCoverage);
+        assertSome(
+          O.map(plain.validation, (v) => v.findings.length),
+          0
+        );
+        // a default (uniform) shaded render is not held to the graded outline checks, although its
+        // hatch starts on the outline
+        const uniformSpec = path.join(dir, "uniform.json");
+        yield* fs.writeFileString(
+          uniformSpec,
+          spec([{ view: "front", description: "is a front elevation view" }], [], {})
+        );
+        const uniform = yield* service.render(
+          RenderRequest.make({ specPath: uniformSpec, outputDir: path.join(dir, "uniform"), shade: true })
+        );
+        assertSome(
+          O.map(uniform.validation, (v) => A.map(v.findings, (f) => f.code)),
+          []
+        );
       })
     );
   });

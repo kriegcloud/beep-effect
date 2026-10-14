@@ -9,8 +9,9 @@ description: >
   until zero required findings. Use for any milestone that changes pointer
   gestures, layout, animation, or user-facing UI — jsdom green is not
   click-works green, and a post-gesture screenshot is not a mid-gesture proof.
-version: 0.3.0
-status: active
+metadata:
+  version: "0.3.0"
+  status: active
 ---
 
 # Browser QA Loop
@@ -55,7 +56,7 @@ screenshots-only loop.
    events — and drive gestures SLOWLY (≥ 20 steps, ≥ 1.5 s) so extraction has
    frame density. Exit line: `CAPTURE-GREEN` or `CAPTURE-FAILURES: n`. Fix
    capture failures before judging.
-2. **Extract** — `bun run beep qa extract --round N` correlates the witness
+2. **Extract** — `bun run beep qa extract --session .beep/qa/round-N` correlates the witness
    clock to video time (sync beacon / OBS anchor), then writes per-gesture
    evidence into the round dir: `frames/` strips, `clips/` GIFs+snippets,
    `sheets/` contact sheets, each stamped with `XMP-beepQA` provenance.

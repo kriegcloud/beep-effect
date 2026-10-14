@@ -2,17 +2,17 @@
 
 ## Status
 
-Status: `active`
+Status: `completed-retained`
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Research | complete | Measure tsc-rs against the patched tsgo, attribute every diagnostic difference, and land the upstream 7.1 fixes. | `research/measurements-2026-10-13.md` records the numbers; the eleven fixes are green under tsgo, tsc-rs and stock 7.1-dev and ship in their own PR. |
-| P1 Implement | in-progress | Pin `tsc-rs`, swap the generated `beep:check`, `beep:check:tests` and `beep:build` defaults, regenerate manifests, update the toolchain runbook and the version-coupling test. | Acceptance criteria in `SPEC.md` are met; `--fast` stays off. |
-| P2 Verify | pending | Run required checks and capture evidence. | Verification is green or blockers are documented. |
-| P3 Yeet: PR to mergeable | pending | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
-| P4 Close | pending | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
+| P1 Implement | complete | Pin `tsc-rs`, swap the generated `beep:check`, `beep:check:tests` and `beep:build` defaults, regenerate manifests, update the toolchain runbook and the version-coupling test. | Acceptance criteria in `SPEC.md` are met; `--fast` stays off. |
+| P2 Verify | complete | Hosted `Heavy / Check` and `Heavy / Build` on the swap PR, plus the first cache-cold timings against the 2026-10-13 baseline (7m39s turbo time). | Hosted gates green on tsc-rs; timings recorded in `research/`. |
+| P3 Yeet: PR to mergeable | complete | Publish through yeet and drive the PR to mergeable: required checks green, review comments answered and resolved. | `mergeStateStatus` is `CLEAN`; zero unresolved review threads. |
+| P4 Close | complete | Write the closeout reflection and flip packet state. | Packet status and evidence are updated; a closeout reflection exists. |
 
 ## Closeout Checklist
 
