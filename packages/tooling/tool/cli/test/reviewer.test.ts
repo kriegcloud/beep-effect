@@ -369,7 +369,7 @@ const TokenTestLayer = Layer.unwrap(
     offset = contentOffset(offset) + contentLength(offset); // algorithm
     expect(bytes[offset]).toBe(4); // PrivateKey OCTET STRING
     const pkcs1 = bytes.slice(contentOffset(offset), contentOffset(offset) + contentLength(offset));
-    const pem = `-----BEGIN RSA PRIVATE KEY-----\n${Buffer.from(pkcs1).toString("base64")}\n-----END RSA PRIVATE KEY-----`; // gitleaks:allow -- armor around a test key generated only in memory
+    const pem = `-----BEGIN RSA PRIVATE KEY-----\n${Buffer.from(pkcs1).toString("base64")}\n-----END RSA PRIVATE KEY-----`; // gitleaks:allow -- format marker only; key generated in memory. nosemgrep: semgrep.beep-hardcoded-private-key
     let exchanges = 0;
     const requestBodies: Array<unknown> = [];
     const jwts: Array<string> = [];
