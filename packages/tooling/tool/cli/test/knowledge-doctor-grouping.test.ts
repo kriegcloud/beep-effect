@@ -30,6 +30,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as R from "effect/Record";
+import * as Str from "effect/String";
 
 const testLayer = Layer.mergeAll(NodeServices.layer, NodeCrypto.layer);
 
@@ -144,6 +145,40 @@ describe("knowledge doctor causal grouping", () => {
         const rendered = renderKnowledgeDoctorHumanReport(report);
         assert.include(rendered, `blocking findings (${blocking}) under 1 root(s):`);
         assert.include(rendered, `${`${blocking}`.padStart(8)} goals-doctor:manifest-invalid:demo [delegated]`);
+      })
+    );
+
+    it.effect(
+      "chooses the same delegated root when duplicate causes arrive in either order",
+      Effect.fnUntraced(function* () {
+        const report = yield* scanKnowledgeDoctorTree(
+          makeKnowledgeDoctorMemoryTree({
+            files: {
+              "goals/demo/ops/manifest.json": "{",
+              "docs/status.md": "`goals/demo` is `active`",
+            },
+          })
+        );
+        const delegated = yield* Effect.fromOption(A.findFirst(report.findings, (row) => row.origin === "delegated"));
+        const roots = A.map(["1", "2"], (digit) =>
+          KnowledgeDoctorFinding.make({
+            ...delegated,
+            finding: KnowledgeFinding.make({
+              ...delegated.finding,
+              findingId: `knowledge-finding/v1:${Str.repeat(64)(digit)}`,
+            }),
+          })
+        );
+        const findings = A.appendAll(
+          A.filter(report.findings, (row) => row.origin === "owned"),
+          roots
+        );
+        for (const ordered of [findings, A.reverse(findings)]) {
+          const groups = groupKnowledgeDoctorFindings(ordered, O.none());
+          const group = yield* Effect.fromOption(A.findFirst(groups, (row) => row.causeKey === delegated.causeKey));
+          assert.deepStrictEqual(group.root, O.some(A.getUnsafe(roots, 0).finding.findingId));
+          assert.strictEqual(A.length(group.dependents), 1);
+        }
       })
     );
 
