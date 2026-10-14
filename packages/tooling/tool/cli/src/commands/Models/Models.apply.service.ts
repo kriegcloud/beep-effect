@@ -13,6 +13,7 @@ import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as Random from "effect/Random";
@@ -66,26 +67,26 @@ const assertNativeFields = Effect.fnUntraced(function* (
     owned: ReadonlyArray<ReadonlyArray<string>>
   ) {
     const beforeNative = yield* encodeValue(maskOwned(left, owned)).pipe(
-      ModelsLocatorError.mapError("Cannot compare native fields.")
+      Effect.mapError(() => failure("Cannot compare native fields."))
     );
     const afterNative = yield* encodeValue(maskOwned(right, owned)).pipe(
-      ModelsLocatorError.mapError("Cannot compare native fields.")
+      Effect.mapError(() => failure("Cannot compare native fields."))
     );
     if (beforeNative !== afterNative) return yield* failure("Non-owned native keys changed.");
   });
   if (A.isReadonlyArrayNonEmpty(tomlPaths)) {
     const decode = decodeTomlTextWith(S.decodeUnknownEffect(S.Unknown));
     yield* compare(
-      yield* decode(before).pipe(ModelsLocatorError.mapError("Invalid native TOML.")),
-      yield* decode(after).pipe(ModelsLocatorError.mapError("Invalid native TOML.")),
+      yield* decode(before).pipe(Effect.mapError(() => failure("Invalid native TOML."))),
+      yield* decode(after).pipe(Effect.mapError(() => failure("Invalid native TOML."))),
       tomlPaths
     );
   }
   if (A.isReadonlyArrayNonEmpty(jsonPaths)) {
     const decode = S.decodeEffect(S.fromJsonString(S.Unknown));
     yield* compare(
-      yield* decode(before).pipe(ModelsLocatorError.mapError("Invalid native JSON.")),
-      yield* decode(after).pipe(ModelsLocatorError.mapError("Invalid native JSON.")),
+      yield* decode(before).pipe(Effect.mapError(() => failure("Invalid native JSON."))),
+      yield* decode(after).pipe(Effect.mapError(() => failure("Invalid native JSON."))),
       jsonPaths
     );
   }
@@ -93,6 +94,14 @@ const assertNativeFields = Effect.fnUntraced(function* (
 
 /**
  * The writer accepts only explicit locator ownership, never a full replacement file.
+ *
+ * **Example** (Describe the owned operations)
+ *
+ * ```ts
+ * import type { ModelsApplyShape } from "@beep/repo-cli/commands/Models/Models.apply.service"
+ * const operations: ReadonlyArray<keyof ModelsApplyShape> = ["apply", "restore"]
+ * console.log(operations.length) // 2
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -123,28 +132,40 @@ export interface ModelsApplyShape {
  */
 export class ModelsApply extends Context.Service<ModelsApply, ModelsApplyShape>()($I`ModelsApply`) {}
 
-const validate = Effect.fnUntraced(function* (text: string, writes: ReadonlyArray<ModelsLocatorWrite>) {
-  for (const { locator } of writes) {
-    if (locator._tag === "toml-top-level-key" || locator._tag === "toml-table-key")
-      yield* decodeTomlTextWith(S.decodeUnknownEffect(S.Unknown))(text).pipe(
-        ModelsLocatorError.mapError("Invalid TOML target.")
-      );
-    if (locator._tag === "json-key")
-      yield* S.decodeEffect(S.fromJsonString(S.Unknown))(text).pipe(
-        ModelsLocatorError.mapError("Invalid JSON target.")
-      );
-    if (locator._tag === "yaml-path")
-      yield* decodeYamlTextWith(S.decodeUnknownEffect(S.Unknown))(text).pipe(
-        ModelsLocatorError.mapError("Invalid YAML target.")
-      );
-    if (locator._tag === "xml-attribute" || locator._tag === "xml-escaped-json-attribute") {
-      yield* Effect.try({
-        try: () => new XMLParser({ ignoreAttributes: false }).parse(text, true),
-        catch: () => failure("Invalid XML target."),
-      });
-    }
-  }
-});
+const validate = Effect.fn("ModelsApply.validate")((text: string, writes: ReadonlyArray<ModelsLocatorWrite>) =>
+  Effect.forEach(
+    writes,
+    ({ locator }) =>
+      Match.value(locator).pipe(
+        Match.tag("toml-top-level-key", "toml-table-key", () =>
+          decodeTomlTextWith(S.decodeUnknownEffect(S.Unknown))(text).pipe(
+            Effect.mapError(() => failure("Invalid TOML target.")),
+            Effect.asVoid
+          )
+        ),
+        Match.tag("json-key", () =>
+          S.decodeEffect(S.fromJsonString(S.Unknown))(text).pipe(
+            Effect.mapError(() => failure("Invalid JSON target.")),
+            Effect.asVoid
+          )
+        ),
+        Match.tag("yaml-path", () =>
+          decodeYamlTextWith(S.decodeUnknownEffect(S.Unknown))(text).pipe(
+            Effect.mapError(() => failure("Invalid YAML target.")),
+            Effect.asVoid
+          )
+        ),
+        Match.tag("xml-attribute", "xml-escaped-json-attribute", () =>
+          Effect.try({
+            try: () => new XMLParser({ ignoreAttributes: false }).parse(text, true),
+            catch: () => failure("Invalid XML target."),
+          }).pipe(Effect.asVoid)
+        ),
+        Match.orElse(() => Effect.void)
+      ),
+    { concurrency: 1, discard: true }
+  )
+);
 
 const makeApply = Effect.fn("ModelsApply.make")(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -158,10 +179,17 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     );
   });
   const io = ModelsLocatorError.mapError("Native configuration I/O failed.");
+  const readNative = Effect.fnUntraced(function* (file: string) {
+    const bytes = yield* fs.readFile(file).pipe(io);
+    return yield* Effect.try({
+      try: () => new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes),
+      catch: () => failure("Native configuration must be valid UTF-8; refusing byte normalization."),
+    });
+  });
   const suffix = Effect.gen(function* () {
     const now = yield* DateTime.now;
     const salt = yield* Random.nextIntBetween(0, 0xffffff);
-    return `models-${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt.toString(16)}`;
+    return `models-${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
   });
 
   const atomic = Effect.fnUntraced(function* (file: string, beforeHash: string, after: string, mode: number) {
@@ -171,7 +199,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         fs.writeFileString(temporary, after, { flag: "wx", mode: 0o600 }).pipe(io, Effect.as(temporary)),
         Effect.fnUntraced(function* () {
           yield* fs.chmod(temporary, mode).pipe(io);
-          const current = yield* fs.readFileString(file).pipe(io);
+          const current = yield* readNative(file);
           if ((yield* hash(current)) !== beforeHash)
             return yield* failure("Native file drifted after planning; refusing replacement.");
           yield* fs.rename(temporary, file).pipe(io);
@@ -185,7 +213,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
     function* (file, writes, mode, backupDirectory) {
       // Resolving symlinks preserves their native ownership rather than replacing the link.
       const actual = yield* fs.realPath(file).pipe(io);
-      const before = yield* fs.readFileString(actual).pipe(io);
+      const before = yield* readNative(actual);
       yield* validate(before, writes);
       const spans = yield* Effect.forEach(writes, (write) => modelsWriteSpans(before, write), { concurrency: 1 }).pipe(
         Effect.map(A.flatten)
@@ -237,7 +265,7 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
         .writeFileString(path.join(backupDirectory, `${id}.json`), encoded, { flag: "wx", mode: 0o600 })
         .pipe(io);
       yield* atomic(actual, journal.beforeHash, after, info.mode);
-      if ((yield* hash(yield* fs.readFileString(actual).pipe(io))) !== journal.afterHash)
+      if ((yield* hash(yield* readNative(actual))) !== journal.afterHash)
         return yield* failure("Native file changed after replacement; preserve journal for recovery.");
       return O.some(journal);
     }
@@ -248,15 +276,17 @@ const makeApply = Effect.fn("ModelsApply.make")(function* () {
       const root = yield* fs.realPath(backupDirectory).pipe(io);
       const actualJournal = yield* fs.realPath(journalFile).pipe(io);
       if (path.dirname(actualJournal) !== root) return yield* failure("Journal must belong to the backup directory.");
-      const journal = yield* fs
-        .readFileString(actualJournal)
-        .pipe(io, Effect.flatMap(decodeJournal), ModelsLocatorError.mapError("Invalid recovery journal."));
+      const journal = yield* fs.readFileString(actualJournal).pipe(
+        io,
+        Effect.flatMap(decodeJournal),
+        Effect.mapError(() => failure("Invalid recovery journal."))
+      );
       const backup = yield* fs.realPath(journal.backup).pipe(io);
       if (path.dirname(backup) !== root || path.basename(backup) !== `${journal.id}.backup`)
         return yield* failure("Recovery backup is outside its journal directory.");
-      const original = yield* fs.readFileString(backup).pipe(io);
+      const original = yield* readNative(backup);
       if ((yield* hash(original)) !== journal.beforeHash) return yield* failure("Recovery backup hash does not match.");
-      const current = yield* fs.readFileString(journal.file).pipe(io);
+      const current = yield* readNative(journal.file);
       if ((yield* hash(current)) === journal.beforeHash) return;
       if ((yield* hash(current)) !== journal.afterHash)
         return yield* failure("Native file changed since apply; restore would overwrite new state.");

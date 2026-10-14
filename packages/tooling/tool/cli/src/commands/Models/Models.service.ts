@@ -18,6 +18,7 @@ import { A, O, pipe } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
@@ -54,6 +55,7 @@ import type {
 } from "./Models.errors.ts";
 import type { ModelsLocatorReaderShape } from "./Models.locator.service.ts";
 import type {
+  BindingFilter,
   Locator,
   LocatorBinding,
   ModelBinding,
@@ -217,17 +219,32 @@ const finding = (
     kind,
   });
 
-const filterBindings = (
-  manifest: ModelsManifest,
-  roles: ReadonlyArray<string>,
-  surfaces: ReadonlyArray<string>
-): ReadonlyArray<ModelBinding> =>
-  A.filter(
-    manifest.bindings,
-    (candidate) =>
-      (A.isReadonlyArrayEmpty(roles) || A.contains(roles, candidate.role)) &&
-      (A.isReadonlyArrayEmpty(surfaces) || A.contains(surfaces, candidate.surface))
-  );
+/**
+ * Select manifest bindings using the existing generated-block filter contract.
+ *
+ * **Example** (Select ordinary Codex bindings)
+ *
+ * ```ts
+ * import { BindingFilter, filterBindings, seedModelsManifest } from "@beep/repo-cli/commands/Models"
+ * console.log(filterBindings(seedModelsManifest, BindingFilter.make({ roles: ["codex.heavy"], surfaces: ["codex-cli"] })).length)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const filterBindings: {
+  (filter: BindingFilter): (manifest: ModelsManifest) => ReadonlyArray<ModelBinding>;
+  (manifest: ModelsManifest, filter: BindingFilter): ReadonlyArray<ModelBinding>;
+} = dual(
+  2,
+  (manifest: ModelsManifest, filter: BindingFilter): ReadonlyArray<ModelBinding> =>
+    A.filter(
+      manifest.bindings,
+      (candidate) =>
+        (A.isReadonlyArrayEmpty(filter.roles) || A.contains(filter.roles, candidate.role)) &&
+        (A.isReadonlyArrayEmpty(filter.surfaces) || A.contains(filter.surfaces, candidate.surface))
+    )
+);
 
 const absentModelProblem = (
   binding: ModelBinding,
@@ -295,7 +312,7 @@ const expectedFor = (input: LocatorCheckInput): O.Option<string> => {
   if (locator._tag === "md-generated-block") {
     return O.some(
       renderGeneratedBlockBody(
-        filterBindings(input.manifest, locator.filter.roles, locator.filter.surfaces),
+        filterBindings(input.manifest, locator.filter),
         input.manifest.superseded,
         locator.includeSuperseded
       )

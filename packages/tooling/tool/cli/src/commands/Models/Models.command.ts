@@ -34,12 +34,14 @@ import { ModelsCheckReport } from "./Models.report.schemas.ts";
 import { seedModelsManifest } from "./Models.seed.ts";
 import {
   defaultManifestRelativePath,
+  filterBindings,
   ModelsCatalog,
   ModelsCheck,
   ModelsLive,
   ModelsLocatorReader,
   ModelsManifestStore,
 } from "./Models.service.ts";
+import type { Locator, ModelSyncTarget, ModelsApplyMode, ModelsManifest } from "./Models.manifest.schemas.ts";
 import type { DriftFinding } from "./Models.report.schemas.ts";
 
 const encodeReport = S.encodeUnknownEffect(ModelsCheckReport);
@@ -314,6 +316,87 @@ const initCommand = Command.make(
   Command.withDescription("Seed the routing manifest when none exists; --adopt rewrites an existing one with a backup")
 );
 
+const resolveApplyFile = Effect.fnUntraced(function* (paths: ResolvedPaths, target: ModelSyncTarget) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const file = resolveTargetPath(ModelsTargetLocation.make({ ...paths, root: target.root, path: target.path }));
+  if (O.isNone(file)) return yield* ModelsCommandError.make({ message: `Target ${target.id} escapes its root.` });
+  const exists = yield* fs.exists(file.value).pipe(ModelsCommandError.mapError("Cannot inspect target."));
+  if (!exists && target.optional) return O.none<string>();
+  const root = yield* fs
+    .realPath(target.root === "home" ? paths.home : paths.repo)
+    .pipe(ModelsCommandError.mapError("Cannot resolve target root."));
+  const actual = yield* fs.realPath(file.value).pipe(ModelsCommandError.mapError("Cannot resolve target file."));
+  const relative = path.relative(root, actual);
+  if (relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative))
+    return yield* ModelsCommandError.make({ message: `Target ${target.id} symlink escapes its root.` });
+  return O.some(actual);
+});
+
+const renderModelWrite = Effect.fnUntraced(function* (manifest: ModelsManifest, locator: Locator) {
+  if (locator._tag === "md-generated-block")
+    return ModelsLocatorWrite.make({
+      locator,
+      expected: renderGeneratedBlockBody(
+        filterBindings(manifest, locator.filter),
+        manifest.superseded,
+        locator.includeSuperseded
+      ),
+    });
+  const binding = A.findFirst(
+    manifest.bindings,
+    (entry) => entry.role === locator.binding.role && entry.surface === locator.binding.surface
+  );
+  if (O.isNone(binding)) return yield* ModelsCommandError.make({ message: "Unbound model locator." });
+  const expected = expectedLocatorValue(binding.value, locator.binding.field, locator.render);
+  if (O.isNone(expected)) return yield* ModelsCommandError.make({ message: "Unrenderable model locator." });
+  return ModelsLocatorWrite.make({
+    locator: bindLocatorModel(locator, binding.value.modelId),
+    expected: expected.value,
+  });
+});
+
+const previewModelWrites = Effect.fnUntraced(function* (
+  file: string,
+  target: ModelSyncTarget,
+  writes: ReadonlyArray<ModelsLocatorWrite>
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const reader = yield* ModelsLocatorReader;
+  const content = yield* fs.readFileString(file).pipe(ModelsCommandError.mapError("Cannot preview target."));
+  for (const request of writes) {
+    const current = yield* reader
+      .read({ root: target.root, absolutePath: file, content }, request.locator)
+      .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+    yield* Console.log(
+      `models: preview ${target.id} [${request.locator._tag}] change=${!O.contains(current, request.expected)} expected=${request.expected}`
+    );
+  }
+});
+
+const applyModelTarget = Effect.fnUntraced(function* (
+  paths: ResolvedPaths,
+  manifest: ModelsManifest,
+  target: ModelSyncTarget,
+  mode: ModelsApplyMode
+) {
+  const file = yield* resolveApplyFile(paths, target);
+  if (O.isNone(file)) return;
+  const path = yield* Path.Path;
+  const writer = yield* ModelsApply;
+  const writes = yield* Effect.forEach(target.locators, (locator) => renderModelWrite(manifest, locator), {
+    concurrency: 1,
+  });
+  if (mode === "dry-run") yield* previewModelWrites(file.value, target, writes);
+  const journal = yield* writer
+    .apply(file.value, writes, mode, path.join(paths.home, ".config-backups"))
+    .pipe(Effect.mapError(ModelsCommandError.fromInternal));
+  yield* Console.log(
+    `models: ${mode} ${target.id}; ${O.isSome(journal) ? `journal ${journal.value.id}` : "no file written"}`
+  );
+  if (O.isSome(journal)) yield* Console.log(`models: restore --journal ${journal.value.id}`);
+});
+
 const applyCommand = Command.make(
   "apply",
   {
@@ -327,85 +410,13 @@ const applyCommand = Command.make(
     if (A.length(A.filter([flags.check, flags.dryRun, flags.write], (value) => value)) > 1)
       return yield* ModelsCommandError.make({ message: "Choose one of --check, --dry-run, --write." });
     const paths = yield* resolvePaths(flags);
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const writer = yield* ModelsApply;
     const store = yield* ModelsManifestStore;
     const manifest = yield* store.load(paths.manifestPath).pipe(Effect.mapError(ModelsCommandError.fromInternal));
     const targets = A.filter(manifest.targets, (target) => O.isNone(flags.target) || target.id === flags.target.value);
     if (A.isReadonlyArrayEmpty(targets))
       return yield* ModelsCommandError.make({ message: "No manifest target matched." });
-    for (const target of targets) {
-      const file = resolveTargetPath(ModelsTargetLocation.make({ ...paths, root: target.root, path: target.path }));
-      if (O.isNone(file)) return yield* ModelsCommandError.make({ message: `Target ${target.id} escapes its root.` });
-      if (
-        !(yield* fs.exists(file.value).pipe(ModelsCommandError.mapError("Cannot inspect target."))) &&
-        target.optional
-      )
-        continue;
-      const resolvedRoot = yield* fs
-        .realPath(target.root === "home" ? paths.home : paths.repo)
-        .pipe(ModelsCommandError.mapError("Cannot resolve target root."));
-      const resolvedFile = yield* fs
-        .realPath(file.value)
-        .pipe(ModelsCommandError.mapError("Cannot resolve target file."));
-      const relative = path.relative(resolvedRoot, resolvedFile);
-      if (relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative))
-        return yield* ModelsCommandError.make({ message: `Target ${target.id} symlink escapes its root.` });
-      const writes = yield* Effect.forEach(
-        target.locators,
-        Effect.fnUntraced(function* (locator) {
-          if (locator._tag === "md-generated-block") {
-            const bindings = A.filter(
-              manifest.bindings,
-              (binding) =>
-                (A.isReadonlyArrayEmpty(locator.filter.roles) || A.contains(locator.filter.roles, binding.role)) &&
-                (A.isReadonlyArrayEmpty(locator.filter.surfaces) ||
-                  A.contains(locator.filter.surfaces, binding.surface))
-            );
-            return ModelsLocatorWrite.make({
-              locator,
-              expected: renderGeneratedBlockBody(bindings, manifest.superseded, locator.includeSuperseded),
-            });
-          }
-          const binding = A.findFirst(
-            manifest.bindings,
-            (entry) => entry.role === locator.binding.role && entry.surface === locator.binding.surface
-          );
-          if (O.isNone(binding)) return yield* ModelsCommandError.make({ message: `Unbound locator in ${target.id}.` });
-          const expected = expectedLocatorValue(binding.value, locator.binding.field, locator.render);
-          if (O.isNone(expected))
-            return yield* ModelsCommandError.make({ message: `Unrenderable locator in ${target.id}.` });
-          return ModelsLocatorWrite.make({
-            locator: bindLocatorModel(locator, binding.value.modelId),
-            expected: expected.value,
-          });
-        }),
-        { concurrency: 1 }
-      );
-      const mode = flags.write ? "write" : flags.check ? "check" : "dry-run";
-      if (mode === "dry-run") {
-        const reader = yield* ModelsLocatorReader;
-        const content = yield* fs
-          .readFileString(file.value)
-          .pipe(ModelsCommandError.mapError("Cannot preview target."));
-        for (const request of writes) {
-          const current = yield* reader
-            .read({ root: target.root, absolutePath: file.value, content }, request.locator)
-            .pipe(Effect.mapError(ModelsCommandError.fromInternal));
-          yield* Console.log(
-            `models: preview ${target.id} [${request.locator._tag}] change=${!O.contains(current, request.expected)} expected=${request.expected}`
-          );
-        }
-      }
-      const journal = yield* writer
-        .apply(file.value, writes, mode, path.join(paths.home, ".config-backups"))
-        .pipe(Effect.mapError(ModelsCommandError.fromInternal));
-      yield* Console.log(
-        `models: ${mode} ${target.id}; ${O.isSome(journal) ? `journal ${journal.value.id}` : "no file written"}`
-      );
-      if (O.isSome(journal)) yield* Console.log(`models: restore --journal ${journal.value.id}`);
-    }
+    const mode = flags.write ? "write" : flags.check ? "check" : "dry-run";
+    yield* Effect.forEach(targets, (target) => applyModelTarget(paths, manifest, target, mode), { concurrency: 1 });
   })
 ).pipe(Command.withDescription("Check or preview owned native fields; --write backs up and journals each replacement"));
 

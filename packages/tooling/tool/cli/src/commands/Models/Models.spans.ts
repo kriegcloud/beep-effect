@@ -309,9 +309,14 @@ export const modelsWriteSpans = Effect.fn("Models.writeSpans")(function* (
     Match.tag("md-generated-block", ({ blockId }) => {
       const begin = generatedBlockBegin(blockId);
       const end = generatedBlockEnd(blockId);
-      const open = content.indexOf(begin);
-      const close = content.indexOf(end);
-      if (open < 0 || close < open || content.indexOf(begin, open + 1) >= 0 || content.indexOf(end, close + 1) >= 0)
+      const open = O.getOrElse(Str.indexOf(begin)(content), () => -1);
+      const close = O.getOrElse(Str.indexOf(end)(content), () => -1);
+      if (
+        open < 0 ||
+        close < open ||
+        O.isSome(Str.indexOf(begin)(Str.slice(open + 1)(content))) ||
+        O.isSome(Str.indexOf(end)(Str.slice(close + 1)(content)))
+      )
         return Effect.fail(error("Generated block markers are missing or ambiguous."));
       return Effect.succeed([span(content, open + Str.length(begin), close, `\n${expected}\n`)]);
     }),

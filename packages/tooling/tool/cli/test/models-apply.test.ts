@@ -175,4 +175,41 @@ layer(ModelsApplyLive.pipe(Layer.provideMerge(NodeServices.layer)), { timeout: "
       );
     })
   );
+
+  it.effect("keeps native parser input out of validation errors", () =>
+    Effect.scoped(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "private-parser-" });
+        const file = path.join(root, "config.json");
+        yield* fs.writeFileString(file, '{"model":"old", "unownedCredential":"__SYNTHETIC_PRIVATE__", malformed');
+        const request = write({ _tag: "json-key", binding, render, pointer: ["model"], fallbacks: [] });
+        const writer = yield* ModelsApply;
+        const error = yield* Effect.flip(writer.apply(file, [request], "write", path.join(root, "backups")));
+        expect(error.message).toBe("Invalid JSON target.");
+        expect(error.cause).toBeUndefined();
+        expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
+      })
+    )
+  );
+
+  it.effect("refuses invalid UTF-8 without changing or backing up normalized bytes", () =>
+    Effect.scoped(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const root = yield* fs.makeTempDirectoryScoped({ directory: path.resolve(".beep"), prefix: "native-bytes-" });
+        const file = path.join(root, "config.toml");
+        const bytes = new Uint8Array([0xff, 0xfe, 0x23]);
+        yield* fs.writeFile(file, bytes);
+        const writer = yield* ModelsApply;
+        expect((yield* Effect.result(writer.apply(file, [topLevel], "write", path.join(root, "backups"))))._tag).toBe(
+          "Failure"
+        );
+        expect(A.fromIterable(yield* fs.readFile(file))).toEqual(A.fromIterable(bytes));
+        expect(yield* fs.exists(path.join(root, "backups"))).toBe(false);
+      })
+    )
+  );
 });

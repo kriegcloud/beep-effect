@@ -475,7 +475,7 @@ const writeStringFile = Effect.fn("Skills.writeStringFile")(function* (
   const now = yield* DateTime.now;
   const salt = yield* Random.nextIntBetween(0, 0xffffff);
   const stamp = now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""));
-  const suffix = `${stamp}-${salt.toString(16)}`;
+  const suffix = `${stamp}-${salt}`;
   const existing = yield* readExistingFile(absolutePath);
   if (O.isSome(existing) && existing.value === content) return;
   const repoRoot = yield* findRepoRoot().pipe(SkillsCommandError.mapError("Cannot locate skill backup root."));
@@ -695,7 +695,7 @@ const writeRemoteSkill = Effect.fn("Skills.writeRemoteSkill")(function* (
   const skillDir = path.resolve(repoRoot, CLAUDE_SKILLS_DIR, source.name);
   const now = yield* DateTime.now;
   const salt = yield* Random.nextIntBetween(0, 0xffffff);
-  const suffix = `${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt.toString(16)}`;
+  const suffix = `${now.pipe(DateTime.formatIso, Str.replace(/[:.]/g, ""))}-${salt}`;
   const backups = path.join(repoRoot, ".beep", "skills-backups");
   yield* fs
     .makeDirectory(backups, { recursive: true, mode: 0o700 })
@@ -829,6 +829,11 @@ const renderSkillsBlock = (names: ReadonlyArray<string>): string =>
     "\n"
   );
 
+const renderEnabledSkillRow = (row: ReadonlyArray<string>): ReadonlyArray<string> => {
+  const rendered = A.map(row, Str.replace(/^(\s*enabled\s*=\s*)(?:true|false)/, "$1true"));
+  return A.some(row, (entry) => /^\s*enabled\s*=/.test(entry)) ? rendered : A.append(rendered, "    enabled = true");
+};
+
 /**
  * Render `.codex/config.toml` with skills sourced from `.claude/skills`.
  *
@@ -895,21 +900,16 @@ export const renderCodexConfigWithSkills: {
     const unknown = A.some(A.drop(row, 1), (entry) => !/^\s*(?:(?:name|enabled)\s*=|#|$)/.test(entry));
     const nextHeader = O.getOrElse(A.get(remainder, end), () => "");
     const hasNested = /^\s*\[skills\.config\./.test(nextHeader);
-    if (O.isSome(name) && A.contains(names, name.value)) {
-      seen = HashSet.add(seen, name.value);
-      const hasEnabled = A.some(row, (entry) => /^\s*enabled\s*=/.test(entry));
-      kept = A.appendAll(
-        kept,
-        A.map(row, (entry) =>
-          /^\s*enabled\s*=/.test(entry) ? Str.replace(/^(\s*enabled\s*=\s*)(?:true|false)/, "$1true")(entry) : entry
-        )
-      );
-      if (!hasEnabled) kept = A.append(kept, "    enabled = true");
-    } else if (unknown || hasNested || O.isNone(name)) {
-      // An unrecognized row owns native fields. Keep it until an explicit
-      // owner decides its lifecycle; absence from discovery is not non-use.
-      kept = A.appendAll(kept, row);
-    }
+    const managed = O.filter(name, (value) => A.contains(names, value));
+    const rendered = O.match(managed, {
+      onSome: (value) => {
+        seen = HashSet.add(seen, value);
+        return renderEnabledSkillRow(row);
+      },
+      // Unknown native fields keep their owner until an explicit lifecycle decision.
+      onNone: () => (unknown || hasNested || O.isNone(name) ? row : []),
+    });
+    kept = A.appendAll(kept, rendered);
     cursor = end;
   }
   const missing = A.filter(names, (name) => !HashSet.has(seen, name));
