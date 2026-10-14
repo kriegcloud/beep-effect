@@ -123,7 +123,7 @@ const toDevToolsParentSpan = (parent: O.Option<Tracer.AnySpan>): O.Option<DevToo
             traceId,
             name,
             sampled,
-            attributes,
+            attributes: new Map(attributes),
             status: toDevToolsSpanStatus(status),
             parent: toDevToolsParentSpan(parent),
           })),

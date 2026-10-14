@@ -20480,7 +20480,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The DevTools client dials a real websocket and waits out its one-second connect timeout before the OTLP export can be asserted; the TestClock never advances that timeout, so the test must run on the live clock. The test comment states this rationale."
     },
     {
       "id": "EV009:packages/foundation/modeling/schema/test/LocalDate.test.ts:346:it.live@4#1",
