@@ -290,6 +290,33 @@
         "typescript": "catalog:",
       },
     },
+    "apps/practice-gateway": {
+      "name": "@beep/practice-gateway",
+      "version": "0.0.0",
+      "bin": {
+        "practice-gateway": "./src/bin.ts",
+      },
+      "dependencies": {
+        "@beep/duckdb": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/law-practice-domain": "workspace:^",
+        "@beep/law-practice-server": "workspace:^",
+        "@beep/law-practice-use-cases": "workspace:^",
+        "@beep/mcp-kit": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/windows-secrets": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "@electric-sql/pglite": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-runner": "workspace:^",
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "bun-types": "catalog:",
+      },
+    },
     "apps/practice-identify": {
       "name": "@beep/practice-identify",
       "version": "0.0.0",
@@ -4197,6 +4224,8 @@
     "@beep/poppler": ["@beep/poppler@workspace:packages/drivers/poppler"],
 
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
+
+    "@beep/practice-gateway": ["@beep/practice-gateway@workspace:apps/practice-gateway"],
 
     "@beep/practice-identify": ["@beep/practice-identify@workspace:apps/practice-identify"],
 

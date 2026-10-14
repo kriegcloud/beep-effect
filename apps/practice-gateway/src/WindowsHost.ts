@@ -1,0 +1,381 @@
+/**
+ * The small set of Windows facts the setup probes read: known folders, file
+ * presence, registry values, BitLocker protection and running processes.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $PracticeGatewayId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import * as A from "effect/Array";
+import * as Config from "effect/Config";
+import * as Context from "effect/Context";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import { dual, flow, pipe } from "effect/Function";
+import * as Layer from "effect/Layer";
+import * as O from "effect/Option";
+import { ChildProcess, ChildProcessSpawner } from "effect/process";
+import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
+import { GatewaySettings } from "./GatewaySettings.ts";
+import { WindowsHostFailure } from "./PracticeGateway.errors.ts";
+
+const $I = $PracticeGatewayId.create("WindowsHost");
+
+/**
+ * Environment-backed folders the probes resolve paths under.
+ *
+ * **Example** (Check a known folder)
+ *
+ * ```ts
+ * import { KnownFolder } from "@beep/practice-gateway/WindowsHost"
+ *
+ * console.log(KnownFolder.is.ProgramFiles("ProgramFiles")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const KnownFolder = LiteralKit(["ProgramFiles", "LOCALAPPDATA", "APPDATA", "USERPROFILE"]).pipe(
+  $I.annoteSchema("KnownFolder", {
+    description: "An environment-backed Windows folder the setup probes resolve paths under.",
+  })
+);
+
+/**
+ * Decoded type of {@link KnownFolder}.
+ *
+ * **Example** (Type a known folder)
+ *
+ * ```ts
+ * import type { KnownFolder } from "@beep/practice-gateway/WindowsHost"
+ *
+ * const folder: KnownFolder = "USERPROFILE"
+ * console.log(folder)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type KnownFolder = typeof KnownFolder.Type;
+
+/**
+ * Whether BitLocker protects a drive, as far as an unelevated process can
+ * tell.
+ *
+ * **Example** (Check a protection state)
+ *
+ * ```ts
+ * import { BitLockerProtection } from "@beep/practice-gateway/WindowsHost"
+ *
+ * console.log(BitLockerProtection.is.on("on")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const BitLockerProtection = LiteralKit(["on", "off", "unknown"]).pipe(
+  $I.annoteSchema("BitLockerProtection", {
+    description: "Whether BitLocker protects a drive, as far as an unelevated process can tell.",
+  })
+);
+
+/**
+ * Decoded type of {@link BitLockerProtection}.
+ *
+ * **Example** (Type a protection state)
+ *
+ * ```ts
+ * import type { BitLockerProtection } from "@beep/practice-gateway/WindowsHost"
+ *
+ * const state: BitLockerProtection = "unknown"
+ * console.log(state)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BitLockerProtection = typeof BitLockerProtection.Type;
+
+/**
+ * Service shape of {@link WindowsHost}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface WindowsHostShape {
+  /**
+   * Read a drive's BitLocker protection without administrator rights.
+   */
+  readonly bitLocker: (drive: string) => Effect.Effect<BitLockerProtection, WindowsHostFailure>;
+  /**
+   * Whether a file or directory exists.
+   */
+  readonly exists: (path: string) => Effect.Effect<boolean, WindowsHostFailure>;
+  /**
+   * Resolve a known folder from the environment.
+   */
+  readonly folder: (folder: KnownFolder) => Effect.Effect<O.Option<string>, WindowsHostFailure>;
+  /**
+   * True on Windows. Probes for Windows-only facts answer "only on Windows"
+   * instead of querying when this is false.
+   */
+  readonly isWindows: boolean;
+  /**
+   * Whether a process with this image name runs for the current user.
+   */
+  readonly processRunning: (imageName: string) => Effect.Effect<boolean, WindowsHostFailure>;
+  /**
+   * Read a file's bytes; `None` when it does not exist.
+   */
+  readonly readFile: (path: string) => Effect.Effect<O.Option<Uint8Array>, WindowsHostFailure>;
+  /**
+   * Read one registry value through `reg.exe query`; `None` when the key or
+   * value does not exist.
+   */
+  readonly registryValue: (key: string, name: string) => Effect.Effect<O.Option<string>, WindowsHostFailure>;
+}
+
+/**
+ * Pick one value out of `reg.exe query <key> /v <name>` output.
+ *
+ * **Example** (Parse a registry line)
+ *
+ * ```ts
+ * import { parseRegistryValue } from "@beep/practice-gateway/WindowsHost"
+ *
+ * const output = "\r\nHKEY_CURRENT_USER\\Software\\Example\r\n    DisplayVersion    REG_SZ    1.2.3\r\n"
+ * console.log(parseRegistryValue(output, "DisplayVersion")) // { _id: "Option", _tag: "Some", value: "1.2.3" }
+ * ```
+ *
+ * @param output - Standard output of `reg.exe query`.
+ * @param name - Value name that was queried.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const parseRegistryValue: {
+  (name: string): (output: string) => O.Option<string>;
+  (output: string, name: string): O.Option<string>;
+} = dual(
+  2,
+  (output: string, name: string): O.Option<string> =>
+    pipe(
+      Str.linesIterator(output),
+      A.fromIterable,
+      A.map(Str.trim),
+      A.findFirst(Str.startsWith(`${name} `)),
+      O.flatMap(Str.match(/\sREG_[A-Z0-9_]+\s+(.*)$/)),
+      O.flatMap((match) => O.fromNullishOr(match[1])),
+      O.map(Str.trim)
+    )
+);
+
+/**
+ * Map the Shell `System.Volume.BitLockerProtection` property to a protection
+ * state.
+ *
+ * **Details**
+ *
+ * The property reads `1` (on) or `6` (on, locked) for a protected drive and
+ * `2` (off), `3` (encrypting), `4` (decrypting) or `5` (suspended) for an
+ * unprotected one; anything else, including an empty answer, is `unknown`.
+ *
+ * **Example** (Parse a protected drive)
+ *
+ * ```ts
+ * import { parseBitLockerProtection } from "@beep/practice-gateway/WindowsHost"
+ *
+ * console.log(parseBitLockerProtection("1\r\n")) // "on"
+ * ```
+ *
+ * @param output - Standard output of the PowerShell property read.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const parseBitLockerProtection = (output: string): BitLockerProtection => {
+  const value = Str.trim(output);
+  if (A.contains(["1", "6"], value)) {
+    return BitLockerProtection.Enum.on;
+  }
+  if (A.contains(["2", "3", "4", "5"], value)) {
+    return BitLockerProtection.Enum.off;
+  }
+  return BitLockerProtection.Enum.unknown;
+};
+
+/**
+ * Whether `tasklist /FO CSV /NH` output lists a process image.
+ *
+ * **Example** (Find Box Drive in the task list)
+ *
+ * ```ts
+ * import { tasklistHasImage } from "@beep/practice-gateway/WindowsHost"
+ *
+ * console.log(tasklistHasImage('"Box.exe","4120","Console","1","120,000 K"\r\n', "Box.exe")) // true
+ * ```
+ *
+ * @param output - Standard output of `tasklist`.
+ * @param imageName - Image name to look for, such as `Box.exe`.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const tasklistHasImage: {
+  (imageName: string): (output: string) => boolean;
+  (output: string, imageName: string): boolean;
+} = dual(2, (output: string, imageName: string): boolean =>
+  pipe(
+    Str.linesIterator(output),
+    A.fromIterable,
+    A.map(flow(Str.trim, Str.toLowerCase)),
+    A.some(Str.startsWith(`"${Str.toLowerCase(imageName)}"`))
+  )
+);
+
+const BitLockerScript = (drive: string) =>
+  `(New-Object -ComObject Shell.Application).NameSpace('${drive}').Self.ExtendedProperty('System.Volume.BitLockerProtection')`;
+
+const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
+  stream.pipe(
+    Stream.decodeText(),
+    Stream.runFold(() => Str.empty, Str.concat)
+  );
+
+const notWindows = (operation: string) =>
+  Effect.fail(WindowsHostFailure.make({ message: `${operation} is only available on Windows.` }));
+
+/**
+ * Windows facts for the setup probes.
+ *
+ * **Details**
+ *
+ * The live layer reads files through `FileSystem`, folders through `Config`
+ * and shells out to `reg.exe`, `powershell.exe` and `tasklist.exe` through
+ * `ChildProcessSpawner`. Off Windows the shell-backed queries fail with
+ * {@link WindowsHostFailure}; probes check `isWindows` first and never reach
+ * them. Tests provide a fake shape with `WindowsHost.of`.
+ *
+ * **Example** (A fake host for tests)
+ *
+ * ```ts
+ * import { WindowsHost } from "@beep/practice-gateway/WindowsHost"
+ * import * as Effect from "effect/Effect"
+ * import * as Layer from "effect/Layer"
+ * import * as O from "effect/Option"
+ *
+ * const fake = Layer.succeed(
+ *   WindowsHost,
+ *   WindowsHost.of({
+ *     isWindows: true,
+ *     folder: () => Effect.succeed(O.some("C:\\Users\\lawyer")),
+ *     exists: () => Effect.succeed(false),
+ *     readFile: () => Effect.succeed(O.none()),
+ *     registryValue: () => Effect.succeed(O.none()),
+ *     bitLocker: () => Effect.succeed("on"),
+ *     processRunning: () => Effect.succeed(false),
+ *   })
+ * )
+ * console.log(Layer.isLayer(fake))
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class WindowsHost extends Context.Service<WindowsHost, WindowsHostShape>()($I`WindowsHost`) {
+  /**
+   * Live host over the file system, environment and Windows command-line
+   * tools.
+   *
+   * **Example** (Compose the live host)
+   *
+   * ```ts
+   * import { WindowsHost } from "@beep/practice-gateway/WindowsHost"
+   *
+   * console.log(typeof WindowsHost.layer)
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layer = Layer.effect(
+    WindowsHost,
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const { isWindows } = yield* GatewaySettings;
+
+      const run = Effect.fnUntraced(
+        function* (command: string, args: ReadonlyArray<string>) {
+          const child = yield* spawner.spawn(
+            ChildProcess.make(command, args, { stdin: "ignore", stderr: "ignore", stdout: "pipe" })
+          );
+          const [stdout, exitCode] = yield* Effect.all([collectText(child.stdout), child.exitCode], {
+            concurrency: "unbounded",
+          });
+          return { stdout, exitCode: Number(exitCode) };
+        },
+        Effect.scoped,
+        (effect, command) =>
+          Effect.mapError(effect, (cause) =>
+            WindowsHostFailure.make({ cause, message: `${command} could not be run.` })
+          )
+      );
+
+      const folder = (name: KnownFolder) =>
+        Config.option(Config.String(name)).pipe(
+          Effect.map(O.filter(Str.isNonEmpty)),
+          Effect.mapError((cause) => WindowsHostFailure.make({ cause, message: `${name} could not be read.` }))
+        );
+
+      const exists = (path: string) =>
+        fs
+          .exists(path)
+          .pipe(
+            Effect.mapError((cause) => WindowsHostFailure.make({ cause, message: `"${path}" could not be checked.` }))
+          );
+
+      const readFile = (path: string) =>
+        exists(path).pipe(
+          Effect.flatMap((present) =>
+            present
+              ? fs.readFile(path).pipe(
+                  Effect.asSome,
+                  Effect.mapError((cause) =>
+                    WindowsHostFailure.make({ cause, message: `"${path}" could not be read.` })
+                  )
+                )
+              : Effect.succeedNone
+          )
+        );
+
+      const registryValue = (key: string, name: string) =>
+        isWindows
+          ? run("reg.exe", ["query", key, "/v", name]).pipe(
+              // reg.exe exits 1 when the key or value is absent.
+              Effect.map(({ exitCode, stdout }) =>
+                exitCode === 0 ? parseRegistryValue(stdout, name) : O.none<string>()
+              )
+            )
+          : notWindows("Reading the registry");
+
+      const bitLocker = (drive: string) =>
+        isWindows
+          ? run("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", BitLockerScript(drive)]).pipe(
+              Effect.map(({ exitCode, stdout }) =>
+                exitCode === 0 ? parseBitLockerProtection(stdout) : BitLockerProtection.Enum.unknown
+              )
+            )
+          : notWindows("Reading BitLocker protection");
+
+      const processRunning = (imageName: string) =>
+        isWindows
+          ? run("tasklist.exe", ["/FI", `IMAGENAME eq ${imageName}`, "/FO", "CSV", "/NH"]).pipe(
+              Effect.map(({ stdout }) => tasklistHasImage(stdout, imageName))
+            )
+          : notWindows("Listing processes");
+
+      return WindowsHost.of({ isWindows, folder, exists, readFile, registryValue, bitLocker, processRunning });
+    })
+  );
+}

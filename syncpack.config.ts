@@ -120,6 +120,7 @@ const config = {
     "apps/practice-identify/package.json",
     "apps/practice-m365-contacts/package.json",
     "packages/drivers/windows-secrets/package.json",
+    "apps/practice-gateway/package.json",
   ],
   customTypes: {
     catalog: {

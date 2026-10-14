@@ -16,6 +16,9 @@
       "path": "apps/oip-web"
     },
     {
+      "path": "apps/practice-gateway"
+    },
+    {
       "path": "apps/practice-identify"
     },
     {

@@ -1926,5 +1926,7 @@
   ],
   "@beep/law-practice-server/PracticeKgHost": [
     "./packages/law-practice/server/src/PracticeKgHost/index.ts"
-  ]
+  ],
+  "@beep/practice-gateway": ["./apps/practice-gateway/src/index.ts"],
+  "@beep/practice-gateway/*": ["./apps/practice-gateway/src/*"]
 }

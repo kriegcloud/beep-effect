@@ -123,6 +123,9 @@ them and record each in the Decision Log.
 | 2026-10-14 | Box via Box Drive in slice 1; Box API user auth deferred (P0) | Box OAuth exchange needs a client secret; none may ship in a desktop binary | Add a Box OAuth provider once a secret-free path is proven |
 | 2026-10-14 | Credential Manager for small secrets, DPAPI-protected files for blobs, via `bun:ffi` (P0) | Credential blobs cap at 2,560 bytes; the MSAL cache is larger | Adopt `@azure/msal-node-extensions` if it bundles cleanly |
 | 2026-10-14 | Move practice-kg resource layers from the app into a package (P0) | Gateway and practice-kg-mcp must mount the same toolkit | Keep a copy in the gateway instead |
+| 2026-10-14 | Setup requirements take `SetupCapability` (adds `workstation`) and `SetupProvider` (adds `claude`, `windows`); `HumanStep` adds `install` and `configure` | The slice 1 catalog has Claude, BitLocker and bundle-folder requirements the profile literals could not express | Drop the added literals once no requirement uses them |
+| 2026-10-14 | `claude-signed-in` is satisfied while an MCP client calls the gateway | Claude stores no stable sign-in marker; a tool call proves a signed-in session | Probe a Claude-owned marker if one is found in the VM |
+| 2026-10-14 | Box Drive install repair fails with a plain `SetupRepairFailed` until the installer route is decided | No installer download in slice 1 | Implement the repair once the route (bootstrapper, winget, MSI) is chosen |
 
 ## Exception Ledger
 

@@ -607,6 +607,7 @@
     "apps/practice-mail-tagging",
     "apps/practice-identify",
     "apps/practice-m365-contacts",
-    "packages/drivers/windows-secrets"
+    "packages/drivers/windows-secrets",
+    "apps/practice-gateway"
   ]
 }
