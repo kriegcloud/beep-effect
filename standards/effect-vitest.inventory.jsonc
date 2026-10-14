@@ -3595,7 +3595,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:36:query@41#1",
@@ -3616,7 +3617,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:36:query@59#2",
@@ -3637,7 +3639,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:39:query@20#1",
@@ -3658,7 +3661,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:73:query@33#1",
@@ -3679,7 +3683,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:84:query@33#1",
@@ -3700,7 +3705,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:85:query@33#1",
@@ -3721,7 +3727,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:111:fixture@6#1",
@@ -3742,7 +3749,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:113:call@32#1",
@@ -3763,7 +3771,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:136:fixture@4#1",
@@ -3784,7 +3793,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:139:call@30#1",
@@ -3805,7 +3815,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:156:fixture@4#1",
@@ -3826,7 +3837,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:160:call@29#1",
@@ -3847,7 +3859,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:161:call@30#1",
@@ -3868,7 +3881,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:165:call@32#1",
@@ -3889,7 +3903,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:166:call@29#1",
@@ -3910,7 +3925,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:173:call@23#1",
@@ -3931,7 +3947,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:174:call@23#1",
@@ -3952,7 +3969,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:175:call@23#1",
@@ -3973,7 +3991,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:181:fixture@4#1",
@@ -3994,7 +4013,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:185:call@30#1",
@@ -4015,7 +4035,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:193:call@15#1",
@@ -4036,7 +4057,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:200:call@18#1",
@@ -4057,7 +4079,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:220:call@31#1",
@@ -4078,7 +4101,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:223:call@29#1",
@@ -4099,7 +4123,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:225:call@29#1",
@@ -4120,7 +4145,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:230:call@18#1",
@@ -4141,7 +4167,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:238:fixture@4#1",
@@ -4162,7 +4189,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:243:call@23#1",
@@ -4183,7 +4211,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:245:call@18#1",
@@ -4204,7 +4233,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:254:call@23#1",
@@ -4225,7 +4255,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:256:call@23#1",
@@ -4246,7 +4277,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:258:call@18#1",
@@ -4267,7 +4299,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:270:fixture@4#1",
@@ -4288,7 +4321,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:274:call@15#1",
@@ -4309,7 +4343,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:280:call@15#1",
@@ -4330,7 +4365,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:287:call@27#1",
@@ -4351,7 +4387,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:301:fixture@4#1",
@@ -4372,7 +4409,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:331:call@30#1",
@@ -4393,7 +4431,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:343:fixture@4#1",
@@ -4414,7 +4453,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:347:call@15#1",
@@ -4435,7 +4475,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:360:call@29#1",
@@ -4456,7 +4497,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:363:call@23#1",
@@ -4477,7 +4519,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:365:call@18#1",
@@ -4498,7 +4541,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV002:packages/tooling/tool/cli/test/cache-dependencies.test.ts:55:provideScopedLayer@12#1",
@@ -10080,7 +10124,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The test supplies each real private, invalid or symlinked path to the production SQLite layer and races independent first-open calls. Dynamic Layer.build contexts are intentional; a shared static layer would change the ownership and creation-race subject. Outer it.layer supplies platform services and scope."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:74:call@53#1",
@@ -10101,7 +10146,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:85:fixture@59#1",
@@ -10122,7 +10168,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Each fixture builds a fresh SQLite store, and each call builds the exact grant-bound MCP handler under test. Distinct, expired and replaced grants must stay distinct across calls; sharing one static handler would remove the authorization boundary being tested. Outer it.layer owns platform resources and scope."
     },
     {
       "id": "EV003:packages/tooling/tool/cli/test/ai-metrics-command.test.ts:197:withPrependedPath@26#1",
@@ -14672,7 +14719,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "This deliberately shorter scope is the runtime ownership subject: one case interrupts its child-owning loop scope and asserts the real child stopped; the other observes immediate scope finalization on permanent storage/policy failure. Replacing with the outer test scope would invalidate those cleanup assertions."
     },
     {
       "id": "EV004:packages/tooling/tool/cli/test/AgentMessage.runtime.test.ts:425:scoped@22#1",
@@ -14693,7 +14741,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "This deliberately shorter scope is the runtime ownership subject: one case interrupts its child-owning loop scope and asserts the real child stopped; the other observes immediate scope finalization on permanent storage/policy failure. Replacing with the outer test scope would invalidate those cleanup assertions."
     },
     {
       "id": "EV004:packages/tooling/tool/cli/test/agent-effectiveness-eval-scorer.test.ts:198:scoped@21#1",
@@ -14736,7 +14785,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "This deliberately shorter scope closes the real SQLite writer before copying database and sidecars, then opens the restored mailbox in a later scope. Extending writer lifetime to the whole test would invalidate the stopped-writer backup and reversal proof."
     },
     {
       "id": "EV004:packages/tooling/tool/cli/test/ai-metrics-command.test.ts:231:scoped@2#1",
@@ -23407,7 +23457,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Real filesystem and process services are the test subject: private path modes, symlink refusal, SQLite file persistence, or owned native stdio lifecycle. The bounded outer it.layer owns these resources; a mocked filesystem or omitted process service would not exercise those boundaries."
     },
     {
       "id": "EV010:packages/drivers/box-provisioning/test/BoxContentMigration.test.ts:12:@effect/platform-node-shared/NodeFileSystem@0#1",
@@ -25587,7 +25638,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The attached boundary fixtures exercise production private file permissions, real file-backed SQLite grants and dispatch, hashed correlation checkpoints, canonical workspace realPath checks and cleanup. Outer it.layer(NodeServices.layer) intentionally supplies FileSystem, Path and Crypto in both Node/Bun runners. Replacing it with an in-memory filesystem or shared store removes the real resource/authority subject; scoped test lifetime owns the built client and temporary directory."
     },
     {
       "id": "EV010:packages/tooling/tool/cli/test/AgentMessage.layer.test.ts:3:@effect/platform-node@0#1",
@@ -25608,7 +25660,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "NodeServices supplies the real filesystem and path services used to verify private modes, symlink refusal and concurrent first-open SQLite initialization. The bounded outer it.layer owns the temporary resources; a mocked filesystem would change the integration subject."
     },
     {
       "id": "EV010:packages/tooling/tool/cli/test/AgentMessage.runtime.test.ts:15:@effect/platform-node@0#1",
@@ -25629,7 +25682,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Outer it.layer supplies NodeServices filesystem, path and process-spawner services used by the real private SQLite fixture, external writer and owned process cleanup. A fake filesystem or detached process would change the integration subject."
     },
     {
       "id": "EV010:packages/tooling/tool/cli/test/AgentMessage.tools.test.ts:17:@effect/platform-node@0#1",
@@ -25650,7 +25704,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "NodeServices supplies the real filesystem and path services for fresh private SQLite mailboxes and grant-bound MCP authorization fixtures. The bounded outer it.layer owns the temporary resources; a mocked filesystem would remove the persistence and path boundary being exercised."
     },
     {
       "id": "EV010:packages/tooling/tool/cli/test/accounts-secrets-layout.test.ts:3:@effect/platform-node@0#1",
@@ -25757,7 +25812,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "NodeServices supplies real filesystem, path and process-spawner services for private SQLite persistence, stopped-writer backup/restore, SIGKILL recovery and competing owned child claims. The bounded outer it.layer owns resources; replacing them with fake filesystem or detached processes would change the integration subject."
     },
     {
       "id": "EV010:packages/tooling/tool/cli/test/ai-metrics-command.test.ts:16:@effect/platform-node@0#1",
@@ -40913,7 +40969,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The owning resource layer explicitly sets concurrent:false so each deadline fixture exclusively controls its TestClock. The test waits for the native request checkpoint before advancing time, then verifies timeout and scoped cleanup. Parallel clock adjustment reproduced interference and was removed."
     },
     {
       "id": "EV015:packages/drivers/ai-provider-cli/test/AiProviderCliSession.test.ts:648:TestClock.adjust@15#1",
@@ -40934,7 +40991,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "The owning resource layer explicitly sets concurrent:false so each deadline fixture exclusively controls its TestClock. The test waits for the native request checkpoint before advancing time, then verifies timeout and scoped cleanup. Parallel clock adjustment reproduced interference and was removed."
     },
     {
       "id": "EV015:packages/drivers/m365/test/M365.service.test.ts:807:TestClock.adjust@15#1",
@@ -41194,7 +41252,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "These are sequential non-concurrent tests in one it.layer block. Each forked loop is interrupted and joined before the next test, so no timer fiber survives a clock adjustment. The deterministic clock tests bounded storage retries; the real SQLite contention case explicitly uses TestClock.withLive and does not adjust it."
     },
     {
       "id": "EV015:packages/tooling/tool/cli/test/AgentMessage.runtime.test.ts:386:TestClock.adjust@17#1",
@@ -41215,7 +41274,8 @@
       "severity": "info",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "These are sequential non-concurrent tests in one it.layer block. Each forked loop is interrupted and joined before the next test, so no timer fiber survives a clock adjustment. The deterministic clock tests bounded storage retries; the real SQLite contention case explicitly uses TestClock.withLive and does not adjust it."
     },
     {
       "id": "EV015:packages/tooling/tool/cli/test/accounts-usage.test.ts:1369:TestClock.adjust@15#1",
