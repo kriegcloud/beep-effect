@@ -180,6 +180,8 @@ Seeded from the exploration's `DECISIONS.md` (full rationale there).
 
 | 2026-10-14 | D20 Matter/timer slice adds `$.mcp.call` for practice-kg read tools only, using the first configured server, and `$.clock.every` for visible minute updates. Decode only resolution, docketKey, client and familyKey in the browser; select only unique results. Capture the chosen matter at timer start; append raw intervals under `timer-intervals`, export to `practice-timer.jsonl` alongside verdicts. Module choices/timers reset on reload; failed stop writes keep the interval for retry. Hooks bundle: 299,481 bytes before, 311,453 bytes after (+11,972, 4.0%) | The use-cases server entry also exports services/handlers; an app-local boundary projection avoids server imports. No passive timing or narratives. Real server returns JSON text content; structuredContent remains supported | Remove the matter/time command hooks and ticker; retain existing stored intervals and exports; restore the previous envelope |
 
+| 2026-10-14 | D21 Port five Apache-2.0 legal skills for Oppold IP Law: IP agreement review, NDA screening before disclosure, prosecution risk, matter briefs, and meeting preparation. Keep source and port date in each skill, original LICENSE and an attribution NOTICE. Copy skills as plugin components during the build; keep them out of hook registration | Implements D11 with rewritten patent practice instructions, source citations, explicit missing-record limits, and practice-kg reads instead of connector setup | Remove the five skill directories and build copy step; retain attribution with any remaining adapted text |
+
 ## Exception Ledger
 
 | Exception | Scope | Owner | Rationale | Removal condition |

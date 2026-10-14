@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement. The first slice (plain-language rows + verdict capture) is installed on the attorney's PC. The matter band and explicit timer are implemented locally, with 22 unit tests and 13 engine tests including terminal/desktop band checks. The changes remain uncommitted. Next: load the matter/timer build on the operator machine, then port the five skills.
+P1 Implement. The first slice (plain-language rows + verdict capture) is installed on the attorney's PC. The matter band and explicit timer are implemented locally, with 22 unit tests and 13 engine tests including terminal/desktop band checks. The changes remain uncommitted. The five firm skills are now ported with Apache-2.0 attribution and included by the plugin build. Next: validate and load the combined matter/timer and skills build on the operator machine.
 
 ## Latest Evidence
 

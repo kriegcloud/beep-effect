@@ -37,6 +37,27 @@ The plugin's `servers` option names practice-kg servers (default `practice-kg`);
 lookup uses its first entry. The local columnar decoder imports no law-practice
 server modules. Hooks bundle: 299,481 bytes before this slice, 311,453 bytes after.
 
+## Firm skills
+
+`bun run plugin:build` copies `skills/` into `dist/plugin/skills/`.
+Claude Code discovers these as plugin components alongside the hooks.
+
+- `review-contract` reviews assignments, licenses, inventor agreements, joint
+  development agreements, and NDAs involving inventions.
+- `triage-nda` screens NDAs before inventor disclosures and client pitches.
+- `legal-risk-assessment` uses a severity x likelihood grid for prosecution risks.
+- `brief` prepares daily, topic, and urgent matter briefs.
+- `meeting-briefing` prepares inventor, client, examiner, foreign associate,
+  and IP agreement meetings, with follow-up actions for attorney review.
+
+The briefing skills read matter, docket, document, and email records through
+practice-kg. Every skill requires source citations and plain statements about
+missing records. The skills assist preparation and do not provide legal advice.
+
+These five skills adapt Anthropic's `legal` plugin for Oppold IP Law.
+They are licensed under Apache-2.0. Attribution and the original license are
+in [`skills/NOTICE`](./skills/NOTICE) and [`skills/LICENSE`](./skills/LICENSE).
+
 ## License
 
-MIT
+App code: MIT. The five adapted firm skills: Apache-2.0.

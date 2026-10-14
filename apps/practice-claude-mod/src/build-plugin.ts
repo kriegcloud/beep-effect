@@ -165,6 +165,15 @@ const program = Effect.gen(function* () {
     { discard: true }
   );
 
+  // Skills are plugin components discovered from their directories.
+  const skills = path.join(appRoot, "skills");
+  const pluginSkills = path.join(plugin, "skills");
+  yield* fs.makeDirectory(pluginSkills, { recursive: true });
+  const skillEntries = yield* fs.readDirectory(skills);
+  yield* Effect.forEach(skillEntries, (name) => fs.copy(path.join(skills, name), path.join(pluginSkills, name)), {
+    discard: true,
+  });
+
   const size = yield* fs.stat(hooksJs);
   yield* Effect.log(`built ${PluginName} ${PluginVersion}: hooks module ${size.size} bytes`);
 });
