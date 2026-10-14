@@ -81,8 +81,16 @@ P4 in progress. Shipped on main so far:
 - **B-3a:** `skills lock-plan` classifies drift against upstream path history (B11).
 
 C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
-command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling) is on
-main. The domain evaluators are the next C PR. This PR is B-3b, the lock write and flip.
+command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling) and
+B-3b (the skills lock write and flip) are on main.
+
+This PR adds C Stage-2 PR 2b, the domain evaluators, report-only: `packet-status`
+(lifecycle and current-phase claims against manifests read through the tree),
+`symbols` (`@beep/*` packages, subpaths, and imported identifiers against workspace
+manifests and barrels), and `skills-local` (`evaluateSkillsLocal`: lock coverage,
+pinning, and licenses, with no network capability). Design K14–K17; the live run and
+its seven review items, including six FP candidate groups, are in the report's
+"PR 2b" section.
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 
