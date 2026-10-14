@@ -41,16 +41,17 @@ two H2 admissions run concurrently. Scratch command logs remain lane-local.
 
 | Fixture | Expected outcome |
 | --- | --- |
-| Merged PR without packet-name title, squash/non-ancestor accepted head | verified |
-| Merge and rebase observation shapes | verified |
+| Merged PR without packet-name title, squash/non-ancestor accepted head | verified with complete synthetic inventory; unknown with live adapter |
+| Merge and rebase observation shapes | verified with complete synthetic inventory; unknown with live adapter |
 | Unmerged final PR, required red, stale head-bound evidence | unsatisfied |
 | GitHub/rate-limit error or missing historical ruleset | unknown |
 | Grandfathered manifest | verified bypass |
-| Nongating historical statement failure | overall verified, sub-claim unsatisfied |
-| Post-merge red rerun following pre-merge success | required check verified |
+| Nongating historical statement failure | overall verified with complete synthetic inventory, unknown with live adapter; sub-claim unsatisfied |
+| Post-merge red rerun following pre-merge success | required check verified; overall unknown with live adapter, verified with complete synthetic inventory |
 | Changed nested initiative.packetId | different declaration digest |
 | Partial append or stale digest/PR | ignored |
-| Unknown refresh following definite receipt | definite evidence retained |
+| Transient unknown refresh with no merge facts following definite receipt | definite evidence retained |
+| Newer merged unknown receipt following required-red or pending-rerun receipt | newest merged facts retained; stale unsatisfaction cleared to unknown |
 | Doctor online versus explicit refresh | read-only versus append |
 | All live manifests | decode without rewrite |
 

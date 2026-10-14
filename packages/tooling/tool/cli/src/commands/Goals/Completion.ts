@@ -776,7 +776,7 @@ export const storedGoalCompletion = Effect.fn("Goals.Completion.stored")(functio
       receipt.finalPullRequest === final.number &&
       O.contains(receipt.repository)(repository)
   );
-  const definite = A.filter(matching, (receipt) => receipt.outcome !== "unknown");
+  const definite = A.filter(matching, (receipt) => receipt.outcome !== "unknown" || O.isSome(receipt.merge));
   const candidates = A.isReadonlyArrayNonEmpty(definite) ? definite : matching;
   const newest = A.reduce(candidates, O.none<GoalCompletionReceipt>(), (found, receipt) =>
     O.isNone(found) || DateTime.isGreaterThan(receipt.verifiedAt, found.value.verifiedAt) ? O.some(receipt) : found

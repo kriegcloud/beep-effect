@@ -1438,3 +1438,14 @@ on the new head if it appears.
 - Supplementary pinned Opus review reports its weekly limit before any review
   evidence. Retain earlier completed reviews at their recorded heads and four
   passing native-property checks; no quota purchase or substituted review claim.
+
+### 2026-10-14 — H2 successful unknown receipt freshness
+
+- Review identifies that definite-only receipt precedence preserves a stale
+  required-red verdict even after a newer successful merged observation.
+  Historical inventory incompleteness makes that successful observation
+  unknown, unlike a transient lookup failure without merge facts.
+- Treat unknown receipts carrying merge facts as candidates for newest-first
+  selection; retain older evidence for factless transient failures. Cover both
+  required-red and pre-merge-pending cases, and correct the fixture table's
+  synthetic versus live inventory qualifications. No completeness is inferred.

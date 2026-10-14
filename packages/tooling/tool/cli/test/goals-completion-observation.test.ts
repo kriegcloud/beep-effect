@@ -21,6 +21,7 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import { Command } from "effect/cli";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
@@ -387,7 +388,16 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
       const correct = yield* encodeReceipt(receipt);
       const unknown = yield* encodeReceipt(
-        GoalCompletionReceipt.make({ ...receipt, outcome: "unknown", evidence: [] })
+        GoalCompletionReceipt.make({
+          ...receipt,
+          outcome: "unknown",
+          evidence: [],
+          merge: O.none(),
+          acceptedHead: O.none(),
+          acceptedDeclarationDigest: O.none(),
+          requiredChecks: O.none(),
+          verifiedAt: DateTime.add(receipt.verifiedAt, { seconds: 1 }),
+        })
       );
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${correct}\n${unknown}\n`);
       const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
@@ -399,6 +409,37 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
           (row) => row.outcome
         ),
         "verified"
+      );
+    })
+  );
+  it.effect("newer merged observations replace stale required-red and pending-rerun receipts", () =>
+    Effect.gen(function* () {
+      yield* temporaryWorkingDirectory;
+      const value = yield* manifest();
+      const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
+      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      yield* Effect.forEach(
+        [true, false],
+        Effect.fn("GoalsCompletionTest.replaceStaleReceipt")(function* (red) {
+          const stale = yield* observe({ red, preMergePendingRerun: !red });
+          expect(stale.outcome).toBe("unsatisfied");
+          const observed = yield* observe();
+          const latest = GoalCompletionReceipt.make({
+            ...observed,
+            verifiedAt: DateTime.add(stale.verifiedAt, { seconds: 1 }),
+          });
+          expect(latest.outcome).toBe("unknown");
+          expect(O.isSome(latest.merge)).toBe(true);
+          const staleText = yield* encodeReceipt(stale);
+          const latestText = yield* encodeReceipt(latest);
+          yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${latestText}\n`);
+          assertSome(
+            yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
+              Effect.provideService(GoalCompletionIo, io)
+            ),
+            latest
+          );
+        })
       );
     })
   );
