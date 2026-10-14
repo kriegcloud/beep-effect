@@ -1,7 +1,54 @@
 import { it } from "@beep/test-runner";
 import { O } from "@beep/utils";
+import {
+  thunk0,
+  thunk1,
+  thunkEmptyStr,
+  thunkFalse,
+  thunkNegative1,
+  thunkSomeEmptyStr,
+  thunkSomeFalse,
+  thunkSomeTrue,
+  thunkTrue,
+} from "@beep/utils/thunk";
 import { describe, expect, expectTypeOf } from "@effect/vitest";
 import { pipe } from "effect/Function";
+
+describe("@beep/utils literal fallbacks", () => {
+  it("preserves literal types in named constant thunks", () => {
+    expectTypeOf(thunkFalse).returns.toEqualTypeOf<false>();
+    expectTypeOf(thunkTrue).returns.toEqualTypeOf<true>();
+    expectTypeOf(thunkEmptyStr).returns.toEqualTypeOf<"">();
+    expectTypeOf(thunk0).returns.toEqualTypeOf<0>();
+    expectTypeOf(thunk1).returns.toEqualTypeOf<1>();
+    expectTypeOf(thunkNegative1).returns.toEqualTypeOf<-1>();
+    expectTypeOf(thunkSomeEmptyStr).returns.toEqualTypeOf<O.Option<"">>();
+    expectTypeOf(thunkSomeFalse).returns.toEqualTypeOf<O.Option<false>>();
+    expectTypeOf(thunkSomeTrue).returns.toEqualTypeOf<O.Option<true>>();
+  });
+
+  it("preserves fallback literals and the original Option value type", () => {
+    expectTypeOf(O.getOrElseFalse(O.none())).toEqualTypeOf<false>();
+    expectTypeOf(O.getOrElseTrue(O.none())).toEqualTypeOf<true>();
+    expectTypeOf(O.getOrElse0(O.none())).toEqualTypeOf<0>();
+    expectTypeOf(O.getOrElseEmptyStr(O.none())).toEqualTypeOf<"">();
+
+    const value = O.some<"present">("present");
+    expectTypeOf(O.getOrElseFalse(value)).toEqualTypeOf<"present" | false>();
+    expectTypeOf(O.getOrElseTrue(value)).toEqualTypeOf<"present" | true>();
+    expectTypeOf(O.getOrElse0(value)).toEqualTypeOf<"present" | 0>();
+    expectTypeOf(O.getOrElseEmptyStr(value)).toEqualTypeOf<"present" | "">();
+
+    expect(O.getOrElseFalse(O.none())).toBe(false);
+    expect(O.getOrElseTrue(O.none())).toBe(true);
+    expect(O.getOrElse0(O.none())).toBe(0);
+    expect(O.getOrElseEmptyStr(O.none())).toBe("");
+    expect(O.getOrElseFalse(value)).toBe("present");
+    expect(O.getOrElseTrue(value)).toBe("present");
+    expect(O.getOrElse0(value)).toBe("present");
+    expect(O.getOrElseEmptyStr(value)).toBe("present");
+  });
+});
 
 describe("@beep/utils O.propFromNullishOr", () => {
   it("supports data-first and data-last calls", () => {

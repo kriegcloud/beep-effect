@@ -27,7 +27,7 @@ const encodeJson = S.encodeUnknownEffect(S.fromJsonString(S.Unknown));
 const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
   stream.pipe(
     Stream.decodeText(),
-    Stream.runFold(thunkEmptyStr, (text, chunk) => `${text}${chunk}`)
+    Stream.runFold(thunkEmptyStr, (text: string, chunk) => `${text}${chunk}`)
   );
 
 /**
