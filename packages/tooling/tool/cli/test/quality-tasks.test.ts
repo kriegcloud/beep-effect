@@ -8544,13 +8544,19 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 // an in-repo rule module (which ESLint's own config digest cannot see) starts an empty cache.
 describe("root ESLint cache key", () => {
   it.layer(FileSystemLayer, { timeout: "30 seconds" })((it) => {
-    it.effect("digests the flat config, tsdoc tags and every policy-pack ESLint source", () =>
+    it.effect("keys installed plugin versions and workspace inputs while keeping unchanged inputs stable", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const root = yield* fs.makeTempDirectoryScoped();
         const rule = path.join(root, "packages/tooling/policy-pack/repo-configs/src/eslint/RequireCategoryTagRule.ts");
         yield* fs.makeDirectory(path.dirname(rule), { recursive: true });
+        yield* fs.makeDirectory(path.join(root, "node_modules/eslint"), { recursive: true });
+        yield* fs.writeFileString(
+          path.join(root, "node_modules/eslint/package.json"),
+          '{"name":"eslint","version":"9.0.0","main":"index.js"}'
+        );
+        yield* fs.writeFileString(path.join(root, "node_modules/eslint/index.js"), "module.exports = {}\n");
         yield* fs.writeFileString(path.join(root, "eslint.config.mjs"), "export default []\n");
         yield* fs.writeFileString(path.join(root, "tsdoc.json"), "{}\n");
         yield* fs.writeFileString(rule, "const CATEGORY_PATTERN = /@category/\n");
@@ -8570,6 +8576,112 @@ describe("root ESLint cache key", () => {
         expect(withHelper).not.toBe(edited);
         yield* fs.writeFileString(helper, "export const optionToReadonlyArray = 2\n");
         expect(yield* rootEslintCacheKey(root)).not.toBe(withHelper);
+        // A valid meta-less plugin is imported under an arbitrary namespace. Versions
+        // come from its installed manifest, never the namespace or plugin object.
+        const plugin = path.join(root, "node_modules/eslint-plugin-fixture");
+        yield* fs.makeDirectory(plugin, { recursive: true });
+        const pluginManifest = (version: string) =>
+          `{ "name": "eslint-plugin-fixture", "version": "${version}", "main": "index.js" }`;
+        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.0"));
+        yield* fs.writeFileString(path.join(plugin, "index.js"), "module.exports = { rules: {} }\n");
+        const shared = path.join(root, "shared/eslint.mjs");
+        const localRule = path.join(root, "shared/rule.mjs");
+        yield* fs.makeDirectory(path.dirname(shared), { recursive: true });
+        yield* fs.writeFileString(
+          shared,
+          'import plugin from "eslint-plugin-fixture"; import rule from "./rule.mjs"; export default [{ plugins: { arbitrary: plugin, local: { rules: { fixture: rule } } } }];\n'
+        );
+        yield* fs.writeFileString(localRule, "export default { create() { return {} } };\n");
+        yield* fs.writeFileString(
+          path.join(root, "eslint.config.mjs"),
+          'export { default } from "./shared/eslint.mjs";\n'
+        );
+        const withPlugin = yield* rootEslintCacheKey(root);
+        expect(withPlugin).toMatch(/^[0-9a-f]{16}$/);
+        expect(yield* rootEslintCacheKey(root)).toBe(withPlugin);
+        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.1"));
+        const bumpedPlugin = yield* rootEslintCacheKey(root);
+        expect(bumpedPlugin).toMatch(/^[0-9a-f]{16}$/);
+        expect(bumpedPlugin).not.toBe(withPlugin);
+        expect(yield* rootEslintCacheKey(root)).toBe(bumpedPlugin);
+        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("1.0.0"));
+        expect(yield* rootEslintCacheKey(root)).toBe(withPlugin);
+        yield* fs.writeFileString(localRule, "export default { create() { return { Program() {} } } };\n");
+        const changedWorkspace = yield* rootEslintCacheKey(root);
+        expect(changedWorkspace).toMatch(/^[0-9a-f]{16}$/);
+        expect(changedWorkspace).not.toBe(withPlugin);
+        expect(yield* rootEslintCacheKey(root)).toBe(changedWorkspace);
+        yield* fs.writeFileString(
+          shared,
+          'import plugin from "eslint-plugin-fixture"; export default [{ plugins: { arbitrary: plugin } }];\n'
+        );
+        const changedShared = yield* rootEslintCacheKey(root);
+        expect(changedShared).not.toBe(changedWorkspace);
+        yield* fs.writeFileString(
+          path.join(root, "node_modules/eslint/package.json"),
+          '{"name":"eslint","version":"9.0.1","main":"index.js"}'
+        );
+        expect(yield* rootEslintCacheKey(root)).not.toBe(changedShared);
+        // External configs can obtain a meta-less plugin through peers, including a
+        // package whose exports hide package.json. Manifest discovery bypasses exports.
+        const externalConfig = path.join(root, "node_modules/eslint-config-fixture");
+        yield* fs.makeDirectory(externalConfig, { recursive: true });
+        yield* fs.writeFileString(
+          path.join(externalConfig, "package.json"),
+          '{"name":"eslint-config-fixture","version":"1.0.0","exports":"./index.js","peerDependencies":{"eslint-plugin-fixture":"*","missing-optional-peer":"*"}}'
+        );
+        yield* fs.writeFileString(
+          path.join(externalConfig, "index.js"),
+          'module.exports = [{ plugins: { arbitrary: require("eslint-plugin-fixture") } }];\n'
+        );
+        yield* fs.writeFileString(
+          path.join(root, "eslint.config.mjs"),
+          'export { default } from "eslint-config-fixture";\n'
+        );
+        const indirectPlugin = yield* rootEslintCacheKey(root);
+        expect(indirectPlugin).toMatch(/^[0-9a-f]{16}$/);
+        expect(yield* rootEslintCacheKey(root)).toBe(indirectPlugin);
+        yield* fs.writeFileString(path.join(plugin, "package.json"), pluginManifest("2.0.0"));
+        const indirectBump = yield* rootEslintCacheKey(root);
+        expect(indirectBump).toMatch(/^[0-9a-f]{16}$/);
+        expect(indirectBump).not.toBe(indirectPlugin);
+        const linked = path.join(root, "workspace/eslint-plugin-linked");
+        yield* fs.makeDirectory(linked, { recursive: true });
+        yield* fs.writeFileString(
+          path.join(linked, "package.json"),
+          '{"name":"eslint-plugin-linked","version":"1.0.0","main":"index.js"}'
+        );
+        yield* fs.writeFileString(path.join(linked, "index.js"), "module.exports = { rules: {} };\n");
+        yield* fs.symlink(linked, path.join(root, "node_modules/eslint-plugin-linked"));
+        yield* fs.writeFileString(
+          path.join(externalConfig, "package.json"),
+          '{"name":"eslint-config-fixture","version":"1.0.0","exports":"./index.js","dependencies":{"eslint-plugin-linked":"*"}}'
+        );
+        yield* fs.writeFileString(
+          path.join(externalConfig, "index.js"),
+          'module.exports = [{ plugins: { linked: require("eslint-plugin-linked") } }];\n'
+        );
+        const linkedInitial = yield* rootEslintCacheKey(root);
+        expect(linkedInitial).toMatch(/^[0-9a-f]{16}$/);
+        yield* fs.writeFileString(path.join(linked, "index.js"), "module.exports = { rules: { changed: {} } };\n");
+        const linkedEdited = yield* rootEslintCacheKey(root);
+        expect(linkedEdited).toMatch(/^[0-9a-f]{16}$/);
+        expect(linkedEdited).not.toBe(linkedInitial);
+        yield* fs.writeFileString(
+          path.join(root, "eslint.config.mjs"),
+          'import plugin from "eslint-plugin-linked"; export default [{ plugins: { linked: plugin } }];\n'
+        );
+        const linkedDirect = yield* rootEslintCacheKey(root);
+        expect(linkedDirect).toMatch(/^[0-9a-f]{16}$/);
+        yield* fs.writeFileString(
+          path.join(linked, "package.json"),
+          '{"name":"eslint-plugin-linked","version":"1.0.1","main":"index.js"}'
+        );
+        expect(yield* rootEslintCacheKey(root)).not.toBe(linkedDirect);
+        // Unrelated workspace source does not enter the closure.
+        const beforeUnrelated = yield* rootEslintCacheKey(root);
+        yield* fs.writeFileString(path.join(root, "unrelated.ts"), "export const unused = 1;\n");
+        expect(yield* rootEslintCacheKey(root)).toBe(beforeUnrelated);
         // A repository without the sources falls back to the shared unkeyed directory.
         expect(yield* rootEslintCacheKey(yield* fs.makeTempDirectoryScoped())).toBe("unkeyed");
       })
