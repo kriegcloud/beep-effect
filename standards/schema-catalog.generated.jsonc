@@ -38679,6 +38679,51 @@
       "description": "Represents a named declaration with a name and kind"
     },
     {
+      "file": "packages/tooling/library/repo-utils/src/TsNativeApi.models.ts",
+      "symbol": "TsNativeBinaryNotFound",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-utils",
+      "identity": "TsNativeBinaryNotFound"
+    },
+    {
+      "file": "packages/tooling/library/repo-utils/src/TsNativeApi.models.ts",
+      "symbol": "TsNativeConfig",
+      "kind": "schema-class",
+      "owner": "@beep/repo-utils",
+      "identity": "TsNativeConfig",
+      "description": "Native compiler executable override, working directory and default project config."
+    },
+    {
+      "file": "packages/tooling/library/repo-utils/src/TsNativeApi.models.ts",
+      "symbol": "TsNativeDiagnostic",
+      "kind": "schema-class",
+      "owner": "@beep/repo-utils",
+      "identity": "TsNativeDiagnostic",
+      "description": "Serializable native diagnostic with optional source filename and UTF-16 offsets."
+    },
+    {
+      "file": "packages/tooling/library/repo-utils/src/TsNativeApi.models.ts",
+      "symbol": "TsNativeDiagnosticCategory",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-utils",
+      "identity": "TsNativeDiagnosticCategory",
+      "description": "Native diagnostic severity categories."
+    },
+    {
+      "file": "packages/tooling/library/repo-utils/src/TsNativeApi.models.ts",
+      "symbol": "TsNativeFileNotInProgram",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-utils",
+      "identity": "TsNativeFileNotInProgram"
+    },
+    {
+      "file": "packages/tooling/library/repo-utils/src/TsNativeApi.models.ts",
+      "symbol": "TsNativeProtocolFailure",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-utils",
+      "identity": "TsNativeProtocolFailure"
+    },
+    {
       "file": "packages/tooling/library/repo-utils/src/TypeScript/models/TSSyntaxKind.model.ts",
       "symbol": "TSSyntaxKind",
       "kind": "literal-kit",

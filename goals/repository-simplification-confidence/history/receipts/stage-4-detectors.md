@@ -103,6 +103,19 @@ fixtures and its two old-head inbox repairs are verified in the current
 [handoff](../handoffs/rsc-b-standards-2026-10-14.md). They do not complete the
 FP-1 through FP-7 frontier.
 
+Historical FP-7 is closed as removed, rather than as a tested detector repair.
+Commit `aee2664b91d163cd7481eb16b0c5a485c092f5c2` (#551)
+deletes `TypePredicates.ts`, its barrel exposure, the owning DualArity
+implementation, CLI route and fixture suite. Its parent contains the
+unanchored Effect/Schema/Promise printed-type guard in
+`isStrictObjectLikeType`; the deletion therefore establishes retirement of
+the actual occurrence. Read-only discovery at `bea70598228b` finds no
+identical active guard in schema-first classification. That path uses an
+anchored root-runtime pattern and recursive property inspection. The exact
+mixed-data/nested-Effect-member fixture pair is not established in the current
+tests, so current analogous regression proof remains unverified. The private
+source/history report is `.beep/rsc-resume/fp7-review.md`.
+
 ## Suppressions
 
 Pending current individual disposition. Previous occurrence-review proposals
