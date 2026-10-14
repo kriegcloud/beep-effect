@@ -18,6 +18,7 @@ import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Tuple from "effect/Tuple";
 import {
   Component,
   EntityId,
@@ -38,10 +39,36 @@ import { buildReferenceData } from "./ReferenceData";
 
 const $I = $LejeuneBoltWorkbenchId.create("domain/Bundle");
 
-/** Stable immutable bundle contract revision. @category versions @since 0.0.0 */
+/**
+ * Stable immutable bundle contract revision.
+ *
+ * **Example** (Read the replay version)
+ *
+ * ```ts
+ * import { BUNDLE_VERSION } from "@/domain/Bundle"
+ *
+ * console.log(BUNDLE_VERSION) // lejeune-demo-bundle/v1
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
 export const BUNDLE_VERSION = "lejeune-demo-bundle/v1";
 
-/** Fixed disposition date for the separately mounted mutable review corpus. @category models @since 0.0.0 */
+/**
+ * Fixed disposition date for the separately mounted mutable review corpus.
+ *
+ * **Example** (Read the original retention cutoff)
+ *
+ * ```ts
+ * import { MUTABLE_CORPUS_DISPOSITION_DATE } from "@/domain/Bundle"
+ *
+ * console.log(MUTABLE_CORPUS_DISPOSITION_DATE) // 2026-09-30
+ * ```
+ *
+ * @category policies
+ * @since 0.0.0
+ */
 export const MUTABLE_CORPUS_DISPOSITION_DATE = "2026-09-30";
 
 const RFQ_A_OUTLOOK_SOURCE_TEXT =
@@ -292,29 +319,56 @@ const NormalizedFixtureChecks = S.makeFilterGroup(
   }
 );
 
-const NormalizedFixtureSchema = NormalizedFixtureFields.mapFields(identity).check(NormalizedFixtureChecks);
-const decodeUnknownNormalizedFixtureSchemaType = S.decodeUnknownEffect(S.toType(NormalizedFixtureSchema));
+const NormalizedFixtureModel = NormalizedFixtureFields.mapFields(identity).check(NormalizedFixtureChecks);
+const decodeUnknownNormalizedFixtureModelType = S.decodeUnknownEffect(S.toType(NormalizedFixtureModel));
 
+/**
+ * Validates one RFQ normalization against its source spans, components, and canonical fixture contract.
+ *
+ * **Example** (Reject an incomplete normalization)
+ *
+ * ```ts
+ * import { NormalizedFixture } from "@/domain/Bundle"
+ *
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(NormalizedFixture)({})) // false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class NormalizedFixture extends S.Opaque<NormalizedFixture, { readonly brand: unique symbol }>()(
-  NormalizedFixtureSchema.pipe(
+  NormalizedFixtureModel.pipe(
     $I.annoteSchema("NormalizedFixture", {
       description: "One complete deterministic RFQ normalization with split sources and retained missing values.",
     })
   )
 ) {}
 
-/** Validate already-decoded nested values and construct one normalized fixture. @category constructors @since 0.0.0 */
-export const makeNormalizedFixture = (input: unknown) =>
-  decodeUnknownNormalizedFixtureSchemaType(input).pipe(Effect.map((fields) => NormalizedFixture.make(fields)));
+/**
+ * Validates already-decoded nested values before constructing a normalized fixture.
+ *
+ * **Example** (Validate a canonical fixture)
+ *
+ * ```ts
+ * import { makeNormalizedFixture } from "@/domain/Bundle"
+ *
+ * import { CanonicalNormalizedFixtures } from "@/domain/Bundle"
+ * import * as Effect from "effect/Effect"
+ *
+ * const fixture = await Effect.runPromise(makeNormalizedFixture(CanonicalNormalizedFixtures[0]))
+ * console.log(fixture.rfq.id) // rfq-a
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeNormalizedFixture = Effect.fn("LeJeuneBundle.makeNormalizedFixture")((input: unknown) =>
+  decodeUnknownNormalizedFixtureModelType(input).pipe(Effect.map(NormalizedFixture.make))
+);
 
-const canonicalSourceDocument = (input: {
-  readonly format: typeof SourceFormat.Type;
-  readonly id: EntityId;
-  readonly layoutId: typeof RfqLayoutId.Type;
-  readonly mediaType: string;
-  readonly sha256: Sha256Hex;
-  readonly text: string;
-}): SourceDocument => SourceDocument.make(input);
+const canonicalSourceDocument = SourceDocument.make;
 
 const canonicalExtractedField = (
   sourceDocumentId: EntityId,
@@ -370,7 +424,7 @@ const CanonicalRfqBPdfSource = canonicalSourceDocument({
   text: RFQ_B_PDF_SOURCE_TEXT,
 });
 
-const CanonicalRfqAComponents = [
+const CanonicalRfqAComponents = Tuple.make(
   Component.make({
     id: EntityId.make("rfq-a-bolt"),
     kind: "bolt",
@@ -398,10 +452,10 @@ const CanonicalRfqAComponents = [
     label: "F959 Type 325 DTI",
     standardId: EntityId.make("astm-f959-type-325"),
     strengthClass: "325",
-  }),
-] as const;
+  })
+);
 
-const CanonicalRfqBComponents = [
+const CanonicalRfqBComponents = Tuple.make(
   Component.make({
     finishId: O.some(EntityId.make("hot-dip-galvanized")),
     id: EntityId.make("rfq-b-bolt"),
@@ -417,8 +471,8 @@ const CanonicalRfqBComponents = [
     label: "F959 Type 325 DTI",
     standardId: EntityId.make("astm-f959-type-325"),
     strengthClass: "325",
-  }),
-] as const;
+  })
+);
 
 const CanonicalRfqAProductVariant = ProductVariant.make({
   componentIds: A.map(CanonicalRfqAComponents, (component) => component.id),
@@ -478,7 +532,7 @@ const CanonicalRfqB = RFQ.make({
   sourceDocumentIds: [CanonicalRfqBEmailSource.id, CanonicalRfqBPdfSource.id],
 });
 
-const CanonicalRfqAExtractedFields = [
+const CanonicalRfqAExtractedFields = Tuple.make(
   canonicalExtractedField(CanonicalRfqAOutlookSource.id, "projectName", 26, 43, "North Loop Canopy"),
   canonicalExtractedField(CanonicalRfqAOutlookSource.id, "deliveryDate", 55, 65, "2026-09-12"),
   canonicalExtractedField(CanonicalRfqAOutlookSource.id, "domesticOrigin", 68, 85, "Domestic required"),
@@ -488,10 +542,10 @@ const CanonicalRfqAExtractedFields = [
   canonicalExtractedField(CanonicalRfqAXlsxSource.id, "diameter", 35, 41, "7/8 in"),
   canonicalExtractedField(CanonicalRfqAXlsxSource.id, "length", 44, 52, "3-1/4 in"),
   canonicalExtractedField(CanonicalRfqAXlsxSource.id, "quantity", 55, 58, "180"),
-  canonicalExtractedField(CanonicalRfqAXlsxSource.id, "dti", 61, 74, "F959 Type 325"),
-] as const;
+  canonicalExtractedField(CanonicalRfqAXlsxSource.id, "dti", 61, 74, "F959 Type 325")
+);
 
-const CanonicalRfqBExtractedFields = [
+const CanonicalRfqBExtractedFields = Tuple.make(
   canonicalExtractedField(CanonicalRfqBEmailSource.id, "projectName", 20, 42, "County Shops Expansion"),
   canonicalExtractedField(CanonicalRfqBEmailSource.id, "deliveryDate", 56, 66, "2026-09-20"),
   canonicalExtractedField(CanonicalRfqBEmailSource.id, "certificationRequirement", 71, 96, "certification is required"),
@@ -501,8 +555,8 @@ const CanonicalRfqBExtractedFields = [
   canonicalExtractedField(CanonicalRfqBPdfSource.id, "length", 86, 94, "2-1/2 in"),
   canonicalExtractedField(CanonicalRfqBPdfSource.id, "quantity", 106, 109, "860"),
   canonicalExtractedField(CanonicalRfqBPdfSource.id, "finish", 119, 122, "HDG"),
-  canonicalExtractedField(CanonicalRfqBPdfSource.id, "dti", 129, 142, "F959 Type 325"),
-] as const;
+  canonicalExtractedField(CanonicalRfqBPdfSource.id, "dti", 129, 142, "F959 Type 325")
+);
 
 /**
  * Exact ordered normalized fixture graph authorized by immutable bundle contract v1.
@@ -511,8 +565,9 @@ const CanonicalRfqBExtractedFields = [
  *
  * ```ts
  * import { CanonicalNormalizedFixtures } from "@/domain/Bundle"
+ * import * as A from "effect/Array"
  *
- * console.log(CanonicalNormalizedFixtures.map((fixture) => fixture.rfq.id)) // ["rfq-a", "rfq-b"]
+ * console.log(A.map(CanonicalNormalizedFixtures, (fixture) => fixture.rfq.id)) // ["rfq-a", "rfq-b"]
  * ```
  *
  * @category fixtures
@@ -592,6 +647,20 @@ const RuleSourceEvidenceCheck = S.makeFilter(
   }
 );
 
+/**
+ * Stores a governing rule citation with its verified evidence anchor and retrieval metadata.
+ *
+ * **Example** (Inspect the citation boundary)
+ *
+ * ```ts
+ * import { RuleSource } from "@/domain/Bundle"
+ *
+ * console.log(RuleSource.fields.evidenceAnchor !== undefined) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class RuleSource extends S.Opaque<RuleSource, { readonly brand: unique symbol }>()(
   RuleSourceFields.mapFields(identity)
     .check(RuleSourceEvidenceCheck)
@@ -660,6 +729,20 @@ const RuleResultHumanStopCheck = S.makeFilter(
   }
 );
 
+/**
+ * Validates a rule disposition and requires human review for every non-passing result.
+ *
+ * **Example** (Inspect the human-review boundary)
+ *
+ * ```ts
+ * import { RuleResult } from "@/domain/Bundle"
+ *
+ * console.log(RuleResult.fields.requiresHuman !== undefined) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class RuleResult extends S.Opaque<RuleResult, { readonly brand: unique symbol }>()(
   RuleResultFields.mapFields(identity)
     .check(RuleResultHumanStopCheck)
@@ -691,6 +774,21 @@ const ProviderCandidateLabel = LiteralKit(["project", "delivery_date", "finish"]
   })
 );
 
+/**
+ * Stores a sanitized, labelled extraction value without provider transport metadata.
+ *
+ * **Example** (Construct a grounded project candidate)
+ *
+ * ```ts
+ * import { ProviderCandidate } from "@/domain/Bundle"
+ *
+ * const candidate = ProviderCandidate.make({ label: "project", text: "North Loop Canopy" })
+ * console.log(candidate.text) // North Loop Canopy
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class ProviderCandidate extends S.Opaque<ProviderCandidate, { readonly brand: unique symbol }>()(
   S.Struct({
     label: ProviderCandidateLabel,
@@ -702,13 +800,63 @@ export class ProviderCandidate extends S.Opaque<ProviderCandidate, { readonly br
   )
 ) {}
 
-/** Exact sanitized source text authorized for provider-recording verification. @category fixtures @since 0.0.0 */
+/**
+ * Exact sanitized source text authorized for provider-recording verification.
+ *
+ * **Example** (Confirm the synthetic source marker)
+ *
+ * ```ts
+ * import { PROVIDER_RECORDING_SOURCE_TEXT } from "@/domain/Bundle"
+ *
+ * import * as Str from "effect/String"
+ *
+ * console.log(Str.startsWith("SYNTHETIC RFQ A")(PROVIDER_RECORDING_SOURCE_TEXT)) // true
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
 export const PROVIDER_RECORDING_SOURCE_TEXT = RFQ_A_OUTLOOK_SOURCE_TEXT;
 
-/** Exact request identity authorized by provider-recording contract v1. @category fixtures @since 0.0.0 */
+/**
+ * Exact request identity authorized by provider-recording contract v1.
+ *
+ * **Example** (Read the recording document identity)
+ *
+ * ```ts
+ * import { PROVIDER_RECORDING_DOCUMENT_ID } from "@/domain/Bundle"
+ *
+ * console.log(PROVIDER_RECORDING_DOCUMENT_ID) // lejeune-provider-smoke-rfq-a
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
 export const PROVIDER_RECORDING_DOCUMENT_ID = EntityId.make("lejeune-provider-smoke-rfq-a");
 
-/** Canonical compact codec used when hashing a sanitized candidate list. @category codecs @since 0.0.0 */
+/**
+ * Encodes exactly three sanitized candidates as compact JSON for reproducible digest computation.
+ *
+ * **Example** (Encode the canonical candidate order)
+ *
+ * ```ts
+ * import { ProviderCandidateListFromJsonString } from "@/domain/Bundle"
+ *
+ * import { ProviderCandidate } from "@/domain/Bundle"
+ * import * as Effect from "effect/Effect"
+ * import * as S from "effect/Schema"
+ *
+ * const json = await Effect.runPromise(S.encodeEffect(ProviderCandidateListFromJsonString)([
+ *   ProviderCandidate.make({ label: "project", text: "North Loop Canopy" }),
+ *   ProviderCandidate.make({ label: "delivery_date", text: "2026-09-12" }),
+ *   ProviderCandidate.make({ label: "finish", text: "MG B695 Class 55" }),
+ * ]))
+ * console.log(json)
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
 export const ProviderCandidateListFromJsonString = S.fromJsonString(
   S.Tuple([ProviderCandidate, ProviderCandidate, ProviderCandidate])
 );
@@ -916,7 +1064,22 @@ class CanonicalRuleSourceContract extends S.Opaque<CanonicalRuleSourceContract, 
   )
 ) {}
 
-/** Complete canonical source records for the three fixed cited rules. @category fixtures @since 0.0.0 */
+/**
+ * Complete canonical source records for the three fixed cited rules.
+ *
+ * **Example** (Read the governing rule identities)
+ *
+ * ```ts
+ * import { CanonicalRuleSourceContracts } from "@/domain/Bundle"
+ *
+ * import * as A from "effect/Array"
+ *
+ * console.log(A.map(CanonicalRuleSourceContracts, (source) => source.ruleId))
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
 export const CanonicalRuleSourceContracts: readonly [
   CanonicalRuleSourceContract,
   CanonicalRuleSourceContract,
@@ -1181,6 +1344,20 @@ const ImmutableDemoBundleCheck = S.makeFilter(bundleReferencesAreClosed, {
   message: "Immutable bundle references and fixed identity sets must be complete, unique, and closed.",
 });
 
+/**
+ * Validates the complete frozen replay payload and requires every entity and citation reference to resolve.
+ *
+ * **Example** (Inspect the immutable payload boundary)
+ *
+ * ```ts
+ * import { ImmutableDemoBundle } from "@/domain/Bundle"
+ *
+ * console.log(ImmutableDemoBundle.fields.providerRecording !== undefined) // true
+ * ```
+ *
+ * @category aggregates
+ * @since 0.0.0
+ */
 export class ImmutableDemoBundle extends S.Opaque<ImmutableDemoBundle, { readonly brand: unique symbol }>()(
   ImmutableDemoBundleFields.mapFields(identity)
     .check(ImmutableDemoBundleCheck)
@@ -1293,6 +1470,29 @@ const RetentionAuthorizationExtensionCheck = S.makeFilter(
   }
 );
 
+/**
+ * Records reviewed authority to extend the mutable corpus retention beyond the original cutoff.
+ *
+ * **Example** (Construct a reviewed retention extension)
+ *
+ * ```ts
+ * import { RetentionAuthorization } from "@/domain/Bundle"
+ *
+ * import { IsoDate, IsoTimestamp } from "@/domain/Ontology"
+ *
+ * const authorization = RetentionAuthorization.make({
+ *   authorization: "promoted",
+ *   authorizedAt: IsoTimestamp.make("2026-09-29T12:00:00.000Z"),
+ *   decisionReference: "review:retention-extension",
+ *   newDispositionDate: IsoDate.make("2026-10-31"),
+ *   owner: "review-owner",
+ * })
+ * console.log(authorization.newDispositionDate) // 2026-10-31
+ * ```
+ *
+ * @category policies
+ * @since 0.0.0
+ */
 export class RetentionAuthorization extends S.Opaque<RetentionAuthorization, { readonly brand: unique symbol }>()(
   RetentionAuthorizationFields.mapFields(identity)
     .check(RetentionAuthorizationExtensionCheck)
@@ -1380,8 +1580,11 @@ export class MutableRetentionMetadata extends S.Opaque<MutableRetentionMetadata,
  * ```ts
  * import { MutableRetentionMetadataArbitrary } from "@/domain/Bundle"
  * import * as Arbitrary from "effect/Arbitrary"
+ * import * as A from "effect/Array"
+ * import * as Effect from "effect/Effect"
  *
- * const samples = Arbitrary.sampleEffect(MutableRetentionMetadataArbitrary, { count: 10 })
+ * const samples = await Effect.runPromise(Arbitrary.sampleEffect(MutableRetentionMetadataArbitrary, { count: 10 }))
+ * console.log(A.length(samples)) // 10
  * ```
  *
  * @category arbitraries
@@ -1479,17 +1682,17 @@ class PublishedReplayAggregate extends S.Opaque<PublishedReplayAggregate, { read
  *
  * ```ts
  * import { makePublishedReplayAggregate } from "@/domain/Bundle"
+ * import * as P from "effect/Predicate"
  *
- * console.log(typeof makePublishedReplayAggregate === "function") // true
+ * console.log(P.isFunction(makePublishedReplayAggregate)) // true
  * ```
  *
  * @category constructors
  * @since 0.0.0
  */
-export const makePublishedReplayAggregate = (input: unknown) =>
-  decodeUnknownPublishedReplayAggregateModelType(input).pipe(
-    Effect.map((fields) => PublishedReplayAggregate.make(fields))
-  );
+export const makePublishedReplayAggregate = Effect.fn("LeJeuneBundle.makePublishedReplayAggregate")((input: unknown) =>
+  decodeUnknownPublishedReplayAggregateModelType(input).pipe(Effect.map(PublishedReplayAggregate.make))
+);
 
 /**
  * JSON codec used to persist the immutable bundle without native JSON helpers.
@@ -1555,10 +1758,42 @@ export const MutableRetentionMetadataFromJsonString = S.fromJsonString(MutableRe
  */
 export const GoldenReplayReceiptFromJsonString = S.fromJsonString(GoldenReplayReceipt, { space: 2 });
 
-/** JSON codec for reviewed mutable-corpus retention authority. @category codecs @since 0.0.0 */
+/**
+ * JSON codec for reviewed mutable-corpus retention authority.
+ *
+ * **Example** (Reject absent retention authority)
+ *
+ * ```ts
+ * import { RetentionAuthorizationFromJsonString } from "@/domain/Bundle"
+ *
+ * import * as S from "effect/Schema"
+ * import * as Result from "effect/Result"
+ *
+ * console.log(Result.isFailure(S.decodeUnknownResult(RetentionAuthorizationFromJsonString)("{}"))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
 export const RetentionAuthorizationFromJsonString = S.fromJsonString(RetentionAuthorization, { space: 2 });
 
-/** JSON codec for durable projection-store identity metadata. @category codecs @since 0.0.0 */
+/**
+ * JSON codec for durable projection-store identity metadata.
+ *
+ * **Example** (Reject incomplete store identity)
+ *
+ * ```ts
+ * import { ProjectionStoreMetadataFromJsonString } from "@/domain/Bundle"
+ *
+ * import * as S from "effect/Schema"
+ * import * as Result from "effect/Result"
+ *
+ * console.log(Result.isFailure(S.decodeUnknownResult(ProjectionStoreMetadataFromJsonString)("{}"))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
 export const ProjectionStoreMetadataFromJsonString = S.fromJsonString(ProjectionStoreMetadata, { space: 2 });
 
 /**

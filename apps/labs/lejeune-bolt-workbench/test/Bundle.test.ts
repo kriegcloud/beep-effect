@@ -13,6 +13,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as SqlClient from "effect/sql/SqlClient";
+import * as Tuple from "effect/Tuple";
 import { strToU8 } from "fflate";
 import {
   CanonicalNormalizedFixtures,
@@ -361,7 +362,7 @@ describe("LeJeune deterministic fixture bundle", () => {
     );
   });
 
-  for (const [column, corruption] of [
+  for (const [column, corruption] of Tuple.make(
     [
       "quote product variant",
       "UPDATE quote_lines SET product_variant_id = 'wrong-variant' WHERE id = 'rfq-a-line-a-1'",
@@ -369,8 +370,8 @@ describe("LeJeune deterministic fixture bundle", () => {
     [
       "rule human-review flag",
       "UPDATE rule_results SET requires_human = true WHERE case_id = 'rfq-a-a490-hdg-positive'",
-    ],
-  ] as const) {
+    ]
+  )) {
     it.layer(Layer.merge(BunCrypto.layer, makeInMemoryProjectionLayer()), {
       timeout: "30 seconds",
       excludeTestServices: true,
@@ -498,7 +499,7 @@ describe("LeJeune deterministic fixture bundle", () => {
       const validDate: IsoDateValue = yield* decodeIsoDate("2026-09-30");
       const validTimestamp: IsoTimestampValue = yield* decodeIsoTimestamp("2026-08-27T12:00:00.000Z");
       expect([validDate, validTimestamp]).toEqual(["2026-09-30", "2026-08-27T12:00:00.000Z"]);
-      const invalidDates = ["2026-99-99", "2026-02-30"] as const;
+      const invalidDates = Tuple.make("2026-99-99", "2026-02-30");
       for (const value of invalidDates) {
         const failure = yield* Effect.flip(decodeIsoDate(value));
         expect(failure._tag).toBe("SchemaError");
@@ -1030,6 +1031,8 @@ describe("LeJeune deterministic fixture bundle", () => {
           "finish",
         ]);
         expect(frozen.recordedAt).toBe("2026-08-27T12:25:18.044Z");
+        expect(yield* verifyProviderRecording(frozen, PROVIDER_RECORDING_SOURCE_TEXT)).toBe(frozen);
+        expect(yield* verifyFrozenProviderRecording(frozen, PROVIDER_RECORDING_SOURCE_TEXT)).toEqual(frozen);
 
         const digestFailure = yield* Effect.flip(
           verifyProviderRecording(

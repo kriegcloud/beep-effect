@@ -11,6 +11,7 @@ import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Tuple from "effect/Tuple";
 import { strToU8 } from "fflate";
 import {
   FrozenProviderRecording,
@@ -109,10 +110,9 @@ const providerCandidateMatchesContract = (candidate: ProviderCandidate): boolean
  * @category validation
  * @since 0.0.0
  */
-export const verifyProviderRecording = Effect.fn("lejeune.provider.verify_recording")(function* (
-  recording: ProviderRecording,
-  sourceText: string
-) {
+export const verifyProviderRecording = Effect.fn("lejeune.provider.verify_recording")(function* <
+  Recording extends ProviderRecording | FrozenProviderRecording,
+>(recording: Recording, sourceText: string) {
   const candidateJson = yield* S.encodeEffect(ProviderCandidateListFromJsonString)(recording.candidates).pipe(
     Effect.mapError((cause) =>
       providerIntegrityError(
@@ -136,7 +136,7 @@ export const verifyProviderRecording = Effect.fn("lejeune.provider.verify_record
   const labels = A.map(recording.candidates, (candidate) => candidate.label);
   const hasExactLabels =
     A.length(A.dedupe(labels)) === 3 &&
-    A.every(["project", "delivery_date", "finish"] as const, (label) => A.contains(labels, label));
+    A.every(Tuple.make("project", "delivery_date", "finish"), (label) => A.contains(labels, label));
   if (!hasExactLabels) {
     return yield* providerIntegrityError(
       "candidate-labels",
@@ -186,7 +186,7 @@ export const verifyProviderRecording = Effect.fn("lejeune.provider.verify_record
  * @since 0.0.0
  */
 export const verifyFrozenProviderRecording = Effect.fn("lejeune.provider.verify_frozen_recording")(function* (
-  recording: ProviderRecording,
+  recording: ProviderRecording | FrozenProviderRecording,
   sourceText: string
 ) {
   const verified = yield* verifyProviderRecording(recording, sourceText);

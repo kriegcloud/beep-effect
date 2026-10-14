@@ -33,7 +33,7 @@ import type { VerifiedSpanError } from "@beep/langextract/VerifiedSpan";
 import type { SparqlQueryService } from "@beep/semantic-web";
 import type * as Crypto from "effect/Crypto";
 import type { SqlClient } from "effect/sql/SqlClient";
-import type { ProviderRecording, RetentionAuthorization } from "@/domain/Bundle";
+import type { FrozenProviderRecording, ProviderRecording, RetentionAuthorization } from "@/domain/Bundle";
 import type { FixtureError } from "@/fixtures/Sources";
 import type { ProjectionError } from "@/runtime/Projections";
 import type { ProviderRecordingIntegrityError } from "@/workflows/ProviderRecording";
@@ -108,15 +108,16 @@ const hashBundle = Effect.fnUntraced(function* (bundle: ImmutableDemoBundle) {
  *
  * ```ts
  * import { replayOffline } from "@/workflows/Replay"
+ * import * as P from "effect/Predicate"
  *
- * console.log(typeof replayOffline === "function") // true
+ * console.log(P.isFunction(replayOffline)) // true
  * ```
  *
  * @category workflows
  * @since 0.0.0
  */
 export const replayOffline = Effect.fn("lejeune.replay.offline")(function* (
-  providerRecording: ProviderRecording,
+  providerRecording: ProviderRecording | FrozenProviderRecording,
   retentionAuthorization: O.Option<RetentionAuthorization> = O.none()
 ): Effect.fn.Return<
   ReplayBuild,
@@ -163,10 +164,10 @@ export const replayOffline = Effect.fn("lejeune.replay.offline")(function* (
   });
   const retentionMetadata = MutableRetentionMetadata.make({
     disposition: "delete-or-promote",
-    dispositionDate: O.match(retentionAuthorization, {
-      onNone: () => IsoDate.make(MUTABLE_CORPUS_DISPOSITION_DATE),
-      onSome: (authorization) => authorization.newDispositionDate,
-    }),
+    dispositionDate: retentionAuthorization.pipe(
+      O.map((authorization) => authorization.newDispositionDate),
+      O.getOrElse(() => IsoDate.make(MUTABLE_CORPUS_DISPOSITION_DATE))
+    ),
     retentionAuthorization,
   });
   const receipt = GoldenReplayReceipt.make({

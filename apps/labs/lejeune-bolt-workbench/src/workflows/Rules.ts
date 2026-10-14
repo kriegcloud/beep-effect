@@ -13,6 +13,7 @@ import * as Effect from "effect/Effect";
 import { identity, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
+import * as Tuple from "effect/Tuple";
 import { CanonicalRuleSourceContracts, RuleResult, RuleSource } from "@/domain/Bundle";
 import { EntityId } from "@/domain/Ontology";
 import { FixtureError } from "@/fixtures/Sources";
@@ -28,11 +29,11 @@ const MATCHED_ASSEMBLY_FINISH_ID = EntityId.make("mechanical-galvanized-b695-cla
 const makeRuleSource = Effect.fnUntraced(function* (input: (typeof CanonicalRuleSourceContracts)[number]) {
   const candidate = GroundedExtraction.cases.unaligned.make({ label: "rule-evidence", text: input.evidence });
   const anchors = yield* locateGroundedExtractions([candidate], input.evidence);
-  const evidenceAnchor = yield* O.match(A.head(anchors), {
-    onNone: () =>
-      FixtureError.make({ stage: "rule-source", message: `No exact evidence anchor was produced for ${input.id}.` }),
-    onSome: Effect.succeed,
-  });
+  const evidenceAnchor = yield* A.head(anchors).pipe(
+    Effect.fromOption(() =>
+      FixtureError.make({ stage: "rule-source", message: `No exact evidence anchor was produced for ${input.id}.` })
+    )
+  );
   return RuleSource.make({
     accessedOn: input.accessedOn,
     evidence: input.evidence,
@@ -216,8 +217,9 @@ const a490HdgResult = (fixture: NormalizedFixture, source: RuleSource): RuleResu
  *
  * ```ts
  * import { evaluateRules } from "@/workflows/Rules"
+ * import * as P from "effect/Predicate"
  *
- * console.log(typeof evaluateRules === "function") // true
+ * console.log(P.isFunction(evaluateRules)) // true
  * ```
  *
  * @category rules
@@ -236,12 +238,12 @@ export const evaluateRules = Effect.fn("lejeune.rules.evaluate")(function* (
     { concurrency: 3 }
   );
   const [rfqA, rfqB] = fixtures;
-  return [
+  return Tuple.make(
     matchedAssemblyResult(rfqA, matchedSource),
     matchedAssemblyResult(rfqB, matchedSource),
     dtiStrengthResult(rfqA, dtiSource),
     dtiStrengthResult(rfqB, dtiSource),
     a490HdgResult(rfqA, coatingSource),
-    a490HdgResult(rfqB, coatingSource),
-  ] as const;
+    a490HdgResult(rfqB, coatingSource)
+  );
 });

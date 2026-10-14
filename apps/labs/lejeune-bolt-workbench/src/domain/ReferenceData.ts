@@ -54,8 +54,9 @@ class ReferenceData extends S.Opaque<ReferenceData, { readonly brand: unique sym
  *
  * ```ts
  * import { buildReferenceData } from "@/domain/ReferenceData"
+ * import * as P from "effect/Predicate"
  *
- * console.log(typeof buildReferenceData === "function") // true
+ * console.log(P.isFunction(buildReferenceData)) // true
  * ```
  *
  * @category fixtures

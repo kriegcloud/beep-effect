@@ -5,12 +5,15 @@
  * @since 0.0.0
  */
 
+import { $LejeuneBoltWorkbenchId } from "@beep/identity/packages";
 import { GroundedExtraction } from "@beep/langextract/Extraction";
 import { locateGroundedExtractions } from "@beep/langextract/VerifiedSpan";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Tuple from "effect/Tuple";
 import { ExtractedField, MissingField, makeNormalizedFixture } from "@/domain/Bundle";
 import { Component, EntityId, IsoDate, ProductVariant, Project, QuoteLine, RFQ } from "@/domain/Ontology";
 import { FixtureError } from "@/fixtures/Sources";
@@ -18,22 +21,22 @@ import { PosInt } from "../domain/PosInt.ts";
 import type { NormalizedFixture, SourceDocument } from "@/domain/Bundle";
 import type { GeneratedFixtureArtifacts } from "@/fixtures/Sources";
 
-interface FieldLocator {
-  readonly name: string;
-  readonly text: string;
-}
+const $I = $LejeuneBoltWorkbenchId.create("workflows/Normalize");
+
+class FieldLocator extends S.Opaque<FieldLocator, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.NonEmptyString, text: S.NonEmptyString }).pipe(
+    $I.annoteSchema("FieldLocator", {
+      description: "A named literal value to locate verbatim in a frozen source document.",
+    })
+  )
+) {}
 
 const entityId = EntityId.make;
 const isoDate = IsoDate.make;
 
 const makeProductVariant = (
   components: NormalizedFixture["components"],
-  fields: {
-    readonly finishId: EntityId;
-    readonly id: EntityId;
-    readonly label: string;
-    readonly standardId: EntityId;
-  }
+  fields: Pick<ProductVariant, "finishId" | "id" | "label" | "standardId">
 ) =>
   ProductVariant.make({
     componentIds: A.map(components, (component) => component.id),
@@ -44,12 +47,8 @@ const makeProductVariant = (
   });
 
 const sourceById = Effect.fnUntraced(function* (sources: ReadonlyArray<SourceDocument>, id: string) {
-  return yield* O.match(
-    A.findFirst(sources, (source) => Str.Equivalence(source.id, id)),
-    {
-      onNone: () => FixtureError.make({ stage: "normalize", message: `Missing frozen source document ${id}.` }),
-      onSome: Effect.succeed,
-    }
+  return yield* A.findFirst(sources, (source) => Str.Equivalence(source.id, id)).pipe(
+    Effect.fromOption(() => FixtureError.make({ stage: "normalize", message: `Missing frozen source document ${id}.` }))
   );
 });
 
@@ -59,14 +58,14 @@ const locateFields = Effect.fnUntraced(function* (source: SourceDocument, fields
     Effect.fnUntraced(function* (field) {
       const candidates = [GroundedExtraction.cases.unaligned.make({ label: field.name, text: field.text })];
       const anchors = yield* locateGroundedExtractions(candidates, source.text);
-      const anchor = yield* O.match(A.head(anchors), {
-        onNone: () =>
+      const anchor = yield* A.head(anchors).pipe(
+        Effect.fromOption(() =>
           FixtureError.make({
             stage: "normalize",
             message: `No exact anchor was produced for ${field.name} in ${source.id}.`,
-          }),
-        onSome: Effect.succeed,
-      });
+          })
+        )
+      );
       const rawSlice = Str.slice(anchor.startChar, anchor.endChar)(source.text);
       if (!Str.Equivalence(rawSlice, anchor.quote)) {
         return yield* FixtureError.make({
@@ -89,20 +88,20 @@ const normalizeRfqA = Effect.fnUntraced(function* (sources: ReadonlyArray<Source
   const email = yield* sourceById(sources, "rfq-a-outlook-body");
   const xlsx = yield* sourceById(sources, "rfq-a-xlsx-takeoff");
   const emailFields = yield* locateFields(email, [
-    { name: "projectName", text: "North Loop Canopy" },
-    { name: "deliveryDate", text: "2026-09-12" },
-    { name: "domesticOrigin", text: "Domestic required" },
-    { name: "finish", text: "MG B695 Class 55" },
+    FieldLocator.make({ name: "projectName", text: "North Loop Canopy" }),
+    FieldLocator.make({ name: "deliveryDate", text: "2026-09-12" }),
+    FieldLocator.make({ name: "domesticOrigin", text: "Domestic required" }),
+    FieldLocator.make({ name: "finish", text: "MG B695 Class 55" }),
   ]);
   const xlsxFields = yield* locateFields(xlsx, [
-    { name: "product", text: "TC assembly" },
-    { name: "grade", text: "F1852 Type 1" },
-    { name: "diameter", text: "7/8 in" },
-    { name: "length", text: "3-1/4 in" },
-    { name: "quantity", text: "180" },
-    { name: "dti", text: "F959 Type 325" },
+    FieldLocator.make({ name: "product", text: "TC assembly" }),
+    FieldLocator.make({ name: "grade", text: "F1852 Type 1" }),
+    FieldLocator.make({ name: "diameter", text: "7/8 in" }),
+    FieldLocator.make({ name: "length", text: "3-1/4 in" }),
+    FieldLocator.make({ name: "quantity", text: "180" }),
+    FieldLocator.make({ name: "dti", text: "F959 Type 325" }),
   ]);
-  const components = [
+  const components = Tuple.make(
     Component.make({
       id: entityId("rfq-a-bolt"),
       kind: "bolt",
@@ -130,8 +129,8 @@ const normalizeRfqA = Effect.fnUntraced(function* (sources: ReadonlyArray<Source
       label: "F959 Type 325 DTI",
       standardId: entityId("astm-f959-type-325"),
       strengthClass: "325",
-    }),
-  ] as const;
+    })
+  );
   const productVariant = makeProductVariant(components, {
     finishId: entityId("mechanical-galvanized-b695-class-55"),
     id: entityId("rfq-a-tc-assembly"),
@@ -186,20 +185,20 @@ const normalizeRfqB = Effect.fnUntraced(function* (sources: ReadonlyArray<Source
   const email = yield* sourceById(sources, "rfq-b-prose-email");
   const pdf = yield* sourceById(sources, "rfq-b-pdf-schedule");
   const emailFields = yield* locateFields(email, [
-    { name: "projectName", text: "County Shops Expansion" },
-    { name: "deliveryDate", text: "2026-09-20" },
-    { name: "certificationRequirement", text: "certification is required" },
+    FieldLocator.make({ name: "projectName", text: "County Shops Expansion" }),
+    FieldLocator.make({ name: "deliveryDate", text: "2026-09-20" }),
+    FieldLocator.make({ name: "certificationRequirement", text: "certification is required" }),
   ]);
   const pdfFields = yield* locateFields(pdf, [
-    { name: "product", text: "heavy hex bolt only" },
-    { name: "grade", text: "A490 Type 1" },
-    { name: "diameter", text: "3/4 in" },
-    { name: "length", text: "2-1/2 in" },
-    { name: "quantity", text: "860" },
-    { name: "finish", text: "HDG" },
-    { name: "dti", text: "F959 Type 325" },
+    FieldLocator.make({ name: "product", text: "heavy hex bolt only" }),
+    FieldLocator.make({ name: "grade", text: "A490 Type 1" }),
+    FieldLocator.make({ name: "diameter", text: "3/4 in" }),
+    FieldLocator.make({ name: "length", text: "2-1/2 in" }),
+    FieldLocator.make({ name: "quantity", text: "860" }),
+    FieldLocator.make({ name: "finish", text: "HDG" }),
+    FieldLocator.make({ name: "dti", text: "F959 Type 325" }),
   ]);
-  const components = [
+  const components = Tuple.make(
     Component.make({
       finishId: O.some(entityId("hot-dip-galvanized")),
       id: entityId("rfq-b-bolt"),
@@ -215,8 +214,8 @@ const normalizeRfqB = Effect.fnUntraced(function* (sources: ReadonlyArray<Source
       label: "F959 Type 325 DTI",
       standardId: entityId("astm-f959-type-325"),
       strengthClass: "325",
-    }),
-  ] as const;
+    })
+  );
   const productVariant = makeProductVariant(components, {
     finishId: entityId("hot-dip-galvanized"),
     id: entityId("rfq-b-a490-heavy-hex"),
@@ -274,8 +273,9 @@ const normalizeRfqB = Effect.fnUntraced(function* (sources: ReadonlyArray<Source
  *
  * ```ts
  * import { buildNormalizedFixtures } from "@/workflows/Normalize"
+ * import * as P from "effect/Predicate"
  *
- * console.log(typeof buildNormalizedFixtures === "function") // true
+ * console.log(P.isFunction(buildNormalizedFixtures)) // true
  * ```
  *
  * @category normalization
@@ -287,5 +287,5 @@ export const buildNormalizedFixtures = Effect.fn("lejeune.fixture.normalize")(fu
   const [rfqA, rfqB] = yield* Effect.all([normalizeRfqA(artifacts.sources), normalizeRfqB(artifacts.sources)], {
     concurrency: 2,
   });
-  return [rfqA, rfqB] as const;
+  return Tuple.make(rfqA, rfqB);
 });
