@@ -119,11 +119,13 @@ export const reviewerConclusion = (result: Pick<ReviewerResult, "conclusion" | "
  * @since 0.0.0
  */
 export const isReviewerSummary: {
-  (appId: number): (comment: Pick<SummaryComment, "body" | "user" | "performed_via_github_app">) => boolean;
-  (comment: Pick<SummaryComment, "body" | "user" | "performed_via_github_app">, appId: number): boolean;
+  (
+    appId: number
+  ): (comment: Pick<typeof SummaryComment.Encoded, "body" | "user" | "performed_via_github_app">) => boolean;
+  (comment: Pick<typeof SummaryComment.Encoded, "body" | "user" | "performed_via_github_app">, appId: number): boolean;
 } = dual(
   2,
-  (comment: Pick<SummaryComment, "body" | "user" | "performed_via_github_app">, appId: number) =>
+  (comment: Pick<typeof SummaryComment.Encoded, "body" | "user" | "performed_via_github_app">, appId: number) =>
     Str.includes(MARKER)(comment.body) &&
     comment.user.type === "Bot" &&
     comment.user.login === "beep-reviewer[bot]" &&

@@ -249,14 +249,14 @@ export const requireReviewerRuleset = Effect.fn("Reviewer.requireRuleset")(funct
  * @since 0.0.0
  */
 export const reviewerCheckSatisfied: {
-  (sha: string, appId: number): (checks: ReadonlyArray<Check>) => boolean;
-  (checks: ReadonlyArray<Check>, sha: string, appId: number): boolean;
-} = dual(3, (checks: ReadonlyArray<Check>, sha: string, appId: number): boolean => {
+  (sha: string, appId: number): (checks: ReadonlyArray<typeof Check.Encoded>) => boolean;
+  (checks: ReadonlyArray<typeof Check.Encoded>, sha: string, appId: number): boolean;
+} = dual(3, (checks: ReadonlyArray<typeof Check.Encoded>, sha: string, appId: number): boolean => {
   const own = A.filter(
     checks,
     (check) => check.name === "beep-reviewer" && check.head_sha === sha && check.app.id === appId
   );
-  const latest = A.reduce(own, O.none<Check>(), (previous, check) =>
+  const latest = A.reduce(own, O.none<typeof Check.Encoded>(), (previous, check) =>
     O.isNone(previous) || check.id > previous.value.id ? O.some(check) : previous
   );
   return O.isSome(latest) && latest.value.status === "completed" && latest.value.conclusion === "success";
@@ -275,7 +275,7 @@ export const reviewerCheckSatisfied: {
  * @category predicates
  * @since 0.0.0
  */
-export const reviewerDocsOnly = (files: ReadonlyArray<ReviewerChangedFile>) =>
+export const reviewerDocsOnly = (files: ReadonlyArray<typeof ReviewerChangedFile.Encoded>) =>
   files.length > 0 &&
   A.every(
     files,
