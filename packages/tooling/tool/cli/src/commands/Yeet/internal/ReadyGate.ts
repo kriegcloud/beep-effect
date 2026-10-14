@@ -517,6 +517,33 @@ interface YeetReadyGateDependencies {
   ) => Effect.Effect<void, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>;
 }
 
+const recordAndConfirmInherited = Effect.fn("Yeet.recordAndConfirmInherited")(function* (
+  context: RepoRunContext,
+  dependencies: YeetReadyGateDependencies,
+  confirmation: YeetReadyGateFlip,
+  inherited: ReadonlyArray<YeetReadyInheritedRed>
+) {
+  const applied = confirmation.inherited;
+  if (!A.isReadonlyArrayNonEmpty(applied)) return;
+  yield* (dependencies.recordInherited ?? recordInheritedThroughRest)(confirmation.prNumber, applied);
+  // Recording takes time; confirm the whole gate against the recorded head and
+  // attributions before allowing the caller to flip.
+  const afterRecord = decideYeetReadyGate(yield* (dependencies.read ?? readPullRequestForReady)(context), inherited);
+  if (
+    afterRecord._tag !== "flip" ||
+    !O.contains(
+      afterRecord.headSha,
+      O.getOrElse(confirmation.headSha, () => "unknown")
+    ) ||
+    !inheritedRedsEquivalence(afterRecord.inherited, applied)
+  ) {
+    return yield* YeetCommandError.make({
+      message: `yeet ready refused: the pull request changed while recording inherited reds; re-run \`${YEET_READY_COMMAND}\` so the current state is gated and recorded.`,
+      exitCode: 1,
+    });
+  }
+});
+
 /**
  * Read the branch's pull request and flip it from draft to ready at content-final.
  *
@@ -602,25 +629,7 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
       // S11: the attributions the confirmation applied are written before the
       // flip; a failed write refuses it, because the ruling requires the record.
       const applied = confirmation.inherited;
-      if (A.isReadonlyArrayNonEmpty(applied)) {
-        yield* (dependencies.recordInherited ?? recordInheritedThroughRest)(prNumber, applied);
-        // The REST body write takes time; re-gate after it rather than flipping
-        // from the snapshot taken before the write.
-        const afterRecord = decideYeetReadyGate(
-          yield* (dependencies.read ?? readPullRequestForReady)(context),
-          inherited
-        );
-        if (
-          afterRecord._tag !== "flip" ||
-          !O.contains(afterRecord.headSha, sameHead) ||
-          !inheritedRedsEquivalence(afterRecord.inherited, applied)
-        ) {
-          return yield* YeetCommandError.make({
-            message: `yeet ready refused: the pull request changed while recording inherited reds; re-run \`${YEET_READY_COMMAND}\` so the current state is gated and recorded.`,
-            exitCode: 1,
-          });
-        }
-      }
+      yield* recordAndConfirmInherited(context, dependencies, confirmation, inherited);
       // markPullRequestReadyForReview is GraphQL-only; the default flip spends it
       // through the GraphQL budget guard, waiting for the hourly reset when the
       // shared budget is spent instead of failing the way `gh pr ready` did.

@@ -706,6 +706,22 @@ export const spliceYeetInheritedRedsSection: {
     : O.none();
 });
 
+const writeAndVerifyInheritedReds = Effect.fn("YeetGh.writeAndVerifyInheritedReds")(function* (
+  rest: Pick<GithubRestShape, "pullRequest" | "updatePullRequest">,
+  prNumber: number,
+  source: string,
+  body: string
+) {
+  if (!Str.Equivalence(source, body)) yield* rest.updatePullRequest(prNumber, { body });
+  const readback = (yield* rest.pullRequest(prNumber)).body;
+  if (!Str.Equivalence(readback, body)) {
+    return yield* YeetCommandError.make({
+      message: `the body of #${prNumber} drifted while recording inherited reds; re-run yeet ready to record against the latest body`,
+      exitCode: 1,
+    });
+  }
+});
+
 /**
  * Upsert the inherited-red section against a stable REST body snapshot.
  *
@@ -752,17 +768,7 @@ export const recordInheritedRedsWithRest = Effect.fn("YeetGh.recordInheritedReds
       source = fresh;
       continue;
     }
-    if (!Str.Equivalence(source, body.value)) {
-      yield* rest.updatePullRequest(prNumber, { body: body.value });
-    }
-    const readback = (yield* rest.pullRequest(prNumber)).body;
-    if (!Str.Equivalence(readback, body.value)) {
-      return yield* YeetCommandError.make({
-        message: `the body of #${prNumber} drifted while recording inherited reds; re-run yeet ready to record against the latest body`,
-        exitCode: 1,
-      });
-    }
-    return;
+    return yield* writeAndVerifyInheritedReds(rest, prNumber, source, body.value);
   }
   return yield* YeetCommandError.make({
     message: `the body of #${prNumber} changed during all three inherited-red reconciliation rounds; nothing was written`,

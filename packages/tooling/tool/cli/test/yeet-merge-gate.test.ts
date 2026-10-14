@@ -452,6 +452,30 @@ const context = RepoRunContext.make({
   turbo: { graphHealthStatus: "ok", graphHealthWarnings: [], tasks: [] },
 });
 
+const workflowRunPages = (additionalActiveRuns: GhScript["additionalActiveRuns"]) => [
+  {
+    workflow_runs: [
+      { id: 11, head_sha: pullFixture.head.sha, status: "queued" },
+      { id: 12, head_sha: pullFixture.head.sha, status: "in_progress" },
+      { id: 12, head_sha: pullFixture.head.sha, status: "in_progress" },
+      { id: 13, head_sha: pullFixture.head.sha, status: "in_progress" },
+      { id: 14, head_sha: "0".repeat(40), status: "waiting" },
+      { id: 19, head_sha: pullFixture.head.sha, status: "completed" },
+    ],
+  },
+  ...(additionalActiveRuns === true
+    ? [
+        {
+          workflow_runs: A.map(["waiting", "requested", "pending", "future_status"], (status, index) => ({
+            id: 15 + index,
+            head_sha: pullFixture.head.sha,
+            status,
+          })),
+        },
+      ]
+    : []),
+];
+
 // The recorded answer for each `gh` call, matched on a fragment of its argv, first match wins.
 const ghAnswers = (script: GhScript): ReadonlyArray<readonly [string, ScriptedAnswer]> => [
   ["/merge", { exitCode: 0, output: script.mergeResponse }],
@@ -462,29 +486,7 @@ const ghAnswers = (script: GhScript): ReadonlyArray<readonly [string, ScriptedAn
     "/actions/runs?",
     {
       exitCode: script.queuedExit ?? 0,
-      output: encodeJson([
-        {
-          workflow_runs: [
-            { id: 11, head_sha: pullFixture.head.sha, status: "queued" },
-            { id: 12, head_sha: pullFixture.head.sha, status: "in_progress" },
-            { id: 12, head_sha: pullFixture.head.sha, status: "in_progress" },
-            { id: 13, head_sha: pullFixture.head.sha, status: "in_progress" },
-            { id: 14, head_sha: "0".repeat(40), status: "waiting" },
-            { id: 19, head_sha: pullFixture.head.sha, status: "completed" },
-          ],
-        },
-        ...(script.additionalActiveRuns === true
-          ? [
-              {
-                workflow_runs: A.map(["waiting", "requested", "pending", "future_status"], (status, index) => ({
-                  id: 15 + index,
-                  head_sha: pullFixture.head.sha,
-                  status,
-                })),
-              },
-            ]
-          : []),
-      ]),
+      output: encodeJson(workflowRunPages(script.additionalActiveRuns)),
     },
   ],
   [`/runs/${script.cancelFailId ?? -1}/cancel`, { exitCode: 1, output: "cancel refused" }],

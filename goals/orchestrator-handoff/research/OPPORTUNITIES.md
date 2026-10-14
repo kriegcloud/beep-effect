@@ -178,3 +178,13 @@
   inherited Quality/Tasks and drawing code.
 - Would have prevented it: including touched-package laws and Oxlint checks
   in local package qualification before publication.
+
+## 2026-10-14: The publish gate exposed three complexity regressions
+
+- Doing: publishing the qualified review wave after merging the main repairs.
+- Evidence: Fallow audit and health blocked the ready-flip callback, the
+  reconciliation loop and the paginated test fixture. Extracted the record
+  confirmation and workflow-page fixture, and flattened the conditional
+  body write without suppressions or baseline changes. No push had occurred.
+- Would have prevented it: a scoped Fallow audit before the broad qualification
+  sequence, so these small structural changes could land in the first proof.
