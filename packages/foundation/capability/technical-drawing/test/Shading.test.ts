@@ -10,6 +10,7 @@ import {
   gradedExtents,
   gradedOffsets,
   hatchDirectionOf,
+  legibleShading,
   ShadingCoverage,
   ShadingCut,
   ShadingLines,
@@ -19,6 +20,7 @@ import {
   ShadingTone,
   SheetOptions,
   shadingSpacingFindings,
+  sideBySideGap,
   surfaceClassOf,
   toneOf,
   treatmentFor,
@@ -28,7 +30,7 @@ import {
 import { A, O } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import type { Vec3 } from "@beep/technical-drawing";
+import type { Segment2, Vec3 } from "@beep/technical-drawing";
 
 // A planar quad from four corners in order: straight edges, corner outline, bounds.
 const quad = (normal: Vec3, corners: readonly [Vec3, Vec3, Vec3, Vec3]): FaceFacts => {
@@ -153,6 +155,34 @@ describe("Shading.rules", () => {
     // a narrow face still gets the tone's minimum where it fits, and nothing below one pitch
     expect(gradedOffsets({ span: 4, minPitch: 1, maxPitch: 2.5, tone: "medium" })).toEqual([1, 2.4]);
     expect(gradedOffsets({ span: 1.5, minPitch: 1, maxPitch: 2.5, tone: "dark" })).toEqual([]);
+  });
+
+  it("keeps shading legible after hidden-line removal: fragments and doubled lines go", () => {
+    const segments: ReadonlyArray<Segment2> = [
+      [0, 0, 10, 0], // a full stroke
+      [0, 0.3, 4, 0.3], // a shorter line 0.3 beside it: dropped for the longer one
+      [0, 0, 0.5, 0], // a fragment under the minimum stroke
+      [0, 2, 10, 2], // a neighbour at a legal gap
+      [20, 0, 20, 10], // unrelated
+    ];
+    expect(legibleShading({ segments, minStroke: 1, minSpacing: 0.5 })).toEqual([
+      [0, 0, 10, 0],
+      [0, 2, 10, 2],
+      [20, 0, 20, 10],
+    ]);
+    // equal lengths side by side keep the first
+    expect(
+      legibleShading({
+        segments: [
+          [0, 0.3, 10, 0.3],
+          [0, 0, 10, 0],
+        ],
+        minStroke: 0,
+        minSpacing: 0.5,
+      })
+    ).toEqual([[0, 0.3, 10, 0.3]]);
+    assertSome(sideBySideGap([0, 0, 10, 0], [0, 0.3, 10, 0.3], 0.5), 0.3);
+    assertNone(sideBySideGap([0, 0, 10, 0], [10.5, 0, 20, 0], 0.5));
   });
 
   it("tapers graded strokes: two full lines, then 60% down to 40% of the chord", () => {

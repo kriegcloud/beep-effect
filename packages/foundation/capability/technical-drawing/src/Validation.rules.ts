@@ -17,6 +17,7 @@
 
 import { A, O } from "@beep/utils";
 import { pipe } from "effect/Function";
+import { sideBySideGap } from "./Shading.rules.ts";
 import { MARGINS_CM, pageSizePt } from "./Sheet.schemas.ts";
 import { SheetFinding } from "./Validation.schemas.ts";
 import type { Segment2 } from "./Geometry.schemas.ts";
@@ -216,34 +217,6 @@ export const purityFindings = (input: {
         ]
       : [];
   return [...impure, ...solid];
-};
-
-// Two shading segments sit side by side when they run within two degrees of
-// each other and overlap along their length by more than the minimum spacing;
-// their distance is the second segment's midpoint off the first one's line.
-// Collinear pieces (one line split by a hidden part) are 0.01 mm apart or
-// less and do not count.
-const PARALLEL_SINE = Math.sin((2 * Math.PI) / 180);
-const COLLINEAR_MM = 0.01;
-
-const sideBySideGap = (a: Segment2, b: Segment2, minSpacingMm: number): O.Option<number> => {
-  const [ax, ay, bx, by] = a;
-  const length = Math.hypot(bx - ax, by - ay);
-  const otherLength = Math.hypot(b[2] - b[0], b[3] - b[1]);
-  if (length < COLLINEAR_MM || otherLength < COLLINEAR_MM) {
-    return O.none();
-  }
-  const ux = (bx - ax) / length;
-  const uy = (by - ay) / length;
-  const sine = Math.abs(ux * (b[3] - b[1]) - uy * (b[2] - b[0])) / otherLength;
-  const along = (x: number, y: number) => (x - ax) * ux + (y - ay) * uy;
-  const start = along(b[0], b[1]);
-  const end = along(b[2], b[3]);
-  const overlap = Math.min(length, Math.max(start, end)) - Math.max(0, Math.min(start, end));
-  const distance = Math.abs(((b[1] + b[3]) / 2 - ay) * ux - ((b[0] + b[2]) / 2 - ax) * uy);
-  return sine <= PARALLEL_SINE && overlap > minSpacingMm && distance > COLLINEAR_MM && distance < minSpacingMm
-    ? O.some(distance)
-    : O.none();
 };
 
 /**

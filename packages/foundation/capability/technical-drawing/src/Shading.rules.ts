@@ -33,7 +33,7 @@ import {
   SurfaceClass,
   ViewFacts,
 } from "./Shading.schemas.ts";
-import type { Camera, ShadingPlan, Vec3 } from "./Geometry.schemas.ts";
+import type { Camera, Segment2, ShadingPlan, Vec3 } from "./Geometry.schemas.ts";
 import type { FaceAspect, FaceEdge, FaceFacts } from "./Shading.schemas.ts";
 
 type V3 = Vec3;
@@ -288,6 +288,86 @@ export const gradedExtents = (input: {
           ? 1
           : TAPER_FROM - (TAPER_FROM - TAPER_TO) * ((index - fullLines) / Math.max(1, count - fullLines - 1))
       );
+};
+
+// Two shading segments sit side by side when they run within two degrees of
+// each other and overlap along their length by more than the minimum spacing;
+// collinear pieces (one line split by a hidden part) are 0.01 apart or less
+// and do not count.
+const PARALLEL_SINE = Math.sin((2 * Math.PI) / 180);
+const COLLINEAR = 0.01;
+
+/**
+ * Distance between two shading segments that sit side by side: within two
+ * degrees of parallel, overlapping along their length by more than
+ * `minSpacing`, and closer than `minSpacing` (measured from the second
+ * segment's midpoint to the first one's line). Collinear pieces, one line
+ * split by a hidden part, are none.
+ *
+ * **Example** (Two lines 0.3 apart)
+ *
+ * ```ts
+ * import { sideBySideGap } from "@beep/technical-drawing/Shading.rules"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.getOrNull(sideBySideGap([0, 0, 10, 0], [0, 0.3, 10, 0.3], 0.5))) // 0.3
+ * ```
+ *
+ * @category shading
+ * @since 0.0.0
+ */
+export const sideBySideGap = (a: Segment2, b: Segment2, minSpacing: number): O.Option<number> => {
+  const [ax, ay, bx, by] = a;
+  const length = Math.hypot(bx - ax, by - ay);
+  const otherLength = Math.hypot(b[2] - b[0], b[3] - b[1]);
+  if (length < COLLINEAR || otherLength < COLLINEAR) {
+    return O.none();
+  }
+  const ux = (bx - ax) / length;
+  const uy = (by - ay) / length;
+  const sine = Math.abs(ux * (b[3] - b[1]) - uy * (b[2] - b[0])) / otherLength;
+  const along = (x: number, y: number) => (x - ax) * ux + (y - ay) * uy;
+  const start = along(b[0], b[1]);
+  const end = along(b[2], b[3]);
+  const overlap = Math.min(length, Math.max(start, end)) - Math.max(0, Math.min(start, end));
+  const distance = Math.abs(((b[1] + b[3]) / 2 - ay) * ux - ((b[0] + b[2]) / 2 - ax) * uy);
+  return sine <= PARALLEL_SINE && overlap > minSpacing && distance > COLLINEAR && distance < minSpacing
+    ? O.some(distance)
+    : O.none();
+};
+
+const segmentLength = (s: Segment2): number => Math.hypot(s[2] - s[0], s[3] - s[1]);
+
+/**
+ * Shading segments kept legible after hidden-line removal: a piece shorter
+ * than `minStroke` is dropped (a chord cut to a fragment by a hidden part),
+ * and of two segments side by side closer than `minSpacing` the shorter is
+ * dropped (two coplanar parts, a flap and its tab, shading one area from
+ * their own anchors).
+ *
+ * **Example** (A fragment and a doubled line)
+ *
+ * ```ts
+ * import { legibleShading } from "@beep/technical-drawing/Shading.rules"
+ *
+ * const segments = [[0, 0, 10, 0], [0, 0.3, 4, 0.3], [0, 0, 0.5, 0]] as const
+ * console.log(legibleShading({ segments, minStroke: 1, minSpacing: 0.5 })) // [[0, 0, 10, 0]]
+ * ```
+ *
+ * @category shading
+ * @since 0.0.0
+ */
+export const legibleShading = (input: {
+  readonly segments: ReadonlyArray<Segment2>;
+  readonly minStroke: number;
+  readonly minSpacing: number;
+}): ReadonlyArray<Segment2> => {
+  const long = A.filter(input.segments, (s) => segmentLength(s) >= input.minStroke);
+  const yieldsTo = (s: Segment2, i: number) => (other: Segment2, j: number) =>
+    j !== i &&
+    O.isSome(sideBySideGap(s, other, input.minSpacing)) &&
+    (segmentLength(other) > segmentLength(s) || (segmentLength(other) === segmentLength(s) && j < i));
+  return A.filter(long, (s, i) => !A.some(long, yieldsTo(s, i)));
 };
 
 // Lengths are compared to the micrometre so the equal edges of a regular face

@@ -6,6 +6,7 @@
  * @internal
  */
 
+import { legibleShading } from "@beep/technical-drawing";
 import { A, N, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as Order from "effect/Order";
@@ -220,10 +221,21 @@ export const project = (options: {
     onNone: () => [],
     onSome: (shape) => edgesOf(shapes.VCompound(shape.wrapped), oc),
   });
+  // Graded shading is tidied after the hidden-line pass: fragments under the
+  // minimum stroke and the shorter of two lines inside half the minimum pitch
+  // go; the uniform style is left exactly as the legacy golden records it.
+  const legible = (segments: ReadonlyArray<Segment2>): ReadonlyArray<Segment2> =>
+    O.match(options.shading, {
+      onNone: () => segments,
+      onSome: (plan) =>
+        plan.style === "graded"
+          ? legibleShading({ segments, minStroke: plan.minStroke, minSpacing: plan.minPitch / 2 })
+          : segments,
+    });
   return EdgeSet.make({
     visible: toSegments(visible),
     hidden: toSegments(hidden),
-    shading: toSegments(shading),
+    shading: legible(toSegments(shading)),
     shadingCoverage: O.map(shaded, (view) => view.coverage),
   });
 };
