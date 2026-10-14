@@ -93,7 +93,7 @@ P4 in progress. Shipped on main so far:
   lease warnings in yeet's verify step. Nothing is sealed yet: PR 5's CI mint opens
   the first baseline (882 entries in six named groups on the live tree,
   [`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
-- **B-5 (this PR, opens P5):** `beep skills relock --skill <name> [--expect <planDigest>]`
+- **B-5 (#1732, opens P5):** `beep skills relock --skill <name> [--expect <planDigest>]`
   records a bumped pin's snapshot and effective hashes after a clean replay, and refuses
   (lock untouched) when a hunk conflicts, matches only at a shifted line, or the license
   bytes changed; `beep skills replay` is the read-only per-hunk report, and
@@ -102,6 +102,15 @@ P4 in progress. Shipped on main so far:
   `.github/workflows/skills-update-train.yml` replays every lock or patch change, relocks
   and rebuilds clean Renovate bumps, and writes the weekly batch issue. Decisions B28–B33
   in the same design doc.
+- **B-6 (this PR):** `beep skills review` lists, or walks within a time budget, every
+  vendored hunk the append-only ledger (`.agents/skill-patches/ledger.jsonl`) has not
+  settled, answered interactively or from a scripted `--decisions` file under a named
+  `--reviewer`, checkpointing each answer; `--ghost` replays earlier decisions on
+  byte-identical hunks at the same pin, and a hunk conflicting at a second pin is flagged
+  `promote-candidate` in the review and the replay report. `beep skills patch add` turns
+  a hand edit of vendored output into new patches and re-records the lock, and
+  `beep skills patch label` moves lock labels to the ledger's classifications, both
+  plan-then-`--expect`. Decisions B34–B41 in the same design doc.
 
 C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
 command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling),
@@ -109,10 +118,10 @@ C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and fli
 on main.
 
 B-4 (`beep skills materialize`, #1709) and C Stage-2 PR 4 (the knowledge-doctor gate,
-#1734) are on main. This PR is B-5, the first P5 piece:
-`skills relock`, `skills replay`, `skills train-issue`, the Renovate custom manager, and
-the update-train workflow. B-6 (the hunk ledger, `--ghost`, `skills patch add`, and
-`skills review`) is next for Workstream B, then Ritual 1 (the operator's classification).
+#1734) are on main, and B-5 (the update train, #1732) precedes this PR. This PR is B-6:
+the hunk ledger, `skills review` with `--ghost`, the two-strike flag, and
+`skills patch add`/`label`. Ritual 1 (the operator's classification of the generated
+patches, prepared by `skills review`) is the last Workstream B step.
 
 C Stage-2 PR 3 (stacked on PR 2b) adds causal grouping and root attribution,
 report-only: one cause group per missing target or delegated goals-doctor finding, each

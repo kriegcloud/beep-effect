@@ -119,9 +119,12 @@ const shortRevision = Str.slice(0, 12);
 const describeReport = (report: SkillReplayReport): string => {
   const recorded = report.recorded ? "recorded" : "relock needed";
   const license = report.licenseMatches ? "" : "; license changed";
+  const strikes = A.isReadonlyArrayEmpty(report.promoteCandidates)
+    ? ""
+    : `; ${A.length(report.promoteCandidates)} promote-candidate (two strikes)`;
   return `  ${report.skill}: ${report.status} at ${shortRevision(report.sourceRevision)} (${hunkCounts(
     report
-  )}; ${recorded}${license})`;
+  )}; ${recorded}${license}${strikes})`;
 };
 
 /**
@@ -156,10 +159,17 @@ export const renderSkillReplaySummary = (batch: SkillReplayBatch): string => {
 
 const escapeCell = (value: string): string => Str.replaceAll("|", "\\|")(Str.replaceAll("\n", " ")(value));
 
-const hunkRow = (row: SkillHunkReport): string =>
-  `| \`${row.patch}\` | \`${row.file}\` | ${row.hunk === 0 ? "section" : `${row.hunk}`} | ${row.status} | \`${shortRevision(
-    row.hunkHash
-  )}\` | ${escapeCell(row.detail)} |`;
+// B4: a second strike is flagged where the reviewer reads the hunk.
+const strikeNote = (candidates: ReadonlyArray<string>, row: SkillHunkReport): string =>
+  A.contains(candidates, row.hunkHash) ? " (two strikes: promote-candidate)" : "";
+
+const hunkRow =
+  (candidates: ReadonlyArray<string>) =>
+  (row: SkillHunkReport): string =>
+    `| \`${row.patch}\` | \`${row.file}\` | ${row.hunk === 0 ? "section" : `${row.hunk}`} | ${row.status}${strikeNote(
+      candidates,
+      row
+    )} | \`${shortRevision(row.hunkHash)}\` | ${escapeCell(row.detail)} |`;
 
 const diffBlock = (report: SkillReplayReport, budget: number): ReadonlyArray<string> => {
   if (Str.isEmpty(report.diff)) {
@@ -190,7 +200,7 @@ const reportSection = (report: SkillReplayReport, budget: number): ReadonlyArray
     : [
         "| Patch | File | Hunk | Status | Identity | Detail |",
         "| --- | --- | --- | --- | --- | --- |",
-        ...A.map(report.hunks, hunkRow),
+        ...A.map(report.hunks, hunkRow(report.promoteCandidates)),
       ]),
   "",
   ...diffBlock(report, budget),
@@ -319,14 +329,16 @@ const replayVerdict = (replay: O.Option<SkillReplayBatch>): string =>
           : "clean",
   });
 
-const unresolvedOf = (replay: O.Option<SkillReplayBatch>): ReadonlyArray<readonly [string, SkillHunkReport]> =>
+const unresolvedOf = (
+  replay: O.Option<SkillReplayBatch>
+): ReadonlyArray<readonly [string, SkillHunkReport, ReadonlyArray<string>]> =>
   O.match(replay, {
     onNone: A.empty,
     onSome: (batch) =>
       A.flatMap(batch.reports, (report) =>
         A.map(
           A.filter(report.hunks, (row) => row.status !== "applied"),
-          (row) => [report.skill, row] as const
+          (row) => [report.skill, row, report.promoteCandidates] as const
         )
       ),
   });
@@ -350,10 +362,11 @@ const unresolvedSection = (entry: PullRequestReplay): ReadonlyArray<string> => {
         "",
         ...A.map(
           unresolved,
-          ([skill, row]) =>
-            `- ${skill}: \`${row.patch}\` \`${row.file}\` hunk ${row.hunk === 0 ? "section" : row.hunk} — ${row.status} — \`${shortRevision(
-              row.hunkHash
-            )}\`${Str.isEmpty(row.detail) ? "" : ` — ${escapeCell(row.detail)}`}`
+          ([skill, row, candidates]) =>
+            `- ${skill}: \`${row.patch}\` \`${row.file}\` hunk ${row.hunk === 0 ? "section" : row.hunk} — ${row.status}${strikeNote(
+              candidates,
+              row
+            )} — \`${shortRevision(row.hunkHash)}\`${Str.isEmpty(row.detail) ? "" : ` — ${escapeCell(row.detail)}`}`
         ),
         "",
       ];

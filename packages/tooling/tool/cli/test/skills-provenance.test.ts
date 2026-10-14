@@ -43,7 +43,7 @@ import {
   VendoredSkillLockEntry,
   writeSkillsLockMigration,
 } from "@beep/repo-cli/commands/Skills";
-import { stagedPatchPath } from "@beep/repo-cli/test/Skills";
+import { HUNK_LEDGER_PATH, stagedPatchPath } from "@beep/repo-cli/test/Skills";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { Sha256HexFromBytes } from "@beep/schema";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
@@ -852,6 +852,31 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock write", (it) => {
       expect(replay.patches).toEqual(receipt.patches);
       expect((yield* planSkillsLockMigration(repoRoot).pipe(provide)).planDigest).toBe(replanned.planDigest);
       expect(yield* fs.readFileString(path.join(repoRoot, "skills-lock.json"))).toBe(lockText);
+    })
+  );
+
+  it.effect("carries the hunk ledger through the patch-tree swap without counting it as a patch", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* fs.makeTempDirectoryScoped({ prefix: "skills-lock-ledger-" });
+      const { source } = yield* installLocallyEditedRepo(repoRoot);
+      const provide = Effect.provideService(SkillUpstreamContentSource, source);
+      const ledgerPath = path.join(repoRoot, HUNK_LEDGER_PATH);
+      yield* fs.makeDirectory(path.dirname(ledgerPath), { recursive: true });
+      yield* fs.writeFileString(ledgerPath, "ledger bytes\n");
+
+      const reviewed = yield* planSkillsLockMigration(repoRoot).pipe(provide);
+      const receipt = yield* writeSkillsLockMigration(repoRoot, O.some(reviewed.planDigest)).pipe(provide);
+      expect(receipt.outcome).toBe("written");
+      expect(A.map(receipt.patches, (patch) => patch.path)).toEqual([
+        ".agents/skill-patches/shadcn/0001-skill-md.patch",
+      ]);
+      expect(yield* fs.readFileString(ledgerPath)).toBe("ledger bytes\n");
+
+      const replanned = yield* planSkillsLockMigration(repoRoot).pipe(provide);
+      const replay = yield* writeSkillsLockMigration(repoRoot, O.some(replanned.planDigest)).pipe(provide);
+      expect(replay.outcome).toBe("already-applied");
     })
   );
 

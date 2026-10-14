@@ -26,8 +26,8 @@ import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
-import { runCapturedStreams } from "../../internal/process/StepExec.ts";
 import { diffLines, sameDiffLine } from "./internal/DiffLines.ts";
+import { readAtMergeBase } from "./internal/MergeBase.ts";
 import { SkillsCommandError } from "./Skills.errors.ts";
 import type * as Crypto from "effect/Crypto";
 import type { ChildProcessSpawner } from "effect/process";
@@ -342,26 +342,13 @@ const CODEOWNERS_PATH = ".github/CODEOWNERS";
 
 type MergeBaseCodeowners = { readonly base: string; readonly codeowners: O.Option<string> };
 
-const git = (repoRoot: string, args: ReadonlyArray<string>) =>
-  runCapturedStreams({ command: "git", args, cwd: repoRoot, extendEnv: true }).pipe(
-    SkillsCommandError.mapError(`Failed to spawn git ${A.join(args, " ")}.`, repoRoot)
-  );
-
 // The base copy is read so a pull request cannot grant itself ownership (B9, K6). A base without
 // the file yields `None`, which fails only when a patch actually needs an owner.
 const readMergeBaseCodeowners = Effect.fn("SkillPatchOwnerSource.readMergeBaseCodeowners")(function* (
   repoRoot: string
 ): Effect.fn.Return<MergeBaseCodeowners, SkillsCommandError, ChildProcessSpawner.ChildProcessSpawner | Crypto.Crypto> {
-  const mergeBase = yield* git(repoRoot, ["merge-base", "HEAD", CODEOWNERS_BASE_REF]);
-  if (mergeBase.exitCode !== 0) {
-    return yield* SkillsCommandError.make({
-      message: `Cannot resolve the merge-base of HEAD and ${CODEOWNERS_BASE_REF} for patch ownership: ${Str.trim(mergeBase.stderr)}`,
-      file: repoRoot,
-    });
-  }
-  const base = Str.trim(mergeBase.stdout);
-  const shown = yield* git(repoRoot, ["show", `${base}:${CODEOWNERS_PATH}`]);
-  return { base, codeowners: shown.exitCode === 0 ? O.some(shown.stdout) : O.none() };
+  const read = yield* readAtMergeBase(repoRoot, CODEOWNERS_BASE_REF, CODEOWNERS_PATH, "patch ownership");
+  return { base: read.base, codeowners: read.text };
 });
 
 const makeSkillPatchOwnerSource = Effect.gen(function* () {

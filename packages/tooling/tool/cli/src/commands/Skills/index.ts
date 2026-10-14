@@ -97,6 +97,20 @@ export * from "./SkillsMaterialize.schemas.ts";
  */
 export * from "./SkillsMaterialize.service.ts";
 /**
+ * Plan and receipt schemas for `skills patch add` and `skills patch label`.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillsPatch.schemas.ts";
+/**
+ * The patch-series recorder service: `patch add` and `patch label`.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./SkillsPatch.service.ts";
+/**
  * Update-train renderers: replay comment, relock receipt, batch issue.
  *
  * @category utilities
@@ -117,3 +131,31 @@ export * from "./SkillsRelock.schemas.ts";
  * @since 0.0.0
  */
 export * from "./SkillsRelock.service.ts";
+/**
+ * The review ritual and patch-series commands: `skills review` and `skills patch add|label`.
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export * from "./SkillsReview.command.ts";
+/**
+ * Renderers for review sessions and patch-series receipts.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./SkillsReview.render.ts";
+/**
+ * Hunk ledger, review queue, and session schemas.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillsReview.schemas.ts";
+/**
+ * The review ritual service, its base-pin source, and its deciders.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./SkillsReview.service.ts";

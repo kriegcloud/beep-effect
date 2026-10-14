@@ -28,6 +28,7 @@ import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
 import { decodeTomlTextWith } from "../../internal/schema/TextCodec.ts";
+import { expectPlanDigestFlag } from "./internal/PlanFlags.ts";
 import { checkInstalledSkills } from "./internal/SkillFrontmatterCheck.ts";
 import {
   SkillFrontmatterError,
@@ -64,6 +65,7 @@ import {
 } from "./SkillsRelock.render.ts";
 import { SkillTrainPullRequests } from "./SkillsRelock.schemas.ts";
 import { isSkillReplayClean, SkillUpdateTrain, SkillUpdateTrainLive } from "./SkillsRelock.service.ts";
+import { skillsPatchCommand, skillsReviewCommand } from "./SkillsReview.command.ts";
 import type { SkillFrontmatterReport } from "./SkillFrontmatter.schemas.ts";
 import type { SkillProvenanceService } from "./Skills.service.ts";
 import type { SkillsLockEntry, VendoredSkillLockEntry } from "./SkillsLock.schemas.ts";
@@ -871,7 +873,7 @@ const driftLineFormatters = {
   CodexConfigDrift: (): string => `- ${CODEX_CONFIG_PATH}`,
   AgentsMirrorDrift: (): string => `- ${AGENTS_SKILLS_DIR}`,
   HandEditedVendoredOutput: (drift): string =>
-    `- hand-edited-vendored-output: ${drift.name} no longer matches its effective tree; revert it with beep skills materialize --skill ${drift.name}, or keep it as a patch under .agents/skill-patches/${drift.name} and re-record the lock with beep skills lock-plan (beep skills patch add is not available yet)`,
+    `- hand-edited-vendored-output: ${drift.name} no longer matches its effective tree; revert it with beep skills materialize --skill ${drift.name}, or keep it as a patch with beep skills patch add --skill ${drift.name} (plan, then --expect <planDigest>)`,
 } satisfies { readonly [Tag in SkillDrift["_tag"]]: SkillDriftLineFormatter<Tag> };
 
 const driftLine = (drift: SkillDrift): string => {
@@ -1495,10 +1497,7 @@ const skillsRelockCommand = Command.make(
   "relock",
   {
     skill: Flag.String("skill").pipe(Flag.withDescription("The vendored lock entry whose pin moved")),
-    expect: Flag.String("expect").pipe(
-      Flag.optional,
-      Flag.withDescription("The reviewed planDigest (from --json) that the write must match")
-    ),
+    expect: expectPlanDigestFlag,
     json: Flag.Boolean("json").pipe(
       Flag.withDefault(false),
       Flag.withDescription("Print the skills-relock-plan/v1 receipt as JSON")
@@ -1583,7 +1582,7 @@ const skillsTrainIssueCommand = Command.make(
  */
 export const skillsCommand = Command.make("skills", {}, () =>
   Console.log(
-    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]\n- bun run beep skills replay [--skill <name>] [--json] [--markdown <file>]\n- bun run beep skills relock --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills train-issue --batch <id> --prs <file> --body-out <file>"
+    "Skills commands:\n- bun run beep skills update\n- bun run beep skills update --check\n- bun run beep skills provenance <skill>\n- bun run beep skills lock-plan [--json]\n- bun run beep skills lock-plan --write --expect <planDigest>\n- bun run beep skills materialize [--check] [--skill <name>]\n- bun run beep skills replay [--skill <name>] [--json] [--markdown <file>]\n- bun run beep skills relock --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills train-issue --batch <id> --prs <file> --body-out <file>\n- bun run beep skills review [--skill <name>] [--json] [--interactive | --decisions <file>] [--reviewer <handle>] [--ghost] [--budget <minutes>]\n- bun run beep skills patch add --skill <name> [--json] [--expect <planDigest>]\n- bun run beep skills patch label --skill <name> [--json] [--expect <planDigest>]"
   )
 ).pipe(
   Command.withDescription("Manage repo-local Claude and Codex skill mirrors"),
@@ -1595,5 +1594,7 @@ export const skillsCommand = Command.make("skills", {}, () =>
     skillsReplayCommand,
     skillsRelockCommand,
     skillsTrainIssueCommand,
+    skillsReviewCommand,
+    skillsPatchCommand,
   ])
 );

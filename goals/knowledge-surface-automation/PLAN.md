@@ -71,9 +71,11 @@ PR before any implementation PR (per feedback-grill-decisions-pr-separation).
 Renovate regex manager on `skills-lock.json` (pending P2 confirmation), monthly HITL
 hunk-review ritual with ledger + ghost replay, batch report parent PR.
 
-Status: B-5 (this PR) lands the Renovate manager, `skills replay`/`relock`/`train-issue`,
+Status: B-5 (#1732) landed the Renovate manager, `skills replay`/`relock`/`train-issue`,
 and the update-train workflow (the batch report is a parent tracking issue, contract 9).
-B-6 (hunk ledger, `--ghost`, `skills patch add`, `skills review`) and Ritual 1 remain.
+B-6 (this PR) lands the hunk ledger, `skills review` with `--ghost` and budget
+checkpoints, the two-strike flag in the replay report, and `skills patch add`/`label`.
+Ritual 1 (Benjamin's classification of the generated patches) remains.
 
 ## P6 — Close
 
