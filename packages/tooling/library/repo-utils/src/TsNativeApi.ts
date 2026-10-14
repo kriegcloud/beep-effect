@@ -174,8 +174,8 @@ export class TsNativeApi extends Context.Service<TsNativeApi, TsNativeApiShape>(
    * console.log(layer)
    * ```
    *
-   * @param config - Native compiler configuration.
-   * @returns A layer that manages the native API process.
+   * @param config - Repository and compiler settings for the native API process.
+   * @returns A layer that provides TsNativeApi for operations against the configured repository.
    * @category layers
    * @since 0.0.0
    */

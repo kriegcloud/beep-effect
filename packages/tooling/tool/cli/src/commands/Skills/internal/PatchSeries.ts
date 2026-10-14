@@ -7,9 +7,11 @@
  * @since 0.0.0
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SkillMaterializeRefusal, SkillsCommandError } from "../Skills.errors.ts";
 import { PATCH_ROOT } from "./PatchStaging.ts";
@@ -17,16 +19,31 @@ import { hashBytes, patchSetHashOf, validateRelativePath } from "./SkillTree.ts"
 import type * as Crypto from "effect/Crypto";
 import type { VendoredSkillLockEntry } from "../SkillsLock.schemas.ts";
 
+const $I = $RepoCliId.create("commands/Skills/internal/PatchSeries");
 const textDecoder = new TextDecoder("utf-8", { fatal: true });
 
 /**
  * One patch file of a series: its repo-relative path and exact bytes.
  *
+ * **Example** (Describe a patch file)
+ *
+ * ```ts
+ * import { PatchSeriesFile } from "@beep/repo-cli/commands/Skills/internal/PatchSeries"
+ *
+ * const patch = PatchSeriesFile.make({ path: "patches/001.patch", bytes: new Uint8Array() })
+ * console.log(patch.path)
+ * ```
+ *
  * @internal
  * @category models
  * @since 0.0.0
  */
-type PatchSeriesFile = { readonly path: string; readonly bytes: Uint8Array };
+export class PatchSeriesFile extends S.Class<PatchSeriesFile>($I`PatchSeriesFile`)(
+  { path: S.String, bytes: S.Uint8Array },
+  $I.annote("PatchSeriesFile", {
+    description: "A verified patch file's repository-relative path and exact bytes.",
+  })
+) {}
 
 const refuseDigest = (skill: string, message: string) =>
   Effect.fail(SkillMaterializeRefusal.make({ skill, reason: "patch-digest-mismatch", message }));
@@ -50,7 +67,7 @@ const readPatch = Effect.fn("SkillsMaterialize.readPatch")(function* (
   if (!Str.Equivalence(sha256, patch.sha256)) {
     return yield* refuseDigest(skill, `Patch ${patch.path} hashes to ${sha256}, but the lock records ${patch.sha256}.`);
   }
-  return { path: patch.path, bytes } satisfies PatchSeriesFile;
+  return PatchSeriesFile.make({ path: patch.path, bytes });
 });
 
 /**

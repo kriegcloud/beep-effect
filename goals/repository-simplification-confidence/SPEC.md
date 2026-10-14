@@ -1030,6 +1030,41 @@ remain authoritative.
 
 - B (2026-10-13): keep detector acceptance pending until its durable final receipt exists. The codec-test handoff records bounded progress only; the valid #1616 review identified an ambiguous evidence-map link. Reversal: restore the final receipt link when detector fixtures and individual admissions are complete.
 
+### 2026-10-14 — close the next hosted policy and coverage wave
+
+Preserve the 92% AccountsUsage statement floor and restore it with regressions
+for disappearing credentials and cached-token expiry. Admit only TsNativeApi's
+new identity from matching hosted and passing local measurements; all incumbent
+baseline fields remain unchanged. Normalize the captured reference path and
+label that editorial change. Retain DevTools' native Map snapshots at the
+vendor protocol boundary: the wire schema requires ReadonlyMap, and the
+existing regression proves that later attributes cannot alter the start
+snapshot. Document that specific boundary in the canonical allowlist and
+regenerate its projection. Reversal removes the new identity or boundary
+entry through a repair PR; it does not lower a published coverage floor.
+
+### 2026-10-14 — qualify the integrated knowledge gate and account cycle
+
+Retain every published account, evaluator, and service coverage floor after
+integrating the newly landed cycle and sealed-baseline gate. Exercise JWT
+exchange expiry and the live Git-backed mint, verify, check, identity-sidecar,
+and lease boundaries in disposable fixtures. Narrow the missing-export message
+helper to the missing variant its sole caller passes; remove the impossible
+success branch. Select only the three newly measured knowledge baseline,
+grouping, and lease identities from the passing combined report through the
+canonical writer. Verify structural equality of all incumbent baseline fields.
+The historical combined run is bound to the reviewed revision, source/test and
+configuration hashes, log digest, and measurements in
+[the owner attestation](research/knowledge-coverage-owner-attestation-20261014.json).
+[The captured producer receipt](research/knowledge-coverage-producer-20261014.json)
+also records an exact input fence and producing command at its stated revision.
+Its narrower grouping result does not reproduce the admitted branch floor;
+the duplicate-root regression added in `fb7761e9d8` addresses that path.
+These are historical evidence, with their provenance limits stated explicitly,
+not proof of the current merge commit. Every admitted floor remains unchanged.
+The lease-warning boundary reaches full coverage and needs no partial identity.
+Reversal is a repair PR reverting these tests, the private narrowing, or new
+rows; it does not lower an existing floor. The broader program remains active.
 ### 2026-10-14 — A preserves the new raster-coverage consumer
 
 Restore the internal `parseP6Header` export when integrating main: `pdf-tools/src/internal/coverage.ts` now imports it. The October 9 finding was repaired at its recorded revision; the new consumer makes the export necessary today. This does not restore Knip or expand the package export map. Reversal: remove the export after that internal consumer disappears, then verify the package.
@@ -1113,6 +1148,19 @@ review remain mandatory qualification, and R14 merge belongs to the driver.
 No failing check is relabelled a pass. Recovery: repair any introduced red
 in a fully addressed wave before calling final; revert the PR if necessary.
 
+
+### 2026-10-14 inherited skills train contract repair in #1726
+
+Decision: integrate landed main changes into the existing consolidated repair
+PR and address the newly observed schema and hosted-job inventory failures
+in the same publication wave. Model PatchSeriesFile with an annotated class
+and construct the verified path/bytes value through that schema. Register
+only the three named skills-update-train domain automation jobs in the
+existing orchestration inventory exemption list; runner and credential policy
+diagnostics still apply to every workflow job. No workflow permission or
+execution behavior changes. Existing coverage floors remain unchanged.
+Recovery: revert these two focused corrections; retain the recorded red
+diagnostics and rerun the affected contracts before another publication.
 ### Pre-reboot publication decision — 2026-10-14
 
 Publish the prepared retirement and review fixes with current main under the

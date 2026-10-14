@@ -592,6 +592,15 @@ type CiFleetControllerPulumiConfigValuesFields = {
 /**
  * Pulumi config values accepted by the CI fleet controller.
  *
+ * **Example** (Validate a runner label)
+ *
+ * ```ts
+ * import { CiFleetControllerPulumiConfigValues } from "@beep/infra/CiFleetController"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(CiFleetControllerPulumiConfigValues.fields.runnerLabel)("beep-ci-heavy"))
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
