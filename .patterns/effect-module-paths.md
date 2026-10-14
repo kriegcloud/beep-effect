@@ -33,6 +33,11 @@ The move changed paths, not stability. The relocated modules still carry
 `experimentalApiUsage`, and `apiStabilityLeak` stay off in `tsconfig.base.json`
 (declared in `tsgoDisabledRules`, enforced by `beep quality tsgo-rules`).
 
+The tag is also no reason to avoid a module: use any `@stability unstable`
+Effect module or feature wherever it fits, instead of hand-rolling what it
+provides. It warns that the API may change on an Effect bump, not that the
+module is unfit for production (Code Laws in `AGENTS.md`).
+
 ## Enforcement
 
 `bun run beep laws retired-effect-paths --check` (`lint:retired-effect-paths`)

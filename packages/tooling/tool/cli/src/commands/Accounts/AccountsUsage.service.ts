@@ -23,8 +23,9 @@ import * as Crypto from "effect/Crypto";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import { Base64Url } from "effect/encoding";
 import * as FileSystem from "effect/FileSystem";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as HttpClient from "effect/http/HttpClient";
 import * as HttpClientRequest from "effect/http/HttpClientRequest";
 import * as Layer from "effect/Layer";
@@ -51,6 +52,7 @@ import {
   groupAccounts,
   rankAccounts,
   SignedInLogin,
+  UsageWindow,
 } from "./Accounts.schemas.ts";
 import {
   ClaudeCliConfigJson,
@@ -64,7 +66,11 @@ import {
   codexSignedInEmail,
   codexUsageWindows,
   grokUsageWindows,
+  JunieAccessOptionsBodyJson,
   JunieAuthTestBodyJson,
+  JunieExchangeBodyJson,
+  JunieQuotaBodyJson,
+  JunieRefillBodyJson,
   JunieRefreshBodyJson,
   JunieStoredCredential,
   JunieStoredCredentialJson,
@@ -169,8 +175,13 @@ const failed = (detail: string) => AccountUsageOutcome.cases.Failed.make({ detai
 
 const isRejectedStatus = (status: number): boolean => status === 401 || status === 403;
 
+// JetBrains' ingrazzio gateway answers an expired or revoked bearer token with
+// HTTP 407 rather than 401, so the Junie poller treats 407 as a token rejection
+// too (verified live 2026-10-14 against the stale stored Junie access token).
+const isJunieTokenRejected = (status: number): boolean => isRejectedStatus(status) || status === 407;
+
 class JunieRefreshResponse extends S.Class<JunieRefreshResponse>($I`JunieRefreshResponse`)(
-  { stored: S.Redacted(S.String), status: S.Finite, body: S.String },
+  { stored: S.String.pipe(S.Redacted), status: S.Finite, body: S.String },
   $I.annote("JunieRefreshResponse", {
     description: "Stored token and JetBrains OAuth response to validate without persisting.",
   })
@@ -311,6 +322,12 @@ export const museUsageOutcome: (response: UsageTextResponse) => AccountUsageOutc
     })
 );
 
+// Proven AI Pro tariff: 1,000,000 wire units = 10 JetBrains credits.
+// Evidence: goals/agent-pool-doctrine/history/2026-10-14-routing-refresh.md R9.
+const JUNIE_UNITS_PER_CREDIT = 100000;
+const JUNIE_GRAZIE_AGENT = '{"name":"junie:cli","version":"3659.4"}';
+const JunieJwtClaimsJson = JsonStringCodec(S.Struct({ exp: S.Finite.pipe(S.OptionFromOptionalKey) }));
+
 const decodedJunieUsageOutcome: (response: UsageTextResponse) => AccountUsageOutcome = decodedOutcome(
   "JetBrains AI",
   JunieAuthTestBodyJson.decodeOption,
@@ -331,7 +348,7 @@ const decodedJunieUsageOutcome: (response: UsageTextResponse) => AccountUsageOut
         CreditBalance.make({
           label: "JetBrains AI balance",
           unit: "credits",
-          remaining: body.balanceLeft.value,
+          remaining: body.balanceLeft.value / JUNIE_UNITS_PER_CREDIT,
           limit: O.none(),
           expiresAt: O.none(),
         }),
@@ -360,7 +377,7 @@ const decodedJunieUsageOutcome: (response: UsageTextResponse) => AccountUsageOut
  * @since 0.0.0
  */
 export const junieUsageOutcome = (response: UsageTextResponse): AccountUsageOutcome =>
-  isRejectedStatus(response.status)
+  isJunieTokenRejected(response.status)
     ? AccountUsageOutcome.cases.NeedsLogin.make({
         detail: "JetBrains rejected the Junie login; run `junie` and sign in again",
       })
@@ -409,11 +426,21 @@ export const junieRefreshOutcome = (
 };
 
 class JunieAccessToken extends S.Class<JunieAccessToken>($I`JunieAccessToken`)(
-  { access_token: S.Redacted(S.String), expiresAt: S.Finite, credentialFingerprint: S.String },
+  {
+    access_token: S.String.pipe(S.Redacted),
+    id_token: S.String.pipe(S.Redacted, S.Option),
+    expiresAt: S.Finite,
+    credentialFingerprint: S.String,
+  },
   $I.annote("JunieAccessToken", {
     description:
       "A service-local Junie access token, its expiry in milliseconds, and the stored credential fingerprint.",
   })
+) {}
+
+class JunieExchangeToken extends S.Class<JunieExchangeToken>($I`JunieExchangeToken`)(
+  { token: S.String.pipe(S.Redacted), expiresAt: S.Finite, credentialFingerprint: S.String },
+  $I.annote("JunieExchangeToken", { description: "A credential-bound, memory-only Grazie token." })
 ) {}
 
 const JunieFallbackJson = JsonStringCodec(S.Struct({ "jb-account-stored": JunieStoredCredential }));
@@ -531,6 +558,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
   const client = yield* HttpClient.HttpClient;
   const directory = yield* resolveAccountsAuthDir;
   const junieAccessToken = yield* Ref.make(O.none<JunieAccessToken>());
+  const junieExchangeToken = yield* Ref.make(O.none<JunieExchangeToken>());
 
   const crypto = yield* Crypto.Crypto;
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
@@ -583,8 +611,9 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
     )
   );
 
-  const pollJunie = Effect.fn("AccountsUsage.pollJunie")(
-    function* () {
+  const pollJunie = Effect.fn("AccountsUsage.pollJunie")(function* () {
+    const lastBalance = yield* Ref.make(O.none<AccountUsageOutcome>());
+    const attempt = Effect.fnUntraced(function* () {
       const stored = yield* readJunie();
       if (O.isNone(stored)) return failed("Junie credential storage is unavailable");
       if (O.isNone(stored.value))
@@ -598,6 +627,7 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
       const cached = yield* Ref.get(junieAccessToken);
       if (O.exists(cached, (value) => value.credentialFingerprint !== credentialFingerprint)) {
         yield* Ref.set(junieAccessToken, O.none());
+        yield* Ref.set(junieExchangeToken, O.none());
       }
       const matching = O.filter(cached, (value) => value.credentialFingerprint === credentialFingerprint);
       const now = yield* Clock.currentTimeMillis;
@@ -619,8 +649,191 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
           body: yield* response.text,
         } satisfies UsageTextResponse;
       });
+      const enrich = Effect.fnUntraced(function* (
+        response: UsageTextResponse,
+        idToken: O.Option<Redacted.Redacted<string>>
+      ) {
+        const balance = junieUsageOutcome(response);
+        if (balance._tag !== "Ok") return balance;
+        yield* Ref.set(lastBalance, O.some(balance));
+        if (O.isNone(idToken)) return balance;
+        const loadLicense = Effect.fnUntraced(function* (time: number) {
+          const switched = yield* client.execute(
+            HttpClientRequest.post("https://oauth.account.jetbrains.com/oauth2/token").pipe(
+              HttpClientRequest.bodyUrlParams({
+                grant_type: "switch_audience",
+                refresh_token: Redacted.value(account.refresh_token),
+                client_id: "junie-cli",
+                audience: "jcp-user-management",
+              })
+            )
+          );
+          const audience = junieRefreshOutcome({
+            stored: account.refresh_token,
+            status: switched.status,
+            body: yield* switched.text,
+          });
+          if (Result.isFailure(audience)) return O.none<Redacted.Redacted<string>>();
+          const listing = yield* client.execute(
+            HttpClientRequest.get("https://api.jetbrains.cloud/user-management/api/ai-access-options").pipe(
+              HttpClientRequest.bearerToken(Redacted.value(audience.success.access_token)),
+              HttpClientRequest.setHeader("Accept", "application/json")
+            )
+          );
+          if (listing.status !== 200) return O.none<Redacted.Redacted<string>>();
+          const options = JunieAccessOptionsBodyJson.decodeOption(yield* listing.text);
+          if (O.isNone(options)) return O.none<Redacted.Redacted<string>>();
+          const eligible = A.filter(
+            options.value.aiAccessOptions,
+            (option) =>
+              option.aiAccessEnabled &&
+              Str.toLowerCase(option.type) === "license" &&
+              !O.exists(
+                option.validThrough,
+                (date) =>
+                  !O.exists(
+                    DateTime.make(date),
+                    (at) => DateTime.toEpochMillis(at) + Duration.toMillis(Duration.days(1)) > time
+                  )
+              )
+          );
+          const licenseType = O.flatMap(JunieAuthTestBodyJson.decodeOption(response.body), (body) => body.licenseType);
+          const preferred = A.filter(
+            eligible,
+            (option) => O.isSome(licenseType) && O.contains(option.code, licenseType.value)
+          );
+          const selected =
+            preferred.length === 1 ? A.head(preferred) : eligible.length === 1 ? A.head(eligible) : O.none();
+          return O.map(selected, (option) => option.licenseId);
+        });
+        const mintExchange = Effect.fnUntraced(function* (time: number) {
+          const selected = yield* loadLicense(time);
+          if (O.isNone(selected)) return O.none<Redacted.Redacted<string>>();
+          const provided = yield* client.execute(
+            yield* HttpClientRequest.post("https://api.jetbrains.ai/auth/jetbrains-jwt/provide-access/license/v2").pipe(
+              HttpClientRequest.bearerToken(Redacted.value(idToken.value)),
+              HttpClientRequest.bodyJson({ licenseId: Redacted.value(selected.value) })
+            )
+          );
+          if (provided.status !== 200) return O.none<Redacted.Redacted<string>>();
+          const decoded = JunieExchangeBodyJson.decodeOption(yield* provided.text);
+          if (O.isNone(decoded)) return O.none<Redacted.Redacted<string>>();
+
+          const exp = pipe(
+            Redacted.value(decoded.value.token),
+            Str.split("."),
+            A.get(1),
+            O.flatMap((segment) => Result.getSuccess(Base64Url.decodeString(segment))),
+            O.flatMap(JunieJwtClaimsJson.decodeOption),
+            O.flatMap((claims) => claims.exp)
+          );
+          yield* Ref.set(
+            junieExchangeToken,
+            O.some(
+              JunieExchangeToken.make({
+                token: decoded.value.token,
+                credentialFingerprint,
+                expiresAt: O.match(exp, {
+                  onNone: () => time + Duration.toMillis(Duration.minutes(10)),
+                  onSome: (seconds) => Math.min(seconds * 1000, time + Duration.toMillis(Duration.minutes(10))),
+                }),
+              })
+            )
+          );
+          return O.some(decoded.value.token);
+        });
+        const detail = Effect.fnUntraced(function* () {
+          const time = yield* Clock.currentTimeMillis;
+          const cachedExchange = O.filter(
+            yield* Ref.get(junieExchangeToken),
+            (value) => value.credentialFingerprint === credentialFingerprint && value.expiresAt > time
+          );
+          const exchange = O.isSome(cachedExchange) ? O.some(cachedExchange.value.token) : yield* mintExchange(time);
+          if (O.isNone(exchange)) return balance;
+          const quotaRequest = Effect.fnUntraced(function* (suffix: string) {
+            const result = yield* client.execute(
+              yield* HttpClientRequest.post(`https://api.jetbrains.ai/user/v5/quota/${suffix}`).pipe(
+                HttpClientRequest.setHeaders({
+                  "Grazie-Authenticate-JWT": Redacted.value(exchange.value),
+                  "Grazie-Agent": JUNIE_GRAZIE_AGENT,
+                }),
+                HttpClientRequest.bodyJson({})
+              )
+            );
+            return result.status === 200 ? O.some(yield* result.text) : O.none();
+          });
+          const quota = O.flatMap(yield* quotaRequest("get"), JunieQuotaBodyJson.decodeOption);
+          const refill = O.flatMap(yield* quotaRequest("metadata/refill"), JunieRefillBodyJson.decodeOption);
+          if (O.isNone(quota) || O.isNone(refill)) return balance;
+          const tariff = quota.value.current.tariffQuota;
+          const topUp = quota.value.current.topUpQuota;
+          const maximum = O.flatMap(tariff, (pool) => pool.maximum);
+          const current = O.flatMap(tariff, (pool) => pool.current);
+          const resetsAt = O.flatMap(refill.value.current.next, DateTime.make);
+          const percentage = O.zipWith(
+            current,
+            O.filter(maximum, (max) => max.amount > 0),
+            (used, max) => (100 * used.amount) / max.amount
+          ).pipe(O.filter(S.is(S.Finite)));
+          return AccountUsageOutcome.cases.Ok.make({
+            ...balance,
+            windows: O.match(percentage, {
+              onNone: A.empty<UsageWindow>,
+              onSome: (usedPercent) => [UsageWindow.make({ kind: "cycle", scope: O.none(), usedPercent, resetsAt })],
+            }),
+            credits: [
+              ...A.map(balance.credits, (credit) =>
+                CreditBalance.make({
+                  ...credit,
+                  label: "JetBrains AI cycle",
+                  unit: "credits",
+                  remaining: O.getOrElse(
+                    O.map(
+                      O.flatMap(tariff, (pool) => pool.available),
+                      (amount) => amount.amount / JUNIE_UNITS_PER_CREDIT
+                    ),
+                    () => credit.remaining
+                  ),
+                  limit: O.map(maximum, (amount) => amount.amount / JUNIE_UNITS_PER_CREDIT),
+                  expiresAt: O.none(),
+                })
+              ),
+              ...O.match(
+                O.filter(
+                  O.flatMap(topUp, (pool) => pool.available),
+                  (amount) => amount.amount > 0
+                ),
+                {
+                  onNone: A.empty<CreditBalance>,
+                  onSome: (amount) => [
+                    CreditBalance.make({
+                      label: "JetBrains AI top-up",
+                      unit: "credits",
+                      remaining: amount.amount / JUNIE_UNITS_PER_CREDIT,
+                      limit: O.none(),
+                      expiresAt: O.none(),
+                    }),
+                  ],
+                }
+              ),
+            ],
+          });
+        });
+        return yield* detail().pipe(
+          Effect.timeoutOption(Duration.seconds(8)),
+          Effect.map(O.getOrElse(() => balance)),
+          Effect.orElseSucceed(() => balance)
+        );
+      });
       const initial = yield* authTest(token);
-      if (!isRejectedStatus(initial.status)) return junieUsageOutcome(initial);
+      if (!isJunieTokenRejected(initial.status))
+        return yield* enrich(
+          initial,
+          O.flatMap(
+            O.filter(matching, (value) => value.expiresAt - Duration.toMillis(Duration.seconds(60)) > now),
+            (value) => value.id_token
+          )
+        );
       yield* Ref.set(junieAccessToken, O.none());
       const refreshed = yield* client.execute(
         HttpClientRequest.post("https://oauth.account.jetbrains.com/oauth2/token").pipe(
@@ -642,21 +855,29 @@ export const makeAccountsUsageLive = Effect.fn("AccountsUsage.makeLive")(functio
         O.some(
           JunieAccessToken.make({
             access_token: refresh.success.access_token,
+            id_token: refresh.success.id_token,
             credentialFingerprint,
             expiresAt:
               (yield* Clock.currentTimeMillis) + Duration.toMillis(Duration.seconds(refresh.success.expires_in)),
           })
         )
       );
-      return junieUsageOutcome(yield* authTest(refresh.success.access_token));
-    },
-    Effect.timeoutOption(REQUEST_TIMEOUT),
-    Effect.map(O.getOrElse(() => failed("JetBrains AI poll timed out"))),
-    Effect.catchTags({
-      HttpClientError: () => Effect.succeed(failed("JetBrains AI request is unavailable")),
-      PlatformError: () => Effect.succeed(failed("Junie credential fingerprint is unavailable")),
-    })
-  );
+      return yield* enrich(yield* authTest(refresh.success.access_token), refresh.success.id_token);
+    });
+    return yield* attempt().pipe(
+      Effect.timeoutOption(REQUEST_TIMEOUT),
+      Effect.flatMap((result) =>
+        O.match(result, {
+          onSome: Effect.succeed,
+          onNone: () => Ref.get(lastBalance).pipe(Effect.map(O.getOrElse(() => failed("JetBrains AI poll timed out")))),
+        })
+      ),
+      Effect.catchTags({
+        HttpClientError: () => Effect.succeed(failed("JetBrains AI request is unavailable")),
+        PlatformError: () => Effect.succeed(failed("Junie credential fingerprint is unavailable")),
+      })
+    );
+  });
 
   const readLogin = (source: string) =>
     fs
