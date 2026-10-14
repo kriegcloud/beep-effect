@@ -62,6 +62,12 @@ import {
   knowledgeEvaluationFailure,
 } from "./KnowledgeDoctor.evaluators.ts";
 import {
+  groupKnowledgeDoctorFindings,
+  KNOWLEDGE_PATH_REMOVAL_LOG_ARGS,
+  knowledgeDelegatedRow,
+  parseKnowledgePathRemovals,
+} from "./KnowledgeDoctor.grouping.ts";
+import {
   CommandNodeWitness,
   EvaluationFailed,
   EvaluationResolved,
@@ -94,6 +100,7 @@ import type {
   KnowledgeCounterfactualVerdictKind,
   KnowledgeEvaluationFailure,
   KnowledgeEvaluatorId,
+  KnowledgePathRemoval,
   KnowledgeSpanForm,
 } from "./KnowledgeDoctor.schemas.ts";
 
@@ -121,6 +128,8 @@ type KnowledgeTreeEntryIndex = {
  * global flags. `isAncestor` and `atCommit` answer historical-citation questions: whether a cited
  * commit is an ancestor of this tree, and the doctor tree of that commit. `domain` holds the goal
  * packet, workspace package, and skill facts the domain evaluators read, derived from tree bytes.
+ * `pathRemovals` is the tree's history of deleted and renamed-away paths, newest first, used only to
+ * attribute cause-group roots; it is `O.none()` when history is unavailable and never fails.
  *
  * Every field is data or a lookup over data, which is what lets {@link overlayWithout} remove one
  * resolution witness and hand the evaluators an otherwise identical tree.
@@ -138,6 +147,7 @@ export interface KnowledgeDoctorTree extends KnowledgeTreeOracle {
   readonly gitRefNames: HashSet.HashSet<string>;
   readonly globalOptions: ReadonlyArray<KnowledgeStaticCommandFlag>;
   readonly isAncestor: (commit: KnowledgeCommitSha) => Effect.Effect<boolean, KnowledgeOperationalError>;
+  readonly pathRemovals: Effect.Effect<O.Option<ReadonlyArray<KnowledgePathRemoval>>>;
   readonly producers: ReadonlyArray<KnowledgeProducerOutput>;
 }
 
@@ -1207,6 +1217,28 @@ const evaluateSpan = Effect.fn("KnowledgeDoctor.evaluateSpan")(function* (
   );
 });
 
+// Every goals-doctor finding the tree's bytes determine, listed as delegated: the goals doctor keeps
+// the gate, and each one is a causal root for the claims beneath it.
+const delegatedFindings = Effect.fn("KnowledgeDoctor.delegatedFindings")(function* (tree: KnowledgeDoctorTree) {
+  const delegatedRows = A.map(yield* tree.domain.goalsDoctorFindings, knowledgeDelegatedRow);
+  const severities = HashMap.fromIterable(
+    A.map(delegatedRows, (row) => [row.candidate.subject, row.severity] as const)
+  );
+  const findings = yield* knowledgeFindingsFromCandidates(
+    A.map(delegatedRows, (row) => row.candidate),
+    (candidate) => O.getOrElse(HashMap.get(severities, candidate.subject), () => "blocking" as const)
+  );
+  return A.zipWith(findings, delegatedRows, (finding, row) =>
+    KnowledgeDoctorFinding.make({
+      finding,
+      spanClass: KnowledgeSpanClass.Enum.verified,
+      origin: "delegated",
+      evaluator: O.none(),
+      causeKey: row.causeKey,
+    })
+  );
+});
+
 const citationAncestry = Effect.fn("KnowledgeDoctor.citationAncestry")(function* (
   tree: KnowledgeDoctorTree,
   commits: ReadonlyArray<string>
@@ -1311,6 +1343,18 @@ export const scanKnowledgeDoctorTree = Effect.fn("KnowledgeDoctor.scanTree")(fun
     A.map(rows, (row) => row.candidate),
     severityOf
   );
+  const owned = A.zipWith(findings, rows, (finding, row) =>
+    KnowledgeDoctorFinding.make({
+      finding,
+      spanClass: row.spanClass,
+      origin: "owned",
+      evaluator: row.evaluator,
+      causeKey: row.causeKey,
+    })
+  );
+  const delegated = yield* delegatedFindings(tree);
+  const all = A.sort(A.appendAll(owned, delegated), doctorFindingOrder);
+  const removals = yield* tree.pathRemovals;
   const countOf = (spanClass: KnowledgeSpanClass) =>
     S.Natural.make(O.getOrElse(HashMap.get(counts, spanClass), () => 0));
   return KnowledgeDoctorReport.make({
@@ -1324,18 +1368,9 @@ export const scanKnowledgeDoctorTree = Effect.fn("KnowledgeDoctor.scanTree")(fun
       unclassified: countOf("unclassified"),
     }),
     uncheckedOptionCount: S.Natural.make(unchecked),
-    findings: A.sort(
-      A.zipWith(findings, rows, (finding, row) =>
-        KnowledgeDoctorFinding.make({
-          finding,
-          spanClass: row.spanClass,
-          origin: "owned",
-          evaluator: row.evaluator,
-          causeKey: row.causeKey,
-        })
-      ),
-      doctorFindingOrder
-    ),
+    rootHistory: O.isSome(removals) ? "available" : "unavailable",
+    groups: groupKnowledgeDoctorFindings(all, removals),
+    findings: all,
   });
 });
 
@@ -1359,6 +1394,8 @@ export interface KnowledgeDoctorMemoryTreeInput {
   readonly globalOptions?: ReadonlyArray<KnowledgeStaticCommandFlag> | undefined;
   /** Doctor trees of historical commits, keyed by commit. */
   readonly history?: Readonly<Record<string, KnowledgeDoctorTree>> | undefined;
+  /** Deleted and renamed-away paths, newest first; `O.none()` simulates unavailable history. */
+  readonly pathRemovals?: O.Option<ReadonlyArray<KnowledgePathRemoval>> | undefined;
   readonly producers?: ReadonlyArray<KnowledgeProducerOutput> | undefined;
 }
 
@@ -1371,7 +1408,8 @@ const textEncoder = new TextEncoder();
  * **Details**
  *
  * Every file is a regular tracked blob. The command surface defaults to none, the global flags to
- * {@link KNOWLEDGE_CLI_GLOBAL_FLAGS}, and the producers to {@link KNOWLEDGE_PRODUCER_OUTPUTS}.
+ * {@link KNOWLEDGE_CLI_GLOBAL_FLAGS}, the producers to {@link KNOWLEDGE_PRODUCER_OUTPUTS}, and the path
+ * removals to an available, empty history.
  * `atCommit` serves `history` and fails closed for any other commit, like an absent object. The
  * domain facts are derived from `files`, uncached.
  *
@@ -1419,6 +1457,7 @@ export const makeKnowledgeDoctorMemoryTree = (input: KnowledgeDoctorMemoryTreeIn
     commandTree: Effect.succeed(input.commandTree ?? O.none()),
     globalOptions: input.globalOptions ?? KNOWLEDGE_CLI_GLOBAL_FLAGS,
     isAncestor: (sha) => Effect.succeed(HashSet.has(ancestors, sha)),
+    pathRemovals: Effect.succeed(input.pathRemovals ?? O.some(A.empty())),
     atCommit: (sha) =>
       Effect.fromOption(HashMap.get(history, sha)).pipe(
         Effect.mapError(() => KnowledgeOperationalError.make({ message: `Fixture has no tree for commit ${sha}.` }))
@@ -1459,6 +1498,28 @@ const isAncestorLive = Effect.fn("KnowledgeDoctor.isAncestor")(function* (
     : false;
 });
 
+// The tree's deleted and renamed-away paths, newest first. History is optional evidence for root
+// attribution: a shallow clone, a failed spawn, or a non-zero exit yields `O.none()`, never a failure.
+const pathRemovalsLive = Effect.fn("KnowledgeDoctor.pathRemovals")(function* (repoRoot: string, treeCommit: string) {
+  const shallow = yield* runCapturedStreams({
+    command: "git",
+    args: ["rev-parse", "--is-shallow-repository"],
+    cwd: repoRoot,
+    extendEnv: true,
+    trim: true,
+  });
+  if (shallow.exitCode !== 0 || Str.equivalence(shallow.stdout, "true")) {
+    return O.none<ReadonlyArray<KnowledgePathRemoval>>();
+  }
+  const log = yield* runCapturedStreams({
+    command: "git",
+    args: [...KNOWLEDGE_PATH_REMOVAL_LOG_ARGS, treeCommit],
+    cwd: repoRoot,
+    extendEnv: true,
+  });
+  return log.exitCode === 0 ? O.some(parseKnowledgePathRemovals(log.stdout)) : O.none();
+});
+
 type LiveTreeRequirements =
   | Crypto.Crypto
   | FileSystem.FileSystem
@@ -1479,6 +1540,15 @@ const liveDoctorTree = Effect.fn("KnowledgeDoctor.liveTree")(function* (
   const runtime = yield* Effect.context<LiveTreeRequirements>();
   const commandTree = yield* Effect.cached(liveCommandTree(materialized).pipe(Effect.provide(runtime)));
   const domain = yield* cacheKnowledgeDoctorDomain(deriveKnowledgeDoctorDomain(materialized.oracle));
+  const pathRemovals = yield* Effect.cached(
+    pathRemovalsLive(materialized.repoRoot, materialized.oracle.commit).pipe(
+      Effect.catchTags({
+        PlatformError: () => Effect.succeed(O.none<ReadonlyArray<KnowledgePathRemoval>>()),
+        AdmissionWorkloadRegistrationError: () => Effect.succeed(O.none<ReadonlyArray<KnowledgePathRemoval>>()),
+      }),
+      Effect.provide(runtime)
+    )
+  );
   const tree: KnowledgeDoctorTree = {
     ...materialized.oracle,
     domain,
@@ -1487,6 +1557,7 @@ const liveDoctorTree = Effect.fn("KnowledgeDoctor.liveTree")(function* (
     producers: KNOWLEDGE_PRODUCER_OUTPUTS,
     commandTree,
     globalOptions: KNOWLEDGE_CLI_GLOBAL_FLAGS,
+    pathRemovals,
     isAncestor: (cited) =>
       isAncestorLive(materialized.repoRoot, materialized.oracle.commit, cited).pipe(Effect.provide(runtime)),
     atCommit: (cited) =>

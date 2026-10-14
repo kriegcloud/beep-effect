@@ -12,7 +12,12 @@ import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { GoalStatus } from "../Goals/Goals.schemas.ts";
 import { KnowledgeCommitSha, KnowledgeRefSurface } from "./Knowledge.refs.ts";
-import { KnowledgeFinding, KnowledgeFindingCandidate, KnowledgeFindingLocation } from "./Knowledge.schemas.ts";
+import {
+  KnowledgeFinding,
+  KnowledgeFindingCandidate,
+  KnowledgeFindingId,
+  KnowledgeFindingLocation,
+} from "./Knowledge.schemas.ts";
 import type * as Effect from "effect/Effect";
 import type * as AST from "effect/SchemaAST";
 
@@ -1104,11 +1109,199 @@ export class KnowledgeSpanCounts extends S.Class<KnowledgeSpanCounts>($I`Knowled
 ) {}
 
 /**
+ * How a path left the tree's history: deleted outright, or renamed away.
+ *
+ * **Example** (Recognize a rename)
+ *
+ * ```ts
+ * import { KnowledgePathChange } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ *
+ * console.log(KnowledgePathChange.is.renamed("renamed")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const KnowledgePathChange = LiteralKit(["deleted", "renamed"]).pipe(
+  $I.annoteSchema("KnowledgePathChange", {
+    description: "Whether a commit deleted a path or renamed it away.",
+  })
+);
+
+/**
+ * How a path left the tree's history.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type KnowledgePathChange = typeof KnowledgePathChange.Type;
+
+/**
+ * One path a commit deleted or renamed away, read from `git log --diff-filter=DR`.
+ *
+ * **Example** (A rename with its new path)
+ *
+ * ```ts
+ * import { KnowledgePathRemoval } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as O from "effect/Option"
+ *
+ * const removal = KnowledgePathRemoval.make({
+ *   path: "docs/old.md",
+ *   commit: "1111111111111111111111111111111111111111",
+ *   subject: "docs: move the guide",
+ *   change: "renamed",
+ *   renamedTo: O.some("docs/new.md"),
+ * })
+ *
+ * console.log(removal.change) // "renamed"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgePathRemoval extends S.Class<KnowledgePathRemoval>($I`KnowledgePathRemoval`)(
+  {
+    path: S.String,
+    commit: KnowledgeCommitSha,
+    subject: S.String,
+    change: KnowledgePathChange,
+    renamedTo: S.OptionFromOptionalKey(S.String),
+  },
+  $I.annote("KnowledgePathRemoval", {
+    description: "A path a commit deleted or renamed away, with the commit's subject and any rename target.",
+  })
+) {}
+
+/**
+ * The authoring commit of a cause group's root: the commit that removed the missing target.
+ *
+ * **Details**
+ *
+ * `removedPath` is the path the commit removed, which is the target itself or, for a directory
+ * target, a file under it. `repairTarget` is the rename lineage's proposal for where the target went;
+ * prose is never rewritten from it automatically.
+ *
+ * **Example** (Attribute a deleted file)
+ *
+ * ```ts
+ * import { KnowledgeRootAttribution } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as O from "effect/Option"
+ *
+ * const attribution = KnowledgeRootAttribution.make({
+ *   commit: "1111111111111111111111111111111111111111",
+ *   subject: "chore: drop the old guide",
+ *   change: "deleted",
+ *   removedPath: "docs/old.md",
+ *   repairTarget: O.none(),
+ * })
+ *
+ * console.log(attribution.change) // "deleted"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeRootAttribution extends S.Class<KnowledgeRootAttribution>($I`KnowledgeRootAttribution`)(
+  {
+    commit: KnowledgeCommitSha,
+    subject: S.String,
+    change: KnowledgePathChange,
+    removedPath: S.String,
+    repairTarget: S.OptionFromOptionalKey(S.String),
+  },
+  $I.annote("KnowledgeRootAttribution", {
+    description: "The commit that removed a cause group's missing target, plus any rename repair proposal.",
+  })
+) {}
+
+/**
+ * Findings that share one cause: a missing target, or a delegated domain finding.
+ *
+ * **Details**
+ *
+ * `rootOrigin` is `delegated` when a delegated domain finding carries the group's `causeKey`; `root`
+ * is then that finding's id and `dependents` are the owned findings it explains. Otherwise the cause
+ * is a target the knowledge doctor owns (a path, command node, export, or manifest claim), `root` is
+ * absent, and `dependents` are every finding naming it. Dependents are sorted by id.
+ *
+ * **Example** (One deleted file cited twice)
+ *
+ * ```ts
+ * import { KnowledgeCauseGroup } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ * import * as O from "effect/Option"
+ *
+ * const group = KnowledgeCauseGroup.make({
+ *   causeKey: "path:docs/old.md",
+ *   rootOrigin: "owned",
+ *   root: O.none(),
+ *   dependents: [
+ *     "knowledge-finding/v1:1111111111111111111111111111111111111111111111111111111111111111",
+ *     "knowledge-finding/v1:2222222222222222222222222222222222222222222222222222222222222222",
+ *   ],
+ *   attribution: O.none(),
+ * })
+ *
+ * console.log(group.dependents.length) // 2
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeCauseGroup extends S.Class<KnowledgeCauseGroup>($I`KnowledgeCauseGroup`)(
+  {
+    causeKey: S.String,
+    rootOrigin: KnowledgeFindingOrigin,
+    root: S.OptionFromOptionalKey(KnowledgeFindingId),
+    dependents: S.Array(KnowledgeFindingId),
+    attribution: S.OptionFromOptionalKey(KnowledgeRootAttribution),
+  },
+  $I.annote("KnowledgeCauseGroup", {
+    description:
+      "Every finding sharing one cause key, its delegated root when one exists, and the root's authoring commit.",
+  })
+) {}
+
+/**
+ * Whether the scanned tree's Git history was available for root attribution.
+ *
+ * **Details**
+ *
+ * `unavailable` (a shallow clone, or no readable history) leaves every group unattributed; the report
+ * itself never fails on missing history.
+ *
+ * **Example** (Recognize available history)
+ *
+ * ```ts
+ * import { KnowledgeRootHistory } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.schemas"
+ *
+ * console.log(KnowledgeRootHistory.is.available("available")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const KnowledgeRootHistory = LiteralKit(["available", "unavailable"]).pipe(
+  $I.annoteSchema("KnowledgeRootHistory", {
+    description: "Whether Git history was available to attribute cause-group roots.",
+  })
+);
+
+/**
+ * Whether the scanned tree's Git history was available for root attribution.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type KnowledgeRootHistory = typeof KnowledgeRootHistory.Type;
+
+/**
  * The read-only `knowledge doctor --report` document.
  *
  * **Details**
  *
- * Findings are sorted by `findingId`, so two runs over one tree encode to identical bytes.
+ * Findings are sorted by `findingId` and cause groups by `causeKey`, so two runs over one tree encode
+ * to identical bytes. `findings` keeps every finding, delegated ones included; `groups` collapses
+ * them into causal roots.
  * `uncheckedOptionCount` totals option tokens on resolved commands whose declared options are not
  * statically derivable; a non-zero count is lost coverage, never a pass.
  *
@@ -1128,6 +1321,8 @@ export class KnowledgeSpanCounts extends S.Class<KnowledgeSpanCounts>($I`Knowled
  *     unclassified: 0,
  *   }),
  *   uncheckedOptionCount: 0,
+ *   rootHistory: "available",
+ *   groups: [],
  *   findings: [],
  * })
  *
@@ -1145,10 +1340,12 @@ export class KnowledgeDoctorReport extends S.Class<KnowledgeDoctorReport>($I`Kno
     mode: S.Literal("report"),
     spanCounts: KnowledgeSpanCounts,
     uncheckedOptionCount: S.Natural,
+    rootHistory: KnowledgeRootHistory,
+    groups: S.Array(KnowledgeCauseGroup),
     findings: S.Array(KnowledgeDoctorFinding),
   },
   $I.annote("KnowledgeDoctorReport", {
-    description: "Read-only knowledge-doctor report: span-class totals and every classified finding.",
+    description: "Read-only knowledge-doctor report: span-class totals, causal groups, and every classified finding.",
   })
 ) {}
 
@@ -1176,6 +1373,8 @@ export class KnowledgeDoctorReport extends S.Class<KnowledgeDoctorReport>($I`Kno
  *     unclassified: 0,
  *   }),
  *   uncheckedOptionCount: 0,
+ *   rootHistory: "available",
+ *   groups: [],
  *   findings: [],
  * })
  *
