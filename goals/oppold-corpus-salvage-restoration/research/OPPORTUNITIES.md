@@ -807,3 +807,17 @@ access; both admitted real sandbox smokes passed. No configuration changed.
 Prevention: forward user-manager environment into the API command surface,
 as the lane launcher already does. This was a shell precondition, not a
 family engine failure; no live family was launched before it was repaired.
+
+
+## 2026-10-14: larger bounded member reaches the attachment-repair time limit
+
+- Doing: reconcile the frozen first wave's seventh family after its unit ended.
+- Evidence: result 1, one unapproved engine-failure, family elapsed
+  7,211,513 ms near the 7,200,000-ms attempt cap; 246 repair copies and
+  245 Tika outputs, one unmatched 2,280,873-byte PDF copy. Terminal
+  failure cause was replaced with a generic message by pstFailureTerminal.
+- Prevention: preserve a sanitized failure stage and exception class in the
+  terminal row, and size repair-time ceilings using repair counts and tree-hash
+  costs for larger members. The current wave's rules and engines stay frozen.
+- Action: recorded the qualified elapsed-budget diagnosis, retained all output,
+  stopped before ordinal 8. No cause approval or sealed-family retry.

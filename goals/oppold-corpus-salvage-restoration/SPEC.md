@@ -1105,3 +1105,26 @@ Reversal: revert packet decisions while retaining all ledgers, output, claims
 and immutable manifests. P2 remains in-progress; family-5 recovery follows
 as a separate engine PR and newly frozen execution. Eighteen larger inputs
 and estate/recycle/DOC obligations remain open; PR7 follows the terminal wave.
+
+
+### 2026-10-14: further sealed failure stops the bounded wave at family 7
+
+Run 17's continuation authorization requires stopping at any further
+sealed failure. Family 7 result 1 and immutable failure seal meet that
+condition. Seven families sealed: five accepted, two failed (5 and 7);
+ordinals 8-9 remain unstarted. Family 7 retained 910,603,343 output bytes
+from 354,026,496 input bytes (2.572133310x). Family elapsed 7,211,513 ms;
+no store pass or terminal child rows. Partial repair evidence is 288 repaired
+occurrences / 245 digests, 217 unsupported, with 246 copies and 245 Tika files.
+A 2,280,873-byte PDF copy lacks second-pass output near the attempt time cap.
+Elapsed-budget exhaustion is strongly supported by timing and code, but
+the generic exception catch prevents exact cause attribution. This is not
+an approved parser exception or an accepted store. Earlier seals, all nine
+freeze records, launcher and engine identities remain intact.
+
+Decision: stop, diagnose and publish aggregate evidence; no ordinal 8 launch,
+sealed-family retry or engine/launcher change. P2 stays in-progress.
+Reversal: revert packet decisions while retaining all ledgers, output,
+claims and manifests. Further continuation or recovery needs an orchestrator
+ruling. Family-5 separate recovery and eighteen larger occurrences remain
+deferred. Evidence: history/p2/2026-10-14-family-07-stop.md.

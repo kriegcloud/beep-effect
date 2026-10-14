@@ -985,3 +985,97 @@ to the driver under standing Runs 12+/13+ and Run 17. Reversal retains every
 ledger, output, claim and immutable freeze record. PR #1646 merged per the
 orchestrator note; terminal PR7 follows the remaining seals and one main merge.
 Graft saved approximately 93,246 tokens across two retrievals.
+
+
+## Standing continuation mid-wave final report — ordinal 7
+
+lane: corpus-restore
+head: 9b7460a4c0d5dae11a5fdf50b3330d08c5c42a6c (local committed continuation-evidence head)
+PR(s): #1646 MERGED at 06eef79feb per orchestrator ruling | PR7 none (bounded wave running; no push or merge)
+package-verify: not run (docs-only; no package edited). Renewed admitted Tika/pffexport sandbox smokes passed; four focused restoration tests passed, 78 skipped, 3.04 seconds.
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet not run (docs-only: no package source changed) | knowledge refs pass through beep-heavy at pre-commit head e471c67711, zero live gated observations | fallow audit+health not run (docs-only: no package source changed) | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: Family 6 result zero and accepted seal fully reconcile 6,091 children: 5,735 engine, 178 repair copies, 178 Tika outputs; both digest sets match 178 distinct repaired digests. Dispositions: 217 repaired occurrences, 220 unsupported, zero unchanged. Zero warnings, exceptions, interruptions or unaccounted children. Input 190,989,312 bytes; output/family disk usage 496,830,967 bytes; amplification 2.601354818x; attempt 5,724,191 ms, family 5,756,397 ms, archive verification 295,782 ms. Ledger SHA-256 e96d312026220df728ebbb6d242b360ce1521015805e1fdd33888066c4e5c14e. All nine source, engine, launcher, membership, recomputed twelve-field policy and frozen-code identities match; previous ledger digests unchanged. Six of nine sealed: five accepted, family 5 retained sealed-failure. Renewed admitted preflight passed; full sixty-second interval elapsed from 02:52:32Z to 02:53:32Z. Free bytes immediately before submission 407,244,369,920, above the 100 GB floor. Ordinal 7 submitted at 2026-10-14T02:53:40Z with the SAME frozen launcher, started 02:53:40.233Z; sole active family unit beep-heavy-corpus-restore-p2-2026-10-13-7.service, MemoryMax 34,359,738,368 bytes, MemorySwapMax zero. Result and runtime policy comparison await archive verification and seal. Ledger relative to corpus home: staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-07/ledgers/mail/slice.jsonl. Frozen family-7 policy d83ec6f1f2dfc1db153b9b0c36bab3274e9aca6a57449e29060c34825b29fc8e. Ordinals 8-9 unstarted. Driver resumes after unit 7 ends; reconcile result, seal, identities, children/repair pairs and ceilings before renewed admitted preflight, sixty seconds and ordinal 8. Stop and diagnose any further sealed failure; never retry a sealed family. Decision: accept family 6 and continue the unchanged authorized wave; reversal is reverting packet decisions while retaining every ledger, output, claim and immutable manifest. Family-5 parser-exception engine PR and separately frozen recovery follow the wave. P2 remains incomplete; eighteen larger occurrences and estate/recycle/DOC obligations remain open. Newer main source differs from the frozen code; no integration during execution, one main merge before terminal PR7 as ruled. No source, engine, launcher, artifact mutation, push, merge or worker-owned gate. Packet checks and commit hooks passed; doctor zero new blockers and the same three unrelated advisories; index matches. Evidence committed at 2087bdf25a and 9b7460a4c0; this exact-head report is appended for the next evidence commit. Session ledger records the explicit driver handoff. Graft saved approximately 93,246 tokens across two retrievals.
+blocked: wave running — 6 of 9 sealed, unit beep-heavy-corpus-restore-p2-2026-10-13-7.service
+
+
+## Standing continuation stop: family 7 sealed failure
+
+Seven of nine families are sealed: five accepted (1-4 and 6), two failed
+(5 and 7). Ordinals 8-9 are unstarted; no family unit is active. The prior
+ordinal-7 final-report append is preserved. No retry or next launch occurred.
+
+Unit: beep-heavy-corpus-restore-p2-2026-10-13-7.service.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-07/ledgers/mail/slice.jsonl`.
+Freeze record: history/evidence/p2-first-wave-2026-10-13-family-07-run-manifest.json.
+Attempt: mail:6b3d96d77df85b9358314c88:r0.
+Object: 9a7fab20677805c46b25d8953cecbafb4eacf082e02d7f603fd720add1f76df3.
+Source: 77b95a03291e7fd49496b88c7d7b052f723abc3d6176a2c1492033c4d776d2a5.
+Runtime/frozen policy: d83ec6f1f2dfc1db153b9b0c36bab3274e9aca6a57449e29060c34825b29fc8e.
+Ledger: fca75d67a121ef972f807acd099ad56e4cb9d3f4bc706959c1de187f5c572e35.
+Retained-output digest: 12e0992fea8cc572f7f104fdb7f68c1badb7ff87c12859547370d1ec4cad343c.
+
+Result 1. One each family-run-start, family-attempt-start, mail-store-exception,
+family-run-summary and family-acceptance-failure; 505 attachment-type-repair
+rows. Expected/terminal one, unapproved one, engine-failure approved false.
+Zero store passes, terminal child rows, warnings or interruptions. Partial
+dispositions: 288 repaired occurrences / 245 distinct digests, 217 unsupported,
+zero unchanged. The 15,003 retained files total 910,603,343 bytes, including
+246 repair copies and 245 Tika files. One unmatched PDF copy, zero unmatched
+Tika files. No accepted child reconciliation or atomic promotion is claimed.
+
+Input 354,026,496 bytes; retained output 910,603,343 bytes, amplification
+2.572133310x. Output fits the 1,416,105,984-byte attempt cap and
+2,147,483,648-byte family cap. Family elapsed 7,211,513 ms fits the
+43,200,000-ms family cap but exceeds the 7,200,000-ms attempt cap.
+No terminal attempt-duration field exists, so the family duration alone
+does not establish exact attempt timing.
+
+Started 2026-10-14T02:53:40.233Z, family start 02:58:07.256Z,
+attempt-start row 02:58:07.279Z, failure seal 04:58:18.773Z.
+Archive re-verification: 267,023 ms. Queue delay approximately 233 ms
+from the second-resolution submission recorded in the previous handoff.
+The unmatched 2,280,873-byte PDF copy was modified at 04:58:11.685Z,
+7,204,429 ms after family start. Its digest:
+af2d876b6c29e9c96f00a7d085ad0ad5e40f87a0b842fa13350e469739317440.
+The code checks remaining attempt/family time before the Tika second pass
+and bounds that subprocess by the remaining time. Timing and the missing
+second-pass output strongly support elapsed-budget exhaustion during
+attachment repair. Exact underlying exception and parser status are
+unresolved: the terminal catch discards the original cause and writes a
+generic engine-failure. No parser-failure approval is inferred from this
+timing, and no expensive reproduction or sealed-family retry was performed.
+
+Private log counts: four lines, 990 bytes. Journal counts: killed zero,
+oom-kill/signal failure zero, code=exited one, four lines. No private lines
+were printed. The collected transient unit's default Result=success is
+not execution evidence; the result stamp and sealed ledger are authoritative.
+
+| Prerequisite | State | Measured evidence |
+| --- | --- | --- |
+| P0 seal | met | 755 directory passes, 10,696 file passes, four losses, one preflight and one seal |
+| Original candidate | met | 53 PST occurrences, 23 eligible, original object/digest and 56,140,800 bytes unchanged |
+| Existing transformation state | not met for continuation | Seven seals, five accepted and two failed; ordinals 8-9 absent |
+| Source metadata | met | All nine manifest object/digest/input-byte identities match archive metadata |
+| Frozen engines | met | pffexport 20260917, bubblewrap 0.13.0, OpenJDK 27 dated 2026-09-15; Java real path and Tika digest unchanged |
+| Frozen script/membership | met | All nine script and membership digests match |
+| Runtime policy | met | All seven started-family policies match their immutable manifests |
+| Frozen code | met | Corpus/libpff source diff from frozen code head empty at diagnosis |
+| Capacity | met | 407,601,733,632 free bytes, above 100,000,000,000 floor |
+| Renewed smokes/focused proof | not run | No next launch after sealed failure; prior ordinal-7 preflight retained as historical proof |
+| Packet baseline | met | Adoption zero conflicts; doctor zero blockers and same three unrelated advisories |
+
+All six earlier ledger hashes match the previous handoffs. Script:
+5b1d87cb5c420a53e56340bbc092c21826666c9e25ef210a421b8e20955e65e6.
+Membership:
+00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+Before ordinal 7 submission: 407,244,369,920 free bytes.
+Decision: stop under Run 17 at the further sealed failure, retain every
+artifact, and publish aggregate evidence. Reversal: revert packet decisions
+while retaining every ledger, output, claim and immutable freeze record.
+P2 remains in-progress; P0/P1/P4 complete, P3 pending. Family-5 recovery,
+family-7 diagnosis/recovery, two unstarted bounded members, eighteen larger
+occurrences and estate/recycle/DOC obligations remain open. The orchestrator
+decides continuation; no new execution is authorized by this failure report.
+Graft saved approximately 65,334 tokens across two retrievals.

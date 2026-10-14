@@ -9,15 +9,12 @@ digests while retaining the originals.
 
 ## Next action
 
-Run 17 authorizes continuing ordinals 6-9 of the frozen bounded P2 wave.
-Four families are accepted; family 5 remains sealed-failure and is never
-retried or counted as accepted. Renew admitted preflight, wait sixty seconds,
-and launch only the next unstarted ordinal with the SAME frozen script. Stop and diagnose
-any further failure. Separate family-5 recovery follows the wave with an
-engine PR and new freeze record. Retain all evidence. P2 remains in-progress;
-P3 pending and eighteen larger occurrences remain deferred. Ordinal 6 was
-submitted at 2026-10-14T01:07:39Z; five of nine sealed, four accepted and one
-failed. The orchestrator driver resumes after its detached unit ends.
+The bounded P2 wave stopped at family 7 under Run 17's further-failure rule.
+Seven families sealed: five accepted, family 5 and family 7 failed.
+Ordinals 8-9 remain unstarted. Retain all evidence and report the family-7
+diagnosis to the orchestrator; no retry or next launch is authorized.
+P2 remains in-progress, P3 pending. Separate family-5 recovery and eighteen
+larger occurrences remain deferred.
 
 ## Launcher
 
@@ -43,6 +40,17 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-14: Family 7 sealed failure, result 1 and one unapproved engine-failure.
+Retained output 910,603,343 bytes from 354,026,496 input bytes (2.572133310x).
+Family elapsed 7,211,513 ms; no accepted store or terminal child rows.
+Partial dispositions: 288 repaired occurrences / 245 distinct digests,
+217 unsupported; 246 repair copies and 245 Tika files. One unmatched PDF
+copy near the attempt time cap supports elapsed-budget exhaustion; exact
+cause is unresolved because the generic catch discarded it. Five accepted,
+two failed, two unstarted; no next launch or retry.
+See history/p2/2026-10-14-family-07-stop.md.
+
 
 2026-10-14: First bounded wave stopped at family 5. Result 1, one unapproved
 engine-failure, zero store or terminal child passes, zero warnings and
