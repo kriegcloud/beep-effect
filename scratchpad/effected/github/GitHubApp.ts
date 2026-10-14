@@ -117,7 +117,7 @@ export interface AppCredentials {
   *
   * **Gotchas**
   *
-  * PKCS#1 (`-----BEGIN RSA PRIVATE KEY-----`, which is what github.com hands
+  * PKCS#1 (an `RSA PRIVATE KEY` PEM block, which is what github.com hands
   * you) is converted to PKCS#8 automatically **on Node**. On a runtime without
   * `node:crypto` a PKCS#1 key fails with an explicit `kind: "jwt"` error, and
   * the fix is to convert the key once with
@@ -478,10 +478,13 @@ export interface GitHubAppOptions {
  *   return accessible.total_count;
  * });
  *
+ * // The app's PEM private key, loaded from your secret store.
+ * declare const appPrivateKeyPem: string
+ *
  * // Mints an installation token on build, re-mints before expiry, revokes on release.
  * const layer = GitHubApp.clientLayer({
  *   appId: "12345",
- *   privateKey: Redacted.make("-----BEGIN PRIVATE KEY-----\n..."),
+ *   privateKey: Redacted.make(appPrivateKeyPem),
  *   owner: "my-org",
  * });
  *
@@ -828,24 +831,35 @@ const makeRotatingClient = Effect.fn("makeRotatingClient")(function* (
 	options: GitHubAppOptions,
 ): Effect.fn.Return<GitHubClientShape, GitHubAppError, Scope.Scope> {
 	const held = yield* Ref.make(O.none<{ token: InstallationToken; client: GitHubClientShape }>());
+	const owned = yield* Ref.make(O.none<InstallationToken>());
 	const rotation = yield* Semaphore.make(1);
 
-	const revokeHeld = Effect.flatMap(Ref.get(held), (current) =>
-		O.isSome(current) ? Effect.ignore(app.revoke(current.value.token.token)) : Effect.void,
+	const revokeHeld = Effect.flatMap(Ref.get(owned), (current) =>
+		O.isSome(current) ? Effect.ignore(app.revoke(current.value.token)) : Effect.void,
 	);
 
-	const rotate = Effect.gen(function* () {
-		yield* revokeHeld;
-		const minted = yield* app.token(request);
-		const client = yield* makeClientShape({ ...options, token: minted.token });
-		yield* Ref.set(held, O.some({ token: minted, client }));
-		return client;
-	}).pipe(Effect.uninterruptible);
+	const rotate = Effect.uninterruptibleMask(
+		Effect.fnUntraced(function* (restore) {
+			yield* restore(revokeHeld);
+			yield* Ref.set(owned, O.none());
+			const minted = yield* restore(app.token(request));
+			// Retain the acquired token before restoring interruption for client
+			// construction: scope cleanup must own it even if construction stops.
+			yield* Ref.set(owned, O.some(minted));
+			const client = yield* restore(makeClientShape({ ...options, token: minted.token }));
+			yield* Ref.set(held, O.some({ token: minted, client }));
+			return client;
+		}),
+	);
+
+	// Register cleanup before interruptible acquisition so failed construction
+	// also releases any token whose ownership has already transferred to us.
+	yield* Effect.addFinalizer(() => revokeHeld.pipe(rotation.withPermits(1)));
 
 	// Mint eagerly so a misconfigured app fails at layer construction, where
 	// the error is a `GitHubAppError` a caller can read, rather than on the
 	// first request as an opaque authorization failure.
-	yield* Effect.acquireRelease(rotate, () => revokeHeld.pipe(rotation.withPermits(1)));
+	yield* rotate;
 
 	/** The live client, re-minting first if the held token is spent. */
 	const fresh: Effect.Effect<GitHubClientShape, GitHubAppError> = Effect.gen(function* () {
@@ -898,7 +912,7 @@ const makeRotatingClient = Effect.fn("makeRotatingClient")(function* (
 		graphql: (document, variables) =>
 			Effect.flatMap(currentForGraphQL, (client) => client.graphql(document, variables)),
 		rateLimit: Effect.flatMap(Ref.get(held), (state) =>
-			O.isSome(state) ? state.value.client.rateLimit : Effect.succeedNone,
+			O.getOrThrow(state).client.rateLimit,
 		),
 	} satisfies GitHubClientShape;
 });
