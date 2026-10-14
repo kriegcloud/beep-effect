@@ -177,6 +177,80 @@
 - Evidence: the focused assertion received a function as its expected value. `effect/String.replace` in the Effect v4 reference is curried-only: `replace(search, replacement)(self)`.
 - Resolution: corrected the call against `.repos/effect/packages/effect/src/String.ts` and reran the failed fixture group. The normalized historical placeholders are comparison text and are not decoded as a live DTO.
 - Prevention: inspect the current reference signature before writing each newly used Effect helper call; the data-first form cannot be assumed.
+## H2: heavy proof entrypoint and read-only command cycle (2026-10-09)
+
+- Work: qualify structured goal completion in `rsc-h2-completion`.
+- Evidence: initial `beep-heavy bunx tsgo --noEmit -p packages/tooling/tool/cli/tsconfig.json`
+  could not connect to the user bus; setting the real user-session runtime/bus variables
+  restored admission. The direct package config then reported TS6305 for unbuilt
+  workspace declarations. Use package-verify's owning build/config path for proof.
+- Evidence: the first doctor smoke reported `Cannot access GOALS_DOCTOR_BASELINE_PATH
+  before initialization` after its completion adapter imported Yeet readers. Doctor
+  initially loaded the IO adapter at execution; the later schema-only extraction
+  below supersedes that runtime workaround. Normalization remains in goal schemas.
+- Prevention: document the bus environment at the admission entrypoint and retain a
+  CLI smoke fixture for command-family import cycles. No gate bypass or baseline write.
+
+## 2026-10-09: H2 historical coverage log is incomplete
+
+- Doing: comparing #1429 non-required coverage failures with the nearest completed
+  main ancestor before its merge-base, walking past cancelled runs.
+- Evidence: main run `37385597353`, job `112020340159`, completed at
+  `2026-10-06T00:05:53Z`; its fetched log ends during tests at `23:44:18Z`
+  and contains no terminal coverage-ratchet rows.
+- Disposition: full-lane coverage attribution is unknown; the new PatternOntology
+  row can be identified independently, but missing baseline rows cannot prove equality.
+- Would have prevented it: retained complete job logs or a separate immutable
+  coverage-row artifact linked to the job.
+
+## 2026-10-09: source qualification does not cover test Effect diagnostics
+
+- Doing: qualifying H2 completion fixtures after the source compiler passed.
+- Evidence: `beep quality test-tsgo` found 11 introduced test diagnostics:
+  `preferTypedSchemaDecoder`, `effectFnOpportunity`, and `missedPipeableOpportunity`.
+- Disposition: use typed decoders for typed fixture input and reusable Effect.fn
+  helpers; repeat the test compiler before publication. No suppression was added.
+- Would have prevented it: running the dedicated test compiler immediately after
+  authoring fixtures, alongside their runtime assertions.
+
+## 2026-10-09: H2 parity exposes static graph and packet-literal failures
+
+- Doing: the required Fallow audit/health and CI knowledge-reference qualification.
+- Evidence: Fallow identifies a six-file cycle from Completion through MergeGate,
+  Handler, Status and GateStaleness back to Doctor, plus eight introduced complexity
+  findings. Runtime lazy import avoided initialization failure but retained the
+  static cycle. The existing shared check-run schema is moved into a schema-only
+  role, preserving its identifier and re-export. Observation and refresh boundaries
+  are separated without suppressions.
+- Additional evidence: knowledge refs reports the inherited literal home-directory
+  prefix in SPEC's path-policy sentence (line 374), identical on origin/main.
+  It is a statement about prohibited paths, not a client location. Main owns its
+  single repair; H2 records the inherited red rather than copying a lane-local fix.
+- Would have prevented it: early static graph qualification after adding cross-command
+  schema reuse, and audit-pattern classification for path-policy literals.
+
+## 2026-10-09: H2 requalification waits behind the program's heavy admissions
+
+- Doing: repeating Fallow and the stable-head qualification bundle after remediation.
+- Evidence: both wrapper logs remain at `beep-heavy: all 3 slots busy, waiting`
+  for more than ten minutes. The later fixture-law repeat remained queued from
+  18:38Z through 19:03Z while a read-only lock check observed slot ownership change.
+  The wrapper polls available locks without FIFO ordering. The lane respects its
+  two-admission limit and does not stop another lane's work.
+- Would have prevented it: FIFO admission or program scheduling that reserves a
+  short remediation slot, or shared immutable proof reuse where inputs match. The
+  admission cap itself is retained; no bypass is used.
+
+## 2026-10-09: publish runtime flag is not the default monitor's runtime flag
+
+- Doing: publishing H2 with a bounded readiness monitor.
+- Evidence: `yeet publish --job-max-runtime` exits before publication with
+  `--job-max-runtime requires --detach`, although ordinary publish submits a
+  detached readiness monitor itself.
+- Disposition: use the canonical publish invocation and manage the resulting
+  monitor job explicitly; no branch push occurred during the rejected invocation.
+- Would have prevented it: command help distinguishing the detached publication
+  runner's runtime from the readiness monitor that ordinary publish submits.
 
 ## 2026-10-09: heavy admission needs the user-session bus environment
 
@@ -581,6 +655,9 @@ The final CLI package check remains queued for more than fifteen minutes while o
 - Prevention: help should distinguish the publish job ceiling from the
   automatically submitted monitor's lifetime, or expose a monitor ceiling.
 
+## 2026-10-09 — D final documentation verification
+
+
 
 ## 2026-10-09: C CI port qualification catches pinned/reference API drift
 
@@ -853,6 +930,84 @@ and parity remain required before final handoff. No other lane unit was stopped.
   log remains; only this failed step and unrun steps are resumed.
 - Prevention: calculate the review CAS digest after the main merge, just before
   the owner command. Saved pre-merge requests are evidence, not current inputs.
+## 2026-10-09 — H2 test-law discovery during publication
+
+- Task: publish structured completion evidence after compiler, docgen and focused tests passed.
+- Evidence: cheap gates rejected two new fixture files with 15 Effect Vitest findings and
+  two schema-codec property-coverage advisories; publication stopped before push.
+- Recovery: preserve fixture assertions with canonical Option helpers, bound the platform
+  test layer, and add schema-derived declaration properties; rerun the affected checks.
+- Prevention: run schema-first and Effect Vitest laws with new schema fixture files before
+  the final publication admission, alongside test-tsgo. No baseline refresh is needed.
+
+## 2026-10-09 — H2 isolates concurrent fixture verification cache
+
+- Task: run full package audit and scoped completion coverage in the two allowed admissions.
+- Evidence: D's merged friction receipt records an `ENOTEMPTY` collision in the shared
+  package `.vitest-cache`; the installed Vitest help provides `--fsModuleCachePath`.
+- Recovery: give the scoped run its own ignored lane-local module-cache path before
+  admission; the test set, instrumentation and coverage baseline stay unchanged.
+- Prevention: verification commands should allocate separate module-cache directories
+  when the full package audit and scoped coverage can overlap.
+
+## 2026-10-09 — H2 property-generator import provenance
+
+- Task: qualify the added schema-derived fixture properties after publication.
+- Evidence: test-tsgo rejects `effect/testing/Arbitrary` in both new fixture files.
+  The pinned Effect source and existing goal properties import `effect/Arbitrary`.
+  A separate review missed the invalid module path; its API assurance does not replace
+  the compiler result.
+- Recovery: correct both imports and repeat test-tsgo and scoped fixtures before the
+  addressed publication wave. No suppression or baseline update.
+- Prevention: inspect the import line in the reference example, not only the generator
+  call, and require the dedicated test compiler alongside schema-property review.
+
+## 2026-10-09 — H2 hosted markerless doctor regression
+
+- Task: read the first published head's completed red jobs immediately.
+- Evidence: Property Laws fails only the invalid Arbitrary imports; Test Unit
+  additionally fails the existing hidden-editor and inherited-baseline doctor fixtures.
+  H2 had added unconditional root discovery even when no completion evidence is eligible.
+- Recovery: move discovery into the eligible evidence reader, preserve markerless
+  read-only fallback, and assert that the hidden-editor fixture performs no root probes.
+  Retain the existing baseline and success assertions. Repeat local and hosted proof.
+- Prevention: test fixtures should observe optional evidence dependencies explicitly;
+  local temporary directories can inherit a repository marker from an ancestor and
+  hide a CI-only root-discovery regression.
+
+## 2026-10-09 — H2 restarts its unstarted package admission
+
+- Task: complete the required full package handoff gate.
+- Evidence: the lane-owned package wrapper stayed queued for over an hour, with
+  no package log or command start; other lock holders changed during the wait.
+- Recovery: verify the queued wrapper's lane and process, stop only that unstarted
+  unit, and resubmit the same command through the canonical wrapper. H2 retains
+  its two-admission limit and changes no other unit, slot count or wrapper.
+- Prevention: ordered admission with observable queue position; restarting is a
+  retry, not a proven remedy for lock-poll scheduling.
+
+## 2026-10-09 — H2 hands off an unstarted full package gate
+
+- Task: complete the required full package gate after repairing hosted fixture failures.
+- Evidence: canonical admission remained full after an hour-long wait and a retry;
+  the repaired-head package command produced neither a log nor an exit file.
+  Read-only lock observations showed turnover among other active jobs.
+- Recovery: commit completed parity and historical evidence, stop only the owned
+  unstarted command, cancel the owned readiness monitor, and mark the handoff
+  capacity-blocked. Resume the full gate through the same wrapper, then publish
+  delivery metadata and restart bounded readiness monitoring. No other job,
+  wrapper, slot count, baseline or suppression changed.
+- Prevention: ordered admission and visible queue position, with a bounded wait
+  disposition distinct from a completed gate. A stopped wrapper is not proof.
+
+## 2026-10-09 — H2 final GraphQL quota block
+
+- Task: update the PR description and re-read review-thread state for handoff.
+- Evidence: GitHub GraphQL returned `API rate limit already exceeded`.
+- Recovery: REST updated the PR body and confirmed its published head/draft state.
+  Keep current review-thread state unknown; the last successful snapshot had zero
+  threads. Re-read through GraphQL after quota recovers before merge.
+- Prevention: shared API-budget admission and observable reset times across lanes.
 
 - C publication boundary: normal `beep yeet publish` at `bc176b61fa` exits 1
   before push because collected cheap gates enforce schema-first / effect-vitest
@@ -1058,6 +1213,62 @@ stopped only its unadmitted request and requeued the same checks through the
 unchanged wrapper to observe the live budget. Dynamic configuration refresh
 while queued would prevent this stale-admission window. No running payload or
 peer service was stopped, and the worker changed no admission setting.
+
+## 2026-10-09 — H2 publication queue invalidates packet integration
+
+- Work: publish the resumed package-qualified H2 delivery wave.
+- Evidence: the first invocation rejected unstaged delivery records; the staged
+  retry acquired admission only after main advanced and rejected overlapping
+  packet files as a stale base. Both attempts stopped before pushing.
+- Recovery: stage reviewed records, integrate main while retaining both lanes'
+  append-only evidence, and use standing S12 amendment 2's permitted publication
+  path in the existing lane cgroup with `TURBO_CONCURRENCY=2`. Package verification
+  remains admission-wrapped and already passed. No peer job or global limit changes.
+- Prevention: stage-preflight before admission and a publication reservation that
+  avoids repeated packet integration invalidation during an unordered queue wait.
+
+## 2026-10-09 — H2 publication inherits the new main test-policy red
+
+- Work: publish the package-qualified H2 delivery update after integrating main.
+- Evidence: collected cheap gates passed 15 lanes but Effect-Vitest reported one
+  new finding in `packages/epistemic/use-cases/test/ContradictionDetection.golden.test.ts`.
+  The file is identical to origin/main and last changed in #1572.
+- Recovery: acknowledge the local P0 with inherited attribution, route one repair
+  to main through the orchestrator, then integrate and retry publication. No H2
+  baseline refresh, copied repair, suppression, waiver or push occurred.
+- Prevention: shared-main policy proof at the merge gate and a fast inherited-red
+  routing path distinguish lane delivery failures from new program integration reds.
+
+## 2026-10-09 — H2 deleted-ruleset inventory gap
+
+- Work: close out ready PR #1574 after authorized inherited-red fallback.
+- Evidence: reviewer thread `discussion_r4234859239` identifies that current
+  ruleset enumeration cannot include rulesets deleted since historical merge.
+  Per-ruleset version history proves surviving contexts, not inventory completeness.
+- Recovery: record completeness explicitly and resolve incomplete inventories as
+  unknown, including previously stored receipts; keep observed PR-merge and
+  surviving-context sub-facts without resetting lifecycle state.
+- Prevention: require an independently complete merge-time ruleset inventory
+  before promoting historical required-check success to overall verification.
+
+## 2026-10-09 — H2 detached monitor user-bus environment
+
+- Work: submit bounded readiness monitor after marking #1574 ready.
+- Evidence: initial submission reported `Detached proof jobs require an active
+  systemd user manager`; the existing user bus was reachable after supplying
+  its runtime directory and bus address explicitly. Retry submitted successfully.
+- Prevention: inherit the user-manager environment in detached lane launches.
+
+## 2026-10-09 — H2 typed fixture decoder diagnostic
+
+- Work: qualify the historical-inventory review fix.
+- Evidence: targeted regressions passed; test-tsgo emitted TS377112 because
+  the new legacy-snapshot fixture used `decodeUnknownEffect` for a known
+  encoded value. This diagnostic is introduced by H2.
+- Recovery: use `decodeEffect` for the typed fixture and rerun test-tsgo through
+  admission; retain the runtime legacy-default assertion.
+- Prevention: select typed versus unknown decoding from the actual boundary
+  input, including synthetic fixtures. Source review does not replace compiler proof.
 
 ## C Run 9 integration admission
 
@@ -1362,6 +1573,204 @@ The serial 11-package scoped coverage run passed on `b50dce625c`, but `--write-b
 ### 2026-10-14 — final prep admission has no elapsed-wait evidence
 
 After the baseline-owner hold was recorded, the latest owner and targeted-test jobs waited more than ten minutes with only `beep-heavy: all 5 slots busy, waiting` and no terminal result rows. Existing requests are retained; no duplicate or bypass is started. The wrapper polls nonblocking slot locks every five seconds rather than using a FIFO queue. Admission receipts with enqueue/admit times and visible ordering would distinguish wait from runtime and prevent unnecessary diagnostic polling.
+### 2026-10-14 — H2 resume integration
+
+- Work: resume closed-unmerged #1574 against current main. Four merge conflicts
+  overlap packet ledgers and doctor capability/completion integration. Preserve
+  both ledgers and both doctor checks; focused tests qualify the composition.
+- Evidence: `git merge origin/main`; `session open` initially failed with
+  `Cannot find module '@beep/utils'` until `bun install` restored workspace links.
+- Prevention: restore dependencies before invoking the CLI in a resumed worktree;
+  record source-bound qualification separately from prior delivery gates.
+
+### 2026-10-14 — H2 inherited test compiler diagnostic
+
+- Work: qualify resumed H2 integration through `beep-heavy bun run beep quality test-tsgo`.
+- Evidence: exit 1, `laws-retired-effect-paths-command.test.ts(51,9)` TS377050
+  (`effect(missedPipeableOpportunity)`). The file is identical to `origin/main`
+  and entered main in #1710 (`aeb2a85cc5`); H2 changes no line in it.
+- Attribution: inherited; route the single-main repair to the orchestrator.
+  The standing inherited Coverage Regression attribution also remains with
+  the orchestrator. Neither result is described as a passing gate.
+- Prevention: run the test compiler on added command coverage before merging
+  the coverage repair; preserve source-bound gate results across integration.
+
+### 2026-10-14 — H2 publisher runtime flag
+
+- Work: publish the qualified H2 delivery with a bounded readiness monitor.
+- Evidence: `yeet publish --job-max-runtime "40 minutes"` exits before mutation:
+  `--job-max-runtime requires --detach.` No commit or push occurs.
+- Prevention: use the canonical publisher invocation; configure the detached
+  readiness monitor through its own job options. Shared help lists job flags
+  without distinguishing the publisher's automatically detached monitor.
+
+### 2026-10-14 — H2 long-lived branch path capture
+
+- Work: publish the integrated October 14 wave to reopened #1574.
+- Evidence: publisher exits before pushing: `git diff --name-only -z
+  origin/chore/rsc-h2-completion..HEAD output exceeded the repo-run capture limit.`
+  The remote lane tip predates the five-day main integration.
+- Prevention: size or stream NUL-delimited path inventories independently of
+  bounded diagnostic output. H2 does not widen the shared command runner here;
+  preserve qualification and use the lane's authorized publication fallback.
+
+### 2026-10-14 — H2 inherited hosted Repo Sanity ordering
+
+- Work: monitor reopened #1574 at `7912fecf03`.
+- Evidence: completed Repo Sanity job `115818260298` fails Sherif's
+  `unordered-dependencies` on `scratchpad/package.json`,
+  `packages/ecosystem/effect-drizzle/package.json`,
+  `packages/tooling/library/repo-utils/package.json`, and
+  `packages/tooling/policy-pack/repo-configs/package.json`.
+  All four manifests and the lockfile are identical to integrated `origin/main`.
+- Attribution: inherited. Inbox row `Repo_Sanity-d7557a709d78` is acknowledged
+  with the program orchestrator owning one consolidated main repair under S11;
+  the acknowledgement is not a passing gate or waiver.
+- Prevention: run the hosted Sherif lane when main changes dependency keys;
+  keep generated script ownership separate from dependency-key ordering.
+
+### 2026-10-14 — H2 hint review and newly integrated packet failures
+
+- Review `discussion_r4270037982` identifies a misleading doctor hint: online
+  reads and refresh cannot prove deleted-ruleset inventory completeness.
+  Name that blocker in absent/incomplete receipt advisories and explain that
+  refresh records observed facts; preserve unknown outcomes and lifecycle.
+  Add a stored incomplete-inventory regression using the existing doctor
+  console-capture fixture.
+- Test Unit aggregate `115823367350` points to repo-cli-2 `115818260229`:
+  2947 tests pass; repository-wide retired-path command coverage fails on
+  the newly integrated main packet. Main #1721 owns the path repair. Both
+  inbox rows are acknowledged with attribution, without weakening the fixture.
+- Lint Policy job `115818622663` log fetch returns HTTP 404 twice. Its entire
+  attribution remains unknown. The local knowledge-reference check separately
+  identifies 11 inherited host-path observations in main #1713 packets;
+  H2 changes none of those paths relative to its integrated base `3749e7ca4a`.
+  Route the main repair and log investigation to the program orchestrator.
+
+### 2026-10-14 — H2 typed fixture decoder and bounded monitor
+
+- Final test compiler reports TS377112 at `goals-doctor.test.ts:194`:
+  statically known encoded input must use `decodeEffect`. `ea4041cdb6`
+  corrects the fixture without changing runtime validation; retain the failed
+  compiler attempt until the corrected lane completes.
+- Independent Opus review finds ambiguous "record" wording for online reads.
+  `959c533ed9` distinguishes online inspection from refresh persistence.
+  Follow-up review returns zero actionable findings.
+- The first readiness monitor ends at its 40-minute ceiling with no readiness
+  verdict. Treat it as terminated, not merge-ready; submit a new bounded monitor
+  after the complete review-fix wave publishes. Canonical heavy admission delayed
+  the second package command for over 30 minutes before it ran and passed.
+
+### 2026-10-14 — H2 schema-derived property gate
+
+- The complete publisher collects 16 green lanes and one introduced
+  `SFV4-arbitrary-tests` finding: the added doctor regression crosses the
+  schema-codec threshold without schema-derived property coverage. No push occurs.
+- Add a property derived from `GoalRequiredCheckSnapshot`: with all other
+  acceptance evidence satisfied, completeness true verifies and false is unknown.
+  Keep the regression's filesystem fixture and offline network refusal.
+- Current Effect source requires a boolean callback, `CheckOptions.runs`, and
+  explicit inspection of the returned `CheckResult`; a falsification does not fail
+  the effect's error channel. Correct the callback and assert `Passed`, with
+  `formatCheckFailure` for shrunk failure context. Retain both compiler failures.
+- Independent Opus review catches the ignored property result; the follow-up
+  on `4178066e62` returns zero actionable findings. Do not add an inventory
+  exception, waiver or baseline change to bypass the finding.
+
+### 2026-10-14 — H2 current-main reader overlap
+
+- Publisher refuses Doctor.ts overlap after main #1714 lands while the lane's
+  validation runs. Preserve both the main packet-reader core and H2 completion
+  reads through a clean merge; requalify the combined tree. The refusal pushes
+  nothing and is not a source-regression result.
+- Combined parity passes except 15 inherited knowledge host paths. Keep the
+  prior 11-row observation at its own head; the four additional main paths
+  belong to the consolidated main repair, not an H2 baseline reset.
+
+### 2026-10-14 — H2 native property registration and interruption
+
+- Structured detector row EV007 identifies the direct property-check candidate.
+  Register the same fixture with `it.effect.prop`; preserve 20 runs, expected
+  outcomes, filesystem scope and offline network refusal. `d42750855e` is the
+  correction, not an inventory exception. Fresh detector/compiler/runtime checks
+  all pass.
+- Audit and publisher terminate with `All fibers interrupted without error`,
+  exit 130. No agent cancellation was requested; cause is unknown. Confirm both
+  calls ended and PR head stayed `7912fecf03` before retrying. Preserve interrupted
+  attempts without substituting earlier proof or replaying an uncertain push.
+
+### 2026-10-14 — H2 publisher monitor runtime
+
+- Standard publication succeeds at `0f57cb043f`, including all cheap gates and
+  isolated frozen-lockfile installation, but submits an unbounded monitor.
+  The publisher rejects a job-runtime flag without detached publication;
+  changing the running service runtime property is unsupported.
+- Cancel only that owned monitor through `yeet job cancel`, observe terminal
+  exit 3, and replace it after the final evidence update with the brief's
+  explicit `monitor --until-ready --detach --job-max-runtime "40 minutes"`.
+  The package gate remains running. A publisher runtime option for its
+  automatic monitor would prevent this cleanup step.
+
+### 2026-10-14 — H2 synthetic-merge compiler red and supplemental review limit
+
+- Completed Heavy / Check job `115896273082` reports TS377112 in
+  `skills-relock.test.ts:507`. The file is absent from H2's head; the log
+  checks out synthetic merge `ec67d2347` against main #1732 (`8858e31070`).
+  Route the single-main decoder repair to the program orchestrator, retaining
+  exact local versus hosted provenance.
+- Supplementary pinned Opus review reports its weekly limit before any review
+  evidence. Retain earlier completed reviews at their recorded heads and four
+  passing native-property checks; no quota purchase or substituted review claim.
+
+### 2026-10-14 — H2 successful unknown receipt freshness
+
+- Review identifies that definite-only receipt precedence preserves a stale
+  required-red verdict even after a newer successful merged observation.
+  Historical inventory incompleteness makes that successful observation
+  unknown, unlike a transient lookup failure without merge facts.
+- Treat unknown receipts carrying merge facts as candidates for newest-first
+  selection; retain older evidence for factless transient failures. Cover both
+  required-red and pre-merge-pending cases, and correct the fixture table's
+  synthetic versus live inventory qualifications. No completeness is inferred.
+
+### 2026-10-14 — H2 review fallback effort drift
+
+- Direct Opus weekly-limit failure permits the approved Cursor fallback, but
+  its init event identifies `Claude Opus 5.5 300K High`, despite the configured
+  medium binding. Stop only that owned read-only review process; exit 143.
+  Do not accept it as brief-pinned medium review evidence or change the model
+  to seek a favorable review. Route pin drift and unavailable review to the
+  orchestrator alongside source-bound completed prior reviews.
+
+### 2026-10-14 — H2 independent freshness-review corrections
+
+- Approved Cursor model `claude-opus-5-5-medium` confirms Medium in its init
+  event and completes the independent review. Fix every finding: pending
+  at merge is unknown rather than unsatisfied, and a degraded merged lookup
+  must not clear an earlier positively observed required red.
+- Require merge facts, a required-check snapshot and definite hosted check
+  evidence before an unknown receipt joins the newest-first candidate set.
+  Add missing-history and pending-check preservation regressions, correct the
+  pending fixture expectation and receipt table, then requalify the source.
+
+### 2026-10-14 — H2 compiler pipeline assertion
+
+- Fresh test-tsgo finds TS377050 on the two canonical Boolean assertions.
+  Use each Option's `pipe(O.isSome, assertTrue)` form, preserving assertion
+  polarity and values. Runtime regressions pass; retain the compiler failure
+  until the corrected compiler run completes. No suppression is introduced.
+
+### 2026-10-14 — H2 full audit crossed a source correction
+
+- Full audit started before the freshness review completed and ends with
+  6265 passing tests and the new degraded-refresh preservation regression red.
+  Its actual result selects the missing-history unknown receipt, the behavior
+  corrected by `6fe60c8bf8`; a cold scoped run after that fix passes all
+  289 tests and existing coverage rows. The audit is failed evidence, not
+  current-source qualification.
+- Acknowledge the precise fix SHA and rerun the full package gate with source
+  frozen. Do not edit implementation during the admitted full suite; this
+  prevents old transformed modules and newer tests sharing one proof run.
 
 ### B resume admission environment, 2026-10-14
 
@@ -1445,3 +1854,88 @@ any push. The flag is general in help but requires an explicit detached
 operation. Retry canonical publication without it; apply the runtime bound
 to the explicit detached readiness monitor. Conditional flag requirements
 should be rendered beside the option in command help.
+
+### 2026-10-14 — H2 shared-ledger publication integration
+
+- Final publisher refuses four overlapping packet ledgers after main B
+  advances. It pushes nothing and changes no package source. Commit the
+  reviewed delivery evidence, merge main `6cf44a7678`, preserve both ledgers
+  and fix only README's union conflict.
+- H2 Goals/Completion, doctor, schemas, tests and MergeGate surfaces are
+  byte-identical to qualified source `075a4d7908`. Carry main's unrelated
+  code and owner-generated snapshots without authoring or regenerating them.
+  Requalify integrated lint/type, hosted parity and scoped runtime/coverage;
+  keep the full 890.6s/26.5s proof bound to its source head.
+
+### 2026-10-14 — H2 integrated inherited parity
+
+- Integrated quick CLI and identity package checks pass; H2 implementation is
+  unchanged. Main skills decoder and PatchSeriesFile remain compiler/schema
+  reds. JSDoc inventory identifies four new missing-example rows in main
+  knowledge-baseline/practice verdict inputs, plus the main skills replay
+  declaration-stub example. Every offending source file is byte-identical to
+  main. Route the consolidated repair to the program orchestrator.
+- References now has one gated claim-element external-mirror path after main
+  #1729, rather than the earlier 15. Preserve both results at their own heads.
+  Docgen, Fallow, retired paths and 289 scoped tests pass on the integration.
+
+### 2026-10-14 — H2 inherited schema-first publication fence
+
+- Publisher collects 16 passing cheap lanes and one inherited main
+  PatchSeriesFile schema-first red, then pushes nothing. Acknowledge the
+  exact local shard with main attribution; do not add a suppression.
+- Apply the resume-authorized direct-push fallback to the complete qualified
+  wave, followed by explicit bounded readiness. Workspace frozen install
+  passes; the refused isolated head-install step is not claimed as run.
+  Program orchestrator owns the single-main repair and S11 gate.
+
+### 2026-10-14 — H2 partial historical ruleset reads
+
+- New P1 review shows one unsupported parent or failed ruleset discards
+  readable Repository siblings, hiding a known required red as unknown.
+  Isolate failures per ruleset, flatten nested Options and retain successes.
+  Keep inventoryComplete false and the all-failed unknown path unchanged.
+- Cover organization, glob and unreadable-history siblings with both green
+  and red repository checks. Cancel only the owned readiness monitor for the
+  new implementation wave; confirm termination before requalification.
+
+### 2026-10-14 — H2 partial-read freshness interaction
+
+- Independent medium Opus review finds a newer partial green snapshot could
+  lose a required context held only by an unreadable sibling and clear the
+  older red. Distinguish ruleset read completeness from historical inventory
+  completeness, gate unknown-receipt candidacy on complete reads, and add
+  a distinct Security-context storage regression.
+- Stop the two isolated, owned superseded validation process groups (exit
+  143) before editing; do not stop the parent lane or another admission.
+  Freeze corrected source before fresh full/package/parity qualification.
+
+### 2026-10-14 — H2 final partial-read qualification
+
+- The composition cleanup omitted its pipe import. Audit and docgen report
+  TS2304; add the canonical effect/Function import, retain failed attempts
+  and acknowledge both against `d7e254ba48`. Corrected compiler has only
+  the unchanged main skills decoder finding.
+- Frozen full package audit has 6313 pass/one inherited main descriptor
+  failure; docgen passes 26.3s. Exact diagnostics are emitted after the
+  verifier completes, while inbox rows can already exist. Early shard
+  diagnostics would avoid waiting to attribute the buffered failure.
+- All 291 scoped tests pass with complete-read semantics; medium Opus
+  follow-up is zero actionable findings. Keep the inherited repair on main
+  and publish the fully addressed P1 wave without weakening any baseline.
+
+### 2026-10-14 — H2 duplicate documentation section
+
+- Repaired-main JSDoc parity identifies one introduced duplicate Details
+  heading in GoalRequiredCheckSnapshot. Combine the existing and new
+  completeness paragraphs under one heading; preserve examples and behavior.
+  Rerun the JSDoc lane, retaining the failed observation rather than resetting
+  its baseline. Main's earlier compiler/schema/reference repairs now pass.
+
+### 2026-10-14 — H2 unresolved default-branch rule
+
+- New review identifies non-main DEFAULT_BRANCH applicability silently skipped
+  as a successful non-match. Fail that unsupported per-ruleset read, covering
+  include and exclude tokens; preserve ALL and explicit branch matching.
+- Stop only the owned readiness monitor for the new wave, requalify frozen
+  source, answer and resolve the thread. No default-branch history is inferred.

@@ -10,6 +10,11 @@ program baselines and no zero-debt result is claimed.
 
 Lifecycle: `active`
 
+Program resumed on October 14. H2 is content-final in reopened PR #1574; local qualification and all four review
+fixes are complete, with inherited knowledge-reference attribution.
+Historical inventory completeness remains explicitly unknown.
+Completed lane evidence and remaining program work are tracked in PLAN.md.
+
 Program resumed on 2026-10-14. B integrated current main and completed
 the first R20 owner refresh; committed-candidate qualification follows. Its [current handoff](history/handoffs/rsc-b-standards-2026-10-14.md)
 records the five resolved old-head inbox rows and the remaining publication
@@ -76,6 +81,9 @@ nothing was adopted or discarded. P0 Research is complete.
 ## Latest Evidence
 
 [A resumed handoff](./history/handoffs/rsc-a-retire-2026-10-14.md): latest main is integrated and all ten owner commands pass. The targeted incoming/A suite passes 586 tests in ten files. The live Knip workflow job and FQE helper wiring are removed locally; five obsolete generated coverage rows await the orchestrator splice. The writer artifact is archived and all live floors remain unchanged. Latest CLI quick/type/docgen/Fallow/law checks pass; the newest JSDoc and paper-link reds are inherited and attributed in the handoff. The orchestrator also owns required-context removal before merge.
+
+H2 is content-final in reopened PR #1574: [stage-4 completion receipts](./history/receipts/stage-4-completion-receipts.md) and [October 14 handoff](./history/handoffs/rsc-h2-completion-2026-10-14.md). Final repaired full package audit/docgen pass 844.8s/27.2s; native-property schema-first, Effect/Vitest, 51 focused tests, after consolidated main repairs, schema-first, Effect/Vitest, test-tsgo, bounded docgen, JSDoc, knowledge refs, Fallow, retired paths and 291 scoped tests pass. Earlier inherited reds retain their source-bound attribution; final knowledge refs passes. All five hosted review threads are answered and resolved; pinned independent medium Opus follow-up, including the approved Cursor fallback, has zero actionable findings. Historical inventory incompleteness keeps all three live overall outcomes unknown while preserving observed merge/context facts. Final dispatch records the published tip and hosted/monitor state; post-merge refresh and retirement remain orchestrator-owned.
+
 B's October 13 bounded baseline repair landed in
 [PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
 codec properties for the three inherited arbitrary-test findings. After
