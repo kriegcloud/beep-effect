@@ -104,6 +104,9 @@ vendor documentation. Browser integration has a separate Chrome extension.
 
 Installed Azure CLI 2.90.0, Vercel CLI 62.7.0, Wrangler 4.151.0 and cloudflared
 2026.10.0. Version commands pass; cloud account authentication is still separate.
+Follow-up: [cloud CLI authentication](2026-10-14-cloud-cli-authentication.md)
+records completed Azure, Vercel and Wrangler device logins and read-only account
+checks. This does not authenticate cloudflared tunnels or prove deployment rights.
 Npm initially skipped esbuild/workerd install scripts. Reinstalled with a scoped
 allowScripts choice for those required packages rather than enabling every script.
 

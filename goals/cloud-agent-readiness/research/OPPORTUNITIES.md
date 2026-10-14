@@ -8,6 +8,8 @@
 | 2026-10-14 | 1Password service-account item reads require --vault even for an item UUID. Doctor confirmed service-account identity; vault-scoped retry follows. | Inventory full UUID references and verify the actual required operation, not a desktop sign-in assumption. |
 | 2026-10-14 | Local op-doctor found shim ordering failure in the systemd fallback surface when the user bus is unavailable. | Include user-systemd PATH and op-lane tests in portability acceptance; do not infer desktop state from an agent failure. |
 | 2026-10-14 | Mise checksum filenames contain a ./ prefix; first exact filename lookup missed it. The correct published checksum subsequently matched. | Fail closed before executing installers and normalize manifest filename prefixes. |
+| 2026-10-14 | Wrangler's first device authorization expired after five minutes; its CLI timeout matches the browser's rejected-code result. | Issue short-lived codes close to the operator's approval, replace expired requests and verify login through the worker CLI. |
+| 2026-10-14 | Azure CLI's successful resource-group read emitted a Python 3.14 invalid-escape SyntaxWarning from its SDK. | Track warning-only runtime compatibility separately from authentication; do not reinterpret a successful read as a failed login. |
 
 ## Headless qualification findings
 

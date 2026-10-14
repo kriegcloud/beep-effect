@@ -71,8 +71,9 @@ portfolio can spend them until this lands.
 Cloud P0/P1 remain complete for their original environment; P2–P6 still need
 cloud qualification. On beep-worker, Linux L0 inventory, L1 secure access and L3
 representative development proof are complete. L2 is in progress: most tools and
-agent accounts are ready, while Azure/Vercel/Cloudflare account access, backend
-parity, and additional agent-environment qualification remain explicit follow-up.
+agent accounts are ready, including verified Azure/Vercel/Cloudflare CLI account
+access. Backend parity and additional agent-environment qualification remain
+explicit follow-up.
 L4 fleet closeout is pending; dankserver and an isolated tbk worker are not yet
 qualified by the beep-worker receipts.
 
@@ -88,6 +89,8 @@ qualified by the beep-worker receipts.
 - [T3 provider qualification](./history/2026-10-14-t3-provider-qualification.md)
   and [GitHub qualification](./history/2026-10-14-t3-github-qualification.md):
   remote provider smoke tests and authenticated read-only source-control proof.
+- [Cloud CLI authentication](./history/2026-10-14-cloud-cli-authentication.md):
+  successful Azure, Vercel and Cloudflare device logins and read-only account checks.
 - [Original cloud probe](./research/2026-10-01-container-probe.md): historical
   container restrictions; it does not describe the current Linux worker.
 
