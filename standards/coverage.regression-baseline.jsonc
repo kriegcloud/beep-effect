@@ -24738,12 +24738,12 @@
         "packages/tooling/tool/cli/src/commands/Goals/Graph.mermaid.ts": {
           "lines": 100,
           "statements": 100,
-          "branches": 92.85,
+          "branches": 100,
           "functions": 100,
           "uncovered": {
             "lines": 0,
             "statements": 0,
-            "branches": 1,
+            "branches": 0,
             "functions": 0
           }
         },
