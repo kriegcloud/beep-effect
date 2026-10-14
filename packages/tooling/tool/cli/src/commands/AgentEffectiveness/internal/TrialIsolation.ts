@@ -19,7 +19,6 @@ import * as Str from "effect/String";
 import { hashFileSha256 } from "../../../internal/cli/FsGuards.ts";
 import { repoRunOutputBound, runCaptured } from "../../../internal/process/StepExec.ts";
 import { AgentTrialError } from "../AgentEffectiveness.errors.ts";
-import { TrialIsolationAttestation } from "../AgentEffectiveness.trials.schemas.ts";
 import {
   TrialArtifact,
   TrialBootstrapFile,
@@ -30,7 +29,7 @@ import {
   TrialRuntimeClosure,
 } from "./TrialProfile.schemas.ts";
 import type { Sha256Hex } from "@beep/schema/Sha256";
-import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
+import type { TrialCandidateControls, TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
 import type { TrialEvaluatorCheck, TrialMount } from "./TrialProfile.schemas.ts";
 
 const fail = (message: string) => Effect.fail(AgentTrialError.make({ stage: "isolation", message }));
@@ -80,248 +79,6 @@ export const hashTrialInput = Effect.fn("AgentEffectiveness.hashTrialInput")(fun
 });
 
 /**
- * Build an empty-root filesystem view only after digest-bound canary admission.
- * **Details**
- * Mounts never fall back to a host-root bind. Attestations are evaluator-owned
- * prerequisites, not self-reported model observations. No global config, Git
- * credentials, other-arm state or receipt directory is mounted implicitly.
- * **Example** (Construct a fail-closed invocation)
- * ```ts
- * import { buildTrialSandbox } from "@beep/repo-cli/test/AgentEffectiveness"
- * console.log(buildTrialSandbox)
- * ```
- * @category execution
- * @since 0.0.0
- */
-export const buildTrialSandbox = Effect.fn("AgentEffectiveness.buildTrialSandbox")(function* (
-  plan: TrialPlan,
-  workspace: string,
-  productiveRuntime?: { readonly socket: string; readonly home: string }
-) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const attestationDigest = yield* hashFileSha256(plan.isolationAttestationPath, (cause) =>
-    AgentTrialError.make({ stage: "isolation", message: "Cannot hash isolation attestation", cause })
-  );
-  if (attestationDigest !== plan.isolationAttestationDigest)
-    return yield* fail("Isolation attestation digest mismatch");
-  const attestation = yield* fs.readFileString(plan.isolationAttestationPath).pipe(
-    Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(TrialIsolationAttestation))),
-    Effect.mapError((cause) =>
-      AgentTrialError.make({ stage: "isolation", message: "Missing or invalid isolation canaries", cause })
-    )
-  );
-  if (
-    attestation.configDigest !== plan.configDigest ||
-    plan.configDigest !== (yield* trialControlsDigest(plan)) ||
-    !A.makeEquivalence(Str.Equivalence)(attestation.exactDiscoveredToolNames, plan.selectedToolNames) ||
-    attestation.delegationDisabled !== (plan.delegation === "disabled")
-  )
-    return yield* fail("Isolation canaries belong to different controls or tools");
-  if (!path.isAbsolute(plan.command) || !path.isAbsolute(workspace))
-    return yield* fail("Trial command and workspace must be absolute");
-  const system = O.getOrUndefined(yield* trialPlanSystem(plan));
-  const requireSystem = plan.networkAdmission === "exact-authority-broker";
-  for (const closure of plan.runtimeClosures ?? []) {
-    if (
-      closure.target !== "/workspace/node_modules" &&
-      !/^\/workspace\/(?:packages|apps)\/[^.]+\/node_modules$/.test(closure.target) &&
-      !Str.startsWith("/runtime/")(closure.target)
-    )
-      return yield* fail("Runtime projection target is not an approved dependency root");
-    yield* validateTrialInventory(
-      closure.inventory,
-      closure.target,
-      requireSystem && closure.target === "/runtime/system"
-    );
-    const source = closure.inventory.root;
-    for (const protectedRoot of [plan.receiptRoot, plan.workspaceRoot, plan.sourceRepository]) {
-      const root = yield* fs.realPath(protectedRoot);
-      if (source === root || Str.startsWith(`${root}/`)(source) || Str.startsWith(`${source}/`)(root))
-        return yield* fail("Runtime projection would expose private receipts or a shared source checkout");
-    }
-  }
-  const forbiddenEnvironment = A.filter(R.keys(plan.environment), (key) =>
-    A.contains(
-      [
-        "OPENAI_API_KEY",
-        "ANTHROPIC_API_KEY",
-        "XAI_API_KEY",
-        "GOOGLE_API_KEY",
-        "GH_TOKEN",
-        "GITHUB_TOKEN",
-        "SSH_AUTH_SOCK",
-        "OP_SERVICE_ACCOUNT_TOKEN",
-        "OP_CONNECT_TOKEN",
-        "HOME",
-        "CODEX_HOME",
-        "HTTP_PROXY",
-        "HTTPS_PROXY",
-        "ALL_PROXY",
-        "NO_PROXY",
-        "http_proxy",
-        "https_proxy",
-        "all_proxy",
-        "no_proxy",
-      ],
-      key
-    )
-  );
-  if (A.isReadonlyArrayNonEmpty(forbiddenEnvironment))
-    return yield* fail("Paid fallback, Git/secret credentials or ambient home overrides are forbidden");
-  const args = [
-    "--die-with-parent",
-    "--new-session",
-    "--unshare-all",
-    "--tmpfs",
-    "/",
-    "--proc",
-    "/proc",
-    "--dev",
-    "/dev",
-    "--tmpfs",
-    "/tmp",
-    "--dir",
-    "/work",
-    "--dir",
-    "/home",
-    "--dir",
-    "/home/trial",
-    "--dir",
-    "/state",
-    "--bind",
-    path.join(path.dirname(workspace), "repository.git"),
-    "/state/repository.git",
-    "--bind",
-    workspace,
-    "/workspace",
-  ];
-  args.push(...(yield* trialSystemBindings(system, requireSystem)));
-  if (!requireSystem) {
-    for (const file of ["/etc/ssl", "/etc/ca-certificates"]) {
-      if (yield* fs.exists(file)) args.push("--ro-bind", file, file);
-    }
-  }
-  for (const closure of plan.runtimeClosures ?? []) args.push("--ro-bind", closure.inventory.root, closure.target);
-  if (productiveRuntime !== undefined) args.push("--bind", productiveRuntime.home, "/home/trial");
-  const privateRoots = yield* Effect.forEach(
-    [plan.receiptRoot, plan.workspaceRoot, plan.sourceRepository],
-    fs.realPath
-  );
-  for (const [index, mount] of A.map(plan.mounts, (mount, index) => [index, mount] as const)) {
-    const target = path.normalize(mount.target);
-    const blocked = A.some(
-      ["/", "/work", "/workspace", "/usr", "/bin", "/lib", "/lib64", "/proc", "/dev", "/etc", "/tmp"],
-      (root) => target === root || (Str.startsWith(`${root}/`)(target) && A.contains(["/state", "/proc", "/dev"], root))
-    );
-    const allowedTarget = A.some(["/runtime/", "/tools/", "/inputs/", "/references/", "/home/trial/"], (prefix) =>
-      Str.startsWith(prefix)(target)
-    );
-    if (
-      !allowedTarget ||
-      !path.isAbsolute(mount.source) ||
-      !path.isAbsolute(mount.target) ||
-      target !== mount.target ||
-      blocked ||
-      Str.startsWith("/workspace/")(target) ||
-      Str.startsWith("/work/")(target) ||
-      Str.startsWith("/proc/")(target) ||
-      Str.startsWith("/dev/")(target)
-    )
-      return yield* fail("Mount is not a narrow declared input");
-    const canonicalSource = yield* fs.realPath(mount.source);
-    if (canonicalSource !== mount.source) return yield* fail("Mount source must be an exact canonical path");
-    if (
-      A.some(
-        privateRoots,
-        (privateRoot) =>
-          privateRoot === mount.source ||
-          Str.startsWith(`${mount.source}/`)(privateRoot) ||
-          Str.startsWith(`${privateRoot}/`)(mount.source)
-      )
-    )
-      return yield* fail("Mount exposes private state or a shared source ancestor");
-    const digest = yield* hashTrialInput(mount.source);
-    if (digest !== mount.digest) return yield* fail("Declared mount content changed after freeze");
-    if (mount.access === "resettable") {
-      const copy = path.join(path.dirname(workspace), "inputs", `${index}`);
-      yield* fs.makeDirectory(path.dirname(copy), { recursive: true, mode: 0o700 });
-      yield* fs.copy(mount.source, copy);
-      if ((yield* hashTrialInput(copy)) !== mount.digest)
-        return yield* fail("Reset index copy differs from frozen input");
-      args.push("--bind", copy, mount.target);
-    } else args.push("--ro-bind", mount.source, mount.target);
-  }
-  const commandMount = A.findFirst(
-    plan.mounts,
-    (mount) => plan.command === mount.target || Str.startsWith(`${mount.target}/`)(plan.command)
-  );
-  if (O.isNone(commandMount)) return yield* fail("Command must come from an explicit frozen mount");
-  if (commandMount.value.access !== "readonly") return yield* fail("Native CLI binary must be immutable");
-  const binary = path.join(commandMount.value.source, path.relative(commandMount.value.target, plan.command));
-  if (
-    (yield* hashFileSha256(binary, (cause) =>
-      AgentTrialError.make({ stage: "isolation", message: "Cannot hash command", cause })
-    )) !== plan.commandDigest
-  )
-    return yield* fail("Command binary changed");
-  if ((yield* hashTrialInput(plan.promptPath)) !== plan.taskDigest) return yield* fail("Task prompt changed");
-  args.push("--ro-bind", plan.promptPath, "/input/prompt");
-  if (productiveRuntime !== undefined) {
-    const profile = plan.productiveProfile;
-    if (
-      profile === undefined ||
-      plan.networkAdmission !== "exact-authority-broker" ||
-      (yield* fs.realPath(productiveRuntime.home)) !== productiveRuntime.home ||
-      (yield* fs.realPath(productiveRuntime.socket)) !== productiveRuntime.socket ||
-      (yield* hashTrialInput(profile.broker.relay.path)) !== profile.broker.relay.digest
-    )
-      return yield* fail("Productive runtime socket, home or relay is not the owned frozen bridge");
-    args.push(
-      "--ro-bind",
-      productiveRuntime.socket,
-      "/broker/egress.sock",
-      "--ro-bind",
-      profile.broker.relay.path,
-      "/runtime/egress-relay"
-    );
-  } else if (plan.networkAdmission === "exact-authority-broker")
-    return yield* fail("Productive network bridge is missing");
-
-  args.push(
-    "--clearenv",
-    "--setenv",
-    "HOME",
-    "/home/trial",
-    "--setenv",
-    "PATH",
-    "/usr/bin:/bin",
-    "--setenv",
-    "GIT_CONFIG_NOSYSTEM",
-    "1",
-    "--chdir",
-    "/workspace"
-  );
-  for (const [key, value] of R.toEntries(plan.environment)) args.push("--setenv", key, value);
-  if (productiveRuntime !== undefined) {
-    for (const key of ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"])
-      args.push("--setenv", key, "http://127.0.0.1:18080");
-    args.push("--setenv", "NO_PROXY", "", "--setenv", "no_proxy", "");
-    if (plan.provider === "codex") args.push("--setenv", "CODEX_HOME", "/home/trial/.codex");
-    args.push(
-      "--",
-      "/bin/sh",
-      "-c",
-      `/runtime/egress-relay TCP4-LISTEN:18080,bind=127.0.0.1,reuseaddr,fork UNIX-CONNECT:/broker/egress.sock >/dev/null 2>&1 & relay=$!; trap 'kill "$relay" 2>/dev/null || true' EXIT TERM INT; "$@" < /input/prompt; status=$?; exit "$status"`,
-      "agent-trial",
-      plan.command,
-      ...plan.args
-    );
-  } else args.push("--", "/bin/sh", "-c", 'exec "$@" < /input/prompt', "agent-trial", plan.command, ...plan.args);
-  return args;
-});
-
-/**
  * Derive the canary identity from every invocation control except its own receipt.
  * **Details**
  * JSON property order is normalized recursively. The declared config digest and
@@ -334,7 +91,9 @@ export const buildTrialSandbox = Effect.fn("AgentEffectiveness.buildTrialSandbox
  * @category execution
  * @since 0.0.0
  */
-export const trialControlsDigest = Effect.fn("AgentEffectiveness.trialControlsDigest")(function* (plan: TrialPlan) {
+export const trialControlsDigest = Effect.fn("AgentEffectiveness.trialControlsDigest")(function* (
+  plan: TrialCandidateControls | TrialPlan
+) {
   const canonical = (value: unknown): unknown => {
     if (Array.isArray(value)) return value.map(canonical);
     if (typeof value === "object" && value !== null)
@@ -350,11 +109,13 @@ export const trialControlsDigest = Effect.fn("AgentEffectiveness.trialControlsDi
     isolationAttestationPath: _path,
     isolationAttestationDigest: _receipt,
     ...controls
-  } = plan;
+  } = { configDigest: undefined, isolationAttestationPath: undefined, isolationAttestationDigest: undefined, ...plan };
   const path = yield* Path.Path;
   const boundaryFiles = yield* Effect.forEach(
     [
       new URL("./TrialIsolation.ts", import.meta.url),
+      new URL("./TrialSandbox.ts", import.meta.url),
+      new URL("./TrialIsolationQualification.ts", import.meta.url),
       new URL("./TrialProfile.schemas.ts", import.meta.url),
       new URL("./TrialCollector.ts", import.meta.url),
       new URL("./TrialUsage.ts", import.meta.url),

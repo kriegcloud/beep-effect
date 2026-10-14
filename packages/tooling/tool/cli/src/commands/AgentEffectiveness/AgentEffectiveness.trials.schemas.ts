@@ -9,6 +9,7 @@ import { NativeTokenUsage } from "@beep/repo-ai-metrics/usage";
 import { LiteralKit } from "@beep/schema";
 import { Sha256Hex } from "@beep/schema/Sha256";
 import * as S from "effect/Schema";
+import { CapturedProcessTerminal } from "../../internal/process/StepExec.ts";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import {
   TrialArtifact,
@@ -184,6 +185,8 @@ export class TrialPlan extends S.Class<TrialPlan>($I`TrialPlan`)(
     taskDigest: Sha256Hex,
     acceptanceDigest: Sha256Hex,
     configDigest: Sha256Hex,
+    isolationQualificationVersion: S.optional(S.Literal("no-assigned-index/v2")),
+    assignedIndexTargets: S.optional(S.Array(S.NonEmptyString).check(S.isUnique())),
     toolId: S.NonEmptyString,
     selectedToolNames: S.Array(S.NonEmptyString),
     requiredYeetLaneIds: S.NonEmptyArray(S.NonEmptyString).check(S.isUnique()),
@@ -227,6 +230,198 @@ export class TrialPlan extends S.Class<TrialPlan>($I`TrialPlan`)(
       "Protected frozen invocation controls. Decoding does not substitute for attestation, immutable mounts or canary proof.",
   })
 ) {}
+const {
+  configDigest: _candidateConfig,
+  isolationAttestationPath: _candidatePath,
+  isolationAttestationDigest: _candidateDigest,
+  ...candidateFields
+} = TrialPlan.fields;
+
+/**
+ * Exact invocation controls before an isolation receipt exists.
+ * **Example** (Reject a placeholder candidate)
+ * ```ts
+ * import { TrialCandidateControls } from "@beep/repo-cli/commands/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialCandidateControls)({})) // false
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export class TrialCandidateControls extends S.Class<TrialCandidateControls>($I`TrialCandidateControls`)(
+  candidateFields,
+  $I.annote("TrialCandidateControls", {
+    description: "Frozen controls without fabricated config or attestation fields.",
+  })
+) {}
+
+/**
+ * Exact finite cgroup owner declared before qualification and independently observed.
+ *
+ * **Example** (Declare a bounded qualification owner)
+ * ```ts
+ * import { TrialQualificationResourceEnvelope } from "@beep/repo-cli/commands/AgentEffectiveness"
+ * const envelope = TrialQualificationResourceEnvelope.make({
+ *   cgroup: "/sys/fs/cgroup/user.slice/qualification.service",
+ *   memoryMaxBytes: 8589934592, memorySwapMaxBytes: 0,
+ *   cpuQuotaMicros: 200000, cpuPeriodMicros: 100000
+ * })
+ * console.log(envelope.memoryMaxBytes)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TrialQualificationResourceEnvelope extends S.Class<TrialQualificationResourceEnvelope>(
+  $I`TrialQualificationResourceEnvelope`
+)(
+  {
+    cgroup: S.String.check(
+      S.isPattern(/^\/sys\/fs\/cgroup\/(?!\.{1,2}(?:\/|$))(?!.*\/\.{1,2}(?:\/|$))[^/\n]+(?:\/[^/\n]+)*$/u)
+    ),
+    memoryMaxBytes: S.Int.check(S.isGreaterThan(0)),
+    memorySwapMaxBytes: S.Literal(0),
+    cpuQuotaMicros: S.Int.check(S.isGreaterThan(0)),
+    cpuPeriodMicros: S.Int.check(S.isGreaterThan(0)),
+  },
+  $I.annote("TrialQualificationResourceEnvelope", {
+    description:
+      "Exact finite qualification owner and enforced Linux cgroup v2 limits; operational limits are not scored candidate controls.",
+  })
+) {}
+
+/**
+ * Finite no-graph qualification input; all fixtures are producer-owned.
+ * **Details**
+ * Runtime mounts must provide /runtime/node, /runtime/tsgo and /runtime/tslib.
+ * The owned root must not exist. The producer never runs the candidate command.
+ * Version 2 requires a declared finite Linux cgroup v2 owner with swap disabled;
+ * the producer independently observes exact limits before probes and publication.
+ * Historical version 1 requests are not admitted by this codec.
+ * **Example** (Reject an incomplete request)
+ * ```ts
+ * import { TrialIsolationQualificationRequest } from "@beep/repo-cli/commands/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialIsolationQualificationRequest)({})) // false
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export class TrialIsolationQualificationRequest extends S.Class<TrialIsolationQualificationRequest>(
+  $I`TrialIsolationQualificationRequest`
+)(
+  {
+    schemaVersion: S.Literal("trial-isolation-qualification-request/v2"),
+    resourceEnvelope: TrialQualificationResourceEnvelope,
+    candidate: TrialArtifact,
+    ownedRoot: S.NonEmptyString,
+    protectedSentinels: S.NonEmptyArray(S.NonEmptyString).check(S.isUnique()),
+  },
+  $I.annote("TrialIsolationQualificationRequest", {
+    description: "Bounded closed no-graph qualification over immutable candidate controls.",
+  })
+) {}
+
+/**
+ * Complete closed census of runner-owned isolation probes.
+ * **Example** (Inspect qualification coverage)
+ * ```ts
+ * import { TrialIsolationProbeId } from "@beep/repo-cli/commands/AgentEffectiveness"
+ * console.log(TrialIsolationProbeId.is["compiler-negative"]("compiler-negative")) // true
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export const TrialIsolationProbeId = LiteralKit([
+  "fixture-init",
+  "fixture-worktree",
+  "read-write",
+  "git-add",
+  "local-commit",
+  "inspect-commit",
+  "compiler-positive",
+  "compiler-negative",
+  "private-paths",
+  "network-identity",
+  "owned-listener",
+  "listener-before",
+  "owned-endpoint-denied",
+  "push-denied",
+  "listener-after",
+  "listener-stop",
+  "dependency-links",
+  "interruption",
+  "interruption-lock-released",
+]).pipe(
+  $I.annoteSchema("TrialIsolationProbeId", { description: "Finite actual probe census required by v2 admission." })
+);
+/**
+ * One fixed runner-owned isolation probe name.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type TrialIsolationProbeId = typeof TrialIsolationProbeId.Type;
+
+/**
+ * Captured command evidence from one fixed qualification probe.
+ * **Example** (Reject missing capture evidence)
+ * ```ts
+ * import { TrialIsolationObservation } from "@beep/repo-cli/commands/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialIsolationObservation)({})) // false
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export class TrialIsolationObservation extends S.Class<TrialIsolationObservation>($I`TrialIsolationObservation`)(
+  {
+    id: TrialIsolationProbeId,
+    argv: S.NonEmptyArray(S.String),
+    elapsedMs: S.Natural,
+    exitCode: S.Int.pipe(S.OptionFromNullOr),
+    terminal: S.optional(CapturedProcessTerminal),
+    stdout: TrialArtifact,
+    stderr: TrialArtifact,
+    interrupted: S.Boolean,
+  },
+  $I.annote("TrialIsolationObservation", {
+    description: "Actual fixed argv, exit, retained streams and interruption observation.",
+  })
+) {}
+
+/**
+ * Immutable qualification receipt; incomplete probes cannot produce attestation.
+ * **Example** (Reject a report without observations)
+ * ```ts
+ * import { TrialIsolationQualificationReport } from "@beep/repo-cli/commands/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialIsolationQualificationReport)({})) // false
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export class TrialIsolationQualificationReport extends S.Class<TrialIsolationQualificationReport>(
+  $I`TrialIsolationQualificationReport`
+)(
+  {
+    schemaVersion: S.Literal("trial-isolation-qualification-report/v2"),
+    request: TrialArtifact,
+    candidate: TrialArtifact,
+    configDigest: Sha256Hex,
+    namespaceDigest: Sha256Hex,
+    workspace: S.NonEmptyString,
+    resourceEnvelope: TrialQualificationResourceEnvelope,
+    observations: S.Array(TrialIsolationObservation),
+    status: S.Literals(["qualified", "failed", "unknown"]),
+    detail: S.NonEmptyString,
+    indexReset: S.Literal("not-applicable-no-assigned-index"),
+    childPolicy: S.Literal("declared-only-native-canaries-required"),
+    attestationPath: S.NonEmptyString.pipe(S.OptionFromNullOr),
+  },
+  $I.annote("TrialIsolationQualificationReport", {
+    description: "Closed probe evidence and honest no-index applicability; native policy is only declared.",
+  })
+) {}
+
 /**
  * Frozen controls that must decode before a disposable attempt can start.
  *
@@ -340,6 +535,42 @@ export class TrialIsolationAttestation extends S.Class<TrialIsolationAttestation
   $I.annote("TrialIsolationAttestation", {
     description:
       "Digest-bound deterministic capability canaries; missing/false proofs block launch without a host-root fallback.",
+  })
+) {}
+
+const {
+  schemaVersion: _v1Version,
+  indexReset: _v1Reset,
+  ...noIndexAttestationFields
+} = TrialIsolationAttestation.fields;
+
+/**
+ * No-graph isolation evidence with an explicit inapplicable index reset.
+ * **Details**
+ * Accepted only for explicitly versioned no-tool, no-index, blocked-network controls.
+ * Native child identity and model pins still require productive native canaries.
+ * **Example** (Reject fabricated reset evidence)
+ * ```ts
+ * import { TrialNoIndexIsolationAttestation } from "@beep/repo-cli/commands/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialNoIndexIsolationAttestation)({ indexReset: true })) // false
+ * ```
+ * @category schemas
+ * @since 0.0.0
+ */
+export class TrialNoIndexIsolationAttestation extends S.Class<TrialNoIndexIsolationAttestation>(
+  $I`TrialNoIndexIsolationAttestation`
+)(
+  {
+    ...noIndexAttestationFields,
+    schemaVersion: S.Literal("agent-trial-isolation/v2"),
+    indexReset: S.Literal("not-applicable-no-assigned-index"),
+    childPolicy: S.Literal("declared-only-native-canaries-required"),
+    qualificationReportPath: S.NonEmptyString,
+    qualificationReportDigest: Sha256Hex,
+  },
+  $I.annote("TrialNoIndexIsolationAttestation", {
+    description: "Versioned no-index qualification bound to its immutable probe report.",
   })
 ) {}
 

@@ -28,7 +28,6 @@ import {
   TrialStartedJson,
 } from "../AgentEffectiveness.trials.schemas.ts";
 import {
-  buildTrialSandbox,
   deriveTrialInvocation,
   hashTrialInput,
   inspectTrialGit,
@@ -41,6 +40,7 @@ import {
   initializeTrialRetentionOwnership,
   recordTrialRetentionCapture,
 } from "./TrialRetention.ts";
+import { buildTrialSandbox } from "./TrialSandbox.ts";
 import { parseTrialSessionIdentity, parseTrialUsage } from "./TrialUsage.ts";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
 import type { TrialInputInventory, TrialProductiveProfile } from "./TrialProfile.schemas.ts";

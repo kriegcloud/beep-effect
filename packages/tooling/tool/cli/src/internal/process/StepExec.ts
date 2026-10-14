@@ -33,6 +33,7 @@ import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
+import * as PlatformError from "effect/PlatformError";
 import * as P from "effect/Predicate";
 import { ChildProcess } from "effect/process";
 import * as S from "effect/Schema";
@@ -40,7 +41,6 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { JsonStringCodec } from "../schema/JsonCodec.ts";
 import { PosInt } from "../schema/PosInt.ts";
-import type * as PlatformError from "effect/PlatformError";
 import type { ChildProcessSpawner } from "effect/process";
 
 const $I = $RepoCliId.create("internal/process/StepExec");
@@ -797,6 +797,27 @@ export class CaptureCommandTimedOutError extends S.TaggedError<CaptureCommandTim
   })
 ) {}
 
+/**
+ * Spooling stopped because the caller's total byte ceiling was exceeded.
+ * **Example** (Describe a bounded capture refusal)
+ * ```ts
+ * import { CaptureOutputLimitExceededError } from "@beep/repo-cli/test/Process"
+ * const error = CaptureOutputLimitExceededError.make({ commandLine: "owned probe", maxBytes: BigInt(1024) })
+ * console.log(error._tag) // CaptureOutputLimitExceededError
+ * ```
+ * @category errors
+ * @since 0.0.0
+ */
+export class CaptureOutputLimitExceededError extends S.TaggedError<CaptureOutputLimitExceededError>(
+  $I`CaptureOutputLimitExceededError`
+)(
+  "CaptureOutputLimitExceededError",
+  { commandLine: S.String, maxBytes: S.BigInt },
+  $I.annoteError<CaptureOutputLimitExceededError>("CaptureOutputLimitExceededError", {
+    description: "Exclusive spool output exceeded its finite combined byte budget.",
+  })
+) {}
+
 /** Grace for inherited-pipe stragglers to close the capture after the child exits, before its process group is reaped. */
 const CAPTURE_DRAIN_GRACE: Duration.Input = "2 seconds";
 /** Grace after the group reap for the kernel to deliver EOF before the capture is declared wedged. */
@@ -899,9 +920,10 @@ export const settleCapturedStepForTesting = settleCapturedStep;
  */
 const capturePipeDeadline = (
   handle: ChildProcessSpawner.ChildProcessHandle,
-  commandLine: string
+  commandLine: string,
+  completion: Effect.Effect<unknown, PlatformError.PlatformError> = handle.exitCode
 ): Effect.Effect<never, PlatformError.PlatformError> =>
-  handle.exitCode.pipe(
+  completion.pipe(
     Effect.andThen(Effect.sleep(CAPTURE_DRAIN_GRACE)),
     Effect.andThen(Effect.ignore(handle.kill({ forceKillAfter: "1 second" }))),
     Effect.andThen(Effect.sleep(CAPTURE_REAP_GRACE)),
@@ -1207,25 +1229,85 @@ export const runCapturedStreams = Effect.fn("StepExec.runCapturedStreams")(funct
 });
 
 /**
- * Spool complete separate byte streams into exclusive private files.
- * **Details**
- * The existing admitted child lifecycle owns cleanup. Files are opened before
- * spawn with wx/0600 and remain on interruption; no output is copied to console.
- * A caller must hash/retain partial files and classify timeout as an abort.
- * **Example** (Retain private diagnostics)
+ * Actual terminal observation, keeping a signal distinct from a numeric exit.
+ * **Example** (Represent an ordinary exit)
  * ```ts
- * import { runSpooledStreams } from "@beep/repo-cli/test/Process"
- * console.log(runSpooledStreams({ command: "git", args: ["status"], stdoutPath: "/private/out", stderrPath: "/private/err", timeout: "10 seconds" }))
+ * import { CapturedProcessTerminal } from "@beep/repo-cli/test/Process"
+ * console.log(CapturedProcessTerminal.cases.Exited.make({ exitCode: 143 })._tag) // Exited
  * ```
- * @category execution
+ * @category schemas
  * @since 0.0.0
  */
-export const runSpooledStreams = Effect.fn("StepExec.runSpooledStreams")(function* (
-  options: RunCapturedOptions & {
-    readonly stdoutPath: string;
-    readonly stderrPath: string;
-    readonly stdinStream?: Stream.Stream<Uint8Array, PlatformError.PlatformError>;
-  }
+export const CapturedProcessTerminal = S.TaggedUnion({
+  Exited: { exitCode: S.Int },
+  Signalled: { signal: S.Literal("SIGTERM"), error: S.Defect({ includeStack: true }) },
+}).pipe(
+  $I.annoteSchema("CapturedProcessTerminal", {
+    description: "Actual process terminal event; SIGTERM is never converted to a fabricated numeric exit.",
+  })
+);
+/**
+ * Actual numeric-exit or observed-SIGTERM terminal event.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type CapturedProcessTerminal = typeof CapturedProcessTerminal.Type;
+
+const CapturedSigtermExitError = S.Struct({
+  reason: S.TaggedStruct("Unknown", {
+    module: S.Literal("ChildProcess"),
+    method: S.Literal("exitCode"),
+    pathOrDescriptor: S.String,
+    cause: S.Struct({ message: S.Literal("Process interrupted due to receipt of signal: 'SIGTERM'") }),
+  }),
+}).pipe(
+  $I.annoteSchema("CapturedSigtermExitError", {
+    description: "Exact pinned Node spawner error contract for a SIGTERM exit event.",
+  })
+);
+
+/**
+ * Recognize the pinned spawner's exact SIGTERM exit error for one owned command.
+ * **Details**
+ * This classifier alone proves neither ownership nor cleanup. The observed spool
+ * also requires an issued and completed kill, stopped child, and both stream EOFs.
+ * **Example** (Reject a different platform operation)
+ * ```ts
+ * import { isCapturedSigtermExit } from "@beep/repo-cli/test/Process"
+ * import * as PlatformError from "effect/PlatformError"
+ * console.log(isCapturedSigtermExit(PlatformError.badArgument({ module: "FileSystem", method: "readFile" }), "probe")) // false
+ * ```
+ * @category predicates
+ * @since 0.0.0
+ */
+export const isCapturedSigtermExit: {
+  (commandLine: string): (error: unknown) => boolean;
+  (error: unknown, commandLine: string): boolean;
+} = dual(
+  2,
+  (error: unknown, commandLine: string): boolean =>
+    PlatformError.isPlatformError(error) &&
+    S.is(CapturedSigtermExitError)(error) &&
+    error.reason.pathOrDescriptor === commandLine
+);
+
+type SpooledStreamsOptions = RunCapturedOptions & {
+  readonly stdoutPath: string;
+  readonly stderrPath: string;
+  /** Interrupt the owned child, then await its actual exit and drained capture. */
+  readonly interruptAfter?: Duration.Input;
+  /** Combined stdout and stderr byte ceiling; overflow aborts and reaps the child. */
+  readonly maxOutputBytes?: bigint;
+  readonly stdinStream?: Stream.Stream<Uint8Array, PlatformError.PlatformError>;
+};
+
+const spoolCapturedStreams = Effect.fnUntraced(function* <Terminal>(
+  options: SpooledStreamsOptions,
+  terminal: (
+    handle: ChildProcessSpawner.ChildProcessHandle,
+    commandLine: string,
+    interruptIssued: () => boolean
+  ) => Effect.Effect<Terminal, PlatformError.PlatformError>
 ) {
   const fs = yield* FileSystem.FileSystem;
   return yield* Effect.scoped(
@@ -1242,18 +1324,32 @@ export const runSpooledStreams = Effect.fn("StepExec.runSpooledStreams")(functio
         }
       );
       const commandLine = formatCommandLine(options.command, options.args);
-      const deadline = capturePipeDeadline(handle, commandLine);
+      let interruptIssued = false;
+      const observedTerminal = yield* terminal(handle, commandLine, () => interruptIssued).pipe(Effect.cached);
+      const deadline = capturePipeDeadline(handle, commandLine, observedTerminal);
+      let bytes = BigInt(0);
+      const spool = (file: FileSystem.File) =>
+        Effect.fnUntraced(function* (chunk: Uint8Array) {
+          bytes += BigInt(chunk.byteLength);
+          if (options.maxOutputBytes !== undefined && bytes > options.maxOutputBytes)
+            return yield* CaptureOutputLimitExceededError.make({ commandLine, maxBytes: options.maxOutputBytes });
+          yield* file.writeAll(chunk);
+        });
       const capture = Effect.all(
         [
-          handle.stdout.pipe(
-            Stream.interruptWhen(deadline),
-            Stream.runForEach((chunk) => stdout.writeAll(chunk))
-          ),
-          handle.stderr.pipe(
-            Stream.interruptWhen(deadline),
-            Stream.runForEach((chunk) => stderr.writeAll(chunk))
-          ),
-          handle.exitCode,
+          handle.stdout.pipe(Stream.interruptWhen(deadline), Stream.runForEach(spool(stdout))),
+          handle.stderr.pipe(Stream.interruptWhen(deadline), Stream.runForEach(spool(stderr))),
+          observedTerminal,
+          options.interruptAfter === undefined
+            ? Effect.void
+            : Effect.sleep(options.interruptAfter).pipe(
+                Effect.andThen(
+                  Effect.sync(() => {
+                    interruptIssued = true;
+                  })
+                ),
+                Effect.andThen(handle.kill({ forceKillAfter }))
+              ),
           options.stdinStream === undefined
             ? Effect.void
             : Stream.run(options.stdinStream.pipe(Stream.interruptWhen(deadline)), handle.stdin),
@@ -1281,6 +1377,59 @@ export const runSpooledStreams = Effect.fn("StepExec.runSpooledStreams")(functio
     })
   );
 });
+
+/**
+ * Spool complete separate byte streams into exclusive private files.
+ * **Details**
+ * The existing admitted child lifecycle owns cleanup. Files are opened before
+ * spawn with wx/0600 and remain on interruption; no output is copied to console.
+ * A caller must hash/retain partial files and classify timeout as an abort.
+ * **Example** (Retain private diagnostics)
+ * ```ts
+ * import { runSpooledStreams } from "@beep/repo-cli/test/Process"
+ * console.log(runSpooledStreams({ command: "git", args: ["status"], stdoutPath: "/private/out", stderrPath: "/private/err", timeout: "10 seconds" }))
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const runSpooledStreams = Effect.fn("StepExec.runSpooledStreams")((options: SpooledStreamsOptions) =>
+  spoolCapturedStreams(options, (handle) => handle.exitCode)
+);
+
+/**
+ * Force interruption and return only after the owned terminal event and complete spool drains.
+ * **Details**
+ * Only the pinned SIGTERM exit error from this command after its owned kill was
+ * issued is observed as Signalled. Other platform failures and cleanup timeouts
+ * still fail. Numeric exits, including143, remain Exited.
+ * **Example** (Compose bounded forced interruption)
+ * ```ts
+ * import { runObservedSpooledStreams } from "@beep/repo-cli/test/Process"
+ * import * as Effect from "effect/Effect"
+ * console.log(Effect.isEffect(runObservedSpooledStreams({ command: "/bin/sleep", args: ["10"],
+ *   stdoutPath: "/owned/out", stderrPath: "/owned/err", interruptAfter: "100 millis", timeout: "3 seconds" }))) // true
+ * ```
+ * @category execution
+ * @since 0.0.0
+ */
+export const runObservedSpooledStreams = Effect.fn("StepExec.runObservedSpooledStreams")(
+  (options: SpooledStreamsOptions & { readonly interruptAfter: Duration.Input }) =>
+    spoolCapturedStreams(options, (handle, commandLine, interruptIssued) =>
+      handle.exitCode.pipe(
+        Effect.map((exitCode) => CapturedProcessTerminal.cases.Exited.make({ exitCode })),
+        Effect.catchTag("PlatformError", (error) => {
+          if (!interruptIssued() || !isCapturedSigtermExit(error, commandLine)) return Effect.fail(error);
+          return handle.isRunning.pipe(
+            Effect.flatMap((running) =>
+              running
+                ? Effect.fail(error)
+                : Effect.succeed(CapturedProcessTerminal.cases.Signalled.make({ signal: "SIGTERM", error }))
+            )
+          );
+        })
+      )
+    )
+);
 
 /**
  * Options for {@link runToExit}.

@@ -53,6 +53,7 @@ import { runAgentConventionComparison } from "./internal/EvalComparison.ts";
 import { runAgentEffectivenessEvalScoreCommand } from "./internal/EvalScorer.ts";
 import { collectTrial } from "./internal/TrialCollector.ts";
 import { executeTrial } from "./internal/TrialExecutor.ts";
+import { qualifyTrialIsolation } from "./internal/TrialIsolationQualification.ts";
 import { finalizeTrial } from "./internal/TrialProof.ts";
 import { rehydrateTrial, retainTrial } from "./internal/TrialRetention.ts";
 import { parseTrialUsage } from "./internal/TrialUsage.ts";
@@ -736,6 +737,12 @@ const trialRehydrateCommand = Command.make(
   ({ request }) => rehydrateTrial(request).pipe(Effect.flatMap(Console.log))
 ).pipe(Command.withDescription("Restore retained trial source at its original path with immutable receipt references"));
 
+const trialQualifyIsolationCommand = Command.make(
+  "qualify-isolation",
+  { request: Flag.File("request", { mustExist: true }) },
+  ({ request }) => qualifyTrialIsolation(request).pipe(Effect.flatMap(Console.log))
+).pipe(Command.withDescription("Qualify an owned no-graph denied-network fixture without running its native agent"));
+
 const evalsCommand = Command.make("evals", {}, () =>
   printLines([
     "Agent-effectiveness eval commands:",
@@ -747,6 +754,7 @@ const evalsCommand = Command.make("evals", {}, () =>
     "- parse-usage",
     "- retain",
     "- rehydrate",
+    "- qualify-isolation",
   ])
 ).pipe(
   Command.withDescription("Run agent evaluations and manage their retained evidence"),
@@ -759,6 +767,7 @@ const evalsCommand = Command.make("evals", {}, () =>
     trialUsageCommand,
     trialRetainCommand,
     trialRehydrateCommand,
+    trialQualifyIsolationCommand,
   ])
 );
 
