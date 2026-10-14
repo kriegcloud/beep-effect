@@ -142,7 +142,7 @@ Higher sources outrank lower sources when they conflict.
 
 ## Acceptance Criteria
 
-- [ ] **P0 schema.** `values/ClaimElement/` defines `ClaimElementTree`
+- [x] **P0 schema.** `values/ClaimElement/` defines `ClaimElementTree`
       (`claimNumber`, `producer` ∈ rule | llm | human, non-empty `elements`,
       `edges`), `ClaimElement` (ordinal `path`, `anchor: TextAnchor`, `kind` ∈
       preamble-subject | limitation | sub-limitation | functional-relation,
@@ -153,7 +153,7 @@ Higher sources outrank lower sources when they conflict.
       (`missing-antecedent`, `ambiguous-antecedent`, `antecedent-outside-chain`,
       `number-mismatch`, `pattern-not-covered`), each case carrying the rule id
       and spans. `PatentClaim` is byte-identical. Schema round-trip tests pass.
-- [ ] **P1 contract.** `ClaimSelfCheck` is a `Context.Service` with typed
+- [x] **P1 contract.** `ClaimSelfCheck` is a `Context.Service` with typed
       errors; the decomposer and antecedent-policy signatures and the USPTO
       claims port type-check against P0 schemas, with no implementation bodies.
 - [ ] **P2 implementation.** The decomposer and checker are pure and
