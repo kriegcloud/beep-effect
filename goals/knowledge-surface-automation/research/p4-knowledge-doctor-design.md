@@ -1,6 +1,6 @@
 # P4 design — `beep knowledge doctor` (Workstream C Stage 2)
 
-Status: design (2026-10-13), agent-decided under the 2026-10-06 autonomy charter; K1–K10 below carry their reasons and reversals. PR 1 (read-only `--report`) is the first implementation step.
+Status: design (2026-10-13), agent-decided under the 2026-10-06 autonomy charter; K1–K31 below carry their reasons and reversals. PR 1 (read-only `--report`) is the first implementation step.
 
 ## Scope and binding doctrine
 
@@ -336,16 +336,29 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   `rootHistory` (K20–K22). The human output lists roots by dependent count. Also: a
   command span keeps an arrow or other composition character that sits inside a quoted
   argument (K23, the #1676 round-3 follow-up).
-- **PR 4:** baseline/identity/lease schemas, `check`, the seal guard, `verify-mint`,
-  `leases`, and `knowledge:doctor` wired report-only into the quality lane. Yeet's verify
-  step reads `leases --json` (warning only).
+- **PR 4 (landed scope):** the baseline, promotions, identity-sidecar, and lease schemas;
+  the gate (`knowledge doctor` without `--report`), the seal guard, `verify-mint`, and
+  `leases [--json]`. The gate classifies each baselineable finding as inherited, leased,
+  introduced (a kind promoted at the merge-base, which blocks), or pending (a kind still
+  report-only, K24); seal-guard tamper and lease violations are blocking governance
+  findings. Keys follow C6 with tier 1 empty (K26). Leases name their document (K27) and
+  resolve owners from the merge-base CODEOWNERS (K6, K28). Baseline entries carry a
+  named group, including `prohibition-of-retired-surface` and `deleted-target-rot` (K25).
+  `mintKnowledgeBaseline` is pure and serves `verify-mint` and the tests; there is no
+  mint command and no committed baseline, so the gate still refuses with the PR 1
+  message. `knowledge:doctor` runs `--report` as a `lint:policy` step after the
+  semantic-delta phase, and yeet's verify step prints `leases --json` warnings and never
+  fails on them. Also: branch-introduced spans are refs (K29), `ops/reports/` stays live
+  (K30), the export search names its bound and unfollowed `export *` targets, and the
+  human report states that `verified` means checked and lists the unclassified worklist
+  per evaluator and per document (verdict risks 2–5).
 - **PR 5 (needs App token):** the mint workflow. Its first CI-generated baseline-only PR
   is the initial seal.
 - **Promotion PRs:** one per extraction form, each after its C7 window, appending one
   row to `goals/knowledge-doctor.promotions.jsonc` (never touching the sealed baseline).
   The next CI mint reads the promotion at its SHA and admits that kind's inherited keys.
 
-## Decisions (K1..K23)
+## Decisions (K1..K31)
 
 - **K1 Witness-mandatory evaluators.** Reason: makes the counterfactual test total;
   vacuous passes cannot be represented. Reverse: if some evaluator legitimately cannot
@@ -497,3 +510,53 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   span rejected. Shared by Stage 1 and Stage 2. Reason: `--description "Doc → KG"` is one
   command, and the #1676 review asked for it. Reverse: return to the unquoted check if a
   real chain hides an arrow inside quotes.
+- **K24 Only promoted kinds block; other introduced findings are `pending`.** The gate
+  blocks an introduced finding (no baseline key, no effective lease) only when its kind
+  has a promotion row at the merge-base; otherwise the finding is listed as `pending` and
+  never blocks. Reason: contract 1 keeps every form report-only until its C7 promotion,
+  and reading promotions at the merge-base means a branch cannot promote itself (K12).
+  Reverse: drop `pending` once every form is promoted.
+- **K25 Baseline entries carry a named group.** The mint assigns one of six groups:
+  `skill-provenance`, `packet-claim-drift`, `historical-claim`,
+  `prohibition-of-retired-surface` (the source line names its target as retired, removed,
+  deprecated, superseded, or not to be imported), `deleted-target-rot` (the cause group
+  is attributed, or the named package's `package.json` was deleted or renamed away), and
+  `unresolved-reference`. The group is an entry field, so changing it is a relabel and
+  thus `baseline-tamper`. Reason: the C PR 2b risk-1 ruling made a named prohibition group
+  the bulk fallback, and rot read apart from unresolved references is the burn-down
+  order. Reverse: change the lexicon or the rules in a PR whose next CI mint regroups;
+  drop the field to fold the groups.
+- **K26 C6 tier 1 is empty; lineage is endpoint renames.** No document carries its own
+  durable `beep:ref` identity (`beep:ref goal/<slug>` names a packet the line refers to,
+  not the containing document), so keys start at tier 2: `git diff --find-renames=50%`
+  from `mintedAt` to HEAD. The sidecar fills only targets lineage does not place, under
+  the contract-10 rules plus "target present now". Rejected mappings are listed, never
+  silently applied. Reason: a guessed tier-1 identity would give one document two
+  identities, which C6 forbids. Reverse: add tier 1 when `beep knowledge rename` writes
+  document identities.
+- **K27 A lease names its document.** A lease row carries `document`; the gate applies it
+  only when the keyed finding sits in that document, and the owner check reads that
+  document's merge-base CODEOWNERS owners. An `issued` that differs from the merge-base
+  row is reported as `lease-lifetime-exceeded`. Reason: `leases --json` must stay cheap
+  for yeet, so it cannot scan the corpus to find a key's document. Reverse: derive the
+  document from a scan and drop the field.
+- **K28 The owner resolver is the doctor's own for now.** `resolveKnowledgeCodeowners`
+  implements K6 (GitHub last-match semantics) and returns the owner set. The skills patch
+  series has the same grammar returning a joined string, but it is not on this stack.
+  Reason: the lease check needs set membership. Reverse: fold both into one shared
+  resolver once both are on `main`.
+- **K29 A span the prose introduces as a branch is a ref.** In the Stage-2 extractor, an
+  inline span right after `branch` or `branches` is not a path span (verdict risk 5).
+  Stage 1 is unchanged. Reason: branch names such as `goals/<lane>` are refs even when no
+  local ref exists; the live run had 21 such spans, one of them a blocking broken path.
+  Reverse: remove the rule if a real path is ever written after "branch".
+- **K30 `goals/*/ops/reports/` stays live.** The rider asked for a ruling before the first
+  seal. 36 blocking findings sit there, all in one packet (`standards-remediation`), and
+  they seal into their groups on the first mint. Reason: the PR 2b verdict rejected the
+  same move for `ops/handoffs/`, since a directory rule silences current documents.
+  Reverse: a K-decision making the directory archival, landed before the PR 5 mint.
+- **K31 The check report stays `knowledge-doctor/v1`.** `mode` widens to `report | check`
+  and `ratchet` is additive; nothing persists reports, and older readers ignore the
+  field. Reason: K22's rule (bump only for consumers that must reject the new shape).
+  Reverse: bump to `knowledge-doctor/v2` when a persisted consumer must reject reports
+  without a ratchet.
