@@ -9,7 +9,7 @@
  * content-addressed {@link GraduationPlan}: one bootstrap
  * `MaterializationPlan` per child, a typed {@link ExplorationManifestEdit}, and
  * the refusals that make the plan fail closed. {@link GraduationReceipt} is the
- * shape the later `--write` replay prints.
+ * shape the `--write` replay prints.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -429,8 +429,10 @@ export class GraduationChildReceipt extends S.Class<GraduationChildReceipt>($I`G
  *
  * **Details**
  *
- * Printed, not persisted. The manifest digests bracket the exploration edit,
- * which is applied last.
+ * Printed, not persisted. Children are listed already-published first, then
+ * published in request order. The manifest digests bracket the exploration
+ * edit, which is applied after every child. `eventsAppended` counts the
+ * `ops/events/` events the write appended (0 for a manifest-only exploration).
  *
  * **Example** (Inspect the receipt constructor)
  *
@@ -451,6 +453,7 @@ export class GraduationReceipt extends S.Class<GraduationReceipt>($I`GraduationR
     children: S.Array(GraduationChildReceipt),
     manifestBeforeDigest: PlanDigest,
     manifestAfterDigest: PlanDigest,
+    eventsAppended: S.Int,
   },
   $I.annote("GraduationReceipt", {
     description: "What a --write replay of a reviewed graduation plan published and edited.",

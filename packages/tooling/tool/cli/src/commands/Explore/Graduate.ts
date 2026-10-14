@@ -8,7 +8,9 @@
  * goal fleet; {@link compileGraduationPlan} is a pure function of that
  * snapshot and the requested children. Each child is compiled by the existing
  * bootstrap compiler with exploration provenance, so there is one bootstrap
- * compiler. Publishing (`--write --expect`) is E-3c.
+ * compiler. {@link writeGraduationPlan} (E-3c) replays a reviewed plan:
+ * children first through `publishBootstrapPlan`, then the hash-pinned
+ * manifest edit through `replacePinnedFile`, then the opt-in event append.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -18,6 +20,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import { Argument, Command, Flag } from "effect/cli";
+import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
@@ -33,27 +36,42 @@ import { BootstrapInput } from "../Goals/Bootstrap.schemas.ts";
 import { compileMaterializationPlan, planTodayFlag, reportCompiledPlan, resolveToday } from "../Goals/Bootstrap.ts";
 import { GoalPlanInputError, GoalPlanOperationalError } from "../Goals/Goals.errors.ts";
 import { listGoalPackets, parseGoalManifestText } from "../Goals/Inventory.ts";
-import { PacketSlug } from "../Goals/PacketCore/PacketCore.schemas.ts";
+import {
+  materializeExpectFlag,
+  materializeWriteFlag,
+  publishBootstrapPlan,
+  readPinnedFile,
+  replacePinnedFile,
+  requireExpectedPlanId,
+  requireOneMode,
+} from "../Goals/Materialize.ts";
+import { PacketEvent, PacketSlug } from "../Goals/PacketCore/PacketCore.schemas.ts";
 import {
   canonicalJsonText,
   canonicalJsonTextPretty,
   sha256Hex,
   sha256HexBytes,
 } from "../Goals/PacketCore/PacketDigest.ts";
+import { foldUnambiguousStream, PacketEventStore, PacketStreamLocator } from "../Goals/PacketCore/PacketEventStore.ts";
+import { foldPacketEvents, projectPacketTrace, renderPacketTraceFile } from "../Goals/PacketCore/PacketFold.ts";
+import { PACKET_TRACE_SEGMENTS } from "../Goals/PacketCore/PacketTransitionWriter.ts";
 import { ExplorationManifest, ExplorationStage, ExplorationStatus } from "./Atlas.ts";
 import {
   ExistingGoalPacket,
   ExplorationManifestEdit,
   ExplorationSnapshot,
   GraduationChildInput,
+  GraduationChildReceipt,
   GraduationConflict,
   GraduationPlan,
   GraduationPublishedChild,
+  GraduationReceipt,
   GraduationRequest,
 } from "./Graduate.schemas.ts";
 import type * as Crypto from "effect/Crypto";
 import type * as PlatformError from "effect/PlatformError";
 import type { MaterializationPlan } from "../Goals/Bootstrap.schemas.ts";
+import type { PacketEventBody } from "../Goals/PacketCore/PacketCore.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Explore/Graduate");
 
@@ -64,6 +82,11 @@ const decodeExplorationSlug = S.decodeUnknownEffect(PacketSlug);
 const decodeChildInput = S.decodeUnknownEffect(GraduationChildInput);
 const decodeManifestText = S.decodeUnknownOption(S.fromJsonString(ExplorationManifest));
 const encodeGraduationPlan = S.encodeUnknownEffect(GraduationPlan);
+const encodeGraduationReceipt = S.encodeUnknownEffect(GraduationReceipt);
+const decodeJsonRecord = S.decodeUnknownOption(S.Record(S.String, S.Unknown));
+const decodeStringArray = S.decodeUnknownOption(S.Array(S.String));
+
+const GRADUATE_ACTOR = "explore-graduate";
 
 class GoalProvenanceProbe extends S.Class<GoalProvenanceProbe>($I`GoalProvenanceProbe`)(
   { provenance: S.Struct({ exploration: S.String }) },
@@ -471,6 +494,318 @@ export const renderGraduationPlanHuman = (plan: GraduationPlan): string => {
 };
 
 /**
+ * Applies a graduation edit to the exploration manifest text.
+ *
+ * **Details**
+ *
+ * Works on the raw JSON record, so keys the manifest schema does not model
+ * survive the edit in their original order. Sets `status`, `stage`, and
+ * `updated`, and appends `appendGoals` to `links.goals` (creating `links`
+ * when absent). Returns `None` when the text is not a JSON object with an
+ * `exploration` object.
+ *
+ * **Example** (Flip a minimal manifest)
+ *
+ * ```ts
+ * import { ExplorationManifestEdit, renderGraduatedManifest } from "@beep/repo-cli/commands/Explore"
+ * import * as O from "effect/Option"
+ *
+ * const edit = ExplorationManifestEdit.make({
+ *   path: "explorations/demo/ops/manifest.json",
+ *   preImageDigest: "0".repeat(64),
+ *   status: "graduated",
+ *   stage: "graduate",
+ *   updated: "2026-10-14",
+ *   appendGoals: ["goals/demo-child"],
+ * })
+ * const text = '{"exploration":{"slug":"demo","status":"active","stage":"decompose","links":{"goals":[]}}}'
+ * console.log(O.isSome(renderGraduatedManifest(text, edit))) // true
+ * ```
+ *
+ * @param manifestText - Current `ops/manifest.json` text (the pinned pre-image).
+ * @param edit - The reviewed graduation edit.
+ * @returns The edited manifest as two-space JSON with a trailing newline.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderGraduatedManifest: {
+  (manifestText: string, edit: ExplorationManifestEdit): O.Option<string>;
+  (edit: ExplorationManifestEdit): (manifestText: string) => O.Option<string>;
+} = dual(
+  2,
+  (manifestText: string, edit: ExplorationManifestEdit): O.Option<string> =>
+    pipe(
+      parseGoalManifestText(manifestText),
+      O.flatMap(decodeJsonRecord),
+      O.flatMap((root) =>
+        pipe(
+          decodeJsonRecord(root.exploration),
+          O.map((exploration) => {
+            const links = O.getOrElse(
+              decodeJsonRecord(exploration.links),
+              (): Readonly<Record<string, unknown>> => ({})
+            );
+            const goals = O.getOrElse(decodeStringArray(links.goals), A.empty<string>);
+            const edited = {
+              ...root,
+              exploration: {
+                ...exploration,
+                status: edit.status,
+                stage: edit.stage,
+                updated: edit.updated,
+                links: { ...links, goals: A.appendAll(goals, edit.appendGoals) },
+              },
+            };
+            return `${JSON.stringify(edited, null, 2)}\n`;
+          })
+        )
+      )
+    )
+);
+
+const stageOrdinal = (stage: ExplorationStage): number =>
+  pipe(
+    A.findFirstIndex(ExplorationStage.literals, (candidate) => candidate === stage),
+    O.getOrElse(() => 0)
+  ) + 1;
+
+interface ManifestPosition {
+  readonly stage: ExplorationStage;
+  readonly status: ExplorationStatus;
+}
+
+const graduationEventBodies = (
+  revision: number,
+  derivedStatus: O.Option<string>,
+  derivedStage: O.Option<string>,
+  previous: ManifestPosition
+): ReadonlyArray<PacketEventBody> => [
+  ...(revision === 0
+    ? [
+        {
+          type: "packet-created" as const,
+          status: previous.status,
+          stage: previous.stage,
+          ordinal: stageOrdinal(previous.stage),
+        },
+      ]
+    : []),
+  ...(O.contains(derivedStage, ExplorationStage.Enum.graduate)
+    ? []
+    : [
+        {
+          type: "stage-entered" as const,
+          stage: ExplorationStage.Enum.graduate,
+          ordinal: stageOrdinal(ExplorationStage.Enum.graduate),
+        },
+      ]),
+  ...(O.contains(derivedStatus, ExplorationStatus.Enum.graduated)
+    ? []
+    : [
+        {
+          type: "status-set" as const,
+          status: ExplorationStatus.Enum.graduated,
+          previous: O.getOrElse(derivedStatus, () => previous.status),
+        },
+      ]),
+];
+
+// E16: only an exploration that already carries `ops/events/` gets events;
+// the trace projection is regenerated after the appends, as the guarded
+// transition writer does.
+const appendGraduationEvents = Effect.fn("Explore.appendGraduationEvents")(function* (
+  exploration: string,
+  previous: ManifestPosition,
+  at: string,
+  repoRoot: string
+) {
+  const store = yield* PacketEventStore;
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const packetPath = path.join(repoRoot, EXPLORATIONS_DIR, exploration);
+  if (!(yield* store.hasStream(packetPath))) {
+    return 0;
+  }
+  const locator = PacketStreamLocator.make({ packet: exploration, root: "explorations", packetPath });
+  const derived = yield* foldUnambiguousStream(locator, yield* store.list(locator));
+  const bodies = graduationEventBodies(
+    derived.revision,
+    O.fromUndefinedOr(derived.status),
+    O.fromUndefinedOr(derived.resumeStage),
+    previous
+  );
+  let seq = derived.revision;
+  let parent = pipe(
+    O.fromUndefinedOr(derived.tip),
+    O.map((tip) => tip.id)
+  );
+  for (const body of bodies) {
+    const stored = yield* store.append(
+      locator,
+      PacketEvent.make({
+        schemaVersion: "packet-event/v1",
+        packet: exploration,
+        root: "explorations",
+        seq: seq + 1,
+        expectedRevision: seq,
+        at,
+        actor: GRADUATE_ACTOR,
+        ...optionalProp("parent", parent),
+        body,
+      })
+    );
+    seq += 1;
+    parent = O.some(stored.id);
+  }
+  const listing = yield* store.list(locator);
+  const after = foldPacketEvents({ packet: exploration, root: "explorations", events: listing.events });
+  const trace = yield* renderPacketTraceFile(projectPacketTrace(after, listing.events));
+  yield* fs.writeFileString(path.join(packetPath, ...PACKET_TRACE_SEGMENTS), trace);
+  return A.length(bodies);
+});
+
+const refuseConflictedGraduation = (plan: GraduationPlan) =>
+  A.isReadonlyArrayNonEmpty(plan.conflicts)
+    ? Effect.fail(
+        GoalPlanInputError.new(
+          `Graduation plan ${plan.planId} has ${A.length(plan.conflicts)} conflict(s); a conflicted plan never writes.`
+        )
+      )
+    : Effect.void;
+
+/**
+ * Replays a reviewed graduation plan: children first, exploration last.
+ *
+ * **Details**
+ *
+ * Refuses unless `expect` names `plan.planId` and the plan has no conflicts.
+ * Then each child still to publish goes through `publishBootstrapPlan` in
+ * request order; the manifest edit is applied by `replacePinnedFile` only if
+ * the manifest still matches the edit's `preImageDigest`; and, when the
+ * exploration carries `ops/events/`, `stage-entered: graduate` and
+ * `status-set: graduated` are appended through the guarded event store.
+ * A crash between children leaves those children with this exploration's
+ * provenance; re-running the same command reports them as already published
+ * and finishes (E15).
+ *
+ * **Gotchas**
+ *
+ * A crash after the manifest write but before the event append leaves the
+ * manifest graduated and the stream behind; `explore --check` reports the
+ * status drift, and the plan now refuses (`exploration-closed`).
+ *
+ * **Example** (Build the write effect)
+ *
+ * ```ts
+ * import { GraduationPlan, writeGraduationPlan } from "@beep/repo-cli/commands/Explore"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * const plan = GraduationPlan.make({
+ *   planId: "graduation-plan/v1:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   exploration: "missing-idea",
+ *   children: [],
+ *   alreadyPublished: [],
+ *   conflicts: [],
+ * })
+ * console.log(Effect.isEffect(writeGraduationPlan(plan, O.some(plan.planId), "2026-10-14T00:00:00.000Z"))) // true
+ * ```
+ *
+ * @param plan - The graduation plan recompiled from the live tree.
+ * @param expect - The reviewed plan id passed with `--expect`.
+ * @param at - ISO date-time stamped on appended stream events.
+ * @param repoRoot - Repository root the `explorations/` and `goals/` trees resolve against.
+ * @returns The graduation receipt once every write lands.
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const writeGraduationPlan = Effect.fn("Explore.writeGraduationPlan")(function* (
+  plan: GraduationPlan,
+  expect: O.Option<string>,
+  at: string,
+  repoRoot = "."
+) {
+  yield* requireExpectedPlanId(plan.planId, expect);
+  yield* refuseConflictedGraduation(plan);
+  if (plan.explorationEdit === undefined) {
+    return yield* GoalPlanInputError.new(`Graduation plan ${plan.planId} has no exploration edit; it never writes.`);
+  }
+  const edit = plan.explorationEdit;
+  const preImage = yield* readPinnedFile(edit.path, edit.preImageDigest, repoRoot);
+  const previous = yield* pipe(
+    decodeManifestText(new TextDecoder().decode(preImage)),
+    O.match({
+      onNone: () => Effect.fail(GoalPlanOperationalError.new(`${edit.path} no longer decodes.`)(undefined)),
+      onSome: ({ exploration }) => Effect.succeed({ status: exploration.status, stage: exploration.stage }),
+    })
+  );
+  const published = yield* Effect.forEach(plan.children, (child) =>
+    publishBootstrapPlan(child, repoRoot).pipe(
+      Effect.map((receipt) => GraduationChildReceipt.make({ slug: child.slug, outcome: "published", receipt }))
+    )
+  );
+  const manifest = yield* replacePinnedFile(
+    edit.path,
+    edit.preImageDigest,
+    (text) =>
+      Effect.fromOption(renderGraduatedManifest(text, edit)).pipe(
+        Effect.mapError(GoalPlanOperationalError.new(`${edit.path} is not a JSON manifest object.`))
+      ),
+    repoRoot
+  );
+  const eventsAppended = yield* appendGraduationEvents(plan.exploration, previous, at, repoRoot).pipe(
+    Effect.mapError((error) =>
+      GoalPlanOperationalError.new(
+        `Manifest ${edit.path} is graduated, but appending its ops/events failed: ${error.message}`
+      )(error)
+    )
+  );
+  return GraduationReceipt.make({
+    planId: plan.planId,
+    exploration: plan.exploration,
+    children: [
+      ...A.map(plan.alreadyPublished, (child) =>
+        GraduationChildReceipt.make({ slug: child.slug, outcome: "already-published" })
+      ),
+      ...published,
+    ],
+    manifestBeforeDigest: manifest.beforeDigest,
+    manifestAfterDigest: manifest.afterDigest,
+    eventsAppended,
+  });
+});
+
+/**
+ * Renders a graduation receipt as canonical pretty JSON.
+ *
+ * **Example** (Render a receipt)
+ *
+ * ```ts
+ * import { GraduationReceipt, renderGraduationReceiptJson } from "@beep/repo-cli/commands/Explore"
+ * import * as Effect from "effect/Effect"
+ *
+ * const receipt = GraduationReceipt.make({
+ *   planId: "graduation-plan/v1:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+ *   exploration: "demo",
+ *   children: [],
+ *   manifestBeforeDigest: "0".repeat(64),
+ *   manifestAfterDigest: "1".repeat(64),
+ *   eventsAppended: 0,
+ * })
+ * console.log(Effect.isEffect(renderGraduationReceiptJson(receipt))) // true
+ * ```
+ *
+ * @param receipt - The receipt a graduation write returned.
+ * @returns Effect yielding canonical pretty JSON with a trailing newline.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderGraduationReceiptJson: (receipt: GraduationReceipt) => Effect.Effect<string, S.SchemaError> =
+  Effect.fnUntraced(function* (receipt: GraduationReceipt) {
+    return canonicalJsonTextPretty(yield* encodeGraduationReceipt(receipt));
+  });
+
+/**
  * Decodes one `--goal <slug>=<title>` value.
  *
  * **Details**
@@ -522,12 +857,10 @@ const runGraduatePlan = Effect.fn("Explore.runGraduatePlan")(function* (options:
   readonly today: O.Option<string>;
   readonly plan: boolean;
   readonly json: boolean;
+  readonly write: boolean;
+  readonly expect: O.Option<string>;
 }) {
-  if (!options.plan) {
-    return yield* GoalPlanInputError.new(
-      "Pass --plan to review the graduation plan; --write --expect <planId> lands in E-3c."
-    );
-  }
+  yield* requireOneMode(options);
   const exploration = yield* decodeExplorationSnapshotSlug(options.exploration);
   const children = yield* Effect.forEach(options.goals, parseGraduationGoal);
   const today = yield* resolveToday(options.today);
@@ -535,6 +868,15 @@ const runGraduatePlan = Effect.fn("Explore.runGraduatePlan")(function* (options:
   const plan = yield* compileGraduationPlan(snapshot, GraduationRequest.make({ children, today })).pipe(
     Effect.mapError(GoalPlanOperationalError.new("Failed to digest the graduation plan."))
   );
+  if (options.write) {
+    const at = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
+    const receipt = yield* writeGraduationPlan(plan, options.expect, at);
+    const rendered = yield* renderGraduationReceiptJson(receipt).pipe(
+      Effect.mapError((issue) => GoalPlanInputError.new(`Failed to encode the receipt: ${issue.message}`))
+    );
+    yield* Console.log(Str.trimEnd(rendered));
+    return;
+  }
   yield* reportGraduationPlan(plan, options.json);
 });
 
@@ -547,7 +889,7 @@ const goalFlag = Flag.String("goal").pipe(
 );
 const planFlag = Flag.Boolean("plan").pipe(
   Flag.withDefault(false),
-  Flag.withDescription("Compile and print the graduation plan for review (required until E-3c)")
+  Flag.withDescription("Compile and print the graduation plan for review")
 );
 const jsonFlag = Flag.Boolean("json").pipe(
   Flag.withDefault(false),
@@ -560,7 +902,7 @@ const failGraduate = Effect.fn(function* (error: GoalPlanInputError | GoalPlanOp
 });
 
 /**
- * `bun run beep explore graduate` — compile an exploration graduation plan.
+ * `bun run beep explore graduate` — plan, then replay, an exploration graduation.
  *
  * **Example** (Log command name)
  *
@@ -581,6 +923,8 @@ export const exploreGraduateCommand = Command.make(
     today: planTodayFlag,
     plan: planFlag,
     json: jsonFlag,
+    write: materializeWriteFlag,
+    expect: materializeExpectFlag,
   },
   Effect.fn(function* (options) {
     return yield* runGraduatePlan(options).pipe(
@@ -589,6 +933,6 @@ export const exploreGraduateCommand = Command.make(
   })
 ).pipe(
   Command.withDescription(
-    "Compile an exploration graduation plan: one bootstrap plan per --goal plus the manifest flip (--plan --json)"
+    "Graduate an exploration: review one plan (--plan --json), then replay it (--write --expect <planId>)"
   )
 );

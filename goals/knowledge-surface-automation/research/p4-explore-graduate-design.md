@@ -105,6 +105,15 @@ then disagree with `goals/`.
   needed. If no exploration is ready, the proof waits for one; it is never faked with a
   synthetic exploration.
 
+- **E18 — an opted-in but empty stream gets its genesis at graduation.** An
+  `ops/events/` directory with no events is opted in (D1), so the write appends a
+  `packet-created` carrying the pre-image status and stage before `stage-entered:
+  graduate` and `status-set: graduated`, then regenerates `ops/trace.json` the way the
+  guarded transition writer does. Events already at `graduate`/`graduated` are not
+  re-appended. Reason: a stream that starts at `stage-entered` has no genesis to fold
+  `previous` from, and a stale trace would fail `explore --check`. Reverse: refuse
+  graduation on an empty stream and require the packet to seed its genesis first.
+
 ## Sequencing
 
 - **PR E-3a (this design).**
@@ -127,4 +136,33 @@ then disagree with `goals/`.
 - **PR E-3c:** `--write --expect`, the manifest edit applier (shared with adoption's
   preserve check), the event append for opted-in packets, crash-replay tests, and the
   first real graduation (E17).
+  *Landed scope:* `explore graduate --write --expect <planId>` (`writeGraduationPlan`)
+  recompiles, refuses on a moved id or any conflict, publishes each remaining child with
+  `publishBootstrapPlan` in request order, then applies the manifest edit with
+  `replacePinnedFile` and appends the opted-in events (E18). It prints a
+  `graduation-receipt/v1` with already-published rows first, the manifest before and
+  after digests, and `eventsAppended`. `Goals/Materialize.ts` now owns the shared
+  pre-image check (`readPinnedFile`, which adoption's preserve rows call) and the staged
+  single-file replacement built on it (`replacePinnedFile`: exclusive stage beside the
+  file, pre-image re-check, atomic rename, stage removed on failure), plus
+  `requireExpectedPlanId`, which bootstrap, adopt, and graduate share. The edit works on
+  the raw JSON record, so manifest keys the schema does not model survive. Tests
+  (`explore-graduate-write.test.ts`) cover the happy path, refusal without or with a wrong
+  `--expect`, a real mid-write failure between two children followed by a resumed write,
+  a foreign same-slug packet staying a hard conflict, and the event append.
+  *Self-hosting (E17) ran in this PR.* The only `decompose`-stage exploration,
+  `typed-agent-skill-contracts`, held one open question (Amendment J: a new goal or an
+  amendment to a later wave). The orchestrator ruled it a new candidate-7 goal on
+  2026-10-14, recorded in the exploration's `DECISIONS.md` and `MAP.md`; the answered
+  question was cleared from `openQuestions` by a plain manifest edit before planning.
+  `--plan --json` then compiled `graduation-plan/v1:f7be2ea5b86b508f34d508799d94e6edbd3f75e7798ebf0095908aaa7bdceb5e`
+  with `goals/skill-contract-kernel` already published (its provenance names the
+  exploration), one child to publish, and no conflicts. `--write --expect` published
+  `goals/skill-contract-gate-certificates` (child plan
+  `goal-plan/v1:478e562c…`, nine files, three stage validations) and flipped the
+  manifest from pre-image `bbf0a117…` to `7b1781ee…`, appending the new goal to
+  `links.goals`; `eventsAppended` was 0 because the exploration has no `ops/events/`.
+  Biome then reformatted the two written manifests (inline short arrays); the receipt's
+  after-digest names the bytes the tool wrote. Bootstrap, adopt, and graduate are now
+  all self-hosted.
 - **Later (E-3d):** `ops/materialization.json` and rematerialization/capsules (E10).
