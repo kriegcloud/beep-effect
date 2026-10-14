@@ -39,6 +39,7 @@ import { runGitOutput } from "../../internal/repo-run/index.ts";
 import { reflectionFileNameIsArtifact, reflectionFrontmatterIsValid } from "../Lint/ReflectionArtifact.ts";
 import { GoalsGitError } from "./Goals.errors.ts";
 import { decodeGoalManifest, GoalPhaseStatus, GoalStatus } from "./Goals.schemas.ts";
+import { capabilityProviderRows, compileCapabilityProjection, isStrandedProviderSet } from "./Graph.projection.ts";
 import {
   goalManifestPhases,
   isJsonRecord,
@@ -48,6 +49,7 @@ import {
 } from "./Inventory.ts";
 import type { GitCommandErrorAdapter } from "../../internal/repo-run/index.ts";
 import type { GoalManifest } from "./Goals.schemas.ts";
+import type { CapabilityProjection } from "./Graph.schemas.ts";
 import type { GoalPacketRecord } from "./Inventory.ts";
 
 const $I = $RepoCliId.create("commands/Goals/Doctor");
@@ -124,6 +126,9 @@ export const GoalDoctorFindingKind = LiteralKit([
   "packet-fleet-dependency-cycle",
   "packet-fleet-unreachable",
   "packet-fleet-unmigrated-reference",
+  "capability-duplicate-declaration",
+  "capability-reference-provides",
+  "capability-stranded",
 ]).pipe(
   $I.annoteSchema("GoalDoctorFindingKind", {
     description:
@@ -773,6 +778,77 @@ const gitAdvisories = Effect.fn("Goals.gitAdvisories")(function* (packets: Reado
   return { findings, notes };
 });
 
+/**
+ * Capability findings over a compiled projection (D5, D8).
+ *
+ * **Details**
+ *
+ * - `capability-duplicate-declaration` (blocking, ratcheted): a packet lists the
+ *   same slug twice in `provides` or in `requires`.
+ * - `capability-reference-provides` (blocking, ratcheted): a `reference` packet
+ *   declares `provides`. Reference packets document; they never build.
+ * - `capability-stranded` (advisory): every provider of a capability is
+ *   superseded, so the superseding packet never re-declared it. One finding per
+ *   superseded provider.
+ *
+ * Keys embed the edge and capability, so each declaration ratchets on its own.
+ *
+ * **Example** (An empty projection has no capability findings)
+ *
+ * ```ts
+ * import { capabilityDoctorFindings } from "@beep/repo-cli/commands/Goals/Doctor"
+ * import { CapabilityProjection } from "@beep/repo-cli/commands/Goals/Graph.schemas"
+ *
+ * const projection = CapabilityProjection.make({ packets: [], capabilities: [], provides: [], requires: [], duplicates: [] })
+ * console.log(capabilityDoctorFindings(projection)) // []
+ * ```
+ *
+ * @param projection - Capability projection compiled from the decodable manifests.
+ * @returns Duplicate, reference-provides, and stranded findings.
+ * @category validation
+ * @since 0.0.0
+ */
+export const capabilityDoctorFindings = (projection: CapabilityProjection): ReadonlyArray<GoalDoctorFinding> => {
+  const duplicates = A.map(projection.duplicates, (duplicate) =>
+    finding(
+      duplicate.packetId,
+      "capability-duplicate-declaration",
+      "blocking",
+      `declares ${duplicate.capability} more than once in ${duplicate.edge}; list each capability once.`,
+      `${duplicate.edge} ${duplicate.capability}`
+    )
+  );
+  const perCapability = A.flatMap(projection.capabilities, (capability) => {
+    const providers = capabilityProviderRows(projection, capability);
+    const referenceProvides = pipe(
+      providers,
+      A.filter((row) => row.providerStatus === "reference"),
+      A.map((row) =>
+        finding(
+          row.provider,
+          "capability-reference-provides",
+          "blocking",
+          `reference packet declares provides ${capability}; reference packets never satisfy readiness, so move the declaration to the packet that builds it.`,
+          capability
+        )
+      )
+    );
+    const stranded = isStrandedProviderSet(providers)
+      ? A.map(providers, (row) =>
+          finding(
+            row.provider,
+            "capability-stranded",
+            "advisory",
+            `${capability} is declared only by superseded packets; the superseding packet must re-declare it.`,
+            capability
+          )
+        )
+      : A.empty<GoalDoctorFinding>();
+    return A.appendAll(referenceProvides, stranded);
+  });
+  return A.appendAll(duplicates, perCapability);
+};
+
 const findingLine = (item: GoalDoctorFinding): string => `- ${item.slug} [${item.kind}] ${item.message}`;
 
 /**
@@ -896,7 +972,14 @@ export const runGoalsDoctor = Effect.fn("Goals.runGoalsDoctor")(function* (optio
   }
 
   const advisoriesFromGit = yield* gitAdvisories(packets);
-  const allFindings = [...A.flatMap(packets, (packet) => packet.findings), ...advisoriesFromGit.findings];
+  const capabilityFindings = capabilityDoctorFindings(
+    compileCapabilityProjection(A.getSomes(A.map(packets, (packet) => packet.manifest)))
+  );
+  const allFindings = [
+    ...A.flatMap(packets, (packet) => packet.findings),
+    ...capabilityFindings,
+    ...advisoriesFromGit.findings,
+  ];
   const blocking = A.filter(allFindings, (item) => item.severity === "blocking");
   const advisories = A.filter(allFindings, (item) => item.severity === "advisory");
 
