@@ -62,3 +62,40 @@ sitting behind bot walls (`goals/design-figure-generation/research/OPPORTUNITIES
   recorded, and the sweep refused with "no pull request was observed".
 - **Would have prevented it:** record the PR lease from the REST create response, the same as from
   the `yeet publish` path.
+
+## 2026-10-14 — the critic pack carried no zooms, so one critic could not check stroke detail
+
+- **Doing:** running review loop 2 (Grok) on the matter's render-k pack.
+- **Evidence:** the critic prompt names `render/zoom-*.png`; the pack had none for that set, and the
+  critic listed it under could-not-assess. Zooms had been cut by hand for one earlier set only.
+- **Would have prevented it:** the pack refresh cutting the 300 dpi zooms from the set's PDF
+  every time (now in the render chain); a `drawings review-pack` command that writes RENDER.md,
+  rasters and zooms from a render directory would make it deterministic for the next matter.
+
+## 2026-10-14 — a face that planned lines but drew none was invisible in the coverage report
+
+- **Doing:** judging loop-3 findings that two flaps and the lid were bare.
+- **Evidence:** the view's coverage counted those faces as shaded (`shadedFaces`), because the
+  count is taken when lines are planned, before hidden-line removal and the legibility pass drop
+  every stroke; the critics found the bare faces from the SVG, not from the manifest.
+- **Would have prevented it:** a per-view count of faces that planned lines and drew none
+  (`lostFaces`) and a validator finding `shading-lost-face` when it is above zero, so the render
+  fails its own validation instead of waiting for a reviewer. Landed in #1671 with
+  `shading-outline-clearance` and `shading-lone-line`.
+
+## 2026-10-14 — attributing hidden-line output by projected geometry collided twice
+
+- **Doing:** finding why walls stayed bare (loop 2) and why a probe pass bridged a gap (loop 3).
+- **Evidence:** strokes of walls at different depths project onto one line, and a post's probe
+  pieces lay on a wall's probe line; both times a stroke or piece was credited to the wrong face.
+- **Would have prevented it:** the rule now in `kernel.ts`: every shape whose visible pieces
+  matter is added to `HLRBRep_Algo` as its own input and read back with `VCompound(shape)`,
+  never matched by projected position.
+
+## 2026-10-14 — an attorney's numeric answer reached the model only by hand
+
+- **Doing:** accepting the loop-2 finding that the lap was modelled at the generator's default.
+- **Evidence:** the attorney's answer (a 2 in overlap) was recorded in the corpus answers file on
+  2026-10-14 but `build-spec.ts` kept `lapWidth: 40` until a critic measured the sheet.
+- **Would have prevented it:** the corpus `check-overlap.ts` asserting every numeric answer
+  against the generated spec, run by the render chain before a set is packed for review.
