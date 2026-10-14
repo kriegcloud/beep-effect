@@ -67,6 +67,7 @@ import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
+import * as Base64Url from "effect/encoding/Base64Url";
 import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as HashMap from "effect/HashMap";
@@ -1196,7 +1197,8 @@ const junieTestLayer = (
   optionsBody = '{"aiAccessOptions":[{"type":"LICENSE","aiAccessEnabled":true,"code":"WS","licenseId":"synthetic-ws","validThrough":"2099-01-01"},{"type":"license","aiAccessEnabled":true,"code":"AIP","licenseId":"synthetic-aip","validThrough":"2099-01-01"}]}',
   quotaStatus = 200,
   audienceRotated = false,
-  delayedDetailed = false
+  delayedDetailed = false,
+  exchangeBody = '{"token":"synthetic-grazie"}'
 ) => {
   const root = "/accounts-test";
   const requests = Layer.effect(JunieRequests, Ref.make<ReadonlyArray<ReadonlyArray<string | undefined>>>(A.empty()));
@@ -1216,7 +1218,7 @@ const junieTestLayer = (
       };
       const detailedBodies = HashMap.make(
         ["https://api.jetbrains.cloud/user-management/api/ai-access-options", optionsBody],
-        ["https://api.jetbrains.ai/auth/jetbrains-jwt/provide-access/license/v2", '{"token":"synthetic-grazie"}'],
+        ["https://api.jetbrains.ai/auth/jetbrains-jwt/provide-access/license/v2", exchangeBody],
         [
           "https://api.jetbrains.ai/user/v5/quota/get",
           '{"current":{"current":{"amount":120000},"maximum":{"amount":"1000000"},"tariffQuota":{"current":{"amount":"120000"},"maximum":{"amount":1000000},"available":{"amount":"880000"}},"topUpQuota":{"available":{"amount":"10000"}}}}',
@@ -1577,6 +1579,40 @@ describe("Junie detailed cycle quota", () => {
       );
     }
   );
+  it.layer(
+    junieTestLayer(
+      credential,
+      false,
+      401,
+      200,
+      200,
+      true,
+      undefined,
+      200,
+      false,
+      false,
+      `{"token":"synthetic.${Base64Url.encode('{"exp":120}')}.signature"}`
+    ),
+    { timeout: "30 seconds" }
+  )("exchange token expiry", (it) => {
+    it.effect(
+      "renews the exchange token at its JWT expiry while preserving cycle usage",
+      Effect.fnUntraced(function* () {
+        yield* TestClock.setTime(0);
+        const first = A.head(yield* pollAccounts).pipe(O.getOrThrow);
+        expect(first.outcome).toMatchObject({ _tag: "Ok", windows: [{ kind: "cycle", usedPercent: 12 }] });
+        const seen = yield* JunieRequests;
+        yield* Ref.set(seen, []);
+        yield* TestClock.adjust("121 seconds");
+
+        const second = A.head(yield* pollAccounts).pipe(O.getOrThrow);
+        expect(second.outcome).toMatchObject({ _tag: "Ok", windows: [{ kind: "cycle", usedPercent: 12 }] });
+        expect(
+          A.filter(yield* Ref.get(seen), (request) => Str.includes("provide-access")(request[1] ?? ""))
+        ).toHaveLength(1);
+      })
+    );
+  });
   it.layer(junieTestLayer(credential, false, 401, 200, 200, true, undefined, 200, false, true), {
     timeout: "30 seconds",
   })("overall timeout", (it) => {

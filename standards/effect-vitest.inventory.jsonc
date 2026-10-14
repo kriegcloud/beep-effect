@@ -14733,6 +14733,27 @@
       "reason": "runCliCommand deliberately closes the child-process scope after collecting output and awaiting exitCode, before returning to the enclosing test. This is a shorter helper scope, not a redundant whole-test scope; preserve the subprocess lifetime and real BunRuntime entrypoint oracle, whose exit-status mutant fails on Node and Bun."
     },
     {
+      "id": "EV004:packages/tooling/tool/cli/test/knowledge-doctor-baseline.test.ts:808:scoped@9#1",
+      "lens": "detector",
+      "ruleId": "EV004",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/knowledge-doctor-baseline.test.ts",
+      "line": 808,
+      "endLine": 808,
+      "symbol": "scoped",
+      "occurrence": "v2:a23d78849686c2030c10b07ba873f457ef0052b77689ea0ed5001e8b711e4bd2",
+      "class": "redundant-whole-body-scope",
+      "evidence": "Effect.scoped",
+      "replacement": {
+        "primitive": "readme.resource-safety",
+        "sketch": "readme.resource-safety: Use for redundant-whole-body-scope findings (EV004, candidate class redundant-whole-body-scope); delete only a whole-body Effect.scoped wrapper and retain deliberate shorter scopes."
+      },
+      "severity": "major",
+      "confidence": 0.95,
+      "mechanization": "detector",
+      "status": "open"
+    },
+    {
       "id": "EV004:packages/tooling/tool/cli/test/knowledge-refs.test.ts:1117:scoped@14#1",
       "lens": "resource",
       "ruleId": "EV004",
@@ -26751,13 +26772,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor-baseline.test.ts:43:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor-baseline.test.ts:45:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-doctor-baseline.test.ts",
-      "line": 43,
-      "endLine": 43,
+      "line": 45,
+      "endLine": 45,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
       "class": "platform-resource-provenance-review",
@@ -26772,13 +26793,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor-evaluators.test.ts:23:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor-evaluators.test.ts:24:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-doctor-evaluators.test.ts",
-      "line": 23,
-      "endLine": 23,
+      "line": 24,
+      "endLine": 24,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
       "class": "platform-resource-provenance-review",
@@ -40126,17 +40147,38 @@
       "status": "open"
     },
     {
-      "id": "EV015:packages/tooling/tool/cli/test/accounts-usage.test.ts:1367:TestClock.adjust@15#1",
+      "id": "EV015:packages/tooling/tool/cli/test/accounts-usage.test.ts:1368:TestClock.adjust@15#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
-      "line": 1367,
-      "endLine": 1367,
+      "line": 1368,
+      "endLine": 1368,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:fbecb4ac9eeac0b0fc568a24200f5b7adb92e30cea7c7b583829fe879cb03a19",
       "class": "shared-test-clock-adjustment",
       "evidence": "TestClock.adjust(\"3600 seconds\")",
+      "replacement": {
+        "primitive": "TestClock.adjust",
+        "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV015:packages/tooling/tool/cli/test/accounts-usage.test.ts:1605:TestClock.adjust@15#1",
+      "lens": "resource",
+      "ruleId": "EV015",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/accounts-usage.test.ts",
+      "line": 1605,
+      "endLine": 1605,
+      "symbol": "TestClock.adjust",
+      "occurrence": "v2:b17da3db6ee79ad378994e7fe76e9f3d1336b2497426eb4fa8a16a4dd0dfbbec",
+      "class": "shared-test-clock-adjustment",
+      "evidence": "TestClock.adjust(\"121 seconds\")",
       "replacement": {
         "primitive": "TestClock.adjust",
         "sketch": "it.layer.option.excludeTestServices: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) only when the block intentionally needs live default Clock and Console and supplies any required test services explicitly. TestClock.adjust: Use for shared-test-clock-adjustment judgments (EV015, candidate class shared-test-clock-adjustment) to review ownership of a shared deterministic clock and forked work before advancing it. Preserve deterministic timeout subjects; prove serial ownership or isolate test services before considering a reset."

@@ -965,3 +965,17 @@ existing regression proves that later attributes cannot alter the start
 snapshot. Document that specific boundary in the canonical allowlist and
 regenerate its projection. Reversal removes the new identity or boundary
 entry through a repair PR; it does not lower a published coverage floor.
+
+### 2026-10-14 — qualify the integrated knowledge gate and account cycle
+
+Retain every published account, evaluator, and service coverage floor after
+integrating the newly landed cycle and sealed-baseline gate. Exercise JWT
+exchange expiry and the live Git-backed mint, verify, check, identity-sidecar,
+and lease boundaries in disposable fixtures. Narrow the missing-export message
+helper to the missing variant its sole caller passes; remove the impossible
+success branch. Select only the three newly measured knowledge baseline,
+grouping, and lease identities from the passing combined report through the
+canonical writer. Verify structural equality of all incumbent baseline fields.
+The lease-warning boundary reaches full coverage and needs no partial identity.
+Reversal is a repair PR reverting these tests, the private narrowing, or new
+rows; it does not lower an existing floor. The broader program remains active.

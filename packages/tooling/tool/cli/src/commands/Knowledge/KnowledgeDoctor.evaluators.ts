@@ -668,10 +668,11 @@ const searchExport = (
     },
   });
 
-const missingExportMessage = (specifier: string, name: string, search: ExportSearch): string => {
-  if (search._tag === "Found") {
-    return `${specifier} exports ${name}.`;
-  }
+const missingExportMessage = (
+  specifier: string,
+  name: string,
+  search: Extract<ExportSearch, { readonly _tag: "Missing" }>
+): string => {
   if (search.bounded) {
     return `${name} was not found in the first ${MAX_EXPORT_SEARCH_FILES} files re-exported by ${specifier}; the search stopped at its bound, so absence is unproven.`;
   }
