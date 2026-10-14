@@ -59,7 +59,9 @@ out.push(
   "| --- | --- | --- | --- | --- | --- | --- |"
 );
 for (const [label, field, today] of opaqueCases) {
-  class ProbeError extends S.TaggedError<ProbeError>("ProbeError")("ProbeError", { cause: field }) {}
+  class ProbeError extends S.TaggedError<ProbeError, { readonly brand: unique symbol }>("ProbeError")("ProbeError", {
+    cause: field,
+  }) {}
   const fieldEquivalent = S.toEquivalence(S.Struct({ cause: field }))({ cause: left }, { cause: right });
   const schemaEquivalent = S.toEquivalence(ProbeError)(
     new ProbeError({ cause: left }),

@@ -49,7 +49,7 @@ type ModHostOperation = typeof ModHostOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class ModHostError extends S.TaggedError<ModHostError>($I`ModHostError`)(
+export class ModHostError extends S.TaggedError<ModHostError, { readonly brand: unique symbol }>($I`ModHostError`)(
   "ModHostError",
   {
     operation: ModHostOperation,

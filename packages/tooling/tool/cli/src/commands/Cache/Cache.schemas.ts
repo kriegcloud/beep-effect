@@ -32,16 +32,17 @@ const $I = $RepoCliId.create("commands/Cache/Cache.schemas");
  * @category models
  * @since 0.0.0
  */
-export class CacheRemoteReadsRequest extends S.Class<CacheRemoteReadsRequest>($I`CacheRemoteReadsRequest`)(
-  {
+export class CacheRemoteReadsRequest extends S.Opaque<CacheRemoteReadsRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     api: S.NonEmptyString.check(S.isPattern(/^https:\/\/[^\s"'\r\n]+$/u)),
     team: S.NonEmptyString.check(S.isPattern(/^[^\s"'\r\n]+$/u)),
     tokenRef: S.NonEmptyString.check(S.isPattern(/^op:\/\/[^/\s"']+\/[^/\s"']+\/(?:[^/\s"']+\/)?[^/\s"']+$/u)),
     replaceToken: S.Boolean,
-  },
-  $I.annote("CacheRemoteReadsRequest", {
-    description: "Unresolved secret-reference configuration; no secret read is authorized.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheRemoteReadsRequest", {
+      description: "Unresolved secret-reference configuration; no secret read is authorized.",
+    })
+  )
 ) {}
 
 /**
@@ -85,14 +86,15 @@ export type CacheRunMode = typeof CacheRunMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class CacheWallTime extends S.Class<CacheWallTime>($I`CacheWallTime`)(
-  {
+export class CacheWallTime extends S.Opaque<CacheWallTime, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: CacheRunMode,
     runs: S.Natural,
     p50Ms: S.Natural,
     p95Ms: S.Natural,
-  },
-  $I.annote("CacheWallTime", { description: "Turbo run wall-clock percentiles grouped by cache posture." })
+  }).pipe(
+    $I.annoteSchema("CacheWallTime", { description: "Turbo run wall-clock percentiles grouped by cache posture." })
+  )
 ) {}
 
 /**
@@ -110,14 +112,15 @@ export class CacheWallTime extends S.Class<CacheWallTime>($I`CacheWallTime`)(
  * @category models
  * @since 0.0.0
  */
-export class CacheLambdaSummary extends S.Class<CacheLambdaSummary>($I`CacheLambdaSummary`)(
-  {
+export class CacheLambdaSummary extends S.Opaque<CacheLambdaSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     rows: S.Natural,
     reads: S.Natural,
     hits: S.Natural,
     puts: S.Natural,
-  },
-  $I.annote("CacheLambdaSummary", { description: "Aggregate remote-cache access counts without secret data." })
+  }).pipe(
+    $I.annoteSchema("CacheLambdaSummary", { description: "Aggregate remote-cache access counts without secret data." })
+  )
 ) {}
 
 /**
@@ -134,8 +137,8 @@ export class CacheLambdaSummary extends S.Class<CacheLambdaSummary>($I`CacheLamb
  * @category models
  * @since 0.0.0
  */
-export class CacheDashboardReport extends S.Class<CacheDashboardReport>($I`CacheDashboardReport`)(
-  {
+export class CacheDashboardReport extends S.Opaque<CacheDashboardReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema: S.tag("cache-dashboard/v1"),
     generatedAt: S.String,
     runFiles: S.Natural,
@@ -146,10 +149,11 @@ export class CacheDashboardReport extends S.Class<CacheDashboardReport>($I`Cache
     correctnessViolations: S.Array(S.String),
     wallTimes: S.Array(CacheWallTime),
     lambda: CacheLambdaSummary,
-  },
-  $I.annote("CacheDashboardReport", {
-    description: "First-touch remote-cache rate, timing distributions, and correctness tripwires.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheDashboardReport", {
+      description: "First-touch remote-cache rate, timing distributions, and correctness tripwires.",
+    })
+  )
 ) {}
 
 /**
@@ -167,13 +171,12 @@ export class CacheDashboardReport extends S.Class<CacheDashboardReport>($I`Cache
  * @category models
  * @since 0.0.0
  */
-export class CacheWarmLane extends S.Class<CacheWarmLane>($I`CacheWarmLane`)(
-  {
+export class CacheWarmLane extends S.Opaque<CacheWarmLane, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.Array(S.String),
     durationMs: S.Natural,
     exitCode: S.Int,
-  },
-  $I.annote("CacheWarmLane", { description: "One cache-warm subprocess receipt." })
+  }).pipe($I.annoteSchema("CacheWarmLane", { description: "One cache-warm subprocess receipt." }))
 ) {}
 
 /**
@@ -190,17 +193,18 @@ export class CacheWarmLane extends S.Class<CacheWarmLane>($I`CacheWarmLane`)(
  * @category models
  * @since 0.0.0
  */
-export class CacheWarmReceipt extends S.Class<CacheWarmReceipt>($I`CacheWarmReceipt`)(
-  {
+export class CacheWarmReceipt extends S.Opaque<CacheWarmReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema: S.tag("cache-warm/v1"),
     generatedAt: S.String,
     revision: S.String,
     bunVersion: S.String,
     lanes: S.Array(CacheWarmLane),
-  },
-  $I.annote("CacheWarmReceipt", {
-    description: "Exact-main, pinned-toolchain cache recovery receipt.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheWarmReceipt", {
+      description: "Exact-main, pinned-toolchain cache recovery receipt.",
+    })
+  )
 ) {}
 
 /**
@@ -217,7 +221,9 @@ export class CacheWarmReceipt extends S.Class<CacheWarmReceipt>($I`CacheWarmRece
  * @category errors
  * @since 0.0.0
  */
-export class CacheCommandError extends S.TaggedError<CacheCommandError>($I`CacheCommandError`)(
+export class CacheCommandError extends S.TaggedError<CacheCommandError, { readonly brand: unique symbol }>(
+  $I`CacheCommandError`
+)(
   "CacheCommandError",
   { message: S.String, cause: S.optionalKey(S.Defect({ includeStack: true })) },
   $I.annoteError<CacheCommandError>("CacheCommandError", {
@@ -295,15 +301,16 @@ export const CacheWarmReceiptJson = JsonStringCodec(CacheWarmReceipt);
  * @category models
  * @since 0.0.0
  */
-export class CacheCensusWorkspace extends S.Class<CacheCensusWorkspace>($I`CacheCensusWorkspace`)(
-  {
+export class CacheCensusWorkspace extends S.Opaque<CacheCensusWorkspace, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     directory: S.NonEmptyString,
     scripts: S.Record(S.String, S.String),
-  },
-  $I.annote("CacheCensusWorkspace", {
-    description: "All declared scripts of one actual workspace, including nested wrappers.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheCensusWorkspace", {
+      description: "All declared scripts of one actual workspace, including nested wrappers.",
+    })
+  )
 ) {}
 
 /**
@@ -320,8 +327,8 @@ export class CacheCensusWorkspace extends S.Class<CacheCensusWorkspace>($I`Cache
  * @category models
  * @since 0.0.0
  */
-export class CacheCensusNode extends S.Class<CacheCensusNode>($I`CacheCensusNode`)(
-  {
+export class CacheCensusNode extends S.Opaque<CacheCensusNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     workspace: S.NonEmptyString,
     task: S.NonEmptyString,
@@ -331,10 +338,11 @@ export class CacheCensusNode extends S.Class<CacheCensusNode>($I`CacheCensusNode
     configuration: CacheTaskConfiguration,
     inputCount: S.Natural,
     inputsDigest: Sha256Hex,
-  },
-  $I.annote("CacheCensusNode", {
-    description: "A configured graph node joined to manifest script presence and effective Turbo settings.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheCensusNode", {
+      description: "A configured graph node joined to manifest script presence and effective Turbo settings.",
+    })
+  )
 ) {}
 
 /**
@@ -351,14 +359,15 @@ export class CacheCensusNode extends S.Class<CacheCensusNode>($I`CacheCensusNode
  * @category models
  * @since 0.0.0
  */
-export class CacheCensusSource extends S.Class<CacheCensusSource>($I`CacheCensusSource`)(
-  {
+export class CacheCensusSource extends S.Opaque<CacheCensusSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString,
     sha256: Sha256Hex,
-  },
-  $I.annote("CacheCensusSource", {
-    description: "Portable source file and its exact digest, without captured source or environment contents.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheCensusSource", {
+      description: "Portable source file and its exact digest, without captured source or environment contents.",
+    })
+  )
 ) {}
 
 /**
@@ -377,8 +386,8 @@ export class CacheCensusSource extends S.Class<CacheCensusSource>($I`CacheCensus
  * @category models
  * @since 0.0.0
  */
-export class CacheCensusReport extends S.Class<CacheCensusReport>($I`CacheCensusReport`)(
-  {
+export class CacheCensusReport extends S.Opaque<CacheCensusReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-executable-census/v1"),
     revision: S.NonEmptyString,
     turboVersion: S.NonEmptyString,
@@ -393,10 +402,11 @@ export class CacheCensusReport extends S.Class<CacheCensusReport>($I`CacheCensus
       S.withConstructorDefault(Effect.succeedNone)
     ),
     unresolved: S.Array(S.String),
-  },
-  $I.annote("CacheCensusReport", {
-    description: "Reproducible configured/executable census with explicit outstanding entrypoint review.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheCensusReport", {
+      description: "Reproducible configured/executable census with explicit outstanding entrypoint review.",
+    })
+  )
 ) {}
 
 /**
@@ -413,17 +423,18 @@ export class CacheCensusReport extends S.Class<CacheCensusReport>($I`CacheCensus
  * @category models
  * @since 0.0.0
  */
-export class CacheCensusDefinition extends S.Class<CacheCensusDefinition>($I`CacheCensusDefinition`)(
-  {
+export class CacheCensusDefinition extends S.Opaque<CacheCensusDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CacheCensusNode.fields.id,
     command: CacheCensusNode.fields.command,
     commandDigest: CacheCensusNode.fields.commandDigest,
     dependencies: CacheCensusNode.fields.dependencies,
     configuration: CacheCensusNode.fields.configuration,
-  },
-  $I.annote("CacheCensusDefinition", {
-    description: "A command and effective graph definition, excluding ordinary source file values.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheCensusDefinition", {
+      description: "A command and effective graph definition, excluding ordinary source file values.",
+    })
+  )
 ) {}
 
 /**
@@ -440,18 +451,20 @@ export class CacheCensusDefinition extends S.Class<CacheCensusDefinition>($I`Cac
  * @category models
  * @since 0.0.0
  */
-export class CacheComputationConfiguration extends S.Class<CacheComputationConfiguration>(
-  $I`CacheComputationConfiguration`
-)(
-  {
+export class CacheComputationConfiguration extends S.Opaque<
+  CacheComputationConfiguration,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     computation: CacheQualificationKey.fields.computation,
     globalConfiguration: S.Json,
     nodes: S.NonEmptyArray(CacheCensusDefinition),
     sources: S.Array(CacheCensusSource),
-  },
-  $I.annote("CacheComputationConfiguration", {
-    description: "Computation dependency closure, global settings and production Turbo configuration digests.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheComputationConfiguration", {
+      description: "Computation dependency closure, global settings and production Turbo configuration digests.",
+    })
+  )
 ) {}
 
 /**
@@ -468,9 +481,10 @@ export class CacheComputationConfiguration extends S.Class<CacheComputationConfi
  * @category models
  * @since 0.0.0
  */
-export class CacheExecutablePin extends S.Class<CacheExecutablePin>($I`CacheExecutablePin`)(
-  { version: S.NonEmptyString, sha256: Sha256Hex },
-  $I.annote("CacheExecutablePin", { description: "Exact observed executable version and binary digest." })
+export class CacheExecutablePin extends S.Opaque<CacheExecutablePin, { readonly brand: unique symbol }>()(
+  S.Struct({ version: S.NonEmptyString, sha256: Sha256Hex }).pipe(
+    $I.annoteSchema("CacheExecutablePin", { description: "Exact observed executable version and binary digest." })
+  )
 ) {}
 
 /**
@@ -521,18 +535,19 @@ export type CacheDependencyLink = typeof CacheDependencyLink.Type;
  * @category models
  * @since 0.0.0
  */
-export class CacheDependencyTree extends S.Class<CacheDependencyTree>($I`CacheDependencyTree`)(
-  {
+export class CacheDependencyTree extends S.Opaque<CacheDependencyTree, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: S.Literal("canonical-gnu-tar/v1"),
     sha256: Sha256Hex,
     regularFiles: S.Natural.check(S.isLessThanOrEqualTo(400000)),
     entries: S.Natural.check(S.isLessThanOrEqualTo(600000)),
     bytes: S.Natural.check(S.isLessThanOrEqualTo(16 * 1024 * 1024 * 1024)),
     links: S.Array(CacheDependencyLink).check(S.isMaxLength(4096)),
-  },
-  $I.annote("CacheDependencyTree", {
-    description: "A bounded installed tree fingerprint, independent of checkout location and file timestamps.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheDependencyTree", {
+      description: "A bounded installed tree fingerprint, independent of checkout location and file timestamps.",
+    })
+  )
 ) {}
 
 /**
@@ -548,15 +563,16 @@ export class CacheDependencyTree extends S.Class<CacheDependencyTree>($I`CacheDe
  * @category models
  * @since 0.0.0
  */
-export class CacheLinkedFile extends S.Class<CacheLinkedFile>($I`CacheLinkedFile`)(
-  {
+export class CacheLinkedFile extends S.Opaque<CacheLinkedFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.check(S.isPattern(/^\/[^\0\r\n]*$/)),
     target: S.NonEmptyString.check(S.isPattern(/^\/[^\0\r\n]*$/)),
     sha256: Sha256Hex,
-  },
-  $I.annote("CacheLinkedFile", {
-    description: "Absolute loader-reported path and resolved physical target bound to a content digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheLinkedFile", {
+      description: "Absolute loader-reported path and resolved physical target bound to a content digest.",
+    })
+  )
 ) {}
 
 /**
@@ -632,16 +648,20 @@ export type CacheRuntimeExecutable = typeof CacheRuntimeExecutable.Type;
  * @category models
  * @since 0.0.0
  */
-export class CacheRuntimeLinkerSnapshot extends S.Class<CacheRuntimeLinkerSnapshot>($I`CacheRuntimeLinkerSnapshot`)(
-  {
+export class CacheRuntimeLinkerSnapshot extends S.Opaque<
+  CacheRuntimeLinkerSnapshot,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     format: S.Literal("glibc-ldd/v1"),
     detector: CacheLinkedFile,
     loader: CacheLinkedFile,
     executables: S.Record(CacheRuntimeExecutable, CacheLinkerResolution),
-  },
-  $I.annote("CacheRuntimeLinkerSnapshot", {
-    description: "Clean-environment glibc startup resolution for every supported executable role.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheRuntimeLinkerSnapshot", {
+      description: "Clean-environment glibc startup resolution for every supported executable role.",
+    })
+  )
 ) {}
 
 /**
@@ -658,8 +678,8 @@ export class CacheRuntimeLinkerSnapshot extends S.Class<CacheRuntimeLinkerSnapsh
  * @category models
  * @since 0.0.0
  */
-export class CacheToolchainSnapshot extends S.Class<CacheToolchainSnapshot>($I`CacheToolchainSnapshot`)(
-  {
+export class CacheToolchainSnapshot extends S.Opaque<CacheToolchainSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     profile: LiteralKit(["local-linux-x64-bun1.4.1", "local-linux-x64-bun1.4.2"]),
     kernel: S.NonEmptyString,
     libc: S.NonEmptyString,
@@ -674,10 +694,11 @@ export class CacheToolchainSnapshot extends S.Class<CacheToolchainSnapshot>($I`C
       S.withConstructorDefault(Effect.succeedNone)
     ),
     sources: S.Array(CacheCensusSource),
-  },
-  $I.annote("CacheToolchainSnapshot", {
-    description: "Linux x64 glibc profile, exact binaries, launchers, lockfile and runtime declarations.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheToolchainSnapshot", {
+      description: "Linux x64 glibc profile, exact binaries, launchers, lockfile and runtime declarations.",
+    })
+  )
 ) {}
 
 /**
@@ -694,18 +715,19 @@ export class CacheToolchainSnapshot extends S.Class<CacheToolchainSnapshot>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CacheLiveIdentity extends S.Class<CacheLiveIdentity>($I`CacheLiveIdentity`)(
-  {
+export class CacheLiveIdentity extends S.Opaque<CacheLiveIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-live-identity/v1"),
     key: CacheQualificationKey,
     configuration: CacheComputationConfiguration,
     configurationDigest: Sha256Hex,
     toolchain: CacheToolchainSnapshot,
     toolchainDigest: Sha256Hex,
-  },
-  $I.annote("CacheLiveIdentity", {
-    description: "Current, content-bound computation configuration and supported runtime profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheLiveIdentity", {
+      description: "Current, content-bound computation configuration and supported runtime profile.",
+    })
+  )
 ) {}
 
 /**
@@ -728,12 +750,13 @@ export class CacheLiveIdentity extends S.Class<CacheLiveIdentity>($I`CacheLiveId
  * @category models
  * @since 0.0.0
  */
-export class CacheBaselineRequest extends S.Class<CacheBaselineRequest>($I`CacheBaselineRequest`)(
-  {
+export class CacheBaselineRequest extends S.Opaque<CacheBaselineRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CachePolicyBaselineReview.fields,
     previous: S.OptionFromOptionalKey(Sha256Hex),
-  },
-  $I.annote("CacheBaselineRequest", { description: "Explicit review and expected prior baseline digest." })
+  }).pipe(
+    $I.annoteSchema("CacheBaselineRequest", { description: "Explicit review and expected prior baseline digest." })
+  )
 ) {}
 
 /**
@@ -750,9 +773,12 @@ export class CacheBaselineRequest extends S.Class<CacheBaselineRequest>($I`Cache
  * @category models
  * @since 0.0.0
  */
-export class CacheTransitionRequest extends S.Class<CacheTransitionRequest>($I`CacheTransitionRequest`)(
-  { expectedRevision: S.Natural, entry: CacheQualificationEntry },
-  $I.annote("CacheTransitionRequest", { description: "One reviewed transition and its optimistic revision guard." })
+export class CacheTransitionRequest extends S.Opaque<CacheTransitionRequest, { readonly brand: unique symbol }>()(
+  S.Struct({ expectedRevision: S.Natural, entry: CacheQualificationEntry }).pipe(
+    $I.annoteSchema("CacheTransitionRequest", {
+      description: "One reviewed transition and its optimistic revision guard.",
+    })
+  )
 ) {}
 
 /**
@@ -768,16 +794,17 @@ export class CacheTransitionRequest extends S.Class<CacheTransitionRequest>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CacheActivationRequest extends S.Class<CacheActivationRequest>($I`CacheActivationRequest`)(
-  {
+export class CacheActivationRequest extends S.Opaque<CacheActivationRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     computation: CacheQualificationKey.fields.computation,
     path: CacheActivationProjection.fields.path,
     before: CacheActivationProjection.fields.before,
     after: CacheActivationProjection.fields.after,
-  },
-  $I.annote("CacheActivationRequest", {
-    description: "Exact artifacts and live destination for one pilot cache-flag preview.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheActivationRequest", {
+      description: "Exact artifacts and live destination for one pilot cache-flag preview.",
+    })
+  )
 ) {}
 
 /**
@@ -797,14 +824,15 @@ export class CacheActivationRequest extends S.Class<CacheActivationRequest>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CacheActivationPreview extends S.Class<CacheActivationPreview>($I`CacheActivationPreview`)(
-  {
+export class CacheActivationPreview extends S.Opaque<CacheActivationPreview, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-activation-preview/v1"),
     activation: CacheActivationProjection,
     source: CacheLiveIdentity,
     target: CacheLiveIdentity,
-  },
-  $I.annote("CacheActivationPreview", {
-    description: "Validated before/after configuration projection without enabling task reuse.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheActivationPreview", {
+      description: "Validated before/after configuration projection without enabling task reuse.",
+    })
+  )
 ) {}

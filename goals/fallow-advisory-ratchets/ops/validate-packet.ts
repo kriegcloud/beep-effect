@@ -19,7 +19,9 @@ import type { ParseError } from "jsonc-parser";
 
 const $I = $RepoCliId.create("goals/fallow-advisory-ratchets/ops/validate-packet");
 
-class PacketValidationFailed extends S.TaggedError<PacketValidationFailed>($I`PacketValidationFailed`)(
+class PacketValidationFailed extends S.TaggedError<PacketValidationFailed, { readonly brand: unique symbol }>(
+  $I`PacketValidationFailed`
+)(
   "PacketValidationFailed",
   {},
   $I.annote("PacketValidationFailed", {
@@ -175,19 +177,20 @@ const PromotionStatus = LiteralKit([
   "rejected",
 ]).pipe($I.annoteSchema("PromotionStatus", { description: "Promotion status for a parent matrix row." }));
 
-class DecisionGate extends S.Class<DecisionGate>($I`DecisionGate`)(
-  {
+class DecisionGate extends S.Opaque<DecisionGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: DecisionGateKind,
     status: DecisionGateStatus,
     evidence: S.NonEmptyArray(RepoRefString),
-  },
-  $I.annote("DecisionGate", {
-    description: "Decision gate attached to a packet task.",
-  })
+  }).pipe(
+    $I.annoteSchema("DecisionGate", {
+      description: "Decision gate attached to a packet task.",
+    })
+  )
 ) {}
 
-class TaskRow extends S.Class<TaskRow>($I`TaskRow`)(
-  {
+class TaskRow extends S.Opaque<TaskRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TaskIdString,
     rank: PositiveInt,
     status: TaskStatus,
@@ -203,52 +206,56 @@ class TaskRow extends S.Class<TaskRow>($I`TaskRow`)(
     owner: OwnerString,
     riskLevel: RiskLevel,
     decisionGate: DecisionGate,
-  },
-  $I.annote("TaskRow", {
-    description: "Implementation task row for the fallow-advisory-ratchets goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskRow", {
+      description: "Implementation task row for the fallow-advisory-ratchets goal.",
+    })
+  )
 ) {}
 
-class TasksDocument extends S.Class<TasksDocument>($I`TasksDocument`)(
-  {
+class TasksDocument extends S.Opaque<TasksDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-advisory-ratchets/tasks/v1"),
     updated: TrimmedNonEmptyString,
     validatorVersion: S.Literal(validatorVersion),
     tasks: S.NonEmptyArray(TaskRow),
-  },
-  $I.annote("TasksDocument", {
-    description: "Task inventory for the fallow-advisory-ratchets goal.",
-  })
+  }).pipe(
+    $I.annoteSchema("TasksDocument", {
+      description: "Task inventory for the fallow-advisory-ratchets goal.",
+    })
+  )
 ) {}
 
-class ManifestInitiative extends S.Class<ManifestInitiative>($I`ManifestInitiative`)(
-  {
+class ManifestInitiative extends S.Opaque<ManifestInitiative, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.Literal("fallow-advisory-ratchets"),
     title: TrimmedNonEmptyString,
     status: TrimmedNonEmptyString,
     created: TrimmedNonEmptyString,
     updated: TrimmedNonEmptyString,
     packetAnchorDocument: S.Literal("SPEC.md"),
-  },
-  $I.annote("ManifestInitiative", {
-    description: "Initiative identity block of the packet manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestInitiative", {
+      description: "Initiative identity block of the packet manifest.",
+    })
+  )
 ) {}
 
-class ManifestPhase extends S.Class<ManifestPhase>($I`ManifestPhase`)(
-  {
+class ManifestPhase extends S.Opaque<ManifestPhase, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TaskPhase,
     name: TrimmedNonEmptyString,
     status: LiteralKit(["pending", "in-progress", "done", "seeded"]),
-  },
-  $I.annote("ManifestPhase", {
-    description: "Phase row in the packet manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManifestPhase", {
+      description: "Phase row in the packet manifest.",
+    })
+  )
 ) {}
 
-class InitiativeManifestDocument extends S.Class<InitiativeManifestDocument>($I`InitiativeManifestDocument`)(
-  {
+class InitiativeManifestDocument extends S.Opaque<InitiativeManifestDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("initiative-manifest/v1"),
     initiative: ManifestInitiative,
     packetPath: S.Literal(packetRoot),
@@ -261,37 +268,40 @@ class InitiativeManifestDocument extends S.Class<InitiativeManifestDocument>($I`
     phases: S.NonEmptyArray(ManifestPhase),
     verificationCommands: S.NonEmptyArray(CommandString),
     stopConditions: S.NonEmptyArray(TrimmedNonEmptyString),
-  },
-  $I.annote("InitiativeManifestDocument", {
-    description: "Machine-readable routing manifest for the fallow-advisory-ratchets packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("InitiativeManifestDocument", {
+      description: "Machine-readable routing manifest for the fallow-advisory-ratchets packet.",
+    })
+  )
 ) {}
 
-class FeatureRow extends S.Class<FeatureRow>($I`FeatureRow`)(
-  {
+class FeatureRow extends S.Opaque<FeatureRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: TrimmedNonEmptyString,
     featureFamily: FeatureFamily,
     baselineStatus: BaselineStatus,
     falsePositiveStatus: FalsePositiveStatus,
     ciMode: CiMode,
     promotionStatus: PromotionStatus,
-  },
-  $I.annote("FeatureRow", {
-    description: "Minimal parent feature-matrix row fields inspected by this child-packet validator.",
-  })
+  }).pipe(
+    $I.annoteSchema("FeatureRow", {
+      description: "Minimal parent feature-matrix row fields inspected by this child-packet validator.",
+    })
+  )
 ) {}
 
-class FeatureMatrixDocument extends S.Class<FeatureMatrixDocument>($I`FeatureMatrixDocument`)(
-  {
+class FeatureMatrixDocument extends S.Opaque<FeatureMatrixDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     schemaVersion: S.Literal("fallow-quality-enforcement/feature-matrix/v1"),
     updated: TrimmedNonEmptyString,
     validatorVersion: S.Literal("fallow-quality-enforcement-validator/v1"),
     features: S.NonEmptyArray(FeatureRow),
-  },
-  $I.annote("FeatureMatrixDocument", {
-    description: "Parent Fallow feature-family matrix.",
-  })
+  }).pipe(
+    $I.annoteSchema("FeatureMatrixDocument", {
+      description: "Parent Fallow feature-family matrix.",
+    })
+  )
 ) {}
 
 const decodeTasksDocument = S.decodeUnknownEffect(TasksDocument);

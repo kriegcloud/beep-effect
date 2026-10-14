@@ -5,18 +5,19 @@ import * as S from "effect/Schema";
 
 const $I = $DockReactId.create("Gesture.models");
 
-export class PointerPosition extends S.Class<PointerPosition>($I`PointerPosition`)(
-  {
+export class PointerPosition extends S.Opaque<PointerPosition, { readonly brand: unique symbol }>()(
+  S.Struct({
     left: S.Finite,
     top: S.Finite,
-  },
-  $I.annote("PointerPosition", {
-    description: "Finite client-space coordinates captured from a pointer event.",
-  })
+  }).pipe(
+    $I.annoteSchema("PointerPosition", {
+      description: "Finite client-space coordinates captured from a pointer event.",
+    })
+  )
 ) {}
 
-export class TabDrag extends S.Class<TabDrag>($I`TabDrag`)(
-  {
+export class TabDrag extends S.Opaque<TabDrag, { readonly brand: unique symbol }>()(
+  S.Struct({
     panelId: PanelId,
     fromGroupId: GroupId,
     pointer: PointerPosition,
@@ -24,14 +25,15 @@ export class TabDrag extends S.Class<TabDrag>($I`TabDrag`)(
     moved: S.Boolean,
     concluded: S.Boolean,
     pointerId: S.Int,
-  },
-  $I.annote("TabDrag", {
-    description:
-      "Active tab-drag state: source group, latest and initial pointer positions, whether the pointer has traveled past the drag-promotion threshold, and whether the gesture has concluded (Escape-cancel or commit). A concluded promoted drag stays recorded until its release's trailing click is swallowed — or until the next press — so the click can neither activate the dragged tab nor re-point focus at the source group.",
-  })
+  }).pipe(
+    $I.annoteSchema("TabDrag", {
+      description:
+        "Active tab-drag state: source group, latest and initial pointer positions, whether the pointer has traveled past the drag-promotion threshold, and whether the gesture has concluded (Escape-cancel or commit). A concluded promoted drag stays recorded until its release's trailing click is swallowed — or until the next press — so the click can neither activate the dragged tab nor re-point focus at the source group.",
+    })
+  )
 ) {}
 
-export class SashDragBase extends S.Class<SashDragBase>($I`SashDragBase`)(
+export class SashDragBase extends S.Class<SashDragBase, { readonly brand: unique symbol }>($I`SashDragBase`)(
   {
     splitId: SplitId,
     start: PointerPosition,
@@ -64,38 +66,41 @@ export class SashDragVertical extends SashDragBase.extend<SashDragVertical>($I`S
   })
 ) {}
 
-export class TabRect extends S.Class<TabRect>($I`TabRect`)(
-  {
+export class TabRect extends S.Opaque<TabRect, { readonly brand: unique symbol }>()(
+  S.Struct({
     left: S.Finite,
     width: S.Finite,
-  },
-  $I.annote("TabRect", {
-    description:
-      "Root-relative horizontal geometry of one rendered tab, measured from the DOM. Drop targeting uses these instead of group-box arithmetic: the strip's padding and gaps are invisible to the box, and overflowed tabs have no rect at all.",
-  })
+  }).pipe(
+    $I.annoteSchema("TabRect", {
+      description:
+        "Root-relative horizontal geometry of one rendered tab, measured from the DOM. Drop targeting uses these instead of group-box arithmetic: the strip's padding and gaps are invisible to the box, and overflowed tabs have no rect at all.",
+    })
+  )
 ) {}
 
-export class TabInsertionPreview extends S.Class<TabInsertionPreview>($I`TabInsertionPreview`)(
-  {
+export class TabInsertionPreview extends S.Opaque<TabInsertionPreview, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("tab-insertion"),
     groupId: GroupId,
     index: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
     caretBox: DockBox,
-  },
-  $I.annote("TabInsertionPreview", {
-    description:
-      "Strip-borne drop preview: the dragged tab joins this group's tab list at the caret position, none meaning append. Rendered inside the tab strip so joining a list reads differently from creating a section.",
-  })
+  }).pipe(
+    $I.annoteSchema("TabInsertionPreview", {
+      description:
+        "Strip-borne drop preview: the dragged tab joins this group's tab list at the caret position, none meaning append. Rendered inside the tab strip so joining a list reads differently from creating a section.",
+    })
+  )
 ) {}
 
-export class SectionPreview extends S.Class<SectionPreview>($I`SectionPreview`)(
-  {
+export class SectionPreview extends S.Opaque<SectionPreview, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("section"),
     box: DockBox,
-  },
-  $I.annote("SectionPreview", {
-    description: "Layout-overlay drop preview: the drop creates a new panel section occupying this box.",
-  })
+  }).pipe(
+    $I.annoteSchema("SectionPreview", {
+      description: "Layout-overlay drop preview: the drop creates a new panel section occupying this box.",
+    })
+  )
 ) {}
 
 export const DropPreview = S.Union([TabInsertionPreview, SectionPreview]).pipe(
@@ -115,17 +120,20 @@ export const SashDrag = S.Union([SashDragHorizontal, SashDragVertical]).pipe(
 );
 export type SashDrag = typeof SashDrag.Type;
 
-export class RatioOverride extends S.Class<RatioOverride>($I`RatioOverride`)(
-  {
+export class RatioOverride extends S.Opaque<RatioOverride, { readonly brand: unique symbol }>()(
+  S.Struct({
     splitId: SplitId,
     ratio: SplitRatio,
-  },
-  $I.annote("RatioOverride", {
-    description: "Transient split-ratio preview applied while a sash is moving.",
-  })
+  }).pipe(
+    $I.annoteSchema("RatioOverride", {
+      description: "Transient split-ratio preview applied while a sash is moving.",
+    })
+  )
 ) {}
 
-export class FloatingGestureBase extends S.Class<FloatingGestureBase>($I`FloatingGestureBase`)(
+export class FloatingGestureBase extends S.Class<FloatingGestureBase, { readonly brand: unique symbol }>(
+  $I`FloatingGestureBase`
+)(
   {
     groupId: GroupId,
     start: PointerPosition,
@@ -165,12 +173,13 @@ export const FloatingGesture = S.Union([FloatingGestureMove, FloatingGestureResi
 
 export type FloatingGesture = typeof FloatingGesture.Type;
 
-export class FloatingOverride extends S.Class<FloatingOverride>($I`FloatingOverride`)(
-  {
+export class FloatingOverride extends S.Opaque<FloatingOverride, { readonly brand: unique symbol }>()(
+  S.Struct({
     groupId: GroupId,
     anchoredBox: AnchoredBox,
-  },
-  $I.annote("FloatingOverride", {
-    description: "Transient anchored-box preview for a floating dock group.",
-  })
+  }).pipe(
+    $I.annoteSchema("FloatingOverride", {
+      description: "Transient anchored-box preview for a floating dock group.",
+    })
+  )
 ) {}

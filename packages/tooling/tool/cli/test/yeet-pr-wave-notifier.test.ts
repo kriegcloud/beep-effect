@@ -393,8 +393,10 @@ it.layer(platform, { timeout: "30 seconds" })("W9 descriptor rendering", (it) =>
     { descriptor: YeetPrWaveDescriptor },
     ({ descriptor }) =>
       Effect.gen(function* () {
-        const decoded = yield* YeetPrWaveDescriptorJson.decode(yield* YeetPrWaveDescriptorJson.encode(descriptor));
-        expect(decoded).toStrictEqual(descriptor);
+        const decoded = yield* YeetPrWaveDescriptorJson.decode(
+          yield* YeetPrWaveDescriptorJson.encode(YeetPrWaveDescriptor.make(descriptor))
+        );
+        expect(decoded).toStrictEqual(YeetPrWaveDescriptor.make(descriptor));
         expect(isPrNumber(decoded.prNumber)).toBe(true);
       })
   );

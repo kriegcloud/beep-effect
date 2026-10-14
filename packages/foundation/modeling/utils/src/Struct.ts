@@ -73,7 +73,9 @@ const isNonEmptyStringKeys = S.is(NonEmptyStringKeys);
  * @category error-handling
  * @since 0.0.0
  */
-export class EmptyStructError extends S.TaggedError<EmptyStructError>($I`EmptyStructError`)(
+export class EmptyStructError extends S.TaggedError<EmptyStructError, { readonly brand: unique symbol }>(
+  $I`EmptyStructError`
+)(
   "EmptyStructError",
   {
     input: S.Unknown.annotate({ toEquivalence: () => () => true }),

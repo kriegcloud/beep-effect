@@ -26,9 +26,10 @@ const $I = $AgentsTablesId.create("entities/ProviderInstance/ProviderInstance.er
  * @category errors
  * @since 0.0.0
  */
-export class ProviderInstanceConverterError extends S.TaggedError<ProviderInstanceConverterError>(
-  $I`ProviderInstanceConverterError`
-)(
+export class ProviderInstanceConverterError extends S.TaggedError<
+  ProviderInstanceConverterError,
+  { readonly brand: unique symbol }
+>($I`ProviderInstanceConverterError`)(
   "ProviderInstanceConverterError",
   {
     message: S.String.annotateKey({

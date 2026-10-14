@@ -401,11 +401,12 @@ export type ChangeEventId = typeof ChangeEventId.Type;
  * @category models
  * @since 0.0.0
  */
-export class PinnedKpiInput extends S.Class<PinnedKpiInput>($I`PinnedKpiInput`)(
-  { role: KpiInputRole, path: RepoRelativePath, sha256: Sha256Hex },
-  $I.annote("PinnedKpiInput", {
-    description: "Role, repo-relative path and pinned SHA-256 of one document the KPI reading consumes.",
-  })
+export class PinnedKpiInput extends S.Opaque<PinnedKpiInput, { readonly brand: unique symbol }>()(
+  S.Struct({ role: KpiInputRole, path: RepoRelativePath, sha256: Sha256Hex }).pipe(
+    $I.annoteSchema("PinnedKpiInput", {
+      description: "Role, repo-relative path and pinned SHA-256 of one document the KPI reading consumes.",
+    })
+  )
 ) {}
 
 /**
@@ -438,11 +439,12 @@ export class PinnedKpiInput extends S.Class<PinnedKpiInput>($I`PinnedKpiInput`)(
  * @category models
  * @since 0.0.0
  */
-export class KpiReadingInput extends S.Class<KpiReadingInput>($I`KpiReadingInput`)(
-  { repoRoot: S.NonEmptyString, inputs: S.NonEmptyArray(PinnedKpiInput) },
-  $I.annote("KpiReadingInput", {
-    description: "Caller-supplied repo root plus the pinned documents the KPI reading is computed from.",
-  })
+export class KpiReadingInput extends S.Opaque<KpiReadingInput, { readonly brand: unique symbol }>()(
+  S.Struct({ repoRoot: S.NonEmptyString, inputs: S.NonEmptyArray(PinnedKpiInput) }).pipe(
+    $I.annoteSchema("KpiReadingInput", {
+      description: "Caller-supplied repo root plus the pinned documents the KPI reading is computed from.",
+    })
+  )
 ) {}
 
 /**
@@ -460,11 +462,12 @@ export class KpiReadingInput extends S.Class<KpiReadingInput>($I`KpiReadingInput
  * @category models
  * @since 0.0.0
  */
-export class EpisodeKey extends S.Class<EpisodeKey>($I`EpisodeKey`)(
-  { checkout: S.NonEmptyString, branch: S.NonEmptyString },
-  $I.annote("EpisodeKey", {
-    description: "Fleet-relative checkout label and branch that together key one red streak.",
-  })
+export class EpisodeKey extends S.Opaque<EpisodeKey, { readonly brand: unique symbol }>()(
+  S.Struct({ checkout: S.NonEmptyString, branch: S.NonEmptyString }).pipe(
+    $I.annoteSchema("EpisodeKey", {
+      description: "Fleet-relative checkout label and branch that together key one red streak.",
+    })
+  )
 ) {}
 
 /**
@@ -482,11 +485,12 @@ export class EpisodeKey extends S.Class<EpisodeKey>($I`EpisodeKey`)(
  * @category models
  * @since 0.0.0
  */
-export class EpisodeAdoption extends S.Class<EpisodeAdoption>($I`EpisodeAdoption`)(
-  { changeEventId: ChangeEventId, adoption: AdoptionClass },
-  $I.annote("EpisodeAdoption", {
-    description: "An episode's adoption-qualified membership relative to one change event.",
-  })
+export class EpisodeAdoption extends S.Opaque<EpisodeAdoption, { readonly brand: unique symbol }>()(
+  S.Struct({ changeEventId: ChangeEventId, adoption: AdoptionClass }).pipe(
+    $I.annoteSchema("EpisodeAdoption", {
+      description: "An episode's adoption-qualified membership relative to one change event.",
+    })
+  )
 ) {}
 
 /**
@@ -522,8 +526,8 @@ export class EpisodeAdoption extends S.Class<EpisodeAdoption>($I`EpisodeAdoption
  * @category models
  * @since 0.0.0
  */
-export class KpiEpisode extends S.Class<KpiEpisode>($I`KpiEpisode`)(
-  {
+export class KpiEpisode extends S.Opaque<KpiEpisode, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: EpisodeKey,
     tier: KpiTier,
     clock: EpisodeClock,
@@ -532,10 +536,11 @@ export class KpiEpisode extends S.Class<KpiEpisode>($I`KpiEpisode`)(
     durationMs: S.Natural,
     censoring: S.Array(CensorClass),
     adoption: S.Array(EpisodeAdoption),
-  },
-  $I.annote("KpiEpisode", {
-    description: "One per-tier red streak with its clock label, instants, duration, censoring and adoption.",
-  })
+  }).pipe(
+    $I.annoteSchema("KpiEpisode", {
+      description: "One per-tier red streak with its clock label, instants, duration, censoring and adoption.",
+    })
+  )
 ) {}
 
 /**
@@ -559,16 +564,17 @@ export class KpiEpisode extends S.Class<KpiEpisode>($I`KpiEpisode`)(
  * @category models
  * @since 0.0.0
  */
-export class ChangeEventRow extends S.Class<ChangeEventRow>($I`ChangeEventRow`)(
-  {
+export class ChangeEventRow extends S.Opaque<ChangeEventRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ChangeEventId,
     landedAt: S.DateTimeUtcFromString,
     mergeCommit: GitCommitSha,
     tiers: S.NonEmptyArray(ChangeEventSeries),
-  },
-  $I.annote("ChangeEventRow", {
-    description: "Ledger id, landing instant, merge commit and partitioned series of one change event.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangeEventRow", {
+      description: "Ledger id, landing instant, merge commit and partitioned series of one change event.",
+    })
+  )
 ) {}
 
 /**
@@ -591,16 +597,17 @@ export class ChangeEventRow extends S.Class<ChangeEventRow>($I`ChangeEventRow`)(
  * @category models
  * @since 0.0.0
  */
-export class AdoptionTableRow extends S.Class<AdoptionTableRow>($I`AdoptionTableRow`)(
-  {
+export class AdoptionTableRow extends S.Opaque<AdoptionTableRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     changeEventId: ChangeEventId,
     mergeCommit: GitCommitSha,
     resolvedHeadSha: GitCommitSha,
     ancestry: AncestryVerdict,
-  },
-  $I.annote("AdoptionTableRow", {
-    description: "Result of git merge-base --is-ancestor for one change event's merge commit and one resolved head.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdoptionTableRow", {
+      description: "Result of git merge-base --is-ancestor for one change event's merge commit and one resolved head.",
+    })
+  )
 ) {}
 
 /**
@@ -628,12 +635,13 @@ export class AdoptionTableRow extends S.Class<AdoptionTableRow>($I`AdoptionTable
  * @category models
  * @since 0.0.0
  */
-export class AdoptionProbe extends S.Class<AdoptionProbe>($I`AdoptionProbe`)(
-  { changeEventId: ChangeEventId, mergeCommit: GitCommitSha, resolvedHeadSha: GitCommitSha },
-  $I.annote("AdoptionProbe", {
-    description:
-      "A change event's merge commit and an in-window episode's resolved head, awaiting an ancestry verdict.",
-  })
+export class AdoptionProbe extends S.Opaque<AdoptionProbe, { readonly brand: unique symbol }>()(
+  S.Struct({ changeEventId: ChangeEventId, mergeCommit: GitCommitSha, resolvedHeadSha: GitCommitSha }).pipe(
+    $I.annoteSchema("AdoptionProbe", {
+      description:
+        "A change event's merge commit and an in-window episode's resolved head, awaiting an ancestry verdict.",
+    })
+  )
 ) {}
 
 /**
@@ -657,12 +665,13 @@ export class AdoptionProbe extends S.Class<AdoptionProbe>($I`AdoptionProbe`)(
  * @category models
  * @since 0.0.0
  */
-export class WindowBounds extends S.Class<WindowBounds>($I`WindowBounds`)(
-  { slice: WindowSlice, start: S.DateTimeUtcFromString, end: S.DateTimeUtcFromString },
-  $I.annote("WindowBounds", {
-    description:
-      "Instant range of one named window slice (W half-open, W-a and W-b closed); episodes belong by their opening instant.",
-  })
+export class WindowBounds extends S.Opaque<WindowBounds, { readonly brand: unique symbol }>()(
+  S.Struct({ slice: WindowSlice, start: S.DateTimeUtcFromString, end: S.DateTimeUtcFromString }).pipe(
+    $I.annoteSchema("WindowBounds", {
+      description:
+        "Instant range of one named window slice (W half-open, W-a and W-b closed); episodes belong by their opening instant.",
+    })
+  )
 ) {}
 
 /**
@@ -690,15 +699,16 @@ export class WindowBounds extends S.Class<WindowBounds>($I`WindowBounds`)(
  * @category models
  * @since 0.0.0
  */
-export class PercentileSet extends S.Class<PercentileSet>($I`PercentileSet`)(
-  {
+export class PercentileSet extends S.Opaque<PercentileSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     n: S.Natural,
     p50Ms: S.OptionFromOptionalKey(S.Natural),
     p95Ms: S.OptionFromOptionalKey(S.Natural),
-  },
-  $I.annote("PercentileSet", {
-    description: "Population size and nearest-rank P50/P95 in milliseconds; percentiles absent when n is zero.",
-  })
+  }).pipe(
+    $I.annoteSchema("PercentileSet", {
+      description: "Population size and nearest-rank P50/P95 in milliseconds; percentiles absent when n is zero.",
+    })
+  )
 ) {}
 
 /**
@@ -734,8 +744,8 @@ export class PercentileSet extends S.Class<PercentileSet>($I`PercentileSet`)(
  * @category models
  * @since 0.0.0
  */
-export class PercentileRow extends S.Class<PercentileRow>($I`PercentileRow`)(
-  {
+export class PercentileRow extends S.Opaque<PercentileRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     slice: WindowSlice,
     tier: KpiTier,
     cut: PercentileSet,
@@ -745,10 +755,12 @@ export class PercentileRow extends S.Class<PercentileRow>($I`PercentileRow`)(
     possiblyTruncated: S.Natural,
     seatRequestEpisodes: S.Natural,
     attemptStartEpisodes: S.Natural,
-  },
-  $I.annote("PercentileRow", {
-    description: "Cut and uncut percentiles for one slice and tier, with censored and clock-label counts beside them.",
-  })
+  }).pipe(
+    $I.annoteSchema("PercentileRow", {
+      description:
+        "Cut and uncut percentiles for one slice and tier, with censored and clock-label counts beside them.",
+    })
+  )
 ) {}
 
 /**
@@ -780,8 +792,8 @@ export class PercentileRow extends S.Class<PercentileRow>($I`PercentileRow`)(
  * @category models
  * @since 0.0.0
  */
-export class StarvationRow extends S.Class<StarvationRow>($I`StarvationRow`)(
-  {
+export class StarvationRow extends S.Opaque<StarvationRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     slice: WindowSlice,
     boundMs: PosInt,
     normative: S.Boolean,
@@ -789,10 +801,11 @@ export class StarvationRow extends S.Class<StarvationRow>($I`StarvationRow`)(
     beyondBound: S.Natural,
     openAtCapture: S.Natural,
     exceptions: S.Literal("unobservable"),
-  },
-  $I.annote("StarvationRow", {
-    description: "Seat requests in a slice and how many waited beyond one declared or sensitivity bound.",
-  })
+  }).pipe(
+    $I.annoteSchema("StarvationRow", {
+      description: "Seat requests in a slice and how many waited beyond one declared or sensitivity bound.",
+    })
+  )
 ) {}
 
 /**
@@ -826,8 +839,8 @@ export class StarvationRow extends S.Class<StarvationRow>($I`StarvationRow`)(
  * @category models
  * @since 0.0.0
  */
-export class M1ReplicaRow extends S.Class<M1ReplicaRow>($I`M1ReplicaRow`)(
-  {
+export class M1ReplicaRow extends S.Opaque<M1ReplicaRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     slice: WindowSlice,
     label: S.Literal("M1 definition over the fleet pin, not M1"),
     comparable24h: PercentileSet,
@@ -835,32 +848,35 @@ export class M1ReplicaRow extends S.Class<M1ReplicaRow>($I`M1ReplicaRow`)(
     rightCensoredStreaks: S.Natural,
     leftCensoredEpisodesExcluded: S.Natural,
     closedEpisodesOver24hExcluded: S.Natural,
-  },
-  $I.annote("M1ReplicaRow", {
-    description: "Time-to-certainty M1's episode definition evaluated over the fleet pin, labelled as not M1.",
-  })
+  }).pipe(
+    $I.annoteSchema("M1ReplicaRow", {
+      description: "Time-to-certainty M1's episode definition evaluated over the fleet pin, labelled as not M1.",
+    })
+  )
 ) {}
 
 // CQ-012 queue-wait share over W-b, printed only when every episode in the slice decomposes.
-class Cq012Shares extends S.Class<Cq012Shares>($I`Cq012Shares`)(
-  {
+class Cq012Shares extends S.Opaque<Cq012Shares, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("shares"),
     decomposedEpisodes: S.Natural,
     windowEpisodes: S.Natural,
     queueWaitShare: UnitInterval,
     grandTotalMs: S.Natural,
-  },
-  $I.annote("Cq012Shares", {
-    description: "Queue-wait share of total episode time over W-b, printed only when every episode decomposes.",
-  })
+  }).pipe(
+    $I.annoteSchema("Cq012Shares", {
+      description: "Queue-wait share of total episode time over W-b, printed only when every episode decomposes.",
+    })
+  )
 ) {}
 
 // CQ-012 shares voided because some episode in the slice does not decompose; only the pair is kept.
-class Cq012Void extends S.Class<Cq012Void>($I`Cq012Void`)(
-  { status: S.tag("void"), decomposedEpisodes: S.Natural, windowEpisodes: S.Natural },
-  $I.annote("Cq012Void", {
-    description: "Void CQ-012 shares, reported only as the decomposed and window episode counts.",
-  })
+class Cq012Void extends S.Opaque<Cq012Void, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.tag("void"), decomposedEpisodes: S.Natural, windowEpisodes: S.Natural }).pipe(
+    $I.annoteSchema("Cq012Void", {
+      description: "Void CQ-012 shares, reported only as the decomposed and window episode counts.",
+    })
+  )
 ) {}
 
 /**
@@ -939,8 +955,8 @@ export type Cq012Decomposition = typeof Cq012Decomposition.Type;
  * @category models
  * @since 0.0.0
  */
-export class AdoptionTable extends S.Class<AdoptionTable>($I`AdoptionTable`)(
-  {
+export class AdoptionTable extends S.Opaque<AdoptionTable, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("ciops-kpi-adoption-table/v1"),
     generator: RepoRelativePath,
     probe: S.NonEmptyString,
@@ -949,10 +965,11 @@ export class AdoptionTable extends S.Class<AdoptionTable>($I`AdoptionTable`)(
     windowEnd: S.DateTimeUtcFromString,
     pins: S.NonEmptyArray(PinnedKpiInput),
     rows: S.Array(AdoptionTableRow),
-  },
-  $I.annote("AdoptionTable", {
-    description: "Committed ancestry probes of change-event merge commits against in-window resolved heads.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdoptionTable", {
+      description: "Committed ancestry probes of change-event merge commits against in-window resolved heads.",
+    })
+  )
 ) {}
 
 /**
@@ -987,8 +1004,8 @@ export class AdoptionTable extends S.Class<AdoptionTable>($I`AdoptionTable`)(
  * @category models
  * @since 0.0.0
  */
-export class ChangeEventTierPartition extends S.Class<ChangeEventTierPartition>($I`ChangeEventTierPartition`)(
-  {
+export class ChangeEventTierPartition extends S.Opaque<ChangeEventTierPartition, { readonly brand: unique symbol }>()(
+  S.Struct({
     tier: KpiTier,
     pre: PercentileSet,
     preCensored: S.Natural,
@@ -996,10 +1013,11 @@ export class ChangeEventTierPartition extends S.Class<ChangeEventTierPartition>(
     postAdoptedCensored: S.Natural,
     postUnadopted: S.Natural,
     unknown: S.Natural,
-  },
-  $I.annote("ChangeEventTierPartition", {
-    description: "Pre and adoption-qualified post populations of one tier around one change event.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangeEventTierPartition", {
+      description: "Pre and adoption-qualified post populations of one tier around one change event.",
+    })
+  )
 ) {}
 
 /**
@@ -1028,16 +1046,17 @@ export class ChangeEventTierPartition extends S.Class<ChangeEventTierPartition>(
  * @category models
  * @since 0.0.0
  */
-export class ChangeEventPartition extends S.Class<ChangeEventPartition>($I`ChangeEventPartition`)(
-  {
+export class ChangeEventPartition extends S.Opaque<ChangeEventPartition, { readonly brand: unique symbol }>()(
+  S.Struct({
     changeEventId: ChangeEventId,
     label: S.Literal("observational"),
     inWindow: S.Boolean,
     tiers: S.Array(ChangeEventTierPartition),
-  },
-  $I.annote("ChangeEventPartition", {
-    description: "Observational, adoption-qualified pre/post populations of the reading at one change event.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangeEventPartition", {
+      description: "Observational, adoption-qualified pre/post populations of the reading at one change event.",
+    })
+  )
 ) {}
 
 /**
@@ -1094,8 +1113,8 @@ export class ChangeEventPartition extends S.Class<ChangeEventPartition>($I`Chang
  * @category models
  * @since 0.0.0
  */
-export class KpiReading extends S.Class<KpiReading>($I`KpiReading`)(
-  {
+export class KpiReading extends S.Opaque<KpiReading, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("ciops-kpi-reading/v1"),
     estimator: S.Literal("nearest-rank"),
     inputs: S.NonEmptyArray(PinnedKpiInput),
@@ -1109,10 +1128,11 @@ export class KpiReading extends S.Class<KpiReading>($I`KpiReading`)(
     decomposition: Cq012Decomposition,
     changeEvents: S.Array(ChangeEventRow),
     changeEventPartitions: S.Array(ChangeEventPartition),
-  },
-  $I.annote("KpiReading", {
-    description: "The W8 KPI reading: pinned inputs, windows, per-tier percentiles, starvation and change events.",
-  })
+  }).pipe(
+    $I.annoteSchema("KpiReading", {
+      description: "The W8 KPI reading: pinned inputs, windows, per-tier percentiles, starvation and change events.",
+    })
+  )
 ) {}
 
 /**
@@ -1130,7 +1150,9 @@ export class KpiReading extends S.Class<KpiReading>($I`KpiReading`)(
  * @category errors
  * @since 0.0.0
  */
-export class KpiInputReadError extends S.TaggedError<KpiInputReadError>($I`KpiInputReadError`)(
+export class KpiInputReadError extends S.TaggedError<KpiInputReadError, { readonly brand: unique symbol }>(
+  $I`KpiInputReadError`
+)(
   "KpiInputReadError",
   { role: KpiInputRole, path: S.String, message: S.String },
   $I.annoteError<KpiInputReadError>("KpiInputReadError", {
@@ -1164,7 +1186,9 @@ export class KpiInputReadError extends S.TaggedError<KpiInputReadError>($I`KpiIn
  * @category errors
  * @since 0.0.0
  */
-export class KpiDigestMismatchError extends S.TaggedError<KpiDigestMismatchError>($I`KpiDigestMismatchError`)(
+export class KpiDigestMismatchError extends S.TaggedError<KpiDigestMismatchError, { readonly brand: unique symbol }>(
+  $I`KpiDigestMismatchError`
+)(
   "KpiDigestMismatchError",
   { role: KpiInputRole, path: S.String, expectedSha256: Sha256Hex, actualSha256: Sha256Hex },
   $I.annoteError<KpiDigestMismatchError>("KpiDigestMismatchError", {
@@ -1191,7 +1215,9 @@ export class KpiDigestMismatchError extends S.TaggedError<KpiDigestMismatchError
  * @category errors
  * @since 0.0.0
  */
-export class KpiInputDecodeError extends S.TaggedError<KpiInputDecodeError>($I`KpiInputDecodeError`)(
+export class KpiInputDecodeError extends S.TaggedError<KpiInputDecodeError, { readonly brand: unique symbol }>(
+  $I`KpiInputDecodeError`
+)(
   "KpiInputDecodeError",
   { role: KpiInputRole, path: S.String, message: S.String },
   $I.annoteError<KpiInputDecodeError>("KpiInputDecodeError", {
@@ -1223,9 +1249,10 @@ export class KpiInputDecodeError extends S.TaggedError<KpiInputDecodeError>($I`K
  * @category errors
  * @since 0.0.0
  */
-export class KpiAdmissionJoinMismatchError extends S.TaggedError<KpiAdmissionJoinMismatchError>(
-  $I`KpiAdmissionJoinMismatchError`
-)(
+export class KpiAdmissionJoinMismatchError extends S.TaggedError<
+  KpiAdmissionJoinMismatchError,
+  { readonly brand: unique symbol }
+>($I`KpiAdmissionJoinMismatchError`)(
   "KpiAdmissionJoinMismatchError",
   { nonce: S.NonEmptyString, eventTag: S.NonEmptyString, message: S.String },
   $I.annoteError<KpiAdmissionJoinMismatchError>("KpiAdmissionJoinMismatchError", {
@@ -1248,7 +1275,9 @@ export class KpiAdmissionJoinMismatchError extends S.TaggedError<KpiAdmissionJoi
  * @category errors
  * @since 0.0.0
  */
-export class KpiNotImplementedError extends S.TaggedError<KpiNotImplementedError>($I`KpiNotImplementedError`)(
+export class KpiNotImplementedError extends S.TaggedError<KpiNotImplementedError, { readonly brand: unique symbol }>(
+  $I`KpiNotImplementedError`
+)(
   "KpiNotImplementedError",
   { operation: S.Literals(["read", "probes"]) },
   $I.annoteError<KpiNotImplementedError>("KpiNotImplementedError", {

@@ -102,12 +102,15 @@ export type SanityErrorReason = typeof SanityErrorReason.Type;
  * **Example** (Create status-based error)
  *
  * ```ts
- * import { SanityError } from "@beep/sanity"
+ * import { SanityError, SanityErrorOptions } from "@beep/sanity"
  *
- * const error = SanityError.fromReason("response status", {
- *   status: 404,
- *   url: "https://api.sanity.io/v2025-05-14/data/query/production"
- * })
+ * const error = SanityError.fromReason(
+ *   "response status",
+ *   SanityErrorOptions.make({
+ *     status: 404,
+ *     url: "https://api.sanity.io/v2025-05-14/data/query/production"
+ *   })
+ * )
  *
  * console.log(error.reason) // "response status"
  * ```
@@ -115,7 +118,7 @@ export type SanityErrorReason = typeof SanityErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SanityError extends S.TaggedError<SanityError>($I`SanityError`)(
+export class SanityError extends S.TaggedError<SanityError, { readonly brand: unique symbol }>($I`SanityError`)(
   "SanityError",
   {
     cause: S.optionalKey(S.String).annotateKey({
@@ -141,11 +144,12 @@ export class SanityError extends S.TaggedError<SanityError>($I`SanityError`)(
    * **Example** (Create error with cause)
    *
    * ```ts
-   * import { SanityError } from "@beep/sanity"
+   * import { SanityError, SanityErrorOptions } from "@beep/sanity"
    *
-   * const error = SanityError.fromReason("transport", {
-   *   cause: new Error("connection reset")
-   * })
+   * const error = SanityError.fromReason(
+   *   "transport",
+   *   SanityErrorOptions.make({ cause: new Error("connection reset") })
+   * )
    *
    * console.log(error.cause) // "Error"
    * ```
@@ -153,7 +157,10 @@ export class SanityError extends S.TaggedError<SanityError>($I`SanityError`)(
    * @category constructors
    * @since 0.0.0
    */
-  static readonly fromReason = (reason: SanityErrorReason, options: SanityErrorOptions = {}): SanityError =>
+  static readonly fromReason = (
+    reason: SanityErrorReason,
+    options: SanityErrorOptions = SanityErrorOptions.make({})
+  ): SanityError =>
     SanityError.make({
       reason,
       ...O.getSomesStruct({
@@ -183,8 +190,8 @@ export class SanityError extends S.TaggedError<SanityError>($I`SanityError`)(
  * @category errors
  * @since 0.0.0
  */
-export class SanityErrorOptions extends S.Class<SanityErrorOptions>($I`SanityErrorOptions`)(
-  {
+export class SanityErrorOptions extends S.Opaque<SanityErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.optionalKey(
       S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
     ).annotateKey({
@@ -196,10 +203,11 @@ export class SanityErrorOptions extends S.Class<SanityErrorOptions>($I`SanityErr
     url: S.optionalKey(S.String).annotateKey({
       description: "Sanity request URL associated with the failure when available.",
     }),
-  },
-  $I.annote("SanityErrorOptions", {
-    description: "Options for configuring SanityError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("SanityErrorOptions", {
+      description: "Options for configuring SanityError instances.",
+    })
+  )
 ) {}
 
 // shared driver boundary idiom; no in-family home; future foundation capability candidate.

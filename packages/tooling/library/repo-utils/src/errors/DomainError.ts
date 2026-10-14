@@ -32,7 +32,7 @@ const $I = $RepoUtilsId.create("errors/DomainError");
  * @category error-handling
  * @since 0.0.0
  */
-export class DomainError extends S.TaggedError<DomainError>($I`DomainError`)(
+export class DomainError extends S.TaggedError<DomainError, { readonly brand: unique symbol }>($I`DomainError`)(
   "DomainError",
   {
     message: S.String,

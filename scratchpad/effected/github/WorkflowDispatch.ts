@@ -16,7 +16,7 @@ import { PageOptions } from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/WorkflowDispatch");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -39,7 +39,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * @category models
  * @since 0.0.0
  */
-export class WorkflowRunStatus extends S.Class<WorkflowRunStatus>($I`WorkflowRunStatus`)({
+export class WorkflowRunStatus extends S.Class<WorkflowRunStatus, { readonly brand: unique symbol }>($I`WorkflowRunStatus`)({
   /** The run's numeric id. */
   id: S.Int.annotateKey({ description: "The run's numeric id." }),
   /** `queued`, `in_progress`, `completed`, … */

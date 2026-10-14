@@ -50,18 +50,22 @@ const $I = $LawPracticeServerId.create("PracticeKg.register");
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgDocketRegisterRow extends S.Class<PracticeKgDocketRegisterRow>($I`PracticeKgDocketRegisterRow`)(
-  {
+export class PracticeKgDocketRegisterRow extends S.Opaque<
+  PracticeKgDocketRegisterRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     client: S.NonEmptyString,
     clientName: S.NullOr(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(null)),
       S.withDecodingDefaultTypeKey(Effect.succeed(null))
     ),
     docket: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgDocketRegisterRow", {
-    description: "Client number, docket code, and client name from one row of the attorney's docket register.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgDocketRegisterRow", {
+      description: "Client number, docket code, and client name from one row of the attorney's docket register.",
+    })
+  )
 ) {}
 
 /**
@@ -95,9 +99,10 @@ export class PracticeKgDocketRegisterRow extends S.Class<PracticeKgDocketRegiste
  * @category errors
  * @since 0.0.0
  */
-export class PracticeKgDocketRegisterError extends S.TaggedError<PracticeKgDocketRegisterError>(
-  $I`PracticeKgDocketRegisterError`
-)(
+export class PracticeKgDocketRegisterError extends S.TaggedError<
+  PracticeKgDocketRegisterError,
+  { readonly brand: unique symbol }
+>($I`PracticeKgDocketRegisterError`)(
   "PracticeKgDocketRegisterError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),

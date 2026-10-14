@@ -7,7 +7,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { makeOperation } from "./AdapterState.ts";
 import { clampRatio, positionOf, px, releaseCapture, splitExtent } from "./DropCompiler.ts";
-import { SashDrag } from "./Gesture.models.ts";
+import { RatioOverride, SashDrag } from "./Gesture.models.ts";
 import type React from "react";
 import type { DockAtomGraph } from "../DockReact.types.ts";
 import type { AdapterState } from "./AdapterState.ts";
@@ -55,10 +55,12 @@ export const Sash = (props: {
       );
       props.graph.registry.set(
         props.state.ratioOverrideAtom,
-        O.some({
-          splitId: props.splitId,
-          ratio,
-        })
+        O.some(
+          RatioOverride.make({
+            splitId: props.splitId,
+            ratio,
+          })
+        )
       );
     };
     const up = (event: PointerEvent): void => {
@@ -96,15 +98,16 @@ export const Sash = (props: {
       node.setPointerCapture?.(event.pointerId);
       props.graph.registry.set(
         props.state.resizeAtom,
-        O.some({
-          splitId: props.splitId,
-          axis: split.value.layout.axis,
-          start: positionOf(event),
-          initialRatio: SplitLayout.ratio(split.value.layout),
-          extent,
-          moved: false,
-          pointerId: event.pointerId,
-        })
+        O.some(
+          SashDrag.cases[split.value.layout.axis].make({
+            splitId: props.splitId,
+            start: positionOf(event),
+            initialRatio: SplitLayout.ratio(split.value.layout),
+            extent,
+            moved: false,
+            pointerId: event.pointerId,
+          })
+        )
       );
     };
     node.addEventListener("pointerdown", down);

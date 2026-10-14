@@ -32,7 +32,7 @@ const $I = $ScratchpadId.create("effect-ontology/Domain/Error/Rdf");
  * @category errors
  * @since 0.0.0
  */
-export class RdfError extends S.TaggedError<RdfError>($I`RdfError`)(
+export class RdfError extends S.TaggedError<RdfError, { readonly brand: unique symbol }>($I`RdfError`)(
   "RdfError",
   {
     message: ErrorMessage.annotateKey({
@@ -62,7 +62,7 @@ export class RdfError extends S.TaggedError<RdfError>($I`RdfError`)(
  * @category errors
  * @since 0.0.0
  */
-export class SerializationFailed extends S.TaggedError<SerializationFailed>($I`SerializationFailed`)(
+export class SerializationFailed extends S.TaggedError<SerializationFailed, { readonly brand: unique symbol }>($I`SerializationFailed`)(
   "SerializationFailed",
   {
     message: ErrorMessage.annotateKey({
@@ -97,7 +97,7 @@ export class SerializationFailed extends S.TaggedError<SerializationFailed>($I`S
  * @category errors
  * @since 0.0.0
  */
-export class ParsingFailed extends S.TaggedError<ParsingFailed>($I`ParsingFailed`)(
+export class ParsingFailed extends S.TaggedError<ParsingFailed, { readonly brand: unique symbol }>($I`ParsingFailed`)(
   "ParsingFailed",
   {
     message: ErrorMessage.annotateKey({

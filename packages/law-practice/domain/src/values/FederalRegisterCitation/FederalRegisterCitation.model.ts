@@ -51,8 +51,8 @@ const $I = $LawPracticeDomainId.create("values/FederalRegisterCitation/FederalRe
  * @category models
  * @since 0.0.0
  */
-export class FederalRegisterCitation extends S.Class<FederalRegisterCitation>($I`FederalRegisterCitation`)(
-  {
+export class FederalRegisterCitation extends S.Opaque<FederalRegisterCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("federalRegister"),
     volume: S.Union([S.Natural, S.String]).annotateKey({
@@ -75,10 +75,11 @@ export class FederalRegisterCitation extends S.Class<FederalRegisterCitation>($I
         description: "Component spans locating the sub-parts of the citation within the source text.",
       })
     ),
-  },
-  $I.annote("FederalRegisterCitation", {
-    description: "A parsed Federal Register citation (type: federalRegister).",
-  })
+  }).pipe(
+    $I.annoteSchema("FederalRegisterCitation", {
+      description: "A parsed Federal Register citation (type: federalRegister).",
+    })
+  )
 ) {}
 
 /**

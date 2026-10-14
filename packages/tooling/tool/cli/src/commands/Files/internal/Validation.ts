@@ -12,7 +12,7 @@ import * as FileSystem from "effect/FileSystem";
 import { flow, pipe } from "effect/Function";
 import * as Path from "effect/Path";
 import { validateDirectory as validateDirectoryShared } from "../../../internal/cli/FsGuards.ts";
-import { FilesCommandError, formatPlatformError } from "../Files.errors.ts";
+import { FilesCommandError, formatPlatformError, PlatformErrorOptions } from "../Files.errors.ts";
 import { normalizeBareExtension } from "../Files.media.ts";
 import {
   decodeArchivePoorCandidatesOptions,
@@ -70,8 +70,10 @@ export const validateDirectory = Effect.fn("Files.validateDirectory")(function* 
       FilesCommandError.make({
         message: `Expected --dir to be a directory: "${directory}"`,
       }),
-    onRealPathError: (cause, directory) => formatPlatformError("Failed to resolve directory", directory, { cause }),
-    onStatError: (cause, directory) => formatPlatformError("Failed to stat directory", directory, { cause }),
+    onRealPathError: (cause, directory) =>
+      formatPlatformError("Failed to resolve directory", directory, PlatformErrorOptions.make({ cause })),
+    onStatError: (cause, directory) =>
+      formatPlatformError("Failed to stat directory", directory, PlatformErrorOptions.make({ cause })),
   });
 });
 
@@ -198,7 +200,11 @@ export const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateD
       .exists(noFaceDirectory)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to inspect no-face image move directory", noFaceDirectory, { cause })
+          formatPlatformError(
+            "Failed to inspect no-face image move directory",
+            noFaceDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
 
@@ -210,7 +216,11 @@ export const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateD
       .stat(noFaceDirectory)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to stat no-face image move directory", noFaceDirectory, { cause })
+          formatPlatformError(
+            "Failed to stat no-face image move directory",
+            noFaceDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
 
@@ -224,14 +234,22 @@ export const validateDetectFacesMoveNoFaceDirectory = Effect.fn("Files.validateD
       .realPath(sourceDirectory)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to resolve source directory", sourceDirectory, { cause })
+          formatPlatformError(
+            "Failed to resolve source directory",
+            sourceDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
     const canonicalNoFace = yield* fs
       .realPath(noFaceDirectory)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to resolve no-face image move directory", noFaceDirectory, { cause })
+          formatPlatformError(
+            "Failed to resolve no-face image move directory",
+            noFaceDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
 
@@ -345,7 +363,11 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
     .exists(duplicateDirectory)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to inspect duplicate move directory", duplicateDirectory, { cause })
+        formatPlatformError(
+          "Failed to inspect duplicate move directory",
+          duplicateDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -357,7 +379,11 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
     .stat(duplicateDirectory)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to stat duplicate move directory", duplicateDirectory, { cause })
+        formatPlatformError(
+          "Failed to stat duplicate move directory",
+          duplicateDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -371,7 +397,11 @@ const validateNormalizeDuplicateDirectory = Effect.fn("Files.validateNormalizeDu
     .realPath(duplicateDirectory)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to resolve duplicate move directory", duplicateDirectory, { cause })
+        formatPlatformError(
+          "Failed to resolve duplicate move directory",
+          duplicateDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -422,14 +452,18 @@ export const validateNormalizeDirectories = Effect.fn("Files.validateNormalizeDi
   const outputExists = yield* fs
     .exists(outputDirectory)
     .pipe(
-      Effect.mapError((cause) => formatPlatformError("Failed to inspect output directory", outputDirectory, { cause }))
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to inspect output directory", outputDirectory, PlatformErrorOptions.make({ cause }))
+      )
     );
 
   if (outputExists) {
     const outputStat = yield* fs
       .stat(outputDirectory)
       .pipe(
-        Effect.mapError((cause) => formatPlatformError("Failed to stat output directory", outputDirectory, { cause }))
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to stat output directory", outputDirectory, PlatformErrorOptions.make({ cause }))
+        )
       );
 
     if (outputStat.type !== "Directory") {
@@ -442,7 +476,11 @@ export const validateNormalizeDirectories = Effect.fn("Files.validateNormalizeDi
       .realPath(outputDirectory)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to resolve output directory", outputDirectory, { cause })
+          formatPlatformError(
+            "Failed to resolve output directory",
+            outputDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
     canonicalOutputDirectory = O.some(canonicalOutput);
@@ -505,7 +543,11 @@ export const validateArchiveDirectories = Effect.fn("Files.validateArchiveDirect
     .exists(archiveDirectory)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to inspect archive directory", archiveDirectory, { cause })
+        formatPlatformError(
+          "Failed to inspect archive directory",
+          archiveDirectory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -513,7 +555,13 @@ export const validateArchiveDirectories = Effect.fn("Files.validateArchiveDirect
     const archiveStat = yield* fs
       .stat(archiveDirectory)
       .pipe(
-        Effect.mapError((cause) => formatPlatformError("Failed to stat archive directory", archiveDirectory, { cause }))
+        Effect.mapError((cause) =>
+          formatPlatformError(
+            "Failed to stat archive directory",
+            archiveDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
+        )
       );
 
     if (archiveStat.type !== "Directory") {
@@ -526,7 +574,11 @@ export const validateArchiveDirectories = Effect.fn("Files.validateArchiveDirect
       .realPath(archiveDirectory)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to resolve archive directory", archiveDirectory, { cause })
+          formatPlatformError(
+            "Failed to resolve archive directory",
+            archiveDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
 

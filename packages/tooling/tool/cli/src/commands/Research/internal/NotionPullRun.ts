@@ -16,12 +16,11 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ResearchCommandError } from "../Research.errors.ts";
 import { KnowledgeCardFrontmatter, ResearchNotionPullSummary } from "../Research.schemas.ts";
-import { catalogDbPath, loadSeenUrls, persistCards } from "./CatalogOps.ts";
+import { CardPersistRow, catalogDbPath, loadSeenUrls, persistCards } from "./CatalogOps.ts";
 import { findDatabaseId, queryPageLinks, querySavedLinks, readLinksFile } from "./NotionPull.ts";
 import { normalizeUrl, slugFor, VAULT_DIRS } from "./Vault.ts";
 import type { ResearchNotionPullOptions } from "../Research.schemas.ts";
 import type { ResearchCommandServiceRequirements } from "../Research.service.ts";
-import type { CardPersistRow } from "./CatalogOps.ts";
 
 const decodeNotionPullSummary = S.decodeUnknownEffect(ResearchNotionPullSummary);
 
@@ -92,11 +91,13 @@ export const notionPullImpl = Effect.fn("Research.notionPullImpl")(function* (
       "\n"
     );
     const slug = yield* slugFor(link.title, urlNorm.value);
-    cards.push({
-      body,
-      frontmatter,
-      relativePath: path.join(VAULT_DIRS.xPosts, `${slug}.md`),
-    });
+    cards.push(
+      CardPersistRow.make({
+        body,
+        frontmatter,
+        relativePath: path.join(VAULT_DIRS.xPosts, `${slug}.md`),
+      })
+    );
   }
 
   yield* persistCards(options.vaultRoot, databasePath, "notion-pull", cards);

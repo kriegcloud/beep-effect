@@ -281,8 +281,8 @@ const aiProviderCliProbeOptionsEnvDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class AiProviderCliProbeOptions extends S.Class<AiProviderCliProbeOptions>($I`AiProviderCliProbeOptions`)(
-  {
+export class AiProviderCliProbeOptions extends S.Opaque<AiProviderCliProbeOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     env: S.Record(S.String, S.String)
       .pipe(
         S.withConstructorDefault(Effect.succeed(aiProviderCliProbeOptionsEnvDefault)),
@@ -296,10 +296,11 @@ export class AiProviderCliProbeOptions extends S.Class<AiProviderCliProbeOptions
       .annotateKey({
         description: "Optional executable override supplied only to the provider CLI runner.",
       }),
-  },
-  $I.annote("AiProviderCliProbeOptions", {
-    description: "Per-call executable and child-environment overrides for a provider CLI auth probe.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiProviderCliProbeOptions", {
+      description: "Per-call executable and child-environment overrides for a provider CLI auth probe.",
+    })
+  )
 ) {}
 
 const aiProviderCliRunRequestEnvDefault = R.empty();
@@ -329,8 +330,8 @@ const aiProviderCliRunRequestEnvDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class AiProviderCliRunRequest extends S.Class<AiProviderCliRunRequest>($I`AiProviderCliRunRequest`)(
-  {
+export class AiProviderCliRunRequest extends S.Opaque<AiProviderCliRunRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     args: S.Array(S.String).annotateKey({
       description: "Provider-specific auth status command arguments.",
     }),
@@ -348,10 +349,11 @@ export class AiProviderCliRunRequest extends S.Class<AiProviderCliRunRequest>($I
     provider: AiProviderCliProvider.annotateKey({
       description: "Provider whose auth status command is being executed.",
     }),
-  },
-  $I.annote("AiProviderCliRunRequest", {
-    description: "Technical provider CLI child-process invocation request.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiProviderCliRunRequest", {
+      description: "Technical provider CLI child-process invocation request.",
+    })
+  )
 ) {}
 
 /**
@@ -380,8 +382,11 @@ export class AiProviderCliRunRequest extends S.Class<AiProviderCliRunRequest>($I
  * @category models
  * @since 0.0.0
  */
-export class AiProviderCliProcessResult extends S.Class<AiProviderCliProcessResult>($I`AiProviderCliProcessResult`)(
-  {
+export class AiProviderCliProcessResult extends S.Opaque<
+  AiProviderCliProcessResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     exitCode: AiProviderCliExitCode.annotateKey({
       description: "Provider CLI process exit status.",
     }),
@@ -391,10 +396,11 @@ export class AiProviderCliProcessResult extends S.Class<AiProviderCliProcessResu
     stdout: S.String.annotateKey({
       description: "Redacted standard output captured from the provider CLI status command.",
     }),
-  },
-  $I.annote("AiProviderCliProcessResult", {
-    description: "Stdout, stderr, and exit code captured from a provider CLI status command.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiProviderCliProcessResult", {
+      description: "Stdout, stderr, and exit code captured from a provider CLI status command.",
+    })
+  )
 ) {}
 
 /**
@@ -422,8 +428,8 @@ export class AiProviderCliProcessResult extends S.Class<AiProviderCliProcessResu
  * @category models
  * @since 0.0.0
  */
-export class AiProviderCliAuthProbe extends S.Class<AiProviderCliAuthProbe>($I`AiProviderCliAuthProbe`)(
-  {
+export class AiProviderCliAuthProbe extends S.Opaque<AiProviderCliAuthProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.NonEmptyString.annotateKey({
       description: "Executable command used for the provider CLI status probe.",
     }),
@@ -433,10 +439,11 @@ export class AiProviderCliAuthProbe extends S.Class<AiProviderCliAuthProbe>($I`A
     status: AiProviderCliAuthStatus.annotateKey({
       description: "Redacted auth state inferred from the provider CLI exit status.",
     }),
-  },
-  $I.annote("AiProviderCliAuthProbe", {
-    description: "Provider CLI auth probe result without raw account or token output.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiProviderCliAuthProbe", {
+      description: "Provider CLI auth probe result without raw account or token output.",
+    })
+  )
 ) {}
 
 /**
@@ -468,10 +475,11 @@ export class AiProviderCliAuthProbe extends S.Class<AiProviderCliAuthProbe>($I`A
  * @category models
  * @since 0.0.0
  */
-export class AiProviderCliClaudeAuthStatusPayload extends S.Class<AiProviderCliClaudeAuthStatusPayload>(
-  $I`AiProviderCliClaudeAuthStatusPayload`
-)(
-  {
+export class AiProviderCliClaudeAuthStatusPayload extends S.Opaque<
+  AiProviderCliClaudeAuthStatusPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     authMethod: S.OptionFromOptionalKey(S.NonEmptyString)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -488,10 +496,11 @@ export class AiProviderCliClaudeAuthStatusPayload extends S.Class<AiProviderCliC
       .annotateKey({
         description: "Subscription tier identifier reported by the Claude CLI, when present.",
       }),
-  },
-  $I.annote("AiProviderCliClaudeAuthStatusPayload", {
-    description: "Decoded stdout JSON payload from the Claude CLI auth status command.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiProviderCliClaudeAuthStatusPayload", {
+      description: "Decoded stdout JSON payload from the Claude CLI auth status command.",
+    })
+  )
 ) {}
 
 /**
@@ -524,8 +533,8 @@ export class AiProviderCliClaudeAuthStatusPayload extends S.Class<AiProviderCliC
  * @category models
  * @since 0.0.0
  */
-export class AiProviderCliAuthSnapshot extends S.Class<AiProviderCliAuthSnapshot>($I`AiProviderCliAuthSnapshot`)(
-  {
+export class AiProviderCliAuthSnapshot extends S.Opaque<AiProviderCliAuthSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     email: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Account email reported by the provider CLI, when available.",
     }),
@@ -545,8 +554,9 @@ export class AiProviderCliAuthSnapshot extends S.Class<AiProviderCliAuthSnapshot
       .annotateKey({
         description: "Credential origin reported by the provider CLI, when recognized.",
       }),
-  },
-  $I.annote("AiProviderCliAuthSnapshot", {
-    description: "Rich provider CLI auth snapshot with optional account and subscription detail.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiProviderCliAuthSnapshot", {
+      description: "Rich provider CLI auth snapshot with optional account and subscription detail.",
+    })
+  )
 ) {}

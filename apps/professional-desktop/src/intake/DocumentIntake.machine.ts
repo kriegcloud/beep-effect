@@ -38,6 +38,8 @@ import {
   DocumentIntakeEmitted,
   DocumentIntakeInput,
   DocumentIntakeState,
+  IntakeBatchInput,
+  IntakeBatchOutput,
   IntakeBatchRelayPayloads,
   IntakeEventPayloads,
   IntakeInternalEventPayloads,
@@ -214,16 +216,17 @@ export const documentIntakeMachine = setupEffect({
 }).createMachine({
   id: "intake",
   type: "parallel",
-  context: ({ input }) => ({
-    workspaceId: input.workspaceId,
-    configRetryBaseMillis: input.configRetryBaseMillis,
-    configAttempt: 0,
-    batchSequence: 0,
-    liveBatches: [],
-    results: [],
-    manualDraftPath: O.none(),
-    manualMessage: O.none(),
-  }),
+  context: ({ input }) =>
+    DocumentIntakeContext.make({
+      workspaceId: input.workspaceId,
+      configRetryBaseMillis: input.configRetryBaseMillis,
+      configAttempt: 0,
+      batchSequence: 0,
+      liveBatches: [],
+      results: [],
+      manualDraftPath: O.none(),
+      manualMessage: O.none(),
+    }),
   on: {
     CLEAR_RESULTS: () => ({ context: { results: [] } }),
     FILE_RESULT: ({ context, event }) => ({ context: { results: A.append(context.results, event.entry) } }),
@@ -237,7 +240,7 @@ export const documentIntakeMachine = setupEffect({
           invoke: {
             id: "vaultConfigFeed",
             src: "vaultConfigFeed",
-            input: ({ context }) => ({ workspaceId: context.workspaceId }),
+            input: ({ context }) => VaultConfigFeedInput.make({ workspaceId: context.workspaceId }),
             // The feed is a snapshot stream: an event relayed by a child would cross the
             // actor boundary and be rejected as an internal event, so the parent raises it.
             onSnapshot: ({ event }, enq) => {
@@ -294,7 +297,10 @@ export const documentIntakeMachine = setupEffect({
                             return { target: "cancelled" };
                           }
                           enq.emit(outcome("selected"));
-                          return { target: "saving", input: { vaultRootPath: selected.value } };
+                          return {
+                            target: "saving",
+                            input: VaultSavingStateInput.make({ vaultRootPath: selected.value }),
+                          };
                         },
                         onError: (args, enq) => {
                           enq.emit(outcome("picker_failure"));
@@ -320,7 +326,10 @@ export const documentIntakeMachine = setupEffect({
                             return { target: "cancelled" };
                           }
                           enq.emit(outcome("selected"));
-                          return { target: "saving", input: { vaultRootPath: selected.value } };
+                          return {
+                            target: "saving",
+                            input: VaultSavingStateInput.make({ vaultRootPath: selected.value }),
+                          };
                         },
                         // A real in-card form, not `window.prompt`: the raw prompt was
                         // unstyled, unlabeled, and cancelling it stranded the operator on
@@ -342,10 +351,11 @@ export const documentIntakeMachine = setupEffect({
                     saving: {
                       invoke: {
                         src: "persistVaultRoot",
-                        input: ({ context, input }) => ({
-                          workspaceId: context.workspaceId,
-                          vaultRootPath: input.vaultRootPath,
-                        }),
+                        input: ({ context, input }) =>
+                          PersistVaultRootInput.make({
+                            workspaceId: context.workspaceId,
+                            vaultRootPath: input.vaultRootPath,
+                          }),
                         onDone: (_, enq) => {
                           enq.emit(outcome("success"));
                           return { target: "saved" };
@@ -362,13 +372,15 @@ export const documentIntakeMachine = setupEffect({
                           });
                           return {
                             target: "saveFailed",
-                            input: { message: vaultConfigurationFailureMessage(args.event.error) },
+                            input: VaultFailureStateInput.make({
+                              message: vaultConfigurationFailureMessage(args.event.error),
+                            }),
                           };
                         },
                       },
                     },
-                    cancelled: { type: "final", output: PickerOutcome.cases.cancelled.make() },
-                    saved: { type: "final", output: PickerOutcome.cases.saved.make() },
+                    cancelled: { type: "final", output: PickerOutcome.cases.cancelled.make({}) },
+                    saved: { type: "final", output: PickerOutcome.cases.saved.make({}) },
                     pickerFailed: {
                       type: "final",
                       output: PickerOutcome.cases.failed.make({ message: PICKER_FAILURE_MESSAGE }),
@@ -377,14 +389,17 @@ export const documentIntakeMachine = setupEffect({
                       type: "final",
                       output: ({ input }) => PickerOutcome.cases.failed.make({ message: input.message }),
                     },
-                    manualRequested: { type: "final", output: PickerOutcome.cases.manual.make() },
+                    manualRequested: { type: "final", output: PickerOutcome.cases.manual.make({}) },
                   },
                   onDone: ({ event }) => {
                     if (PickerOutcome.guards.saved(event.output)) {
                       return { target: "awaitingConfig" };
                     }
                     if (PickerOutcome.guards.failed(event.output)) {
-                      return { target: "failed", context: { vaultFailure: event.output.message } };
+                      return {
+                        target: "failed",
+                        context: VaultFailureContext.make({ vaultFailure: event.output.message }),
+                      };
                     }
                     if (PickerOutcome.guards.manual(event.output)) {
                       return { target: "manual", context: { manualDraftPath: O.none(), manualMessage: O.none() } };
@@ -402,7 +417,7 @@ export const documentIntakeMachine = setupEffect({
                           if (Str.isNonEmpty(trimmed)) {
                             return {
                               target: "saving",
-                              input: { vaultRootPath: trimmed },
+                              input: VaultSavingStateInput.make({ vaultRootPath: trimmed }),
                               context: { manualDraftPath: O.some(trimmed), manualMessage: O.none() },
                             };
                           }
@@ -417,10 +432,11 @@ export const documentIntakeMachine = setupEffect({
                     saving: {
                       invoke: {
                         src: "persistVaultRoot",
-                        input: ({ context, input }) => ({
-                          workspaceId: context.workspaceId,
-                          vaultRootPath: input.vaultRootPath,
-                        }),
+                        input: ({ context, input }) =>
+                          PersistVaultRootInput.make({
+                            workspaceId: context.workspaceId,
+                            vaultRootPath: input.vaultRootPath,
+                          }),
                         onDone: (_, enq) => {
                           enq.emit(outcome("success"));
                           return { target: "saved" };
@@ -446,8 +462,8 @@ export const documentIntakeMachine = setupEffect({
                         },
                       },
                     },
-                    cancelled: { type: "final", output: ManualOutcome.cases.cancelled.make() },
-                    saved: { type: "final", output: ManualOutcome.cases.saved.make() },
+                    cancelled: { type: "final", output: ManualOutcome.cases.cancelled.make({}) },
+                    saved: { type: "final", output: ManualOutcome.cases.saved.make({}) },
                   },
                   onDone: ({ event }) =>
                     ManualOutcome.guards.saved(event.output) ? { target: "awaitingConfig" } : { target: "idle" },
@@ -518,7 +534,7 @@ export const documentIntakeMachine = setupEffect({
           const intakeBatchId = batchIdFor(event.files, sequence);
           const batch = enq.spawn("intakeBatch", {
             id: `intakeBatch-${sequence}`,
-            input: { intakeBatchId, workspaceId: context.workspaceId, files: event.files },
+            input: IntakeBatchInput.make({ intakeBatchId, workspaceId: context.workspaceId, files: event.files }),
           });
           // `enq.listen` does not infer the emitted event from its type filter.
           enq.listen(batch, "file.result", (emitted) => ({
@@ -527,7 +543,11 @@ export const documentIntakeMachine = setupEffect({
           }));
           enq.subscribeTo(batch, {
             done: (output) => ({ type: "BATCH_SETTLED", sequence, output }),
-            error: () => ({ type: "BATCH_SETTLED", sequence, output: { intakeBatchId, entries: [] } }),
+            error: () => ({
+              type: "BATCH_SETTLED",
+              sequence,
+              output: IntakeBatchOutput.make({ intakeBatchId, entries: [] }),
+            }),
           });
           return {
             target: ".busy",
@@ -650,11 +670,11 @@ export const vaultSelectionOf = (snapshot: DocumentIntakeSnapshot): VaultSelecti
     snapshot.matches({ vault: { watching: { unconfigured: { manual: "saving" } } } }) ||
     snapshot.matches({ vault: { watching: { unconfigured: "awaitingConfig" } } })
   ) {
-    return VaultSelectionState.cases.saving.make();
+    return VaultSelectionState.cases.saving.make({});
   }
   return snapshot.matches({ vault: { watching: { unconfigured: "picker" } } })
-    ? VaultSelectionState.cases.choosing.make()
-    : VaultSelectionState.cases.idle.make();
+    ? VaultSelectionState.cases.choosing.make({})
+    : VaultSelectionState.cases.idle.make({});
 };
 
 /**

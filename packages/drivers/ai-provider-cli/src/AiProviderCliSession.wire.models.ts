@@ -22,17 +22,18 @@ const $I = $AiProviderCliId.create("AiProviderCliSession.wire.models");
  * @category schemas
  * @since 0.0.0
  */
-export class CodexStart extends S.Class<CodexStart>($I`CodexStart`)(
-  {
+export class CodexStart extends S.Opaque<CodexStart, { readonly brand: unique symbol }>()(
+  S.Struct({
     thread: S.Struct({ id: S.NonEmptyString }),
     model: S.Literal("gpt-6.1-sol"),
     reasoningEffort: S.Literal("medium"),
     approvalPolicy: S.Literal("never"),
     sandbox: S.Struct({ type: S.Literal("readOnly"), networkAccess: S.Literal(false) }),
-  },
-  $I.annote("CodexStart", {
-    description: "Verifies the Codex thread identity, pinned model and effective read-only permission policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexStart", {
+      description: "Verifies the Codex thread identity, pinned model and effective read-only permission policy.",
+    })
+  )
 ) {}
 /**
  * Decodes the owned turn identifier returned by Codex turn/start.
@@ -48,9 +49,10 @@ export class CodexStart extends S.Class<CodexStart>($I`CodexStart`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CodexTurn extends S.Class<CodexTurn>($I`CodexTurn`)(
-  { turn: S.Struct({ id: S.NonEmptyString }) },
-  $I.annote("CodexTurn", { description: "Decodes the owned turn identifier returned by Codex turn/start." })
+export class CodexTurn extends S.Opaque<CodexTurn, { readonly brand: unique symbol }>()(
+  S.Struct({ turn: S.Struct({ id: S.NonEmptyString }) }).pipe(
+    $I.annoteSchema("CodexTurn", { description: "Decodes the owned turn identifier returned by Codex turn/start." })
+  )
 ) {}
 /**
  * Correlates a Codex assistant text item with its owning thread and turn.
@@ -66,13 +68,16 @@ export class CodexTurn extends S.Class<CodexTurn>($I`CodexTurn`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CodexItem extends S.Class<CodexItem>($I`CodexItem`)(
-  {
+export class CodexItem extends S.Opaque<CodexItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     threadId: S.String,
     turnId: S.String,
     item: S.Struct({ type: S.Literal("agentMessage"), text: S.String }),
-  },
-  $I.annote("CodexItem", { description: "Correlates a Codex assistant text item with its owning thread and turn." })
+  }).pipe(
+    $I.annoteSchema("CodexItem", {
+      description: "Correlates a Codex assistant text item with its owning thread and turn.",
+    })
+  )
 ) {}
 /**
  * Decodes Codex terminal status together with the thread and turn identifiers.
@@ -88,14 +93,15 @@ export class CodexItem extends S.Class<CodexItem>($I`CodexItem`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CodexComplete extends S.Class<CodexComplete>($I`CodexComplete`)(
-  {
+export class CodexComplete extends S.Opaque<CodexComplete, { readonly brand: unique symbol }>()(
+  S.Struct({
     threadId: S.String,
     turn: S.Struct({ id: S.NonEmptyString, status: S.NonEmptyString }),
-  },
-  $I.annote("CodexComplete", {
-    description: "Decodes Codex terminal status together with the thread and turn identifiers.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexComplete", {
+      description: "Decodes Codex terminal status together with the thread and turn identifiers.",
+    })
+  )
 ) {}
 /**
  * Decodes an ACP assistant text chunk with its owning session identifier.
@@ -111,15 +117,18 @@ export class CodexComplete extends S.Class<CodexComplete>($I`CodexComplete`)(
  * @category schemas
  * @since 0.0.0
  */
-export class AcpText extends S.Class<AcpText>($I`AcpText`)(
-  {
+export class AcpText extends S.Opaque<AcpText, { readonly brand: unique symbol }>()(
+  S.Struct({
     sessionId: S.String,
     update: S.Struct({
       sessionUpdate: S.Literal("agent_message_chunk"),
       content: S.Struct({ type: S.Literal("text"), text: S.String }),
     }),
-  },
-  $I.annote("AcpText", { description: "Decodes an ACP assistant text chunk with its owning session identifier." })
+  }).pipe(
+    $I.annoteSchema("AcpText", {
+      description: "Decodes an ACP assistant text chunk with its owning session identifier.",
+    })
+  )
 ) {}
 /**
  * Verifies the Cursor session model identifier including context, effort and fast-mode qualifiers.
@@ -135,14 +144,15 @@ export class AcpText extends S.Class<AcpText>($I`AcpText`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CursorIdentity extends S.Class<CursorIdentity>($I`CursorIdentity`)(
-  {
+export class CursorIdentity extends S.Opaque<CursorIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     sessionId: S.NonEmptyString,
     models: S.Struct({ currentModelId: S.Literal("claude-opus-5-5[context=300k,effort=medium,fast=false]") }),
-  },
-  $I.annote("CursorIdentity", {
-    description: "Verifies the Cursor session model identifier including context, effort and fast-mode qualifiers.",
-  })
+  }).pipe(
+    $I.annoteSchema("CursorIdentity", {
+      description: "Verifies the Cursor session model identifier including context, effort and fast-mode qualifiers.",
+    })
+  )
 ) {}
 /**
  * Decodes the Grok session model and configuration options for subsequent effort verification.
@@ -158,15 +168,16 @@ export class CursorIdentity extends S.Class<CursorIdentity>($I`CursorIdentity`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GrokIdentity extends S.Class<GrokIdentity>($I`GrokIdentity`)(
-  {
+export class GrokIdentity extends S.Opaque<GrokIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     sessionId: S.NonEmptyString,
     models: S.Struct({ currentModelId: S.Literal("grok-4.7") }),
     configOptions: S.Array(S.Struct({ id: S.String, currentValue: S.Unknown })),
-  },
-  $I.annote("GrokIdentity", {
-    description: "Decodes the Grok session model and configuration options for subsequent effort verification.",
-  })
+  }).pipe(
+    $I.annoteSchema("GrokIdentity", {
+      description: "Decodes the Grok session model and configuration options for subsequent effort verification.",
+    })
+  )
 ) {}
 /**
  * Defines the six exact MCP messaging tool names accepted by the managed permission callback.
@@ -210,18 +221,19 @@ export type MessagingToolName = typeof MessagingToolName.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class ClaudeHandshake extends S.Class<ClaudeHandshake>($I`ClaudeHandshake`)(
-  {
+export class ClaudeHandshake extends S.Opaque<ClaudeHandshake, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("control_response"),
     response: S.Struct({
       subtype: S.Literal("success"),
       request_id: S.Literal("beep-initialize"),
       response: S.Struct({ current_permission_mode: S.Literal("dontAsk") }),
     }),
-  },
-  $I.annote("ClaudeHandshake", {
-    description: "Verifies the Claude initialize control response and its dontAsk permission mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaudeHandshake", {
+      description: "Verifies the Claude initialize control response and its dontAsk permission mode.",
+    })
+  )
 ) {}
 /**
  * Verifies the Claude session initialization model and permission-mode readback.
@@ -237,17 +249,18 @@ export class ClaudeHandshake extends S.Class<ClaudeHandshake>($I`ClaudeHandshake
  * @category schemas
  * @since 0.0.0
  */
-export class ClaudeInit extends S.Class<ClaudeInit>($I`ClaudeInit`)(
-  {
+export class ClaudeInit extends S.Opaque<ClaudeInit, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("system"),
     subtype: S.Literal("init"),
     session_id: S.NonEmptyString,
     model: S.Literal("claude-opus-5-5"),
     permissionMode: S.Literal("dontAsk"),
-  },
-  $I.annote("ClaudeInit", {
-    description: "Verifies the Claude session initialization model and permission-mode readback.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaudeInit", {
+      description: "Verifies the Claude session initialization model and permission-mode readback.",
+    })
+  )
 ) {}
 /**
  * Decodes a Claude terminal result without treating its subtype as proof of success.
@@ -263,17 +276,18 @@ export class ClaudeInit extends S.Class<ClaudeInit>($I`ClaudeInit`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ClaudeResult extends S.Class<ClaudeResult>($I`ClaudeResult`)(
-  {
+export class ClaudeResult extends S.Opaque<ClaudeResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.Literal("result"),
     subtype: S.String,
     is_error: S.Boolean,
     result: S.optionalKey(S.String),
     session_id: S.NonEmptyString,
-  },
-  $I.annote("ClaudeResult", {
-    description: "Decodes a Claude terminal result without treating its subtype as proof of success.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaudeResult", {
+      description: "Decodes a Claude terminal result without treating its subtype as proof of success.",
+    })
+  )
 ) {}
 /**
  * Decodes the identifier of a reverse Claude control request for host permission handling.
@@ -289,11 +303,12 @@ export class ClaudeResult extends S.Class<ClaudeResult>($I`ClaudeResult`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ClaudeControl extends S.Class<ClaudeControl>($I`ClaudeControl`)(
-  { type: S.Literal("control_request"), request_id: S.String },
-  $I.annote("ClaudeControl", {
-    description: "Decodes the identifier of a reverse Claude control request for host permission handling.",
-  })
+export class ClaudeControl extends S.Opaque<ClaudeControl, { readonly brand: unique symbol }>()(
+  S.Struct({ type: S.Literal("control_request"), request_id: S.String }).pipe(
+    $I.annoteSchema("ClaudeControl", {
+      description: "Decodes the identifier of a reverse Claude control request for host permission handling.",
+    })
+  )
 ) {}
 /**
  * Decodes the stream message discriminator before selecting a Claude payload schema.
@@ -309,9 +324,10 @@ export class ClaudeControl extends S.Class<ClaudeControl>($I`ClaudeControl`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ClaudeEnvelope extends S.Class<ClaudeEnvelope>($I`ClaudeEnvelope`)(
-  { type: S.String },
-  $I.annote("ClaudeEnvelope", {
-    description: "Decodes the stream message discriminator before selecting a Claude payload schema.",
-  })
+export class ClaudeEnvelope extends S.Opaque<ClaudeEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({ type: S.String }).pipe(
+    $I.annoteSchema("ClaudeEnvelope", {
+      description: "Decodes the stream message discriminator before selecting a Claude payload schema.",
+    })
+  )
 ) {}

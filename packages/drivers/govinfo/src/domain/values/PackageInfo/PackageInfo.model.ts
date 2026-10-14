@@ -39,8 +39,8 @@ const $I = $GovinfoId.create("domain/values/PackageInfo/PackageInfo.model");
  * @category dtos
  * @since 0.0.0
  */
-export class PackageInfo extends S.Class<PackageInfo>($I`PackageInfo`)(
-  {
+export class PackageInfo extends S.Opaque<PackageInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Congress number associated with the package when applicable. */
     congress: S.String.annotateKey({
       description: "Congress number associated with the package when applicable.",
@@ -70,10 +70,11 @@ export class PackageInfo extends S.Class<PackageInfo>($I`PackageInfo`)(
     title: S.String.annotateKey({
       description: "Display title for the GovInfo package.",
     }),
-  },
-  $I.annote("PackageInfo", {
-    description: "GovInfo package metadata returned by collection and published listings.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageInfo", {
+      description: "GovInfo package metadata returned by collection and published listings.",
+    })
+  )
 ) {}
 
 /**

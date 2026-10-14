@@ -45,7 +45,7 @@ describe("dispatchWithTierGate", () => {
   it.effect(
     "refuses fail-closed as a value for an unapproved destructive tool call",
     Effect.fnUntraced(function* () {
-      const gate = fromApprovedToolsPolicy({ approvedTools: [] });
+      const gate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools: [] }));
       const executions = yield* Ref.make(0);
       const result = yield* dispatchWithTierGate(
         { tool: writeTool, toolCallId: O.some("call-1") },
@@ -68,7 +68,7 @@ describe("dispatchWithTierGate", () => {
   it.effect(
     "dispatches an approved destructive tool call and produces both the handler result and a schema-valid audit record",
     Effect.fnUntraced(function* () {
-      const gate = fromApprovedToolsPolicy({ approvedTools: ["delete_document"] });
+      const gate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools: ["delete_document"] }));
       const executions = yield* Ref.make(0);
       const result = yield* dispatchWithTierGate(
         { tool: writeTool, toolCallId: O.none() },
@@ -90,7 +90,7 @@ describe("dispatchWithTierGate", () => {
   it.effect(
     "dispatches a read-only tool call without requiring approval and still audits it",
     Effect.fnUntraced(function* () {
-      const gate = fromApprovedToolsPolicy({ approvedTools: [] });
+      const gate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools: [] }));
       const result = yield* dispatchWithTierGate(
         { tool: readTool, toolCallId: O.none() },
         Effect.succeed("results")
@@ -108,7 +108,7 @@ describe("dispatchWithTierGate", () => {
   it.effect(
     "refuses a non-destructive write without explicit read-only approval",
     Effect.fnUntraced(function* () {
-      const gate = fromApprovedToolsPolicy({ approvedTools: [] });
+      const gate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools: [] }));
       const executions = yield* Ref.make(0);
       const result = yield* dispatchWithTierGate(
         { tool: nonReadOnlyWriteTool, toolCallId: O.none() },
@@ -130,7 +130,7 @@ describe("dispatchWithTierGate", () => {
   it.effect(
     "refuses an unannotated tool fail-closed as a value, never a throw",
     Effect.fnUntraced(function* () {
-      const gate = fromApprovedToolsPolicy({ approvedTools: [] });
+      const gate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools: [] }));
       const executions = yield* Ref.make(0);
       const result = yield* dispatchWithTierGate(
         { tool: unannotatedTool, toolCallId: O.none() },
@@ -154,7 +154,7 @@ describe("recordOutcome settlement", () => {
   // so the tests observe exactly what dispatchWithTierGate reports.
   const recordingGate = Effect.fnUntraced(function* (approvedTools: ReadonlyArray<string>) {
     const recorded = yield* Ref.make<ReadonlyArray<{ readonly tool: string; readonly settlement: string }>>([]);
-    const policyGate = fromApprovedToolsPolicy({ approvedTools });
+    const policyGate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools }));
     const gate = TierGate.of({
       evaluate: policyGate.evaluate,
       recordOutcome: Effect.fn("TierGateTest.recordOutcome")(function* (request, settlement) {
@@ -227,7 +227,7 @@ describe("recordOutcome settlement", () => {
   it.effect(
     "fromApprovedToolsPolicy keeps no settlement record",
     Effect.fnUntraced(function* () {
-      const gate = fromApprovedToolsPolicy({ approvedTools: ["delete_document"] });
+      const gate = fromApprovedToolsPolicy(TierGatePolicy.make({ approvedTools: ["delete_document"] }));
       yield* gate.recordOutcome({ tool: writeTool, toolCallId: O.none() }, "completed");
     })
   );

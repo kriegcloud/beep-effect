@@ -44,7 +44,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/PackageManagerLock");
  * @category models
  * @since 0.0.0
  */
-export class PackageManagerLock extends S.Class<PackageManagerLock>($I`PackageManagerLock`)({
+export class PackageManagerLock extends S.Class<PackageManagerLock, { readonly brand: unique symbol }>($I`PackageManagerLock`)({
 	name: S.Literal("pnpm").annotateKey({ description: "Package manager pinned by the env preamble, always `pnpm`" }),
 	specifier: S.String.annotateKey({ description: "Declared package manager specifier recorded verbatim, potentially retaining a corepack-style integrity suffix" }),
 	version: S.String.annotateKey({ description: "Exact pnpm package version resolved in the lockfile's env preamble" }),

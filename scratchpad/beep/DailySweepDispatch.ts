@@ -90,7 +90,7 @@ const decodeUnknownOptionPreDispatchReason = S.decodeUnknownOption(PreDispatchRe
  * @category errors
  * @since 0.0.0
  */
-export class MemoryExtractionFailure extends S.TaggedError<MemoryExtractionFailure>()(
+export class MemoryExtractionFailure extends S.TaggedError<MemoryExtractionFailure, { readonly brand: unique symbol }>()(
   "MemoryExtractionError",
   {
     extractor: S.String,
@@ -135,7 +135,7 @@ const isMemoryExtractionFailure = S.is(MemoryExtractionFailure);
  * @category errors
  * @since 0.0.0
  */
-export class SweepPreDispatchError extends S.TaggedError<SweepPreDispatchError>()(
+export class SweepPreDispatchError extends S.TaggedError<SweepPreDispatchError, { readonly brand: unique symbol }>()(
   "SweepPreDispatchError",
   {
     extractor: PreDispatchReason,
@@ -196,7 +196,7 @@ export const makeSweepPreDispatchError = (reason: PreDispatchReason): SweepPreDi
  * @category errors
  * @since 0.0.0
  */
-export class SweepDispatchTokenError extends S.TaggedError<SweepDispatchTokenError>()(
+export class SweepDispatchTokenError extends S.TaggedError<SweepDispatchTokenError, { readonly brand: unique symbol }>()(
   "SweepDispatchTokenError",
   { message: S.String },
   $I.annoteError<SweepDispatchTokenError>("SweepDispatchTokenError", {
@@ -533,7 +533,7 @@ const coerceReason = (error: unknown): PreDispatchReason => {
  * @category errors
  * @since 0.0.0
  */
-export class CertifiedSweepFailure extends S.TaggedError<CertifiedSweepFailure>()(
+export class CertifiedSweepFailure extends S.TaggedError<CertifiedSweepFailure, { readonly brand: unique symbol }>()(
   "CertifiedSweepFailure",
   {
     reason: PreDispatchReason,

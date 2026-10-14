@@ -39,17 +39,18 @@ const $I = $PacerId.create("pacer/auth/CsoAuth.models");
  * @category schemas
  * @since 0.0.0
  */
-export class CsoAuthRequest extends S.Class<CsoAuthRequest>($I`CsoAuthRequest`)(
-  {
+export class CsoAuthRequest extends S.Opaque<CsoAuthRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     loginId: S.String,
     password: S.String,
     clientCode: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     otpCode: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     redactFlag: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CsoAuthRequest", {
-    description: "PACER cso-auth login request body.",
-  })
+  }).pipe(
+    $I.annoteSchema("CsoAuthRequest", {
+      description: "PACER cso-auth login request body.",
+    })
+  )
 ) {}
 
 /**
@@ -74,15 +75,16 @@ export class CsoAuthRequest extends S.Class<CsoAuthRequest>($I`CsoAuthRequest`)(
  * @category schemas
  * @since 0.0.0
  */
-export class CsoAuthResponse extends S.Class<CsoAuthResponse>($I`CsoAuthResponse`)(
-  {
+export class CsoAuthResponse extends S.Opaque<CsoAuthResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     nextGenCSO: S.String,
     loginResult: S.String,
     errorDescription: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CsoAuthResponse", {
-    description: "PACER cso-auth login response body.",
-  })
+  }).pipe(
+    $I.annoteSchema("CsoAuthResponse", {
+      description: "PACER cso-auth login response body.",
+    })
+  )
 ) {}
 
 /**
@@ -100,13 +102,14 @@ export class CsoAuthResponse extends S.Class<CsoAuthResponse>($I`CsoAuthResponse
  * @category schemas
  * @since 0.0.0
  */
-export class CsoLogoutRequest extends S.Class<CsoLogoutRequest>($I`CsoLogoutRequest`)(
-  {
+export class CsoLogoutRequest extends S.Opaque<CsoLogoutRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     nextGenCSO: S.String,
-  },
-  $I.annote("CsoLogoutRequest", {
-    description: "PACER cso-logout request body.",
-  })
+  }).pipe(
+    $I.annoteSchema("CsoLogoutRequest", {
+      description: "PACER cso-logout request body.",
+    })
+  )
 ) {}
 
 /**
@@ -125,13 +128,14 @@ export class CsoLogoutRequest extends S.Class<CsoLogoutRequest>($I`CsoLogoutRequ
  * @category schemas
  * @since 0.0.0
  */
-export class CsoLogoutResponse extends S.Class<CsoLogoutResponse>($I`CsoLogoutResponse`)(
-  {
+export class CsoLogoutResponse extends S.Opaque<CsoLogoutResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     loginResult: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     errorDescription: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     nextGenCSO: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CsoLogoutResponse", {
-    description: "PACER cso-logout response body.",
-  })
+  }).pipe(
+    $I.annoteSchema("CsoLogoutResponse", {
+      description: "PACER cso-logout response body.",
+    })
+  )
 ) {}

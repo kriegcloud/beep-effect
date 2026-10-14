@@ -228,17 +228,18 @@ export type FirecrawlCodecErrorReason = typeof FirecrawlCodecErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class FirecrawlApiFailure extends S.Class<FirecrawlApiFailure>($I`FirecrawlApiFailure`)(
-  {
+export class FirecrawlApiFailure extends S.Opaque<FirecrawlApiFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: optionalString,
     details: optionalUnknown,
     error: S.String,
     status: optionalNonNegativeInt,
     success: S.Literal(false),
-  },
-  $I.annote("FirecrawlApiFailure", {
-    description: "Decoded Firecrawl API failure body with optional diagnostics modeled as Option.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlApiFailure", {
+      description: "Decoded Firecrawl API failure body with optional diagnostics modeled as Option.",
+    })
+  )
 ) {}
 
 /**
@@ -266,8 +267,8 @@ export class FirecrawlApiFailure extends S.Class<FirecrawlApiFailure>($I`Firecra
  * @category errors
  * @since 0.0.0
  */
-export class FirecrawlErrorOptions extends S.Class<FirecrawlErrorOptions>($I`FirecrawlErrorOptions`)(
-  {
+export class FirecrawlErrorOptions extends S.Opaque<FirecrawlErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: optionalString,
     failure: S.OptionFromOptionalKey(FirecrawlApiFailure).pipe(S.withConstructorDefault(Effect.succeedNone)),
     method: S.OptionFromOptionalKey(FirecrawlMethodName).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -275,14 +276,38 @@ export class FirecrawlErrorOptions extends S.Class<FirecrawlErrorOptions>($I`Fir
     retryable: optionalBoolean,
     sdkVersion: optionalString,
     status: optionalNonNegativeInt,
-  },
-  $I.annote("FirecrawlErrorOptions", {
-    description: "Sanitized options for configuring FirecrawlError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlErrorOptions", {
+      description: "Sanitized options for configuring FirecrawlError instances.",
+    })
+  )
 ) {}
 
-class FirecrawlErrorOptionsInput extends S.Class<FirecrawlErrorOptionsInput>($I`FirecrawlErrorOptionsInput`)(
-  {
+/**
+ * Plain input bag accepted by FirecrawlError.fromReason before Option normalization.
+ *
+ * **Example** (Describe a rate-limited scrape)
+ *
+ * ```ts
+ * import { FirecrawlErrorOptionsInput } from "@beep/firecrawl"
+ *
+ * const options = FirecrawlErrorOptionsInput.make({
+ *   method: "scrape",
+ *   retryAfterSeconds: 30,
+ *   retryable: true,
+ *   status: 429
+ * })
+ * console.log(options.retryAfterSeconds) // 30
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FirecrawlErrorOptionsInput extends S.Opaque<
+  FirecrawlErrorOptionsInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cause: S.Unknown.pipe(S.optionalKey),
     failure: FirecrawlApiFailure.pipe(S.optionalKey),
     method: FirecrawlMethodName.pipe(S.optionalKey),
@@ -290,10 +315,11 @@ class FirecrawlErrorOptionsInput extends S.Class<FirecrawlErrorOptionsInput>($I`
     retryable: S.Boolean.pipe(S.optionalKey),
     sdkVersion: S.String.pipe(S.optionalKey),
     status: S.Finite.pipe(S.optionalKey),
-  },
-  $I.annote("FirecrawlErrorOptionsInput", {
-    description: "Plain input bag accepted by FirecrawlError.fromReason before Option normalization.",
-  })
+  }).pipe(
+    $I.annoteSchema("FirecrawlErrorOptionsInput", {
+      description: "Plain input bag accepted by FirecrawlError.fromReason before Option normalization.",
+    })
+  )
 ) {}
 
 /**
@@ -302,16 +328,18 @@ class FirecrawlErrorOptionsInput extends S.Class<FirecrawlErrorOptionsInput>($I`
  * **Example** (Create error from reason)
  *
  * ```ts
- * import { FirecrawlError } from "@beep/firecrawl"
+ * import { FirecrawlError, FirecrawlErrorOptionsInput } from "@beep/firecrawl"
  *
- * const error = FirecrawlError.fromReason("transport", { method: "scrape" })
+ * const error = FirecrawlError.fromReason("transport", FirecrawlErrorOptionsInput.make({ method: "scrape" }))
  * console.log(error.reason)
  * ```
  *
  * @category errors
  * @since 0.0.0
  */
-export class FirecrawlError extends S.TaggedError<FirecrawlError>($I`FirecrawlError`)(
+export class FirecrawlError extends S.TaggedError<FirecrawlError, { readonly brand: unique symbol }>(
+  $I`FirecrawlError`
+)(
   "FirecrawlError",
   {
     cause: optionalString,
@@ -344,7 +372,7 @@ export class FirecrawlError extends S.TaggedError<FirecrawlError>($I`FirecrawlEr
    */
   static readonly fromReason = (
     reason: FirecrawlErrorReason,
-    options: FirecrawlErrorOptionsInput = {}
+    options: FirecrawlErrorOptionsInput = FirecrawlErrorOptionsInput.make({})
   ): FirecrawlError => {
     const input = FirecrawlErrorOptionsInput.make(options);
 
@@ -376,11 +404,14 @@ export class FirecrawlError extends S.TaggedError<FirecrawlError>($I`FirecrawlEr
    * @since 0.0.0
    */
   static readonly fromUnknown = (method: FirecrawlMethodName, cause: unknown): FirecrawlError =>
-    FirecrawlError.fromReason(reasonFromUnknown(cause), {
-      cause: causeLabel(cause),
-      method,
-      ...O.getSomesStruct({ status: statusFromUnknown(cause) }),
-    });
+    FirecrawlError.fromReason(
+      reasonFromUnknown(cause),
+      FirecrawlErrorOptionsInput.make({
+        cause: causeLabel(cause),
+        method,
+        ...O.getSomesStruct({ status: statusFromUnknown(cause) }),
+      })
+    );
 
   /**
    * Create a failed Effect containing a Firecrawl driver error.

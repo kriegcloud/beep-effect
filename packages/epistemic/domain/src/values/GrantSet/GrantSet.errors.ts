@@ -33,7 +33,9 @@ const $I = $EpistemicDomainId.create("values/GrantSet/GrantSet.errors");
  * @category errors
  * @since 0.0.0
  */
-export class GrantRevisionMismatch extends S.TaggedError<GrantRevisionMismatch>($I`GrantRevisionMismatch`)(
+export class GrantRevisionMismatch extends S.TaggedError<GrantRevisionMismatch, { readonly brand: unique symbol }>(
+  $I`GrantRevisionMismatch`
+)(
   "GrantRevisionMismatch",
   {
     setRevision: PolicyRevision,

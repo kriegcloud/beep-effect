@@ -13,7 +13,7 @@ import * as Tuple from "effect/Tuple";
 
 const $I = $ScratchpadId.create("tests/jsonl/EnvelopePatch");
 const at = DateTime.makeUnsafe(0);
-class Payload extends S.Class<Payload>("jsonl/test/EnvelopePatch/Payload")({ count: S.Finite }) {}
+class Payload extends S.Class<Payload, { readonly brand: unique symbol }>("jsonl/test/EnvelopePatch/Payload")({ count: S.Finite }) {}
 
 describe("patch encoder declaration boundaries", () => {
   it("rejects non-record inputs through the class declaration parser", () => {
@@ -65,7 +65,7 @@ describe("patch encoder declaration boundaries", () => {
   });
 });
 
-class StringPayload extends S.Class<StringPayload>($I`StringPayload`)({
+class StringPayload extends S.Class<StringPayload, { readonly brand: unique symbol }>($I`StringPayload`)({
   count: S.FiniteFromString,
   extra: S.String,
 }) {}

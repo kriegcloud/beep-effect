@@ -51,8 +51,8 @@ const Md5Hex = S.String.check(
  * @category dtos
  * @since 0.0.0
  */
-export class GranuleMetadata extends S.Class<GranuleMetadata>($I`GranuleMetadata`)(
-  {
+export class GranuleMetadata extends S.Opaque<GranuleMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Collection-specific granule classification. */
     granuleClass: S.String.annotateKey({
       description: "Collection-specific granule classification.",
@@ -77,10 +77,11 @@ export class GranuleMetadata extends S.Class<GranuleMetadata>($I`GranuleMetadata
     title: S.String.annotateKey({
       description: "Display title for the granule.",
     }),
-  },
-  $I.annote("GranuleMetadata", {
-    description: "Metadata row for a GovInfo granule inside a package.",
-  })
+  }).pipe(
+    $I.annoteSchema("GranuleMetadata", {
+      description: "Metadata row for a GovInfo granule inside a package.",
+    })
+  )
 ) {}
 
 /**

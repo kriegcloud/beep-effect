@@ -10,7 +10,7 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { A, P, thunkFalse } from "@beep/utils";
-import { Glob as SharedGlob, layer as SharedGlobLayer } from "@beep/utils/Glob";
+import { Glob as SharedGlob, layer as SharedGlobLayer, GlobOptions as SharedGlobOptions } from "@beep/utils/Glob";
 import * as O from "@beep/utils/Option";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -44,8 +44,8 @@ const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));
  * @category models
  * @since 0.0.0
  */
-export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
-  {
+export class GlobOptions extends S.Opaque<GlobOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     absolute: S.optionalKey(S.Boolean).annotateKey({
       description: "Return absolute file paths when true.",
     }),
@@ -58,10 +58,11 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
     ignore: S.optionalKey(S.Union([S.String, S.Array(S.String)])).annotateKey({
       description: "One or more glob patterns excluded from the search.",
     }),
-  },
-  $I.annote("GlobOptions", {
-    description: "Optional glob matching controls used by FsUtils path queries.",
-  })
+  }).pipe(
+    $I.annoteSchema("GlobOptions", {
+      description: "Optional glob matching controls used by FsUtils path queries.",
+    })
+  )
 ) {}
 
 /**
@@ -99,7 +100,7 @@ export interface FsUtilsShape {
    */
   readonly glob: (
     pattern: string | ReadonlyArray<string>,
-    options?: undefined | GlobOptions
+    options?: undefined | typeof GlobOptions.Encoded
   ) => Effect.Effect<ReadonlyArray<string>, DomainError>;
 
   /**
@@ -109,7 +110,7 @@ export interface FsUtilsShape {
    */
   readonly globFiles: (
     pattern: string | ReadonlyArray<string>,
-    options?: undefined | GlobOptions
+    options?: undefined | typeof GlobOptions.Encoded
   ) => Effect.Effect<ReadonlyArray<string>, DomainError>;
 
   /**
@@ -207,7 +208,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
 
     const runGlob: (
       pattern: string | ReadonlyArray<string>,
-      options?: undefined | (GlobOptions & { readonly nodir?: undefined | boolean })
+      options?: undefined | (typeof GlobOptions.Encoded & { readonly nodir?: undefined | boolean })
     ) => Effect.Effect<ReadonlyArray<string>, DomainError> = Effect.fnUntraced(function* (pattern, options) {
       const sharedGlobOptions = {
         ...O.getSomesStruct({ absolute: O.fromUndefinedOr(options?.absolute) }),
@@ -218,7 +219,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       };
 
       return yield* globUtils
-        .glob(pattern, sharedGlobOptions)
+        .glob(pattern, SharedGlobOptions.make(sharedGlobOptions))
         .pipe(
           Effect.mapError((error) =>
             DomainError.make({ cause: error, message: `Glob failed for pattern "${String(pattern)}"` })

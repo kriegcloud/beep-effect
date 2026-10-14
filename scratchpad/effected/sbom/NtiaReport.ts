@@ -78,7 +78,7 @@ export type NtiaElementId = typeof NtiaElementId.Type;
  * @category models
  * @since 0.0.0
  */
-export class NtiaElement extends S.Class<NtiaElement>($I`NtiaElement`)({
+export class NtiaElement extends S.Class<NtiaElement, { readonly brand: unique symbol }>($I`NtiaElement`)({
 	/** Which element this is. */
 	id: NtiaElementId.annotateKey({ description: "Which element this is." }),
 	/** Whether the document satisfies it. */
@@ -209,7 +209,7 @@ const timestamp = (document: SbomDocument): NtiaElement => {
  * @category models
  * @since 0.0.0
  */
-export class NtiaReport extends S.Class<NtiaReport>($I`NtiaReport`)({
+export class NtiaReport extends S.Class<NtiaReport, { readonly brand: unique symbol }>($I`NtiaReport`)({
 	/** One verdict per element, in the published order. */
 	elements: S.Array(NtiaElement).annotateKey({ description: "One verdict per element, in the published order." }),
 }, $I.annote("NtiaReport", { description: "A document's standing against the NTIA minimum elements." })) {

@@ -35,17 +35,18 @@ const $I = $EditorId.create("capability/projection");
  * @category projections
  * @since 0.0.0
  */
-export class ShortcutHelpEntry extends S.Class<ShortcutHelpEntry>($I`ShortcutHelpEntry`)(
-  {
+export class ShortcutHelpEntry extends S.Opaque<ShortcutHelpEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     commandId: CommandId.annotateKey({ description: "Resolved command identifier." }),
     label: S.NonEmptyString.annotateKey({ description: "Visible command label." }),
     helpText: S.NonEmptyString.annotateKey({ description: "Generated command help text." }),
     chord: S.Option(KeyChord).annotateKey({ description: "Platform binding when the command has one." }),
-  },
-  $I.annote("ShortcutHelpEntry", {
-    title: "Shortcut help entry",
-    description: "Generated command help row with an optional platform-specific chord.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShortcutHelpEntry", {
+      title: "Shortcut help entry",
+      description: "Generated command help row with an optional platform-specific chord.",
+    })
+  )
 ) {}
 
 /**

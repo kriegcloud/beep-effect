@@ -102,9 +102,10 @@ export interface DirectionalKit<
  * @category errors
  * @since 0.0.0
  */
-export class MappedLiteralDuplicateError extends S.TaggedError<MappedLiteralDuplicateError>(
-  $I.make("MappedLiteralDuplicateError")
-)(
+export class MappedLiteralDuplicateError extends S.TaggedError<
+  MappedLiteralDuplicateError,
+  { readonly brand: unique symbol }
+>($I.make("MappedLiteralDuplicateError"))(
   "MappedLiteralDuplicateError",
   {
     side: S.Literals(["from", "to"]),

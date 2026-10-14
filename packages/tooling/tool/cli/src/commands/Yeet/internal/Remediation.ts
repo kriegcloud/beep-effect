@@ -133,8 +133,8 @@ export const YEET_DISPATCH_SCHEMA_VERSION = "yeet-dispatch/v1";
  * @category models
  * @since 0.0.0
  */
-export class YeetRemediationWave extends S.Class<YeetRemediationWave>($I`YeetRemediationWave`)(
-  {
+export class YeetRemediationWave extends S.Opaque<YeetRemediationWave, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(YEET_DISPATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_DISPATCH_SCHEMA_VERSION))
     ),
@@ -144,11 +144,12 @@ export class YeetRemediationWave extends S.Class<YeetRemediationWave>($I`YeetRem
     sessionStartedAt: S.NullOr(S.String),
     updatedAt: S.String,
     redSetKey: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetRemediationWave", {
-    description:
-      "The remediation wave for one PR head: session start, queued capsule ids, freshness, and the last observed required red set.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRemediationWave", {
+      description:
+        "The remediation wave for one PR head: session start, queued capsule ids, freshness, and the last observed required red set.",
+    })
+  )
 ) {}
 
 /**
@@ -219,17 +220,18 @@ export type YeetDispatchDecision = typeof YeetDispatchDecision.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetRemediationInput extends S.Class<YeetRemediationInput>($I`YeetRemediationInput`)(
-  {
+export class YeetRemediationInput extends S.Opaque<YeetRemediationInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     at: S.String,
     capsuleId: S.NonEmptyString,
     headSha: S.NonEmptyString,
     prNumber: S.Finite,
     wave: S.NullOr(YeetRemediationWave),
-  },
-  $I.annote("YeetRemediationInput", {
-    description: "One observed red (capsule id, head, PR) plus the persisted wave record, or null for none.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRemediationInput", {
+      description: "One observed red (capsule id, head, PR) plus the persisted wave record, or null for none.",
+    })
+  )
 ) {}
 
 /**
@@ -257,14 +259,15 @@ export class YeetRemediationInput extends S.Class<YeetRemediationInput>($I`YeetR
  * @category models
  * @since 0.0.0
  */
-export class YeetRemediationOutcome extends S.Class<YeetRemediationOutcome>($I`YeetRemediationOutcome`)(
-  {
+export class YeetRemediationOutcome extends S.Opaque<YeetRemediationOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     decision: YeetDispatchDecision,
     wave: YeetRemediationWave,
-  },
-  $I.annote("YeetRemediationOutcome", {
-    description: "The dispatch decision plus the wave record reflecting it.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRemediationOutcome", {
+      description: "The dispatch decision plus the wave record reflecting it.",
+    })
+  )
 ) {}
 
 /**
@@ -370,16 +373,17 @@ export const decideYeetRemediation = (input: YeetRemediationInput): YeetRemediat
  * @category models
  * @since 0.0.0
  */
-export class YeetWaveSupersedeInput extends S.Class<YeetWaveSupersedeInput>($I`YeetWaveSupersedeInput`)(
-  {
+export class YeetWaveSupersedeInput extends S.Opaque<YeetWaveSupersedeInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     at: S.String,
     headSha: S.NonEmptyString,
     prNumber: S.Finite,
     wave: S.NullOr(YeetRemediationWave),
-  },
-  $I.annote("YeetWaveSupersedeInput", {
-    description: "The newly observed head (after a push) plus the persisted wave record, or null for none.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetWaveSupersedeInput", {
+      description: "The newly observed head (after a push) plus the persisted wave record, or null for none.",
+    })
+  )
 ) {}
 
 /**
@@ -681,14 +685,15 @@ const persistYeetRemediationWave = (
  * @category models
  * @since 0.0.0
  */
-export class YeetDispatchReport extends S.Class<YeetDispatchReport>($I`YeetDispatchReport`)(
-  {
+export class YeetDispatchReport extends S.Opaque<YeetDispatchReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcome: YeetRemediationOutcome,
     row: YeetCheckFailedRow,
-  },
-  $I.annote("YeetDispatchReport", {
-    description: "One dispatch outcome plus the inbox row it concerns, for operator announcement.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetDispatchReport", {
+      description: "One dispatch outcome plus the inbox row it concerns, for operator announcement.",
+    })
+  )
 ) {}
 
 /**
@@ -900,16 +905,18 @@ const renderYeetBaseConflictDispatchLine = (outcome: YeetRemediationOutcome, row
  * @category models
  * @since 0.0.0
  */
-export class YeetBaseConflictCorruptReceipt extends S.Class<YeetBaseConflictCorruptReceipt>(
-  $I`YeetBaseConflictCorruptReceipt`
-)(
-  {
+export class YeetBaseConflictCorruptReceipt extends S.Opaque<
+  YeetBaseConflictCorruptReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     generation: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     path: S.String,
-  },
-  $I.annote("YeetBaseConflictCorruptReceipt", {
-    description: "A base-conflict ack receipt that exists but does not decode, and the generation it acks.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetBaseConflictCorruptReceipt", {
+      description: "A base-conflict ack receipt that exists but does not decode, and the generation it acks.",
+    })
+  )
 ) {}
 
 const yeetBaseConflictWalkCorruptReceiptsDefault = A.empty<YeetBaseConflictCorruptReceipt>();
@@ -935,17 +942,19 @@ const yeetBaseConflictWalkCorruptReceiptsDefault = A.empty<YeetBaseConflictCorru
  * @category models
  * @since 0.0.0
  */
-export class YeetBaseConflictWalk extends S.Class<YeetBaseConflictWalk>($I`YeetBaseConflictWalk`)(
-  {
+export class YeetBaseConflictWalk extends S.Opaque<YeetBaseConflictWalk, { readonly brand: unique symbol }>()(
+  S.Struct({
     generation: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     corruptReceipts: S.Array(YeetBaseConflictCorruptReceipt).pipe(
       S.withConstructorDefault(Effect.succeed(yeetBaseConflictWalkCorruptReceiptsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(yeetBaseConflictWalkCorruptReceiptsDefault))
     ),
-  },
-  $I.annote("YeetBaseConflictWalk", {
-    description: "A head's next base-conflict generation and the undecodable ack receipts the walk passed to reach it.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetBaseConflictWalk", {
+      description:
+        "A head's next base-conflict generation and the undecodable ack receipts the walk passed to reach it.",
+    })
+  )
 ) {}
 
 /**

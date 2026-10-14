@@ -59,19 +59,16 @@ const $I = $ScratchpadId.create("effect-ontology/Service/RelationLinker");
  * @category models
  * @since 0.0.0
  */
-export class LinkedRelation extends S.Class<LinkedRelation>($I`LinkedRelation`)(
-  {
+export class LinkedRelation extends S.Opaque<LinkedRelation, { readonly brand: unique symbol }>()(S.Struct({
     original: Relation,
     canonicalSubjectId: EntityId,
     canonicalPredicate: IRI,
     canonicalObject: RelationObject,
     subjectRemapped: S.Boolean,
     objectRemapped: S.Boolean,
-  },
-  $I.annote("LinkedRelation", {
+  }).pipe($I.annoteSchema("LinkedRelation", {
     description: "Original relation paired with its canonicalized subject, predicate, object, and remapping flags.",
-  })
-) {}
+  }))) {}
 
 /**
  * Canonicalized relations and non-negative remapping and literal-object counts.
@@ -89,18 +86,15 @@ export class LinkedRelation extends S.Class<LinkedRelation>($I`LinkedRelation`)(
  * @category models
  * @since 0.0.0
  */
-export class LinkingResult extends S.Class<LinkingResult>($I`LinkingResult`)(
-  {
+export class LinkingResult extends S.Opaque<LinkingResult, { readonly brand: unique symbol }>()(S.Struct({
     linkedRelations: S.Chunk(LinkedRelation),
     remappedCount: S.Int.check(S.isGreaterThanOrEqualTo(0, { message: "Remapped count must be non-negative." })),
     literalObjectCount: S.Int.check(
       S.isGreaterThanOrEqualTo(0, { message: "Literal-object count must be non-negative." })
     ),
-  },
-  $I.annote("LinkingResult", {
+  }).pipe($I.annoteSchema("LinkingResult", {
     description: "Canonicalized relations and non-negative remapping and literal-object counts.",
-  })
-) {}
+  }))) {}
 
 /**
  * RelationLinker - Service for canonicalizing relations

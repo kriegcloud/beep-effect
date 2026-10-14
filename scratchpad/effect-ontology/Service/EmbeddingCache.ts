@@ -116,15 +116,12 @@ const embeddingCacheConfigMaxEntriesDefault = PosInt.make(10_000);
  * @category models
  * @since 0.0.0
  */
-export class EmbeddingCacheConfig extends S.Class<EmbeddingCacheConfig>($I`EmbeddingCacheConfig`)(
-  {
+export class EmbeddingCacheConfig extends S.Opaque<EmbeddingCacheConfig, { readonly brand: unique symbol }>()(S.Struct({
     ttl: S.Duration.pipe(S.withConstructorDefault(Effect.succeed(embeddingCacheConfigTtlDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(embeddingCacheConfigTtlDefault))),
     maxEntries: PosInt.pipe(S.withConstructorDefault(Effect.succeed(embeddingCacheConfigMaxEntriesDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(embeddingCacheConfigMaxEntriesDefault))),
-  },
-  $I.annote("EmbeddingCacheConfig", {
+  }).pipe($I.annoteSchema("EmbeddingCacheConfig", {
     description: "Entry lifetime and capacity bound for an embedding cache.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link EmbeddingCacheConfig}.

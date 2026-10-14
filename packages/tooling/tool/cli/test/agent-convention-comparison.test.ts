@@ -23,9 +23,8 @@ const encodeComparison = S.encodeEffect(S.fromJsonString(AgentConventionComparis
 const comparisonEqual = S.toEquivalence(AgentConventionComparison);
 const Decision = AgentConventionComparison.fields.result;
 const differencesEqual = S.toEquivalence(Decision.cases.Comparable.fields.differences);
-const decodeDifferences = S.decodeUnknownEffect(
-  S.toType(S.Struct(Decision.cases.Comparable.fields.differences.fields))
-);
+const ComparableDifferences = S.toType(S.Struct(Decision.cases.Comparable.fields.differences.fields));
+const decodeDifferences = S.decodeUnknownEffect(ComparableDifferences);
 const pair = Effect.all([decodeTrial(baselineInput), decodeTrial(candidateInput)]);
 const compare = Effect.fn("ConventionComparisonTest.compare")(function* (candidate: unknown) {
   return compareAgentConventionTrials(yield* decodeTrial(baselineInput), yield* decodeTrial(candidate));
@@ -166,8 +165,9 @@ describe("declared convention comparisons", () => {
         expect(forward._tag).toBe("Comparable");
         expect(backward._tag).toBe("Comparable");
         if (Decision.guards.Comparable(forward) && Decision.guards.Comparable(backward)) {
+          const forwardDifferences: typeof ComparableDifferences.Type = forward.differences;
           const reversed = yield* decodeDifferences(
-            R.map(forward.differences, (value) => (P.isNumber(value) ? 0 - value : O.map(value, (count) => 0 - count)))
+            R.map(forwardDifferences, (value) => (P.isNumber(value) ? 0 - value : O.map(value, (count) => 0 - count)))
           );
           expect(differencesEqual(backward.differences, reversed)).toBe(true);
         }

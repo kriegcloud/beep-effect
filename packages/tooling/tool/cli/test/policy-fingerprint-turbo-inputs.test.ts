@@ -21,25 +21,33 @@ import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("test/policy-fingerprint-turbo-inputs");
 
-class FingerprintTaskSummary extends S.Class<FingerprintTaskSummary>($I`FingerprintTaskSummary`)(
-  { taskId: S.String, hash: S.String, dependencies: S.Array(S.String) },
-  $I.annote("FingerprintTaskSummary", {
-    description: "Task hashes and dependency identities from a real Turbo dry run.",
-  })
+class FingerprintTaskSummary extends S.Opaque<FingerprintTaskSummary, { readonly brand: unique symbol }>()(
+  S.Struct({ taskId: S.String, hash: S.String, dependencies: S.Array(S.String) }).pipe(
+    $I.annoteSchema("FingerprintTaskSummary", {
+      description: "Task hashes and dependency identities from a real Turbo dry run.",
+    })
+  )
 ) {}
 
-class FingerprintRunSummary extends S.Class<FingerprintRunSummary>($I`FingerprintRunSummary`)(
-  { tasks: S.Array(FingerprintTaskSummary) },
-  $I.annote("FingerprintRunSummary", {
-    description: "Turbo dry-run tasks used to prove the root dependency hash edge.",
-  })
+class FingerprintRunSummary extends S.Opaque<FingerprintRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({ tasks: S.Array(FingerprintTaskSummary) }).pipe(
+    $I.annoteSchema("FingerprintRunSummary", {
+      description: "Turbo dry-run tasks used to prove the root dependency hash edge.",
+    })
+  )
 ) {}
 
-class PolicyTaskDefinition extends S.Class<PolicyTaskDefinition>($I`PolicyTaskDefinition`)(
-  { cache: S.Boolean, outputs: S.Array(S.String), inputs: S.Array(S.String), dependsOn: S.Array(S.String) },
-  $I.annote("PolicyTaskDefinition", {
-    description: "Cached policy task declaration copied into the real hash fixture.",
-  })
+class PolicyTaskDefinition extends S.Opaque<PolicyTaskDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
+    cache: S.Boolean,
+    outputs: S.Array(S.String),
+    inputs: S.Array(S.String),
+    dependsOn: S.Array(S.String),
+  }).pipe(
+    $I.annoteSchema("PolicyTaskDefinition", {
+      description: "Cached policy task declaration copied into the real hash fixture.",
+    })
+  )
 ) {}
 
 const PolicyTaskConfiguration = S.Struct({

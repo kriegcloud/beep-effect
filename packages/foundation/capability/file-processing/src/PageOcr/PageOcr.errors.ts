@@ -81,7 +81,7 @@ export type PageOcrErrorReason = typeof PageOcrErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class PageOcrError extends S.TaggedError<PageOcrError>($I`PageOcrError`)(
+export class PageOcrError extends S.TaggedError<PageOcrError, { readonly brand: unique symbol }>($I`PageOcrError`)(
   "PageOcrError",
   {
     engineId: S.optionalKey(S.NonEmptyString),

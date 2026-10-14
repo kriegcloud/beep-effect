@@ -36,9 +36,10 @@ const ExecutionRecordConverterOperation = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class ExecutionRecordConverterError extends S.TaggedError<ExecutionRecordConverterError>(
-  $I`ExecutionRecordConverterError`
-)(
+export class ExecutionRecordConverterError extends S.TaggedError<
+  ExecutionRecordConverterError,
+  { readonly brand: unique symbol }
+>($I`ExecutionRecordConverterError`)(
   "ExecutionRecordConverterError",
   {
     operation: ExecutionRecordConverterOperation.annotateKey({

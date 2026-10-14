@@ -63,8 +63,8 @@ const $I = $LawPracticeDomainId.create("entities/LegalPositionRelator/LegalPosit
  * @category models
  * @since 0.0.0
  */
-export class LegalPositionGrounding extends S.Class<LegalPositionGrounding>($I`LegalPositionGrounding`)(
-  {
+export class LegalPositionGrounding extends S.Opaque<LegalPositionGrounding, { readonly brand: unique symbol }>()(
+  S.Struct({
     foundingExercise: S.OptionFromNullOr(LawPractice.PowerExerciseId)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -74,8 +74,9 @@ export class LegalPositionGrounding extends S.Class<LegalPositionGrounding>($I`L
     producingExercise: LawPractice.PowerExerciseId.annotateKey({
       description: "Exercise that brought this position into being.",
     }),
-  },
-  $I.annote("LegalPositionGrounding", {
-    description: "Exercise lineage a stored legal position rests on: what produced it and what founded that power.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalPositionGrounding", {
+      description: "Exercise lineage a stored legal position rests on: what produced it and what founded that power.",
+    })
+  )
 ) {}

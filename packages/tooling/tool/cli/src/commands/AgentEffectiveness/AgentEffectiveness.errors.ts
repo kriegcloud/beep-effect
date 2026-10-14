@@ -28,9 +28,10 @@ const $I = $RepoCliId.create("commands/AgentEffectiveness/AgentEffectiveness.err
  * @category errors
  * @since 0.0.0
  */
-export class AgentEffectivenessEvalScorerError extends S.TaggedError<AgentEffectivenessEvalScorerError>(
-  $I`AgentEffectivenessEvalScorerError`
-)(
+export class AgentEffectivenessEvalScorerError extends S.TaggedError<
+  AgentEffectivenessEvalScorerError,
+  { readonly brand: unique symbol }
+>($I`AgentEffectivenessEvalScorerError`)(
   "AgentEffectivenessEvalScorerError",
   {
     message: S.String,

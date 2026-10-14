@@ -123,18 +123,19 @@ export type OtlpPacketEncoding = typeof OtlpPacketEncoding.Type;
  * @category models
  * @since 0.0.0
  */
-export class OtlpPacket extends S.Class<OtlpPacket>($I`OtlpPacket`)(
-  {
+export class OtlpPacket extends S.Opaque<OtlpPacket, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: OtlpPacketKind,
     encoding: OtlpPacketEncoding,
     capturedAtMs: S.Natural,
     contentType: S.String,
     size: S.Natural,
     preview: S.String,
-  },
-  $I.annote("OtlpPacket", {
-    description: "One captured OTLP packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("OtlpPacket", {
+      description: "One captured OTLP packet.",
+    })
+  )
 ) {}
 
 /**

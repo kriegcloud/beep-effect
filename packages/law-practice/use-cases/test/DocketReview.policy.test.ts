@@ -66,7 +66,7 @@ const mailDate = LocalDate.make({ year: 2030, month: 1, day: 8 });
 const threeMonths = DocketResponsePeriod.make({ amount: 3, unit: "months" });
 const fortyFiveDays = DocketResponsePeriod.make({ amount: 45, unit: "days" });
 
-const entryOf = (overrides: Partial<ConstructorParameters<typeof ParalegalDocketEntry>[0]> = {}) =>
+const entryOf = (overrides: Partial<Parameters<typeof ParalegalDocketEntry.make>[0]> = {}) =>
   ParalegalDocketEntry.make({
     citedText: O.some("Mailed January 8, 2030.\nA response is due within three (3) months"),
     mailDate: O.some(mailDate),
@@ -77,7 +77,7 @@ const entryOf = (overrides: Partial<ConstructorParameters<typeof ParalegalDocket
     ...overrides,
   });
 
-const readingOf = (overrides: Partial<ConstructorParameters<typeof SecretaryReview>[0]> = {}) =>
+const readingOf = (overrides: Partial<Parameters<typeof SecretaryReview.make>[0]> = {}) =>
   SecretaryReview.make({
     isDocketItem: true,
     mailDate: O.some(mailDate),
@@ -135,7 +135,7 @@ const COMPARED_FIELDS: ReadonlyArray<ReviewField> = [
   "matter-references",
 ];
 
-const roundOf = (overrides: Partial<ConstructorParameters<typeof ReviewRound>[0]> = {}) =>
+const roundOf = (overrides: Partial<Parameters<typeof ReviewRound.make>[0]> = {}) =>
   ReviewRound.make({
     agreement: [],
     checks: [],
@@ -149,7 +149,7 @@ const roundOf = (overrides: Partial<ConstructorParameters<typeof ReviewRound>[0]
 
 const disagreeing = (field: ReviewField) => FieldAgreement.make({ agreed: false, field });
 
-const decide = (overrides: Partial<ConstructorParameters<typeof ReviewDecisionInput>[0]> = {}) =>
+const decide = (overrides: Partial<Parameters<typeof ReviewDecisionInput.make>[0]> = {}) =>
   terminalStatus(
     ReviewDecisionInput.make({
       config: DocketReviewConfig.make({}),

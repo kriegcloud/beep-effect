@@ -46,13 +46,12 @@ const GraphNonNegativeInt = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphUserIdentity extends S.Class<GraphUserIdentity>($I`GraphUserIdentity`)(
-  {
+export class GraphUserIdentity extends S.Opaque<GraphUserIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: opt(S.String, "Actor id."),
     displayName: opt(S.String, "Actor display name."),
     email: opt(S.String, "Actor email address."),
-  },
-  $I.annote("GraphUserIdentity", { description: "A Graph identity actor (user/application/device)." })
+  }).pipe($I.annoteSchema("GraphUserIdentity", { description: "A Graph identity actor (user/application/device)." }))
 ) {}
 
 /**
@@ -69,13 +68,12 @@ export class GraphUserIdentity extends S.Class<GraphUserIdentity>($I`GraphUserId
  * @category schemas
  * @since 0.0.0
  */
-export class GraphIdentitySet extends S.Class<GraphIdentitySet>($I`GraphIdentitySet`)(
-  {
+export class GraphIdentitySet extends S.Opaque<GraphIdentitySet, { readonly brand: unique symbol }>()(
+  S.Struct({
     application: opt(GraphUserIdentity, "Application actor, if any."),
     device: opt(GraphUserIdentity, "Device actor, if any."),
     user: opt(GraphUserIdentity, "User actor, if any."),
-  },
-  $I.annote("GraphIdentitySet", { description: "A Graph identitySet of actor facets." })
+  }).pipe($I.annoteSchema("GraphIdentitySet", { description: "A Graph identitySet of actor facets." }))
 ) {}
 
 /**
@@ -92,16 +90,15 @@ export class GraphIdentitySet extends S.Class<GraphIdentitySet>($I`GraphIdentity
  * @category schemas
  * @since 0.0.0
  */
-export class GraphItemReference extends S.Class<GraphItemReference>($I`GraphItemReference`)(
-  {
+export class GraphItemReference extends S.Opaque<GraphItemReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     driveId: opt(S.String, "Owning drive id."),
     driveType: opt(S.String, "Owning drive type."),
     id: opt(S.String, "Parent item id."),
     name: opt(S.String, "Parent item name."),
     path: opt(S.String, "Parent path relative to the drive root."),
     siteId: opt(S.String, "Owning SharePoint site id."),
-  },
-  $I.annote("GraphItemReference", { description: "A Graph itemReference parent locator." })
+  }).pipe($I.annoteSchema("GraphItemReference", { description: "A Graph itemReference parent locator." }))
 ) {}
 
 /**
@@ -118,13 +115,12 @@ export class GraphItemReference extends S.Class<GraphItemReference>($I`GraphItem
  * @category schemas
  * @since 0.0.0
  */
-export class GraphFileHashes extends S.Class<GraphFileHashes>($I`GraphFileHashes`)(
-  {
+export class GraphFileHashes extends S.Opaque<GraphFileHashes, { readonly brand: unique symbol }>()(
+  S.Struct({
     quickXorHash: opt(S.String, "SharePoint/OneDrive QuickXorHash."),
     sha1Hash: opt(S.String, "SHA-1 content hash."),
     sha256Hash: opt(S.String, "SHA-256 content hash."),
-  },
-  $I.annote("GraphFileHashes", { description: "Graph file content hashes." })
+  }).pipe($I.annoteSchema("GraphFileHashes", { description: "Graph file content hashes." }))
 ) {}
 
 /**
@@ -141,12 +137,11 @@ export class GraphFileHashes extends S.Class<GraphFileHashes>($I`GraphFileHashes
  * @category schemas
  * @since 0.0.0
  */
-export class GraphFile extends S.Class<GraphFile>($I`GraphFile`)(
-  {
+export class GraphFile extends S.Opaque<GraphFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     mimeType: opt(S.String, "Resolved content MIME type."),
     hashes: opt(GraphFileHashes, "Content hashes, if computed."),
-  },
-  $I.annote("GraphFile", { description: "The Graph file facet of a driveItem." })
+  }).pipe($I.annoteSchema("GraphFile", { description: "The Graph file facet of a driveItem." }))
 ) {}
 
 /**
@@ -163,11 +158,10 @@ export class GraphFile extends S.Class<GraphFile>($I`GraphFile`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphFolder extends S.Class<GraphFolder>($I`GraphFolder`)(
-  {
+export class GraphFolder extends S.Opaque<GraphFolder, { readonly brand: unique symbol }>()(
+  S.Struct({
     childCount: opt(GraphNonNegativeInt, "Number of immediate children."),
-  },
-  $I.annote("GraphFolder", { description: "The Graph folder facet of a driveItem." })
+  }).pipe($I.annoteSchema("GraphFolder", { description: "The Graph folder facet of a driveItem." }))
 ) {}
 
 /**
@@ -184,11 +178,10 @@ export class GraphFolder extends S.Class<GraphFolder>($I`GraphFolder`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphDeleted extends S.Class<GraphDeleted>($I`GraphDeleted`)(
-  {
+export class GraphDeleted extends S.Opaque<GraphDeleted, { readonly brand: unique symbol }>()(
+  S.Struct({
     state: opt(S.String, "Deletion state reported by a delta query."),
-  },
-  $I.annote("GraphDeleted", { description: "The Graph deleted facet on delta tombstones." })
+  }).pipe($I.annoteSchema("GraphDeleted", { description: "The Graph deleted facet on delta tombstones." }))
 ) {}
 
 /**
@@ -205,15 +198,14 @@ export class GraphDeleted extends S.Class<GraphDeleted>($I`GraphDeleted`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphQuota extends S.Class<GraphQuota>($I`GraphQuota`)(
-  {
+export class GraphQuota extends S.Opaque<GraphQuota, { readonly brand: unique symbol }>()(
+  S.Struct({
     deleted: opt(S.Natural, "Bytes consumed by recycled items."),
     remaining: opt(S.Natural, "Remaining bytes."),
     state: opt(S.String, "Quota state (normal/nearing/critical/exceeded)."),
     total: opt(S.Natural, "Total bytes."),
     used: opt(S.Natural, "Used bytes."),
-  },
-  $I.annote("GraphQuota", { description: "A drive storage quota summary." })
+  }).pipe($I.annoteSchema("GraphQuota", { description: "A drive storage quota summary." }))
 ) {}
 
 /**
@@ -230,11 +222,10 @@ export class GraphQuota extends S.Class<GraphQuota>($I`GraphQuota`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphSiteCollection extends S.Class<GraphSiteCollection>($I`GraphSiteCollection`)(
-  {
+export class GraphSiteCollection extends S.Opaque<GraphSiteCollection, { readonly brand: unique symbol }>()(
+  S.Struct({
     hostname: opt(S.String, "Site collection hostname."),
-  },
-  $I.annote("GraphSiteCollection", { description: "A Graph siteCollection descriptor." })
+  }).pipe($I.annoteSchema("GraphSiteCollection", { description: "A Graph siteCollection descriptor." }))
 ) {}
 
 /**
@@ -257,12 +248,11 @@ export class GraphSiteCollection extends S.Class<GraphSiteCollection>($I`GraphSi
  * @category models
  * @since 0.0.0
  */
-export class GraphUniqueTextBody extends S.Class<GraphUniqueTextBody>($I`GraphUniqueTextBody`)(
-  {
+export class GraphUniqueTextBody extends S.Opaque<GraphUniqueTextBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentType: S.Literal("text").annotateKey({ description: "Must be plain text; HTML is refused." }),
     content: S.String.annotateKey({ description: "Text the sender wrote, without the quoted thread." }),
-  },
-  $I.annote("GraphUniqueTextBody", { description: "A plain-text Graph uniqueBody." })
+  }).pipe($I.annoteSchema("GraphUniqueTextBody", { description: "A plain-text Graph uniqueBody." }))
 ) {}
 
 /**
@@ -279,11 +269,10 @@ export class GraphUniqueTextBody extends S.Class<GraphUniqueTextBody>($I`GraphUn
  * @category models
  * @since 0.0.0
  */
-export class GraphRequiredAddress extends S.Class<GraphRequiredAddress>($I`GraphRequiredAddress`)(
-  {
+export class GraphRequiredAddress extends S.Opaque<GraphRequiredAddress, { readonly brand: unique symbol }>()(
+  S.Struct({
     emailAddress: S.Struct({ address: S.NonEmptyString }).annotateKey({ description: "The address." }),
-  },
-  $I.annote("GraphRequiredAddress", { description: "A Graph recipient whose address is required." })
+  }).pipe($I.annoteSchema("GraphRequiredAddress", { description: "A Graph recipient whose address is required." }))
 ) {}
 
 /**
@@ -309,18 +298,19 @@ export class GraphRequiredAddress extends S.Class<GraphRequiredAddress>($I`Graph
  * @category models
  * @since 0.0.0
  */
-export class GraphMessageAuthoredText extends S.Class<GraphMessageAuthoredText>($I`GraphMessageAuthoredText`)(
-  {
+export class GraphMessageAuthoredText extends S.Opaque<GraphMessageAuthoredText, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString.annotateKey({ description: "Graph message id." }),
     internetMessageId: S.NonEmptyString.annotateKey({ description: "RFC 5322 Message-ID." }),
     receivedDateTime: S.NonEmptyString.annotateKey({ description: "Receipt time." }),
     from: GraphRequiredAddress.annotateKey({ description: "Graph `from`." }),
     sender: GraphRequiredAddress.annotateKey({ description: "Graph `sender`." }),
     uniqueBody: GraphUniqueTextBody.annotateKey({ description: "Plain-text unique body." }),
-  },
-  $I.annote("GraphMessageAuthoredText", {
-    description: "Sender addresses, identity, and plain-text uniqueBody of one message.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraphMessageAuthoredText", {
+      description: "Sender addresses, identity, and plain-text uniqueBody of one message.",
+    })
+  )
 ) {}
 
 /**
@@ -337,12 +327,11 @@ export class GraphMessageAuthoredText extends S.Class<GraphMessageAuthoredText>(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphEmailAddress extends S.Class<GraphEmailAddress>($I`GraphEmailAddress`)(
-  {
+export class GraphEmailAddress extends S.Opaque<GraphEmailAddress, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: opt(S.String, "Email address."),
     name: opt(S.String, "Display name."),
-  },
-  $I.annote("GraphEmailAddress", { description: "A Graph emailAddress." })
+  }).pipe($I.annoteSchema("GraphEmailAddress", { description: "A Graph emailAddress." }))
 ) {}
 
 /**
@@ -359,11 +348,10 @@ export class GraphEmailAddress extends S.Class<GraphEmailAddress>($I`GraphEmailA
  * @category schemas
  * @since 0.0.0
  */
-export class GraphRecipient extends S.Class<GraphRecipient>($I`GraphRecipient`)(
-  {
+export class GraphRecipient extends S.Opaque<GraphRecipient, { readonly brand: unique symbol }>()(
+  S.Struct({
     emailAddress: opt(GraphEmailAddress, "The recipient's email address."),
-  },
-  $I.annote("GraphRecipient", { description: "A Graph mail recipient wrapper." })
+  }).pipe($I.annoteSchema("GraphRecipient", { description: "A Graph mail recipient wrapper." }))
 ) {}
 
 /**
@@ -380,12 +368,11 @@ export class GraphRecipient extends S.Class<GraphRecipient>($I`GraphRecipient`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphItemBody extends S.Class<GraphItemBody>($I`GraphItemBody`)(
-  {
+export class GraphItemBody extends S.Opaque<GraphItemBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: opt(S.String, "Body content (never logged in spans)."),
     contentType: opt(S.String, "Body content type (text/html)."),
-  },
-  $I.annote("GraphItemBody", { description: "A Graph itemBody." })
+  }).pipe($I.annoteSchema("GraphItemBody", { description: "A Graph itemBody." }))
 ) {}
 
 /**
@@ -402,12 +389,11 @@ export class GraphItemBody extends S.Class<GraphItemBody>($I`GraphItemBody`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphDateTimeTimeZone extends S.Class<GraphDateTimeTimeZone>($I`GraphDateTimeTimeZone`)(
-  {
+export class GraphDateTimeTimeZone extends S.Opaque<GraphDateTimeTimeZone, { readonly brand: unique symbol }>()(
+  S.Struct({
     dateTime: opt(S.String, "ISO-8601 local date-time."),
     timeZone: opt(S.String, "IANA/Windows time-zone identifier."),
-  },
-  $I.annote("GraphDateTimeTimeZone", { description: "A Graph dateTimeTimeZone pair." })
+  }).pipe($I.annoteSchema("GraphDateTimeTimeZone", { description: "A Graph dateTimeTimeZone pair." }))
 ) {}
 
 /**
@@ -424,12 +410,11 @@ export class GraphDateTimeTimeZone extends S.Class<GraphDateTimeTimeZone>($I`Gra
  * @category schemas
  * @since 0.0.0
  */
-export class GraphLocation extends S.Class<GraphLocation>($I`GraphLocation`)(
-  {
+export class GraphLocation extends S.Opaque<GraphLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     displayName: opt(S.String, "Location display name."),
     locationType: opt(S.String, "Location type."),
-  },
-  $I.annote("GraphLocation", { description: "A Graph event location." })
+  }).pipe($I.annoteSchema("GraphLocation", { description: "A Graph event location." }))
 ) {}
 
 /**
@@ -446,12 +431,11 @@ export class GraphLocation extends S.Class<GraphLocation>($I`GraphLocation`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphContentTypeInfo extends S.Class<GraphContentTypeInfo>($I`GraphContentTypeInfo`)(
-  {
+export class GraphContentTypeInfo extends S.Opaque<GraphContentTypeInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: opt(S.String, "Content type id."),
     name: opt(S.String, "Content type name."),
-  },
-  $I.annote("GraphContentTypeInfo", { description: "A Graph listItem contentTypeInfo." })
+  }).pipe($I.annoteSchema("GraphContentTypeInfo", { description: "A Graph listItem contentTypeInfo." }))
 ) {}
 
 /**
@@ -498,8 +482,8 @@ export const GraphCollection = <Item extends S.Top>(item: Item) =>
  * @category schemas
  * @since 0.0.0
  */
-export class GraphDrive extends S.Class<GraphDrive>($I`GraphDrive`)(
-  {
+export class GraphDrive extends S.Opaque<GraphDrive, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Drive id." }),
     createdDateTime: opt(S.String, "Creation timestamp."),
     description: opt(S.String, "Drive description."),
@@ -508,8 +492,7 @@ export class GraphDrive extends S.Class<GraphDrive>($I`GraphDrive`)(
     name: opt(S.String, "Drive name."),
     quota: opt(GraphQuota, "Storage quota summary."),
     webUrl: opt(S.String, "Browser URL for the drive."),
-  },
-  $I.annote("GraphDrive", { description: "A OneDrive/SharePoint drive (document library)." })
+  }).pipe($I.annoteSchema("GraphDrive", { description: "A OneDrive/SharePoint drive (document library)." }))
 ) {}
 
 /**
@@ -527,8 +510,8 @@ export class GraphDrive extends S.Class<GraphDrive>($I`GraphDrive`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphSite extends S.Class<GraphSite>($I`GraphSite`)(
-  {
+export class GraphSite extends S.Opaque<GraphSite, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Composite site id." }),
     createdDateTime: opt(S.String, "Creation timestamp."),
     description: opt(S.String, "Site description."),
@@ -537,8 +520,7 @@ export class GraphSite extends S.Class<GraphSite>($I`GraphSite`)(
     name: opt(S.String, "Site name."),
     siteCollection: opt(GraphSiteCollection, "Owning site collection."),
     webUrl: opt(S.String, "Browser URL for the site."),
-  },
-  $I.annote("GraphSite", { description: "A SharePoint site." })
+  }).pipe($I.annoteSchema("GraphSite", { description: "A SharePoint site." }))
 ) {}
 
 /**
@@ -558,8 +540,8 @@ export class GraphSite extends S.Class<GraphSite>($I`GraphSite`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphDriveItem extends S.Class<GraphDriveItem>($I`GraphDriveItem`)(
-  {
+export class GraphDriveItem extends S.Opaque<GraphDriveItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "DriveItem id." }),
     "@microsoft.graph.downloadUrl": opt(S.String, "Short-lived preauthenticated content download URL."),
     cTag: opt(S.String, "Content tag (changes on content edits)."),
@@ -575,8 +557,7 @@ export class GraphDriveItem extends S.Class<GraphDriveItem>($I`GraphDriveItem`)(
     parentReference: opt(GraphItemReference, "Parent locator."),
     size: opt(GraphNonNegativeInt, "Item size in bytes."),
     webUrl: opt(S.String, "Browser URL for the item."),
-  },
-  $I.annote("GraphDriveItem", { description: "A OneDrive/SharePoint driveItem (file or folder)." })
+  }).pipe($I.annoteSchema("GraphDriveItem", { description: "A OneDrive/SharePoint driveItem (file or folder)." }))
 ) {}
 
 /**
@@ -594,15 +575,14 @@ export class GraphDriveItem extends S.Class<GraphDriveItem>($I`GraphDriveItem`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphDriveItemVersion extends S.Class<GraphDriveItemVersion>($I`GraphDriveItemVersion`)(
-  {
+export class GraphDriveItemVersion extends S.Opaque<GraphDriveItemVersion, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Version id." }),
     "@microsoft.graph.downloadUrl": opt(S.String, "Short-lived preauthenticated version download URL."),
     lastModifiedBy: opt(GraphIdentitySet, "Last-modifying actor set."),
     lastModifiedDateTime: opt(S.String, "Version timestamp."),
     size: opt(GraphNonNegativeInt, "Version size in bytes."),
-  },
-  $I.annote("GraphDriveItemVersion", { description: "A driveItem version." })
+  }).pipe($I.annoteSchema("GraphDriveItemVersion", { description: "A driveItem version." }))
 ) {}
 
 /**
@@ -621,8 +601,8 @@ export class GraphDriveItemVersion extends S.Class<GraphDriveItemVersion>($I`Gra
  * @category schemas
  * @since 0.0.0
  */
-export class GraphListItem extends S.Class<GraphListItem>($I`GraphListItem`)(
-  {
+export class GraphListItem extends S.Opaque<GraphListItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "ListItem id." }),
     contentType: opt(GraphContentTypeInfo, "Content type reference."),
     createdDateTime: opt(S.String, "Creation timestamp."),
@@ -631,8 +611,7 @@ export class GraphListItem extends S.Class<GraphListItem>($I`GraphListItem`)(
     lastModifiedDateTime: opt(S.String, "Last-modified timestamp."),
     parentReference: opt(GraphItemReference, "Parent locator."),
     webUrl: opt(S.String, "Browser URL for the item."),
-  },
-  $I.annote("GraphListItem", { description: "A SharePoint listItem with open custom-column fields." })
+  }).pipe($I.annoteSchema("GraphListItem", { description: "A SharePoint listItem with open custom-column fields." }))
 ) {}
 
 /**
@@ -651,12 +630,11 @@ export class GraphListItem extends S.Class<GraphListItem>($I`GraphListItem`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphExtendedProperty extends S.Class<GraphExtendedProperty>($I`GraphExtendedProperty`)(
-  {
+export class GraphExtendedProperty extends S.Opaque<GraphExtendedProperty, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Property id (`<type> {<guid>} Name <name>`)." }),
     value: S.String.annotateKey({ description: "Property value in string form." }),
-  },
-  $I.annote("GraphExtendedProperty", { description: "A Graph single-value extended property." })
+  }).pipe($I.annoteSchema("GraphExtendedProperty", { description: "A Graph single-value extended property." }))
 ) {}
 
 /**
@@ -804,13 +782,12 @@ export type GraphCategoryColor = typeof GraphCategoryColor.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class GraphOutlookCategory extends S.Class<GraphOutlookCategory>($I`GraphOutlookCategory`)(
-  {
+export class GraphOutlookCategory extends S.Opaque<GraphOutlookCategory, { readonly brand: unique symbol }>()(
+  S.Struct({
     displayName: S.String.annotateKey({ description: "Category name; unique in the mailbox, case-insensitive." }),
     color: opt(S.String, "Preset color constant (`none`, `preset0`..`preset24`)."),
     id: opt(S.String, "Category id."),
-  },
-  $I.annote("GraphOutlookCategory", { description: "An Outlook master category." })
+  }).pipe($I.annoteSchema("GraphOutlookCategory", { description: "An Outlook master category." }))
 ) {}
 
 /**
@@ -828,8 +805,8 @@ export class GraphOutlookCategory extends S.Class<GraphOutlookCategory>($I`Graph
  * @category schemas
  * @since 0.0.0
  */
-export class GraphAttachment extends S.Class<GraphAttachment>($I`GraphAttachment`)(
-  {
+export class GraphAttachment extends S.Opaque<GraphAttachment, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Attachment id." }),
     "@odata.type": opt(S.String, "Attachment kind (`#microsoft.graph.fileAttachment`, item or reference)."),
     contentType: opt(S.String, "Attachment MIME type."),
@@ -837,8 +814,7 @@ export class GraphAttachment extends S.Class<GraphAttachment>($I`GraphAttachment
     lastModifiedDateTime: opt(S.String, "Last-modified timestamp."),
     name: opt(S.String, "Attachment file name (never logged)."),
     size: opt(GraphNonNegativeInt, "Attachment size in bytes."),
-  },
-  $I.annote("GraphAttachment", { description: "Metadata of a message attachment." })
+  }).pipe($I.annoteSchema("GraphAttachment", { description: "Metadata of a message attachment." }))
 ) {}
 
 /**
@@ -856,16 +832,15 @@ export class GraphAttachment extends S.Class<GraphAttachment>($I`GraphAttachment
  * @category schemas
  * @since 0.0.0
  */
-export class GraphMailFolder extends S.Class<GraphMailFolder>($I`GraphMailFolder`)(
-  {
+export class GraphMailFolder extends S.Opaque<GraphMailFolder, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Mail folder id." }),
     childFolderCount: opt(GraphNonNegativeInt, "Number of immediate child folders."),
     displayName: opt(S.String, "Folder display name."),
     parentFolderId: opt(S.String, "Id of the parent mail folder."),
     totalItemCount: opt(GraphNonNegativeInt, "Number of items in the folder."),
     unreadItemCount: opt(GraphNonNegativeInt, "Number of unread items in the folder."),
-  },
-  $I.annote("GraphMailFolder", { description: "An Outlook mail folder (read subset)." })
+  }).pipe($I.annoteSchema("GraphMailFolder", { description: "An Outlook mail folder (read subset)." }))
 ) {}
 
 /**
@@ -884,8 +859,8 @@ export class GraphMailFolder extends S.Class<GraphMailFolder>($I`GraphMailFolder
  * @category schemas
  * @since 0.0.0
  */
-export class GraphMessage extends S.Class<GraphMessage>($I`GraphMessage`)(
-  {
+export class GraphMessage extends S.Opaque<GraphMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Message id." }),
     bccRecipients: opt(S.Array(GraphRecipient), "Blind-carbon-copy recipients (present on drafts and sent items)."),
     body: opt(GraphItemBody, "Message body (never logged)."),
@@ -907,8 +882,7 @@ export class GraphMessage extends S.Class<GraphMessage>($I`GraphMessage`)(
     subject: opt(S.String, "Message subject."),
     toRecipients: opt(S.Array(GraphRecipient), "Primary recipients."),
     webLink: opt(S.String, "Browser URL for the message."),
-  },
-  $I.annote("GraphMessage", { description: "An Outlook mail message (read subset)." })
+  }).pipe($I.annoteSchema("GraphMessage", { description: "An Outlook mail message (read subset)." }))
 ) {}
 
 /**
@@ -935,12 +909,13 @@ export class GraphMessage extends S.Class<GraphMessage>($I`GraphMessage`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphEventAttendee extends S.Class<GraphEventAttendee>($I`GraphEventAttendee`)(
-  {
+export class GraphEventAttendee extends S.Opaque<GraphEventAttendee, { readonly brand: unique symbol }>()(
+  S.Struct({
     emailAddress: opt(GraphEmailAddress, "The attendee's email address (never logged)."),
     type: opt(S.String, "Attendee type (required/optional/resource)."),
-  },
-  $I.annote("GraphEventAttendee", { description: "One attendee of an Outlook calendar event (read subset)." })
+  }).pipe(
+    $I.annoteSchema("GraphEventAttendee", { description: "One attendee of an Outlook calendar event (read subset)." })
+  )
 ) {}
 
 /**
@@ -958,8 +933,8 @@ export class GraphEventAttendee extends S.Class<GraphEventAttendee>($I`GraphEven
  * @category schemas
  * @since 0.0.0
  */
-export class GraphEvent extends S.Class<GraphEvent>($I`GraphEvent`)(
-  {
+export class GraphEvent extends S.Opaque<GraphEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String.annotateKey({ description: "Event id." }),
     attendees: opt(S.Array(GraphEventAttendee), "Attendees; Graph mails each of them when a meeting changes."),
     body: opt(GraphItemBody, "Event body (never logged)."),
@@ -987,8 +962,7 @@ export class GraphEvent extends S.Class<GraphEvent>($I`GraphEvent`)(
     transactionId: opt(S.String, "Client-supplied id Graph uses to drop a retried create."),
     type: opt(S.String, "Event type (singleInstance/occurrence/exception/seriesMaster)."),
     webLink: opt(S.String, "Browser URL for the event."),
-  },
-  $I.annote("GraphEvent", { description: "An Outlook calendar event (read subset)." })
+  }).pipe($I.annoteSchema("GraphEvent", { description: "An Outlook calendar event (read subset)." }))
 ) {}
 
 /**
@@ -1004,9 +978,10 @@ export class GraphEvent extends S.Class<GraphEvent>($I`GraphEvent`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphContactProperty extends S.Class<GraphContactProperty>($I`GraphContactProperty`)(
-  { id: S.NonEmptyString, value: S.String },
-  $I.annote("GraphContactProperty", { description: "An Outlook application marker." })
+export class GraphContactProperty extends S.Opaque<GraphContactProperty, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.NonEmptyString, value: S.String }).pipe(
+    $I.annoteSchema("GraphContactProperty", { description: "An Outlook application marker." })
+  )
 ) {}
 
 /**
@@ -1022,8 +997,8 @@ export class GraphContactProperty extends S.Class<GraphContactProperty>($I`Graph
  * @category schemas
  * @since 0.0.0
  */
-export class GraphContact extends S.Class<GraphContact>($I`GraphContact`)(
-  {
+export class GraphContact extends S.Opaque<GraphContact, { readonly brand: unique symbol }>()(
+  S.Struct({
     rawJson: opt(S.Record(S.String, S.Unknown), "Full Graph contact JSON for private export; never logged."),
     id: S.NonEmptyString,
     displayName: opt(S.String, "Contact display name."),
@@ -1040,8 +1015,9 @@ export class GraphContact extends S.Class<GraphContact>($I`GraphContact`)(
     lastModifiedDateTime: opt(S.String, "Last modification time."),
     changeKey: opt(S.String, "Optimistic concurrency version."),
     singleValueExtendedProperties: opt(S.Array(GraphContactProperty), "Expanded application markers."),
-  },
-  $I.annote("GraphContact", { description: "A personal mailbox contact with null-safe optional Graph fields." })
+  }).pipe(
+    $I.annoteSchema("GraphContact", { description: "A personal mailbox contact with null-safe optional Graph fields." })
+  )
 ) {}
 
 /**
@@ -1057,11 +1033,12 @@ export class GraphContact extends S.Class<GraphContact>($I`GraphContact`)(
  * @category schemas
  * @since 0.0.0
  */
-export class GraphContactFolder extends S.Class<GraphContactFolder>($I`GraphContactFolder`)(
-  {
+export class GraphContactFolder extends S.Opaque<GraphContactFolder, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     displayName: opt(S.String, "Folder name."),
     parentFolderId: opt(S.String, "Parent folder id."),
-  },
-  $I.annote("GraphContactFolder", { description: "A personal contact folder, including nested folders." })
+  }).pipe(
+    $I.annoteSchema("GraphContactFolder", { description: "A personal contact folder, including nested folders." })
+  )
 ) {}

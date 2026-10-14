@@ -25,11 +25,12 @@ const $I = $RepoCliId.create("commands/Cache/Cache.protocol.runner.schemas");
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProtocolRequest extends S.Class<CacheProtocolRequest>($I`CacheProtocolRequest`)(
-  { channel: CacheClientChannel, client: CacheClientPin, executable: S.NonEmptyString },
-  $I.annote("CacheProtocolRequest", {
-    description: "Pinned binary and channel; credentials are generated only inside the isolated worker.",
-  })
+export class CacheProtocolRequest extends S.Opaque<CacheProtocolRequest, { readonly brand: unique symbol }>()(
+  S.Struct({ channel: CacheClientChannel, client: CacheClientPin, executable: S.NonEmptyString }).pipe(
+    $I.annoteSchema("CacheProtocolRequest", {
+      description: "Pinned binary and channel; credentials are generated only inside the isolated worker.",
+    })
+  )
 ) {}
 
 /**
@@ -44,17 +45,18 @@ export class CacheProtocolRequest extends S.Class<CacheProtocolRequest>($I`Cache
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProtocolReadFailure extends S.Class<CacheProtocolReadFailure>($I`CacheProtocolReadFailure`)(
-  {
+export class CacheProtocolReadFailure extends S.Opaque<CacheProtocolReadFailure, { readonly brand: unique symbol }>()(
+  S.Struct({
     case: LiteralKit(["truncated-body", "unavailable", "throttled"]),
     taskHash: S.NonEmptyString,
     summary: Sha256Hex,
     exitCode: S.Literal(42),
     restoredOutputs: S.Literal(0),
-  },
-  $I.annote("CacheProtocolReadFailure", {
-    description: "A native fallback denied before output, with independently recorded wire events.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProtocolReadFailure", {
+      description: "A native fallback denied before output, with independently recorded wire events.",
+    })
+  )
 ) {}
 
 /**
@@ -69,8 +71,11 @@ export class CacheProtocolReadFailure extends S.Class<CacheProtocolReadFailure>(
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProtocolIsolationRoot extends S.Class<CacheProtocolIsolationRoot>($I`CacheProtocolIsolationRoot`)(
-  {
+export class CacheProtocolIsolationRoot extends S.Opaque<
+  CacheProtocolIsolationRoot,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     case: LiteralKit([
       "producer",
       "replay",
@@ -83,11 +88,12 @@ export class CacheProtocolIsolationRoot extends S.Class<CacheProtocolIsolationRo
       "throttled",
     ]),
     sha256: Sha256Hex,
-  },
-  $I.annote("CacheProtocolIsolationRoot", {
-    description:
-      "Domain-separated digest of the scenario directory's resolved absolute path, measured by its owned worker.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProtocolIsolationRoot", {
+      description:
+        "Domain-separated digest of the scenario directory's resolved absolute path, measured by its owned worker.",
+    })
+  )
 ) {}
 
 /**
@@ -102,8 +108,8 @@ export class CacheProtocolIsolationRoot extends S.Class<CacheProtocolIsolationRo
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProtocolExecution extends S.Class<CacheProtocolExecution>($I`CacheProtocolExecution`)(
-  {
+export class CacheProtocolExecution extends S.Opaque<CacheProtocolExecution, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-protocol-execution/v2"),
     authority: S.tag("synthetic-native-observation-only"),
     network: S.tag("private-loopback-nested-readers/v1"),
@@ -112,8 +118,9 @@ export class CacheProtocolExecution extends S.Class<CacheProtocolExecution>($I`C
     failures: S.Array(CacheProtocolReadFailure).check(S.isMinLength(3), S.isMaxLength(3)),
     events: S.Array(CacheFixtureEvent).check(S.isMaxLength(101)),
     bunSha256: Sha256Hex,
-  },
-  $I.annote("CacheProtocolExecution", {
-    description: "Owned isolated execution with bounded native and wire observations; no promotion authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProtocolExecution", {
+      description: "Owned isolated execution with bounded native and wire observations; no promotion authority.",
+    })
+  )
 ) {}

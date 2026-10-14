@@ -53,7 +53,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/Reasoner");
  * @category errors
  * @since 0.0.0
  */
-export class ReasoningError extends S.TaggedError<ReasoningError>($I`ReasoningError`)(
+export class ReasoningError extends S.TaggedError<ReasoningError, { readonly brand: unique symbol }>($I`ReasoningError`)(
   "ReasoningError",
   {
     message: ErrorMessage.annotateKey({
@@ -88,7 +88,7 @@ export class ReasoningError extends S.TaggedError<ReasoningError>($I`ReasoningEr
  * @category errors
  * @since 0.0.0
  */
-export class RuleParseError extends S.TaggedError<RuleParseError>($I`RuleParseError`)(
+export class RuleParseError extends S.TaggedError<RuleParseError, { readonly brand: unique symbol }>($I`RuleParseError`)(
   "RuleParseError",
   {
     message: ErrorMessage.annotateKey({
@@ -156,16 +156,13 @@ const reasoningConfigMaxIterationsDefault = PosInt.make(100);
  * @category schemas
  * @since 0.0.0
  */
-export class ReasoningConfig extends S.Class<ReasoningConfig>($I`ReasoningConfig`)(
-  {
+export class ReasoningConfig extends S.Opaque<ReasoningConfig, { readonly brand: unique symbol }>()(S.Struct({
     profile: ReasoningProfile.pipe(S.withConstructorDefault(Effect.succeed("rdfs" as const)), S.withDecodingDefaultTypeKey(Effect.succeed("rdfs" as const))),
     customRules: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed(reasoningConfigCustomRulesDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(reasoningConfigCustomRulesDefault))),
     maxIterations: PosInt.pipe(S.withConstructorDefault(Effect.succeed(reasoningConfigMaxIterationsDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(reasoningConfigMaxIterationsDefault))),
-  },
-  $I.annote("ReasoningConfig", {
+  }).pipe($I.annoteSchema("ReasoningConfig", {
     description: "Reasoning profile, optional custom rules, and iteration bound.",
-  })
-) {
+  }))) {
   /**
    * Create default RDFS reasoning config
    *
@@ -243,7 +240,7 @@ export class ReasoningConfig extends S.Class<ReasoningConfig>($I`ReasoningConfig
  * @category schemas
  * @since 0.0.0
  */
-export class ReasoningResult extends S.Class<ReasoningResult>($I`ReasoningResult`)(
+export class ReasoningResult extends S.Class<ReasoningResult, { readonly brand: unique symbol }>($I`ReasoningResult`)(
   {
     inferredTripleCount: S.Natural,
     totalTripleCount: S.Natural,

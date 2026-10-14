@@ -184,8 +184,8 @@ export type CodexPacketBranch = typeof CodexPacketBranch.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class CodexFindingRecord extends S.Class<CodexFindingRecord>($I`CodexFindingRecord`)(
-  {
+export class CodexFindingRecord extends S.Opaque<CodexFindingRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CodexRecordId.pipe(
       $I.annoteKey("CodexFindingRecord.id", {
         description: "Stable CSF-NNN identity used for filenames and cross-references.",
@@ -216,10 +216,11 @@ export class CodexFindingRecord extends S.Class<CodexFindingRecord>($I`CodexFind
         description: "Source commit the finding was reported against.",
       })
     ),
-  },
-  $I.annote("CodexFindingRecord", {
-    description: "A captured Codex finding after stable CSF-NNN identity assignment.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexFindingRecord", {
+      description: "A captured Codex finding after stable CSF-NNN identity assignment.",
+    })
+  )
 ) {}
 
 /**
@@ -243,17 +244,18 @@ export class CodexFindingRecord extends S.Class<CodexFindingRecord>($I`CodexFind
  * @category schemas
  * @since 0.0.0
  */
-export class CodexSeverityCounts extends S.Class<CodexSeverityCounts>($I`CodexSeverityCounts`)(
-  {
+export class CodexSeverityCounts extends S.Opaque<CodexSeverityCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     Critical: S.optionalKey(S.Int),
     High: S.optionalKey(S.Int),
     Medium: S.optionalKey(S.Int),
     Low: S.optionalKey(S.Int),
     Informational: S.optionalKey(S.Int),
-  },
-  $I.annote("CodexSeverityCounts", {
-    description: "Captured finding totals per severity, omitting zero-count severities.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSeverityCounts", {
+      description: "Captured finding totals per severity, omitting zero-count severities.",
+    })
+  )
 ) {}
 
 /**
@@ -287,8 +289,8 @@ export class CodexSeverityCounts extends S.Class<CodexSeverityCounts>($I`CodexSe
  * @category schemas
  * @since 0.0.0
  */
-export class CodexPacketPlan extends S.Class<CodexPacketPlan>($I`CodexPacketPlan`)(
-  {
+export class CodexPacketPlan extends S.Opaque<CodexPacketPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: CodexPacketSlug.pipe(
       $I.annoteKey("CodexPacketPlan.slug", {
         description: "Directory name of the packet under goals/.",
@@ -338,10 +340,11 @@ export class CodexPacketPlan extends S.Class<CodexPacketPlan>($I`CodexPacketPlan
         description: "Per-severity totals rendered into the manifest catalog.",
       })
     ),
-  },
-  $I.annote("CodexPacketPlan", {
-    description: "Resolved, ordered input to every generated packet document.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexPacketPlan", {
+      description: "Resolved, ordered input to every generated packet document.",
+    })
+  )
 ) {}
 
 /**
@@ -377,8 +380,11 @@ export class CodexPacketPlan extends S.Class<CodexPacketPlan>($I`CodexPacketPlan
  * @category schemas
  * @since 0.0.0
  */
-export class CodexFindingsIngestOptions extends S.Class<CodexFindingsIngestOptions>($I`CodexFindingsIngestOptions`)(
-  {
+export class CodexFindingsIngestOptions extends S.Opaque<
+  CodexFindingsIngestOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     source: CodexCaptureSource.pipe(
       S.withConstructorDefault(Effect.succeed("cloud-csv" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("cloud-csv" as const))
@@ -404,10 +410,11 @@ export class CodexFindingsIngestOptions extends S.Class<CodexFindingsIngestOptio
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("CodexFindingsIngestOptions", {
-    description: "Validated options accepted by `beep codex findings ingest`.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexFindingsIngestOptions", {
+      description: "Validated options accepted by `beep codex findings ingest`.",
+    })
+  )
 ) {}
 
 /**

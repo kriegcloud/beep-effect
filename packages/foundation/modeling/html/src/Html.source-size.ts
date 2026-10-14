@@ -204,8 +204,8 @@ type SourceSizeIssueCode = typeof SourceSizeIssueCode.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class SourceSizeIssue extends S.Class<SourceSizeIssue>($I`SourceSizeIssue`)(
-  {
+export class SourceSizeIssue extends S.Opaque<SourceSizeIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: SourceSizeIssueCode.annotateKey({
       description: "Stable machine-readable source-size failure reason.",
     }),
@@ -215,10 +215,11 @@ export class SourceSizeIssue extends S.Class<SourceSizeIssue>($I`SourceSizeIssue
     message: S.NonEmptyString.annotateKey({
       description: "Human-readable explanation of the author-conformance failure.",
     }),
-  },
-  $I.annote("SourceSizeIssue", {
-    description: "Diagnostic produced while validating a responsive-image source-size list.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceSizeIssue", {
+      description: "Diagnostic produced while validating a responsive-image source-size list.",
+    })
+  )
 ) {}
 
 /**
@@ -236,18 +237,19 @@ export class SourceSizeIssue extends S.Class<SourceSizeIssue>($I`SourceSizeIssue
  * @category models
  * @since 0.0.0
  */
-export class SourceSizeAnalysis extends S.Class<SourceSizeAnalysis>($I`SourceSizeAnalysis`)(
-  {
+export class SourceSizeAnalysis extends S.Opaque<SourceSizeAnalysis, { readonly brand: unique symbol }>()(
+  S.Struct({
     entryCount: S.Int.check(S.isGreaterThan(0)).annotateKey({
       description: "Number of entries in the conforming source-size list.",
     }),
     usesAuto: S.Boolean.annotateKey({
       description: "Whether the list starts with the exact author-level auto source-size entry.",
     }),
-  },
-  $I.annote("SourceSizeAnalysis", {
-    description: "Successful structural analysis of a responsive-image source-size list.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceSizeAnalysis", {
+      description: "Successful structural analysis of a responsive-image source-size list.",
+    })
+  )
 ) {}
 
 const issueMessage = (code: SourceSizeIssueCode): string =>

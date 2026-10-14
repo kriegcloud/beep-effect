@@ -81,9 +81,12 @@ export const mdNodeId = (index: number): MdNodeId => `md-v1/b/${index}`;
  * @category models
  * @since 0.0.0
  */
-export class MdSourceBlock extends S.Class<MdSourceBlock>($I`MdSourceBlock`)(
-  { kind: S.tag("source"), id: MdNodeId, node: Block, pattern: S.OptionFromOptionalKey(PoPattern) },
-  $I.annote("MdSourceBlock", { description: "Original block with revision-scoped id and constructor PO context." })
+export class MdSourceBlock extends S.Opaque<MdSourceBlock, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("source"), id: MdNodeId, node: Block, pattern: S.OptionFromOptionalKey(PoPattern) }).pipe(
+    $I.annoteSchema("MdSourceBlock", {
+      description: "Original block with revision-scoped id and constructor PO context.",
+    })
+  )
 ) {}
 
 /**
@@ -100,8 +103,8 @@ export class MdSourceBlock extends S.Class<MdSourceBlock>($I`MdSourceBlock`)(
  * @category models
  * @since 0.0.0
  */
-export class MdSection extends S.Class<MdSection>($I`MdSection`)(
-  {
+export class MdSection extends S.Opaque<MdSection, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("section"),
     type: S.Literal(`${DOCO_NAMESPACE}Section`),
     heading: MdSourceBlock,
@@ -112,8 +115,9 @@ export class MdSection extends S.Class<MdSection>($I`MdSection`)(
           S.Union([MdSection, MdSourceBlock])
       )
     ),
-  },
-  $I.annote("MdSection", { description: "DOCO section containing original source nodes in depth-first order." })
+  }).pipe(
+    $I.annoteSchema("MdSection", { description: "DOCO section containing original source nodes in depth-first order." })
+  )
 ) {}
 /**
  * Recursive encoded companion of the section model.
@@ -148,12 +152,12 @@ export declare namespace MdSection {
  * @category diagnostics
  * @since 0.0.0
  */
-export class MdHeadingLevelJump extends S.TaggedClass<MdHeadingLevelJump>($I`MdHeadingLevelJump`)(
-  "heading-level-jump",
-  { id: MdNodeId, previous: S.Natural, actual: HeadingLevel },
-  $I.annote("MdHeadingLevelJump", {
-    description: "Missing intermediate heading level recovered without dropping syntax.",
-  })
+export class MdHeadingLevelJump extends S.Opaque<MdHeadingLevelJump, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("heading-level-jump", { id: MdNodeId, previous: S.Natural, actual: HeadingLevel }).pipe(
+    $I.annoteSchema("MdHeadingLevelJump", {
+      description: "Missing intermediate heading level recovered without dropping syntax.",
+    })
+  )
 ) {}
 
 /**
@@ -194,9 +198,10 @@ export type MdFoldDiagnostic = typeof MdFoldDiagnostic.Type;
  * @category models
  * @since 0.0.0
  */
-export class MdSectionFold extends S.Class<MdSectionFold>($I`MdSectionFold`)(
-  { children: S.Array(S.Union([MdSection, MdSourceBlock])), diagnostics: S.Array(MdFoldDiagnostic) },
-  $I.annote("MdSectionFold", { description: "Ordered section forest with typed recovery diagnostics." })
+export class MdSectionFold extends S.Opaque<MdSectionFold, { readonly brand: unique symbol }>()(
+  S.Struct({ children: S.Array(S.Union([MdSection, MdSourceBlock])), diagnostics: S.Array(MdFoldDiagnostic) }).pipe(
+    $I.annoteSchema("MdSectionFold", { description: "Ordered section forest with typed recovery diagnostics." })
+  )
 ) {}
 
 // Find the matching constructor through its derived guard; schema annotations

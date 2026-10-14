@@ -34,7 +34,7 @@ const $I = $ScratchpadId.create("effected/github/Resilience");
  * @category models
  * @since 0.0.0
  */
-export class RateLimitSnapshot extends S.Class<RateLimitSnapshot>($I`RateLimitSnapshot`)({
+export class RateLimitSnapshot extends S.Class<RateLimitSnapshot, { readonly brand: unique symbol }>($I`RateLimitSnapshot`)({
 	/** Requests left in the current window. */
 	remaining: S.Int.annotateKey({ description: "Requests left in the current window." }),
 	/** The window's ceiling. */
@@ -136,7 +136,7 @@ export interface RetryableFailure {
  * @category policies
  * @since 0.0.0
  */
-export class RetryPolicy extends S.Class<RetryPolicy>($I`RetryPolicy`)({
+export class RetryPolicy extends S.Class<RetryPolicy, { readonly brand: unique symbol }>($I`RetryPolicy`)({
 	/** Retries after the first attempt. `0` disables retrying. */
 	maxRetries: S.Int.check(S.isBetween({ minimum: 0, maximum: 10 })).annotateKey({ description: "Retries after the first attempt. `0` disables retrying." }),
 	/** The first backoff step; doubles per attempt. */

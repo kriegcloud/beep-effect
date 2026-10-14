@@ -238,12 +238,11 @@ export type MarkupNoteOrigin = typeof MarkupNoteOrigin.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReviewPageRef extends S.Class<ReviewPageRef>($I`ReviewPageRef`)(
-  {
+export class ReviewPageRef extends S.Opaque<ReviewPageRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.NonEmptyString.annotateKey({ description: "Base name of the reviewer's PDF." }),
     page: PageNumber.annotateKey({ description: "One-based page in that PDF." }),
-  },
-  $I.annote("ReviewPageRef", { description: "A reviewer PDF's base name and a page in it." })
+  }).pipe($I.annoteSchema("ReviewPageRef", { description: "A reviewer PDF's base name and a page in it." }))
 ) {}
 
 /**
@@ -267,14 +266,15 @@ export class ReviewPageRef extends S.Class<ReviewPageRef>($I`ReviewPageRef`)(
  * @category models
  * @since 0.0.0
  */
-export class MarkupNote extends S.Class<MarkupNote>($I`MarkupNote`)(
-  {
+export class MarkupNote extends S.Opaque<MarkupNote, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.NonEmptyString.annotateKey({ description: "The note exactly as extracted; never paraphrased." }),
     rect: PdfRect.annotateKey({ description: "Where the note sits, in points from the page's top-left corner." }),
     origin: MarkupNoteOrigin.annotateKey({ description: "Annotation object or page text layer." }),
     source: ReviewPageRef.annotateKey({ description: "Reviewer page the note was read from." }),
-  },
-  $I.annote("MarkupNote", { description: "A verbatim reviewer note with its rectangle, origin, and page." })
+  }).pipe(
+    $I.annoteSchema("MarkupNote", { description: "A verbatim reviewer note with its rectangle, origin, and page." })
+  )
 ) {}
 
 const SheetMatchBasisBase = LiteralKit(["ink-coverage", "operator"]);
@@ -340,15 +340,18 @@ export type SheetMatchBasis = typeof SheetMatchBasis.Type;
  * @category models
  * @since 0.0.0
  */
-export class SheetMatch extends S.Class<SheetMatch>($I`SheetMatch`)(
-  {
+export class SheetMatch extends S.Opaque<SheetMatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF the sheet belongs to." }),
     figure: FigureNumber.annotateKey({ description: "FIG. number of the matched sheet." }),
     page: PageNumber.annotateKey({ description: "Page of the sheet-set PDF that holds the sheet." }),
     coverage: S.Finite.annotateKey({ description: "Share of the sheet's ink the reviewer page covers." }),
     basis: SheetMatchBasis.annotateKey({ description: "Ink coverage, or an operator override." }),
-  },
-  $I.annote("SheetMatch", { description: "Sheet set, FIG., page, coverage, and basis of a page-to-sheet match." })
+  }).pipe(
+    $I.annoteSchema("SheetMatch", {
+      description: "Sheet set, FIG., page, coverage, and basis of a page-to-sheet match.",
+    })
+  )
 ) {}
 
 const FindingScopeBase = LiteralKit(["sheet", "all-sheets"]);
@@ -596,7 +599,7 @@ const StatusDispositionCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
+export class ReviewFinding extends S.Opaque<ReviewFinding, { readonly brand: unique symbol }>()(
   S.Struct({
     id: ReviewFindingId.annotateKey({ description: "A<round>-<nn>, in page then reading order." }),
     severity: QaSeverity.annotateKey({ description: "P0 and P1 are required; P2 is polish." }),
@@ -614,10 +617,14 @@ export class ReviewFinding extends S.Class<ReviewFinding>($I`ReviewFinding`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "How the finding is handled; absent while open." })
     ),
-  }).check(ScopeFigureCheck, StatusDispositionCheck),
-  $I.annote("ReviewFinding", {
-    description: "Id, severity, lens, scope, figures, verbatim notes, status, and disposition of one review finding.",
   })
+    .check(ScopeFigureCheck, StatusDispositionCheck)
+    .pipe(
+      $I.annoteSchema("ReviewFinding", {
+        description:
+          "Id, severity, lens, scope, figures, verbatim notes, status, and disposition of one review finding.",
+      })
+    )
 ) {}
 
 const ReviewRoundStatusBase = LiteralKit(["open", "ingested", "planned", "rendered", "verified", "replied", "closed"]);
@@ -687,8 +694,8 @@ export type ReviewRoundStatus = typeof ReviewRoundStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
-  {
+export class ReviewRound extends S.Opaque<ReviewRound, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("drawing-review-round/v1").annotateKey({ description: "Schema version." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     status: ReviewRoundStatus.annotateKey({ description: "Where the round stands." }),
@@ -700,11 +707,12 @@ export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
     dispositionsSha256: optionalHash("Hash of dispositions.json once the round is planned."),
     renderedSheetSetSha256: optionalHash("Hash of the re-rendered sheet set that answers the round."),
     judgeInventorySha256: optionalHash("Hash of the judge inventory that checked the re-render."),
-  },
-  $I.annote("ReviewRound", {
-    description:
-      "Round number, status, reviewed sheet-set and spec hashes, and produced-file hashes of a review round.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewRound", {
+      description:
+        "Round number, status, reviewed sheet-set and spec hashes, and produced-file hashes of a review round.",
+    })
+  )
 ) {}
 
 /**
@@ -731,15 +739,14 @@ export class ReviewRound extends S.Class<ReviewRound>($I`ReviewRound`)(
  * @category models
  * @since 0.0.0
  */
-export class ReviewedPage extends S.Class<ReviewedPage>($I`ReviewedPage`)(
-  {
+export class ReviewedPage extends S.Opaque<ReviewedPage, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.NonEmptyString.annotateKey({ description: "Base name of the reviewer's PDF." }),
     pdfSha256: Sha256Hex.annotateKey({ description: "Hash of the reviewer's PDF." }),
     page: PageNumber.annotateKey({ description: "One-based page in that PDF." }),
     match: SheetMatch.annotateKey({ description: "Sheet of the sent set the page was matched to." }),
     notes: S.Array(MarkupNote).annotateKey({ description: "Notes read from the page, top to bottom." }),
-  },
-  $I.annote("ReviewedPage", { description: "A reviewer page, its sheet match, and its notes." })
+  }).pipe($I.annoteSchema("ReviewedPage", { description: "A reviewer page, its sheet match, and its notes." }))
 ) {}
 
 /**
@@ -763,14 +770,15 @@ export class ReviewedPage extends S.Class<ReviewedPage>($I`ReviewedPage`)(
  * @category models
  * @since 0.0.0
  */
-export class ReviewIntake extends S.Class<ReviewIntake>($I`ReviewIntake`)(
-  {
+export class ReviewIntake extends S.Opaque<ReviewIntake, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("drawing-review-intake/v1").annotateKey({ description: "Schema version." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     reviewedSheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF that was sent." }),
     pages: S.Array(ReviewedPage).annotateKey({ description: "Every reviewer page, in file then page order." }),
-  },
-  $I.annote("ReviewIntake", { description: "The reviewer pages of one round and what was read from them." })
+  }).pipe(
+    $I.annoteSchema("ReviewIntake", { description: "The reviewer pages of one round and what was read from them." })
+  )
 ) {}
 
 /**
@@ -794,14 +802,13 @@ export class ReviewIntake extends S.Class<ReviewIntake>($I`ReviewIntake`)(
  * @category models
  * @since 0.0.0
  */
-export class ReviewInventory extends S.Class<ReviewInventory>($I`ReviewInventory`)(
-  {
+export class ReviewInventory extends S.Opaque<ReviewInventory, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("drawing-review-inventory/v1").annotateKey({ description: "Schema version." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     reviewedSheetSetSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF that was sent." }),
     findings: S.Array(ReviewFinding).annotateKey({ description: "Every finding, in id order." }),
-  },
-  $I.annote("ReviewInventory", { description: "The findings of one review round." })
+  }).pipe($I.annoteSchema("ReviewInventory", { description: "The findings of one review round." }))
 ) {}
 
 /**
@@ -824,14 +831,13 @@ export class ReviewInventory extends S.Class<ReviewInventory>($I`ReviewInventory
  * @category models
  * @since 0.0.0
  */
-export class DispositionEntry extends S.Class<DispositionEntry>($I`DispositionEntry`)(
-  {
+export class DispositionEntry extends S.Opaque<DispositionEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ReviewFindingId.annotateKey({ description: "Finding this row disposes of." }),
     severity: QaSeverity.annotateKey({ description: "Severity after triage." }),
     lens: DrawingQaLens.annotateKey({ description: "Drawing-rubric lens after triage." }),
     disposition: Disposition.annotateKey({ description: "How the finding is handled." }),
-  },
-  $I.annote("DispositionEntry", { description: "Severity, lens, and disposition of one finding." })
+  }).pipe($I.annoteSchema("DispositionEntry", { description: "Severity, lens, and disposition of one finding." }))
 ) {}
 
 /**
@@ -849,13 +855,12 @@ export class DispositionEntry extends S.Class<DispositionEntry>($I`DispositionEn
  * @category models
  * @since 0.0.0
  */
-export class ReviewDispositions extends S.Class<ReviewDispositions>($I`ReviewDispositions`)(
-  {
+export class ReviewDispositions extends S.Opaque<ReviewDispositions, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("drawing-review-dispositions/v1").annotateKey({ description: "Schema version." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
     entries: S.Array(DispositionEntry).annotateKey({ description: "One entry per finding." }),
-  },
-  $I.annote("ReviewDispositions", { description: "The triage of every finding in one review round." })
+  }).pipe($I.annoteSchema("ReviewDispositions", { description: "The triage of every finding in one review round." }))
 ) {}
 
 /**
@@ -873,13 +878,12 @@ export class ReviewDispositions extends S.Class<ReviewDispositions>($I`ReviewDis
  * @category models
  * @since 0.0.0
  */
-export class DeliveryAttachment extends S.Class<DeliveryAttachment>($I`DeliveryAttachment`)(
-  {
+export class DeliveryAttachment extends S.Opaque<DeliveryAttachment, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Attachment file name." }),
     size: S.Natural.annotateKey({ description: "Attachment size in bytes." }),
     sha256: Sha256Hex.annotateKey({ description: "Hash of the stored attachment bytes." }),
-  },
-  $I.annote("DeliveryAttachment", { description: "Name, size, and hash of one delivered attachment." })
+  }).pipe($I.annoteSchema("DeliveryAttachment", { description: "Name, size, and hash of one delivered attachment." }))
 ) {}
 
 /**
@@ -913,8 +917,8 @@ export class DeliveryAttachment extends S.Class<DeliveryAttachment>($I`DeliveryA
  * @category models
  * @since 0.0.0
  */
-export class DeliveryRecord extends S.Class<DeliveryRecord>($I`DeliveryRecord`)(
-  {
+export class DeliveryRecord extends S.Opaque<DeliveryRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("drawing-delivery/v1").annotateKey({ description: "Schema version." }),
     sheetSetSha256: Sha256Hex.annotateKey({ description: "Sheet-set hash recorded in the render manifest." }),
     pdfSha256: Sha256Hex.annotateKey({ description: "Hash of the sheet-set PDF re-read from disk at record time." }),
@@ -923,10 +927,11 @@ export class DeliveryRecord extends S.Class<DeliveryRecord>($I`DeliveryRecord`)(
     internetMessageId: optionalText("Internet Message-ID of the sent message, when known."),
     attachments: S.Array(DeliveryAttachment).annotateKey({ description: "Every attachment the message carried." }),
     deliveredAt: S.NonEmptyString.annotateKey({ description: "ISO-8601 time the record was written." }),
-  },
-  $I.annote("DeliveryRecord", {
-    description: "Sheet-set hash, message ids, and attachment digests of one delivery to the reviewer.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeliveryRecord", {
+      description: "Sheet-set hash, message ids, and attachment digests of one delivery to the reviewer.",
+    })
+  )
 ) {}
 
 /**
@@ -946,12 +951,13 @@ export class DeliveryRecord extends S.Class<DeliveryRecord>($I`DeliveryRecord`)(
  * @category models
  * @since 0.0.0
  */
-export class DeliveryDraftFacts extends S.Class<DeliveryDraftFacts>($I`DeliveryDraftFacts`)(
-  {
+export class DeliveryDraftFacts extends S.Opaque<DeliveryDraftFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     draftId: optionalText("Outbox draft id."),
     attachments: S.Array(DeliveryAttachment).annotateKey({ description: "Attachments as the draft stores them." }),
-  },
-  $I.annote("DeliveryDraftFacts", { description: "Draft id and attachment digests returned by the outbox." })
+  }).pipe(
+    $I.annoteSchema("DeliveryDraftFacts", { description: "Draft id and attachment digests returned by the outbox." })
+  )
 ) {}
 
 /**
@@ -974,13 +980,16 @@ export class DeliveryDraftFacts extends S.Class<DeliveryDraftFacts>($I`DeliveryD
  * @category models
  * @since 0.0.0
  */
-export class SheetCandidate extends S.Class<SheetCandidate>($I`SheetCandidate`)(
-  {
+export class SheetCandidate extends S.Opaque<SheetCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     figure: FigureNumber.annotateKey({ description: "FIG. number of the sheet." }),
     page: PageNumber.annotateKey({ description: "Page of the sheet-set PDF that holds the sheet." }),
     coverage: InkCoverage.annotateKey({ description: "How much of the sheet's ink the reviewer page covers." }),
-  },
-  $I.annote("SheetCandidate", { description: "One sheet of the sent set and its ink coverage by a reviewer page." })
+  }).pipe(
+    $I.annoteSchema("SheetCandidate", {
+      description: "One sheet of the sent set and its ink coverage by a reviewer page.",
+    })
+  )
 ) {}
 
 /**
@@ -998,13 +1007,12 @@ export class SheetCandidate extends S.Class<SheetCandidate>($I`SheetCandidate`)(
  * @category models
  * @since 0.0.0
  */
-export class FigureOverride extends S.Class<FigureOverride>($I`FigureOverride`)(
-  {
+export class FigureOverride extends S.Opaque<FigureOverride, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.NonEmptyString.annotateKey({ description: "Base name of the reviewer's PDF." }),
     page: PageNumber.annotateKey({ description: "Page in that PDF." }),
     figure: FigureNumber.annotateKey({ description: "FIG. the page shows." }),
-  },
-  $I.annote("FigureOverride", { description: "Operator-named sheet for one reviewer page." })
+  }).pipe($I.annoteSchema("FigureOverride", { description: "Operator-named sheet for one reviewer page." }))
 ) {}
 
 /**
@@ -1022,13 +1030,12 @@ export class FigureOverride extends S.Class<FigureOverride>($I`FigureOverride`)(
  * @category models
  * @since 0.0.0
  */
-export class ReviewRoundLocation extends S.Class<ReviewRoundLocation>($I`ReviewRoundLocation`)(
-  {
+export class ReviewRoundLocation extends S.Opaque<ReviewRoundLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.NonEmptyString.annotateKey({ description: "Corpus root every round file must live under." }),
     matter: S.NonEmptyString.annotateKey({ description: "Matter directory, absolute or relative to the root." }),
     round: RoundNumber.annotateKey({ description: "One-based review round." }),
-  },
-  $I.annote("ReviewRoundLocation", { description: "Corpus root, matter directory, and round number." })
+  }).pipe($I.annoteSchema("ReviewRoundLocation", { description: "Corpus root, matter directory, and round number." }))
 ) {}
 
 /**
@@ -1051,13 +1058,16 @@ export class ReviewRoundLocation extends S.Class<ReviewRoundLocation>($I`ReviewR
  * @category models
  * @since 0.0.0
  */
-export class ReviewOpenRequest extends S.Class<ReviewOpenRequest>($I`ReviewOpenRequest`)(
-  {
+export class ReviewOpenRequest extends S.Opaque<ReviewOpenRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     location: ReviewRoundLocation.annotateKey({ description: "Round to open." }),
     manifestPath: S.NonEmptyString.annotateKey({ description: "Render manifest of the set that was sent." }),
     deliveryPath: S.Option(S.NonEmptyString).annotateKey({ description: "delivery.json of that send, if any." }),
-  },
-  $I.annote("ReviewOpenRequest", { description: "Round location, sent manifest, and optional delivery record." })
+  }).pipe(
+    $I.annoteSchema("ReviewOpenRequest", {
+      description: "Round location, sent manifest, and optional delivery record.",
+    })
+  )
 ) {}
 
 /**
@@ -1086,8 +1096,8 @@ export class ReviewOpenRequest extends S.Class<ReviewOpenRequest>($I`ReviewOpenR
  * @category models
  * @since 0.0.0
  */
-export class ReviewIngestRequest extends S.Class<ReviewIngestRequest>($I`ReviewIngestRequest`)(
-  {
+export class ReviewIngestRequest extends S.Opaque<ReviewIngestRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     location: ReviewRoundLocation.annotateKey({ description: "Round to ingest into." }),
     manifestPath: S.NonEmptyString.annotateKey({ description: "Render manifest of the set that was sent." }),
     pdfPaths: S.NonEmptyArray(S.NonEmptyString).annotateKey({ description: "Reviewer PDFs, under the corpus root." }),
@@ -1100,10 +1110,11 @@ export class ReviewIngestRequest extends S.Class<ReviewIngestRequest>($I`ReviewI
       S.withConstructorDefault(Effect.succeed(2)),
       S.annotateKey({ description: "Pixels the reviewer ink is grown by before comparing. Defaults to 2." })
     ),
-  },
-  $I.annote("ReviewIngestRequest", {
-    description: "Round location, sent manifest, reviewer PDFs, overrides, and raster settings of an ingest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewIngestRequest", {
+      description: "Round location, sent manifest, reviewer PDFs, overrides, and raster settings of an ingest.",
+    })
+  )
 ) {}
 
 /**
@@ -1124,12 +1135,11 @@ export class ReviewIngestRequest extends S.Class<ReviewIngestRequest>($I`ReviewI
  * @category models
  * @since 0.0.0
  */
-export class ReviewPlanRequest extends S.Class<ReviewPlanRequest>($I`ReviewPlanRequest`)(
-  {
+export class ReviewPlanRequest extends S.Opaque<ReviewPlanRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     location: ReviewRoundLocation.annotateKey({ description: "Round to plan." }),
     dispositionsPath: S.NonEmptyString.annotateKey({ description: "dispositions.json with one entry per finding." }),
-  },
-  $I.annote("ReviewPlanRequest", { description: "Round location and dispositions file of a plan." })
+  }).pipe($I.annoteSchema("ReviewPlanRequest", { description: "Round location and dispositions file of a plan." }))
 ) {}
 
 /**
@@ -1160,14 +1170,17 @@ export class ReviewPlanRequest extends S.Class<ReviewPlanRequest>($I`ReviewPlanR
  * @category models
  * @since 0.0.0
  */
-export class ReviewStatus extends S.Class<ReviewStatus>($I`ReviewStatus`)(
-  {
+export class ReviewStatus extends S.Opaque<ReviewStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     roundDir: S.NonEmptyString.annotateKey({ description: "Directory of the round." }),
     round: ReviewRound.annotateKey({ description: "round.json." }),
     intake: S.Option(ReviewIntake).annotateKey({ description: "intake.json, once ingested." }),
     inventory: S.Option(ReviewInventory).annotateKey({ description: "inventory.json, once ingested." }),
-  },
-  $I.annote("ReviewStatus", { description: "Directory, round record, intake, and inventory of a review round." })
+  }).pipe(
+    $I.annoteSchema("ReviewStatus", {
+      description: "Directory, round record, intake, and inventory of a review round.",
+    })
+  )
 ) {}
 
 /**
@@ -1192,8 +1205,8 @@ export class ReviewStatus extends S.Class<ReviewStatus>($I`ReviewStatus`)(
  * @category models
  * @since 0.0.0
  */
-export class DeliverRequest extends S.Class<DeliverRequest>($I`DeliverRequest`)(
-  {
+export class DeliverRequest extends S.Opaque<DeliverRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifestPath: S.NonEmptyString.annotateKey({ description: "Render manifest of the set that was sent." }),
     draftPath: S.NonEmptyString.annotateKey({ description: "JSON the outbox returned for the draft." }),
     sentMessageId: S.Option(S.NonEmptyString).annotateKey({ description: "Graph id of the sent message." }),
@@ -1201,8 +1214,11 @@ export class DeliverRequest extends S.Class<DeliverRequest>($I`DeliverRequest`)(
     outPath: S.Option(S.NonEmptyString).annotateKey({
       description: "Where to write; defaults to delivery.json next to the manifest.",
     }),
-  },
-  $I.annote("DeliverRequest", { description: "Manifest, draft facts, message ids, and output of a delivery record." })
+  }).pipe(
+    $I.annoteSchema("DeliverRequest", {
+      description: "Manifest, draft facts, message ids, and output of a delivery record.",
+    })
+  )
 ) {}
 
 /**
@@ -1219,12 +1235,11 @@ export class DeliverRequest extends S.Class<DeliverRequest>($I`DeliverRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class DeliveryWritten extends S.Class<DeliveryWritten>($I`DeliveryWritten`)(
-  {
+export class DeliveryWritten extends S.Opaque<DeliveryWritten, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.annotateKey({ description: "File the record was written to." }),
     record: DeliveryRecord.annotateKey({ description: "The record." }),
-  },
-  $I.annote("DeliveryWritten", { description: "Path and content of a written delivery record." })
+  }).pipe($I.annoteSchema("DeliveryWritten", { description: "Path and content of a written delivery record." }))
 ) {}
 
 /**
@@ -1242,10 +1257,9 @@ export class DeliveryWritten extends S.Class<DeliveryWritten>($I`DeliveryWritten
  * @category models
  * @since 0.0.0
  */
-export class ReviewGuardVerdict extends S.Class<ReviewGuardVerdict>($I`ReviewGuardVerdict`)(
-  {
+export class ReviewGuardVerdict extends S.Opaque<ReviewGuardVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     refusals: S.Array(S.String).annotateKey({ description: "Why the statement must not be printed." }),
     warnings: S.Array(S.String).annotateKey({ description: "What to print alongside the statement." }),
-  },
-  $I.annote("ReviewGuardVerdict", { description: "Refusals and warnings for an approval statement." })
+  }).pipe($I.annoteSchema("ReviewGuardVerdict", { description: "Refusals and warnings for an approval statement." }))
 ) {}

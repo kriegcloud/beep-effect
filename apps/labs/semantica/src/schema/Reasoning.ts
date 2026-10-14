@@ -57,18 +57,20 @@ export type RdfsRuleId = typeof RdfsRuleId.Type;
 
 const RuleVariable = LiteralKit(["s", "p", "o", "c", "d", "e", "q", "r", "m"]);
 
-class ConstantTerm extends S.Class<ConstantTerm>($I`ConstantTerm`)(
-  { kind: S.tag("Constant"), value: S.NonEmptyString },
-  $I.annote("ConstantTerm", {
-    description: "One exact serialized RDF term in a declarative rule pattern.",
-  })
+class ConstantTerm extends S.Opaque<ConstantTerm, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("Constant"), value: S.NonEmptyString }).pipe(
+    $I.annoteSchema("ConstantTerm", {
+      description: "One exact serialized RDF term in a declarative rule pattern.",
+    })
+  )
 ) {}
 
-class VariableTerm extends S.Class<VariableTerm>($I`VariableTerm`)(
-  { kind: S.tag("Variable"), name: RuleVariable },
-  $I.annote("VariableTerm", {
-    description: "One named binding slot in a declarative rule pattern.",
-  })
+class VariableTerm extends S.Opaque<VariableTerm, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("Variable"), name: RuleVariable }).pipe(
+    $I.annoteSchema("VariableTerm", {
+      description: "One named binding slot in a declarative rule pattern.",
+    })
+  )
 ) {}
 
 const TermKind = LiteralKit(["Constant", "Variable"]);
@@ -82,11 +84,12 @@ const TermPattern = TermKind.mapMembers(Tuple.evolve([() => ConstantTerm, () => 
 
 type TermPattern = typeof TermPattern.Type;
 
-class StatementPattern extends S.Class<StatementPattern>($I`StatementPattern`)(
-  { subject: TermPattern, predicate: TermPattern, object: TermPattern },
-  $I.annote("StatementPattern", {
-    description: "Declarative subject-predicate-object pattern for one rule premise or conclusion.",
-  })
+class StatementPattern extends S.Opaque<StatementPattern, { readonly brand: unique symbol }>()(
+  S.Struct({ subject: TermPattern, predicate: TermPattern, object: TermPattern }).pipe(
+    $I.annoteSchema("StatementPattern", {
+      description: "Declarative subject-predicate-object pattern for one rule premise or conclusion.",
+    })
+  )
 ) {}
 
 /**
@@ -108,15 +111,16 @@ class StatementPattern extends S.Class<StatementPattern>($I`StatementPattern`)(
  * @category models
  * @since 0.0.0
  */
-export class RdfsRule extends S.Class<RdfsRule>($I`RdfsRule`)(
-  {
+export class RdfsRule extends S.Opaque<RdfsRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: RdfsRuleId,
     premises: S.NonEmptyArray(StatementPattern),
     conclusion: StatementPattern,
-  },
-  $I.annote("RdfsRule", {
-    description: "A named rho-df or SKOS rule represented as premise and conclusion patterns.",
-  })
+  }).pipe(
+    $I.annoteSchema("RdfsRule", {
+      description: "A named rho-df or SKOS rule represented as premise and conclusion patterns.",
+    })
+  )
 ) {}
 
 const variable = (name: typeof RuleVariable.Type): VariableTerm => VariableTerm.make({ kind: "Variable", name });
@@ -207,11 +211,12 @@ export const RDFS_RULES: A.NonEmptyReadonlyArray<RdfsRule> = [
  * @category models
  * @since 0.0.0
  */
-export class RdfTriple extends S.Class<RdfTriple>($I`RdfTriple`)(
-  { subject: S.NonEmptyString, predicate: S.NonEmptyString, object: S.NonEmptyString },
-  $I.annote("RdfTriple", {
-    description: "Canonical serialized RDF terms used as one reasoning input or conclusion.",
-  })
+export class RdfTriple extends S.Opaque<RdfTriple, { readonly brand: unique symbol }>()(
+  S.Struct({ subject: S.NonEmptyString, predicate: S.NonEmptyString, object: S.NonEmptyString }).pipe(
+    $I.annoteSchema("RdfTriple", {
+      description: "Canonical serialized RDF terms used as one reasoning input or conclusion.",
+    })
+  )
 ) {}
 
 const RdfStatementFields = S.Struct({ id: StatementId, ...RdfTriple.fields });
@@ -248,11 +253,14 @@ const RdfStatementIdCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class RdfStatement extends S.Class<RdfStatement>($I`RdfStatement`)(
-  RdfStatementFields.mapFields(identity).check(RdfStatementIdCheck),
-  $I.annote("RdfStatement", {
-    description: "A complete canonical RDF triple with a full content-addressed identity.",
-  })
+export class RdfStatement extends S.Opaque<RdfStatement, { readonly brand: unique symbol }>()(
+  RdfStatementFields.mapFields(identity)
+    .check(RdfStatementIdCheck)
+    .pipe(
+      $I.annoteSchema("RdfStatement", {
+        description: "A complete canonical RDF triple with a full content-addressed identity.",
+      })
+    )
 ) {}
 
 /**
@@ -273,23 +281,25 @@ export class RdfStatement extends S.Class<RdfStatement>($I`RdfStatement`)(
 export const makeRdfStatement = (triple: RdfTriple): Result.Result<RdfStatement, S.SchemaError> =>
   Result.map(contentDigestSync(RdfTriple)(triple), (id) => RdfStatement.make({ ...triple, id: StatementId.make(id) }));
 
-class AssertedProofNode extends S.Class<AssertedProofNode>($I`AssertedProofNode`)(
-  { kind: S.tag("Asserted"), statement: StatementId },
-  $I.annote("AssertedProofNode", {
-    description: "Proof leaf referring to one statement present before closure.",
-  })
+class AssertedProofNode extends S.Opaque<AssertedProofNode, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("Asserted"), statement: StatementId }).pipe(
+    $I.annoteSchema("AssertedProofNode", {
+      description: "Proof leaf referring to one statement present before closure.",
+    })
+  )
 ) {}
 
-class InferredProofNode extends S.Class<InferredProofNode>($I`InferredProofNode`)(
-  {
+class InferredProofNode extends S.Opaque<InferredProofNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("Inferred"),
     statement: StatementId,
     rule: RdfsRuleId,
     premises: S.NonEmptyArray(StatementId),
-  },
-  $I.annote("InferredProofNode", {
-    description: "Proof node recording one rule application and its premise statement references.",
-  })
+  }).pipe(
+    $I.annoteSchema("InferredProofNode", {
+      description: "Proof node recording one rule application and its premise statement references.",
+    })
+  )
 ) {}
 
 const ProofNodeKind = LiteralKit(["Asserted", "Inferred"]);
@@ -342,11 +352,12 @@ export type ProofNode = typeof ProofNode.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProofDag extends S.Class<ProofDag>($I`ProofDag`)(
-  { root: StatementId, nodes: S.NonEmptyArray(ProofNode) },
-  $I.annote("ProofDag", {
-    description: "Replay-stable asserted leaves and inferred nodes for one conclusion.",
-  })
+export class ProofDag extends S.Opaque<ProofDag, { readonly brand: unique symbol }>()(
+  S.Struct({ root: StatementId, nodes: S.NonEmptyArray(ProofNode) }).pipe(
+    $I.annoteSchema("ProofDag", {
+      description: "Replay-stable asserted leaves and inferred nodes for one conclusion.",
+    })
+  )
 ) {}
 
 const InferenceEngine = S.Literal("semantica-rhodf/1");
@@ -399,11 +410,14 @@ const InferenceEventIdCheck = S.makeFilter(
  * @category domain-events
  * @since 0.0.0
  */
-export class InferenceEvent extends S.Class<InferenceEvent>($I`InferenceEvent`)(
-  InferenceEventFields.mapFields(identity).check(InferenceEventIdCheck),
-  $I.annote("InferenceEvent", {
-    description: "A replay-stable C2 inference with rule, engine, premise refs, and explanation DAG.",
-  })
+export class InferenceEvent extends S.Opaque<InferenceEvent, { readonly brand: unique symbol }>()(
+  InferenceEventFields.mapFields(identity)
+    .check(InferenceEventIdCheck)
+    .pipe(
+      $I.annoteSchema("InferenceEvent", {
+        description: "A replay-stable C2 inference with rule, engine, premise refs, and explanation DAG.",
+      })
+    )
 ) {}
 
 /**
@@ -441,53 +455,57 @@ export const makeInferenceEvent = (
  * @category models
  * @since 0.0.0
  */
-export class ReasoningResult extends S.Class<ReasoningResult>($I`ReasoningResult`)(
-  {
+export class ReasoningResult extends S.Opaque<ReasoningResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     asserted: S.Array(RdfStatement),
     closure: S.Array(RdfStatement),
     derived: S.Array(RdfStatement),
     events: S.Array(InferenceEvent),
-  },
-  $I.annote("ReasoningResult", {
-    description: "Deterministically ordered asserted data, inferred statements, proof events, and closure.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReasoningResult", {
+      description: "Deterministically ordered asserted data, inferred statements, proof events, and closure.",
+    })
+  )
 ) {}
 
-class EyeOracleIdentity extends S.Class<EyeOracleIdentity>($I`EyeOracleIdentity`)(
-  {
+class EyeOracleIdentity extends S.Opaque<EyeOracleIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     engine: S.Literal("EYE"),
     eyeVersion: S.NonEmptyString,
     package: S.Literal("eyereasoner"),
     packageVersion: S.NonEmptyString,
     restricted: S.Literal(true),
-  },
-  $I.annote("EyeOracleIdentity", {
-    description: "Pinned EYE and eye-js identities used to produce the committed C2 gold.",
-  })
+  }).pipe(
+    $I.annoteSchema("EyeOracleIdentity", {
+      description: "Pinned EYE and eye-js identities used to produce the committed C2 gold.",
+    })
+  )
 ) {}
 
-class GEntailmentProof extends S.Class<GEntailmentProof>($I`GEntailmentProof`)(
-  {
+class GEntailmentProof extends S.Opaque<GEntailmentProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     conclusion: RdfTriple,
     eyeProofDigest: Sha256Hex,
     premises: S.NonEmptyArray(RdfTriple),
     rule: RdfsRuleId,
-  },
-  $I.annote("GEntailmentProof", {
-    description: "Expected rule support plus the normalized digest of EYE's proof output.",
-  })
+  }).pipe(
+    $I.annoteSchema("GEntailmentProof", {
+      description: "Expected rule support plus the normalized digest of EYE's proof output.",
+    })
+  )
 ) {}
 
-class GEntailmentCase extends S.Class<GEntailmentCase>($I`GEntailmentCase`)(
-  {
+class GEntailmentCase extends S.Opaque<GEntailmentCase, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     asserted: S.NonEmptyArray(RdfTriple),
     expectedDerived: S.NonEmptyArray(RdfTriple),
     proofs: S.NonEmptyArray(GEntailmentProof),
-  },
-  $I.annote("GEntailmentCase", {
-    description: "One fixed rho-df or SKOS case with EYE-derived conclusions and proof digests.",
-  })
+  }).pipe(
+    $I.annoteSchema("GEntailmentCase", {
+      description: "One fixed rho-df or SKOS case with EYE-derived conclusions and proof digests.",
+    })
+  )
 ) {}
 
 /**
@@ -504,27 +522,29 @@ class GEntailmentCase extends S.Class<GEntailmentCase>($I`GEntailmentCase`)(
  * @category models
  * @since 0.0.0
  */
-export class GEntailmentExpectation extends S.Class<GEntailmentExpectation>($I`GEntailmentExpectation`)(
-  {
+export class GEntailmentExpectation extends S.Opaque<GEntailmentExpectation, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("g-entailment-rdfs/v1"),
     oracle: EyeOracleIdentity,
     rulesSha256: Sha256Hex,
     cases: S.NonEmptyArray(GEntailmentCase),
-  },
-  $I.annote("GEntailmentExpectation", {
-    description: "Pinned EYE identity, rules artifact digest, conclusions, and proof digests for C2.",
-  })
+  }).pipe(
+    $I.annoteSchema("GEntailmentExpectation", {
+      description: "Pinned EYE identity, rules artifact digest, conclusions, and proof digests for C2.",
+    })
+  )
 ) {}
 
-class GEntailmentCaseWitness extends S.Class<GEntailmentCaseWitness>($I`GEntailmentCaseWitness`)(
-  {
+class GEntailmentCaseWitness extends S.Opaque<GEntailmentCaseWitness, { readonly brand: unique symbol }>()(
+  S.Struct({
     caseId: S.NonEmptyString,
     derived: S.NonEmptyArray(RdfStatement),
     events: S.NonEmptyArray(InferenceEvent),
-  },
-  $I.annote("GEntailmentCaseWitness", {
-    description: "One passing runtime closure and its independently validated inference events.",
-  })
+  }).pipe(
+    $I.annoteSchema("GEntailmentCaseWitness", {
+      description: "One passing runtime closure and its independently validated inference events.",
+    })
+  )
 ) {}
 
 /**
@@ -541,11 +561,12 @@ class GEntailmentCaseWitness extends S.Class<GEntailmentCaseWitness>($I`GEntailm
  * @category models
  * @since 0.0.0
  */
-export class GEntailmentWitness extends S.Class<GEntailmentWitness>($I`GEntailmentWitness`)(
-  { expectationDigest: Sha256Hex, cases: S.NonEmptyArray(GEntailmentCaseWitness) },
-  $I.annote("GEntailmentWitness", {
-    description: "Gold fixture digest and passing closure/event witnesses for all C2 cases.",
-  })
+export class GEntailmentWitness extends S.Opaque<GEntailmentWitness, { readonly brand: unique symbol }>()(
+  S.Struct({ expectationDigest: Sha256Hex, cases: S.NonEmptyArray(GEntailmentCaseWitness) }).pipe(
+    $I.annoteSchema("GEntailmentWitness", {
+      description: "Gold fixture digest and passing closure/event witnesses for all C2 cases.",
+    })
+  )
 ) {}
 
 /**
@@ -562,11 +583,12 @@ export class GEntailmentWitness extends S.Class<GEntailmentWitness>($I`GEntailme
  * @category models
  * @since 0.0.0
  */
-export class CrashProjectionInput extends S.Class<CrashProjectionInput>($I`CrashProjectionInput`)(
-  { events: S.NonEmptyArray(ProvenanceEvent), outcomes: S.NonEmptyArray(ExtractOutcome) },
-  $I.annote("CrashProjectionInput", {
-    description: "Every C1 extraction batch and provenance event committed immediately before the injected SIGKILL.",
-  })
+export class CrashProjectionInput extends S.Opaque<CrashProjectionInput, { readonly brand: unique symbol }>()(
+  S.Struct({ events: S.NonEmptyArray(ProvenanceEvent), outcomes: S.NonEmptyArray(ExtractOutcome) }).pipe(
+    $I.annoteSchema("CrashProjectionInput", {
+      description: "Every C1 extraction batch and provenance event committed immediately before the injected SIGKILL.",
+    })
+  )
 ) {}
 
 /**
@@ -583,15 +605,16 @@ export class CrashProjectionInput extends S.Class<CrashProjectionInput>($I`Crash
  * @category models
  * @since 0.0.0
  */
-export class CrashIdentityWitness extends S.Class<CrashIdentityWitness>($I`CrashIdentityWitness`)(
-  {
+export class CrashIdentityWitness extends S.Opaque<CrashIdentityWitness, { readonly brand: unique symbol }>()(
+  S.Struct({
     afterRestartDigest: Sha256Hex,
     beforeCrashDigest: Sha256Hex,
     checkpoint: S.Literal("after-ledger-commit-before-projection"),
-  },
-  $I.annote("CrashIdentityWitness", {
-    description: "Equal projection digests around the exact C2 process-kill checkpoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("CrashIdentityWitness", {
+      description: "Equal projection digests around the exact C2 process-kill checkpoint.",
+    })
+  )
 ) {}
 
 /**
@@ -608,18 +631,22 @@ export class CrashIdentityWitness extends S.Class<CrashIdentityWitness>($I`Crash
  * @category models
  * @since 0.0.0
  */
-export class ProjectionReasoningWitness extends S.Class<ProjectionReasoningWitness>($I`ProjectionReasoningWitness`)(
-  {
+export class ProjectionReasoningWitness extends S.Opaque<
+  ProjectionReasoningWitness,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     assertedCount: PosInt,
     closureCount: PosInt,
     closureDigest: Sha256Hex,
     derived: S.NonEmptyArray(RdfStatement),
     eventCount: PosInt,
     events: S.NonEmptyArray(InferenceEvent),
-  },
-  $I.annote("ProjectionReasoningWitness", {
-    description: "Full RDF input counts, closure digest, derived statements, and proof events for one C2 run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionReasoningWitness", {
+      description: "Full RDF input counts, closure digest, derived statements, and proof events for one C2 run.",
+    })
+  )
 ) {}
 
 /**
@@ -636,11 +663,12 @@ export class ProjectionReasoningWitness extends S.Class<ProjectionReasoningWitne
  * @category models
  * @since 0.0.0
  */
-export class ReasoningWitness extends S.Class<ReasoningWitness>($I`ReasoningWitness`)(
-  { crash: CrashIdentityWitness, gold: GEntailmentWitness, projection: ProjectionReasoningWitness },
-  $I.annote("ReasoningWitness", {
-    description: "C2 evidence for oracle-backed closure, event proofs, and crash-safe rebuild identity.",
-  })
+export class ReasoningWitness extends S.Opaque<ReasoningWitness, { readonly brand: unique symbol }>()(
+  S.Struct({ crash: CrashIdentityWitness, gold: GEntailmentWitness, projection: ProjectionReasoningWitness }).pipe(
+    $I.annoteSchema("ReasoningWitness", {
+      description: "C2 evidence for oracle-backed closure, event proofs, and crash-safe rebuild identity.",
+    })
+  )
 ) {}
 
 const C2EvalReportFields = S.Struct({
@@ -700,9 +728,12 @@ const C2EvalReportChecks = S.makeFilterGroup([
  * @category models
  * @since 0.0.0
  */
-export class C2EvalReport extends S.Class<C2EvalReport>($I`C2EvalReport`)(
-  C2EvalReportFields.mapFields(identity).check(C2EvalReportChecks),
-  $I.annote("C2EvalReport", {
-    description: "Replay-stable C2 evaluation report with C1 evidence and validated inference proof events.",
-  })
+export class C2EvalReport extends S.Opaque<C2EvalReport, { readonly brand: unique symbol }>()(
+  C2EvalReportFields.mapFields(identity)
+    .check(C2EvalReportChecks)
+    .pipe(
+      $I.annoteSchema("C2EvalReport", {
+        description: "Replay-stable C2 evaluation report with C1 evidence and validated inference proof events.",
+      })
+    )
 ) {}

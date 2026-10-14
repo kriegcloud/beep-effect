@@ -41,7 +41,9 @@ const TopLevelFunctionVar = /^var (\w+) = (async \(|\(|function\b)/gm;
  * @category errors
  * @since 0.0.0
  */
-export class PluginBuildFailed extends S.TaggedError<PluginBuildFailed>($I`PluginBuildFailed`)(
+export class PluginBuildFailed extends S.TaggedError<PluginBuildFailed, { readonly brand: unique symbol }>(
+  $I`PluginBuildFailed`
+)(
   "PluginBuildFailed",
   { message: S.String },
   $I.annote("PluginBuildFailed", { description: "Bundling the plugin's hooks module failed." })

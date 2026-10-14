@@ -18,7 +18,10 @@ import * as S from "effect/Schema";
 
 const testLayer = Layer.mergeAll(MemoryFileSystem.layer, Path.layer);
 
-class ArtifactTestError extends S.TaggedError<ArtifactTestError>()("ArtifactTestError", { message: S.String }) {}
+class ArtifactTestError extends S.TaggedError<ArtifactTestError, { readonly brand: unique symbol }>()(
+  "ArtifactTestError",
+  { message: S.String }
+) {}
 const toArtifactError = (cause: unknown): ArtifactTestError => ArtifactTestError.make({ message: String(cause) });
 
 const withTempDir = Effect.fn("withTempDir")(function* <A, E, R>(use: (dir: string) => Effect.Effect<A, E, R>) {

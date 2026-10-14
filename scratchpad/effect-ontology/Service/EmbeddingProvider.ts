@@ -117,15 +117,12 @@ export type Embedding = typeof Embedding.Type;
  * @category models
  * @since 0.0.0
  */
-export class EmbeddingRequest extends S.Class<EmbeddingRequest>($I`EmbeddingRequest`)(
-  {
+export class EmbeddingRequest extends S.Opaque<EmbeddingRequest, { readonly brand: unique symbol }>()(S.Struct({
     text: S.String,
     taskType: EmbeddingTaskType,
-  },
-  $I.annote("EmbeddingRequest", {
+  }).pipe($I.annoteSchema("EmbeddingRequest", {
     description: "Text paired with the provider-specific semantic embedding task.",
-  })
-) {}
+  }))) {}
 
 /**
  * Provider metadata for cache key generation and configuration
@@ -142,8 +139,7 @@ export class EmbeddingRequest extends S.Class<EmbeddingRequest>($I`EmbeddingRequ
  * @category models
  * @since 0.0.0
  */
-export class ProviderMetadata extends S.Class<ProviderMetadata>($I`ProviderMetadata`)(
-  {
+export class ProviderMetadata extends S.Opaque<ProviderMetadata, { readonly brand: unique symbol }>()(S.Struct({
     providerId: LiteralKit(["nomic", "voyage", "openai"]),
     modelId: S.NonEmptyString,
     dimension: S.Finite.check(
@@ -151,11 +147,9 @@ export class ProviderMetadata extends S.Class<ProviderMetadata>($I`ProviderMetad
         message: "Embedding dimension must be greater than zero.",
       })
     ),
-  },
-  $I.annote("ProviderMetadata", {
+  }).pipe($I.annoteSchema("ProviderMetadata", {
     description: "Stable provider, model, and positive native vector dimension metadata.",
-  })
-) {}
+  }))) {}
 
 /**
  * EmbeddingProvider service interface

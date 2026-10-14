@@ -85,8 +85,8 @@ export type PipelineStage = typeof PipelineStage.Type;
  * @category models
  * @since 0.0.0
  */
-export class PipelineError extends S.Class<PipelineError>($I`PipelineError`)(
-  {
+export class PipelineError extends S.Opaque<PipelineError, { readonly brand: unique symbol }>()(
+  S.Struct({
     error: S.String.annotateKey({
       description: "Message describing why the item failed.",
     }),
@@ -96,10 +96,11 @@ export class PipelineError extends S.Class<PipelineError>($I`PipelineError`)(
     stage: S.String.annotateKey({
       description: "Name of the stage that produced the failure.",
     }),
-  },
-  $I.annote("PipelineError", {
-    description: "A single pipeline failure entry describing the item, message, and stage.",
-  })
+  }).pipe(
+    $I.annoteSchema("PipelineError", {
+      description: "A single pipeline failure entry describing the item, message, and stage.",
+    })
+  )
 ) {}
 
 /**
@@ -124,8 +125,8 @@ export class PipelineError extends S.Class<PipelineError>($I`PipelineError`)(
  * @category models
  * @since 0.0.0
  */
-export class PipelineResult extends S.Class<PipelineResult>($I`PipelineResult`)(
-  {
+export class PipelineResult extends S.Opaque<PipelineResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     durationMs: NonNegativeInteger.annotateKey({
       description: "Wall-clock duration of the run in milliseconds.",
     }),
@@ -144,10 +145,11 @@ export class PipelineResult extends S.Class<PipelineResult>($I`PipelineResult`)(
     skipped: NonNegativeInteger.annotateKey({
       description: "Number of items skipped before processing.",
     }),
-  },
-  $I.annote("PipelineResult", {
-    description: "Outcome of running a line-transform pipeline over a file.",
-  })
+  }).pipe(
+    $I.annoteSchema("PipelineResult", {
+      description: "Outcome of running a line-transform pipeline over a file.",
+    })
+  )
 ) {}
 
 /**
@@ -165,8 +167,8 @@ export class PipelineResult extends S.Class<PipelineResult>($I`PipelineResult`)(
  * @category models
  * @since 0.0.0
  */
-export class PipelineProcessOptions extends S.Class<PipelineProcessOptions>($I`PipelineProcessOptions`)(
-  {
+export class PipelineProcessOptions extends S.Opaque<PipelineProcessOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxLines: PositiveInteger.pipe(
       S.withConstructorDefault(Effect.succeed(Number.MAX_SAFE_INTEGER)),
       S.withDecodingDefaultTypeKey(Effect.succeed(Number.MAX_SAFE_INTEGER))
@@ -180,10 +182,11 @@ export class PipelineProcessOptions extends S.Class<PipelineProcessOptions>($I`P
       description:
         "Reserved for future custom stages. The built-in transform stages are total and never fail, so this option currently has no effect.",
     }),
-  },
-  $I.annote("PipelineProcessOptions", {
-    description: "Options for running a line-transform pipeline.",
-  })
+  }).pipe(
+    $I.annoteSchema("PipelineProcessOptions", {
+      description: "Options for running a line-transform pipeline.",
+    })
+  )
 ) {}
 
 const stageTransform: (stage: PipelineStage) => (value: string) => string = PipelineStage.$match({

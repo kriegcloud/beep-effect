@@ -91,8 +91,8 @@ export type FilingTextExcerpt = typeof FilingTextExcerpt.Type;
  * @category ports
  * @since 0.0.0
  */
-export class FilingDecisionInput extends S.Class<FilingDecisionInput>($I`FilingDecisionInput`)(
-  {
+export class FilingDecisionInput extends S.Opaque<FilingDecisionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentDigest: DocumentContentDigest.annotateKey({
       description: "Deterministic content digest for the source bytes.",
     }),
@@ -102,10 +102,11 @@ export class FilingDecisionInput extends S.Class<FilingDecisionInput>($I`FilingD
     textExcerpt: S.Option(FilingTextExcerpt).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional bounded extracted-text excerpt for content-aware classification.",
     }),
-  },
-  $I.annote("FilingDecisionInput", {
-    description: "Input supplied to the FilingDecision port.",
-  })
+  }).pipe(
+    $I.annoteSchema("FilingDecisionInput", {
+      description: "Input supplied to the FilingDecision port.",
+    })
+  )
 ) {}
 
 /**

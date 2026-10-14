@@ -74,8 +74,8 @@ const listSeparator = " | ";
  * @category models
  * @since 0.0.0
  */
-export class MatterContacts extends S.Class<MatterContacts>($I`MatterContacts`)(
-  {
+export class MatterContacts extends S.Opaque<MatterContacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     familyKey: S.NonEmptyString.annotateKey({
       description: "Practice-KG family key of the matter the contacts belong to.",
     }),
@@ -89,10 +89,11 @@ export class MatterContacts extends S.Class<MatterContacts>($I`MatterContacts`)(
       .annotateKey({
         description: "Lowercase sender domains associated with the matter's client.",
       }),
-  },
-  $I.annote("MatterContacts", {
-    description: "Curated contact addresses and sender domains of one matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterContacts", {
+      description: "Curated contact addresses and sender domains of one matter.",
+    })
+  )
 ) {}
 
 /**
@@ -128,28 +129,30 @@ export const MatterContactsJson = MatterContacts.pipe(
  */
 export type MatterContactsJson = typeof MatterContactsJson.Type;
 
-class MatterRow extends S.Class<MatterRow>($I`MatterRow`)(
-  {
+class MatterRow extends S.Opaque<MatterRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     familyKey: S.String,
     client: S.String.pipe(S.NullOr, S.optionalKey),
     epistemicStatus: PracticeKgEpistemicStatus,
-  },
-  $I.annote("MatterRow", {
-    description: "The columns of the bundle's matters table the directory reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterRow", {
+      description: "The columns of the bundle's matters table the directory reads.",
+    })
+  )
 ) {}
 
-class MatterDocketRow extends S.Class<MatterDocketRow>($I`MatterDocketRow`)(
-  {
+class MatterDocketRow extends S.Opaque<MatterDocketRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     familyKey: S.String,
     docket: S.String,
     docketKey: S.String,
     applicationNumbers: S.String.pipe(S.NullOr, S.optionalKey),
     patentNumbers: S.String.pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("MatterDocketRow", {
-    description: "The columns of the bundle's matter_dockets table the directory reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterDocketRow", {
+      description: "The columns of the bundle's matter_dockets table the directory reads.",
+    })
+  )
 ) {}
 
 const mattersSql = `

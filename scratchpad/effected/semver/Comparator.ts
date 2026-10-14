@@ -33,7 +33,7 @@ const $I = $ScratchpadId.create("effected/semver/Comparator");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidComparatorError extends S.TaggedError<InvalidComparatorError>($I`InvalidComparatorError`)("InvalidComparatorError", {
+export class InvalidComparatorError extends S.TaggedError<InvalidComparatorError, { readonly brand: unique symbol }>($I`InvalidComparatorError`)("InvalidComparatorError", {
 	/** The raw input string that failed to parse. */
 	input: S.String.annotateKey({ description: "The raw input string that failed to parse." }),
 	/** The character position where parsing failed, if available. */
@@ -93,7 +93,7 @@ export class InvalidComparatorError extends S.TaggedError<InvalidComparatorError
  * @category models
  * @since 0.0.0
  */
-export class Comparator extends S.Class<Comparator>($I`Comparator`)({
+export class Comparator extends S.Class<Comparator, { readonly brand: unique symbol }>($I`Comparator`)({
 	/** The relational operator applied to `version`; a missing prefix in the source string means `=`. */
 	operator: ComparatorOperator.annotateKey({ description: "The relational operator applied to `version`; a missing prefix in the source string means `=`." }),
 	/** The version the operator is applied against. */

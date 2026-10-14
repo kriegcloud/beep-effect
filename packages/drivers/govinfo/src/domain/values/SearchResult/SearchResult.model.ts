@@ -46,8 +46,8 @@ const $I = $GovinfoId.create("domain/values/SearchResult/SearchResult.model");
  * @category dtos
  * @since 0.0.0
  */
-export class SearchResult extends S.Class<SearchResult>($I`SearchResult`)(
-  {
+export class SearchResult extends S.Opaque<SearchResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** GovInfo collection code for the result. */
     collectionCode: S.String.annotateKey({
       description: "GovInfo collection code for the result.",
@@ -92,10 +92,11 @@ export class SearchResult extends S.Class<SearchResult>($I`SearchResult`)(
     title: S.String.annotateKey({
       description: "Display title for the search result.",
     }),
-  },
-  $I.annote("SearchResult", {
-    description: "Single GovInfo search hit with package, granule, and download metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("SearchResult", {
+      description: "Single GovInfo search hit with package, granule, and download metadata.",
+    })
+  )
 ) {}
 
 /**

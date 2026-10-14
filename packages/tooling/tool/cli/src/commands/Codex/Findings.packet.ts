@@ -20,6 +20,7 @@ import * as Effect from "effect/Effect";
 import * as R from "effect/Record";
 import { CodexFindingSeverity } from "./Findings.capture.schemas.ts";
 import { CodexFindingsIngestError } from "./Findings.errors.ts";
+import { CodexSeverityCounts } from "./Findings.schemas.ts";
 import {
   CodexTriageFinding,
   CodexTriageLedger,
@@ -31,7 +32,7 @@ import {
 import { PacketDocument } from "./Findings.write.ts";
 import { renderSecurityPacketGuidance } from "./Security.packet.ts";
 import type { CodexCaptureSource } from "./Findings.capture.schemas.ts";
-import type { CodexFindingRecord, CodexPacketPlan, CodexSeverityCounts } from "./Findings.schemas.ts";
+import type { CodexFindingRecord, CodexPacketPlan } from "./Findings.schemas.ts";
 import type { CodexCaptureMethod } from "./Findings.triage.schemas.ts";
 
 /**
@@ -216,7 +217,7 @@ const manifestDocument = (plan: CodexPacketPlan): PacketDocument => {
         expectedCount: plan.expectedCount,
         capturedCount,
         severityCountsKnown: true,
-        severityCounts: R.fromEntries(presentSeverities(plan.severityCounts)),
+        severityCounts: R.fromEntries(presentSeverities(CodexSeverityCounts.make(plan.severityCounts))),
         dispositionCounts: {
           remediate: 0,
           "already-fixed": 0,
@@ -391,7 +392,10 @@ const findingsIndexDocument = (plan: CodexPacketPlan): PacketDocument => {
       "",
       "| Severity | Count |",
       "| --- | ---: |",
-      ...A.map(presentSeverities(plan.severityCounts), ([severity, total]) => `| ${severity} | ${total} |`),
+      ...A.map(
+        presentSeverities(CodexSeverityCounts.make(plan.severityCounts)),
+        ([severity, total]) => `| ${severity} | ${total} |`
+      ),
       "",
       "## Findings",
       "",
@@ -456,7 +460,7 @@ const readmeDocument = (plan: CodexPacketPlan): PacketDocument => {
       "",
       "## Findings at a glance",
       "",
-      `${severityPhrase(plan.severityCounts)} findings. Accepted risk is unavailable; each item must be`,
+      `${severityPhrase(CodexSeverityCounts.make(plan.severityCounts))} findings. Accepted risk is unavailable; each item must be`,
       "fixed or closed only with strict proof that the report is already fixed or",
       "materially invalid.",
       "",
@@ -482,7 +486,7 @@ const goalDocument = (plan: CodexPacketPlan): PacketDocument => {
       // Deliberately a count, never a per-finding list: GOAL.md has a hard
       // 4000-char doctor gate and a list would breach it on a large batch.
       `Outcome: fix and close the ${capturedCount} Codex security findings captured on`,
-      `${plan.capturedAt} for \`${plan.repository}\`: ${severityPhrase(plan.severityCounts)}.`,
+      `${plan.capturedAt} for \`${plan.repository}\`: ${severityPhrase(CodexSeverityCounts.make(plan.severityCounts))}.`,
       "Ship one Yeet-driven PR to mergeable, merge it, then resolve the exact captured",
       "Codex IDs until no packet-applicable finding remains open.",
       "",
@@ -548,7 +552,7 @@ const planDocument = (plan: CodexPacketPlan): PacketDocument => {
       "| Phase | Status | Goal | Exit criteria |",
       "| --- | --- | --- | --- |",
       "| P0 bootstrap | complete | Create feature branch and packet scaffold. | Branch and launcher exist; packet JSON parses. |",
-      `| P1 capture | complete | Capture all live findings via the signed-in CSV export. | ${capturedCount} IDs reconcile: ${severityPhrase(plan.severityCounts)}. |`,
+      `| P1 capture | complete | Capture all live findings via the signed-in CSV export. | ${capturedCount} IDs reconcile: ${severityPhrase(CodexSeverityCounts.make(plan.severityCounts))}. |`,
       "| P2 validate | pending | Reproduce each report at current HEAD. | Every item has strict verdict, disposition, rationale, and owner surface. |",
       "| P3 lane-partition | pending | Group shared root causes and disjoint paths. | Lanes recorded without overlapping file ownership. |",
       "| P4 remediate | pending | Fix all real findings with focused checks. | Changed files and passing targeted proof recorded per finding. |",
@@ -661,7 +665,7 @@ const specDocument = (plan: CodexPacketPlan): PacketDocument => {
       `| Launcher size | \`test "$(wc -m < goals/${plan.slug}/GOAL.md)" -le 4000\` | Pass |`,
       "| JSON shape | `jq .` over both files in `ops/` | Pass |",
       `| Finding count | CSF file count equals ${capturedCount} | Pass |`,
-      `| Severity count | ${severityPhrase(plan.severityCounts)} | Pass |`,
+      `| Severity count | ${severityPhrase(CodexSeverityCounts.make(plan.severityCounts))} | Pass |`,
       "| Raw ignored | `git status --short -- .../raw` | Only `.gitignore` tracked |",
       "| Sanitization | tracked packet secret/path pattern scan | No matches |",
       "| Per-finding proof | command recorded in finding and triage ledger | Pass |",

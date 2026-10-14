@@ -26,48 +26,48 @@ const encodeEditorState = S.encodeResult(SerializedEditorState);
 const decodeEditorStateWire = S.decodeUnknownResult(SerializedEditorStateWire);
 const wireEquivalence = S.toEquivalence(SerializedEditorStateWire);
 
-class CompatibleEditorState extends S.TaggedClass<CompatibleEditorState>($I`CompatibleEditorState`)(
-  "compatible",
-  {
+class CompatibleEditorState extends S.Opaque<CompatibleEditorState, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("compatible", {
     state: SerializedEditorState,
     wire: SerializedEditorStateWire,
-  },
-  $I.annote("CompatibleEditorState", {
-    description: "Lossless Lexical wire already equal to its strict v1 semantic encoding.",
-  })
+  }).pipe(
+    $I.annoteSchema("CompatibleEditorState", {
+      description: "Lossless Lexical wire already equal to its strict v1 semantic encoding.",
+    })
+  )
 ) {}
 
-class NormalizableEditorState extends S.TaggedClass<NormalizableEditorState>($I`NormalizableEditorState`)(
-  "normalizable",
-  {
+class NormalizableEditorState extends S.Opaque<NormalizableEditorState, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("normalizable", {
     state: SerializedEditorState,
     wire: SerializedEditorStateWire,
     normalizedWire: SerializedEditorStateWire,
-  },
-  $I.annote("NormalizableEditorState", {
-    description: "Lexical wire accepted by the strict model after a declared canonical normalization.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormalizableEditorState", {
+      description: "Lexical wire accepted by the strict model after a declared canonical normalization.",
+    })
+  )
 ) {}
 
-class UnsupportedEditorState extends S.TaggedClass<UnsupportedEditorState>($I`UnsupportedEditorState`)(
-  "unsupported",
-  {
+class UnsupportedEditorState extends S.Opaque<UnsupportedEditorState, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("unsupported", {
     issues: S.NonEmptyArray(LexicalCompatibilityIssue),
     wire: SerializedEditorStateWire,
-  },
-  $I.annote("UnsupportedEditorState", {
-    description: "Valid lossless Lexical JSON wire outside the package's supported strict semantic grammar.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnsupportedEditorState", {
+      description: "Valid lossless Lexical JSON wire outside the package's supported strict semantic grammar.",
+    })
+  )
 ) {}
 
-class InvalidEditorState extends S.TaggedClass<InvalidEditorState>($I`InvalidEditorState`)(
-  "invalid",
-  {
+class InvalidEditorState extends S.Opaque<InvalidEditorState, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("invalid", {
     message: S.NonEmptyString,
-  },
-  $I.annote("InvalidEditorState", {
-    description: "Input which is not valid lossless Lexical JSON editor-state wire.",
-  })
+  }).pipe(
+    $I.annoteSchema("InvalidEditorState", {
+      description: "Input which is not valid lossless Lexical JSON editor-state wire.",
+    })
+  )
 ) {}
 
 /**

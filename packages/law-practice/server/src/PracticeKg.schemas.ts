@@ -159,8 +159,8 @@ const emptyStringList = Effect.succeed(A.empty<string>());
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgOptions extends S.Class<PracticeKgOptions>($I`PracticeKgOptions`)(
-  {
+export class PracticeKgOptions extends S.Opaque<PracticeKgOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     bundleOut: S.optionalKey(S.String),
     bundleVersion: S.optionalKey(S.NonEmptyString),
     contactsPath: S.optionalKey(S.String),
@@ -185,10 +185,11 @@ export class PracticeKgOptions extends S.Class<PracticeKgOptions>($I`PracticeKgO
       S.withDecodingDefaultTypeKey(emptyStringList)
     ),
     skipEmails: S.Boolean,
-  },
-  $I.annote("PracticeKgOptions", {
-    description: "Validated options used to build a deterministic practice knowledge-graph bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgOptions", {
+      description: "Validated options used to build a deterministic practice knowledge-graph bundle.",
+    })
+  )
 ) {
   /**
    * Resolve the effective bundle destination for a corpus root, applying the
@@ -325,8 +326,8 @@ export type PracticeKgBundleOutInput = Pick<PracticeKgOptions, "bundleOut" | "co
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgNodeRow extends S.Class<PracticeKgNodeRow>($I`PracticeKgNodeRow`)(
-  {
+export class PracticeKgNodeRow extends S.Opaque<PracticeKgNodeRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributionSource: KgAttributionSource,
     client: S.optionalKey(S.String),
     docketFamily: S.optionalKey(S.String),
@@ -338,10 +339,11 @@ export class PracticeKgNodeRow extends S.Class<PracticeKgNodeRow>($I`PracticeKgN
     payload: UnknownRecord,
     provenanceKind: PracticeKgProvenanceKind,
     provenanceRef: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgNodeRow", {
-    description: "Schema-first row persisted in the packet-owned PGlite kg_node projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgNodeRow", {
+      description: "Schema-first row persisted in the packet-owned PGlite kg_node projection.",
+    })
+  )
 ) {}
 
 /**
@@ -374,18 +376,19 @@ export class PracticeKgNodeRow extends S.Class<PracticeKgNodeRow>($I`PracticeKgN
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgEdgeRow extends S.Class<PracticeKgEdgeRow>($I`PracticeKgEdgeRow`)(
-  {
+export class PracticeKgEdgeRow extends S.Opaque<PracticeKgEdgeRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     epistemicStatus: spineEpistemicStatus,
     objectIri: S.NonEmptyString,
     predicate: KgEdgePredicate,
     provenanceKind: PracticeKgProvenanceKind,
     provenanceRef: S.NonEmptyString,
     subjectIri: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgEdgeRow", {
-    description: "Schema-first row persisted in the packet-owned PGlite kg_edge projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgEdgeRow", {
+      description: "Schema-first row persisted in the packet-owned PGlite kg_edge projection.",
+    })
+  )
 ) {}
 
 /**
@@ -422,8 +425,8 @@ export class PracticeKgEdgeRow extends S.Class<PracticeKgEdgeRow>($I`PracticeKgE
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgEmailHeaderRow extends S.Class<PracticeKgEmailHeaderRow>($I`PracticeKgEmailHeaderRow`)(
-  {
+export class PracticeKgEmailHeaderRow extends S.Opaque<PracticeKgEmailHeaderRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveDigest: S.NonEmptyString,
     conversationTopic: S.optionalKey(S.String),
     deliveryIso: S.optionalKey(S.String),
@@ -435,10 +438,11 @@ export class PracticeKgEmailHeaderRow extends S.Class<PracticeKgEmailHeaderRow>(
     senderName: S.optionalKey(S.String),
     subject: S.String,
     submitIso: S.optionalKey(S.String),
-  },
-  $I.annote("PracticeKgEmailHeaderRow", {
-    description: "Headers-only DuckDB row parsed from one pffexport message directory.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgEmailHeaderRow", {
+      description: "Headers-only DuckDB row parsed from one pffexport message directory.",
+    })
+  )
 ) {}
 
 /**
@@ -463,14 +467,15 @@ export class PracticeKgEmailHeaderRow extends S.Class<PracticeKgEmailHeaderRow>(
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgSchemaVersions extends S.Class<PracticeKgSchemaVersions>($I`PracticeKgSchemaVersions`)(
-  {
+export class PracticeKgSchemaVersions extends S.Opaque<PracticeKgSchemaVersions, { readonly brand: unique symbol }>()(
+  S.Struct({
     duckdb: S.tag("4"),
     pglite: S.tag("4"),
-  },
-  $I.annote("PracticeKgSchemaVersions", {
-    description: "Independent schema versions for the two embedded graph stores.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgSchemaVersions", {
+      description: "Independent schema versions for the two embedded graph stores.",
+    })
+  )
 ) {}
 
 /**
@@ -497,15 +502,16 @@ export class PracticeKgSchemaVersions extends S.Class<PracticeKgSchemaVersions>(
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgSourceRuns extends S.Class<PracticeKgSourceRuns>($I`PracticeKgSourceRuns`)(
-  {
+export class PracticeKgSourceRuns extends S.Opaque<PracticeKgSourceRuns, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.tag("included"),
     includedRuns: S.Array(S.String).pipe(S.withConstructorDefault(emptyStringList)),
     refresh202607: LiteralKit(["included", "excluded"]),
-  },
-  $I.annote("PracticeKgSourceRuns", {
-    description: "Base run, the folded-in source runs by label, and the July 2026 refresh inclusion state.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgSourceRuns", {
+      description: "Base run, the folded-in source runs by label, and the July 2026 refresh inclusion state.",
+    })
+  )
 ) {}
 
 /**
@@ -536,16 +542,17 @@ export class PracticeKgSourceRuns extends S.Class<PracticeKgSourceRuns>($I`Pract
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgCounts extends S.Class<PracticeKgCounts>($I`PracticeKgCounts`)(
-  {
+export class PracticeKgCounts extends S.Opaque<PracticeKgCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     documents: S.Natural,
     edges: S.Natural,
     emails: S.Natural,
     nodes: S.Natural,
-  },
-  $I.annote("PracticeKgCounts", {
-    description: "Deterministic node, edge, document, and email counts for one graph build.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCounts", {
+      description: "Deterministic node, edge, document, and email counts for one graph build.",
+    })
+  )
 ) {}
 
 /**
@@ -589,8 +596,8 @@ export class PracticeKgCounts extends S.Class<PracticeKgCounts>($I`PracticeKgCou
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgBundleManifest extends S.Class<PracticeKgBundleManifest>($I`PracticeKgBundleManifest`)(
-  {
+export class PracticeKgBundleManifest extends S.Opaque<PracticeKgBundleManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     builtAt: S.String,
     bundleVersion: S.NonEmptyString,
     corpusRootExpected: S.Boolean,
@@ -598,10 +605,11 @@ export class PracticeKgBundleManifest extends S.Class<PracticeKgBundleManifest>(
     counts: PracticeKgCounts,
     schemaVersion: PracticeKgSchemaVersions,
     sourceRuns: PracticeKgSourceRuns,
-  },
-  $I.annote("PracticeKgBundleManifest", {
-    description: "Portable manifest describing one read-only practice knowledge-graph bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgBundleManifest", {
+      description: "Portable manifest describing one read-only practice knowledge-graph bundle.",
+    })
+  )
 ) {}
 
 /**
@@ -642,8 +650,8 @@ export class PracticeKgBundleManifest extends S.Class<PracticeKgBundleManifest>(
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgSummary extends S.Class<PracticeKgSummary>($I`PracticeKgSummary`)(
-  {
+export class PracticeKgSummary extends S.Opaque<PracticeKgSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseDigests: S.Natural,
     bundleOut: S.String,
     counts: PracticeKgCounts,
@@ -653,10 +661,11 @@ export class PracticeKgSummary extends S.Class<PracticeKgSummary>($I`PracticeKgS
     includeRefresh: S.Boolean,
     includedRuns: S.Array(S.String).pipe(S.withConstructorDefault(emptyStringList)),
     sourceRows: S.Natural,
-  },
-  $I.annote("PracticeKgSummary", {
-    description: "Build result and reconciliation counts returned by corpus graph.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgSummary", {
+      description: "Build result and reconciliation counts returned by corpus graph.",
+    })
+  )
 ) {}
 
 /**

@@ -20,7 +20,7 @@ const $I = $ScratchpadId.create("effected/github-actions/CheckState");
  * @category errors
  * @since 0.0.0
  */
-export class UnhandledCheckStateError extends S.TaggedError<UnhandledCheckStateError>($I`UnhandledCheckStateError`)("UnhandledCheckStateError", {
+export class UnhandledCheckStateError extends S.TaggedError<UnhandledCheckStateError, { readonly brand: unique symbol }>($I`UnhandledCheckStateError`)("UnhandledCheckStateError", {
 	message: S.String,
 }, $I.annote("UnhandledCheckStateError", { description: "A check state outside the vocabulary was projected." })) {}
 

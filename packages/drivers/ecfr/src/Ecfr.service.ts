@@ -13,6 +13,7 @@
  */
 
 import { ApiAuth, makeApiTransport } from "@beep/api-transport";
+import { ApiTransportOptions } from "@beep/api-transport/Transport";
 import { $EcfrId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as SchemaUtils from "@beep/schema/SchemaUtils";
@@ -96,15 +97,16 @@ const optional = <A, I, R>(schema: S.Codec<A, I, R>) =>
  * @category models
  * @since 0.0.0
  */
-export class EcfrCorrectionsParams extends S.Class<EcfrCorrectionsParams>($I`EcfrCorrectionsParams`)(
-  {
+export class EcfrCorrectionsParams extends S.Opaque<EcfrCorrectionsParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     date: optional(S.String),
     errorCorrectedDate: optional(S.String),
     title: optional(S.String),
-  },
-  $I.annote("EcfrCorrectionsParams", {
-    description: "Optional title and ISO-date filters for eCFR corrections.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcfrCorrectionsParams", {
+      description: "Optional title and ISO-date filters for eCFR corrections.",
+    })
+  )
 ) {}
 
 /**
@@ -122,9 +124,10 @@ export class EcfrCorrectionsParams extends S.Class<EcfrCorrectionsParams>($I`Ecf
  * @category models
  * @since 0.0.0
  */
-export class EcfrTitleParams extends S.Class<EcfrTitleParams>($I`EcfrTitleParams`)(
-  { title: TitlePathSegment },
-  $I.annote("EcfrTitleParams", { description: "Path parameters identifying one CFR title." })
+export class EcfrTitleParams extends S.Opaque<EcfrTitleParams, { readonly brand: unique symbol }>()(
+  S.Struct({ title: TitlePathSegment }).pipe(
+    $I.annoteSchema("EcfrTitleParams", { description: "Path parameters identifying one CFR title." })
+  )
 ) {}
 
 /**
@@ -148,8 +151,8 @@ export class EcfrTitleParams extends S.Class<EcfrTitleParams>($I`EcfrTitleParams
  * @category models
  * @since 0.0.0
  */
-export class EcfrSearchParams extends S.Class<EcfrSearchParams>($I`EcfrSearchParams`)(
-  {
+export class EcfrSearchParams extends S.Opaque<EcfrSearchParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     agencySlugs: optional(S.String.pipe(S.Array)),
     date: optional(S.String),
     lastModifiedAfter: optional(S.String),
@@ -161,10 +164,11 @@ export class EcfrSearchParams extends S.Class<EcfrSearchParams>($I`EcfrSearchPar
     paginateBy: optional(SearchPagination),
     perPage: optional(S.Natural),
     query: optional(S.String),
-  },
-  $I.annote("EcfrSearchParams", {
-    description: "Filters, ordering, and page controls shared by eCFR search endpoints.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcfrSearchParams", {
+      description: "Filters, ordering, and page controls shared by eCFR search endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -183,8 +187,8 @@ export class EcfrSearchParams extends S.Class<EcfrSearchParams>($I`EcfrSearchPar
  * @category models
  * @since 0.0.0
  */
-export class EcfrVersionerParams extends S.Class<EcfrVersionerParams>($I`EcfrVersionerParams`)(
-  {
+export class EcfrVersionerParams extends S.Opaque<EcfrVersionerParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     appendix: optional(S.String),
     chapter: optional(S.String),
     date: DatePathSegment,
@@ -194,10 +198,11 @@ export class EcfrVersionerParams extends S.Class<EcfrVersionerParams>($I`EcfrVer
     subpart: optional(S.String),
     subtitle: optional(S.String),
     title: TitlePathSegment,
-  },
-  $I.annote("EcfrVersionerParams", {
-    description: "Dated CFR title path and optional hierarchy selectors for eCFR versioner requests.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcfrVersionerParams", {
+      description: "Dated CFR title path and optional hierarchy selectors for eCFR versioner requests.",
+    })
+  )
 ) {}
 
 /**
@@ -217,14 +222,15 @@ export class EcfrVersionerParams extends S.Class<EcfrVersionerParams>($I`EcfrVer
  * @category models
  * @since 0.0.0
  */
-export class EcfrDatedTitleParams extends S.Class<EcfrDatedTitleParams>($I`EcfrDatedTitleParams`)(
-  {
+export class EcfrDatedTitleParams extends S.Opaque<EcfrDatedTitleParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     date: DatePathSegment,
     title: TitlePathSegment,
-  },
-  $I.annote("EcfrDatedTitleParams", {
-    description: "Dated CFR title path parameters for eCFR versioner requests without hierarchy selectors.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcfrDatedTitleParams", {
+      description: "Dated CFR title path parameters for eCFR versioner requests without hierarchy selectors.",
+    })
+  )
 ) {}
 
 /**
@@ -243,8 +249,8 @@ export class EcfrDatedTitleParams extends S.Class<EcfrDatedTitleParams>($I`EcfrD
  * @category models
  * @since 0.0.0
  */
-export class EcfrVersionsParams extends S.Class<EcfrVersionsParams>($I`EcfrVersionsParams`)(
-  {
+export class EcfrVersionsParams extends S.Opaque<EcfrVersionsParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     appendix: optional(S.String),
     chapter: optional(S.String),
     issueDateGte: optional(S.String),
@@ -257,10 +263,11 @@ export class EcfrVersionsParams extends S.Class<EcfrVersionsParams>($I`EcfrVersi
     subpart: optional(S.String),
     subtitle: optional(S.String),
     title: TitlePathSegment,
-  },
-  $I.annote("EcfrVersionsParams", {
-    description: "Issue-date, page, and hierarchy filters for one CFR title's content versions.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcfrVersionsParams", {
+      description: "Issue-date, page, and hierarchy filters for one CFR title's content versions.",
+    })
+  )
 ) {}
 
 /**
@@ -312,18 +319,20 @@ export interface EcfrShape {
   readonly searchTitleCounts: (params?: EcfrSearchParams) => Effect.Effect<G.SearchTitleCountsResponse, EcfrError>;
 }
 
-class ResolvedConfig extends S.Class<ResolvedConfig>($I`ResolvedConfig`)(
-  {
+class ResolvedConfig extends S.Opaque<ResolvedConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiUrl: URLStr,
-  },
-  $I.annote("ResolvedConfig", {
-    description: "Configuration for the eCFR driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedConfig", {
+      description: "Configuration for the eCFR driver.",
+    })
+  )
 ) {}
 
-const resolveConfig = (input: EcfrConfigInput): ResolvedConfig => ({
-  apiUrl: URLStr.make(input.apiUrl),
-});
+const resolveConfig = (input: EcfrConfigInput): ResolvedConfig =>
+  ResolvedConfig.make({
+    apiUrl: URLStr.make(input.apiUrl),
+  });
 
 const requestError = (cause: unknown): EcfrError =>
   EcfrError.of("request encoding", EcfrErrorOptions.make({ cause: O.some(cause) }));
@@ -362,13 +371,14 @@ const toHierarchyQuery = (params: EcfrVersionerParams | EcfrVersionsParams): G.G
     subtitle: params.subtitle,
   });
 
-class StatusCause extends S.Class<StatusCause>($I`StatusCause`)(
-  {
+class StatusCause extends S.Opaque<StatusCause, { readonly brand: unique symbol }>()(
+  S.Struct({
     response: S.Struct({ status: S.Natural }),
-  },
-  $I.annote("StatusCause", {
-    description: "External HTTP client failure carrying a numeric response status.",
-  })
+  }).pipe(
+    $I.annoteSchema("StatusCause", {
+      description: "External HTTP client failure carrying a numeric response status.",
+    })
+  )
 ) {}
 
 const decodeStatusCause = S.decodeUnknownOption(StatusCause);
@@ -394,11 +404,13 @@ const mapClientError = Match.type<HttpClientError.HttpClientError | S.SchemaErro
 );
 
 const makeFromResolved = Effect.fnUntraced(function* (config: ResolvedConfig) {
-  const transport = yield* makeApiTransport({
-    auth: ApiAuth.NoAuth(),
-    key: "ecfr",
-    rateLimit: { limit: ECFR_RATE_LIMIT, window: ECFR_RATE_LIMIT_WINDOW },
-  });
+  const transport = yield* makeApiTransport(
+    ApiTransportOptions.make({
+      auth: ApiAuth.NoAuth(),
+      key: "ecfr",
+      rateLimit: { limit: ECFR_RATE_LIMIT, window: ECFR_RATE_LIMIT_WINDOW },
+    })
+  );
 
   const client = yield* HttpApiClient.make(G.EcfrApi, {
     baseUrl: config.apiUrl,
@@ -523,7 +535,7 @@ const makeFromResolved = Effect.fnUntraced(function* (config: ResolvedConfig) {
 
 const makeFromEnvironment = Effect.fnUntraced(function* () {
   const apiUrl = yield* Config.String("ECFR_API_URL").pipe(Config.withDefault(ECFR_API_URL));
-  return yield* makeFromResolved({ apiUrl: URLStr.make(apiUrl) });
+  return yield* makeFromResolved(ResolvedConfig.make({ apiUrl: URLStr.make(apiUrl) }));
 });
 
 /**

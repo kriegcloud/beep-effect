@@ -10,6 +10,7 @@ import {
 } from "@beep/schema/CrossOriginResourcePolicy";
 import {
   ContentSecurityPolicyHeader,
+  ContentSecurityPolicyOptionStruct,
   createContentSecurityPolicyOptionHeaderValue,
   createDirectiveValue,
   DocumentDirective,
@@ -19,8 +20,8 @@ import {
   ReportingDirective,
 } from "@beep/schema/Csp";
 import { ExpectCTHeader } from "@beep/schema/ExpectCt";
-import { ForceHttpsRedirectHeader } from "@beep/schema/ForceHttpsRedirect";
-import { FrameGuardHeader } from "@beep/schema/FrameGuard";
+import { ForceHttpsRedirectConfig, ForceHttpsRedirectHeader } from "@beep/schema/ForceHttpsRedirect";
+import { FrameGuardAllowFromConfig, FrameGuardHeader } from "@beep/schema/FrameGuard";
 import { NoOpenHeader } from "@beep/schema/NoOpen";
 import { NoSniffHeader } from "@beep/schema/NoSniff";
 import { PermissionsPolicyHeader } from "@beep/schema/PermissionsPolicy";
@@ -28,7 +29,7 @@ import { PermittedCrossDomainPoliciesHeader } from "@beep/schema/PermittedCrossD
 import { ReferrerPolicyHeader } from "@beep/schema/ReferrerPolicy";
 import * as HeaderErrors from "@beep/schema/SecureHeaderError";
 import { createHeadersObject, createSecureHeaders, SecureHeaderOptions } from "@beep/schema/SecureHeaderOptions";
-import { XSSProtectionHeader } from "@beep/schema/XssProtection";
+import { XSSProtectionHeader, XSSProtectionReportConfig } from "@beep/schema/XssProtection";
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { describe, expect } from "@effect/vitest";
@@ -270,7 +271,7 @@ describe("Secure header schemas", () => {
       assertSome(
         yield* ForceHttpsRedirectHeader.createValue([
           true,
-          { maxAge: 120, includeSubDomains: true, preload: true },
+          ForceHttpsRedirectConfig.make({ maxAge: 120, includeSubDomains: true, preload: true }),
         ]).pipe(Effect.orDie),
         "max-age=120; includeSubDomains; preload"
       );
@@ -302,7 +303,7 @@ describe("Secure header schemas", () => {
 
   it.effect("formats Frame-Guard allow-from values", () =>
     Effect.gen(function* () {
-      const option = ["allow-from", { uri: "https://example.com/frame" }] as const;
+      const option = ["allow-from", FrameGuardAllowFromConfig.make({ uri: "https://example.com/frame" })] as const;
 
       expectHeader(yield* decodeFrameGuardHeader(option), "X-Frame-Options", "allow-from https://example.com/frame");
       assertSome(
@@ -489,7 +490,7 @@ describe("Secure header schemas", () => {
 
   it.effect("renders X-XSS-Protection modes including report", () =>
     Effect.gen(function* () {
-      const reportOption = ["report", { uri: "https://example.com/report" }] as const;
+      const reportOption = ["report", XSSProtectionReportConfig.make({ uri: "https://example.com/report" })] as const;
 
       expectHeader(yield* decodeXSSProtectionHeader(undefined), "X-XSS-Protection", "1");
       expectHeader(yield* decodeXSSProtectionHeader(false), "X-XSS-Protection", "0");
@@ -509,13 +510,13 @@ describe("Secure header schemas", () => {
 
   it.effect("renders CSP values and switches to the report-only header name", () =>
     Effect.gen(function* () {
-      const option: ContentSecurityPolicyOption = {
+      const option: ContentSecurityPolicyOption = ContentSecurityPolicyOptionStruct.make({
         directives: {
           scriptSrc: "'self'",
           reportURI: "https://example.com/csp",
         },
         reportOnly: true,
-      };
+      });
 
       expectHeader(
         yield* decodeContentSecurityPolicyHeader(option),
@@ -579,7 +580,12 @@ describe("Secure header schemas", () => {
     Effect.gen(function* () {
       assertNone(createContentSecurityPolicyOptionHeaderValue());
       assertNone(createContentSecurityPolicyOptionHeaderValue(false));
-      assertSome(createContentSecurityPolicyOptionHeaderValue({ directives: { sandbox: true } }), "sandbox");
+      assertSome(
+        createContentSecurityPolicyOptionHeaderValue(
+          ContentSecurityPolicyOptionStruct.make({ directives: { sandbox: true } })
+        ),
+        "sandbox"
+      );
       expectHeader(yield* decodeContentSecurityPolicyHeader(undefined), "Content-Security-Policy", undefined);
       expectHeader(yield* decodeContentSecurityPolicyHeader(false), "Content-Security-Policy", undefined);
       assertNone(yield* ContentSecurityPolicyHeader.createValue().pipe(Effect.orDie));
@@ -620,18 +626,20 @@ describe("Secure header aggregates", () => {
 
   it.effect("creates customized secure headers and omits disabled values", () =>
     Effect.gen(function* () {
-      const result = yield* createHeadersObject({
-        frameGuard: "sameorigin",
-        referrerPolicy: "same-origin",
-        noopen: false,
-        nosniff: false,
-        contentSecurityPolicy: {
-          directives: {
-            scriptSrc: "'self'",
-          },
-        },
-        expectCT: [true, { maxAge: 123, reportURI: "https://example.com/report" }],
-      }).pipe(Effect.orDie);
+      const result = yield* createHeadersObject(
+        SecureHeaderOptions.make({
+          frameGuard: "sameorigin",
+          referrerPolicy: "same-origin",
+          noopen: false,
+          nosniff: false,
+          contentSecurityPolicy: ContentSecurityPolicyOptionStruct.make({
+            directives: {
+              scriptSrc: "'self'",
+            },
+          }),
+          expectCT: [true, { maxAge: 123, reportURI: "https://example.com/report" }],
+        })
+      ).pipe(Effect.orDie);
 
       expect(result["X-Frame-Options"]).toBe("sameorigin");
       expect(result["Referrer-Policy"]).toBe("same-origin");
@@ -644,7 +652,9 @@ describe("Secure header aggregates", () => {
 
   it.effect("creates secure headers in key/value form", () =>
     Effect.gen(function* () {
-      const result = yield* createSecureHeaders({ frameGuard: "sameorigin" }).pipe(Effect.orDie);
+      const result = yield* createSecureHeaders(SecureHeaderOptions.make({ frameGuard: "sameorigin" })).pipe(
+        Effect.orDie
+      );
       const plain = pipe(
         result,
         A.map((header) => ({

@@ -41,7 +41,7 @@ const getErrorMessage = (value: unknown): O.Option<string> =>
  * @category errors
  * @since 0.0.0
  */
-export class PgliteError extends S.TaggedError<PgliteError>($I`PgliteError`)(
+export class PgliteError extends S.TaggedError<PgliteError, { readonly brand: unique symbol }>($I`PgliteError`)(
   "PgliteError",
   {
     operation: S.NonEmptyString.annotateKey({

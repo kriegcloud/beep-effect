@@ -212,7 +212,7 @@ export const CharPosition = S.make<(typeof S.Natural)["Rebuild"]>(S.Natural.ast)
  * @category models
  * @since 0.0.0
  */
-export class Token extends S.Class<Token>($I`Token`)(
+export class Token extends S.Class<Token, { readonly brand: unique symbol }>($I`Token`)(
   {
     text: S.String,
     index: TokenIndex,

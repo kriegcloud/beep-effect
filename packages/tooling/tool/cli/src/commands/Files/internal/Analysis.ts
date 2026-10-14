@@ -12,6 +12,7 @@ import * as O from "effect/Option";
 import { FilesCommandError } from "../Files.errors.ts";
 import { analyzeSolidBorders, classifyBorderSides, roundCandidateMetric } from "../Files.media.ts";
 import { DetectBordersEntry, DetectFacesEntry } from "../Files.schemas.ts";
+import { BorderDetectionThresholds, RawImagePixelData } from "./BorderDetection.ts";
 import { readImagePixelsForBorderDetection } from "./MediaExec.ts";
 import type { FaceDetection as DetectedFace, LoadedFaceDetector } from "@beep/face-detection";
 import type { DetectBordersOptions, DetectFacesFlag, DetectFacesOptions, SortableFile } from "../Files.schemas.ts";
@@ -30,7 +31,7 @@ export const analyzeDetectBordersFile = Effect.fn("Files.analyzeDetectBordersFil
   options: DetectBordersOptions
 ): Effect.fn.Return<DetectBordersEntry, FilesCommandError> {
   const pixels = yield* readImagePixelsForBorderDetection(file);
-  const sides = analyzeSolidBorders(pixels, options);
+  const sides = analyzeSolidBorders(RawImagePixelData.make(pixels), BorderDetectionThresholds.make(options));
   const classification = classifyBorderSides(sides);
   const borderCount = A.length(A.filter(sides, (side) => side.matched));
 

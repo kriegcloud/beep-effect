@@ -33,15 +33,18 @@ const $I = $OntologyId.create("TaxonomyRegistry");
  * @category models
  * @since 0.0.0
  */
-export class LibrarianInput extends S.Class<LibrarianInput>($I`LibrarianInput`)(
-  {
+export class LibrarianInput extends S.Opaque<LibrarianInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     client: FilingSegment,
     conceptIri: IRIReference,
     documentClass: DocumentClass,
     fileName: FilingSegment,
     matter: FilingSegment,
-  },
-  $I.annote("LibrarianInput", { description: "Document metadata used to project one registry-backed filing decision." })
+  }).pipe(
+    $I.annoteSchema("LibrarianInput", {
+      description: "Document metadata used to project one registry-backed filing decision.",
+    })
+  )
 ) {}
 
 /**
@@ -57,9 +60,10 @@ export class LibrarianInput extends S.Class<LibrarianInput>($I`LibrarianInput`)(
  * @category models
  * @since 0.0.0
  */
-export class FilingPath extends S.Class<FilingPath>($I`FilingPath`)(
-  { kind: FilingRootKind, path: S.NonEmptyString },
-  $I.annote("FilingPath", { description: "A projected path paired with its semantic filing-root kind." })
+export class FilingPath extends S.Opaque<FilingPath, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: FilingRootKind, path: S.NonEmptyString }).pipe(
+    $I.annoteSchema("FilingPath", { description: "A projected path paired with its semantic filing-root kind." })
+  )
 ) {}
 
 /**
@@ -76,16 +80,17 @@ export class FilingPath extends S.Class<FilingPath>($I`FilingPath`)(
  * @category models
  * @since 0.0.0
  */
-export class LibrarianOutput extends S.Class<LibrarianOutput>($I`LibrarianOutput`)(
-  {
+export class LibrarianOutput extends S.Opaque<LibrarianOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
     alignments: S.Array(ConceptAlignment),
     conceptIri: IRIReference,
     documentClass: DocumentClass,
     filingPaths: S.Array(FilingPath),
-  },
-  $I.annote("LibrarianOutput", {
-    description: "Pure classification output projected from loaded registry vocabulary data.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibrarianOutput", {
+      description: "Pure classification output projected from loaded registry vocabulary data.",
+    })
+  )
 ) {}
 
 /**
@@ -102,7 +107,9 @@ export class LibrarianOutput extends S.Class<LibrarianOutput>($I`LibrarianOutput
  * @category errors
  * @since 0.0.0
  */
-export class TaxonomyConceptNotFound extends S.TaggedError<TaxonomyConceptNotFound>($I`TaxonomyConceptNotFound`)(
+export class TaxonomyConceptNotFound extends S.TaggedError<TaxonomyConceptNotFound, { readonly brand: unique symbol }>(
+  $I`TaxonomyConceptNotFound`
+)(
   "TaxonomyConceptNotFound",
   { conceptIri: IRIReference },
   $I.annoteError<TaxonomyConceptNotFound>("TaxonomyConceptNotFound", {
@@ -124,7 +131,10 @@ export class TaxonomyConceptNotFound extends S.TaggedError<TaxonomyConceptNotFou
  * @category errors
  * @since 0.0.0
  */
-export class UnsupportedDocumentClass extends S.TaggedError<UnsupportedDocumentClass>($I`UnsupportedDocumentClass`)(
+export class UnsupportedDocumentClass extends S.TaggedError<
+  UnsupportedDocumentClass,
+  { readonly brand: unique symbol }
+>($I`UnsupportedDocumentClass`)(
   "UnsupportedDocumentClass",
   {
     conceptIri: IRIReference,

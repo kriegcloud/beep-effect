@@ -30,12 +30,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/InlineTagValues");
  * @category models
  * @since 0.0.0
  */
-export class LinkValue extends S.TaggedClass<LinkValue>($I`LinkValue`)(
-  "link",
-  { ...optionalName, ...optionalDesc },
-  $I.annote("LinkValue", {
-    description: "Occurrence shape for @link — an inline link to another symbol.",
-  })
+export class LinkValue extends S.Opaque<LinkValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("link", { ...optionalName, ...optionalDesc }).pipe(
+    $I.annoteSchema("LinkValue", {
+      description: "Occurrence shape for @link — an inline link to another symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -54,10 +54,10 @@ export class LinkValue extends S.TaggedClass<LinkValue>($I`LinkValue`)(
  * @category models
  * @since 0.0.0
  */
-export class InheritDocValue extends S.TaggedClass<InheritDocValue>($I`InheritDocValue`)(
-  "inheritDoc",
-  { ...optionalName },
-  $I.annote("InheritDocValue", {
-    description: "Occurrence shape for @inheritDoc — inherits documentation from a parent.",
-  })
+export class InheritDocValue extends S.Opaque<InheritDocValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("inheritDoc", { ...optionalName }).pipe(
+    $I.annoteSchema("InheritDocValue", {
+      description: "Occurrence shape for @inheritDoc — inherits documentation from a parent.",
+    })
+  )
 ) {}

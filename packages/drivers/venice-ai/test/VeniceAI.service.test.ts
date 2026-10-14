@@ -83,44 +83,48 @@ const HttpMethod = LiteralKit(["delete", "get", "patch", "post"]).pipe(
 );
 const isHttpMethod = S.is(HttpMethod);
 
-class OpenApiRequestBody extends S.Class<OpenApiRequestBody>($TestI`OpenApiRequestBody`)(
-  {
+class OpenApiRequestBody extends S.Opaque<OpenApiRequestBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.Record(S.String, S.Unknown),
-  },
-  $TestI.annote("OpenApiRequestBody", {
-    description: "OpenAPI request body fixture shape used by Venice AI driver tests.",
-  })
+  }).pipe(
+    $TestI.annoteSchema("OpenApiRequestBody", {
+      description: "OpenAPI request body fixture shape used by Venice AI driver tests.",
+    })
+  )
 ) {}
 
-class OpenApiResponse extends S.Class<OpenApiResponse>($TestI`OpenApiResponse`)(
-  {
+class OpenApiResponse extends S.Opaque<OpenApiResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $TestI.annote("OpenApiResponse", {
-    description: "OpenAPI response fixture shape used by Venice AI driver tests.",
-  })
+  }).pipe(
+    $TestI.annoteSchema("OpenApiResponse", {
+      description: "OpenAPI response fixture shape used by Venice AI driver tests.",
+    })
+  )
 ) {}
 
-class OpenApiOperation extends S.Class<OpenApiOperation>($TestI`OpenApiOperation`)(
-  {
+class OpenApiOperation extends S.Opaque<OpenApiOperation, { readonly brand: unique symbol }>()(
+  S.Struct({
     operationId: S.optionalKey(S.String),
     requestBody: S.optionalKey(OpenApiRequestBody),
     responses: S.Record(S.String, OpenApiResponse),
     security: S.Unknown.pipe(S.Array, S.optionalKey),
     tags: S.String.pipe(S.Array, S.optionalKey),
-  },
-  $TestI.annote("OpenApiOperation", {
-    description: "OpenAPI operation fixture shape used by Venice AI driver tests.",
-  })
+  }).pipe(
+    $TestI.annoteSchema("OpenApiOperation", {
+      description: "OpenAPI operation fixture shape used by Venice AI driver tests.",
+    })
+  )
 ) {}
 
-class OpenApiSpec extends S.Class<OpenApiSpec>($TestI`OpenApiSpec`)(
-  {
+class OpenApiSpec extends S.Opaque<OpenApiSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     paths: S.Record(S.String, S.Record(S.String, S.Unknown)),
-  },
-  $TestI.annote("OpenApiSpec", {
-    description: "OpenAPI document fixture shape used by Venice AI driver tests.",
-  })
+  }).pipe(
+    $TestI.annoteSchema("OpenApiSpec", {
+      description: "OpenAPI document fixture shape used by Venice AI driver tests.",
+    })
+  )
 ) {}
 
 const decodeOpenApiSpec = S.decodeUnknownEffect(OpenApiSpec);
@@ -128,15 +132,16 @@ const decodeOpenApiOperation = S.decodeUnknownEffect(OpenApiOperation);
 const encodeOpenApiOperation = S.encodeEffect(OpenApiOperation);
 const OpenApiOperationArbitrary = Arbitrary.schema(OpenApiOperation);
 
-class PromptBody extends S.Class<PromptBody>($TestI`PromptBody`)(
-  {
+class PromptBody extends S.Opaque<PromptBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     model: S.String,
     prompt: S.String,
     stream: S.optionalKey(S.Boolean),
-  },
-  $TestI.annote("PromptBody", {
-    description: "Minimal JSON prompt body fixture shape used by Venice AI driver tests.",
-  })
+  }).pipe(
+    $TestI.annoteSchema("PromptBody", {
+      description: "Minimal JSON prompt body fixture shape used by Venice AI driver tests.",
+    })
+  )
 ) {}
 
 const decodePromptBody = S.decodeUnknownEffect(PromptBody);

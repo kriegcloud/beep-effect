@@ -42,12 +42,9 @@ const EvidenceSpanShape = S.Struct({
   })
 );
 
-class EvidenceSpanModel extends S.Class<EvidenceSpanModel>($I`EvidenceSpanModel`)(
-  EvidenceSpanShape.fields,
-  $I.annote("EvidenceSpanModel", {
+class EvidenceSpanModel extends S.Opaque<EvidenceSpanModel, { readonly brand: unique symbol }>()(S.Struct(EvidenceSpanShape.fields).pipe($I.annoteSchema("EvidenceSpanModel", {
     description: "Canonical text anchor with optional experiment extraction confidence.",
-  })
-) {}
+  }))) {}
 
 const CanonicalEvidenceSpan = EvidenceSpanModel.check(TextAnchorWidthCheck);
 
@@ -123,36 +120,27 @@ export type EvidenceSpan = typeof EvidenceSpan.Type;
 
 const GroundingStatus = LiteralKit(["NotEvaluated", "Supported", "Rejected"]);
 
-class GroundingNotEvaluated extends S.Class<GroundingNotEvaluated>($I`GroundingNotEvaluated`)(
-  { status: S.tag(GroundingStatus.Enum.NotEvaluated) },
-  $I.annote("GroundingNotEvaluated", {
+class GroundingNotEvaluated extends S.Opaque<GroundingNotEvaluated, { readonly brand: unique symbol }>()(S.Struct({ status: S.tag(GroundingStatus.Enum.NotEvaluated) }).pipe($I.annoteSchema("GroundingNotEvaluated", {
     description: "Grounding decision was intentionally not evaluated.",
-  })
-) {}
+  }))) {}
 
-class GroundingSupported extends S.Class<GroundingSupported>($I`GroundingSupported`)(
-  {
+class GroundingSupported extends S.Opaque<GroundingSupported, { readonly brand: unique symbol }>()(S.Struct({
     status: S.tag(GroundingStatus.Enum.Supported),
     confidence: Confidence.annotateKey({
       description: "Verifier confidence that the source supports the extracted fact.",
     }),
-  },
-  $I.annote("GroundingSupported", {
+  }).pipe($I.annoteSchema("GroundingSupported", {
     description: "Source context supports the extracted fact at the recorded confidence.",
-  })
-) {}
+  }))) {}
 
-class GroundingRejected extends S.Class<GroundingRejected>($I`GroundingRejected`)(
-  {
+class GroundingRejected extends S.Opaque<GroundingRejected, { readonly brand: unique symbol }>()(S.Struct({
     status: S.tag(GroundingStatus.Enum.Rejected),
     confidence: Confidence.annotateKey({
       description: "Verifier confidence in rejecting the extracted fact.",
     }),
-  },
-  $I.annote("GroundingRejected", {
+  }).pipe($I.annoteSchema("GroundingRejected", {
     description: "Source context does not support the extracted fact at the recorded confidence.",
-  })
-) {}
+  }))) {}
 
 /**
  * Grounding outcome attached to an extracted entity or relation.
@@ -218,8 +206,7 @@ const NotEvaluatedGrounding = GroundingDecision.cases.NotEvaluated.make({});
  * @category models
  * @since 0.0.0
  */
-export class EntityObservation extends S.Class<EntityObservation>($I`EntityObservation`)(
-  {
+export class EntityObservation extends S.Opaque<EntityObservation, { readonly brand: unique symbol }>()(S.Struct({
     id: ObjectRef.annotateKey({ description: "Deterministic identifier of this entity observation." }),
     provenance: ObjectRef.annotateKey({ description: "PROV entity record describing the observed artifact." }),
     activity: ObjectRef.annotateKey({ description: "PROV activity that produced the observation." }),
@@ -231,11 +218,9 @@ export class EntityObservation extends S.Class<EntityObservation>($I`EntityObser
       S.withConstructorDefault(Effect.succeed(NotEvaluatedGrounding)), S.withDecodingDefaultTypeKey(Effect.succeed(NotEvaluatedGrounding)),
       S.annotateKey({ description: "Grounding outcome for this occurrence." })
     ),
-  },
-  $I.annote("EntityObservation", {
+  }).pipe($I.annoteSchema("EntityObservation", {
     description: "One provenance-linked, evidence-anchored observation of an extracted entity.",
-  })
-) {}
+  }))) {}
 
 /**
  * Source-grounded observation of one extracted relation occurrence.
@@ -259,8 +244,7 @@ export class EntityObservation extends S.Class<EntityObservation>($I`EntityObser
  * @category models
  * @since 0.0.0
  */
-export class RelationObservation extends S.Class<RelationObservation>($I`RelationObservation`)(
-  {
+export class RelationObservation extends S.Opaque<RelationObservation, { readonly brand: unique symbol }>()(S.Struct({
     id: ObjectRef.annotateKey({ description: "Deterministic identifier of this relation observation." }),
     provenance: ObjectRef.annotateKey({ description: "PROV entity record describing the observed relation." }),
     activity: ObjectRef.annotateKey({ description: "PROV activity that produced the observation." }),
@@ -272,11 +256,9 @@ export class RelationObservation extends S.Class<RelationObservation>($I`Relatio
       S.withConstructorDefault(Effect.succeed(NotEvaluatedGrounding)), S.withDecodingDefaultTypeKey(Effect.succeed(NotEvaluatedGrounding)),
       S.annotateKey({ description: "Grounding outcome for this occurrence." })
     ),
-  },
-  $I.annote("RelationObservation", {
+  }).pipe($I.annoteSchema("RelationObservation", {
     description: "One provenance-linked, evidence-anchored observation of an extracted relation.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructs the canonical empty provenance bundle used by new graphs.
@@ -359,7 +341,7 @@ const entityObservationsDefault = A.empty<EntityObservation>();
  * @category entities
  * @since 0.0.0
  */
-export class Entity extends S.Class<Entity>($I`Entity`)(
+export class Entity extends S.Class<Entity, { readonly brand: unique symbol }>($I`Entity`)(
   {
     id: EntityId.annotateKey({
       description: "Stable snake-case identifier assigned during extraction.",
@@ -530,7 +512,7 @@ const relationObservationsDefault = A.empty<RelationObservation>();
  * @category models
  * @since 0.0.0
  */
-export class Relation extends S.Class<Relation>($I`Relation`)(
+export class Relation extends S.Class<Relation, { readonly brand: unique symbol }>($I`Relation`)(
   {
     subjectId: EntityId.annotateKey({
       description: "Entity identifier in the subject position.",
@@ -671,7 +653,7 @@ const knowledgeGraphRelationObservationsDefault = A.empty<RelationObservation>()
  * @category aggregates
  * @since 0.0.0
  */
-export class KnowledgeGraph extends S.Class<KnowledgeGraph>($I`KnowledgeGraph`)(
+export class KnowledgeGraph extends S.Class<KnowledgeGraph, { readonly brand: unique symbol }>($I`KnowledgeGraph`)(
   {
     entities: S.Array(Entity).pipe(
       S.withConstructorDefault(Effect.succeed(knowledgeGraphEntitiesDefault)), S.withDecodingDefaultType(Effect.succeed(knowledgeGraphEntitiesDefault)),

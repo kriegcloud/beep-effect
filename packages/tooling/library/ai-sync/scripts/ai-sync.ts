@@ -17,7 +17,7 @@ import { defaultRepoRoot, validateCurrentCheckoutDogfoodConfigs, validateRepoCon
 const runtimeLayer = Layer.mergeAll(NodeServices.layer, AiSyncHttpLayer);
 const $I = $AiSyncId.create("scripts/ai-sync");
 
-class AiSyncExitError extends S.TaggedError<AiSyncExitError>($I`AiSyncExitError`)(
+class AiSyncExitError extends S.TaggedError<AiSyncExitError, { readonly brand: unique symbol }>($I`AiSyncExitError`)(
   "AiSyncExitError",
   {
     exitCode: S.Finite,

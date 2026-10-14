@@ -104,16 +104,17 @@ CROSS JOIN corpus c`,
  * @category models
  * @since 0.0.0
  */
-export class ProjectionInput extends S.Class<ProjectionInput>($I`ProjectionInput`)(
-  {
+export class ProjectionInput extends S.Opaque<ProjectionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     certificates: S.Tuple([LotCertificate, LotCertificate]),
     fixtures: S.Tuple([NormalizedFixture, NormalizedFixture]),
     offers: S.Tuple([SupplierOffer, SupplierOffer]),
     rules: S.Tuple([RuleResult, RuleResult, RuleResult, RuleResult, RuleResult, RuleResult]),
-  },
-  $I.annote("ProjectionInput", {
-    description: "The normalized fixtures, cited rules, and synthetic records projected into the three local stores.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionInput", {
+      description: "The normalized fixtures, cited rules, and synthetic records projected into the three local stores.",
+    })
+  )
 ) {}
 
 /**
@@ -136,7 +137,9 @@ export class ProjectionInput extends S.Class<ProjectionInput>($I`ProjectionInput
  * @category errors
  * @since 0.0.0
  */
-export class ProjectionError extends S.TaggedError<ProjectionError>($I`ProjectionError`)(
+export class ProjectionError extends S.TaggedError<ProjectionError, { readonly brand: unique symbol }>(
+  $I`ProjectionError`
+)(
   "ProjectionError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true })),
@@ -191,14 +194,15 @@ const annotateProjectionOutcome = <A2, E2, R2>(effect: Effect.Effect<A2, E2, R2>
  * @category configuration
  * @since 0.0.0
  */
-export class ProjectionLayerOptions extends S.Class<ProjectionLayerOptions>($I`ProjectionLayerOptions`)(
-  {
+export class ProjectionLayerOptions extends S.Opaque<ProjectionLayerOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     duckDbPath: S.NonEmptyString,
     pgliteDataDir: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProjectionLayerOptions", {
-    description: "Caller-selected machine-local paths for one scoped projection layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionLayerOptions", {
+      description: "Caller-selected machine-local paths for one scoped projection layer.",
+    })
+  )
 ) {}
 
 const decodeRows = <Schema extends S.Codec<unknown>>(stage: string, schema: Schema, input: unknown) =>

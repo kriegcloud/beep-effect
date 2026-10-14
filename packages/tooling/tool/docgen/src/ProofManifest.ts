@@ -159,15 +159,16 @@ export type DocgenProofManifestStatus = typeof DocgenProofManifestStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocgenProofManifestFile extends S.Class<DocgenProofManifestFile>($I`DocgenProofManifestFile`)(
-  {
+export class DocgenProofManifestFile extends S.Opaque<DocgenProofManifestFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     sha256: Sha256Hex,
     bytes: S.Natural,
-  },
-  $I.annote("DocgenProofManifestFile", {
-    description: "File-level SHA-256 digest included in a docgen proof manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenProofManifestFile", {
+      description: "File-level SHA-256 digest included in a docgen proof manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -195,20 +196,22 @@ export class DocgenProofManifestFile extends S.Class<DocgenProofManifestFile>($I
  * @category models
  * @since 0.0.0
  */
-export class DocgenProofManifestFingerprint extends S.Class<DocgenProofManifestFingerprint>(
-  $I`DocgenProofManifestFingerprint`
-)(
-  {
+export class DocgenProofManifestFingerprint extends S.Opaque<
+  DocgenProofManifestFingerprint,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     sha256: Sha256Hex,
     inputSha256: Sha256Hex,
     outputSha256: Sha256Hex,
     inputFileCount: S.Natural,
     outputFileCount: S.Natural,
     toolVersion: S.String,
-  },
-  $I.annote("DocgenProofManifestFingerprint", {
-    description: "Package input and generated-docs fingerprint for docgen reuse.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenProofManifestFingerprint", {
+      description: "Package input and generated-docs fingerprint for docgen reuse.",
+    })
+  )
 ) {}
 
 /**
@@ -260,8 +263,8 @@ export class DocgenProofManifestFingerprint extends S.Class<DocgenProofManifestF
  * @category models
  * @since 0.0.0
  */
-export class DocgenProofManifest extends S.Class<DocgenProofManifest>($I`DocgenProofManifest`)(
-  {
+export class DocgenProofManifest extends S.Opaque<DocgenProofManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     standard: DocgenProofManifestStandard,
     schemaVersion: DocgenProofManifestSchemaVersion,
     packageName: S.String,
@@ -271,10 +274,11 @@ export class DocgenProofManifest extends S.Class<DocgenProofManifest>($I`DocgenP
     fingerprint: DocgenProofManifestFingerprint,
     inputs: S.Array(DocgenProofManifestFile),
     outputs: S.Array(DocgenProofManifestFile),
-  },
-  $I.annote("DocgenProofManifest", {
-    description: "Package-local docgen proof manifest written after successful generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenProofManifest", {
+      description: "Package-local docgen proof manifest written after successful generation.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(DocgenProofManifest));
 }
@@ -301,19 +305,21 @@ export class DocgenProofManifest extends S.Class<DocgenProofManifest>($I`DocgenP
  * @category models
  * @since 0.0.0
  */
-export class DocgenProofManifestVerification extends S.Class<DocgenProofManifestVerification>(
-  $I`DocgenProofManifestVerification`
-)(
-  {
+export class DocgenProofManifestVerification extends S.Opaque<
+  DocgenProofManifestVerification,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     packageName: S.String,
     packagePath: S.String,
     manifestPath: S.String,
     status: DocgenProofManifestStatus,
     reason: S.optionalKey(S.String),
-  },
-  $I.annote("DocgenProofManifestVerification", {
-    description: "Result of checking a package-local docgen proof manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenProofManifestVerification", {
+      description: "Result of checking a package-local docgen proof manifest.",
+    })
+  )
 ) {}
 
 const encodeUnknownJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);

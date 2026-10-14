@@ -18,7 +18,10 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { schemaIssueToError } from "./internal.ts";
 import { AllowedDevOrigin } from "./models/AllowedDevOrigin.schema.ts";
-import { defineNextConfig, NextConfig as NextConfigModel } from "./NextConfig.model.ts";
+import { TypeScriptConfig } from "./models/ConfigPrimitives.schema.ts";
+import { ExperimentalConfig } from "./models/ExperimentalConfig.schema.ts";
+import { TurbopackOptions } from "./models/Turbopack.schema.ts";
+import { defineNextConfig, NextConfig, NextConfig as NextConfigModel } from "./NextConfig.model.ts";
 import { SecureHeadersConfig, withSecureHeaders } from "./security/index.ts";
 import type { NextConfig as NextConfigFromNext } from "next";
 
@@ -84,31 +87,52 @@ const AnalyzerLogLevel = LiteralKit(["info", "warn", "error", "silent"]).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export class BeepNextConfigEnv extends S.Class<BeepNextConfigEnv>($I`BeepNextConfigEnv`)(
-  {
+export class BeepNextConfigEnv extends S.Opaque<BeepNextConfigEnv, { readonly brand: unique symbol }>()(
+  S.Struct({
     ANALYZE: optional(S.String, "Enables bundle analyzer output when set to 1."),
     NEXT_DISABLE_PWA: optional(S.String, "Keeps PWA disabled unless set to 0."),
-  },
-  $I.annote("BeepNextConfigEnv", {
-    description: "Environment snapshot understood by the shared Next.js config preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepNextConfigEnv", {
+      description: "Environment snapshot understood by the shared Next.js config preset.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(BeepNextConfigEnv);
   static readonly decodeResult = S.decodeUnknownResult(BeepNextConfigEnv);
 }
 
-class BeepNextBundleAnalyzerConfigOptions extends S.Class<BeepNextBundleAnalyzerConfigOptions>(
-  $I`BeepNextBundleAnalyzerConfigOptions`
-)(
-  {
+/**
+ * Bundle analyzer object configuration for the shared Next.js preset.
+ *
+ * **Example** (Emit a static analyzer report without opening a browser)
+ *
+ * ```ts
+ * import { BeepNextBundleAnalyzerConfig, BeepNextBundleAnalyzerConfigOptions } from "@beep/repo-configs/next"
+ * import * as S from "effect/Schema"
+ *
+ * const analyzer = BeepNextBundleAnalyzerConfigOptions.make({ enabled: true, openAnalyzer: false, analyzerMode: "static" })
+ *
+ * console.log(S.is(BeepNextBundleAnalyzerConfig)(analyzer)) // => true
+ * console.log(analyzer.analyzerMode) // => "static"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BeepNextBundleAnalyzerConfigOptions extends S.Opaque<
+  BeepNextBundleAnalyzerConfigOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     enabled: optional(S.Boolean, "Overrides the decoded ANALYZE env toggle."),
     openAnalyzer: optional(S.Boolean, "Automatically open analyzer output in a browser."),
     analyzerMode: optional(AnalyzerMode, "Bundle analyzer output mode."),
     logLevel: optional(AnalyzerLogLevel, "Bundle analyzer logging level."),
-  },
-  $I.annote("BeepNextBundleAnalyzerConfigOptions", {
-    description: "Bundle analyzer object configuration for the shared Next.js preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepNextBundleAnalyzerConfigOptions", {
+      description: "Bundle analyzer object configuration for the shared Next.js preset.",
+    })
+  )
 ) {}
 
 /**
@@ -141,8 +165,11 @@ export const BeepNextBundleAnalyzerConfig = S.Union([S.Literal(false), BeepNextB
  *
  * ```ts
  * import type { BeepNextBundleAnalyzerConfig } from "@beep/repo-configs/next"
- * const config: BeepNextBundleAnalyzerConfig = { enabled: true }
- * console.log(config)
+ * import { BeepNextBundleAnalyzerConfigOptions } from "@beep/repo-configs/next"
+ *
+ * const disabled: BeepNextBundleAnalyzerConfig = false
+ * const enabled: BeepNextBundleAnalyzerConfig = BeepNextBundleAnalyzerConfigOptions.make({ enabled: true })
+ * console.log(disabled, enabled)
  * ```
  *
  * @category models
@@ -150,18 +177,40 @@ export const BeepNextBundleAnalyzerConfig = S.Union([S.Literal(false), BeepNextB
  */
 export type BeepNextBundleAnalyzerConfig = typeof BeepNextBundleAnalyzerConfig.Type;
 
-class BeepNextMdxConfigOptions extends S.Class<BeepNextMdxConfigOptions>($I`BeepNextMdxConfigOptions`)(
-  {
+/**
+ * MDX object configuration for the shared Next.js preset.
+ *
+ * **Details**
+ *
+ * The `extension` webpack rule condition defaults to matching `.md` and `.mdx` files.
+ *
+ * **Example** (Accept the default Markdown extensions)
+ *
+ * ```ts
+ * import { BeepNextMdxConfigOptions } from "@beep/repo-configs/next"
+ *
+ * const mdx = BeepNextMdxConfigOptions.make({})
+ *
+ * console.log(mdx.extension.test("intro.mdx")) // => true
+ * console.log(mdx.extension.test("intro.tsx")) // => false
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BeepNextMdxConfigOptions extends S.Opaque<BeepNextMdxConfigOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     extension: S.RegExp.pipe(
       S.withConstructorDefault(Effect.succeed(DEFAULT_MDX_EXTENSION)),
       S.withDecodingDefaultTypeKey(Effect.succeed(DEFAULT_MDX_EXTENSION))
     ).annotateKey({
       description: "Webpack rule condition for MDX file extensions.",
     }),
-  },
-  $I.annote("BeepNextMdxConfigOptions", {
-    description: "MDX object configuration for the shared Next.js preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepNextMdxConfigOptions", {
+      description: "MDX object configuration for the shared Next.js preset.",
+    })
+  )
 ) {}
 
 /**
@@ -192,11 +241,16 @@ export const BeepNextMdxConfig = S.Union([S.Literal(false), BeepNextMdxConfigOpt
  * **Example** (Typing MDX extension config)
  *
  * ```ts
+ * import { strictEqual } from "node:assert/strict"
  * import type { BeepNextMdxConfig } from "@beep/repo-configs/next"
- * const config: BeepNextMdxConfig = {
- *   extension: /\.(md|mdx)$/
- * }
- * console.log(config)
+ * import { BeepNextMdxConfigOptions } from "@beep/repo-configs/next"
+ *
+ * const options = BeepNextMdxConfigOptions.make({})
+ * const disabled: BeepNextMdxConfig = false
+ * const enabled: BeepNextMdxConfig = options
+ *
+ * strictEqual(options.extension.test("page.mdx"), true)
+ * console.log(disabled, enabled)
  * ```
  *
  * @category models
@@ -204,8 +258,28 @@ export const BeepNextMdxConfig = S.Union([S.Literal(false), BeepNextMdxConfigOpt
  */
 export type BeepNextMdxConfig = typeof BeepNextMdxConfig.Type;
 
-class BeepNextPwaConfigOptions extends S.Class<BeepNextPwaConfigOptions>($I`BeepNextPwaConfigOptions`)(
-  {
+/**
+ * PWA (serwist) object configuration for the shared Next.js preset.
+ *
+ * **Details**
+ *
+ * `swSrc` defaults to `src/app/sw.ts` and `swDest` to `public/sw.js`.
+ *
+ * **Example** (Enable the service worker with default paths)
+ *
+ * ```ts
+ * import { BeepNextPwaConfigOptions } from "@beep/repo-configs/next"
+ *
+ * const pwa = BeepNextPwaConfigOptions.make({ enabled: true, reloadOnOnline: true })
+ *
+ * console.log([pwa.swSrc, pwa.swDest]) // => ["src/app/sw.ts", "public/sw.js"]
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BeepNextPwaConfigOptions extends S.Opaque<BeepNextPwaConfigOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     enabled: optional(S.Boolean, "Overrides the decoded NEXT_DISABLE_PWA env toggle."),
     swSrc: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("src/app/sw.ts")),
@@ -222,10 +296,11 @@ class BeepNextPwaConfigOptions extends S.Class<BeepNextPwaConfigOptions>($I`Beep
     register: optional(S.Boolean, "Whether serwist auto-registers the generated service worker."),
     cacheOnNavigation: optional(S.Boolean, "Cache additional routes on next/link navigation (serwist)."),
     reloadOnOnline: optional(S.Boolean, "Reload the app when the browser comes back online (serwist)."),
-  },
-  $I.annote("BeepNextPwaConfigOptions", {
-    description: "PWA (serwist) object configuration for the shared Next.js preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepNextPwaConfigOptions", {
+      description: "PWA (serwist) object configuration for the shared Next.js preset.",
+    })
+  )
 ) {}
 
 /**
@@ -262,13 +337,13 @@ export const BeepNextPwaConfig = S.Union([S.Literal(false), BeepNextPwaConfigOpt
  * **Example** (Typing disabled PWA config)
  *
  * ```ts
- * import type { BeepNextPwaConfig } from "@beep/repo-configs/next"
- * const config: BeepNextPwaConfig = {
- *   enabled: false,
- *   swSrc: "src/app/sw.ts",
- *   swDest: "public/sw.js"
- * }
- * console.log(config)
+ * import { strictEqual } from "node:assert/strict"
+ * import { BeepNextPwaConfigOptions } from "@beep/repo-configs/next"
+ *
+ * const config = BeepNextPwaConfigOptions.make({ enabled: false })
+ *
+ * strictEqual(config.swSrc, "src/app/sw.ts")
+ * strictEqual(config.swDest, "public/sw.js")
  * ```
  *
  * @category models
@@ -295,8 +370,8 @@ export type BeepNextPwaConfig = typeof BeepNextPwaConfig.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class BeepNextConfigOptions extends S.Class<BeepNextConfigOptions>($I`BeepNextConfigOptions`)(
-  {
+export class BeepNextConfigOptions extends S.Opaque<BeepNextConfigOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.String.annotateKey({
       description: "Absolute repository root used for tracing and Turbopack roots.",
     }),
@@ -314,10 +389,11 @@ export class BeepNextConfigOptions extends S.Class<BeepNextConfigOptions>($I`Bee
     pwa: optional(BeepNextPwaConfig, "PWA feature configuration."),
     bundleAnalyzer: optional(BeepNextBundleAnalyzerConfig, "Bundle analyzer feature configuration."),
     next: optional(NextConfigModel, "Raw Next.js config overrides merged with the shared preset."),
-  },
-  $I.annote("BeepNextConfigOptions", {
-    description: "Input options for the shared repo-owned Next.js config preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepNextConfigOptions", {
+      description: "Input options for the shared repo-owned Next.js config preset.",
+    })
+  )
 ) {
   static readonly decodeResult = S.decodeUnknownResult(BeepNextConfigOptions);
 }
@@ -387,7 +463,7 @@ type MdxFeatureConfig = Exclude<BeepNextMdxConfig, false>;
 type PwaFeatureConfig = Exclude<BeepNextPwaConfig, false>;
 type SerwistNextConfigPlugin = ReturnType<typeof withSerwistInit>;
 
-const emptyBundleAnalyzerConfig: BundleAnalyzerFeatureConfig = {};
+const emptyBundleAnalyzerConfig: BundleAnalyzerFeatureConfig = BeepNextBundleAnalyzerConfigOptions.make({});
 const emptyMdxConfig: MdxFeatureConfig = BeepNextMdxConfigOptions.make({});
 const emptyPwaConfig: PwaFeatureConfig = BeepNextPwaConfigOptions.make({});
 
@@ -464,10 +540,10 @@ const makePlugins = (options: BeepNextConfigOptions): ReadonlyArray<NextConfigPl
   pipe(A.make(makeMdxPlugin(options), makePwaPlugin(options), makeBundleAnalyzerPlugin(options)), A.getSomes);
 
 const makeBaseConfig = (options: BeepNextConfigOptions): NextConfigFromNext => {
-  const next = withDefault(options.next, {});
-  const experimental = withDefault(next.experimental, {});
-  const turbopack = withDefault(next.turbopack, {});
-  const typescript = withDefault(next.typescript, {});
+  const next = withDefault(options.next, NextConfig.make({}));
+  const experimental = withDefault(next.experimental, ExperimentalConfig.make({}));
+  const turbopack = withDefault(next.turbopack, TurbopackOptions.make({}));
+  const typescript = withDefault(next.typescript, TypeScriptConfig.make({}));
 
   return defineNextConfig({
     ...next,

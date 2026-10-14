@@ -243,8 +243,7 @@ const SentenceOverlap = S.Natural.check(
  * @category models
  * @since 0.0.0
  */
-export class ChunkingParams extends S.Class<ChunkingParams>($I`ChunkingParams`)(
-  {
+export class ChunkingParams extends S.Opaque<ChunkingParams, { readonly brand: unique symbol }>()(S.Struct({
     chunkSize: ChunkSize.annotateKey({
       description: "Target chunk size in characters.",
     }),
@@ -257,11 +256,9 @@ export class ChunkingParams extends S.Class<ChunkingParams>($I`ChunkingParams`)(
         description: "Whether chunks preserve sentence boundaries; defaults to true.",
       })
     ),
-  },
-  $I.annote("ChunkingParams", {
+  }).pipe($I.annoteSchema("ChunkingParams", {
     description: "Bounded chunk-size and sentence-overlap parameters with an explicit boundary-preservation default.",
-  })
-) {
+  }))) {
   static readonly is = S.is(ChunkingParams);
 }
 
@@ -357,8 +354,7 @@ const preprocessingOptionsClassificationBatchSizeDefault = ClassificationBatchSi
  * @category configuration
  * @since 0.0.0
  */
-export class PreprocessingOptions extends S.Class<PreprocessingOptions>($I`PreprocessingOptions`)(
-  {
+export class PreprocessingOptions extends S.Opaque<PreprocessingOptions, { readonly brand: unique symbol }>()(S.Struct({
     enabled: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true))),
     classifyDocuments: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true))),
     adaptiveChunking: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true))),
@@ -367,12 +363,10 @@ export class PreprocessingOptions extends S.Class<PreprocessingOptions>($I`Prepr
     classificationBatchSize: ClassificationBatchSize.pipe(
       S.withConstructorDefault(Effect.succeed(preprocessingOptionsClassificationBatchSizeDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(preprocessingOptionsClassificationBatchSizeDefault))
     ),
-  },
-  $I.annote("PreprocessingOptions", {
+  }).pipe($I.annoteSchema("PreprocessingOptions", {
     description:
       "Complete preprocessing feature controls with schema-owned defaults and an Option-normalized override.",
-  })
-) {
+  }))) {
   static readonly is = S.is(PreprocessingOptions);
 }
 
@@ -552,8 +546,7 @@ const documentMetadataDomainTagsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class DocumentMetadata extends S.Class<DocumentMetadata>($I`DocumentMetadata`)(
-  {
+export class DocumentMetadata extends S.Opaque<DocumentMetadata, { readonly brand: unique symbol }>()(S.Struct({
     documentId: DocumentId,
     sourceUri: GcsUri,
     contentType: MimeType,
@@ -574,11 +567,9 @@ export class DocumentMetadata extends S.Class<DocumentMetadata>($I`DocumentMetad
     suggestedOverlap: SentenceOverlap,
     priority: S.Natural,
     estimatedExtractionCost: S.Natural,
-  },
-  $I.annote("DocumentMetadata", {
+  }).pipe($I.annoteSchema("DocumentMetadata", {
     description: "Validated source, temporal, classification, chunking, and scheduling metadata for one document.",
-  })
-) {
+  }))) {
   static readonly is = S.is(DocumentMetadata);
 
   /**
@@ -694,8 +685,7 @@ export class DocumentMetadata extends S.Class<DocumentMetadata>($I`DocumentMetad
  * @category models
  * @since 0.0.0
  */
-export class PreprocessingStats extends S.Class<PreprocessingStats>($I`PreprocessingStats`)(
-  {
+export class PreprocessingStats extends S.Opaque<PreprocessingStats, { readonly brand: unique symbol }>()(S.Struct({
     totalDocuments: S.Natural,
     classifiedCount: S.Natural,
     failedCount: S.Natural,
@@ -703,11 +693,9 @@ export class PreprocessingStats extends S.Class<PreprocessingStats>($I`Preproces
     preprocessingDurationMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     averageComplexity: ComplexityScore,
     documentTypeDistribution: S.Record(S.String, S.Natural),
-  },
-  $I.annote("PreprocessingStats", {
+  }).pipe($I.annoteSchema("PreprocessingStats", {
     description: "Non-negative aggregate counts, token estimate, duration, complexity, and type distribution.",
-  })
-) {
+  }))) {
   static readonly is = S.is(PreprocessingStats);
 }
 
@@ -744,8 +732,7 @@ const enrichedManifestDocumentsDefault = A.empty<DocumentMetadata>();
  * @category models
  * @since 0.0.0
  */
-export class EnrichedManifest extends S.Class<EnrichedManifest>($I`EnrichedManifest`)(
-  {
+export class EnrichedManifest extends S.Opaque<EnrichedManifest, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId,
     ontologyUri: GcsUri,
     ontologyVersion: OntologyVersion,
@@ -755,11 +742,9 @@ export class EnrichedManifest extends S.Class<EnrichedManifest>($I`EnrichedManif
     createdAt: S.DateTimeUtcFromString,
     preprocessedAt: S.DateTimeUtcFromString,
     preprocessingStats: PreprocessingStats,
-  },
-  $I.annote("EnrichedManifest", {
+  }).pipe($I.annoteSchema("EnrichedManifest", {
     description: "Versioned batch manifest containing normalized document metadata and preprocessing statistics.",
-  })
-) {
+  }))) {
   static readonly decodeFromString = S.decodeEffect(S.fromJsonString(this));
 
   static readonly encodeEffectFromJsonStringFormatted = S.encodeEffect(
@@ -793,16 +778,13 @@ export class EnrichedManifest extends S.Class<EnrichedManifest>($I`EnrichedManif
  * @category dtos
  * @since 0.0.0
  */
-export class PreprocessingActivityInput extends S.Class<PreprocessingActivityInput>($I`PreprocessingActivityInput`)(
-  {
+export class PreprocessingActivityInput extends S.Opaque<PreprocessingActivityInput, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId,
     manifestUri: GcsUri,
     preprocessing: PreprocessingOptions.pipe(S.withConstructorDefault(Effect.succeed(defaultPreprocessingOptions)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultPreprocessingOptions))),
-  },
-  $I.annote("PreprocessingActivityInput", {
+  }).pipe($I.annoteSchema("PreprocessingActivityInput", {
     description: "Preprocessing activity input with a complete schema-defaulted configuration.",
-  })
-) {}
+  }))) {}
 
 /**
  * Output produced by the document-preprocessing activity.
@@ -832,13 +814,10 @@ export class PreprocessingActivityInput extends S.Class<PreprocessingActivityInp
  * @category dtos
  * @since 0.0.0
  */
-export class PreprocessingActivityOutput extends S.Class<PreprocessingActivityOutput>($I`PreprocessingActivityOutput`)(
-  {
+export class PreprocessingActivityOutput extends S.Opaque<PreprocessingActivityOutput, { readonly brand: unique symbol }>()(S.Struct({
     enrichedManifestUri: GcsUri,
     stats: PreprocessingStats,
     durationMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("PreprocessingActivityOutput", {
+  }).pipe($I.annoteSchema("PreprocessingActivityOutput", {
     description: "Preprocessing activity output with its enriched manifest location, statistics, and finite duration.",
-  })
-) {}
+  }))) {}

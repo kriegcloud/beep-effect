@@ -96,14 +96,15 @@ const SymlinkTargetPath = RelativePlanPath.pipe(
  * @category models
  * @since 0.0.0
  */
-export class PlannedFile extends S.Class<PlannedFile>($I`PlannedFile`)(
-  {
+export class PlannedFile extends S.Opaque<PlannedFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     relativePath: RelativePlanPath,
     content: S.String,
-  },
-  $I.annote("PlannedFile", {
-    description: "A file write operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PlannedFile", {
+      description: "A file write operation.",
+    })
+  )
 ) {}
 
 /**
@@ -128,14 +129,15 @@ export class PlannedFile extends S.Class<PlannedFile>($I`PlannedFile`)(
  * @category models
  * @since 0.0.0
  */
-export class PlannedAsset extends S.Class<PlannedAsset>($I`PlannedAsset`)(
-  {
+export class PlannedAsset extends S.Opaque<PlannedAsset, { readonly brand: unique symbol }>()(
+  S.Struct({
     relativePath: RelativePlanPath,
     sourcePath: S.String,
-  },
-  $I.annote("PlannedAsset", {
-    description: "A verbatim asset copy operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PlannedAsset", {
+      description: "A verbatim asset copy operation.",
+    })
+  )
 ) {}
 
 /**
@@ -154,14 +156,15 @@ export class PlannedAsset extends S.Class<PlannedAsset>($I`PlannedAsset`)(
  * @category models
  * @since 0.0.0
  */
-export class PlannedSymlink extends S.Class<PlannedSymlink>($I`PlannedSymlink`)(
-  {
+export class PlannedSymlink extends S.Opaque<PlannedSymlink, { readonly brand: unique symbol }>()(
+  S.Struct({
     relativePath: RelativePlanPath,
     target: SymlinkTargetPath,
-  },
-  $I.annote("PlannedSymlink", {
-    description: "A symlink operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("PlannedSymlink", {
+      description: "A symlink operation.",
+    })
+  )
 ) {}
 
 const fileGenerationPlanInputAssetsDefault = A.empty<PlannedAsset>();
@@ -182,8 +185,8 @@ const fileGenerationPlanInputSymlinksDefault = A.empty<PlannedSymlink>();
  * @category models
  * @since 0.0.0
  */
-export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I`FileGenerationPlanInput`)(
-  {
+export class FileGenerationPlanInput extends S.Opaque<FileGenerationPlanInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputDir: S.String,
     directories: S.Array(RelativePlanPath),
     files: S.Array(PlannedFile),
@@ -197,10 +200,11 @@ export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I
       S.withConstructorDefault(Effect.succeed(fileGenerationPlanInputSymlinksDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(fileGenerationPlanInputSymlinksDefault))
     ),
-  },
-  $I.annote("FileGenerationPlanInput", {
-    description: "Input payload used to create a generation plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("FileGenerationPlanInput", {
+      description: "Input payload used to create a generation plan.",
+    })
+  )
 ) {}
 
 /**
@@ -232,47 +236,51 @@ export const GenerationActionKind = LiteralKit(["mkdir", "write-file", "copy-ass
  */
 export type GenerationActionKind = typeof GenerationActionKind.Type;
 
-class GenerationActionMkdir extends S.Class<GenerationActionMkdir>($I`GenerationActionMkdir`)(
-  {
+class GenerationActionMkdir extends S.Opaque<GenerationActionMkdir, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("mkdir"),
     relativePath: RelativePlanPath,
-  },
-  $I.annote("GenerationActionMkdir", {
-    description: "Directory creation action.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerationActionMkdir", {
+      description: "Directory creation action.",
+    })
+  )
 ) {}
 
-class GenerationActionWriteFile extends S.Class<GenerationActionWriteFile>($I`GenerationActionWriteFile`)(
-  {
+class GenerationActionWriteFile extends S.Opaque<GenerationActionWriteFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("write-file"),
     relativePath: RelativePlanPath,
     content: S.String,
-  },
-  $I.annote("GenerationActionWriteFile", {
-    description: "File write action.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerationActionWriteFile", {
+      description: "File write action.",
+    })
+  )
 ) {}
 
-class GenerationActionCopyAsset extends S.Class<GenerationActionCopyAsset>($I`GenerationActionCopyAsset`)(
-  {
+class GenerationActionCopyAsset extends S.Opaque<GenerationActionCopyAsset, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("copy-asset"),
     relativePath: RelativePlanPath,
     sourcePath: S.String,
-  },
-  $I.annote("GenerationActionCopyAsset", {
-    description: "Verbatim asset copy action.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerationActionCopyAsset", {
+      description: "Verbatim asset copy action.",
+    })
+  )
 ) {}
 
-class GenerationActionSymlink extends S.Class<GenerationActionSymlink>($I`GenerationActionSymlink`)(
-  {
+class GenerationActionSymlink extends S.Opaque<GenerationActionSymlink, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("symlink"),
     relativePath: RelativePlanPath,
     target: SymlinkTargetPath,
-  },
-  $I.annote("GenerationActionSymlink", {
-    description: "Symlink creation action.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerationActionSymlink", {
+      description: "Symlink creation action.",
+    })
+  )
 ) {}
 
 /**
@@ -337,14 +345,15 @@ export type GenerationAction = typeof GenerationAction.Type;
  * @category models
  * @since 0.0.0
  */
-export class FileGenerationPlan extends S.Class<FileGenerationPlan>($I`FileGenerationPlan`)(
-  {
+export class FileGenerationPlan extends S.Opaque<FileGenerationPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputDir: S.String,
     actions: S.Array(GenerationAction),
-  },
-  $I.annote("FileGenerationPlan", {
-    description: "Deterministic generation plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("FileGenerationPlan", {
+      description: "Deterministic generation plan.",
+    })
+  )
 ) {}
 
 /**
@@ -363,19 +372,21 @@ export class FileGenerationPlan extends S.Class<FileGenerationPlan>($I`FileGener
  * @category models
  * @since 0.0.0
  */
-export class FileGenerationExecutionResult extends S.Class<FileGenerationExecutionResult>(
-  $I`FileGenerationExecutionResult`
-)(
-  {
+export class FileGenerationExecutionResult extends S.Opaque<
+  FileGenerationExecutionResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     createdDirectories: S.Finite,
     writtenFiles: S.Finite,
     skippedFileWrites: S.Finite,
     createdSymlinks: S.Finite,
     skippedSymlinks: S.Finite,
-  },
-  $I.annote("FileGenerationExecutionResult", {
-    description: "Execution report for a plan run.",
-  })
+  }).pipe(
+    $I.annoteSchema("FileGenerationExecutionResult", {
+      description: "Execution report for a plan run.",
+    })
+  )
 ) {}
 
 /**

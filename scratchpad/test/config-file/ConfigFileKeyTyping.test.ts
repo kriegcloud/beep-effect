@@ -10,7 +10,7 @@ import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
 import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
 import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
 
-class Settings extends S.Class<Settings>("Settings")({ port: S.Finite }) {}
+class Settings extends S.Class<Settings, { readonly brand: unique symbol }>("Settings")({ port: S.Finite }) {}
 type SettingsEncoded = typeof Settings.Encoded;
 class SettingsFile extends ConfigFile.Service<SettingsFile, Settings>()("key-typing/SettingsFile") {}
 // A key over a WIDER shape: the layer could never supply `extra`.
@@ -21,7 +21,7 @@ class WiderFile extends Context.Service<WiderFile, ConfigFileShape<Settings> & {
 // The downstream regression shape: optional fields and a bare `firstMatch()`, whose
 // `A` comes only from the call's context. The tag must keep `A` inferable, or it
 // falls to `unknown` and the correctly shaped key below is rejected.
-class Optional extends S.Class<Optional>("Optional")({
+class Optional extends S.Class<Optional, { readonly brand: unique symbol }>("Optional")({
 	cacheDir: S.optional(S.String),
 	projectKey: S.optional(S.String),
 }) {}

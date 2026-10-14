@@ -75,8 +75,7 @@ const mentionRecordAttributesDefault = {};
  * @category entities
  * @since 0.0.0
  */
-export class MentionRecord extends S.TaggedClass<MentionRecord>($I`MentionRecord`)(
-  "MentionRecord",
+export class MentionRecord extends S.Opaque<MentionRecord, { readonly brand: unique symbol }>()(S.TaggedStruct("MentionRecord",
   {
     id: EntityId.annotateKey({
       description: "Identifier assigned by the original extraction event.",
@@ -98,11 +97,9 @@ export class MentionRecord extends S.TaggedClass<MentionRecord>($I`MentionRecord
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Extraction confidence when measured." })
     ),
-  },
-  $I.annote("MentionRecord", {
+  }).pipe($I.annoteSchema("MentionRecord", {
     description: "Immutable extraction-evidence node with chunk provenance.",
-  })
-) {
+  }))) {
   /** Schema-derived mention-record guard. */
   static readonly is = S.is(MentionRecord);
 }
@@ -130,8 +127,7 @@ const resolvedEntityExternalIdsDefault = {};
  * @category entities
  * @since 0.0.0
  */
-export class ResolvedEntity extends S.TaggedClass<ResolvedEntity>($I`ResolvedEntity`)(
-  "ResolvedEntity",
+export class ResolvedEntity extends S.Opaque<ResolvedEntity, { readonly brand: unique symbol }>()(S.TaggedStruct("ResolvedEntity",
   {
     canonicalId: EntityId.annotateKey({
       description: "Stable canonical identifier assigned to the resolved cluster.",
@@ -150,11 +146,9 @@ export class ResolvedEntity extends S.TaggedClass<ResolvedEntity>($I`ResolvedEnt
       S.withConstructorDefault(Effect.succeed(resolvedEntityExternalIdsDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(resolvedEntityExternalIdsDefault)),
       S.annotateKey({ description: "External knowledge-base identifiers by namespace." })
     ),
-  },
-  $I.annote("ResolvedEntity", {
+  }).pipe($I.annoteSchema("ResolvedEntity", {
     description: "Canonical entity aggregating one or more immutable mention records.",
-  })
-) {
+  }))) {
   /** Schema-derived resolved-entity guard. */
   static readonly is = S.is(ResolvedEntity);
 }
@@ -215,8 +209,7 @@ export type ERNode = typeof ERNode.Type;
  * @category models
  * @since 0.0.0
  */
-export class ResolutionEdge extends S.TaggedClass<ResolutionEdge>($I`ResolutionEdge`)(
-  "ResolutionEdge",
+export class ResolutionEdge extends S.Opaque<ResolutionEdge, { readonly brand: unique symbol }>()(S.TaggedStruct("ResolutionEdge",
   {
     confidence: Confidence.annotateKey({
       description: "Similarity or resolution confidence that justified the edge.",
@@ -224,11 +217,9 @@ export class ResolutionEdge extends S.TaggedClass<ResolutionEdge>($I`ResolutionE
     method: ResolutionMethod.annotateKey({
       description: "Evidence strategy that justified the edge.",
     }),
-  },
-  $I.annote("ResolutionEdge", {
+  }).pipe($I.annoteSchema("ResolutionEdge", {
     description: "Resolution evidence connecting one mention record to a canonical entity.",
-  })
-) {}
+  }))) {}
 
 /**
  * Ontology relation edge between two canonical entities.
@@ -248,8 +239,7 @@ export class ResolutionEdge extends S.TaggedClass<ResolutionEdge>($I`ResolutionE
  * @category models
  * @since 0.0.0
  */
-export class RelationEdge extends S.TaggedClass<RelationEdge>($I`RelationEdge`)(
-  "RelationEdge",
+export class RelationEdge extends S.Opaque<RelationEdge, { readonly brand: unique symbol }>()(S.TaggedStruct("RelationEdge",
   {
     predicate: IRI.annotateKey({
       description: "Ontology property IRI relating two canonical entities.",
@@ -262,11 +252,9 @@ export class RelationEdge extends S.TaggedClass<RelationEdge>($I`RelationEdge`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Grounding confidence when verification was performed." })
     ),
-  },
-  $I.annote("RelationEdge", {
+  }).pipe($I.annoteSchema("RelationEdge", {
     description: "Ontology relation between two canonical resolved entities.",
-  })
-) {}
+  }))) {}
 
 const EREdgeDefinition = S.Union([ResolutionEdge, RelationEdge]).pipe(S.toTaggedUnion("_tag"));
 
@@ -329,8 +317,7 @@ const entityResolutionConfigTypeOverlapRatioDefault = UnitInterval.make(0.5);
  * @category configuration
  * @since 0.0.0
  */
-export class EntityResolutionConfig extends S.Class<EntityResolutionConfig>($I`EntityResolutionConfig`)(
-  {
+export class EntityResolutionConfig extends S.Opaque<EntityResolutionConfig, { readonly brand: unique symbol }>()(S.Struct({
     similarityThreshold: UnitInterval.pipe(
       S.withConstructorDefault(Effect.succeed(entityResolutionConfigSimilarityThresholdDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(entityResolutionConfigSimilarityThresholdDefault)),
       S.annotateKey({ description: "Minimum overall score accepted for clustering." })
@@ -359,11 +346,9 @@ export class EntityResolutionConfig extends S.Class<EntityResolutionConfig>($I`E
       S.withConstructorDefault(Effect.succeed(entityResolutionConfigTypeOverlapRatioDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(entityResolutionConfigTypeOverlapRatioDefault)),
       S.annotateKey({ description: "Minimum type-overlap ratio when overlap is required." })
     ),
-  },
-  $I.annote("EntityResolutionConfig", {
+  }).pipe($I.annoteSchema("EntityResolutionConfig", {
     description: "Schema-defaulted policy controlling entity clustering and similarity evidence.",
-  })
-) {
+  }))) {
   /**
    * Constructs the canonical default entity-resolution policy.
    *

@@ -34,14 +34,15 @@ const EFFECT_SMOL_SNAPSHOT_PATTERN = /^https:\/\/pkg\.pr\.new\/Effect-TS\/effect
 const LOCKSTEP_EFFECT_PACKAGE_PREFIX = "@effect/";
 const NON_LOCKSTEP_EFFECT_PACKAGES = ["@effect/markdown-toc", "@effect/tsgo"] as const;
 
-class EffectCatalogPackage extends S.Class<EffectCatalogPackage>($I`EffectCatalogPackage`)(
-  {
+class EffectCatalogPackage extends S.Opaque<EffectCatalogPackage, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     versionSpecifier: S.String,
-  },
-  $I.annote("EffectCatalogPackage", {
-    description: "Tracked Effect catalog dependency and its version specifier.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectCatalogPackage", {
+      description: "Tracked Effect catalog dependency and its version specifier.",
+    })
+  )
 ) {}
 
 /**
@@ -50,8 +51,8 @@ class EffectCatalogPackage extends S.Class<EffectCatalogPackage>($I`EffectCatalo
  * @category models
  * @since 0.0.0
  */
-export class EffectCatalogState extends S.Class<EffectCatalogState>($I`EffectCatalogState`)(
-  {
+export class EffectCatalogState extends S.Opaque<EffectCatalogState, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalSpecifier: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefault(Effect.succeed(""))
@@ -60,10 +61,11 @@ export class EffectCatalogState extends S.Class<EffectCatalogState>($I`EffectCat
       S.withConstructorDefault(Effect.succeed(A.empty<EffectCatalogPackage>())),
       S.withDecodingDefault(Effect.succeed(A.empty<EffectCatalogPackage>()))
     ),
-  },
-  $I.annote("EffectCatalogState", {
-    description: "Resolved lockstep Effect catalog dependency state from the root package.json.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectCatalogState", {
+      description: "Resolved lockstep Effect catalog dependency state from the root package.json.",
+    })
+  )
 ) {}
 
 type VersionSpecifierParts = {
