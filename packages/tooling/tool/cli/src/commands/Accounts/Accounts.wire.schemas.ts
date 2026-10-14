@@ -836,3 +836,184 @@ export class JunieAuthTestBody extends S.Class<JunieAuthTestBody>($I`JunieAuthTe
  * @since 0.0.0
  */
 export const JunieAuthTestBodyJson = JsonStringCodec(JunieAuthTestBody);
+
+const JunieAmount = S.Struct({ amount: S.Union([S.Finite, S.FiniteFromString]) });
+const JunieQuotaPool = S.Struct({
+  current: JunieAmount.pipe(S.OptionFromOptionalKey),
+  maximum: JunieAmount.pipe(S.OptionFromOptionalKey),
+  available: JunieAmount.pipe(S.OptionFromOptionalKey),
+});
+
+/**
+ * Enabled JetBrains license options; identifiers remain redacted.
+ *
+ * **Example** (Reject malformed JSON)
+ *
+ * ```ts
+ * import { JunieAccessOptionsBodyJson } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(JunieAccessOptionsBodyJson.decodeOption("not-json"))) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class JunieAccessOptionsBody extends S.Class<JunieAccessOptionsBody>($I`JunieAccessOptionsBody`)(
+  {
+    aiAccessOptions: S.Array(
+      S.Struct({
+        type: S.String,
+        aiAccessEnabled: S.Boolean,
+        code: S.String.pipe(S.OptionFromOptionalKey),
+        licenseId: S.NonEmptyString.pipe(S.RedactedFromValue),
+        validThrough: S.String.pipe(S.OptionFromOptionalKey),
+      })
+    ),
+  },
+  $I.annote("JunieAccessOptionsBody", {
+    description: "Enabled JetBrains license options; identifiers remain redacted.",
+  })
+) {}
+
+/**
+ * JSON codec for {@link JunieAccessOptionsBody}.
+ *
+ * **Example** (Reject malformed JSON)
+ *
+ * ```ts
+ * import { JunieAccessOptionsBodyJson } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(JunieAccessOptionsBodyJson.decodeOption("not-json"))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const JunieAccessOptionsBodyJson = JsonStringCodec(JunieAccessOptionsBody);
+
+/**
+ * The in-memory Grazie exchange token.
+ *
+ * **Example** (Reject malformed JSON)
+ *
+ * ```ts
+ * import { JunieExchangeBodyJson } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(JunieExchangeBodyJson.decodeOption("not-json"))) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class JunieExchangeBody extends S.Class<JunieExchangeBody>($I`JunieExchangeBody`)(
+  { token: S.NonEmptyString.pipe(S.RedactedFromValue) },
+  $I.annote("JunieExchangeBody", { description: "The in-memory Grazie exchange token." })
+) {}
+
+/**
+ * JSON codec for {@link JunieExchangeBody}.
+ *
+ * **Example** (Reject malformed JSON)
+ *
+ * ```ts
+ * import { JunieExchangeBodyJson } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(JunieExchangeBodyJson.decodeOption("not-json"))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const JunieExchangeBodyJson = JsonStringCodec(JunieExchangeBody);
+
+/**
+ * Tariff and top-up quota amounts in JetBrains wire units.
+ *
+ * **Example** (Reject malformed JSON)
+ *
+ * ```ts
+ * import { JunieQuotaBodyJson } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(JunieQuotaBodyJson.decodeOption("not-json"))) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class JunieQuotaBody extends S.Class<JunieQuotaBody>($I`JunieQuotaBody`)(
+  {
+    current: S.Struct({
+      current: JunieAmount.pipe(S.OptionFromOptionalKey),
+      maximum: JunieAmount.pipe(S.OptionFromOptionalKey),
+      until: S.Finite.pipe(S.OptionFromOptionalKey),
+      tariffQuota: JunieQuotaPool.pipe(S.OptionFromOptionalKey),
+      topUpQuota: JunieQuotaPool.pipe(S.OptionFromOptionalKey),
+    }),
+  },
+  $I.annote("JunieQuotaBody", { description: "Tariff and top-up quota amounts in JetBrains wire units." })
+) {}
+
+/**
+ * JSON codec for {@link JunieQuotaBody}.
+ *
+ * **Example** (Reject malformed JSON)
+ *
+ * ```ts
+ * import { JunieQuotaBodyJson } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(JunieQuotaBodyJson.decodeOption("not-json"))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const JunieQuotaBodyJson = JsonStringCodec(JunieQuotaBody);
+
+/**
+ * Cycle refill metadata; next is an epoch millisecond timestamp.
+ *
+ * **Example** (Reject malformed JSON)
+ *
+ * ```ts
+ * import { JunieRefillBodyJson } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(JunieRefillBodyJson.decodeOption("not-json"))) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class JunieRefillBody extends S.Class<JunieRefillBody>($I`JunieRefillBody`)(
+  {
+    current: S.Struct({
+      tariff: S.Struct({ amount: JunieAmount, period: S.Struct({ millis: S.Finite }) }).pipe(S.OptionFromOptionalKey),
+      next: S.Finite.pipe(S.OptionFromOptionalKey),
+      last: S.Finite.pipe(S.OptionFromOptionalKey),
+    }),
+  },
+  $I.annote("JunieRefillBody", { description: "Cycle refill metadata; next is an epoch millisecond timestamp." })
+) {}
+
+/**
+ * JSON codec for {@link JunieRefillBody}.
+ *
+ * **Example** (Reject malformed JSON)
+ *
+ * ```ts
+ * import { JunieRefillBodyJson } from "@beep/repo-cli/test/Accounts"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(JunieRefillBodyJson.decodeOption("not-json"))) // true
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const JunieRefillBodyJson = JsonStringCodec(JunieRefillBody);
