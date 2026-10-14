@@ -168,3 +168,38 @@ Fresh coverage is active against the committed packet state. No accepted
 coverage or final publication claim is made yet. The pending coverage
 result and inherited knowledge observations remain explicit in the report.
 All real sandbox, schema, doctest, JSDoc and fallow checks already passed.
+
+
+## Final coverage and hosted attribution
+
+Fresh scoped coverage passed 6,197 tests across 307 files in 2,417.88 seconds.
+Package percentages L/S/B/F: 87.05/86.72/79.24/83.85, above baseline
+85.11/84.91/76.56/81.10. Restoration schemas remain 100% in every metric;
+transformations L/S/B/F remain 99.93/99.94/99.87/100, with one uncovered
+line/statement/branch and zero uncovered functions, exactly the file baseline.
+Global uncovered counts grew outside these changes (+975 lines, +1,226
+statements, +864 branches, +507 functions); no zero-growth claim is made
+for the entire expanded CLI.
+
+Hosted failed-job logs were read immediately through the job API.
+Lint Policy: fourteen inherited host-path rows and nine JSDoc warnings in
+TsNativeApi and DiffLines. Coverage Regression: sixteen inherited rows
+across AccountsUsage, RetiredEffectPaths and seven Skills surfaces. All
+reported files match the merge base. No red names a Corpus source file.
+The orchestrator owns consolidated inherited repair; no other packet,
+source area or CI policy is altered. The ready exact head has zero threads.
+Final-file watcher armed the gate; this worker never merges. Its monitor
+was cancelled for orchestrator handoff, termination confirmed and receipt
+acknowledged. Initial cancellation lacked the user bus environment; the
+canonical runtime/bus environment succeeded on retry. No corpus side effect.
+
+## Final report
+
+lane: corpus-restore
+head: 28b828ada199415fadbfbfd3af65ee0ef28fa3a2 (exact published PR head)
+PR(s): #1731 OPEN, ready for review; #1718 MERGED
+package-verify: @beep/repo-cli: pass (default audit 1,257.9 s and docgen 45.4 s; final quick lint/check pass after test-only corrections; restoration production inputs unchanged)
+hosted-parity: test-tsgo pass | docgen local pass | jsdoc-ratchet pass | knowledge refs fail, inherited (11 local observations; 14 hosted observations in untouched files) | fallow audit+health pass | scoped coverage pass: 6,197 tests in 307 files, L/S/B/F 87.05/86.72/79.24/83.85; both changed production files match their per-file baseline, with no added uncovered units
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-14.md
+open items: Orchestrator gates #1731 at S11; final file armed at 2026-10-14T13:03:02Z from line "1731 28b828ada1 2026-10-14T13:02:54Z Recovery engine fix". Complete thread read: zero threads, no missing page. Hosted Heavy/Lint Policy is inherited: 14 host-path observations and nine JSDoc warnings. Hosted Heavy/Coverage Regression is inherited: 16 rows in nine non-Corpus files; each affected file matches the merge base. Vercel build-rate-limit rows are environment-only and acknowledged. Hosted readiness/review-window completion and merge are not claimed. The worker monitor is inactive and its final receipt acknowledged; no worker-owned unit remains running. After actual merge, integrate main and create complete new freeze records before the four sequential fresh recovery families for ordinals 5/7/8/9. Same Java/Tika chain; attempt 22,320,000 ms (3 × 7,222,485 + 600,000, rounded up to a minute), family 43,200,000 ms, ratio 4, output 2,147,483,648 bytes and 100 GB floor. Retain original failure classes/stable fields without messages. One recovery attempt per failed occurrence; repeated second-pass failure is unsupported with retained evidence, never a third attempt. No recovery, new manifest or corpus mutation occurred. P2 remains in-progress; eighteen larger occurrences and estate/recycle/DOC gates stay open for P3. Reversal: revert code/packet decisions while retaining every ledger, output, claim and manifest. Final coverage/hosted-red receipts and this report are appended locally for the next evidence commit; all implementation and earlier handoff work are committed and published in one push. Graft saved approximately 88,803 tokens in one retrieval.
+final 28b828ada199415fadbfbfd3af65ee0ef28fa3a2 #1731
