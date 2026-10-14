@@ -339,3 +339,7 @@ Each entry names its record, which carries the reason and the reversal path.
   bootstrap child plans, children published before the exploration flips, provenance as
   the resume journal, events only for opted-in packets, self-hosting by a real
   graduation): `research/p4-explore-graduate-design.md`.
+- 2026-10-14 — Workstream B materialize, clearing house and the P5 update train B16–B22
+  (one writer feeds both targets, verify before write, Renovate git-refs per skill,
+  conflicts fail CI while clean replays merge, append-only hunk ledger, the first ritual
+  is the operator's HITL classification): `research/p5-warehouse-update-train-design.md`.
