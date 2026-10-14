@@ -129,6 +129,10 @@ AWS identity through the canonical op-run reference file succeeded with output
 suppressed. The first Pulumi check targeted the hosted service and failed because
 the workstation actually uses an S3 DIY backend. Backend-specific authentication
 is still being reconciled; no infrastructure was deployed.
+Follow-up: [Pulumi backend qualification](2026-10-14-pulumi-backend-qualification.md)
+closes read-only backend access: selected the existing S3 backend through the
+approved AWS environment and successfully listed four stacks. Deployment and
+stack-secret decryption remain outside this proof.
 
 
 ## T3 remote backend — 2026-10-14

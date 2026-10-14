@@ -10,6 +10,7 @@
 | 2026-10-14 | Mise checksum filenames contain a ./ prefix; first exact filename lookup missed it. The correct published checksum subsequently matched. | Fail closed before executing installers and normalize manifest filename prefixes. |
 | 2026-10-14 | Wrangler's first device authorization expired after five minutes; its CLI timeout matches the browser's rejected-code result. | Issue short-lived codes close to the operator's approval, replace expired requests and verify login through the worker CLI. |
 | 2026-10-14 | Azure CLI's successful resource-group read emitted a Python 3.14 invalid-escape SyntaxWarning from its SDK. | Track warning-only runtime compatibility separately from authentication; do not reinterpret a successful read as a failed login. |
+| 2026-10-14 | An initial Pulumi probe targeted the hosted service, while DankStation uses an S3 DIY backend; its bare AWS login had expired. | Match the live backend and use the worker's approved op-run AWS environment. S3 login and four-stack discovery now pass; do not copy workstation credential caches. |
 
 ## Headless qualification findings
 

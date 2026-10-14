@@ -149,4 +149,4 @@ its credentials as a shortcut to making a worker ready.
 | Graft and Effect references | Structural graph and reference query, without deep-model work | pending |
 | Current bootstrap and closeout doctrine | Retired commands historical only; one closeout boundary per host | pending |
 | Detached Yeet qualification | Bounded job/slice lifecycle and terminal receipt | pending |
-| Cloud credentials: Azure/Vercel/Cloudflare/AWS/Pulumi | Actual output-suppressed authenticated operation per selected account/project | in-progress; worker Azure/Vercel/Cloudflare read-only account checks pass; AWS identity/state-bucket checks pass; Pulumi backend qualification remains |
+| Cloud credentials: Azure/Vercel/Cloudflare/AWS/Pulumi | Actual output-suppressed authenticated operation per selected account/project | complete for worker read-only access: Azure/Vercel/Cloudflare checks, AWS identity/state bucket, and S3 Pulumi stack discovery pass; deployments remain separate |

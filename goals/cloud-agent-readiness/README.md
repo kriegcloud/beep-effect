@@ -91,6 +91,8 @@ qualified by the beep-worker receipts.
   remote provider smoke tests and authenticated read-only source-control proof.
 - [Cloud CLI authentication](./history/2026-10-14-cloud-cli-authentication.md):
   successful Azure, Vercel and Cloudflare device logins and read-only account checks.
+- [Pulumi backend qualification](./history/2026-10-14-pulumi-backend-qualification.md):
+  approved AWS credential route, matching S3 backend and four-stack discovery.
 - [Original cloud probe](./research/2026-10-01-container-probe.md): historical
   container restrictions; it does not describe the current Linux worker.
 
