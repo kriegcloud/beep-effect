@@ -1309,3 +1309,5 @@ Chronological valid tuples render first, followed by retained untimed tuples.
 Reason: hosted and independent review demonstrated two false-safe cases and
 a rendering regression. Reversal: revert the H4 PR; no workstation state was
 changed. Full package and parity qualification is repeated for this wave.
+
+- H3 review-wave proof composition: retain the full frozen CLI audit's 6,494 passing tests and explicit nonzero exit from 28 harness-ledger fixtures blocked by shared-temp ancestor Git metadata. Rerun the affected fixtures with independent temp backing, then refresh integrated compile/lint/docgen and hosted parity. Reason: the production boundary is correct and unrelated temp metadata must be preserved; a fresh fixture rerun validates the actual environment correction without weakening a gate or claiming the original command passed. Reversal: rerun the complete package command with the corrected temp backing; hosted CI remains authoritative for the publication head.

@@ -2254,3 +2254,5 @@ suppression or copying a fix into H4. Main-owned test entry points need the
 same dedicated test typecheck before their publication.
 
 H3's long CLI audit straddled a main merge: it passed 6,444 tests but fresh governance/retirement tests saw old cached module exports and ledger behavior. All three affected files match main; a fresh same-runtime process passes all 70 tests. Freeze the source tree for the next full audit rather than merging main while a long runner has cached modules. The parallel local docgen pass was SIGKILLed with exit 137; serialize its package concurrency on retry, preserving the failure receipt and the ordinary admission route.
+
+H3 frozen CLI audit passed 6,494 tests; 28 harness-ledger fixtures then refused unresolved ancestor Git metadata in shared `/tmp`. The unrelated `/tmp/.git` directory appeared during the runner. Preserve it and the fail-closed boundary; rerun affected tests under independent standard temp backing and retain the nonzero full-command receipt. Temp namespace isolation should be established before a long admitted fixture sweep, not only probed at startup.
