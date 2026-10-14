@@ -301,7 +301,9 @@ needed only for the escalation list below.
   inside the lane worktree as the last command of the session:
   `CLONE="$(git rev-parse --path-format=absolute --git-common-dir)/.." && bun run beep yeet sweep --retire && cd "$CLONE"`
   (archives residue, deletes the branch, sweeps the clone; it refuses until the
-  PR is MERGED and heads that branch, so running it early is safe). The swept
+  PR is MERGED and heads that branch, so running it early is safe; a lane whose
+  branch never headed a PR retires once `origin/main` already contains its tip
+  and its tree is clean, the `pr-less-on-main` verdict). The swept
   clone is returned to `main` only when it already stands on `main`; a clone
   on another live branch is left where it is (refs updated, no `git switch`,
   no `bun install`) because that checkout may carry another session's running
@@ -341,7 +343,9 @@ needed only for the escalation list below.
   memory): agent worktrees belong in the sibling `-worktrees` root, disposable
   installs under `~/.cache/beep/`. `beep quality tmpfs-reap` is the janitor;
   retire a lane with `bun run beep worktree remove <name> --archive [--delete-branch]`
-  (sibling root or the clone's `.claude/worktrees/<name>`), or from inside it after
+  (sibling root or the clone's `.claude/worktrees/<name>`; its archive fence
+  grants the same invoker and `CLAUDE_PID` session exemption as `--retire`, so
+  a desktop session removes its own lane), or from inside it after
   the merge with `bun run beep yeet sweep --retire`.
 
 ## Touch → Skill / Command

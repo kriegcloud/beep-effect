@@ -90,7 +90,7 @@ const baseFlag = Flag.String("base").pipe(
 const retireFlag = Flag.Boolean("retire").pipe(
   Flag.withDefault(false),
   Flag.withDescription(
-    "Inside a linked worktree whose PR is MERGED: archive-retire this worktree into its owning clone, delete the branch, then sweep the clone"
+    "Inside a linked worktree whose PR is MERGED (or whose never-PR'd tip origin/main already contains, with a clean tree): archive-retire this worktree into its owning clone, delete the branch, then sweep the clone"
   )
 );
 

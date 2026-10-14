@@ -26,7 +26,7 @@ import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
-import { runRepoCommandStreamingCapture } from "../../internal/repo-run/index.ts";
+import { ProcessPid, runRepoCommandStreamingCapture } from "../../internal/repo-run/index.ts";
 import { ReferenceWorkspace, referenceWorkspaceLayer } from "../Refs/index.ts";
 import { worktreeFleetCommand } from "./Fleet.command.ts";
 import { worktreeReapCommand } from "./Reap.command.ts";
@@ -34,8 +34,10 @@ import { CLAUDE_WORKTREES_RELATIVE_ROOT, WORKTREES_ROOT_SUFFIX } from "./Worktre
 import { WorktreeCommandError, WorktreeExistsError } from "./Worktree.errors.ts";
 import {
   parseWorktreePorcelain,
+  WorktreeInvokerExemption,
   WorktreeListEntry,
   WorktreeRemovalRequest,
+  WorktreeSessionMarker,
   WorktreeUpstreamState,
   WorktreeUpstreamVerdict,
 } from "./Worktree.schemas.ts";
@@ -53,6 +55,75 @@ import type { WorktreeRemovalReceipt, WorktreeUnpushedInspection } from "./Workt
 
 const $I = $RepoCliId.create("commands/Worktree/Worktree.command");
 const decodeWorktreeName = S.decodeUnknownEffect(WorktreeRemovalRequest.fields.name);
+const isProcessPid = S.is(ProcessPid);
+
+// Claude Code exports its own pid under this name to every tool shell it
+// spawns; that harness key lives here, in the command layer that runs under
+// it, so the removal service only ever learns "the marker that names the
+// session".
+const SESSION_PID_ENV = "CLAUDE_PID";
+
+// A malformed value is no session, not a failed removal; the fence itself
+// proves the marker against /proc before honouring the pid it names.
+const invokerSessionMarker = Config.option(Config.Int(SESSION_PID_ENV)).pipe(
+  Effect.orElseSucceed(O.none<number>),
+  Effect.map((named) =>
+    O.map(O.filter(named, isProcessPid), (pid) => WorktreeSessionMarker.make({ name: SESSION_PID_ENV, pid }))
+  )
+);
+
+// Two absolute paths on one filesystem relate by a relative path; only a
+// leading `..` means the candidate lies outside the root.
+const isWithin = (path: Path.Path, root: string, candidate: string): boolean =>
+  !Str.startsWith("..")(path.relative(root, candidate));
+
+/**
+ * Step out of the checkout about to be removed and say who is asking for the removal.
+ *
+ * **Details**
+ *
+ * The archive fence refuses a checkout any process still stands in. The
+ * party asking for the removal is not such a writer, so this names it: the
+ * invoker's own ancestry (the CLI, its shell, the agent session above them)
+ * and, when the harness names that session through `CLAUDE_PID` and the fence
+ * can prove it did, everything the session spawned into the checkout (its
+ * MCP servers, tool shells, and background jobs). When the process is
+ * standing inside the checkout it removes, its working directory moves to
+ * the main checkout first (a process whose cwd is inside the target would be
+ * a holder, and later steps run against the main checkout anyway) and the
+ * exemption records the self-removal, the one case in which the fence also
+ * leaves an idle Claude Desktop Terminal panel shell standing in the
+ * checkout. `yeet sweep --retire` and `worktree remove` share this so a
+ * desktop session can retire its own lane through either, while every other
+ * holder still refuses the removal.
+ *
+ * **Example** (Build the exemption effect)
+ *
+ * ```ts
+ * import { invokerExemption } from "@beep/repo-cli/commands/Worktree"
+ * import * as Effect from "effect/Effect";
+ *
+ * console.log(Effect.isEffect(invokerExemption("/clones/x/.claude/worktrees/lane", "/clones/x"))) // true
+ * ```
+ *
+ * @param targetPath - The checkout about to be removed.
+ * @param mainCheckout - The checkout the process moves to when it stands inside the target.
+ * @returns The exemption the removal request carries to the archive fence.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const invokerExemption = Effect.fn("Worktree.invokerExemption")(function* (
+  targetPath: string,
+  mainCheckout: string
+): Effect.fn.Return<WorktreeInvokerExemption, never, Path.Path> {
+  const path = yield* Path.Path;
+  const selfRetirement = isWithin(path, targetPath, process.cwd());
+  if (selfRetirement) {
+    yield* Effect.sync(() => process.chdir(mainCheckout));
+  }
+  const sessionMarker = yield* invokerSessionMarker;
+  return WorktreeInvokerExemption.make({ sessionMarker, selfRetirement });
+});
 
 /**
  * Local-only files copied from the main checkout into a fresh worktree.
@@ -827,6 +898,14 @@ const renderRemovalReceipt = Effect.fn("Worktree.renderRemovalReceipt")(function
     }),
   });
   yield* Console.log(`  removed: ${receipt.targetPath}`);
+  yield* Effect.forEach(
+    receipt.idleTerminalShells,
+    (pid) =>
+      Console.log(
+        `  note: the idle Claude Desktop Terminal panel shell (pid ${pid}) stood in the worktree and was left running; the worktree was removed under it, so run \`cd ~\` in that Terminal tab before using it`
+      ),
+    { discard: true }
+  );
   if (receipt.branchDeleted) {
     yield* Console.log(`  branch deleted: ${O.getOrElse(receipt.branch, () => "(detached HEAD)")}`);
     return;
@@ -927,6 +1006,10 @@ const runWorktreeRemove = Effect.fn("Worktree.runWorktreeRemove")(function* (opt
     });
   }
   const branch = O.flatMap(removed, (entry) => O.fromNullishOr(entry.branch));
+  // The same exemption `yeet sweep --retire` grants: the invoker's ancestry
+  // and its proven session are the party asking, so a desktop session removes
+  // its own lane, while any other holder still refuses the removal.
+  const exemptInvoker = yield* invokerExemption(targetPath, context.mainCheckout);
   const receipt = yield* removalService.remove(
     WorktreeRemovalRequest.make({
       name,
@@ -936,6 +1019,7 @@ const runWorktreeRemove = Effect.fn("Worktree.runWorktreeRemove")(function* (opt
       archive: options.archive,
       deleteBranch: options.deleteBranch,
       expectedHead: O.none(),
+      exemptInvoker,
     })
   );
   yield* renderWorktreeRemovalReceipt(receipt, options.archive);
@@ -1027,7 +1111,9 @@ const worktreeRemoveCommand = Command.make(
     );
   })
 ).pipe(
-  Command.withDescription("Remove a sibling worktree, optionally preserving dirty or unpushed residue first"),
+  Command.withDescription(
+    "Remove a sibling or nested worktree, optionally preserving dirty or unpushed residue first; the archive fence exempts the invoking session the way yeet sweep --retire does"
+  ),
   Command.provide(WorktreeRemovalServiceLive)
 );
 

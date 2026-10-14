@@ -293,19 +293,21 @@ const pullRequestIsMerged = (state: SweepGitState): boolean =>
  *
  * **Details**
  *
- * Two facts must hold. The branch's pull request was observed MERGED: a
- * sweep never fails, so a branch that did not merge still sweeps (every
- * merge-gated step records a skip) and its "resume me" row must survive
- * that. And the row being closed belongs to the checkout that held the
- * branch: `yeet sweep --branch <merged>` run from a checkout parked on some
- * third branch must not retire that checkout's own row, so without an
- * explicit `ledgerCheckout` the sweeping checkout's HEAD must be movable
- * ({@link headIsMovable}: on the swept branch, or already back on main, which
- * is the documented second pass for a merged branch the clone no longer
- * stands on). A retirement names the lane it just removed as
- * `ledgerCheckout`, which vouches for it.
+ * A retirement vouches outright: it names the lane it just removed as
+ * `ledgerCheckout`, and its own gate already proved the lane done (a MERGED
+ * pull request heading the branch, or a pull-request-less tip that
+ * `origin/<main>` already contains), so the row closes without re-reading
+ * the pull request. Otherwise two facts must hold. The branch's pull request
+ * was observed MERGED: a sweep never fails, so a branch that did not merge
+ * still sweeps (every merge-gated step records a skip) and its "resume me"
+ * row must survive that. And the row being closed belongs to the checkout
+ * that held the branch: `yeet sweep --branch <merged>` run from a checkout
+ * parked on some third branch must not retire that checkout's own row, so
+ * the sweeping checkout's HEAD must be movable ({@link headIsMovable}: on the
+ * swept branch, or already back on main, which is the documented second pass
+ * for a merged branch the clone no longer stands on).
  *
- * **Example** (Merged and held writes the row; parked does not)
+ * **Example** (Merged and held writes the row; parked does not; a retirement always does)
  *
  * ```ts
  * import { SweepGitState, sweepWritesLedgerDone } from "@beep/repo-cli/test/Yeet"
@@ -329,11 +331,12 @@ const pullRequestIsMerged = (state: SweepGitState): boolean =>
  * console.log(sweepWritesLedgerDone(SweepGitState.make({ ...merged, headBranch: "feat/other" }), O.none())) // false
  * console.log(sweepWritesLedgerDone(SweepGitState.make({ ...merged, headBranch: "feat/other" }), O.some("/lanes/x"))) // true
  * console.log(sweepWritesLedgerDone(SweepGitState.make(base), O.none())) // false
+ * console.log(sweepWritesLedgerDone(SweepGitState.make(base), O.some("/lanes/x"))) // true
  * ```
  *
  * @param state - The observed git and pull request facts; the data-last form takes it alone.
- * @param ledgerCheckout - The checkout a retirement vouches for, when any.
- * @returns True only for an observed MERGED pull request on a checkout that held the branch or stands on main.
+ * @param ledgerCheckout - The lane a retirement just removed, whose gate vouches for it.
+ * @returns True for a retired lane, or for an observed MERGED pull request on a checkout that held the branch or stands on main.
  * @category planning
  * @since 0.0.0
  */
@@ -343,7 +346,7 @@ export const sweepWritesLedgerDone: {
 } = dual(
   2,
   (state: SweepGitState, ledgerCheckout: O.Option<string>): boolean =>
-    pullRequestIsMerged(state) && (O.isSome(ledgerCheckout) || headIsMovable(state))
+    O.isSome(ledgerCheckout) || (pullRequestIsMerged(state) && headIsMovable(state))
 );
 
 const unreliableProbePrecondition = (command: string): SweepPrecondition =>
@@ -1566,7 +1569,8 @@ export const executeSweep = Effect.fn("Yeet.executeSweep")(function* (
   yield* writeTextFile(yield* sweepReportPath(context), encoded);
   // Every sweep entrypoint (sweep, sweep --retire, merge, monitor
   // --until-merged) passes here, so this is where the session ledger learns
-  // the checkout's work is done; only an observed MERGED pull request counts.
+  // the checkout's work is done: a retired lane, whose gate already proved
+  // it, or an observed MERGED pull request.
   const ledgerCheckout = O.fromUndefinedOr(options.ledgerCheckout);
   if (sweepWritesLedgerDone(state, ledgerCheckout)) {
     yield* recordSweepDone({
