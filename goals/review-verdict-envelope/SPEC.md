@@ -96,6 +96,7 @@ not contract: where it and this file disagree, this file wins and the gap is log
 | S5 round-trip test | `packages/law-practice/use-cases/test/ReviewVerdict.roundtrip.test.ts` | unit proof | NET-NEW |
 | Changeset | `.changeset/<name>.md` (minor for both packages) | release note | NET-NEW |
 | Quote shape reference | `DurableLocator` quote struct in `packages/law-practice/domain/src/values/DurableLocator/DurableLocator.model.ts`; `TextQuoteSelector` in `@beep/rdf` (`Evidence.ts`) | reuse or align | HAVE |
+| `ClaimDispositionProjection` schema | `packages/law-practice/use-cases/src/VerdictProjector/VerdictProjector.model.ts` (this packet; not `@beep/epistemic-domain`, which keeps its persisted `ClaimDisposition`) | `.model.ts` | NET-NEW |
 | Projection target | `ClaimDisposition` and `ClaimDispositionStatus` in `@beep/epistemic-domain` | projection target | HAVE (already a use-cases dependency) |
 | Service pattern | `packages/law-practice/use-cases/src/DocketIntake/`, `PatentClaimCandidate/` | ports/service layout | HAVE |
 
@@ -120,7 +121,8 @@ From the brief's rabbit holes and the repo laws:
   quote struct (same `exact`/`prefix`/`suffix` field names and optionality). Search the barrels
   before adding any helper.
 - **Append-only log:** no operation edits or deletes a `VerdictRow`. Undo appends a row with a
-  higher `revision` for the same `itemId`. After `lockedAt` is set, writes fail with a typed error.
+  higher `revision` for the same `itemId`. After a row with `lockedAt` closes a batch, writes to that
+  `batchId` fail with a typed error; other batches stay writable.
 - **Projection is pure and deterministic:** same rows and same `resolvedBy` in, same
   `ClaimDispositionProjection` values out. It never invents ids and never reads the clock, because
   `resolvedAt` comes from `VerdictRow.recordedAt`. It has no write capability and does not reach
@@ -158,10 +160,10 @@ From the brief's rabbit holes and the repo laws:
       round-trips its `claimId`. `VerdictRow` round-trips `batchId` and `recordedAt`, and
       rejects a verdict outside `right | wrong | partly`.
 - [ ] **P2** `ReviewQueue` and `VerdictProjector` exist as `Context.Service` contracts with
-      typed errors (including a locked-log write error) and Layer implementations.
+      typed errors (including a locked-batch write error) and Layer implementations.
 - [ ] **P2 / S5** The round-trip test passes: decode → queue → `wrong` + note → undo (a
-      superseding revision, the original row still present) → `right` → lock → a write after
-      lock fails with the typed error → projection yields a `ClaimDispositionProjection` with
+      superseding revision, the original row still present) → `right` → lock the batch → a write to that
+      batch fails with the typed error, while a write in a new batch succeeds → projection yields a `ClaimDispositionProjection` with
       `status: active`, the fixed confirm reason, `resolvedAt` equal to the deciding row's
       `recordedAt`, and the supplied `resolvedBy`. A second case projects a final `wrong` to
       `rejected` with the note as `reason`; a third case uses `wrong` without a note and gets the

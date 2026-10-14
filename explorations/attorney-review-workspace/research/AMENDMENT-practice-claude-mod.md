@@ -18,11 +18,12 @@ generate.
 
 | Phase | Goal | Exit criteria |
 | --- | --- | --- |
-| P1b Review queue | The `/review` command opens a pane listing open `ReviewItem`s. Each item is shown one at a time with: <ul><li>the plain answer or finding;</li><li>a plain label (for example "examiner rejection" or "incomplete");</li><li>the source passage with the key words highlighted;</li><li>the location ("page 3, lines 12–18").</li></ul> Controls: Right / Wrong / Note, with undo, and Lock at the end. The band shows "N to review". "Open in Box" loads the document in the desktop Browser pane. "Ask about this" drafts a question into his prompt with `$.prompt.fill`. Tab or the arrow keys move through the queue. | On the operator machine and the attorney's Windows PC, using non-client test items: <ul><li>three `ReviewItem` kinds render;</li><li>verdicts write `VerdictRow`s;</li><li>undo writes a superseding revision;</li><li>lock refuses further writes;</li><li>"Open in Box" opens the Browser pane;</li><li>no Box write is possible.</li></ul> |
+| P1b Review queue | The `/review` command opens a pane listing open `ReviewItem`s. Each item is shown one at a time with: <ul><li>the plain answer or finding;</li><li>a plain label (for example "examiner rejection" or "incomplete");</li><li>the source passage with the key words highlighted;</li><li>the location ("page 3, lines 12–18").</li></ul> Controls: Right / Wrong / Note, with undo, and Lock at the end. The band shows "N to review". "Open in Box" loads the document in the desktop Browser pane. "Ask about this" drafts a question into his prompt with `$.prompt.fill`. Tab or the arrow keys move through the queue. | On the operator machine and the attorney's Windows PC, using non-client test items: <ul><li>three `ReviewItem` kinds render;</li><li>verdicts write `VerdictRow`s;</li><li>undo writes a superseding revision;</li><li>lock closes the current batch: further writes to that <code>batchId</code> are refused, and a new batch accepts verdicts;</li><li>"Open in Box" opens the Browser pane;</li><li>no Box write is possible.</li></ul> |
 
-**Entry gate:** `goals/review-verdict-envelope` spikes **S1** (a pane paints and is usable in the
-Desktop Code tab on Windows) and **S3** (Box read tools reachable through `$.mcp.call`) pass, and its
-**P1** schema is merged.
+**Entry gate:** `goals/review-verdict-envelope` spike **S1** passes (a pane paints and is usable in the
+Desktop Code tab), and its **P1** schema is merged. **S3** gates only the Box text read
+(`get_file_content` through `$.mcp.call`). Page images are optional. If the text read fails, producers
+embed the passage text in `SourceRef.quote`, and the pane renders the item with no Box call.
 
 ### 2. Verdict rows adopt the shared envelope
 
