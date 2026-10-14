@@ -2,7 +2,11 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
+
+Closed 2026-10-14: the service tags live mail from the pinned deploy checkout with contact evidence on;
+the agent spot-check found no wrong-matter tag in 380 decisions
+([record](history/2026-10-14-agent-spot-check.md)).
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 

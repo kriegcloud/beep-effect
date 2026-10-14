@@ -7,6 +7,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as Effect from "effect/Effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { EffortLevel, ModelId } from "../Models/Models.catalog.schemas.ts";
 
@@ -643,6 +645,43 @@ export class LaunchGrant extends S.Opaque<LaunchGrant, { readonly brand: unique 
     })
   )
 ) {}
+
+/**
+ * Check the direct destination, repository and conversation shared by both receiving modes.
+ *
+ * **Details**
+ * Managed receivers use this scope without an inbound peer allowlist. Attached
+ * receivers additionally require the sender in `allowedRecipients`.
+ *
+ * **Example** (Recognize the receive scope predicate)
+ * ```ts
+ * import { Envelope, LaunchGrant, receivingGrantAllowsEnvelopeScope } from "@beep/repo-cli/commands/AgentMessage"
+ * const grant = LaunchGrant.make({ grantId: "grant", endpointId: "receiver", ownerId: "owner", generation: 1,
+ *   repositoryScope: "repo", allowedRecipients: ["peer"], expiresAt: 200, maxMessages: 1 })
+ * const envelope = Envelope.make({ conversationId: "conversation", messageId: "message", idempotencyKey: "request",
+ *   from: "sender", to: { kind: "direct", endpointId: "receiver" }, repositoryScope: "repo", body: "Hello",
+ *   createdAt: 100, expiresAt: 200, capabilityFingerprint: "cap", policyFingerprint: "policy" })
+ * console.log(receivingGrantAllowsEnvelopeScope(grant, envelope)) // true; managed receive does not check allowedRecipients
+ * ```
+ *
+ * @internal
+ * @param grant - The persisted authority of the receiving endpoint.
+ * @param envelope - The queued message awaiting delivery.
+ * @returns Whether the message matches the common receiving scope.
+ * @category policies
+ * @since 0.0.0
+ */
+export const receivingGrantAllowsEnvelopeScope: {
+  (grant: LaunchGrant, envelope: Envelope): boolean;
+  (envelope: Envelope): (grant: LaunchGrant) => boolean;
+} = dual(
+  2,
+  (grant: LaunchGrant, envelope: Envelope): boolean =>
+    envelope.to.kind === "direct" &&
+    envelope.to.endpointId === grant.endpointId &&
+    envelope.repositoryScope === grant.repositoryScope &&
+    (O.isNone(grant.conversationScope) || envelope.conversationId === grant.conversationScope.value)
+);
 
 /**
  * Typed router failure preserving a bounded diagnostic message.

@@ -43,10 +43,10 @@ import {
   ValidationOptions,
 } from "@beep/technical-drawing";
 import { it } from "@beep/test-runner";
-import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, vi } from "@effect/vitest";
 import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
@@ -208,7 +208,7 @@ const spec = (
 // A label-alphabet font built in-test with opentype.js (the package's own parser), so the
 // operator fontFile route runs on every runner without a committed font: each inked
 // glyph is a 400 x 700 box on a 1000-unit em, the space is blank.
-const OPENTYPE_MODULE = ["opentype", "js"].join(".");
+const OPENTYPE_MODULE = A.join(["opentype", "js"], ".");
 interface OpenTypeBuilder {
   readonly Font: new (options: Readonly<Record<string, unknown>>) => { toArrayBuffer(): ArrayBuffer };
   readonly Glyph: new (options: Readonly<Record<string, unknown>>) => unknown;

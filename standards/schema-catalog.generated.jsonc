@@ -1359,6 +1359,22 @@
       "description": "Expected successful parse or declared typed degradation for an F1 fixture."
     },
     {
+      "file": "apps/labs/semantica/src/layers/LedgerLive.ts",
+      "symbol": "LedgerLiveOptions",
+      "kind": "struct-const",
+      "owner": "@beep/semantica",
+      "identity": "LedgerLiveOptions",
+      "description": "Filesystem root and execution identity for one isolated PGlite ledger."
+    },
+    {
+      "file": "apps/labs/semantica/src/runtime/Config.ts",
+      "symbol": "LabConfigValue",
+      "kind": "struct-const",
+      "owner": "@beep/semantica",
+      "identity": "LabConfigValue",
+      "description": "Environment-decoded configuration used by the headless Semantica runtime."
+    },
+    {
       "file": "apps/labs/semantica/src/runtime/Config.ts",
       "symbol": "RuntimeMode",
       "kind": "literal-kit",
@@ -41115,7 +41131,7 @@
       "kind": "struct-const",
       "owner": "@beep/repo-cli",
       "identity": "MakeMirrorSyncProgramOpts",
-      "description": ""
+      "description": "Options for syncing a local AI metrics mirror bundle to a remote host."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/AIMetrics/internal/Programs.ts",
@@ -53585,6 +53601,60 @@
       "description": "Repository root, revision, lock digest, Bun archive digest, and Bun version used by a bake."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ClaudeContinuityInput",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "ClaudeContinuityInput",
+      "description": "Operator-selected app/transcript pair and chosen Claude permission mode."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ContinuityInput",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "ContinuityInput",
+      "description": "Explicit files and expected policies for a read-only permission census."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ContinuityObservation",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "ContinuityObservation",
+      "description": "Sanitized effective-policy comparison for one thread, family member, app session or config."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ContinuityRoute",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "ContinuityRoute",
+      "description": "The launch or continuation route exercised by a disposable fixture."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "ContinuityVerdict",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "ContinuityVerdict",
+      "description": "Agreement, disagreement, or incomplete evidence in a metadata census."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.schemas.ts",
+      "symbol": "PermissionTuple",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "PermissionTuple",
+      "description": "Effective approval, sandbox and permission profile recorded by a Codex turn."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Session/Continuity.service.ts",
+      "symbol": "PermissionContinuityLive",
+      "kind": "codec",
+      "owner": "@beep/repo-cli"
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/Session/Register.schemas.ts",
       "symbol": "RegisterMergeInput",
       "kind": "struct-const",
@@ -57615,7 +57685,7 @@
       "kind": "struct-const",
       "owner": "@beep/repo-cli",
       "identity": "YeetRetireSweepPlan",
-      "description": "Dry-run document for a retirement: the lane plan, why it would be refused if at all, the touched packets still active, and the owning clone's sweep plan."
+      "description": "Dry-run document for a retirement: the lane plan, the gate's verdict (why it proceeds or is refused), the touched packets still active, and the owning clone's sweep plan."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Retire.schemas.ts",
@@ -57623,7 +57693,15 @@
       "kind": "struct-const",
       "owner": "@beep/repo-cli",
       "identity": "YeetRetireSweepReport",
-      "description": "Result document for a retirement: the lane plan, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report."
+      "description": "Result document for a retirement: the lane plan, the verdict that opened the gate, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/Retire.schemas.ts",
+      "symbol": "YeetRetireVerdict",
+      "kind": "tagged-union",
+      "owner": "@beep/repo-cli",
+      "identity": "YeetRetireVerdict",
+      "description": "The retirement gate's decision for a lane: its pull request is MERGED, its pull-request-less tip is already on the remote main branch with a clean tree, or the first reason it is refused."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Yeet/internal/ReviewBodySignal.ts",

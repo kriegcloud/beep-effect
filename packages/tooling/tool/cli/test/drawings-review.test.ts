@@ -198,8 +198,8 @@ describe("drawing review rules", () => {
       baseBlocks: [TextBlock.make({ text: "fig.  1", rect: rect(50) })],
       source: source("Fig1.pdf"),
     });
-    expect(notes.map((n) => n.text)).toEqual(["First note", "Second  note\nwith two lines"]);
-    expect(notes.map((n) => [n.rect.yMin, n.origin])).toEqual([
+    expect(A.map(notes, (n) => n.text)).toEqual(["First note", "Second  note\nwith two lines"]);
+    expect(A.map(notes, (n) => [n.rect.yMin, n.origin])).toEqual([
       [100, "text-layer"],
       [300, "text-layer"],
     ]);
@@ -209,16 +209,19 @@ describe("drawing review rules", () => {
     expect(isAllSheetsNote("Sheet numbers (all sheets)")).toBe(true);
     expect(isAllSheetsNote("all sheets")).toBe(false);
     const findings = findingsOf(sharedPages);
-    expect(findings.map((f) => [f.id, f.scope, f.figures, f.notes.length, f.severity, f.status])).toEqual([
+    expect(A.map(findings, (f) => [f.id, f.scope, f.figures, f.notes.length, f.severity, f.status])).toEqual([
       ["A1-01", "sheet", [1], 1, "P1", "open"],
       ["A1-02", "all-sheets", [], 2, "P1", "open"],
       ["A1-03", "sheet", [2], 1, "P1", "open"],
     ]);
     // the merged finding keeps each page's text exactly as written
-    expect(findings[1]?.notes.map((n) => [n.text, n.source.file])).toEqual([
-      ["Margins: 1 in (all sheets)", "Fig1.pdf"],
-      ["Margins:  1 in (ALL SHEETS)", "Fig2.pdf"],
-    ]);
+    assertSome(
+      O.map(A.get(findings, 1), (finding) => A.map(finding.notes, (n) => [n.text, n.source.file])),
+      [
+        ["Margins: 1 in (all sheets)", "Fig1.pdf"],
+        ["Margins:  1 in (ALL SHEETS)", "Fig2.pdf"],
+      ]
+    );
   });
 
   it("merges an untagged note read on every sheet, notes repeated on some sheets, and same-page repeats", () => {
@@ -232,12 +235,12 @@ describe("drawing review rules", () => {
       pageOf("Fig3.pdf", 3, [note("add a BORDER", "Fig3.pdf", 40), note("Flip the oval", "Fig3.pdf", 90)]),
     ];
     const findings = findingsOf(pages);
-    expect(findings.map((f) => [f.id, f.scope, f.figures, f.notes.map((n) => n.text)])).toEqual([
+    expect(A.map(findings, (f) => [f.id, f.scope, f.figures, A.map(f.notes, (n) => n.text)])).toEqual([
       ["A1-01", "all-sheets", [], ["Add a border", "Add a border", "add a BORDER"]],
       ["A1-02", "sheet", [1], ["Make it taller", "make it  taller"]],
       ["A1-03", "sheet", [2, 3], ["Flip the oval", "Flip the oval"]],
     ]);
-    expect(findings.map(findingFigures)).toEqual(["all", "1", "2, 3"]);
+    expect(A.map(findings, findingFigures)).toEqual(["all", "1", "2, 3"]);
     // a fourth sheet that did not come back keeps the border note on the sheets it was read on
     const partial = findingsOf(pages, [1, 2, 3, 4]);
     expect([nth(partial, 0).scope, nth(partial, 0).figures]).toEqual(["sheet", [1, 2, 3]]);
@@ -280,7 +283,7 @@ describe("drawing review rules", () => {
       }),
       () => []
     );
-    expect(planned.map((f) => [f.status, f.severity, O.getOrNull(f.lens)])).toEqual([
+    expect(A.map(planned, (f) => [f.status, f.severity, O.getOrNull(f.lens)])).toEqual([
       ["planned", "P1", "sheet-compliance"],
       ["clarify", "P2", "sheet-compliance"],
       ["declined", "P1", "sheet-compliance"],
@@ -496,7 +499,7 @@ const manifestJson = (pdfSha256: string, specSha256: string) =>
     model: { boundingBox: { min: [0, 0, 0], max: [1, 1, 1] }, volume: 1, faceCount: 6, edgeCount: 12 },
     scale: 1,
     shaded: false,
-    figures: [1, 2, 3].map((figure) => ({
+    figures: A.map([1, 2, 3], (figure) => ({
       figure,
       view: "front",
       description: `FIG. ${figure} is a synthetic sheet.`,
@@ -627,7 +630,7 @@ const skipWithoutPoppler = Effect.fnUntraced(function* (context: { readonly skip
 });
 
 const runDrawings = Command.runWith(drawingsCommand, { version: "0.0.0" });
-const logged = TestConsole.logLines.pipe(Effect.map((lines) => lines.join("\n")));
+const logged = TestConsole.logLines.pipe(Effect.map((lines) => A.join(A.map(lines, String), "\n")));
 
 const TestLayer = Layer.mergeAll(
   DrawingReview.layer.pipe(Layer.provide(PdfTools.makeLayer())),
@@ -736,13 +739,13 @@ describe("beep drawings review", () => {
         expect(status.round.status).toBe("ingested");
         const intake = O.getOrThrow(status.intake);
         // FIG. 1's page also covers the sparse FIG. 3 fully; the denser sheet wins
-        expect(intake.pages.map((p) => [p.file, p.match.figure, p.match.basis])).toEqual([
+        expect(A.map(intake.pages, (p) => [p.file, p.match.figure, p.match.basis])).toEqual([
           ["Fig1.pdf", 1, "ink-coverage"],
           ["Fig2.pdf", 2, "ink-coverage"],
         ]);
-        expect(intake.pages.every((p) => p.match.coverage >= 0.98)).toBe(true);
+        expect(A.every(intake.pages, (p) => p.match.coverage >= 0.98)).toBe(true);
         const findings = O.getOrThrow(status.inventory).findings;
-        expect(findings.map((f) => [f.id, f.scope, f.figures, f.notes.map((n) => n.text)])).toEqual([
+        expect(A.map(findings, (f) => [f.id, f.scope, f.figures, A.map(f.notes, (n) => n.text)])).toEqual([
           ["A1-01", "sheet", [1], ["Make the box taller"]],
           ["A1-02", "all-sheets", [], ["Margins: 1 inch top (all sheets)", "Margins: 1 inch top (all sheets)"]],
           ["A1-03", "sheet", [2], ["Flip the oval"]],
@@ -777,7 +780,7 @@ describe("beep drawings review", () => {
           })
         );
         assertSome(
-          O.map(forced.intake, (i) => i.pages.map((p) => [p.match.figure, p.match.basis])),
+          O.map(forced.intake, (i) => A.map(i.pages, (p) => [p.match.figure, p.match.basis])),
           [[3, "operator"]]
         );
         const stray = yield* Effect.flip(
@@ -936,7 +939,7 @@ describe("beep drawings review", () => {
         assertTrue(planned.round.dispositionsSha256.pipe(O.isSome));
         expect(yield* fs.exists(path.join(opened.roundDir, "dispositions.json"))).toBe(true);
         assertSome(
-          O.map(planned.inventory, (inventory) => inventory.findings.map((f) => f.status)),
+          O.map(planned.inventory, (inventory) => A.map(inventory.findings, (f) => f.status)),
           ["planned", "declined", "planned"]
         );
 
@@ -1062,7 +1065,7 @@ describe("beep drawings review", () => {
         yield* fs.copyFile(corpus.sent.manifest, loose);
         const unguarded = yield* review.guard(loose, O.none());
         expect(unguarded.refusals).toEqual([]);
-        expect(unguarded.warnings.join("\n")).toContain(
+        expect(A.join(unguarded.warnings, "\n")).toContain(
           `no review/ directory in "${elsewhere}" or any directory above it, so no review round guards this set`
         );
       })
@@ -1133,7 +1136,7 @@ describe("beep drawings review", () => {
           ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: dispositionsFile })
         );
         assertSome(
-          O.map(replanned.inventory, (inventory) => inventory.findings.map((f) => f.status)),
+          O.map(replanned.inventory, (inventory) => A.map(inventory.findings, (f) => f.status)),
           ["declined", "planned", "declined"]
         );
         yield* write([entry("A1-01", declined)]);
