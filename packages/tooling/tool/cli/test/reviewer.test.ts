@@ -33,13 +33,11 @@ import * as TestClock from "effect/testing/TestClock";
 const Json = S.fromJsonString(S.Unknown);
 const encodeJson = S.encodeEffect(Json);
 const decodeJson = S.decodeUnknownEffect(Json);
-const decodeObject = S.decodeUnknownEffect(S.Record(S.String, S.Unknown));
-const Requests = S.Array(
-  S.Struct({
-    output: S.optionalKey(S.Struct({ annotations: S.optionalKey(S.Array(S.Unknown)) })),
-    event: S.optionalKey(S.String),
-  })
-);
+const decodeObject = S.Record(S.String, S.Unknown).pipe(S.decodeUnknownEffect);
+const Requests = S.Struct({
+  output: S.Struct({ annotations: S.Unknown.pipe(S.Array, S.optionalKey) }).pipe(S.optionalKey),
+  event: S.optionalKey(S.String),
+}).pipe(S.Array);
 const decodeRequests = S.decodeUnknownEffect(Requests);
 const decodeReview = ReviewerReview.pipe(S.fromJsonString, S.decodeUnknownEffect);
 const ReviewerResultJson = S.fromJsonString(ReviewerResult);

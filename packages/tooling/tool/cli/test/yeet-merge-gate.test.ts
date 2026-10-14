@@ -743,14 +743,17 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
         for (const reviewerRuns of cases) {
           yield* withScriptedGh({ ...defaultScript, reviewerRequired: true, reviewerRuns }, (calls) =>
             Effect.gen(function* () {
-              const held = yield* runMergeGate(context, {
-                prNumber: pullFixture.number,
-                wantSha: headSha,
-                tolerate: [],
-                forceWindow: false,
-                relaxed: true,
-                dryRun: false,
-              }).pipe(Effect.result);
+              const held = yield* runMergeGate(
+                context,
+                MergeGateRunOptions.make({
+                  prNumber: pullFixture.number,
+                  wantSha: headSha,
+                  tolerate: [],
+                  forceWindow: false,
+                  relaxed: true,
+                  dryRun: false,
+                })
+              ).pipe(Effect.result);
               expect(held._tag).toBe("Failure");
               expect(A.some(yield* Ref.get(calls), (line) => Str.includes("/merge")(line))).toBe(false);
             })
@@ -758,14 +761,17 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
         }
         yield* withScriptedGh({ ...defaultScript, reviewerRequired: true, reviewerRuns: [own] }, (calls) =>
           Effect.gen(function* () {
-            const decision = yield* runMergeGate(context, {
-              prNumber: pullFixture.number,
-              wantSha: headSha,
-              tolerate: [],
-              forceWindow: false,
-              relaxed: true,
-              dryRun: false,
-            });
+            const decision = yield* runMergeGate(
+              context,
+              MergeGateRunOptions.make({
+                prNumber: pullFixture.number,
+                wantSha: headSha,
+                tolerate: [],
+                forceWindow: false,
+                relaxed: true,
+                dryRun: false,
+              })
+            );
             expect(decision._tag).toBe("merge");
             expect(A.some(yield* Ref.get(calls), (line) => Str.includes("/merge")(line))).toBe(true);
           })
