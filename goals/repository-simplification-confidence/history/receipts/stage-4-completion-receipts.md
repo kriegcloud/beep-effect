@@ -461,3 +461,16 @@ and one inherited main workflow-descriptor failure (866.0s); docgen passes
 26.3s. Final compiler has only the inherited skills decoder red. No baseline,
 inventory exception, false verified result or lifecycle reset is introduced.
 Thread `PRRT_kwDOPbO_N86sZH0s` is resolved with REST reply `4273346327`.
+
+### Final green integration
+
+Main `845fa069fc` supplies the consolidated repairs. Merge `4b07729df8`
+preserves H2 implementation/tests unchanged; `fd1b225983` fixes only a
+duplicate Details heading. Final full package audit/docgen pass 844.8s/27.2s.
+All required local hosted-parity commands pass, including corrected JSDoc
+and knowledge refs. All 291 scoped tests and existing touched coverage
+floors/ceilings pass without any baseline rewrite. Doctor remains 226 packets,
+zero blocking findings, six advisories. The three overall historical outcomes
+stay unknown; read completeness and merge facts do not prove a complete
+historical inventory. The handoff records five resolved threads, independent
+medium Opus review and final publication/monitor boundary.

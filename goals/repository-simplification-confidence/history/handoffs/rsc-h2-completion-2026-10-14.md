@@ -2,9 +2,9 @@
 
 ```text
 lane: rsc-h2-completion
-head: d7e254ba48333994841e39fd31980d61979381a0 (qualified source; report-only delivery tip in final dispatch)   PR: #1574
-package-verify @beep/repo-cli: fail inherited (audit 866.0s; 6313 pass, one unchanged main descriptor test fails; docgen passes 26.3s)
-hosted-parity: test-tsgo=fail inherited skills-relock TS377112 docgen=pass (135 outputs) jsdoc-ratchet=fail inherited 4 missing examples/1 unsafe example knowledge-refs=fail inherited 1 external mirror fallow=pass coverage=pass (291 tests; existing touched floors/ceilings met)
+head: fd1b225983610c59ca63b8dc02a7455672b87330 (qualified source; report-only delivery tip in final dispatch)   PR: #1574
+package-verify @beep/repo-cli: pass (final repaired integration audit 844.8s/docgen 27.2s)
+hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=pass fallow=pass coverage=pass (291 tests; existing touched floors/ceilings met)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
 post-merge refresh: pending merge; orchestrator owns three-packet refresh
@@ -446,3 +446,37 @@ one resolved and zero failed. Five hosted threads are now addressed. The
 prior bounded monitor `7654872d-b7b3-4aa4-8ba0-09df95fc72e8` is terminated
 for this implementation wave, not a readiness pass. Final dispatch binds the
 complete next publication and its fresh bounded monitor.
+
+## Final green qualification after the consolidated main repairs
+
+Main `845fa069fc` already contains the exact formatted identity registry, so
+no registry rollback or formatter exception is needed. Merge `4b07729df8`
+incorporates the consolidated main skills/schema/descriptor, JSDoc and mirror
+repairs. H2 implementation and tests are byte-identical to reviewed semantic
+source `d7e254ba48`. Identity has no difference from main. The only subsequent
+source change is documentation-only: `fd1b225983` combines duplicate Details
+headings in GoalRequiredCheckSnapshot. No baseline is reset.
+
+At qualified source `fd1b225983610c59ca63b8dc02a7455672b87330`, the full
+package gate passes: audit 844.8s, docgen 27.2s. Schema-first, Effect/Vitest,
+test-tsgo, bounded docgen, corrected JSDoc, knowledge refs, Fallow audit/health,
+retired paths and all 291 scoped tests pass. Every existing touched coverage
+floor and uncovered ceiling passes. The final doctor census remains 226
+packets, zero new/inherited blocking findings, six advisories. Three target
+overall outcomes stay unknown because historical inventory is incomplete;
+read completeness cannot establish inventory completeness.
+
+The earlier inherited and introduced failures remain evidence at their own
+heads. They are not relabelled as green. Final publication carries this
+report-only update with the complete addressed P1 wave; final dispatch binds
+the actual tip, fresh review read and bounded readiness result. The five
+resolved thread/reply pairs are:
+
+- `PRRT_kwDOPbO_N86q9T3Y` / `4269791012`
+- `PRRT_kwDOPbO_N86sSS5T` / `4270777426`
+- `PRRT_kwDOPbO_N86sWn2p` / `4272109485`
+- `PRRT_kwDOPbO_N86sWn2Z` / `4272109928`
+- `PRRT_kwDOPbO_N86sZH0s` / `4273346327`
+
+No merge, lifecycle reset or real completion refresh is performed by H2.
+The orchestrator owns the S11 gate, post-merge three-packet refresh and retirement.
