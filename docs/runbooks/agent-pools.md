@@ -426,7 +426,11 @@ Do not set `CLAUDE_CODE_SUBAGENT_MODEL` in proxy wrappers.
 ## Junie lane recipe
 
 Junie (`junie` CLI, JetBrains AI Pro) is the spend-down volume pool. Check the meter first:
-`bun run beep accounts status` shows the JetBrains row with credits left. Then run one bounded
+`bun run beep accounts status` shows the JetBrains row with credits left, cycle used percentage,
+and the next refill date when detailed quota is available. Its cycle window uses the existing
+ranking: a large unused balance near reset makes this pool urgent to spend. Detailed-quota
+failures preserve the balance-only row. Stored access tokens without a cached ID token skip
+the cycle window until the normal refresh-on-rejection path supplies one. Then run one bounded
 lane per invocation, verified 2026-10-14:
 
 ```sh

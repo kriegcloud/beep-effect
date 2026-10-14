@@ -880,3 +880,18 @@ describe("knowledge doctor command boundary", () => {
     );
   });
 });
+
+describe("knowledge doctor branch-name spans", () => {
+  it.effect("reads a span the prose introduces as a branch as a ref, not a path", () =>
+    Effect.sync(() => {
+      const spans = spansOf(
+        "goals/demo/ops/RUNBOOK.md",
+        doc("Work on branch `goals/demo-lane`, then read `goals/INDEX.md`.", "Branches `docs/old` are gone.")
+      );
+      assert.deepStrictEqual(
+        A.map(spans, (span) => span.raw),
+        ["goals/INDEX.md"]
+      );
+    })
+  );
+});

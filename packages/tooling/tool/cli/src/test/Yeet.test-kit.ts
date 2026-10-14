@@ -45,6 +45,7 @@ export * from "../commands/Yeet/internal/InnerLaneReports.ts";
 export * from "../commands/Yeet/internal/IssueArtifacts.ts";
 export * from "../commands/Yeet/internal/IssueClassification.ts";
 export * from "../commands/Yeet/internal/IssueParser.ts";
+export * from "../commands/Yeet/internal/KnowledgeLeaseWarnings.ts";
 export * from "../commands/Yeet/internal/LocalShardPoison.ts";
 export * from "../commands/Yeet/internal/Merge.ts";
 export * from "../commands/Yeet/internal/MergedPreview.ts";

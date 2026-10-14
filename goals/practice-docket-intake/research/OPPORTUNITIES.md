@@ -63,3 +63,16 @@
 - **Proposal:** Add the three to the cheap-gates tier scoped to changed
   files: oxlint on changed tests, a new-file coverage check for changed
   packages, and `knowledge semantic-delta`.
+
+## Fresh-lane quick checks require unbuilt dependency outputs (2026-10-14)
+
+- **Work:** Verifying the D-47 to D-49 docket intake follow-up in a fresh lane.
+- **Friction:** Quick package verification runs lint and a referenced-project
+  check without preparing dependency declarations. Lint passes, but checks
+  fail before providing useful source diagnostics and arm P0 inbox rows.
+- **Evidence:** `beep quality package-verify @beep/law-practice-use-cases --quick`,
+  the server equivalent and `@beep/m365` report `TS6305` for dependency
+  `dist/*.d.ts` outputs that have not been built.
+- **Proposal:** Make dependency preparation explicit in quick verification, or
+  offer a source-alias check for fresh lanes and distinguish missing outputs
+  from introduced type failures in the inbox.

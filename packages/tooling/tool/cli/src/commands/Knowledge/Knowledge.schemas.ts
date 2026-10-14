@@ -124,8 +124,11 @@ type KnowledgePublicDetail = typeof KnowledgePublicDetail.Type;
  * `unclassified-reference-span`), and its domain evaluators emit `unknown-beep-symbol`,
  * `packet-status-claim-drift`, `skill-lock-coverage-drift`, `unresolvable-skill-source`,
  * `floating-github-skill-source`, and `skill-license-unrecorded`. It lists each goals-doctor finding
- * it reads from the tree as one `delegated-goals-doctor-finding`, whose gate stays with `goals doctor`;
- * members are only ever added, never repurposed. The remaining members are reserved for later evaluators.
+ * it reads from the tree as one `delegated-goals-doctor-finding`, whose gate stays with `goals doctor`.
+ * The gating form adds the governance kinds: `baseline-tamper` for a non-mint edit of the sealed
+ * baseline or the promotions file, and `lease-expired`, `lease-owner-unresolved`,
+ * `lease-lifetime-exceeded`, and `lease-quota-exceeded` for debt-lease violations. Members are only ever
+ * added, never repurposed. The remaining members are reserved for later evaluators.
  *
  * **Example** (Classify a Stage-1 finding kind)
  *
@@ -133,7 +136,7 @@ type KnowledgePublicDetail = typeof KnowledgePublicDetail.Type;
  * import { KnowledgeFindingKind } from "@beep/repo-cli/commands/Knowledge/Knowledge.schemas"
  *
  * console.log(KnowledgeFindingKind.is["index-drift"]("index-drift")) // true
- * console.log(KnowledgeFindingKind.literals.length) // 22
+ * console.log(KnowledgeFindingKind.literals.length) // 27
  * ```
  *
  * @category models
@@ -162,6 +165,11 @@ export const KnowledgeFindingKind = LiteralKit([
   "packet-status-claim-drift",
   "skill-license-unrecorded",
   "delegated-goals-doctor-finding",
+  "baseline-tamper",
+  "lease-expired",
+  "lease-owner-unresolved",
+  "lease-lifetime-exceeded",
+  "lease-quota-exceeded",
 ]).pipe(
   $I.annoteSchema("KnowledgeFindingKind", {
     description: "Stable classes emitted or reserved by knowledge-surface evaluators.",

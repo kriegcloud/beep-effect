@@ -1251,3 +1251,42 @@ The bounded recovery amendment covers only 5/7/8 and remains blocked: no
 recorded next extraction-engine chain was found, so the orchestrator must
 bind it and approve before launch. Family 9 needs a scope decision.
 Reversal: revert decisions while retaining all corpus artifacts/manifests.
+
+
+### 2026-10-14: approved recovery engine binding and bounded elapsed budget
+
+The 11:14Z orchestrator ruling supersedes the missing engine/scope decisions
+in the terminal-wave record: recovery covers failed ordinals 5/7/8/9 through
+the same libpff → byte-signature repair → Java/Tika chain. Exactly two changes:
+raise the separately frozen recovery attempt budget to 22,320,000 ms through
+the existing max-elapsed-millis option, and preserve message-free original
+cause classes/stable fields in terminal exception rows. Budget derivation:
+3 × family-9 observed 7,222,485 ms + 600,000 = 22,267,455 ms, rounded up to
+22,320,000 ms. Retain family 43,200,000 ms, ratio 4, output 2,147,483,648
+bytes and 100 GB floor. The larger attempt bound fits the family ceiling;
+there is no change to defaults or acceptance policy. Timing remains qualified,
+not proof of an original parser cause or guaranteed completion.
+
+The existing selector enforces one occurrence per tool family; the one
+bounded recovery batch therefore comprises four sequential fresh families,
+one attempt for each approved failed occurrence. New freeze records bind
+the engine PR's merged main commit and measured engine identities before
+launch. No identity with the first wave's codeHead is claimed, no sealed
+ledger is reopened, and partial first-wave repairs remain evidence only.
+A repeated second-pass failure gets an explicit unsupported occurrence
+recovery disposition backed by its new retained diagnostic evidence, never
+a third attempt. The underlying failure remains unapproved; unsupported is
+an external recovery disposition, not an acceptance override. No launch
+until the engine PR merges and new manifests are committed.
+
+The optional failureCause schema is additive and old rows still decode.
+It retains only fixed classes, numeric budgets, capture status and operation
+reasons; messages, paths, tool output, stacks and arbitrary details are
+excluded. Real engine failures, warnings and child/source/output/family
+checks retain their existing acceptance laws. See
+history/p2/2026-10-14-bounded-recovery-amendment.md for the launch contract.
+Reversal: revert the engine PR and packet decisions while retaining all
+ledgers, outputs, claims and freeze records. Release notes without changesets:
+@beep/repo-cli is private and ignored (#1566); additive optional evidence
+requires no major release and receives no changeset. P2 remains in-progress;
+eighteen larger occurrences and estate/recycle/DOC gates stay open for P3.

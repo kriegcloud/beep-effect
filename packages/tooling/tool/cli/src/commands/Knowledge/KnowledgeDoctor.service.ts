@@ -8,6 +8,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { findRepoRoot } from "@beep/repo-utils";
 import { Str } from "@beep/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
@@ -24,10 +25,22 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { runCapturedStreams } from "../../internal/process/StepExec.ts";
+import {
+  readGitRenames,
+  readGitTree,
+  resolveGitCommit,
+  resolveGitMergeBase,
+  runGitPathList,
+} from "../../internal/repo-run/GitExec.ts";
 import { EXPLORATION_ATLAS_PATH } from "../Explore/Atlas.ts";
 import { PORTFOLIO_INDEX_PATH } from "../Goals/PortfolioIndex.ts";
 import { KnowledgeCommandSurface, KnowledgeStaticCommandFlag } from "./Knowledge.command-surface.ts";
-import { KNOWLEDGE_HISTORY_REMEDIATION, KnowledgeOperationalError } from "./Knowledge.errors.ts";
+import {
+  KNOWLEDGE_DOCTOR_BASELINE_PENDING_MESSAGE,
+  KNOWLEDGE_HISTORY_REMEDIATION,
+  KnowledgeDoctorInputError,
+  KnowledgeOperationalError,
+} from "./Knowledge.errors.ts";
 import {
   decodeKnowledgeUtf8,
   isKnowledgeArchivalPath,
@@ -46,6 +59,15 @@ import {
   materializeKnowledgeTree,
   readKnowledgeGitRefNames,
 } from "./Knowledge.service.ts";
+import {
+  checkKnowledgeDoctorReport,
+  KNOWLEDGE_DOCTOR_BASELINE_PATH,
+  KnowledgeDoctorCheckInput,
+  KnowledgeMintAcceptance,
+  mintKnowledgeBaseline,
+  readKnowledgeSealFiles,
+  verifyKnowledgeBaselineText,
+} from "./KnowledgeDoctor.baseline.ts";
 import {
   cacheKnowledgeDoctorDomain,
   deriveKnowledgeDoctorDomain,
@@ -67,6 +89,11 @@ import {
   knowledgeDelegatedRow,
   parseKnowledgePathRemovals,
 } from "./KnowledgeDoctor.grouping.ts";
+import {
+  evaluateKnowledgeLeases,
+  KnowledgeLeaseEvaluationInput,
+  KnowledgeLeasesReport,
+} from "./KnowledgeDoctor.leases.ts";
 import {
   CommandNodeWitness,
   EvaluationFailed,
@@ -90,12 +117,19 @@ import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
 import type { ChildProcessSpawner } from "effect/process";
 import type * as Scope from "effect/Scope";
+import type { GitCommandErrorAdapter } from "../../internal/repo-run/GitExec.ts";
 import type { KnowledgeStaticCommandTree } from "./Knowledge.command-surface.ts";
-import type { KnowledgeCloneAttributesError } from "./Knowledge.errors.ts";
+import type { KnowledgeCloneAttributesError, KnowledgeMintRefusal, KnowledgeSealBroken } from "./Knowledge.errors.ts";
 import type { KnowledgeCommitSha, KnowledgeDocumentFenceLine, KnowledgeTreeOracle } from "./Knowledge.refs.ts";
 import type { KnowledgeFindingKind, KnowledgeFindingSeverity } from "./Knowledge.schemas.ts";
 import type { KnowledgeMaterializedTree } from "./Knowledge.service.ts";
+import type {
+  KnowledgeDoctorBaseline,
+  KnowledgeDoctorPromotion,
+  KnowledgeSealFiles,
+} from "./KnowledgeDoctor.baseline.ts";
 import type { KnowledgeDoctorDomain } from "./KnowledgeDoctor.domain.ts";
+import type { KnowledgeDebtLease } from "./KnowledgeDoctor.leases.ts";
 import type {
   KnowledgeCounterfactualVerdictKind,
   KnowledgeEvaluationFailure,
@@ -347,6 +381,12 @@ const blockCitations = (
 const spanLocation = (documentPath: string, line: number, column: number): KnowledgeFindingLocation =>
   KnowledgeFindingLocation.make({ path: documentPath, line: S.Natural.make(line), column: S.Natural.make(column) });
 
+// A span the prose introduces as a branch ("branch `goals/x`") names a Git ref, not a path, even when
+// the ref no longer exists locally (K29).
+const BRANCH_NAME_PREFIX = /\bbranch(?:es)?\s+$/iu;
+
+const namesBranch = (text: string, column: number): boolean => BRANCH_NAME_PREFIX.test(Str.slice(0, column - 1)(text));
+
 const proseSpans = (
   line: KnowledgeDocumentFenceLine,
   documentPath: string,
@@ -361,6 +401,7 @@ const proseSpans = (
         return O.some(["command", inlineSpan.span, inlineSpan.column] as const);
       }
       return HashSet.has(gitRefNames, inlineSpan.span) ||
+        namesBranch(line.text, inlineSpan.column) ||
         O.isNone(normalizeKnowledgeRepoPath(documentPath, inlineSpan.span))
         ? O.none()
         : O.some(["path", inlineSpan.span, inlineSpan.column] as const);
@@ -375,7 +416,8 @@ const proseSpans = (
  * **Details**
  *
  * Spans come from the Stage-1 readers: inline code spans on prose lines (a `bun run beep` span is a
- * command, a governed repository spelling a path unless it exactly names a Git ref) and
+ * command, a governed repository spelling a path unless it exactly names a Git ref or the prose
+ * introduces it as a branch, as in "branch `goals/x`") and
  * `beep:assert path-exists` markers that fill a whole prose line (a marker quoted in inline code or
  * written mid-line asserts nothing). Fenced content is never read as spans: an unmarked fence is a
  * decoy, and a fence whose info string carries `beep:generated=<producer-id>` is one
@@ -1365,6 +1407,7 @@ export const scanKnowledgeDoctorTree = Effect.fn("KnowledgeDoctor.scanTree")(fun
     rootHistory: O.isSome(removals) ? "available" : "unavailable",
     groups: groupKnowledgeDoctorFindings(all, removals),
     findings: all,
+    ratchet: O.none(),
   });
 });
 
@@ -1605,19 +1648,357 @@ export const makeKnowledgeDoctorTree = Effect.fn("KnowledgeDoctor.makeTree")(fun
   return yield* liveDoctorTree(materialized, gitRefNames, MutableHashMap.empty());
 });
 
+/* -------------------------------------------------------------------------------------------------
+ * Gate
+ * ---------------------------------------------------------------------------------------------- */
+
+type DoctorGitError = KnowledgeDoctorInputError | KnowledgeOperationalError;
+
+const doctorGitAdapter = (subject: string): GitCommandErrorAdapter<DoctorGitError> => ({
+  onSpawnFailure: (commandLine) => KnowledgeOperationalError.new(`Failed to spawn ${commandLine}.`),
+  onNonZeroExit: ({ commandLine, exitCode, output }) =>
+    KnowledgeDoctorInputError.of(
+      "absent-ref",
+      subject,
+      `Cannot resolve ${subject} with ${commandLine} (exit ${exitCode}).${Str.isEmpty(output) ? "" : ` ${output}`}`
+    ),
+  onTruncated: O.none(),
+});
+
+/**
+ * The typed failure a shallow clone raises before the gate reads any history.
+ *
+ * **Example** (A full clone passes)
+ *
+ * ```ts
+ * import { knowledgeShallowHistoryError } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.service"
+ * import * as O from "effect/Option"
+ *
+ * console.log(O.isNone(knowledgeShallowHistoryError("false", "origin/main"))) // true
+ * ```
+ *
+ * @param isShallowOutput - Trimmed output of `git rev-parse --is-shallow-repository`.
+ * @param subject - The base ref the gate needs history for.
+ * @returns The `shallow-history` error when the clone is shallow.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const knowledgeShallowHistoryError: {
+  (subject: string): (isShallowOutput: string) => O.Option<KnowledgeDoctorInputError>;
+  (isShallowOutput: string, subject: string): O.Option<KnowledgeDoctorInputError>;
+} = dual(
+  2,
+  (isShallowOutput: string, subject: string): O.Option<KnowledgeDoctorInputError> =>
+    Str.equivalence(isShallowOutput, "true")
+      ? O.some(
+          KnowledgeDoctorInputError.of(
+            "shallow-history",
+            subject,
+            `The clone is shallow, so the merge-base with ${subject} and the rename lineage since mintedAt are unknowable.`
+          )
+        )
+      : O.none()
+);
+
+type DoctorRefs = { readonly repoRoot: string; readonly head: string; readonly mergeBase: string };
+
+const resolveDoctorRefs = Effect.fn("KnowledgeDoctor.resolveRefs")(function* (baseRef: string) {
+  const repoRoot = yield* findRepoRoot().pipe(
+    KnowledgeOperationalError.mapError("Failed to locate the repository root for the knowledge doctor.")
+  );
+  const shallow = yield* runCapturedStreams({
+    command: "git",
+    args: ["rev-parse", "--is-shallow-repository"],
+    cwd: repoRoot,
+    extendEnv: true,
+    trim: true,
+  }).pipe(KnowledgeOperationalError.mapError("Failed to spawn git rev-parse --is-shallow-repository."));
+  yield* O.match(knowledgeShallowHistoryError(shallow.stdout, baseRef), {
+    onNone: () => Effect.void,
+    onSome: Effect.fail,
+  });
+  const head = yield* resolveGitCommit(repoRoot, "HEAD", doctorGitAdapter("HEAD"));
+  yield* resolveGitCommit(repoRoot, baseRef, doctorGitAdapter(baseRef));
+  const mergeBase = yield* resolveGitMergeBase(
+    repoRoot,
+    baseRef,
+    head,
+    doctorGitAdapter(`the merge-base of ${baseRef}`)
+  );
+  return { repoRoot, head, mergeBase } satisfies DoctorRefs;
+});
+
+/**
+ * Options of the gating check.
+ *
+ * **Details**
+ *
+ * `acceptMint` is CI-only: it admits a mint-App baseline change when the C8 conditions hold.
+ * `baseRef` is a local ref whose merge-base with HEAD is the trust anchor; the doctor never fetches.
+ * `now` is the instant lease expiry is judged at.
+ *
+ * **Example** (Check against origin/main)
+ *
+ * ```ts
+ * import { KnowledgeDoctorCheckOptions } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.service"
+ * import * as DateTime from "effect/DateTime"
+ *
+ * const options = KnowledgeDoctorCheckOptions.make({
+ *   acceptMint: false,
+ *   baseRef: "origin/main",
+ *   now: DateTime.makeUnsafe("2026-10-14T00:00:00Z"),
+ * })
+ *
+ * console.log(options.baseRef) // "origin/main"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeDoctorCheckOptions extends S.Class<KnowledgeDoctorCheckOptions>($I`KnowledgeDoctorCheckOptions`)(
+  {
+    acceptMint: S.Boolean,
+    baseRef: S.String,
+    now: S.DateTimeUtc,
+  },
+  $I.annote("KnowledgeDoctorCheckOptions", {
+    description: "Base ref, CI mint acceptance flag, and the instant of one gating knowledge-doctor check.",
+  })
+) {}
+
+const missingBaseline = (): KnowledgeDoctorInputError =>
+  KnowledgeDoctorInputError.make({
+    reason: "missing-baseline",
+    subject: KNOWLEDGE_DOCTOR_BASELINE_PATH,
+    message: KNOWLEDGE_DOCTOR_BASELINE_PENDING_MESSAGE,
+    remediation: "Run `bun run beep knowledge doctor --report` until the CI mint opens the first sealed baseline.",
+  });
+
+const previousPromotions = Effect.fn("KnowledgeDoctor.previousPromotions")(function* (
+  tree: KnowledgeDoctorTree,
+  files: KnowledgeSealFiles
+) {
+  return yield* O.match(files.baseline, {
+    onNone: () => Effect.succeed(A.empty<KnowledgeDoctorPromotion>()),
+    onSome: (baseline) =>
+      tree.atCommit(baseline.mintedAt).pipe(
+        Effect.flatMap(readKnowledgeSealFiles),
+        Effect.map((previous) =>
+          O.match(previous.promotions, { onNone: A.empty<KnowledgeDoctorPromotion>, onSome: (file) => file.promotions })
+        )
+      ),
+  });
+});
+
+const mintAt = Effect.fn("KnowledgeDoctor.mintAt")(function* (commit: string) {
+  const tree = yield* makeKnowledgeDoctorTree(commit);
+  const report = yield* scanKnowledgeDoctorTree(tree);
+  const files = yield* readKnowledgeSealFiles(tree);
+  return yield* mintKnowledgeBaseline({
+    tree,
+    report,
+    removals: yield* tree.pathRemovals,
+    files,
+    previousPromotions: yield* previousPromotions(tree, files),
+  });
+});
+
+const reproducesAt = (text: O.Option<string>, baseline: KnowledgeDoctorBaseline) =>
+  Effect.scoped(mintAt(baseline.mintedAt)).pipe(
+    Effect.flatMap((minted) =>
+      verifyKnowledgeBaselineText(
+        O.getOrElse(text, () => ""),
+        minted
+      )
+    ),
+    Effect.as(true),
+    Effect.catchTags({
+      KnowledgeSealBroken: () => Effect.succeed(false),
+      KnowledgeMintRefusal: () => Effect.succeed(false),
+    })
+  );
+
+const mintAcceptance = Effect.fn("KnowledgeDoctor.mintAcceptance")(function* (
+  refs: DoctorRefs,
+  baseline: KnowledgeDoctorBaseline,
+  text: O.Option<string>
+) {
+  const mintedAtIsAncestor = yield* isAncestorLive(refs.repoRoot, refs.mergeBase, baseline.mintedAt);
+  const reproduces = yield* reproducesAt(text, baseline);
+  return KnowledgeMintAcceptance.make({ mintedAtIsAncestor, reproduces });
+});
+
+const checkLive = Effect.fn("KnowledgeDoctor.checkLive")(function* (options: KnowledgeDoctorCheckOptions) {
+  const refs = yield* resolveDoctorRefs(options.baseRef);
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const tree = yield* makeKnowledgeDoctorTree(refs.head);
+      const head = yield* readKnowledgeSealFiles(tree);
+      const baseTree = yield* materializeKnowledgeTree(refs.mergeBase);
+      const base = yield* readKnowledgeSealFiles(baseTree.oracle);
+      const baseline = yield* Effect.fromOption(O.orElse(head.baseline, () => base.baseline)).pipe(
+        Effect.mapError(missingBaseline)
+      );
+      const report = yield* scanKnowledgeDoctorTree(tree);
+      const adapter = doctorGitAdapter(`mintedAt ${baseline.mintedAt}`);
+      const renames = yield* readGitRenames(refs.repoRoot, baseline.mintedAt, refs.head, [], adapter, () =>
+        KnowledgeOperationalError.make({ message: "Malformed NUL-delimited rename output since mintedAt." })
+      );
+      const mintedAtPaths = O.isSome(head.identity)
+        ? HashSet.fromIterable(
+            A.map(
+              yield* readGitTree(refs.repoRoot, baseline.mintedAt, adapter, () =>
+                KnowledgeOperationalError.make({ message: "Malformed NUL-delimited mintedAt ls-tree output." })
+              ),
+              (entry) => entry.path
+            )
+          )
+        : HashSet.empty<string>();
+      const changedPaths = yield* runGitPathList(
+        refs.repoRoot,
+        ["diff", "--name-only", "-z", refs.mergeBase, refs.head],
+        doctorGitAdapter(refs.mergeBase)
+      );
+      const acceptMint = options.acceptMint
+        ? yield* O.match(head.baseline, {
+            onNone: () => Effect.succeedNone,
+            onSome: (headBaseline) => Effect.asSome(mintAcceptance(refs, headBaseline, head.baselineText)),
+          })
+        : O.none<KnowledgeMintAcceptance>();
+      return yield* checkKnowledgeDoctorReport(
+        KnowledgeDoctorCheckInput.make({
+          acceptMint,
+          base,
+          baseRef: options.baseRef,
+          changedPaths,
+          head,
+          headPaths: tree.entryIndex.paths,
+          mergeBase: refs.mergeBase,
+          mintedAtPaths,
+          now: options.now,
+          renames: A.map(renames, (rename) => [rename.sourcePath, rename.targetPath] as const),
+          report,
+          removals: yield* tree.pathRemovals,
+        })
+      );
+    })
+  );
+});
+
+const verifyMintLive = Effect.scoped(
+  Effect.gen(function* () {
+    const tree = yield* materializeKnowledgeTree("HEAD");
+    const files = yield* readKnowledgeSealFiles(tree.oracle);
+    const baseline = yield* Effect.fromOption(files.baseline).pipe(Effect.mapError(missingBaseline));
+    const minted = yield* Effect.scoped(mintAt(baseline.mintedAt));
+    yield* verifyKnowledgeBaselineText(
+      O.getOrElse(files.baselineText, () => ""),
+      minted
+    );
+    return minted;
+  })
+).pipe(Effect.withSpan("KnowledgeDoctor.verifyMintLive"));
+
+/**
+ * Options of the lease listing.
+ *
+ * **Details**
+ *
+ * `baseRef` names the local ref whose merge-base CODEOWNERS and leases anchor the owner and `issued`
+ * checks; `now` is the instant expiry is judged at.
+ *
+ * **Example** (List leases now)
+ *
+ * ```ts
+ * import { KnowledgeDoctorLeasesOptions } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.service"
+ * import * as DateTime from "effect/DateTime"
+ *
+ * const options = KnowledgeDoctorLeasesOptions.make({
+ *   baseRef: "origin/main",
+ *   now: DateTime.makeUnsafe("2026-10-14T00:00:00Z"),
+ * })
+ *
+ * console.log(options.baseRef) // "origin/main"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnowledgeDoctorLeasesOptions extends S.Class<KnowledgeDoctorLeasesOptions>(
+  $I`KnowledgeDoctorLeasesOptions`
+)(
+  {
+    baseRef: S.String,
+    now: S.DateTimeUtc,
+  },
+  $I.annote("KnowledgeDoctorLeasesOptions", {
+    description: "Base ref and instant of one knowledge-doctor lease listing.",
+  })
+) {}
+
+const leasesLive = Effect.fn("KnowledgeDoctor.leasesLive")(function* (options: KnowledgeDoctorLeasesOptions) {
+  const refs = yield* resolveDoctorRefs(options.baseRef);
+  return yield* Effect.scoped(
+    Effect.gen(function* () {
+      const headTree = yield* materializeKnowledgeTree(refs.head);
+      const head = yield* readKnowledgeSealFiles(headTree.oracle);
+      const leases = O.match(head.leases, { onNone: A.empty<KnowledgeDebtLease>, onSome: (file) => file.leases });
+      const base = A.isReadonlyArrayEmpty(leases)
+        ? O.none<KnowledgeSealFiles>()
+        : O.some(yield* readKnowledgeSealFiles((yield* materializeKnowledgeTree(refs.mergeBase)).oracle));
+      const rows = yield* evaluateKnowledgeLeases(
+        KnowledgeLeaseEvaluationInput.make({
+          leases,
+          baseLeases: pipe(
+            base,
+            O.flatMap((files) => files.leases),
+            O.match({ onNone: A.empty<KnowledgeDebtLease>, onSome: (file) => file.leases })
+          ),
+          codeowners: O.flatMap(base, (files) => files.codeowners),
+          now: options.now,
+        })
+      );
+      return KnowledgeLeasesReport.make({ tree: refs.head, mergeBase: refs.mergeBase, now: options.now, leases: rows });
+    })
+  );
+});
+
 /**
  * The knowledge doctor's operations.
  *
  * **Details**
  *
  * `scanTree` is pure over an injected tree, which is what golden and counterfactual tests drive.
- * `report` materializes a commit-ish and scans it; it reads no baseline and writes nothing.
+ * `report` materializes a commit-ish and scans it; it reads no baseline and writes nothing. `check`
+ * is the gate: it scans HEAD, resolves the merge-base with `baseRef`, and classifies the scan against
+ * the sealed baseline, leases, and the seal guard; it refuses while no baseline exists. `mint`
+ * returns the baseline a commit seals to and writes nothing (the CI job writes it). `verifyMint`
+ * re-mints the committed baseline at its `mintedAt` and byte-compares. `leases` evaluates the lease
+ * file without scanning the corpus.
  *
  * @see {@link KnowledgeDoctor} for the service tag.
  * @category services
  * @since 0.0.0
  */
 export interface KnowledgeDoctorShape {
+  readonly check: (
+    options: KnowledgeDoctorCheckOptions
+  ) => Effect.Effect<
+    KnowledgeDoctorReport,
+    KnowledgeOperationalError | KnowledgeDoctorInputError | KnowledgeCloneAttributesError
+  >;
+  readonly leases: (
+    options: KnowledgeDoctorLeasesOptions
+  ) => Effect.Effect<
+    KnowledgeLeasesReport,
+    KnowledgeOperationalError | KnowledgeDoctorInputError | KnowledgeCloneAttributesError
+  >;
+  readonly mint: (
+    commit: string
+  ) => Effect.Effect<
+    KnowledgeDoctorBaseline,
+    KnowledgeOperationalError | KnowledgeDoctorInputError | KnowledgeCloneAttributesError | KnowledgeMintRefusal
+  >;
   readonly report: (
     treeish: string
   ) => Effect.Effect<KnowledgeDoctorReport, KnowledgeOperationalError | KnowledgeCloneAttributesError>;
@@ -1625,6 +2006,14 @@ export interface KnowledgeDoctorShape {
     tree: KnowledgeDoctorTree,
     evaluators?: ReadonlyArray<KnowledgeEvaluator>
   ) => Effect.Effect<KnowledgeDoctorReport, KnowledgeOperationalError>;
+  readonly verifyMint: Effect.Effect<
+    KnowledgeDoctorBaseline,
+    | KnowledgeOperationalError
+    | KnowledgeDoctorInputError
+    | KnowledgeCloneAttributesError
+    | KnowledgeMintRefusal
+    | KnowledgeSealBroken
+  >;
 }
 
 /**
@@ -1668,6 +2057,10 @@ const makeKnowledgeDoctor = Effect.fn("KnowledgeDoctor.make")(function* () {
         Effect.provide(runtime)
       )
     ),
+    check: Effect.fn("KnowledgeDoctor.check")((options) => checkLive(options).pipe(Effect.provide(runtime))),
+    mint: Effect.fn("KnowledgeDoctor.mint")((commit) => Effect.scoped(mintAt(commit)).pipe(Effect.provide(runtime))),
+    verifyMint: verifyMintLive.pipe(Effect.provide(runtime)),
+    leases: Effect.fn("KnowledgeDoctor.leases")((options) => leasesLive(options).pipe(Effect.provide(runtime))),
   });
 });
 

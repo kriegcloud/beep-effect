@@ -227,7 +227,7 @@ Follow-ups this surfaces:
      stays the domain-span form; `beep.package` (and `beep.slice` where one
      exists) is a required attribute, because Effect's OTLP tracer hard-codes
      the instrumentation scope to `"effect"`
-     (`.repos/effect/packages/effect/src/observability/OtlpTracer.ts:70`);
+     ([Effect OtlpTracer source](https://github.com/Effect-TS/effect/blob/main/packages/effect/src/observability/OtlpTracer.ts#L70));
      the kernel's custom serializer may also stamp the real scope.
   2. *Protocol spans* follow OTel semconv (`GET /route`, `gen_ai.*`,
      `mcp.method.name`), not `Concept.action`.
