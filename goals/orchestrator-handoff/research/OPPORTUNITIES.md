@@ -112,3 +112,12 @@
   `assertSome` and `assertNone`, preserving the original expected payload and polarities.
 - Would have prevented it: including the Effect Vitest detector in the package verifier
   or the handoff's parity list, before the fifteen-minute full test suite.
+
+## 2026-10-14: Changeset status passed while the hosted graph rejected the note
+
+- Doing: publishing #1678 with the patch changeset requested by the worker brief.
+- Evidence: local `quality:changeset-status` passed, but hosted Repo Sanity rejected
+  the note because `@beep/repo-cli` is private: "private workspaces must not accumulate
+  release notes." Removed the note and recorded the release-policy decision in `SPEC.md`.
+- Would have prevented it: including `quality changeset-graph` in the publish cheap
+  gates, and checking package privacy before a brief requires a changeset.
