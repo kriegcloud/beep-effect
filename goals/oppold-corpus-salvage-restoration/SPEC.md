@@ -1186,3 +1186,30 @@ Separate post-wave recovery covers their parser and elapsed-budget classes;
 no sealed family is retried. Reversal: revert this documentation amendment
 before launch; after launch retain all ledgers, claims, output and manifests
 and revert only the documentation decision. No source or launcher edit.
+
+
+### 2026-10-14: further sealed failure stops the wave at family 8
+
+Family 8 result 1, one unapproved engine-failure, expected/terminal one.
+Retained output 1,037,230,305 bytes from 436,306,944 input bytes
+(2.377294974x); family elapsed 2,996,198 ms, within both time ceilings.
+Partial dispositions: 109 repaired occurrences / 95 distinct digests,
+95 unsupported, zero unchanged; 96 copies and 95 Tika outputs. No store
+or child passes, warnings or interruptions. The unmatched 196,192-byte PDF
+copy reproduces Tika exit 1 and empty stdout with TikaException/IOException
+counts in the read-only frozen sandbox. Attribution is input-sensitive
+parser failure; input corruption and precise original cause are unproven.
+Ledger SHA-256 93e49e56ba8c4941ebaf4e33fd227340d5a31e3a8baa31b95cb2a7b8d9b1d60d.
+Retained attempt/family digests independently rehash to the ledger values.
+
+Eight seals: five accepted, families 5/7/8 failed; ordinal 9 unstarted.
+The 06:25Z amendment was committed before ordinal 8 ran at
+ce71e3cb88971dc0d2cfe9f7b0fd829164d859ac; immutable manifests retain
+6eb3d036771e868768846b3c56a5aafac69c3b2b. No source equivalence is claimed.
+Decision: stop at this further failure, diagnose and publish evidence;
+no ordinal 9 launch, sealed-family retry or exception approval. P2 stays
+in-progress, P3 pending. Families 5/7 recovery remains separately ruled;
+family 8 adds a PDF parser recovery item requiring a separate scope/freeze.
+Reversal: revert documentation decisions while retaining every ledger,
+output, claim and immutable manifest. Full record:
+history/p2/2026-10-14-family-08-stop.md.

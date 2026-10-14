@@ -858,3 +858,17 @@ family engine failure; no live family was launched before it was repaired.
 - Prevention: declare an execution-root parameter before freezing a launcher.
 - Action: use the explicitly authorized pre-launch freeze-amendment fallback,
   attach the restoration source delta, keep the launcher and manifests intact.
+
+
+## 2026-10-14: PDF second pass fails inside retained wave bounds
+
+- Doing: reconcile ordinal 8 after its admitted family unit ended.
+- Evidence: result 1, one unapproved engine-failure, 96 repair copies and
+  95 Tika outputs. The unmatched 196,192-byte PDF copy reproduces exit 1,
+  empty stdout, one TikaException and two IOException matches inside the
+  frozen read-only sandbox. Family elapsed 2,996,198 ms and retained bytes
+  1,037,230,305 fit their ceilings. The generic terminal catch loses the cause.
+- Prevention: preserve sanitized failure stage and exception class, and cover
+  nonzero/empty PDF extraction with a synthetic fixture before another freeze.
+- Action: record qualified input-sensitive parser attribution, retain output,
+  stop before ordinal 9 and publish aggregate evidence. No retry or approval.

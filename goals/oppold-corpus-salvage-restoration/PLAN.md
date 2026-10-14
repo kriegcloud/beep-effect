@@ -335,3 +335,16 @@ Immutable manifests and launcher unchanged; execution source delta recorded
 before launch. Standing driver reconciles ordinal 8 after its unit ends.
 P2 remains in-progress; separate failed-family recovery and larger estate
 obligations remain open. Never retry a sealed family.
+
+
+### 2026-10-14: first bounded wave stops at family 8
+
+Eight families sealed: five accepted (1-4 and 6), three failed (5, 7, 8).
+Family 8 result 1, one unapproved engine-failure. The unmatched PDF repair
+copy reproduces a nonzero/empty frozen Tika second pass; precise original
+cause remains unavailable. Bytes and time fit their ceilings. Ordinal 9
+is unstarted; no next launch or retry. Publish the aggregate stop record
+and await orchestrator continuation/recovery scope. P2 remains in-progress.
+Separate family-5/7 recovery, the new family-8 parser follow-up, eighteen
+larger occurrences and estate/recycle/DOC gates remain open.
+See history/p2/2026-10-14-family-08-stop.md.
