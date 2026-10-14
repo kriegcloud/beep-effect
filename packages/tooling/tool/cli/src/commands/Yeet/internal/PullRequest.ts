@@ -666,7 +666,7 @@ const editPullRequestTitle = Effect.fn("Yeet.editPullRequestTitle")(function* (
   if (!isGraphQlRateLimitOutput(edited.output)) {
     return YeetPullRequestTitleSync.make({
       status: "failed",
-      message: `could not replace the merge-commit subject on pull request #${number}; run: gh pr edit ${number} --title "${title}"\n${edited.output}`,
+      message: `could not replace the merge-commit subject on pull request #${number}; review and edit its title in GitHub.\n${edited.output}`,
     });
   }
   const patched = yield* capture(
@@ -678,7 +678,7 @@ const editPullRequestTitle = Effect.fn("Yeet.editPullRequestTitle")(function* (
     ? updated
     : YeetPullRequestTitleSync.make({
         status: "failed",
-        message: `could not replace the merge-commit subject on pull request #${number} through REST; run: gh pr edit ${number} --title "${title}"\n${patched.output}`,
+        message: `could not replace the merge-commit subject on pull request #${number} through REST; review and edit its title in GitHub.\n${patched.output}`,
       });
 });
 

@@ -10,13 +10,13 @@
  * `bun run scripts/generate-label-glyphs.ts <sans.ttf> <serif.ttf>`). It
  * outlines the label alphabet through `outlineFontFile`, the function the
  * `fontFile` label route calls, and writes the module with a provenance header
- * (file name, name-table version, sha256). `bun run generate` writes and
+ * (sha256). `bun run generate` writes and
  * formats the file; `bun run generate:check` fails when the committed file
  * differs. Recipe: goals/design-figure-review-loop/research/label-glyphs.md.
  *
  * @since 0.0.0
  */
-import { A, O, P, R, Str } from "@beep/utils";
+import { A, R } from "@beep/utils";
 import { NodeRuntime, NodeServices } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -29,34 +29,12 @@ import type { LabelFace } from "../src/internal/LabelOutline.ts";
 const DEFAULT_SANS = "/usr/share/fonts/liberation/LiberationSans-Regular.ttf";
 const DEFAULT_SERIF = "/usr/share/fonts/liberation/LiberationSerif-Regular.ttf";
 
-// The same non-literal specifier as the package: the opentype.js typings reference the DOM library.
-const OPENTYPE_MODULE = Str.concat("opentype", ".js");
-
 const hexOf = (bytes: ArrayBuffer): string =>
   pipe(
     A.fromIterable(new Uint8Array(bytes)),
     A.map((b) => b.toString(16).padStart(2, "0")),
     A.join("")
   );
-
-// Name-table version string ("Version 2.1.5"), read only for the provenance header.
-const versionOf = Effect.fnUntraced(function* (bytes: Uint8Array) {
-  const module: unknown = yield* Effect.promise(() => import(OPENTYPE_MODULE));
-  const parse = pipe(
-    O.some(module),
-    O.map((m) => (P.hasProperty(m, "parse") ? m : P.hasProperty(m, "default") ? m.default : m)),
-    O.filter((m) => P.hasProperty(m, "parse") && P.isFunction(m.parse)),
-    O.map((m) => (m as { readonly parse: (buffer: ArrayBuffer) => unknown }).parse)
-  );
-  const font = O.map(parse, (f) => f(bytes.slice().buffer));
-  return pipe(
-    font,
-    O.flatMap((f) => (P.hasProperty(f, "names") ? O.some(f.names) : O.none())),
-    O.flatMap((n) => (P.hasProperty(n, "version") ? O.some(n.version) : O.none())),
-    O.flatMap((v) => (P.hasProperty(v, "en") && P.isString(v.en) ? O.some(v.en) : O.none())),
-    O.getOrElse(() => "unknown")
-  );
-});
 
 const load = Effect.fnUntraced(function* (fontFile: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -65,7 +43,6 @@ const load = Effect.fnUntraced(function* (fontFile: string) {
   return {
     face: yield* outlineFontFile(fontFile, bytes),
     sha256: hexOf(digest),
-    version: yield* versionOf(bytes),
   };
 });
 
@@ -108,8 +85,8 @@ const program = Effect.gen(function* () {
  * presented under any Reserved Font Name.
  *
  * Sources (sha256):
- * - sans: ${path.basename(sansPath)} ${sans.version}, ${sans.sha256}
- * - serif: ${path.basename(serifPath)} ${serif.version}, ${serif.sha256}
+ * - sans: ${sans.sha256}
+ * - serif: ${serif.sha256}
  *
  * @internal
  * @packageDocumentation

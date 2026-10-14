@@ -57,6 +57,9 @@ class GhResult:
 
 # CSI sequences (colours) and OSC sequences (hyperlinks such as `ESC]8;;url BEL`).
 ANSI_ESCAPE_PATTERN = re.compile(r"\x1b\[[0-9;?]*[0-9A-Za-z]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)")
+# Keep only tab and newline among terminal controls. A stripped inner CSI can
+# otherwise join the remaining OSC fragments into a live control sequence.
+TERMINAL_CONTROL_PATTERN = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
 
 
 def run_gh_command(args: Sequence[str], cwd: Path) -> GhResult:
@@ -382,7 +385,8 @@ def fetch_job_log(job_id: str, repo_root: Path) -> tuple[str, str]:
         return "", message or "gh api job logs failed"
     if is_zip_payload(stdout_bytes):
         return "", "Job logs returned a zip archive; unable to parse."
-    return ANSI_ESCAPE_PATTERN.sub("", stdout_bytes.decode(errors="replace")), ""
+    cleaned = ANSI_ESCAPE_PATTERN.sub("", stdout_bytes.decode(errors="replace"))
+    return TERMINAL_CONTROL_PATTERN.sub("", cleaned), ""
 
 
 def fetch_repo_slug(repo_root: Path) -> str | None:

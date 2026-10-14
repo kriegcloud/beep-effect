@@ -743,6 +743,39 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
     )
   );
 
+  it.effect("preserves the fenced copy when an initially idle panel shell departs before the final scan", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const holder = yield* spawnSleepIn(lane);
+        const table = desktopPanelTable(holder.pid);
+        const reads = MutableRef.make(0);
+        const departingTable = {
+          ...table,
+          status: (pid: number) =>
+            pid === holder.pid
+              ? Effect.gen(function* () {
+                  const read = MutableRef.incrementAndGet(reads);
+                  if (read === 2) yield* holder.kill();
+                  return read > 2 ? O.none() : yield* table.status(pid);
+                })
+              : table.status(pid),
+        };
+        const error = yield* Effect.flip(withCwd(lane, retireMergedLane(repoRoot, lane))).pipe(
+          Effect.provideService(ProcessTable, departingTable),
+          Effect.ensuring(Effect.ignore(holder.kill()))
+        );
+        expect(error.message).toContain("became active, during capture; the fenced copy is preserved at");
+        const fenced = A.filter(
+          yield* fs.readDirectory(path.dirname(lane)),
+          Str.startsWith(`${path.basename(lane)}.retiring-`)
+        );
+        expect(A.length(fenced)).toBe(1);
+      })
+    )
+  );
+
   it.effect("refuses an idle panel shell in a lane that --lane names from outside it", () =>
     withScratchRepo(({ repoRoot, lane }) =>
       Effect.gen(function* () {

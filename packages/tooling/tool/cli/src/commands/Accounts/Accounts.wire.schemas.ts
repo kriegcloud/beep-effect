@@ -22,6 +22,7 @@ import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import * as SchemaTransformation from "effect/SchemaTransformation";
 import * as Str from "effect/String";
 import { JsonStringCodec } from "../../internal/schema/JsonCodec.ts";
 import { AccountLabel, CreditBalance, UsageWindow } from "./Accounts.schemas.ts";
@@ -837,7 +838,11 @@ export class JunieAuthTestBody extends S.Class<JunieAuthTestBody>($I`JunieAuthTe
  */
 export const JunieAuthTestBodyJson = JsonStringCodec(JunieAuthTestBody);
 
-const JunieAmount = S.Struct({ amount: S.Union([S.Finite, S.FiniteFromString]) });
+// `Number(s)` reads "", whitespace, and hex as numbers, so only plain decimals may decode.
+const JunieDecimalString = S.String.check(S.isPattern(/^-?\d+(\.\d+)?$/)).pipe(
+  S.decodeTo(S.Finite, SchemaTransformation.numberFromString)
+);
+const JunieAmount = S.Struct({ amount: S.Union([S.Finite, JunieDecimalString]) });
 const JunieQuotaPool = S.Struct({
   current: JunieAmount.pipe(S.OptionFromOptionalKey),
   maximum: JunieAmount.pipe(S.OptionFromOptionalKey),
