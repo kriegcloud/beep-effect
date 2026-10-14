@@ -321,15 +321,14 @@ describe("thin lint workers", { concurrent: false }, () => {
   });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
-      "runs package docs with zero warnings and appends a missing heap cap",
+      "runs package docs with oxlint and zero warnings",
       Effect.fnUntraced(function* () {
         const root = yield* findRepoRoot();
-        yield* run(["jsdoc", "--package", "."], { NODE_OPTIONS: "--trace-warnings" });
+        yield* run(["jsdoc", "--package", `${root}/${prefix}`], { NODE_OPTIONS: "--trace-warnings" });
         expect(execution).toHaveBeenCalledExactlyOnceWith({
-          command: `${root}/node_modules/.bin/eslint`,
-          args: ["--config", `${root}/eslint.config.mjs`, "--max-warnings=0", "--no-warn-ignored", prefix],
+          command: `${root}/node_modules/.bin/oxlint`,
+          args: ["--config", `${root}/.oxlintrc.docs.json`, "--max-warnings=0", prefix],
           cwd: root,
-          env: { BEEP_ESLINT_PROFILE: "docs", NODE_OPTIONS: "--trace-warnings --max-old-space-size=12288" },
           extendEnv: true,
           stdio: "inherit",
         });
@@ -368,17 +367,15 @@ describe("thin lint workers", { concurrent: false }, () => {
         try {
           yield* run(["jsdoc", "--root-only"]);
           expect(execution).toHaveBeenCalledExactlyOnceWith({
-            command: `${fixtureRoot}/node_modules/.bin/eslint`,
+            command: `${fixtureRoot}/node_modules/.bin/oxlint`,
             args: [
               "--config",
-              `${fixtureRoot}/eslint.config.mjs`,
+              `${fixtureRoot}/.oxlintrc.docs.json`,
               "--max-warnings=0",
-              "--no-warn-ignored",
               "infra/example.ts",
               "packages/unowned/example.ts",
             ],
             cwd: fixtureRoot,
-            env: { BEEP_ESLINT_PROFILE: "docs", NODE_OPTIONS: "--max-old-space-size=12288" },
             extendEnv: true,
             stdio: "inherit",
           });
@@ -482,6 +479,13 @@ describe("executed lint workers", { concurrent: false }, () => {
             `${fixtureRoot}/tsconfig.json`,
             '{"files":[],"references":[{"path":"./packages/tooling/tool/fixture"}]}'
           );
+          if (worker === "jsdoc") {
+            const pluginPackage = "packages/tooling/policy-pack/lint-rules";
+            yield* fs.makeDirectory(`${fixtureRoot}/${pluginPackage}`, { recursive: true });
+            yield* fs.copy(`${root}/${pluginPackage}/src`, `${fixtureRoot}/${pluginPackage}/src`);
+            yield* fs.copy(`${root}/.oxlintrc.docs.json`, `${fixtureRoot}/.oxlintrc.docs.json`);
+            yield* fs.copy(`${root}/tsdoc.json`, `${fixtureRoot}/tsdoc.json`);
+          }
           const config = yield* fs.readFileString(`${root}/eslint.config.mjs`);
           yield* fs.writeFileString(
             `${fixtureRoot}/eslint.config.mjs`,
@@ -540,7 +544,7 @@ describe("executed lint workers", { concurrent: false }, () => {
             });
             expect(invalid.exitCode, invalid.output).not.toBe(0);
             expect(invalid.output).toContain(
-              worker === "jsdoc" ? "jsdoc/require-jsdoc" : "@typescript-eslint/no-deprecated"
+              worker === "jsdoc" ? "beep(require-jsdoc)" : "@typescript-eslint/no-deprecated"
             );
           }
         }),

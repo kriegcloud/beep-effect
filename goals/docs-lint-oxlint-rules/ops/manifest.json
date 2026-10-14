@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "docs-lint-oxlint-rules",
+    "packetId": "goal-packet/v1:4d851de8f0e15d0532d70a7563987bf6302c1f20d6220cb25709db68d68cfe74",
+    "title": "JSDoc/TSDoc lint on repo-owned oxlint rules",
+    "status": "active",
+    "created": "2026-10-14",
+    "updated": "2026-10-14",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/docs-lint-oxlint-rules",
+  "lifecycle": "active",
+  "mission": "Port documentation lint to repo-owned oxlint rules; defer ESLint removal until lane A merges.",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/docs-lint-oxlint-rules/README.md",
+    "goals/docs-lint-oxlint-rules/SPEC.md",
+    "goals/docs-lint-oxlint-rules/PLAN.md",
+    "goals/docs-lint-oxlint-rules/GOAL.md",
+    "goals/docs-lint-oxlint-rules/research/SOURCES.md"
+  ],
+  "researchReports": [
+    "research/SOURCES.md",
+    "research/spike.md",
+    "research/verification.tsv"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/docs-lint-oxlint-rules/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "in-progress"
+    },
+    {
+      "id": "P3",
+      "name": "Yeet: PR to mergeable",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/docs-lint-oxlint-rules/GOAL.md)\" -le 4000",
+    "jq . goals/docs-lint-oxlint-rules/ops/manifest.json",
+    "rg -n \"docs-lint-oxlint-rules|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/docs-lint-oxlint-rules",
+    "git diff --check -- goals/docs-lint-oxlint-rules",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

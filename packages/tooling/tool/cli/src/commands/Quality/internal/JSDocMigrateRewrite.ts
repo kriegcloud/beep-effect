@@ -586,7 +586,7 @@ const rewriteBlockUnchecked = (
   const reasons: Array<string> = [];
 
   // TSDoc forbids summary content in an `{@inheritDoc}` block
-  // (eslint-plugin-tsdoc `tsdoc-inheritdoc-incompatible-summary`), and every
+  // (TSDoc parser `tsdoc-inheritdoc-incompatible-summary`), and every
   // body section this rewrite emits — Example, Details, Gotchas — IS summary
   // content, while the legacy `@example`/`@remarks` block tags were legal
   // beside `@inheritDoc`. Converting would trade a retired carrier for a

@@ -693,7 +693,6 @@ const runEslintWorker = Effect.fn("Lint.eslintWorker")(function* (
     args: [
       "--config",
       path.join(root, "eslint.config.mjs"),
-      ...(profile === "docs" ? ["--max-warnings=0", "--no-warn-ignored"] : []),
       ...(profile === "deprecated-apis" && A.every(targets, isLabsWorkspaceDir)
         ? ["--no-error-on-unmatched-pattern"]
         : []),
@@ -708,6 +707,19 @@ const runEslintWorker = Effect.fn("Lint.eslintWorker")(function* (
     return yield* failWithReportedExit(`lint ${profile}: failed with exit code ${exitCode}.`, exitCode);
 });
 
+const runDocsWorker = Effect.fn("Lint.docsWorker")(function* (root: string, targets: ReadonlyArray<string>) {
+  if (A.isReadonlyArrayEmpty(targets)) return;
+  const path = yield* Path.Path;
+  const exitCode = yield* runToExit({
+    command: path.join(root, "node_modules/.bin/oxlint"),
+    args: ["--config", path.join(root, ".oxlintrc.docs.json"), "--max-warnings=0", ...targets],
+    cwd: root,
+    extendEnv: true,
+    stdio: "inherit",
+  });
+  if (exitCode !== 0) return yield* failWithReportedExit(`lint jsdoc: failed with exit code ${exitCode}.`, exitCode);
+});
+
 const lintJsdocCommand = Command.make(
   "jsdoc",
   {
@@ -720,7 +732,7 @@ const lintJsdocCommand = Command.make(
     }
     const root = yield* findRepoRoot();
     if (O.isSome(directory)) {
-      return yield* runEslintWorker(root, "docs", [yield* resolveLintPackage(root, directory.value)]);
+      return yield* runDocsWorker(root, [yield* resolveLintPackage(root, directory.value)]);
     }
     const fsUtils = yield* FsUtils;
     const path = yield* Path.Path;
@@ -734,9 +746,9 @@ const lintJsdocCommand = Command.make(
         ...A.map(A.fromIterable(HashMap.values(workspaces)), (dir) => `${normalizePath(path.relative(root, dir))}/**`),
       ],
     });
-    yield* runEslintWorker(root, "docs", A.sort(files, Order.String));
+    yield* runDocsWorker(root, A.sort(files, Order.String));
   })
-).pipe(Command.withDescription("Check package or non-workspace documentation with the docs ESLint profile"));
+).pipe(Command.withDescription("Check package or non-workspace documentation with repo-owned oxlint rules"));
 
 const lintLawsCommand = Command.make(
   "laws",
@@ -870,6 +882,7 @@ const rootConfigs = [
   "eslint.config.mjs",
   "tsdoc.json",
   ".oxlintrc.json",
+  ".oxlintrc.docs.json",
   "_typos.toml",
   "knip.jsonc",
   ".fallowrc.jsonc",

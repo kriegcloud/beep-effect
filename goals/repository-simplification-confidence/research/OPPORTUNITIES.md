@@ -1076,3 +1076,6 @@ Hosted Repo Sanity job 115502999707 fails old-head Syncpack on minimatch
 repairs both; acknowledge with the actual main merge commit, not a waiver.
 The separately reported Sherif ordering issue still requires live attribution
 on the new head if it appears.
+
+- 2026-10-14: Documentation lint migration is owned by `goals/docs-lint-oxlint-rules`
+  (TS7 lane B). The orchestrator attaches the publishing PR; ESLint removal waits for lane A.

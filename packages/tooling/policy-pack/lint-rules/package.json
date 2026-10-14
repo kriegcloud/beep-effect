@@ -39,7 +39,11 @@
     "@oxlint/plugins": "catalog:",
     "@types/node": "catalog:",
     "effect": "catalog:",
-    "oxlint": "catalog:"
+    "oxlint": "catalog:",
+    "comment-parser": "catalog:",
+    "are-docs-informative": "catalog:",
+    "@microsoft/tsdoc": "catalog:",
+    "@microsoft/tsdoc-config": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",
@@ -48,7 +52,8 @@
     "./recommended": "./configs/core.jsonc",
     "./core": "./configs/core.jsonc",
     "./schema": "./configs/schema.jsonc",
-    "./services": "./configs/services.jsonc"
+    "./services": "./configs/services.jsonc",
+    "./oxlint-docs": "./src/rules/docs.index.ts"
   },
   "files": [
     "src/**/*.ts",
