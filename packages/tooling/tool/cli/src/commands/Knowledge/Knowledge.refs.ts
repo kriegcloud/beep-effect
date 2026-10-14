@@ -1596,14 +1596,28 @@ const PATH_ASSERTION_LINE_PATTERN = /^([ \t]*)<!-- beep:assert path-exists (\S+)
 /**
  * A `beep:assert path-exists` marker and the 1-based column its comment opens at.
  *
+ * **Example** (Build an assertion at the start of a line)
+ *
+ * ```ts
+ * import { KnowledgePathAssertion } from "@beep/repo-cli/commands/Knowledge/Knowledge.refs"
+ *
+ * const assertion = KnowledgePathAssertion.make({ path: "AGENTS.md", column: 1 })
+ * console.log(assertion.path) // "AGENTS.md"
+ * ```
+ *
  * @see {@link knowledgePathAssertion} for the reader that produces it.
  * @category models
  * @since 0.0.0
  */
-export type KnowledgePathAssertion = {
-  readonly path: string;
-  readonly column: number;
-};
+export class KnowledgePathAssertion extends S.Class<KnowledgePathAssertion>($I`KnowledgePathAssertion`)(
+  {
+    path: S.String,
+    column: S.Int,
+  },
+  $I.annote("KnowledgePathAssertion", {
+    description: "A whole-line path-exists assertion marker and the 1-based column its comment opens at.",
+  })
+) {}
 
 /**
  * Reads the path assertion a prose line makes, if it makes one.
@@ -1642,7 +1656,9 @@ export const knowledgePathAssertion = (lineText: string): O.Option<KnowledgePath
   pipe(
     O.fromNullishOr(PATH_ASSERTION_LINE_PATTERN.exec(lineText)),
     O.flatMap(([, indent, path]) =>
-      P.isString(indent) && P.isString(path) ? O.some({ path, column: Str.length(indent) + 1 }) : O.none()
+      P.isString(indent) && P.isString(path)
+        ? O.some(KnowledgePathAssertion.make({ path, column: Str.length(indent) + 1 }))
+        : O.none()
     )
   );
 
