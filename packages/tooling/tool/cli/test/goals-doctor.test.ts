@@ -258,7 +258,9 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
       expect(output).toContain("typed [completion-gate-unknown]");
       expect(output).toContain("Merge-time ruleset inventory completeness is unknown");
       expect(output).toContain("rulesets deleted since the merge");
-      expect(output).toContain("they cannot verify completion without a complete historical inventory");
+      expect(output).toContain("neither can verify completion without a complete historical inventory");
+      expect(output).toContain("Online doctor inspects facts and completion refresh persists them");
+      expect(output).not.toContain("Online reads and refresh record");
       expect(output).not.toContain("No matching clone receipt");
     })
   );

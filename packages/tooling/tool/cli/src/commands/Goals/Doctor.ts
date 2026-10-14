@@ -915,12 +915,12 @@ const completionReceiptFindings = (
   const detail = receipt.pipe(
     O.map((row) =>
       outcome === "unknown" && O.exists(row.requiredChecks, (snapshot) => !snapshot.inventoryComplete)
-        ? "Merge-time ruleset inventory completeness is unknown: GitHub cannot enumerate rulesets deleted since the merge. Online reads and refresh record observed facts; they cannot verify completion without a complete historical inventory."
+        ? "Merge-time ruleset inventory completeness is unknown: GitHub cannot enumerate rulesets deleted since the merge. Online doctor inspects facts and completion refresh persists them; neither can verify completion without a complete historical inventory."
         : "See head-bound completion evidence; lifecycle is unchanged."
     ),
     O.getOrElse(
       () =>
-        "No matching clone receipt. Online doctor inspects PR/merge/check facts; completion refresh records them. Overall verification requires a complete merge-time ruleset inventory, which GitHub's current inventory cannot reconstruct."
+        "No matching clone receipt. Online doctor inspects PR/merge/check facts; completion refresh persists them. Overall verification requires a complete merge-time ruleset inventory, which GitHub's current inventory cannot reconstruct."
     )
   );
   const findings =
