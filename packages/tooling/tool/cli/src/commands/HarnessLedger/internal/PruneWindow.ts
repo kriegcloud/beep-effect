@@ -524,21 +524,33 @@ const TranscriptRow = S.fromJsonString(
 const decodeTranscript = S.decodeUnknownResult(TranscriptRow);
 const decodeTool = S.decodeUnknownOption(TranscriptTool);
 
-class TranscriptTally extends S.Class<TranscriptTally>($I`TranscriptTally`)({
-  session: S.OptionFromOptionalKey(S.String),
-  identityConflict: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  calls: S.Natural,
-  undecodableLines: S.Natural,
-}) {}
+class TranscriptTally extends S.Opaque<TranscriptTally, { readonly brand: unique symbol }>()(
+  S.Struct({
+    session: S.OptionFromOptionalKey(S.String),
+    identityConflict: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
+    calls: S.Natural,
+    undecodableLines: S.Natural,
+  }).pipe(
+    $I.annoteSchema("TranscriptTally", {
+      description: "Transcript session identity, provenance and observed tool counts.",
+    })
+  )
+) {}
 
-class TranscriptFileCounts extends S.Class<TranscriptFileCounts>($I`TranscriptFileCounts`)({
-  sessionHash: Sha256Hex,
-  pathHash: Sha256Hex,
-  calls: S.Natural,
-  undecodableLines: S.Natural,
-  identityConflict: S.Boolean,
-  bindingHash: S.OptionFromOptionalKey(S.String),
-}) {}
+class TranscriptFileCounts extends S.Opaque<TranscriptFileCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
+    sessionHash: Sha256Hex,
+    pathHash: Sha256Hex,
+    calls: S.Natural,
+    undecodableLines: S.Natural,
+    identityConflict: S.Boolean,
+    bindingHash: S.OptionFromOptionalKey(S.String),
+  }).pipe(
+    $I.annoteSchema("TranscriptFileCounts", {
+      description: "Tool and transcript-file counts for one canonical session.",
+    })
+  )
+) {}
 
 const transcriptToolCount = (row: typeof TranscriptRow.Type): number => {
   const content = row.message?.content;
@@ -569,10 +581,16 @@ const foldTranscriptLine = (tally: TranscriptTally, line: string): TranscriptTal
     },
   });
 
-class ReconciliationHookBinding extends S.Class<ReconciliationHookBinding>($I`ReconciliationHookBinding`)({
-  identities: S.Array(S.String),
-  count: S.Natural,
-}) {}
+class ReconciliationHookBinding extends S.Opaque<ReconciliationHookBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
+    identities: S.Array(S.String),
+    count: S.Natural,
+  }).pipe(
+    $I.annoteSchema("ReconciliationHookBinding", {
+      description: "Recorded hook identities bound to one transcript path.",
+    })
+  )
+) {}
 
 const foldReconciliationHook = (
   row: HookPulseV1,
@@ -656,12 +674,18 @@ const transcriptRepresentativePriority = (
   return canonical === file ? 1 : 0;
 };
 
-class ReconciliationTranscriptFile extends S.Class<ReconciliationTranscriptFile>($I`ReconciliationTranscriptFile`)({
-  file: S.String,
-  identity: S.String,
-  hookKeys: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed(A.empty<string>()))),
-  canonical: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-}) {}
+class ReconciliationTranscriptFile extends S.Opaque<ReconciliationTranscriptFile, { readonly brand: unique symbol }>()(
+  S.Struct({
+    file: S.String,
+    identity: S.String,
+    hookKeys: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed(A.empty<string>()))),
+    canonical: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
+  }).pipe(
+    $I.annoteSchema("ReconciliationTranscriptFile", {
+      description: "Canonical transcript file, alias paths and decoded structural attribution.",
+    })
+  )
+) {}
 
 const reconciliationTranscriptFiles = Effect.fn("HarnessLedger.reconciliationTranscriptFiles")(function* (
   dir: string,

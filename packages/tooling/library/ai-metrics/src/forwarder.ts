@@ -92,7 +92,7 @@ class ProcessedForwarderSource extends S.Opaque<ProcessedForwarderSource, { read
     sessionIdentityHash: S.OptionFromOptionalKey(Sha256Hex.pipe(S.toEncoded)),
   }).pipe(
     $I.annoteSchema("ProcessedForwarderSource", {
-      description: "Processed transcript source and its optional qualified session-time stamp.",
+      description: "Processed transcript source and its hook-namespace attribution keys.",
     })
   )
 ) {}

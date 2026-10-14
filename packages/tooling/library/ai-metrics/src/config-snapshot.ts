@@ -583,9 +583,10 @@ export class AiMetricsConfigSnapshotResult extends S.Opaque<
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsConfigSnapshotError extends S.TaggedError<AiMetricsConfigSnapshotError>(
-  $I`AiMetricsConfigSnapshotError`
-)(
+export class AiMetricsConfigSnapshotError extends S.TaggedError<
+  AiMetricsConfigSnapshotError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsConfigSnapshotError`)(
   "AiMetricsConfigSnapshotError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
