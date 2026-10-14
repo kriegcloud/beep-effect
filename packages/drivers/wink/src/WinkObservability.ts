@@ -230,7 +230,7 @@ export const observeWinkWorkflow: {
       interrupted: winkWorkflowInterrupted,
       name: `wink.${resolvedOptions.name}`,
       started: winkWorkflowStarted,
-    }).pipe(Effect.withSpan(`Wink.${resolvedOptions.name}`));
+    }).pipe(Effect.withSpan("Wink.workflow", { attributes: { "wink.workflow_name": resolvedOptions.name } }));
   }
 );
 

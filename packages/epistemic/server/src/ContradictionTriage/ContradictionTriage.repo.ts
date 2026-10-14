@@ -447,7 +447,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
   const writeSemaphore = Semaphore.makeUnsafe(1);
 
   return ContradictionTriageRepository.of({
-    get: Effect.fn("db.query")(function* (query) {
+    get: Effect.fn("ContradictionTriageRepository.get")(function* (query) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "select",
         "db.system": "postgresql",
@@ -517,7 +517,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
       );
     }),
 
-    getExpanded: Effect.fn("db.query")(function* (query) {
+    getExpanded: Effect.fn("ContradictionTriageRepository.getExpanded")(function* (query) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "select",
         "db.system": "postgresql",
@@ -678,7 +678,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
       );
     }),
 
-    list: Effect.fn("db.query")(function* (query) {
+    list: Effect.fn("ContradictionTriageRepository.list")(function* (query) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "select",
         "db.system": "postgresql",
@@ -750,7 +750,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
       });
     }),
 
-    review: Effect.fn("db.query")(function* (command, reviewer, scope) {
+    review: Effect.fn("ContradictionTriageRepository.review")(function* (command, reviewer, scope) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "transaction",
         "db.system": "postgresql",
@@ -942,7 +942,7 @@ export const makeDrizzleContradictionTriageRepository = Effect.fnUntraced(functi
       );
     }),
 
-    submit: Effect.fn("db.query")(function* (command) {
+    submit: Effect.fn("ContradictionTriageRepository.submit")(function* (command) {
       yield* Effect.annotateCurrentSpan({
         "db.operation": "transaction",
         "db.system": "postgresql",

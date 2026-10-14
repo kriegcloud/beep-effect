@@ -1075,6 +1075,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "quality:cache-policy",
         "goals:index-check",
         "explore:atlas-check",
+        "observability:catalog-check",
         "repo-sanity:tsconfig-sync",
         "lint:effect-imports",
         "lint:effect-imports-markdown",

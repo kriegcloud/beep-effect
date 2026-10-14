@@ -1845,7 +1845,9 @@ const executeOperation = (
   config: ResolvedVeniceAIConfig,
   descriptor: VeniceAIOperationDescriptor
 ): VeniceAIMethod => {
-  const operation = Effect.fn(`VeniceAI.${descriptor.operationId}`)(function* (request?: VeniceAIRequestOptions) {
+  const operation = Effect.fn("VeniceAI.execute", {
+    attributes: { "venice_ai.operation_id": descriptor.operationId },
+  })(function* (request?: VeniceAIRequestOptions) {
     const options = normalizeRequestOptions(request);
     const response = yield* executeRaw(client, config, descriptor, options);
     return yield* decodeResponse(descriptor, response);

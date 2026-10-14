@@ -840,7 +840,7 @@ const loadPgClientModule = (
     try: () => import("@effect/sql-pg"),
     catch: (cause) =>
       toHarnessError(driver, "provision", "Failed to load PostgreSQL client support for SQL tests.", cause),
-  }).pipe(Effect.withSpan(`SqlTest.${driver}.loadPgClient`));
+  }).pipe(Effect.withSpan("SqlTest.loadPgClient", { attributes: { "sql_test.driver": driver } }));
 
 const loadPgliteClientModule = Effect.tryPromise({
   try: () => import("@effect/sql-pglite/PgliteClient"),

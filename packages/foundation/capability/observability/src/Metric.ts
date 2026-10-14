@@ -92,8 +92,35 @@ interface ObserveWorkflowOptions {
   readonly failed?: Metric.Counter<number> | undefined;
   readonly interrupted?: Metric.Counter<number> | undefined;
   readonly name: string;
+  readonly outcomes?: Metric.Counter<number> | undefined;
   readonly started?: Metric.Counter<number> | undefined;
 }
+
+/**
+ * Attribute key {@link observeWorkflow} stamps on its `outcomes` counter.
+ *
+ * **Details**
+ *
+ * The value is `started` when the workflow begins and its terminal
+ * `PhaseOutcome` when it ends, so one counter replaces a started, completed,
+ * failed and interrupted counter family. The key is declared in the kernel
+ * instruments file.
+ *
+ * **Example** (Read the outcome attribute key)
+ *
+ * ```ts import.meta.vitest name="Read the outcome attribute key"
+ * import { WORKFLOW_OUTCOME_ATTRIBUTE } from "@beep/observability"
+ *
+ * WORKFLOW_OUTCOME_ATTRIBUTE // => "beep.outcome"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const WORKFLOW_OUTCOME_ATTRIBUTE = "beep.outcome" as const;
+
+const incrementOutcome = (options: ObserveWorkflowOptions, outcome: "started" | PhaseOutcome): Effect.Effect<void> =>
+  incrementCounter(options.outcomes, { ...options.attributes, [WORKFLOW_OUTCOME_ATTRIBUTE]: outcome });
 
 interface ObserveHttpRequestOptions {
   readonly method: string;
@@ -134,7 +161,7 @@ const incrementOutcomeCounter = (outcome: PhaseOutcome, options: ObserveWorkflow
     completed: () => incrementCounter(options.completed, options.attributes),
     failed: () => incrementCounter(options.failed, options.attributes),
     interrupted: () => incrementCounter(options.interrupted, options.attributes),
-  })(outcome);
+  })(outcome).pipe(Effect.andThen(incrementOutcome(options, outcome)));
 
 /**
  * Normalize an HTTP status code to its class label (e.g. `"2xx"`, `"4xx"`).
@@ -319,7 +346,9 @@ export const trackDuration: {
  * **Details**
  *
  * Wraps an effect and records lifecycle counters (`started`, `completed`,
- * `failed`, `interrupted`) plus an optional duration metric. The current
+ * `failed`, `interrupted`) plus an optional duration metric. The `outcomes`
+ * counter, when given, is incremented once at start and once at exit with a
+ * `beep.outcome` attribute, replacing the four-counter family. The current
  * span is annotated with `workflow_name`, `workflow_duration_ms`, and
  * `workflow_outcome`.
  *
@@ -353,6 +382,7 @@ const observeWorkflowImpl = Effect.fn("observeWorkflowImpl")(function* <A, E, R>
     Effect.flatMap(
       Effect.fnUntraced(function* (startedAt) {
         return yield* incrementCounter(options.started, options.attributes).pipe(
+          Effect.andThen(incrementOutcome(options, "started")),
           Effect.andThen(Effect.annotateCurrentSpan("workflow_name", options.name)),
           Effect.andThen(effect),
           Effect.onExit(

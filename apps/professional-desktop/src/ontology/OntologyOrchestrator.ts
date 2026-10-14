@@ -26,17 +26,18 @@ import {
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Metric from "effect/Metric";
+import {
+  OntologyOperationDuration,
+  OntologyOperations as OntologyOperationsMetric,
+} from "@/ProfessionalDesktop.instruments";
 import type {
   ApplyOntologyBatchCommand,
   OntologyFilePath,
   OpenOntologyDocumentResult as OpenOntologyDocumentResultType,
 } from "@beep/ontology-use-cases/public";
 
-const ontologyStarted = Metric.counter("desktop_ontology_operations_started_total", { incremental: true });
-const ontologyCompleted = Metric.counter("desktop_ontology_operations_completed_total", { incremental: true });
-const ontologyFailed = Metric.counter("desktop_ontology_operations_failed_total", { incremental: true });
-const ontologyInterrupted = Metric.counter("desktop_ontology_operations_interrupted_total", { incremental: true });
-const ontologyDuration = Metric.timer("desktop_ontology_operation_duration");
+const ontologyOperations = Metric.counter(OntologyOperationsMetric.name, { incremental: true });
+const ontologyDuration = Metric.timer(OntologyOperationDuration.name);
 
 const observeOntologyOperation = Effect.fnUntraced(function* <A, E, R>(
   operation: string,
@@ -44,13 +45,10 @@ const observeOntologyOperation = Effect.fnUntraced(function* <A, E, R>(
 ): Effect.fn.Return<A, E, R> {
   return yield* observeWorkflow(effect, {
     name: `ontology.${operation}`,
-    attributes: { operation },
-    started: ontologyStarted,
-    completed: ontologyCompleted,
-    failed: ontologyFailed,
-    interrupted: ontologyInterrupted,
+    attributes: { "beep.desktop.operation": operation },
+    outcomes: ontologyOperations,
     duration: ontologyDuration,
-  }).pipe(Effect.withSpan(`ontology.${operation}`));
+  }).pipe(Effect.withSpan("DesktopOntology.run", { attributes: { "beep.desktop.operation": operation } }));
 });
 
 const toOntologyActionError = (context: string) =>

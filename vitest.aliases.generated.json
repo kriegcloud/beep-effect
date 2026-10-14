@@ -1909,5 +1909,8 @@
   ],
   "@beep/epistemic-domain/values/ContradictionDetection": [
     "./packages/epistemic/domain/src/values/ContradictionDetection/index.ts"
+  ],
+  "@beep/observability/catalog": [
+    "./packages/foundation/capability/observability/src/catalog/index.ts"
   ]
 }

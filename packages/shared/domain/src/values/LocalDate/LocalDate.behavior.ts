@@ -143,7 +143,7 @@ const toCalendarParts = (match: RegExpMatchArray): O.Option<CalendarParts> =>
 const decodeLocalDateFromString: (
   dateString: string,
   options: AST.ParseOptions
-) => Effect.Effect<LocalDate.Model, SchemaIssue.Issue> = Effect.fn("LocalDateFromString.decode")(function* (
+) => Effect.Effect<LocalDate.Model, SchemaIssue.Issue> = Effect.fn("LocalDateModelFromString.decode")(function* (
   dateString: string,
   _options: AST.ParseOptions
 ) {
