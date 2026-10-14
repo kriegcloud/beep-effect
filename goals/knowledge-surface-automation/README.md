@@ -98,6 +98,14 @@ pristine trees and patch series through one clearing-house writer, and
 `skills update --check` reports hand-edited vendored output. B-5 (`skills relock`, the
 Renovate manager, and the reconstruction workflow) is next for Workstream B.
 
+C Stage-2 PR 3 (stacked on PR 2b) adds causal grouping and root attribution,
+report-only: one cause group per missing target or delegated goals-doctor finding, each
+root attributed to the commit that removed its path, with roots listed by dependent
+count. The goals packet core now reads through a reader, so the knowledge doctor lists
+goals-doctor findings as delegated roots while `goals doctor` output stays
+byte-identical. Design K18–K23; the live run (883 blocking findings under 341 roots) and
+four candidate wrong groupings are in the report's "PR 3" section.
+
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 
 ## Latest Evidence

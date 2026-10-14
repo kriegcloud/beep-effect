@@ -326,7 +326,16 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   Deferred: refactoring `packetFindings` itself onto the tree reader and listing
   delegated goals-doctor findings in the report (both with PR 3's causal roots), and
   codex-config and agents-mirror drift (K17).
-- **PR 3:** causal grouping plus root attribution in the report.
+- **PR 3 (landed scope):** causal grouping plus root attribution, report-only. The goals
+  packet core (`goalPacketFindings`, formerly the private `packetFindings`) reads
+  packet-adjacent files through a `GoalPacketReader`; `goals doctor` keeps its filesystem
+  reader and its output is byte-identical, while the doctor tree derives the
+  goals-doctor findings from tree bytes and lists them as `delegated` (K18, K19). The
+  report gains one cause group per distinct `causeKey` with its delegated root, its
+  dependents, and its authoring commit from the tree's deleted and renamed paths, plus
+  `rootHistory` (K20–K22). The human output lists roots by dependent count. Also: a
+  command span keeps an arrow or other composition character that sits inside a quoted
+  argument (K23, the #1676 round-3 follow-up).
 - **PR 4:** baseline/identity/lease schemas, `check`, the seal guard, `verify-mint`,
   `leases`, and `knowledge:doctor` wired report-only into the quality lane. Yeet's verify
   step reads `leases --json` (warning only).
@@ -336,7 +345,7 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   row to `goals/knowledge-doctor.promotions.jsonc` (never touching the sealed baseline).
   The next CI mint reads the promotion at its SHA and admits that kind's inherited keys.
 
-## Decisions (K1..K17)
+## Decisions (K1..K23)
 
 - **K1 Witness-mandatory evaluators.** Reason: makes the counterfactual test total;
   vacuous passes cannot be represented. Reverse: if some evaluator legitimately cannot
@@ -444,3 +453,47 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   pins. Reason: the contract stays one outcome per span, and K4's single owner holds.
   Reverse: add a config-entry witness tag if a per-skill config claim becomes worth
   checking.
+- **K18 Delegated goals-doctor findings are one kind.** Each goals-doctor finding the
+  tree's bytes determine is listed as a `delegated-goals-doctor-finding` with origin
+  `delegated`, the goals doctor's severity, a message prefixed with its goals-doctor kind,
+  and the cause key `goals-doctor:<kind>:<slug>[:<detail>]` as its subject, located at the
+  packet directory. Reason: K10 extends the kind domain additively, and mirroring 27
+  goals-doctor kinds would duplicate a domain the goals doctor owns (K4). Reverse: add
+  per-kind mirror kinds if a consumer needs to filter delegated findings by goals-doctor
+  kind.
+- **K19 The delegated set is the packet core plus capability findings.** It is
+  `goalPacketFindings` over every packet record, read through a tree-backed
+  `GoalPacketReader`, followed by `capabilityPacketFindings`. All three Git-history
+  advisories are excluded: `stale-active` and `active-after-merge` per contract 6, and
+  `completion-gate-unsatisfied` too, because it reads merge subjects rather than the tree.
+  Reason: the doctor's output must be a function of the SHA. Reverse: admit the completion
+  gate once PR 4 scopes history reads to `mintedAt`.
+- **K20 One group per cause key; a missing packet is a missing path.** A group is rooted
+  at the delegated finding that carries its cause key, when one exists, and at the missing
+  target otherwise; its dependents are the owned findings with that key, sorted by id,
+  and groups are sorted by key, so grouping is independent of discovery order. A claim
+  about a packet that does not exist now uses `path:goals/<slug>`, the same key as a
+  plain reference to that directory. Reason: one deleted packet was otherwise two roots
+  (live run: `packet:nope` and `path:goals/nope`). Reverse: restore `packet:<slug>` if
+  packet identity ever stops being its directory.
+- **K21 Attribution reads the scanned commit's full path-removal history.** Roots whose
+  key names a path (`path:`, `goals-doctor:manifest-missing:`) are attributed to the
+  newest commit in `git log --diff-filter=DR -M` that deleted or renamed away that path
+  or a file under it; a rename proposes a repair target, and prose is never rewritten.
+  A shallow clone or an unreadable log sets `rootHistory: unavailable` and leaves groups
+  unattributed; it never fails the report. Reason: there is no `mintedAt` until PR 4,
+  and attribution is evidence, not a gate (contract 13 fail-closed applies to gating
+  inputs). Reverse: bound the walk to `mintedAt..HEAD` once the baseline exists, and
+  fail closed then if gating starts to depend on it.
+- **K22 The report stays `knowledge-doctor/v1`.** `groups` and `rootHistory` are
+  additive; nothing persists reports yet and older readers ignore the new fields. Reason:
+  a version bump is for consumers that must reject the new shape (the K10 rule). Reverse:
+  bump to `knowledge-doctor/v2` when PR 4's `check` becomes the first persisted consumer,
+  if it must reject reports without groups.
+- **K23 Composition characters count only outside quoted arguments.** A command span is
+  rejected for `|`, `;`, `&`, `<`, `>`, an arrow, or a comment only when the character
+  sits outside complete single- or double-quoted arguments; `$(` is rejected anywhere,
+  because the shell expands it inside double quotes. An unterminated quote leaves the
+  span rejected. Shared by Stage 1 and Stage 2. Reason: `--description "Doc → KG"` is one
+  command, and the #1676 review asked for it. Reverse: return to the unquoted check if a
+  real chain hides an arrow inside quotes.
