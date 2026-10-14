@@ -1,4 +1,9 @@
-import { parseBitLockerProtection, parseRegistryValue, tasklistHasImage } from "@beep/practice-gateway/WindowsHost";
+import {
+  parseAppxPackageFamilies,
+  parseBitLockerProtection,
+  parseRegistryValue,
+  tasklistHasImage,
+} from "@beep/practice-gateway/WindowsHost";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
 
@@ -29,5 +34,10 @@ describe("Windows command output parsing", () => {
     expect(tasklistHasImage('"Box.exe","4120","Console","1","120,000 K"\r\n', "Box.exe")).toBe(true);
     expect(tasklistHasImage('"BOX.EXE","4120","Console","1","120,000 K"', "Box.exe")).toBe(true);
     expect(tasklistHasImage("INFO: No tasks are running which match the specified criteria.", "Box.exe")).toBe(false);
+  });
+
+  it("reads MSIX package families one per line", () => {
+    expect(parseAppxPackageFamilies("Claude_pzs8sxrjxfjjc\r\n\r\n")).toEqual(["Claude_pzs8sxrjxfjjc"]);
+    expect(parseAppxPackageFamilies("")).toEqual([]);
   });
 });

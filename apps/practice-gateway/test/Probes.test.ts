@@ -56,7 +56,7 @@ const layerTimeout = "30 seconds";
 const satisfied = ProbeSatisfied.make({});
 
 describe("gateway probes", () => {
-  it.effect("finds Claude Desktop by executable or by its uninstall entry", () =>
+  it.effect("finds Claude Desktop by executable, uninstall entry or MSIX package", () =>
     Effect.gen(function* () {
       expect(
         yield* probe("claude-desktop-installed", probesFor({ files: ["/local/AnthropicClaude/claude.exe"] }))
@@ -67,6 +67,12 @@ describe("gateway probes", () => {
           probesFor({ registry: [[`${CLAUDE_UNINSTALL_KEY}|DisplayVersion`, "0.14.10"]] })
         )
       ).toEqual(satisfied);
+      expect(
+        yield* probe("claude-desktop-installed", probesFor({ appx: [["Claude", "Claude_pzs8sxrjxfjjc"]] }))
+      ).toEqual(satisfied);
+      expect(yield* probe("claude-desktop-installed", probesFor({ appx: [["Claude", "Claude_other"]] }))).toEqual(
+        ProbeMissing.make({ detail: "Claude Desktop is not installed for this Windows account." })
+      );
       expect(yield* probe("claude-desktop-installed", probesFor({}))).toEqual(
         ProbeMissing.make({ detail: "Claude Desktop is not installed for this Windows account." })
       );

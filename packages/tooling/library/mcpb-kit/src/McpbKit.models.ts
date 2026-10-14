@@ -7,6 +7,7 @@
 
 import { $McpbKitId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
 const $I = $McpbKitId.create("McpbKit.models");
@@ -253,6 +254,32 @@ export class McpbTool extends S.Class<McpbTool>($I`McpbTool`)(
 ) {}
 
 /**
+ * One prompt template the bundle declares in its manifest (MCPB `prompts`).
+ *
+ * **Example** (Declare a prompt)
+ *
+ * ```ts
+ * import { McpbPrompt } from "@beep/mcpb-kit"
+ *
+ * const prompt = McpbPrompt.make({ name: "onboard", description: "Set up this computer.", text: "Follow the steps." })
+ * console.log(prompt.name) // "onboard"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class McpbPrompt extends S.Class<McpbPrompt>($I`McpbPrompt`)(
+  {
+    name: S.NonEmptyString.annotateKey({ description: "Prompt name as the server registers it." }),
+    description: S.String.annotateKey({ description: "One-line prompt description." }),
+    text: S.NonEmptyString.annotateKey({ description: "The prompt text." }),
+  },
+  $I.annote("McpbPrompt", {
+    description: "One prompt template the bundle's server declares in its manifest.",
+  })
+) {}
+
+/**
  * The app-specific fields of an `.mcpb` `manifest.json`.
  *
  * **Details**
@@ -260,7 +287,8 @@ export class McpbTool extends S.Class<McpbTool>($I`McpbTool`)(
  * The kit fills in the rest: manifest version `0.3`, author, repository,
  * license, the target platform, and a binary server whose command is the
  * bundled executable. `env` gains `NODE_PATH` pointing at the bundled
- * `node_modules`, and its keys are written in sorted order.
+ * `node_modules`, and its keys are written in sorted order. `prompts` is
+ * written only when it is non-empty.
  *
  * **Example** (Describe an app's manifest)
  *
@@ -295,6 +323,9 @@ export class McpbManifestFields extends S.Class<McpbManifestFields>($I`McpbManif
       description: "Settings the user fills in, keyed by the name `${user_config.<key>}` references.",
     }),
     tools: S.Array(McpbTool).annotateKey({ description: "Tools the server declares." }),
+    prompts: S.Array(McpbPrompt)
+      .pipe(S.withConstructorDefault(Effect.succeed([])))
+      .annotateKey({ description: "Prompt templates the server declares; omitted from the manifest when empty." }),
   },
   $I.annote("McpbManifestFields", {
     description: "The app-specific fields of an .mcpb manifest.json.",
@@ -389,6 +420,7 @@ export class McpbManifest extends S.Class<McpbManifest>($I`McpbManifest`)(
       S.Struct({ type: McpbUserConfigType, title: S.String, description: S.String, required: S.Boolean })
     ),
     tools: S.Array(S.Struct({ name: S.String, description: S.String })),
+    prompts: S.Struct({ name: S.String, description: S.String, text: S.String }).pipe(S.Array, S.optionalKey),
   },
   $I.annote("McpbManifest", {
     description: "A complete .mcpb manifest.json, in the field order the kit writes it.",

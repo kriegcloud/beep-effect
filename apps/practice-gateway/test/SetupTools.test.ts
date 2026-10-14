@@ -10,15 +10,16 @@ import {
   SetupRequirementId,
 } from "@beep/law-practice-domain";
 import { requirementFromCatalog } from "@beep/practice-gateway/Requirements";
-import { SetupToolkit, summarizeReport } from "@beep/practice-gateway/SetupTools";
+import { repairableRequirements, SetupToolkit, summarizeReport } from "@beep/practice-gateway/SetupTools";
 import { describe, expect, it } from "@effect/vitest";
 import * as R from "effect/Record";
 
 const id = SetupRequirementId.make;
 
 describe("setup tools", () => {
-  it("serves exactly the four designed tools", () => {
+  it("serves exactly the five designed tools", () => {
     expect(R.keys(SetupToolkit.tools)).toEqual([
+      "setup_onboarding_guide",
       "setup_profile_get",
       "setup_profile_save",
       "setup_status",
@@ -52,6 +53,26 @@ describe("setup tools", () => {
         "1 more checks wait on the steps above.",
       ].join("\n")
     );
+  });
+
+  it("lists only unsatisfied automatic repairs whose dependencies hold as repairable", () => {
+    const requirements = [
+      requirementFromCatalog("box-drive-installed", "documents"),
+      requirementFromCatalog("m365-consented", "mail-calendar"),
+      requirementFromCatalog("bitlocker-on", "workstation"),
+    ];
+    const report = SetupReport.make({
+      checks: [
+        CheckProbed.make({ requirement: id("box-drive-installed"), result: ProbeSatisfied.make({}) }),
+        CheckProbed.make({ requirement: id("m365-consented"), result: ProbeMissing.make({ detail: "not connected" }) }),
+        CheckProbed.make({ requirement: id("bitlocker-on"), result: ProbeMissing.make({ detail: "off" }) }),
+      ],
+      humanSteps: [],
+      complete: false,
+    });
+    expect(repairableRequirements(report, requirements).map((requirement) => requirement.id)).toEqual([
+      "m365-consented",
+    ]);
   });
 
   it("calls a complete report complete", () => {

@@ -174,6 +174,7 @@ export class RegistryValueQuery extends S.Class<RegistryValueQuery>($I`RegistryV
  *   exists: () => Effect.succeed(false),
  *   readFile: () => Effect.succeedNone,
  *   registryValue: () => Effect.succeed(O.none()),
+ *   appxPackageFamilies: () => Effect.succeed([]),
  *   bitLocker: () => Effect.succeed("unknown"),
  *   processRunning: () => Effect.succeed(false),
  * })
@@ -185,6 +186,12 @@ export class RegistryValueQuery extends S.Class<RegistryValueQuery>($I`RegistryV
  */
 export class WindowsHostShape extends S.Class<WindowsHostShape>($I`WindowsHostShape`)(
   {
+    appxPackageFamilies: Fn({
+      input: S.String,
+      output: WindowsHostOutput<ReadonlyArray<string>>(),
+    }).annotateKey({
+      description: "Package family names of the MSIX (Appx) packages with this name installed for the current user.",
+    }),
     bitLocker: Fn({
       input: S.String,
       output: WindowsHostOutput<BitLockerProtection>(),
@@ -289,6 +296,25 @@ export const parseBitLockerProtection = (output: string): BitLockerProtection =>
 };
 
 /**
+ * Package family names in `Get-AppxPackage ... | ForEach-Object PackageFamilyName`
+ * output, one per non-empty line.
+ *
+ * **Example** (Read Claude's MSIX family)
+ *
+ * ```ts
+ * import { parseAppxPackageFamilies } from "@beep/practice-gateway/WindowsHost"
+ *
+ * console.log(parseAppxPackageFamilies("Claude_pzs8sxrjxfjjc\r\n")) // ["Claude_pzs8sxrjxfjjc"]
+ * ```
+ *
+ * @param output - Standard output of the PowerShell query.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const parseAppxPackageFamilies = (output: string): ReadonlyArray<string> =>
+  pipe(Str.linesIterator(output), A.fromIterable, A.map(Str.trim), A.filter(Str.isNonEmpty));
+
+/**
  * Whether `tasklist /FO CSV /NH` output lists a process image.
  *
  * **Example** (Find Box Drive in the task list)
@@ -315,6 +341,9 @@ export const tasklistHasImage: {
     A.some(Str.startsWith(`"${Str.toLowerCase(imageName)}"`))
   )
 );
+
+// The package name comes from the gateway's own constants, never from input.
+const AppxFamilyScript = (name: string) => `Get-AppxPackage -Name '${name}' | ForEach-Object { $_.PackageFamilyName }`;
 
 const BitLockerScript = (drive: string) =>
   `(New-Object -ComObject Shell.Application).NameSpace('${drive}').Self.ExtendedProperty('System.Volume.BitLockerProtection')`;
@@ -355,6 +384,7 @@ const notWindows = (operation: string) =>
  *     exists: () => Effect.succeed(false),
  *     readFile: () => Effect.succeed(O.none()),
  *     registryValue: () => Effect.succeed(O.none()),
+ *     appxPackageFamilies: () => Effect.succeed([]),
  *     bitLocker: () => Effect.succeed("on"),
  *     processRunning: () => Effect.succeed(false),
  *   })
@@ -451,6 +481,15 @@ export class WindowsHost extends Context.Service<WindowsHost, WindowsHostShape>(
             )
           : notWindows("Reading BitLocker protection");
 
+      const appxPackageFamilies = (name: string) =>
+        isWindows
+          ? run("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", AppxFamilyScript(name)]).pipe(
+              Effect.map(({ exitCode, stdout }) =>
+                exitCode === 0 ? parseAppxPackageFamilies(stdout) : A.empty<string>()
+              )
+            )
+          : notWindows("Listing MSIX packages");
+
       const processRunning = (imageName: string) =>
         isWindows
           ? run("tasklist.exe", ["/FI", `IMAGENAME eq ${imageName}`, "/FO", "CSV", "/NH"]).pipe(
@@ -458,7 +497,16 @@ export class WindowsHost extends Context.Service<WindowsHost, WindowsHostShape>(
             )
           : notWindows("Listing processes");
 
-      return WindowsHostShape.make({ isWindows, folder, exists, readFile, registryValue, bitLocker, processRunning });
+      return WindowsHostShape.make({
+        isWindows,
+        folder,
+        exists,
+        readFile,
+        registryValue,
+        appxPackageFamilies,
+        bitLocker,
+        processRunning,
+      });
     })
   );
 }

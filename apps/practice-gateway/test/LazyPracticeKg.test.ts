@@ -1,6 +1,7 @@
 import { ProbeBroken, RequirementCheck } from "@beep/law-practice-domain";
 import { SetupDoctor } from "@beep/law-practice-use-cases/PracticeSetup";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
+import { OnboardingGuide } from "@beep/practice-gateway/OnboardingGuide";
 import { ProviderUnavailable } from "@beep/practice-gateway/PracticeGateway.errors";
 import { loadPracticeKgModules, PracticeKgProviderLayer } from "@beep/practice-gateway/PracticeKgProvider";
 import { GatewaySetupProbes } from "@beep/practice-gateway/Probes";
@@ -61,7 +62,9 @@ const GatewayServices = Layer.unwrap(
   )
 ).pipe(Layer.provideMerge(Platform));
 
-const GatewayWithTools = SetupToolkitHandlers.pipe(Layer.provideMerge(GatewayServices));
+const GatewayWithTools = SetupToolkitHandlers.pipe(
+  Layer.provideMerge(Layer.merge(GatewayServices, OnboardingGuide.layer))
+);
 
 const statusOf = (check: RequirementCheck) =>
   RequirementCheck.match(check, { probed: (probed) => O.some(probed.result), blocked: () => O.none() });

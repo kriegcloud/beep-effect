@@ -22,6 +22,7 @@ const folders = HashMap.make<ReadonlyArray<readonly [KnownFolder, string]>>(
 );
 
 export interface FakeMachine {
+  readonly appx?: ReadonlyArray<readonly [string, string]>;
   readonly bitLocker?: BitLockerProtection;
   readonly fileBytes?: ReadonlyArray<readonly [string, Uint8Array]>;
   readonly files?: ReadonlyArray<string>;
@@ -54,6 +55,14 @@ export const fakeHost = (machine: FakeMachine) => {
         }
         return HashMap.get(registry, `${key}|${name}`);
       }),
+      appxPackageFamilies: Effect.fn("FakeWindowsHost.appxPackageFamilies")((name: string) =>
+        Effect.succeed(
+          A.map(
+            A.filter(machine.appx ?? [], ([appx]) => appx === name),
+            ([, family]) => family
+          )
+        )
+      ),
       bitLocker: Effect.fn("FakeWindowsHost.bitLocker")((_drive: string) =>
         Effect.succeed(machine.bitLocker ?? BitLockerProtection.Enum.unknown)
       ),

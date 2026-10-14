@@ -3,6 +3,7 @@ import {
   McpbManifestFields,
   McpbPackageFailure,
   McpbPackageSpec,
+  McpbPrompt,
   McpbTool,
   McpbUserConfigField,
   makeMcpbPackageCommand,
@@ -71,6 +72,16 @@ describe("mcpbManifest", () => {
       required: true,
     });
     expect(manifest.tools).toEqual([{ name: "find", description: "Find things." }]);
+    expect("prompts" in manifest).toBe(false);
+  });
+
+  it("writes declared prompts after the tools", () => {
+    const withPrompt = McpbManifestFields.make({
+      ...fields,
+      prompts: [McpbPrompt.make({ name: "onboard", description: "Set up.", text: "Follow the steps." })],
+    });
+    const manifest = mcpbManifest(withPrompt, mcpbTargetSpec("linux-x64", spec.appName));
+    expect(manifest.prompts).toEqual([{ name: "onboard", description: "Set up.", text: "Follow the steps." }]);
   });
 
   it.effect("encodes as two-space JSON in manifest field order", () =>

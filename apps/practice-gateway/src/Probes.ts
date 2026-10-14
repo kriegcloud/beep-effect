@@ -48,6 +48,22 @@ import type { WindowsHostFailure } from "./PracticeGateway.errors.ts";
 export const CLAUDE_UNINSTALL_KEY = "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\AnthropicClaude";
 
 /**
+ * Package family of Claude Desktop's MSIX install (admin and MDM deployments).
+ *
+ * **Example** (Read the family)
+ *
+ * ```ts
+ * import { CLAUDE_MSIX_PACKAGE_FAMILY } from "@beep/practice-gateway/Probes"
+ *
+ * console.log(CLAUDE_MSIX_PACKAGE_FAMILY) // "Claude_pzs8sxrjxfjjc"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const CLAUDE_MSIX_PACKAGE_FAMILY = "Claude_pzs8sxrjxfjjc";
+
+/**
  * One requirement's probe and, for automatic remediations, its repair.
  *
  * @category models
@@ -148,7 +164,12 @@ export const makeGatewayProbes = Effect.gen(function* () {
       const registered = yield* host.registryValue(
         RegistryValueQuery.make({ key: CLAUDE_UNINSTALL_KEY, name: "DisplayVersion" })
       );
-      return executable || O.isSome(registered)
+      if (executable || O.isSome(registered)) {
+        return satisfied;
+      }
+      // Admin and MDM installs deploy the MSIX package instead of the per-user installer.
+      const families = yield* host.appxPackageFamilies("Claude");
+      return A.contains(families, CLAUDE_MSIX_PACKAGE_FAMILY)
         ? satisfied
         : missing("Claude Desktop is not installed for this Windows account.");
     })

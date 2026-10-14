@@ -12,6 +12,7 @@ import { M365Toolkit } from "@beep/m365-mcp/M365Tools";
 import {
   McpbManifestFields,
   McpbPackageSpec,
+  McpbPrompt,
   McpbTool,
   McpbUserConfigField,
   mcpbPackageProgram,
@@ -21,6 +22,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { BoxDriveToolkit } from "./BoxDriveTools.ts";
+import { BUILT_IN_ONBOARDING_GUIDE, ONBOARD_PRACTICE_PROMPT, ONBOARDING_GUIDE_DESCRIPTION } from "./OnboardingGuide.ts";
 import { SetupToolkit } from "./SetupTools.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
 
@@ -82,6 +84,13 @@ const program = mcpbPackageProgram(
         }),
       },
       tools: manifestTools,
+      prompts: [
+        McpbPrompt.make({
+          name: ONBOARD_PRACTICE_PROMPT,
+          description: ONBOARDING_GUIDE_DESCRIPTION,
+          text: BUILT_IN_ONBOARDING_GUIDE,
+        }),
+      ],
     }),
   })
 );

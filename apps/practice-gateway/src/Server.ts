@@ -19,6 +19,7 @@ import { BoxDriveProviderLayer } from "./BoxDriveTools.ts";
 import { GatewaySettings } from "./GatewaySettings.ts";
 import { M365ProviderLayer } from "./M365Provider.ts";
 import { M365SignIn } from "./M365SignIn.ts";
+import { OnboardingGuide, OnboardingPromptLayer } from "./OnboardingGuide.ts";
 import { PracticeKgProviderLayer } from "./PracticeKgProvider.ts";
 import { GatewaySetupProbes } from "./Probes.ts";
 import { ProfileStore } from "./ProfileStore.ts";
@@ -42,7 +43,7 @@ import { WindowsHost } from "./WindowsHost.ts";
  * @since 0.0.0
  */
 export const PRACTICE_GATEWAY_INSTRUCTIONS =
-  "Practice gateway for a law practice's workstation. setup_status checks this computer against the saved practice profile and lists the steps only the lawyer can take; setup_repair runs one automatic repair after the lawyer approves it in a prompt (for Microsoft 365 it opens the sign-in page in the browser); setup_profile_get and setup_profile_save read and write the onboarding interview's profile. Practice tools (the practice knowledge graph, Box Drive files, Microsoft 365 mail and calendar) appear when the saved profile selects them and Claude restarts the gateway.";
+  "Practice gateway for a law practice's workstation. setup_status checks this computer against the saved practice profile and lists the steps only the lawyer can take; setup_repair runs one automatic repair after the lawyer approves it in a prompt (for Microsoft 365 it opens the sign-in page in the browser); setup_profile_get and setup_profile_save read and write the onboarding interview's profile. Practice tools (the practice knowledge graph, Box Drive files, Microsoft 365 mail and calendar) appear when the saved profile selects them and Claude restarts the gateway. When the lawyer asks to set up, call setup_onboarding_guide first and follow it.";
 
 const logLayerFailure = (message: string) => (cause: Cause.Cause<unknown>) =>
   Layer.effectDiscard(Effect.logWarning(message, Cause.pretty(cause)));
@@ -97,8 +98,8 @@ export const GatewayServicesLayer = SetupDoctor.layer.pipe(
 );
 
 /**
- * The full stdio gateway: setup tools plus selected providers over the setup
- * services.
+ * The full stdio gateway: setup tools, the `onboard_practice` prompt and the
+ * selected providers over the setup services and the onboarding guide.
  *
  * **Example** (Compose the stdio gateway)
  *
@@ -114,6 +115,7 @@ export const GatewayServicesLayer = SetupDoctor.layer.pipe(
  */
 export const GatewayServerLayer = Layer.mergeAll(
   SetupToolsLayer,
+  OnboardingPromptLayer,
   PracticeKgProviderLayer,
   BoxDriveProviderLayer,
   M365ProviderLayer
@@ -126,6 +128,6 @@ export const GatewayServerLayer = Layer.mergeAll(
       protocols: handshakeMcpProtocols,
     })
   ),
-  Layer.provide(GatewayServicesLayer),
+  Layer.provide(Layer.merge(GatewayServicesLayer, OnboardingGuide.layer)),
   Layer.orDie
 );

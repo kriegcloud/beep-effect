@@ -140,6 +140,9 @@ export const mcpbManifest: {
         required,
       })),
       tools: A.map(fields.tools, ({ description, name }) => ({ name, description })),
+      ...(A.isReadonlyArrayNonEmpty(fields.prompts)
+        ? { prompts: A.map(fields.prompts, ({ description, name, text }) => ({ name, description, text })) }
+        : {}),
     })
 );
 

@@ -42,6 +42,13 @@ export * from "./M365Provider.ts";
  */
 export * from "./M365SignIn.ts";
 /**
+ * Onboarding guide tool text and prompt.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./OnboardingGuide.ts";
+/**
  * Gateway-owned typed failures.
  *
  * @category errors

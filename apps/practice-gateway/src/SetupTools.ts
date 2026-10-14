@@ -26,6 +26,7 @@ import { dual, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as S from "effect/Schema";
+import { ONBOARDING_GUIDE_DESCRIPTION, OnboardingGuide } from "./OnboardingGuide.ts";
 import { ProfileStore } from "./ProfileStore.ts";
 import { requirementsForSaved } from "./Requirements.ts";
 import type { SetupRequirement } from "@beep/law-practice-domain";
@@ -150,6 +151,7 @@ export class SetupProfileView extends S.Class<SetupProfileView>($I`SetupProfileV
  * const status = SetupStatus.make({
  *   report: SetupReport.make({ checks: [], humanSteps: [], complete: true }),
  *   summary: "Setup is complete.",
+ *   repairable: [],
  * })
  * console.log(status.summary)
  * ```
@@ -161,6 +163,10 @@ export class SetupStatus extends S.Class<SetupStatus>($I`SetupStatus`)(
   {
     report: SetupReport.annotateKey({ description: "One verdict per requirement plus the batched human steps." }),
     summary: S.NonEmptyString.annotateKey({ description: "The report in plain language for the lawyer." }),
+    repairable: S.Array(SetupRequirementId).annotateKey({
+      description:
+        "Requirements setup_repair can fix now: probed and unsatisfied, with an automatic remediation and every dependency satisfied.",
+    }),
   },
   $I.annote("SetupStatus", {
     description: "Setup doctor report with a plain-language summary.",
@@ -311,6 +317,51 @@ export const SetupRepairTool = setupTool(
 );
 
 /**
+ * Result of `setup_onboarding_guide`.
+ *
+ * **Example** (Wrap a guide)
+ *
+ * ```ts
+ * import { SetupOnboardingGuide } from "@beep/practice-gateway/SetupTools"
+ *
+ * console.log(SetupOnboardingGuide.make({ guide: "1. Call setup_status." }).guide)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SetupOnboardingGuide extends S.Class<SetupOnboardingGuide>($I`SetupOnboardingGuide`)(
+  {
+    guide: S.NonEmptyString.annotateKey({ description: "The onboarding steps to follow, as Markdown." }),
+  },
+  $I.annote("SetupOnboardingGuide", {
+    description: "The onboarding steps Claude follows to set up this computer.",
+  })
+) {}
+
+/**
+ * `setup_onboarding_guide`: the onboarding steps to follow.
+ *
+ * **Example** (Read the tool name)
+ *
+ * ```ts
+ * import { SetupOnboardingGuideTool } from "@beep/practice-gateway/SetupTools"
+ *
+ * console.log(SetupOnboardingGuideTool.name) // "setup_onboarding_guide"
+ * ```
+ *
+ * @category tools
+ * @since 0.0.0
+ */
+export const SetupOnboardingGuideTool = setupTool(
+  "setup_onboarding_guide",
+  ONBOARDING_GUIDE_DESCRIPTION,
+  NoParameters,
+  SetupOnboardingGuide,
+  readHints
+);
+
+/**
  * The always-mounted setup toolkit.
  *
  * **Example** (List the setup tools)
@@ -324,11 +375,58 @@ export const SetupRepairTool = setupTool(
  * @category tools
  * @since 0.0.0
  */
-export const SetupToolkit = Toolkit.make(SetupProfileGetTool, SetupProfileSaveTool, SetupStatusTool, SetupRepairTool);
+export const SetupToolkit = Toolkit.make(
+  SetupOnboardingGuideTool,
+  SetupProfileGetTool,
+  SetupProfileSaveTool,
+  SetupStatusTool,
+  SetupRepairTool
+);
 
 const statusLabel = RequirementCheck.match({
   probed: (check) => check.result.status,
   blocked: () => "blocked",
+});
+
+/**
+ * The requirements `setup_repair` can fix now: probed and unsatisfied, with
+ * an automatic remediation and every dependency probed satisfied.
+ *
+ * **Example** (Nothing to repair in a complete report)
+ *
+ * ```ts
+ * import { SetupReport } from "@beep/law-practice-domain"
+ * import { repairableRequirements } from "@beep/practice-gateway/SetupTools"
+ *
+ * console.log(repairableRequirements(SetupReport.make({ checks: [], humanSteps: [], complete: true }), [])) // []
+ * ```
+ *
+ * @param report - The doctor's report.
+ * @param requirements - The requirements the report covers.
+ * @category utilities
+ * @since 0.0.0
+ */
+export const repairableRequirements: {
+  (requirements: ReadonlyArray<SetupRequirement>): (report: SetupReport) => ReadonlyArray<SetupRequirement>;
+  (report: SetupReport, requirements: ReadonlyArray<SetupRequirement>): ReadonlyArray<SetupRequirement>;
+} = dual(2, (report: SetupReport, requirements: ReadonlyArray<SetupRequirement>): ReadonlyArray<SetupRequirement> => {
+  const probed = A.filter(report.checks, RequirementCheck.guards.probed);
+  const satisfiedIds = pipe(
+    probed,
+    A.filter((check) => ProbeResult.guards.satisfied(check.result)),
+    A.map((check) => check.requirement)
+  );
+  return pipe(
+    probed,
+    A.filter((check) => !ProbeResult.guards.satisfied(check.result)),
+    A.map((check) => A.findFirst(requirements, (requirement) => requirement.id === check.requirement)),
+    A.getSomes,
+    A.filter(
+      (requirement) =>
+        Remediation.guards.automatic(requirement.remediation) &&
+        A.every(requirement.dependsOn, (dependency) => A.contains(satisfiedIds, dependency))
+    )
+  );
 });
 
 /**
@@ -366,11 +464,7 @@ export const summarizeReport: {
   const passing = A.length(A.filter(report.checks, (check) => statusLabel(check) === "satisfied"));
   const blocked = A.length(A.filter(report.checks, RequirementCheck.guards.blocked));
   const repairable = pipe(
-    report.checks,
-    A.filter(RequirementCheck.guards.probed),
-    A.filter((check) => !ProbeResult.guards.satisfied(check.result)),
-    A.map((check) => A.findFirst(requirements, (requirement) => requirement.id === check.requirement)),
-    A.getSomes,
+    repairableRequirements(report, requirements),
     A.map((requirement) => requirement.remediation),
     A.filter(Remediation.guards.automatic),
     A.map((remediation) => remediation.summary)
@@ -437,10 +531,12 @@ export const SetupToolkitHandlers = SetupToolkit.toLayer(
   Effect.gen(function* () {
     const store = yield* ProfileStore;
     const doctor = yield* SetupDoctor;
+    const onboarding = yield* OnboardingGuide;
 
     const savedRequirements = Effect.map(store.get, requirementsForSaved);
 
     return SetupToolkit.of({
+      setup_onboarding_guide: () => Effect.succeed(SetupOnboardingGuide.make({ guide: onboarding.text })),
       setup_profile_get: Effect.fn("PracticeGateway.setup_profile_get")(function* () {
         const profile = yield* store.get.pipe(Effect.mapError(doctorFailure("setup_profile_get")));
         return SetupProfileView.make({ profile });
@@ -452,7 +548,11 @@ export const SetupToolkitHandlers = SetupToolkit.toLayer(
         return yield* Effect.gen(function* () {
           const requirements = yield* savedRequirements;
           const report = yield* doctor.check(requirements);
-          return SetupStatus.make({ report, summary: summarizeReport(report, requirements) });
+          return SetupStatus.make({
+            report,
+            summary: summarizeReport(report, requirements),
+            repairable: A.map(repairableRequirements(report, requirements), (requirement) => requirement.id),
+          });
         }).pipe(Effect.mapError(doctorFailure("setup_status")));
       }),
       setup_repair: Effect.fn("PracticeGateway.setup_repair")(function* (request) {
