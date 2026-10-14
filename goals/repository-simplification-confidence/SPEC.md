@@ -975,3 +975,15 @@ remain authoritative.
 ### 2026-10-14 — A preserves the new raster-coverage consumer
 
 Restore the internal `parseP6Header` export when integrating main: `pdf-tools/src/internal/coverage.ts` now imports it. The October 9 finding was repaired at its recorded revision; the new consumer makes the export necessary today. This does not restore Knip or expand the package export map. Reversal: remove the export after that internal consumer disappears, then verify the package.
+
+### 2026-10-14 — A folds the hosted Knip window and historical helper retirement into wave 1
+
+The driver assigns both #1584 review findings to A in the 11:01Z resume ruling.
+Remove the hosted Knip job with the retired CLI lane. The orchestrator still
+removes its required ruleset context at the S3 merge gate. Retire the Fallow
+packet's Knip parity executable and current verification wiring; keep its June
+measurements and review history. Acceptance metadata now names surviving
+artifact checks, and packet validation checks historical row shape without
+imposing a live Knip parity gate. This accepts narrower Fallow detection and
+creates no replacement analyzer. Reversal: git revert this wave; recover the
+original helper and configuration from `e62411d63f`.

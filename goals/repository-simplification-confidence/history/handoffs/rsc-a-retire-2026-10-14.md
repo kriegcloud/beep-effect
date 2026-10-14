@@ -52,3 +52,44 @@ covering the repaired merge-gate scenarios and retained Research output.
 Biome subsequently wrapped one long assertion without changing behavior.
 `beep laws retired-effect-paths --check` found zero violations across 39,553
 tracked text files; a commit-bound parity read still follows.
+
+## Latest-main integration and proof boundary
+
+Before final, fetch advanced main to `3749e7ca4a`. Integrated it at
+`18aefa56b2ecc7dad517af363faf5a38dbb3e648`, retaining incoming main source.
+Kept `knip.jsonc` deleted and regenerated the Fallow boundary conflict via
+`tsconfig-sync`. The independent reviewer returned zero outstanding source
+findings on this integrated head. Earlier source-review repairs remain intact.
+
+All ten non-CLI package gates passed on the preceding tree. Incoming main
+changes OCCT source/tests and PDF tests, so their new gates follow owner
+regeneration. The other eight A package sources are unchanged by this merge.
+The active CLI audit was stopped at exit 130 because CLI source changed;
+its pass is unproven. Test-tsgo was still queued; stopped its coordinator and
+exact owned admission unit before execution. Neither cancellation is a pass.
+All those old units are terminal. New logs and results use the `integrated-`
+prefix, preserving the earlier `resume-` records.
+
+Owner regeneration, OCCT/PDF/CLI package verification and the complete
+commit-bound parity set require the integrated tree. The S3 workflow and
+S5 additional-lock notice remain open. No push or final acceptance is claimed.
+
+## 11:01Z ruling supersedes the E-only workflow hold
+
+The driver's updated addendum assigns A both outstanding #1584 threads in
+this same wave. P1 `PRRT_kwDOPbO_N86sRiIC` (REST comment 4269724262): remove
+the hosted Knip job with its CLI lane. P2 `PRRT_kwDOPbO_N86sRiIH` (comment
+4269724270): retire the FQE helper that reads the deleted config. A removes
+both and the helper's live task, manifest, README and promotion wiring.
+Measured June values and completed review history remain. Its packet
+validator checks archived row shape and surviving Fallow assertions, using
+the renamed `historicalLocalProbeSnapshot` subtree. No replacement parity
+project or extra global entry-export reporting is introduced.
+
+The reviewer closed two additional wiring P2s and returned terminal zero
+source findings on these fixes. Runtime CI workflow-bijection and FQE packet
+validation are queued in `.beep/rsc-a/integrated-review-fixes.sh`; no runtime
+pass is claimed. Replies will post through Yeet after the single addressed
+push, as the ruling requires. No reply has been posted or thread resolved yet.
+The orchestrator still owns required-context removal before merge; S5's
+additional generated-lock notice remains unconfirmed.

@@ -331,8 +331,8 @@ bun run beep quality package-verify <@beep/package>
 dispositions; the historical one-Govinfo scan remains revision-bound. The
 new main PDF raster-coverage consumer needs the restored internal parser
 export. Current owner, package and hosted-parity qualification is in progress.
-The live Knip workflow and required context remain E/orchestrator-owned
-S3 blockers. Waves 2/3 and post-merge residue remain open.
+The 11:01Z ruling assigns A the hosted Knip job and historical parity-helper
+retirement. The orchestrator owns required-context removal at the S3 gate. Waves 2/3 and post-merge residue remain open.
 See `history/handoffs/rsc-a-retire-2026-10-14.md`, the preserved
 `history/handoffs/rsc-a-retire-2026-10-09.md` and
 `history/receipts/knip-cache-policy-review.md`.

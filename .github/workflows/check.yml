@@ -891,30 +891,6 @@ jobs:
           path: .beep/fallow/**
           if-no-files-found: error
 
-  knip:
-    name: Knip
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          filter: blob:none
-          persist-credentials: false
-
-      - name: Setup monorepo CI
-        uses: ./.github/actions/setup-monorepo-ci
-        with:
-          cache-turbo: "false"
-          cache-write: "false"
-          use-node: "false"
-
-      - name: Run Knip regression gate
-        run: bun run beep ci lane knip
-
   jsdoc-ratchet:
     name: JSDoc Ratchet
     runs-on: ubuntu-24.04

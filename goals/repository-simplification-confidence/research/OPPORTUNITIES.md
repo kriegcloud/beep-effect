@@ -1338,3 +1338,7 @@ The first `beep session open` failed with `Export named parseP6Header not found`
 ### 2026-10-14 — A focused Vitest command used the wrong root
 
 Running the CLI Vitest config from the repository root returned `No test files found`, exit 1. The shared include is package-relative `test/**/*.test.{ts,tsx}`. The corrected invocation is `bun run --cwd packages/tooling/tool/cli beep:test -- test/yeet-merge-gate.test.ts test/research-command.test.ts`, through admission. A package-local invocation helper or the existing package script would have prevented the root mismatch; the first attempt is not test proof.
+
+### 2026-10-14 — A pre-final integration supersedes queued proof
+
+A fresh fetch advanced main from `aeb2a85cc5` to `3749e7ca4a` while the CLI audit ran and test-tsgo waited for admission. Main modified the retired `knip.jsonc`; the lane kept it deleted, and regenerated the conflicted Fallow boundary snapshot through tsconfig-sync. The queued parity coordinator and its owned admission unit were stopped before test execution; the owned CLI unit was stopped at exit 130 because incoming main changed CLI source. Neither is a pass. Main also changes OCCT source and PDF tests, so those package gates need fresh proof; eight unchanged A packages retain their prior terminal results. Integrating before submitting commit-bound proof would have prevented this discarded work.

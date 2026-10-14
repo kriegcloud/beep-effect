@@ -13,8 +13,9 @@ disposition in `research/knip-findings-2026-10-09.md`; the one-Govinfo scan
 is historical proof for its recorded revision. Current main introduced a
 live PDF raster-coverage importer, so its internal parser export is retained.
 
-The live `check.yml` Knip job and required context remain E/orchestrator-owned
-S3 blockers. Additional generated lock hoists require the S5 effected-port
+Under the 11:01Z ruling, A removes the `check.yml` Knip job and historical
+Knip parity helper in this wave. The orchestrator still removes the required
+context at the S3 gate. Additional generated lock hoists require the S5 effected-port
 notice before publication. No final retirement acceptance is claimed.
 Other retirement surfaces belong to the next A wave.
 

@@ -1119,7 +1119,6 @@ const fallowCommandContractCommand =
   "bun run beep quality fallow command-contract-check --assert audit,dead-code,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow";
 const fallowBoundaryConfigCheckCommand = "bun run beep quality fallow boundaries config-check --check";
 const fallowAuditBaselineCommand = "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts";
-const knipParityBaselineCommand = "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts";
 const knownNonzeroRawAcceptanceCommands = [
   "bun run fallow:audit -- --base origin/main --gate new-only",
   "bun run fallow:dead-code:json -- --summary",
@@ -1193,7 +1192,6 @@ const requiredManifestArtifacts = [
   "history/review-rounds.jsonc",
   "ops/validate-packet.ts",
   "ops/validate-fallow-audit-baseline.ts",
-  "ops/validate-knip-parity-baselines.ts",
   "research/feature-matrix.schema.json",
   "research/knip-parity.schema.json",
   "tasks/tasks.schema.json",
@@ -1209,7 +1207,6 @@ const requiredManifestVerificationFragments = [
   ['test "$(wc -m < goals/fallow-quality-enforcement/GOAL.md)" -le 4000'],
   ["bun goals/fallow-quality-enforcement/ops/validate-packet.ts"],
   ["bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts"],
-  ["bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts"],
   [
     "bunx biome check",
     "goals/fallow-quality-enforcement",
@@ -1741,49 +1738,15 @@ const taskFeatureCiContractDiagnostics = (
     : [`fqe-005: CI contract command must match advisory-artifact feature rows: ${expectedCiContractCommand}`];
 };
 
+// Knip observations are an archived June 2026 census. Validate their shape
+// and coverage of configuration domains, without imposing a live parity gate.
 const knipParityDiagnostics = (document: KnipParityDocument): ReadonlyArray<string> => {
   const ids = A.map(document.rows, (row) => row.id);
   const surfaces = A.map(document.rows, (row) => row.knipConfigSurface);
-  const removalDiagnostics =
-    document.knipRemovalRecommendation !== "eligible-to-retire"
-      ? []
-      : A.flatMap(document.rows, (row) => {
-          if (
-            row.retirementDecision === "ready-to-retire-knip" &&
-            row.gapStatus === "parity" &&
-            A.isReadonlyArrayNonEmpty(row.evidenceRefs) &&
-            includesCommand(row.acceptanceCommands, knipParityBaselineCommand) &&
-            includesCommand(row.acceptanceCommands, "fallow")
-          ) {
-            return [];
-          }
-          return [
-            `${row.id}: eligible-to-retire requires ready-to-retire-knip, parity status, parity assertion helper, Fallow commands, and evidence`,
-          ];
-        });
-  const rowDiagnostics = A.flatMap(document.rows, (row) => {
-    const diagnostics: Array<string> = [];
-    if (row.retirementDecision === "ready-to-retire-knip" && row.gapStatus !== "parity") {
-      diagnostics.push(`${row.id}: ready-to-retire-knip requires gapStatus parity`);
-    }
-    if (row.retirementDecision === "ready-to-retire-knip" && !includesCommand(row.acceptanceCommands, "fallow")) {
-      diagnostics.push(`${row.id}: ready-to-retire-knip requires a Fallow acceptance command`);
-    }
-    if (
-      row.retirementDecision === "ready-to-retire-knip" &&
-      !includesCommand(row.acceptanceCommands, knipParityBaselineCommand)
-    ) {
-      diagnostics.push(`${row.id}: ready-to-retire-knip requires the Knip/Fallow parity baseline helper`);
-    }
-    return diagnostics;
-  });
-
   return [
     ...uniqueDiagnostics("knip parity ids", ids),
     ...uniqueDiagnostics("knip config surfaces", surfaces),
     ...sameSetDiagnostics("knip config surfaces", expectedKnipSurfaces, surfaces),
-    ...removalDiagnostics,
-    ...rowDiagnostics,
   ];
 };
 
@@ -1871,9 +1834,6 @@ const tasksDiagnostics = (document: TasksDocument, featureMatrix: FeatureMatrixD
         if (A.contains(task.evidenceRefs, "research/report-template.md")) {
           diagnostics.push(`${task.id}: report-template.md cannot be completion evidence`);
         }
-      }
-      if (task.id === "fqe-002" && !hasCommand(allCommands, knipParityBaselineCommand)) {
-        diagnostics.push(`${task.id}: Knip parity acceptance must use the baseline assertion helper`);
       }
       if (task.id === "fqe-003") {
         const missingSubcommands = A.filter(
@@ -2646,7 +2606,7 @@ const pilotInventoryDiagnostics = (document: unknown): ReadonlyArray<string> => 
   const decision = asRecord(root.decision);
   const implementationPolicy = asRecord(root.implementationPolicy);
   const knipStrengths = asStringArray(asRecord(root.featureComparison).knipStrengths);
-  const fallowAudit = asRecord(asRecord(root.localProbeSnapshot).fallowAudit);
+  const fallowAudit = asRecord(asRecord(root.historicalLocalProbeSnapshot).fallowAudit);
   const fallowAuditSummary = asRecord(fallowAudit.summary);
   const fallowAuditIntroduced = asRecord(fallowAudit.introduced);
   const fallowAuditInherited = asRecord(fallowAudit.inherited);
@@ -2675,67 +2635,67 @@ const pilotInventoryDiagnostics = (document: unknown): ReadonlyArray<string> => 
   }
   diagnostics.push(
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit",
       fallowAudit,
       "changedFilesMinimum",
       expectedFallowAuditBaseline.changedFilesMinimum
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.summary",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.summary",
       fallowAuditSummary,
       "deadCodeIssues",
       expectedFallowAuditBaseline.deadCodeIssues
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.summary",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.summary",
       fallowAuditSummary,
       "complexityFindings",
       expectedFallowAuditBaseline.complexityFindings
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.summary",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.summary",
       fallowAuditSummary,
       "duplicationCloneGroups",
       expectedFallowAuditBaseline.duplicationCloneGroups
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.introduced",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.introduced",
       fallowAuditIntroduced,
       "deadCodeIssues",
       expectedFallowAuditBaseline.deadCodeIntroduced
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.introduced",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.introduced",
       fallowAuditIntroduced,
       "complexityFindings",
       expectedFallowAuditBaseline.complexityIntroduced
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.introduced",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.introduced",
       fallowAuditIntroduced,
       "duplicationCloneGroups",
       expectedFallowAuditBaseline.duplicationIntroduced
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.inherited",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.inherited",
       fallowAuditInherited,
       "deadCodeIssues",
       expectedFallowAuditBaseline.deadCodeInherited
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.inherited",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.inherited",
       fallowAuditInherited,
       "complexityFindings",
       expectedFallowAuditBaseline.complexityInherited
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.inherited",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.inherited",
       fallowAuditInherited,
       "duplicationCloneGroups",
       expectedFallowAuditBaseline.duplicationInherited
     ),
     ...numberFieldDiagnostics(
-      "standards/fallow.pilot.inventory.jsonc.localProbeSnapshot.fallowAudit.unattributed",
+      "standards/fallow.pilot.inventory.jsonc.historicalLocalProbeSnapshot.fallowAudit.unattributed",
       fallowAuditUnattributed,
       "complexityFindings",
       expectedFallowAuditBaseline.complexityUnattributed
