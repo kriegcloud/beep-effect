@@ -3,7 +3,8 @@
   Unattended install for the practice-gateway clean-VM proof (D8).
   Rendered by create-vm.sh: @@PASSWORD@@ is replaced with a per-VM random
   password kept outside the repo (~/VMs/practice-gateway/state/). The account
-  is a throwaway local test account in a disposable VM.
+  is a throwaway local test account in a disposable VM. First logon runs
+  harness.ps1 from the same ISO to enable SSH for the proof host.
 -->
 <unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
   <settings pass="windowsPE">
@@ -78,6 +79,13 @@
         <Password><Value>@@PASSWORD@@</Value><PlainText>true</PlainText></Password>
         <LogonCount>999</LogonCount>
       </AutoLogon>
+      <FirstLogonCommands>
+        <SynchronousCommand wcm:action="add">
+          <Order>1</Order>
+          <Description>Harness instrumentation (SSH for the proof host)</Description>
+          <CommandLine>powershell -NoProfile -ExecutionPolicy Bypass -Command "&amp; ((Get-Volume -FileSystemLabel UNATTEND).DriveLetter + ':\harness.ps1')"</CommandLine>
+        </SynchronousCommand>
+      </FirstLogonCommands>
     </component>
   </settings>
 </unattend>

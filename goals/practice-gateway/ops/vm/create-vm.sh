@@ -32,7 +32,13 @@ if [[ ! -s "$PASSWORD_FILE" ]]; then
 fi
 PASSWORD="$(cat "$PASSWORD_FILE")"
 
+# Dedicated harness SSH key (test hook only; see harness.template.ps1).
+SSH_KEY="$STATE/state/harness_ed25519"
+[[ -f "$SSH_KEY" ]] || ssh-keygen -q -t ed25519 -N "" -C "practice-gateway-harness" -f "$SSH_KEY"
+SSH_PUBKEY="$(cat "$SSH_KEY.pub")"
+
 sed "s/@@PASSWORD@@/$PASSWORD/g" "$HERE/autounattend.template.xml" >"$STATE/unattend/autounattend.xml"
+sed "s|@@SSH_PUBKEY@@|$SSH_PUBKEY|g" "$HERE/harness.template.ps1" >"$STATE/unattend/harness.ps1"
 chmod 600 "$STATE/unattend/autounattend.xml"
 xorriso -as mkisofs -quiet -V UNATTEND -J -r -o "$STATE/unattend.iso" "$STATE/unattend"
 rm -f "$STATE/unattend/autounattend.xml"
@@ -50,7 +56,7 @@ rm -f "$STATE/unattend/autounattend.xml"
   --disk "path=$STATE/disk.qcow2,size=64,bus=sata,format=qcow2" \
   --disk "path=$ISO,device=cdrom,bus=sata" \
   --disk "path=$STATE/unattend.iso,device=cdrom,bus=sata" \
-  --network user,model=e1000e \
+  --network user,model=e1000e,backend.type=passt,portForward0.proto=tcp,portForward0.address=127.0.0.1,portForward0.range0.start=${SSH_PORT:-2222},portForward0.range0.to=22 \
   --graphics spice \
   --video qxl \
   --noautoconsole
@@ -62,5 +68,5 @@ for _ in $(seq 1 20); do
 done
 
 echo "Installing unattended. Watch with: remote-viewer \$(virsh -c $CONN domdisplay $NAME)"
-echo "When the desktop appears (autologon as 'lawyer'), shut down and snapshot:"
-echo "  virsh -c $CONN shutdown $NAME && virsh -c $CONN snapshot-create-as $NAME clean"
+echo "When C:\\harness-ready.txt exists (ssh -p ${SSH_PORT:-2222} -i $SSH_KEY lawyer@127.0.0.1),"
+echo "shut down and run snapshot.sh to capture the clean baseline."
