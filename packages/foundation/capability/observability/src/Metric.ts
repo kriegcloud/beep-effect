@@ -109,7 +109,7 @@ interface ObserveWorkflowOptions {
  * **Example** (Read the outcome attribute key)
  *
  * ```ts import.meta.vitest name="Read the outcome attribute key"
- * import { WORKFLOW_OUTCOME_ATTRIBUTE } from "@beep/observability"
+ * import { WORKFLOW_OUTCOME_ATTRIBUTE } from "@beep/observability/Metric"
  *
  * WORKFLOW_OUTCOME_ATTRIBUTE // => "beep.outcome"
  * ```
