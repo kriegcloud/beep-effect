@@ -10,11 +10,11 @@
   ],
   "reviews": {
     "//": {
-      "reviewer": "Claude Opus 5.5 (effected-port publish, @lab/effected)",
-      "reason": "Record the reviewed legacy posture after the scratchpad manifest gained the effected-port runner scripts and kit dependencies (@beep/scratchpad#docgen scripts digest and dependency set) and three no-emit apps declared build.outputs [] in their own turbo.json; no command, input, env or cache flag changes, and no qualification is granted. The root subject moves only through bun.lock gaining the kit dependencies.",
+      "reviewer": "Claude Fable 5.1 (agent-skills-conformance publish, feat/agent-skills-conformance)",
+      "reason": "Record the reviewed legacy posture after @beep/repo-cli gained the @beep/ai-sync dependency: the root policy-fingerprint task inputs grew by the ai-sync manifest and sources, and the repo-cli build/check/doctest/lint:deprecated-apis/test/test:property tasks carry the new dependency edge. No command, input glob, env, output, or cache flag changed otherwise; no qualification is granted.",
       "basis": {
-        "path": "scratchpad/effected/CACHE_BASELINE_REVIEW.md",
-        "sha256": "3b23b12d2fbf1b1ee75930868cb7f0e54435e605868d354648b3f3280d9fb80f"
+        "path": "goals/turborepo-task-qualification/research/cache-baseline-review-2026-10-14-ai-sync-dependency.md",
+        "sha256": "ee38e174f0612690c75c8242fbf3b748bb3df0a1210de1b64b07779000e1f8b6"
       }
     },
     "@beep/acp": {
@@ -938,11 +938,11 @@
       }
     },
     "@beep/repo-cli": {
-      "reviewer": "rsc-d-release policy worker",
-      "reason": "Preserve the exact original design-figure driver review evidence outside the retired pending-note directory. Only these four review references move; projection, task/cache policy, profile, epoch, scope and qualification ledger remain unchanged. The archived evidence retains its original SHA-256. No cache qualification is granted.",
+      "reviewer": "Claude Fable 5.1 (agent-skills-conformance publish, feat/agent-skills-conformance)",
+      "reason": "Record the reviewed legacy posture after @beep/repo-cli gained the @beep/ai-sync dependency: the root policy-fingerprint task inputs grew by the ai-sync manifest and sources, and the repo-cli build/check/doctest/lint:deprecated-apis/test/test:property tasks carry the new dependency edge. No command, input glob, env, output, or cache flag changed otherwise; no qualification is granted.",
       "basis": {
-        "path": "goals/repository-simplification-confidence/history/receipts/d-cache-review-evidence.md",
-        "sha256": "9b642414a6d87a7ed68955eed76fb5c9468dfe344cffe17e95167931723e510a"
+        "path": "goals/turborepo-task-qualification/research/cache-baseline-review-2026-10-14-ai-sync-dependency.md",
+        "sha256": "ee38e174f0612690c75c8242fbf3b748bb3df0a1210de1b64b07779000e1f8b6"
       }
     },
     "@beep/repo-configs": {
@@ -2660,6 +2660,8 @@
             "packages/foundation/primitive/data/src/**",
             "packages/tooling/library/ai-metrics/package.json",
             "packages/tooling/library/ai-metrics/src/**",
+            "packages/tooling/library/ai-sync/package.json",
+            "packages/tooling/library/ai-sync/src/**",
             "packages/tooling/library/qa-capture/package.json",
             "packages/tooling/library/qa-capture/src/**",
             "packages/tooling/library/repo-utils/package.json",
@@ -81012,6 +81014,7 @@
         "command": "bun run --if-present beep:audit",
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
+          "@beep/ai-sync#audit",
           "@beep/chalk#audit",
           "@beep/colors#audit",
           "@beep/duckdb#audit",
@@ -81106,6 +81109,7 @@
         "command": "bun run beep:build",
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
+          "@beep/ai-sync#build",
           "@beep/chalk#build",
           "@beep/colors#build",
           "@beep/duckdb#build",
@@ -81187,6 +81191,7 @@
         "command": "bun run beep:check",
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
+          "@beep/ai-sync#build",
           "@beep/chalk#build",
           "@beep/colors#build",
           "@beep/duckdb#build",
@@ -81255,6 +81260,7 @@
         "command": "bunx vitest run --coverage",
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
+          "@beep/ai-sync#build",
           "@beep/chalk#build",
           "@beep/colors#build",
           "@beep/duckdb#build",
@@ -81374,6 +81380,7 @@
         "command": "bun run beep:doctest",
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
+          "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
           "@beep/duckdb#transit",
@@ -81489,6 +81496,7 @@
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
           "//#lint:policy-fingerprint",
+          "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
           "@beep/duckdb#transit",
@@ -81728,6 +81736,7 @@
         "command": "beep-cli quality test-tsgo-package",
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
+          "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
           "@beep/duckdb#transit",
@@ -81802,6 +81811,7 @@
         "command": "bun run beep:test",
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
+          "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
           "@beep/duckdb#transit",
@@ -81882,6 +81892,7 @@
         "command": "bun run beep:test",
         "commandDigest": "149d0c503d33528e1a0389778596a8c91b0876f8a7c70d3a44155133bd4449ea",
         "dependencies": [
+          "@beep/ai-sync#transit",
           "@beep/chalk#transit",
           "@beep/colors#transit",
           "@beep/duckdb#transit",
@@ -104950,7 +104961,7 @@
       },
       {
         "path": "turbo.json",
-        "sha256": "5ad25a9e98a0b47744c24e0701da73cd62b831407083063f8127bbbb76bde1e5"
+        "sha256": "46c6fd2df93c7618f5cec2fd867975cfe54ea2f2cc096871ce48fd4e1cab9010"
       }
     ]
   }

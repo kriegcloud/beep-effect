@@ -107,9 +107,17 @@ export class RenderRequest extends S.Class<RenderRequest>($I`RenderRequest`)(
       S.withConstructorDefault(Effect.succeed(false)),
       S.annotateKey({ description: "Whether to add procedural straight-line surface shading. Defaults to false." })
     ),
+    allowPartOverlaps: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.annotateKey({
+        description:
+          "Whether to render a model whose parts interpenetrate. Defaults to false: overlapping solids double-count volume and confuse hidden-line removal, so the render is refused.",
+      })
+    ),
   },
   $I.annote("RenderRequest", {
-    description: "Spec path, output directory, sheet options, and validation switch of a render.",
+    description:
+      "Spec path, output directory, sheet options, validation and shading switches, and the part-overlap override of a render.",
   })
 ) {}
 
@@ -163,6 +171,9 @@ const shadingFor = (input: {
   );
 };
 
+// Everything a sheet draws for a view: solid outlines plus broken-line parts.
+const drawnSegments = (edges: EdgeSet): ReadonlyArray<Segment2> => [...edges.visible, ...edges.broken];
+
 // An omitted pictorial is projected like the figure it is claimed from.
 const projectionOf = (spec: FigureSetSpec, view: ViewName): PictorialProjection =>
   pipe(
@@ -176,10 +187,12 @@ const proveOmission = (claim: OmissionClaim, shown: EdgeSet, omitted: EdgeSet): 
     omitted: claim.omitted,
     shown: claim.shown,
     relation: claim.relation,
-    proven: sameSegments({
-      left: claim.relation === "identical" ? shown.visible : mirrorSegments(shown.visible),
-      right: omitted.visible,
-    }),
+    proven:
+      A.length(shown.broken) === A.length(omitted.broken) &&
+      sameSegments({
+        left: claim.relation === "identical" ? drawnSegments(shown) : mirrorSegments(drawnSegments(shown)),
+        right: drawnSegments(omitted),
+      }),
   });
 
 const makeService = Effect.fn("FigureSet.makeService")(function* () {
@@ -367,6 +380,12 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     );
     const info = yield* engine.info;
     const model = yield* engine.summarize(spec.model);
+    if (model.partOverlaps > 0 && !request.allowPartOverlaps) {
+      return yield* DrawingError.make({
+        reason: "geometry",
+        message: `${model.partOverlaps} pair(s) of parts overlap; fix the model so parts only touch, or set allowPartOverlaps to render anyway.`,
+      });
+    }
     // The spec's own sheet options win wholesale; the manifest records the ones used.
     const sheet = O.getOrElse(spec.sheet, () => request.sheet);
     // Font files are read before projecting, so a bad one fails fast.
@@ -441,7 +460,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
             });
       })
     );
-    const scale = commonScale({ views: A.map(figureEdges, (e) => e.visible), options: sheet, faces });
+    const scale = commonScale({ views: A.map(figureEdges, drawnSegments), options: sheet, faces });
     const shading = yield* shadingFor({
       shade: request.shade,
       sheet,
@@ -466,6 +485,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
         const svg = composeSheet({
           segments: edges.visible,
           shading: shadingLines,
+          broken: edges.broken,
           figure: index + 1,
           sheet: index + 1,
           sheets,
@@ -486,6 +506,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           svgSha256: yield* sha256Hex(svgBytes),
           visibleSegments: A.length(edges.visible),
           shadingSegments: A.length(shadingLines),
+          brokenSegments: A.length(edges.broken),
           camera: A.get(cameras, index),
           shadingCoverage: O.flatMap(shadedView, (view) => view.shadingCoverage),
         });
@@ -517,7 +538,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     const shadingFindings = A.flatMap(shading, (view, index) => {
       const page = index + 1;
       const shadingMm = inMm(view.shading);
-      const outlineMm = inMm(view.visible);
+      const outlineMm = inMm([...view.visible, ...view.broken]);
       return [
         ...shadingSpacingFindings({ page, segmentsMm: shadingMm, options: validationOptions }),
         ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),

@@ -11,37 +11,42 @@
     "atom-reactivity-specialist": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "15f5519fbdefddec8f1a8e06341419f32ab3204cf576bab6db4f6eefe67986f1"
+      "computedHash": "c60644e42ed5ed150450a48814c92d8d7e32af51729f2ca8bfbf2df845b6ffb5"
     },
     "browser-qa-loop": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "a1e2ff3f1b3b94861fdea7c6d9c558f4d9e3a9625aa6ad1e2a3978e5b0317653"
+      "computedHash": "fcf631ce943b4abd93f512f18743c55e98792876dd4f9a5a596925e763fb1417"
+    },
+    "closeout": {
+      "source": "repo-local",
+      "sourceType": "local",
+      "computedHash": "050e44bff0a05ea51444499335e4ddf87ec25d2387e329a5c9a4d501c63bea02"
     },
     "codex-findings": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "9754f631d271a9d7c95365b2ef676270dce7b1ce8472b443eba2d3f47ce9de18"
+      "computedHash": "dccf776d7095c66bdf18b9cc4a45b46f28996982c6af16447670ebb04556de2b"
     },
     "crispen": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "cfd09849b6706978404885c537c311349fdd3b301523bfbe980bcc3d8cbe7296"
+      "computedHash": "cae648e243e03267bb1895bb76678ebca8fb57fde47c52eb506becfeef8ec3ea"
     },
     "effect-first-development": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "f62f9c4f1f02604cb8c4b184285548f8aba7e105c70399369ef6a9e182d6ef11"
+      "computedHash": "0938de77ac74ae9ca576b2783fb388c3d5778cc10daf0544859eb7ecb76e494e"
     },
     "explore": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "43552a34cf79097bc82dcecf2a39103f5a62bbfd6d11722533fe63b979ceb90f"
+      "computedHash": "bda8729a701e1ab00012fa0c235dc10e3fe403762b7a627390262527d60e71cf"
     },
     "graft": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "cc6964408e6eb4dd132693b9a8d1ffddd36c8334584aac63187ceaf723143996"
+      "computedHash": "0c10f9478c92ccb2b86ebf7da0f841ae87c0299c22cacf361c95575db048c650"
     },
     "grill-me": {
       "source": "mattpocock/skills",
@@ -63,17 +68,17 @@
     "impeccable": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "70b3196805127f1f6c43c1e2d716fbbf46d5e5a7f5c987fc70bcae9fde26178a"
+      "computedHash": "004251b8b623ccebcf5c713978cff1f6f3088ae99473543869fbac5f9b11e4aa"
     },
     "jsdoc-annotation-specialist": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "3a92878a2892f36b6bd471ccb510c5cd2418a0c031eb50a6683907cea08916c6"
+      "computedHash": "ee5134a93019ffde24ee0bacd799ab1bd77562d65db3314bcb77da4bcdc1ddcd"
     },
     "motion-evidence-review": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "c311c1f22327836a68aca7f337031d3e922dc4fa873aea48636f63ba18fd736e"
+      "computedHash": "f2c846623b0496035e527141c0fd6c49209e55e8bea31802e361bc2a6147e945"
     },
     "onepassword-secret-refs": {
       "source": "repo-local",
@@ -98,7 +103,7 @@
     "ontology-foundational-auditor": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "e213c581b93ded622360d43c209b65db0eefd2e8a562e23bc020581ee785b326"
+      "computedHash": "3327a96f6832826f2e3628fde1a274939b0c9f3eb2a1d5b74dbcb9bbca933421"
     },
     "ontology-mapper": {
       "source": "repo-local",
@@ -123,39 +128,44 @@
     "oracle": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "ac366ef57f570a6e8464eb7d7f0b813bc1b6db48ea4345536ff33fd516ecf04a"
+      "computedHash": "1a212f8a366538b41e0e5c876eb164a4b6330c881baced6a1243b35ec06420b2"
+    },
+    "orchestrate": {
+      "source": "repo-local",
+      "sourceType": "local",
+      "computedHash": "bfc889db4ee6f74ad714e5e926ebc3211d76fa2754d05c373cc85f769672ef1f"
     },
     "portless": {
       "source": "vercel-labs/portless",
       "sourceType": "github",
-      "computedHash": "2972b9c0443da5ed45dcf6cf85f531927ef84f11aa9bd8b664bc335f9af252ec",
+      "computedHash": "d65f497e6b3dd5cbca0408366bbed7da2be1ca8e1a85b7a348e7779627c0e9ad",
       "ref": "main",
       "skillPath": "skills/portless/SKILL.md"
     },
     "qa-session-ops": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "f11c0e8f24ebbd85834bf6a0cdb81f48569fd7d11ac59593b5500b3cb67fa86e"
+      "computedHash": "dadc27da88c8886ea01d003b942f6089ab01c4fedd5e019e55416eddf1627a4f"
     },
     "quality-review-fix-loop": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "57260fe53eb760b8acb111a11814ebb61198db155caa24900498e827064273aa"
+      "computedHash": "741884cffd222a6d0b0a156f7b86cd2ddcd65bacb694a212de7225c37f814445"
     },
     "reflect": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "9d10bba8e06073adb65f46a0e0350eccb31c6f77576f04a57a4e7d0586466beb"
+      "computedHash": "1bf5a4957a11daf1b6ef7a9eb24e516297839888db88ed1efd7bcfc69c713213"
     },
     "schema-first-development": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "b6cee420ede9ada6284ead0d8c629a4e3ab988ac5d6fc17f82c61dabdd7a870c"
+      "computedHash": "6b4298d394f90e7ec111a8f442ccf586ef2ab54d155239055d6faa11cd5db370"
     },
     "shadcn": {
       "source": "shadcn-ui/ui",
       "sourceType": "github",
-      "computedHash": "0ea96a1b3b711138dc26b476b640af12050bf3e025ab0fd2ed34ba7009f0cbf4",
+      "computedHash": "dba7a712369e2555df2c472ced7423ffa574ebeb70081a772b4cfff165900697",
       "ref": "main",
       "skillPath": "skills/shadcn/SKILL.md"
     },
@@ -167,7 +177,7 @@
     "teach": {
       "source": "mattpocock/skills",
       "sourceType": "github",
-      "computedHash": "b4438df65216e092d352a7bcebe2860eb0b62eb29747e0d4468eabe057396f58",
+      "computedHash": "4885bdea8f8a860ba92c8004d2f677467c28ef43fc76a706a81c1a6d653f65bb",
       "ref": "main",
       "skillPath": "skills/productivity/teach/SKILL.md"
     },
@@ -186,7 +196,7 @@
     "yeet": {
       "source": "repo-local",
       "sourceType": "local",
-      "computedHash": "710c494cbf6bc3ba904677d497da13e8fdd9c08e009a8c08553f8d54e4dc42ea"
+      "computedHash": "cc4e93e758157dcf3cd18ce8b500e95c6e501ca142b2efae87cb0fd84259ab21"
     }
   }
 }

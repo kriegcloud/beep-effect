@@ -11,6 +11,7 @@ import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { messageWithCause } from "../../internal/cli/CommandErrorFields.ts";
 import { OpaqueDefect } from "../../internal/schema/OpaqueDefect.ts";
+import { SkillFrontmatterIssue } from "./SkillFrontmatter.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.errors");
 
@@ -280,3 +281,54 @@ export class SkillUpstreamContentError extends S.TaggedError<SkillUpstreamConten
     description: "A skill's pinned, historical, or path-history upstream content could not be fetched or decoded.",
   })
 ) {}
+
+/**
+ * Repo-authored skills whose `SKILL.md` frontmatter violates the Agent Skills
+ * format or the Claude Code extension keys.
+ *
+ * **Details**
+ *
+ * Raised in every mode of `beep skills update`, and only for skills this
+ * repository authors: the installer cannot rewrite an author's frontmatter, so
+ * the fix is to edit the skill (repo extras go under `metadata`). The same
+ * finding on a lock-managed upstream mirror is printed as an advisory instead,
+ * because editing the mirror would only drift it from its pinned snapshot.
+ *
+ * **Example** (Build the error from a report)
+ *
+ * ```ts
+ * import { SkillFrontmatterError, SkillFrontmatterIssue } from "@beep/repo-cli/commands/Skills"
+ *
+ * const error = SkillFrontmatterError.new([
+ *   SkillFrontmatterIssue.make({ skill: "yeet", message: "Unexpected key \"version\"" }),
+ * ])
+ * console.log(error.issues.length) // 1
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SkillFrontmatterError extends S.TaggedError<SkillFrontmatterError>($I`SkillFrontmatterError`)(
+  "SkillFrontmatterError",
+  {
+    message: S.String,
+    issues: S.Array(SkillFrontmatterIssue),
+  },
+  $I.annoteError<SkillFrontmatterError>("SkillFrontmatterError", {
+    title: "Skill Frontmatter Error",
+    description: "One or more installed skills carry frontmatter outside the Agent Skills format.",
+  })
+) {
+  /**
+   * Construct the error from the issues a frontmatter check collected.
+   *
+   * @param issues - Every frontmatter issue the check found, one per skill.
+   * @returns The error carrying those issues and a one-line summary message.
+   * @category constructors
+   */
+  static readonly new = (issues: ReadonlyArray<SkillFrontmatterIssue>): SkillFrontmatterError =>
+    SkillFrontmatterError.make({
+      issues,
+      message: `${issues.length} repo-authored skill frontmatter issue(s); repo extras belong under metadata.`,
+    });
+}
