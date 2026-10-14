@@ -1021,3 +1021,17 @@ snapshot is owner-regenerated before push; exact-head parity and independent
 review remain mandatory qualification, and R14 merge belongs to the driver.
 No failing check is relabelled a pass. Recovery: repair any introduced red
 in a fully addressed wave before calling final; revert the PR if necessary.
+
+
+### 2026-10-14 inherited skills train contract repair in #1726
+
+Decision: integrate landed main changes into the existing consolidated repair
+PR and address the newly observed schema and hosted-job inventory failures
+in the same publication wave. Model PatchSeriesFile with an annotated class
+and construct the verified path/bytes value through that schema. Register
+only the three named skills-update-train domain automation jobs in the
+existing orchestration inventory exemption list; runner and credential policy
+diagnostics still apply to every workflow job. No workflow permission or
+execution behavior changes. Existing coverage floors remain unchanged.
+Recovery: revert these two focused corrections; retain the recorded red
+diagnostics and rerun the affected contracts before another publication.
