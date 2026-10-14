@@ -396,9 +396,19 @@ timeout 1800 cursor-agent -p --trust --force --sandbox enabled --workspace "$PWD
 2026-10-14 (the bare `claude-opus-5-5` is still accepted and is the same seat). The stream-json
 init event reports `"model":"Claude Opus 5.5 300K Medium"` for `-medium` and `… High` for
 `-high`; the list's "1M" label is cosmetic, and `claude-opus-5-5[effort=medium]` is rejected.
-On 2026-10-14 `--sandbox enabled` failed on the workstation (AppArmor: "Sandbox mode is enabled
-but not available on this system"); fix the host profile before running real lanes rather than
-dropping the sandbox. grok-build fallback (step 3):
+On 2026-10-14 `--sandbox enabled` failed on the workstation with "Sandbox mode is enabled but not
+available on this system … possibly due to AppArmor configuration". The hint is generic: AppArmor
+was not an active LSM on that boot, unprivileged `unshare` worked, and after the reboot into kernel
+7.2.10 the same sandboxed lane ran a shell tool cleanly. Diagnose before touching host security
+settings, and never drop to `--sandbox disabled` for a real lane:
+
+```sh
+cat /sys/kernel/security/lsm                      # is apparmor an active LSM at all?
+unshare --user --map-root-user true && echo ok    # unprivileged user namespaces
+cursor-agent sandbox run echo sandbox-ok          # Cursor's own sandbox, no model call
+```
+
+Only when `apparmor` is listed and `unshare` fails does the host fix below apply. grok-build fallback (step 3):
 
 ```sh
 grok -m grok-4.7 --effort medium --always-approve --no-subagents --max-turns 60 \
