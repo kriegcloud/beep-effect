@@ -87,11 +87,12 @@ const addressPropertyShapes = (path: NamedNode, value: string): ReadonlyArray<Sh
  * @category policies
  * @since 0.0.0
  */
-export class IdentityShapePolicy extends S.Class<IdentityShapePolicy>($I`IdentityShapePolicy`)(
-  { requiredFibers: RequiredIdentityFibers },
-  $I.annote("IdentityShapePolicy", {
-    description: "Named identity fibers that every projected node shape requires.",
-  })
+export class IdentityShapePolicy extends S.Opaque<IdentityShapePolicy, { readonly brand: unique symbol }>()(
+  S.Struct({ requiredFibers: RequiredIdentityFibers }).pipe(
+    $I.annoteSchema("IdentityShapePolicy", {
+      description: "Named identity fibers that every projected node shape requires.",
+    })
+  )
 ) {}
 
 /**

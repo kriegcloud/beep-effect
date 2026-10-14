@@ -20,7 +20,7 @@ import {
   outputFile,
   sourceMetadata,
 } from "../internal/Source.ts";
-import { SyncDataTargetProjection } from "../SyncDataToTs.schemas.ts";
+import { SyncDataTargetMetadata, SyncDataTargetProjection } from "../SyncDataToTs.schemas.ts";
 import type { SyncDataTarget, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
 
 const targetId = "iana-timezones" as const;
@@ -297,9 +297,11 @@ const acquireIanaTimezonesProjection = Effect.fn("SyncDataToTs.IanaTimezones.acq
  * @since 0.0.0
  */
 export const ianaTimezonesTarget: SyncDataTarget = {
-  id: targetId,
-  access: "public",
-  description: "Sync IANA timezone identifiers from the latest tzdb data release.",
-  sourceUrls: [IANA_TZDATA_SOURCE_URL],
+  ...SyncDataTargetMetadata.make({
+    id: targetId,
+    access: "public",
+    description: "Sync IANA timezone identifiers from the latest tzdb data release.",
+    sourceUrls: [IANA_TZDATA_SOURCE_URL],
+  }),
   acquire: acquireIanaTimezonesProjection(),
 };

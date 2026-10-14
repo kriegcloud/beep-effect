@@ -32,6 +32,8 @@ import type * as Stream from "effect/Stream";
 
 const $I = $AcpId.create("agent");
 
+type AcpProtocolLoggingFields = typeof AcpProtocol.AcpProtocolLoggingOptions.Encoded;
+
 /**
  * Options for constructing an ACP agent service.
  *
@@ -47,7 +49,7 @@ const $I = $AcpId.create("agent");
  * @category models
  * @since 0.0.0
  */
-export interface AcpAgentOptions extends AcpProtocol.AcpProtocolLoggingOptions {
+export interface AcpAgentOptions extends AcpProtocolLoggingFields {
   readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void>;
 }
 

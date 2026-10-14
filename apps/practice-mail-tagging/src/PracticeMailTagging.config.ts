@@ -72,8 +72,8 @@ const PageSize = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive 
  * @category configuration
  * @since 0.0.0
  */
-export class PracticeMailTaggingConfig extends S.Class<PracticeMailTaggingConfig>($I`PracticeMailTaggingConfig`)(
-  {
+export class PracticeMailTaggingConfig extends S.Opaque<PracticeMailTaggingConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     stateDirectory: S.NonEmptyString.annotateKey({
       description: "Directory holding the ledgers, the checkpoint, and the contacts overlay.",
     }),
@@ -113,10 +113,11 @@ export class PracticeMailTaggingConfig extends S.Class<PracticeMailTaggingConfig
     contactEvidence: MatterContactEvidence.annotateKey({
       description: "Whether contact addresses tie mail to matters: off, or from the practice knowledge graph.",
     }),
-  },
-  $I.annote("PracticeMailTaggingConfig", {
-    description: "Every setting of the mail-tagging job that this app owns.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeMailTaggingConfig", {
+      description: "Every setting of the mail-tagging job that this app owns.",
+    })
+  )
 ) {}
 
 /**

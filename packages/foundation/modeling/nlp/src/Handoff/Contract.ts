@@ -208,7 +208,7 @@ export const ChunkKind = LiteralKit(["document", "paragraph", "sentence", "token
  */
 export type ChunkKind = typeof ChunkKind.Type;
 
-class SpanFields extends S.Class<SpanFields>($I`SpanFields`)(
+class SpanFields extends S.Class<SpanFields, {}>($I`SpanFields`)(
   {
     end: S.Natural,
     start: S.Natural,
@@ -311,17 +311,18 @@ export declare namespace Span {
  * @category models
  * @since 0.0.0
  */
-export class Provenance extends S.Class<Provenance>($I`Provenance`)(
-  {
+export class Provenance extends S.Opaque<Provenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidence: S.optionalKey(UnitInterval),
     generatedBy: S.String,
     source: S.String,
     timestamp: S.Finite,
-  },
-  $I.annote("Provenance", {
-    description:
-      "PROV-O-aligned provenance: source document, generating operation/backend (prov:wasGeneratedBy), generation time as epoch ms (prov:generatedAtTime), and optional confidence in [0,1].",
-  })
+  }).pipe(
+    $I.annoteSchema("Provenance", {
+      description:
+        "PROV-O-aligned provenance: source document, generating operation/backend (prov:wasGeneratedBy), generation time as epoch ms (prov:generatedAtTime), and optional confidence in [0,1].",
+    })
+  )
 ) {}
 
 /**
@@ -347,17 +348,18 @@ export class Provenance extends S.Class<Provenance>($I`Provenance`)(
  * @category models
  * @since 0.0.0
  */
-export class TextChunk extends S.Class<TextChunk>($I`TextChunk`)(
-  {
+export class TextChunk extends S.Opaque<TextChunk, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ChunkId,
     kind: ChunkKind,
     provenance: Provenance,
     span: Span,
     text: S.String,
-  },
-  $I.annote("TextChunk", {
-    description: "A contiguous chunk of source text at a given granularity, with character span and provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextChunk", {
+      description: "A contiguous chunk of source text at a given granularity, with character span and provenance.",
+    })
+  )
 ) {}
 
 /**
@@ -383,17 +385,18 @@ export class TextChunk extends S.Class<TextChunk>($I`TextChunk`)(
  * @category models
  * @since 0.0.0
  */
-export class Mention extends S.Class<Mention>($I`Mention`)(
-  {
+export class Mention extends S.Opaque<Mention, { readonly brand: unique symbol }>()(
+  S.Struct({
     chunkId: ChunkId,
     id: MentionId,
     provenance: Provenance,
     span: Span,
     text: S.String,
-  },
-  $I.annote("Mention", {
-    description: "A surface mention occurrence: a text span within a chunk that refers to a nameable thing.",
-  })
+  }).pipe(
+    $I.annoteSchema("Mention", {
+      description: "A surface mention occurrence: a text span within a chunk that refers to a nameable thing.",
+    })
+  )
 ) {}
 
 /**
@@ -419,19 +422,20 @@ export class Mention extends S.Class<Mention>($I`Mention`)(
  * @category models
  * @since 0.0.0
  */
-export class Entity extends S.Class<Entity>($I`Entity`)(
-  {
+export class Entity extends S.Opaque<Entity, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalName: S.String,
     confidence: S.optionalKey(UnitInterval),
     id: EntityId,
     mentions: S.Array(MentionId),
     provenance: Provenance,
     type: S.String,
-  },
-  $I.annote("Entity", {
-    description:
-      "A canonical entity referred to by mentions; its generic `type` maps downstream to a concrete KG node type.",
-  })
+  }).pipe(
+    $I.annoteSchema("Entity", {
+      description:
+        "A canonical entity referred to by mentions; its generic `type` maps downstream to a concrete KG node type.",
+    })
+  )
 ) {}
 
 /**
@@ -456,8 +460,8 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  * @category models
  * @since 0.0.0
  */
-export class Relation extends S.Class<Relation>($I`Relation`)(
-  {
+export class Relation extends S.Opaque<Relation, { readonly brand: unique symbol }>()(
+  S.Struct({
     confidence: S.optionalKey(UnitInterval),
     evidence: S.Array(Span).pipe(S.optionalKey),
     id: RelationId,
@@ -465,11 +469,12 @@ export class Relation extends S.Class<Relation>($I`Relation`)(
     provenance: Provenance,
     subject: EntityId,
     type: S.String,
-  },
-  $I.annote("Relation", {
-    description:
-      "A directed relation from subject to object entity; its generic `type` maps downstream to a concrete KG edge type.",
-  })
+  }).pipe(
+    $I.annoteSchema("Relation", {
+      description:
+        "A directed relation from subject to object entity; its generic `type` maps downstream to a concrete KG edge type.",
+    })
+  )
 ) {}
 
 /**
@@ -504,19 +509,20 @@ export class Relation extends S.Class<Relation>($I`Relation`)(
  * @category models
  * @since 0.0.0
  */
-export class AnnotatedDocument extends S.Class<AnnotatedDocument>($I`AnnotatedDocument`)(
-  {
+export class AnnotatedDocument extends S.Opaque<AnnotatedDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     chunks: S.Array(TextChunk),
     entities: S.Array(Entity),
     mentions: S.Array(Mention),
     provenance: Provenance,
     relations: S.Array(Relation),
     version: S.Literal("nlp-ir/1.1"),
-  },
-  $I.annote("AnnotatedDocument", {
-    description:
-      "The top-level handoff envelope: a fully annotated document (chunks + mentions + entities + relations).",
-  })
+  }).pipe(
+    $I.annoteSchema("AnnotatedDocument", {
+      description:
+        "The top-level handoff envelope: a fully annotated document (chunks + mentions + entities + relations).",
+    })
+  )
 ) {}
 
 /**

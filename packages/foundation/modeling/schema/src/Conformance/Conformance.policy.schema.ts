@@ -15,38 +15,59 @@ const $I = $SchemaId.create("Conformance/policy");
 const ConformancePolicyMode = LiteralKit(["strict", "diagnostic", "lossless"]);
 const UnknownRepresentationPolicy = LiteralKit(["preserve", "wrap"]);
 
-class StrictPolicy extends S.Class<StrictPolicy>($I`StrictPolicy`)(
-  {
+/**
+ * Policy that rejects values violating configured conformance strengths.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StrictPolicy extends S.Opaque<StrictPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("strict"),
     profileIds: S.NonEmptyArray(S.NonEmptyString),
     rejectOn: S.NonEmptyArray(RequirementStrength),
-  },
-  $I.annote("StrictPolicy", {
-    description: "Policy that rejects values violating configured conformance strengths.",
-  })
+  }).pipe(
+    $I.annoteSchema("StrictPolicy", {
+      description: "Policy that rejects values violating configured conformance strengths.",
+    })
+  )
 ) {}
 
-class DiagnosticPolicy extends S.Class<DiagnosticPolicy>($I`DiagnosticPolicy`)(
-  {
+/**
+ * Policy that reports configured conformance strengths without rejecting values.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DiagnosticPolicy extends S.Opaque<DiagnosticPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("diagnostic"),
     profileIds: S.NonEmptyArray(S.NonEmptyString),
     reportOn: S.NonEmptyArray(RequirementStrength),
-  },
-  $I.annote("DiagnosticPolicy", {
-    description: "Policy that reports configured conformance strengths without rejecting values.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiagnosticPolicy", {
+      description: "Policy that reports configured conformance strengths without rejecting values.",
+    })
+  )
 ) {}
 
-class LosslessPolicy extends S.Class<LosslessPolicy>($I`LosslessPolicy`)(
-  {
+/**
+ * Policy that reports conformance while retaining unknown representations for round trips.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LosslessPolicy extends S.Opaque<LosslessPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("lossless"),
     profileIds: S.NonEmptyArray(S.NonEmptyString),
     reportOn: S.NonEmptyArray(RequirementStrength),
     unknownRepresentation: UnknownRepresentationPolicy,
-  },
-  $I.annote("LosslessPolicy", {
-    description: "Policy that reports conformance while retaining unknown representations for round trips.",
-  })
+  }).pipe(
+    $I.annoteSchema("LosslessPolicy", {
+      description: "Policy that reports conformance while retaining unknown representations for round trips.",
+    })
+  )
 ) {}
 
 /**

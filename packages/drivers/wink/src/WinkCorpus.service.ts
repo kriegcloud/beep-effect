@@ -41,8 +41,8 @@ const decodeUnknownWinkStringArrayOption = S.decodeUnknownOption(WinkStringArray
 
 const $I = $WinkId.create("Wink/WinkCorpusManager");
 
-class CreateCorpusBM25Config extends S.Class<CreateCorpusBM25Config>($I`CreateCorpusBM25Config`)(
-  {
+class CreateCorpusBM25Config extends S.Opaque<CreateCorpusBM25Config, { readonly brand: unique symbol }>()(
+  S.Struct({
     b: UnitInterval.pipe(
       S.withConstructorDefault(Effect.succeed(DefaultBM25Config.b)),
       S.withDecodingDefaultTypeKey(Effect.succeed(DefaultBM25Config.b))
@@ -59,42 +59,45 @@ class CreateCorpusBM25Config extends S.Class<CreateCorpusBM25Config>($I`CreateCo
       S.withConstructorDefault(Effect.succeed(DefaultBM25Config.norm)),
       S.withDecodingDefaultTypeKey(Effect.succeed(DefaultBM25Config.norm))
     ),
-  },
-  $I.annote("CreateCorpusBM25Config", {
-    description: "Optional BM25 hyperparameter overrides used when creating a managed corpus.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCorpusBM25Config", {
+      description: "Optional BM25 hyperparameter overrides used when creating a managed corpus.",
+    })
+  )
 ) {}
 
 const createCorpusParamsBm25ConfigDefault = CreateCorpusBM25Config.make({});
-class CreateCorpusParams extends S.Class<CreateCorpusParams>($I`CreateCorpusParams`)(
-  {
+class CreateCorpusParams extends S.Opaque<CreateCorpusParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     bm25Config: CreateCorpusBM25Config.pipe(
       S.withConstructorDefault(Effect.succeed(createCorpusParamsBm25ConfigDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(createCorpusParamsBm25ConfigDefault))
     ),
     corpusId: S.String.pipe(S.UndefinedOr, S.optionalKey),
-  },
-  $I.annote("CreateCorpusParams", {
-    description: "Parameters for creating a managed Wink BM25 corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCorpusParams", {
+      description: "Parameters for creating a managed Wink BM25 corpus session.",
+    })
+  )
 ) {}
 
-class LearnCorpusParams extends S.Class<LearnCorpusParams>($I`LearnCorpusParams`)(
-  {
+class LearnCorpusParams extends S.Opaque<LearnCorpusParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String,
     dedupeById: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultTypeKey(Effect.succeed(true))
     ),
     documents: S.Array(Document),
-  },
-  $I.annote("LearnCorpusParams", {
-    description: "Parameters for learning a corpus with Wink.",
-  })
+  }).pipe(
+    $I.annoteSchema("LearnCorpusParams", {
+      description: "Parameters for learning a corpus with Wink.",
+    })
+  )
 ) {}
 
-class QueryCorpusParams extends S.Class<QueryCorpusParams>($I`QueryCorpusParams`)(
-  {
+class QueryCorpusParams extends S.Opaque<QueryCorpusParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String,
     includeText: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
@@ -102,14 +105,15 @@ class QueryCorpusParams extends S.Class<QueryCorpusParams>($I`QueryCorpusParams`
     ),
     query: S.String,
     topN: S.optionalKey(PosInt),
-  },
-  $I.annote("QueryCorpusParams", {
-    description: "Parameters for querying a managed Wink BM25 corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("QueryCorpusParams", {
+      description: "Parameters for querying a managed Wink BM25 corpus session.",
+    })
+  )
 ) {}
 
-class CorpusStatsParams extends S.Class<CorpusStatsParams>($I`CorpusStatsParams`)(
-  {
+class CorpusStatsParams extends S.Opaque<CorpusStatsParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String,
     includeIdf: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
@@ -120,87 +124,94 @@ class CorpusStatsParams extends S.Class<CorpusStatsParams>($I`CorpusStatsParams`
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
     ),
     topIdfTerms: S.optionalKey(PosInt),
-  },
-  $I.annote("CorpusStatsParams", {
-    description: "Parameters for retrieving corpus statistics with Wink.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusStatsParams", {
+      description: "Parameters for retrieving corpus statistics with Wink.",
+    })
+  )
 ) {}
 
-class CorpusSummary extends S.Class<CorpusSummary>($I`CorpusSummary`)(
-  {
+class CorpusSummary extends S.Opaque<CorpusSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     config: BM25Config,
     corpusId: S.String,
     createdAtMs: S.Natural,
     documentCount: S.Natural,
     vocabularySize: S.Natural,
-  },
-  $I.annote("CorpusSummary", {
-    description: "Summary of a corpus learned with Wink.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusSummary", {
+      description: "Summary of a corpus learned with Wink.",
+    })
+  )
 ) {}
 
-class LearnCorpusResult extends S.Class<LearnCorpusResult>($I`LearnCorpusResult`)(
-  {
+class LearnCorpusResult extends S.Opaque<LearnCorpusResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String,
     learnedCount: S.Natural,
     reindexRequired: S.Boolean,
     skippedCount: S.Natural,
     totalDocuments: S.Natural,
     vocabularySize: S.Natural,
-  },
-  $I.annote("LearnCorpusResult", {
-    description: "Result metadata returned after learning documents into a managed corpus.",
-  })
+  }).pipe(
+    $I.annoteSchema("LearnCorpusResult", {
+      description: "Result metadata returned after learning documents into a managed corpus.",
+    })
+  )
 ) {}
 
-class RankedCorpusDocument extends S.Class<RankedCorpusDocument>($I`RankedCorpusDocument`)(
-  {
+class RankedCorpusDocument extends S.Opaque<RankedCorpusDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     index: S.Natural,
     score: UnitInterval,
     text: S.optionalKey(S.String),
-  },
-  $I.annote("RankedCorpusDocument", {
-    description: "Single ranked corpus document returned from a corpus query.",
-  })
+  }).pipe(
+    $I.annoteSchema("RankedCorpusDocument", {
+      description: "Single ranked corpus document returned from a corpus query.",
+    })
+  )
 ) {}
 
-class QueryCorpusResult extends S.Class<QueryCorpusResult>($I`QueryCorpusResult`)(
-  {
+class QueryCorpusResult extends S.Opaque<QueryCorpusResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusId: S.String,
     method: S.Literal("vector.cosine"),
     query: S.String,
     ranked: S.Array(RankedCorpusDocument),
     returned: S.Natural,
     totalDocuments: S.Natural,
-  },
-  $I.annote("QueryCorpusResult", {
-    description: "Ranked corpus query results and result-count metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("QueryCorpusResult", {
+      description: "Ranked corpus query results and result-count metadata.",
+    })
+  )
 ) {}
 
-class CorpusIdfValue extends S.Class<CorpusIdfValue>($I`CorpusIdfValue`)(
-  {
+class CorpusIdfValue extends S.Opaque<CorpusIdfValue, { readonly brand: unique symbol }>()(
+  S.Struct({
     idf: S.Finite,
     term: S.String,
-  },
-  $I.annote("CorpusIdfValue", {
-    description: "Inverse document frequency value for a corpus term.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusIdfValue", {
+      description: "Inverse document frequency value for a corpus term.",
+    })
+  )
 ) {}
 
-class CorpusMatrixShape extends S.Class<CorpusMatrixShape>($I`CorpusMatrixShape`)(
-  {
+class CorpusMatrixShape extends S.Opaque<CorpusMatrixShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     cols: S.Natural,
     rows: S.Natural,
-  },
-  $I.annote("CorpusMatrixShape", {
-    description: "Shape metadata for a corpus document-term matrix.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusMatrixShape", {
+      description: "Shape metadata for a corpus document-term matrix.",
+    })
+  )
 ) {}
 
-class CorpusStatsResult extends S.Class<CorpusStatsResult>($I`CorpusStatsResult`)(
-  {
+class CorpusStatsResult extends S.Opaque<CorpusStatsResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     averageDocumentLength: S.Finite,
     corpusId: S.String,
     documentTermMatrix: S.Array(S.Finite).pipe(S.Array),
@@ -209,10 +220,11 @@ class CorpusStatsResult extends S.Class<CorpusStatsResult>($I`CorpusStatsResult`
     terms: S.Array(S.String),
     totalDocuments: S.Natural,
     vocabularySize: S.Natural,
-  },
-  $I.annote("CorpusStatsResult", {
-    description: "Detailed statistics for a managed Wink BM25 corpus session.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusStatsResult", {
+      description: "Detailed statistics for a managed Wink BM25 corpus session.",
+    })
+  )
 ) {}
 
 type CompiledCorpus = {
@@ -368,7 +380,9 @@ const removeCorpusSession = (
  * @category errors
  * @since 0.0.0
  */
-export class CorpusManagerError extends S.TaggedError<CorpusManagerError>($I`CorpusManagerError`)(
+export class CorpusManagerError extends S.TaggedError<CorpusManagerError, { readonly brand: unique symbol }>(
+  $I`CorpusManagerError`
+)(
   "CorpusManagerError",
   {
     cause: S.OptionFromOptionalKey(
@@ -577,13 +591,13 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         onTrue: thunkEffectVoid,
       });
 
-      return {
+      return CorpusSummary.make({
         config,
         corpusId,
         createdAtMs: S.Natural.make(nowMs),
         documentCount: S.Natural.make(0),
         vocabularySize: S.Natural.make(0),
-      };
+      });
     }, observeCorpus("create")),
 
     deleteCorpus: Effect.fn("Wink.WinkCorpusManager.deleteCorpus")(function* (corpusId: string) {
@@ -603,7 +617,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       const { compiled, state: compiledState } = yield* ensureCompiled(state);
 
       if (compiledState.documents.length === 0) {
-        return {
+        return CorpusStatsResult.make({
           averageDocumentLength: 0,
           corpusId: params.corpusId,
           documentTermMatrix: [],
@@ -612,7 +626,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
           terms: [],
           totalDocuments: S.Natural.make(0),
           vocabularySize: S.Natural.make(0),
-        };
+        });
       }
 
       const its = yield* engine.its.pipe(
@@ -662,7 +676,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         }),
       });
 
-      return {
+      return CorpusStatsResult.make({
         averageDocumentLength: Bool.match(compiledState.documents.length === 0, {
           onFalse: () => compiledState.totalTokenCount / compiledState.documents.length,
           onTrue: thunk0,
@@ -680,7 +694,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         terms: compiled.terms,
         totalDocuments: S.Natural.make(compiledState.documents.length),
         vocabularySize: S.Natural.make(HashSet.size(compiledState.vocabulary)),
-      };
+      });
     }, observeCorpus("stats")),
 
     learnDocuments: Effect.fn("Wink.WinkCorpusManager.learnDocuments")(function* (request: LearnCorpusParamsInput) {
@@ -729,14 +743,14 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
       yield* setState(updatedState);
 
-      return {
+      return LearnCorpusResult.make({
         corpusId: params.corpusId,
         learnedCount: S.Natural.make(learnedDocuments.length),
         reindexRequired: true,
         skippedCount: S.Natural.make(skippedCount),
         totalDocuments: S.Natural.make(updatedState.documents.length),
         vocabularySize: S.Natural.make(HashSet.size(updatedState.vocabulary)),
-      };
+      });
     }, observeCorpus("learn_documents")),
 
     query: Effect.fn("Wink.WinkCorpusManager.query")(function* (request: QueryCorpusParamsInput) {
@@ -751,14 +765,14 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       const { compiled, state: compiledState } = yield* ensureCompiled(state);
 
       if (compiledState.documents.length === 0) {
-        return {
+        return QueryCorpusResult.make({
           corpusId: params.corpusId,
           method: "vector.cosine" as const,
           query: params.query,
           ranked: [],
           returned: S.Natural.make(0),
           totalDocuments: S.Natural.make(0),
-        };
+        });
       }
 
       const its = yield* engine.its.pipe(
@@ -824,14 +838,14 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         A.take(sanitizeLimit(params.topN, A.length(scored)))
       );
 
-      return {
+      return QueryCorpusResult.make({
         corpusId: params.corpusId,
         method: "vector.cosine" as const,
         query: params.query,
         ranked,
         returned: S.Natural.make(A.length(ranked)),
         totalDocuments: S.Natural.make(A.length(compiledState.documents)),
-      };
+      });
     }, observeCorpus("query")),
   });
 }).pipe(observeWinkWorkflow({ name: "corpus.make" }));

@@ -133,8 +133,8 @@ export type LegalRelatorViewKind = typeof LegalRelatorViewKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class LegalPositionRelatorView extends S.Class<LegalPositionRelatorView>($I`LegalPositionRelatorView`)(
-  {
+export class LegalPositionRelatorView extends S.Opaque<LegalPositionRelatorView, { readonly brand: unique symbol }>()(
+  S.Struct({
     bearer: LegalRole.annotateKey({
       description: "Role holding the position as this view reads it.",
     }),
@@ -150,8 +150,9 @@ export class LegalPositionRelatorView extends S.Class<LegalPositionRelatorView>(
     viewKind: LegalRelatorViewKind.annotateKey({
       description: "Which derivation produced this view.",
     }),
-  },
-  $I.annote("LegalPositionRelatorView", {
-    description: "One derived reading of one stored legal relation, labelled with the derivation that produced it.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalPositionRelatorView", {
+      description: "One derived reading of one stored legal relation, labelled with the derivation that produced it.",
+    })
+  )
 ) {}

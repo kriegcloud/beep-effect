@@ -113,8 +113,8 @@ export type TaggingOutcome = typeof TaggingOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class TagDecisionSummary extends S.Class<TagDecisionSummary>($I`TagDecisionSummary`)(
-  {
+export class TagDecisionSummary extends S.Opaque<TagDecisionSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     outcome: TaggingOutcome.annotateKey({
       description: "Outcome tag of the decision.",
     }),
@@ -133,10 +133,11 @@ export class TagDecisionSummary extends S.Class<TagDecisionSummary>($I`TagDecisi
       .annotateKey({
         description: "Why no matter was assigned; none when matched.",
       }),
-  },
-  $I.annote("TagDecisionSummary", {
-    description: "Ledger-sized summary of a tagging decision: outcome, matter, confidence, and reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("TagDecisionSummary", {
+      description: "Ledger-sized summary of a tagging decision: outcome, matter, confidence, and reason.",
+    })
+  )
 ) {}
 
 const summarizeMatched = (decision: MatterMatched): TagDecisionSummary =>
@@ -207,9 +208,8 @@ export const summarizeDecision: (decision: TaggingDecision) => TagDecisionSummar
  * @category models
  * @since 0.0.0
  */
-export class TagLedgerEntry extends S.TaggedClass<TagLedgerEntry>($I`TagLedgerEntry`)(
-  "TagApplied",
-  {
+export class TagLedgerEntry extends S.Opaque<TagLedgerEntry, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("TagApplied", {
     runId: TaggingRunId.annotateKey({
       description: "Run that added the categories.",
     }),
@@ -235,10 +235,11 @@ export class TagLedgerEntry extends S.TaggedClass<TagLedgerEntry>($I`TagLedgerEn
     recordedAt: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant the line was recorded.",
     }),
-  },
-  $I.annote("TagLedgerEntry", {
-    description: "Tag-ledger line recording the categories one run added to one message.",
-  })
+  }).pipe(
+    $I.annoteSchema("TagLedgerEntry", {
+      description: "Tag-ledger line recording the categories one run added to one message.",
+    })
+  )
 ) {}
 
 /**
@@ -263,9 +264,8 @@ export class TagLedgerEntry extends S.TaggedClass<TagLedgerEntry>($I`TagLedgerEn
  * @category models
  * @since 0.0.0
  */
-export class TagUndoEntry extends S.TaggedClass<TagUndoEntry>($I`TagUndoEntry`)(
-  "TagUndone",
-  {
+export class TagUndoEntry extends S.Opaque<TagUndoEntry, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("TagUndone", {
     runId: TaggingRunId.annotateKey({
       description: "Undo run that removed the categories.",
     }),
@@ -281,10 +281,11 @@ export class TagUndoEntry extends S.TaggedClass<TagUndoEntry>($I`TagUndoEntry`)(
     recordedAt: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant the line was recorded.",
     }),
-  },
-  $I.annote("TagUndoEntry", {
-    description: "Tag-ledger line recording the categories an undo run removed from one message.",
-  })
+  }).pipe(
+    $I.annoteSchema("TagUndoEntry", {
+      description: "Tag-ledger line recording the categories an undo run removed from one message.",
+    })
+  )
 ) {}
 
 /**
@@ -501,12 +502,12 @@ const filingFields = {
  * @category models
  * @since 0.0.0
  */
-export class FilingIntent extends S.TaggedClass<FilingIntent>($I`FilingIntent`)(
-  "FilingIntended",
-  filingFields,
-  $I.annote("FilingIntent", {
-    description: "Filing-ledger line recording where one attachment is about to be uploaded.",
-  })
+export class FilingIntent extends S.Opaque<FilingIntent, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("FilingIntended", filingFields).pipe(
+    $I.annoteSchema("FilingIntent", {
+      description: "Filing-ledger line recording where one attachment is about to be uploaded.",
+    })
+  )
 ) {}
 
 /**
@@ -546,9 +547,8 @@ export class FilingIntent extends S.TaggedClass<FilingIntent>($I`FilingIntent`)(
  * @category models
  * @since 0.0.0
  */
-export class FilingLedgerEntry extends S.TaggedClass<FilingLedgerEntry>($I`FilingLedgerEntry`)(
-  "FilingCompleted",
-  {
+export class FilingLedgerEntry extends S.Opaque<FilingLedgerEntry, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("FilingCompleted", {
     ...filingFields,
     fileId: DocumentFileId.annotateKey({
       description: "Document-store id of the stored file.",
@@ -559,10 +559,11 @@ export class FilingLedgerEntry extends S.TaggedClass<FilingLedgerEntry>($I`Filin
     ).annotateKey({
       description: "Whether the file was recovered from an earlier intent rather than uploaded by this run.",
     }),
-  },
-  $I.annote("FilingLedgerEntry", {
-    description: "Filing-ledger line recording one attachment stored in a matter's folder.",
-  })
+  }).pipe(
+    $I.annoteSchema("FilingLedgerEntry", {
+      description: "Filing-ledger line recording one attachment stored in a matter's folder.",
+    })
+  )
 ) {}
 
 /**
@@ -636,9 +637,8 @@ export type FilingAbandonReason = typeof FilingAbandonReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class FilingAbandoned extends S.TaggedClass<FilingAbandoned>($I`FilingAbandoned`)(
-  "FilingAbandoned",
-  {
+export class FilingAbandoned extends S.Opaque<FilingAbandoned, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("FilingAbandoned", {
     runId: filingFields.runId,
     contentSha256: filingFields.contentSha256,
     matterKey: filingFields.matterKey,
@@ -648,10 +648,11 @@ export class FilingAbandoned extends S.TaggedClass<FilingAbandoned>($I`FilingAba
       description: "Why the intent was given up.",
     }),
     recordedAt: filingFields.recordedAt,
-  },
-  $I.annote("FilingAbandoned", {
-    description: "Filing-ledger line retiring an intent whose upload stored nothing.",
-  })
+  }).pipe(
+    $I.annoteSchema("FilingAbandoned", {
+      description: "Filing-ledger line retiring an intent whose upload stored nothing.",
+    })
+  )
 ) {}
 
 /**
@@ -790,8 +791,8 @@ export type AttachmentSkipReason = typeof AttachmentSkipReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class BackfillCheckpoint extends S.Class<BackfillCheckpoint>($I`BackfillCheckpoint`)(
-  {
+export class BackfillCheckpoint extends S.Opaque<BackfillCheckpoint, { readonly brand: unique symbol }>()(
+  S.Struct({
     since: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant the backfill starts from.",
     }),
@@ -817,10 +818,11 @@ export class BackfillCheckpoint extends S.Class<BackfillCheckpoint>($I`BackfillC
     ).annotateKey({
       description: "Messages processed so far.",
     }),
-  },
-  $I.annote("BackfillCheckpoint", {
-    description: "Resume point of the mail-tagging backfill.",
-  })
+  }).pipe(
+    $I.annoteSchema("BackfillCheckpoint", {
+      description: "Resume point of the mail-tagging backfill.",
+    })
+  )
 ) {}
 
 /**

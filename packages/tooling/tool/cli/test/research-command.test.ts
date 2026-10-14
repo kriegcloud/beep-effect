@@ -145,7 +145,7 @@ describe("research capture", () => {
         expect(KnowledgeCardFrontmatter.make !== undefined).toBe(true);
         expect(content).toContain(`id: ${summary.id}`);
         const parsed = yield* parseCard(summary.cardPath, content);
-        expect(parsed.frontmatter).toBeInstanceOf(KnowledgeCardFrontmatter);
+        expect(S.is(KnowledgeCardFrontmatter)(parsed.frontmatter)).toBe(true);
         expect(parsed.frontmatter).toMatchObject({
           id: summary.id,
           title: FAKE_TITLE,

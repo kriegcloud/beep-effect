@@ -41,7 +41,9 @@ type TokenizationShape = {
  * @category errors
  * @since 0.0.0
  */
-export class TokenizationError extends S.TaggedError<TokenizationError>($I`TokenizationError`)(
+export class TokenizationError extends S.TaggedError<TokenizationError, { readonly brand: unique symbol }>(
+  $I`TokenizationError`
+)(
   "TokenizationError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),

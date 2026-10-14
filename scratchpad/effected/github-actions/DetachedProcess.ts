@@ -27,7 +27,7 @@ const $I = $ScratchpadId.create("effected/github-actions/DetachedProcess");
  * @category errors
  * @since 0.0.0
  */
-export class MissingProcessIdError extends S.TaggedError<MissingProcessIdError>($I`MissingProcessIdError`)("MissingProcessIdError", {
+export class MissingProcessIdError extends S.TaggedError<MissingProcessIdError, { readonly brand: unique symbol }>($I`MissingProcessIdError`)("MissingProcessIdError", {
 	message: S.String,
 }, $I.annote("MissingProcessIdError", { description: "A spawned detached child did not provide a process id." })) {}
 
@@ -51,7 +51,7 @@ const { closeSync, openSync } = process.getBuiltinModule("node:fs");
  * @category errors
  * @since 0.0.0
  */
-export class DetachedLogUnavailableError extends S.TaggedError<DetachedLogUnavailableError>($I`DetachedLogUnavailableError`)(
+export class DetachedLogUnavailableError extends S.TaggedError<DetachedLogUnavailableError, { readonly brand: unique symbol }>($I`DetachedLogUnavailableError`)(
 	"DetachedLogUnavailableError",
 	{
 		/**
@@ -103,7 +103,7 @@ export class DetachedLogUnavailableError extends S.TaggedError<DetachedLogUnavai
  * @category errors
  * @since 0.0.0
  */
-export class DetachedSpawnFailedError extends S.TaggedError<DetachedSpawnFailedError>($I`DetachedSpawnFailedError`)(
+export class DetachedSpawnFailedError extends S.TaggedError<DetachedSpawnFailedError, { readonly brand: unique symbol }>($I`DetachedSpawnFailedError`)(
 	"DetachedSpawnFailedError",
 	{
 		/**
@@ -154,7 +154,7 @@ export class DetachedSpawnFailedError extends S.TaggedError<DetachedSpawnFailedE
  * @category errors
  * @since 0.0.0
  */
-export class InvalidPidError extends S.TaggedError<InvalidPidError>($I`InvalidPidError`)("InvalidPidError", {
+export class InvalidPidError extends S.TaggedError<InvalidPidError, { readonly brand: unique symbol }>($I`InvalidPidError`)("InvalidPidError", {
 	/**
 	 * The pid that was refused.
 	 *
@@ -203,7 +203,7 @@ export class InvalidPidError extends S.TaggedError<InvalidPidError>($I`InvalidPi
  * @category errors
  * @since 0.0.0
  */
-export class DetachedSignalFailedError extends S.TaggedError<DetachedSignalFailedError>($I`DetachedSignalFailedError`)(
+export class DetachedSignalFailedError extends S.TaggedError<DetachedSignalFailedError, { readonly brand: unique symbol }>($I`DetachedSignalFailedError`)(
 	"DetachedSignalFailedError",
 	{
 		/**
@@ -255,7 +255,7 @@ export class DetachedSignalFailedError extends S.TaggedError<DetachedSignalFaile
  * @category errors
  * @since 0.0.0
  */
-export class DetachedNotReadyError extends S.TaggedError<DetachedNotReadyError>($I`DetachedNotReadyError`)("DetachedNotReadyError", {
+export class DetachedNotReadyError extends S.TaggedError<DetachedNotReadyError, { readonly brand: unique symbol }>($I`DetachedNotReadyError`)("DetachedNotReadyError", {
 	/**
 	 * The underlying failure, preserved structurally.
 	 *

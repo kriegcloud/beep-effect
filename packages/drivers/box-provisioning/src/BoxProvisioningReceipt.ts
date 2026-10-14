@@ -104,11 +104,12 @@ const journalFields = {
  * @category models
  * @since 0.0.0
  */
-export class BoxApplyJournalStarted extends S.Class<BoxApplyJournalStarted>($I`BoxApplyJournalStarted`)(
-  { ...journalFields, phase: S.tag("Started") },
-  $I.annote("BoxApplyJournalStarted", {
-    description: "Sanitized apply-journal entry persisted before one provider mutation is dispatched.",
-  })
+export class BoxApplyJournalStarted extends S.Opaque<BoxApplyJournalStarted, { readonly brand: unique symbol }>()(
+  S.Struct({ ...journalFields, phase: S.tag("Started") }).pipe(
+    $I.annoteSchema("BoxApplyJournalStarted", {
+      description: "Sanitized apply-journal entry persisted before one provider mutation is dispatched.",
+    })
+  )
 ) {}
 
 /**
@@ -131,15 +132,16 @@ export class BoxApplyJournalStarted extends S.Class<BoxApplyJournalStarted>($I`B
  * @category models
  * @since 0.0.0
  */
-export class BoxApplyJournalApplied extends S.Class<BoxApplyJournalApplied>($I`BoxApplyJournalApplied`)(
-  {
+export class BoxApplyJournalApplied extends S.Opaque<BoxApplyJournalApplied, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...journalFields,
     phase: S.tag("Applied"),
     parentProviderId: S.OptionFromOptionalKey(BoxProviderId).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BoxApplyJournalApplied", {
-    description: "Sanitized apply-journal entry persisted after one provider mutation succeeds.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxApplyJournalApplied", {
+      description: "Sanitized apply-journal entry persisted after one provider mutation succeeds.",
+    })
+  )
 ) {}
 
 /**
@@ -156,15 +158,16 @@ export class BoxApplyJournalApplied extends S.Class<BoxApplyJournalApplied>($I`B
  * @category models
  * @since 0.0.0
  */
-export class BoxApplyJournalFailed extends S.Class<BoxApplyJournalFailed>($I`BoxApplyJournalFailed`)(
-  {
+export class BoxApplyJournalFailed extends S.Opaque<BoxApplyJournalFailed, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...journalFields,
     phase: S.tag("Failed"),
     errorTag: LiteralKit(["BoxError", "BoxProvisioningInvariantError", "UnknownFailure"]),
-  },
-  $I.annote("BoxApplyJournalFailed", {
-    description: "Sanitized apply-journal entry persisted after one provider mutation fails.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxApplyJournalFailed", {
+      description: "Sanitized apply-journal entry persisted after one provider mutation fails.",
+    })
+  )
 ) {}
 
 /**
@@ -336,12 +339,12 @@ export const recoverBoxAdoptions: {
  * @category models
  * @since 0.0.0
  */
-export class BoxActionApplied extends S.TaggedClass<BoxActionApplied>($I`BoxActionApplied`)(
-  "Applied",
-  { ...outcomeFields, providerId: BoxProviderId },
-  $I.annote("BoxActionApplied", {
-    description: "Successful Box mutation outcome containing only provider and digest identifiers.",
-  })
+export class BoxActionApplied extends S.Opaque<BoxActionApplied, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Applied", { ...outcomeFields, providerId: BoxProviderId }).pipe(
+    $I.annoteSchema("BoxActionApplied", {
+      description: "Successful Box mutation outcome containing only provider and digest identifiers.",
+    })
+  )
 ) {}
 
 /**
@@ -365,10 +368,10 @@ export class BoxActionApplied extends S.TaggedClass<BoxActionApplied>($I`BoxActi
  * @category models
  * @since 0.0.0
  */
-export class BoxActionSkipped extends S.TaggedClass<BoxActionSkipped>($I`BoxActionSkipped`)(
-  "Skipped",
-  { ...outcomeFields, reason: S.Literal("noop") },
-  $I.annote("BoxActionSkipped", { description: "Receipt outcome for a reviewed no-op plan action." })
+export class BoxActionSkipped extends S.Opaque<BoxActionSkipped, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Skipped", { ...outcomeFields, reason: S.Literal("noop") }).pipe(
+    $I.annoteSchema("BoxActionSkipped", { description: "Receipt outcome for a reviewed no-op plan action." })
+  )
 ) {}
 
 /**
@@ -392,15 +395,15 @@ export class BoxActionSkipped extends S.TaggedClass<BoxActionSkipped>($I`BoxActi
  * @category models
  * @since 0.0.0
  */
-export class BoxActionBlocked extends S.TaggedClass<BoxActionBlocked>($I`BoxActionBlocked`)(
-  "Blocked",
-  {
+export class BoxActionBlocked extends S.Opaque<BoxActionBlocked, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Blocked", {
     ...outcomeFields,
     reason: LiteralKit(["BlockedByEntitlement", "BlockedByAmbiguity", "BlockedByPolicy"]),
-  },
-  $I.annote("BoxActionBlocked", {
-    description: "Receipt outcome proving a blocked action was not sent to Box.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxActionBlocked", {
+      description: "Receipt outcome proving a blocked action was not sent to Box.",
+    })
+  )
 ) {}
 
 /**
@@ -449,18 +452,19 @@ export type BoxApplyOutcome = typeof BoxApplyOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxApplyReceipt extends S.Class<BoxApplyReceipt>($I`BoxApplyReceipt`)(
-  {
+export class BoxApplyReceipt extends S.Opaque<BoxApplyReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("box-provisioning-receipt/v1").pipe(
       S.withConstructorDefault(Effect.succeed("box-provisioning-receipt/v1"))
     ),
     planDigest: Sha256Hex,
     appliedAt: S.DateTimeUtc,
     outcomes: S.Array(BoxApplyOutcome),
-  },
-  $I.annote("BoxApplyReceipt", {
-    description: "Redacted schema-validated evidence for one guarded Box plan application.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxApplyReceipt", {
+      description: "Redacted schema-validated evidence for one guarded Box plan application.",
+    })
+  )
 ) {}
 
 /**
@@ -482,15 +486,16 @@ export class BoxApplyReceipt extends S.Class<BoxApplyReceipt>($I`BoxApplyReceipt
  * @category models
  * @since 0.0.0
  */
-export class BoxPostApplyVerdict extends S.Class<BoxPostApplyVerdict>($I`BoxPostApplyVerdict`)(
-  {
+export class BoxPostApplyVerdict extends S.Opaque<BoxPostApplyVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     entitlementBlockerCount: S.Natural,
     entitlementBlockersPreserved: S.Literal(true),
     allOtherActionsNoop: S.Literal(true),
-  },
-  $I.annote("BoxPostApplyVerdict", {
-    description: "Proof that entitlement blockers were preserved and every other post-apply action is Noop.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxPostApplyVerdict", {
+      description: "Proof that entitlement blockers were preserved and every other post-apply action is Noop.",
+    })
+  )
 ) {}
 
 /**
@@ -507,14 +512,15 @@ export class BoxPostApplyVerdict extends S.Class<BoxPostApplyVerdict>($I`BoxPost
  * @category models
  * @since 0.0.0
  */
-export class BoxReviewedApplyResult extends S.Class<BoxReviewedApplyResult>($I`BoxReviewedApplyResult`)(
-  {
+export class BoxReviewedApplyResult extends S.Opaque<BoxReviewedApplyResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     adoptions: BoxAdoptions,
     receipt: BoxApplyReceipt,
     postApplyPlan: BoxProvisioningPlan,
     verdict: BoxPostApplyVerdict,
-  },
-  $I.annote("BoxReviewedApplyResult", {
-    description: "Guarded apply result carrying durable adoptions, receipt, and strict reconciliation verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxReviewedApplyResult", {
+      description: "Guarded apply result carrying durable adoptions, receipt, and strict reconciliation verdict.",
+    })
+  )
 ) {}

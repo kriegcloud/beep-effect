@@ -53,29 +53,31 @@ const commandSeparatorPattern = /&&|\|\||;|\|/u;
 const defaultProjectFileName = "tsconfig.json";
 const checkScriptName = "check";
 
-class TsconfigReference extends S.Class<TsconfigReference>($I`TsconfigReference`)(
-  {
+class TsconfigReference extends S.Opaque<TsconfigReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
-  },
-  $I.annote("TsconfigReference", {
-    description: "One TypeScript project reference entry.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigReference", {
+      description: "One TypeScript project reference entry.",
+    })
+  )
 ) {}
 
 const TsconfigExtends = S.Union([S.String, S.String.pipe(S.Array)]);
 const TsconfigIncludes = S.String.pipe(S.Array);
 const TsconfigReferences = TsconfigReference.pipe(S.Array);
 
-class TsconfigDocument extends S.Class<TsconfigDocument>($I`TsconfigDocument`)(
-  {
+class TsconfigDocument extends S.Opaque<TsconfigDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     extends: S.optionalKey(TsconfigExtends),
     include: S.optionalKey(TsconfigIncludes),
     exclude: S.optionalKey(TsconfigIncludes),
     references: S.optionalKey(TsconfigReferences),
-  },
-  $I.annote("TsconfigDocument", {
-    description: "Minimal tsconfig shape used to decide which files a project's include and exclude globs select.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigDocument", {
+      description: "Minimal tsconfig shape used to decide which files a project's include and exclude globs select.",
+    })
+  )
 ) {}
 
 const decodeTsconfigDocument = decodeJsoncTextAs(TsconfigDocument);
@@ -106,7 +108,9 @@ const decodeTsconfigDocument = decodeJsoncTextAs(TsconfigDocument);
  * @category models
  * @since 0.0.0
  */
-export class TestTypecheckCoverage extends S.Class<TestTypecheckCoverage>($I`TestTypecheckCoverage`)(
+export class TestTypecheckCoverage extends S.Class<TestTypecheckCoverage, { readonly brand: unique symbol }>(
+  $I`TestTypecheckCoverage`
+)(
   {
     packageDir: S.String,
     projectConfigs: S.Array(S.String),

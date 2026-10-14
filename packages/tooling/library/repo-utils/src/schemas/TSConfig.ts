@@ -550,16 +550,17 @@ const TSConfigExtends = S.Union([S.String, S.Array(S.String)]).pipe(
  * @category validation
  * @since 0.0.0
  */
-export class TSConfigReference extends S.Class<TSConfigReference>($I`TSConfigReference`)(
-  {
+export class TSConfigReference extends S.Opaque<TSConfigReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String.annotateKey({
       description: "Path to the referenced tsconfig file or to the directory containing it.",
     }),
-  },
-  $I.annote("TSConfigReference", {
-    description: "A single project reference entry in tsconfig `references`.",
-    messageUnexpectedKey: "Unexpected tsconfig reference key",
-  })
+  }).pipe(
+    $I.annoteSchema("TSConfigReference", {
+      description: "A single project reference entry in tsconfig `references`.",
+      messageUnexpectedKey: "Unexpected tsconfig reference key",
+    })
+  )
 ) {}
 
 const TSConfigReferences = makeUniqueArraySchema(
@@ -1210,9 +1211,16 @@ const tsConfigCompilerOptionsFields = {
   ),
 } as const;
 
-class TSConfigCompilerOptionsShape extends S.Class<TSConfigCompilerOptionsShape>($I`TSConfigCompilerOptionsShape`)(
-  tsConfigCompilerOptionsFields
-) {}
+/**
+ * Schema for TSConfigCompilerOptionsShape.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TSConfigCompilerOptionsShape extends S.Opaque<
+  TSConfigCompilerOptionsShape,
+  { readonly brand: unique symbol }
+>()(S.Struct(tsConfigCompilerOptionsFields).pipe($I.annoteSchema("TSConfigCompilerOptionsShape"))) {}
 
 type TSConfigCompilerOptionsShapeType = TSConfigCompilerOptionsShape;
 
@@ -1383,12 +1391,13 @@ const tsConfigWatchOptionsFields = {
  * @category validation
  * @since 0.0.0
  */
-export class TSConfigWatchOptions extends S.Class<TSConfigWatchOptions>($I`TSConfigWatchOptions`)(
-  tsConfigWatchOptionsFields,
-  $I.annote("TSConfigWatchOptions", {
-    description: "Strict TypeScript watchOptions section derived from the official SchemaStore tsconfig schema.",
-    messageUnexpectedKey: "Unexpected watchOptions key",
-  })
+export class TSConfigWatchOptions extends S.Opaque<TSConfigWatchOptions, { readonly brand: unique symbol }>()(
+  S.Struct(tsConfigWatchOptionsFields).pipe(
+    $I.annoteSchema("TSConfigWatchOptions", {
+      description: "Strict TypeScript watchOptions section derived from the official SchemaStore tsconfig schema.",
+      messageUnexpectedKey: "Unexpected watchOptions key",
+    })
+  )
 ) {}
 
 const tsConfigBuildOptionsFields = {
@@ -1430,12 +1439,13 @@ const tsConfigBuildOptionsFields = {
  * @category validation
  * @since 0.0.0
  */
-export class TSConfigBuildOptions extends S.Class<TSConfigBuildOptions>($I`TSConfigBuildOptions`)(
-  tsConfigBuildOptionsFields,
-  $I.annote("TSConfigBuildOptions", {
-    description: "Strict TypeScript buildOptions section derived from the official SchemaStore tsconfig schema.",
-    messageUnexpectedKey: "Unexpected buildOptions key",
-  })
+export class TSConfigBuildOptions extends S.Opaque<TSConfigBuildOptions, { readonly brand: unique symbol }>()(
+  S.Struct(tsConfigBuildOptionsFields).pipe(
+    $I.annoteSchema("TSConfigBuildOptions", {
+      description: "Strict TypeScript buildOptions section derived from the official SchemaStore tsconfig schema.",
+      messageUnexpectedKey: "Unexpected buildOptions key",
+    })
+  )
 ) {}
 
 const tsConfigTypeAcquisitionFields = {
@@ -1466,12 +1476,13 @@ const tsConfigTypeAcquisitionFields = {
  * @category validation
  * @since 0.0.0
  */
-export class TSConfigTypeAcquisition extends S.Class<TSConfigTypeAcquisition>($I`TSConfigTypeAcquisition`)(
-  tsConfigTypeAcquisitionFields,
-  $I.annote("TSConfigTypeAcquisition", {
-    description: "Strict TypeScript typeAcquisition section derived from the official SchemaStore tsconfig schema.",
-    messageUnexpectedKey: "Unexpected typeAcquisition key",
-  })
+export class TSConfigTypeAcquisition extends S.Opaque<TSConfigTypeAcquisition, { readonly brand: unique symbol }>()(
+  S.Struct(tsConfigTypeAcquisitionFields).pipe(
+    $I.annoteSchema("TSConfigTypeAcquisition", {
+      description: "Strict TypeScript typeAcquisition section derived from the official SchemaStore tsconfig schema.",
+      messageUnexpectedKey: "Unexpected typeAcquisition key",
+    })
+  )
 ) {}
 
 const tsNodeFields = {
@@ -1570,12 +1581,13 @@ const tsNodeFields = {
  * @category validation
  * @since 0.0.0
  */
-export class TSNodeConfig extends S.Class<TSNodeConfig>($I`TSNodeConfig`)(
-  tsNodeFields,
-  $I.annote("TSNodeConfig", {
-    description: "Strict ts-node config section stored under the `ts-node` key in tsconfig documents.",
-    messageUnexpectedKey: "Unexpected ts-node key",
-  })
+export class TSNodeConfig extends S.Opaque<TSNodeConfig, { readonly brand: unique symbol }>()(
+  S.Struct(tsNodeFields).pipe(
+    $I.annoteSchema("TSNodeConfig", {
+      description: "Strict ts-node config section stored under the `ts-node` key in tsconfig documents.",
+      messageUnexpectedKey: "Unexpected ts-node key",
+    })
+  )
 ) {}
 
 const tsConfigFields = {
@@ -1643,7 +1655,7 @@ const tsConfigFields = {
  * @category validation
  * @since 0.0.0
  */
-export class TSConfig extends S.Class<TSConfig>($I`TSConfig`)(
+export class TSConfig extends S.Class<TSConfig, { readonly brand: unique symbol }>($I`TSConfig`)(
   tsConfigFields,
   $I.annote("TSConfig", {
     description:
@@ -1668,7 +1680,9 @@ export class TSConfig extends S.Class<TSConfig>($I`TSConfig`)(
    * @since 0.0.0
    */
   static readonly decodeStrictResult = (input: unknown): Result.Result<TSConfig.Type, S.SchemaError> =>
-    S.decodeUnknownResult(TSConfigSemantic)(input, strictDecodeOptions);
+    Result.map(S.decodeUnknownResult(TSConfigSemantic)(input, strictDecodeOptions), (decoded) =>
+      TSConfig.make(decoded)
+    );
 
   /**
    * Strictly decode an unknown value into `TSConfig`, preserving failures in an `Exit`.
@@ -1687,7 +1701,7 @@ export class TSConfig extends S.Class<TSConfig>($I`TSConfig`)(
    * @since 0.0.0
    */
   static readonly decodeStrictExit = (input: unknown): Exit.Exit<TSConfig.Type, S.SchemaError> =>
-    S.decodeUnknownExit(TSConfigSemantic)(input, strictDecodeOptions);
+    Exit.map(S.decodeUnknownExit(TSConfigSemantic)(input, strictDecodeOptions), (decoded) => TSConfig.make(decoded));
 
   /**
    * Strictly decode an unknown value into `TSConfig` as an Effect.
@@ -1830,7 +1844,7 @@ export declare namespace TSConfig {
   export type Encoded = S.Codec.Encoded<typeof TSConfig>;
 }
 
-type TSConfigShapeType = TSConfig;
+type TSConfigShapeType = (typeof TSConfig)["Rebuild"]["Type"];
 
 const getCompilerTarget = (config: TSConfigShapeType): (typeof TARGET_VALUES)[number] =>
   pipe(

@@ -47,8 +47,8 @@ const $I = $GovinfoId.create("domain/values/CollectionContainer/CollectionContai
  * @category dtos
  * @since 0.0.0
  */
-export class CollectionContainer extends S.Class<CollectionContainer>($I`CollectionContainer`)(
-  {
+export class CollectionContainer extends S.Opaque<CollectionContainer, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Total matching packages reported by the collection endpoint. */
     count: S.Int.pipe(
       S.check(S.makeFilterGroup([S.isInt32(), S.isGreaterThanOrEqualTo(0), S.isFinite()])),
@@ -79,10 +79,11 @@ export class CollectionContainer extends S.Class<CollectionContainer>($I`Collect
     previousPage: S.String.annotateKey({
       description: "URL for the previous page of collection results.",
     }),
-  },
-  $I.annote("CollectionContainer", {
-    description: "Paginated GovInfo collection response containing package summaries.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectionContainer", {
+      description: "Paginated GovInfo collection response containing package summaries.",
+    })
+  )
 ) {}
 
 /**

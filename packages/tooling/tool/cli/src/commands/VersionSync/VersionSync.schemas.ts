@@ -44,17 +44,18 @@ const $I = $RepoCliId.create("commands/VersionSync/VersionSync.schemas");
  * @category models
  * @since 0.0.0
  */
-export class VersionDriftItem extends S.Class<VersionDriftItem>($I`VersionDriftItem`)(
-  {
+export class VersionDriftItem extends S.Opaque<VersionDriftItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     field: S.String,
     current: S.String,
     expected: S.String,
     line: S.Option(S.Finite),
-  },
-  $I.annote("VersionDriftItem", {
-    description: "A single version pin location with its current and expected values",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionDriftItem", {
+      description: "A single version pin location with its current and expected values",
+    })
+  )
 ) {}
 
 /**
@@ -213,8 +214,8 @@ export const versionCategoryStatusFromDrift = (items: ReadonlyArray<unknown>): V
     onNonEmpty: F.constant(VersionCategoryStatusEnum.drift),
   });
 
-class VersionCategoryReportBun extends S.Class<VersionCategoryReportBun>($I`VersionCategoryReportBun`)(
-  {
+class VersionCategoryReportBun extends S.Opaque<VersionCategoryReportBun, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.tag("bun"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
@@ -223,14 +224,15 @@ class VersionCategoryReportBun extends S.Class<VersionCategoryReportBun>($I`Vers
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("VersionCategoryReportBun", {
-    description: "Version report entry for Bun category.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionCategoryReportBun", {
+      description: "Version report entry for Bun category.",
+    })
+  )
 ) {}
 
-class VersionCategoryReportNode extends S.Class<VersionCategoryReportNode>($I`VersionCategoryReportNode`)(
-  {
+class VersionCategoryReportNode extends S.Opaque<VersionCategoryReportNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.tag("node"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
@@ -239,14 +241,15 @@ class VersionCategoryReportNode extends S.Class<VersionCategoryReportNode>($I`Ve
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("VersionCategoryReportNode", {
-    description: "Version report entry for Node category.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionCategoryReportNode", {
+      description: "Version report entry for Node category.",
+    })
+  )
 ) {}
 
-class VersionCategoryReportDocker extends S.Class<VersionCategoryReportDocker>($I`VersionCategoryReportDocker`)(
-  {
+class VersionCategoryReportDocker extends S.Opaque<VersionCategoryReportDocker, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.tag("docker"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
@@ -255,14 +258,15 @@ class VersionCategoryReportDocker extends S.Class<VersionCategoryReportDocker>($
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("VersionCategoryReportDocker", {
-    description: "Version report entry for Docker category.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionCategoryReportDocker", {
+      description: "Version report entry for Docker category.",
+    })
+  )
 ) {}
 
-class VersionCategoryReportBiome extends S.Class<VersionCategoryReportBiome>($I`VersionCategoryReportBiome`)(
-  {
+class VersionCategoryReportBiome extends S.Opaque<VersionCategoryReportBiome, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.tag("biome"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
@@ -271,14 +275,15 @@ class VersionCategoryReportBiome extends S.Class<VersionCategoryReportBiome>($I`
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("VersionCategoryReportBiome", {
-    description: "Version report entry for Biome category.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionCategoryReportBiome", {
+      description: "Version report entry for Biome category.",
+    })
+  )
 ) {}
 
-class VersionCategoryReportEffect extends S.Class<VersionCategoryReportEffect>($I`VersionCategoryReportEffect`)(
-  {
+class VersionCategoryReportEffect extends S.Opaque<VersionCategoryReportEffect, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.tag("effect"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
@@ -287,14 +292,15 @@ class VersionCategoryReportEffect extends S.Class<VersionCategoryReportEffect>($
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("VersionCategoryReportEffect", {
-    description: "Version report entry for Effect catalog packages.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionCategoryReportEffect", {
+      description: "Version report entry for Effect catalog packages.",
+    })
+  )
 ) {}
 
-class VersionCategoryReportTurbo extends S.Class<VersionCategoryReportTurbo>($I`VersionCategoryReportTurbo`)(
-  {
+class VersionCategoryReportTurbo extends S.Opaque<VersionCategoryReportTurbo, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.tag("turbo"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
@@ -303,10 +309,11 @@ class VersionCategoryReportTurbo extends S.Class<VersionCategoryReportTurbo>($I`
     ),
     error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("VersionCategoryReportTurbo", {
-    description: "Version report entry for Turborepo turbo.json schema pins.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionCategoryReportTurbo", {
+      description: "Version report entry for Turborepo turbo.json schema pins.",
+    })
+  )
 ) {}
 
 /**
@@ -371,14 +378,15 @@ export type VersionCategoryReport = typeof VersionCategoryReport.Type;
  * @category models
  * @since 0.0.0
  */
-export class VersionSyncReport extends S.Class<VersionSyncReport>($I`VersionSyncReport`)(
-  {
+export class VersionSyncReport extends S.Opaque<VersionSyncReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     categories: S.Array(VersionCategoryReport),
     hasDrift: S.Boolean,
-  },
-  $I.annote("VersionSyncReport", {
-    description: "Full version sync report across all categories, including their statuses and errors",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionSyncReport", {
+      description: "Full version sync report across all categories, including their statuses and errors",
+    })
+  )
 ) {}
 
 /**
@@ -436,8 +444,8 @@ const DefaultedVersionSyncFlag = S.Boolean.pipe(
   S.withDecodingDefault(Effect.succeed(false))
 );
 
-class VersionSyncOptionsCheck extends S.Class<VersionSyncOptionsCheck>($I`VersionSyncOptionsCheck`)(
-  {
+class VersionSyncOptionsCheck extends S.Opaque<VersionSyncOptionsCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("check"),
     skipNetwork: DefaultedVersionSyncFlag,
     bunOnly: DefaultedVersionSyncFlag,
@@ -446,14 +454,21 @@ class VersionSyncOptionsCheck extends S.Class<VersionSyncOptionsCheck>($I`Versio
     biomeOnly: DefaultedVersionSyncFlag,
     effectOnly: DefaultedVersionSyncFlag,
     turboOnly: DefaultedVersionSyncFlag,
-  },
-  $I.annote("VersionSyncOptionsCheck", {
-    description: "Resolved option set for check mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionSyncOptionsCheck", {
+      description: "Resolved option set for check mode.",
+    })
+  )
 ) {}
 
-class VersionSyncOptionsWrite extends S.Class<VersionSyncOptionsWrite>($I`VersionSyncOptionsWrite`)(
-  {
+/**
+ * Resolved option set for write mode.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class VersionSyncOptionsWrite extends S.Opaque<VersionSyncOptionsWrite, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("write"),
     skipNetwork: DefaultedVersionSyncFlag,
     bunOnly: DefaultedVersionSyncFlag,
@@ -462,14 +477,15 @@ class VersionSyncOptionsWrite extends S.Class<VersionSyncOptionsWrite>($I`Versio
     biomeOnly: DefaultedVersionSyncFlag,
     effectOnly: DefaultedVersionSyncFlag,
     turboOnly: DefaultedVersionSyncFlag,
-  },
-  $I.annote("VersionSyncOptionsWrite", {
-    description: "Resolved option set for write mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionSyncOptionsWrite", {
+      description: "Resolved option set for write mode.",
+    })
+  )
 ) {}
 
-class VersionSyncOptionsDryRun extends S.Class<VersionSyncOptionsDryRun>($I`VersionSyncOptionsDryRun`)(
-  {
+class VersionSyncOptionsDryRun extends S.Opaque<VersionSyncOptionsDryRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("dry-run"),
     skipNetwork: DefaultedVersionSyncFlag,
     bunOnly: DefaultedVersionSyncFlag,
@@ -478,10 +494,11 @@ class VersionSyncOptionsDryRun extends S.Class<VersionSyncOptionsDryRun>($I`Vers
     biomeOnly: DefaultedVersionSyncFlag,
     effectOnly: DefaultedVersionSyncFlag,
     turboOnly: DefaultedVersionSyncFlag,
-  },
-  $I.annote("VersionSyncOptionsDryRun", {
-    description: "Resolved option set for dry-run mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionSyncOptionsDryRun", {
+      description: "Resolved option set for dry-run mode.",
+    })
+  )
 ) {}
 
 /**
@@ -540,14 +557,15 @@ export type VersionSyncOptions = typeof VersionSyncOptions.Type;
  * @category models
  * @since 0.0.0
  */
-export class VersionSyncUpdateLocation extends S.Class<VersionSyncUpdateLocation>($I`VersionSyncUpdateLocation`)(
-  {
+export class VersionSyncUpdateLocation extends S.Opaque<VersionSyncUpdateLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     yamlPath: S.Array(S.Union([S.String, S.Finite])),
-  },
-  $I.annote("VersionSyncUpdateLocation", {
-    description: "YAML location to update in write mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionSyncUpdateLocation", {
+      description: "YAML location to update in write mode.",
+    })
+  )
 ) {}
 
 /**
@@ -564,15 +582,16 @@ export class VersionSyncUpdateLocation extends S.Class<VersionSyncUpdateLocation
  * @category models
  * @since 0.0.0
  */
-export class VersionSyncResolution extends S.Class<VersionSyncResolution>($I`VersionSyncResolution`)(
-  {
+export class VersionSyncResolution extends S.Opaque<VersionSyncResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     report: VersionSyncReport,
     nodeLocations: S.Array(VersionSyncUpdateLocation).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<VersionSyncUpdateLocation>())),
       S.withDecodingDefault(Effect.succeed(A.empty<VersionSyncUpdateLocation>()))
     ),
-  },
-  $I.annote("VersionSyncResolution", {
-    description: "Resolver output consumed by reporting and write-mode services.",
-  })
+  }).pipe(
+    $I.annoteSchema("VersionSyncResolution", {
+      description: "Resolver output consumed by reporting and write-mode services.",
+    })
+  )
 ) {}

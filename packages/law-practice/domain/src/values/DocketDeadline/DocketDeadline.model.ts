@@ -89,14 +89,15 @@ export type DocketResponsePeriodUnit = typeof DocketResponsePeriodUnit.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class DocketResponsePeriod extends S.Class<DocketResponsePeriod>($I`DocketResponsePeriod`)(
-  {
+export class DocketResponsePeriod extends S.Opaque<DocketResponsePeriod, { readonly brand: unique symbol }>()(
+  S.Struct({
     amount: PositiveCount.annotateKey({ description: "How many units the document allows." }),
     unit: DocketResponsePeriodUnit.annotateKey({ description: "Whether the amount counts days or months." }),
-  },
-  $I.annote("DocketResponsePeriod", {
-    description: "A response period as stated by a source document.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocketResponsePeriod", {
+      description: "A response period as stated by a source document.",
+    })
+  )
 ) {}
 
 /**
@@ -201,16 +202,17 @@ const optionalDate = (description: string) => S.OptionFromOptionalKey(LocalDateF
  * @category value-objects
  * @since 0.0.0
  */
-export class DocketDueDate extends S.Class<DocketDueDate>($I`DocketDueDate`)(
-  {
+export class DocketDueDate extends S.Opaque<DocketDueDate, { readonly brand: unique symbol }>()(
+  S.Struct({
     basis: DocketDueDateBasis.annotateKey({ description: "How the date was arrived at." }),
     computed: optionalDate("Date recomputed from the source document, when it could be."),
     date: LocalDateFromString.annotateKey({ description: "The date the entry goes on." }),
     stated: optionalDate("Date the message itself stated, when it stated one."),
-  },
-  $I.annote("DocketDueDate", {
-    description: "The date a docket entry goes on, with both candidate dates.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocketDueDate", {
+      description: "The date a docket entry goes on, with both candidate dates.",
+    })
+  )
 ) {}
 
 /**
@@ -229,14 +231,15 @@ export class DocketDueDate extends S.Class<DocketDueDate>($I`DocketDueDate`)(
  * @category value-objects
  * @since 0.0.0
  */
-export class DocketDueDateCandidates extends S.Class<DocketDueDateCandidates>($I`DocketDueDateCandidates`)(
-  {
+export class DocketDueDateCandidates extends S.Opaque<DocketDueDateCandidates, { readonly brand: unique symbol }>()(
+  S.Struct({
     computed: optionalDate("Date recomputed from the source document, when it could be."),
     stated: optionalDate("Date the message itself stated, when it stated one."),
-  },
-  $I.annote("DocketDueDateCandidates", {
-    description: "The two candidate dates a docket due date is resolved from.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocketDueDateCandidates", {
+      description: "The two candidate dates a docket due date is resolved from.",
+    })
+  )
 ) {}
 
 /**
@@ -344,14 +347,15 @@ export const DOCKET_REMINDER_OFFSETS: A.NonEmptyReadonlyArray<number> = [30, 14,
  * @category value-objects
  * @since 0.0.0
  */
-export class DocketReminderRung extends S.Class<DocketReminderRung>($I`DocketReminderRung`)(
-  {
+export class DocketReminderRung extends S.Opaque<DocketReminderRung, { readonly brand: unique symbol }>()(
+  S.Struct({
     date: LocalDateFromString.annotateKey({ description: "The day the reminder falls on." }),
     daysBefore: PositiveCount.annotateKey({ description: "How many days before the due date it falls." }),
-  },
-  $I.annote("DocketReminderRung", {
-    description: "One reminder of a docket reminder ladder.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocketReminderRung", {
+      description: "One reminder of a docket reminder ladder.",
+    })
+  )
 ) {}
 
 /**
@@ -373,18 +377,19 @@ export class DocketReminderRung extends S.Class<DocketReminderRung>($I`DocketRem
  * @category value-objects
  * @since 0.0.0
  */
-export class DocketReminderLadder extends S.Class<DocketReminderLadder>($I`DocketReminderLadder`)(
-  {
+export class DocketReminderLadder extends S.Opaque<DocketReminderLadder, { readonly brand: unique symbol }>()(
+  S.Struct({
     rungs: S.Array(DocketReminderRung).annotateKey({
       description: "Reminders still ahead, furthest from the due date first.",
     }),
     truncated: S.Boolean.annotateKey({
       description: "Whether a reminder was left out because its day is today or already past.",
     }),
-  },
-  $I.annote("DocketReminderLadder", {
-    description: "The reminders placed ahead of one docket due date.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocketReminderLadder", {
+      description: "The reminders placed ahead of one docket due date.",
+    })
+  )
 ) {}
 
 /**

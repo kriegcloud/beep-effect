@@ -8,8 +8,12 @@ import * as S from "effect/Schema";
 
 const { PoPattern, collectPoTaggedConstructors, getPoPattern, poConservation, poPatternAxes } = PatternOntology;
 
-class Leaf extends S.TaggedClass<Leaf>("Leaf")("leaf", { value: S.String }, { po: "atom" }) {}
-class Bare extends S.TaggedClass<Bare>("Bare")("bare", {}) {}
+class Leaf extends S.Opaque<Leaf, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("leaf", { value: S.String }).annotate({ identifier: "Leaf", po: "atom" })
+) {}
+class Bare extends S.Opaque<Bare, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("bare", {}).annotate({ identifier: "Bare" })
+) {}
 const Row = S.TaggedStruct("row", { cells: S.Array(Leaf) }).annotate({ po: "table" });
 const Tree = S.Union([Leaf, Bare, Row]).pipe(S.toTaggedUnion("_tag"));
 

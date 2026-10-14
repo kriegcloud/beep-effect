@@ -207,8 +207,8 @@ const permissionDenialMarkers = [
  * @category models
  * @since 0.0.0
  */
-export class SweepGitState extends S.Class<SweepGitState>($I`SweepGitState`)(
-  {
+export class SweepGitState extends S.Opaque<SweepGitState, { readonly brand: unique symbol }>()(
+  S.Struct({
     branch: S.NonEmptyString,
     mainBranch: S.NonEmptyString,
     headBranch: S.NonEmptyString,
@@ -226,10 +226,11 @@ export class SweepGitState extends S.Class<SweepGitState>($I`SweepGitState`)(
     pullRequestState: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     pullRequestHeadBranch: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     pullRequestHeadOid: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SweepGitState", {
-    description: "Read-only git and GitHub facts one post-merge workspace sweep is planned from.",
-  })
+  }).pipe(
+    $I.annoteSchema("SweepGitState", {
+      description: "Read-only git and GitHub facts one post-merge workspace sweep is planned from.",
+    })
+  )
 ) {}
 
 const precondition = (description: string, satisfied: boolean): SweepPrecondition =>

@@ -77,7 +77,7 @@ const $I = $ScratchpadId.create("effected/yaml/Yaml");
  * @category schemas
  * @since 0.0.0
  */
-export class YamlParseOptions extends S.Class<YamlParseOptions>($I`YamlParseOptions`)({
+export class YamlParseOptions extends S.Class<YamlParseOptions, { readonly brand: unique symbol }>($I`YamlParseOptions`)({
 	strict: S.optionalKey(S.Boolean).annotateKey({ description: "Parse strictness flag stored in composer options, defaulting to `true`; currently does not affect parsing behavior" }),
 	maxAliasCount: S.optionalKey(S.Finite).annotateKey({ description: "Maximum alias nodes per document, also determining the expansion budget used when extracting values; defaults to `100`" }),
 	uniqueKeys: S.optionalKey(S.Boolean).annotateKey({ description: "Whether duplicate mapping keys are reported as errors; defaults to `true`" }),
@@ -140,7 +140,7 @@ export class YamlParseOptions extends S.Class<YamlParseOptions>($I`YamlParseOpti
  * @category schemas
  * @since 0.0.0
  */
-export class YamlStringifyOptions extends S.Class<YamlStringifyOptions>($I`YamlStringifyOptions`)({
+export class YamlStringifyOptions extends S.Class<YamlStringifyOptions, { readonly brand: unique symbol }>($I`YamlStringifyOptions`)({
 	indent: S.optionalKey(S.Finite).annotateKey({ description: "Spaces per indentation level in emitted YAML; defaults to `2`" }),
 	/**
 	 * Column at which to fold long scalars. Default `0` (and any value `<= 0`)
@@ -251,7 +251,7 @@ export class YamlStringifyOptions extends S.Class<YamlStringifyOptions>($I`YamlS
  * @category errors
  * @since 0.0.0
  */
-export class YamlParseError extends S.TaggedError<YamlParseError>($I`YamlParseError`)("YamlParseError", {
+export class YamlParseError extends S.TaggedError<YamlParseError, { readonly brand: unique symbol }>($I`YamlParseError`)("YamlParseError", {
 	diagnostics: S.Array(YamlDiagnostic).annotateKey({ description: "Structured diagnostics responsible for the parse failure, with the primary failure first" }),
 	input: S.String.annotateKey({ description: "Original YAML source text that failed to parse" }),
 }, $I.annote("YamlParseError", { description: "Error-recovery parse failure: aggregates every fatal YamlDiagnostic encountered, so a single failure reports the whole batch. Raised by Yaml.parse, Yaml.parseAll, `YamlDocument.parse`/`parseAll` and the decode direction of the schema factories. The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {
@@ -311,7 +311,7 @@ export class YamlParseError extends S.TaggedError<YamlParseError>($I`YamlParseEr
  * @category errors
  * @since 0.0.0
  */
-export class YamlStringifyError extends S.TaggedError<YamlStringifyError>($I`YamlStringifyError`)("YamlStringifyError", {
+export class YamlStringifyError extends S.TaggedError<YamlStringifyError, { readonly brand: unique symbol }>($I`YamlStringifyError`)("YamlStringifyError", {
 	diagnostics: S.Array(YamlDiagnostic).annotateKey({ description: "Structured diagnostics explaining why YAML stringification failed" }),
 	value: S.Unknown.annotateKey({ description: "Original value or document whose YAML stringification failed" }),
 }, $I.annote("YamlStringifyError", { description: "Stringification failure (the circular-reference guard), carrying structured YamlDiagnostic entries and the offending value. Raised by Yaml.stringify, `YamlDocument#stringify` and the encode direction of the schema factories. The error itself has no `code` field: read the code from the diagnostics — `error.diagnostics[0].code` is the primary failure." })) {

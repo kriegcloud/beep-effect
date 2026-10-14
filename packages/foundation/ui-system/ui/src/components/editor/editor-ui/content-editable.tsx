@@ -47,7 +47,13 @@ const ContentEditableVariant = LiteralKit(["document", "compact"]).pipe(
 
 type ContentEditableVariant = typeof ContentEditableVariant.Type;
 
-class Props extends S.Class<Props>($I`Props`)({
+/**
+ * Schema for Props.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class Props extends S.Class<Props, { readonly brand: unique symbol }>($I`Props`)({
   placeholder: S.String,
   ariaLabel: S.optionalKey(S.String),
   variant: S.optionalKey(ContentEditableVariant),
@@ -117,7 +123,7 @@ export function ContentEditable({
   variant = "document",
   className,
   placeholderClassName,
-}: Props): JSX.Element {
+}: typeof Props.Encoded): JSX.Element {
   return (
     <LexicalContentEditable
       className={className ?? (variant === "compact" ? COMPACT_EDITABLE_CLASS_NAME : DEFAULT_EDITABLE_CLASS_NAME)}

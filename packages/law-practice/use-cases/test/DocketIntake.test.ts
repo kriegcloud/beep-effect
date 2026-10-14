@@ -120,7 +120,7 @@ const threeMonths = DocketResponsePeriod.make({ amount: 3, unit: "months" });
 const mailDate = LocalDate.make({ year: 2030, month: 1, day: 8 });
 const computedDue = LocalDate.make({ year: 2030, month: 4, day: 8 });
 
-const docketEntry = (overrides: Partial<ConstructorParameters<typeof ParalegalDocketEntry>[0]> = {}) =>
+const docketEntry = (overrides: Partial<Parameters<typeof ParalegalDocketEntry.make>[0]> = {}) =>
   ParalegalDocketEntry.make({
     matterReferences: ["FIX-0001"],
     rationale: "States a response period.",
@@ -128,7 +128,7 @@ const docketEntry = (overrides: Partial<ConstructorParameters<typeof ParalegalDo
     ...overrides,
   });
 
-const datedEntry = (overrides: Partial<ConstructorParameters<typeof ParalegalDocketEntry>[0]> = {}) =>
+const datedEntry = (overrides: Partial<Parameters<typeof ParalegalDocketEntry.make>[0]> = {}) =>
   docketEntry({
     citedText: O.some(CITED),
     mailDate: O.some(mailDate),
@@ -175,7 +175,7 @@ const statedMessage = DocketMessage.make({
 });
 const statedEntry = () =>
   Effect.succeed(docketEntry({ citedText: O.some(STATED_CITED), statedDueDate: O.some(statedDue) }));
-const statedReview = (overrides: Partial<ConstructorParameters<typeof SecretaryReview>[0]> = {}) =>
+const statedReview = (overrides: Partial<Parameters<typeof SecretaryReview.make>[0]> = {}) =>
   SecretaryReview.make({
     citedText: O.some(STATED_CITED),
     isDocketItem: true,
@@ -481,7 +481,7 @@ const messageAt = (id: string, receivedAt: string): DocketMessage =>
 
 const testLayer = (
   script: Partial<Script> = {},
-  config: Partial<ConstructorParameters<typeof DocketIntakeConfig>[0]> = {},
+  config: Partial<Parameters<typeof DocketIntakeConfig.make>[0]> = {},
   crypto: Layer.Layer<Crypto.Crypto> = TestCrypto
 ) =>
   makeDocketIntakeLayer(DocketIntakeConfig.make({ mailbox: "fixture-mailbox", ...config })).pipe(

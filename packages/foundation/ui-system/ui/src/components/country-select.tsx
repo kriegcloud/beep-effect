@@ -347,17 +347,18 @@ export type CountryCode = typeof CountryCode.Type;
  * @category models
  * @since 0.0.0
  */
-class CountryOption extends S.Class<CountryOption>($I`CountryOption`)(
-  {
+export class CountryOption extends S.Opaque<CountryOption, { readonly brand: unique symbol }>()(
+  S.Struct({
     callingCode: S.String,
     code: CountryCode,
     label: S.String,
     nativeLabel: S.String,
     searchText: S.String,
-  },
-  $I.annote("CountryOption", {
-    description: "A country option rendered by CountrySelect.",
-  })
+  }).pipe(
+    $I.annoteSchema("CountryOption", {
+      description: "A country option rendered by CountrySelect.",
+    })
+  )
 ) {}
 
 const countryOptionOrder = Order.mapInput(Order.String, (option: CountryOption) => option.label);
@@ -386,13 +387,13 @@ export const countryOptions: ReadonlyArray<CountryOption> = pipe(
       O.getOrElse(() => "")
     );
 
-    return {
+    return CountryOption.make({
       callingCode,
       code: country.iso2,
       label: country.name,
       nativeLabel: country.native,
       searchText: `${country.name} ${country.native} ${country.iso2} ${country.iso3} ${callingCode}`,
-    };
+    });
   }),
   A.sort(countryOptionOrder)
 );

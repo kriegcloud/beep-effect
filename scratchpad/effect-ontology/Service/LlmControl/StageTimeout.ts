@@ -102,7 +102,7 @@ const StageTimeoutInvariantCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class StageTimeoutConfig extends S.Class<StageTimeoutConfig>($I`StageTimeoutConfig`)(
+export class StageTimeoutConfig extends S.Class<StageTimeoutConfig, { readonly brand: unique symbol }>($I`StageTimeoutConfig`)(
   S.Struct({
     softTimeout: S.Duration.annotateKey({ description: "Delay before the soft-timeout callback runs." }),
     hardTimeout: S.Duration.annotateKey({ description: "Deadline after which the stage fails." }),
@@ -167,7 +167,7 @@ const STAGE_TIMEOUTS: Record<TimedStage, StageTimeoutConfig> = {
  * @category errors
  * @since 0.0.0
  */
-export class TimeoutError extends S.TaggedError<TimeoutError>($I`TimeoutError`)(
+export class TimeoutError extends S.TaggedError<TimeoutError, { readonly brand: unique symbol }>($I`TimeoutError`)(
   "TimeoutError",
   {
     stage: TimedStage.annotateKey({ description: "Workflow stage that exceeded its hard deadline." }),

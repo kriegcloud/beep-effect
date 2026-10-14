@@ -193,14 +193,15 @@ export type QualityIssueAttribution = typeof QualityIssueAttribution.Type;
  * @category models
  * @since 0.0.0
  */
-export class QualityIssueRouting extends S.Class<QualityIssueRouting>($I`QualityIssueRouting`)(
-  {
+export class QualityIssueRouting extends S.Opaque<QualityIssueRouting, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     reason: S.String,
-  },
-  $I.annote("QualityIssueRouting", {
-    description: "Suggested specialist skill or agent route for a quality issue.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityIssueRouting", {
+      description: "Suggested specialist skill or agent route for a quality issue.",
+    })
+  )
 ) {}
 
 /**
@@ -229,8 +230,8 @@ export class QualityIssueRouting extends S.Class<QualityIssueRouting>($I`Quality
  * @category models
  * @since 0.0.0
  */
-export class QualityIssue extends S.Class<QualityIssue>($I`QualityIssue`)(
-  {
+export class QualityIssue extends S.Opaque<QualityIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     category: QualityIssueCategory,
     subCategory: S.optionalKey(S.String),
@@ -265,10 +266,11 @@ export class QualityIssue extends S.Class<QualityIssue>($I`QualityIssue`)(
     turboHash: S.optionalKey(S.String),
     cacheState: S.optionalKey(S.String),
     routing: S.Array(QualityIssueRouting),
-  },
-  $I.annote("QualityIssue", {
-    description: "One normalized quality issue captured by yeet.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityIssue", {
+      description: "One normalized quality issue captured by yeet.",
+    })
+  )
 ) {}
 
 /**
@@ -286,17 +288,18 @@ export class QualityIssue extends S.Class<QualityIssue>($I`QualityIssue`)(
  * @category models
  * @since 0.0.0
  */
-export class PackageQualityReport extends S.Class<PackageQualityReport>($I`PackageQualityReport`)(
-  {
+export class PackageQualityReport extends S.Opaque<PackageQualityReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     packagePath: S.optionalKey(S.String),
     issueCount: S.Finite,
     blockingCount: S.Finite,
     issues: S.Array(QualityIssue),
-  },
-  $I.annote("PackageQualityReport", {
-    description: "Package-grouped view of yeet quality issues.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageQualityReport", {
+      description: "Package-grouped view of yeet quality issues.",
+    })
+  )
 ) {}
 
 /**
@@ -314,16 +317,17 @@ export class PackageQualityReport extends S.Class<PackageQualityReport>($I`Packa
  * @category models
  * @since 0.0.0
  */
-export class QualityIssueIndex extends S.Class<QualityIssueIndex>($I`QualityIssueIndex`)(
-  {
+export class QualityIssueIndex extends S.Opaque<QualityIssueIndex, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-quality-issue-index/v1"),
     issues: S.Array(QualityIssue),
     packages: S.Array(PackageQualityReport),
     rawOutputRefs: S.Array(S.String),
-  },
-  $I.annote("QualityIssueIndex", {
-    description: "Schema-first collection of issues and package packet summaries for yeet.",
-  })
+  }).pipe(
+    $I.annoteSchema("QualityIssueIndex", {
+      description: "Schema-first collection of issues and package packet summaries for yeet.",
+    })
+  )
 ) {}
 
 /**
@@ -372,8 +376,8 @@ export class QualityIssueIndex extends S.Class<QualityIssueIndex>($I`QualityIssu
  * @category models
  * @since 0.0.0
  */
-export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
-  {
+export class YeetRunOptions extends S.Opaque<YeetRunOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     allowStaleBase: S.Boolean,
     amend: S.Boolean,
     base: S.String,
@@ -404,10 +408,11 @@ export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
     stagedOnly: S.Boolean,
     summary: S.Boolean,
     tier: YeetProofTier,
-  },
-  $I.annote("YeetRunOptions", {
-    description: "Runtime options accepted by the yeet handler.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRunOptions", {
+      description: "Runtime options accepted by the yeet handler.",
+    })
+  )
 ) {}
 
 /**
@@ -433,15 +438,16 @@ export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
  * @category models
  * @since 0.0.0
  */
-export class YeetReadyOptions extends S.Class<YeetReadyOptions>($I`YeetReadyOptions`)(
-  {
+export class YeetReadyOptions extends S.Opaque<YeetReadyOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: S.String,
     head: S.String,
     packetDir: S.String,
-  },
-  $I.annote("YeetReadyOptions", {
-    description: "Options accepted by yeet ready, which flips a draft pull request to ready under the D10 gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReadyOptions", {
+      description: "Options accepted by yeet ready, which flips a draft pull request to ready under the D10 gate.",
+    })
+  )
 ) {}
 
 /**
@@ -459,17 +465,18 @@ export class YeetReadyOptions extends S.Class<YeetReadyOptions>($I`YeetReadyOpti
  * @category models
  * @since 0.0.0
  */
-export class YeetRunResult extends S.Class<YeetRunResult>($I`YeetRunResult`)(
-  {
+export class YeetRunResult extends S.Opaque<YeetRunResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactDir: S.String,
     committed: S.Boolean,
     pushed: S.Boolean,
     packetPaths: S.Array(S.String),
     indexPath: S.optionalKey(S.String),
-  },
-  $I.annote("YeetRunResult", {
-    description: "Execution result and artifact paths emitted by yeet.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRunResult", {
+      description: "Execution result and artifact paths emitted by yeet.",
+    })
+  )
 ) {}
 
 /**
@@ -487,14 +494,15 @@ export class YeetRunResult extends S.Class<YeetRunResult>($I`YeetRunResult`)(
  * @category models
  * @since 0.0.0
  */
-export class YeetStagedPublishIntent extends S.Class<YeetStagedPublishIntent>($I`YeetStagedPublishIntent`)(
-  {
+export class YeetStagedPublishIntent extends S.Opaque<YeetStagedPublishIntent, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("staged"),
     paths: S.Array(S.String),
-  },
-  $I.annote("YeetStagedPublishIntent", {
-    description: "Reviewed staged paths that yeet is allowed to commit and publish.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetStagedPublishIntent", {
+      description: "Reviewed staged paths that yeet is allowed to commit and publish.",
+    })
+  )
 ) {}
 
 /**
@@ -513,17 +521,19 @@ export class YeetStagedPublishIntent extends S.Class<YeetStagedPublishIntent>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetExistingCommitPublishIntent extends S.Class<YeetExistingCommitPublishIntent>(
-  $I`YeetExistingCommitPublishIntent`
-)(
-  {
+export class YeetExistingCommitPublishIntent extends S.Opaque<
+  YeetExistingCommitPublishIntent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("existing-commit"),
     commitSha: S.String,
     paths: S.Array(S.String),
-  },
-  $I.annote("YeetExistingCommitPublishIntent", {
-    description: "Clean local commit state ahead of the publish target that yeet may prove and push.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetExistingCommitPublishIntent", {
+      description: "Clean local commit state ahead of the publish target that yeet may prove and push.",
+    })
+  )
 ) {}
 
 /**

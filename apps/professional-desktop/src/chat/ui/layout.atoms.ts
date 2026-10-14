@@ -154,14 +154,21 @@ export const sidebarPercentAtom = Atom.kvs({
   defaultValue: () => SIDEBAR_DEFAULT_PERCENT,
 });
 
-class SidebarLayoutChanged extends S.Class<SidebarLayoutChanged>($I`SidebarLayoutChanged`)(
-  {
+/**
+ * A completed resizable-panel layout accepted by the persisted layout action.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SidebarLayoutChanged extends S.Opaque<SidebarLayoutChanged, { readonly brand: unique symbol }>()(
+  S.Struct({
     layout: S.Record(S.String, S.Finite),
     isUserInteraction: S.Boolean,
-  },
-  $I.annote("SidebarLayoutChanged", {
-    description: "A completed resizable-panel layout accepted by the persisted layout action.",
-  })
+  }).pipe(
+    $I.annoteSchema("SidebarLayoutChanged", {
+      description: "A completed resizable-panel layout accepted by the persisted layout action.",
+    })
+  )
 ) {}
 
 /**

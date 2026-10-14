@@ -15,7 +15,7 @@ import type { PageOptions } from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/GitTag");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -39,7 +39,7 @@ const MAX_TAG_PEEL = 5;
  * @category models
  * @since 0.0.0
  */
-export class TagRef extends S.Class<TagRef>($I`TagRef`)({
+export class TagRef extends S.Class<TagRef, { readonly brand: unique symbol }>($I`TagRef`)({
 	/** The tag name, without `refs/tags/`. */
 	tag: S.NonEmptyString.annotateKey({ description: "The tag name, without `refs/tags/`." }),
 	/** The **commit** sha, with annotated tags already dereferenced. */
@@ -67,7 +67,7 @@ export class TagRef extends S.Class<TagRef>($I`TagRef`)({
  * @category models
  * @since 0.0.0
  */
-export class SemverTag extends S.Class<SemverTag>($I`SemverTag`)({
+export class SemverTag extends S.Class<SemverTag, { readonly brand: unique symbol }>($I`SemverTag`)({
 	/** The tag name as GitHub has it. */
 	tag: S.NonEmptyString.annotateKey({ description: "The tag name as GitHub has it." }),
 	/** The commit sha. */

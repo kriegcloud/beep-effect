@@ -183,7 +183,7 @@ export type UnsafeAssertionKind = typeof UnsafeAssertionKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class UnsafeAssertion extends S.Class<UnsafeAssertion>($I`UnsafeAssertion`)(
+export class UnsafeAssertion extends S.Class<UnsafeAssertion, { readonly brand: unique symbol }>($I`UnsafeAssertion`)(
   {
     file: S.String,
     line: S.Int,

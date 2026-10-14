@@ -17,7 +17,27 @@ import {
   File as BoxFile,
   Folder as BoxFolder,
   FolderMini as BoxFolderMini,
+  CreateFolderRequestBody,
+  CreateFolderRequestBodyParentField,
+  EventsGetEventsPayload,
+  FilesUpdateFileByIdPayload,
+  FoldersCreateFolderPayload,
+  FoldersGetFolderItemsPayload,
+  FoldersUpdateFolderByIdPayload,
+  GetEventsQueryParams,
+  GetFolderItemsOptionalsInput,
+  GetFolderItemsQueryParams,
+  UpdateFileByIdOptionalsInput,
+  UpdateFileByIdRequestBody,
+  UpdateFileByIdRequestBodyParentField,
+  UpdateFolderByIdOptionalsInput,
+  UpdateFolderByIdRequestBody,
+  UpdateFolderByIdRequestBodyParentField,
+  UploadFileRequestBodyAttributesField,
+  UploadFileRequestBodyAttributesParentField,
+  UploadFileVersionRequestBodyAttributesField,
 } from "@beep/box";
+import { BoxUploadFilePayload, BoxUploadFileRequestBody, BoxUploadFileVersionPayload } from "@beep/box/Box.streaming";
 import { RemoteItemId, SyncItemKind } from "@beep/documents-domain/values/Sync";
 import {
   DmsEventPage,
@@ -108,15 +128,16 @@ export const BOX_MIRROR_DEFAULT_ROOT_NAME = "beep-vault";
  * @category configuration
  * @since 0.0.0
  */
-export class BoxMirrorConfigValue extends S.Class<BoxMirrorConfigValue>($I`BoxMirrorConfigValue`)(
-  {
+export class BoxMirrorConfigValue extends S.Opaque<BoxMirrorConfigValue, { readonly brand: unique symbol }>()(
+  S.Struct({
     mirrorRootName: S.NonEmptyString.annotateKey({
       description: "Box folder name created under the Box root that receives the mirrored vault tree.",
     }),
-  },
-  $I.annote("BoxMirrorConfigValue", {
-    description: "Resolved configuration value for the Box DMS mirror adapter.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxMirrorConfigValue", {
+      description: "Resolved configuration value for the Box DMS mirror adapter.",
+    })
+  )
 ) {}
 
 /**
@@ -439,16 +460,18 @@ const remoteEventFromEntry = (entry: BoxEventModel): Effect.Effect<O.Option<DmsR
 const makeMirrorRootResolver = (box: BoxShape, config: BoxMirrorConfigValue) => {
   const listFolderPage = (parentId: string, marker: O.Option<string>) =>
     box.folders
-      .getFolderItems({
-        folderId: parentId,
-        optionalsInput: {
-          queryParams: {
-            limit: FOLDER_LOOKUP_LIMIT,
-            usemarker: true,
-            ...getSomesStruct({ marker }),
-          },
-        },
-      })
+      .getFolderItems(
+        FoldersGetFolderItemsPayload.make({
+          folderId: parentId,
+          optionalsInput: GetFolderItemsOptionalsInput.make({
+            queryParams: GetFolderItemsQueryParams.make({
+              limit: FOLDER_LOOKUP_LIMIT,
+              usemarker: true,
+              ...getSomesStruct({ marker }),
+            }),
+          }),
+        })
+      )
       .pipe(Effect.mapError(boxUnavailable));
 
   /**
@@ -485,7 +508,14 @@ const makeMirrorRootResolver = (box: BoxShape, config: BoxMirrorConfigValue) => 
     lookupItemId(parentId, findNamedId(isBoxFile, name));
 
   const createRemoteFolder = (parentId: string, name: string) =>
-    box.folders.createFolder({ requestBody: { name, parent: { id: parentId } } });
+    box.folders.createFolder(
+      FoldersCreateFolderPayload.make({
+        requestBody: CreateFolderRequestBody.make({
+          name,
+          parent: CreateFolderRequestBodyParentField.make({ id: parentId }),
+        }),
+      })
+    );
 
   const resolveMirrorRootId = Effect.gen(function* () {
     const existing = yield* lookupFolderId(BOX_ROOT_FOLDER_ID, config.mirrorRootName);
@@ -567,11 +597,39 @@ export const makeDmsMirrorBox = Effect.fn($I`makeDmsMirrorBox`)(function* () {
     SyncItemKind.$match(itemKind, {
       file: () =>
         box.files
-          .updateFileById({ fileId: remoteId, optionalsInput: { requestBody } })
+          .updateFileById(
+            FilesUpdateFileByIdPayload.make({
+              fileId: remoteId,
+              optionalsInput: UpdateFileByIdOptionalsInput.make({
+                requestBody: UpdateFileByIdRequestBody.make(
+                  getSomesStruct({
+                    name: O.fromUndefinedOr(requestBody.name),
+                    parent: O.map(O.fromUndefinedOr(requestBody.parent), (parent) =>
+                      UpdateFileByIdRequestBodyParentField.make(parent)
+                    ),
+                  })
+                ),
+              }),
+            })
+          )
           .pipe(Effect.map(itemFields(SyncItemKind.Enum.file))),
       folder: () =>
         box.folders
-          .updateFolderById({ folderId: remoteId, optionalsInput: { requestBody } })
+          .updateFolderById(
+            FoldersUpdateFolderByIdPayload.make({
+              folderId: remoteId,
+              optionalsInput: UpdateFolderByIdOptionalsInput.make({
+                requestBody: UpdateFolderByIdRequestBody.make(
+                  getSomesStruct({
+                    name: O.fromUndefinedOr(requestBody.name),
+                    parent: O.map(O.fromUndefinedOr(requestBody.parent), (parent) =>
+                      UpdateFolderByIdRequestBodyParentField.make(parent)
+                    ),
+                  })
+                ),
+              }),
+            })
+          )
           .pipe(Effect.map(itemFields(SyncItemKind.Enum.folder))),
     }).pipe(Effect.mapError(boxUnavailable));
 
@@ -625,12 +683,17 @@ export const makeDmsMirrorBox = Effect.fn($I`makeDmsMirrorBox`)(function* () {
     const mirrorRootId = yield* ensureMirrorRootId;
     const parentId = yield* resolveParentId(input.parentRemoteId);
     const files = yield* box.uploads
-      .uploadFile({
-        requestBody: {
-          attributes: { name: input.name, parent: { id: parentId } },
-          file: input.content,
-        },
-      })
+      .uploadFile(
+        BoxUploadFilePayload.make({
+          requestBody: BoxUploadFileRequestBody.make({
+            attributes: UploadFileRequestBodyAttributesField.make({
+              name: input.name,
+              parent: UploadFileRequestBodyAttributesParentField.make({ id: parentId }),
+            }),
+            file: input.content,
+          }),
+        })
+      )
       .pipe(
         // A name conflict means the file already exists under the parent (a
         // retried upload after a crash). Look up its id and converge by
@@ -642,10 +705,15 @@ export const makeDmsMirrorBox = Effect.fn($I`makeDmsMirrorBox`)(function* () {
                 onNone: () => error.pipe(boxUnavailable, Effect.fail),
                 onSome: (existingId) =>
                   box.uploads
-                    .uploadFileVersion({
-                      fileId: existingId,
-                      requestBody: { attributes: { name: input.name }, file: input.content },
-                    })
+                    .uploadFileVersion(
+                      BoxUploadFileVersionPayload.make({
+                        fileId: existingId,
+                        requestBody: {
+                          attributes: UploadFileVersionRequestBodyAttributesField.make({ name: input.name }),
+                          file: input.content,
+                        },
+                      })
+                    )
                     .pipe(Effect.mapError(boxUnavailable)),
               })
             )
@@ -661,13 +729,15 @@ export const makeDmsMirrorBox = Effect.fn($I`makeDmsMirrorBox`)(function* () {
   const uploadFileVersion = Effect.fn($I`uploadFileVersion`)(function* (input: UploadFileVersionInput) {
     const mirrorRootId = yield* ensureMirrorRootId;
     const files = yield* box.uploads
-      .uploadFileVersion({
-        fileId: input.remoteId,
-        requestBody: {
-          attributes: { name: input.name },
-          file: input.content,
-        },
-      })
+      .uploadFileVersion(
+        BoxUploadFileVersionPayload.make({
+          fileId: input.remoteId,
+          requestBody: {
+            attributes: UploadFileVersionRequestBodyAttributesField.make({ name: input.name }),
+            file: input.content,
+          },
+        })
+      )
       .pipe(Effect.mapError(boxUnavailable));
     const fields = yield* firstUploadedFileFields(files);
 
@@ -692,13 +762,15 @@ export const makeDmsMirrorBox = Effect.fn($I`makeDmsMirrorBox`)(function* () {
   const pollEvents = Effect.fn($I`pollEvents`)(function* (input: PollEventsInput) {
     const streamPosition = O.getOrElse(input.streamPosition, () => BOX_STREAM_POSITION_NOW);
     const page = yield* box.events
-      .getEvents({
-        queryParams: {
-          limit: POLL_EVENTS_LIMIT,
-          streamPosition,
-          streamType: "changes",
-        },
-      })
+      .getEvents(
+        EventsGetEventsPayload.make({
+          queryParams: GetEventsQueryParams.make({
+            limit: POLL_EVENTS_LIMIT,
+            streamPosition,
+            streamType: "changes",
+          }),
+        })
+      )
       .pipe(Effect.mapError(boxUnavailable));
     const nextStreamPosition = yield* decodeStreamPosition(page.nextStreamPosition).pipe(orResponseMappingFailure);
     const entries = pipe(O.fromUndefinedOr(page.entries), O.getOrElse(A.empty<BoxEventModel>));

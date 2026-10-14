@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { BoxError } from "../Box.errors.ts";
+import { BoxError, BoxErrorOptionsInput } from "../Box.errors.ts";
 import type * as Exit from "effect/Exit";
 import type { BoxMethodName } from "../_generated/Box.models.gen.ts";
 
@@ -88,10 +88,13 @@ export const decodeWith: {
   ): Effect.Effect<A, BoxError> =>
     S.decodeUnknownEffect(schema)(options.reason === "response decoding" ? pruneUndefined(value) : value).pipe(
       Effect.mapError((cause) =>
-        BoxError.fromReason(options.reason, {
-          cause,
-          method: options.method,
-        })
+        BoxError.fromReason(
+          options.reason,
+          BoxErrorOptionsInput.make({
+            cause,
+            method: options.method,
+          })
+        )
       )
     )
 );

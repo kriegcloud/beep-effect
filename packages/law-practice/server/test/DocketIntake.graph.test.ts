@@ -193,7 +193,7 @@ const M365TestLayer = M365.makeAppOnlyLayer(
   Layer.provideMerge(GraphTestHttpLayer)
 );
 
-const graphConfig = (overrides: Partial<ConstructorParameters<typeof DocketGraphConfig>[0]> = {}) =>
+const graphConfig = (overrides: Partial<Parameters<typeof DocketGraphConfig.make>[0]> = {}) =>
   DocketGraphConfig.make({
     initialSince: INITIAL_SINCE,
     mailbox: MAILBOX,
@@ -201,7 +201,7 @@ const graphConfig = (overrides: Partial<ConstructorParameters<typeof DocketGraph
     ...overrides,
   });
 
-const graphLayer = (overrides: Partial<ConstructorParameters<typeof DocketGraphConfig>[0]> = {}) =>
+const graphLayer = (overrides: Partial<Parameters<typeof DocketGraphConfig.make>[0]> = {}) =>
   makeDocketGraphLayer(graphConfig(overrides)).pipe(Layer.provideMerge(M365TestLayer));
 
 const failureOf = <A, R>(

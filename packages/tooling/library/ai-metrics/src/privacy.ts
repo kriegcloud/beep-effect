@@ -134,18 +134,19 @@ export type AiMetricsHashSaltStatus = typeof AiMetricsHashSaltStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRedactionResult extends S.Class<AiMetricsRedactionResult>($I`AiMetricsRedactionResult`)(
-  {
+export class AiMetricsRedactionResult extends S.Opaque<AiMetricsRedactionResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     authHeaderCount: S.Natural,
     bearerTokenCount: S.Natural,
     excludedRawTextFieldCount: S.Natural,
     openAiKeyCount: S.Natural,
     safeForDerivedUi: S.Boolean,
     secretAssignmentCount: S.Natural,
-  },
-  $I.annote("AiMetricsRedactionResult", {
-    description: "Counts of private material detected or excluded before producing derived AI metrics payloads.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRedactionResult", {
+      description: "Counts of private material detected or excluded before producing derived AI metrics payloads.",
+    })
+  )
 ) {}
 
 /**
@@ -169,8 +170,8 @@ export class AiMetricsRedactionResult extends S.Class<AiMetricsRedactionResult>(
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRawEventEnvelope extends S.Class<AiMetricsRawEventEnvelope>($I`AiMetricsRawEventEnvelope`)(
-  {
+export class AiMetricsRawEventEnvelope extends S.Opaque<AiMetricsRawEventEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventName: S.String,
     lineNumber: S.Int,
     rawEventHash: AiMetricsEncodedSha256,
@@ -181,10 +182,11 @@ export class AiMetricsRawEventEnvelope extends S.Class<AiMetricsRawEventEnvelope
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsSourceRole.Enum.primary))
     ),
     timestamp: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AiMetricsRawEventEnvelope", {
-    description: "Safe raw-event envelope that retains only hashes, line numbers, event names, and timestamps.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRawEventEnvelope", {
+      description: "Safe raw-event envelope that retains only hashes, line numbers, event names, and timestamps.",
+    })
+  )
 ) {}
 
 /**
@@ -210,10 +212,11 @@ export class AiMetricsRawEventEnvelope extends S.Class<AiMetricsRawEventEnvelope
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsSanitizedTranscript extends S.Class<AiMetricsSanitizedTranscript>(
-  $I`AiMetricsSanitizedTranscript`
-)(
-  {
+export class AiMetricsSanitizedTranscript extends S.Opaque<
+  AiMetricsSanitizedTranscript,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     acceptedEvents: S.Natural,
     agentNicknameHash: S.OptionFromOptionalKey(AiMetricsEncodedSha256).pipe(
       S.withConstructorDefault(Effect.succeedNone)
@@ -242,10 +245,11 @@ export class AiMetricsSanitizedTranscript extends S.Class<AiMetricsSanitizedTran
     ),
     threadSpawn: S.OptionFromOptionalKey(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)),
     totalLines: S.Natural,
-  },
-  $I.annote("AiMetricsSanitizedTranscript", {
-    description: "Allowlisted transcript projection that excludes prompt, output, message, and payload text.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsSanitizedTranscript", {
+      description: "Allowlisted transcript projection that excludes prompt, output, message, and payload text.",
+    })
+  )
 ) {}
 
 /**
@@ -288,17 +292,21 @@ export class AiMetricsSanitizedTranscript extends S.Class<AiMetricsSanitizedTran
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsPrivacyCheckResult extends S.Class<AiMetricsPrivacyCheckResult>($I`AiMetricsPrivacyCheckResult`)(
-  {
+export class AiMetricsPrivacyCheckResult extends S.Opaque<
+  AiMetricsPrivacyCheckResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     hashSaltStatus: AiMetricsHashSaltStatus,
     inputPathHash: AiMetricsEncodedSha256,
     redaction: AiMetricsRedactionResult,
     sanitized: AiMetricsSanitizedTranscript,
     sourceKind: AiMetricsTranscriptSource,
-  },
-  $I.annote("AiMetricsPrivacyCheckResult", {
-    description: "Privacy proof output for one transcript source and input path.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsPrivacyCheckResult", {
+      description: "Privacy proof output for one transcript source and input path.",
+    })
+  )
 ) {}
 
 /**
@@ -319,7 +327,9 @@ export class AiMetricsPrivacyCheckResult extends S.Class<AiMetricsPrivacyCheckRe
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsPrivacyError extends S.TaggedError<AiMetricsPrivacyError>($I`AiMetricsPrivacyError`)(
+export class AiMetricsPrivacyError extends S.TaggedError<AiMetricsPrivacyError, { readonly brand: unique symbol }>(
+  $I`AiMetricsPrivacyError`
+)(
   "AiMetricsPrivacyError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -330,63 +340,98 @@ export class AiMetricsPrivacyError extends S.TaggedError<AiMetricsPrivacyError>(
   })
 ) {}
 
-class GenericTranscriptLine extends S.Class<GenericTranscriptLine>($I`GenericTranscriptLine`)(
-  {
+/**
+ * Minimal event metadata decoded from arbitrary transcript JSONL lines.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GenericTranscriptLine extends S.Opaque<GenericTranscriptLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     event: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     sessionId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     timestamp: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     type: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("GenericTranscriptLine", {
-    description: "Minimal event metadata decoded from arbitrary transcript JSONL lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenericTranscriptLine", {
+      description: "Minimal event metadata decoded from arbitrary transcript JSONL lines.",
+    })
+  )
 ) {
   static readonly decodeJsonOption = S.decodeUnknownOption(S.fromJsonString(GenericTranscriptLine));
 }
 
-class CodexSubagentSource extends S.Class<CodexSubagentSource>($I`CodexSubagentSource`)(
-  {
+/**
+ * Hash-only source metadata shape decoded from Codex session_meta lines.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CodexSubagentSource extends S.Opaque<CodexSubagentSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     agent_nickname: OptionalNonEmptyTrimmed,
     agent_role: OptionalNonEmptyTrimmed,
     forked_from_id: OptionalNonEmptyTrimmed,
     parent_session_id: OptionalNonEmptyTrimmed,
     parent_thread_id: OptionalNonEmptyTrimmed,
     thread_spawn: S.OptionFromOptionalKey(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CodexSubagentSource", {
-    description: "Hash-only source metadata shape decoded from Codex session_meta lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSubagentSource", {
+      description: "Hash-only source metadata shape decoded from Codex session_meta lines.",
+    })
+  )
 ) {}
 
-class CodexSessionSource extends S.Class<CodexSessionSource>($I`CodexSessionSource`)(
-  {
+/**
+ * Codex session_meta source metadata used for attribution.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CodexSessionSource extends S.Opaque<CodexSessionSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     subagent: S.OptionFromOptionalKey(CodexSubagentSource).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CodexSessionSource", {
-    description: "Codex session_meta source metadata used for attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSessionSource", {
+      description: "Codex session_meta source metadata used for attribution.",
+    })
+  )
 ) {}
 
-class CodexSessionPayload extends S.Class<CodexSessionPayload>($I`CodexSessionPayload`)(
-  {
+/**
+ * Codex session_meta payload fields used for privacy-preserving attribution.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CodexSessionPayload extends S.Opaque<CodexSessionPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: OptionalNonEmptyTrimmed,
     parent_session_id: OptionalNonEmptyTrimmed,
     parent_thread_id: OptionalNonEmptyTrimmed,
     source: S.OptionFromOptionalKey(CodexSessionSource).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CodexSessionPayload", {
-    description: "Codex session_meta payload fields used for privacy-preserving attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSessionPayload", {
+      description: "Codex session_meta payload fields used for privacy-preserving attribution.",
+    })
+  )
 ) {}
 
-class CodexSessionMetaLine extends S.Class<CodexSessionMetaLine>($I`CodexSessionMetaLine`)(
-  {
+/**
+ * Codex JSONL session_meta line used to detect delegated subagent transcripts.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CodexSessionMetaLine extends S.Opaque<CodexSessionMetaLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     payload: S.OptionFromOptionalKey(CodexSessionPayload).pipe(S.withConstructorDefault(Effect.succeedNone)),
     type: S.String,
-  },
-  $I.annote("CodexSessionMetaLine", {
-    description: "Codex JSONL session_meta line used to detect delegated subagent transcripts.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSessionMetaLine", {
+      description: "Codex JSONL session_meta line used to detect delegated subagent transcripts.",
+    })
+  )
 ) {
   static readonly decodeJsonOption = S.decodeUnknownOption(S.fromJsonString(CodexSessionMetaLine));
 }

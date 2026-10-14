@@ -162,8 +162,8 @@ export type Dpi = typeof Dpi.Type;
  * @category models
  * @since 0.0.0
  */
-export class SvgToPdfRequest extends S.Class<SvgToPdfRequest>($I`SvgToPdfRequest`)(
-  {
+export class SvgToPdfRequest extends S.Opaque<SvgToPdfRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     svgPaths: S.Array(S.NonEmptyString)
       .check(
         S.isMinLength(1, {
@@ -185,10 +185,11 @@ export class SvgToPdfRequest extends S.Class<SvgToPdfRequest>($I`SvgToPdfRequest
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
       S.annotateKey({ description: "Unix seconds used for the PDF creation date. Defaults to 0." })
     ),
-  },
-  $I.annote("SvgToPdfRequest", {
-    description: "SVG pages to convert into one PDF with a fixed version and creation date.",
-  })
+  }).pipe(
+    $I.annoteSchema("SvgToPdfRequest", {
+      description: "SVG pages to convert into one PDF with a fixed version and creation date.",
+    })
+  )
 ) {}
 
 /**
@@ -205,15 +206,16 @@ export class SvgToPdfRequest extends S.Class<SvgToPdfRequest>($I`SvgToPdfRequest
  * @category models
  * @since 0.0.0
  */
-export class SvgToPdfResult extends S.Class<SvgToPdfResult>($I`SvgToPdfResult`)(
-  {
+export class SvgToPdfResult extends S.Opaque<SvgToPdfResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputPath: S.NonEmptyString.annotateKey({ description: "Written PDF path." }),
     pageCount: S.Natural.annotateKey({ description: "Pages written." }),
     bytes: S.Natural.annotateKey({ description: "Size of the written PDF in bytes." }),
-  },
-  $I.annote("SvgToPdfResult", {
-    description: "Written PDF path, page count, and size.",
-  })
+  }).pipe(
+    $I.annoteSchema("SvgToPdfResult", {
+      description: "Written PDF path, page count, and size.",
+    })
+  )
 ) {}
 
 /**
@@ -230,14 +232,15 @@ export class SvgToPdfResult extends S.Class<SvgToPdfResult>($I`SvgToPdfResult`)(
  * @category models
  * @since 0.0.0
  */
-export class PageSize extends S.Class<PageSize>($I`PageSize`)(
-  {
+export class PageSize extends S.Opaque<PageSize, { readonly brand: unique symbol }>()(
+  S.Struct({
     widthPt: S.Finite.annotateKey({ description: "MediaBox width in points." }),
     heightPt: S.Finite.annotateKey({ description: "MediaBox height in points." }),
-  },
-  $I.annote("PageSize", {
-    description: "MediaBox size in points.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageSize", {
+      description: "MediaBox size in points.",
+    })
+  )
 ) {}
 
 /**
@@ -254,14 +257,15 @@ export class PageSize extends S.Class<PageSize>($I`PageSize`)(
  * @category models
  * @since 0.0.0
  */
-export class PdfFont extends S.Class<PdfFont>($I`PdfFont`)(
-  {
+export class PdfFont extends S.Opaque<PdfFont, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String.annotateKey({ description: "BaseFont name, possibly subset-prefixed." }),
     embedded: S.Boolean.annotateKey({ description: "Whether a font program is embedded." }),
-  },
-  $I.annote("PdfFont", {
-    description: "Font name and embedding status.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfFont", {
+      description: "Font name and embedding status.",
+    })
+  )
 ) {}
 
 /**
@@ -286,8 +290,8 @@ export class PdfFont extends S.Class<PdfFont>($I`PdfFont`)(
  * @category models
  * @since 0.0.0
  */
-export class PdfStructure extends S.Class<PdfStructure>($I`PdfStructure`)(
-  {
+export class PdfStructure extends S.Opaque<PdfStructure, { readonly brand: unique symbol }>()(
+  S.Struct({
     headerVersion: S.String.annotateKey({ description: "Version from the `%PDF-` header line." }),
     pages: S.Array(PageSize).annotateKey({ description: "MediaBox of every page, in order." }),
     fonts: S.Array(PdfFont).annotateKey({ description: "Distinct fonts referenced by page resources." }),
@@ -296,10 +300,11 @@ export class PdfStructure extends S.Class<PdfStructure>($I`PdfStructure`)(
       description: "Whether the catalog declares layers (`/OCProperties`).",
     }),
     encrypted: S.Boolean.annotateKey({ description: "Whether the file is encrypted." }),
-  },
-  $I.annote("PdfStructure", {
-    description: "Header version, page sizes, fonts, annotations, layers, and encryption of a PDF.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfStructure", {
+      description: "Header version, page sizes, fonts, annotations, layers, and encryption of a PDF.",
+    })
+  )
 ) {}
 
 /**
@@ -322,8 +327,8 @@ export class PdfStructure extends S.Class<PdfStructure>($I`PdfStructure`)(
  * @category models
  * @since 0.0.0
  */
-export class RasterRequest extends S.Class<RasterRequest>($I`RasterRequest`)(
-  {
+export class RasterRequest extends S.Opaque<RasterRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     pdfPath: S.NonEmptyString.annotateKey({ description: "PDF to rasterise." }),
     page: PageNumber.annotateKey({ description: "One-based page to rasterise." }),
     dpi: Dpi.annotateKey({ description: "Resolution." }),
@@ -333,10 +338,11 @@ export class RasterRequest extends S.Class<RasterRequest>($I`RasterRequest`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(128)),
       S.annotateKey({ description: "Luminance below which a pixel counts as ink (0–255). Defaults to 128." })
     ),
-  },
-  $I.annote("RasterRequest", {
-    description: "One page, resolution, anti-aliasing switch, and ink threshold.",
-  })
+  }).pipe(
+    $I.annoteSchema("RasterRequest", {
+      description: "One page, resolution, anti-aliasing switch, and ink threshold.",
+    })
+  )
 ) {}
 
 /**
@@ -353,16 +359,17 @@ export class RasterRequest extends S.Class<RasterRequest>($I`RasterRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class PixelBox extends S.Class<PixelBox>($I`PixelBox`)(
-  {
+export class PixelBox extends S.Opaque<PixelBox, { readonly brand: unique symbol }>()(
+  S.Struct({
     minX: S.Natural.annotateKey({ description: "Leftmost ink column." }),
     minY: S.Natural.annotateKey({ description: "Topmost ink row." }),
     maxX: S.Natural.annotateKey({ description: "Rightmost ink column." }),
     maxY: S.Natural.annotateKey({ description: "Bottommost ink row." }),
-  },
-  $I.annote("PixelBox", {
-    description: "Inclusive pixel bounds of the ink on a page.",
-  })
+  }).pipe(
+    $I.annoteSchema("PixelBox", {
+      description: "Inclusive pixel bounds of the ink on a page.",
+    })
+  )
 ) {}
 
 /**
@@ -397,8 +404,8 @@ export class PixelBox extends S.Class<PixelBox>($I`PixelBox`)(
  * @category models
  * @since 0.0.0
  */
-export class RasterMetrics extends S.Class<RasterMetrics>($I`RasterMetrics`)(
-  {
+export class RasterMetrics extends S.Opaque<RasterMetrics, { readonly brand: unique symbol }>()(
+  S.Struct({
     width: S.Natural.annotateKey({ description: "Raster width in pixels." }),
     height: S.Natural.annotateKey({ description: "Raster height in pixels." }),
     dpi: Dpi.annotateKey({ description: "Resolution the page was rendered at." }),
@@ -407,10 +414,11 @@ export class RasterMetrics extends S.Class<RasterMetrics>($I`RasterMetrics`)(
     impurePixels: S.Natural.annotateKey({ description: "Pixels that are neither pure black nor pure white." }),
     chromaPixels: S.Natural.annotateKey({ description: "Pixels whose RGB channels differ." }),
     largestBlackSquare: S.Natural.annotateKey({ description: "Side of the largest all-ink square, in pixels." }),
-  },
-  $I.annote("RasterMetrics", {
-    description: "Size, ink bounds, purity counts, and largest solid-ink square of a rendered page.",
-  })
+  }).pipe(
+    $I.annoteSchema("RasterMetrics", {
+      description: "Size, ink bounds, purity counts, and largest solid-ink square of a rendered page.",
+    })
+  )
 ) {}
 
 /**
@@ -427,16 +435,17 @@ export class RasterMetrics extends S.Class<RasterMetrics>($I`RasterMetrics`)(
  * @category models
  * @since 0.0.0
  */
-export class PngRequest extends S.Class<PngRequest>($I`PngRequest`)(
-  {
+export class PngRequest extends S.Opaque<PngRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     pdfPath: S.NonEmptyString.annotateKey({ description: "PDF to render." }),
     page: PageNumber.annotateKey({ description: "One-based page to render." }),
     dpi: Dpi.annotateKey({ description: "Resolution." }),
     outputPath: S.NonEmptyString.annotateKey({ description: "Destination PNG path; overwritten." }),
-  },
-  $I.annote("PngRequest", {
-    description: "One page rendered to a PNG file at a resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("PngRequest", {
+      description: "One page rendered to a PNG file at a resolution.",
+    })
+  )
 ) {}
 
 /**
@@ -453,12 +462,13 @@ export class PngRequest extends S.Class<PngRequest>($I`PngRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class PageTextRequest extends S.Class<PageTextRequest>($I`PageTextRequest`)(
-  {
+export class PageTextRequest extends S.Opaque<PageTextRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     pdfPath: S.NonEmptyString.annotateKey({ description: "PDF to read." }),
     page: PageNumber.annotateKey({ description: "One-based page whose text is extracted." }),
-  },
-  $I.annote("PageTextRequest", {
-    description: "One page of a PDF whose text is extracted.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageTextRequest", {
+      description: "One page of a PDF whose text is extracted.",
+    })
+  )
 ) {}

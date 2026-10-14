@@ -37,8 +37,7 @@ const ValidationDurationMs = S.DurationFromMillis.check(
     })
   );
 
-class ShaclValidationReportFields extends S.Class<ShaclValidationReportFields>($I`ShaclValidationReportFields`)(
-  {
+class ShaclValidationReportFields extends S.Opaque<ShaclValidationReportFields, { readonly brand: unique symbol }>()(S.Struct({
     validation: ShaclValidationResult.annotateKey({
       description: "Canonical SHACL validation result produced by the semantic-web capability.",
     }),
@@ -54,11 +53,9 @@ class ShaclValidationReportFields extends S.Class<ShaclValidationReportFields>($
     durationMs: ValidationDurationMs.annotateKey({
       description: "Finite elapsed validation duration encoded as milliseconds.",
     }),
-  },
-  $I.annote("ShaclValidationReportFields", {
+  }).pipe($I.annoteSchema("ShaclValidationReportFields", {
     description: "Experiment execution metadata wrapped around the canonical SHACL validation result.",
-  })
-) {}
+  }))) {}
 
 /**
  * Complete normalized report for one SHACL validation run.
@@ -120,8 +117,7 @@ export const ShaclValidationReport = ShaclValidationReportFields.pipe(
  */
 export type ShaclValidationReport = typeof ShaclValidationReport.Type;
 
-class ValidationPolicyFields extends S.Class<ValidationPolicyFields>($I`ValidationPolicyFields`)(
-  {
+class ValidationPolicyFields extends S.Opaque<ValidationPolicyFields, { readonly brand: unique symbol }>()(S.Struct({
     failOnViolation: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true)),
       S.annotateKey({
@@ -140,11 +136,9 @@ class ValidationPolicyFields extends S.Class<ValidationPolicyFields>($I`Validati
         description: "Whether all validation results are logged without failing the workflow.",
       })
     ),
-  },
-  $I.annote("ValidationPolicyFields", {
+  }).pipe($I.annoteSchema("ValidationPolicyFields", {
     description: "Internal field model for SHACL workflow failure policy.",
-  })
-) {}
+  }))) {}
 
 /**
  * Workflow policy that maps SHACL result severities to failure behavior.

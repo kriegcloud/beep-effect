@@ -192,9 +192,10 @@ export type TaskScriptPresence = typeof TaskScriptPresence.Type;
  * @category models
  * @since 0.0.0
  */
-export class TaskScriptRule extends S.Class<TaskScriptRule>($I`TaskScriptRule`)(
-  { kind: PackageKind, name: TaskScriptName, presence: TaskScriptPresence, binding: TaskScriptBinding },
-  $I.annote("TaskScriptRule", { description: "One task binding and presence rule for one workspace kind." })
+export class TaskScriptRule extends S.Opaque<TaskScriptRule, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: PackageKind, name: TaskScriptName, presence: TaskScriptPresence, binding: TaskScriptBinding }).pipe(
+    $I.annoteSchema("TaskScriptRule", { description: "One task binding and presence rule for one workspace kind." })
+  )
 ) {}
 
 /**
@@ -210,9 +211,10 @@ export class TaskScriptRule extends S.Class<TaskScriptRule>($I`TaskScriptRule`)(
  * @category models
  * @since 0.0.0
  */
-export class ImplScriptDefault extends S.Class<ImplScriptDefault>($I`ImplScriptDefault`)(
-  { kind: PackageKind, name: ImplScriptName, value: S.String },
-  $I.annote("ImplScriptDefault", { description: "Implementation text stamped only when the key is missing." })
+export class ImplScriptDefault extends S.Opaque<ImplScriptDefault, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: PackageKind, name: ImplScriptName, value: S.String }).pipe(
+    $I.annoteSchema("ImplScriptDefault", { description: "Implementation text stamped only when the key is missing." })
+  )
 ) {}
 
 const isTaskScriptName = S.is(TaskScriptName);
@@ -240,16 +242,17 @@ const ExtraScriptName = S.String.check(
  * @category models
  * @since 0.0.0
  */
-export class ScriptsBlock extends S.Class<ScriptsBlock>($I`ScriptsBlock`)(
-  {
+export class ScriptsBlock extends S.Opaque<ScriptsBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: PackageKind,
     tasks: S.HashMap(TaskScriptName, S.String),
     impls: S.HashMap(ImplScriptName, S.String),
     extras: S.HashMap(ExtraScriptName, S.String),
-  },
-  $I.annote("ScriptsBlock", {
-    description: "Disjoint task, implementation, and extra tiers of a manifest scripts record.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScriptsBlock", {
+      description: "Disjoint task, implementation, and extra tiers of a manifest scripts record.",
+    })
+  )
 ) {}
 
 /**
@@ -391,15 +394,18 @@ export type ManifestCount = typeof ManifestCount.Type;
  * @category models
  * @since 0.0.0
  */
-export class PackageScriptsReportWire extends S.Class<PackageScriptsReportWire>($I`PackageScriptsReportWire`)(
-  {
+export class PackageScriptsReportWire extends S.Opaque<PackageScriptsReportWire, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("package-scripts-report/v1"),
     rules: PackageScriptsRuleVersion,
     manifests: ManifestCount,
     drift: S.Record(S.String, S.Array(PackageScriptsDrift)),
     written: S.Array(S.String),
-  },
-  $I.annote("PackageScriptsReportWire", { description: "JSON report of checked manifests, drift, and written paths." })
+  }).pipe(
+    $I.annoteSchema("PackageScriptsReportWire", {
+      description: "JSON report of checked manifests, drift, and written paths.",
+    })
+  )
 ) {}
 
 /**
@@ -417,15 +423,14 @@ export class PackageScriptsReportWire extends S.Class<PackageScriptsReportWire>(
  * @category models
  * @since 0.0.0
  */
-export class PackageScriptsReport extends S.Class<PackageScriptsReport>($I`PackageScriptsReport`)(
-  {
+export class PackageScriptsReport extends S.Opaque<PackageScriptsReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("package-scripts-report/v1"),
     rules: PackageScriptsRuleVersion,
     manifests: ManifestCount,
     drift: S.HashMap(S.String, S.Array(PackageScriptsDrift)),
     written: S.HashSet(S.String),
-  },
-  $I.annote("PackageScriptsReport", { description: "Collection view of a scripts policy report." })
+  }).pipe($I.annoteSchema("PackageScriptsReport", { description: "Collection view of a scripts policy report." }))
 ) {}
 
 /**
@@ -446,10 +451,12 @@ export const PackageScriptsReportFromWire = PackageScriptsReportWire.pipe(
   S.decodeTo(
     PackageScriptsReport,
     SchemaTransformation.transform({
-      decode: (wire) => ({
-        ...wire,
-        drift: HashMap.fromIterable(R.toEntries(wire.drift)),
-        written: HashSet.fromIterable(wire.written),
+      decode: ({ schemaVersion, rules, manifests, drift, written }) => ({
+        schemaVersion,
+        rules,
+        manifests,
+        drift: HashMap.fromIterable(R.toEntries(drift)),
+        written: HashSet.fromIterable(written),
       }),
       encode: (report) =>
         PackageScriptsReportWire.make({

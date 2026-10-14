@@ -40,7 +40,9 @@ const existingQaCaptureError = (cause: unknown): O.Option<QaCaptureError> =>
  * @category errors
  * @since 0.0.0
  */
-export class QaCaptureError extends S.TaggedError<QaCaptureError>($I`QaCaptureError`)(
+export class QaCaptureError extends S.TaggedError<QaCaptureError, { readonly brand: unique symbol }>(
+  $I`QaCaptureError`
+)(
   "QaCaptureError",
   {
     cause: S.OptionFromOptionalKey(QaCaptureDefect).pipe(

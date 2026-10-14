@@ -29,25 +29,39 @@ const flightRecordSchemaVersion = "telemetry-v2/flight-record/v1";
 
 const FlightObjectiveStatus = LiteralKit(["known", "unknown"]);
 
-class KnownFlightObjective extends S.Class<KnownFlightObjective>($I`KnownFlightObjective`)(
-  {
+/**
+ * Content-addressed objective supplied by the semantic flight-record channel.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class KnownFlightObjective extends S.Opaque<KnownFlightObjective, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightObjectiveStatus.Enum.known),
     objectiveRef: Sha256Hex,
     evidenceTier: EvidenceTier,
-  },
-  $I.annote("KnownFlightObjective", {
-    description: "Content-addressed objective supplied by the semantic flight-record channel.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnownFlightObjective", {
+      description: "Content-addressed objective supplied by the semantic flight-record channel.",
+    })
+  )
 ) {}
 
-class UnknownFlightObjective extends S.Class<UnknownFlightObjective>($I`UnknownFlightObjective`)(
-  {
+/**
+ * Explicit absence of an attributable objective, without a guessed or free-text replacement.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class UnknownFlightObjective extends S.Opaque<UnknownFlightObjective, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightObjectiveStatus.Enum.unknown),
     evidenceTier: S.Literal(EvidenceTier.Enum.unknown),
-  },
-  $I.annote("UnknownFlightObjective", {
-    description: "Explicit absence of an attributable objective, without a guessed or free-text replacement.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnknownFlightObjective", {
+      description: "Explicit absence of an attributable objective, without a guessed or free-text replacement.",
+    })
+  )
 ) {}
 
 const FlightObjective = S.Union([KnownFlightObjective, UnknownFlightObjective]).pipe(
@@ -57,18 +71,25 @@ const FlightObjective = S.Union([KnownFlightObjective, UnknownFlightObjective]).
   })
 );
 
-class FlightSemanticTurn extends S.Class<FlightSemanticTurn>($I`FlightSemanticTurn`)(
-  {
+/**
+ * Content-free semantic labels supplied for one turn, with no mechanical timing or count fields.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FlightSemanticTurn extends S.Opaque<FlightSemanticTurn, { readonly brand: unique symbol }>()(
+  S.Struct({
     turnId: Sha256Hex,
     sequence: S.Natural,
     lifecycleState: LifecycleState,
     activePhase: ActivePhase,
     selfReportedTerminalOutcome: TerminalOutcome,
     evidenceTier: EvidenceTier,
-  },
-  $I.annote("FlightSemanticTurn", {
-    description: "Content-free semantic labels supplied for one turn, with no mechanical timing or count fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlightSemanticTurn", {
+      description: "Content-free semantic labels supplied for one turn, with no mechanical timing or count fields.",
+    })
+  )
 ) {}
 
 /**
@@ -98,47 +119,67 @@ class FlightSemanticTurn extends S.Class<FlightSemanticTurn>($I`FlightSemanticTu
  * @category models
  * @since 0.0.0
  */
-export class FlightRecordSemantic extends S.Class<FlightRecordSemantic>($I`FlightRecordSemantic`)(
+export class FlightRecordSemantic extends S.Opaque<FlightRecordSemantic, { readonly brand: unique symbol }>()(
   S.Struct({
     objective: FlightObjective,
     semanticTurns: S.Array(FlightSemanticTurn),
     selfReportedTerminalOutcome: TerminalOutcome,
     evidenceTier: EvidenceTier,
-  }).check(
-    S.makeFilter(
-      (input) =>
-        input.evidenceTier ===
-        weakestEvidenceTier([input.objective.evidenceTier, ...A.map(input.semanticTurns, (turn) => turn.evidenceTier)]),
-      {
-        identifier: "FlightRecordSemanticEvidenceTierInvariant",
-        title: "Flight-record semantic evidence-tier invariant",
-        description: "Requires the semantic projection to carry the weakest evidence tier of its objective and turns.",
-        message: "Expected semantic evidenceTier to equal the weakest objective or turn tier",
-      }
-    )
-  ),
-  $I.annote("FlightRecordSemantic", {
-    description: "Agent-authored content-free objective, turn labels, and self-reported terminal outcome.",
   })
+    .check(
+      S.makeFilter(
+        (input) =>
+          input.evidenceTier ===
+          weakestEvidenceTier([
+            input.objective.evidenceTier,
+            ...A.map(input.semanticTurns, (turn) => turn.evidenceTier),
+          ]),
+        {
+          identifier: "FlightRecordSemanticEvidenceTierInvariant",
+          title: "Flight-record semantic evidence-tier invariant",
+          description:
+            "Requires the semantic projection to carry the weakest evidence tier of its objective and turns.",
+          message: "Expected semantic evidenceTier to equal the weakest objective or turn tier",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("FlightRecordSemantic", {
+        description: "Agent-authored content-free objective, turn labels, and self-reported terminal outcome.",
+      })
+    )
 ) {}
 
 const FlightWaitStatus = LiteralKit(["open", "closed", "tombstoned"]);
 
-class OpenFlightWait extends S.Class<OpenFlightWait>($I`OpenFlightWait`)(
-  {
+/**
+ * Mechanically observed wait bracket that has not received terminal evidence.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenFlightWait extends S.Opaque<OpenFlightWait, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightWaitStatus.Enum.open),
     waitId: Sha256Hex,
     openedAt: S.DateTimeUtcFromString,
     reason: WaitReason,
     evidenceTier: EvidenceTier,
-  },
-  $I.annote("OpenFlightWait", {
-    description: "Mechanically observed wait bracket that has not received terminal evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenFlightWait", {
+      description: "Mechanically observed wait bracket that has not received terminal evidence.",
+    })
+  )
 ) {}
 
-class ClosedFlightWait extends S.Class<ClosedFlightWait>($I`ClosedFlightWait`)(
-  {
+/**
+ * Mechanically closed wait bracket with a computed non-negative duration.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ClosedFlightWait extends S.Opaque<ClosedFlightWait, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightWaitStatus.Enum.closed),
     waitId: Sha256Hex,
     openedAt: S.DateTimeUtcFromString,
@@ -146,24 +187,32 @@ class ClosedFlightWait extends S.Class<ClosedFlightWait>($I`ClosedFlightWait`)(
     durationMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     reason: WaitReason,
     evidenceTier: EvidenceTier,
-  },
-  $I.annote("ClosedFlightWait", {
-    description: "Mechanically closed wait bracket with a computed non-negative duration.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClosedFlightWait", {
+      description: "Mechanically closed wait bracket with a computed non-negative duration.",
+    })
+  )
 ) {}
 
-class TombstonedFlightWait extends S.Class<TombstonedFlightWait>($I`TombstonedFlightWait`)(
-  {
+/**
+ * Unclosed wait bracket retained with explicit tombstone provenance instead of a guessed close.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TombstonedFlightWait extends S.Opaque<TombstonedFlightWait, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightWaitStatus.Enum.tombstoned),
     waitId: Sha256Hex,
     openedAt: S.DateTimeUtcFromString,
     tombstonedAt: S.DateTimeUtcFromString,
     reason: WaitReason,
     evidenceTier: EvidenceTier,
-  },
-  $I.annote("TombstonedFlightWait", {
-    description: "Unclosed wait bracket retained with explicit tombstone provenance instead of a guessed close.",
-  })
+  }).pipe(
+    $I.annoteSchema("TombstonedFlightWait", {
+      description: "Unclosed wait bracket retained with explicit tombstone provenance instead of a guessed close.",
+    })
+  )
 ) {}
 
 /**
@@ -255,7 +304,7 @@ const mechanicalTerminalIsConsistent = (input: {
  * @category models
  * @since 0.0.0
  */
-export class FlightRecordMechanical extends S.Class<FlightRecordMechanical>($I`FlightRecordMechanical`)(
+export class FlightRecordMechanical extends S.Opaque<FlightRecordMechanical, { readonly brand: unique symbol }>()(
   S.Struct({
     startedAt: S.DateTimeUtcFromString,
     lastObservedAt: S.DateTimeUtcFromString,
@@ -269,73 +318,97 @@ export class FlightRecordMechanical extends S.Class<FlightRecordMechanical>($I`F
     terminalProvenance: TerminalProvenance,
     waits: S.Array(FlightWaitSpan),
     evidenceTier: EvidenceTier,
-  }).check(
-    S.makeFilterGroup(
-      [
-        S.makeFilter(mechanicalTerminalIsConsistent, {
-          identifier: "FlightRecordMechanicalTerminalInvariant",
-          title: "Flight-record mechanical terminal invariant",
-          description:
-            "Requires terminal state, outcome, and provenance to agree without conflating tombstones with outcomes.",
-          message:
-            "Expected terminal state to carry an outcome and provenance, and non-terminal state to carry neither",
-        }),
-        S.makeFilter(
-          (input) =>
-            input.evidenceTier ===
-            weakestEvidenceTier([input.evidenceTier, ...A.map(input.waits, (wait) => wait.evidenceTier)]),
-          {
-            identifier: "FlightRecordMechanicalEvidenceTierInvariant",
-            title: "Flight-record mechanical evidence-tier invariant",
-            description: "Prevents the mechanical observation from outranking any wait evidence it contains.",
-            message: "Expected mechanical evidenceTier to be no stronger than every wait tier",
-          }
-        ),
-      ],
-      {
-        identifier: "FlightRecordMechanicalInvariants",
-        title: "Flight-record mechanical invariants",
-        description: "Checks terminal consistency and weakest-link evidence propagation.",
-      }
-    )
-  ),
-  $I.annote("FlightRecordMechanical", {
-    description: "Mechanically derived timestamps, counts, lifecycle, waits, and canonical terminal outcome.",
   })
+    .check(
+      S.makeFilterGroup(
+        [
+          S.makeFilter(mechanicalTerminalIsConsistent, {
+            identifier: "FlightRecordMechanicalTerminalInvariant",
+            title: "Flight-record mechanical terminal invariant",
+            description:
+              "Requires terminal state, outcome, and provenance to agree without conflating tombstones with outcomes.",
+            message:
+              "Expected terminal state to carry an outcome and provenance, and non-terminal state to carry neither",
+          }),
+          S.makeFilter(
+            (input) =>
+              input.evidenceTier ===
+              weakestEvidenceTier([input.evidenceTier, ...A.map(input.waits, (wait) => wait.evidenceTier)]),
+            {
+              identifier: "FlightRecordMechanicalEvidenceTierInvariant",
+              title: "Flight-record mechanical evidence-tier invariant",
+              description: "Prevents the mechanical observation from outranking any wait evidence it contains.",
+              message: "Expected mechanical evidenceTier to be no stronger than every wait tier",
+            }
+          ),
+        ],
+        {
+          identifier: "FlightRecordMechanicalInvariants",
+          title: "Flight-record mechanical invariants",
+          description: "Checks terminal consistency and weakest-link evidence propagation.",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("FlightRecordMechanical", {
+        description: "Mechanically derived timestamps, counts, lifecycle, waits, and canonical terminal outcome.",
+      })
+    )
 ) {}
 
 const FlightConfigStatus = LiteralKit(["observed", "last-known", "unknown"]);
 
-class ObservedFlightConfig extends S.Class<ObservedFlightConfig>($I`ObservedFlightConfig`)(
-  {
+/**
+ * Configuration fingerprint observed for the represented session.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ObservedFlightConfig extends S.Opaque<ObservedFlightConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightConfigStatus.Enum.observed),
     fingerprint: Sha256Hex,
     evidenceTier: EvidenceTier,
-  },
-  $I.annote("ObservedFlightConfig", {
-    description: "Configuration fingerprint observed for the represented session.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObservedFlightConfig", {
+      description: "Configuration fingerprint observed for the represented session.",
+    })
+  )
 ) {}
 
-class LastKnownFlightConfig extends S.Class<LastKnownFlightConfig>($I`LastKnownFlightConfig`)(
-  {
+/**
+ * Last-known configuration fingerprint retained as explicitly heuristic evidence.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LastKnownFlightConfig extends S.Opaque<LastKnownFlightConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightConfigStatus.Enum["last-known"]),
     fingerprint: Sha256Hex,
     evidenceTier: S.Literal(EvidenceTier.Enum.heuristic),
-  },
-  $I.annote("LastKnownFlightConfig", {
-    description: "Last-known configuration fingerprint retained as explicitly heuristic evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("LastKnownFlightConfig", {
+      description: "Last-known configuration fingerprint retained as explicitly heuristic evidence.",
+    })
+  )
 ) {}
 
-class UnknownFlightConfig extends S.Class<UnknownFlightConfig>($I`UnknownFlightConfig`)(
-  {
+/**
+ * Explicit absence of a session configuration fingerprint.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class UnknownFlightConfig extends S.Opaque<UnknownFlightConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightConfigStatus.Enum.unknown),
     evidenceTier: S.Literal(EvidenceTier.Enum.unknown),
-  },
-  $I.annote("UnknownFlightConfig", {
-    description: "Explicit absence of a session configuration fingerprint.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnknownFlightConfig", {
+      description: "Explicit absence of a session configuration fingerprint.",
+    })
+  )
 ) {}
 
 const FlightConfigAttribution = S.Union([ObservedFlightConfig, LastKnownFlightConfig, UnknownFlightConfig]).pipe(
@@ -366,16 +439,17 @@ const FlightConfigAttribution = S.Union([ObservedFlightConfig, LastKnownFlightCo
  * @category models
  * @since 0.0.0
  */
-export class FlightRecordAttribution extends S.Class<FlightRecordAttribution>($I`FlightRecordAttribution`)(
-  {
+export class FlightRecordAttribution extends S.Opaque<FlightRecordAttribution, { readonly brand: unique symbol }>()(
+  S.Struct({
     rootId: Sha256Hex,
     sourceInstanceId: Sha256Hex,
     identityNamespaceId: Sha256Hex,
     evidenceTier: EvidenceTier,
-  },
-  $I.annote("FlightRecordAttribution", {
-    description: "Hash-only canonical root, source instance, and identity-namespace attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlightRecordAttribution", {
+      description: "Hash-only canonical root, source instance, and identity-namespace attribution.",
+    })
+  )
 ) {}
 
 const FlightEvidenceKind = LiteralKit([
@@ -407,16 +481,17 @@ const FlightEvidenceKind = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class FlightEvidenceReference extends S.Class<FlightEvidenceReference>($I`FlightEvidenceReference`)(
-  {
+export class FlightEvidenceReference extends S.Opaque<FlightEvidenceReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: FlightEvidenceKind,
     digest: Sha256Hex,
     evidenceTier: EvidenceTier,
     oipTaint: OipTaint,
-  },
-  $I.annote("FlightEvidenceReference", {
-    description: "Bounded evidence kind, content digest, provenance tier, and confidentiality taint.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlightEvidenceReference", {
+      description: "Bounded evidence kind, content digest, provenance tier, and confidentiality taint.",
+    })
+  )
 ) {}
 
 /**
@@ -442,10 +517,11 @@ export class FlightEvidenceReference extends S.Class<FlightEvidenceReference>($I
  * @category models
  * @since 0.0.0
  */
-export class FlightRecordCompositionInput extends S.Class<FlightRecordCompositionInput>(
-  $I`FlightRecordCompositionInput`
-)(
-  {
+export class FlightRecordCompositionInput extends S.Opaque<
+  FlightRecordCompositionInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     recordId: Sha256Hex,
     sessionId: Sha256Hex,
     sourceKind: AiMetricsTranscriptSource,
@@ -455,10 +531,12 @@ export class FlightRecordCompositionInput extends S.Class<FlightRecordCompositio
     semantic: FlightRecordSemantic,
     mechanical: FlightRecordMechanical,
     evidenceRefs: S.NonEmptyArray(FlightEvidenceReference),
-  },
-  $I.annote("FlightRecordCompositionInput", {
-    description: "Separate semantic and mechanical inputs from which the telemetry-v2 service derives a flight record.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlightRecordCompositionInput", {
+      description:
+        "Separate semantic and mechanical inputs from which the telemetry-v2 service derives a flight record.",
+    })
+  )
 ) {}
 
 const FlightRecordSemanticArbitrary = Arbitrary.schema(S.Struct(FlightRecordSemantic.fields)).pipe(
@@ -542,7 +620,7 @@ export const FlightRecordCompositionInputArbitrary = Arbitrary.all([
  * @category models
  * @since 0.0.0
  */
-export class FlightRecord extends S.Class<FlightRecord>($I`FlightRecord`)(
+export class FlightRecord extends S.Opaque<FlightRecord, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: S.Literal(flightRecordSchemaVersion),
     recordId: Sha256Hex,
@@ -556,47 +634,50 @@ export class FlightRecord extends S.Class<FlightRecord>($I`FlightRecord`)(
     evidenceRefs: S.NonEmptyArray(FlightEvidenceReference),
     evidenceTier: EvidenceTier,
     oipTaint: OipTaint,
-  }).check(
-    S.makeFilterGroup(
-      [
-        S.makeFilter(
-          (input) =>
-            input.evidenceTier ===
-            weakestEvidenceTier([
-              input.attribution.evidenceTier,
-              input.config.evidenceTier,
-              input.semantic.evidenceTier,
-              input.mechanical.evidenceTier,
-              ...A.map(input.evidenceRefs, (evidence) => evidence.evidenceTier),
-            ]),
-          {
-            identifier: "FlightRecordEvidenceTierInvariant",
-            title: "Flight-record evidence-tier invariant",
-            description:
-              "Requires the record to inherit the weakest tier of every contributing projection and reference.",
-            message: "Expected evidenceTier to equal the weakest contributing evidence tier",
-          }
-        ),
-        S.makeFilter(
-          (input) => input.oipTaint === combineOipTaints(A.map(input.evidenceRefs, (evidence) => evidence.oipTaint)),
-          {
-            identifier: "FlightRecordOipTaintInvariant",
-            title: "Flight-record OIP taint invariant",
-            description: "Requires the record to preserve the most restrictive OIP taint from its evidence chain.",
-            message: "Expected oipTaint to preserve the most restrictive evidence-reference taint",
-          }
-        ),
-      ],
-      {
-        identifier: "FlightRecordInvariants",
-        title: "Flight-record invariants",
-        description: "Checks weakest-link evidence and OIP confidentiality propagation.",
-      }
-    )
-  ),
-  $I.annote("FlightRecord", {
-    description: "Privacy-safe composition of agent semantic input and mechanically derived session evidence.",
   })
+    .check(
+      S.makeFilterGroup(
+        [
+          S.makeFilter(
+            (input) =>
+              input.evidenceTier ===
+              weakestEvidenceTier([
+                input.attribution.evidenceTier,
+                input.config.evidenceTier,
+                input.semantic.evidenceTier,
+                input.mechanical.evidenceTier,
+                ...A.map(input.evidenceRefs, (evidence) => evidence.evidenceTier),
+              ]),
+            {
+              identifier: "FlightRecordEvidenceTierInvariant",
+              title: "Flight-record evidence-tier invariant",
+              description:
+                "Requires the record to inherit the weakest tier of every contributing projection and reference.",
+              message: "Expected evidenceTier to equal the weakest contributing evidence tier",
+            }
+          ),
+          S.makeFilter(
+            (input) => input.oipTaint === combineOipTaints(A.map(input.evidenceRefs, (evidence) => evidence.oipTaint)),
+            {
+              identifier: "FlightRecordOipTaintInvariant",
+              title: "Flight-record OIP taint invariant",
+              description: "Requires the record to preserve the most restrictive OIP taint from its evidence chain.",
+              message: "Expected oipTaint to preserve the most restrictive evidence-reference taint",
+            }
+          ),
+        ],
+        {
+          identifier: "FlightRecordInvariants",
+          title: "Flight-record invariants",
+          description: "Checks weakest-link evidence and OIP confidentiality propagation.",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("FlightRecord", {
+        description: "Privacy-safe composition of agent semantic input and mechanically derived session evidence.",
+      })
+    )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(FlightRecord);
   static readonly encodeEffect = S.encodeUnknownEffect(FlightRecord);
@@ -616,42 +697,66 @@ const FlightRecordViolationCode = LiteralKit([
 const AttributionFailureReason = LiteralKit(["missing-identity", "ambiguous-identity", "namespace-mismatch"]);
 const FlightRecordWriteStatus = LiteralKit(["accepted", "invalid", "quarantined"]);
 
-class AcceptedFlightRecordWrite extends S.Class<AcceptedFlightRecordWrite>($I`AcceptedFlightRecordWrite`)(
-  {
+/**
+ * Accepted telemetry-v2 flight record ready for durable append.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AcceptedFlightRecordWrite extends S.Opaque<AcceptedFlightRecordWrite, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightRecordWriteStatus.Enum.accepted),
     record: FlightRecord,
-  },
-  $I.annote("AcceptedFlightRecordWrite", {
-    description: "Accepted telemetry-v2 flight record ready for durable append.",
-  })
+  }).pipe(
+    $I.annoteSchema("AcceptedFlightRecordWrite", {
+      description: "Accepted telemetry-v2 flight record ready for durable append.",
+    })
+  )
 ) {}
 
-class InvalidFlightRecordWrite extends S.Class<InvalidFlightRecordWrite>($I`InvalidFlightRecordWrite`)(
-  {
+/**
+ * Content-free receipt for a rejected flight-record candidate.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class InvalidFlightRecordWrite extends S.Opaque<InvalidFlightRecordWrite, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag(FlightRecordWriteStatus.Enum.invalid),
     candidateDigest: Sha256Hex,
     violations: S.NonEmptyArray(FlightRecordViolationCode),
     evidenceTier: EvidenceTier,
     oipTaint: OipTaint,
-  },
-  $I.annote("InvalidFlightRecordWrite", {
-    description: "Content-free receipt for a rejected flight-record candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("InvalidFlightRecordWrite", {
+      description: "Content-free receipt for a rejected flight-record candidate.",
+    })
+  )
 ) {}
 
-class QuarantinedFlightRecordWrite extends S.Class<QuarantinedFlightRecordWrite>($I`QuarantinedFlightRecordWrite`)(
-  {
+/**
+ * Content-free receipt for a candidate whose canonical identity could not be resolved without guessing.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class QuarantinedFlightRecordWrite extends S.Opaque<
+  QuarantinedFlightRecordWrite,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag(FlightRecordWriteStatus.Enum.quarantined),
     candidateDigest: Sha256Hex,
     quarantineRef: Sha256Hex,
     reason: AttributionFailureReason,
     evidenceTier: EvidenceTier,
     oipTaint: OipTaint,
-  },
-  $I.annote("QuarantinedFlightRecordWrite", {
-    description:
-      "Content-free receipt for a candidate whose canonical identity could not be resolved without guessing.",
-  })
+  }).pipe(
+    $I.annoteSchema("QuarantinedFlightRecordWrite", {
+      description:
+        "Content-free receipt for a candidate whose canonical identity could not be resolved without guessing.",
+    })
+  )
 ) {}
 
 /**

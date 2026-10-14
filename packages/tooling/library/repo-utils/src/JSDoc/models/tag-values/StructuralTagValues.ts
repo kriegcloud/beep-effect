@@ -31,12 +31,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/tag-values/StructuralTagValues");
  * @category models
  * @since 0.0.0
  */
-export class ParamValue extends S.TaggedClass<ParamValue>($I`ParamValue`)(
-  "param",
-  { ...optionalType, ...nameField, ...optionalDesc },
-  $I.annote("ParamValue", {
-    description: "Occurrence shape for @param — documents a function parameter.",
-  })
+export class ParamValue extends S.Opaque<ParamValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("param", { ...optionalType, ...nameField, ...optionalDesc }).pipe(
+    $I.annoteSchema("ParamValue", {
+      description: "Occurrence shape for @param — documents a function parameter.",
+    })
+  )
 ) {}
 
 /**
@@ -58,12 +58,12 @@ export class ParamValue extends S.TaggedClass<ParamValue>($I`ParamValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ReturnsValue extends S.TaggedClass<ReturnsValue>($I`ReturnsValue`)(
-  "returns",
-  { ...optionalType, ...optionalDesc },
-  $I.annote("ReturnsValue", {
-    description: "Occurrence shape for @returns — documents the return value.",
-  })
+export class ReturnsValue extends S.Opaque<ReturnsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("returns", { ...optionalType, ...optionalDesc }).pipe(
+    $I.annoteSchema("ReturnsValue", {
+      description: "Occurrence shape for @returns — documents the return value.",
+    })
+  )
 ) {}
 
 /**
@@ -85,12 +85,12 @@ export class ReturnsValue extends S.TaggedClass<ReturnsValue>($I`ReturnsValue`)(
  * @category models
  * @since 0.0.0
  */
-export class ThrowsValue extends S.TaggedClass<ThrowsValue>($I`ThrowsValue`)(
-  "throws",
-  { ...optionalType, ...optionalDesc },
-  $I.annote("ThrowsValue", {
-    description: "Occurrence shape for @throws — documents an exception a function may throw.",
-  })
+export class ThrowsValue extends S.Opaque<ThrowsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("throws", { ...optionalType, ...optionalDesc }).pipe(
+    $I.annoteSchema("ThrowsValue", {
+      description: "Occurrence shape for @throws — documents an exception a function may throw.",
+    })
+  )
 ) {}
 
 /**
@@ -113,12 +113,12 @@ export class ThrowsValue extends S.TaggedClass<ThrowsValue>($I`ThrowsValue`)(
  * @category models
  * @since 0.0.0
  */
-export class TemplateValue extends S.TaggedClass<TemplateValue>($I`TemplateValue`)(
-  "template",
-  { ...optionalType, ...nameField, ...optionalDesc },
-  $I.annote("TemplateValue", {
-    description: "Occurrence shape for @template — documents a type parameter.",
-  })
+export class TemplateValue extends S.Opaque<TemplateValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("template", { ...optionalType, ...nameField, ...optionalDesc }).pipe(
+    $I.annoteSchema("TemplateValue", {
+      description: "Occurrence shape for @template — documents a type parameter.",
+    })
+  )
 ) {}
 
 /**
@@ -141,12 +141,12 @@ export class TemplateValue extends S.TaggedClass<TemplateValue>($I`TemplateValue
  * @category models
  * @since 0.0.0
  */
-export class TypeParamValue extends S.TaggedClass<TypeParamValue>($I`TypeParamValue`)(
-  "typeParam",
-  { ...optionalType, ...nameField, ...optionalDesc },
-  $I.annote("TypeParamValue", {
-    description: "Occurrence shape for @typeParam — TSDoc type parameter documentation.",
-  })
+export class TypeParamValue extends S.Opaque<TypeParamValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("typeParam", { ...optionalType, ...nameField, ...optionalDesc }).pipe(
+    $I.annoteSchema("TypeParamValue", {
+      description: "Occurrence shape for @typeParam — TSDoc type parameter documentation.",
+    })
+  )
 ) {}
 
 /**
@@ -165,12 +165,12 @@ export class TypeParamValue extends S.TaggedClass<TypeParamValue>($I`TypeParamVa
  * @category models
  * @since 0.0.0
  */
-export class TypeValue extends S.TaggedClass<TypeValue>($I`TypeValue`)(
-  "type",
-  { ...typeField },
-  $I.annote("TypeValue", {
-    description: "Occurrence shape for @type — specifies a type annotation.",
-  })
+export class TypeValue extends S.Opaque<TypeValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("type", { ...typeField }).pipe(
+    $I.annoteSchema("TypeValue", {
+      description: "Occurrence shape for @type — specifies a type annotation.",
+    })
+  )
 ) {}
 
 /**
@@ -193,12 +193,12 @@ export class TypeValue extends S.TaggedClass<TypeValue>($I`TypeValue`)(
  * @category models
  * @since 0.0.0
  */
-export class TypedefValue extends S.TaggedClass<TypedefValue>($I`TypedefValue`)(
-  "typedef",
-  { ...optionalType, ...optionalName, ...optionalDesc },
-  $I.annote("TypedefValue", {
-    description: "Occurrence shape for @typedef — defines a custom type.",
-  })
+export class TypedefValue extends S.Opaque<TypedefValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("typedef", { ...optionalType, ...optionalName, ...optionalDesc }).pipe(
+    $I.annoteSchema("TypedefValue", {
+      description: "Occurrence shape for @typedef — defines a custom type.",
+    })
+  )
 ) {}
 
 /**
@@ -220,12 +220,12 @@ export class TypedefValue extends S.TaggedClass<TypedefValue>($I`TypedefValue`)(
  * @category models
  * @since 0.0.0
  */
-export class CallbackValue extends S.TaggedClass<CallbackValue>($I`CallbackValue`)(
-  "callback",
-  { ...optionalName, ...optionalDesc },
-  $I.annote("CallbackValue", {
-    description: "Occurrence shape for @callback — documents a callback function type.",
-  })
+export class CallbackValue extends S.Opaque<CallbackValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("callback", { ...optionalName, ...optionalDesc }).pipe(
+    $I.annoteSchema("CallbackValue", {
+      description: "Occurrence shape for @callback — documents a callback function type.",
+    })
+  )
 ) {}
 
 /**
@@ -244,12 +244,12 @@ export class CallbackValue extends S.TaggedClass<CallbackValue>($I`CallbackValue
  * @category models
  * @since 0.0.0
  */
-export class AugmentsValue extends S.TaggedClass<AugmentsValue>($I`AugmentsValue`)(
-  "augments",
-  { ...optionalType },
-  $I.annote("AugmentsValue", {
-    description: "Occurrence shape for @augments — indicates a class extends another.",
-  })
+export class AugmentsValue extends S.Opaque<AugmentsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("augments", { ...optionalType }).pipe(
+    $I.annoteSchema("AugmentsValue", {
+      description: "Occurrence shape for @augments — indicates a class extends another.",
+    })
+  )
 ) {}
 
 /**
@@ -268,12 +268,12 @@ export class AugmentsValue extends S.TaggedClass<AugmentsValue>($I`AugmentsValue
  * @category models
  * @since 0.0.0
  */
-export class ImplementsValue extends S.TaggedClass<ImplementsValue>($I`ImplementsValue`)(
-  "implements",
-  { ...optionalType },
-  $I.annote("ImplementsValue", {
-    description: "Occurrence shape for @implements — indicates interface implementation.",
-  })
+export class ImplementsValue extends S.Opaque<ImplementsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("implements", { ...optionalType }).pipe(
+    $I.annoteSchema("ImplementsValue", {
+      description: "Occurrence shape for @implements — indicates interface implementation.",
+    })
+  )
 ) {}
 
 /**
@@ -295,12 +295,12 @@ export class ImplementsValue extends S.TaggedClass<ImplementsValue>($I`Implement
  * @category models
  * @since 0.0.0
  */
-export class ClassValue extends S.TaggedClass<ClassValue>($I`ClassValue`)(
-  "class",
-  { ...optionalName, ...optionalDesc },
-  $I.annote("ClassValue", {
-    description: "Occurrence shape for @class — marks a function as a constructor.",
-  })
+export class ClassValue extends S.Opaque<ClassValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("class", { ...optionalName, ...optionalDesc }).pipe(
+    $I.annoteSchema("ClassValue", {
+      description: "Occurrence shape for @class — marks a function as a constructor.",
+    })
+  )
 ) {}
 
 /**
@@ -319,12 +319,12 @@ export class ClassValue extends S.TaggedClass<ClassValue>($I`ClassValue`)(
  * @category models
  * @since 0.0.0
  */
-export class EnumValue extends S.TaggedClass<EnumValue>($I`EnumValue`)(
-  "enum",
-  { ...optionalType },
-  $I.annote("EnumValue", {
-    description: "Occurrence shape for @enum — documents an enum-like object.",
-  })
+export class EnumValue extends S.Opaque<EnumValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("enum", { ...optionalType }).pipe(
+    $I.annoteSchema("EnumValue", {
+      description: "Occurrence shape for @enum — documents an enum-like object.",
+    })
+  )
 ) {}
 
 /**
@@ -343,12 +343,12 @@ export class EnumValue extends S.TaggedClass<EnumValue>($I`EnumValue`)(
  * @category models
  * @since 0.0.0
  */
-export class AsyncValue extends S.TaggedClass<AsyncValue>($I`AsyncValue`)(
-  "async",
-  empty,
-  $I.annote("AsyncValue", {
-    description: "Occurrence shape for @async — marks a function as asynchronous.",
-  })
+export class AsyncValue extends S.Opaque<AsyncValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("async", empty).pipe(
+    $I.annoteSchema("AsyncValue", {
+      description: "Occurrence shape for @async — marks a function as asynchronous.",
+    })
+  )
 ) {}
 
 /**
@@ -367,12 +367,12 @@ export class AsyncValue extends S.TaggedClass<AsyncValue>($I`AsyncValue`)(
  * @category models
  * @since 0.0.0
  */
-export class GeneratorValue extends S.TaggedClass<GeneratorValue>($I`GeneratorValue`)(
-  "generator",
-  empty,
-  $I.annote("GeneratorValue", {
-    description: "Occurrence shape for @generator — marks a function as a generator.",
-  })
+export class GeneratorValue extends S.Opaque<GeneratorValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("generator", empty).pipe(
+    $I.annoteSchema("GeneratorValue", {
+      description: "Occurrence shape for @generator — marks a function as a generator.",
+    })
+  )
 ) {}
 
 /**
@@ -394,10 +394,10 @@ export class GeneratorValue extends S.TaggedClass<GeneratorValue>($I`GeneratorVa
  * @category models
  * @since 0.0.0
  */
-export class YieldsValue extends S.TaggedClass<YieldsValue>($I`YieldsValue`)(
-  "yields",
-  { ...optionalType, ...optionalDesc },
-  $I.annote("YieldsValue", {
-    description: "Occurrence shape for @yields — documents a generator's yield value.",
-  })
+export class YieldsValue extends S.Opaque<YieldsValue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("yields", { ...optionalType, ...optionalDesc }).pipe(
+    $I.annoteSchema("YieldsValue", {
+      description: "Occurrence shape for @yields — documents a generator's yield value.",
+    })
+  )
 ) {}

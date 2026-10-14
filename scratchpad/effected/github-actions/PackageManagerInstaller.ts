@@ -57,7 +57,7 @@ const isBinName = S.is(BinName);
  * @category errors
  * @since 0.0.0
  */
-export class PackageManagerInstallerError extends S.TaggedError<PackageManagerInstallerError>($I`PackageManagerInstallerError`)(
+export class PackageManagerInstallerError extends S.TaggedError<PackageManagerInstallerError, { readonly brand: unique symbol }>($I`PackageManagerInstallerError`)(
 	"PackageManagerInstallerError",
 	{
 		/**
@@ -278,7 +278,7 @@ export interface PackageManagerInstallOptions {
  * @category models
  * @since 0.0.0
  */
-export class AmbientPackageManager extends S.Class<AmbientPackageManager>($I`AmbientPackageManager`)({
+export class AmbientPackageManager extends S.Class<AmbientPackageManager, { readonly brand: unique symbol }>($I`AmbientPackageManager`)({
 	/** The discriminant: the runner's own toolchain answered. */
 	source: S.tag("ambient").annotateKey({ description: "The discriminant: the runner's own toolchain answered." }),
 	/** The package-manager name (`npm`, `pnpm`, `yarn` or `bun`). */
@@ -328,7 +328,7 @@ export class AmbientPackageManager extends S.Class<AmbientPackageManager>($I`Amb
  * @category models
  * @since 0.0.0
  */
-export class CachedPackageManager extends S.Class<CachedPackageManager>($I`CachedPackageManager`)({
+export class CachedPackageManager extends S.Class<CachedPackageManager, { readonly brand: unique symbol }>($I`CachedPackageManager`)({
 	/** The discriminant: the manager lives in the tool cache. */
 	source: S.tag("tool-cache").annotateKey({ description: "The discriminant: the manager lives in the tool cache." }),
 	/** The package-manager name (`npm`, `pnpm`, `yarn` or `bun`). */

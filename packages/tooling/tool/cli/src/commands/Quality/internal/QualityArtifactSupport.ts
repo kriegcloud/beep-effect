@@ -37,9 +37,10 @@ type QualityArtifactGeneratorErrorOptions = {
  * @category errors
  * @since 0.0.0
  */
-export class QualityArtifactGeneratorError extends S.TaggedError<QualityArtifactGeneratorError>(
-  $I`QualityArtifactGeneratorError`
-)(
+export class QualityArtifactGeneratorError extends S.TaggedError<
+  QualityArtifactGeneratorError,
+  { readonly brand: unique symbol }
+>($I`QualityArtifactGeneratorError`)(
   "QualityArtifactGeneratorError",
   {
     message: S.String,
@@ -129,8 +130,8 @@ const PackageJsonDependencyRecord = S.Record(S.String, S.String);
  * @category models
  * @since 0.0.0
  */
-export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
-  {
+export class PackageJson extends S.Opaque<PackageJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     scripts: S.optionalKey(S.Record(S.String, S.String)),
     workspaces: S.optionalKey(S.Unknown),
@@ -139,10 +140,11 @@ export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
     devDependencies: S.optionalKey(PackageJsonDependencyRecord),
     peerDependencies: S.optionalKey(PackageJsonDependencyRecord),
     optionalDependencies: S.optionalKey(PackageJsonDependencyRecord),
-  },
-  $I.annote("PackageJson", {
-    description: "Package manifest fields used by repo CLI support scripts.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageJson", {
+      description: "Package manifest fields used by repo CLI support scripts.",
+    })
+  )
 ) {}
 
 /**
@@ -151,16 +153,17 @@ export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
  * @category models
  * @since 0.0.0
  */
-export class WorkspacePackageInfo extends S.Class<WorkspacePackageInfo>($I`WorkspacePackageInfo`)(
-  {
+export class WorkspacePackageInfo extends S.Opaque<WorkspacePackageInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     path: S.String,
     absolutePath: S.String,
     packageJson: PackageJson,
-  },
-  $I.annote("WorkspacePackageInfo", {
-    description: "Discovered workspace package metadata used by repo CLI support scripts.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspacePackageInfo", {
+      description: "Discovered workspace package metadata used by repo CLI support scripts.",
+    })
+  )
 ) {}
 
 const decodePackageJsonResult = S.decodeUnknownResult(PackageJson);

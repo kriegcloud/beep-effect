@@ -10,6 +10,11 @@ import { Thread } from "@beep/workspace-domain/entities/Thread";
 import { makeDrizzleThreadStore } from "@beep/workspace-server/aggregates/Thread";
 import { DbSchema } from "@beep/workspace-tables";
 import { toThreadInsert } from "@beep/workspace-tables/entities/Thread";
+import {
+  AppendTurnInput,
+  CreateThreadInput,
+  SetThreadTitleIfEmptyInput,
+} from "@beep/workspace-use-cases/aggregates/Thread/server";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect } from "@effect/vitest";
 import { btree_gist } from "@electric-sql/pglite/contrib/btree_gist";
@@ -67,40 +72,48 @@ if (!shouldRunPgliteIntegration) {
           const store = yield* makeDrizzleThreadStore();
           const workspaceId = yield* decodeWorkspaceId(2);
 
-          const thread = yield* store.createThread({ title: "New thread", workspaceId });
+          const thread = yield* store.createThread(CreateThreadInput.make({ title: "New thread", workspaceId }));
           expect(thread.title).toBe("New thread");
 
-          yield* store.setTitleIfEmpty({
-            threadId: thread.id,
-            emptyTitle: "New thread",
-            title: "Matter intake",
-          });
-          yield* store.setTitleIfEmpty({
-            threadId: thread.id,
-            emptyTitle: "New thread",
-            title: "Ignored replacement",
-          });
+          yield* store.setTitleIfEmpty(
+            SetThreadTitleIfEmptyInput.make({
+              threadId: thread.id,
+              emptyTitle: "New thread",
+              title: "Matter intake",
+            })
+          );
+          yield* store.setTitleIfEmpty(
+            SetThreadTitleIfEmptyInput.make({
+              threadId: thread.id,
+              emptyTitle: "New thread",
+              title: "Ignored replacement",
+            })
+          );
 
           const threads = yield* store.listThreads(workspaceId);
           expect(A.map(threads, (t) => t.id)).toEqual([thread.id]);
           expect(A.map(threads, (thread) => thread.title)).toEqual(["Matter intake"]);
 
-          const first = yield* store.appendTurn({
-            threadId: thread.id,
-            parentTurnId: O.none(),
-            role: "user",
-            content: docOf("Hello"),
-          });
+          const first = yield* store.appendTurn(
+            AppendTurnInput.make({
+              threadId: thread.id,
+              parentTurnId: O.none(),
+              role: "user",
+              content: docOf("Hello"),
+            })
+          );
           expect(first.turn.turnIndex).toBe(0);
           expect(S.is(TurnPublicId)(first.turn.publicId)).toBe(true);
           expect(S.is(MessagePublicId)(first.message.publicId)).toBe(true);
 
-          const second = yield* store.appendTurn({
-            threadId: thread.id,
-            parentTurnId: O.some(first.turn.id),
-            role: "assistant",
-            content: docOf("Hi there"),
-          });
+          const second = yield* store.appendTurn(
+            AppendTurnInput.make({
+              threadId: thread.id,
+              parentTurnId: O.some(first.turn.id),
+              role: "assistant",
+              content: docOf("Hi there"),
+            })
+          );
           expect(second.turn.turnIndex).toBe(1);
           expect(O.getOrNull(second.turn.parentTurnId)).toStrictEqual(first.turn.id);
           expect(S.is(TurnPublicId)(second.turn.publicId)).toBe(true);
@@ -135,7 +148,9 @@ if (!shouldRunPgliteIntegration) {
           const workspaceId = yield* decodeWorkspaceId(3);
 
           const threads = yield* Effect.all(
-            A.makeBy(8, (index) => store.createThread({ title: `Concurrent thread ${index + 1}`, workspaceId })),
+            A.makeBy(8, (index) =>
+              store.createThread(CreateThreadInput.make({ title: `Concurrent thread ${index + 1}`, workspaceId }))
+            ),
             { concurrency: 1 }
           );
           const publicIds = A.map(threads, (thread) => thread.publicId);
@@ -148,12 +163,14 @@ if (!shouldRunPgliteIntegration) {
           const appended = yield* Effect.forEach(
             threads,
             (thread, index) =>
-              store.appendTurn({
-                threadId: thread.id,
-                parentTurnId: O.none(),
-                role: "user",
-                content: docOf(`Concurrent message ${index + 1}`),
-              }),
+              store.appendTurn(
+                AppendTurnInput.make({
+                  threadId: thread.id,
+                  parentTurnId: O.none(),
+                  role: "user",
+                  content: docOf(`Concurrent message ${index + 1}`),
+                })
+              ),
             { concurrency: 1 }
           );
           const turnPublicIds = A.map(appended, ({ turn }) => turn.publicId);

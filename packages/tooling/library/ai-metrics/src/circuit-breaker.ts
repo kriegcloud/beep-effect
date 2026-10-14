@@ -188,48 +188,90 @@ export const CircuitBreakerOpenStateSchemaVersion = LiteralKit(["circuit-breaker
  */
 export type CircuitBreakerOpenStateSchemaVersion = typeof CircuitBreakerOpenStateSchemaVersion.Type;
 
-class CircuitBreakerProbeSucceeded extends S.Class<CircuitBreakerProbeSucceeded>($I`CircuitBreakerProbeSucceeded`)(
-  { status: S.tag("probe-succeeded") },
-  $I.annote("CircuitBreakerProbeSucceeded", {
-    description: "The guarded external probe completed successfully.",
-  })
+/**
+ * The guarded external probe completed successfully.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CircuitBreakerProbeSucceeded extends S.Opaque<
+  CircuitBreakerProbeSucceeded,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ status: S.tag("probe-succeeded") }).pipe(
+    $I.annoteSchema("CircuitBreakerProbeSucceeded", {
+      description: "The guarded external probe completed successfully.",
+    })
+  )
 ) {}
 
-class CircuitBreakerTripped extends S.Class<CircuitBreakerTripped>($I`CircuitBreakerTripped`)(
-  {
+/**
+ * A failed external probe atomically opened the machine-wide breaker.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CircuitBreakerTripped extends S.Opaque<CircuitBreakerTripped, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("tripped"),
     exitCode: PosInt,
     retryAfterEpochMs: S.Natural,
-  },
-  $I.annote("CircuitBreakerTripped", {
-    description: "A failed external probe atomically opened the machine-wide breaker.",
-  })
+  }).pipe(
+    $I.annoteSchema("CircuitBreakerTripped", {
+      description: "A failed external probe atomically opened the machine-wide breaker.",
+    })
+  )
 ) {}
 
-class CircuitBreakerRetrySkipped extends S.Class<CircuitBreakerRetrySkipped>($I`CircuitBreakerRetrySkipped`)(
-  {
+/**
+ * An identical retry was skipped while the machine-wide breaker remained open.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CircuitBreakerRetrySkipped extends S.Opaque<
+  CircuitBreakerRetrySkipped,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag("retry-skipped"),
     retryAfterEpochMs: S.Natural,
-  },
-  $I.annote("CircuitBreakerRetrySkipped", {
-    description: "An identical retry was skipped while the machine-wide breaker remained open.",
-  })
+  }).pipe(
+    $I.annoteSchema("CircuitBreakerRetrySkipped", {
+      description: "An identical retry was skipped while the machine-wide breaker remained open.",
+    })
+  )
 ) {}
 
-class CircuitBreakerCoordinationSkipped extends S.Class<CircuitBreakerCoordinationSkipped>(
-  $I`CircuitBreakerCoordinationSkipped`
-)(
-  { status: S.tag("coordination-skipped") },
-  $I.annote("CircuitBreakerCoordinationSkipped", {
-    description: "A probe was skipped because another process held the machine-wide coordination lock.",
-  })
+/**
+ * A probe was skipped because another process held the machine-wide coordination lock.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CircuitBreakerCoordinationSkipped extends S.Opaque<
+  CircuitBreakerCoordinationSkipped,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ status: S.tag("coordination-skipped") }).pipe(
+    $I.annoteSchema("CircuitBreakerCoordinationSkipped", {
+      description: "A probe was skipped because another process held the machine-wide coordination lock.",
+    })
+  )
 ) {}
 
-class CircuitBreakerReset extends S.Class<CircuitBreakerReset>($I`CircuitBreakerReset`)(
-  { status: S.tag("reset") },
-  $I.annote("CircuitBreakerReset", {
-    description: "An operator explicitly closed one breaker state.",
-  })
+/**
+ * An operator explicitly closed one breaker state.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CircuitBreakerReset extends S.Opaque<CircuitBreakerReset, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.tag("reset") }).pipe(
+    $I.annoteSchema("CircuitBreakerReset", {
+      description: "An operator explicitly closed one breaker state.",
+    })
+  )
 ) {}
 
 /**
@@ -302,8 +344,8 @@ export type CircuitBreakerOutcome = typeof CircuitBreakerOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class CircuitBreakerEventV1 extends S.Class<CircuitBreakerEventV1>($I`CircuitBreakerEventV1`)(
-  {
+export class CircuitBreakerEventV1 extends S.Opaque<CircuitBreakerEventV1, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: CircuitBreakerEventSchemaVersion,
     ts: S.DateTimeUtcFromString,
     probe: CircuitBreakerProbe,
@@ -311,10 +353,11 @@ export class CircuitBreakerEventV1 extends S.Class<CircuitBreakerEventV1>($I`Cir
     breakerRev: S.NonEmptyString,
     evidenceTier: S.Literal("derived").pipe(S.withConstructorDefault(Effect.succeed("derived"))),
     outcome: CircuitBreakerOutcome,
-  },
-  $I.annote("CircuitBreakerEventV1", {
-    description: "Content-free append-only evidence for one circuit-breaker decision.",
-  })
+  }).pipe(
+    $I.annoteSchema("CircuitBreakerEventV1", {
+      description: "Content-free append-only evidence for one circuit-breaker decision.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(CircuitBreakerEventV1);
   static readonly encodeEffect = S.encodeUnknownEffect(CircuitBreakerEventV1);
@@ -351,7 +394,7 @@ const isGreaterThanOrEqualToNumber = Order.isGreaterThanOrEqualTo(Num.Order);
  * @category models
  * @since 0.0.0
  */
-export class CircuitBreakerOpenStateV1 extends S.Class<CircuitBreakerOpenStateV1>($I`CircuitBreakerOpenStateV1`)(
+export class CircuitBreakerOpenStateV1 extends S.Opaque<CircuitBreakerOpenStateV1, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: CircuitBreakerOpenStateSchemaVersion,
     probe: CircuitBreakerProbe,
@@ -359,17 +402,20 @@ export class CircuitBreakerOpenStateV1 extends S.Class<CircuitBreakerOpenStateV1
     trippedEpochMs: S.Natural,
     retryAfterEpochMs: S.Natural,
     exitCode: PosInt,
-  }).check(
-    S.makeFilter((input) => isGreaterThanOrEqualToNumber(input.retryAfterEpochMs, input.trippedEpochMs), {
-      identifier: "CircuitBreakerOpenIntervalInvariant",
-      title: "Circuit-breaker open interval invariant",
-      description: "Requires a breaker retry instant at or after the failure that opened it.",
-      message: "Expected retryAfterEpochMs to be greater than or equal to trippedEpochMs",
-    })
-  ),
-  $I.annote("CircuitBreakerOpenStateV1", {
-    description: "Content-free atomic open state shared by every clone and worktree on one machine.",
   })
+    .check(
+      S.makeFilter((input) => isGreaterThanOrEqualToNumber(input.retryAfterEpochMs, input.trippedEpochMs), {
+        identifier: "CircuitBreakerOpenIntervalInvariant",
+        title: "Circuit-breaker open interval invariant",
+        description: "Requires a breaker retry instant at or after the failure that opened it.",
+        message: "Expected retryAfterEpochMs to be greater than or equal to trippedEpochMs",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("CircuitBreakerOpenStateV1", {
+        description: "Content-free atomic open state shared by every clone and worktree on one machine.",
+      })
+    )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(CircuitBreakerOpenStateV1);
   static readonly encodeEffect = S.encodeUnknownEffect(CircuitBreakerOpenStateV1);

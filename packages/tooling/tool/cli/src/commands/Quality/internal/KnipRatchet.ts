@@ -90,16 +90,17 @@ export type KnipFindingKind = typeof KnipFindingKind.Type;
  * @category models
  * @since 0.0.0
  */
-class KnipRawFindingItem extends S.Class<KnipRawFindingItem>($I`KnipRawFindingItem`)(
-  {
+class KnipRawFindingItem extends S.Opaque<KnipRawFindingItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     line: S.optionalKey(S.Finite),
     col: S.optionalKey(S.Finite),
     pos: S.optionalKey(S.Finite),
-  },
-  $I.annote("KnipRawFindingItem", {
-    description: "Raw Knip reporter item; position fields are decoded but omitted from the stable baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipRawFindingItem", {
+      description: "Raw Knip reporter item; position fields are decoded but omitted from the stable baseline.",
+    })
+  )
 ) {}
 
 const KnipRawFindingItems = KnipRawFindingItem.pipe(S.Array);
@@ -110,8 +111,8 @@ const KnipRawFindingItems = KnipRawFindingItem.pipe(S.Array);
  * @category models
  * @since 0.0.0
  */
-class KnipRawIssue extends S.Class<KnipRawIssue>($I`KnipRawIssue`)(
-  {
+class KnipRawIssue extends S.Opaque<KnipRawIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     binaries: S.optionalKey(KnipRawFindingItems),
     dependencies: S.optionalKey(KnipRawFindingItems),
@@ -124,10 +125,11 @@ class KnipRawIssue extends S.Class<KnipRawIssue>($I`KnipRawIssue`)(
     types: S.optionalKey(KnipRawFindingItems),
     unlisted: S.optionalKey(KnipRawFindingItems),
     unresolved: S.optionalKey(KnipRawFindingItems),
-  },
-  $I.annote("KnipRawIssue", {
-    description: "Raw Knip JSON reporter issue container.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipRawIssue", {
+      description: "Raw Knip JSON reporter issue container.",
+    })
+  )
 ) {}
 
 /**
@@ -136,13 +138,14 @@ class KnipRawIssue extends S.Class<KnipRawIssue>($I`KnipRawIssue`)(
  * @category models
  * @since 0.0.0
  */
-class KnipRawReport extends S.Class<KnipRawReport>($I`KnipRawReport`)(
-  {
+class KnipRawReport extends S.Opaque<KnipRawReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     issues: S.Array(KnipRawIssue),
-  },
-  $I.annote("KnipRawReport", {
-    description: "Raw Knip JSON reporter document.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipRawReport", {
+      description: "Raw Knip JSON reporter document.",
+    })
+  )
 ) {}
 
 /**
@@ -159,15 +162,16 @@ class KnipRawReport extends S.Class<KnipRawReport>($I`KnipRawReport`)(
  * @category models
  * @since 0.0.0
  */
-export class KnipFinding extends S.Class<KnipFinding>($I`KnipFinding`)(
-  {
+export class KnipFinding extends S.Opaque<KnipFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: KnipFindingKind,
     file: S.String,
     name: S.String,
-  },
-  $I.annote("KnipFinding", {
-    description: "Stable Knip finding identity used for fail-on-growth comparison.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipFinding", {
+      description: "Stable Knip finding identity used for fail-on-growth comparison.",
+    })
+  )
 ) {}
 
 /**
@@ -176,8 +180,8 @@ export class KnipFinding extends S.Class<KnipFinding>($I`KnipFinding`)(
  * @category models
  * @since 0.0.0
  */
-export class KnipFindingSummary extends S.Class<KnipFindingSummary>($I`KnipFindingSummary`)(
-  {
+export class KnipFindingSummary extends S.Opaque<KnipFindingSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     total_findings: S.Finite,
     binaries: S.Finite,
     dependencies: S.Finite,
@@ -190,10 +194,11 @@ export class KnipFindingSummary extends S.Class<KnipFindingSummary>($I`KnipFindi
     types: S.Finite,
     unlisted: S.Finite,
     unresolved: S.Finite,
-  },
-  $I.annote("KnipFindingSummary", {
-    description: "Deterministic count summary for normalized Knip findings.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipFindingSummary", {
+      description: "Deterministic count summary for normalized Knip findings.",
+    })
+  )
 ) {}
 
 /**
@@ -202,14 +207,15 @@ export class KnipFindingSummary extends S.Class<KnipFindingSummary>($I`KnipFindi
  * @category models
  * @since 0.0.0
  */
-export class KnipNormalizationPolicy extends S.Class<KnipNormalizationPolicy>($I`KnipNormalizationPolicy`)(
-  {
+export class KnipNormalizationPolicy extends S.Opaque<KnipNormalizationPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({
     ordering: S.String,
     omitted_fields: S.Array(S.String),
-  },
-  $I.annote("KnipNormalizationPolicy", {
-    description: "Deterministic ordering and omission policy for a Knip regression baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipNormalizationPolicy", {
+      description: "Deterministic ordering and omission policy for a Knip regression baseline.",
+    })
+  )
 ) {}
 
 /**
@@ -218,8 +224,8 @@ export class KnipNormalizationPolicy extends S.Class<KnipNormalizationPolicy>($I
  * @category models
  * @since 0.0.0
  */
-export class KnipRegressionBaseline extends S.Class<KnipRegressionBaseline>($I`KnipRegressionBaseline`)(
-  {
+export class KnipRegressionBaseline extends S.Opaque<KnipRegressionBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema_version: S.Literal(1),
     command: S.String,
     regeneration_command: S.String,
@@ -228,10 +234,11 @@ export class KnipRegressionBaseline extends S.Class<KnipRegressionBaseline>($I`K
     normalization: KnipNormalizationPolicy,
     check: KnipFindingSummary,
     findings: S.Array(KnipFinding),
-  },
-  $I.annote("KnipRegressionBaseline", {
-    description: "Committed Knip regression baseline used by the quality ratchet.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipRegressionBaseline", {
+      description: "Committed Knip regression baseline used by the quality ratchet.",
+    })
+  )
 ) {}
 
 /**
@@ -240,16 +247,17 @@ export class KnipRegressionBaseline extends S.Class<KnipRegressionBaseline>($I`K
  * @category models
  * @since 0.0.0
  */
-export class KnipComparison extends S.Class<KnipComparison>($I`KnipComparison`)(
-  {
+export class KnipComparison extends S.Opaque<KnipComparison, { readonly brand: unique symbol }>()(
+  S.Struct({
     current_count: S.Finite,
     baseline_count: S.Finite,
     introduced: S.Array(KnipFinding),
     resolved: S.Array(KnipFinding),
-  },
-  $I.annote("KnipComparison", {
-    description: "Difference between normalized current Knip findings and the committed baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnipComparison", {
+      description: "Difference between normalized current Knip findings and the committed baseline.",
+    })
+  )
 ) {}
 
 const decodeKnipRawReportText = S.decodeUnknownEffect(S.fromJsonString(KnipRawReport));
@@ -503,14 +511,15 @@ const enforceComparison = Effect.fn("KnipRatchet.enforceComparison")(function* (
  * @category models
  * @since 0.0.0
  */
-export class RunKnipRatchetOptions extends S.Class<RunKnipRatchetOptions>($I`RunKnipRatchetOptions`)(
-  {
+export class RunKnipRatchetOptions extends S.Opaque<RunKnipRatchetOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     baselinePath: S.String,
     writeBaseline: S.Boolean,
-  },
-  $I.annote("RunKnipRatchetOptions", {
-    description: "Options accepted by runKnipRatchet: baseline location and write mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunKnipRatchetOptions", {
+      description: "Options accepted by runKnipRatchet: baseline location and write mode.",
+    })
+  )
 ) {}
 
 /**

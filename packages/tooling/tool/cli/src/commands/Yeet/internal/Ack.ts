@@ -126,14 +126,15 @@ export const YEET_ACK_SCHEMA_VERSION = "yeet-ack/v1";
  * @category models
  * @since 0.0.0
  */
-export class YeetAckFixResolution extends S.Class<YeetAckFixResolution>($I`YeetAckFixResolution`)(
-  {
+export class YeetAckFixResolution extends S.Opaque<YeetAckFixResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag(YeetAckResolutionKind.Enum["fix-sha"]),
     sha: S.NonEmptyString,
-  },
-  $I.annote("YeetAckFixResolution", {
-    description: "Acknowledgment that the failure was fixed, naming the fix commit.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAckFixResolution", {
+      description: "Acknowledgment that the failure was fixed, naming the fix commit.",
+    })
+  )
 ) {}
 
 /**
@@ -153,16 +154,18 @@ export class YeetAckFixResolution extends S.Class<YeetAckFixResolution>($I`YeetA
  * @category models
  * @since 0.0.0
  */
-export class YeetAckEnvironmentOnlyResolution extends S.Class<YeetAckEnvironmentOnlyResolution>(
-  $I`YeetAckEnvironmentOnlyResolution`
-)(
-  {
+export class YeetAckEnvironmentOnlyResolution extends S.Opaque<
+  YeetAckEnvironmentOnlyResolution,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag(YeetAckResolutionKind.Enum["environment-only"]),
     reason: S.NonEmptyString,
-  },
-  $I.annote("YeetAckEnvironmentOnlyResolution", {
-    description: "Acknowledgment that the failure was environmental rather than a repository-code defect.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAckEnvironmentOnlyResolution", {
+      description: "Acknowledgment that the failure was environmental rather than a repository-code defect.",
+    })
+  )
 ) {}
 
 /**
@@ -180,14 +183,15 @@ export class YeetAckEnvironmentOnlyResolution extends S.Class<YeetAckEnvironment
  * @category models
  * @since 0.0.0
  */
-export class YeetAckWontfixResolution extends S.Class<YeetAckWontfixResolution>($I`YeetAckWontfixResolution`)(
-  {
+export class YeetAckWontfixResolution extends S.Opaque<YeetAckWontfixResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag(YeetAckResolutionKind.Enum.wontfix),
     reason: S.NonEmptyString,
-  },
-  $I.annote("YeetAckWontfixResolution", {
-    description: "Acknowledgment that the failure is deliberately not being fixed, with the reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAckWontfixResolution", {
+      description: "Acknowledgment that the failure is deliberately not being fixed, with the reason.",
+    })
+  )
 ) {}
 
 /**
@@ -205,14 +209,15 @@ export class YeetAckWontfixResolution extends S.Class<YeetAckWontfixResolution>(
  * @category models
  * @since 0.0.0
  */
-export class YeetAckThreadResolution extends S.Class<YeetAckThreadResolution>($I`YeetAckThreadResolution`)(
-  {
+export class YeetAckThreadResolution extends S.Opaque<YeetAckThreadResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag(YeetAckResolutionKind.Enum["thread-url"]),
     url: S.NonEmptyString,
-  },
-  $I.annote("YeetAckThreadResolution", {
-    description: "Acknowledgment that the failure's follow-up lives in a linked review thread.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAckThreadResolution", {
+      description: "Acknowledgment that the failure's follow-up lives in a linked review thread.",
+    })
+  )
 ) {}
 
 /**
@@ -233,17 +238,18 @@ export class YeetAckThreadResolution extends S.Class<YeetAckThreadResolution>($I
  * @category models
  * @since 0.0.0
  */
-export class YeetAckWaiveResolution extends S.Class<YeetAckWaiveResolution>($I`YeetAckWaiveResolution`)(
-  {
+export class YeetAckWaiveResolution extends S.Opaque<YeetAckWaiveResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag(YeetAckResolutionKind.Enum.waive),
     actor: S.NonEmptyString,
     expiresAt: S.NonEmptyString,
     reason: S.NonEmptyString,
     shard: S.NonEmptyString,
-  },
-  $I.annote("YeetAckWaiveResolution", {
-    description: "A temporary, attributed waiver for one named local or hosted shard.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAckWaiveResolution", {
+      description: "A temporary, attributed waiver for one named local or hosted shard.",
+    })
+  )
 ) {}
 
 /**
@@ -264,11 +270,12 @@ export class YeetAckWaiveResolution extends S.Class<YeetAckWaiveResolution>($I`Y
  * @category models
  * @since 0.0.0
  */
-export class YeetAckObservedResolution extends S.Class<YeetAckObservedResolution>($I`YeetAckObservedResolution`)(
-  { kind: S.tag("observed"), via: ProofJobObservedVia },
-  $I.annote("YeetAckObservedResolution", {
-    description: "Observation of an informational row: a proof-job result or a merge-ready announcement.",
-  })
+export class YeetAckObservedResolution extends S.Opaque<YeetAckObservedResolution, { readonly brand: unique symbol }>()(
+  S.Struct({ kind: S.tag("observed"), via: ProofJobObservedVia }).pipe(
+    $I.annoteSchema("YeetAckObservedResolution", {
+      description: "Observation of an informational row: a proof-job result or a merge-ready announcement.",
+    })
+  )
 ) {}
 
 /**
@@ -304,19 +311,20 @@ export class YeetAckObservedResolution extends S.Class<YeetAckObservedResolution
  * @category models
  * @since 0.0.0
  */
-export class YeetAckClearedResolution extends S.Class<YeetAckClearedResolution>($I`YeetAckClearedResolution`)(
-  {
+export class YeetAckClearedResolution extends S.Opaque<YeetAckClearedResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag(YeetAckResolutionKind.Enum.cleared),
     headSha: S.NonEmptyString,
     mergeable: S.NonEmptyString,
     mergeStateStatus: S.NullOr(S.String),
     jobId: UUID.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     unit: S.NonEmptyString.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetAckClearedResolution", {
-    description:
-      "The merge loop saw a conflicted head turn mergeable again; carries the head, the merge fields, and the monitor job.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAckClearedResolution", {
+      description:
+        "The merge loop saw a conflicted head turn mergeable again; carries the head, the merge fields, and the monitor job.",
+    })
+  )
 ) {}
 
 /**
@@ -433,18 +441,19 @@ export const renderYeetAckResolution = (resolution: YeetAckResolution): string =
  * @category models
  * @since 0.0.0
  */
-export class YeetAckReceipt extends S.Class<YeetAckReceipt>($I`YeetAckReceipt`)(
-  {
+export class YeetAckReceipt extends S.Opaque<YeetAckReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(YEET_ACK_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_ACK_SCHEMA_VERSION))
     ),
     id: S.NonEmptyString,
     resolution: YeetAckResolution,
     ackedAt: S.String,
-  },
-  $I.annote("YeetAckReceipt", {
-    description: "One ack receipt: the inbox row id it closes, the resolution, and the acknowledgment time.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAckReceipt", {
+      description: "One ack receipt: the inbox row id it closes, the resolution, and the acknowledgment time.",
+    })
+  )
 ) {}
 
 /**
@@ -486,14 +495,15 @@ export const YeetAckReceiptJson = JsonStringCodec(YeetAckReceipt);
  * @category models
  * @since 0.0.0
  */
-export class YeetAckState extends S.Class<YeetAckState>($I`YeetAckState`)(
-  {
+export class YeetAckState extends S.Opaque<YeetAckState, { readonly brand: unique symbol }>()(
+  S.Struct({
     acked: S.Boolean,
     receipt: S.NullOr(YeetAckReceipt),
-  },
-  $I.annote("YeetAckState", {
-    description: "Whether one inbox row's receipt file exists, and its decoded content when readable.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAckState", {
+      description: "Whether one inbox row's receipt file exists, and its decoded content when readable.",
+    })
+  )
 ) {}
 
 /**

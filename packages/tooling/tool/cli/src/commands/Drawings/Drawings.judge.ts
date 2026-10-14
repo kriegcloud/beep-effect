@@ -43,14 +43,13 @@ const PHOTO_EXTENSIONS = HashSet.fromIterable([".jpg", ".jpeg", ".png", ".webp"]
  * @category models
  * @since 0.0.0
  */
-export class DrawingJudgeFile extends S.Class<DrawingJudgeFile>($I`DrawingJudgeFile`)(
-  {
+export class DrawingJudgeFile extends S.Opaque<DrawingJudgeFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.Literals(["sheet", "screenshot"]).annotateKey({
       description: "`sheet` for a figure, `screenshot` for a photo.",
     }),
     path: S.NonEmptyString.annotateKey({ description: "Pack-relative path." }),
-  },
-  $I.annote("DrawingJudgeFile", { description: "One pack file the judge must open." })
+  }).pipe($I.annoteSchema("DrawingJudgeFile", { description: "One pack file the judge must open." }))
 ) {}
 
 /**
@@ -67,12 +66,13 @@ export class DrawingJudgeFile extends S.Class<DrawingJudgeFile>($I`DrawingJudgeF
  * @category models
  * @since 0.0.0
  */
-export class DrawingJudgeManifest extends S.Class<DrawingJudgeManifest>($I`DrawingJudgeManifest`)(
-  {
+export class DrawingJudgeManifest extends S.Opaque<DrawingJudgeManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     round: S.Int.annotateKey({ description: "Judge round." }),
     files: S.Array(DrawingJudgeFile).annotateKey({ description: "Every file the judge must open." }),
-  },
-  $I.annote("DrawingJudgeManifest", { description: "Round number and file list of a drawing judge pack." })
+  }).pipe(
+    $I.annoteSchema("DrawingJudgeManifest", { description: "Round number and file list of a drawing judge pack." })
+  )
 ) {}
 
 const encodeJudgeManifest = S.encodeEffect(S.fromJsonString(DrawingJudgeManifest));

@@ -20,7 +20,7 @@ const $I = $ScratchpadId.create("effected/github-actions/BlobEnvelope");
  * @category errors
  * @since 0.0.0
  */
-export class NotABlobEnvelopeError extends S.TaggedError<NotABlobEnvelopeError>($I`NotABlobEnvelopeError`)("NotABlobEnvelopeError", {
+export class NotABlobEnvelopeError extends S.TaggedError<NotABlobEnvelopeError, { readonly brand: unique symbol }>($I`NotABlobEnvelopeError`)("NotABlobEnvelopeError", {
 	/** The underlying failure, preserved structurally. */
 	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
 }, $I.annote("NotABlobEnvelopeError", { description: "Raised when bytes cannot be read as an envelope." })) {
@@ -60,7 +60,7 @@ export class NotABlobEnvelopeError extends S.TaggedError<NotABlobEnvelopeError>(
  * @category errors
  * @since 0.0.0
  */
-export class TruncatedBlobEnvelopeError extends S.TaggedError<TruncatedBlobEnvelopeError>($I`TruncatedBlobEnvelopeError`)(
+export class TruncatedBlobEnvelopeError extends S.TaggedError<TruncatedBlobEnvelopeError, { readonly brand: unique symbol }>($I`TruncatedBlobEnvelopeError`)(
 	"TruncatedBlobEnvelopeError",
 	{
 		/** The underlying failure, preserved structurally. */
@@ -103,7 +103,7 @@ export class TruncatedBlobEnvelopeError extends S.TaggedError<TruncatedBlobEnvel
  * @category errors
  * @since 0.0.0
  */
-export class UnsupportedBlobEnvelopeVersionError extends S.TaggedError<UnsupportedBlobEnvelopeVersionError>($I`UnsupportedBlobEnvelopeVersionError`)(
+export class UnsupportedBlobEnvelopeVersionError extends S.TaggedError<UnsupportedBlobEnvelopeVersionError, { readonly brand: unique symbol }>($I`UnsupportedBlobEnvelopeVersionError`)(
 	"UnsupportedBlobEnvelopeVersionError",
 	{
 		/** The envelope version found. */
@@ -148,7 +148,7 @@ export class UnsupportedBlobEnvelopeVersionError extends S.TaggedError<Unsupport
  * @category errors
  * @since 0.0.0
  */
-export class BlobMetadataDecodeError extends S.TaggedError<BlobMetadataDecodeError>($I`BlobMetadataDecodeError`)("BlobMetadataDecodeError", {
+export class BlobMetadataDecodeError extends S.TaggedError<BlobMetadataDecodeError, { readonly brand: unique symbol }>($I`BlobMetadataDecodeError`)("BlobMetadataDecodeError", {
 	/** The underlying failure, preserved structurally. */
 	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
 }, $I.annote("BlobMetadataDecodeError", { description: "Raised when well-framed metadata does not satisfy the caller's schema." })) {
@@ -188,7 +188,7 @@ export class BlobMetadataDecodeError extends S.TaggedError<BlobMetadataDecodeErr
  * @category errors
  * @since 0.0.0
  */
-export class BlobMetadataEncodeError extends S.TaggedError<BlobMetadataEncodeError>($I`BlobMetadataEncodeError`)("BlobMetadataEncodeError", {
+export class BlobMetadataEncodeError extends S.TaggedError<BlobMetadataEncodeError, { readonly brand: unique symbol }>($I`BlobMetadataEncodeError`)("BlobMetadataEncodeError", {
 	/** The underlying failure, preserved structurally. */
 	cause: S.optionalKey(S.Defect()).annotateKey({ description: "The underlying failure, preserved structurally." }),
 }, $I.annote("BlobMetadataEncodeError", { description: "Raised when the value being stored does not satisfy its schema." })) {

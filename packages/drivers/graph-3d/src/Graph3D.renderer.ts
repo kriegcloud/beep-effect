@@ -45,8 +45,14 @@ const loadControlsModule = Effect.tryPromise({
   Effect.filterOrFail(isControlsModule, () => Graph3DDriverError.adapterInvariant("Invalid TrackballControls module."))
 );
 
-class Graph3DConfig extends S.Class<Graph3DConfig>($I`Graph3DConfig`)(
-  {
+/**
+ * Stable visual-grammar and interaction defaults for each mounted 3D graph.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class Graph3DConfig extends S.Opaque<Graph3DConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     // The observed reference canvas is #111111; #000000 is only the bundle's
     // no-override fallback (research VERIFICATION.md §5.4). Fixed dark grammar
     // in both app themes, matching the cosmos driver's hardcoded-color
@@ -131,10 +137,11 @@ class Graph3DConfig extends S.Class<Graph3DConfig>($I`Graph3DConfig`)(
       S.withConstructorDefault(Effect.succeed(2.2)),
       S.withDecodingDefaultTypeKey(Effect.succeed(2.2))
     ),
-  },
-  $I.annote("Graph3DConfig", {
-    description: "Stable visual-grammar and interaction defaults for each mounted 3D graph.",
-  })
+  }).pipe(
+    $I.annoteSchema("Graph3DConfig", {
+      description: "Stable visual-grammar and interaction defaults for each mounted 3D graph.",
+    })
+  )
 ) {}
 
 /** 12-slot community palette from the reference renderer (ordinal % 12). */
@@ -249,17 +256,18 @@ const probeWebGl2 = (): boolean =>
  * @category adapters
  * @since 0.0.0
  */
-export class Graph3DRenderOptions extends S.Class<Graph3DRenderOptions>($I`Graph3DRenderOptions`)(
-  {
+export class Graph3DRenderOptions extends S.Opaque<Graph3DRenderOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     // Fired only from user clicks (never from `select` calls), so a bridge
     // re-applying selection after a projection update cannot loop.
     onNodeSelect: Fn({ input: S.UndefinedOr(S.Int), output: S.Void }).pipe(S.optionalKey),
     // Post-mount failures (WebGL context loss) surface here as typed errors.
     onRuntimeError: Fn({ input: Graph3DDriverError, output: S.Void }).pipe(S.optionalKey),
-  },
-  $I.annote("Graph3DRenderOptions", {
-    description: "Optional selection and runtime-error callbacks for a mounted 3D graph renderer.",
-  })
+  }).pipe(
+    $I.annoteSchema("Graph3DRenderOptions", {
+      description: "Optional selection and runtime-error callbacks for a mounted 3D graph renderer.",
+    })
+  )
 ) {}
 
 /**
@@ -283,18 +291,19 @@ export class Graph3DRenderOptions extends S.Class<Graph3DRenderOptions>($I`Graph
  * @category adapters
  * @since 0.0.0
  */
-export class Graph3DRenderStats extends S.Class<Graph3DRenderStats>($I`Graph3DRenderStats`)(
-  {
+export class Graph3DRenderStats extends S.Opaque<Graph3DRenderStats, { readonly brand: unique symbol }>()(
+  S.Struct({
     nodeCount: S.Int,
     edgeCount: S.Int,
     visibleLabelCount: S.Int,
     // Nodes currently at the dimmed opacity because a selection is active.
     dimmedNodeCount: S.Int,
     selectedNodeIndex: S.Int.pipe(S.optionalKey),
-  },
-  $I.annote("Graph3DRenderStats", {
-    description: "Snapshot of rendered node/edge/label counts and active selection dimming.",
-  })
+  }).pipe(
+    $I.annoteSchema("Graph3DRenderStats", {
+      description: "Snapshot of rendered node/edge/label counts and active selection dimming.",
+    })
+  )
 ) {}
 
 /**
@@ -312,8 +321,8 @@ export class Graph3DRenderStats extends S.Class<Graph3DRenderStats>($I`Graph3DRe
  * @category adapters
  * @since 0.0.0
  */
-export class Graph3DRenderHandle extends S.Class<Graph3DRenderHandle>($I`Graph3DRenderHandle`)(
-  {
+export class Graph3DRenderHandle extends S.Opaque<Graph3DRenderHandle, { readonly brand: unique symbol }>()(
+  S.Struct({
     backend: S.Literal("three-instanced"),
     destroy: Fn({ output: S.Void }),
     fps: Fn({ output: S.Finite }),
@@ -325,11 +334,12 @@ export class Graph3DRenderHandle extends S.Class<Graph3DRenderHandle>($I`Graph3D
     // projection; `undefined` clears. Never fires `onNodeSelect`.
     select: Fn({ input: S.UndefinedOr(S.Int), output: S.Void }),
     stats: Fn({ output: Graph3DRenderStats }),
-  },
-  $I.annote("Graph3DRenderHandle", {
-    description:
-      "Imperative lifecycle for a mounted instanced three.js graph: destroy, fps sampling, full-projection update, selection dimming, and stats introspection.",
-  })
+  }).pipe(
+    $I.annoteSchema("Graph3DRenderHandle", {
+      description:
+        "Imperative lifecycle for a mounted instanced three.js graph: destroy, fps sampling, full-projection update, selection dimming, and stats introspection.",
+    })
+  )
 ) {}
 
 interface LabelSlot {
@@ -378,7 +388,7 @@ const mountRenderer = (
   initialProjection: Graph3DProjection,
   options: Graph3DRenderOptions
 ): Graph3DRenderHandle => {
-  const config = Graph3DConfig.make();
+  const config = Graph3DConfig.make({});
   const renderer = new three.WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(globalThis.devicePixelRatio ?? 1);
   renderer.setSize(Math.max(1, container.clientWidth), Math.max(1, container.clientHeight));
@@ -895,7 +905,7 @@ const mountRenderer = (
   sceneGraph = buildSceneGraph(initialProjection);
   fitCamera();
 
-  return {
+  return Graph3DRenderHandle.make({
     backend: "three-instanced" as const,
     fps: () => {
       if (frameDeltaCount === 0) {
@@ -933,7 +943,12 @@ const mountRenderer = (
     },
     stats: () => {
       if (P.isUndefined(sceneGraph)) {
-        return Graph3DRenderStats.make({ nodeCount: 0, edgeCount: 0, visibleLabelCount: 0, dimmedNodeCount: 0 });
+        return Graph3DRenderStats.make({
+          nodeCount: 0,
+          edgeCount: 0,
+          visibleLabelCount: 0,
+          dimmedNodeCount: 0,
+        });
       }
       let dimmedNodeCount = 0;
       for (let index = 0; index < sceneGraph.nodeAlphas.length; index += 1) {
@@ -965,7 +980,7 @@ const mountRenderer = (
       renderer.dispose();
       renderer.domElement.remove();
     },
-  } satisfies Graph3DRenderHandle;
+  });
 };
 
 /**

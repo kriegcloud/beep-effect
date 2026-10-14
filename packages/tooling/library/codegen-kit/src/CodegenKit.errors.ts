@@ -30,7 +30,9 @@ const FailureFields = {
  * @category errors
  * @since 0.0.0
  */
-export class CodegenFetchError extends S.TaggedError<CodegenFetchError>($I`CodegenFetchError`)(
+export class CodegenFetchError extends S.TaggedError<CodegenFetchError, { readonly brand: unique symbol }>(
+  $I`CodegenFetchError`
+)(
   "CodegenFetchError",
   FailureFields,
   $I.annoteError<CodegenFetchError>("CodegenFetchError", {
@@ -53,7 +55,9 @@ export class CodegenFetchError extends S.TaggedError<CodegenFetchError>($I`Codeg
  * @category errors
  * @since 0.0.0
  */
-export class CodegenPatchError extends S.TaggedError<CodegenPatchError>($I`CodegenPatchError`)(
+export class CodegenPatchError extends S.TaggedError<CodegenPatchError, { readonly brand: unique symbol }>(
+  $I`CodegenPatchError`
+)(
   "CodegenPatchError",
   FailureFields,
   $I.annoteError<CodegenPatchError>("CodegenPatchError", {
@@ -76,7 +80,9 @@ export class CodegenPatchError extends S.TaggedError<CodegenPatchError>($I`Codeg
  * @category errors
  * @since 0.0.0
  */
-export class CodegenGenerateError extends S.TaggedError<CodegenGenerateError>($I`CodegenGenerateError`)(
+export class CodegenGenerateError extends S.TaggedError<CodegenGenerateError, { readonly brand: unique symbol }>(
+  $I`CodegenGenerateError`
+)(
   "CodegenGenerateError",
   FailureFields,
   $I.annoteError<CodegenGenerateError>("CodegenGenerateError", {
@@ -99,7 +105,9 @@ export class CodegenGenerateError extends S.TaggedError<CodegenGenerateError>($I
  * @category errors
  * @since 0.0.0
  */
-export class CodegenPostProcessError extends S.TaggedError<CodegenPostProcessError>($I`CodegenPostProcessError`)(
+export class CodegenPostProcessError extends S.TaggedError<CodegenPostProcessError, { readonly brand: unique symbol }>(
+  $I`CodegenPostProcessError`
+)(
   "CodegenPostProcessError",
   FailureFields,
   $I.annoteError<CodegenPostProcessError>("CodegenPostProcessError", {
@@ -122,7 +130,9 @@ export class CodegenPostProcessError extends S.TaggedError<CodegenPostProcessErr
  * @category errors
  * @since 0.0.0
  */
-export class CodegenFormatError extends S.TaggedError<CodegenFormatError>($I`CodegenFormatError`)(
+export class CodegenFormatError extends S.TaggedError<CodegenFormatError, { readonly brand: unique symbol }>(
+  $I`CodegenFormatError`
+)(
   "CodegenFormatError",
   FailureFields,
   $I.annoteError<CodegenFormatError>("CodegenFormatError", {
@@ -148,7 +158,9 @@ export class CodegenFormatError extends S.TaggedError<CodegenFormatError>($I`Cod
  * @category errors
  * @since 0.0.0
  */
-export class CodegenDriftError extends S.TaggedError<CodegenDriftError>($I`CodegenDriftError`)(
+export class CodegenDriftError extends S.TaggedError<CodegenDriftError, { readonly brand: unique symbol }>(
+  $I`CodegenDriftError`
+)(
   "CodegenDriftError",
   {
     message: S.String,

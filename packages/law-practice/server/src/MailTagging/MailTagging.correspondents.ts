@@ -90,33 +90,36 @@ export const MatterContactEvidenceSetting: Context.Reference<MatterContactEviden
     defaultValue: () => MatterContactEvidence.Enum.off,
   });
 
-class AddressContactRow extends S.Class<AddressContactRow>($I`AddressContactRow`)(
-  {
+class AddressContactRow extends S.Opaque<AddressContactRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: S.String,
     ...PracticeKgCorrespondentContact.fields,
-  },
-  $I.annote("AddressContactRow", {
-    description: "One contact that owns one address, as contact_addresses lists it.",
-  })
+  }).pipe(
+    $I.annoteSchema("AddressContactRow", {
+      description: "One contact that owns one address, as contact_addresses lists it.",
+    })
+  )
 ) {}
 
-class AddressLinkRow extends S.Class<AddressLinkRow>($I`AddressLinkRow`)(
-  {
+class AddressLinkRow extends S.Opaque<AddressLinkRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: S.String,
     ...PracticeKgCorrespondentLink.fields,
-  },
-  $I.annote("AddressLinkRow", {
-    description: "One link of a contact that owns one address, from contact_client_links.",
-  })
+  }).pipe(
+    $I.annoteSchema("AddressLinkRow", {
+      description: "One link of a contact that owns one address, from contact_client_links.",
+    })
+  )
 ) {}
 
-class PracticeAddressRow extends S.Class<PracticeAddressRow>($I`PracticeAddressRow`)(
-  {
+class PracticeAddressRow extends S.Opaque<PracticeAddressRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: S.String,
-  },
-  $I.annote("PracticeAddressRow", {
-    description: "An address on one of the practice's own domains.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeAddressRow", {
+      description: "An address on one of the practice's own domains.",
+    })
+  )
 ) {}
 
 // The same columns the correspondent lookup reads for one address, for every address at once.

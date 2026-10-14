@@ -155,7 +155,7 @@ export type RunpodDocsErrorReason = typeof RunpodDocsErrorReason.Type;
  * @category errors
  * @since 0.1.0
  */
-export class RunpodError extends S.TaggedError<RunpodError>($I`RunpodError`)(
+export class RunpodError extends S.TaggedError<RunpodError, { readonly brand: unique symbol }>($I`RunpodError`)(
   "RunpodError",
   {
     cause: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -186,7 +186,11 @@ export class RunpodError extends S.TaggedError<RunpodError>($I`RunpodError`)(
     ): (descriptor: RunpodOperationDescriptor) => RunpodError;
   } = dual(
     (args) => args.length >= 2 && RunpodOperationDescriptor.is(args[0]),
-    (descriptor: RunpodOperationDescriptor, reason: RunpodErrorReason, options: RunpodErrorOptionsInput = {}) =>
+    (
+      descriptor: RunpodOperationDescriptor,
+      reason: RunpodErrorReason,
+      options: RunpodErrorOptionsInput = RunpodErrorOptionsInput.make({})
+    ) =>
       RunpodError.make({
         method: O.some(descriptor.method),
         methodName: O.some(descriptor.methodName),
@@ -241,7 +245,9 @@ export class RunpodError extends S.TaggedError<RunpodError>($I`RunpodError`)(
  * @category errors
  * @since 0.1.0
  */
-export class RunpodDocsError extends S.TaggedError<RunpodDocsError>($I`RunpodDocsError`)(
+export class RunpodDocsError extends S.TaggedError<RunpodDocsError, { readonly brand: unique symbol }>(
+  $I`RunpodDocsError`
+)(
   "RunpodDocsError",
   {
     cause: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -261,7 +267,7 @@ export class RunpodDocsError extends S.TaggedError<RunpodDocsError>($I`RunpodDoc
    */
   static readonly fromReason = (
     reason: RunpodDocsErrorReason,
-    options: RunpodDocsErrorOptionsInput = {}
+    options: RunpodDocsErrorOptionsInput = RunpodDocsErrorOptionsInput.make({})
   ): RunpodDocsError =>
     RunpodDocsError.make({
       cause: causeFromUnknown(options.cause),
@@ -287,27 +293,35 @@ export class RunpodDocsError extends S.TaggedError<RunpodDocsError>($I`RunpodDoc
  * @category models
  * @since 0.1.0
  */
-export class RunpodErrorOptions extends S.Class<RunpodErrorOptions>($I`RunpodErrorOptions`)(
-  {
+export class RunpodErrorOptions extends S.Opaque<RunpodErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     // Sanitized string label so the exported options schema round-trips
     // deterministically. Raw thrown causes are accepted via the private
     // `RunpodErrorOptionsInput` and normalized through `causeFromUnknown`.
     cause: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     status: S.OptionFromOptionalKey(RunpodHttpStatusCode).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("RunpodErrorOptions", {
-    description: "Sanitized options for configuring RunpodError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodErrorOptions", {
+      description: "Sanitized options for configuring RunpodError instances.",
+    })
+  )
 ) {}
 
-class RunpodErrorOptionsInput extends S.Class<RunpodErrorOptionsInput>($I`RunpodErrorOptionsInput`)(
-  {
+/**
+ * Raw option input accepted by RunpodError constructors before schema-owned normalization.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RunpodErrorOptionsInput extends S.Opaque<RunpodErrorOptionsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
     status: S.optionalKey(RunpodHttpStatusCode),
-  },
-  $I.annote("RunpodErrorOptionsInput", {
-    description: "Raw option input accepted by RunpodError constructors before schema-owned normalization.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodErrorOptionsInput", {
+      description: "Raw option input accepted by RunpodError constructors before schema-owned normalization.",
+    })
+  )
 ) {}
 
 /**
@@ -329,17 +343,18 @@ class RunpodErrorOptionsInput extends S.Class<RunpodErrorOptionsInput>($I`Runpod
  * @category models
  * @since 0.1.0
  */
-export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`RunpodRawErrorOptions`)(
-  {
+export class RunpodRawErrorOptions extends S.Opaque<RunpodRawErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
     method: RunpodHttpMethod,
     path: S.String,
     reason: RunpodErrorReason,
     status: S.optionalKey(RunpodHttpStatusCode),
-  },
-  $I.annote("RunpodRawErrorOptions", {
-    description: "Options for configuring RunpodError instances for raw requests.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodRawErrorOptions", {
+      description: "Options for configuring RunpodError instances for raw requests.",
+    })
+  )
 ) {}
 
 /**
@@ -360,29 +375,40 @@ export class RunpodRawErrorOptions extends S.Class<RunpodRawErrorOptions>($I`Run
  * @category models
  * @since 0.1.0
  */
-export class RunpodDocsErrorOptions extends S.Class<RunpodDocsErrorOptions>($I`RunpodDocsErrorOptions`)(
-  {
+export class RunpodDocsErrorOptions extends S.Opaque<RunpodDocsErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     // Sanitized string label so the exported options schema round-trips
     // deterministically. Raw thrown causes are accepted via the private
     // `RunpodDocsErrorOptionsInput` and normalized through `causeFromUnknown`.
     cause: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     status: S.OptionFromOptionalKey(RunpodHttpStatusCode).pipe(S.withConstructorDefault(Effect.succeedNone)),
     url: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("RunpodDocsErrorOptions", {
-    description: "Sanitized options for configuring RunpodDocsError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodDocsErrorOptions", {
+      description: "Sanitized options for configuring RunpodDocsError instances.",
+    })
+  )
 ) {}
 
-class RunpodDocsErrorOptionsInput extends S.Class<RunpodDocsErrorOptionsInput>($I`RunpodDocsErrorOptionsInput`)(
-  {
+/**
+ * Raw option input accepted by RunpodDocsError constructors before schema-owned normalization.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RunpodDocsErrorOptionsInput extends S.Opaque<
+  RunpodDocsErrorOptionsInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
     status: S.optionalKey(RunpodHttpStatusCode),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("RunpodDocsErrorOptionsInput", {
-    description: "Raw option input accepted by RunpodDocsError constructors before schema-owned normalization.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunpodDocsErrorOptionsInput", {
+      description: "Raw option input accepted by RunpodDocsError constructors before schema-owned normalization.",
+    })
+  )
 ) {}
 
 // Keep reflective inspection inside the driver boundary: hostile proxies and

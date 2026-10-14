@@ -108,16 +108,17 @@ export const diffMembership = <Finding>(input: {
  * @category models
  * @since 0.0.0
  */
-export class RatchetTotalDelta extends S.Class<RatchetTotalDelta>($I`RatchetTotalDelta`)(
-  {
+export class RatchetTotalDelta extends S.Opaque<RatchetTotalDelta, { readonly brand: unique symbol }>()(
+  S.Struct({
     metric: S.String,
     baseline: S.Finite,
     current: S.Finite,
     delta: S.Finite,
-  },
-  $I.annote("RatchetTotalDelta", {
-    description: "Difference for one tracked numeric ratchet total.",
-  })
+  }).pipe(
+    $I.annoteSchema("RatchetTotalDelta", {
+      description: "Difference for one tracked numeric ratchet total.",
+    })
+  )
 ) {}
 
 /**
@@ -147,17 +148,18 @@ export class RatchetTotalDelta extends S.Class<RatchetTotalDelta>($I`RatchetTota
  * @category models
  * @since 0.0.0
  */
-export class RatchetTotalsDiff extends S.Class<RatchetTotalsDiff>($I`RatchetTotalsDiff`)(
-  {
+export class RatchetTotalsDiff extends S.Opaque<RatchetTotalsDiff, { readonly brand: unique symbol }>()(
+  S.Struct({
     currentTotalCount: S.Finite,
     baselineTotalCount: S.Finite,
     increased: S.Array(RatchetTotalDelta),
     decreased: S.Array(RatchetTotalDelta),
     missing: S.Array(S.String),
-  },
-  $I.annote("RatchetTotalsDiff", {
-    description: "Difference between current numeric totals and the committed baseline totals.",
-  })
+  }).pipe(
+    $I.annoteSchema("RatchetTotalsDiff", {
+      description: "Difference between current numeric totals and the committed baseline totals.",
+    })
+  )
 ) {}
 
 const deltaByMetric = Order.mapInput(Order.String, (delta: RatchetTotalDelta) => delta.metric);
@@ -202,14 +204,15 @@ const metricDelta = (
  * @category models
  * @since 0.0.0
  */
-export class DiffTotalsInput extends S.Class<DiffTotalsInput>($I`DiffTotalsInput`)(
-  {
+export class DiffTotalsInput extends S.Opaque<DiffTotalsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     current: S.Record(S.String, S.Finite),
     baseline: S.Record(S.String, S.Finite),
-  },
-  $I.annote("DiffTotalsInput", {
-    description: "Current and committed baseline numeric totals keyed by metric name.",
-  })
+  }).pipe(
+    $I.annoteSchema("DiffTotalsInput", {
+      description: "Current and committed baseline numeric totals keyed by metric name.",
+    })
+  )
 ) {}
 
 /**

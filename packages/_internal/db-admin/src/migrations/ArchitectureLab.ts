@@ -73,8 +73,8 @@ const DrizzleMigrationSchema = S.Unknown.pipe(
  * @category models
  * @since 0.0.0
  */
-export class DbAdminMigrationTarget extends S.Class<DbAdminMigrationTarget>($I`DbAdminMigrationTarget`)(
-  {
+export class DbAdminMigrationTarget extends S.Opaque<DbAdminMigrationTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     drizzleSchema: DrizzleMigrationSchema.annotateKey({
       description: "Imported Drizzle table-schema object used only for migration generation.",
     }),
@@ -87,11 +87,12 @@ export class DbAdminMigrationTarget extends S.Class<DbAdminMigrationTarget>($I`D
     tables: S.NonEmptyArray(MigrationTableName).annotateKey({
       description: "Non-empty list of lowercase PostgreSQL table names covered by the target.",
     }),
-  },
-  $I.annote("DbAdminMigrationTarget", {
-    title: "db-admin migration target",
-    description: "Migration target metadata consumed by the db-admin aggregation proof.",
-  })
+  }).pipe(
+    $I.annoteSchema("DbAdminMigrationTarget", {
+      title: "db-admin migration target",
+      description: "Migration target metadata consumed by the db-admin aggregation proof.",
+    })
+  )
 ) {}
 
 /**

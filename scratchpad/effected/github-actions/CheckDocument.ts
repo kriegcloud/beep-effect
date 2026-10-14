@@ -47,7 +47,7 @@ const $I = $ScratchpadId.create("effected/github-actions/CheckDocument");
  * @category models
  * @since 0.0.0
  */
-export class CheckReport extends S.Class<CheckReport>($I`CheckReport`)({
+export class CheckReport extends S.Class<CheckReport, { readonly brand: unique symbol }>($I`CheckReport`)({
 	/** Where the check is now. The last reported state is the authoritative one. */
 	state: CheckState.annotateKey({ description: "Where the check is now. The last reported state is the authoritative one." }),
 	/** Display name, when it differs from the registry key. */
@@ -85,7 +85,7 @@ export class CheckReport extends S.Class<CheckReport>($I`CheckReport`)({
  * @category models
  * @since 0.0.0
  */
-export class CheckDocumentSnapshot extends S.Class<CheckDocumentSnapshot>($I`CheckDocumentSnapshot`)({
+export class CheckDocumentSnapshot extends S.Class<CheckDocumentSnapshot, { readonly brand: unique symbol }>($I`CheckDocumentSnapshot`)({
 	checks: S.HashMap(S.String, CheckReport).annotateKey({ description: "The latest report for each check." }),
 	order: S.Array(S.String).annotateKey({ description: "Check keys in first-report order." }),
 }, $I.annote("CheckDocumentSnapshot", { description: "An immutable check registry and its explicit first-report order." })) {}
@@ -123,7 +123,7 @@ const KIND_PROSE = {
  * @category errors
  * @since 0.0.0
  */
-export class CheckDocumentError extends S.TaggedError<CheckDocumentError>($I`CheckDocumentError`)("CheckDocumentError", {
+export class CheckDocumentError extends S.TaggedError<CheckDocumentError, { readonly brand: unique symbol }>($I`CheckDocumentError`)("CheckDocumentError", {
 	/** Which phase failed: regenerating the document, reading it back, or writing it. */
 	kind: S.Literals(["render", "read", "sink"]).annotateKey({ description: "Which phase failed: regenerating the document, reading it back, or writing it." }),
 	/** The underlying failure. */
@@ -175,7 +175,7 @@ export class CheckDocumentError extends S.TaggedError<CheckDocumentError>($I`Che
  * @category models
  * @since 0.0.0
  */
-export class CheckDocumentStamp extends S.Class<CheckDocumentStamp>($I`CheckDocumentStamp`)({
+export class CheckDocumentStamp extends S.Class<CheckDocumentStamp, { readonly brand: unique symbol }>($I`CheckDocumentStamp`)({
 	/** When the run started — ideally an ISO-8601 instant. */
 	at: S.String.annotateKey({ description: "When the run started — ideally an ISO-8601 instant." }),
 	/** The run's identifier — on GitHub, `GITHUB_RUN_ID`. */

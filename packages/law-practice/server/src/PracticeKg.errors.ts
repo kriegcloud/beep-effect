@@ -46,7 +46,10 @@ const $I = $LawPracticeServerId.create("PracticeKg.errors");
  * @category errors
  * @since 0.0.0
  */
-export class PracticeKgProjectionError extends S.TaggedError<PracticeKgProjectionError>($I`PracticeKgProjectionError`)(
+export class PracticeKgProjectionError extends S.TaggedError<
+  PracticeKgProjectionError,
+  { readonly brand: unique symbol }
+>($I`PracticeKgProjectionError`)(
   "PracticeKgProjectionError",
   {
     message: S.String,

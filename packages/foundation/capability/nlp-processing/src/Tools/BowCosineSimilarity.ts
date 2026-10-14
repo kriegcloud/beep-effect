@@ -14,8 +14,11 @@ import { AiToolError } from "./_schemas.ts";
 
 const $I = $NlpProcessingId.create("Tools/BowCosineSimilarity");
 
-class BowCosineSimilarityParameters extends S.Class<BowCosineSimilarityParameters>($I`BowCosineSimilarityParameters`)(
-  {
+class BowCosineSimilarityParameters extends S.Opaque<
+  BowCosineSimilarityParameters,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     text1: S.String.annotateKey({
       description: "First text to compare",
       examples: ["Cats are wonderful pets."],
@@ -24,24 +27,26 @@ class BowCosineSimilarityParameters extends S.Class<BowCosineSimilarityParameter
       description: "Second text to compare",
       examples: ["Felines make great companions."],
     }),
-  },
-  $I.annote("BowCosineSimilarityParameters", {
-    description: "Inputs required to compute bag-of-words cosine similarity between two texts.",
-  })
+  }).pipe(
+    $I.annoteSchema("BowCosineSimilarityParameters", {
+      description: "Inputs required to compute bag-of-words cosine similarity between two texts.",
+    })
+  )
 ) {}
 
-class BowCosineSimilaritySuccess extends S.Class<BowCosineSimilaritySuccess>($I`BowCosineSimilaritySuccess`)(
-  {
+class BowCosineSimilaritySuccess extends S.Opaque<BowCosineSimilaritySuccess, { readonly brand: unique symbol }>()(
+  S.Struct({
     method: S.Literal(SimilarityMethod.Enum["bow.cosine"]).annotateKey({
       description: "The similarity method used",
     }),
     score: UnitInterval.annotateKey({
       description: "Similarity score from 0 (unrelated) to 1 (identical)",
     }),
-  },
-  $I.annote("BowCosineSimilaritySuccess", {
-    description: "Bag-of-words cosine similarity score for two text inputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("BowCosineSimilaritySuccess", {
+      description: "Bag-of-words cosine similarity score for two text inputs.",
+    })
+  )
 ) {}
 
 /**

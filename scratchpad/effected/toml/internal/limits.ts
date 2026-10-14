@@ -7,7 +7,7 @@ import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("effected/toml/internal/limits");
 
-class TomlCapError extends S.TaggedError<TomlCapError>($I`TomlCapError`)("TomlCapError", {
+class TomlCapError extends S.TaggedError<TomlCapError, { readonly brand: unique symbol }>($I`TomlCapError`)("TomlCapError", {
 	message: S.String.annotateKey({ description: "Explanation of the invalid programmer-supplied cap." }),
 }, $I.annote("TomlCapError", { description: "An invalid internal cap indicates a wiring defect." })) {}
 
@@ -63,7 +63,7 @@ export type GuardReason = typeof GuardReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class GuardExceeded extends S.TaggedError<GuardExceeded>($I`GuardExceeded`)("GuardExceeded", {
+export class GuardExceeded extends S.TaggedError<GuardExceeded, { readonly brand: unique symbol }>($I`GuardExceeded`)("GuardExceeded", {
 	message: S.String.annotateKey({ description: "The reason, configured limit and observed depth." }),
 	reason: GuardReason.annotateKey({ description: "The engine guard that exceeded its limit." }),
 	limit: S.Finite.annotateKey({ description: "The configured nesting limit." }),

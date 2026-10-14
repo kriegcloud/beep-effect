@@ -258,7 +258,7 @@ it.effect("full hub bounds shutdown with TestClock while preserving disk writes"
 // Restored from upstream Journal.test.ts (MIT): "Journal — appendPatch inherits
 // from a Schema.Class payload". The payload is seeded as JSON text, so the base
 // of the patch is a DECODED class instance, not a plain record.
-class Boxed extends S.Class<Boxed>($I`Boxed`)({
+class Boxed extends S.Class<Boxed, { readonly brand: unique symbol }>($I`Boxed`)({
   round: S.Finite,
   phase: S.String,
   note: S.optionalKey(S.String),

@@ -60,7 +60,7 @@ const veracityText = (fact: { readonly [key: string]: S.Json }): O.Option<string
  * @category errors
  * @since 0.0.0
  */
-export class MemoryReviewRejected extends S.TaggedError<MemoryReviewRejected>()(
+export class MemoryReviewRejected extends S.TaggedError<MemoryReviewRejected, { readonly brand: unique symbol }>()(
   "MemoryReviewRejected",
   {
     reason: S.String,

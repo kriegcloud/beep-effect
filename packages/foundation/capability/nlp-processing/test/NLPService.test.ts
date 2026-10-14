@@ -1,5 +1,5 @@
 import { Document, DocumentId } from "@beep/nlp/Core/Document";
-import { NLPBackend } from "@beep/nlp-processing/Backend/NLPBackend";
+import { BackendCapabilities, NLPBackend } from "@beep/nlp-processing/Backend/NLPBackend";
 import {
   sentences,
   Tokenization,
@@ -40,7 +40,7 @@ const recordBackendCall = (operation: string, text: string): void => {
 
 const backend: NLPBackendShape = {
   name: "minimal",
-  capabilities: {
+  capabilities: BackendCapabilities.make({
     constituencyParsing: false,
     coreferenceResolution: false,
     dependencyParsing: false,
@@ -50,7 +50,7 @@ const backend: NLPBackendShape = {
     relationExtraction: false,
     sentencization: false,
     tokenization: false,
-  },
+  }),
   tokenize: Effect.fn("test.backend.tokenize")(function* (text: string) {
     return text.split(" ");
   }),

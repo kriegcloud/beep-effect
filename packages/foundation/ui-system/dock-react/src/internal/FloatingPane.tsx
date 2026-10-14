@@ -18,13 +18,13 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { makeOperation } from "./AdapterState.ts";
 import { freshFloatingSplitId, positionOf, pressStartsOnButton, px, topLeftBox } from "./DropCompiler.ts";
+import { FloatingGesture, FloatingOverride } from "./Gesture.models.ts";
 import { GroupPane } from "./GroupPane.tsx";
 import { DockIcon } from "./Icons.tsx";
 import type { AnchoredBox, DockNode } from "@beep/dock";
 import type React from "react";
 import type { DockviewReactProps } from "../DockReact.types.ts";
 import type { AdapterState } from "./AdapterState.ts";
-import type { FloatingGesture } from "./Gesture.models.ts";
 
 const sameGroupId = S.toEquivalence(GroupId);
 
@@ -112,10 +112,12 @@ export const FloatingPane = (
         );
         props.graph.registry.set(
           props.state.floatingOverrideAtom,
-          O.some({
-            groupId,
-            anchoredBox: topLeftBox(next, container),
-          })
+          O.some(
+            FloatingOverride.make({
+              groupId,
+              anchoredBox: topLeftBox(next, container),
+            })
+          )
         );
       };
       const down = (event: PointerEvent): void => {
@@ -127,14 +129,15 @@ export const FloatingPane = (
         node.setPointerCapture?.(event.pointerId);
         props.graph.registry.set(
           props.state.floatingGestureAtom,
-          O.some({
-            groupId,
-            mode,
-            start: positionOf(event),
-            initial: props.anchoredBox,
-            initialBox: member.box,
-            moved: false,
-          })
+          O.some(
+            FloatingGesture.cases[mode].make({
+              groupId,
+              start: positionOf(event),
+              initial: props.anchoredBox,
+              initialBox: member.box,
+              moved: false,
+            })
+          )
         );
       };
       // fallow-ignore-next-line code-duplication -- named pointer-up wrapper preserves listener identity for cleanup

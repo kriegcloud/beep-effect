@@ -53,8 +53,7 @@ const defaultValidationPolicy = Result.getOrThrow(S.decodeResult(ValidationPolic
  * @category models
  * @since 0.0.0
  */
-export class ManifestDocument extends S.Class<ManifestDocument>($I`ManifestDocument`)(
-  {
+export class ManifestDocument extends S.Opaque<ManifestDocument, { readonly brand: unique symbol }>()(S.Struct({
     documentId: DocumentId.annotateKey({
       description: "Stable content-derived document identifier.",
     }),
@@ -67,11 +66,9 @@ export class ManifestDocument extends S.Class<ManifestDocument>($I`ManifestDocum
     sizeBytes: S.Natural.annotateKey({
       description: "Non-negative source size measured in bytes.",
     }),
-  },
-  $I.annote("ManifestDocument", {
+  }).pipe($I.annoteSchema("ManifestDocument", {
     description: "Validated identity, storage location, MIME type, and byte size for one manifest document.",
-  })
-) {}
+  }))) {}
 
 /**
  * Immutable manifest that defines one batch workflow.
@@ -100,8 +97,7 @@ export class ManifestDocument extends S.Class<ManifestDocument>($I`ManifestDocum
  * @category models
  * @since 0.0.0
  */
-export class BatchManifest extends S.Class<BatchManifest>($I`BatchManifest`)(
-  {
+export class BatchManifest extends S.Opaque<BatchManifest, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId.annotateKey({
       description: "Stable identifier shared by every stage of the batch.",
     }),
@@ -135,11 +131,9 @@ export class BatchManifest extends S.Class<BatchManifest>($I`BatchManifest`)(
         description: "Complete policy controlling workflow failure for SHACL results.",
       })
     ),
-  },
-  $I.annote("BatchManifest", {
+  }).pipe($I.annoteSchema("BatchManifest", {
     description: "Versioned ontology-scoped batch manifest with non-empty documents and a complete validation policy.",
-  })
-) {
+  }))) {
   static readonly decodeOptionString = S.decodeOption(S.fromJsonString(BatchManifest));
 
   static readonly decodeEffectFromJsonString = S.decodeEffect(S.fromJsonString(BatchManifest));
@@ -177,8 +171,7 @@ export class BatchManifest extends S.Class<BatchManifest>($I`BatchManifest`)(
  * @category dtos
  * @since 0.0.0
  */
-export class ExtractionActivityInput extends S.Class<ExtractionActivityInput>($I`ExtractionActivityInput`)(
-  {
+export class ExtractionActivityInput extends S.Opaque<ExtractionActivityInput, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId,
     documentId: DocumentId,
     sourceUri: GcsUri,
@@ -194,11 +187,9 @@ export class ExtractionActivityInput extends S.Class<ExtractionActivityInput>($I
     publishedAt: S.OptionFromOptionalKey(S.DateTimeUtcFromString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     title: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     language: S.OptionFromOptionalKey(LanguageCode).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ExtractionActivityInput", {
+  }).pipe($I.annoteSchema("ExtractionActivityInput", {
     description: "Document, ontology, namespace, acceleration, and provenance inputs for extraction.",
-  })
-) {
+  }))) {
   static readonly decodeEffectFromJsonString = S.decodeEffect(S.fromJsonString(ExtractionActivityInput));
 }
 
@@ -222,17 +213,14 @@ export class ExtractionActivityInput extends S.Class<ExtractionActivityInput>($I
  * @category dtos
  * @since 0.0.0
  */
-export class ResolutionActivityInput extends S.Class<ResolutionActivityInput>($I`ResolutionActivityInput`)(
-  {
+export class ResolutionActivityInput extends S.Opaque<ResolutionActivityInput, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId,
     documentGraphUris: S.NonEmptyArray(GcsUri).annotateKey({
       description: "Non-empty collection of extracted per-document graph URIs.",
     }),
-  },
-  $I.annote("ResolutionActivityInput", {
+  }).pipe($I.annoteSchema("ResolutionActivityInput", {
     description: "Batch identity and non-empty extracted graph locations for entity resolution.",
-  })
-) {
+  }))) {
   static readonly decodeEffectFromJsonString = S.decodeEffect(S.fromJsonString(ResolutionActivityInput));
 }
 
@@ -262,18 +250,15 @@ export class ResolutionActivityInput extends S.Class<ResolutionActivityInput>($I
  * @category dtos
  * @since 0.0.0
  */
-export class ValidationActivityInput extends S.Class<ValidationActivityInput>($I`ValidationActivityInput`)(
-  {
+export class ValidationActivityInput extends S.Opaque<ValidationActivityInput, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId,
     resolvedGraphUri: GcsUri,
     ontologyUri: GcsUri,
     shaclUri: S.OptionFromOptionalKey(GcsUri).pipe(S.withConstructorDefault(Effect.succeedNone)),
     validationPolicy: ValidationPolicy.pipe(S.withConstructorDefault(Effect.succeed(defaultValidationPolicy)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultValidationPolicy))),
-  },
-  $I.annote("ValidationActivityInput", {
+  }).pipe($I.annoteSchema("ValidationActivityInput", {
     description: "Resolved graph, ontology, optional shapes, and complete SHACL failure policy.",
-  })
-) {
+  }))) {
   static readonly decodeEffectFromJsonString = S.decodeEffect(S.fromJsonString(ValidationActivityInput));
 }
 
@@ -299,10 +284,7 @@ const validationActivityViolationSummarySampleMessagesDefault = A.empty<string>(
  * @category validation
  * @since 0.0.0
  */
-export class ValidationActivityViolationSummary extends S.Class<ValidationActivityViolationSummary>(
-  $I`ValidationActivityViolationSummary`
-)(
-  {
+export class ValidationActivityViolationSummary extends S.Opaque<ValidationActivityViolationSummary, { readonly brand: unique symbol }>()(S.Struct({
     severity: ShaclSeverity.annotateKey({
       description: "Standard SHACL severity summarized by this value.",
     }),
@@ -315,11 +297,9 @@ export class ValidationActivityViolationSummary extends S.Class<ValidationActivi
         description: "Bounded representative diagnostics selected by the validation adapter.",
       })
     ),
-  },
-  $I.annote("ValidationActivityViolationSummary", {
+  }).pipe($I.annoteSchema("ValidationActivityViolationSummary", {
     description: "Non-negative SHACL result count and representative messages for one standard severity.",
-  })
-) {}
+  }))) {}
 
 const validationActivityOutputViolationSummaryDefault = A.empty<ValidationActivityViolationSummary>();
 /**
@@ -352,8 +332,7 @@ const validationActivityOutputViolationSummaryDefault = A.empty<ValidationActivi
  * @category validation
  * @since 0.0.0
  */
-export class ValidationActivityOutput extends S.Class<ValidationActivityOutput>($I`ValidationActivityOutput`)(
-  {
+export class ValidationActivityOutput extends S.Opaque<ValidationActivityOutput, { readonly brand: unique symbol }>()(S.Struct({
     validatedUri: GcsUri,
     conforms: S.Boolean,
     violations: S.Natural,
@@ -362,12 +341,10 @@ export class ValidationActivityOutput extends S.Class<ValidationActivityOutput>(
     ),
     reportUri: GcsUri,
     durationMs: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("ValidationActivityOutput", {
+  }).pipe($I.annoteSchema("ValidationActivityOutput", {
     description:
       "Validated graph and report locations with conformance, result counts, summaries, and elapsed milliseconds.",
-  })
-) {}
+  }))) {}
 
 /**
  * Input to ingestion of a graph that has completed validation.
@@ -389,16 +366,13 @@ export class ValidationActivityOutput extends S.Class<ValidationActivityOutput>(
  * @category dtos
  * @since 0.0.0
  */
-export class IngestionActivityInput extends S.Class<IngestionActivityInput>($I`IngestionActivityInput`)(
-  {
+export class IngestionActivityInput extends S.Opaque<IngestionActivityInput, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId,
     validatedGraphUri: GcsUri,
     targetNamespace: Namespace,
-  },
-  $I.annote("IngestionActivityInput", {
+  }).pipe($I.annoteSchema("IngestionActivityInput", {
     description: "Batch identity, validated graph location, and target namespace for ingestion.",
-  })
-) {
+  }))) {
   static readonly decodeEffectFromJsonString = S.decodeEffect(S.fromJsonString(IngestionActivityInput));
 }
 
@@ -433,8 +407,7 @@ export class IngestionActivityInput extends S.Class<IngestionActivityInput>($I`I
  * @category workflows
  * @since 0.0.0
  */
-export class BatchWorkflowPayload extends S.Class<BatchWorkflowPayload>($I`BatchWorkflowPayload`)(
-  {
+export class BatchWorkflowPayload extends S.Opaque<BatchWorkflowPayload, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId,
     ontologyId: OntologyName,
     manifestUri: GcsUri,
@@ -445,12 +418,10 @@ export class BatchWorkflowPayload extends S.Class<BatchWorkflowPayload>($I`Batch
     documentIds: S.NonEmptyArray(DocumentId),
     ontologyEmbeddingsUri: GcsUri.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     preprocessing: PreprocessingOptions.pipe(S.withConstructorDefault(Effect.succeed(defaultPreprocessingOptions)), S.withDecodingDefaultTypeKey(Effect.succeed(defaultPreprocessingOptions))),
-  },
-  $I.annote("BatchWorkflowPayload", {
+  }).pipe($I.annoteSchema("BatchWorkflowPayload", {
     description:
       "Complete ontology-scoped batch workflow payload with non-empty documents and normalized optional artifacts.",
-  })
-) {
+  }))) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(BatchWorkflowPayload);
 }
 

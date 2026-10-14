@@ -39,7 +39,9 @@ type WorktreeCommandErrorOptions =
  * @category errors
  * @since 0.0.0
  */
-export class WorktreeCommandError extends S.TaggedError<WorktreeCommandError>($I`WorktreeCommandError`)(
+export class WorktreeCommandError extends S.TaggedError<WorktreeCommandError, { readonly brand: unique symbol }>(
+  $I`WorktreeCommandError`
+)(
   "WorktreeCommandError",
   {
     message: S.String,
@@ -93,7 +95,9 @@ export class WorktreeCommandError extends S.TaggedError<WorktreeCommandError>($I
  * @category errors
  * @since 0.0.0
  */
-export class WorktreeDirtyError extends S.TaggedError<WorktreeDirtyError>($I`WorktreeDirtyError`)(
+export class WorktreeDirtyError extends S.TaggedError<WorktreeDirtyError, { readonly brand: unique symbol }>(
+  $I`WorktreeDirtyError`
+)(
   "WorktreeDirtyError",
   {
     message: S.String,
@@ -150,7 +154,10 @@ type WorktreePreservationErrorOptions =
  * @category errors
  * @since 0.0.0
  */
-export class WorktreePreservationError extends S.TaggedError<WorktreePreservationError>($I`WorktreePreservationError`)(
+export class WorktreePreservationError extends S.TaggedError<
+  WorktreePreservationError,
+  { readonly brand: unique symbol }
+>($I`WorktreePreservationError`)(
   "WorktreePreservationError",
   {
     message: S.String,
@@ -216,7 +223,9 @@ export class WorktreePreservationError extends S.TaggedError<WorktreePreservatio
  * @category errors
  * @since 0.0.0
  */
-export class WorktreeExistsError extends S.TaggedError<WorktreeExistsError>($I`WorktreeExistsError`)(
+export class WorktreeExistsError extends S.TaggedError<WorktreeExistsError, { readonly brand: unique symbol }>(
+  $I`WorktreeExistsError`
+)(
   "WorktreeExistsError",
   {
     message: S.String,

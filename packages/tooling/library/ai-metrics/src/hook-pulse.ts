@@ -409,15 +409,16 @@ export type HookPulseEvidenceTier = typeof HookPulseEvidenceTier.Type;
  * @category models
  * @since 0.0.0
  */
-export class HookPulseDisarmSentinel extends S.Class<HookPulseDisarmSentinel>($I`HookPulseDisarmSentinel`)(
-  {
+export class HookPulseDisarmSentinel extends S.Opaque<HookPulseDisarmSentinel, { readonly brand: unique symbol }>()(
+  S.Struct({
     disarmedAt: S.String,
     evidenceTier: S.Literal(HookPulseEvidenceTier.Enum.unknown),
     reason: S.String,
-  },
-  $I.annote("HookPulseDisarmSentinel", {
-    description: "Current hook-pulse disarm state written by the operator switch.",
-  })
+  }).pipe(
+    $I.annoteSchema("HookPulseDisarmSentinel", {
+      description: "Current hook-pulse disarm state written by the operator switch.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(HookPulseDisarmSentinel));
   static readonly decodeJsonResult = S.decodeUnknownResult(S.fromJsonString(HookPulseDisarmSentinel));
@@ -447,17 +448,18 @@ export class HookPulseDisarmSentinel extends S.Class<HookPulseDisarmSentinel>($I
  * @category models
  * @since 0.0.0
  */
-export class HookPulseDisarmWindow extends S.Class<HookPulseDisarmWindow>($I`HookPulseDisarmWindow`)(
-  {
+export class HookPulseDisarmWindow extends S.Opaque<HookPulseDisarmWindow, { readonly brand: unique symbol }>()(
+  S.Struct({
     disarmedAt: S.OptionFromNullOr(S.String),
     evidenceTier: S.Literal(HookPulseEvidenceTier.Enum.unknown),
     reason: S.OptionFromNullOr(S.String),
     rearmedAt: S.String,
     schemaVersion: HookPulseDisarmWindowSchemaVersion,
-  },
-  $I.annote("HookPulseDisarmWindow", {
-    description: "One closed interval during which hook-pulse collection was disarmed.",
-  })
+  }).pipe(
+    $I.annoteSchema("HookPulseDisarmWindow", {
+      description: "One closed interval during which hook-pulse collection was disarmed.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(HookPulseDisarmWindow));
   static readonly decodeJsonResult = S.decodeUnknownResult(S.fromJsonString(HookPulseDisarmWindow));
@@ -598,16 +600,18 @@ export type HookPulseNotificationType = typeof HookPulseNotificationType.Type;
  * @category models
  * @since 0.0.0
  */
-export class HookPulseRawToolInput extends S.Class<HookPulseRawToolInput>($I`HookPulseRawToolInput`)(
-  {
+export class HookPulseRawToolInput extends S.Opaque<HookPulseRawToolInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.OptionFromOptionalKey(S.String).pipe(S.catchDecoding(() => Effect.succeedSome(O.none()))),
     file_path: S.OptionFromOptionalKey(S.String).pipe(S.catchDecoding(() => Effect.succeedSome(O.none()))),
     notebook_path: S.OptionFromOptionalKey(S.String).pipe(S.catchDecoding(() => Effect.succeedSome(O.none()))),
     path: S.OptionFromOptionalKey(S.String).pipe(S.catchDecoding(() => Effect.succeedSome(O.none()))),
-  },
-  $I.annote("HookPulseRawToolInput", {
-    description: "Surface-locating tool_input keys; non-string values and content-bearing keys are dropped on decode.",
-  })
+  }).pipe(
+    $I.annoteSchema("HookPulseRawToolInput", {
+      description:
+        "Surface-locating tool_input keys; non-string values and content-bearing keys are dropped on decode.",
+    })
+  )
 ) {
   static readonly decodeResult = S.decodeUnknownResult(HookPulseRawToolInput);
 }
@@ -663,8 +667,8 @@ export class HookPulseRawToolInput extends S.Class<HookPulseRawToolInput>($I`Hoo
  * @category models
  * @since 0.0.0
  */
-export class HookPulseRawEvent extends S.Class<HookPulseRawEvent>($I`HookPulseRawEvent`)(
-  {
+export class HookPulseRawEvent extends S.Opaque<HookPulseRawEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     session_id: S.NonEmptyString,
     hook_event_name: HookPulseEvent,
     cwd: S.String,
@@ -687,18 +691,25 @@ export class HookPulseRawEvent extends S.Class<HookPulseRawEvent>($I`HookPulseRa
     tool_input: S.OptionFromOptionalKey(HookPulseRawToolInput).pipe(
       S.catchDecoding(() => Effect.succeedSome(O.none()))
     ),
-  },
-  $I.annote("HookPulseRawEvent", {
-    description: "Whitelisted non-content fields forwarded from a coding-agent hook payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("HookPulseRawEvent", {
+      description: "Whitelisted non-content fields forwarded from a coding-agent hook payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(HookPulseRawEvent);
   static readonly decodeResult = S.decodeUnknownResult(HookPulseRawEvent);
   static readonly encodeEffect = S.encodeUnknownEffect(HookPulseRawEvent);
 }
 
-class HookPulseRawEventInput extends S.Class<HookPulseRawEventInput>($I`HookPulseRawEventInput`)(
-  {
+/**
+ * Raw hook payload paired with the ambient stamps supplied by its writer.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HookPulseRawEventInput extends S.Opaque<HookPulseRawEventInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     event: HookPulseRawEvent,
     notifierRev: S.String,
     instrumentClass: HookPulseInstrumentClass,
@@ -719,10 +730,11 @@ class HookPulseRawEventInput extends S.Class<HookPulseRawEventInput>($I`HookPuls
     // codec has no repo root to walk, so decode passes the stamp through (owned by
     // SessionStart, dropped on every other event) and absence stays absence.
     harnessHash: S.OptionFromOptionalKey(Sha256Hex),
-  },
-  $I.annote("HookPulseRawEventInput", {
-    description: "Raw hook payload paired with the ambient stamps supplied by its writer.",
-  })
+  }).pipe(
+    $I.annoteSchema("HookPulseRawEventInput", {
+      description: "Raw hook payload paired with the ambient stamps supplied by its writer.",
+    })
+  )
 ) {}
 
 // Canonical context-surface keys are `${kind}:${name}` with no trailing newline,
@@ -1145,7 +1157,7 @@ const hookPulseSurfaceReference = (input: HookPulseRawEventInput) =>
  * @category models
  * @since 0.0.0
  */
-export class HookPulseV1 extends S.Class<HookPulseV1>($I`HookPulseV1`)(
+export class HookPulseV1 extends S.Opaque<HookPulseV1, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: HookPulseSchemaVersion,
     ts: S.DateTimeUtcFromString,
@@ -1181,57 +1193,60 @@ export class HookPulseV1 extends S.Class<HookPulseV1>($I`HookPulseV1`)(
     // `deriveHarnessHash`), stamped by the writer on SessionStart only. Rows
     // written before the stamp existed simply lack it.
     harnessHash: S.OptionFromOptionalKey(Sha256Hex),
-  }).check(
-    S.makeFilterGroup(
-      [
-        S.makeFilter(
-          (input) =>
-            A.getSomes(
-              A.map(HookPulseEventOwnedField.literals, (field) =>
-                O.match(hookPulseEventOwnedFieldValue(input, field), {
-                  onNone: O.none,
-                  onSome: () =>
-                    Bool.match(doesHookPulseEventOwnField(field, input.hookEvent), {
-                      onFalse: () =>
-                        O.some({
-                          path: [field],
-                          issue: `${field} belongs to ${hookPulseEventOwningField(field)}, not hookEvent ${input.hookEvent}`,
-                        }),
-                      onTrue: O.none,
-                    }),
-                })
-              )
-            ),
-          {
-            identifier: "HookPulseEventOwnedFieldInvariant",
-            title: "Hook-pulse event-owned field invariant",
-            description: "Requires fields owned by one hook event to be absent from every other event.",
-          }
-        ),
-        S.makeFilter(
-          (input) =>
-            areHookPulseWaitReasonsEquivalent(
-              input.waitReason,
-              deriveWaitReason(input.hookEvent, input.toolName, input.notificationType)
-            ),
-          {
-            identifier: "HookPulseWaitReasonInvariant",
-            title: "Hook-pulse wait-reason derivation invariant",
-            description: "Requires waitReason to agree with the value derived from the canonical hook event fields.",
-            message: "Expected waitReason to match the value derived from hookEvent, toolName, and notificationType",
-          }
-        ),
-      ],
-      {
-        identifier: "HookPulseV1Invariants",
-        title: "Hook-pulse canonical record invariants",
-        description: "Checks event-owned fields and derived wait attribution for canonical hook-pulse records.",
-      }
-    )
-  ),
-  $I.annote("HookPulseV1", {
-    description: "Privacy-safe hook event used as first-class raw history for wait attribution and replay.",
   })
+    .check(
+      S.makeFilterGroup(
+        [
+          S.makeFilter(
+            (input) =>
+              A.getSomes(
+                A.map(HookPulseEventOwnedField.literals, (field) =>
+                  O.match(hookPulseEventOwnedFieldValue(input, field), {
+                    onNone: O.none,
+                    onSome: () =>
+                      Bool.match(doesHookPulseEventOwnField(field, input.hookEvent), {
+                        onFalse: () =>
+                          O.some({
+                            path: [field],
+                            issue: `${field} belongs to ${hookPulseEventOwningField(field)}, not hookEvent ${input.hookEvent}`,
+                          }),
+                        onTrue: O.none,
+                      }),
+                  })
+                )
+              ),
+            {
+              identifier: "HookPulseEventOwnedFieldInvariant",
+              title: "Hook-pulse event-owned field invariant",
+              description: "Requires fields owned by one hook event to be absent from every other event.",
+            }
+          ),
+          S.makeFilter(
+            (input) =>
+              areHookPulseWaitReasonsEquivalent(
+                input.waitReason,
+                deriveWaitReason(input.hookEvent, input.toolName, input.notificationType)
+              ),
+            {
+              identifier: "HookPulseWaitReasonInvariant",
+              title: "Hook-pulse wait-reason derivation invariant",
+              description: "Requires waitReason to agree with the value derived from the canonical hook event fields.",
+              message: "Expected waitReason to match the value derived from hookEvent, toolName, and notificationType",
+            }
+          ),
+        ],
+        {
+          identifier: "HookPulseV1Invariants",
+          title: "Hook-pulse canonical record invariants",
+          description: "Checks event-owned fields and derived wait attribution for canonical hook-pulse records.",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("HookPulseV1", {
+        description: "Privacy-safe hook event used as first-class raw history for wait attribution and replay.",
+      })
+    )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(HookPulseV1);
   static readonly encodeEffect = S.encodeUnknownEffect(HookPulseV1);

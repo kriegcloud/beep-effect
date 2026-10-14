@@ -147,7 +147,7 @@ const encodePersonObject = (person: Person): { readonly [k: string]: unknown } =
  * @category models
  * @since 0.0.0
  */
-export class Person extends S.Class<Person>($I`Person`)({
+export class Person extends S.Class<Person, { readonly brand: unique symbol }>($I`Person`)({
 	/** The person's name. */
 	name: S.String.annotateKey({ description: "The person's name." }),
 	/** The optional email address. */

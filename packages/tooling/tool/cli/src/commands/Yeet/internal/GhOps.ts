@@ -143,7 +143,9 @@ const holdReasons = HashSet.make<ReadonlyArray<YeetGhGateReason>>(
  * @category models
  * @since 0.0.0
  */
-export class YeetGhGateFinding extends S.Class<YeetGhGateFinding>($I`YeetGhGateFinding`)(
+export class YeetGhGateFinding extends S.Class<YeetGhGateFinding, { readonly brand: unique symbol }>(
+  $I`YeetGhGateFinding`
+)(
   { reason: YeetGhGateReason, detail: S.String },
   $I.annote("YeetGhGateFinding", { description: "One reason the REST merge gate is not met." })
 ) {
@@ -169,8 +171,8 @@ export class YeetGhGateFinding extends S.Class<YeetGhGateFinding>($I`YeetGhGateF
  * @category models
  * @since 0.0.0
  */
-export class YeetGhGateFacts extends S.Class<YeetGhGateFacts>($I`YeetGhGateFacts`)(
-  {
+export class YeetGhGateFacts extends S.Opaque<YeetGhGateFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     pullRequest: GithubPullRequestRecord,
     pinnedSha: S.String,
     requiredContexts: S.String.pipe(S.Array, S.Option),
@@ -182,8 +184,7 @@ export class YeetGhGateFacts extends S.Class<YeetGhGateFacts>($I`YeetGhGateFacts
     tolerated: S.Array(S.String),
     forceWindow: S.Boolean,
     now: S.DateTimeUtc,
-  },
-  $I.annote("YeetGhGateFacts", { description: "Everything the REST merge gate decides on." })
+  }).pipe($I.annoteSchema("YeetGhGateFacts", { description: "Everything the REST merge gate decides on." }))
 ) {}
 
 /**
@@ -193,7 +194,9 @@ export class YeetGhGateFacts extends S.Class<YeetGhGateFacts>($I`YeetGhGateFacts
  * @category models
  * @since 0.0.0
  */
-export class YeetGhGateVerdict extends S.Class<YeetGhGateVerdict>($I`YeetGhGateVerdict`)(
+export class YeetGhGateVerdict extends S.Class<YeetGhGateVerdict, { readonly brand: unique symbol }>(
+  $I`YeetGhGateVerdict`
+)(
   {
     findings: S.Array(YeetGhGateFinding),
     requiredGreen: S.Int,
@@ -516,9 +519,10 @@ export const countOutstandingThreads = (read: GithubReviewThreads): number =>
  * @category models
  * @since 0.0.0
  */
-export class YeetGhCommonOptions extends S.Class<YeetGhCommonOptions>($I`YeetGhCommonOptions`)(
-  { tokenRef: S.Option(S.String) },
-  $I.annote("YeetGhCommonOptions", { description: "Options shared by every yeet gh subcommand." })
+export class YeetGhCommonOptions extends S.Opaque<YeetGhCommonOptions, { readonly brand: unique symbol }>()(
+  S.Struct({ tokenRef: S.Option(S.String) }).pipe(
+    $I.annoteSchema("YeetGhCommonOptions", { description: "Options shared by every yeet gh subcommand." })
+  )
 ) {}
 
 /**
@@ -625,7 +629,7 @@ export const flipPullRequestReady = (prNumber: number) =>
 const report = (exitCode: number) => (message: string) => failWithReportedExit(message, exitCode);
 
 const runGh = <A>(
-  options: YeetGhCommonOptions,
+  options: typeof YeetGhCommonOptions.Encoded,
   program: Effect.Effect<
     A,
     GitHubError | GraphqlBudgetExhausted | CliReportedExit,
@@ -742,7 +746,11 @@ const renderVerdictLines = (facts: YeetGhGateFacts, verdict: YeetGhGateVerdict):
  * @since 0.0.0
  */
 export const runYeetGhPrStatus = (
-  options: YeetGhCommonOptions & { readonly number: number; readonly threads: boolean; readonly noWait: boolean }
+  options: typeof YeetGhCommonOptions.Encoded & {
+    readonly number: number;
+    readonly threads: boolean;
+    readonly noWait: boolean;
+  }
 ) =>
   runGh(
     options,
@@ -771,7 +779,7 @@ export const runYeetGhPrStatus = (
  * @since 0.0.0
  */
 export const runYeetGhMerge = (
-  options: YeetGhCommonOptions & {
+  options: typeof YeetGhCommonOptions.Encoded & {
     readonly number: number;
     readonly sha: string;
     readonly tolerate: ReadonlyArray<string>;
@@ -836,7 +844,7 @@ export const runYeetGhMerge = (
  * @since 0.0.0
  */
 export const runYeetGhPrReady = (
-  options: YeetGhCommonOptions & { readonly number: number; readonly noWait: boolean }
+  options: typeof YeetGhCommonOptions.Encoded & { readonly number: number; readonly noWait: boolean }
 ) =>
   runGh(
     options,
@@ -890,7 +898,7 @@ export const markPullRequestReady = Effect.fn("YeetGh.markPullRequestReady")(fun
  * @since 0.0.0
  */
 export const runYeetGhPrLabel = (
-  options: YeetGhCommonOptions & {
+  options: typeof YeetGhCommonOptions.Encoded & {
     readonly action: "add" | "remove";
     readonly number: number;
     readonly label: string;
@@ -918,7 +926,9 @@ export const runYeetGhPrLabel = (
  * @category commands
  * @since 0.0.0
  */
-export const runYeetGhPrComment = (options: YeetGhCommonOptions & { readonly number: number; readonly body: string }) =>
+export const runYeetGhPrComment = (
+  options: typeof YeetGhCommonOptions.Encoded & { readonly number: number; readonly body: string }
+) =>
   runGh(
     options,
     Effect.gen(function* () {
@@ -944,7 +954,10 @@ const cancellableStatuses = HashSet.make("queued", "waiting", "pending", "reques
  * @since 0.0.0
  */
 export const runYeetGhChecks = (
-  options: YeetGhCommonOptions & { readonly action: "rerun-failed" | "cancel-queued"; readonly number: number }
+  options: typeof YeetGhCommonOptions.Encoded & {
+    readonly action: "rerun-failed" | "cancel-queued";
+    readonly number: number;
+  }
 ) =>
   runGh(
     options,
@@ -987,7 +1000,7 @@ export const runYeetGhChecks = (
  * @category commands
  * @since 0.0.0
  */
-export const runYeetGhRateLimit = (options: YeetGhCommonOptions) =>
+export const runYeetGhRateLimit = (options: typeof YeetGhCommonOptions.Encoded) =>
   runGh(
     options,
     Effect.gen(function* () {

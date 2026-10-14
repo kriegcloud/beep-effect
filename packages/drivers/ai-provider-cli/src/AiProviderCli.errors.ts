@@ -42,7 +42,9 @@ const $I = $AiProviderCliId.create("AiProviderCli.errors");
  * @category errors
  * @since 0.0.0
  */
-export class AiProviderCliError extends S.TaggedError<AiProviderCliError>($I`AiProviderCliError`)(
+export class AiProviderCliError extends S.TaggedError<AiProviderCliError, { readonly brand: unique symbol }>(
+  $I`AiProviderCliError`
+)(
   "AiProviderCliError",
   {
     command: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({

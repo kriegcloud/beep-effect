@@ -310,7 +310,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/CliUiLive");
  * @category errors
  * @since 0.0.0
  */
-export class LiveTickError extends S.TaggedError<LiveTickError>($I`LiveTickError`)("LiveTickError", {
+export class LiveTickError extends S.TaggedError<LiveTickError, { readonly brand: unique symbol }>($I`LiveTickError`)("LiveTickError", {
 	message: S.String.annotate($I.annote("LiveTickError.message", {
 		description: "Identifies the invalid tick interval and its positive, finite millisecond requirement.",
 	})),

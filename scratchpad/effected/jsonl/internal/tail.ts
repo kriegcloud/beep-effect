@@ -75,7 +75,7 @@ export const DEFAULT_WINDOW = 8192;
  * @category models
  * @since 0.0.0
  */
-export class TailWindow extends S.Class<TailWindow>($I`TailWindow`)(
+export class TailWindow extends S.Class<TailWindow, { readonly brand: unique symbol }>($I`TailWindow`)(
   { text: S.String, start: ByteCount, atFileStart: S.Boolean, size: ByteCount },
   $I.annote("TailWindow", {
     description: "A tail read beginning at a line boundary, with post-BOM offsets.",

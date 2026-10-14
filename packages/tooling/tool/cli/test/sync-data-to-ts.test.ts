@@ -272,10 +272,12 @@ const generatedFileExists = outputFileExists(generatedOutputPath);
 const writeGeneratedFile = (content: string) => writeOutputFile(generatedOutputPath, content);
 
 const csvTarget: SyncDataTarget = {
-  id: "test-csv",
-  access: "public",
-  description: "Fixture CSV target used to verify sync-data-to-ts CSV parsing.",
-  sourceUrls: [csvFixtureSourceUrl],
+  ...SyncDataTargetMetadata.make({
+    id: "test-csv",
+    access: "public",
+    description: "Fixture CSV target used to verify sync-data-to-ts CSV parsing.",
+    sourceUrls: [csvFixtureSourceUrl],
+  }),
   acquire: Effect.gen(function* () {
     const source = yield* fetchSource("test-csv", "fixture-csv", csvFixtureSourceUrl);
     const rows = yield* parseCsvSource("test-csv", source);

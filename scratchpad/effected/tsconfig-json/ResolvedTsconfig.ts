@@ -384,7 +384,7 @@ const substituteConfigDir: {
  * @category models
  * @since 0.0.0
  */
-export class ResolvedTsconfig extends S.Opaque<ResolvedTsconfig>()(ResolvedTsconfigData) {
+export class ResolvedTsconfig extends S.Opaque<ResolvedTsconfig, {}>()(ResolvedTsconfigData) {
 
 	/**
 	 * Absolutize a config's path-typed options against its own

@@ -47,7 +47,7 @@ import { $PackageNameId } from "@beep/identity/packages"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-class JsonParseError extends S.TaggedError<JsonParseError>($I`JsonParseError`)(
+class JsonParseError extends S.TaggedError<JsonParseError, { readonly brand: unique symbol }>($I`JsonParseError`)(
   "JsonParseError",
   { message: S.String, input: S.String },
   $I.annote("JsonParseError", { description: "Invalid JSON payload" })
@@ -69,16 +69,19 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 // NEVER: export const UserSchema = S.Struct(...)
 // NEVER: export interface User { readonly id: string; readonly name: string }
-// ALWAYS: prefer S.Class for object schemas.
-export class User extends S.Class<User>($I`User`)(
-  {
+// NEVER: an unbranded schema class (`S.Class<User>(...)`, `S.Opaque<User>()(...)`).
+// NEVER: S.Class for plain data; it rejects structurally valid plain objects.
+// ALWAYS: branded S.Opaque over an annotated S.Struct for plain data.
+export class User extends S.Opaque<User, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     name: S.String
-  },
-  $I.annote("User", {
+  }).pipe($I.annoteSchema("User", {
     description: "Application user payload."
-  })
+  }))
 ) {}
+
+const user = User.make({ id: "u-1", name: "Ada" })
 
 const decodeUser = S.decodeUnknownEffect(User)
 ```
@@ -234,19 +237,22 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 const JobStateTag = LiteralKit(["queued", "running", "failed"])
 
-export class JobQueued extends S.Class<JobQueued>($I`JobQueued`)(
-  { state: S.tag("queued") },
-  $I.annote("JobQueued", { description: "Queued job state." })
+export class JobQueued extends S.Opaque<JobQueued, { readonly brand: unique symbol }>()(
+  S.Struct({ state: S.tag("queued") }).pipe(
+    $I.annoteSchema("JobQueued", { description: "Queued job state." })
+  )
 ) {}
 
-export class JobRunning extends S.Class<JobRunning>($I`JobRunning`)(
-  { state: S.tag("running"), workerId: S.String },
-  $I.annote("JobRunning", { description: "Running job state." })
+export class JobRunning extends S.Opaque<JobRunning, { readonly brand: unique symbol }>()(
+  S.Struct({ state: S.tag("running"), workerId: S.String }).pipe(
+    $I.annoteSchema("JobRunning", { description: "Running job state." })
+  )
 ) {}
 
-export class JobFailed extends S.Class<JobFailed>($I`JobFailed`)(
-  { state: S.tag("failed"), reason: S.String },
-  $I.annote("JobFailed", { description: "Failed job state." })
+export class JobFailed extends S.Opaque<JobFailed, { readonly brand: unique symbol }>()(
+  S.Struct({ state: S.tag("failed"), reason: S.String }).pipe(
+    $I.annoteSchema("JobFailed", { description: "Failed job state." })
+  )
 ) {}
 
 export const JobState = JobStateTag
@@ -299,16 +305,24 @@ export const TaskEvent = S.TaggedUnion({
 }))
 
 // Use toTaggedUnion for external unions or non-standard discriminants.
-export class ExternalTaskCreated extends S.Class<ExternalTaskCreated>($I`ExternalTaskCreated`)({
-  kind: S.tag("created"),
-  id: S.String
-}) {}
+export class ExternalTaskCreated extends S.Opaque<ExternalTaskCreated, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("created"),
+    id: S.String
+  }).pipe($I.annoteSchema("ExternalTaskCreated", {
+    description: "Created event from an external task source."
+  }))
+) {}
 
-export class ExternalTaskCompleted extends S.Class<ExternalTaskCompleted>($I`ExternalTaskCompleted`)({
-  kind: S.tag("completed"),
-  id: S.String,
-  at: S.String
-}) {}
+export class ExternalTaskCompleted extends S.Opaque<ExternalTaskCompleted, { readonly brand: unique symbol }>()(
+  S.Struct({
+    kind: S.tag("completed"),
+    id: S.String,
+    at: S.String
+  }).pipe($I.annoteSchema("ExternalTaskCompleted", {
+    description: "Completed event from an external task source."
+  }))
+) {}
 
 const ExternalTaskKind = LiteralKit(["created", "completed"])
 

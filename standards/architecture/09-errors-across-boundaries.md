@@ -29,8 +29,9 @@ The arrow is always a translation, never a passthrough. A failure that escapes i
 Every typed error class extends `S.TaggedError` from `effect/Schema` directly.
 Use the package's `$I` composer when a distinct namespaced schema identifier is
 wanted. When no distinct identifier is needed, omit it with
-`S.TaggedError<Self>()("Tag", fields)`; never pass a bare identifier equal to
-the tag. Cause-carrying errors declare
+`S.TaggedError<Self, { readonly brand: unique symbol }>()("Tag", fields)`;
+never pass a bare identifier equal to the tag. Every error class carries the
+`{ readonly brand: unique symbol }` brand type argument. Cause-carrying errors declare
 `cause: Defect({ includeStack: true })` explicitly with the `Defect` wrapper
 from `@beep/schema` (see "Declared field equivalence" below).
 
@@ -109,7 +110,7 @@ const $I = $PostgresId.create("Postgres.errors");
  * @category errors
  * @since 0.0.0
  */
-export class PostgresError extends S.TaggedError<PostgresError>(
+export class PostgresError extends S.TaggedError<PostgresError, { readonly brand: unique symbol }>(
   $I`PostgresError`
 )(
   "PostgresError",
@@ -143,7 +144,7 @@ const $I = $IamUseCasesId.create("Membership.errors");
  * @category errors
  * @since 0.0.0
  */
-export class MembershipRepositoryNotFound extends S.TaggedError<MembershipRepositoryNotFound>(
+export class MembershipRepositoryNotFound extends S.TaggedError<MembershipRepositoryNotFound, { readonly brand: unique symbol }>(
   $I`MembershipRepositoryNotFound`
 )(
   "MembershipRepositoryNotFound",
@@ -159,7 +160,7 @@ export class MembershipRepositoryNotFound extends S.TaggedError<MembershipReposi
  * @category errors
  * @since 0.0.0
  */
-export class MembershipRepositoryUnavailable extends S.TaggedError<MembershipRepositoryUnavailable>(
+export class MembershipRepositoryUnavailable extends S.TaggedError<MembershipRepositoryUnavailable, { readonly brand: unique symbol }>(
   $I`MembershipRepositoryUnavailable`
 )(
   "MembershipRepositoryUnavailable",

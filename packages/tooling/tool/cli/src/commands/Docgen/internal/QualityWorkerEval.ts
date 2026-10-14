@@ -71,13 +71,14 @@ const DocgenQualityWorkerEvalLocalScore = S.Finite.check(
   })
 );
 
-class CodexSdkPackageMetadata extends S.Class<CodexSdkPackageMetadata>($I`CodexSdkPackageMetadata`)(
-  {
+class CodexSdkPackageMetadata extends S.Opaque<CodexSdkPackageMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.String,
-  },
-  $I.annote("CodexSdkPackageMetadata", {
-    description: "Package metadata used to stamp worker eval reports with the Codex SDK version.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexSdkPackageMetadata", {
+      description: "Package metadata used to stamp worker eval reports with the Codex SDK version.",
+    })
+  )
 ) {}
 
 const decodeCodexSdkPackageMetadataJson = S.decodeUnknownEffect(S.fromJsonString(CodexSdkPackageMetadata));
@@ -331,39 +332,44 @@ export type DocgenQualityWorkerEvalPolicyViolationCode = typeof DocgenQualityWor
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityWorkerEvalWorkerOutput extends S.Class<DocgenQualityWorkerEvalWorkerOutput>(
-  $I`DocgenQualityWorkerEvalWorkerOutput`
-)(
-  {
+export class DocgenQualityWorkerEvalWorkerOutput extends S.Opaque<
+  DocgenQualityWorkerEvalWorkerOutput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     localScore: DocgenQualityWorkerEvalLocalScore,
     rationale: S.String,
     draftJsDoc: S.String,
     policyViolationCodes: S.Array(DocgenQualityWorkerEvalPolicyViolationCode),
     reviewDisposition: DocgenQualityWorkerEvalReviewDisposition,
-  },
-  $I.annote("DocgenQualityWorkerEvalWorkerOutput", {
-    description: "Structured response expected from the Codex worker.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerEvalWorkerOutput", {
+      description: "Structured response expected from the Codex worker.",
+    })
+  )
 ) {}
 
 const decodeWorkerOutputJson = S.decodeUnknownEffect(S.fromJsonString(DocgenQualityWorkerEvalWorkerOutput));
 
-class DocgenQualityWorkerEvalRuntime extends S.Class<DocgenQualityWorkerEvalRuntime>(
-  $I`DocgenQualityWorkerEvalRuntime`
-)(
-  {
+class DocgenQualityWorkerEvalRuntime extends S.Opaque<
+  DocgenQualityWorkerEvalRuntime,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     totalDurationMs: S.Finite,
     packetTimeoutMs: S.Finite,
-  },
-  $I.annote("DocgenQualityWorkerEvalRuntime", {
-    description: "Runtime measurements for one worker eval run.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerEvalRuntime", {
+      description: "Runtime measurements for one worker eval run.",
+    })
+  )
 ) {}
 
-class DocgenQualityWorkerEvalPacketResult extends S.Class<DocgenQualityWorkerEvalPacketResult>(
-  $I`DocgenQualityWorkerEvalPacketResult`
-)(
-  {
+class DocgenQualityWorkerEvalPacketResult extends S.Opaque<
+  DocgenQualityWorkerEvalPacketResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     packetId: S.String,
     subjectId: S.String,
     sourceAnchor: S.String,
@@ -379,16 +385,18 @@ class DocgenQualityWorkerEvalPacketResult extends S.Class<DocgenQualityWorkerEva
     reviewDisposition: DocgenQualityWorkerEvalReviewDisposition,
     durationMs: S.Finite,
     error: S.NullOr(S.String),
-  },
-  $I.annote("DocgenQualityWorkerEvalPacketResult", {
-    description: "Worker result for one deterministic remediation packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerEvalPacketResult", {
+      description: "Worker result for one deterministic remediation packet.",
+    })
+  )
 ) {}
 
-class DocgenQualityWorkerEvalSummary extends S.Class<DocgenQualityWorkerEvalSummary>(
-  $I`DocgenQualityWorkerEvalSummary`
-)(
-  {
+class DocgenQualityWorkerEvalSummary extends S.Opaque<
+  DocgenQualityWorkerEvalSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     packages: S.Finite,
     sourcePackets: S.Finite,
     selectedPackets: S.Finite,
@@ -398,10 +406,11 @@ class DocgenQualityWorkerEvalSummary extends S.Class<DocgenQualityWorkerEvalSumm
     candidates: S.Finite,
     needsHumanReview: S.Finite,
     rejected: S.Finite,
-  },
-  $I.annote("DocgenQualityWorkerEvalSummary", {
-    description: "Aggregate summary for a worker JSDoc quality eval.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerEvalSummary", {
+      description: "Aggregate summary for a worker JSDoc quality eval.",
+    })
+  )
 ) {}
 
 /**
@@ -419,10 +428,11 @@ class DocgenQualityWorkerEvalSummary extends S.Class<DocgenQualityWorkerEvalSumm
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityWorkerEvalReport extends S.Class<DocgenQualityWorkerEvalReport>(
-  $I`DocgenQualityWorkerEvalReport`
-)(
-  {
+export class DocgenQualityWorkerEvalReport extends S.Opaque<
+  DocgenQualityWorkerEvalReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal(QUALITY_WORKER_EVAL_SCHEMA_VERSION),
     generatedAt: S.String,
     sourceQualityReport: S.String,
@@ -436,10 +446,11 @@ export class DocgenQualityWorkerEvalReport extends S.Class<DocgenQualityWorkerEv
     policyViolations: S.Array(DocgenQualityWorkerEvalPolicyViolationCode),
     runtime: DocgenQualityWorkerEvalRuntime,
     recommendation: S.String,
-  },
-  $I.annote("DocgenQualityWorkerEvalReport", {
-    description: "JSON report emitted by docgen quality-worker-eval.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerEvalReport", {
+      description: "JSON report emitted by docgen quality-worker-eval.",
+    })
+  )
 ) {}
 
 /**
@@ -448,24 +459,26 @@ export class DocgenQualityWorkerEvalReport extends S.Class<DocgenQualityWorkerEv
  * **Example** (Create runner result)
  *
  * ```ts
- * import type { DocgenQualityWorkerEvalRunnerResult } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
+ * import { DocgenQualityWorkerEvalRunnerResult } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  *
- * const result: DocgenQualityWorkerEvalRunnerResult = { finalResponse: "{}" }
+ * const result = DocgenQualityWorkerEvalRunnerResult.make({ finalResponse: "{}" })
  * console.log(result.finalResponse)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityWorkerEvalRunnerResult extends S.Class<DocgenQualityWorkerEvalRunnerResult>(
-  $I`DocgenQualityWorkerEvalRunnerResult`
-)(
-  {
+export class DocgenQualityWorkerEvalRunnerResult extends S.Opaque<
+  DocgenQualityWorkerEvalRunnerResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     finalResponse: S.String,
-  },
-  $I.annote("DocgenQualityWorkerEvalRunnerResult", {
-    description: "Completed worker turn returned by the Codex runner.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerEvalRunnerResult", {
+      description: "Completed worker turn returned by the Codex runner.",
+    })
+  )
 ) {}
 
 /**
@@ -483,20 +496,22 @@ export class DocgenQualityWorkerEvalRunnerResult extends S.Class<DocgenQualityWo
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityWorkerEvalRunnerInput extends S.Class<DocgenQualityWorkerEvalRunnerInput>(
-  $I`DocgenQualityWorkerEvalRunnerInput`
-)(
-  {
+export class DocgenQualityWorkerEvalRunnerInput extends S.Opaque<
+  DocgenQualityWorkerEvalRunnerInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseUrl: S.optionalKey(S.String),
     model: S.String,
     provider: DocgenQualityWorkerEvalProvider,
     reasoningEffort: S.optionalKey(DocgenQualityWorkerEvalReasoningEffort),
     prompt: S.String,
     workingDirectory: S.String,
-  },
-  $I.annote("DocgenQualityWorkerEvalRunnerInput", {
-    description: "Inputs passed to the Codex runner for one remediation packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityWorkerEvalRunnerInput", {
+      description: "Inputs passed to the Codex runner for one remediation packet.",
+    })
+  )
 ) {}
 
 /**
@@ -505,17 +520,23 @@ export class DocgenQualityWorkerEvalRunnerInput extends S.Class<DocgenQualityWor
  * **Example** (Run mock Codex runner)
  *
  * ```ts
- * import type { DocgenQualityWorkerEvalRunner } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
+ * import {
+ *   type DocgenQualityWorkerEvalRunner,
+ *   DocgenQualityWorkerEvalRunnerInput,
+ *   DocgenQualityWorkerEvalRunnerResult,
+ * } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  * import * as Effect from "effect/Effect";
  * const runner: DocgenQualityWorkerEvalRunner = (input) =>
- *   Effect.succeed({ finalResponse: JSON.stringify({ model: input.model }) })
+ *   Effect.succeed(DocgenQualityWorkerEvalRunnerResult.make({ finalResponse: JSON.stringify({ model: input.model }) }))
  * const result = Effect.runSync(
- *   runner({
- *     model: "gpt-5.4-mini",
- *     provider: "codex",
- *     prompt: "Score this JSDoc packet.",
- *     workingDirectory: "/tmp/beep-jsdoc-eval"
- *   })
+ *   runner(
+ *     DocgenQualityWorkerEvalRunnerInput.make({
+ *       model: "gpt-5.4-mini",
+ *       provider: "codex",
+ *       prompt: "Score this JSDoc packet.",
+ *       workingDirectory: "/tmp/beep-jsdoc-eval"
+ *     })
+ *   )
  * )
  * console.log(result.finalResponse)
  * ```
@@ -559,10 +580,11 @@ type PacketCandidate = {
  * @category models
  * @since 0.0.0
  */
-export class AnalyzeDocgenQualityWorkerEvalOptions extends S.Class<AnalyzeDocgenQualityWorkerEvalOptions>(
-  $I`AnalyzeDocgenQualityWorkerEvalOptions`
-)(
-  {
+export class AnalyzeDocgenQualityWorkerEvalOptions extends S.Opaque<
+  AnalyzeDocgenQualityWorkerEvalOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseUrl: S.optionalKey(S.String),
     codexSdkVersion: S.optionalKey(S.String),
     model: S.String,
@@ -574,10 +596,11 @@ export class AnalyzeDocgenQualityWorkerEvalOptions extends S.Class<AnalyzeDocgen
     scope: DocgenQualityWorkerEvalScope,
     sourceQualityReport: S.String,
     timeout: S.optionalKey(S.Any),
-  },
-  $I.annote("AnalyzeDocgenQualityWorkerEvalOptions", {
-    description: "Options for one worker eval run.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnalyzeDocgenQualityWorkerEvalOptions", {
+      description: "Options for one worker eval run.",
+    })
+  )
 ) {}
 
 const errorMessage = (error: unknown): string => cliErrorMessage(error, "Unknown worker eval failure.");
@@ -919,9 +942,9 @@ const makeCodexRunner = (sdkModule: CodexSdkModule): DocgenQualityWorkerEvalRunn
         }),
     });
 
-    return {
+    return DocgenQualityWorkerEvalRunnerResult.make({
       finalResponse: turn.finalResponse,
-    };
+    });
   });
 
 const makeDefaultCodexRunner = Effect.fn("DocgenQualityWorkerEval.makeDefaultCodexRunner")(function* () {
@@ -1038,14 +1061,16 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
     O.map((value) => ({ reasoningEffort: value })),
     O.getOrElse(() => ({}))
   );
-  const timed = yield* runner({
-    ...O.getSomesStruct({ baseUrl: O.fromUndefinedOr(baseUrl) }),
-    model,
-    prompt: workerPrompt(candidate),
-    provider,
-    ...reasoningInput,
-    workingDirectory,
-  }).pipe(
+  const timed = yield* runner(
+    DocgenQualityWorkerEvalRunnerInput.make({
+      ...O.getSomesStruct({ baseUrl: O.fromUndefinedOr(baseUrl) }),
+      model,
+      prompt: workerPrompt(candidate),
+      provider,
+      ...reasoningInput,
+      workingDirectory,
+    })
+  ).pipe(
     Effect.flatMap((result) => decodeWorkerOutput(result.finalResponse)),
     Effect.map((output) =>
       completedPacketResult({

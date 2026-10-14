@@ -63,7 +63,7 @@ const TicketStorageOperation = LiteralKit(["persist", "load", "remove", "list"])
  * @category errors
  * @since 0.0.0
  */
-export class TicketStorageError extends S.TaggedError<TicketStorageError>($I`TicketStorageError`)(
+export class TicketStorageError extends S.TaggedError<TicketStorageError, { readonly brand: unique symbol }>($I`TicketStorageError`)(
   "TicketStorageError",
   {
     message: ErrorMessage.annotateKey({ description: "Opaque ticket-storage failure summary." }),

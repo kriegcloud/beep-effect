@@ -36,18 +36,19 @@ const isFalse = (value: unknown): value is false => Eq.equals(false)(value);
  * @category schemas
  * @since 0.0.0
  */
-export class SecureHeader extends S.Class<SecureHeader>($I`SecureHeader`)(
-  {
+export class SecureHeader extends S.Opaque<SecureHeader, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: S.String.annotateKey({
       description: "HTTP response header name.",
     }),
     value: S.String.annotateKey({
       description: "HTTP response header value.",
     }),
-  },
-  $I.annote("SecureHeader", {
-    description: "A secure HTTP response header emitted through Next.js headers().",
-  })
+  }).pipe(
+    $I.annoteSchema("SecureHeader", {
+      description: "A secure HTTP response header emitted through Next.js headers().",
+    })
+  )
 ) {}
 
 const HeaderList = SecureHeader.pipe(
@@ -94,8 +95,14 @@ const emptySecureHeaders: Array<SecureHeader> = [];
  */
 export const DEFAULT_BEEP_SECURE_HEADERS: ReadonlyArray<SecureHeader> = defaultBeepSecureHeaders;
 
-class SecureHeadersConfigValue extends S.Class<SecureHeadersConfigValue>($I`SecureHeadersConfigValue`)(
-  {
+/**
+ * Next.js route source receiving the secure headers.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SecureHeadersConfigValue extends S.Opaque<SecureHeadersConfigValue, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultHeaderSource)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultHeaderSource))
@@ -114,10 +121,11 @@ class SecureHeadersConfigValue extends S.Class<SecureHeadersConfigValue>($I`Secu
     ).annotateKey({
       description: "Additional secure headers merged with the repo default list.",
     }),
-  },
-  $I.annote("SecureHeadersConfigValue", {
-    description: "Object form of shared secure-header configuration for the repo Next.js preset.",
-  })
+  }).pipe(
+    $I.annoteSchema("SecureHeadersConfigValue", {
+      description: "Object form of shared secure-header configuration for the repo Next.js preset.",
+    })
+  )
 ) {}
 
 /**
@@ -129,16 +137,22 @@ class SecureHeadersConfigValue extends S.Class<SecureHeadersConfigValue>($I`Secu
  * the repo default set; an object with `additionalHeaders` merges additively
  * with app values winning by header key.
  *
- * **Example** (Configure headers and additions)
+ * **Example** (Decode disabled and additive configs)
  *
  * ```ts
- * import type { SecureHeadersConfig } from "@beep/repo-configs/next/security"
- * const config: SecureHeadersConfig = {
- *   source: "/(.*)",
- *   headers: [{ key: "X-Content-Type-Options", value: "nosniff" }],
- *   additionalHeaders: [{ key: "X-Beep", value: "1" }]
+ * import { strictEqual } from "node:assert/strict"
+ * import { SecureHeadersConfig } from "@beep/repo-configs/next/security"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(SecureHeadersConfig)
+ *
+ * strictEqual(decode(false), false)
+ *
+ * const config = decode({ additionalHeaders: [{ key: "X-Beep", value: "1" }] })
+ * if (config !== false) {
+ *   strictEqual(config.source, "/(.*)")
+ *   strictEqual(config.headers.length, 4)
  * }
- * console.log(config)
  * ```
  *
  * @category schemas
@@ -157,12 +171,13 @@ export const SecureHeadersConfig = S.Union([S.Literal(false), SecureHeadersConfi
  *
  * ```ts
  * import type { SecureHeadersConfig } from "@beep/repo-configs/next/security"
- * const config: SecureHeadersConfig = {
- *   source: "/(.*)",
- *   headers: [{ key: "X-Frame-Options", value: "DENY" }],
- *   additionalHeaders: []
- * }
- * console.log(config)
+ * import { SecureHeader, SecureHeadersConfigValue } from "@beep/repo-configs/next/security"
+ *
+ * const disabled: SecureHeadersConfig = false
+ * const replaced: SecureHeadersConfig = SecureHeadersConfigValue.make({
+ *   headers: [SecureHeader.make({ key: "X-Frame-Options", value: "DENY" })]
+ * })
+ * console.log(disabled, replaced)
  * ```
  *
  * @category models
@@ -233,13 +248,17 @@ const headerSource = (config: SecureHeadersConfigInput | undefined): string =>
  * **Example** (Build secure header list)
  *
  * ```ts
- * import { makeSecureHeaders } from "@beep/repo-configs/next/security"
+ * import { makeSecureHeaders, SecureHeader } from "@beep/repo-configs/next/security"
+ *
  * const headers = makeSecureHeaders({
- *   source: "/(.*)",
- *   headers: [{ key: "X-Content-Type-Options", value: "nosniff" }],
- *   additionalHeaders: [{ key: "X-Beep", value: "1" }]
+ *   headers: [SecureHeader.make({ key: "X-Frame-Options", value: "DENY" })],
+ *   additionalHeaders: [
+ *     SecureHeader.make({ key: "X-Frame-Options", value: "SAMEORIGIN" }),
+ *     SecureHeader.make({ key: "X-Beep", value: "1" })
+ *   ]
  * })
- * console.log(headers)
+ * console.log(headers.map((header) => `${header.key}: ${header.value}`))
+ * // ["X-Frame-Options: SAMEORIGIN", "X-Beep: 1"]
  * ```
  *
  * @param config - Secure header override or extension settings.

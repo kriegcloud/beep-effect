@@ -219,18 +219,19 @@ export type GoalManifestSchemaVersion = typeof GoalManifestSchemaVersion.Type;
  * @category models
  * @since 0.0.0
  */
-export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompletionGate`)(
-  {
+export class GoalCompletionGate extends S.Opaque<GoalCompletionGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     operator: S.String,
     requiresPullRequest: S.Boolean,
     requiresMergeable: S.Boolean,
     statement: S.String,
     grandfathered: S.Boolean,
     grandfatheredNote: S.optionalKey(S.String),
-  },
-  $I.annote("GoalCompletionGate", {
-    description: "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered).",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalCompletionGate", {
+      description: "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered).",
+    })
+  )
 ) {}
 
 /**
@@ -254,18 +255,19 @@ export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompl
  * @category models
  * @since 0.0.0
  */
-export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
-  {
+export class GoalInitiative extends S.Opaque<GoalInitiative, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     status: GoalStatus,
     title: S.optionalKey(S.String),
     created: S.optionalKey(S.String),
     updated: S.optionalKey(S.String),
     packetAnchorDocument: S.optionalKey(S.String),
-  },
-  $I.annote("GoalInitiative", {
-    description: "Goal-manifest identity block: required id and canonical status plus optional metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalInitiative", {
+      description: "Goal-manifest identity block: required id and canonical status plus optional metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -288,16 +290,17 @@ export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
  * @category models
  * @since 0.0.0
  */
-export class GoalPhase extends S.Class<GoalPhase>($I`GoalPhase`)(
-  {
+export class GoalPhase extends S.Opaque<GoalPhase, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: GoalPhaseStatus,
     id: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
     exit: S.optionalKey(S.String),
-  },
-  $I.annote("GoalPhase", {
-    description: "One goal-manifest phase entry with a normalized status.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalPhase", {
+      description: "One goal-manifest phase entry with a normalized status.",
+    })
+  )
 ) {}
 
 const CapabilitySegment = S.String.check(
@@ -445,7 +448,7 @@ const GoalManifestCapabilitySelfCycleCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GoalManifest extends S.Class<GoalManifest>($I`GoalManifest`)(
+export class GoalManifest extends S.Opaque<GoalManifest, { readonly brand: unique symbol }>()(
   S.Struct({
     initiative: GoalInitiative,
     completionGate: GoalCompletionGate,
@@ -465,10 +468,13 @@ export class GoalManifest extends S.Class<GoalManifest>($I`GoalManifest`)(
     phases: S.Union([S.Array(GoalPhase), S.Record(S.String, GoalPhase)]).pipe(S.optionalKey),
     provides: CapabilitySlugList,
     requires: CapabilitySlugList,
-  }).check(GoalManifestCapabilitySelfCycleCheck),
-  $I.annote("GoalManifest", {
-    description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
   })
+    .check(GoalManifestCapabilitySelfCycleCheck)
+    .pipe(
+      $I.annoteSchema("GoalManifest", {
+        description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
+      })
+    )
 ) {}
 
 /**

@@ -156,8 +156,11 @@ export type OnePasswordCliDiagnosticText = typeof OnePasswordCliDiagnosticText.T
  * @category models
  * @since 0.0.0
  */
-export class OnePasswordCliProcessResult extends S.Class<OnePasswordCliProcessResult>($I`OnePasswordCliProcessResult`)(
-  {
+export class OnePasswordCliProcessResult extends S.Opaque<
+  OnePasswordCliProcessResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     exitCode: OnePasswordCliExitCode.annotateKey({
       description: "1Password CLI process exit status.",
     }),
@@ -167,10 +170,11 @@ export class OnePasswordCliProcessResult extends S.Class<OnePasswordCliProcessRe
     stdout: S.String.annotateKey({
       description: "Raw standard output captured from the 1Password CLI command; secret reads keep this exact.",
     }),
-  },
-  $I.annote("OnePasswordCliProcessResult", {
-    description: "Stdout, stderr, and exit code captured from a 1Password CLI command.",
-  })
+  }).pipe(
+    $I.annoteSchema("OnePasswordCliProcessResult", {
+      description: "Stdout, stderr, and exit code captured from a 1Password CLI command.",
+    })
+  )
 ) {}
 
 /**
@@ -187,8 +191,8 @@ export class OnePasswordCliProcessResult extends S.Class<OnePasswordCliProcessRe
  * @category models
  * @since 0.0.0
  */
-export class OnePasswordCliAccount extends S.Class<OnePasswordCliAccount>($I`OnePasswordCliAccount`)(
-  {
+export class OnePasswordCliAccount extends S.Opaque<OnePasswordCliAccount, { readonly brand: unique symbol }>()(
+  S.Struct({
     account: S.OptionFromOptionalKey(OnePasswordCliAccountName)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -197,10 +201,11 @@ export class OnePasswordCliAccount extends S.Class<OnePasswordCliAccount>($I`One
     signedIn: S.Boolean.annotateKey({
       description: "Whether the 1Password CLI reports an active signed-in account.",
     }),
-  },
-  $I.annote("OnePasswordCliAccount", {
-    description: "Redacted 1Password CLI session status.",
-  })
+  }).pipe(
+    $I.annoteSchema("OnePasswordCliAccount", {
+      description: "Redacted 1Password CLI session status.",
+    })
+  )
 ) {}
 
 /**
@@ -217,8 +222,8 @@ export class OnePasswordCliAccount extends S.Class<OnePasswordCliAccount>($I`One
  * @category models
  * @since 0.0.0
  */
-export class OnePasswordReferenceProbe extends S.Class<OnePasswordReferenceProbe>($I`OnePasswordReferenceProbe`)(
-  {
+export class OnePasswordReferenceProbe extends S.Opaque<OnePasswordReferenceProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     byteLength: S.Natural.annotateKey({
       description: "Resolved secret byte length, without exposing the secret value.",
     }),
@@ -228,8 +233,9 @@ export class OnePasswordReferenceProbe extends S.Class<OnePasswordReferenceProbe
     status: OnePasswordReferenceProbeStatus.annotateKey({
       description: "Redacted probe status for the 1Password secret reference.",
     }),
-  },
-  $I.annote("OnePasswordReferenceProbe", {
-    description: "1Password secret-reference probe result with only redacted metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("OnePasswordReferenceProbe", {
+      description: "1Password secret-reference probe result with only redacted metadata.",
+    })
+  )
 ) {}

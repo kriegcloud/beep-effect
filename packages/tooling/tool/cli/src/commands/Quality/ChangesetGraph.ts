@@ -39,45 +39,53 @@ const nulSeparator = "\u0000";
 const gitWorkspacePackageJsonPathspecs = ["package.json"] as const;
 const retiredChangesetPackagesPath = "standards/changesets.retired-packages.json";
 
-class ChangesetGraphWorkspacesObject extends S.Class<ChangesetGraphWorkspacesObject>(
-  $I`ChangesetGraphWorkspacesObject`
-)(
-  {
+class ChangesetGraphWorkspacesObject extends S.Opaque<
+  ChangesetGraphWorkspacesObject,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     packages: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("ChangesetGraphWorkspacesObject", {
-    description: "Object-form root package workspace declaration used by the changeset graph guard.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangesetGraphWorkspacesObject", {
+      description: "Object-form root package workspace declaration used by the changeset graph guard.",
+    })
+  )
 ) {}
 
-class ChangesetGraphPackageJson extends S.Class<ChangesetGraphPackageJson>($I`ChangesetGraphPackageJson`)(
-  {
+class ChangesetGraphPackageJson extends S.Opaque<ChangesetGraphPackageJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.optionalKey(S.String),
     private: S.optionalKey(S.Boolean),
     workspaces: S.optionalKey(S.Union([S.Array(S.String), ChangesetGraphWorkspacesObject])),
-  },
-  $I.annote("ChangesetGraphPackageJson", {
-    description: "Minimal package.json shape used by the changeset graph guard.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangesetGraphPackageJson", {
+      description: "Minimal package.json shape used by the changeset graph guard.",
+    })
+  )
 ) {}
 
-class RetiredChangesetPackageRecord extends S.Class<RetiredChangesetPackageRecord>($I`RetiredChangesetPackageRecord`)(
-  {
+class RetiredChangesetPackageRecord extends S.Opaque<
+  RetiredChangesetPackageRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.String,
     rationale: S.String,
-  },
-  $I.annote("RetiredChangesetPackageRecord", {
-    description: "A retired package name that may still appear in pending historical changesets.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredChangesetPackageRecord", {
+      description: "A retired package name that may still appear in pending historical changesets.",
+    })
+  )
 ) {}
 
-class RetiredChangesetPackages extends S.Class<RetiredChangesetPackages>($I`RetiredChangesetPackages`)(
-  {
+class RetiredChangesetPackages extends S.Opaque<RetiredChangesetPackages, { readonly brand: unique symbol }>()(
+  S.Struct({
     packages: S.Array(RetiredChangesetPackageRecord),
-  },
-  $I.annote("RetiredChangesetPackages", {
-    description: "Repo-owned retirement record for missing package names accepted by the changeset graph guard.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredChangesetPackages", {
+      description: "Repo-owned retirement record for missing package names accepted by the changeset graph guard.",
+    })
+  )
 ) {}
 
 /**
@@ -98,16 +106,18 @@ class RetiredChangesetPackages extends S.Class<RetiredChangesetPackages>($I`Reti
  * @category models
  * @since 0.0.0
  */
-export class ChangesetGraphPackageReference extends S.Class<ChangesetGraphPackageReference>(
-  $I`ChangesetGraphPackageReference`
-)(
-  {
+export class ChangesetGraphPackageReference extends S.Opaque<
+  ChangesetGraphPackageReference,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     file: S.String,
     packageName: S.String,
-  },
-  $I.annote("ChangesetGraphPackageReference", {
-    description: "A package name referenced by a changeset file.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangesetGraphPackageReference", {
+      description: "A package name referenced by a changeset file.",
+    })
+  )
 ) {}
 
 /**
@@ -130,16 +140,17 @@ export class ChangesetGraphPackageReference extends S.Class<ChangesetGraphPackag
  * @category models
  * @since 0.0.0
  */
-export class ChangesetGraphSummary extends S.Class<ChangesetGraphSummary>($I`ChangesetGraphSummary`)(
-  {
+export class ChangesetGraphSummary extends S.Opaque<ChangesetGraphSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     workspacePackages: S.Finite,
     changesetFiles: S.Finite,
     references: S.Finite,
     missingReferences: S.Array(ChangesetGraphPackageReference),
-  },
-  $I.annote("ChangesetGraphSummary", {
-    description: "Aggregate result emitted by the changeset package graph guard.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChangesetGraphSummary", {
+      description: "Aggregate result emitted by the changeset package graph guard.",
+    })
+  )
 ) {}
 
 const ChangesetBumpKind = LiteralKit(["major", "minor", "patch"]);

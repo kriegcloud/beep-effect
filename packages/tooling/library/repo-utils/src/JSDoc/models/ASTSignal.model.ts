@@ -30,8 +30,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTSignal.model");
  * @category models
  * @since 0.0.0
  */
-export class ASTSignal extends S.Class<ASTSignal>($I`ASTSignal`)(
-  {
+export class ASTSignal extends S.Opaque<ASTSignal, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** What to look for in the AST (human-readable) */
     signal: S.NonEmptyString.annotateKey({
       description: "What to look for in the AST (human-readable)",
@@ -53,8 +53,9 @@ export class ASTSignal extends S.Class<ASTSignal>($I`ASTSignal`)(
       description:
         "How to detect this programmatically via ts-morph. Should be specific enough to translate directly to code.",
     }),
-  },
-  $I.annote("ASTSignal", {
-    description: "Deterministic heuristic for auto-classifying code elements\nfrom the AST without LLM inference.",
-  })
+  }).pipe(
+    $I.annoteSchema("ASTSignal", {
+      description: "Deterministic heuristic for auto-classifying code elements\nfrom the AST without LLM inference.",
+    })
+  )
 ) {}

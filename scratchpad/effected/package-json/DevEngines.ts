@@ -23,7 +23,7 @@ const $I = $ScratchpadId.create("effected/package-json/DevEngines");
  * @category models
  * @since 0.0.0
  */
-export class DevEngine extends S.Class<DevEngine>($I`DevEngine`)({
+export class DevEngine extends S.Class<DevEngine, { readonly brand: unique symbol }>($I`DevEngine`)({
 	/**
 	 * The engine name (e.g. `node`, `pnpm`).
 	 *

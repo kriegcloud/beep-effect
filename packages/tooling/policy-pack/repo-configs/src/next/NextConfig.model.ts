@@ -48,15 +48,16 @@ const declaredFunction = <A extends Function>(name: string, description: string)
   );
 
 const StringArray = S.String.pipe(S.Array, S.mutable);
-class CacheLifeProfile extends S.Class<CacheLifeProfile>($I`CacheLifeProfile`)(
-  {
+class CacheLifeProfile extends S.Opaque<CacheLifeProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     stale: optional(S.Finite, "Seconds that a cache entry may be served stale."),
     revalidate: optional(S.Finite, "Seconds before cached output should be revalidated."),
     expire: optional(S.Finite, "Seconds before cached output must expire."),
-  },
-  $I.annote("CacheLifeProfile", {
-    description: "Timing values for a Next.js cache life profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheLifeProfile", {
+      description: "Timing values for a Next.js cache life profile.",
+    })
+  )
 ) {}
 const CacheLifeConfig = S.Record(S.String, CacheLifeProfile).pipe(
   $I.annoteSchema("CacheLifeConfig", {
@@ -68,51 +69,85 @@ const CacheHandlersConfig = S.Record(S.String, S.UndefinedOr(S.String)).pipe(
     description: "Named Next.js cache handler module paths.",
   })
 );
-class DevIndicatorsConfigOptions extends S.Class<DevIndicatorsConfigOptions>($I`DevIndicatorsConfigOptions`)(
-  {
+/**
+ * Development indicator object configuration for Next.js.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DevIndicatorsConfigOptions extends S.Opaque<
+  DevIndicatorsConfigOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     position: optional(
       LiteralKit(["top-left", "top-right", "bottom-left", "bottom-right"]),
       "Position of the development tools indicator in the browser window."
     ),
-  },
-  $I.annote("DevIndicatorsConfigOptions", {
-    description: "Development indicator object configuration for Next.js.",
-  })
+  }).pipe(
+    $I.annoteSchema("DevIndicatorsConfigOptions", {
+      description: "Development indicator object configuration for Next.js.",
+    })
+  )
 ) {}
 const DevIndicatorsConfig = S.Union([S.Literal(false), DevIndicatorsConfigOptions]).pipe(
   $I.annoteSchema("DevIndicatorsConfig", {
     description: "Development indicator configuration for Next.js.",
   })
 );
-class OnDemandEntriesConfig extends S.Class<OnDemandEntriesConfig>($I`OnDemandEntriesConfig`)(
-  {
+/**
+ * Development-time on-demand entries cache configuration.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OnDemandEntriesConfig extends S.Opaque<OnDemandEntriesConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxInactiveAge: optional(S.Finite, "Period in milliseconds where the server keeps pages in the buffer."),
     pagesBufferLength: optional(S.Finite, "Number of pages kept simultaneously without being disposed."),
-  },
-  $I.annote("OnDemandEntriesConfig", {
-    description: "Development-time on-demand entries cache configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("OnDemandEntriesConfig", {
+      description: "Development-time on-demand entries cache configuration.",
+    })
+  )
 ) {}
-class HttpAgentOptionsConfig extends S.Class<HttpAgentOptionsConfig>($I`HttpAgentOptionsConfig`)(
-  {
+/**
+ * HTTP agent options used by Next.js fetch and server internals.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HttpAgentOptionsConfig extends S.Opaque<HttpAgentOptionsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     keepAlive: optional(S.Boolean, "Whether HTTP keep-alive should be enabled."),
-  },
-  $I.annote("HttpAgentOptionsConfig", {
-    description: "HTTP agent options used by Next.js fetch and server internals.",
-  })
+  }).pipe(
+    $I.annoteSchema("HttpAgentOptionsConfig", {
+      description: "HTTP agent options used by Next.js fetch and server internals.",
+    })
+  )
 ) {}
-class ModularizeImportsRuleConfig extends S.Class<ModularizeImportsRuleConfig>($I`ModularizeImportsRuleConfig`)(
-  {
+/**
+ * Package import modularization rule for one optimized package.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModularizeImportsRuleConfig extends S.Opaque<
+  ModularizeImportsRuleConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     transform: withKeyDocumentation(
       S.Union([S.String, S.Record(S.String, S.String)]),
       "Import transform string or mapping for the optimized package."
     ),
     preventFullImport: optional(S.Boolean, "Prevent full imports from the optimized package."),
     skipDefaultConversion: optional(S.Boolean, "Skip default import conversion for the optimized package."),
-  },
-  $I.annote("ModularizeImportsRuleConfig", {
-    description: "Package import modularization rule for one optimized package.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModularizeImportsRuleConfig", {
+      description: "Package import modularization rule for one optimized package.",
+    })
+  )
 ) {}
 const ModularizeImportsConfig = S.Record(S.String, ModularizeImportsRuleConfig).pipe(
   $I.annoteSchema("ModularizeImportsConfig", {
@@ -124,13 +159,20 @@ const OutputFileTracingRules = S.Record(S.String, StringArray).pipe(
     description: "Per-route file tracing include or exclude globs.",
   })
 );
-class WatchOptionsConfig extends S.Class<WatchOptionsConfig>($I`WatchOptionsConfig`)(
-  {
+/**
+ * File watching options for Next.js.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class WatchOptionsConfig extends S.Opaque<WatchOptionsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     pollIntervalMs: optional(S.Finite, "Polling interval in milliseconds for file watching."),
-  },
-  $I.annote("WatchOptionsConfig", {
-    description: "File watching options for Next.js.",
-  })
+  }).pipe(
+    $I.annoteSchema("WatchOptionsConfig", {
+      description: "File watching options for Next.js.",
+    })
+  )
 ) {}
 
 const ExportPathMapFunction = declaredFunction<NonNullable<NextConfigFromNext["exportPathMap"]>>(
@@ -182,8 +224,8 @@ const GenerateBuildIdFunction = declaredFunction<NonNullable<NextConfigFromNext[
  * @category schemas
  * @since 0.0.0
  */
-export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
-  {
+export class NextConfig extends S.Opaque<NextConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     allowedDevOrigins: optional(
       AllowedDevOrigin.pipe(S.Array, S.mutable),
       "Additional origins allowed to request the Next.js development server.",
@@ -389,11 +431,12 @@ export class NextConfig extends S.Class<NextConfig>($I`NextConfig`)(
     outputFileTracingIncludes: optional(OutputFileTracingRules, "Per-route traced file inclusions."),
     watchOptions: optional(WatchOptionsConfig, "File watching options."),
     htmlLimitedBots: optional(S.RegExp, "User agent pattern for bots that cannot handle streaming metadata."),
-  },
-  $I.annote("NextConfig", {
-    description: "Public Next.js configuration schema.",
-    documentation: "https://nextjs.org/docs/app/api-reference/config/next-config-js",
-  })
+  }).pipe(
+    $I.annoteSchema("NextConfig", {
+      description: "Public Next.js configuration schema.",
+      documentation: "https://nextjs.org/docs/app/api-reference/config/next-config-js",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(NextConfig);
   static readonly decodeResult = S.decodeUnknownResult(NextConfig);
@@ -471,9 +514,12 @@ export const NextConfigExperimental = ExperimentalConfig;
  * **Example** (Type experimental config object)
  *
  * ```ts
- * import type { NextConfigExperimental } from "@beep/repo-configs/next"
- * const experimental: NextConfigExperimental = { cssChunking: true }
- * console.log(experimental)
+ * import { strictEqual } from "node:assert/strict"
+ * import { NextConfigExperimental } from "@beep/repo-configs/next"
+ *
+ * const experimental: NextConfigExperimental = NextConfigExperimental.make({ cssChunking: true })
+ *
+ * strictEqual(experimental.cssChunking, true)
  * ```
  *
  * @category models
@@ -503,9 +549,12 @@ export const NextConfigBase: typeof NextConfig = NextConfig;
  * **Example** (Type base config object)
  *
  * ```ts
- * import type { NextConfigBase } from "@beep/repo-configs/next"
- * const config: NextConfigBase = { reactStrictMode: true }
- * console.log(config)
+ * import { strictEqual } from "node:assert/strict"
+ * import { NextConfigBase } from "@beep/repo-configs/next"
+ *
+ * const config: NextConfigBase = NextConfigBase.make({ reactStrictMode: true })
+ *
+ * strictEqual(config.reactStrictMode, true)
  * ```
  *
  * @category models

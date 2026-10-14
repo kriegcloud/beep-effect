@@ -188,8 +188,8 @@ export type OntologyResourceKind = typeof OntologyResourceKind.Type;
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyMetrics extends S.Class<OntologyMetrics>($I`OntologyMetrics`)(
-  {
+export class OntologyMetrics extends S.Opaque<OntologyMetrics, { readonly brand: unique symbol }>()(
+  S.Struct({
     quadCount: S.Int,
     resourceCount: S.Int,
     classCount: S.Int,
@@ -201,10 +201,11 @@ export class OntologyMetrics extends S.Class<OntologyMetrics>($I`OntologyMetrics
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultKey(Effect.succeed(0))
     ),
-  },
-  $I.annote("OntologyMetrics", {
-    description: "Ontology workbench metrics computed from the authoring graph.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyMetrics", {
+      description: "Ontology workbench metrics computed from the authoring graph.",
+    })
+  )
 ) {}
 
 /**
@@ -231,8 +232,8 @@ export class OntologyMetrics extends S.Class<OntologyMetrics>($I`OntologyMetrics
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyResourceSummary extends S.Class<OntologyResourceSummary>($I`OntologyResourceSummary`)(
-  {
+export class OntologyResourceSummary extends S.Opaque<OntologyResourceSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     iri: S.String,
     label: S.String,
     kind: OntologyResourceKind,
@@ -240,10 +241,11 @@ export class OntologyResourceSummary extends S.Class<OntologyResourceSummary>($I
     types: S.Array(S.String),
     parentIris: S.Array(S.String),
     sourcePartitions: S.Array(GraphPartition),
-  },
-  $I.annote("OntologyResourceSummary", {
-    description: "Ontology resource summary shared by hierarchy explorer, inspector, and search.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyResourceSummary", {
+      description: "Ontology resource summary shared by hierarchy explorer, inspector, and search.",
+    })
+  )
 ) {}
 
 /**
@@ -266,15 +268,16 @@ export class OntologyResourceSummary extends S.Class<OntologyResourceSummary>($I
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyHierarchyEntry extends S.Class<OntologyHierarchyEntry>($I`OntologyHierarchyEntry`)(
-  {
+export class OntologyHierarchyEntry extends S.Opaque<OntologyHierarchyEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     iri: S.String,
     label: S.String,
     childIris: S.Array(S.String),
-  },
-  $I.annote("OntologyHierarchyEntry", {
-    description: "Flat hierarchy row used to build ontology tree-view items.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyHierarchyEntry", {
+      description: "Flat hierarchy row used to build ontology tree-view items.",
+    })
+  )
 ) {}
 
 /**
@@ -299,17 +302,21 @@ export class OntologyHierarchyEntry extends S.Class<OntologyHierarchyEntry>($I`O
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyRelationshipSummary extends S.Class<OntologyRelationshipSummary>($I`OntologyRelationshipSummary`)(
-  {
+export class OntologyRelationshipSummary extends S.Opaque<
+  OntologyRelationshipSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     sourceIri: S.String,
     predicateIri: S.String,
     objectIri: S.String,
     label: S.String,
     sourcePartitions: S.Array(GraphPartition),
-  },
-  $I.annote("OntologyRelationshipSummary", {
-    description: "Predicate relationship row used by the ontology graph viewport.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyRelationshipSummary", {
+      description: "Predicate relationship row used by the ontology graph viewport.",
+    })
+  )
 ) {}
 
 const emptyRelationshipSummaries = (): ReadonlyArray<OntologyRelationshipSummary> => [];
@@ -348,17 +355,18 @@ const RelationshipSummariesWithEmptyDefault = S.Array(OntologyRelationshipSummar
  * @category read-models
  * @since 0.0.0
  */
-export class OntologySnapshot extends S.Class<OntologySnapshot>($I`OntologySnapshot`)(
-  {
+export class OntologySnapshot extends S.Opaque<OntologySnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     sessionId: S.String,
     resources: S.Array(OntologyResourceSummary),
     hierarchy: S.Array(OntologyHierarchyEntry),
     relationships: RelationshipSummariesWithEmptyDefault,
     metrics: OntologyMetrics,
-  },
-  $I.annote("OntologySnapshot", {
-    description: "Complete ontology read model for explorer and editor surfaces.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySnapshot", {
+      description: "Complete ontology read model for explorer and editor surfaces.",
+    })
+  )
 ) {}
 
 const RDFS_SUB_CLASS_OF = makeNamedNode(`${RDFS_NAMESPACE}subClassOf`);

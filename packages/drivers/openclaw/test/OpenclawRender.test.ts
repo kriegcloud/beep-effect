@@ -330,7 +330,7 @@ it.layer(Layer.succeed(Crypto.Crypto, NodeCrypto.make))("@beep/openclaw render a
     const findings = findLossySchemaPlaceholders(gatewayOnlyExport, ["channels.telegram"]);
 
     expect(findings).toHaveLength(1);
-    expect(findings[0]).toBeInstanceOf(OpenclawSchemaPlaceholderFinding);
+    expect(S.is(OpenclawSchemaPlaceholderFinding)(findings[0])).toBe(true);
     expect(Result.getOrThrow(encodeOpenclawSchemaPlaceholderFindingResult(O.getOrThrow(A.head(findings))))).toEqual({
       reason: "missing",
       surface: "channels.telegram",

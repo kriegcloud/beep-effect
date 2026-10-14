@@ -70,22 +70,31 @@ describe("Logging", () => {
   );
 
   it("renders with default pretty config when options omit it", () => {
-    expect(renderLogBanner("Server Ready", { kind: "startup" })).toBe("Server Ready");
+    expect(renderLogBanner("Server Ready", RenderLogBannerOptions.make({ kind: "startup" }))).toBe("Server Ready");
   });
 
   it("renders a banner only for the configured kind", () => {
-    const shown = renderLogBanner("Ready", {
-      kind: "startup",
-      pretty: PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" }),
-    });
-    const startupSkipsPhase = renderLogBanner("Ready", {
-      kind: "phase",
-      pretty: PrettyLoggerConfig.make({ theme: "mono", bannerMode: "startup" }),
-    });
-    const phaseShown = renderLogBanner("Ready", {
-      kind: "phase",
-      pretty: PrettyLoggerConfig.make({ theme: "forest", bannerMode: "phase" }),
-    });
+    const shown = renderLogBanner(
+      "Ready",
+      RenderLogBannerOptions.make({
+        kind: "startup",
+        pretty: PrettyLoggerConfig.make({ theme: "ocean", bannerMode: "all" }),
+      })
+    );
+    const startupSkipsPhase = renderLogBanner(
+      "Ready",
+      RenderLogBannerOptions.make({
+        kind: "phase",
+        pretty: PrettyLoggerConfig.make({ theme: "mono", bannerMode: "startup" }),
+      })
+    );
+    const phaseShown = renderLogBanner(
+      "Ready",
+      RenderLogBannerOptions.make({
+        kind: "phase",
+        pretty: PrettyLoggerConfig.make({ theme: "forest", bannerMode: "phase" }),
+      })
+    );
 
     expect(shown).toContain("READY");
     expect(startupSkipsPhase).toBe("Ready");

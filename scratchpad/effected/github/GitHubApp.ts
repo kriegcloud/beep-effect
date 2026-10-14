@@ -24,7 +24,7 @@ import type { RetryPolicy } from "./Resilience.ts";
 
 const $I = $ScratchpadId.create("effected/github/GitHubApp");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -51,7 +51,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * @category errors
  * @since 0.0.0
  */
-export class GitHubAppError extends S.TaggedError<GitHubAppError>($I`GitHubAppError`)("GitHubAppError", {
+export class GitHubAppError extends S.TaggedError<GitHubAppError, { readonly brand: unique symbol }>($I`GitHubAppError`)("GitHubAppError", {
 	/** Which step failed. */
 	kind: S.Literals(["jwt", "token", "revoke", "identity", "installation"]).annotateKey({ description: "Which step failed." }),
 	/** Human-readable cause. */
@@ -179,7 +179,7 @@ export interface TokenRequest extends AppCredentials {
  * @category schemas
  * @since 0.0.0
  */
-export class InstallationToken extends S.Class<InstallationToken>($I`InstallationToken`)({
+export class InstallationToken extends S.Class<InstallationToken, { readonly brand: unique symbol }>($I`InstallationToken`)({
 	/** The token. Decodes to `Redacted`, encodes back to the raw string. */
 	token: S.RedactedFromValue(S.String).annotateKey({ description: "The token. Decodes to `Redacted`, encodes back to the raw string." }),
 	/** When GitHub will stop accepting it — about an hour out. */
@@ -277,7 +277,7 @@ const DEFAULT_SKEW = Duration.seconds(60);
  * @category schemas
  * @since 0.0.0
  */
-export class BotIdentity extends S.Class<BotIdentity>($I`BotIdentity`)({
+export class BotIdentity extends S.Class<BotIdentity, { readonly brand: unique symbol }>($I`BotIdentity`)({
 	/** The git author/committer name, e.g. `"my-app[bot]"`. */
 	name: S.String.annotateKey({ description: "The git author/committer name, e.g. `\"my-app[bot]\"`." }),
 	/** The no-reply address GitHub attributes to that account. */
@@ -373,7 +373,7 @@ export class BotIdentity extends S.Class<BotIdentity>($I`BotIdentity`)({
  * @category schemas
  * @since 0.0.0
  */
-export class AppIdentity extends S.Class<AppIdentity>($I`AppIdentity`)({
+export class AppIdentity extends S.Class<AppIdentity, { readonly brand: unique symbol }>($I`AppIdentity`)({
 	/** The URL slug, e.g. `"my-app"`. */
 	slug: S.String.annotateKey({ description: "The URL slug, e.g. `\"my-app\"`." }),
 	/** The display name. */
@@ -419,7 +419,7 @@ export class AppIdentity extends S.Class<AppIdentity>($I`AppIdentity`)({
  * @category schemas
  * @since 0.0.0
  */
-export class Installation extends S.Class<Installation>($I`Installation`)({
+export class Installation extends S.Class<Installation, { readonly brand: unique symbol }>($I`Installation`)({
 	/** The installation id, which is what a token is minted against. */
 	id: S.Int.annotateKey({ description: "The installation id, which is what a token is minted against." }),
 	/** The account the app is installed on, when GitHub reported one. */

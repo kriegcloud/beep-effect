@@ -34,18 +34,19 @@ const $I = $M365McpId.create("Server");
  * @category models
  * @since 0.1.0
  */
-export class M365McpServerConfig extends S.Class<M365McpServerConfig>($I`M365McpServerConfig`)(
-  {
+export class M365McpServerConfig extends S.Opaque<M365McpServerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Human-readable MCP server name advertised during stdio initialization.",
     }),
     version: S.NonEmptyString.annotateKey({
       description: "Protocol-facing version advertised to MCP clients.",
     }),
-  },
-  $I.annote("M365McpServerConfig", {
-    description: "Configuration for the MCP server identity advertised to clients.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365McpServerConfig", {
+      description: "Configuration for the MCP server identity advertised to clients.",
+    })
+  )
 ) {}
 
 /**

@@ -44,7 +44,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionCache");
  * @category errors
  * @since 0.0.0
  */
-export class ActionCacheError extends S.TaggedError<ActionCacheError>($I`ActionCacheError`)("ActionCacheError", {
+export class ActionCacheError extends S.TaggedError<ActionCacheError, { readonly brand: unique symbol }>($I`ActionCacheError`)("ActionCacheError", {
 	/**
 	 * `misconfigured` — the results backend is not reachable from here (see
 	 * {@link ActionCache}). `unreachable` — it could not be contacted, or

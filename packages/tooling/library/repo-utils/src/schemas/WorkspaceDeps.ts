@@ -51,8 +51,17 @@ export const DependencyRecord = S.Record(NpmPackageName, NonEmptyStringValue).pi
  */
 export type DependencyRecord = typeof DependencyRecord.Type;
 
-class WorkspaceDependencyBuckets extends S.Class<WorkspaceDependencyBuckets>($I`WorkspaceDependencyBuckets`)(
-  {
+/**
+ * Runtime dependency package names mapped to version specifiers.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class WorkspaceDependencyBuckets extends S.Opaque<
+  WorkspaceDependencyBuckets,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dependencies: DependencyRecord.annotateKey({
       description: "Runtime dependency package names mapped to version specifiers.",
     }),
@@ -65,10 +74,11 @@ class WorkspaceDependencyBuckets extends S.Class<WorkspaceDependencyBuckets>($I`
     optionalDependencies: DependencyRecord.annotateKey({
       description: "Optional dependency package names mapped to version specifiers.",
     }),
-  },
-  $I.annote("WorkspaceDependencyBuckets", {
-    description: "Dependency buckets grouped by dependency kind for either workspace or npm references.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceDependencyBuckets", {
+      description: "Dependency buckets grouped by dependency kind for either workspace or npm references.",
+    })
+  )
 ) {}
 
 /**
@@ -91,8 +101,8 @@ class WorkspaceDependencyBuckets extends S.Class<WorkspaceDependencyBuckets>($I`
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
-  {
+export class WorkspaceDeps extends S.Opaque<WorkspaceDeps, { readonly brand: unique symbol }>()(
+  S.Struct({
     npm: WorkspaceDependencyBuckets.annotateKey({
       description: "External npm dependency buckets for this workspace.",
     }),
@@ -102,11 +112,12 @@ export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
     workspace: WorkspaceDependencyBuckets.annotateKey({
       description: "Workspace-local dependency buckets for this package.",
     }),
-  },
-  $I.annote("WorkspaceDeps", {
-    description:
-      "Classified dependencies for a workspace package, split into workspace-local and external npm buckets.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceDeps", {
+      description:
+        "Classified dependencies for a workspace package, split into workspace-local and external npm buckets.",
+    })
+  )
 ) {}
 
 /**

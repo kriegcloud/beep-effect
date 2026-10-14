@@ -276,7 +276,7 @@ export type RepositoryField = typeof RepositoryField.Type;
  * @category errors
  * @since 0.0.0
  */
-export class PackageDecodeError extends S.TaggedError<PackageDecodeError>($I`PackageDecodeError`)("PackageDecodeError", {
+export class PackageDecodeError extends S.TaggedError<PackageDecodeError, { readonly brand: unique symbol }>($I`PackageDecodeError`)("PackageDecodeError", {
 	/** The underlying `SchemaError`, preserved structurally rather than stringified. */
 	cause: S.Defect().annotateKey({ description: "The underlying `SchemaError`, preserved structurally rather than stringified." }),
 }, $I.annote("PackageDecodeError", { description: "Indicates that a JSON value could not be decoded into a valid Package." })) {
@@ -377,7 +377,7 @@ export type PackagePatch = Partial<{
  * @category models
  * @since 0.0.0
  */
-export class Package extends S.Class<Package>($I`Package`)({
+export class Package extends S.Class<Package, { readonly brand: unique symbol }>($I`Package`)({
 	name: PackageName.annotateKey({ description: "Package identifier satisfying npm naming rules, with an optional `@scope/` prefix" }),
 	version: SemVer.FromString.annotateKey({ description: "Package release version validated against strict semantic versioning" }),
 	description: S.optionalKey(S.String).annotateKey({ description: "Human-readable summary of the package's purpose" }),

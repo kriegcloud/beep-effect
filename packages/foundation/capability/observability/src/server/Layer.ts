@@ -11,7 +11,7 @@ import * as Metric from "effect/Metric";
 import * as Otlp from "effect/observability/Otlp";
 import { layerMinimumLogLevel } from "../Logging.ts";
 import { ServerObservabilityConfig, toOtlpResource } from "./Config.ts";
-import { layerFilteredDevTools } from "./DevTools.ts";
+import { LayerFilteredDevToolsOptions, layerFilteredDevTools } from "./DevTools.ts";
 import type * as HttpClient from "effect/http/HttpClient";
 import type { DevToolsSpanFilter } from "./DevTools.ts";
 
@@ -76,10 +76,12 @@ export const layerLocalLgtmServer: {
           })
         : Layer.empty,
       config.devtoolsEnabled
-        ? layerFilteredDevTools({
-            url: config.devtoolsUrl,
-            shouldPublish: options?.shouldPublishDevToolsSpan ?? (() => true),
-          })
+        ? layerFilteredDevTools(
+            LayerFilteredDevToolsOptions.make({
+              url: config.devtoolsUrl,
+              shouldPublish: options?.shouldPublishDevToolsSpan ?? (() => true),
+            })
+          )
         : Layer.empty
     )
 );

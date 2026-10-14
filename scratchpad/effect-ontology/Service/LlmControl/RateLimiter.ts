@@ -90,19 +90,16 @@ export type CircuitState = typeof CircuitState.Type;
  * @category models
  * @since 0.0.0
  */
-export class RateLimiterState extends S.Class<RateLimiterState>($I`RateLimiterState`)(
-  {
+export class RateLimiterState extends S.Opaque<RateLimiterState, { readonly brand: unique symbol }>()(S.Struct({
     requestsThisMinute: S.Natural.annotateKey({ description: "Requests made in the current minute window." }),
     tokensThisMinute: S.Natural.annotateKey({ description: "Tokens used in the current minute window." }),
     lastReset: S.Natural.annotateKey({ description: "Epoch-millisecond timestamp of the last counter reset." }),
     circuitState: CircuitState.annotateKey({ description: "Current circuit-breaker state." }),
     failureCount: S.Natural.annotateKey({ description: "Consecutive failure count." }),
     successCount: S.Natural.annotateKey({ description: "Consecutive half-open success count." }),
-  },
-  $I.annote("RateLimiterState", {
+  }).pipe($I.annoteSchema("RateLimiterState", {
     description: "Rate-window counters and circuit-breaker recovery state.",
-  })
-) {}
+  }))) {}
 
 /**
  * Rate limiter configuration
@@ -127,8 +124,7 @@ export class RateLimiterState extends S.Class<RateLimiterState>($I`RateLimiterSt
  * @category configuration
  * @since 0.0.0
  */
-export class RateLimiterConfig extends S.Class<RateLimiterConfig>($I`RateLimiterConfig`)(
-  {
+export class RateLimiterConfig extends S.Opaque<RateLimiterConfig, { readonly brand: unique symbol }>()(S.Struct({
     requestsPerMinute: PositiveInt.annotateKey({ description: "Maximum requests per minute." }),
     tokensPerMinute: PositiveInt.annotateKey({ description: "Maximum tokens per minute." }),
     maxConcurrent: PositiveInt.annotateKey({ description: "Maximum concurrent requests." }),
@@ -137,11 +133,9 @@ export class RateLimiterConfig extends S.Class<RateLimiterConfig>($I`RateLimiter
     successThreshold: PositiveInt.annotateKey({
       description: "Half-open successes required before the circuit closes.",
     }),
-  },
-  $I.annote("RateLimiterConfig", {
+  }).pipe($I.annoteSchema("RateLimiterConfig", {
     description: "Request, token, concurrency, and circuit-breaker limits.",
-  })
-) {}
+  }))) {}
 
 /**
  * Default configuration

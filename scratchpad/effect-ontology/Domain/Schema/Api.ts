@@ -97,8 +97,7 @@ export type SubmitJobSource = typeof SubmitJobSource.Type;
  * @category dtos
  * @since 0.0.0
  */
-export class SubmitJobRequest extends S.Class<SubmitJobRequest>($I`SubmitJobRequest`)(
-  {
+export class SubmitJobRequest extends S.Opaque<SubmitJobRequest, { readonly brand: unique symbol }>()(S.Struct({
     source: SubmitJobSource.annotateKey({
       description: "The single validated source from which extraction reads content.",
     }),
@@ -108,11 +107,9 @@ export class SubmitJobRequest extends S.Class<SubmitJobRequest>($I`SubmitJobRequ
         description: "Optional run-configuration override; absence delegates policy to the server.",
       })
     ),
-  },
-  $I.annote("SubmitJobRequest", {
+  }).pipe($I.annoteSchema("SubmitJobRequest", {
     description: "Extraction submission containing one discriminated source and an optional configuration override.",
-  })
-) {
+  }))) {
   /**
    * Decodes and validates an untrusted request.
    *
@@ -233,8 +230,7 @@ export type JobErrorType = typeof JobErrorType.Type;
  * @category dtos
  * @since 0.0.0
  */
-export class JobProgress extends S.Class<JobProgress>($I`JobProgress`)(
-  {
+export class JobProgress extends S.Opaque<JobProgress, { readonly brand: unique symbol }>()(S.Struct({
     chunksTotal: S.Natural.annotateKey({
       description: "Total chunks planned for the job.",
     }),
@@ -247,25 +243,20 @@ export class JobProgress extends S.Class<JobProgress>($I`JobProgress`)(
     relationsExtracted: S.Natural.annotateKey({
       description: "Relations extracted so far.",
     }),
-  },
-  $I.annote("JobProgress", {
+  }).pipe($I.annoteSchema("JobProgress", {
     description: "Non-negative chunk, entity, and relation progress counters for one extraction job.",
-  })
-) {}
+  }))) {}
 
-class JobFailure extends S.Class<JobFailure>($I`JobFailure`)(
-  {
+class JobFailure extends S.Opaque<JobFailure, { readonly brand: unique symbol }>()(S.Struct({
     message: S.NonEmptyString.annotateKey({
       description: "Non-empty human-readable explanation of the terminal failure.",
     }),
     type: JobErrorType.annotateKey({
       description: "Coarse origin category for the terminal failure.",
     }),
-  },
-  $I.annote("JobFailure", {
+  }).pipe($I.annoteSchema("JobFailure", {
     description: "Nested diagnostic available only on a failed extraction job.",
-  })
-) {}
+  }))) {}
 
 const JobResponseCommonFields = {
   jobId: BackgroundJobId.annotateKey({

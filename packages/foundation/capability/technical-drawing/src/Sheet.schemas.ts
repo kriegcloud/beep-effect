@@ -110,14 +110,15 @@ export const PT_PER_MM = PT_PER_CM / 10;
  * @category models
  * @since 0.0.0
  */
-export class PagePoints extends S.Class<PagePoints>($I`PagePoints`)(
-  {
+export class PagePoints extends S.Opaque<PagePoints, { readonly brand: unique symbol }>()(
+  S.Struct({
     width: PositiveFinite.annotateKey({ description: "Page width in points." }),
     height: PositiveFinite.annotateKey({ description: "Page height in points." }),
-  },
-  $I.annote("PagePoints", {
-    description: "Page width and height in points.",
-  })
+  }).pipe(
+    $I.annoteSchema("PagePoints", {
+      description: "Page width and height in points.",
+    })
+  )
 ) {}
 
 const PageSizePt = Fn({ input: SheetFormat, output: PagePoints }).pipe(
@@ -245,16 +246,17 @@ export type MarginStandard = typeof MarginStandard.Type;
  * @category models
  * @since 0.0.0
  */
-export class SheetMargins extends S.Class<SheetMargins>($I`SheetMargins`)(
-  {
+export class SheetMargins extends S.Opaque<SheetMargins, { readonly brand: unique symbol }>()(
+  S.Struct({
     top: PositiveFinite.annotateKey({ description: "Top margin in cm." }),
     left: PositiveFinite.annotateKey({ description: "Left margin in cm." }),
     right: PositiveFinite.annotateKey({ description: "Right margin in cm." }),
     bottom: PositiveFinite.annotateKey({ description: "Bottom margin in cm." }),
-  },
-  $I.annote("SheetMargins", {
-    description: "Top, left, right, and bottom page margins of a sheet in centimetres.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetMargins", {
+      description: "Top, left, right, and bottom page margins of a sheet in centimetres.",
+    })
+  )
 ) {}
 
 const MarginsCm = Fn({ input: MarginStandard, output: SheetMargins }).pipe(
@@ -415,7 +417,7 @@ const AbsoluteFontFile = S.NonEmptyString.check(
  * @category models
  * @since 0.0.0
  */
-export class LabelStyle extends S.Class<LabelStyle>($I`LabelStyle`)(
+export class LabelStyle extends S.Opaque<LabelStyle, { readonly brand: unique symbol }>()(
   S.Struct({
     typeface: LabelTypeface.annotateKey({ description: "Typeface of the label." }),
     sizePt: PositiveFinite.annotateKey({ description: "Font size in points." }),
@@ -426,23 +428,26 @@ export class LabelStyle extends S.Class<LabelStyle>($I`LabelStyle`)(
           "Absolute path of a TrueType file outlined instead of the vendored face. Never committed; its sha256 goes in the manifest.",
       })
     ),
-  }).check(
-    S.makeFilter((style) => labelCapHeightCm(style) >= MIN_LETTER_HEIGHT_CM, {
-      identifier: $I`LabelStyleCapHeightCheck`,
-      title: "Label Cap Height",
-      description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
-      message: "Expected a label size whose cap height is at least 0.32 cm",
-    }),
-    S.makeFilter((style) => style.typeface !== "stroke" || O.isNone(style.fontFile), {
-      identifier: $I`LabelStyleFontFileCheck`,
-      title: "Label Font File Typeface",
-      description: "Only outlined typefaces read a font file.",
-      message: "Expected no font file on a stroke label",
-    })
-  ),
-  $I.annote("LabelStyle", {
-    description: "Typeface, point size, and optional operator font file of one sheet label.",
   })
+    .check(
+      S.makeFilter((style) => labelCapHeightCm(style) >= MIN_LETTER_HEIGHT_CM, {
+        identifier: $I`LabelStyleCapHeightCheck`,
+        title: "Label Cap Height",
+        description: "37 CFR 1.84(p)(3) requires lettering at least 0.32 cm high.",
+        message: "Expected a label size whose cap height is at least 0.32 cm",
+      }),
+      S.makeFilter((style) => style.typeface !== "stroke" || O.isNone(style.fontFile), {
+        identifier: $I`LabelStyleFontFileCheck`,
+        title: "Label Font File Typeface",
+        description: "Only outlined typefaces read a font file.",
+        message: "Expected no font file on a stroke label",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("LabelStyle", {
+        description: "Typeface, point size, and optional operator font file of one sheet label.",
+      })
+    )
 ) {}
 
 /**
@@ -465,8 +470,8 @@ export class LabelStyle extends S.Class<LabelStyle>($I`LabelStyle`)(
  * @category models
  * @since 0.0.0
  */
-export class SheetLabelFaces extends S.Class<SheetLabelFaces>($I`SheetLabelFaces`)(
-  {
+export class SheetLabelFaces extends S.Opaque<SheetLabelFaces, { readonly brand: unique symbol }>()(
+  S.Struct({
     figure: S.OptionFromOptionalKey(LabelFace).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Face replacing the vendored one for the FIG. n label." })
@@ -475,10 +480,11 @@ export class SheetLabelFaces extends S.Class<SheetLabelFaces>($I`SheetLabelFaces
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Face replacing the vendored one for the n/N sheet number." })
     ),
-  },
-  $I.annote("SheetLabelFaces", {
-    description: "Label faces loaded by the caller from fontFile label styles, per label.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetLabelFaces", {
+      description: "Label faces loaded by the caller from fontFile label styles, per label.",
+    })
+  )
 ) {}
 
 /**
@@ -497,8 +503,8 @@ export class SheetLabelFaces extends S.Class<SheetLabelFaces>($I`SheetLabelFaces
  * @category models
  * @since 0.0.0
  */
-export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
-  {
+export class SheetOptions extends S.Opaque<SheetOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     format: SheetFormat.pipe(
       S.withConstructorDefault(Effect.succeed("letter" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("letter" as const)),
@@ -635,9 +641,10 @@ export class SheetOptions extends S.Class<SheetOptions>($I`SheetOptions`)(
           "Exposure above which a face stays unshaded. Defaults to 0.55, just below a face seen square-on (1/√3 under the 45° light), so plans and elevations stay line drawings and only oblique faces are shaded.",
       })
     ),
-  },
-  $I.annote("SheetOptions", {
-    description:
-      "Page format, margin standard, stroke and shading widths, shading pitch range, lettering height, label gap and styles, and margin safety gap of a render.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetOptions", {
+      description:
+        "Page format, margin standard, stroke and shading widths, shading pitch range, lettering height, label gap and styles, and margin safety gap of a render.",
+    })
+  )
 ) {}

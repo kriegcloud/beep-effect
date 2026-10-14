@@ -112,14 +112,15 @@ export type AlignmentStatus = typeof AlignmentStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class LangExtractOptions extends S.Class<LangExtractOptions>($I`LangExtractOptions`)(
-  {
+export class LangExtractOptions extends S.Opaque<LangExtractOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     fuzzyThreshold: UnitInterval.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     maxExtractions: S.Natural.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("LangExtractOptions", {
-    description: "Options for model parsing and deterministic source alignment.",
-  })
+  }).pipe(
+    $I.annoteSchema("LangExtractOptions", {
+      description: "Options for model parsing and deterministic source alignment.",
+    })
+  )
 ) {}
 
 /**
@@ -142,8 +143,8 @@ export class LangExtractOptions extends S.Class<LangExtractOptions>($I`LangExtra
  * @category models
  * @since 0.0.0
  */
-export class ExtractionCandidate extends S.Class<ExtractionCandidate>($I`ExtractionCandidate`)(
-  {
+export class ExtractionCandidate extends S.Opaque<ExtractionCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: S.Record(S.String, S.String).pipe(
       S.check(
         S.isMaxProperties(MAX_CANDIDATE_ATTRIBUTES, {
@@ -159,10 +160,11 @@ export class ExtractionCandidate extends S.Class<ExtractionCandidate>($I`Extract
     confidence: UnitInterval.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     label: ExtractionCandidateLabel,
     text: ExtractionCandidateText,
-  },
-  $I.annote("ExtractionCandidate", {
-    description: "Model-emitted extraction candidate before deterministic source alignment.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractionCandidate", {
+      description: "Model-emitted extraction candidate before deterministic source alignment.",
+    })
+  )
 ) {}
 
 const GroundedExtractionCommonFields = {
@@ -178,57 +180,105 @@ const GroundedExtractionAlignedFields = {
   span: Contract.Span,
 };
 
-class GroundedExtractionMatchExact extends S.Class<GroundedExtractionMatchExact>($I`GroundedExtractionMatchExact`)(
-  {
+/**
+ * Source-grounded extraction aligned by an exact text match.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GroundedExtractionMatchExact extends S.Opaque<
+  GroundedExtractionMatchExact,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...GroundedExtractionAlignedFields,
     alignmentStatus: S.tag(AlignmentStatus.Enum.match_exact),
-  },
-  $I.annote("GroundedExtractionMatchExact", {
-    description: "Source-grounded extraction aligned by an exact text match.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroundedExtractionMatchExact", {
+      description: "Source-grounded extraction aligned by an exact text match.",
+    })
+  )
 ) {}
 
-class GroundedExtractionMatchLesser extends S.Class<GroundedExtractionMatchLesser>($I`GroundedExtractionMatchLesser`)(
-  {
+/**
+ * Source-grounded extraction aligned by a case-insensitive text match.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GroundedExtractionMatchLesser extends S.Opaque<
+  GroundedExtractionMatchLesser,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...GroundedExtractionAlignedFields,
     alignmentStatus: S.tag(AlignmentStatus.Enum.match_lesser),
-  },
-  $I.annote("GroundedExtractionMatchLesser", {
-    description: "Source-grounded extraction aligned by a case-insensitive text match.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroundedExtractionMatchLesser", {
+      description: "Source-grounded extraction aligned by a case-insensitive text match.",
+    })
+  )
 ) {}
 
-class GroundedExtractionMatchMinimalFold extends S.Class<GroundedExtractionMatchMinimalFold>(
-  $I`GroundedExtractionMatchMinimalFold`
-)(
-  {
+/**
+ * Source-grounded extraction aligned by case folding, whitespace collapse, or end-of-line hyphen folding.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GroundedExtractionMatchMinimalFold extends S.Opaque<
+  GroundedExtractionMatchMinimalFold,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...GroundedExtractionAlignedFields,
     alignmentStatus: S.tag(AlignmentStatus.Enum.match_minimal_fold),
-  },
-  $I.annote("GroundedExtractionMatchMinimalFold", {
-    description:
-      "Source-grounded extraction aligned by case folding, whitespace collapse, or end-of-line hyphen folding.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroundedExtractionMatchMinimalFold", {
+      description:
+        "Source-grounded extraction aligned by case folding, whitespace collapse, or end-of-line hyphen folding.",
+    })
+  )
 ) {}
 
-class GroundedExtractionMatchFuzzy extends S.Class<GroundedExtractionMatchFuzzy>($I`GroundedExtractionMatchFuzzy`)(
-  {
+/**
+ * Source-grounded extraction aligned by a bounded fuzzy text match.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GroundedExtractionMatchFuzzy extends S.Opaque<
+  GroundedExtractionMatchFuzzy,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...GroundedExtractionAlignedFields,
     alignmentStatus: S.tag(AlignmentStatus.Enum.match_fuzzy),
-  },
-  $I.annote("GroundedExtractionMatchFuzzy", {
-    description: "Source-grounded extraction aligned by a bounded fuzzy text match.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroundedExtractionMatchFuzzy", {
+      description: "Source-grounded extraction aligned by a bounded fuzzy text match.",
+    })
+  )
 ) {}
 
-class GroundedExtractionUnaligned extends S.Class<GroundedExtractionUnaligned>($I`GroundedExtractionUnaligned`)(
-  {
+/**
+ * Extraction candidate for which deterministic source alignment found no match.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GroundedExtractionUnaligned extends S.Opaque<
+  GroundedExtractionUnaligned,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...GroundedExtractionCommonFields,
     alignmentStatus: S.tag(AlignmentStatus.Enum.unaligned),
-  },
-  $I.annote("GroundedExtractionUnaligned", {
-    description: "Extraction candidate for which deterministic source alignment found no match.",
-  })
+  }).pipe(
+    $I.annoteSchema("GroundedExtractionUnaligned", {
+      description: "Extraction candidate for which deterministic source alignment found no match.",
+    })
+  )
 ) {}
 
 /**
@@ -311,8 +361,8 @@ const langExtractRequestOptionsDefault = LangExtractOptions.make({});
  * @category models
  * @since 0.0.0
  */
-export class LangExtractRequest extends S.Class<LangExtractRequest>($I`LangExtractRequest`)(
-  {
+export class LangExtractRequest extends S.Opaque<LangExtractRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentId: DocumentId,
     examples: ExtractionExample.pipe(
       S.Array,
@@ -334,10 +384,11 @@ export class LangExtractRequest extends S.Class<LangExtractRequest>($I`LangExtra
         message: `LangExtract request text must be ${MAX_REQUEST_TEXT_LENGTH} characters or fewer.`,
       })
     ),
-  },
-  $I.annote("LangExtractRequest", {
-    description: "Provider-neutral request for LangExtract-style structured extraction.",
-  })
+  }).pipe(
+    $I.annoteSchema("LangExtractRequest", {
+      description: "Provider-neutral request for LangExtract-style structured extraction.",
+    })
+  )
 ) {}
 
 /**
@@ -360,16 +411,17 @@ export class LangExtractRequest extends S.Class<LangExtractRequest>($I`LangExtra
  * @category models
  * @since 0.0.0
  */
-export class LangExtractDiagnostics extends S.Class<LangExtractDiagnostics>($I`LangExtractDiagnostics`)(
-  {
+export class LangExtractDiagnostics extends S.Opaque<LangExtractDiagnostics, { readonly brand: unique symbol }>()(
+  S.Struct({
     alignedCount: S.Natural,
     candidateCount: S.Natural,
     promptChars: S.Natural,
     unalignedCount: S.Natural,
-  },
-  $I.annote("LangExtractDiagnostics", {
-    description: "Sanitized extraction diagnostics containing counts only.",
-  })
+  }).pipe(
+    $I.annoteSchema("LangExtractDiagnostics", {
+      description: "Sanitized extraction diagnostics containing counts only.",
+    })
+  )
 ) {}
 
 /**
@@ -409,15 +461,16 @@ export class LangExtractDiagnostics extends S.Class<LangExtractDiagnostics>($I`L
  * @category models
  * @since 0.0.0
  */
-export class LangExtractResult extends S.Class<LangExtractResult>($I`LangExtractResult`)(
-  {
+export class LangExtractResult extends S.Opaque<LangExtractResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     annotatedDocument: Contract.AnnotatedDocument,
     diagnostics: LangExtractDiagnostics,
     documentId: DocumentId,
     extractions: S.Array(GroundedExtraction),
     text: S.String,
-  },
-  $I.annote("LangExtractResult", {
-    description: "Structured extraction result with source-grounded spans and NLP handoff output.",
-  })
+  }).pipe(
+    $I.annoteSchema("LangExtractResult", {
+      description: "Structured extraction result with source-grounded spans and NLP handoff output.",
+    })
+  )
 ) {}

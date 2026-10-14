@@ -112,14 +112,15 @@ export type YeetReadyGateCriterion = typeof YeetReadyGateCriterion.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetReadyPullRequestRead extends S.Class<YeetReadyPullRequestRead>($I`YeetReadyPullRequestRead`)(
-  {
+export class YeetReadyPullRequestRead extends S.Opaque<YeetReadyPullRequestRead, { readonly brand: unique symbol }>()(
+  S.Struct({
     remote: YeetStatusRemote,
     mergeReady: S.Option(YeetMergeReady),
-  },
-  $I.annote("YeetReadyPullRequestRead", {
-    description: "The live pull request summary and merge-readiness verdict the yeet ready gate decides on.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetReadyPullRequestRead", {
+      description: "The live pull request summary and merge-readiness verdict the yeet ready gate decides on.",
+    })
+  )
 ) {}
 
 /**
@@ -138,12 +139,12 @@ export class YeetReadyPullRequestRead extends S.Class<YeetReadyPullRequestRead>(
  * @category models
  * @since 0.0.0
  */
-export class YeetReadyGateFlip extends S.TaggedClass<YeetReadyGateFlip>($I`YeetReadyGateFlip`)(
-  "flip",
-  { prNumber: S.Finite, headSha: S.Option(S.String) },
-  $I.annote("YeetReadyGateFlip", {
-    description: "The content-final gate holds on a draft pull request; flip it to ready.",
-  })
+export class YeetReadyGateFlip extends S.Opaque<YeetReadyGateFlip, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("flip", { prNumber: S.Finite, headSha: S.Option(S.String) }).pipe(
+    $I.annoteSchema("YeetReadyGateFlip", {
+      description: "The content-final gate holds on a draft pull request; flip it to ready.",
+    })
+  )
 ) {}
 
 /**
@@ -161,12 +162,12 @@ export class YeetReadyGateFlip extends S.TaggedClass<YeetReadyGateFlip>($I`YeetR
  * @category models
  * @since 0.0.0
  */
-export class YeetReadyGateAlreadyReady extends S.TaggedClass<YeetReadyGateAlreadyReady>($I`YeetReadyGateAlreadyReady`)(
-  "already-ready",
-  { prNumber: S.Finite },
-  $I.annote("YeetReadyGateAlreadyReady", {
-    description: "The pull request is open and not a draft; nothing to flip.",
-  })
+export class YeetReadyGateAlreadyReady extends S.Opaque<YeetReadyGateAlreadyReady, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("already-ready", { prNumber: S.Finite }).pipe(
+    $I.annoteSchema("YeetReadyGateAlreadyReady", {
+      description: "The pull request is open and not a draft; nothing to flip.",
+    })
+  )
 ) {}
 
 /**
@@ -187,12 +188,12 @@ export class YeetReadyGateAlreadyReady extends S.TaggedClass<YeetReadyGateAlread
  * @category models
  * @since 0.0.0
  */
-export class YeetReadyGateBlocked extends S.TaggedClass<YeetReadyGateBlocked>($I`YeetReadyGateBlocked`)(
-  "blocked",
-  { blocker: YeetReadyGateCriterion, detail: S.NonEmptyString },
-  $I.annote("YeetReadyGateBlocked", {
-    description: "The content-final gate refuses the flip on its first unmet criterion.",
-  })
+export class YeetReadyGateBlocked extends S.Opaque<YeetReadyGateBlocked, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("blocked", { blocker: YeetReadyGateCriterion, detail: S.NonEmptyString }).pipe(
+    $I.annoteSchema("YeetReadyGateBlocked", {
+      description: "The content-final gate refuses the flip on its first unmet criterion.",
+    })
+  )
 ) {}
 
 /**
@@ -243,7 +244,9 @@ export type YeetReadyGateDecision = typeof YeetReadyGateDecision.Type;
  * @category errors
  * @since 0.0.0
  */
-export class YeetReadyGateRefused extends S.TaggedError<YeetReadyGateRefused>($I`YeetReadyGateRefused`)(
+export class YeetReadyGateRefused extends S.TaggedError<YeetReadyGateRefused, { readonly brand: unique symbol }>(
+  $I`YeetReadyGateRefused`
+)(
   "YeetReadyGateRefused",
   {
     blocker: YeetReadyGateCriterion,

@@ -32,7 +32,7 @@ const $I = $ScratchpadId.create("effected/github-actions/GitHubToken");
  * @category errors
  * @since 0.0.0
  */
-export class GitHubTokenError extends S.TaggedError<GitHubTokenError>($I`GitHubTokenError`)("GitHubTokenError", {
+export class GitHubTokenError extends S.TaggedError<GitHubTokenError, { readonly brand: unique symbol }>($I`GitHubTokenError`)("GitHubTokenError", {
 	/**
 	 * One reason, deliberately: everything else that can go wrong here already
 	 * has an owner — persistence is an `ActionStateError`, minting is a

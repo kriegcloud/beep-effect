@@ -50,18 +50,19 @@ const WORKTREE_PREFIX = "worktree ";
  * @category models
  * @since 0.0.0
  */
-export class WorktreeListEntry extends S.Class<WorktreeListEntry>($I`WorktreeListEntry`)(
-  {
+export class WorktreeListEntry extends S.Opaque<WorktreeListEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.check(S.isPattern(/^[^\x00-\x1f\x7f]+$/u)),
     head: S.NullOr(S.String),
     branch: S.NullOr(S.String),
     detached: S.Boolean,
     locked: S.Boolean,
     prunable: S.Boolean,
-  },
-  $I.annote("WorktreeListEntry", {
-    description: "One parsed entry from git worktree list --porcelain.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeListEntry", {
+      description: "One parsed entry from git worktree list --porcelain.",
+    })
+  )
 ) {}
 
 /**
@@ -312,8 +313,8 @@ export type WorktreeUpstreamState = typeof WorktreeUpstreamState.Type;
  * @category models
  * @since 0.0.0
  */
-export class WorktreeResidueManifest extends S.Class<WorktreeResidueManifest>($I`WorktreeResidueManifest`)(
-  {
+export class WorktreeResidueManifest extends S.Opaque<WorktreeResidueManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: TrimmedNonEmptyString,
     branch: S.OptionFromNullOr(S.String),
     head: GitObjectId,
@@ -327,11 +328,12 @@ export class WorktreeResidueManifest extends S.Class<WorktreeResidueManifest>($I
     upstream: WorktreeUpstreamState.pipe(
       S.withDecodingDefaultKey(Effect.succeed(WorktreeUpstreamState.cases.unset.make({})))
     ),
-  },
-  $I.annote("WorktreeResidueManifest", {
-    description:
-      "Durable receipt for a worktree HEAD, tracked patch, copied untracked files, and branch-upstream state preserved before removal.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeResidueManifest", {
+      description:
+        "Durable receipt for a worktree HEAD, tracked patch, copied untracked files, and branch-upstream state preserved before removal.",
+    })
+  )
 ) {}
 
 /**
@@ -355,17 +357,18 @@ export class WorktreeResidueManifest extends S.Class<WorktreeResidueManifest>($I
  * @category models
  * @since 0.0.0
  */
-export class WorktreeArchivePlan extends S.Class<WorktreeArchivePlan>($I`WorktreeArchivePlan`)(
-  {
+export class WorktreeArchivePlan extends S.Opaque<WorktreeArchivePlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveRef: S.NonEmptyString,
     residueRoot: S.String,
     patchPath: S.String,
     untrackedRoot: S.String,
     manifestPath: S.String,
-  },
-  $I.annote("WorktreeArchivePlan", {
-    description: "Deterministic archive reference and filesystem layout for one worktree retirement attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeArchivePlan", {
+      description: "Deterministic archive reference and filesystem layout for one worktree retirement attempt.",
+    })
+  )
 ) {}
 
 /**
@@ -392,14 +395,15 @@ export class WorktreeArchivePlan extends S.Class<WorktreeArchivePlan>($I`Worktre
  * @category models
  * @since 0.0.0
  */
-export class WorktreeSessionMarker extends S.Class<WorktreeSessionMarker>($I`WorktreeSessionMarker`)(
-  {
+export class WorktreeSessionMarker extends S.Opaque<WorktreeSessionMarker, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: TrimmedNonEmptyString,
     pid: ProcessPid,
-  },
-  $I.annote("WorktreeSessionMarker", {
-    description: "Environment variable a harness exports to its children, and the session pid it claims to carry.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeSessionMarker", {
+      description: "Environment variable a harness exports to its children, and the session pid it claims to carry.",
+    })
+  )
 ) {}
 
 /**
@@ -431,14 +435,15 @@ export class WorktreeSessionMarker extends S.Class<WorktreeSessionMarker>($I`Wor
  * @category models
  * @since 0.0.0
  */
-export class WorktreeInvokerExemption extends S.Class<WorktreeInvokerExemption>($I`WorktreeInvokerExemption`)(
-  {
+export class WorktreeInvokerExemption extends S.Opaque<WorktreeInvokerExemption, { readonly brand: unique symbol }>()(
+  S.Struct({
     sessionMarker: S.OptionFromNullOr(WorktreeSessionMarker),
-  },
-  $I.annote("WorktreeInvokerExemption", {
-    description:
-      "Exemption the archive fence grants the invoker: its own ancestry, and the subtree of the session process a harness marker proves.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeInvokerExemption", {
+      description:
+        "Exemption the archive fence grants the invoker: its own ancestry, and the subtree of the session process a harness marker proves.",
+    })
+  )
 ) {}
 
 /**
@@ -486,8 +491,8 @@ export class WorktreeInvokerExemption extends S.Class<WorktreeInvokerExemption>(
  * @category models
  * @since 0.0.0
  */
-export class WorktreeRemovalRequest extends S.Class<WorktreeRemovalRequest>($I`WorktreeRemovalRequest`)(
-  {
+export class WorktreeRemovalRequest extends S.Opaque<WorktreeRemovalRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: TrimmedNonEmptyString.check(S.isPattern(/^(?!\.{1,2}$)[^/\\\x00-\x1f\x7f]+$/u)),
     targetPath: S.NonEmptyString.check(S.isPattern(/^[^\x00-\x1f\x7f]+$/u)),
     mainCheckout: S.String,
@@ -505,11 +510,12 @@ export class WorktreeRemovalRequest extends S.Class<WorktreeRemovalRequest>($I`W
     // fallback exempts only the invoking ancestry, retaining sibling holders.
     // Exempt children must finish their writes before archive capture.
     exemptInvokerSession: S.optionalKey(S.Boolean),
-  },
-  $I.annote("WorktreeRemovalRequest", {
-    description:
-      "Resolved worktree removal request, optionally pinned to the HEAD object id its authority was decided under.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeRemovalRequest", {
+      description:
+        "Resolved worktree removal request, optionally pinned to the HEAD object id its authority was decided under.",
+    })
+  )
 ) {}
 
 /**
@@ -543,16 +549,20 @@ export class WorktreeRemovalRequest extends S.Class<WorktreeRemovalRequest>($I`W
  * @category models
  * @since 0.0.0
  */
-export class WorktreeUnpushedInspection extends S.Class<WorktreeUnpushedInspection>($I`WorktreeUnpushedInspection`)(
-  {
+export class WorktreeUnpushedInspection extends S.Opaque<
+  WorktreeUnpushedInspection,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     unpushed: S.Boolean,
     baseRange: S.String,
     upstream: WorktreeUpstreamState,
-  },
-  $I.annote("WorktreeUnpushedInspection", {
-    description:
-      "Whether HEAD holds commits absent from the remote default branch or the branch upstream, with the ranges that answered.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeUnpushedInspection", {
+      description:
+        "Whether HEAD holds commits absent from the remote default branch or the branch upstream, with the ranges that answered.",
+    })
+  )
 ) {}
 
 /**
@@ -584,8 +594,8 @@ export class WorktreeUnpushedInspection extends S.Class<WorktreeUnpushedInspecti
  * @category models
  * @since 0.0.0
  */
-export class WorktreeRemovalReceipt extends S.Class<WorktreeRemovalReceipt>($I`WorktreeRemovalReceipt`)(
-  {
+export class WorktreeRemovalReceipt extends S.Opaque<WorktreeRemovalReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     targetPath: S.String,
     branch: S.OptionFromNullOr(S.String),
     reason: WorktreeResidueReason,
@@ -595,10 +605,11 @@ export class WorktreeRemovalReceipt extends S.Class<WorktreeRemovalReceipt>($I`W
       S.withConstructorDefault(Effect.succeedNone),
       S.withDecodingDefaultKey(Effect.succeed(null))
     ),
-  },
-  $I.annote("WorktreeRemovalReceipt", {
-    description: "Completed worktree removal receipt with optional preserved residue manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorktreeRemovalReceipt", {
+      description: "Completed worktree removal receipt with optional preserved residue manifest.",
+    })
+  )
 ) {}
 
 type PorcelainAccumulator = {
@@ -896,16 +907,17 @@ export type FleetLivenessProbe = typeof FleetLivenessProbe.Type;
  * @category models
  * @since 0.0.0
  */
-export class FleetSessionRegistryEntry extends S.Class<FleetSessionRegistryEntry>($I`FleetSessionRegistryEntry`)(
-  {
+export class FleetSessionRegistryEntry extends S.Opaque<FleetSessionRegistryEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: S.Finite,
     procStart: S.String,
     cwd: S.String,
-  },
-  $I.annote("FleetSessionRegistryEntry", {
-    description:
-      "The pid, procStart reuse guard, and working directory the fleet liveness probe reads from one Claude Code session-registry entry.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetSessionRegistryEntry", {
+      description:
+        "The pid, procStart reuse guard, and working directory the fleet liveness probe reads from one Claude Code session-registry entry.",
+    })
+  )
 ) {}
 
 /**
@@ -981,17 +993,18 @@ export type FleetProbeReading = typeof FleetProbeReading.Type;
  * @category models
  * @since 0.0.0
  */
-export class FleetLivenessReadings extends S.Class<FleetLivenessReadings>($I`FleetLivenessReadings`)(
-  {
+export class FleetLivenessReadings extends S.Opaque<FleetLivenessReadings, { readonly brand: unique symbol }>()(
+  S.Struct({
     processMatches: S.Finite,
     processScanComplete: S.Boolean,
     sessionMatches: S.Finite,
     transcript: FleetProbeReading,
     worktreeMtime: FleetProbeReading,
-  },
-  $I.annote("FleetLivenessReadings", {
-    description: "Probe readings the liveness classifier consumes for one checkout.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetLivenessReadings", {
+      description: "Probe readings the liveness classifier consumes for one checkout.",
+    })
+  )
 ) {}
 
 /**
@@ -1014,14 +1027,15 @@ export class FleetLivenessReadings extends S.Class<FleetLivenessReadings>($I`Fle
  * @category models
  * @since 0.0.0
  */
-export class FleetLivenessVerdict extends S.Class<FleetLivenessVerdict>($I`FleetLivenessVerdict`)(
-  {
+export class FleetLivenessVerdict extends S.Opaque<FleetLivenessVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: FleetLiveness,
     evidence: S.Array(FleetLivenessProbe),
-  },
-  $I.annote("FleetLivenessVerdict", {
-    description: "A checkout's classified liveness status and the probes that evidenced it.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetLivenessVerdict", {
+      description: "A checkout's classified liveness status and the probes that evidenced it.",
+    })
+  )
 ) {}
 
 /**
@@ -1046,8 +1060,8 @@ export class FleetLivenessVerdict extends S.Class<FleetLivenessVerdict>($I`Fleet
  * @category models
  * @since 0.0.0
  */
-export class FleetScanOptions extends S.Class<FleetScanOptions>($I`FleetScanOptions`)(
-  {
+export class FleetScanOptions extends S.Opaque<FleetScanOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     startFrom: S.optionalKey(S.String),
     fleetRoot: S.optionalKey(S.String),
     originUrl: S.optionalKey(S.String),
@@ -1055,10 +1069,11 @@ export class FleetScanOptions extends S.Class<FleetScanOptions>($I`FleetScanOpti
     targetRef: S.optionalKey(S.String),
     livenessWindowSeconds: S.optionalKey(S.Finite),
     homeDir: S.optionalKey(S.String),
-  },
-  $I.annote("FleetScanOptions", {
-    description: "Optional overrides for one fleet-mirror scan; every field defaults from the invoking repository.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetScanOptions", {
+      description: "Optional overrides for one fleet-mirror scan; every field defaults from the invoking repository.",
+    })
+  )
 ) {}
 
 /**
@@ -1232,8 +1247,8 @@ export type FleetCheckoutKind = typeof FleetCheckoutKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class FleetCheckout extends S.Class<FleetCheckout>($I`FleetCheckout`)(
-  {
+export class FleetCheckout extends S.Opaque<FleetCheckout, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     kind: FleetCheckoutKind,
     branch: S.NullOr(S.String),
@@ -1250,11 +1265,12 @@ export class FleetCheckout extends S.Class<FleetCheckout>($I`FleetCheckout`)(
     policyMovement: FleetPolicyMovement,
     policyReason: S.NullOr(FleetUnknownReason),
     policyPaths: S.Array(S.String),
-  },
-  $I.annote("FleetCheckout", {
-    description:
-      "Derived fleet-mirror row for one checkout: measured git facts, three-state liveness, conflict prediction, and policy movement, with null encoding unknown.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetCheckout", {
+      description:
+        "Derived fleet-mirror row for one checkout: measured git facts, three-state liveness, conflict prediction, and policy movement, with null encoding unknown.",
+    })
+  )
 ) {}
 
 /**
@@ -1276,14 +1292,15 @@ export class FleetCheckout extends S.Class<FleetCheckout>($I`FleetCheckout`)(
  * @category models
  * @since 0.0.0
  */
-export class FleetContestedPath extends S.Class<FleetContestedPath>($I`FleetContestedPath`)(
-  {
+export class FleetContestedPath extends S.Opaque<FleetContestedPath, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     checkouts: S.Array(S.String),
-  },
-  $I.annote("FleetContestedPath", {
-    description: "A repository path present in the change surface of two or more fleet checkouts.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetContestedPath", {
+      description: "A repository path present in the change surface of two or more fleet checkouts.",
+    })
+  )
 ) {}
 
 /**
@@ -1308,15 +1325,16 @@ export class FleetContestedPath extends S.Class<FleetContestedPath>($I`FleetCont
  * @category models
  * @since 0.0.0
  */
-export class FleetEpochTarget extends S.Class<FleetEpochTarget>($I`FleetEpochTarget`)(
-  {
+export class FleetEpochTarget extends S.Opaque<FleetEpochTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     ref: S.String,
     sha: S.NullOr(S.String),
     materialized: S.Boolean,
-  },
-  $I.annote("FleetEpochTarget", {
-    description: "Ground-truth ref the fleet scan evaluated against, and whether its object is materialized locally.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetEpochTarget", {
+      description: "Ground-truth ref the fleet scan evaluated against, and whether its object is materialized locally.",
+    })
+  )
 ) {}
 
 /**
@@ -1341,18 +1359,19 @@ export class FleetEpochTarget extends S.Class<FleetEpochTarget>($I`FleetEpochTar
  * @category models
  * @since 0.0.0
  */
-export class FleetScanCoverage extends S.Class<FleetScanCoverage>($I`FleetScanCoverage`)(
-  {
+export class FleetScanCoverage extends S.Opaque<FleetScanCoverage, { readonly brand: unique symbol }>()(
+  S.Struct({
     clonesDiscovered: S.Finite,
     checkoutsDiscovered: S.Finite,
     checkoutsDegraded: S.Finite,
     processesScanned: S.Finite,
     processesUnreadable: S.Finite,
-  },
-  $I.annote("FleetScanCoverage", {
-    description:
-      "Scan coverage counts: discovered clones and checkouts, rows carrying probe-failure unknowns, and process-scan readability.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetScanCoverage", {
+      description:
+        "Scan coverage counts: discovered clones and checkouts, rows carrying probe-failure unknowns, and process-scan readability.",
+    })
+  )
 ) {}
 
 /**
@@ -1390,8 +1409,8 @@ export class FleetScanCoverage extends S.Class<FleetScanCoverage>($I`FleetScanCo
  * @category models
  * @since 0.0.0
  */
-export class FleetSnapshot extends S.Class<FleetSnapshot>($I`FleetSnapshot`)(
-  {
+export class FleetSnapshot extends S.Opaque<FleetSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     fleetRoot: S.String,
     originUrl: S.String,
     scannedAt: S.String,
@@ -1399,9 +1418,10 @@ export class FleetSnapshot extends S.Class<FleetSnapshot>($I`FleetSnapshot`)(
     coverage: FleetScanCoverage,
     checkouts: S.Array(FleetCheckout),
     contestedPaths: S.Array(FleetContestedPath),
-  },
-  $I.annote("FleetSnapshot", {
-    description:
-      "Read-only derived view of every checkout sharing this origin: rows, contested paths, epoch target, and scan coverage.",
-  })
+  }).pipe(
+    $I.annoteSchema("FleetSnapshot", {
+      description:
+        "Read-only derived view of every checkout sharing this origin: rows, contested paths, epoch target, and scan coverage.",
+    })
+  )
 ) {}

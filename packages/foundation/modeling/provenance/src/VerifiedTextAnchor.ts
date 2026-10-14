@@ -125,7 +125,9 @@ export type VerifiedTextAnchorErrorReason = typeof VerifiedTextAnchorErrorReason
  * @category errors
  * @since 0.0.0
  */
-export class VerifiedTextAnchorError extends S.TaggedError<VerifiedTextAnchorError>($I`VerifiedTextAnchorError`)(
+export class VerifiedTextAnchorError extends S.TaggedError<VerifiedTextAnchorError, { readonly brand: unique symbol }>(
+  $I`VerifiedTextAnchorError`
+)(
   "VerifiedTextAnchorError",
   {
     message: S.String,
@@ -165,18 +167,20 @@ export class VerifiedTextAnchorError extends S.TaggedError<VerifiedTextAnchorErr
  * @category models
  * @since 0.0.0
  */
-export class VerifySourceTextIdentityInput extends S.Class<VerifySourceTextIdentityInput>(
-  $I`VerifySourceTextIdentityInput`
-)(
-  {
+export class VerifySourceTextIdentityInput extends S.Opaque<
+  VerifySourceTextIdentityInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     expectedSource: SourceTextIdentity,
     source: SourceTextIdentity,
     sourceText: S.String,
-  },
-  $I.annote("VerifySourceTextIdentityInput", {
-    description:
-      "Expected and resolved source identities plus the exact raw source text whose digest must match the resolved identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifySourceTextIdentityInput", {
+      description:
+        "Expected and resolved source identities plus the exact raw source text whose digest must match the resolved identity.",
+    })
+  )
 ) {}
 
 class VerifiedSourceTextValue {
@@ -274,16 +278,18 @@ export const VerifiedSourceText = S.declare<VerifiedSourceText>(VerifiedSourceTe
  * @category models
  * @since 0.0.0
  */
-export class VerifyTextAnchorAgainstVerifiedSourceInput extends S.Class<VerifyTextAnchorAgainstVerifiedSourceInput>(
-  $I`VerifyTextAnchorAgainstVerifiedSourceInput`
-)(
-  {
+export class VerifyTextAnchorAgainstVerifiedSourceInput extends S.Opaque<
+  VerifyTextAnchorAgainstVerifiedSourceInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     anchor: TextAnchor,
     verifiedSource: VerifiedSourceText,
-  },
-  $I.annote("VerifyTextAnchorAgainstVerifiedSourceInput", {
-    description: "Candidate anchor and opaque proof of the exact source text against which it must be checked.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifyTextAnchorAgainstVerifiedSourceInput", {
+      description: "Candidate anchor and opaque proof of the exact source text against which it must be checked.",
+    })
+  )
 ) {}
 
 /**
@@ -307,17 +313,18 @@ export class VerifyTextAnchorAgainstVerifiedSourceInput extends S.Class<VerifyTe
  * @category models
  * @since 0.0.0
  */
-export class VerifyTextAnchorInput extends S.Class<VerifyTextAnchorInput>($I`VerifyTextAnchorInput`)(
-  {
+export class VerifyTextAnchorInput extends S.Opaque<VerifyTextAnchorInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     anchor: TextAnchor,
     expectedSource: SourceTextIdentity,
     source: SourceTextIdentity,
     sourceText: S.String,
-  },
-  $I.annote("VerifyTextAnchorInput", {
-    description:
-      "Expected and resolved source identities, raw source text whose digest must match, and candidate anchor to verify.",
-  })
+  }).pipe(
+    $I.annoteSchema("VerifyTextAnchorInput", {
+      description:
+        "Expected and resolved source identities, raw source text whose digest must match, and candidate anchor to verify.",
+    })
+  )
 ) {}
 
 /**
@@ -342,17 +349,19 @@ export class VerifyTextAnchorInput extends S.Class<VerifyTextAnchorInput>($I`Ver
  * @category models
  * @since 0.0.0
  */
-export class TextAnchorVerificationReceipt extends S.Class<TextAnchorVerificationReceipt>(
-  $I`TextAnchorVerificationReceipt`
-)(
-  {
+export class TextAnchorVerificationReceipt extends S.Opaque<
+  TextAnchorVerificationReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     anchor: TextAnchor,
     source: SourceTextIdentity,
-  },
-  $I.annote("TextAnchorVerificationReceipt", {
-    description:
-      "Persisted anchor and source identity from an earlier verification; re-verification requires canonical source text.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextAnchorVerificationReceipt", {
+      description:
+        "Persisted anchor and source identity from an earlier verification; re-verification requires canonical source text.",
+    })
+  )
 ) {}
 
 class VerifiedTextAnchorValue {

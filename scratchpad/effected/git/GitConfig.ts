@@ -53,7 +53,7 @@ const $I = $ScratchpadId.create("effected/git/GitConfig");
  * @category diagnostics
  * @since 0.0.0
  */
-export class GitConfigDiagnostic extends S.Class<GitConfigDiagnostic>($I`GitConfigDiagnostic`)({
+export class GitConfigDiagnostic extends S.Class<GitConfigDiagnostic, { readonly brand: unique symbol }>($I`GitConfigDiagnostic`)({
   /** What kind of malformation this is. */
   code: GitConfigDiagnosticCode.annotateKey({ description: "What kind of malformation this is." }),
   /** A human-readable description of the problem. */
@@ -90,7 +90,7 @@ export class GitConfigDiagnostic extends S.Class<GitConfigDiagnostic>($I`GitConf
  * @category errors
  * @since 0.0.0
  */
-export class GitConfigParseError extends S.TaggedError<GitConfigParseError>($I`GitConfigParseError`)("GitConfigParseError", {
+export class GitConfigParseError extends S.TaggedError<GitConfigParseError, { readonly brand: unique symbol }>($I`GitConfigParseError`)("GitConfigParseError", {
   /** The raw input that failed to parse. */
   input: S.String.annotateKey({ description: "The raw input that failed to parse." }),
   /** Every structural problem found, in document order. */
@@ -134,7 +134,7 @@ export class GitConfigParseError extends S.TaggedError<GitConfigParseError>($I`G
  * @category errors
  * @since 0.0.0
  */
-export class GitConfigEditError extends S.TaggedError<GitConfigEditError>($I`GitConfigEditError`)("GitConfigEditError", {
+export class GitConfigEditError extends S.TaggedError<GitConfigEditError, { readonly brand: unique symbol }>($I`GitConfigEditError`)("GitConfigEditError", {
   /** The edit operation that was refused. */
   op: S.Literals(["set", "append", "unset", "unsetAll", "addSection", "removeSection", "renameSection"]).annotateKey({ description: "The edit operation that was refused." }),
   /** Why it was refused. */
@@ -206,7 +206,7 @@ export class GitConfigEditError extends S.TaggedError<GitConfigEditError>($I`Git
  * @category models
  * @since 0.0.0
  */
-export class GitConfigEntry extends S.Class<GitConfigEntry>($I`GitConfigEntry`)({
+export class GitConfigEntry extends S.Class<GitConfigEntry, { readonly brand: unique symbol }>($I`GitConfigEntry`)({
   /** The variable name, raw spelling preserved (names compare case-insensitively). */
   key: S.String.annotateKey({ description: "The variable name, raw spelling preserved (names compare case-insensitively)." }),
   /** The decoded value; absent for the bare boolean-true shorthand. */
@@ -244,7 +244,7 @@ export class GitConfigEntry extends S.Class<GitConfigEntry>($I`GitConfigEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class GitConfigSection extends S.Class<GitConfigSection>($I`GitConfigSection`)({
+export class GitConfigSection extends S.Class<GitConfigSection, { readonly brand: unique symbol }>($I`GitConfigSection`)({
   /** The section name, raw spelling preserved. */
   name: S.String.annotateKey({ description: "The section name, raw spelling preserved." }),
   /** The decoded subsection name, when present. */
@@ -280,7 +280,7 @@ export class GitConfigSection extends S.Class<GitConfigSection>($I`GitConfigSect
  * @category models
  * @since 0.0.0
  */
-export class GitConfigInclude extends S.Class<GitConfigInclude>($I`GitConfigInclude`)({
+export class GitConfigInclude extends S.Class<GitConfigInclude, { readonly brand: unique symbol }>($I`GitConfigInclude`)({
   /** The include path exactly as written (not resolved, not expanded). */
   path: S.String.annotateKey({ description: "The include path exactly as written (not resolved, not expanded)." }),
   /** The `includeIf` condition, when this came from an `includeIf` section. */
@@ -347,7 +347,7 @@ const fromRaw = (text: string, raw: RawParse): GitConfig =>
   });
 
 /** A hand-built document violated the clean-text invariant. */
-class GitConfigInvariantError extends S.TaggedError<GitConfigInvariantError>($I`GitConfigInvariantError`)(
+class GitConfigInvariantError extends S.TaggedError<GitConfigInvariantError, { readonly brand: unique symbol }>($I`GitConfigInvariantError`)(
   "GitConfigInvariantError",
   {
     message: S.String.annotateKey({ description: "The violated document invariant." }),
@@ -441,7 +441,7 @@ const appendAtEof = (text: string, content: string): string =>
  * @category models
  * @since 0.0.0
  */
-export class GitConfig extends S.Class<GitConfig>($I`GitConfig`)({
+export class GitConfig extends S.Class<GitConfig, { readonly brand: unique symbol }>($I`GitConfig`)({
   /** The document's source text — `stringify` returns exactly this. */
   text: S.String.annotateKey({ description: "The document's source text — `stringify` returns exactly this." }),
   /** The sections scanned from `text`, in document order. */

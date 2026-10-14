@@ -95,8 +95,8 @@ const docketGraphConfigMaxTotalDocumentBytesDefault = 20_000_000;
  * @category models
  * @since 0.0.0
  */
-export class DocketGraphConfig extends S.Class<DocketGraphConfig>($I`DocketGraphConfig`)(
-  {
+export class DocketGraphConfig extends S.Opaque<DocketGraphConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     initialSince: S.NonEmptyString.annotateKey({
       description: "UTC ISO-8601 timestamp used as the listing floor when the pipeline passes no cursor.",
     }),
@@ -121,8 +121,7 @@ export class DocketGraphConfig extends S.Class<DocketGraphConfig>($I`DocketGraph
       S.withDecodingDefaultTypeKey(Effect.succeed(docketGraphConfigPageSizeDefault))
     ).annotateKey({ description: "Messages requested per Graph page." }),
     timeZone: S.TimeZoneNamedFromString.annotateKey({ description: "IANA time zone of the practice; required." }),
-  },
-  $I.annote("DocketGraphConfig", { description: "Settings of the docket intake Graph adapters." })
+  }).pipe($I.annoteSchema("DocketGraphConfig", { description: "Settings of the docket intake Graph adapters." }))
 ) {}
 
 const ENTERED_CATEGORY: DocketCategory = "Docket - entered";

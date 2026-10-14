@@ -67,7 +67,7 @@ import { prepareInline } from "./rawInline.ts";
 const $I = $ScratchpadId.create("effected/markdown/internal/blockParser");
 
 /** A block-parser invariant was violated. */
-class BlockParserError extends S.TaggedError<BlockParserError>($I`BlockParserError`)(
+class BlockParserError extends S.TaggedError<BlockParserError, { readonly brand: unique symbol }>($I`BlockParserError`)(
 	"BlockParserError",
 	{
 		message: S.String.annotateKey({ description: "The block-parser invariant failure message." }),

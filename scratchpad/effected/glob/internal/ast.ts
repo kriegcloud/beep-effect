@@ -54,7 +54,7 @@ const $I = $ScratchpadId.create("effected/glob/internal/ast");
  * @category errors
  * @since 0.0.0
  */
-export class ASTError extends S.TaggedError<ASTError>($I`ASTError`)("ASTError", {
+export class ASTError extends S.TaggedError<ASTError, { readonly brand: unique symbol }>($I`ASTError`)("ASTError", {
 	message: S.String.annotateKey({ description: "The violated invariant in the extglob syntax tree." }),
 }, $I.annote("ASTError", {
 	title: "Extglob syntax tree invariant violation",

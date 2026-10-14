@@ -32,15 +32,16 @@ const $I = $SchemaId.create("Jsonc");
  * @category models
  * @since 0.0.0
  */
-export class JsoncParseDiagnostic extends S.Class<JsoncParseDiagnostic>($I`JsoncParseDiagnostic`)(
-  {
+export class JsoncParseDiagnostic extends S.Opaque<JsoncParseDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     offset: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     length: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("JsoncParseDiagnostic", {
-    description: "Single JSONC parse diagnostic produced by jsonc-parser.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsoncParseDiagnostic", {
+      description: "Single JSONC parse diagnostic produced by jsonc-parser.",
+    })
+  )
 ) {}
 
 const encodeUnsupported = (): Effect.Effect<string, SchemaIssue.Issue> =>

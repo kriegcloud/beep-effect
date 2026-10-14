@@ -80,7 +80,9 @@ export const OUTBOX_ENV = {
  * @category errors
  * @since 0.1.0
  */
-export class OutboxConfigError extends S.TaggedError<OutboxConfigError>($I`OutboxConfigError`)(
+export class OutboxConfigError extends S.TaggedError<OutboxConfigError, { readonly brand: unique symbol }>(
+  $I`OutboxConfigError`
+)(
   "OutboxConfigError",
   {
     message: S.String.annotateKey({ description: "Which setting is missing or invalid; never its value." }),
@@ -120,8 +122,8 @@ export class OutboxConfigError extends S.TaggedError<OutboxConfigError>($I`Outbo
  * @category models
  * @since 0.1.0
  */
-export class OutboxConfig extends S.Class<OutboxConfig>($I`OutboxConfig`)(
-  {
+export class OutboxConfig extends S.Opaque<OutboxConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     appOnly: M365AppOnlyConfigInput.annotateKey({
       description: "App-only lane settings of the outbox's own Entra registration (certificate credential).",
     }),
@@ -130,8 +132,9 @@ export class OutboxConfig extends S.Class<OutboxConfig>($I`OutboxConfig`)(
     mailbox: GraphPathSegment.annotateKey({
       description: "The one mailbox every tool addresses; fixed here, never a tool parameter.",
     }),
-  },
-  $I.annote("OutboxConfig", { description: "Resolved configuration of the Microsoft 365 outbox server." })
+  }).pipe(
+    $I.annoteSchema("OutboxConfig", { description: "Resolved configuration of the Microsoft 365 outbox server." })
+  )
 ) {}
 
 const fail = (message: string): Effect.Effect<never, OutboxConfigError> =>

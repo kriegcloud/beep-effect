@@ -42,16 +42,17 @@ const $I = $RepoCliId.create("commands/Accounts/Accounts.wire.schemas");
  * @category models
  * @since 0.0.0
  */
-export class ProxyAuthFile extends S.Class<ProxyAuthFile>($I`ProxyAuthFile`)(
-  {
+export class ProxyAuthFile extends S.Opaque<ProxyAuthFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     email: AccountLabel,
     access_token: S.RedactedFromValue(S.String, { label: "access_token" }),
     account_id: S.optionalKey(S.String),
     dca_token: S.RedactedFromValue(S.String, { label: "dca_token" }).pipe(S.optionalKey),
     disabled: S.optionalKey(S.Boolean),
-  },
-  $I.annote("ProxyAuthFile", { description: "Provider, identity, and access token of one proxy stored login." })
+  }).pipe(
+    $I.annoteSchema("ProxyAuthFile", { description: "Provider, identity, and access token of one proxy stored login." })
+  )
 ) {}
 
 /**
@@ -107,14 +108,17 @@ const ClaudeLegacyWindow = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class ClaudeUsageBody extends S.Class<ClaudeUsageBody>($I`ClaudeUsageBody`)(
-  {
+export class ClaudeUsageBody extends S.Opaque<ClaudeUsageBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     limits: ClaudeLimit.pipe(S.Array, S.optionalKey),
     five_hour: ClaudeLegacyWindow.pipe(S.NullOr, S.optionalKey),
     seven_day: ClaudeLegacyWindow.pipe(S.NullOr, S.optionalKey),
     error: S.optionalKey(S.Struct({ type: S.String, message: S.String })),
-  },
-  $I.annote("ClaudeUsageBody", { description: "Claude plan-limit windows, or the error an expired login returns." })
+  }).pipe(
+    $I.annoteSchema("ClaudeUsageBody", {
+      description: "Claude plan-limit windows, or the error an expired login returns.",
+    })
+  )
 ) {}
 
 /**
@@ -209,8 +213,8 @@ const CodexWindow = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class CodexUsageBody extends S.Class<CodexUsageBody>($I`CodexUsageBody`)(
-  {
+export class CodexUsageBody extends S.Opaque<CodexUsageBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     plan_type: S.String.pipe(S.NullOr, S.optionalKey),
     rate_limit: S.Struct({
       primary_window: CodexWindow.pipe(S.NullOr, S.optionalKey),
@@ -221,8 +225,7 @@ export class CodexUsageBody extends S.Class<CodexUsageBody>($I`CodexUsageBody`)(
       balance: S.FiniteFromString.pipe(S.NullOr, S.optionalKey),
     }).pipe(S.NullOr, S.optionalKey),
     rate_limit_reset_credits: S.Struct({ available_count: S.Finite }).pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("CodexUsageBody", { description: "Codex plan type and its rate-limit windows." })
+  }).pipe($I.annoteSchema("CodexUsageBody", { description: "Codex plan type and its rate-limit windows." }))
 ) {}
 
 /**
@@ -397,15 +400,14 @@ const MuseWindow = S.Struct({ used_percent: S.Finite, resets_at: S.Finite });
  * @category models
  * @since 0.0.0
  */
-export class MuseKeyBody extends S.Class<MuseKeyBody>($I`MuseKeyBody`)(
-  {
+export class MuseKeyBody extends S.Opaque<MuseKeyBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     subs_tier_name: S.String.pipe(S.NullOr, S.optionalKey),
     subs_usage: S.Struct({
       window: MuseWindow.pipe(S.NullOr, S.optionalKey),
       weekly: MuseWindow.pipe(S.NullOr, S.optionalKey),
     }).pipe(S.NullOr, S.optionalKey),
-  },
-  $I.annote("MuseKeyBody", { description: "Muse Code subscription tier and its plan-limit usage." })
+  }).pipe($I.annoteSchema("MuseKeyBody", { description: "Muse Code subscription tier and its plan-limit usage." }))
 ) {}
 
 /**
@@ -607,9 +609,10 @@ export const grokUsageWindows = (body: Uint8Array): O.Option<ReadonlyArray<Usage
  * @category models
  * @since 0.0.0
  */
-export class ClaudeCliConfig extends S.Class<ClaudeCliConfig>($I`ClaudeCliConfig`)(
-  { oauthAccount: S.Struct({ emailAddress: AccountLabel }) },
-  $I.annote("ClaudeCliConfig", { description: "The account the Claude CLI is signed in to." })
+export class ClaudeCliConfig extends S.Opaque<ClaudeCliConfig, { readonly brand: unique symbol }>()(
+  S.Struct({ oauthAccount: S.Struct({ emailAddress: AccountLabel }) }).pipe(
+    $I.annoteSchema("ClaudeCliConfig", { description: "The account the Claude CLI is signed in to." })
+  )
 ) {}
 
 /**
@@ -651,9 +654,10 @@ export const ClaudeCliConfigJson = JsonStringCodec(ClaudeCliConfig);
  * @category models
  * @since 0.0.0
  */
-export class CodexCliAuth extends S.Class<CodexCliAuth>($I`CodexCliAuth`)(
-  { tokens: S.Struct({ id_token: S.RedactedFromValue(S.String, { label: "id_token" }) }) },
-  $I.annote("CodexCliAuth", { description: "The ID token of the account the Codex CLI is signed in to." })
+export class CodexCliAuth extends S.Opaque<CodexCliAuth, { readonly brand: unique symbol }>()(
+  S.Struct({ tokens: S.Struct({ id_token: S.RedactedFromValue(S.String, { label: "id_token" }) }) }).pipe(
+    $I.annoteSchema("CodexCliAuth", { description: "The ID token of the account the Codex CLI is signed in to." })
+  )
 ) {}
 
 /**

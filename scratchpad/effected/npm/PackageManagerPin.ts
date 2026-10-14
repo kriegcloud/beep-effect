@@ -51,7 +51,7 @@ const $I = $ScratchpadId.create("effected/npm/PackageManagerPin");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidPackageManagerPinError extends S.TaggedError<InvalidPackageManagerPinError>($I`InvalidPackageManagerPinError`)(
+export class InvalidPackageManagerPinError extends S.TaggedError<InvalidPackageManagerPinError, { readonly brand: unique symbol }>($I`InvalidPackageManagerPinError`)(
 	"InvalidPackageManagerPinError",
 	{
 		/** The raw input string that failed validation. */
@@ -202,7 +202,7 @@ const pinVersion = SemVer.pipe(
  * @category models
  * @since 0.0.0
  */
-export class PackageManagerPin extends S.Class<PackageManagerPin>($I`PackageManagerPin`)({
+export class PackageManagerPin extends S.Class<PackageManagerPin, { readonly brand: unique symbol }>($I`PackageManagerPin`)({
 	/** The package-manager name (`npm`, `pnpm`, `yarn` or `bun`). */
 	name: PackageManagerPinName.annotateKey({ description: "The package-manager name (`npm`, `pnpm`, `yarn` or `bun`)." }),
 	/**

@@ -8,7 +8,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { FsUtils } from "@beep/repo-utils/FsUtils";
+import { FsUtils, GlobOptions } from "@beep/repo-utils/FsUtils";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
@@ -285,11 +285,11 @@ const discoverSources = Effect.fn("SchemaParityCodemod.discoverSources")(functio
   const files = yield* fsUtils
     .globFiles(
       A.map(roots, (root) => `${Str.replace(/\/+$/u, "")(root)}/**/*.{ts,tsx}`),
-      {
+      GlobOptions.make({
         absolute: true,
         cwd: repoRoot,
         ignore: ["**/node_modules/**", "**/dist/**", "**/docs/**", "**/build/**", "**/.turbo/**", "**/*.d.ts"],
-      }
+      })
     )
     .pipe(SchemaParityCodemodError.mapError("Failed to discover codemod source files."));
   return A.sort(A.dedupe(files), Order.String);

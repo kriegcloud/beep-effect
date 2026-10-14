@@ -80,15 +80,16 @@ const ProcessParentPid = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class ProcessStatus extends S.Class<ProcessStatus>($I`ProcessStatus`)(
-  {
+export class ProcessStatus extends S.Opaque<ProcessStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: ProcessPid,
     parent: ProcessParentPid,
     command: S.String,
-  },
-  $I.annote("ProcessStatus", {
-    description: "A process id with the parent pid and command name its /proc status file reports.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessStatus", {
+      description: "A process id with the parent pid and command name its /proc status file reports.",
+    })
+  )
 ) {}
 
 /**
@@ -267,17 +268,18 @@ export const ProcessTable: Context.Reference<ProcessTableShape> = Context.Refere
  * @category testing
  * @since 0.0.0
  */
-export class ProcessTableEntry extends S.Class<ProcessTableEntry>($I`ProcessTableEntry`)(
-  {
+export class ProcessTableEntry extends S.Opaque<ProcessTableEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: ProcessPid,
     parent: ProcessParentPid,
     command: S.String,
     cwd: S.optionalKey(S.String),
     descriptors: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("ProcessTableEntry", {
-    description: "A fake process-table row: pid, parent, command name, and the resolved paths it holds.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessTableEntry", {
+      description: "A fake process-table row: pid, parent, command name, and the resolved paths it holds.",
+    })
+  )
 ) {}
 
 const entryIndex = (entries: ReadonlyArray<ProcessTableEntry>): HashMap.HashMap<number, ProcessTableEntry> =>
@@ -472,14 +474,15 @@ export const ProcessSessionRootRule = LiteralKit(["session-command", "chain-top"
  * @category models
  * @since 0.0.0
  */
-export class ProcessSessionRoot extends S.Class<ProcessSessionRoot>($I`ProcessSessionRoot`)(
-  {
+export class ProcessSessionRoot extends S.Opaque<ProcessSessionRoot, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: ProcessPid,
     rule: ProcessSessionRootRule,
-  },
-  $I.annote("ProcessSessionRoot", {
-    description: "The pid the invoking session's processes all descend from, and the rule that chose it.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProcessSessionRoot", {
+      description: "The pid the invoking session's processes all descend from, and the rule that chose it.",
+    })
+  )
 ) {}
 
 const isSessionCommand = S.is(ProcessSessionCommand);

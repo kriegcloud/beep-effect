@@ -121,7 +121,7 @@ const defaultHandoff = (view: EconomicsSeedSourceView): GateOrderHandoff =>
 const withSeedRow = (
   seed: GateOrderSeed,
   laneId: string,
-  patch: Partial<ConstructorParameters<typeof GateOrderSeedRow>[0]>
+  patch: Partial<Parameters<typeof GateOrderSeedRow.make>[0]>
 ): GateOrderSeed =>
   GateOrderSeed.make({
     ...seed,
@@ -130,7 +130,7 @@ const withSeedRow = (
 
 const withCostSource = (
   laneId: string,
-  patch: Partial<ConstructorParameters<typeof GateOrderCostSource>[0]>
+  patch: Partial<Parameters<typeof GateOrderCostSource.make>[0]>
 ): ReadonlyArray<GateOrderCostSource> =>
   A.map(DEFAULT_GATE_ORDER_COST_SOURCES, (entry) =>
     entry.laneId === laneId ? GateOrderCostSource.make({ ...entry, ...patch }) : entry

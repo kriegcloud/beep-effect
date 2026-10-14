@@ -64,7 +64,7 @@ export type Eol = typeof Eol.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SectionRenderError extends S.TaggedError<SectionRenderError>($I`SectionRenderError`)("SectionRenderError", {
+export class SectionRenderError extends S.TaggedError<SectionRenderError, { readonly brand: unique symbol }>($I`SectionRenderError`)("SectionRenderError", {
 	/**
 	 * `markerInContent` — the content carries a line the scanner would read as
 	 * a marker, which would move the block boundary and let the next sync
@@ -197,7 +197,7 @@ const closingRule = (text: string, boundary: number, style: CommentStyle): reado
  * @category models
  * @since 0.0.0
  */
-export class SectionDialect extends S.Class<SectionDialect>($I`SectionDialect`)({
+export class SectionDialect extends S.Class<SectionDialect, { readonly brand: unique symbol }>($I`SectionDialect`)({
 	/**
 	 * The phrase between the key and the closing rule.
 	 *

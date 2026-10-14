@@ -270,44 +270,72 @@ export const WarningPolicy = LiteralKit(["fail", "log"]).annotate(
  */
 export type WarningPolicy = typeof WarningPolicy.Type;
 
-class GenerateIdentity extends S.Class<GenerateIdentity>($I`GenerateIdentity`)(
-  {
+/**
+ * Identity composer symbol and module segment emitted into generated schemas.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GenerateIdentity extends S.Opaque<GenerateIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     composer: S.NonEmptyString,
     moduleId: S.NonEmptyString,
-  },
-  $I.annote("GenerateIdentity", {
-    description: "Identity composer symbol and module segment emitted into generated schemas.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerateIdentity", {
+      description: "Identity composer symbol and module segment emitted into generated schemas.",
+    })
+  )
 ) {}
 
-class GeneratePatch extends S.Class<GeneratePatch>($I`GeneratePatch`)(
-  {
+/**
+ * Named RFC 6902 patch document applied before generation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GeneratePatch extends S.Opaque<GeneratePatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.NonEmptyString,
     patch: JsonPatchDocument,
-  },
-  $I.annote("GeneratePatch", {
-    description: "Named RFC 6902 patch document applied before generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratePatch", {
+      description: "Named RFC 6902 patch document applied before generation.",
+    })
+  )
 ) {}
 
-class GenerateOutput extends S.Class<GenerateOutput>($I`GenerateOutput`)(
-  {
+/**
+ * Primary generated module path and optional package-specific header.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GenerateOutput extends S.Opaque<GenerateOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString,
     header: S.optionalKey(S.String),
-  },
-  $I.annote("GenerateOutput", {
-    description: "Primary generated module path and optional package-specific header.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerateOutput", {
+      description: "Primary generated module path and optional package-specific header.",
+    })
+  )
 ) {}
 
-class ExtraModule extends S.Class<ExtraModule>($I`ExtraModule`)(
-  {
+/**
+ * Registered renderer name and destination for a package-specific generated module.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ExtraModule extends S.Opaque<ExtraModule, { readonly brand: unique symbol }>()(
+  S.Struct({
     renderer: S.NonEmptyString,
     path: S.NonEmptyString,
-  },
-  $I.annote("ExtraModule", {
-    description: "Registered renderer name and destination for a package-specific generated module.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtraModule", {
+      description: "Registered renderer name and destination for a package-specific generated module.",
+    })
+  )
 ) {}
 
 const emptyPatches = Effect.succeed(A.empty<GeneratePatch>());
@@ -338,8 +366,8 @@ const defaultWarningPolicy = Effect.succeed(WarningPolicy.Enum.fail);
  * @category configuration
  * @since 0.0.0
  */
-export class GenerateConfig extends S.Class<GenerateConfig>($I`GenerateConfig`)(
-  {
+export class GenerateConfig extends S.Opaque<GenerateConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.NonEmptyString,
     name: S.optionalKey(S.NonEmptyString),
     identity: GenerateIdentity,
@@ -372,10 +400,11 @@ export class GenerateConfig extends S.Class<GenerateConfig>($I`GenerateConfig`)(
       S.withConstructorDefault(emptyModules),
       S.withDecodingDefaultKey(emptyModules)
     ),
-  },
-  $I.annote("GenerateConfig", {
-    description: "Deterministic fetch, patch, generate, post-process, format, and output configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("GenerateConfig", {
+      description: "Deterministic fetch, patch, generate, post-process, format, and output configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -393,14 +422,15 @@ export class GenerateConfig extends S.Class<GenerateConfig>($I`GenerateConfig`)(
  * @category models
  * @since 0.0.0
  */
-export class GeneratedModule extends S.Class<GeneratedModule>($I`GeneratedModule`)(
-  {
+export class GeneratedModule extends S.Opaque<GeneratedModule, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString,
     content: S.String,
-  },
-  $I.annote("GeneratedModule", {
-    description: "Formatted generated source content paired with its destination path.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratedModule", {
+      description: "Formatted generated source content paired with its destination path.",
+    })
+  )
 ) {}
 
 /**
@@ -447,13 +477,14 @@ export type DriftStatus = typeof DriftStatus.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class DriftReport extends S.Class<DriftReport>($I`DriftReport`)(
-  {
+export class DriftReport extends S.Opaque<DriftReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString,
     status: DriftStatus,
     diffLines: S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("DriftReport", {
-    description: "Generated-module drift status and changed-line count.",
-  })
+  }).pipe(
+    $I.annoteSchema("DriftReport", {
+      description: "Generated-module drift status and changed-line count.",
+    })
+  )
 ) {}

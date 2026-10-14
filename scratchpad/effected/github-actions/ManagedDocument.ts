@@ -24,7 +24,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ManagedDocument");
  * @category errors
  * @since 0.0.0
  */
-export class RejectedRegionDialectError extends S.TaggedError<RejectedRegionDialectError>($I`RejectedRegionDialectError`)("RejectedRegionDialectError", {
+export class RejectedRegionDialectError extends S.TaggedError<RejectedRegionDialectError, { readonly brand: unique symbol }>($I`RejectedRegionDialectError`)("RejectedRegionDialectError", {
 	message: S.String,
 }, $I.annote("RejectedRegionDialectError", { description: "The region dialect rejected its own comment style." })) {}
 
@@ -87,7 +87,7 @@ const REGION_DIALECT: SectionDialect = SectionDialect.make({
  * @category errors
  * @since 0.0.0
  */
-export class ManagedDocumentError extends S.TaggedError<ManagedDocumentError>($I`ManagedDocumentError`)("ManagedDocumentError", {
+export class ManagedDocumentError extends S.TaggedError<ManagedDocumentError, { readonly brand: unique symbol }>($I`ManagedDocumentError`)("ManagedDocumentError", {
 	/**
 	 * Which ambiguity or refusal was found.
 	 *
@@ -253,7 +253,7 @@ export interface ManagedDocumentSource {
  * @category models
  * @since 0.0.0
  */
-export class ManagedDocument extends S.Class<ManagedDocument>($I`ManagedDocument`)({
+export class ManagedDocument extends S.Class<ManagedDocument, { readonly brand: unique symbol }>($I`ManagedDocument`)({
 	/**
 	 * Whose document this is.
 	 *

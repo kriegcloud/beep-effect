@@ -212,8 +212,8 @@ const DEFAULT_ENCODING: TextEncoding = "utf-8";
  * @category models
  * @since 0.0.0
  */
-export class TextReadOptions extends S.Class<TextReadOptions>($I`TextReadOptions`)(
-  {
+export class TextReadOptions extends S.Opaque<TextReadOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     encoding: TextEncoding.pipe(
       S.withConstructorDefault(Effect.succeed<typeof DEFAULT_ENCODING>(DEFAULT_ENCODING)),
       S.withDecodingDefaultTypeKey(Effect.succeed<typeof DEFAULT_ENCODING>(DEFAULT_ENCODING))
@@ -226,10 +226,11 @@ export class TextReadOptions extends S.Class<TextReadOptions>($I`TextReadOptions
     trim: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
       description: "Trim surrounding whitespace from each line (default: false).",
     }),
-  },
-  $I.annote("TextReadOptions", {
-    description: "Per-line processing options shared by the read-oriented helpers.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextReadOptions", {
+      description: "Per-line processing options shared by the read-oriented helpers.",
+    })
+  )
 ) {}
 
 /**
@@ -247,8 +248,8 @@ export class TextReadOptions extends S.Class<TextReadOptions>($I`TextReadOptions
  * @category models
  * @since 0.0.0
  */
-export class TextStreamOptions extends S.Class<TextStreamOptions>($I`TextStreamOptions`)(
-  {
+export class TextStreamOptions extends S.Opaque<TextStreamOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...TextReadOptions.fields,
     maxLines: PositiveInteger.pipe(
       S.withConstructorDefault(Effect.succeed(Number.MAX_SAFE_INTEGER)),
@@ -262,10 +263,11 @@ export class TextStreamOptions extends S.Class<TextStreamOptions>($I`TextStreamO
     ).annotateKey({
       description: "Number of leading lines to skip before emitting (default: 0).",
     }),
-  },
-  $I.annote("TextStreamOptions", {
-    description: "Streaming options that extend TextReadOptions with windowing controls.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextStreamOptions", {
+      description: "Streaming options that extend TextReadOptions with windowing controls.",
+    })
+  )
 ) {}
 
 /**
@@ -290,8 +292,8 @@ export class TextStreamOptions extends S.Class<TextStreamOptions>($I`TextStreamO
  * @category models
  * @since 0.0.0
  */
-export class TextStreamStats extends S.Class<TextStreamStats>($I`TextStreamStats`)(
-  {
+export class TextStreamStats extends S.Opaque<TextStreamStats, { readonly brand: unique symbol }>()(
+  S.Struct({
     avgLineLength: NonNegativeFinite.annotateKey({
       description: "Mean processed line length across all counted lines.",
     }),
@@ -310,10 +312,11 @@ export class TextStreamStats extends S.Class<TextStreamStats>($I`TextStreamStats
     totalLines: NonNegativeInteger.annotateKey({
       description: "Total number of processed lines.",
     }),
-  },
-  $I.annote("TextStreamStats", {
-    description: "Aggregate line-length and byte statistics computed for a text file.",
-  })
+  }).pipe(
+    $I.annoteSchema("TextStreamStats", {
+      description: "Aggregate line-length and byte statistics computed for a text file.",
+    })
+  )
 ) {}
 
 const byteLength = (value: string): number => new TextEncoder().encode(value).length;

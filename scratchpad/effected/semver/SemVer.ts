@@ -43,7 +43,7 @@ const $I = $ScratchpadId.create("effected/semver/SemVer");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidVersionError extends S.TaggedError<InvalidVersionError>($I`InvalidVersionError`)("InvalidVersionError", {
+export class InvalidVersionError extends S.TaggedError<InvalidVersionError, { readonly brand: unique symbol }>($I`InvalidVersionError`)("InvalidVersionError", {
 	/** The raw input string that failed to parse. */
 	input: S.String.annotateKey({ description: "The raw input string that failed to parse." }),
 	/** The character position where parsing failed, if available. */
@@ -134,7 +134,7 @@ const buildIdentifier = S.String.check(
  * @category models
  * @since 0.0.0
  */
-export class SemVer extends S.Class<SemVer>($I`SemVer`)({
+export class SemVer extends S.Class<SemVer, { readonly brand: unique symbol }>($I`SemVer`)({
 	/** The major version component; incompatible API changes. */
 	major: nonNegativeInteger.annotateKey({ description: "The major version component; incompatible API changes." }),
 	/** The minor version component; backward-compatible functionality. */
@@ -1184,7 +1184,7 @@ export type SemVerBumpComponent = typeof SemVerBumpComponent.Type;
  * @category errors
  * @since 0.0.0
  */
-export class SemVerBumpOverflowError extends S.TaggedError<SemVerBumpOverflowError>($I`SemVerBumpOverflowError`)(
+export class SemVerBumpOverflowError extends S.TaggedError<SemVerBumpOverflowError, { readonly brand: unique symbol }>($I`SemVerBumpOverflowError`)(
 	"SemVerBumpOverflowError",
 	{
 		component: SemVerBumpComponent.annotateKey({ description: "The component that overflowed." }),

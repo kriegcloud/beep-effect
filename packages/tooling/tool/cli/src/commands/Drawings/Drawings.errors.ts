@@ -28,7 +28,9 @@ const $I = $RepoCliId.create("commands/Drawings/Drawings.errors");
  * @category errors
  * @since 0.0.0
  */
-export class DrawingsCommandError extends S.TaggedError<DrawingsCommandError>($I`DrawingsCommandError`)(
+export class DrawingsCommandError extends S.TaggedError<DrawingsCommandError, { readonly brand: unique symbol }>(
+  $I`DrawingsCommandError`
+)(
   "DrawingsCommandError",
   {
     message: S.String,

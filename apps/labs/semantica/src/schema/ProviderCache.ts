@@ -61,16 +61,17 @@ export type RequestKind = typeof RequestKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProviderCacheKey extends S.Class<ProviderCacheKey>($I`ProviderCacheKey`)(
-  {
+export class ProviderCacheKey extends S.Opaque<ProviderCacheKey, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("provider-cache/v1"),
     model: ModelIdentity,
     requestKind: RequestKind,
     inputDigest: Sha256Hex,
-  },
-  $I.annote("ProviderCacheKey", {
-    description: "Versioned provider model, request kind, and exact input digest used as a cache key preimage.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProviderCacheKey", {
+      description: "Versioned provider model, request kind, and exact input digest used as a cache key preimage.",
+    })
+  )
 ) {}
 
 const ProviderCacheEntryFields = S.Struct({
@@ -120,9 +121,12 @@ const ProviderCacheEntryChecks = S.makeFilterGroup([
  * @category models
  * @since 0.0.0
  */
-export class ProviderCacheEntry extends S.Class<ProviderCacheEntry>($I`ProviderCacheEntry`)(
-  ProviderCacheEntryFields.mapFields(identity).check(ProviderCacheEntryChecks),
-  $I.annote("ProviderCacheEntry", {
-    description: "Write-once provider response whose key and exact text digest are both verified.",
-  })
+export class ProviderCacheEntry extends S.Opaque<ProviderCacheEntry, { readonly brand: unique symbol }>()(
+  ProviderCacheEntryFields.mapFields(identity)
+    .check(ProviderCacheEntryChecks)
+    .pipe(
+      $I.annoteSchema("ProviderCacheEntry", {
+        description: "Write-once provider response whose key and exact text digest are both verified.",
+      })
+    )
 ) {}

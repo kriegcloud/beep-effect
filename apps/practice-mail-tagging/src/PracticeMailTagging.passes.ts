@@ -49,8 +49,8 @@ const $I = $PracticeMailTaggingId.create("PracticeMailTagging.passes");
  * @category models
  * @since 0.0.0
  */
-export class MailTaggingPassSchedule extends S.Class<MailTaggingPassSchedule>($I`MailTaggingPassSchedule`)(
-  {
+export class MailTaggingPassSchedule extends S.Opaque<MailTaggingPassSchedule, { readonly brand: unique symbol }>()(
+  S.Struct({
     since: S.DateTimeUtcFromString.annotateKey({
       description: "Instant a pass starts from when no checkpoint exists and no flag overrides it.",
     }),
@@ -60,10 +60,11 @@ export class MailTaggingPassSchedule extends S.Class<MailTaggingPassSchedule>($I
     maxBackoff: S.Duration.annotateKey({
       description: "Longest pause after consecutive failed watch passes.",
     }),
-  },
-  $I.annote("MailTaggingPassSchedule", {
-    description: "When passes start from and how a watch process paces them.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailTaggingPassSchedule", {
+      description: "When passes start from and how a watch process paces them.",
+    })
+  )
 ) {}
 
 /**
@@ -116,8 +117,8 @@ export const MailTaggingPassOutput = <A>() =>
   );
 
 // The contract of the pass runner; `MailTaggingPasses` is its service.
-class MailTaggingPassesShape extends S.Class<MailTaggingPassesShape>($I`MailTaggingPassesShape`)(
-  {
+class MailTaggingPassesShape extends S.Opaque<MailTaggingPassesShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     schedule: MailTaggingPassSchedule.annotateKey({
       description: "When passes start from and how a watch process paces them.",
     }),
@@ -133,10 +134,11 @@ class MailTaggingPassesShape extends S.Class<MailTaggingPassesShape>($I`MailTagg
     }).annotateKey({
       description: "Undo one run over a freshly built service and answer its counts.",
     }),
-  },
-  $I.annote("MailTaggingPassesShape", {
-    description: "Pass runner: one freshly built mail-tagging service per job or undo call.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailTaggingPassesShape", {
+      description: "Pass runner: one freshly built mail-tagging service per job or undo call.",
+    })
+  )
 ) {}
 
 /**

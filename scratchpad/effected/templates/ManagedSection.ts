@@ -42,7 +42,7 @@ const $I = $ScratchpadId.create("effected/templates/ManagedSection");
  * @category errors
  * @since 0.0.0
  */
-export class SectionFileError extends S.TaggedError<SectionFileError>($I`SectionFileError`)("SectionFileError", {
+export class SectionFileError extends S.TaggedError<SectionFileError, { readonly brand: unique symbol }>($I`SectionFileError`)("SectionFileError", {
 	/**
 	 * The file the operation was against.
 	 *
@@ -329,7 +329,7 @@ const make: (options?: ManagedSectionOptions) => Effect.Effect<ManagedSectionSha
  * @category errors
  * @since 0.0.0
  */
-export class ManagedSectionTestError extends S.TaggedError<ManagedSectionTestError>($I`ManagedSectionTestError`)(
+export class ManagedSectionTestError extends S.TaggedError<ManagedSectionTestError, { readonly brand: unique symbol }>($I`ManagedSectionTestError`)(
 	"ManagedSectionTestError",
 	{ message: S.String },
 	$I.annote("ManagedSectionTestError", { description: "A defect raised when a managed-section test double calls an unstubbed member." }),

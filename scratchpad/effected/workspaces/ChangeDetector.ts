@@ -44,7 +44,7 @@ const $I = $ScratchpadId.create("effected/workspaces/ChangeDetector");
  * @category schemas
  * @since 0.0.0
  */
-export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions>($I`ChangeDetectionOptions`)({
+export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions, { readonly brand: unique symbol }>($I`ChangeDetectionOptions`)({
 	/**
 	 * The ref to compare against.
 	 *
@@ -100,7 +100,7 @@ export class ChangeDetectionOptions extends S.Class<ChangeDetectionOptions>($I`C
  * @category errors
  * @since 0.0.0
  */
-export class ChangeDetectionError extends S.TaggedError<ChangeDetectionError>($I`ChangeDetectionError`)("ChangeDetectionError", {
+export class ChangeDetectionError extends S.TaggedError<ChangeDetectionError, { readonly brand: unique symbol }>($I`ChangeDetectionError`)("ChangeDetectionError", {
 	/** The operation that could not run. */
 	operation: S.String.annotateKey({ description: "The operation that could not run." }),
 	/** The originating failure. */

@@ -37,7 +37,7 @@ const $I = $ScratchpadId.create("effected/cli/ui/Confirm");
  * @category errors
  * @since 0.0.0
  */
-export class DuplicateToggleKeyError extends S.TaggedError<DuplicateToggleKeyError>($I`DuplicateToggleKeyError`)(
+export class DuplicateToggleKeyError extends S.TaggedError<DuplicateToggleKeyError, { readonly brand: unique symbol }>($I`DuplicateToggleKeyError`)(
 	"DuplicateToggleKeyError",
 	{
 		message: S.String.annotate($I.annote("DuplicateToggleKeyError.message", {

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "schema-opaque-default",
+    "packetId": "goal-packet/v1:753e7e8db24104e2a341effd9d6c49804f67ab806ff131cc1ad919feb3b342e2",
+    "title": "Schema shape default: branded S.Opaque for data",
+    "status": "active",
+    "created": "2026-10-14",
+    "updated": "2026-10-14",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/schema-opaque-default",
+  "lifecycle": "active",
+  "mission": "Make branded S.Opaque the default shape for plain data schemas, brand every schema class, and arm schemaClassMissingBrand",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/schema-opaque-default/README.md",
+    "goals/schema-opaque-default/SPEC.md",
+    "goals/schema-opaque-default/PLAN.md",
+    "goals/schema-opaque-default/GOAL.md",
+    "goals/schema-opaque-default/research/SOURCES.md"
+  ],
+  "researchReports": [
+    "research/SOURCES.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/schema-opaque-default/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "in-progress"
+    },
+    {
+      "id": "P3",
+      "name": "Yeet: PR to mergeable",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/schema-opaque-default/GOAL.md)\" -le 4000",
+    "jq . goals/schema-opaque-default/ops/manifest.json",
+    "rg -n \"schema-opaque-default|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/schema-opaque-default",
+    "git diff --check -- goals/schema-opaque-default",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

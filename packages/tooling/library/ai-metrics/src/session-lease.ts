@@ -58,17 +58,18 @@ const sessionLeaseTombstoneSchemaVersion = "telemetry-v2/session-lease-tombstone
  * @category models
  * @since 0.0.0
  */
-export class SessionLeaseOpenWait extends S.Class<SessionLeaseOpenWait>($I`SessionLeaseOpenWait`)(
-  {
+export class SessionLeaseOpenWait extends S.Opaque<SessionLeaseOpenWait, { readonly brand: unique symbol }>()(
+  S.Struct({
     waitId: Sha256Hex,
     openedAt: S.DateTimeUtcFromString,
     reason: WaitReason,
     evidenceTier: EvidenceTier,
     oipTaint: OipTaint,
-  },
-  $I.annote("SessionLeaseOpenWait", {
-    description: "Hash-identified pending wait that suppresses lease-expiry tombstoning.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionLeaseOpenWait", {
+      description: "Hash-identified pending wait that suppresses lease-expiry tombstoning.",
+    })
+  )
 ) {}
 
 const hasUniqueWaitIds = (waits: ReadonlyArray<SessionLeaseOpenWait>): boolean =>
@@ -94,7 +95,7 @@ const hasUniqueWaitIds = (waits: ReadonlyArray<SessionLeaseOpenWait>): boolean =
  * @category models
  * @since 0.0.0
  */
-export class SessionLease extends S.Class<SessionLease>($I`SessionLease`)(
+export class SessionLease extends S.Opaque<SessionLease, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: S.Literal(sessionLeaseSchemaVersion),
     sessionId: Sha256Hex,
@@ -106,56 +107,59 @@ export class SessionLease extends S.Class<SessionLease>($I`SessionLease`)(
     openWaits: S.Array(SessionLeaseOpenWait),
     evidenceTier: EvidenceTier,
     oipTaint: OipTaint,
-  }).check(
-    S.makeFilterGroup(
-      [
-        S.makeFilter(
-          (input) => DateTime.toEpochMillis(input.startedAt) <= DateTime.toEpochMillis(input.lastObservedAt),
-          {
-            identifier: "SessionLeaseTimeInvariant",
-            title: "Session-lease time invariant",
-            description: "Requires the latest observation to be at or after session start.",
-            message: "Expected lastObservedAt to be at or after startedAt",
-          }
-        ),
-        S.makeFilter((input) => hasUniqueWaitIds(input.openWaits), {
-          identifier: "SessionLeaseWaitIdentityInvariant",
-          title: "Session-lease wait identity invariant",
-          description: "Requires every pending wait digest to appear at most once.",
-          message: "Expected every open waitId to be unique",
-        }),
-        S.makeFilter(
-          (input) =>
-            input.evidenceTier ===
-            weakestEvidenceTier([input.evidenceTier, ...A.map(input.openWaits, (wait) => wait.evidenceTier)]),
-          {
-            identifier: "SessionLeaseEvidenceTierInvariant",
-            title: "Session-lease evidence-tier invariant",
-            description: "Prevents a lease from outranking any pending-wait evidence it carries.",
-            message: "Expected lease evidenceTier to be no stronger than every pending wait tier",
-          }
-        ),
-        S.makeFilter(
-          (input) =>
-            input.oipTaint === combineOipTaints([input.oipTaint, ...A.map(input.openWaits, (wait) => wait.oipTaint)]),
-          {
-            identifier: "SessionLeaseOipTaintInvariant",
-            title: "Session-lease OIP taint invariant",
-            description: "Prevents a lease from weakening the most restrictive pending-wait taint.",
-            message: "Expected lease oipTaint to preserve every pending wait taint",
-          }
-        ),
-      ],
-      {
-        identifier: "SessionLeaseInvariants",
-        title: "Session-lease invariants",
-        description: "Checks chronological, identity, evidence-tier, and OIP-taint consistency.",
-      }
-    )
-  ),
-  $I.annote("SessionLease", {
-    description: "Content-free active-session liveness projection renewed by telemetry hook observations.",
   })
+    .check(
+      S.makeFilterGroup(
+        [
+          S.makeFilter(
+            (input) => DateTime.toEpochMillis(input.startedAt) <= DateTime.toEpochMillis(input.lastObservedAt),
+            {
+              identifier: "SessionLeaseTimeInvariant",
+              title: "Session-lease time invariant",
+              description: "Requires the latest observation to be at or after session start.",
+              message: "Expected lastObservedAt to be at or after startedAt",
+            }
+          ),
+          S.makeFilter((input) => hasUniqueWaitIds(input.openWaits), {
+            identifier: "SessionLeaseWaitIdentityInvariant",
+            title: "Session-lease wait identity invariant",
+            description: "Requires every pending wait digest to appear at most once.",
+            message: "Expected every open waitId to be unique",
+          }),
+          S.makeFilter(
+            (input) =>
+              input.evidenceTier ===
+              weakestEvidenceTier([input.evidenceTier, ...A.map(input.openWaits, (wait) => wait.evidenceTier)]),
+            {
+              identifier: "SessionLeaseEvidenceTierInvariant",
+              title: "Session-lease evidence-tier invariant",
+              description: "Prevents a lease from outranking any pending-wait evidence it carries.",
+              message: "Expected lease evidenceTier to be no stronger than every pending wait tier",
+            }
+          ),
+          S.makeFilter(
+            (input) =>
+              input.oipTaint === combineOipTaints([input.oipTaint, ...A.map(input.openWaits, (wait) => wait.oipTaint)]),
+            {
+              identifier: "SessionLeaseOipTaintInvariant",
+              title: "Session-lease OIP taint invariant",
+              description: "Prevents a lease from weakening the most restrictive pending-wait taint.",
+              message: "Expected lease oipTaint to preserve every pending wait taint",
+            }
+          ),
+        ],
+        {
+          identifier: "SessionLeaseInvariants",
+          title: "Session-lease invariants",
+          description: "Checks chronological, identity, evidence-tier, and OIP-taint consistency.",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("SessionLease", {
+        description: "Content-free active-session liveness projection renewed by telemetry hook observations.",
+      })
+    )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(SessionLease);
   static readonly encodeEffect = S.encodeUnknownEffect(SessionLease);
@@ -175,65 +179,105 @@ const sessionLeaseEventFields = {
 
 const SessionLeaseEventKind = LiteralKit(["session-start", "activity", "wait-opened", "wait-closed", "session-end"]);
 
-class SessionLeaseStarted extends S.Class<SessionLeaseStarted>($I`SessionLeaseStarted`)(
-  {
+/**
+ * First liveness observation that creates an active session lease.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SessionLeaseStarted extends S.Opaque<SessionLeaseStarted, { readonly brand: unique symbol }>()(
+  S.Struct({
     event: S.tag(SessionLeaseEventKind.Enum["session-start"]),
     ...sessionLeaseEventFields,
     sourceKind: AiMetricsTranscriptSource,
     instrumentClass: InstrumentClass,
-  },
-  $I.annote("SessionLeaseStarted", {
-    description: "First liveness observation that creates an active session lease.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionLeaseStarted", {
+      description: "First liveness observation that creates an active session lease.",
+    })
+  )
 ) {}
 
-class SessionLeaseActivity extends S.Class<SessionLeaseActivity>($I`SessionLeaseActivity`)(
-  {
+/**
+ * Content-free hook activity that renews an existing session lease.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SessionLeaseActivity extends S.Opaque<SessionLeaseActivity, { readonly brand: unique symbol }>()(
+  S.Struct({
     event: S.tag(SessionLeaseEventKind.Enum.activity),
     ...sessionLeaseEventFields,
-  },
-  $I.annote("SessionLeaseActivity", {
-    description: "Content-free hook activity that renews an existing session lease.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionLeaseActivity", {
+      description: "Content-free hook activity that renews an existing session lease.",
+    })
+  )
 ) {}
 
-class SessionLeaseWaitOpened extends S.Class<SessionLeaseWaitOpened>($I`SessionLeaseWaitOpened`)(
+/**
+ * Requires the wait-open timestamp to equal its PermissionRequest observation timestamp.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SessionLeaseWaitOpened extends S.Opaque<SessionLeaseWaitOpened, { readonly brand: unique symbol }>()(
   S.Struct({
     event: S.tag(SessionLeaseEventKind.Enum["wait-opened"]),
     ...sessionLeaseEventFields,
     wait: SessionLeaseOpenWait,
-  }).check(
-    S.makeFilter((input) => DateTime.toEpochMillis(input.observedAt) === DateTime.toEpochMillis(input.wait.openedAt), {
-      identifier: "SessionLeaseWaitOpenedTimeInvariant",
-      title: "Session-lease wait-opened time invariant",
-      description: "Requires the wait-open timestamp to equal its PermissionRequest observation timestamp.",
-      message: "Expected wait.openedAt to equal observedAt",
-    })
-  ),
-  $I.annote("SessionLeaseWaitOpened", {
-    description: "Strictly attributed PermissionRequest observation that opens a pending wait.",
   })
+    .check(
+      S.makeFilter(
+        (input) => DateTime.toEpochMillis(input.observedAt) === DateTime.toEpochMillis(input.wait.openedAt),
+        {
+          identifier: "SessionLeaseWaitOpenedTimeInvariant",
+          title: "Session-lease wait-opened time invariant",
+          description: "Requires the wait-open timestamp to equal its PermissionRequest observation timestamp.",
+          message: "Expected wait.openedAt to equal observedAt",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("SessionLeaseWaitOpened", {
+        description: "Strictly attributed PermissionRequest observation that opens a pending wait.",
+      })
+    )
 ) {}
 
-class SessionLeaseWaitClosed extends S.Class<SessionLeaseWaitClosed>($I`SessionLeaseWaitClosed`)(
-  {
+/**
+ * Exact-ID terminal decision observation that closes at most one pending wait.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SessionLeaseWaitClosed extends S.Opaque<SessionLeaseWaitClosed, { readonly brand: unique symbol }>()(
+  S.Struct({
     event: S.tag(SessionLeaseEventKind.Enum["wait-closed"]),
     ...sessionLeaseEventFields,
     waitId: Sha256Hex,
-  },
-  $I.annote("SessionLeaseWaitClosed", {
-    description: "Exact-ID terminal decision observation that closes at most one pending wait.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionLeaseWaitClosed", {
+      description: "Exact-ID terminal decision observation that closes at most one pending wait.",
+    })
+  )
 ) {}
 
-class SessionLeaseEnded extends S.Class<SessionLeaseEnded>($I`SessionLeaseEnded`)(
-  {
+/**
+ * Observed harness terminal event that retires an active lease.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SessionLeaseEnded extends S.Opaque<SessionLeaseEnded, { readonly brand: unique symbol }>()(
+  S.Struct({
     event: S.tag(SessionLeaseEventKind.Enum["session-end"]),
     ...sessionLeaseEventFields,
-  },
-  $I.annote("SessionLeaseEnded", {
-    description: "Observed harness terminal event that retires an active lease.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionLeaseEnded", {
+      description: "Observed harness terminal event that retires an active lease.",
+    })
+  )
 ) {}
 
 /**
@@ -314,43 +358,71 @@ const SessionLeaseTransitionFailure = LiteralKit([
   "time-regression",
 ]);
 
-class ActiveSessionLeaseTransition extends S.Class<ActiveSessionLeaseTransition>($I`ActiveSessionLeaseTransition`)(
-  {
+/**
+ * Accepted lease transition that leaves the session active.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ActiveSessionLeaseTransition extends S.Opaque<
+  ActiveSessionLeaseTransition,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag(SessionLeaseTransitionStatus.Enum.active),
     outcome: SessionLeaseActiveOutcome,
     lease: SessionLease,
-  },
-  $I.annote("ActiveSessionLeaseTransition", {
-    description: "Accepted lease transition that leaves the session active.",
-  })
+  }).pipe(
+    $I.annoteSchema("ActiveSessionLeaseTransition", {
+      description: "Accepted lease transition that leaves the session active.",
+    })
+  )
 ) {}
 
-class EndedSessionLeaseTransition extends S.Class<EndedSessionLeaseTransition>($I`EndedSessionLeaseTransition`)(
-  {
+/**
+ * Observed session end carrying the final lease for flight-record composition.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class EndedSessionLeaseTransition extends S.Opaque<
+  EndedSessionLeaseTransition,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag(SessionLeaseTransitionStatus.Enum.ended),
     finalLease: SessionLease,
     endedAt: S.DateTimeUtcFromString,
     terminalEventDigest: Sha256Hex,
-  },
-  $I.annote("EndedSessionLeaseTransition", {
-    description: "Observed session end carrying the final lease for flight-record composition.",
-  })
+  }).pipe(
+    $I.annoteSchema("EndedSessionLeaseTransition", {
+      description: "Observed session end carrying the final lease for flight-record composition.",
+    })
+  )
 ) {}
 
-class QuarantinedSessionLeaseTransition extends S.Class<QuarantinedSessionLeaseTransition>(
-  $I`QuarantinedSessionLeaseTransition`
-)(
-  {
+/**
+ * Content-free refusal of a lease transition whose identity or ordering cannot be trusted.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class QuarantinedSessionLeaseTransition extends S.Opaque<
+  QuarantinedSessionLeaseTransition,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag(SessionLeaseTransitionStatus.Enum.quarantined),
     sessionId: Sha256Hex,
     eventDigest: Sha256Hex,
     reason: SessionLeaseTransitionFailure,
     evidenceTier: EvidenceTier,
     oipTaint: OipTaint,
-  },
-  $I.annote("QuarantinedSessionLeaseTransition", {
-    description: "Content-free refusal of a lease transition whose identity or ordering cannot be trusted.",
-  })
+  }).pipe(
+    $I.annoteSchema("QuarantinedSessionLeaseTransition", {
+      description: "Content-free refusal of a lease transition whose identity or ordering cannot be trusted.",
+    })
+  )
 ) {}
 
 /**
@@ -585,7 +657,10 @@ export const transitionSessionLease: {
  * @category models
  * @since 0.0.0
  */
-export class SessionLeaseExpiryCandidate extends S.Class<SessionLeaseExpiryCandidate>($I`SessionLeaseExpiryCandidate`)(
+export class SessionLeaseExpiryCandidate extends S.Opaque<
+  SessionLeaseExpiryCandidate,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     schemaVersion: S.Literal(sessionLeaseExpiryCandidateSchemaVersion),
     lease: SessionLease,
@@ -593,24 +668,27 @@ export class SessionLeaseExpiryCandidate extends S.Class<SessionLeaseExpiryCandi
     evaluatedAt: S.DateTimeUtcFromString,
     ttlMs: PosInt,
     idleMs: S.Natural,
-  }).check(
-    S.makeFilter(
-      (input) => {
-        const measuredIdle =
-          DateTime.toEpochMillis(input.evaluatedAt) - DateTime.toEpochMillis(input.lease.lastObservedAt);
-        return measuredIdle === input.idleMs && input.idleMs >= input.ttlMs;
-      },
-      {
-        identifier: "SessionLeaseExpiryCandidateInvariant",
-        title: "Session-lease expiry-candidate invariant",
-        description: "Requires an exact non-negative idle duration at least as large as the declared TTL.",
-        message: "Expected idleMs to equal evaluatedAt minus lastObservedAt and meet ttlMs",
-      }
-    )
-  ),
-  $I.annote("SessionLeaseExpiryCandidate", {
-    description: "Expired active lease that still requires source and pending-wait reconciliation.",
   })
+    .check(
+      S.makeFilter(
+        (input) => {
+          const measuredIdle =
+            DateTime.toEpochMillis(input.evaluatedAt) - DateTime.toEpochMillis(input.lease.lastObservedAt);
+          return measuredIdle === input.idleMs && input.idleMs >= input.ttlMs;
+        },
+        {
+          identifier: "SessionLeaseExpiryCandidateInvariant",
+          title: "Session-lease expiry-candidate invariant",
+          description: "Requires an exact non-negative idle duration at least as large as the declared TTL.",
+          message: "Expected idleMs to equal evaluatedAt minus lastObservedAt and meet ttlMs",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("SessionLeaseExpiryCandidate", {
+        description: "Expired active lease that still requires source and pending-wait reconciliation.",
+      })
+    )
 ) {}
 
 /**
@@ -627,9 +705,10 @@ export class SessionLeaseExpiryCandidate extends S.Class<SessionLeaseExpiryCandi
  * @category models
  * @since 0.0.0
  */
-export class SessionLeaseReconciliationEvidence extends S.Class<SessionLeaseReconciliationEvidence>(
-  $I`SessionLeaseReconciliationEvidence`
-)(
+export class SessionLeaseReconciliationEvidence extends S.Opaque<
+  SessionLeaseReconciliationEvidence,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     sessionId: Sha256Hex,
     sourceLastObservedAt: S.DateTimeUtcFromString,
@@ -637,17 +716,20 @@ export class SessionLeaseReconciliationEvidence extends S.Class<SessionLeaseReco
     sourceOpenWaitIds: S.Array(Sha256Hex),
     evidenceTier: EvidenceTier,
     oipTaint: OipTaint,
-  }).check(
-    S.makeFilter((input) => A.length(A.dedupe(input.sourceOpenWaitIds)) === A.length(input.sourceOpenWaitIds), {
-      identifier: "SessionLeaseReconciliationEvidenceWaitIdentityInvariant",
-      title: "Session-lease reconciliation-evidence wait identity invariant",
-      description: "Requires every source-observed open wait digest to appear at most once.",
-      message: "Expected every sourceOpenWaitId to be unique",
-    })
-  ),
-  $I.annote("SessionLeaseReconciliationEvidence", {
-    description: "Content-addressed transcript or hook-ledger evidence used to confirm a tombstone candidate.",
   })
+    .check(
+      S.makeFilter((input) => A.length(A.dedupe(input.sourceOpenWaitIds)) === A.length(input.sourceOpenWaitIds), {
+        identifier: "SessionLeaseReconciliationEvidenceWaitIdentityInvariant",
+        title: "Session-lease reconciliation-evidence wait identity invariant",
+        description: "Requires every source-observed open wait digest to appear at most once.",
+        message: "Expected every sourceOpenWaitId to be unique",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("SessionLeaseReconciliationEvidence", {
+        description: "Content-addressed transcript or hook-ledger evidence used to confirm a tombstone candidate.",
+      })
+    )
 ) {}
 
 const ReconstructedEvidenceTier = LiteralKit([
@@ -679,8 +761,8 @@ const atMostReconstructedEvidenceTier = (tiers: ReadonlyArray<EvidenceTier>) =>
  * @category models
  * @since 0.0.0
  */
-export class SessionLeaseTombstone extends S.Class<SessionLeaseTombstone>($I`SessionLeaseTombstone`)(
-  {
+export class SessionLeaseTombstone extends S.Opaque<SessionLeaseTombstone, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(sessionLeaseTombstoneSchemaVersion),
     sessionId: Sha256Hex,
     sourceKind: AiMetricsTranscriptSource,
@@ -691,10 +773,11 @@ export class SessionLeaseTombstone extends S.Class<SessionLeaseTombstone>($I`Ses
     sourceEvidenceDigest: Sha256Hex,
     evidenceTier: ReconstructedEvidenceTier,
     oipTaint: OipTaint,
-  },
-  $I.annote("SessionLeaseTombstone", {
-    description: "Content-free reconstructed terminal marker with an explicitly unknown semantic outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("SessionLeaseTombstone", {
+      description: "Content-free reconstructed terminal marker with an explicitly unknown semantic outcome.",
+    })
+  )
 ) {}
 
 const SessionLeaseReconciliationStatus = LiteralKit(["deferred", "tombstoned"]);
@@ -706,30 +789,46 @@ const SessionLeaseReconciliationDeferral = LiteralKit([
   "open-wait",
 ]);
 
-class DeferredSessionLeaseReconciliation extends S.Class<DeferredSessionLeaseReconciliation>(
-  $I`DeferredSessionLeaseReconciliation`
-)(
-  {
+/**
+ * Content-free refusal to synthesize a tombstone while any required gate is unresolved.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DeferredSessionLeaseReconciliation extends S.Opaque<
+  DeferredSessionLeaseReconciliation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag(SessionLeaseReconciliationStatus.Enum.deferred),
     sessionId: Sha256Hex,
     leaseDigest: Sha256Hex,
     reason: SessionLeaseReconciliationDeferral,
-  },
-  $I.annote("DeferredSessionLeaseReconciliation", {
-    description: "Content-free refusal to synthesize a tombstone while any required gate is unresolved.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeferredSessionLeaseReconciliation", {
+      description: "Content-free refusal to synthesize a tombstone while any required gate is unresolved.",
+    })
+  )
 ) {}
 
-class TombstonedSessionLeaseReconciliation extends S.Class<TombstonedSessionLeaseReconciliation>(
-  $I`TombstonedSessionLeaseReconciliation`
-)(
-  {
+/**
+ * Reconstructed terminal marker produced after lease and source evidence agree.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TombstonedSessionLeaseReconciliation extends S.Opaque<
+  TombstonedSessionLeaseReconciliation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag(SessionLeaseReconciliationStatus.Enum.tombstoned),
     tombstone: SessionLeaseTombstone,
-  },
-  $I.annote("TombstonedSessionLeaseReconciliation", {
-    description: "Reconstructed terminal marker produced after lease and source evidence agree.",
-  })
+  }).pipe(
+    $I.annoteSchema("TombstonedSessionLeaseReconciliation", {
+      description: "Reconstructed terminal marker produced after lease and source evidence agree.",
+    })
+  )
 ) {}
 
 /**

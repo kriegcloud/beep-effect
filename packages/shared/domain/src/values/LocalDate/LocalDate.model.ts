@@ -48,7 +48,7 @@ const LocalDateFields = S.Struct(CalendarParts.fields).check(
  * @category models
  * @since 0.0.0
  */
-export class Model extends S.Class<Model>($I`LocalDateModel`)(
+export class Model extends S.Class<Model, { readonly brand: unique symbol }>($I`LocalDateModel`)(
   LocalDateFields,
   $I.annote("LocalDateModel", {
     description: "Schema class representing a calendar date without time or timezone.",

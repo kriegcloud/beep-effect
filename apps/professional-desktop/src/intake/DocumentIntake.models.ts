@@ -44,14 +44,21 @@ const IntakeFileSize = S.Int.check(
   })
 );
 
-class IntakeFileMetadata extends S.Class<IntakeFileMetadata>($I`IntakeFileMetadata`)(
-  {
+/**
+ * Browser file metadata used by the pre-read intake refusal policy.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class IntakeFileMetadata extends S.Opaque<IntakeFileMetadata, {}>()(
+  S.Struct({
     name: S.String,
     size: IntakeFileSize,
-  },
-  $I.annote("IntakeFileMetadata", {
-    description: "Browser file metadata used by the pre-read intake refusal policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeFileMetadata", {
+      description: "Browser file metadata used by the pre-read intake refusal policy.",
+    })
+  )
 ) {}
 
 /**
@@ -60,9 +67,14 @@ class IntakeFileMetadata extends S.Class<IntakeFileMetadata>($I`IntakeFileMetada
  * **Example** (Refuse empty file)
  *
  * ```ts
- * import { intakeRefusal } from "@/intake/DocumentIntake.models"
+ * import { IntakeFileMetadata, intakeRefusal } from "@/intake/DocumentIntake.models"
+ * import * as O from "effect/Option"
  *
- * console.log(intakeRefusal({ name: "empty.txt", size: 0 }))
+ * const empty = IntakeFileMetadata.make({ name: "empty.txt", size: 0 })
+ * const memo = IntakeFileMetadata.make({ name: "memo.pdf", size: 2048 })
+ *
+ * console.log(O.getOrNull(intakeRefusal(empty))) // This file is empty, so there is nothing to file.
+ * console.log(O.isNone(intakeRefusal(memo))) // true
  * ```
  *
  * @category predicates
@@ -77,25 +89,27 @@ export const intakeRefusal = (file: IntakeFileMetadata): O.Option<string> =>
     Match.orElse(O.none<string>)
   );
 
-class IntakeResultEntryDocument extends S.Class<IntakeResultEntryDocument>($I`IntakeResultEntryDocument`)(
-  {
+class IntakeResultEntryDocument extends S.Opaque<IntakeResultEntryDocument, {}>()(
+  S.Struct({
     kind: S.tag("document"),
     document: Document,
-  },
-  $I.annote("IntakeResultEntryDocument", {
-    description: "A document that completed the desktop intake pipeline.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeResultEntryDocument", {
+      description: "A document that completed the desktop intake pipeline.",
+    })
+  )
 ) {}
 
-class IntakeResultEntryFailure extends S.Class<IntakeResultEntryFailure>($I`IntakeResultEntryFailure`)(
-  {
+class IntakeResultEntryFailure extends S.Opaque<IntakeResultEntryFailure, {}>()(
+  S.Struct({
     kind: S.tag("failure"),
     fileName: S.NonEmptyString,
     message: S.NonEmptyString,
-  },
-  $I.annote("IntakeResultEntryFailure", {
-    description: "A file that was refused or failed during desktop intake.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeResultEntryFailure", {
+      description: "A file that was refused or failed during desktop intake.",
+    })
+  )
 ) {}
 
 const IntakeResultEntryKind = LiteralKit(["document", "failure"]).pipe(
@@ -140,48 +154,53 @@ export const IntakeResultEntry = IntakeResultEntryKind.mapMembers(
  */
 export type IntakeResultEntry = typeof IntakeResultEntry.Type;
 
-class VaultSelectionIdle extends S.Class<VaultSelectionIdle>($I`VaultSelectionIdle`)(
-  { kind: S.tag("idle") },
-  $I.annote("VaultSelectionIdle", {
-    description: "Workspace vault selection is ready for an operator request.",
-  })
+class VaultSelectionIdle extends S.Opaque<VaultSelectionIdle, {}>()(
+  S.Struct({ kind: S.tag("idle") }).pipe(
+    $I.annoteSchema("VaultSelectionIdle", {
+      description: "Workspace vault selection is ready for an operator request.",
+    })
+  )
 ) {}
 
-class VaultSelectionChoosing extends S.Class<VaultSelectionChoosing>($I`VaultSelectionChoosing`)(
-  { kind: S.tag("choosing") },
-  $I.annote("VaultSelectionChoosing", {
-    description: "A native workspace vault picker is currently open.",
-  })
+class VaultSelectionChoosing extends S.Opaque<VaultSelectionChoosing, {}>()(
+  S.Struct({ kind: S.tag("choosing") }).pipe(
+    $I.annoteSchema("VaultSelectionChoosing", {
+      description: "A native workspace vault picker is currently open.",
+    })
+  )
 ) {}
 
-class VaultSelectionManual extends S.Class<VaultSelectionManual>($I`VaultSelectionManual`)(
-  {
+class VaultSelectionManual extends S.Opaque<VaultSelectionManual, {}>()(
+  S.Struct({
     kind: S.tag("manual"),
     // A rejected path is retained so the reopened form does not force the
     // operator to retype it (the saving state unmounts the form in between).
     draftPath: S.Option(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     message: S.Option(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("VaultSelectionManual", {
-    description: "A manual vault-path form is open because no native folder picker is available.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultSelectionManual", {
+      description: "A manual vault-path form is open because no native folder picker is available.",
+    })
+  )
 ) {}
 
-class VaultSelectionSaving extends S.Class<VaultSelectionSaving>($I`VaultSelectionSaving`)(
-  { kind: S.tag("saving") },
-  $I.annote("VaultSelectionSaving", {
-    description: "The selected workspace vault root is being persisted.",
-  })
+class VaultSelectionSaving extends S.Opaque<VaultSelectionSaving, {}>()(
+  S.Struct({ kind: S.tag("saving") }).pipe(
+    $I.annoteSchema("VaultSelectionSaving", {
+      description: "The selected workspace vault root is being persisted.",
+    })
+  )
 ) {}
 
-class VaultSelectionFailed extends S.Class<VaultSelectionFailed>($I`VaultSelectionFailed`)(
-  {
+class VaultSelectionFailed extends S.Opaque<VaultSelectionFailed, {}>()(
+  S.Struct({
     kind: S.tag("failed"),
     message: S.NonEmptyString,
-  },
-  $I.annote("VaultSelectionFailed", {
-    description: "Workspace vault selection failed with an operator-safe message.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultSelectionFailed", {
+      description: "Workspace vault selection failed with an operator-safe message.",
+    })
+  )
 ) {}
 
 const VaultSelectionStateKind = LiteralKit(["idle", "choosing", "manual", "saving", "failed"]).pipe(
@@ -199,7 +218,7 @@ const VaultSelectionStateKind = LiteralKit(["idle", "choosing", "manual", "savin
  * ```ts
  * import { VaultSelectionState } from "@/intake/DocumentIntake.models"
  *
- * const state = VaultSelectionState.cases.choosing.make()
+ * const state = VaultSelectionState.cases.choosing.make({})
  * console.log(VaultSelectionState.guards.choosing(state)) // true
  * ```
  *
@@ -279,16 +298,17 @@ export type DocumentIntakeVaultStatus = typeof DocumentIntakeVaultStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocumentIntakeState extends S.Class<DocumentIntakeState>($I`DocumentIntakeState`)(
-  {
+export class DocumentIntakeState extends S.Opaque<DocumentIntakeState, {}>()(
+  S.Struct({
     activeBatches: S.Natural,
     isDragging: S.Boolean,
     results: S.Array(IntakeResultEntry),
     vaultSelection: VaultSelectionState,
-  },
-  $I.annote("DocumentIntakeState", {
-    description: "Renderer-facing document intake progress, results, and operator status.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentIntakeState", {
+      description: "Renderer-facing document intake progress, results, and operator status.",
+    })
+  )
 ) {
   /**
    * The view shown before the intake actor has produced its first snapshot.
@@ -297,7 +317,7 @@ export class DocumentIntakeState extends S.Class<DocumentIntakeState>($I`Documen
     activeBatches: S.Natural.make(0),
     isDragging: false,
     results: [],
-    vaultSelection: VaultSelectionState.cases.idle.make(),
+    vaultSelection: VaultSelectionState.cases.idle.make({}),
   });
 }
 
@@ -323,16 +343,17 @@ export class DocumentIntakeState extends S.Class<DocumentIntakeState>($I`Documen
  * @category models
  * @since 0.0.0
  */
-export class DroppedDocumentInput extends S.Class<DroppedDocumentInput>($I`DroppedDocumentInput`)(
-  {
+export class DroppedDocumentInput extends S.Opaque<DroppedDocumentInput, {}>()(
+  S.Struct({
     content: S.Uint8ArrayFromBase64,
     intakeBatchId: IntakeBatchId,
     originalFileName: S.NonEmptyString,
     workspaceId: WorkspaceIdentity.WorkspaceId,
-  },
-  $I.annote("DroppedDocumentInput", {
-    description: "Browser-side dropped document input.",
-  })
+  }).pipe(
+    $I.annoteSchema("DroppedDocumentInput", {
+      description: "Browser-side dropped document input.",
+    })
+  )
 ) {}
 
 /**
@@ -380,9 +401,10 @@ export const intakeDroppedFilePayload = (input: DroppedDocumentInput): IntakeDro
  * @category errors
  * @since 0.0.0
  */
-export class VaultDirectoryPickerInvocationError extends S.TaggedError<VaultDirectoryPickerInvocationError>(
-  $I`VaultDirectoryPickerInvocationError`
-)(
+export class VaultDirectoryPickerInvocationError extends S.TaggedError<
+  VaultDirectoryPickerInvocationError,
+  { readonly brand: unique symbol }
+>($I`VaultDirectoryPickerInvocationError`)(
   "VaultDirectoryPickerInvocationError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -407,7 +429,9 @@ export class VaultDirectoryPickerInvocationError extends S.TaggedError<VaultDire
  * @category errors
  * @since 0.0.0
  */
-export class BrowserFileReadError extends S.TaggedError<BrowserFileReadError>($I`BrowserFileReadError`)(
+export class BrowserFileReadError extends S.TaggedError<BrowserFileReadError, { readonly brand: unique symbol }>(
+  $I`BrowserFileReadError`
+)(
   "BrowserFileReadError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -529,15 +553,16 @@ const IntakeBatchSequence = S.Int.check(S.isGreaterThan(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class IntakeBatchInput extends S.Class<IntakeBatchInput>($I`IntakeBatchInput`)(
-  {
+export class IntakeBatchInput extends S.Opaque<IntakeBatchInput, {}>()(
+  S.Struct({
     intakeBatchId: IntakeBatchId,
     workspaceId: WorkspaceIdentity.WorkspaceId,
     files: S.Array(IntakeFile),
-  },
-  $I.annote("IntakeBatchInput", {
-    description: "Files of one drop together with the batch and workspace they belong to.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeBatchInput", {
+      description: "Files of one drop together with the batch and workspace they belong to.",
+    })
+  )
 ) {}
 
 /**
@@ -564,16 +589,17 @@ export class IntakeBatchInput extends S.Class<IntakeBatchInput>($I`IntakeBatchIn
  * @category models
  * @since 0.0.0
  */
-export class IntakeBatchContext extends S.Class<IntakeBatchContext>($I`IntakeBatchContext`)(
-  {
+export class IntakeBatchContext extends S.Opaque<IntakeBatchContext, {}>()(
+  S.Struct({
     ...IntakeBatchInput.fields,
     cursor: S.Int,
     entries: S.Array(IntakeResultEntry),
     current: S.optionalKey(IntakeFile),
-  },
-  $I.annote("IntakeBatchContext", {
-    description: "Batch input plus the file cursor and the per-file outcomes recorded so far.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeBatchContext", {
+      description: "Batch input plus the file cursor and the per-file outcomes recorded so far.",
+    })
+  )
 ) {}
 
 /**
@@ -595,14 +621,15 @@ export class IntakeBatchContext extends S.Class<IntakeBatchContext>($I`IntakeBat
  * @category models
  * @since 0.0.0
  */
-export class IntakeBatchOutput extends S.Class<IntakeBatchOutput>($I`IntakeBatchOutput`)(
-  {
+export class IntakeBatchOutput extends S.Opaque<IntakeBatchOutput, {}>()(
+  S.Struct({
     intakeBatchId: IntakeBatchId,
     entries: S.Array(IntakeResultEntry),
-  },
-  $I.annote("IntakeBatchOutput", {
-    description: "Per-file outcomes of a settled intake batch, in file order.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeBatchOutput", {
+      description: "Per-file outcomes of a settled intake batch, in file order.",
+    })
+  )
 ) {}
 
 /**
@@ -620,11 +647,12 @@ export class IntakeBatchOutput extends S.Class<IntakeBatchOutput>($I`IntakeBatch
  * @category models
  * @since 0.0.0
  */
-export class IntakeCurrentFileContext extends S.Class<IntakeCurrentFileContext>($I`IntakeCurrentFileContext`)(
-  { current: IntakeFile },
-  $I.annote("IntakeCurrentFileContext", {
-    description: "Context refinement of the batch states that refuse, read or submit one file.",
-  })
+export class IntakeCurrentFileContext extends S.Opaque<IntakeCurrentFileContext, {}>()(
+  S.Struct({ current: IntakeFile }).pipe(
+    $I.annoteSchema("IntakeCurrentFileContext", {
+      description: "Context refinement of the batch states that refuse, read or submit one file.",
+    })
+  )
 ) {}
 
 /**
@@ -642,11 +670,12 @@ export class IntakeCurrentFileContext extends S.Class<IntakeCurrentFileContext>(
  * @category models
  * @since 0.0.0
  */
-export class ReadFileInput extends S.Class<ReadFileInput>($I`ReadFileInput`)(
-  { file: IntakeFile },
-  $I.annote("ReadFileInput", {
-    description: "The browser file whose bytes are read into memory.",
-  })
+export class ReadFileInput extends S.Opaque<ReadFileInput, {}>()(
+  S.Struct({ file: IntakeFile }).pipe(
+    $I.annoteSchema("ReadFileInput", {
+      description: "The browser file whose bytes are read into memory.",
+    })
+  )
 ) {}
 
 /**
@@ -664,11 +693,12 @@ export class ReadFileInput extends S.Class<ReadFileInput>($I`ReadFileInput`)(
  * @category models
  * @since 0.0.0
  */
-export class IntakeRefusedStateInput extends S.Class<IntakeRefusedStateInput>($I`IntakeRefusedStateInput`)(
-  { message: S.NonEmptyString },
-  $I.annote("IntakeRefusedStateInput", {
-    description: "Operator-facing reason a file was refused before it was read.",
-  })
+export class IntakeRefusedStateInput extends S.Opaque<IntakeRefusedStateInput, {}>()(
+  S.Struct({ message: S.NonEmptyString }).pipe(
+    $I.annoteSchema("IntakeRefusedStateInput", {
+      description: "Operator-facing reason a file was refused before it was read.",
+    })
+  )
 ) {}
 
 /**
@@ -691,11 +721,12 @@ export class IntakeRefusedStateInput extends S.Class<IntakeRefusedStateInput>($I
  * @category models
  * @since 0.0.0
  */
-export class IntakeSubmittingStateInput extends S.Class<IntakeSubmittingStateInput>($I`IntakeSubmittingStateInput`)(
-  { content: S.Uint8Array },
-  $I.annote("IntakeSubmittingStateInput", {
-    description: "Bytes of the file being submitted.",
-  })
+export class IntakeSubmittingStateInput extends S.Opaque<IntakeSubmittingStateInput, {}>()(
+  S.Struct({ content: S.Uint8Array }).pipe(
+    $I.annoteSchema("IntakeSubmittingStateInput", {
+      description: "Bytes of the file being submitted.",
+    })
+  )
 ) {}
 
 /**
@@ -734,16 +765,17 @@ export const IntakeBatchEmitted = {
  * @category models
  * @since 0.0.0
  */
-export class DocumentIntakeInput extends S.Class<DocumentIntakeInput>($I`DocumentIntakeInput`)(
-  {
+export class DocumentIntakeInput extends S.Opaque<DocumentIntakeInput, {}>()(
+  S.Struct({
     workspaceId: WorkspaceIdentity.WorkspaceId,
     configRetryBaseMillis: S.Int.pipe(S.withConstructorDefault(Effect.succeed(2000))).annotateKey({
       description: "First retry delay after a failed vault configuration read; later retries double it.",
     }),
-  },
-  $I.annote("DocumentIntakeInput", {
-    description: "Workspace and retry timing a document intake actor starts with.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentIntakeInput", {
+      description: "Workspace and retry timing a document intake actor starts with.",
+    })
+  )
 ) {}
 
 /**
@@ -777,8 +809,8 @@ export class DocumentIntakeInput extends S.Class<DocumentIntakeInput>($I`Documen
  * @category models
  * @since 0.0.0
  */
-export class DocumentIntakeContext extends S.Class<DocumentIntakeContext>($I`DocumentIntakeContext`)(
-  {
+export class DocumentIntakeContext extends S.Opaque<DocumentIntakeContext, {}>()(
+  S.Struct({
     workspaceId: WorkspaceIdentity.WorkspaceId,
     configRetryBaseMillis: S.Int,
     configAttempt: S.Int,
@@ -788,10 +820,11 @@ export class DocumentIntakeContext extends S.Class<DocumentIntakeContext>($I`Doc
     manualDraftPath: S.Option(S.NonEmptyString),
     manualMessage: S.Option(S.NonEmptyString),
     vaultFailure: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("DocumentIntakeContext", {
-    description: "Workspace, retry bookkeeping, live batches, results and vault-selection form data.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentIntakeContext", {
+      description: "Workspace, retry bookkeeping, live batches, results and vault-selection form data.",
+    })
+  )
 ) {}
 
 /**
@@ -809,11 +842,12 @@ export class DocumentIntakeContext extends S.Class<DocumentIntakeContext>($I`Doc
  * @category models
  * @since 0.0.0
  */
-export class VaultFailureContext extends S.Class<VaultFailureContext>($I`VaultFailureContext`)(
-  { vaultFailure: S.NonEmptyString },
-  $I.annote("VaultFailureContext", {
-    description: "Context refinement of the failed vault-selection state.",
-  })
+export class VaultFailureContext extends S.Opaque<VaultFailureContext, {}>()(
+  S.Struct({ vaultFailure: S.NonEmptyString }).pipe(
+    $I.annoteSchema("VaultFailureContext", {
+      description: "Context refinement of the failed vault-selection state.",
+    })
+  )
 ) {}
 
 /**
@@ -831,11 +865,12 @@ export class VaultFailureContext extends S.Class<VaultFailureContext>($I`VaultFa
  * @category models
  * @since 0.0.0
  */
-export class VaultSavingStateInput extends S.Class<VaultSavingStateInput>($I`VaultSavingStateInput`)(
-  { vaultRootPath: S.NonEmptyString },
-  $I.annote("VaultSavingStateInput", {
-    description: "Trimmed vault root path a saving state persists.",
-  })
+export class VaultSavingStateInput extends S.Opaque<VaultSavingStateInput, {}>()(
+  S.Struct({ vaultRootPath: S.NonEmptyString }).pipe(
+    $I.annoteSchema("VaultSavingStateInput", {
+      description: "Trimmed vault root path a saving state persists.",
+    })
+  )
 ) {}
 
 /**
@@ -853,39 +888,44 @@ export class VaultSavingStateInput extends S.Class<VaultSavingStateInput>($I`Vau
  * @category models
  * @since 0.0.0
  */
-export class VaultFailureStateInput extends S.Class<VaultFailureStateInput>($I`VaultFailureStateInput`)(
-  { message: S.NonEmptyString },
-  $I.annote("VaultFailureStateInput", {
-    description: "Operator-safe message a failed vault save carries into its final state.",
-  })
+export class VaultFailureStateInput extends S.Opaque<VaultFailureStateInput, {}>()(
+  S.Struct({ message: S.NonEmptyString }).pipe(
+    $I.annoteSchema("VaultFailureStateInput", {
+      description: "Operator-safe message a failed vault save carries into its final state.",
+    })
+  )
 ) {}
 
-class PickerOutcomeCancelled extends S.Class<PickerOutcomeCancelled>($I`PickerOutcomeCancelled`)(
-  { kind: S.tag("cancelled") },
-  $I.annote("PickerOutcomeCancelled", {
-    description: "The operator closed the folder picker without choosing a folder.",
-  })
+class PickerOutcomeCancelled extends S.Opaque<PickerOutcomeCancelled, {}>()(
+  S.Struct({ kind: S.tag("cancelled") }).pipe(
+    $I.annoteSchema("PickerOutcomeCancelled", {
+      description: "The operator closed the folder picker without choosing a folder.",
+    })
+  )
 ) {}
 
-class PickerOutcomeSaved extends S.Class<PickerOutcomeSaved>($I`PickerOutcomeSaved`)(
-  { kind: S.tag("saved") },
-  $I.annote("PickerOutcomeSaved", {
-    description: "The picked folder was persisted as the workspace vault root.",
-  })
+class PickerOutcomeSaved extends S.Opaque<PickerOutcomeSaved, {}>()(
+  S.Struct({ kind: S.tag("saved") }).pipe(
+    $I.annoteSchema("PickerOutcomeSaved", {
+      description: "The picked folder was persisted as the workspace vault root.",
+    })
+  )
 ) {}
 
-class PickerOutcomeFailed extends S.Class<PickerOutcomeFailed>($I`PickerOutcomeFailed`)(
-  { kind: S.tag("failed"), message: S.NonEmptyString },
-  $I.annote("PickerOutcomeFailed", {
-    description: "The picker could not open, or the picked folder could not be persisted.",
-  })
+class PickerOutcomeFailed extends S.Opaque<PickerOutcomeFailed, {}>()(
+  S.Struct({ kind: S.tag("failed"), message: S.NonEmptyString }).pipe(
+    $I.annoteSchema("PickerOutcomeFailed", {
+      description: "The picker could not open, or the picked folder could not be persisted.",
+    })
+  )
 ) {}
 
-class PickerOutcomeManual extends S.Class<PickerOutcomeManual>($I`PickerOutcomeManual`)(
-  { kind: S.tag("manual") },
-  $I.annote("PickerOutcomeManual", {
-    description: "No native folder picker is reachable, so the manual path form is needed.",
-  })
+class PickerOutcomeManual extends S.Opaque<PickerOutcomeManual, {}>()(
+  S.Struct({ kind: S.tag("manual") }).pipe(
+    $I.annoteSchema("PickerOutcomeManual", {
+      description: "No native folder picker is reachable, so the manual path form is needed.",
+    })
+  )
 ) {}
 
 const PickerOutcomeKind = LiteralKit(["cancelled", "saved", "failed", "manual"]).pipe(
@@ -930,18 +970,20 @@ export const PickerOutcome = PickerOutcomeKind.mapMembers(
   )
   .pipe(S.toTaggedUnion("kind"));
 
-class ManualOutcomeCancelled extends S.Class<ManualOutcomeCancelled>($I`ManualOutcomeCancelled`)(
-  { kind: S.tag("cancelled") },
-  $I.annote("ManualOutcomeCancelled", {
-    description: "The operator dismissed the manual vault path form.",
-  })
+class ManualOutcomeCancelled extends S.Opaque<ManualOutcomeCancelled, {}>()(
+  S.Struct({ kind: S.tag("cancelled") }).pipe(
+    $I.annoteSchema("ManualOutcomeCancelled", {
+      description: "The operator dismissed the manual vault path form.",
+    })
+  )
 ) {}
 
-class ManualOutcomeSaved extends S.Class<ManualOutcomeSaved>($I`ManualOutcomeSaved`)(
-  { kind: S.tag("saved") },
-  $I.annote("ManualOutcomeSaved", {
-    description: "The typed path was persisted as the workspace vault root.",
-  })
+class ManualOutcomeSaved extends S.Opaque<ManualOutcomeSaved, {}>()(
+  S.Struct({ kind: S.tag("saved") }).pipe(
+    $I.annoteSchema("ManualOutcomeSaved", {
+      description: "The typed path was persisted as the workspace vault root.",
+    })
+  )
 ) {}
 
 const ManualOutcomeKind = LiteralKit(["cancelled", "saved"]).pipe(
@@ -958,7 +1000,7 @@ const ManualOutcomeKind = LiteralKit(["cancelled", "saved"]).pipe(
  * ```ts
  * import { ManualOutcome } from "@/intake/DocumentIntake.models"
  *
- * console.log(ManualOutcome.cases.saved.make().kind) // "saved"
+ * console.log(ManualOutcome.cases.saved.make({}).kind) // "saved"
  * ```
  *
  * @category models
@@ -990,14 +1032,15 @@ export const ManualOutcome = ManualOutcomeKind.mapMembers(
  * @category models
  * @since 0.0.0
  */
-export class PersistVaultRootInput extends S.Class<PersistVaultRootInput>($I`PersistVaultRootInput`)(
-  {
+export class PersistVaultRootInput extends S.Opaque<PersistVaultRootInput, {}>()(
+  S.Struct({
     workspaceId: WorkspaceIdentity.WorkspaceId,
     vaultRootPath: S.NonEmptyString,
-  },
-  $I.annote("PersistVaultRootInput", {
-    description: "Workspace and vault root path to persist.",
-  })
+  }).pipe(
+    $I.annoteSchema("PersistVaultRootInput", {
+      description: "Workspace and vault root path to persist.",
+    })
+  )
 ) {}
 
 /**
@@ -1016,11 +1059,12 @@ export class PersistVaultRootInput extends S.Class<PersistVaultRootInput>($I`Per
  * @category models
  * @since 0.0.0
  */
-export class VaultConfigFeedInput extends S.Class<VaultConfigFeedInput>($I`VaultConfigFeedInput`)(
-  { workspaceId: WorkspaceIdentity.WorkspaceId },
-  $I.annote("VaultConfigFeedInput", {
-    description: "Workspace whose vault configuration the feed reads.",
-  })
+export class VaultConfigFeedInput extends S.Opaque<VaultConfigFeedInput, {}>()(
+  S.Struct({ workspaceId: WorkspaceIdentity.WorkspaceId }).pipe(
+    $I.annoteSchema("VaultConfigFeedInput", {
+      description: "Workspace whose vault configuration the feed reads.",
+    })
+  )
 ) {}
 
 /**
@@ -1229,13 +1273,14 @@ const IntakeLogAction = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class IntakeLogRequest extends S.Class<IntakeLogRequest>($I`IntakeLogRequest`)(
-  {
+export class IntakeLogRequest extends S.Opaque<IntakeLogRequest, {}>()(
+  S.Struct({
     action: IntakeLogAction,
     cause: S.Unknown,
     message: S.NonEmptyString,
-  },
-  $I.annote("IntakeLogRequest", {
-    description: "A failure cause with the operator-safe message and intake operation it is logged under.",
-  })
+  }).pipe(
+    $I.annoteSchema("IntakeLogRequest", {
+      description: "A failure cause with the operator-safe message and intake operation it is logged under.",
+    })
+  )
 ) {}

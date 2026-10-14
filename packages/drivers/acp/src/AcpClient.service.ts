@@ -53,6 +53,8 @@ const ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY = 256;
  */
 export { makeTerminationError } from "./internal/stdio.ts";
 
+type AcpProtocolLoggingFields = typeof AcpProtocol.AcpProtocolLoggingOptions.Encoded;
+
 /**
  * Options for constructing an ACP client service.
  *
@@ -68,7 +70,7 @@ export { makeTerminationError } from "./internal/stdio.ts";
  * @category models
  * @since 0.0.0
  */
-export interface AcpClientOptions extends AcpProtocol.AcpProtocolLoggingOptions {
+export interface AcpClientOptions extends AcpProtocolLoggingFields {
   readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void>;
 }
 

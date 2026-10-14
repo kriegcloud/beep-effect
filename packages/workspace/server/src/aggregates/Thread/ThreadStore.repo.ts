@@ -34,12 +34,11 @@ import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
 import { PosInt } from "../../internal/PosInt.ts";
-import { InMemoryState } from "./ThreadStore.repo.internal.ts";
+import { InMemoryState, MessageEntityInput, ThreadEntityInput, TurnEntityInput } from "./ThreadStore.repo.internal.ts";
 import type { CuidState } from "@beep/schema/Cuid";
 import type { ToolCallItem } from "@beep/workspace-domain/entities/Turn";
 import type { MessageInsert } from "@beep/workspace-tables/entities/Message";
 import type * as Crypto from "effect/Crypto";
-import type { MessageEntityInput, ThreadEntityInput, TurnEntityInput } from "./ThreadStore.repo.internal.ts";
 
 const THREAD_TABLE_NAME = WorkspaceIdentity.ThreadId.tableName;
 const TURN_TABLE_NAME = WorkspaceIdentity.TurnId.tableName;
@@ -228,13 +227,16 @@ const projectTimeline = (
  * import { CuidState } from "@beep/schema/Cuid"
  * import * as Workspace from "@beep/shared-domain/identity/Workspace"
  * import { makeInMemoryThreadStore } from "@beep/workspace-server/aggregates/Thread"
+ * import { CreateThreadInput } from "@beep/workspace-use-cases/aggregates/Thread/server"
  * import * as Effect from "effect/Effect";
  * const program = Effect.gen(function* () {
  *   const store = yield* makeInMemoryThreadStore()
- *   const thread = yield* store.createThread({
- *     title: "Matter intake",
- *     workspaceId: Workspace.WorkspaceId.make(1)
- *   })
+ *   const thread = yield* store.createThread(
+ *     CreateThreadInput.make({
+ *       title: "Matter intake",
+ *       workspaceId: Workspace.WorkspaceId.make(1)
+ *     })
+ *   )
  *   return thread.publicId.startsWith("workspace_thread_")
  * }).pipe(
  *   Effect.provide(CuidState.Default),
@@ -261,7 +263,7 @@ export const makeInMemoryThreadStore = Effect.fn("Workspace.ThreadStore.makeInMe
       return yield* Ref.modify(store, (state) => {
         const id = state.nextId;
         const thread = makeThreadEntity(
-          { id, title: input.title, workspaceId: input.workspaceId },
+          ThreadEntityInput.make({ id, title: input.title, workspaceId: input.workspaceId }),
           publicId,
           timestampsAt(now)
         );
@@ -293,11 +295,11 @@ export const makeInMemoryThreadStore = Effect.fn("Workspace.ThreadStore.makeInMe
           return ["unchanged", state] as const;
         }
         const thread = makeThreadEntity(
-          {
+          ThreadEntityInput.make({
             id: input.threadId,
             title: input.title,
             workspaceId: current.value.workspaceId,
-          },
+          }),
           current.value.publicId,
           // Renaming a thread must not restamp when it was created.
           { createdAt: current.value.createdAt, updatedAt: DateTime.makeUnsafe(now) }
@@ -332,23 +334,23 @@ export const makeInMemoryThreadStore = Effect.fn("Workspace.ThreadStore.makeInMe
         const turnId = current.nextId;
         const messageId = PosInt.make(current.nextId + 1);
         const message = makeMessageEntity(
-          {
+          MessageEntityInput.make({
             id: messageId,
             threadId: input.threadId,
             turnId,
             role: input.role,
             content: input.content,
-          },
+          }),
           messagePublicId,
           timestampsAt(now)
         );
         const turn = makeTurnEntity(
-          { id: turnId, threadId: input.threadId, parentTurnId, turnIndex, messageId },
+          TurnEntityInput.make({ id: turnId, threadId: input.threadId, parentTurnId, turnIndex, messageId }),
           turnPublicId,
           timestampsAt(now)
         );
         return [
-          { turn, message },
+          ThreadStoreServer.Thread.AppendTurnResult.make({ turn, message }),
           {
             ...current,
             turns: HashMap.set(current.turns, turnId, turn),
@@ -437,7 +439,11 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
           const publicId = yield* publicIds.thread;
           const now = yield* Clock.currentTimeMillis;
           const seed = makeThreadEntity(
-            { id: nextEntityId(existingThreads), title: input.title, workspaceId: input.workspaceId },
+            ThreadEntityInput.make({
+              id: nextEntityId(existingThreads),
+              title: input.title,
+              workspaceId: input.workspaceId,
+            }),
             publicId,
             timestampsAt(now)
           );
@@ -516,24 +522,24 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
               const nextMessageId = nextEntityId(existingMessages);
 
               const messageSeed = makeMessageEntity(
-                {
+                MessageEntityInput.make({
                   id: nextMessageId,
                   threadId: input.threadId,
                   turnId: nextTurnId,
                   role: input.role,
                   content: input.content,
-                },
+                }),
                 messagePublicId,
                 timestampsAt(now)
               );
               const turnSeed = makeTurnEntity(
-                {
+                TurnEntityInput.make({
                   id: nextTurnId,
                   threadId: input.threadId,
                   parentTurnId,
                   turnIndex,
                   messageId: nextMessageId,
-                },
+                }),
                 turnPublicId,
                 timestampsAt(now)
               );
@@ -563,13 +569,13 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
               );
 
               const reconciledTurn = makeTurnEntity(
-                {
+                TurnEntityInput.make({
                   id: persistedTurn.id,
                   threadId: input.threadId,
                   parentTurnId,
                   turnIndex,
                   messageId: persistedMessage.id,
-                },
+                }),
                 persistedTurn.publicId,
                 // The row already exists; keep its creation stamp and only advance
                 // the update stamp.
@@ -589,7 +595,7 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
                 })
               );
 
-              return { turn: finalTurn, message: persistedMessage };
+              return ThreadStoreServer.Thread.AppendTurnResult.make({ turn: finalTurn, message: persistedMessage });
             })
           )
           .pipe(repositoryUnavailable("append Turn", TURN_TABLE_NAME))

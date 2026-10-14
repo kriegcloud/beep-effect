@@ -116,8 +116,8 @@ export type PositiveLength = typeof PositiveLength.Type;
  * @category models
  * @since 0.0.0
  */
-export class Rotation extends S.Class<Rotation>($I`Rotation`)(
-  {
+export class Rotation extends S.Opaque<Rotation, { readonly brand: unique symbol }>()(
+  S.Struct({
     axis: Vec3.annotateKey({ description: "Axis direction; need not be normalised." }),
     origin: Vec3.pipe(
       S.withConstructorDefault(Effect.succeed([0, 0, 0] as const)),
@@ -125,10 +125,11 @@ export class Rotation extends S.Class<Rotation>($I`Rotation`)(
       S.annotateKey({ description: "Point the axis passes through. Defaults to the origin." })
     ),
     degrees: S.Finite.annotateKey({ description: "Signed rotation angle in degrees (right-hand rule)." }),
-  },
-  $I.annote("Rotation", {
-    description: "Rotation about an axis through a point, in degrees.",
-  })
+  }).pipe(
+    $I.annoteSchema("Rotation", {
+      description: "Rotation about an axis through a point, in degrees.",
+    })
+  )
 ) {}
 
 const placementFields = {
@@ -159,16 +160,17 @@ const placementFields = {
  * @category models
  * @since 0.0.0
  */
-export class Box extends S.Class<Box>($I`Box`)(
-  {
+export class Box extends S.Opaque<Box, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("box").annotateKey({ description: "Primitive discriminator." }),
     min: Vec3.annotateKey({ description: "Corner with the smaller coordinates." }),
     max: Vec3.annotateKey({ description: "Corner with the larger coordinates." }),
     ...placementFields,
-  },
-  $I.annote("Box", {
-    description: "Axis-aligned box between two corners, then rotated and translated.",
-  })
+  }).pipe(
+    $I.annoteSchema("Box", {
+      description: "Axis-aligned box between two corners, then rotated and translated.",
+    })
+  )
 ) {}
 
 /**
@@ -189,8 +191,8 @@ export class Box extends S.Class<Box>($I`Box`)(
  * @category models
  * @since 0.0.0
  */
-export class Prism extends S.Class<Prism>($I`Prism`)(
-  {
+export class Prism extends S.Opaque<Prism, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("prism").annotateKey({ description: "Primitive discriminator." }),
     profile: S.Array(Vec3)
       .check(
@@ -204,10 +206,11 @@ export class Prism extends S.Class<Prism>($I`Prism`)(
       .annotateKey({ description: "Closed planar polygon vertices in order; the last joins the first." }),
     extrusion: Vec3.annotateKey({ description: "Extrusion vector; its length is the prism depth." }),
     ...placementFields,
-  },
-  $I.annote("Prism", {
-    description: "Closed planar polygon extruded along a vector, then rotated and translated.",
-  })
+  }).pipe(
+    $I.annoteSchema("Prism", {
+      description: "Closed planar polygon extruded along a vector, then rotated and translated.",
+    })
+  )
 ) {}
 
 /**
@@ -225,18 +228,19 @@ export class Prism extends S.Class<Prism>($I`Prism`)(
  * @category models
  * @since 0.0.0
  */
-export class Cylinder extends S.Class<Cylinder>($I`Cylinder`)(
-  {
+export class Cylinder extends S.Opaque<Cylinder, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("cylinder").annotateKey({ description: "Primitive discriminator." }),
     base: Vec3.annotateKey({ description: "Centre of the base disc." }),
     axis: Vec3.annotateKey({ description: "Axis direction from the base; need not be normalised." }),
     radius: PositiveLength.annotateKey({ description: "Disc radius." }),
     height: PositiveLength.annotateKey({ description: "Length along the axis." }),
     ...placementFields,
-  },
-  $I.annote("Cylinder", {
-    description: "Right circular cylinder from a base point along an axis, then rotated and translated.",
-  })
+  }).pipe(
+    $I.annoteSchema("Cylinder", {
+      description: "Right circular cylinder from a base point along an axis, then rotated and translated.",
+    })
+  )
 ) {}
 
 /**
@@ -304,8 +308,8 @@ export type Primitive = typeof Primitive.Type;
  * @category models
  * @since 0.0.0
  */
-export class Part extends S.Class<Part>($I`Part`)(
-  {
+export class Part extends S.Opaque<Part, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({ description: "Stable part name used in diagnostics." }),
     add: S.Array(Primitive)
       .check(
@@ -322,10 +326,11 @@ export class Part extends S.Class<Part>($I`Part`)(
       S.withDecodingDefaultTypeKey(Effect.succeed([])),
       S.annotateKey({ description: "Primitives cut from the fused result, in order." })
     ),
-  },
-  $I.annote("Part", {
-    description: "One solid: fused `add` primitives minus `subtract` primitives.",
-  })
+  }).pipe(
+    $I.annoteSchema("Part", {
+      description: "One solid: fused `add` primitives minus `subtract` primitives.",
+    })
+  )
 ) {}
 
 const LengthUnitBase = LiteralKit(["mm", "in"]);
@@ -385,8 +390,8 @@ export type LengthUnit = typeof LengthUnit.Type;
  * @category models
  * @since 0.0.0
  */
-export class ModelSpec extends S.Class<ModelSpec>($I`ModelSpec`)(
-  {
+export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     units: LengthUnit.pipe(
       S.withConstructorDefault(Effect.succeed("mm" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("mm" as const)),
@@ -402,10 +407,11 @@ export class ModelSpec extends S.Class<ModelSpec>($I`ModelSpec`)(
         })
       )
       .annotateKey({ description: "Parts kept as separate solids in one compound." }),
-  },
-  $I.annote("ModelSpec", {
-    description: "Compound of named parts built from primitives.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelSpec", {
+      description: "Compound of named parts built from primitives.",
+    })
+  )
 ) {}
 
 /**
@@ -431,8 +437,8 @@ export class ModelSpec extends S.Class<ModelSpec>($I`ModelSpec`)(
  * @category models
  * @since 0.0.0
  */
-export class Camera extends S.Class<Camera>($I`Camera`)(
-  {
+export class Camera extends S.Opaque<Camera, { readonly brand: unique symbol }>()(
+  S.Struct({
     eye: Vec3.annotateKey({ description: "Direction from the target toward the viewer." }),
     up: Vec3.annotateKey({ description: "Approximate up direction; projected to be orthogonal to `eye`." }),
     target: Vec3.pipe(
@@ -444,10 +450,11 @@ export class Camera extends S.Class<Camera>($I`Camera`)(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Perspective eye distance from the target; none means orthographic." })
     ),
-  },
-  $I.annote("Camera", {
-    description: "Hidden-line projection camera: eye direction, up vector, target, optional perspective focus.",
-  })
+  }).pipe(
+    $I.annoteSchema("Camera", {
+      description: "Hidden-line projection camera: eye direction, up vector, target, optional perspective focus.",
+    })
+  )
 ) {}
 
 /**
@@ -508,8 +515,8 @@ export type Segment2 = typeof Segment2.Type;
  * @category models
  * @since 0.0.0
  */
-export class EdgeSet extends S.Class<EdgeSet>($I`EdgeSet`)(
-  {
+export class EdgeSet extends S.Opaque<EdgeSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     visible: S.Array(Segment2).annotateKey({ description: "Visible edges, including silhouettes." }),
     hidden: S.Array(Segment2).annotateKey({ description: "Hidden edges, including silhouettes." }),
     shading: S.Array(Segment2).pipe(
@@ -517,10 +524,11 @@ export class EdgeSet extends S.Class<EdgeSet>($I`EdgeSet`)(
       S.withDecodingDefaultTypeKey(Effect.succeed([])),
       S.annotateKey({ description: "Visible surface-shading lines; empty when the view was not shaded." })
     ),
-  },
-  $I.annote("EdgeSet", {
-    description: "Canonically ordered visible and hidden projected segments of one view.",
-  })
+  }).pipe(
+    $I.annoteSchema("EdgeSet", {
+      description: "Canonically ordered visible and hidden projected segments of one view.",
+    })
+  )
 ) {}
 
 const ExposureThreshold = S.Finite.check(
@@ -563,8 +571,8 @@ const ExposureThreshold = S.Finite.check(
  * @category models
  * @since 0.0.0
  */
-export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
-  {
+export class ShadingPlan extends S.Opaque<ShadingPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     minPitch: PositiveLength.annotateKey({ description: "Line pitch on the darkest faces, in model units." }),
     maxPitch: PositiveLength.annotateKey({ description: "Line pitch on the faintest shaded faces, in model units." }),
     litThreshold: ExposureThreshold.pipe(
@@ -572,10 +580,11 @@ export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
       S.withDecodingDefaultTypeKey(Effect.succeed(0.75)),
       S.annotateKey({ description: "Exposure above which a face stays unshaded. Defaults to 0.75." })
     ),
-  },
-  $I.annote("ShadingPlan", {
-    description: "Pitch range and lit threshold of procedural straight-line shading, in model units.",
-  })
+  }).pipe(
+    $I.annoteSchema("ShadingPlan", {
+      description: "Pitch range and lit threshold of procedural straight-line shading, in model units.",
+    })
+  )
 ) {}
 
 /**
@@ -592,14 +601,15 @@ export class ShadingPlan extends S.Class<ShadingPlan>($I`ShadingPlan`)(
  * @category models
  * @since 0.0.0
  */
-export class BoundingBox extends S.Class<BoundingBox>($I`BoundingBox`)(
-  {
+export class BoundingBox extends S.Opaque<BoundingBox, { readonly brand: unique symbol }>()(
+  S.Struct({
     min: Vec3.annotateKey({ description: "Minimum corner." }),
     max: Vec3.annotateKey({ description: "Maximum corner." }),
-  },
-  $I.annote("BoundingBox", {
-    description: "Axis-aligned bounding box.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoundingBox", {
+      description: "Axis-aligned bounding box.",
+    })
+  )
 ) {}
 
 /**
@@ -622,14 +632,15 @@ export class BoundingBox extends S.Class<BoundingBox>($I`BoundingBox`)(
  * @category models
  * @since 0.0.0
  */
-export class ModelSummary extends S.Class<ModelSummary>($I`ModelSummary`)(
-  {
+export class ModelSummary extends S.Opaque<ModelSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     boundingBox: BoundingBox.annotateKey({ description: "Bounding box of the whole compound." }),
     volume: S.Finite.annotateKey({ description: "Total volume in cubic model units, rounded to three decimals." }),
     faceCount: S.Natural.annotateKey({ description: "Number of faces across all parts." }),
     edgeCount: S.Natural.annotateKey({ description: "Number of edges across all parts." }),
-  },
-  $I.annote("ModelSummary", {
-    description: "Bounding box, volume, and topology counts of a built solid.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelSummary", {
+      description: "Bounding box, volume, and topology counts of a built solid.",
+    })
+  )
 ) {}

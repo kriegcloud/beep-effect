@@ -1342,14 +1342,9 @@ const serializeBlocks = (children: ReadonlyArray<Block>, state: StringifyState, 
  *
  * ```ts
  * import { stringifyTree } from "@beep/scratchpad/effected/markdown/internal/stringify";
- * import type { Root } from "@beep/scratchpad/effected/markdown/MarkdownNode";
+ * import { Root } from "@beep/scratchpad/effected/markdown/MarkdownNode";
  *
- * const point = { line: 1, column: 1, offset: 0 };
- * const root: Root = {
- *   type: "root",
- *   children: [],
- *   position: { start: point, end: point }
- * };
+ * const root = Root.make({ children: [] });
  * console.log(JSON.stringify(stringifyTree(root))) // ""
  * ```
  *

@@ -16,7 +16,7 @@ import type * as Rest from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/GitHubRepository");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String.pipe(S.annotateKey({ description: "The repository test-double member read without an override." })),
 }, $I.annote("UnstubbedError", { description: "An unconfigured GitHubRepository test-double member was read." })) {}
 

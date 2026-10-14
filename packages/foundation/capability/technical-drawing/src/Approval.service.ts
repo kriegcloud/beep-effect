@@ -100,15 +100,17 @@ export type ConfirmationSource = typeof ConfirmationSource.Type;
  * @category models
  * @since 0.0.0
  */
-export class SignRequest extends S.Class<SignRequest>($I`SignRequest`)(
-  {
+export class SignRequest extends S.Opaque<SignRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifestPath: S.NonEmptyString.annotateKey({ description: "Render manifest of the sheet set." }),
     by: S.String.annotateKey({ description: "Who is running the command; descriptive only." }),
     source: ConfirmationSource.annotateKey({ description: "Where the approver's confirmation lives." }),
-  },
-  $I.annote("SignRequest", {
-    description: "Manifest, operator, and confirmation source of a sign request; the approver comes from the manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("SignRequest", {
+      description:
+        "Manifest, operator, and confirmation source of a sign request; the approver comes from the manifest.",
+    })
+  )
 ) {}
 
 /**

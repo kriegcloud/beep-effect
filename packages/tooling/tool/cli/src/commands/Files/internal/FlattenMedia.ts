@@ -20,7 +20,7 @@ import * as HashSet from "effect/HashSet";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import { allocateUniqueName } from "../../../internal/cli/FsGuards.ts";
-import { FilesCommandError, formatPlatformError } from "../Files.errors.ts";
+import { FilesCommandError, formatPlatformError, PlatformErrorOptions } from "../Files.errors.ts";
 import { hasSkippedFiles, mediaKindFromExtension } from "../Files.media.ts";
 import { decodeFlattenMediaOptions, FlattenMediaSummary } from "./FlattenMedia.schemas.ts";
 import { validateDirectory } from "./Validation.ts";
@@ -28,44 +28,47 @@ import type { FlattenMediaOptions } from "./FlattenMedia.schemas.ts";
 
 const $I = $RepoCliId.create("commands/Files/internal/FlattenMedia");
 
-class FlattenMediaTarget extends S.Class<FlattenMediaTarget>($I`FlattenMediaTarget`)(
-  {
+class FlattenMediaTarget extends S.Opaque<FlattenMediaTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     canonicalDirectory: S.String,
     destinationDevice: S.Finite,
     destinationExisted: S.Boolean,
     directory: S.String,
-  },
-  $I.annote("FlattenMediaTarget", {
-    description: "Resolved flatten-media destination with its canonical path and filesystem device.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlattenMediaTarget", {
+      description: "Resolved flatten-media destination with its canonical path and filesystem device.",
+    })
+  )
 ) {}
 
-class FlattenMediaDirectories extends S.Class<FlattenMediaDirectories>($I`FlattenMediaDirectories`)(
-  {
+class FlattenMediaDirectories extends S.Opaque<FlattenMediaDirectories, { readonly brand: unique symbol }>()(
+  S.Struct({
     destinationDevice: S.Finite,
     destinationDirectory: S.String,
     destinationExisted: S.Boolean,
     sourceDirectory: S.String,
-  },
-  $I.annote("FlattenMediaDirectories", {
-    description: "Validated, non-overlapping source and destination directories for flatten-media.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlattenMediaDirectories", {
+      description: "Validated, non-overlapping source and destination directories for flatten-media.",
+    })
+  )
 ) {}
 
-class FlattenMediaPlanEntry extends S.Class<FlattenMediaPlanEntry>($I`FlattenMediaPlanEntry`)(
-  {
+class FlattenMediaPlanEntry extends S.Opaque<FlattenMediaPlanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourcePath: S.String,
     sourceRelativePath: S.String,
     targetName: S.String,
     targetPath: S.String,
-  },
-  $I.annote("FlattenMediaPlanEntry", {
-    description: "One recursive media source paired with its collision-safe flat destination.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlattenMediaPlanEntry", {
+      description: "One recursive media source paired with its collision-safe flat destination.",
+    })
+  )
 ) {}
 
-class FlattenMediaPlan extends S.Class<FlattenMediaPlan>($I`FlattenMediaPlan`)(
-  {
+class FlattenMediaPlan extends S.Opaque<FlattenMediaPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     collisionCount: S.Finite,
     destinationDevice: S.Finite,
     destinationDirectory: S.String,
@@ -73,10 +76,11 @@ class FlattenMediaPlan extends S.Class<FlattenMediaPlan>($I`FlattenMediaPlan`)(
     entries: S.Array(FlattenMediaPlanEntry),
     skippedCount: S.Finite,
     sourceDirectory: S.String,
-  },
-  $I.annote("FlattenMediaPlan", {
-    description: "Deterministic recursive media move plan and its preflight metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlattenMediaPlan", {
+      description: "Deterministic recursive media move plan and its preflight metadata.",
+    })
+  )
 ) {}
 
 const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMediaTarget")(function* (
@@ -92,7 +96,11 @@ const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMedia
       .exists(candidate)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to inspect flatten-media output path", candidate, { cause })
+          formatPlatformError(
+            "Failed to inspect flatten-media output path",
+            candidate,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
 
@@ -101,7 +109,11 @@ const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMedia
         .stat(candidate)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError("Failed to stat flatten-media output path", candidate, { cause })
+            formatPlatformError(
+              "Failed to stat flatten-media output path",
+              candidate,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
 
@@ -115,7 +127,11 @@ const canonicalizeFlattenMediaTarget = Effect.fn("Files.canonicalizeFlattenMedia
         .realPath(candidate)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError("Failed to resolve flatten-media output path", candidate, { cause })
+            formatPlatformError(
+              "Failed to resolve flatten-media output path",
+              candidate,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
       const relativeSuffix = path.relative(candidate, directory);
@@ -171,9 +187,13 @@ const buildFlattenMediaPlan = Effect.fn("Files.buildFlattenMediaPlan")(function*
   const existingNames = directories.destinationExisted
     ? yield* fs.readDirectory(directories.destinationDirectory).pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to read flatten-media output directory", directories.destinationDirectory, {
-            cause,
-          })
+          formatPlatformError(
+            "Failed to read flatten-media output directory",
+            directories.destinationDirectory,
+            PlatformErrorOptions.make({
+              cause,
+            })
+          )
         )
       )
     : A.empty<string>();
@@ -234,7 +254,9 @@ const ensureFlattenMediaTargetAvailable = Effect.fn("Files.ensureFlattenMediaTar
   const exists = yield* fs
     .exists(targetPath)
     .pipe(
-      Effect.mapError((cause) => formatPlatformError("Failed to inspect flatten-media target", targetPath, { cause }))
+      Effect.mapError((cause) =>
+        formatPlatformError("Failed to inspect flatten-media target", targetPath, PlatformErrorOptions.make({ cause }))
+      )
     );
 
   if (exists) {
@@ -254,7 +276,11 @@ const preflightFlattenMediaPlan = Effect.fn("Files.preflightFlattenMediaPlan")(f
       .stat(entry.sourcePath)
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to stat flatten-media source file", entry.sourcePath, { cause })
+          formatPlatformError(
+            "Failed to stat flatten-media source file",
+            entry.sourcePath,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       );
 
@@ -332,18 +358,26 @@ const createFlattenMediaDestination = Effect.fn("Files.createFlattenMediaDestina
 
   yield* fs.makeDirectory(path.dirname(plan.destinationDirectory), { recursive: true }).pipe(
     Effect.mapError((cause) =>
-      formatPlatformError("Failed to create flatten-media output parent directory", plan.destinationDirectory, {
-        cause,
-      })
+      formatPlatformError(
+        "Failed to create flatten-media output parent directory",
+        plan.destinationDirectory,
+        PlatformErrorOptions.make({
+          cause,
+        })
+      )
     )
   );
 
   const created = yield* Effect.exit(
     fs.makeDirectory(plan.destinationDirectory).pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create flatten-media output directory", plan.destinationDirectory, {
-          cause,
-        })
+        formatPlatformError(
+          "Failed to create flatten-media output directory",
+          plan.destinationDirectory,
+          PlatformErrorOptions.make({
+            cause,
+          })
+        )
       )
     )
   );
@@ -352,9 +386,13 @@ const createFlattenMediaDestination = Effect.fn("Files.createFlattenMediaDestina
     const inspected = yield* Effect.exit(
       fs.stat(plan.destinationDirectory).pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to inspect concurrently created output directory", plan.destinationDirectory, {
-            cause,
-          })
+          formatPlatformError(
+            "Failed to inspect concurrently created output directory",
+            plan.destinationDirectory,
+            PlatformErrorOptions.make({
+              cause,
+            })
+          )
         )
       )
     );

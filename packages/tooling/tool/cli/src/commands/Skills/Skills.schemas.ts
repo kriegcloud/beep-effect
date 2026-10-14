@@ -347,15 +347,16 @@ export type SkillGitRevision = typeof SkillGitRevision.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillUpstreamContentFile extends S.Class<SkillUpstreamContentFile>($I`SkillUpstreamContentFile`)(
-  {
+export class SkillUpstreamContentFile extends S.Opaque<SkillUpstreamContentFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: SkillTreeMode,
     bytes: S.Uint8Array,
-  },
-  $I.annote("SkillUpstreamContentFile", {
-    description: "Binary-safe file bytes and Git mode supplied for an immutable upstream skill tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillUpstreamContentFile", {
+      description: "Binary-safe file bytes and Git mode supplied for an immutable upstream skill tree.",
+    })
+  )
 ) {}
 
 /**
@@ -390,14 +391,15 @@ export class SkillUpstreamContentFile extends S.Class<SkillUpstreamContentFile>(
  * @category models
  * @since 0.0.0
  */
-export class SkillUpstreamContent extends S.Class<SkillUpstreamContent>($I`SkillUpstreamContent`)(
-  {
+export class SkillUpstreamContent extends S.Opaque<SkillUpstreamContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     files: S.Array(SkillUpstreamContentFile),
     licenseBytes: S.Uint8Array,
-  },
-  $I.annote("SkillUpstreamContent", {
-    description: "Complete pinned skill tree plus license bytes supplied behind the upstream-content service.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillUpstreamContent", {
+      description: "Complete pinned skill tree plus license bytes supplied behind the upstream-content service.",
+    })
+  )
 ) {}
 
 /**
@@ -433,8 +435,8 @@ export class SkillUpstreamContent extends S.Class<SkillUpstreamContent>($I`Skill
  * @category models
  * @since 0.0.0
  */
-export class SkillUpstream extends S.Class<SkillUpstream>($I`SkillUpstream`)(
-  {
+export class SkillUpstream extends S.Opaque<SkillUpstream, { readonly brand: unique symbol }>()(
+  S.Struct({
     repository: S.String,
     repositoryUrl: S.String,
     treePath: S.String,
@@ -443,10 +445,11 @@ export class SkillUpstream extends S.Class<SkillUpstream>($I`SkillUpstream`)(
     sourceRevision: SkillGitRevision,
     observedHeadRevision: SkillGitRevision,
     observedPathRevision: SkillGitRevision,
-  },
-  $I.annote("SkillUpstream", {
-    description: "Immutable source identity plus the separately observed repository and entry-path revisions.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillUpstream", {
+      description: "Immutable source identity plus the separately observed repository and entry-path revisions.",
+    })
+  )
 ) {}
 
 /**
@@ -476,15 +479,16 @@ export class SkillUpstream extends S.Class<SkillUpstream>($I`SkillUpstream`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillSnapshotFile extends S.Class<SkillSnapshotFile>($I`SkillSnapshotFile`)(
-  {
+export class SkillSnapshotFile extends S.Opaque<SkillSnapshotFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: SkillTreeMode,
     sha256: Sha256Hex,
-  },
-  $I.annote("SkillSnapshotFile", {
-    description: "One canonical path, Git mode, and content digest in an ordered skill manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillSnapshotFile", {
+      description: "One canonical path, Git mode, and content digest in an ordered skill manifest.",
+    })
+  )
 ) {}
 
 const SkillSnapshotFileCountCheck = S.makeFilter(
@@ -553,17 +557,20 @@ const SkillSnapshotFileCountCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class SkillSnapshot extends S.Class<SkillSnapshot>($I`SkillSnapshot`)(
+export class SkillSnapshot extends S.Opaque<SkillSnapshot, { readonly brand: unique symbol }>()(
   S.Struct({
     algorithm: SkillSnapshotAlgorithm,
     treeHash: Sha256Hex,
     fileCount: S.Natural,
     manifestHash: Sha256Hex,
     manifest: S.Array(SkillSnapshotFile),
-  }).check(SkillSnapshotFileCountCheck),
-  $I.annote("SkillSnapshot", {
-    description: "Mode-aware ordered upstream tree manifest and its canonical aggregate hashes.",
   })
+    .check(SkillSnapshotFileCountCheck)
+    .pipe(
+      $I.annoteSchema("SkillSnapshot", {
+        description: "Mode-aware ordered upstream tree manifest and its canonical aggregate hashes.",
+      })
+    )
 ) {}
 
 /**
@@ -593,15 +600,16 @@ export class SkillSnapshot extends S.Class<SkillSnapshot>($I`SkillSnapshot`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillLicense extends S.Class<SkillLicense>($I`SkillLicense`)(
-  {
+export class SkillLicense extends S.Opaque<SkillLicense, { readonly brand: unique symbol }>()(
+  S.Struct({
     spdxId: S.String,
     path: S.String,
     sha256: Sha256Hex,
-  },
-  $I.annote("SkillLicense", {
-    description: "SPDX identity, upstream path, and byte hash of the license at sourceRevision.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillLicense", {
+      description: "SPDX identity, upstream path, and byte hash of the license at sourceRevision.",
+    })
+  )
 ) {}
 
 /**
@@ -633,17 +641,18 @@ export class SkillLicense extends S.Class<SkillLicense>($I`SkillLicense`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillProvenance extends S.Class<SkillProvenance>($I`SkillProvenance`)(
-  {
+export class SkillProvenance extends S.Opaque<SkillProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: SkillProvenanceStatus,
     confidence: SkillProvenanceConfidence,
     matchedFileCount: S.Natural,
     upstreamFileCount: S.Natural,
     evidence: S.Array(SkillProvenanceEvidence),
-  },
-  $I.annote("SkillProvenance", {
-    description: "Explicit epistemic state, match counts, and audited evidence for one skill origin claim.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillProvenance", {
+      description: "Explicit epistemic state, match counts, and audited evidence for one skill origin claim.",
+    })
+  )
 ) {}
 
 /**
@@ -675,17 +684,18 @@ export class SkillProvenance extends S.Class<SkillProvenance>($I`SkillProvenance
  * @category models
  * @since 0.0.0
  */
-export class SkillPatch extends S.Class<SkillPatch>($I`SkillPatch`)(
-  {
+export class SkillPatch extends S.Opaque<SkillPatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     sha256: Sha256Hex,
     label: SkillPatchLabel,
     owner: S.String,
     dropCondition: S.String,
-  },
-  $I.annote("SkillPatch", {
-    description: "Hashed local patch with its review label, owner, and explicit drop condition.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPatch", {
+      description: "Hashed local patch with its review label, owner, and explicit drop condition.",
+    })
+  )
 ) {}
 
 /**
@@ -716,15 +726,16 @@ export class SkillPatch extends S.Class<SkillPatch>($I`SkillPatch`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillPatches extends S.Class<SkillPatches>($I`SkillPatches`)(
-  {
+export class SkillPatches extends S.Opaque<SkillPatches, { readonly brand: unique symbol }>()(
+  S.Struct({
     required: S.Boolean,
     patchSetHash: Sha256Hex,
     series: S.Array(SkillPatch),
-  },
-  $I.annote("SkillPatches", {
-    description: "Ordered patch series separating local customization from the pristine upstream snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillPatches", {
+      description: "Ordered patch series separating local customization from the pristine upstream snapshot.",
+    })
+  )
 ) {}
 
 /**
@@ -755,15 +766,16 @@ export class SkillPatches extends S.Class<SkillPatches>($I`SkillPatches`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillEffective extends S.Class<SkillEffective>($I`SkillEffective`)(
-  {
+export class SkillEffective extends S.Opaque<SkillEffective, { readonly brand: unique symbol }>()(
+  S.Struct({
     treeHash: Sha256Hex,
     installedTargets: S.Array(S.String),
     installedTreeHash: Sha256Hex,
-  },
-  $I.annote("SkillEffective", {
-    description: "Reconstructed upstream-plus-patches hash and cross-target installed tree identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillEffective", {
+      description: "Reconstructed upstream-plus-patches hash and cross-target installed tree identity.",
+    })
+  )
 ) {}
 
 /**
@@ -827,8 +839,8 @@ export class SkillEffective extends S.Class<SkillEffective>($I`SkillEffective`)(
  * @category models
  * @since 0.0.0
  */
-export class SkillLockV2Entry extends S.Class<SkillLockV2Entry>($I`SkillLockV2Entry`)(
-  {
+export class SkillLockV2Entry extends S.Opaque<SkillLockV2Entry, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceType: SkillSourceType,
     upstream: SkillUpstream,
     snapshot: SkillSnapshot,
@@ -836,10 +848,11 @@ export class SkillLockV2Entry extends S.Class<SkillLockV2Entry>($I`SkillLockV2En
     provenance: SkillProvenance,
     patches: SkillPatches,
     effective: SkillEffective,
-  },
-  $I.annote("SkillLockV2Entry", {
-    description: "Complete immutable-origin, snapshot, license, provenance, patch, and effective-tree record.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillLockV2Entry", {
+      description: "Complete immutable-origin, snapshot, license, provenance, patch, and effective-tree record.",
+    })
+  )
 ) {}
 
 /**
@@ -888,8 +901,8 @@ export class SkillLockV2Entry extends S.Class<SkillLockV2Entry>($I`SkillLockV2En
  * @category models
  * @since 0.0.0
  */
-export class SkillProvenanceResolution extends S.Class<SkillProvenanceResolution>($I`SkillProvenanceResolution`)(
-  {
+export class SkillProvenanceResolution extends S.Opaque<SkillProvenanceResolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     sourceType: SkillSourceType,
     upstream: SkillUpstream,
@@ -897,10 +910,11 @@ export class SkillProvenanceResolution extends S.Class<SkillProvenanceResolution
     provenanceStatus: SkillProvenanceStatus,
     provenanceConfidence: SkillProvenanceConfidence,
     provenanceEvidence: S.Array(SkillProvenanceEvidence),
-  },
-  $I.annote("SkillProvenanceResolution", {
-    description: "Ratified immutable source, license expectation, and epistemic evidence for one pilot skill.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillProvenanceResolution", {
+      description: "Ratified immutable source, license expectation, and epistemic evidence for one pilot skill.",
+    })
+  )
 ) {}
 
 /**
@@ -927,15 +941,16 @@ export class SkillProvenanceResolution extends S.Class<SkillProvenanceResolution
  * @category models
  * @since 0.0.0
  */
-export class SkillProvenanceReport extends S.Class<SkillProvenanceReport>($I`SkillProvenanceReport`)(
-  {
+export class SkillProvenanceReport extends S.Opaque<SkillProvenanceReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     entry: SkillLockV2Entry,
     driftPaths: S.Array(S.String),
-  },
-  $I.annote("SkillProvenanceReport", {
-    description: "Computed lock entry and deterministic local-drift inventory rendered by the provenance pilot.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillProvenanceReport", {
+      description: "Computed lock entry and deterministic local-drift inventory rendered by the provenance pilot.",
+    })
+  )
 ) {}
 
 /**
@@ -961,14 +976,15 @@ export class SkillProvenanceReport extends S.Class<SkillProvenanceReport>($I`Ski
  * @category models
  * @since 0.0.0
  */
-export class SkillsLockV2 extends S.Class<SkillsLockV2>($I`SkillsLockV2`)(
-  {
+export class SkillsLockV2 extends S.Opaque<SkillsLockV2, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal(2),
     skills: S.Record(S.String, SkillLockV2Entry),
-  },
-  $I.annote("SkillsLockV2", {
-    description: "Canonical skills-lock/v2 document keyed by installed skill name.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillsLockV2", {
+      description: "Canonical skills-lock/v2 document keyed by installed skill name.",
+    })
+  )
 ) {}
 
 /**

@@ -122,7 +122,7 @@ export type Dependent = typeof Dependent.Type;
  * @category models
  * @since 0.0.0
  */
-export class DuplicateInstance extends S.Class<DuplicateInstance>($I`DuplicateInstance`)({
+export class DuplicateInstance extends S.Class<DuplicateInstance, { readonly brand: unique symbol }>($I`DuplicateInstance`)({
 	/** The opaque instance id, as `@effected/lockfiles` records it. */
 	instanceId: S.NonEmptyString.annotateKey({ description: "The opaque instance id, as `@effected/lockfiles` records it." }),
 	/** Every importer and package that pulls THIS copy. */
@@ -147,7 +147,7 @@ export class DuplicateInstance extends S.Class<DuplicateInstance>($I`DuplicateIn
  * @category models
  * @since 0.0.0
  */
-export class DuplicatedVersion extends S.Class<DuplicatedVersion>($I`DuplicatedVersion`)({
+export class DuplicatedVersion extends S.Class<DuplicatedVersion, { readonly brand: unique symbol }>($I`DuplicatedVersion`)({
 	/** The resolved version. */
 	version: S.String.annotateKey({ description: "The resolved version." }),
 	/** Every instance at this version — more than one when peer suffixes differ. */
@@ -184,7 +184,7 @@ export class DuplicatedVersion extends S.Class<DuplicatedVersion>($I`DuplicatedV
  * @category models
  * @since 0.0.0
  */
-export class DuplicatedPackage extends S.Class<DuplicatedPackage>($I`DuplicatedPackage`)({
+export class DuplicatedPackage extends S.Class<DuplicatedPackage, { readonly brand: unique symbol }>($I`DuplicatedPackage`)({
 	/** The package name. */
 	name: S.NonEmptyString.annotateKey({ description: "The package name." }),
 	/** Every version it resolved at, in lockfile order. Never fewer than two. */
@@ -231,7 +231,7 @@ export class DuplicatedPackage extends S.Class<DuplicatedPackage>($I`DuplicatedP
  * @category models
  * @since 0.0.0
  */
-export class DuplicateCheck extends S.Class<DuplicateCheck>($I`DuplicateCheck`)({
+export class DuplicateCheck extends S.Class<DuplicateCheck, { readonly brand: unique symbol }>($I`DuplicateCheck`)({
 	/**
 	 * Every reported name resolved at two or more distinct versions, in
 	 * lockfile order.

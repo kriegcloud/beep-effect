@@ -39,7 +39,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ToolInstaller");
  * @category errors
  * @since 0.0.0
  */
-export class ToolInstallerError extends S.TaggedError<ToolInstallerError>($I`ToolInstallerError`)("ToolInstallerError", {
+export class ToolInstallerError extends S.TaggedError<ToolInstallerError, { readonly brand: unique symbol }>($I`ToolInstallerError`)("ToolInstallerError", {
 	/**
 	 * `downloadFailed` — the archive could not be fetched. `extractFailed` — the
 	 * extraction tool refused the archive or is not installed. `cacheFailed` —

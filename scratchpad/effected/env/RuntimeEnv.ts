@@ -64,7 +64,7 @@ const DetectedTerminal = S.Struct({
  * @category schemas
  * @since 0.0.0
  */
-export class RuntimeEnv extends S.Class<RuntimeEnv>($I`RuntimeEnv`)({
+export class RuntimeEnv extends S.Class<RuntimeEnv, { readonly brand: unique symbol }>($I`RuntimeEnv`)({
 	/**
 	 * The AI agent running the process, as its family (`claude` for Claude Code, whatever `AI_AGENT` says it is
 	 * beyond that), or `None`.

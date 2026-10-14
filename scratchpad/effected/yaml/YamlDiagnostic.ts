@@ -223,7 +223,7 @@ export type YamlErrorCode = typeof YamlErrorCode.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class YamlDiagnostic extends S.Class<YamlDiagnostic>($I`YamlDiagnostic`)({
+export class YamlDiagnostic extends S.Class<YamlDiagnostic, { readonly brand: unique symbol }>($I`YamlDiagnostic`)({
 	code: YamlErrorCode.annotateKey({ description: "Pipeline error identifier used to classify the diagnostic and determine whether it is fatal" }),
 	message: S.String.annotateKey({ description: "Human-readable explanation of the YAML issue" }),
 	offset: S.Finite.annotateKey({ description: "Zero-based start position of the diagnostic span in source UTF-16 code units" }),

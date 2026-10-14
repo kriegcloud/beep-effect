@@ -138,16 +138,17 @@ export type ScheduleScope = typeof ScheduleScope.Type;
  * @category policies
  * @since 0.0.0
  */
-export class AdmissionTokenWeights extends S.Class<AdmissionTokenWeights>($I`AdmissionTokenWeights`)(
-  {
+export class AdmissionTokenWeights extends S.Opaque<AdmissionTokenWeights, { readonly brand: unique symbol }>()(
+  S.Struct({
     fullProof: PosInt,
     mergedPreview: PosInt,
     reviewFix: PosInt,
     publish: PosInt,
-  },
-  $I.annote("AdmissionTokenWeights", {
-    description: "Token charge assigned to each ratified admission work kind.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionTokenWeights", {
+      description: "Token charge assigned to each ratified admission work kind.",
+    })
+  )
 ) {}
 
 /**
@@ -183,8 +184,8 @@ export class AdmissionTokenWeights extends S.Class<AdmissionTokenWeights>($I`Adm
  * @category policies
  * @since 0.0.0
  */
-export class AdmissionPolicyParams extends S.Class<AdmissionPolicyParams>($I`AdmissionPolicyParams`)(
-  {
+export class AdmissionPolicyParams extends S.Opaque<AdmissionPolicyParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     capacityMaxTokens: PosInt,
     slotSizeGib: PosInt,
     reserveGib: PosInt,
@@ -194,10 +195,11 @@ export class AdmissionPolicyParams extends S.Class<AdmissionPolicyParams>($I`Adm
     reviewFixClassCap: PosInt,
     weights: AdmissionTokenWeights,
     priorityOrder: S.Array(AdmissionPriority),
-  },
-  $I.annote("AdmissionPolicyParams", {
-    description: "Ratified weighted-admission parameters decoded from the S6 policy A-Box.",
-  })
+  }).pipe(
+    $I.annoteSchema("AdmissionPolicyParams", {
+      description: "Ratified weighted-admission parameters decoded from the S6 policy A-Box.",
+    })
+  )
 ) {}
 
 /**
@@ -225,18 +227,19 @@ export class AdmissionPolicyParams extends S.Class<AdmissionPolicyParams>($I`Adm
  * @category models
  * @since 0.0.0
  */
-export class PendingRequest extends S.Class<PendingRequest>($I`PendingRequest`)(
-  {
+export class PendingRequest extends S.Opaque<PendingRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     nonce: S.NonEmptyString,
     kind: AdmissionWorkKind,
     priority: AdmissionPriority,
     weightTokens: PosInt,
     originKey: S.String,
     enqueuedAtMillis: S.Natural,
-  },
-  $I.annote("PendingRequest", {
-    description: "Minimal pending-ticket view needed to reproduce scheduler admission order.",
-  })
+  }).pipe(
+    $I.annoteSchema("PendingRequest", {
+      description: "Minimal pending-ticket view needed to reproduce scheduler admission order.",
+    })
+  )
 ) {}
 
 /**
@@ -267,15 +270,16 @@ export class PendingRequest extends S.Class<PendingRequest>($I`PendingRequest`)(
  * @category read-models
  * @since 0.0.0
  */
-export class TokenLedgerState extends S.Class<TokenLedgerState>($I`TokenLedgerState`)(
-  {
+export class TokenLedgerState extends S.Opaque<TokenLedgerState, { readonly brand: unique symbol }>()(
+  S.Struct({
     activeGrants: S.HashMap(S.String, PosInt),
     activeReviewFixNonces: S.HashSet(S.String),
     activeTokenTotal: S.Natural,
-  },
-  $I.annote("TokenLedgerState", {
-    description: "Active admission charges reconstructed by nonce from journal deltas.",
-  })
+  }).pipe(
+    $I.annoteSchema("TokenLedgerState", {
+      description: "Active admission charges reconstructed by nonce from journal deltas.",
+    })
+  )
 ) {}
 
 /**
@@ -310,17 +314,18 @@ export class TokenLedgerState extends S.Class<TokenLedgerState>($I`TokenLedgerSt
  * @category projections
  * @since 0.0.0
  */
-export class ScheduleStep extends S.Class<ScheduleStep>($I`ScheduleStep`)(
-  {
+export class ScheduleStep extends S.Opaque<ScheduleStep, { readonly brand: unique symbol }>()(
+  S.Struct({
     stepIndex: S.Natural,
     scheduledUnitRef: S.NonEmptyString,
     scope: ScheduleScope,
     request: PendingRequest,
     activeTokenTotalAfter: S.Natural,
-  },
-  $I.annote("ScheduleStep", {
-    description: "One capacity-safe admission action prescribed by a v1 schedule proposal.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScheduleStep", {
+      description: "One capacity-safe admission action prescribed by a v1 schedule proposal.",
+    })
+  )
 ) {}
 
 /**
@@ -347,8 +352,8 @@ export class ScheduleStep extends S.Class<ScheduleStep>($I`ScheduleStep`)(
  * @category projections
  * @since 0.0.0
  */
-export class ScheduleProposal extends S.Class<ScheduleProposal>($I`ScheduleProposal`)(
-  {
+export class ScheduleProposal extends S.Opaque<ScheduleProposal, { readonly brand: unique symbol }>()(
+  S.Struct({
     episodeId: S.NonEmptyString,
     proposalId: S.NonEmptyString,
     projectionInstantMillis: S.Natural,
@@ -356,10 +361,11 @@ export class ScheduleProposal extends S.Class<ScheduleProposal>($I`SchedulePropo
     deferredTail: S.Array(PendingRequest),
     policyDigest: S.NonEmptyString,
     journalPrefixDigest: S.NonEmptyString,
-  },
-  $I.annote("ScheduleProposal", {
-    description: "Byte-provenanced admission schedule produced by the S7 projection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScheduleProposal", {
+      description: "Byte-provenanced admission schedule produced by the S7 projection.",
+    })
+  )
 ) {}
 
 /**
@@ -416,8 +422,8 @@ export class ScheduleProposal extends S.Class<ScheduleProposal>($I`SchedulePropo
  * @category projections
  * @since 0.0.0
  */
-export class ProjectionInput extends S.Class<ProjectionInput>($I`ProjectionInput`)(
-  {
+export class ProjectionInput extends S.Opaque<ProjectionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     episodeId: S.NonEmptyString,
     policy: AdmissionPolicyParams,
     pending: S.Array(PendingRequest),
@@ -425,10 +431,11 @@ export class ProjectionInput extends S.Class<ProjectionInput>($I`ProjectionInput
     projectionInstantMillis: S.Natural,
     policyDigest: S.NonEmptyString,
     journalPrefixDigest: S.NonEmptyString,
-  },
-  $I.annote("ProjectionInput", {
-    description: "Verification occurrence, policy, pending requests, token state, instant, and provenance digests.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionInput", {
+      description: "Verification occurrence, policy, pending requests, token state, instant, and provenance digests.",
+    })
+  )
 ) {}
 
 /**
@@ -446,11 +453,12 @@ export class ProjectionInput extends S.Class<ProjectionInput>($I`ProjectionInput
  * @category serialization
  * @since 0.0.0
  */
-export class TurtleDocument extends S.Class<TurtleDocument>($I`TurtleDocument`)(
-  { content: S.String },
-  $I.annote("TurtleDocument", {
-    description: "Canonical byte content emitted for one schedule proposal A-Box.",
-  })
+export class TurtleDocument extends S.Opaque<TurtleDocument, { readonly brand: unique symbol }>()(
+  S.Struct({ content: S.String }).pipe(
+    $I.annoteSchema("TurtleDocument", {
+      description: "Canonical byte content emitted for one schedule proposal A-Box.",
+    })
+  )
 ) {}
 
 /**
@@ -482,8 +490,8 @@ export class TurtleDocument extends S.Class<TurtleDocument>($I`TurtleDocument`)(
  * @category diagnostics
  * @since 0.0.0
  */
-export class ProjectionMismatch extends S.Class<ProjectionMismatch>($I`ProjectionMismatch`)(
-  {
+export class ProjectionMismatch extends S.Opaque<ProjectionMismatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventIndex: S.Natural,
     admittedAtMillis: S.Natural,
     expectedNonce: S.NonEmptyString,
@@ -494,10 +502,11 @@ export class ProjectionMismatch extends S.Class<ProjectionMismatch>($I`Projectio
     wouldBeActiveTokenTotal: PosInt,
     capacityMaxTokens: PosInt,
     activeGrantNonces: S.Array(S.String),
-  },
-  $I.annote("ProjectionMismatch", {
-    description: "Replay event whose projected first admission differs from the deployed journal grant.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionMismatch", {
+      description: "Replay event whose projected first admission differs from the deployed journal grant.",
+    })
+  )
 ) {}
 
 /**
@@ -515,7 +524,9 @@ export class ProjectionMismatch extends S.Class<ProjectionMismatch>($I`Projectio
  * @category errors
  * @since 0.0.0
  */
-export class PolicyDecodeError extends S.TaggedError<PolicyDecodeError>($I`PolicyDecodeError`)(
+export class PolicyDecodeError extends S.TaggedError<PolicyDecodeError, { readonly brand: unique symbol }>(
+  $I`PolicyDecodeError`
+)(
   "PolicyDecodeError",
   { message: S.String },
   $I.annoteError<PolicyDecodeError>("PolicyDecodeError", {
@@ -545,7 +556,9 @@ export class PolicyDecodeError extends S.TaggedError<PolicyDecodeError>($I`Polic
  * @category errors
  * @since 0.0.0
  */
-export class CyclicPlanError extends S.TaggedError<CyclicPlanError>($I`CyclicPlanError`)(
+export class CyclicPlanError extends S.TaggedError<CyclicPlanError, { readonly brand: unique symbol }>(
+  $I`CyclicPlanError`
+)(
   "CyclicPlanError",
   { cycleNodes: S.Array(S.NonEmptyString) },
   $I.annoteError<CyclicPlanError>("CyclicPlanError", {
@@ -571,7 +584,9 @@ export class CyclicPlanError extends S.TaggedError<CyclicPlanError>($I`CyclicPla
  * @category errors
  * @since 0.0.0
  */
-export class HandoffReadError extends S.TaggedError<HandoffReadError>($I`HandoffReadError`)(
+export class HandoffReadError extends S.TaggedError<HandoffReadError, { readonly brand: unique symbol }>(
+  $I`HandoffReadError`
+)(
   "HandoffReadError",
   { path: S.String, message: S.String },
   $I.annoteError<HandoffReadError>("HandoffReadError", {
@@ -604,9 +619,10 @@ export class HandoffReadError extends S.TaggedError<HandoffReadError>($I`Handoff
  * @category errors
  * @since 0.0.0
  */
-export class HandoffDigestMismatchError extends S.TaggedError<HandoffDigestMismatchError>(
-  $I`HandoffDigestMismatchError`
-)(
+export class HandoffDigestMismatchError extends S.TaggedError<
+  HandoffDigestMismatchError,
+  { readonly brand: unique symbol }
+>($I`HandoffDigestMismatchError`)(
   "HandoffDigestMismatchError",
   { path: S.String, expectedSha256: Sha256Hex, actualSha256: Sha256Hex },
   $I.annoteError<HandoffDigestMismatchError>("HandoffDigestMismatchError", {
@@ -632,7 +648,9 @@ export class HandoffDigestMismatchError extends S.TaggedError<HandoffDigestMisma
  * @category errors
  * @since 0.0.0
  */
-export class HandoffDecodeError extends S.TaggedError<HandoffDecodeError>($I`HandoffDecodeError`)(
+export class HandoffDecodeError extends S.TaggedError<HandoffDecodeError, { readonly brand: unique symbol }>(
+  $I`HandoffDecodeError`
+)(
   "HandoffDecodeError",
   { path: S.String, message: S.String },
   $I.annoteError<HandoffDecodeError>("HandoffDecodeError", {
@@ -655,7 +673,9 @@ export class HandoffDecodeError extends S.TaggedError<HandoffDecodeError>($I`Han
  * @category errors
  * @since 0.0.0
  */
-export class ReplayMismatchError extends S.TaggedError<ReplayMismatchError>($I`ReplayMismatchError`)(
+export class ReplayMismatchError extends S.TaggedError<ReplayMismatchError, { readonly brand: unique symbol }>(
+  $I`ReplayMismatchError`
+)(
   "ReplayMismatchError",
   { message: S.String, mismatches: S.Array(ProjectionMismatch) },
   $I.annoteError<ReplayMismatchError>("ReplayMismatchError", {
@@ -907,7 +927,7 @@ export const admissionRowCustody = (row: OwnerCarrier): AdmissionRowCustody =>
  * @category domain-events
  * @since 0.0.0
  */
-export class AdmissionJournalAdmitted extends S.Class<AdmissionJournalAdmitted>($I`AdmissionJournalAdmitted`)(
+export class AdmissionJournalAdmitted extends S.Opaque<AdmissionJournalAdmitted, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: S.Literal("yeet-admission-journal/v1"),
     _tag: S.tag("admission-admitted"),
@@ -923,10 +943,13 @@ export class AdmissionJournalAdmitted extends S.Class<AdmissionJournalAdmitted>(
     enqueuedAtMillis: S.Natural,
     admittedAtMillis: S.Natural,
     coordinationProtocol: optionalCoordinationProtocol,
-  }).check(legacyAtMostOneOwner, pairedOwnerVariant),
-  $I.annote("AdmissionJournalAdmitted", {
-    description: "Journal transition recording one pending request becoming an active grant.",
   })
+    .check(legacyAtMostOneOwner, pairedOwnerVariant)
+    .pipe(
+      $I.annoteSchema("AdmissionJournalAdmitted", {
+        description: "Journal transition recording one pending request becoming an active grant.",
+      })
+    )
 ) {}
 
 /**
@@ -935,7 +958,7 @@ export class AdmissionJournalAdmitted extends S.Class<AdmissionJournalAdmitted>(
  * @internal
  * @since 0.0.0
  */
-class AdmissionJournalReleased extends S.Class<AdmissionJournalReleased>($I`AdmissionJournalReleased`)(
+class AdmissionJournalReleased extends S.Opaque<AdmissionJournalReleased, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: S.Literal("yeet-admission-journal/v1"),
     _tag: S.tag("admission-released"),
@@ -945,10 +968,13 @@ class AdmissionJournalReleased extends S.Class<AdmissionJournalReleased>($I`Admi
     ownerRefVariant: optionalOwnerRefVariant,
     releasedAtMillis: S.Natural,
     memoryPeakBytes: S.OptionFromOptionalKey(S.Natural),
-  }).check(legacyAtMostOneOwner, pairedOwnerVariant),
-  $I.annote("AdmissionJournalReleased", {
-    description: "Journal transition releasing the active token charge identified by nonce.",
   })
+    .check(legacyAtMostOneOwner, pairedOwnerVariant)
+    .pipe(
+      $I.annoteSchema("AdmissionJournalReleased", {
+        description: "Journal transition releasing the active token charge identified by nonce.",
+      })
+    )
 ) {}
 
 // Private vocabulary used to decode v2 lease-eviction rows.
@@ -971,7 +997,7 @@ const AdmissionTicketEvictionReason = LiteralKit(["queued-submitter-death"]).pip
  * @internal
  * @since 0.0.0
  */
-class AdmissionJournalLeaseEvicted extends S.Class<AdmissionJournalLeaseEvicted>($I`AdmissionJournalLeaseEvicted`)(
+class AdmissionJournalLeaseEvicted extends S.Opaque<AdmissionJournalLeaseEvicted, { readonly brand: unique symbol }>()(
   S.Struct({
     schemaVersion: S.Literal("yeet-admission-journal/v2"),
     _tag: S.tag("admission-lease-evicted"),
@@ -981,14 +1007,20 @@ class AdmissionJournalLeaseEvicted extends S.Class<AdmissionJournalLeaseEvicted>
     ownerRefVariant: optionalOwnerRefVariant,
     evictedAtMillis: S.Natural,
     reason: AdmissionLeaseEvictionReason,
-  }).check(legacyAtMostOneOwner, pairedOwnerVariant),
-  $I.annote("AdmissionJournalLeaseEvicted", {
-    description: "V2 journal transition releasing an active grant after its owner is verified dead.",
   })
+    .check(legacyAtMostOneOwner, pairedOwnerVariant)
+    .pipe(
+      $I.annoteSchema("AdmissionJournalLeaseEvicted", {
+        description: "V2 journal transition releasing an active grant after its owner is verified dead.",
+      })
+    )
 ) {}
 
 // Private schema retained in the public union so mixed v1/v2 journals decode.
-class AdmissionJournalTicketEvicted extends S.Class<AdmissionJournalTicketEvicted>($I`AdmissionJournalTicketEvicted`)(
+class AdmissionJournalTicketEvicted extends S.Opaque<
+  AdmissionJournalTicketEvicted,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     schemaVersion: S.Literal("yeet-admission-journal/v2"),
     _tag: S.tag("admission-ticket-evicted"),
@@ -998,10 +1030,13 @@ class AdmissionJournalTicketEvicted extends S.Class<AdmissionJournalTicketEvicte
     ownerRefVariant: optionalOwnerRefVariant,
     evictedAtMillis: S.Natural,
     reason: AdmissionTicketEvictionReason,
-  }).check(legacyAtMostOneOwner, pairedOwnerVariant),
-  $I.annote("AdmissionJournalTicketEvicted", {
-    description: "V2 journal transition recording a verified dead queued submitter.",
   })
+    .check(legacyAtMostOneOwner, pairedOwnerVariant)
+    .pipe(
+      $I.annoteSchema("AdmissionJournalTicketEvicted", {
+        description: "V2 journal transition recording a verified dead queued submitter.",
+      })
+    )
 ) {}
 
 // V3 rows carry either live owner and checkout attribution (`pid`, `checkoutRoot`)
@@ -1010,7 +1045,9 @@ class AdmissionJournalTicketEvicted extends S.Class<AdmissionJournalTicketEvicte
 // `.extend` keeps these struct checks (effect 4.0.0 `makeClass.extend` re-applies
 // `struct.ast.checks`); spreading `.fields` does not, so the spread v3 classes
 // below re-apply the same filter instances (P2 Ruling 8).
-class AdmissionJournalV3Identity extends S.Class<AdmissionJournalV3Identity>($I`AdmissionJournalV3Identity`)(
+class AdmissionJournalV3Identity extends S.Class<AdmissionJournalV3Identity, { readonly brand: unique symbol }>(
+  $I`AdmissionJournalV3Identity`
+)(
   S.Struct({
     schemaVersion: S.Literal("yeet-admission-journal/v3"),
     nonce: S.String,
@@ -1063,37 +1100,42 @@ class AdmissionJournalWithdrawn extends AdmissionJournalQueuedIdentity.extend<Ad
   $I.annote("AdmissionJournalWithdrawn", { description: "V3 queued withdrawal; does not release admitted tokens." })
 ) {}
 
-class AdmissionJournalReleasedV3 extends S.Class<AdmissionJournalReleasedV3>($I`AdmissionJournalReleasedV3`)(
-  S.Struct({ ...AdmissionJournalReleased.fields, ...AdmissionJournalV3Identity.fields }).check(
-    v3OneOwner,
-    pairedOwnerVariant,
-    v3OneCheckout
-  ),
-  $I.annote("AdmissionJournalReleasedV3", { description: "V3 release with direct checkout attribution." })
+class AdmissionJournalReleasedV3 extends S.Opaque<AdmissionJournalReleasedV3, { readonly brand: unique symbol }>()(
+  S.Struct({ ...AdmissionJournalReleased.fields, ...AdmissionJournalV3Identity.fields })
+    .check(v3OneOwner, pairedOwnerVariant, v3OneCheckout)
+    .pipe(
+      $I.annoteSchema("AdmissionJournalReleasedV3", { description: "V3 release with direct checkout attribution." })
+    )
 ) {}
 
-class AdmissionJournalLeaseEvictedV3 extends S.Class<AdmissionJournalLeaseEvictedV3>(
-  $I`AdmissionJournalLeaseEvictedV3`
-)(
+class AdmissionJournalLeaseEvictedV3 extends S.Opaque<
+  AdmissionJournalLeaseEvictedV3,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     ...AdmissionJournalLeaseEvicted.fields,
     ...AdmissionJournalV3Identity.fields,
     lastHeartbeatAtMillis: S.Finite,
-  }).check(v3OneOwner, pairedOwnerVariant, v3OneCheckout),
-  $I.annote("AdmissionJournalLeaseEvictedV3", {
-    description: "V3 lease eviction with checkout attribution and the last observed heartbeat.",
   })
+    .check(v3OneOwner, pairedOwnerVariant, v3OneCheckout)
+    .pipe(
+      $I.annoteSchema("AdmissionJournalLeaseEvictedV3", {
+        description: "V3 lease eviction with checkout attribution and the last observed heartbeat.",
+      })
+    )
 ) {}
 
-class AdmissionJournalTicketEvictedV3 extends S.Class<AdmissionJournalTicketEvictedV3>(
-  $I`AdmissionJournalTicketEvictedV3`
-)(
-  S.Struct({ ...AdmissionJournalTicketEvicted.fields, ...AdmissionJournalV3Identity.fields }).check(
-    v3OneOwner,
-    pairedOwnerVariant,
-    v3OneCheckout
-  ),
-  $I.annote("AdmissionJournalTicketEvictedV3", { description: "V3 queued ticket eviction with checkout attribution." })
+class AdmissionJournalTicketEvictedV3 extends S.Opaque<
+  AdmissionJournalTicketEvictedV3,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ ...AdmissionJournalTicketEvicted.fields, ...AdmissionJournalV3Identity.fields })
+    .check(v3OneOwner, pairedOwnerVariant, v3OneCheckout)
+    .pipe(
+      $I.annoteSchema("AdmissionJournalTicketEvictedV3", {
+        description: "V3 queued ticket eviction with checkout attribution.",
+      })
+    )
 ) {}
 
 /**
@@ -1294,11 +1336,12 @@ export type RepoRelativePath = typeof RepoRelativePath.Type;
  * @category models
  * @since 0.0.0
  */
-export class GateOrderHandoffRef extends S.Class<GateOrderHandoffRef>($I`GateOrderHandoffRef`)(
-  { path: RepoRelativePath, sha256: Sha256Hex },
-  $I.annote("GateOrderHandoffRef", {
-    description: "Repo-relative path and pinned SHA-256 of the gate-order handoff document.",
-  })
+export class GateOrderHandoffRef extends S.Opaque<GateOrderHandoffRef, { readonly brand: unique symbol }>()(
+  S.Struct({ path: RepoRelativePath, sha256: Sha256Hex }).pipe(
+    $I.annoteSchema("GateOrderHandoffRef", {
+      description: "Repo-relative path and pinned SHA-256 of the gate-order handoff document.",
+    })
+  )
 ) {}
 
 /**
@@ -1329,11 +1372,12 @@ export class GateOrderHandoffRef extends S.Class<GateOrderHandoffRef>($I`GateOrd
  * @category models
  * @since 0.0.0
  */
-export class PlanEpisodeInput extends S.Class<PlanEpisodeInput>($I`PlanEpisodeInput`)(
-  { episodeId: S.NonEmptyString, repoRoot: S.NonEmptyString, handoff: GateOrderHandoffRef },
-  $I.annote("PlanEpisodeInput", {
-    description: "Caller-owned episode key plus the repo root and pinned handoff the lane planner reads.",
-  })
+export class PlanEpisodeInput extends S.Opaque<PlanEpisodeInput, { readonly brand: unique symbol }>()(
+  S.Struct({ episodeId: S.NonEmptyString, repoRoot: S.NonEmptyString, handoff: GateOrderHandoffRef }).pipe(
+    $I.annoteSchema("PlanEpisodeInput", {
+      description: "Caller-owned episode key plus the repo root and pinned handoff the lane planner reads.",
+    })
+  )
 ) {}
 
 /**
@@ -1356,11 +1400,12 @@ export class PlanEpisodeInput extends S.Class<PlanEpisodeInput>($I`PlanEpisodeIn
  * @category models
  * @since 0.0.0
  */
-export class HandoffLane extends S.Class<HandoffLane>($I`HandoffLane`)(
-  { rank: S.Natural, laneId: LaneId, declarationIndex: S.Natural },
-  $I.annote("HandoffLane", {
-    description: "Rank, lane id and declaration index of one gate-order handoff lane.",
-  })
+export class HandoffLane extends S.Opaque<HandoffLane, { readonly brand: unique symbol }>()(
+  S.Struct({ rank: S.Natural, laneId: LaneId, declarationIndex: S.Natural }).pipe(
+    $I.annoteSchema("HandoffLane", {
+      description: "Rank, lane id and declaration index of one gate-order handoff lane.",
+    })
+  )
 ) {}
 
 const hasUniqueLaneIds = (lanes: ReadonlyArray<HandoffLane>): boolean =>
@@ -1411,8 +1456,8 @@ const hasCoherentRanks = (lanes: ReadonlyArray<HandoffLane>): boolean =>
  * @category models
  * @since 0.0.0
  */
-export class GateOrderHandoffView extends S.Class<GateOrderHandoffView>($I`GateOrderHandoffView`)(
-  {
+export class GateOrderHandoffView extends S.Opaque<GateOrderHandoffView, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("gate-order-handoff/v1"),
     scope: LaneScope,
     orderRule: LaneOrderRule,
@@ -1421,10 +1466,11 @@ export class GateOrderHandoffView extends S.Class<GateOrderHandoffView>($I`GateO
       S.makeFilter(hasUniqueDeclarationIndexes, { message: "Handoff declaration indexes must be unique" }),
       S.makeFilter(hasCoherentRanks, { message: "Handoff lane ranks must be exactly 0..n-1" })
     ),
-  },
-  $I.annote("GateOrderHandoffView", {
-    description: "Lab-local subset view of a gate-order-handoff/v1 document; excess members are ignored.",
-  })
+  }).pipe(
+    $I.annoteSchema("GateOrderHandoffView", {
+      description: "Lab-local subset view of a gate-order-handoff/v1 document; excess members are ignored.",
+    })
+  )
 ) {}
 
 /**
@@ -1443,11 +1489,12 @@ export class GateOrderHandoffView extends S.Class<GateOrderHandoffView>($I`GateO
  * @category projections
  * @since 0.0.0
  */
-export class LaneStep extends S.Class<LaneStep>($I`LaneStep`)(
-  { laneStepIndex: S.Natural, laneId: LaneId },
-  $I.annote("LaneStep", {
-    description: "One 0-based lane position in a lane plan; distinct from an admission ScheduleStep.",
-  })
+export class LaneStep extends S.Opaque<LaneStep, { readonly brand: unique symbol }>()(
+  S.Struct({ laneStepIndex: S.Natural, laneId: LaneId }).pipe(
+    $I.annoteSchema("LaneStep", {
+      description: "One 0-based lane position in a lane plan; distinct from an admission ScheduleStep.",
+    })
+  )
 ) {}
 
 const lanePlanIdPrefix = "lane-plan-";
@@ -1498,7 +1545,7 @@ const hasPositionalLaneSteps = (plan: { readonly laneSteps: ReadonlyArray<LaneSt
  * @category projections
  * @since 0.0.0
  */
-export class LanePlanProposal extends S.Class<LanePlanProposal>($I`LanePlanProposal`)(
+export class LanePlanProposal extends S.Opaque<LanePlanProposal, { readonly brand: unique symbol }>()(
   S.Struct({
     episodeId: S.NonEmptyString,
     planId: S.NonEmptyString,
@@ -1507,13 +1554,16 @@ export class LanePlanProposal extends S.Class<LanePlanProposal>($I`LanePlanPropo
     orderRule: LaneOrderRule,
     scope: LaneScope,
     laneSteps: S.Array(LaneStep),
-  }).check(
-    S.makeFilter(hasDerivedPlanId, { message: "Lane plan ids must be lane-plan- followed by the handoff SHA-256" }),
-    S.makeFilter(hasPositionalLaneSteps, { message: "Lane step indexes must equal their 0-based positions" })
-  ),
-  $I.annote("LanePlanProposal", {
-    description: "Ordered lane steps planned from one sha256-pinned gate-order handoff, with its read path.",
   })
+    .check(
+      S.makeFilter(hasDerivedPlanId, { message: "Lane plan ids must be lane-plan- followed by the handoff SHA-256" }),
+      S.makeFilter(hasPositionalLaneSteps, { message: "Lane step indexes must equal their 0-based positions" })
+    )
+    .pipe(
+      $I.annoteSchema("LanePlanProposal", {
+        description: "Ordered lane steps planned from one sha256-pinned gate-order handoff, with its read path.",
+      })
+    )
 ) {}
 
 /**

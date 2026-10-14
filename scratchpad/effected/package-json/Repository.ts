@@ -208,7 +208,7 @@ const isFaithfulBugs = (wire: { readonly [k: string]: unknown }, bugs: Bugs): bo
  * @category models
  * @since 0.0.0
  */
-export class Repository extends S.Class<Repository>($I`Repository`)({
+export class Repository extends S.Class<Repository, { readonly brand: unique symbol }>($I`Repository`)({
 	/** The `type` field, when the object form carried one (`"git"`, …). */
 	type: S.optionalKey(S.String).annotateKey({ description: "The `type` field, when the object form carried one (`\"git\"`, …)." }),
 	/** The reference exactly as written: a shorthand, a git URL, or an https URL. */
@@ -434,7 +434,7 @@ export class Repository extends S.Class<Repository>($I`Repository`)({
  * @category models
  * @since 0.0.0
  */
-export class Bugs extends S.Class<Bugs>($I`Bugs`)({
+export class Bugs extends S.Class<Bugs, { readonly brand: unique symbol }>($I`Bugs`)({
 	/** The issue-tracker URL. */
 	url: S.optionalKey(S.String).annotateKey({ description: "The issue-tracker URL." }),
 	/** The address to mail instead of, or alongside, filing an issue. */

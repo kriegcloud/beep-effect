@@ -19,9 +19,8 @@ import * as Str from "effect/String";
 import { Project } from "ts-morph";
 import { AgentEffectivenessEvalScorerError } from "../AgentEffectiveness.errors.ts";
 import { AgentEffectivenessEvalViolation } from "../AgentEffectiveness.schemas.ts";
-import { firstRuleId, roundScore, sortViolations } from "./EvalScoring.ts";
+import { CompletionResult, firstRuleId, roundScore, sortViolations } from "./EvalScoring.ts";
 import type { SkillOptTaskManifest } from "../AgentEffectiveness.schemas.ts";
-import type { CompletionResult } from "./EvalScoring.ts";
 
 const $I = $RepoCliId.create("commands/AgentEffectiveness/internal/EvalFixture");
 
@@ -35,15 +34,16 @@ const SourceFileExtension = LiteralKit([".ts", ".tsx", ".mts", ".cts", ".js", ".
   })
 );
 
-class SourceFileSnapshot extends S.Class<SourceFileSnapshot>($I`SourceFileSnapshot`)(
-  {
+class SourceFileSnapshot extends S.Opaque<SourceFileSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     absolutePath: S.String,
     relativePath: S.String,
     text: S.String,
-  },
-  $I.annote("SourceFileSnapshot", {
-    description: "Snapshot of a source file.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceFileSnapshot", {
+      description: "Snapshot of a source file.",
+    })
+  )
 ) {}
 
 const lineForOffset = (content: string, offset: number): number =>
@@ -152,11 +152,11 @@ export const readSourceSnapshots = Effect.fn("AgentEffectivenessEvalScorer.readS
           })
         )
       );
-      return {
+      return SourceFileSnapshot.make({
         absolutePath,
         relativePath: normalizeRelativePath(path.relative(fixtureDir, absolutePath)),
         text,
-      };
+      });
     }),
     { concurrency: 8 }
   );
@@ -261,10 +261,10 @@ export const evaluateSkillOptCompletion = Effect.fn("AgentEffectivenessEvalScore
     );
   }
 
-  return {
+  return CompletionResult.make({
     fraction: total === 0 ? 1 : roundScore(passed / total),
     violations: sortViolations(violations),
-  };
+  });
 });
 
 /**

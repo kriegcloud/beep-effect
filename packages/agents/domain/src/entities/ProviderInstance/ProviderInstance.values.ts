@@ -373,8 +373,8 @@ export type TokenSource = typeof TokenSource.Type;
  * @category value-objects
  * @since 0.0.0
  */
-export class AuthenticatedSnapshot extends S.Class<AuthenticatedSnapshot>($I`AuthenticatedSnapshot`)(
-  {
+export class AuthenticatedSnapshot extends S.Opaque<AuthenticatedSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("authenticated"),
     email: S.OptionFromNullOr(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Account email reported by the probe; encodes absence as null.",
@@ -390,10 +390,11 @@ export class AuthenticatedSnapshot extends S.Class<AuthenticatedSnapshot>($I`Aut
     probedAt: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant at which the probe observed this state.",
     }),
-  },
-  $I.annote("AuthenticatedSnapshot", {
-    description: "Auth-snapshot variant for a logged-in provider CLI.",
-  })
+  }).pipe(
+    $I.annoteSchema("AuthenticatedSnapshot", {
+      description: "Auth-snapshot variant for a logged-in provider CLI.",
+    })
+  )
 ) {
   static readonly is = S.is(AuthenticatedSnapshot);
 }
@@ -417,16 +418,17 @@ export class AuthenticatedSnapshot extends S.Class<AuthenticatedSnapshot>($I`Aut
  * @category value-objects
  * @since 0.0.0
  */
-export class UnauthenticatedSnapshot extends S.Class<UnauthenticatedSnapshot>($I`UnauthenticatedSnapshot`)(
-  {
+export class UnauthenticatedSnapshot extends S.Opaque<UnauthenticatedSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("unauthenticated"),
     probedAt: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant at which the probe observed this state.",
     }),
-  },
-  $I.annote("UnauthenticatedSnapshot", {
-    description: "Auth-snapshot variant for a provider CLI that responded but is logged out.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnauthenticatedSnapshot", {
+      description: "Auth-snapshot variant for a provider CLI that responded but is logged out.",
+    })
+  )
 ) {}
 
 /**
@@ -450,16 +452,17 @@ export class UnauthenticatedSnapshot extends S.Class<UnauthenticatedSnapshot>($I
  * @category value-objects
  * @since 0.0.0
  */
-export class ProbeFailedSnapshot extends S.Class<ProbeFailedSnapshot>($I`ProbeFailedSnapshot`)(
-  {
+export class ProbeFailedSnapshot extends S.Opaque<ProbeFailedSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("probe-failed"),
     probedAt: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant at which the probe attempt failed.",
     }),
-  },
-  $I.annote("ProbeFailedSnapshot", {
-    description: "Auth-snapshot variant for a transport-level probe failure; carries no error text.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProbeFailedSnapshot", {
+      description: "Auth-snapshot variant for a transport-level probe failure; carries no error text.",
+    })
+  )
 ) {}
 
 /**

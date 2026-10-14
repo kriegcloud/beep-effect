@@ -78,7 +78,7 @@ export const TechArticleFields = {
  * @category models
  * @since 0.0.0
  */
-export class TechArticle extends S.Class<TechArticle>($I`TechArticle`)({
+export class TechArticle extends S.Class<TechArticle, { readonly brand: unique symbol }>($I`TechArticle`)({
 	...TechArticleFields,
 	/**
 	 * The JSON-LD type discriminator, populated automatically.

@@ -114,7 +114,7 @@ export const CurrentPlatform: Context.Reference<XdgPlatform> = Context.Reference
  * @category errors
  * @since 0.0.0
  */
-export class XdgEnvError extends S.TaggedError<XdgEnvError>($I`XdgEnvError`)("XdgEnvError", {
+export class XdgEnvError extends S.TaggedError<XdgEnvError, { readonly brand: unique symbol }>($I`XdgEnvError`)("XdgEnvError", {
 	/** The environment variable that was required and not found. */
 	variable: S.String.annotateKey({ description: "The environment variable that was required and not found." }),
 	/** The underlying failure, preserved structurally. */
@@ -166,7 +166,7 @@ export class XdgEnvError extends S.TaggedError<XdgEnvError>($I`XdgEnvError`)("Xd
  * @category models
  * @since 0.0.0
  */
-export class XdgPaths extends S.Class<XdgPaths>($I`XdgPaths`)({
+export class XdgPaths extends S.Class<XdgPaths, { readonly brand: unique symbol }>($I`XdgPaths`)({
 	/** `$HOME`. The one variable that must be set. */
 	home: S.String.annotateKey({ description: "`$HOME`. The one variable that must be set." }),
 	/** `$XDG_CONFIG_HOME`. */

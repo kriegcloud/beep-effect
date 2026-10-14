@@ -113,128 +113,190 @@ const MarkdownConformancePath = S.Array(DocumentSafetyPathSegment).pipe(
   })
 );
 
-class NestedLinkIssue extends S.TaggedClass<NestedLinkIssue>($I`NestedLinkIssue`)(
-  "NestedLink",
-  {
+/**
+ * Link node nested below another link node.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class NestedLinkIssue extends S.Opaque<NestedLinkIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("NestedLink", {
     invariantId: S.tag("md.link.nested-links"),
     path: MarkdownConformancePath,
-  },
-  $I.annote("NestedLinkIssue", {
-    description: "Link node nested below another link node.",
-  })
+  }).pipe(
+    $I.annoteSchema("NestedLinkIssue", {
+      description: "Link node nested below another link node.",
+    })
+  )
 ) {}
 
-class UnsupportedNodeIssue extends S.TaggedClass<UnsupportedNodeIssue>($I`UnsupportedNodeIssue`)(
-  "UnsupportedNode",
-  {
+/**
+ * Extension node used outside the profile that defines it.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class UnsupportedNodeIssue extends S.Opaque<UnsupportedNodeIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("UnsupportedNode", {
     invariantId: S.tag("md.extensions.nonstandard-members"),
     path: MarkdownConformancePath,
     nodeTag: MarkdownExtensionNodeTag,
     profile: MarkdownConformanceProfile,
-  },
-  $I.annote("UnsupportedNodeIssue", {
-    description: "Extension node used outside the profile that defines it.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnsupportedNodeIssue", {
+      description: "Extension node used outside the profile that defines it.",
+    })
+  )
 ) {}
 
-class EmptyListIssue extends S.TaggedClass<EmptyListIssue>($I`EmptyListIssue`)(
-  "EmptyList",
-  {
+/**
+ * List block without any list items.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class EmptyListIssue extends S.Opaque<EmptyListIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("EmptyList", {
     invariantId: S.tag("md.list.nonempty"),
     path: MarkdownConformancePath,
     listTag: LiteralKit(["ul", "ol", "taskList"]),
-  },
-  $I.annote("EmptyListIssue", {
-    description: "List block without any list items.",
-  })
+  }).pipe(
+    $I.annoteSchema("EmptyListIssue", {
+      description: "List block without any list items.",
+    })
+  )
 ) {}
 
-class OrderedListStartIssue extends S.TaggedClass<OrderedListStartIssue>($I`OrderedListStartIssue`)(
-  "OrderedListStart",
-  {
+/**
+ * Ordered-list start outside CommonMark's one-to-nine digit marker range.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class OrderedListStartIssue extends S.Opaque<OrderedListStartIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("OrderedListStart", {
     invariantId: S.tag("md.list.ordered-start-range"),
     path: MarkdownConformancePath,
     start: S.Int,
-  },
-  $I.annote("OrderedListStartIssue", {
-    description: "Ordered-list start outside CommonMark's one-to-nine digit marker range.",
-  })
+  }).pipe(
+    $I.annoteSchema("OrderedListStartIssue", {
+      description: "Ordered-list start outside CommonMark's one-to-nine digit marker range.",
+    })
+  )
 ) {}
 
-class GfmTableHeaderIssue extends S.TaggedClass<GfmTableHeaderIssue>($I`GfmTableHeaderIssue`)(
-  "GfmTableHeader",
-  {
+/**
+ * GFM table without a non-empty header row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class GfmTableHeaderIssue extends S.Opaque<GfmTableHeaderIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("GfmTableHeader", {
     invariantId: S.tag("md.gfm.table-header"),
     path: MarkdownConformancePath,
-  },
-  $I.annote("GfmTableHeaderIssue", {
-    description: "GFM table without a non-empty header row.",
-  })
+  }).pipe(
+    $I.annoteSchema("GfmTableHeaderIssue", {
+      description: "GFM table without a non-empty header row.",
+    })
+  )
 ) {}
 
-class GfmTableRowWidthIssue extends S.TaggedClass<GfmTableRowWidthIssue>($I`GfmTableRowWidthIssue`)(
-  "GfmTableRowWidth",
-  {
+/**
+ * Noncanonical GFM semantic table row whose cell count differs from the header width.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class GfmTableRowWidthIssue extends S.Opaque<GfmTableRowWidthIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("GfmTableRowWidth", {
     invariantId: S.tag("md.gfm.table-rectangularity"),
     path: MarkdownConformancePath,
     expected: S.Natural,
     actual: S.Natural,
-  },
-  $I.annote("GfmTableRowWidthIssue", {
-    description: "Noncanonical GFM semantic table row whose cell count differs from the header width.",
-  })
+  }).pipe(
+    $I.annoteSchema("GfmTableRowWidthIssue", {
+      description: "Noncanonical GFM semantic table row whose cell count differs from the header width.",
+    })
+  )
 ) {}
 
-class GfmTableAlignmentWidthIssue extends S.TaggedClass<GfmTableAlignmentWidthIssue>($I`GfmTableAlignmentWidthIssue`)(
-  "GfmTableAlignmentWidth",
-  {
+/**
+ * Non-empty GFM alignment metadata whose length differs from the header width.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class GfmTableAlignmentWidthIssue extends S.Opaque<GfmTableAlignmentWidthIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("GfmTableAlignmentWidth", {
     invariantId: S.tag("md.gfm.table-alignment-width"),
     path: MarkdownConformancePath,
     expected: S.Natural,
     actual: S.Natural,
-  },
-  $I.annote("GfmTableAlignmentWidthIssue", {
-    description: "Non-empty GFM alignment metadata whose length differs from the header width.",
-  })
+  }).pipe(
+    $I.annoteSchema("GfmTableAlignmentWidthIssue", {
+      description: "Non-empty GFM alignment metadata whose length differs from the header width.",
+    })
+  )
 ) {}
 
-class GfmDisallowedRawHtmlIssue extends S.TaggedClass<GfmDisallowedRawHtmlIssue>($I`GfmDisallowedRawHtmlIssue`)(
-  "GfmDisallowedRawHtml",
-  {
+/**
+ * Raw HTML containing a tag filtered by the GFM disallowed-raw-HTML extension.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class GfmDisallowedRawHtmlIssue extends S.Opaque<GfmDisallowedRawHtmlIssue, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("GfmDisallowedRawHtml", {
     invariantId: S.tag("md.gfm.disallowed-raw-html"),
     path: MarkdownConformancePath,
-  },
-  $I.annote("GfmDisallowedRawHtmlIssue", {
-    description: "Raw HTML containing a tag filtered by the GFM disallowed-raw-HTML extension.",
-  })
+  }).pipe(
+    $I.annoteSchema("GfmDisallowedRawHtmlIssue", {
+      description: "Raw HTML containing a tag filtered by the GFM disallowed-raw-HTML extension.",
+    })
+  )
 ) {}
 
-class DuplicateFootnoteDefinitionIssue extends S.TaggedClass<DuplicateFootnoteDefinitionIssue>(
-  $I`DuplicateFootnoteDefinitionIssue`
-)(
-  "DuplicateFootnoteDefinition",
-  {
+/**
+ * Repeated Beep footnote definition identifier.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class DuplicateFootnoteDefinitionIssue extends S.Opaque<
+  DuplicateFootnoteDefinitionIssue,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("DuplicateFootnoteDefinition", {
     invariantId: S.tag("md.footnote.unique-definitions"),
     path: MarkdownConformancePath,
     identifier: FootnoteIdentifier,
-  },
-  $I.annote("DuplicateFootnoteDefinitionIssue", {
-    description: "Repeated Beep footnote definition identifier.",
-  })
+  }).pipe(
+    $I.annoteSchema("DuplicateFootnoteDefinitionIssue", {
+      description: "Repeated Beep footnote definition identifier.",
+    })
+  )
 ) {}
 
-class UndefinedFootnoteReferenceIssue extends S.TaggedClass<UndefinedFootnoteReferenceIssue>(
-  $I`UndefinedFootnoteReferenceIssue`
-)(
-  "UndefinedFootnoteReference",
-  {
+/**
+ * Beep footnote reference without a matching definition.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class UndefinedFootnoteReferenceIssue extends S.Opaque<
+  UndefinedFootnoteReferenceIssue,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("UndefinedFootnoteReference", {
     invariantId: S.tag("md.footnote.defined-references"),
     path: MarkdownConformancePath,
     identifier: FootnoteIdentifier,
-  },
-  $I.annote("UndefinedFootnoteReferenceIssue", {
-    description: "Beep footnote reference without a matching definition.",
-  })
+  }).pipe(
+    $I.annoteSchema("UndefinedFootnoteReferenceIssue", {
+      description: "Beep footnote reference without a matching definition.",
+    })
+  )
 ) {}
 
 /**
@@ -311,18 +373,20 @@ export type MarkdownConformanceIssue = typeof MarkdownConformanceIssue.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class LosslessMarkdownConformanceReport extends S.Class<LosslessMarkdownConformanceReport>(
-  $I`LosslessMarkdownConformanceReport`
-)(
-  {
+export class LosslessMarkdownConformanceReport extends S.Opaque<
+  LosslessMarkdownConformanceReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mode: S.tag("lossless"),
     profile: MarkdownConformanceProfile,
     document: Document,
     issues: S.Array(MarkdownConformanceIssue),
-  },
-  $I.annote("LosslessMarkdownConformanceReport", {
-    description: "Lossless Markdown profile inspection retaining the exact supplied document and all issues.",
-  })
+  }).pipe(
+    $I.annoteSchema("LosslessMarkdownConformanceReport", {
+      description: "Lossless Markdown profile inspection retaining the exact supplied document and all issues.",
+    })
+  )
 ) {}
 
 const GfmDisallowedRawHtml = S.String.check(

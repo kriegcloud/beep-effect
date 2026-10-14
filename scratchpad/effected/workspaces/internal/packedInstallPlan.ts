@@ -22,7 +22,7 @@ import { RUNTIME_DEPENDENCY_FIELDS } from "./dependencyFields.ts";
 
 const $I = $ScratchpadId.create("effected/workspaces/internal/packedInstallPlan");
 
-class PackedManifestError extends S.TaggedError<PackedManifestError>($I`PackedManifestError`)("PackedManifestError", {
+class PackedManifestError extends S.TaggedError<PackedManifestError, { readonly brand: unique symbol }>($I`PackedManifestError`)("PackedManifestError", {
 	message: S.String,
 }, $I.annote("PackedManifestError", { description: "A packed package.json is not an object." })) {}
 

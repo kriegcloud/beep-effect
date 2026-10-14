@@ -499,37 +499,67 @@ export const isDryRunModeFlags = P.Tuple([P.not(P.isTruthy), P.isTruthy, P.isBoo
  */
 export const isWriteModeFlags = P.Tuple([P.not(P.isTruthy), P.not(P.isTruthy), P.isTruthy]);
 
-class TsconfigSyncRunOptionsSync extends S.Class<TsconfigSyncRunOptionsSync>($I`TsconfigSyncRunOptionsSync`)(
-  {
+/**
+ * Runtime options for sync mode execution.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncRunOptionsSync extends S.Opaque<
+  TsconfigSyncRunOptionsSync,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mode: S.tag("sync"),
     filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
-  },
-  $I.annote("TsconfigSyncRunOptionsSync", {
-    description: "Runtime options for sync mode execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncRunOptionsSync", {
+      description: "Runtime options for sync mode execution.",
+    })
+  )
 ) {}
 
-class TsconfigSyncRunOptionsCheck extends S.Class<TsconfigSyncRunOptionsCheck>($I`TsconfigSyncRunOptionsCheck`)(
-  {
+/**
+ * Runtime options for check mode execution.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncRunOptionsCheck extends S.Opaque<
+  TsconfigSyncRunOptionsCheck,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mode: S.tag("check"),
     filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
-  },
-  $I.annote("TsconfigSyncRunOptionsCheck", {
-    description: "Runtime options for check mode execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncRunOptionsCheck", {
+      description: "Runtime options for check mode execution.",
+    })
+  )
 ) {}
 
-class TsconfigSyncRunOptionsDryRun extends S.Class<TsconfigSyncRunOptionsDryRun>($I`TsconfigSyncRunOptionsDryRun`)(
-  {
+/**
+ * Runtime options for dry-run mode execution.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncRunOptionsDryRun extends S.Opaque<
+  TsconfigSyncRunOptionsDryRun,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     mode: S.tag("dry-run"),
     filter: S.String.pipe(S.UndefinedOr, S.optionalKey),
     verbose: S.Boolean,
-  },
-  $I.annote("TsconfigSyncRunOptionsDryRun", {
-    description: "Runtime options for dry-run mode execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncRunOptionsDryRun", {
+      description: "Runtime options for dry-run mode execution.",
+    })
+  )
 ) {}
 
 /**
@@ -626,92 +656,154 @@ export const TsconfigSyncSection = LiteralKit([
  */
 export type TsconfigSyncSection = typeof TsconfigSyncSection.Type;
 
-class RootReferencesChange extends S.Class<RootReferencesChange>($I`RootReferencesChange`)(
-  {
+/**
+ * Planned change entry for root tsconfig references.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootReferencesChange extends S.Opaque<RootReferencesChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-references"),
-  },
-  $I.annote("RootReferencesChange", {
-    description: "Planned change entry for root tsconfig references.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootReferencesChange", {
+      description: "Planned change entry for root tsconfig references.",
+    })
+  )
 ) {}
 
-class RootAliasesChange extends S.Class<RootAliasesChange>($I`RootAliasesChange`)(
-  {
+/**
+ * Planned change entry for root tsconfig aliases.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootAliasesChange extends S.Opaque<RootAliasesChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-aliases"),
-  },
-  $I.annote("RootAliasesChange", {
-    description: "Planned change entry for root tsconfig aliases.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootAliasesChange", {
+      description: "Planned change entry for root tsconfig aliases.",
+    })
+  )
 ) {}
 
-class RootSyncpackChange extends S.Class<RootSyncpackChange>($I`RootSyncpackChange`)(
-  {
+/**
+ * Planned change entry for root syncpack config.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootSyncpackChange extends S.Opaque<RootSyncpackChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-syncpack"),
-  },
-  $I.annote("RootSyncpackChange", {
-    description: "Planned change entry for root syncpack config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootSyncpackChange", {
+      description: "Planned change entry for root syncpack config.",
+    })
+  )
 ) {}
 
-class PackageReferencesChange extends S.Class<PackageReferencesChange>($I`PackageReferencesChange`)(
-  {
+/**
+ * Planned change entry for package-level tsconfig references.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageReferencesChange extends S.Opaque<PackageReferencesChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-references"),
-  },
-  $I.annote("PackageReferencesChange", {
-    description: "Planned change entry for package-level tsconfig references.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageReferencesChange", {
+      description: "Planned change entry for package-level tsconfig references.",
+    })
+  )
 ) {}
 
-class PackageCheckReferencesChange extends S.Class<PackageCheckReferencesChange>($I`PackageCheckReferencesChange`)(
-  {
+/**
+ * Planned change entry for package tsconfig.check.json overlay references.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageCheckReferencesChange extends S.Opaque<
+  PackageCheckReferencesChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-check-references"),
-  },
-  $I.annote("PackageCheckReferencesChange", {
-    description: "Planned change entry for package tsconfig.check.json overlay references.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageCheckReferencesChange", {
+      description: "Planned change entry for package tsconfig.check.json overlay references.",
+    })
+  )
 ) {}
 
-class PackageDocgenChange extends S.Class<PackageDocgenChange>($I`PackageDocgenChange`)(
-  {
+/**
+ * Planned change entry for package docgen configs.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageDocgenChange extends S.Opaque<PackageDocgenChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-docgen"),
-  },
-  $I.annote("PackageDocgenChange", {
-    description: "Planned change entry for package docgen configs.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageDocgenChange", {
+      description: "Planned change entry for package docgen configs.",
+    })
+  )
 ) {}
 
-class RootVitestAliasesChange extends S.Class<RootVitestAliasesChange>($I`RootVitestAliasesChange`)(
-  {
+/**
+ * Planned change entry for the generated root Vitest alias data.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootVitestAliasesChange extends S.Opaque<RootVitestAliasesChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-vitest-aliases"),
-  },
-  $I.annote("RootVitestAliasesChange", {
-    description: "Planned change entry for the generated root Vitest alias data.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootVitestAliasesChange", {
+      description: "Planned change entry for the generated root Vitest alias data.",
+    })
+  )
 ) {}
 
-class RootFallowBoundariesChange extends S.Class<RootFallowBoundariesChange>($I`RootFallowBoundariesChange`)(
-  {
+/**
+ * Planned change entry for the generated Fallow boundary config.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootFallowBoundariesChange extends S.Opaque<
+  RootFallowBoundariesChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-fallow-boundaries"),
-  },
-  $I.annote("RootFallowBoundariesChange", {
-    description: "Planned change entry for the generated Fallow boundary config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootFallowBoundariesChange", {
+      description: "Planned change entry for the generated Fallow boundary config.",
+    })
+  )
 ) {}
 
 /**
@@ -766,112 +858,180 @@ export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
  */
 export type TsconfigSyncChange = typeof TsconfigSyncChange.Type;
 
-class RootReferencesPlannedFileChange extends S.Class<RootReferencesPlannedFileChange>(
-  $I`RootReferencesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for root tsconfig references.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootReferencesPlannedFileChange extends S.Opaque<
+  RootReferencesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-references"),
     content: S.String,
-  },
-  $I.annote("RootReferencesPlannedFileChange", {
-    description: "Planned file content change for root tsconfig references.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootReferencesPlannedFileChange", {
+      description: "Planned file content change for root tsconfig references.",
+    })
+  )
 ) {}
 
-class RootAliasesPlannedFileChange extends S.Class<RootAliasesPlannedFileChange>($I`RootAliasesPlannedFileChange`)(
-  {
+/**
+ * Planned file content change for root tsconfig aliases.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootAliasesPlannedFileChange extends S.Opaque<
+  RootAliasesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-aliases"),
     content: S.String,
-  },
-  $I.annote("RootAliasesPlannedFileChange", {
-    description: "Planned file content change for root tsconfig aliases.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootAliasesPlannedFileChange", {
+      description: "Planned file content change for root tsconfig aliases.",
+    })
+  )
 ) {}
 
-class RootSyncpackPlannedFileChange extends S.Class<RootSyncpackPlannedFileChange>($I`RootSyncpackPlannedFileChange`)(
-  {
+/**
+ * Planned file content change for root syncpack config.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootSyncpackPlannedFileChange extends S.Opaque<
+  RootSyncpackPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-syncpack"),
     content: S.String,
-  },
-  $I.annote("RootSyncpackPlannedFileChange", {
-    description: "Planned file content change for root syncpack config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootSyncpackPlannedFileChange", {
+      description: "Planned file content change for root syncpack config.",
+    })
+  )
 ) {}
 
-class PackageReferencesPlannedFileChange extends S.Class<PackageReferencesPlannedFileChange>(
-  $I`PackageReferencesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for package tsconfig references.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageReferencesPlannedFileChange extends S.Opaque<
+  PackageReferencesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-references"),
     content: S.String,
-  },
-  $I.annote("PackageReferencesPlannedFileChange", {
-    description: "Planned file content change for package tsconfig references.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageReferencesPlannedFileChange", {
+      description: "Planned file content change for package tsconfig references.",
+    })
+  )
 ) {}
 
-class PackageCheckReferencesPlannedFileChange extends S.Class<PackageCheckReferencesPlannedFileChange>(
-  $I`PackageCheckReferencesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for package tsconfig.check.json overlay references.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageCheckReferencesPlannedFileChange extends S.Opaque<
+  PackageCheckReferencesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-check-references"),
     content: S.String,
-  },
-  $I.annote("PackageCheckReferencesPlannedFileChange", {
-    description: "Planned file content change for package tsconfig.check.json overlay references.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageCheckReferencesPlannedFileChange", {
+      description: "Planned file content change for package tsconfig.check.json overlay references.",
+    })
+  )
 ) {}
 
-class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileChange>(
-  $I`PackageDocgenPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for package docgen configs.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageDocgenPlannedFileChange extends S.Opaque<
+  PackageDocgenPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("package-docgen"),
     content: S.String,
-  },
-  $I.annote("PackageDocgenPlannedFileChange", {
-    description: "Planned file content change for package docgen configs.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageDocgenPlannedFileChange", {
+      description: "Planned file content change for package docgen configs.",
+    })
+  )
 ) {}
 
-class RootVitestAliasesPlannedFileChange extends S.Class<RootVitestAliasesPlannedFileChange>(
-  $I`RootVitestAliasesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for the generated root Vitest alias data.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootVitestAliasesPlannedFileChange extends S.Opaque<
+  RootVitestAliasesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-vitest-aliases"),
     content: S.String,
-  },
-  $I.annote("RootVitestAliasesPlannedFileChange", {
-    description: "Planned file content change for the generated root Vitest alias data.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootVitestAliasesPlannedFileChange", {
+      description: "Planned file content change for the generated root Vitest alias data.",
+    })
+  )
 ) {}
 
-class RootFallowBoundariesPlannedFileChange extends S.Class<RootFallowBoundariesPlannedFileChange>(
-  $I`RootFallowBoundariesPlannedFileChange`
-)(
-  {
+/**
+ * Planned file content change for the generated Fallow boundary config.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootFallowBoundariesPlannedFileChange extends S.Opaque<
+  RootFallowBoundariesPlannedFileChange,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     summary: S.String,
     section: S.tag("root-fallow-boundaries"),
     content: S.String,
-  },
-  $I.annote("RootFallowBoundariesPlannedFileChange", {
-    description: "Planned file content change for the generated Fallow boundary config.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootFallowBoundariesPlannedFileChange", {
+      description: "Planned file content change for the generated Fallow boundary config.",
+    })
+  )
 ) {}
 
 /**
@@ -926,37 +1086,58 @@ export const PlannedFileChange = TsconfigSyncSection.mapMembers(
  */
 export type PlannedFileChange = typeof PlannedFileChange.Type;
 
-class TsconfigSyncResultSync extends S.Class<TsconfigSyncResultSync>($I`TsconfigSyncResultSync`)(
-  {
+/**
+ * Sync mode result payload.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncResultSync extends S.Opaque<TsconfigSyncResultSync, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("sync"),
     changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
-  },
-  $I.annote("TsconfigSyncResultSync", {
-    description: "Sync mode result payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncResultSync", {
+      description: "Sync mode result payload.",
+    })
+  )
 ) {}
 
-class TsconfigSyncResultCheck extends S.Class<TsconfigSyncResultCheck>($I`TsconfigSyncResultCheck`)(
-  {
+/**
+ * Check mode result payload.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncResultCheck extends S.Opaque<TsconfigSyncResultCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("check"),
     changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
-  },
-  $I.annote("TsconfigSyncResultCheck", {
-    description: "Check mode result payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncResultCheck", {
+      description: "Check mode result payload.",
+    })
+  )
 ) {}
 
-class TsconfigSyncResultDryRun extends S.Class<TsconfigSyncResultDryRun>($I`TsconfigSyncResultDryRun`)(
-  {
+/**
+ * Dry-run mode result payload.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigSyncResultDryRun extends S.Opaque<TsconfigSyncResultDryRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: S.tag("dry-run"),
     changedFiles: S.Finite,
     changes: S.Array(TsconfigSyncChange),
-  },
-  $I.annote("TsconfigSyncResultDryRun", {
-    description: "Dry-run mode result payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigSyncResultDryRun", {
+      description: "Dry-run mode result payload.",
+    })
+  )
 ) {}
 
 /**
@@ -1018,8 +1199,8 @@ export type TsconfigSyncResult = typeof TsconfigSyncResult.Type;
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`WorkspaceDescriptor`)(
-  {
+export class WorkspaceDescriptor extends S.Opaque<WorkspaceDescriptor, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     absoluteDir: S.String,
     relativeDir: S.String,
@@ -1030,10 +1211,11 @@ export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`Workspa
     rootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
     wildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
     subpathAliasTargets: S.Record(S.String, S.String).pipe(S.UndefinedOr, S.optionalKey),
-  },
-  $I.annote("WorkspaceDescriptor", {
-    description: "A workspace package descriptor with metadata for tsconfig synchronization.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkspaceDescriptor", {
+      description: "A workspace package descriptor with metadata for tsconfig synchronization.",
+    })
+  )
 ) {}
 
 /**
@@ -1075,22 +1257,39 @@ export const JsonObject = S.Record(S.String, S.Unknown).pipe(
  */
 export type JsonObject = typeof JsonObject.Type;
 
-class TsconfigReferenceEntry extends S.Class<TsconfigReferenceEntry>($I`TsconfigReferenceEntry`)(
-  {
+/**
+ * Single tsconfig references entry with optional path field.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigReferenceEntry extends S.Opaque<TsconfigReferenceEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.optionalKey(S.Unknown),
-  },
-  $I.annote("TsconfigReferenceEntry", {
-    description: "Single tsconfig references entry with optional path field.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigReferenceEntry", {
+      description: "Single tsconfig references entry with optional path field.",
+    })
+  )
 ) {}
 
-class TsconfigCompilerOptionsPaths extends S.Class<TsconfigCompilerOptionsPaths>($I`TsconfigCompilerOptionsPaths`)(
-  {
+/**
+ * Subset of tsconfig compilerOptions containing optional paths map.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsconfigCompilerOptionsPaths extends S.Opaque<
+  TsconfigCompilerOptionsPaths,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     paths: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("TsconfigCompilerOptionsPaths", {
-    description: "Subset of tsconfig compilerOptions containing optional paths map.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigCompilerOptionsPaths", {
+      description: "Subset of tsconfig compilerOptions containing optional paths map.",
+    })
+  )
 ) {}
 
 /**
@@ -1109,13 +1308,14 @@ class TsconfigCompilerOptionsPaths extends S.Class<TsconfigCompilerOptionsPaths>
  * @category models
  * @since 0.0.0
  */
-export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`TsconfigWithReferences`)(
-  {
+export class TsconfigWithReferences extends S.Opaque<TsconfigWithReferences, { readonly brand: unique symbol }>()(
+  S.Struct({
     references: TsconfigReferenceEntry.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("TsconfigWithReferences", {
-    description: "A class representing a tsconfig.json file with references property.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigWithReferences", {
+      description: "A class representing a tsconfig.json file with references property.",
+    })
+  )
 ) {}
 
 /**
@@ -1134,13 +1334,14 @@ export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`T
  * @category models
  * @since 0.0.0
  */
-export class TsconfigWithPaths extends S.Class<TsconfigWithPaths>($I`TsconfigWithPaths`)(
-  {
+export class TsconfigWithPaths extends S.Opaque<TsconfigWithPaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     compilerOptions: S.optionalKey(TsconfigCompilerOptionsPaths),
-  },
-  $I.annote("TsconfigWithPaths", {
-    description: "A class representing a tsconfig.json file with compilerOptions.paths property.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigWithPaths", {
+      description: "A class representing a tsconfig.json file with compilerOptions.paths property.",
+    })
+  )
 ) {}
 
 /**

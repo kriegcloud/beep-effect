@@ -52,7 +52,7 @@ const $I = $ScratchpadId.create("effected/npm/Manifest");
  * @category errors
  * @since 0.0.0
  */
-export class ManifestDecodeError extends S.TaggedError<ManifestDecodeError>($I`ManifestDecodeError`)("ManifestDecodeError", {
+export class ManifestDecodeError extends S.TaggedError<ManifestDecodeError, { readonly brand: unique symbol }>($I`ManifestDecodeError`)("ManifestDecodeError", {
 	/** The underlying `SchemaError`, preserved structurally rather than stringified. */
 	cause: S.Defect({ includeStack: true }).annotateKey({ description: "The underlying `SchemaError`, preserved structurally rather than stringified." }),
 }, $I.annote("ManifestDecodeError", { description: "Indicates that an unknown value could not be decoded into a Manifest." })) {
@@ -99,7 +99,7 @@ export class ManifestDecodeError extends S.TaggedError<ManifestDecodeError>($I`M
  * @category errors
  * @since 0.0.0
  */
-export class UnresolvedDependencyError extends S.TaggedError<UnresolvedDependencyError>($I`UnresolvedDependencyError`)(
+export class UnresolvedDependencyError extends S.TaggedError<UnresolvedDependencyError, { readonly brand: unique symbol }>($I`UnresolvedDependencyError`)(
 	"UnresolvedDependencyError",
 	{
 		/** The manifest field the dependency is declared under. */
@@ -234,7 +234,7 @@ const makeWire = (
  * @category models
  * @since 0.0.0
  */
-export class Manifest extends S.Class<Manifest>($I`Manifest`)({
+export class Manifest extends S.Class<Manifest, { readonly brand: unique symbol }>($I`Manifest`)({
 	/** Production dependencies, when present. */
 	dependencies: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Production dependencies, when present." }),
 	/** Development dependencies, when present. */

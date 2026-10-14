@@ -69,8 +69,8 @@ const $I = $RepoCliId.create("internal/github/GithubRest");
  * @category models
  * @since 0.0.0
  */
-export class GithubPullRequestRecord extends S.Class<GithubPullRequestRecord>($I`GithubPullRequestRecord`)(
-  {
+export class GithubPullRequestRecord extends S.Opaque<GithubPullRequestRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     number: S.Int,
     nodeId: S.String,
     title: S.String,
@@ -87,8 +87,7 @@ export class GithubPullRequestRecord extends S.Class<GithubPullRequestRecord>($I
     labels: S.Array(S.String),
     createdAt: S.DateTimeUtc,
     updatedAt: S.DateTimeUtc,
-  },
-  $I.annote("GithubPullRequestRecord", { description: "A pull request read over GitHub REST." })
+  }).pipe($I.annoteSchema("GithubPullRequestRecord", { description: "A pull request read over GitHub REST." }))
 ) {}
 
 const PullWire = S.Struct({
@@ -146,9 +145,10 @@ const toPullRequestRecord = (wire: typeof PullWire.Type): GithubPullRequestRecor
  * @category models
  * @since 0.0.0
  */
-export class GithubCheckRunRecord extends S.Class<GithubCheckRunRecord>($I`GithubCheckRunRecord`)(
-  { id: S.Int, name: S.String, status: S.String, conclusion: S.Option(S.String) },
-  $I.annote("GithubCheckRunRecord", { description: "One check run on a commit, read over GitHub REST." })
+export class GithubCheckRunRecord extends S.Opaque<GithubCheckRunRecord, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Int, name: S.String, status: S.String, conclusion: S.Option(S.String) }).pipe(
+    $I.annoteSchema("GithubCheckRunRecord", { description: "One check run on a commit, read over GitHub REST." })
+  )
 ) {}
 
 const CheckRunWire = S.Struct({ id: S.Int, name: S.String, status: S.String, conclusion: S.NullOr(S.String) });
@@ -169,9 +169,10 @@ const CheckRunWire = S.Struct({ id: S.Int, name: S.String, status: S.String, con
  * @category models
  * @since 0.0.0
  */
-export class GithubWorkflowRunRecord extends S.Class<GithubWorkflowRunRecord>($I`GithubWorkflowRunRecord`)(
-  { id: S.Int, name: S.String, status: S.String, conclusion: S.Option(S.String), headSha: S.String },
-  $I.annote("GithubWorkflowRunRecord", { description: "One workflow run, read over GitHub REST." })
+export class GithubWorkflowRunRecord extends S.Opaque<GithubWorkflowRunRecord, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Int, name: S.String, status: S.String, conclusion: S.Option(S.String), headSha: S.String }).pipe(
+    $I.annoteSchema("GithubWorkflowRunRecord", { description: "One workflow run, read over GitHub REST." })
+  )
 ) {}
 
 const WorkflowRunWire = S.Struct({
@@ -188,9 +189,10 @@ const WorkflowRunWire = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class GithubMergeRecord extends S.Class<GithubMergeRecord>($I`GithubMergeRecord`)(
-  { merged: S.Boolean, sha: S.String, message: S.String },
-  $I.annote("GithubMergeRecord", { description: "The REST merge response." })
+export class GithubMergeRecord extends S.Opaque<GithubMergeRecord, { readonly brand: unique symbol }>()(
+  S.Struct({ merged: S.Boolean, sha: S.String, message: S.String }).pipe(
+    $I.annoteSchema("GithubMergeRecord", { description: "The REST merge response." })
+  )
 ) {}
 
 /**
@@ -205,9 +207,10 @@ export class GithubMergeRecord extends S.Class<GithubMergeRecord>($I`GithubMerge
  * @category models
  * @since 0.0.0
  */
-export class GithubRateLimitBucket extends S.Class<GithubRateLimitBucket>($I`GithubRateLimitBucket`)(
-  { limit: S.Int, remaining: S.Int, resetAt: S.DateTimeUtc },
-  $I.annote("GithubRateLimitBucket", { description: "One REST rate-limit bucket." })
+export class GithubRateLimitBucket extends S.Opaque<GithubRateLimitBucket, { readonly brand: unique symbol }>()(
+  S.Struct({ limit: S.Int, remaining: S.Int, resetAt: S.DateTimeUtc }).pipe(
+    $I.annoteSchema("GithubRateLimitBucket", { description: "One REST rate-limit bucket." })
+  )
 ) {}
 
 /**
@@ -216,9 +219,10 @@ export class GithubRateLimitBucket extends S.Class<GithubRateLimitBucket>($I`Git
  * @category models
  * @since 0.0.0
  */
-export class GithubRateLimitRecord extends S.Class<GithubRateLimitRecord>($I`GithubRateLimitRecord`)(
-  { core: GithubRateLimitBucket, graphql: GithubRateLimitBucket },
-  $I.annote("GithubRateLimitRecord", { description: "REST rate-limit buckets." })
+export class GithubRateLimitRecord extends S.Opaque<GithubRateLimitRecord, { readonly brand: unique symbol }>()(
+  S.Struct({ core: GithubRateLimitBucket, graphql: GithubRateLimitBucket }).pipe(
+    $I.annoteSchema("GithubRateLimitRecord", { description: "REST rate-limit buckets." })
+  )
 ) {}
 
 const BucketWire = S.Struct({ limit: S.Int, remaining: S.Int, reset: S.Int });

@@ -11,7 +11,7 @@ import * as O from "@beep/utils/Option";
 
 const $I = $ScratchpadId.create("effected/github/GitCommit");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -58,7 +58,7 @@ export type FileMode = typeof FileMode.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class FileContent extends S.TaggedClass<FileContent>($I`FileContent`)("FileContent", {
+export class FileContent extends S.TaggedClass<FileContent, { readonly brand: unique symbol }>($I`FileContent`)("FileContent", {
 	/** Repository-relative path. */
 	path: S.NonEmptyString.annotateKey({ description: "Repository-relative path." }),
 	/** The file's new contents. */
@@ -83,7 +83,7 @@ export class FileContent extends S.TaggedClass<FileContent>($I`FileContent`)("Fi
  * @category schemas
  * @since 0.0.0
  */
-export class FileDeletion extends S.TaggedClass<FileDeletion>($I`FileDeletion`)("FileDeletion", {
+export class FileDeletion extends S.TaggedClass<FileDeletion, { readonly brand: unique symbol }>($I`FileDeletion`)("FileDeletion", {
 	/** Repository-relative path. */
 	path: S.NonEmptyString.annotateKey({ description: "Repository-relative path." }),
 }, $I.annote("FileDeletion", { description: "A file to remove in a commit." })) {}
@@ -137,7 +137,7 @@ export type FileChange = FileContent | FileDeletion;
  * @category schemas
  * @since 0.0.0
  */
-export class CommitRef extends S.Class<CommitRef>($I`CommitRef`)({
+export class CommitRef extends S.Class<CommitRef, { readonly brand: unique symbol }>($I`CommitRef`)({
 	/** The commit's own sha. */
 	sha: S.String.annotateKey({ description: "The commit's own sha." }),
 	/** The tree the commit points at — what `baseTree` wants. */

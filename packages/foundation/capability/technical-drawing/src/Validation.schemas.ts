@@ -27,14 +27,15 @@ const $I = $TechnicalDrawingId.create("Validation.schemas");
  * @category validation
  * @since 0.0.0
  */
-export class PdfPageSize extends S.Class<PdfPageSize>($I`PdfPageSize`)(
-  {
+export class PdfPageSize extends S.Opaque<PdfPageSize, { readonly brand: unique symbol }>()(
+  S.Struct({
     widthPt: S.Finite.annotateKey({ description: "MediaBox width in points." }),
     heightPt: S.Finite.annotateKey({ description: "MediaBox height in points." }),
-  },
-  $I.annote("PdfPageSize", {
-    description: "MediaBox size in points.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfPageSize", {
+      description: "MediaBox size in points.",
+    })
+  )
 ) {}
 
 /**
@@ -51,14 +52,15 @@ export class PdfPageSize extends S.Class<PdfPageSize>($I`PdfPageSize`)(
  * @category validation
  * @since 0.0.0
  */
-export class PdfFontFact extends S.Class<PdfFontFact>($I`PdfFontFact`)(
-  {
+export class PdfFontFact extends S.Opaque<PdfFontFact, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String.annotateKey({ description: "BaseFont name." }),
     embedded: S.Boolean.annotateKey({ description: "Whether a font program is embedded." }),
-  },
-  $I.annote("PdfFontFact", {
-    description: "Font name and embedding status.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfFontFact", {
+      description: "Font name and embedding status.",
+    })
+  )
 ) {}
 
 /**
@@ -83,18 +85,19 @@ export class PdfFontFact extends S.Class<PdfFontFact>($I`PdfFontFact`)(
  * @category validation
  * @since 0.0.0
  */
-export class PdfFacts extends S.Class<PdfFacts>($I`PdfFacts`)(
-  {
+export class PdfFacts extends S.Opaque<PdfFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     headerVersion: S.String.annotateKey({ description: "Version from the `%PDF-` header." }),
     pages: S.Array(PdfPageSize).annotateKey({ description: "Every page's MediaBox, in order." }),
     fonts: S.Array(PdfFontFact).annotateKey({ description: "Fonts referenced by any page." }),
     annotationCount: S.Natural.annotateKey({ description: "Total annotations across pages." }),
     hasOptionalContent: S.Boolean.annotateKey({ description: "Whether the file declares layers." }),
     encrypted: S.Boolean.annotateKey({ description: "Whether the file is encrypted." }),
-  },
-  $I.annote("PdfFacts", {
-    description: "Header version, page sizes, fonts, annotations, layers, and encryption of a PDF.",
-  })
+  }).pipe(
+    $I.annoteSchema("PdfFacts", {
+      description: "Header version, page sizes, fonts, annotations, layers, and encryption of a PDF.",
+    })
+  )
 ) {}
 
 /**
@@ -111,16 +114,17 @@ export class PdfFacts extends S.Class<PdfFacts>($I`PdfFacts`)(
  * @category validation
  * @since 0.0.0
  */
-export class InkBounds extends S.Class<InkBounds>($I`InkBounds`)(
-  {
+export class InkBounds extends S.Opaque<InkBounds, { readonly brand: unique symbol }>()(
+  S.Struct({
     minX: S.Natural.annotateKey({ description: "Leftmost ink column." }),
     minY: S.Natural.annotateKey({ description: "Topmost ink row." }),
     maxX: S.Natural.annotateKey({ description: "Rightmost ink column." }),
     maxY: S.Natural.annotateKey({ description: "Bottommost ink row." }),
-  },
-  $I.annote("InkBounds", {
-    description: "Inclusive pixel bounds of a page's ink.",
-  })
+  }).pipe(
+    $I.annoteSchema("InkBounds", {
+      description: "Inclusive pixel bounds of a page's ink.",
+    })
+  )
 ) {}
 
 /**
@@ -142,8 +146,8 @@ export class InkBounds extends S.Class<InkBounds>($I`InkBounds`)(
  * @category validation
  * @since 0.0.0
  */
-export class PageMetrics extends S.Class<PageMetrics>($I`PageMetrics`)(
-  {
+export class PageMetrics extends S.Opaque<PageMetrics, { readonly brand: unique symbol }>()(
+  S.Struct({
     width: S.Natural.annotateKey({ description: "Raster width in pixels." }),
     height: S.Natural.annotateKey({ description: "Raster height in pixels." }),
     dpi: S.Natural.annotateKey({ description: "Resolution the page was rendered at." }),
@@ -152,10 +156,11 @@ export class PageMetrics extends S.Class<PageMetrics>($I`PageMetrics`)(
     inkPixels: S.Natural.annotateKey({ description: "Pixels dark enough to count as ink." }),
     impurePixels: S.Natural.annotateKey({ description: "Pixels that are neither pure black nor pure white." }),
     largestBlackSquare: S.Natural.annotateKey({ description: "Side of the largest all-ink square, in pixels." }),
-  },
-  $I.annote("PageMetrics", {
-    description: "Size, ink bounds, purity count, and largest solid-ink square of a rendered page.",
-  })
+  }).pipe(
+    $I.annoteSchema("PageMetrics", {
+      description: "Size, ink bounds, purity count, and largest solid-ink square of a rendered page.",
+    })
+  )
 ) {}
 
 const FindingCodeBase = LiteralKit([
@@ -230,17 +235,18 @@ export type FindingCode = typeof FindingCode.Type;
  * @category validation
  * @since 0.0.0
  */
-export class SheetFinding extends S.Class<SheetFinding>($I`SheetFinding`)(
-  {
+export class SheetFinding extends S.Opaque<SheetFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: FindingCode.annotateKey({ description: "Rule broken." }),
     page: S.OptionFromNullOr(S.Natural).annotateKey({
       description: "One-based page, or none for file-level findings (`null` in JSON).",
     }),
     message: S.NonEmptyString.annotateKey({ description: "What was measured and the limit it broke." }),
-  },
-  $I.annote("SheetFinding", {
-    description: "A rule a sheet set broke, with the page and the measurement.",
-  })
+  }).pipe(
+    $I.annoteSchema("SheetFinding", {
+      description: "A rule a sheet set broke, with the page and the measurement.",
+    })
+  )
 ) {}
 
 /**
@@ -258,8 +264,8 @@ export class SheetFinding extends S.Class<SheetFinding>($I`SheetFinding`)(
  * @category validation
  * @since 0.0.0
  */
-export class ValidationOptions extends S.Class<ValidationOptions>($I`ValidationOptions`)(
-  {
+export class ValidationOptions extends S.Opaque<ValidationOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     expectedPages: S.Option(S.Natural).annotateKey({ description: "Required page count, when known." }),
     maxSolidBlackMm: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(1.5)),
@@ -269,10 +275,11 @@ export class ValidationOptions extends S.Class<ValidationOptions>($I`ValidationO
       S.withConstructorDefault(Effect.succeed(1)),
       S.annotateKey({ description: "Allowed MediaBox deviation from the format, in points. Defaults to 1." })
     ),
-  },
-  $I.annote("ValidationOptions", {
-    description: "Expected page count and tolerances of a validation run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ValidationOptions", {
+      description: "Expected page count and tolerances of a validation run.",
+    })
+  )
 ) {}
 
 /**
@@ -290,7 +297,9 @@ export class ValidationOptions extends S.Class<ValidationOptions>($I`ValidationO
  * @category validation
  * @since 0.0.0
  */
-export class ValidationReport extends S.Class<ValidationReport>($I`ValidationReport`)(
+export class ValidationReport extends S.Class<ValidationReport, { readonly brand: unique symbol }>(
+  $I`ValidationReport`
+)(
   {
     pdfSha256: S.NonEmptyString.annotateKey({ description: "SHA-256 of the validated PDF bytes." }),
     pageCount: S.Natural.annotateKey({ description: "Pages in the PDF." }),

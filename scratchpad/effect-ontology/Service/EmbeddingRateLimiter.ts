@@ -52,16 +52,13 @@ interface RateLimiterState {
  * @category configuration
  * @since 0.0.0
  */
-export class EmbeddingRateLimiterConfig extends S.Class<EmbeddingRateLimiterConfig>($I`EmbeddingRateLimiterConfig`)(
-  {
+export class EmbeddingRateLimiterConfig extends S.Opaque<EmbeddingRateLimiterConfig, { readonly brand: unique symbol }>()(S.Struct({
     provider: S.NonEmptyString,
     requestsPerMinute: S.Int.check(S.isGreaterThan(0, { message: "Requests per minute must be positive." })),
     maxConcurrent: S.Int.check(S.isGreaterThan(0, { message: "Maximum concurrency must be positive." })),
-  },
-  $I.annote("EmbeddingRateLimiterConfig", {
+  }).pipe($I.annoteSchema("EmbeddingRateLimiterConfig", {
     description: "Positive request-rate and concurrency limits for one named embedding provider.",
-  })
-) {}
+  }))) {}
 
 /**
  * Default configuration for Voyage AI (100 RPM, 10 concurrent)

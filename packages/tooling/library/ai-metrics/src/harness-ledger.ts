@@ -180,7 +180,9 @@ export const contextSurfaceKey: {
  * @category errors
  * @since 0.0.0
  */
-export class HarnessLedgerError extends S.TaggedError<HarnessLedgerError>($I`HarnessLedgerError`)(
+export class HarnessLedgerError extends S.TaggedError<HarnessLedgerError, { readonly brand: unique symbol }>(
+  $I`HarnessLedgerError`
+)(
   "HarnessLedgerError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -332,7 +334,9 @@ export type LedgerDisposition = typeof LedgerDisposition.Type;
  * @category models
  * @since 0.0.0
  */
-export class HarnessFingerprintParts extends S.Class<HarnessFingerprintParts>($I`HarnessFingerprintParts`)(
+export class HarnessFingerprintParts extends S.Class<HarnessFingerprintParts, { readonly brand: unique symbol }>(
+  $I`HarnessFingerprintParts`
+)(
   {
     modelId: S.NonEmptyString,
     reasoningEffort: S.NonEmptyString.pipe(
@@ -497,17 +501,18 @@ export const harnessFingerprintFromParts = Effect.fn("AiMetrics.harnessFingerpri
  * @category models
  * @since 0.0.0
  */
-export class HarnessFingerprintInput extends S.Class<HarnessFingerprintInput>($I`HarnessFingerprintInput`)(
-  {
+export class HarnessFingerprintInput extends S.Opaque<HarnessFingerprintInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     modelId: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     reasoningEffort: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     // Structural subset of `AiMetricsConfigSnapshotResult`, so a snapshot result
     // is passed as-is without coupling this schema to the whole manifest.
     snapshot: S.Struct({ baselineHash: S.String, sessionHash: S.String }),
-  },
-  $I.annote("HarnessFingerprintInput", {
-    description: "Config-snapshot hashes plus the optionally observed model id and reasoning effort.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessFingerprintInput", {
+      description: "Config-snapshot hashes plus the optionally observed model id and reasoning effort.",
+    })
+  )
 ) {}
 
 const decodeSha256Hex = S.decodeUnknownEffect(Sha256Hex);
@@ -680,33 +685,54 @@ export const HarnessEditRefKind = LiteralKit(["commit", "diff-digest", "pending"
  */
 export type HarnessEditRefKind = typeof HarnessEditRefKind.Type;
 
-class HarnessCommitEditRef extends S.Class<HarnessCommitEditRef>($I`HarnessCommitEditRef`)(
-  {
+/**
+ * Edit recorded as a git commit id.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HarnessCommitEditRef extends S.Opaque<HarnessCommitEditRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag(HarnessEditRefKind.Enum.commit),
     ref: S.NonEmptyString,
-  },
-  $I.annote("HarnessCommitEditRef", {
-    description: "Edit recorded as a git commit id.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessCommitEditRef", {
+      description: "Edit recorded as a git commit id.",
+    })
+  )
 ) {}
 
-class HarnessDiffDigestEditRef extends S.Class<HarnessDiffDigestEditRef>($I`HarnessDiffDigestEditRef`)(
-  {
+/**
+ * Uncommitted edit recorded as the SHA-256 hex digest of its diff.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HarnessDiffDigestEditRef extends S.Opaque<HarnessDiffDigestEditRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag(HarnessEditRefKind.Enum["diff-digest"]),
     ref: Sha256Hex,
-  },
-  $I.annote("HarnessDiffDigestEditRef", {
-    description: "Uncommitted edit recorded as the SHA-256 hex digest of its diff.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessDiffDigestEditRef", {
+      description: "Uncommitted edit recorded as the SHA-256 hex digest of its diff.",
+    })
+  )
 ) {}
 
-class HarnessPendingEditRef extends S.Class<HarnessPendingEditRef>($I`HarnessPendingEditRef`)(
-  {
+/**
+ * Edit proposed but not yet made.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HarnessPendingEditRef extends S.Opaque<HarnessPendingEditRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag(HarnessEditRefKind.Enum.pending),
-  },
-  $I.annote("HarnessPendingEditRef", {
-    description: "Edit proposed but not yet made.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessPendingEditRef", {
+      description: "Edit proposed but not yet made.",
+    })
+  )
 ) {}
 
 /**
@@ -765,15 +791,16 @@ export type HarnessEditRef = typeof HarnessEditRef.Type;
  * @category models
  * @since 0.0.0
  */
-export class BehavioralClaim extends S.Class<BehavioralClaim>($I`BehavioralClaim`)(
-  {
+export class BehavioralClaim extends S.Opaque<BehavioralClaim, { readonly brand: unique symbol }>()(
+  S.Struct({
     claim: S.NonEmptyString,
     expectedSurface: ContextSurfaceKind,
     expectedMetric: S.NonEmptyString,
-  },
-  $I.annote("BehavioralClaim", {
-    description: "Hypothesis a harness edit is expected to confirm or refute, with its surface and metric.",
-  })
+  }).pipe(
+    $I.annoteSchema("BehavioralClaim", {
+      description: "Hypothesis a harness edit is expected to confirm or refute, with its surface and metric.",
+    })
+  )
 ) {}
 
 /**
@@ -790,14 +817,15 @@ export class BehavioralClaim extends S.Class<BehavioralClaim>($I`BehavioralClaim
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerDelta extends S.Class<HarnessLedgerDelta>($I`HarnessLedgerDelta`)(
-  {
+export class HarnessLedgerDelta extends S.Opaque<HarnessLedgerDelta, { readonly brand: unique symbol }>()(
+  S.Struct({
     score: S.Finite,
     cost: S.Finite,
-  },
-  $I.annote("HarnessLedgerDelta", {
-    description: "Score and cost delta measured for a harness edit against its baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("HarnessLedgerDelta", {
+      description: "Score and cost delta measured for a harness edit against its baseline.",
+    })
+  )
 ) {}
 
 /**
@@ -923,7 +951,7 @@ const harnessLedgerRowTouchedDefault = HashSet.empty<ContextSurfaceId>();
  * @category models
  * @since 0.0.0
  */
-export class HarnessLedgerRow extends S.Class<HarnessLedgerRow>($I`HarnessLedgerRow`)(
+export class HarnessLedgerRow extends S.Opaque<HarnessLedgerRow, { readonly brand: unique symbol }>()(
   S.Struct({
     rowId: HarnessLedgerRowId,
     createdAt: S.DateTimeUtcFromString,
@@ -946,23 +974,26 @@ export class HarnessLedgerRow extends S.Class<HarnessLedgerRow>($I`HarnessLedger
       S.withConstructorDefault(Effect.succeedNone)
     ),
     decidedUnder: S.OptionFromOptionalKey(HarnessHash).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  }).check(
-    S.makeFilter(
-      (row) =>
-        O.isNone(row.resurrectWhen) || row.disposition === LedgerDisposition.Enum.tombstoned
-          ? undefined
-          : { path: ["resurrectWhen"], issue: "resurrectWhen belongs to tombstoned rows only" },
-      {
-        identifier: "HarnessLedgerRowResurrectWhenInvariant",
-        title: "Harness ledger resurrectWhen invariant",
-        description: "Requires resurrectWhen to be absent unless the row is tombstoned.",
-      }
-    )
-  ),
-  $I.annote("HarnessLedgerRow", {
-    description:
-      "Immutable harness evidence ledger row: edit, hypothesis, observed surfaces, fingerprint, disposition.",
   })
+    .check(
+      S.makeFilter(
+        (row) =>
+          O.isNone(row.resurrectWhen) || row.disposition === LedgerDisposition.Enum.tombstoned
+            ? undefined
+            : { path: ["resurrectWhen"], issue: "resurrectWhen belongs to tombstoned rows only" },
+        {
+          identifier: "HarnessLedgerRowResurrectWhenInvariant",
+          title: "Harness ledger resurrectWhen invariant",
+          description: "Requires resurrectWhen to be absent unless the row is tombstoned.",
+        }
+      )
+    )
+    .pipe(
+      $I.annoteSchema("HarnessLedgerRow", {
+        description:
+          "Immutable harness evidence ledger row: edit, hypothesis, observed surfaces, fingerprint, disposition.",
+      })
+    )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(S.toCodecJson(HarnessLedgerRow)));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(S.toCodecJson(HarnessLedgerRow)));
@@ -1098,16 +1129,17 @@ export const isWarmRestart: {
  * @category models
  * @since 0.0.0
  */
-export class AnnealedEditBudgetInput extends S.Class<AnnealedEditBudgetInput>($I`AnnealedEditBudgetInput`)(
-  {
+export class AnnealedEditBudgetInput extends S.Opaque<AnnealedEditBudgetInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     round: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(0)),
     totalRounds: S.Finite.check(S.isInt(), S.isGreaterThanOrEqualTo(1)),
     bMax: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     bMin: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("AnnealedEditBudgetInput", {
-    description: "Round, schedule length, and the maximum and minimum edit budgets of a cosine schedule.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnnealedEditBudgetInput", {
+      description: "Round, schedule length, and the maximum and minimum edit budgets of a cosine schedule.",
+    })
+  )
 ) {}
 
 /**
@@ -1137,7 +1169,12 @@ export class AnnealedEditBudgetInput extends S.Class<AnnealedEditBudgetInput>($I
  * @category utilities
  * @since 0.0.0
  */
-export const annealedEditBudget = ({ round, totalRounds, bMax, bMin }: AnnealedEditBudgetInput): number => {
+export const annealedEditBudget = ({
+  round,
+  totalRounds,
+  bMax,
+  bMin,
+}: typeof AnnealedEditBudgetInput.Encoded): number => {
   if (round === 0 || bMax === bMin) return Math.ceil(bMax);
   if (round >= totalRounds) return Math.ceil(bMin);
   const raw = bMin + (bMax - bMin) * 0.5 * (1 + Math.cos(Math.PI * (round / totalRounds)));

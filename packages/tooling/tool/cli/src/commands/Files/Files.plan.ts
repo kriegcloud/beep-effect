@@ -31,49 +31,68 @@ import type {
 
 const $I = $RepoCliId.create("commands/Files/Files.plan");
 
-class TargetNameForEntryOptions extends S.Class<TargetNameForEntryOptions>($I`TargetNameForEntryOptions`)(
-  {
+/**
+ * Inputs used to build a generated target filename for a sortable file.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TargetNameForEntryOptions extends S.Opaque<TargetNameForEntryOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dimensions: S.Option(MediaDimensions),
     file: SortableFile,
     index: S.Finite,
     width: S.Finite,
-  },
-  $I.annote("TargetNameForEntryOptions", {
-    description: "Inputs used to build a generated target filename for a sortable file.",
-  })
+  }).pipe(
+    $I.annoteSchema("TargetNameForEntryOptions", {
+      description: "Inputs used to build a generated target filename for a sortable file.",
+    })
+  )
 ) {}
 
-class StripMetadataTempEntry extends S.Class<StripMetadataTempEntry>($I`StripMetadataTempEntry`)(
-  {
+class StripMetadataTempEntry extends S.Opaque<StripMetadataTempEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     entry: StripMetadataPlanEntry,
     tempPath: S.String,
-  },
-  $I.annote("StripMetadataTempEntry", {
-    description: "Metadata stripping plan entry paired with its temporary output path.",
-  })
+  }).pipe(
+    $I.annoteSchema("StripMetadataTempEntry", {
+      description: "Metadata stripping plan entry paired with its temporary output path.",
+    })
+  )
 ) {}
 
-class CandidateAssessmentThresholds extends S.Class<CandidateAssessmentThresholds>($I`CandidateAssessmentThresholds`)(
-  {
+/**
+ * Hard thresholds used to assess image candidate quality.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CandidateAssessmentThresholds extends S.Opaque<
+  CandidateAssessmentThresholds,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maxAspect: S.Finite,
     maxUpscale: S.Finite,
     minShortEdge: S.Finite,
     targetResolution: S.Finite,
-  },
-  $I.annote("CandidateAssessmentThresholds", {
-    description: "Hard thresholds used to assess image candidate quality.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandidateAssessmentThresholds", {
+      description: "Hard thresholds used to assess image candidate quality.",
+    })
+  )
 ) {}
 
-class CandidateAssessmentResult extends S.Class<CandidateAssessmentResult>($I`CandidateAssessmentResult`)(
-  {
+class CandidateAssessmentResult extends S.Opaque<CandidateAssessmentResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     decision: CandidateAssessmentDecision,
     metrics: CandidateAssessmentMetrics,
     reasons: S.Array(CandidateAssessmentReason),
-  },
-  $I.annote("CandidateAssessmentResult", {
-    description: "Candidate-quality decision with metrics and hard-threshold reasons.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandidateAssessmentResult", {
+      description: "Candidate-quality decision with metrics and hard-threshold reasons.",
+    })
+  )
 ) {}
 
 /**

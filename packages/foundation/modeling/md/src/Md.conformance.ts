@@ -162,7 +162,10 @@ export const BeepMarkdownSpecificationProfile = Conformance.ConformanceProfile.m
  * @category errors
  * @since 0.0.0
  */
-export class MarkdownConformanceError extends S.TaggedError<MarkdownConformanceError>($I`MarkdownConformanceError`)(
+export class MarkdownConformanceError extends S.TaggedError<
+  MarkdownConformanceError,
+  { readonly brand: unique symbol }
+>($I`MarkdownConformanceError`)(
   "MarkdownConformanceError",
   {
     profile: MarkdownConformanceProfile,

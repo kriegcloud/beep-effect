@@ -193,7 +193,7 @@ export type OffenceRule = typeof OffenceRule.Type;
  * @category models
  * @since 0.0.0
  */
-export class Offence extends S.Class<Offence>($I`Offence`)({
+export class Offence extends S.Class<Offence, { readonly brand: unique symbol }>($I`Offence`)({
 	/** The file, relative to the scanned root, with `/` separators. */
 	file: S.String.annotateKey({ description: "The file, relative to the scanned root, with `/` separators." }),
 	/** The 1-based line. */
@@ -241,7 +241,7 @@ export class Offence extends S.Class<Offence>($I`Offence`)({
  * @category models
  * @since 0.0.0
  */
-export class SourceScan extends S.Class<SourceScan>($I`SourceScan`)({
+export class SourceScan extends S.Class<SourceScan, { readonly brand: unique symbol }>($I`SourceScan`)({
 	/** Every source file visited, relative to the root with `/` separators, sorted. Assert it is non-empty. */
 	files: S.Array(S.String).annotateKey({ description: "Every source file visited, relative to the root with `/` separators, sorted. Assert it is non-empty." }),
 	/** The visited files an `allow` glob exempted from every rule. */

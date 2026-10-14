@@ -171,7 +171,7 @@ export type JsoncNodeType = typeof JsoncNodeType.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsoncNode extends S.Class<JsoncNode>($I`JsoncNode`)(
+export class JsoncNode extends S.Class<JsoncNode, { readonly brand: unique symbol }>($I`JsoncNode`)(
   {
     type: JsoncNodeType,
     offset: S.Natural,

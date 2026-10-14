@@ -170,7 +170,7 @@ const NodeIndexSchema = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * import { getRoots, singleton, TraversalStart } from "@beep/nlp/Graph/GraphOps"
  *
  * const graph = singleton<string, string>("root")
- * const options = new TraversalStart({ start: getRoots(graph), order: "dfs" })
+ * const options = TraversalStart.make({ start: getRoots(graph), order: "dfs" })
  *
  * console.log(options.order)
  * // "dfs"
@@ -179,15 +179,16 @@ const NodeIndexSchema = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class TraversalStart extends S.Class<TraversalStart>($I`TraversalStart`)(
-  {
+export class TraversalStart extends S.Opaque<TraversalStart, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: S.Array(NodeIndexSchema),
     order: TraversalOrder,
-  },
-  $I.annote("TraversalStart", {
-    description:
-      "Traversal-start options shared by graph-walking helpers: which node indices to begin from and which traversal order to use.",
-  })
+  }).pipe(
+    $I.annoteSchema("TraversalStart", {
+      description:
+        "Traversal-start options shared by graph-walking helpers: which node indices to begin from and which traversal order to use.",
+    })
+  )
 ) {}
 
 // =============================================================================
@@ -464,10 +465,10 @@ export const foldNodes: {
  * **Example** (Fold nodes in dfs order)
  *
  * ```ts
- * import { foldTraversal, getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ * import { foldTraversal, getRoots, singleton, TraversalStart } from "@beep/nlp/Graph/GraphOps"
  *
  * const graph = singleton<string, string>("root")
- * const total = foldTraversal(graph, { start: getRoots(graph), order: "dfs", initial: 0 }, (sum, node) => sum + node.length)
+ * const total = foldTraversal(graph, { ...TraversalStart.make({ start: getRoots(graph), order: "dfs" }), initial: 0 }, (sum, node) => sum + node.length)
  * console.log(total) // 4
  * ```
  *
@@ -521,10 +522,10 @@ export const collectNodes = <A, E>(graph: DirectedGraph<A, E>): ReadonlyArray<A>
  * **Example** (Collect nodes in dfs order)
  *
  * ```ts
- * import { collectTraversal, getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ * import { collectTraversal, getRoots, singleton, TraversalStart } from "@beep/nlp/Graph/GraphOps"
  *
  * const graph = singleton<string, string>("root")
- * console.log(collectTraversal(graph, { start: getRoots(graph), order: "dfs" })) // ["root"]
+ * console.log(collectTraversal(graph, TraversalStart.make({ start: getRoots(graph), order: "dfs" }))) // ["root"]
  * ```
  *
  * @category getters
@@ -536,8 +537,10 @@ export const collectTraversal: {
 } = dual(
   2,
   <A, E>(graph: DirectedGraph<A, E>, options: TraversalStart): ReadonlyArray<A> =>
-    foldTraversal(graph, { start: options.start, order: options.order, initial: A.empty<A>() }, (acc, node) =>
-      A.append(acc, node)
+    foldTraversal(
+      graph,
+      { ...TraversalStart.make({ start: options.start, order: options.order }), initial: A.empty<A>() },
+      (acc, node) => A.append(acc, node)
     )
 );
 
@@ -779,10 +782,10 @@ export const queryIndexIntersection: {
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { getRoots, singleton, traverseNodes } from "@beep/nlp/Graph/GraphOps"
+ * import { getRoots, singleton, TraversalStart, traverseNodes } from "@beep/nlp/Graph/GraphOps"
  *
  * const graph = singleton<string, string>("root")
- * const program = traverseNodes(graph, { start: getRoots(graph), order: "dfs" }, () => Effect.void)
+ * const program = traverseNodes(graph, TraversalStart.make({ start: getRoots(graph), order: "dfs" }), () => Effect.void)
  *
  * console.log(Effect.runSync(program))
  * ```
@@ -823,10 +826,10 @@ export const traverseNodes: {
  *
  * ```ts
  * import * as Effect from "effect/Effect";
- * import { getRoots, singleton, traverseNodesCollect } from "@beep/nlp/Graph/GraphOps"
+ * import { getRoots, singleton, TraversalStart, traverseNodesCollect } from "@beep/nlp/Graph/GraphOps"
  *
  * const graph = singleton<string, string>("root")
- * const program = traverseNodesCollect(graph, { start: getRoots(graph), order: "dfs" }, (node) =>
+ * const program = traverseNodesCollect(graph, TraversalStart.make({ start: getRoots(graph), order: "dfs" }), (node) =>
  *   Effect.succeed(node.length)
  * )
  *
@@ -933,10 +936,10 @@ export const mapNodesEffect: {
  * ```ts
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
- * import { getRoots, singleton, streamNodes } from "@beep/nlp/Graph/GraphOps"
+ * import { getRoots, singleton, streamNodes, TraversalStart } from "@beep/nlp/Graph/GraphOps"
  *
  * const graph = singleton<string, string>("root")
- * const program = Stream.runCollect(streamNodes(graph, { start: getRoots(graph), order: "dfs" }))
+ * const program = Stream.runCollect(streamNodes(graph, TraversalStart.make({ start: getRoots(graph), order: "dfs" })))
  *
  * console.log(Effect.runSync(program))
  * ```
@@ -961,10 +964,10 @@ export const streamNodes: {
  * ```ts
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
- * import { getRoots, singleton, streamNodesWithIndex } from "@beep/nlp/Graph/GraphOps"
+ * import { getRoots, singleton, streamNodesWithIndex, TraversalStart } from "@beep/nlp/Graph/GraphOps"
  *
  * const graph = singleton<string, string>("root")
- * const program = Stream.runCollect(streamNodesWithIndex(graph, { start: getRoots(graph), order: "dfs" }))
+ * const program = Stream.runCollect(streamNodesWithIndex(graph, TraversalStart.make({ start: getRoots(graph), order: "dfs" })))
  *
  * console.log(Effect.runSync(program).length) // 1
  * ```
@@ -989,10 +992,10 @@ export const streamNodesWithIndex: {
  * ```ts
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
- * import { batchNodes, getRoots, singleton } from "@beep/nlp/Graph/GraphOps"
+ * import { batchNodes, getRoots, singleton, TraversalStart } from "@beep/nlp/Graph/GraphOps"
  *
  * const graph = singleton<string, string>("root")
- * const program = Stream.runCollect(batchNodes(graph, { start: getRoots(graph), order: "dfs", batchSize: 2 }))
+ * const program = Stream.runCollect(batchNodes(graph, { ...TraversalStart.make({ start: getRoots(graph), order: "dfs" }), batchSize: 2 }))
  *
  * console.log(Effect.runSync(program).length) // 1
  * ```
@@ -1014,7 +1017,10 @@ export const batchNodes: {
     graph: DirectedGraph<A, E>,
     options: TraversalStart & { readonly batchSize: number }
   ): Stream.Stream<ReadonlyArray<A>> =>
-    Stream.grouped(streamNodes(graph, { start: options.start, order: options.order }), options.batchSize)
+    Stream.grouped(
+      streamNodes(graph, TraversalStart.make({ start: options.start, order: options.order })),
+      options.batchSize
+    )
 );
 
 // =============================================================================

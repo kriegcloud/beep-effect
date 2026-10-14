@@ -245,7 +245,7 @@ it.layer(resettingBudget, { timeout: "30 seconds" })("GraphqlBudget guard across
   );
 });
 
-const pr = (overrides: Partial<ConstructorParameters<typeof GithubPullRequestRecord>[0]> = {}) =>
+const pr = (overrides: Partial<Parameters<typeof GithubPullRequestRecord.make>[0]> = {}) =>
   GithubPullRequestRecord.make({
     number: 1501,
     nodeId: "PR_kwDOtest",
@@ -269,7 +269,7 @@ const pr = (overrides: Partial<ConstructorParameters<typeof GithubPullRequestRec
 const run = (id: number, name: string, status: string, conclusion: string | null) =>
   GithubCheckRunRecord.make({ id, name, status, conclusion: O.fromNullishOr(conclusion) });
 
-const facts = (overrides: Partial<ConstructorParameters<typeof YeetGhGateFacts>[0]> = {}) =>
+const facts = (overrides: Partial<Parameters<typeof YeetGhGateFacts.make>[0]> = {}) =>
   YeetGhGateFacts.make({
     pullRequest: pr(),
     pinnedSha: "abc1234def",
@@ -351,7 +351,7 @@ describe("REST merge gate", () => {
   });
 });
 
-const thread = (overrides: Partial<ConstructorParameters<typeof GithubReviewThreadNode>[0]> = {}) =>
+const thread = (overrides: Partial<Parameters<typeof GithubReviewThreadNode.make>[0]> = {}) =>
   GithubReviewThreadNode.make({
     id: "PRRT_1",
     isResolved: true,

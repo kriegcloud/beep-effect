@@ -44,7 +44,7 @@ const $I = $ScratchpadId.create("effected/config-file/ConfigFile");
  * @category errors
  * @since 0.0.0
  */
-export class ConfigFileNotFoundError extends S.TaggedError<ConfigFileNotFoundError>($I`ConfigFileNotFoundError`)("ConfigFileNotFoundError", {
+export class ConfigFileNotFoundError extends S.TaggedError<ConfigFileNotFoundError, { readonly brand: unique symbol }>($I`ConfigFileNotFoundError`)("ConfigFileNotFoundError", {
 	/**
 	 * The names of the resolvers that were probed, in order.
 	 *
@@ -109,7 +109,7 @@ export class ConfigFileNotFoundError extends S.TaggedError<ConfigFileNotFoundErr
  * @category errors
  * @since 0.0.0
  */
-export class ConfigFileReadError extends S.TaggedError<ConfigFileReadError>($I`ConfigFileReadError`)("ConfigFileReadError", {
+export class ConfigFileReadError extends S.TaggedError<ConfigFileReadError, { readonly brand: unique symbol }>($I`ConfigFileReadError`)("ConfigFileReadError", {
 	/**
 	 * The path that could not be read.
 	 *
@@ -158,7 +158,7 @@ export class ConfigFileReadError extends S.TaggedError<ConfigFileReadError>($I`C
  * @category errors
  * @since 0.0.0
  */
-export class ConfigFileWriteError extends S.TaggedError<ConfigFileWriteError>($I`ConfigFileWriteError`)("ConfigFileWriteError", {
+export class ConfigFileWriteError extends S.TaggedError<ConfigFileWriteError, { readonly brand: unique symbol }>($I`ConfigFileWriteError`)("ConfigFileWriteError", {
 	/**
 	 * The path that could not be written.
 	 *
@@ -217,7 +217,7 @@ export class ConfigFileWriteError extends S.TaggedError<ConfigFileWriteError>($I
  * @category errors
  * @since 0.0.0
  */
-export class ConfigDefaultPathMissingError extends S.TaggedError<ConfigDefaultPathMissingError>($I`ConfigDefaultPathMissingError`)(
+export class ConfigDefaultPathMissingError extends S.TaggedError<ConfigDefaultPathMissingError, { readonly brand: unique symbol }>($I`ConfigDefaultPathMissingError`)(
 	"ConfigDefaultPathMissingError",
 	{}, $I.annote("ConfigDefaultPathMissingError", { description: "Indicates that ConfigFileShape.save or ConfigFileShape.update was called on a service configured without a `defaultPath`." }),
 ) {
@@ -265,7 +265,7 @@ export class ConfigDefaultPathMissingError extends S.TaggedError<ConfigDefaultPa
  * @category errors
  * @since 0.0.0
  */
-export class ConfigValidationError extends S.TaggedError<ConfigValidationError>($I`ConfigValidationError`)("ConfigValidationError", {
+export class ConfigValidationError extends S.TaggedError<ConfigValidationError, { readonly brand: unique symbol }>($I`ConfigValidationError`)("ConfigValidationError", {
 	/**
 	 * The offending file, absent when `validate` was called on an in-memory value.
 	 *

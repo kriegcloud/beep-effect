@@ -138,22 +138,23 @@ export type WorkItemRow = typeof workItemTable.$inferSelect;
  */
 export type WorkItemInsert = typeof workItemTable.$inferInsert;
 
-class WorkItemInsertRow extends S.Class<WorkItemInsertRow>($I`WorkItemInsertRow`)(
-  {
+class WorkItemInsertRow extends S.Opaque<WorkItemInsertRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId,
     title: DomainWorkItem.WorkItemTitle,
     status: DomainWorkItem.WorkItemStatus,
     assigneeId: S.NullOr(ArchitectureLabIdentity.WorkerId),
     priority: S.NullOr(DomainWorkPriority.WorkPriority),
-  },
-  $I.annote("WorkItemInsertRow", {
-    title: "WorkItem insert row",
-    description: "SQL insert row boundary for persisted architecture lab WorkItems.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItemInsertRow", {
+      title: "WorkItem insert row",
+      description: "SQL insert row boundary for persisted architecture lab WorkItems.",
+    })
+  )
 ) {}
 
-class WorkItemSelectedRow extends S.Class<WorkItemSelectedRow>($I`WorkItemSelectedRow`)(
-  {
+class WorkItemSelectedRow extends S.Opaque<WorkItemSelectedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: DomainWorkItem.WorkItemId,
     title: DomainWorkItem.WorkItemTitle,
     status: DomainWorkItem.WorkItemStatus,
@@ -161,11 +162,12 @@ class WorkItemSelectedRow extends S.Class<WorkItemSelectedRow>($I`WorkItemSelect
     priority: S.NullOr(DomainWorkPriority.WorkPriority),
     createdAt: S.Date,
     updatedAt: S.Date,
-  },
-  $I.annote("WorkItemSelectedRow", {
-    title: "WorkItem selected row",
-    description: "SQL select row boundary for persisted architecture lab WorkItems.",
-  })
+  }).pipe(
+    $I.annoteSchema("WorkItemSelectedRow", {
+      title: "WorkItem selected row",
+      description: "SQL select row boundary for persisted architecture lab WorkItems.",
+    })
+  )
 ) {}
 
 const decodeWorkItemInsertRow = S.decodeUnknownResult(WorkItemInsertRow);

@@ -141,67 +141,109 @@ const SpecificationRevisionKind = LiteralKit([
   "packageRevision",
 ]);
 
-class GitCommitRevision extends S.Class<GitCommitRevision>($I`GitCommitRevision`)(
-  {
+/**
+ * Specification revision pinned to an immutable source-control commit.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class GitCommitRevision extends S.Opaque<GitCommitRevision, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("gitCommit"),
     repository: URLStr,
     commit: GitObjectId,
-  },
-  $I.annote("GitCommitRevision", {
-    description: "Specification revision pinned to an immutable source-control commit.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitCommitRevision", {
+      description: "Specification revision pinned to an immutable source-control commit.",
+    })
+  )
 ) {}
 
-class ReleaseRevision extends S.Class<ReleaseRevision>($I`ReleaseRevision`)(
-  {
+/**
+ * Specification revision identified by a published release label.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ReleaseRevision extends S.Opaque<ReleaseRevision, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("release"),
     version: S.NonEmptyString,
-  },
-  $I.annote("ReleaseRevision", {
-    description: "Specification revision identified by a published release label.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReleaseRevision", {
+      description: "Specification revision identified by a published release label.",
+    })
+  )
 ) {}
 
-class DatedSnapshotRevision extends S.Class<DatedSnapshotRevision>($I`DatedSnapshotRevision`)(
-  {
+/**
+ * Specification revision identified by the authority's snapshot date.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DatedSnapshotRevision extends S.Opaque<DatedSnapshotRevision, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("datedSnapshot"),
     date: SpecificationDate,
-  },
-  $I.annote("DatedSnapshotRevision", {
-    description: "Specification revision identified by the authority's snapshot date.",
-  })
+  }).pipe(
+    $I.annoteSchema("DatedSnapshotRevision", {
+      description: "Specification revision identified by the authority's snapshot date.",
+    })
+  )
 ) {}
 
-class RegistryVersionRevision extends S.Class<RegistryVersionRevision>($I`RegistryVersionRevision`)(
-  {
+/**
+ * Specification revision identified by a named registry and registry version.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RegistryVersionRevision extends S.Opaque<RegistryVersionRevision, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("registryVersion"),
     registry: S.NonEmptyString,
     version: S.NonEmptyString,
-  },
-  $I.annote("RegistryVersionRevision", {
-    description: "Specification revision identified by a named registry and registry version.",
-  })
+  }).pipe(
+    $I.annoteSchema("RegistryVersionRevision", {
+      description: "Specification revision identified by a named registry and registry version.",
+    })
+  )
 ) {}
 
-class RetrievedSnapshotRevision extends S.Class<RetrievedSnapshotRevision>($I`RetrievedSnapshotRevision`)(
-  {
+/**
+ * Unversioned specification snapshot identified by its retrieval date.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RetrievedSnapshotRevision extends S.Opaque<RetrievedSnapshotRevision, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("retrievedSnapshot"),
     retrievedOn: SpecificationDate,
-  },
-  $I.annote("RetrievedSnapshotRevision", {
-    description: "Unversioned specification snapshot identified by its retrieval date.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetrievedSnapshotRevision", {
+      description: "Unversioned specification snapshot identified by its retrieval date.",
+    })
+  )
 ) {}
 
-class PackageRevision extends S.Class<PackageRevision>($I`PackageRevision`)(
-  {
+/**
+ * Implementation reference pinned to a package name and package version.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PackageRevision extends S.Opaque<PackageRevision, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("packageRevision"),
     packageName: S.NonEmptyString,
     version: S.NonEmptyString,
-  },
-  $I.annote("PackageRevision", {
-    description: "Implementation reference pinned to a package name and package version.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageRevision", {
+      description: "Implementation reference pinned to a package name and package version.",
+    })
+  )
 ) {}
 
 /**
@@ -281,8 +323,8 @@ export type SpecificationRevision = typeof SpecificationRevision.Type;
  * @category models
  * @since 0.0.0
  */
-export class SpecificationSource extends S.Class<SpecificationSource>($I`SpecificationSource`)(
-  {
+export class SpecificationSource extends S.Opaque<SpecificationSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     title: S.NonEmptyString,
     role: SpecificationSourceRole,
@@ -291,10 +333,11 @@ export class SpecificationSource extends S.Class<SpecificationSource>($I`Specifi
     contentSha256: Sha256Hex,
     license: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     scope: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SpecificationSource", {
-    description: "Immutable authority record used to ground conformance claims.",
-  })
+  }).pipe(
+    $I.annoteSchema("SpecificationSource", {
+      description: "Immutable authority record used to ground conformance claims.",
+    })
+  )
 ) {
   static readonly toEquivalenceArray = SpecificationSource.pipe(S.Array, S.toEquivalence);
 }
@@ -321,16 +364,17 @@ export class SpecificationSource extends S.Class<SpecificationSource>($I`Specifi
  * @category models
  * @since 0.0.0
  */
-export class SpecificationReference extends S.Class<SpecificationReference>($I`SpecificationReference`)(
-  {
+export class SpecificationReference extends S.Opaque<SpecificationReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceId: S.NonEmptyString,
     section: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     url: S.OptionFromOptionalKey(URLStr).pipe(S.withConstructorDefault(Effect.succeedNone)),
     localRef: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("SpecificationReference", {
-    description: "Locator from an invariant to a section of a registered authority.",
-  })
+  }).pipe(
+    $I.annoteSchema("SpecificationReference", {
+      description: "Locator from an invariant to a section of a registered authority.",
+    })
+  )
 ) {}
 
 /**

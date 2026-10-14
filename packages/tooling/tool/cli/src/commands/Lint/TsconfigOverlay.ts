@@ -236,17 +236,18 @@ export type TsconfigOverlayViolationScope = typeof TsconfigOverlayViolationScope
  * @category models
  * @since 0.0.0
  */
-export class TsconfigOverlayViolation extends S.Class<TsconfigOverlayViolation>($I`TsconfigOverlayViolation`)(
-  {
+export class TsconfigOverlayViolation extends S.Opaque<TsconfigOverlayViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: S.String,
     scope: TsconfigOverlayViolationScope,
     key: S.String,
     detail: S.String,
-  },
-  $I.annote("TsconfigOverlayViolation", {
-    description:
-      "A key a tsconfig.check.json overlay sets outside the allowlist, or its references drifting from its owner tsconfig.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsconfigOverlayViolation", {
+      description:
+        "A key a tsconfig.check.json overlay sets outside the allowlist, or its references drifting from its owner tsconfig.",
+    })
+  )
 ) {}
 
 // The overlay is judged by its raw key set, so the document is decoded as an

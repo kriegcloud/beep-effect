@@ -68,7 +68,7 @@ export interface MdastNode {
  * @category errors
  * @since 0.0.0
  */
-export class MdastDecodeError extends S.TaggedError<MdastDecodeError>($I`MdastDecodeError`)("MdastDecodeError", {
+export class MdastDecodeError extends S.TaggedError<MdastDecodeError, { readonly brand: unique symbol }>($I`MdastDecodeError`)("MdastDecodeError", {
 	/** The structured schema issue. Never a string. */
 	issue: S.Defect().annotateKey({ description: "The structured schema issue. Never a string." }),
 }, $I.annote("MdastDecodeError", { description: "Indicates that foreign mdast input failed to decode into the package's node classes." })) {

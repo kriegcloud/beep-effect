@@ -41,8 +41,14 @@ const DocgenPathSegments = S.Array(S.NonEmptyString).pipe(
   })
 );
 
-class DocNewOptions extends S.Class<DocNewOptions>($I`DocNewOptions`)(
-  {
+/**
+ * Constructor options carrying grouped JSDoc tag values for a normalized Doc.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class DocNewOptions extends S.Opaque<DocNewOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     since: StringArray,
     deprecated: StringArray,
     examples: StringArray,
@@ -50,10 +56,11 @@ class DocNewOptions extends S.Class<DocNewOptions>($I`DocNewOptions`)(
     throws: StringArray,
     sees: StringArray,
     tags: S.Record(S.String, OptionalStringArray),
-  },
-  $I.annote("DocNewOptions", {
-    description: "Constructor options carrying grouped JSDoc tag values for a normalized Doc.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocNewOptions", {
+      description: "Constructor options carrying grouped JSDoc tag values for a normalized Doc.",
+    })
+  )
 ) {}
 
 /**
@@ -70,18 +77,19 @@ class DocNewOptions extends S.Class<DocNewOptions>($I`DocNewOptions`)(
  * @category models
  * @since 0.0.0
  */
-export class Position extends S.Class<Position>($I`Position`)(
-  {
+export class Position extends S.Opaque<Position, { readonly brand: unique symbol }>()(
+  S.Struct({
     column: PosInt.annotateKey({
       description: "One-based source column number.",
     }),
     line: PosInt.annotateKey({
       description: "One-based source line number.",
     }),
-  },
-  $I.annote("Position", {
-    description: "One-based source location in a parsed file.",
-  })
+  }).pipe(
+    $I.annoteSchema("Position", {
+      description: "One-based source location in a parsed file.",
+    })
+  )
 ) {
   /**
    * Creates a source position from line and column coordinates.
@@ -109,8 +117,8 @@ export class Position extends S.Class<Position>($I`Position`)(
  * **Example** (Creating a Doc)
  *
  * ```ts
- * import { Doc } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import { Doc, DocNewOptions } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -118,14 +126,14 @@ export class Position extends S.Class<Position>($I`Position`)(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
+ * }))
  * console.log(doc)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Doc extends S.Class<Doc>($I`Doc`)(
+export class Doc extends S.Class<Doc, { readonly brand: unique symbol }>($I`Doc`)(
   {
     description: OptionalString.annotateKey({
       description: "Trimmed main JSDoc description when present.",
@@ -188,26 +196,36 @@ export class Doc extends S.Class<Doc>($I`Doc`)(
    * @returns Doc instance with the updated description.
    */
   modifyDescription(description: string | undefined): Doc {
-    return Doc.new(description, {
-      since: this.since,
-      deprecated: this.deprecated,
-      examples: this.examples,
-      category: this.category,
-      throws: this.throws,
-      sees: this.sees,
-      tags: this.tags,
-    });
+    return Doc.new(
+      description,
+      DocNewOptions.make({
+        since: this.since,
+        deprecated: this.deprecated,
+        examples: this.examples,
+        category: this.category,
+        throws: this.throws,
+        sees: this.sees,
+        tags: this.tags,
+      })
+    );
   }
 }
 
-class SignaturePositionOptions extends S.Class<SignaturePositionOptions>($I`SignaturePositionOptions`)(
-  {
+/**
+ * Constructor options carrying declaration text and source position.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SignaturePositionOptions extends S.Opaque<SignaturePositionOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     signature: DocgenSignatureText,
     position: Position,
-  },
-  $I.annote("SignaturePositionOptions", {
-    description: "Constructor options carrying declaration text and source position.",
-  })
+  }).pipe(
+    $I.annoteSchema("SignaturePositionOptions", {
+      description: "Constructor options carrying declaration text and source position.",
+    })
+  )
 ) {}
 
 /**
@@ -216,8 +234,14 @@ class SignaturePositionOptions extends S.Class<SignaturePositionOptions>($I`Sign
  * **Example** (Creating a DocEntry)
  *
  * ```ts
- * import { Doc, DocEntry, Position } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import {
+ *   Doc,
+ *   DocEntry,
+ *   DocNewOptions,
+ *   Position,
+ *   SignaturePositionOptions
+ * } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -225,19 +249,19 @@ class SignaturePositionOptions extends S.Class<SignaturePositionOptions>($I`Sign
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const entry = DocEntry.new("Example", doc, {
+ * }))
+ * const entry = DocEntry.new("Example", doc, SignaturePositionOptions.make({
  *   signature: "const Example: string",
  *   position: Position.new(1, 1)
- * })
+ * }))
  * console.log(entry)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)(
-  {
+export class DocEntry extends S.Opaque<DocEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: DocgenSymbolName.annotateKey({
       description: "Documented API member name.",
     }),
@@ -250,10 +274,11 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)(
     position: Position.annotateKey({
       description: "Source location for the API member.",
     }),
-  },
-  $I.annote("DocEntry", {
-    description: "Named documented API member with source and signature metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocEntry", {
+      description: "Named documented API member with source and signature metadata.",
+    })
+  )
 ) {
   /**
    * Creates a documented entry for a named API member.
@@ -278,17 +303,24 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)(
   );
 }
 
-class ClassNewOptions extends S.Class<ClassNewOptions>($I`ClassNewOptions`)(
-  {
+/**
+ * Constructor options carrying class signature and member entries.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ClassNewOptions extends S.Opaque<ClassNewOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     signature: DocgenSignatureText,
     position: Position,
     methods: S.Array(DocEntry),
     staticMethods: S.Array(DocEntry),
     properties: S.Array(DocEntry),
-  },
-  $I.annote("ClassNewOptions", {
-    description: "Constructor options carrying class signature and member entries.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClassNewOptions", {
+      description: "Constructor options carrying class signature and member entries.",
+    })
+  )
 ) {}
 
 /**
@@ -297,8 +329,8 @@ class ClassNewOptions extends S.Class<ClassNewOptions>($I`ClassNewOptions`)(
  * **Example** (Creating a Class model)
  *
  * ```ts
- * import { Class, Doc, Position } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import { Class, ClassNewOptions, Doc, DocNewOptions, Position } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -306,23 +338,22 @@ class ClassNewOptions extends S.Class<ClassNewOptions>($I`ClassNewOptions`)(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const model = Class.new("Example", doc, {
+ * }))
+ * const model = Class.new("Example", doc, ClassNewOptions.make({
  *   signature: "class Example",
  *   position: Position.new(1, 1),
  *   methods: [],
  *   staticMethods: [],
  *   properties: []
- * })
+ * }))
  * console.log(model)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Class extends S.TaggedClass<Class>($I`Class`)(
-  "Class",
-  {
+export class Class extends S.Opaque<Class, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Class", {
     name: DocgenSymbolName.annotateKey({
       description: "Class name rendered in generated documentation.",
     }),
@@ -344,10 +375,11 @@ export class Class extends S.TaggedClass<Class>($I`Class`)(
     properties: S.Array(DocEntry).annotateKey({
       description: "Documented class properties.",
     }),
-  },
-  $I.annote("Class", {
-    description: "Documented class and its emitted member structure.",
-  })
+  }).pipe(
+    $I.annoteSchema("Class", {
+      description: "Documented class and its emitted member structure.",
+    })
+  )
 ) {
   /**
    * Creates a documented class model.
@@ -381,8 +413,14 @@ export class Class extends S.TaggedClass<Class>($I`Class`)(
  * **Example** (Creating an Interface model)
  *
  * ```ts
- * import { Doc, Interface, Position } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import {
+ *   Doc,
+ *   DocNewOptions,
+ *   Interface,
+ *   Position,
+ *   SignaturePositionOptions
+ * } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -390,20 +428,19 @@ export class Class extends S.TaggedClass<Class>($I`Class`)(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const model = Interface.new("Example", doc, {
+ * }))
+ * const model = Interface.new("Example", doc, SignaturePositionOptions.make({
  *   signature: "interface Example {}",
  *   position: Position.new(1, 1)
- * })
+ * }))
  * console.log(model)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Interface extends S.TaggedClass<Interface>($I`Interface`)(
-  "Interface",
-  {
+export class Interface extends S.Opaque<Interface, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Interface", {
     name: DocgenSymbolName.annotateKey({
       description: "Interface name rendered in generated documentation.",
     }),
@@ -416,10 +453,11 @@ export class Interface extends S.TaggedClass<Interface>($I`Interface`)(
     position: Position.annotateKey({
       description: "Source location for the interface declaration.",
     }),
-  },
-  $I.annote("Interface", {
-    description: "Documented interface declaration.",
-  })
+  }).pipe(
+    $I.annoteSchema("Interface", {
+      description: "Documented interface declaration.",
+    })
+  )
 ) {
   /**
    * Creates a documented interface model.
@@ -450,8 +488,14 @@ export class Interface extends S.TaggedClass<Interface>($I`Interface`)(
  * **Example** (Creating a Function model)
  *
  * ```ts
- * import { Doc, Function, Position } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import {
+ *   Doc,
+ *   DocNewOptions,
+ *   Function,
+ *   Position,
+ *   SignaturePositionOptions
+ * } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -459,20 +503,19 @@ export class Interface extends S.TaggedClass<Interface>($I`Interface`)(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const model = Function.new("example", doc, {
+ * }))
+ * const model = Function.new("example", doc, SignaturePositionOptions.make({
  *   signature: "const example: () => void",
  *   position: Position.new(1, 1)
- * })
+ * }))
  * console.log(model)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Function extends S.TaggedClass<Function>($I`Function`)(
-  "Function",
-  {
+export class Function extends S.Opaque<Function, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Function", {
     name: DocgenSymbolName.annotateKey({
       description: "Function name rendered in generated documentation.",
     }),
@@ -485,10 +528,11 @@ export class Function extends S.TaggedClass<Function>($I`Function`)(
     position: Position.annotateKey({
       description: "Source location for the function declaration.",
     }),
-  },
-  $I.annote("Function", {
-    description: "Documented function declaration or function-valued export.",
-  })
+  }).pipe(
+    $I.annoteSchema("Function", {
+      description: "Documented function declaration or function-valued export.",
+    })
+  )
 ) {
   /**
    * Creates a documented function model.
@@ -519,8 +563,14 @@ export class Function extends S.TaggedClass<Function>($I`Function`)(
  * **Example** (Creating a TypeAlias model)
  *
  * ```ts
- * import { Doc, Position, TypeAlias } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import {
+ *   Doc,
+ *   DocNewOptions,
+ *   Position,
+ *   SignaturePositionOptions,
+ *   TypeAlias
+ * } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -528,20 +578,19 @@ export class Function extends S.TaggedClass<Function>($I`Function`)(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const model = TypeAlias.new("Example", doc, {
+ * }))
+ * const model = TypeAlias.new("Example", doc, SignaturePositionOptions.make({
  *   signature: "type Example = string",
  *   position: Position.new(1, 1)
- * })
+ * }))
  * console.log(model)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class TypeAlias extends S.TaggedClass<TypeAlias>($I`TypeAlias`)(
-  "TypeAlias",
-  {
+export class TypeAlias extends S.Opaque<TypeAlias, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("TypeAlias", {
     name: DocgenSymbolName.annotateKey({
       description: "Type alias name rendered in generated documentation.",
     }),
@@ -554,10 +603,11 @@ export class TypeAlias extends S.TaggedClass<TypeAlias>($I`TypeAlias`)(
     position: Position.annotateKey({
       description: "Source location for the type alias declaration.",
     }),
-  },
-  $I.annote("TypeAlias", {
-    description: "Documented type alias declaration.",
-  })
+  }).pipe(
+    $I.annoteSchema("TypeAlias", {
+      description: "Documented type alias declaration.",
+    })
+  )
 ) {
   /**
    * Creates a documented type alias model.
@@ -588,8 +638,14 @@ export class TypeAlias extends S.TaggedClass<TypeAlias>($I`TypeAlias`)(
  * **Example** (Creating a Constant model)
  *
  * ```ts
- * import { Constant, Doc, Position } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import {
+ *   Constant,
+ *   Doc,
+ *   DocNewOptions,
+ *   Position,
+ *   SignaturePositionOptions
+ * } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -597,20 +653,19 @@ export class TypeAlias extends S.TaggedClass<TypeAlias>($I`TypeAlias`)(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const model = Constant.new("example", doc, {
+ * }))
+ * const model = Constant.new("example", doc, SignaturePositionOptions.make({
  *   signature: "const example: string",
  *   position: Position.new(1, 1)
- * })
+ * }))
  * console.log(model)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Constant extends S.TaggedClass<Constant>($I`Constant`)(
-  "Constant",
-  {
+export class Constant extends S.Opaque<Constant, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Constant", {
     name: DocgenSymbolName.annotateKey({
       description: "Constant name rendered in generated documentation.",
     }),
@@ -623,10 +678,11 @@ export class Constant extends S.TaggedClass<Constant>($I`Constant`)(
     position: Position.annotateKey({
       description: "Source location for the constant declaration.",
     }),
-  },
-  $I.annote("Constant", {
-    description: "Documented exported constant declaration.",
-  })
+  }).pipe(
+    $I.annoteSchema("Constant", {
+      description: "Documented exported constant declaration.",
+    })
+  )
 ) {
   /**
    * Creates a documented constant model.
@@ -651,15 +707,22 @@ export class Constant extends S.TaggedClass<Constant>($I`Constant`)(
   );
 }
 
-class ExportNewOptions extends S.Class<ExportNewOptions>($I`ExportNewOptions`)(
-  {
+/**
+ * Constructor options carrying export signature, position, and namespace-export marker.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ExportNewOptions extends S.Opaque<ExportNewOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     signature: DocgenSignatureText,
     position: Position,
     isNamespaceExport: S.Boolean,
-  },
-  $I.annote("ExportNewOptions", {
-    description: "Constructor options carrying export signature, position, and namespace-export marker.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExportNewOptions", {
+      description: "Constructor options carrying export signature, position, and namespace-export marker.",
+    })
+  )
 ) {}
 
 /**
@@ -674,8 +737,8 @@ class ExportNewOptions extends S.Class<ExportNewOptions>($I`ExportNewOptions`)(
  * **Example** (Creating an Export model)
  *
  * ```ts
- * import { Doc, Export, Position } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import { Doc, DocNewOptions, Export, ExportNewOptions, Position } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -683,21 +746,20 @@ class ExportNewOptions extends S.Class<ExportNewOptions>($I`ExportNewOptions`)(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const model = Export.new("Example", doc, {
+ * }))
+ * const model = Export.new("Example", doc, ExportNewOptions.make({
  *   signature: "export { Example }",
  *   position: Position.new(1, 1),
  *   isNamespaceExport: false
- * })
+ * }))
  * console.log(model)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Export extends S.TaggedClass<Export>($I`Export`)(
-  "Export",
-  {
+export class Export extends S.Opaque<Export, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Export", {
     name: DocgenSymbolName.annotateKey({
       description: "Export name rendered in generated documentation.",
     }),
@@ -713,10 +775,11 @@ export class Export extends S.TaggedClass<Export>($I`Export`)(
     isNamespaceExport: S.Boolean.annotateKey({
       description: "Whether the export came from a namespace export declaration.",
     }),
-  },
-  $I.annote("Export", {
-    description: "Named export edge whose owning declaration carries the public documentation.",
-  })
+  }).pipe(
+    $I.annoteSchema("Export", {
+      description: "Named export edge whose owning declaration carries the public documentation.",
+    })
+  )
 ) {
   /**
    * Creates a documented manual export model.
@@ -742,18 +805,19 @@ export class Export extends S.TaggedClass<Export>($I`Export`)(
   );
 }
 
-class NamespaceNewOptionsShape extends S.Class<NamespaceNewOptionsShape>($I`NamespaceNewOptions`)(
-  {
+class NamespaceNewOptionsShape extends S.Opaque<NamespaceNewOptionsShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     position: Position,
     interfaces: S.Array(Interface),
     typeAliases: S.Array(TypeAlias),
     namespaces: S.Array(S.Any),
-  },
-  $I.annote("NamespaceNewOptions", {
-    description: "Constructor options carrying nested namespace members.",
-  })
+  }).pipe(
+    $I.annoteSchema("NamespaceNewOptions", {
+      description: "Constructor options carrying nested namespace members.",
+    })
+  )
 ) {}
-type NamespaceNewOptions = Omit<NamespaceNewOptionsShape, "namespaces"> & {
+type NamespaceNewOptions = Omit<S.Struct.Type<typeof NamespaceNewOptionsShape.fields>, "namespaces"> & {
   readonly namespaces: ReadonlyArray<Namespace>;
 };
 
@@ -763,8 +827,8 @@ type NamespaceNewOptions = Omit<NamespaceNewOptionsShape, "namespaces"> & {
  * **Example** (Creating a Namespace model)
  *
  * ```ts
- * import { Doc, Namespace, Position } from "@beep/repo-docgen/Domain"
- * const doc = Doc.new("Description.", {
+ * import { Doc, DocNewOptions, Namespace, Position } from "@beep/repo-docgen/Domain"
+ * const doc = Doc.new("Description.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -772,7 +836,7 @@ type NamespaceNewOptions = Omit<NamespaceNewOptionsShape, "namespaces"> & {
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
+ * }))
  * const model = Namespace.new("Example", doc, {
  *   position: Position.new(1, 1),
  *   interfaces: [],
@@ -785,7 +849,7 @@ type NamespaceNewOptions = Omit<NamespaceNewOptionsShape, "namespaces"> & {
  * @category models
  * @since 0.0.0
  */
-export class Namespace extends S.TaggedClass<Namespace>($I`Namespace`)(
+export class Namespace extends S.TaggedClass<Namespace, { readonly brand: unique symbol }>($I`Namespace`)(
   "Namespace",
   {
     name: DocgenSymbolName.annotateKey({
@@ -838,8 +902,14 @@ export class Namespace extends S.TaggedClass<Namespace>($I`Namespace`)(
   );
 }
 
-class ModuleNewOptions extends S.Class<ModuleNewOptions>($I`ModuleNewOptions`)(
-  {
+/**
+ * Constructor options carrying parsed module documentation and members.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ModuleNewOptions extends S.Opaque<ModuleNewOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     doc: Doc,
     path: DocgenPathSegments,
     classes: S.Array(Class),
@@ -849,10 +919,11 @@ class ModuleNewOptions extends S.Class<ModuleNewOptions>($I`ModuleNewOptions`)(
     constants: S.Array(Constant),
     exports: S.Array(Export),
     namespaces: S.Array(Namespace),
-  },
-  $I.annote("ModuleNewOptions", {
-    description: "Constructor options carrying parsed module documentation and members.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModuleNewOptions", {
+      description: "Constructor options carrying parsed module documentation and members.",
+    })
+  )
 ) {}
 
 /**
@@ -862,13 +933,13 @@ class ModuleNewOptions extends S.Class<ModuleNewOptions>($I`ModuleNewOptions`)(
  *
  * ```ts
  * import { Project } from "ts-morph"
- * import { Doc, Module } from "@beep/repo-docgen/Domain"
+ * import { Doc, DocNewOptions, Module, ModuleNewOptions } from "@beep/repo-docgen/Domain"
  * import { SourceShape } from "@beep/repo-docgen/Parser"
  *
  * const project = new Project({ useInMemoryFileSystem: true })
  * const sourceFile = project.createSourceFile("src/example.ts", "export const value = 1")
  * const source = SourceShape.new(["src", "example.ts"], sourceFile)
- * const doc = Doc.new("Example module.", {
+ * const doc = Doc.new("Example module.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -876,8 +947,8 @@ class ModuleNewOptions extends S.Class<ModuleNewOptions>($I`ModuleNewOptions`)(
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const module = Module.new(source, "example.ts", {
+ * }))
+ * const module = Module.new(source, "example.ts", ModuleNewOptions.make({
  *   doc,
  *   path: ["src", "example.ts"],
  *   classes: [],
@@ -887,7 +958,7 @@ class ModuleNewOptions extends S.Class<ModuleNewOptions>($I`ModuleNewOptions`)(
  *   constants: [],
  *   exports: [],
  *   namespaces: []
- * })
+ * }))
  *
  * console.log(module.path)
  * ```
@@ -895,7 +966,7 @@ class ModuleNewOptions extends S.Class<ModuleNewOptions>($I`ModuleNewOptions`)(
  * @category models
  * @since 0.0.0
  */
-export class Module extends S.Class<Module>($I`Module`)(
+export class Module extends S.Class<Module, { readonly brand: unique symbol }>($I`Module`)(
   {
     source: S.Any,
     name: DocgenSymbolName.annotateKey({
@@ -965,16 +1036,17 @@ export class Module extends S.Class<Module>($I`Module`)(
   );
 }
 
-class FileNewOptions extends S.Class<FileNewOptions>($I`FileNewOptions`)(
-  {
+class FileNewOptions extends S.Opaque<FileNewOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     isOverwritable: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultKey(Effect.succeed(false))
     ),
-  },
-  $I.annote("FileNewOptions", {
-    description: "Constructor options for output file overwrite behavior.",
-  })
+  }).pipe(
+    $I.annoteSchema("FileNewOptions", {
+      description: "Constructor options for output file overwrite behavior.",
+    })
+  )
 ) {}
 type FileNewOptionsInput = Exclude<(typeof FileNewOptions)["~type.make.in"], void>;
 
@@ -986,12 +1058,12 @@ type FileNewOptionsInput = Exclude<(typeof FileNewOptions)["~type.make.in"], voi
  * ```ts
  * import * as A from "effect/Array"
  * import { Project } from "ts-morph"
- * import { ByPath, Doc, Module } from "@beep/repo-docgen/Domain"
+ * import { ByPath, Doc, DocNewOptions, Module, ModuleNewOptions } from "@beep/repo-docgen/Domain"
  * import { SourceShape } from "@beep/repo-docgen/Parser"
  *
  * const project = new Project({ useInMemoryFileSystem: true })
  * const sourceFile = project.createSourceFile("src/a.ts", "")
- * const doc = Doc.new("Example module.", {
+ * const doc = Doc.new("Example module.", DocNewOptions.make({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
@@ -999,8 +1071,8 @@ type FileNewOptionsInput = Exclude<(typeof FileNewOptions)["~type.make.in"], voi
  *   throws: [],
  *   sees: [],
  *   tags: {}
- * })
- * const first = Module.new(SourceShape.new(["src", "a.ts"], sourceFile), "a.ts", {
+ * }))
+ * const first = Module.new(SourceShape.new(["src", "a.ts"], sourceFile), "a.ts", ModuleNewOptions.make({
  *   doc,
  *   path: ["src", "a.ts"],
  *   classes: [],
@@ -1010,8 +1082,8 @@ type FileNewOptionsInput = Exclude<(typeof FileNewOptions)["~type.make.in"], voi
  *   constants: [],
  *   exports: [],
  *   namespaces: []
- * })
- * const second = Module.new(SourceShape.new(["src", "b.ts"], sourceFile), "b.ts", {
+ * }))
+ * const second = Module.new(SourceShape.new(["src", "b.ts"], sourceFile), "b.ts", ModuleNewOptions.make({
  *   doc,
  *   path: ["src", "b.ts"],
  *   classes: [],
@@ -1021,7 +1093,7 @@ type FileNewOptionsInput = Exclude<(typeof FileNewOptions)["~type.make.in"], voi
  *   constants: [],
  *   exports: [],
  *   namespaces: []
- * })
+ * }))
  *
  * const sorted = A.sort(ByPath)([second, first])
  * console.log(sorted[0]?.name)
@@ -1053,8 +1125,8 @@ export const ByPath: {
  * @category models
  * @since 0.0.0
  */
-export class File extends S.Class<File>($I`File`)(
-  {
+export class File extends S.Opaque<File, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String.annotateKey({
       description: "Output file path.",
     }),
@@ -1064,10 +1136,11 @@ export class File extends S.Class<File>($I`File`)(
     isOverwritable: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))).annotateKey({
       description: "Whether an existing output file may be overwritten.",
     }),
-  },
-  $I.annote("File", {
-    description: "Output file descriptor used by docgen write workflows.",
-  })
+  }).pipe(
+    $I.annoteSchema("File", {
+      description: "Output file descriptor used by docgen write workflows.",
+    })
+  )
 ) {
   /**
    * Creates an output file descriptor.
@@ -1135,7 +1208,7 @@ export type DocgenErrorTypeId = typeof DocgenErrorTypeId;
  * @category models
  * @since 0.0.0
  */
-export class DocgenError extends S.TaggedError<DocgenError>($I`DocgenError`)(
+export class DocgenError extends S.TaggedError<DocgenError, { readonly brand: unique symbol }>($I`DocgenError`)(
   "DocgenError",
   {
     message: S.String.annotateKey({

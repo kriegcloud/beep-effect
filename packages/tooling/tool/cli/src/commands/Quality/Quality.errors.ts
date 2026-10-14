@@ -39,7 +39,9 @@ type QualityScriptCommandErrorOptions =
  * @category error-handling
  * @since 0.0.0
  */
-export class ChangesetGraphError extends S.TaggedError<ChangesetGraphError>($I`ChangesetGraphError`)(
+export class ChangesetGraphError extends S.TaggedError<ChangesetGraphError, { readonly brand: unique symbol }>(
+  $I`ChangesetGraphError`
+)(
   "ChangesetGraphError",
   {
     message: S.String,
@@ -90,7 +92,9 @@ export class ChangesetGraphError extends S.TaggedError<ChangesetGraphError>($I`C
  * @category error-handling
  * @since 0.0.0
  */
-export class ChangesetStatusError extends S.TaggedError<ChangesetStatusError>($I`ChangesetStatusError`)(
+export class ChangesetStatusError extends S.TaggedError<ChangesetStatusError, { readonly brand: unique symbol }>(
+  $I`ChangesetStatusError`
+)(
   "ChangesetStatusError",
   {
     message: S.String,
@@ -137,7 +141,10 @@ export class ChangesetStatusError extends S.TaggedError<ChangesetStatusError>($I
  * @category errors
  * @since 0.0.0
  */
-export class QualityScriptCommandError extends S.TaggedError<QualityScriptCommandError>($I`QualityScriptCommandError`)(
+export class QualityScriptCommandError extends S.TaggedError<
+  QualityScriptCommandError,
+  { readonly brand: unique symbol }
+>($I`QualityScriptCommandError`)(
   "QualityScriptCommandError",
   commandErrorFields,
   $I.annoteError<QualityScriptCommandError>("QualityScriptCommandError", {
@@ -188,7 +195,9 @@ export class QualityScriptCommandError extends S.TaggedError<QualityScriptComman
  * @category error-handling
  * @since 0.0.0
  */
-export class QualityTaskFailed extends S.TaggedError<QualityTaskFailed>($I`QualityTaskFailed`)(
+export class QualityTaskFailed extends S.TaggedError<QualityTaskFailed, { readonly brand: unique symbol }>(
+  $I`QualityTaskFailed`
+)(
   "QualityTaskFailed",
   {
     label: S.String,
@@ -244,7 +253,9 @@ export class QualityTaskFailed extends S.TaggedError<QualityTaskFailed>($I`Quali
  * @category error-handling
  * @since 0.0.0
  */
-export class QualityTaskGroupFailed extends S.TaggedError<QualityTaskGroupFailed>($I`QualityTaskGroupFailed`)(
+export class QualityTaskGroupFailed extends S.TaggedError<QualityTaskGroupFailed, { readonly brand: unique symbol }>(
+  $I`QualityTaskGroupFailed`
+)(
   "QualityTaskGroupFailed",
   {
     label: S.String,
@@ -293,9 +304,10 @@ export class QualityTaskGroupFailed extends S.TaggedError<QualityTaskGroupFailed
  * @category error-handling
  * @since 0.0.0
  */
-export class QualityTaskConfigurationError extends S.TaggedError<QualityTaskConfigurationError>(
-  $I`QualityTaskConfigurationError`
-)(
+export class QualityTaskConfigurationError extends S.TaggedError<
+  QualityTaskConfigurationError,
+  { readonly brand: unique symbol }
+>($I`QualityTaskConfigurationError`)(
   "QualityTaskConfigurationError",
   {
     message: S.String,
@@ -327,9 +339,10 @@ export class QualityTaskConfigurationError extends S.TaggedError<QualityTaskConf
  * @category error-handling
  * @since 0.0.0
  */
-export class UnexpectedQualityTaskFailure extends S.TaggedError<UnexpectedQualityTaskFailure>(
-  $I`UnexpectedQualityTaskFailure`
-)(
+export class UnexpectedQualityTaskFailure extends S.TaggedError<
+  UnexpectedQualityTaskFailure,
+  { readonly brand: unique symbol }
+>($I`UnexpectedQualityTaskFailure`)(
   "UnexpectedQualityTaskFailure",
   {
     message: S.String,

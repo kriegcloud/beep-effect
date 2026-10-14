@@ -91,7 +91,9 @@ export type DirectoryHandleOperation = typeof DirectoryHandleOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class DirectoryHandleError extends S.TaggedError<DirectoryHandleError>($I`DirectoryHandleError`)(
+export class DirectoryHandleError extends S.TaggedError<DirectoryHandleError, { readonly brand: unique symbol }>(
+  $I`DirectoryHandleError`
+)(
   "DirectoryHandleError",
   {
     message: S.String,
@@ -134,14 +136,15 @@ const closeQuietly = (fd: number): Effect.Effect<void> =>
  * @category models
  * @since 0.0.0
  */
-export class DirectoryIdentity extends S.Class<DirectoryIdentity>($I`DirectoryIdentity`)(
-  {
+export class DirectoryIdentity extends S.Opaque<DirectoryIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     dev: S.Int,
     ino: S.Int,
-  },
-  $I.annote("DirectoryIdentity", {
-    description: "Device and inode numbers naming one directory independently of every path that reaches it.",
-  })
+  }).pipe(
+    $I.annoteSchema("DirectoryIdentity", {
+      description: "Device and inode numbers naming one directory independently of every path that reaches it.",
+    })
+  )
 ) {}
 
 /**
@@ -214,15 +217,16 @@ export const directoryIdentity = (info: FileSystem.File.Info): O.Option<Director
  * @category models
  * @since 0.0.0
  */
-export class DirectoryHandle extends S.Class<DirectoryHandle>($I`DirectoryHandle`)(
-  {
+export class DirectoryHandle extends S.Opaque<DirectoryHandle, { readonly brand: unique symbol }>()(
+  S.Struct({
     fd: S.Int,
     identity: DirectoryIdentity,
-  },
-  $I.annote("DirectoryHandle", {
-    description:
-      "An open descriptor on a directory and the identity it was bound to at open time; valid only inside the scope that opened it.",
-  })
+  }).pipe(
+    $I.annoteSchema("DirectoryHandle", {
+      description:
+        "An open descriptor on a directory and the identity it was bound to at open time; valid only inside the scope that opened it.",
+    })
+  )
 ) {}
 
 const bindDirectory = Effect.fnUntraced(function* (

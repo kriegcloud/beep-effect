@@ -82,7 +82,7 @@ const SnapshotVersion = S.optionalKey(S.String).pipe(
  * @category models
  * @since 0.0.0
  */
-export class PackageStateSnapshot extends S.Class<PackageStateSnapshot>($I`PackageStateSnapshot`)({
+export class PackageStateSnapshot extends S.Class<PackageStateSnapshot, { readonly brand: unique symbol }>($I`PackageStateSnapshot`)({
 	/** The package name. */
 	name: S.NonEmptyString.annotateKey({ description: "The package name." }),
 	/**
@@ -184,7 +184,7 @@ export class PackageStateSnapshot extends S.Class<PackageStateSnapshot>($I`Packa
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot>($I`WorkspaceStateSnapshot`)({
+export class WorkspaceStateSnapshot extends S.Class<WorkspaceStateSnapshot, { readonly brand: unique symbol }>($I`WorkspaceStateSnapshot`)({
 	/** Every workspace package captured at this moment. */
 	packages: S.Array(PackageStateSnapshot).annotateKey({ description: "Every workspace package captured at this moment." }),
 	/** The catalog set assembled at this moment. */

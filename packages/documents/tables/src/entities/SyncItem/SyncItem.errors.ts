@@ -26,7 +26,9 @@ const $I = $DocumentsTablesId.create("entities/SyncItem/SyncItem.errors");
  * @category errors
  * @since 0.0.0
  */
-export class SyncItemConverterError extends S.TaggedError<SyncItemConverterError>($I`SyncItemConverterError`)(
+export class SyncItemConverterError extends S.TaggedError<SyncItemConverterError, { readonly brand: unique symbol }>(
+  $I`SyncItemConverterError`
+)(
   "SyncItemConverterError",
   {
     message: S.String.annotateKey({

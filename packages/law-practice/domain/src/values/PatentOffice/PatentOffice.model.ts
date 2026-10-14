@@ -27,11 +27,12 @@ const $I = $LawPracticeDomainId.create("values/PatentOffice/PatentOffice");
  * @category models
  * @since 0.0.0
  */
-export class Metadata extends S.Class<Metadata>($I`Metadata`)(
-  {},
-  $I.annote("Metadata", {
-    description: "WIPO ST.16 / office logo + flag metadata, used for jurisdiction-aware UI.",
-  })
+export class Metadata extends S.Opaque<Metadata, { readonly brand: unique symbol }>()(
+  S.Struct({}).pipe(
+    $I.annoteSchema("Metadata", {
+      description: "WIPO ST.16 / office logo + flag metadata, used for jurisdiction-aware UI.",
+    })
+  )
 ) {}
 // {
 // 				readonly name: string;

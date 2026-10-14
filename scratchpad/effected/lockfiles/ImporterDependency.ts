@@ -51,7 +51,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/ImporterDependency");
  * @category models
  * @since 0.0.0
  */
-export class ImporterDependency extends S.Class<ImporterDependency>($I`ImporterDependency`)({
+export class ImporterDependency extends S.Class<ImporterDependency, { readonly brand: unique symbol }>($I`ImporterDependency`)({
 	name: S.NonEmptyString.annotateKey({ description: "Dependency package declared by this workspace importer" }),
 	specifier: DependencySpecifier.FromString.annotateKey({ description: "Declared dependency range or protocol, classified for inspection while preserving its exact original spelling when encoded" }),
 	version: S.optionalKey(S.String).annotateKey({ description: "pnpm-recorded resolved version or protocol resolution with peer context removed; absent for bun and npm" }),

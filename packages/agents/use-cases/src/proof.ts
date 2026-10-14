@@ -12,8 +12,9 @@
  *
  * ```ts
  * import { fixtureBlocksFor } from "@beep/agents-use-cases/proof"
+ * import { UserTurnHistoryItem } from "@beep/agents-use-cases/public"
  *
- * const blocks = fixtureBlocksFor([{ role: "user", text: "hello" }])
+ * const blocks = fixtureBlocksFor([UserTurnHistoryItem.make({ text: "hello" })])
  * console.log(blocks.length) // 4
  * ```
  *

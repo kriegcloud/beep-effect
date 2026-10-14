@@ -84,7 +84,7 @@ export interface Transport {
 	readonly rateLimit: Effect.Effect<O.Option<RateLimitSnapshot>>;
 }
 
-class TransportFailure extends S.TaggedError<TransportFailure>($I`TransportFailure`)("TransportFailure", {
+class TransportFailure extends S.TaggedError<TransportFailure, { readonly brand: unique symbol }>($I`TransportFailure`)("TransportFailure", {
 	error: S.Defect().annotateKey({ description: "The original throwable, preserved for transport classification." }),
 }, $I.annote("TransportFailure", { description: "Carries an Octokit throwable until it is classified." })) {}
 

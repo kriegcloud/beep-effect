@@ -847,15 +847,16 @@ export const jsdocMigrateBlockStats = (blockText: string): JSDocMigrateBlockStat
  * @category models
  * @since 0.0.0
  */
-export class JSDocMigrateBlockInput extends S.Class<JSDocMigrateBlockInput>($I`JSDocMigrateBlockInput`)(
-  {
+export class JSDocMigrateBlockInput extends S.Opaque<JSDocMigrateBlockInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     blockText: S.String,
     indent: S.String,
     data: JSDocMigrateRewriteData,
-  },
-  $I.annote("JSDocMigrateBlockInput", {
-    description: "Block text, indentation, and title data consumed by the JSDoc migration rewriter.",
-  })
+  }).pipe(
+    $I.annoteSchema("JSDocMigrateBlockInput", {
+      description: "Block text, indentation, and title data consumed by the JSDoc migration rewriter.",
+    })
+  )
 ) {}
 
 /**

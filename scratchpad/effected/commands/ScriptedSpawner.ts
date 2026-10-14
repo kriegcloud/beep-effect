@@ -13,7 +13,7 @@ import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 const $I = $ScratchpadId.create("effected/commands/ScriptedSpawner");
 
 /** A pipeline reached a test double that only scripts standard commands. */
-class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError>($I`ScriptedPipelineError`)(
+class ScriptedPipelineError extends S.TaggedError<ScriptedPipelineError, { readonly brand: unique symbol }>($I`ScriptedPipelineError`)(
 	"ScriptedPipelineError",
 	{ message: S.String },
 	$I.annote("ScriptedPipelineError", { description: "A piped command reached the standard-command-only scripted spawner." }),

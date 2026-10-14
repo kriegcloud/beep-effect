@@ -399,19 +399,20 @@ const sortedModifiers = S.makeFilter<ReadonlyArray<Modifier>>(
  * @category models
  * @since 0.0.0
  */
-export class KeyChord extends S.Class<KeyChord>($I`KeyChord`)(
-  {
+export class KeyChord extends S.Opaque<KeyChord, { readonly brand: unique symbol }>()(
+  S.Struct({
     modifiers: S.Array(Modifier)
       .check(uniqueModifiers, sortedModifiers)
       .annotateKey({ description: "Unique modifiers in canonical control, meta, alt, shift order." }),
     key: S.NonEmptyString.check(S.isLowercased({ message: "Expected a lowercase key" })).annotateKey({
       description: "Lowercase non-empty key token.",
     }),
-  },
-  $I.annote("KeyChord", {
-    title: "Key chord",
-    description: "Canonical parsed keyboard chord used for equality and conflict detection.",
-  })
+  }).pipe(
+    $I.annoteSchema("KeyChord", {
+      title: "Key chord",
+      description: "Canonical parsed keyboard chord used for equality and conflict detection.",
+    })
+  )
 ) {}
 
 const parseChord = (input: string) => {
@@ -426,7 +427,7 @@ const parseChord = (input: string) => {
   };
 };
 
-const encodeChord = (chord: KeyChord): string =>
+const encodeChord = (chord: typeof KeyChord.Encoded): string =>
   A.join(A.append(A.map(chord.modifiers, modifierToToken), chord.key), "+");
 
 /**
@@ -486,15 +487,16 @@ export type KeyChordFromString = typeof KeyChordFromString.Type;
  * @category models
  * @since 0.0.0
  */
-export class Keybinding extends S.Class<Keybinding>($I`Keybinding`)(
-  {
+export class Keybinding extends S.Opaque<Keybinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     platform: Platform.annotateKey({ description: "Platform family that owns the binding." }),
     chord: KeyChordFromString.annotateKey({ description: "Canonical chord decoded from its authored string." }),
-  },
-  $I.annote("Keybinding", {
-    title: "Keybinding",
-    description: "A platform-specific keyboard chord attached to a command.",
-  })
+  }).pipe(
+    $I.annoteSchema("Keybinding", {
+      title: "Keybinding",
+      description: "A platform-specific keyboard chord attached to a command.",
+    })
+  )
 ) {}
 
 /**
@@ -665,8 +667,8 @@ const uniqueCapabilityIds = uniqueValues<CapabilityId>("capability id");
  * @category models
  * @since 0.0.0
  */
-export class CapabilityRegistrations extends S.Class<CapabilityRegistrations>($I`CapabilityRegistrations`)(
-  {
+export class CapabilityRegistrations extends S.Opaque<CapabilityRegistrations, { readonly brand: unique symbol }>()(
+  S.Struct({
     nodes: S.Array(NodeRegistrationKey)
       .check(uniqueNodeKeys)
       .annotateKey({ description: "Lexical node registrations owned by the capability." }),
@@ -676,11 +678,12 @@ export class CapabilityRegistrations extends S.Class<CapabilityRegistrations>($I
     transformers: S.Array(TransformerKey)
       .check(uniqueTransformerKeys)
       .annotateKey({ description: "Markdown transformers owned by the capability." }),
-  },
-  $I.annote("CapabilityRegistrations", {
-    title: "Capability registrations",
-    description: "Unique runtime registration keys owned by one capability descriptor.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityRegistrations", {
+      title: "Capability registrations",
+      description: "Unique runtime registration keys owned by one capability descriptor.",
+    })
+  )
 ) {}
 
 const uniqueBindingPlatforms = S.makeFilter<ReadonlyArray<Keybinding>>(
@@ -719,8 +722,8 @@ const uniqueBindingPlatforms = S.makeFilter<ReadonlyArray<Keybinding>>(
  * @category commands
  * @since 0.0.0
  */
-export class CommandDefinition extends S.Class<CommandDefinition>($I`CommandDefinition`)(
-  {
+export class CommandDefinition extends S.Opaque<CommandDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CommandId.annotateKey({ description: "Stable command identifier." }),
     label: S.NonEmptyString.annotateKey({ description: "Visible command label." }),
     helpText: S.NonEmptyString.annotateKey({ description: "Generated shortcut-help description." }),
@@ -730,11 +733,12 @@ export class CommandDefinition extends S.Class<CommandDefinition>($I`CommandDefi
     keybindings: S.Array(Keybinding)
       .check(uniqueBindingPlatforms)
       .annotateKey({ description: "Default authored bindings, at most one per platform." }),
-  },
-  $I.annote("CommandDefinition", {
-    title: "Command definition",
-    description: "Command metadata and default bindings owned by a capability descriptor.",
-  })
+  }).pipe(
+    $I.annoteSchema("CommandDefinition", {
+      title: "Command definition",
+      description: "Command metadata and default bindings owned by a capability descriptor.",
+    })
+  )
 ) {}
 
 /**
@@ -752,15 +756,16 @@ export class CommandDefinition extends S.Class<CommandDefinition>($I`CommandDefi
  * @category models
  * @since 0.0.0
  */
-export class CapabilityClassification extends S.Class<CapabilityClassification>($I`CapabilityClassification`)(
-  {
+export class CapabilityClassification extends S.Opaque<CapabilityClassification, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: CapabilityCategory.annotateKey({ description: "Atlas taxonomy category." }),
     disposition: CapabilityDisposition.annotateKey({ description: "P1 product disposition." }),
-  },
-  $I.annote("CapabilityClassification", {
-    title: "Capability classification",
-    description: "Atlas category and ratified P1 disposition for a descriptor.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityClassification", {
+      title: "Capability classification",
+      description: "Atlas category and ratified P1 disposition for a descriptor.",
+    })
+  )
 ) {}
 
 /**
@@ -785,8 +790,8 @@ export class CapabilityClassification extends S.Class<CapabilityClassification>(
  * @category models
  * @since 0.0.0
  */
-export class CapabilityDescriptor extends S.Class<CapabilityDescriptor>($I`CapabilityDescriptor`)(
-  {
+export class CapabilityDescriptor extends S.Opaque<CapabilityDescriptor, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CapabilityId.annotateKey({ description: "Stable capability identifier." }),
     title: S.NonEmptyString.annotateKey({ description: "Human-readable capability title." }),
     summary: S.NonEmptyString.annotateKey({ description: "Concise capability behavior summary." }),
@@ -804,11 +809,12 @@ export class CapabilityDescriptor extends S.Class<CapabilityDescriptor>($I`Capab
       description: "Compatibility with canonical @beep/md content.",
     }),
     evidence: S.NonEmptyString.annotateKey({ description: "Stable atlas or repository evidence locator." }),
-  },
-  $I.annote("CapabilityDescriptor", {
-    title: "Capability descriptor",
-    description: "Catalog row that owns registrations, commands, dependencies, and canonical loss policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("CapabilityDescriptor", {
+      title: "Capability descriptor",
+      description: "Catalog row that owns registrations, commands, dependencies, and canonical loss policy.",
+    })
+  )
 ) {}
 
 const catalogRelationships = S.makeFilter<ReadonlyArray<CapabilityDescriptor>>(
@@ -990,17 +996,18 @@ export type ProfileKind = typeof ProfileKind.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class KeybindingOverride extends S.Class<KeybindingOverride>($I`KeybindingOverride`)(
-  {
+export class KeybindingOverride extends S.Opaque<KeybindingOverride, { readonly brand: unique symbol }>()(
+  S.Struct({
     commandId: CommandId.annotateKey({ description: "Resolved command whose defaults are replaced." }),
     keybindings: S.Array(Keybinding)
       .check(uniqueBindingPlatforms)
       .annotateKey({ description: "Replacement bindings; an empty array unbinds the command." }),
-  },
-  $I.annote("KeybindingOverride", {
-    title: "Keybinding override",
-    description: "Complete replacement for one resolved command's default bindings.",
-  })
+  }).pipe(
+    $I.annoteSchema("KeybindingOverride", {
+      title: "Keybinding override",
+      description: "Complete replacement for one resolved command's default bindings.",
+    })
+  )
 ) {}
 
 const uniqueOverrideCommandIds = S.makeFilter<ReadonlyArray<KeybindingOverride>>(
@@ -1036,8 +1043,8 @@ const uniqueOverrideCommandIds = S.makeFilter<ReadonlyArray<KeybindingOverride>>
  * @category configuration
  * @since 0.0.0
  */
-export class EditorProfile extends S.Class<EditorProfile>($I`EditorProfile`)(
-  {
+export class EditorProfile extends S.Opaque<EditorProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ProfileId.annotateKey({ description: "Stable app-owned profile identifier." }),
     kind: ProfileKind.pipe(S.withConstructorDefault(Effect.succeed("production" as const))).annotateKey({
       description: "Ownership class; defaults to production.",
@@ -1049,11 +1056,12 @@ export class EditorProfile extends S.Class<EditorProfile>($I`EditorProfile`)(
       .check(uniqueOverrideCommandIds)
       .pipe(S.withConstructorDefault(Effect.succeed([])))
       .annotateKey({ description: "Complete command binding replacements; defaults to none." }),
-  },
-  $I.annote("EditorProfile", {
-    title: "Editor profile",
-    description: "App-owned explicit capability selection and keybinding override set.",
-  })
+  }).pipe(
+    $I.annoteSchema("EditorProfile", {
+      title: "Editor profile",
+      description: "App-owned explicit capability selection and keybinding override set.",
+    })
+  )
 ) {}
 
 /**
@@ -1102,16 +1110,17 @@ export type CapabilityMode = typeof CapabilityMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class ResolvedCapability extends S.Class<ResolvedCapability>($I`ResolvedCapability`)(
-  {
+export class ResolvedCapability extends S.Opaque<ResolvedCapability, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CapabilityId.annotateKey({ description: "Catalog capability identifier." }),
     mode: CapabilityMode.annotateKey({ description: "Resolved authoring state." }),
     readOnlyFallback: ReadOnlyFallback.annotateKey({ description: "Fallback used in read-only mode." }),
-  },
-  $I.annote("ResolvedCapability", {
-    title: "Resolved capability",
-    description: "One catalog capability in catalog order with its resolved authoring mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedCapability", {
+      title: "Resolved capability",
+      description: "One catalog capability in catalog order with its resolved authoring mode.",
+    })
+  )
 ) {}
 
 /**
@@ -1132,19 +1141,20 @@ export class ResolvedCapability extends S.Class<ResolvedCapability>($I`ResolvedC
  * @category commands
  * @since 0.0.0
  */
-export class ResolvedCommand extends S.Class<ResolvedCommand>($I`ResolvedCommand`)(
-  {
+export class ResolvedCommand extends S.Opaque<ResolvedCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CommandId.annotateKey({ description: "Stable command identifier." }),
     capabilityId: CapabilityId.annotateKey({ description: "Capability that owns the command." }),
     label: S.NonEmptyString.annotateKey({ description: "Visible command label." }),
     helpText: S.NonEmptyString.annotateKey({ description: "Generated help description." }),
     surfaces: S.Array(ActivationSurface).annotateKey({ description: "Projected activation surfaces." }),
     keybindings: S.Array(Keybinding).annotateKey({ description: "Bindings after profile overrides." }),
-  },
-  $I.annote("ResolvedCommand", {
-    title: "Resolved command",
-    description: "Enabled command with its owning capability and final keybindings.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedCommand", {
+      title: "Resolved command",
+      description: "Enabled command with its owning capability and final keybindings.",
+    })
+  )
 ) {}
 
 /**
@@ -1166,8 +1176,8 @@ export class ResolvedCommand extends S.Class<ResolvedCommand>($I`ResolvedCommand
  * @category models
  * @since 0.0.0
  */
-export class ResolvedEditorProfile extends S.Class<ResolvedEditorProfile>($I`ResolvedEditorProfile`)(
-  {
+export class ResolvedEditorProfile extends S.Opaque<ResolvedEditorProfile, { readonly brand: unique symbol }>()(
+  S.Struct({
     profileId: ProfileId.annotateKey({ description: "Resolved source profile identifier." }),
     kind: ProfileKind.annotateKey({ description: "Resolved source profile ownership class." }),
     capabilities: S.Array(ResolvedCapability).annotateKey({ description: "Every catalog row in catalog order." }),
@@ -1176,9 +1186,10 @@ export class ResolvedEditorProfile extends S.Class<ResolvedEditorProfile>($I`Res
     guardedChords: S.Array(Keybinding).annotateKey({
       description: "Default bindings swallowed for disabled catalog commands.",
     }),
-  },
-  $I.annote("ResolvedEditorProfile", {
-    title: "Resolved editor profile",
-    description: "Deterministic registration, command, and disabled-chord plan for an editor mount.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedEditorProfile", {
+      title: "Resolved editor profile",
+      description: "Deterministic registration, command, and disabled-chord plan for an editor mount.",
+    })
+  )
 ) {}

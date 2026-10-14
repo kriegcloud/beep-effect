@@ -110,7 +110,9 @@ const decodeFileProcessingFailureRecordLine = (line: string) => decodeFileProces
 const decodeSourceProcessingRecordLine = (line: string) => decodeSourceProcessingRecord(line);
 const isString = (value: unknown): value is string => typeof value === "string";
 
-class FilesTestError extends S.TaggedError<FilesTestError>()("FilesTestError", { cause: S.Defect() }) {}
+class FilesTestError extends S.TaggedError<FilesTestError, { readonly brand: unique symbol }>()("FilesTestError", {
+  cause: S.Defect(),
+}) {}
 
 const filesTestError = (cause: unknown) => FilesTestError.make({ cause });
 

@@ -35,7 +35,7 @@ const entryByCleanPosition: Order.Order<readonly [number, number]> = Order.mapIn
  * @category models
  * @since 0.0.0
  */
-export class SegmentMap extends S.Class<SegmentMap>($I`SegmentMap`)(
+export class SegmentMap extends S.Class<SegmentMap, { readonly brand: unique symbol }>($I`SegmentMap`)(
   {
     segments: S.Array(Segment),
   },

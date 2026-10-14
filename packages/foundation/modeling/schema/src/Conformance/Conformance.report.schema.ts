@@ -23,8 +23,14 @@ const ConformancePathSegment = S.Union([S.String, S.Natural]).pipe(
 );
 
 const violationIssuePathDefault = A.empty<string | number>();
-class ViolationIssue extends S.Class<ViolationIssue>($I`ViolationIssue`)(
-  {
+/**
+ * Definite violation of a mechanically decidable conformance invariant.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ViolationIssue extends S.Opaque<ViolationIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("violation"),
     invariantId: S.NonEmptyString,
     strength: RequirementStrength,
@@ -34,15 +40,22 @@ class ViolationIssue extends S.Class<ViolationIssue>($I`ViolationIssue`)(
     ),
     message: S.NonEmptyString,
     reference: S.OptionFromOptionalKey(SpecificationReference).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ViolationIssue", {
-    description: "Definite violation of a mechanically decidable conformance invariant.",
-  })
+  }).pipe(
+    $I.annoteSchema("ViolationIssue", {
+      description: "Definite violation of a mechanically decidable conformance invariant.",
+    })
+  )
 ) {}
 
 const indeterminateIssuePathDefault = A.empty<string | number>();
-class IndeterminateIssue extends S.Class<IndeterminateIssue>($I`IndeterminateIssue`)(
-  {
+/**
+ * Invariant outcome that requires context or authority unavailable to the validator.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class IndeterminateIssue extends S.Opaque<IndeterminateIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("indeterminate"),
     invariantId: S.NonEmptyString,
     path: S.Array(ConformancePathSegment).pipe(
@@ -52,10 +65,11 @@ class IndeterminateIssue extends S.Class<IndeterminateIssue>($I`IndeterminateIss
     message: S.NonEmptyString,
     reason: S.NonEmptyString,
     reference: S.OptionFromOptionalKey(SpecificationReference).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("IndeterminateIssue", {
-    description: "Invariant outcome that requires context or authority unavailable to the validator.",
-  })
+  }).pipe(
+    $I.annoteSchema("IndeterminateIssue", {
+      description: "Invariant outcome that requires context or authority unavailable to the validator.",
+    })
+  )
 ) {}
 
 /**
@@ -133,11 +147,18 @@ const ConformingReportConsistency = S.makeFilter(hasUniqueReportIdentifiers, {
 
 const ConformingReportValue = ConformingReportFields.check(ConformingReportConsistency);
 
-class ConformingReport extends S.Class<ConformingReport>($I`ConformingReport`)(
-  ConformingReportValue,
-  $I.annote("ConformingReport", {
-    description: "Report asserting conformance for the declared checked-invariant set.",
-  })
+/**
+ * Report asserting conformance for the declared checked-invariant set.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ConformingReport extends S.Opaque<ConformingReport, { readonly brand: unique symbol }>()(
+  ConformingReportValue.pipe(
+    $I.annoteSchema("ConformingReport", {
+      description: "Report asserting conformance for the declared checked-invariant set.",
+    })
+  )
 ) {}
 
 const nonConformingReportFieldsIndeterminateIssuesDefault = A.empty<IndeterminateIssue>();
@@ -166,12 +187,19 @@ const NonConformingReportConsistency = S.makeFilter(
 
 const NonConformingReportValue = NonConformingReportFields.check(NonConformingReportConsistency);
 
-class NonConformingReport extends S.Class<NonConformingReport>($I`NonConformingReport`)(
-  NonConformingReportValue,
-  $I.annote("NonConformingReport", {
-    description:
-      "Report containing one or more definite invariant violations plus any independently indeterminate outcomes.",
-  })
+/**
+ * Report containing one or more definite invariant violations plus any independently indeterminate outcomes.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class NonConformingReport extends S.Opaque<NonConformingReport, { readonly brand: unique symbol }>()(
+  NonConformingReportValue.pipe(
+    $I.annoteSchema("NonConformingReport", {
+      description:
+        "Report containing one or more definite invariant violations plus any independently indeterminate outcomes.",
+    })
+  )
 ) {}
 
 const IndeterminateReportFields = S.Struct({
@@ -193,11 +221,18 @@ const IndeterminateReportConsistency = S.makeFilter(
 
 const IndeterminateReportValue = IndeterminateReportFields.check(IndeterminateReportConsistency);
 
-class IndeterminateReport extends S.Class<IndeterminateReport>($I`IndeterminateReport`)(
-  IndeterminateReportValue,
-  $I.annote("IndeterminateReport", {
-    description: "Report containing outcomes that the available validator could not decide.",
-  })
+/**
+ * Report containing outcomes that the available validator could not decide.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class IndeterminateReport extends S.Opaque<IndeterminateReport, { readonly brand: unique symbol }>()(
+  IndeterminateReportValue.pipe(
+    $I.annoteSchema("IndeterminateReport", {
+      description: "Report containing outcomes that the available validator could not decide.",
+    })
+  )
 ) {}
 
 /**

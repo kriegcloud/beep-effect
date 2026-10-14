@@ -43,11 +43,12 @@ const DIGEST_DIRECTORY = "digests";
  * @category models
  * @since 0.0.0
  */
-export class DocketFileStoreOptions extends S.Class<DocketFileStoreOptions>($I`DocketFileStoreOptions`)(
-  {
+export class DocketFileStoreOptions extends S.Opaque<DocketFileStoreOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: S.NonEmptyString.annotateKey({ description: "Directory that holds the state file and the digests." }),
-  },
-  $I.annote("DocketFileStoreOptions", { description: "Settings of the file-backed docket intake store." })
+  }).pipe(
+    $I.annoteSchema("DocketFileStoreOptions", { description: "Settings of the file-backed docket intake store." })
+  )
 ) {}
 
 const StateJson = S.fromJsonString(DocketIntakeState);

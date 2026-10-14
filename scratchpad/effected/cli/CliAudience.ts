@@ -17,7 +17,7 @@ import { WizardDropped } from "./internal/wizardGate.ts";
 
 const $I = $ScratchpadId.create("effected/cli/CliAudience");
 
-class AudienceConflictError extends S.TaggedError<AudienceConflictError>($I`AudienceConflictError`)(
+class AudienceConflictError extends S.TaggedError<AudienceConflictError, { readonly brand: unique symbol }>($I`AudienceConflictError`)(
 	"AudienceConflictError",
 	{
 		message: S.String.annotate({ description: "The usage guidance for conflicting or repeated audience flags." }),

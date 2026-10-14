@@ -40,8 +40,8 @@ const $I = $DocumentsUseCasesId.create("entities/SyncConflict/SyncConflict.repos
  * @category repositories
  * @since 0.0.0
  */
-export class SyncConflictSeed extends S.Class<SyncConflictSeed>($I`SyncConflictSeed`)(
-  {
+export class SyncConflictSeed extends S.Opaque<SyncConflictSeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     conflictKind: DomainSyncConflict.SyncConflictKind.annotateKey({
       description: "Kind of remote drift detected for the mirrored item.",
     }),
@@ -69,10 +69,11 @@ export class SyncConflictSeed extends S.Class<SyncConflictSeed>($I`SyncConflictS
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose mirror observed the remote drift.",
     }),
-  },
-  $I.annote("SyncConflictSeed", {
-    description: "Creation input for one remote-drift record, excluding ProductEntity audit fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyncConflictSeed", {
+      description: "Creation input for one remote-drift record, excluding ProductEntity audit fields.",
+    })
+  )
 ) {}
 
 /**
@@ -94,9 +95,10 @@ export class SyncConflictSeed extends S.Class<SyncConflictSeed>($I`SyncConflictS
  * @category errors
  * @since 0.0.0
  */
-export class SyncConflictRepositoryNotFound extends S.TaggedError<SyncConflictRepositoryNotFound>(
-  $I`SyncConflictRepositoryNotFound`
-)(
+export class SyncConflictRepositoryNotFound extends S.TaggedError<
+  SyncConflictRepositoryNotFound,
+  { readonly brand: unique symbol }
+>($I`SyncConflictRepositoryNotFound`)(
   "SyncConflictRepositoryNotFound",
   {
     conflictId: Documents.SyncConflictId.annotateKey({
@@ -126,9 +128,10 @@ export class SyncConflictRepositoryNotFound extends S.TaggedError<SyncConflictRe
  * @category errors
  * @since 0.0.0
  */
-export class SyncConflictRepositoryUnavailable extends S.TaggedError<SyncConflictRepositoryUnavailable>(
-  $I`SyncConflictRepositoryUnavailable`
-)(
+export class SyncConflictRepositoryUnavailable extends S.TaggedError<
+  SyncConflictRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`SyncConflictRepositoryUnavailable`)(
   "SyncConflictRepositoryUnavailable",
   {
     reason: S.NonEmptyString.annotateKey({
@@ -163,18 +166,22 @@ export class SyncConflictRepositoryUnavailable extends S.TaggedError<SyncConflic
  * @category repositories
  * @since 0.0.0
  */
-export class ListOpenSyncConflictsInput extends S.Class<ListOpenSyncConflictsInput>($I`ListOpenSyncConflictsInput`)(
-  {
+export class ListOpenSyncConflictsInput extends S.Opaque<
+  ListOpenSyncConflictsInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     provider: DmsProvider.annotateKey({
       description: "DMS provider whose drift records are listed.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose drift records are listed.",
     }),
-  },
-  $I.annote("ListOpenSyncConflictsInput", {
-    description: "Listing input addressing the open drift records of one workspace mirror.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListOpenSyncConflictsInput", {
+      description: "Listing input addressing the open drift records of one workspace mirror.",
+    })
+  )
 ) {}
 
 /**
@@ -196,17 +203,19 @@ export class ListOpenSyncConflictsInput extends S.Class<ListOpenSyncConflictsInp
  * @category repositories
  * @since 0.0.0
  */
-export class MarkSyncConflictReviewedInput extends S.Class<MarkSyncConflictReviewedInput>(
-  $I`MarkSyncConflictReviewedInput`
-)(
-  {
+export class MarkSyncConflictReviewedInput extends S.Opaque<
+  MarkSyncConflictReviewedInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     conflictId: Documents.SyncConflictId.annotateKey({
       description: "Drift record to mark as reviewed.",
     }),
-  },
-  $I.annote("MarkSyncConflictReviewedInput", {
-    description: "Review input addressing one drift record by identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkSyncConflictReviewedInput", {
+      description: "Review input addressing one drift record by identity.",
+    })
+  )
 ) {}
 
 /**

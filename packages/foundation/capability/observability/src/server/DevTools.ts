@@ -81,20 +81,22 @@ export type DevToolsSpanFilter = typeof DevToolsSpanFilter.Type;
  * @category models
  * @since 0.0.0
  */
-export class LayerFilteredDevToolsOptions extends S.Class<LayerFilteredDevToolsOptions>(
-  $I`LayerFilteredDevToolsOptions`
-)(
-  {
+export class LayerFilteredDevToolsOptions extends S.Opaque<
+  LayerFilteredDevToolsOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     url: S.String.annotateKey({
       description: "Devtools websocket URL.",
     }),
     shouldPublish: DevToolsSpanFilter.annotateKey({
       description: "Predicate deciding whether a span should be mirrored.",
     }),
-  },
-  $I.annote("LayerFilteredDevToolsOptions", {
-    description: "Options for mirroring selected spans to the Effect devtools websocket.",
-  })
+  }).pipe(
+    $I.annoteSchema("LayerFilteredDevToolsOptions", {
+      description: "Options for mirroring selected spans to the Effect devtools websocket.",
+    })
+  )
 ) {}
 
 const toDevToolsSpanStatus = Match.type<Tracer.SpanStatus>().pipe(
@@ -149,12 +151,14 @@ const toDevToolsSpan = (span: Tracer.Span): DevToolsSchema.Span => ({
  * **Example** (Layer publishing all spans)
  *
  * ```typescript
- * import { layerFilteredDevTools } from "@beep/observability/server"
+ * import { LayerFilteredDevToolsOptions, layerFilteredDevTools } from "@beep/observability/server"
  *
- * const DevToolsLive = layerFilteredDevTools({
- *   shouldPublish: () => true,
- *   url: "ws://localhost:34437"
- * })
+ * const DevToolsLive = layerFilteredDevTools(
+ *   LayerFilteredDevToolsOptions.make({
+ *     shouldPublish: () => true,
+ *     url: "ws://localhost:34437"
+ *   })
+ * )
  * console.log(DevToolsLive)
  * ```
  *

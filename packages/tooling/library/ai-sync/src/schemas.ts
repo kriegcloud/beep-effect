@@ -135,14 +135,16 @@ export type NormalizedAgentInstructionDocument = typeof NormalizedAgentInstructi
  * @category schemas
  * @since 0.0.0
  */
-export class AgentSkillFrontmatter extends S.Class<AgentSkillFrontmatter>($I`AgentSkillFrontmatter`)(
-  {
+export class AgentSkillFrontmatter extends S.Opaque<AgentSkillFrontmatter, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     description: S.String,
-  },
-  $I.annote("AgentSkillFrontmatter", {
-    description: "Common skill frontmatter fields shared by Claude Code, Codex, Grok Build, and Junie skill packages.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentSkillFrontmatter", {
+      description:
+        "Common skill frontmatter fields shared by Claude Code, Codex, Grok Build, and Junie skill packages.",
+    })
+  )
 ) {
   static readonly normalize = (frontmatter: AgentSkillFrontmatter): AgentSkillFrontmatter =>
     AgentSkillFrontmatter.make({
@@ -169,15 +171,16 @@ export class AgentSkillFrontmatter extends S.Class<AgentSkillFrontmatter>($I`Age
  * @category schemas
  * @since 0.0.0
  */
-export class UnknownNativeSchemaCell extends S.Class<UnknownNativeSchemaCell>($I`UnknownNativeSchemaCell`)(
-  {
+export class UnknownNativeSchemaCell extends S.Opaque<UnknownNativeSchemaCell, { readonly brand: unique symbol }>()(
+  S.Struct({
     agent: AiSyncAgentId,
     domain: AiSyncDomainId,
     reason: S.String,
-  },
-  $I.annote("UnknownNativeSchemaCell", {
-    description: "Explicit marker for an undocumented native surface that V1 must not model by guesswork.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnknownNativeSchemaCell", {
+      description: "Explicit marker for an undocumented native surface that V1 must not model by guesswork.",
+    })
+  )
 ) {}
 
 /**
@@ -194,15 +197,16 @@ export class UnknownNativeSchemaCell extends S.Class<UnknownNativeSchemaCell>($I
  * @category schemas
  * @since 0.0.0
  */
-export class AgentCommandMetadata extends S.Class<AgentCommandMetadata>($I`AgentCommandMetadata`)(
-  {
+export class AgentCommandMetadata extends S.Opaque<AgentCommandMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     description: S.String,
     arguments: S.Array(S.String).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AgentCommandMetadata", {
-    description: "Portable metadata for agents with documented custom command concepts.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentCommandMetadata", {
+      description: "Portable metadata for agents with documented custom command concepts.",
+    })
+  )
 ) {}
 
 /**
@@ -219,16 +223,20 @@ export class AgentCommandMetadata extends S.Class<AgentCommandMetadata>($I`Agent
  * @category schemas
  * @since 0.0.0
  */
-export class AgentPluginManifestMetadata extends S.Class<AgentPluginManifestMetadata>($I`AgentPluginManifestMetadata`)(
-  {
+export class AgentPluginManifestMetadata extends S.Opaque<
+  AgentPluginManifestMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.String,
     version: S.String,
     description: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     metadata: S.Record(S.String, S.Unknown).pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AgentPluginManifestMetadata", {
-    description: "Plugin manifest metadata for documented plugin surfaces.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentPluginManifestMetadata", {
+      description: "Plugin manifest metadata for documented plugin surfaces.",
+    })
+  )
 ) {}
 
 /**

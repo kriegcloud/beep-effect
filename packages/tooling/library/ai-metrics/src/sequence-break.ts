@@ -298,31 +298,58 @@ export const SequenceBreakDeliveryFailureReason = LiteralKit([
  */
 export type SequenceBreakDeliveryFailureReason = typeof SequenceBreakDeliveryFailureReason.Type;
 
-class SequenceBreakDeliverySent extends S.Class<SequenceBreakDeliverySent>($I`SequenceBreakDeliverySent`)(
-  { status: S.tag("sent") },
-  $I.annote("SequenceBreakDeliverySent", {
-    description: "A notification transport accepted the content-free delivery request.",
-  })
+/**
+ * A notification transport accepted the content-free delivery request.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SequenceBreakDeliverySent extends S.Opaque<SequenceBreakDeliverySent, { readonly brand: unique symbol }>()(
+  S.Struct({ status: S.tag("sent") }).pipe(
+    $I.annoteSchema("SequenceBreakDeliverySent", {
+      description: "A notification transport accepted the content-free delivery request.",
+    })
+  )
 ) {}
 
-class SequenceBreakDeliverySkipped extends S.Class<SequenceBreakDeliverySkipped>($I`SequenceBreakDeliverySkipped`)(
-  {
+/**
+ * A notification transport was deliberately skipped for a bounded operational reason.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SequenceBreakDeliverySkipped extends S.Opaque<
+  SequenceBreakDeliverySkipped,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag("skipped"),
     reason: SequenceBreakDeliverySkipReason,
-  },
-  $I.annote("SequenceBreakDeliverySkipped", {
-    description: "A notification transport was deliberately skipped for a bounded operational reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("SequenceBreakDeliverySkipped", {
+      description: "A notification transport was deliberately skipped for a bounded operational reason.",
+    })
+  )
 ) {}
 
-class SequenceBreakDeliveryFailed extends S.Class<SequenceBreakDeliveryFailed>($I`SequenceBreakDeliveryFailed`)(
-  {
+/**
+ * A notification transport failed without retaining response or command content.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SequenceBreakDeliveryFailed extends S.Opaque<
+  SequenceBreakDeliveryFailed,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     status: S.tag("failed"),
     reason: SequenceBreakDeliveryFailureReason,
-  },
-  $I.annote("SequenceBreakDeliveryFailed", {
-    description: "A notification transport failed without retaining response or command content.",
-  })
+  }).pipe(
+    $I.annoteSchema("SequenceBreakDeliveryFailed", {
+      description: "A notification transport failed without retaining response or command content.",
+    })
+  )
 ) {}
 
 /**
@@ -402,7 +429,9 @@ const isGreaterThanOrEqualToNumber = Order.isGreaterThanOrEqualTo(Num.Order);
  * @category models
  * @since 0.0.0
  */
-export class SequenceBreakDampingV1 extends S.Class<SequenceBreakDampingV1>($I`SequenceBreakDampingV1`)(
+export class SequenceBreakDampingV1 extends S.Class<SequenceBreakDampingV1, { readonly brand: unique symbol }>(
+  $I`SequenceBreakDampingV1`
+)(
   S.Struct({
     schemaVersion: SequenceBreakDampingSchemaVersion,
     sessionId: Sha256Hex,
@@ -481,7 +510,10 @@ export class SequenceBreakDampingV1 extends S.Class<SequenceBreakDampingV1>($I`S
  * @category models
  * @since 0.0.0
  */
-export class SequenceBreakNotificationV1 extends S.Class<SequenceBreakNotificationV1>($I`SequenceBreakNotificationV1`)(
+export class SequenceBreakNotificationV1 extends S.Class<
+  SequenceBreakNotificationV1,
+  { readonly brand: unique symbol }
+>($I`SequenceBreakNotificationV1`)(
   S.Struct({
     schemaVersion: SequenceBreakNotificationSchemaVersion,
     ts: S.DateTimeUtcFromString,

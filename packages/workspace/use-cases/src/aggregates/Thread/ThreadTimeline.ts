@@ -50,8 +50,8 @@ const CostMicros = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * @category read-models
  * @since 0.0.0
  */
-export class TimelineMessageItem extends S.Class<TimelineMessageItem>($I`TimelineMessageItem`)(
-  {
+export class TimelineMessageItem extends S.Opaque<TimelineMessageItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("message").annotateKey({
       description: "Timeline item discriminator for resolved message content.",
     }),
@@ -61,10 +61,11 @@ export class TimelineMessageItem extends S.Class<TimelineMessageItem>($I`Timelin
     content: Document.annotateKey({
       description: "Resolved message content in md document form.",
     }),
-  },
-  $I.annote("TimelineMessageItem", {
-    description: "Timeline item resolving a turn message reference to its role and md-aligned content.",
-  })
+  }).pipe(
+    $I.annoteSchema("TimelineMessageItem", {
+      description: "Timeline item resolving a turn message reference to its role and md-aligned content.",
+    })
+  )
 ) {}
 
 const turnIndexOrder = Order.mapInput(Order.Number, (turn: TimelineTurn) => turn.turnIndex);
@@ -91,18 +92,19 @@ const turnIndexOrder = Order.mapInput(Order.Number, (turn: TimelineTurn) => turn
  * @category read-models
  * @since 0.0.0
  */
-export class TimelineToolCallItem extends S.Class<TimelineToolCallItem>($I`TimelineToolCallItem`)(
-  {
+export class TimelineToolCallItem extends S.Opaque<TimelineToolCallItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("tool_call").annotateKey({
       description: "Timeline item discriminator for a tool-call placeholder.",
     }),
     name: S.NonEmptyString.annotateKey({
       description: "Non-empty tool-call name projected into the timeline.",
     }),
-  },
-  $I.annote("TimelineToolCallItem", {
-    description: "Timeline item placeholder summarizing a turn tool-call request by name.",
-  })
+  }).pipe(
+    $I.annoteSchema("TimelineToolCallItem", {
+      description: "Timeline item placeholder summarizing a turn tool-call request by name.",
+    })
+  )
 ) {}
 
 /**
@@ -138,12 +140,12 @@ export const TimelineItem = pipe(
 /**
  * Runtime type for {@link TimelineItem}.
  *
- * **Example** (Satisfy TimelineItem type)
+ * **Example** (Annotate a TimelineItem value)
  *
  * ```ts
- * import type { TimelineItem } from "@beep/workspace-use-cases/aggregates/Thread"
+ * import { type TimelineItem, TimelineToolCallItem } from "@beep/workspace-use-cases/aggregates/Thread"
  *
- * const item = { kind: "tool_call", name: "search" } satisfies TimelineItem
+ * const item: TimelineItem = TimelineToolCallItem.make({ name: "search" })
  * console.log(item.kind) // "tool_call"
  * ```
  *
@@ -177,8 +179,8 @@ export type TimelineItem = typeof TimelineItem.Type;
  * @category read-models
  * @since 0.0.0
  */
-export class TimelineTurn extends S.Class<TimelineTurn>($I`TimelineTurn`)(
-  {
+export class TimelineTurn extends S.Opaque<TimelineTurn, { readonly brand: unique symbol }>()(
+  S.Struct({
     turnId: WorkspaceIdentity.TurnId.annotateKey({
       description: "Turn id projected into the timeline.",
     }),
@@ -196,10 +198,11 @@ export class TimelineTurn extends S.Class<TimelineTurn>($I`TimelineTurn`)(
     costMicros: CostMicros.annotateKey({
       description: "Non-negative integer cost rollup expressed in micros.",
     }),
-  },
-  $I.annote("TimelineTurn", {
-    description: "Projected turn within a thread timeline, ordered by turn index, with placeholder cost rollup.",
-  })
+  }).pipe(
+    $I.annoteSchema("TimelineTurn", {
+      description: "Projected turn within a thread timeline, ordered by turn index, with placeholder cost rollup.",
+    })
+  )
 ) {}
 
 /**
@@ -232,18 +235,19 @@ export class TimelineTurn extends S.Class<TimelineTurn>($I`TimelineTurn`)(
  * @category read-models
  * @since 0.0.0
  */
-export class ThreadTimeline extends S.Class<ThreadTimeline>($I`ThreadTimeline`)(
-  {
+export class ThreadTimeline extends S.Opaque<ThreadTimeline, { readonly brand: unique symbol }>()(
+  S.Struct({
     threadId: WorkspaceIdentity.ThreadId.annotateKey({
       description: "Thread id whose ordered turns are projected.",
     }),
     turns: S.Array(TimelineTurn).annotateKey({
       description: "Ordered projected turns for the thread.",
     }),
-  },
-  $I.annote("ThreadTimeline", {
-    description: "Read model projecting a thread's ordered turns and resolved timeline items.",
-  })
+  }).pipe(
+    $I.annoteSchema("ThreadTimeline", {
+      description: "Read model projecting a thread's ordered turns and resolved timeline items.",
+    })
+  )
 ) {}
 
 /**

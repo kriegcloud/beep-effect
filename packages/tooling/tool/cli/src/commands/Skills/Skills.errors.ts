@@ -47,7 +47,9 @@ const makeSkillsCommandError = (cause: unknown, message: string, file?: string, 
  * @category utilities
  * @since 0.0.0
  */
-export class SkillsCommandError extends S.TaggedError<SkillsCommandError>($I`SkillsCommandError`)(
+export class SkillsCommandError extends S.TaggedError<SkillsCommandError, { readonly brand: unique symbol }>(
+  $I`SkillsCommandError`
+)(
   "SkillsCommandError",
   {
     message: S.String,
@@ -94,7 +96,9 @@ export class SkillsCommandError extends S.TaggedError<SkillsCommandError>($I`Ski
  * @category utilities
  * @since 0.0.0
  */
-export class SkillsDriftError extends S.TaggedError<SkillsDriftError>($I`SkillsDriftError`)(
+export class SkillsDriftError extends S.TaggedError<SkillsDriftError, { readonly brand: unique symbol }>(
+  $I`SkillsDriftError`
+)(
   "SkillsDriftError",
   {
     message: S.String,

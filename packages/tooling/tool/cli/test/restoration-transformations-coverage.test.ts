@@ -16,6 +16,7 @@ import {
   RestorationMailOptions,
   RestorationPreserveOptions,
   RestorationRecycleOptions,
+  RestorationVerifyOptions,
   reconcileRestorationAcceptance,
   restoreLegacyWord,
   restoreMail,
@@ -3184,7 +3185,9 @@ printf '%%PDF-1.4 synthetic attachment' > "$item/Attachment00001/report.bin"
         expect((yield* decodeTransformationLedgerRecordJson(lastLegacyLine)).recordType).toBe("family-acceptance-pass");
         yield* fs.writeFileString(legacyLedgerPath, `${A.join(legacyLines.slice(0, -1), "\n")}\n`);
         yield* restoreLegacyWord(legacyWordOptions);
-        const acceptances = yield* reconcileRestorationAcceptance({ corpusRoot, runLabel });
+        const acceptances = yield* reconcileRestorationAcceptance(
+          RestorationVerifyOptions.make({ corpusRoot, runLabel })
+        );
         expect(A.map(acceptances, (acceptance) => acceptance.family)).toEqual([
           "preservation",
           "mail",

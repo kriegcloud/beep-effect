@@ -92,15 +92,16 @@ export type PackageVerifyStepName = typeof PackageVerifyStepName.Type;
  * @category models
  * @since 0.0.0
  */
-export class PackageVerifyWorkspace extends S.Class<PackageVerifyWorkspace>($I`PackageVerifyWorkspace`)(
-  {
+export class PackageVerifyWorkspace extends S.Opaque<PackageVerifyWorkspace, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     dir: S.String,
     scripts: S.Record(S.String, S.String),
-  },
-  $I.annote("PackageVerifyWorkspace", {
-    description: "Workspace package candidate used by package verification.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageVerifyWorkspace", {
+      description: "Workspace package candidate used by package verification.",
+    })
+  )
 ) {}
 
 /**
@@ -121,14 +122,15 @@ export class PackageVerifyWorkspace extends S.Class<PackageVerifyWorkspace>($I`P
  * @category models
  * @since 0.0.0
  */
-export class PackageVerifyStepSpec extends S.Class<PackageVerifyStepSpec>($I`PackageVerifyStepSpec`)(
-  {
+export class PackageVerifyStepSpec extends S.Opaque<PackageVerifyStepSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     step: PackageVerifyStepName,
     script: S.String,
-  },
-  $I.annote("PackageVerifyStepSpec", {
-    description: "Package verification step specification.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageVerifyStepSpec", {
+      description: "Package verification step specification.",
+    })
+  )
 ) {}
 
 /**
@@ -155,8 +157,8 @@ export class PackageVerifyStepSpec extends S.Class<PackageVerifyStepSpec>($I`Pac
  * @category models
  * @since 0.0.0
  */
-export class PackageVerifyStepResult extends S.Class<PackageVerifyStepResult>($I`PackageVerifyStepResult`)(
-  {
+export class PackageVerifyStepResult extends S.Opaque<PackageVerifyStepResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     step: PackageVerifyStepName,
     script: S.String,
     skipped: S.Boolean,
@@ -164,10 +166,11 @@ export class PackageVerifyStepResult extends S.Class<PackageVerifyStepResult>($I
     durationMillis: S.Finite,
     exitCode: S.Option(S.Finite),
     output: S.String,
-  },
-  $I.annote("PackageVerifyStepResult", {
-    description: "Package verification subprocess result.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageVerifyStepResult", {
+      description: "Package verification subprocess result.",
+    })
+  )
 ) {}
 
 /**
@@ -190,28 +193,30 @@ export class PackageVerifyStepResult extends S.Class<PackageVerifyStepResult>($I
  * @category models
  * @since 0.0.0
  */
-export class PackageVerifyReport extends S.Class<PackageVerifyReport>($I`PackageVerifyReport`)(
-  {
+export class PackageVerifyReport extends S.Opaque<PackageVerifyReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     headSha: S.NonEmptyString,
     packageName: S.String,
     packageDir: S.String,
     quick: S.Boolean,
     repoRoot: S.NonEmptyString,
     results: S.Array(PackageVerifyStepResult),
-  },
-  $I.annote("PackageVerifyReport", {
-    description: "Package verification report.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageVerifyReport", {
+      description: "Package verification report.",
+    })
+  )
 ) {}
 
-class PackageVerifyPackageJson extends S.Class<PackageVerifyPackageJson>($I`PackageVerifyPackageJson`)(
-  {
+class PackageVerifyPackageJson extends S.Opaque<PackageVerifyPackageJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     scripts: S.OptionFromOptionalKey(S.Record(S.String, S.String)),
-  },
-  $I.annote("PackageVerifyPackageJson", {
-    description: "Minimal package.json shape decoded for package verification.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageVerifyPackageJson", {
+      description: "Minimal package.json shape decoded for package verification.",
+    })
+  )
 ) {}
 
 const decodePackageVerifyPackageJson = S.decodeUnknownEffect(S.fromJsonString(PackageVerifyPackageJson));

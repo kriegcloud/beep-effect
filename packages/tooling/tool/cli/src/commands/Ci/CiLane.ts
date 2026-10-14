@@ -345,8 +345,8 @@ const CiWorkflow = LiteralKit(["check", "heavy", "storybook"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class CiLaneDescriptor extends S.Class<CiLaneDescriptor>($I`CiLaneDescriptor`)(
-  {
+export class CiLaneDescriptor extends S.Opaque<CiLaneDescriptor, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     contextName: S.String,
     workflow: CiWorkflow.pipe(
@@ -358,10 +358,11 @@ export class CiLaneDescriptor extends S.Class<CiLaneDescriptor>($I`CiLaneDescrip
     replay: CiLaneReplay,
     flags: S.Array(S.String),
     notes: S.optionalKey(S.String),
-  },
-  $I.annote("CiLaneDescriptor", {
-    description: "Machine-readable descriptor for a hosted CI lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneDescriptor", {
+      description: "Machine-readable descriptor for a hosted CI lane.",
+    })
+  )
 ) {}
 
 const TURBO_SHAPE_FLAGS = ["--affected", "--base", "--summarize"] as const;
@@ -694,8 +695,8 @@ export const CI_LANE_DESCRIPTORS: ReadonlyArray<CiLaneDescriptor> = [
  * @category models
  * @since 0.0.0
  */
-export class CiLaneRunOptions extends S.Class<CiLaneRunOptions>($I`CiLaneRunOptions`)(
-  {
+export class CiLaneRunOptions extends S.Opaque<CiLaneRunOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     affected: S.Boolean,
     base: S.String,
     head: S.String,
@@ -713,10 +714,11 @@ export class CiLaneRunOptions extends S.Class<CiLaneRunOptions>($I`CiLaneRunOpti
     inventory: S.optionalKey(S.String),
     dryRun: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     force: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  },
-  $I.annote("CiLaneRunOptions", {
-    description: "Shape and optional Turbo scope for running one CI lane body.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneRunOptions", {
+      description: "Shape and optional Turbo scope for running one CI lane body.",
+    })
+  )
 ) {}
 
 // The property lane invokes turbo directly (not through a root script, so it misses the
@@ -878,18 +880,19 @@ const NonNegativeTaskCount = S.Int.check(S.isGreaterThanOrEqualTo(0));
  * @category models
  * @since 0.0.0
  */
-export class CiLanePartitionProof extends S.Class<CiLanePartitionProof>($I`CiLanePartitionProof`)(
-  {
+export class CiLanePartitionProof extends S.Opaque<CiLanePartitionProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     laneId: PartitionedCiLaneSchema,
     partition: CiLanePartitionId,
     selectedTaskCount: NonNegativeTaskCount,
     partitionTaskCount: NonNegativeTaskCount,
     packages: S.Array(S.String),
     shard: S.optionalKey(CiLanePartitionShard),
-  },
-  $I.annote("CiLanePartitionProof", {
-    description: "Validated intersection between Turbo's selected task set and one committed partition.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLanePartitionProof", {
+      description: "Validated intersection between Turbo's selected task set and one committed partition.",
+    })
+  )
 ) {}
 
 const proveCiLanePartitionDefinition = Effect.fn("CiLane.proveCiLanePartitionDefinition")(function* (
@@ -1243,11 +1246,12 @@ const partitionExecutionArgs = (
  * @category models
  * @since 0.0.0
  */
-export class CiLanePartitionArgs extends S.Class<CiLanePartitionArgs>($I`CiLanePartitionArgs`)(
-  { selection: S.Array(S.String), execution: S.Array(S.String) },
-  $I.annote("CiLanePartitionArgs", {
-    description: "Exact Turbo argv for partition selection and execution.",
-  })
+export class CiLanePartitionArgs extends S.Opaque<CiLanePartitionArgs, { readonly brand: unique symbol }>()(
+  S.Struct({ selection: S.Array(S.String), execution: S.Array(S.String) }).pipe(
+    $I.annoteSchema("CiLanePartitionArgs", {
+      description: "Exact Turbo argv for partition selection and execution.",
+    })
+  )
 ) {}
 
 /**
@@ -1347,24 +1351,26 @@ export const ciLanePartitionArgsForTesting: {
     })
 );
 
-class TurboDryRunTask extends S.Class<TurboDryRunTask>($I`TurboDryRunTask`)(
-  {
+class TurboDryRunTask extends S.Opaque<TurboDryRunTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.String,
     package: S.String,
     task: S.String,
     taskId: S.String,
-  },
-  $I.annote("TurboDryRunTask", {
-    description: "Task entry read from Turbo's JSON dry-run plan for a CI lane selection probe.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboDryRunTask", {
+      description: "Task entry read from Turbo's JSON dry-run plan for a CI lane selection probe.",
+    })
+  )
 ) {}
 
-class TurboDryRun extends S.Class<TurboDryRun>($I`TurboDryRun`)(
-  { tasks: S.Array(TurboDryRunTask) },
-  $I.annote("TurboDryRun", {
-    description:
-      "Turbo JSON dry-run document read by the partition proof and the Storybook affected probe to learn which tasks Turbo selected.",
-  })
+class TurboDryRun extends S.Opaque<TurboDryRun, { readonly brand: unique symbol }>()(
+  S.Struct({ tasks: S.Array(TurboDryRunTask) }).pipe(
+    $I.annoteSchema("TurboDryRun", {
+      description:
+        "Turbo JSON dry-run document read by the partition proof and the Storybook affected probe to learn which tasks Turbo selected.",
+    })
+  )
 ) {}
 
 const decodeTurboDryRun = S.decodeUnknownEffect(S.fromJsonString(TurboDryRun));
@@ -2509,15 +2515,16 @@ const currentGitBranch = Effect.fn("CiLane.currentGitBranch")(function* (
  * @category models
  * @since 0.0.0
  */
-export class CiLocalStepPlan extends S.Class<CiLocalStepPlan>($I`CiLocalStepPlan`)(
-  {
+export class CiLocalStepPlan extends S.Opaque<CiLocalStepPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     affected: S.Boolean,
     base: S.String,
     onMainBranch: S.Boolean,
-  },
-  $I.annote("CiLocalStepPlan", {
-    description: "Resolved shape for planning the local battery's lane dispatch steps.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLocalStepPlan", {
+      description: "Resolved shape for planning the local battery's lane dispatch steps.",
+    })
+  )
 ) {}
 
 const ciLocalLaneFlags = (laneId: CiLaneId, plan: CiLocalStepPlan): ReadonlyArray<string> => {

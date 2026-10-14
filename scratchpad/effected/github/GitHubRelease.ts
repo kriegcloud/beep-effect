@@ -11,7 +11,7 @@ import type { PageOptions } from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/GitHubRelease");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String,
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -36,7 +36,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * @category models
  * @since 0.0.0
  */
-export class ReleaseInfo extends S.Class<ReleaseInfo>($I`ReleaseInfo`)({
+export class ReleaseInfo extends S.Class<ReleaseInfo, { readonly brand: unique symbol }>($I`ReleaseInfo`)({
 	id: S.Int.annotateKey({ description: "GitHub's identifier for updating the release and uploading or listing its assets" }),
 	tag: S.String.annotateKey({ description: "The Git tag associated with the release, used to look it up" }),
 	name: S.String.annotateKey({ description: "The release's display heading, or an empty string when GitHub leaves it unset" }),
@@ -68,7 +68,7 @@ export class ReleaseInfo extends S.Class<ReleaseInfo>($I`ReleaseInfo`)({
  * @category models
  * @since 0.0.0
  */
-export class ReleaseAsset extends S.Class<ReleaseAsset>($I`ReleaseAsset`)({
+export class ReleaseAsset extends S.Class<ReleaseAsset, { readonly brand: unique symbol }>($I`ReleaseAsset`)({
 	id: S.Int.annotateKey({ description: "GitHub's identifier for the file attached to the release" }),
 	name: S.String.annotateKey({ description: "The attached file's filename as reported by GitHub" }),
 	/** The browser download URL. */

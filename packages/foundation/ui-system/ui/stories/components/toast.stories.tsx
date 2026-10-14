@@ -1,13 +1,14 @@
 import {
   Toast,
   ToastClose,
+  ToastData,
   ToastDescription,
   ToastProvider,
   ToastTitle,
   ToastViewport,
 } from "@beep/ui/components/toast";
 import { expect, within } from "storybook/test";
-import type { ToastData, ToastPrimitive } from "@beep/ui/components/toast";
+import type { ToastPrimitive } from "@beep/ui/components/toast";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 type ToastObject = ToastPrimitive.Root.ToastObject<ToastData>;
@@ -22,7 +23,7 @@ const destructiveToast: ToastObject = {
   id: "toast-destructive",
   title: "Upload failed",
   description: "The file exceeds the maximum allowed size.",
-  data: { variant: "destructive" },
+  data: ToastData.make({ variant: "destructive" }),
 };
 
 /**

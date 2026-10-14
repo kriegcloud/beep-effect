@@ -27,9 +27,10 @@ const OptionalTranscriptString = S.OptionFromOptionalKey(S.String).pipe(S.withCo
  * @category models
  * @since 0.0.0
  */
-export class CountRow extends S.Class<CountRow>($I`CountRow`)(
-  { count: S.Int },
-  $I.annote("CountRow", { description: "Numeric count returned by an aggregate DuckDB query." })
+export class CountRow extends S.Opaque<CountRow, { readonly brand: unique symbol }>()(
+  S.Struct({ count: S.Int }).pipe(
+    $I.annoteSchema("CountRow", { description: "Numeric count returned by an aggregate DuckDB query." })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(CountRow));
   static readonly decodeNonEmptyRowsEffect = S.decodeUnknownEffect(S.NonEmptyArray(CountRow));
@@ -366,8 +367,11 @@ export type AiMetricsSourceRole = typeof AiMetricsSourceRole.Type;
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsSourceAttribution extends S.Class<AiMetricsSourceAttribution>($I`AiMetricsSourceAttribution`)(
-  {
+export class AiMetricsSourceAttribution extends S.Opaque<
+  AiMetricsSourceAttribution,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     agentNicknameHash: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     agentRoleHash: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     forkedFromIdHash: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -376,10 +380,11 @@ export class AiMetricsSourceAttribution extends S.Class<AiMetricsSourceAttributi
     sessionIdHash: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     sourceRole: AiMetricsSourceRole,
     threadSpawn: S.OptionFromOptionalKey(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AiMetricsSourceAttribution", {
-    description: "Hash-only metadata that distinguishes primary sessions from delegated subagent work.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsSourceAttribution", {
+      description: "Hash-only metadata that distinguishes primary sessions from delegated subagent work.",
+    })
+  )
 ) {}
 
 /**
@@ -615,17 +620,18 @@ const AiMetricsPositiveInteger = S.Int.check(
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsOtlpEndpointSpec extends S.Class<AiMetricsOtlpEndpointSpec>($I`AiMetricsOtlpEndpointSpec`)(
-  {
+export class AiMetricsOtlpEndpointSpec extends S.Opaque<AiMetricsOtlpEndpointSpec, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseUrl: S.String,
     protocol: AiMetricsOtlpProtocol,
     resourceAttributes: S.Record(S.String, S.String),
     signalScope: AiMetricsOtlpSignalScope,
     traceUrl: S.String,
-  },
-  $I.annote("AiMetricsOtlpEndpointSpec", {
-    description: "Trace-only OTLP endpoint contract shared by AI metrics installers and exporters.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsOtlpEndpointSpec", {
+      description: "Trace-only OTLP endpoint contract shared by AI metrics installers and exporters.",
+    })
+  )
 ) {}
 
 /**
@@ -641,8 +647,8 @@ export class AiMetricsOtlpEndpointSpec extends S.Class<AiMetricsOtlpEndpointSpec
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsScoreWeights extends S.Class<AiMetricsScoreWeights>($I`AiMetricsScoreWeights`)(
-  {
+export class AiMetricsScoreWeights extends S.Opaque<AiMetricsScoreWeights, { readonly brand: unique symbol }>()(
+  S.Struct({
     cost: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0.1)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0.1))
@@ -655,10 +661,11 @@ export class AiMetricsScoreWeights extends S.Class<AiMetricsScoreWeights>($I`AiM
       S.withConstructorDefault(Effect.succeed(0.7)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0.7))
     ),
-  },
-  $I.annote("AiMetricsScoreWeights", {
-    description: "Default weighted rubric emphasizing outcomes over flow and cost.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsScoreWeights", {
+      description: "Default weighted rubric emphasizing outcomes over flow and cost.",
+    })
+  )
 ) {}
 
 const configSnapshotIncludedPathsDefault = A.empty<string>();
@@ -682,8 +689,8 @@ const configSnapshotIncludedPathsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class ConfigSnapshot extends S.Class<ConfigSnapshot>($I`ConfigSnapshot`)(
-  {
+export class ConfigSnapshot extends S.Opaque<ConfigSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     changedPaths: S.Array(S.String),
     configHash: S.String,
     gitCommit: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -694,10 +701,12 @@ export class ConfigSnapshot extends S.Class<ConfigSnapshot>($I`ConfigSnapshot`)(
     label: S.String,
     previousSnapshotId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     snapshotId: S.String,
-  },
-  $I.annote("ConfigSnapshot", {
-    description: "Hashed snapshot of Codex, Claude, assistant, and repo guidance configuration with diff attribution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConfigSnapshot", {
+      description:
+        "Hashed snapshot of Codex, Claude, assistant, and repo guidance configuration with diff attribution.",
+    })
+  )
 ) {}
 
 const SourceRoleDefaultPrimary = AiMetricsSourceRole.pipe(
@@ -727,8 +736,8 @@ const SourceRoleDefaultPrimary = AiMetricsSourceRole.pipe(
  * @category models
  * @since 0.0.0
  */
-export class AgentTask extends S.Class<AgentTask>($I`AgentTask`)(
-  {
+export class AgentTask extends S.Opaque<AgentTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentTaskId: S.String,
     configSnapshotId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     createdAtEpochMillis: S.Natural,
@@ -739,10 +748,11 @@ export class AgentTask extends S.Class<AgentTask>($I`AgentTask`)(
     sourcePathHash: S.String,
     sourceRole: SourceRoleDefaultPrimary,
     title: S.String,
-  },
-  $I.annote("AgentTask", {
-    description: "Deploy-safe task unit grouped across sessions, turns, commands, labels, and scorecards.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentTask", {
+      description: "Deploy-safe task unit grouped across sessions, turns, commands, labels, and scorecards.",
+    })
+  )
 ) {}
 
 /**
@@ -764,8 +774,8 @@ export class AgentTask extends S.Class<AgentTask>($I`AgentTask`)(
  * @category models
  * @since 0.0.0
  */
-export class AgentSession extends S.Class<AgentSession>($I`AgentSession`)(
-  {
+export class AgentSession extends S.Opaque<AgentSession, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentSessionId: S.String,
     agentTaskId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     ...AiMetricsSourceAttribution.fields,
@@ -773,11 +783,12 @@ export class AgentSession extends S.Class<AgentSession>($I`AgentSession`)(
     sourcePathHash: S.String,
     sourceRole: SourceRoleDefaultPrimary,
     startedAt: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AgentSession", {
-    description:
-      "Transcript session metadata normalized from Codex, Claude, or OpenClaw logs with private paths hashed.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentSession", {
+      description:
+        "Transcript session metadata normalized from Codex, Claude, or OpenClaw logs with private paths hashed.",
+    })
+  )
 ) {}
 
 /**
@@ -800,18 +811,19 @@ export class AgentSession extends S.Class<AgentSession>($I`AgentSession`)(
  * @category models
  * @since 0.0.0
  */
-export class AgentTurn extends S.Class<AgentTurn>($I`AgentTurn`)(
-  {
+export class AgentTurn extends S.Opaque<AgentTurn, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventName: AiMetricsTranscriptEventName,
     lineNumber: AiMetricsPositiveInteger,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
     sourceRole: SourceRoleDefaultPrimary,
     timestamp: OptionalTranscriptString,
-  },
-  $I.annote("AgentTurn", {
-    description: "Single normalized transcript line suitable for derived analytics and OTel export.",
-  })
+  }).pipe(
+    $I.annoteSchema("AgentTurn", {
+      description: "Single normalized transcript line suitable for derived analytics and OTel export.",
+    })
+  )
 ) {}
 
 /**
@@ -836,8 +848,8 @@ export class AgentTurn extends S.Class<AgentTurn>($I`AgentTurn`)(
  * @category models
  * @since 0.0.0
  */
-export class ModelCall extends S.Class<ModelCall>($I`ModelCall`)(
-  {
+export class ModelCall extends S.Opaque<ModelCall, { readonly brand: unique symbol }>()(
+  S.Struct({
     callId: S.String,
     latencyMs: S.OptionFromOptionalKey(AiMetricsNonNegativeInteger).pipe(S.withConstructorDefault(Effect.succeedNone)),
     model: S.String,
@@ -845,10 +857,11 @@ export class ModelCall extends S.Class<ModelCall>($I`ModelCall`)(
     totalTokens: S.OptionFromOptionalKey(AiMetricsNonNegativeInteger).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
-  },
-  $I.annote("ModelCall", {
-    description: "Provider/model usage, latency, and token measurement for a coding-agent run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelCall", {
+      description: "Provider/model usage, latency, and token measurement for a coding-agent run.",
+    })
+  )
 ) {}
 
 /**
@@ -872,16 +885,17 @@ export class ModelCall extends S.Class<ModelCall>($I`ModelCall`)(
  * @category models
  * @since 0.0.0
  */
-export class ToolInvocation extends S.Class<ToolInvocation>($I`ToolInvocation`)(
-  {
+export class ToolInvocation extends S.Opaque<ToolInvocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     durationMs: S.OptionFromOptionalKey(AiMetricsNonNegativeInteger).pipe(S.withConstructorDefault(Effect.succeedNone)),
     exitCode: S.OptionFromOptionalKey(S.Int).pipe(S.withConstructorDefault(Effect.succeedNone)),
     toolName: S.String,
     toolRunId: S.String,
-  },
-  $I.annote("ToolInvocation", {
-    description: "Tool or command invocation normalized from transcript events.",
-  })
+  }).pipe(
+    $I.annoteSchema("ToolInvocation", {
+      description: "Tool or command invocation normalized from transcript events.",
+    })
+  )
 ) {}
 
 /**
@@ -908,8 +922,8 @@ export class ToolInvocation extends S.Class<ToolInvocation>($I`ToolInvocation`)(
  * @category models
  * @since 0.0.0
  */
-export class OutcomeLabel extends S.Class<OutcomeLabel>($I`OutcomeLabel`)(
-  {
+export class OutcomeLabel extends S.Opaque<OutcomeLabel, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentTaskId: S.String,
     followUpFix: S.Boolean,
     interventionCount: AiMetricsNonNegativeInteger,
@@ -919,10 +933,11 @@ export class OutcomeLabel extends S.Class<OutcomeLabel>($I`OutcomeLabel`)(
     passed: S.Boolean,
     qualityGate: AiMetricsQualityGateStatus,
     rating: AiMetricsRating,
-  },
-  $I.annote("OutcomeLabel", {
-    description: "Structured manual label used to calibrate deploy-safe AI metrics scorecards.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutcomeLabel", {
+      description: "Structured manual label used to calibrate deploy-safe AI metrics scorecards.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(OutcomeLabel));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(OutcomeLabel));
@@ -948,17 +963,18 @@ export class OutcomeLabel extends S.Class<OutcomeLabel>($I`OutcomeLabel`)(
  * @category models
  * @since 0.0.0
  */
-export class BenchmarkCase extends S.Class<BenchmarkCase>($I`BenchmarkCase`)(
-  {
+export class BenchmarkCase extends S.Opaque<BenchmarkCase, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkCaseId: S.String,
     expectedChecks: S.Array(S.String),
     promptHash: S.String,
     promptRef: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     title: S.String,
-  },
-  $I.annote("BenchmarkCase", {
-    description: "Repeatable coding-agent benchmark case with prompt content stored by hash or external reference.",
-  })
+  }).pipe(
+    $I.annoteSchema("BenchmarkCase", {
+      description: "Repeatable coding-agent benchmark case with prompt content stored by hash or external reference.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(BenchmarkCase));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(BenchmarkCase));
@@ -987,8 +1003,8 @@ export class BenchmarkCase extends S.Class<BenchmarkCase>($I`BenchmarkCase`)(
  * @category models
  * @since 0.0.0
  */
-export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
-  {
+export class BenchmarkRun extends S.Opaque<BenchmarkRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkCaseId: S.String,
     benchmarkRunId: S.String,
     configSnapshotId: S.String,
@@ -997,10 +1013,11 @@ export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
     passed: S.Boolean,
     qualityGate: AiMetricsQualityGateStatus,
     recordedAtEpochMillis: S.Natural,
-  },
-  $I.annote("BenchmarkRun", {
-    description: "Observed result from running one benchmark case against one configuration snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("BenchmarkRun", {
+      description: "Observed result from running one benchmark case against one configuration snapshot.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(BenchmarkRun));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(BenchmarkRun));
@@ -1035,8 +1052,8 @@ export class BenchmarkRun extends S.Class<BenchmarkRun>($I`BenchmarkRun`)(
  * @category models
  * @since 0.0.0
  */
-export class Scorecard extends S.Class<Scorecard>($I`Scorecard`)(
-  {
+export class Scorecard extends S.Opaque<Scorecard, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkRunCount: AiMetricsNonNegativeInteger,
     completionReady: SchemaUtils.BoolKeyDefaultFalse,
     configSnapshotId: S.String,
@@ -1051,10 +1068,11 @@ export class Scorecard extends S.Class<Scorecard>($I`Scorecard`)(
     weights: AiMetricsScoreWeights,
     windowEndEpochMillis: S.Natural,
     windowStartEpochMillis: S.Natural,
-  },
-  $I.annote("Scorecard", {
-    description: "Outcome-heavy aggregate score for one config snapshot inside a weekly review window.",
-  })
+  }).pipe(
+    $I.annoteSchema("Scorecard", {
+      description: "Outcome-heavy aggregate score for one config snapshot inside a weekly review window.",
+    })
+  )
 ) {}
 
 /**
@@ -1079,8 +1097,8 @@ export class Scorecard extends S.Class<Scorecard>($I`Scorecard`)(
  * @category models
  * @since 0.0.0
  */
-export class TranscriptIngestSummary extends S.Class<TranscriptIngestSummary>($I`TranscriptIngestSummary`)(
-  {
+export class TranscriptIngestSummary extends S.Opaque<TranscriptIngestSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     acceptedEvents: AiMetricsNonNegativeInteger,
     eventNames: S.Array(S.String),
     firstTimestamp: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -1089,10 +1107,11 @@ export class TranscriptIngestSummary extends S.Class<TranscriptIngestSummary>($I
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: S.String,
     totalLines: AiMetricsNonNegativeInteger,
-  },
-  $I.annote("TranscriptIngestSummary", {
-    description: "Line-count, timestamp, and event-name summary from transcript ingestion with private paths hashed.",
-  })
+  }).pipe(
+    $I.annoteSchema("TranscriptIngestSummary", {
+      description: "Line-count, timestamp, and event-name summary from transcript ingestion with private paths hashed.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(TranscriptIngestSummary));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(TranscriptIngestSummary));
@@ -1112,15 +1131,16 @@ export class TranscriptIngestSummary extends S.Class<TranscriptIngestSummary>($I
  * @category models
  * @since 0.0.0
  */
-export class CodexTranscriptLine extends S.Class<CodexTranscriptLine>($I`CodexTranscriptLine`)(
-  {
+export class CodexTranscriptLine extends S.Opaque<CodexTranscriptLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     payload: S.OptionFromOptionalKey(S.Unknown).pipe(S.withConstructorDefault(Effect.succeedNone)),
     timestamp: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     type: S.String,
-  },
-  $I.annote("CodexTranscriptLine", {
-    description: "Boundary shape decoded from Codex session JSONL lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexTranscriptLine", {
+      description: "Boundary shape decoded from Codex session JSONL lines.",
+    })
+  )
 ) {
   static readonly decodeJsonOption = S.decodeUnknownOption(S.fromJsonString(CodexTranscriptLine));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(CodexTranscriptLine));
@@ -1142,17 +1162,18 @@ export class CodexTranscriptLine extends S.Class<CodexTranscriptLine>($I`CodexTr
  * @category models
  * @since 0.0.0
  */
-export class ClaudeTranscriptLine extends S.Class<ClaudeTranscriptLine>($I`ClaudeTranscriptLine`)(
-  {
+export class ClaudeTranscriptLine extends S.Opaque<ClaudeTranscriptLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     cwd: OptionalTranscriptString,
     message: S.OptionFromOptionalKey(S.Unknown).pipe(S.withConstructorDefault(Effect.succeedNone)),
     sessionId: OptionalTranscriptString,
     timestamp: OptionalTranscriptString,
     type: OptionalTranscriptString,
-  },
-  $I.annote("ClaudeTranscriptLine", {
-    description: "Boundary shape decoded from Claude Code project JSONL lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaudeTranscriptLine", {
+      description: "Boundary shape decoded from Claude Code project JSONL lines.",
+    })
+  )
 ) {
   static readonly decodeJsonOption = S.decodeUnknownOption(S.fromJsonString(ClaudeTranscriptLine));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(ClaudeTranscriptLine));
@@ -1174,17 +1195,18 @@ export class ClaudeTranscriptLine extends S.Class<ClaudeTranscriptLine>($I`Claud
  * @category models
  * @since 0.0.0
  */
-export class OpenClawTranscriptLine extends S.Class<OpenClawTranscriptLine>($I`OpenClawTranscriptLine`)(
-  {
+export class OpenClawTranscriptLine extends S.Opaque<OpenClawTranscriptLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     event: OptionalTranscriptString,
     message: OptionalTranscriptString,
     payload: S.OptionFromOptionalKey(S.Record(S.String, S.Unknown)).pipe(S.withConstructorDefault(Effect.succeedNone)),
     timestamp: OptionalTranscriptString,
     type: OptionalTranscriptString,
-  },
-  $I.annote("OpenClawTranscriptLine", {
-    description: "Boundary shape decoded from OpenClaw JSONL or exported event lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawTranscriptLine", {
+      description: "Boundary shape decoded from OpenClaw JSONL or exported event lines.",
+    })
+  )
 ) {
   static readonly decodeJsonOption = S.decodeUnknownOption(S.fromJsonString(OpenClawTranscriptLine));
   static readonly encodeJsonEffect = S.encodeUnknownEffect(S.fromJsonString(OpenClawTranscriptLine));

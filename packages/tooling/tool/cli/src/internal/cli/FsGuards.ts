@@ -51,15 +51,22 @@ const FsGuardFailureReason = LiteralKit([
   })
 );
 
-class ContainedTarget extends S.Class<ContainedTarget>($I`ContainedTarget`)(
-  {
+/**
+ * Resolved root, parent, and target paths for one contained filesystem operation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ContainedTarget extends S.Opaque<ContainedTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     parent: S.NonEmptyString,
     root: S.NonEmptyString,
     target: S.NonEmptyString,
-  },
-  $I.annote("ContainedTarget", {
-    description: "Resolved root, parent, and target paths for one contained filesystem operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContainedTarget", {
+      description: "Resolved root, parent, and target paths for one contained filesystem operation.",
+    })
+  )
 ) {}
 
 /**
@@ -91,7 +98,7 @@ class ContainedTarget extends S.Class<ContainedTarget>($I`ContainedTarget`)(
  * @category errors
  * @since 0.0.0
  */
-export class FsGuardError extends S.TaggedError<FsGuardError>($I`FsGuardError`)(
+export class FsGuardError extends S.TaggedError<FsGuardError, { readonly brand: unique symbol }>($I`FsGuardError`)(
   "FsGuardError",
   {
     cause: S.OptionFromOptionalKey(OpaqueDefect),
@@ -127,14 +134,15 @@ export class FsGuardError extends S.TaggedError<FsGuardError>($I`FsGuardError`)(
  * @category models
  * @since 0.0.0
  */
-export class ContainedFileRead extends S.Class<ContainedFileRead>($I`ContainedFileRead`)(
-  {
+export class ContainedFileRead extends S.Opaque<ContainedFileRead, { readonly brand: unique symbol }>()(
+  S.Struct({
     contents: S.Option(S.String),
     exists: S.Boolean,
-  },
-  $I.annote("ContainedFileRead", {
-    description: "Existence and optional text content from a contained no-follow file read.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContainedFileRead", {
+      description: "Existence and optional text content from a contained no-follow file read.",
+    })
+  )
 ) {}
 
 /**
@@ -152,11 +160,12 @@ export class ContainedFileRead extends S.Class<ContainedFileRead>($I`ContainedFi
  * @category models
  * @since 0.0.0
  */
-export class ContainedBytesRead extends S.Class<ContainedBytesRead>($I`ContainedBytesRead`)(
-  { contents: S.Option(S.Uint8Array), exists: S.Boolean },
-  $I.annote("ContainedBytesRead", {
-    description: "Existence and bounded original bytes from a contained no-follow file read.",
-  })
+export class ContainedBytesRead extends S.Opaque<ContainedBytesRead, { readonly brand: unique symbol }>()(
+  S.Struct({ contents: S.Option(S.Uint8Array), exists: S.Boolean }).pipe(
+    $I.annoteSchema("ContainedBytesRead", {
+      description: "Existence and bounded original bytes from a contained no-follow file read.",
+    })
+  )
 ) {}
 
 const fsGuardError = (

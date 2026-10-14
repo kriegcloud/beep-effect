@@ -770,7 +770,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("residue reap", (it) => 
           expect(decoded.schemaVersion).toBe("residue-reap/v3");
           expect(decoded.classes).toEqual(["turbo-cache"]);
           expect(decoded.candidates).toHaveLength(1);
-          expect(decoded.candidates[0]).toBeInstanceOf(ResidueReapCandidate);
+          expect(S.is(ResidueReapCandidate)(decoded.candidates[0])).toBe(true);
           // Earlier report tags must not decode as v3 archive reports.
           const v1Payload = Str.replace("residue-reap/v3", "residue-reap/v1")(encoded);
           expect(S.isSchemaError(yield* Effect.flip(decodeResidueReapReportJson(v1Payload)))).toBe(true);

@@ -69,7 +69,7 @@ export type ByteCount = typeof ByteCount.Type;
  * @category models
  * @since 0.0.0
  */
-export class LineSlice extends S.Class<LineSlice>($I`LineSlice`)(
+export class LineSlice extends S.Class<LineSlice, { readonly brand: unique symbol }>($I`LineSlice`)(
   {
     /** UTF-8 byte offset of this line's first content byte. */
     offset: ByteCount.pipe(

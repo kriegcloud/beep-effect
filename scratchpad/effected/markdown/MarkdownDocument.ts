@@ -36,7 +36,7 @@ import * as P from "effect/Predicate";
 const $I = $ScratchpadId.create("effected/markdown/MarkdownDocument");
 
 /** The document navigation depth guard was exceeded. */
-class DocumentNavigationError extends S.TaggedError<DocumentNavigationError>($I`DocumentNavigationError`)(
+class DocumentNavigationError extends S.TaggedError<DocumentNavigationError, { readonly brand: unique symbol }>($I`DocumentNavigationError`)(
 	"DocumentNavigationError",
 	{
 		message: S.String,
@@ -556,7 +556,7 @@ const phrasingText = (nodes: ReadonlyArray<PhrasingContent>): string => {
  * @category models
  * @since 0.0.0
  */
-export class MarkdownDocument extends S.Class<MarkdownDocument>($I`MarkdownDocument`)({
+export class MarkdownDocument extends S.Class<MarkdownDocument, { readonly brand: unique symbol }>($I`MarkdownDocument`)({
 	source: S.String.annotateKey({ description: "Original markdown text retained so tree positions and surgical edits refer to the exact parsed source" }),
 	root: Root.annotateKey({ description: "Parsed mdast-shaped document tree carrying source positions and fidelity details" }),
 	diagnostics: S.Array(MarkdownDiagnostic).annotateKey({ description: "Non-fatal conditions reported during parsing; currently empty for every accepted document" }),
@@ -578,11 +578,12 @@ export class MarkdownDocument extends S.Class<MarkdownDocument>($I`MarkdownDocum
 	 * **Example** (Read an opted-in frontmatter capture)
 	 *
 	 * ```ts
+	 * import { MarkdownParseOptions } from "@beep/scratchpad/effected/markdown/Markdown";
 	 * import { MarkdownDocument } from "@beep/scratchpad/effected/markdown/MarkdownDocument";
 	 * import * as Effect from "effect/Effect";
 	 *
 	 * const doc = Effect.runSync(
-	 *   MarkdownDocument.parse("---\ntitle: Notes\n---\nBody", { frontmatter: true }),
+	 *   MarkdownDocument.parse("---\ntitle: Notes\n---\nBody", MarkdownParseOptions.make({ frontmatter: true })),
 	 * );
 	 * console.log(doc.frontmatter?.type) // frontmatter
 	 * ```
