@@ -68,8 +68,21 @@ AppArmor helper profiles and D21-respecting test are recorded in
 - Match smoke commands to provider-lane policy; Cursor Git checks belong to the
   orchestrator under D21. Do not loosen the deny rule to reuse a generic test.
 - Qualify T3's own GitHub account binding; its PR lookups hit rate limits while
-  authenticated native gh had its full core allowance.
+  authenticated native gh had its full core allowance. Resolved for read-only
+  discovery/list/detail workflows by the follow-up qualification below.
 - Review Claude SDK's MCP allowedTools/canUseTool shadowing warning separately.
 - Refresh browser/native connection grants only through an explicit operator
   action when management permissions are required; viewing status is distinct
   from provider management.
+
+## T3 GitHub qualification follow-up — 2026-10-14
+
+The worker's gh 2.46.0 lacked T3's documented >=2.81 structured account
+discovery interface. Installed checksum-verified official gh 2.102.0 in the
+user-local PATH, preserved the existing login, and restarted the idle T3 backend.
+T3's browser UI now reports authenticated GitHub and loads PR lists and details.
+Enforce the compatibility floor during provisioning and verify both structured
+account discovery and the actual T3 workflow. Native gh authentication alone
+was insufficient proof. GitHub writes/publishing were not exercised.
+
+Evidence: [GitHub qualification](../history/2026-10-14-t3-github-qualification.md).

@@ -85,6 +85,9 @@ qualified by the beep-worker receipts.
   portability findings, with bounded execution and qualification limits.
 - [Workstation CLI inventory](./research/2026-10-14-workstation-cli-inventory.json)
   and [opportunities](./research/OPPORTUNITIES.md): parity decisions and friction.
+- [T3 provider qualification](./history/2026-10-14-t3-provider-qualification.md)
+  and [GitHub qualification](./history/2026-10-14-t3-github-qualification.md):
+  remote provider smoke tests and authenticated read-only source-control proof.
 - [Original cloud probe](./research/2026-10-01-container-probe.md): historical
   container restrictions; it does not describe the current Linux worker.
 
