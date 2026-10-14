@@ -1963,8 +1963,9 @@ the downstream integration delay. No coverage floor or security rule is relaxed.
 
 ### 2026-10-14 — H2 merge during publisher preflight
 
-- Original #1574 merged while the report-only publisher was running its cheap
-  gates and isolated install. It opened redundant draft #1743 from the old
+- Original #1574 merged while the report-only publisher was running. That run
+  completed cheap gates and isolated head-install before opening redundant
+  draft #1743 from the old
   implementation branch. Observe merged state again before branch publication
   and apply the standing fresh-follow-up rule. Preserve the prepared evidence
   on a fresh main branch, cancel the owned redundant monitor to terminal, and
@@ -1978,3 +1979,25 @@ the downstream integration delay. No coverage floor or security rule is relaxed.
   neither input. Preserve provenance, attribute the main red, and use the
   already-authorized publication fallback. Owner commands should reconcile
   evidence references when a reviewed document changes in a main repair.
+
+### 2026-10-14 — H2 evidence follow-up main integration reds
+
+- On #1744, completed Repo Sanity job `116013475052` reproduces the inherited
+  Knip cache-policy digest mismatch after eight passing sanity subcommands.
+- Completed Heavy Check job `116014042085` reports TS377004/TS2345 at
+  `skills-command.test.ts:634`: missing `HttpClient`. That file is identical
+  to main `730348fc1f` and was last changed by that main repair. The five-file
+  H2 evidence diff changes neither source input. A main-repair test must
+  provide its newly required service before declaring the repair green.
+- Acknowledge both with log-bound attribution and route the main-red episode
+  to the orchestrator; do not duplicate unrelated fixes in an evidence PR.
+
+### 2026-10-14 — H2 evidence review consistency
+
+- #1744 review found the README Status block still describing reopened #1574
+  and four fixes while the lane evidence correctly recorded its merge and six
+  original review resolutions. Update both status locations together.
+- A second finding conflated two publisher runs: the original report-only run
+  completed cheap gates and isolated install before opening #1743; the fresh
+  main follow-up stopped on the cache-policy cheap gate before isolated install.
+  Name each run explicitly; do not infer the exact in-flight phase at merge.

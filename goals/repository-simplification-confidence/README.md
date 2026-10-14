@@ -10,8 +10,8 @@ program baselines and no zero-debt result is claimed.
 
 Lifecycle: `active`
 
-Program resumed on October 14. H2 is content-final in reopened PR #1574; local qualification and all four review
-fixes are complete, with inherited knowledge-reference attribution.
+Program resumed on October 14. H2 merged in PR #1574 (`4ec5e74a89`); evidence follow-up #1744 records
+final source qualification and all six original review resolutions, with inherited integration reds attributed.
 Historical inventory completeness remains explicitly unknown.
 Completed lane evidence and remaining program work are tracked in PLAN.md.
 

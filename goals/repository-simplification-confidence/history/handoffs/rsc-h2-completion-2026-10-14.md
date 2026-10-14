@@ -562,3 +562,32 @@ and all six original review resolutions are retained above. Delivery is
 content-final; the exact report-only head is provided by the final dispatch.
 The orchestrator must read #1744's current threads and readiness result at
 the merge gate; this committed receipt does not predict the monitor outcome.
+
+### Exact follow-up hosted integration evidence
+
+At delivery head `1b1a5cf0f5eaac39f6e9da3e77e1451fa9da59ba`, hosted Repo
+Sanity job `116013475052` reproduces the inherited cache digest mismatch
+(after eight passing sanity lanes); row `Repo_Sanity-12d01bbf3574` is
+acknowledged with the verified main-byte attribution. Heavy Check job
+`116014042085` fails test-tsgo at `skills-command.test.ts:634`, missing
+`HttpClient` (TS377004/TS2345). That file is identical to `origin/main` and
+was last changed by main `730348fc1f`; row `Heavy_Check-bf6383f0afaa` is
+acknowledged as inherited and assigned to the orchestrator's main repair.
+The full passing source qualification above remains bound to `8c00bdb927`;
+this fresh-main integration has these additional, explicitly reported reds.
+Vercel oip-web/todox failures explicitly say deployment rate limited; both
+are acknowledged environment-only. No paid upgrade is attempted.
+
+### Follow-up review wave
+
+Threads `PRRT_kwDOPbO_N86sc4UR` (comment `4274423802`) and
+`PRRT_kwDOPbO_N86sc5N4` (comment `4274429641`) identified the stale README
+Status block: update it to merged #1574, follow-up #1744, and six original
+review resolutions, preserving every other lane's progress. Thread
+`PRRT_kwDOPbO_N86sc4Ul` (comment `4274423829`) identified ambiguous publisher
+timing. The original report publisher log confirms cheap gates and isolated
+head-install both completed before it created #1743; the fresh-main follow-up
+publisher failed cache-policy before isolated install. Distinguish the two
+runs explicitly and make no unsupported claim about the exact phase at the
+instant #1574 merged. Reply and resolve all three through Yeet after this
+complete documentation wave is pushed. No source or baseline changes.
