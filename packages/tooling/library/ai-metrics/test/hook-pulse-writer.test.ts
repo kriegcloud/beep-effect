@@ -43,6 +43,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as R from "effect/Record";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 
@@ -1030,6 +1031,14 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       yield* fs.writeFileString(path.join(root, "AGENTS.md"), "# Indexed fixture\n");
       yield* fs.symlink("AGENTS.md", path.join(root, "CLAUDE.md"));
       yield* fs.writeFileString(path.join(root, "packages/foo/AGENTS.md"), "# Nested fixture\n");
+      yield* fs.makeDirectory(path.join(root, "stat: fixture"));
+      yield* fs.writeFileString(path.join(root, "stat: fixture/AGENTS.md"), "# Diagnostic-shaped path\n");
+      yield* fs.makeDirectory(path.join(root, ".claude/batch"));
+      yield* Effect.forEach(
+        A.range(0, 149),
+        (index) => fs.writeFileString(path.join(root, `.claude/batch/long-inspection-path-${index}.md`), "batch\n"),
+        { concurrency: 4, discard: true }
+      );
       yield* fs.writeFileString(path.join(root, ".ai/config.json"), "{}\n");
       yield* fs.writeFileString(path.join(root, ".aiassistant/config.json"), "{}\n");
       yield* fs.writeFileString(path.join(root, 'unrelated"name.txt'), "fixture\n");
@@ -1053,13 +1062,15 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       yield* fs.writeFileString(path.join(root, ".claude/logs"), "excluded filename");
       yield* fs.makeDirectory(path.join(root, ".codex"), { recursive: true });
       yield* fs.writeFileString(path.join(root, ".codex/deleted.toml"), "deleted indexed config");
+      yield* fs.writeFileString(path.join(root, ".claude/naïve.md"), "deleted unusual path");
       const addExcluded = yield* ChildProcess.make(
         "git",
-        ["add", "-f", ".claude/node_modules", ".claude/logs", ".codex/deleted.toml"],
+        ["add", "-f", ".claude/node_modules", ".claude/logs", ".codex/deleted.toml", ".claude/naïve.md"],
         { cwd: root }
       );
       expect(yield* addExcluded.exitCode).toBe(0);
       yield* fs.remove(path.join(root, ".codex/deleted.toml"));
+      yield* fs.remove(path.join(root, ".claude/naïve.md"));
       const decoded = yield* decodeHookPulseRow(
         expectSingleRow(yield* runWriter(yield* encodeJson(sessionStartPayload(root))))
       );
@@ -1068,9 +1079,55 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("hook-pulse writer confo
       expect(oracle.snapshot.bounds.excludedNestedRootPaths).toContain("packages/nested");
       expect(A.map(oracle.snapshot.files, (file) => file.relativePath)).not.toContain("packages/nested/AGENTS.md");
       expect(A.map(oracle.snapshot.files, (file) => file.relativePath)).toContain("packages/foo/AGENTS.md");
+      expect(A.map(oracle.snapshot.files, (file) => file.relativePath)).toContain("stat: fixture/AGENTS.md");
       expect(A.map(oracle.snapshot.files, (file) => file.relativePath)).toContain("CLAUDE.md");
       expect(A.map(oracle.snapshot.files, (file) => file.relativePath)).toContain(".ai/config.json");
       expect(A.map(oracle.snapshot.files, (file) => file.relativePath)).toContain(".claude/a/b/c/d/e/f/g/config.json");
+    })
+  );
+
+  it.effect("refuses indexed metadata permission errors after successful batch entries", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* makeHarnessFixtureRoot();
+      const blocked = path.join(root, ".claude/zz-blocked");
+      yield* fs.makeDirectory(blocked);
+      yield* fs.writeFileString(path.join(blocked, "config.json"), "{}\n");
+      const add = yield* ChildProcess.make("git", ["add", ".claude/zz-blocked"], { cwd: root });
+      expect(yield* add.exitCode).toBe(0);
+      yield* fs.chmod(blocked, 0o000);
+      const run = yield* runWriter(yield* encodeJson(sessionStartPayload(root))).pipe(
+        Effect.ensuring(fs.chmod(blocked, 0o755))
+      );
+      assertNone((yield* decodeHookPulseRow(expectSingleRow(run))).harnessHash);
+      expect(
+        Result.getOrThrow(HookPulseRefusal.decodeJsonResult(pipe(A.head(run.refusals), O.getOrThrow))).reason
+      ).toBe("stamp-failed");
+    })
+  );
+
+  it.effect("preserves dangling-link parity and refuses indexed symlink loops", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const root = yield* makeHarnessFixtureRoot();
+      yield* fs.symlink("missing.md", path.join(root, ".claude/dangling.md"));
+      const addDangling = yield* ChildProcess.make("git", ["add", ".claude/dangling.md"], { cwd: root });
+      expect(yield* addDangling.exitCode).toBe(0);
+      const dangling = yield* runWriter(yield* encodeJson(sessionStartPayload(root)));
+      assertSome(
+        (yield* decodeHookPulseRow(expectSingleRow(dangling))).harnessHash,
+        (yield* typescriptHarnessHash(root)).harnessHash
+      );
+      yield* fs.symlink("loop.md", path.join(root, ".claude/loop.md"));
+      const addLoop = yield* ChildProcess.make("git", ["add", ".claude/loop.md"], { cwd: root });
+      expect(yield* addLoop.exitCode).toBe(0);
+      const loop = yield* runWriter(yield* encodeJson(sessionStartPayload(root)));
+      assertNone((yield* decodeHookPulseRow(expectSingleRow(loop))).harnessHash);
+      expect(
+        Result.getOrThrow(HookPulseRefusal.decodeJsonResult(pipe(A.head(loop.refusals), O.getOrThrow))).reason
+      ).toBe("stamp-failed");
     })
   );
 

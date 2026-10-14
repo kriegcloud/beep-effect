@@ -171,3 +171,51 @@ The admitted intermediate census counted Claude 574,951 rows, 1,858 sessions and
 The full intermediate CLI package audit passed 290 test files and failed 18 cases in the forwarder command fixture because its helper supplied incomplete Git metadata. The fixture now initializes and indexes a real repository; no production boundary was relaxed. The final admitted batch will rerun both complete package audits and parity commands. Git boundary regressions additionally cover a broken nested metadata directory under a valid parent, a physical directory ending in a newline, and an external scan alias. Live future sentinel timestamps and invalid UTC calendar dates fail closed. Final-source native Claude primary/linked workflows again produced seven rows each, matching fresh stamps and no refusals, at the UTC times in the validation table.
 
 Independent final repair confirmations on `122f9cb540015311dcaf9650762db1ec93e630db` reported zero actionable findings from separate Claude Opus 5.5 medium and Codex GPT-6.1-Sol medium sessions. Earlier findings remain in the repair history. The preceding batch passed test-tsgo, Fallow audit/health (zero introduced findings), docgen local, jsdoc-ratchet and CI knowledge refs (zero live gated observations); its package failures were repaired and require the queued full rerun. The rerun uses the original user identity in a capability-free private mount namespace with an explicit device bind and lane-owned backing for TMPDIR because unresolved ancestor Git metadata predates this lane outside its ownership. Startup probes verified Bun/Git execution, permission denial for unreadable files, and a clean non-Git temporary ancestry. No host metadata or mounts were changed. Current program main `cb64e0484f` was merged during the batch, before the full CLI gate began; packet conflicts preserve both lanes' records. H3 source and tests are byte-identical across this merge. Earlier package/focused results remain applicable to H3; impacted parity scans require a post-merge refresh.
+
+## resume-2026-10-14
+
+The lane merged current `origin/main` at integration commit `9a19889a5a`;
+packet records preserve both lanes' evidence. Full qualification is being
+refreshed before one publication wave. The previous independent confirmations
+remain attached to their recorded source head, not silently relabelled current.
+
+The payload-free census on October 14 found zero invalid JSON lines:
+
+| Client | Rows | Sessions | Starts | Stamped sessions | Surface rows | Distinct stamps |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Claude | 684521 | 2090 | 458 | 458 | 2653 | 193 |
+| Codex | 569917 | 2417 | 3 | 0 | 0 | 0 |
+| Cursor | 2868 | 286 | 0 | 0 | 0 | 0 |
+
+These are growing-store snapshots. Per-client dry runs used
+`bun run beep harness-ledger prune-proposals --agent-kind <kind> --json`
+and wrote nothing. Each returned zero qualifying sessions, an incomplete
+30-session and shared window, and `nonUseQualified: false`. All reported
+74 schema-undecodable historical rows. Claude skipped 458 other-regime and
+67 mixed-fingerprint sessions; Codex and Cursor remained unstamped.
+Current collection capability stayed unknown. Missing telemetry does not prove
+non-use; all candidates remain on demand.
+
+Actual lane configuration exposed a performance defect: normal-cap direct
+adapter samples wrote one startup row and one `stamp-failed` refusal per client.
+An extended-cap diagnostic measured 5.011 seconds to stamp 528 selected paths.
+Batching indexed metadata/leaf inspection retains selection and fail-closed
+semantics without a cache or longer native deadline. Normal-cap samples after
+batching wrote one stamp each, zero refusals, and exited zero: Claude 0.886 s
+at 19:34:51.055Z; Codex 0.884 s at 19:34:51.939Z; Cursor 0.850 s at
+19:34:52.789Z. Samples are synthetic, isolated from the shared ledger, and
+never contribute to qualification. Shell/TypeScript parity and independent
+review must pass before publication.
+
+The full ai-metrics package gate passed audit (48.3 s) and docgen (12.3 s)
+in the documented private temp namespace. Its earlier unisolated 19 fixture
+failures were environment-only and acknowledged. The unisolated CLI audit
+exited 143; its isolated replacement remains the authoritative full rerun.
+`test-tsgo` passed against the integrated source. Final results follow below.
+
+Remote validation remains unknown: a new bounded 20-second BatchMode SSH
+probe timed out on October 14. Prometheus config-snapshot/desktop attribution
+and a recent Phoenix page could not be read. No remote state, home fields,
+installed timer, salt namespace or live evidence was changed. F owns native
+trust, launcher ancestry, global projection, OTel fields and the usable archive
+secret reference; the orchestrator owns any scheduling decision.

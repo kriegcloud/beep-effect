@@ -1257,3 +1257,5 @@ train-issue test on main also lacks the mock `HttpClient` used by adjacent CLI
 tests; provide that local test service to restore the test typecheck. Revert
 this unblocker PR to restore the prior references and test fixture; re-record
 the cache review if the receipt changes again.
+
+- H3 resume stamp performance: batch indexed-path metadata inspection and leaf enumeration, retaining the same selected paths, missing-file exclusions, symlink behavior, nested-checkout guards and refusal on non-ENOENT failures. Reason: 528 selected paths exceeded the native stamp budget with per-file subprocesses; current-checkout measurements fell from 5.011 seconds with extended diagnostic caps to under 0.9 seconds under normal caps. No deadline is raised and no cache creates a stale regime. Reversal: revert the H3 batching commit; retain `stamp-failed` uncertainty and all capabilities on demand.

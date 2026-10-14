@@ -2,11 +2,12 @@
 
 ## Status
 
-B first-wave publication snapshot is regenerated at `80fe0135ff` from fetched
-main `f21e2a8563`. Its generated candidate remains subject to publication-head
-parity, named review and the serialized R14 merge. Cap released; later R20
-guidance and detector work stays pending. Candidate counts are not accepted
-program baselines and no zero-debt result is claimed.
+Program resumed on October 14. A #1584, H2 #1574, and B #1738 have merged.
+H2 follow-up #1744 remains at the orchestrator gate. H3 is integrating current
+main and refreshing package/parity qualification for reopening #1590. Its
+current windows remain incomplete; no telemetry-based non-use retirement is
+qualified. F and H4 continue their separately owned work. Earlier evidence below
+retains its original head/date and does not certify program completion.
 
 Lifecycle: `active`
 
@@ -190,3 +191,5 @@ integration and both review fixes with local verification and checks waived.
 This supersedes the earlier publication hold; prior proof stays bound to its
 recorded source. Hosted CI qualifies this new integration. Later A waves
 and overall program acceptance remain open.
+
+H3 resume evidence: [qualification receipt](history/receipts/stage-4-h3-telemetry.md#resume-2026-10-14); [current handoff](history/handoffs/rsc-h3-telemetry-2026-10-14.md).

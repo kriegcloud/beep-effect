@@ -437,7 +437,7 @@ esac
 harness_config_hash() (
   set -euo pipefail
   cd -- "$1" 2>/dev/null || exit 1
-  for tool in find sort awk tr od sha256sum; do
+  for tool in find stat sort awk tr od sha256sum; do
     command -v "${tool}" >/dev/null 2>&1 || exit 1
   done
   export LC_ALL=C
@@ -563,33 +563,68 @@ END {
 { exit 1 }
 '
   if [ "${indexed}" = "1" ]; then
-    collected="$(
-      for candidate in "${indexed_paths[@]}"; do
-        [ -n "${candidate}" ] || continue
-        IFS=/ read -r -d '' -a segments < <(printf '%s\0' "${candidate}")
-        case "${segments[0]}" in
-          .codex|.claude|.ai|.aiassistant|.cursor|.agents|.junie|.grok) limit=9 ;;
-          *) limit=8 ;;
+    selected_paths=()
+    for candidate in "${indexed_paths[@]}"; do
+      [ -n "${candidate}" ] || continue
+      case "${candidate}" in
+        *[!\ -~]*|*\\*) IFS=/ read -r -d '' -a segments < <(printf '%s\0' "${candidate}") ;;
+        *) IFS=/ read -r -a segments <<<"${candidate}" ;;
+      esac
+      case "${segments[0]}" in
+        .codex|.claude|.ai|.aiassistant|.cursor|.agents|.junie|.grok) limit=9 ;;
+        *) limit=8 ;;
+      esac
+      [ "${#segments[@]}" -le "${limit}" ] || continue
+      skip=0; parent=""
+      for ((part=0; part<${#segments[@]}; part++)); do
+        segment="${segments[part]}"
+        case "${segment}" in
+          .beep|.cache|.git|.idea|.next|.repos|.turbo|.venv|build|coverage|dist|ide|logs|node_modules|outputs|projects|shell-snapshots|statsig|target|todos) skip=1; break ;;
         esac
-        [ "${#segments[@]}" -le "${limit}" ] || continue
-        skip=0; parent=""
-        for ((part=0; part<${#segments[@]}; part++)); do
-          segment="${segments[part]}"
-          case "${segment}" in
-            .beep|.cache|.git|.idea|.next|.repos|.turbo|.venv|build|coverage|dist|ide|logs|node_modules|outputs|projects|shell-snapshots|statsig|target|todos) skip=1; break ;;
-          esac
-          parent="${parent:+${parent}/}${segment}"
-          if [ "${part}" -lt "$((${#segments[@]}-1))" ] && [ -e "${parent}/.git" ]; then skip=1; break; fi
-        done
-        [ "${skip}" = "0" ] || continue
-        inspection="$(LC_ALL=C stat --format=%F -- "${candidate}" 2>&1)" || {
-          case "${inspection}" in *": No such file or directory") continue ;; *) exit 1 ;; esac
-        }
-        case "${candidate}" in *[!\ -~]*|*\\*) exit 1 ;; esac
-        # Inspect only an indexed candidate, never its surrounding untracked tree.
-        find -L "${candidate}" -maxdepth 0 -type f -printf '%p\t%s\n' 2>/dev/null || exit 1
+        parent="${parent:+${parent}/}${segment}"
+        if [ "${part}" -lt "$((${#segments[@]}-1))" ] && [ -e "${parent}/.git" ]; then skip=1; break; fi
       done
-    )" || exit 1
+      [ "${skip}" = "0" ] || continue
+      case "${candidate}" in
+        *[!\ -~]*|*\\*)
+          # Preserve the old missing-file exclusion before rejecting a name
+          # whose bytes cannot be mirrored; only this rare path needs a fork.
+          inspection="$(stat --format=%F -- "${candidate}" 2>&1)" || {
+            case "${inspection}" in *": No such file or directory") continue ;; *) exit 1 ;; esac
+          }
+          exit 1 ;;
+      esac
+      selected_paths+=("${candidate}")
+    done
+    # Inspect indexed paths together: per-file stat/find subprocesses exceed
+    # the native hook deadline on the real configuration tree. Missing tracked
+    # files stay excluded; every other inspection error still refuses the stamp.
+    inspected=""
+    inspection_status=0
+    if [ "${#selected_paths[@]}" -gt 0 ]; then
+      inspected="$(stat --printf='+%n\n' -- "${selected_paths[@]}" 2>&1)" || inspection_status=$?
+    fi
+    live_paths=()
+    missing_inspections=0
+    while IFS= read -r inspection; do
+      case "${inspection}" in
+        +*) live_paths+=("${inspection#+}") ;;
+        stat:\ *": No such file or directory") missing_inspections=$((missing_inspections + 1)) ;;
+        "") [ "${#selected_paths[@]}" -eq 0 ] || exit 1 ;;
+        *) exit 1 ;;
+      esac
+    done <<<"${inspected}"
+    [ "$((${#live_paths[@]} + missing_inspections))" -eq "${#selected_paths[@]}" ] || exit 1
+    case "${inspection_status}:${missing_inspections}" in
+      0:0) ;;
+      1:*) [ "${missing_inspections}" -gt 0 ] || exit 1 ;;
+      *) exit 1 ;;
+    esac
+    collected=""
+    if [ "${#live_paths[@]}" -gt 0 ]; then
+      collected="$(find -L "${live_paths[@]}" -maxdepth 0 -type f -printf '%p\t%s\n' 2>/dev/null)" || exit 1
+    fi
+
   else
   collected="$(
     {
