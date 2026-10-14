@@ -1,4 +1,6 @@
-import { describe, expect, it } from "@effect/vitest";
+import { it } from "@beep/test-runner";
+import { describe, expect } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
@@ -55,7 +57,7 @@ const verdict = (value: O.Option<"right" | "wrong" | "partly">, note: O.Option<s
   VerdictInput.make({ item, verdict: value, note });
 
 describe("VerdictLog", () => {
-  it.layer(testLayer())("revisions", (it) => {
+  it.layer(testLayer(), { timeout: "5 seconds" })("revisions", (it) => {
     it.effect(
       "appends revisions and reads the latest",
       Effect.fnUntraced(function* () {
@@ -66,12 +68,15 @@ describe("VerdictLog", () => {
 
         expect(first.revision).toBe(0);
         expect(second.revision).toBe(1);
-        expect(O.map(latest, (row) => O.isNone(row.verdict))).toEqual(O.some(true));
+        assertSome(
+          O.map(latest, (row) => O.isNone(row.verdict)),
+          true
+        );
       })
     );
   });
 
-  it.layer(testLayer())("locks", (it) => {
+  it.layer(testLayer(), { timeout: "5 seconds" })("locks", (it) => {
     it.effect(
       "refuses a verdict on a locked item",
       Effect.fnUntraced(function* () {
@@ -94,7 +99,7 @@ describe("VerdictLog", () => {
     );
   });
 
-  it.layer(testLayer())("export", (it) => {
+  it.layer(testLayer(), { timeout: "5 seconds" })("export", (it) => {
     it.effect(
       "exports one JSON line per revision",
       Effect.fnUntraced(function* () {
@@ -106,8 +111,14 @@ describe("VerdictLog", () => {
         const file = A.head(written);
 
         expect(count).toBe(2);
-        expect(O.map(file, (entry) => entry.path)).toEqual(O.some("practice-verdicts.jsonl"));
-        expect(O.map(file, (entry) => entry.text.trim().split("\n").length)).toEqual(O.some(2));
+        assertSome(
+          O.map(file, (entry) => entry.path),
+          "practice-verdicts.jsonl"
+        );
+        assertSome(
+          O.map(file, (entry) => entry.text.trim().split("\n").length),
+          2
+        );
         expect(O.exists(file, (entry) => entry.text.includes('"verdict":"partly"'))).toBe(true);
       })
     );

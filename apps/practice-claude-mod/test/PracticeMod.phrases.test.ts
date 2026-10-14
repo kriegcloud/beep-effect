@@ -1,21 +1,20 @@
-import { describe, expect, it } from "@effect/vitest";
-import * as O from "effect/Option";
+import { it } from "@beep/test-runner";
+import { describe, expect } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import { phraseToolCall, practiceKgToolOf } from "@/PracticeMod.phrases";
 
 describe("practiceKgToolOf", () => {
   it("recognizes a practice-kg tool on a configured server", () => {
-    expect(O.getOrNull(practiceKgToolOf(["practice-kg"], "mcp__practice-kg__kg_matter_lookup"))).toBe(
-      "kg_matter_lookup"
-    );
+    assertSome(practiceKgToolOf(["practice-kg"], "mcp__practice-kg__kg_matter_lookup"), "kg_matter_lookup");
   });
 
   it("ignores the same tool name on another server", () => {
-    expect(O.isNone(practiceKgToolOf(["practice-kg"], "mcp__other__kg_find"))).toBe(true);
+    assertNone(practiceKgToolOf(["practice-kg"], "mcp__other__kg_find"));
   });
 
   it("ignores built-in tools and unknown practice-kg tools", () => {
-    expect(O.isNone(practiceKgToolOf(["practice-kg"], "Bash"))).toBe(true);
-    expect(O.isNone(practiceKgToolOf(["practice-kg"], "mcp__practice-kg__kg_delete"))).toBe(true);
+    assertNone(practiceKgToolOf(["practice-kg"], "Bash"));
+    assertNone(practiceKgToolOf(["practice-kg"], "mcp__practice-kg__kg_delete"));
   });
 });
 

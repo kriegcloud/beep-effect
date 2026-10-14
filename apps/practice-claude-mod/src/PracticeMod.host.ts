@@ -22,7 +22,7 @@ const $I = $PracticeClaudeModId.create("PracticeMod.host");
  * @category schemas
  * @since 0.0.0
  */
-export const ModHostOperation = LiteralKit(["store-get", "store-set", "fs-write", "session-id", "clock"]).pipe(
+const ModHostOperation = LiteralKit(["store-get", "store-set", "fs-write", "session-id", "clock"]).pipe(
   $I.annoteSchema("ModHostOperation", { description: "The mod engine call that failed." })
 );
 
@@ -32,7 +32,7 @@ export const ModHostOperation = LiteralKit(["store-get", "store-set", "fs-write"
  * @category type-level
  * @since 0.0.0
  */
-export type ModHostOperation = typeof ModHostOperation.Type;
+type ModHostOperation = typeof ModHostOperation.Type;
 
 /**
  * A mod engine call rejected.

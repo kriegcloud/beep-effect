@@ -176,6 +176,8 @@ Seeded from the exploration's `DECISIONS.md` (full rationale there).
 | 2026-10-14 | D18 D9 envelope adds `$.session.messages` (read the question for the latest answer) | The verdict row records the question the answer replied to | Drop the question field |
 | 2026-10-14 | D16 App-local VerdictRow mirrors the shared envelope (itemId, right/wrong/partly, note, revision, recordedAt, lockedAt); promote to `@beep/law-practice-domain` when review-verdict-envelope P1 merges (D10 second consumer) | One log for per-answer controls and the queue | Keep the app-local schema |
 
+| 2026-10-14 | D19 Repair local gates without committing or publishing: canonical Option assertions and bounded test layers; declare generated hook and engine-test entries; keep internal schemas/errors private; preserve persisted matter/timer contracts with a codec test; use Match for existing `/practice` dispatch | Removes introduced lint/dead-code/complexity findings while retaining plugin actions and payloads; sandbox-only runner friction is recorded in `research/OPPORTUNITIES.md` | Revert the focused gate-fix diff; no deployed plugin state is changed |
+
 ## Exception Ledger
 
 | Exception | Scope | Owner | Rationale | Removal condition |

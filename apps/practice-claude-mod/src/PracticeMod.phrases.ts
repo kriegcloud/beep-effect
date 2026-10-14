@@ -23,7 +23,7 @@ const $I = $PracticeClaudeModId.create("PracticeMod.phrases");
  * @category models
  * @since 0.0.0
  */
-export class PhraseInput extends S.Class<PhraseInput>($I`PhraseInput`)(
+class PhraseInput extends S.Class<PhraseInput>($I`PhraseInput`)(
   {
     address: S.optionalKey(S.String),
     application_number: S.optionalKey(S.String),

@@ -28,6 +28,7 @@
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
+import * as Match from "effect/Match";
 import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -198,29 +199,27 @@ export const verdictCommand =
  */
 export const practiceCommand =
   ($: Engine) =>
-  (args: string): Promise<CommandRunResult> => {
-    const action = Str.trim(args);
-    if (action === "raw") {
-      const raw = !MutableRef.get(rawRows);
-      MutableRef.set(rawRows, raw);
-      $.ui.invalidate("ui.render");
-      return Promise.resolve({ text: raw ? "Showing the raw tool calls." : "Showing tool calls in plain language." });
-    }
-    if (action === "undo") {
-      return recordVerdict($)(O.none(), O.none()).then((text) => ({ text }));
-    }
-    if (action === "export") {
-      return runWith($)(
-        Effect.flatMap(VerdictLog, (log) => log.exportJsonl(ExportFile)).pipe(
-          Effect.match({
-            onFailure: () => ({ text: "The verdicts could not be exported." }),
-            onSuccess: (count) => ({ text: `Exported ${count} verdicts to ${ExportFile}.` }),
-          })
+  (args: string): Promise<CommandRunResult> =>
+    Match.value(Str.trim(args)).pipe(
+      Match.when("raw", () => {
+        const raw = !MutableRef.get(rawRows);
+        MutableRef.set(rawRows, raw);
+        $.ui.invalidate("ui.render");
+        return Promise.resolve({ text: raw ? "Showing the raw tool calls." : "Showing tool calls in plain language." });
+      }),
+      Match.when("undo", () => recordVerdict($)(O.none(), O.none()).then((text) => ({ text }))),
+      Match.when("export", () =>
+        runWith($)(
+          Effect.flatMap(VerdictLog, (log) => log.exportJsonl(ExportFile)).pipe(
+            Effect.match({
+              onFailure: () => ({ text: "The verdicts could not be exported." }),
+              onSuccess: (count) => ({ text: `Exported ${count} verdicts to ${ExportFile}.` }),
+            })
+          )
         )
-      );
-    }
-    return Promise.resolve({ text: "Use /practice export, /practice undo, or /practice raw." });
-  };
+      ),
+      Match.orElse(() => Promise.resolve({ text: "Use /practice export, /practice undo, or /practice raw." }))
+    );
 
 /**
  * The plain-language row for a practice-kg tool call, or undefined to keep

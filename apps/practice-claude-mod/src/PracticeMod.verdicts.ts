@@ -33,7 +33,7 @@ const RowLine = S.fromJsonString(VerdictRow);
  * @category errors
  * @since 0.0.0
  */
-export class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked`)(
+class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked`)(
   "VerdictLocked",
   { itemId: S.NonEmptyString },
   $I.annote("VerdictLocked", { description: "A verdict was refused because its item is locked." })
@@ -45,7 +45,7 @@ export class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked
  * @category errors
  * @since 0.0.0
  */
-export class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable>($I`VerdictStoreUnreadable`)(
+class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable>($I`VerdictStoreUnreadable`)(
   "VerdictStoreUnreadable",
   { key: S.NonEmptyString, message: S.String },
   $I.annote("VerdictStoreUnreadable", { description: "The plugin store held verdict data that did not decode." })
@@ -57,7 +57,7 @@ export class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable
  * @category errors
  * @since 0.0.0
  */
-export type VerdictLogError = VerdictLocked | VerdictStoreUnreadable | ModHostError;
+type VerdictLogError = VerdictLocked | VerdictStoreUnreadable | ModHostError;
 
 /**
  * One verdict to record on one answer.
