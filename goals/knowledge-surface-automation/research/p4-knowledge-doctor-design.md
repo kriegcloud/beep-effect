@@ -311,8 +311,19 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   assertion markers (K13) and arrow-chain command-span eligibility, both shared by
   Stage 1 and Stage 2, plus the accepted doc fixes and the planned-command spelling note.
   Report-only.
-- **PR 2b:** the domain evaluators (goals packet core on a tree reader,
-  `evaluateSkillsLocal` with licenses, `@beep/*` symbols), with parity tests. Report-only.
+- **PR 2b (landed scope):** the domain evaluators, report-only. The doctor tree gains
+  `domain`, the packet, workspace-package, and skill facts derived from tree bytes (K14).
+  `packet-status` checks lifecycle and current-phase claims against manifests read
+  through `readKnowledgeGoalPacketRecords`, the tree-reader twin of `listGoalPackets`
+  (K15). `symbols` resolves `@beep/*` packages, subpaths, and imported identifiers
+  through workspace manifests, `exports` maps, root `tsconfig.json` aliases, and a
+  declaration scan of barrels (K16). `skills-local` (`evaluateSkillsLocal`, which needs
+  nothing from its environment) checks lock coverage, source pinning, and license
+  presence over both lock versions (K17). Every evaluator passes the counterfactual
+  harness, and parity tests pin the tree readers to the live-filesystem readers.
+  Deferred: refactoring `packetFindings` itself onto the tree reader and listing
+  delegated goals-doctor findings in the report (both with PR 3's causal roots), and
+  codex-config and agents-mirror drift (K17).
 - **PR 3:** causal grouping plus root attribution in the report.
 - **PR 4:** baseline/identity/lease schemas, `check`, the seal guard, `verify-mint`,
   `leases`, and `knowledge:doctor` wired report-only into the quality lane. Yeet's verify
@@ -323,7 +334,7 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   row to `goals/knowledge-doctor.promotions.jsonc` (never touching the sealed baseline).
   The next CI mint reads the promotion at its SHA and admits that kind's inherited keys.
 
-## Decisions (K1..K13)
+## Decisions (K1..K17)
 
 - **K1 Witness-mandatory evaluators.** Reason: makes the counterfactual test total;
   vacuous passes cannot be represented. Reverse: if some evaluator legitimately cannot
@@ -386,3 +397,48 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
   quoted markers and no real one (C PR 1 report, verdict 2026-10-14). Reverse: widen the
   reader to quote and list containers if a real assertion ever needs one; no live marker
   depends on the narrow form.
+- **K14 Domain facts live on the doctor tree, derived from tree bytes.** The tree carries
+  a `domain` record (goal packets, `@beep/*` workspace packages with their entry points,
+  root `tsconfig.json` path aliases, per-file export scans, and normalized skills-lock
+  entries). Live trees memoize it for one scan; an overlay of a manifest-field, export,
+  or lock-entry witness removes exactly that fact, and hiding a tree entry re-derives the
+  domain from the remaining entries. Workspace packages are the root package plus the
+  manifests the root `workspaces` globs name, which matches `resolveWorkspaceDirs` (a
+  parity test). Reason: domain evaluators get the same honest counterfactuals as paths
+  and commands, with no filesystem read. Reverse: if a domain fact cannot be derived
+  from bytes, add a tree field for it and an overlay rule, as `commandTree` does.
+- **K15 Packet claims use a narrow grammar.** A lifecycle claim is a `goals/<slug>` span
+  followed on the same line by a lifecycle-word span with only present-tense connective
+  text between them (`(`, `is`, `now`, `currently`, `lifecycle`, `status`, `stays`,
+  `remains`, an arrow). `was`, `both`, and any other word end the claim. A phase claim
+  is the phase id that opens a packet README's `## Current Phase` section. A plain
+  `goals/<slug>` reference stays with the paths evaluator, since one evaluator owns each
+  span. All drift reports as `packet-status-claim-drift`, with the subject prefix
+  (`packet-status:` or `packet-phase:`) naming the claim, and a claim under a missing or
+  invalid manifest fails with the goals-doctor finding as its cause. Reason: in
+  report-only mode, precision first; a past-tense or plural status line is not a current
+  claim. Reverse: widen the grammar when the FP eyeball finds true claims it misses.
+- **K16 Symbol spans are specifiers, and identifiers need an import shape.** A symbol
+  span is an inline `@beep/<pkg>[/<subpath>]` span, optionally suffixed `#<task>` (a
+  Turborepo task id, checked for its package only). Globs (`@beep/*`) are not
+  references. An identifier is checked only when written `` `Name` from `@beep/...` ``,
+  and it resolves by a declaration scan of the target file and the files it star
+  re-exports relatively (`export *` from a package is not followed). Subpaths resolve
+  through `exports` (exact key, then the longest wildcard key, `null` blocks) and then a
+  root `tsconfig.json` alias. All drift reports as `unknown-beep-symbol`, with the
+  subject prefix (`beep-package:`, `beep-subpath:`, `beep-export:`) naming the level.
+  Reason: a scan with no compiler stays hermetic and fast, and the import shape is the
+  only prose form that names an identifier unambiguously. Reverse: check task names
+  against `package.json` scripts, or admit the `in` connective, if the eyeball asks.
+- **K17 Skills are tree spans, and config drift stays with `skills update`.** The
+  evaluator contract gains an optional `treeSpans`: the skills evaluator synthesizes one
+  span per locked or installed skill (`.claude/skills/<name>/SKILL.md`) instead of
+  reading prose. Both lock versions are read (v2 `SkillsLockDocument`, then v1
+  `SkillLockFile`). The kinds are the reserved `skill-lock-coverage-drift`,
+  `unresolvable-skill-source`, and `floating-github-skill-source`, plus the new
+  `skill-license-unrecorded`. `.codex/config.toml` and the `.agents/skills` mirror are
+  whole-file facts with no span; `skills update --check` owns them. `evaluateSkillsLocal`
+  requires nothing from its environment, which a compile-time assertion in the tests
+  pins. Reason: the contract stays one outcome per span, and K4's single owner holds.
+  Reverse: add a config-entry witness tag if a per-skill config claim becomes worth
+  checking.
