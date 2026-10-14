@@ -93,7 +93,7 @@ P4 in progress. Shipped on main so far:
   lease warnings in yeet's verify step. Nothing is sealed yet: PR 5's CI mint opens
   the first baseline (882 entries in six named groups on the live tree,
   [`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
-- **B-5 (this PR, opens P5):** `beep skills relock --skill <name> [--expect <planDigest>]`
+- **B-5 (#1732, opens P5):** `beep skills relock --skill <name> [--expect <planDigest>]`
   records a bumped pin's snapshot and effective hashes after a clean replay, and refuses
   (lock untouched) when a hunk conflicts, matches only at a shifted line, or the license
   bytes changed; `beep skills replay` is the read-only per-hunk report, and
@@ -102,6 +102,16 @@ P4 in progress. Shipped on main so far:
   `.github/workflows/skills-update-train.yml` replays every lock or patch change, relocks
   and rebuilds clean Renovate bumps, and writes the weekly batch issue. Decisions B28–B33
   in the same design doc.
+- **C (PR 5, this PR):** the knowledge-doctor mint workflow.
+  `beep knowledge doctor mint [--write]` is the sealed baseline's only writer (CI-only
+  write, refuses to launder), `.github/workflows/knowledge-baseline-mint.yml` opens the
+  weekly baseline-only PR from `automation/knowledge-baseline-mint` as the mint App, and
+  `knowledge:doctor` runs `knowledge doctor ci`: report-only until the merge-base is
+  sealed, then the gate with the seal guard (design K32–K37). **Operator item (no
+  money):** create the mint GitHub App and set `KNOWLEDGE_MINT_APP_CLIENT_ID`,
+  `KNOWLEDGE_MINT_APP_SLUG` (variables) and `KNOWLEDGE_MINT_APP_PRIVATE_KEY` (secret), as
+  listed in the design's "Mint App prerequisite"; then dispatch the workflow. Its first
+  baseline-only PR is the initial seal.
 
 C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
 command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling),
@@ -109,9 +119,9 @@ C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and fli
 on main.
 
 B-4 (`beep skills materialize`, #1709) and C Stage-2 PR 4 (the knowledge-doctor gate,
-#1734) are on main. This PR is B-5, the first P5 piece:
-`skills relock`, `skills replay`, `skills train-issue`, the Renovate custom manager, and
-the update-train workflow. B-6 (the hunk ledger, `--ghost`, `skills patch add`, and
+#1734) are on main, and so is B-5 (#1732): `skills relock`, `skills replay`,
+`skills train-issue`, the Renovate custom manager, and the update-train workflow. This
+PR is C Stage-2 PR 5, the knowledge-doctor mint. B-6 (the hunk ledger, `--ghost`, `skills patch add`, and
 `skills review`) is next for Workstream B, then Ritual 1 (the operator's classification).
 
 C Stage-2 PR 3 (stacked on PR 2b) adds causal grouping and root attribution,

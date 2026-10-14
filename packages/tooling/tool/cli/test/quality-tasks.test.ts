@@ -3763,7 +3763,9 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       }
       expect(local[2]?.args).not.toContain("--affected");
       expect(policyTurboScmBase(O.getOrThrow(A.get(local, 2)))).toBeUndefined();
-      expect(O.getOrThrow(A.get(local, 3)).args).toEqual(repoCliEntryArgs("knowledge", "doctor", "--report"));
+      expect(O.getOrThrow(A.get(local, 3)).args).toEqual(
+        repoCliEntryArgs("knowledge", "doctor", "ci", "--base", "review-base")
+      );
       for (const step of A.filter(A.take(local, 5), (planned) => planned.label !== "knowledge:doctor")) {
         expect(step.args).toContain("--summarize");
         expect(step.args).toContain("--continue=dependencies-successful");
@@ -3778,6 +3780,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         expect(O.getOrThrow(optionUnderTest)).toEqual(expectedOptionValue);
       }
       const full = rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, true);
+      expect(O.getOrThrow(A.get(full, 2)).args).toEqual(repoCliEntryArgs("knowledge", "doctor", "ci"));
       expect(A.map(full, (step) => step.label)).toEqual([
         "lint:policy:cheap",
         "lint:policy:medium",
@@ -3791,7 +3794,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         ...pipe(A.get(local, 2), O.getOrThrow, taskNames),
       ]);
       // A local full-scope plan (no review base) leaves the two git-delta knowledge checks and the
-      // report-only knowledge doctor to the hosted plan; the changed-scope plan still carries them.
+      // knowledge doctor (report-only until the first seal) to the hosted plan; the changed-scope
+      // plan still carries them.
       const localFull = rootLintPolicyStepsForTesting("/repo", undefined, undefined, undefined, false);
       expect(A.map(localFull, (step) => step.label)).toEqual(
         A.filter(
