@@ -94,3 +94,29 @@ TierGateVerdict's example and MintFetchableHandle's example. Change their
 module paths. Preserve the totals baseline and all other policy protections.
 The worker's cheap JSDoc gate reads the committed inventory; its success does
 not establish a fresh inventory's compliance. Verify the fresh inventory too.
+
+## Canonical main repair and final-head source proof
+
+Main repair e54795648b (#1773) landed the inherited schema/documentation fixes.
+Adopted it at merge e701c49214, choosing main's AI metrics options documentation
+in the sole overlap. Both checkouts are synchronized and the eight worker
+overlays keep their verified hashes. A fresh documentation inventory at e701
+passes the strict ratchet with zero increased totals and zero legacy tags.
+Hosted Security and JSDoc Ratchet pass too.
+
+Exact-head worker job 059d3e66-7b8e-4d60-8e79-84adb22c3056 passes the complete
+serial cheap tier in 604,984 ms and finalizes normally, exit zero, invocation
+ebe3b578a4d141018008aad19857810c. The requested base is e54795648b; Fallow's
+origin/main also resolves to e54795648b421369d7ac48e3543483fd8c4b6681. Observed
+peak 7,351,812,096 bytes remains below the unchanged soft limit. Cache reuse is
+allowed. Private archive SHA-256:
+c88dfc8ab79f97a3a374f874d44466254dfd4574d0ad55f46a0449c2115d0fcc.
+This qualifies e701's source, not a later test correction.
+
+Hosted Heavy Check job 116118772278 then reports one inherited
+strictEffectProvide error at AgentMessage.runtime.test.ts:322. The receiving
+grant fixture provided Reactivity.layer inside the test generator. Move that
+layer into the existing it.layer entry point and remove the nested provision.
+All seven runtime boundary tests pass, and the package-owned test typecheck
+receipt records exit zero with no diagnostics. No strict diagnostic is disabled
+and the grant checks, expiry scenario and native process ownership stay intact.
