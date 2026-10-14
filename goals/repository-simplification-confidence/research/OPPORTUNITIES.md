@@ -1076,3 +1076,87 @@ Hosted Repo Sanity job 115502999707 fails old-head Syncpack on minimatch
 repairs both; acknowledge with the actual main merge commit, not a waiver.
 The separately reported Sherif ordering issue still requires live attribution
 on the new head if it appears.
+
+
+### B resume admission environment, 2026-10-14
+
+- Work: qualify the landed Sherif and JSDoc traversal repairs, then reproduce
+  the current detector baseline through the required heavy wrapper.
+- Evidence: `beep-heavy bunx sherif@1.10.0 -r non-existent-packages` exits
+  before admission with `Failed to connect to user scope bus` because this
+  headless worker lacks the user-manager environment.
+- Action: use `XDG_RUNTIME_DIR=/run/user/1000` and the matching user bus
+  address on the wrapper. The admitted Sherif replay passes. No wrapper,
+  concurrency cap or authentication setting changed.
+- Prevention: the worker launcher should supply the user-manager environment
+  before invoking the canonical heavy wrapper.
+
+
+### B shared snapshot qualification follows moving main, 2026-10-14
+
+- Work: reproduce the R20 baseline and review the dedicated generated chore.
+- Evidence: during the first admitted reproduction, main advanced through
+  #1707, #1666, #1711 and #1713. Independent review had to pin its verdict to
+  `7878eb9238`; it could not extend it to merge `aeaa911d51`.
+- Action: preserve the completed raw observations, integrate main, install
+  the moved lockfile and regenerate all touched snapshots through owners.
+- Prevention: coordinate the serialized snapshot wave with a bounded base
+  window, or qualify owner outputs against their precise source inputs, so
+  unrelated publication does not force repeated whole-tree scans.
+
+
+### B regeneration queue outlives source-base movement, 2026-10-14
+
+- Work: requalify the shared generated snapshots after main integration.
+- Evidence: the first replay remained unstarted in `beep-heavy` while main
+  gained #1720, #1721 and #1716. No replay head or command-result file existed.
+- Action: stop only that owned queued unit, confirm it ran no commands,
+  preserve the first measured candidate, merge main and re-submit. No other
+  heavy job or capacity setting is changed.
+- Prevention: give a serialized snapshot wave a source-input-bound admission
+  or bounded main window. A static slot race offers no stable source window
+  for whole-tree owner regeneration while other branches continue landing.
+
+
+### B qualification displaced by a landed source change
+
+During the first generated wave, main landed Skills materialization (#1709)
+after the pinned candidate's JSDoc qualification started. The completed
+candidate checks remain historical; new schema/catalog inputs require another
+owner replay. Only B's queued, unstarted named review was withdrawn. Preserve
+source-head and base provenance for every run so moving shared refs cannot
+turn an earlier pass into current-head proof. Knowledge refs also reported
+fourteen inherited host-path observations; exact byte comparisons establish
+attribution before any repair.
+
+
+### B pinned history needs explicit archive paths and current status
+
+The named first-wave review found stale current-tense packet lines after
+repeated main integrations, and an older review referenced `integrated/`
+logs that newer owner passes reused. Corrections preserve the pinned review,
+name its immutable private archive, retitle historical parity and update
+current status together. A qualification record should distinguish owner
+source head, generated candidate and final packet head instead of appending
+new evidence beneath an unchanged current-status sentence.
+
+
+### B final publication snapshot and pre-final proof boundary
+
+The final publication fetch imported #1727 observability, #1714 knowledge
+cause grouping and #1712 packets after #1715 model routing. Repeated global
+source movement displaced earlier full local proofs. Preserve each archive,
+regenerate the fresh publication snapshot, and use Yeet's prescribed cheap
+push preflight while pre-final parity qualifies the exact published head.
+Hosted proof remains authoritative. Candidate counts remain source-pinned;
+new source findings are shown rather than presented as B repairs.
+
+
+### B publish runtime flag rejected before execution
+
+`yeet publish --job-max-runtime "40 minutes"` returned
+`--job-max-runtime requires --detach.` Argument validation stopped before
+any push. The flag is general in help but requires an explicit detached
+operation. Retry canonical publication without it; apply the runtime bound
+to the explicit detached readiness monitor. Conditional flag requirements
+should be rendered beside the option in command help.
