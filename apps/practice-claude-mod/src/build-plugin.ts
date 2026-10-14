@@ -30,6 +30,14 @@ const TopLevelFunctionVar = /^var (\w+) = (async \(|\(|function\b)/gm;
 /**
  * The bundler refused the hooks module.
  *
+ * **Example** (Make a build failure)
+ *
+ * ```ts
+ * import { PluginBuildFailed } from "@/build-plugin"
+ *
+ * console.log(PluginBuildFailed.make({ message: "bun build exited 1" })._tag) // "PluginBuildFailed"
+ * ```
+ *
  * @category errors
  * @since 0.0.0
  */
