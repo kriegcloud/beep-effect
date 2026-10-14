@@ -8,6 +8,7 @@
  */
 
 import { PracticeKgToolkit } from "@beep/law-practice-server";
+import { M365Toolkit } from "@beep/m365-mcp/M365Tools";
 import {
   McpbManifestFields,
   McpbPackageSpec,
@@ -25,11 +26,16 @@ import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
 
 /*
  * The manifest's tool list derives from the toolkits the gateway serves, so it
- * cannot drift from them. Setup tools are always mounted; practice-kg and Box
- * Drive tools mount when the saved profile selects them.
+ * cannot drift from them. Setup tools are always mounted; practice-kg, Box
+ * Drive and Microsoft 365 tools mount when the saved profile selects them.
  */
 const manifestTools = A.map(
-  [...R.values(SetupToolkit.tools), ...R.values(PracticeKgToolkit.tools), ...R.values(BoxDriveToolkit.tools)],
+  [
+    ...R.values(SetupToolkit.tools),
+    ...R.values(PracticeKgToolkit.tools),
+    ...R.values(BoxDriveToolkit.tools),
+    ...R.values(M365Toolkit.tools),
+  ],
   (tool) =>
     McpbTool.make({
       name: tool.name,
@@ -52,6 +58,7 @@ const program = mcpbPackageProgram(
       env: {
         BUNDLE_DIR: "${user_config.bundle_dir}",
         PRACTICE_KG_CORPUS_ROOT: "${user_config.corpus_root}",
+        M365_CLIENT_ID: "${user_config.m365_client_id}",
       },
       userConfig: {
         bundle_dir: McpbUserConfigField.make({
@@ -64,6 +71,13 @@ const program = mcpbPackageProgram(
           type: "directory",
           title: "Practice corpus root",
           description: "Optional corpus root used for click-through to source files and email bodies.",
+          required: false,
+        }),
+        m365_client_id: McpbUserConfigField.make({
+          type: "string",
+          title: "Microsoft 365 app ID",
+          description:
+            "Optional. The application (client) ID of the practice gateway's Microsoft 365 app registration; Microsoft 365 stays off without it.",
           required: false,
         }),
       },

@@ -86,8 +86,8 @@ describe("requirementsFor", () => {
     expect(profileSelects("practice-kg")(profile)).toBe(false);
   });
 
-  it("marks Box Drive install as the only automatic remediation", () => {
+  it("marks Box Drive install and the Microsoft 365 sign-in page as the automatic remediations", () => {
     const automatic = A.filter(R.values(RequirementCatalog), (entry) => entry.remediation.kind === "automatic");
-    expect(ids(automatic)).toEqual(["box-drive-installed"]);
+    expect(ids(automatic)).toEqual(["box-drive-installed", "m365-consented"]);
   });
 });

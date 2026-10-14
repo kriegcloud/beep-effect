@@ -12,6 +12,7 @@ import * as Bool from "effect/Boolean";
 import { Command, Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Logger from "effect/Logger";
 import { printGatewaySelfCheck, runGatewaySelfCheck } from "./SelfCheck.ts";
 import { GatewayServerLayer, GatewayServicesLayer } from "./Server.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
@@ -26,16 +27,21 @@ const selfCheck = Flag.Boolean("self-check").pipe(
   Flag.withDefault(false)
 );
 
+// stdout carries MCP frames (and the self-check's one JSON line), so logs,
+// such as a provider explaining why it did not mount, go to stderr.
+const StderrLogger = Layer.succeed(Logger.LogToStderr, true);
+
 // The self-check never builds the stdio server layer, so stdin is left alone.
 const check = printGatewaySelfCheck(
   GatewayServicesLayer.pipe(
+    Layer.provide(StderrLogger),
     Layer.build,
     Effect.flatMap((services) => Effect.provideContext(runGatewaySelfCheck, services)),
     Effect.scoped
   )
 );
 
-const serve = Layer.launch(GatewayServerLayer);
+const serve = Layer.launch(GatewayServerLayer.pipe(Layer.provide(StderrLogger)));
 
 const gatewayCommand = Command.make(
   "practice-gateway",

@@ -15,6 +15,7 @@ import {
   SetupRepairRefused,
 } from "@beep/law-practice-use-cases/PracticeSetup";
 import { ElicitedApprovals } from "@beep/practice-gateway/Approvals";
+import { M365SignInFailure } from "@beep/practice-gateway/PracticeGateway.errors";
 import { CLAUDE_UNINSTALL_KEY, GatewaySetupProbes } from "@beep/practice-gateway/Probes";
 import { requirementFromCatalog, requirementsFor } from "@beep/practice-gateway/Requirements";
 import { it } from "@beep/test-runner";
@@ -27,7 +28,8 @@ import * as A from "effect/Array";
 import * as McpSchema from "effect/ai/McpSchema";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { fakeHost, fullProfile, settingsLayer } from "./fixtures.ts";
+import { fakeHost, fakeM365SignIn, fullProfile, m365NotConfigured, settingsLayer } from "./fixtures.ts";
+import type { M365SignIn } from "@beep/practice-gateway/M365SignIn";
 import type { GatewayRequirementId } from "@beep/practice-gateway/Requirements";
 import type { FakeMachine } from "./fixtures.ts";
 
@@ -36,9 +38,12 @@ const Platform = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
 const probesFor = (
   machine: FakeMachine,
   settings: Parameters<typeof settingsLayer>[0] = {},
-  secrets: Layer.Layer<WindowsSecretStore> | Layer.Layer<never> = WindowsSecretStore.layerMemory
+  secrets: Layer.Layer<WindowsSecretStore> | Layer.Layer<never> = WindowsSecretStore.layerMemory,
+  m365: Layer.Layer<M365SignIn> = fakeM365SignIn({})
 ) =>
-  GatewaySetupProbes.pipe(Layer.provide(Layer.mergeAll(fakeHost(machine), settingsLayer(settings), Platform, secrets)));
+  GatewaySetupProbes.pipe(
+    Layer.provide(Layer.mergeAll(fakeHost(machine), settingsLayer(settings), Platform, secrets, m365))
+  );
 
 const probeRequirement = (requirement: SetupRequirement, layer: Layer.Layer<SetupProbes>) =>
   SetupProbes.use((probes) => probes.probe(requirement)).pipe(provideScopedLayer(layer));
@@ -122,6 +127,40 @@ describe("gateway probes", () => {
         probesFor({ fileBytes: [[cache, new Uint8Array([1])]] }, {}, Layer.empty)
       ).pipe(Effect.flip);
       expect(noStore.reason).toBe("The Windows secret store could not be opened.");
+    })
+  );
+
+  it.effect("reports Microsoft 365 as not configured without an app id", () =>
+    Effect.gen(function* () {
+      const cache = "/data/m365/token-cache.dpapi";
+      const unconfigured = probesFor(
+        { fileBytes: [[cache, new Uint8Array([1])]] },
+        {},
+        WindowsSecretStore.layerMemory,
+        fakeM365SignIn({ configured: false })
+      );
+      expect(yield* probe("m365-consented", unconfigured)).toEqual(ProbeMissing.make({ detail: m365NotConfigured }));
+    })
+  );
+
+  it.effect("repairs Microsoft 365 consent through the sign-in, in plain language", () =>
+    Effect.gen(function* () {
+      const repair = (m365: Layer.Layer<M365SignIn>) =>
+        SetupProbes.use((probes) => probes.repair(requirementFromCatalog("m365-consented", "mail-calendar"))).pipe(
+          provideScopedLayer(probesFor({}, {}, WindowsSecretStore.layerMemory, m365))
+        );
+      yield* repair(fakeM365SignIn({ signIn: Effect.succeed("connected") }));
+      const waiting = yield* repair(fakeM365SignIn({ signIn: Effect.succeed("waiting-for-browser") })).pipe(
+        Effect.flip
+      );
+      expect(waiting).toBeInstanceOf(SetupRepairFailed);
+      expect(waiting.reason).toContain("Finish signing in there");
+      const declined = yield* repair(
+        fakeM365SignIn({
+          signIn: Effect.fail(M365SignInFailure.make({ message: "Access to Microsoft 365 was not approved." })),
+        })
+      ).pipe(Effect.flip);
+      expect(declined.reason).toBe("Access to Microsoft 365 was not approved.");
     })
   );
 

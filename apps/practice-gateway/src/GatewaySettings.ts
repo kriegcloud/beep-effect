@@ -25,10 +25,10 @@ const $I = $PracticeGatewayId.create("GatewaySettings");
  *
  * **Details**
  *
- * `bundleDir` and `corpusRoot` come from the extension's `user_config`
- * (`BUNDLE_DIR`, `PRACTICE_KG_CORPUS_ROOT`); both are optional. `dataDir`
- * holds the saved practice profile and, once the Microsoft 365 authorizer
- * lands, its DPAPI-protected token cache. It never holds secrets in clear.
+ * `bundleDir`, `corpusRoot` and `m365ClientId` come from the extension's
+ * `user_config` (`BUNDLE_DIR`, `PRACTICE_KG_CORPUS_ROOT`, `M365_CLIENT_ID`);
+ * all are optional. `dataDir` holds the saved practice profile and the
+ * DPAPI-protected Microsoft 365 token cache. It never holds secrets in clear.
  *
  * **Example** (Build settings for a test)
  *
@@ -57,6 +57,10 @@ export class GatewaySettingsValues extends S.Class<GatewaySettingsValues>($I`Gat
     }),
     corpusRoot: S.Option(S.NonEmptyString).annotateKey({
       description: "Optional corpus root for practice knowledge-graph click-through.",
+    }),
+    m365ClientId: S.Option(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
+      description:
+        "Microsoft 365 app (client) id from the extension settings; Microsoft 365 is unconfigured without it.",
     }),
   },
   $I.annote("GatewaySettingsValues", {
@@ -116,11 +120,12 @@ export class GatewaySettings extends Context.Service<GatewaySettings, GatewaySet
       const isWindows = platform === "win32";
       const dataDir = yield* resolveDataDir(path, isWindows);
       const bundleDir = O.firstSomeOf([
-        yield* configuredDirectory("BUNDLE_DIR"),
-        yield* configuredDirectory("PRACTICE_KG_BUNDLE_DIR"),
+        yield* configuredSetting("BUNDLE_DIR"),
+        yield* configuredSetting("PRACTICE_KG_BUNDLE_DIR"),
       ]);
-      const corpusRoot = yield* configuredDirectory("PRACTICE_KG_CORPUS_ROOT");
-      return GatewaySettingsValues.make({ dataDir, isWindows, bundleDir, corpusRoot });
+      const corpusRoot = yield* configuredSetting("PRACTICE_KG_CORPUS_ROOT");
+      const m365ClientId = yield* configuredSetting("M365_CLIENT_ID");
+      return GatewaySettingsValues.make({ dataDir, isWindows, bundleDir, corpusRoot, m365ClientId });
     })
   );
 
@@ -149,11 +154,11 @@ export class GatewaySettings extends Context.Service<GatewaySettings, GatewaySet
 const isUsableSetting = (value: string): boolean =>
   Str.isNonEmpty(Str.trim(value)) && !Str.startsWith("${")(Str.trim(value));
 
-const configuredDirectory = (name: string) =>
+const configuredSetting = (name: string) =>
   Config.option(Config.String(name)).pipe(Effect.map(flow(O.map(Str.trim), O.filter(isUsableSetting))));
 
 const resolveDataDir = Effect.fnUntraced(function* (path: Path.Path, isWindows: boolean) {
-  const override = yield* configuredDirectory("PRACTICE_GATEWAY_DATA_DIR");
+  const override = yield* configuredSetting("PRACTICE_GATEWAY_DATA_DIR");
   if (O.isSome(override)) {
     return override.value;
   }
@@ -161,7 +166,7 @@ const resolveDataDir = Effect.fnUntraced(function* (path: Path.Path, isWindows: 
     const localAppData = yield* Config.String("LOCALAPPDATA");
     return path.join(localAppData, "beep", "practice-gateway");
   }
-  const xdg = yield* configuredDirectory("XDG_DATA_HOME");
+  const xdg = yield* configuredSetting("XDG_DATA_HOME");
   const base = yield* O.match(xdg, {
     onNone: () => Config.String("HOME").pipe(Effect.map((home) => path.join(home, ".local", "share"))),
     onSome: Effect.succeed,

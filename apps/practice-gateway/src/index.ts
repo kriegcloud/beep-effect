@@ -28,6 +28,20 @@ export * from "./BoxDriveTools.ts";
  */
 export * from "./GatewaySettings.ts";
 /**
+ * Microsoft 365 provider tools.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./M365Provider.ts";
+/**
+ * Microsoft 365 sign-in: loopback authorizer and DPAPI token cache.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./M365SignIn.ts";
+/**
  * Gateway-owned typed failures.
  *
  * @category errors
@@ -83,6 +97,13 @@ export * from "./Server.ts";
  * @since 0.0.0
  */
 export * from "./SetupTools.ts";
+/**
+ * The system web browser.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./SystemBrowser.ts";
 /**
  * Gateway version.
  *

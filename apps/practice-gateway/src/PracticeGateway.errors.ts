@@ -145,3 +145,56 @@ export class ProviderUnavailable extends S.TaggedError<ProviderUnavailable>($I`P
     description: "A provider's code or native resources could not be loaded on this machine.",
   })
 ) {}
+
+/**
+ * Microsoft 365 sign-in could not complete, with the reason in plain
+ * language for the lawyer.
+ *
+ * **Example** (A declined consent)
+ *
+ * ```ts
+ * import { M365SignInFailure } from "@beep/practice-gateway/PracticeGateway.errors"
+ *
+ * const error = M365SignInFailure.make({ message: "Access to Microsoft 365 was not approved in the browser." })
+ * console.log(error._tag)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class M365SignInFailure extends S.TaggedError<M365SignInFailure>($I`M365SignInFailure`)(
+  "M365SignInFailure",
+  {
+    cause: OptionalCause,
+    message: S.NonEmptyString,
+  },
+  $I.annoteError<M365SignInFailure>("M365SignInFailure", {
+    description: "Microsoft 365 sign-in could not complete.",
+  })
+) {}
+
+/**
+ * The system web browser could not be opened.
+ *
+ * **Example** (Report a missing browser)
+ *
+ * ```ts
+ * import { BrowserOpenFailure } from "@beep/practice-gateway/PracticeGateway.errors"
+ *
+ * const error = BrowserOpenFailure.make({ message: "The web browser could not be opened on this computer." })
+ * console.log(error._tag)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class BrowserOpenFailure extends S.TaggedError<BrowserOpenFailure>($I`BrowserOpenFailure`)(
+  "BrowserOpenFailure",
+  {
+    cause: OptionalCause,
+    message: S.NonEmptyString,
+  },
+  $I.annoteError<BrowserOpenFailure>("BrowserOpenFailure", {
+    description: "The system web browser could not be opened.",
+  })
+) {}

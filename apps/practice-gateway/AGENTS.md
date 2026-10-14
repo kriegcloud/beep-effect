@@ -24,6 +24,13 @@ selects, over one `effect/ai/McpServer` stdio server.
   approvals fail closed. No repair downloads installers until the installer
   route is decided.
 - The saved profile and the data directory never hold secrets in clear.
+- Providers (`PracticeKgProvider.ts`, `BoxDriveTools.ts`, `M365Provider.ts`)
+  mount only when the saved profile selects them; a provider that cannot load
+  logs why and mounts nothing, so the setup tools always answer. Import heavy
+  or native provider code dynamically (practice-kg's DuckDB, `@beep/doc-text`).
+- Microsoft 365 tokens live only in the DPAPI-protected MSAL cache
+  (`<dataDir>/m365/token-cache.dpapi`); a browser sign-in starts only from the
+  approved `m365-consented` repair, never from a tool call.
 - Packaging: `bun run --cwd apps/practice-gateway package:mcpb:linux`
   (`:windows` downloads the pinned DuckDB win32 sidecar).
 - Before handing back a change, run `bun run beep quality package-verify @beep/practice-gateway` from the repository root. Use `--quick` only for a justified lint+check subset; a failure arms the checkout's shared P0 inbox.

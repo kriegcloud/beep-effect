@@ -17,10 +17,13 @@ import * as Layer from "effect/Layer";
 import { ElicitedApprovals } from "./Approvals.ts";
 import { BoxDriveProviderLayer } from "./BoxDriveTools.ts";
 import { GatewaySettings } from "./GatewaySettings.ts";
+import { M365ProviderLayer } from "./M365Provider.ts";
+import { M365SignIn } from "./M365SignIn.ts";
 import { PracticeKgProviderLayer } from "./PracticeKgProvider.ts";
 import { GatewaySetupProbes } from "./Probes.ts";
 import { ProfileStore } from "./ProfileStore.ts";
 import { SetupToolsLayer } from "./SetupTools.ts";
+import { SystemBrowser } from "./SystemBrowser.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
 import { WindowsHost } from "./WindowsHost.ts";
 
@@ -39,30 +42,33 @@ import { WindowsHost } from "./WindowsHost.ts";
  * @since 0.0.0
  */
 export const PRACTICE_GATEWAY_INSTRUCTIONS =
-  "Practice gateway for a law practice's workstation. setup_status checks this computer against the saved practice profile and lists the steps only the lawyer can take; setup_repair runs one automatic repair after the lawyer approves it in a prompt; setup_profile_get and setup_profile_save read and write the onboarding interview's profile. Practice tools (such as the practice knowledge graph) appear when the saved profile selects them and Claude restarts the gateway.";
+  "Practice gateway for a law practice's workstation. setup_status checks this computer against the saved practice profile and lists the steps only the lawyer can take; setup_repair runs one automatic repair after the lawyer approves it in a prompt (for Microsoft 365 it opens the sign-in page in the browser); setup_profile_get and setup_profile_save read and write the onboarding interview's profile. Practice tools (the practice knowledge graph, Box Drive files, Microsoft 365 mail and calendar) appear when the saved profile selects them and Claude restarts the gateway.";
 
 const logLayerFailure = (message: string) => (cause: Cause.Cause<unknown>) =>
   Layer.effectDiscard(Effect.logWarning(message, Cause.pretty(cause)));
 
-// Off Windows there is no secret store; probes that need it answer "only on Windows".
-const SetupProbesForPlatform = Layer.unwrap(
-  GatewaySettings.useSync((settings) =>
-    settings.isWindows
-      ? GatewaySetupProbes.pipe(
-          Layer.provide(
-            WindowsSecretStore.layerWindows.pipe(
-              Layer.catchCause(logLayerFailure("The Windows secret store could not be opened."))
+// Off Windows there is no secret store: probes that need it answer "only on
+// Windows" and Microsoft 365 sign-in is refused.
+const withPlatformSecrets = <A, E, R>(layer: Layer.Layer<A, E, R>) =>
+  Layer.unwrap(
+    GatewaySettings.useSync((settings) =>
+      settings.isWindows
+        ? layer.pipe(
+            Layer.provide(
+              WindowsSecretStore.layerWindows.pipe(
+                Layer.catchCause(logLayerFailure("The Windows secret store could not be opened."))
+              )
             )
           )
-        )
-      : GatewaySetupProbes
-  )
-);
+        : layer
+    )
+  );
 
 /**
  * Setup services: settings, profile store, Windows host and the setup doctor
  * with the gateway's probes and elicited approvals. The settings, profile
- * store and Windows host are also exposed to the provider layers.
+ * store, Windows host and Microsoft 365 sign-in are also exposed to the
+ * provider layers.
  *
  * **Details**
  *
@@ -82,7 +88,9 @@ const SetupProbesForPlatform = Layer.unwrap(
  * @since 0.0.0
  */
 export const GatewayServicesLayer = SetupDoctor.layer.pipe(
-  Layer.provide(Layer.merge(SetupProbesForPlatform, ElicitedApprovals)),
+  Layer.provide(Layer.merge(withPlatformSecrets(GatewaySetupProbes), ElicitedApprovals)),
+  Layer.provideMerge(withPlatformSecrets(M365SignIn.layer)),
+  Layer.provide(SystemBrowser.layer),
   Layer.provideMerge(WindowsHost.layer),
   Layer.provideMerge(ProfileStore.layer),
   Layer.provideMerge(GatewaySettings.layer)
@@ -104,7 +112,12 @@ export const GatewayServicesLayer = SetupDoctor.layer.pipe(
  * @category layers
  * @since 0.0.0
  */
-export const GatewayServerLayer = Layer.mergeAll(SetupToolsLayer, PracticeKgProviderLayer, BoxDriveProviderLayer).pipe(
+export const GatewayServerLayer = Layer.mergeAll(
+  SetupToolsLayer,
+  PracticeKgProviderLayer,
+  BoxDriveProviderLayer,
+  M365ProviderLayer
+).pipe(
   Layer.provide(
     McpServer.layerStdio({
       name: "beep-practice-gateway",

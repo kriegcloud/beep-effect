@@ -1,6 +1,8 @@
 import { CapabilityGap, CapabilitySupported, ItLimits, PracticeProfile } from "@beep/law-practice-domain";
+import { M365ConfigInput } from "@beep/m365";
 import { GatewaySettings, GatewaySettingsValues } from "@beep/practice-gateway/GatewaySettings";
-import { WindowsHostFailure } from "@beep/practice-gateway/PracticeGateway.errors";
+import { M365SignIn } from "@beep/practice-gateway/M365SignIn";
+import { M365SignInFailure, WindowsHostFailure } from "@beep/practice-gateway/PracticeGateway.errors";
 import { BitLockerProtection, WindowsHost, WindowsHostShape } from "@beep/practice-gateway/WindowsHost";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
@@ -9,6 +11,7 @@ import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import type { M365SignInOutcome } from "@beep/practice-gateway/M365SignIn";
 import type { KnownFolder, RegistryValueQuery } from "@beep/practice-gateway/WindowsHost";
 
 const folders = HashMap.make<ReadonlyArray<readonly [KnownFolder, string]>>(
@@ -65,6 +68,7 @@ export const settingsLayer = (overrides: {
   readonly dataDir?: string;
   readonly isWindows?: boolean;
   readonly bundleDir?: string;
+  readonly m365ClientId?: string;
 }) =>
   GatewaySettings.layerFixed(
     GatewaySettingsValues.make({
@@ -72,6 +76,7 @@ export const settingsLayer = (overrides: {
       isWindows: overrides.isWindows ?? true,
       bundleDir: O.fromUndefinedOr(overrides.bundleDir),
       corpusRoot: O.none(),
+      m365ClientId: O.fromUndefinedOr(overrides.m365ClientId),
     })
   );
 
@@ -94,3 +99,26 @@ export const gapProfile = PracticeProfile.make({
   itLimits,
   recordedAt: DateTime.makeUnsafe(1_760_000_000_000),
 });
+
+export const m365NotConfigured =
+  "Microsoft 365 is not configured for this practice gateway yet: the extension settings have no Microsoft 365 app ID.";
+
+// A Microsoft 365 sign-in without a browser: configured or not, with a fixed
+// sign-in answer.
+export const fakeM365SignIn = (options: {
+  readonly configured?: boolean;
+  readonly signIn?: Effect.Effect<M365SignInOutcome, M365SignInFailure>;
+}) =>
+  Layer.succeed(
+    M365SignIn,
+    M365SignIn.of({
+      connection:
+        options.configured === false
+          ? Effect.fail(M365SignInFailure.make({ message: m365NotConfigured }))
+          : Effect.succeed({
+              config: M365ConfigInput.make({ tenantId: "organizations", clientId: "test-client" }),
+              tokenCache: { load: Effect.succeedNone, save: () => Effect.void },
+            }),
+      signIn: options.signIn ?? Effect.succeed("connected"),
+    })
+  );

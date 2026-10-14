@@ -25,7 +25,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
-import { fakeHost, fullProfile, settingsLayer } from "./fixtures.ts";
+import { fakeHost, fakeM365SignIn, fullProfile, settingsLayer } from "./fixtures.ts";
 
 const Platform = Layer.mergeAll(MemoryFileSystem.layer, BunPath.layer);
 const isString = S.is(S.String);
@@ -37,7 +37,15 @@ const GatewayServices = Layer.unwrap(
     Effect.map((dataDir) => {
       const settings = settingsLayer({ dataDir });
       const probes = GatewaySetupProbes.pipe(
-        Layer.provide(Layer.mergeAll(fakeHost({ bitLocker: "on" }), settings, Platform, WindowsSecretStore.layerMemory))
+        Layer.provide(
+          Layer.mergeAll(
+            fakeHost({ bitLocker: "on" }),
+            settings,
+            Platform,
+            WindowsSecretStore.layerMemory,
+            fakeM365SignIn({})
+          )
+        )
       );
       return Layer.mergeAll(
         SetupDoctor.layer.pipe(Layer.provide(Layer.merge(probes, ElicitedApprovals))),

@@ -119,8 +119,10 @@ const human = (step: HumanRemediation["step"], instruction: string) => HumanReme
  *
  * **Details**
  *
- * Box Drive install is the only automatic remediation; everything else is a
- * step only the lawyer can take (D3).
+ * Box Drive install and the Microsoft 365 sign-in page are the automatic
+ * remediations; everything else is a step only the lawyer can take (D3). The
+ * Microsoft 365 repair only opens the sign-in page: the lawyer still signs in
+ * and consents in the browser.
  *
  * **Example** (Read a catalog entry)
  *
@@ -173,7 +175,10 @@ export const RequirementCatalog: { readonly [Id in GatewayRequirementId]: Requir
     id: "m365-consented",
     provider: "microsoft-365",
     dependsOn: [],
-    remediation: human("consent", "Sign in to Microsoft 365 when asked and approve access for the practice gateway."),
+    remediation: AutomaticRemediation.make({
+      summary:
+        "Open the Microsoft sign-in page in your web browser, where you sign in to Microsoft 365 and approve access for the practice gateway.",
+    }),
     explain: "Claude needs your permission to read your Microsoft 365 mail and calendar.",
   }),
   "m365-token-cached": RequirementTemplate.make({

@@ -22,7 +22,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { vi } from "vitest";
-import { fakeHost, fullProfile, settingsLayer } from "./fixtures.ts";
+import { fakeHost, fakeM365SignIn, fullProfile, settingsLayer } from "./fixtures.ts";
 
 // The DuckDB native binding is missing, as on a machine without the sidecar:
 // evaluating any module that imports it throws.
@@ -46,7 +46,8 @@ const GatewayServices = Layer.unwrap(
             fakeHost({ bitLocker: "on", files: ["/bundles/practice/bundle.manifest.json"] }),
             settings,
             Platform,
-            WindowsSecretStore.layerMemory
+            WindowsSecretStore.layerMemory,
+            fakeM365SignIn({})
           )
         )
       );

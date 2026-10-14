@@ -22,6 +22,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { GatewaySettings } from "./GatewaySettings.ts";
+import { M365_TOKEN_CACHE_SEGMENTS, M365SignIn, M365SignInOutcome } from "./M365SignIn.ts";
 import { loadPracticeKgModules } from "./PracticeKgProvider.ts";
 import { GatewayRequirementId } from "./Requirements.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
@@ -29,28 +30,6 @@ import { BitLockerProtection, RegistryValueQuery, WindowsHost } from "./WindowsH
 import type { ProbeResult, SetupRequirement } from "@beep/law-practice-domain";
 import type * as FileSystem from "effect/FileSystem";
 import type { WindowsHostFailure } from "./PracticeGateway.errors.ts";
-
-/**
- * Path segments, under the gateway data directory, of the DPAPI-protected
- * Microsoft 365 token cache.
- *
- * **Details**
- *
- * The Microsoft 365 authorizer (a later unit) writes this file; slice 1 only
- * probes for it.
- *
- * **Example** (Join the token cache path)
- *
- * ```ts
- * import { M365_TOKEN_CACHE_SEGMENTS } from "@beep/practice-gateway/Probes"
- *
- * console.log(M365_TOKEN_CACHE_SEGMENTS.join("/")) // "m365/token-cache.dpapi"
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const M365_TOKEN_CACHE_SEGMENTS = ["m365", "token-cache.dpapi"] as const;
 
 /**
  * Registry key Claude Desktop's per-user installer registers under.
@@ -112,7 +91,9 @@ const readOnly = (probe: Effect.Effect<ProbeResult, SetupProbeUnavailable>): Gat
  * cache) answer `missing` with "only on Windows" off Windows, so a Linux
  * self-check still prints a full report. `claude-signed-in` is satisfied
  * while an MCP client is calling the gateway: a Claude session that reaches
- * the tool is a signed-in session. The Box Drive install repair is a
+ * the tool is a signed-in session. `m365-consented` reports "not configured"
+ * without a Microsoft 365 app id, and its repair runs the browser sign-in
+ * ({@link M365SignIn}). The Box Drive install repair is a
  * download-free placeholder that fails with a plain reason until the
  * installer route is decided.
  *
@@ -134,6 +115,7 @@ export const makeGatewayProbes = Effect.gen(function* () {
   const path = yield* Path.Path;
   const services = yield* Effect.context<FileSystem.FileSystem | Path.Path>();
   const secrets = yield* Effect.serviceOption(WindowsSecretStore);
+  const m365 = yield* M365SignIn;
 
   const unavailable = (requirement: GatewayRequirementId) => (failure: WindowsHostFailure) =>
     SetupProbeUnavailable.make({ requirement: idOf(requirement), reason: failure.message });
@@ -204,9 +186,17 @@ export const makeGatewayProbes = Effect.gen(function* () {
     )
   );
 
-  const m365Consented = host.exists(tokenCachePath).pipe(
-    Effect.map((present) => (present ? satisfied : missing("Microsoft 365 has not been connected yet."))),
-    Effect.mapError(unavailable("m365-consented"))
+  // Without a configured app id the requirement reports "not configured" in
+  // plain language instead of failing.
+  const m365Consented = m365.connection.pipe(
+    Effect.matchEffect({
+      onFailure: (failure) => Effect.succeed(missing(failure.message)),
+      onSuccess: () =>
+        host.exists(tokenCachePath).pipe(
+          Effect.map((present) => (present ? satisfied : missing("Microsoft 365 has not been connected yet."))),
+          Effect.mapError(unavailable("m365-consented"))
+        ),
+    })
   );
 
   const m365TokenCached = windowsOnly(
@@ -280,6 +270,25 @@ export const makeGatewayProbes = Effect.gen(function* () {
     )
   );
 
+  const connectM365 = m365.signIn.pipe(
+    Effect.flatMap(
+      M365SignInOutcome.$match({
+        connected: () => Effect.void,
+        "waiting-for-browser": () =>
+          Effect.fail(
+            SetupRepairFailed.make({
+              requirement: idOf("m365-consented"),
+              reason:
+                "The Microsoft sign-in page is open in your web browser. Finish signing in there, then ask Claude to check the setup again.",
+            })
+          ),
+      })
+    ),
+    Effect.catchTag("M365SignInFailure", (failure) =>
+      Effect.fail(SetupRepairFailed.make({ requirement: idOf("m365-consented"), reason: failure.message }))
+    )
+  );
+
   const installBoxDrive = SetupRepairFailed.make({
     requirement: idOf("box-drive-installed"),
     reason: "The gateway cannot install Box Drive yet. Download Box Drive from box.com/drive and run its installer.",
@@ -291,7 +300,7 @@ export const makeGatewayProbes = Effect.gen(function* () {
     "box-drive-installed": { probe: boxDriveInstalled, repair: installBoxDrive.pipe(Effect.fail, O.some) },
     "box-drive-signed-in": readOnly(boxDriveSignedIn),
     "box-drive-folder-available": readOnly(boxDriveFolder),
-    "m365-consented": readOnly(m365Consented),
+    "m365-consented": { probe: m365Consented, repair: O.some(connectM365) },
     "m365-token-cached": readOnly(m365TokenCached),
     "practice-kg-bundle-present": readOnly(bundlePresent),
     "practice-kg-self-check": readOnly(bundleSelfCheck),

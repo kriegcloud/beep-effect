@@ -15,6 +15,12 @@
       "path": "../../packages/drivers/duckdb/tsconfig.json"
     },
     {
+      "path": "../../packages/drivers/m365-mcp/tsconfig.json"
+    },
+    {
+      "path": "../../packages/drivers/m365/tsconfig.json"
+    },
+    {
       "path": "../../packages/drivers/windows-secrets/tsconfig.json"
     },
     {
