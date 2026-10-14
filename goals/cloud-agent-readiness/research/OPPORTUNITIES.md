@@ -320,3 +320,11 @@ qualification. Muse needs explicit workspace trust to load repo context; its
 trusted prompt catalog compacts two skill descriptions without omitting ids.
 Bounded shell-tool qualification, T3/proxy routes and reboot recovery remain
 distinct from these inference-only runs.
+
+The [bounded native shell smokes](../history/2026-10-14-post-main-provider-shell-smokes.md)
+close the one-command execution gap for Cursor, Grok and Muse, with actual
+tool output and unchanged existing-file hashes. Grok's CLI tool selector is
+`Bash`, not its `run_terminal_command` RPC event name; an invalid selector warns
+and leaves other tools available. Preserve that correction in future harnesses.
+This does not qualify arbitrary sandbox enforcement, T3 SDK or proxy routes;
+Claude remains quota-blocked and reboot recovery remains open.
