@@ -884,3 +884,51 @@ family engine failure; no live family was launched before it was repaired.
   identity is separately frozen. Do not change an active execution checkout.
 - Action: retained this branch's newer packet records as the brief rules,
   preserving earlier family-5/7 evidence. No family unit was running.
+
+
+## 2026-10-14: GraphQL depletion obscures a successfully published stop PR
+
+- Doing: mark the new evidence PR ready after Yeet publication passed.
+- Evidence: PR #1696 exists at the exact pushed head by REST, but yeet ready
+  reported no open PR; a direct read exposed GraphQL rate exhaustion.
+- Prevention: distinguish an unavailable discovery read from an absent PR,
+  and retain the successfully created PR number for ready handling.
+- Action: explicit `beep yeet gh pr ready 1696` waited for the budget reset
+  and succeeded. Subsequent complete thread read has zero threads; REST
+  confirms ready at the exact published head. No readiness proof is claimed.
+  Cancelled the worker-owned monitor and observed its terminal inbox row
+  before the sealed-failure handoff. No running worker-owned gate remains.
+
+
+## 2026-10-14: inherited knowledge-reference gate during ordinal-9 preflight
+
+- Doing: renew packet proof before the explicitly authorized ninth launch.
+- Evidence: knowledge refs at e8c520d65a exits one with one live gated
+  external-mirror-reference in .claude/skills/shadcn/design-system.md:31
+  (home-relative Desktop reference). That file matches origin/main and was
+  not edited by this lane. Doctor and index remain clean.
+- Prevention: resolve the inherited reference in its owning documentation lane.
+- Action: attribute the red as inherited, retain the measured result and
+  continue the authorized launch; no unrelated skill edit or link creation.
+
+
+Attribution correction: the cached origin/main ref predates the integrated
+#1685 skill commit. The affected file differs from that stale ref; it matches
+integrated main commit 96f1f5087beb2b937c640843d502ada843b82958 exactly,
+with no lane edit. The earlier statement that it matches origin/main is
+withdrawn. Inherited provenance is #1685, verified by the empty diff from
+that integrated main commit. No fix or base merge inside the frozen launch.
+
+
+### 2026-10-14: ninth elapsed stop and missing recovery engine binding
+
+- Work: reconcile the ninth bounded family and write the recovery amendment.
+- Evidence: result one; one unapproved engine-failure; family 7,222,485 ms;
+  unmatched PDF repair copy modified after the attempt ceiling. The terminal
+  catch discards its cause; no precise parser status is available.
+- Prevention: retain sanitized exception classes and stage/remaining-budget
+  evidence at the failing boundary, including hashing time before extraction.
+- Recovery friction: the ruling refers to a recorded extraction-engine chain,
+  but packet/source discovery finds only the current Java/Tika second pass.
+  Prevention: name the ordered engine ids, versions, format coverage and
+  ledger contract in the scope ruling. No substitute or recovery launched.
