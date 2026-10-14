@@ -74,22 +74,22 @@
   "devDependencies": {
     "@beep/fc-runs": "workspace:^",
     "@beep/pglite": "workspace:^",
+    "@beep/repo-utils": "workspace:^",
     "@beep/test-runner": "workspace:^",
     "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
     "@effect/sql-pglite": "catalog:",
     "@effect/sql-sqlite-bun": "catalog:",
     "@effect/vitest": "catalog:",
     "@electric-sql/pglite": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
     "drizzle-kit": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
     "esbuild": "catalog:",
     "tstyche": "8.0.0-beta.0",
-    "vitest": "catalog:",
-    "@beep/repo-utils": "workspace:^",
-    "@typescript/native": "catalog:",
-    "@effect/platform-node": "catalog:"
+    "vitest": "catalog:"
   }
 }

@@ -487,9 +487,14 @@ export class DocgenQualityWorkerEvalRunnerResult extends S.Opaque<
  * **Example** (Pick model field)
  *
  * ```ts
- * import type { DocgenQualityWorkerEvalRunnerInput } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
+ * import { DocgenQualityWorkerEvalRunnerInput } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  *
- * const input: Pick<DocgenQualityWorkerEvalRunnerInput, "model"> = { model: "qwen3-coder" }
+ * const input = DocgenQualityWorkerEvalRunnerInput.make({
+ *   model: "gpt-6.1-sol",
+ *   provider: "codex",
+ *   prompt: "Score this JSDoc packet.",
+ *   workingDirectory: "/tmp/beep-jsdoc-eval"
+ * })
  * console.log(input.model)
  * ```
  *
@@ -521,17 +526,17 @@ export class DocgenQualityWorkerEvalRunnerInput extends S.Opaque<
  *
  * ```ts
  * import {
- *   type DocgenQualityWorkerEvalRunner,
  *   DocgenQualityWorkerEvalRunnerInput,
- *   DocgenQualityWorkerEvalRunnerResult,
+ *   DocgenQualityWorkerEvalRunnerResult
  * } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
+ * import type { DocgenQualityWorkerEvalRunner } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  * import * as Effect from "effect/Effect";
  * const runner: DocgenQualityWorkerEvalRunner = (input) =>
  *   Effect.succeed(DocgenQualityWorkerEvalRunnerResult.make({ finalResponse: JSON.stringify({ model: input.model }) }))
  * const result = Effect.runSync(
  *   runner(
  *     DocgenQualityWorkerEvalRunnerInput.make({
- *       model: "gpt-5.4-mini",
+ *       model: "gpt-6.1-sol",
  *       provider: "codex",
  *       prompt: "Score this JSDoc packet.",
  *       workingDirectory: "/tmp/beep-jsdoc-eval"
@@ -573,7 +578,7 @@ type PacketCandidate = {
  * ```ts
  * import type { AnalyzeDocgenQualityWorkerEvalOptions } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  *
- * const options: Pick<AnalyzeDocgenQualityWorkerEvalOptions, "model"> = { model: "qwen3-coder" }
+ * const options: Pick<AnalyzeDocgenQualityWorkerEvalOptions, "model"> = { model: "gpt-6.1-sol" }
  * console.log(options.model)
  * ```
  *
@@ -1265,7 +1270,7 @@ export const defaultQualityWorkerEvalReasoningEffort = (): DocgenQualityWorkerEv
  *   Effect.flatMap((report) =>
  *     analyzeDocgenQualityWorkerEval({
  *       codexSdkVersion: "example-sdk",
- *       model: "gpt-5.4-mini",
+ *       model: "gpt-6.1-sol",
  *       packetLimit: 0,
  *       provider: "codex",
  *       report,
@@ -1386,7 +1391,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
  *   Effect.flatMap((report) =>
  *     analyzeDocgenQualityWorkerEval({
  *       codexSdkVersion: "example-sdk",
- *       model: "gpt-5.4-mini",
+ *       model: "gpt-6.1-sol",
  *       packetLimit: 0,
  *       provider: "codex",
  *       report,
