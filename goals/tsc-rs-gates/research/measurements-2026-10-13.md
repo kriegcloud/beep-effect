@@ -41,7 +41,9 @@ Cache-cold `Heavy / Check` on a pull request (2026-10-13): 268 tasks, 0 cached,
 
 Cache-cold `Heavy / Check` on the same `beep-ec2-heavy` m7i.2xlarge at
 `--concurrency=4`: 265 tasks, 0 cached, 2m14.9s turbo time, against 7m39s for
-the tsgo baseline the day before (3.4× faster). Local
+the tsgo baseline the day before (3.4× faster). `Heavy / Build` on the same
+head: 151 tasks, 0 cached, 59.6s turbo time (the baseline run cached its
+builds, so there is no cache-cold tsgo build time to compare). Local
 `turbo run check --force --continue --concurrency=3` on the 64-core
 workstation: 270 of 270 tasks, 1m01.6s turbo time.
 

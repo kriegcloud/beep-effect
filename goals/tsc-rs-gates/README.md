@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — complete (PR #1670). P1 Implement — complete (the swap PR). P2 Verify — in progress: hosted gates and timings on tsc-rs.
+Closed (completed-retained, 2026-10-14): P0 Research (PR #1670), P1 Implement and P2 Verify (PR #1675, hosted timings recorded), P3 Yeet (#1675 driven to mergeable under S11), P4 Close (`history/reflections/2026-10-14-claude.md`).
 
 ## Latest Evidence
 
