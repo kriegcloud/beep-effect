@@ -13961,6 +13961,18 @@
           "upstreamBehaviour": "Funding.FromField replay checks only current rest values against wire property access. Deleting an extension or clearing rest replays the original object and restores removed fields; inherited names or absent undefined-valued keys can evade membership checks.",
           "labBehaviour": "Remembered-object replay requires equal unknown-key counts and own-key membership/value checks through R.get. Extension deletions, clearing and replacements persist while bare-object versus array representation and entry order remain intact.",
           "reason": "upstream-bug: Round-2 sol-2-4 and fix-package-json-g1.md report pinned-oracle af7566a9da2eff169cb74955efcc5ede1e5de9f8 restoring keep/remove after deleting remove or clearing rest. Funding.ts adds key-count and own-key checks; new tests cover deletion and clearing in bare/array fields plus inherited-name and undefined-valued replacements."
+        },
+        {
+          "test": "scratchpad/test/package-json/Repository.test.ts:338",
+          "upstreamBehaviour": "Repository.FromValue accepts a directory containing a lone UTF-16 surrogate, but reading directoryUrl throws URIError when encodeURIComponent processes the segment.",
+          "labBehaviour": "directoryUrl returns None if any segment cannot be URI-encoded. The accepted directory, unknown metadata and exact JSON wire value remain unchanged; successfully encoded segments retain their existing bytes.",
+          "reason": "upstream-bug: sol-3-1 reproduces URIError in the pinned oracle af7566a9da2eff169cb74955efcc5ede1e5de9f8; fix-package-json-g1.md reports pre-fix regression reproduction. The diff wraps segment encoding in Result.try and sequences successes with Option.all; the added test covers lone high and low surrogates, non-throwing None and wire fidelity."
+        },
+        {
+          "test": "scratchpad/test/package-json/Package.test.ts:227",
+          "upstreamBehaviour": "The known-field accumulator assigns into a plain object. A declared __proto__ subclass field is lost during wire decoding, so Package.wireFor cannot decode its own encoding even though direct class decoding succeeds.",
+          "labBehaviour": "The known-field partition uses Record.fromEntries to define own data properties. A declared __proto__ field survives direct and wire decoding and encode/decode round trips, alongside typed metadata and unknown rest fields.",
+          "reason": "upstream-bug: sol-3-2 and fix-package-json-g2.md report direct-decode and encode success but decode-of-encoding SchemaError in pinned oracle af7566a9da2eff169cb74955efcc5ede1e5de9f8. The diff replaces known-field assignment with Record.fromEntries; the added subclass regression preserves __proto__ and other metadata. This is distinct from the ledgered unknown-key partition fixes."
         }
       ],
       "backlog": [
@@ -14089,6 +14101,24 @@
             "fable": {
               "required": 15,
               "backlog": 8
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "3ad7b305790c7f0903f6d55766c55186745ba2d1",
+          "seats": {
+            "grok": {
+              "required": 0,
+              "backlog": 0
+            },
+            "sol": {
+              "required": 2,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 0,
+              "backlog": 0
             }
           }
         }
