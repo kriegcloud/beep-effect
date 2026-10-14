@@ -119,7 +119,7 @@ describe("oxlint rules", () => {
     const { invalid, valid } = OXLINT_SOURCES[rule];
 
     describe(rule, () => {
-      invalid.forEach((testCase, index) => {
+      A.forEach(invalid, (testCase, index) => {
         it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) =>
           it.effect(`flags invalid case #${index} (${testCase.count} finding(s))`, () =>
             Effect.gen(function* () {
@@ -141,7 +141,7 @@ describe("oxlint rules", () => {
         );
       });
 
-      valid.forEach((testCase, index) => {
+      A.forEach(valid, (testCase, index) => {
         it.layer(NodeServices.layer, { timeout: "10 seconds" })((it) =>
           it.effect(`ignores valid case #${index}`, () =>
             Effect.gen(function* () {
