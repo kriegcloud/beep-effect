@@ -143,6 +143,22 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
       )
     );
 
+    it.effect("keeps a packet whose directory cannot be listed in the permissive inventory", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* writeProjectFile("goals/locked-goal/README.md", "# Locked\n");
+          yield* fs.makeDirectory("goals/abandoned", { recursive: true });
+          // An unlistable directory is not an abandoned claim.
+          yield* fs.chmod("goals/locked-goal", 0o111);
+          const slugs = A.map(yield* listGoalPackets(), (record) => record.slug);
+          yield* fs.chmod("goals/locked-goal", 0o755);
+          expect(slugs).toEqual(["locked-goal"]);
+        })
+      )
+    );
+
     it.effect("names every stale stage it could not remove instead of failing later", () =>
       Effect.andThen(
         temporaryWorkingDirectory,
