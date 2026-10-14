@@ -93,7 +93,7 @@ const commonPrefixLength = (before: ReadonlyArray<DiffLine>, after: ReadonlyArra
   while (
     prefix < A.length(before) &&
     prefix < A.length(after) &&
-    sameLine(A.getUnsafe(before, prefix), A.getUnsafe(after, prefix))
+    sameDiffLine(A.getUnsafe(before, prefix), A.getUnsafe(after, prefix))
   ) {
     prefix++;
   }
@@ -109,7 +109,7 @@ const commonSuffixLength = (
   while (
     suffix < A.length(before) - prefix &&
     suffix < A.length(after) - prefix &&
-    sameLine(A.getUnsafe(before, A.length(before) - suffix - 1), A.getUnsafe(after, A.length(after) - suffix - 1))
+    sameDiffLine(A.getUnsafe(before, A.length(before) - suffix - 1), A.getUnsafe(after, A.length(after) - suffix - 1))
   ) {
     suffix++;
   }
