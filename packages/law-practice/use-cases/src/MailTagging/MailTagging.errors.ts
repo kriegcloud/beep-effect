@@ -6,16 +6,13 @@
  */
 
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
-import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { LiteralKit } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { DefectCause } from "../internal/DefectCause.ts";
 
 const $I = $LawPracticeUseCasesId.create("MailTagging/MailTagging.errors");
-
-const causeField = S.OptionFromOptionalKey(
-  S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
-).pipe(S.withConstructorDefault(Effect.succeedNone));
 
 /**
  * Collaborator a mail-tagging use-case reaches through a port.
@@ -113,7 +110,7 @@ export type MailTaggingPortFailure = typeof MailTaggingPortFailure.Type;
 export class MailTaggingPortError extends S.TaggedError<MailTaggingPortError>($I`MailTaggingPortError`)(
   "MailTaggingPortError",
   {
-    cause: causeField.annotateKey({
+    cause: DefectCause.annotateKey({
       description: "Optional underlying provider defect.",
     }),
     port: MailTaggingPort.annotateKey({
@@ -274,7 +271,7 @@ export type MailTaggingStateFailure = typeof MailTaggingStateFailure.Type;
 export class MailTaggingStateError extends S.TaggedError<MailTaggingStateError>($I`MailTaggingStateError`)(
   "MailTaggingStateError",
   {
-    cause: causeField.annotateKey({
+    cause: DefectCause.annotateKey({
       description: "Optional underlying platform defect; absent for corrupt content.",
     }),
     store: MailTaggingStateStore.annotateKey({

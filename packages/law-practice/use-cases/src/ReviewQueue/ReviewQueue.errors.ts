@@ -8,14 +8,10 @@
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
 import { ReviewBatchId } from "@beep/law-practice-domain";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
-import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import { DefectCause } from "../internal/DefectCause.ts";
 
 const $I = $LawPracticeUseCasesId.create("ReviewQueue/ReviewQueue.errors");
-
-const causeField = S.OptionFromOptionalKey(
-  S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
-).pipe(S.withConstructorDefault(Effect.succeedNone));
 
 /**
  * A write targeted a review batch that a lock row has already closed.
@@ -149,7 +145,7 @@ export type VerdictLogOperation = typeof VerdictLogOperation.Type;
 export class VerdictLogError extends S.TaggedError<VerdictLogError>($I`VerdictLogError`)(
   "VerdictLogError",
   {
-    cause: causeField.annotateKey({
+    cause: DefectCause.annotateKey({
       description: "Optional underlying store defect.",
     }),
     operation: VerdictLogOperation.annotateKey({
