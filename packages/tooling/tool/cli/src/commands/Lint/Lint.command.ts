@@ -37,7 +37,7 @@ import {
   PackageScriptsPolicy,
   PackageScriptsPolicyError,
 } from "../../internal/package-scripts/PackageScriptsPolicy.ts";
-import { runToExit } from "../../internal/process/StepExec.ts";
+import { qualityStepOutputBound, runCaptured, runToExit } from "../../internal/process/StepExec.ts";
 import { runGoalsDoctor } from "../Goals/Doctor.ts";
 import { resolveLawsPackageScope, scanLawsPackage } from "../Laws/LawsPackage.ts";
 import { readLintPolicySweeps, runRootDeprecatedApisTask, runRootLintPolicyTask } from "../Quality/index.ts";
@@ -47,7 +47,7 @@ import { lintEffectVitestCommand } from "./EffectVitest.ts";
 import { lintIdentityRegistryCommand } from "./IdentityRegistry.ts";
 import { SchemaFirstSchemaClass } from "./internal/SchemaFirstSchemaClass.ts";
 import { lintJudgeRubricCommand } from "./JudgeRubric.ts";
-import { LintCircularAnalysisError, LintFileDiscoveryError } from "./Lint.errors.ts";
+import { LintCircularAnalysisError, LintFileDiscoveryError, LintProgramAssignmentError } from "./Lint.errors.ts";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.ts";
 import { lintPackageTestTypecheckCommand } from "./PackageTestTypecheck.ts";
 import { lintReflectionArtifactsCommand } from "./ReflectionArtifact.ts";
@@ -585,16 +585,44 @@ const runDeprecatedApiLint = Effect.fn("Lint.deprecatedApiWorker")(function* (
     ...targets,
   ];
   yield* Console.log(`[lint:deprecated-apis] oxlint ${A.join(args, " ")}`);
-  const exitCode = yield* runToExit({
+  const result = yield* runCaptured({
     command: path.join(root, "node_modules/.bin/oxlint"),
     args,
     cwd: root,
+    env: { OXC_LOG: "debug" },
     extendEnv: true,
-    stdio: "inherit",
+    bound: qualityStepOutputBound,
+    tee: true,
   });
-  if (exitCode !== 0) {
-    return yield* failWithReportedExit(`lint deprecated-apis: failed with exit code ${exitCode}.`, exitCode);
+  // oxlint 1.88.0 / tsgolint 7.0.2004 emits absolute paths, one per line,
+  // after "Total programs: N. Unmatched files: N". Non-TS inputs are not law subjects.
+  const unmatchedFiles = pipe(
+    result.output,
+    Str.matchAll(/Unmatched file: ([^\r\n]+)/g),
+    A.fromIterable,
+    A.map((match) => O.fromUndefinedOr(match[1])),
+    A.getSomes,
+    A.map(Str.trim),
+    A.filter((file) => /\.(?:ts|tsx|mts|cts)$/.test(file)),
+    A.map((file) => normalizePath(path.relative(root, path.resolve(root, file)))),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+  if (result.truncated || A.isReadonlyArrayNonEmpty(unmatchedFiles)) {
+    return yield* LintProgramAssignmentError.make({
+      files: unmatchedFiles,
+      message: result.truncated
+        ? "lint deprecated-apis: assignment output truncated; cannot prove TypeScript coverage."
+        : `lint deprecated-apis: TypeScript files have no tsconfig owner:\n${A.join(unmatchedFiles, "\n")}`,
+    });
   }
+  if (result.exitCode !== 0) {
+    return yield* failWithReportedExit(
+      `lint deprecated-apis: failed with exit code ${result.exitCode}.`,
+      result.exitCode
+    );
+  }
+  yield* Console.log("[lint:deprecated-apis] assignment coverage: zero unmatched TypeScript files.");
   yield* Console.log("[lint:deprecated-apis] OK: no deprecated vendor API usage found.");
 });
 

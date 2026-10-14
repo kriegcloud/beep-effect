@@ -14,7 +14,7 @@ The parent history is immutable. The orchestrator owns git, publishing and compl
 - Engagement and eight-case corpus identities must pass. Full-source differences
   must be empty or reviewed, including the parent's 13 contextual-key findings.
 - Benchmark only after coverage and difference triage. Record local cold wall/RSS;
-  hosted <=150s gate remains pending for the orchestrator.
+  hosted cold scan is 71s wall (job 116063131680, head 9aa802c5bb); <=150s passes.
 - Use tsc-rs 0.6.0 for check/build, @effect/tsgo 0.51.1 for editor/rule surfaces.
 - No git mutations, gh or Yeet commands in this implementation lane.
 - Lane B has not merged: retain @typescript-eslint dependencies and shared env.
@@ -61,10 +61,15 @@ cache pilot, repo-configs exports, policy/cache inputs and their tests.
 | 2026-10-14 | Construct the replacement parser/decoder per parse, matching legacy decoder lifetime. | A shared custom decoder retains XML 1.1 across documents; the old htmlEntities factory resets to XML 1.0 on every parse. Reproduced with XML 1.1 then a declaration-free numeric control reference. Add sequential caption integration cases and keep the replacement behavior-equivalent. | Retain per-parse isolation unless a tested upstream reset contract covers XML version as well as entities/counters. |
 | 2026-10-14 | Preserve empty-lab tolerance with Oxlint no-error-on-unmatched-pattern only when every target matches the existing LabsWorkspaceDir guard. | Native Oxlint otherwise exits 1 on an empty target; the retired ESLint worker explicitly tolerated only lab targets. Reuse the schema guard, keep non-lab empty scopes strict, and test both flag routing and native exits. Full/hosted command arguments and the measured gate are unchanged. | Remove the conditional only with a reviewed change to lab-empty semantics; never apply it to all package scopes. |
 | 2026-10-14 | Attribute the completed full-policy JSDoc red to unchanged main source and hand its consolidated repair to the orchestrator. | Ratchet counts 427 > 426 and unsafe examples 2 > 0 originate in #1671/#1700; all other tasks pass. Repo law forbids copying inherited repairs into each lane. | Reattribute only with source-bound contrary evidence; rerun the root proof after the main unblocker lands. |
+| 2026-10-14 | Evaluate the hosted >150s rollback trigger: not triggered; hosted cold scan took 71s wall. | Heavy / Lint Policy job 116063131680 on 9aa802c5bb ran lint:deprecated-apis --full with --threads=4, 20:06:46Z–20:07:57Z, reporting no deprecated vendor API usage found. No RSS logged and no OOM; memory sizing remains lane F. Earlier pending entries are historical and superseded by this measurement. | Restore ESLint engine hunks if a subsequent qualified hosted cold scan exceeds 150s or semantic parity regresses; retain assignment fixes. |
+| 2026-10-14 | Fail closed on unmatched TS/TSX/MTS/CTS from captured OXC_LOG=debug worker output; include labs files and give plugin-test and ai-provider-cli/test/fixtures nearest strict projects. | Native 1.88.0 / tsgolint 7.0.2004 exits 0 despite Total programs: 1. Unmatched files: 1 and an absolute Unmatched file: path. Check every emitted TS path, exclude non-TS, and reject truncated evidence. Full scan also exposed four managed-peer TS fixtures added since the prior coverage proof; give them a strict nearest owner extending their existing test project. Labs tolerance applies only to empty target globs; the old ESLint profile linted labs. Preserve package/full/base routing. | Revert the guard and both nearest projects together only with an equivalent fail-closed assignment proof; retain strictness and rerun full coverage. |
 
 ## Current acceptance evidence
 
 - [x] All 37 eligible default-project subjects assigned without weakening strictness.
+- [x] Review-wave full scan: 204 programs; zero unmatched TS/TSX/MTS/CTS files.
+  The 15 unmatched non-TS inputs are outside this law; labs TS files remain in scope.
+  CLI regression suite passes all 22 tests, including native assigned/unassigned fixtures.
 - [x] Both rootDir projects and every source difference repaired and regression-tested.
 - [x] Full normalized parity: 38 uncached shards, all 5200 typed subjects; empty diff.
 - [x] Corpus parity: ten normalized identities per engine, empty diff.
@@ -72,7 +77,9 @@ cache pilot, repo-configs exports, policy/cache inputs and their tests.
 - [x] Native worker cutover, fingerprint/script regeneration and reviewed cache baseline.
 - [x] All 26 owning package proofs pass; CLI default audit 1167.3s and docgen 40.7s.
 - [x] Root deprecated-apis passes; full policy completes with inherited JSDoc-only failure attributed below.
-- [ ] Hosted <=150s timing: orchestrator reads PR Lint Policy job.
+- [x] Hosted <=150s timing: Heavy / Lint Policy job 116063131680, head `9aa802c5bb`,
+  `lint:deprecated-apis --full`, `--threads=4`, 20:06:46Z–20:07:57Z (71s wall),
+  "no deprecated vendor API usage found". No RSS logged and no OOM; lane F owns memory sizing.
 
 ## Verification
 

@@ -18,6 +18,7 @@ import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { vi } from "vitest";
@@ -33,9 +34,15 @@ vi.mock("@beep/repo-utils", (importOriginal) =>
     findRepoRoot: () => (selection.root === "" ? original.findRepoRoot() : Effect.succeed(selection.root)),
   }))
 );
+const captured = vi.hoisted(() => vi.fn<typeof StepExec.runCaptured>());
 const execution = vi.hoisted(() => vi.fn<typeof StepExec.runToExit>());
 vi.mock("../src/internal/process/StepExec.ts", (importOriginal) =>
-  importOriginal<typeof StepExec>().then((original) => ({ ...original, runToExit: execution }))
+  importOriginal<typeof StepExec>().then((original) => ({
+    ...original,
+    runToExit: execution,
+    runCaptured: (options: Parameters<typeof StepExec.runCaptured>[0]) =>
+      Str.endsWith("/oxlint")(options.command) ? captured(options) : original.runCaptured(options),
+  }))
 );
 // Dispatch tests own process execution; ambient secret-session probes are a separate boundary.
 vi.mock("../src/internal/cli/EnvConfig.ts", (importOriginal) =>
@@ -67,9 +74,80 @@ const runSweepCommand = Effect.fnUntraced(function* (
   );
 });
 const prefix = "packages/tooling/tool/cli";
-beforeEach(() => execution.mockReset().mockImplementation(() => Effect.succeed(0)));
+beforeEach(() => {
+  execution.mockReset().mockImplementation(() => Effect.succeed(0));
+  captured.mockReset().mockImplementation(() =>
+    Effect.succeed(
+      StepExec.CapturedStep.make({
+        exitCode: 0,
+        output: "2026/10/14 17:01:42.524785 Done assigning files to programs. Total programs: 1. Unmatched files: 0\n",
+        truncated: false,
+      })
+    )
+  );
+});
 
 describe("thin lint workers", { concurrent: false }, () => {
+  it.layer(platform, { timeout: "30 seconds" })((it) => {
+    it.effect(
+      "fails closed on every unmatched TypeScript extension, including labs",
+      Effect.fnUntraced(function* () {
+        const root = yield* findRepoRoot();
+        const files = [
+          "apps/labs/ciops/nested/seed.ts",
+          "apps/labs/ciops/view.tsx",
+          "apps/labs/ciops/entry.mts",
+          "apps/labs/ciops/entry.cts",
+        ];
+        captured.mockImplementation(() =>
+          Effect.succeed(
+            StepExec.CapturedStep.make({
+              exitCode: 0,
+              output: `2026/10/14 17:01:42.524785 Done assigning files to programs. Total programs: 0. Unmatched files: 6\n${A.join(
+                A.map(
+                  [...files, "apps/labs/ciops/readme.md", "apps/labs/ciops/data.json"],
+                  (file) => `2026/10/14 17:01:42.524790   Unmatched file: ${root}/${file}`
+                ),
+                "\n"
+              )}`,
+              truncated: false,
+            })
+          )
+        );
+        const error = yield* run(["deprecated-apis", "--package", `${root}/apps/labs/ciops`]).pipe(Effect.flip);
+        expect(error).toMatchObject({ _tag: "LintProgramAssignmentError", files: A.sort(files, Order.String) });
+        for (const file of files) expect(error).toMatchObject({ message: expect.stringContaining(file) });
+      })
+    );
+    it.effect(
+      "accepts a fully assigned tree and ignores unmatched non-TypeScript inputs",
+      Effect.fnUntraced(function* () {
+        captured.mockImplementation(() =>
+          Effect.succeed(
+            StepExec.CapturedStep.make({
+              exitCode: 0,
+              output:
+                "Done assigning files to programs. Total programs: 1. Unmatched files: 2\n  Unmatched file: data.json\n  Unmatched file: readme.md\n",
+              truncated: false,
+            })
+          )
+        );
+        yield* run(["deprecated-apis", "--package", "."]);
+        expect(captured).toHaveBeenCalledOnce();
+      })
+    );
+    it.effect(
+      "rejects truncated assignment evidence",
+      Effect.fnUntraced(function* () {
+        captured.mockImplementation(() =>
+          Effect.succeed(StepExec.CapturedStep.make({ exitCode: 0, output: "", truncated: true }))
+        );
+        expect(yield* run(["deprecated-apis", "--package", "."]).pipe(Effect.flip)).toMatchObject({
+          _tag: "LintProgramAssignmentError",
+        });
+      })
+    );
+  });
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
       "checks declared fingerprint inputs independently of formatting and source contents",
@@ -151,7 +229,7 @@ describe("thin lint workers", { concurrent: false }, () => {
       Effect.fnUntraced(function* () {
         const root = yield* findRepoRoot();
         yield* run(["deprecated-apis", "--package", "."]);
-        expect(execution).toHaveBeenCalledExactlyOnceWith({
+        expect(captured).toHaveBeenCalledExactlyOnceWith({
           command: `${root}/node_modules/.bin/oxlint`,
           args: [
             "--config",
@@ -162,7 +240,9 @@ describe("thin lint workers", { concurrent: false }, () => {
           ],
           cwd: root,
           extendEnv: true,
-          stdio: "inherit",
+          env: { OXC_LOG: "debug" },
+          bound: expect.anything(),
+          tee: true,
         });
       })
     );
@@ -205,7 +285,7 @@ describe("thin lint workers", { concurrent: false }, () => {
       Effect.fnUntraced(function* () {
         const root = yield* findRepoRoot();
         yield* run(["deprecated-apis", "--full"], {});
-        expect(execution).toHaveBeenCalledExactlyOnceWith({
+        expect(captured).toHaveBeenCalledExactlyOnceWith({
           command: `${root}/node_modules/.bin/oxlint`,
           args: [
             "--config",
@@ -218,7 +298,9 @@ describe("thin lint workers", { concurrent: false }, () => {
           ],
           cwd: root,
           extendEnv: true,
-          stdio: "inherit",
+          env: { OXC_LOG: "debug" },
+          bound: expect.anything(),
+          tee: true,
         });
       })
     );
@@ -228,10 +310,10 @@ describe("thin lint workers", { concurrent: false }, () => {
       "runs the hosted standalone deprecated API command through the same Oxlint process",
       Effect.fnUntraced(function* () {
         yield* run(["deprecated-apis", "--base", "refs/heads/caller-base"], { CI: "true" });
-        expect(execution).toHaveBeenCalledTimes(1);
-        expect(execution.mock.calls[0]?.[0].command).toBe(`${yield* findRepoRoot()}/node_modules/.bin/oxlint`);
-        expect(execution.mock.calls[0]?.[0].env?.BEEP_ESLINT_PROFILE).toBeUndefined();
-        expect(execution.mock.calls[0]?.[0].args).not.toContain("--affected");
+        expect(captured).toHaveBeenCalledTimes(1);
+        expect(captured.mock.calls[0]?.[0].command).toBe(`${yield* findRepoRoot()}/node_modules/.bin/oxlint`);
+        expect(captured.mock.calls[0]?.[0].env?.BEEP_ESLINT_PROFILE).toBeUndefined();
+        expect(captured.mock.calls[0]?.[0].args).not.toContain("--affected");
       })
     );
   });
@@ -294,7 +376,7 @@ describe("thin lint workers", { concurrent: false }, () => {
       Effect.fnUntraced(function* () {
         const root = yield* findRepoRoot();
         yield* run(["deprecated-apis", "--package", `${root}/apps/labs/ciops`]);
-        expect(execution.mock.calls[0]?.[0].args).toEqual([
+        expect(captured.mock.calls[0]?.[0].args).toEqual([
           "--config",
           `${root}/.oxlintrc.deprecated-apis.jsonc`,
           "--disable-nested-config",
@@ -302,9 +384,9 @@ describe("thin lint workers", { concurrent: false }, () => {
           "--no-error-on-unmatched-pattern",
           "apps/labs/ciops",
         ]);
-        execution.mockClear();
+        captured.mockClear();
         yield* run(["deprecated-apis", "--package", `${root}/apps/labsx/member`]);
-        expect(execution.mock.calls[0]?.[0].args).not.toContain("--no-error-on-unmatched-pattern");
+        expect(captured.mock.calls[0]?.[0].args).not.toContain("--no-error-on-unmatched-pattern");
       })
     );
   });
@@ -315,7 +397,7 @@ describe("thin lint workers", { concurrent: false }, () => {
         yield* run(["deprecated-apis", "--package", "."], {
           NODE_OPTIONS: "--trace-warnings --max-old-space-size=2048",
         });
-        expect(execution.mock.calls[0]?.[0].env).toBeUndefined();
+        expect(captured.mock.calls[0]?.[0].env).toEqual({ OXC_LOG: "debug" });
       })
     );
   });
@@ -424,6 +506,9 @@ describe("thin lint workers", { concurrent: false }, () => {
       "propagates eslint worker failures",
       Effect.fnUntraced(function* () {
         execution.mockImplementation(() => Effect.succeed(7));
+        captured.mockImplementation(() =>
+          Effect.succeed(StepExec.CapturedStep.make({ exitCode: 7, output: "", truncated: false }))
+        );
         expect(yield* run(["deprecated-apis", "--package", "."]).pipe(Effect.isFailure)).toBe(true);
         expect(yield* run(["jsdoc", "--package", "."]).pipe(Effect.isFailure)).toBe(true);
       })
@@ -520,6 +605,21 @@ describe("executed lint workers", { concurrent: false }, () => {
             expect(output).not.toContain("skipping four laws");
             expect(output).toContain("project_source_files=1");
             expect(output).toContain("package-test-imports");
+          }
+          if (worker === "deprecated-apis") {
+            yield* fs.makeDirectory(`${fixture}/scripts/nested`, { recursive: true });
+            yield* fs.writeFileString(`${fixture}/scripts/nested/seed.ts`, "export {};\n");
+            const unassigned = yield* StepExec.runCaptured({
+              command: "bun",
+              args: ["run", `${root}/${prefix}/src/bin.ts`, "--", "lint", worker, "--package", "."],
+              cwd: fixture,
+              env: R.filter(process.env, (_, key) => !Str.startsWith("VITEST")(key)),
+              extendEnv: false,
+            });
+            expect(unassigned.exitCode, unassigned.output).not.toBe(0);
+            expect(unassigned.output).toContain("TypeScript files have no tsconfig owner:");
+            expect(unassigned.output).toContain("packages/tooling/tool/fixture/scripts/nested/seed.ts");
+            yield* fs.remove(`${fixture}/scripts`, { recursive: true });
           }
           if (worker === "jsdoc" || worker === "deprecated-apis") {
             yield* fs.writeFileString(

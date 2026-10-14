@@ -97,8 +97,8 @@
     "The same blocker repeats after reasonable investigation."
   ],
   "parent": "goals/lint-policy-single-digit",
-  "verdict": "GO for local cutover; hosted <=150s timing pending",
-  "currentPhase": "P2 local verification complete; orchestrator hosted timing and inherited JSDoc unblocker",
+  "verdict": "GO; hosted cold scan 71s wall <=150s (job 116063131680, head 9aa802c5bb)",
+  "currentPhase": "P2 local and hosted timing verified; inherited JSDoc unblocker remains orchestrator-owned",
   "keyDecisions": [
     {
       "id": "orchestrator-precondition-ruling",
@@ -108,8 +108,8 @@
     {
       "id": "measured-local-go",
       "decision": "Cut over locally after exact typed file coverage and empty full/corpus differences.",
-      "rationale": "38 uncached shards cover all 5200 typed subjects; local cold4-thread wall60.54s RSS12308852KiB; hosted <=150s pending."
+      "rationale": "38 uncached shards cover all 5200 typed subjects; local cold4-thread wall60.54s RSS12308852KiB; hosted cold scan 71s wall, 20:06:46Z–20:07:57Z, --threads=4, job116063131680 head9aa802c5bb, no deprecated vendor API usage found; no RSS logged/no OOM; lane F owns memory sizing."
     }
   ],
-  "statusNote": "Lane-owned implementation and all 26 package proofs pass. Full policy completes with inherited JSDoc-only red; orchestrator owns consolidated main repair, hosted <=150s timing and publication."
+  "statusNote": "Lane-owned implementation and all 26 package proofs pass. Full policy completes with inherited JSDoc-only red; orchestrator owns consolidated main repair, publication. Hosted cold scan 71s wall passes <=150s; rollback trigger evaluated and not triggered; no RSS logged/no OOM, lane F owns memory sizing."
 }

@@ -128,3 +128,33 @@ behavior for lab scopes only. The full/hosted scan still gets no tolerance flag.
 beep script failure. No outside-worktree write workaround attempted. Packet and
 report-A retain the complete handoff; a diagnostic on ledger failure would avoid
 uncertainty about whether an external session note was persisted.
+
+## 2026-10-14 — Review-wave test invocation and process mock boundary
+
+Running Vitest from the repo root with the package config found no tests because
+its include is package-relative (`test/**/*.test.{ts,tsx}`); rerun from the CLI
+package. Extending the worker's process mock initially also intercepted the test
+harness's own subprocesses. Restrict the capture mock to the native worker
+executable so the executed fixture proofs keep running real processes.
+Prevention: document the package cwd alongside the command and keep mocks narrow.
+
+## 2026-10-14 — Assignment parser and coverage drift
+
+CLI quick check caught `Array.filterMap` receiving Option, where Effect v4
+requires Result. The unmatched-file regression failed before this parser repair;
+use `Array.map` and `Array.getSomes` validated against installed declarations.
+The full debug scan additionally exposed four unassigned managed-peer TS fixtures
+in ai-provider-cli. A nearest strict fixture project preserves their existing test
+compiler settings. Prevention: enforce assignment on every worker invocation,
+including labs, rather than relying on a one-off coverage receipt.
+
+## 2026-10-14 — Optional test project and session ledger write
+
+The extra `tsc-rs -p packages/tooling/tool/cli/tsconfig.test.json --noEmit`
+probe failed because this CLI package has no tsconfig.test.json (TS5058).
+Its required package quick check and runtime regression suite pass; do not create
+an unsolicited compiler project to satisfy an invalid probe. Session closeout
+`beep session note --state open ... --pr 1753` exited 1 without a diagnostic in
+this restricted lane. Preserve the private A4 handoff and let the orchestrator
+write the shared workstation ledger. Prevention: advertise supported package
+check projects and surface a typed ledger-write failure with its destination.
