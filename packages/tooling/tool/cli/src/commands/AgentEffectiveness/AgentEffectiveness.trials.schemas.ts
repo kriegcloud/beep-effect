@@ -378,6 +378,7 @@ export class TrialAcceptance extends S.Class<TrialAcceptance>($I`TrialAcceptance
         projectedGuardTargets: S.optional(S.String.pipe(S.Array)),
         trackedRootInventory: S.optional(TrialArtifact),
         trackedRootStderr: S.optional(TrialArtifact),
+        gitRefGuard: S.optional(TrialArtifact),
         gitMetadata: S.optional(S.Struct({ beforeDigest: Sha256Hex, afterDigest: Sha256Hex })),
         bindings: S.Struct({ candidate: S.NonEmptyString, sealed: S.NonEmptyString, output: S.NonEmptyString }),
         namespaceBindings: S.optional(

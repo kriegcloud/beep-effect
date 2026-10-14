@@ -1,4 +1,35 @@
-# Preparation status — 2026-10-09
+# Preparation status — October 14, 2026
+
+This section supersedes the dated October 9 snapshot below. The original
+toolchain freeze is retained. No scored cell, full Beep ingestion, qualifying
+winner or task PR has started. Account usage was refreshed and ordinary usage
+is allowed; the prompt's quota and unexpected-cost pause rules still apply.
+
+The clean older candidate `7a0fd7041e` now passes canonical full Yeet and all
+eight full-scope gates, including coverage. The unit supplement executed 145
+package tasks; integration executed 97 package test tasks; full docgen covered 140
+outputs; Storybook passed 77 files and 489 tests. Build, lint, check and other
+cache hits are disclosed separately in protected task censuses. Every owned
+baseline proof service is settled. These are executed command passes, not a
+final frozen-base claim: shared auxiliary refs moved during the canonical run.
+
+Evaluation source `5d073154a1` retains its prior default package audit/docgen
+and native diagnostic passes. A newly identified Collector source-control gap
+is being repaired: fresh Git reconstruction does not pin `origin/main` to the
+trusted trial BASE. The repair needs an independent review, meaningful
+positive/negative canaries, a retained local commit, exact-source default
+package proof and fresh dependent contracts before another Collector launch.
+The reviewed Collector v4 resource wrapper was never launched and remains held.
+The three goal tasks remain conditional on final ownership/P0/acceptance
+reconciliation. Genuine Executor custody, final native integrations, paired
+productive pilot and final controls remain separate gates.
+
+Private receipts: `executed-baseline-gates-v1.json`,
+`collector-auxref-qualification-v1/qualification.json` and
+`collector-auxref-qualification-v1/reuse-and-fix-proposal.json`.
+
+## Historical snapshot — October 9
+
 
 The original toolchain freeze has passed and remains unchanged. The common source,
 task contracts, runtime profiles and index snapshots are not frozen. No scored

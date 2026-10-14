@@ -463,6 +463,53 @@ export class TrialReconstruction extends S.Class<TrialReconstruction>($I`TrialRe
 ) {}
 
 /**
+ * Exact evaluator-owned Git controls inspected outside the check namespace.
+ * **Example** (Reject absent ref custody)
+ * ```ts
+ * import { TrialGitRefState } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialGitRefState)({})) // false
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TrialGitRefState extends S.Class<TrialGitRefState>($I`TrialGitRefState`)(
+  {
+    baseCommit: S.String.check(S.isPattern(/^[a-f0-9]{40}$/)),
+    refsDigest: Sha256Hex,
+    packedRefsDigest: Sha256Hex,
+    configDigest: Sha256Hex,
+  },
+  $I.annote("TrialGitRefState", { description: "Direct and unambiguous origin/main BASE plus ref backend bytes." })
+) {}
+
+/**
+ * Custody receipt for the immutable Git ref view used throughout native proof.
+ * **Example** (Reject missing continuous protection evidence)
+ * ```ts
+ * import { TrialGitRefGuard } from "@beep/repo-cli/test/AgentEffectiveness"
+ * import * as S from "effect/Schema"
+ * console.log(S.is(TrialGitRefGuard)({})) // false
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class TrialGitRefGuard extends S.Class<TrialGitRefGuard>($I`TrialGitRefGuard`)(
+  {
+    schemaVersion: S.Literal("agent-trial-git-ref-guard/v1"),
+    policy: S.Literal("owned-base-refs-readonly/v1"),
+    protectedTargets: S.Tuple([
+      S.Literal("/workspace/.git/refs"),
+      S.Literal("/workspace/.git/packed-refs"),
+      S.Literal("/workspace/.git/config"),
+    ]),
+    before: TrialGitRefState,
+    after: TrialGitRefState,
+  },
+  $I.annote("TrialGitRefGuard", { description: "BASE custody before and after a readonly native Git control view." })
+) {}
+
+/**
  * Reproducible archive of a fresh evaluator-owned retained commit.
  * **Example** (Reject incomplete source evidence)
  * ```ts
@@ -475,7 +522,9 @@ export class TrialReconstruction extends S.Class<TrialReconstruction>($I`TrialRe
  */
 export class TrialCommittedSource extends S.Class<TrialCommittedSource>($I`TrialCommittedSource`)(
   {
-    schemaVersion: S.Literal("agent-trial-committed-source/v1"),
+    schemaVersion: S.Literal("agent-trial-committed-source/v2"),
+    baseCommit: S.String.check(S.isPattern(/^[a-f0-9]{40}$/)),
+    gitRefPolicy: S.Literal("owned-base-refs-readonly/v1"),
     workspace: S.NonEmptyString,
     finalCommit: S.String.check(S.isPattern(/^[a-f0-9]{40}$/)),
     tree: S.String.check(S.isPattern(/^[a-f0-9]{40}$/)),

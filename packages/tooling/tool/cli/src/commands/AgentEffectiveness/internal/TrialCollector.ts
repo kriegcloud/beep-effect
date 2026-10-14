@@ -48,6 +48,8 @@ import {
   TrialCommittedSource,
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
+  TrialGitRefGuard,
+  TrialGitRefState,
   TrialInputInventory,
   TrialMountGuardEvidence,
   TrialNativeRuntimeEvidence,
@@ -58,6 +60,78 @@ import { acquireTrialRetentionLease } from "./TrialRetention.ts";
 import type { Sha256Hex } from "@beep/schema/Sha256";
 import type { TrialPlan } from "../AgentEffectiveness.trials.schemas.ts";
 import type { TrialArtifact, TrialMount, TrialMountGuardPhase } from "./TrialProfile.schemas.ts";
+
+/**
+ * Inspect the direct, unambiguous BASE ref and its evaluator-owned files backend.
+ * **Example** (Inspect an owned reconstruction)
+ * ```ts
+ * import { inspectTrialControlRefs } from "@beep/repo-cli/test/AgentEffectiveness"
+ * console.log(inspectTrialControlRefs)
+ * ```
+ * @category validation
+ * @since 0.0.0
+ */
+export const inspectTrialControlRefs = Effect.fn("AgentEffectiveness.inspectTrialControlRefs")(function* (
+  workspace: string,
+  baseCommit: string,
+  system?: TrialInputInventory
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const metadata = path.join(workspace, ".git");
+  const inspect = Effect.fn("AgentEffectiveness.inspectControlRefGit")(function* (args: ReadonlyArray<string>) {
+    const result = yield* inspectTrialGit(workspace, args, system);
+    if (result.exitCode !== 0 || result.truncated)
+      return yield* AgentTrialError.make({ stage: "proof", message: "Trusted BASE ref inspection failed" });
+    return Str.trim(result.output);
+  });
+  for (const relative of A.make("", "refs", "packed-refs", "config")) {
+    const type = relative === "" || relative === "refs" ? "Directory" : "File";
+    const target = path.join(metadata, relative);
+    if ((yield* fs.realPath(target)) !== target || (yield* fs.stat(target)).type !== type)
+      return yield* AgentTrialError.make({
+        stage: "proof",
+        message: "Trusted Git ref controls are not canonical files",
+      });
+  }
+  const direct = path.join(metadata, "refs/remotes/origin/main");
+  if (
+    (yield* fs.realPath(direct)) !== direct ||
+    (yield* fs.readFileString(direct)) !== `${baseCommit}\n` ||
+    (yield* inspect(["rev-parse", "--path-format=absolute", "--git-common-dir"])) !== "/workspace/.git" ||
+    (yield* inspect(["rev-parse", "--show-ref-format"])) !== "files" ||
+    (yield* inspect(["rev-parse", "--verify", "refs/remotes/origin/main"])) !== baseCommit ||
+    (yield* inspect(["rev-parse", "--verify", "origin/main"])) !== baseCommit ||
+    (yield* inspect(["rev-parse", "--symbolic-full-name", "origin/main"])) !== "refs/remotes/origin/main"
+  )
+    return yield* AgentTrialError.make({
+      stage: "proof",
+      message: "Trusted origin/main is not the direct unambiguous BASE",
+    });
+  return TrialGitRefState.make({
+    baseCommit,
+    refsDigest: yield* hashTrialInput(path.join(metadata, "refs")),
+    packedRefsDigest: yield* hashTrialInput(path.join(metadata, "packed-refs")),
+    configDigest: yield* hashTrialInput(path.join(metadata, "config")),
+  });
+});
+
+/**
+ * Mount the derived Git control view after every writable overlay.
+ * **Example** (Inspect protected targets)
+ * ```ts
+ * import { trialControlRefBindings } from "@beep/repo-cli/test/AgentEffectiveness"
+ * console.log(trialControlRefBindings("/owned/worktree"))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const trialControlRefBindings = (workspace: string): ReadonlyArray<string> =>
+  A.flatMap(A.make("refs", "packed-refs", "config"), (name) => [
+    "--ro-bind",
+    `${workspace}/.git/${name}`,
+    `/workspace/.git/${name}`,
+  ]);
 
 /**
  * Locate the single canonical verdict announcement from the native Yeet stream.
@@ -395,6 +469,13 @@ export const reconstructTrialSource = Effect.fn("AgentEffectiveness.reconstructT
   yield* git(["bundle", "unbundle", "/inputs/candidate.bundle"]);
   yield* git(["checkout", "--detach", finalCommit]);
   yield* git(["merge-base", "--is-ancestor", baseCommit, finalCommit]);
+  yield* git(["update-ref", "refs/remotes/origin/main", baseCommit]);
+  yield* fs.writeFileString(
+    path.join(workspace, ".git/packed-refs"),
+    "# pack-refs with: peeled fully-peeled sorted\n",
+    { flag: "wx", mode: 0o600 }
+  );
+  yield* inspectTrialControlRefs(workspace, baseCommit, system);
   const inspect = Effect.fn(function* (args: ReadonlyArray<string>) {
     const result = yield* inspectTrialGit(workspace, args, system);
     if (result.exitCode !== 0 || result.truncated)
@@ -425,7 +506,9 @@ export const reconstructTrialSource = Effect.fn("AgentEffectiveness.reconstructT
   if (archiveResult !== 0)
     return yield* AgentTrialError.make({ stage: "proof", message: "Reconstructed source archive failed" });
   const evidence = TrialCommittedSource.make({
-    schemaVersion: "agent-trial-committed-source/v1",
+    schemaVersion: "agent-trial-committed-source/v2",
+    baseCommit,
+    gitRefPolicy: "owned-base-refs-readonly/v1",
     workspace,
     finalCommit,
     tree,
@@ -1158,6 +1241,14 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     gitMetadataBefore = O.some(yield* hashTrialInput(metadata));
     args.push("--bind", metadata, "/workspace/.git");
   }
+  if (
+    check.kind === "yeet" &&
+    A.some(
+      check.writableCacheTargets,
+      (target) => target === "/workspace" || target === "/workspace/.git" || Str.startsWith("/workspace/.git/")(target)
+    )
+  )
+    return yield* AgentTrialError.make({ stage: "proof", message: "Writable cache overlaps trusted Git controls" });
   const writableGuard = yield* collectTrialMountGuard(
     source.workspace,
     outputRoot,
@@ -1368,6 +1459,7 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     }
     yield* fs.makeDirectory(path.join(outputRoot, "native-run"), { mode: 0o700 });
   }
+  if (check.kind === "yeet") args.push(...trialControlRefBindings(source.workspace));
   args.push("--clearenv", "--setenv", "HOME", "/nonexistent");
   for (const [key, value] of Object.entries(environment)) args.push("--setenv", key, value);
   args.push(
@@ -1387,6 +1479,7 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     Str.trim(status.output) !== ""
   )
     return yield* AgentTrialError.make({ stage: "proof", message: "Evaluator committed source changed before check" });
+  const refsBefore = yield* inspectTrialControlRefs(source.workspace, source.baseCommit, O.getOrUndefined(system));
   const literalRootLinks = Effect.fn(function* () {
     const links: Record<string, string> = {};
     for (const name of yield* fs.readDirectory(source.workspace)) {
@@ -1538,6 +1631,27 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
     (yield* hashTrialInput(compilerCopy.value)) !== check.compilerOverlay.value.digest
   )
     return yield* AgentTrialError.make({ stage: "proof", message: "Evaluator compiler bytes changed during check" });
+  const refsAfter = yield* inspectTrialControlRefs(source.workspace, source.baseCommit, O.getOrUndefined(system));
+  if (!S.toEquivalence(TrialGitRefState)(refsBefore, refsAfter))
+    return yield* AgentTrialError.make({ stage: "proof", message: "Trusted Git ref controls changed during check" });
+  let gitRefGuard = O.none<TrialArtifact>();
+  if (check.kind === "yeet") {
+    const guardPath = path.join(outputRoot, "git-ref-guard.json");
+    yield* fs.writeFileString(
+      guardPath,
+      yield* S.encodeEffect(S.fromJsonString(TrialGitRefGuard))(
+        TrialGitRefGuard.make({
+          schemaVersion: "agent-trial-git-ref-guard/v1",
+          policy: source.gitRefPolicy,
+          protectedTargets: ["/workspace/.git/refs", "/workspace/.git/packed-refs", "/workspace/.git/config"],
+          before: refsBefore,
+          after: refsAfter,
+        })
+      ),
+      { flag: "wx", mode: 0o600 }
+    );
+    gitRefGuard = O.some(yield* trialArtifact(guardPath));
+  }
   const after = yield* inspect(["rev-parse", "HEAD"]);
   const dirty = yield* inspect(["status", "--porcelain"]);
   const rootInventoryAfter = (yield* fs.readDirectory(source.workspace)).sort();
@@ -1589,6 +1703,7 @@ export const executeTrialCheck = Effect.fn("AgentEffectiveness.executeTrialCheck
   });
   return {
     id: check.id,
+    ...(O.isSome(gitRefGuard) ? { gitRefGuard: gitRefGuard.value } : {}),
     ...(O.isSome(nativeReport) ? { nativeReport: nativeReport.value } : {}),
     evaluatorContract: yield* trialArtifact(contractPath),
     rootInventory: yield* trialArtifact(rootInventoryPath),

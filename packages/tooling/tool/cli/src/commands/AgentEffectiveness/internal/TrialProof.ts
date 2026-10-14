@@ -25,7 +25,12 @@ import {
   TrialPlanJson,
   TrialProofJson,
 } from "../AgentEffectiveness.trials.schemas.ts";
-import { parseTrialTrackedRoots, trialMountGuardPaths, validateTrialIgnoreCensus } from "./TrialCollector.ts";
+import {
+  inspectTrialControlRefs,
+  parseTrialTrackedRoots,
+  trialMountGuardPaths,
+  validateTrialIgnoreCensus,
+} from "./TrialCollector.ts";
 import { trialArtifact } from "./TrialExecutor.ts";
 import {
   deriveTrialInvocation,
@@ -42,6 +47,8 @@ import {
   TrialBootstrapFile,
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
+  TrialGitRefGuard,
+  TrialGitRefState,
   TrialInputInventory,
   TrialMountGuardEvidence,
   TrialNativeInvocationJson,
@@ -239,6 +246,7 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
     const source = yield* TrialCommittedSourceJson.decode(yield* fs.readFileString(proof.reconstruction.path));
     yield* Effect.forEach([source.bundle, source.sourceArchive, ...O.toArray(source.baseBundle)], checkArtifact);
     if (
+      source.baseCommit !== plan.baseCommit ||
       source.finalCommit !== proof.finalCommit ||
       O.isNone(attempt.bundle) ||
       source.bundle.digest !== attempt.bundle.value.digest ||
@@ -250,6 +258,7 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
     const tree = yield* inspectTrialGit(source.workspace, ["rev-parse", "HEAD^{tree}"], O.getOrUndefined(proofSystem));
     if (tree.exitCode !== 0 || tree.truncated || Str.trim(tree.output) !== source.tree)
       return yield* fail("Reconstructed Git tree differs from retained source evidence");
+    yield* inspectTrialControlRefs(source.workspace, plan.baseCommit, O.getOrUndefined(proofSystem));
     evidenceWorkspace = source.workspace;
     reconstructed = true;
   }
@@ -317,6 +326,7 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
     fullYeetChecks[0]?.namespaceBindings !== undefined &&
     fullYeetChecks[0]?.evaluatorContract !== undefined &&
     fullYeetChecks[0]?.nativeRuntimeEvidence !== undefined &&
+    fullYeetChecks[0]?.gitRefGuard !== undefined &&
     fullYeetChecks[0]?.mountGuardEvidence?.length === 2 &&
     fullYeetChecks[0]?.trackedRootInventory !== undefined &&
     fullYeetChecks[0]?.trackedRootStderr !== undefined &&
@@ -342,6 +352,24 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
         [...plan.requiredCheckSpecs, ...O.toArray(O.fromUndefinedOr(plan.fullYeetCheckSpec))],
         (spec) => spec.id === check.id
       );
+      let gitRefsValid = check.id !== plan.fullYeetCheckSpec?.id;
+      if (check.gitRefGuard !== undefined) {
+        yield* checkArtifact(check.gitRefGuard);
+        const guard = yield* S.decodeEffect(S.fromJsonString(TrialGitRefGuard))(
+          yield* fs.readFileString(check.gitRefGuard.path)
+        );
+        const current = yield* inspectTrialControlRefs(
+          evidenceWorkspace,
+          plan.baseCommit,
+          O.getOrUndefined(proofSystem)
+        );
+        const same = S.toEquivalence(TrialGitRefState);
+        gitRefsValid =
+          check.gitRefGuard.path === path.join(check.bindings.output, "git-ref-guard.json") &&
+          guard.before.baseCommit === plan.baseCommit &&
+          same(guard.before, guard.after) &&
+          same(guard.after, current);
+      }
       const templateBindings = check.namespaceBindings ?? check.bindings;
       const resolveArgument = (arg: string) =>
         Str.replaceAll(
@@ -522,6 +550,7 @@ export const finalizeTrial = Effect.fn("AgentEffectiveness.finalizeTrial")(funct
         check.bindings.candidate === evidenceWorkspace &&
         inputValid &&
         contractValid &&
+        gitRefsValid &&
         rootValid &&
         Str.startsWith(`${path.dirname(attemptPath)}/`)(check.bindings.output) &&
         equalNames(resolvedTemplate, check.resolvedArgv) &&

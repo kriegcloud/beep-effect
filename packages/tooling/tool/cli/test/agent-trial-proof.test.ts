@@ -6,6 +6,7 @@ import {
   executeTrialCheck,
   finalizeTrial,
   hashTrialInput,
+  inspectTrialControlRefs,
   inspectTrialGit,
   parseTrialUsage,
   reconstructTrialSource,
@@ -33,6 +34,7 @@ import {
   TrialProofJson,
   trialArtifact,
   trialCheckContractDigest,
+  trialControlRefBindings,
   trialControlsDigest,
   trialGitSandbox,
 } from "@beep/repo-cli/test/AgentEffectiveness";
@@ -125,7 +127,7 @@ const setup = Effect.fn(function* () {
     isolationAttestationPath: path.join(root, "canaries"),
     isolationAttestationDigest: zero,
   });
-  return { fs, path, root, workspace, commit, plan };
+  return { fs, path, root, workspace, commit, plan, git };
 });
 
 layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: true })(
@@ -647,6 +649,116 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
           })
         ),
       { timeout: 20000 }
+    );
+    it.effect(
+      "pins trusted BASE independently of poisoned Executor refs and preserves a nonempty diff",
+      () =>
+        Effect.scoped(
+          Effect.gen(function* () {
+            const { fs, path, root, workspace, commit: base, git } = yield* setup();
+            yield* fs.writeFileString(path.join(workspace, "answer.ts"), "export const answer = 43\n");
+            yield* git(["add", "."]);
+            yield* git(["commit", "-m", "candidate"]);
+            const final = yield* git(["rev-parse", "HEAD"]);
+            yield* git(["update-ref", "refs/remotes/origin/main", final]);
+            yield* git(["update-ref", "refs/tags/poison", final]);
+            const retained = yield* retainTrialCandidate(workspace, base, root);
+            expect(O.isSome(retained)).toBe(true);
+            if (O.isNone(retained)) return;
+            const fresh = yield* reconstructTrialSource(
+              path.join(root, "evaluation"),
+              retained.value.bundle,
+              O.none(),
+              final,
+              base
+            );
+            expect(final).not.toBe(base);
+            expect((yield* inspectTrialControlRefs(fresh.workspace, base)).baseCommit).toBe(base);
+            expect(Str.trim((yield* inspectTrialGit(fresh.workspace, ["rev-parse", "HEAD"])).output)).toBe(final);
+            expect(
+              Str.trim((yield* inspectTrialGit(fresh.workspace, ["diff", "--name-only", "origin/main...HEAD"])).output)
+            ).toBe("answer.ts");
+            expect(Str.trim((yield* inspectTrialGit(fresh.workspace, ["rev-list", "origin/main..HEAD"])).output)).toBe(
+              final
+            );
+            expect(
+              (yield* inspectTrialGit(fresh.workspace, ["show-ref", "--verify", "refs/tags/poison"])).exitCode
+            ).not.toBe(0);
+            yield* fs.writeFileString(path.join(fresh.workspace, ".git/refs/remotes/origin/main"), `${final}\n`);
+            expect((yield* inspectTrialControlRefs(fresh.workspace, base).pipe(Effect.result))._tag).toBe("Failure");
+            yield* fs.writeFileString(
+              path.join(fresh.workspace, ".git/refs/remotes/origin/main"),
+              `ref: refs/heads/shadow\n`
+            );
+            expect((yield* inspectTrialControlRefs(fresh.workspace, base).pipe(Effect.result))._tag).toBe("Failure");
+            yield* fs.writeFileString(path.join(fresh.workspace, ".git/refs/remotes/origin/main"), `${base}\n`);
+            yield* fs.makeDirectory(path.join(fresh.workspace, ".git/refs/tags/origin"), { recursive: true });
+            yield* fs.writeFileString(path.join(fresh.workspace, ".git/refs/tags/origin/main"), `${base}\n`);
+            expect((yield* inspectTrialControlRefs(fresh.workspace, base).pipe(Effect.result))._tag).toBe("Failure");
+          })
+        ),
+      { timeout: 30000 }
+    );
+    it.effect(
+      "denies ref rewrites throughout the check while allowing operational Git writes",
+      () =>
+        Effect.scoped(
+          Effect.gen(function* () {
+            const { fs, path, root, workspace, commit: base, git } = yield* setup();
+            yield* fs.writeFileString(path.join(workspace, "answer.ts"), "export const answer = 43\n");
+            yield* git(["add", "."]);
+            yield* git(["commit", "-m", "candidate"]);
+            const final = yield* git(["rev-parse", "HEAD"]);
+            const retained = yield* retainTrialCandidate(workspace, base, root);
+            expect(O.isSome(retained)).toBe(true);
+            if (O.isNone(retained)) return;
+            const fresh = yield* reconstructTrialSource(
+              path.join(root, "evaluation"),
+              retained.value.bundle,
+              O.none(),
+              final,
+              base
+            );
+            const before = yield* inspectTrialControlRefs(fresh.workspace, base);
+            const shell = yield* trialGitSandbox(fresh.workspace, []);
+            const divider = O.getOrThrow(A.findFirstIndex(shell, (arg) => arg === "--"));
+            const script = [
+              "import pathlib,subprocess,sys",
+              "base,final=sys.argv[1:]",
+              "def git(*args): return subprocess.run(['git',*args],capture_output=True)",
+              "for args in [('update-ref','refs/remotes/origin/main',final),('update-ref','refs/remotes/origin/main',base),('symbolic-ref','refs/remotes/origin/main','refs/heads/shadow'),('update-ref','refs/heads/origin/main',final),('update-ref','refs/tags/origin/main',final),('pack-refs','--all'),('config','core.warnAmbiguousRefs','false')]:",
+              " r=git(*args); assert r.returncode != 0, (args,r.stdout,r.stderr)",
+              "try: pathlib.Path('.git/packed-refs').write_text(final+' refs/remotes/origin/main\\n'); raise AssertionError('packed refs writable')",
+              "except OSError: pass",
+              "assert git('update-index','--refresh').returncode == 0",
+              "r=subprocess.run(['git','hash-object','-w','--stdin'],input=b'new object',capture_output=True); assert r.returncode == 0,r.stderr",
+              "r=git('worktree','add','--detach','/tmp/legitimate',final); assert r.returncode == 0,r.stderr",
+              "r=git('worktree','remove','/tmp/legitimate'); assert r.returncode == 0,r.stderr",
+              "assert git('rev-parse','origin/main').stdout.decode().strip() == base",
+              "print('ref mutations denied; index objects worktrees writable')",
+            ];
+            const result = yield* runCaptured({
+              command: "/usr/bin/bwrap",
+              args: [
+                ...A.take(shell, divider),
+                ...trialControlRefBindings(fresh.workspace),
+                "--",
+                "/usr/bin/python3",
+                "-c",
+                A.join(script, "\n"),
+                base,
+                final,
+              ],
+              env: {},
+              extendEnv: false,
+              timeout: "15 seconds",
+            });
+            expect(result.output).toContain("ref mutations denied; index objects worktrees writable");
+            expect(result.exitCode).toBe(0);
+            expect(yield* inspectTrialControlRefs(fresh.workspace, base)).toEqual(before);
+          })
+        ),
+      { timeout: 30000 }
     );
     it.effect("reconstructs the committed tree without ignored model-only implementation", () =>
       Effect.scoped(

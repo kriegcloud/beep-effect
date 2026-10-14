@@ -473,3 +473,53 @@ source commit and immutable runtime inventories with their known failures.
 Evidence: `attempt11-passwd-namespace-attribution-v2.json`,
 `native-flock-source-inventory-v1.json`, `native-jq-source-inventory-v1.json`,
 and `public-bootstrap-capability-nss-draft-independent-review-v2.json`.
+
+
+### Bind the native verification base ref before final qualification
+
+On October 14 the exact older candidate `7a0fd7041e` passed the canonical full
+proof and separate full-scope coverage, build, lint, check, unit, integration,
+full docgen and Storybook gates. Retain those executed passes and all cached
+versus executed task counts. The original 32 GiB cgroup OOM remains a separate
+failed environment attempt; the reviewed 48 GiB retry peaked at about 38.27 GiB.
+The scheduler reservation covered 50 GiB nominally through the existing API.
+No quality gate or source command was weakened.
+
+The shared remote-tracking main ref advanced during canonical preparation.
+Although the observed refs all descend from the candidate with empty affected
+selections, this is not a frozen auxiliary-ref proof. Source inspection also
+found that Collector imports candidate objects into fresh Git metadata without
+creating the base ref required by some native inner commands. Select a minimal
+pre-scoring control repair: create a direct `refs/remotes/origin/main` at the
+trusted trial BASE, bind it in evaluator-owned evidence, and require matching
+pre/post native-proof and finalization checks. Protect the derived Git ref and
+resolution configuration while preserving legitimate index, objects, worktree
+and log operations. Validate the actual isolation boundary with a nonempty
+BASE-to-FINAL canary, poisoned Executor refs, attempted rewrites and positive
+Git operations before a bounded native proof.
+
+The source and mandatory evidence contracts must receive fresh versions and
+control digests where their shape or inputs change. Rebind all dependent
+requests and invocation evidence after a clean local source commit and default
+package proof. Previous Collector v4 inputs remain unlaunched historical
+preparation; their resource review does not waive this source-control gate.
+The final task/source/control freeze, productive paired pilot, full ingestion
+and scored matrix remain held. Reversal is to stop the new preparation and
+retain the previous local source commits, requests and immutable receipts with
+their known limitations; no production ref, graph index or global policy is
+changed. Private receipts: `executed-baseline-gates-v1.json`,
+`auxref-attribution-v1/attribution.json` and
+`collector-auxref-qualification-v1/reuse-and-fix-proposal.json`.
+
+
+### Keep hybrid acceptance independent of an unstated source filename
+
+The public module contract does not require a literal `RankFusion.ts` file.
+Replace that sealed type-config assumption with the existing public-export
+gate's native resolution and canonical source containment boundary. Retain the
+original helper and use a fresh version, with correct/wrong resolution fixtures
+and later exact-source compiler/framework requalification. This changes no
+public task requirement, acceptance assertion or scored result; none is frozen
+or scored yet. Reversal restores the retained prior helper and its explicit
+known filename restriction. Receipt: `task-final-readiness-v1/checklist.json`
+and `task-final-readiness-v1/helper-resolution-fixture-receipt.json`.

@@ -917,7 +917,8 @@ export const deriveTrialRuntimeControlsDigest = Effect.fn("AgentEffectiveness.de
 export const trialCheckContractDigest = Effect.fn("trialCheckContractDigest")(function* (check: TrialEvaluatorCheck) {
   return yield* hashPublicTextSha256(
     yield* S.encodeEffect(S.fromJsonString(S.Unknown))({
-      encoding: "trial-check-contract/v4",
+      encoding: "trial-check-contract/v5",
+      gitRefPolicy: "owned-base-refs-readonly/v1",
       runtimeControlsDigest: check.runtimeControlsDigest ?? null,
       id: check.id,
       kind: check.kind,

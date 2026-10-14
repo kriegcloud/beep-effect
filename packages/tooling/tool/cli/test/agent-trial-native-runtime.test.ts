@@ -26,6 +26,7 @@ import {
   TrialCommittedSourceJson,
   TrialEvaluatorCheck,
   TrialFinalizationJson,
+  TrialGitRefGuard,
   TrialInputInventory,
   TrialInputMetadata,
   TrialMount,
@@ -119,10 +120,11 @@ const check = TrialEvaluatorCheck.make({
   timeoutMs: 1000,
   nativeRuntime: runtime,
 });
-it.effect("invalidates the legacy contract using an independent v4 encoding reference", () =>
+it.effect("invalidates v4 contracts with the v5 fixed trusted-ref policy", () =>
   Effect.gen(function* () {
     const value = yield* trialCheckContractDigest(TrialEvaluatorCheck.make({ ...check, nativeRuntime: undefined }));
-    expect(value).toBe("82bc549744975361dad549de52e2dd410cf619026b4fca299bfcc951ca4ee90c");
+    expect(value).toBe("9b9f9f3cb34f35fabde06062152b0b2c46026a45de062a0b6094919ddd07ab39");
+    expect(value).not.toBe("82bc549744975361dad549de52e2dd410cf619026b4fca299bfcc951ca4ee90c");
     expect(value).not.toBe("b30fa15be2aaf0a784350838fc186fae3f85ebab2c6e545b7009f401d25af944");
   })
 );
@@ -925,8 +927,10 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
             receipt,
             yield* TrialCommittedSourceJson.encode(
               TrialCommittedSource.make({
-                schemaVersion: "agent-trial-committed-source/v1",
+                schemaVersion: "agent-trial-committed-source/v2",
+                gitRefPolicy: "owned-base-refs-readonly/v1",
                 workspace,
+                baseCommit: Str.repeat(40)("0"),
                 finalCommit: Str.repeat(40)("0"),
                 tree: Str.repeat(40)("0"),
                 bundle: artifact,
@@ -1030,6 +1034,11 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
             yield* git(["add", "."]);
             yield* git(["commit", "-m", "fixture"]);
             const commit = yield* git(["rev-parse", "HEAD"]);
+            yield* git(["update-ref", "refs/remotes/origin/main", commit]);
+            yield* fs.writeFileString(
+              `${workspace}/.git/packed-refs`,
+              "# pack-refs with: peeled fully-peeled sorted\n"
+            );
             yield* fs.writeFileString(
               program,
               "import argparse,socket\np=argparse.ArgumentParser()\np.add_argument('--socket');p.add_argument('--policy');p.add_argument('--events');p.add_argument('--max-seconds');a=p.parse_args()\ns=socket.socket(socket.AF_UNIX);s.bind(a.socket);s.listen()\nprint('ready',flush=True)\nwhile True:\n c,_=s.accept();c.recv(4096);c.sendall(b'HTTP/1.1 403 Forbidden\\r\\n\\r\\n');c.close()\n"
@@ -1062,8 +1071,10 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
             };
             const artifact = yield* trialArtifact(program);
             const source = TrialCommittedSource.make({
-              schemaVersion: "agent-trial-committed-source/v1",
+              schemaVersion: "agent-trial-committed-source/v2",
+              gitRefPolicy: "owned-base-refs-readonly/v1",
               workspace,
+              baseCommit: commit,
               finalCommit: commit,
               tree: yield* git(["rev-parse", "HEAD^{tree}"]),
               bundle: artifact,
@@ -1297,7 +1308,12 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
               },
               { path: "/usr/bin/newgidmap", capability: O.getOrNull(observed[1].capability) },
             ]);
-            const finalize = Effect.fn(function* (name: string, value: TrialNativeRuntimeEvidence) {
+            const finalize = Effect.fn(function* (
+              name: string,
+              value: TrialNativeRuntimeEvidence,
+              guard: O.Option<TrialArtifact> = O.fromUndefinedOr(collected.gitRefGuard),
+              reconstruction: O.Option<TrialArtifact> = O.none()
+            ) {
               const nativeEvidence = yield* persist(
                 `${name}-native.json`,
                 yield* S.encodeEffect(S.fromJsonString(TrialNativeRuntimeEvidence))(value)
@@ -1315,6 +1331,7 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
                     namespaceBindings: { candidate: "/workspace", sealed: "/sealed", output: "/output" },
                     resolvedArgv: collected.resolvedArgv,
                     nativeRuntimeEvidence: nativeEvidence,
+                    gitRefGuard: O.getOrUndefined(guard),
                   },
                 ],
               });
@@ -1334,6 +1351,7 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
                     requiredChecks: [
                       {
                         ...taskResult,
+                        gitRefGuard: O.getOrUndefined(guard),
                         resolvedArgv: collected.resolvedArgv,
                         namespaceBindings: { candidate: "/workspace", sealed: "/sealed", output: "/output" },
                       },
@@ -1349,6 +1367,7 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
                 acceptance: taskAcceptance,
                 fullYeetCollection: acceptance,
                 collectRequest: requestArtifact,
+                reconstruction: O.getOrUndefined(reconstruction),
                 requiredLaneIds: ["check"],
                 yeetExitCode: 0,
               });
@@ -1407,6 +1426,123 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
                 expect(O.isNone(changed.report.value.benchmark)).toBe(true);
               }
             }
+            if (O.isNone(baseline.report)) return yield* Effect.die("baseline report missing");
+            const baselineFailures = baseline.report.value.failures;
+            const acceptanceFailure = "Task acceptance is missing, incomplete or failed";
+            const missingGuard = yield* finalize("ref-guard-missing", evidence, O.none());
+            expect(missingGuard.result._tag).toBe("Success");
+            expect(O.isSome(missingGuard.report)).toBe(true);
+            if (O.isSome(missingGuard.report))
+              expect(missingGuard.report.value.failures).toEqual([
+                "Full Yeet invocation and contract collection are missing or differ",
+                acceptanceFailure,
+                ...baselineFailures,
+              ]);
+            const originalGuard = collected.gitRefGuard;
+            if (originalGuard === undefined) return yield* Effect.die("fixture did not publish Git ref evidence");
+            const guardText = yield* fs.readFileString(originalGuard.path);
+            const guard = yield* S.decodeEffect(S.fromJsonString(TrialGitRefGuard))(guardText);
+            expect(guard.before.refsDigest).not.toBe(zero);
+            expect(originalGuard.digest).not.toBe(zero);
+            for (const phase of A.make("before", "after", "both")) {
+              const mutated = TrialGitRefGuard.make({
+                ...guard,
+                before: phase === "after" ? guard.before : { ...guard.before, refsDigest: zero },
+                after: phase === "before" ? guard.after : { ...guard.after, refsDigest: zero },
+              });
+              yield* fs.writeFileString(
+                originalGuard.path,
+                yield* S.encodeEffect(S.fromJsonString(TrialGitRefGuard))(mutated)
+              );
+              const changed = yield* finalize(
+                `ref-guard-rehashed-${phase}`,
+                evidence,
+                O.some(yield* trialArtifact(originalGuard.path))
+              );
+              expect(changed.result._tag).toBe("Success");
+              expect(O.isSome(changed.report)).toBe(true);
+              if (O.isSome(changed.report))
+                expect(changed.report.value.failures).toEqual([acceptanceFailure, ...baselineFailures]);
+              yield* fs.writeFileString(originalGuard.path, guardText);
+            }
+            const movedGuard = yield* persist("ref-guard-wrong-path.json", guardText);
+            const moved = yield* finalize("ref-guard-wrong-path", evidence, O.some(movedGuard));
+            expect(moved.result._tag).toBe("Success");
+            expect(O.isSome(moved.report)).toBe(true);
+            if (O.isSome(moved.report))
+              expect(moved.report.value.failures).toEqual([acceptanceFailure, ...baselineFailures]);
+            const wrongDigest = yield* finalize(
+              "ref-guard-wrong-digest",
+              evidence,
+              O.some({ ...originalGuard, digest: zero })
+            );
+            expect(wrongDigest.result._tag).toBe("Failure");
+            if (wrongDigest.result._tag === "Failure")
+              expect(wrongDigest.result.failure.message).toBe("Retained artifact digest changed");
+            expect(yield* fs.exists(`${root}/finalization.json`)).toBe(false);
+            const directRef = `${workspace}/.git/refs/remotes/origin/main`;
+            yield* fs.writeFileString(directRef, `${Str.repeat(40)("0")}\n`);
+            expect(Str.trim((yield* inspectTrialGit(workspace, ["rev-parse", "HEAD"], prepared.system)).output)).toBe(
+              commit
+            );
+            expect(
+              Str.trim((yield* inspectTrialGit(workspace, ["status", "--porcelain"], prepared.system)).output)
+            ).toBe("");
+            const wrongCurrent = yield* finalize("ref-guard-current-wrong-base", evidence);
+            expect(wrongCurrent.result._tag).toBe("Failure");
+            if (wrongCurrent.result._tag === "Failure")
+              expect(wrongCurrent.result.failure.message).toBe(
+                "Trusted origin/main is not the direct unambiguous BASE"
+              );
+            expect(yield* fs.exists(`${root}/finalization.json`)).toBe(false);
+            yield* fs.writeFileString(directRef, `${commit}\n`);
+            const reconstructedWorkspace = `${root}/reconstructed-source`;
+            yield* fs.makeDirectory(reconstructedWorkspace);
+            for (const name of A.make(".git", ".gitignore", "package.json"))
+              yield* fs.copy(`${workspace}/${name}`, `${reconstructedWorkspace}/${name}`);
+            const reconstructedSource = TrialCommittedSource.make({ ...source, workspace: reconstructedWorkspace });
+            const validSource = yield* persist(
+              "ref-valid-reconstruction.json",
+              yield* TrialCommittedSourceJson.encode(reconstructedSource)
+            );
+            const validReconstruction = yield* finalize(
+              "ref-valid-reconstruction",
+              evidence,
+              O.some(originalGuard),
+              O.some(validSource)
+            );
+            expect(validReconstruction.result._tag).toBe("Success");
+            expect(O.isSome(validReconstruction.report)).toBe(true);
+            if (O.isSome(validReconstruction.report))
+              expect(validReconstruction.report.value.failures).toEqual([
+                acceptanceFailure,
+                ...A.filter(
+                  baselineFailures,
+                  (failure) => failure !== "Fresh retained-commit reconstruction evidence is missing"
+                ),
+              ]);
+            const wrongSource = yield* persist(
+              "ref-wrong-base-reconstruction.json",
+              yield* TrialCommittedSourceJson.encode(
+                TrialCommittedSource.make({ ...reconstructedSource, baseCommit: Str.repeat(40)("0") })
+              )
+            );
+            const wrongSourceBase = yield* finalize(
+              "ref-wrong-base-reconstruction",
+              evidence,
+              O.some(originalGuard),
+              O.some(wrongSource)
+            );
+            expect(wrongSourceBase.result._tag).toBe("Failure");
+            if (wrongSourceBase.result._tag === "Failure")
+              expect(wrongSourceBase.result.failure.message).toBe(
+                "Reconstruction is not an owned fresh tree bound to the retained candidate bundle"
+              );
+            expect(yield* fs.exists(`${root}/finalization.json`)).toBe(false);
+            const restored = yield* finalize("ref-guard-restored", evidence);
+            expect(restored.result._tag).toBe("Success");
+            expect(O.isSome(restored.report)).toBe(true);
+            if (O.isSome(restored.report)) expect(restored.report.value.failures).toEqual(baselineFailures);
             const changedJson = yield* S.encodeEffect(S.fromJsonString(TrialBootstrapFile.Capabilities))(altered);
             const changedLiteral = yield* S.encodeEffect(S.fromJsonString(S.String))(changedJson);
             const currentReader = ChildProcessSpawner.make((command) => {
@@ -1448,7 +1584,7 @@ layer(Layer.merge(NodeServices.layer, BunCrypto.layer), { excludeTestServices: t
             expect(yield* fs.exists(`${root}/finalization.json`)).toBe(false);
           })
         ),
-      { timeout: 60000 }
+      { timeout: 120000 }
     );
     test.effect(
       "requires complete native metadata and revalidates standalone asset bytes",

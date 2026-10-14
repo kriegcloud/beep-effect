@@ -793,3 +793,32 @@ Include that case in focused verification, then rerun the full package audit and
 documentation gate. Keep the native account boundary unchanged. The failed package run took 1,370.19 seconds; retain
 that cost and its failure instead of relabeling the earlier focused pass.
 Receipt: `code-graph-package-aac30f2-1791927383193654817.terminal.json`.
+
+
+## October 14 preparation receipts
+
+- **Activity:** canonical full Yeet qualification of the proposed common base. **Evidence:** the proof service ended `oom-killed`; kernel attribution is `CONSTRAINT_MEMCG` at a 32 GiB service cap, with two Bun victims. The scheduler charged three tokens, nominally 15 GiB. Canonical Turbo concurrency is three while the cheap-gate wave width is four. **Prevention:** expose a supported resource profile that binds scheduler accounting, systemd cap and all lane concurrency, with receipt-backed calibration. The private reservation adaptation is preparation overhead and cannot be hidden in trial coding time. No source defect or memory leak is inferred.
+
+- **Activity:** preparation source queries through Graft. **Evidence:** two read-intended calls unexpectedly refreshed ignored structural caches; exact write count and deep-index impact were not established before those calls. The independently preserved incumbent snapshot still hashes unchanged. **Prevention:** a documented read-only/no-refresh query mode, or enforce disposable query copies for preparation. Keep the incident and copy cost in the upkeep account.
+
+No global scheduler setting, production guidance, coverage floor or acceptance was changed by this receipt. Raw unit names and process identifiers remain only in protected evidence.
+
+- **Activity:** common-baseline auxiliary-reference control. **Evidence:** the shared remote-tracking main ref advanced twice during an exact clean candidate proof. The explicit top-level base did not replace every rendered inner origin/main argument. All observed refs descended from the candidate with empty triple-dot selections, but Fallow audit remained base-sensitive. **Prevention:** independently pin auxiliary Git refs before final qualification; a tracked-source digest alone does not freeze ref-dependent commands. The executed pass remains retained preparation evidence.
+
+## Collector auxiliary base-ref qualification
+
+While preparing native verification, source inspection found fresh Collector Git reconstruction imports objects and checks ancestry but does not create `refs/remotes/origin/main`. HEAD and clean-worktree checks do not enforce this control ref. A shared checkout's moving ref also affected earlier baseline preparation. This blocks final frozen source/control qualification, despite passing command receipts. Prevent recurrence by creating the trusted BASE ref in evaluator-owned Git metadata, enforcing it before/after native proof and at finalization, protecting derived ref/config state, and testing BASE != FINAL with poisoned Executor refs plus valid Git-operation canaries. Read-only evidence and the minimal reuse proposal are retained under `collector-auxref-qualification-v1`; no Collector launch was used to fabricate a failure.
+
+
+## Do not impose an unstated source filename in the sealed type oracle
+
+The hybrid type-config generator hardcoded `src/Tools/RankFusion.ts` even
+though the task specifies a public export and the existing export gate permits
+a valid source target. This could reject a lawful directory/index or alternate
+role layout. A fresh helper resolves the same native public export as the
+existing gate and validates canonical package/source containment. Thirteen
+small resolution fixtures pass, including alternate layouts and wrong targets.
+The prior helper remains unchanged; these are resolver fixtures, not compiler
+semantics or a full oracle rerun. Rebind the new helper, sealed assertions,
+commands and historical framework to the chosen source before freezing
+acceptance. Receipt: `task-final-readiness-v1/helper-resolution-fixture-receipt.json`.
