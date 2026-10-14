@@ -1,10 +1,12 @@
 import {
+  CI_LANE_DESCRIPTORS,
   decideHeavyAdmission,
   desktopEnvironmentApproved,
   HeavyAdmissionEvent,
   heldGroupRunIds,
   prSizeLabelDiff,
   setupCacheWriteDisabled,
+  validateRequiredContexts,
   workflowPolicyDiagnostics,
 } from "@beep/repo-cli/commands/Ci";
 import { describe, expect, it } from "@effect/vitest";
@@ -14,6 +16,21 @@ import * as Effect from "effect/Effect";
 const writer = (environment: string, token = "${{ github.event_name == 'push' && secrets.TURBO_TOKEN || '' }}") =>
   `on: push\njobs:\n  writer:\n    environment: "${environment}"\n    steps:\n      - uses: ./.github/actions/setup-monorepo-ci\n        with:\n          turbo-token: "${token}"\n`;
 describe("CI governance policy", () => {
+  it.effect("requires the external reviewer alongside every required workflow context", () =>
+    Effect.gen(function* () {
+      const workflowContexts = A.map(
+        A.filter(CI_LANE_DESCRIPTORS, (lane) => lane.required),
+        (lane) => lane.contextName
+      );
+      const complete = A.append(workflowContexts, "beep-reviewer");
+      expect(yield* validateRequiredContexts(A.reverse(complete)).pipe(Effect.isSuccess)).toBe(true);
+      expect(yield* validateRequiredContexts(workflowContexts).pipe(Effect.isFailure)).toBe(true);
+      expect(
+        yield* validateRequiredContexts(A.filter(complete, (context) => context !== "Security")).pipe(Effect.isFailure)
+      ).toBe(true);
+      expect(yield* validateRequiredContexts(A.append(complete, "unexpected-check")).pipe(Effect.isFailure)).toBe(true);
+    })
+  );
   it.effect("requires a writer environment and trusted caller expression", () =>
     Effect.gen(function* () {
       expect(

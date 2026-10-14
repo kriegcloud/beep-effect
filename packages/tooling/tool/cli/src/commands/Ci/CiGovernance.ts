@@ -382,18 +382,41 @@ const requiredContexts = (ruleset: Ruleset): ReadonlyArray<string> =>
     A.dedupe,
     A.sort(Order.String)
   );
+// The reviewer is emitted by an external GitHub App, not by a workflow lane.
+// Keep this explicit so unknown added checks and removed protections still fail.
+const externalRequiredContextKit = LiteralKit(["beep-reviewer"]);
 const expectedContexts = () =>
   pipe(
     CI_LANE_DESCRIPTORS,
     A.filter((lane) => lane.required),
     A.map((lane) => lane.contextName),
+    A.appendAll(externalRequiredContextKit.literals),
     A.dedupe,
     A.sort(Order.String)
   );
-const checkEqual = Effect.fn("CiGovernance.checkEqual")(function* (
-  actual: ReadonlyArray<string>,
-  expected: ReadonlyArray<string>
+/**
+ * Validate the exact required workflow and external App check-name set.
+ *
+ * GitHub's live ruleset retains the App integration binding; this validator
+ * checks names without changing that binding or accepting arbitrary extras.
+ *
+ * @example
+ * ```ts
+ * import { validateRequiredContexts } from "@beep/repo-cli/commands/Ci"
+ * import * as Effect from "effect/Effect"
+ * const missing = Effect.isFailure(validateRequiredContexts([]))
+ * ```
+ *
+ * @param contexts - Required check names decoded from the live ruleset.
+ * @returns A program that fails when a required name is missing or unexpected.
+ * @category validation
+ * @since 0.0.0
+ */
+export const validateRequiredContexts = Effect.fn("CiGovernance.validateRequiredContexts")(function* (
+  contexts: ReadonlyArray<string>
 ) {
+  const actual = pipe(contexts, A.dedupe, A.sort(Order.String));
+  const expected = expectedContexts();
   if (A.join(actual, "\n") !== A.join(expected, "\n"))
     return yield* CiCommandError.make({
       message: `Ruleset drift: live=[${A.join(actual, ", ")}], declared=[${A.join(expected, ", ")}].`,
@@ -421,7 +444,7 @@ const ciRulesetCommand = Command.make(
         const ruleset = yield* client
           .read("repos/{owner}/{repo}/rulesets/10240248")
           .pipe(Effect.flatMap(decodeRulesetJson));
-        yield* checkEqual(requiredContexts(ruleset), expectedContexts());
+        yield* validateRequiredContexts(requiredContexts(ruleset));
         if (capture) {
           const now = yield* DateTime.now;
           const text = yield* encodeSnapshotJson({
