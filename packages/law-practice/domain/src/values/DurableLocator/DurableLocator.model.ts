@@ -19,8 +19,33 @@ const $I = $LawPracticeDomainId.create("values/DurableLocator/DurableLocator.mod
 
 const DurableLocatorSpace = LiteralKit(["original", "clean"]);
 
-const DurableLocatorFields = {
-  quote: S.Struct({
+/**
+ * W3C Web Annotation `TextQuoteSelector`: the exact quoted text plus optional
+ * text immediately before and after it.
+ *
+ * **Details**
+ *
+ * The anchor of record for {@link DurableLocator} and for review source
+ * references. `prefix` and `suffix` decode from optional keys into `Option`
+ * values and default to `Option.none()` when constructed without them.
+ *
+ * **Example** (Build a quote without context)
+ *
+ * ```ts
+ * import { TextQuote } from "@beep/law-practice-domain"
+ * import * as O from "effect/Option"
+ *
+ * const quote = TextQuote.make({ exact: "410 U.S. 113" })
+ *
+ * console.log(quote.exact) // "410 U.S. 113"
+ * console.log(O.isNone(quote.prefix)) // true
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export class TextQuote extends S.Class<TextQuote>($I`TextQuote`)(
+  {
     exact: S.String.annotateKey({
       description: "The exact quoted text — the anchor of record.",
     }),
@@ -38,7 +63,47 @@ const DurableLocatorFields = {
         description: "Text immediately following the exact quote.",
       })
     ),
-  }).annotateKey({
+  },
+  $I.annote("TextQuote", {
+    description: "W3C TextQuoteSelector: the exact quoted text with optional prefix and suffix context.",
+  })
+) {}
+
+/**
+ * Companion namespace for `TextQuote`.
+ *
+ * **Example** (Type an encoded quote prefix)
+ *
+ * ```ts
+ * import type { TextQuote } from "@beep/law-practice-domain"
+ *
+ * const prefix: TextQuote.Encoded["prefix"] = "comprising "
+ * console.log(prefix) // "comprising "
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export declare namespace TextQuote {
+  /**
+   * Wire-encoded representation of a decoded {@link TextQuote}.
+   *
+   * **Example** (Alias the encoded type)
+   *
+   * ```ts
+   * import type { TextQuote } from "@beep/law-practice-domain"
+   *
+   * type Wire = TextQuote.Encoded
+   * ```
+   *
+   * @category value-objects
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TextQuote.Encoded;
+}
+
+const DurableLocatorFields = {
+  quote: TextQuote.annotateKey({
     description: "W3C TextQuoteSelector — the anchor of record.",
   }),
   position: S.Struct({
@@ -89,13 +154,13 @@ const makeDurableLocatorMember = <T extends typeof DurableLocatorSpace.Type>(lit
  *
  * ```ts
  * import * as S from "effect/Schema"
- * import { DurableLocator } from "@beep/law-practice-domain"
+ * import { DurableLocator, TextQuote } from "@beep/law-practice-domain"
  * import * as O from "effect/Option"
  *
  * const locator = DurableLocator.make({
  *   v: 1,
  *   space: "original",
- *   quote: { exact: "410 U.S. 113" },
+ *   quote: TextQuote.make({ exact: "410 U.S. 113" }),
  *   position: {
  *     start: S.Natural.make(0),
  *     end: S.Natural.make(12),

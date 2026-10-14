@@ -34,7 +34,9 @@
     "goals/review-verdict-envelope/GOAL.md",
     "goals/review-verdict-envelope/research/SOURCES.md"
   ],
-  "researchReports": ["research/SOURCES.md"],
+  "researchReports": [
+    "research/SOURCES.md"
+  ],
   "agentLaunchers": [
     {
       "kind": "codex-goal",
@@ -50,12 +52,12 @@
     {
       "id": "P0",
       "name": "Evidence",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Schema",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P2",

@@ -16,8 +16,11 @@ surface it will be judged in before anyone builds that surface. Observably:
    - `ReviewItem`, a tagged union by `kind`: `kg-answer`, `claim-finding`, `oa-analysis`,
      `drawing`, `classification`, `draft-text`. The `claim-finding` member carries
      `claimId: CandidateClaimId` (from `@beep/shared-domain/identity/Epistemic`);
-   - `SourceRef`: `boxFileId`, an optional `page`, and a `quote` in the W3C TextQuoteSelector
-     shape (`exact`, optional `prefix`, optional `suffix`);
+   - `SourceRef`: `boxFileId`, an optional `page`, a `quote` in the W3C TextQuoteSelector
+     shape (`exact`, optional `prefix`, optional `suffix`), and an optional `crop`. A crop is a
+     pre-rendered, size-bounded image of the passage region: `page`, `mimeType`
+     (`image/png | image/jpeg`), pixel `width` and `height`, and base64 `data` of at most 120,000
+     characters, so the desktop `Svg` wrapper stays under its 131,072-character cap;
    - `VerdictRow`: `itemId`, `verdict` (`right | wrong | partly`), an optional `note`,
      `revision`, `recordedAt` (`DateTimeUtcFromMillis`), and an optional `lockedAt`. Rows are append-only; undo is a superseding
      revision; a lock closes the log.
@@ -213,6 +216,10 @@ Seeded from
 | 2026-10-14 | Shape accepted: a queue-first review phase in `practice-claude-mod` applied by its owner from the amendment, plus this goal (schema, projector, spikes S1–S8); drawing pins, draft review in Word, and a mod side chat stay gated re-entry points. | Operator confirmed `BRIEF.md` and `MAP.md` match the picture. | Reopen the exploration at `shape`. |
 | 2026-10-14 | The projector returns a `ClaimDispositionProjection` value (`claimId`, `status`, `reason`, `resolvedAt`, `resolvedBy`, `violations: []`), not the persisted `ClaimDisposition` entity. `claim-finding` items carry `claimId`, `VerdictRow` gains `recordedAt`, and the caller supplies `resolvedBy`. Fixed reasons cover `right` and a `wrong` row without a note. | `ClaimDisposition` is a `ProductEntity` with ids, audit fields and a required non-empty reason. Building it inside the projector would mean inventing ids and reading the clock. Completion stays with the epistemic owner via `ClaimDispositionAppend`. | Have the projector depend on the epistemic append service and return entities. |
 | 2026-10-14 | A final `partly` verdict produces no disposition. The claim stays unresolved and returns to the queue. | `ClaimDispositionStatus` (`active / rejected / superseded`) has no partial state, and forcing one would misrecord the attorney's judgement. | Map `partly` to `rejected` with the note as the reason. |
+| 2026-10-14 | P0 spikes ran on the operator's Linux desktop Code tab. The operator waived the Windows run: it is the same desktop app, and panes pop out to their own window. S1 and S3 are GO. | Evidence in `history/spikes-2026-10-14.md`. | Run S1 and S3 on the attorney's Windows PC if the first real pane misbehaves there. |
+| 2026-10-14 | One-app answer: the attorney lives in Outlook and Word. The operator is moving him to Claude, so the Claude review pane stays the target. Review inside Claude for Outlook or Word becomes a gated re-entry point; the gate is a hosted, remote firm-knowledge connector, since practice-kg runs locally. | Claude for Word and Outlook use only claude.ai connectors and Skills. | Reopen the exploration at `decompose` if the operator moves review into Outlook or Word. |
+| 2026-10-14 | `source-crop`: `SourceRef` gains an optional pre-rendered `crop` of the passage region (base64 of at most 120,000 characters). Producers render the crops; the pane never draws whole Box pages. | S3b showed a full Box page image is about 230 K base64 characters, over the desktop `Svg` cap of 131,072. A crop also shows the exact lines in context. | Drop `crop`; the pane shows the text passage only. |
+| 2026-10-14 | `typed-notes`: the attorney types notes into a note field; there is no highlight-to-note. | S4: `$.ui.selection()` returns `undefined` on the desktop for pane and transcript text. | Add highlight-to-note when the desktop answers selection reads. |
 | 2026-10-14 | `requires`/`provides` stay empty in the manifest. | Other manifests use capability tokens, and no capability token exists yet for the dependency on `practice-claude-mod`; it is tracked in `PLAN.md` instead. | Add tokens when a matching `provides` exists. |
 
 ## Exception Ledger
