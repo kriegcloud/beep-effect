@@ -504,7 +504,7 @@ layer(TestLayer, { timeout: "30 seconds" })("skills update train Renovate manage
   it.effect("matches every vendored lock entry's pin and no local entry", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
-      const renovate = yield* S.decodeUnknownEffect(
+      const renovate = yield* S.decodeEffect(
         S.fromJsonString(
           S.Struct({
             customManagers: S.Array(S.Struct({ matchStrings: S.Array(S.String), datasourceTemplate: S.String })),

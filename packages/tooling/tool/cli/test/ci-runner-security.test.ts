@@ -1333,7 +1333,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
     })
   );
 
-  // Reusable Heavy is trusted at main; caller and scheduled names are orchestration exemptions.
+  // Reusable Heavy is trusted at main; caller, scheduled, and skill-train writer jobs are orchestration exemptions.
   it.effect(
     "maps every hosted job to a descriptor or explicit orchestration exemption",
     Effect.fnUntraced(function* () {
@@ -1358,6 +1358,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("CI runner security", (i
         "release-desktop.yml:Windows x64",
         "release-desktop.yml:Desktop release draft ready",
         "rerun-runner-loss.yml:Rerun Runner Loss",
+        "skills-update-train.yml:Skills Replay",
+        "skills-update-train.yml:Skills Relock",
+        "skills-update-train.yml:Skills Train Batch Issue",
       ];
       const files = A.filter(yield* fs.readDirectory(`${root}/.github/workflows`), Str.endsWith(".yml"));
       for (const file of files) {

@@ -26,7 +26,7 @@ const textDecoder = new TextDecoder("utf-8", { fatal: true });
  * @category models
  * @since 0.0.0
  */
-export type PatchSeriesFile = { readonly path: string; readonly bytes: Uint8Array };
+type PatchSeriesFile = { readonly path: string; readonly bytes: Uint8Array };
 
 const refuseDigest = (skill: string, message: string) =>
   Effect.fail(SkillMaterializeRefusal.make({ skill, reason: "patch-digest-mismatch", message }));
