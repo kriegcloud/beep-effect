@@ -81,22 +81,31 @@ P4 in progress. Shipped on main so far:
 - **B-3a:** `skills lock-plan` classifies drift against upstream path history (B11).
 - **B-3b:** `lock-plan --write --expect <planDigest>` flipped `skills-lock.json` to v2
   (#1679).
-- **B-4 (this PR):** `beep skills materialize [--check] [--skill <name>]` rebuilds every
+- **B-4 (#1709):** `beep skills materialize [--check] [--skill <name>]` rebuilds every
   vendored skill from its pinned upstream plus its patch series, verified before it
   writes, through one clearing-house writer for both install targets; `skills update
   --check` reports hand-edited vendored output (`hand-edited-vendored-output`) and
   names both remedies. Decisions B24–B27 in
   [`research/p5-warehouse-update-train-design.md`](./research/p5-warehouse-update-train-design.md).
+- **B-5 (this PR, opens P5):** `beep skills relock --skill <name> [--expect <planDigest>]`
+  records a bumped pin's snapshot and effective hashes after a clean replay, and refuses
+  (lock untouched) when a hunk conflicts, matches only at a shifted line, or the license
+  bytes changed; `beep skills replay` is the read-only per-hunk report, and
+  `beep skills train-issue` renders the batch's parent issue. `renovate.json` gains the
+  per-skill `git-refs` regex manager over `skills-lock.json`, and
+  `.github/workflows/skills-update-train.yml` replays every lock or patch change, relocks
+  and rebuilds clean Renovate bumps, and writes the weekly batch issue. Decisions B28–B33
+  in the same design doc.
 
 C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
 command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling),
 C Stage-2 PR 2b (the domain evaluators), and B-3b (the skills lock write and flip) are
 on main.
 
-This PR is B-4: `beep skills materialize [--check]` rebuilds vendored skills from their
-pristine trees and patch series through one clearing-house writer, and
-`skills update --check` reports hand-edited vendored output. B-5 (`skills relock`, the
-Renovate manager, and the reconstruction workflow) is next for Workstream B.
+B-4 (`beep skills materialize`) is on main (#1709). This PR is B-5, the first P5 piece:
+`skills relock`, `skills replay`, `skills train-issue`, the Renovate custom manager, and
+the update-train workflow. B-6 (the hunk ledger, `--ghost`, `skills patch add`, and
+`skills review`) is next for Workstream B, then Ritual 1 (the operator's classification).
 
 Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 

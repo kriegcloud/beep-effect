@@ -369,3 +369,8 @@ Each entry names its record, which carries the reason and the reversal path.
   stages live in a sibling `.skills-materialize/` work directory; local drift fails
   `materialize` in both modes; the applier is exact and never fuzzes):
   `research/p5-warehouse-update-train-design.md`.
+- 2026-10-14 — Workstream B-5 update train B28–B33 (skill bumps never automerge and
+  merge through the normal gate, replay is a read-only command and a fuzz-only replay
+  fails CI, relock seals its own plan and rewrites only the lock, the workflow commits
+  the relocked lock with the rebuilt trees, the batch report is a weekly parent issue,
+  the pin tracks the whole upstream ref): `research/p5-warehouse-update-train-design.md`.
