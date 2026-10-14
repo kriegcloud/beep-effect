@@ -34,19 +34,33 @@ const inkMask = (options: { readonly bytes: Uint8Array; readonly blackThreshold:
   return { width, height, ink, count };
 };
 
-// One separable pass of a square dilation: along rows (dx = 1) or columns.
-const dilatePass = (mask: InkMask, radius: number, alongRows: boolean): Uint8Array => {
-  const { width, height, ink } = mask;
-  const out = new Uint8Array(width * height);
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      if (ink[y * width + x] === 1) {
-        const from = Math.max(0, (alongRows ? x : y) - radius);
-        const to = Math.min((alongRows ? width : height) - 1, (alongRows ? x : y) + radius);
-        for (let t = from; t <= to; t += 1) {
-          out[alongRows ? y * width + t : t * width + x] = 1;
-        }
-      }
+// Marks the run of `out` an ink pixel at (x, y) grows into along one axis.
+type RunMarker = (out: Uint8Array, mask: InkMask, x: number, y: number, radius: number) => void;
+
+// Inclusive [from, to] of the (2r+1)-wide run around `centre`, clipped to [0, extent).
+const runAround = (centre: number, radius: number, extent: number): readonly [number, number] => [
+  Math.max(0, centre - radius),
+  Math.min(extent - 1, centre + radius),
+];
+
+const markRowRun: RunMarker = (out, mask, x, y, radius) => {
+  const [from, to] = runAround(x, radius, mask.width);
+  out.fill(1, y * mask.width + from, y * mask.width + to + 1);
+};
+
+const markColumnRun: RunMarker = (out, mask, x, y, radius) => {
+  const [from, to] = runAround(y, radius, mask.height);
+  for (let t = from; t <= to; t += 1) {
+    out[t * mask.width + x] = 1;
+  }
+};
+
+// One separable pass of a square dilation: every ink pixel marks its run.
+const dilatePass = (mask: InkMask, radius: number, markRun: RunMarker): Uint8Array => {
+  const out = new Uint8Array(mask.width * mask.height);
+  for (let p = 0; p < mask.width * mask.height; p += 1) {
+    if (mask.ink[p] === 1) {
+      markRun(out, mask, p % mask.width, Math.floor(p / mask.width), radius);
     }
   }
   return out;
@@ -58,8 +72,8 @@ const dilate = (options: { readonly mask: InkMask; readonly radius: number }): I
   if (radius <= 0) {
     return mask;
   }
-  const rows = dilatePass(mask, radius, true);
-  const ink = dilatePass({ ...mask, ink: rows }, radius, false);
+  const rows = dilatePass(mask, radius, markRowRun);
+  const ink = dilatePass({ ...mask, ink: rows }, radius, markColumnRun);
   return { ...mask, ink };
 };
 

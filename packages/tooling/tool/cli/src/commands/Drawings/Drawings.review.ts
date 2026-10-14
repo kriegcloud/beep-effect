@@ -18,14 +18,13 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { InkCoverageRequest, PageTextRequest, PdfPageRef, PdfTools } from "@beep/pdf-tools";
 import { Sha256Hex } from "@beep/schema";
-import { RenderManifest } from "@beep/technical-drawing";
+import { RenderManifest, sha256Hex } from "@beep/technical-drawing";
 import { A, O } from "@beep/utils";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
-import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
@@ -102,10 +101,8 @@ export interface DrawingReviewShape {
 const fail = (message: string) => (cause: unknown) => DrawingsCommandError.new(cause, message);
 const refuse = (message: string) => DrawingsCommandError.make({ message });
 
-const sha256 = (bytes: Uint8Array): Effect.Effect<Sha256Hex> =>
-  Effect.promise(() => crypto.subtle.digest("SHA-256", bytes.slice().buffer)).pipe(
-    Effect.map((digest) => Sha256Hex.make(Hex.encode(new Uint8Array(digest))))
-  );
+// The review round records the branded `@beep/schema` digest.
+const sha256 = flow(sha256Hex, Effect.map(Sha256Hex.make));
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
