@@ -1,0 +1,302 @@
+# Workstream B update train (knowledge-surface-automation B-5, contracts 5, 6
+# and 9 of goals/knowledge-surface-automation/research/p5-warehouse-update-train-design.md).
+#
+# A pull request that touches skills-lock.json or a patch series first gets a
+# replay: every vendored skill's patch series is replayed onto the pristine
+# tree at its lock pin, and the per-hunk report (applied / fuzz-applied /
+# conflicted) plus the upstream-vs-effective diff is posted as one sticky
+# comment. A hunk that does not apply exactly fails the job, and the PR waits
+# for the review ritual. On a Renovate pin-bump PR whose replay is clean, the
+# relock job records the new snapshot and effective hashes (plan, then
+# --expect), rebuilds the installed trees with materialize, proves them with
+# materialize --check and update --check, and commits the result to the
+# Renovate branch (B22, B28-B31). A weekly run writes the batch's parent
+# tracking issue (contract 9, B32).
+
+name: Skills Update Train
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - skills-lock.json
+      - .agents/skill-patches/**
+  schedule:
+    - cron: "41 7 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    name: Skills Replay
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+    outputs:
+      clean: ${{ steps.replay.outputs.clean }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+
+      - name: Replay every vendored patch series at its pin
+        id: replay
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          report="$RUNNER_TEMP/skills-replay.md"
+          if bun run beep skills replay --json --markdown "$report" > "$RUNNER_TEMP/skills-replay.json"; then
+            echo "clean=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "clean=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -f "$report" ]; then
+            cat "$report" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload the full replay report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: skills-replay
+          path: |
+            ${{ runner.temp }}/skills-replay.json
+            ${{ runner.temp }}/skills-replay.md
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Post the replay report
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require("node:fs");
+            const path = `${process.env.RUNNER_TEMP}/skills-replay.md`;
+            if (!fs.existsSync(path)) {
+              core.warning("No replay report was written; the replay step failed before reporting.");
+              return;
+            }
+            const body = fs.readFileSync(path, "utf8");
+            const tag = "<!-- beep-skills-replay -->";
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find(
+              (comment) => comment.user?.type === "Bot" && (comment.body ?? "").startsWith(tag)
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body,
+              });
+            }
+
+      - name: Fail on an unclean replay
+        if: steps.replay.outputs.clean != 'true'
+        run: |
+          echo "::error::At least one hunk does not apply exactly at its pin. The lock is untouched; this PR waits for the review ritual."
+          exit 1
+
+  relock:
+    name: Skills Relock
+    needs: replay
+    if: >-
+      github.event_name == 'pull_request' &&
+      needs.replay.outputs.clean == 'true' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login == 'renovate[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      # The exact commit the replay judged, never the mutable branch, and no token left in
+      # git config: nothing this job runs from the branch can reuse a push credential.
+      - name: Checkout the replayed head commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Author login alone proves nothing: anyone with write access can push onto an open
+      # Renovate branch. Require every commit since the base to come from Renovate or a prior
+      # relock, and the change to stay inside the lock and the vendored skill trees.
+      - name: Verify the branch only carries Renovate and relock commits
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          base="$(git merge-base "$BASE_SHA" "$HEAD_SHA")"
+          foreign="$(git log --format='%H %an <%ae>' "$base..$HEAD_SHA" \
+            | grep -vE ' (renovate\[bot\] <29139614\+renovate\[bot\]@users\.noreply\.github\.com>|github-actions\[bot\] <41898282\+github-actions\[bot\]@users\.noreply\.github\.com>)$' || true)"
+          if [ -n "$foreign" ]; then
+            echo "::error::Commits not authored by Renovate or a prior relock:"
+            echo "$foreign"
+            exit 1
+          fi
+          outside="$(git diff --name-only "$base" "$HEAD_SHA" \
+            | grep -vE '^(skills-lock\.json|\.claude/skills/.+|\.agents/skills/.+)$' || true)"
+          if [ -n "$outside" ]; then
+            echo "::error::The branch changes files outside the lock and the vendored skill trees:"
+            echo "$outside"
+            exit 1
+          fi
+
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+
+      - name: Relock, rebuild and prove each bumped skill
+        id: relock
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          bun run beep skills replay --json > "$RUNNER_TEMP/replay.json"
+          mapfile -t skills < <(jq -r '.reports[] | select((.recorded | not) or (.licenseMatches | not)) | .skill' "$RUNNER_TEMP/replay.json")
+          if [ "${#skills[@]}" -eq 0 ]; then
+            echo "Every vendored skill already records its pin; nothing to relock."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          for skill in "${skills[@]}"; do
+            digest="$(bun run beep skills relock --skill "$skill" --json | jq -r '.planDigest')"
+            bun run beep skills relock --skill "$skill" --expect "$digest"
+            bun run beep skills materialize --skill "$skill"
+          done
+          bun run beep skills materialize --check
+          bun run beep skills update --check
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "${skills[@]}" > "$RUNNER_TEMP/relocked.txt"
+
+      # The push token is used here only, on an explicit URL; it never enters git config. A
+      # branch that moved after the replay makes this a non-fast-forward push, which fails.
+      - name: Commit the recorded hashes to the Renovate branch
+        if: steps.relock.outputs.changed == 'true'
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PUSH_TOKEN: ${{ secrets.BEEP_SKILLS_TRAIN_TOKEN || github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add skills-lock.json
+          while read -r skill; do
+            git add -A ".claude/skills/$skill"
+          done < "$RUNNER_TEMP/relocked.txt"
+          if git diff --cached --quiet; then
+            echo "Relock wrote nothing new."
+            exit 0
+          fi
+          git commit -m "chore(skills): relock $(paste -sd, "$RUNNER_TEMP/relocked.txt") at the bumped pin"
+          git push "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"
+
+  batch-issue:
+    name: Skills Train Batch Issue
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+
+      - name: Render the batch issue
+        id: render
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          batch="$(date -u +%G-W%V)"
+          gh pr list --repo "$GITHUB_REPOSITORY" --state open --label skills-update-train \
+            --json number,title,url,headRefName,comments --limit 100 > "$RUNNER_TEMP/train-prs.json"
+          title="$(bun run beep skills train-issue --batch "$batch" --prs "$RUNNER_TEMP/train-prs.json" \
+            --body-out "$RUNNER_TEMP/train-issue.md" | tail -n 1)"
+          echo "title=$title" >> "$GITHUB_OUTPUT"
+          echo "count=$(jq 'length' "$RUNNER_TEMP/train-prs.json")" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the batch issue
+        if: steps.render.outputs.count != '0'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          TRAIN_TITLE: ${{ steps.render.outputs.title }}
+        with:
+          script: |
+            const fs = require("node:fs");
+            const title = process.env.TRAIN_TITLE;
+            const label = "skills-update-train";
+            const body = fs.readFileSync(`${process.env.RUNNER_TEMP}/train-issue.md`, "utf8");
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: label,
+              state: "open",
+              per_page: 100,
+            });
+            const existing = open.find((issue) => !issue.pull_request && issue.title === title);
+            if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                labels: [label],
+                body,
+              });
+            }

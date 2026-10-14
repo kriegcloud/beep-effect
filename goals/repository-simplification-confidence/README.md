@@ -2,12 +2,26 @@
 
 ## Status
 
+B first-wave publication snapshot is regenerated at `80fe0135ff` from fetched
+main `f21e2a8563`. Its generated candidate remains subject to publication-head
+parity, named review and the serialized R14 merge. Cap released; later R20
+guidance and detector work stays pending. Candidate counts are not accepted
+program baselines and no zero-debt result is claimed.
+
 Lifecycle: `active`
 
-Program resumed on October 14. H2 is content-final in reopened PR #1574; local qualification and both review
+Program resumed on October 14. H2 is content-final in reopened PR #1574; local qualification and all four review
 fixes are complete, with inherited knowledge-reference attribution.
 Historical inventory completeness remains explicitly unknown.
 Completed lane evidence and remaining program work are tracked in PLAN.md.
+
+Program resumed on 2026-10-14. B integrated current main and completed
+the first R20 owner refresh; committed-candidate qualification follows. Its [current handoff](history/handoffs/rsc-b-standards-2026-10-14.md)
+records the five resolved old-head inbox rows and the remaining publication
+and serialization gates. Earlier lane evidence below retains its recorded
+head and date; it does not certify current program completion.
+
+Latest E evidence: [GitHub audit](./history/receipts/stage-4-github-audit.md), [settings snapshots](./history/receipts/stage-3-github-settings.md), and [lane handoff](./history/handoffs/rsc-e-github-2026-10-09.md). E source repairs are final in ready PR #1568. Both integrated full package gates and all local hosted-parity lanes pass; focused fixtures pass 127 tests and scoped coverage passes 396 tests across all seven touched baseline files. The actual GITHUB_TOKEN hosted governance step passes. Cross-lane, trusted-main writer and post-merge acceptance remain open; inherited hosted coverage reds remain attributed for the consolidated repair.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -66,14 +80,15 @@ nothing was adopted or discarded. P0 Research is complete.
 
 H2 is content-final in reopened PR #1574: [stage-4 completion receipts](./history/receipts/stage-4-completion-receipts.md) and [October 14 handoff](./history/handoffs/rsc-h2-completion-2026-10-14.md). Final full package verification passes (audit 890.6s/docgen 26.5s); native-property schema-first, Effect/Vitest, 51 focused tests, corrected test-tsgo, bounded docgen, JSDoc, Fallow, retired-path law and 289 scoped tests pass. Knowledge references has 15 inherited main host paths, owned by the program orchestrator. All four hosted review threads are answered and resolved; pinned independent medium Opus follow-up, including the approved Cursor fallback, has zero actionable findings. Historical inventory incompleteness keeps all three live overall outcomes unknown while preserving observed merge/context facts. Final dispatch records the published tip and hosted/monitor state; post-merge refresh and retirement remain orchestrator-owned.
 
-B's October 13 bounded baseline repair is published in
+B's October 13 bounded baseline repair landed in
 [PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
 codec properties for the three inherited arbitrary-test findings. After
 integrating #1612, the schema-first owner removes their three superseded
 exception rows; the fresh check passes. Integrated local verification is
-settled, with eight inherited JSDoc ratchet increases; hosted requalification
-remains pending.
-[Current B handoff](history/handoffs/rsc-b-standards-2026-10-13.md) records
+settled, with eight inherited JSDoc ratchet increases at that proof head.
+The subsequently landed #1617 repairs its hosted traversal and Sherif
+failures; the October 14 current-head baseline is recorded separately.
+[October 13 B handoff](history/handoffs/rsc-b-standards-2026-10-13.md) records
 terminal package and parity results. The original refresh, guidance, and
 detector/provenance waves remain open.
 

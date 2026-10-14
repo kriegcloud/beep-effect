@@ -12,6 +12,11 @@
     // The `service` AppKind's entry point; peer of the labs-depth glob below.
     "apps/*/src/main.ts",
     "apps/*/src/index.ts",
+    // The builder is invoked by plugin:build; its generated entry imports
+    // these hooks, and Claude Code loads engine tests outside Vitest.
+    "apps/practice-claude-mod/src/build-plugin.ts",
+    "apps/practice-claude-mod/src/PracticeMod.hooks.ts",
+    "apps/practice-claude-mod/plugin-test/*.test.ts",
     "apps/*/next.config.ts",
     "apps/*/vite.config.ts",
     "apps/*/src/app/layout.tsx",
@@ -205,6 +210,8 @@
     "**/plugins.ts"
   ],
   "ignoreDependencies": [
+    // The host engine supplies claude-code and claude-code/testing at runtime.
+    "claude-code",
     // brace-expansion, fast-uri, hono, nanoid: root `dependencies` entries that exist solely to
     // back the security-pin `overrides` in package.json; nothing imports them at root.
     "brace-expansion",
