@@ -1944,15 +1944,19 @@ const verifyMintLive = Effect.scoped(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorMintOptions extends S.Class<KnowledgeDoctorMintOptions>($I`KnowledgeDoctorMintOptions`)(
-  {
+export class KnowledgeDoctorMintOptions extends S.Opaque<
+  KnowledgeDoctorMintOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     at: S.String,
     baseRef: S.String,
     write: S.Boolean,
-  },
-  $I.annote("KnowledgeDoctorMintOptions", {
-    description: "Minted commit-ish, the base ref that must contain it, and whether the run writes the baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorMintOptions", {
+      description: "Minted commit-ish, the base ref that must contain it, and whether the run writes the baseline.",
+    })
+  )
 ) {}
 
 const mintWriteContext = Effect.fn("KnowledgeDoctor.mintWriteContext")(function* (

@@ -620,9 +620,10 @@ export class KnowledgeSealBroken extends S.TaggedError<KnowledgeSealBroken, { re
  * @category errors
  * @since 0.0.0
  */
-export class KnowledgeMintContextRefusal extends S.TaggedError<KnowledgeMintContextRefusal>(
-  $I`KnowledgeMintContextRefusal`
-)(
+export class KnowledgeMintContextRefusal extends S.TaggedError<
+  KnowledgeMintContextRefusal,
+  { readonly brand: unique symbol }
+>($I`KnowledgeMintContextRefusal`)(
   "KnowledgeMintContextRefusal",
   {
     message: S.String,

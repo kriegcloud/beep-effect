@@ -96,15 +96,16 @@ export const KNOWLEDGE_MINT_APP_SLUG_VARIABLE = "KNOWLEDGE_MINT_APP_SLUG";
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeMintOutcome extends S.Class<KnowledgeMintOutcome>($I`KnowledgeMintOutcome`)(
-  {
+export class KnowledgeMintOutcome extends S.Opaque<KnowledgeMintOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseline: KnowledgeDoctorBaseline,
     text: S.String,
     changed: S.Boolean,
-  },
-  $I.annote("KnowledgeMintOutcome", {
-    description: "One mint's baseline, its canonical file text, and whether it changes the committed baseline.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeMintOutcome", {
+      description: "One mint's baseline, its canonical file text, and whether it changes the committed baseline.",
+    })
+  )
 ) {}
 
 /**
@@ -177,18 +178,19 @@ export const mintKnowledgeBaselineText = Effect.fn("KnowledgeDoctor.mintText")(f
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeMintWriteContext extends S.Class<KnowledgeMintWriteContext>($I`KnowledgeMintWriteContext`)(
-  {
+export class KnowledgeMintWriteContext extends S.Opaque<KnowledgeMintWriteContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseRef: S.String,
     ci: S.Boolean,
     clean: S.Boolean,
     commit: KnowledgeCommitSha,
     headIsMinted: S.Boolean,
     onBase: S.Boolean,
-  },
-  $I.annote("KnowledgeMintWriteContext", {
-    description: "CI flag, clean checkout, HEAD identity, and base containment of one mint write.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeMintWriteContext", {
+      description: "CI flag, clean checkout, HEAD identity, and base containment of one mint write.",
+    })
+  )
 ) {}
 
 /**
@@ -290,17 +292,18 @@ export const knowledgeMintAppLogin = (slug: string): string => `${slug}[bot]`;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeMintPullRequest extends S.Class<KnowledgeMintPullRequest>($I`KnowledgeMintPullRequest`)(
-  {
+export class KnowledgeMintPullRequest extends S.Opaque<KnowledgeMintPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     appSlug: S.Option(S.String),
     author: S.Option(S.String),
     headRef: S.Option(S.String),
     headRepository: S.Option(S.String),
     repository: S.Option(S.String),
-  },
-  $I.annote("KnowledgeMintPullRequest", {
-    description: "Head branch, head and base repositories, author, and the mint App slug of one pull-request run.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeMintPullRequest", {
+      description: "Head branch, head and base repositories, author, and the mint App slug of one pull-request run.",
+    })
+  )
 ) {}
 
 const shown = (value: O.Option<string>): string => O.getOrElse(value, () => "unknown");
@@ -461,14 +464,18 @@ export type KnowledgeDoctorCiMode = typeof KnowledgeDoctorCiMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorCiModeInput extends S.Class<KnowledgeDoctorCiModeInput>($I`KnowledgeDoctorCiModeInput`)(
-  {
+export class KnowledgeDoctorCiModeInput extends S.Opaque<
+  KnowledgeDoctorCiModeInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     changedPaths: S.Array(S.String),
     sealedAtBase: S.Boolean,
-  },
-  $I.annote("KnowledgeDoctorCiModeInput", {
-    description: "Whether the merge-base tracks the sealed baseline, and the paths the branch changes.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorCiModeInput", {
+      description: "Whether the merge-base tracks the sealed baseline, and the paths the branch changes.",
+    })
+  )
 ) {}
 
 const SEAL_PATHS = HashSet.make(KNOWLEDGE_DOCTOR_BASELINE_PATH, KNOWLEDGE_DOCTOR_PROMOTIONS_PATH);
