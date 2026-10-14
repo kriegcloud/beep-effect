@@ -373,9 +373,17 @@ const windowReport = (
     sessionsByAgentKind: counts,
     sessionsSkippedMixedFingerprint: A.length(A.filter(selectedGrouped, (tally) => HashSet.size(tally.stamps) > 1)),
     refusalsByAgentKind: scan.refusalsByAgentKind,
-    clientCoverage: R.map(counts, () =>
-      scan.provenDisarmed ? O.some(HookPulseClientCoverage.Enum.disabled) : O.none()
-    ),
+    clientCoverage: {
+      ...R.map(counts, (count) =>
+        scan.provenDisarmed
+          ? O.some(HookPulseClientCoverage.Enum.disabled)
+          : count > 0
+            ? O.some(HookPulseClientCoverage.Enum.stamped)
+            : O.none()
+      ),
+      junie: O.some(HookPulseClientCoverage.Enum.unsupported),
+      grok: O.some(HookPulseClientCoverage.Enum.unsupported),
+    },
     sessionsSkippedDisarmed: A.length(A.filter(selectedGrouped, overlapsDisarm)),
     sessionsSkippedRefused: A.length(A.filter(selectedGrouped, overlapsRefusal)),
     sessionsSkippedCorrupt: scan.undecodableLines > 0 ? A.length(selectedGrouped) : 0,

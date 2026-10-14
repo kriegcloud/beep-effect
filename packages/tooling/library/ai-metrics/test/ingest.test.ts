@@ -12,6 +12,7 @@ import {
   AiMetricsDerivedTranscriptRecord,
   AiMetricsForwarderInput,
   AiMetricsForwarderOtlpExport,
+  AiMetricsForwarderRunResult,
   AiMetricsForwarderTimerInput,
   AiMetricsInstallDoctorInput,
   AiMetricsInstallInput,
@@ -128,6 +129,8 @@ import { TestClock } from "effect/testing";
 
 const ForwarderStampScenario = LiteralKit([
   "qualified",
+  "mixed-refusal",
+  "rejected-refusal",
   "mixed",
   "unknown",
   "missing",
@@ -748,6 +751,13 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
               })
             )
           );
+        if (scenario === "mixed-refusal" || scenario === "rejected-refusal")
+          yield* writeText(
+            path.join(hookRoot, "hook-pulse-refusals-fixture.ndjson"),
+            scenario === "mixed-refusal"
+              ? 'not JSON\n{"ts":"2026-10-09T10:00:30Z","agentKind":"codex-cli","reason":"timeout"}\n'
+              : 'not JSON\n{"ts":"2026-10-09T09:00:00Z","agentKind":"codex-cli","reason":"timeout"}\n'
+          );
         yield* writeScenarioSentinel(scenario, hookRoot);
       });
       for (const scenario of ForwarderStampScenario.literals) {
@@ -803,6 +813,8 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
           });
           const rows = ForwarderStampScenario.$match(scenario, {
             qualified: () => [start, tool],
+            "mixed-refusal": () => [start, tool],
+            "rejected-refusal": () => [start, tool],
             mixed: () => [start, HookPulseV1.make({ ...start, harnessHash: O.some(otherStamp) })],
             unknown: () => [HookPulseV1.make({ ...start, harnessHash: O.none() }), tool],
             missing: () => [tool],
@@ -829,7 +841,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
             (yield* Effect.forEach(rows, (row) => HookPulseV1.encodeJsonEffect(row))).join("\n")
           );
           yield* writeScenarioGaps(scenario, hookRoot, hookDir);
-          yield* runAiMetricsForwarder(
+          const result = yield* runAiMetricsForwarder(
             AiMetricsForwarderInput.make({
               homeDir,
               repoRoot,
@@ -842,7 +854,26 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
               rawArchiveKey: Redacted.make(Base64.encode(new Uint8Array(32).fill(7))),
             })
           );
-          const expected = scenario === "qualified" || scenario === "closed-before-refusal" ? stamp : null;
+          const badShard = scenario === "corrupt" || scenario === "unreadable";
+          expect(result.hookCollectionComplete).toBe(!badShard);
+          expect(result.failedHookShards).toEqual(badShard ? ["bad.ndjson"] : []);
+          expect(result.hookRejectedRecords).toBe(scenario === "corrupt" ? 1 : 0);
+          const status = yield* S.decodeEffect(S.fromJsonString(AiMetricsForwarderRunResult))(
+            yield* forwarderRunResultToJson(result)
+          );
+          expect(status.hookCollectionComplete).toBe(!badShard);
+          expect(status.failedHookShards).toEqual(result.failedHookShards);
+          if (scenario === "mixed-refusal" || scenario === "rejected-refusal") {
+            expect(result.stampGapCollectionComplete).toBe(false);
+            expect(result.stampGapRejectedRecords).toBe(1);
+            expect(yield* forwarderRunResultToJson(result)).toContain('"stampGapRejectedRecords":1');
+          }
+          const expected = A.contains(
+            ["qualified", "closed-before-refusal", "corrupt", "unreadable", "rejected-refusal"],
+            scenario
+          )
+            ? stamp
+            : null;
           const db = yield* DuckDb;
           expect(yield* db.query("SELECT session_harness_hash AS stamp FROM ai_metrics_sessions")).toEqual([
             { stamp: expected },

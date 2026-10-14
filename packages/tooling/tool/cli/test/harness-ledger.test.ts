@@ -510,6 +510,9 @@ layer(TestLayer, { timeout: "30 seconds" })("harness-ledger service", (it) => {
       const report = yield* ledger.pruneProposals(
         HarnessLedgerPruneOptions.make({ repoRoot: root, stateDir, windowSessions: 1, write: true })
       );
+      assertSome(report.clientCoverage["claude-code"], "stamped");
+      assertSome(report.clientCoverage.junie, "unsupported");
+      assertSome(report.clientCoverage.grok, "unsupported");
       expect(report.windowFull).toBe(true);
       expect(report.nonUseQualified).toBe(false);
       expect(report.written).toBe(false);

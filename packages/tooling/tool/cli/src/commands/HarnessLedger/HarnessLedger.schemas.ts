@@ -174,6 +174,8 @@ export class HarnessLedgerSurfaceRef extends S.Opaque<HarnessLedgerSurfaceRef, {
   )
 ) {}
 
+const PruneTelemetryClient = LiteralKit([...HookPulseAgentKind.literals, "junie", "grok"]);
+
 const EditSpecPrefix = LiteralKit(["commit", "diff"]);
 const decodeEditSpecPrefix = S.decodeUnknownEffect(EditSpecPrefix);
 const editKindForPrefix = EditSpecPrefix.$match({
@@ -526,12 +528,14 @@ export class ObservedSessionWindow extends S.Opaque<ObservedSessionWindow, { rea
     refusalsByAgentKind: S.Record(HookPulseAgentKind, S.Natural).pipe(
       S.withConstructorDefault(Effect.succeed({ "claude-code": 0, "codex-cli": 0, "cursor-cli": 0 }))
     ),
-    clientCoverage: S.Record(HookPulseAgentKind, S.OptionFromNullOr(HookPulseClientCoverage)).pipe(
+    clientCoverage: S.Record(PruneTelemetryClient, S.OptionFromNullOr(HookPulseClientCoverage)).pipe(
       S.withConstructorDefault(
         Effect.succeed({
           "claude-code": O.none(),
           "codex-cli": O.none(),
           "cursor-cli": O.none(),
+          junie: O.some(HookPulseClientCoverage.Enum.unsupported),
+          grok: O.some(HookPulseClientCoverage.Enum.unsupported),
         })
       )
     ),
@@ -605,12 +609,14 @@ export class HarnessLedgerPruneReport extends S.Opaque<HarnessLedgerPruneReport,
     refusalsByAgentKind: S.Record(HookPulseAgentKind, S.Natural).pipe(
       S.withConstructorDefault(Effect.succeed({ "claude-code": 0, "codex-cli": 0, "cursor-cli": 0 }))
     ),
-    clientCoverage: S.Record(HookPulseAgentKind, S.OptionFromNullOr(HookPulseClientCoverage)).pipe(
+    clientCoverage: S.Record(PruneTelemetryClient, S.OptionFromNullOr(HookPulseClientCoverage)).pipe(
       S.withConstructorDefault(
         Effect.succeed({
           "claude-code": O.none(),
           "codex-cli": O.none(),
           "cursor-cli": O.none(),
+          junie: O.some(HookPulseClientCoverage.Enum.unsupported),
+          grok: O.some(HookPulseClientCoverage.Enum.unsupported),
         })
       )
     ),

@@ -464,3 +464,13 @@ CLI codec/reconciliation regressions pass. Earlier native runtime proof records
 6432 passing tests before the formatting-only failure. No full post-Opaque CLI
 runtime or full coverage-ratchet pass is claimed. No client has a qualified
 non-use window, and F retains the affected capabilities on demand.
+
+## Review wave round 1 — 2026-10-14
+
+Read review comments 4276613162, 4276613174 and 4276613187 in full before editing. The driver requests all three in one push. Merge current main once after the main-merge gate, preserving prior handoff metadata. The post-1758 codemod write/check reports 62 declarations already branded and zero changed files.
+
+Hook ingestion now retains all decodable records across corrupt or unreadable shards. Run results and CLI status JSON expose hookCollectionComplete, failedHookShards and hookRejectedRecords. Existing transcript/session identity, first opening, mixed fingerprint and known disarm/refusal checks still apply. Gap refusals decode per record: rejected records are counted, valid intersecting gaps still suppress stamps, and unrelated valid stamps survive. Unreadable gap evidence remains fail-closed and is explicitly reported by stampGapCollectionComplete. Historical status payloads decode with unverified collection flags.
+
+Prune reports expose stamped for qualifying per-client observations and unsupported for Junie/Grok. A missing supported-client observation remains unknown, since absence cannot establish not-configured or unstamped-by-design. This does not change the non-use qualification gate. Regression fixtures exercise corrupt and unreadable shards, mixed invalid/valid intersecting refusals, a rejected record beside a valid non-intersecting refusal, status JSON round-trip and both unsupported clients.
+
+The first full package attempts caught the introduced v4 Array.filterMap Result/Option mismatch; corrected against the local Effect reference. The first corrected metrics run used a temp root inside the checkout and hit nested-repository exclusion assertions; the corrected run with ordinary external temp backing passed the full metrics audit and docgen (26.6 s / 4.9 s). Original failures remain in the private command logs; no baseline, production boundary or admission gate was weakened. Remaining proof and publication results are recorded in the dated handoff.
