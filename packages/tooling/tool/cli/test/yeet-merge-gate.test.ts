@@ -19,6 +19,7 @@ import {
 } from "@beep/repo-cli/test/Yeet";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
+import { assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -317,12 +318,15 @@ describe("yeet merge-gate --relaxed decision (S11)", () => {
   });
 
   it("records a pending and an unregistered required context as pending", () => {
-    const runs = A.filter(withRun("Lint", { status: "in_progress", conclusion: null }), (run) => run.name !== "Knip");
-    expect(requiredContexts).toContain("Knip");
+    const runs = A.filter(
+      withRun("Lint", { status: "in_progress", conclusion: null }),
+      (run) => run.name !== "Codegen Drift"
+    );
+    expect(requiredContexts).toContain("Codegen Drift");
     const decision = decideMergeGate({ read: read({ checkRuns: runs }), options: relaxed() });
     expect(decision._tag).toBe("merge");
     expect(A.map(atMergeOf(decision), (entry) => [entry.check, entry.state, entry.required])).toEqual([
-      ["Knip", "pending", true],
+      ["Codegen Drift", "pending", true],
       ["Lint", "pending", true],
     ]);
   });
@@ -378,7 +382,7 @@ describe("yeet merge-gate --relaxed decision (S11)", () => {
       A.map(withRun("Lint", { conclusion: "failure" }), (run) =>
         run.name === coverage ? MergeGateCheckRun.make({ ...run, status: "queued", conclusion: null }) : run
       ),
-      (run) => run.name !== "Knip"
+      (run) => run.name !== "Codegen Drift"
     );
     const line = renderMergeGateDecision(
       decideMergeGate({
@@ -389,7 +393,7 @@ describe("yeet merge-gate --relaxed decision (S11)", () => {
     expect(line).toMatch(/^#1459 GATE-MET \(S11\) at 212fe39b4f \(window \d+s\)/u);
     expect(line).toContain(` reds at merge: Lint [${MERGE_GATE_S11_DEFAULT_ATTRIBUTION}]`);
     expect(line).toContain(
-      ` pending at merge: Knip [${MERGE_GATE_S11_DEFAULT_ATTRIBUTION}]; ${coverage} [rate limited]`
+      ` pending at merge: Codegen Drift [${MERGE_GATE_S11_DEFAULT_ATTRIBUTION}]; ${coverage} [rate limited]`
     );
     expect(line).not.toContain("tolerated:");
   });
@@ -571,7 +575,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, TestConsole.layer), { timeout: "30 s
           expect(result.headSha).toBe(headSha);
           expect(result.draft).toBe(false);
           expect(result.checkRuns).toHaveLength(checkRunsFixture.check_runs.length);
-          expect(O.map(result.requiredContexts, A.length)).toEqual(O.some(16));
+          assertSome(O.map(result.requiredContexts, A.length), 15);
           expect(result.window._tag).toBe("elapsed");
           if (result.window._tag === "elapsed") expect(result.window.anchoredAt).toBe(DateTime.formatIso(anchoredAt));
           expect(result.unresolvedThreads).toEqual(O.some(0));

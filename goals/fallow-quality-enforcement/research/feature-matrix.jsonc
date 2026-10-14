@@ -1,7 +1,8 @@
+// June 2026 measurements remain historical; October 2026 retires Knip-dependent acceptance commands.
 {
   "$schema": "./feature-matrix.schema.json",
   "schemaVersion": "fallow-quality-enforcement/feature-matrix/v1",
-  "updated": "2026-09-08",
+  "updated": "2026-10-14",
   "validatorVersion": "fallow-quality-enforcement-validator/v1",
   "features": [
     {
@@ -155,11 +156,7 @@
       "ciMode": "blocking-check",
       "promotionStatus": "blocking",
       "promotionCriteria": {
-        "requiredCommands": [
-          "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-          "bun run fallow:migrate:dry-run -- --from knip.jsonc",
-          "bun run audit:github pre-push"
-        ],
+        "requiredCommands": ["bun run audit:github pre-push"],
         "requiredEvidenceRefs": [
           "research/dead-code.md",
           "research/knip-parity.jsonc"
@@ -173,7 +170,7 @@
       "runtimeScope": "static-only",
       "owner": "@beep-team",
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts"
+        "bun goals/fallow-quality-enforcement/ops/validate-packet.ts"
       ],
       "rollbackNotes": "Keep Knip as the reference analyzer and parity gate; remove dead-code from Fallow advisory packets.",
       "evidenceRefs": [

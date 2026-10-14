@@ -82,8 +82,9 @@ existing repo-law standards.
 - Runtime coverage is research-only.
 - `fix-preview` is dry-run only; Yeet repair must not run hidden Fallow
   mutations.
-- Knip remains the reference analyzer and parity gate until parity rows
-  explicitly support replacing it.
+- The June 2026 work retained Knip as the reference analyzer. October 2026
+  repository simplification retires Knip and its parity helper, accepting
+  narrower Fallow detection. The recorded parity rows remain historical.
 - Hosted CI now uploads repo-cli Fallow envelopes with hard
   artifact-existence proof.
 
@@ -93,7 +94,12 @@ existing repo-law standards.
 test "$(wc -m < goals/fallow-quality-enforcement/GOAL.md)" -le 4000
 bun goals/fallow-quality-enforcement/ops/validate-packet.ts
 bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts
-bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts
 bunx biome check goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json
 git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json
 ```
+
+The historical Knip parity helper and its current verification wiring retired
+on 2026-10-14. Recover the original helper from
+`e62411d63f:goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts`.
+Completed task and review records preserve the commands that actually ran;
+`validate-packet.ts` checks those historical records without invoking Knip.

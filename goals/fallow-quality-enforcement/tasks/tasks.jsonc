@@ -1,7 +1,7 @@
 {
   "$schema": "./tasks.schema.json",
   "schemaVersion": "fallow-quality-enforcement/tasks/v1",
-  "updated": "2026-06-11",
+  "updated": "2026-10-14",
   "validatorVersion": "fallow-quality-enforcement-validator/v1",
   "tasks": [
     {
@@ -57,20 +57,18 @@
       "status": "done",
       "phase": "P0",
       "title": "Complete Knip parity matrix",
-      "summary": "Measure Knip and Fallow side by side and keep Knip as the reference analyzer until parity rows explicitly say otherwise.",
+      "summary": "Retain the June 2026 side-by-side measurements as history. October 2026 repository simplification retires Knip and accepts narrower Fallow detection.",
       "implementationScope": [
         "goals/fallow-quality-enforcement/research/knip-parity.jsonc"
       ],
       "proofCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
         "bun goals/fallow-quality-enforcement/ops/validate-packet.ts"
       ],
       "acceptanceCommands": [
-        "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
         "bun goals/fallow-quality-enforcement/ops/validate-packet.ts"
       ],
       "dependencies": [],
-      "rollbackPlan": "Keep Knip as the reference analyzer and leave all parity rows as research-pending.",
+      "rollbackPlan": "Recover the historical configuration and helper from e62411d63f if the retirement decision is reversed; the repository-simplification-confidence PR is reversible with git revert.",
       "evidenceRefs": ["research/knip-parity.jsonc"],
       "owner": "@beep-team",
       "riskLevel": "medium",

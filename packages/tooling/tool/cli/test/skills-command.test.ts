@@ -16,7 +16,7 @@ import { it } from "@beep/test-runner";
 import { A, O, Str } from "@beep/utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { assert, describe, expect } from "@effect/vitest";
-import { assertExitFailure, assertSome } from "@effect/vitest/utils";
+import { assertExitFailure, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
@@ -586,7 +586,111 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills fixture ownership"
   }
 });
 
-it.layer(CommandTestLayer)("read-only skills lock-plan command", (it) => {
+it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills command boundary reports", (it) => {
+  it.effect(
+    "renders an empty replay in both formats and refuses an unknown skill without changing the lock",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = yield* encodeSkillsLockDocumentJson(emptyLockV2);
+        yield* writeProjectFile("skills-lock.json", lock);
+        yield* runSkillsCommand(["replay", "--json", "--markdown", "replay.md"]);
+        expect(yield* TestConsole.logLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills-replay/v1")])
+        );
+        expect(yield* readProjectFile("replay.md")).toContain("<!-- beep-skills-replay -->");
+        yield* runSkillsCommand(["replay"]);
+        const refused = yield* Effect.exit(runSkillsCommand(["replay", "--skill", "not-registered"]));
+        refused.pipe(Exit.isFailure, assertTrue);
+        expect(yield* TestConsole.errorLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:replay:")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "reports an unknown relock entry and leaves the lock unchanged",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = yield* encodeSkillsLockDocumentJson(emptyLockV2);
+        yield* writeProjectFile("skills-lock.json", lock);
+        const refused = yield* Effect.exit(runSkillsCommand(["relock", "--skill", "not-registered", "--json"]));
+        refused.pipe(Exit.isFailure, assertTrue);
+        expect(yield* TestConsole.errorLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:relock:")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "writes an empty train issue and preserves that output when pull-request input is malformed",
+    Effect.fnUntraced(function* () {
+      yield* temporaryRepository;
+      yield* writeProjectFile("prs.json", "[]");
+      const args = ["train-issue", "--batch", "2026-W42", "--prs", "prs.json", "--body-out", "issue.md"];
+      yield* runSkillsCommand(args);
+      expect(yield* TestConsole.logLines).toEqual(expect.arrayContaining([expect.stringContaining("2026-W42")]));
+      const body = yield* readProjectFile("issue.md");
+      expect(body).toContain("_No open skill update pull requests");
+      yield* writeProjectFile("prs.json", "not-json");
+      const refused = yield* Effect.exit(runSkillsCommand(args));
+      refused.pipe(Exit.isFailure, assertTrue);
+      expect(yield* TestConsole.errorLines).toEqual(
+        expect.arrayContaining([expect.stringContaining("skills:train-issue:")])
+      );
+      expect(yield* readProjectFile("issue.md")).toBe(body);
+    })
+  );
+
+  it.effect(
+    "reports materialization refusal for a legacy lock without changing it",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = '{"version":1,"skills":{}}\n';
+        yield* writeProjectFile("skills-lock.json", lock);
+
+        const refused = yield* runSkillsCommand(["materialize", "--check"]).pipe(Effect.exit);
+        refused.pipe(Exit.isFailure, assertTrue);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining("skills:materialize: skills-lock.json is not a skills-lock/v2 document."),
+          ])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "reports an unknown remote update refusal and preserves the existing lock",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = '{"version":1,"skills":{}}\n';
+        yield* writeProjectFile("skills-lock.json", lock);
+
+        const refused = yield* runSkillsCommand(["update", "--skill", "not-registered"]).pipe(Effect.exit);
+        refused.pipe(Exit.isFailure, assertTrue);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:update: Unknown remote-backed skill")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
   it.effect(
     "renders both report formats without changing the lock and reports malformed input",
     Effect.fnUntraced(
@@ -608,7 +712,7 @@ it.layer(CommandTestLayer)("read-only skills lock-plan command", (it) => {
         expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
         yield* writeProjectFile("skills-lock.json", "not-json");
         const refused = yield* Effect.exit(runSkillsCommand(["lock-plan"]));
-        expect(Exit.isFailure(refused)).toBe(true);
+        refused.pipe(Exit.isFailure, assertTrue);
         const errors = yield* TestConsole.errorLines;
         expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("skills:lock-plan:")]));
       },

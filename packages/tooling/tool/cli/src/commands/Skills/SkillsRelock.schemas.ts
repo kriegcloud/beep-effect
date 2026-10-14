@@ -192,15 +192,17 @@ export class SkillHunkReport extends S.Class<SkillHunkReport>($I`SkillHunkReport
  * ```ts
  * import { SkillReplayReport } from "@beep/repo-cli/commands/Skills/SkillsRelock.schemas"
  * import { Sha256Hex } from "@beep/schema/Sha256"
+ * import * as Effect from "effect/Effect"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  * import { SkillGitRevision } from "@beep/repo-cli/commands/Skills/Skills.schemas"
  *
  * const digest = Sha256Hex.make("0".repeat(64))
+ * const revision = await Effect.runPromise(S.decodeEffect(SkillGitRevision)("d6e773a562dc85c2a81b7c571f40ca2d81896679"))
  * const report = SkillReplayReport.make({
  *   skill: "oracle",
  *   repository: "steipete/oracle",
- *   sourceRevision: S.decodeUnknownSync(SkillGitRevision)("d6e773a562dc85c2a81b7c571f40ca2d81896679"),
+ *   sourceRevision: revision,
  *   pristineTreeHash: digest,
  *   patchSetHash: digest,
  *   status: "clean",
