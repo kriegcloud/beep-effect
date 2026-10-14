@@ -289,7 +289,7 @@ describe("DrawingIntake over a fake mailbox", () => {
         strictEqual(result.setAside, 2);
         strictEqual(record.message.messageId, "AAMkMsgNew");
         assertSome(record.message.from, REVIEWER_RAW);
-        assertSome(record.message.fromEmail, SENDER);
+        assertSome(O.map(record.message.fromEmail, String), SENDER);
         assertSome(record.message.internetMessageId, "<AAMkMsgNew@mail.example.test>");
         deepStrictEqual(
           A.map(record.attachments, (row) => row.outcome),
