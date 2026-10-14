@@ -682,15 +682,16 @@ it.layer(commandLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       ],
     ];
 
-    it.each(
-      cases
-    )("refuses %s and retains printable cascade evidence", (_label, caseTarget, report, casePolicy, expectedKind) => {
-      const refusals = DeletePackagePolicyEvaluation.refusalReasons(caseTarget, report, casePolicy);
-      expect(A.some(refusals, (refusal) => refusal.kind === expectedKind && refusal.severity === "hard")).toBe(true);
-      const cascade = DeletePackagePolicyEvaluation.dependentsCascadeLines(report);
-      expect(cascade[0]).toContain("direct:");
-      expect(cascade[1]).toContain("transitive:");
-    });
+    it.each(cases)(
+      "refuses %s and retains printable cascade evidence",
+      (_label, caseTarget, report, casePolicy, expectedKind) => {
+        const refusals = DeletePackagePolicyEvaluation.refusalReasons(caseTarget, report, casePolicy);
+        expect(A.some(refusals, (refusal) => refusal.kind === expectedKind && refusal.severity === "hard")).toBe(true);
+        const cascade = DeletePackagePolicyEvaluation.dependentsCascadeLines(report);
+        expect(cascade[0]).toContain("direct:");
+        expect(cascade[1]).toContain("transitive:");
+      }
+    );
   });
 
   describe("delete-package baseline writer stage", () => {

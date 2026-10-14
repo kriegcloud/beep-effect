@@ -830,27 +830,25 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         });
       }));
 
-    it.each([
-      "op://vault/item/field",
-      "postgres://user:op://vault/item/password@host/db",
-    ])("clears unresolved SQL test references for package audit: %s", (value) =>
-      withEnvVar("BEEP_TEST_DATABASE_URL", value, () => {
-        const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "packages"]));
+    it.each(["op://vault/item/field", "postgres://user:op://vault/item/password@host/db"])(
+      "clears unresolved SQL test references for package audit: %s",
+      (value) =>
+        withEnvVar("BEEP_TEST_DATABASE_URL", value, () => {
+          const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "packages"]));
 
-        expect(steps[0]?.env?.BEEP_TEST_DATABASE_URL).toBe("");
-      }));
+          expect(steps[0]?.env?.BEEP_TEST_DATABASE_URL).toBe("");
+        })
+    );
 
-    it.each([
-      undefined,
-      "",
-      "postgres://localhost/beep_test",
-      "postgresql://localhost/beep_test",
-    ])("preserves ordinary SQL test configuration for package audit: %s", (value) =>
-      withEnvVar("BEEP_TEST_DATABASE_URL", value, () => {
-        const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "packages"]));
+    it.each([undefined, "", "postgres://localhost/beep_test", "postgresql://localhost/beep_test"])(
+      "preserves ordinary SQL test configuration for package audit: %s",
+      (value) =>
+        withEnvVar("BEEP_TEST_DATABASE_URL", value, () => {
+          const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "packages"]));
 
-        expect(steps[0]?.env?.BEEP_TEST_DATABASE_URL).toBeUndefined();
-      }));
+          expect(steps[0]?.env?.BEEP_TEST_DATABASE_URL).toBeUndefined();
+        })
+    );
 
     it("keeps package audit cacheable by default for local runs", () =>
       withEnvVar("CI", undefined, () => {

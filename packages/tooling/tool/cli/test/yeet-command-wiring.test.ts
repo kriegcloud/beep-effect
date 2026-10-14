@@ -580,9 +580,12 @@ describe("yeet monitor command routing", () => {
     [false, false, true, false, "merge-loop"],
     [false, true, false, true, "watch"],
     [false, false, false, false, "classic"],
-  ] as const)("routes plan=%s untilEvent=%s untilMerged=%s watch=%s to %s", (plan, untilEvent, untilMerged, watch, route) => {
-    expect(yeetMonitorCommandRoute({ plan, untilEvent, untilMerged, watch })).toBe(route);
-  });
+  ] as const)(
+    "routes plan=%s untilEvent=%s untilMerged=%s watch=%s to %s",
+    (plan, untilEvent, untilMerged, watch, route) => {
+      expect(yeetMonitorCommandRoute({ plan, untilEvent, untilMerged, watch })).toBe(route);
+    }
+  );
 
   it.effect("rejects --until-event before hydrating a monitor when --watch is absent", () =>
     Effect.gen(function* () {
