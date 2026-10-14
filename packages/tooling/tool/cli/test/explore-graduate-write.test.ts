@@ -1,6 +1,7 @@
 import {
   compileGraduationPlan,
   exploreCommand,
+  GraduationPendingEvents,
   GraduationReceipt,
   GraduationRequest,
   GraduationResumeReceipt,
@@ -49,6 +50,9 @@ const AT = "2026-10-14T12:00:00.000Z";
 
 const decodeReceiptJson = S.decodeUnknownEffect(S.fromJsonString(GraduationReceipt));
 const decodeResumeReceiptJson = S.decodeUnknownEffect(S.fromJsonString(GraduationResumeReceipt));
+const PendingEventsJson = S.fromJsonString(GraduationPendingEvents);
+const decodePendingEventsJson = S.decodeUnknownEffect(PendingEventsJson);
+const encodePendingEventsJson = S.encodeEffect(PendingEventsJson);
 const PENDING_PATH = `${PROVENANCE}/ops/.graduation-pending.json`;
 const decodeManifestJson = S.decodeUnknownEffect(
   S.fromJsonString(
@@ -322,6 +326,94 @@ it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
   });
 
   describe("explore graduate --resume-events", { concurrent: false }, () => {
+    it.effect("refuses mixed resume modes and invalid exploration slugs", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedFixture;
+          for (const extra of [["--plan"], ["--write"], ["--goal", "first-child=First Child"]]) {
+            const result = yield* Effect.exit(
+              runExploreCommand(["graduate", EXPLORATION, "--resume-events", ...extra])
+            );
+            expectReportedExit(result);
+          }
+          const invalid = yield* Effect.exit(runExploreCommand(["graduate", "../outside", "--resume-events"]));
+          expectReportedExit(invalid);
+          strictEqual(yield* readProjectFile(MANIFEST_PATH), manifestText);
+          strictEqual(yield* exists(PENDING_PATH), false);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("keeps a pending record for another exploration without appending", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* crashAfterManifestFlip;
+          const pending = yield* decodePendingEventsJson(yield* readProjectFile(PENDING_PATH));
+          const { schemaVersion: _schemaVersion, ...input } = pending;
+          yield* writeProjectFile(
+            PENDING_PATH,
+            yield* encodePendingEventsJson(
+              GraduationPendingEvents.make({ ...input, exploration: "another-exploration" })
+            )
+          );
+          const refused = yield* Effect.flip(resumeGraduationEvents(EXPLORATION));
+          strictEqual(refused._tag, "GraduationRecoveryError");
+          expect(refused.message).toContain('records exploration "another-exploration"');
+          strictEqual(A.length(yield* streamBodies), 0);
+          strictEqual(yield* exists(PENDING_PATH), true);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("keeps pending events when the stream or graduated manifest is missing", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* crashAfterManifestFlip;
+          const fs = yield* FileSystem.FileSystem;
+          yield* fs.remove(`${PROVENANCE}/ops/events`, { recursive: true });
+          const noStream = yield* Effect.flip(resumeGraduationEvents(EXPLORATION));
+          expect(noStream.message).toContain("has no ops/events/ stream");
+          yield* fs.makeDirectory(`${PROVENANCE}/ops/events`);
+          yield* fs.remove(MANIFEST_PATH);
+          const noManifest = yield* Effect.flip(resumeGraduationEvents(EXPLORATION));
+          expect(noManifest.message).toContain("Failed to read");
+          strictEqual(A.length(yield* streamBodies), 0);
+          strictEqual(yield* exists(PENDING_PATH), true);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("refuses a stream that moved away from the recorded event suffix", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* crashAfterManifestFlip;
+          const store = yield* PacketEventStore;
+          yield* store.append(
+            locator,
+            PacketEvent.make({
+              schemaVersion: "packet-event/v1",
+              packet: EXPLORATION,
+              root: "explorations",
+              seq: 1,
+              expectedRevision: 0,
+              at: AT,
+              actor: "fixture",
+              body: { type: "packet-created", status: "graduated", stage: "decompose", ordinal: 5 },
+            })
+          );
+          const refused = yield* Effect.flip(resumeGraduationEvents(EXPLORATION));
+          strictEqual(refused._tag, "GraduationRecoveryError");
+          expect(refused.message).toContain("moved since the pending graduation events were recorded");
+          strictEqual(A.length(yield* streamBodies), 1);
+          strictEqual(yield* exists(PENDING_PATH), true);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
     it.effect(
       "appends the pending events exactly once, with the pre-image genesis, after a crash past the manifest flip",
       () =>
@@ -381,6 +473,58 @@ it.layer(layer, { concurrent: false, timeout: "60 seconds" })((it) => {
   });
 
   describe("explore graduate --write stream guards", { concurrent: false }, () => {
+    it.effect("records an absent manifest and reports an unreadable manifest as an operational failure", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedFixture;
+          const fs = yield* FileSystem.FileSystem;
+          yield* fs.remove(MANIFEST_PATH);
+          const snapshot = yield* readExplorationSnapshot(EXPLORATION);
+          strictEqual(snapshot.exists, true);
+          strictEqual(snapshot.manifestText, undefined);
+          strictEqual(snapshot.manifestDigest, undefined);
+          yield* fs.makeDirectory(MANIFEST_PATH);
+          const refused = yield* Effect.flip(readExplorationSnapshot(EXPLORATION));
+          strictEqual(refused._tag, "GoalPlanOperationalError");
+          expect(refused.message).toContain("Failed to read");
+          strictEqual(yield* exists("goals/first-child"), false);
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("flips the manifest without duplicating an already complete stream", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* seedFixture;
+          const fs = yield* FileSystem.FileSystem;
+          yield* fs.makeDirectory(`${PROVENANCE}/ops/events`, { recursive: true });
+          const store = yield* PacketEventStore;
+          yield* store.append(
+            locator,
+            PacketEvent.make({
+              schemaVersion: "packet-event/v1",
+              packet: EXPLORATION,
+              root: "explorations",
+              seq: 1,
+              expectedRevision: 0,
+              at: AT,
+              actor: "fixture",
+              body: { type: "packet-created", status: "graduated", stage: "graduate", ordinal: 6 },
+            })
+          );
+          const plan = yield* planFor(["first-child=First Child"]);
+          const receipt = yield* writeGraduationPlan(plan, O.some(plan.planId), AT);
+          strictEqual(receipt.eventsAppended, 0);
+          strictEqual(A.length(yield* streamBodies), 1);
+          strictEqual(yield* exists(PENDING_PATH), false);
+          const manifest = yield* decodeManifestJson(yield* readProjectFile(MANIFEST_PATH));
+          strictEqual(manifest.exploration.status, "graduated");
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
     it.effect(
       "refuses a corrupt stream before publishing any child",
       () =>
