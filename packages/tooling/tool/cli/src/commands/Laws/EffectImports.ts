@@ -1527,7 +1527,7 @@ const markdownImportFences = (content: string) =>
     })
   );
 
-const ROOT_EFFECT_IMPORT_PATTERN = /(?:from\s*|import\s*\(|import\s+|require\s*\()\s*["']effect(?:\/[^"']+)?["']/u;
+const ROOT_EFFECT_IMPORT_PATTERN = /["']effect(?:\/[^"']+)?["']/u;
 
 const tryTransformSourceFile = (
   mappings: RootImportMappings,

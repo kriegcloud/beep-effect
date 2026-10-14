@@ -770,6 +770,39 @@ it.layer(testLayer, { concurrent: false, timeout: "5 seconds" })((it) => {
       ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
 
+    it.effect("rewrites commented module specifiers in markdown and JSDoc fences", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "docs/commented.md",
+            '```ts\nimport { Command } from /* rationale */ "effect/cli";\n```\n'
+          );
+          yield* writeProjectFile(
+            "packages/demo/src/commented.ts",
+            '/**\n * ```ts\n * import { HttpClient } from // rationale\n * "effect/http";\n * ```\n */\nexport const value = 1;\n'
+          );
+          const summaries = yield* Effect.forEach(
+            ["markdown", "jsdoc"] as const,
+            (mode) =>
+              runEffectImportRules(
+                EffectImportRulesOptions.make({ mode, write: true, effectOnly: true, excludePaths: [] })
+              ),
+            { concurrency: 1 }
+          );
+          expect(A.map(summaries, (summary) => summary.rootImportsRewritten)).toEqual([1, 1]);
+          expect(A.flatMap(summaries, (summary) => summary.manualReviews)).toEqual([]);
+          expect(yield* readProjectFile("docs/commented.md")).toContain(
+            'import * as Command from "effect/cli/Command";'
+          );
+          expect(yield* readProjectFile("packages/demo/src/commented.ts")).toContain(
+            'import * as HttpClient from "effect/http/HttpClient";'
+          );
+        })
+      ).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
     it.effect("keeps executable shebangs ahead of newly emitted imports", () =>
       Effect.andThen(
         temporaryWorkingDirectory,
