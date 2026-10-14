@@ -113,7 +113,9 @@ const forwardInspection =
       inspector.actor(id, { snapshot: inspectorSnapshot(event.snapshot), ...parentOption(event.parentRef?.sessionId) });
       return;
     }
-    const occurred: AnyEventObject = event.event;
+    // Inspection may observe actor completion events whose payload is a document.
+    // Only the event name is useful for the timeline; never forward its data.
+    const occurred: AnyEventObject = { type: event.event.type };
     inspector.event(id, occurred, sourceOption(event.sourceRef?.sessionId));
     inspector.snapshot(id, inspectorSnapshot(event.snapshot), occurred);
     if (event.snapshot.status !== "active") {

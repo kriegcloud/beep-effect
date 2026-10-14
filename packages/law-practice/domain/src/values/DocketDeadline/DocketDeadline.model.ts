@@ -17,7 +17,7 @@ import { LiteralKit } from "@beep/schema";
 import {
   addDays,
   addMonths,
-  isAfter,
+  diffInDays,
   isBefore,
   equals as isSameDate,
   LocalDateFromString,
@@ -421,10 +421,11 @@ export const docketReminderLadder: {
   (today: LocalDate): (dueDate: LocalDate) => DocketReminderLadder;
   (dueDate: LocalDate, today: LocalDate): DocketReminderLadder;
 } = dual(2, (dueDate: LocalDate, today: LocalDate): DocketReminderLadder => {
+  const daysUntilDue = diffInDays(dueDate, today);
   const rungs = pipe(
     DOCKET_REMINDER_OFFSETS,
-    A.map((daysBefore) => DocketReminderRung.make({ date: addDays(dueDate, -daysBefore), daysBefore })),
-    A.filter((rung) => isAfter(rung.date, today))
+    A.filter((daysBefore) => daysUntilDue > daysBefore),
+    A.map((daysBefore) => DocketReminderRung.make({ date: addDays(dueDate, -daysBefore), daysBefore }))
   );
 
   return DocketReminderLadder.make({

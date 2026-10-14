@@ -1,6 +1,6 @@
 --- a/util/deep-ignore.js
 +++ b/util/deep-ignore.js
-@@ -0,0 +1,90 @@
+@@ -0,0 +1,117 @@
 +/**
 + * Local patch (2026-09-25): a committed, repo-level ignore list for the meaning
 + * tier. `<root>/.graftignore` names files the LLM passes must never spend a
@@ -17,44 +17,71 @@
 +import { join } from "node:path";
 +import { contentHash } from "./id.js";
 +export const DEEP_IGNORE_FILE = ".graftignore";
-+function toRegExp(pattern) {
++function toMatcher(pattern) {
 +    let p = pattern.trim();
 +    const anchored = p.startsWith("/");
 +    if (anchored)
 +        p = p.slice(1);
 +    if (p.endsWith("/"))
 +        p = `${p}**`;
-+    let re = "";
-+    for (let i = 0; i < p.length; i++) {
-+        const c = p[i];
-+        // A trailing `/**` (also what a trailing `/` became above) scopes the rule to
-+        // that path and its descendants: `vendor/` must not match `vendored.ts`.
-+        if (c === "/" && p.slice(i + 1) === "**") {
-+            re += "(?:/.*)?";
-+            break;
-+        }
-+        if (c === "*") {
-+            if (p[i + 1] === "*") {
-+                i++;
-+                if (p[i + 1] === "/") {
-+                    i++;
-+                    re += "(?:.*/)?";
++    const compile = (value) => {
++        const tokens = [];
++        if (!anchored && !value.startsWith("**"))
++            tokens.push("depth");
++        for (let i = 0; i < value.length; i++) {
++            const c = value[i];
++            if (c === "*" && value[i + 1] === "*") {
++                if (value[i + 2] === "/") {
++                    tokens.push("depth");
++                    i += 2;
 +                }
 +                else {
-+                    re += ".*";
++                    tokens.push("globstar");
++                    i++;
 +                }
 +            }
-+            else {
-+                re += "[^/]*";
-+            }
++            else if (c === "*")
++                tokens.push("star");
++            else if (c === "?")
++                tokens.push("question");
++            else
++                tokens.push(c);
 +        }
-+        else if (c === "?")
-+            re += "[^/]";
-+        else
-+            re += c.replace(/[.+^${}()|[\]\\]/g, "\\$&");
-+    }
-+    const prefix = anchored || p.startsWith("**") ? "^" : "^(?:.*/)?";
-+    return new RegExp(`${prefix}${re}$`);
++        return (rel) => {
++            const width = rel.length + 1;
++            const memo = new Map();
++            const match = (tokenIndex, pathIndex) => {
++                const key = tokenIndex * width + pathIndex;
++                if (memo.has(key))
++                    return memo.get(key);
++                if (tokenIndex === tokens.length)
++                    return pathIndex === rel.length;
++                const token = tokens[tokenIndex];
++                const remaining = pathIndex < rel.length;
++                const character = rel[pathIndex];
++                let matched;
++                if (token === "globstar")
++                    matched = match(tokenIndex + 1, pathIndex) || (remaining && match(tokenIndex, pathIndex + 1));
++                else if (token === "depth")
++                    matched = ((pathIndex === 0 || rel[pathIndex - 1] === "/") && match(tokenIndex + 1, pathIndex)) ||
++                        (remaining && match(tokenIndex, pathIndex + 1));
++                else if (token === "star")
++                    matched = match(tokenIndex + 1, pathIndex) || (remaining && character !== "/" && match(tokenIndex, pathIndex + 1));
++                else if (token === "question")
++                    matched = remaining && character !== "/" && match(tokenIndex + 1, pathIndex + 1);
++                else
++                    matched = remaining && character === token && match(tokenIndex + 1, pathIndex + 1);
++                memo.set(key, matched);
++                return matched;
++            };
++            return match(0, 0);
++        };
++    };
++    // A trailing `/**` (also produced by a trailing `/`) includes the directory
++    // itself and every descendant, without matching a similarly named sibling.
++    const variants = p.endsWith("/**") ? [p.slice(0, -3), p] : [p];
++    const matchers = variants.map(compile);
++    return (rel) => matchers.some((matches) => matches(rel));
 +}
 +/** Parse ignore-file text into a matcher over repo-relative POSIX paths. */
 +export function compileDeepIgnore(text) {
@@ -62,10 +89,10 @@
 +        .split("\n")
 +        .map((line) => line.trim())
 +        .filter((line) => line !== "" && !line.startsWith("#"))
-+        .map(toRegExp);
++        .map(toMatcher);
 +    if (rules.length === 0)
 +        return () => false;
-+    return (rel) => rules.some((r) => r.test(rel));
++    return (rel) => rules.some((rule) => rule(rel));
 +}
 +/** The text of `<root>/.graftignore`, or null when there is none. A file that
 + * exists but cannot be read is an error: silently ignoring nothing would send

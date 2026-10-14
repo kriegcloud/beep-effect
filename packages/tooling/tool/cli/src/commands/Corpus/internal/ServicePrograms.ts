@@ -69,6 +69,7 @@ import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import sharp from "sharp";
 import { hashFileSha256 as sharedHashFileSha256 } from "../../../internal/cli/FsGuards.ts";
 import { withDuckDb } from "../../../internal/duckdb/WithDuckDb.ts";
 import {
@@ -1020,6 +1021,29 @@ const appendCorpusJsonLines = Effect.fn("CorpusCommandService.appendCorpusJsonLi
 // An existing output tree is resumed, never refused: `overwrite` is the only
 // path that discards it. The staging directory holds half-written artifacts of
 // a killed run, so it is emptied on every start.
+const rejectExtractOutputLinks = Effect.fn("CorpusCommandService.rejectExtractOutputLinks")(function* (
+  corpusRoot: string,
+  outLabel: string
+): Effect.fn.Return<void, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const stagingRoot = path.join(corpusRoot, "staging");
+  const outDir = path.join(stagingRoot, outLabel);
+  for (const candidate of [
+    stagingRoot,
+    outDir,
+    path.join(outDir, "children"),
+    path.join(outDir, "outcomes"),
+    path.join(outDir, ".staging"),
+  ]) {
+    if (O.isSome(yield* fs.readLink(candidate).pipe(Effect.option))) {
+      return yield* CorpusCommandError.make({
+        message: `Corpus extract output cannot contain a symbolic link: "${candidate}".`,
+      });
+    }
+  }
+});
+
 const prepareExtractOutputDir = Effect.fn("CorpusCommandService.prepareExtractOutputDir")(function* (
   outDir: string,
   childrenRoot: string,
@@ -1251,17 +1275,30 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
   // A single-frame TIFF is one page. A multi-frame TIFF would be read whole by
   // Tesseract under one page timeout and one digest, so it keeps its first
   // reading until frames are rendered one by one.
-  const imagePages = (extension: string | undefined, sourceBytes: Uint8Array, digest: ContentDigest) =>
+  const imagePages = (extension: string | undefined, sourceBytes: Uint8Array) =>
     pipe(
       ocrImageMediaType(extension),
       O.filter((mediaType) => mediaType !== "image/tiff" || O.contains(tiffFrameCount(sourceBytes), 1)),
-      O.map(
-        (mediaType): Omit<OcrPages, "format"> => ({
-          pageCount: 1,
-          render: (_pageNumber: number): Effect.Effect<PageImage, PopplerError> =>
-            Effect.succeed(PageImage.make({ bytes: sourceBytes, digest, mediaType })),
-        })
-      )
+      O.match({
+        onNone: () => Effect.succeed(O.none<Omit<OcrPages, "format">>()),
+        onSome: () =>
+          Effect.tryPromise({
+            try: () =>
+              sharp(Buffer.from(sourceBytes), { failOn: "error", limitInputPixels: 40_000_000 }).png().toBuffer(),
+            catch: () => undefined,
+          }).pipe(
+            Effect.map((normalized) => {
+              const bytes = new Uint8Array(normalized);
+              const digest = ContentDigest.make(`sha256:${bytesToHex(sha256(bytes))}`);
+              return O.some<Omit<OcrPages, "format">>({
+                pageCount: 1,
+                render: (_pageNumber: number): Effect.Effect<PageImage, PopplerError> =>
+                  Effect.succeed(PageImage.make({ bytes, digest, mediaType: "image/png" })),
+              });
+            }),
+            Effect.orElseSucceed(O.none<Omit<OcrPages, "format">>)
+          ),
+      })
     );
 
   // Only PDFs and images whose first reading failed in a driver, or produced
@@ -1269,7 +1306,6 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
   // no engine routes keep their outcome.
   const pagesToRead = Effect.fn("CorpusCommandService.ocrPagesToRead")(function* ({
     first,
-    ids,
     record,
     sourceBytes,
     sourcePath,
@@ -1298,7 +1334,7 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
       return OcrPlan.Keep();
     }
     if (format === "image-metadata") {
-      return plan(imagePages(extension, sourceBytes, ids.digest));
+      return plan(yield* imagePages(extension, sourceBytes));
     }
     if (format !== "pdf-text-layer") {
       return OcrPlan.Keep();
@@ -1626,6 +1662,7 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
   const path = yield* Path.Path;
   const outLabel = yield* extractOutputLabel(options.outLabel);
   const lockPath = path.join(options.corpusRoot, "staging", `.${outLabel}.extract.lock`);
+  yield* rejectExtractOutputLinks(options.corpusRoot, outLabel);
   return yield* Effect.acquireUseRelease(
     acquireExtractRunLock(lockPath),
     () => extractCorpusLocked(options),
@@ -1647,7 +1684,9 @@ const extractCorpusLocked = Effect.fn("CorpusCommandService.extractCorpusLocked"
   const stagingDir = path.join(outDir, ".staging");
   const concurrency = Math.max(1, Math.floor(options.concurrency ?? 4));
 
+  yield* rejectExtractOutputLinks(options.corpusRoot, outLabel);
   yield* prepareExtractOutputDir(outDir, childrenRoot, stagingDir, options.overwrite);
+  yield* rejectExtractOutputLinks(options.corpusRoot, outLabel);
   const writeExtractArtifact = yield* makeExtractArtifactWriter(stagingDir);
   const extractOcr = yield* makeExtractOcr(options, outDir, writeExtractArtifact);
 

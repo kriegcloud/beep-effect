@@ -435,9 +435,11 @@ export const makeStateLock = Effect.fn("StateLock.make")(function* (stateDirecto
       const text = yield* Effect.orDie(
         encodeHolder(StateLockHolder.make({ pid: probe.pid, command, acquiredAt, bootId, startTime }))
       );
-      yield* Effect.mapError(fs.makeDirectory(stateDirectory, { recursive: true }), unwritable);
       yield* fs
-        .writeFileString(lockPath, text, { flag: "wx" })
+        .makeDirectory(stateDirectory, { recursive: true, mode: 0o700 })
+        .pipe(Effect.andThen(fs.chmod(stateDirectory, 0o700)), Effect.mapError(unwritable));
+      yield* fs
+        .writeFileString(lockPath, text, { flag: "wx", mode: 0o600 })
         .pipe(Effect.catchIf(isAlreadyExists, () => contend(command, mayTakeOver), flow(unwritable, Effect.fail)));
     }).pipe(Effect.withSpan("StateLock.acquire"));
   }

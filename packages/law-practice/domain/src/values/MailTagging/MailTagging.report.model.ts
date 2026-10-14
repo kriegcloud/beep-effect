@@ -215,6 +215,7 @@ const zeroAttachmentsSkipped: TaggingRunReport["attachmentsSkipped"] = {
   "too-large": 0,
   "no-folder": 0,
   "sender-not-routable": 0,
+  "name-held": 0,
 };
 
 /**

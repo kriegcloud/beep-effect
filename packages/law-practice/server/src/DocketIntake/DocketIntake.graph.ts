@@ -38,7 +38,7 @@ import {
   M365UpdateMessageCategoriesRequest,
   m365AllDayWindow,
 } from "@beep/m365";
-import { LocalDate } from "@beep/schema/LocalDate";
+import { isAfter, LocalDate } from "@beep/schema/LocalDate";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
@@ -418,6 +418,8 @@ const toEventDraft = (entry: DocketCalendarEntry, timeZone: string): M365EventDr
     subject: entry.subject,
   });
 
+const latestAllDayEventStart = LocalDate.make({ year: 9999, month: 12, day: 30 });
+
 const makeMailbox = (m365: M365Shape, config: DocketGraphConfig, folders: MailboxFolders) => {
   const userId = O.some(config.mailbox);
   const zone = config.timeZone;
@@ -527,6 +529,9 @@ const makeCalendar = (m365: M365Shape, config: DocketGraphConfig) => {
   return DocketCalendar.of({
     create: Effect.fn("DocketGraph.create")(function* (entry) {
       yield* Effect.annotateCurrentSpan({ docket_entry_kind: entry.kind });
+      if (isAfter(entry.date, latestAllDayEventStart)) {
+        return yield* DocketIntakeError.make({ cause: "all-day-date-out-of-range", stage: "calendar" });
+      }
       const event = yield* m365
         .createEvent(
           M365CreateEventRequest.make({

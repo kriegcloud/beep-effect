@@ -119,7 +119,7 @@ export class VerdictLog extends Context.Service<
   {
     readonly record: (input: VerdictInput) => Effect.Effect<VerdictRow, VerdictLogError>;
     readonly current: (itemId: string) => Effect.Effect<O.Option<VerdictRow>, VerdictLogError>;
-    readonly exportJsonl: (path: string) => Effect.Effect<number, VerdictLogError>;
+    readonly exportJsonl: Effect.Effect<string, VerdictLogError>;
   }
 >()($I`VerdictLog`) {}
 
@@ -201,13 +201,12 @@ export const makeVerdictLog = Effect.gen(function* () {
     return row;
   });
 
-  const exportJsonl = Effect.fn("VerdictLog.exportJsonl")(function* (path: string) {
+  const exportJsonl = Effect.gen(function* () {
     const rows = yield* readStored(host, RowsKey, StoredRows);
     const lines = yield* Effect.forEach(rows, (row) =>
       S.encodeEffect(RowLine)(row).pipe(Effect.mapError(unreadable(RowsKey)))
     );
-    yield* host.writeText(path, A.join(lines, "\n") + (lines.length > 0 ? "\n" : ""));
-    return rows.length;
+    return A.join(lines, "\n") + (lines.length > 0 ? "\n" : "");
   });
 
   const record = (input: VerdictInput) => Semaphore.withPermit(writes)(recordUnserialized(input));

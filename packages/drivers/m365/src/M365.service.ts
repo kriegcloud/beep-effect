@@ -177,7 +177,14 @@ const PROTECTED_EXTENSIONS: ReadonlyArray<string> = [
 ];
 
 const isGraphPathSegment = (value: string): boolean =>
-  !Str.isEmpty(value) && !Str.includes("/")(value) && !Str.includes("..")(value) && !Str.includes("%")(value);
+  !Str.isEmpty(value) &&
+  !Str.includes("/")(value) &&
+  !Str.includes("\\")(value) &&
+  !Str.includes("..")(value) &&
+  !Str.includes("%")(value) &&
+  !Str.includes("?")(value) &&
+  !Str.includes("#")(value) &&
+  !/[\u0000-\u001f\u007f]/u.test(value);
 
 /**
  * A Microsoft Graph id that is safe to put in a URL path.
@@ -206,7 +213,8 @@ export const GraphPathSegment = S.String.check(
     identifier: $I`GraphPathSegment`,
     title: "Graph path segment",
     description: "A Microsoft Graph path identifier that cannot traverse or inject URL path segments.",
-    message: "Graph path identifiers must be non-empty and must not contain '/', '..', or percent-encoded input.",
+    message:
+      "Graph path identifiers must be non-empty and must not contain URL delimiters, controls, '..', or percent-encoded input.",
   })
 ).pipe(
   $I.annoteSchema("GraphPathSegment", {
@@ -1238,6 +1246,9 @@ export class M365DeleteEventRequest extends S.Opaque<M365DeleteEventRequest, { r
   S.Struct({
     eventId: GraphPathSegment.annotateKey({ description: "Graph event id." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
+    changeKey: S.OptionFromOptionalKey(S.NonEmptyString)
+      .pipe(S.withConstructorDefault(Effect.succeedNone))
+      .annotateKey({ description: "Optional version from the last event read; sent as `If-Match`." }),
   }).pipe($I.annoteSchema("M365DeleteEventRequest", { description: "Request for deleting an Outlook calendar event." }))
 ) {}
 
@@ -3170,7 +3181,13 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
     const url = yield* mailboxUrl(runtime.config, request.userId, `events/${request.eventId}`, "events");
     yield* executeWrite(
       runtime,
-      M365WriteCall.make({ body: O.none(), headers: NO_HEADERS, method: "DELETE", resource: "events", url })
+      M365WriteCall.make({
+        body: O.none(),
+        headers: changeKeyHeaders(request.changeKey),
+        method: "DELETE",
+        resource: "events",
+        url,
+      })
     );
   }),
   deltaDriveItems: Effect.fn("M365.deltaDriveItems")(function* (rawRequest) {

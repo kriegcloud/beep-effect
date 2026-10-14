@@ -340,11 +340,16 @@ const findingTripletPattern = /P0:\s*(?<p0>\d+)\s+P1:\s*(?<p1>\d+)\s+P2:\s*(?<p2
 const newMarkerPattern = /\*\*NEW:?\*\*:?|(?:^|\s)NEW:/mu;
 const newItemPattern = /(?<count>\d+)\s*[x×]\s*P(?<level>[012])\b/giu;
 
-// Every caller hands this a `\d+` capture, so the parse cannot yield NaN.
+// Review prose is untrusted. Saturating counts keeps malformed or enormous
+// decimal captures from reaching checked Schema constructors as Infinity and
+// bounds every aggregate, including a body with many listed items.
+const maxReviewBodyCount = 100_000;
+
 const parseCount = (value: string | undefined): number =>
   pipe(
     O.fromUndefinedOr(value),
     O.map((raw) => Number.parseInt(raw, 10)),
+    O.map((parsed) => (Number.isSafeInteger(parsed) ? N.min(parsed, maxReviewBodyCount) : maxReviewBodyCount)),
     O.getOrElse(constant(0))
   );
 
@@ -352,7 +357,7 @@ const sumPatternCounts = (body: string, pattern: RegExp): number =>
   pipe(
     A.fromIterable(body.matchAll(pattern)),
     A.map((match) => parseCount(match.groups?.count)),
-    A.reduce(0, N.sum)
+    A.reduce(0, (total, count) => N.min(total + count, maxReviewBodyCount))
   );
 
 type ItemScan = {
@@ -429,10 +434,10 @@ const parseFindingItems = (body: string): FindingTally =>
       const count = parseCount(match.groups?.count);
       const level = match.groups?.level;
       return level === "0"
-        ? { ...counts, p0: counts.p0 + count }
+        ? { ...counts, p0: N.min(counts.p0 + count, maxReviewBodyCount) }
         : level === "1"
-          ? { ...counts, p1: counts.p1 + count }
-          : { ...counts, p2: counts.p2 + count };
+          ? { ...counts, p1: N.min(counts.p1 + count, maxReviewBodyCount) }
+          : { ...counts, p2: N.min(counts.p2 + count, maxReviewBodyCount) };
     })
   );
 

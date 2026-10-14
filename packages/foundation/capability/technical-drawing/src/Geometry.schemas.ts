@@ -473,6 +473,12 @@ export class ModelSpec extends S.Opaque<ModelSpec, { readonly brand: unique symb
           title: "Solid Spec Parts",
           description: "A model has at least one part.",
           message: "Expected at least one part",
+        }),
+        S.isMaxLength(256, {
+          identifier: $I`ModelSpecPartsMaxCheck`,
+          title: "Solid Spec Parts Limit",
+          description: "A model has at most 256 parts to bound overlap work.",
+          message: "Expected at most 256 parts",
         })
       )
       .annotateKey({ description: "Parts kept as separate solids in one compound." }),

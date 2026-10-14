@@ -557,7 +557,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
             ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
             ...shadingLoneLineFindings({ page, shadingMm, outlineMm, options: validationOptions }),
             ...O.match(view.shadingCoverage, {
-              onNone: () => A.empty<SheetFinding>(),
+              onNone: A.empty<SheetFinding>,
               onSome: (coverage) => shadingCoverageFindings({ page, coverage }),
             }),
           ]

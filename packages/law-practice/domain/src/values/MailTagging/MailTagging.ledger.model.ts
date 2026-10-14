@@ -759,6 +759,7 @@ export const AttachmentSkipReason = LiteralKit([
   "too-large",
   "no-folder",
   "sender-not-routable",
+  "name-held",
 ]).pipe(
   $I.annoteSchema("AttachmentSkipReason", {
     description: "Why an attachment was not filed.",

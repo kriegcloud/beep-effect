@@ -61,17 +61,45 @@ export const physicalTargets = Effect.fn("ClearingHouse.physicalTargets")(functi
 ): Effect.fn.Return<ReadonlyArray<PhysicalTarget>, SkillsCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const realRoot = yield* fs
+    .realPath(repoRoot)
+    .pipe(SkillsCommandError.mapError(`Failed to resolve the repository root ${repoRoot}.`, repoRoot, skill));
+  const insideRoot = (candidate: string): boolean => {
+    const relative = Str.replace(/\\/g, "/")(path.relative(realRoot, candidate));
+    return (
+      Str.isEmpty(relative) ||
+      (!Str.Equivalence(relative, "..") && !Str.startsWith("../")(relative) && !path.isAbsolute(relative))
+    );
+  };
   const resolved = yield* Effect.forEach(
     targets,
     Effect.fnUntraced(function* (target) {
       const absolute = path.join(repoRoot, target);
       const parent = path.dirname(absolute);
+      const realAncestor = yield* fs
+        .realPath(path.dirname(parent))
+        .pipe(SkillsCommandError.mapError(`Failed to resolve the parent of ${parent}.`, parent, skill));
+      if (!insideRoot(realAncestor)) {
+        return yield* SkillsCommandError.make({
+          message: `Refusing to publish ${target}: its parent resolves outside the repository.`,
+          file: target,
+          skill,
+        });
+      }
       yield* fs
         .makeDirectory(parent, { recursive: true })
         .pipe(SkillsCommandError.mapError(`Failed to create ${parent}.`, parent, skill));
       const realParent = yield* fs
         .realPath(parent)
         .pipe(SkillsCommandError.mapError(`Failed to resolve ${parent}.`, parent, skill));
+      const permittedParents = [path.join(realRoot, ".claude/skills"), path.join(realRoot, ".agents/skills")];
+      if (!A.contains(permittedParents, realParent)) {
+        return yield* SkillsCommandError.make({
+          message: `Refusing to publish ${target}: its install directory resolves outside the repository's permitted skills directories.`,
+          file: target,
+          skill,
+        });
+      }
       return {
         absolute: path.join(realParent, path.basename(absolute)),
         workDir: path.join(path.dirname(realParent), MATERIALIZE_WORK_DIR),

@@ -11,11 +11,14 @@ import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Scope from "effect/Scope";
 import { Deployments, deploymentsSucceeding, releaseMachine } from "./fixtures/Release.machine.ts";
 import type { CreateInspector } from "@beep/xstate";
 import type { Transport } from "@statelyai/sdk";
 import type { ConfigError } from "effect/Config";
+
+const UnknownJson = S.fromJsonString(S.Unknown);
 
 interface RecordedMessage {
   readonly snapshot?: { readonly value?: unknown; readonly status?: unknown };
@@ -80,7 +83,7 @@ describe("StatelyInspector", () => {
         yield* inspector.ready;
         const actor = yield* createEffectActor(releaseMachine, { input: { release: "v1.0.0" } });
         yield* inspectActor(actor);
-        yield* send(actor, { type: "APPROVE", reviewer: "Ada" });
+        yield* send(actor, { type: "APPROVE", reviewer: "sensitive-reviewer-marker" });
         yield* waitFor(actor, (snapshot) => snapshot.matches("deployed"), { timeout: "5 seconds" });
 
         const snapshotValues = pipe(
@@ -90,6 +93,7 @@ describe("StatelyInspector", () => {
         );
         expect(snapshotValues).toContain("deploying");
         expect(snapshotValues).toContain("deployed");
+        expect(yield* S.encodeUnknownEffect(UnknownJson)(recorder.messages)).not.toContain("sensitive-reviewer-marker");
         expect(recorder.destroyed).toBe(0);
       }).pipe(Effect.provideService(Deployments, deploymentsSucceeding))
     );

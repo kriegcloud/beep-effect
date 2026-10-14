@@ -3,6 +3,7 @@ import {
   classifyKnowledgeBaselineGroup,
   encodeKnowledgeBaselineText,
   evaluateKnowledgeLeases,
+  isKnowledgeLeaseEffective,
   KNOWLEDGE_DOCTOR_BASELINE_PATH,
   KNOWLEDGE_DOCTOR_BASELINE_PENDING_MESSAGE,
   KNOWLEDGE_DOCTOR_LEASES_PATH,
@@ -566,6 +567,15 @@ describe("knowledge doctor sealed baseline", () => {
           ),
           [["lease-owner-unresolved"]]
         );
+        const future = yield* evaluate([
+          yield* lease({
+            key: key("1"),
+            issued: "2099-01-01T00:00:00Z",
+            expires: "2099-01-30T00:00:00Z",
+          }),
+        ]);
+        assert.deepStrictEqual(violationsOf(future), [["lease-issued-in-future"]]);
+        assert.strictEqual(isKnowledgeLeaseEffective(future[0]!), false);
         assert.deepStrictEqual(resolveKnowledgeCodeowners("* @a\ndocs/ @b @c\ndocs/x.md\n", "docs/y.md"), ["@b", "@c"]);
         assert.deepStrictEqual(resolveKnowledgeCodeowners("* @a\ndocs/ @b @c\ndocs/x.md\n", "docs/x.md"), []);
         assert.deepStrictEqual(
@@ -596,7 +606,7 @@ describe("knowledge doctor sealed baseline", () => {
             lease({
               key: `knowledge-doctor/v1:${Str.padStart(64, "0")(`${index}`)}`,
               document: `docs/doc-${index}.md`,
-              issued: `2026-10-${Str.padStart(2, "0")(`${index}`)}T00:00:00Z`,
+              issued: "2026-10-01T00:00:00Z",
               expires: "2026-10-30T00:00:00Z",
             })
           )
@@ -637,6 +647,22 @@ describe("knowledge doctor sealed baseline", () => {
         });
         assert.strictEqual(A.length((yield* ratchetOf(leasedRatchet)).leased), 1);
         assertNone(knowledgeDoctorGateFailure(leasedRatchet));
+        const future = yield* lease({
+          key: introducedKey,
+          issued: "2099-01-01T00:00:00Z",
+          expires: "2099-01-30T00:00:00Z",
+        });
+        const futureCheck = yield* checkOf(report, {
+          head: seal({ ...files, leases: O.some(leaseFile(future)) }),
+          base: files,
+        });
+        assert.strictEqual(A.length((yield* ratchetOf(futureCheck)).introduced), 1);
+        assert.strictEqual(
+          A.length(A.filter(futureCheck.findings, (row) => row.finding.kind === "lease-issued-in-future")),
+          1
+        );
+        assert.strictEqual(O.isSome(knowledgeDoctorGateFailure(futureCheck)), true);
+        assert.include(renderKnowledgeDoctorCheckReport(futureCheck), "lease-issued-in-future");
         const elsewhere = yield* lease({ key: introducedKey, document: "docs/b.md" });
         const misplaced = yield* ratchetOf(
           yield* checkOf(report, { head: seal({ ...files, leases: O.some(leaseFile(elsewhere)) }), base: files })

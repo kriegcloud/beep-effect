@@ -946,70 +946,133 @@ const applyPlan = Effect.fn("BoxContentMigration.applyPlan")(function* (
     return yield* applied(action.pathDigest, "folder", providerId.value);
   });
 
+  const stageChunkedUpload = Effect.fnUntraced(function* (
+    planned: PlannedFile,
+    action: BoxContentUpload,
+    sourcePath: string
+  ) {
+    // Box commits chunked bytes before returning its SHA-1. Keep a verified
+    // private snapshot alive through stream consumption via the caller's scope.
+    const stage = yield* fs.makeTempDirectoryScoped({ prefix: "beep-box-upload-" }).pipe(Effect.result);
+    if (stage._tag === "Failure") {
+      return {
+        _tag: "Settled",
+        outcome: yield* failed(action.entryDigest, "file", localFailure("provider-error")),
+      } as const;
+    }
+    const path = sourcePaths.join(stage.success, "content");
+    const copied = yield* fs.copyFile(sourcePath, path).pipe(Effect.result);
+    if (copied._tag === "Failure") {
+      return {
+        _tag: "Settled",
+        outcome: yield* failed(action.entryDigest, "file", localFailure("provider-error")),
+      } as const;
+    }
+    const checked = yield* hashFileContent(path).pipe(Effect.provideService(FileSystem.FileSystem, fs), Effect.result);
+    if (checked._tag === "Failure") {
+      return {
+        _tag: "Settled",
+        outcome: yield* failed(action.entryDigest, "file", localFailure("provider-error")),
+      } as const;
+    }
+    if (
+      checked.success.sizeBytes !== planned.file.sizeBytes ||
+      !sha256Equivalence(checked.success.sha256, planned.file.sha256)
+    ) {
+      yield* write((base) =>
+        BoxContentJournalSkipped.make({
+          ...base,
+          actionDigest: action.entryDigest,
+          actionKind: "file",
+          providerId: O.none(),
+          reason: "source-changed",
+        })
+      );
+      return {
+        _tag: "Settled",
+        outcome: BoxContentActionBlocked.make({
+          actionDigest: action.entryDigest,
+          actionKind: "file",
+          providerId: O.none(),
+          reason: "source-changed",
+        }),
+      } as const;
+    }
+    return { _tag: "Ready", path } as const;
+  });
+
   const upload = Effect.fnUntraced(function* (
     planned: PlannedFile,
     action: BoxContentUpload,
     folderId: BoxProviderId,
     sha1: string
   ) {
-    const bytes: B.BoxByteStream = fs
-      .stream(sourcePaths.resolve(map.sourceRoot, planned.file.sourceRelativePath))
-      .pipe(Stream.mapError(sourceReadFailure));
-    yield* write((base) =>
-      BoxContentJournalStarted.make({
-        ...base,
-        actionDigest: action.entryDigest,
-        actionKind: "file",
-        providerId: O.none(),
+    return yield* Effect.scoped(
+      Effect.gen(function* () {
+        const sourcePath = sourcePaths.resolve(map.sourceRoot, planned.file.sourceRelativePath);
+        const staged =
+          action.transport === "chunked"
+            ? yield* stageChunkedUpload(planned, action, sourcePath)
+            : ({ _tag: "Ready", path: sourcePath } as const);
+        if (staged._tag === "Settled") return staged.outcome;
+        const bytes: B.BoxByteStream = fs.stream(staged.path).pipe(Stream.mapError(sourceReadFailure));
+        yield* write((base) =>
+          BoxContentJournalStarted.make({
+            ...base,
+            actionDigest: action.entryDigest,
+            actionKind: "file",
+            providerId: O.none(),
+          })
+        );
+        const uploaded = yield* (
+          action.transport === "chunked"
+            ? run.box.chunkedUploads
+                .uploadBigFile(
+                  B.BoxUploadBigFilePayload.make({
+                    file: bytes,
+                    fileName: planned.file.fileName,
+                    fileSize: planned.file.sizeBytes,
+                    parentFolderId: folderId,
+                  })
+                )
+                .pipe(Effect.asSome)
+            : run.box.uploads
+                .uploadFile(
+                  B.BoxUploadFilePayload.make({
+                    // Box verifies the request body against this SHA-1 before storing it.
+                    optionalsInput: UploadFileOptionalsInput.make({
+                      headers: B.UploadFileHeaders.make({ contentMd5: sha1 }),
+                    }),
+                    requestBody: {
+                      attributes: UploadFileRequestBodyAttributesField.make({
+                        name: planned.file.fileName,
+                        parent: UploadFileRequestBodyAttributesParentField.make({ id: folderId }),
+                      }),
+                      file: bytes,
+                      fileFileName: planned.file.fileName,
+                    },
+                  })
+                )
+                .pipe(Effect.map((result) => O.flatMap(O.fromNullishOr(result.entries), A.head)))
+        ).pipe(Effect.result);
+        if (uploaded._tag === "Failure") {
+          return yield* failed(action.entryDigest, "file", providerFailure(uploaded.failure));
+        }
+        if (O.isNone(uploaded.success)) {
+          return yield* failed(action.entryDigest, "file", localFailure("unreadable-response"));
+        }
+        const stored = uploaded.success.value;
+        const providerId = BoxProviderId.make(stored.id);
+        const storedSha1 = O.map(O.fromNullishOr(stored.sha1), Str.toLowerCase);
+        if (O.isNone(storedSha1)) {
+          return yield* failed(action.entryDigest, "file", localFailure("unreadable-response", O.some(providerId)));
+        }
+        // A stored hash that differs is reported, never repaired: the Box item is left exactly as it is.
+        return storedSha1.value === sha1
+          ? yield* applied(action.entryDigest, "file", providerId)
+          : yield* failed(action.entryDigest, "file", localFailure("content-hash-mismatch", O.some(providerId)));
       })
     );
-    const uploaded = yield* (
-      action.transport === "chunked"
-        ? run.box.chunkedUploads
-            .uploadBigFile(
-              B.BoxUploadBigFilePayload.make({
-                file: bytes,
-                fileName: planned.file.fileName,
-                fileSize: planned.file.sizeBytes,
-                parentFolderId: folderId,
-              })
-            )
-            .pipe(Effect.asSome)
-        : run.box.uploads
-            .uploadFile(
-              B.BoxUploadFilePayload.make({
-                // Box verifies the request body against this SHA-1 before storing it.
-                optionalsInput: UploadFileOptionalsInput.make({
-                  headers: B.UploadFileHeaders.make({ contentMd5: sha1 }),
-                }),
-                requestBody: {
-                  attributes: UploadFileRequestBodyAttributesField.make({
-                    name: planned.file.fileName,
-                    parent: UploadFileRequestBodyAttributesParentField.make({ id: folderId }),
-                  }),
-                  file: bytes,
-                  fileFileName: planned.file.fileName,
-                },
-              })
-            )
-            .pipe(Effect.map((result) => O.flatMap(O.fromNullishOr(result.entries), A.head)))
-    ).pipe(Effect.result);
-    if (uploaded._tag === "Failure") {
-      return yield* failed(action.entryDigest, "file", providerFailure(uploaded.failure));
-    }
-    if (O.isNone(uploaded.success)) {
-      return yield* failed(action.entryDigest, "file", localFailure("unreadable-response"));
-    }
-    const stored = uploaded.success.value;
-    const providerId = BoxProviderId.make(stored.id);
-    const storedSha1 = O.map(O.fromNullishOr(stored.sha1), Str.toLowerCase);
-    if (O.isNone(storedSha1)) {
-      return yield* failed(action.entryDigest, "file", localFailure("unreadable-response", O.some(providerId)));
-    }
-    // A stored hash that differs is reported, never repaired: the Box item is left exactly as it is.
-    return storedSha1.value === sha1
-      ? yield* applied(action.entryDigest, "file", providerId)
-      : yield* failed(action.entryDigest, "file", localFailure("content-hash-mismatch", O.some(providerId)));
   });
 
   const folderOutcomes = yield* Effect.forEach(context.folders, applyFolder, { concurrency: 1 });

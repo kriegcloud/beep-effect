@@ -5,9 +5,8 @@
  *
  * The handlers compose the `@beep/m365` driver's app-only verbs with the
  * attachment source, the send guard, the event update guard and the audit
- * log. Exactly one handler, `m365_outbox_send_draft`, calls the driver's send
- * verb, and it does so only for a draft this server recorded creating, after
- * the guard has passed and the intent record is on disk. An event is updated
+ * log. Draft sending is fail-closed until a Graph operation can bind the sent
+ * content to the checked snapshot. An event is updated
  * only when this server recorded creating it and it has no attendee, because
  * Graph mails a meeting's attendees when it changes. The send guard sees
  * the stored attachments as they are: each one is downloaded and hashed on
@@ -33,7 +32,6 @@ import {
   M365IdempotencyKey,
   M365MailBody,
   M365MailDraft,
-  M365SendDraftMessageRequest,
   M365UpdateEventRequest,
 } from "@beep/m365";
 import * as A from "effect/Array";
@@ -43,7 +41,6 @@ import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
 import {
@@ -57,7 +54,6 @@ import {
   OutboxDraftDeletedRecord,
   OutboxEventCreatedRecord,
   OutboxEventUpdatedRecord,
-  OutboxSendIntentRecord,
   OutboxSendOutcomeRecord,
 } from "./OutboxAuditLog.ts";
 import { checkEventUpdate, OutboxEventUpdateCheck, storedAttendeeCount } from "./OutboxEventGuard.ts";
@@ -445,40 +441,10 @@ export const makeOutboxToolkitHandlers = (
               return yield* refused(mismatch.value.fields);
             }
 
-            // The intent record must be on disk first: if it cannot be written, nothing is sent.
-            yield* audit.append(
-              OutboxSendIntentRecord.make({
-                at: yield* DateTime.now,
-                attachments: stored.value,
-                auditId,
-                bcc: storedRecipientAddresses(draft.bccRecipients),
-                cc: storedRecipientAddresses(draft.ccRecipients),
-                draftId: params.draftId,
-                subject: pipe(
-                  draft.subject,
-                  O.getOrElse(() => "")
-                ),
-                to: storedRecipientAddresses(draft.toRecipients),
-              })
-            );
-
-            const sent = yield* Effect.result(
-              m365.sendDraftMessage(M365SendDraftMessageRequest.make({ messageId: params.draftId, userId }))
-            );
-            if (Result.isSuccess(sent)) {
-              const auditRecorded = yield* recordOutcome({
-                internetMessageId: draft.internetMessageId,
-                outcome: "sent",
-              });
-              return OutboxSendResult.make({ auditId, auditRecorded, outcome: "sent" });
-            }
-            if (sent.failure.reason === "ambiguous write") {
-              const auditRecorded = yield* recordOutcome({ outcome: "unknown" });
-              return OutboxSendResult.make({ auditId, auditRecorded, outcome: "unknown" });
-            }
-            // Graph or the token endpoint rejected the request: nothing was sent.
-            yield* recordOutcome({ graphStatus: sent.failure.status, outcome: "refused" });
-            return yield* sent.failure;
+            // Graph's draft-send action accepts only the mutable message id. The
+            // checked snapshot can change after this guard, so do not delegate
+            // Mail.Send to an unversioned operation.
+            return yield* refused(["version-unbound"]);
           },
           finalizeOutboxTool("m365_outbox_send_draft", "sendDraft", false)
         ),
