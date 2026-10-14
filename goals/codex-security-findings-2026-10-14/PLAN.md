@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `active`. The batch is captured; validation is in progress (39 of 47).
+Status: `active`. The batch is captured; validation is in progress (42 of 47).
 
 ## Phases
 

@@ -1000,6 +1000,29 @@ const appendCorpusJsonLines = Effect.fn("CorpusCommandService.appendCorpusJsonLi
 // An existing output tree is resumed, never refused: `overwrite` is the only
 // path that discards it. The staging directory holds half-written artifacts of
 // a killed run, so it is emptied on every start.
+const rejectExtractOutputLinks = Effect.fn("CorpusCommandService.rejectExtractOutputLinks")(function* (
+  corpusRoot: string,
+  outLabel: string
+): Effect.fn.Return<void, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const stagingRoot = path.join(corpusRoot, "staging");
+  const outDir = path.join(stagingRoot, outLabel);
+  for (const candidate of [
+    stagingRoot,
+    outDir,
+    path.join(outDir, "children"),
+    path.join(outDir, "outcomes"),
+    path.join(outDir, ".staging"),
+  ]) {
+    if (O.isSome(yield* fs.readLink(candidate).pipe(Effect.option))) {
+      return yield* CorpusCommandError.make({
+        message: `Corpus extract output cannot contain a symbolic link: "${candidate}".`,
+      });
+    }
+  }
+});
+
 const prepareExtractOutputDir = Effect.fn("CorpusCommandService.prepareExtractOutputDir")(function* (
   outDir: string,
   childrenRoot: string,
@@ -1618,6 +1641,7 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
   const path = yield* Path.Path;
   const outLabel = yield* extractOutputLabel(options.outLabel);
   const lockPath = path.join(options.corpusRoot, "staging", `.${outLabel}.extract.lock`);
+  yield* rejectExtractOutputLinks(options.corpusRoot, outLabel);
   return yield* Effect.acquireUseRelease(
     acquireExtractRunLock(lockPath),
     () => extractCorpusLocked(options),
@@ -1639,7 +1663,9 @@ const extractCorpusLocked = Effect.fn("CorpusCommandService.extractCorpusLocked"
   const stagingDir = path.join(outDir, ".staging");
   const concurrency = Math.max(1, Math.floor(options.concurrency ?? 4));
 
+  yield* rejectExtractOutputLinks(options.corpusRoot, outLabel);
   yield* prepareExtractOutputDir(outDir, childrenRoot, stagingDir, options.overwrite);
+  yield* rejectExtractOutputLinks(options.corpusRoot, outLabel);
   const writeExtractArtifact = yield* makeExtractArtifactWriter(stagingDir);
   const extractOcr = yield* makeExtractOcr(options, outDir, writeExtractArtifact);
 

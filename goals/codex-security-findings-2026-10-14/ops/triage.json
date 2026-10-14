@@ -720,15 +720,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "7cc0aa9b332feaf6ace8c6f6c7589f28aa5bfba1",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The codemod used a fixed adjacent staging name and non-exclusive write, allowing a planted symlink to redirect source text to another writable file."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Lint/internal/SchemaParityCodemodEngine.ts",
+          "packages/tooling/tool/cli/test/schema-parity-codemod.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/schema-parity-codemod.test.ts --pool=threads --maxWorkers=1 -t 'planted predictable staging symlink'",
+          "bun run beep quality package-verify @beep/repo-cli --quick"
+        ],
+        "summary": "Use random stage names and exclusive creation; clean up only stages created by the current run. A planted predictable link remains untouched."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "schema-parity codemod staging",
+      "lane": "L38"
     },
     {
       "id": "CSF-022",
@@ -1186,15 +1198,27 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "2996409e56e33f247063b4bbd88ca451d72fbfc6",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "The resume path retained existing output entries and removed a staging child through a planted output symlink before source validation."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "packages/tooling/tool/cli/src/commands/Corpus/internal/ServicePrograms.ts",
+          "packages/tooling/tool/cli/test/corpus-command.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run test/corpus-command.test.ts --pool=threads --maxWorkers=1 -t resumed-output-symlink",
+          "bun run beep quality package-verify @beep/repo-cli --quick"
+        ],
+        "summary": "Reject symbolic links in output components before lock acquisition and cleanup and after creating directories; a linked-output regression preserves an outside sentinel."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "corpus extract output preparation",
+      "lane": "L37"
     },
     {
       "id": "CSF-040",
@@ -1231,15 +1255,26 @@
       "severity": "Informational",
       "codexStatus": "New",
       "commit": "5c768538e434336885d324cbf56d04fc2684959b",
-      "disposition": "untriaged",
+      "disposition": "remediate",
       "validation": {
-        "status": "pending"
+        "status": "complete",
+        "confidence": "high",
+        "rationale": "Raw MemoryItem decoding preserved noncanonical sensitivity labels and basePolicyChecks compared them exactly against lowercase restricted labels."
       },
       "remediation": {
-        "status": "pending",
-        "changedFiles": [],
-        "verificationCommands": []
-      }
+        "status": "implemented",
+        "changedFiles": [
+          "scratchpad/beep/ProductMemory.ts",
+          "scratchpad/test/beep/ProductMemory.test.ts"
+        ],
+        "verificationCommands": [
+          "bunx vitest run --config scratchpad/vitest.config.ts scratchpad/test/beep/ProductMemory.test.ts --pool=threads --maxWorkers=1"
+        ],
+        "summary": "Normalize labels at the shared policy check. Raw model decoder regressions verify default and archive access deny mixed-case, padded labels."
+      },
+      "verdict": "confirmed-vulnerable",
+      "ownerArea": "scratchpad memory access policy",
+      "lane": "L36"
     },
     {
       "id": "CSF-042",

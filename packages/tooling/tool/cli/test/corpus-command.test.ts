@@ -1702,6 +1702,37 @@ it.layer(testLayer, { timeout: "30 seconds" })("corpus catalog run manifests", (
 
 it.layer(testLayer, { timeout: "30 seconds" })("corpus extract and salvage", (it) => {
   it.effect(
+    "rejects a resumed output symlink before touching its target",
+    Effect.fnUntraced(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const corpusRoot = yield* fs.makeTempDirectoryScoped({ prefix: "corpus-extract-output-link-test-" });
+      const victim = yield* fs.makeTempDirectoryScoped({ prefix: "corpus-extract-victim-test-" });
+      const stagingRoot = path.join(corpusRoot, "staging");
+      const sentinel = path.join(victim, ".staging", "sentinel");
+      yield* fs.makeDirectory(stagingRoot);
+      yield* fs.makeDirectory(path.dirname(sentinel));
+      yield* fs.writeFileString(sentinel, "untouched");
+      yield* fs.symlink(victim, path.join(stagingRoot, "extract"));
+
+      const error = yield* extractCorpus(
+        CorpusExtractOptions.make({
+          concurrency: 1,
+          corpusRoot,
+          exportChildren: false,
+          includeDuplicates: false,
+          overwrite: false,
+          tikaJarPath: path.join(corpusRoot, "missing-tika.jar"),
+        })
+      ).pipe(Effect.flip);
+
+      expect(error.message).toContain("cannot contain a symbolic link");
+      expect(yield* fs.readFileString(sentinel)).toBe("untouched");
+      expect(yield* fs.exists(path.join(stagingRoot, ".extract.extract.lock"))).toBe(false);
+    })
+  );
+
+  it.effect(
     "rejects traversal out labels before writing staging output",
     Effect.fnUntraced(function* () {
       const fs = yield* FileSystem.FileSystem;

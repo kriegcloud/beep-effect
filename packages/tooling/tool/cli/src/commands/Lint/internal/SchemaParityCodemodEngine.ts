@@ -12,6 +12,7 @@ import { FsUtils } from "@beep/repo-utils/FsUtils";
 import { A, Str } from "@beep/utils";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
+import * as Crypto from "effect/Crypto";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
@@ -24,6 +25,7 @@ import * as Order from "effect/Order";
 import * as Path from "effect/Path";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as Ref from "effect/Ref";
 import * as Result from "effect/Result";
 import { Project } from "ts-morph";
 import { formatJsonc, writeArtifact } from "../../../internal/artifacts/index.ts";
@@ -42,7 +44,6 @@ import {
 import { findSchemaParityCodemodEditOverlap, renderSchemaParityCodemodEdits } from "./SchemaParityCodemodEdits.ts";
 import { schemaParityCodemodValueImports } from "./SchemaParityCodemodImports.ts";
 import { literalKitFacetsRule } from "./SchemaParityCodemodLiteralKitRule.ts";
-import type * as Crypto from "effect/Crypto";
 import type { ChildProcessSpawner } from "effect/process";
 import type { SourceFile } from "ts-morph";
 import type {
@@ -354,23 +355,40 @@ const applyPlannedWrites = Effect.fn("SchemaParityCodemod.applyPlannedWrites")(f
 > {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const staged = A.map(writes, (write) => {
-    const extension = path.extname(write.filePath);
-    const stem = Str.slice(0, write.filePath.length - extension.length)(write.filePath);
-    return { ...write, stagedPath: `${stem}${STAGED_SUFFIX}${extension}` };
-  });
-  const removeStaged = Effect.forEach(
-    staged,
-    (entry) => fs.remove(path.join(repoRoot, entry.stagedPath), { force: true }).pipe(Effect.ignore),
-    { concurrency: 8, discard: true }
+  const crypto = yield* Crypto.Crypto;
+  const staged = yield* Effect.forEach(writes, (write) =>
+    Effect.gen(function* () {
+      const extension = path.extname(write.filePath);
+      const stem = Str.slice(0, write.filePath.length - extension.length)(write.filePath);
+      const nonce = yield* crypto.randomUUIDv4.pipe(
+        SchemaParityCodemodError.mapError("Failed to identify codemod stage.")
+      );
+      return { ...write, stagedPath: `${stem}${STAGED_SUFFIX}-${nonce}${extension}` };
+    })
+  );
+  const created = yield* Ref.make<ReadonlyArray<string>>([]);
+  const removeStaged = Ref.get(created).pipe(
+    Effect.flatMap((paths) =>
+      Effect.forEach(
+        paths,
+        (stagedPath) => fs.remove(path.join(repoRoot, stagedPath), { force: true }).pipe(Effect.ignore),
+        {
+          concurrency: 8,
+          discard: true,
+        }
+      )
+    )
   );
   yield* Effect.gen(function* () {
     yield* Effect.forEach(
       staged,
       (entry) =>
         fs
-          .writeFileString(path.join(repoRoot, entry.stagedPath), entry.nextText)
-          .pipe(SchemaParityCodemodError.mapError(`Failed to stage ${entry.filePath}.`)),
+          .writeFileString(path.join(repoRoot, entry.stagedPath), entry.nextText, { flag: "wx" })
+          .pipe(
+            SchemaParityCodemodError.mapError(`Failed to stage ${entry.filePath}.`),
+            Effect.andThen(Ref.update(created, A.append(entry.stagedPath)))
+          ),
       { concurrency: 8, discard: true }
     );
     if (format) {

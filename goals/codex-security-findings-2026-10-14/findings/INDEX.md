@@ -37,7 +37,7 @@ auth values, email addresses, and raw local paths.
 | [CSF-018](./CSF-018.md) | Informational | repair implemented | Backslash filenames escape scorer staging and enable code execution | agent effectiveness law-lane staging |
 | [CSF-019](./CSF-019.md) | Informational | repair implemented | Repository\-controlled ignore globs can hang Graft via ReDoS | Graft deep-ignore patch |
 | [CSF-020](./CSF-020.md) | Informational | repair implemented | Adoption writes outside the packet through directory symlinks | goal adoption materializer |
-| [CSF-021](./CSF-021.md) | Informational | captured | Predictable codemod staging paths allow symlink file overwrite | _pending P2_ |
+| [CSF-021](./CSF-021.md) | Informational | repair implemented | Predictable codemod staging paths allow symlink file overwrite | schema-parity codemod staging |
 | [CSF-022](./CSF-022.md) | Informational | repair implemented | Quadratic overlap enumeration enables drawing\-spec denial of service | OCCT overlap counting and model schema |
 | [CSF-023](./CSF-023.md) | Informational | captured | Intake inspector can leak document bytes to the hosted relay | _pending P2_ |
 | [CSF-024](./CSF-024.md) | Informational | repair implemented | New line\-value locator permits repository\-triggered ReDoS | Models locator parsing |
@@ -55,9 +55,9 @@ auth values, email addresses, and raw local paths.
 | [CSF-036](./CSF-036.md) | Informational | repair implemented | Unsafe shell quoting in PR\-title recovery commands | Yeet PR title recovery |
 | [CSF-037](./CSF-037.md) | Informational | repair implemented | Checkout\-root swaps bypass residue\-reap containment | Repository residue cleanup |
 | [CSF-038](./CSF-038.md) | Informational | repair implemented | Font metadata can inject executable generated TypeScript | Technical drawing glyph generator |
-| [CSF-039](./CSF-039.md) | Informational | captured | Corpus resume follows output symlinks outside its root | _pending P2_ |
+| [CSF-039](./CSF-039.md) | Informational | repair implemented | Corpus resume follows output symlinks outside its root | corpus extract output preparation |
 | [CSF-040](./CSF-040.md) | Informational | repair implemented | Cursor shell deny guard can be bypassed with pathname globs | Cursor shell guard |
-| [CSF-041](./CSF-041.md) | Informational | captured | Unnormalized sensitivity labels bypass memory access checks | _pending P2_ |
+| [CSF-041](./CSF-041.md) | Informational | repair implemented | Unnormalized sensitivity labels bypass memory access checks | scratchpad memory access policy |
 | [CSF-042](./CSF-042.md) | Informational | captured | Departed terminal shells bypass retirement write detection | _pending P2_ |
 | [CSF-043](./CSF-043.md) | Informational | repair implemented | Size\-only Box conflicts can falsely complete pending filings | Mail attachment filing reconciliation |
 | [CSF-044](./CSF-044.md) | Informational | repair implemented | Unvalidated Fallow sidecars can block the tmpfs janitor | Tmpfs Fallow cache janitor |
