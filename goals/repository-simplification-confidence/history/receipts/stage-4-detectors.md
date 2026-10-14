@@ -110,8 +110,9 @@ owner output, not accepted program baselines or B-authored source repairs.
 The lane subsequently integrated main `a0838402f5` as `a00d3fdaf7c2`.
 That intervening delta consists of documentation, packets and service units.
 The fresh ordered owner replay at `a00d3fdaf7c2` completed with identical
-semantic counts and command outcomes. Current logs/results are retained in
-`.beep/rsc-resume/integrated/`; committed-head parity follows.
+semantic counts and command outcomes. This pinned run is retained in
+`.beep/rsc-resume/replay-a00d3fdaf7/`; subsequent candidate parity is recorded
+separately.
 
 ### Latest replay after Skills materialization
 

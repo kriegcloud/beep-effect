@@ -150,9 +150,9 @@ The fresh admitted ordered owner pass at
 `a00d3fdaf7c285109ed1d6986adb32fcb4eb95e2` completed with the same
 command outcomes and semantic counts as the prior replay: all exit 0 except
 raw health, which writes its baseline and exits 1. The baseline and catalogs
-remain candidate outputs. Current logs/results are retained under
-`.beep/rsc-resume/integrated/`. Required parity runs on the committed candidate
-next. Coverage read is not applicable: no package source or floor is changed.
+remain candidate outputs. This pinned run is retained under
+`.beep/rsc-resume/replay-a00d3fdaf7/`. Required parity ran on its subsequent
+committed candidate. Coverage read is not applicable: no package source or floor is changed.
 
 ## Publication cap released
 
@@ -205,7 +205,8 @@ The integrated Effect/Vitest inventory update is main's #1709 work, not a B
 edit or admission. Private occurrence reviews remain pinned to their stated
 source heads and need that inventory delta reconciled before implementation.
 Current owner logs are in `.beep/rsc-resume/integrated/`; prior source passes
-are archived separately. Candidate parity and the named reviewer follow.
+are archived in `.beep/rsc-resume/replay-a00d3fdaf7/` and
+`.beep/rsc-resume/replay-bea70598228b/`. Candidate parity and the named reviewer follow.
 
 ## Named review and gate interpretation
 
@@ -253,3 +254,17 @@ the generated source/artifact values are unchanged. Existing reviews remain
 pinned to their explicit candidates. Publication follows a final fetch and
 latest-main check, then Yeet ready and a bounded readiness monitor. B never
 merges this PR; R14 merge belongs to the orchestrator.
+
+## Named review closure and final packet qualification
+
+The same Claude Opus 5.5 medium reviewer resumes for round two on
+`b69e62b66dc87d2aa5bbff7e6d6ffb594615da55` and closes every
+round-one finding. No P0/P1/P2 remains. Its optional P3 asks that two older
+log-path sentences point directly to the preserved a00 archive; those paths
+are corrected in this packet-only closeout. No measured value changes.
+
+Admitted parity on b69 passes census, test-tsgo, bounded docgen, CI JSDoc
+ratchet, Fallow audit/health and retired-effect-paths. Knowledge refs retains
+fourteen inherited observations; all affected files are byte-identical to
+main. No source or coverage floor is touched. This final archive-path and
+review-closure commit is rechecked before the single publication push.
