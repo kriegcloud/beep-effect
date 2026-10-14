@@ -31,9 +31,6 @@
         "ignoreEffectErrorsInTscExitCode": false,
         "includeSuggestionsInTsc": true,
         "skipDisabledOptimization": false,
-        // 0.51.1 allowlists for unstableApiUsage / experimentalApiUsage; both rules are off, so the lists stay empty on purpose.
-        "allowedUnstableApis": [],
-        "allowedExperimentalApis": [],
         "effectFn": ["span", "inferred-span", "suggested-span"],
         "importAliases": {
           "Array": "A",
@@ -49,6 +46,10 @@
         "completions": true,
         "goto": true,
         "renames": true,
+        // Stability allow-lists stay empty: experimentalApiUsage and unstableApiUsage are declared off.
+        "allowedExperimentalApis": [],
+        "allowedUnstableApis": [],
+        // Debug-only language-service output stays off; it is noise in tsc mode.
         "debug": false,
         "inlays": false,
         "mermaidProvider": "mermaid.live",
@@ -77,7 +78,6 @@
           "acquireReleaseDisposable": "error",
           "allOfMapToForEach": "error",
           "anyUnknownInErrorContext": "error",
-          // 0.51.1 rule for library maintainers (off upstream); listed so the map stays total.
           "apiStabilityLeak": "off",
           "asyncFunction": "error",
           "catchAllTagDispatchToCatchTag": "error",
@@ -105,16 +105,12 @@
           "effectInVoidSuccess": "error",
           "effectMapFlatten": "error",
           "effectMapVoid": "error",
-          // 0.52.0 rule, kept commented until the bump (0.51.1 reports unknown keys as TS377134 warnings).
-          // "effectSleepZeroToYieldNow": "error",
           "effectSucceedWithVoid": "error",
           "experimentalApiUsage": "off",
           "extendsNativeError": "error",
           "flatMapConditionalToFilterOrFail": "error",
           "flatMapIgnoredParamToAndThen": "error",
           "flatMapToMap": "error",
-          // 0.52.0 rule, kept commented until the bump.
-          // "flatMapToTap": "error",
           "floatingEffect": "error",
           "floatingEffectInVitest": "error",
           "genericEffectServices": "error",
@@ -158,12 +154,7 @@
           "optionMatchToFromOption": "error",
           "outdatedApi": "error",
           "overriddenSchemaConstructor": "error",
-          // 0.52.0 rules (uncomment with the bump), off upstream.
-          // "preferEffectArray": "off",
-          // "preferEffectRecord": "off",
           "preferSchemaOverJson": "error",
-          // 0.52.0 rule (uncomment with the bump), off upstream.
-          // "preferSchemaTaggedError": "off",
           "preferSchemaTypeProperty": "error",
           "preferSucceedSomeOrNone": "error",
           "preferTypedSchemaDecoder": "error",
@@ -180,8 +171,6 @@
           "runEffectInsideEffect": "error",
           "runOfExitToRunExit": "error",
           "schemaLiteralNonFinite": "error",
-          // 0.52.0 rule (uncomment with the bump); off until the schema-brand migration lands, then "error".
-          // "schemaClassMissingBrand": "off",
           "schemaNumber": "error",
           "schemaOpaqueInstanceMember": "error",
           "schemaStructWithTag": "error",

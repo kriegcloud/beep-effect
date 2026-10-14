@@ -3,6 +3,7 @@ import {
   TsgoDisabledRule,
   tsgoDisabledRules,
 } from "@beep/repo-cli/commands/Quality/Quality.command";
+import * as A from "effect/Array";
 import { describe, expect, it } from "vitest";
 
 const pluginWith = (diagnosticSeverity: Readonly<Record<string, unknown>>, overrides: ReadonlyArray<unknown> = []) => ({
@@ -13,7 +14,7 @@ const pluginWith = (diagnosticSeverity: Readonly<Record<string, unknown>>, overr
 
 describe("quality tsgo rule severities", () => {
   it("declares exactly the three stability rules as off", () => {
-    expect(tsgoDisabledRules.map((disabled) => disabled.rule)).toEqual([
+    expect(A.map(tsgoDisabledRules, (disabled) => disabled.rule)).toEqual([
       "apiStabilityLeak",
       "experimentalApiUsage",
       "unstableApiUsage",
@@ -22,12 +23,7 @@ describe("quality tsgo rule severities", () => {
   });
 
   it("accepts error rules and the declared-off stability rules", () => {
-    const severity = {
-      floatingEffect: "error",
-      apiStabilityLeak: "off",
-      experimentalApiUsage: "off",
-      unstableApiUsage: "off",
-    };
+    const severity = { floatingEffect: "error", experimentalApiUsage: "off", unstableApiUsage: "off" };
     expect(
       collectTsgoSeverityDiagnosticsForTesting({ plugin: pluginWith(severity), diagnosticSeverity: severity })
     ).toEqual({

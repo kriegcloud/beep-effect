@@ -45,16 +45,19 @@ Verified 2026-10-13 at 0.51.1. Substitute the platform triple on other machines.
 
 `@effect/tsgo` is held at the effect-tsgo version that
 [tsc-rs](https://github.com/pingdotgg/ts-rust) ports (0.51.1 for tsc-rs 0.6.0),
-because tsc-rs compiles the Effect rules in and the editor and the gate must
-agree on rule names and defaults. The next effect-tsgo release, 0.52.0, adds six
-rules; three default to `suggestion`, which `includeSuggestionsInTsc` turns into
-gate failures. Their decided severities sit commented out in `tsconfig.base.json` next to
-their neighbours (0.51.1 reports an unknown key as a TS377134 warning, and
-`ignoreEffectWarningsInTscExitCode: false` makes that a gate failure), so the
-0.52 bump is "uncomment six lines and move the version" once ts-rust ports it
-and the `schemaClassMissingBrand` migration lands. Measured
-2026-10-13 with the 0.52.0 compiler: `schemaClassMissingBrand` 6,682 sites,
-`flatMapToTap` 2 (fixed), every other new rule 0.
+because tsc-rs compiles the Effect rules in and the editor, the gate and tsc-rs
+must agree on rule names and defaults. `beep quality tsgo-rules` requires every
+installed rule in the `diagnosticSeverity` map at `"error"`, or `"off"` only
+when `tsgoDisabledRules` declares it with a reason; 0.51.1 reports an unknown
+key as a TS377134 warning, so keys for a future version cannot be registered
+early. The next release, 0.52.0, adds six rules; the code was proved clean
+against it on 2026-10-13 (#1636), and the bump itself (five rules at `"error"`,
+`schemaClassMissingBrand` parked `"off"` pending the S.Class/S.Struct/S.Opaque
+decision, the removed `debug` option dropped) waits for ts-rust to port 0.52.
+Measured with the 0.52.0 compiler on 2026-10-13: `schemaClassMissingBrand`
+6,682 sites in 1,293 files, `flatMapToTap` 2 (fixed), every other new rule 0.
+`apiStabilityLeak` at `"error"` would report 12,000 sites across 107 projects,
+which is why it is declared off.
 
 ## Why `typescript@6` cannot go yet
 

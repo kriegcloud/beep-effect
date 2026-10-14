@@ -531,11 +531,11 @@ export class TsgoDisabledRule extends S.Class<TsgoDisabledRule>($I`TsgoDisabledR
  *
  * **Details**
  *
- * All three entries are the stability rules from `@effect/tsgo` 0.47 and 0.51: two flag every
- * import of an API tagged `@stability experimental` or `@stability unstable`, and the third
- * (`apiStabilityLeak`, 0.51.1) flags every exported API whose public surface exposes such a type.
- * This repository builds on `effect/unstable/*` (HTTP, HttpApi, CLI, and friends) on purpose, so
- * all three would report by design (apiStabilityLeak: 12,000 sites in 107 projects on 2026-10-13).
+ * All three entries are the stability rules: `experimentalApiUsage` and `unstableApiUsage` (from
+ * `@effect/tsgo` 0.47) flag every import of an API tagged `@stability experimental` or
+ * `@stability unstable`, and `apiStabilityLeak` (0.50) flags every untagged export whose types
+ * expose one. This repository builds on `effect/unstable/*` (HTTP, HttpApi, CLI, and friends) on
+ * purpose.
  *
  * **Example** (Read the disabled rule names)
  *
@@ -554,7 +554,7 @@ export const tsgoDisabledRules: readonly [TsgoDisabledRule, TsgoDisabledRule, Ts
   TsgoDisabledRule.make({
     rule: "apiStabilityLeak",
     reason:
-      "Exported surfaces expose effect/unstable/* types (Crypto, FileSystem, HttpApi) by design; the rule reported 12,000 sites across 107 projects when measured on 2026-10-13.",
+      "Untagged @beep exports count as stable, and they expose effect/unstable/* types by design, so nearly every export would be reported.",
   }),
   TsgoDisabledRule.make({
     rule: "experimentalApiUsage",

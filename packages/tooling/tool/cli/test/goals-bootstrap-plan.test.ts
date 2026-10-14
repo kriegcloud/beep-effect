@@ -354,10 +354,11 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
             );
             expect(A.length(readmeWrites)).toBe(0);
 
-            const reports = A.filter(plan.entries, (entry) => entry.action === "report");
+            // The reflection template is an optional convention (Workstream E verdict, 2026-10-13):
+            // adoption neither creates nor reports it.
             expect(
-              A.some(reports, (entry) => entry.path === "goals/hand-rolled/history/reflections/_TEMPLATE.md")
-            ).toBe(true);
+              A.some(plan.entries, (entry) => entry.path === "goals/hand-rolled/history/reflections/_TEMPLATE.md")
+            ).toBe(false);
             const authoredCreates = A.filter(creates, (entry) => entry.ownership === "authored");
             expect(A.length(authoredCreates)).toBe(0);
           })
@@ -479,7 +480,7 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
         if (A.contains(BLOCKING_KINDS, kind)) {
           expect(A.isReadonlyArrayNonEmpty(requirements)).toBe(true);
         } else {
-          expect(Array.isArray(requirements)).toBe(true);
+          expect(A.isArray(requirements)).toBe(true);
         }
       }
     });

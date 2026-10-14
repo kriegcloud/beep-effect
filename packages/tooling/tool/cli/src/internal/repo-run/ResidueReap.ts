@@ -1777,7 +1777,7 @@ const citationSkip = Effect.fnUntraced(function* (checkout: string, candidatePat
   // the container. Match .beep-relative tails even when a receipt names another clone.
   const cited = A.some(A.getSomes(documents), (text) => {
     if (Str.includes(relative)(text)) return true;
-    const references = O.getOrElse(Str.match(/\.beep\/[^\s"\x27`<>[\]()]+/gu)(text), A.empty<string>);
+    const references = O.getOrElse(Str.match(/\.beep\/[^\s"\x27`<>[\]()]+/gu)(text), () => A.empty<string>());
     return A.some(references, (reference) => {
       const ref = Str.replace(/[.,;:)/-]+$/u, "")(reference);
       return (
