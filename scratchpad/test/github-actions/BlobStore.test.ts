@@ -5,10 +5,11 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as DateTime from "effect/DateTime";
 import * as TestClock from "effect/testing/TestClock";
-import { FetchHttpClient, HttpClient, HttpClientResponse } from "effect/http";
+import { FetchHttpClient, HttpClient, HttpClientResponse, type HttpClientRequest } from "effect/http";
 import type { S3Config } from "../../effected/github-actions/index.ts";
 import {
 	ActionOutputs,
@@ -154,6 +155,102 @@ describe("SigV4", () => {
 
 describe("BlobStore", () => {
 	describe("the S3 backend", () => {
+		for (const [endpointPath, encodedPathPrefix] of [
+			["/s3", "/s3"],
+			["/s3///", "/s3"],
+			["/gateway%2ftenant/sp%20ace/%252F", "/gateway%2ftenant/sp%20ace/%252F"],
+			["/gateway%2ftenant/sp%20ace/%252F///", "/gateway%2ftenant/sp%20ace/%252F"],
+		] as const) {
+			const seen: Array<HttpClientRequest.HttpClientRequest> = [];
+			const http = HttpClient.make((request) => {
+				seen.push(request);
+				return Effect.succeed(HttpClientResponse.fromWeb(request, new Response(null, {
+					status: request.method === "GET" ? 404 : 200,
+				})));
+			});
+			const layer = BlobStore.layerS3({
+				...CONFIG, endpoint: `https://example.test:9000${endpointPath}`, prefix: "ci?#%/",
+			}).pipe(Layer.provide(Layer.mergeAll(
+				ActionOutputs.layerTest({ setSecret: () => Effect.void }),
+				Layer.succeed(HttpClient.HttpClient)(http),
+			)));
+			it.layer(layer, { timeout: "10 seconds" })((it) => {
+				it.effect(`signs and sends the exact endpoint path ${endpointPath} for GET, PUT and HEAD`, () =>
+					Effect.gen(function* () {
+						yield* TestClock.setTime(1704067200000);
+						const store = yield* BlobStore;
+						const key = "a%2Fb//?#";
+						assertNone(yield* store.get(key, Meta));
+						yield* store.put(key, {
+							metadata: Meta.make({ tag: "endpoint", durationMs: 1 }), body: new Uint8Array([7]),
+						}, Meta);
+						assert.isTrue(yield* store.has(key));
+						assert.deepStrictEqual(seen.map((entry) => entry.method), ["GET", "PUT", "HEAD"]);
+						for (const entry of seen) {
+							const expectedPath = `${encodedPathPrefix}/cache/ci%3F%23%25//a%252Fb//%3F%23`;
+							assert.strictEqual(entry.url, `https://example.test:9000${expectedPath}`);
+							const body = P.isTagged("Uint8Array")(entry.body) ? entry.body.body : new Uint8Array(0);
+							const signingRequest = {
+								method: entry.method, host: "example.test:9000", path: `cache/ci?#%//${key}`,
+								encodedPathPrefix, headers: {}, body,
+								now: DateTime.toDateUtc(DateTime.makeUnsafe("2024-01-01T00:00:00Z")),
+							};
+							const credentials = {
+								accessKeyId: CONFIG.accessKeyId, secretAccessKey: "secret-key", region: CONFIG.region, service: "s3",
+							};
+							assert.strictEqual(canonicalize(signingRequest, credentials).canonicalRequest.split("\n")[1], expectedPath);
+							assert.strictEqual(entry.headers.authorization, sign(signingRequest, credentials).authorization);
+							assert.strictEqual(entry.headers.host, "example.test:9000");
+						}
+						const invalid = yield* Effect.flip(store.has("a/../b"));
+						assert.deepStrictEqual(invalid, BlobStoreError.make({
+							reason: "misconfigured", key: "a/../b", detail: "The object path must not contain complete . or .. segments",
+						}));
+						assert.strictEqual(seen.length, 3);
+					}),
+				);
+			});
+		}
+
+		for (const endpoint of [
+			"not a URL", "https://[invalid", "/relative", "ftp://example.test/s3",
+			"https://example.test/s3?x=1", "https://example.test/s3?",
+			"https://example.test/s3#fragment", "https://example.test/s3#",
+		]) {
+			let executions = 0;
+			const http = HttpClient.make((request) => {
+				executions += 1;
+				return Effect.succeed(HttpClientResponse.fromWeb(request, new Response(null, { status: 200 })));
+			});
+			const layer = BlobStore.layerS3({ ...CONFIG, endpoint }).pipe(Layer.provide(Layer.mergeAll(
+				ActionOutputs.layerTest({ setSecret: () => Effect.void }),
+				Layer.succeed(HttpClient.HttpClient)(http),
+			)));
+			it.layer(layer, { timeout: "10 seconds" })((it) => {
+				it.effect(`rejects invalid or unsupported endpoint ${endpoint} before GET, PUT or HEAD executes`, () =>
+					Effect.gen(function* () {
+						const store = yield* BlobStore;
+						const errors = [
+							yield* Effect.flip(store.get("key", Meta)),
+							yield* Effect.flip(store.put("key", {
+								metadata: Meta.make({ tag: "invalid-endpoint", durationMs: 1 }), body: new Uint8Array([1]),
+							}, Meta)),
+							yield* Effect.flip(store.has("key")),
+						];
+						for (const error of errors) {
+							assert.instanceOf(error, BlobStoreError);
+							assert.strictEqual(error.reason, "misconfigured");
+							assert.strictEqual(error.key, "key");
+							assert.strictEqual(error.detail, endpoint.includes("?") || endpoint.includes("#")
+								? "The endpoint must not contain a search or hash"
+								: "The endpoint must be a valid absolute HTTP URL");
+						}
+						assert.strictEqual(executions, 0);
+					}),
+				);
+			});
+		}
+
 		{
 			let executions = 0;
 			const http = HttpClient.make((request) => {

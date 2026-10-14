@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { ManagedDocument, ManagedDocumentError } from "../../effected/github-actions/ManagedDocument.ts";
+import { ManagedDocument, ManagedDocumentError, ManagedDocumentSource } from "../../effected/github-actions/ManagedDocument.ts";
 
 const NS = "savvy-web";
 const KEY = "release-validation";
@@ -26,6 +26,23 @@ const marker = (kind: "BEGIN" | "END", region: string): string =>
 	`<!-- --- ${kind} ${NS}.${KEY}.${region} MANAGED REGION --- -->`;
 
 describe("ManagedDocument", () => {
+	it("the source schema preserves plain objects, arbitrary identity strings and optional text", () => {
+		for (const input of [
+			{ namespace: NS, key: KEY },
+			{ namespace: NS, key: KEY, text: undefined },
+			{ namespace: NS, key: KEY, text: "" },
+			{ namespace: NS, key: KEY, text: "human\r\ntext" },
+			{ namespace: "", key: "invalid.name" },
+		]) {
+			const source: ManagedDocumentSource = input;
+			assert.deepStrictEqual(Result.getOrThrow(S.decodeResult(ManagedDocumentSource)(source)), source);
+			assert.deepStrictEqual(Result.getOrThrow(S.encodeResult(ManagedDocumentSource)(source)), source);
+		}
+		assert.isFalse(S.is(ManagedDocumentSource)({ namespace: NS }));
+		assert.isFalse(S.is(ManagedDocumentSource)({ namespace: NS, key: KEY, text: null }));
+		assert.isFalse(S.is(ManagedDocumentSource)({ namespace: 1, key: KEY }));
+	});
+
 	describe("create-or-update", () => {
 		it("a fresh document gains its regions and exactly one sentinel", () => {
 			const doc = apply(fresh(), [

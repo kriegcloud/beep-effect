@@ -18,6 +18,7 @@ import { spawnOnce } from "../../effected/github-actions/internal/spawn.ts";
 import type { FileBlobTransfer } from "../../effected/github-actions/index.ts";
 import { ActionCache, ActionCacheError, BlobTransferError, CacheKey } from "../../effected/github-actions/index.ts";
 import { UnstubbedMemberError } from "../../effected/github-actions/internal/unstubbed.ts";
+import { MemoryFileSystem } from "../../effected/memfs/index.ts";
 import { json, resultsEnv, twirpFetch } from "./results.ts";
 
 /**
@@ -75,6 +76,56 @@ const versionOf = (paths: ReadonlyArray<string>) =>
 	);
 
 describe("ActionCache", () => {
+	{
+		let manifestWrites = 0;
+		let archives = 0;
+		let uploads = 0;
+		const fsLayer = Layer.effect(FileSystem.FileSystem, Effect.map(FileSystem.FileSystem, (fs) => ({
+			...fs,
+			writeFileString: Effect.fnUntraced(function* (...args: Parameters<typeof fs.writeFileString>) {
+				if (args[0].endsWith("manifest.txt")) manifestWrites += 1;
+				return yield* fs.writeFileString(...args);
+			}),
+		}))).pipe(Layer.provide(MemoryFileSystem.layer));
+		const spawner = Layer.mock(ChildProcessSpawner.ChildProcessSpawner, {
+			spawn: Effect.fnUntraced(function* () {
+				archives += 1;
+				return yield* Effect.die("backslash filename reached tar");
+			}),
+		});
+		const transfer: FileBlobTransfer = {
+			uploadFile: () => Effect.sync(() => { uploads += 1; }),
+			downloadToFile: () => Effect.void,
+		};
+		const { calls, fetch } = twirpFetch({});
+		const layer = ActionCache.layerWith(transfer).pipe(Layer.provideMerge(Layer.mergeAll(
+			resultsEnv({ RUNNER_OS: "Linux", GITHUB_WORKSPACE: "/work/backslash" }), fsLayer, Path.layer, spawner,
+			FetchHttpClient.layer.pipe(Layer.provide(Layer.succeed(FetchHttpClient.Fetch)(fetch))),
+		)));
+		it.layer(layer)((it) => {
+			it.effect("preserves a POSIX backslash filename and refuses it before manifest, tar or upload", () =>
+				Effect.gen(function* () {
+					const fs = yield* FileSystem.FileSystem;
+					const original = "/work/backslash/foo\\bar";
+					yield* fs.makeDirectory("/work/backslash/foo", { recursive: true });
+					yield* fs.writeFileString(original, "original");
+					yield* fs.writeFileString("/work/backslash/foo/bar", "different file");
+					const cache = yield* ActionCache;
+					const error = yield* Effect.flip(cache.save(["/work/backslash/**"], "backslash-name"));
+					assert.instanceOf(error, ActionCacheError);
+					assert.strictEqual(error.reason, "archiveFailed");
+					assert.strictEqual(error.key, "backslash-name");
+					assert.include(error.detail, original);
+					assert.include(error.detail, "backslash");
+					assert.strictEqual(manifestWrites, 0);
+					assert.strictEqual(archives, 0);
+					assert.strictEqual(uploads, 0);
+					assert.lengthOf(calls, 0);
+				})
+			);
+		});
+	}
+
 	{
 		const setup = Effect.gen(function* () {
 			const fs = yield* FileSystem.FileSystem;

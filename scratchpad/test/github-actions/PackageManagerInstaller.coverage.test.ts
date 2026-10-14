@@ -121,7 +121,7 @@ for (const options of [
       if (options.spec === "bun@1.0.0") assert.strictEqual(record.bins.bun, "/bun/bun-linux-x64/bun");
       if (options.env?.RUNNER_OS === "Windows") {
         assert.strictEqual(record.bins.pnpm, "/stage/package/pnpm.exe");
-        assert.strictEqual(yield* fs.readFileString("/stage/package/.bin/extra.cmd"), '@echo off\r\nnode "/stage/package/extra.js" %*\r\n');
+        assert.strictEqual(yield* fs.readFileString("/stage/package/.bin/extra.cmd"), '@echo off\r\nnode -- "/stage/package/extra.js" %*\r\n');
       }
     }));
   });
@@ -172,3 +172,22 @@ for (const env of [{ RUNNER_OS: "Linux", RUNNER_ARCH: "" }, { RUNNER_OS: "Window
     }));
   });
 }
+
+fails("package root realpath faults remain typed", {
+  mutate: (fs) => ({ ...fs, realPath: Effect.fnUntraced(function* () { return yield* refused; }) }),
+}, "layoutUnexpected", "/stage/package");
+fails("bin realpath faults remain typed", {
+  mutate: (fs) => ({ ...fs, realPath: Effect.fnUntraced(function* (file) {
+    return file === "/stage/package/bin/pnpm.cjs" ? yield* refused : yield* fs.realPath(file);
+  }) }),
+}, "layoutUnexpected", "/stage/package/bin/pnpm.cjs");
+fails("dangling bin links fail before shim publication", {
+  mutate: (fs) => ({ ...fs,
+    realPath: Effect.fnUntraced(function* (file) {
+      return yield* fs.realPath(file === "/stage/package/bin/pnpm.cjs" ? "/missing-bin" : file);
+    }),
+    readLink: Effect.fnUntraced(function* (file) {
+      return file === "/stage/package/bin/pnpm.cjs" ? "/missing-bin" : yield* fs.readLink(file);
+    }),
+  }),
+}, "layoutUnexpected", "/stage/package/bin/pnpm.cjs");

@@ -1,10 +1,13 @@
 import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as Str from "effect/String";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Match from "effect/Match";
 import { $ScratchpadId } from "@beep/identity/packages";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import { flow } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "@beep/utils/Option";
 import * as S from "effect/Schema";
@@ -17,9 +20,14 @@ import { sign, uriEncode } from "./internal/sigv4.ts";
 import { unstubbed } from "./internal/unstubbed.ts";
 import { Secret } from "./Secret.ts";
 
-const DotSegment = S.Literals([".", ".."]);
-
 const $I = $ScratchpadId.create("effected/github-actions/BlobStore");
+
+const DotSegment = LiteralKit([".", ".."]).pipe(
+	$I.annoteSchema("DotSegment", { description: "Complete path segments that URL normalization would resolve." }),
+);
+const EndpointProtocol = LiteralKit(["http:", "https:"]).pipe(
+	$I.annoteSchema("EndpointProtocol", { description: "Protocols supported by the S3 HTTP transport." }),
+);
 
 /**
  * Raised when a blob cannot be stored or retrieved.
@@ -335,9 +343,10 @@ export class BlobStore extends Context.Service<BlobStore, BlobStoreShape>()($I`B
 			get: Effect.fn("BlobStore.get")(<A, I>(key: string, schema: S.Codec<A, I>) =>
 				Effect.suspend(() => {
 					const stored = MutableHashMap.get(entries, key);
-					return O.isNone(stored)
-						? Effect.succeed(O.none<StoredBlob<A>>())
-						: BlobEnvelope.decodeResult(stored.value, schema).pipe(Effect.fromResult, Effect.asSome);
+					return O.match(stored, {
+						onNone: () => Effect.succeed(O.none<StoredBlob<A>>()),
+						onSome: (bytes) => BlobEnvelope.decodeResult(bytes, schema).pipe(Effect.fromResult, Effect.asSome),
+					});
 				})),
 			put: Effect.fn("BlobStore.put")(<A, I>(key: string, blob: StoredBlob<A>, schema: S.Codec<A, I>) =>
 				Effect.suspend(() =>
@@ -354,38 +363,58 @@ const dies = unstubbed("BlobStore.makeTest");
 
 const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 		const http = yield* HttpClient.HttpClient;
-		// Trailing slashes stripped without a regex: the anchored `/\/+$/` form
-		// backtracks quadratically on slash runs (CodeQL js/polynomial-redos).
-		let endpoint = config.endpoint ?? `https://s3.${config.region}.amazonaws.com`;
-		while (endpoint.endsWith("/")) {
-			endpoint = endpoint.slice(0, -1);
-		}
-		const host = new URL(endpoint).host;
+		const endpointResult = S.decodeResult(S.URLFromString)(
+			config.endpoint ?? `https://s3.${config.region}.amazonaws.com`,
+		);
 
 		// Declassified ONCE, here, through the package's only declassification
 		// seam — which also registers both values with the runner's log filter.
 		// Doing it per request would emit a workflow command per object.
 		const secretAccessKey = yield* Secret.forSigning(config.secretAccessKey);
-		const sessionToken = config.sessionToken === undefined ? undefined : yield* Secret.forSigning(config.sessionToken);
+		const sessionToken = yield* O.match(O.fromUndefinedOr(config.sessionToken), {
+			onNone: () => Effect.succeed(O.none<string>()),
+			onSome: flow(Secret.forSigning, Effect.asSome),
+		});
 
 		const objectPath = (key: string): string =>
 			A.join([config.bucket, ...(config.prefix === undefined ? [] : [config.prefix]), key], "/");
 
-		const request = (method: string, path: string, body: Uint8Array, now: DateTime.Utc) => {
+		const request = (endpoint: URL, method: string, path: string, body: Uint8Array, now: DateTime.Utc) => {
+			// Keep the endpoint's existing escapes; only raw object segments are encoded.
+			// Strip trailing slashes without a backtracking regex.
+			let encodedPathPrefix = endpoint.pathname;
+			while (Str.endsWith("/")(encodedPathPrefix)) {
+				encodedPathPrefix = Str.slice(0, -1)(encodedPathPrefix);
+			}
 			const headers = sign(
-				{ method, path, host, headers: {}, body, now: DateTime.toDateUtc(now) },
+				{ method, path, encodedPathPrefix, host: endpoint.host, headers: {}, body, now: DateTime.toDateUtc(now) },
 				{
 					accessKeyId: config.accessKeyId,
 					secretAccessKey,
-					...O.getSomesStruct({ sessionToken: O.fromUndefinedOr(sessionToken) }),
+					...O.getSomesStruct({ sessionToken }),
 					region: config.region,
 					service: "s3",
 				},
 			);
-			return { url: `${endpoint}/${A.join(A.map(Str.split(path, "/"), uriEncode), "/")}`, headers };
+			return { url: `${endpoint.origin}${encodedPathPrefix}/${A.join(A.map(Str.split(path, "/"), uriEncode), "/")}`, headers };
 		};
 
 		const send = Effect.fn("BlobStore.send")(function* (method: "GET" | "PUT" | "HEAD", key: string, body: Uint8Array) {
+			const endpoint = yield* Effect.fromResult(endpointResult).pipe(
+				Effect.mapError((cause) => BlobStoreError.make({
+					reason: "misconfigured", key, detail: "The endpoint must be a valid absolute HTTP URL", cause,
+				})),
+			);
+			if (!S.is(EndpointProtocol)(endpoint.protocol) || endpoint.host === "") {
+				return yield* BlobStoreError.make({
+					reason: "misconfigured", key, detail: "The endpoint must be a valid absolute HTTP URL",
+				});
+			}
+			if (Str.includes("?")(endpoint.href) || Str.includes("#")(endpoint.href)) {
+				return yield* BlobStoreError.make({
+					reason: "misconfigured", key, detail: "The endpoint must not contain a search or hash",
+				});
+			}
 			const path = objectPath(key);
 			if (A.some(Str.split(path, "/"), S.is(DotSegment))) {
 				return yield* BlobStoreError.make({
@@ -395,7 +424,7 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 				});
 			}
 			const now = yield* DateTime.now;
-			const { url, headers } = request(method, path, body, now);
+			const { url, headers } = request(endpoint, method, path, body, now);
 			const base = HttpClientRequest.make(method)(url, { headers });
 			const built = body.length === 0 ? base : HttpClientRequest.bodyUint8Array(base, body);
 			return yield* http
@@ -405,7 +434,10 @@ const makeS3 = Effect.fn("makeS3")(function* (config: S3Config) {
 
 		/** Anything outside 2xx is the store refusing; a caller reads `404` first where a miss is an answer. */
 		const accepted = (key: string, status: number): Effect.Effect<void, BlobStoreError> =>
-			status < 200 || status >= 300 ? Effect.fail(BlobStoreError.make({ reason: "refused", key, status })) : Effect.void;
+			Bool.match(status < 200 || status >= 300, {
+				onTrue: () => Effect.fail(BlobStoreError.make({ reason: "refused", key, status })),
+				onFalse: () => Effect.void,
+			});
 
 		return {
 			get: Effect.fn("get")(function*<A, I>(key: string, schema: S.Codec<A, I>) {

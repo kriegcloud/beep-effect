@@ -154,3 +154,9 @@ it.layer(fixture({ expectedPath: "/work" }), { timeout: "30 seconds" })((it) => 
     assertSome(yield* restore(yield* ActionCache), "key");
   }));
 });
+
+it.layer(fixture({ env: { RUNNER_OS: "Windows" }, expectedPath: "/work/a.txt" }), { timeout: "5 seconds" })((it) => {
+  it.effect("Windows path normalization preserves the resolved manifest path", () => Effect.gen(function* () {
+    yield* (yield* ActionCache).save(["/work/a.txt"], "windows-key");
+  }));
+});

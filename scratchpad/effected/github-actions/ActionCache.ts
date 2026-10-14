@@ -324,7 +324,7 @@ const make = Effect.fn("make")(function* (
 		/**
 		 * Platform separators to the dialect's — applied to paths WE produce, never to the caller's pattern text, where a backslash is minimatch's escape character.
 		 */
-		const posix = (value: string): string => value.replaceAll("\\", "/");
+		const posix = (value: string): string => windows ? Str.replaceAll("\\", "/")(value) : value;
 
 		/**
 		 * Resolve the caller's patterns to the concrete files and directories
@@ -459,6 +459,9 @@ const make = Effect.fn("make")(function* (
 				// A line is one tar input. Reject every resolved name, including names
 				// later covered by a directory, before writing the manifest or spawning.
 				for (const candidate of matched) {
+					if (!windows && Str.includes("\\")(candidate)) {
+						return yield* failed(`cache path contains a backslash: "${candidate}"`);
+					}
 					if (Str.includes("\n")(candidate) || Str.includes("\r")(candidate)) {
 						return yield* failed(`cache path contains a line break: "${candidate}"`);
 					}

@@ -1,7 +1,7 @@
 // @effect-diagnostics strictEffectProvide:skip-file multipleEffectProvide:skip-file nodeBuiltinImport:skip-file asyncFunction:skip-file
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { NodeServices } from "@effect/platform-node";
@@ -32,6 +32,7 @@ import {
 	ToolInstaller,
 	ToolInstallerError,
 } from "../../effected/github-actions/index.ts";
+import { PackageManagerInstallOptions } from "../../effected/github-actions/PackageManagerInstaller.ts";
 import { deliberatelyInvalid } from "./deliberatelyInvalid.ts";
 
 const Json = S.fromJsonString(S.Unknown);
@@ -325,6 +326,122 @@ const cachedOf = (installed: InstalledPackageManager): CachedPackageManager => {
 };
 
 describe("PackageManagerInstaller", () => {
+	it("preserves the structural install-options contract", () => {
+		const options: PackageManagerInstallOptions = {
+			requireIntegrity: undefined, integrity: corepack("sha512.deadbeef"),
+			registry: undefined, nativeIntegrity: { "@pnpm/exe.win32-x64": "sha512-3q2+7w==" }, allowAmbient: undefined,
+		};
+		assert.isTrue(S.is(PackageManagerInstallOptions)({}));
+		assert.isTrue(S.is(PackageManagerInstallOptions)(options));
+		assert.deepEqual(S.decodeResult(PackageManagerInstallOptions)(options).pipe(Result.getOrThrow), options);
+		assert.deepEqual(S.decodeResult(PackageManagerInstallOptions)({}).pipe(Result.getOrThrow), {});
+		assert.isTrue(S.is(PackageManagerInstallOptions)({ integrity: undefined, nativeIntegrity: undefined }));
+		assert.isFalse(S.is(PackageManagerInstallOptions)({ allowAmbient: "true" }));
+		assert.isFalse(S.is(PackageManagerInstallOptions)({ nativeIntegrity: { host: 1 } }));
+		assert.isFalse(S.is(PackageManagerInstallOptions)({ integrity: "not-integrity" }));
+	});
+
+	it.layer(rootFixture((root) => Effect.gen(function* () {
+		let index = 0;
+		for (const cached of [false, true]) {
+			for (const kind of ["bin", "ancestor", "root", "internal"]) {
+				const base = join(root, `containment-${index++}`);
+				const directory = join(base, "extracted", "package");
+				const outside = join(base, "outside");
+				mkdirSync(outside, { recursive: true });
+				writeFileSync(join(outside, "cli.cjs"), "untouched");
+				chmodSync(join(outside, "cli.cjs"), 0o600);
+				mkdirSync(join(directory, "bin"), { recursive: true });
+				const manifest = S.encodeResult(Json)({ bin: { pnpm: "bin/cli.cjs" } }).pipe(Result.getOrThrow);
+				writeFileSync(join(directory, "package.json"), manifest);
+				if (kind === "bin") {
+					symlinkSync(join(outside, "cli.cjs"), join(directory, "bin", "cli.cjs"));
+				} else if (kind === "ancestor") {
+					rmSync(join(directory, "bin"), { recursive: true });
+					symlinkSync(outside, join(directory, "bin"));
+				} else if (kind === "root") {
+					writeFileSync(join(outside, "package.json"), manifest);
+					mkdirSync(join(outside, "bin"));
+					writeFileSync(join(outside, "bin", "cli.cjs"), "untouched");
+					rmSync(directory, { recursive: true });
+					symlinkSync(outside, directory);
+				} else {
+					writeFileSync(join(directory, "real.cjs"), "internal");
+					symlinkSync(join(directory, "real.cjs"), join(directory, "bin", "cli.cjs"));
+				}
+				let publications = 0;
+				const result = yield* Effect.result(install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(stubbed({
+					installer: {
+						find: () => cached ? Effect.succeedSome(directory) : Effect.succeedNone,
+						download: () => Effect.succeed("unused"),
+						extractTar: () => Effect.succeed(join(directory, "..")),
+						cacheDir: () => Effect.sync(() => { publications += 1; return directory; }),
+					},
+				})))));
+				if (kind === "internal") {
+					assert.strictEqual(result._tag, "Success");
+					assert.isTrue(existsSync(join(directory, ".bin", "pnpm")));
+					assert.strictEqual(publications, cached ? 0 : 1);
+				} else {
+					assert.strictEqual(result._tag, "Failure");
+					if (Result.isFailure(result)) assert.strictEqual(result.failure.reason, "layoutUnexpected");
+					assert.strictEqual(publications, 0);
+					assert.isFalse(existsSync(join(directory, ".bin")));
+				}
+				assert.strictEqual(readFileSync(join(outside, "cli.cjs"), "utf8"), "untouched");
+				assert.strictEqual(statSync(join(outside, "cli.cjs")).mode & 0o777, 0o600);
+			}
+		}
+	})), { timeout: "10 seconds" })((it) => {
+		it.effect("rejects symlink bins, ancestors and roots on misses and hits while allowing internal symlinks", runTest);
+	});
+
+	it.layer(rootFixture((root) => Effect.gen(function* () {
+		const directory = join(root, "windows-native");
+		mkdirSync(directory);
+		writeFileSync(join(directory, "package.json"), S.encodeResult(Json)({
+			bin: { pnpm: "pnpm" }, optionalDependencies: { "@pnpm/exe.win32-x64": "12.0.0" },
+		}).pipe(Result.getOrThrow));
+		writeFileSync(join(directory, "pnpm"), "native executable");
+		mkdirSync(join(directory, ".bin"));
+		const shim = "existing shim";
+		writeFileSync(join(directory, ".bin", "pnpm.cmd"), shim);
+		const error = yield* Effect.flip(install("pnpm@12.0.0").pipe(Effect.provide(Layer.fresh(stubbed({
+			env: { RUNNER_OS: "Windows" }, installer: { find: () => Effect.succeedSome(directory) },
+		})))));
+		assert.strictEqual(error.reason, "layoutUnexpected");
+		assert.include(error.subject ?? "", "pnpm.exe");
+		assert.strictEqual(readFileSync(join(directory, ".bin", "pnpm.cmd"), "utf8"), shim);
+	})), { timeout: "10 seconds" })((it) => {
+		it.effect("rejects Windows native cache hits with extensionless pnpm but no pnpm.exe before reusing shims", runTest);
+	});
+
+	it.layer(rootFixture((root) => Effect.gen(function* () {
+		for (const runnerOs of ["Linux", "Windows"]) {
+			const extracted = join(root, `dash-${runnerOs}`);
+			const directory = join(extracted, "package");
+			mkdirSync(directory, { recursive: true });
+			writeFileSync(join(directory, "package.json"), S.encodeResult(Json)({ bin: { pnpm: "cli.cjs" } }).pipe(Result.getOrThrow));
+			writeFileSync(join(directory, "cli.cjs"), "fixture");
+			const cacheRoot = "-eprocess.exit(1)//";
+			const destination = ToolInstaller.cachePath({ root: cacheRoot, tool: "pnpm", version: "2.0.7", arch: "x64" });
+			yield* install("pnpm@2.0.7").pipe(Effect.provide(Layer.fresh(stubbed({
+				env: { RUNNER_OS: runnerOs }, installer: {
+					find: () => Effect.succeedNone, download: () => Effect.succeed("unused"),
+					extractTar: () => Effect.succeed(extracted),
+					cachePath: () => destination, cacheDir: () => Effect.succeed(destination),
+				},
+			}))));
+			const target = join(destination, "cli.cjs");
+			const shim = readFileSync(join(directory, ".bin", runnerOs === "Windows" ? "pnpm.cmd" : "pnpm"), "utf8");
+			assert.strictEqual(shim, runnerOs === "Windows"
+				? `@echo off\r\nnode -- "${target}" %*\r\n`
+				: `#!/bin/sh\nexec node -- '${target}' "$@"\n`);
+		}
+	})), { timeout: "10 seconds" })((it) => {
+		it.effect("terminates Node options for dash-leading cache roots in POSIX and Windows shims", runTest);
+	});
+
 	describe("the tool-cache short-circuit", () => {
 		it.layer(rootFixture((root) =>
 			Effect.gen(function* () {
@@ -344,7 +461,7 @@ describe("PackageManagerInstaller", () => {
 				// The regenerated shim points INTO the cached entry, verbatim.
 				assert.strictEqual(
 					readFileSync(join(cached, ".bin", "pnpm"), "utf8"),
-					`#!/bin/sh\nexec node '${join(cached, "bin", "pnpm.cjs")}' "$@"\n`,
+					`#!/bin/sh\nexec node -- '${join(cached, "bin", "pnpm.cjs")}' "$@"\n`,
 				);
 				assert.notStrictEqual(statSync(join(cached, ".bin", "pnpm")).mode & 0o111, 0);
 			}),
@@ -636,7 +753,7 @@ describe("PackageManagerInstaller", () => {
 			for (const [name, relative] of Object.entries(targets)) {
 				const literal = `'${join(directory, relative).replaceAll("'", "'\\''")}'`;
 				assert.strictEqual(readFileSync(join(installed.binDir, name), "utf8"),
-					`#!/bin/sh\nexec ${name === "pnpm" ? "node " : ""}${literal} "$@"\n`);
+					`#!/bin/sh\nexec ${name === "pnpm" ? "node -- " : ""}${literal} "$@"\n`);
 			}
 		})), { timeout: "10 seconds" })((it) => {
 			it.effect("keeps POSIX target and cache-root metacharacters literal in both shim branches", runTest);
@@ -673,10 +790,10 @@ describe("PackageManagerInstaller", () => {
 					// FINAL cached entry path — never the staging directory the entry
 					// was assembled in — pinned verbatim.
 					const shim = readFileSync(join(installed.binDir, "pnpm"), "utf8");
-					assert.strictEqual(shim, `#!/bin/sh\nexec node '${join(installed.directory, "bin", "pnpm.cjs")}' "$@"\n`);
+					assert.strictEqual(shim, `#!/bin/sh\nexec node -- '${join(installed.directory, "bin", "pnpm.cjs")}' "$@"\n`);
 					assert.strictEqual(
 						readFileSync(join(installed.binDir, "pnpx"), "utf8"),
-						`#!/bin/sh\nexec node '${join(installed.directory, "bin", "pnpx.cjs")}' "$@"\n`,
+						`#!/bin/sh\nexec node -- '${join(installed.directory, "bin", "pnpx.cjs")}' "$@"\n`,
 					);
 					assert.notStrictEqual(statSync(join(installed.binDir, "pnpm")).mode & 0o111, 0, "shims must be executable");
 					rmSync(root, { recursive: true, force: true });
@@ -1300,7 +1417,7 @@ describe("PackageManagerInstaller", () => {
 					assert.strictEqual(installed.bins.pnpm, join(installed.directory, "bin", "pnpm.mjs"));
 					assert.strictEqual(
 						readFileSync(join(installed.binDir, "pnpm"), "utf8"),
-						`#!/bin/sh\nexec node '${join(installed.directory, "bin", "pnpm.mjs")}' "$@"\n`,
+						`#!/bin/sh\nexec node -- '${join(installed.directory, "bin", "pnpm.mjs")}' "$@"\n`,
 					);
 					rmSync(root, { recursive: true, force: true });
 
@@ -1330,11 +1447,11 @@ describe("PackageManagerInstaller", () => {
 					const shim = (name: string) => readFileSync(join(installed.binDir, name), "utf8");
 					assert.strictEqual(
 						shim("pnpm"),
-						`#!/bin/sh\nexec node '${join(installed.directory, "bin", "pnpm.mjs")}' "$@"\n`,
+						`#!/bin/sh\nexec node -- '${join(installed.directory, "bin", "pnpm.mjs")}' "$@"\n`,
 					);
 					assert.strictEqual(
 						shim("helper"),
-						`#!/bin/sh\nexec node '${join(installed.directory, "bin", "helper.cjs")}' "$@"\n`,
+						`#!/bin/sh\nexec node -- '${join(installed.directory, "bin", "helper.cjs")}' "$@"\n`,
 					);
 					assert.strictEqual(shim("tool"), `#!/bin/sh\nexec '${join(installed.directory, "bin", "tool")}' "$@"\n`);
 					rmSync(root, { recursive: true, force: true });
@@ -1928,7 +2045,7 @@ describe("PackageManagerInstaller", () => {
 				env: { RUNNER_OS: "Windows" }, installer: { find: () => Effect.succeedSome(directory) },
 			})))));
 			for (const name of ["pnpm", "COM10", "LPT0", "CONSOLE"]) {
-				assert.strictEqual(readFileSync(join(installed.binDir, `${name}.cmd`), "utf8"), `@echo off\r\nnode "${join(directory, relative)}" %*\r\n`);
+				assert.strictEqual(readFileSync(join(installed.binDir, `${name}.cmd`), "utf8"), `@echo off\r\nnode -- "${join(directory, relative)}" %*\r\n`);
 			}
 		})), { timeout: "10 seconds" })((it) => {
 			it.effect("preserves quoted Windows shim semantics, separators and ordinary non-device names", runTest);
@@ -2186,7 +2303,7 @@ describe("PackageManagerInstaller", () => {
 					assert.strictEqual(installed.directory, target);
 					assert.strictEqual(
 						readFileSync(join(extracted, ".bin", "pnpm"), "utf8"),
-						`#!/bin/sh\nexec node '${join(target, "bin", "pnpm.cjs")}' "$@"\n`,
+						`#!/bin/sh\nexec node -- '${join(target, "bin", "pnpm.cjs")}' "$@"\n`,
 					);
 					rmSync(root, { recursive: true, force: true });
 

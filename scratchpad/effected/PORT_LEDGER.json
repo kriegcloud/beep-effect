@@ -19663,6 +19663,150 @@
           "upstreamBehaviour": "S3Config is an exported type-only interface with no executable runtime schema.",
           "labBehaviour": "BlobStore.ts exports an identity-annotated S3Config Struct and its same-name derived type, preserving plain-object construction, string/redacted fields and absent or explicit-undefined optional fields.",
           "reason": "schema-first: EF-33 and executable-contract architecture require a runtime schema source of truth; r11 introduces the S3Config value export, with new Arbitrary.schema round trips and optional-field properties."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ActionOutputs.test.ts:86,523",
+          "upstreamBehaviour": "addPath appends CR/LF-bearing paths as multiple runner PATH entries, and the recording double accepts them.",
+          "labBehaviour": "Live and recording addPath reject CR or LF with InvalidOutputNameError before append or journal mutation.",
+          "reason": "upstream-bug: r1 Pinned runner-file source and runner line parsing show one call can publish multiple entries; added regressions assert typed refusal and zero writes or journal entries."
+        },
+        {
+          "test": "scratchpad/test/github-actions/Artifact.test.ts:170",
+          "upstreamBehaviour": "NaN, infinite or overflowing retention passes the positive check and defects during finalization after artifact creation and upload.",
+          "labBehaviour": "Retention and expiration are validated before scratch, archive, RPC or transfer; invalid values fail with invalidOptions, and valid expiration is anchored at preflight.",
+          "reason": "upstream-bug: r2 Inventory differential probes reproduce post-upload invalid-date defects in both implementations; new invalid-value tests assert zero side effects and a valid-retention test pins the preflight deadline."
+        },
+        {
+          "test": "scratchpad/test/github-actions/BlobEnvelope.test.ts:141",
+          "upstreamBehaviour": "Encoding Option metadata can succeed although decoding the resulting serialized frame with the same codec fails.",
+          "labBehaviour": "Encoding checks the serialized metadata through the caller codec and returns BlobMetadataEncodeError for unreadable frames; supported bytes remain identical.",
+          "reason": "upstream-bug: r3 Inventory differential Option probes demonstrate successful encode followed by failed decode; added Option refusal and OptionFromNullOr byte-fidelity regressions cover both outcomes."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ActionState.test.ts:191",
+          "upstreamBehaviour": "Permissive state codecs admit NaN-to-null conversion and silently dropped undefined object fields during JSON serialization.",
+          "labBehaviour": "Encoded state must pass S.Json before serialization or append; rejection is notPlainJson and the subsequent caller-codec decode check remains.",
+          "reason": "upstream-bug: r4 Inventory pinned-oracle probes reproduce NaN becoming null; added NaN and undefined-member regressions require typed refusal with no append."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ActionInput.test.ts:76,85",
+          "upstreamBehaviour": "Direct input lookup walks the environment prototype, allowing inherited runner entries to supply inputs or shadow own aliases.",
+          "labBehaviour": "Direct lookup uses own-property R.get, retaining own-entry precedence, aliases and empty-string handling.",
+          "reason": "upstream-bug: r5 Inventory differential probes reproduce inherited INPUT_TOKEN resolution; added inherited-only and inherited-shadowing tests pin own-entry behavior."
+        },
+        {
+          "test": "scratchpad/test/github-actions/Artifact.test.ts:175,198",
+          "upstreamBehaviour": "NaN compression survives clamping and reaches POSIX zip as -NaN or selects Windows SmallestSize.",
+          "labBehaviour": "Explicit NaN fails with invalidOptions before archiving; direct uploads retain finite and positive/negative infinity clamping.",
+          "reason": "upstream-bug: r6 Inventory source and cross-platform argv evidence establish NaN propagation; added refusal and infinity-compatibility regressions distinguish NaN from supported clamped inputs."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ActionCache.test.ts:106",
+          "upstreamBehaviour": "POSIX backslash filenames are rewritten into separators before matching and tar manifest construction.",
+          "labBehaviour": "Only Windows paths normalize separators; POSIX resolved backslash paths fail archiveFailed before manifest, tar or upload.",
+          "reason": "upstream-bug: r7 Pinned source rewrites legal POSIX filename bytes and tar also interprets escapes; the added foo-backslash-bar versus foo/bar regression asserts the original diagnostic and zero side effects."
+        },
+        {
+          "test": "scratchpad/test/github-actions/GitHubMarkdown.test.ts:79",
+          "upstreamBehaviour": "Odd trailing label backslashes escape the writer-supplied closing bracket, yielding text instead of a complete link.",
+          "labBehaviour": "The label writer adds one balancing backslash to odd trailing runs and preserves even runs and existing inline markup.",
+          "reason": "upstream-bug: r13 Inventory pinned-parser probes produce no link for a trailing backslash; added lone, odd and even parser-backed cases require one complete link and the requested destination."
+        },
+        {
+          "test": "scratchpad/test/github-actions/GitHubMarkdown.test.ts:173",
+          "upstreamBehaviour": "Bare CR inside a raw list item bypasses LF-only hanging indentation and places continuation text outside the item.",
+          "labBehaviour": "List items normalize CRLF and bare CR to LF before serialization so continuation text stays in one item.",
+          "reason": "upstream-bug: r14 Inventory pinned writer/parser evidence establishes the indentation mismatch; added ordered and unordered parser-backed cases require one item and one content block."
+        },
+        {
+          "test": "scratchpad/test/github-actions/BlobStore.test.ts:158,215; scratchpad/test/github-actions/sigv4.test.ts:113",
+          "upstreamBehaviour": "Custom endpoint path prefixes are transmitted but omitted from SigV4; malformed endpoints defect and query/fragment endpoints join incorrectly.",
+          "labBehaviour": "Requests validate HTTP endpoints through misconfigured errors, refuse search/hash, and sign the complete transmitted encoded prefix plus object path; SigV4Request gains optional encodedPathPrefix.",
+          "reason": "upstream-bug: r15 Inventory recording-client differential probes show signatures for the path without the prefix; new full-path signature and invalid-endpoint tests pin exact URLs and zero invalid HTTP calls."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ChildEnv.test.ts:98,104",
+          "upstreamBehaviour": "Case-insensitive PATH selection on POSIX can prepend Path or path instead of the actual PATH.",
+          "labBehaviour": "Non-Windows prepending selects exact PATH; Windows retains case-insensitive own-key selection and pathKeyOf remains case-insensitive.",
+          "reason": "upstream-bug: r21 Inventory differential probes and child env output show PATH unchanged while Path receives additions; new simultaneous Path/PATH and lowercase-only cases pin POSIX lookup."
+        },
+        {
+          "test": "scratchpad/test/github-actions/GitHubMarkdown.test.ts:150",
+          "upstreamBehaviour": "Heading text containing LF, CRLF or bare CR ends the heading and emits following blocks.",
+          "labBehaviour": "Heading text normalizes all three line endings to inline <br>, retaining the text within one heading.",
+          "reason": "upstream-bug: r22 Inventory pinned writer/parser evidence shows heading-plus-paragraph output; added parser-backed line-ending cases require one heading containing inline breaks."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ChildEnv.test.ts:110,118",
+          "upstreamBehaviour": "After own-key selection, bracket lookup still incorporates an inherited PATH value absent from the base record.",
+          "labBehaviour": "The selected key is read through own-property R.get, excluding prototype values while preserving Windows own-key casing.",
+          "reason": "upstream-bug: r23 Inventory pinned source and probes demonstrate inherited PATH contribution; new POSIX/Windows prototype regressions require only own environment values."
+        },
+        {
+          "test": "scratchpad/test/github-actions/OidcTokenIssuer.test.ts:72,166",
+          "upstreamBehaviour": "Appending &audience to the raw base can put the audience in a path or fragment rather than the query.",
+          "labBehaviour": "Audience requests parse the base, append an encoded query parameter using ? or &, retain fragments, and fail requestFailed for invalid URLs before HTTP.",
+          "reason": "upstream-bug: r24 Inventory URL evidence establishes path/fragment misplacement; new real-client no-query, fragment, existing-query and invalid-base regressions pin correct requests and typed refusal."
+        },
+        {
+          "test": "scratchpad/test/github-actions/PackageManagerInstaller.test.ts:344",
+          "upstreamBehaviour": "Lexical containment admits symlink roots, bins or ancestors that access or mutate files outside the package.",
+          "labBehaviour": "Package roots cannot be symlinks; bin, overlay and shim paths must stay within the real package root before access or mutation, while internal symlinks remain accepted.",
+          "reason": "upstream-bug: r25 Inventory pinned containment evidence demonstrates external symlink access; added real-filesystem miss/hit matrices assert refusal, unchanged outside files/permissions and internal-link acceptance."
+        },
+        {
+          "test": "scratchpad/test/github-actions/PackageManagerInstaller.test.ts:419",
+          "upstreamBehaviour": "Node shims supply a script operand without terminating options, so dash-leading targets can be parsed as Node flags.",
+          "labBehaviour": "POSIX and Windows Node-script shims place -- before the literal target, preserving direct-executable shims and argument forwarding.",
+          "reason": "upstream-bug: r26 Inventory pinned shim argv demonstrates option ambiguity; added dash-leading cache-root regression and updated exact shim expectations pin the terminator."
+        },
+        {
+          "test": "scratchpad/test/github-actions/archiveCommands.test.ts:219,226",
+          "upstreamBehaviour": "POSIX unzip places the archive operand before an option terminator, allowing a dash-leading source to become an option.",
+          "labBehaviour": "POSIX unzip orders -oq and -d destination before -- and the source; Windows extraction and tar command shapes are preserved.",
+          "reason": "upstream-bug: r27 Inventory pinned argv evidence demonstrates dash-leading archive option parsing; updated command expectations and new -h source regression require literal operand placement."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ToolInstaller.test.ts:256",
+          "upstreamBehaviour": "Joined binary names can escape staging or a published entry and cause outside copies or cache-hit probes.",
+          "labBehaviour": "Binary destinations must remain strictly inside normalized and resolved cache roots; escapes fail cacheFailed before copying or cache-hit probing.",
+          "reason": "upstream-bug: r29 Inventory pinned path-construction evidence identifies ../victim escape; added cacheFile and provisionFile miss/hit cases assert no download, copy, publication or victim mutation."
+        },
+        {
+          "test": "scratchpad/test/github-actions/sigv4.test.ts:62,94",
+          "upstreamBehaviour": "Returned mixed-case duplicate headers can differ from the lowercase values canonicalized for SigV4.",
+          "labBehaviour": "Caller headers normalize into one record; ordinary collisions combine in input order, generated headers replace caller values, and signed/returned headers agree.",
+          "reason": "upstream-bug: r30 Inventory signature/transport evidence establishes case-collision mismatch; new generated-header and ordinary-collision tests compare transport, canonical values, signatures and idempotence."
+        },
+        {
+          "test": "scratchpad/test/github-actions/PackageManagerInstaller.test.ts:399",
+          "upstreamBehaviour": "Windows native cache hits retarget extensionless bins to .exe and can return or create shims for missing executables.",
+          "labBehaviour": "Every retargeted native bin must exist before shim creation, reuse or return; missing .exe targets fail layoutUnexpected.",
+          "reason": "upstream-bug: r31 Inventory pinned cachedRecord retargeting lacks a post-retarget stat; new extensionless-pnpm-present/pnpm.exe-absent regression refuses the cache hit before existing shim reuse."
+        },
+        {
+          "test": "scratchpad/test/github-actions/runnerFile.test.ts:33,40; scratchpad/test/github-actions/ActionOutputs.test.ts:66; scratchpad/test/github-actions/ActionState.test.ts:40",
+          "upstreamBehaviour": "LF heredoc framing combines with a terminal payload CR, causing the Windows runner parser to remove that byte.",
+          "labBehaviour": "heredocBlock accepts optional lineEnding; ActionOutputs and ActionState choose CRLF on Windows and LF otherwise, preserving payload bytes.",
+          "reason": "upstream-bug: r32 Inventory runner-parser probes reproduce terminal-CR loss; added calibrated Windows/POSIX parser tests and caller matrices pin terminal CR, CRLF and LF fidelity."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ToolInstaller.test.ts:287,333",
+          "upstreamBehaviour": "Tool publication omits the sibling architecture completion marker required for shared tool-cache discovery.",
+          "labBehaviour": "Publication invalidates a stale marker first and creates an empty marker only after successful rename; invalidation, publication and marker errors fail cacheFailed.",
+          "reason": "upstream-bug: r33 Inventory official lookup predicate and pinned publication probe establish undiscoverable entries; new discoverability and failure-order regressions require directory-plus-marker completeness."
+        },
+        {
+          "test": "scratchpad/test/github-actions/ActionInput.test.ts:35; scratchpad/test/github-actions/internal/twirp.coverage.test.ts:24",
+          "upstreamBehaviour": "The newly modeled options, results and structural unions are type-only exports without executable schemas.",
+          "labBehaviour": "32 owning-file schema values and same-name derived types now model these contracts, including PairsOptions, CheckRunProjection, SigV4Request and TwirpFailure; plain-object construction and operation-owned defaults remain, and root type re-exports stay type-only.",
+          "reason": "schema-first: EF-33 and executable-contract architecture require runtime schema sources of truth. Round-3 r34-r52 add these values; owning-file contract tests cover field/union acceptance, required keys and absent versus explicit-undefined semantics. Existing S3Config and earlier schema deviations are not repeated."
+        },
+        {
+          "test": "scratchpad/test/github-actions/Artifact.test.ts:122; scratchpad/test/github-actions/archiveCommands.test.ts:19; scratchpad/test/github-actions/GitHubToken.test.ts:32; scratchpad/test/github-actions/internal/twirp.coverage.test.ts:24",
+          "upstreamBehaviour": "Type-only retention/compression, zip level, installation ID, spawn exit code and optional Twirp status contracts allow unrestricted numbers.",
+          "labBehaviour": "New UploadOptions, ZipCommandOptions, ProvisionOptions, SpawnOnceResult and TwirpFailure schemas use S.Finite for these numeric fields; schema decoding rejects NaN/infinities while direct upload and zip builders retain infinity clamping and existing collectors remain unchanged.",
+          "reason": "numeric-domains: TS377098 schemaNumber requires finite numeric schema domains. This round newly narrows these schema contracts, with non-finite rejection assertions; it does not repeat earlier finite status/domain changes or imply that every operation decodes the new schemas."
         }
       ],
       "backlog": [
@@ -19755,6 +19899,48 @@
           "round": 2,
           "finding": "r13 — Keep complete shim targets literal in POSIX and Windows scripts (scratchpad/test/github-actions/PackageManagerInstaller.coverage.test.ts:147)",
           "reason": "bug: g9 LEFT requests central retargeting of two unowned double-quoted shim assertions. The live diff updates the shared assertion to a single-quoted target; preserve the historical LEFT record without claiming the gate remains failing."
+        },
+        {
+          "seat": "grok",
+          "round": 3,
+          "finding": "b1 — Correct the managed-region key documentation (scratchpad/effected/github-actions/ManagedDocument.ts:481)",
+          "reason": "docs: Describe the construction check as `SectionKey` on the wire key, and state that dots in the region segment stay unambiguous because namespace and key cannot contain them."
+        },
+        {
+          "seat": "sol",
+          "round": 3,
+          "finding": "b2 — Complete schema-derived round-trip properties in S3 (scratchpad/effected/github-actions/ActionInput.ts:74)",
+          "reason": "test: During S3 add Arbitrary.schema encode/decode round-trip properties for retained models with fcRuns(n); keep demonstrated-bug regressions in required groups. Run vitest with --maxWorkers=2 one at a time and module coverage through beep-heavy --slot-only."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "r9 — Match the runner heredoc name gate (scratchpad/effected/github-actions/ActionOutputs.ts:279)",
+          "reason": "effect-idiom: Historical LEFT: unowned reachability assertions need central updates for required schema/Boolean imports. The current diff retargets these assertions; no failing gate is inferred from this record."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "module-test-gate — Retarget exact runtime import assertions (scratchpad/test/github-actions/reachability.test.ts:180,383,463)",
+          "reason": "test: Historical LEFT: unowned reachability assertions need central updates for required schema/Boolean imports. The current diff retargets these assertions; no failing gate is inferred from this record."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "r47 — Define executable schemas for ZipCommandOptions, UnzipCommandOptions and TarExtractCommandOptions (scratchpad/test/github-actions/reachability.test.ts:463)",
+          "reason": "schema: Historical LEFT: unowned reachability assertions need central updates for required schema/Boolean imports. The current diff retargets these assertions; no failing gate is inferred from this record."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "integration-reachability — Retarget dependency reachability snapshots (scratchpad/test/github-actions/reachability.test.ts)",
+          "reason": "test: Historical LEFT: unowned reachability assertions need central updates for required schema/Boolean imports. The current diff retargets these assertions; no failing gate is inferred from this record."
+        },
+        {
+          "seat": "fable",
+          "round": 3,
+          "finding": "r26 — Terminate Node options in generated shims (scratchpad/test/github-actions/PackageManagerInstaller.coverage.test.ts:124)",
+          "reason": "bug: Historical LEFT: unowned coverage assertion still expected node without --. The current diff now updates it to node --; preserve the LEFT report without claiming this assertion remains failing."
         }
       ],
       "reviewRounds": [
@@ -19790,6 +19976,24 @@
             },
             "fable": {
               "required": 5,
+              "backlog": 0
+            }
+          }
+        },
+        {
+          "round": 3,
+          "commit": "a67fdb1f52f7bd981bd8345a5f3ba4ef3bd6cd56",
+          "seats": {
+            "grok": {
+              "required": 16,
+              "backlog": 1
+            },
+            "sol": {
+              "required": 18,
+              "backlog": 0
+            },
+            "fable": {
+              "required": 23,
               "backlog": 0
             }
           }

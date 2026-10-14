@@ -188,23 +188,35 @@ const structural = (failure: SectionParseError): ManagedDocumentError =>
  * Options identifying a managed document inside a text that may not carry one
  * yet.
  *
+ * **Example** (Validate ManagedDocumentSource input)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import * as Console from "effect/Console";
+ * import * as Effect from "effect/Effect";
+ * import { ManagedDocumentSource } from "@beep/scratchpad/effected/github-actions/ManagedDocument";
+ *
+ * const input = { namespace: "release", key: "summary", text: "human text" };
+ * Effect.runSync(Console.log(S.is(ManagedDocumentSource)(input))) // true
+ * ```
+ *
  * @public
  * @category models
  * @since 0.0.0
  */
-export interface ManagedDocumentSource {
+export const ManagedDocumentSource = S.Struct({
 	/**
 	 * Whose document this is, e.g. your action's name.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly namespace: string;
+	namespace: S.String.annotateKey({ description: "Whose document this is, such as the action's name." }),
 	/**
 	 * Which document, within that namespace.
 	 *
 	 * @since 0.0.0
 	 */
-	readonly key: string;
+	key: S.String.annotateKey({ description: "Which document, within the namespace." }),
 	/**
 	 * The current text — a fetched comment body, a PR description — or absent
 	 * when there is nothing yet. An absent text and an empty one mean the same
@@ -212,8 +224,15 @@ export interface ManagedDocumentSource {
 	 *
 	 * @since 0.0.0
 	 */
-	readonly text?: string | undefined;
-}
+	text: S.optional(S.String).annotateKey({ description: "The current text; absent and empty text both start a fresh document." }),
+}).annotate($I.annote("ManagedDocumentSource", { description: "Source text and identity of a managed document." }));
+/**
+ * Decoded document identity and optional source text accepted by ManagedDocument.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ManagedDocumentSource = typeof ManagedDocumentSource.Type;
 
 /**
  * A marker-delimited document: named regions a tool owns, inside text a human

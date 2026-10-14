@@ -6,6 +6,8 @@
 // a heavy import leaks into a light module's graph, so the one piece those
 // three modules share is the piece with no dependencies.
 
+import { $ScratchpadId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Redacted from "effect/Redacted";
@@ -15,30 +17,65 @@ import type { ActionEnvironmentShape } from "../ActionEnvironment.ts";
 import { payloadOf } from "./jwt.ts";
 import * as P from "effect/Predicate";
 
+const $I = $ScratchpadId.create("effected/github-actions/internal/actionsResults");
+
 /**
  * The run/job identifiers the artifact protocol scopes every call to.
  *
+ *
+ * **Example** (Validate BackendIds input)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import * as Console from "effect/Console";
+ * import * as Effect from "effect/Effect";
+ * import { BackendIds } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
+ *
+ * const input = { workflowRunBackendId: "run-1", workflowJobRunBackendId: "job-1" };
+ * Effect.runSync(Console.log(S.is(BackendIds)(input))) // true
+ * ```
  *
  * @internal
  * @category models
  * @since 0.0.0
  */
-export interface BackendIds {
-	readonly workflowRunBackendId: string;
-	readonly workflowJobRunBackendId: string;
-}
+export const BackendIds = S.Struct({
+	workflowRunBackendId: S.String.annotateKey({ description: "The workflow run's backend identifier." }),
+	workflowJobRunBackendId: S.String.annotateKey({ description: "The workflow job run's backend identifier." }),
+}).annotate($I.annote("BackendIds", { description: "The run and job identifiers used by the artifact protocol." }));
+
+/**
+ * The plain-object identifiers accepted by {@link BackendIds}.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type BackendIds = typeof BackendIds.Type;
 
 /**
  * Where the results backend is and how to talk to it.
  *
  *
+ * **Example** (Validate ResultsBackend input)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import * as Console from "effect/Console";
+ * import * as Effect from "effect/Effect";
+ * import * as Redacted from "effect/Redacted";
+ * import * as Result from "effect/Result";
+ * import { ResultsBackend } from "@beep/scratchpad/effected/github-actions/internal/actionsResults";
+ *
+ * const input = { baseUrl: "https://results.example/", token: Redacted.make("example token"), backendIds: Result.succeed({ workflowRunBackendId: "run-1", workflowJobRunBackendId: "job-1" }) };
+ * Effect.runSync(Console.log(S.is(ResultsBackend)(input))) // true
+ * ```
+ *
  * @internal
  * @category models
  * @since 0.0.0
  */
-export interface ResultsBackend {
+export const ResultsBackend = S.Struct({
 	/** Always ends in `/`, so a caller composes paths by concatenation. */
-	readonly baseUrl: string;
+	baseUrl: S.String.annotateKey({ description: "The results backend URL, normalized by resultsBackend to end in a slash." }),
 	/**
   * The runtime token.
   *
@@ -49,7 +86,7 @@ export interface ResultsBackend {
   * `Redacted` directly, so this package's declassification seam is never
   * involved and `Redacted.value` is never called.
   */
-	readonly token: Redacted.Redacted<string>;
+	token: S.Redacted(S.String).annotateKey({ description: "The runner's runtime token, preserved as a redacted value." }),
 	/**
   * The backend ids, or why they could not be read.
   *
@@ -59,8 +96,15 @@ export interface ResultsBackend {
   * them: a runtime token with no `Actions.Results` scope must not stop a cache
   * save that never looks at one.
   */
-	readonly backendIds: Result.Result<BackendIds, string>;
-}
+	backendIds: S.Result(BackendIds, S.String).annotateKey({ description: "Artifact backend identifiers, or why they could not be read." }),
+}).annotate($I.annote("ResultsBackend", { description: "Plain-object results backend coordinates and artifact scope resolution." }));
+
+/**
+ * The plain-object coordinates accepted by {@link ResultsBackend}.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type ResultsBackend = typeof ResultsBackend.Type;
 
 /**
  * The variable naming the backend. Absent outside a `uses:` step.

@@ -8,6 +8,8 @@ import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
 import * as O from "effect/Option";
 import * as Ref from "effect/Ref";
+import * as S from "effect/Schema";
+import { CheckFlushOutcome } from "../../effected/github-actions/CheckDocument.ts";
 import * as Result from "effect/Result";
 import * as MutableRef from "effect/MutableRef";
 import { TestClock } from "effect/testing";
@@ -655,4 +657,16 @@ describe("CheckDocument", () => {
 			}).pipe(withLayer(CheckDocument.layerTest({ flush: Effect.succeed("unchanged" as const) }))),
 		);
 	});
+});
+
+
+describe("CheckFlushOutcome schema contract", () => {
+	it.effect("accepts exactly the three reconciliation outcomes", () => Effect.gen(function* () {
+		for (const outcome of ["written", "unchanged", "stale"]) {
+			assert.strictEqual(yield* S.decodeUnknownEffect(CheckFlushOutcome)(outcome), outcome);
+		}
+		assert.strictEqual(CheckFlushOutcome.literals.length, 3);
+		assert.isFalse(S.is(CheckFlushOutcome)("failed"));
+		assert.isFalse(S.is(CheckFlushOutcome)(undefined));
+	}));
 });

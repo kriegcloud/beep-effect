@@ -1,4 +1,7 @@
+import { $ScratchpadId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema/LiteralKit";
 import * as A from "effect/Array";
+import * as Str from "effect/String";
 import {
 	Code,
 	Html,
@@ -20,29 +23,71 @@ import * as SchemaAST from "effect/SchemaAST";
 import { flow } from "effect/Function";
 import * as R from "effect/Record";
 
+const $I = $ScratchpadId.create("effected/github-actions/GitHubMarkdown");
+
 /**
  * A heading level GitHub renders, `1` through `6`.
+ *
+ * **Example** (Validate GitHubHeadingDepth input)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import * as Console from "effect/Console";
+ * import * as Effect from "effect/Effect";
+ * import { GitHubHeadingDepth } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+ *
+ * const input = 2;
+ * Effect.runSync(Console.log(S.is(GitHubHeadingDepth)(input))) // true
+ * ```
  *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export type GitHubHeadingDepth = 1 | 2 | 3 | 4 | 5 | 6;
+export const GitHubHeadingDepth = LiteralKit([1, 2, 3, 4, 5, 6]).pipe(
+	$I.annoteSchema("GitHubHeadingDepth", { description: "A heading level GitHub renders, 1 through 6." }),
+);
+/**
+ * The validated heading depth inferred from the GitHubHeadingDepth runtime schema.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GitHubHeadingDepth = typeof GitHubHeadingDepth.Type;
 
 /**
  * Options for {@link GitHubMarkdown.list}.
  *
+ * **Example** (Validate GitHubListOptions input)
+ *
+ * ```ts
+ * import * as S from "effect/Schema";
+ * import * as Console from "effect/Console";
+ * import * as Effect from "effect/Effect";
+ * import { GitHubListOptions } from "@beep/scratchpad/effected/github-actions/GitHubMarkdown";
+ *
+ * const input = { ordered: true };
+ * Effect.runSync(Console.log(S.is(GitHubListOptions)(input))) // true
+ * ```
+ *
  * @public
  * @category type-level
  * @since 0.0.0
  */
-export interface GitHubListOptions {
+export const GitHubListOptions = S.Struct({
 	/**
 	 *  Render `1.`-numbered items instead of bullets.
 	 * @since 0.0.0
 	 */
-	readonly ordered?: boolean | undefined;
-}
+	ordered: S.optional(S.Boolean).annotateKey({ description: "Render numbered items instead of bullets." }),
+}).annotate($I.annote("GitHubListOptions", { description: "Options for rendering a GitHub Markdown list." }));
+/**
+ * Decoded list options, with an optional flag for numbered items.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type GitHubListOptions = typeof GitHubListOptions.Type;
 
 /**
  * The row-schema constraint {@link GitHubMarkdown.tableFor} accepts: a
@@ -197,7 +242,9 @@ const escapeLinkLabel = (text: string): string => {
 		else if (token[0] === "]" && openings.pop() === undefined) characters[token.index] = "\\]";
 	}
 	for (const index of openings) characters[index] = "\\[";
-	return A.join(characters, "");
+	// An odd trailing run would escape the closing label bracket. Existing
+	// pairs are already valid Markdown escapes and must remain untouched.
+	return Str.replace(/(?<!\\)(?:\\\\)*\\$/u, "$&\\")(A.join(characters, ""));
 };
 
 /**
@@ -432,7 +479,7 @@ export abstract class GitHubMarkdown {
 	 * @since 0.0.0
 	 */
 	static heading(text: string, level: GitHubHeadingDepth = 2): string {
-		return `${"#".repeat(level)} ${text}`;
+		return `${Str.repeat(level)("#")} ${Str.replace(/\r\n|\r|\n/g, "<br>")(text)}`;
 	}
 
 	/**
@@ -521,7 +568,7 @@ export abstract class GitHubMarkdown {
 			List.make({
 				ordered,
 				...(ordered ? { start: 1 } : {}),
-				children: items.map((item) => ListItem.make({ children: [passthrough(item)] })),
+				children: A.map(items, (item) => ListItem.make({ children: [passthrough(Str.replace(/\r\n|\r/g, "\n")(item))] })),
 			}),
 		);
 	}
