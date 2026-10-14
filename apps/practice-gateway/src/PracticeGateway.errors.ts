@@ -6,6 +6,7 @@
  */
 
 import { $PracticeGatewayId } from "@beep/identity/packages";
+import { PracticeProvider } from "@beep/law-practice-domain";
 import { SchemaUtils } from "@beep/schema";
 import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
@@ -107,3 +108,40 @@ export class SelfCheckFailure extends S.TaggedError<SelfCheckFailure>($I`SelfChe
 ) {
   override readonly [Runtime.errorReported] = false;
 }
+
+/**
+ * A provider's code or native resources could not be loaded on this machine.
+ *
+ * **Details**
+ *
+ * Providers load lazily, so a missing or broken sidecar (for example the
+ * DuckDB native module behind practice-kg) disables only that provider: the
+ * setup tools and the other providers keep working, and the provider's
+ * probe reports the failure in plain language.
+ *
+ * **Example** (Report a missing knowledge-graph engine)
+ *
+ * ```ts
+ * import { ProviderUnavailable } from "@beep/practice-gateway/PracticeGateway.errors"
+ *
+ * const error = ProviderUnavailable.make({
+ *   provider: "practice-kg",
+ *   message: "The practice knowledge-graph engine could not be loaded on this computer.",
+ * })
+ * console.log(error.provider) // "practice-kg"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class ProviderUnavailable extends S.TaggedError<ProviderUnavailable>($I`ProviderUnavailable`)(
+  "ProviderUnavailable",
+  {
+    cause: OptionalCause,
+    provider: PracticeProvider,
+    message: S.NonEmptyString,
+  },
+  $I.annoteError<ProviderUnavailable>("ProviderUnavailable", {
+    description: "A provider's code or native resources could not be loaded on this machine.",
+  })
+) {}

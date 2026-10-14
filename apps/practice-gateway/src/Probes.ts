@@ -7,7 +7,6 @@
  */
 
 import { ProbeBroken, ProbeMissing, ProbeSatisfied, SetupRequirementId } from "@beep/law-practice-domain";
-import { runPracticeKgSelfCheck } from "@beep/law-practice-server/PracticeKgHost";
 import {
   SetupProbes,
   SetupProbesShape,
@@ -23,6 +22,7 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { GatewaySettings } from "./GatewaySettings.ts";
+import { loadPracticeKgModules } from "./PracticeKgProvider.ts";
 import { GatewayRequirementId } from "./Requirements.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
 import { BitLockerProtection, RegistryValueQuery, WindowsHost } from "./WindowsHost.ts";
@@ -250,13 +250,19 @@ export const makeGatewayProbes = Effect.gen(function* () {
   const bundleSelfCheck = O.match(settings.bundleDir, {
     onNone: () => Effect.succeed(noBundle),
     onSome: (bundleDir) =>
-      runPracticeKgSelfCheck({
-        extensionVersion: PRACTICE_GATEWAY_VERSION,
-        bundleDir,
-        corpusRoot: O.getOrUndefined(settings.corpusRoot),
-      }).pipe(
+      loadPracticeKgModules.pipe(
+        Effect.flatMap((modules) =>
+          modules.runPracticeKgSelfCheck({
+            extensionVersion: PRACTICE_GATEWAY_VERSION,
+            bundleDir,
+            corpusRoot: O.getOrUndefined(settings.corpusRoot),
+          })
+        ),
         Effect.as(satisfied),
-        Effect.catchTag("PracticeKgHostError", (error) => Effect.succeed(broken(error.message))),
+        Effect.catchTags({
+          PracticeKgHostError: (error) => Effect.succeed(broken(error.message)),
+          ProviderUnavailable: (error) => Effect.succeed(broken(error.message)),
+        }),
         Effect.provideContext(services)
       ),
   });

@@ -28,6 +28,13 @@ export * from "./GatewaySettings.ts";
  */
 export * from "./PracticeGateway.errors.ts";
 /**
+ * Lazily loaded practice knowledge-graph provider.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export * from "./PracticeKgProvider.ts";
+/**
  * Setup probes per requirement id.
  *
  * @category layers

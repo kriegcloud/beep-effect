@@ -7,12 +7,6 @@
  * @since 0.0.0
  */
 
-import { PracticeKgToolkitLayer } from "@beep/law-practice-server";
-import {
-  loadPracticeKgBundleContext,
-  makePracticeKgHostResourcesLayer,
-  runPracticeKgSelfCheck,
-} from "@beep/law-practice-server/PracticeKgHost";
 import { SetupDoctor } from "@beep/law-practice-use-cases/PracticeSetup";
 import { handshakeMcpProtocols } from "@beep/mcp-kit";
 import { WindowsSecretStore } from "@beep/windows-secrets";
@@ -20,12 +14,11 @@ import * as McpServer from "effect/ai/McpServer";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import { ElicitedApprovals } from "./Approvals.ts";
 import { GatewaySettings } from "./GatewaySettings.ts";
+import { PracticeKgProviderLayer } from "./PracticeKgProvider.ts";
 import { GatewaySetupProbes } from "./Probes.ts";
 import { ProfileStore } from "./ProfileStore.ts";
-import { profileSelects } from "./Requirements.ts";
 import { SetupToolsLayer } from "./SetupTools.ts";
 import { PRACTICE_GATEWAY_VERSION } from "./Version.ts";
 import { WindowsHost } from "./WindowsHost.ts";
@@ -92,47 +85,6 @@ export const GatewayServicesLayer = SetupDoctor.layer.pipe(
   Layer.provideMerge(ProfileStore.layer),
   Layer.provideMerge(GatewaySettings.layer)
 );
-
-/**
- * The practice knowledge-graph toolkit, mounted in process when the saved
- * profile selects `practice-kg` and the extension settings name a bundle
- * that passes its self-check.
- *
- * **Details**
- *
- * Anything short of that mounts nothing and logs why: the setup tools must
- * stay reachable so `setup_status` can explain the problem. The profile is
- * read once at startup, so a newly saved profile takes effect after Claude
- * restarts the gateway.
- *
- * **Example** (Compose the provider)
- *
- * ```ts
- * import { PracticeKgProviderLayer } from "@beep/practice-gateway/Server"
- * import * as Layer from "effect/Layer"
- *
- * console.log(Layer.isLayer(PracticeKgProviderLayer))
- * ```
- *
- * @category layers
- * @since 0.0.0
- */
-export const PracticeKgProviderLayer = Layer.unwrap(
-  Effect.gen(function* () {
-    const settings = yield* GatewaySettings;
-    const store = yield* ProfileStore;
-    const profile = yield* store.get;
-    const selected = O.exists(profile, (saved) => profileSelects(saved, "practice-kg"));
-    if (!selected || O.isNone(settings.bundleDir)) {
-      return Layer.empty;
-    }
-    const bundleDir = settings.bundleDir.value;
-    const corpusRoot = O.getOrUndefined(settings.corpusRoot);
-    yield* runPracticeKgSelfCheck({ extensionVersion: PRACTICE_GATEWAY_VERSION, bundleDir, corpusRoot });
-    const context = yield* loadPracticeKgBundleContext(bundleDir, corpusRoot);
-    return PracticeKgToolkitLayer.pipe(Layer.provide(makePracticeKgHostResourcesLayer(context)));
-  })
-).pipe(Layer.catchCause(logLayerFailure("The practice knowledge-graph tools were not mounted.")));
 
 /**
  * The full stdio gateway: setup tools plus selected providers over the setup

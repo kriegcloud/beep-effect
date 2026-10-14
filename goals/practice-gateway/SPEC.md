@@ -126,6 +126,7 @@ them and record each in the Decision Log.
 | 2026-10-14 | Setup requirements take `SetupCapability` (adds `workstation`) and `SetupProvider` (adds `claude`, `windows`); `HumanStep` adds `install` and `configure` | The slice 1 catalog has Claude, BitLocker and bundle-folder requirements the profile literals could not express | Drop the added literals once no requirement uses them |
 | 2026-10-14 | `claude-signed-in` is satisfied while an MCP client calls the gateway | Claude stores no stable sign-in marker; a tool call proves a signed-in session | Probe a Claude-owned marker if one is found in the VM |
 | 2026-10-14 | Box Drive install repair fails with a plain `SetupRepairFailed` until the installer route is decided | No installer download in slice 1 | Implement the repair once the route (bootstrapper, winget, MSI) is chosen |
+| 2026-10-14 | The practice-kg provider and its self-check probe import `@beep/law-practice-server` dynamically (`loadPracticeKgModules`); a failed import is `ProviderUnavailable` and the probe reports `broken` | The gateway loaded DuckDB at startup even without practice-kg selected, so a missing sidecar killed the setup tools (VM self-check 2026-10-14) | Return to static imports in `PracticeKgProvider.ts` and `Probes.ts` |
 
 ## Exception Ledger
 
