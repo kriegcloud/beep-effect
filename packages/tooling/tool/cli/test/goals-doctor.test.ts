@@ -45,6 +45,10 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
 
+const decodeGoalManifest = S.decodeEffect(GoalManifest);
+const encodeGoalCompletionReceiptJson = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
+const encodeGoalManifestJson = S.encodeEffect(S.fromJsonString(GoalManifest));
+
 const runGoalsCommand = Command.runWith(goalsCommand, { version: "0.0.0" });
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 const encodeJson = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
@@ -196,15 +200,12 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
     Effect.fn("GoalsDoctorTest.storedIncompleteInventory")(function* ([snapshot]) {
       yield* temporaryWorkingDirectory;
       yield* runGit(["init", "-b", "main"]);
-      const manifest = yield* S.decodeEffect(GoalManifest)({
+      const manifest = yield* decodeGoalManifest({
         initiative: { id: "typed", status: "completed-retained" },
         lifecycle: "completed-retained",
         completionGate: { ...COMPLETION_GATE, pullRequests: [{ number: 7, role: "final" }] },
       });
-      yield* writeProjectFile(
-        "goals/typed/ops/manifest.json",
-        yield* S.encodeEffect(S.fromJsonString(GoalManifest))(manifest)
-      );
+      yield* writeProjectFile("goals/typed/ops/manifest.json", yield* encodeGoalManifestJson(manifest));
       yield* writeProjectFile("goals/typed/README.md", "# Typed\n\nLifecycle: `completed-retained`\n");
       yield* writeBaseline([]);
       const digest = yield* goalCompletionDeclarationDigest(manifest);
@@ -258,7 +259,7 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
       expect(resolved.outcome).toBe(
         snapshot.inventoryComplete && snapshot.rulesetReadsComplete ? "verified" : "unknown"
       );
-      const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(receipt);
+      const text = yield* encodeGoalCompletionReceiptJson(receipt);
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
       const output = yield* captureOutput(
         runGoalsCommand(["doctor"]).pipe(
