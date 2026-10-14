@@ -139,6 +139,11 @@ describe("knowledge doctor causal grouping", () => {
         assert.deepStrictEqual(group.root, O.some(delegated[0]?.finding.findingId ?? ""));
         assert.strictEqual(A.length(group.dependents), 3);
         assert.strictEqual(A.length(report.groups), 1);
+        // The blocking delegated root counts on its own line, so the line matches the headline.
+        const blocking = A.length(A.filter(report.findings, (row) => row.finding.severity === "blocking"));
+        const rendered = renderKnowledgeDoctorHumanReport(report);
+        assert.include(rendered, `blocking findings (${blocking}) under 1 root(s):`);
+        assert.include(rendered, `${`${blocking}`.padStart(8)} goals-doctor:manifest-invalid:demo [delegated]`);
       })
     );
 

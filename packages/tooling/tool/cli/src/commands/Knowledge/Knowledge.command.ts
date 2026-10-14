@@ -636,8 +636,8 @@ interface BlockingRoot {
   readonly group: KnowledgeCauseGroup;
 }
 
-// The per-root number counts blocking dependents only, so the lines add up to the
-// headline; advisory dependents under the same cause key are named beside it.
+// The per-root number counts blocking findings only (a blocking delegated root and its blocking
+// dependents), so the lines add up to the headline; advisory dependents are named beside it.
 const renderRoot = ({ advisory, blocking, group }: BlockingRoot): string =>
   `  ${Str.padStart(6)(`${blocking}`)} ${group.causeKey} [${group.rootOrigin}]${pipe(
     group.attribution,
@@ -660,11 +660,16 @@ const blockingRoots = (report: KnowledgeDoctorReport): ReadonlyArray<BlockingRoo
     )
   );
   const isBlocking = (id: KnowledgeFindingId) => HashSet.has(blockingIds, id);
+  // A blocking delegated root counts toward its own line, so the lines sum to the headline.
   const roots = A.map(report.groups, (group): BlockingRoot => {
-    const blocking = A.length(A.filter(group.dependents, isBlocking));
-    return { group, blocking, advisory: A.length(group.dependents) - blocking };
+    const dependents = A.length(A.filter(group.dependents, isBlocking));
+    return {
+      group,
+      blocking: dependents + (O.exists(group.root, isBlocking) ? 1 : 0),
+      advisory: A.length(group.dependents) - dependents,
+    };
   });
-  return A.filter(roots, (root) => O.exists(root.group.root, isBlocking) || root.blocking > 0);
+  return A.filter(roots, (root) => root.blocking > 0);
 };
 
 const rootSummary = (report: KnowledgeDoctorReport): string => {
