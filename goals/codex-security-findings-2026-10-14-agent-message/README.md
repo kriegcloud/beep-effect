@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -32,19 +32,20 @@ leave no packet-applicable finding open.
 
 ## Current Phase
 
-`P7 monitor` - the one Medium finding is validated and repaired in PR
-[#1766](https://github.com/beep-effect/beep-effect/pull/1766). Focused tests and
-Yeet cheap gates pass; exact-head hosted checks, review and the merge window
-remain active. Cloud status changes only after merge.
+`P9 close` - PR [#1766](https://github.com/beep-effect/beep-effect/pull/1766)
+merged at `55b1836e406d1259259c6eb7d1db00b23d9dbdc7`. The captured
+finding is Fixed in Security Cloud and the signed-in filtered view shows 0 of 0
+open findings. The final P2 review edge is tracked in
+[#1772](https://github.com/beep-effect/beep-effect/issues/1772).
 
 ## Findings at a glance
 
-1 Medium findings. Accepted risk is unavailable; each item must be
-fixed or closed only with strict proof that the report is already fixed or
-materially invalid.
+1 Medium finding at capture, remediated and Fixed. The live detail showed Low
+after severity recalibration; the packet retains the captured severity.
 
 ## Notes
 
 - Raw report bodies remain untracked under `raw/`; tracked files are sanitized.
 - Do not use Codex's Create PR or patch-apply controls.
-- Browser closure is post-merge and must match the captured Codex ID allowlist.
+- Browser closure matched the captured Codex ID after merge; the filtered open
+  view showed zero findings.
