@@ -9,14 +9,14 @@ digests while retaining the originals.
 
 ## Next action
 
-The first bounded wave ended: nine sealed, five accepted, failures 5/7/8/9.
-The 11:14Z ruling authorizes recovery through the SAME Java/Tika chain,
-a separately frozen 22,320,000-ms attempt bound and retained message-free
-failure causes. Publish the engine PR and merge it to main before creating
-new recovery freeze records or launching the four sequential fresh families.
-Repeated second-pass failure receives unsupported disposition, never a third
-attempt. P2 stays in-progress, P3 pending. Eighteen larger occurrences and
-estate/recycle/DOC gates remain open for P3. Never retry a sealed family.
+The recovery engine PR #1731 merged at 226087bfda. The four fresh freeze
+records for failed ordinals 5/7/8/9 are prepared with measured engine
+identities and the approved 22,320,000-ms attempt bound. Commit them,
+launch ordinal 5 under admitted beep-heavy, then reconcile each seal before
+the driver continues sequentially. Repeated second-pass failure is
+unsupported with retained evidence, never accepted partial repairs or a
+third attempt. P2 stays in-progress; eighteen larger occurrences and
+estate/recycle/DOC gates remain open for P3.
 
 ## Launcher
 

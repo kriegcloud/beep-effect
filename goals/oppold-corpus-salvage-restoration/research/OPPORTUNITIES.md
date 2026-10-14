@@ -993,3 +993,13 @@ that integrated main commit. No fix or base merge inside the frozen launch.
 - **Prevented by:** land the consolidated inherited lint/coverage repair
   on main once and route ownership there. S11 gate and attribution stay
   explicit; this lane never edits other packets or lowers a baseline.
+
+
+## 2026-10-14 — Post-merge proof receipts conflict with the published handoff
+
+- Doing: integrating the merged recovery engine before the live recovery.
+- Evidence: one add/add conflict in the dated handoff. Main ended before
+  this lane's locally appended final coverage/hosted attribution and report.
+  Preserve the append and complete the merge; engine source matches main.
+- Prevented by: committing post-push proof receipts with the next evidence
+  wave before integration; do not drop them or re-push a merged head branch.

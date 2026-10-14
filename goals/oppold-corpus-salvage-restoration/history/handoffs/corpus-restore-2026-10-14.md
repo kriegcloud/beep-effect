@@ -203,3 +203,43 @@ hosted-parity: test-tsgo pass | docgen local pass | jsdoc-ratchet pass | knowled
 handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-14.md
 open items: Orchestrator gates #1731 at S11; final file armed at 2026-10-14T13:03:02Z from line "1731 28b828ada1 2026-10-14T13:02:54Z Recovery engine fix". Complete thread read: zero threads, no missing page. Hosted Heavy/Lint Policy is inherited: 14 host-path observations and nine JSDoc warnings. Hosted Heavy/Coverage Regression is inherited: 16 rows in nine non-Corpus files; each affected file matches the merge base. Vercel build-rate-limit rows are environment-only and acknowledged. Hosted readiness/review-window completion and merge are not claimed. The worker monitor is inactive and its final receipt acknowledged; no worker-owned unit remains running. After actual merge, integrate main and create complete new freeze records before the four sequential fresh recovery families for ordinals 5/7/8/9. Same Java/Tika chain; attempt 22,320,000 ms (3 × 7,222,485 + 600,000, rounded up to a minute), family 43,200,000 ms, ratio 4, output 2,147,483,648 bytes and 100 GB floor. Retain original failure classes/stable fields without messages. One recovery attempt per failed occurrence; repeated second-pass failure is unsupported with retained evidence, never a third attempt. No recovery, new manifest or corpus mutation occurred. P2 remains in-progress; eighteen larger occurrences and estate/recycle/DOC gates stay open for P3. Reversal: revert code/packet decisions while retaining every ledger, output, claim and manifest. Final coverage/hosted-red receipts and this report are appended locally for the next evidence commit; all implementation and earlier handoff work are committed and published in one push. Graft saved approximately 88,803 tokens in one retrieval.
 final 28b828ada199415fadbfbfd3af65ee0ef28fa3a2 #1731
+
+
+## Recovery launch preparation after #1731 merge
+
+PR #1731 is MERGED at 226087bfda2c5162679ea5262ffd1b62fe523434.
+Preserved the prior uncommitted final-proof/receipt sections in 4ebcbe3d1f;
+main integration 08afe6715d retained them through one add/add handoff
+conflict. Fresh branch: feat/oppold-corpus-salvage-restoration-p2-recovery-run.
+No old merged head branch is pushed. bun.lock unchanged; installed
+node_modules retained. Corpus/libpff execution source matches main.
+
+| Prerequisite | State | Measurement |
+| --- | --- | --- |
+| P0 sealed on main and disk | met | 755 directory passes, 10,696 file passes, four inherited-loss rows, one preflight and one seal for the sealed run |
+| Slice metadata selection | met | 53 PSTs; 23 eligible recycle occurrences; selected identity unchanged, input 56,140,800 bytes |
+| Recovery membership/source metadata | met | Failed ordinals 5/7/8/9 match all source digests; input bytes 157,975,552 / 354,026,496 / 436,306,944 / 456,877,056 |
+| Existing state | met | All four first-wave families sealed failure; four proposed recovery roots absent; no sealed retry |
+| Engine freeze | met | pffexport 20260917; bubblewrap 0.13.0; OpenJDK 27 dated 2026-09-15 at /usr/lib/jvm/java-27-openjdk/bin/java |
+| Tika jar | met | 0e8ee9795ac4244feab466f4a5a9c3b94675af392848243842cb6e1e69d27103 |
+| Actual sandbox smokes | met | Tika 3.3.1 and pffexport 20260917, admitted under beep-heavy |
+| Capacity | met | Initial free bytes 340,800,180,224; floor 100,000,000,000 |
+| Focused restoration proof | met | Four selected cases passed, 83 skipped, nine seconds |
+| Engine PR and source equality | met | #1731 merged; execution source matches origin/main; code snapshot 08afe6715d2715713618b2d9f2ea64c8aba6b6b7 |
+| Doctor baseline | met | 226 packets; zero blockers; six unrelated inherited advisories; none for this packet |
+| Heavy admission | met | All five slots initially busy; admitted normally, no bypass or other-lane cancellation |
+
+Recovery launcher SHA-256:
+9c39a78e1b143f7b6d0df48bb680eee8e723db3c41b179ffd48c36308ff5c98d.
+Four manifests: history/evidence/p2-recovery-2026-10-14-family-05,
+-07, -08 and -09-run-manifest.json (the numeric component is replaced
+in the full filename). Each has policySha256 null before launch; fill once
+from its family-run-start. Membership digest remains
+00c2bf191c03874664b6167b614b6dfeb1dddac27fadc0407d673eb35b8bd3b2.
+Attempt ceiling 22,320,000 ms, derived as 3 × 7,222,485 + 600,000,
+rounded up to a minute. Family 43,200,000 ms, output 2,147,483,648 bytes,
+ratio four and 100 GB floor unchanged. One new attempt per occurrence;
+repeated second-pass failure is unsupported with retained cause evidence,
+never accepted partial output or a third attempt. Eighteen larger
+occurrences and estate/recycle/DOC gates remain open for P3.
+Reversal: revert packet decisions; retain every corpus artifact and freeze.

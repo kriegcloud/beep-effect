@@ -378,3 +378,15 @@ second-pass failure is dispositioned unsupported, never tried a third time;
 sealed failures and partial repairs stay evidence. No launch in the engine
 PR preparation run. Eighteen larger occurrences and estate/recycle/DOC
 gates remain open for P3. P2 stays in-progress.
+
+
+**Recovery freeze 2026-10-14:** engine PR #1731 merged at 226087bfda.
+Main integrated; source identity matches main. Four new pre-launch manifests
+bind failed ordinals 5/7/8/9, one fresh family each, concurrency one and
+one recovery attempt each. Attempt 22,320,000 ms; family 43,200,000 ms,
+ratio 4, 2 GiB output and 100 GB floor retained. Both admitted sandbox
+smokes and four focused tests pass. Launch ordinal 5 after committing
+freeze records and the full sixty-second interval; driver resumes after
+seal review. Repeated second-pass failure is unsupported with evidence,
+never accepted partial output or a third attempt. P2 stays in-progress;
+eighteen larger occurrences and estate/recycle/DOC gates stay open for P3.
