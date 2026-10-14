@@ -2,14 +2,14 @@
 
 ```text
 lane: rsc-h2-completion
-head: fd1b225983610c59ca63b8dc02a7455672b87330 (qualified source; report-only delivery tip in final dispatch)   PR: #1574
-package-verify @beep/repo-cli: pass (final repaired integration audit 844.8s/docgen 27.2s)
-hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=pass fallow=pass coverage=pass (291 tests; existing touched floors/ceilings met)
+head: 8c00bdb9275e31e6eb9567e00ca703f05b310dc5 (qualified source; accepted publication c6e855d8b9; report-only delivery tip in final dispatch)   PR: #1744 evidence follow-up (+ #1574 merged implementation)
+package-verify @beep/repo-cli: pass (final repaired integration audit 868.0s/docgen 27.1s)
+hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=pass fallow=pass coverage=pass (293 tests; existing touched floors/ceilings met)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
 advisories: #1429=unknown (draft-ready/window verified) #1462=unknown (window unsatisfied, seven seconds) #1427=unknown (draft-ready/window verified; merge-ready verdict unknown)
-post-merge refresh: pending merge; orchestrator owns three-packet refresh
+post-merge refresh: pending orchestrator action; #1574 merged at 2026-10-14T17:15:59Z
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h2-completion-2026-10-14.md
-open items: final-head hosted readiness/S11 gate and inherited main repairs; orchestrator merge, three-packet refresh, retirement; complete historical inventory/verdict provider remains tracked follow-up
+open items: evidence follow-up readiness/S11 gate; orchestrator three-packet refresh and retirement; complete historical inventory/verdict provider remains tracked follow-up
 
 ```
 
@@ -480,3 +480,114 @@ resolved thread/reply pairs are:
 
 No merge, lifecycle reset or real completion refresh is performed by H2.
 The orchestrator owns the S11 gate, post-merge three-packet refresh and retirement.
+
+## Sixth review: fail closed on unresolved default-branch tokens
+
+Source `8c00bdb927` addresses thread `PRRT_kwDOPbO_N86sbN_W`, comment
+`4273726672`. A non-main base encountering DEFAULT_BRANCH in either include
+or exclude now fails that per-ruleset read instead of silently declaring it
+non-applicable. Main-domain matching is unchanged; ALL and literal refs remain
+supported. Existing partial-read/older-definite safeguards apply. Fixtures
+cover both unresolved token positions and supported non-main literal/ALL reds.
+Independent medium Opus follow-up returns ZERO ACTIONABLE FINDINGS.
+
+Current local qualification is fully green: full package audit 868.0s/docgen
+27.1s; schema-first, Effect/Vitest, test-tsgo, docgen, JSDoc, knowledge refs,
+Fallow audit/health, retired paths and 293 scoped tests pass. Existing touched
+coverage floors/ceilings pass; Completion reads 86.59/83.05/68.64/77.35 percent.
+No baseline is changed. No additional implementation edit follows this proof.
+
+A parallel checkout publishes this same source in `c6e855d8b9`, with current
+main's Actions dependency update. Its H2 source/tests are byte-identical to
+our qualified source. Preserve that publication through a fast-forward; do
+not overwrite another checkout's head. That checkout answers and resolves
+the thread with REST reply `4273798919`; later bot reply `4273807201`
+acknowledges it. Our prepared `yeet reply` correctly returns stale/already
+resolved and posts nothing. Six threads are resolved, with each response's
+actual provenance retained. The other checkout's pre-reboot verification
+waiver does not replace this worker's completed local proof.
+
+The prior bounded monitor is cancelled for the source wave, not counted
+ready. Final evidence publication and dispatch bind the actual report-only
+head, fresh thread read and a new bounded readiness result. H2 does not merge;
+post-merge three-packet refresh and retirement stay orchestrator-owned.
+
+## Original merge and evidence publication correction
+
+PR #1574 merged at 2026-10-14T17:15:59Z as
+`4ec5e74a89d3b15e66c63b63b7192ac2a31b2b10`, accepting
+`c6e855d8b97fa3a29ede6b4a92c34ab0865be93a`. All H2 source and test
+surfaces match the qualified source above. The external merge occurred during
+the report-only Yeet publication preflight; the publisher created redundant
+draft #1743 from the old implementation branch. Its owned automatic monitor
+was cancelled and reached terminal exit 3; no readiness pass is claimed.
+
+Following the standing merged-PR ruling, create
+`chore/rsc-h2-completion-followup` from `origin/main` (`730348fc1f`),
+cherry-pick only the five packet evidence files, and preserve main's other lane
+progress while resolving PLAN/README. Publish this evidence follow-up through
+Yeet, then close redundant #1743 after the replacement is concrete. The
+follow-up delivery SHA and PR are recorded in the final dispatch: a committed
+report cannot contain its own future commit SHA. Source qualification remains
+bound to the explicitly identified source, rather than claiming a new source
+proof for this documentation-only delivery. The three historical packet
+refreshes and lane retirement remain assigned to the orchestrator by the
+resume ruling. Reversal: close the evidence follow-up or revert its five
+documentation files; the merged implementation is unaffected.
+
+### Follow-up cheap proof and inherited publication fence
+
+`yeet publish` completed all 16 cheap gates: 15 passed, while
+`quality:cache-policy` failed with `Qualification evidence digest mismatch.`
+The mismatching reference in `standards/cache-qualification-baseline.json`
+expects `f963ef8f0b9446b69f40b77cefbbbbcb3e2487c3e740b7c4ce1de6b624e591ff`
+for `history/receipts/knip-cache-policy-review.md`; the file in both this lane
+and `origin/main` hashes to
+`aa3b409668e97612e189d3bfe2507ae2a74fa0babb72647208877100ca4310cd`.
+Neither the reference nor the file is in this five-file H2 follow-up diff.
+This is inherited; preserve the reviewed cache provenance and assign the
+repair to the orchestrator's main-red episode. Inbox
+`local-shard-950f82779f62` is acknowledged with this attribution.
+
+Yeet created the local report commit but pushed nothing. Apply the brief's
+authorized fallback: commit this refusal receipt by name, push the fresh
+follow-up branch, create its PR with `ready-for-heavy`, mark content final,
+and run a detached readiness monitor bounded to 40 minutes. Publication
+preflight did not reach the isolated head-install step; this report makes no
+claim that it did. Source qualification remains the full successful H2 proof.
+
+The replacement is PR #1744 (`chore/rsc-h2-completion-followup`); redundant
+draft #1743 is closed with a link to it. The complete source qualification
+and all six original review resolutions are retained above. Delivery is
+content-final; the exact report-only head is provided by the final dispatch.
+The orchestrator must read #1744's current threads and readiness result at
+the merge gate; this committed receipt does not predict the monitor outcome.
+
+### Exact follow-up hosted integration evidence
+
+At delivery head `1b1a5cf0f5eaac39f6e9da3e77e1451fa9da59ba`, hosted Repo
+Sanity job `116013475052` reproduces the inherited cache digest mismatch
+(after eight passing sanity lanes); row `Repo_Sanity-12d01bbf3574` is
+acknowledged with the verified main-byte attribution. Heavy Check job
+`116014042085` fails test-tsgo at `skills-command.test.ts:634`, missing
+`HttpClient` (TS377004/TS2345). That file is identical to `origin/main` and
+was last changed by main `730348fc1f`; row `Heavy_Check-bf6383f0afaa` is
+acknowledged as inherited and assigned to the orchestrator's main repair.
+The full passing source qualification above remains bound to `8c00bdb927`;
+this fresh-main integration has these additional, explicitly reported reds.
+Vercel oip-web/todox failures explicitly say deployment rate limited; both
+are acknowledged environment-only. No paid upgrade is attempted.
+
+### Follow-up review wave
+
+Threads `PRRT_kwDOPbO_N86sc4UR` (comment `4274423802`) and
+`PRRT_kwDOPbO_N86sc5N4` (comment `4274429641`) identified the stale README
+Status block: update it to merged #1574, follow-up #1744, and six original
+review resolutions, preserving every other lane's progress. Thread
+`PRRT_kwDOPbO_N86sc4Ul` (comment `4274423829`) identified ambiguous publisher
+timing. The original report publisher log confirms cheap gates and isolated
+head-install both completed before it created #1743; the fresh-main follow-up
+publisher failed cache-policy before isolated install. Distinguish the two
+runs explicitly and make no unsupported claim about the exact phase at the
+instant #1574 merged. Reply and resolve all three through Yeet after this
+complete documentation wave is pushed. No source or baseline changes.
