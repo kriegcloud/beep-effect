@@ -177,8 +177,8 @@ const tikaServerEngineConfigTimeoutMillisDefault = PosInt.make(defaultTimeoutMil
  * @category configuration
  * @since 0.0.0
  */
-export class TikaServerEngineConfig extends S.Class<TikaServerEngineConfig>($I`TikaServerEngineConfig`)(
-  {
+export class TikaServerEngineConfig extends S.Opaque<TikaServerEngineConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseUrl: TikaServerBaseUrl.pipe(
       S.withConstructorDefault(Effect.succeed(tikaServerEngineConfigBaseUrlDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(tikaServerEngineConfigBaseUrlDefault))
@@ -199,8 +199,9 @@ export class TikaServerEngineConfig extends S.Class<TikaServerEngineConfig>($I`T
     ).annotateKey({
       description: "Per-file Tika Server extraction timeout in milliseconds.",
     }),
-  },
-  $I.annote("TikaServerEngineConfig", {
-    description: "Configuration for the Tika Server HTTP engine: base URL, per-file timeout, and output budget.",
-  })
+  }).pipe(
+    $I.annoteSchema("TikaServerEngineConfig", {
+      description: "Configuration for the Tika Server HTTP engine: base URL, per-file timeout, and output budget.",
+    })
+  )
 ) {}

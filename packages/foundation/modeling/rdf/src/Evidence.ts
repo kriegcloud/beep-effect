@@ -75,27 +75,28 @@ export type EvidenceSelectorKind = typeof EvidenceSelectorKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSelector`)(
-  {
+export class TextQuoteSelector extends S.Opaque<TextQuoteSelector, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("text-quote"),
     exact: S.NonEmptyString,
     prefix: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     suffix: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("TextQuoteSelector", {
-    description: "Text-quote selector for evidence anchors.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "TextQuoteSelector",
-      overview: "Text-quote selector for evidence anchors.",
-      status: "stable",
-      specifications: [
-        { name: "Web Annotation Data Model", section: "Text Quote Selector", disposition: "informative" },
-      ],
-      equivalenceBasis: "Exact quote, prefix, and suffix equality.",
-      evidenceAnchoring: "Adapter-neutral evidence selector compatible with Web Annotation text selectors.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("TextQuoteSelector", {
+      description: "Text-quote selector for evidence anchors.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "TextQuoteSelector",
+        overview: "Text-quote selector for evidence anchors.",
+        status: "stable",
+        specifications: [
+          { name: "Web Annotation Data Model", section: "Text Quote Selector", disposition: "informative" },
+        ],
+        equivalenceBasis: "Exact quote, prefix, and suffix equality.",
+        evidenceAnchoring: "Adapter-neutral evidence selector compatible with Web Annotation text selectors.",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -118,26 +119,27 @@ export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSe
  * @category models
  * @since 0.0.0
  */
-export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextPositionSelector`)(
-  {
+export class TextPositionSelector extends S.Opaque<TextPositionSelector, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("text-position"),
     start: S.Natural,
     end: S.Natural,
-  },
-  $I.annote("TextPositionSelector", {
-    description: "Text-position selector for evidence anchors.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "TextPositionSelector",
-      overview: "Text-position selector for evidence anchors.",
-      status: "stable",
-      specifications: [
-        { name: "Web Annotation Data Model", section: "Text Position Selector", disposition: "informative" },
-      ],
-      equivalenceBasis: "Exact start and end offset equality.",
-      evidenceAnchoring: "Adapter-neutral evidence selector compatible with Web Annotation text-position selectors.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("TextPositionSelector", {
+      description: "Text-position selector for evidence anchors.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "TextPositionSelector",
+        overview: "Text-position selector for evidence anchors.",
+        status: "stable",
+        specifications: [
+          { name: "Web Annotation Data Model", section: "Text Position Selector", disposition: "informative" },
+        ],
+        equivalenceBasis: "Exact start and end offset equality.",
+        evidenceAnchoring: "Adapter-neutral evidence selector compatible with Web Annotation text-position selectors.",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -159,24 +161,25 @@ export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextP
  * @category models
  * @since 0.0.0
  */
-export class FragmentSelector extends S.Class<FragmentSelector>($I`FragmentSelector`)(
-  {
+export class FragmentSelector extends S.Opaque<FragmentSelector, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("fragment"),
     value: S.NonEmptyString,
     conformsTo: S.OptionFromOptionalKey(IRIReference).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("FragmentSelector", {
-    description: "Fragment selector for evidence anchors.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "FragmentSelector",
-      overview: "Fragment selector for evidence anchors.",
-      status: "stable",
-      specifications: [{ name: "Media Fragments URI 1.0", disposition: "informative" }],
-      equivalenceBasis: "Exact fragment and optional conformsTo equality.",
-      evidenceAnchoring: "Adapter-neutral evidence selector for URI fragment addressing.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("FragmentSelector", {
+      description: "Fragment selector for evidence anchors.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "FragmentSelector",
+        overview: "Fragment selector for evidence anchors.",
+        status: "stable",
+        specifications: [{ name: "Media Fragments URI 1.0", disposition: "informative" }],
+        equivalenceBasis: "Exact fragment and optional conformsTo equality.",
+        evidenceAnchoring: "Adapter-neutral evidence selector for URI fragment addressing.",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -241,23 +244,24 @@ export type EvidenceSelector = typeof EvidenceSelector.Type;
  * @category models
  * @since 0.0.0
  */
-export class EvidenceTarget extends S.Class<EvidenceTarget>($I`EvidenceTarget`)(
-  {
+export class EvidenceTarget extends S.Opaque<EvidenceTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: IRIReference,
     selector: EvidenceSelector,
-  },
-  $I.annote("EvidenceTarget", {
-    description: "Target resource plus selector pair referenced by an evidence anchor.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "EvidenceTarget",
-      overview: "Target resource plus selector pair referenced by an evidence anchor.",
-      status: "stable",
-      specifications: [{ name: "Web Annotation Data Model", section: "Target", disposition: "informative" }],
-      equivalenceBasis: "Source and selector equality.",
-      evidenceAnchoring: "Core package-owned evidence target that can be mapped to Web Annotation.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceTarget", {
+      description: "Target resource plus selector pair referenced by an evidence anchor.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "EvidenceTarget",
+        overview: "Target resource plus selector pair referenced by an evidence anchor.",
+        status: "stable",
+        specifications: [{ name: "Web Annotation Data Model", section: "Target", disposition: "informative" }],
+        equivalenceBasis: "Source and selector equality.",
+        evidenceAnchoring: "Core package-owned evidence target that can be mapped to Web Annotation.",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -283,25 +287,26 @@ export class EvidenceTarget extends S.Class<EvidenceTarget>($I`EvidenceTarget`)(
  * @category models
  * @since 0.0.0
  */
-export class EvidenceAnchor extends S.Class<EvidenceAnchor>($I`EvidenceAnchor`)(
-  {
+export class EvidenceAnchor extends S.Opaque<EvidenceAnchor, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: IRIReference,
     target: EvidenceTarget,
     note: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("EvidenceAnchor", {
-    description: "Evidence anchor value referenced from provenance and verification services.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "EvidenceAnchor",
-      overview: "Evidence anchor value referenced from provenance and verification services.",
-      status: "stable",
-      specifications: [{ name: "Web Annotation Data Model", disposition: "informative" }],
-      equivalenceBasis: "Identifier and target equality.",
-      evidenceAnchoring:
-        "Core package-owned evidence anchor that can be mapped to Web Annotation without making that model mandatory.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceAnchor", {
+      description: "Evidence anchor value referenced from provenance and verification services.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "EvidenceAnchor",
+        overview: "Evidence anchor value referenced from provenance and verification services.",
+        status: "stable",
+        specifications: [{ name: "Web Annotation Data Model", disposition: "informative" }],
+        equivalenceBasis: "Identifier and target equality.",
+        evidenceAnchoring:
+          "Core package-owned evidence anchor that can be mapped to Web Annotation without making that model mandatory.",
+      }),
+    })
+  )
 ) {}
 
 /**
@@ -331,21 +336,22 @@ export class EvidenceAnchor extends S.Class<EvidenceAnchor>($I`EvidenceAnchor`)(
  * @category models
  * @since 0.0.0
  */
-export class BoundedEvidenceProjection extends S.Class<BoundedEvidenceProjection>($I`BoundedEvidenceProjection`)(
-  {
+export class BoundedEvidenceProjection extends S.Opaque<BoundedEvidenceProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     anchors: S.Array(EvidenceAnchor),
     truncated: S.Boolean,
-  },
-  $I.annote("BoundedEvidenceProjection", {
-    description: "Bounded evidence projection.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "provenanceConstruct",
-      canonicalName: "BoundedEvidenceProjection",
-      overview: "Bounded evidence projection.",
-      status: "stable",
-      specifications: [{ name: "PROV-O", disposition: "informative" }],
-      equivalenceBasis: "Anchor collection equality plus truncated flag equality.",
-      evidenceAnchoring: "Projection wrapper that keeps evidence exports bounded.",
-    }),
-  })
+  }).pipe(
+    $I.annoteSchema("BoundedEvidenceProjection", {
+      description: "Bounded evidence projection.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "provenanceConstruct",
+        canonicalName: "BoundedEvidenceProjection",
+        overview: "Bounded evidence projection.",
+        status: "stable",
+        specifications: [{ name: "PROV-O", disposition: "informative" }],
+        equivalenceBasis: "Anchor collection equality plus truncated flag equality.",
+        evidenceAnchoring: "Projection wrapper that keeps evidence exports bounded.",
+      }),
+    })
+  )
 ) {}

@@ -35,7 +35,9 @@ const $I = $RepoCliId.create("commands/Explore/Explore.errors");
  * @category errors
  * @since 0.0.0
  */
-export class GraduationRecoveryError extends S.TaggedError<GraduationRecoveryError>($I`GraduationRecoveryError`)(
+export class GraduationRecoveryError extends S.TaggedError<GraduationRecoveryError, { readonly brand: unique symbol }>(
+  $I`GraduationRecoveryError`
+)(
   "GraduationRecoveryError",
   {
     exploration: S.String,

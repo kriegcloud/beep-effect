@@ -36,7 +36,7 @@ const $I = $ScratchpadId.create("effected/runner/Paths");
  * @category configuration
  * @since 0.0.0
  */
-export class RunnerConfig extends S.Class<RunnerConfig>($I`RunnerConfig`)(
+export class RunnerConfig extends S.Class<RunnerConfig, { readonly brand: unique symbol }>($I`RunnerConfig`)(
   {
     repoRoot: S.NonEmptyString,
     upstreamRoot: S.NonEmptyString,

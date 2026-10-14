@@ -42,7 +42,9 @@ const generation =
   "apps/labs/ciops";
 
 /** The clone cannot answer ancestry probes: its history is shallow or treeless. */
-class KpiAdoptionRepositoryError extends S.TaggedError<KpiAdoptionRepositoryError>($I`KpiAdoptionRepositoryError`)(
+class KpiAdoptionRepositoryError extends S.TaggedError<KpiAdoptionRepositoryError, { readonly brand: unique symbol }>(
+  $I`KpiAdoptionRepositoryError`
+)(
   "KpiAdoptionRepositoryError",
   { message: S.String },
   $I.annoteError<KpiAdoptionRepositoryError>("KpiAdoptionRepositoryError", {

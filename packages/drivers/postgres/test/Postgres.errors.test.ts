@@ -233,7 +233,7 @@ describe("PostgresError", () => {
   it.effect.prop(
     "round-trips schema-derived Postgres diagnostic context",
     [PostgresErrorContext],
-    ([value]) => expectRoundTrip(PostgresErrorContext, value),
+    ([value]) => expectRoundTrip(PostgresErrorContext, PostgresErrorContext.make(value)),
     { arbitrary: fcRuns(25) }
   );
 

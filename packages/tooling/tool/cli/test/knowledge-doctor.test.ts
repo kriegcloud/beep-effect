@@ -138,7 +138,7 @@ describe("knowledge doctor classification rule table", () => {
             : span.surface === "live"
               ? "verified"
               : "unclassified";
-        const spanClass = classifyKnowledgeSpan({ span, validCitation });
+        const spanClass = classifyKnowledgeSpan({ span: KnowledgeSpan.make(span), validCitation });
         assert.strictEqual(spanClass, expected);
         assert.isTrue(KnowledgeSpanClass.is[spanClass](spanClass));
         assert.isTrue(A.some(KNOWLEDGE_SPAN_CLASSIFICATION_RULES, (row) => row.spanClass === spanClass));
@@ -667,10 +667,12 @@ describe("knowledge doctor counterfactual harness", () => {
 
 const ROOT_MODULE_PATH = "packages/tooling/tool/cli/src/commands/Root.ts";
 
-class RuntimeCommandFlags extends S.Class<RuntimeCommandFlags>("RuntimeCommandFlags")({
-  path: S.String,
-  flags: S.Array(S.String),
-}) {}
+class RuntimeCommandFlags extends S.Opaque<RuntimeCommandFlags, { readonly brand: unique symbol }>()(
+  S.Struct({
+    path: S.String,
+    flags: S.Array(S.String),
+  }).annotate({ identifier: "RuntimeCommandFlags" })
+) {}
 
 const RuntimeCommandFlagsJson = RuntimeCommandFlags.pipe(S.Array, S.fromJsonString);
 const SHARED_FLAGS_PATH = "packages/tooling/tool/cli/src/internal/cli/Flags.ts";

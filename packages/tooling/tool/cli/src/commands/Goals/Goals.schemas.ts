@@ -335,9 +335,10 @@ export type GoalRedAttribution = typeof GoalRedAttribution.Type;
  * @category models
  * @since 0.0.0
  */
-export class GoalPullRequestRef extends S.Class<GoalPullRequestRef>($I`GoalPullRequestRef`)(
-  { number: S.Int.check(S.isGreaterThan(0)), role: GoalPullRequestRole },
-  $I.annote("GoalPullRequestRef", { description: "Declares one pull request by number and delivery role." })
+export class GoalPullRequestRef extends S.Opaque<GoalPullRequestRef, { readonly brand: unique symbol }>()(
+  S.Struct({ number: S.Int.check(S.isGreaterThan(0)), role: GoalPullRequestRole }).pipe(
+    $I.annoteSchema("GoalPullRequestRef", { description: "Declares one pull request by number and delivery role." })
+  )
 ) {}
 
 /**
@@ -353,15 +354,16 @@ export class GoalPullRequestRef extends S.Class<GoalPullRequestRef>($I`GoalPullR
  * @category models
  * @since 0.0.0
  */
-export class GoalAcceptanceEvidenceRef extends S.Class<GoalAcceptanceEvidenceRef>($I`GoalAcceptanceEvidenceRef`)(
-  {
+export class GoalAcceptanceEvidenceRef extends S.Opaque<GoalAcceptanceEvidenceRef, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: GoalAcceptanceEvidenceKind,
     ref: S.NonEmptyString,
     gating: S.Boolean.pipe(S.withDecodingDefault(Effect.succeed(true))),
-  },
-  $I.annote("GoalAcceptanceEvidenceRef", {
-    description: "Points to acceptance evidence bound to a commit, with an explicit gating policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalAcceptanceEvidenceRef", {
+      description: "Points to acceptance evidence bound to a commit, with an explicit gating policy.",
+    })
+  )
 ) {}
 
 /**
@@ -377,17 +379,18 @@ export class GoalAcceptanceEvidenceRef extends S.Class<GoalAcceptanceEvidenceRef
  * @category models
  * @since 0.0.0
  */
-export class GoalMergeResult extends S.Class<GoalMergeResult>($I`GoalMergeResult`)(
-  {
+export class GoalMergeResult extends S.Opaque<GoalMergeResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     mergeCommit: S.NonEmptyString,
     tree: S.NonEmptyString,
     mergedAt: S.DateTimeUtcFromString,
     method: S.OptionFromNullOr(GoalMergeMethod),
     baseRef: S.NonEmptyString,
-  },
-  $I.annote("GoalMergeResult", {
-    description: "Records GitHub merge identity and tree without requiring squash-head ancestry.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalMergeResult", {
+      description: "Records GitHub merge identity and tree without requiring squash-head ancestry.",
+    })
+  )
 ) {}
 
 /**
@@ -403,14 +406,17 @@ export class GoalMergeResult extends S.Class<GoalMergeResult>($I`GoalMergeResult
  * @category models
  * @since 0.0.0
  */
-export class GoalEvidenceCheck extends S.Class<GoalEvidenceCheck>($I`GoalEvidenceCheck`)(
-  {
+export class GoalEvidenceCheck extends S.Opaque<GoalEvidenceCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     ref: GoalAcceptanceEvidenceRef,
     outcome: GoalCompletionOutcome,
     observedHead: S.OptionFromNullOr(S.NonEmptyString),
     detail: S.String,
-  },
-  $I.annote("GoalEvidenceCheck", { description: "Records the outcome and observed head of one acceptance reference." })
+  }).pipe(
+    $I.annoteSchema("GoalEvidenceCheck", {
+      description: "Records the outcome and observed head of one acceptance reference.",
+    })
+  )
 ) {}
 
 /**
@@ -472,8 +478,8 @@ export type GoalCheckConclusion = typeof GoalCheckConclusion.Type;
  * @category models
  * @since 0.0.0
  */
-export class GoalRequiredCheckSnapshot extends S.Class<GoalRequiredCheckSnapshot>($I`GoalRequiredCheckSnapshot`)(
-  {
+export class GoalRequiredCheckSnapshot extends S.Opaque<GoalRequiredCheckSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     contexts: S.Array(S.NonEmptyString),
     sources: S.Array(S.NonEmptyString),
     effectiveAt: S.DateTimeUtcFromString,
@@ -482,10 +488,11 @@ export class GoalRequiredCheckSnapshot extends S.Class<GoalRequiredCheckSnapshot
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefaultKey(Effect.succeed(true))
     ),
-  },
-  $I.annote("GoalRequiredCheckSnapshot", {
-    description: "Historical required-context list with source version references and merge-time applicability.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalRequiredCheckSnapshot", {
+      description: "Historical required-context list with source version references and merge-time applicability.",
+    })
+  )
 ) {}
 
 /**
@@ -501,16 +508,17 @@ export class GoalRequiredCheckSnapshot extends S.Class<GoalRequiredCheckSnapshot
  * @category models
  * @since 0.0.0
  */
-export class GoalNonRequiredRed extends S.Class<GoalNonRequiredRed>($I`GoalNonRequiredRed`)(
-  {
+export class GoalNonRequiredRed extends S.Opaque<GoalNonRequiredRed, { readonly brand: unique symbol }>()(
+  S.Struct({
     lane: S.NonEmptyString,
     conclusionAtMerge: GoalCheckConclusion,
     conclusionFinal: GoalCheckConclusion,
     attribution: GoalRedAttribution,
-  },
-  $I.annote("GoalNonRequiredRed", {
-    description: "Retains merge-time and final conclusions alongside independently attributed failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalNonRequiredRed", {
+      description: "Retains merge-time and final conclusions alongside independently attributed failures.",
+    })
+  )
 ) {}
 
 /**
@@ -526,8 +534,8 @@ export class GoalNonRequiredRed extends S.Class<GoalNonRequiredRed>($I`GoalNonRe
  * @category models
  * @since 0.0.0
  */
-export class GoalCompletionReceipt extends S.Class<GoalCompletionReceipt>($I`GoalCompletionReceipt`)(
-  {
+export class GoalCompletionReceipt extends S.Opaque<GoalCompletionReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("goal-completion-receipt/v1"),
     repository: S.NonEmptyString,
     packet: S.NonEmptyString,
@@ -545,10 +553,11 @@ export class GoalCompletionReceipt extends S.Class<GoalCompletionReceipt>($I`Goa
     subClaims: S.Array(GoalEvidenceCheck),
     outcome: GoalCompletionOutcome,
     verifiedAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("GoalCompletionReceipt", {
-    description: "Binds a derived completion observation to the repository, packet, declaration and accepted head.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalCompletionReceipt", {
+      description: "Binds a derived completion observation to the repository, packet, declaration and accepted head.",
+    })
+  )
 ) {}
 
 /**
@@ -578,8 +587,8 @@ export class GoalCompletionReceipt extends S.Class<GoalCompletionReceipt>($I`Goa
  * @category models
  * @since 0.0.0
  */
-export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompletionGate`)(
-  {
+export class GoalCompletionGate extends S.Opaque<GoalCompletionGate, { readonly brand: unique symbol }>()(
+  S.Struct({
     operator: S.String,
     requiresPullRequest: S.Boolean,
     requiresMergeable: S.Boolean,
@@ -597,10 +606,11 @@ export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompl
       )
     ),
     acceptanceEvidence: GoalAcceptanceEvidenceRef.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("GoalCompletionGate", {
-    description: "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered).",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalCompletionGate", {
+      description: "Declared completion gate of a goal packet (yeet PR-to-mergeable unless grandfathered).",
+    })
+  )
 ) {}
 
 /**
@@ -624,8 +634,8 @@ export class GoalCompletionGate extends S.Class<GoalCompletionGate>($I`GoalCompl
  * @category models
  * @since 0.0.0
  */
-export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
-  {
+export class GoalInitiative extends S.Opaque<GoalInitiative, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     packetId: S.optionalKey(S.String),
     status: GoalStatus,
@@ -633,10 +643,11 @@ export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
     created: S.optionalKey(S.String),
     updated: S.optionalKey(S.String),
     packetAnchorDocument: S.optionalKey(S.String),
-  },
-  $I.annote("GoalInitiative", {
-    description: "Goal-manifest identity block: required id and canonical status plus optional metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalInitiative", {
+      description: "Goal-manifest identity block: required id and canonical status plus optional metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -659,16 +670,17 @@ export class GoalInitiative extends S.Class<GoalInitiative>($I`GoalInitiative`)(
  * @category models
  * @since 0.0.0
  */
-export class GoalPhase extends S.Class<GoalPhase>($I`GoalPhase`)(
-  {
+export class GoalPhase extends S.Opaque<GoalPhase, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: GoalPhaseStatus,
     id: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
     exit: S.optionalKey(S.String),
-  },
-  $I.annote("GoalPhase", {
-    description: "One goal-manifest phase entry with a normalized status.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalPhase", {
+      description: "One goal-manifest phase entry with a normalized status.",
+    })
+  )
 ) {}
 
 const CapabilitySegment = S.String.check(
@@ -816,7 +828,7 @@ const GoalManifestCapabilitySelfCycleCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class GoalManifest extends S.Class<GoalManifest>($I`GoalManifest`)(
+export class GoalManifest extends S.Opaque<GoalManifest, { readonly brand: unique symbol }>()(
   S.Struct({
     initiative: GoalInitiative,
     completionGate: GoalCompletionGate,
@@ -838,10 +850,13 @@ export class GoalManifest extends S.Class<GoalManifest>($I`GoalManifest`)(
     phases: S.Union([S.Array(GoalPhase), S.Record(S.String, GoalPhase)]).pipe(S.optionalKey),
     provides: CapabilitySlugList,
     requires: CapabilitySlugList,
-  }).check(GoalManifestCapabilitySelfCycleCheck),
-  $I.annote("GoalManifest", {
-    description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
   })
+    .check(GoalManifestCapabilitySelfCycleCheck)
+    .pipe(
+      $I.annoteSchema("GoalManifest", {
+        description: "Canonical goal-packet manifest with defaulted capability edges and legacy wire compatibility.",
+      })
+    )
 ) {}
 
 /**

@@ -192,7 +192,7 @@ export type PackageRelease = typeof PackageRelease.Type;
  * @category models
  * @since 0.0.0
  */
-export class VersioningStrategy extends S.Class<VersioningStrategy>($I`VersioningStrategy`)({
+export class VersioningStrategy extends S.Class<VersioningStrategy, { readonly brand: unique symbol }>($I`VersioningStrategy`)({
 	/** The classification. */
 	type: VersioningStrategyType.annotateKey({ description: "The classification." }),
 	/** The groups classification was performed against, as supplied. */

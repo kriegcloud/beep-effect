@@ -31,7 +31,10 @@ const messageWithCause = (message: string, cause: unknown): string =>
  * @category errors
  * @since 0.0.0
  */
-export class LintCircularAnalysisError extends S.TaggedError<LintCircularAnalysisError>($I`LintCircularAnalysisError`)(
+export class LintCircularAnalysisError extends S.TaggedError<
+  LintCircularAnalysisError,
+  { readonly brand: unique symbol }
+>($I`LintCircularAnalysisError`)(
   "LintCircularAnalysisError",
   {
     message: S.String,
@@ -62,7 +65,9 @@ export class LintCircularAnalysisError extends S.TaggedError<LintCircularAnalysi
  * @category errors
  * @since 0.0.0
  */
-export class LintFileDiscoveryError extends S.TaggedError<LintFileDiscoveryError>($I`LintFileDiscoveryError`)(
+export class LintFileDiscoveryError extends S.TaggedError<LintFileDiscoveryError, { readonly brand: unique symbol }>(
+  $I`LintFileDiscoveryError`
+)(
   "LintFileDiscoveryError",
   {
     message: S.String,
@@ -116,9 +121,10 @@ export class LintFileDiscoveryError extends S.TaggedError<LintFileDiscoveryError
  * @category errors
  * @since 0.0.0
  */
-export class TestTypecheckBaselineError extends S.TaggedError<TestTypecheckBaselineError>(
-  $I`TestTypecheckBaselineError`
-)(
+export class TestTypecheckBaselineError extends S.TaggedError<
+  TestTypecheckBaselineError,
+  { readonly brand: unique symbol }
+>($I`TestTypecheckBaselineError`)(
   "TestTypecheckBaselineError",
   {
     message: S.String,
@@ -158,9 +164,10 @@ export class TestTypecheckBaselineError extends S.TaggedError<TestTypecheckBasel
  * @category errors
  * @since 0.0.0
  */
-export class SchemaFirstInventoryReadError extends S.TaggedError<SchemaFirstInventoryReadError>(
-  $I`SchemaFirstInventoryReadError`
-)(
+export class SchemaFirstInventoryReadError extends S.TaggedError<
+  SchemaFirstInventoryReadError,
+  { readonly brand: unique symbol }
+>($I`SchemaFirstInventoryReadError`)(
   "SchemaFirstInventoryReadError",
   {
     message: S.String,
@@ -196,7 +203,10 @@ export class SchemaFirstInventoryReadError extends S.TaggedError<SchemaFirstInve
  * @category errors
  * @since 0.0.0
  */
-export class TsconfigOverlayReadError extends S.TaggedError<TsconfigOverlayReadError>($I`TsconfigOverlayReadError`)(
+export class TsconfigOverlayReadError extends S.TaggedError<
+  TsconfigOverlayReadError,
+  { readonly brand: unique symbol }
+>($I`TsconfigOverlayReadError`)(
   "TsconfigOverlayReadError",
   {
     message: S.String,
@@ -255,7 +265,9 @@ export class TsconfigOverlayReadError extends S.TaggedError<TsconfigOverlayReadE
  * @category errors
  * @since 0.0.0
  */
-export class EffectVitestLintError extends S.TaggedError<EffectVitestLintError>($I`EffectVitestLintError`)(
+export class EffectVitestLintError extends S.TaggedError<EffectVitestLintError, { readonly brand: unique symbol }>(
+  $I`EffectVitestLintError`
+)(
   "EffectVitestLintError",
   { message: S.String },
   $I.annoteError<EffectVitestLintError>("EffectVitestLintError", {
@@ -284,9 +296,10 @@ export class EffectVitestLintError extends S.TaggedError<EffectVitestLintError>(
  * @category errors
  * @since 0.0.0
  */
-export class EffectVitestPrimitiveGraphError extends S.TaggedError<EffectVitestPrimitiveGraphError>(
-  $I`EffectVitestPrimitiveGraphError`
-)(
+export class EffectVitestPrimitiveGraphError extends S.TaggedError<
+  EffectVitestPrimitiveGraphError,
+  { readonly brand: unique symbol }
+>($I`EffectVitestPrimitiveGraphError`)(
   "EffectVitestPrimitiveGraphError",
   { message: S.NonEmptyString },
   $I.annoteError<EffectVitestPrimitiveGraphError>("EffectVitestPrimitiveGraphError", {
@@ -321,9 +334,10 @@ export class EffectVitestPrimitiveGraphError extends S.TaggedError<EffectVitestP
  * @category errors
  * @since 0.0.0
  */
-export class EffectSchemaInventoryError extends S.TaggedError<EffectSchemaInventoryError>(
-  $I`EffectSchemaInventoryError`
-)(
+export class EffectSchemaInventoryError extends S.TaggedError<
+  EffectSchemaInventoryError,
+  { readonly brand: unique symbol }
+>($I`EffectSchemaInventoryError`)(
   "EffectSchemaInventoryError",
   { message: S.String },
   $I.annoteError<EffectSchemaInventoryError>("EffectSchemaInventoryError", {
@@ -352,9 +366,10 @@ export class EffectSchemaInventoryError extends S.TaggedError<EffectSchemaInvent
  * @category errors
  * @since 0.0.0
  */
-export class EffectSchemaInventoryCatalogPinError extends S.TaggedError<EffectSchemaInventoryCatalogPinError>(
-  $I`EffectSchemaInventoryCatalogPinError`
-)(
+export class EffectSchemaInventoryCatalogPinError extends S.TaggedError<
+  EffectSchemaInventoryCatalogPinError,
+  { readonly brand: unique symbol }
+>($I`EffectSchemaInventoryCatalogPinError`)(
   "EffectSchemaInventoryCatalogPinError",
   { message: S.String, specifier: S.String },
   $I.annoteError<EffectSchemaInventoryCatalogPinError>("EffectSchemaInventoryCatalogPinError", {
@@ -389,9 +404,10 @@ export class EffectSchemaInventoryCatalogPinError extends S.TaggedError<EffectSc
  * @category errors
  * @since 0.0.0
  */
-export class EffectSchemaInventoryReferenceMissingError extends S.TaggedError<EffectSchemaInventoryReferenceMissingError>(
-  $I`EffectSchemaInventoryReferenceMissingError`
-)(
+export class EffectSchemaInventoryReferenceMissingError extends S.TaggedError<
+  EffectSchemaInventoryReferenceMissingError,
+  { readonly brand: unique symbol }
+>($I`EffectSchemaInventoryReferenceMissingError`)(
   "EffectSchemaInventoryReferenceMissingError",
   { message: S.String, reference: S.String },
   $I.annoteError<EffectSchemaInventoryReferenceMissingError>("EffectSchemaInventoryReferenceMissingError", {
@@ -426,9 +442,10 @@ export class EffectSchemaInventoryReferenceMissingError extends S.TaggedError<Ef
  * @category errors
  * @since 0.0.0
  */
-export class EffectSchemaInventoryPinAbsentError extends S.TaggedError<EffectSchemaInventoryPinAbsentError>(
-  $I`EffectSchemaInventoryPinAbsentError`
-)(
+export class EffectSchemaInventoryPinAbsentError extends S.TaggedError<
+  EffectSchemaInventoryPinAbsentError,
+  { readonly brand: unique symbol }
+>($I`EffectSchemaInventoryPinAbsentError`)(
   "EffectSchemaInventoryPinAbsentError",
   { message: S.String, pin: S.String, reference: S.String },
   $I.annoteError<EffectSchemaInventoryPinAbsentError>("EffectSchemaInventoryPinAbsentError", {
@@ -469,9 +486,10 @@ export class EffectSchemaInventoryPinAbsentError extends S.TaggedError<EffectSch
  * @category errors
  * @since 0.0.0
  */
-export class EffectSchemaInventoryGraftUnavailableError extends S.TaggedError<EffectSchemaInventoryGraftUnavailableError>(
-  $I`EffectSchemaInventoryGraftUnavailableError`
-)(
+export class EffectSchemaInventoryGraftUnavailableError extends S.TaggedError<
+  EffectSchemaInventoryGraftUnavailableError,
+  { readonly brand: unique symbol }
+>($I`EffectSchemaInventoryGraftUnavailableError`)(
   "EffectSchemaInventoryGraftUnavailableError",
   { message: S.String },
   $I.annoteError<EffectSchemaInventoryGraftUnavailableError>("EffectSchemaInventoryGraftUnavailableError", {
@@ -502,9 +520,10 @@ export class EffectSchemaInventoryGraftUnavailableError extends S.TaggedError<Ef
  * @category errors
  * @since 0.0.0
  */
-export class EffectSchemaInventoryDriftError extends S.TaggedError<EffectSchemaInventoryDriftError>(
-  $I`EffectSchemaInventoryDriftError`
-)(
+export class EffectSchemaInventoryDriftError extends S.TaggedError<
+  EffectSchemaInventoryDriftError,
+  { readonly brand: unique symbol }
+>($I`EffectSchemaInventoryDriftError`)(
   "EffectSchemaInventoryDriftError",
   { message: S.String, drift: S.Array(EffectSchemaInventoryDrift) },
   $I.annoteError<EffectSchemaInventoryDriftError>("EffectSchemaInventoryDriftError", {
@@ -528,7 +547,10 @@ export class EffectSchemaInventoryDriftError extends S.TaggedError<EffectSchemaI
  * @category errors
  * @since 0.0.0
  */
-export class SchemaParityCodemodError extends S.TaggedError<SchemaParityCodemodError>($I`SchemaParityCodemodError`)(
+export class SchemaParityCodemodError extends S.TaggedError<
+  SchemaParityCodemodError,
+  { readonly brand: unique symbol }
+>($I`SchemaParityCodemodError`)(
   "SchemaParityCodemodError",
   { message: S.NonEmptyString },
   $I.annoteError<SchemaParityCodemodError>("SchemaParityCodemodError", {

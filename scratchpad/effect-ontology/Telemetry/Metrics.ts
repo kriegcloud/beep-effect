@@ -46,18 +46,15 @@ import * as Str from "effect/String";
  * @category models
  * @since 0.0.0
  */
-export class ExtractionMetrics extends S.Class<ExtractionMetrics>($I`ExtractionMetrics`)(
-  {
+export class ExtractionMetrics extends S.Opaque<ExtractionMetrics, { readonly brand: unique symbol }>()(S.Struct({
     duration: S.Duration,
     entityCount: S.Natural,
     relationCount: S.Natural,
     chunkCount: S.Natural,
     success: S.Boolean,
-  },
-  $I.annote("ExtractionMetrics", {
+  }).pipe($I.annoteSchema("ExtractionMetrics", {
     description: "Duration, output counts, and outcome of one extraction run.",
-  })
-) {}
+  }))) {}
 
 /**
  * Provider identity, latency, token counts, and outcome of one language-model
@@ -84,19 +81,16 @@ export class ExtractionMetrics extends S.Class<ExtractionMetrics>($I`ExtractionM
  * @category models
  * @since 0.0.0
  */
-export class LlmCallMetrics extends S.Class<LlmCallMetrics>($I`LlmCallMetrics`)(
-  {
+export class LlmCallMetrics extends S.Opaque<LlmCallMetrics, { readonly brand: unique symbol }>()(S.Struct({
     provider: S.NonEmptyString,
     model: S.NonEmptyString,
     duration: S.Duration,
     tokensIn: S.Natural,
     tokensOut: S.Natural,
     success: S.Boolean,
-  },
-  $I.annote("LlmCallMetrics", {
+  }).pipe($I.annoteSchema("LlmCallMetrics", {
     description: "Provider identity, latency, token counts, and outcome of one language-model call.",
-  })
-) {}
+  }))) {}
 
 /**
  * Hit and miss counts plus measured cache latency for embedding lookups.
@@ -119,16 +113,13 @@ export class LlmCallMetrics extends S.Class<LlmCallMetrics>($I`LlmCallMetrics`)(
  * @category models
  * @since 0.0.0
  */
-export class EmbeddingCacheMetrics extends S.Class<EmbeddingCacheMetrics>($I`EmbeddingCacheMetrics`)(
-  {
+export class EmbeddingCacheMetrics extends S.Opaque<EmbeddingCacheMetrics, { readonly brand: unique symbol }>()(S.Struct({
     hits: S.Natural,
     misses: S.Natural,
     latency: S.Duration,
-  },
-  $I.annote("EmbeddingCacheMetrics", {
+  }).pipe($I.annoteSchema("EmbeddingCacheMetrics", {
     description: "Hit and miss counts plus measured cache latency.",
-  })
-) {}
+  }))) {}
 
 /**
  * Internal metrics state

@@ -1,4 +1,5 @@
 import colors, { Colors, createColors, isColorSupported, ProcessLike, supportsColor } from "@beep/colors";
+import { ProcessLikeStdout } from "@beep/colors/Colors";
 import browserColors, {
   supportsColor as browserSupportsColor,
   createColors as createBrowserColors,
@@ -19,88 +20,102 @@ const encodeUnknownProcessLikeOption = S.encodeUnknownOption(ProcessLike);
 describe("supportsColor", () => {
   it("enables colors for TTY terminals with a non-dumb TERM", () => {
     expect(
-      supportsColor({
-        env: {
-          TERM: "xterm-256color",
-        },
-        stdout: {
-          isTTY: true,
-        },
-      })
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            TERM: "xterm-256color",
+          },
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
     ).toBe(true);
   });
 
   it("disables colors for dumb TTY terminals", () => {
     expect(
-      supportsColor({
-        env: {
-          TERM: "dumb",
-        },
-        stdout: {
-          isTTY: true,
-        },
-      })
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            TERM: "dumb",
+          },
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
     ).toBe(false);
   });
 
   it("treats NO_COLOR as an override even when the value is empty", () => {
     expect(
-      supportsColor({
-        env: {
-          CI: "1",
-          FORCE_COLOR: "1",
-          NO_COLOR: "",
-          TERM: "xterm-256color",
-        },
-        platform: "win32",
-        stdout: {
-          isTTY: true,
-        },
-      })
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            CI: "1",
+            FORCE_COLOR: "1",
+            NO_COLOR: "",
+            TERM: "xterm-256color",
+          },
+          platform: "win32",
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
     ).toBe(false);
   });
 
   it("treats --no-color as an override", () => {
     expect(
-      supportsColor({
-        argv: ["--no-color"],
-        env: {
-          TERM: "xterm-256color",
-        },
-        stdout: {
-          isTTY: true,
-        },
-      })
+      supportsColor(
+        ProcessLike.make({
+          argv: ["--no-color"],
+          env: {
+            TERM: "xterm-256color",
+          },
+          stdout: ProcessLikeStdout.make({
+            isTTY: true,
+          }),
+        })
+      )
     ).toBe(false);
   });
 
   it("treats FORCE_COLOR=0 as disabled", () => {
     expect(
-      supportsColor({
-        env: {
-          FORCE_COLOR: "0",
-        },
-      })
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            FORCE_COLOR: "0",
+          },
+        })
+      )
     ).toBe(false);
   });
 
   it("allows FORCE_COLOR to enable colors without a TTY", () => {
     expect(
-      supportsColor({
-        env: {
-          FORCE_COLOR: "1",
-        },
-      })
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            FORCE_COLOR: "1",
+          },
+        })
+      )
     ).toBe(true);
   });
 
   it("enables colors in CI environments", () => {
     expect(
-      supportsColor({
-        env: {
-          CI: "1",
-        },
-      })
+      supportsColor(
+        ProcessLike.make({
+          env: {
+            CI: "1",
+          },
+        })
+      )
     ).toBe(true);
   });
 

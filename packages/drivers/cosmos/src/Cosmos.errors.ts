@@ -71,7 +71,9 @@ export type CosmosDriverErrorReason = typeof CosmosDriverErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class CosmosDriverError extends S.TaggedError<CosmosDriverError>($I`CosmosDriverError`)(
+export class CosmosDriverError extends S.TaggedError<CosmosDriverError, { readonly brand: unique symbol }>(
+  $I`CosmosDriverError`
+)(
   "CosmosDriverError",
   {
     reason: CosmosDriverErrorReason,

@@ -37,8 +37,8 @@ const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.commands");
  * @category commands
  * @since 0.0.0
  */
-export class CreateWorkerCommand extends S.Class<CreateWorkerCommand>($I`CreateWorkerCommand`)(
-  {
+export class CreateWorkerCommand extends S.Opaque<CreateWorkerCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ArchitectureLabIdentity.WorkerId.annotateKey({
       description: "Worker identity assigned by the caller.",
     }),
@@ -48,11 +48,12 @@ export class CreateWorkerCommand extends S.Class<CreateWorkerCommand>($I`CreateW
     displayName: S.NonEmptyString.annotateKey({
       description: "Human-readable Worker display name.",
     }),
-  },
-  $I.annote("CreateWorkerCommand", {
-    title: "Create Worker command",
-    description: "Public command for creating a synthetic architecture lab Worker entity.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateWorkerCommand", {
+      title: "Create Worker command",
+      description: "Public command for creating a synthetic architecture lab Worker entity.",
+    })
+  )
 ) {}
 
 /**
@@ -76,16 +77,17 @@ export class CreateWorkerCommand extends S.Class<CreateWorkerCommand>($I`CreateW
  * @category queries
  * @since 0.0.0
  */
-export class GetWorkerQuery extends S.Class<GetWorkerQuery>($I`GetWorkerQuery`)(
-  {
+export class GetWorkerQuery extends S.Opaque<GetWorkerQuery, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ArchitectureLabIdentity.WorkerId.annotateKey({
       description: "Worker identity to load.",
     }),
-  },
-  $I.annote("GetWorkerQuery", {
-    title: "Get Worker query",
-    description: "Public query for loading one synthetic architecture lab Worker entity.",
-  })
+  }).pipe(
+    $I.annoteSchema("GetWorkerQuery", {
+      title: "Get Worker query",
+      description: "Public query for loading one synthetic architecture lab Worker entity.",
+    })
+  )
 ) {}
 
 /**
@@ -105,16 +107,17 @@ export class GetWorkerQuery extends S.Class<GetWorkerQuery>($I`GetWorkerQuery`)(
  * @category queries
  * @since 0.0.0
  */
-export class ListWorkersQuery extends S.Class<ListWorkersQuery>($I`ListWorkersQuery`)(
-  {
+export class ListWorkersQuery extends S.Opaque<ListWorkersQuery, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.OptionFromOptionalKey(DomainWorker.WorkerStatus)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
         description: "Optional lifecycle status filter applied after repository listing.",
       }),
-  },
-  $I.annote("ListWorkersQuery", {
-    title: "List Workers query",
-    description: "Public query for listing synthetic architecture lab Workers.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListWorkersQuery", {
+      title: "List Workers query",
+      description: "Public query for listing synthetic architecture lab Workers.",
+    })
+  )
 ) {}

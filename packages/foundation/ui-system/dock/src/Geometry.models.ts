@@ -61,14 +61,13 @@ export const Extent = S.Finite.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class DockBox extends S.Class<DockBox>($I`DockBox`)(
-  {
+export class DockBox extends S.Opaque<DockBox, { readonly brand: unique symbol }>()(
+  S.Struct({
     left: Extent.pipe(S.withConstructorDefault(Effect.succeed<number>(0))),
     top: Extent.pipe(S.withConstructorDefault(Effect.succeed<number>(0))),
     width: Extent.pipe(S.withConstructorDefault(Effect.succeed<number>(0))),
     height: Extent.pipe(S.withConstructorDefault(Effect.succeed<number>(0))),
-  },
-  $I.annote("DockBox", { description: "A finite non-negative rectangle in host pixel coordinates." })
+  }).pipe($I.annoteSchema("DockBox", { description: "A finite non-negative rectangle in host pixel coordinates." }))
 ) {}
 
 /**
@@ -86,9 +85,10 @@ export class DockBox extends S.Class<DockBox>($I`DockBox`)(
  * @category models
  * @since 0.0.0
  */
-export class GroupGeometry extends S.Class<GroupGeometry>($I`GroupGeometry`)(
-  { groupId: S.toType(GroupId), box: DockBox },
-  $I.annote("GroupGeometry", { description: "The projected pixel rectangle for one tab group." })
+export class GroupGeometry extends S.Opaque<GroupGeometry, { readonly brand: unique symbol }>()(
+  S.Struct({ groupId: S.toType(GroupId), box: DockBox }).pipe(
+    $I.annoteSchema("GroupGeometry", { description: "The projected pixel rectangle for one tab group." })
+  )
 ) {}
 
 /**
@@ -106,9 +106,10 @@ export class GroupGeometry extends S.Class<GroupGeometry>($I`GroupGeometry`)(
  * @category models
  * @since 0.0.0
  */
-export class SashGeometry extends S.Class<SashGeometry>($I`SashGeometry`)(
-  { splitId: S.toType(SplitId), axis: LiteralKit(["horizontal", "vertical"]), box: DockBox },
-  $I.annote("SashGeometry", { description: "A split gap hit rectangle, optionally expanded for grabbing." })
+export class SashGeometry extends S.Opaque<SashGeometry, { readonly brand: unique symbol }>()(
+  S.Struct({ splitId: S.toType(SplitId), axis: LiteralKit(["horizontal", "vertical"]), box: DockBox }).pipe(
+    $I.annoteSchema("SashGeometry", { description: "A split gap hit rectangle, optionally expanded for grabbing." })
+  )
 ) {}
 
 /**
@@ -126,9 +127,10 @@ export class SashGeometry extends S.Class<SashGeometry>($I`SashGeometry`)(
  * @category models
  * @since 0.0.0
  */
-export class FloatingGeometry extends S.Class<FloatingGeometry>($I`FloatingGeometry`)(
-  { box: DockBox, groups: S.Array(GroupGeometry), sashes: S.Array(SashGeometry) },
-  $I.annote("FloatingGeometry", { description: "One floating subtree projection in z-order." })
+export class FloatingGeometry extends S.Opaque<FloatingGeometry, { readonly brand: unique symbol }>()(
+  S.Struct({ box: DockBox, groups: S.Array(GroupGeometry), sashes: S.Array(SashGeometry) }).pipe(
+    $I.annoteSchema("FloatingGeometry", { description: "One floating subtree projection in z-order." })
+  )
 ) {}
 
 /**
@@ -146,15 +148,14 @@ export class FloatingGeometry extends S.Class<FloatingGeometry>($I`FloatingGeome
  * @category models
  * @since 0.0.0
  */
-export class DockGeometry extends S.Class<DockGeometry>($I`DockGeometry`)(
-  {
+export class DockGeometry extends S.Opaque<DockGeometry, { readonly brand: unique symbol }>()(
+  S.Struct({
     groups: S.Array(GroupGeometry),
     sashes: S.Array(SashGeometry),
     floating: S.Array(FloatingGeometry).pipe(
       S.withConstructorDefault(Effect.succeed<ReadonlyArray<FloatingGeometry>>([]))
     ),
-  },
-  $I.annote("DockGeometry", { description: "Ordered leaf rectangles and split sash hit rectangles." })
+  }).pipe($I.annoteSchema("DockGeometry", { description: "Ordered leaf rectangles and split sash hit rectangles." }))
 ) {
   static readonly empty = DockGeometry.make({ groups: [], sashes: [] });
 
@@ -229,16 +230,17 @@ export const resolveAnchoredBox: Dual2<AnchoredBox, DockBox, DockBox> = dual(
  * @category models
  * @since 0.0.0
  */
-export class GeometryOptions extends S.Class<GeometryOptions>($I`GeometryOptions`)(
-  {
+export class GeometryOptions extends S.Opaque<GeometryOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     gap: Extent.pipe(S.withConstructorDefault(Effect.succeed<number>(0))),
     minSashThickness: Extent.pipe(S.withConstructorDefault(Effect.succeed<number>(8))),
     minGroupExtent: Extent.pipe(S.withConstructorDefault(Effect.succeed<number>(0))),
-  },
-  $I.annote("GeometryOptions", {
-    description:
-      "Gap, minimum sash hit thickness, and global per-leaf minimum extent for geometry projection. minGroupExtent is the floor under every visible leaf; each split clamps between the requiredExtent of its two subtrees (leaf minimums sum through same-axis splits plus gaps, max across cross-axis splits), and an infeasible split degrades to the unclamped proportional partition.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeometryOptions", {
+      description:
+        "Gap, minimum sash hit thickness, and global per-leaf minimum extent for geometry projection. minGroupExtent is the floor under every visible leaf; each split clamps between the requiredExtent of its two subtrees (leaf minimums sum through same-axis splits plus gaps, max across cross-axis splits), and an infeasible split degrades to the unclamped proportional partition.",
+    })
+  )
 ) {}
 
 /**

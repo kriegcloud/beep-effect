@@ -39,18 +39,19 @@ const defaultMaxAge = 60 * 60 * 24;
  * @category models
  * @since 0.0.0
  */
-export class ExpectCTConfig extends S.Class<ExpectCTConfig>($I`ExpectCTConfig`)(
-  {
+export class ExpectCTConfig extends S.Opaque<ExpectCTConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     maxAge: S.optionalKey(internal.HeaderMaxAgeSeconds).pipe(
       S.withConstructorDefault(Effect.succeed(defaultMaxAge)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultMaxAge))
     ),
     enforce: SchemaUtils.BoolKeyDefaultFalse,
     reportURI: S.OptionFromOptionalKey(internal.StringOrUrl).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ExpectCTConfig", {
-    description: "Optional configuration values for the `Expect-CT` header.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExpectCTConfig", {
+      description: "Optional configuration values for the `Expect-CT` header.",
+    })
+  )
 ) {}
 
 /**
@@ -147,14 +148,15 @@ export type ExpectCTOption = typeof ExpectCTOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExpectCTResponseHeader extends S.Class<ExpectCTResponseHeader>($I`ExpectCTResponseHeader`)(
-  {
+export class ExpectCTResponseHeader extends S.Opaque<ExpectCTResponseHeader, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ExpectCTResponseHeader", {
-    description: "The `Expect-CT` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExpectCTResponseHeader", {
+      description: "The `Expect-CT` response header.",
+    })
+  )
 ) {}
 
 type ExpectCTResponseHeaderEncoded = typeof ExpectCTResponseHeader.Encoded;
@@ -300,7 +302,7 @@ export const ExpectCTHeader = S.Union([ExpectCTOption, S.Undefined]).pipe(
  * import * as O from "effect/Option"
  * import { ExpectCTResponseHeader, type ExpectCTHeader } from "@beep/schema/ExpectCt"
  *
- * const header: ExpectCTHeader = new ExpectCTResponseHeader({
+ * const header: ExpectCTHeader = ExpectCTResponseHeader.make({
  *   name: "Expect-CT",
  *   value: O.some("max-age=86400"),
  * })
@@ -381,7 +383,7 @@ export const Header = ExpectCTHeader;
  * import * as O from "effect/Option"
  * import { ExpectCTResponseHeader, type Header } from "@beep/schema/ExpectCt"
  *
- * const header: Header = new ExpectCTResponseHeader({
+ * const header: Header = ExpectCTResponseHeader.make({
  *   name: "Expect-CT",
  *   value: O.some("max-age=86400"),
  * })

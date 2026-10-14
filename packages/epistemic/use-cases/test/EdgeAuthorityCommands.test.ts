@@ -115,7 +115,7 @@ describe("@beep/epistemic-use-cases edge authority commands", () => {
     "round-trips schema-derived as-of queries without changing the encoded shape",
     { query: EdgeAsOfQuery },
     Effect.fnUntraced(function* ({ query }) {
-      const encoded = yield* encodeEdgeAsOfQuery(query);
+      const encoded = yield* encodeEdgeAsOfQuery(EdgeAsOfQuery.make(query));
       const decoded = yield* decodeEdgeAsOfQuery(encoded);
 
       // Both axes survive the millis boundary for every generated instant, not just the fixture.

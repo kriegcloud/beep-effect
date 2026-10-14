@@ -20,7 +20,7 @@ const $I = $T3CodeId.create("T3Code.errors");
  * @category errors
  * @since 0.0.0
  */
-export class T3CodeError extends S.TaggedError<T3CodeError>($I`T3CodeError`)(
+export class T3CodeError extends S.TaggedError<T3CodeError, { readonly brand: unique symbol }>($I`T3CodeError`)(
   "T3CodeError",
   {
     operation: S.NonEmptyString,

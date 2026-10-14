@@ -130,7 +130,7 @@ export const resizeSplit = envelope(
   })
 );
 
-export const clearWorkspace = envelope("command-clear", ClearWorkspaceCommand.make());
+export const clearWorkspace = envelope("command-clear", ClearWorkspaceCommand.make({}));
 
 export const restoreRequest = RestoreSnapshotRequest.make({
   commandId: CommandId.make("command-restore"),
@@ -147,7 +147,7 @@ export const dispatchUnknown = (input: unknown) =>
     input,
   });
 
-export const saveSnapshot = SaveDockSnapshot.make();
+export const saveSnapshot = SaveDockSnapshot.make({});
 export const restoreSnapshot = RestoreDockSnapshot.make({
   request: restoreRequest,
 });

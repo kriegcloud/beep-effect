@@ -54,7 +54,9 @@ const $I = $RepoAiMetricsId.create("scorecard");
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsScorecardError extends S.TaggedError<AiMetricsScorecardError>($I`AiMetricsScorecardError`)(
+export class AiMetricsScorecardError extends S.TaggedError<AiMetricsScorecardError, { readonly brand: unique symbol }>(
+  $I`AiMetricsScorecardError`
+)(
   "AiMetricsScorecardError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -88,8 +90,8 @@ export class AiMetricsScorecardError extends S.TaggedError<AiMetricsScorecardErr
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsLabelQueueItem extends S.Class<AiMetricsLabelQueueItem>($I`AiMetricsLabelQueueItem`)(
-  {
+export class AiMetricsLabelQueueItem extends S.Opaque<AiMetricsLabelQueueItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentTaskId: S.String,
     configSnapshotId: S.String,
     createdAtEpochMillis: S.Finite,
@@ -101,10 +103,11 @@ export class AiMetricsLabelQueueItem extends S.Class<AiMetricsLabelQueueItem>($I
     ),
     title: S.String,
     turnCount: S.Finite,
-  },
-  $I.annote("AiMetricsLabelQueueItem", {
-    description: "Deploy-safe task summary ready for human label review.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsLabelQueueItem", {
+      description: "Deploy-safe task summary ready for human label review.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(AiMetricsLabelQueueItem));
 }
@@ -129,16 +132,17 @@ export class AiMetricsLabelQueueItem extends S.Class<AiMetricsLabelQueueItem>($I
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsLabelQueueInput extends S.Class<AiMetricsLabelQueueInput>($I`AiMetricsLabelQueueInput`)(
-  {
+export class AiMetricsLabelQueueInput extends S.Opaque<AiMetricsLabelQueueInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     limit: S.Finite,
     target: AiMetricsDeployTarget,
     windowEndEpochMillis: S.Finite,
     windowStartEpochMillis: S.Finite,
-  },
-  $I.annote("AiMetricsLabelQueueInput", {
-    description: "Window and limit used to select unlabeled AI metrics tasks.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsLabelQueueInput", {
+      description: "Window and limit used to select unlabeled AI metrics tasks.",
+    })
+  )
 ) {}
 
 /**
@@ -161,16 +165,17 @@ export class AiMetricsLabelQueueInput extends S.Class<AiMetricsLabelQueueInput>(
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsLabelQueueResult extends S.Class<AiMetricsLabelQueueResult>($I`AiMetricsLabelQueueResult`)(
-  {
+export class AiMetricsLabelQueueResult extends S.Opaque<AiMetricsLabelQueueResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     items: S.Array(AiMetricsLabelQueueItem),
     target: AiMetricsDeployTarget,
     windowEndEpochMillis: S.Finite,
     windowStartEpochMillis: S.Finite,
-  },
-  $I.annote("AiMetricsLabelQueueResult", {
-    description: "Deploy-safe list of tasks pending human outcome labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsLabelQueueResult", {
+      description: "Deploy-safe list of tasks pending human outcome labels.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsLabelQueueResult));
   static readonly encodeJsonEffect = S.encodeEffect(S.fromJsonString(AiMetricsLabelQueueResult));
@@ -198,8 +203,11 @@ export class AiMetricsLabelQueueResult extends S.Class<AiMetricsLabelQueueResult
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsOutcomeLabelInput extends S.Class<AiMetricsOutcomeLabelInput>($I`AiMetricsOutcomeLabelInput`)(
-  {
+export class AiMetricsOutcomeLabelInput extends S.Opaque<
+  AiMetricsOutcomeLabelInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     agentTaskId: S.String,
     followUpFix: S.Boolean,
     interventionCount: AiMetricsNonNegativeInteger,
@@ -208,10 +216,11 @@ export class AiMetricsOutcomeLabelInput extends S.Class<AiMetricsOutcomeLabelInp
     passed: S.Boolean,
     qualityGate: AiMetricsQualityGateStatus,
     rating: AiMetricsRating,
-  },
-  $I.annote("AiMetricsOutcomeLabelInput", {
-    description: "Structured human label command payload for one AI-agent task.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsOutcomeLabelInput", {
+      description: "Structured human label command payload for one AI-agent task.",
+    })
+  )
 ) {}
 
 /**
@@ -234,17 +243,21 @@ export class AiMetricsOutcomeLabelInput extends S.Class<AiMetricsOutcomeLabelInp
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsBenchmarkCaseInput extends S.Class<AiMetricsBenchmarkCaseInput>($I`AiMetricsBenchmarkCaseInput`)(
-  {
+export class AiMetricsBenchmarkCaseInput extends S.Opaque<
+  AiMetricsBenchmarkCaseInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     benchmarkCaseId: S.String,
     expectedChecks: S.Array(S.String),
     promptHash: S.String,
     promptRef: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     title: S.String,
-  },
-  $I.annote("AiMetricsBenchmarkCaseInput", {
-    description: "Deploy-safe benchmark case registration payload with prompt content referenced by hash.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsBenchmarkCaseInput", {
+      description: "Deploy-safe benchmark case registration payload with prompt content referenced by hash.",
+    })
+  )
 ) {}
 
 /**
@@ -271,15 +284,17 @@ export class AiMetricsBenchmarkCaseInput extends S.Class<AiMetricsBenchmarkCaseI
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsBenchmarkCaseListResult extends S.Class<AiMetricsBenchmarkCaseListResult>(
-  $I`AiMetricsBenchmarkCaseListResult`
-)(
-  {
+export class AiMetricsBenchmarkCaseListResult extends S.Opaque<
+  AiMetricsBenchmarkCaseListResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cases: S.Array(BenchmarkCase),
-  },
-  $I.annote("AiMetricsBenchmarkCaseListResult", {
-    description: "Deploy-safe benchmark case list.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsBenchmarkCaseListResult", {
+      description: "Deploy-safe benchmark case list.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsBenchmarkCaseListResult));
   static readonly encodeJsonEffect = S.encodeEffect(S.fromJsonString(AiMetricsBenchmarkCaseListResult));
@@ -306,8 +321,11 @@ export class AiMetricsBenchmarkCaseListResult extends S.Class<AiMetricsBenchmark
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsBenchmarkRunInput extends S.Class<AiMetricsBenchmarkRunInput>($I`AiMetricsBenchmarkRunInput`)(
-  {
+export class AiMetricsBenchmarkRunInput extends S.Opaque<
+  AiMetricsBenchmarkRunInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     benchmarkCaseId: S.String,
     configSnapshotId: S.String,
     elapsedMs: AiMetricsNonNegativeInteger,
@@ -315,10 +333,11 @@ export class AiMetricsBenchmarkRunInput extends S.Class<AiMetricsBenchmarkRunInp
     passed: S.Boolean,
     qualityGate: AiMetricsQualityGateStatus,
     recordedAtEpochMillis: S.optionalKey(S.Finite),
-  },
-  $I.annote("AiMetricsBenchmarkRunInput", {
-    description: "Observed benchmark result tied to one AI-agent config snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsBenchmarkRunInput", {
+      description: "Observed benchmark result tied to one AI-agent config snapshot.",
+    })
+  )
 ) {}
 
 /**
@@ -352,13 +371,17 @@ export class AiMetricsBenchmarkRunInput extends S.Class<AiMetricsBenchmarkRunInp
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsWeeklyConfigScore extends S.Class<AiMetricsWeeklyConfigScore>($I`AiMetricsWeeklyConfigScore`)(
-  {
+export class AiMetricsWeeklyConfigScore extends S.Opaque<
+  AiMetricsWeeklyConfigScore,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     scorecard: Scorecard,
-  },
-  $I.annote("AiMetricsWeeklyConfigScore", {
-    description: "Config-snapshot score row rendered in the weekly AI metrics report.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsWeeklyConfigScore", {
+      description: "Config-snapshot score row rendered in the weekly AI metrics report.",
+    })
+  )
 ) {}
 
 /**
@@ -383,20 +406,22 @@ export class AiMetricsWeeklyConfigScore extends S.Class<AiMetricsWeeklyConfigSco
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsWeeklyReportDocument extends S.Class<AiMetricsWeeklyReportDocument>(
-  $I`AiMetricsWeeklyReportDocument`
-)(
-  {
+export class AiMetricsWeeklyReportDocument extends S.Opaque<
+  AiMetricsWeeklyReportDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     coverageGaps: S.Array(S.String),
     generatedAtEpochMillis: S.Finite,
     scores: S.Array(AiMetricsWeeklyConfigScore),
     target: AiMetricsDeployTarget,
     windowEndEpochMillis: S.Finite,
     windowStartEpochMillis: S.Finite,
-  },
-  $I.annote("AiMetricsWeeklyReportDocument", {
-    description: "Deploy-safe weekly config-impact scorecard document.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsWeeklyReportDocument", {
+      description: "Deploy-safe weekly config-impact scorecard document.",
+    })
+  )
 ) {}
 
 /**
@@ -419,16 +444,20 @@ export class AiMetricsWeeklyReportDocument extends S.Class<AiMetricsWeeklyReport
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsWeeklyReportInput extends S.Class<AiMetricsWeeklyReportInput>($I`AiMetricsWeeklyReportInput`)(
-  {
+export class AiMetricsWeeklyReportInput extends S.Opaque<
+  AiMetricsWeeklyReportInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     reportDir: S.String,
     target: AiMetricsDeployTarget,
     windowEndEpochMillis: S.Finite,
     windowStartEpochMillis: S.Finite,
-  },
-  $I.annote("AiMetricsWeeklyReportInput", {
-    description: "Target, output directory, and rolling window for a weekly AI metrics report.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsWeeklyReportInput", {
+      description: "Target, output directory, and rolling window for a weekly AI metrics report.",
+    })
+  )
 ) {}
 
 /**
@@ -457,15 +486,19 @@ export class AiMetricsWeeklyReportInput extends S.Class<AiMetricsWeeklyReportInp
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsWeeklyReportResult extends S.Class<AiMetricsWeeklyReportResult>($I`AiMetricsWeeklyReportResult`)(
-  {
+export class AiMetricsWeeklyReportResult extends S.Opaque<
+  AiMetricsWeeklyReportResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     document: AiMetricsWeeklyReportDocument,
     jsonPath: S.String,
     markdownPath: S.String,
-  },
-  $I.annote("AiMetricsWeeklyReportResult", {
-    description: "Weekly report document plus durable Markdown and JSON artifact paths.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsWeeklyReportResult", {
+      description: "Weekly report document plus durable Markdown and JSON artifact paths.",
+    })
+  )
 ) {
   static readonly decodeJsonEffect = S.decodeUnknownEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
   static readonly encodeJsonEffect = S.encodeEffect(S.fromJsonString(AiMetricsWeeklyReportResult));
@@ -513,34 +546,54 @@ const UnitInterval = S.Finite.check(
   })
 );
 
-class TaskPresenceRow extends S.Class<TaskPresenceRow>($I`TaskPresenceRow`)(
-  {
+/**
+ * DuckDB row proving an AI metrics task exists before labeling.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class TaskPresenceRow extends S.Opaque<TaskPresenceRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentTaskId: S.String,
-  },
-  $I.annote("TaskPresenceRow", {
-    description: "DuckDB row proving an AI metrics task exists before labeling.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskPresenceRow", {
+      description: "DuckDB row proving an AI metrics task exists before labeling.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(TaskPresenceRow));
 }
 
-class BenchmarkCaseRow extends S.Class<BenchmarkCaseRow>($I`BenchmarkCaseRow`)(
-  {
+/**
+ * DuckDB benchmark case row with JSON and nullable columns decoded at the row boundary.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class BenchmarkCaseRow extends S.Opaque<BenchmarkCaseRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkCaseId: S.String,
     expectedChecks: S.Array(S.String).pipe(S.fromJsonString),
     promptHash: S.String,
     promptRef: S.OptionFromNullOr(S.String),
     title: S.String,
-  },
-  $I.annote("BenchmarkCaseRow", {
-    description: "DuckDB benchmark case row with JSON and nullable columns decoded at the row boundary.",
-  })
+  }).pipe(
+    $I.annoteSchema("BenchmarkCaseRow", {
+      description: "DuckDB benchmark case row with JSON and nullable columns decoded at the row boundary.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(BenchmarkCaseRow));
 }
 
-class TaskAggregateRow extends S.Class<TaskAggregateRow>($I`TaskAggregateRow`)(
-  {
+/**
+ * Task and label aggregates grouped by AI metrics config snapshot.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class TaskAggregateRow extends S.Opaque<TaskAggregateRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     averageInterventionCount: NonNegativeFinite,
     averageQualityGateScore: UnitInterval,
     averageRating: S.Finite,
@@ -549,36 +602,51 @@ class TaskAggregateRow extends S.Class<TaskAggregateRow>($I`TaskAggregateRow`)(
     labelCount: NonNegativeCount,
     passRate: UnitInterval,
     taskCount: NonNegativeCount,
-  },
-  $I.annote("TaskAggregateRow", {
-    description: "Task and label aggregates grouped by AI metrics config snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaskAggregateRow", {
+      description: "Task and label aggregates grouped by AI metrics config snapshot.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(TaskAggregateRow));
 }
 
-class BenchmarkAggregateRow extends S.Class<BenchmarkAggregateRow>($I`BenchmarkAggregateRow`)(
-  {
+/**
+ * Benchmark aggregates grouped by AI metrics config snapshot.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class BenchmarkAggregateRow extends S.Opaque<BenchmarkAggregateRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     benchmarkPassRate: UnitInterval,
     benchmarkQualityGateScore: UnitInterval,
     benchmarkRunCount: NonNegativeCount,
     configSnapshotId: S.String,
-  },
-  $I.annote("BenchmarkAggregateRow", {
-    description: "Benchmark aggregates grouped by AI metrics config snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("BenchmarkAggregateRow", {
+      description: "Benchmark aggregates grouped by AI metrics config snapshot.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(BenchmarkAggregateRow));
 }
 
-class CoverageCountsRow extends S.Class<CoverageCountsRow>($I`CoverageCountsRow`)(
-  {
+/**
+ * Derived metric coverage counts used by the weekly scorecard.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class CoverageCountsRow extends S.Opaque<CoverageCountsRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     modelCallCount: NonNegativeCount,
     toolInvocationCount: NonNegativeCount,
-  },
-  $I.annote("CoverageCountsRow", {
-    description: "Derived metric coverage counts used by the weekly scorecard.",
-  })
+  }).pipe(
+    $I.annoteSchema("CoverageCountsRow", {
+      description: "Derived metric coverage counts used by the weekly scorecard.",
+    })
+  )
 ) {
   static readonly decodeRowsEffect = S.decodeUnknownEffect(S.Array(CoverageCountsRow));
 }

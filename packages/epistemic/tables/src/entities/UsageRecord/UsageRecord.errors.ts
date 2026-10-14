@@ -31,7 +31,10 @@ const UsageRecordConverterOperation = LiteralKit(["toInsert", "fromRow"]);
  * @category errors
  * @since 0.0.0
  */
-export class UsageRecordConverterError extends S.TaggedError<UsageRecordConverterError>($I`UsageRecordConverterError`)(
+export class UsageRecordConverterError extends S.TaggedError<
+  UsageRecordConverterError,
+  { readonly brand: unique symbol }
+>($I`UsageRecordConverterError`)(
   "UsageRecordConverterError",
   {
     operation: UsageRecordConverterOperation.annotateKey({

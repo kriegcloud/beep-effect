@@ -82,10 +82,11 @@ export type CorpusDuplicateScope = typeof CorpusDuplicateScope.Type;
  * @category models
  * @since 0.0.0
  */
-export class CorpusCatalogSourceFileRecord extends S.Class<CorpusCatalogSourceFileRecord>(
-  $I`CorpusCatalogSourceFileRecord`
-)(
-  {
+export class CorpusCatalogSourceFileRecord extends S.Opaque<
+  CorpusCatalogSourceFileRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     copyMode: CorpusCopyMode,
     dedupeOfPath: S.optionalKey(S.NonEmptyString),
     destPath: S.NonEmptyString,
@@ -99,12 +100,13 @@ export class CorpusCatalogSourceFileRecord extends S.Class<CorpusCatalogSourceFi
     sha256: Sha256Hex,
     sizeBytes: S.Natural,
     sourceLabel: S.NonEmptyString,
-  },
-  $I.annote("CorpusCatalogSourceFileRecord", {
-    title: "Corpus Catalog Source File Record",
-    description:
-      "One source-file occurrence loaded into the catalog after adding the provenance run label and canonical raw-byte path.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusCatalogSourceFileRecord", {
+      title: "Corpus Catalog Source File Record",
+      description:
+        "One source-file occurrence loaded into the catalog after adding the provenance run label and canonical raw-byte path.",
+    })
+  )
 ) {}
 
 /**
@@ -165,8 +167,8 @@ export const encodeCorpusCatalogSourceFileRecordJson = JsonStringCodec(CorpusCat
  * @category models
  * @since 0.0.0
  */
-export class CorpusDuplicateSetRecord extends S.Class<CorpusDuplicateSetRecord>($I`CorpusDuplicateSetRecord`)(
-  {
+export class CorpusDuplicateSetRecord extends S.Opaque<CorpusDuplicateSetRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     copies: S.Natural,
     duplicateScope: CorpusDuplicateScope,
     digest: S.NonEmptyString,
@@ -174,11 +176,12 @@ export class CorpusDuplicateSetRecord extends S.Class<CorpusDuplicateSetRecord>(
     runCount: S.Natural,
     runLabels: S.NonEmptyString,
     sizeBytes: S.Natural,
-  },
-  $I.annote("CorpusDuplicateSetRecord", {
-    description:
-      "A digest shared by multiple salvaged file occurrences, with member paths and run labels joined for reporting.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusDuplicateSetRecord", {
+      description:
+        "A digest shared by multiple salvaged file occurrences, with member paths and run labels joined for reporting.",
+    })
+  )
 ) {}
 
 /**
@@ -222,13 +225,14 @@ export const encodeCorpusDuplicateSetReportJson = JsonStringCodec(CorpusDuplicat
  * @category models
  * @since 0.0.0
  */
-export class CorpusCatalogOptions extends S.Class<CorpusCatalogOptions>($I`CorpusCatalogOptions`)(
-  {
+export class CorpusCatalogOptions extends S.Opaque<CorpusCatalogOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.String,
-  },
-  $I.annote("CorpusCatalogOptions", {
-    description: "Validated options used by corpus catalog.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusCatalogOptions", {
+      description: "Validated options used by corpus catalog.",
+    })
+  )
 ) {}
 
 /**
@@ -252,17 +256,18 @@ export class CorpusCatalogOptions extends S.Class<CorpusCatalogOptions>($I`Corpu
  * @category models
  * @since 0.0.0
  */
-export class CorpusCatalogRunSummary extends S.Class<CorpusCatalogRunSummary>($I`CorpusCatalogRunSummary`)(
-  {
+export class CorpusCatalogRunSummary extends S.Opaque<CorpusCatalogRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     distinctDigests: S.Natural,
     newDistinctDigests: S.Natural,
     recordCount: S.Natural,
     runLabel: S.NonEmptyString,
-  },
-  $I.annote("CorpusCatalogRunSummary", {
-    title: "Corpus Catalog Run Summary",
-    description: "Per-run record, distinct-digest, and incremental distinct-digest counts emitted by corpus catalog.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusCatalogRunSummary", {
+      title: "Corpus Catalog Run Summary",
+      description: "Per-run record, distinct-digest, and incremental distinct-digest counts emitted by corpus catalog.",
+    })
+  )
 ) {}
 
 /**
@@ -299,8 +304,8 @@ export class CorpusCatalogRunSummary extends S.Class<CorpusCatalogRunSummary>($I
  * @category models
  * @since 0.0.0
  */
-export class CorpusCatalogSummary extends S.Class<CorpusCatalogSummary>($I`CorpusCatalogSummary`)(
-  {
+export class CorpusCatalogSummary extends S.Opaque<CorpusCatalogSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     distinctDigests: S.Natural,
     duplicateFiles: S.Natural,
     duplicateSets: S.Natural,
@@ -311,10 +316,11 @@ export class CorpusCatalogSummary extends S.Class<CorpusCatalogSummary>($I`Corpu
     totalBytes: S.Natural,
     unmatchedContentFiles: S.Natural,
     unmatchedMetadataFiles: S.Natural,
-  },
-  $I.annote("CorpusCatalogSummary", {
-    description: "Summary counts returned by corpus catalog.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorpusCatalogSummary", {
+      description: "Summary counts returned by corpus catalog.",
+    })
+  )
 ) {}
 
 /**

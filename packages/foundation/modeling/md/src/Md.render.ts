@@ -135,7 +135,7 @@ const renderJsonFrontmatter: (frontmatter: O.Option<JsonRecord>) => string = flo
  * @category error-handling
  * @since 0.0.0
  */
-export class RenderError extends S.TaggedError<RenderError>($I`RenderError`)(
+export class RenderError extends S.TaggedError<RenderError, { readonly brand: unique symbol }>($I`RenderError`)(
   "RenderError",
   {
     adapter: S.String,
@@ -1011,15 +1011,16 @@ export const renderEffectWith: {
  * @category models
  * @since 0.0.0
  */
-export class UrlRenderOptions extends S.Class<UrlRenderOptions>($I`UrlRenderOptions`)(
-  {
+export class UrlRenderOptions extends S.Opaque<UrlRenderOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     urlPolicy: S.optionalKey(UrlPolicySpec).annotateKey({
       description: "Canonical URL policy applied during recursive rendering.",
     }),
-  },
-  $I.annote("UrlRenderOptions", {
-    description: "URL policy options accepted by built-in render adapter factories.",
-  })
+  }).pipe(
+    $I.annoteSchema("UrlRenderOptions", {
+      description: "URL policy options accepted by built-in render adapter factories.",
+    })
+  )
 ) {}
 
 const renderPolicy = (options: UrlRenderOptions, fallback: UrlPolicySpec): UrlPolicySpec =>
@@ -1366,16 +1367,18 @@ const renderHtmlDocumentWithPolicy = (policy: UrlPolicySpec, document: Document)
  * ```ts import.meta.vitest name="Markdown adapter with URL policy"
  * import { Md } from "@beep/md"
  * import { BrowserSafeUrlPolicySpec } from "@beep/md/Md.escape"
- * import { makeMarkdownAdapter, renderWithUnsafe } from "@beep/md/Md.render"
+ * import { makeMarkdownAdapter, renderWithUnsafe, UrlRenderOptions } from "@beep/md/Md.render"
  *
- * const adapter = makeMarkdownAdapter({ urlPolicy: BrowserSafeUrlPolicySpec })
+ * const adapter = makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec }))
  * renderWithUnsafe(adapter, Md.make([Md.p(Md.a("file:///tmp/a", "File"))])) // => "[File](#)"
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const makeMarkdownAdapter = (options: UrlRenderOptions = {}): PureRenderAdapter<Markdown> => {
+export const makeMarkdownAdapter = (
+  options: UrlRenderOptions = UrlRenderOptions.make({})
+): PureRenderAdapter<Markdown> => {
   const urlPolicy = renderPolicy(options, CompatibilityUrlPolicySpec);
 
   return {
@@ -1392,16 +1395,18 @@ export const makeMarkdownAdapter = (options: UrlRenderOptions = {}): PureRenderA
  * ```ts
  * import { Md } from "@beep/md"
  * import { StrictWebUrlPolicySpec } from "@beep/md/Md.escape"
- * import { makeHtmlFragmentAdapter, renderWithUnsafe } from "@beep/md/Md.render"
+ * import { makeHtmlFragmentAdapter, renderWithUnsafe, UrlRenderOptions } from "@beep/md/Md.render"
  *
- * const adapter = makeHtmlFragmentAdapter({ urlPolicy: StrictWebUrlPolicySpec })
+ * const adapter = makeHtmlFragmentAdapter(UrlRenderOptions.make({ urlPolicy: StrictWebUrlPolicySpec }))
  * console.log(renderWithUnsafe(adapter, Md.make([Md.p(Md.a("artifact:abc", "Artifact"))])))
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const makeHtmlFragmentAdapter = (options: UrlRenderOptions = {}): PureRenderAdapter<HtmlFragment> => {
+export const makeHtmlFragmentAdapter = (
+  options: UrlRenderOptions = UrlRenderOptions.make({})
+): PureRenderAdapter<HtmlFragment> => {
   const urlPolicy = renderPolicy(options, BrowserSafeUrlPolicySpec);
 
   return {

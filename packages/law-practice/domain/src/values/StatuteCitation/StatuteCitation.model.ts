@@ -53,8 +53,8 @@ const $I = $LawPracticeDomainId.create("values/StatuteCitation/StatuteCitation.m
  * @category models
  * @since 0.0.0
  */
-export class StatuteCitation extends S.Class<StatuteCitation>($I`StatuteCitation`)(
-  {
+export class StatuteCitation extends S.Opaque<StatuteCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("statute"),
     title: S.Natural.pipe(
@@ -163,10 +163,11 @@ export class StatuteCitation extends S.Class<StatuteCitation>($I`StatuteCitation
           "Component spans locating each recognized sub-part of the statute citation within the source text.",
       })
     ),
-  },
-  $I.annote("StatuteCitation", {
-    description: 'A parsed statute citation (type: "statute").',
-  })
+  }).pipe(
+    $I.annoteSchema("StatuteCitation", {
+      description: 'A parsed statute citation (type: "statute").',
+    })
+  )
 ) {}
 
 /**

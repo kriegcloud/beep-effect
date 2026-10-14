@@ -50,7 +50,7 @@ const $I = $SchemaId.create("LocalDate");
  * @category constructors
  * @since 0.0.0
  */
-export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
+export class LocalDate extends S.Class<LocalDate, { readonly brand: unique symbol }>($I`LocalDate`)(
   {
     year: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(9999)])),
     month: S.Int.check(S.makeFilterGroup([S.isGreaterThanOrEqualTo(1), S.isLessThanOrEqualTo(12)])),
@@ -86,7 +86,9 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
    * @returns * @since 0.0.0
    * @category utilities
    */
-  override readonly toString = (): string => this.toISOString();
+  override toString(): string {
+    return this.toISOString();
+  }
 
   /**
    * Value equality for LocalDate instances.
@@ -116,7 +118,9 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
    * @returns * @since 0.0.0
    * @category utilities
    */
-  readonly toDate = (): Date => localDateToDate(this);
+  toDate(): Date {
+    return localDateToDate(this);
+  }
 }
 
 /**

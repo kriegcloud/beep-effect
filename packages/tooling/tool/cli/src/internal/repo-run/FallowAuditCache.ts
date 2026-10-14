@@ -114,14 +114,15 @@ export const DEFAULT_FALLOW_AUDIT_CACHE_MAX_AGE_DAYS = 2;
  * @category models
  * @since 0.0.0
  */
-export class FallowAuditCacheSettings extends S.Class<FallowAuditCacheSettings>($I`FallowAuditCacheSettings`)(
-  {
+export class FallowAuditCacheSettings extends S.Opaque<FallowAuditCacheSettings, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: S.String,
     maxAgeDays: S.Int.pipe(S.check(S.isGreaterThanOrEqualTo(0))),
-  },
-  $I.annote("FallowAuditCacheSettings", {
-    description: "Disk-backed root and Fallow GC age threshold for audit base-snapshot caches.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowAuditCacheSettings", {
+      description: "Disk-backed root and Fallow GC age threshold for audit base-snapshot caches.",
+    })
+  )
 ) {}
 
 const isCacheMaxAgeDays = S.is(FallowAuditCacheSettings.fields.maxAgeDays);

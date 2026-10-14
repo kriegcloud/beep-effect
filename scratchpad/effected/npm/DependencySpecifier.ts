@@ -52,7 +52,7 @@ const $I = $ScratchpadId.create("effected/npm/DependencySpecifier");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidDependencySpecifierError extends S.TaggedError<InvalidDependencySpecifierError>($I`InvalidDependencySpecifierError`)(
+export class InvalidDependencySpecifierError extends S.TaggedError<InvalidDependencySpecifierError, { readonly brand: unique symbol }>($I`InvalidDependencySpecifierError`)(
 	"InvalidDependencySpecifierError",
 	{
 		/** The raw input string that failed validation. */
@@ -281,7 +281,7 @@ export const isValidDependencySpecifier = S.is(RecognizedSpecifier);
  * @category models
  * @since 0.0.0
  */
-export class CatalogSpecifier extends S.TaggedClass<CatalogSpecifier>($I`CatalogSpecifier`)("catalog", {
+export class CatalogSpecifier extends S.TaggedClass<CatalogSpecifier, { readonly brand: unique symbol }>($I`CatalogSpecifier`)("catalog", {
 	/** The original specifier string. */
 	raw: S.String.annotateKey({ description: "The original specifier string." }),
 	/** The catalog name, or `Option.none()` for the default catalog. */
@@ -305,7 +305,7 @@ export class CatalogSpecifier extends S.TaggedClass<CatalogSpecifier>($I`Catalog
  * @category models
  * @since 0.0.0
  */
-export class WorkspaceSpecifier extends S.TaggedClass<WorkspaceSpecifier>($I`WorkspaceSpecifier`)("workspace", {
+export class WorkspaceSpecifier extends S.TaggedClass<WorkspaceSpecifier, { readonly brand: unique symbol }>($I`WorkspaceSpecifier`)("workspace", {
 	/** The original specifier string. */
 	raw: S.String.annotateKey({ description: "The original specifier string." }),
 	/** The part after `workspace:` (e.g. `*`, `^1.2.3`, or an alias form). */
@@ -364,7 +364,7 @@ export class WorkspaceSpecifier extends S.TaggedClass<WorkspaceSpecifier>($I`Wor
  * @category models
  * @since 0.0.0
  */
-export class RangeSpecifier extends S.TaggedClass<RangeSpecifier>($I`RangeSpecifier`)("range", {
+export class RangeSpecifier extends S.TaggedClass<RangeSpecifier, { readonly brand: unique symbol }>($I`RangeSpecifier`)("range", {
 	/** The original specifier string. */
 	raw: S.String.annotateKey({ description: "The original specifier string." }),
 }, $I.annote("RangeSpecifier", { description: "A plain semver range or exact version (e.g. `^1.2.3`, `1.x`, `>=1 <2`)." })) {}
@@ -385,7 +385,7 @@ export class RangeSpecifier extends S.TaggedClass<RangeSpecifier>($I`RangeSpecif
  * @category models
  * @since 0.0.0
  */
-export class DistTagSpecifier extends S.TaggedClass<DistTagSpecifier>($I`DistTagSpecifier`)("dist-tag", {
+export class DistTagSpecifier extends S.TaggedClass<DistTagSpecifier, { readonly brand: unique symbol }>($I`DistTagSpecifier`)("dist-tag", {
 	/** The original specifier string (also the tag name). */
 	raw: S.String.annotateKey({ description: "The original specifier string (also the tag name)." }),
 }, $I.annote("DistTagSpecifier", { description: "A bare dist-tag (e.g. `latest`, `next`)." })) {}
@@ -407,7 +407,7 @@ export class DistTagSpecifier extends S.TaggedClass<DistTagSpecifier>($I`DistTag
  * @category models
  * @since 0.0.0
  */
-export class RawSpecifier extends S.TaggedClass<RawSpecifier>($I`RawSpecifier`)("raw", {
+export class RawSpecifier extends S.TaggedClass<RawSpecifier, { readonly brand: unique symbol }>($I`RawSpecifier`)("raw", {
 	/** The original specifier string. */
 	raw: S.String.annotateKey({ description: "The original specifier string." }),
 }, $I.annote("RawSpecifier", { description: "The honest fallback for `file:` / `link:` / `portal:` / git / URL / `npm:` forms this concept does not further interpret." })) {}

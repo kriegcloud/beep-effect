@@ -125,7 +125,10 @@ export type CodexPacketWriteFailureReason = typeof CodexPacketWriteFailureReason
  * @category errors
  * @since 0.0.0
  */
-export class CodexFindingsIngestError extends S.TaggedError<CodexFindingsIngestError>($I`CodexFindingsIngestError`)(
+export class CodexFindingsIngestError extends S.TaggedError<
+  CodexFindingsIngestError,
+  { readonly brand: unique symbol }
+>($I`CodexFindingsIngestError`)(
   "CodexFindingsIngestError",
   {
     reason: CodexIngestFailureReason,
@@ -222,9 +225,10 @@ export class CodexFindingsIngestError extends S.TaggedError<CodexFindingsIngestE
  * @category errors
  * @since 0.0.0
  */
-export class CodexFindingsRedactionError extends S.TaggedError<CodexFindingsRedactionError>(
-  $I`CodexFindingsRedactionError`
-)(
+export class CodexFindingsRedactionError extends S.TaggedError<
+  CodexFindingsRedactionError,
+  { readonly brand: unique symbol }
+>($I`CodexFindingsRedactionError`)(
   "CodexFindingsRedactionError",
   {
     message: S.String,
@@ -257,7 +261,9 @@ export class CodexFindingsRedactionError extends S.TaggedError<CodexFindingsReda
  * @category errors
  * @since 0.0.0
  */
-export class CodexPacketWriteError extends S.TaggedError<CodexPacketWriteError>($I`CodexPacketWriteError`)(
+export class CodexPacketWriteError extends S.TaggedError<CodexPacketWriteError, { readonly brand: unique symbol }>(
+  $I`CodexPacketWriteError`
+)(
   "CodexPacketWriteError",
   {
     reason: CodexPacketWriteFailureReason,

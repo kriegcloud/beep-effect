@@ -53,8 +53,8 @@ const $I = $LawPracticeDomainId.create("values/CaseGroup/CaseGroup.model");
  * @category models
  * @since 0.0.0
  */
-export class CaseGroup extends S.Class<CaseGroup>($I`CaseGroup`)(
-  {
+export class CaseGroup extends S.Opaque<CaseGroup, { readonly brand: unique symbol }>()(
+  S.Struct({
     primaryCitation: FullCaseCitation.annotateKey({
       description: "The first full citation encountered for this case.",
     }),
@@ -65,10 +65,11 @@ export class CaseGroup extends S.Class<CaseGroup>($I`CaseGroup`)(
     parallelCitations: S.Array(S.String).annotateKey({
       description: 'Distinct reporter strings: ["550 U.S. 544", "127 S. Ct. 1955"].',
     }),
-  },
-  $I.annote("CaseGroup", {
-    description: "A group of citations all referring to the same underlying case.",
-  })
+  }).pipe(
+    $I.annoteSchema("CaseGroup", {
+      description: "A group of citations all referring to the same underlying case.",
+    })
+  )
 ) {}
 
 /**

@@ -105,8 +105,8 @@ export type DetectFacesFlag = typeof DetectFacesFlag.Type;
  * @category models
  * @since 0.0.0
  */
-export class DetectFacesOptions extends S.Class<DetectFacesOptions>($I`DetectFacesOptions`)(
-  {
+export class DetectFacesOptions extends S.Opaque<DetectFacesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dir: S.String,
     edgeMarginPct: FaceDetectionPercentage,
     json: S.Boolean,
@@ -115,10 +115,11 @@ export class DetectFacesOptions extends S.Class<DetectFacesOptions>($I`DetectFac
     minFaceAreaPct: FaceDetectionPercentage,
     modelPath: S.String,
     moveNoFaceTo: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
-  },
-  $I.annote("DetectFacesOptions", {
-    description: "Validated options used by the face detection operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectFacesOptions", {
+      description: "Validated options used by the face detection operation.",
+    })
+  )
 ) {}
 
 /**
@@ -136,8 +137,8 @@ export class DetectFacesOptions extends S.Class<DetectFacesOptions>($I`DetectFac
  * @category models
  * @since 0.0.0
  */
-export class DetectFacesReportOptions extends S.Class<DetectFacesReportOptions>($I`DetectFacesReportOptions`)(
-  {
+export class DetectFacesReportOptions extends S.Opaque<DetectFacesReportOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     edgeMarginPct: FaceDetectionPercentage,
     json: S.Boolean,
     manifest: S.optionalKey(S.String),
@@ -145,10 +146,11 @@ export class DetectFacesReportOptions extends S.Class<DetectFacesReportOptions>(
     minFaceAreaPct: FaceDetectionPercentage,
     modelPath: S.String,
     moveNoFaceTo: S.optionalKey(S.String),
-  },
-  $I.annote("DetectFacesReportOptions", {
-    description: "JSON-safe options recorded by files detect-faces.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectFacesReportOptions", {
+      description: "JSON-safe options recorded by files detect-faces.",
+    })
+  )
 ) {}
 
 /**
@@ -166,8 +168,8 @@ export class DetectFacesReportOptions extends S.Class<DetectFacesReportOptions>(
  * @category models
  * @since 0.0.0
  */
-export class DetectFacesEntry extends S.Class<DetectFacesEntry>($I`DetectFacesEntry`)(
-  {
+export class DetectFacesEntry extends S.Opaque<DetectFacesEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     extension: S.String,
     faceCount: S.Int,
     faces: S.Array(FaceDetection),
@@ -182,10 +184,11 @@ export class DetectFacesEntry extends S.Class<DetectFacesEntry>($I`DetectFacesEn
     sourceName: S.String,
     sourcePath: S.String,
     width: PositiveMediaDimension,
-  },
-  $I.annote("DetectFacesEntry", {
-    description: "Image file analyzed for detectable human faces.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectFacesEntry", {
+      description: "Image file analyzed for detectable human faces.",
+    })
+  )
 ) {}
 
 /**
@@ -203,17 +206,18 @@ export class DetectFacesEntry extends S.Class<DetectFacesEntry>($I`DetectFacesEn
  * @category models
  * @since 0.0.0
  */
-export class DetectFacesSkippedEntry extends S.Class<DetectFacesSkippedEntry>($I`DetectFacesSkippedEntry`)(
-  {
+export class DetectFacesSkippedEntry extends S.Opaque<DetectFacesSkippedEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     extension: S.optionalKey(S.String),
     message: S.String,
     reason: DetectFacesSkippedReason,
     sourceName: S.String,
     sourcePath: S.String,
-  },
-  $I.annote("DetectFacesSkippedEntry", {
-    description: "A direct source entry skipped by files detect-faces with a machine-readable reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectFacesSkippedEntry", {
+      description: "A direct source entry skipped by files detect-faces with a machine-readable reason.",
+    })
+  )
 ) {}
 
 /**
@@ -231,8 +235,8 @@ export class DetectFacesSkippedEntry extends S.Class<DetectFacesSkippedEntry>($I
  * @category models
  * @since 0.0.0
  */
-export class DetectFacesSummary extends S.Class<DetectFacesSummary>($I`DetectFacesSummary`)(
-  {
+export class DetectFacesSummary extends S.Opaque<DetectFacesSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     analyzedCount: S.Finite,
     directory: S.String,
     faceImageCount: S.Finite,
@@ -241,10 +245,11 @@ export class DetectFacesSummary extends S.Class<DetectFacesSummary>($I`DetectFac
     reviewImageCount: S.Finite,
     skippedCount: S.Finite,
     totalCount: S.Finite,
-  },
-  $I.annote("DetectFacesSummary", {
-    description: "Summary counts returned by files detect-faces.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectFacesSummary", {
+      description: "Summary counts returned by files detect-faces.",
+    })
+  )
 ) {}
 
 /**
@@ -262,8 +267,8 @@ export class DetectFacesSummary extends S.Class<DetectFacesSummary>($I`DetectFac
  * @category models
  * @since 0.0.0
  */
-export class DetectFacesReport extends S.Class<DetectFacesReport>($I`DetectFacesReport`)(
-  {
+export class DetectFacesReport extends S.Opaque<DetectFacesReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     directory: S.String,
     entries: S.Array(DetectFacesEntry),
     manifestPath: S.String,
@@ -272,10 +277,11 @@ export class DetectFacesReport extends S.Class<DetectFacesReport>($I`DetectFaces
     schemaVersion: S.Literal("beep.files.detect-faces.v1"),
     skipped: S.Array(DetectFacesSkippedEntry),
     summary: DetectFacesSummary,
-  },
-  $I.annote("DetectFacesReport", {
-    description: "JSON-safe report of face detection results.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectFacesReport", {
+      description: "JSON-safe report of face detection results.",
+    })
+  )
 ) {}
 
 /**

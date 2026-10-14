@@ -67,16 +67,17 @@ export type CreateCaptionFilesSkippedReason = typeof CreateCaptionFilesSkippedRe
  * @category models
  * @since 0.0.0
  */
-export class CreateCaptionFilesOptions extends S.Class<CreateCaptionFilesOptions>($I`CreateCaptionFilesOptions`)(
-  {
+export class CreateCaptionFilesOptions extends S.Opaque<CreateCaptionFilesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     caption: S.String.pipe(S.withConstructorDefault(Effect.succeed(""))),
     dir: S.String,
     dryRun: S.Boolean,
     overwrite: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  },
-  $I.annote("CreateCaptionFilesOptions", {
-    description: "Validated options used by files create-captions.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCaptionFilesOptions", {
+      description: "Validated options used by files create-captions.",
+    })
+  )
 ) {}
 
 /**
@@ -94,8 +95,11 @@ export class CreateCaptionFilesOptions extends S.Class<CreateCaptionFilesOptions
  * @category models
  * @since 0.0.0
  */
-export class CreateCaptionFilesPlanEntry extends S.Class<CreateCaptionFilesPlanEntry>($I`CreateCaptionFilesPlanEntry`)(
-  {
+export class CreateCaptionFilesPlanEntry extends S.Opaque<
+  CreateCaptionFilesPlanEntry,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     captionName: S.String,
     captionPath: S.String,
     captionRelativePath: S.String,
@@ -104,10 +108,11 @@ export class CreateCaptionFilesPlanEntry extends S.Class<CreateCaptionFilesPlanE
     sourceName: S.String,
     sourcePath: S.String,
     sourceRelativePath: S.String,
-  },
-  $I.annote("CreateCaptionFilesPlanEntry", {
-    description: "A same-stem caption sidecar planned for an image file.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCaptionFilesPlanEntry", {
+      description: "A same-stem caption sidecar planned for an image file.",
+    })
+  )
 ) {}
 
 /**
@@ -125,20 +130,22 @@ export class CreateCaptionFilesPlanEntry extends S.Class<CreateCaptionFilesPlanE
  * @category models
  * @since 0.0.0
  */
-export class CreateCaptionFilesSkippedEntry extends S.Class<CreateCaptionFilesSkippedEntry>(
-  $I`CreateCaptionFilesSkippedEntry`
-)(
-  {
+export class CreateCaptionFilesSkippedEntry extends S.Opaque<
+  CreateCaptionFilesSkippedEntry,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     captionName: S.optionalKey(S.String),
     extension: S.optionalKey(S.String),
     message: S.String,
     reason: CreateCaptionFilesSkippedReason,
     sourceName: S.String,
     sourcePath: S.String,
-  },
-  $I.annote("CreateCaptionFilesSkippedEntry", {
-    description: "A direct source entry skipped by files create-captions with a machine-readable reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCaptionFilesSkippedEntry", {
+      description: "A direct source entry skipped by files create-captions with a machine-readable reason.",
+    })
+  )
 ) {}
 
 /**
@@ -156,17 +163,18 @@ export class CreateCaptionFilesSkippedEntry extends S.Class<CreateCaptionFilesSk
  * @category models
  * @since 0.0.0
  */
-export class CreateCaptionFilesPlan extends S.Class<CreateCaptionFilesPlan>($I`CreateCaptionFilesPlan`)(
-  {
+export class CreateCaptionFilesPlan extends S.Opaque<CreateCaptionFilesPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     caption: S.String,
     directory: S.String,
     entries: S.Array(CreateCaptionFilesPlanEntry),
     overwrite: S.Boolean,
     skipped: S.Array(CreateCaptionFilesSkippedEntry),
-  },
-  $I.annote("CreateCaptionFilesPlan", {
-    description: "Planned caption sidecar entries plus skipped source entries.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCaptionFilesPlan", {
+      description: "Planned caption sidecar entries plus skipped source entries.",
+    })
+  )
 ) {}
 
 /**
@@ -184,18 +192,19 @@ export class CreateCaptionFilesPlan extends S.Class<CreateCaptionFilesPlan>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CreateCaptionFilesSummary extends S.Class<CreateCaptionFilesSummary>($I`CreateCaptionFilesSummary`)(
-  {
+export class CreateCaptionFilesSummary extends S.Opaque<CreateCaptionFilesSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     createdCount: S.Finite,
     directory: S.String,
     dryRun: S.Boolean,
     overwrittenCount: S.Finite,
     plannedCount: S.Finite,
     skippedCount: S.Finite,
-  },
-  $I.annote("CreateCaptionFilesSummary", {
-    description: "Summary counts returned by files create-captions.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreateCaptionFilesSummary", {
+      description: "Summary counts returned by files create-captions.",
+    })
+  )
 ) {}
 
 /**

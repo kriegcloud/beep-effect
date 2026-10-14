@@ -15,69 +15,75 @@ const $I = $SemanticaId.create("schema/Provenance");
 
 const ParseEventOutcome = LiteralKit(["parsed", ...DegradedKind.literals]);
 
-class IngestedEventBody extends S.Class<IngestedEventBody>($I`IngestedEventBody`)(
-  {
+class IngestedEventBody extends S.Opaque<IngestedEventBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("Ingested"),
     document: DocumentId,
-  },
-  $I.annote("IngestedEventBody", {
-    description: "Records ingestion of one exact source document.",
-  })
+  }).pipe(
+    $I.annoteSchema("IngestedEventBody", {
+      description: "Records ingestion of one exact source document.",
+    })
+  )
 ) {}
 
-class ParsedEventBody extends S.Class<ParsedEventBody>($I`ParsedEventBody`)(
-  {
+class ParsedEventBody extends S.Opaque<ParsedEventBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("Parsed"),
     document: DocumentId,
     outcome: ParseEventOutcome,
     extractor: SourceTextExtractor,
-  },
-  $I.annote("ParsedEventBody", {
-    description: "Records the typed parser outcome and pinned extractor for a document.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParsedEventBody", {
+      description: "Records the typed parser outcome and pinned extractor for a document.",
+    })
+  )
 ) {}
 
-class ChunkedEventBody extends S.Class<ChunkedEventBody>($I`ChunkedEventBody`)(
-  {
+class ChunkedEventBody extends S.Opaque<ChunkedEventBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("Chunked"),
     document: DocumentId,
     chunks: S.Array(ChunkId),
-  },
-  $I.annote("ChunkedEventBody", {
-    description: "Records the ordered content-addressed chunks emitted for a document.",
-  })
+  }).pipe(
+    $I.annoteSchema("ChunkedEventBody", {
+      description: "Records the ordered content-addressed chunks emitted for a document.",
+    })
+  )
 ) {}
 
-class ExtractedEventBody extends S.Class<ExtractedEventBody>($I`ExtractedEventBody`)(
-  {
+class ExtractedEventBody extends S.Opaque<ExtractedEventBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("Extracted"),
     batch: BatchId,
     model: ModelIdentity,
-  },
-  $I.annote("ExtractedEventBody", {
-    description: "Records one extraction batch and the pinned model that produced it.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractedEventBody", {
+      description: "Records one extraction batch and the pinned model that produced it.",
+    })
+  )
 ) {}
 
-class AssertedEventBody extends S.Class<AssertedEventBody>($I`AssertedEventBody`)(
-  {
+class AssertedEventBody extends S.Opaque<AssertedEventBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("Asserted"),
     claims: S.Array(ClaimId),
-  },
-  $I.annote("AssertedEventBody", {
-    description: "Records evidence claims asserted into the append-only ledger.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssertedEventBody", {
+      description: "Records evidence claims asserted into the append-only ledger.",
+    })
+  )
 ) {}
 
-class InvalidatedEventBody extends S.Class<InvalidatedEventBody>($I`InvalidatedEventBody`)(
-  {
+class InvalidatedEventBody extends S.Opaque<InvalidatedEventBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("Invalidated"),
     claim: ClaimId,
     reason: S.NonEmptyString,
-  },
-  $I.annote("InvalidatedEventBody", {
-    description: "Records a reasoned tombstone for an evidence claim without deleting it.",
-  })
+  }).pipe(
+    $I.annoteSchema("InvalidatedEventBody", {
+      description: "Records a reasoned tombstone for an evidence claim without deleting it.",
+    })
+  )
 ) {}
 
 const EventKind = LiteralKit(["Ingested", "Parsed", "Chunked", "Extracted", "Asserted", "Invalidated"]);
@@ -200,9 +206,12 @@ const ProvenanceEventIdCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class ProvenanceEvent extends S.Class<ProvenanceEvent>($I`ProvenanceEvent`)(
-  ProvenanceEventFields.mapFields(identity).check(ProvenanceEventIdCheck),
-  $I.annote("ProvenanceEvent", {
-    description: "Replay-stable provenance event whose id hashes only its predecessor and typed body.",
-  })
+export class ProvenanceEvent extends S.Opaque<ProvenanceEvent, { readonly brand: unique symbol }>()(
+  ProvenanceEventFields.mapFields(identity)
+    .check(ProvenanceEventIdCheck)
+    .pipe(
+      $I.annoteSchema("ProvenanceEvent", {
+        description: "Replay-stable provenance event whose id hashes only its predecessor and typed body.",
+      })
+    )
 ) {}

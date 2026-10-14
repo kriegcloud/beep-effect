@@ -29,7 +29,7 @@ import {
   nextStage,
   ReviewRound,
   type Stage,
-  StageCommit,
+  StageCommit, UpstreamPaths, BlockedState,
 } from "./Ledger.schema.ts";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { $ScratchpadId } from "@beep/identity/packages";
@@ -82,7 +82,7 @@ export const pendingRow = (module: ModuleName): O.Option<LedgerRow> =>
       stage: 0,
       status: "pending",
       provisionalHome: entry.provisionalHome,
-      upstreamPaths: { src: `packages/${module}/src`, test: `packages/${module}/__test__` },
+      upstreamPaths: UpstreamPaths.make({ src: `packages/${module}/src`, test: `packages/${module}/__test__` }),
       exportsExpected: [],
       exportsAdded: [],
       newDeps: [],
@@ -309,14 +309,15 @@ export const findStageCommit = Effect.fn("Ledger.findStageCommit")(function* (
  *
  * ```ts
  * import { backfillCommits } from "@beep/scratchpad/effected/runner/LedgerStore"
- * import { LedgerRow } from "@beep/scratchpad/effected/runner/Ledger.schema"
+ * import { LedgerRow, StageCommit, UpstreamPaths } from "@beep/scratchpad/effected/runner/Ledger.schema"
  * import * as Effect from "effect/Effect"
  *
  * const row = LedgerRow.make({
  *   id: "w1-yaml", module: "yaml", wave: 1, position: 2, stage: 1, status: "in-progress",
- *   provisionalHome: "foundation/modeling", upstreamPaths: { src: "packages/yaml/src", test: "packages/yaml/__test__" },
+ *   provisionalHome: "foundation/modeling",
+ *   upstreamPaths: UpstreamPaths.make({ src: "packages/yaml/src", test: "packages/yaml/__test__" }),
  *   exportsExpected: [], exportsAdded: [], newDeps: [], fixturesBytes: 0, deviations: [], backlog: [],
- *   reviewRounds: [], commits: [{ stage: 0, sha: null }], blocked: null, notes: [], closedAt: null,
+ *   reviewRounds: [], commits: [StageCommit.make({ stage: 0, sha: null })], blocked: null, notes: [], closedAt: null,
  * })
  * console.log(Effect.isEffect(backfillCommits("/repo", row))) // true
  * ```
@@ -427,7 +428,7 @@ export const blockRow = Effect.fn("Ledger.blockRow")(function* (
       LedgerRow.make({
         ...row,
         status: "blocked",
-        blocked: { stage: row.stage, reason, findings: [...findings] },
+        blocked: BlockedState.make({ stage: row.stage, reason, findings: [...findings] }),
       })
     )
   );

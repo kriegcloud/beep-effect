@@ -32,7 +32,7 @@ import {
   TikaServerEngineConfig,
 } from "./Tika.config.ts";
 import { tikaOperationError } from "./Tika.error-translation.ts";
-import { makeTikaError } from "./Tika.errors.ts";
+import { makeTikaError, TikaErrorOptions } from "./Tika.errors.ts";
 import { decodeTikaResponseRecord, readTikaContentText, stringifyTikaMetadata } from "./Tika.response.ts";
 import { TikaFileProcessingEngine, TikaFileProcessingEngineDescriptor } from "./Tika.service.ts";
 import type { ExportArchiveOperation, ExtractFileOperation } from "@beep/file-processing/Operation";
@@ -86,7 +86,8 @@ const effectiveOutputBudget = (configBudget: O.Option<number>, operationBudget: 
     })
   );
 
-const unreadableBody = () => makeTikaError("response-decoding", { cause: "tika server response body was unreadable" });
+const unreadableBody = () =>
+  makeTikaError("response-decoding", TikaErrorOptions.make({ cause: "tika server response body was unreadable" }));
 
 // Enforces the budget against the RAW response body while it streams, so an
 // oversized response fails before it is materialized or parsed. The budget
@@ -107,7 +108,12 @@ const readBoundedBody = (
           (total, chunk: Uint8Array) => {
             const seen = total + chunk.length;
             return seen > limit
-              ? Effect.fail(makeTikaError("output-budget", { cause: `${seen} bytes exceeds budget ${limit}` }))
+              ? Effect.fail(
+                  makeTikaError(
+                    "output-budget",
+                    TikaErrorOptions.make({ cause: `${seen} bytes exceeds budget ${limit}` })
+                  )
+                )
               : Effect.succeed([seen, [chunk]] as const);
           }
         ),
@@ -138,7 +144,11 @@ const configFromEnvironment: Effect.Effect<TikaServerEngineConfig, TikaError> = 
     baseUrl,
     ...O.getSomesStruct({ maxOutputBytes, timeoutMillis }),
   });
-}).pipe(Effect.mapError(() => makeTikaError("config", { cause: "BEEP_TIKA_* configuration was unreadable" })));
+}).pipe(
+  Effect.mapError(() =>
+    makeTikaError("config", TikaErrorOptions.make({ cause: "BEEP_TIKA_* configuration was unreadable" }))
+  )
+);
 
 /**
  * Create the Tika Server HTTP file-processing engine.
@@ -217,10 +227,17 @@ export const makeTikaServerFileProcessingEngine = Effect.fn("Tika.makeTikaServer
 
     const response = yield* client
       .execute(request)
-      .pipe(Effect.mapError(() => makeTikaError("transport", { cause: "tika server request failed" })));
+      .pipe(
+        Effect.mapError(() =>
+          makeTikaError("transport", TikaErrorOptions.make({ cause: "tika server request failed" }))
+        )
+      );
 
     if (response.status < 200 || response.status >= 300) {
-      return yield* makeTikaError("response-status", { statusCode: S.Natural.make(response.status) });
+      return yield* makeTikaError(
+        "response-status",
+        TikaErrorOptions.make({ statusCode: S.Natural.make(response.status) })
+      );
     }
 
     return yield* readBoundedBody(

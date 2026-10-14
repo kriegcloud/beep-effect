@@ -50,8 +50,8 @@ const $I = $GovinfoId.create("domain/values/GranuleContainer/GranuleContainer.mo
  * @category dtos
  * @since 0.0.0
  */
-export class GranuleContainer extends S.Class<GranuleContainer>($I`GranuleContainer`)(
-  {
+export class GranuleContainer extends S.Opaque<GranuleContainer, { readonly brand: unique symbol }>()(
+  S.Struct({
     /** Total matching granules reported by GovInfo. */
     count: NonNegativeInt64.pipe(
       S.annotateKey({
@@ -91,10 +91,11 @@ export class GranuleContainer extends S.Class<GranuleContainer>($I`GranuleContai
     previousPage: S.String.annotateKey({
       description: "URL for the previous page of granule results.",
     }),
-  },
-  $I.annote("GranuleContainer", {
-    description: "Paginated GovInfo granule listing for a package.",
-  })
+  }).pipe(
+    $I.annoteSchema("GranuleContainer", {
+      description: "Paginated GovInfo granule listing for a package.",
+    })
+  )
 ) {}
 
 /**

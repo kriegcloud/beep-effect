@@ -83,14 +83,31 @@ export const TurbopackLoaderOptions = S.Record(S.String, JSONValue).pipe(
  */
 export type TurbopackLoaderOptions = typeof TurbopackLoaderOptions.Type;
 
-class TurbopackLoaderItemConfig extends S.Class<TurbopackLoaderItemConfig>($I`TurbopackLoaderItemConfig`)(
-  {
+/**
+ * Object-form loader entry accepted by a Turbopack rule.
+ *
+ * **Example** (Load SVGs as React components)
+ *
+ * ```ts
+ * import { TurbopackLoaderItemConfig } from "@beep/repo-configs/next"
+ *
+ * const svgr = TurbopackLoaderItemConfig.make({ loader: "@svgr/webpack", options: { icon: true } })
+ *
+ * console.log(svgr.loader) // => "@svgr/webpack"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TurbopackLoaderItemConfig extends S.Opaque<TurbopackLoaderItemConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     loader: S.String,
     options: S.optionalKey(TurbopackLoaderOptions),
-  },
-  $I.annote("TurbopackLoaderItemConfig", {
-    description: "Object-form loader entry accepted by a Turbopack rule.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurbopackLoaderItemConfig", {
+      description: "Object-form loader entry accepted by a Turbopack rule.",
+    })
+  )
 ) {}
 
 /**
@@ -198,43 +215,74 @@ export type TurbopackRuleCondition =
       readonly contentType?: string | RegExp;
     };
 
-class TurbopackRuleAllCondition extends S.Class<TurbopackRuleAllCondition>($I`TurbopackRuleAllCondition`)(
-  {
+/**
+ * Turbopack rule condition requiring all nested conditions to match.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class TurbopackRuleAllCondition extends S.Opaque<TurbopackRuleAllCondition, { readonly brand: unique symbol }>()(
+  S.Struct({
     all: S.suspend(() => TurbopackRuleCondition).pipe(S.Array, S.mutable),
-  },
-  $I.annote("TurbopackRuleAllCondition", {
-    description: "Turbopack rule condition requiring all nested conditions to match.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurbopackRuleAllCondition", {
+      description: "Turbopack rule condition requiring all nested conditions to match.",
+    })
+  )
 ) {}
 
-class TurbopackRuleAnyCondition extends S.Class<TurbopackRuleAnyCondition>($I`TurbopackRuleAnyCondition`)(
-  {
+/**
+ * Turbopack rule condition requiring any nested condition to match.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class TurbopackRuleAnyCondition extends S.Opaque<TurbopackRuleAnyCondition, { readonly brand: unique symbol }>()(
+  S.Struct({
     any: S.suspend(() => TurbopackRuleCondition).pipe(S.Array, S.mutable),
-  },
-  $I.annote("TurbopackRuleAnyCondition", {
-    description: "Turbopack rule condition requiring any nested condition to match.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurbopackRuleAnyCondition", {
+      description: "Turbopack rule condition requiring any nested condition to match.",
+    })
+  )
 ) {}
 
-class TurbopackRuleNotCondition extends S.Class<TurbopackRuleNotCondition>($I`TurbopackRuleNotCondition`)(
-  {
+/**
+ * Turbopack rule condition negating a nested condition.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class TurbopackRuleNotCondition extends S.Opaque<TurbopackRuleNotCondition, { readonly brand: unique symbol }>()(
+  S.Struct({
     not: S.suspend(() => TurbopackRuleCondition),
-  },
-  $I.annote("TurbopackRuleNotCondition", {
-    description: "Turbopack rule condition negating a nested condition.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurbopackRuleNotCondition", {
+      description: "Turbopack rule condition negating a nested condition.",
+    })
+  )
 ) {}
 
-class TurbopackRuleMatcherCondition extends S.Class<TurbopackRuleMatcherCondition>($I`TurbopackRuleMatcherCondition`)(
-  {
+/**
+ * Turbopack rule condition matching file path, content, query, or content type.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class TurbopackRuleMatcherCondition extends S.Opaque<
+  TurbopackRuleMatcherCondition,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     path: S.optionalKey(S.Union([S.String, S.RegExp])),
     content: S.optionalKey(S.RegExp),
     query: S.optionalKey(S.Union([S.String, S.RegExp])),
     contentType: S.optionalKey(S.Union([S.String, S.RegExp])),
-  },
-  $I.annote("TurbopackRuleMatcherCondition", {
-    description: "Turbopack rule condition matching file path, content, query, or content type.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurbopackRuleMatcherCondition", {
+      description: "Turbopack rule condition matching file path, content, query, or content type.",
+    })
+  )
 ) {}
 
 /**
@@ -327,8 +375,8 @@ export type TurbopackModuleType = typeof TurbopackModuleType.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class TurbopackRuleConfigItem extends S.Class<TurbopackRuleConfigItem>($I`TurbopackRuleConfigItem`)(
-  {
+export class TurbopackRuleConfigItem extends S.Opaque<TurbopackRuleConfigItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     loaders: S.optionalKey(
       TurbopackLoaderItem.pipe(S.Array, S.mutable, S.annotateKey({ description: "Loaders to apply." }))
     ),
@@ -339,10 +387,11 @@ export class TurbopackRuleConfigItem extends S.Class<TurbopackRuleConfigItem>($I
     type: S.optionalKey(
       TurbopackModuleType.annotateKey({ description: "Module type to use for matched files without a custom loader." })
     ),
-  },
-  $I.annote("TurbopackRuleConfigItem", {
-    description: "Object-form Turbopack rule configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurbopackRuleConfigItem", {
+      description: "Object-form Turbopack rule configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -384,15 +433,32 @@ export const TurbopackRuleConfigCollection = S.Union([
  */
 export type TurbopackRuleConfigCollection = typeof TurbopackRuleConfigCollection.Type;
 
-class TurbopackIgnoredIssue extends S.Class<TurbopackIgnoredIssue>($I`TurbopackIgnoredIssue`)(
-  {
+/**
+ * Issue filter rule ignored by Turbopack.
+ *
+ * **Example** (Silence a known warning from a vendored package)
+ *
+ * ```ts
+ * import { TurbopackIgnoredIssue } from "@beep/repo-configs/next"
+ *
+ * const ignored = TurbopackIgnoredIssue.make({ path: /node_modules\/pdfjs-dist/, title: "Module not found" })
+ *
+ * console.log(ignored.path instanceof RegExp) // => true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TurbopackIgnoredIssue extends S.Opaque<TurbopackIgnoredIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.Union([S.String, S.RegExp]),
     title: S.optionalKey(S.Union([S.String, S.RegExp])),
     description: S.optionalKey(S.Union([S.String, S.RegExp])),
-  },
-  $I.annote("TurbopackIgnoredIssue", {
-    description: "Issue filter rule ignored by Turbopack.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurbopackIgnoredIssue", {
+      description: "Issue filter rule ignored by Turbopack.",
+    })
+  )
 ) {}
 
 /**
@@ -409,8 +475,8 @@ class TurbopackIgnoredIssue extends S.Class<TurbopackIgnoredIssue>($I`TurbopackI
  * @category schemas
  * @since 0.0.0
  */
-export class TurbopackOptions extends S.Class<TurbopackOptions>($I`TurbopackOptions`)(
-  {
+export class TurbopackOptions extends S.Opaque<TurbopackOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     resolveAlias: S.optionalKey(
       S.Record(
         S.String,
@@ -453,8 +519,9 @@ export class TurbopackOptions extends S.Class<TurbopackOptions>($I`TurbopackOpti
         S.annotateKey({ description: "Issue filter rules ignored by Turbopack." })
       )
     ),
-  },
-  $I.annote("TurbopackOptions", {
-    description: "Options for Turbopack in next.config.js.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurbopackOptions", {
+      description: "Options for Turbopack in next.config.js.",
+    })
+  )
 ) {}

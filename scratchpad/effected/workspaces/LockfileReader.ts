@@ -57,7 +57,7 @@ const JsonValue = S.fromJsonString(S.Unknown);
  * @category errors
  * @since 0.0.0
  */
-export class LockfileReadError extends S.TaggedError<LockfileReadError>($I`LockfileReadError`)("LockfileReadError", {
+export class LockfileReadError extends S.TaggedError<LockfileReadError, { readonly brand: unique symbol }>($I`LockfileReadError`)("LockfileReadError", {
 	/** Absolute path to the lockfile that could not be read. */
 	lockfilePath: S.String.annotateKey({ description: "Absolute path to the lockfile that could not be read." }),
 	// `LockfileFormat` is @effected/lockfiles' own schema, not a re-spelling of it.
@@ -192,7 +192,7 @@ export const LockfileReaderOptions = S.Struct({
  */
 export type LockfileReaderOptions = typeof LockfileReaderOptions.Type;
 
-class LockfileReaderTestDoubleError extends S.TaggedError<LockfileReaderTestDoubleError>($I`LockfileReaderTestDoubleError`)("LockfileReaderTestDoubleError", {
+class LockfileReaderTestDoubleError extends S.TaggedError<LockfileReaderTestDoubleError, { readonly brand: unique symbol }>($I`LockfileReaderTestDoubleError`)("LockfileReaderTestDoubleError", {
 	message: S.String,
 }, $I.annote("LockfileReaderTestDoubleError", { description: "An unstubbed lockfile reader test-double method." })) {}
 

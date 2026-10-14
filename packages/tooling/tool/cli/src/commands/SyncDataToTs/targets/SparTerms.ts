@@ -19,8 +19,8 @@ const $I = $RepoCliId.create("commands/SyncDataToTs/targets/SparTerms");
 const targetId = "spar-terms";
 const outputDir = "packages/foundation/modeling/rdf/src/Vocab/generated";
 const canonicalPath = `${outputDir}/spar-terms.data.json`;
-class SparPin extends S.Class<SparPin>($I`SparPin`)(
-  {
+class SparPin extends S.Opaque<SparPin, { readonly brand: unique symbol }>()(
+  S.Struct({
     prefix: S.NonEmptyString,
     module: S.NonEmptyString,
     commit: S.NonEmptyString,
@@ -35,8 +35,7 @@ class SparPin extends S.Class<SparPin>($I`SparPin`)(
     versionIri: S.NonEmptyString,
     licenseIri: S.NonEmptyString,
     attribution: S.NonEmptyString,
-  },
-  $I.annote("SparPin", { description: "Immutable acquisition pin and explicit curated term filter." })
+  }).pipe($I.annoteSchema("SparPin", { description: "Immutable acquisition pin and explicit curated term filter." }))
 ) {}
 const pins = [
   SparPin.make({

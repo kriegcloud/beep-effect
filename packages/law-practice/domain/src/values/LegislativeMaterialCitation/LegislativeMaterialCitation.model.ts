@@ -51,8 +51,11 @@ const $I = $LawPracticeDomainId.create("values/LegislativeMaterialCitation/Legis
  * @category models
  * @since 0.0.0
  */
-export class LegislativeMaterialCitation extends S.Class<LegislativeMaterialCitation>($I`LegislativeMaterialCitation`)(
-  {
+export class LegislativeMaterialCitation extends S.Opaque<
+  LegislativeMaterialCitation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("legislativeMaterial"),
     kind: S.Literals(["report", "congressionalRecord"]).annotateKey({
@@ -107,11 +110,12 @@ export class LegislativeMaterialCitation extends S.Class<LegislativeMaterialCita
         description: "Year, from a trailing (YYYY) parenthetical.",
       })
     ),
-  },
-  $I.annote("LegislativeMaterialCitation", {
-    description:
-      "Legislative-material citation (#308): committee reports and the Congressional Record, unified via the kind discriminator.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegislativeMaterialCitation", {
+      description:
+        "Legislative-material citation (#308): committee reports and the Congressional Record, unified via the kind discriminator.",
+    })
+  )
 ) {}
 
 /**

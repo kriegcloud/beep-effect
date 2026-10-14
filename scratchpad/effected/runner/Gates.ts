@@ -112,7 +112,7 @@ export const targetFiles = Effect.fn("Gates.targetFiles")(function* (repoRoot: s
  * @category models
  * @since 0.0.0
  */
-export class ParityReport extends S.Class<ParityReport>($I`ParityReport`)(
+export class ParityReport extends S.Class<ParityReport, { readonly brand: unique symbol }>($I`ParityReport`)(
   {
     expected: S.Array(S.Struct({ name: S.String, kind: S.String, entry: S.String })),
     actual: S.Array(S.Struct({ name: S.String, kind: S.String, entry: S.String })),

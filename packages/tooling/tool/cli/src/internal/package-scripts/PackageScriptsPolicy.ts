@@ -4,7 +4,7 @@
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity/packages";
-import { FsUtils, jsonStringifyPretty, resolveWorkspaceDirs } from "@beep/repo-utils";
+import { FsUtils, GlobOptions, jsonStringifyPretty, resolveWorkspaceDirs } from "@beep/repo-utils";
 import * as A from "effect/Array";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -43,7 +43,10 @@ const $I = $RepoCliId.create("internal/package-scripts/PackageScriptsPolicy");
  * @category errors
  * @since 0.0.0
  */
-export class PackageScriptsPolicyError extends S.TaggedError<PackageScriptsPolicyError>()(
+export class PackageScriptsPolicyError extends S.TaggedError<
+  PackageScriptsPolicyError,
+  { readonly brand: unique symbol }
+>()(
   $I`PackageScriptsPolicyError`,
   {
     message: S.String,
@@ -66,11 +69,16 @@ export class PackageScriptsPolicyError extends S.TaggedError<PackageScriptsPolic
  * @category models
  * @since 0.0.0
  */
-export class DerivationEvidence extends S.Class<DerivationEvidence>($I`DerivationEvidence`)(
-  { doctestOwners: S.HashSet(S.String), bypassingConfigs: S.HashSet(S.String), generators: S.HashSet(S.String) },
-  $I.annote("DerivationEvidence", {
-    description: "Derived task membership keyed by repository-relative manifest path.",
-  })
+export class DerivationEvidence extends S.Opaque<DerivationEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
+    doctestOwners: S.HashSet(S.String),
+    bypassingConfigs: S.HashSet(S.String),
+    generators: S.HashSet(S.String),
+  }).pipe(
+    $I.annoteSchema("DerivationEvidence", {
+      description: "Derived task membership keyed by repository-relative manifest path.",
+    })
+  )
 ) {}
 
 /**
@@ -258,7 +266,7 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
         for (const dir of entries) {
           const manifest = `${path.relative(repoRoot, dir)}/package.json`;
           if (!HashSet.has(owners, manifest)) continue;
-          const configs = yield* fsUtils.globFiles("vitest*.config.ts", { cwd: dir });
+          const configs = yield* fsUtils.globFiles("vitest*.config.ts", GlobOptions.make({ cwd: dir }));
           for (const config of configs) {
             const text = yield* fs.readFileString(path.join(dir, config));
             if (!Str.includes("vitest.shared.ts")(text)) bypasses = HashSet.add(bypasses, manifest);
@@ -271,10 +279,13 @@ export class PackageScriptsPolicy extends Context.Service<PackageScriptsPolicy, 
         const generators = HashSet.fromIterable(
           A.map(CodegenGeneratorPackage.literals, (dir) => `${dir}/package.json`)
         );
-        const sources = yield* fsUtils.globFiles(["packages/**/src/**/*.{ts,tsx}", "apps/**/src/**/*.{ts,tsx}"], {
-          cwd: repoRoot,
-          ignore: ["**/node_modules/**", "**/.context/**", "**/test/fixtures/**", "**/*.d.ts"],
-        });
+        const sources = yield* fsUtils.globFiles(
+          ["packages/**/src/**/*.{ts,tsx}", "apps/**/src/**/*.{ts,tsx}"],
+          GlobOptions.make({
+            cwd: repoRoot,
+            ignore: ["**/node_modules/**", "**/.context/**", "**/test/fixtures/**", "**/*.d.ts"],
+          })
+        );
         let drift = HashMap.empty<string, ReadonlyArray<PackageScriptsDrift>>();
         for (const source of sources) {
           if (!(yield* markedSource(repoRoot, source))) continue;

@@ -33,17 +33,18 @@ const httpsUrl = HttpsUrl.make;
  * @category models
  * @since 0.0.0
  */
-class ReferenceData extends S.Class<ReferenceData>($I`ReferenceData`)(
-  {
+class ReferenceData extends S.Opaque<ReferenceData, { readonly brand: unique symbol }>()(
+  S.Struct({
     certificates: S.Tuple([LotCertificate, LotCertificate]),
     finishes: S.Tuple([Finish, Finish]),
     offers: S.Tuple([SupplierOffer, SupplierOffer]),
     standards: S.Tuple([Standard, Standard, Standard, Standard, Standard]),
     tools: S.Tuple([Tool, Tool]),
-  },
-  $I.annote("ReferenceData", {
-    description: "The immutable cited and synthetic support records required by the fixed replay bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReferenceData", {
+      description: "The immutable cited and synthetic support records required by the fixed replay bundle.",
+    })
+  )
 ) {}
 
 /**

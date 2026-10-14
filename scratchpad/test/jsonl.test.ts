@@ -313,7 +313,7 @@ describe("JSONL generic engine", () => {
 
   it.effect("seeds latest from disk and retains class payloads through patches", () =>
     Effect.gen(function* () {
-      class Payload extends S.Class<Payload>($I`Payload`)({ count: S.Finite, label: S.String }) {}
+      class Payload extends S.Class<Payload, { readonly brand: unique symbol }>($I`Payload`)({ count: S.Finite, label: S.String }) {}
       const definitions = Tuple.make(JsonlEvent.make("boxed", { data: Payload }));
       class BoxedJournal extends Journal.Service<BoxedJournal>()($I`BoxedJournal`, { events: definitions }) {}
       const fs = yield* MemoryFileSystem.make;

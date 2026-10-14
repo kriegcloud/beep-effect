@@ -21,8 +21,8 @@ const $I = $RepoCliId.create("commands/Yeet/internal/closeout/Closeout.schemas")
  * @category models
  * @since 0.0.0
  */
-export class PrCloseoutOptions extends S.Class<PrCloseoutOptions>($I`PrCloseoutOptions`)(
-  {
+export class PrCloseoutOptions extends S.Opaque<PrCloseoutOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     bots: S.String,
     requireGreptileIssues: S.Finite,
     requireGreptileScore: S.String,
@@ -34,10 +34,11 @@ export class PrCloseoutOptions extends S.Class<PrCloseoutOptions>($I`PrCloseoutO
       S.withConstructorDefault(Effect.succeed("")),
       S.withDecodingDefault(Effect.succeed(""))
     ),
-  },
-  $I.annote("PrCloseoutOptions", {
-    description: "Runtime closeout gates accepted by Yeet.",
-  })
+  }).pipe(
+    $I.annoteSchema("PrCloseoutOptions", {
+      description: "Runtime closeout gates accepted by Yeet.",
+    })
+  )
 ) {}
 
 /**
@@ -46,15 +47,16 @@ export class PrCloseoutOptions extends S.Class<PrCloseoutOptions>($I`PrCloseoutO
  * @category models
  * @since 0.0.0
  */
-export class GreptileSummary extends S.Class<GreptileSummary>($I`GreptileSummary`)(
-  {
+export class GreptileSummary extends S.Opaque<GreptileSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     issueCount: S.optionalKey(S.Finite),
     score: S.optionalKey(S.String),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("GreptileSummary", {
-    description: "Greptile score and issue count parsed from PR comments.",
-  })
+  }).pipe(
+    $I.annoteSchema("GreptileSummary", {
+      description: "Greptile score and issue count parsed from PR comments.",
+    })
+  )
 ) {}
 
 const PrCloseoutGateName = LiteralKit([
@@ -97,17 +99,18 @@ const PrCloseoutGateStatus = LiteralKit(["passed", "blocked", "unknown", "writte
  * @category models
  * @since 0.0.0
  */
-export class PrCloseoutGateState extends S.Class<PrCloseoutGateState>($I`PrCloseoutGateState`)(
-  {
+export class PrCloseoutGateState extends S.Opaque<PrCloseoutGateState, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: PrCloseoutGateName,
     status: PrCloseoutGateStatus,
     detail: S.String,
     count: S.optionalKey(S.Finite),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("PrCloseoutGateState", {
-    description: "Durable state for one PR closeout gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("PrCloseoutGateState", {
+      description: "Durable state for one PR closeout gate.",
+    })
+  )
 ) {}
 
 /**
@@ -136,17 +139,18 @@ export class PrCloseoutGateState extends S.Class<PrCloseoutGateState>($I`PrClose
  * @category models
  * @since 0.0.0
  */
-export class PrCloseoutWriteAction extends S.Class<PrCloseoutWriteAction>($I`PrCloseoutWriteAction`)(
-  {
+export class PrCloseoutWriteAction extends S.Opaque<PrCloseoutWriteAction, { readonly brand: unique symbol }>()(
+  S.Struct({
     detail: S.String,
     kind: LiteralKit(["reply", "resolve"]),
     ok: S.Boolean,
     threadId: S.String,
     url: S.optionalKey(S.String),
-  },
-  $I.annote("PrCloseoutWriteAction", {
-    description: "One explicit review-thread write action performed during Yeet closeout.",
-  })
+  }).pipe(
+    $I.annoteSchema("PrCloseoutWriteAction", {
+      description: "One explicit review-thread write action performed during Yeet closeout.",
+    })
+  )
 ) {}
 
 /**
@@ -166,8 +170,8 @@ export class PrCloseoutWriteAction extends S.Class<PrCloseoutWriteAction>($I`PrC
  * @category models
  * @since 0.0.0
  */
-export class PrCloseoutReport extends S.Class<PrCloseoutReport>($I`PrCloseoutReport`)(
-  {
+export class PrCloseoutReport extends S.Opaque<PrCloseoutReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     acknowledgedThreadCount: S.Finite.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefault(Effect.succeed(0))
@@ -195,10 +199,11 @@ export class PrCloseoutReport extends S.Class<PrCloseoutReport>($I`PrCloseoutRep
       S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutWriteAction>())),
       S.withDecodingDefault(Effect.succeed(A.empty<PrCloseoutWriteAction>()))
     ),
-  },
-  $I.annote("PrCloseoutReport", {
-    description: "Structured PR closeout result bound to the reviewed pull request head.",
-  })
+  }).pipe(
+    $I.annoteSchema("PrCloseoutReport", {
+      description: "Structured PR closeout result bound to the reviewed pull request head.",
+    })
+  )
 ) {}
 
 /**

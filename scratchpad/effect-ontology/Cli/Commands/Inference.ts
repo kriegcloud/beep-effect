@@ -63,7 +63,7 @@ const InferenceCliOperation = LiteralKit(["readInput", "writeOutput"]).pipe(
   })
 );
 
-class InferenceCliError extends S.TaggedError<InferenceCliError>($I`InferenceCliError`)(
+class InferenceCliError extends S.TaggedError<InferenceCliError, { readonly brand: unique symbol }>($I`InferenceCliError`)(
   "InferenceCliError",
   {
     operation: InferenceCliOperation.annotateKey({

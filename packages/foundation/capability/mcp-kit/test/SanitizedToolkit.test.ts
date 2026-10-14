@@ -34,9 +34,12 @@ const FixtureTool = Tool.make("fixture_tool", {
   success: S.String,
 });
 
-class ExpectedFixtureFailure extends S.TaggedError<ExpectedFixtureFailure>()("ExpectedFixtureFailure", {
-  message: S.String,
-}) {}
+class ExpectedFixtureFailure extends S.TaggedError<ExpectedFixtureFailure, { readonly brand: unique symbol }>()(
+  "ExpectedFixtureFailure",
+  {
+    message: S.String,
+  }
+) {}
 const decodeUnknownExpectedFixtureFailure = S.decodeUnknownEffect(ExpectedFixtureFailure);
 
 const ExpectedFailureTool = Tool.make("expected_failure_tool", {
@@ -45,9 +48,11 @@ const ExpectedFailureTool = Tool.make("expected_failure_tool", {
   success: S.String,
 });
 
-class RefParameters extends S.Class<RefParameters>("RefParameters")({
-  secret: S.String,
-}) {}
+class RefParameters extends S.Opaque<RefParameters, { readonly brand: unique symbol }>()(
+  S.Struct({
+    secret: S.String,
+  }).annotate({ identifier: "RefParameters" })
+) {}
 
 const RefTool = Tool.make("ref_tool", {
   parameters: RefParameters,
@@ -56,7 +61,9 @@ const RefTool = Tool.make("ref_tool", {
 
 // A no-argument tool: an empty parameter class renders as `anyOf: [object,
 // array]`, the shape that used to slip through without a top-level `type`.
-class EmptyParameters extends S.Class<EmptyParameters>("EmptyParameters")({}) {}
+class EmptyParameters extends S.Opaque<EmptyParameters, { readonly brand: unique symbol }>()(
+  S.Struct({}).annotate({ identifier: "EmptyParameters" })
+) {}
 
 const EmptyParamsTool = Tool.make("empty_params_tool", {
   parameters: EmptyParameters,
@@ -75,9 +82,12 @@ const AnnotatedTool = Tool.make("annotated_tool", {
 // The failure-classification fixtures: every arm of the kit's own classifier
 // (`declaredFailureResult`, `makeInternalToolError`, `classifyToolFailure`)
 // needs a handler that ends the way that arm describes.
-class DeclaredErrorFailure extends S.TaggedError<DeclaredErrorFailure>()("DeclaredErrorFailure", {
-  message: S.String,
-}) {}
+class DeclaredErrorFailure extends S.TaggedError<DeclaredErrorFailure, { readonly brand: unique symbol }>()(
+  "DeclaredErrorFailure",
+  {
+    message: S.String,
+  }
+) {}
 
 // A declared failure that *is* an `Error`: the classifier answers with its
 // message rather than its encoded payload.

@@ -82,8 +82,8 @@ const $I = $LawPracticeUseCasesId.create("MailTagging/MailTagging.ports");
  * @category ports
  * @since 0.0.0
  */
-export class MailboxShape extends S.Class<MailboxShape>($I`MailboxShape`)(
-  {
+export class MailboxShape extends S.Opaque<MailboxShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     listMessagesSince: Fn({
       input: ListMessagesSinceRequest,
       output: EffectOutput<MailPage, MailTaggingPortError>(),
@@ -121,10 +121,11 @@ export class MailboxShape extends S.Class<MailboxShape>($I`MailboxShape`)(
     }).annotateKey({
       description: "Download one attachment's bytes.",
     }),
-  },
-  $I.annote("MailboxShape", {
-    description: "Category-only mailbox port: paged reads, attachment reads, and category writes.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailboxShape", {
+      description: "Category-only mailbox port: paged reads, attachment reads, and category writes.",
+    })
+  )
 ) {}
 
 /**
@@ -179,15 +180,16 @@ export class Mailbox extends Context.Service<Mailbox, MailboxShape>()($I`Mailbox
  * @category ports
  * @since 0.0.0
  */
-export class MatterDirectoryShape extends S.Class<MatterDirectoryShape>($I`MatterDirectoryShape`)(
-  {
+export class MatterDirectoryShape extends S.Opaque<MatterDirectoryShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     snapshot: EffectOutput<MatterIndex, MailTaggingPortError>().annotateKey({
       description: "Read the identifiers and contacts of every taggable matter.",
     }),
-  },
-  $I.annote("MatterDirectoryShape", {
-    description: "Matter directory port: one snapshot of every taggable matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterDirectoryShape", {
+      description: "Matter directory port: one snapshot of every taggable matter.",
+    })
+  )
 ) {}
 
 /**
@@ -229,18 +231,22 @@ export class MatterDirectory extends Context.Service<MatterDirectory, MatterDire
  * @category ports
  * @since 0.0.0
  */
-export class MatterFolderDirectoryShape extends S.Class<MatterFolderDirectoryShape>($I`MatterFolderDirectoryShape`)(
-  {
+export class MatterFolderDirectoryShape extends S.Opaque<
+  MatterFolderDirectoryShape,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     folderFor: Fn({
       input: MatterFolderRequest,
       output: EffectOutput<O.Option<DocumentFolderId>, MailTaggingPortError>(),
     }).annotateKey({
       description: "Resolve one destination subfolder of one matter; none when it does not exist.",
     }),
-  },
-  $I.annote("MatterFolderDirectoryShape", {
-    description: "Matter-folder directory port: the folder of one filing destination of one matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatterFolderDirectoryShape", {
+      description: "Matter-folder directory port: the folder of one filing destination of one matter.",
+    })
+  )
 ) {}
 
 /**
@@ -296,18 +302,19 @@ export class MatterFolderDirectory extends Context.Service<MatterFolderDirectory
  * @category ports
  * @since 0.0.0
  */
-export class DocumentStoreShape extends S.Class<DocumentStoreShape>($I`DocumentStoreShape`)(
-  {
+export class DocumentStoreShape extends S.Opaque<DocumentStoreShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     upload: Fn({
       input: UploadDocumentRequest,
       output: EffectOutput<DocumentUploadResult, MailTaggingPortError>(),
     }).annotateKey({
       description: "Create one new file in a folder, or report that its name is taken; never replaces a file.",
     }),
-  },
-  $I.annote("DocumentStoreShape", {
-    description: "Create-only document store port.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentStoreShape", {
+      description: "Create-only document store port.",
+    })
+  )
 ) {}
 
 /**
@@ -361,18 +368,19 @@ export class DocumentStore extends Context.Service<DocumentStore, DocumentStoreS
  * @category ports
  * @since 0.0.0
  */
-export class KnownDocumentsShape extends S.Class<KnownDocumentsShape>($I`KnownDocumentsShape`)(
-  {
+export class KnownDocumentsShape extends S.Opaque<KnownDocumentsShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     has: Fn({
       input: KnownDocumentRequest,
       output: EffectOutput<boolean, MailTaggingPortError>(),
     }).annotateKey({
       description: "Whether the document system already holds this content for this matter.",
     }),
-  },
-  $I.annote("KnownDocumentsShape", {
-    description: "Known-documents port: content the document system already holds for a matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnownDocumentsShape", {
+      description: "Known-documents port: content the document system already holds for a matter.",
+    })
+  )
 ) {}
 
 /**
@@ -419,8 +427,8 @@ export class KnownDocuments extends Context.Service<KnownDocuments, KnownDocumen
  * @category ports
  * @since 0.0.0
  */
-export class TagLedgerShape extends S.Class<TagLedgerShape>($I`TagLedgerShape`)(
-  {
+export class TagLedgerShape extends S.Opaque<TagLedgerShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     append: Fn({
       input: TagLedgerRecord,
       output: EffectOutput<void, MailTaggingStateError>(),
@@ -430,10 +438,11 @@ export class TagLedgerShape extends S.Class<TagLedgerShape>($I`TagLedgerShape`)(
     records: EffectOutput<ReadonlyArray<TagLedgerRecord>, MailTaggingStateError>().annotateKey({
       description: "Read every line in append order, failing closed on a line that does not decode.",
     }),
-  },
-  $I.annote("TagLedgerShape", {
-    description: "Append-only tag ledger port.",
-  })
+  }).pipe(
+    $I.annoteSchema("TagLedgerShape", {
+      description: "Append-only tag ledger port.",
+    })
+  )
 ) {}
 
 /**
@@ -480,8 +489,8 @@ export class TagLedger extends Context.Service<TagLedger, TagLedgerShape>()($I`T
  * @category ports
  * @since 0.0.0
  */
-export class FilingLedgerShape extends S.Class<FilingLedgerShape>($I`FilingLedgerShape`)(
-  {
+export class FilingLedgerShape extends S.Opaque<FilingLedgerShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     append: Fn({
       input: FilingLedgerRecord,
       output: EffectOutput<void, MailTaggingStateError>(),
@@ -491,10 +500,11 @@ export class FilingLedgerShape extends S.Class<FilingLedgerShape>($I`FilingLedge
     records: EffectOutput<ReadonlyArray<FilingLedgerRecord>, MailTaggingStateError>().annotateKey({
       description: "Read every line in append order, failing closed on a line that does not decode.",
     }),
-  },
-  $I.annote("FilingLedgerShape", {
-    description: "Append-only filing ledger port.",
-  })
+  }).pipe(
+    $I.annoteSchema("FilingLedgerShape", {
+      description: "Append-only filing ledger port.",
+    })
+  )
 ) {}
 
 /**
@@ -535,10 +545,11 @@ export class FilingLedger extends Context.Service<FilingLedger, FilingLedgerShap
  * @category ports
  * @since 0.0.0
  */
-export class BackfillCheckpointStoreShape extends S.Class<BackfillCheckpointStoreShape>(
-  $I`BackfillCheckpointStoreShape`
-)(
-  {
+export class BackfillCheckpointStoreShape extends S.Opaque<
+  BackfillCheckpointStoreShape,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     load: EffectOutput<O.Option<BackfillCheckpoint>, MailTaggingStateError>().annotateKey({
       description: "Read the saved checkpoint; none before the first save.",
     }),
@@ -548,10 +559,11 @@ export class BackfillCheckpointStoreShape extends S.Class<BackfillCheckpointStor
     }).annotateKey({
       description: "Replace the saved checkpoint atomically.",
     }),
-  },
-  $I.annote("BackfillCheckpointStoreShape", {
-    description: "Backfill checkpoint port: load and atomically replace the resume point.",
-  })
+  }).pipe(
+    $I.annoteSchema("BackfillCheckpointStoreShape", {
+      description: "Backfill checkpoint port: load and atomically replace the resume point.",
+    })
+  )
 ) {}
 
 /**
@@ -596,18 +608,19 @@ export class BackfillCheckpointStore extends Context.Service<BackfillCheckpointS
  * @category services
  * @since 0.0.0
  */
-export class AttachmentFilerShape extends S.Class<AttachmentFilerShape>($I`AttachmentFilerShape`)(
-  {
+export class AttachmentFilerShape extends S.Opaque<AttachmentFilerShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     file: Fn({
       input: FileAttachmentsRequest,
       output: EffectOutput<TaggingRunReport, MailTaggingPortError | MailTaggingStateError>(),
     }).annotateKey({
       description: "File one matched message's attachments and answer the attachment counts as a report fragment.",
     }),
-  },
-  $I.annote("AttachmentFilerShape", {
-    description: "Attachment filer: content-deduplicated, create-only filing of one message's attachments.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttachmentFilerShape", {
+      description: "Attachment filer: content-deduplicated, create-only filing of one message's attachments.",
+    })
+  )
 ) {}
 
 /**
@@ -648,18 +661,19 @@ export class AttachmentFiler extends Context.Service<AttachmentFiler, Attachment
  * @category services
  * @since 0.0.0
  */
-export class MailTaggingJobShape extends S.Class<MailTaggingJobShape>($I`MailTaggingJobShape`)(
-  {
+export class MailTaggingJobShape extends S.Opaque<MailTaggingJobShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     run: Fn({
       input: RunMailTaggingRequest,
       output: EffectOutput<TaggingRunReport, MailTaggingPortError | MailTaggingStateError>(),
     }).annotateKey({
       description: "Tag the mailbox from the checkpoint or the requested instant and answer the run's counts.",
     }),
-  },
-  $I.annote("MailTaggingJobShape", {
-    description: "Resumable, ledger-backed mail-tagging job.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailTaggingJobShape", {
+      description: "Resumable, ledger-backed mail-tagging job.",
+    })
+  )
 ) {}
 
 /**
@@ -721,18 +735,19 @@ export class MailTaggingJob extends Context.Service<MailTaggingJob, MailTaggingJ
  * @category services
  * @since 0.0.0
  */
-export class MailTaggingUndoShape extends S.Class<MailTaggingUndoShape>($I`MailTaggingUndoShape`)(
-  {
+export class MailTaggingUndoShape extends S.Opaque<MailTaggingUndoShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     run: Fn({
       input: UndoMailTaggingRequest,
       output: EffectOutput<TaggingUndoReport, MailTaggingPortError | MailTaggingStateError>(),
     }).annotateKey({
       description: "Remove the categories one run added, where they are still present, and answer the counts.",
     }),
-  },
-  $I.annote("MailTaggingUndoShape", {
-    description: "Ledger-driven undo of one tagging run.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailTaggingUndoShape", {
+      description: "Ledger-driven undo of one tagging run.",
+    })
+  )
 ) {}
 
 /**

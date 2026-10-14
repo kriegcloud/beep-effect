@@ -43,7 +43,7 @@ const JsonValue = S.fromJsonString(S.Json);
  * @category errors
  * @since 0.0.0
  */
-export class DuplicateNodeIdError extends S.TaggedError<DuplicateNodeIdError>($I`DuplicateNodeIdError`)("DuplicateNodeIdError", {
+export class DuplicateNodeIdError extends S.TaggedError<DuplicateNodeIdError, { readonly brand: unique symbol }>($I`DuplicateNodeIdError`)("DuplicateNodeIdError", {
 	/** The `@id` claimed by more than one node. */
 	id: S.String.annotateKey({ description: "The `@id` claimed by more than one node." }),
 }, $I.annote("DuplicateNodeIdError", { description: "Indicates that two nodes in one graph claim the same `@id`." })) {
@@ -88,7 +88,7 @@ export class DuplicateNodeIdError extends S.TaggedError<DuplicateNodeIdError>($I
  * @category errors
  * @since 0.0.0
  */
-export class ConflictingTermError extends S.TaggedError<ConflictingTermError>($I`ConflictingTermError`)("ConflictingTermError", {
+export class ConflictingTermError extends S.TaggedError<ConflictingTermError, { readonly brand: unique symbol }>($I`ConflictingTermError`)("ConflictingTermError", {
 	/** The `@id` of the node carrying the collision. */
 	nodeId: S.String.annotateKey({ description: "The `@id` of the node carrying the collision." }),
 	/** The colliding term. */
@@ -269,7 +269,7 @@ const withoutUndefined = (value: Record<string, S.Json | undefined>): Record<str
  * @category models
  * @since 0.0.0
  */
-export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)({
+export class JsonLdDocument extends S.Class<JsonLdDocument, { readonly brand: unique symbol }>($I`JsonLdDocument`)({
 	/** The JSON-LD context, fixed at `https://schema.org` and populated automatically. */
 	"@context": S.tag("https://schema.org").annotateKey({ description: "The JSON-LD context, fixed at `https://schema.org` and populated automatically." }),
 	/** The nodes in the document. */

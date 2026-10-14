@@ -78,8 +78,8 @@ export const FRESHBOOKS_TOKEN_SKEW_MILLIS = 60_000;
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksTokenResponse extends S.Class<FreshbooksTokenResponse>($I`FreshbooksTokenResponse`)(
-  {
+export class FreshbooksTokenResponse extends S.Opaque<FreshbooksTokenResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     access_token: S.String.pipe(S.RedactedFromValue).annotateKey({
       description: "Redacted bearer access token.",
     }),
@@ -98,10 +98,11 @@ export class FreshbooksTokenResponse extends S.Class<FreshbooksTokenResponse>($I
     created_at: S.optionalKey(S.Int).annotateKey({
       description: "Token issuance time in epoch seconds.",
     }),
-  },
-  $I.annote("FreshbooksTokenResponse", {
-    description: "Decoded FreshBooks OAuth token endpoint response.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksTokenResponse", {
+      description: "Decoded FreshBooks OAuth token endpoint response.",
+    })
+  )
 ) {}
 
 const decodeTokenResponse = S.decodeUnknownEffect(FreshbooksTokenResponse);
@@ -127,8 +128,8 @@ const decodeTokenResponse = S.decodeUnknownEffect(FreshbooksTokenResponse);
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksStoredToken extends S.Class<FreshbooksStoredToken>($I`FreshbooksStoredToken`)(
-  {
+export class FreshbooksStoredToken extends S.Opaque<FreshbooksStoredToken, { readonly brand: unique symbol }>()(
+  S.Struct({
     accessToken: S.String.pipe(S.RedactedFromValue).annotateKey({
       description: "Redacted bearer access token.",
     }),
@@ -141,10 +142,11 @@ export class FreshbooksStoredToken extends S.Class<FreshbooksStoredToken>($I`Fre
     scope: S.optionalKey(S.String).annotateKey({
       description: "Granted scope string.",
     }),
-  },
-  $I.annote("FreshbooksStoredToken", {
-    description: "Persisted FreshBooks token state with absolute expiry.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksStoredToken", {
+      description: "Persisted FreshBooks token state with absolute expiry.",
+    })
+  )
 ) {}
 
 /**

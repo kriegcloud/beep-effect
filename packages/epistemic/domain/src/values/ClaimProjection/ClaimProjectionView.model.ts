@@ -32,16 +32,17 @@ const $I = $EpistemicDomainId.create("values/ClaimProjection/ClaimProjectionView
  * @category read-models
  * @since 0.0.0
  */
-export class ClaimStateCounts extends S.Class<ClaimStateCounts>($I`ClaimStateCounts`)(
-  {
+export class ClaimStateCounts extends S.Opaque<ClaimStateCounts, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidate: S.Natural.annotateKey({ description: "Number of candidate claims." }),
     shape_valid: S.Natural.annotateKey({ description: "Number of shape-valid claims." }),
     consistency_checked: S.Natural.annotateKey({ description: "Number of consistency-checked claims." }),
     admitted: S.Natural.annotateKey({ description: "Number of admitted claims." }),
-  },
-  $I.annote("ClaimStateCounts", {
-    description: "Count of claims in each lifecycle state.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimStateCounts", {
+      description: "Count of claims in each lifecycle state.",
+    })
+  )
 ) {}
 
 /**
@@ -67,15 +68,16 @@ export class ClaimStateCounts extends S.Class<ClaimStateCounts>($I`ClaimStateCou
  * @category read-models
  * @since 0.0.0
  */
-export class ClaimProjectionView extends S.Class<ClaimProjectionView>($I`ClaimProjectionView`)(
-  {
+export class ClaimProjectionView extends S.Opaque<ClaimProjectionView, { readonly brand: unique symbol }>()(
+  S.Struct({
     total: S.Natural.annotateKey({ description: "Total claim count represented by the projection." }),
     counts: ClaimStateCounts.annotateKey({ description: "Claim counts by lifecycle state." }),
     admittedKeys: S.Array(EpistemicFixtureKey).annotateKey({
       description: "Stable fixture keys for admitted claims, sorted deterministically.",
     }),
-  },
-  $I.annote("ClaimProjectionView", {
-    description: "Deterministic in-memory read model folded from a single-owner authority array.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimProjectionView", {
+      description: "Deterministic in-memory read model folded from a single-owner authority array.",
+    })
+  )
 ) {}

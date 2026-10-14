@@ -350,7 +350,7 @@ export type MemoryOutboxStatus = typeof MemoryOutboxStatus.Type;
  * @category errors
  * @since 0.0.0
  */
-export class WriterAdmissionError extends S.TaggedError<WriterAdmissionError>()(
+export class WriterAdmissionError extends S.TaggedError<WriterAdmissionError, { readonly brand: unique symbol }>()(
   "WriterAdmissionError",
   { message: S.String },
   $I.annoteError<WriterAdmissionError>("WriterAdmissionError", {
@@ -388,7 +388,7 @@ export declare namespace WriterAdmissionError {
  * @category errors
  * @since 0.0.0
  */
-export class MemoryApplyError extends S.TaggedError<MemoryApplyError>()(
+export class MemoryApplyError extends S.TaggedError<MemoryApplyError, { readonly brand: unique symbol }>()(
   "MemoryApplyError",
   { message: S.String },
   $I.annoteError<MemoryApplyError>("MemoryApplyError", {

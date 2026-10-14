@@ -74,8 +74,14 @@ type FallowBoundaryConfig = {
   };
 };
 
-class FallowBoundaryViolation extends S.Class<FallowBoundaryViolation>($I`FallowBoundaryViolation`)(
-  {
+/**
+ * Boundary violation emitted by `fallow dead-code --boundary-violations`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class FallowBoundaryViolation extends S.Opaque<FallowBoundaryViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     from_path: S.String,
     to_path: S.String,
     from_zone: S.String,
@@ -83,19 +89,27 @@ class FallowBoundaryViolation extends S.Class<FallowBoundaryViolation>($I`Fallow
     import_specifier: S.String,
     line: S.Finite,
     col: S.Finite,
-  },
-  $I.annote("FallowBoundaryViolation", {
-    description: "Boundary violation emitted by `fallow dead-code --boundary-violations`.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowBoundaryViolation", {
+      description: "Boundary violation emitted by `fallow dead-code --boundary-violations`.",
+    })
+  )
 ) {}
 
-class FallowBoundaryReport extends S.Class<FallowBoundaryReport>($I`FallowBoundaryReport`)(
-  {
+/**
+ * Fallow boundary report subset used for doctrine-pinned layer checks.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+class FallowBoundaryReport extends S.Opaque<FallowBoundaryReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     boundary_violations: S.Array(FallowBoundaryViolation),
-  },
-  $I.annote("FallowBoundaryReport", {
-    description: "Fallow boundary report subset used for doctrine-pinned layer checks.",
-  })
+  }).pipe(
+    $I.annoteSchema("FallowBoundaryReport", {
+      description: "Fallow boundary report subset used for doctrine-pinned layer checks.",
+    })
+  )
 ) {}
 
 const decodeFallowBoundaryReport = S.decodeUnknownEffect(S.fromJsonString(FallowBoundaryReport));

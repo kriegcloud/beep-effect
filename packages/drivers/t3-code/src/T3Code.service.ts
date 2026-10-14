@@ -52,27 +52,29 @@ const BODY_LIMIT = 2 * 1024 * 1024;
  * @category configuration
  * @since 0.0.0
  */
-export class T3CodeConfig extends S.Class<T3CodeConfig>($I`T3CodeConfig`)(
-  { url: LoopbackUrl, bearer: S.Redacted(S.NonEmptyString), timeoutMs: Timeout },
-  $I.annote("T3CodeConfig", { description: "Approved loopback T3 credential and bounded transport deadline." })
+export class T3CodeConfig extends S.Opaque<T3CodeConfig, { readonly brand: unique symbol }>()(
+  S.Struct({ url: LoopbackUrl, bearer: S.Redacted(S.NonEmptyString), timeoutMs: Timeout }).pipe(
+    $I.annoteSchema("T3CodeConfig", { description: "Approved loopback T3 credential and bounded transport deadline." })
+  )
 ) {}
 const decodeConfig = S.decodeUnknownEffect(T3CodeConfig);
 
-class InitializeResult extends S.Class<InitializeResult>($I`InitializeResult`)(
-  { protocolVersion: S.Literal(PROTOCOL) },
-  $I.annote("InitializeResult", { description: "Required installed T3 MCP revision." })
+class InitializeResult extends S.Opaque<InitializeResult, { readonly brand: unique symbol }>()(
+  S.Struct({ protocolVersion: S.Literal(PROTOCOL) }).pipe(
+    $I.annoteSchema("InitializeResult", { description: "Required installed T3 MCP revision." })
+  )
 ) {}
-class TextContent extends S.Class<TextContent>($I`TextContent`)(
-  { type: S.Literal("text"), text: S.String },
-  $I.annote("TextContent", { description: "Tool JSON fallback content." })
+class TextContent extends S.Opaque<TextContent, { readonly brand: unique symbol }>()(
+  S.Struct({ type: S.Literal("text"), text: S.String }).pipe(
+    $I.annoteSchema("TextContent", { description: "Tool JSON fallback content." })
+  )
 ) {}
-class ToolResult extends S.Class<ToolResult>($I`ToolResult`)(
-  {
+class ToolResult extends S.Opaque<ToolResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     isError: S.optionalKey(S.Boolean),
     structuredContent: S.optionalKey(S.Unknown),
     content: TextContent.pipe(S.Array, S.optionalKey),
-  },
-  $I.annote("ToolResult", { description: "Minimal MCP tool response envelope." })
+  }).pipe($I.annoteSchema("ToolResult", { description: "Minimal MCP tool response envelope." }))
 ) {}
 const isT3CodeError = S.is(T3CodeError);
 const decodeToolResult = S.decodeUnknownEffect(ToolResult);
@@ -195,7 +197,7 @@ const make = Effect.fn("T3Code.make")(function* (input: T3CodeConfig) {
   const call = Effect.fn("T3Code.call")(function* <Value>(
     name: string,
     args: unknown,
-    schema: S.Codec<Value, unknown>,
+    schema: S.ConstraintCodec<Value, unknown>,
     operation: string,
     mutating = false,
     deadlineMs = config.timeoutMs

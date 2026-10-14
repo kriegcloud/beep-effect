@@ -80,9 +80,10 @@ export type ClaimDispositionOperation = typeof ClaimDispositionOperation.Type;
  * @category errors
  * @since 0.0.0
  */
-export class ClaimDispositionRepositoryUnavailable extends S.TaggedError<ClaimDispositionRepositoryUnavailable>(
-  $I`ClaimDispositionRepositoryUnavailable`
-)(
+export class ClaimDispositionRepositoryUnavailable extends S.TaggedError<
+  ClaimDispositionRepositoryUnavailable,
+  { readonly brand: unique symbol }
+>($I`ClaimDispositionRepositoryUnavailable`)(
   "ClaimDispositionRepositoryUnavailable",
   {
     cause: S.OptionFromOptionalKey(

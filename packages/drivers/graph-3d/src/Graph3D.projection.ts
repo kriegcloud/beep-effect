@@ -59,8 +59,8 @@ const Uint16Arr = S.instanceOf<globalThis.Uint16ArrayConstructor, globalThis.Uin
  * @category projections
  * @since 0.0.0
  */
-export class Graph3DProjection extends S.Class<Graph3DProjection>($I`Graph3DProjection`)(
-  {
+export class Graph3DProjection extends S.Opaque<Graph3DProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     nodeCount: S.Int,
     edgeCount: S.Int,
     nodeIds: Uint32Arr,
@@ -75,11 +75,12 @@ export class Graph3DProjection extends S.Class<Graph3DProjection>($I`Graph3DProj
     // Normalized [0, 1] weight per edge, used for ribbon width and per-edge alpha.
     edgeWeights: Float32Arr,
     labels: S.Array(S.String).pipe(S.optionalKey),
-  },
-  $I.annote("Graph3DProjection", {
-    description:
-      "Typed-array 3D graph projection with interleaved positions, indexed links, community ordinals, importance, weights, and optional labels.",
-  })
+  }).pipe(
+    $I.annoteSchema("Graph3DProjection", {
+      description:
+        "Typed-array 3D graph projection with interleaved positions, indexed links, community ordinals, importance, weights, and optional labels.",
+    })
+  )
 ) {
   /**
    * Buffer-coherence invariants for a projection: every typed array agrees
@@ -153,16 +154,17 @@ const hasCoherentLinkIndices = (projection: Graph3DProjection): boolean => {
  * @category fixtures
  * @since 0.0.0
  */
-export class SyntheticGraph3DOptions extends S.Class<SyntheticGraph3DOptions>($I`SyntheticGraph3DOptions`)(
-  {
+export class SyntheticGraph3DOptions extends S.Opaque<SyntheticGraph3DOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     nodeCount: S.Int.pipe(S.withConstructorDefault(Effect.succeed(2_500))),
     edgeCount: S.Int.pipe(S.withConstructorDefault(Effect.succeed(5_000))),
     communityCount: S.Int.pipe(S.withConstructorDefault(Effect.succeed(8))),
     seed: S.Int.pipe(S.withConstructorDefault(Effect.succeed(1_337))),
-  },
-  $I.annote("SyntheticGraph3DOptions", {
-    description: "Defaulted options for deterministic synthetic 3D graph generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyntheticGraph3DOptions", {
+      description: "Defaulted options for deterministic synthetic 3D graph generation.",
+    })
+  )
 ) {}
 
 const sphereRadius = 260;

@@ -283,17 +283,18 @@ export type TextEdge = typeof TextEdge.Type;
  * @category models
  * @since 0.0.0
  */
-export class NLPAnalysis extends S.Class<NLPAnalysis>($I`NLPAnalysis`)(
-  {
+export class NLPAnalysis extends S.Opaque<NLPAnalysis, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String,
     sentences: S.Array(S.String),
     tokens: S.Array(S.String),
     wordCount: S.Finite,
     stats: S.optionalKey(S.Record(S.String, S.Finite)),
-  },
-  $I.annote("NLPAnalysis", {
-    description: "Summary analysis of a text: detected sentences, tokens, word count, and optional stats.",
-  })
+  }).pipe(
+    $I.annoteSchema("NLPAnalysis", {
+      description: "Summary analysis of a text: detected sentences, tokens, word count, and optional stats.",
+    })
+  )
 ) {}
 
 /**
@@ -311,18 +312,19 @@ export class NLPAnalysis extends S.Class<NLPAnalysis>($I`NLPAnalysis`)(
  * @category models
  * @since 0.0.0
  */
-export class POSNode extends S.Class<POSNode>($I`POSNode`)(
-  {
+export class POSNode extends S.Opaque<POSNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String,
     tag: S.String,
     description: S.optionalKey(S.String),
     position: S.Finite,
     timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("POSNode", {
-    description: "Part-of-speech annotation node (Penn Treebank tag) for a token at a sentence position.",
-  })
+  }).pipe(
+    $I.annoteSchema("POSNode", {
+      description: "Part-of-speech annotation node (Penn Treebank tag) for a token at a sentence position.",
+    })
+  )
 ) {}
 
 /**
@@ -340,11 +342,12 @@ export class POSNode extends S.Class<POSNode>($I`POSNode`)(
  * @category models
  * @since 0.0.0
  */
-export class Span extends S.Class<Span>($I`Span`)(
-  { start: S.Finite, end: S.Finite },
-  $I.annote("Span", {
-    description: "Character span (start/end offsets) within a piece of text.",
-  })
+export class Span extends S.Opaque<Span, { readonly brand: unique symbol }>()(
+  S.Struct({ start: S.Finite, end: S.Finite }).pipe(
+    $I.annoteSchema("Span", {
+      description: "Character span (start/end offsets) within a piece of text.",
+    })
+  )
 ) {}
 
 /**
@@ -367,8 +370,8 @@ export class Span extends S.Class<Span>($I`Span`)(
  * @category models
  * @since 0.0.0
  */
-export class EntityNode extends S.Class<EntityNode>($I`EntityNode`)(
-  {
+export class EntityNode extends S.Opaque<EntityNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.String,
     entityType: S.String,
     confidence: S.optionalKey(S.Finite),
@@ -376,10 +379,11 @@ export class EntityNode extends S.Class<EntityNode>($I`EntityNode`)(
     normalizedForm: S.optionalKey(S.String),
     timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("EntityNode", {
-    description: "Named-entity node with type label, character span, optional confidence, and normalized form.",
-  })
+  }).pipe(
+    $I.annoteSchema("EntityNode", {
+      description: "Named-entity node with type label, character span, optional confidence, and normalized form.",
+    })
+  )
 ) {}
 
 /**
@@ -397,18 +401,19 @@ export class EntityNode extends S.Class<EntityNode>($I`EntityNode`)(
  * @category models
  * @since 0.0.0
  */
-export class LemmaNode extends S.Class<LemmaNode>($I`LemmaNode`)(
-  {
+export class LemmaNode extends S.Opaque<LemmaNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     token: S.String,
     lemma: S.String,
     pos: S.optionalKey(S.String),
     position: S.Finite,
     timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("LemmaNode", {
-    description: "Lemma node: the canonical/dictionary form of a token (idempotent under lemmatization).",
-  })
+  }).pipe(
+    $I.annoteSchema("LemmaNode", {
+      description: "Lemma node: the canonical/dictionary form of a token (idempotent under lemmatization).",
+    })
+  )
 ) {}
 
 /**
@@ -426,11 +431,12 @@ export class LemmaNode extends S.Class<LemmaNode>($I`LemmaNode`)(
  * @category models
  * @since 0.0.0
  */
-export class DependencyToken extends S.Class<DependencyToken>($I`DependencyToken`)(
-  { text: S.String, position: S.Finite },
-  $I.annote("DependencyToken", {
-    description: "Token reference (text + sentence position) used by dependency-arc endpoints.",
-  })
+export class DependencyToken extends S.Opaque<DependencyToken, { readonly brand: unique symbol }>()(
+  S.Struct({ text: S.String, position: S.Finite }).pipe(
+    $I.annoteSchema("DependencyToken", {
+      description: "Token reference (text + sentence position) used by dependency-arc endpoints.",
+    })
+  )
 ) {}
 
 /**
@@ -454,18 +460,19 @@ export class DependencyToken extends S.Class<DependencyToken>($I`DependencyToken
  * @category models
  * @since 0.0.0
  */
-export class DependencyNode extends S.Class<DependencyNode>($I`DependencyNode`)(
-  {
+export class DependencyNode extends S.Opaque<DependencyNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     relation: S.String,
     head: DependencyToken,
     dependent: DependencyToken,
     distance: S.Finite,
     timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("DependencyNode", {
-    description: "Syntactic dependency arc (Universal Dependencies relation) between a head and dependent token.",
-  })
+  }).pipe(
+    $I.annoteSchema("DependencyNode", {
+      description: "Syntactic dependency arc (Universal Dependencies relation) between a head and dependent token.",
+    })
+  )
 ) {}
 
 /**
@@ -487,11 +494,12 @@ export class DependencyNode extends S.Class<DependencyNode>($I`DependencyNode`)(
  * @category models
  * @since 0.0.0
  */
-export class RelationParticipant extends S.Class<RelationParticipant>($I`RelationParticipant`)(
-  { text: S.String, entityType: S.String, span: Span },
-  $I.annote("RelationParticipant", {
-    description: "Entity participant (text, type, and character span) referenced by a semantic relation.",
-  })
+export class RelationParticipant extends S.Opaque<RelationParticipant, { readonly brand: unique symbol }>()(
+  S.Struct({ text: S.String, entityType: S.String, span: Span }).pipe(
+    $I.annoteSchema("RelationParticipant", {
+      description: "Entity participant (text, type, and character span) referenced by a semantic relation.",
+    })
+  )
 ) {}
 
 /**
@@ -514,8 +522,8 @@ export class RelationParticipant extends S.Class<RelationParticipant>($I`Relatio
  * @category models
  * @since 0.0.0
  */
-export class RelationNode extends S.Class<RelationNode>($I`RelationNode`)(
-  {
+export class RelationNode extends S.Opaque<RelationNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     relationType: S.String,
     subject: RelationParticipant,
     object: RelationParticipant,
@@ -523,8 +531,9 @@ export class RelationNode extends S.Class<RelationNode>($I`RelationNode`)(
     confidence: S.optionalKey(S.Finite),
     timestamp: S.Finite,
     metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("RelationNode", {
-    description: "Semantic relation node connecting a subject entity to an object entity via a typed predicate.",
-  })
+  }).pipe(
+    $I.annoteSchema("RelationNode", {
+      description: "Semantic relation node connecting a subject entity to an object entity via a typed predicate.",
+    })
+  )
 ) {}

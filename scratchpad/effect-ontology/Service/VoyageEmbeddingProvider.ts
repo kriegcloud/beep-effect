@@ -333,16 +333,13 @@ const mapVoyageError = (error: unknown, timeout: Duration.Duration): AnyEmbeddin
  * @category configuration
  * @since 0.0.0
  */
-export class VoyageProviderConfig extends S.Class<VoyageProviderConfig>($I`VoyageProviderConfig`)(
-  {
+export class VoyageProviderConfig extends S.Opaque<VoyageProviderConfig, { readonly brand: unique symbol }>()(S.Struct({
     apiKey: S.Redacted(S.NonEmptyString),
     model: VoyageModel.pipe(S.withConstructorDefault(Effect.succeed<typeof DEFAULT_VOYAGE_MODEL>(DEFAULT_VOYAGE_MODEL)), S.withDecodingDefaultTypeKey(Effect.succeed<typeof DEFAULT_VOYAGE_MODEL>(DEFAULT_VOYAGE_MODEL))),
     timeout: S.Duration.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_TIMEOUT)), S.withDecodingDefaultTypeKey(Effect.succeed(DEFAULT_TIMEOUT))),
-  },
-  $I.annote("VoyageProviderConfig", {
+  }).pipe($I.annoteSchema("VoyageProviderConfig", {
     description: "Secret API credential, supported model, and request timeout for Voyage embeddings.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link VoyageProviderConfig}.

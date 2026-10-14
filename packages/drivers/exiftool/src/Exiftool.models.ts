@@ -294,8 +294,8 @@ export type ExiftoolWritableExtension = typeof ExiftoolWritableExtension.Type;
  * @category models
  * @since 0.0.0
  */
-export class ExiftoolConfigInput extends S.Class<ExiftoolConfigInput>($I`ExiftoolConfigInput`)(
-  {
+export class ExiftoolConfigInput extends S.Opaque<ExiftoolConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     exiftoolPath: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("exiftool")),
       S.withDecodingDefaultTypeKey(Effect.succeed("exiftool")),
@@ -310,10 +310,11 @@ export class ExiftoolConfigInput extends S.Class<ExiftoolConfigInput>($I`Exiftoo
         description: "Timeout in milliseconds before an interrupted native process is force-killed.",
       })
     ),
-  },
-  $I.annote("ExiftoolConfigInput", {
-    description: "Optional runtime path overrides for the native ExifTool binary.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExiftoolConfigInput", {
+      description: "Optional runtime path overrides for the native ExifTool binary.",
+    })
+  )
 ) {}
 
 /**
@@ -331,8 +332,8 @@ export class ExiftoolConfigInput extends S.Class<ExiftoolConfigInput>($I`Exiftoo
  * @category models
  * @since 0.0.0
  */
-export class ExiftoolConfig extends S.Class<ExiftoolConfig>($I`ExiftoolConfig`)(
-  {
+export class ExiftoolConfig extends S.Opaque<ExiftoolConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     exiftoolPath: S.String.pipe(
       $I.annoteKey("ExiftoolConfig.exiftoolPath", {
         description: "Resolved executable path or command name used for exiftool.",
@@ -343,10 +344,11 @@ export class ExiftoolConfig extends S.Class<ExiftoolConfig>($I`ExiftoolConfig`)(
         description: "Resolved timeout in milliseconds before an interrupted native process is force-killed.",
       })
     ),
-  },
-  $I.annote("ExiftoolConfig", {
-    description: "Resolved runtime configuration for native ExifTool command execution.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExiftoolConfig", {
+      description: "Resolved runtime configuration for native ExifTool command execution.",
+    })
+  )
 ) {}
 
 /**
@@ -370,8 +372,8 @@ export class ExiftoolConfig extends S.Class<ExiftoolConfig>($I`ExiftoolConfig`)(
  * @category models
  * @since 0.0.0
  */
-export class ExifMetadata extends S.Class<ExifMetadata>($I`ExifMetadata`)(
-  {
+export class ExifMetadata extends S.Opaque<ExifMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     createDate: S.OptionFromOptionalKey(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ExifMetadata.createDate", {
@@ -473,10 +475,11 @@ export class ExifMetadata extends S.Class<ExifMetadata>($I`ExifMetadata`)(
         description: "Producing software text, when the file reported one.",
       })
     ),
-  },
-  $I.annote("ExifMetadata", {
-    description: "Cleaned metadata projections over one raw exiftool JSON record.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExifMetadata", {
+      description: "Cleaned metadata projections over one raw exiftool JSON record.",
+    })
+  )
 ) {}
 
 /**
@@ -494,8 +497,8 @@ export class ExifMetadata extends S.Class<ExifMetadata>($I`ExifMetadata`)(
  * @category models
  * @since 0.0.0
  */
-export class ReadTagsRequest extends S.Class<ReadTagsRequest>($I`ReadTagsRequest`)(
-  {
+export class ReadTagsRequest extends S.Opaque<ReadTagsRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String.pipe(
       $I.annoteKey("ReadTagsRequest.filePath", {
         description: "File path to inspect with exiftool.",
@@ -508,10 +511,11 @@ export class ReadTagsRequest extends S.Class<ReadTagsRequest>($I`ReadTagsRequest
         description: "Whether to request numeric tag values via exiftool's -n flag.",
       })
     ),
-  },
-  $I.annote("ReadTagsRequest", {
-    description: "Request to read tags from a file with exiftool.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReadTagsRequest", {
+      description: "Request to read tags from a file with exiftool.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ReadTagsRequest);
 }
@@ -534,8 +538,8 @@ export class ReadTagsRequest extends S.Class<ReadTagsRequest>($I`ReadTagsRequest
  * @category models
  * @since 0.0.0
  */
-export class ReadTagsResult extends S.Class<ReadTagsResult>($I`ReadTagsResult`)(
-  {
+export class ReadTagsResult extends S.Opaque<ReadTagsResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String.pipe(
       $I.annoteKey("ReadTagsResult.filePath", {
         description: "Resolved file path that was inspected.",
@@ -546,10 +550,11 @@ export class ReadTagsResult extends S.Class<ReadTagsResult>($I`ReadTagsResult`)(
         description: "Cleaned metadata extracted from the exiftool JSON output.",
       })
     ),
-  },
-  $I.annote("ReadTagsResult", {
-    description: "Result of reading tags from a file with exiftool.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReadTagsResult", {
+      description: "Result of reading tags from a file with exiftool.",
+    })
+  )
 ) {}
 
 /**
@@ -567,8 +572,8 @@ export class ReadTagsResult extends S.Class<ReadTagsResult>($I`ReadTagsResult`)(
  * @category models
  * @since 0.0.0
  */
-export class TagAssignment extends S.Class<TagAssignment>($I`TagAssignment`)(
-  {
+export class TagAssignment extends S.Opaque<TagAssignment, { readonly brand: unique symbol }>()(
+  S.Struct({
     tagName: SafeTagName.pipe(
       $I.annoteKey("TagAssignment.tagName", {
         description: "Injection-safe, optionally group-qualified exiftool tag name.",
@@ -579,10 +584,11 @@ export class TagAssignment extends S.Class<TagAssignment>($I`TagAssignment`)(
         description: "Tag value text passed inside the single -TAG=VALUE argv entry.",
       })
     ),
-  },
-  $I.annote("TagAssignment", {
-    description: "A single -TAG=VALUE exiftool tag assignment.",
-  })
+  }).pipe(
+    $I.annoteSchema("TagAssignment", {
+      description: "A single -TAG=VALUE exiftool tag assignment.",
+    })
+  )
 ) {}
 
 /**
@@ -603,8 +609,8 @@ export class TagAssignment extends S.Class<TagAssignment>($I`TagAssignment`)(
  * @category models
  * @since 0.0.0
  */
-export class WriteTagsRequest extends S.Class<WriteTagsRequest>($I`WriteTagsRequest`)(
-  {
+export class WriteTagsRequest extends S.Opaque<WriteTagsRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     assignments: S.Array(TagAssignment).pipe(
       $I.annoteKey("WriteTagsRequest.assignments", {
         description: "Tag assignments applied in order; at least one is required at the service boundary.",
@@ -615,10 +621,11 @@ export class WriteTagsRequest extends S.Class<WriteTagsRequest>($I`WriteTagsRequ
         description: "File whose metadata is rewritten in place via temp-then-commit.",
       })
     ),
-  },
-  $I.annote("WriteTagsRequest", {
-    description: "Request to write tag assignments into a file with exiftool.",
-  })
+  }).pipe(
+    $I.annoteSchema("WriteTagsRequest", {
+      description: "Request to write tag assignments into a file with exiftool.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(WriteTagsRequest);
 }
@@ -638,8 +645,8 @@ export class WriteTagsRequest extends S.Class<WriteTagsRequest>($I`WriteTagsRequ
  * @category models
  * @since 0.0.0
  */
-export class WriteTagsResult extends S.Class<WriteTagsResult>($I`WriteTagsResult`)(
-  {
+export class WriteTagsResult extends S.Opaque<WriteTagsResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String.pipe(
       $I.annoteKey("WriteTagsResult.filePath", {
         description: "Resolved file path whose metadata was rewritten.",
@@ -650,10 +657,11 @@ export class WriteTagsResult extends S.Class<WriteTagsResult>($I`WriteTagsResult
         description: "Number of tag assignments committed into the file.",
       })
     ),
-  },
-  $I.annote("WriteTagsResult", {
-    description: "Result of committing tag assignments into a file.",
-  })
+  }).pipe(
+    $I.annoteSchema("WriteTagsResult", {
+      description: "Result of committing tag assignments into a file.",
+    })
+  )
 ) {}
 
 /**
@@ -676,8 +684,8 @@ export class WriteTagsResult extends S.Class<WriteTagsResult>($I`WriteTagsResult
  * @category models
  * @since 0.0.0
  */
-export class BeepQaProvenance extends S.Class<BeepQaProvenance>($I`BeepQaProvenance`)(
-  {
+export class BeepQaProvenance extends S.Opaque<BeepQaProvenance, { readonly brand: unique symbol }>()(
+  S.Struct({
     actionId: S.String.pipe(
       $I.annoteKey("BeepQaProvenance.actionId", {
         description: "Identifier of the action event this artifact evidences.",
@@ -722,10 +730,11 @@ export class BeepQaProvenance extends S.Class<BeepQaProvenance>($I`BeepQaProvena
         description: "Tool-name to version map recorded at capture time, when known.",
       })
     ),
-  },
-  $I.annote("BeepQaProvenance", {
-    description: "Capture provenance embedded into QA artifacts under the XMP-beepQA namespace.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepQaProvenance", {
+      description: "Capture provenance embedded into QA artifacts under the XMP-beepQA namespace.",
+    })
+  )
 ) {}
 
 /**
@@ -751,8 +760,8 @@ export class BeepQaProvenance extends S.Class<BeepQaProvenance>($I`BeepQaProvena
  * @category models
  * @since 0.0.0
  */
-export class WriteXmpPacketRequest extends S.Class<WriteXmpPacketRequest>($I`WriteXmpPacketRequest`)(
-  {
+export class WriteXmpPacketRequest extends S.Opaque<WriteXmpPacketRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: S.String.pipe(
       $I.annoteKey("WriteXmpPacketRequest.filePath", {
         description: "Image artifact receiving the XMP-beepQA provenance packet.",
@@ -763,10 +772,11 @@ export class WriteXmpPacketRequest extends S.Class<WriteXmpPacketRequest>($I`Wri
         description: "Provenance payload encoded into XMP-beepQA tag assignments.",
       })
     ),
-  },
-  $I.annote("WriteXmpPacketRequest", {
-    description: "Request to embed a BeepQaProvenance XMP packet into an image artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("WriteXmpPacketRequest", {
+      description: "Request to embed a BeepQaProvenance XMP packet into an image artifact.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(WriteXmpPacketRequest);
 }

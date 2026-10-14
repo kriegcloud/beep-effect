@@ -27,9 +27,10 @@ const CREATE_TABLE = `CREATE TABLE ${TABLE} (
 )`;
 const DROP_TABLE = `DROP TABLE IF EXISTS ${TABLE}`;
 
-class KnnRow extends S.Class<KnnRow>($I`KnnRow`)(
-  { chunk_id: ChunkId, distance: S.Finite },
-  $I.annote("KnnRow", { description: "Decoded DuckDB exact-neighbour row." })
+class KnnRow extends S.Opaque<KnnRow, { readonly brand: unique symbol }>()(
+  S.Struct({ chunk_id: ChunkId, distance: S.Finite }).pipe(
+    $I.annoteSchema("KnnRow", { description: "Decoded DuckDB exact-neighbour row." })
+  )
 ) {}
 const decodeUnknownKnnRowArray = S.decodeUnknownEffect(S.Array(KnnRow));
 

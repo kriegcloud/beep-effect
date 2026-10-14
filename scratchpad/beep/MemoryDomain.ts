@@ -291,7 +291,7 @@ export type MemoryProcessingState = typeof MemoryProcessingState.Type;
  * @category errors
  * @since 0.0.0
  */
-export class MemoryDomainError extends S.TaggedError<MemoryDomainError>()(
+export class MemoryDomainError extends S.TaggedError<MemoryDomainError, { readonly brand: unique symbol }>()(
   "MemoryDomainError",
   {
     message: S.String,

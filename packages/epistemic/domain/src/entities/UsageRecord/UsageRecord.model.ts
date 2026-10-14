@@ -138,16 +138,20 @@ export class UsageRecord extends ProductEntity.Entity<UsageRecord>()(Epistemic.U
  * @category commands
  * @since 0.0.0
  */
-export class TurnFinalizationUsageAppend extends S.Class<TurnFinalizationUsageAppend>($I`TurnFinalizationUsageAppend`)(
-  {
+export class TurnFinalizationUsageAppend extends S.Opaque<
+  TurnFinalizationUsageAppend,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...ProductEntity.fields,
     ...UsageRecord.fields,
     entityType: S.tag(Epistemic.UsageRecordId.entityType),
     id: Epistemic.UsageRecordId,
-  },
-  $I.annote("TurnFinalizationUsageAppend", {
-    description: "Decoded append payload for a UsageRecord produced while finalizing a turn.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurnFinalizationUsageAppend", {
+      description: "Decoded append payload for a UsageRecord produced while finalizing a turn.",
+    })
+  )
 ) {}
 
 /**

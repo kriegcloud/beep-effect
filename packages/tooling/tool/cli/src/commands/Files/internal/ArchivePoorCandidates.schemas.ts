@@ -195,10 +195,11 @@ export type CandidateRatioThreshold = typeof CandidateRatioThreshold.Type;
  * @category models
  * @since 0.0.0
  */
-export class ArchivePoorCandidatesOptions extends S.Class<ArchivePoorCandidatesOptions>(
-  $I`ArchivePoorCandidatesOptions`
-)(
-  {
+export class ArchivePoorCandidatesOptions extends S.Opaque<
+  ArchivePoorCandidatesOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveDir: S.String,
     dir: S.String,
     dryRun: S.Boolean,
@@ -210,10 +211,11 @@ export class ArchivePoorCandidatesOptions extends S.Class<ArchivePoorCandidatesO
     profile: CandidateAssessmentProfile,
     sidecars: S.String.pipe(S.withConstructorDefault(Effect.succeed("txt"))),
     targetResolution: PositiveMediaDimension,
-  },
-  $I.annote("ArchivePoorCandidatesOptions", {
-    description: "Validated options used by files archive-poor-candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePoorCandidatesOptions", {
+      description: "Validated options used by files archive-poor-candidates.",
+    })
+  )
 ) {}
 
 /**
@@ -231,10 +233,11 @@ export class ArchivePoorCandidatesOptions extends S.Class<ArchivePoorCandidatesO
  * @category models
  * @since 0.0.0
  */
-export class ArchivePoorCandidatesManifestOptions extends S.Class<ArchivePoorCandidatesManifestOptions>(
-  $I`ArchivePoorCandidatesManifestOptions`
-)(
-  {
+export class ArchivePoorCandidatesManifestOptions extends S.Opaque<
+  ArchivePoorCandidatesManifestOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maxAspect: CandidateRatioThreshold,
     maxUpscale: CandidateRatioThreshold,
     minShortEdge: PositiveMediaDimension,
@@ -242,10 +245,11 @@ export class ArchivePoorCandidatesManifestOptions extends S.Class<ArchivePoorCan
     profile: CandidateAssessmentProfile,
     sidecars: S.Array(S.String),
     targetResolution: PositiveMediaDimension,
-  },
-  $I.annote("ArchivePoorCandidatesManifestOptions", {
-    description: "JSON-safe options recorded by files archive-poor-candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePoorCandidatesManifestOptions", {
+      description: "JSON-safe options recorded by files archive-poor-candidates.",
+    })
+  )
 ) {}
 
 /**
@@ -263,16 +267,20 @@ export class ArchivePoorCandidatesManifestOptions extends S.Class<ArchivePoorCan
  * @category models
  * @since 0.0.0
  */
-export class CandidateAssessmentMetrics extends S.Class<CandidateAssessmentMetrics>($I`CandidateAssessmentMetrics`)(
-  {
+export class CandidateAssessmentMetrics extends S.Opaque<
+  CandidateAssessmentMetrics,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     aspectRatio: S.Finite,
     pixelArea: S.Int,
     shortEdge: PositiveMediaDimension,
     upscaleToTarget: S.Finite,
-  },
-  $I.annote("CandidateAssessmentMetrics", {
-    description: "Resolution-derived metrics used to classify image training-data candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandidateAssessmentMetrics", {
+      description: "Resolution-derived metrics used to classify image training-data candidates.",
+    })
+  )
 ) {}
 
 /**
@@ -290,17 +298,18 @@ export class CandidateAssessmentMetrics extends S.Class<CandidateAssessmentMetri
  * @category models
  * @since 0.0.0
  */
-export class ArchivedSidecarEntry extends S.Class<ArchivedSidecarEntry>($I`ArchivedSidecarEntry`)(
-  {
+export class ArchivedSidecarEntry extends S.Opaque<ArchivedSidecarEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     archivePath: S.String,
     archiveRelativePath: S.String,
     extension: S.String,
     sourcePath: S.String,
     sourceRelativePath: S.String,
-  },
-  $I.annote("ArchivedSidecarEntry", {
-    description: "A same-stem sidecar file moved with an archived poor image candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivedSidecarEntry", {
+      description: "A same-stem sidecar file moved with an archived poor image candidate.",
+    })
+  )
 ) {}
 
 /**
@@ -318,8 +327,11 @@ export class ArchivedSidecarEntry extends S.Class<ArchivedSidecarEntry>($I`Archi
  * @category models
  * @since 0.0.0
  */
-export class ArchivePoorCandidatesEntry extends S.Class<ArchivePoorCandidatesEntry>($I`ArchivePoorCandidatesEntry`)(
-  {
+export class ArchivePoorCandidatesEntry extends S.Opaque<
+  ArchivePoorCandidatesEntry,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveName: S.optionalKey(S.String),
     archivePath: S.optionalKey(S.String),
     archiveRelativePath: S.optionalKey(S.String),
@@ -333,10 +345,11 @@ export class ArchivePoorCandidatesEntry extends S.Class<ArchivePoorCandidatesEnt
     sourcePath: S.String,
     sourceRelativePath: S.String,
     sourceSizeBytes: S.String,
-  },
-  $I.annote("ArchivePoorCandidatesEntry", {
-    description: "Image candidate assessed by files archive-poor-candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePoorCandidatesEntry", {
+      description: "Image candidate assessed by files archive-poor-candidates.",
+    })
+  )
 ) {}
 
 /**
@@ -354,19 +367,21 @@ export class ArchivePoorCandidatesEntry extends S.Class<ArchivePoorCandidatesEnt
  * @category models
  * @since 0.0.0
  */
-export class ArchivePoorCandidatesSkippedEntry extends S.Class<ArchivePoorCandidatesSkippedEntry>(
-  $I`ArchivePoorCandidatesSkippedEntry`
-)(
-  {
+export class ArchivePoorCandidatesSkippedEntry extends S.Opaque<
+  ArchivePoorCandidatesSkippedEntry,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     extension: S.optionalKey(S.String),
     message: S.String,
     reason: ArchivePoorCandidatesSkippedReason,
     sourceName: S.String,
     sourcePath: S.String,
-  },
-  $I.annote("ArchivePoorCandidatesSkippedEntry", {
-    description: "A direct source entry skipped by files archive-poor-candidates with a machine-readable reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePoorCandidatesSkippedEntry", {
+      description: "A direct source entry skipped by files archive-poor-candidates with a machine-readable reason.",
+    })
+  )
 ) {}
 
 /**
@@ -384,18 +399,19 @@ export class ArchivePoorCandidatesSkippedEntry extends S.Class<ArchivePoorCandid
  * @category models
  * @since 0.0.0
  */
-export class ArchivePoorCandidatesPlan extends S.Class<ArchivePoorCandidatesPlan>($I`ArchivePoorCandidatesPlan`)(
-  {
+export class ArchivePoorCandidatesPlan extends S.Opaque<ArchivePoorCandidatesPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     archiveDirectory: S.String,
     entries: S.Array(ArchivePoorCandidatesEntry),
     manifestPath: S.String,
     options: ArchivePoorCandidatesManifestOptions,
     skipped: S.Array(ArchivePoorCandidatesSkippedEntry),
     sourceDirectory: S.String,
-  },
-  $I.annote("ArchivePoorCandidatesPlan", {
-    description: "Planned image candidate archival entries plus skipped source entries.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePoorCandidatesPlan", {
+      description: "Planned image candidate archival entries plus skipped source entries.",
+    })
+  )
 ) {}
 
 /**
@@ -413,10 +429,11 @@ export class ArchivePoorCandidatesPlan extends S.Class<ArchivePoorCandidatesPlan
  * @category models
  * @since 0.0.0
  */
-export class ArchivePoorCandidatesSummary extends S.Class<ArchivePoorCandidatesSummary>(
-  $I`ArchivePoorCandidatesSummary`
-)(
-  {
+export class ArchivePoorCandidatesSummary extends S.Opaque<
+  ArchivePoorCandidatesSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archivedCount: S.Finite,
     archiveDirectory: S.String,
     assessedCount: S.Finite,
@@ -427,10 +444,11 @@ export class ArchivePoorCandidatesSummary extends S.Class<ArchivePoorCandidatesS
     manifestWritten: S.Boolean,
     movedSidecarCount: S.Finite,
     skippedCount: S.Finite,
-  },
-  $I.annote("ArchivePoorCandidatesSummary", {
-    description: "Summary counts returned by files archive-poor-candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePoorCandidatesSummary", {
+      description: "Summary counts returned by files archive-poor-candidates.",
+    })
+  )
 ) {}
 
 /**
@@ -448,19 +466,21 @@ export class ArchivePoorCandidatesSummary extends S.Class<ArchivePoorCandidatesS
  * @category models
  * @since 0.0.0
  */
-export class ArchivePoorCandidatesManifestSummary extends S.Class<ArchivePoorCandidatesManifestSummary>(
-  $I`ArchivePoorCandidatesManifestSummary`
-)(
-  {
+export class ArchivePoorCandidatesManifestSummary extends S.Opaque<
+  ArchivePoorCandidatesManifestSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archivedCount: S.Finite,
     assessedCount: S.Finite,
     keptCount: S.Finite,
     movedSidecarCount: S.Finite,
     skippedCount: S.Finite,
-  },
-  $I.annote("ArchivePoorCandidatesManifestSummary", {
-    description: "JSON-safe summary counts recorded by files archive-poor-candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePoorCandidatesManifestSummary", {
+      description: "JSON-safe summary counts recorded by files archive-poor-candidates.",
+    })
+  )
 ) {}
 
 /**
@@ -478,10 +498,11 @@ export class ArchivePoorCandidatesManifestSummary extends S.Class<ArchivePoorCan
  * @category models
  * @since 0.0.0
  */
-export class ArchivePoorCandidatesManifest extends S.Class<ArchivePoorCandidatesManifest>(
-  $I`ArchivePoorCandidatesManifest`
-)(
-  {
+export class ArchivePoorCandidatesManifest extends S.Opaque<
+  ArchivePoorCandidatesManifest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     archiveDirectory: S.String,
     entries: S.Array(ArchivePoorCandidatesEntry),
     manifestPath: S.String,
@@ -490,10 +511,11 @@ export class ArchivePoorCandidatesManifest extends S.Class<ArchivePoorCandidates
     skipped: S.Array(ArchivePoorCandidatesSkippedEntry),
     sourceDirectory: S.String,
     summary: ArchivePoorCandidatesManifestSummary,
-  },
-  $I.annote("ArchivePoorCandidatesManifest", {
-    description: "JSON manifest of image candidates archived by files archive-poor-candidates.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePoorCandidatesManifest", {
+      description: "JSON manifest of image candidates archived by files archive-poor-candidates.",
+    })
+  )
 ) {}
 
 /**
