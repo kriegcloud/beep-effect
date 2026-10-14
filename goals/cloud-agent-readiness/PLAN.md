@@ -1,4 +1,4 @@
-# Cloud Agent Readiness Plan
+# Agent and Linux Development Readiness Plan
 
 > Bootstrap history: references to `scripts/cloud-session-setup.sh` below record
 > the original 2026-10-01 acceptance. That script is retired by workstream C;
@@ -111,3 +111,29 @@ shellcheck scripts/cloud-session-setup.sh
 bash scripts/cloud-session-setup.sh --check
 bun run beep lint reflection-artifacts
 ```
+
+## Managed Linux workstreams — added 2026-10-14
+
+| Phase | Status | Work | Exit |
+| --- | --- | --- | --- |
+| L0 Inventory | in-progress | Compare workstation tooling and live host state; record exact sudo mechanism on dankserver. | Sanitized inventory with explicit reuse decisions. |
+| L1 Access and hardening | in-progress | Finish beep-worker tailnet enrollment, pam_rssh YubiKey sudo and OpenSSH hardening; verify fresh access before retiring bootstrap access. | Fresh SSH and sudo proofs plus recovery receipt. |
+| L2 Tools and authentication | pending | Install language/build/container/agent tools and the approved 1Password shim; reuse the authorized service account securely; prove required provider and registry operations. | Version, runtime and authentication receipts with remaining human sign-ins named. |
+| L3 Development proof | pending | Clean checkout, frozen install, Beep CLI and representative package verification; document resource budgets and tailnet development access. | Real package proof on each admitted worker. |
+| L4 Fleet closeout | pending | Reconcile Linux and cloud acceptance, PR readiness and reflection. | All admitted surfaces proven or explicitly recorded as blocked; existing closeout gate passes. |
+
+Staking host provisioning stays isolated from its running validators. Do not
+migrate them to VMs, install a development stack on the staking host, or expose
+its credentials as a shortcut to making a worker ready.
+
+## Workstation parity and headless qualification
+
+1. Scan DankStation's CLI/version/manager/wrapper/service surfaces; decide reuse
+   from live evidence and architecture doctrine, not copied home directories.
+2. Install the admitted baseline and explicit GUI additions on beep-worker;
+   separate install/configuration/authentication/runtime proof for every row.
+3. Run bounded headless sessions without an admin agent in a disposable checkout.
+   Collect reports and logs; reconcile Yeet/docs/config assumptions against this
+   host rather than silently teaching agents DankStation's absolute commands.
+4. Convert friction into named additions in this plan and the normative spec.
+   Commit progress on feat/linux-agent-readiness; publish only through repo gates.

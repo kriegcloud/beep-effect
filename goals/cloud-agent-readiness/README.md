@@ -1,4 +1,4 @@
-# Cloud Agent Readiness
+# Agent and Linux Development Readiness
 
 > Bootstrap history: references to `scripts/cloud-session-setup.sh` below record
 > the original 2026-10-01 acceptance. That script is retired by workstream C;
@@ -10,9 +10,24 @@ Lifecycle: `active`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
+## Scope expansion — 2026-10-14
+
+The operator expanded this active goal to include development readiness on managed
+Linux machines: the workstation, beep-worker, dankserver, and an isolated worker
+on tbk-ubuntu if subsequently provisioned. The display title is now **Agent and
+Linux Development Readiness**; the stable packet directory and initiative id stay
+`cloud-agent-readiness` so existing links, launches, and history keep working.
+
+Cloud acceptance remains in scope. Managed Linux acceptance is defined by D8–D12
+and L0–L4 in `SPEC.md` and `PLAN.md`. Historical cloud probes and completed phases
+are evidence for their original environment, not proof of Linux fleet readiness.
+The expired cloud-credit deadline is historical context, not a current deadline.
+
 ## Mission
 
-Make a fresh hosted agent container — Claude Code on the web today, any
+Make managed Linux workers ready for beep-effect development and agent work,
+with verified secure access, development tools, provider authentication and
+package proof. Also make a fresh hosted agent container — Claude Code on the web today, any
 ephemeral runner tomorrow — able to clone, install, prove, and publish from this
 repo without a workstation: the pinned bun, reachable registries, a harness
 that knows which host it is on, and a publish handoff that works where `gh`,
@@ -44,7 +59,7 @@ portfolio can spend them until this lands.
 ## Read This First
 
 1. [`GOAL.md`](./GOAL.md) - compact `/goal` launcher.
-2. [`SPEC.md`](./SPEC.md) - normative source of truth, including decisions D1–D7.
+2. [`SPEC.md`](./SPEC.md) - normative source of truth, including decisions D1–D12.
 3. [`PLAN.md`](./PLAN.md) - active execution plan.
 4. [`ops/manifest.json`](./ops/manifest.json) - machine-readable routing.
 5. [`research/2026-10-01-container-probe.md`](./research/2026-10-01-container-probe.md) - the evidence (F1–F15).
