@@ -82,7 +82,10 @@
     "bun run beep lint deprecated-apis --full",
     "bun run beep lint jsdoc --root-only",
     "bun run fallow:dead-code",
-    "bun run beep laws retired-effect-paths --check"
+    "bun run beep laws retired-effect-paths --check",
+    "bun run beep quality fallow audit --base origin/main --check",
+    "bun run beep quality fallow health --base origin/main --check",
+    "bun run beep observability catalog --check"
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",

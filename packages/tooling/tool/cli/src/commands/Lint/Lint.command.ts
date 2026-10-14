@@ -567,6 +567,50 @@ const runLintCircular = Effect.fn("runLintCircular")(function* () {
   yield* Console.log("No circular dependencies found.");
 });
 
+const validateAssignmentEvidence = Effect.fn("Lint.validateAssignmentEvidence")(function* (
+  root: string,
+  output: string,
+  truncated: boolean
+) {
+  const path = yield* Path.Path;
+  // oxlint 1.88.0 / tsgolint 7.0.2004 emits absolute paths, one per line,
+  // after "Total programs: N. Unmatched files: N". Non-TS inputs are not law subjects.
+  const listedFiles = pipe(
+    output,
+    Str.matchAll(/Unmatched file: ([^\r\n]+)/g),
+    A.fromIterable,
+    A.map((match) => O.fromUndefinedOr(match[1])),
+    A.getSomes,
+    A.map(Str.trim)
+  );
+  const summary = Str.match(
+    /Done assigning files to programs\. Total programs: (\d+)\. Unmatched files: (\d+)(?:\r?\n|$)/
+  )(output);
+  if (O.isNone(summary) || summary.value[2] !== `${listedFiles.length}`) {
+    return yield* LintProgramAssignmentError.make({
+      files: [],
+      message: O.isNone(summary)
+        ? "lint deprecated-apis: assignment summary missing; cannot prove TypeScript coverage."
+        : "lint deprecated-apis: assignment summary disagrees with listed unmatched files.",
+    });
+  }
+  const unmatchedFiles = pipe(
+    listedFiles,
+    A.filter((file) => /\.(?:ts|tsx|mts|cts)$/.test(file)),
+    A.map((file) => normalizePath(path.relative(root, path.resolve(root, file)))),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+  if (truncated || A.isReadonlyArrayNonEmpty(unmatchedFiles)) {
+    return yield* LintProgramAssignmentError.make({
+      files: unmatchedFiles,
+      message: truncated
+        ? "lint deprecated-apis: assignment output truncated; cannot prove TypeScript coverage."
+        : `lint deprecated-apis: TypeScript files have no tsconfig owner:\n${A.join(unmatchedFiles, "\n")}`,
+    });
+  }
+});
+
 const runDeprecatedApiLint = Effect.fn("Lint.deprecatedApiWorker")(function* (
   root: string,
   targets: ReadonlyArray<string>
@@ -591,42 +635,7 @@ const runDeprecatedApiLint = Effect.fn("Lint.deprecatedApiWorker")(function* (
     bound: qualityStepOutputBound,
     tee: true,
   });
-  // oxlint 1.88.0 / tsgolint 7.0.2004 emits absolute paths, one per line,
-  // after "Total programs: N. Unmatched files: N". Non-TS inputs are not law subjects.
-  const listedFiles = pipe(
-    result.output,
-    Str.matchAll(/Unmatched file: ([^\r\n]+)/g),
-    A.fromIterable,
-    A.map((match) => O.fromUndefinedOr(match[1])),
-    A.getSomes,
-    A.map(Str.trim)
-  );
-  const summary = Str.match(
-    /Done assigning files to programs\. Total programs: (\d+)\. Unmatched files: (\d+)(?:\r?\n|$)/
-  )(result.output);
-  if (O.isNone(summary) || summary.value[2] !== `${listedFiles.length}`) {
-    return yield* LintProgramAssignmentError.make({
-      files: [],
-      message: O.isNone(summary)
-        ? "lint deprecated-apis: assignment summary missing; cannot prove TypeScript coverage."
-        : "lint deprecated-apis: assignment summary disagrees with listed unmatched files.",
-    });
-  }
-  const unmatchedFiles = pipe(
-    listedFiles,
-    A.filter((file) => /\.(?:ts|tsx|mts|cts)$/.test(file)),
-    A.map((file) => normalizePath(path.relative(root, path.resolve(root, file)))),
-    A.dedupe,
-    A.sort(Order.String)
-  );
-  if (result.truncated || A.isReadonlyArrayNonEmpty(unmatchedFiles)) {
-    return yield* LintProgramAssignmentError.make({
-      files: unmatchedFiles,
-      message: result.truncated
-        ? "lint deprecated-apis: assignment output truncated; cannot prove TypeScript coverage."
-        : `lint deprecated-apis: TypeScript files have no tsconfig owner:\n${A.join(unmatchedFiles, "\n")}`,
-    });
-  }
+  yield* validateAssignmentEvidence(root, result.output, result.truncated);
   if (result.exitCode !== 0) {
     return yield* failWithReportedExit(
       `lint deprecated-apis: failed with exit code ${result.exitCode}.`,

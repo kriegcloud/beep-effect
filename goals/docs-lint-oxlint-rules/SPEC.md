@@ -72,3 +72,10 @@ tests, stories, internal tooling source and build artifacts are excluded by the 
 - Keep the previously accepted EV010 platform-filesystem-candidate review row for docs-rules.test.ts; normalized inventory ID diff adds that single judgment row and removes none. Reason: the filesystem is provided through it.layer and this is a review candidate, not a new detector finding. Reverse by removing the source dependency only if the fixture no longer exercises filesystem behavior.
 
 - Regenerate the schema catalog after the Opaque migration and retain its complete owner-generated catch-up. Reason: main catalog kind metadata was stale after its schema migration; hand-editing generated rows is forbidden. Reverse by restoring the prior catalog and rerunning the owner command against the reverted sources.
+
+## Fallow wave decisions (2026-10-14)
+
+- Replace the combined docs visitor with a typed rule dispatch table and small named checks, retaining shared parsing/attachment and the separate TSDoc parser rule. Decompose overload/name/function AST lookup through Effect Match and small helpers. Reason: eight introduced complexity findings violate current thresholds; tests and diagnostics must stay unchanged. Reverse by restoring the previous docs.ts with its failing complexity receipt.
+- Extract positive assignment-evidence validation into named Effect.fn; the worker still rejects missing/mismatched summary, truncation and unowned TS paths. Reason: separate native execution from coverage proof without changing behavior. Reverse by inlining the same helper body back into the worker.
+- Extract fixture installation and unassigned-file assertions from the executed-worker test callback. Reason: lower test cognitive complexity while retaining every assertion. Reverse by inlining those two helpers.
+- Preserve existing unrelated observability edits; regenerate the catalog via its owner after spans change. Reason: preserve the orchestrator's dirt and keep source spans valid. Reverse only this wave's regenerated span changes alongside the source revert.

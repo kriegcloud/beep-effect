@@ -11,6 +11,7 @@ import { parse, tokenizers } from "comment-parser";
 import * as A from "effect/Array";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
+import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -82,68 +83,97 @@ const hasAttachedDocumentation = (context: Context, node: ESTree.Node): boolean 
     );
     return line - block.value.loc.end.line <= 1;
   });
+const precedingStatement = (node: ESTree.Node): O.Option<ESTree.Node> => {
+  const outer = parentOf(node).pipe(
+    O.filter(isExport),
+    O.getOrElse(() => node)
+  );
+  return Match.value(outer.parent).pipe(
+    Match.when({ type: Match.is("Program", "BlockStatement") }, (parent) =>
+      A.findLast(parent.body, (statement) => statement.range[1] <= outer.range[0])
+    ),
+    Match.orElse(() => O.none())
+  );
+};
+const previousOverload = (node: ESTree.Node): O.Option<ESTree.Node> =>
+  Match.value(node).pipe(
+    Match.when({ type: Match.is("FunctionDeclaration", "TSDeclareFunction") }, (fn) => {
+      if (fn.id === null) return O.none();
+      const name = fn.id.name;
+      return precedingStatement(fn).pipe(
+        O.flatMap((previous) =>
+          previous.type === "ExportNamedDeclaration" ? O.fromNullishOr(previous.declaration) : O.some(previous)
+        ),
+        O.filter((previous) =>
+          Match.value(previous).pipe(
+            Match.when(
+              { type: Match.is("FunctionDeclaration", "TSDeclareFunction") },
+              (declaration) => declaration.body === null && declaration.id?.name === name
+            ),
+            Match.orElse(() => false)
+          )
+        )
+      );
+    }),
+    Match.orElse(() => O.none())
+  );
 const hasPublicDocumentation = (context: Context, node: ESTree.Node): boolean => {
-  let current = node;
-  while (true) {
-    if (hasAttachedDocumentation(context, current)) return true;
-    if ((current.type !== "FunctionDeclaration" && current.type !== "TSDeclareFunction") || current.id === null)
-      return false;
-    const outer = isExport(current.parent) ? current.parent : current;
-    const parent = outer.parent;
-    if (parent === null || (parent.type !== "Program" && parent.type !== "BlockStatement")) return false;
-    const statements: ReadonlyArray<ESTree.Node> = parent.body;
-    const previous = A.findLast(statements, (statement) => statement.range[1] <= outer.range[0]);
-    if (O.isNone(previous)) return false;
-    const declaration = previous.value.type === "ExportNamedDeclaration" ? previous.value.declaration : previous.value;
-    if (
-      declaration === null ||
-      (declaration.type !== "FunctionDeclaration" && declaration.type !== "TSDeclareFunction") ||
-      declaration.body !== null ||
-      declaration.id?.name !== current.id.name
-    )
-      return false;
-    current = declaration;
+  let current = O.some(node);
+  while (O.isSome(current)) {
+    if (hasAttachedDocumentation(context, current.value)) return true;
+    current = previousOverload(current.value);
   }
+  return false;
 };
 const exported = (node: ESTree.Node): boolean => A.some(A.drop(candidates(node), 1), isExport);
-
-const namesOf = (node: ESTree.Node): ReadonlyArray<string> => {
-  if (node.type === "Identifier") return [node.name];
-  if (node.type === "ExportNamedDeclaration" || node.type === "ExportDefaultDeclaration") {
-    return O.match(O.fromNullishOr(node.declaration), { onNone: () => [], onSome: namesOf });
-  }
-  if (node.type === "VariableDeclaration") return A.flatMap(node.declarations, namesOf);
-  if (node.type === "VariableDeclarator") {
-    return [...namesOf(node.id), ...O.match(O.fromNullishOr(node.init), { onNone: () => [], onSome: namesOf })];
-  }
-  if (node.type === "MethodDefinition" || node.type === "PropertyDefinition" || node.type === "Property") {
-    return [
-      ...O.match(O.flatMap(parentOf(node), parentOf), { onNone: () => [], onSome: namesOf }),
-      ...namesOf(node.key),
-    ];
-  }
-  if ("id" in node && P.isObject(node.id) && "type" in node.id) {
-    // Named declarations expose a nullable identifier at this AST boundary.
-    if (node.id.type === "Identifier" && "name" in node.id && P.isString(node.id.name)) return [node.id.name];
-  }
-  return [];
+const optionalNames = (node: ESTree.Node | null | undefined): ReadonlyArray<string> =>
+  O.fromNullishOr(node).pipe(
+    O.map(namesOf),
+    O.getOrElse(() => [])
+  );
+const memberNames = (
+  node: ESTree.MethodDefinition | ESTree.PropertyDefinition | Extract<ESTree.Node, { readonly type: "Property" }>
+): ReadonlyArray<string> => [
+  ...O.flatMap(parentOf(node), parentOf).pipe(
+    O.map(namesOf),
+    O.getOrElse(() => [])
+  ),
+  ...namesOf(node.key),
+];
+const declarationNames = (node: ESTree.Node): ReadonlyArray<string> => {
+  if (!("id" in node) || !P.isObject(node.id) || !("type" in node.id)) return [];
+  if (node.id.type !== "Identifier" || !("name" in node.id) || !P.isString(node.id.name)) return [];
+  return [node.id.name];
 };
-
-const functionOf = (node: ESTree.Node): O.Option<ESTree.Function | ESTree.ArrowFunctionExpression> => {
-  if (
-    node.type === "FunctionDeclaration" ||
-    node.type === "TSDeclareFunction" ||
-    node.type === "FunctionExpression" ||
-    node.type === "ArrowFunctionExpression"
-  )
-    return O.some(node);
-  if (node.type === "ExportNamedDeclaration" || node.type === "ExportDefaultDeclaration")
-    return O.flatMap(O.fromNullishOr(node.declaration), functionOf);
-  if (node.type === "VariableDeclaration") return O.flatMap(A.head(node.declarations), functionOf);
-  if (node.type === "VariableDeclarator") return O.flatMap(O.fromNullishOr(node.init), functionOf);
-  if (node.type === "MethodDefinition") return O.some(node.value);
-  return O.none();
-};
+const namesOf = (node: ESTree.Node): ReadonlyArray<string> =>
+  Match.value(node).pipe(
+    Match.discriminators("type")({
+      Identifier: (value) => [value.name],
+      ExportNamedDeclaration: (value) => optionalNames(value.declaration),
+      ExportDefaultDeclaration: (value) => optionalNames(value.declaration),
+      VariableDeclaration: (value) => A.flatMap(value.declarations, namesOf),
+      VariableDeclarator: (value) => [...namesOf(value.id), ...optionalNames(value.init)],
+      MethodDefinition: memberNames,
+      PropertyDefinition: memberNames,
+      Property: memberNames,
+    }),
+    Match.orElse(declarationNames)
+  );
+const functionOf = (node: ESTree.Node): O.Option<ESTree.Function | ESTree.ArrowFunctionExpression> =>
+  Match.value(node).pipe(
+    Match.when(
+      { type: Match.is("FunctionDeclaration", "TSDeclareFunction", "FunctionExpression", "ArrowFunctionExpression") },
+      O.some<ESTree.Function | ESTree.ArrowFunctionExpression>
+    ),
+    Match.discriminators("type")({
+      ExportNamedDeclaration: (value) => O.flatMap(O.fromNullishOr(value.declaration), functionOf),
+      ExportDefaultDeclaration: (value) => O.flatMap(O.fromNullishOr(value.declaration), functionOf),
+      VariableDeclaration: (value) => O.flatMap(A.head(value.declarations), functionOf),
+      VariableDeclarator: (value) => O.flatMap(O.fromNullishOr(value.init), functionOf),
+    }),
+    Match.when({ type: "MethodDefinition" }, (value) => O.some(value.value)),
+    Match.orElse(() => O.none<ESTree.Function | ESTree.ArrowFunctionExpression>())
+  );
 const parameterName = (node: ESTree.Node): O.Option<string> => {
   if (node.type === "Identifier") return O.some(node.name);
   if (node.type === "AssignmentPattern") return parameterName(node.left);
@@ -169,6 +199,20 @@ const informative = (text: string, names: ReadonlyArray<string>): boolean =>
     uselessWords: ["a", "an", "i", "in", "of", "s", "the"],
   });
 
+const publicExportNames = (node: ESTree.Statement): ReadonlyArray<string> =>
+  Match.value(node).pipe(
+    Match.discriminators("type")({
+      ExportNamedDeclaration: (value) =>
+        value.source === null ? A.map(value.specifiers, (specifier) => contextName(specifier.local)) : [],
+      ExportDefaultDeclaration: (value) =>
+        Match.value(value.declaration).pipe(
+          Match.when({ type: "Identifier" }, (declaration) => [declaration.name]),
+          Match.orElse(() => [])
+        ),
+    }),
+    Match.orElse(() => [])
+  );
+
 // This mirrors the old publicOnly behavior for declarations reached by export specifiers,
 // default exports, and public class methods; constructors and private methods are exempt.
 const publicVisitor = (check: (node: ESTree.Node) => void): Visitor => {
@@ -186,15 +230,7 @@ const publicVisitor = (check: (node: ESTree.Node) => void): Visitor => {
       ));
   return {
     Program(program) {
-      for (const statement of program.body) {
-        if (statement.type === "ExportNamedDeclaration" && statement.source === null) {
-          for (const specifier of statement.specifiers)
-            publicNames = HashSet.add(publicNames, contextName(specifier.local));
-        }
-        if (statement.type === "ExportDefaultDeclaration" && statement.declaration.type === "Identifier") {
-          publicNames = HashSet.add(publicNames, statement.declaration.name);
-        }
-      }
+      publicNames = HashSet.fromIterable(A.flatMap(program.body, publicExportNames));
     },
     ":matches(FunctionDeclaration, ClassDeclaration, VariableDeclaration, TSTypeAliasDeclaration, TSInterfaceDeclaration)"(
       node
@@ -214,6 +250,247 @@ const publicVisitor = (check: (node: ESTree.Node) => void): Visitor => {
   };
 };
 
+// Shared AST attachment is computed once for each parsed comment; each rule owns its check.
+type CommentCheck = (context: Context, comment: ESTree.Comment, block: Block, node: O.Option<ESTree.Node>) => void;
+const reportComment = (context: Context, comment: ESTree.Comment, message: string): void =>
+  context.report({ loc: comment.loc, message });
+const attachedNode = (
+  context: Context,
+  comment: ESTree.Comment,
+  comments: ReadonlyArray<ESTree.Comment>
+): O.Option<ESTree.Node> => {
+  const token = O.filter(
+    O.fromNullishOr(context.sourceCode.getTokenAfter(comment)),
+    (value) => !A.some(comments, (other) => other.range[0] > comment.range[0] && other.range[1] <= value.range[0])
+  );
+  return token.pipe(
+    O.flatMap((value) => O.fromNullishOr(context.sourceCode.getNodeByRangeIndex(value.range[0]))),
+    O.flatMap((value) => A.findFirst(candidates(value), isDocumentationDeclaration))
+  );
+};
+const isDocumentationDeclaration = (node: ESTree.Node): boolean =>
+  HashSet.has(declarationTypes, node.type) || isExport(node) || O.isSome(functionOf(node));
+const commentVisitor = (context: Context, check: CommentCheck): Visitor => ({
+  Program() {
+    const comments = A.filter(context.sourceCode.getAllComments(), isDoc);
+    for (const comment of comments) {
+      const block = parsed(comment);
+      if (O.isSome(block)) check(context, comment, block.value, attachedNode(context, comment, comments));
+    }
+  },
+});
+const checkInformativeDocs: CommentCheck = (context, comment, block, node) => {
+  const names = node.pipe(
+    O.map(namesOf),
+    O.getOrElse(() => [])
+  );
+  if (!informative(block.description, names))
+    reportComment(context, comment, "This description only repeats the name it describes.");
+  for (const tag of block.tags) {
+    if (!informative(tag.description, [...names, tag.name]))
+      reportComment(context, comment, "This tag description only repeats the name it describes.");
+  }
+};
+const removableLeadingLines = (block: Block): number => {
+  const lines = A.takeWhile(A.drop(block.source, 1), (line) => blank(line.tokens.tag) && blank(line.tokens.end));
+  const leading = A.length(A.takeWhile(lines, (line) => blank(line.tokens.description)));
+  if (block.tags.length > 0) return leading;
+  return leading === lines.length ? leading - 1 : leading;
+};
+const checkBlankDescription: CommentCheck = (context, comment, block) => {
+  if (removableLeadingLines(block) > 0)
+    reportComment(context, comment, "There should be no extra blank lines at the start of block descriptions.");
+};
+const checkInlineTags = (context: Context, comment: ESTree.Comment): void => {
+  for (const match of Str.matchAll(/\{@(\w+)/gu)(comment.value)) {
+    const tag = match[1];
+    if (tag !== undefined && !HashSet.has(inlineTags, tag))
+      reportComment(context, comment, `Invalid JSDoc inline tag name '${tag}'.`);
+  }
+};
+const checkTagNames: CommentCheck = (context, comment, block) => {
+  checkInlineTags(context, comment);
+  for (const tag of block.tags) {
+    if (!HashSet.has(validTags, tag.tag)) reportComment(context, comment, `Invalid JSDoc tag name '${tag.tag}'.`);
+    const preference = HashMap.get(preferences, tag.tag);
+    if (O.isSome(preference))
+      reportComment(
+        context,
+        comment,
+        `Invalid JSDoc tag (preference). Replace '${tag.tag}' with '${preference.value}'.`
+      );
+  }
+};
+const hasInheritedDescription = (block: Block): boolean =>
+  A.some(block.tags, (tag) => HashSet.has(ignoredDescriptionTags, tag.tag));
+const hasDescription = (comment: ESTree.Comment): boolean =>
+  O.exists(parsed(comment), (block) => !blank(block.description) || hasInheritedDescription(block));
+const declarationVisitor = (check: (node: ESTree.Node) => void): Visitor => ({
+  ":matches(FunctionDeclaration, ClassDeclaration, VariableDeclaration, TSTypeAliasDeclaration, TSInterfaceDeclaration)":
+    check,
+});
+const requireCategoryTag = (context: Context): Visitor =>
+  declarationVisitor((node) => {
+    if (!exported(node)) return;
+    if (A.some(docsFor(context, node), (comment) => S.is(CategoryComment)(comment.value))) return;
+    context.report({
+      node,
+      message: `Exported symbol '${A.head(namesOf(node)).pipe(O.getOrElse(() => "exported symbol"))}' must include a @category tag in its JSDoc block.`,
+    });
+  });
+const requireDescription = (context: Context): Visitor =>
+  declarationVisitor((node) => {
+    if (!exported(node) || Str.includes("/tag-values/")(context.filename)) return;
+    const comments = node.type === "VariableDeclaration" ? commentsBefore(context, node) : docsFor(context, node);
+    if (A.isReadonlyArrayNonEmpty(comments) && !A.some(comments, hasDescription))
+      context.report({ node, message: "Missing JSDoc block description." });
+  });
+const requireJsdoc = (context: Context): Visitor =>
+  publicVisitor((node) => {
+    if (!hasPublicDocumentation(context, node)) context.report({ node, message: "Missing JSDoc comment." });
+  });
+const requireFileOverview = (context: Context): Visitor => ({
+  Program() {
+    if (!Str.endsWith("/src/index.ts")(context.filename)) return;
+    const comments = A.filter(context.sourceCode.getAllComments(), isDoc);
+    const firstToken = context.sourceCode.getFirstToken(context.sourceCode.ast);
+    const initial = A.filter(comments, (comment) => firstToken === null || comment.range[1] <= firstToken.range[0]);
+    if (!A.some(initial, (comment) => Str.includes("@packageDocumentation")(comment.value)))
+      context.report({ node: context.sourceCode.ast, message: "Missing initial @packageDocumentation overview." });
+  },
+});
+const checkShortTag = (context: Context, comment: ESTree.Comment, tag: Spec): void => {
+  if (tag.tag !== "param" && tag.tag !== "returns") return;
+  if (!blank(tag.description) && Str.trim(tag.description).length < 5)
+    reportComment(context, comment, `${tag.tag} description must be at least 5 characters.`);
+};
+const checkMatchDescription: CommentCheck = (context, comment, block, node) => {
+  if (O.isNone(O.flatMap(node, functionOf)) || Str.includes("/tag-values/")(context.filename)) return;
+  if (!blank(block.description) && Str.trim(block.description).length < 20)
+    reportComment(context, comment, "JSDoc description must be at least 20 characters.");
+  for (const tag of block.tags) checkShortTag(context, comment, tag);
+};
+const checkTagDescription =
+  (tagName: string): CommentCheck =>
+  (context, comment, block, node) => {
+    if (O.isNone(O.flatMap(node, functionOf))) return;
+    for (const tag of tagsNamed(block, tagName)) {
+      if (blank(tag.description)) reportComment(context, comment, `Missing JSDoc @${tagName} description.`);
+    }
+  };
+const checkDuplicateParams = (context: Context, comment: ESTree.Comment, params: ReadonlyArray<Spec>): boolean => {
+  let seen = HashSet.empty<string>();
+  for (const tag of params) {
+    if (HashSet.has(seen, tag.name)) {
+      reportComment(context, comment, `Duplicate @param '${tag.name}'.`);
+      return false;
+    }
+    seen = HashSet.add(seen, tag.name);
+  }
+  return true;
+};
+const checkRootParam = (
+  context: Context,
+  comment: ESTree.Comment,
+  tag: Spec,
+  name: O.Option<O.Option<string>>
+): boolean => {
+  if (O.isNone(name)) {
+    reportComment(context, comment, `@param '${tag.name}' does not match an existing function parameter.`);
+    return false;
+  }
+  if (O.exists(name.value, (value) => value !== tag.name)) {
+    reportComment(
+      context,
+      comment,
+      `Expected @param name to be '${O.getOrElse(name.value, () => "")}'. Got '${tag.name}'.`
+    );
+    return false;
+  }
+  return true;
+};
+const checkRootParams = (
+  context: Context,
+  comment: ESTree.Comment,
+  roots: ReadonlyArray<Spec>,
+  expected: ReadonlyArray<O.Option<string>>
+): boolean => {
+  const actual = A.map(roots, (tag) => tag.name);
+  const filtered = A.filter(expected, (name) => !(O.contains(name, "this") && !A.contains(actual, "this")));
+  return A.every(roots, (tag, index) => checkRootParam(context, comment, tag, A.get(filtered, index)));
+};
+const checkParamPaths = (context: Context, comment: ESTree.Comment, params: ReadonlyArray<Spec>): void => {
+  let lastRoot = O.none<string>();
+  for (const tag of params) {
+    if (!Str.includes(".")(tag.name)) {
+      lastRoot = O.some(tag.name);
+      continue;
+    }
+    const root = Str.replace(/\[\]$/u, "")(A.head(Str.split(tag.name, ".")).pipe(O.getOrElse(() => "")));
+    if (!O.contains(lastRoot, root)) {
+      reportComment(context, comment, `@param path '${tag.name}' must follow its real parameter '${root}'.`);
+      return;
+    }
+  }
+};
+const checkParamNames: CommentCheck = (context, comment, block, node) => {
+  const parameters = O.flatMap(node, parameterNodes);
+  if (O.isNone(parameters)) return;
+  const params = tagsNamed(block, "param");
+  const roots = A.filter(params, (tag) => !Str.includes(".")(tag.name));
+  if (!checkDuplicateParams(context, comment, params)) return;
+  if (!checkRootParams(context, comment, roots, A.map(parameters.value, parameterName))) return;
+  checkParamPaths(context, comment, params);
+};
+const checkRequireParam: CommentCheck = (context, comment, block, node) => {
+  const fn = O.flatMap(node, functionOf);
+  if (O.isNone(fn) || hasInheritedDescription(block)) return;
+  const actual = A.map(
+    A.filter(tagsNamed(block, "param"), (tag) => !Str.includes(".")(tag.name)),
+    (tag) => tag.name
+  );
+  const expected = A.getSomes(A.map(fn.value.params, parameterName));
+  for (const name of expected) {
+    if (name !== "this" && !A.contains(actual, name))
+      reportComment(context, comment, `Missing JSDoc @param '${name}' declaration.`);
+  }
+};
+const typedReturnValue = (fn: ESTree.Function | ESTree.ArrowFunctionExpression): boolean => {
+  const type = fn.returnType?.typeAnnotation;
+  return type !== undefined && type.type !== "TSVoidKeyword" && type.type !== "TSNeverKeyword";
+};
+const returnsValue = (context: Context, fn: ESTree.Function | ESTree.ArrowFunctionExpression): boolean =>
+  fn.async ||
+  (fn.type === "ArrowFunctionExpression" && fn.body?.type !== "BlockStatement") ||
+  typedReturnValue(fn) ||
+  Str.includes("return ")(
+    O.fromNullishOr(fn.body).pipe(
+      O.map(context.sourceCode.getText),
+      O.getOrElse(() => "")
+    )
+  );
+const checkRequireReturns: CommentCheck = (context, comment, block, node) => {
+  const fn = O.flatMap(node, functionOf);
+  if (O.isNone(fn) || hasInheritedDescription(block) || A.isReadonlyArrayNonEmpty(tagsNamed(block, "returns"))) return;
+  if (returnsValue(context, fn.value)) reportComment(context, comment, "Missing JSDoc @returns declaration.");
+};
+// TSDoc syntax remains the separate parser-backed rule in docs.index.ts.
+const ruleVisitors: Readonly<Record<Exclude<DocsRuleId, "tsdoc-syntax">, (context: Context) => Visitor>> = {
+  "require-jsdoc": requireJsdoc,
+  "require-category-tag": requireCategoryTag,
+  "require-description": requireDescription,
+  "require-file-overview": requireFileOverview,
+  "informative-docs": (context) => commentVisitor(context, checkInformativeDocs),
+  "no-blank-block-descriptions": (context) => commentVisitor(context, checkBlankDescription),
+  "check-tag-names": (context) => commentVisitor(context, checkTagNames),
+  "check-param-names": (context) => commentVisitor(context, checkParamNames),
+  "match-description": (context) => commentVisitor(context, checkMatchDescription),
+  "require-param": (context) => commentVisitor(context, checkRequireParam),
+  "require-returns": (context) => commentVisitor(context, checkRequireReturns),
+  "require-param-description": (context) => commentVisitor(context, checkTagDescription("param")),
+  "require-returns-description": (context) => commentVisitor(context, checkTagDescription("returns")),
+};
+
 /**
  * Build one content or declaration documentation rule without an ESLint dependency.
  *
@@ -230,222 +507,7 @@ const publicVisitor = (check: (node: ESTree.Node) => void): Visitor => {
 export const docsRule = (id: Exclude<DocsRuleId, "tsdoc-syntax">) =>
   defineRule({
     meta: { type: "problem", docs: { description: `Repository documentation policy: ${id}.` } },
-    create(context) {
-      const report = (comment: ESTree.Comment, message: string) => context.report({ loc: comment.loc, message });
-      if (id === "require-jsdoc") {
-        return publicVisitor((node) => {
-          if (!hasPublicDocumentation(context, node)) context.report({ node, message: "Missing JSDoc comment." });
-        });
-      }
-      if (id === "require-category-tag" || id === "require-description") {
-        return {
-          ":matches(FunctionDeclaration, ClassDeclaration, VariableDeclaration, TSTypeAliasDeclaration, TSInterfaceDeclaration)"(
-            node
-          ) {
-            if (!exported(node)) return;
-            const comments =
-              id === "require-description" && node.type === "VariableDeclaration"
-                ? commentsBefore(context, node)
-                : docsFor(context, node);
-            if (id === "require-category-tag") {
-              if (!A.some(comments, (comment) => S.is(CategoryComment)(comment.value))) {
-                context.report({
-                  node,
-                  message: `Exported symbol '${A.head(namesOf(node)).pipe(O.getOrElse(() => "exported symbol"))}' must include a @category tag in its JSDoc block.`,
-                });
-              }
-            } else if (
-              A.isReadonlyArrayNonEmpty(comments) &&
-              !A.some(comments, (comment) =>
-                O.exists(
-                  parsed(comment),
-                  (block) =>
-                    !blank(block.description) ||
-                    A.some(block.tags, (tag) => HashSet.has(ignoredDescriptionTags, tag.tag))
-                )
-              )
-            ) {
-              if (!Str.includes("/tag-values/")(context.filename))
-                context.report({ node, message: "Missing JSDoc block description." });
-            }
-          },
-        };
-      }
-      return {
-        Program() {
-          const comments = A.filter(context.sourceCode.getAllComments(), isDoc);
-          if (id === "require-file-overview") {
-            if (!Str.endsWith("/src/index.ts")(context.filename)) return;
-            const firstToken = context.sourceCode.getFirstToken(context.sourceCode.ast);
-            if (
-              !A.some(
-                comments,
-                (comment) =>
-                  (firstToken === null || comment.range[1] <= firstToken.range[0]) &&
-                  Str.includes("@packageDocumentation")(comment.value)
-              )
-            ) {
-              context.report({
-                node: context.sourceCode.ast,
-                message: "Missing initial @packageDocumentation overview.",
-              });
-            }
-            return;
-          }
-          for (const comment of comments) {
-            const result = parsed(comment);
-            if (O.isNone(result)) continue;
-            const block = result.value;
-            const token = context.sourceCode.getTokenAfter(comment);
-            const attached = O.flatMap(
-              O.filter(
-                O.fromNullishOr(token),
-                (value) =>
-                  !A.some(comments, (other) => other.range[0] > comment.range[0] && other.range[1] <= value.range[0])
-              ),
-              (value) => O.fromNullishOr(context.sourceCode.getNodeByRangeIndex(value.range[0]))
-            );
-            const node = O.flatMap(attached, (value) =>
-              A.findFirst(
-                candidates(value),
-                (candidate) =>
-                  HashSet.has(declarationTypes, candidate.type) ||
-                  isExport(candidate) ||
-                  O.isSome(functionOf(candidate))
-              )
-            );
-            const names = O.match(node, { onNone: () => [], onSome: namesOf });
-            if (id === "informative-docs") {
-              if (!informative(block.description, names))
-                report(comment, "This description only repeats the name it describes.");
-              for (const tag of block.tags)
-                if (!informative(tag.description, [...names, tag.name]))
-                  report(comment, "This tag description only repeats the name it describes.");
-            }
-            if (id === "no-blank-block-descriptions") {
-              const lines = A.takeWhile(
-                A.drop(block.source, 1),
-                (line) => blank(line.tokens.tag) && blank(line.tokens.end)
-              );
-              const leading = A.length(A.takeWhile(lines, (line) => blank(line.tokens.description)));
-              const removable = block.tags.length > 0 ? leading : leading === lines.length ? leading - 1 : leading;
-              if (removable > 0)
-                report(comment, "There should be no extra blank lines at the start of block descriptions.");
-            }
-            if (id === "check-tag-names") {
-              for (const match of Str.matchAll(/\{@(\w+)/gu)(comment.value)) {
-                const tag = match[1];
-                if (tag !== undefined && !HashSet.has(inlineTags, tag))
-                  report(comment, `Invalid JSDoc inline tag name '${tag}'.`);
-              }
-              for (const tag of block.tags) {
-                if (!HashSet.has(validTags, tag.tag)) report(comment, `Invalid JSDoc tag name '${tag.tag}'.`);
-                const preference = HashMap.get(preferences, tag.tag);
-                if (O.isSome(preference))
-                  report(comment, `Invalid JSDoc tag (preference). Replace '${tag.tag}' with '${preference.value}'.`);
-              }
-            }
-            if (
-              id === "match-description" &&
-              O.isSome(O.flatMap(node, functionOf)) &&
-              !Str.includes("/tag-values/")(context.filename)
-            ) {
-              if (!blank(block.description) && Str.trim(block.description).length < 20)
-                report(comment, "JSDoc description must be at least 20 characters.");
-              for (const tag of block.tags)
-                if (
-                  (tag.tag === "param" || tag.tag === "returns") &&
-                  !blank(tag.description) &&
-                  Str.trim(tag.description).length < 5
-                )
-                  report(comment, `${tag.tag} description must be at least 5 characters.`);
-            }
-            if (
-              (id === "require-param-description" || id === "require-returns-description") &&
-              O.isSome(O.flatMap(node, functionOf))
-            ) {
-              const tagName = id === "require-param-description" ? "param" : "returns";
-              for (const tag of tagsNamed(block, tagName))
-                if (blank(tag.description)) report(comment, `Missing JSDoc @${tagName} description.`);
-            }
-            const fn = O.flatMap(node, functionOf);
-            const parameters =
-              id === "check-param-names" ? O.flatMap(node, parameterNodes) : O.map(fn, (value) => value.params);
-            if (O.isNone(parameters)) continue;
-            const params = tagsNamed(block, "param");
-            const roots = A.filter(params, (tag) => !Str.includes(".")(tag.name));
-            const actual = A.map(roots, (tag) => tag.name);
-            const expected = A.map(parameters.value, parameterName);
-            if (id === "check-param-names") {
-              let seen = HashSet.empty<string>();
-              let invalid = false;
-              for (const tag of params) {
-                if (HashSet.has(seen, tag.name)) {
-                  report(comment, `Duplicate @param '${tag.name}'.`);
-                  invalid = true;
-                  break;
-                }
-                seen = HashSet.add(seen, tag.name);
-              }
-              if (invalid) continue;
-              const filtered = A.filter(expected, (name) => !(O.contains(name, "this") && !A.contains(actual, "this")));
-              for (const [index, tag] of A.map(roots, (tag, index): readonly [number, Spec] => [index, tag])) {
-                const name = A.get(filtered, index);
-                if (O.isNone(name)) {
-                  report(comment, `@param '${tag.name}' does not match an existing function parameter.`);
-                  invalid = true;
-                  break;
-                }
-                if (O.exists(name.value, (value) => value !== tag.name)) {
-                  report(
-                    comment,
-                    `Expected @param name to be '${O.getOrElse(name.value, () => "")}'. Got '${tag.name}'.`
-                  );
-                  invalid = true;
-                  break;
-                }
-              }
-              if (invalid) continue;
-              let lastRoot = O.none<string>();
-              for (const tag of params) {
-                if (!Str.includes(".")(tag.name)) {
-                  lastRoot = O.some(tag.name);
-                  continue;
-                }
-                const root = Str.replace(/\[\]$/u, "")(A.head(Str.split(tag.name, ".")).pipe(O.getOrElse(() => "")));
-                if (!O.contains(lastRoot, root)) {
-                  report(comment, `@param path '${tag.name}' must follow its real parameter '${root}'.`);
-                  break;
-                }
-              }
-            }
-            if (id === "require-param" && !A.some(block.tags, (tag) => HashSet.has(ignoredDescriptionTags, tag.tag))) {
-              for (const name of A.getSomes(expected))
-                if (name !== "this" && !A.contains(actual, name))
-                  report(comment, `Missing JSDoc @param '${name}' declaration.`);
-            }
-            if (
-              id === "require-returns" &&
-              O.isSome(fn) &&
-              !A.some(block.tags, (tag) => HashSet.has(ignoredDescriptionTags, tag.tag)) &&
-              A.isReadonlyArrayEmpty(tagsNamed(block, "returns"))
-            ) {
-              const returnType = fn.value.returnType?.typeAnnotation;
-              const returnsValue =
-                fn.value.async ||
-                (fn.value.type === "ArrowFunctionExpression" && fn.value.body?.type !== "BlockStatement") ||
-                (returnType !== undefined &&
-                  returnType.type !== "TSVoidKeyword" &&
-                  returnType.type !== "TSNeverKeyword") ||
-                Str.includes("return ")(
-                  O.match(O.fromNullishOr(fn.value.body), { onNone: () => "", onSome: context.sourceCode.getText })
-                );
-              if (returnsValue) report(comment, "Missing JSDoc @returns declaration.");
-            }
-          }
-        },
-      };
-    },
+    create: ruleVisitors[id],
   });
 
 // Vocabulary from eslint-plugin-jsdoc TypeScript mode; aliases remain accepted except explicit preferences.

@@ -72,3 +72,9 @@ Sherif rejected docs dependencies in `@beep/lint-rules` because their keys were 
 ### Generated catalog catch-up
 
 The schema catalog owner regenerated 7812 entries after the schema-law repair. Main's catalog was stale across its schema migration, so this includes broad inherited kind changes in addition to the docs lane entries. Retained the owner-generated result instead of hand-editing generated rows. The closeout session note also exited 1 under the restricted environment; the external lane report remains the durable handoff.
+
+## Fallow wave
+
+Publish rejected eight introduced complexity findings despite the prior package quick checks. The combined docs Program visitor measured cyclomatic 68/cognitive 144. Split rule dispatch and AST lookup, extracted assignment proof and test setup/check helpers; no ignores or threshold changes. A Fallow audit in the package handoff would have exposed this before publish. Existing observability catalog/architecture dirt belongs to the orchestrator and is preserved.
+
+The first typecheck exposed the external AST's nullable parent, ObjectProperty spelling, union-valued MethodDefinition discriminator, and recursive nested-pattern inference. Behavior tests were green; corrected the typed AST adapter and flattened export matching before rerunning the package gate. Reading the external AST declaration surface before selecting nested Match patterns would have prevented the compiler churn.

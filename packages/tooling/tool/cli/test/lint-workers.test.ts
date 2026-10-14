@@ -551,6 +551,34 @@ describe("thin lint workers", { concurrent: false }, () => {
 // a hang still fails here because the CLI bounds its children.
 const EXECUTED_WORKER_TIMEOUT_MILLIS = 300_000;
 
+const installDocsFixture = Effect.fnUntraced(function* (root: string, fixtureRoot: string, worker: string) {
+  const fs = yield* FileSystem.FileSystem;
+  if (worker !== "jsdoc") return;
+  const pluginPackage = "packages/tooling/policy-pack/lint-rules";
+  yield* fs.makeDirectory(`${fixtureRoot}/${pluginPackage}`, { recursive: true });
+  yield* fs.copy(`${root}/${pluginPackage}/src`, `${fixtureRoot}/${pluginPackage}/src`);
+  yield* fs.copy(`${root}/.oxlintrc.docs.json`, `${fixtureRoot}/.oxlintrc.docs.json`);
+  yield* fs.copy(`${root}/tsdoc.json`, `${fixtureRoot}/tsdoc.json`);
+});
+
+const checkUnassignedFixture = Effect.fnUntraced(function* (root: string, fixture: string, worker: string) {
+  const fs = yield* FileSystem.FileSystem;
+  if (worker !== "deprecated-apis") return;
+  yield* fs.makeDirectory(`${fixture}/scripts/nested`, { recursive: true });
+  yield* fs.writeFileString(`${fixture}/scripts/nested/seed.ts`, "export {};\n");
+  const unassigned = yield* StepExec.runCaptured({
+    command: "bun",
+    args: ["run", `${root}/${prefix}/src/bin.ts`, "--", "lint", worker, "--package", "."],
+    cwd: fixture,
+    env: R.filter(process.env, (_, key) => !Str.startsWith("VITEST")(key)),
+    extendEnv: false,
+  });
+  expect(unassigned.exitCode, unassigned.output).not.toBe(0);
+  expect(unassigned.output).toContain("TypeScript files have no tsconfig owner:");
+  expect(unassigned.output).toContain("packages/tooling/tool/fixture/scripts/nested/seed.ts");
+  yield* fs.remove(`${fixture}/scripts`, { recursive: true });
+});
+
 describe("executed lint workers", { concurrent: false }, () => {
   it.layer(platform, { timeout: "30 seconds" })((it) => {
     it.effect(
@@ -595,13 +623,7 @@ describe("executed lint workers", { concurrent: false }, () => {
             `${fixtureRoot}/tsconfig.json`,
             '{"files":[],"references":[{"path":"./packages/tooling/tool/fixture"}]}'
           );
-          if (worker === "jsdoc") {
-            const pluginPackage = "packages/tooling/policy-pack/lint-rules";
-            yield* fs.makeDirectory(`${fixtureRoot}/${pluginPackage}`, { recursive: true });
-            yield* fs.copy(`${root}/${pluginPackage}/src`, `${fixtureRoot}/${pluginPackage}/src`);
-            yield* fs.copy(`${root}/.oxlintrc.docs.json`, `${fixtureRoot}/.oxlintrc.docs.json`);
-            yield* fs.copy(`${root}/tsdoc.json`, `${fixtureRoot}/tsdoc.json`);
-          }
+          yield* installDocsFixture(root, fixtureRoot, worker);
           const config = yield* fs.readFileString(`${root}/eslint.config.mjs`);
           yield* fs.writeFileString(
             `${fixtureRoot}/eslint.config.mjs`,
@@ -641,21 +663,7 @@ describe("executed lint workers", { concurrent: false }, () => {
             expect(output).toContain("project_source_files=1");
             expect(output).toContain("package-test-imports");
           }
-          if (worker === "deprecated-apis") {
-            yield* fs.makeDirectory(`${fixture}/scripts/nested`, { recursive: true });
-            yield* fs.writeFileString(`${fixture}/scripts/nested/seed.ts`, "export {};\n");
-            const unassigned = yield* StepExec.runCaptured({
-              command: "bun",
-              args: ["run", `${root}/${prefix}/src/bin.ts`, "--", "lint", worker, "--package", "."],
-              cwd: fixture,
-              env: R.filter(process.env, (_, key) => !Str.startsWith("VITEST")(key)),
-              extendEnv: false,
-            });
-            expect(unassigned.exitCode, unassigned.output).not.toBe(0);
-            expect(unassigned.output).toContain("TypeScript files have no tsconfig owner:");
-            expect(unassigned.output).toContain("packages/tooling/tool/fixture/scripts/nested/seed.ts");
-            yield* fs.remove(`${fixture}/scripts`, { recursive: true });
-          }
+          yield* checkUnassignedFixture(root, fixture, worker);
           if (worker === "jsdoc" || worker === "deprecated-apis") {
             yield* fs.writeFileString(
               `${fixture}/src/index.ts`,

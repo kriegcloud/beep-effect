@@ -17,3 +17,5 @@ When done or blocked, write the orchestrator lane report to its assigned report-
 The orchestrator performs the publishing and post-merge completion/reflection phases.
 
 2026-10-14 merge recovery: preserve merged lane A and docs Oxlint workers; require positive tsgolint assignment-summary evidence (comment 4276915577). Verification logs and merge-resolution report are held externally by the orchestrator. ESLint deletion remains PR B2 after this merge. Packet remains active until orchestrator merge closeout.
+
+Fallow wave (2026-10-14): split docs rule dispatch/AST lookup, extract assignment-evidence validation and fixture checks. Existing 39 docs tests stay unchanged; audit introduced findings reduced from 8 to 0. Publish and packet closeout remain orchestrator-owned. External report-B.md carries verification exits.
