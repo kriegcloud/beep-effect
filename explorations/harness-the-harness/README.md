@@ -3,8 +3,8 @@
 ## Status
 
 <!-- BEGIN GENERATED: EXPLORATION STATUS -->
-Stage: `shape`
-Status: `active`
+Stage: `graduate`
+Status: `graduated`
 <!-- END GENERATED: EXPLORATION STATUS -->
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
@@ -22,9 +22,11 @@ technical agent setups in beep-effect (law-practice)".
 
 ## Next Open Question
 
-Does [`BRIEF.md`](./BRIEF.md) match the operator's picture? Shape review;
-on confirmation, decompose into MAP.md (first goal: gateway + doctor + clean
-Windows VM proof).
+None — graduated into [`goals/practice-gateway`](../../goals/practice-gateway/README.md).
+Reopen at `decompose` when a MAP gate fires: interview data ranks providers
+(`practice-gateway-providers`), a real-machine install is next
+(`practice-gateway-signed-release`, money), or the gateway runs on the
+attorney's machine (`practice-harness-improvement-loop`).
 
 ## Read This First
 
@@ -32,8 +34,9 @@ Windows VM proof).
 2. [`CAPTURE.md`](./CAPTURE.md) - the Notion thesis and the operator's own words.
 3. [`RESEARCH.md`](./RESEARCH.md) - t3code, `.mcpb`, Windows, adoption data, in-repo bricks.
 4. [`DECISIONS.md`](./DECISIONS.md) - D1–D12.
-5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (in review).
-6. [`research/SOURCES.md`](./research/SOURCES.md) - provenance ledger.
+5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (confirmed).
+6. [`MAP.md`](./MAP.md) - decomposition and capability check.
+7. [`research/SOURCES.md`](./research/SOURCES.md) - provenance ledger.
 
 Siblings: [`claude-mods-law-practice`](../claude-mods-law-practice/README.md)
 owns the in-Claude-Code wrap layer (graduated to `practice-claude-mod`);
@@ -42,6 +45,9 @@ this packet re-enters.
 
 ## Trail
 
+- 2026-10-14: brief confirmed by the operator; MAP names `practice-gateway`
+  (promised now) and three gated follow-ons; graduated into
+  `goals/practice-gateway` (SPEC seeded from BRIEF + DECISIONS, sources carried).
 - 2026-10-14: align rounds 1–2 settled D6–D12 (extensions first, signed
   bootstrapper, clean Windows VM proof, free adoption data, new gateway, sign
   later, operator entity publishes); BRIEF.md drafted; stopped at shape review.

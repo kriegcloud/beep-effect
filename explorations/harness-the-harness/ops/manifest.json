@@ -3,12 +3,12 @@
   "exploration": {
     "slug": "harness-the-harness",
     "title": "Harness the Harness: Claude Code for Lawyers Without the Setup",
-    "status": "active",
-    "stage": "shape",
+    "status": "graduated",
+    "stage": "graduate",
     "openQuestions": [],
     "sources": ["research/SOURCES.md"],
     "links": {
-      "goals": [],
+      "goals": ["goals/practice-gateway"],
       "docs": [],
       "supersededBy": null
     },
