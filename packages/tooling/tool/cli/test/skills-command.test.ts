@@ -588,6 +588,28 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills fixture ownership"
 
 it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills command boundary reports", (it) => {
   it.effect(
+    "reports materialization refusal for a legacy lock without changing it",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = '{"version":1,"skills":{}}\n';
+        yield* writeProjectFile("skills-lock.json", lock);
+
+        const refused = yield* runSkillsCommand(["materialize", "--check"]).pipe(Effect.exit);
+        refused.pipe(Exit.isFailure, assertTrue);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining("skills:materialize: skills-lock.json is not a skills-lock/v2 document."),
+          ])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
     "reports an unknown remote update refusal and preserves the existing lock",
     Effect.fnUntraced(
       function* () {

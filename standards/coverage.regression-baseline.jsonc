@@ -30989,6 +30989,54 @@
             "branches": 3,
             "functions": 1
           }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/SkillPatches.apply.ts": {
+          "lines": 95.12,
+          "statements": 95.02,
+          "branches": 77.63,
+          "functions": 92.95,
+          "uncovered": {
+            "lines": 8,
+            "statements": 9,
+            "branches": 17,
+            "functions": 5
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/SkillsMaterialize.service.ts": {
+          "lines": 90.29,
+          "statements": 90.26,
+          "branches": 76.47,
+          "functions": 89.74,
+          "uncovered": {
+            "lines": 10,
+            "statements": 11,
+            "branches": 8,
+            "functions": 4
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/internal/ClearingHouse.ts": {
+          "lines": 96.25,
+          "statements": 96.51,
+          "branches": 68,
+          "functions": 95.65,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 8,
+            "functions": 1
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Skills/internal/SkillTree.ts": {
+          "lines": 96.38,
+          "statements": 96.42,
+          "branches": 86.95,
+          "functions": 100,
+          "uncovered": {
+            "lines": 3,
+            "statements": 3,
+            "branches": 3,
+            "functions": 0
+          }
         }
       }
     },
