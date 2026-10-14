@@ -1708,3 +1708,36 @@ After launch: revert documentation decisions while retaining every corpus
 artifact and new freeze record. No engine change, new launcher, recovery
 run or corpus mutation is authorized by this draft. Eighteen larger
 occurrences and estate/recycle/DOC gates remain open for P3.
+
+
+### Terminal-record integration and prerequisites
+
+| Check | State | Measured evidence |
+| --- | --- | --- |
+| P0 seal | met | Expected current run; 755 directory passes, 10,696 file passes, four losses, one preflight, one seal |
+| Nine source identities | met | All object/digest/input-size values match archive metadata |
+| Ledger state | sealed failure | Nine sealed: accepted 1/2/3/4/6, failed 5/7/8/9; no active family |
+| Frozen policies | met | Nine runtime hashes match immutable manifests |
+| Frozen engine versions | met | pffexport 20260917, bubblewrap 0.13.0, Java 27 dated 2026-09-15; real path and Tika digest unchanged |
+| Launcher/membership | met | Nine immutable manifests match current digests |
+| Accepted children/repair pairs | met | 19,438 child rows; each accepted family's engine and derived identities reconcile |
+| Code identity | amended | Ordinal 9 source matches pre-launch amendment; original codeHead retained, no equivalence claimed |
+| Capacity | met | 392,097,185,792 bytes at diagnosis; above 100 GB floor |
+| Renewed launch smokes/proof | not run | Wave ended; prior ordinal-9 admitted smokes/four tests retained as historical proof |
+| Packet health | met | Pre-merge zero blockers/three unrelated advisories; merged main zero blockers/seven unrelated advisories |
+| Independent retained-output rehash | pending | Submitted through beep-heavy; all five shared slots busy |
+| Recovery engine binding | not met | No ordered extraction-engine chain found in packet or restore-mail |
+
+Fresh branch feat/oppold-corpus-salvage-restoration-p2-terminal-followup
+preserves the local launch/report commits after #1696 merged. Integrated
+main aeb2a85cc5a2c37f3d1f87f43de0d027041062a1; four packet conflicts
+kept this branch's newer state/history, with no prior decision removed.
+Lane frozen-lockfile install passed after main's lockfile moved. Index,
+reflection-artifacts, launcher size, manifest JSON and whitespace pass.
+Commit hooks pass, with inherited main large-file/JSDoc warnings advisory.
+No package edited; source hosted-parity lanes not run (docs-only).
+The first merge subject used an unsupported commit type; commitlint refused
+it before commit. Corrected to chore and committed without bypassing hooks.
+Graft saved approximately 150,197 tokens across four retrievals.
+Publication and independent rehash are queued under beep-heavy; admission
+is never bypassed and no other lane's work is terminated.
