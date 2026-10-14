@@ -9,12 +9,12 @@ digests while retaining the originals.
 
 ## Next action
 
-The bounded P2 wave stopped at family 8 after its further sealed failure.
-Eight families sealed: five accepted, families 5, 7 and 8 failed. Ordinal 9
-remains unstarted. Retain all evidence and report the PDF second-pass parser
-diagnosis to the orchestrator; no retry or next launch is authorized.
-P2 remains in-progress, P3 pending. Separate recovery of families 5/7,
-family-8 recovery scope and eighteen larger occurrences remain open.
+The first bounded wave ended: nine sealed, five accepted, failures 5/7/8/9.
+Publish ordinal 9's separate terminal record. The committed bounded 5/7/8
+recovery amendment requires a next extraction-engine binding and the
+orchestrator's approved reply before launch; family 9 needs a scope ruling.
+P2 stays in-progress, P3 pending. Eighteen larger occurrences and
+estate/recycle/DOC gates remain open for P3. Never retry a sealed family.
 
 ## Launcher
 
@@ -40,6 +40,22 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-14: Ordinal 9 sealed failure, result one, one unapproved engine-failure.
+Input 456,877,056 bytes; retained output 1,177,728,174 bytes; family elapsed
+7,222,485 ms. Timing supports attachment-repair elapsed-budget exhaustion;
+exact cause unresolved. Nine sealed: five accepted, four failed. Accepted
+families reconcile 19,438 children. Frozen policies and identities match.
+See history/p2/2026-10-14-first-wave-terminal.md and the bounded recovery amendment.
+
+
+2026-10-14: Ordinal 9 launched at 08:42:20Z after both admitted sandbox
+smokes, four focused tests and the full sixty-second interval. Capacity
+403,566,137,344 bytes. Eight prior seals, policy identities and ledger hashes
+unchanged. Execution source matches the existing fallback amendment;
+no accepted ordinal-9 outcome or runtime-policy match is claimed yet.
+Knowledge refs has one attributed inherited documentation gate from #1685.
+
 
 2026-10-14: Family 8 sealed failure, result 1 and one unapproved engine-failure.
 Retained output 1,037,230,305 bytes from 436,306,944 input bytes; family

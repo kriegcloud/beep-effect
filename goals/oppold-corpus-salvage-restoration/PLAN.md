@@ -348,3 +348,21 @@ and await orchestrator continuation/recovery scope. P2 remains in-progress.
 Separate family-5/7 recovery, the new family-8 parser follow-up, eighteen
 larger occurrences and estate/recycle/DOC gates remain open.
 See history/p2/2026-10-14-family-08-stop.md.
+
+
+**Authorized continuation 2026-10-14 08:35:38Z:** ordinal 9 launched once
+at 08:42:20Z under the unchanged launcher and committed fallback amendment.
+Eight prior families sealed: five accepted, three failures (5/7/8).
+Driver reconciles the ninth seal before its separate record PR. One bounded
+recovery amendment for 5/7/8 follows; commit it and obtain the orchestrator's
+approved reply before recovery launch. Repeated PDF second-pass failure is
+unsupported, with no third attempt. Eighteen larger occurrences and
+estate/recycle/DOC gates remain open for P3; P2 remains in-progress.
+
+
+**Terminal wave 2026-10-14:** nine sealed, five accepted, four failed
+(5/7/8/9). Ordinal 9 timing supports attachment-repair elapsed-budget
+exhaustion. No retry. Publish the separate terminal record and bounded
+5/7/8 recovery amendment; next extraction-engine binding and orchestrator
+approval required before launch. Family 9 needs explicit recovery scope.
+Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3.
