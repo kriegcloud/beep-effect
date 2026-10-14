@@ -27,16 +27,17 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { runCapturedStreams } from "../../internal/process/StepExec.ts";
+import { diffLines, sameDiffLine } from "./internal/DiffLines.ts";
 import { SkillsCommandError } from "./Skills.errors.ts";
 import type * as Crypto from "effect/Crypto";
 import type { ChildProcessSpawner } from "effect/process";
+import type { DiffLine } from "./internal/DiffLines.ts";
 
 const $I = $RepoCliId.create("commands/Skills/Skills.patches");
 
 const UNIFIED_CONTEXT = 3;
 const NO_NEWLINE_MARKER = "\\ No newline at end of file";
 
-type DiffLine = { readonly text: string; readonly eol: boolean };
 type DiffOpKind = "equal" | "delete" | "insert";
 type DiffOp = {
   readonly kind: DiffOpKind;
@@ -46,20 +47,6 @@ type DiffOp = {
 };
 type HunkSpan = { readonly from: number; to: number };
 
-const diffLines = (content: string): ReadonlyArray<DiffLine> => {
-  if (Str.isEmpty(content)) {
-    return A.empty<DiffLine>();
-  }
-  const terminated = Str.endsWith("\n")(content);
-  const parts = Str.split(content, "\n");
-  const lines = terminated ? A.dropRight(parts, 1) : parts;
-  const lastIndex = A.length(lines) - 1;
-  return A.map(lines, (text, index) => ({ text, eol: terminated || index < lastIndex }));
-};
-
-const sameLine = (left: DiffLine, right: DiffLine): boolean =>
-  Str.Equivalence(left.text, right.text) && left.eol === right.eol;
-
 const cell = (table: Uint32Array, index: number): number => table[index] ?? 0;
 
 // Longest-common-subsequence lengths of every suffix pair, row-major with width |after| + 1.
@@ -68,7 +55,7 @@ const lcsTable = (before: ReadonlyArray<DiffLine>, after: ReadonlyArray<DiffLine
   const table = new Uint32Array((A.length(before) + 1) * width);
   for (let i = A.length(before) - 1; i >= 0; i--) {
     for (let j = A.length(after) - 1; j >= 0; j--) {
-      table[i * width + j] = sameLine(A.getUnsafe(before, i), A.getUnsafe(after, j))
+      table[i * width + j] = sameDiffLine(A.getUnsafe(before, i), A.getUnsafe(after, j))
         ? cell(table, (i + 1) * width + j + 1) + 1
         : Math.max(cell(table, (i + 1) * width + j), cell(table, i * width + j + 1));
     }
@@ -90,7 +77,7 @@ const nextOpKind = (
   if (j >= A.length(after)) {
     return "delete";
   }
-  if (sameLine(A.getUnsafe(before, i), A.getUnsafe(after, j))) {
+  if (sameDiffLine(A.getUnsafe(before, i), A.getUnsafe(after, j))) {
     return "equal";
   }
   const width = A.length(after) + 1;

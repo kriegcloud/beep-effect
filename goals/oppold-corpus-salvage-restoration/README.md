@@ -10,10 +10,12 @@ digests while retaining the originals.
 ## Next action
 
 The first bounded wave ended: nine sealed, five accepted, failures 5/7/8/9.
-Publish ordinal 9's separate terminal record. The committed bounded 5/7/8
-recovery amendment requires a next extraction-engine binding and the
-orchestrator's approved reply before launch; family 9 needs a scope ruling.
-P2 stays in-progress, P3 pending. Eighteen larger occurrences and
+The 11:14Z ruling authorizes recovery through the SAME Java/Tika chain,
+a separately frozen 22,320,000-ms attempt bound and retained message-free
+failure causes. Publish the engine PR and merge it to main before creating
+new recovery freeze records or launching the four sequential fresh families.
+Repeated second-pass failure receives unsupported disposition, never a third
+attempt. P2 stays in-progress, P3 pending. Eighteen larger occurrences and
 estate/recycle/DOC gates remain open for P3. Never retry a sealed family.
 
 ## Launcher

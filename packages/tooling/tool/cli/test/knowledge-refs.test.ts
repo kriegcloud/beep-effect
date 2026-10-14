@@ -623,6 +623,56 @@ describe("knowledge refs listing", () => {
 });
 
 describe("knowledge refs check gate", () => {
+  it.effect("live mirrors gate while ratified rewrites preserve convention observations", () =>
+    Effect.gen(function* () {
+      const paths = ["YeeBois/references/effect/effect", ".local/bin/op", ".local/share/mise/shims/bun"];
+      const live = yield* scanFixture({
+        "docs/guide.md": A.join(
+          A.map(paths, (path) => `Use \`~/${path}\`.`),
+          "\n"
+        ),
+      });
+      expect(A.length(knowledgeRefsLiveDebt(live))).toBe(3);
+      assertSome(
+        O.map(knowledgeRefsCheckFailure(live), (error) => error.liveDebtCount),
+        S.Natural.make(3)
+      );
+
+      const portable = yield* scanFixture({
+        "docs/guide.md": A.join(
+          A.map([".config/beep", ".cache/beep", ".local/state/beep"], (path) => `Use \`~/${path}\`.`),
+          "\n"
+        ),
+        "goals/example/research/notes.md": "Captured `~/mirrors/example`.\n",
+      });
+      expect(A.length(inDocument(portable, "docs/guide.md"))).toBe(3);
+      expect(
+        A.every(
+          inDocument(portable, "docs/guide.md"),
+          (row) => row.surface === "live" && row.classification === "portable-home-convention"
+        )
+      ).toBe(true);
+      expect(A.length(knowledgeRefsLiveDebt(portable))).toBe(0);
+      knowledgeRefsCheckFailure(portable).pipe(assertNone);
+      yield* applyKnowledgeRefsCheck(portable, { json: true });
+    })
+  );
+
+  it.effect("live broken-target backlog remains observable without gating", () =>
+    Effect.gen(function* () {
+      const report = yield* scanFixture({
+        "docs/guide.md": "See `packages/missing/src/index.ts`.\n",
+      });
+      expect(A.length(report.observations)).toBe(1);
+      expect(
+        A.every(report.observations, (row) => row.surface === "live" && row.classification === "broken-target")
+      ).toBe(true);
+      expect(A.length(knowledgeRefsLiveDebt(report))).toBe(0);
+      knowledgeRefsCheckFailure(report).pipe(assertNone);
+      yield* applyKnowledgeRefsCheck(report, { json: true });
+    })
+  );
+
   it.effect("a live gated observation fails the check with its count", () =>
     Effect.gen(function* () {
       const report = yield* scanFixture({

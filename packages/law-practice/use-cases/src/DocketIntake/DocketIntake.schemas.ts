@@ -132,6 +132,7 @@ export class DocketMessage extends S.Class<DocketMessage>($I`DocketMessage`)(
       .pipe(S.withConstructorDefault(Effect.succeed([])), S.withDecodingDefaultTypeKey(Effect.succeed([])))
       .annotateKey({ description: "Attachment references, without bytes." }),
     bodyText: S.String.annotateKey({ description: "Plain-text body (never logged)." }),
+    conversationId: opt(S.NonEmptyString, "Provider thread id; dated entries share one identity per thread and date."),
     internetMessageId: opt(S.NonEmptyString, "RFC 5322 message id; stable across folders."),
     messageId: S.NonEmptyString.annotateKey({ description: "Provider id of the message." }),
     receivedAt: S.NonEmptyString.annotateKey({ description: "UTC receipt timestamp in ISO-8601 form." }),
@@ -710,6 +711,7 @@ export class DocketWrittenEntry extends S.Class<DocketWrittenEntry>($I`DocketWri
  */
 export const DocketNeedsReviewReason = LiteralKit([
   "no-usable-date",
+  "due-date-past",
   "agents-disagree",
   "processing-failed",
   "flagged-low-confidence",

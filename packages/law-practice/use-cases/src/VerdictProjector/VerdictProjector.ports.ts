@@ -11,7 +11,7 @@ import * as Context from "effect/Context";
 import type { ReviewItem, VerdictRow } from "@beep/law-practice-domain";
 import type { Principal } from "@beep/shared-domain/entity/Principal";
 import type * as O from "effect/Option";
-import type { ClaimDispositionProjection } from "./VerdictProjector.model.ts";
+import type { ClaimDispositionProjection } from "./VerdictProjector.schemas.ts";
 
 const $I = $LawPracticeUseCasesId.create("VerdictProjector/VerdictProjector.ports");
 

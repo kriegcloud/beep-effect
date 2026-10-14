@@ -30,7 +30,7 @@ slip to a follow-up without blocking the mod.
 
 ## Solution Sketch
 
-One plugin, `practice-claude-mod`, built from `apps/practice-claude-mod`
+One plugin, `practice-claude-mod`, built from `apps/practice-claude-mod/**`
 (Effect-first TypeScript bundled by bun into one hooks module, D6), holding a
 mod and the firm skills:
 

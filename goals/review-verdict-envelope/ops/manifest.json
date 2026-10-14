@@ -4,13 +4,13 @@
     "id": "review-verdict-envelope",
     "packetId": "goal-packet/v1:830e6b149d107ef00937e7e3dcc030cdb70ae1cf2cd4321ec1b1faa632abafc6",
     "title": "Review Verdict Envelope",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/review-verdict-envelope",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "mission": "Give every producer that needs the attorney's judgement one review envelope (ReviewItem, SourceRef, VerdictRow) with a ReviewQueue and a VerdictProjector to ClaimDisposition, backed by spike evidence that decides the practice-claude-mod review pane.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -34,9 +34,7 @@
     "goals/review-verdict-envelope/GOAL.md",
     "goals/review-verdict-envelope/research/SOURCES.md"
   ],
-  "researchReports": [
-    "research/SOURCES.md"
-  ],
+  "researchReports": ["research/SOURCES.md"],
   "agentLaunchers": [
     {
       "kind": "codex-goal",
@@ -57,27 +55,27 @@
     {
       "id": "P1",
       "name": "Schema",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Services + projector",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Handoff",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Yeet: PR to mergeable",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P5",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

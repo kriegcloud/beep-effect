@@ -2,7 +2,7 @@
 
 ## Objective
 
-Ship one Claude Code plugin, built from `apps/practice-claude-mod`, that turns
+Ship one Claude Code plugin, built from `apps/practice-claude-mod/**`, that turns
 the attorney's Claude Code sessions into a lawyer-facing surface over the
 firm's practice knowledge graph:
 
@@ -57,7 +57,7 @@ Higher sources outrank lower sources when they conflict.
 
 ## Target Surfaces
 
-- `apps/practice-claude-mod` (new; create with `bun run beep create-package`):
+- `apps/practice-claude-mod/**` (new; create with `bun run beep create-package`):
   Effect-first hooks module source, verdict/timer row schemas (app-local,
   D10), tool-phrase table, ported skills, bun bundle + release script, plugin
   tests, README with install and update steps.
@@ -98,7 +98,7 @@ Higher sources outrank lower sources when they conflict.
 
 ## Acceptance Criteria
 
-- [ ] `apps/practice-claude-mod` exists via `create-package` and passes
+- [ ] `apps/practice-claude-mod/**` exists via `create-package` and passes
       `bun run beep quality package-verify @beep/practice-claude-mod`.
 - [ ] On the operator machine (plugin loaded from `dist/plugin` via
       `CLAUDE_CODE_PLUGIN_DIRS`, practice-kg registered against the current
@@ -152,7 +152,7 @@ Seeded from the exploration's `DECISIONS.md` (full rationale there).
 | 2026-10-14 | D2/D11 Port five `legal` plugin skills, do not install it | In-house-counsel personas; reuse prompt structure | Drop `skills/` from the plugin |
 | 2026-10-14 | D4 Explicit `/matter`; folder name only suggests | practice-kg acts only on unique resolution | Allow folder inference once proven unique |
 | 2026-10-14 | D5 Visible explicit timer, raw intervals | Spine doctrine forbids invisible timers | Gated follow-on adopts spine schema |
-| 2026-10-14 | D6 `apps/practice-claude-mod`, Effect bundle | Product host adapter; keeps repo laws; spike passed | Move to `.claude/` plain JS |
+| 2026-10-14 | D6 `apps/practice-claude-mod/**`, Effect bundle | Product host adapter; keeps repo laws; spike passed | Move to `.claude/` plain JS |
 | 2026-10-14 | D7 Directory marketplaces on both machines | Read in place, no reinstall per update | Publish a GitHub marketplace |
 | 2026-10-14 | D8/D10 Local schema'd JSONL verdicts, app-local schema | No network; one consumer | Promote schema to law-practice when evals read it |
 | 2026-10-14 | D9 Mods API envelope | Mods are unsandboxed; reviewable release check | Log a decision per added call |

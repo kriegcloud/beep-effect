@@ -14,16 +14,16 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
 import { isFinalVerdict, latestVerdictByItem } from "../internal/latestVerdict.ts";
+import { VerdictProjector } from "./VerdictProjector.ports.ts";
 import {
   ATTORNEY_CONFIRMED_REASON,
   ATTORNEY_REJECTED_REASON,
   ClaimDispositionProjection,
-} from "./VerdictProjector.model.ts";
-import { VerdictProjector } from "./VerdictProjector.ports.ts";
+} from "./VerdictProjector.schemas.ts";
 import type { VerdictRow } from "@beep/law-practice-domain";
 import type { Principal } from "@beep/shared-domain/entity/Principal";
-import type { ClaimDispositionProjectionStatus } from "./VerdictProjector.model.ts";
 import type { ClaimFindingReviewItem, VerdictProjectorShape } from "./VerdictProjector.ports.ts";
+import type { ClaimDispositionProjectionStatus } from "./VerdictProjector.schemas.ts";
 
 const disposition = Match.type<VerdictRow>().pipe(
   Match.withReturnType<O.Option<{ readonly reason: string; readonly status: ClaimDispositionProjectionStatus }>>(),

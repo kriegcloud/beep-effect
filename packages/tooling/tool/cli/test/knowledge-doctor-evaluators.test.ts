@@ -30,6 +30,7 @@ import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
+import * as R from "effect/Record";
 import * as Str from "effect/String";
 import type {
   KnowledgeCounterfactualVerdict,
@@ -230,6 +231,53 @@ describe("knowledge doctor domain evaluators", () => {
           HashSet.empty<string>()
         );
         assert.deepStrictEqual(exports.names, ["Real"]);
+        // A `/*` inside a string, a line comment, or a regex literal opens no comment (#1702).
+        const decoys = scanKnowledgeFileExports(
+          "packages/a/src/index.ts",
+          [
+            'const glob = "src/*";',
+            "export const AfterString = 1;",
+            "// see src/*.ts",
+            "export const AfterLineComment = 2;",
+            "const pattern = /a\\/*b/;",
+            "export const AfterRegex = 3;",
+            "const sum = a+/a\\/*b/;",
+            "export const AfterBinaryRegex = 4;",
+            "const kind = typeof /c\\/*d/;",
+            "export const AfterKeywordRegex = 5;",
+            "const half = total / 2 /* trailing */;",
+            "export const AfterDivision = 6;",
+            "/* real",
+            "export const Hidden = 7;",
+            "*/",
+          ].join("\n"),
+          HashSet.empty<string>()
+        );
+        assert.deepStrictEqual(decoys.names, [
+          "AfterString",
+          "AfterLineComment",
+          "AfterRegex",
+          "AfterBinaryRegex",
+          "AfterKeywordRegex",
+          "AfterDivision",
+        ]);
+      })
+    );
+
+    it.effect(
+      "reports the v2 decode error for a broken v2 lock instead of the v1 fallback's",
+      Effect.fnUntraced(function* () {
+        // The lock is v2 since #1679; a broken v2 lock must not surface a v1 complaint (#1702).
+        const tree = makeKnowledgeDoctorMemoryTree({
+          files: {
+            "skills-lock.json": `{ "version": 2, "skills": { "alpha": { "_tag": "vendored", "sourceType": "github" } } }`,
+            ".claude/skills/alpha/SKILL.md": "# alpha",
+          },
+        });
+        const error = yield* Effect.flip(scanKnowledgeDoctorTree(tree));
+        const detail = String(error.cause);
+        // v2 fails on the vendored entry's missing `upstream`; the v1 fallback would fail on `source`.
+        assert.include(detail, '["upstream"]');
       })
     );
 
@@ -246,6 +294,45 @@ describe("knowledge doctor domain evaluators", () => {
           "beep-subpath:@beep/a/Gone",
           "beep-subpath:@beep/a/Missing",
           "beep-subpath:@beep/a/internal/hidden",
+        ]);
+      })
+    );
+
+    it.effect(
+      "names the search bound and the unfollowed package stars instead of claiming an export is absent",
+      Effect.fnUntraced(function* () {
+        const chain = R.fromEntries(
+          A.makeBy(
+            300,
+            (index) =>
+              [
+                `packages/deep/src/f${index}.ts`,
+                index === 299 ? "export const Far = 1" : `export * from "./f${index + 1}.ts"`,
+              ] as const
+          )
+        );
+        const tree = makeKnowledgeDoctorMemoryTree({
+          files: {
+            "package.json": `{ "name": "@beep/root", "workspaces": ["packages/*"] }`,
+            "packages/deep/package.json": `{ "name": "@beep/deep", "exports": { ".": "./src/f0.ts" } }`,
+            ...chain,
+            "packages/wide/package.json": `{ "name": "@beep/wide", "exports": { ".": "./src/index.ts" } }`,
+            "packages/wide/src/index.ts": doc('export * from "@beep/deep"', "export const Own = 1"),
+            "docs/symbols.md": doc(
+              "Use `Far` from `@beep/deep`.",
+              "Use `Far` from `@beep/wide`.",
+              "Use `Own` from `@beep/wide`."
+            ),
+          },
+        });
+        const report = yield* scanKnowledgeDoctorTree(tree);
+        const messages = A.map(
+          A.filter(report.findings, (row) => row.finding.kind === "unknown-beep-symbol"),
+          (row) => `${row.finding.subject} | ${row.finding.message}`
+        );
+        assert.deepStrictEqual(A.sort(messages, Str.Order), [
+          "beep-export:@beep/deep Far | Far was not found in the first 256 files re-exported by @beep/deep; the search stopped at its bound, so absence is unproven.",
+          "beep-export:@beep/wide Far | @beep/wide does not visibly export Far; not followed: export * from @beep/deep.",
         ]);
       })
     );

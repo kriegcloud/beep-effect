@@ -13,7 +13,7 @@ import { CandidateClaimId } from "@beep/shared-domain/identity/Epistemic";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 
-const $I = $LawPracticeUseCasesId.create("VerdictProjector/VerdictProjector.model");
+const $I = $LawPracticeUseCasesId.create("VerdictProjector/VerdictProjector.schemas");
 
 /**
  * Reason recorded when the attorney marks a claim finding `right`.
