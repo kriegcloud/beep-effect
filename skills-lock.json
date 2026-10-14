@@ -3,7 +3,10 @@
   "skills": {
     "adhd": {
       "_tag": "local",
-      "installedTargets": [".claude/skills/adhd", ".agents/skills/adhd"],
+      "installedTargets": [
+        ".claude/skills/adhd",
+        ".agents/skills/adhd"
+      ],
       "installedTreeHash": "91f1a3d559b6a3c1c243d7e08e11130b575c1025368e181f3143c496c9caad7b"
     },
     "atom-reactivity-specialist": {
@@ -40,7 +43,10 @@
     },
     "crispen": {
       "_tag": "local",
-      "installedTargets": [".claude/skills/crispen", ".agents/skills/crispen"],
+      "installedTargets": [
+        ".claude/skills/crispen",
+        ".agents/skills/crispen"
+      ],
       "installedTreeHash": "c111373fc6d77f010a6f7bcd941a10a576922a83adb77d0b2de1fa35db4bbb58"
     },
     "effect-first-development": {
@@ -53,12 +59,18 @@
     },
     "explore": {
       "_tag": "local",
-      "installedTargets": [".claude/skills/explore", ".agents/skills/explore"],
+      "installedTargets": [
+        ".claude/skills/explore",
+        ".agents/skills/explore"
+      ],
       "installedTreeHash": "5f4f4894ac028139a0ab576477dc8acd94ddfdf810aa1a9850e8240698807541"
     },
     "graft": {
       "_tag": "local",
-      "installedTargets": [".claude/skills/graft", ".agents/skills/graft"],
+      "installedTargets": [
+        ".claude/skills/graft",
+        ".agents/skills/graft"
+      ],
       "installedTreeHash": "29fb832863ed616988037c294d37d1f869f69bd12bb825c44bdd8480329dfdd8"
     },
     "grill-me": {
@@ -102,7 +114,10 @@
         "confidence": "high",
         "matchedFileCount": 2,
         "upstreamFileCount": 2,
-        "evidence": ["exact-tree", "path-history"]
+        "evidence": [
+          "exact-tree",
+          "path-history"
+        ]
       },
       "patches": {
         "required": false,
@@ -266,7 +281,10 @@
         "confidence": "medium",
         "matchedFileCount": 0,
         "upstreamFileCount": 1,
-        "evidence": ["package-owner", "path-history"]
+        "evidence": [
+          "package-owner",
+          "path-history"
+        ]
       },
       "patches": {
         "required": true,
@@ -290,7 +308,10 @@
       },
       "effective": {
         "treeHash": "d418f7015d527e462b602d0f8924e77f782f279fc0b2f218d2ba273f29b44c6a",
-        "installedTargets": [".claude/skills/oracle", ".agents/skills/oracle"],
+        "installedTargets": [
+          ".claude/skills/oracle",
+          ".agents/skills/oracle"
+        ],
         "installedTreeHash": "ad34afc04f23051fa7089fb88bb5c22cffc5b8f548fb377f0c52f818ef402755"
       }
     },
@@ -338,7 +359,10 @@
         "confidence": "high",
         "matchedFileCount": 1,
         "upstreamFileCount": 1,
-        "evidence": ["historical-import", "path-history"]
+        "evidence": [
+          "historical-import",
+          "path-history"
+        ]
       },
       "patches": {
         "required": false,
@@ -372,7 +396,10 @@
     },
     "reflect": {
       "_tag": "local",
-      "installedTargets": [".claude/skills/reflect", ".agents/skills/reflect"],
+      "installedTargets": [
+        ".claude/skills/reflect",
+        ".agents/skills/reflect"
+      ],
       "installedTreeHash": "e2ae4a428c536575906b8fcdad56c7ac992e243073128345c3276572cd7c7ae4"
     },
     "schema-first-development": {
@@ -392,20 +419,20 @@
         "treePath": "skills/shadcn",
         "entryPath": "skills/shadcn/SKILL.md",
         "trackingRef": "main",
-        "sourceRevision": "91f21dfe1328585670275781b4525fff2507f917",
+        "sourceRevision": "2d3f1cd436b18ea12f24130de4df781355925b08",
         "observedHeadRevision": "cb2bcd88d93b2f9bddb030e9136f1f8773e7eac4",
         "observedPathRevision": "6cd3f4c65c361ab6554e06a77e6a0af9cf8b6e37"
       },
       "snapshot": {
         "algorithm": "sha256",
-        "treeHash": "9488facd197e8a78d622e2dba9509bc41f3638de5ccc7736b52d49c03c410925",
-        "fileCount": 15,
-        "manifestHash": "7e2c8baaddd732ce02edb7c79325e909876b35867631d1d092612e2a51f41ed5",
+        "treeHash": "2eb9d12b66677456fcff9d4cbd6247d8bbb9d0935ee61354f1f4f66b23496987",
+        "fileCount": 21,
+        "manifestHash": "34078436a7f93e3c35261b79b2fb286d410093e2f5a0eb32facfee4518e46834",
         "manifest": [
           {
             "path": "SKILL.md",
             "mode": "100644",
-            "sha256": "a45cddd4511f8262df05b20506f4d52be8210a9ee05a13d9e36d4ee321bab593"
+            "sha256": "0185f715bc985deca4223be426f898aa17f7d1a297a9857dfa79055e473bc34d"
           },
           {
             "path": "agents/openai.yml",
@@ -423,6 +450,21 @@
             "sha256": "7d60ad6fec4d89a0d44ba5a3c9283d2fea0047af5467f9227040e20d927d39b7"
           },
           {
+            "path": "assets/showcase/color-pair.tsx",
+            "mode": "100644",
+            "sha256": "6028f0b677912216822fdaf76ae6b8863c429916ed4a9626b73f4de4506f8ee4"
+          },
+          {
+            "path": "assets/showcase/preview-states.css",
+            "mode": "100644",
+            "sha256": "8d9e3cec24dd01b11c5ba12196d0376a131797d9ad247ea624e66eb8bbf61b0e"
+          },
+          {
+            "path": "assets/showcase/state-matrix.tsx",
+            "mode": "100644",
+            "sha256": "07794119fe05ff735358b3f8ca30a8297617ab64dfb3901dce4d89fe5f443458"
+          },
+          {
             "path": "cli.md",
             "mode": "100644",
             "sha256": "a381e35bf36fe7bb851952c13707e01e82434fd7a4a4e53f6df26c6370838904"
@@ -430,12 +472,22 @@
           {
             "path": "customization.md",
             "mode": "100644",
-            "sha256": "84c1d47168c4b8adb5840e4af30a4e373ae3377c1110478c8974f398dd63f5ba"
+            "sha256": "a19e81c78843df255e85755e52659268d793845add845b34ad8091f62bff3af9"
+          },
+          {
+            "path": "design-system-page.md",
+            "mode": "100644",
+            "sha256": "c541d661af159548744be3e27f79e7da710ab83f9afd448a4346f7ff1531d328"
+          },
+          {
+            "path": "design-system.md",
+            "mode": "100644",
+            "sha256": "9ed11e93e7e80e34c8795d5ba82e5420ca905e8e9949fef79cbe9239184fd06b"
           },
           {
             "path": "evals/evals.json",
             "mode": "100644",
-            "sha256": "58aca2760b0cc5265bb575f76cd8eed344b88544314b8cb2cd53e0b8007dc936"
+            "sha256": "e82c747326a5c21e37a1c962274d36b1bfebb3e6602ee368b98e2dba5db18369"
           },
           {
             "path": "mcp.md",
@@ -455,12 +507,12 @@
           {
             "path": "rules/chat.md",
             "mode": "100644",
-            "sha256": "fcbc4eb29a3998fa3e24e9f7f1cbb2b9f33e98cb5b66a153eeccdb74e78f9612"
+            "sha256": "de29c12524a27578a59ecf8c95ea939278c1a3572a3706bfc99f6f92cb770b7b"
           },
           {
             "path": "rules/composition.md",
             "mode": "100644",
-            "sha256": "012d2a44373766fd9c13059ac1b971581fbe3982f2b1e92186a963c9990cfdcf"
+            "sha256": "f282df828d83a91132a846ddb62eea149a7c7c94822e9ca88cfddf85af01aa41"
           },
           {
             "path": "rules/forms.md",
@@ -475,7 +527,12 @@
           {
             "path": "rules/styling.md",
             "mode": "100644",
-            "sha256": "47bd2c3b6216b96af0ab169063a83dfef7f80c58536cf69445a6f4d22753326c"
+            "sha256": "f88fbd72dff862805b786dc7d7e4c74c83030fc278c5b97c993e4e665001798c"
+          },
+          {
+            "path": "scripts/showcase-coverage.mjs",
+            "mode": "100644",
+            "sha256": "fb593e0806414d23b51354a46881f0b2873afc226bda0926a22f83cbd60af2fa"
           }
         ]
       },
@@ -487,104 +544,25 @@
       "provenance": {
         "status": "exact",
         "confidence": "high",
-        "matchedFileCount": 9,
-        "upstreamFileCount": 15,
-        "evidence": ["exact-tree", "path-history"]
-      },
-      "patches": {
-        "required": true,
-        "patchSetHash": "4647a61a117bbb70c0c05ee803122bc5fc786e8c89c956b0276d92fb71ce15ff",
-        "series": [
-          {
-            "path": ".agents/skill-patches/shadcn/0001-skill-md.patch",
-            "sha256": "77de2d7aeca641f1eba2adbd39754068faeb37db3883e46fc6aea7cf29795c8f",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0002-assets-showcase-color-pair-tsx.patch",
-            "sha256": "bf63de7cf16806e8b12ede71be4c2398ae205f745695fb5c86805afbc5c47a44",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0003-assets-showcase-preview-states-css.patch",
-            "sha256": "200b051f49e51b394a90efdfe4aafcd28ad2a90752ae5ab516d0d1f02b4c9cc1",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0004-assets-showcase-state-matrix-tsx.patch",
-            "sha256": "688318c63325bf2058cfe3156f4db382440cf0ccae8c3e9aa79c4b13b74b39cb",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0005-customization-md.patch",
-            "sha256": "b6e336c3bfc9540bb793b3339a9df4066d8b8297bca647aa90322637a87adf0a",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0006-design-system-page-md.patch",
-            "sha256": "0a39912b148b661938cdd984d8bc57579f4cd946f95f1213697d2ebe7dfafb98",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0007-design-system-md.patch",
-            "sha256": "02b0f4f794bd76efc603e49fb9f9878cca1d6cdded7010040f32205617ea9786",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0008-evals-evals-json.patch",
-            "sha256": "b05ed8827c4510838018c8aceda1144706bf90aa94a5c13b8c53c999c80ffde6",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0009-rules-chat-md.patch",
-            "sha256": "b36de5c92916f22c01bce981f56a15bc30542d74cdf5f0a359ba4aced8b19fcf",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0010-rules-composition-md.patch",
-            "sha256": "e3f1fe3400d18990036d4bb8a861da5c5922e5427b35570a87db0ef6c03d8e11",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0011-rules-styling-md.patch",
-            "sha256": "cfea355e3282e3ef989badca3e712b2450759bdb5ffe4598b0bb99bb8c44e7be",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          },
-          {
-            "path": ".agents/skill-patches/shadcn/0012-scripts-showcase-coverage-mjs.patch",
-            "sha256": "76a1a5521cd8c6d62ee61c9e5529c12956ab9175e6cdececdded1a1e7c91b793",
-            "label": "temporary-drift",
-            "owner": "@kriegcloud",
-            "dropCondition": "Drop when upstream contains an equivalent change."
-          }
+        "matchedFileCount": 21,
+        "upstreamFileCount": 21,
+        "evidence": [
+          "exact-tree",
+          "path-history"
         ]
       },
+      "patches": {
+        "required": false,
+        "patchSetHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "series": []
+      },
       "effective": {
-        "treeHash": "3d9aab54102993d164c1ba5f1671878f31c5a295d1391c21bf189d628f3d1168",
-        "installedTargets": [".claude/skills/shadcn", ".agents/skills/shadcn"],
-        "installedTreeHash": "febc457b00ea8cc1011147a754f7d4dd35901555fac2270ed0ed2849badc217b"
+        "treeHash": "2eb9d12b66677456fcff9d4cbd6247d8bbb9d0935ee61354f1f4f66b23496987",
+        "installedTargets": [
+          ".claude/skills/shadcn",
+          ".agents/skills/shadcn"
+        ],
+        "installedTreeHash": "afb68a11e7d66e77c5a4a21d2f02629b5e6d66ca9c63403bcac4ebd2e07dacfb"
       }
     },
     "sparql-expert": {
@@ -656,7 +634,10 @@
         "confidence": "high",
         "matchedFileCount": 6,
         "upstreamFileCount": 6,
-        "evidence": ["exact-tree", "path-history"]
+        "evidence": [
+          "exact-tree",
+          "path-history"
+        ]
       },
       "patches": {
         "required": false,
@@ -665,7 +646,10 @@
       },
       "effective": {
         "treeHash": "1d012501be45ba8bcec7987b9feb535e4e27d166d173954a6998e8939bd880e2",
-        "installedTargets": [".claude/skills/teach", ".agents/skills/teach"],
+        "installedTargets": [
+          ".claude/skills/teach",
+          ".agents/skills/teach"
+        ],
         "installedTreeHash": "5648a9a1cdcc740400b58276f5a1feb482f5febac42863aea2cf8ef99d57bc62"
       }
     },
@@ -705,7 +689,10 @@
         "confidence": "high",
         "matchedFileCount": 1,
         "upstreamFileCount": 1,
-        "evidence": ["historical-import", "path-history"]
+        "evidence": [
+          "historical-import",
+          "path-history"
+        ]
       },
       "patches": {
         "required": false,
@@ -723,12 +710,18 @@
     },
     "unslop": {
       "_tag": "local",
-      "installedTargets": [".claude/skills/unslop", ".agents/skills/unslop"],
+      "installedTargets": [
+        ".claude/skills/unslop",
+        ".agents/skills/unslop"
+      ],
       "installedTreeHash": "94f4301d065429357b097b195bf4275660c0faab54dbc6cd97ef2f9620e143d4"
     },
     "yeet": {
       "_tag": "local",
-      "installedTargets": [".claude/skills/yeet", ".agents/skills/yeet"],
+      "installedTargets": [
+        ".claude/skills/yeet",
+        ".agents/skills/yeet"
+      ],
       "installedTreeHash": "ee5fef6073d4aab52f12c491fdb2f7dca0503dc60bde8fd2a8ba8fdc3758e707"
     }
   }

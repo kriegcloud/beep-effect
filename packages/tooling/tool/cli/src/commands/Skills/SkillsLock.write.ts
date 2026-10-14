@@ -35,6 +35,7 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
+import { PATCH_ROOT, stagedPatchPath } from "./internal/PatchStaging.ts";
 import { SkillsCommandError, SkillsLockWriteRefusal } from "./Skills.errors.ts";
 import { compileSkillsLockMigration } from "./Skills.service.ts";
 import { SkillsLockDocument, SkillsLockWriteReceipt, SkillsLockWrittenFile } from "./SkillsLock.schemas.ts";
@@ -50,7 +51,6 @@ import type {
 } from "./SkillsLock.schemas.ts";
 
 const SKILLS_LOCK_PATH = "skills-lock.json";
-const PATCH_ROOT = ".agents/skill-patches";
 
 const textEncoder = new TextEncoder();
 const decodeSha256HexFromBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
@@ -292,15 +292,8 @@ const stagePatches = Effect.fn("SkillsLock.stagePatches")(function* (
   yield* Effect.forEach(
     patchFiles,
     Effect.fnUntraced(function* (file) {
-      const absolute = path.join(paths.stage, path.relative(PATCH_ROOT, file.path));
       // Containment: a patch path must resolve inside the staging root.
-      const inside = path.relative(paths.stage, absolute);
-      if (Str.startsWith("..")(inside) || path.isAbsolute(inside)) {
-        return yield* SkillsCommandError.make({
-          message: `Refusing to stage ${file.path}: it resolves outside ${PATCH_ROOT}.`,
-          file: file.path,
-        });
-      }
+      const absolute = yield* stagedPatchPath(paths.stage, file.path);
       yield* fs
         .makeDirectory(path.dirname(absolute), { recursive: true })
         .pipe(SkillsCommandError.mapError(`Failed to create the parent of ${absolute}.`, absolute));

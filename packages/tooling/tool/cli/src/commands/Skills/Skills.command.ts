@@ -1069,8 +1069,12 @@ const desiredLockEntry = Effect.fn("Skills.desiredLockEntry")(function* (
   return [name, yield* computeLocalSkillLockEntry(repoRoot, name)] as const;
 });
 
+const skillsLockDocumentEquivalence = S.toEquivalence(SkillsLockDocument);
+
 // Over a v2 lock, vendored entries are kept verbatim and local entries are recomputed from the
-// installed trees with the same mode-aware hashing rule the plan uses.
+// installed trees with the same mode-aware hashing rule the plan uses. Drift is judged on the
+// decoded document, so a lock whose bytes were only reformatted (key order, wrapping) is not
+// drift and write mode leaves it alone.
 const evaluateLockDriftV2 = Effect.fnUntraced(function* (
   repoRoot: string,
   current: SkillsLockDocument,
@@ -1079,16 +1083,12 @@ const evaluateLockDriftV2 = Effect.fnUntraced(function* (
   const path = yield* Path.Path;
   const names = yield* listInstalledSkillNames(repoRoot);
   const entries = yield* Effect.forEach(names, (name) => desiredLockEntry(repoRoot, current, name));
-  const desiredLockText = yield* renderSkillsLockDocumentText(
-    SkillsLockDocument.make({ version: 2, skills: toSortedRecord(entries) })
-  );
-  const lockPath = path.join(repoRoot, SKILLS_LOCK_PATH);
-  const currentLockText = yield* readExistingFile(lockPath);
-  if (O.exists(currentLockText, (text) => text === desiredLockText)) {
+  const desired = SkillsLockDocument.make({ version: 2, skills: toSortedRecord(entries) });
+  if (skillsLockDocumentEquivalence(current, desired)) {
     return O.none<SkillDrift>();
   }
   if (mode === "write") {
-    yield* writeStringFile(lockPath, desiredLockText);
+    yield* writeStringFile(path.join(repoRoot, SKILLS_LOCK_PATH), yield* renderSkillsLockDocumentText(desired));
   }
   return O.some<SkillDrift>({ _tag: "LockDrift" });
 });

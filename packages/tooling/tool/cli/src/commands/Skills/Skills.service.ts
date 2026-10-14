@@ -27,6 +27,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { asArrayBufferView, concatBytes } from "../../internal/cli/Bytes.ts";
 import { canonicalJsonText } from "../Goals/PacketCore/PacketDigest.ts";
+import { PATCH_ROOT } from "./internal/PatchStaging.ts";
 import {
   SkillInstallStateError,
   SkillsCommandError,
@@ -408,7 +409,6 @@ const renderFilePatch = Effect.fn("SkillsProvenance.renderFilePatch")(function* 
   return yield* renderModifiedFilePatch(skill, filePath, upstream.value, local.value);
 });
 
-const PATCH_ROOT = ".agents/skill-patches";
 const PATCH_DROP_CONDITION = "Drop when upstream contains an equivalent change.";
 
 const patchSlug = flow(Str.toLowerCase, Str.replace(/[^a-z0-9]+/gu, "-"), Str.replace(/^-+|-+$/gu, ""));

@@ -31,6 +31,7 @@ import {
   SkillPathHistory,
   SkillPathHistoryWindow,
   SkillPinProposal,
+  SkillsLockDocument,
   SkillsLockWriteRefusal,
   SkillUpstreamContent,
   SkillUpstreamContentError,
@@ -41,6 +42,7 @@ import {
   VendoredSkillLockEntry,
   writeSkillsLockMigration,
 } from "@beep/repo-cli/commands/Skills";
+import { stagedPatchPath } from "@beep/repo-cli/test/Skills";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { Sha256HexFromBytes } from "@beep/schema";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
@@ -927,6 +929,65 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock write", (it) => {
       expect(error.message).toContain("Failed to publish skills-lock.json");
       expect(yield* fs.readFileString(lockPath)).toBe(SKILLS_LOCK_V1_FIXTURE);
       expect(yield* fs.exists(path.join(repoRoot, ".agents/skill-patches"))).toBe(false);
+    })
+  );
+
+  it.effect("refuses a vendored lock key that is not a single safe path segment, staging nothing", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* fs.makeTempDirectoryScoped({ prefix: "skills-lock-write-unsafe-key-" });
+      const { source } = yield* installLocallyEditedRepo(repoRoot);
+      const provide = Effect.provideService(SkillUpstreamContentSource, source);
+      const reviewed = yield* planSkillsLockMigration(repoRoot).pipe(provide);
+      yield* writeSkillsLockMigration(repoRoot, O.some(reviewed.planDigest)).pipe(provide);
+      // Hand-edit the v2 lock: the drifted vendored shadcn entry now sits under a climbing key,
+      // and its install moves to where that key resolves, so planning reaches the patch builder.
+      const unsafeKey = "../../outside";
+      const lockPath = path.join(repoRoot, "skills-lock.json");
+      const lock = yield* decodeSkillsLockDocumentJson(yield* fs.readFileString(lockPath));
+      const shadcn = lock.skills.shadcn;
+      assertTrue(shadcn !== undefined);
+      const edited = SkillsLockDocument.make({
+        version: 2,
+        skills: R.set(R.remove(lock.skills, "shadcn"), unsafeKey, shadcn),
+      });
+      yield* fs.writeFileString(lockPath, `${yield* encodeSkillsLockDocumentJson(edited)}\n`);
+      const escaped = path.join(repoRoot, ".claude/skills", unsafeKey);
+      yield* fs.rename(path.join(repoRoot, ".claude/skills/shadcn"), escaped);
+      const lockBefore = yield* fs.readFileString(lockPath);
+
+      const plan = yield* planSkillsLockMigration(repoRoot).pipe(provide);
+      const row = O.getOrThrow(A.findFirst(plan.rows, (candidate) => candidate.skill === unsafeKey));
+      const refusal = yield* writeSkillsLockMigration(repoRoot, O.some(plan.planDigest)).pipe(provide, Effect.flip);
+
+      expect(row).toMatchObject({
+        disposition: "unresolved",
+        cause: "provenance-unavailable",
+        note: `provenance-unavailable: Skill key "${unsafeKey}" is not a single safe path segment; refusing to place its patches.`,
+      });
+      expect(refusalReason(refusal)).toBe("conflicted-plan");
+      expect(yield* fs.readFileString(lockPath)).toBe(lockBefore);
+      expect(yield* fs.readDirectory(path.join(repoRoot, ".agents/skill-patches"))).toEqual(["shadcn"]);
+      expect(A.sort(yield* fs.readDirectory(escaped), Str.Order)).toEqual(["SKILL.md", "assets", "rules"]);
+    })
+  );
+
+  it.effect("refuses to stage a patch path that resolves outside the patch root", () =>
+    Effect.gen(function* () {
+      const stage = "/repo/.agents/.skill-patches.staging-0123456789abcdef";
+
+      const inside = yield* stagedPatchPath(stage, ".agents/skill-patches/shadcn/0001-skill-md.patch");
+      const climbing = yield* stagedPatchPath(stage, ".agents/skill-patches/../../outside/0001.patch").pipe(
+        Effect.flip
+      );
+      const sibling = yield* stagedPatchPath(stage, ".agents/other/0001.patch").pipe(Effect.flip);
+
+      expect(inside).toBe(`${stage}/shadcn/0001-skill-md.patch`);
+      expect(climbing.message).toBe(
+        "Refusing to stage .agents/skill-patches/../../outside/0001.patch: it resolves outside .agents/skill-patches."
+      );
+      expect(sibling.message).toContain("it resolves outside .agents/skill-patches");
     })
   );
 

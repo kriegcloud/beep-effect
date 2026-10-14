@@ -200,3 +200,18 @@ Both are addressed by B-3a.
   upstream; `skills update` still refetches it at its floating ref until its resolution
   lands. Reason: the lock is the drift oracle for every installed skill. Reverse: plan
   lock entries only and leave unlisted skills to `skills update`.
+- **B23 — vendored trees and the lock stay outside repo formatting (PR #1679 review).**
+  `biome.jsonc` (and the generated `biome.identity.jsonc`) excludes every vendored
+  skill's `.claude/skills/<name>` tree; `.agents` was already excluded and
+  `.agents/skills` is a symlink onto `.claude/skills`. ESLint ignores the same trees.
+  `skills-command.test.ts` fails when a `vendored` lock entry's install target is not
+  excluded, so a new vendored skill cannot be formatted silently. `skills-lock.json` is
+  excluded as well: the `beep skills` renderer is its canonical byte form, and
+  `skills update --check` compares the decoded document rather than bytes, so a
+  reformatted lock is not drift and write mode leaves it alone. Reason: Biome rewrote
+  `shadcn/assets/showcase/{color-pair,state-matrix}.tsx`, so no upstream revision
+  matched the whole tree and the plan fell back to the July seed with 12
+  `temporary-drift` patches. With the upstream bytes restored, `shadcn` pins pristine
+  at `2d3f1cd4` with no patches (contract 5: vendored trees stay byte-exact upstream).
+  Reverse: drop the excludes and the guard test, and record each formatter rewrite as a
+  `repo-adaptation` patch the pinned bump replays.
