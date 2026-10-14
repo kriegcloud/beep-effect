@@ -20,14 +20,18 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
    tree is written to both `.claude/skills/<name>` and `.agents/skills/<name>` by one
    writer, and a cross-target equivalence check (mode-aware tree hash) runs after every
    write and in `--check`. The targets are never written independently. Each target is
-   staged as a sibling directory and published by rename, and the two renames run
-   back to back with the previous trees set aside, so a failure rolls both back. A
-   crash between the two renames leaves one target new and one old. The next
-   `materialize` (or `--check`) detects that through the equivalence check, and a
-   plain re-run is the recovery: it rebuilds both from the lock. The "cannot drift
-   apart" guarantee therefore holds for every completed or recovered write. Tests
-   inject a failure between the two target renames and assert the rollback, then the
-   re-run repair.
+   staged as a sibling directory and published by rename, back to back, with the
+   previous trees set aside. Two interruption stories have different recoveries:
+   - *A caught failure* before both renames succeed (an error the writer sees)
+     restores both targets from the set-aside trees, so neither changes.
+   - *A crash between the two renames* (the process dies, so no restore runs) leaves
+     one target new and one old. The next `materialize` or `--check` detects the skew
+     through the equivalence check, and the recovery is a plain re-run that rebuilds
+     both targets from the lock. Set-aside trees are not used for this path.
+
+   The "cannot drift apart" guarantee therefore holds for every completed or recovered
+   write. Tests cover both: a failure injected after the first rename (restore), and a
+   simulated crash that leaves the targets skewed (detection, then re-run repair).
 3. **`skills update --check` fails on hand-edited vendored output.** For vendored
    entries it compares the installed tree hash with `effective.installedTreeHash`. A
    hand edit is reported as `hand-edited-vendored-output`, and the remedy names both
@@ -49,11 +53,13 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
    validate. A replay conflict refuses relock and leaves the lock untouched, which is
    what makes the PR wait for review (contract 6).
 6. **CI reconstruction on every lock bump.** A workflow triggered by changes to
-   `skills-lock.json` or `.agents/skill-patches/**` runs `materialize --check` for old
-   and new pins. It replays the patch series onto the new pristine tree and attaches two
+   `skills-lock.json` or `.agents/skill-patches/**` first runs a *replay*: it loads the
+   new pin's pristine tree, replays the patch series onto it, and attaches two
    things to the PR: the upstream-vs-effective diff, and a per-hunk conflict report
    (applied, fuzz-applied, conflicted), keyed by hunk identity. A conflicted hunk fails
-   the job and the PR waits for the review ritual. On a clean replay the workflow runs
+   the job and the PR waits for the review ritual. The replay does not run
+   `materialize --check`, because the lock's recorded hashes are still the old pin's
+   until relock (contracts 1 and 5). On a clean replay the workflow runs
    `skills relock` (contract 5), commits the recorded hashes to the Renovate branch,
    and then runs `materialize --check`, so the PR is mergeable without a human.
 7. **Hunk ledger (`.agents/skill-patches/ledger.jsonl`), append-only.** Each row is
@@ -75,7 +81,7 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
    unresolved hunks. That way the train is reviewable from one place without a parent
    PR that blocks the per-skill ones.
 
-## Decisions (B16–B21)
+## Decisions (B16–B22)
 
 - **B16 — one writer feeds both targets.** Reason: SPEC's clearing house; two writers
   were the original drift source. Reverse: per-target writers with the equivalence check
@@ -88,10 +94,6 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   manager can express the v2 lock, because `repository` and `sourceRevision` are plain
   JSON string fields, so the scheduled-agent fallback is not needed. Reverse: a
   scheduled `beep skills bump --plan` session, if the regex manager proves brittle.
-- **B22 — relock is a separate, plan-gated step.** Reason: `materialize --check`
-  must validate against hashes that were deliberately recorded, never re-derive them
-  during the check (review on #1689). Reverse: let `materialize --record` write the
-  hashes in the same run.
 - **B19 — conflicts fail CI and clean replays merge themselves.** Reason: B3's "one
   conflict never stalls the train". The human is only needed where a hunk truly
   conflicts. Reverse: require review on every bump PR.
@@ -103,6 +105,10 @@ pieces ship. They are the last B work in P4 (materialize, clearing house,
   makes it a human session, and an agent pre-labelling hunks would launder that
   judgment (B8). Agents prepare the session; they do not decide it. Reverse: none.
   Classification authority is not delegable under the SPEC.
+- **B22 — relock is a separate, plan-gated step.** Reason: `materialize --check`
+  must validate against hashes that were deliberately recorded, never re-derive them
+  during the check (review on #1689). Reverse: let `materialize --record` write the
+  hashes in the same run.
 
 ## Sequencing
 
