@@ -2,7 +2,7 @@
 
 ```text
 lane: rsc-h2-completion
-head: 8c00bdb9275e31e6eb9567e00ca703f05b310dc5 (qualified source; accepted publication c6e855d8b9; report-only delivery tip in final dispatch)   PR: #1574 merged; evidence follow-up in final dispatch
+head: 8c00bdb9275e31e6eb9567e00ca703f05b310dc5 (qualified source; accepted publication c6e855d8b9; report-only delivery tip in final dispatch)   PR: #1744 evidence follow-up (+ #1574 merged implementation)
 package-verify @beep/repo-cli: pass (final repaired integration audit 868.0s/docgen 27.1s)
 hosted-parity: test-tsgo=pass docgen=pass jsdoc-ratchet=pass knowledge-refs=pass fallow=pass coverage=pass (293 tests; existing touched floors/ceilings met)
 doctor before/after: original 3 unsatisfied; final 226 packets, 0 new blocking, 6 advisories (3 targeted unknown, 3 unrelated legacy)
@@ -555,3 +555,10 @@ follow-up branch, create its PR with `ready-for-heavy`, mark content final,
 and run a detached readiness monitor bounded to 40 minutes. Publication
 preflight did not reach the isolated head-install step; this report makes no
 claim that it did. Source qualification remains the full successful H2 proof.
+
+The replacement is PR #1744 (`chore/rsc-h2-completion-followup`); redundant
+draft #1743 is closed with a link to it. The complete source qualification
+and all six original review resolutions are retained above. Delivery is
+content-final; the exact report-only head is provided by the final dispatch.
+The orchestrator must read #1744's current threads and readiness result at
+the merge gate; this committed receipt does not predict the monitor outcome.
