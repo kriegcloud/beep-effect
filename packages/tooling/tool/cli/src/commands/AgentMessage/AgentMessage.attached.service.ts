@@ -16,7 +16,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import { Envelope, LaunchGrant, RouterError } from "./AgentMessage.models.ts";
+import { Envelope, LaunchGrant, RouterError, receivingGrantAllowsEnvelopeScope } from "./AgentMessage.models.ts";
 import { AgentMessageStore } from "./AgentMessage.store.ts";
 import type { T3CodeConfiguration, T3CodeRead, T3CodeThread, T3CodeWait } from "@beep/t3-code";
 import type { AttachedT3Profile } from "./AgentMessage.attached.schemas.ts";
@@ -57,12 +57,8 @@ const validateEnrollmentAvailability = Effect.fn("AgentMessage.attachedEnrollmen
   }
 });
 
-const receivingGrantAllows = (grant: LaunchGrant, envelope: Envelope) => {
-  if (envelope.to.kind !== "direct" || envelope.to.endpointId !== grant.endpointId) return false;
-  if (envelope.repositoryScope !== grant.repositoryScope) return false;
-  if (O.isSome(grant.conversationScope) && envelope.conversationId !== grant.conversationScope.value) return false;
-  return A.contains(grant.allowedRecipients, envelope.from);
-};
+const receivingGrantAllows = (grant: LaunchGrant, envelope: Envelope) =>
+  receivingGrantAllowsEnvelopeScope(grant, envelope) && A.contains(grant.allowedRecipients, envelope.from);
 
 const validateTerminalRun = Effect.fn("AgentMessage.attachedTerminalRun")(function* (
   profile: AttachedT3Profile,

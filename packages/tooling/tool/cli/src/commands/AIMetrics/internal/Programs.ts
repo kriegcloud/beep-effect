@@ -2893,12 +2893,14 @@ const makeMirrorBuildProgram = Effect.fn("AIMetrics.makeMirrorBuildProgram")(fun
 });
 
 /**
- * Options for synchronizing an AI-metrics mirror bundle to a remote host.
+ * Options for syncing a local AI metrics mirror bundle to a remote host.
  *
- * **Example** (Local mirror destination)
+ * **Details**
  *
- * To send `example-bundle` to `metrics-host`, select the `local` target and
- * set the remote root to `/var/lib/ai-metrics`.
+ * `bundle` names the local mirror bundle (resolved under `dataRoot` when
+ * given), `host` and `remoteRoot` say where it is copied, `target` selects the
+ * deploy target, `confirm` carries the operator's confirmation token, and
+ * `json` switches the report to JSON.
  *
  * @category models
  * @since 0.0.0
@@ -2914,7 +2916,7 @@ export class MakeMirrorSyncProgramOpts extends S.Opaque<MakeMirrorSyncProgramOpt
     target: AiMetricsDeployTarget,
   }).pipe(
     $I.annoteSchema("MakeMirrorSyncProgramOpts", {
-      description: "Options for synchronizing an AI-metrics mirror bundle to a remote host.",
+      description: "Options for syncing a local AI metrics mirror bundle to a remote host.",
     })
   )
 ) {}

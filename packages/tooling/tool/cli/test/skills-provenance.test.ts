@@ -383,15 +383,18 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
       Arbitrary.schema(SkillPinProposal),
       Arbitrary.schema(SkillPathHistoryWindow),
     ],
+    // Opaque struct values compare by shape: Arbitrary may build them with a null
+    // prototype while decoding yields plain objects, so toStrictEqual would compare
+    // prototypes, not data.
     Effect.fnUntraced(function* ([entry, drift, pin, window]) {
-      expect(
-        yield* S.decodeEffect(LocalSkillLockEntry)(yield* S.encodeEffect(LocalSkillLockEntry)(entry))
-      ).toStrictEqual(entry);
-      expect(yield* S.decodeEffect(SkillDriftRow)(yield* S.encodeEffect(SkillDriftRow)(drift))).toStrictEqual(drift);
-      expect(yield* S.decodeEffect(SkillPinProposal)(yield* S.encodeEffect(SkillPinProposal)(pin))).toStrictEqual(pin);
+      expect(yield* S.decodeEffect(LocalSkillLockEntry)(yield* S.encodeEffect(LocalSkillLockEntry)(entry))).toEqual(
+        entry
+      );
+      expect(yield* S.decodeEffect(SkillDriftRow)(yield* S.encodeEffect(SkillDriftRow)(drift))).toEqual(drift);
+      expect(yield* S.decodeEffect(SkillPinProposal)(yield* S.encodeEffect(SkillPinProposal)(pin))).toEqual(pin);
       expect(
         yield* S.decodeEffect(SkillPathHistoryWindow)(yield* S.encodeEffect(SkillPathHistoryWindow)(window))
-      ).toStrictEqual(window);
+      ).toEqual(window);
     }),
     { arbitrary: { runs: 32 } }
   );
