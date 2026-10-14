@@ -328,3 +328,12 @@ tool output and unchanged existing-file hashes. Grok's CLI tool selector is
 and leaves other tools available. Preserve that correction in future harnesses.
 This does not qualify arbitrary sandbox enforcement, T3 SDK or proxy routes;
 Claude remains quota-blocked and reboot recovery remains open.
+
+The [proxy route receipt](../history/2026-10-14-proxy-route-qualification.md)
+qualifies direct API inference and installed claudex/claudeg/claudem wrappers.
+Claude proxy returns HTTP 429 independently of the native weekly-limit receipt.
+Grok refuses the fixed-marker prompt but answers the ordinary arithmetic smoke
+through its wrapper. Claude Code labels custom proxy models unrecognized and
+disables native organization connectors when proxy credentials take precedence;
+successful inference does not qualify those connectors. Proxy tool execution,
+account-pool redundancy and reboot recovery remain open.
