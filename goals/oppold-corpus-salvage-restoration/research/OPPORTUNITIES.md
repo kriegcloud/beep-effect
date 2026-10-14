@@ -245,3 +245,642 @@ because the coordinator has no queue.
 - **Prevented by:** an explicit walk boundary (the corpus home for the
   census) separate from the directory being walked, and dedupe by canonical
   path so a symlinked file is censused once under its real location.
+
+## 2026-10-09 — Worker environment omitted the user bus
+
+- **Doing:** starting the P1 sandbox smoke and focused exception fixtures through `beep-heavy`.
+- **Evidence:** both wrappers exited 1 before starting their commands because the user-bus environment was absent. The existing user bus was reachable after supplying its standard runtime environment; the same prerequisite commands then queued normally.
+- **Prevented by:** verify the launcher's forwarded user-bus environment at worker admission, before any heavy command or immutable corpus operation.
+
+## 2026-10-09 — Slot contention delays preflight
+
+- **Doing:** running two bounded prerequisites through `beep-heavy` before the RAM-only sizing probe.
+- **Evidence:** both jobs reported all three slots busy and remained queued for more than ten minutes; no prerequisite command had started and no slice ledger existed.
+- **Prevented by:** reserve a short preflight admission window or expose queue position and expected holder completion to the worker. The existing cap and sibling jobs remain untouched.
+
+### 2026-10-09: the synthetic Tika stub hid the real capture size
+
+While sizing the first mail slice, all 59 second-pass extractions succeeded,
+but 43 exceeded the fixed 4,096-character capture limit (maximum 1,578,537).
+The synthetic stub produced a short line, so it could not expose the failure.
+A fixture above the previous limit and a fixture above the remaining output
+budget would have prevented this. Keep full text within the attempt budget;
+retain fail-closed budget checks. This is the same launcher-versus-real-engine
+proof gap recorded on 2026-08-27.
+
+### 2026-10-09: canonical resolution precedes the name escape
+
+The synthetic backslash fixture exposed `export entry resolution failed` under Bun.
+The quota handoff also validates the raw tree before the portable-name escape,
+so testing only the direct export would miss nested backslash components there.
+Canonical resolution must check ancestors without rewriting literal name bytes;
+a quota-handoff fixture, including a rejected symbolic link, now proves that
+contract before child references are built. A fixture covering the live quota
+path would have prevented this second validation gap.
+
+### 2026-10-09: an unrelated reference gate blocks a scoped parity check
+
+The required `CI=true bun run beep knowledge refs --check` exits 1 on one inherited
+external-mirror reference in `goals/repository-simplification-confidence/SPEC.md`.
+The file is unchanged and has the same blob on HEAD and origin/main. This lane's
+reference changes introduce no gated finding. A consolidated main repair, owned
+by the orchestrator, prevents repeated unrelated remediation across workers.
+
+Attribution correction: HEAD matches the tested main base `36027982f2`; origin/main
+advanced during the proof and now differs. The gate is inherited from that tested base,
+not introduced by this lane. Inspect the newer main during the required publish merge.
+
+### 2026-10-09: the name walk exceeded the complexity budget
+
+Fallow audit and health identify the new `escapeExportDirectory` at cognitive
+complexity 10 against a ceiling of 8. Attribute it as introduced, replace the
+nested file-kind conditional with the existing Match dispatch, and keep the
+collision refusal unchanged. No baseline or suppression is added. A focused
+complexity check during the edit would have caught this before the full lane.
+
+### 2026-10-09: aggregate coverage concealed a newly uncovered guard
+
+The package percentages passed, but the touched restoration file fell from 100% to
+99.93% lines, 99.94% statements, and 99.87% branches at the newly added zero-budget
+Tika guard. An exhausted-retained-output fixture now proves refusal before Java launch
+and preserves the original child bytes. Checking per-file rows alongside aggregate
+percentages prevents an offsetting package improvement from hiding a new coverage gap.
+
+### 2026-10-09: publication inherited inventory reds from newly merged main
+
+PR1 publication committed locally, then stopped before push. Cheap gates failed on
+Accounts schema inventory entries inherited byte-for-byte from main and thirteen
+Effect-Vitest inventory findings outside the owned tests. Three additional findings
+were introduced here: two resource-layer hook timeouts and an Option Boolean assertion.
+Added explicit 30-second hook timeouts and used the existing assertion helper; no
+inventory baseline changed. Running the membership scan before publication and landing
+shared inventory repairs once on main would prevent this failed publication wave.
+
+### 2026-10-09: the suggested assertion form conflicted with the compiler rule
+
+The Effect-Vitest detector suggested an assertion helper for the new Option check.
+Test-tsgo then rejected its nested-call form as a missed pipeable opportunity. Using
+`textChild.pipe(O.isSome, assertTrue)` keeps the same check and satisfies the helper
+style. A detector remediation sketch that uses the pipeable form would avoid this
+second edit. No compiler diagnostic or lint rule was suppressed.
+
+### 2026-10-09: authorized run locations were classified as mirror references
+
+The required knowledge-reference check found five live external-mirror observations in
+this packet's new corpus, Tika, and scratch location prose. The brief requires these
+exact locations, while the census recognizes explicit inventory tables as path data.
+Converted the location and invocation records into labeled inventories, preserving
+all values and write authorities. No classifier, convention set, or gate was changed.
+Use a location inventory for machine-bound run contracts before the first check.
+
+### 2026-10-09: inherited inventory refusal required an explicit fallback ruling
+
+The fully addressed P1 pre-run wave passed fifteen of sixteen cheap gates, but
+publication stopped on five inventory entries in source surfaces identical to main.
+The exact refusal was `github-checks:cheap-gates: failed 1 step(s)` and
+`lint:schema-first: exit 1`, followed by `yeet publish cheap-gates failed after
+creating the local commit; nothing was pushed. Fix the gate, then amend or reset
+the unpushed commit before retrying.` The run-2 ruling authorizes direct push and
+PR creation with the heavy label, Yeet ready, and a bounded readiness monitor.
+No inventory baseline or unrelated source is changed. Attribution-aware publication
+that accepts an explicit inherited-fence receipt would prevent repeated worker stops.
+
+
+### 2026-10-09: a passing dry probe did not guarantee live second-pass acceptance
+
+The RAM-only probe completed all 59 extraction candidates with no nonzero or empty
+results, and both bounded fixes passed synthetic and package proof before #1596
+merged. The frozen live slice nevertheless ended after 33 attachment dispositions
+with one unapproved `engine-failure`, sealing the family. Counts-only evidence
+shows 11 repairs, 22 unsupported dispositions, no warnings, and no terminal child
+rows. The exception message and private log lines remain private and unread.
+No precise underlying cause is claimed. A probe that reuses the driver's complete
+quota handoff, synthesized-message and second-pass runtime contract would reduce
+this gap. Do not rerun the sealed slice; a diagnostic or fresh-ledger route is an
+orchestrator follow-up. No code or frozen policy changed during the run.
+
+### 2026-10-09: the failure-evidence PR inherited publication reds
+
+The docs-only P1 failure report passed fourteen of sixteen cheap gates. Yeet
+refused with `github-checks:cheap-gates: failed 2 step(s)`,
+`lint:schema-first: exit 1`, and `lint:effect-vitest: exit 1`, then reported
+`yeet publish cheap-gates failed after creating the local commit; nothing was
+pushed.` The five schema inventory entries and the PracticeKg projections test
+finding are inherited; after merging newer main all package/app source and
+inventory surfaces match main. The inherited-fence ruling authorizes direct
+push plus PR creation, ready and bounded monitoring. Attribution-aware
+publication would avoid requiring that fallback for aggregate failure evidence.
+No unrelated source or inventory baseline was changed.
+
+### 2026-10-10: duplicate attachments repeat volatile Tika metadata
+
+- Work: diagnose the sealed P1 `engine-failure` without changing its ledger.
+- Evidence: 33 dispositions, 11 copies and 11 text children; the next attachment
+  repeats a repaired digest. Two exact-sandbox invocations exited 0, differed in
+  one parser-duration field, and retained identical extracted content. A synthetic
+  duplicate fixture with varying parser output fails before the fix and passes
+  after first-evidence reuse.
+- Prevention: content-addressed extraction should retain the first successful
+  result per digest; a duplicate fixture must include volatile parser metadata
+  rather than only fixed stub text. Preserve the first evidence, validate
+  containment and nonempty bytes, and hash its final child normally.
+- Attribution: engine defect; no source corruption or sandbox failure established.
+- Reversal: revert the engine-fix PR and retain both run trees. The original
+  sealed failure remains immutable; only the orchestrator authorizes a fresh family.
+
+### 2026-10-10: fresh-family authority has no independent output label
+
+- Work: prepare the run-4 authorized fresh ledger while retaining the sealed run.
+- Evidence: `prepareTransformationRun` passes the same `runLabel` into archive
+  verification and preservation selection, and joins it into the transformation
+  run root. The public `restore-mail` command has no independent transformation
+  label. A new label selects an absent preservation archive; the original label
+  selects a terminal immutable ledger.
+- Prevention: model preservation identity separately from transformation-family
+  identity before offering a fresh-family recovery route. Test both families
+  against one sealed archive while preserving the first terminal ledger.
+- Disposition: publish the proven engine fix; stop the fresh launch without a new
+  flag, archive alias, or hand-authored run state. The brief reserves expansion
+  beyond the bounded fix for the orchestrator.
+- Reversal: no live state was added. A scoped contract ruling can authorize the
+  separate label and its schema/command/reconciliation tests.
+
+### 2026-10-10: run-4 publication repeats inherited inventory fences
+
+- Evidence: Yeet committed the reviewed update, then
+  `github-checks:cheap-gates: failed 2 step(s)`:
+  `lint:schema-first: exit 1`, `lint:effect-vitest: exit 1`. Nothing pushed.
+  Fourteen other cheap gates pass. Five schema entries and one PracticeKg
+  projections entry belong to source files matching main.
+- Disposition: use the standing inherited-fence direct-push and labelled-PR
+  fallback, authorized again by run 4. The orchestrator owns consolidated
+  burn-down under S11; no lane baseline or CI setting is changed.
+- Prevention: classify inherited inventory before publication admission so a
+  scoped repair lane does not repeatedly stop on unrelated debt.
+- Reversal: close the unmerged engine-fix PR and retain the immutable evidence.
+
+
+### 2026-10-10: receipt proof lacked user-bus variables
+
+Final receipt knowledge-reference verification failed before admission with
+"Failed to connect to user scope bus" because the noninteractive shell lacked
+`XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS`. No proof or corpus command ran.
+Retried the same beep-heavy command with the documented user-bus environment.
+Prevention: preserve those variables on every noninteractive heavy invocation.
+No configuration or unit file was changed.
+
+
+### 2026-10-10: inherited changeset graph stops hosted Repo Sanity
+
+Read completed job 114115190524 immediately through the Actions jobs logs API.
+Changeset-graph rejects private-workspace notes in
+`.changeset/effected-allowlist-drop.md` and `.changeset/jsonl-effect-first.md`;
+both match main and are untouched by this lane. Hosted Repo Sanity stops before
+its remaining checks. Attribution: inherited, orchestrator S11 burn-down owns it.
+Prevention: enforce private-workspace release-note policy before those notes land.
+No baseline, CI policy, changeset, or source repair was made here.
+
+
+### 2026-10-10: run-5 user-bus environment absent
+
+- Doing: starting the prescribed heavy package and parity commands.
+- Evidence: both wrappers refused before launching work because the user-bus
+  address and runtime directory were undefined. The workstation user manager
+  is available with the established explicit bus environment.
+- Prevention: export the user-manager environment in every lane harness,
+  including interactive resumption surfaces, before heavy admission.
+- Disposition: supplied the existing runtime and bus values per command; kept
+  the 32G cap and concurrency 2. No unit, home configuration or permissions changed.
+- Reversal: omit these per-command environment values after a harness forwards them.
+
+
+### 2026-10-10: three advisory rows survive the inherited-red burn-down
+
+- Doing: publishing the independent preservation selector as the run-5 wave.
+- Evidence: fifteen cheap gates pass; schema-first alone exits 1 on three
+  pre-existing codec-test property-coverage advisories. All finding files match
+  origin/main. Yeet reports "cheap-gates failed after creating the local commit;
+  nothing was pushed." The run's parity ratchet has zero introduced findings.
+- Prevention: inherited advisory attribution should permit scoped delivery
+  without repeating a complete publication scanner wave.
+- Disposition: follow the standing inherited-fence ruling: record the refusal,
+  commit owned receipts by name, and push the full addressed wave once to PR3.
+- Reversal: close PR3 and retain the packet and both immutable run directories.
+
+
+### 2026-10-10: merging during coverage mixed test and module revisions
+
+- Doing: incorporating #1605 while the full package coverage process was active.
+- Evidence: the new directory-removal regression failed with NotFound against
+  an older loaded module. Current source contains the recovery and both affected
+  files match main. A fresh run of the same V8 script passes all 31 tests.
+- Prevention: let an active proof finish or invalidate it before merging changes
+  in a package under test; restart the proof against one stable source revision.
+- Disposition: stopped and observed the contaminated wrapper, started fresh full
+  scoped coverage, and held the live launch. No source workaround or suppression.
+- Reversal: rerun the proof; no live corpus state was created.
+
+
+### 2026-10-10: the amended head reaches another inherited Repo Sanity fence
+
+- Doing: reading the completed hosted Repo Sanity red immediately from its job
+  endpoint while the overall workflow continues.
+- Evidence: job 114122237833 passes changeset-graph, config sync, boundaries
+  configuration and versions, then Syncpack fails on the minimatch override
+  (10.2.5 versus 10.2.6) and scratchpad smol-toml (1.9.0 versus ^1.9.0).
+  Package manifests, lockfile and Syncpack configuration have zero lane diff.
+- Prevention: run the same manifest-consistency check before calling the
+  inherited-red burn-down final, so it does not expose a second dependency fence.
+- Disposition: acknowledge as inherited under S11; the orchestrator owns repair.
+  No dependency, lockfile, rule or scope expansion is made.
+- Reversal: the acknowledgement can be superseded by the orchestrator's fix.
+
+### 2026-10-10: inherited hosted policy failures obscure the Corpus proof
+
+- Work: verify PR3 #1606 after the independent preservation label change.
+- Evidence: Heavy / Lint Policy job 114122483280 failed tsgo profile/directive rules,
+  30 hoist-schema oxlint errors, three schema test advisories, JSDoc inventory
+  generation, and two deprecated-API fixture project-service checks. The identified
+  failing files and configs match origin/main. JSDoc Ratchet job 114122237783 failed
+  inventory generation with the prior head's same failure class.
+- Attribution: inherited S11 orchestrator burn-down; rows acknowledged wontfix.
+  Local package verification, test-tsgo, and package docgen passed.
+- Prevention: burn down the inherited policy and hosted inventory defects once on
+  main, then propagate that head to dependent lanes. No unrelated repair in this lane.
+
+### 2026-10-10: accepted-slice documentation hits inherited schema advisories
+
+- Work: publish PR4's aggregate acceptance evidence and P1 flips.
+- Evidence: Yeet created the packet commit and refused before push with
+  `github-checks:cheap-gates: failed 1 step(s)`, `lint:schema-first: exit 1`,
+  and `yeet publish cheap-gates failed after creating the local commit; nothing
+  was pushed.` Fifteen other gates pass, including committed JSDoc, Effect-Vitest,
+  Knip and all Fallow blocking lanes.
+- Attribution: three pre-existing schema-codec test advisories; all three
+  affected files match origin/main. No source, inventory or CI changes here.
+- Disposition: use the standing inherited-fence fallback: named-path receipt
+  commit, direct push and labelled PR creation, then Yeet ready and bounded
+  monitoring. The orchestrator owns repair and S11 merge; the live acceptance
+  remains valid independent of inherited publication findings.
+- Prevention: give advisory inventory admission explicit inherited attribution,
+  then burn down those main findings once instead of duplicating lane repairs.
+- Reversal: close PR4 or supersede the disposition with the orchestrator repair;
+  retain both sealed families and aggregate evidence.
+
+
+## 2026-10-10: public home aliases changed a policy recomputation
+
+- Doing: answering PR4 #1609's policy-identity review thread before expansion.
+- Evidence: both immutable manifests and both persisted start rows have
+  `2bc3fc673c343ef6008b9b3bb1c85e000ac59239d345f3e50d4d08aaf6a5a2c8`.
+  Recomputing with the manifest's literal home alias gives
+  `1fcde5680cb42357e784ae4309cd05ce633999bc79b582479219ed07915d090e`;
+  expanding the alias as the launch script does reproduces the persisted hash.
+  The pre-launch commit contains every fresh frozen field except the explicitly
+  deferred policy hash. #1606 changes code identity, which this hash excludes.
+- Prevented by: document the ordered hash inputs, runtime home expansion, and
+  the separate original/fresh freeze-record associations beside acceptance.
+  Preserve public path hygiene and both immutable records. No code change or
+  new run is needed. Reversal: revert the clarification and reopen acceptance.
+
+## 2026-10-10: the inherited schema fence repeated on the correction wave
+
+- Doing: publishing the policy-identity clarification on existing PR4 #1609.
+- Evidence: 15 cheap gates passed; schema-first exited 1 on three pre-existing
+  schema-codec test advisories. All affected files match origin/main. Exact
+  refusal: `yeet publish cheap-gates failed after creating the local commit;
+  nothing was pushed.` The staged correction introduced no source finding.
+- Prevented by: main's orchestrator-owned schema advisory repair under S11.
+  Apply the already authorized inherited-fence fallback with one wave push;
+  do not change inventory, unrelated tests or CI. Reverse by closing/reverting
+  PR4's documentation changes, retaining both immutable execution records.
+
+
+## 2026-10-10: bounded expansion has no occurrence selector
+
+- Doing: run-8 preflight for up to ten distinct store families after merged P1.
+- Evidence: `selectMailCandidates` supports one fixed smallest recycle PST or
+  the whole estate; the public schema and flag inventory expose no store selector.
+  A fresh output label repeats P1, while expected-count changes alone fail the
+  denominator contract after the immutable start. Zero families were launched.
+- Prevention: verify a bounded occurrence-selection contract before authorizing
+  a sequential expansion wave. Include the selection in each freeze record.
+- Disposition: record the plan and stop before launch; orchestrator supplies
+  the contract or authorizes a scoped implementation. No corpus or code mutation.
+- Reversal: revert the plan, retaining both sealed P1 families and manifests.
+
+
+## 2026-10-10: inherited publication fence on P2 launch preflight
+
+- Doing: publishing the bounded P2 plan and the public-selector blocker.
+- Evidence: 15 of 16 collected cheap gates pass; schema-first exits 1 on the
+  same three schema-test advisories in files matching origin/main.
+  Exact refusal: `yeet publish cheap-gates failed after creating the local
+  commit; nothing was pushed.` No package source or inventory changed.
+- Prevention: consolidated main advisory repair under the orchestrator's S11.
+- Disposition: standing fence permits named receipt commit and one direct
+  wave push with labelled PR and ready; no CI or inventory waiver.
+- Reversal: close/revert the plan PR; retain both immutable P1 families.
+
+
+### 2026-10-10: independent ratio and family caps disagreed
+
+PR5 review found 539157504 × 4 exceeds 2147483648 by 9146368 bytes.
+Prevention: filter inputs against floor(family cap / ratio) before wave
+membership selection. Run-9 correction admits nine inputs at most 536870912
+bytes, largest 456877056; eighteen larger inputs wait. No family started.
+Reversal: revert the plan correction, retaining immutable P1 evidence.
+
+
+### 2026-10-10: PR5 membership correction repeats inherited fence
+
+Fifteen cheap gates pass; `lint:schema-first: exit 1` alone stops publication
+after the local commit. Three codec-test advisories match main. Use the standing
+direct-push fallback; consolidated main repair prevents this repeated scanner
+wave. Reversal: revert the correction, retaining sealed P1 evidence.
+
+
+### 2026-10-10: selector preflight compiled a schema per call
+
+Focused Oxlint found `no-inline-schema-compile` on the new membership JSON
+codec inside the occurrence preflight. Attribution: introduced. Hoisted the
+schema decoder to module scope, preserving behavior and parser caching.
+A targeted source lint before the full dependency-build closure would have
+prevented the wasted package proof; both cancelled wrappers are terminal,
+not counted as proof. No suppression or inventory baseline was added.
+Reversal: revert the selector implementation; no P2 family was started.
+
+
+### 2026-10-10: successful JSDoc inventory exposes inherited total growth
+
+Run-9 JSDoc parity generated the live inventory, then failed eight total
+ratchets. All finding-bearing files match main; zero introduced file findings.
+Package docgen compiles the new membership models successfully. Main's S11
+burn-down owns the existing documentation debt; no baseline is changed here.
+Prevention: qualify generated totals in the consolidated main repair, alongside
+inventory-generation health. Reversal: supersede this attribution after repair.
+
+
+### 2026-10-10: parity launch briefly exceeded the lane's own slot count
+
+Started knowledge-reference verification before the two active heavy proofs had
+both settled. Stopped that exact worker-owned unit immediately and observed exit
+130; no result is counted. Queue follow-up commands only after observing a freed
+slot. Machine-wide limits were unchanged; no corpus command ran.
+Reversal: rerun the same check inside the two-command bound.
+
+
+### 2026-10-10: package coverage gain masked an introduced per-file gap
+
+Stock scoped coverage passed 295 files and 5898 tests in 1712.33 seconds.
+Package percentages exceeded all committed floors, but the touched transformation
+file fell from 100 percent to 99.93 lines, 99.82 statements, 99.87 branches and
+99.52 functions. Attribution: introduced. The plan reader contained an unreachable
+empty-selection callback after its length guard; archive-kind refusal and the
+implicit preservation-label path lacked tests. Moved the empty check before the
+uniqueness check, added boundary tests and retained every baseline unchanged.
+Prevention: compare touched-file rows before accepting package-wide improvements.
+Default package proof and stock coverage are repeated on the corrected source.
+
+
+### 2026-10-10: focused Vitest must run from the package root
+
+A two-file refresh passed the package config from the repository root and exited
+1 with “No test files found”; no tests executed. The package-relative include
+pattern requires the package working directory. Relaunched there through
+beep-heavy with the prescribed Bun runtime. Prevention: keep the focused test
+command package-relative rather than combining root paths with package config.
+
+
+### 2026-10-10: legacy per-file coverage floors also carry inherited drift
+
+The full comparison of the first scoped summary found 28 metric drops across
+12 untouched files in addition to the introduced transformation gap. Every
+inherited file matches origin/main. Package floors pass; their improvement does
+not clear stale surviving-file floors. Attribution: inherited under S11, retained
+for the consolidated main burn-down. Prevention: report package and file results
+separately, and refresh an inherited-only baseline in its owning lane. This lane
+changes no baseline and repeats stock coverage to prove its touched-file repair.
+
+
+### 2026-10-10: global Effect Vitest gate caught two introduced assertions
+
+The first unpublished selector commit passed 14 of 16 cheap gates. The two
+failed lanes carried the three inherited schema advisories and two new Effect
+Vitest findings in the selector test. Replaced a Boolean Exit matcher with the canonical assertTrue pipeline;
+replaced a negative Option equality assertion with explicit required start rows
+and a policy-digest inequality. Focused tests and compiler parity pass; the
+global detector reports introduced zero. No detector baseline edit.
+Prevention: run the global test-style detector before long source proofs.
+The failed attempt is acknowledged as superseded, with no permission to push
+until a fresh cheap scan proves that only inherited schema advisories remain.
+
+
+### Run-9B publication fence fallback
+
+Fresh publication attempt passes fifteen of sixteen cheap gates, including
+Effect Vitest with introduced zero, Fallow and committed-inventory JSDoc.
+Only lint:schema-first fails: three advisory fixture files match origin/main
+exactly. The failed command is the schema-first Turbo lane; refusal text is
+“yeet publish cheap-gates failed after creating the local commit; nothing was
+pushed.” Attribution: inherited, not introduced. Inbox row acknowledged
+under S11/S12. Authorized fallback: one direct feature-branch push, labelled
+PR creation, ready and bounded detached readiness monitor. No unrelated repair
+or baseline/CI waiver. Final default package audit is still active.
+
+
+### Run-9B hosted inherited Repo Sanity red
+
+Read completed job 114169343496 immediately, before the full run completed.
+Repo Sanity fails only at syncpack: root minimatch override 10.2.5 versus
+10.2.6, and scratchpad smol-toml 1.9.0 versus ^1.9.0. Both manifests exactly
+match origin/main; no manifest or lockfile changed in this lane. Attribution:
+inherited S11 debt, acknowledged for the orchestrator burn-down. The bounded
+monitor surfaced the row and stays active; wait is resumed on the same job.
+Prevention: repair these two ranges once on main rather than in corpus lanes.
+
+
+### Run-9B final proof and hosted inventory diagnosis limit
+
+Final default package-verify passes on canonical assertions: audit 846.3
+seconds, docgen 22.0 seconds, exit zero. Implementation remains unchanged
+from the 295-file/5899-test coverage proof; transformation/schema metrics 100.
+Knowledge refs pass on published head, zero live gated observations.
+Hosted JSDoc job 114169343752 fails inventory generation before totals
+comparison, with only “Failed to generate JSDoc documentation inventory.”
+The completed log was read immediately; no underlying cause or inventory
+artifact was emitted. Local inventory succeeded twice, and all 1052 local
+finding-bearing files match main. Hosted cause is unclassified, acknowledged
+for S11 triage, not relabelled environment-only or as the local eight-total red.
+Prevention: surface the underlying typed cause in the generator failure report.
+Both P1 ledger hashes, engine identities and Tika digest remain unchanged.
+Free bytes 204492922880, above retained floor. Zero P2 families started.
+
+
+## 2026-10-13 — Review exposed two occurrence-plan integrity gaps
+
+- **Doing:** closing the three PR6 round-two review threads before expansion.
+- **Evidence:** explicit selection silently replaced expectedStoreCount 99
+  with one, and duplicate unselected objectIds passed membership decoding.
+  Both contracts now reject with a typed boundary error before family state.
+  The first new regression failed because its fixture omitted the larger
+  synthetic PST required by the membership helper; the corrected fixture
+  passes without changing production selection.
+- **Prevented by:** test contradictory explicit denominators and whole-plan
+  identity uniqueness at decode time, including unselected duplicate entries.
+
+## 2026-10-13 — Worker environment omitted user-manager variables
+
+- **Doing:** launching the required quick package proof through beep-heavy.
+- **Evidence:** the wrapper refused before starting work because the user bus
+  variables were absent. Supplying the existing runtime directory and bus
+  socket for the current user restored the approved heavy lane.
+- **Prevented by:** preserve XDG_RUNTIME_DIR and DBUS_SESSION_BUS_ADDRESS in
+  every worker launch, as the lane mechanics specify. No unit/config changed.
+
+
+## 2026-10-13 — Literal newline escapes blocked the launch-evidence commit
+
+- **Doing:** committing the bounded-wave launch evidence before handoff.
+- **Evidence:** commitlint rejected the body for exceeding 100 characters
+  because the shell argument held literal newline escapes. No commit or push
+  occurred. Replaced the argument with a message file containing real newlines.
+- **Prevented by:** use a file for every multiline commit message and keep
+  body lines below the repository limit.
+
+
+## 2026-10-13 — Shared heavy admission delays resumed-wave preflight
+
+- **Doing:** remeasuring engine smokes and focused restoration proof after
+  reconciling accepted family 2, before ordinal 3.
+- **Evidence:** both approved wrappers report `all 5 slots busy, waiting`.
+  The family 2 unit has ended; no new family launches while its required
+  preflight remains queued. Admission is retained; no cap or configuration changes.
+- **Prevented by:** expose queue position and estimated slot availability in
+  the lane handoff so the wave driver can distinguish admission from execution.
+
+
+## 2026-10-13 — Relaunch did not inherit the user-bus environment
+
+- **Doing:** renewing admitted sandbox smokes and focused restoration proof
+  before the next frozen wave family.
+- **Evidence:** both beep-heavy wrappers stopped before admission with
+  `DBUS_SESSION_BUS_ADDRESS and XDG_RUNTIME_DIR not defined`. The existing
+  user bus was present; explicit workstation runtime/bus variables restored
+  access. Both renewed commands then entered the unchanged shared slot queue.
+- **Prevented by:** preserve the user-bus environment on every worker relaunch
+  and check manager reachability before issuing admitted work. No engine,
+  launcher, unit configuration or outside job was changed.
+
+
+## 2026-10-14 — Composite smoke wrapper failed before engine execution
+
+- **Doing:** renewing admitted sandbox engine smokes before ordinal 5.
+- **Evidence:** the composite shell wrapper returned `bwrap: execvp` before
+  an engine ran. Both direct approved invocations then exited zero through
+  beep-heavy. The failure is wrapper evidence, not a failed corpus family.
+- **Prevented by:** use the brief's direct smoke invocations, preserving their
+  argument boundaries; keep the frozen live launcher unchanged.
+
+
+### 2026-10-14: a GIF second pass sealed the bounded wave without parser detail
+
+Doing: reconcile ordinal 5 under the frozen first-wave contract.
+Evidence: result 1, one unapproved engine-failure, zero terminal child rows.
+The retained repair directory has 99 copies and 98 Tika outputs. The unmatched
+3,020-byte GIF copy reproduces exit 1, empty stdout and one TikaException
+under the frozen Java/Tika sandbox. Tika's version smoke exits zero.
+The failure catch replaces the original cause with a generic ledger reason,
+so the precise parser cause is unavailable from the sealed ledger.
+What would prevent this: preserve a sanitized exception class and execution
+stage at the failure boundary, with a synthetic nonzero/empty GIF second-pass
+fixture. This is a follow-up, not authorization to change the frozen wave,
+approve an exception, retry a sealed family or launch ordinal 6.
+
+
+### 2026-10-14: API shell omitted the user-manager environment
+
+Doing: renewed wave continuation preflight after the accepted family-5 diagnosis.
+Evidence: the first read-only systemctl probe reported the user-bus environment
+was not defined. Standard XDG runtime and D-Bus variables restored command
+access; both admitted real sandbox smokes passed. No configuration changed.
+Prevention: forward user-manager environment into the API command surface,
+as the lane launcher already does. This was a shell precondition, not a
+family engine failure; no live family was launched before it was repaired.
+
+
+## 2026-10-14: larger bounded member reaches the attachment-repair time limit
+
+- Doing: reconcile the frozen first wave's seventh family after its unit ended.
+- Evidence: result 1, one unapproved engine-failure, family elapsed
+  7,211,513 ms near the 7,200,000-ms attempt cap; 246 repair copies and
+  245 Tika outputs, one unmatched 2,280,873-byte PDF copy. Terminal
+  failure cause was replaced with a generic message by pstFailureTerminal.
+- Prevention: preserve a sanitized failure stage and exception class in the
+  terminal row, and size repair-time ceilings using repair counts and tree-hash
+  costs for larger members. The current wave's rules and engines stay frozen.
+- Action: recorded the qualified elapsed-budget diagnosis, retained all output,
+  stopped before ordinal 8. No cause approval or sealed-family retry.
+
+## 2026-10-14: stop-record integration overlaps an earlier squash merge
+
+- Doing: merge main once after all family units ended, before evidence publication.
+- Evidence: four packet conflicts in PLAN, README, the handoff and manifest.
+  Main carried the earlier family-5 stop; this branch had the later authorized
+  continuation, family-6 acceptance and family-7 stop.
+- Prevention: integrate packet-only history from completed evidence PRs promptly
+  when the frozen execution permits it. Preserve dated decisions on both sides.
+- Action: retained this branch's newer packet records, including the earlier
+  family-5 evidence, and updated current status to the further sealed failure.
+
+
+## 2026-10-14: publication integration changed the frozen wave source
+
+- Doing: resume ordinal 8 under the 05:55Z continuation ruling.
+- Evidence: the previous stop-publication merge imported #1636, replacing
+  native array predicates in RestorationTransformations signature detection
+  with Effect Array.every. All nine immutable manifests still identify
+  code head 6eb3d036771e868768846b3c56a5aafac69c3b2b. The frozen launcher
+  executes this checkout, whose restoration source differs from that head.
+- Prevention: separate evidence publication integration from a still-frozen
+  execution checkout, or provide an explicit source-identity transition
+  before resuming the remaining members.
+- Action: stop before ordinal 8 without modifying source, the launcher,
+  manifests or corpus artifacts. Report the freeze mismatch to the orchestrator.
+
+
+## 2026-10-14: frozen launcher pins the evidence checkout
+
+- Doing: implement the 06:25Z frozen-worktree continuation ruling.
+- Evidence: the immutable launcher unconditionally changes directory to the
+  evidence lane before executing bun; another starting directory cannot
+  select the frozen checkout.
+- Prevention: declare an execution-root parameter before freezing a launcher.
+- Action: use the explicitly authorized pre-launch freeze-amendment fallback,
+  attach the restoration source delta, keep the launcher and manifests intact.
+
+
+## 2026-10-14: PDF second pass fails inside retained wave bounds
+
+- Doing: reconcile ordinal 8 after its admitted family unit ended.
+- Evidence: result 1, one unapproved engine-failure, 96 repair copies and
+  95 Tika outputs. The unmatched 196,192-byte PDF copy reproduces exit 1,
+  empty stdout, one TikaException and two IOException matches inside the
+  frozen read-only sandbox. Family elapsed 2,996,198 ms and retained bytes
+  1,037,230,305 fit their ceilings. The generic terminal catch loses the cause.
+- Prevention: preserve sanitized failure stage and exception class, and cover
+  nonzero/empty PDF extraction with a synthetic fixture before another freeze.
+- Action: record qualified input-sensitive parser attribution, retain output,
+  stop before ordinal 9 and publish aggregate evidence. No retry or approval.
+
+
+## 2026-10-14: family-8 stop publication repeats packet squash conflicts
+
+- Doing: integrate main after all family units ended, before evidence publication.
+- Evidence: four conflicts in PLAN, README, the handoff and manifest. Main
+  carries the merged family-7 stop; this branch retains the pre-launch freeze
+  amendment, family-8 launch and the later sealed-failure record.
+- Prevention: give wave evidence a stable publication base while execution
+  identity is separately frozen. Do not change an active execution checkout.
+- Action: retained this branch's newer packet records as the brief rules,
+  preserving earlier family-5/7 evidence. No family unit was running.

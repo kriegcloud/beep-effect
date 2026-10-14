@@ -26,6 +26,7 @@ import { NodeServices } from "@effect/platform-node";
 import { describe, expect } from "@effect/vitest";
 import { assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
+import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as FileSystem from "effect/FileSystem";
@@ -88,18 +89,20 @@ describe("@beep/agents-domain", () => {
   it("wires Agent to the agents product-entity identity", () => {
     expect(Agent.sql.tableName).toBe(Agents.AgentId.tableName);
     expect(Agents.AgentId.entityType).toBe("AgentsAgent");
-    expect(Object.keys(Agent.insert.fields)).not.toContain("id");
-    expect(Object.keys(Agent.insert.fields)).not.toContain("rowVersion");
-    expect(Object.keys(Agent.update.fields)).toContain("id");
-    expect(Object.keys(Agent.update.fields)).toContain("rowVersion");
-    expect(Object.keys(Agent.jsonCreate.fields)).toEqual(["fixtureKey", "mode", "name", "skillFixtureKey"]);
-    expect(Object.keys(Agent.jsonUpdate.fields)).toEqual(["fixtureKey", "mode", "name", "skillFixtureKey"]);
+    expect(R.keys(Agent.insert.fields)).not.toContain("id");
+    expect(R.keys(Agent.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(Agent.update.fields)).toContain("id");
+    expect(R.keys(Agent.update.fields)).toContain("rowVersion");
+    expect(R.keys(Agent.jsonCreate.fields)).toEqual(["fixtureKey", "mode", "name", "skillFixtureKey"]);
+    expect(R.keys(Agent.jsonUpdate.fields)).toEqual(["fixtureKey", "mode", "name", "skillFixtureKey"]);
   });
 
   it.effect("decodes and constructs an Agent row", () =>
     Effect.gen(function* () {
       const encoded = {
         ...productEntityFixtureInput("AgentsAgent", 4),
+        deletedAt: null,
+        deletedByPrincipal: null,
         fixtureKey: "agent.reviewer",
         mode: "deterministic_fixture",
         name: "Reviewer Agent",
@@ -123,6 +126,8 @@ describe("@beep/agents-domain", () => {
     Effect.gen(function* () {
       const encoded = {
         ...productEntityFixtureInput("AgentsSkill", 5),
+        deletedAt: null,
+        deletedByPrincipal: null,
         allowedTools: null,
         compatibility: null,
         description: "Reviews changed code before publication.",
@@ -139,10 +144,10 @@ describe("@beep/agents-domain", () => {
       expect(constructed.entityType).toBe("AgentsSkill");
       expect(constructed.fixtureKey).toBe("skill.review");
       expect(Skill.sql.tableName).toBe("agents_skill");
-      expect(Object.keys(Skill.insert.fields)).not.toContain("id");
-      expect(Object.keys(Skill.insert.fields)).not.toContain("rowVersion");
-      expect(Object.keys(Skill.update.fields)).toContain("id");
-      expect(Object.keys(Skill.update.fields)).toContain("rowVersion");
+      expect(R.keys(Skill.insert.fields)).not.toContain("id");
+      expect(R.keys(Skill.insert.fields)).not.toContain("rowVersion");
+      expect(R.keys(Skill.update.fields)).toContain("id");
+      expect(R.keys(Skill.update.fields)).toContain("rowVersion");
       expect(Skill.sql.columns.compatibility.column.length).toBe(500);
       expect(Result.getOrThrow(encodeSkillResult(decoded))).toStrictEqual(encoded);
     })
@@ -180,8 +185,8 @@ describe("@beep/agents-domain", () => {
       expect(O.getOrThrow(decoded.license)).toBe("MIT");
       const encoded = Result.getOrThrow(encodeSkillFrontmatterResult(decoded));
       expect(encoded["allowed-tools"]).toBe("Bash, Read");
-      expect(Object.keys(encoded)).not.toContain("allowedTools");
-      expect(Object.keys(encoded)).not.toContain("fixtureKey");
+      expect(R.keys(encoded)).not.toContain("allowedTools");
+      expect(R.keys(encoded)).not.toContain("fixtureKey");
     })
   );
 
@@ -295,7 +300,7 @@ describe("@beep/agents-domain", () => {
         const path = yield* Path.Path;
 
         const repoRelativePath = (absolutePath: string): string =>
-          path.relative(repoRoot, absolutePath).split(path.sep).join("/");
+          A.join(path.relative(repoRoot, absolutePath).split(path.sep), "/");
 
         const collectAgentsSourceFiles = (
           directory: string

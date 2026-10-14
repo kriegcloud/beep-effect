@@ -84,6 +84,7 @@ become these binding constraints:
 - Do not re-found ontology work or pull a gated semantic candidate into this
   packet.
 - Freeze each run's rules, prompts, schemas, engine selection, and versions.
+  The P1 run manifest is the freeze record described in the 2026-10-09 decision below.
 - Preserve reusable seams without making a productization claim.
 - Run at most one full transformation pass in the approximately three-week
   wave. Stop and rescope if disk/time preflight exceeds approved ceilings.
@@ -171,16 +172,25 @@ The packet inherits both binding predecessor debt ledgers:
 
 ### P1 mail vertical slice
 
-- [ ] One metadata-selected non-stub PST occurrence from a recycle surface
+P1 writes under the run root in this location inventory:
+
+| Surface | Location |
+| --- | --- |
+| Corpus home | `~/data-home/oppold-corpus` |
+| Original sealed failure, relative to corpus home | `staging/restoration/runs/t7-salvage-2026-08-10/**` |
+| Accepted fresh run, relative to corpus home | `staging/restoration/runs/t7-salvage-2026-08-10-p1-2026-10-10-engine-fix/**` |
+| Run-root children | `ledgers/mail/slice.jsonl`, `output/mail/slice/`, and `writer-claims/` |
+
+- [x] One metadata-selected non-stub PST occurrence from a recycle surface
       completes end to end through the public source-path runner at concurrency
       one and `-m all`.
-- [ ] Raw engine output, per-child SHA-256, child counts, warnings, failures,
+- [x] Raw engine output, per-child SHA-256, child counts, warnings, failures,
       and atomic attempt promotion reconcile to zero unaccounted children.
-- [ ] Attachment byte signatures drive type repair and second-pass
+- [x] Attachment byte signatures drive type repair and second-pass
       extraction.
-- [ ] Synthetic fixtures cover corrupt, password, and codepage lanes without
+- [x] Synthetic fixtures cover corrupt, password, and codepage lanes without
       corpus content.
-- [ ] Measured disk/time amplification stays within the approved expansion
+- [x] Measured disk/time amplification stays within the approved expansion
       ceiling.
 
 ### P4 provenance index
@@ -345,8 +355,861 @@ only `/` and NUL. The orphaned journal of the aborted run stays valid undo
 input for its 375 renames. Reversal: `--mode undo` on each journal in reverse
 order of their run ids.
 
+### 2026-10-09: retain Tika text within the remaining attempt budget
+
+The RAM-only probe ran 59 repair candidates: 43 produced more than 4,096 characters,
+the maximum was 1,578,537, and none exited nonzero or produced empty text. The previous
+capture bound would fail this selected slice despite available output capacity. Reuse
+`OutputBound` with the remaining attempt budget after hashing retained output and checking
+free space; reserve the final newline and validate UTF-8 bytes before persistence. Keep the
+full content-addressed text and fail closed on truncation or exhausted capacity. Existing
+process and filesystem service contracts remain sufficient. Synthetic tests prove full
+8,192-character capture and rejection above the remaining budget. The extra capture check
+adds one tree hash per candidate; the sizing margin covers it. Reversal: revert the CLI edit;
+no slice ledger exists at this decision.
+
+### 2026-10-09: escape backslash names at the libpff boundary
+
+The probe found one backslash-bearing file, zero such directories, zero escape collisions,
+and zero pre-existing `%5C` names. The escape is unambiguous on this store. A named internal
+schema transforms each engine name component to `PosixPath` by replacing only `\` with
+`%5C`. After quota handoff and before walking children, rename entries inside the driver's
+export trees; refuse collisions with the existing non-portable-path warning and overwrite
+nothing. Carry original attachment names into synthesized EML, with MIME quoted-string
+escaping. Canonical checks resolve each checked ancestor while retaining backslash components,
+including the raw quota handoff, because Bun's realpath treats that byte specially. Keep the shared path and restoration row
+schemas unchanged. Synthetic tests cover escaped files and folders, reference/disk agreement,
+EML display names, and preservation of both entries on collision. Reversal: revert the libpff
+edit; no slice ledger exists yet. The release-note decision below supersedes the patch changeset.
+
+### 2026-10-09: private-workspace release notes without changesets
+
+`@beep/libpff` and `@beep/repo-cli` are private workspaces. Main #1566 and the brief's
+2026-10-09T20:33Z standing ruling forbid changesets naming private workspaces, superseding R3.
+Remove the unpublished libpff patch changeset and record both bounded fixes in the handoff's
+"Release notes without changesets" table. These fixes require no major release: existing portable
+paths and public schemas retain their contracts; escaping previously rejected names and retaining
+budget-bounded text correct unsupported-input behavior. Widening the public path schemas would
+have changed their contract, and was rejected. Reversal: revert the implementation and this
+release-note decision together; preserve the append-only handoff as evidence.
+
+### 2026-10-09: P1 slice ceilings, sizing probe, and invocation
+
+The raw-only priors (0.98x and 0.77x with pffexport 20260608) exclude synthesized EML,
+all-item body formats, orphan/recovered output, repair copies, and Tika text. The RAM-only
+probe measured I = 56,140,800 input bytes, R = 46,317,339 raw output bytes (2,630 files),
+D = 19,659,481 repair-copy bytes, T = 5,252,872 Tika bytes, and 607 items. Orphan and
+recovered trees contained zero files/bytes. There were 3,399 entries, zero existing EML
+collisions, 206 attachments / 41,580,376 bytes, 147 unsupported, zero unchanged, and 59
+repair candidates. All 59 Tika invocations succeeded with nonempty output. Probe counts
+and script digest are retained in the handoff.
+
+O = R + 1.37R + 4,096 × items + D + T = 137,170,718.43 bytes.
+Freeze `--max-amplification-ratio 4` = max(4, ceil(1.5O/I)); the attempt ceiling is
+224,563,200 bytes. Probe durations were pffexport 583 ms, Tika 894,687 ms, and one
+full tree hash 35 ms. The elapsed expression is
+3 × (583 + 894,687 + 2 × 59 × 35) + 600,000 = 3,298,200 ms;
+freeze `--max-elapsed-millis 7200000` = max(7,200,000, that expression).
+Freeze `--max-total-output-bytes 2147483648` = max(2,147,483,648,
+ceil(2.5 × 56,140,800 × 4)) = max(2,147,483,648, 561,408,000).
+Freeze `--max-total-elapsed-millis 43200000` = max(43,200,000, 3 × 7,200,000).
+These total caps allow one retained interruption plus retry; the family clock includes queue
+wait and re-verification on a retry. Require at least 100,000,000,000 bytes free on every
+launch as well as the tool's output-capacity checks. Measured pre-probe free space was
+471,790,534,656 bytes; remeasure immediately before launch.
+
+Fixed invocation inventory:
+
+| Flag | Frozen value |
+| --- | --- |
+| `--scope` | `slice` |
+| `--expected-stores` | `1` |
+| `--run-label` | `t7-salvage-2026-08-10` |
+| `--corpus-root` | `~/data-home/oppold-corpus` |
+| `--pffexport` | `/usr/bin/pffexport` |
+| `--bwrap` | `/usr/bin/bwrap` |
+| `--java` | `/usr/bin/java` |
+| `--tika-jar` | `~/.local/share/tika/tika-app-3.3.1.jar` |
+
+The persisted policy freezes these
+engine paths, scope, denominator, and ceilings at `family-run-start`; changes are refused.
+The engine freeze values are pffexport 20260917, bubblewrap 0.13.0,
+`openjdk version "27" 2026-09-15`, Java real path
+`/usr/lib/jvm/java-27-openjdk/bin/java`, and Tika jar SHA-256
+`0e8ee9795ac4244feab466f4a5a9c3b94675af392848243842cb6e1e69d27103` (Apache Tika 3.3.1).
+Reversal: revert this docs decision; retain the append-only ledger and output as evidence.
+P2/P3 remain outside this lane.
+
+### 2026-10-09: the P1 run manifest is the freeze record
+
+`transformationPolicySha256` hashes engine paths, scope, expected stores, and four ceilings,
+not engine versions. `history/evidence/p1-slice-run-manifest.json`, written before launch,
+therefore records Java version and real path, Tika jar digest, pffexport and bubblewrap
+versions beside the policy digest, launch-script digest, ceilings, selected object digest,
+and code head. Fill the policy digest once the first start row exists, then never change
+the manifest. A version mismatch on any relaunch is a stop. Only main's merged code may
+write the immutable ledger. Reversal: revert the docs decision, retaining the manifest as evidence.
+
+### 2026-10-09: P1 output path
+
+Designate the P1 location inventory above as the write authority for
+`staging/restoration/runs/t7-salvage-2026-08-10/**` under corpus home:
+`ledgers/mail/slice.jsonl`, `output/mail/slice/`, and `writer-claims/`.
+Only `restore-mail` writes those surfaces. Accept its built-in re-verification's conditional
+content-addressed report write to `raw/t7-salvage-2026-08-10/verification/<sha256>.jsonl`:
+a byte-identical report already exists for the unchanged sealed archive, so a new report
+would indicate changed verification evidence. The lane's other external write inventory is:
+
+| Surface | Root | Allowed contents |
+| --- | --- | --- |
+| Private logs, relative to corpus home | `logs/corpus-restore/` | Tool stdout/stderr; read counts only |
+| Scratch | `~/.cache/beep/corpus-restore/` | Scripts, numeric probe counts, start stamps, and exit codes only |
+
+Never print private log lines or corpus paths/content. Reversal: deletion of the run directory
+wholesale is an orchestrator decision; this lane never deletes it.
+
 ## Exception ledger
 
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
 | None | N/A | N/A | N/A | N/A |
+
+### 2026-10-09: P1 launch held at the inherited publication gate
+
+The bounded fixes, RAM probe, ceilings, freeze-record design, and output authority are retained.
+Both full package verifications and the corrected local hosted-parity set passed; restoration
+coverage is 100% in every metric. PR1 publication at `e28c05e497` failed before push: 15 of 16
+cheap gates passed, and schema-first alone failed on five untracked entries inherited from main
+(two Accounts candidates and three unrelated test advisories). All affected files and their
+inventory are unchanged by this lane. Do not widen ownership or edit an inventory baseline here;
+the orchestrator owns the consolidated main repair. No slice ledger, live launch, or PR exists.
+P1 stays pending, lifecycle active, P2/P3 pending. Resume by merging the main repair and publishing
+PR1 under R2, then complete its published-head proof and final-file gate before writing the run
+manifest or launching. Reversal: revert the bounded local fixes and packet decisions; there is no
+live output to reverse, and the append-only handoff remains evidence.
+
+### 2026-10-09: PR1 inherited-fence publication fallback
+
+The orchestrator run-2 ruling authorizes direct push and PR creation after the
+canonical publisher refused only five inherited schema inventory entries. Their
+source surfaces match main; introduced findings were repaired and scoped proof
+passes. PR1 retains the heavy label, readiness monitor, review handling, and exact
+head final-file gate. The orchestrator owns inherited hosted reds and the merge.
+The frozen manifest and live slice wait for its merged report. Reversal: close the
+unmerged PR and revert the bounded changes before any live run.
+
+The worker started the required forty-minute bounded Yeet monitor, observed hosted
+check transitions and acknowledged the three deployment rate-limit failures, then
+stopped that local monitor at the run-2 handoff boundary. The final-file gate takes
+over under S11; no hosted-green or merge-ready verdict is claimed. This avoids an
+unowned running job after worker exit. Reversal: resubmit the same bounded monitor.
+
+
+### 2026-10-09: P1 live slice sealed with an unapproved engine failure
+
+PR1 #1596 merged the two probe-proven fixes before the immutable start. The fresh
+prerequisites passed, and the frozen manifest records the exact invocation, engine
+versions, code head, script digest, and policy digest. The slice ran once and exited 1:
+zero store passes, one unapproved `engine-failure` exception, zero warning rows,
+33 attachment dispositions (11 repaired, 22 unsupported, zero unchanged), and zero
+terminal child rows. Its final row is `family-acceptance-failure`, with expected and
+terminal count one and unapproved count one. Completed child reconciliation and
+repair/Tika child acceptance are unproven; leave those boxes unticked.
+
+The selected input was 56,140,800 bytes; retained output and family disk usage were
+115,418,004 bytes, or 2.055866749x. Family elapsed was 350,398 ms; re-verification was
+282,677 ms, and queue wait approximately 204 ms. No PASS attempt duration exists;
+the attempt-start to exception interval was 349,607 ms. Retained disk and family time
+are below the frozen ceilings, but do not establish a passing slice. Free bytes were
+440,721,391,616 immediately before launch and 442,226,008,064 after it.
+
+The four fresh synthetic exception/accounting/resume tests passed. Only that P1 box
+is supported. P1 remains in-progress; P0/P4 complete, P2/P3 pending, lifecycle active.
+Do not retry a sealed family or change the selection. Any fresh-ledger route belongs
+to the orchestrator. Reversal: the R7 whole-run removal authority remains with the
+orchestrator; this lane retains all output and ledger evidence without mutation.
+Ledger SHA-256: `efb4b558c2d1680f87a684a69d6aa021653234d12928aa9f27a6943de8970e9f`.
+
+### 2026-10-09: publish the sealed-failure evidence under the inherited fence
+
+The docs-only evidence wave passed fourteen of sixteen cheap gates. Schema-first
+and Effect-Vitest inventory findings are inherited in surfaces matching main;
+no package source changed. Apply the brief's inherited publication-fence ruling:
+direct push and PR creation with the heavy label, Yeet ready, and bounded monitoring.
+The orchestrator owns consolidated reds under S11. Reversal: close the evidence
+PR, retaining the immutable failed run and its frozen manifest.
+
+### 2026-10-10: first Tika evidence per attachment digest
+
+The sealed P1 engine failure is attributed to repeated Tika extraction of an
+identical attachment: its parser-duration JSON metadata varies between runs.
+The runner now reuses the first successful, nonempty, canonically contained Tika
+child for that digest within the same attempt. Repair-copy digest checks, final
+child hashes, budgets, and acceptance still apply. The diagnostic and synthetic
+regression are recorded in `history/p1/2026-10-10-engine-failure-diagnosis.md`.
+
+The run-4 orchestrator ruling authorizes a fresh slice family after the engine-fix
+PR is content-final, using the same source object and ceilings. Run 5 authorizes the independent preservation selector and a date-stamped fresh
+output label, `t7-salvage-2026-08-10-p1-2026-10-10-engine-fix`. The original run
+and freeze record are retained unchanged. A separate fresh freeze record identifies
+the fixed code and launch script before launch. P1 stays in-progress until fresh
+acceptance passes.
+Reversal: close the PR, revert the fix, and retain both run directories.
+
+Release notes without changesets: `@beep/repo-cli` is private and ignored by the
+release configuration. This correctness fix changes no public schema or API and
+would require no major release; #1566 and the standing private-workspace ruling
+require no changeset. Reverse by reverting the implementation and this decision.
+
+
+### 2026-10-10: synthetic proof and monitor handoff
+
+The retained synthetic acceptance checkbox is backed by
+`packages/drivers/libpff/test/Libpff.pffexport.test.ts`: "classifies bounded process
+diagnostics without retaining raw stderr" and "classifies password and codepage
+process diagnostics", plus the freshly passing restoration exception/accounting
+fixtures. This names the evidence requested by the run-4 addendum; it does not
+claim that the sealed live slice passed.
+
+PR3 #1606 is ready for review. Its bounded readiness monitor was submitted and
+polled, then deliberately cancelled at the fresh-label contract blocker so this
+lane exits with no owned background job active. The terminal proof receipt was
+observed. Hosted checks and the review window remain pending; no merge-ready
+claim is made. The orchestrator owns the next monitor and S11 merge gate.
+Reversal: resubmit `bun run beep yeet monitor --until-ready --detach
+--job-max-runtime "40 minutes"` from this lane after the final receipt push.
+The monitor cancellation changes no source, ledger, acceptance, or CI rules.
+
+
+### 2026-10-10: independent preservation and transformation labels (run 5)
+
+The orchestrator authorizes an optional `preservationLabel` option and
+`--preservation-label` flag for mail restoration. The schema decodes absence as
+Option; the runner defaults it to `runLabel`, preserving every existing call.
+Archive verification, evidence selection, and input reads use the preservation
+label; transformation placement and family identity retain the output `runLabel`.
+Family identity already incorporates the preservation seal and run identity, so
+a changed archive cannot resume a persisted family silently.
+
+The synthetic test "selects one sealed preservation archive for a fresh mail run
+without changing the sealed family" proves a new terminal ledger and output tree
+from the original sealed archive, a distinct transformation identity, and a
+byte-identical original sealed ledger. Original-label tests prove the default.
+
+Fresh invocation uses run label `t7-salvage-2026-08-10-p1-2026-10-10-engine-fix`
+and preservation label `t7-salvage-2026-08-10`. The fresh run root is
+`staging/restoration/runs/t7-salvage-2026-08-10-p1-2026-10-10-engine-fix/` beneath
+the corpus home, with the same ledger/output/claims children and private-log
+policy. Ceilings remain ratio 4, attempt 7,200,000 ms, family 43,200,000 ms,
+output 2,147,483,648 bytes, and a 100,000,000,000-byte free-space floor. The
+same selected object and unchanged engines are remeasured before launch. The
+fresh manifest is `history/evidence/p1-fresh-slice-run-manifest.json`; the old
+manifest is never rewritten. No code changes occur once the fresh start exists.
+
+Release notes without changesets (#1566): the private `@beep/repo-cli` workspace
+adds a backward-compatible optional selector, requiring no major release and no
+changeset. Reversal: close PR3 and revert its implementation and decision; retain
+both run directories as evidence. No original or sealed state is deleted. The
+slice outcome belongs to a later PR4, as run 5 directs.
+
+
+### 2026-10-10: run-5 publication fence disposition
+
+Main #1605 removes the private changesets and enforced schema candidates, but
+three inherited test advisories still make `lint:schema-first` exit 1. Every
+finding file matches origin/main; all other fifteen cheap gates pass, including
+Effect-Vitest, committed JSDoc, and Fallow. The standing inherited-fence ruling
+authorizes one direct addressed-wave push to existing ready PR3 #1606, followed
+by the bounded monitor. No source waiver, inventory or CI change is made. The
+full package gate, corrected test-tsgo, docgen and both real-engine smokes pass;
+coverage must finish before the fresh launch. Reversal: close PR3 and retain
+evidence; the orchestrator owns these inherited rows under S11.
+
+### 2026-10-10: run-5 detached slice handoff
+
+The run-5 ruling explicitly permits the fresh slice to remain in its detached unit
+when this worker reports the amended PR3 head. The original sealed run is retained
+byte-identical; the fresh run uses the independently selected original archive and
+its own date-stamped output label. No source changes are allowed after its
+family-run-start until it seals. Outcome aggregates and the pending policy hash
+fill belong to the later PR4, together with these post-push receipts.
+
+The bounded local Yeet readiness monitor was cancelled at this handoff after
+reading and acknowledging inherited Repo Sanity, JSDoc Ratchet, and Lint Policy
+reds. Its terminal job receipt is observed; no merge-ready verdict is claimed.
+The orchestrator retains the S11 merge gate and the running slice continuation.
+Reversal: resubmit the bounded monitor, or close/revert PR3 while retaining both
+run directories as immutable evidence. Never reset or retry a sealed family.
+
+
+### 2026-10-10: fresh P1 slice accepted; retain both sealed families
+
+Run-6 authority records the successful fresh slice in PR4 after PR3 #1606
+merged at `9e0711e4591b74825b56fab5c0ad13c3246c66d3`. The live source and
+engines stayed frozen through its seal. The fresh family exited 0 and ended
+in `family-acceptance-pass`: expected and terminal count one, pass count one,
+unapproved count zero; no exception, warning, or interrupted-attempt rows.
+
+All 3,339 child rows reconcile: 3,237 engine children and 102 derived children,
+comprising 51 repair copies and 51 Tika text children. The 59 repaired attachment
+occurrences have 51 distinct repaired digests; 147 unsupported dispositions and
+zero unchanged dispositions remain explicit. Reused duplicate evidence accounts
+for eight repaired occurrences without additional derived children. All five P1
+acceptance boxes are supported, including the freshly passing four restoration
+fixtures and the named libpff diagnostic classification tests above.
+
+Input 56,140,800 bytes; promoted output and family disk usage 132,668,272 bytes
+(2.363134690x, below ratio 4). Attempt elapsed 809,685 ms (15,122.981 ms/MiB);
+family elapsed 822,686 ms, below the two-hour attempt and twelve-hour family
+ceilings. Full archive re-verification preceded the family start by 254,472 ms.
+The prior launch receipt did not record a separate submission timestamp, so a
+numeric slot-queue duration cannot be reconstructed and is not claimed.
+Pre-launch free bytes were 432,775,737,344; post-run measurement 432,579,956,736.
+The latter includes concurrent machine activity, not just this family.
+
+Fill the fresh manifest's null policy hash exactly once from its first start:
+`2bc3fc673c343ef6008b9b3bb1c85e000ac59239d345f3e50d4d08aaf6a5a2c8`.
+All other frozen fields remain unchanged. Fresh ledger SHA-256:
+`33ad3245d090f519b573769503ebb39162a8806864f664ab0817b705a72fccf5`.
+The original sealed failure ledger remains byte-identical and retained. The
+aggregate record is `history/p1/2026-10-10-fresh-slice-acceptance.md`.
+
+P1 is complete; P0/P4 remain complete, P2/P3 pending, lifecycle active. The
+orchestrator owns P2 ceilings and expansion; this lane starts neither phase.
+Reversal: revert these packet flips and retain both immutable run directories;
+whole-run removal remains an orchestrator decision under R7.
+
+### 2026-10-10: publish accepted P1 evidence under the inherited fence
+
+PR4 changes packet documents only. Fifteen of sixteen cheap gates pass; only
+three inherited schema-codec test advisories fail. All finding files match main.
+The standing inherited-fence ruling authorizes the direct push and labelled PR
+fallback, followed by Yeet ready and a bounded monitor. No source, inventory,
+baseline or CI rule changes. The orchestrator owns S11 merge and inherited reds;
+this lane never merges. Reversal: close/revert PR4 packet flips while retaining
+both immutable families and the one-time completed freeze record.
+
+### 2026-10-10: PR4 monitor handoff at content-final
+
+PR4 #1609 is ready for review. Its forty-minute bounded monitor was submitted,
+polled with a bounded wait, then deliberately cancelled at the worker handoff
+and observed terminated. Three Vercel build-rate-limit failures were acknowledged
+as environment-only; no money or source workaround is involved. The full review
+thread query returned zero threads with complete pagination. Hosted checks and
+the review window remain pending; no merge-ready claim is made. This avoids an
+owned running job at exit under the brief's Mechanics. The orchestrator owns the
+next S11 monitor and gate. Reversal: resubmit the same bounded monitor; retain
+both sealed families and the phase evidence regardless of CI or gate outcome.
+
+### 2026-10-10: PR4 policy identity correction and P1 disposition
+
+PR4 #1609 raised a policy-identity ambiguity.
+It preserves both digests cited in the review:
+
+- Persisted policy digest in both manifests and both family-run-start rows:
+  `2bc3fc673c343ef6008b9b3bb1c85e000ac59239d345f3e50d4d08aaf6a5a2c8`.
+- Review recomputation using the literal home alias in the Tika jar path:
+  `1fcde5680cb42357e784ae4309cd05ce633999bc79b582479219ed07915d090e`.
+
+The original `history/evidence/p1-slice-run-manifest.json` governed only the
+run-3 family that sealed a failure. The separate
+`history/evidence/p1-fresh-slice-run-manifest.json` governed the authorized
+fresh n=2 family that sealed a pass. The fresh execution did not use the
+original freeze record. Neither manifest is edited by this correction.
+
+The fresh record was committed in
+`d8b0e6f15516e38d2d0fe64f4fdf4c651447dea9` at 2026-10-10T03:24:20Z,
+before script start at 03:54:04.229Z and family-run-start at 03:58:18.701Z.
+That committed version already contains the source object and SHA-256,
+code snapshot, script SHA-256, both labels, engine paths and versions,
+Tika jar SHA-256, and all four ceilings. Its policy hash was null.
+A structural comparison with the current fresh manifest proves that the
+only change is the authorized one-time policy fill from its first start row.
+The retained launch script still matches its frozen SHA-256. Source identity,
+engine identity and ceilings therefore preceded execution; none was backfilled.
+
+The hashing code joins ten ordered values with NUL separators and hashes
+those bytes with SHA-256. It hashes the runtime Tika jar path, not the public
+manifest's home alias. Expanding that alias with the same HOME used by the
+launch script reproduces the persisted digest exactly. Hashing the literal
+`~` produces the review's alternate digest exactly. The alternate is not a
+production computation for the invocation that ran. No absolute home path
+or corpus path from a ledger row is reproduced here.
+
+The run-7 ruling anticipated a digest change from #1606. Direct ledger and
+source checks show that its code fix changed code identity and output-family
+selection, but did not change this policy digest: the hash excludes code
+versions, runLabel and preservationLabel. Both executions used identical
+engine paths, scope, expected count and ceilings, so both start rows contain
+the same digest. The distinct freeze records and their different code and
+script digests establish execution identity. The policy digest alone does not.
+
+Decision: retain P1 complete. The fresh pre-execution record is complete under
+R6 and the run-5/6 authorized policy-fill exception, and its persisted policy
+matches the runtime inputs. The accepted aggregate outcome remains valid.
+Reversal: revert PR4's phase-completion edits and reopen P1 while retaining
+both immutable manifests and families. No new execution is authorized by
+this correction; a future execution requires its own pre-execution record.
+P2 does not start in this run.
+
+
+### 2026-10-10: P2 first bounded mail expansion plan and selector preflight
+
+Run-8 authority follows merged PR4 #1609. P1 remains complete. Its measured
+basis is 2.363134690x output amplification, 822,686 ms family time, and the
+orchestrator-reported 20 GB peak RSS. Retain ratio 4, attempt 7,200,000 ms,
+family 43,200,000 ms, output 2,147,483,648 bytes per family, and the
+100,000,000,000-byte free-space floor. No cap or engine change is authorized.
+
+Plan nine distinct remaining non-stub PST occurrences, smallest input
+first, breaking size ties by objectId. The sealed archive has 53 PST occurrences:
+28 at least 1 MiB and 25 below that threshold. The accepted P1 occurrence is
+excluded, leaving 27 eligible expansion occurrences. The first wave admits only inputs at most 536,870,912 bytes: nine occurrences
+range from 61,727,744 to 456,877,056 input bytes; eighteen larger occurrences
+wait for a later wave with its own ceiling ruling. The 25 stub-sized occurrences and non-PST
+mail families remain unresolved estate obligations, outside this first bounded
+extraction wave; they are not silently counted as accepted or approved exceptions.
+The membership is nine occurrences, not client names. Recompute and freeze exact
+object and source digests before launch after the selector contract is available.
+
+Each member requires its own pre-launch freeze record, fresh output label and
+ledger, preservationLabel selecting the original sealed archive, and expected
+store count one. Launch detached under beep-heavy, one family unit at a time;
+after a successful seal and complete reconciliation wait 60 seconds before the
+next family. Stop at the first sealed failure, diagnose before further work,
+and never retry that sealed family. No engine or launcher code changes inside
+the wave. End with aggregate evidence, leaving P2 incomplete until all estate
+and recycle/DOC obligations close.
+
+Pre-launch blocker: the public command cannot select a remaining occurrence.
+`selectMailCandidates` takes exactly the smallest eligible recycle PST for
+slice scope and all mail candidates for full scope. `RestorationMailOptions`
+and the restore-mail flag inventory expose no object selector, offset or bounded
+candidate list. Independent preservationLabel selects an archive, not a store.
+New output labels would repeat accepted P1; full scope violates the brief's
+explicit prohibition and the ten-family bound. Changing expected count alone
+would seal a denominator failure after family-run-start. No such invocation ran.
+
+Decision: retain this plan and stop before creating any family. Do not bypass
+the public command, mutate the preservation ledger, or implement an unassigned
+selector fix. The orchestrator must supply a bounded occurrence-selection
+contract or authorize its implementation before the wave can start. Current
+free bytes 230,195,183,616 exceed the floor; engines match the fresh P1 freeze
+record; both sandbox smokes and all four focused restoration tests pass.
+Reversal: revert this packet plan, retaining both sealed P1 families and freeze
+records. Zero P2 family units or ledgers were created; P2 stays pending.
+
+
+### 2026-10-10: PR5 bounded monitor closeout at selector blocker
+
+PR5 #1610 is content-final and ready. The worker submitted the required
+forty-minute bounded monitor, polled it, then cancelled it at the pre-launch
+selection blocker and observed terminal status. Its inbox row is acknowledged;
+no worker-owned job remains active. Full review pagination has zero threads.
+Hosted checks and the review window remain pending with the orchestrator;
+no merge-ready verdict or merge is claimed. Reversal: resubmit the same
+bounded monitor after the orchestrator supplies the next contract. The plan,
+both sealed P1 families and all frozen acceptance evidence remain unchanged.
+This post-push receipt is retained locally for the next authorized packet wave.
+
+
+### 2026-10-10: P2 wave membership respects both output ceilings
+
+Run-9 ruling retains ratio 4 and the 2,147,483,648-byte family output cap.
+An input must be at most 536,870,912 bytes so its ratio allowance fits that cap.
+Recomputed membership: nine remaining occurrences, ascending size then objectId,
+from 61,727,744 to 456,877,056 bytes; eighteen larger occurrences are deferred.
+The largest admitted input allows 1,827,508,224 bytes at ratio 4, within the cap.
+The prior 539,157,504-byte member is excluded. No family has started.
+Decision: correct PR5 before implementing the authorized selector in PR6.
+Reversal: revert these planning edits; retain both immutable P1 families.
+
+
+### 2026-10-10: bounded occurrence selector for the first P2 wave
+
+Run-9 authorizes one optional occurrence identity plus an explicit membership
+file in restore-mail. The schema pins each member's objectId, source SHA-256
+and input bytes; accepts one to ten non-stub members no larger than 536,870,912
+bytes; and names the preservation archive. The committed first-wave membership
+contains nine entries in ascending input-size/objectId order, range 61,727,744
+to 456,877,056 bytes. It contains no paths or client names.
+
+The command pairs --occurrence with --membership-file and requires slice scope.
+It rejects absent, duplicate, out-of-plan, wrong-archive, non-PST, digest/size-drift
+and over-budget selections before family-run-start. Selection derives expected
+store count one. Absent selection retains the existing scope and denominator
+behavior; the full-estate invocation remains outside this lane's authority.
+A selected family's policy hash additionally freezes objectId and the exact
+membership-file SHA-256. Defaults preserve the original ten-field policy digest.
+Independent preservationLabel continues to select the original sealed archive;
+a fresh runLabel names each transformation family and its immutable ledger.
+
+| Surface | Location |
+| --- | --- |
+| Committed first-wave membership | history/evidence/p2-first-wave-membership.json |
+
+Decision: add the schema, public flags and pre-start guard in PR6; run 10 owns
+the nine sequential detached families. No family runs during implementation.
+Every future family needs a pre-execution freeze record including selected
+identity and membership digest. No engine or launcher change inside the wave.
+Reversal: close/revert PR6 and retain both immutable P1 families; no P2 output
+exists. No changeset: @beep/repo-cli is private under #1566 and the standing
+private-workspace ruling. This optional behavior is compatible, not a major
+public API break; reversal restores the original fixed slice selection.
+
+
+### Run-9B closeout decision — bounded monitor termination
+
+After final local proof and content-final publication, terminate the worker-owned
+readiness monitor before handoff, as Mechanics forbids exiting with an owned
+unit running. Hosted Repo Sanity is inherited; hosted JSDoc generation remains
+unclassified for S11 triage. The monitor is terminated, its unit inactive/dead;
+no merge-ready verdict is claimed. Reversal: submit the same until-ready detached
+monitor with a forty-minute maximum. The orchestrator owns review/CI merge gates
+and run-10 execution; zero P2 families have started. Retain post-push receipts
+for the next packet evidence commit without moving the final selector head.
+
+
+### 2026-10-13: PR6 round-two occurrence contract corrections
+
+Run-9c limits this wave to the three existing PR6 review threads. Explicit
+selection now requires the supplied expected store count to equal one and
+returns CorpusCommandError before preparing any family state when it differs.
+The frozen denominator is never silently replaced. The occurrence flag names
+the membership member objectId rather than its content sha256. Membership
+decoding requires every objectId to be unique, including unselected entries
+whose content digests differ. Synthetic tests cover rejection before family
+state, valid expectedCount one, default slice behavior, and duplicate unselected
+identities at both schema and command boundaries.
+
+Decision: fix these three contracts in one PR6 push. Reversal: revert this
+review-fix commit while retaining both sealed P1 families and their manifests.
+P1 remains complete; P2 remains pending. No transformation family is launched
+in this run. Run 10 starts only after PR6 merges under the orchestrator gate.
+
+
+### 2026-10-13: launch the nine bounded P2 families after PR6 merge
+
+Run-10 go and its branch correction follow merged #1611 at 6eb3d03677.
+The committed membership still contains nine ordered occurrences, all matching
+the sealed archive by objectId, source digest and input bytes. Retain ratio 4,
+attempt 7,200,000 ms, family 43,200,000 ms, total output 2,147,483,648 bytes
+per family and the 100,000,000,000-byte free-space floor. Scope remains slice,
+with explicit occurrence, committed membership and expected stores one.
+
+Decision: use nine fresh date-stamped output labels under the restoration
+runs parent, each selecting the original archive with preservationLabel.
+Each family has a pre-launch freeze record with source, engine, code, script,
+membership and policy identities. Record the computed policy digest before
+launch and compare it to family-run-start; never change a manifest to fit
+runtime drift. Launch one detached beep-heavy family at a time, reconcile
+acceptance before continuing, and wait 60 seconds after each successful seal.
+Stop at the first failure and diagnose before further execution; never retry
+a sealed family. No engine or launcher code changes inside the wave.
+Reversal: revert the packet launch decision while retaining every family,
+ledger, output and freeze record. P2 remains incomplete until all estate,
+recycle and legacy-Word obligations close.
+
+
+### 2026-10-13: family 1 accepted; continue the frozen wave
+
+Run-11 resumes after family 1 ended with result zero and an accepted seal.
+All 3,785 children reconcile, including 81 repair-copy/Tika pairs; 82
+repaired occurrences, 233 unsupported dispositions, zero unchanged. There
+are no warnings, exceptions or interruptions. Input 61,727,744 bytes,
+output 147,490,617 bytes, amplification 2.389373197x; attempt 769,470 ms
+and family 847,540 ms remain within the retained ceilings. Source, policy,
+engine, membership and script identities match its pre-launch freeze record.
+
+Decision: continue to ordinal 2 after complete reconciliation, renewed
+preflight and a full sixty-second interval. Only its detached family unit
+runs; all subsequent ordinals remain gated on their predecessors' accepted
+reconciliation. Retain all nine immutable manifests and the unchanged
+launcher. Stop and diagnose the first failure, never retry a sealed family.
+Reversal: revert this packet continuation decision while retaining every
+ledger, output and manifest. P2 remains in-progress, with later estate,
+recycle and legacy-Word obligations open. No merge or new code is authorized.
+
+
+### 2026-10-13: family 2 accepted; continue the frozen wave
+
+Standing Runs 12+ ruling resumes after family 2 ended with result zero and
+accepted seal. All 4,310 children reconcile: 4,064 engine children and
+123 repair-copy/Tika pairs with identical digest sets. Dispositions: 125
+repaired occurrences / 123 distinct digests, 218 unsupported, zero unchanged.
+Zero warnings, exceptions or interruptions. Input 98,804,736 bytes; output
+265,766,621 bytes, amplification 2.689816620x; attempt 2,588,015 ms,
+family 2,611,137 ms. Source, runtime policy, engine, membership and launcher
+identities match its immutable pre-launch record; all ceilings hold.
+
+Decision: continue to ordinal 3 after renewed preflight and a full sixty-second
+interval, one detached family unit at a time. Stop and diagnose the first
+failure; never retry a sealed family or change code inside this wave.
+Reversal: revert this packet continuation decision while retaining all
+ledgers, outputs and freeze records. P2 stays incomplete; eighteen larger
+occurrences and remaining estate, recycle and legacy-Word obligations remain open.
+
+
+### 2026-10-13: bounded handoff on shared admission delay
+
+Renewed engine smokes and focused proof remained queued for approximately
+20 minutes after family 2 reconciled. Neither command emitted an execution
+result. Admission holders were live jobs; no outside job, slot limit or
+configuration was changed. Both worker-owned queued command trees were
+terminated before handoff, without admitting ordinal 3 or changing its script.
+Termination statuses are not proof of an engine smoke or test execution.
+
+Decision: report shared admission as a continuation blocker instead of
+holding a worker indefinitely or bypassing the required preflight. Family 2
+is accepted; two of nine are sealed. Ordinal 3 has no started/result stamp
+or run directory. P2 remains in-progress. Reversal: resume renewed preflight
+through beep-heavy, wait a full sixty-second interval, and launch the unchanged
+frozen script with ordinal 3 after all checks pass. Retain every sealed family,
+output and pre-launch freeze record. No family failure or retry is claimed.
+
+
+### 2026-10-13: renew admitted preflight after shared-admission handoff
+
+Runs 13+ permits continuation after shared heavy admission becomes available.
+Family 2 remains accepted; both existing family ledger digests are unchanged.
+All nine source, engine, membership, policy and launcher freeze identities
+match. Ordinals 3-9 remain unstarted. No source change or main integration
+is performed during the frozen wave.
+
+Decision: pass the existing workstation user-bus address and runtime directory
+to beep-heavy because this tool session omitted those environment variables.
+The user bus is present. Initial wrappers failed before admission and therefore
+are not engine or test execution evidence. Rerun both required preflight
+commands through the unchanged shared queue; never bypass admission or stop
+another lane. Launch ordinal 3 only after both proofs pass, refreshed free
+space remains above 100 GB, and a full sixty-second interval completes.
+Reversal: stop only worker-owned queued preflight commands and hand off the
+unchanged next ordinal, retaining every sealed family and freeze record.
+
+
+### 2026-10-13: family 3 accepted; continue the frozen wave
+
+Standing Runs 12+/13+ ruling governs this continuation. Family 3 exited zero,
+sealed acceptance and reconciled all 4,416 children: 4,108 engine children,
+154 repair-copy and 154 Tika children. Both derived identity sets match all
+154 distinct repaired digests; 176 repaired occurrences / 181 unsupported,
+zero unchanged. Zero warnings, exceptions or interruptions. Input 98,804,736
+bytes; output 246,434,736 bytes (2.494159146x); attempt 2,409,929 ms,
+family 2,430,372 ms. All retained ceilings and frozen identities hold.
+Three of nine accepted; eighteen larger occurrences remain excluded.
+
+Decision: accept family 3 and continue to ordinal 4 with the SAME frozen
+launcher only after renewed admitted smokes/focused proof, a full sixty-second
+interval and the 100 GB floor. No code/engine/launcher change or merged-main
+integration inside the wave. If admission stalls, hold after at most twenty
+minutes without disturbing other lanes. P2 remains incomplete.
+Reversal: revert packet continuation decisions while retaining every family,
+output, ledger and freeze record. PR7 follows the terminal wave record.
+
+
+### 2026-10-14: family 4 accepted; continue the frozen bounded wave
+
+Standing Runs 12+/13+ ruling governs this continuation. Family 4 exited zero
+and sealed acceptance, reconciling 836 children: 796 engine, 20 repair-copy
+and 20 Tika children. Both derived digest sets match all 20 distinct repaired
+digests; dispositions 23 repaired occurrences / 62 unsupported, zero unchanged.
+Zero warnings, exceptions or interruptions. Input 119,120,896 bytes, output
+337,512,124 bytes (2.833357835x); attempt 4,789,718 ms, family 4,797,300 ms.
+All retained ceilings and nine frozen source/engine/launcher/membership/policy
+identities hold. Earlier ledger hashes remain unchanged; four of nine accepted.
+
+Decision: continue ordinal 5 only after renewed admitted real sandbox smokes
+and focused tests, a full sixty-second interval, fresh state checks and the
+100 GB floor. Renewed direct smokes and four focused tests passed. No main
+integration, code, engine or frozen launcher change inside the wave. P2 stays
+incomplete; eighteen larger occurrences and estate/recycle/DOC gates remain open.
+Reversal: revert packet continuation decisions while retaining every family,
+ledger, output and immutable pre-launch freeze record. PR7 follows the
+terminal wave record; never retry a sealed family or merge from this worker.
+
+
+### 2026-10-14: stop the first bounded P2 wave at family 5
+
+Standing Runs 12+/13+ ruling stops this wave at its first sealed failure.
+Family 5 result is 1, with one unapproved engine-failure and a terminal
+family-acceptance-failure. Four preceding families remain accepted and
+reconciled; ordinals 6-9 are unstarted. All nine frozen source, engine,
+launcher, membership and policy identities match, and earlier ledger hashes
+remain unchanged. Input 157,975,552 bytes; retained output 354,621,626 bytes,
+amplification 2.244788016x; family 1,491,085 ms. These fit retained ceilings.
+
+The retained attempt has 99 repair copies and 98 Tika outputs. Its unmatched
+3,020-byte GIF copy reproduces frozen second-pass exit 1, empty stdout and
+TikaException in a disposable read-only sandbox. The engine version smoke
+passes. Attribution is an input-sensitive Tika/parser failure; the precise
+original parser cause is unavailable from the generic ledger catch.
+The 108 repaired occurrences / 98 distinct digests and 217 unsupported
+dispositions are partial evidence. Zero terminal child rows and zero store
+passes mean no acceptance or complete child reconciliation is claimed.
+
+Decision: stop, diagnose and publish the terminal record; launch nothing,
+change no frozen engine/launcher code, and never retry the sealed family.
+P2 remains in-progress with eighteen larger occurrences, four unstarted wave
+members and remaining estate/recycle/legacy-Word obligations open. P0/P1/P4
+remain complete; P3 pending. Any new execution needs an orchestrator ruling
+and its own freeze record. Follow up with sanitized failure-stage/class
+evidence and a synthetic failing-GIF fixture. Reversal: revert these packet
+decisions while retaining all families, ledgers, outputs, claims and manifests.
+See history/p2/2026-10-14-first-wave-stop.md for aggregate evidence.
+
+
+### 2026-10-14: Run 17 resumes ordinals 6-9 with family 5 retained as failed
+
+The orchestrator accepts the family-5 diagnosis and explicitly authorizes
+continuing the SAME frozen wave with ordinals 6-9, one admitted family at
+a time. This supersedes the preceding continuation prohibition, preserving
+its historical evidence. Family 5 remains sealed-failure and is never retried
+or counted as accepted. Its ledger digest remains
+`dda98f8c7088589dffdc463935455b7474fad7ab4738cf8feaab749dd1d3031c`.
+Four accepted families and one failed family are sealed; four remain unstarted.
+
+Renewed preflight matches all nine source, engine, launcher, membership,
+policy and frozen-code identities. Earlier ledger hashes remain unchanged.
+P0 counts remain 755 directories, 10,696 files, four inherited losses, one
+preflight and one seal. Capacity is 417,086,545,920 free bytes. Both admitted
+real sandbox smokes pass; four focused tests pass, 78 skipped, 4.93 seconds.
+The full sixty-second continuation interval precedes the final capacity and
+state recheck and ordinal 6 submission. Retain ratio 4, attempt 7,200,000 ms,
+family 43,200,000 ms, total output 2,147,483,648 bytes and 100 GB floor.
+Stop and diagnose any further sealed failure. No engine or launcher change.
+
+Decision: continue the remaining authorized ordinals, retaining family 5 as
+failed. Reversal: revert packet decisions while retaining every immutable
+ledger, output, claim and manifest. Family-5 parser-exception recovery is a
+separate future engine PR and separately frozen execution after this wave.
+P2 remains in-progress; eighteen larger occurrences and estate/recycle/DOC
+obligations remain open. Never merge from this worker.
+
+
+### 2026-10-14: family 6 accepted under the unchanged first-wave freeze
+
+Family 6 result zero and accepted seal reconcile 6,091 children: 5,735 engine,
+178 repair-copy and 178 Tika children. Both derived digest sets match all
+178 distinct repaired digests. Dispositions: 217 repaired occurrences,
+220 unsupported, zero unchanged. Zero warnings, exceptions, interruptions
+or unaccounted children. Input 190,989,312 bytes; output 496,830,967 bytes
+(2.601354818x); attempt 5,724,191 ms, family 5,756,397 ms. Retained ceilings
+and all nine frozen identities hold; earlier ledger digests remain unchanged.
+Six sealed: five accepted, family 5 retained as sealed-failure.
+
+Decision: continue ordinal 7 under Run 17 and standing Runs 12+/13+ only after
+renewed admitted smokes/focused proof, a full sixty-second interval and the
+100 GB floor. No integration of newer main source during this frozen wave.
+Stop and diagnose any further sealed failure; never retry a sealed family.
+Reversal: revert packet decisions while retaining all ledgers, output, claims
+and immutable manifests. P2 remains in-progress; family-5 recovery follows
+as a separate engine PR and newly frozen execution. Eighteen larger inputs
+and estate/recycle/DOC obligations remain open; PR7 follows the terminal wave.
+
+
+### 2026-10-14: further sealed failure stops the bounded wave at family 7
+
+Run 17's continuation authorization requires stopping at any further
+sealed failure. Family 7 result 1 and immutable failure seal meet that
+condition. Seven families sealed: five accepted, two failed (5 and 7);
+ordinals 8-9 remain unstarted. Family 7 retained 910,603,343 output bytes
+from 354,026,496 input bytes (2.572133310x). Family elapsed 7,211,513 ms;
+no store pass or terminal child rows. Partial repair evidence is 288 repaired
+occurrences / 245 digests, 217 unsupported, with 246 copies and 245 Tika files.
+A 2,280,873-byte PDF copy lacks second-pass output near the attempt time cap.
+Elapsed-budget exhaustion is strongly supported by timing and code, but
+the generic exception catch prevents exact cause attribution. This is not
+an approved parser exception or an accepted store. Earlier seals, all nine
+freeze records, launcher and engine identities remain intact.
+
+Decision: stop, diagnose and publish aggregate evidence; no ordinal 8 launch,
+sealed-family retry or engine/launcher change. P2 stays in-progress.
+Reversal: revert packet decisions while retaining all ledgers, output,
+claims and manifests. Further continuation or recovery needs an orchestrator
+ruling. Family-5 separate recovery and eighteen larger occurrences remain
+deferred. Evidence: history/p2/2026-10-14-family-07-stop.md.
+
+
+### 2026-10-14: authorized continuation held by execution-code identity
+
+The orchestrator's 05:55Z ruling authorizes ordinals 8 and 9, retaining
+family 7 as sealed-failure with attachment-repair elapsed-budget exhaustion
+(exact cause unresolved; raw attempt output retained). Family 5 remains
+sealed-failure; both recoveries belong to a separate post-wave engine PR
+and newly frozen executions. This supersedes the earlier continuation stop.
+
+Renewed inspection finds a distinct pre-launch blocker. The previous
+publication integration imported #1636's Array.every substitutions in
+RestorationTransformations. All nine pre-launch manifests retain code head
+6eb3d036771e868768846b3c56a5aafac69c3b2b; the unchanged launcher executes
+the current checkout rather than an isolated frozen source tree. Its code
+identity therefore cannot be reported as matching the governing freeze.
+The source delta is inherited, not a new lane edit; no behavioral defect
+is claimed. Engine versions, script and membership digests still match.
+
+Decision: do not launch ordinal 8 until the orchestrator reconciles the
+continuation ruling with the unchanged code-freeze requirement. Do not
+rewrite a manifest, restore source files, alter the frozen launcher or
+assert that a smoke test establishes source identity. Seven families remain
+sealed: five accepted and two failed; ordinals 8 and 9 are unstarted.
+Reversal: revert this documentation decision while retaining every ledger,
+output, claim and immutable manifest. P2 remains in-progress.
+
+
+### 2026-10-14: ordinals 8–9 freeze amendment under the 06:25Z fallback
+
+The orchestrator explicitly permits a freeze amendment when the unchanged
+launcher cannot execute from another worktree. Inspection proves that it
+unconditionally changes directory to the corpus-restore lane before invoking
+bun. Starting that launcher from an execution-only worktree would therefore
+still execute this lane. Altering the launcher or shadowing command resolution
+would change its frozen identity. No execution-only worktree was created.
+
+Decision: use the ruling's fallback for unstarted ordinals 8 and 9 in this
+lane, before either family-run-start. Original code head remains
+6eb3d036771e868768846b3c56a5aafac69c3b2b in every immutable manifest.
+Amended execution source is the restoration source at 17f42f572f4563289e07dc9d0affd9f6aa875e76.
+Attached identity delta: history/evidence/p2-first-wave-2026-10-14-freeze-amendment.patch
+(SHA-256 dfc0f6c519ad5c2f2dfb477032fdedee77e8e42aecc83878d76b8b0ef4a26bf2). It contains two inherited
+#1636 native-array-to-Effect-Array.every substitutions, in signatureExtension
+and isCompoundFileBinary. Restoration command, schemas and base writer source
+are unchanged; libpff source is unchanged. No behavior equivalence is claimed.
+This amendment governs only the two unstarted families; all earlier seals
+retain their actual execution identities. The execution commit will be recorded
+in the handoff immediately before launch, with this source delta unchanged.
+
+The launcher, nine manifests, engine versions, membership, policy identities
+and ceilings remain unchanged: ratio 4, attempt 7,200,000 ms, family
+43,200,000 ms, output 2,147,483,648 bytes, 100,000,000,000-byte floor.
+Five families are accepted; families 5 and 7 remain sealed failures.
+Separate post-wave recovery covers their parser and elapsed-budget classes;
+no sealed family is retried. Reversal: revert this documentation amendment
+before launch; after launch retain all ledgers, claims, output and manifests
+and revert only the documentation decision. No source or launcher edit.
+
+
+### 2026-10-14: further sealed failure stops the wave at family 8
+
+Family 8 result 1, one unapproved engine-failure, expected/terminal one.
+Retained output 1,037,230,305 bytes from 436,306,944 input bytes
+(2.377294974x); family elapsed 2,996,198 ms, within both time ceilings.
+Partial dispositions: 109 repaired occurrences / 95 distinct digests,
+95 unsupported, zero unchanged; 96 copies and 95 Tika outputs. No store
+or child passes, warnings or interruptions. The unmatched 196,192-byte PDF
+copy reproduces Tika exit 1 and empty stdout with TikaException/IOException
+counts in the read-only frozen sandbox. Attribution is input-sensitive
+parser failure; input corruption and precise original cause are unproven.
+Ledger SHA-256 93e49e56ba8c4941ebaf4e33fd227340d5a31e3a8baa31b95cb2a7b8d9b1d60d.
+Retained attempt/family digests independently rehash to the ledger values.
+
+Eight seals: five accepted, families 5/7/8 failed; ordinal 9 unstarted.
+The 06:25Z amendment was committed before ordinal 8 ran at
+ce71e3cb88971dc0d2cfe9f7b0fd829164d859ac; immutable manifests retain
+6eb3d036771e868768846b3c56a5aafac69c3b2b. No source equivalence is claimed.
+Decision: stop at this further failure, diagnose and publish evidence;
+no ordinal 9 launch, sealed-family retry or exception approval. P2 stays
+in-progress, P3 pending. Families 5/7 recovery remains separately ruled;
+family 8 adds a PDF parser recovery item requiring a separate scope/freeze.
+Reversal: revert documentation decisions while retaining every ledger,
+output, claim and immutable manifest. Full record:
+history/p2/2026-10-14-family-08-stop.md.

@@ -50,12 +50,33 @@ export * from "./Geometry.schemas.ts";
  */
 export * from "./Geometry.segments.ts";
 /**
+ * SHA-256 digests of recorded bytes.
+ *
+ * @since 0.0.0
+ * @category utilities
+ */
+export * from "./Manifest.digest.ts";
+/**
  * Render manifest schemas.
  *
  * @since 0.0.0
  * @category models
  */
 export * from "./Manifest.schemas.ts";
+/**
+ * Pure 1.84(m) surface-shading rules.
+ *
+ * @since 0.0.0
+ * @category utilities
+ */
+export * from "./Shading.rules.ts";
+/**
+ * Surface-shading facts, classes, tones, and treatments.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export * from "./Shading.schemas.ts";
 /**
  * Sheet composition.
  *

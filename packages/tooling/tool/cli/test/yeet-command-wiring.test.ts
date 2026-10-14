@@ -167,7 +167,7 @@ describe("yeet merge-loop command wiring", () => {
       yield* fs.writeFileString(`${root}/bun.lock`, "");
       yield* fs.writeFileString(
         `${root}/package.json`,
-        yield* S.encodeUnknownEffect(S.fromJsonString(S.Unknown))({ name: "yeet-command-fixture", workspaces: [] })
+        yield* S.encodeUnknownEffect(FixturePackageJson)({ name: "yeet-command-fixture", workspaces: [] })
       );
       const encoder = new TextEncoder();
       const handle = (output: string) =>
@@ -979,12 +979,15 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("publish readiness-monitor
       const registered = `${root}/registered.txt`;
       // The fake submit takes long enough that an unlocked second publish would
       // read the registry before this one registers its job.
-      const submitSource = [
-        'const fs = require("node:fs");',
-        "Bun.sleepSync(400);",
-        `fs.appendFileSync("${submits}", "submitted\\n");`,
-        `fs.writeFileSync("${registered}", "1");`,
-      ].join(" ");
+      const submitSource = A.join(
+        [
+          'const fs = require("node:fs");',
+          "Bun.sleepSync(400);",
+          `fs.appendFileSync("${submits}", "submitted\\n");`,
+          `fs.writeFileSync("${registered}", "1");`,
+        ],
+        " "
+      );
       const first = yield* tailFixture(root, submitSource);
       const second = yield* tailFixture(root, submitSource);
       const listJobs = () =>
@@ -1060,3 +1063,4 @@ it.layer(commandTestLayer, { timeout: "30 seconds" })("publish readiness-monitor
     })
   );
 });
+const FixturePackageJson = S.fromJsonString(S.Unknown);

@@ -40,18 +40,59 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P4 in progress — Workstream D's projection slice. The design
-([`research/p4-goals-projection-design.md`](./research/p4-goals-projection-design.md))
-and its mini-grill outcomes
-([`research/p4-goals-projection-decisions.md`](./research/p4-goals-projection-decisions.md),
-2026-10-09) are settled; next is PR 1: `beep goals next|explain|catalog` over a
-`bun:sqlite` projection, differential-tested against a pure-TS evaluator, plus the
-committed catalog FP-eyeball report. P1-P3 outcomes stay as recorded: all 24 P2
-decisions in [`research/p2-grill-decisions.md`](./research/p2-grill-decisions.md),
-A/B/C/D Phase-0 verdicts in
-[`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
-Workstream E's pure-plan report still awaits its eyeball verdict before any
-materializer exists.
+P4 in progress. Shipped on main so far:
+
+- **D:** `beep goals next|explain|catalog` (in-memory SQLite projection,
+  differential-tested) and the Mermaid capability-graph section in `goals/INDEX.md`.
+- **E:** `goals bootstrap|adopt --write --expect <planId>` (atomic publish, exclusive
+  adoption). This packet adopted itself with its own executor (self-hosting test case
+  #1).
+- **E-3b:** the read-only `beep explore graduate <exploration> --goal <slug>=<title>
+  --plan [--json]` compiles a content-addressed `graduation-plan/v1` (one bootstrap
+  plan per child, the hash-pinned exploration manifest edit, the refusal matrix, and
+  `alreadyPublished` replay classification).
+- **E-3c:** `explore graduate --write --expect <planId>` publishes the remaining children
+  through `publishBootstrapPlan`, then flips the exploration manifest through the
+  pre-image check adoption shares (`replacePinnedFile`), appends `stage-entered` and
+  `status-set` for explorations with `ops/events/`, and prints a `graduation-receipt/v1`.
+  A crash between children resumes by re-running the same command. Bootstrap, adopt,
+  and graduate are now all self-hosted: this PR graduated
+  `explorations/typed-agent-skill-contracts` with its own executor, publishing
+  `goals/skill-contract-gate-certificates` beside the already-published
+  `goals/skill-contract-kernel` (E17).
+- **B:** the read-only `beep skills lock-plan` with six ratified resolution seeds;
+  B-3a classifies drift against upstream path history. B-3b (this PR) adds
+  `lock-plan --write --expect <planDigest>`, flips `skills-lock.json` to v2 (6 vendored,
+  31 local), and records the remaining local edits as pinned patch series under
+  `.agents/skill-patches/`; receipt in [`research/p4-report-skills-lock-plan.md`](./research/p4-report-skills-lock-plan.md).
+- **C:** Stage-2 PR 1, the read-only `beep knowledge doctor --report`, with its
+  FP-eyeball report
+  ([`research/p4-report-knowledge-doctor.md`](./research/p4-report-knowledge-doctor.md)).
+- **Designs:** B, E, and C Stage 2
+  ([`research/p4-skills-warehouse-design.md`](./research/p4-skills-warehouse-design.md),
+  [`research/p4-goals-materialize-design.md`](./research/p4-goals-materialize-design.md),
+  [`research/p4-knowledge-doctor-design.md`](./research/p4-knowledge-doctor-design.md)),
+  plus E-3 graduation
+  ([`research/p4-explore-graduate-design.md`](./research/p4-explore-graduate-design.md)).
+- **D (PR 3):** `beep goals doctor` emits `capability-duplicate-declaration`,
+  `capability-reference-provides` and `capability-packet-id-mismatch` (blocking,
+  ratcheted) and `capability-stranded` (advisory), all zero on the live census; the
+  four missing `provides` are declared.
+- **B-3a:** `skills lock-plan` classifies drift against upstream path history (B11).
+
+C Stage-2 PR 2 (the C report's verdict fixes: whole-line assertion markers, arrow-chain
+command spans, accepted doc fixes, and the `beep <cmd>` planned-command spelling) and
+B-3b (the skills lock write and flip) are on main.
+
+This PR adds C Stage-2 PR 2b, the domain evaluators, report-only: `packet-status`
+(lifecycle and current-phase claims against manifests read through the tree),
+`symbols` (`@beep/*` packages, subpaths, and imported identifiers against workspace
+manifests and barrels), and `skills-local` (`evaluateSkillsLocal`: lock coverage,
+pinning, and licenses, with no network capability). Design K14–K17; the live run and
+its seven review items, including six FP candidate groups, are in the report's
+"PR 2b" section.
+
+Phase-0 verdicts: [`research/p1-fp-eyeball-verdicts.md`](./research/p1-fp-eyeball-verdicts.md).
 
 ## Latest Evidence
 

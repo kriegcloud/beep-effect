@@ -8,6 +8,7 @@ import * as Arbitrary from "effect/Arbitrary";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import { pipe } from "effect/Function";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
@@ -41,11 +42,11 @@ const mappedDriftRow = {
 describe("SyncConflict entity", () => {
   it("wires SyncConflict to the documents identity", () => {
     expect(SyncConflict.SyncConflict.sql.tableName).toBe(DocumentsIdentity.SyncConflictId.tableName);
-    expect(Object.keys(SyncConflict.SyncConflict.insert.fields)).not.toContain("id");
-    expect(Object.keys(SyncConflict.SyncConflict.insert.fields)).not.toContain("rowVersion");
-    expect(Object.keys(SyncConflict.SyncConflict.update.fields)).toContain("id");
-    expect(Object.keys(SyncConflict.SyncConflict.update.fields)).toContain("rowVersion");
-    expect(Object.keys(SyncConflict.SyncConflict.jsonCreate.fields)).toEqual([
+    expect(R.keys(SyncConflict.SyncConflict.insert.fields)).not.toContain("id");
+    expect(R.keys(SyncConflict.SyncConflict.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(SyncConflict.SyncConflict.update.fields)).toContain("id");
+    expect(R.keys(SyncConflict.SyncConflict.update.fields)).toContain("rowVersion");
+    expect(R.keys(SyncConflict.SyncConflict.jsonCreate.fields)).toEqual([
       "conflictKind",
       "localRelPath",
       "provider",
@@ -68,7 +69,11 @@ describe("SyncConflict entity", () => {
       assertSome<string>(decoded.remoteEventId, "evt-1");
       assertSome<string>(decoded.localRelPath, "matters/client-default/complaint.pdf");
       expect(decoded.remotePayload).toEqual({ eventType: "ITEM_MODIFY", itemId: "9001" });
-      expect(yield* encodeSyncConflict(decoded)).toStrictEqual(mappedDriftRow);
+      expect(yield* encodeSyncConflict(decoded)).toStrictEqual({
+        ...mappedDriftRow,
+        deletedAt: null,
+        deletedByPrincipal: null,
+      });
     })
   );
 

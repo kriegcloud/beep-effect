@@ -19,6 +19,7 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
@@ -45,11 +46,11 @@ describe("@beep/agents-domain ProviderInstance", () => {
   it("wires ProviderInstance to the agents product-entity identity", () => {
     expect(ProviderInstance.sql.tableName).toBe(Agents.ProviderInstanceId.tableName);
     expect(Agents.ProviderInstanceId.entityType).toBe("AgentsProviderInstance");
-    expect(Object.keys(ProviderInstance.insert.fields)).not.toContain("id");
-    expect(Object.keys(ProviderInstance.insert.fields)).not.toContain("rowVersion");
-    expect(Object.keys(ProviderInstance.update.fields)).toContain("id");
-    expect(Object.keys(ProviderInstance.update.fields)).toContain("rowVersion");
-    expect(Object.keys(ProviderInstance.jsonCreate.fields)).toEqual([
+    expect(R.keys(ProviderInstance.insert.fields)).not.toContain("id");
+    expect(R.keys(ProviderInstance.insert.fields)).not.toContain("rowVersion");
+    expect(R.keys(ProviderInstance.update.fields)).toContain("id");
+    expect(R.keys(ProviderInstance.update.fields)).toContain("rowVersion");
+    expect(R.keys(ProviderInstance.jsonCreate.fields)).toEqual([
       "binaryPath",
       "envVars",
       "homePath",
@@ -57,7 +58,7 @@ describe("@beep/agents-domain ProviderInstance", () => {
       "label",
       "lastProbe",
     ]);
-    expect(Object.keys(ProviderInstance.jsonUpdate.fields)).toEqual([
+    expect(R.keys(ProviderInstance.jsonUpdate.fields)).toEqual([
       "binaryPath",
       "envVars",
       "homePath",
@@ -126,6 +127,8 @@ describe("@beep/agents-domain ProviderInstance", () => {
     Effect.gen(function* () {
       const encoded = {
         ...productEntityFixtureInput("AgentsProviderInstance", 7),
+        deletedAt: null,
+        deletedByPrincipal: null,
         binaryPath: "/usr/local/bin/claude",
         envVars: { NO_PROXY: "localhost" },
         homePath: "/home/beep/.beep/providers/personal-max",
@@ -156,6 +159,8 @@ describe("@beep/agents-domain ProviderInstance", () => {
     Effect.gen(function* () {
       const encoded = {
         ...productEntityFixtureInput("AgentsProviderInstance", 8),
+        deletedAt: null,
+        deletedByPrincipal: null,
         binaryPath: "/usr/local/bin/codex",
         envVars: {},
         homePath: null,

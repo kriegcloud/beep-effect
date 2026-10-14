@@ -1156,3 +1156,177 @@ prevented this extra qualification wave. No suppression or inventory edit.
   baseline or copy C/epistemic repairs into A.
 - Prevention: run the full test-policy detector after test-body/name changes;
   inherited call shapes can receive new occurrence identities.
+## 2026-10-09: burn-down qualification waits behind the shared heavy slots
+
+- Doing: running the inherited-red attribution scan, full docgen, and focused
+  EffectImports regressions in the burn-down lane.
+- Evidence: each admitted wrapper reports `all 5 slots busy, waiting` before
+  execution. The lane remains within its required memory limits; no peer job
+  or slot lock was stopped or modified.
+- Would have prevented it: reserving a short attribution/repair slot for the
+  inherited-red owner while dependent lanes queue their long package proofs.
+
+## 2026-10-09: base moved again between integration and burn-down publication
+
+- Doing: publishing the scoped inherited-red repair after integrating #1580.
+- Evidence: Yeet refused the stale base after #1583 landed, naming the workflow
+  and both shared packet ledgers. No commit or push occurred on this attempt.
+- Would have prevented it: a coordinated publication window for the inherited
+  repair owner, avoiding repeated admission and requalification of moving bases.
+
+## 2026-10-09: new inherited admissions block the scoped burn-down repair
+
+- Doing: requalifying after #1583 integration for the inherited-red repair.
+- Evidence: `lint:effect-vitest` reports 12 new findings in six #1583 test
+  files; the golden detector and deletion regression are absent from that list.
+  The red ledger assigns these judgments to the admission lane, while this
+  repair brief permits exactly one inventory occurrence.
+- Would have prevented it: landing the owned admissions before dependent
+  publication, or coordinating the repair owner with the incoming red wave.
+
+## 2026-10-09: base integration invalidated an in-flight package proof
+
+- Doing: integrating #1583 while a second full package audit was still running.
+- Evidence: the audit retained old module behavior while tests expected newly
+  ported APIs. Its 14 suite failures and five test failures are quarantined;
+  a fresh stable-source replay passed all 106 tests across five relevant files.
+- Would have prevented it: keeping the checkout fixed for the entire admitted
+  proof and integrating the next base only after its process has exited.
+
+### 2026-10-09 — burn-down admission list omits the C golden-workflow advisory
+
+- **Work:** Run 2 qualifies the fourteen occurrence-specific C admissions.
+- **Evidence:** `bun run lint:schema-first` resolves both Accounts object findings
+  but reports missing `SFV4-arbitrary-tests` at
+  `packages/tooling/tool/cli/test/ci-runner-security.test.ts:79`. The C handoff's
+  Run 4 terminal publication table already identifies this golden regression
+  advisory; the source is unchanged from main. The resume ruling admits two
+  schema rows plus twelve test rows and forbids changing other inventory rows.
+- **Attribution:** inherited C golden-workflow judgment, outside the explicit
+  fourteen-row admission count. This is a red gate, not a qualification pass.
+- **Prevention:** reconcile the scanner's full terminal occurrence table against
+  the delegated count before issuing a bounded admission brief. B's census can
+  resolve the advisory; this worker retains the count and uses only the
+  explicitly authorized publication fallback if Yeet holds on it.
+
+## 2026-10-09: resumed burn-down publication limitations
+
+The refreshed main inventory conflicted with the retained admissions; merge
+resolution preserved occurrence fingerprints and regenerated anchors through
+the canonical scanner. The local merge hook separately flagged a PEM header
+in inherited scratchpad JSDoc; the hosted Secret Scanning check passed and no
+new scanner ignore row was added. Complete machine-readable coverage rows and
+a dependency-review manifest-path exclusion would avoid unsafe approximations
+of the remaining baseline and fixture-boundary tasks.
+
+The generated doctest script repair invalidated cache-policy manifest digests.
+The canonical reviewed recorder stamped only its three package subjects and
+retained all other reviews; its audit reports zero blocking findings. Full
+policy separately finds inherited scratchpad diagnostic suppressions and a
+root language-service profile mismatch. Keep source fixed during proofs;
+report these inherited gates rather than broadening exception inventories.
+
+Terminal attribution: the private-package changeset repair passes hosted graph
+and status checks. Repo Sanity instead fails unchanged minimatch/smol-toml
+versions; JSDoc Ratchet retains its opaque inventory-generation failure. Fresh
+repo-cli audit/docgen passed. Manifest-only quick checks initially lacked
+upstream dist declarations; rebuilding the dependency closure and replaying
+all three checks passed. Record proof prerequisite scope with each result so
+an environment-only first attempt is not mistaken for a source regression.
+
+## 2026-10-13: shared CI failures exposed after fixture repair
+
+PR #1571 job 115461073078 reaches a technical-drawing assertion with page count
+1 instead of 2 because its fake backend stores one count across render outputs.
+PR #1612 job 115466055746 finally identifies the previously opaque inventory
+failure: `Failed to stat` a broken `yaml-test-suite/name` fixture link. Job
+115466055306 gets past dependency alignment and finds unsorted schema-package
+devDependencies. Artifact-specific fake state, broken-link traversal tests, and
+complete bounded diagnostics would have prevented repeated uninformative runs.
+The follow-up fixes these shared causes once on main, without changing quality
+floors or treating earlier interrupted scans as complete measurements.
+
+## 2026-10-13: inventory completion separates source debt from scanner errors
+
+The repaired full scan reports eight metric increases, but its per-export rows
+show `BlobStore` misclassified by a nested schema example and seven infrastructure
+exports entering the documentation surface through two missing umbrella-config
+exclusions. This makes real source repair appear larger than it is. Classify
+declarations from their own AST heritage and keep explicit test/canary scope
+aligned with package docgen configuration. Preserve the actual remaining source
+findings and baseline instead of annotating the wrong service or teaching
+intentionally invalid canaries to pass.
+## 2026-10-13: arbitrary-test diagnostic and generation friction
+
+A newly written journal property initially exhausted generation at size zero:
+its custom non-empty path filter has no generation bounds, and discarded
+trials do not advance the multi-run size schedule. Installed Effect 4 source
+confirmed single-run checks use the requested size. Twenty-five seeded
+nonzero sizes retain finite budgets and exercise the actual persistence
+codec. Generation annotations on the shared path schema would avoid this
+caller workaround; that source change remains outside this bounded repair.
+
+Independent review caught an unsupported diagnostic call,
+`Arbitrary.formatCheckResult`, before publication. Replace it with a plain
+seed diagnostic while preserving the passed-run assertion. A live installed
+API lookup before choosing diagnostics would have prevented the failed run.
+The first CLI test invocation also used the repository root configuration and
+reported no test files; running in the owning package fixed command routing.
+
+The direct checker also requires an `Effect<boolean>` callback, unlike the
+Vitest property adapter's assertion callback. Returning schema equivalence
+fixed the falsification caused by a void result. The corrected app suite
+passes all 13 tests. Keep adapter and direct-checker contracts explicit in
+examples; code review must verify callback return types as well as exports.
+
+The required JSDoc parity lane regenerates its inventory successfully but
+fails eight totals on unchanged main source. All 3,435 inventory source paths
+match the recorded base. A distinct owner repair is needed; raising the
+baseline in this test wave would conceal inherited debt. Raw JSDoc generation
+took approximately nine minutes despite this wave touching only tests.
+
+Cheap gates subsequently flagged introduced EV007 on the direct checker.
+Canonical per-seed `it.effect.prop` registration preserves the nonzero-size
+coverage and passes 37 app tests. The Yeet aggregate repair hint incorrectly
+blamed goals doctor, which passed; the streamed lane results correctly name
+Effect/Vitest. Route failed-stage diagnostics from the actual terminal row.
+
+### 2026-10-13 — inherited-red diagnostics and unsupported fixture filtering
+
+RSC burndown run 3: main JSDoc job 115443432078 reports only `Failed to generate JSDoc documentation inventory.` The boundary discarded the nested cause; print the typed cause before wrapping it so the next failure identifies the source. Dependency-review v5.0.0 exposes no manifest-path exclusion in its action inputs or configuration schema; adding a fictional input would leave fixture lockfiles scanned. Preserve the gate and track fixture filtering separately. AMI receipt freshness is a separate warning; Repo Sanity job 115443432221 actually fails Syncpack (minimatch override and scratchpad smol-toml). Preserve the baked-image receipt until a real refresh.
+
+
+### 2026-10-13 — full lint policy ignores the lane concurrency envelope
+
+The run-3 `beep-heavy bun run beep lint policy --full` retry reached 32G and was killed with `oom-kill` before its medium-tier verdict. The wrapper still launches Turbo with `--concurrency=4` while the lane specifies `TURBO_CONCURRENCY=2`. The initial main run peaked at 23.9G and completed red. Retry under the same admission route with the lane maximum of 40G; do not count the killed attempt as a code result. A command-level concurrency setting that honors the lane envelope would prevent the mismatch.
+
+
+### 2026-10-13 — Node/V8 Bun.spawn shim drops output streams
+
+Coverage job 114132486598 and the local full coverage attempt both fail the two practice-kg startup assertions at `apps/practice-kg-mcp/test/Host.test.ts:462`: expected the sanitized refusal, received an empty string. The root `vitest.setup.ts` Node shim returns only `exited` from `Bun.spawn`; its absent stderr becomes an empty Response body. Return both piped Web streams, preserve the exit promise, and pin the contract with `vitest-bun-spawn.test.ts`. The focused startup rerun passes both cases. This repairs the measurement precondition; it does not establish a successful full coverage rerun or authorize lowering a floor.
+
+## 2026-10-13: quick package checks missed strict test diagnostics
+
+- Work: publish the shared inventory and drawing repairs in PR #1617.
+- Evidence: hosted Check job `115506076889` reported TS377047 at
+  `quality-artifact-generators.test.ts:206`; the new filesystem stat callback
+  requires the reusable `Effect.fn` form. Focused execution and quick package
+  lint/check had passed without exercising this strict test compiler gate.
+- Prevention: run `bun run beep quality test-tsgo` on test repairs and inspect
+  the actual compiler result before declaring the source final.
+- Action: return the PR to draft, correct the callback idiom, run focused and
+  strict compiler proof, and publish one corrective wave. Keep the inherited
+  JSDoc source findings in #1618 separate; do not adjust any baseline.
+#1612 merged while the published parity replay was generating JSDoc, causing
+a new base-conflict inbox row. Stop that owned admitted replay because its
+base is superseded, not because of elapsed time; keep its completed stages
+labelled with the old head. Merge main cleanly, retain all source properties,
+reuse the new CI JSON codec and retire exactly three unused admissions through
+the schema-first writer. Pre-publication ownership routing would have avoided
+a second integration wave for the already-tested source alternative.
+
+Hosted Repo Sanity job 115502999707 fails old-head Syncpack on minimatch
+10.2.5 versus 10.2.6 and smol-toml 1.9.0 versus ^1.9.0. Integrated #1612
+repairs both; acknowledge with the actual main merge commit, not a waiver.
+The separately reported Sherif ordering issue still requires live attribution
+on the new head if it appears.

@@ -17,6 +17,7 @@
     "check": "bun run beep:check",
     "coverage": "bunx vitest run --coverage",
     "docgen": "bun run beep:docgen",
+    "doctest": "bun run beep:doctest",
     "lint": "bun run beep:lint",
     "lint:deprecated-apis": "beep-cli lint deprecated-apis --package .",
     "lint:fix": "bun run beep:lint:fix",
@@ -25,13 +26,14 @@
     "package-test-typecheck": "beep-cli quality test-tsgo-package",
     "test": "bun run beep:test",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
-    "beep:build": "tsc -p tsconfig.json",
-    "beep:check": "tsgo -p tsconfig.check.json && bun run beep:check:tests",
+    "beep:build": "tsc-rs -p tsconfig.json",
+    "beep:check": "tsc-rs -p tsconfig.check.json && bun run beep:check:tests",
     "beep:docgen": "bunx --bun --no-install docgen",
+    "beep:doctest": "BEEP_VITEST_DOCTEST=1 bunx vitest run",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
     "beep:test": "bunx --bun vitest run",
-    "beep:check:tests": "tsgo -p tsconfig.test.json --noEmit"
+    "beep:check:tests": "tsc-rs -p tsconfig.test.json --noEmit"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -43,6 +45,7 @@
     "./DocumentIdentification": "./src/DocumentIdentification/index.ts",
     "./MailTagging": "./src/MailTagging/index.ts",
     "./internal/*": null,
+    "./OfficeActionStructure": "./src/OfficeActionStructure/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -70,6 +73,7 @@
     "@beep/m365": "workspace:^",
     "@beep/mcp-kit": "workspace:^",
     "@beep/postgres": "workspace:^",
+    "@beep/provenance": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/shared-use-cases": "workspace:^",
     "@beep/tika": "workspace:^",

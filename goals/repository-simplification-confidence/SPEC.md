@@ -385,6 +385,9 @@ contract item 5). The repository-facing sweeps are under
 These facts constrain sequencing and evidence; they change no locked
 disposition above. PLAN.md "Sweep sequencing facts" turns them into lane order.
 
+- Per-lane receipts are named `history/receipts/stage-<n>-<lane>.md`, never a
+  shared `stage-5-acceptance.md`.
+
 - Knip is a required status check (`Knip`) on the `main` ruleset. The
   `check.yml` Knip job and the ruleset context are removed in the same change
   (workstream E, with or before workstream A's Knip removal); otherwise every
@@ -879,3 +882,92 @@ Move live ruleset, desktop settings and held-main reads from the contents-only v
 | 2026-10-09 | Migrate the new Research test to the retained capture-output contract. | V #1575 imports deleted parseCard; retain metadata/date/hash/body assertions using the existing schema-backed YAML decoder and remove the ghost test export. No retired parser is restored. | Revert the test-only integration repair alongside the retirement if the old capability is intentionally restored. |
 
 | 2026-10-09 | Use the brief's inherited-only publication fallback after repairing A's test-policy occurrence. | Canonical Yeet refuses four Accounts schema rows and thirteen C/epistemic detector rows in files matching main; A's changed Research provider is migrated to native it.layer with an explicit hook timeout and has no new row. Commit by name, push and attempt ready; record every red for the consolidated main repair. | Revert the follow-up commit; re-enter canonical publication once the inherited burn-down lands. |
+### D25 — Repair newly exposed CI causes once on main (2026-10-13)
+
+PR #1571 fresh CI exposes a shared technical-drawing test-fixture race: one
+mutable page count is reused by concurrent render tests. PR #1612 diagnostics
+also reveal inventory traversal failing on a broken YAML fixture symlink; its
+Repo Sanity job exposes unsorted schema-package devDependencies. The completed
+#1612 repair wave leaves these causes for follow-up. A separate main-targeted
+repair owns only those three surfaces and their focused regression tests.
+Dependents integrate the landed repair once; coverage floors, JSDoc totals and
+existing file-containment gates remain unchanged. Reversal is a normal revert
+of this repair commit; no live message store or external session is touched.
+
+### D26 — Distinguish JSDoc source findings from scanner artifacts (2026-10-13)
+
+The completed inventory exposes two classifier/scope errors. A regular
+`Context.Service` class is mistaken for a schema when a nested example contains
+`S.Class`; classify its own heritage instead. Scratchpad's umbrella docgen
+configuration excludes test files and its default Vitest config but misses the
+additional `vitest.effected.config.ts` and intentional `effected/.canary/**`
+fixtures. Exclude those two exact infrastructure paths from that owning config;
+ordinary Effected source remains inventoried and its live canary gates remain
+independent. Regression tests preserve real schema detection and exercise the
+false positive. No metric baseline changes. Reversal is a normal revert of these
+classifier/config changes. The active Effected owner retains ordinary source
+annotation and documentation repairs.
+### 2026-10-13 — B resolves the three inherited arbitrary-test blockers
+
+The resumed coordination request assigns B the three SFV4 arbitrary-test
+findings in the contacts app, M365 driver, and CI runner security tests.
+The source owner's M365 PRs are merged and its chat is dormant. B adds offline
+codec-preservation properties in those existing test files rather than adding
+registry exceptions. The journal property uses 25 reproducible single checks
+at nonzero sizes because its existing custom path filter has no generation
+bounds; budgets remain finite. Driver drafts and workflow inputs preserve
+schema equivalence through their codecs; operational patterns and journals
+preserve it through JSON persistence. No production schema or detector changes
+are needed. Reverse by reverting this repair wave.
+
+The preserved October 9 generated-refresh candidate stays separate and must be
+regenerated against integrated main before publication. This narrow baseline
+repair does not complete R20's three original waves or the honest-zero mission.
+
+### 2026-10-13 — B judgment on the overlapping #1612 admissions
+
+PR #1612 proposes exceptions for the same three arbitrary-test findings.
+B's focused codec properties pass without them and supplement the existing
+boundary regressions. Treat those three admissions as superseded by the
+source repair; compose the CI codec alias and drop stale admissions through
+the registry owner after integration, preserving every unrelated #1612 fix.
+Reason: legitimate deterministic boundary coverage and generated codec
+coverage are compatible. Reversal: revert the source wave, then individually
+reconsider the three findings with their original provenance. No broad
+exception ruling or other registry row changes follow from this decision.
+
+### 2026-10-13 — RSC burndown run 3 decisions
+
+| Decision | Reason and evidence | Reversal |
+| --- | --- | --- |
+| Keep scratchpad diagnostic experiments outside the shipped-source tsgo and Oxlint scans. | #1592 introduced lab-only overrides and inline-schema canaries; the run-3 brief explicitly admits the scratchpad scope exclusion. Workspace compiler profiles still include scratchpad, and its package lint remains available. | Restore scratchpad to the two scan scopes. |
+| Admit exactly three schema-codec test advisories with occurrence-specific reasons. | Two #1595 M365 transport/state suites and the #1583 CI workflow golden suite test fixed operational contracts; random roundtrips do not exercise those contracts. Reconsider when the B census lands. | Remove the three inventory exception rows and add the selected property coverage. |
+| Retain the existing test transit graph. | A temporary upstream `deletedAt` column rename changed the law-practice-tables test dry-run hash from `adb33a6bd107efa3` to `03713802b97245f8`; the original bytes were restored. The current dependency graph already hashes upstream sources. | Revisit if a concrete upstream change leaves a downstream hash unchanged. |
+| Preserve the baked AMI receipt and both metric baselines. | Runner-image staleness is an advisory separate from the actual Syncpack red; rewriting the baked lock digest would invent image provenance. JSDoc reproduces eight real source regressions. Newer coverage stops on startup tests before measurement. | Refresh the image through the documented bake/canary path; repair source findings and collect complete current coverage rows. |
+| Keep dependency-review v5 intact while fixture filtering remains open. | The pinned action has no manifest-path exclusion in its inputs or configuration schema. A fictional exclusion would provide no protection; a filtered comparison integration needs a separately qualified implementation. | Add and prove a manifest-aware comparison implementation for `scratchpad/test/**/fixtures/**`. |
+| Restore Bun.spawn output streams in the Node test shim. | The local full coverage lane reproduces both hosted practice-kg startup failures because the root shim exposes no stderr or stdout. A real child-process witness and both startup cases pass after the repair. | Revert the shim and its focused regression test; the application refusal behavior stays unchanged. |
+
+### 2026-10-13 — RSC burndown run 4 decision
+
+| Decision | Reason and evidence | Reversal |
+| --- | --- | --- |
+| Give the effected lint gate an explicit Oxlint config extending the root config and admitting scratchpad paths. | Root `scratchpad/**` exclusion made `lint:effected jsonl` report no files and fail its canary check. The explicit config retains root rules and plugins and reports the expected canary diagnostic. | Revert the config and gate argument together. |
+
+### 2026-10-13 — B integrates #1612 and retires its superseded admissions
+
+Merge main at `af42e6ff5dfc26fdaf8c600a327f87f75963a3e4`, preserving every
+other burn-down repair. The merge composes cleanly. Reuse its named CI JSON
+codec, then run the schema-first writer: it removes exactly the three stale
+SFV4-arbitrary-tests exception rows because generated properties now cover
+those files. No other inventory row changes. Reverse with the integration
+wave's revert; never restore generated totals manually.
+
+The earlier full audit/docgen package gates remain source-bound evidence.
+For this integration's test-only alias reuse and owner-written row retirement,
+requalification uses the three focused suites, quick lint/type package gates
+and fresh local parity. No package source or JSDoc changed in B's delta, so
+repeating the 24-minute CLI audit would add no relevant coverage. Report full
+prior gates and quick integrated gates separately; hosted exact-head checks
+remain authoritative.
+
+- B (2026-10-13): keep detector acceptance pending until its durable final receipt exists. The codec-test handoff records bounded progress only; the valid #1616 review identified an ambiguous evidence-map link. Reversal: restore the final receipt link when detector fixtures and individual admissions are complete.
