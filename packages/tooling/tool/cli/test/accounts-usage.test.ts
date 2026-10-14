@@ -1106,12 +1106,12 @@ describe("Junie direct balance", () => {
 });
 
 class JunieRequests extends Context.Service<JunieRequests, Ref.Ref<ReadonlyArray<ReadonlyArray<string | undefined>>>>()(
-  "test/JunieRequests"
+  "@beep/repo-cli/test/accounts-usage.test/JunieRequests"
 ) {}
 
 const junieTestLayer = (files: Readonly<Record<string, string>>, rotated: boolean) => {
   const root = "/accounts-test";
-  const requests = Layer.effect(JunieRequests, Ref.make(A.empty<ReadonlyArray<string | undefined>>()));
+  const requests = Layer.effect(JunieRequests, Ref.make<ReadonlyArray<ReadonlyArray<string | undefined>>>(A.empty()));
   const client = Layer.effect(
     HttpClient.HttpClient,
     Effect.gen(function* () {
@@ -1179,7 +1179,9 @@ const junieTestLayer = (files: Readonly<Record<string, string>>, rotated: boolea
     ),
     Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, {
       ...ChildProcessSpawner.make(() => Effect.die("Unexpected process spawn")),
-      string: () => Effect.succeed(""),
+      string: Effect.fnUntraced(function* () {
+        return "";
+      }),
     })
   );
   return layerAccountsUsageLive.pipe(Layer.provide(services), Layer.provideMerge(requests));
