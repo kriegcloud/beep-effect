@@ -19,9 +19,10 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ModelsLocatorReader, ModelsLocatorReaderLive } from "../Models/Models.locator.service.ts";
+import { LocatorBinding } from "../Models/Models.manifest.schemas.ts";
+import { ModelsTargetFile } from "../Models/Models.paths.ts";
 import { ContinuityInput, ContinuityObservation, PermissionTuple } from "./Continuity.schemas.ts";
 import { SessionLedgerError } from "./Session.errors.ts";
-import type { ModelsTargetFile } from "../Models/Models.paths.ts";
 
 const $I = $RepoCliId.create("commands/Session/Continuity.service");
 const optionalText = S.OptionFromOptionalKey(S.NonEmptyString);
@@ -247,17 +248,17 @@ export const PermissionContinuityLive = Layer.effect(
         const configs = yield* Effect.forEach(
           A.dedupe(input.configs),
           Effect.fnUntraced(function* (file, index) {
-            const target: ModelsTargetFile = {
+            const target = ModelsTargetFile.make({
               root: "home",
               absolutePath: resolve(file),
               content: yield* readText(resolve(file)),
-            };
+            });
             const readKey = (key: string) =>
               locator
                 .read(target, {
                   _tag: "toml-top-level-key",
                   key,
-                  binding: { role: "codex.heavy", surface: "codex-cli", field: "model" },
+                  binding: LocatorBinding.make({ role: "codex.heavy", surface: "codex-cli", field: "model" }),
                   render: { _tag: "verbatim" },
                 })
                 .pipe(Effect.mapError(() => failure("Cannot inspect selected config keys")));
