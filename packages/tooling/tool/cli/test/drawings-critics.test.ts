@@ -20,6 +20,11 @@ import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const UnknownJson = S.fromJsonString(S.Unknown);
+const encodeJson = (value: unknown) => Effect.runSync(S.encodeUnknownEffect(UnknownJson)(value));
+const decodeJson = (value: string) => Effect.runSync(S.decodeUnknownEffect(UnknownJson)(value));
 
 const accept = (reviewer: string): CriticReport =>
   CriticReport.make({
@@ -54,7 +59,7 @@ describe("critic report contract", () => {
         priorAssessment: [{ id: "A-01", stance: "confirm", note: "Measured 1.50 mm." }],
         findings: [finding("G-01"), finding("G-02", O.some("A-01"))],
       });
-      const text = JSON.stringify({
+      const text = encodeJson({
         reviewer: "grok-4.7",
         verdict: "accept",
         blockers: [],
@@ -74,20 +79,8 @@ describe("critic report contract", () => {
 
   it.effect("derives a JSON Schema in which every key is required and no excess property is allowed", () =>
     Effect.gen(function* () {
-      const schema = JSON.parse(criticReportJsonSchema()) as {
-        readonly required: ReadonlyArray<string>;
-        readonly additionalProperties?: boolean;
-        readonly properties: Record<
-          string,
-          {
-            readonly items?: {
-              readonly required?: ReadonlyArray<string>;
-              readonly properties?: Record<string, { readonly required?: ReadonlyArray<string> }>;
-            };
-          }
-        >;
-      };
-      expect(schema.required).toStrictEqual([
+      const schema = decodeJson(criticReportJsonSchema());
+      expect(schema).toHaveProperty("required", [
         "reviewer",
         "verdict",
         "blockers",
@@ -95,18 +88,17 @@ describe("critic report contract", () => {
         "findings",
         "couldNotAssess",
       ]);
-      expect(schema.additionalProperties).toBe(false);
-      const findingSchema = schema.properties.findings?.items;
-      expect(findingSchema?.required).toContain("relation");
+      expect(schema).toHaveProperty("additionalProperties", false);
+      expect(schema).toHaveProperty("properties.findings.items.required", expect.arrayContaining(["relation"]));
       // The strict structured-output modes refuse an optional key; `of` is required and nullable.
-      expect(findingSchema?.properties?.relation?.required).toStrictEqual(["kind", "of"]);
+      expect(schema).toHaveProperty("properties.findings.items.properties.relation.required", ["kind", "of"]);
       expect(criticReportJsonSchema()).not.toMatch(/"(allOf|minLength|title|minimum|maximum|\$ref)"/);
     })
   );
 
   it.effect("rejects a report whose finding carries an unknown category", () =>
     Effect.gen(function* () {
-      const text = JSON.stringify({
+      const text = encodeJson({
         ...accept("x"),
         findings: [{ ...finding("X-01"), relation: { kind: "new", of: null }, category: "taste" }],
       });
@@ -123,15 +115,15 @@ describe("extractReportText", () => {
     assertSome(
       extractReportText({
         route: "grok",
-        text: JSON.stringify({ text: "", structuredOutput: { reviewer: "x", verdict: "accept" } }),
+        text: encodeJson({ text: "", structuredOutput: { reviewer: "x", verdict: "accept" } }),
       }),
       document
     );
-    assertSome(extractReportText({ route: "grok", text: JSON.stringify({ text: `Here: ${document}` }) }), document);
+    assertSome(extractReportText({ route: "grok", text: encodeJson({ text: `Here: ${document}` }) }), document);
   });
 
   it("reads the last result event of a claude -p stream-json array", () => {
-    const events = JSON.stringify([
+    const events = encodeJson([
       { type: "system", subtype: "init" },
       { type: "result", result: "not this one {}" },
       { type: "result", result: `Final:\n${document}\n` },
