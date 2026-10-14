@@ -17105,6 +17105,352 @@
       "description": "Deterministic summary of one profiled phase."
     },
     {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "CatalogConflict",
+      "kind": "tagged-union",
+      "owner": "@beep/observability",
+      "identity": "CatalogConflict",
+      "description": "Conflict found while merging instrument declarations into a catalog."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "DuplicateAttributeKey",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "DuplicateAttributeKey"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "DuplicateInstrumentName",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "DuplicateInstrumentName"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "MissingAttributeKey",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "MissingAttributeKey"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "SignalNotAllowed",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "SignalNotAllowed"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "TierLooserThanAttribute",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "TierLooserThanAttribute"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.errors.ts",
+      "symbol": "UnboundedMetricLabel",
+      "kind": "tagged-error",
+      "owner": "@beep/observability",
+      "identity": "UnboundedMetricLabel"
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "AttributeValueType",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "AttributeValueType",
+      "description": "OpenTelemetry attribute value type carried by an attribute key."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "CardinalityClass",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "CardinalityClass",
+      "description": "Cardinality class of an attribute value space; metric labels accept static and bounded only."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "IdentitySource",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "IdentitySource",
+      "description": "Whether an emitter identity was vouched for by a trusted stamp or self-claimed."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "InstrumentOrigin",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "InstrumentOrigin",
+      "description": "Whether a span entry was harvested from source literals or declared by hand."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "MetricKind",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "MetricKind",
+      "description": "Metric instrument kind."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "PackageFamily",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "PackageFamily",
+      "description": "Repository package family, derived from the owning package path."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "SignalKind",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "SignalKind",
+      "description": "Telemetry signal kind: span, metric, event or log."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "SpanKind",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "SpanKind",
+      "description": "OpenTelemetry span kind."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.literals.ts",
+      "symbol": "TelemetryTier",
+      "kind": "literal-kit",
+      "owner": "@beep/observability",
+      "identity": "TelemetryTier",
+      "description": "Privacy tier of a telemetry record, ordered strictest first."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "AttributeKey",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "AttributeKey",
+      "description": "Attribute key declaration: value type, allowed signals, cardinality and strictest allowed tier."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Browser",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "Browser",
+      "description": "Browser emitter; tier ceiling shape-only."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "CiRunner",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "CiRunner",
+      "description": "CI runner emitter; tier ceiling standard."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "CloudVm",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "CloudVm",
+      "description": "Cloud virtual machine emitter; tier ceiling standard."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "EmitterContext",
+      "kind": "tagged-union",
+      "owner": "@beep/observability",
+      "identity": "EmitterContext",
+      "description": "Where a telemetry record ran, with its identity source; each variant implies a tier ceiling."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "EventInstrument",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "EventInstrument",
+      "description": "Event instrument declaration."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Instrument",
+      "kind": "tagged-union",
+      "owner": "@beep/observability",
+      "identity": "Instrument",
+      "description": "Catalog instrument: a metric, span or event declaration."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "InstrumentCatalog",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "InstrumentCatalog",
+      "description": "Merged instrument catalog, checked for name, attribute, cardinality and tier conflicts."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "InstrumentCatalogContent",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "InstrumentCatalogContent",
+      "description": "Attribute keys and instruments before the catalog conflict checks run."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "InstrumentDeclarations",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "InstrumentDeclarations",
+      "description": "One package's attribute key and instrument declarations."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "MetricInstrument",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "MetricInstrument",
+      "description": "Metric instrument declaration with kind, UCUM unit and optional histogram boundaries."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Server",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "Server",
+      "description": "Long-running server emitter; tier ceiling standard."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Serverless",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "Serverless",
+      "description": "Serverless function emitter; tier ceiling standard."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "SpanInstrument",
+      "kind": "union",
+      "owner": "@beep/observability",
+      "identity": "SpanInstrument",
+      "description": "Span instrument entry, harvested from source or declared by hand."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "SpanOwner",
+      "kind": "struct-const",
+      "owner": "@beep/observability",
+      "identity": "SpanOwner",
+      "description": "Package and package family that own a span name."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "StrictDesktop",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "StrictDesktop",
+      "description": "Strict-tier desktop emitter whose host the gateway stamps; tier ceiling shape-only."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.models.ts",
+      "symbol": "Workstation",
+      "kind": "tagged-struct",
+      "owner": "@beep/observability",
+      "identity": "Workstation",
+      "description": "Developer workstation emitter; tier ceiling dev-verbose."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "AttributeKeyName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "AttributeKeyName",
+      "description": "Static lowercase dotted attribute key."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "CloudProviderName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "CloudProviderName",
+      "description": "Semantic-convention cloud.provider token."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "EventName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "EventName",
+      "description": "Static event name in Concept.event_happened form."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "HostName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "HostName",
+      "description": "DNS-style host name reported by an emitter."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "InstrumentName",
+      "kind": "union",
+      "owner": "@beep/observability",
+      "identity": "InstrumentName",
+      "description": "Name of any catalog instrument."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "MetricName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "MetricName",
+      "description": "Static metric name in beep.<area>.<noun> form."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "PackageName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "PackageName",
+      "description": "Scoped package name that owns a catalog entry."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "ProtocolSpanName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "ProtocolSpanName",
+      "description": "Semantic-convention span name, allowed only on protocol spans."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "SpanName",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "SpanName",
+      "description": "Static span name in Concept(.Sub)*.action form."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "UcumUnit",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "UcumUnit",
+      "description": "UCUM unit code of a metric instrument."
+    },
+    {
+      "file": "packages/foundation/capability/observability/src/catalog/Catalog.names.ts",
+      "symbol": "VcsRevision",
+      "kind": "brand",
+      "owner": "@beep/observability",
+      "identity": "VcsRevision",
+      "description": "Commit revision a CI run built."
+    },
+    {
       "file": "packages/foundation/capability/observability/src/experimental/server/DevToolsRelay.ts",
       "symbol": "DevToolsSnapshot",
       "kind": "struct-const",
@@ -50288,6 +50634,13 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts",
+      "symbol": "LintProgramAssignmentError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "LintProgramAssignmentError"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts",
       "symbol": "SchemaFirstInventoryReadError",
       "kind": "tagged-error",
       "owner": "@beep/repo-cli",
@@ -51182,6 +51535,117 @@
       "owner": "@beep/repo-cli",
       "identity": "ModelsCheckOptions",
       "description": "Both trees, the manifest path, and the offline flag one check run executes under."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.errors.ts",
+      "symbol": "ObservabilityCommandError",
+      "kind": "tagged-error",
+      "owner": "@beep/repo-cli",
+      "identity": "ObservabilityCommandError"
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "CatalogBuild",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CatalogBuild",
+      "description": "Generated catalog document plus the rendered conflicts its merge reported."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "CatalogRunMode",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CatalogRunMode",
+      "description": "Whether the catalog command wrote or checked the generated files."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "CatalogRunReport",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CatalogRunReport",
+      "description": "Outcome of one instrumentation catalog write or check run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "DeclarationsFile",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "DeclarationsFile",
+      "description": "Instrument declarations exported by one *.instruments.ts file."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "FamilySpanCount",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "FamilySpanCount",
+      "description": "Harvested span count and conforming span count for one package family."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "GeneratedFileStatus",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "GeneratedFileStatus",
+      "description": "Whether a generated file was current, rewritten, stale or missing."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "HarvestedSpan",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "HarvestedSpan",
+      "description": "Generated span section row: harvested name, owning package, family and conformance."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "InstrumentationCatalogDocument",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "InstrumentationCatalogDocument",
+      "description": "Generated instrumentation catalog: declared attributes and instruments plus the harvested span section."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanCallee",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanCallee",
+      "description": "Effect call whose name argument opens a span."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanHarvest",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanHarvest",
+      "description": "Literal span sites and non-literal span-name findings from one scan."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanNameFinding",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanNameFinding",
+      "description": "Span-name argument that is interpolated or otherwise not a static literal."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanNameFindingKind",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanNameFindingKind",
+      "description": "Why a span-name argument is not a static literal."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Observability/Observability.schemas.ts",
+      "symbol": "SpanSite",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "SpanSite",
+      "description": "Literal span name found at one source location."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts",

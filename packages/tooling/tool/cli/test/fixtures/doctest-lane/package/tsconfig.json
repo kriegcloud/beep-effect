@@ -1,4 +1,10 @@
 {
   "extends": "../../../../../../../../tsconfig.base.json",
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.config.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vitest.config.ts"],
+  "compilerOptions": {
+    "rootDir": "../../../../../../../..",
+    "composite": false,
+    "incremental": false,
+    "noEmit": true
+  }
 }
