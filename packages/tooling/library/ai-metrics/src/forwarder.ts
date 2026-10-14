@@ -1420,7 +1420,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
     const lastObserved = MutableHashMap.empty<string, number>();
     const endings = MutableHashMap.empty<string, number>();
     const sessionLastObserved = MutableHashMap.empty<string, number>();
-    const failedHookShards = A.empty<string>();
+    let failedHookShards = HashSet.empty<string>();
     let hookRejectedRecords = 0;
     let hookCollectionComplete = O.isSome(shardListing);
     yield* Effect.forEach(
@@ -1430,24 +1430,25 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
           Effect.match({
             onFailure: () => {
               hookCollectionComplete = false;
-              failedHookShards.push(name);
+              failedHookShards = HashSet.add(failedHookShards, name);
               return "";
             },
             onSuccess: identity,
           })
         );
-        for (const line of Str.split(text, "\n")) {
-          const row = HookPulseV1.decodeJsonResult(line);
-          if (Str.isNonEmpty(line) && Result.isFailure(row)) {
-            hookCollectionComplete = false;
-            hookRejectedRecords += 1;
-            if (!A.contains(failedHookShards, name)) failedHookShards.push(name);
-          }
-          if (Result.isSuccess(row))
-            collectSessionStamp(
-              { stamps, sessions, freshStarts, firstObserved, lastObserved, endings, sessionLastObserved },
-              row.success
-            );
+        for (const line of A.filter(Str.split(text, "\n"), Str.isNonEmpty)) {
+          Result.match(HookPulseV1.decodeJsonResult(line), {
+            onFailure: () => {
+              hookCollectionComplete = false;
+              hookRejectedRecords += 1;
+              failedHookShards = HashSet.add(failedHookShards, name);
+            },
+            onSuccess: (pulse) =>
+              collectSessionStamp(
+                { stamps, sessions, freshStarts, firstObserved, lastObserved, endings, sessionLastObserved },
+                pulse
+              ),
+          });
         }
       }),
       { discard: true }
@@ -1536,7 +1537,7 @@ export const runAiMetricsForwarder = Effect.fn("AiMetrics.runAiMetricsForwarder"
       rawArchiveDir: installSpec.storage.rawArchiveDir,
       sourceCoverage: sourceSelection.coverage,
       hookCollectionComplete,
-      failedHookShards,
+      failedHookShards: A.fromIterable(failedHookShards),
       hookRejectedRecords,
       stampGapCollectionComplete: O.exists(stampGaps, (loaded) => loaded.rejectedRecords === 0),
       stampGapRejectedRecords: O.getOrElse(

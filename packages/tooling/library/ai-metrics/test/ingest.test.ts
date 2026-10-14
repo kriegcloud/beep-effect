@@ -720,6 +720,18 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
             )
           );
       });
+      const writeRejectedRefusalFixture = Effect.fnUntraced(function* (
+        scenario: typeof ForwarderStampScenario.Type,
+        hookRoot: string
+      ) {
+        if (scenario === "mixed-refusal" || scenario === "rejected-refusal")
+          yield* writeText(
+            path.join(hookRoot, "hook-pulse-refusals-fixture.ndjson"),
+            scenario === "mixed-refusal"
+              ? 'not JSON\n{"ts":"2026-10-09T10:00:30Z","agentKind":"codex-cli","reason":"timeout"}\n'
+              : 'not JSON\n{"ts":"2026-10-09T09:00:00Z","agentKind":"codex-cli","reason":"timeout"}\n'
+          );
+      });
       const writeScenarioGaps = Effect.fnUntraced(function* (
         scenario: typeof ForwarderStampScenario.Type,
         hookRoot: string,
@@ -751,15 +763,26 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
               })
             )
           );
-        if (scenario === "mixed-refusal" || scenario === "rejected-refusal")
-          yield* writeText(
-            path.join(hookRoot, "hook-pulse-refusals-fixture.ndjson"),
-            scenario === "mixed-refusal"
-              ? 'not JSON\n{"ts":"2026-10-09T10:00:30Z","agentKind":"codex-cli","reason":"timeout"}\n'
-              : 'not JSON\n{"ts":"2026-10-09T09:00:00Z","agentKind":"codex-cli","reason":"timeout"}\n'
-          );
+        yield* writeRejectedRefusalFixture(scenario, hookRoot);
         yield* writeScenarioSentinel(scenario, hookRoot);
       });
+      const assertScenarioCollection = (
+        scenario: typeof ForwarderStampScenario.Type,
+        result: AiMetricsForwarderRunResult,
+        status: AiMetricsForwarderRunResult
+      ) => {
+        const badShard = scenario === "corrupt" || scenario === "unreadable";
+        expect(result.hookCollectionComplete).toBe(!badShard);
+        expect(result.failedHookShards).toEqual(badShard ? ["bad.ndjson"] : []);
+        expect(result.hookRejectedRecords).toBe(scenario === "corrupt" ? 1 : 0);
+        expect(status.hookCollectionComplete).toBe(!badShard);
+        expect(status.failedHookShards).toEqual(result.failedHookShards);
+        if (scenario === "mixed-refusal" || scenario === "rejected-refusal") {
+          expect(result.stampGapCollectionComplete).toBe(false);
+          expect(result.stampGapRejectedRecords).toBe(1);
+          expect(status.stampGapRejectedRecords).toBe(1);
+        }
+      };
       for (const scenario of ForwarderStampScenario.literals) {
         const homeDir = path.join(tmpDir, scenario, "home");
         const sourceRoot = path.join(homeDir, ".codex/sessions");
@@ -854,20 +877,10 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("@beep/repo-ai-metrics",
               rawArchiveKey: Redacted.make(Base64.encode(new Uint8Array(32).fill(7))),
             })
           );
-          const badShard = scenario === "corrupt" || scenario === "unreadable";
-          expect(result.hookCollectionComplete).toBe(!badShard);
-          expect(result.failedHookShards).toEqual(badShard ? ["bad.ndjson"] : []);
-          expect(result.hookRejectedRecords).toBe(scenario === "corrupt" ? 1 : 0);
           const status = yield* S.decodeEffect(S.fromJsonString(AiMetricsForwarderRunResult))(
             yield* forwarderRunResultToJson(result)
           );
-          expect(status.hookCollectionComplete).toBe(!badShard);
-          expect(status.failedHookShards).toEqual(result.failedHookShards);
-          if (scenario === "mixed-refusal" || scenario === "rejected-refusal") {
-            expect(result.stampGapCollectionComplete).toBe(false);
-            expect(result.stampGapRejectedRecords).toBe(1);
-            expect(yield* forwarderRunResultToJson(result)).toContain('"stampGapRejectedRecords":1');
-          }
+          assertScenarioCollection(scenario, result, status);
           const expected = A.contains(
             ["qualified", "closed-before-refusal", "corrupt", "unreadable", "rejected-refusal"],
             scenario

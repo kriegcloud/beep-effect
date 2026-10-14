@@ -474,3 +474,16 @@ Hook ingestion now retains all decodable records across corrupt or unreadable sh
 Prune reports expose stamped for qualifying per-client observations and unsupported for Junie/Grok. A missing supported-client observation remains unknown, since absence cannot establish not-configured or unstamped-by-design. This does not change the non-use qualification gate. Regression fixtures exercise corrupt and unreadable shards, mixed invalid/valid intersecting refusals, a rejected record beside a valid non-intersecting refusal, status JSON round-trip and both unsupported clients.
 
 The first full package attempts caught the introduced v4 Array.filterMap Result/Option mismatch; corrected against the local Effect reference. The first corrected metrics run used a temp root inside the checkout and hit nested-repository exclusion assertions; the corrected run with ordinary external temp backing passed the full metrics audit and docgen (26.6 s / 4.9 s). Original failures remain in the private command logs; no baseline, production boundary or admission gate was weakened. Remaining proof and publication results are recorded in the dated handoff.
+
+Review-wave scoped coverage read (67 metrics tests and 76 CLI tests passed; source commit `5fb9658540`, unchanged by main integration):
+
+| Touched source | Lines | Statements | Branches | Functions |
+| --- | ---: | ---: | ---: | ---: |
+| ai-metrics `forwarder.ts` | 90.81% | 90.25% | 79.12% | 79.64% |
+| CLI `AIMetrics/internal/Programs.ts` | 70.90% | 70.61% | 57.07% | 74.26% |
+| CLI `HarnessLedger.schemas.ts` | 93.93% | 86.84% | 100% | 66.66% |
+| CLI `PruneWindow.ts` | 96.02% | 94.37% | 84.90% | 90.22% |
+
+Read all four matching rows in the committed coverage regression baseline; did not rewrite them. The PruneWindow scoped line/statement/function percentages equal the prior lane scoped receipt; branch coverage rises from 84.71% to 84.90%. The older repository row is higher for line/statement/function coverage, so this is a scoped read, not a full coverage-ratchet pass.
+
+After merging main `f02768114e`, test-tsgo reports only inherited AgentMessage.runtime.test.ts:322 TS377032, with identical source on origin/main. Local docgen passes. The integrated codemod check reports zero new sites, with 88 Opaque, five TaggedError and two Class declarations already branded.
