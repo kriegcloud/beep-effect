@@ -34,6 +34,12 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { NodeTestLayer, temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
 
+const decodeGoalManifest = S.decodeEffect(GoalManifest);
+const decodeGoalManifestJson = S.decodeEffect(S.fromJsonString(GoalManifest));
+const decodeUnknownGoalManifest = S.decodeUnknownEffect(GoalManifest);
+const encodeGoalCompletionReceiptJson = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
+const encodeGoalManifestJson = S.encodeEffect(S.fromJsonString(GoalManifest));
+
 const encode = flow(S.encodeUnknownResult(S.fromJsonString(S.Unknown)), Result.getOrThrow);
 const HistoricalRulesetFailure = LiteralKit(["organization", "glob", "unreadable"]);
 const Scenario = S.Struct({
@@ -53,7 +59,7 @@ const Scenario = S.Struct({
   red: S.optionalKey(S.Boolean),
 });
 const manifest = () =>
-  S.decodeEffect(GoalManifest)({
+  decodeGoalManifest({
     initiative: { id: "demo", packetId: "packet-demo", status: "completed-retained" },
     completionGate: {
       operator: "yeet",
@@ -218,7 +224,7 @@ const fixtureIo = (acceptedText: string, scenario: typeof Scenario.Type = {}) =>
   });
 const observe = Effect.fn("CompletionTest.observe")(function* (scenario: typeof Scenario.Type = {}) {
   const value = yield* manifest();
-  const text = yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value);
+  const text = yield* encodeGoalManifestJson(value);
   return yield* observeGoalCompletion(process.cwd(), "demo", value, final).pipe(
     Effect.provideService(GoalCompletionIo, fixtureIo(text, scenario))
   );
@@ -243,12 +249,12 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
     [Arbitrary.schema(GoalPullRequestRef)],
     Effect.fnUntraced(function* ([reference]) {
       const value = yield* manifest();
-      const declared = yield* S.decodeEffect(GoalManifest)({
+      const declared = yield* decodeGoalManifest({
         ...value,
         completionGate: { ...value.completionGate, pullRequests: [reference] },
       });
-      const text = yield* S.encodeEffect(S.fromJsonString(GoalManifest))(declared);
-      const decoded = yield* S.decodeEffect(S.fromJsonString(GoalManifest))(text);
+      const text = yield* encodeGoalManifestJson(declared);
+      const decoded = yield* decodeGoalManifestJson(text);
       expect(yield* goalCompletionDeclarationDigest(decoded)).toBe(yield* goalCompletionDeclarationDigest(declared));
     }),
     { arbitrary: { runs: 32 } }
@@ -265,7 +271,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
         const file = path.join(goals, slug, "ops", "manifest.json");
         if (!(yield* fs.exists(file))) continue;
         const text = yield* fs.readFileString(file);
-        yield* S.decodeUnknownEffect(GoalManifest)(parseGoalManifestText(text).pipe(O.getOrThrow));
+        yield* decodeUnknownGoalManifest(parseGoalManifestText(text).pipe(O.getOrThrow));
         decoded += 1;
       }
       expect(decoded).toBeGreaterThan(0);
@@ -437,13 +443,12 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       yield* temporaryWorkingDirectory;
       const value = yield* manifest();
       const receipt = yield* completeReceipt();
-      const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
-      const correct = yield* encodeReceipt(receipt);
-      const stale = yield* encodeReceipt(
+      const correct = yield* encodeGoalCompletionReceiptJson(receipt);
+      const stale = yield* encodeGoalCompletionReceiptJson(
         GoalCompletionReceipt.make({ ...receipt, declarationDigest: "old-digest", finalPullRequest: 8 })
       );
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${stale}\n${correct}`);
-      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      const io = fixtureIo(yield* encodeGoalManifestJson(value));
       assertNone(
         yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
           Effect.provideService(GoalCompletionIo, io)
@@ -468,9 +473,9 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       const value = yield* manifest();
       const receipt = yield* observe();
       const staleVerified = GoalCompletionReceipt.make({ ...receipt, outcome: "verified" });
-      const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(staleVerified);
+      const text = yield* encodeGoalCompletionReceiptJson(staleVerified);
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
-      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      const io = fixtureIo(yield* encodeGoalManifestJson(value));
       assertSome(
         O.map(
           yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
@@ -487,9 +492,8 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       yield* temporaryWorkingDirectory;
       const value = yield* manifest();
       const receipt = yield* completeReceipt();
-      const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
-      const correct = yield* encodeReceipt(receipt);
-      const unknown = yield* encodeReceipt(
+      const correct = yield* encodeGoalCompletionReceiptJson(receipt);
+      const unknown = yield* encodeGoalCompletionReceiptJson(
         GoalCompletionReceipt.make({
           ...receipt,
           outcome: "unknown",
@@ -502,7 +506,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
         })
       );
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${correct}\n${unknown}\n`);
-      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      const io = fixtureIo(yield* encodeGoalManifestJson(value));
       assertSome(
         O.map(
           yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
@@ -518,8 +522,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
     Effect.gen(function* () {
       yield* temporaryWorkingDirectory;
       const value = yield* manifest();
-      const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
-      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      const io = fixtureIo(yield* encodeGoalManifestJson(value));
       yield* Effect.forEach(
         [true, false],
         Effect.fn("GoalsCompletionTest.replaceStaleReceipt")(function* (red) {
@@ -532,8 +535,8 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
           });
           expect(latest.outcome).toBe("unknown");
           latest.merge.pipe(O.isSome, assertTrue);
-          const staleText = yield* encodeReceipt(stale);
-          const latestText = yield* encodeReceipt(latest);
+          const staleText = yield* encodeGoalCompletionReceiptJson(stale);
+          const latestText = yield* encodeGoalCompletionReceiptJson(latest);
           yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${latestText}\n`);
           assertSome(
             yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
@@ -551,9 +554,8 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
       const value = yield* manifest();
       const stale = yield* observe({ red: true });
       expect(stale.outcome).toBe("unsatisfied");
-      const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
-      const staleText = yield* encodeReceipt(stale);
-      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      const staleText = yield* encodeGoalCompletionReceiptJson(stale);
+      const io = fixtureIo(yield* encodeGoalManifestJson(value));
       yield* Effect.forEach(
         [{ missingHistory: true }, { preMergePendingRerun: true }],
         Effect.fn("GoalsCompletionTest.retainRequiredRed")(function* (scenario) {
@@ -564,7 +566,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
           });
           expect(degraded.outcome).toBe("unknown");
           degraded.merge.pipe(O.isSome, assertTrue);
-          const degradedText = yield* encodeReceipt(degraded);
+          const degradedText = yield* encodeGoalCompletionReceiptJson(degraded);
           yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${degradedText}\n`);
           assertSome(
             yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
@@ -604,11 +606,10 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
         O.map(partial.requiredChecks, (snapshot) => snapshot.rulesetReadsComplete),
         false
       );
-      const encodeReceipt = S.encodeEffect(S.fromJsonString(GoalCompletionReceipt));
-      const staleText = yield* encodeReceipt(stale);
-      const partialText = yield* encodeReceipt(partial);
+      const staleText = yield* encodeGoalCompletionReceiptJson(stale);
+      const partialText = yield* encodeGoalCompletionReceiptJson(partial);
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${partialText}\n`);
-      const io = fixtureIo(yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value));
+      const io = fixtureIo(yield* encodeGoalManifestJson(value));
       assertSome(
         yield* storedGoalCompletion(process.cwd(), "demo", value, final).pipe(
           Effect.provideService(GoalCompletionIo, io)
@@ -621,7 +622,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
     Effect.gen(function* () {
       yield* temporaryWorkingDirectory;
       const value = yield* manifest();
-      const text = yield* S.encodeEffect(S.fromJsonString(GoalManifest))(value);
+      const text = yield* encodeGoalManifestJson(value);
       yield* writeProjectFile("bun.lock", "");
       yield* writeProjectFile("goals/demo/ops/manifest.json", text);
       yield* writeProjectFile("goals/demo/README.md", "# Demo\n\nLifecycle: `completed-retained`\n");

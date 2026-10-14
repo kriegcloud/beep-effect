@@ -8,6 +8,8 @@ import { makeModHost } from "@/PracticeMod.host";
 import { VerdictRow } from "@/PracticeMod.values";
 import type { Engine } from "claude-code";
 
+const decodeUnknownVerdictRowArray = S.decodeUnknownEffect(S.Array(VerdictRow));
+
 const fixture = () => {
   const store = MutableHashMap.empty<string, unknown>();
   const engine = {
@@ -98,7 +100,7 @@ describe("practice hook host boundaries", { concurrent: false }, () => {
       const rows = yield* store.pipe(
         MutableHashMap.get("verdict-rows"),
         O.getOrUndefined,
-        S.decodeUnknownEffect(S.Array(VerdictRow))
+        decodeUnknownVerdictRowArray
       );
       expect(A.map(rows, (row) => row.revision)).toEqual([0, 1]);
       expect(A.map(rows, (row) => O.getOrUndefined(row.verdict))).toEqual(["wrong", undefined]);
