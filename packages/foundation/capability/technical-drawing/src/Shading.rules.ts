@@ -218,7 +218,10 @@ const toneSpacing = (tone: ShadingTone) =>
  * times the one before, capped at `maxPitch`. Lines stop when they pass the
  * tone's share of the span (once its minimum count is drawn) or its maximum
  * count, and never come within `minPitch` of the far edge. A face too narrow
- * for one line gets none.
+ * for one line gets none. An optional `keep` rejects positions where the face
+ * is too narrow for a stroke (a tab, a lip, a pointed tip): the line is not
+ * counted and the next position is tried one gap further in, so the strokes
+ * move inward instead of vanishing.
  *
  * **Example** (A light 30-wide face)
  *
@@ -236,20 +239,45 @@ export const gradedOffsets = (input: {
   readonly minPitch: number;
   readonly maxPitch: number;
   readonly tone: ShadingTone;
+  readonly keep?: (offset: number) => boolean;
 }): ReadonlyArray<number> => {
   const { span, minPitch } = input;
   const maxPitch = Math.max(input.maxPitch, minPitch);
+  const keep = input.keep ?? (() => true);
   const { coverage, minLines, maxLines } = toneSpacing(input.tone);
   const limit = span - minPitch;
   const next = (offsets: ReadonlyArray<number>, at: number, gap: number): ReadonlyArray<number> => {
     const offset = at + gap;
     const enough = A.length(offsets) >= minLines && offset > coverage * span;
-    return A.length(offsets) >= maxLines || offset > limit || enough
-      ? offsets
-      : next([...offsets, offset], offset, Math.min(maxPitch, gap * GROWTH));
+    if (A.length(offsets) >= maxLines || offset > limit || enough) {
+      return offsets;
+    }
+    return keep(offset)
+      ? next([...offsets, offset], offset, Math.min(maxPitch, gap * GROWTH))
+      : next(offsets, offset, gap);
   };
   return next([], 0, minPitch);
 };
+
+// Length of the chord a cut at `offset` along the anchor's step makes across
+// the face, from its straight edges (a curved face answers infinity and keeps
+// every position); the hull across a notch, which is what a stroke spans.
+const chordAt =
+  (face: FaceFacts, anchor: FaceAnchor, direction: V3) =>
+  (offset: number): number => {
+    const u = (p: V3) => dot(minus(p, anchor.point), direction);
+    const v = (p: V3) => dot(minus(p, anchor.point), anchor.step);
+    const hits = A.filterMap(face.edges, (e) => {
+      const v0 = v(e.start);
+      const v1 = v(e.end);
+      if (v0 === v1 || (v0 - offset) * (v1 - offset) > 0) {
+        return O.none();
+      }
+      const t = (offset - v0) / (v1 - v0);
+      return O.some(u(e.start) + t * (u(e.end) - u(e.start)));
+    });
+    return A.isReadonlyArrayNonEmpty(hits) ? Math.max(...hits) - Math.min(...hits) : Number.POSITIVE_INFINITY;
+  };
 
 /**
  * Drawn fraction of each graded line's chord, by line count: the first
@@ -572,7 +600,11 @@ const gradedTreatment = (input: {
       A.reduce(0, (most, reach) => Math.max(most, reach))
     ) * factor;
   const tone = toneOf(dot(face.normal, view.light));
-  const offsets = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone });
+  // a stroke needs the face to be at least the minimum stroke wide where it is cut
+  const chord = chordAt(face, anchor, direction);
+  const seen = spread(direction, view.eye);
+  const keep = (offset: number) => plan.minStroke <= 0 || chord(offset / factor) * seen >= plan.minStroke;
+  const offsets = gradedOffsets({ span, minPitch: plan.minPitch, maxPitch: plan.maxPitch, tone, keep });
   // a lit face carries short strokes only (Example 32: lit faces are nearly bare)
   const cuts = A.zipWith(
     offsets,

@@ -155,6 +155,8 @@ describe("Shading.rules", () => {
     // a narrow face still gets the tone's minimum where it fits, and nothing below one pitch
     expect(gradedOffsets({ span: 4, minPitch: 1, maxPitch: 2.5, tone: "medium" })).toEqual([1, 2.4]);
     expect(gradedOffsets({ span: 1.5, minPitch: 1, maxPitch: 2.5, tone: "dark" })).toEqual([]);
+    // positions the face is too narrow for are skipped, not counted: the strokes move inward
+    expect(gradedOffsets({ span: 40, minPitch: 1, maxPitch: 2.5, tone: "faint", keep: (o) => o >= 3 })).toEqual([3, 4]);
   });
 
   it("keeps shading legible after hidden-line removal: fragments and doubled lines go", () => {
