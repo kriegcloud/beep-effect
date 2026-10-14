@@ -16,6 +16,7 @@ import { assertExitFailure, assertSome } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
@@ -525,4 +526,35 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills fixture ownership"
       })
     );
   }
+});
+
+it.layer(CommandTestLayer)("read-only skills lock-plan command", (it) => {
+  it.effect(
+    "renders both report formats without changing the lock and reports malformed input",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock =
+          '{"version":1,"skills":{"local-only":{"source":"beep-effect/beep-effect","sourceType":"local","computedHash":"0000000000000000000000000000000000000000000000000000000000000000"}}}';
+        yield* writeProjectFile("skills-lock.json", lock);
+        yield* writeProjectFile(".claude/skills/local-only/SKILL.md", "# Local-only fixture\n");
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.makeDirectory(".agents", { recursive: true });
+        yield* fs.symlink("../.claude/skills", ".agents/skills");
+        yield* runSkillsCommand(["lock-plan"]);
+        const human = yield* TestConsole.logLines;
+        expect(human).toEqual(expect.arrayContaining([expect.stringContaining("1 local")]));
+        yield* runSkillsCommand(["lock-plan", "--json"]);
+        const lines = yield* TestConsole.logLines;
+        expect(lines).toEqual(expect.arrayContaining([expect.stringContaining("skills-lock-migration-plan/v3")]));
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+        yield* writeProjectFile("skills-lock.json", "not-json");
+        const refused = yield* Effect.exit(runSkillsCommand(["lock-plan"]));
+        expect(Exit.isFailure(refused)).toBe(true);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("skills:lock-plan:")]));
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
 });

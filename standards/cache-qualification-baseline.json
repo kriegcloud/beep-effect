@@ -354,11 +354,11 @@
       }
     },
     "@beep/effect-drizzle": {
-      "reviewer": "Claude Fable 5.1 (tsc-rs-gates, feat/tsc-rs-gates)",
-      "reason": "Re-record the legacy cache posture of all 153 subjects whose beep:build, beep:check or beep:check:tests command changed from tsgo -p / tsc -p to tsc-rs (goals/tsc-rs-gates), including the three whose review basis is their own manifest. Task names, project files, inputs, outputs, cache flags and turbo.json are unchanged; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (feat/ts7-ts-native-api)",
+      "reason": "Record the manifest-only posture changes of @beep/repo-utils, @beep/effect-drizzle and @beep/scratchpad from the TsNativeApi port (new TypeScript 7 dependencies, Node-hosted test split, removed scratchpad script); no turbo input, output, env or cache flag changes, and no qualification is granted.",
       "basis": {
-        "path": "goals/tsc-rs-gates/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0512a5769d654067ca7f05d776b578f46135cef7da1dd371cf4f8f42619dd93c"
+        "path": "goals/ts7-ts-native-api/research/cache-baseline-review.md",
+        "sha256": "f6a951653b870d12975eb49bcf7c039640535c7a96bae3ca97753df1482e8765"
       }
     },
     "@beep/epistemic-client": {
@@ -962,11 +962,11 @@
       }
     },
     "@beep/repo-utils": {
-      "reviewer": "Claude Fable 5.1 (tsc-rs-gates, feat/tsc-rs-gates)",
-      "reason": "Re-record the legacy cache posture of all 153 subjects whose beep:build, beep:check or beep:check:tests command changed from tsgo -p / tsc -p to tsc-rs (goals/tsc-rs-gates), including the three whose review basis is their own manifest. Task names, project files, inputs, outputs, cache flags and turbo.json are unchanged; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (feat/ts7-ts-native-api)",
+      "reason": "Record the manifest-only posture changes of @beep/repo-utils, @beep/effect-drizzle and @beep/scratchpad from the TsNativeApi port (new TypeScript 7 dependencies, Node-hosted test split, removed scratchpad script); no turbo input, output, env or cache flag changes, and no qualification is granted.",
       "basis": {
-        "path": "goals/tsc-rs-gates/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0512a5769d654067ca7f05d776b578f46135cef7da1dd371cf4f8f42619dd93c"
+        "path": "goals/ts7-ts-native-api/research/cache-baseline-review.md",
+        "sha256": "f6a951653b870d12975eb49bcf7c039640535c7a96bae3ca97753df1482e8765"
       }
     },
     "@beep/runpod": {
@@ -994,11 +994,11 @@
       }
     },
     "@beep/scratchpad": {
-      "reviewer": "Claude Fable 5.1 (tsc-rs-gates, feat/tsc-rs-gates)",
-      "reason": "Re-record the legacy cache posture of all 153 subjects whose beep:build, beep:check or beep:check:tests command changed from tsgo -p / tsc -p to tsc-rs (goals/tsc-rs-gates), including the three whose review basis is their own manifest. Task names, project files, inputs, outputs, cache flags and turbo.json are unchanged; no qualification is granted.",
+      "reviewer": "Claude Opus 5.5 (feat/ts7-ts-native-api)",
+      "reason": "Record the manifest-only posture changes of @beep/repo-utils, @beep/effect-drizzle and @beep/scratchpad from the TsNativeApi port (new TypeScript 7 dependencies, Node-hosted test split, removed scratchpad script); no turbo input, output, env or cache flag changes, and no qualification is granted.",
       "basis": {
-        "path": "goals/tsc-rs-gates/research/cache-baseline-review-2026-10-14.md",
-        "sha256": "0512a5769d654067ca7f05d776b578f46135cef7da1dd371cf4f8f42619dd93c"
+        "path": "goals/ts7-ts-native-api/research/cache-baseline-review.md",
+        "sha256": "f6a951653b870d12975eb49bcf7c039640535c7a96bae3ca97753df1482e8765"
       }
     },
     "@beep/semantic-web": {
@@ -31276,10 +31276,11 @@
       {
         "computation": "@beep/effect-drizzle#audit",
         "command": "bun run --if-present beep:audit",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/fc-runs#audit",
           "@beep/pglite#audit",
+          "@beep/repo-utils#audit",
           "@beep/test-runner#audit"
         ],
         "configuration": {
@@ -31339,10 +31340,11 @@
       {
         "computation": "@beep/effect-drizzle#build",
         "command": "bun run beep:build",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/fc-runs#build",
           "@beep/pglite#build",
+          "@beep/repo-utils#build",
           "@beep/test-runner#build"
         ],
         "configuration": {
@@ -31389,10 +31391,11 @@
       {
         "computation": "@beep/effect-drizzle#check",
         "command": "bun run beep:check",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/fc-runs#build",
           "@beep/pglite#build",
+          "@beep/repo-utils#build",
           "@beep/test-runner#build"
         ],
         "configuration": {
@@ -31426,10 +31429,11 @@
       {
         "computation": "@beep/effect-drizzle#coverage",
         "command": "bunx vitest run --coverage --exclude=test/integration/**",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/fc-runs#build",
           "@beep/pglite#build",
+          "@beep/repo-utils#build",
           "@beep/test-runner#build"
         ],
         "configuration": {
@@ -31475,7 +31479,7 @@
       {
         "computation": "@beep/effect-drizzle#docgen",
         "command": "bun run beep:docgen",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/effect-drizzle#transit",
           "@beep/repo-docgen#transit"
@@ -31514,7 +31518,7 @@
       {
         "computation": "@beep/effect-drizzle#lint",
         "command": "bun run beep:lint",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [],
         "configuration": {
           "cache": true,
@@ -31549,11 +31553,12 @@
       {
         "computation": "@beep/effect-drizzle#lint:deprecated-apis",
         "command": "beep-cli lint deprecated-apis --package .",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/fc-runs#transit",
           "@beep/pglite#transit",
+          "@beep/repo-utils#transit",
           "@beep/test-runner#transit"
         ],
         "configuration": {
@@ -31620,7 +31625,7 @@
       {
         "computation": "@beep/effect-drizzle#lint:jsdoc",
         "command": "beep-cli lint jsdoc --package .",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -31675,7 +31680,7 @@
       {
         "computation": "@beep/effect-drizzle#lint:laws",
         "command": "beep-cli lint laws --package .",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -31729,10 +31734,11 @@
       {
         "computation": "@beep/effect-drizzle#package-test-typecheck",
         "command": "beep-cli quality test-tsgo-package",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/fc-runs#transit",
           "@beep/pglite#transit",
+          "@beep/repo-utils#transit",
           "@beep/test-runner#transit"
         ],
         "configuration": {
@@ -31772,10 +31778,11 @@
       {
         "computation": "@beep/effect-drizzle#test",
         "command": "bun run beep:test",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/fc-runs#transit",
           "@beep/pglite#transit",
+          "@beep/repo-utils#transit",
           "@beep/test-runner#transit",
           "@beep/utils#transit"
         ],
@@ -31818,10 +31825,11 @@
       {
         "computation": "@beep/effect-drizzle#test:integration",
         "command": "bun run beep:test:integration",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/fc-runs#build",
           "@beep/pglite#build",
+          "@beep/repo-utils#build",
           "@beep/test-runner#build"
         ],
         "configuration": {
@@ -31860,10 +31868,11 @@
       {
         "computation": "@beep/effect-drizzle#test:integration:parallel",
         "command": "bun run beep:test:integration",
-        "commandDigest": "8c9e9e65745fa47b06d1894966d291e963660dee18453a28f9e2dc50fa5dcd84",
+        "commandDigest": "5236e35589ca731236ac2cef6650458773115808169fb4c7ce8ec4cf6f1511b1",
         "dependencies": [
           "@beep/fc-runs#build",
           "@beep/pglite#build",
+          "@beep/repo-utils#build",
           "@beep/test-runner#build"
         ],
         "configuration": {
@@ -83268,7 +83277,7 @@
       {
         "computation": "@beep/repo-utils#audit",
         "command": "bun run --if-present beep:audit",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "@beep/identity#audit",
           "@beep/schema#audit",
@@ -83333,7 +83342,7 @@
       {
         "computation": "@beep/repo-utils#build",
         "command": "bun run beep:build",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "@beep/identity#build",
           "@beep/schema#build",
@@ -83385,7 +83394,7 @@
       {
         "computation": "@beep/repo-utils#check",
         "command": "bun run beep:check",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "@beep/identity#build",
           "@beep/schema#build",
@@ -83424,7 +83433,7 @@
       {
         "computation": "@beep/repo-utils#coverage",
         "command": "bunx vitest run --coverage",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "@beep/identity#build",
           "@beep/schema#build",
@@ -83475,7 +83484,7 @@
       {
         "computation": "@beep/repo-utils#docgen",
         "command": "bun run beep:docgen",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "@beep/repo-docgen#transit",
           "@beep/repo-utils#transit"
@@ -83514,7 +83523,7 @@
       {
         "computation": "@beep/repo-utils#lint",
         "command": "bun run beep:lint",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [],
         "configuration": {
           "cache": true,
@@ -83549,7 +83558,7 @@
       {
         "computation": "@beep/repo-utils#lint:deprecated-apis",
         "command": "beep-cli lint deprecated-apis --package .",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "//#lint:policy-fingerprint",
           "@beep/identity#transit",
@@ -83622,7 +83631,7 @@
       {
         "computation": "@beep/repo-utils#lint:fix",
         "command": "bun run beep:lint:fix",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [],
         "configuration": {
           "cache": false,
@@ -83651,7 +83660,7 @@
       {
         "computation": "@beep/repo-utils#lint:jsdoc",
         "command": "beep-cli lint jsdoc --package .",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -83706,7 +83715,7 @@
       {
         "computation": "@beep/repo-utils#lint:laws",
         "command": "beep-cli lint laws --package .",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "//#lint:policy-fingerprint"
         ],
@@ -83760,7 +83769,7 @@
       {
         "computation": "@beep/repo-utils#package-test-typecheck",
         "command": "beep-cli quality test-tsgo-package",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "@beep/identity#transit",
           "@beep/schema#transit",
@@ -83805,7 +83814,7 @@
       {
         "computation": "@beep/repo-utils#test",
         "command": "bun run beep:test",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "@beep/identity#transit",
           "@beep/schema#transit",
@@ -83853,7 +83862,7 @@
       {
         "computation": "@beep/repo-utils#test:property",
         "command": "bun run beep:test",
-        "commandDigest": "314205becae4f6545112d458f20c85ba4575093a39870de3ae7c0c1cfb340a68",
+        "commandDigest": "eca5b056dab5a8ae1d7adce211d2fce3859c6f71fc28ea94ed1d8d3607cfd4f9",
         "dependencies": [
           "@beep/identity#transit",
           "@beep/schema#transit",
@@ -86005,7 +86014,7 @@
       {
         "computation": "@beep/scratchpad#docgen",
         "command": "bunx --bun --no-install docgen",
-        "commandDigest": "75a119112e33f265935f5bdb1d19d75fbe87118e55eb090cf300a1c3cbd20ac1",
+        "commandDigest": "75ab59c82aa9b10e8448ed3721dbe3ba56b22e5a79f16f6aa13aa8238afdbc7a",
         "dependencies": [
           "@beep/repo-docgen#transit",
           "@beep/scratchpad#transit"
