@@ -1,5 +1,5 @@
 {
-  "previous": "01a305b5c0d72d031902948b33342f7151a45bde1f9cece9fd80e82aa95fe40c",
+  "previous": "b7346eaaec98b7cafa18eccfaa0e15e5d19fa19a91b8d196016b6494a78b45dd",
   "review": {
     "reviewer": "Claude Fable 5.1 (tsc-rs-gates, feat/tsc-rs-gates)",
     "reason": "Re-record the legacy cache posture of all 153 subjects whose beep:build, beep:check or beep:check:tests command changed from tsgo -p / tsc -p to tsc-rs (goals/tsc-rs-gates), including the three whose review basis is their own manifest. Task names, project files, inputs, outputs, cache flags and turbo.json are unchanged; no qualification is granted.",
