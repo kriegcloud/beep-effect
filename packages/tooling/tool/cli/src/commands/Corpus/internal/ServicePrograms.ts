@@ -1450,7 +1450,9 @@ const makeExtractOcr = Effect.fn("CorpusCommandService.makeExtractOcr")(function
   });
 
   // Language comes from script detection on the first page; a source with no
-  // installed model for it (not even English) keeps its first outcome.
+  // installed model for it (not even English) keeps its first outcome with
+  // ocr.completed false and ocr.missingLanguages recorded, so its marker has
+  // ocrEnabled false just as when a missing tool turns the OCR pass off.
   const readPages = Effect.fn("CorpusCommandService.ocrReadPages")(function* (
     input: ExtractOcrSourceInput,
     pages: OcrPages
