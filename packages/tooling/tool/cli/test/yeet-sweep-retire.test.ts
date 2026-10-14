@@ -6,6 +6,7 @@ import {
   WorktreeRemovalServiceLive,
 } from "@beep/repo-cli/commands/Worktree";
 import {
+  ProcessStatus,
   ProcessTable,
   ProcessTableEntry,
   processTableWithLineage,
@@ -37,6 +38,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as MutableRef from "effect/MutableRef";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
@@ -264,16 +266,48 @@ const spawnLaneHolder = (lane: string) =>
 // A real lane holder dressed, through scripted lineage, as the Claude Desktop
 // app's Terminal-panel shell: a `zsh` row whose parent is the app (55) and that
 // owns a pty. At its prompt the terminal's foreground group is its own pid;
-// `foregroundGroup` set to anything else is a command running in it.
+// `foregroundGroup` set to anything else is a command running in it. Its
+// context-switch count stays put, which is a shell that never woke.
 const desktopPanelTable = (holder: number, foregroundGroup = holder) =>
   processTableWithLineage({
     base: procProcessTable,
     self: process.pid,
     entries: [
       ProcessTableEntry.make({ pid: 55, parent: 1, command: "claude-desktop" }),
-      ProcessTableEntry.make({ pid: holder, parent: 55, command: "zsh", terminal: 34823, foregroundGroup }),
+      ProcessTableEntry.make({
+        pid: holder,
+        parent: 55,
+        command: "zsh",
+        terminal: 34823,
+        foregroundGroup,
+        contextSwitches: 41,
+      }),
     ],
   });
+
+// The same idle panel shell, except it wakes every time it is looked at: each
+// status read reports one more context switch, as a shell that ran a builtin
+// such as `echo x >> notes` between the fence's scans would.
+const wakingPanelTable = (holder: number) => {
+  const table = desktopPanelTable(holder);
+  const switches = MutableRef.make(0);
+  return {
+    ...table,
+    status: (pid: number) =>
+      pid === holder
+        ? Effect.sync(() =>
+            O.some(
+              ProcessStatus.make({
+                pid,
+                parent: 55,
+                command: "zsh",
+                contextSwitches: O.some(MutableRef.incrementAndGet(switches)),
+              })
+            )
+          )
+        : table.status(pid),
+  };
+};
 
 const spawnSleepIn = (cwd: string) =>
   ChildProcess.make("sleep", ["60"], { cwd, stdin: "ignore", stdout: "ignore", stderr: "ignore" });
@@ -668,7 +702,7 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
         // The app starts this shell in the session folder whether or not the
         // operator ever opened the panel; at its prompt it writes nothing.
         const holder = yield* spawnSleepIn(lane);
-        const receipt = yield* retireMergedLane(repoRoot, lane).pipe(
+        const receipt = yield* withCwd(lane, retireMergedLane(repoRoot, lane)).pipe(
           Effect.provideService(ProcessTable, desktopPanelTable(holder.pid)),
           Effect.ensuring(Effect.ignore(holder.kill()))
         );
@@ -687,12 +721,54 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
     )
   );
 
+  it.effect("preserves the fenced copy when the idle panel shell woke between the fence's scans", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const holder = yield* spawnSleepIn(lane);
+        const error = yield* Effect.flip(withCwd(lane, retireMergedLane(repoRoot, lane))).pipe(
+          Effect.provideService(ProcessTable, wakingPanelTable(holder.pid)),
+          Effect.ensuring(Effect.ignore(holder.kill()))
+        );
+        // Idle at both scans, yet it ran something in between: the archive may be
+        // missing that write, so the fenced copy is kept rather than deleted.
+        expect(error.message).toContain("became active, during capture; the fenced copy is preserved at");
+        const fenced = A.filter(
+          yield* fs.readDirectory(path.dirname(lane)),
+          Str.startsWith(`${path.basename(lane)}.retiring-`)
+        );
+        expect(A.length(fenced)).toBe(1);
+      })
+    )
+  );
+
+  it.effect("refuses an idle panel shell in a lane that --lane names from outside it", () =>
+    withScratchRepo(({ repoRoot, lane }) =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        // Not started inside the lane: the shell may belong to the session that
+        // still has the lane open, so the lane is not removed under it.
+        const holder = yield* spawnSleepIn(lane);
+        const error = yield* Effect.flip(retireMergedLane(repoRoot, lane)).pipe(
+          Effect.provideService(ProcessTable, desktopPanelTable(holder.pid)),
+          Effect.ensuring(Effect.ignore(holder.kill()))
+        );
+        expect(error.message).toContain(
+          `pid ${holder.pid} (sleep) via cwd (the Claude Desktop Terminal panel shell) still hold it`
+        );
+        expect(error.message).toContain("run `cd ~` in that Terminal tab");
+        expect(yield* fs.exists(lane)).toBe(true);
+      })
+    )
+  );
+
   it.effect("refuses a Claude Desktop Terminal panel shell running a command and says to cd ~ in its tab", () =>
     withScratchRepo(({ repoRoot, lane }) =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const holder = yield* spawnSleepIn(lane);
-        const error = yield* Effect.flip(retireMergedLane(repoRoot, lane)).pipe(
+        const error = yield* Effect.flip(withCwd(lane, retireMergedLane(repoRoot, lane))).pipe(
           Effect.provideService(ProcessTable, desktopPanelTable(holder.pid, holder.pid + 1)),
           Effect.ensuring(Effect.ignore(holder.kill()))
         );
@@ -712,7 +788,7 @@ describe("yeet sweep --retire", { concurrent: false }, () => {
         const fs = yield* FileSystem.FileSystem;
         // Only standing in the lane by cwd is harmless; an open file is a writer.
         const holder = yield* spawnDescriptorHolder(lane);
-        const error = yield* Effect.flip(retireMergedLane(repoRoot, lane)).pipe(
+        const error = yield* Effect.flip(withCwd(lane, retireMergedLane(repoRoot, lane))).pipe(
           Effect.provideService(ProcessTable, desktopPanelTable(holder.pid)),
           Effect.ensuring(Effect.ignore(holder.kill()))
         );

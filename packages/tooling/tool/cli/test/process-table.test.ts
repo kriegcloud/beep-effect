@@ -69,6 +69,15 @@ describe("parseProcessStatus", () => {
     expect(O.getOrThrow(parseProcessStatus(70)(document)).command).toBe("zsh");
     assertNone(parseProcessStatus("State:\tS (sleeping)\nPPid:\t60\n", 70));
     assertNone(parseProcessStatus("Name:\tzsh\n", 70));
+    assertNone(status.contextSwitches);
+  });
+
+  it("adds the voluntary and involuntary context switches when both are present", () => {
+    const document = "Name:\tzsh\nPPid:\t60\nvoluntary_ctxt_switches:\t40\nnonvoluntary_ctxt_switches:\t2\n";
+    assertSome(O.getOrThrow(parseProcessStatus(document, 70)).contextSwitches, 42);
+    assertNone(
+      O.getOrThrow(parseProcessStatus("Name:\tzsh\nPPid:\t60\nvoluntary_ctxt_switches:\t40\n", 70)).contextSwitches
+    );
   });
 });
 

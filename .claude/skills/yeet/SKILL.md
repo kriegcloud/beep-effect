@@ -322,13 +322,14 @@ CLONE="$(git rev-parse --path-format=absolute --git-common-dir)/.." && bun run b
   to the swept clone. The fence exempts the invoking session's own ancestry
   and, when Claude Code names the session through `CLAUDE_PID`, everything
   that session spawned into the lane (MCP servers, tool shells, background
-  jobs), so a desktop session retires its own lane. An idle Claude Desktop
-  Terminal panel shell (the app starts one in the session folder even when
-  the panel is never opened) is left in place and the lane removed under it;
-  the report says to `cd ~` in that tab. Any other holder (a panel shell
-  running a command, an editor, another session) still refuses it and is
-  named in the error: `cd ~` in it (closing a panel tab starts a new shell
-  in the lane) or close it, then rerun. Outside Claude
+  jobs), so a desktop session retires its own lane. Run from inside the
+  lane, an idle Claude Desktop Terminal panel shell (the app starts one in
+  the session folder even when the panel is never opened) that stays quiet
+  until the deletion is left in place and the lane removed under it; the
+  report says to `cd ~` in that tab. Any other holder (a panel shell running
+  a command, any panel shell under `--lane`, an editor, another session)
+  still refuses it and is named in the error: `cd ~` in it (closing a panel
+  tab starts a new shell in the lane) or close it, then rerun. Outside Claude
   Code, redirect the output to a file rather than piping it: the other stages
   of a shell pipeline stand in the lane and count as holders. `--lane <path>`
   retires a lane from elsewhere: the owning clone, or any sibling lane of

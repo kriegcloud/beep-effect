@@ -171,6 +171,25 @@ describe("local branch deletion contract", () => {
     assertNone(stepFor(mergedState, "delete-local-branch").alreadyDone);
   });
 
+  it("keeps a missing branch no merged pull request heads blocked rather than calling it deleted", () => {
+    // A mistyped `--branch` has no ref and no pull request: nothing shows it ever existed.
+    const typo = stateWith({
+      localTip: O.none(),
+      remoteTip: O.none(),
+      remoteBranchAbsent: true,
+      pullRequestState: O.none(),
+      pullRequestHeadBranch: O.none(),
+      pullRequestHeadOid: O.none(),
+    });
+    assertNone(stepFor(typo, "delete-local-branch").alreadyDone);
+    assertNone(stepFor(typo, "delete-remote-branch").alreadyDone);
+    expect(blockerText(typo, "delete-local-branch")).toContain("local branch feat/merge-loop exists");
+    expect(blockerText(typo, "delete-remote-branch")).toContain("pull request for feat/merge-loop is MERGED");
+    // A merged pull request that heads some other branch does not vouch for this one either.
+    const elsewhere = stateWith({ localTip: O.none(), pullRequestHeadBranch: O.some("feat/other") });
+    assertNone(stepFor(elsewhere, "delete-local-branch").alreadyDone);
+  });
+
   it("blocks -D when the pull request never recorded a head oid", () => {
     expect(blockerText(stateWith({ pullRequestHeadOid: O.none() }), "delete-local-branch")).toEqual([
       "local tip aaaa1111bbbb2222 equals pull request head <absent>",

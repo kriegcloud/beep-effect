@@ -28,6 +28,8 @@ const PID_DIRECTORY_NAME = /^[0-9]+$/u;
 const LINK_SCAN_CONCURRENCY = 16;
 const STATUS_NAME_LINE = /^Name:\s*(.*?)\s*$/mu;
 const STATUS_PARENT_LINE = /^PPid:\s*(\d+)\s*$/mu;
+const STATUS_VOLUNTARY_SWITCHES_LINE = /^voluntary_ctxt_switches:\s*(\d+)\s*$/mu;
+const STATUS_INVOLUNTARY_SWITCHES_LINE = /^nonvoluntary_ctxt_switches:\s*(\d+)\s*$/mu;
 const INIT_PID = 1;
 // Zero-based positions in the space-separated tail of `/proc/<pid>/stat` that
 // follows the parenthesized command name: state, ppid, pgrp, session, tty_nr, tpgid.
@@ -74,8 +76,21 @@ const ProcessParentPid = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
   })
 );
 
+const ProcessContextSwitches = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
+  $I.annoteSchema("ProcessContextSwitches", {
+    description: "Voluntary plus involuntary context switches a process has made since it started.",
+  })
+);
+
 /**
- * What `/proc/<pid>/status` says about one process: its parent and command name.
+ * What `/proc/<pid>/status` says about one process: its parent, command name, and context switches.
+ *
+ * **Details**
+ *
+ * `contextSwitches` is the sum of the voluntary and involuntary switch counts.
+ * A process blocked in a read makes none until something wakes it, so two
+ * equal samples prove it did nothing in between. It is `None` when the
+ * status document does not carry the counts.
  *
  * **Example** (Construct a status row)
  *
@@ -94,11 +109,16 @@ export class ProcessStatus extends S.Class<ProcessStatus>($I`ProcessStatus`)(
     pid: ProcessPid,
     parent: ProcessParentPid,
     command: S.String,
+    contextSwitches: ProcessContextSwitches.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
   },
   $I.annote("ProcessStatus", {
-    description: "A process id with the parent pid and command name its /proc status file reports.",
+    description:
+      "A process id with the parent pid, command name, and context-switch count its /proc status file reports.",
   })
 ) {}
+
+const statusCount = (pattern: RegExp, text: string): O.Option<number> =>
+  O.flatMap(O.fromNullishOr(pattern.exec(text)), (match) => O.flatMap(O.fromNullishOr(match[1]), N.parse));
 
 /**
  * Parse the parent pid and command name out of a `/proc/<pid>/status` document.
@@ -107,7 +127,9 @@ export class ProcessStatus extends S.Class<ProcessStatus>($I`ProcessStatus`)(
  *
  * The `Name:` line carries the kernel's `comm` value (the executable name,
  * truncated to fifteen characters) and the `PPid:` line the parent pid. A
- * document missing either line yields `None`.
+ * document missing either line yields `None`. The `voluntary_ctxt_switches:`
+ * and `nonvoluntary_ctxt_switches:` lines, when both are present, add up to
+ * `contextSwitches`.
  *
  * **Example** (Parse a status document)
  *
@@ -134,10 +156,23 @@ export const parseProcessStatus: {
   (text: string, pid: number): O.Option<ProcessStatus> =>
     O.all({
       command: O.flatMap(O.fromNullishOr(STATUS_NAME_LINE.exec(text)), (match) => O.fromNullishOr(match[1])),
-      parent: O.flatMap(O.fromNullishOr(STATUS_PARENT_LINE.exec(text)), (match) =>
-        O.flatMap(O.fromNullishOr(match[1]), N.parse)
-      ),
-    }).pipe(O.map(({ command, parent }) => ProcessStatus.make({ pid, parent, command })))
+      parent: statusCount(STATUS_PARENT_LINE, text),
+    }).pipe(
+      O.map(({ command, parent }) =>
+        ProcessStatus.make({
+          pid,
+          parent,
+          command,
+          contextSwitches: O.map(
+            O.all([
+              statusCount(STATUS_VOLUNTARY_SWITCHES_LINE, text),
+              statusCount(STATUS_INVOLUNTARY_SWITCHES_LINE, text),
+            ]),
+            ([voluntary, involuntary]) => voluntary + involuntary
+          ),
+        })
+      )
+    )
 );
 
 const ProcessGroupId = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
@@ -367,7 +402,8 @@ export const ProcessTable: Context.Reference<ProcessTableShape> = Context.Refere
  * The job-control fields are optional: a row without them is its own process
  * group with no controlling terminal, which is what an agent's tool shell or
  * an MCP server looks like. A terminal shell names its `terminal` device and
- * the `foregroundGroup` that terminal runs.
+ * the `foregroundGroup` that terminal runs. `contextSwitches` is optional too;
+ * a row without it reports no count.
  *
  * **Example** (Describe a shell standing in a lane)
  *
@@ -391,6 +427,7 @@ export class ProcessTableEntry extends S.Class<ProcessTableEntry>($I`ProcessTabl
     processGroup: S.optionalKey(ProcessGroupId),
     terminal: S.optionalKey(S.Int),
     foregroundGroup: S.optionalKey(S.Int),
+    contextSwitches: S.optionalKey(ProcessContextSwitches),
   },
   $I.annote("ProcessTableEntry", {
     description:
@@ -402,7 +439,12 @@ const entryIndex = (entries: ReadonlyArray<ProcessTableEntry>): HashMap.HashMap<
   HashMap.fromIterable(A.map(entries, (entry) => [entry.pid, entry] as const));
 
 const entryStatus = (entry: ProcessTableEntry): ProcessStatus =>
-  ProcessStatus.make({ pid: entry.pid, parent: entry.parent, command: entry.command });
+  ProcessStatus.make({
+    pid: entry.pid,
+    parent: entry.parent,
+    command: entry.command,
+    contextSwitches: O.fromUndefinedOr(entry.contextSwitches),
+  });
 
 const entryJobControl = (entry: ProcessTableEntry): ProcessJobControl =>
   ProcessJobControl.make({

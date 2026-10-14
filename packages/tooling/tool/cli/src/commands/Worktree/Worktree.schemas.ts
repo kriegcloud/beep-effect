@@ -415,6 +415,11 @@ export class WorktreeSessionMarker extends S.Class<WorktreeSessionMarker>($I`Wor
  * lane (MCP servers, tool shells, its own background jobs) count as the same
  * party. The fence proves the marker against `/proc` before honouring it, so
  * a stale, foreign, or universal-ancestor value never widens the fence.
+ * `selfRetirement` says the invoker started inside the checkout it is
+ * retiring, which is a session closing its own lane. Only then does the fence
+ * also leave an idle Claude Desktop Terminal panel shell standing in it; a
+ * retirement of some other lane (`--lane` from a sibling or the clone) keeps
+ * that shell blocking, because it may belong to a session still using the lane.
  *
  * **Example** (Exempt the invoker and its session subtree)
  *
@@ -424,6 +429,7 @@ export class WorktreeSessionMarker extends S.Class<WorktreeSessionMarker>($I`Wor
  *
  * const exemption = WorktreeInvokerExemption.make({
  *   sessionMarker: O.some(WorktreeSessionMarker.make({ name: "CLAUDE_PID", pid: 4242 })),
+ *   selfRetirement: true,
  * })
  * console.log(O.isSome(exemption.sessionMarker)) // true
  * ```
@@ -434,10 +440,14 @@ export class WorktreeSessionMarker extends S.Class<WorktreeSessionMarker>($I`Wor
 export class WorktreeInvokerExemption extends S.Class<WorktreeInvokerExemption>($I`WorktreeInvokerExemption`)(
   {
     sessionMarker: S.OptionFromNullOr(WorktreeSessionMarker),
+    selfRetirement: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
+    ),
   },
   $I.annote("WorktreeInvokerExemption", {
     description:
-      "Exemption the archive fence grants the invoker: its own ancestry, and the subtree of the session process a harness marker proves.",
+      "Exemption the archive fence grants the invoker: its own ancestry, the subtree of the session process a harness marker proves, and, for a lane retiring itself, an idle desktop Terminal panel shell.",
   })
 ) {}
 
@@ -463,10 +473,11 @@ export class WorktreeInvokerExemption extends S.Class<WorktreeInvokerExemption>(
  * by Yeet. It takes precedence over `exemptInvokerSession`, even when its
  * marker cannot be proven. Callers that omit `exemptInvoker` may request
  * command-name inference with `exemptInvokerSession`; without either request,
- * every attached process remains a holder. Either request also leaves an idle
- * Claude Desktop Terminal panel shell that stands in the checkout only by cwd
- * (the receipt's `idleTerminalShells` names it); one running a command still
- * blocks.
+ * every attached process remains a holder. An `exemptInvoker` with
+ * `selfRetirement` also leaves an idle Claude Desktop Terminal panel shell
+ * that stands in the checkout only by cwd and stays quiet from the first fence
+ * scan to the last (the receipt's `idleTerminalShells` names it); one running
+ * a command, or one that woke between the scans, still blocks.
  *
  * **Example** (Request archive retirement)
  *

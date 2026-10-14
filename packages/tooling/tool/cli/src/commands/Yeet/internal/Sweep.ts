@@ -439,7 +439,9 @@ const ffMainPlanStep = (state: SweepGitState): SweepPlanStep =>
 // deleted the local branch before the sweep observed the clone, or an earlier
 // sweep or the merge itself removed it. The step reports that as done rather
 // than as blocked on a missing branch; the remote side counts as absent only
-// when the remote said so (`remoteBranchAbsent`).
+// when the remote said so (`remoteBranchAbsent`). Only a branch a MERGED pull
+// request heads is known to have existed; a missing ref for any other name
+// (a mistyped `--branch`) keeps the blocked preconditions instead.
 const alreadyDeletedPlanStep = (id: SweepStepId, action: string, observation: string): SweepPlanStep =>
   SweepPlanStep.make({
     id,
@@ -449,8 +451,11 @@ const alreadyDeletedPlanStep = (id: SweepStepId, action: string, observation: st
     alreadyDone: O.some(observation),
   });
 
+const branchWasMerged = (state: SweepGitState): boolean =>
+  pullRequestIsMerged(state) && O.exists(state.pullRequestHeadBranch, (head) => head === state.branch);
+
 const deleteLocalBranchPlanStep = (state: SweepGitState): SweepPlanStep => {
-  if (O.isNone(state.localTip)) {
+  if (O.isNone(state.localTip) && branchWasMerged(state)) {
     return alreadyDeletedPlanStep(
       "delete-local-branch",
       `git branch -d ${shellQuote(state.branch)}`,
@@ -488,7 +493,7 @@ const deleteLocalBranchPlanStep = (state: SweepGitState): SweepPlanStep => {
 };
 
 const deleteRemoteBranchPlanStep = (state: SweepGitState): SweepPlanStep => {
-  if (state.remoteBranchAbsent) {
+  if (state.remoteBranchAbsent && branchWasMerged(state)) {
     return alreadyDeletedPlanStep(
       "delete-remote-branch",
       leasedRemoteDeletionCommand(state),

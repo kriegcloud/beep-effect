@@ -228,13 +228,15 @@ const discardLaneFallowBaseCache = Effect.fn("Yeet.discardLaneFallowBaseCache")(
  * started it) plus, when the harness names the session process through
  * `CLAUDE_PID` and the fence can prove it did, everything that session
  * spawned into the lane (its MCP servers, tool shells, and background
- * jobs). The fence also leaves an idle Claude Desktop Terminal panel shell
- * standing in the lane, which the app starts in the session folder whether
- * or not the operator ever opened the panel; the lane is removed under it
- * and the report says to `cd` out of it. Retiring the lane one is standing
- * in therefore works from a desktop session too, while any other holder (a
- * panel shell running a command, an editor, another session) still refuses
- * it and the message names what to close.
+ * jobs). When the command started inside the lane it retires, the fence
+ * also leaves an idle Claude Desktop Terminal panel shell standing in it,
+ * which the app starts in the session folder whether or not the operator
+ * ever opened the panel, as long as that shell stays quiet until the lane is
+ * deleted; the lane is removed under it and the report says to `cd` out of
+ * it. Retiring the lane one is standing in therefore works from a desktop
+ * session too, while any other holder (a panel shell running a command, an
+ * editor, another session, or any panel shell when `--lane` names some
+ * other lane) still refuses it and the message names what to close.
  *
  * **Example** (Build the retirement effect)
  *
@@ -267,7 +269,10 @@ export const retireInvokingWorktree = Effect.fn("Yeet.retireInvokingWorktree")(f
   );
   // Leave the lane before it is renamed away: a process whose cwd is inside
   // it would be a holder, and later steps run against the owning clone anyway.
-  if (isWithin(path, plan.worktreePath, process.cwd())) {
+  // Starting inside the lane is also what makes this a session closing its own
+  // lane, the only retirement that may leave an idle desktop Terminal panel shell.
+  const selfRetirement = isWithin(path, plan.worktreePath, process.cwd());
+  if (selfRetirement) {
     yield* Effect.sync(() => process.chdir(plan.owningClone));
   }
   const sessionMarker = yield* invokerSessionMarker;
@@ -282,7 +287,7 @@ export const retireInvokingWorktree = Effect.fn("Yeet.retireInvokingWorktree")(f
         archive: true,
         deleteBranch: true,
         expectedHead: O.none(),
-        exemptInvoker: WorktreeInvokerExemption.make({ sessionMarker }),
+        exemptInvoker: WorktreeInvokerExemption.make({ sessionMarker, selfRetirement }),
       })
     )
     .pipe(

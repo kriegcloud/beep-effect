@@ -32,9 +32,11 @@ import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual, pipe } from "effect/Function";
+import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
+import * as N from "effect/Number";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import * as Result from "effect/Result";
@@ -1364,9 +1366,13 @@ const foreignHolderPids = (
   });
 };
 
+// pid -> context-switch count of each idle desktop Terminal panel shell a fence
+// scan set aside.
+type QuietShells = HashMap.HashMap<number, number>;
+
 type FenceHolders = {
   readonly blocking: ReadonlyArray<ProcessAttachment>;
-  readonly idleTerminalShells: ReadonlyArray<number>;
+  readonly quietShells: QuietShells;
 };
 
 // A process is an idle Claude Desktop Terminal panel shell standing in the
@@ -1382,55 +1388,95 @@ const isIdleTerminalShell = (
     ? Effect.map(desktopTerminalShellState(pid), O.exists(DesktopTerminalShellState.is.idle))
     : Effect.succeed(false);
 
+// Idle at two scans is not quiet between them: a builtin redirect such as
+// `echo x >> notes` runs inside the shell with no child and no foreground-group
+// change. A shell at its prompt is blocked in a read and makes no context
+// switch until something wakes it, so the first scan records the count and a
+// later scan sets the shell aside again only at the same count. A shell whose
+// count cannot be read is never set aside.
+const quietShellCount = Effect.fnUntraced(function* (
+  attachments: ReadonlyArray<ProcessAttachment>,
+  pid: number,
+  earlier: O.Option<QuietShells>
+): Effect.fn.Return<O.Option<number>, never, FileSystem.FileSystem> {
+  if (!(yield* isIdleTerminalShell(attachments, pid))) {
+    return O.none();
+  }
+  const table = yield* ProcessTable;
+  const count = O.flatMap(yield* table.status(pid), (status) => status.contextSwitches);
+  return O.filter(count, (now) =>
+    O.match(earlier, {
+      onNone: () => true,
+      onSome: (scan) => O.exists(HashMap.get(scan, pid), (then) => then === now),
+    })
+  );
+});
+
+const isSelfRetirement = (request: WorktreeRemovalRequest): boolean =>
+  O.exists(O.fromUndefinedOr(request.exemptInvoker), (exemption) => exemption.selfRetirement);
+
 // The desktop app starts a Terminal-panel login shell in each Code session's
 // folder whether or not the panel is ever opened, and starts a new one there
 // when it exits, so a session retiring its own lane always finds one standing
 // in it that the operator cannot see. At its prompt it writes nothing, so a
-// self-retirement (a request that asks for an invoker exemption) leaves an idle
-// one in place and removes the lane under it; its cwd becomes a deleted
-// directory until the operator runs `cd`. One running a command, an editor, or
-// another session still refuses. A request without an invoker exemption keeps
+// self-retirement (the invoker started inside the lane it retires) leaves an
+// idle one in place and removes the lane under it; its cwd becomes a deleted
+// directory until the operator runs `cd`. One running a command, one that woke
+// between scans, an editor, or another session still refuses. Any other
+// request, including a `--lane` retirement of some other session's lane, keeps
 // every holder blocking.
 const setAsideIdleTerminalShells = Effect.fnUntraced(function* (
   request: WorktreeRemovalRequest,
-  holders: ReadonlyArray<ProcessAttachment>
+  holders: ReadonlyArray<ProcessAttachment>,
+  earlier: O.Option<QuietShells>
 ): Effect.fn.Return<FenceHolders, never, FileSystem.FileSystem> {
-  if (request.exemptInvoker === undefined && request.exemptInvokerSession !== true) {
-    return { blocking: holders, idleTerminalShells: A.empty() };
+  if (!isSelfRetirement(request)) {
+    return { blocking: holders, quietShells: HashMap.empty() };
   }
   const pids = A.dedupe(A.map(holders, (holder) => holder.pid));
-  const idle = HashSet.fromIterable(yield* Effect.filter(pids, (pid) => isIdleTerminalShell(holders, pid)));
+  const counted = yield* Effect.forEach(pids, (pid) =>
+    Effect.map(
+      quietShellCount(holders, pid, earlier),
+      O.map((count) => [pid, count] as const)
+    )
+  );
+  const quiet = HashMap.fromIterable(A.getSomes(counted));
   return {
-    blocking: A.filter(holders, (holder) => !HashSet.has(idle, holder.pid)),
-    idleTerminalShells: A.filter(pids, (pid) => HashSet.has(idle, pid)),
+    blocking: A.filter(holders, (holder) => !HashMap.has(quiet, holder.pid)),
+    quietShells: quiet,
   };
 });
 
 const assertQuiescentFence = Effect.fnUntraced(function* (
   request: WorktreeRemovalRequest,
-  fencedPath: string
-): Effect.fn.Return<ReadonlyArray<number>, WorktreeCommandError, FileSystem.FileSystem> {
+  fencedPath: string,
+  earlier: O.Option<QuietShells>
+): Effect.fn.Return<QuietShells, WorktreeCommandError, FileSystem.FileSystem> {
   const scan = yield* scanProcessAttachments({ directory: fencedPath, kinds: ProcessAttachmentKind.literals });
   if (O.isNone(scan)) {
     return yield* WorktreeCommandError.make({
       message: `Refusing to retire ${request.targetPath}: the processes attached to it could not be enumerated, so the archive cannot be proven complete.`,
     });
   }
-  const holders = yield* setAsideIdleTerminalShells(request, yield* holdersOutsideInvoker(request, scan.value));
+  const holders = yield* setAsideIdleTerminalShells(
+    request,
+    yield* holdersOutsideInvoker(request, scan.value),
+    earlier
+  );
   if (A.isReadonlyArrayNonEmpty(holders.blocking)) {
     const described = yield* describeAttachedProcesses(holders.blocking);
     return yield* WorktreeCommandError.make({
       message: `Refusing to retire ${request.targetPath}: ${described.listed} still hold it, and any write they make after the archive is captured would be deleted with the fenced copy.${described.hint}`,
     });
   }
-  return holders.idleTerminalShells;
+  return holders.quietShells;
 });
 
 const fencedArchivePlan = Effect.fn("WorktreeRemovalService.fencedArchivePlan")(function* (
   request: WorktreeRemovalRequest,
   fenced: WorktreeRemovalRequest
 ): Effect.fn.Return<
-  ArchiveRemovalPlan & { readonly head: GitObjectId },
+  ArchiveRemovalPlan & { readonly head: GitObjectId; readonly quietShells: QuietShells },
   WorktreeCommandError | WorktreePreservationError,
   WorktreeRemovalServiceRequirements
 > {
@@ -1440,8 +1486,9 @@ const fencedArchivePlan = Effect.fn("WorktreeRemovalService.fencedArchivePlan")(
   // is complete only if that set is empty, so any holder refuses the retirement (the
   // caller renames the checkout back) instead of racing its writes to the deletion.
   // The one exception is an idle desktop Terminal panel shell on a self-retirement:
-  // at its prompt it writes nothing (see `setAsideIdleTerminalShells`).
-  yield* assertQuiescentFence(request, fenced.targetPath);
+  // at its prompt it writes nothing (see `setAsideIdleTerminalShells`), and the
+  // rescan after capture holds it to the context-switch count recorded here.
+  const quietShells = yield* assertQuiescentFence(request, fenced.targetPath, O.none());
   const changes = yield* inspectRemovalChanges(
     fenced.targetPath,
     preservationErrorAdapter("inspect-residue", `Failed to inspect ${fenced.targetPath}.`, fenced.targetPath)
@@ -1451,7 +1498,7 @@ const fencedArchivePlan = Effect.fn("WorktreeRemovalService.fencedArchivePlan")(
   // still be the object id the caller's decision was made under.
   yield* assertAuthorizedHead(request, head);
   const plan = yield* planArchiveRemoval(fenced, head, A.isReadonlyArrayNonEmpty(changes));
-  return { ...plan, head };
+  return { ...plan, head, quietShells };
 });
 
 const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedWorktree")(function* (
@@ -1500,7 +1547,7 @@ const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedW
     );
     return yield* planned.failure;
   }
-  const { reason, manifest, head, unpushedInspection } = planned.success;
+  const { reason, manifest, head, unpushedInspection, quietShells } = planned.success;
   // Re-verify quiescence after capture and before the destructive remove. A scan is a
   // one-time observation, so a same-uid process could have attached to the fenced copy
   // during the capture phase (git status, patch, file copy) — the longest part of the
@@ -1508,11 +1555,11 @@ const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedW
   // PRESERVED (named) instead of deleted, turning a would-be silent loss into a
   // recoverable directory. Only the tiny gap between this scan and the remove itself
   // stays open, which no one-time check on a POSIX tree can close.
-  const reQuiescent = yield* Effect.result(assertQuiescentFence(request, retirePath));
+  const reQuiescent = yield* Effect.result(assertQuiescentFence(request, retirePath, O.some(quietShells)));
   if (Result.isFailure(reQuiescent)) {
     yield* pruneWorktreeMetadata(request.mainCheckout);
     return yield* WorktreeCommandError.make({
-      message: `Archived ${request.targetPath}, but a process attached to it during capture; the fenced copy is preserved at ${retirePath} rather than deleted so no late write is lost.`,
+      message: `Archived ${request.targetPath}, but a process attached to it, or a desktop Terminal panel shell standing in it became active, during capture; the fenced copy is preserved at ${retirePath} rather than deleted so no late write is lost.`,
     });
   }
   yield* fs.remove(retirePath, { recursive: true }).pipe(
@@ -1527,7 +1574,14 @@ const removeArchivedWorktree = Effect.fn("WorktreeRemovalService.removeArchivedW
   // the shared object store intact, and the branch ref falls only to this
   // compare-and-swap on the archived head.
   const branchDeleted = yield* deleteArchivedBranch(request, head);
-  return makeRemovalReceipt(request, reason, manifest, branchDeleted, O.some(unpushedInspection), reQuiescent.success);
+  return makeRemovalReceipt(
+    request,
+    reason,
+    manifest,
+    branchDeleted,
+    O.some(unpushedInspection),
+    A.sort(A.fromIterable(HashMap.keys(reQuiescent.success)), N.Order)
+  );
 });
 
 const removeImpl = Effect.fn("WorktreeRemovalService.remove")(function* (
