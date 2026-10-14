@@ -264,6 +264,29 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
     );
   });
 
+  it.layer(TestLayer, { timeout: "10 seconds" })("lock row on a timestamp tie", (it) => {
+    it.effect(
+      "keeps the later batch's verdict when an earlier batch is locked at the same recordedAt",
+      Effect.fnUntraced(function* () {
+        const queue = yield* ReviewQueue;
+        const projector = yield* VerdictProjector;
+        const item = yield* claimFinding;
+        const resolvedBy = yield* attorney;
+
+        yield* verdictAt(T_WRONG, finding(BATCH_A, "right"));
+        yield* verdictAt(T_WRONG, finding(BATCH_B, "wrong"));
+        yield* TestClock.setTime(T_LOCK);
+        yield* queue.lockBatch(BATCH_A);
+        const rows = yield* queue.readLog;
+
+        expect(A.map(projector.project({ items: [item], resolvedBy, rows }), (p) => p.status)).toStrictEqual([
+          "rejected",
+        ]);
+        expect(yield* queue.openItems([item])).toStrictEqual([]);
+      })
+    );
+  });
+
   it.layer(TestLayer, { timeout: "10 seconds" })("cross-batch tie", (it) => {
     it.effect(
       "gives a full tie on recordedAt and revision to the row appended last",
@@ -296,9 +319,10 @@ describe("@beep/law-practice-use-cases review verdict round trip", () => {
         const projector = yield* VerdictProjector;
         const resolvedBy = yield* attorney;
         const own = A.map(rows, (row) => VerdictRow.make({ ...row, itemId: item.itemId }));
+        const judgements = A.filter(own, (row) => O.isNone(row.lockedAt));
 
         const expected = pipe(
-          A.last(A.sort(own, byRecency)),
+          A.last(A.sort(judgements, byRecency)),
           O.flatMap((latest) =>
             Match.value(latest.verdict).pipe(
               Match.when("right", () =>

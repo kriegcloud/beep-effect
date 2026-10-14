@@ -106,8 +106,9 @@ export type ReviewBatchId = typeof ReviewBatchId.Type;
  * review sitting or queue run. A row with `lockedAt` closes that row's
  * `batchId` only; other batches stay open and later sittings append under a
  * new batch id. Locking appends a copy of the batch's latest row with
- * `revision` + 1, the same `recordedAt`, and `lockedAt` set. Timestamps encode
- * as epoch milliseconds.
+ * `revision` + 1, the same `recordedAt`, and `lockedAt` set; verdict
+ * selection skips lock rows, which only mark the batch closed. Timestamps
+ * encode as epoch milliseconds.
  *
  * **Example** (Decode a verdict row)
  *

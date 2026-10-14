@@ -184,9 +184,9 @@ export declare namespace RecordVerdictInput {
  * - **Lock.** A batch is locked once any of its rows carries `lockedAt`.
  *   Locking appends a copy of the batch's latest row (greatest `recordedAt`,
  *   then `revision`) with `revision` one higher, the same `itemId`, `verdict`,
- *   `note` and `recordedAt`, and `lockedAt` read from the clock. Keeping
- *   `recordedAt` means the lock row never changes any item's verdict or
- *   projection. After that every write to the batch, a second lock included,
+ *   `note` and `recordedAt`, and `lockedAt` read from the clock. Verdict
+ *   selection skips lock rows, so locking never changes any item's verdict or
+ *   projection, even when `recordedAt` ties across batches. After that every write to the batch, a second lock included,
  *   fails with `VerdictBatchLockedError`; a write under a new `batchId`
  *   succeeds.
  *
