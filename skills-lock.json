@@ -321,7 +321,7 @@
         ".claude/skills/orchestrate",
         ".agents/skills/orchestrate"
       ],
-      "installedTreeHash": "5770271218f3dffa392fe5e286974c2377f0132cc192f9cea3f43c029f1f03e9"
+      "installedTreeHash": "6a8d30811f4d310d9c7d048caa68d569c079391620d1fc1b2f6ddf1a88e31dca"
     },
     "portless": {
       "_tag": "vendored",
@@ -730,7 +730,7 @@
         ".claude/skills/yeet",
         ".agents/skills/yeet"
       ],
-      "installedTreeHash": "ee5fef6073d4aab52f12c491fdb2f7dca0503dc60bde8fd2a8ba8fdc3758e707"
+      "installedTreeHash": "ee99bf7b95520225bee1e8f54273a62fe328a3bfda00e781d4fd0f561817d013"
     }
   }
 }
