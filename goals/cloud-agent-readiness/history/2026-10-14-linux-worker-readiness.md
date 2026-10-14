@@ -184,3 +184,10 @@ A fresh code pasted directly into Host succeeded. All credentials were excluded
 from this receipt. A browser session is not proof of a saved native environment;
 qualification combines the operator's saved-environment screenshot and the
 native Electron session's successful connection after protocol alignment.
+
+
+Also upgraded beep-worker's desktop package to the matching nightly release,
+0.0.46~nightly.20261014.3093. The downloaded Debian artifact matched GitHub's
+published asset SHA256 8cc2602ba5272de2b1508299c59a26535726bf59d063b63fa7eb8666e9b44e3b.
+Installation used remote YubiKey sudo and selected `/opt/T3 Code (Nightly)/t3code`.
+Desktop launch/sign-in remains separate from the already-proven remote backend.
