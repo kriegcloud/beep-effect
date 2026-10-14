@@ -665,6 +665,25 @@ without claiming completion.
 
 ## Decision Log
 
+### 2026-10-14 — H2 resumed publication capture boundary
+
+Decision: retain the command runner's bounded capture and publish the qualified
+H2 wave through the lane's authorized named-path commit/direct-push fallback.
+Run the cheap tier independently and record its actual outcome; retain the
+separate frozen-lockfile workspace install result. No isolated head-install
+preflight pass is inferred from that install.
+
+Reason: the canonical publisher refuses before pushing because the NUL-delimited
+path inventory since the old remote lane tip exceeds its capture limit. The
+resumed main integration spans five days; widening shared command execution
+belongs to its own owner, not this completion-evidence lane. The brief's run-3
+fallback and RSC-RESUME authorize delivery to reopened #1574; source-bound
+qualification and inherited-red attribution remain required.
+
+Reversal: revert the owning H2 PR through the normal PR route. Do not rewrite
+published history; restore the canonical publisher when its owner repairs
+bounded path-inventory handling.
+
 | Date | Decision | Reason | How to reverse |
 | --- | --- | --- | --- |
 | 2026-10-09 | Create this coordinating packet through `bun run beep goals bootstrap --plan --json`; generated payloads written byte-for-byte, seeds rewritten to carry the brief. | Brief section 1 item 2: supported goal workflow; the plan is the supported materialization. | `git revert` of the landing PR; the plan is reproducible from the same command. |
@@ -708,10 +727,22 @@ without claiming completion.
 | 2026-10-09 | `rsc-shared` is held by the orchestrator: lanes edit shared files (root `package.json`, `bun.lock`, `turbo.json`, `AGENTS.md`, `.changeset/config.json`, models manifest, generated inventories, `.github` lane declarations) on their own branch, merge `origin/main` and regenerate before `final`, and the orchestrator reviews and merges shared-file PRs one at a time at the gate in the order of RULINGS S6 (H1 OSV, D, the Knip window, V inventory, B refresh, the rest). | Brief section 5 serializes shared edits through one owner; a separate lane would only add a hand-off per edit. | Cut a dedicated `rsc-shared` lane and route the edits through it. |
 | 2026-10-09 | The required `Knip` status-check context is removed from the `main` ruleset by the orchestrator at the gate of the A PR that deletes the `check.yml` job, after exporting the prior ruleset to the E receipt; the two land in one window. | A head without the Knip job can never satisfy a ruleset that still requires it, and removing the context first would let other PRs merge without Knip for the whole window. | Re-add the context from the exported ruleset JSON (`gh api -X PUT repos/<o>/<r>/rulesets/<id>`). |
 | 2026-10-09 | Lanes may start before this packet PR merges: step 0 merges `origin/main` and, if the packet is absent, the packet branch itself. | Identical additions merge cleanly after the squash; waiting for the merge would idle twelve lanes for the review window. | Relaunch any conflicted lane from a fresh worktree cut after the merge. |
+| 2026-10-09 | H2 stores derived receipts in the owning clone's `.beep/goals/completion-receipts.ndjson`, resolved through `resolveProofLedgerLocation`; `goals completion refresh` is the sole writer. | R81/R84: explicit refresh survives lane retirement without changing ProofFact, its schema version, expiry or TTC enforcement. | Delete the derived receipt file and refresh; revert the H2 PR to remove the command. |
+| 2026-10-09 | H2 records both the current normalized declaration digest and the accepted-head declaration digest, including `initiative.id` and `initiative.packetId`; historical core differences are annotated sub-claims. | R82: retrospective final PR declarations were absent at historical heads. Separate addresses bind both declarations without pretending new fields were authored before merge. | Revert the owning PR; legacy manifests remain schema-compatible. |
+| 2026-10-09 | H2 verifies required checks using GitHub ruleset versions effective at merge and retains their context names and version references. Unsupported or unreadable history is unknown. | Current rules cannot prove historical acceptance; review finding H2-R1-2. | Revert the verifier and delete its derived receipts. |
+| 2026-10-09 | H2 historical review-window and Yeet-verdict statements remain non-gating sub-claims; #1462's seven-second window is unsatisfied and #1427's missing verdict is unknown. | R79/R80: overall completion follows the typed PR gate and must not reset historical lifecycle. | Change the explicit evidence gating declaration in a later PR and refresh; retain the historical observations. |
+| 2026-10-09 | H2 migrates only #1429/#1462/#1427; legacy singular/plural PR fields normalize in memory, with citation fallback offline when a legacy packet has no receipt. | R83/R85: additive migration preserves established legacy behavior and avoids an unrelated lifecycle reset. | Revert the three optional manifest additions. |
+| 2026-10-09 | H2 leaves the merge-method field unknown for ambiguous single-parent GitHub results while verifying GitHub's final-PR/head/merge binding for squash and rebase. | REST merge facts do not reliably distinguish the two workflows; head ancestry would incorrectly reject squash. The tree and merge OID remain recorded. | Add an independently attested method provider later; delete derived receipts and refresh. |
+| 2026-10-09 | H2 moves the reused MergeGateCheckRun into `MergeGate.schemas.ts`, retaining its schema identifier and public re-export; completion reads no longer depend on merge-handler runtime wiring. | Fallow exposed the static cycle despite the earlier lazy runtime import. Shared schema ownership breaks it and separates verification from command execution. | Move the schema back and revert the H2 import changes together. |
 | 2026-10-09 | H1 OSV wave renews all three exact-artifact exceptions only through 2026-10-30 with consumer owners and proven-fixed-release or dependency-removal exits; retains locked HTTP cache 4.2.0 after testing 4.3.0. | Live npm registry and OSV query: HTTP cache 4.3.0 has zero advisories, but its replacement storable-response/no-cache/max-stale proof through make-fetch-happen fails required revalidation (the direct private-response probe is withdrawn); upstream issue #56 remains linked. Braces latest remains 3.0.3 and sprintf latest 1.1.3 remains affected. Consumers remain live; removing Storybook, Pulumi, mammoth or markdown-toc is outside H1. Evidence: `history/receipts/stage-4-h1-catalog.md#osv-exceptions`. | Revert the OSV wave PR; it changes no manifest or lockfile. |
 | 2026-10-09 | H1 uses separate OSV, catalog/register, compatibility-proof and tsgo ratchet waves; catalog/register lands after A removes Knip. | RULINGS R69/R73/R74/R76 isolate the deadline and failed compatibility proofs; S5 requires effected-port notification confirmation before any lockfile push. | Record a new sequencing decision; retain S5 and serialized shared-file gate. |
 | 2026-10-09 | **H1 tsgo ratchet deferral**: owner `rsc-h1-catalog` retains the separate seven-pin 0.47.2 -> 0.51.1 ratchet PR after the hold-exit merges; it is not part of OSV wave 1. | R73/R74/R76 require A Knip, catalog/register and compatibility waves first; those merges are pending at the OSV handoff. | Resume H1 after the prerequisite merges, remove this deferral, run the lockstep bump and `beep quality tsgo-rules`; revert the ratchet PR to undo the bump. |
 | 2026-10-09 | D archives the private repo-cli note added by main PR #1563 after the original reset, preserving its exact bytes outside `.changeset`. The original 939-note baseline remains immutable. | Final main merge introduced `accounts-live-board.md`; repo-cli remains private and the graph rejects private-named notes. Evidence: `history/receipts/d-post-baseline-accounts-note.md`; source parent `51740fd5e6`. | Restore `.changeset/accounts-live-board.md` from that parent when reversing the D private policy. |
+| 2026-10-09 | H2 retires its temporary private-package patch note after D policy #1566 merges. | The brief required the note only until D landed; `@beep/repo-cli` is private and the new graph rejects its note. | Restore an approved note if publication is activated, or pair restoration with a revert of D policy. |
+| 2026-10-09 | H2 resolves clone evidence ownership only for an eligible completion read; markerless doctor reads preserve legacy fallback or unknown evidence. | Hosted empty/legacy ratchet fixtures exposed an unconditional root-discovery regression. Doctor remains read-only and never invents a repository binding. | Revert the H2 code; the explicit refresh writer keeps strict owning-root discovery. |
+| 2026-10-09 | H2 may retry its own verified-unstarted package admission after over an hour of lock polling. | No package command has started, and queue ownership can be checked without touching another lane. The same wrapper and two-own-admission limit remain. | Stop the replacement queued unit if needed; no application or proof state was changed by restarting. |
+
+| 2026-10-09 | H2 hands off capacity-blocked after its repaired-head full package command remains unstarted through canonical admission and a retry; only its own queued command and readiness monitor are cancelled. | All parity lanes and scoped tests pass, but they cannot replace the required full package gate. Stop without leaving an owned gate running or claiming a package pass. | Resume through `beep-heavy`, run the full package gate, publish the committed delivery evidence through Yeet, mark ready and restart bounded readiness monitoring before orchestrator merge. |
 
 | 2026-10-09 | C drift triage records the refreshed rewrite baseline: exit 0, 3 applied and 225 already-applied in this lane; rules 0–2 remain pending skill rewrites, and rule 34 targets a present ignored atlas here. | The sweep's exit-1 baseline no longer reproduces at this checkout. Do not edit the independently owned skill guidance merely to make a one-time rewrite look applied; an absent ignored atlas remains an expected unreadable-target failure for the rewrite command, while the tracked-tree census is separate. | Revert the C wave; original runner and reviewed rules remain in Git history. |
 | 2026-10-09 | C ports reference provisioning to `refs provision`, using the existing manifest, service and linker; only missing members are cloned and receive Graft excludes. | Existing checkouts, dirty files and worktree Git files remain immutable; the original two provisioning fixtures exercise the typed owner. | Revert the C wave; existing provisioned references remain untouched. |
@@ -844,6 +875,16 @@ After D's release-policy PR #1566 lands, remove the unused `changesets/action@*`
 
 Move live ruleset, desktop settings and held-main reads from the contents-only verification matrix to the existing Security job, adding only `actions: read` there. Keep pure workflow lint in Repo Sanity. Reason: human review found the push-only Actions API calls unproven under GITHUB_TOKEN, despite successful personal-token probes. Run the hosted reads on PRs too, after dependency review, to establish that exact job-token path before merge. A held-main failure is repository-state evidence and must be attributed accordingly. Reverse the workflow/test change together; no writer credential, environment attachment or other job permission is broadened.
 
+### 2026-10-09 — H2 resumed publication follows S12 amendment 2
+
+Publish the resumed delivery update within the existing lane cgroup using
+`TURBO_CONCURRENCY=2`, as standing S12 amendment 2 allows for immediate delivery.
+Reason: the full admission-wrapped package gate passed, but publication queue
+contention let other packet PRs advance main and invalidate the integrated base
+before publication. Integrate main and preserve every lane's packet evidence
+first. Reversal: let this invocation exit and return publication to `beep-heavy`;
+no global cap, wrapper, peer job, source baseline or acceptance rule changes.
+
 ### 2026-10-09 — G final compiler and cache output qualification
 
 - Collect refusal warnings directly from the typed recovery rows in one
@@ -863,6 +904,29 @@ Move live ruleset, desktop settings and held-main reads from the contents-only v
   uncovered counts; the existing baseline must not be refreshed to hide that.
   Reversal is the receipt commit; no coverage policy or floor changed.
 
+### 2026-10-09 — H2 historical ruleset inventory completeness
+
+Record `inventoryComplete` on required-check snapshots; legacy omitted fields
+decode as false. Current GitHub enumeration observes surviving rulesets only,
+so the live adapter cannot attest merge-time completeness and overall green
+completion resolves unknown. Preserve observed PR/head/merge bindings, surviving
+context checks and historical sub-claims; positive required failures remain
+unsatisfied. Revalidate stored receipts through the same resolver. Reason:
+review `discussion_r4234859239` exposes deleted rulesets absent from today's
+inventory. Reverse by reverting this review fix and deleting derived receipts;
+optional defaulted fields preserve schema compatibility. An independent
+merge-time inventory provider is a later explicit evidence extension.
+
+### 2026-10-14 — H2 completion advisory clarity
+
+Name the historical inventory blocker in incomplete stored-receipt and absent
+receipt guidance. Online doctor inspects facts; only completion refresh persists
+them. Neither operation is presented as a way to establish completeness from
+GitHub's current inventory. The legacy final-PR hint promises inspection rather
+than verification. Reason: review `discussion_r4270037982`, plus the independent
+Opus wording follow-up. Keep the resolver, receipt schema, lifecycle and writer
+unchanged; a complete historical inventory provider remains a later extension.
+Reversal: revert the advisory/test commits; no stored state migration is needed.
 ### D25 — Repair newly exposed CI causes once on main (2026-10-13)
 
 PR #1571 fresh CI exposes a shared technical-drawing test-fixture race: one
@@ -988,6 +1052,17 @@ not proof of the current merge commit. Every admitted floor remains unchanged.
 The lease-warning boundary reaches full coverage and needs no partial identity.
 Reversal is a repair PR reverting these tests, the private narrowing, or new
 rows; it does not lower an existing floor. The broader program remains active.
+### 2026-10-14 — H2 merged unknown receipts supersede stale unsatisfaction
+
+Select the newest matching receipt with a definite outcome, or with merge facts,
+a required-check snapshot and a definite hosted-required-check observation.
+A successful merged observation can remain unknown because historical inventory
+is incomplete; preserving an older red/pending verdict would misreport that
+new observation. A transient unknown without merge facts, or with missing/unknown required-check
+observations, remains fallback-only.
+Keep repository, declaration digest, final PR and head revalidation unchanged.
+Reverse by reverting this receipt-reader fix and deleting derived receipts
+before refresh; legacy manifest and lifecycle compatibility is unchanged.
 
 ### 2026-10-14 — B resumes the ordered R20 refresh
 
@@ -1044,3 +1119,37 @@ diagnostics still apply to every workflow job. No workflow permission or
 execution behavior changes. Existing coverage floors remain unchanged.
 Recovery: revert these two focused corrections; retain the recorded red
 diagnostics and rerun the affected contracts before another publication.
+### 2026-10-14 — H2 inherited schema-first fence uses the resume fallback
+
+Publish the fully addressed, locally qualified H2 wave through the standing
+resume direct-push fallback after normal Yeet collects 16 green cheap lanes
+and only the unchanged main PatchSeriesFile red. Keep that repair on main
+with the program orchestrator; do not weaken policy or duplicate its code.
+Run explicit bounded readiness and report the skipped isolated preflight.
+Reverse through the delivery PR's revert; derived receipts remain rebuildable.
+
+### 2026-10-14 — H2 isolates historical ruleset read failures
+
+Keep every successful applicable Repository ruleset snapshot when a sibling
+parent, glob or history read is unsupported or unavailable. A known required
+red remains unsatisfied even though incomplete inventory still blocks verified.
+All-failed or non-applicable reads remain unknown. Reverse by reverting this
+adapter fix and deleting derived receipts before refresh; no lifecycle changes.
+
+### 2026-10-14 — H2 distinguishes read completeness from inventory completeness
+
+Add optional-defaulted rulesetReadsComplete to the snapshot. Historical
+read failures retain readable siblings, but a partial green snapshot cannot
+displace an older definite receipt. Known required reds remain unsatisfied.
+Missing legacy read completeness defaults true because the old reader was
+all-or-nothing; inventory completeness still defaults false. Verification
+requires both dimensions. Reverse the adapter/schema/reader change together
+and rebuild derived receipts; old manifests and receipts remain decodable.
+
+### 2026-10-14 — H2 unsupported default-branch tokens fail closed
+
+For a non-main base, a historical DEFAULT_BRANCH token in either include or
+exclude cannot be resolved by this main-scoped adapter. Fail that ruleset read
+instead of silently declaring it non-applicable. Literal refs and ALL matching
+remain supported; partial-read and older-definite-evidence safeguards apply.
+Reverse this guard with its fixtures; no lifecycle or receipt ownership change.
