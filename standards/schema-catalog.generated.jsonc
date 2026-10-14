@@ -40253,6 +40253,30 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+      "symbol": "JunieAuthTestBody",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "JunieAuthTestBody",
+      "description": "The direct Junie balance response; absent fields do not imply zero."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+      "symbol": "JunieRefreshBody",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "JunieRefreshBody",
+      "description": "An in-memory JetBrains OAuth refresh response."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
+      "symbol": "JunieStoredCredential",
+      "kind": "schema-class",
+      "owner": "@beep/repo-cli",
+      "identity": "JunieStoredCredential",
+      "description": "JetBrains account credentials read from Junie secure storage."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Accounts/Accounts.wire.schemas.ts",
       "symbol": "MuseKeyBody",
       "kind": "schema-class",
       "owner": "@beep/repo-cli",
