@@ -1332,3 +1332,17 @@ third attempt; the driver resumes the next occurrence after seal review.
 P2 remains in-progress, with eighteen larger occurrences and the
 estate/recycle/DOC gates open for P3. Reversal: revert packet decisions
 before launch; afterward retain every ledger, output, claim and manifest.
+
+
+### 2026-10-14: recovery ordinal 5 unsupported; continue approved remainder
+
+The recovery family sealed failure with TikaSecondPassFailure: exitCode 1,
+emptyOutput true, truncated false. Retain 354,621,761 bytes and the 30.1G
+memory peak; no memory-kill claim. Family elapsed 1,264,398 ms; no accepted
+children. Disposition unsupported under the 11:14Z ruling; engine-failure
+stays unapproved and ordinal 5 never gets a third attempt. Existing tool
+seal is unchanged. Fill its manifest policy digest once from run-start.
+Successor 19:40Z ruling authorizes sequential recovery ordinals 7/8/9 after
+main integration and renewed preflight. Reversal: revert packet decisions,
+retaining every ledger, output, claim and freeze record. See
+history/p2/2026-10-14-recovery-progress.md for aggregate evidence.

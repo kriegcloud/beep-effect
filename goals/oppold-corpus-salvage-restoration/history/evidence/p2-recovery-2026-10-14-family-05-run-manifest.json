@@ -30,7 +30,7 @@
     "tikaJar": "~/.local/share/tika/tika-app-3.3.1.jar",
     "tikaJarSha256": "0e8ee9795ac4244feab466f4a5a9c3b94675af392848243842cb6e1e69d27103"
   },
-  "policySha256": null,
+  "policySha256": "149ffa8a6938ff97e79f2ec44aafa0a49f6c1f2b746463215d25194f25562c9d",
   "recoveryAttemptLimit": 1,
   "mergedEngineCommit": "226087bfda2c5162679ea5262ffd1b62fe523434"
 }

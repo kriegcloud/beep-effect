@@ -317,3 +317,49 @@ remaining approved occurrences sequentially. Never relaunch ordinal 5.
 Eighteen larger occurrences and estate/recycle/DOC gates remain open for
 P3. Reversal: revert packet decisions while retaining all corpus artifacts,
 claims, ledgers and manifests. No new record PR until the recovery outcome.
+
+
+## Recovery launch final report
+
+lane: corpus-restore
+head: 85446bf7a8ff2b2f2ad0ecc79945eba5ad85d2e1 (exact committed launch/evidence head; local recovery-run branch)
+PR(s): #1731 MERGED at 226087bfda2c5162679ea5262ffd1b62fe523434; #1718 MERGED; recovery record PR: none yet (live outcome pending)
+package-verify: no package source edited this run; @beep/repo-cli retained pass from merged #1731 (default audit/docgen and final quick lint/check)
+hosted-parity: test-tsgo not run (docs-only; #1731 pass retained) | docgen local not run (docs-only; #1731 pass retained) | jsdoc-ratchet not run (docs-only; #1731 pass retained) | knowledge refs fail, inherited: 15 live gates in 11 documents matching origin/main, zero introduced gates after committed correction | fallow audit+health not run (docs-only; #1731 pass retained) | scoped coverage not run (docs-only; #1731 pass retained: 6,197 tests, L/S/B/F 87.05/86.72/79.24/83.85, changed-file floors unchanged)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-14.md
+open items: Recovery ordinal 5 launched once in beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service; script started 2026-10-14T13:38:59.023Z, active in built-in archive re-verification, result stamp absent and family ledger not yet created at last observation. The driver waits for the unit and relaunches this lane for aggregate result/seal/child reconciliation; fill the new manifest policySha256 once from family-run-start. Four pre-launch recovery manifests committed at 4bd0ea98d73a9c3a285ec0bfd85973d64f8a0223 cover only failed ordinals 5/7/8/9, each one fresh family and one attempt. Frozen source snapshot 08afe6715d2715713618b2d9f2ea64c8aba6b6b7 integrates merged main and matches its Corpus/libpff source; later commits are packet-only. Launcher digest 9c39a78e1b143f7b6d0df48bb680eee8e723db3c41b179ffd48c36308ff5c98d. Same engines and measured versions; both admitted real sandbox smokes, four restoration tests and two recovery regressions pass. Attempt 22,320,000 ms (3 x 7,222,485 + 600,000, rounded up to a minute), family 43,200,000 ms, ratio 4, output 2,147,483,648 bytes and 100 GB floor; last prelaunch free space 339,888,861,184 bytes and full sixty-second interval completed. Old sealed families remain unchanged. A repeated second-pass failure receives unsupported recovery disposition with retained cause class/stable fields; it remains unapproved, partial output is evidence only, and no third attempt is permitted. Reconcile ordinal 5 before sequential ordinals 7/8/9, then publish the aggregate record through Yeet; never merge. P2 remains in-progress, P3 pending; eighteen larger occurrences and estate/recycle/DOC gates remain open for P3. Reversal: revert packet decisions while retaining all ledgers, outputs, claims and freeze records. Auxiliary verification calls ended; only the transferred live family unit remains. Doctor: 226 packets, zero blockers, six unchanged unrelated advisories; index, JSON, launcher size and whitespace checks pass. Launch records and earlier receipts are committed locally; this final report is appended for the next evidence commit. Graft saved approximately 75,290 tokens across two retrievals.
+blocked: recovery family running, unit beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service
+
+
+## Recovery ordinal 5 sealed failure — reboot resume
+
+Unit beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service is inactive.
+Result stamp 1; private log four lines. Journal count confirms one
+code-exited entry and one 30.1G memory-peak entry; no log lines copied.
+The existing tool seal at 14:05:05.106Z is family-acceptance-failure.
+No ledger append, output mutation or retry was performed.
+
+Object identity: 492971fd43294de2fc1f47e58ad0ec78fa0438af9004fcb1166ad42ffd09437d.
+Input bytes: 157975552. Retained output: 354621761 bytes
+(2.245x input, below ratio four); family elapsed 1264398 ms,
+below 43,200,000 ms. Queue less than two seconds; archive re-verification
+301,680 ms from started stamp to family-run-start. Total launch to seal
+1,566,083 ms. No accepted attempt duration or accepted child reconciliation
+is claimed. One start, one attempt, one exception, one summary, one failure;
+325 repair rows (108 repaired, 217 unsupported), zero store/child/warning
+passes. Partial repairs are retained evidence only.
+
+Retained cause: TikaSecondPassFailure; exitCode 1, emptyOutput true,
+truncated false. This repeats the second-pass failure, not elapsed-budget
+exhaustion or evidence of a memory kill. Recovery disposition: unsupported;
+the underlying engine-failure remains unapproved. One bounded recovery
+attempt exhausted; no third attempt permitted. Memory peak 30.1G.
+Ledger SHA-256: c2652e8afcd04013aac611852fe541f258d00e5575ff411f3257f98e87315899.
+Policy SHA-256 filled once from family-run-start:
+149ffa8a6938ff97e79f2ec44aafa0a49f6c1f2b746463215d25194f25562c9d.
+All other manifest fields remain unchanged. Three recovery ordinals remain
+unstarted: 7, 8, 9. The latest successor ruling authorizes sequential
+continuation after this reconciliation and main integration.
+Reversal: revert packet disposition decisions, retaining all immutable
+ledgers, outputs, claims and manifests. P2 remains in-progress; eighteen
+larger occurrences and estate/recycle/DOC gates stay open for P3.
