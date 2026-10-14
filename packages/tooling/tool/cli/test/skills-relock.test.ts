@@ -488,12 +488,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills update train reports", (it) 
           headRefOid: "a".repeat(40),
           comments,
         });
-      const comment = (
-        createdAt: string,
-        batch: SkillReplayBatch,
-        author = "github-actions[bot]",
-        head = "a".repeat(40)
-      ) =>
+      const comment = (createdAt: string, batch: SkillReplayBatch, author = "github-actions", head = "a".repeat(40)) =>
         SkillTrainPullRequestComment.make({
           author: { login: author },
           createdAt,
@@ -514,7 +509,7 @@ layer(TestLayer, { timeout: "60 seconds" })("skills update train reports", (it) 
         pr(12, [
           comment("2026-10-12T00:00:00Z", conflicted),
           comment("2026-10-14T00:00:00Z", clean, "untrusted-contributor"),
-          comment("2026-10-15T00:00:00Z", clean, "github-actions[bot]", "b".repeat(40)),
+          comment("2026-10-15T00:00:00Z", clean, "github-actions", "b".repeat(40)),
         ]),
       ]);
       expect(forged.body).toContain("1 conflicted, 0 pending");

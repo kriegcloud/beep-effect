@@ -312,7 +312,7 @@ const latestReplay = (pr: SkillTrainPullRequest): PullRequestReplay => ({
           pr.comments,
           (comment) =>
             comment.author !== null &&
-            comment.author.login === "github-actions[bot]" &&
+            comment.author.login === "github-actions" &&
             Str.includes(replayHeadMarker(pr.headRefOid))(comment.body)
         ),
         (comment: SkillTrainPullRequestComment) => comment.createdAt,

@@ -43,7 +43,7 @@ type ModHostOperation = typeof ModHostOperation.Type;
  * import { ModHostError } from "@/PracticeMod.host"
  *
  * const error = ModHostError.make({ operation: "store-set", message: "EACCES" })
- * console.log(error.operation) // "fs-write"
+ * console.log(error.operation) // "store-set"
  * ```
  *
  * @category errors
