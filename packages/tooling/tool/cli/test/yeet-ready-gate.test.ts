@@ -1,7 +1,9 @@
 import { YeetCommandError } from "@beep/repo-cli/commands/Yeet/Yeet.errors";
+import { layerGithubRest, layerGraphqlBudget } from "@beep/repo-cli/test/SharedInternals";
 import {
   decideYeetReadyGate,
   deriveYeetMergeReady,
+  flipPullRequestReady,
   ProofJobRecord,
   ProofJobRequest,
   ProofJobSubmitter,
@@ -24,9 +26,11 @@ import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { assertNone, assertSome } from "@effect/vitest/utils";
-import { GitHubError } from "@effected/github";
+import { GitHubClient, GitHubError, Repo, RepoRef } from "@effected/github";
 import * as A from "effect/Array";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
+import * as Fiber from "effect/Fiber";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
@@ -34,9 +38,11 @@ import * as Path from "effect/Path";
 import * as PlatformError from "effect/PlatformError";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as Ref from "effect/Ref";
+import * as S from "effect/Schema";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as Struct from "effect/Struct";
+import * as TestClock from "effect/testing/TestClock";
 import * as TestConsole from "effect/testing/TestConsole";
 
 const headSha = "abc1234def";
@@ -937,4 +943,149 @@ describe("ready gate incomplete remote identities", () => {
       })
     );
   });
+});
+
+it.layer(NodeServices.layer, { timeout: "30 seconds" })("ready head after the GraphQL budget wait", (it) => {
+  const waitingFlip = Effect.fnUntraced(function* (replenished: boolean) {
+    const liveHead = yield* Ref.make(headSha);
+    const mutations = yield* Ref.make(0);
+    const restReads = yield* Ref.make(0);
+    const probes = yield* Ref.make(0);
+    const client = GitHubClient.layerTest({
+      requestDecoded: Effect.fnUntraced(function* (_route, _params, schema) {
+        yield* Ref.update(restReads, (n) => n + 1);
+        return yield* S.decodeUnknownEffect(schema)({
+          number: 42,
+          node_id: "PR_ready",
+          title: "Ready head",
+          body: "",
+          state: "open",
+          draft: true,
+          merged: false,
+          merged_at: null,
+          mergeable_state: "clean",
+          head: { ref: "feature/ready-gate", sha: yield* Ref.get(liveHead) },
+          base: { ref: "main" },
+          html_url: "https://github.com/beep/beep/pull/42",
+          user: { login: "author" },
+          labels: [],
+          created_at: "2026-10-01T00:00:00Z",
+          updated_at: "2026-10-01T00:00:00Z",
+        }).pipe(Effect.orDie);
+      }),
+      graphql: Effect.fnUntraced(function* (document) {
+        if (document.name === "rateLimit") {
+          const probe: number = yield* Ref.getAndUpdate(probes, (n) => n + 1);
+          return yield* document
+            .decode({
+              rateLimit: {
+                remaining: probe > 0 && replenished ? 5000 : 0,
+                resetAt: "1970-01-01T00:10:00Z",
+              },
+            })
+            .pipe(Effect.orDie);
+        }
+        yield* Ref.update(mutations, (n) => n + 1);
+        return yield* document
+          .decode({
+            markPullRequestReadyForReview: {
+              pullRequest: { id: "PR_ready", isDraft: false },
+            },
+          })
+          .pipe(Effect.orDie);
+      }),
+    });
+    const services = Layer.mergeAll(layerGithubRest, layerGraphqlBudget).pipe(
+      Layer.provideMerge(Layer.mergeAll(client, Repo.layer(RepoRef.make({ owner: "beep", repo: "beep" }))))
+    );
+    const serviceContext = yield* Layer.build(services);
+    return {
+      liveHead,
+      mutations,
+      restReads,
+      probes,
+      markReady: (number: number, confirmed: string) =>
+        flipPullRequestReady(number, confirmed).pipe(
+          Effect.provideContext(serviceContext),
+          Effect.mapError((cause) => YeetCommandError.make({ message: cause.message, exitCode: 1 }))
+        ),
+    };
+  });
+
+  // These tests run serially. Each owns one fork, advances the shared TestClock,
+  // and joins the fork before the next test can use that clock.
+  it.effect("refuses a push during the budget wait without a ready mutation", () =>
+    Effect.gen(function* () {
+      const flip = yield* waitingFlip(true);
+      const fiber = yield* runYeetReadyGate(context, {
+        read: () => Effect.succeed(prView()),
+        recordInherited: () => Effect.void,
+        markReady: flip.markReady,
+        findMonitor: () => Effect.succeedNone,
+      }).pipe(Effect.flip, Effect.forkChild);
+      yield* TestClock.adjust(Duration.seconds(1));
+      expect(yield* Ref.get(flip.probes)).toBe(1);
+      expect(yield* Ref.get(flip.restReads)).toBe(0);
+      yield* Ref.set(flip.liveHead, "fedcba9876");
+      yield* TestClock.adjust(Duration.minutes(11));
+      const error = yield* Fiber.join(fiber);
+      expect(error).toMatchObject({ _tag: "YeetCommandError", exitCode: 1 });
+      expect(error.message).toContain(`confirmed ${headSha}, live fedcba9876`);
+      expect(error.message).toContain("Re-run `bun run beep yeet ready`");
+      expect(yield* Ref.get(flip.mutations)).toBe(0);
+      expect(yield* Ref.get(flip.restReads)).toBe(1);
+    })
+  );
+
+  it.effect("flips a stable confirmed head once after the wait", () =>
+    Effect.gen(function* () {
+      const flip = yield* waitingFlip(true);
+      const confirmed = yield* Ref.make("");
+      const fiber = yield* runYeetReadyGate(context, {
+        read: () => Effect.succeed(prView()),
+        recordInherited: () => Effect.void,
+        markReady: (number, head) => Ref.set(confirmed, head).pipe(Effect.andThen(flip.markReady(number, head))),
+        findMonitor: () => Effect.succeedNone,
+      }).pipe(Effect.forkChild);
+      yield* TestClock.adjust(Duration.minutes(11));
+      expect((yield* Fiber.join(fiber))._tag).toBe("flip");
+      expect(yield* Ref.get(confirmed)).toBe(headSha);
+      expect(yield* Ref.get(flip.mutations)).toBe(1);
+      expect(yield* Ref.get(flip.restReads)).toBe(1);
+    })
+  );
+
+  it.effect("repeats the full gate and attribution confirmation after an expired wait", () =>
+    Effect.gen(function* () {
+      const flip = yield* waitingFlip(false);
+      const reads = yield* Ref.make(0);
+      const records = yield* Ref.make(0);
+      const inherited = [YeetReadyInheritedRed.make({ check: "Lint", attribution: "inherited from main" })];
+      const dependencies = {
+        read: () =>
+          Ref.update(reads, (n) => n + 1).pipe(
+            Effect.as(
+              prView({
+                failingRequiredCheckCount: 1,
+                checks: [YeetWatchCheck.make({ name: "Lint", outcome: "fail", required: true })],
+              })
+            )
+          ),
+        recordInherited: () => Ref.update(records, (n) => n + 1),
+        markReady: flip.markReady,
+      };
+      const fiber = yield* runYeetReadyGate(context, dependencies, inherited).pipe(Effect.flip, Effect.forkChild);
+      yield* TestClock.adjust(Duration.minutes(11));
+      expect((yield* Fiber.join(fiber)).message).toContain("GraphQL budget too low");
+      expect(yield* Ref.get(flip.restReads)).toBe(0);
+      expect(yield* Ref.get(flip.mutations)).toBe(0);
+      yield* runYeetReadyGate(
+        context,
+        { ...dependencies, markReady: () => Effect.void, findMonitor: () => Effect.succeedNone },
+        inherited
+      );
+      expect(yield* Ref.get(reads)).toBe(6);
+      expect(yield* Ref.get(records)).toBe(2);
+    })
+  );
 });
