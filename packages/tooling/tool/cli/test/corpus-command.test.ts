@@ -4416,9 +4416,7 @@ it.layer(testLayer, { concurrent: false, timeout: "30 seconds" })("corpus restor
         expect(encoded).not.toContain(fixture.tikaPath);
         const decoded = yield* decodeTransformationLedgerRecordJson(encoded);
         expect(decoded).toEqual(terminal.value);
-        const legacy = yield* S.decodeUnknownEffect(TransformationLedgerRecord)(
-          Struct.omit(terminal.value, ["failureCause"])
-        );
+        const legacy = yield* S.decodeEffect(TransformationLedgerRecord)(Struct.omit(terminal.value, ["failureCause"]));
         expect(isTransformationLedgerRecordCasesMailStoreException(legacy) && legacy.failureCause).toBeUndefined();
         expect(
           yield* fs.exists(path.join(runRoot, "output/mail/slice/attempts", `${terminal.value.attemptId}.partial`))

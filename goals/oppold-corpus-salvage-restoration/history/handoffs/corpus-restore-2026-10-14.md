@@ -151,3 +151,20 @@ and docgen are retained for identical production inputs; final test-tsgo
 and fresh coverage remain required. The queued publication request was
 cancelled before it started, before any push, so this correction joins the
 same fully addressed publication wave. No family or manifest was launched.
+
+
+## Final test type-check result
+
+Test-tsgo passed after the fixture uses the data-first omission overload and
+typed decodeEffect for its known encoded input. These are test-only API/type
+corrections; restoration production source is unchanged from the green
+default audit/docgen inputs. Quick package check passed source checking;
+its sole lint error was formatting on the edited fixture, now corrected.
+The lint inbox row cites this corrective commit. Three warnings and one
+info row in agent-effectiveness/graft fixtures are inherited; all three
+files match origin/main. No unrelated file is edited.
+
+Fresh coverage is active against the committed packet state. No accepted
+coverage or final publication claim is made yet. The pending coverage
+result and inherited knowledge observations remain explicit in the report.
+All real sandbox, schema, doctest, JSDoc and fallow checks already passed.
