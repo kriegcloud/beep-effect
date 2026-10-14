@@ -245,7 +245,7 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
         outcome: "unknown",
         verifiedAt: time,
       });
-      yield* Arbitrary.checkEffect(
+      const inventoryProperty = yield* Arbitrary.checkEffect(
         Arbitrary.schema(GoalRequiredCheckSnapshot),
         Effect.fn("GoalsDoctorTest.inventoryOutcome")(function* (snapshot) {
           const resolved = yield* GoalCompletionVerifier.resolve(
@@ -258,8 +258,9 @@ it.layer(testLayer, { timeout: "20 seconds" })("goals doctor baseline ratchet", 
           );
           return resolved.outcome === (snapshot.inventoryComplete ? "verified" : "unknown");
         }),
-        { numRuns: 20 }
+        { runs: 20 }
       );
+      expect(inventoryProperty._tag, Arbitrary.formatCheckFailure(inventoryProperty)).toBe("Passed");
       const text = yield* S.encodeEffect(S.fromJsonString(GoalCompletionReceipt))(receipt);
       yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${text}\n`);
       const output = yield* captureOutput(
