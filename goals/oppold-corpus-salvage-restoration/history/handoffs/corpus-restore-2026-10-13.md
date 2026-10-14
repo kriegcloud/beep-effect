@@ -1167,3 +1167,74 @@ failure evidence is published there; this continuation blocker is committed
 locally for handoff. No new PR, push, main merge or worker-owned gate.
 Source/package proof is not applicable to this docs-only stop.
 Graft saved approximately 53,475 tokens in one retrieval.
+
+
+## Continuation code-freeze hold final report
+
+lane: corpus-restore
+head: 17f42f572f4563289e07dc9d0affd9f6aa875e76 (local committed continuation-blocker evidence; not pushed)
+PR(s): #1683 OPEN, ready, published head 258042e16e61139c504801b4f3e087f2d534ebeb; orchestrator owns its gate | PR7 none (wave incomplete)
+package-verify: not run (docs-only: no package source edited; no engine or launcher change)
+hosted-parity: test-tsgo not run (docs-only: no package source changed) | docgen local not run (docs-only: no package source changed) | jsdoc-ratchet not run (docs-only: no package source changed) | knowledge refs pass through beep-heavy at pre-commit head 258042e16e61139c504801b4f3e087f2d534ebeb, zero live gated observations | fallow audit+health not run (docs-only: no package source changed) | scoped coverage not run (docs-only: no package source changed)
+handoff: goals/oppold-corpus-salvage-restoration/history/handoffs/corpus-restore-2026-10-13.md
+open items: The 05:55Z ruling authorizes continuation at ordinal 8, with families 5 and 7 retained as sealed failures. Renewed inspection found a separate code-freeze blocker: the previous stop-publication merge imported #1636's Array.every substitutions in RestorationTransformations signature detection. All nine immutable manifests name codeHead 6eb3d036771e868768846b3c56a5aafac69c3b2b, while the unchanged frozen launcher executes the current checkout. Restoration source differs from that recorded head; libpff source matches. No behavioral defect is claimed, but matching source identity cannot be asserted. Decision: hold ordinal 8 pending orchestrator reconciliation of continuation and code freeze; reversal is reverting the documentation decision while retaining every ledger, output, claim and immutable manifest. No source restoration, manifest rewrite, launcher change, new family launch or sealed-family retry.
+Seven families remain sealed: five accepted (1-4 and 6), families 5 and 7 failed. All seven result stamps, ledger hashes and runtime policies match the prior handoffs. Family 7 result 1, expected/terminal one, unapproved one; ledger SHA-256 fca75d67a121ef972f807acd099ad56e4cb9d3f4bc706959c1de187f5c572e35. Ordinals 8 and 9 have no run root, started stamp or result; no family unit is active. P0 seal counts, original candidate, all nine source metadata identities, engine versions, Tika digest, launcher digest and membership digest match. Free bytes at inspection: 407,414,800,384, above the 100 GB floor. Renewed admitted smokes, focused proof and sixty-second launch interval were not run because the code-freeze check failed first. Packet adoption has zero conflicts; doctor has zero blockers and the same three unrelated advisories; index, launcher size, manifest JSON, whitespace, added-line hygiene, gitleaks, typos and commitlint pass. Knowledge refs passed under beep-heavy. SPEC decision, friction receipt, prerequisite table and preserved prior final-report append are committed locally. Existing failure evidence is already published in #1683; its gate-owned head was not moved. No push, main merge, new PR or worker-owned unit/gate. Session ledger records blocked handoff. This exact-head final report is appended locally for the next evidence commit. Separate post-wave recovery of families 5 and 7, eighteen larger occurrences and estate/recycle/DOC obligations remain open; P2 stays in-progress. Graft saved approximately 53,475 tokens in one retrieval.
+blocked: frozen execution-code identity differs after publication integration; ordinal 8 unstarted, orchestrator reconciliation required
+
+
+### 2026-10-14: ordinals 8–9 freeze amendment under the 06:25Z fallback
+
+The orchestrator explicitly permits a freeze amendment when the unchanged
+launcher cannot execute from another worktree. Inspection proves that it
+unconditionally changes directory to the corpus-restore lane before invoking
+bun. Starting that launcher from an execution-only worktree would therefore
+still execute this lane. Altering the launcher or shadowing command resolution
+would change its frozen identity. No execution-only worktree was created.
+
+Decision: use the ruling's fallback for unstarted ordinals 8 and 9 in this
+lane, before either family-run-start. Original code head remains
+6eb3d036771e868768846b3c56a5aafac69c3b2b in every immutable manifest.
+Amended execution source is the restoration source at 17f42f572f4563289e07dc9d0affd9f6aa875e76.
+Attached identity delta: history/evidence/p2-first-wave-2026-10-14-freeze-amendment.patch
+(SHA-256 dfc0f6c519ad5c2f2dfb477032fdedee77e8e42aecc83878d76b8b0ef4a26bf2). It contains two inherited
+#1636 native-array-to-Effect-Array.every substitutions, in signatureExtension
+and isCompoundFileBinary. Restoration command, schemas and base writer source
+are unchanged; libpff source is unchanged. No behavior equivalence is claimed.
+This amendment governs only the two unstarted families; all earlier seals
+retain their actual execution identities. The execution commit will be recorded
+in the handoff immediately before launch, with this source delta unchanged.
+
+The launcher, nine manifests, engine versions, membership, policy identities
+and ceilings remain unchanged: ratio 4, attempt 7,200,000 ms, family
+43,200,000 ms, output 2,147,483,648 bytes, 100,000,000,000-byte floor.
+Five families are accepted; families 5 and 7 remain sealed failures.
+Separate post-wave recovery covers their parser and elapsed-budget classes;
+no sealed family is retried. Reversal: revert this documentation amendment
+before launch; after launch retain all ledgers, claims, output and manifests
+and revert only the documentation decision. No source or launcher edit.
+
+
+## 2026-10-14 ordinal 8 renewed admitted preflight
+
+| Prerequisite | State | Measured evidence |
+| --- | --- | --- |
+| P0 seal | met | 755 directory passes, 10,696 file passes, four inherited losses, one preflight and one seal; original sealed run unchanged |
+| Original candidate | met | 53 PSTs, 23 eligible; 56,140,800 bytes, original object/digest unchanged |
+| Nine source identities | met | All nine object, digest and size values match archive metadata |
+| Existing state | met | Seven seals and result stamps unchanged: five accepted, two failed; 8/9 unstarted; no active family unit |
+| Frozen engines | met | pffexport 20260917; bubblewrap 0.13.0; OpenJDK 27 dated 2026-09-15, Java real path unchanged; Tika 3.3.1 digest unchanged |
+| Script/membership | met | All nine manifests match script and membership digests |
+| Policies/ledger hashes | met | All seven runtime policies match; all seven ledger digests occur unchanged in previous handoffs |
+| Code identity | amended | Two inherited predicate substitutions; 06:25Z explicit fallback recorded before launch, immutable manifests retained |
+| Capacity | met | 407,776,911,360 free bytes measured before admitted preflight, above 100 GB floor |
+| Admitted smokes/focused proof | met | Both real sandbox smokes pass; four tests pass, 81 skipped, 5.53 seconds through beep-heavy |
+| Packet baseline | met | Adoption zero conflicts; doctor zero blocking findings and same three unrelated advisories |
+
+PR #1683 confirmed MERGED, published head
+258042e16e61139c504801b4f3e087f2d534ebeb. No main integration
+is needed before this launch; merge main once before terminal PR7 publication
+and preserve actual execution identity. Prior uncommitted final report kept.
+No package source edited; no new package verification required. Graft saved
+approximately 24,520 tokens in one retrieval. All previous sealed families
+and the immutable launcher remain untouched. The full sixty-second interval
+starts after this admitted preflight before renewed capacity/state check.

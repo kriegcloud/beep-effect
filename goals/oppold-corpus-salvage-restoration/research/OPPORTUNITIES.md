@@ -847,3 +847,14 @@ family engine failure; no live family was launched before it was repaired.
   before resuming the remaining members.
 - Action: stop before ordinal 8 without modifying source, the launcher,
   manifests or corpus artifacts. Report the freeze mismatch to the orchestrator.
+
+
+## 2026-10-14: frozen launcher pins the evidence checkout
+
+- Doing: implement the 06:25Z frozen-worktree continuation ruling.
+- Evidence: the immutable launcher unconditionally changes directory to the
+  evidence lane before executing bun; another starting directory cannot
+  select the frozen checkout.
+- Prevention: declare an execution-root parameter before freezing a launcher.
+- Action: use the explicitly authorized pre-launch freeze-amendment fallback,
+  attach the restoration source delta, keep the launcher and manifests intact.
