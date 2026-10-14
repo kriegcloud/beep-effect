@@ -93,3 +93,23 @@ pass is claimed. Replies will post through Yeet after the single addressed
 push, as the ruling requires. No reply has been posted or thread resolved yet.
 The orchestrator still owns required-context removal before merge; S5's
 additional generated-lock notice remains unconfirmed.
+
+## Current review-fix runtime evidence
+
+On `f107226018`, the package-local CI workflow-bijection and merge-gate suites
+pass **88/88** tests in two files (60.94s). The latest integrated owner batch
+passes all ten commands. Catalog/JSDoc snapshots are regenerated rather than
+merged by hand; JSDoc totals stay 147 / 81 / 1,388 / 912 with zero root-policy
+findings. The frozen-lock install passes without changing the 28/128-line
+retirement delta, and the helper recovery blob is verified at `e62411d63f`.
+
+FQE standalone validation initially failed before its assertions on an
+inherited manifest mismatch: main's decoder requires v1, main's manifest is
+v2. Its existing schema now accepts those two versions. The rerun reaches
+validation and fails only five inherited health/provenance rows: report
+command and CI-mode drift, a missing health-baseline manifest entry, the old
+fqe-005 CI contract, and stale boundary-provenance membership. The independent
+reviewer verifies each against unchanged main values and finds no new Knip
+retirement error. This remains a failed supplemental validator, not a full
+acceptance pass. Route the broader archived health/provenance reconciliation
+to `rsc-b-standards` / the orchestrator; A does not rebuild a parity project.

@@ -1342,3 +1342,7 @@ Running the CLI Vitest config from the repository root returned `No test files f
 ### 2026-10-14 — A pre-final integration supersedes queued proof
 
 A fresh fetch advanced main from `aeb2a85cc5` to `3749e7ca4a` while the CLI audit ran and test-tsgo waited for admission. Main modified the retired `knip.jsonc`; the lane kept it deleted, and regenerated the conflicted Fallow boundary snapshot through tsconfig-sync. The queued parity coordinator and its owned admission unit were stopped before test execution; the owned CLI unit was stopped at exit 130 because incoming main changed CLI source. Neither is a pass. Main also changes OCCT source and PDF tests, so those package gates need fresh proof; eight unchanged A packages retain their prior terminal results. Integrating before submitting commit-bound proof would have prevented this discarded work.
+
+### 2026-10-14 — FQE archived validator rejects the current manifest version
+
+The admitted FQE validator exits 1 before its retirement assertions: the local manifest decoder accepts `initiative-manifest/v1`, while current main's manifest is v2. Both values are verified on `origin/main`, so the mismatch is inherited. Broaden the existing schema to the two supported literal versions, preserving v1 compatibility and rejection of other versions. A canonical manifest-version domain reused by archived validators would have prevented this drift. The initial red is not proof of the retired helper fix; validation must rerun.

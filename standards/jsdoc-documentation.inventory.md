@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-10-14T10:47:23.871Z
+Generated: 2026-10-14T11:27:46.002Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 64 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 81 |
-| publicModules | 3462 |
-| publicExports | 23453 |
+| publicModules | 3464 |
+| publicExports | 23464 |
 | openModules | 912 |
 | openExports | 1388 |
 | missingExportExamples | 8 |
@@ -65,34 +65,34 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 7 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 170 | 957 | 13 | 33 |
 | 8 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 17 | 51 | 1 | 0 |
 | 9 | `@beep/pglite` | `packages/drivers/pglite` | needs-remediation | 4 | 11 | 3 | 0 |
-| 10 | `@beep/html` | `packages/foundation/modeling/html` | needs-remediation | 16 | 546 | 9 | 28 |
-| 11 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 10 | 263 | 4 | 87 |
-| 12 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 105 | 371 | 3 | 5 |
-| 13 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 39 | 305 | 1 | 5 |
-| 14 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 30 | 58 | 0 | 0 |
-| 15 | `@beep/provenance` | `packages/foundation/modeling/provenance` | needs-remediation | 4 | 28 | 1 | 0 |
-| 16 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 8 | 56 | 0 | 11 |
-| 17 | `@beep/agents-domain` | `packages/agents/domain` | clean | 16 | 75 | 0 | 0 |
-| 18 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 12 | 46 | 1 | 0 |
-| 19 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 6 | 15 | 0 | 0 |
-| 20 | `@beep/colors` | `packages/foundation/capability/colors` | needs-remediation | 1 | 9 | 1 | 9 |
-| 21 | `@beep/nlp` | `packages/foundation/modeling/nlp` | needs-remediation | 28 | 313 | 9 | 9 |
-| 22 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 34 | 182 | 0 | 19 |
-| 23 | `@beep/epistemic-domain` | `packages/epistemic/domain` | needs-remediation | 60 | 269 | 8 | 2 |
-| 24 | `@beep/mcp-kit` | `packages/foundation/capability/mcp-kit` | needs-remediation | 12 | 113 | 8 | 53 |
-| 25 | `@beep/ontology-domain` | `packages/ontology/domain` | clean | 6 | 41 | 0 | 0 |
-| 26 | `@beep/shacl` | `packages/drivers/shacl` | clean | 3 | 6 | 0 | 0 |
-| 27 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 31 | 128 | 2 | 2 |
-| 28 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 25 | 166 | 8 | 97 |
-| 29 | `@beep/law-practice-domain` | `packages/law-practice/domain` | needs-remediation | 227 | 799 | 9 | 5 |
-| 30 | `@beep/langextract` | `packages/foundation/capability/langextract` | clean | 26 | 126 | 0 | 0 |
-| 31 | `@beep/epistemic-use-cases` | `packages/epistemic/use-cases` | needs-remediation | 38 | 149 | 11 | 0 |
-| 32 | `@beep/api-transport` | `packages/foundation/capability/api-transport` | needs-remediation | 4 | 11 | 2 | 7 |
-| 33 | `@beep/epistemic-config` | `packages/epistemic/config` | needs-remediation | 7 | 21 | 3 | 0 |
-| 34 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 43 | 0 | 1 |
-| 35 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 34 | 99 | 4 | 0 |
-| 36 | `@beep/chalk` | `packages/foundation/capability/chalk` | needs-remediation | 1 | 35 | 1 | 35 |
-| 37 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 64 | 678 | 18 | 0 |
+| 10 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 66 | 689 | 18 | 0 |
+| 11 | `@beep/html` | `packages/foundation/modeling/html` | needs-remediation | 16 | 546 | 9 | 28 |
+| 12 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 10 | 263 | 4 | 87 |
+| 13 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 105 | 371 | 3 | 5 |
+| 14 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 39 | 305 | 1 | 5 |
+| 15 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 30 | 58 | 0 | 0 |
+| 16 | `@beep/provenance` | `packages/foundation/modeling/provenance` | needs-remediation | 4 | 28 | 1 | 0 |
+| 17 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 8 | 56 | 0 | 11 |
+| 18 | `@beep/agents-domain` | `packages/agents/domain` | clean | 16 | 75 | 0 | 0 |
+| 19 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 12 | 46 | 1 | 0 |
+| 20 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 6 | 15 | 0 | 0 |
+| 21 | `@beep/colors` | `packages/foundation/capability/colors` | needs-remediation | 1 | 9 | 1 | 9 |
+| 22 | `@beep/nlp` | `packages/foundation/modeling/nlp` | needs-remediation | 28 | 313 | 9 | 9 |
+| 23 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 34 | 182 | 0 | 19 |
+| 24 | `@beep/epistemic-domain` | `packages/epistemic/domain` | needs-remediation | 60 | 269 | 8 | 2 |
+| 25 | `@beep/mcp-kit` | `packages/foundation/capability/mcp-kit` | needs-remediation | 12 | 113 | 8 | 53 |
+| 26 | `@beep/ontology-domain` | `packages/ontology/domain` | clean | 6 | 41 | 0 | 0 |
+| 27 | `@beep/shacl` | `packages/drivers/shacl` | clean | 3 | 6 | 0 | 0 |
+| 28 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 31 | 128 | 2 | 2 |
+| 29 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 25 | 166 | 8 | 97 |
+| 30 | `@beep/law-practice-domain` | `packages/law-practice/domain` | needs-remediation | 227 | 799 | 9 | 5 |
+| 31 | `@beep/langextract` | `packages/foundation/capability/langextract` | clean | 26 | 126 | 0 | 0 |
+| 32 | `@beep/epistemic-use-cases` | `packages/epistemic/use-cases` | needs-remediation | 38 | 149 | 11 | 0 |
+| 33 | `@beep/api-transport` | `packages/foundation/capability/api-transport` | needs-remediation | 4 | 11 | 2 | 7 |
+| 34 | `@beep/epistemic-config` | `packages/epistemic/config` | needs-remediation | 7 | 21 | 3 | 0 |
+| 35 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 43 | 0 | 1 |
+| 36 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 34 | 99 | 4 | 0 |
+| 37 | `@beep/chalk` | `packages/foundation/capability/chalk` | needs-remediation | 1 | 35 | 1 | 35 |
 | 38 | `@beep/phoenix` | `packages/drivers/phoenix` | clean | 5 | 50 | 0 | 0 |
 | 39 | `@beep/duckdb` | `packages/drivers/duckdb` | clean | 6 | 28 | 0 | 0 |
 | 40 | `@beep/codegen-kit` | `packages/tooling/library/codegen-kit` | clean | 5 | 37 | 0 | 0 |
@@ -662,6 +662,30 @@ Module findings:
 - `src/Pglite.test-layer.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 - `src/PgliteClient.service.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 - `src/index.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+
+### @beep/repo-utils
+
+Path: `packages/tooling/library/repo-utils`
+
+Module findings:
+- `src/Dependencies.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/DependencyIndex.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/FsUtils.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/Graph.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/JSDoc/models/TagValue.model.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/JsonUtils.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/ProcessArgs.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/Root.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/TsConfig.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/UniqueDeps.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/Workspaces.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/errors/CyclicDependencyError.ts:1` (jsdoc) - 1 documentation section/link violation(s)
+- `src/errors/DomainError.ts:1` (jsdoc) - 1 documentation section/link violation(s)
+- `src/errors/NoSuchFileError.ts:1` (jsdoc) - 1 documentation section/link violation(s)
+- `src/errors/OptionInjectionError.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/schemas/PackageJson.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/schemas/TSConfig.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
+- `src/schemas/WorkspaceDeps.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 ### @beep/html
 
@@ -1274,30 +1298,6 @@ Export findings:
 - `src/Chalk.ts:747` `supportsColorStderr` (const) - 1 example import violation(s)
 - `src/Chalk.ts:774` `chalkStderr` (const) - 1 example import violation(s)
 - `src/Chalk.ts:806` `default` (const) - 1 example import violation(s)
-
-### @beep/repo-utils
-
-Path: `packages/tooling/library/repo-utils`
-
-Module findings:
-- `src/Dependencies.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/DependencyIndex.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/FsUtils.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/Graph.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/JSDoc/models/TagValue.model.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/JsonUtils.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/ProcessArgs.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/Root.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/TsConfig.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/UniqueDeps.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/Workspaces.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/errors/CyclicDependencyError.ts:1` (jsdoc) - 1 documentation section/link violation(s)
-- `src/errors/DomainError.ts:1` (jsdoc) - 1 documentation section/link violation(s)
-- `src/errors/NoSuchFileError.ts:1` (jsdoc) - 1 documentation section/link violation(s)
-- `src/errors/OptionInjectionError.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/schemas/PackageJson.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/schemas/TSConfig.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
-- `src/schemas/WorkspaceDeps.ts:1` (packageDocumentation) - 1 documentation section/link violation(s)
 
 ### @beep/technical-drawing
 

@@ -899,7 +899,7 @@ class InitiativeManifestDecisions extends S.Class<InitiativeManifestDecisions>($
 
 class InitiativeManifestDocument extends S.Class<InitiativeManifestDocument>($I`InitiativeManifestDocument`)(
   {
-    schemaVersion: S.Literal("initiative-manifest/v1"),
+    schemaVersion: S.Literals(["initiative-manifest/v1", "initiative-manifest/v2"]),
     initiative: InitiativeManifestSummary,
     mission: TrimmedNonEmptyString,
     currentSourceOfTruth: RepoRefString,

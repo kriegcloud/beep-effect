@@ -987,3 +987,13 @@ artifact checks, and packet validation checks historical row shape without
 imposing a live Knip parity gate. This accepts narrower Fallow detection and
 creates no replacement analyzer. Reversal: git revert this wave; recover the
 original helper and configuration from `e62411d63f`.
+
+### 2026-10-14 — A accepts both supported FQE manifest versions
+
+The archived FQE validator's v1-only decoder rejects main's existing v2
+manifest before reaching retirement assertions. Accept the two explicit
+schema-version literals while preserving all other constraints. This keeps
+v1 compatibility and allows current v2 metadata to be checked; other versions
+remain invalid. Five independent inherited health/provenance diagnostics are
+retained and attributed, rather than suppressed. Reversal: revert this schema
+field change with the retirement wave.
