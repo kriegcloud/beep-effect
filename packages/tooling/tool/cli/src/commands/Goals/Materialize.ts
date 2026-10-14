@@ -18,7 +18,10 @@
  *   `create` with exclusive-create, so a file that appeared after planning
  *   fails the write instead of being clobbered.
  *
- * Both return a `goal-materialization-receipt/v1`.
+ * Both return a `goal-materialization-receipt/v1`. The pre-image check
+ * (`readPinnedFile`) and the staged single-file replacement built on it
+ * (`replacePinnedFile`) are shared with `explore graduate`, whose exploration
+ * manifest edit is the only other reviewed write.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -29,10 +32,12 @@ import * as Console from "effect/Console";
 import { Flag } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { assertJournalFileLockOwned, withJournalFileLock } from "../../internal/repo-run/AdmissionJournal.ts";
 import { removeEmptyDirectory } from "../../internal/repo-run/DirectoryHandle.ts";
 import { MaterializationReceipt, MaterializedFile } from "./Bootstrap.schemas.ts";
 import { GoalPlanInputError, GoalPlanOperationalError } from "./Goals.errors.ts";
@@ -224,6 +229,170 @@ export const publishBootstrapPlan = Effect.fn("Goals.publishBootstrapPlan")(func
 });
 
 /**
+ * Reads a file whose bytes a reviewed plan pinned, refusing when they moved.
+ *
+ * **Details**
+ *
+ * The shared pre-image check: adoption's `preserve` rows and the graduation
+ * manifest edit both call it, so "the file still matches the reviewed
+ * digest" has one definition. The digest is SHA-256 over the raw bytes.
+ *
+ * **Example** (Build the pinned read)
+ *
+ * ```ts
+ * import { readPinnedFile } from "@beep/repo-cli/commands/Goals/Materialize"
+ * import * as Effect from "effect/Effect"
+ *
+ * const read = readPinnedFile("goals/demo/README.md", "0".repeat(64))
+ * console.log(Effect.isEffect(read)) // true
+ * ```
+ *
+ * @param relativePath - Repository-relative path of the pinned file.
+ * @param preImageDigest - SHA-256 hex digest the reviewed plan recorded for the file.
+ * @param repoRoot - Repository root the path resolves against.
+ * @returns The file's current bytes, or an operational error when it is unreadable or changed.
+ * @category commands
+ * @since 0.0.0
+ */
+export const readPinnedFile = Effect.fn("Goals.readPinnedFile")(function* (
+  relativePath: string,
+  preImageDigest: string,
+  repoRoot = "."
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const bytes = yield* fs
+    .readFile(path.join(repoRoot, relativePath))
+    .pipe(Effect.mapError(fileErrorFor(`Failed to read preserved ${relativePath}.`)));
+  const digest = yield* sha256HexBytes(bytes);
+  if (digest !== preImageDigest) {
+    return yield* GoalPlanOperationalError.new(
+      `${relativePath} changed since the plan was reviewed; re-plan before writing.`
+    )(undefined);
+  }
+  return bytes;
+});
+
+/**
+ * Writes a file through a staged sibling and an atomic rename.
+ *
+ * **Details**
+ *
+ * Writes `text` exclusively to `<file>.staging-<content digest prefix>`, runs
+ * `beforeRename` (a last guard such as a pre-image re-check), and renames the
+ * stage over the file. A leftover stage from a crashed attempt is removed
+ * first, and any failure removes the stage, so readers see either the old
+ * file or the complete new one, never a partial write. Returns the SHA-256
+ * digest of the written text.
+ *
+ * **Example** (Build the atomic write)
+ *
+ * ```ts
+ * import { writeFileAtomically } from "@beep/repo-cli/commands/Goals/Materialize"
+ * import * as Effect from "effect/Effect"
+ *
+ * console.log(Effect.isEffect(writeFileAtomically("goals/demo/ops/trace.json", "{}\n"))) // true
+ * ```
+ *
+ * @param target - Path of the file to write.
+ * @param text - The complete new content.
+ * @param beforeRename - Guard run after staging and before the rename; its failure aborts the write.
+ * @returns The SHA-256 hex digest of `text` once the rename lands.
+ * @category commands
+ * @since 0.0.0
+ */
+export const writeFileAtomically = Effect.fn("Goals.writeFileAtomically")(function* <E = never, R = never>(
+  target: string,
+  text: string,
+  beforeRename: Effect.Effect<void, E, R> = Effect.void
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const digest = yield* sha256HexBytes(textEncoder.encode(text));
+  const stage = `${target}.staging-${Str.slice(0, 16)(digest)}`;
+  yield* removeQuietly(stage);
+  yield* Effect.gen(function* () {
+    yield* fs
+      .writeFileString(stage, text, { flag: "wx" })
+      .pipe(Effect.mapError(fileErrorFor(`Refusing to stage ${target}: ${stage} exists or cannot be created.`)));
+    yield* beforeRename;
+    yield* fs.rename(stage, target).pipe(Effect.mapError(fileErrorFor(`Failed to publish the staged ${target}.`)));
+  }).pipe(Effect.onError(() => removeQuietly(stage)));
+  return digest;
+});
+
+/**
+ * Replaces a pinned file through a staged sibling and an atomic rename.
+ *
+ * **Details**
+ *
+ * The whole check-render-rename runs under the owned-generation file lock
+ * `<file>.lock` (the lock the packet event store uses), so concurrent writers
+ * of the same file serialize. Inside the lock it checks the pre-image with
+ * {@link readPinnedFile}, renders the replacement from the current text, and
+ * publishes it with {@link writeFileAtomically}, re-checking lock ownership
+ * and the pre-image between staging and the rename. A writer that waited for
+ * the lock then finds the pre-image moved and refuses, so two writers of one
+ * reviewed pre-image yield one replacement and one refusal. The file is
+ * either the pre-image or the full replacement. Returns the before and after
+ * digests; a lock that stays busy or is lost refuses with
+ * `GoalPlanOperationalError`.
+ *
+ * **Example** (Build the pinned replacement)
+ *
+ * ```ts
+ * import { replacePinnedFile } from "@beep/repo-cli/commands/Goals/Materialize"
+ * import * as Effect from "effect/Effect"
+ *
+ * const write = replacePinnedFile("goals/demo/README.md", "0".repeat(64), (text) => Effect.succeed(`${text}\n`))
+ * console.log(Effect.isEffect(write)) // true
+ * ```
+ *
+ * @param relativePath - Repository-relative path of the pinned file.
+ * @param preImageDigest - SHA-256 hex digest the reviewed plan recorded for the file.
+ * @param render - Builds the replacement text from the current (pinned) text.
+ * @param repoRoot - Repository root the path resolves against.
+ * @returns The pre-image and replacement digests once the rename lands.
+ * @category commands
+ * @since 0.0.0
+ */
+export const replacePinnedFile = Effect.fn("Goals.replacePinnedFile")(function* (
+  relativePath: string,
+  preImageDigest: string,
+  render: (text: string) => Effect.Effect<string, GoalPlanOperationalError>,
+  repoRoot = "."
+) {
+  const path = yield* Path.Path;
+  const target = path.join(repoRoot, relativePath);
+  const lockPath = `${target}.lock`;
+  return yield* withJournalFileLock(
+    lockPath,
+    (lockToken) =>
+      Effect.gen(function* () {
+        const bytes = yield* readPinnedFile(relativePath, preImageDigest, repoRoot);
+        const next = yield* render(new TextDecoder().decode(bytes));
+        const afterDigest = yield* writeFileAtomically(
+          target,
+          next,
+          assertJournalFileLockOwned(lockPath, lockToken).pipe(
+            Effect.andThen(readPinnedFile(relativePath, preImageDigest, repoRoot)),
+            Effect.asVoid
+          )
+        );
+        return { beforeDigest: preImageDigest, afterDigest };
+      }),
+    undefined,
+    `Refusing to replace ${relativePath}: another writer holds ${lockPath}.`
+  ).pipe(
+    Effect.catchTag(
+      "QualitySchedulerError",
+      Effect.fnUntraced(function* (error) {
+        return yield* GoalPlanOperationalError.new(`Refusing to replace ${relativePath}: ${error.message}`)(error);
+      })
+    )
+  );
+});
+
+/**
  * Applies a reviewed adoption plan to an existing packet without overwriting anything.
  *
  * **Details**
@@ -251,21 +420,10 @@ export const applyAdoptionPlan = Effect.fn("Goals.applyAdoptionPlan")(function* 
     return yield* GoalPlanInputError.new(`Plan ${plan.planId} is a ${plan.mode} plan, not an adoption plan.`);
   }
   yield* refuseConflicted(plan);
-  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   yield* Effect.forEach(
     plan.preservations,
-    Effect.fnUntraced(function* (preservation) {
-      const bytes = yield* fs
-        .readFile(path.join(repoRoot, preservation.path))
-        .pipe(Effect.mapError(fileErrorFor(`Failed to read preserved ${preservation.path}.`)));
-      const digest = yield* sha256HexBytes(bytes);
-      if (digest !== preservation.preImageDigest) {
-        return yield* GoalPlanOperationalError.new(
-          `${preservation.path} changed since the plan was reviewed; re-plan before writing.`
-        )(undefined);
-      }
-    }),
+    (preservation) => readPinnedFile(preservation.path, preservation.preImageDigest, repoRoot),
     { discard: true }
   );
   const creates = writtenCreates(plan);
@@ -281,6 +439,55 @@ export const applyAdoptionPlan = Effect.fn("Goals.applyAdoptionPlan")(function* 
     validations: [],
   });
 });
+
+/**
+ * Refuses unless `--expect` names exactly the recompiled plan id.
+ *
+ * **Details**
+ *
+ * Shared by every `--write` replay (bootstrap, adopt, explore graduate). A
+ * missing `--expect` or one that differs from the recompiled id refuses with a
+ * typed input error: the tree or the inputs moved since review.
+ *
+ * **Example** (Build the guard for a matching id)
+ *
+ * ```ts
+ * import { requireExpectedPlanId } from "@beep/repo-cli/commands/Goals/Materialize"
+ * import * as Effect from "effect/Effect"
+ * import * as O from "effect/Option"
+ *
+ * console.log(Effect.isEffect(requireExpectedPlanId("goal-plan/v1:abc", O.some("goal-plan/v1:abc")))) // true
+ * ```
+ *
+ * @param planId - The id of the plan just recompiled from the live tree.
+ * @param expect - The reviewed id passed with `--expect`, if any.
+ * @returns Succeeds when the ids match; otherwise a plan input error.
+ * @category commands
+ * @since 0.0.0
+ */
+export const requireExpectedPlanId: {
+  (planId: string, expect: O.Option<string>): Effect.Effect<void, GoalPlanInputError>;
+  (expect: O.Option<string>): (planId: string) => Effect.Effect<void, GoalPlanInputError>;
+} = dual(
+  2,
+  (planId: string, expect: O.Option<string>): Effect.Effect<void, GoalPlanInputError> =>
+    O.match(expect, {
+      onNone: () =>
+        Effect.fail(
+          GoalPlanInputError.new(
+            `--write requires --expect <planId>; review the plan with --plan --json first (this plan is ${planId}).`
+          )
+        ),
+      onSome: (expected) =>
+        expected === planId
+          ? Effect.void
+          : Effect.fail(
+              GoalPlanInputError.new(
+                `Plan moved since review: expected ${expected}, recompiled ${planId}. Re-plan and review again.`
+              )
+            ),
+    })
+);
 
 /**
  * Replays a reviewed plan when `--expect` names its exact `planId`, then prints the receipt.
@@ -307,16 +514,7 @@ export const writeReviewedPlan = Effect.fn("Goals.writeReviewedPlan")(function* 
   plan: MaterializationPlan,
   expect: O.Option<string>
 ) {
-  if (O.isNone(expect)) {
-    return yield* GoalPlanInputError.new(
-      `--write requires --expect <planId>; review the plan with --plan --json first (this plan is ${plan.planId}).`
-    );
-  }
-  if (expect.value !== plan.planId) {
-    return yield* GoalPlanInputError.new(
-      `Plan moved since review: expected ${expect.value}, recompiled ${plan.planId}. Re-plan and review again.`
-    );
-  }
+  yield* requireExpectedPlanId(plan.planId, expect);
   const receipt = yield* plan.mode === "bootstrap" ? publishBootstrapPlan(plan) : applyAdoptionPlan(plan);
   // The receipt was just constructed from its own schema, so encoding cannot fail.
   const encoded = yield* S.encodeEffect(MaterializationReceipt)(receipt).pipe(Effect.orDie);
