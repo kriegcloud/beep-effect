@@ -1640,3 +1640,11 @@ should be rendered beside the option in command help.
 - All 291 scoped tests pass with complete-read semantics; medium Opus
   follow-up is zero actionable findings. Keep the inherited repair on main
   and publish the fully addressed P1 wave without weakening any baseline.
+
+### 2026-10-14 — H2 duplicate documentation section
+
+- Repaired-main JSDoc parity identifies one introduced duplicate Details
+  heading in GoalRequiredCheckSnapshot. Combine the existing and new
+  completeness paragraphs under one heading; preserve examples and behavior.
+  Rerun the JSDoc lane, retaining the failed observation rather than resetting
+  its baseline. Main's earlier compiler/schema/reference repairs now pass.

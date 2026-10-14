@@ -458,9 +458,6 @@ export type GoalCheckConclusion = typeof GoalCheckConclusion.Type;
  *
  * Current ruleset enumeration omits rulesets deleted since merge. Its inventory
  * is incomplete; absent completeness on older receipts also decodes to false.
- *
- * **Details**
- *
  * Legacy snapshots used an all-or-nothing ruleset reader, so an omitted
  * `rulesetReadsComplete` defaults to true. Missing inventory completeness
  * still defaults to false; successful reads cannot prove deleted rulesets absent.
