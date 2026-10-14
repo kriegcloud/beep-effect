@@ -40,7 +40,7 @@ Higher sources outrank lower sources when they conflict.
 - Always-on Linux hosts scraped; intermittent hosts push OTLP with `file_storage` queues and a raised retry ceiling; replay horizon capped explicitly.
 - The 16-point "fully enrolled" gate (`explorations/observability-palantiri/research/fleet-and-hub.md` §3) is a runnable command; passing on `beep-worker` and the incoming box fires D1.
 - Dashboards generated from the catalog: host variable, regex devices, workload-vs-system split, mandatory panel descriptions, restart-survival and no-data tests, staleness alerts, a per-host "busy / safe to restart" signal.
-- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against `$HOME/YeeBois/references/effect/effect`; `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
+- Schema → `Context.Service` contract → implementation; Effect v4 only, validated against the local reference checkout of [Effect](https://github.com/Effect-TS/effect); `effect/<Module>` imports; `HashMap`/`HashSet`; `Effect.fn`/`fnUntraced`.
 - Names, metrics, events and attribute keys come from the instrumentation catalog (`goals/observability-kernel-catalog`); names are static literals, never interpolated.
 - Public repo: no client data, tokens, `op://` resolutions, LAN IPs, tailnet suffixes or account identifiers in packet or code.
 - Totals use `increase()` over the panel range; per-process identity never becomes a metric label; promoted labels come only from the registry's metric-safe set.

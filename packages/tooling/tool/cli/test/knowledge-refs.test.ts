@@ -623,7 +623,7 @@ describe("knowledge refs listing", () => {
 });
 
 describe("knowledge refs check gate", () => {
-  it.effect("live mirror references gate while explicit home variables and broken-path backlog do not", () =>
+  it.effect("live mirrors gate while ratified rewrites preserve convention observations", () =>
     Effect.gen(function* () {
       const paths = ["YeeBois/references/effect/effect", ".local/bin/op", ".local/share/mise/shims/bun"];
       const live = yield* scanFixture({
@@ -640,15 +640,36 @@ describe("knowledge refs check gate", () => {
 
       const portable = yield* scanFixture({
         "docs/guide.md": A.join(
-          A.map(paths, (path) => `Use \`$HOME/${path}\`.`),
+          A.map([".config/beep", ".cache/beep", ".local/state/beep"], (path) => `Use \`~/${path}\`.`),
           "\n"
         ),
-        "goals/example/research/notes.md": "Captured `~/mirrors/example` and `packages/missing/src/index.ts`.\n",
+        "goals/example/research/notes.md": "Captured `~/mirrors/example`.\n",
       });
-      expect(A.some(portable.observations, (row) => row.classification === "broken-target")).toBe(true);
+      expect(A.length(inDocument(portable, "docs/guide.md"))).toBe(3);
+      expect(
+        A.every(
+          inDocument(portable, "docs/guide.md"),
+          (row) => row.surface === "live" && row.classification === "portable-home-convention"
+        )
+      ).toBe(true);
       expect(A.length(knowledgeRefsLiveDebt(portable))).toBe(0);
       knowledgeRefsCheckFailure(portable).pipe(assertNone);
       yield* applyKnowledgeRefsCheck(portable, { json: true });
+    })
+  );
+
+  it.effect("live broken-target backlog remains observable without gating", () =>
+    Effect.gen(function* () {
+      const report = yield* scanFixture({
+        "docs/guide.md": "See `packages/missing/src/index.ts`.\n",
+      });
+      expect(A.length(report.observations)).toBe(1);
+      expect(
+        A.every(report.observations, (row) => row.surface === "live" && row.classification === "broken-target")
+      ).toBe(true);
+      expect(A.length(knowledgeRefsLiveDebt(report))).toBe(0);
+      knowledgeRefsCheckFailure(report).pipe(assertNone);
+      yield* applyKnowledgeRefsCheck(report, { json: true });
     })
   );
 

@@ -26,9 +26,9 @@ hosted infrastructure, Git bundles to Box for recovery, a gated improvement
 loop (observe, attribute, propose, validate, approve, activate, measure,
 roll back) whose policy sits outside the agent's writable area.
 
-Operator, in session (home-relative reference normalized to `$HOME`):
+Operator, in session (public mirror reference normalized to its upstream URL):
 
-> Well we would take a $HOME/YeeBois/references/effect/t3code approach. We
+> Well we would take a https://github.com/pingdotgg/t3code approach. We
 > wouldn't be replacing claude code .
 
 > Yeah its more like how do we wrap claude code so it is less technical for
