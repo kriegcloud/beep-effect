@@ -343,6 +343,15 @@ const applyCommand = Command.make(
         target.optional
       )
         continue;
+      const resolvedRoot = yield* fs
+        .realPath(target.root === "home" ? paths.home : paths.repo)
+        .pipe(ModelsCommandError.mapError("Cannot resolve target root."));
+      const resolvedFile = yield* fs
+        .realPath(file.value)
+        .pipe(ModelsCommandError.mapError("Cannot resolve target file."));
+      const relative = path.relative(resolvedRoot, resolvedFile);
+      if (relative === ".." || Str.startsWith(`..${path.sep}`)(relative) || path.isAbsolute(relative))
+        return yield* ModelsCommandError.make({ message: `Target ${target.id} symlink escapes its root.` });
       const writes = yield* Effect.forEach(
         target.locators,
         Effect.fnUntraced(function* (locator) {

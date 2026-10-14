@@ -144,3 +144,9 @@ extend-exclude = [
   # which is not prose and trips the dictionary on context hunk headers.
   "patches/**",
 ]
+
+# Immutable harness rows store Git refs as hex, including abbreviated refs.
+# Check their prose normally; dictionary words inside ref fields are not prose.
+[type.harness-ledger]
+extend-glob = ["*.jsonl"]
+extend-ignore-re = ['"(?:ref|repoRevision)":"[0-9a-f]{7,40}"']
