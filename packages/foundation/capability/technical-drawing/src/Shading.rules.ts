@@ -80,7 +80,7 @@ const TAPER_TO = 0.4;
  * console.log(viewFactsOf(Camera.make({ eye: [0, -1, 0], up: [0, 0, 1] })).light)
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const viewFactsOf = (camera: Camera): ViewFacts => {
@@ -101,7 +101,7 @@ export const viewFactsOf = (camera: Camera): ViewFacts => {
  * console.log(surfaceClassOf([0, -Math.SQRT1_2, Math.SQRT1_2])) // "inclined"
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const surfaceClassOf = (normal: Vec3): SurfaceClass => {
@@ -161,7 +161,7 @@ const projectedSpan = (face: FaceFacts, view: ViewFacts): number => {
  * console.log(aspectOf({ face, view, minFaceSpan: 3 })) // "sliver"
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const aspectOf = (input: {
@@ -189,7 +189,7 @@ export const aspectOf = (input: {
  * console.log(toneOf(1 / Math.sqrt(3))) // "light"
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const toneOf = (exposure: number): ShadingTone => {
@@ -238,7 +238,7 @@ const toneSpacing = (tone: ShadingTone) =>
  * console.log(gradedOffsets({ span: 30, minPitch: 1, maxPitch: 2.5, tone: "light" }))
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const gradedOffsets = (input: {
@@ -311,7 +311,7 @@ const chordAt =
  * console.log(gradedExtents({ count: 2, fullLines: 0 })) // [0.6, 0.4]
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const gradedExtents = (input: {
@@ -352,7 +352,7 @@ const COLLINEAR = 0.01;
  * console.log(O.getOrNull(sideBySideGap({ first: [0, 0, 10, 0], second: [0, 0.3, 10, 0.3], minSpacing: 0.5 }))) // 0.3
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const sideBySideGap = (input: {
@@ -397,7 +397,7 @@ const segmentLength = (s: Segment2): number => Math.hypot(s[2] - s[0], s[3] - s[
  * console.log(pointToSegmentDistance({ x: 5, y: 3, segment: [0, 0, 10, 0] })) // 3
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const pointToSegmentDistance = (input: {
@@ -425,7 +425,7 @@ export const pointToSegmentDistance = (input: {
  * console.log(nearestOutlineDistance({ x: 5, y: 3, outlines: [[0, 0, 10, 0], [0, 10, 10, 10]] })) // 3
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const nearestOutlineDistance = (input: {
@@ -455,13 +455,14 @@ export const nearestOutlineDistance = (input: {
  * **Example** (A fragment and a doubled line)
  *
  * ```ts
+ * import { Segment2 } from "@beep/technical-drawing"
  * import { legibleShading } from "@beep/technical-drawing/Shading.rules"
  *
- * const segments = [[0, 0, 10, 0], [0, 0.3, 4, 0.3], [0, 0, 0.5, 0]] as const
+ * const segments = [Segment2.make([0, 0, 10, 0]), Segment2.make([0, 0.3, 4, 0.3]), Segment2.make([0, 0, 0.5, 0])]
  * console.log(legibleShading({ segments, minStroke: 1, minSpacing: 0.5, inset: 1 })) // [[1, 0, 9, 0]]
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const legibleShading = (input: {
@@ -606,7 +607,7 @@ const darkestEdgeDirection = (face: FaceFacts, light: V3): O.Option<V3> =>
  * console.log(hatchDirectionOf({ face: wall, axis: "surface-class" }))
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const hatchDirectionOf = (input: {
@@ -686,7 +687,7 @@ const sign = (value: number): number => (value < 0 ? -1 : 1);
  * console.log(anchorOf({ face: wall, view, direction: [0, 0, 1] }).point) // [20, 0, 0]
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const anchorOf = (input: {
@@ -868,7 +869,7 @@ const gradedTreatment = (input: {
  * console.log(treatmentFor({ face: wall, view, plan }).kind) // "lines"
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const treatmentFor = (input: {
@@ -941,7 +942,7 @@ export const treatmentFor = (input: {
  * console.log(coverageOf([lines, lines, ShadingSkipped.make({ reason: "sliver" })]))
  * ```
  *
- * @category shading
+ * @category utilities
  * @since 0.0.0
  */
 export const coverageOf = (treatments: ReadonlyArray<FaceTreatment>): ShadingCoverage => {

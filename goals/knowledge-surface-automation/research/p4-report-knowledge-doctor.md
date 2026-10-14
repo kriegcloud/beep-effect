@@ -4,8 +4,9 @@ Status: phase-0 evidence for Workstream C Stage 2 (design:
 `research/p4-knowledge-doctor-design.md`, PR 1). Read-only: produced by
 `bun run beep knowledge doctor --report --json` at tree `f6a8fe3001` on 2026-10-13. The
 command exits 0, reads no baseline, writes nothing (`git status --porcelain` unchanged),
-and gates nothing. Domain evaluators, causal grouping, the sealed baseline, leases, and
-quality-lane wiring are later PRs (design sequencing PR 2–5).
+and gates nothing. Causal grouping, the sealed baseline, leases, and quality-lane wiring
+are later PRs (design sequencing PR 3–5). The domain evaluators (PR 2b) are in
+"PR 2b — domain evaluators" below.
 
 ## What shipped
 
@@ -94,6 +95,82 @@ The 13 options split into 5 arrow-chain artefacts (no longer command spans) and 
 fixes. The 10 commands that left are the 3 ellipsis tails (now `<command>`) and the 7
 planned-command spans re-spelled as prose `beep <cmd>`. The 10 that remain are the
 removed-command spans, which belong to the baseline burn-down with the 530 broken paths.
+
+## PR 2b — domain evaluators
+
+Re-run of the read-only report with the three domain evaluators (design K14–K17), at
+tree `7f23ce0df5` on 2026-10-14. It exits 0, writes nothing (`git status --porcelain`
+unchanged), and gates nothing. The paths and commands results are unchanged (530
+broken paths, 10 unknown commands).
+
+| Evaluator | Verified spans | Unclassified spans | Findings on verified spans |
+| --- | --- | --- | --- |
+| `symbols` | 5,188 (5,163 specifiers, 25 imported identifiers) | 10,804 | 328 `unknown-beep-symbol`: 241 package, 81 subpath, 6 export; 136 documents, 100 causes |
+| `packet-status` | 83 (80 current-phase, 3 lifecycle) | 22 | 1 `packet-status-claim-drift` |
+| `skills-local` | 37 (one per locked or installed skill) | 0 | 14: 6 `floating-github-skill-source`, 6 `skill-license-unrecorded`, 2 `skill-lock-coverage-drift` |
+
+Span totals moved from 11,151 verified / 19,370 unclassified (after PR 2) to 16,460 /
+30,197. The unclassified growth is almost all `@beep/*` specifiers on archival paths
+(mostly turbo task ids such as `@beep/test-runner#build` in research captures). They
+are advisory and join the K9 classification worklist.
+
+Every evaluator passes the counterfactual harness on its fixtures, with every witness
+`failed` and none `vacuous`. Parity tests pin the tree readers to the live-filesystem
+readers on this checkout: packet records against `listGoalPackets`, workspace packages
+against `resolveWorkspaceDirs`, and installed skills against the `.claude/skills`
+listing.
+
+### Candidate false positives (PR 2b)
+
+8. **Proposed packages (symbols, about 185 of the 241 package findings).** Package
+   names that design-stage documents propose but that do not exist:
+   `@beep/courtlistener` (55, of which 24 are in
+   `explorations/_gold-intake/GOLD_SYNTHESIS.md`), `@beep/federal-register` (18),
+   `@beep/dol` (18), `@beep/protobuf` (8), and the canvas family. The count is what
+   remains after classes 9 and 10. Of all 241 package findings, 149 are in explorations
+   and 77 in goal packets, mostly `SPEC`, `PLAN`, and `GOAL` files. This is the
+   planned-command shape, which the verdict ruled has no `planned` class (rewrite as
+   prose). The ask is whether the same ruling applies to package names.
+9. **Slice-family names written as packages (42).** `@beep/epistemic` (29),
+   `@beep/law-practice` (10), and `@beep/agents` (3) name the `packages/<family>/`
+   directories, not a package. This is a reader FP class. Options: read
+   `@beep/<family>` as a family reference when `packages/<family>/` exists, or rewrite
+   the spans as `packages/<family>/`.
+10. **Illustrative slices in standards (about 13).** `@beep/tasks-use-cases`,
+    `@beep/notes-server`, `@beep/billing-use-cases`, and `@beep/iam-domain` are teaching
+    examples in `standards/architecture/` chapters. True FP for a reader that cannot
+    tell an example. The doc fix is a placeholder spelling such as
+    `@beep/<slice>-use-cases`, which the reader already skips.
+11. **Retired `@beep/schema` subpaths and exports in standards (27).** `Dom`, `Http`,
+    `http/headers`, `color`, `ExpectCT`, `XSSProtection`, `Blockchain`, `Person`, and
+    `Location` subpaths, and the `Defect`, `TaggedErrorClass`, and `OpaqueUnknown`
+    exports. In `ARCHITECTURE.md` and `07-non-slice-families.md` these are true
+    positives (live guidance names layouts that no longer exist). 36 symbol findings sit
+    in `DECISIONS.md` files, which narrate past states. The ask is whether decision
+    logs get the archival treatment (historical citations) rather than a HEAD check.
+12. **File- and member-shaped specifiers (11).** `@beep/mcp-kit/README.md`,
+    `@beep/rdf/Vocab/Prov.ts`, `@beep/schema/Int.ts`, `@beep/utils/Number.ts`,
+    `@beep/schema/Color/Color.hex`, and `@beep/shared-tables/table/Table.make` use the
+    package name as shorthand for a package-relative file or member, not as an import
+    specifier. This is a reader FP class. The fix would read a final segment with a file
+    extension as a package-relative path and check it against the tree.
+13. **A handoff snapshot read as a current claim (packet-status, 1).**
+    Line 9 of `goals/ai-metrics-stack/ops/handoffs/HANDOFF_P7E_CLOSEOUT.md` says the
+    packet is `active`, but its manifest says `completed-retained`. A handoff is a
+    point-in-time capture under `ops/handoffs/`, which the rule table treats as live.
+    The ask is whether `ops/handoffs/` is archival. The other 80 current-phase claims and 2
+    lifecycle claims all resolve.
+14. **Skills findings are true positives.** The 6 GitHub skills (`adhd`, `grill-me`,
+    `portless`, `shadcn`, `teach`, `turborepo`) follow `main` and record no license under
+    the v1 lock, which is what B-3b's v2 migration fixes. `closeout` and `orchestrate` are
+    installed with no lock entry. No FP candidates.
+
+### Asks for the PR 2b verdict
+
+4. Rule on 8: apply the planned-command ruling to proposed package names, or not.
+5. Pick the fix for 9 and 12 (reader change or doc rewrite).
+6. Accept 10 as doc fixes and 14 as true positives (B-3b and a lock refresh).
+7. Rule on 11 and 13: should decision logs and `ops/handoffs/` be archival surfaces?
 
 ## Deviations from the design (recorded)
 

@@ -40,7 +40,7 @@ import * as Runtime from "effect/Runtime";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { YeetCommandError } from "../Yeet.errors.ts";
-import { flipPullRequestReady, recordInheritedRedsInPullRequestBody } from "./GhOps.ts";
+import { flipPullRequestReady, recordInheritedRedsInPullRequestBody, withYeetGh } from "./GhOps.ts";
 import { hydrateYeetReadOnlyContext } from "./Handler.ts";
 import { decodeAttributedCheckFlags, parseAttributedCheck } from "./MergeGate.ts";
 import { YEET_READY_COMMAND } from "./MonitorPolicy.ts";
@@ -477,8 +477,9 @@ const findLiveMonitorForReady = (
     Effect.catch(() => Effect.succeedNone)
   );
 
-const markReadyThroughBudget = (prNumber: number) =>
-  flipPullRequestReady(prNumber).pipe(
+const markReadyThroughBudget = (prNumber: number, confirmedHead: string) =>
+  flipPullRequestReady(prNumber, confirmedHead).pipe(
+    withYeetGh(O.none()),
     Effect.mapError((cause) =>
       YeetCommandError.make({
         message: `could not mark pull request #${prNumber} ready for review: ${cause.message}`,
@@ -504,7 +505,8 @@ const recordInheritedThroughRest = (prNumber: number, entries: ReadonlyArray<Yee
 interface YeetReadyGateDependencies {
   readonly findMonitor?: typeof findLiveMonitorForReady;
   readonly markReady?: (
-    prNumber: number
+    prNumber: number,
+    confirmedHead: string
   ) => Effect.Effect<void, YeetCommandError, Crypto.Crypto | ChildProcessSpawner.ChildProcessSpawner>;
   readonly read?: (
     context: RepoRunContext
@@ -646,7 +648,7 @@ export const runYeetReadyGate = Effect.fn("Yeet.runYeetReadyGate")(function* (
       // markPullRequestReadyForReview is GraphQL-only; the default flip spends it
       // through the GraphQL budget guard, waiting for the hourly reset when the
       // shared budget is spent instead of failing the way `gh pr ready` did.
-      yield* (dependencies.markReady ?? markReadyThroughBudget)(prNumber);
+      yield* (dependencies.markReady ?? markReadyThroughBudget)(prNumber, sameHead);
       yield* Console.log(`[yeet] pull request #${prNumber} flipped from draft to ready for review`);
       if (A.isReadonlyArrayNonEmpty(applied)) {
         yield* Console.log(`[yeet] recorded ${A.length(applied)} inherited red(s) in the PR body`);

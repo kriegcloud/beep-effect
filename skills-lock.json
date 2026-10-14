@@ -31,7 +31,7 @@
         ".claude/skills/closeout",
         ".agents/skills/closeout"
       ],
-      "installedTreeHash": "d7283167801e1ba58e2f24c9e0f255fa8c12f2ed310e411b096266616d78b9f0"
+      "installedTreeHash": "d6e2fd64dd44dff89cf4c95a4a4a0b8f3827351e07f00dd14f2dc904b5f2d631"
     },
     "codex-findings": {
       "_tag": "local",
@@ -63,7 +63,7 @@
         ".claude/skills/explore",
         ".agents/skills/explore"
       ],
-      "installedTreeHash": "5f4f4894ac028139a0ab576477dc8acd94ddfdf810aa1a9850e8240698807541"
+      "installedTreeHash": "5c9be0bc9e03ad6572ec45537163331194896c91310b0835b3933fc4a3a7e8c6"
     },
     "graft": {
       "_tag": "local",
@@ -139,7 +139,7 @@
         ".claude/skills/grill-with-docs",
         ".agents/skills/grill-with-docs"
       ],
-      "installedTreeHash": "5baabbc3181dfeab5fbb030c5b5546b1e4ea5ecae84018da717a8cc69b8245cd"
+      "installedTreeHash": "9067e73e3c7c22daa7070b2f86963063621a6a8a8ceac91b54129d51c2a7910a"
     },
     "grilling": {
       "_tag": "local",
@@ -321,7 +321,7 @@
         ".claude/skills/orchestrate",
         ".agents/skills/orchestrate"
       ],
-      "installedTreeHash": "5770271218f3dffa392fe5e286974c2377f0132cc192f9cea3f43c029f1f03e9"
+      "installedTreeHash": "6a8d30811f4d310d9c7d048caa68d569c079391620d1fc1b2f6ddf1a88e31dca"
     },
     "portless": {
       "_tag": "vendored",
@@ -553,11 +553,11 @@
       },
       "patches": {
         "required": true,
-        "patchSetHash": "dffcb1cd4dd6f39d6c64d489cef5fdae00a7dad33bdac70c38ce2f260f6c6835",
+        "patchSetHash": "00d0170bb5ed45fefbce83b9bf3ea4efd3ed7f89d31db95157e7ea6ff160077d",
         "series": [
           {
             "path": ".agents/skill-patches/shadcn/0001-design-system-md.patch",
-            "sha256": "df3a2b2c1d6c029315aee72df3b83cd622cd772e513f67bf0439df9b4c1829f8",
+            "sha256": "a49c6b5e0c728a1f222c5edfc870e66aad89c6f5e874f5da42002461c923fd93",
             "label": "temporary-drift",
             "owner": "@kriegcloud",
             "dropCondition": "Drop when upstream contains an equivalent change."
@@ -565,12 +565,12 @@
         ]
       },
       "effective": {
-        "treeHash": "f8b9671d0ef1f642a59a0c3882f121897e81b2f29c444f05582b0215942c93c8",
+        "treeHash": "de03aa45be748f5ebdfaac750a55c194deca42f93a44adbb0dd5ff10b4ce97c2",
         "installedTargets": [
           ".claude/skills/shadcn",
           ".agents/skills/shadcn"
         ],
-        "installedTreeHash": "545a75202a2b27669e2e6fa8df04a9c095435808add6543d817028baec52e754"
+        "installedTreeHash": "c6d530b267827e14c51c1cc4fbacd35b3276677a6c2e8f4d409d4faba06cbe87"
       }
     },
     "sparql-expert": {
@@ -730,7 +730,7 @@
         ".claude/skills/yeet",
         ".agents/skills/yeet"
       ],
-      "installedTreeHash": "ee5fef6073d4aab52f12c491fdb2f7dca0503dc60bde8fd2a8ba8fdc3758e707"
+      "installedTreeHash": "ee99bf7b95520225bee1e8f54273a62fe328a3bfda00e781d4fd0f561817d013"
     }
   }
 }

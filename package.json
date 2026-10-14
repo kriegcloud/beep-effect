@@ -300,6 +300,7 @@
     "micromark": "catalog:",
     "micromark-extension-gfm": "catalog:",
     "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "picomatch": "catalog:",
     "statelyai": "catalog:",
     "syncpack": "catalog:",
@@ -307,8 +308,7 @@
     "tsc-rs": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:",
-    "oxlint-tsgolint": "catalog:"
+    "vitest": "catalog:"
   },
   "name": "@beep/root",
   "config": {

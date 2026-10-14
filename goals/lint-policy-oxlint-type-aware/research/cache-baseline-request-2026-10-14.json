@@ -1,5 +1,5 @@
 {
-  "previous": "0757b918a9006670aa6a985ced5ad3cc053c0e107317676337394b2d4287e7ba",
+  "previous": "e20dffd6c1ed19414032a9e46a71c61d02559f1ea941c9b1c369309f90f15e12",
   "review": {
     "reviewer": "Codex lane A (feat/ts7-oxlint-deprecated-apis)",
     "reason": "Re-record native deprecated-API task inputs, peer pins and shared fingerprint for all 153 legacy subjects; CLI commands, cache flags, outputs, dependency edges and qualification scope stay unchanged. Lane B retains shared docs env and dependencies.",
