@@ -1016,3 +1016,13 @@ prior gates and quick integrated gates separately; hosted exact-head checks
 remain authoritative.
 
 - B (2026-10-13): keep detector acceptance pending until its durable final receipt exists. The codec-test handoff records bounded progress only; the valid #1616 review identified an ambiguous evidence-map link. Reversal: restore the final receipt link when detector fixtures and individual admissions are complete.
+
+### 2026-10-14 — H2 merged unknown receipts supersede stale unsatisfaction
+
+Select the newest matching receipt with a definite outcome or merge facts.
+A successful merged observation can remain unknown because historical inventory
+is incomplete; preserving an older red/pending verdict would misreport that
+new observation. A transient unknown without merge facts remains fallback-only.
+Keep repository, declaration digest, final PR and head revalidation unchanged.
+Reverse by reverting this receipt-reader fix and deleting derived receipts
+before refresh; legacy manifest and lifecycle compatibility is unchanged.

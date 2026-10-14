@@ -17,7 +17,7 @@ import {
 import { YeetCommandError } from "@beep/repo-cli/test/Yeet";
 import { it } from "@beep/test-runner";
 import { expect } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import { Command } from "effect/cli";
@@ -429,7 +429,7 @@ it.layer(NodeTestLayer, { timeout: "30 seconds" })("goal completion observations
             verifiedAt: DateTime.add(stale.verifiedAt, { seconds: 1 }),
           });
           expect(latest.outcome).toBe("unknown");
-          expect(O.isSome(latest.merge)).toBe(true);
+          assertTrue(O.isSome(latest.merge));
           const staleText = yield* encodeReceipt(stale);
           const latestText = yield* encodeReceipt(latest);
           yield* writeProjectFile(".beep/goals/completion-receipts.ndjson", `${staleText}\n${latestText}\n`);

@@ -1449,3 +1449,12 @@ on the new head if it appears.
   selection; retain older evidence for factless transient failures. Cover both
   required-red and pre-merge-pending cases, and correct the fixture table's
   synthetic versus live inventory qualifications. No completeness is inferred.
+
+### 2026-10-14 — H2 review fallback effort drift
+
+- Direct Opus weekly-limit failure permits the approved Cursor fallback, but
+  its init event identifies `Claude Opus 5.5 300K High`, despite the configured
+  medium binding. Stop only that owned read-only review process; exit 143.
+  Do not accept it as brief-pinned medium review evidence or change the model
+  to seek a favorable review. Route pin drift and unavailable review to the
+  orchestrator alongside source-bound completed prior reviews.
