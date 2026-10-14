@@ -143,7 +143,7 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
         "xhigh"
       );
       assertSome(
-        O.map(pin("muse.optin", "proxy-workflow"), (entry) => entry.modelId),
+        O.map(pin("muse.opt-in", "proxy-workflow"), (entry) => entry.modelId),
         "muse-wonder-1.0"
       );
       assertSome(
