@@ -76,3 +76,39 @@
   classification table lists `external-mirror-reference 1` but the gate line is buried under
   42k observation rows); and the readiness monitor re-running Heavy lanes after a base merge
   when the PR's merge-base is behind a `main` fix to the same file.
+
+## 2026-10-14: S11 takeover found an unreachable cancellation recovery branch
+
+- Doing: qualifying the unfinished S11 merge-gate and ready-flip change after integrating main.
+- Evidence: `quality package-verify @beep/repo-cli` failed with TS377009 at
+  `MergeGate.ts`: the cancellation routine partitions every error internally, so its outer
+  `Effect.catch` can never run. Removed the redundant recovery and reran package verification.
+- Would have prevented it: compiling the complete post-merge workflow before handing it off.
+
+## 2026-10-14: Package qualification needs an explicit heavy wrapper
+
+- Doing: running the full CLI package audit during the S11 takeover.
+- Evidence: the first takeover run was launched directly and its test process remained in
+  the lane service rather than a heavy-work unit. Interrupted that diagnostic run and
+  restarted `beep-heavy bun run beep quality package-verify @beep/repo-cli`; the shared
+  wrapper reported all five slots busy and queued it.
+- Would have prevented it: the package verifier admitting its own heavyweight subprocesses,
+  or the handoff brief spelling the wrapper in each qualification command.
+
+## 2026-10-14: A formatter error followed fifteen minutes of passing tests
+
+- Doing: completing the default CLI package verification before publication.
+- Evidence: the audit passed 6,025 TypeScript tests in 895 seconds and 53 Python tests,
+  then failed on the formatter's single-line rendering of a message in `MergeGate.ts`.
+  Applied the formatter and submitted the full verifier again.
+- Would have prevented it: running the package's inexpensive lint stage before its test
+  stage, or a changed-file formatting preflight before the full package verifier.
+
+## 2026-10-14: The publish detector found three assertion-policy gaps
+
+- Doing: publishing after the package verifier and the prescribed parity lanes passed.
+- Evidence: publish passed 15 cheap gates but failed `lint:effect-vitest` on three new
+  parser assertions in `yeet-ready-gate.test.ts` (EV006). Replaced them with
+  `assertSome` and `assertNone`, preserving the original expected payload and polarities.
+- Would have prevented it: including the Effect Vitest detector in the package verifier
+  or the handoff's parity list, before the fifteen-minute full test suite.

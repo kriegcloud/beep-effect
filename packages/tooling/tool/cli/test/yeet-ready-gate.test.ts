@@ -6,9 +6,12 @@ import {
   ProofJobRequest,
   ProofJobSubmitter,
   ProofJobUnit,
+  parseYeetReadyInheritedRed,
   RepoRunContext,
   runYeetReady,
   runYeetReadyGate,
+  spliceYeetInheritedRedsSection,
+  YeetReadyInheritedRed,
   YeetReadyOptions,
   YeetReadyPullRequestRead,
   YeetStatusArtifact,
@@ -19,6 +22,7 @@ import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
+import { assertNone, assertSome } from "@effect/vitest/utils";
 import * as A from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -142,6 +146,102 @@ describe("yeet ready gate decision (push-first-publish D11: ready at content-fin
     expect(decideYeetReadyGate(prView({ failingRequiredCheckCount: 1, unresolvedReviewThreadCount: 3 }))).toMatchObject(
       { _tag: "blocked", blocker: "no-required-red" }
     );
+  });
+});
+
+// S11: a required red inherited from main, attributed with --inherited.
+const lint = YeetWatchCheck.make({ name: "Lint", outcome: "fail", required: true });
+const knip = YeetWatchCheck.make({ name: "Knip", outcome: "fail", required: true });
+const lintInherited = YeetReadyInheritedRed.make({ check: "Lint", attribution: "red on main since 2c1cb448ba" });
+const knipInherited = YeetReadyInheritedRed.make({ check: "Knip", attribution: "red on main since 9f1e0a2b3c" });
+const redRead = (checks: ReadonlyArray<YeetWatchCheck>, failingRequiredCheckCount = A.length(checks)) =>
+  prView({ checks, failingRequiredCheckCount });
+
+describe("yeet ready --inherited decision (S11)", () => {
+  it("flips when every failing required check is attributed, carrying the applied attributions", () => {
+    const decision = decideYeetReadyGate(redRead([lint, knip]), [lintInherited, knipInherited]);
+    expect(decision).toMatchObject({ _tag: "flip", prNumber: 42 });
+    expect(decision._tag === "flip" ? decision.inherited : []).toEqual([lintInherited, knipInherited]);
+  });
+
+  it("the pipeable form decides the same", () => {
+    expect(decideYeetReadyGate([lintInherited])(redRead([lint]))).toMatchObject({ _tag: "flip" });
+  });
+
+  it("refuses on no-required-red when only some failing required checks are attributed", () => {
+    expect(decideYeetReadyGate(redRead([lint, knip]), [lintInherited])).toMatchObject({
+      _tag: "blocked",
+      blocker: "no-required-red",
+    });
+  });
+
+  it("fails closed when the census counts more failing required checks than it names", () => {
+    expect(decideYeetReadyGate(redRead([lint], 2), [lintInherited])).toMatchObject({
+      _tag: "blocked",
+      blocker: "no-required-red",
+    });
+  });
+
+  it("drops an attribution naming a check that is not failing", () => {
+    const decision = decideYeetReadyGate(redRead([lint]), [lintInherited, knipInherited]);
+    expect(decision._tag === "flip" ? decision.inherited : []).toEqual([lintInherited]);
+    const green = decideYeetReadyGate(prView(), [knipInherited]);
+    expect(green._tag === "flip" ? green.inherited : ["not a flip"]).toEqual([]);
+  });
+
+  it("without --inherited a failing required check still refuses, and the detail names the S11 escape", () => {
+    const decision = decideYeetReadyGate(redRead([lint]));
+    expect(decision).toMatchObject({ _tag: "blocked", blocker: "no-required-red" });
+    expect(decision._tag === "blocked" ? decision.detail : "").toMatch(
+      /; under S11, attribute a red inherited from main with --inherited "<check>=<attribution>"$/u
+    );
+    expect(decideYeetReadyGate(prView())).toMatchObject({ _tag: "flip", inherited: [] });
+  });
+
+  it("parses --inherited as <check>=<attribution> and rejects the rest", () => {
+    assertSome(
+      parseYeetReadyInheritedRed("Lint = red on main since 2c1cb448ba"),
+      YeetReadyInheritedRed.make({ check: "Lint", attribution: "red on main since 2c1cb448ba" })
+    );
+    assertNone(parseYeetReadyInheritedRed("Lint"));
+    assertNone(parseYeetReadyInheritedRed("=red on main"));
+  });
+});
+
+describe("spliceYeetInheritedRedsSection", () => {
+  const section = (attribution: string) =>
+    `<!-- yeet-inherited-reds:start -->\n## Inherited reds (S11)\n\n- \`Lint\`: ${attribution}\n<!-- yeet-inherited-reds:end -->`;
+  const provenance = "---\n\n<!-- yeet-provenance:start -->\n## Provenance\n<!-- yeet-provenance:end -->\n";
+
+  it("appends the section after one blank line when the body has no marker", () => {
+    assertSome(
+      spliceYeetInheritedRedsSection("Summary\n", [lintInherited]),
+      `Summary\n\n${section(lintInherited.attribution)}\n`
+    );
+    assertSome(spliceYeetInheritedRedsSection("", [lintInherited]), `${section(lintInherited.attribution)}\n`);
+  });
+
+  it("inserts the section before the provenance footer, its rule included", () => {
+    assertSome(
+      spliceYeetInheritedRedsSection(`Summary\n\n${provenance}`, [lintInherited]),
+      `Summary\n\n${section(lintInherited.attribution)}\n\n${provenance}`
+    );
+  });
+
+  it("replaces an existing section and keeps everything around it", () => {
+    const body = `Summary\n\n${section("old")}\n\nNotes\n\n${provenance}`;
+    assertSome(
+      spliceYeetInheritedRedsSection([lintInherited])(body),
+      `Summary\n\n${section(lintInherited.attribution)}\n\nNotes\n\n${provenance}`
+    );
+  });
+
+  it("refuses an orphan, repeated or out-of-order marker instead of guessing a span", () => {
+    const start = "<!-- yeet-inherited-reds:start -->";
+    const end = "<!-- yeet-inherited-reds:end -->";
+    assertNone(spliceYeetInheritedRedsSection(`Summary\n${start}\nhand-written notes`, [lintInherited]));
+    assertNone(spliceYeetInheritedRedsSection(`Summary\n${end}\nthen ${start}`, [lintInherited]));
+    assertNone(spliceYeetInheritedRedsSection(`${section("a")}\n\n${section("b")}`, [lintInherited]));
   });
 });
 
@@ -291,6 +391,79 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready gate run", (
     })
   );
 
+  const recordingRecord =
+    (calls: Ref.Ref<ReadonlyArray<ReadonlyArray<string>>>, fails = false) =>
+    (prNumber: number, entries: ReadonlyArray<YeetReadyInheritedRed>) =>
+      Ref.update(calls, (all) => [...all, ["record", `${prNumber}`, ...A.map(entries, (entry) => entry.check)]]).pipe(
+        Effect.andThen(
+          fails ? Effect.fail(YeetCommandError.make({ message: "could not record: 403", exitCode: 1 })) : Effect.void
+        )
+      );
+
+  it.effect("records the inherited reds before the flip, after the confirmation re-read", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      const reads = yield* Ref.make(0);
+      const decision = yield* runYeetReadyGate(
+        context,
+        {
+          read: () => Ref.update(reads, (n) => n + 1).pipe(Effect.as(redRead([lint]))),
+          recordInherited: recordingRecord(calls),
+          markReady: recordingMarkReady(calls),
+          findMonitor: () => Effect.succeedNone,
+        },
+        [lintInherited, knipInherited]
+      );
+      expect(decision._tag).toBe("flip");
+      // The confirmation decided with the same --inherited list, or it would have refused on Lint.
+      expect(yield* Ref.get(reads)).toBe(2);
+      expect(yield* Ref.get(calls)).toEqual([
+        ["record", "42", "Lint"],
+        ["ready", "42"],
+      ]);
+      const printed = A.join(A.map(yield* TestConsole.logLines, String), "\n");
+      expect(printed).toContain(
+        "[yeet] note: --inherited Knip is not a failing required check on this head; ignored (optional reds never hold the flip)"
+      );
+      expect(printed).toContain("[yeet] recorded 1 inherited red(s) in the PR body");
+    })
+  );
+
+  it.effect("refuses the flip when the inherited reds cannot be recorded", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      const error = yield* runYeetReadyGate(
+        context,
+        {
+          read: () => Effect.succeed(redRead([lint])),
+          recordInherited: recordingRecord(calls, true),
+          markReady: () => Effect.die("the flip must not run"),
+        },
+        [lintInherited]
+      ).pipe(Effect.flip);
+      expect(error).toMatchObject({ _tag: "YeetCommandError" });
+      expect(error.message).toContain("could not record: 403");
+      expect(yield* Ref.get(calls)).toEqual([["record", "42", "Lint"]]);
+    })
+  );
+
+  it.effect("records nothing when no attribution applies", () =>
+    Effect.gen(function* () {
+      const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
+      yield* runYeetReadyGate(
+        context,
+        {
+          read: () => Effect.succeed(prView()),
+          recordInherited: recordingRecord(calls),
+          markReady: recordingMarkReady(calls),
+          findMonitor: () => Effect.succeedNone,
+        },
+        [lintInherited]
+      );
+      expect(yield* Ref.get(calls)).toEqual([["ready", "42"]]);
+    })
+  );
+
   it.effect("fails with a command error when the ready flip fails", () =>
     Effect.gen(function* () {
       const calls = yield* Ref.make<ReadonlyArray<ReadonlyArray<string>>>([]);
@@ -361,9 +534,23 @@ it.layer(readyPlatform, { timeout: "10 seconds" })("ready gate runtime boundarie
       const fs = yield* FileSystem.FileSystem;
       yield* fs.makeDirectory(`${process.cwd()}/.git`, { recursive: true });
       const error = yield* runYeetReady(
-        YeetReadyOptions.make({ base: "origin/main", head: "HEAD", packetDir: ".beep/yeet" })
+        YeetReadyOptions.make({ base: "origin/main", head: "HEAD", packetDir: ".beep/yeet", inherited: [] })
       ).pipe(Effect.flip);
       expect(error._tag).toBe("YeetReadyGateRefused");
+    })
+  );
+  it.effect("refuses a malformed --inherited before reading anything", () =>
+    Effect.gen(function* () {
+      const spawned = yield* Ref.make(0);
+      const counting = ChildProcessSpawner.make(() =>
+        Ref.update(spawned, (n) => n + 1).pipe(Effect.as(fakeHandle("", 1)))
+      );
+      const error = yield* runYeetReady(
+        YeetReadyOptions.make({ base: "origin/main", head: "HEAD", packetDir: ".beep/yeet", inherited: ["Lint"] })
+      ).pipe(Effect.flip, Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, counting));
+      expect(error).toMatchObject({ _tag: "YeetCommandError" });
+      expect(error.message).toContain('--inherited needs "<check name>=<attribution>"; got "Lint".');
+      expect(yield* Ref.get(spawned)).toBe(0);
     })
   );
   it.effect("loses only the hint when the monitor registry is unreadable", () =>
@@ -425,6 +612,22 @@ it.layer(NodeServices.layer, { timeout: "10 seconds" })("ready confirmation race
       }).pipe(Effect.flip, Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, refusing));
       expect(error).toMatchObject({ _tag: "YeetCommandError", command: "bun run beep yeet gh pr ready 42" });
       expect(error.message).toContain("could not mark pull request #42 ready for review");
+    })
+  );
+  it.effect("refuses the flip when the default inherited-red recorder cannot acquire its identity", () =>
+    Effect.gen(function* () {
+      const refusing = ChildProcessSpawner.make(() => Effect.succeed(fakeHandle("", 1)));
+      const error = yield* runYeetReadyGate(
+        context,
+        {
+          read: () => Effect.succeed(redRead([lint])),
+          markReady: () => Effect.die("the flip must not run before the record succeeds"),
+        },
+        [lintInherited]
+      ).pipe(Effect.flip, Effect.provideService(ChildProcessSpawner.ChildProcessSpawner, refusing));
+      expect(error).toMatchObject({ _tag: "YeetCommandError", exitCode: 1 });
+      expect(error.message).toContain("could not record the inherited reds in the body of #42");
+      expect(error.message).toContain("S11 requires the record before the flip");
     })
   );
   it.effect("reports the existing monitor after a successful flip", () =>

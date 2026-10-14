@@ -1320,7 +1320,7 @@ it.layer(Layer.fresh(testLayer), { timeout: "30 seconds" })("yeet ready gate ove
       _tag: "blocked",
       blocker: "no-required-red",
       detail:
-        "1 required check(s) are failing on head unknown; a red required check means the content is not final. Pending checks and optional lanes do not hold the flip",
+        '1 required check(s) are failing on head unknown; a red required check means the content is not final. Pending checks and optional lanes do not hold the flip; under S11, attribute a red inherited from main with --inherited "<check>=<attribution>"',
     });
     // Every criterion holds, yet the read carries no pull request number to
     // flip: the gate refuses on its first criterion instead of guessing one.
@@ -1441,7 +1441,9 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("yeet ready native repo 
       const fs = yield* FileSystem.FileSystem;
       const packetDir = yield* fs.makeTempDirectoryScoped({ prefix: "yeet-ready-command-" });
       const commands = yield* makeCommands;
-      const error = yield* runYeetReady(YeetReadyOptions.make({ base: "origin/main", head: "HEAD", packetDir })).pipe(
+      const error = yield* runYeetReady(
+        YeetReadyOptions.make({ base: "origin/main", head: "HEAD", packetDir, inherited: [] })
+      ).pipe(
         Effect.flip,
         withProcesses(
           [

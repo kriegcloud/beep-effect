@@ -175,10 +175,15 @@ bun run beep yeet publish --prove-first --message "type(scope): summary"
 bun run beep yeet ready
 ```
 
-  Under S11 (AGENTS.md "Mergeable"), when the only refusing red is inherited
-  from `main` and every review thread is answered, call final, flip with
-  `bun run beep yeet gh pr ready <n>`, and record each inherited red with its
-  attribution in the PR body.
+  Under S11 (AGENTS.md "Mergeable"), when the refusing red is inherited from
+  `main`, call final and attribute each inherited red (repeatable). The flip
+  records them in a marked "Inherited reds (S11)" section of the PR body
+  first, refuses if that write fails, and still requires every review thread
+  to be answered:
+
+```bash
+bun run beep yeet ready --inherited "<check name>=<attribution>"
+```
 
 - Publish exactly the staged index from a dirty worktree (unstaged/untracked
   residue is parked in a marked stash after the commit, the clean tree is
@@ -927,6 +932,12 @@ its own budget. Use `bun run beep yeet gh …` instead of those `gh pr` commands
   window (20 minutes after the later of "marked ready" and the head commit) has
   passed, and the outstanding thread count is zero. A thread read that failed is
   never zero. Exit 75 means hold (time can clear it); exit 1 means refused.
+- S11 merges over attributed reds use the orchestrator's gate instead:
+  `bun run beep yeet merge-gate <pr> <sha> --relaxed [--tolerate
+  "<check>=<attribution>"]`. Reds and pending checks, required ones included,
+  are recorded in the merge line and a PR comment rather than held; head,
+  draft, conflict, ruleset, review-window and thread holds stay, and a head on
+  which no required check has run yet still holds.
 - Alternate identity (its own rate-limit budget): `--token-ref op://…` or
   `BEEP_GH_TOKEN_REF`, or a GitHub App installation token from
   `BEEP_GH_APP_ID`, `BEEP_GH_APP_INSTALLATION_ID`, and `BEEP_GH_APP_KEY_REF`
