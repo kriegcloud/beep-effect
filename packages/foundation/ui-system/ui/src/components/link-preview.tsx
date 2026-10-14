@@ -23,18 +23,19 @@ import type { ReactNode } from "react";
 
 const $I = $UiId.create("components/link-preview");
 
-class UrlMetadata extends S.Class<UrlMetadata>($I`UrlMetadata`)(
-  {
+class UrlMetadata extends S.Opaque<UrlMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.NullOr(S.String),
     favicon: S.NullOr(S.String),
     title: S.NullOr(S.String),
     url: S.String,
     websiteImage: S.NullOr(S.String),
     websiteName: S.NullOr(S.String),
-  },
-  $I.annote("UrlMetadata", {
-    description: "Network-derived metadata rendered by a link preview.",
-  })
+  }).pipe(
+    $I.annoteSchema("UrlMetadata", {
+      description: "Network-derived metadata rendered by a link preview.",
+    })
+  )
 ) {}
 
 interface LinkPreviewProps {

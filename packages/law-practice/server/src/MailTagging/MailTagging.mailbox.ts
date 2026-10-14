@@ -88,8 +88,8 @@ const notFound = 404;
  * @category configuration
  * @since 0.0.0
  */
-export class MailboxM365Config extends S.Class<MailboxM365Config>($I`MailboxM365Config`)(
-  {
+export class MailboxM365Config extends S.Opaque<MailboxM365Config, { readonly brand: unique symbol }>()(
+  S.Struct({
     userId: S.NonEmptyString.annotateKey({
       description: "Mailbox address or object id every driver request names.",
     }),
@@ -104,10 +104,11 @@ export class MailboxM365Config extends S.Class<MailboxM365Config>($I`MailboxM365
       .annotateKey({
         description: "Graph ids of extra mail folders to leave out, besides Deleted Items and Junk.",
       }),
-  },
-  $I.annote("MailboxM365Config", {
-    description: "Configuration of the Microsoft 365 mailbox adapter.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailboxM365Config", {
+      description: "Configuration of the Microsoft 365 mailbox adapter.",
+    })
+  )
 ) {}
 
 /**

@@ -1037,7 +1037,7 @@ export type SafeUrl = typeof SafeUrl.Type;
  * @category models
  * @since 0.0.0
  */
-export class BaseNode extends S.Class<BaseNode>($I`BaseNode`)(
+export class BaseNode extends S.Class<BaseNode, {}>($I`BaseNode`)(
   {
     version: LexicalNodeVersion.pipe(
       S.withConstructorDefault(Effect.succeed(1)),
@@ -2884,7 +2884,7 @@ const StrictRootNode = RootNode.check(
  * @category models
  * @since 0.0.0
  */
-export class SerializedEditorState extends S.Class<SerializedEditorState>($I`SerializedEditorState`)(
+export class SerializedEditorState extends S.Class<SerializedEditorState, {}>($I`SerializedEditorState`)(
   {
     root: StrictRootNode.annotateKey({ description: "The non-empty strict v1 document root node." }),
   },
@@ -3175,7 +3175,9 @@ export const EditorStateWireFromJson = S.fromJsonString(SerializedEditorStateWir
  * @category errors
  * @since 0.0.0
  */
-export class LexicalDecodeError extends S.TaggedError<LexicalDecodeError>($I`LexicalDecodeError`)(
+export class LexicalDecodeError extends S.TaggedError<LexicalDecodeError, { readonly brand: unique symbol }>(
+  $I`LexicalDecodeError`
+)(
   "LexicalDecodeError",
   {
     message: S.String,
@@ -3201,8 +3203,8 @@ export class LexicalDecodeError extends S.TaggedError<LexicalDecodeError>($I`Lex
  * @category diagnostics
  * @since 0.0.0
  */
-export class LexicalCompatibilityIssue extends S.Class<LexicalCompatibilityIssue>($I`LexicalCompatibilityIssue`)(
-  {
+export class LexicalCompatibilityIssue extends S.Opaque<LexicalCompatibilityIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.Literal("strict-schema-mismatch").pipe(
       S.withConstructorDefault(Effect.succeed("strict-schema-mismatch")),
       S.annotateKey({ description: "Stable compatibility issue code." })
@@ -3210,10 +3212,11 @@ export class LexicalCompatibilityIssue extends S.Class<LexicalCompatibilityIssue
     message: S.NonEmptyString.annotateKey({
       description: "Strict semantic decode failure rendered for diagnostics.",
     }),
-  },
-  $I.annote("LexicalCompatibilityIssue", {
-    description: "Reason a lossless Lexical wire payload cannot be used as a strict semantic editor state.",
-  })
+  }).pipe(
+    $I.annoteSchema("LexicalCompatibilityIssue", {
+      description: "Reason a lossless Lexical wire payload cannot be used as a strict semantic editor state.",
+    })
+  )
 ) {}
 
 /**
@@ -3235,7 +3238,9 @@ export class LexicalCompatibilityIssue extends S.Class<LexicalCompatibilityIssue
  * @category diagnostics
  * @since 0.0.0
  */
-export class LexicalCompatibilityResult extends S.Class<LexicalCompatibilityResult>($I`LexicalCompatibilityResult`)(
+export class LexicalCompatibilityResult extends S.Class<LexicalCompatibilityResult, { readonly brand: unique symbol }>(
+  $I`LexicalCompatibilityResult`
+)(
   {
     issues: S.Array(LexicalCompatibilityIssue).annotateKey({
       description: "Strict semantic compatibility failures; empty when state is available.",

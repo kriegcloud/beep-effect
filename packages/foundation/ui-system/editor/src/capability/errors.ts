@@ -30,7 +30,9 @@ const $I = $EditorId.create("capability/errors");
  * @category errors
  * @since 0.0.0
  */
-export class UnknownCapabilityError extends S.TaggedError<UnknownCapabilityError>($I`UnknownCapabilityError`)(
+export class UnknownCapabilityError extends S.TaggedError<UnknownCapabilityError, { readonly brand: unique symbol }>(
+  $I`UnknownCapabilityError`
+)(
   "UnknownCapabilityError",
   {
     profileId: ProfileId.annotateKey({ description: "Profile being resolved." }),
@@ -65,7 +67,9 @@ export class UnknownCapabilityError extends S.TaggedError<UnknownCapabilityError
  * @category errors
  * @since 0.0.0
  */
-export class MissingDependencyError extends S.TaggedError<MissingDependencyError>($I`MissingDependencyError`)(
+export class MissingDependencyError extends S.TaggedError<MissingDependencyError, { readonly brand: unique symbol }>(
+  $I`MissingDependencyError`
+)(
   "MissingDependencyError",
   {
     profileId: ProfileId.annotateKey({ description: "Profile being resolved." }),
@@ -101,7 +105,9 @@ export class MissingDependencyError extends S.TaggedError<MissingDependencyError
  * @category errors
  * @since 0.0.0
  */
-export class DependencyCycleError extends S.TaggedError<DependencyCycleError>($I`DependencyCycleError`)(
+export class DependencyCycleError extends S.TaggedError<DependencyCycleError, { readonly brand: unique symbol }>(
+  $I`DependencyCycleError`
+)(
   "DependencyCycleError",
   {
     profileId: ProfileId.annotateKey({ description: "Profile being resolved." }),
@@ -136,7 +142,9 @@ export class DependencyCycleError extends S.TaggedError<DependencyCycleError>($I
  * @category errors
  * @since 0.0.0
  */
-export class CapabilityConflictError extends S.TaggedError<CapabilityConflictError>($I`CapabilityConflictError`)(
+export class CapabilityConflictError extends S.TaggedError<CapabilityConflictError, { readonly brand: unique symbol }>(
+  $I`CapabilityConflictError`
+)(
   "CapabilityConflictError",
   {
     profileId: ProfileId.annotateKey({ description: "Profile being resolved." }),
@@ -171,9 +179,10 @@ export class CapabilityConflictError extends S.TaggedError<CapabilityConflictErr
  * @category errors
  * @since 0.0.0
  */
-export class DevelopmentOnlyCapabilityError extends S.TaggedError<DevelopmentOnlyCapabilityError>(
-  $I`DevelopmentOnlyCapabilityError`
-)(
+export class DevelopmentOnlyCapabilityError extends S.TaggedError<
+  DevelopmentOnlyCapabilityError,
+  { readonly brand: unique symbol }
+>($I`DevelopmentOnlyCapabilityError`)(
   "DevelopmentOnlyCapabilityError",
   {
     profileId: ProfileId.annotateKey({ description: "Production profile being resolved." }),
@@ -208,9 +217,10 @@ export class DevelopmentOnlyCapabilityError extends S.TaggedError<DevelopmentOnl
  * @category errors
  * @since 0.0.0
  */
-export class IncompatibleRegistrationError extends S.TaggedError<IncompatibleRegistrationError>(
-  $I`IncompatibleRegistrationError`
-)(
+export class IncompatibleRegistrationError extends S.TaggedError<
+  IncompatibleRegistrationError,
+  { readonly brand: unique symbol }
+>($I`IncompatibleRegistrationError`)(
   "IncompatibleRegistrationError",
   {
     profileId: ProfileId.annotateKey({ description: "Profile being resolved." }),
@@ -246,7 +256,9 @@ export class IncompatibleRegistrationError extends S.TaggedError<IncompatibleReg
  * @category errors
  * @since 0.0.0
  */
-export class UnknownCommandError extends S.TaggedError<UnknownCommandError>($I`UnknownCommandError`)(
+export class UnknownCommandError extends S.TaggedError<UnknownCommandError, { readonly brand: unique symbol }>(
+  $I`UnknownCommandError`
+)(
   "UnknownCommandError",
   {
     profileId: ProfileId.annotateKey({ description: "Profile being resolved." }),
@@ -282,7 +294,9 @@ export class UnknownCommandError extends S.TaggedError<UnknownCommandError>($I`U
  * @category errors
  * @since 0.0.0
  */
-export class KeybindingConflictError extends S.TaggedError<KeybindingConflictError>($I`KeybindingConflictError`)(
+export class KeybindingConflictError extends S.TaggedError<KeybindingConflictError, { readonly brand: unique symbol }>(
+  $I`KeybindingConflictError`
+)(
   "KeybindingConflictError",
   {
     profileId: ProfileId.annotateKey({ description: "Profile being resolved." }),

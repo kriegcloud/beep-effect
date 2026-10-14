@@ -7,7 +7,7 @@
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { dual } from "effect/Function";
-import { applyJsoncModification } from "../../../../internal/cli/Jsonc.ts";
+import { applyJsoncModification, JsoncModification } from "../../../../internal/cli/Jsonc.ts";
 import { VersionSyncError } from "../../VersionSync.schemas.ts";
 
 type UpdateCatalogEntryOptions = {
@@ -37,7 +37,9 @@ export const updatePackageManagerField: {
 
     const newValue = `bun@${version}`;
 
-    const updated = applyJsoncModification({ content: original, path: ["packageManager"], value: newValue });
+    const updated = applyJsoncModification(
+      JsoncModification.make({ content: original, path: ["packageManager"], value: newValue })
+    );
 
     if (updated === original) {
       return false;
@@ -78,11 +80,13 @@ export const updateCatalogEntry: {
       .readFileString(filePath)
       .pipe(VersionSyncError.mapError(`Failed to read ${filePath}`, filePath));
 
-    const updated = applyJsoncModification({
-      content: original,
-      path: ["catalog", dependencyName],
-      value: options.versionSpecifier,
-    });
+    const updated = applyJsoncModification(
+      JsoncModification.make({
+        content: original,
+        path: ["catalog", dependencyName],
+        value: options.versionSpecifier,
+      })
+    );
 
     if (updated === original) {
       return false;

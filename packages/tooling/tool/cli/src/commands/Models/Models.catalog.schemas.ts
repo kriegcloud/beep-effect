@@ -722,17 +722,18 @@ export type CursorModelList = typeof CursorModelList.Type;
  * @category models
  * @since 0.0.0
  */
-export class GrokReasoningEffort extends S.Class<GrokReasoningEffort>($I`GrokReasoningEffort`)(
-  {
+export class GrokReasoningEffort extends S.Opaque<GrokReasoningEffort, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.NonEmptyString,
     id: looseOptional(S.String),
     label: looseOptional(S.String),
     description: looseOptional(S.String),
     default: looseOptional(S.Boolean),
-  },
-  $I.annote("GrokReasoningEffort", {
-    description: "One reasoning-effort rung offered for a cached Grok model.",
-  })
+  }).pipe(
+    $I.annoteSchema("GrokReasoningEffort", {
+      description: "One reasoning-effort rung offered for a cached Grok model.",
+    })
+  )
 ) {}
 
 /**
@@ -750,8 +751,8 @@ export class GrokReasoningEffort extends S.Class<GrokReasoningEffort>($I`GrokRea
  * @category models
  * @since 0.0.0
  */
-export class GrokModelInfo extends S.Class<GrokModelInfo>($I`GrokModelInfo`)(
-  {
+export class GrokModelInfo extends S.Opaque<GrokModelInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     model: looseOptional(S.String),
     model_family: looseOptional(S.String),
@@ -763,10 +764,11 @@ export class GrokModelInfo extends S.Class<GrokModelInfo>($I`GrokModelInfo`)(
     reasoning_effort: looseOptional(S.String),
     supports_reasoning_effort: looseOptional(S.Boolean),
     reasoning_efforts: S.Array(GrokReasoningEffort).pipe(looseOptional),
-  },
-  $I.annote("GrokModelInfo", {
-    description: "The info block of one cached Grok model: identity, context window, and reasoning ladder.",
-  })
+  }).pipe(
+    $I.annoteSchema("GrokModelInfo", {
+      description: "The info block of one cached Grok model: identity, context window, and reasoning ladder.",
+    })
+  )
 ) {}
 
 /**
@@ -790,13 +792,14 @@ export class GrokModelInfo extends S.Class<GrokModelInfo>($I`GrokModelInfo`)(
  * @category models
  * @since 0.0.0
  */
-export class GrokCacheEntry extends S.Class<GrokCacheEntry>($I`GrokCacheEntry`)(
-  {
+export class GrokCacheEntry extends S.Opaque<GrokCacheEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     info: GrokModelInfo,
-  },
-  $I.annote("GrokCacheEntry", {
-    description: "One Grok CLI model cache entry, reduced to the info block this command reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("GrokCacheEntry", {
+      description: "One Grok CLI model cache entry, reduced to the info block this command reads.",
+    })
+  )
 ) {}
 
 /**
@@ -822,16 +825,17 @@ export class GrokCacheEntry extends S.Class<GrokCacheEntry>($I`GrokCacheEntry`)(
  * @category models
  * @since 0.0.0
  */
-export class GrokModelsCache extends S.Class<GrokModelsCache>($I`GrokModelsCache`)(
-  {
+export class GrokModelsCache extends S.Opaque<GrokModelsCache, { readonly brand: unique symbol }>()(
+  S.Struct({
     models: S.Record(S.String, GrokCacheEntry),
     grok_version: looseOptional(S.String),
     etag: looseOptional(S.String),
     fetched_at: looseOptional(S.String),
-  },
-  $I.annote("GrokModelsCache", {
-    description: "Grok CLI model cache envelope read from $HOME/.grok/models_cache.json.",
-  })
+  }).pipe(
+    $I.annoteSchema("GrokModelsCache", {
+      description: "Grok CLI model cache envelope read from $HOME/.grok/models_cache.json.",
+    })
+  )
 ) {}
 
 // ── Proxy overlay ───────────────────────────────────────────────────────────
@@ -851,16 +855,17 @@ export class GrokModelsCache extends S.Class<GrokModelsCache>($I`GrokModelsCache
  * @category models
  * @since 0.0.0
  */
-export class ProxyModelEntry extends S.Class<ProxyModelEntry>($I`ProxyModelEntry`)(
-  {
+export class ProxyModelEntry extends S.Opaque<ProxyModelEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     object: looseOptional(S.String),
     created: looseOptional(S.Finite),
     owned_by: looseOptional(S.String),
-  },
-  $I.annote("ProxyModelEntry", {
-    description: "One model entry from a running proxy's OpenAI-compatible model listing.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProxyModelEntry", {
+      description: "One model entry from a running proxy's OpenAI-compatible model listing.",
+    })
+  )
 ) {}
 
 /**
@@ -886,14 +891,15 @@ export class ProxyModelEntry extends S.Class<ProxyModelEntry>($I`ProxyModelEntry
  * @category models
  * @since 0.0.0
  */
-export class ProxyModelsResponse extends S.Class<ProxyModelsResponse>($I`ProxyModelsResponse`)(
-  {
+export class ProxyModelsResponse extends S.Opaque<ProxyModelsResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: S.Array(ProxyModelEntry),
     object: looseOptional(S.String),
-  },
-  $I.annote("ProxyModelsResponse", {
-    description: "OpenAI-compatible model listing returned by a running proxy.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProxyModelsResponse", {
+      description: "OpenAI-compatible model listing returned by a running proxy.",
+    })
+  )
 ) {}
 
 // ── Normalized catalog ──────────────────────────────────────────────────────
@@ -918,16 +924,17 @@ export class ProxyModelsResponse extends S.Class<ProxyModelsResponse>($I`ProxyMo
  * @category models
  * @since 0.0.0
  */
-export class CatalogAvailability extends S.Class<CatalogAvailability>($I`CatalogAvailability`)(
-  {
+export class CatalogAvailability extends S.Opaque<CatalogAvailability, { readonly brand: unique symbol }>()(
+  S.Struct({
     proxy: S.Boolean,
     codexCli: S.Boolean,
     grokCli: S.Boolean,
     cursor: S.Boolean,
-  },
-  $I.annote("CatalogAvailability", {
-    description: "Per-overlay routability of one model on this workstation.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogAvailability", {
+      description: "Per-overlay routability of one model on this workstation.",
+    })
+  )
 ) {}
 
 /**
@@ -976,8 +983,8 @@ export class CatalogAvailability extends S.Class<CatalogAvailability>($I`Catalog
  * @category models
  * @since 0.0.0
  */
-export class CatalogModel extends S.Class<CatalogModel>($I`CatalogModel`)(
-  {
+export class CatalogModel extends S.Opaque<CatalogModel, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ModelId,
     provider: S.OptionFromOptionalKey(ProviderSection),
     origin: CatalogSource,
@@ -995,10 +1002,11 @@ export class CatalogModel extends S.Class<CatalogModel>($I`CatalogModel`)(
       S.withConstructorDefault(Effect.succeed([]))
     ),
     availability: CatalogAvailability,
-  },
-  $I.annote("CatalogModel", {
-    description: "One merged catalog model with its normalized effort ladder and per-overlay availability.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogModel", {
+      description: "One merged catalog model with its normalized effort ladder and per-overlay availability.",
+    })
+  )
 ) {}
 
 /**
@@ -1029,16 +1037,17 @@ export class CatalogModel extends S.Class<CatalogModel>($I`CatalogModel`)(
  * @category models
  * @since 0.0.0
  */
-export class CatalogSnapshotSummary extends S.Class<CatalogSnapshotSummary>($I`CatalogSnapshotSummary`)(
-  {
+export class CatalogSnapshotSummary extends S.Opaque<CatalogSnapshotSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     fetchedAt: S.DateTimeUtcFromString,
     contentSha256: S.NonEmptyString,
     sources: S.Array(CatalogSource),
     modelCount: S.Int,
-  },
-  $I.annote("CatalogSnapshotSummary", {
-    description: "Provenance of one dated catalog snapshot: when, from which layers, and how large.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogSnapshotSummary", {
+      description: "Provenance of one dated catalog snapshot: when, from which layers, and how large.",
+    })
+  )
 ) {}
 
 /**
@@ -1071,14 +1080,15 @@ export class CatalogSnapshotSummary extends S.Class<CatalogSnapshotSummary>($I`C
  * @category models
  * @since 0.0.0
  */
-export class CatalogSnapshot extends S.Class<CatalogSnapshot>($I`CatalogSnapshot`)(
-  {
+export class CatalogSnapshot extends S.Opaque<CatalogSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     summary: CatalogSnapshotSummary,
     models: S.Array(CatalogModel),
-  },
-  $I.annote("CatalogSnapshot", {
-    description: "A dated, normalized catalog snapshot persisted to the home ledger.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogSnapshot", {
+      description: "A dated, normalized catalog snapshot persisted to the home ledger.",
+    })
+  )
 ) {}
 
 /**
@@ -1101,8 +1111,8 @@ export class CatalogSnapshot extends S.Class<CatalogSnapshot>($I`CatalogSnapshot
  * @category models
  * @since 0.0.0
  */
-export class CatalogLevelsChange extends S.Class<CatalogLevelsChange>($I`CatalogLevelsChange`)(
-  {
+export class CatalogLevelsChange extends S.Opaque<CatalogLevelsChange, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: ModelId,
     before: S.Array(EffortLevel),
     after: S.Array(EffortLevel),
@@ -1112,10 +1122,11 @@ export class CatalogLevelsChange extends S.Class<CatalogLevelsChange>($I`Catalog
     codexAfter: CatalogModel.fields.codexLevels,
     grokBefore: CatalogModel.fields.grokLevels,
     grokAfter: CatalogModel.fields.grokLevels,
-  },
-  $I.annote("CatalogLevelsChange", {
-    description: "One model whose normalized or source-specific effort ladders differ between two snapshots.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogLevelsChange", {
+      description: "One model whose normalized or source-specific effort ladders differ between two snapshots.",
+    })
+  )
 ) {}
 
 /**
@@ -1140,13 +1151,14 @@ export class CatalogLevelsChange extends S.Class<CatalogLevelsChange>($I`Catalog
  * @category models
  * @since 0.0.0
  */
-export class CatalogDiff extends S.Class<CatalogDiff>($I`CatalogDiff`)(
-  {
+export class CatalogDiff extends S.Opaque<CatalogDiff, { readonly brand: unique symbol }>()(
+  S.Struct({
     added: S.Array(ModelId),
     removed: S.Array(ModelId),
     levelsChanged: S.Array(CatalogLevelsChange),
-  },
-  $I.annote("CatalogDiff", {
-    description: "Added, removed, and levels-changed models between two catalog snapshots.",
-  })
+  }).pipe(
+    $I.annoteSchema("CatalogDiff", {
+      description: "Added, removed, and levels-changed models between two catalog snapshots.",
+    })
+  )
 ) {}

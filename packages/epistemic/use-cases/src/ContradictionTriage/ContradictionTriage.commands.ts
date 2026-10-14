@@ -38,10 +38,11 @@ import { PosInt } from "../internal/PosInt.ts";
 
 const $I = $EpistemicUseCasesId.create("ContradictionTriage/ContradictionTriage.commands");
 
-class SubmitContradictionCandidateStruct extends S.Class<SubmitContradictionCandidateStruct>(
-  $I`SubmitContradictionCandidateStruct`
-)(
-  {
+class SubmitContradictionCandidateStruct extends S.Opaque<
+  SubmitContradictionCandidateStruct,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     assessment: ContradictionAssessment.annotateKey({
       description: "Confidence and proposed explicit replacements presented for review.",
     }),
@@ -75,10 +76,11 @@ class SubmitContradictionCandidateStruct extends S.Class<SubmitContradictionCand
     validTo: S.DateTimeUtcFromMillis.pipe(S.OptionFromNullOr).annotateKey({
       description: "Exclusive valid-time upper bound; absent while temporally open.",
     }),
-  },
-  $I.annote("SubmitContradictionCandidateStruct", {
-    description: "Structural contradiction submission before its half-open valid interval is checked.",
-  })
+  }).pipe(
+    $I.annoteSchema("SubmitContradictionCandidateStruct", {
+      description: "Structural contradiction submission before its half-open valid interval is checked.",
+    })
+  )
 ) {}
 
 const validIntervalIsOrdered = Order.isLessThan(DateTime.Order);
@@ -111,13 +113,15 @@ const SubmitContradictionCandidateSchema = SubmitContradictionCandidateStruct.ma
  * @category commands
  * @since 0.0.0
  */
-export class SubmitContradictionCandidate extends S.Class<SubmitContradictionCandidate>(
-  $I`SubmitContradictionCandidate`
-)(
-  SubmitContradictionCandidateSchema,
-  $I.annote("SubmitContradictionCandidate", {
-    description: "Command submitting one evidence-backed contradiction proposal and durable receipt.",
-  })
+export class SubmitContradictionCandidate extends S.Opaque<
+  SubmitContradictionCandidate,
+  { readonly brand: unique symbol }
+>()(
+  SubmitContradictionCandidateSchema.pipe(
+    $I.annoteSchema("SubmitContradictionCandidate", {
+      description: "Command submitting one evidence-backed contradiction proposal and durable receipt.",
+    })
+  )
 ) {}
 
 const ContradictionDispositionFilterBase = LiteralKit(["all", "open", "rejected", "superseded"]);
@@ -242,8 +246,11 @@ export type ContradictionCandidatePageLimit = typeof ContradictionCandidatePageL
  * @category queries
  * @since 0.0.0
  */
-export class ListContradictionCandidates extends S.Class<ListContradictionCandidates>($I`ListContradictionCandidates`)(
-  {
+export class ListContradictionCandidates extends S.Opaque<
+  ListContradictionCandidates,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     disposition: ContradictionDispositionFilter.annotateKey({
       description: "Disposition state to include.",
     }),
@@ -262,10 +269,11 @@ export class ListContradictionCandidates extends S.Class<ListContradictionCandid
     validAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Valid-time instant at which contradiction applicability is asked.",
     }),
-  },
-  $I.annote("ListContradictionCandidates", {
-    description: "Paginated two-axis list query for contradiction candidates in one organization.",
-  })
+  }).pipe(
+    $I.annoteSchema("ListContradictionCandidates", {
+      description: "Paginated two-axis list query for contradiction candidates in one organization.",
+    })
+  )
 ) {}
 
 /**
@@ -290,8 +298,8 @@ export class ListContradictionCandidates extends S.Class<ListContradictionCandid
  * @category queries
  * @since 0.0.0
  */
-export class GetContradictionCandidate extends S.Class<GetContradictionCandidate>($I`GetContradictionCandidate`)(
-  {
+export class GetContradictionCandidate extends S.Opaque<GetContradictionCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidateId: Epistemic.ContradictionCandidateId.annotateKey({
       description: "Candidate whose expanded persisted state is requested.",
     }),
@@ -301,10 +309,11 @@ export class GetContradictionCandidate extends S.Class<GetContradictionCandidate
     validAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Valid-time instant at which contradiction applicability is requested.",
     }),
-  },
-  $I.annote("GetContradictionCandidate", {
-    description: "Two-axis temporal query for one expanded contradiction candidate.",
-  })
+  }).pipe(
+    $I.annoteSchema("GetContradictionCandidate", {
+      description: "Two-axis temporal query for one expanded contradiction candidate.",
+    })
+  )
 ) {}
 
 /**
@@ -337,10 +346,11 @@ export class GetContradictionCandidate extends S.Class<GetContradictionCandidate
  * @category queries
  * @since 0.0.0
  */
-export class GetExpandedContradictionCandidate extends S.Class<GetExpandedContradictionCandidate>(
-  $I`GetExpandedContradictionCandidate`
-)(
-  {
+export class GetExpandedContradictionCandidate extends S.Opaque<
+  GetExpandedContradictionCandidate,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidateId: Epistemic.ContradictionCandidateId.annotateKey({
       description: "Candidate whose persisted detail is requested.",
     }),
@@ -362,10 +372,11 @@ export class GetExpandedContradictionCandidate extends S.Class<GetExpandedContra
     validAt: S.DateTimeUtcFromMillis.annotateKey({
       description: "Valid-time instant at which contradiction applicability is requested.",
     }),
-  },
-  $I.annote("GetExpandedContradictionCandidate", {
-    description: "Server-only organization- and source-scoped two-axis query for exact contradiction detail inputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("GetExpandedContradictionCandidate", {
+      description: "Server-only organization- and source-scoped two-axis query for exact contradiction detail inputs.",
+    })
+  )
 ) {}
 
 const ContradictionReviewDecisionBase = LiteralKit(["reject", "supersedeProposal"]).toTaggedUnion("decision")({
@@ -447,10 +458,11 @@ export type ContradictionReviewDecision = typeof ContradictionReviewDecision.Typ
  * @category commands
  * @since 0.0.0
  */
-export class ReviewContradictionCandidate extends S.Class<ReviewContradictionCandidate>(
-  $I`ReviewContradictionCandidate`
-)(
-  {
+export class ReviewContradictionCandidate extends S.Opaque<
+  ReviewContradictionCandidate,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidateId: Epistemic.ContradictionCandidateId.annotateKey({
       description: "Persisted candidate being reviewed.",
     }),
@@ -460,10 +472,11 @@ export class ReviewContradictionCandidate extends S.Class<ReviewContradictionCan
     expectedCandidateVersion: PosInt.annotateKey({
       description: "Candidate row version observed by the reviewer.",
     }),
-  },
-  $I.annote("ReviewContradictionCandidate", {
-    description: "Narrow command reviewing one contradiction candidate without accepting caller-owned edge identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewContradictionCandidate", {
+      description: "Narrow command reviewing one contradiction candidate without accepting caller-owned edge identity.",
+    })
+  )
 ) {}
 
 /**

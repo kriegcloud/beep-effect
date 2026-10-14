@@ -108,10 +108,11 @@ export type AiMetricsSourceStatus = typeof AiMetricsSourceStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsSourceDiscoveryInput extends S.Class<AiMetricsSourceDiscoveryInput>(
-  $I`AiMetricsSourceDiscoveryInput`
-)(
-  {
+export class AiMetricsSourceDiscoveryInput extends S.Opaque<
+  AiMetricsSourceDiscoveryInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     claudeProjectsRoot: OptionalSourceString,
     codexSessionsRoot: OptionalSourceString,
     hashSalt: OptionalSourceString,
@@ -129,10 +130,11 @@ export class AiMetricsSourceDiscoveryInput extends S.Class<AiMetricsSourceDiscov
       S.withConstructorDefault(Effect.succeed(AiMetricsDeployTarget.Enum.local)),
       S.withDecodingDefaultKey(Effect.succeed(AiMetricsDeployTarget.Enum.local))
     ),
-  },
-  $I.annote("AiMetricsSourceDiscoveryInput", {
-    description: "Configurable roots and scan bounds for local AI metrics source discovery.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsSourceDiscoveryInput", {
+      description: "Configurable roots and scan bounds for local AI metrics source discovery.",
+    })
+  )
 ) {}
 
 /**
@@ -158,10 +160,11 @@ export class AiMetricsSourceDiscoveryInput extends S.Class<AiMetricsSourceDiscov
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsDiscoveredTranscriptFile extends S.Class<AiMetricsDiscoveredTranscriptFile>(
-  $I`AiMetricsDiscoveredTranscriptFile`
-)(
-  {
+export class AiMetricsDiscoveredTranscriptFile extends S.Opaque<
+  AiMetricsDiscoveredTranscriptFile,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     agentNicknameHash: S.OptionFromOptionalKey(SourceDiscoverySha256).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
@@ -180,10 +183,11 @@ export class AiMetricsDiscoveredTranscriptFile extends S.Class<AiMetricsDiscover
     sourcePathHash: SourceDiscoverySha256,
     sourceRole: AiMetricsSourceRole,
     threadSpawn: S.OptionFromOptionalKey(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("AiMetricsDiscoveredTranscriptFile", {
-    description: "Discovered local source file with private identifiers represented by salted hashes.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsDiscoveredTranscriptFile", {
+      description: "Discovered local source file with private identifiers represented by salted hashes.",
+    })
+  )
 ) {}
 
 /**
@@ -207,8 +211,8 @@ export class AiMetricsDiscoveredTranscriptFile extends S.Class<AiMetricsDiscover
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource>($I`AiMetricsDiscoveredSource`)(
-  {
+export class AiMetricsDiscoveredSource extends S.Opaque<AiMetricsDiscoveredSource, { readonly brand: unique symbol }>()(
+  S.Struct({
     candidateFileCount: S.Natural.pipe(
       S.withConstructorDefault(Effect.succeed(0)),
       S.withDecodingDefaultTypeKey(Effect.succeed(0))
@@ -231,10 +235,11 @@ export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource
     ),
     sourceKind: AiMetricsTranscriptSource,
     status: AiMetricsSourceStatus,
-  },
-  $I.annote("AiMetricsDiscoveredSource", {
-    description: "Discovery summary for one local AI-agent transcript source.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsDiscoveredSource", {
+      description: "Discovery summary for one local AI-agent transcript source.",
+    })
+  )
 ) {}
 
 /**
@@ -262,10 +267,11 @@ export class AiMetricsDiscoveredSource extends S.Class<AiMetricsDiscoveredSource
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsSourceDiscoveryResult extends S.Class<AiMetricsSourceDiscoveryResult>(
-  $I`AiMetricsSourceDiscoveryResult`
-)(
-  {
+export class AiMetricsSourceDiscoveryResult extends S.Opaque<
+  AiMetricsSourceDiscoveryResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     discoveredFileCount: S.Natural,
     generatedAtEpochMillis: SourceDiscoveryEpochMillis,
     hashSaltStatus: AiMetricsHashSaltStatus,
@@ -279,10 +285,11 @@ export class AiMetricsSourceDiscoveryResult extends S.Class<AiMetricsSourceDisco
     ),
     sources: S.Array(AiMetricsDiscoveredSource),
     target: AiMetricsDeployTarget,
-  },
-  $I.annote("AiMetricsSourceDiscoveryResult", {
-    description: "Machine-readable source discovery output for the AI metrics local smoke target.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsSourceDiscoveryResult", {
+      description: "Machine-readable source discovery output for the AI metrics local smoke target.",
+    })
+  )
 ) {}
 
 /**
@@ -303,9 +310,10 @@ export class AiMetricsSourceDiscoveryResult extends S.Class<AiMetricsSourceDisco
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsSourceDiscoveryError extends S.TaggedError<AiMetricsSourceDiscoveryError>(
-  $I`AiMetricsSourceDiscoveryError`
-)(
+export class AiMetricsSourceDiscoveryError extends S.TaggedError<
+  AiMetricsSourceDiscoveryError,
+  { readonly brand: unique symbol }
+>($I`AiMetricsSourceDiscoveryError`)(
   "AiMetricsSourceDiscoveryError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),

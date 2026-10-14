@@ -249,8 +249,8 @@ export type CandidateRouting = typeof CandidateRouting.Type;
  * @category models
  * @since 0.0.0
  */
-export class ValidatorFinding extends S.Class<ValidatorFinding>($I`ValidatorFinding`)(
-  {
+export class ValidatorFinding extends S.Opaque<ValidatorFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     element: S.OptionFromNullOr(ActFrameElementRef).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Frame element the finding is about, absent when it concerns the interpretation as a whole.",
     }),
@@ -260,10 +260,11 @@ export class ValidatorFinding extends S.Class<ValidatorFinding>($I`ValidatorFind
     severity: CorrectionSeverity.annotateKey({
       description: "How seriously the finding was reported: hard or advisory.",
     }),
-  },
-  $I.annote("ValidatorFinding", {
-    description: "One transcribed validator finding about a recorded interpretation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ValidatorFinding", {
+      description: "One transcribed validator finding about a recorded interpretation.",
+    })
+  )
 ) {}
 
 /**
@@ -298,18 +299,19 @@ export class ValidatorFinding extends S.Class<ValidatorFinding>($I`ValidatorFind
  * @category models
  * @since 0.0.0
  */
-export class ValidatorReport extends S.Class<ValidatorReport>($I`ValidatorReport`)(
-  {
+export class ValidatorReport extends S.Opaque<ValidatorReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     findings: S.Array(ValidatorFinding).annotateKey({
       description: "Findings the validator reported; empty means it ran and reported nothing.",
     }),
     validator: S.NonEmptyString.annotateKey({
       description: "Designation of the validator whose report this transcribes.",
     }),
-  },
-  $I.annote("ValidatorReport", {
-    description: "A transcribed validator report about one recorded interpretation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ValidatorReport", {
+      description: "A transcribed validator report about one recorded interpretation.",
+    })
+  )
 ) {}
 
 /**
@@ -342,16 +344,17 @@ export class ValidatorReport extends S.Class<ValidatorReport>($I`ValidatorReport
  * @category models
  * @since 0.0.0
  */
-export class CorrectedElement extends S.Class<CorrectedElement>($I`CorrectedElement`)(
-  {
+export class CorrectedElement extends S.Opaque<CorrectedElement, { readonly brand: unique symbol }>()(
+  S.Struct({
     element: ActFrameElementRef.annotateKey({
       description: "Pointer at the frame element this correction touched.",
     }),
     source: NormSourceReference.annotateKey({
       description: "Norm text the correction to this element rests on.",
     }),
-  },
-  $I.annote("CorrectedElement", {
-    description: "One element a correction touched, with the norm text the change rests on.",
-  })
+  }).pipe(
+    $I.annoteSchema("CorrectedElement", {
+      description: "One element a correction touched, with the norm text the change rests on.",
+    })
+  )
 ) {}

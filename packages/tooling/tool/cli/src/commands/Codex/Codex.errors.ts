@@ -33,7 +33,9 @@ type CodexCommandErrorOptions =
  * @category errors
  * @since 0.0.0
  */
-export class CodexCommandError extends S.TaggedError<CodexCommandError>($I`CodexCommandError`)(
+export class CodexCommandError extends S.TaggedError<CodexCommandError, { readonly brand: unique symbol }>(
+  $I`CodexCommandError`
+)(
   "CodexCommandError",
   {
     message: S.String,

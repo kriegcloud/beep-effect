@@ -333,8 +333,7 @@ const EvidenceSource = EvidenceSourceDefinition.pipe(
  * @category value-objects
  * @since 0.0.0
  */
-export class Evidence extends S.Class<Evidence>($I`Evidence`)(
-  {
+export class Evidence extends S.Opaque<Evidence, { readonly brand: unique symbol }>()(S.Struct({
     source: EvidenceSource.annotateKey({
       description: "Discriminated source location for the supporting document.",
     }),
@@ -347,11 +346,9 @@ export class Evidence extends S.Class<Evidence>($I`Evidence`)(
         description: "Optional section or paragraph context.",
       })
     ),
-  },
-  $I.annote("Evidence", {
+  }).pipe($I.annoteSchema("Evidence", {
     description: "Claim provenance with a tagged source, non-empty text spans, and optional context.",
-  })
-) {
+  }))) {
   static readonly is = S.is(Evidence);
 }
 
@@ -515,8 +512,7 @@ const TemporalInterval = TemporalIntervalDefinition.pipe(
  * @category entities
  * @since 0.0.0
  */
-export class Claim extends S.Class<Claim>($I`Claim`)(
-  {
+export class Claim extends S.Opaque<Claim, { readonly brand: unique symbol }>()(S.Struct({
     id: ClaimId,
     subject: NamedNode,
     predicate: NamedNode,
@@ -527,11 +523,9 @@ export class Claim extends S.Class<Claim>($I`Claim`)(
     confidence: Confidence,
     rank: ClaimRank.pipe(S.withConstructorDefault(Effect.succeed(ClaimRank.Enum.normal)), S.withDecodingDefaultTypeKey(Effect.succeed(ClaimRank.Enum.normal))),
     validity: S.OptionFromOptionalKey(TemporalInterval).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Claim", {
+  }).pipe($I.annoteSchema("Claim", {
     description: "Provenance-bearing reported RDF fact with confidence, rank, and optional ordered validity.",
-  })
-) {
+  }))) {
   static readonly is = S.is(Claim);
 }
 
@@ -603,8 +597,7 @@ export type AssertionStatus = typeof AssertionStatus.Type;
  * @category assertions
  * @since 0.0.0
  */
-export class Assertion extends S.Class<Assertion>($I`Assertion`)(
-  {
+export class Assertion extends S.Opaque<Assertion, { readonly brand: unique symbol }>()(S.Struct({
     id: AssertionId,
     subject: NamedNode,
     predicate: NamedNode,
@@ -613,11 +606,9 @@ export class Assertion extends S.Class<Assertion>($I`Assertion`)(
     derivedFrom: ClaimId.pipe(S.NonEmptyArray),
     status: AssertionStatus,
     validity: S.OptionFromOptionalKey(TemporalInterval).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Assertion", {
+  }).pipe($I.annoteSchema("Assertion", {
     description: "Curated RDF fact supported by one or more claims and carrying explicit curation status.",
-  })
-) {
+  }))) {
   static readonly is = S.is(Assertion);
 }
 
@@ -659,18 +650,15 @@ export class Assertion extends S.Class<Assertion>($I`Assertion`)(
  * @category assertions
  * @since 0.0.0
  */
-export class DerivedAssertion extends S.Class<DerivedAssertion>($I`DerivedAssertion`)(
-  {
+export class DerivedAssertion extends S.Opaque<DerivedAssertion, { readonly brand: unique symbol }>()(S.Struct({
     id: DerivedAssertionId,
     assertion: Assertion,
     ruleId: RuleId,
     supportingFacts: AssertionId.pipe(S.NonEmptyArray),
     derivedAt: S.DateTimeUtcFromString,
-  },
-  $I.annote("DerivedAssertion", {
+  }).pipe($I.annoteSchema("DerivedAssertion", {
     description: "Rule-derived assertion with a non-empty set of supporting curated facts.",
-  })
-) {
+  }))) {
   static readonly is = S.is(DerivedAssertion);
 }
 
@@ -768,8 +756,7 @@ export type EventType = typeof EventType.Type;
  * @category events
  * @since 0.0.0
  */
-export class EntityRef extends S.Class<EntityRef>($I`EntityRef`)(
-  {
+export class EntityRef extends S.Opaque<EntityRef, { readonly brand: unique symbol }>()(S.Struct({
     entity: NamedNode.annotateKey({
       description: "Canonical RDF/JS named node identifying the participant.",
     }),
@@ -785,11 +772,9 @@ export class EntityRef extends S.Class<EntityRef>($I`EntityRef`)(
         description: "Optional display label.",
       })
     ),
-  },
-  $I.annote("EntityRef", {
+  }).pipe($I.annoteSchema("EntityRef", {
     description: "Event-participant reference backed by a canonical named node and Option-normalized metadata.",
-  })
-) {
+  }))) {
   static readonly is = S.is(EntityRef);
 }
 
@@ -824,8 +809,7 @@ const eventTagsDefault = A.empty<string>();
  * @category events
  * @since 0.0.0
  */
-export class Event extends S.Class<Event>($I`Event`)(
-  {
+export class Event extends S.Opaque<Event, { readonly brand: unique symbol }>()(S.Struct({
     id: EventId,
     type: EventType,
     title: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -837,10 +821,8 @@ export class Event extends S.Class<Event>($I`Event`)(
     sourceDocuments: GcsUri.pipe(S.NonEmptyArray),
     summary: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     tags: S.Array(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeed(eventTagsDefault)), S.withDecodingDefaultType(Effect.succeed(eventTagsDefault))),
-  },
-  $I.annote("Event", {
+  }).pipe($I.annoteSchema("Event", {
     description: "First-class timeline event with validated time, participants, curated facts, and source provenance.",
-  })
-) {
+  }))) {
   static readonly is = S.is(Event);
 }

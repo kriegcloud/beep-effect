@@ -42,8 +42,8 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.import");
  * @category models
  * @since 0.0.0
  */
-export class LibraryImportPayload extends S.Class<LibraryImportPayload>($I`LibraryImportPayload`)(
-  {
+export class LibraryImportPayload extends S.Opaque<LibraryImportPayload, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceId: S.String,
     canonicalUrl: S.String,
     method: S.String,
@@ -53,10 +53,11 @@ export class LibraryImportPayload extends S.Class<LibraryImportPayload>($I`Libra
     complete: S.Boolean,
     capturedRevision: S.String,
     artifacts: S.Array(LibraryArtifact),
-  },
-  $I.annote("LibraryImportPayload", {
-    description: "Hash-bound external evidence with target identity and explicit tool provenance.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryImportPayload", {
+      description: "Hash-bound external evidence with target identity and explicit tool provenance.",
+    })
+  )
 ) {}
 /**
  * Qualification import derives status from preserved authentic provider events.
@@ -69,18 +70,20 @@ export class LibraryImportPayload extends S.Class<LibraryImportPayload>($I`Libra
  * @category models
  * @since 0.0.0
  */
-export class LibraryQualificationImportPayload extends S.Class<LibraryQualificationImportPayload>(
-  $I`LibraryQualificationImportPayload`
-)(
-  {
+export class LibraryQualificationImportPayload extends S.Opaque<
+  LibraryQualificationImportPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.Literal("qualification"),
     adapter: S.Literals(["alphaxiv", "grok-deep-research", "grok-x-import"]),
     provider: S.Literals(["alphaxiv", "grok"]),
     artifacts: S.Array(LibraryArtifact),
-  },
-  $I.annote("LibraryQualificationImportPayload", {
-    description: "Raw provider evidence import whose qualification is computed from real events.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryQualificationImportPayload", {
+      description: "Raw provider evidence import whose qualification is computed from real events.",
+    })
+  )
 ) {}
 /**
  * Explicit reviewed source disposition with preserved evidence.
@@ -93,10 +96,11 @@ export class LibraryQualificationImportPayload extends S.Class<LibraryQualificat
  * @category models
  * @since 0.0.0
  */
-export class LibraryDispositionImportPayload extends S.Class<LibraryDispositionImportPayload>(
-  $I`LibraryDispositionImportPayload`
-)(
-  {
+export class LibraryDispositionImportPayload extends S.Opaque<
+  LibraryDispositionImportPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.Literal("disposition"),
     sourceId: S.String,
     locator: S.String,
@@ -113,10 +117,11 @@ export class LibraryDispositionImportPayload extends S.Class<LibraryDispositionI
     reviewer: S.String.check(S.isMinLength(1), S.isPattern(/\S/)),
     reviewedAt: S.String.check(S.isMinLength(1), S.isPattern(/\S/)),
     artifacts: S.Array(LibraryArtifact).check(S.isMinLength(1)),
-  },
-  $I.annote("LibraryDispositionImportPayload", {
-    description: "Reviewed source accounting distinct from reading or a generic provider failure.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryDispositionImportPayload", {
+      description: "Reviewed source accounting distinct from reading or a generic provider failure.",
+    })
+  )
 ) {}
 const ToolCall = S.Struct({ type: S.Literal("tool_use"), id: S.String, name: S.String, input: S.Unknown });
 const ToolResult = S.Struct({ type: S.Literal("tool_result"), tool_use_id: S.String, content: S.Unknown });
@@ -482,12 +487,30 @@ export const importLibraryResult = Effect.fn("Library.importResult")(function* (
   const fs = yield* FileSystem.FileSystem;
   const raw = yield* fs.readFileString(resultPath);
   const resolution = yield* decodeLibraryJson(LibraryReferenceResolutionPayload)(raw).pipe(Effect.option);
-  if (O.isSome(resolution)) return yield* importReferenceResolution(root, resultPath, raw, resolution.value);
+  if (O.isSome(resolution))
+    return yield* importReferenceResolution(
+      root,
+      resultPath,
+      raw,
+      LibraryReferenceResolutionPayload.make(resolution.value)
+    );
   const disposition = yield* decodeLibraryJson(LibraryDispositionImportPayload)(raw).pipe(Effect.option);
-  if (O.isSome(disposition)) return yield* importDisposition(root, resultPath, raw, disposition.value);
+  if (O.isSome(disposition))
+    return yield* importDisposition(root, resultPath, raw, LibraryDispositionImportPayload.make(disposition.value));
   const qualification = yield* decodeLibraryJson(LibraryQualificationImportPayload)(raw).pipe(Effect.option);
-  if (O.isSome(qualification)) return yield* importQualification(root, resultPath, raw, qualification.value);
-  return yield* importCapture(root, resultPath, raw, yield* decodeLibraryJson(LibraryImportPayload)(raw));
+  if (O.isSome(qualification))
+    return yield* importQualification(
+      root,
+      resultPath,
+      raw,
+      LibraryQualificationImportPayload.make(qualification.value)
+    );
+  return yield* importCapture(
+    root,
+    resultPath,
+    raw,
+    LibraryImportPayload.make(yield* decodeLibraryJson(LibraryImportPayload)(raw))
+  );
 });
 
 const CitationContext = S.Struct({
@@ -520,10 +543,11 @@ const ReviewedContext = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class LibraryReferenceResolutionPayload extends S.Class<LibraryReferenceResolutionPayload>(
-  $I`LibraryReferenceResolutionPayload`
-)(
-  {
+export class LibraryReferenceResolutionPayload extends S.Opaque<
+  LibraryReferenceResolutionPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.Literal("reference-resolution"),
     sourceId: S.String,
     locator: S.String,
@@ -533,10 +557,11 @@ export class LibraryReferenceResolutionPayload extends S.Class<LibraryReferenceR
     reviewedAt: S.String.check(S.isMinLength(1), S.isPattern(/\S/)),
     evidence: LibraryArtifact,
     context: ReviewedContext,
-  },
-  $I.annote("LibraryReferenceResolutionPayload", {
-    description: "Evidence-bound canonical identity resolution that retains original citation positions.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryReferenceResolutionPayload", {
+      description: "Evidence-bound canonical identity resolution that retains original citation positions.",
+    })
+  )
 ) {}
 const citationPositionMatches = (entry: typeof CitationContext.Type, occurrence: LibraryOccurrence) =>
   entry.line === occurrence.line &&
@@ -949,13 +974,19 @@ export const libraryDispositionValid = Effect.fn("Library.dispositionValid")(fun
   const disposition = payload.value;
   if (disposition.sourceId !== source.id && !A.contains(source.aliasIds, disposition.sourceId)) return false;
   if (
-    !dispositionRevisionMatches(source, capture, disposition) ||
-    !dispositionTargetMatches(source, capture, disposition) ||
-    !dispositionOriginalsMatch(capture, disposition)
+    !dispositionRevisionMatches(source, capture, LibraryDispositionImportPayload.make(disposition)) ||
+    !dispositionTargetMatches(source, capture, LibraryDispositionImportPayload.make(disposition)) ||
+    !dispositionOriginalsMatch(capture, LibraryDispositionImportPayload.make(disposition))
   )
     return false;
   return (
     disposition.disposition !== "non-reference" ||
-    (yield* libraryNonReferenceContextValid(root, catalog, source, capture, disposition))
+    (yield* libraryNonReferenceContextValid(
+      root,
+      catalog,
+      source,
+      capture,
+      LibraryDispositionImportPayload.make(disposition)
+    ))
   );
 });

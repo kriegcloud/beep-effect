@@ -80,37 +80,43 @@ export const OntologyMetadataKind = LiteralKit(["ontology", "class", "datatypePr
 );
 export type OntologyMetadataKind = typeof OntologyMetadataKind.Type;
 
-export class OntologyDefinitionMetadata extends S.Class<OntologyDefinitionMetadata>($I`OntologyDefinitionMetadata`)(
-  {
+export class OntologyDefinitionMetadata extends S.Opaque<
+  OntologyDefinitionMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("ontology"),
     schemaIdentity: S.NonEmptyString,
     baseIri: IRI,
     preferredPrefix: S.NonEmptyString,
     label: S.NonEmptyString,
     comment: S.OptionFromOptionalKey(S.NonEmptyString),
-  },
-  $I.annote("OntologyDefinitionMetadata", {
-    description: "Ontology-level metadata for an assembled schema-backed ontology.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyDefinitionMetadata", {
+      description: "Ontology-level metadata for an assembled schema-backed ontology.",
+    })
+  )
 ) {}
 
-export class OntologyReference extends S.Class<OntologyReference>($I`OntologyReference`)(
-  {
+export class OntologyReference extends S.Opaque<OntologyReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     iri: IRI,
-  },
-  $I.annote("OntologyReference", {
-    description: "Normalized IRI reference used by assembled ontology metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyReference", {
+      description: "Normalized IRI reference used by assembled ontology metadata.",
+    })
+  )
 ) {}
 
-export class OntologyLanguageLiteral extends S.Class<OntologyLanguageLiteral>($I`OntologyLanguageLiteral`)(
-  {
+export class OntologyLanguageLiteral extends S.Opaque<OntologyLanguageLiteral, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.NonEmptyString,
     language: S.OptionFromOptionalKey(LanguageTag),
-  },
-  $I.annote("OntologyLanguageLiteral", {
-    description: "Language-aware literal used for SKOS labels and notes.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyLanguageLiteral", {
+      description: "Language-aware literal used for SKOS labels and notes.",
+    })
+  )
 ) {}
 
 export const OntologyProvenanceVerificationStatus = LiteralKit([
@@ -125,8 +131,11 @@ export const OntologyProvenanceVerificationStatus = LiteralKit([
 );
 export type OntologyProvenanceVerificationStatus = typeof OntologyProvenanceVerificationStatus.Type;
 
-export class OntologyProvenanceMetadata extends S.Class<OntologyProvenanceMetadata>($I`OntologyProvenanceMetadata`)(
-  {
+export class OntologyProvenanceMetadata extends S.Opaque<
+  OntologyProvenanceMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     sourceIri: S.OptionFromOptionalKey(IRI),
     sourceUri: S.OptionFromOptionalKey(URI),
     sourceLabel: S.OptionFromOptionalKey(S.NonEmptyString),
@@ -136,43 +145,54 @@ export class OntologyProvenanceMetadata extends S.Class<OntologyProvenanceMetada
     extractionMethod: S.OptionFromOptionalKey(S.NonEmptyString),
     verificationStatus: S.OptionFromOptionalKey(OntologyProvenanceVerificationStatus),
     updatedAt: S.OptionFromOptionalKey(S.NonEmptyString),
-  },
-  $I.annote("OntologyProvenanceMetadata", {
-    description: "Optional domain-agnostic source and curation metadata for ontology classes.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyProvenanceMetadata", {
+      description: "Optional domain-agnostic source and curation metadata for ontology classes.",
+    })
+  )
 ) {}
 
-export class OntologyIriReferenceTarget extends S.Class<OntologyIriReferenceTarget>($I`OntologyIriReferenceTarget`)(
-  {
+export class OntologyIriReferenceTarget extends S.Opaque<
+  OntologyIriReferenceTarget,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("iri"),
     iri: IRI,
-  },
-  $I.annote("OntologyIriReferenceTarget", {
-    description: "Deferred IRI reference target stored in class annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyIriReferenceTarget", {
+      description: "Deferred IRI reference target stored in class annotations.",
+    })
+  )
 ) {}
 
-export class OntologyTermReferenceTarget extends S.Class<OntologyTermReferenceTarget>($I`OntologyTermReferenceTarget`)(
-  {
+export class OntologyTermReferenceTarget extends S.Opaque<
+  OntologyTermReferenceTarget,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("term"),
     termName: OntologyTermName,
-  },
-  $I.annote("OntologyTermReferenceTarget", {
-    description: "Deferred local-term reference target stored in class annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyTermReferenceTarget", {
+      description: "Deferred local-term reference target stored in class annotations.",
+    })
+  )
 ) {}
 
-export class OntologySchemaReferenceTarget extends S.Class<OntologySchemaReferenceTarget>(
-  $I`OntologySchemaReferenceTarget`
-)(
-  {
+export class OntologySchemaReferenceTarget extends S.Opaque<
+  OntologySchemaReferenceTarget,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("schema"),
     schemaIdentity: S.OptionFromOptionalKey(S.NonEmptyString),
     identifier: S.OptionFromOptionalKey(S.NonEmptyString),
-  },
-  $I.annote("OntologySchemaReferenceTarget", {
-    description: "Deferred schema reference target resolved during ontology assembly.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySchemaReferenceTarget", {
+      description: "Deferred schema reference target resolved during ontology assembly.",
+    })
+  )
 ) {}
 
 export const OntologyReferenceTarget = S.Union([
@@ -187,8 +207,11 @@ export const OntologyReferenceTarget = S.Union([
 );
 export type OntologyReferenceTarget = typeof OntologyReferenceTarget.Type;
 
-export class OntologySkosConceptProfile extends S.Class<OntologySkosConceptProfile>($I`OntologySkosConceptProfile`)(
-  {
+export class OntologySkosConceptProfile extends S.Opaque<
+  OntologySkosConceptProfile,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("concept"),
     prefLabels: S.Array(OntologyLanguageLiteral),
     altLabels: S.Array(OntologyLanguageLiteral),
@@ -207,16 +230,18 @@ export class OntologySkosConceptProfile extends S.Class<OntologySkosConceptProfi
     relatedMatches: S.Array(OntologyReference),
     inSchemes: S.Array(OntologyReference),
     topConceptOf: S.Array(OntologyReference),
-  },
-  $I.annote("OntologySkosConceptProfile", {
-    description: "Opt-in SKOS concept profile metadata for an assembled ontology class.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySkosConceptProfile", {
+      description: "Opt-in SKOS concept profile metadata for an assembled ontology class.",
+    })
+  )
 ) {}
 
-export class OntologySkosConceptSchemeProfile extends S.Class<OntologySkosConceptSchemeProfile>(
-  $I`OntologySkosConceptSchemeProfile`
-)(
-  {
+export class OntologySkosConceptSchemeProfile extends S.Opaque<
+  OntologySkosConceptSchemeProfile,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("conceptScheme"),
     prefLabels: S.Array(OntologyLanguageLiteral),
     altLabels: S.Array(OntologyLanguageLiteral),
@@ -226,10 +251,11 @@ export class OntologySkosConceptSchemeProfile extends S.Class<OntologySkosConcep
     editorialNotes: S.Array(OntologyLanguageLiteral),
     historyNotes: S.Array(OntologyLanguageLiteral),
     hasTopConcepts: S.Array(OntologyReference),
-  },
-  $I.annote("OntologySkosConceptSchemeProfile", {
-    description: "Opt-in SKOS concept scheme profile metadata for an assembled ontology class.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySkosConceptSchemeProfile", {
+      description: "Opt-in SKOS concept scheme profile metadata for an assembled ontology class.",
+    })
+  )
 ) {}
 
 export const OntologySkosProfile = S.Union([OntologySkosConceptProfile, OntologySkosConceptSchemeProfile]).pipe(
@@ -240,10 +266,11 @@ export const OntologySkosProfile = S.Union([OntologySkosConceptProfile, Ontology
 );
 export type OntologySkosProfile = typeof OntologySkosProfile.Type;
 
-export class OntologySkosConceptProfileDraft extends S.Class<OntologySkosConceptProfileDraft>(
-  $I`OntologySkosConceptProfileDraft`
-)(
-  {
+export class OntologySkosConceptProfileDraft extends S.Opaque<
+  OntologySkosConceptProfileDraft,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("concept"),
     prefLabels: S.Array(OntologyLanguageLiteral),
     altLabels: S.Array(OntologyLanguageLiteral),
@@ -262,16 +289,18 @@ export class OntologySkosConceptProfileDraft extends S.Class<OntologySkosConcept
     relatedMatches: S.Array(OntologyReferenceTarget),
     inSchemes: S.Array(OntologyReferenceTarget),
     topConceptOf: S.Array(OntologyReferenceTarget),
-  },
-  $I.annote("OntologySkosConceptProfileDraft", {
-    description: "Unresolved SKOS concept profile metadata stored in schema annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySkosConceptProfileDraft", {
+      description: "Unresolved SKOS concept profile metadata stored in schema annotations.",
+    })
+  )
 ) {}
 
-export class OntologySkosConceptSchemeProfileDraft extends S.Class<OntologySkosConceptSchemeProfileDraft>(
-  $I`OntologySkosConceptSchemeProfileDraft`
-)(
-  {
+export class OntologySkosConceptSchemeProfileDraft extends S.Opaque<
+  OntologySkosConceptSchemeProfileDraft,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("conceptScheme"),
     prefLabels: S.Array(OntologyLanguageLiteral),
     altLabels: S.Array(OntologyLanguageLiteral),
@@ -281,10 +310,11 @@ export class OntologySkosConceptSchemeProfileDraft extends S.Class<OntologySkosC
     editorialNotes: S.Array(OntologyLanguageLiteral),
     historyNotes: S.Array(OntologyLanguageLiteral),
     hasTopConcepts: S.Array(OntologyReferenceTarget),
-  },
-  $I.annote("OntologySkosConceptSchemeProfileDraft", {
-    description: "Unresolved SKOS concept scheme profile metadata stored in schema annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologySkosConceptSchemeProfileDraft", {
+      description: "Unresolved SKOS concept scheme profile metadata stored in schema annotations.",
+    })
+  )
 ) {}
 
 export const OntologySkosProfileDraft = S.Union([
@@ -298,44 +328,51 @@ export const OntologySkosProfileDraft = S.Union([
 );
 export type OntologySkosProfileDraft = typeof OntologySkosProfileDraft.Type;
 
-export class OntologyJsonSchemaDocument extends S.Class<OntologyJsonSchemaDocument>($I`OntologyJsonSchemaDocument`)(
-  {
+export class OntologyJsonSchemaDocument extends S.Opaque<
+  OntologyJsonSchemaDocument,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dialect: S.Literal("draft-2020-12"),
     schema: S.Record(S.String, S.Unknown),
     definitions: S.Record(S.String, S.Record(S.String, S.Unknown)),
-  },
-  $I.annote("OntologyJsonSchemaDocument", {
-    description: "Effect-derived Draft 2020-12 JSON Schema document attached outside RDF projections.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyJsonSchemaDocument", {
+      description: "Effect-derived Draft 2020-12 JSON Schema document attached outside RDF projections.",
+    })
+  )
 ) {}
 
-export class OntologyJsonSchemaSidecarOptions extends S.Class<OntologyJsonSchemaSidecarOptions>(
-  $I`OntologyJsonSchemaSidecarOptions`
-)(
-  {
+export class OntologyJsonSchemaSidecarOptions extends S.Opaque<
+  OntologyJsonSchemaSidecarOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     additionalProperties: S.Boolean,
     generateDescriptions: S.Boolean,
     includedAnnotationKeys: S.Array(S.NonEmptyString),
-  },
-  $I.annote("OntologyJsonSchemaSidecarOptions", {
-    description: "Stable summary of the options used to derive a JSON Schema sidecar.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyJsonSchemaSidecarOptions", {
+      description: "Stable summary of the options used to derive a JSON Schema sidecar.",
+    })
+  )
 ) {}
 
-export class OntologyJsonSchemaSidecar extends S.Class<OntologyJsonSchemaSidecar>($I`OntologyJsonSchemaSidecar`)(
-  {
+export class OntologyJsonSchemaSidecar extends S.Opaque<OntologyJsonSchemaSidecar, { readonly brand: unique symbol }>()(
+  S.Struct({
     classIri: IRI,
     schemaIdentity: S.NonEmptyString,
     document: OntologyJsonSchemaDocument,
     options: OntologyJsonSchemaSidecarOptions,
-  },
-  $I.annote("OntologyJsonSchemaSidecar", {
-    description: "Non-RDF JSON Schema sidecar attached to an assembled ontology class.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyJsonSchemaSidecar", {
+      description: "Non-RDF JSON Schema sidecar attached to an assembled ontology class.",
+    })
+  )
 ) {}
 
-export class OntologyClassMetadata extends S.Class<OntologyClassMetadata>($I`OntologyClassMetadata`)(
-  {
+export class OntologyClassMetadata extends S.Opaque<OntologyClassMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("class"),
     schemaIdentity: S.NonEmptyString,
     termName: OntologyTermName,
@@ -356,16 +393,18 @@ export class OntologyClassMetadata extends S.Class<OntologyClassMetadata>($I`Ont
     sameAs: S.Array(OntologyReference),
     skosProfile: S.OptionFromOptionalKey(OntologySkosProfile),
     provenance: S.OptionFromOptionalKey(OntologyProvenanceMetadata),
-  },
-  $I.annote("OntologyClassMetadata", {
-    description: "Final class metadata attached to an assembled ontology class.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyClassMetadata", {
+      description: "Final class metadata attached to an assembled ontology class.",
+    })
+  )
 ) {}
 
-export class OntologyDatatypePredicateMetadata extends S.Class<OntologyDatatypePredicateMetadata>(
-  $I`OntologyDatatypePredicateMetadata`
-)(
-  {
+export class OntologyDatatypePredicateMetadata extends S.Opaque<
+  OntologyDatatypePredicateMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("datatypePredicate"),
     schemaIdentity: S.NonEmptyString,
     termName: OntologyTermName,
@@ -373,16 +412,18 @@ export class OntologyDatatypePredicateMetadata extends S.Class<OntologyDatatypeP
     label: S.NonEmptyString,
     comment: S.OptionFromOptionalKey(S.NonEmptyString),
     rangeDatatypeIri: IRI,
-  },
-  $I.annote("OntologyDatatypePredicateMetadata", {
-    description: "Final datatype predicate metadata attached to an Effect Schema key.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyDatatypePredicateMetadata", {
+      description: "Final datatype predicate metadata attached to an Effect Schema key.",
+    })
+  )
 ) {}
 
-export class OntologyObjectPredicateMetadata extends S.Class<OntologyObjectPredicateMetadata>(
-  $I`OntologyObjectPredicateMetadata`
-)(
-  {
+export class OntologyObjectPredicateMetadata extends S.Opaque<
+  OntologyObjectPredicateMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("objectPredicate"),
     schemaIdentity: S.NonEmptyString,
     termName: OntologyTermName,
@@ -390,10 +431,11 @@ export class OntologyObjectPredicateMetadata extends S.Class<OntologyObjectPredi
     label: S.NonEmptyString,
     comment: S.OptionFromOptionalKey(S.NonEmptyString),
     rangeClassIri: IRI,
-  },
-  $I.annote("OntologyObjectPredicateMetadata", {
-    description: "Final object predicate metadata attached to an Effect Schema key.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyObjectPredicateMetadata", {
+      description: "Final object predicate metadata attached to an Effect Schema key.",
+    })
+  )
 ) {}
 
 export const OntologyPredicateMetadata = S.Union([
@@ -407,10 +449,11 @@ export const OntologyPredicateMetadata = S.Union([
 );
 export type OntologyPredicateMetadata = typeof OntologyPredicateMetadata.Type;
 
-export class OntologyClassAnnotationDraft extends S.Class<OntologyClassAnnotationDraft>(
-  $I`OntologyClassAnnotationDraft`
-)(
-  {
+export class OntologyClassAnnotationDraft extends S.Opaque<
+  OntologyClassAnnotationDraft,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("classDraft"),
     termName: S.OptionFromOptionalKey(OntologyTermName),
     iri: S.OptionFromOptionalKey(IRI),
@@ -431,16 +474,18 @@ export class OntologyClassAnnotationDraft extends S.Class<OntologyClassAnnotatio
     sameAs: S.Array(OntologyReferenceTarget),
     skosProfile: S.OptionFromOptionalKey(OntologySkosProfileDraft),
     provenance: S.OptionFromOptionalKey(OntologyProvenanceMetadata),
-  },
-  $I.annote("OntologyClassAnnotationDraft", {
-    description: "Class authoring metadata draft stored directly in schema annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyClassAnnotationDraft", {
+      description: "Class authoring metadata draft stored directly in schema annotations.",
+    })
+  )
 ) {}
 
-export class OntologyDatatypePredicateAnnotationDraft extends S.Class<OntologyDatatypePredicateAnnotationDraft>(
-  $I`OntologyDatatypePredicateAnnotationDraft`
-)(
-  {
+export class OntologyDatatypePredicateAnnotationDraft extends S.Opaque<
+  OntologyDatatypePredicateAnnotationDraft,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("datatypePredicateDraft"),
     termName: S.OptionFromOptionalKey(OntologyTermName),
     iri: S.OptionFromOptionalKey(IRI),
@@ -448,16 +493,18 @@ export class OntologyDatatypePredicateAnnotationDraft extends S.Class<OntologyDa
     description: S.OptionFromOptionalKey(S.NonEmptyString),
     comment: S.OptionFromOptionalKey(S.NonEmptyString),
     rangeDatatypeIri: IRI,
-  },
-  $I.annote("OntologyDatatypePredicateAnnotationDraft", {
-    description: "Datatype predicate authoring metadata draft stored in key annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyDatatypePredicateAnnotationDraft", {
+      description: "Datatype predicate authoring metadata draft stored in key annotations.",
+    })
+  )
 ) {}
 
-export class OntologyObjectPredicateAnnotationDraft extends S.Class<OntologyObjectPredicateAnnotationDraft>(
-  $I`OntologyObjectPredicateAnnotationDraft`
-)(
-  {
+export class OntologyObjectPredicateAnnotationDraft extends S.Opaque<
+  OntologyObjectPredicateAnnotationDraft,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("objectPredicateDraft"),
     termName: S.OptionFromOptionalKey(OntologyTermName),
     iri: S.OptionFromOptionalKey(IRI),
@@ -465,10 +512,11 @@ export class OntologyObjectPredicateAnnotationDraft extends S.Class<OntologyObje
     description: S.OptionFromOptionalKey(S.NonEmptyString),
     comment: S.OptionFromOptionalKey(S.NonEmptyString),
     rangeClass: OntologyReferenceTarget,
-  },
-  $I.annote("OntologyObjectPredicateAnnotationDraft", {
-    description: "Object predicate authoring metadata draft stored in key annotations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyObjectPredicateAnnotationDraft", {
+      description: "Object predicate authoring metadata draft stored in key annotations.",
+    })
+  )
 ) {}
 
 export const OntologyPredicateAnnotationDraft = S.Union([
@@ -641,31 +689,36 @@ export const OntologyValidationIssueCode = LiteralKit([
 );
 export type OntologyValidationIssueCode = typeof OntologyValidationIssueCode.Type;
 
-export class OntologyValidationIssue extends S.Class<OntologyValidationIssue>($I`OntologyValidationIssue`)(
-  {
+export class OntologyValidationIssue extends S.Opaque<OntologyValidationIssue, { readonly brand: unique symbol }>()(
+  S.Struct({
     severity: OntologyValidationIssueSeverity,
     code: OntologyValidationIssueCode,
     message: S.NonEmptyString,
     classIri: S.OptionFromOptionalKey(IRI),
     schemaIdentity: S.OptionFromOptionalKey(S.NonEmptyString),
-  },
-  $I.annote("OntologyValidationIssue", {
-    description: "Profile validation issue produced while assembling an ontology.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyValidationIssue", {
+      description: "Profile validation issue produced while assembling an ontology.",
+    })
+  )
 ) {}
 
-export class OntologyValidationReport extends S.Class<OntologyValidationReport>($I`OntologyValidationReport`)(
-  {
+export class OntologyValidationReport extends S.Opaque<OntologyValidationReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     errors: S.Array(OntologyValidationIssue),
     warnings: S.Array(OntologyValidationIssue),
-  },
-  $I.annote("OntologyValidationReport", {
-    description: "Validation report attached to an assembled ontology.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyValidationReport", {
+      description: "Validation report attached to an assembled ontology.",
+    })
+  )
 ) {}
 
-export class AssembledDatatypePredicate extends S.Class<AssembledDatatypePredicate>($I`AssembledDatatypePredicate`)(
-  {
+export class AssembledDatatypePredicate extends S.Opaque<
+  AssembledDatatypePredicate,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("datatypePredicate"),
     schemaIdentity: S.NonEmptyString,
     fieldName: S.NonEmptyString,
@@ -675,14 +728,15 @@ export class AssembledDatatypePredicate extends S.Class<AssembledDatatypePredica
     comment: S.OptionFromOptionalKey(S.NonEmptyString),
     domainClassIri: IRI,
     rangeDatatypeIri: IRI,
-  },
-  $I.annote("AssembledDatatypePredicate", {
-    description: "Assembled datatype predicate with its owning class domain attached.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssembledDatatypePredicate", {
+      description: "Assembled datatype predicate with its owning class domain attached.",
+    })
+  )
 ) {}
 
-export class AssembledObjectPredicate extends S.Class<AssembledObjectPredicate>($I`AssembledObjectPredicate`)(
-  {
+export class AssembledObjectPredicate extends S.Opaque<AssembledObjectPredicate, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("objectPredicate"),
     schemaIdentity: S.NonEmptyString,
     fieldName: S.NonEmptyString,
@@ -692,10 +746,11 @@ export class AssembledObjectPredicate extends S.Class<AssembledObjectPredicate>(
     comment: S.OptionFromOptionalKey(S.NonEmptyString),
     domainClassIri: IRI,
     rangeClassIri: IRI,
-  },
-  $I.annote("AssembledObjectPredicate", {
-    description: "Assembled object predicate with its owning class domain attached.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssembledObjectPredicate", {
+      description: "Assembled object predicate with its owning class domain attached.",
+    })
+  )
 ) {}
 
 export const AssembledOntologyPredicate = S.Union([AssembledDatatypePredicate, AssembledObjectPredicate]).pipe(
@@ -706,8 +761,8 @@ export const AssembledOntologyPredicate = S.Union([AssembledDatatypePredicate, A
 );
 export type AssembledOntologyPredicate = typeof AssembledOntologyPredicate.Type;
 
-export class AssembledOntologyClass extends S.Class<AssembledOntologyClass>($I`AssembledOntologyClass`)(
-  {
+export class AssembledOntologyClass extends S.Opaque<AssembledOntologyClass, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaIdentity: S.NonEmptyString,
     termName: OntologyTermName,
     iri: IRI,
@@ -729,41 +784,45 @@ export class AssembledOntologyClass extends S.Class<AssembledOntologyClass>($I`A
     provenance: S.OptionFromOptionalKey(OntologyProvenanceMetadata),
     jsonSchemaSidecar: S.OptionFromOptionalKey(OntologyJsonSchemaSidecar),
     predicates: S.Array(AssembledOntologyPredicate),
-  },
-  $I.annote("AssembledOntologyClass", {
-    description: "Assembled ontology class with collected field predicates.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssembledOntologyClass", {
+      description: "Assembled ontology class with collected field predicates.",
+    })
+  )
 ) {}
 
-export class AssembledOntology extends S.Class<AssembledOntology>($I`AssembledOntology`)(
-  {
+export class AssembledOntology extends S.Opaque<AssembledOntology, { readonly brand: unique symbol }>()(
+  S.Struct({
     metadata: OntologyDefinitionMetadata,
     classes: S.NonEmptyArray(AssembledOntologyClass),
     validation: OntologyValidationReport,
-  },
-  $I.annote("AssembledOntology", {
-    description: "Normalized schema-backed ontology assembled from annotated Effect schemas.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssembledOntology", {
+      description: "Normalized schema-backed ontology assembled from annotated Effect schemas.",
+    })
+  )
 ) {}
 
-export class JsonLdTermBinding extends S.Class<JsonLdTermBinding>($I`JsonLdTermBinding`)(
-  {
+export class JsonLdTermBinding extends S.Opaque<JsonLdTermBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@id": IRI,
     "@type": S.OptionFromOptionalKey(S.Union([IRI, S.Literal("@id")])),
-  },
-  $I.annote("JsonLdTermBinding", {
-    description: "JSON-LD term binding emitted by ontology projections.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdTermBinding", {
+      description: "JSON-LD term binding emitted by ontology projections.",
+    })
+  )
 ) {}
 
-export class JsonLdReverseTermBinding extends S.Class<JsonLdReverseTermBinding>($I`JsonLdReverseTermBinding`)(
-  {
+export class JsonLdReverseTermBinding extends S.Opaque<JsonLdReverseTermBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@reverse": IRI,
     "@type": S.OptionFromOptionalKey(S.Literal("@id")),
-  },
-  $I.annote("JsonLdReverseTermBinding", {
-    description: "JSON-LD reverse term binding emitted by ontology projections.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdReverseTermBinding", {
+      description: "JSON-LD reverse term binding emitted by ontology projections.",
+    })
+  )
 ) {}
 
 export const JsonLdContextValue = S.Union([IRI, JsonLdTermBinding, JsonLdReverseTermBinding]).pipe(
@@ -773,32 +832,35 @@ export const JsonLdContextValue = S.Union([IRI, JsonLdTermBinding, JsonLdReverse
 );
 export type JsonLdContextValue = typeof JsonLdContextValue.Type;
 
-export class JsonLdContextDocument extends S.Class<JsonLdContextDocument>($I`JsonLdContextDocument`)(
-  {
+export class JsonLdContextDocument extends S.Opaque<JsonLdContextDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@context": S.Record(S.String, JsonLdContextValue),
-  },
-  $I.annote("JsonLdContextDocument", {
-    description: "Normalized JSON-LD context document emitted by ontology projections.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdContextDocument", {
+      description: "Normalized JSON-LD context document emitted by ontology projections.",
+    })
+  )
 ) {}
 
-export class JsonLdIdReference extends S.Class<JsonLdIdReference>($I`JsonLdIdReference`)(
-  {
+export class JsonLdIdReference extends S.Opaque<JsonLdIdReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@id": IRI,
-  },
-  $I.annote("JsonLdIdReference", {
-    description: "JSON-LD `@id` reference used inside graph nodes.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdIdReference", {
+      description: "JSON-LD `@id` reference used inside graph nodes.",
+    })
+  )
 ) {}
 
-export class JsonLdLanguageLiteral extends S.Class<JsonLdLanguageLiteral>($I`JsonLdLanguageLiteral`)(
-  {
+export class JsonLdLanguageLiteral extends S.Opaque<JsonLdLanguageLiteral, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@value": S.NonEmptyString,
     "@language": S.OptionFromOptionalKey(LanguageTag),
-  },
-  $I.annote("JsonLdLanguageLiteral", {
-    description: "JSON-LD language literal emitted for SKOS labels and notes.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdLanguageLiteral", {
+      description: "JSON-LD language literal emitted for SKOS labels and notes.",
+    })
+  )
 ) {}
 
 export const JsonLdLabelValue = S.Union([S.NonEmptyString, JsonLdLanguageLiteral]).pipe(
@@ -825,8 +887,8 @@ export const JsonLdDefinitionValue = S.Union([S.NonEmptyString, S.Array(JsonLdLa
 );
 export type JsonLdDefinitionValue = typeof JsonLdDefinitionValue.Type;
 
-export class JsonLdClassNode extends S.Class<JsonLdClassNode>($I`JsonLdClassNode`)(
-  {
+export class JsonLdClassNode extends S.Opaque<JsonLdClassNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@id": IRI,
     "@type": JsonLdClassType,
     schemaIdentity: S.NonEmptyString,
@@ -860,14 +922,15 @@ export class JsonLdClassNode extends S.Class<JsonLdClassNode>($I`JsonLdClassNode
     "skos:closeMatch": S.Array(JsonLdIdReference),
     "owl:sameAs": S.Array(JsonLdIdReference),
     provenance: S.OptionFromOptionalKey(OntologyProvenanceMetadata),
-  },
-  $I.annote("JsonLdClassNode", {
-    description: "JSON-LD class node emitted by ontology projections.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdClassNode", {
+      description: "JSON-LD class node emitted by ontology projections.",
+    })
+  )
 ) {}
 
-export class JsonLdPredicateNode extends S.Class<JsonLdPredicateNode>($I`JsonLdPredicateNode`)(
-  {
+export class JsonLdPredicateNode extends S.Opaque<JsonLdPredicateNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@id": IRI,
     "@type": S.Union([S.Literal("owl:DatatypeProperty"), S.Literal("owl:ObjectProperty")]),
     kind: S.Union([S.Literal("datatypePredicate"), S.Literal("objectPredicate")]),
@@ -878,10 +941,11 @@ export class JsonLdPredicateNode extends S.Class<JsonLdPredicateNode>($I`JsonLdP
     "rdfs:comment": S.OptionFromOptionalKey(S.NonEmptyString),
     "rdfs:domain": JsonLdIdReference,
     "rdfs:range": JsonLdIdReference,
-  },
-  $I.annote("JsonLdPredicateNode", {
-    description: "JSON-LD predicate node emitted by ontology projections.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdPredicateNode", {
+      description: "JSON-LD predicate node emitted by ontology projections.",
+    })
+  )
 ) {}
 
 export const JsonLdGraphNode = S.Union([JsonLdClassNode, JsonLdPredicateNode]).pipe(
@@ -891,8 +955,8 @@ export const JsonLdGraphNode = S.Union([JsonLdClassNode, JsonLdPredicateNode]).p
 );
 export type JsonLdGraphNode = typeof JsonLdGraphNode.Type;
 
-export class JsonLdOntologyDocument extends S.Class<JsonLdOntologyDocument>($I`JsonLdOntologyDocument`)(
-  {
+export class JsonLdOntologyDocument extends S.Opaque<JsonLdOntologyDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     "@context": S.Record(S.String, JsonLdContextValue),
     "@id": IRI,
     schemaIdentity: S.NonEmptyString,
@@ -900,10 +964,11 @@ export class JsonLdOntologyDocument extends S.Class<JsonLdOntologyDocument>($I`J
     label: S.NonEmptyString,
     comment: S.OptionFromOptionalKey(S.NonEmptyString),
     "@graph": S.Array(JsonLdGraphNode),
-  },
-  $I.annote("JsonLdOntologyDocument", {
-    description: "JSON-LD ontology document emitted by ontology projections.",
-  })
+  }).pipe(
+    $I.annoteSchema("JsonLdOntologyDocument", {
+      description: "JSON-LD ontology document emitted by ontology projections.",
+    })
+  )
 ) {}
 
 export const isJsonLdClassNode = S.is(JsonLdClassNode);

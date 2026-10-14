@@ -37,6 +37,7 @@ import {
   verifyFrozenGrantSetDigest,
   verifyOutcomeBinding,
 } from "@beep/epistemic-domain";
+import { SystemPrincipal } from "@beep/shared-domain/entity/Principal";
 import { it } from "@beep/test-runner";
 import { fcRuns } from "@beep/test-utils";
 import { describe, expect } from "@effect/vitest";
@@ -180,7 +181,7 @@ describe("ExecutionAuthority", () => {
           ),
           "principal-not-granted": evaluateExecutionRequest(
             frozen,
-            request({ principal: { component: "Policy", kind: "System" } }),
+            request({ principal: SystemPrincipal.make({ component: "Policy", kind: "System" }) }),
             evaluationOptions(now, revision)
           ),
           "operation-not-granted": evaluateExecutionRequest(

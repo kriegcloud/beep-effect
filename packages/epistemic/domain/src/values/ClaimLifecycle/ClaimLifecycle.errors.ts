@@ -27,7 +27,9 @@ const $I = $EpistemicDomainId.create("values/ClaimLifecycle/ClaimLifecycle.error
  * @category errors
  * @since 0.0.0
  */
-export class ClaimInvalidTransition extends S.TaggedError<ClaimInvalidTransition>($I`ClaimInvalidTransition`)(
+export class ClaimInvalidTransition extends S.TaggedError<ClaimInvalidTransition, { readonly brand: unique symbol }>(
+  $I`ClaimInvalidTransition`
+)(
   "ClaimInvalidTransition",
   {
     from: ClaimLifecycle,

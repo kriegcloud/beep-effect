@@ -66,18 +66,19 @@ export type MeteredProvider = typeof MeteredProvider.Type;
  * @category models
  * @since 0.0.0
  */
-export class ProviderCalls extends S.Class<ProviderCalls>($I`ProviderCalls`)(
-  {
+export class ProviderCalls extends S.Opaque<ProviderCalls, { readonly brand: unique symbol }>()(
+  S.Struct({
     provider: MeteredProvider.annotateKey({
       description: "Provider the calls went to.",
     }),
     calls: S.Natural.annotateKey({
       description: "Number of API calls made.",
     }),
-  },
-  $I.annote("ProviderCalls", {
-    description: "A number of API calls just made to one provider.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProviderCalls", {
+      description: "A number of API calls just made to one provider.",
+    })
+  )
 ) {}
 
 /**
@@ -101,8 +102,8 @@ export class ProviderCalls extends S.Class<ProviderCalls>($I`ProviderCalls`)(
  * @category models
  * @since 0.0.0
  */
-export class ProviderCallLedgerLine extends S.Class<ProviderCallLedgerLine>($I`ProviderCallLedgerLine`)(
-  {
+export class ProviderCallLedgerLine extends S.Opaque<ProviderCallLedgerLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     workstream: S.Literal("email-tagging")
       .pipe(S.withConstructorDefault(Effect.succeed("email-tagging")))
       .annotateKey({
@@ -122,10 +123,11 @@ export class ProviderCallLedgerLine extends S.Class<ProviderCallLedgerLine>($I`P
       .annotateKey({
         description: "Whether the count is exact rather than estimated; this adapter counts every call.",
       }),
-  },
-  $I.annote("ProviderCallLedgerLine", {
-    description: "One run's API-call spend in the shared Box call ledger.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProviderCallLedgerLine", {
+      description: "One run's API-call spend in the shared Box call ledger.",
+    })
+  )
 ) {}
 
 /**
@@ -173,8 +175,8 @@ export type ProviderCallLedgerJsonLine = typeof ProviderCallLedgerJsonLine.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class BoxCallLedgerConfig extends S.Class<BoxCallLedgerConfig>($I`BoxCallLedgerConfig`)(
-  {
+export class BoxCallLedgerConfig extends S.Opaque<BoxCallLedgerConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.annotateKey({
       description: "Full path of the shared Box API-call JSONL ledger.",
     }),
@@ -184,10 +186,11 @@ export class BoxCallLedgerConfig extends S.Class<BoxCallLedgerConfig>($I`BoxCall
     ).annotateKey({
       description: "Label the run's ledger line carries; defaults to the service name.",
     }),
-  },
-  $I.annote("BoxCallLedgerConfig", {
-    description: "Location of the shared Box API-call ledger and this run's label.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxCallLedgerConfig", {
+      description: "Location of the shared Box API-call ledger and this run's label.",
+    })
+  )
 ) {}
 
 /**

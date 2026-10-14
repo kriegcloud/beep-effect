@@ -121,10 +121,11 @@ const DuckDbErrorTrailingContextFields = {
  * @category errors
  * @since 0.0.0
  */
-export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknownOptions>(
-  $I`DuckDbErrorFromUnknownOptions`
-)(
-  {
+export class DuckDbErrorFromUnknownOptions extends S.Opaque<
+  DuckDbErrorFromUnknownOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...DuckDbErrorLeadingContextFields,
     message: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("DuckDB operation failed.")),
@@ -133,10 +134,11 @@ export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknow
       description: "Human-readable failure summary.",
     }),
     ...DuckDbErrorTrailingContextFields,
-  },
-  $I.annote("DuckDbErrorFromUnknownOptions", {
-    description: "Options used when normalizing unknown DuckDB boundary failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("DuckDbErrorFromUnknownOptions", {
+      description: "Options used when normalizing unknown DuckDB boundary failures.",
+    })
+  )
 ) {}
 
 /**
@@ -169,7 +171,7 @@ export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknow
  * @category errors
  * @since 0.0.0
  */
-export class DuckDbError extends S.TaggedError<DuckDbError>($I`DuckDbError`)(
+export class DuckDbError extends S.TaggedError<DuckDbError, { readonly brand: unique symbol }>($I`DuckDbError`)(
   "DuckDbError",
   {
     ...DuckDbErrorLeadingContextFields,

@@ -141,9 +141,10 @@ const $I = {
  * @since 0.0.0
  * @category error-handling
  */
-export class IdentityInterpolationError extends S.TaggedError<IdentityInterpolationError>(
-  "@beep/identity/errors/IdentityInterpolationError"
-)(
+export class IdentityInterpolationError extends S.TaggedError<
+  IdentityInterpolationError,
+  { readonly brand: unique symbol }
+>("@beep/identity/errors/IdentityInterpolationError")(
   "IdentityInterpolationError",
   {},
   $I.annoteError<IdentityInterpolationError>("@beep/identity/errors/IdentityInterpolationError", {
@@ -174,9 +175,10 @@ export class IdentityInterpolationError extends S.TaggedError<IdentityInterpolat
  * @since 0.0.0
  * @category error-handling
  */
-export class IdentitySegmentCountError extends S.TaggedError<IdentitySegmentCountError>(
-  "@beep/identity/errors/IdentitySegmentCountError"
-)(
+export class IdentitySegmentCountError extends S.TaggedError<
+  IdentitySegmentCountError,
+  { readonly brand: unique symbol }
+>("@beep/identity/errors/IdentitySegmentCountError")(
   "IdentitySegmentCountError",
   {},
   $I.annoteError<IdentitySegmentCountError>("@beep/identity/errors/IdentitySegmentCountError", {

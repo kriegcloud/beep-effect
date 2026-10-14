@@ -45,7 +45,7 @@ const $I = $ScratchpadId.create("effected/runner/Catalog");
  * @category models
  * @since 0.0.0
  */
-export class CatalogEntry extends S.Class<CatalogEntry>($I`CatalogEntry`)(
+export class CatalogEntry extends S.Class<CatalogEntry, { readonly brand: unique symbol }>($I`CatalogEntry`)(
   {
     module: ModuleName,
     wave: S.Int,

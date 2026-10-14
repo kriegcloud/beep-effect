@@ -41,7 +41,9 @@ const ThreadStoreErrorReason = S.NonEmptyString.pipe(
  * @category errors
  * @since 0.0.0
  */
-export class ThreadStoreNotFound extends S.TaggedError<ThreadStoreNotFound>($I`ThreadStoreNotFound`)(
+export class ThreadStoreNotFound extends S.TaggedError<ThreadStoreNotFound, { readonly brand: unique symbol }>(
+  $I`ThreadStoreNotFound`
+)(
   "ThreadStoreNotFound",
   {
     threadId: WorkspaceIdentity.ThreadId.annotateKey({
@@ -77,7 +79,9 @@ export class ThreadStoreNotFound extends S.TaggedError<ThreadStoreNotFound>($I`T
  * @category errors
  * @since 0.0.0
  */
-export class ThreadStoreConflict extends S.TaggedError<ThreadStoreConflict>($I`ThreadStoreConflict`)(
+export class ThreadStoreConflict extends S.TaggedError<ThreadStoreConflict, { readonly brand: unique symbol }>(
+  $I`ThreadStoreConflict`
+)(
   "ThreadStoreConflict",
   {
     threadId: WorkspaceIdentity.ThreadId.annotateKey({
@@ -108,7 +112,9 @@ export class ThreadStoreConflict extends S.TaggedError<ThreadStoreConflict>($I`T
  * @category errors
  * @since 0.0.0
  */
-export class ThreadStoreUnavailable extends S.TaggedError<ThreadStoreUnavailable>($I`ThreadStoreUnavailable`)(
+export class ThreadStoreUnavailable extends S.TaggedError<ThreadStoreUnavailable, { readonly brand: unique symbol }>(
+  $I`ThreadStoreUnavailable`
+)(
   "ThreadStoreUnavailable",
   {
     reason: ThreadStoreErrorReason.annotateKey({

@@ -12,16 +12,17 @@ import { MediaType } from "@/schema/MediaType";
 
 const $I = $SemanticaId.create("schema/Document");
 
-class W1PaperOrigin extends S.Class<W1PaperOrigin>($I`W1PaperOrigin`)(
-  {
+class W1PaperOrigin extends S.Opaque<W1PaperOrigin, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("W1Paper"),
     corpusId: S.NonEmptyString,
     paperId: CorpusPaperId,
     relativePath: S.NonEmptyString,
-  },
-  $I.annote("W1PaperOrigin", {
-    description: "Manifest-backed origin for one W1 academia paper.",
-  })
+  }).pipe(
+    $I.annoteSchema("W1PaperOrigin", {
+      description: "Manifest-backed origin for one W1 academia paper.",
+    })
+  )
 ) {}
 
 const FixtureDeclarationFields = S.Struct({
@@ -59,23 +60,25 @@ const FixtureDeclarationCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class FixtureDeclaration extends S.Class<FixtureDeclaration>($I`FixtureDeclaration`)(
-  FixtureDeclarationFields.check(FixtureDeclarationCheck),
-  $I.annote("FixtureDeclaration", {
-    description: "Fixture parse expectation and optional declared degradation copied into source provenance.",
-  })
+export class FixtureDeclaration extends S.Opaque<FixtureDeclaration, { readonly brand: unique symbol }>()(
+  FixtureDeclarationFields.check(FixtureDeclarationCheck).pipe(
+    $I.annoteSchema("FixtureDeclaration", {
+      description: "Fixture parse expectation and optional declared degradation copied into source provenance.",
+    })
+  )
 ) {}
 
-class FixtureOrigin extends S.Class<FixtureOrigin>($I`FixtureOrigin`)(
-  {
+class FixtureOrigin extends S.Opaque<FixtureOrigin, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("Fixture"),
     fixtureId: F1FixtureId,
     relativePath: S.NonEmptyString,
     declared: FixtureDeclaration,
-  },
-  $I.annote("FixtureOrigin", {
-    description: "Committed synthetic F1 fixture origin.",
-  })
+  }).pipe(
+    $I.annoteSchema("FixtureOrigin", {
+      description: "Committed synthetic F1 fixture origin.",
+    })
+  )
 ) {}
 
 const OriginKind = LiteralKit(["W1Paper", "Fixture"]);
@@ -167,9 +170,12 @@ const SourceDocumentIdentityCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class SourceDocument extends S.Class<SourceDocument>($I`SourceDocument`)(
-  SourceDocumentFields.mapFields(identity).check(SourceDocumentIdentityCheck),
-  $I.annote("SourceDocument", {
-    description: "Full byte identity, media type, origin, size, and ingest event for one source document.",
-  })
+export class SourceDocument extends S.Opaque<SourceDocument, { readonly brand: unique symbol }>()(
+  SourceDocumentFields.mapFields(identity)
+    .check(SourceDocumentIdentityCheck)
+    .pipe(
+      $I.annoteSchema("SourceDocument", {
+        description: "Full byte identity, media type, origin, size, and ingest event for one source document.",
+      })
+    )
 ) {}

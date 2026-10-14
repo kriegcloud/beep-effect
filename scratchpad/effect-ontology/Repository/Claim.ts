@@ -101,8 +101,7 @@ export type PersistedCorrectionId = CorrectionRow["id"];
  * @category models
  * @since 0.0.0
  */
-export class ClaimFilter extends S.Class<ClaimFilter>($I`ClaimFilter`)(
-  {
+export class ClaimFilter extends S.Opaque<ClaimFilter, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString,
     articleId: S.optionalKey(S.NonEmptyString),
     subjectIri: S.optionalKey(S.NonEmptyString),
@@ -111,11 +110,9 @@ export class ClaimFilter extends S.Class<ClaimFilter>($I`ClaimFilter`)(
     includeDeprecated: S.optionalKey(S.Boolean),
     limit: S.optionalKey(PosInt),
     offset: S.optionalKey(S.Natural),
-  },
-  $I.annote("ClaimFilter", {
+  }).pipe($I.annoteSchema("ClaimFilter", {
     description: "Ontology-scoped persisted-claim filters with bounded pagination fields.",
-  })
-) {}
+  }))) {}
 
 /**
  * Persisted claim paired with the detected conflict kind, returned as a
@@ -134,15 +131,12 @@ export class ClaimFilter extends S.Class<ClaimFilter>($I`ClaimFilter`)(
  * @category models
  * @since 0.0.0
  */
-export class ConflictCandidate extends S.Class<ConflictCandidate>($I`ConflictCandidate`)(
-  {
+export class ConflictCandidate extends S.Opaque<ConflictCandidate, { readonly brand: unique symbol }>()(S.Struct({
     existingClaim: Claims.select,
     conflictType: S.Literals(["position", "temporal"]),
-  },
-  $I.annote("ConflictCandidate", {
+  }).pipe($I.annoteSchema("ConflictCandidate", {
     description: "Persisted claim paired with the authoritative detected conflict kind.",
-  })
-) {}
+  }))) {}
 
 /**
  * Joined correction record and the persisted claim identifiers it links.
@@ -174,16 +168,13 @@ export class ConflictCandidate extends S.Class<ConflictCandidate>($I`ConflictCan
  * @category models
  * @since 0.0.0
  */
-export class CorrectionChainEntry extends S.Class<CorrectionChainEntry>($I`CorrectionChainEntry`)(
-  {
+export class CorrectionChainEntry extends S.Opaque<CorrectionChainEntry, { readonly brand: unique symbol }>()(S.Struct({
     correction: Corrections.select,
     originalClaimId: UUID,
     newClaimId: S.OptionFromNullishOr(UUID).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("CorrectionChainEntry", {
+  }).pipe($I.annoteSchema("CorrectionChainEntry", {
     description: "Correction metadata joined to its original and optional replacement persisted claim identifiers.",
-  })
-) {}
+  }))) {}
 
 const CorrectionChainEntryRows = CorrectionChainEntry.pipe(S.Array, S.mutable);
 const decodeCorrectionChainEntries = (rows: unknown) =>

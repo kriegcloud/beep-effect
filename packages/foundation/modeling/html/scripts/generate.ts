@@ -49,7 +49,9 @@ import { toAsciiLowerCase } from "../src/internal/Html.ascii.ts";
 
 const $I = $HtmlId.create("scripts/generate");
 
-class HtmlGenerationError extends S.TaggedError<HtmlGenerationError>($I`HtmlGenerationError`)(
+class HtmlGenerationError extends S.TaggedError<HtmlGenerationError, { readonly brand: unique symbol }>(
+  $I`HtmlGenerationError`
+)(
   "HtmlGenerationError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent), S.optionalKey),
@@ -494,8 +496,8 @@ const AttributeSpec = S.Struct({
 type AttributeSpec = typeof AttributeSpec.Type;
 
 /** A single webref definition entry from `ed/dfns/html.json`. */
-class Dfn extends S.Class<Dfn>($I`Dfn`)(
-  {
+class Dfn extends S.Opaque<Dfn, { readonly brand: unique symbol }>()(
+  S.Struct({
     access: S.Unknown.pipe(S.optionalKey),
     definedIn: S.Unknown.pipe(S.optionalKey),
     for: S.Array(S.String).pipe(S.optionalKey),
@@ -507,87 +509,91 @@ class Dfn extends S.Class<Dfn>($I`Dfn`)(
     linkingText: S.Array(S.String),
     localLinkingText: S.Unknown.pipe(S.optionalKey),
     type: S.String,
-  },
-  $I.annote("Dfn", { description: "A single webref definition entry from ed/dfns/html.json." })
+  }).pipe($I.annoteSchema("Dfn", { description: "A single webref definition entry from ed/dfns/html.json." }))
 ) {}
 
-class WebrefElement extends S.Class<WebrefElement>($I`WebrefElement`)(
-  {
+class WebrefElement extends S.Opaque<WebrefElement, { readonly brand: unique symbol }>()(
+  S.Struct({
     href: S.String,
     interface: S.String,
     name: S.String,
-  },
-  $I.annote("WebrefElement", { description: "A single webref element-index entry." })
+  }).pipe($I.annoteSchema("WebrefElement", { description: "A single webref element-index entry." }))
 ) {}
 
-class ContentModelEntry extends S.Class<ContentModelEntry>($I`ContentModelEntry`)(
-  {
+class ContentModelEntry extends S.Opaque<ContentModelEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: S.Array(S.String).pipe(S.optionalKey),
     categories: S.Array(S.String).pipe(S.optionalKey),
     children: S.Array(S.String).pipe(S.optionalKey),
     void: S.Boolean.pipe(S.optionalKey),
-  },
-  $I.annote("ContentModelEntry", { description: "WHATWG content-model metadata for one element." })
+  }).pipe($I.annoteSchema("ContentModelEntry", { description: "WHATWG content-model metadata for one element." }))
 ) {}
 
-class ConditionalCategoryRule extends S.Class<ConditionalCategoryRule>($I`ConditionalCategoryRule`)(
-  {
+class ConditionalCategoryRule extends S.Opaque<ConditionalCategoryRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     attribute: S.String,
     category: S.String,
     condition: S.Literals(["present", "not-equals", "tokens-subset"]),
     value: S.String.pipe(S.optionalKey),
-  },
-  $I.annote("ConditionalCategoryRule", {
-    description: "An attribute predicate controlling membership in an HTML content category.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConditionalCategoryRule", {
+      description: "An attribute predicate controlling membership in an HTML content category.",
+    })
+  )
 ) {}
 
-class ReviewedForbiddenDescendants extends S.Class<ReviewedForbiddenDescendants>($I`ReviewedForbiddenDescendants`)(
-  {
+class ReviewedForbiddenDescendants extends S.Opaque<ReviewedForbiddenDescendants, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: S.Array(S.String),
     categories: S.Array(S.String),
     tags: S.Array(S.String),
-  },
-  $I.annote("ReviewedForbiddenDescendants", {
-    description: "Reviewed descendant exclusions attached to one generated HTML element profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewedForbiddenDescendants", {
+      description: "Reviewed descendant exclusions attached to one generated HTML element profile.",
+    })
+  )
 ) {}
 
-class ReviewedForbiddenNamedAncestor extends S.Class<ReviewedForbiddenNamedAncestor>(
-  $I`ReviewedForbiddenNamedAncestor`
-)(
-  {
+class ReviewedForbiddenNamedAncestor extends S.Opaque<
+  ReviewedForbiddenNamedAncestor,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attributes: S.String.pipe(S.NonEmptyArray),
     tag: S.String,
-  },
-  $I.annote("ReviewedForbiddenNamedAncestor", {
-    description: "Reviewed named-ancestor exclusion attached to one generated HTML element profile.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewedForbiddenNamedAncestor", {
+      description: "Reviewed named-ancestor exclusion attached to one generated HTML element profile.",
+    })
+  )
 ) {}
 
-class ReviewedDocumentVisibilityLimit extends S.Class<ReviewedDocumentVisibilityLimit>(
-  $I`ReviewedDocumentVisibilityLimit`
-)(
-  {
+class ReviewedDocumentVisibilityLimit extends S.Opaque<
+  ReviewedDocumentVisibilityLimit,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maximum: S.Int.check(S.isGreaterThan(0)),
     unlessAttribute: S.String,
-  },
-  $I.annote("ReviewedDocumentVisibilityLimit", {
-    description: "Reviewed document-wide visible-element cardinality limit.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewedDocumentVisibilityLimit", {
+      description: "Reviewed document-wide visible-element cardinality limit.",
+    })
+  )
 ) {}
 
-class ReviewedConformanceRules extends S.Class<ReviewedConformanceRules>($I`ReviewedConformanceRules`)(
-  {
+class ReviewedConformanceRules extends S.Opaque<ReviewedConformanceRules, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentVisibilityLimit: ReviewedDocumentVisibilityLimit.pipe(S.optionalKey),
     forbiddenDescendants: ReviewedForbiddenDescendants.pipe(S.optionalKey),
     forbiddenNamedAncestors: ReviewedForbiddenNamedAncestor.pipe(S.NonEmptyArray, S.optionalKey),
     permittedAncestors: S.String.pipe(S.NonEmptyArray, S.optionalKey),
     requiredAncestor: S.String.pipe(S.optionalKey),
-  },
-  $I.annote("ReviewedConformanceRules", {
-    description: "Reviewed element-specific rules omitted from the tabular WHATWG element index.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReviewedConformanceRules", {
+      description: "Reviewed element-specific rules omitted from the tabular WHATWG element index.",
+    })
+  )
 ) {}
 
 const AttributeValueConstraint = S.Union([
@@ -637,8 +643,8 @@ const isAttributeContainsTokenPredicate = P.isTagged("attributeContainsToken");
 const isAttributeEqualsOrMissingPredicate = P.isTagged("attributeEqualsOrMissing");
 const isAttributeEqualityPredicate = P.or(P.isTagged("attributeEquals"), isAttributeEqualsOrMissingPredicate);
 
-class AttributeRequirement extends S.Class<AttributeRequirement>($I`AttributeRequirement`)(
-  {
+class AttributeRequirement extends S.Opaque<AttributeRequirement, { readonly brand: unique symbol }>()(
+  S.Struct({
     constraints: AttributeValueConstraint.pipe(S.NonEmptyArray, S.optionalKey),
     forbidden: S.String.pipe(S.NonEmptyArray, S.optionalKey),
     message: S.String,
@@ -647,34 +653,37 @@ class AttributeRequirement extends S.Class<AttributeRequirement>($I`AttributeReq
     validNonEmptyUrl: S.String.pipe(S.NonEmptyArray, S.optionalKey),
     when: AttributeRequirementPredicate.pipe(S.optionalKey),
     whenParents: S.String.pipe(S.NonEmptyArray, S.optionalKey),
-  },
-  $I.annote("AttributeRequirement", {
-    description: "A generated conditional requirement or exclusion for HTML attributes.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttributeRequirement", {
+      description: "A generated conditional requirement or exclusion for HTML attributes.",
+    })
+  )
 ) {}
 
-class AttributeEquality extends S.Class<AttributeEquality>($I`AttributeEquality`)(
-  {
+class AttributeEquality extends S.Opaque<AttributeEquality, { readonly brand: unique symbol }>()(
+  S.Struct({
     left: S.String,
     message: S.String,
     right: S.String,
-  },
-  $I.annote("AttributeEquality", {
-    description: "A generated same-value relationship between two HTML attributes.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttributeEquality", {
+      description: "A generated same-value relationship between two HTML attributes.",
+    })
+  )
 ) {}
 
-class NumericAttributeRelationship extends S.Class<NumericAttributeRelationship>($I`NumericAttributeRelationship`)(
-  {
+class NumericAttributeRelationship extends S.Opaque<NumericAttributeRelationship, { readonly brand: unique symbol }>()(
+  S.Struct({
     left: S.String,
     leftDefault: S.Finite.pipe(S.optionalKey),
     message: S.String,
     right: S.String,
     rightDefault: S.Finite.pipe(S.optionalKey),
-  },
-  $I.annote("NumericAttributeRelationship", {
-    description: "A generated less-than-or-equal relationship between two HTML numeric attributes.",
-  })
+  }).pipe(
+    $I.annoteSchema("NumericAttributeRelationship", {
+      description: "A generated less-than-or-equal relationship between two HTML numeric attributes.",
+    })
+  )
 ) {}
 
 const AttributeSyntax = S.Literals(["icon-sizes", "language-tag", "source-size-list", "srcset"]).pipe(
@@ -683,8 +692,8 @@ const AttributeSyntax = S.Literals(["icon-sizes", "language-tag", "source-size-l
   })
 );
 
-class Classification extends S.Class<Classification>($I`Classification`)(
-  {
+class Classification extends S.Opaque<Classification, { readonly brand: unique symbol }>()(
+  S.Struct({
     autocompleteAttributes: S.Array(S.String),
     autocompleteContactFields: S.Array(S.String),
     autocompleteFieldGroups: S.Record(S.String, S.Array(S.String)),
@@ -729,34 +738,35 @@ class Classification extends S.Class<Classification>($I`Classification`)(
     uniqueAttributes: S.Record(S.String, S.Array(S.String)),
     void: S.Array(S.String),
     xmlAttributeNames: S.Array(S.String),
-  },
-  $I.annote("Classification", { description: "Pinned HTML attribute and element classifications." })
+  }).pipe($I.annoteSchema("Classification", { description: "Pinned HTML attribute and element classifications." }))
 ) {}
 
-class DfnsDoc extends S.Class<DfnsDoc>($I`DfnsDoc`)(
-  { dfns: S.Array(Dfn), spec: S.Unknown },
-  $I.annote("DfnsDoc", { description: "webref dfns-html.json document." })
+class DfnsDoc extends S.Opaque<DfnsDoc, { readonly brand: unique symbol }>()(
+  S.Struct({ dfns: S.Array(Dfn), spec: S.Unknown }).pipe(
+    $I.annoteSchema("DfnsDoc", { description: "webref dfns-html.json document." })
+  )
 ) {}
 
-class ElementsDoc extends S.Class<ElementsDoc>($I`ElementsDoc`)(
-  { elements: S.Array(WebrefElement), spec: S.Unknown },
-  $I.annote("ElementsDoc", { description: "webref elements-html.json document." })
+class ElementsDoc extends S.Opaque<ElementsDoc, { readonly brand: unique symbol }>()(
+  S.Struct({ elements: S.Array(WebrefElement), spec: S.Unknown }).pipe(
+    $I.annoteSchema("ElementsDoc", { description: "webref elements-html.json document." })
+  )
 ) {}
 
-class ContentModelDoc extends S.Class<ContentModelDoc>($I`ContentModelDoc`)(
-  {
+class ContentModelDoc extends S.Opaque<ContentModelDoc, { readonly brand: unique symbol }>()(
+  S.Struct({
     elementCount: S.Int,
     elements: S.Record(S.String, ContentModelEntry),
     fetched: S.String,
     note: S.String,
     source: S.String,
-  },
-  $I.annote("ContentModelDoc", { description: "WHATWG content-model.json document." })
+  }).pipe($I.annoteSchema("ContentModelDoc", { description: "WHATWG content-model.json document." }))
 ) {}
 
-class ObsoleteInterfacesDoc extends S.Class<ObsoleteInterfacesDoc>($I`ObsoleteInterfacesDoc`)(
-  { interfaces: S.Record(S.String, S.String), note: S.String },
-  $I.annote("ObsoleteInterfacesDoc", { description: "Local obsolete interface override document." })
+class ObsoleteInterfacesDoc extends S.Opaque<ObsoleteInterfacesDoc, { readonly brand: unique symbol }>()(
+  S.Struct({ interfaces: S.Record(S.String, S.String), note: S.String }).pipe(
+    $I.annoteSchema("ObsoleteInterfacesDoc", { description: "Local obsolete interface override document." })
+  )
 ) {}
 
 const El = S.Struct({
@@ -2391,7 +2401,7 @@ const buildModel = (
  * @category elements
  * @since 0.0.0
  */
-export class ${e.cls} extends S.TaggedClass<${e.cls}>($I\`${e.cls}\`)(
+export class ${e.cls} extends S.TaggedClass<${e.cls}, { readonly brand: unique symbol }>($I\`${e.cls}\`)(
   "${e.tag}",
   {
 ${runtimeFields}
@@ -2441,7 +2451,7 @@ ${typeFields(true)}
  * @category models
  * @since 0.0.0
  */
-export class ${cls} extends S.TaggedClass<${cls}>($I\`${cls}\`)(
+export class ${cls} extends S.TaggedClass<${cls}, { readonly brand: unique symbol }>($I\`${cls}\`)(
   "${tag}",
   { children: HtmlChildren },
   $I.annote("${cls}", { description: ${encodeJson(desc)} })
@@ -2483,7 +2493,7 @@ export declare namespace ${cls} {
  * @category models
  * @since 0.0.0
  */
-export class Document extends S.TaggedClass<Document>($I\`Document\`)(
+export class Document extends S.TaggedClass<Document, { readonly brand: unique symbol }>($I\`Document\`)(
   "#document",
   {
     doctype: S.OptionFromOptionalKey(Doctype).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -2577,7 +2587,7 @@ export type ForeignNamespace = typeof ForeignNamespace.Type;
  * @category models
  * @since 0.0.0
  */
-export class ForeignElement extends S.TaggedClass<ForeignElement>($I\`ForeignElement\`)(
+export class ForeignElement extends S.TaggedClass<ForeignElement, { readonly brand: unique symbol }>($I\`ForeignElement\`)(
   "#foreign",
   {
     namespace: ForeignNamespace,
@@ -3241,7 +3251,7 @@ export type HtmlChildGrammar = typeof HtmlChildGrammar.Type;
  * @category models
  * @since 0.0.0
  */
-export class HtmlConditionalCategoryRule extends S.Class<HtmlConditionalCategoryRule>(
+export class HtmlConditionalCategoryRule extends S.Class<HtmlConditionalCategoryRule, { readonly brand: unique symbol }>(
   $I\`HtmlConditionalCategoryRule\`
 )(
   {
@@ -3736,7 +3746,7 @@ export const HTML_ATTRIBUTE_SYNTAXES: Readonly<Record<string, HtmlAttributeSynta
  * @category models
  * @since 0.0.0
  */
-export class HtmlAttributeEquality extends S.Class<HtmlAttributeEquality>($I\`HtmlAttributeEquality\`)(
+export class HtmlAttributeEquality extends S.Class<HtmlAttributeEquality, { readonly brand: unique symbol }>($I\`HtmlAttributeEquality\`)(
   {
     left: S.String,
     message: S.String,
@@ -3803,7 +3813,7 @@ const HtmlAttributeRequirementPredicate = S.Union([
  * @category models
  * @since 0.0.0
  */
-export class HtmlAttributeRequirement extends S.Class<HtmlAttributeRequirement>($I\`HtmlAttributeRequirement\`)(
+export class HtmlAttributeRequirement extends S.Class<HtmlAttributeRequirement, { readonly brand: unique symbol }>($I\`HtmlAttributeRequirement\`)(
   {
     constraints: HtmlAttributeValueConstraint.pipe(S.NonEmptyArray, S.optionalKey),
     forbidden: S.String.pipe(S.NonEmptyArray, S.optionalKey),
@@ -3839,7 +3849,7 @@ export class HtmlAttributeRequirement extends S.Class<HtmlAttributeRequirement>(
  * @category models
  * @since 0.0.0
  */
-export class HtmlNumericAttributeRelationship extends S.Class<HtmlNumericAttributeRelationship>(
+export class HtmlNumericAttributeRelationship extends S.Class<HtmlNumericAttributeRelationship, { readonly brand: unique symbol }>(
   $I\`HtmlNumericAttributeRelationship\`
 )(
   {
@@ -3873,7 +3883,7 @@ export class HtmlNumericAttributeRelationship extends S.Class<HtmlNumericAttribu
  * @category models
  * @since 0.0.0
  */
-export class HtmlForbiddenDescendants extends S.Class<HtmlForbiddenDescendants>($I\`HtmlForbiddenDescendants\`)(
+export class HtmlForbiddenDescendants extends S.Class<HtmlForbiddenDescendants, { readonly brand: unique symbol }>($I\`HtmlForbiddenDescendants\`)(
   {
     attributes: S.Array(S.String),
     categories: S.Array(HtmlCategory),
@@ -3902,7 +3912,7 @@ export class HtmlForbiddenDescendants extends S.Class<HtmlForbiddenDescendants>(
  * @category models
  * @since 0.0.0
  */
-export class HtmlForbiddenNamedAncestor extends S.Class<HtmlForbiddenNamedAncestor>(
+export class HtmlForbiddenNamedAncestor extends S.Class<HtmlForbiddenNamedAncestor, { readonly brand: unique symbol }>(
   $I\`HtmlForbiddenNamedAncestor\`
 )(
   {
@@ -3929,7 +3939,7 @@ export class HtmlForbiddenNamedAncestor extends S.Class<HtmlForbiddenNamedAncest
  * @category models
  * @since 0.0.0
  */
-export class HtmlDocumentVisibilityLimit extends S.Class<HtmlDocumentVisibilityLimit>(
+export class HtmlDocumentVisibilityLimit extends S.Class<HtmlDocumentVisibilityLimit, { readonly brand: unique symbol }>(
   $I\`HtmlDocumentVisibilityLimit\`
 )(
   {
@@ -3956,7 +3966,7 @@ export class HtmlDocumentVisibilityLimit extends S.Class<HtmlDocumentVisibilityL
  * @category models
  * @since 0.0.0
  */
-export class HtmlElementConformanceRules extends S.Class<HtmlElementConformanceRules>(
+export class HtmlElementConformanceRules extends S.Class<HtmlElementConformanceRules, { readonly brand: unique symbol }>(
   $I\`HtmlElementConformanceRules\`
 )(
   {
@@ -3986,7 +3996,7 @@ export class HtmlElementConformanceRules extends S.Class<HtmlElementConformanceR
  * @category models
  * @since 0.0.0
  */
-export class HtmlElementMeta extends S.Class<HtmlElementMeta>($I\`HtmlElementMeta\`)(
+export class HtmlElementMeta extends S.Class<HtmlElementMeta, { readonly brand: unique symbol }>($I\`HtmlElementMeta\`)(
   {
     tag: HtmlTag,
     interface: S.NonEmptyString,

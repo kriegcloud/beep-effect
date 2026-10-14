@@ -100,12 +100,13 @@ export const runWithResearchDb: {
     )
 );
 
-class CountRow extends S.Class<CountRow>($I`CountRow`)(
-  { total: S.Finite },
-  $I.annote("CountRow", {
-    title: "Count Row",
-    description: "Single numeric count row returned by research catalog aggregate queries.",
-  })
+class CountRow extends S.Opaque<CountRow, { readonly brand: unique symbol }>()(
+  S.Struct({ total: S.Finite }).pipe(
+    $I.annoteSchema("CountRow", {
+      title: "Count Row",
+      description: "Single numeric count row returned by research catalog aggregate queries.",
+    })
+  )
 ) {}
 const decodeCountRows = S.decodeUnknownEffect(S.Array(CountRow));
 

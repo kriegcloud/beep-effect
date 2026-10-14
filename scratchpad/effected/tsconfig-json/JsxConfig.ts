@@ -61,7 +61,7 @@ const JsxBase: Omit<typeof JsxVariants, "Type"> & S.Schema<object> = JsxVariants
  * @category schemas
  * @since 0.0.0
  */
-export const JsxConfig = class extends S.Opaque<JsxConfig>()(JsxBase) {
+export const JsxConfig = class extends S.Opaque<JsxConfig, { readonly brand: unique symbol }>()(JsxBase) {
 	/**
 	 * Project decoded compiler options to their implied JSX transform
 	 * configuration. `"react-jsx"` and `"react-jsxdev"` yield the automatic

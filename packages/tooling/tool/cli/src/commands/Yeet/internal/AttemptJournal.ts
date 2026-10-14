@@ -45,10 +45,10 @@ export { YeetAttemptJournalCompacted, YeetAttemptTerminationReason };
  * @category models
  * @since 0.0.0
  */
-export class YeetAttemptStarted extends S.Class<YeetAttemptStarted>($I`YeetAttemptStarted`)(
-  {
+export class YeetAttemptStarted extends S.Opaque<YeetAttemptStarted, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("attempt-started", {
     schemaVersion: S.Literal("yeet-attempt-journal/v1"),
-    _tag: S.Literal("attempt-started"),
+
     attemptId: UUID,
     runId: S.String,
     branch: S.String,
@@ -59,10 +59,11 @@ export class YeetAttemptStarted extends S.Class<YeetAttemptStarted>($I`YeetAttem
     ownerPid: S.Finite.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     ownerProcStart: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     ...attemptInputFactFields,
-  },
-  $I.annote("YeetAttemptStarted", {
-    description: "A durable marker written immediately before a Yeet attempt executes.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAttemptStarted", {
+      description: "A durable marker written immediately before a Yeet attempt executes.",
+    })
+  )
 ) {}
 
 /**
@@ -84,18 +85,19 @@ export class YeetAttemptStarted extends S.Class<YeetAttemptStarted>($I`YeetAttem
  * @category models
  * @since 0.0.0
  */
-export class YeetAttemptFinished extends S.Class<YeetAttemptFinished>($I`YeetAttemptFinished`)(
-  {
+export class YeetAttemptFinished extends S.Opaque<YeetAttemptFinished, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("attempt-finished", {
     schemaVersion: S.Literal("yeet-attempt-journal/v1"),
-    _tag: S.Literal("attempt-finished"),
+
     attemptId: UUID,
     recordedAt: S.String,
     verdict: YeetVerdict,
     ...attemptInputFactFields,
-  },
-  $I.annote("YeetAttemptFinished", {
-    description: "Normal terminal marker embedding the exact verdict written for a completed attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAttemptFinished", {
+      description: "Normal terminal marker embedding the exact verdict written for a completed attempt.",
+    })
+  )
 ) {}
 
 /**
@@ -118,19 +120,20 @@ export class YeetAttemptFinished extends S.Class<YeetAttemptFinished>($I`YeetAtt
  * @category domain-events
  * @since 0.0.0
  */
-export class YeetAttemptTerminated extends S.Class<YeetAttemptTerminated>($I`YeetAttemptTerminated`)(
-  {
+export class YeetAttemptTerminated extends S.Opaque<YeetAttemptTerminated, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("attempt-terminated", {
     schemaVersion: S.Literal("yeet-attempt-journal/v1"),
-    _tag: S.Literal("attempt-terminated"),
+
     attemptId: UUID,
     recordedAt: S.String,
     reason: YeetAttemptTerminationReason,
     verdict: YeetVerdict.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     ...attemptInputFactFields,
-  },
-  $I.annote("YeetAttemptTerminated", {
-    description: "Abnormal terminal marker for an attempt that could not retain an ordinary finished row.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetAttemptTerminated", {
+      description: "Abnormal terminal marker for an attempt that could not retain an ordinary finished row.",
+    })
+  )
 ) {}
 
 /**

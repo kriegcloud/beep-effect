@@ -127,12 +127,13 @@ export type SystemdUnitPath = typeof SystemdUnitPath.Type;
  * @category models
  * @since 0.0.0
  */
-export class SystemdUnitDirective extends S.Class<SystemdUnitDirective>($I`SystemdUnitDirective`)(
-  { key: S.NonEmptyString, value: S.String },
-  $I.annote("SystemdUnitDirective", {
-    description:
-      "One Key=Value directive of an installed systemd unit; section headers and comments are not directives.",
-  })
+export class SystemdUnitDirective extends S.Opaque<SystemdUnitDirective, { readonly brand: unique symbol }>()(
+  S.Struct({ key: S.NonEmptyString, value: S.String }).pipe(
+    $I.annoteSchema("SystemdUnitDirective", {
+      description:
+        "One Key=Value directive of an installed systemd unit; section headers and comments are not directives.",
+    })
+  )
 ) {}
 
 /**
@@ -157,9 +158,10 @@ export class SystemdUnitDirective extends S.Class<SystemdUnitDirective>($I`Syste
  * @category models
  * @since 0.0.0
  */
-export class SystemdInstalledUnit extends S.Class<SystemdInstalledUnit>($I`SystemdInstalledUnit`)(
-  { fileName: S.NonEmptyString, directives: S.Array(SystemdUnitDirective) },
-  $I.annote("SystemdInstalledUnit", {
-    description: "An installed systemd user unit read back as its file name and ordered Key=Value directives.",
-  })
+export class SystemdInstalledUnit extends S.Opaque<SystemdInstalledUnit, { readonly brand: unique symbol }>()(
+  S.Struct({ fileName: S.NonEmptyString, directives: S.Array(SystemdUnitDirective) }).pipe(
+    $I.annoteSchema("SystemdInstalledUnit", {
+      description: "An installed systemd user unit read back as its file name and ordered Key=Value directives.",
+    })
+  )
 ) {}

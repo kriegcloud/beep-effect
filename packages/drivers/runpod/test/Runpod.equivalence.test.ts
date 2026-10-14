@@ -1,5 +1,6 @@
 import {
   RunpodDocsError,
+  RunpodDocsErrorOptionsInput,
   RunpodHttpMethod,
   RunpodOperationId,
   RunpodRequestBodyKind,
@@ -14,23 +15,38 @@ const sameRunpodDocsError = S.toEquivalence(RunpodDocsError);
 
 describe("Runpod declared-field equivalence", () => {
   it("treats field-equal errors as equivalent and field-different ones as distinct", () => {
-    const a = RunpodDocsError.fromReason("transport", { url: "https://docs.runpod.io" });
-    const b = RunpodDocsError.fromReason("transport", { url: "https://docs.runpod.io" });
-    const c = RunpodDocsError.fromReason("transport", { url: "https://api.runpod.io" });
+    const a = RunpodDocsError.fromReason(
+      "transport",
+      RunpodDocsErrorOptionsInput.make({ url: "https://docs.runpod.io" })
+    );
+    const b = RunpodDocsError.fromReason(
+      "transport",
+      RunpodDocsErrorOptionsInput.make({ url: "https://docs.runpod.io" })
+    );
+    const c = RunpodDocsError.fromReason(
+      "transport",
+      RunpodDocsErrorOptionsInput.make({ url: "https://api.runpod.io" })
+    );
 
     expect(sameRunpodDocsError(a, b)).toBe(true);
     expect(sameRunpodDocsError(a, c)).toBe(false);
   });
 
   it("treats defect-only differences as equivalent", () => {
-    const a = RunpodDocsError.fromReason("transport", {
-      cause: new Error("first failure"),
-      url: "https://docs.runpod.io",
-    });
-    const b = RunpodDocsError.fromReason("transport", {
-      cause: new Error("second failure"),
-      url: "https://docs.runpod.io",
-    });
+    const a = RunpodDocsError.fromReason(
+      "transport",
+      RunpodDocsErrorOptionsInput.make({
+        cause: new Error("first failure"),
+        url: "https://docs.runpod.io",
+      })
+    );
+    const b = RunpodDocsError.fromReason(
+      "transport",
+      RunpodDocsErrorOptionsInput.make({
+        cause: new Error("second failure"),
+        url: "https://docs.runpod.io",
+      })
+    );
 
     // the defect cause is payload, never identity
     expect(sameRunpodDocsError(a, b)).toBe(true);

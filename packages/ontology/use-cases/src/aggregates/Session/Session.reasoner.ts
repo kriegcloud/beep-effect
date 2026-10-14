@@ -15,6 +15,7 @@ import {
 import {
   BlankNode,
   Dataset,
+  MakeQuadOptionsInput,
   makeDataset,
   makeNamedNode,
   makeQuad,
@@ -189,16 +190,18 @@ export type OntologyInferenceSignatureRole = typeof OntologyInferenceSignatureRo
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyInferenceChangedSignature extends S.Class<OntologyInferenceChangedSignature>(
-  $I`OntologyInferenceChangedSignature`
-)(
-  {
+export class OntologyInferenceChangedSignature extends S.Opaque<
+  OntologyInferenceChangedSignature,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     role: OntologyInferenceSignatureRole,
     value: S.String,
-  },
-  $I.annote("OntologyInferenceChangedSignature", {
-    description: "Signature touched by the session change log since the last inference pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyInferenceChangedSignature", {
+      description: "Signature touched by the session change log since the last inference pass.",
+    })
+  )
 ) {}
 
 /**
@@ -221,17 +224,19 @@ export class OntologyInferenceChangedSignature extends S.Class<OntologyInference
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyInferenceModuleResult extends S.Class<OntologyInferenceModuleResult>(
-  $I`OntologyInferenceModuleResult`
-)(
-  {
+export class OntologyInferenceModuleResult extends S.Opaque<
+  OntologyInferenceModuleResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     module: OntologyInferenceModule,
     mode: OntologyInferenceRecomputeMode,
     inferredQuads: S.Array(Quad),
-  },
-  $I.annote("OntologyInferenceModuleResult", {
-    description: "Result for one structural inference module.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyInferenceModuleResult", {
+      description: "Result for one structural inference module.",
+    })
+  )
 ) {}
 
 /**
@@ -254,17 +259,19 @@ export class OntologyInferenceModuleResult extends S.Class<OntologyInferenceModu
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyDisjointnessViolation extends S.Class<OntologyDisjointnessViolation>(
-  $I`OntologyDisjointnessViolation`
-)(
-  {
+export class OntologyDisjointnessViolation extends S.Opaque<
+  OntologyDisjointnessViolation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     individualIri: S.String,
     leftClassIri: S.String,
     rightClassIri: S.String,
-  },
-  $I.annote("OntologyDisjointnessViolation", {
-    description: "Structural disjointness violation derived from asserted plus inferred types.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyDisjointnessViolation", {
+      description: "Structural disjointness violation derived from asserted plus inferred types.",
+    })
+  )
 ) {}
 
 /**
@@ -294,8 +301,8 @@ export class OntologyDisjointnessViolation extends S.Class<OntologyDisjointnessV
  * @category read-models
  * @since 0.0.0
  */
-export class OntologyInferenceResult extends S.Class<OntologyInferenceResult>($I`OntologyInferenceResult`)(
-  {
+export class OntologyInferenceResult extends S.Opaque<OntologyInferenceResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     processedChangeCount: S.Int,
     driftCap: S.Natural,
     drifted: S.Boolean,
@@ -304,10 +311,11 @@ export class OntologyInferenceResult extends S.Class<OntologyInferenceResult>($I
     modules: S.Array(OntologyInferenceModuleResult),
     disjointnessViolations: S.Array(OntologyDisjointnessViolation),
     inferredDataset: Dataset,
-  },
-  $I.annote("OntologyInferenceResult", {
-    description: "Complete structural inference result for an ontology session.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyInferenceResult", {
+      description: "Complete structural inference result for an ontology session.",
+    })
+  )
 ) {}
 
 /**
@@ -336,15 +344,16 @@ export class OntologyInferenceResult extends S.Class<OntologyInferenceResult>($I
  * @category read-models
  * @since 0.0.0
  */
-export class InferOntologySessionInput extends S.Class<InferOntologySessionInput>($I`InferOntologySessionInput`)(
-  {
+export class InferOntologySessionInput extends S.Opaque<InferOntologySessionInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     session: Session,
     previous: S.OptionFromOptionalKey(OntologyInferenceResult).pipe(S.withConstructorDefault(Effect.succeedNone)),
     driftCap: S.optionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeed(S.Natural.make(64)))),
-  },
-  $I.annote("InferOntologySessionInput", {
-    description: "Input for structural inference over an ontology session.",
-  })
+  }).pipe(
+    $I.annoteSchema("InferOntologySessionInput", {
+      description: "Input for structural inference over an ontology session.",
+    })
+  )
 ) {}
 
 /**
@@ -509,10 +518,14 @@ const existingTripleKeys: (quads: ReadonlyArray<Quad>) => ReadonlyArray<string> 
 const hasExistingTriple = (keys: ReadonlyArray<string>, quad: Quad): boolean => pipe(keys, A.contains(tripleKey(quad)));
 
 const inferredQuad = (subject: Subject, predicate: NamedNode, object: ObjectTerm): Quad =>
-  makeQuad(subject, predicate, {
-    object,
-    graph: INFERRED_GRAPH,
-  });
+  makeQuad(
+    subject,
+    predicate,
+    MakeQuadOptionsInput.make({
+      object,
+      graph: INFERRED_GRAPH,
+    })
+  );
 
 const collectEdges = (quads: ReadonlyArray<Quad>, predicate: NamedNode): GraphEdges => {
   const edges = MutableHashMap.empty<string, ReadonlyArray<string>>();

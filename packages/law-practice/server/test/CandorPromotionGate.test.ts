@@ -9,8 +9,10 @@ import {
   CandorFilingScope,
   CandorGateVerdict,
   CandorPolicy,
+  CandorPolicyShape,
   CandorRecordReadError,
   CandorRecordReader,
+  CandorRecordReaderShape,
   CandorRecordSnapshot,
   UncoveredEvent,
 } from "@beep/law-practice-use-cases/CandorPolicy";
@@ -52,11 +54,13 @@ const supportingLayers = Layer.mergeAll(
   ),
   Layer.succeed(
     CandorRecordReader,
-    CandorRecordReader.of({
-      snapshotForFiling: Effect.fn("CandorRecordReader.snapshotForFiling")(() =>
-        Effect.succeed(CandorRecordSnapshot.make({ dispositions: [], events: [] }))
-      ),
-    })
+    CandorRecordReader.of(
+      CandorRecordReaderShape.make({
+        snapshotForFiling: Effect.fn("CandorRecordReader.snapshotForFiling")(() =>
+          Effect.succeed(CandorRecordSnapshot.make({ dispositions: [], events: [] }))
+        ),
+      })
+    )
   ),
   Layer.succeed(
     SourceTextResolver,
@@ -74,7 +78,9 @@ const gateLayer = (verdict: CandorGateVerdict) =>
         supportingLayers,
         Layer.succeed(
           CandorPolicy,
-          CandorPolicy.of({ evaluate: Effect.fn("CandorPolicy.evaluate")(() => Effect.succeed(verdict)) })
+          CandorPolicy.of(
+            CandorPolicyShape.make({ evaluate: Effect.fn("CandorPolicy.evaluate")(() => Effect.succeed(verdict)) })
+          )
         )
       )
     )
@@ -133,19 +139,23 @@ describe("CandorPromotionGate", () => {
           ),
           Layer.succeed(
             CandorPolicy,
-            CandorPolicy.of({
-              evaluate: Effect.fn("CandorPolicy.evaluate")(() =>
-                Effect.succeed(CandorGateVerdict.make({ scope, uncovered: [] }))
-              ),
-            })
+            CandorPolicy.of(
+              CandorPolicyShape.make({
+                evaluate: Effect.fn("CandorPolicy.evaluate")(() =>
+                  Effect.succeed(CandorGateVerdict.make({ scope, uncovered: [] }))
+                ),
+              })
+            )
           ),
           Layer.succeed(
             CandorRecordReader,
-            CandorRecordReader.of({
-              snapshotForFiling: Effect.fn("CandorRecordReader.snapshotForFiling")(() =>
-                Effect.succeed(CandorRecordSnapshot.make({ dispositions: [], events: [] }))
-              ),
-            })
+            CandorRecordReader.of(
+              CandorRecordReaderShape.make({
+                snapshotForFiling: Effect.fn("CandorRecordReader.snapshotForFiling")(() =>
+                  Effect.succeed(CandorRecordSnapshot.make({ dispositions: [], events: [] }))
+                ),
+              })
+            )
           ),
           Layer.succeed(
             SourceTextResolver,
@@ -193,11 +203,13 @@ describe("CandorPromotionGate", () => {
           supportingLayers,
           Layer.succeed(
             CandorPolicy,
-            CandorPolicy.of({
-              evaluate: Effect.fn("CandorPolicy.evaluate")(() =>
-                Effect.fail(CandorRecordReadError.fromReason("snapshot-unavailable", "record unavailable"))
-              ),
-            })
+            CandorPolicy.of(
+              CandorPolicyShape.make({
+                evaluate: Effect.fn("CandorPolicy.evaluate")(() =>
+                  Effect.fail(CandorRecordReadError.fromReason("snapshot-unavailable", "record unavailable"))
+                ),
+              })
+            )
           )
         )
       )

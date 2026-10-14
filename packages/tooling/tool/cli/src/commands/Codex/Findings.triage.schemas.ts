@@ -255,15 +255,16 @@ export type CodexLaneId = typeof CodexLaneId.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class CodexTriageValidation extends S.Class<CodexTriageValidation>($I`CodexTriageValidation`)(
-  {
+export class CodexTriageValidation extends S.Opaque<CodexTriageValidation, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: CodexWorkStatus,
     confidence: S.optionalKey(CodexConfidence),
     rationale: S.optionalKey(S.String),
-  },
-  $I.annote("CodexTriageValidation", {
-    description: "Current-HEAD validation state recorded for one finding.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexTriageValidation", {
+      description: "Current-HEAD validation state recorded for one finding.",
+    })
+  )
 ) {}
 
 /**
@@ -286,16 +287,17 @@ export class CodexTriageValidation extends S.Class<CodexTriageValidation>($I`Cod
  * @category schemas
  * @since 0.0.0
  */
-export class CodexTriageRemediation extends S.Class<CodexTriageRemediation>($I`CodexTriageRemediation`)(
-  {
+export class CodexTriageRemediation extends S.Opaque<CodexTriageRemediation, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: CodexWorkStatus,
     changedFiles: S.Array(S.String),
     verificationCommands: S.Array(S.String),
     summary: S.optionalKey(S.String),
-  },
-  $I.annote("CodexTriageRemediation", {
-    description: "Remediation state recorded for one finding.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexTriageRemediation", {
+      description: "Remediation state recorded for one finding.",
+    })
+  )
 ) {}
 
 /**
@@ -338,8 +340,8 @@ export class CodexTriageRemediation extends S.Class<CodexTriageRemediation>($I`C
  * @category schemas
  * @since 0.0.0
  */
-export class CodexTriageFinding extends S.Class<CodexTriageFinding>($I`CodexTriageFinding`)(
-  {
+export class CodexTriageFinding extends S.Opaque<CodexTriageFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CodexRecordId,
     codexId: CapturedFindingId,
     title: S.String,
@@ -352,10 +354,11 @@ export class CodexTriageFinding extends S.Class<CodexTriageFinding>($I`CodexTria
     lane: S.optionalKey(CodexLaneId),
     validation: CodexTriageValidation,
     remediation: CodexTriageRemediation,
-  },
-  $I.annote("CodexTriageFinding", {
-    description: "One finding's entry in the codex-triage/v1 ledger.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexTriageFinding", {
+      description: "One finding's entry in the codex-triage/v1 ledger.",
+    })
+  )
 ) {}
 
 /**
@@ -374,15 +377,16 @@ export class CodexTriageFinding extends S.Class<CodexTriageFinding>($I`CodexTria
  * @category schemas
  * @since 0.0.0
  */
-export class CodexTriageLane extends S.Class<CodexTriageLane>($I`CodexTriageLane`)(
-  {
+export class CodexTriageLane extends S.Opaque<CodexTriageLane, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: CodexWorkStatus,
     findings: S.Array(CodexRecordId),
     title: S.optionalKey(S.String),
-  },
-  $I.annote("CodexTriageLane", {
-    description: "One disjoint remediation lane grouping findings by shared root cause.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexTriageLane", {
+      description: "One disjoint remediation lane grouping findings by shared root cause.",
+    })
+  )
 ) {}
 
 /**
@@ -410,8 +414,8 @@ export class CodexTriageLane extends S.Class<CodexTriageLane>($I`CodexTriageLane
  * @category schemas
  * @since 0.0.0
  */
-export class CodexTriageMeta extends S.Class<CodexTriageMeta>($I`CodexTriageMeta`)(
-  {
+export class CodexTriageMeta extends S.Opaque<CodexTriageMeta, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("codex-triage/v1"),
     repository: GitHubRepoSlug,
     findingsView: S.String,
@@ -421,10 +425,11 @@ export class CodexTriageMeta extends S.Class<CodexTriageMeta>($I`CodexTriageMeta
     capturedAt: CaptureDate,
     captureMethod: CodexCaptureMethod,
     note: S.optionalKey(S.String),
-  },
-  $I.annote("CodexTriageMeta", {
-    description: "Provenance header of a codex-triage/v1 ledger.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexTriageMeta", {
+      description: "Provenance header of a codex-triage/v1 ledger.",
+    })
+  )
 ) {}
 
 /**
@@ -461,15 +466,16 @@ export class CodexTriageMeta extends S.Class<CodexTriageMeta>($I`CodexTriageMeta
  * @category schemas
  * @since 0.0.0
  */
-export class CodexTriageLedger extends S.Class<CodexTriageLedger>($I`CodexTriageLedger`)(
-  {
+export class CodexTriageLedger extends S.Opaque<CodexTriageLedger, { readonly brand: unique symbol }>()(
+  S.Struct({
     meta: CodexTriageMeta,
     lanes: S.Record(CodexLaneId, CodexTriageLane),
     findings: S.Array(CodexTriageFinding),
-  },
-  $I.annote("CodexTriageLedger", {
-    description: "Complete codex-triage/v1 ledger generated and re-read by the CLI.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodexTriageLedger", {
+      description: "Complete codex-triage/v1 ledger generated and re-read by the CLI.",
+    })
+  )
 ) {}
 
 /**

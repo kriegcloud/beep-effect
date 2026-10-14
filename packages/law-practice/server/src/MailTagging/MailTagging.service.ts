@@ -70,8 +70,8 @@ const defaultRunLabel = "practice-mail-tagging";
  * @category configuration
  * @since 0.0.0
  */
-export class MailTaggingServiceConfig extends S.Class<MailTaggingServiceConfig>($I`MailTaggingServiceConfig`)(
-  {
+export class MailTaggingServiceConfig extends S.Opaque<MailTaggingServiceConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     stateDirectory: S.NonEmptyString.annotateKey({
       description: "Directory holding the ledgers, the checkpoint, and the contacts overlay.",
     }),
@@ -111,10 +111,11 @@ export class MailTaggingServiceConfig extends S.Class<MailTaggingServiceConfig>(
       description:
         "Where matter contact addresses come from: nowhere, or the knowledge graph and its overlay; defaults to off.",
     }),
-  },
-  $I.annote("MailTaggingServiceConfig", {
-    description: "Every setting of one mail-tagging run.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailTaggingServiceConfig", {
+      description: "Every setting of one mail-tagging run.",
+    })
+  )
 ) {}
 
 /**

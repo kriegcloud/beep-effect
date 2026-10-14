@@ -524,7 +524,7 @@ const triggerWithinLimit = S.makeFilter((value: typeof triggerJson.Type) =>
  * @category errors
  * @since 0.0.0
  */
-export class MemoryItemRejected extends S.TaggedError<MemoryItemRejected>()(
+export class MemoryItemRejected extends S.TaggedError<MemoryItemRejected, { readonly brand: unique symbol }>()(
   "MemoryItemRejected",
   { reason: S.String },
   $I.annoteError<MemoryItemRejected>("MemoryItemRejected", {

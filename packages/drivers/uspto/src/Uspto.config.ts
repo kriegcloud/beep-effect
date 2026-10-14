@@ -71,16 +71,17 @@ const UsptoApiUrl = S.String.pipe(
  * @category configuration
  * @since 0.0.0
  */
-export class UsptoConfigInput extends S.Class<UsptoConfigInput>($I`UsptoConfigInput`)(
-  {
+export class UsptoConfigInput extends S.Opaque<UsptoConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)).annotateKey({
       description: "USPTO API key used for authenticated Open Data Portal requests.",
     }),
     apiUrl: UsptoApiUrl.annotateKey({
       description: "USPTO Open Data Portal API base URL with trailing slash normalization.",
     }),
-  },
-  $I.annote("UsptoConfigInput", {
-    description: "Typed configuration for the USPTO Open Data Portal driver: API key and base URL.",
-  })
+  }).pipe(
+    $I.annoteSchema("UsptoConfigInput", {
+      description: "Typed configuration for the USPTO Open Data Portal driver: API key and base URL.",
+    })
+  )
 ) {}

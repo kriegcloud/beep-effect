@@ -174,8 +174,8 @@ const openclawProcessRequestEnvDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class OpenclawProcessRequest extends S.Class<OpenclawProcessRequest>($I`OpenclawProcessRequest`)(
-  {
+export class OpenclawProcessRequest extends S.Opaque<OpenclawProcessRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     args: S.Array(S.String).annotateKey({
       description: "Arguments passed to the executable; tokens never appear here.",
     }),
@@ -202,10 +202,11 @@ export class OpenclawProcessRequest extends S.Class<OpenclawProcessRequest>($I`O
     timeoutMs: S.OptionFromOptionalKey(S.Int).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional per-invocation timeout in milliseconds.",
     }),
-  },
-  $I.annote("OpenclawProcessRequest", {
-    description: "Technical OpenClaw child-process invocation request.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawProcessRequest", {
+      description: "Technical OpenClaw child-process invocation request.",
+    })
+  )
 ) {}
 
 /**
@@ -222,8 +223,8 @@ export class OpenclawProcessRequest extends S.Class<OpenclawProcessRequest>($I`O
  * @category models
  * @since 0.0.0
  */
-export class OpenclawProcessResult extends S.Class<OpenclawProcessResult>($I`OpenclawProcessResult`)(
-  {
+export class OpenclawProcessResult extends S.Opaque<OpenclawProcessResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     exitCode: OpenclawExitCode.annotateKey({
       description: "Child process exit status.",
     }),
@@ -233,10 +234,11 @@ export class OpenclawProcessResult extends S.Class<OpenclawProcessResult>($I`Ope
     stdout: S.String.annotateKey({
       description: "Raw standard output captured from the child process.",
     }),
-  },
-  $I.annote("OpenclawProcessResult", {
-    description: "Stdout, stderr, and exit code captured from a driver child process.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawProcessResult", {
+      description: "Stdout, stderr, and exit code captured from a driver child process.",
+    })
+  )
 ) {}
 
 /**
@@ -255,8 +257,8 @@ export class OpenclawProcessResult extends S.Class<OpenclawProcessResult>($I`Ope
  * @category models
  * @since 0.0.0
  */
-export class OpenclawVersionInfo extends S.Class<OpenclawVersionInfo>($I`OpenclawVersionInfo`)(
-  {
+export class OpenclawVersionInfo extends S.Opaque<OpenclawVersionInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     commit: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Short git commit reported in parentheses, when present.",
     }),
@@ -266,10 +268,11 @@ export class OpenclawVersionInfo extends S.Class<OpenclawVersionInfo>($I`Opencla
     version: S.NonEmptyString.annotateKey({
       description: "Version string parsed from the version line.",
     }),
-  },
-  $I.annote("OpenclawVersionInfo", {
-    description: "Version facts parsed from `openclaw --version` output.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawVersionInfo", {
+      description: "Version facts parsed from `openclaw --version` output.",
+    })
+  )
 ) {
   /**
    * Parse `openclaw --version` stdout (e.g. `OpenClaw 2026.7.1-2 (0790d9f)`).
@@ -313,7 +316,9 @@ export class OpenclawVersionInfo extends S.Class<OpenclawVersionInfo>($I`Opencla
  * @category models
  * @since 0.0.0
  */
-export class OpenclawConfigValid extends S.Class<OpenclawConfigValid>($I`OpenclawConfigValid`)(
+export class OpenclawConfigValid extends S.Class<OpenclawConfigValid, { readonly brand: unique symbol }>(
+  $I`OpenclawConfigValid`
+)(
   {
     _tag: S.tag("Valid").annotateKey({
       description: "Discriminator for successful config validation.",
@@ -348,7 +353,9 @@ export class OpenclawConfigValid extends S.Class<OpenclawConfigValid>($I`Opencla
  * @category models
  * @since 0.0.0
  */
-export class OpenclawConfigInvalid extends S.Class<OpenclawConfigInvalid>($I`OpenclawConfigInvalid`)(
+export class OpenclawConfigInvalid extends S.Class<OpenclawConfigInvalid, { readonly brand: unique symbol }>(
+  $I`OpenclawConfigInvalid`
+)(
   {
     _tag: S.tag("Invalid").annotateKey({
       description: "Discriminator for failed config validation.",
@@ -421,18 +428,19 @@ export type OpenclawConfigValidation = typeof OpenclawConfigValidation.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawDoctorReport extends S.Class<OpenclawDoctorReport>($I`OpenclawDoctorReport`)(
-  {
+export class OpenclawDoctorReport extends S.Opaque<OpenclawDoctorReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     exitCode: OpenclawExitCode.annotateKey({
       description: "Doctor process exit status; nonzero means findings were reported.",
     }),
     findings: OpenclawDiagnosticText.annotateKey({
       description: "Trimmed capped doctor findings text.",
     }),
-  },
-  $I.annote("OpenclawDoctorReport", {
-    description: "Read-only doctor report with capped findings text.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawDoctorReport", {
+      description: "Read-only doctor report with capped findings text.",
+    })
+  )
 ) {}
 
 /**
@@ -456,18 +464,22 @@ export class OpenclawDoctorReport extends S.Class<OpenclawDoctorReport>($I`Openc
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSecretsReloadOutput extends S.Class<OpenclawSecretsReloadOutput>($I`OpenclawSecretsReloadOutput`)(
-  {
+export class OpenclawSecretsReloadOutput extends S.Opaque<
+  OpenclawSecretsReloadOutput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ok: S.Boolean.annotateKey({
       description: "Whether the runtime snapshot swap succeeded.",
     }),
     warningCount: S.Natural.annotateKey({
       description: "Number of warnings emitted during the reload.",
     }),
-  },
-  $I.annote("OpenclawSecretsReloadOutput", {
-    description: "Tolerant projection of `secrets reload --json` stdout.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawSecretsReloadOutput", {
+      description: "Tolerant projection of `secrets reload --json` stdout.",
+    })
+  )
 ) {}
 
 /**
@@ -485,7 +497,9 @@ export class OpenclawSecretsReloadOutput extends S.Class<OpenclawSecretsReloadOu
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSecretsReloaded extends S.Class<OpenclawSecretsReloaded>($I`OpenclawSecretsReloaded`)(
+export class OpenclawSecretsReloaded extends S.Class<OpenclawSecretsReloaded, { readonly brand: unique symbol }>(
+  $I`OpenclawSecretsReloaded`
+)(
   {
     _tag: S.tag("Reloaded").annotateKey({
       description: "Discriminator for successful secrets reloads.",
@@ -521,9 +535,10 @@ export class OpenclawSecretsReloaded extends S.Class<OpenclawSecretsReloaded>($I
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSecretsReloadDegraded extends S.Class<OpenclawSecretsReloadDegraded>(
-  $I`OpenclawSecretsReloadDegraded`
-)(
+export class OpenclawSecretsReloadDegraded extends S.Class<
+  OpenclawSecretsReloadDegraded,
+  { readonly brand: unique symbol }
+>($I`OpenclawSecretsReloadDegraded`)(
   {
     _tag: S.tag("Degraded").annotateKey({
       description: "Discriminator for degraded secrets reloads.",
@@ -598,8 +613,8 @@ export type OpenclawSecretsReload = typeof OpenclawSecretsReload.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawChannelHealth extends S.Class<OpenclawChannelHealth>($I`OpenclawChannelHealth`)(
-  {
+export class OpenclawChannelHealth extends S.Opaque<OpenclawChannelHealth, { readonly brand: unique symbol }>()(
+  S.Struct({
     connected: S.OptionFromOptionalKey(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Whether the channel reports an active upstream connection.",
     }),
@@ -615,10 +630,11 @@ export class OpenclawChannelHealth extends S.Class<OpenclawChannelHealth>($I`Ope
     tokenStatus: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Reported credential status (e.g. 'available'), when present.",
     }),
-  },
-  $I.annote("OpenclawChannelHealth", {
-    description: "Tolerant per-channel projection of the gateway health document.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawChannelHealth", {
+      description: "Tolerant per-channel projection of the gateway health document.",
+    })
+  )
 ) {}
 
 const openclawGatewayHealthChannelsDefault = R.empty();
@@ -642,8 +658,8 @@ const openclawGatewayHealthPluginsLoadedDefault = A.empty();
  * @category models
  * @since 0.0.0
  */
-export class OpenclawGatewayHealth extends S.Class<OpenclawGatewayHealth>($I`OpenclawGatewayHealth`)(
-  {
+export class OpenclawGatewayHealth extends S.Opaque<OpenclawGatewayHealth, { readonly brand: unique symbol }>()(
+  S.Struct({
     channels: S.Record(S.String, OpenclawChannelHealth)
       .pipe(
         S.withConstructorDefault(Effect.succeed(openclawGatewayHealthChannelsDefault)),
@@ -666,10 +682,11 @@ export class OpenclawGatewayHealth extends S.Class<OpenclawGatewayHealth>($I`Ope
       .annotateKey({
         description: "Names of plugins the gateway reports as loaded.",
       }),
-  },
-  $I.annote("OpenclawGatewayHealth", {
-    description: "Normalized projection of the authenticated gateway health call.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawGatewayHealth", {
+      description: "Normalized projection of the authenticated gateway health call.",
+    })
+  )
 ) {}
 
 /**
@@ -693,10 +710,11 @@ export class OpenclawGatewayHealth extends S.Class<OpenclawGatewayHealth>($I`Ope
  * @category models
  * @since 0.0.0
  */
-export class OpenclawChannelAccountStatus extends S.Class<OpenclawChannelAccountStatus>(
-  $I`OpenclawChannelAccountStatus`
-)(
-  {
+export class OpenclawChannelAccountStatus extends S.Opaque<
+  OpenclawChannelAccountStatus,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     accountId: S.NonEmptyString.annotateKey({
       description: "Channel account identifier.",
     }),
@@ -724,10 +742,11 @@ export class OpenclawChannelAccountStatus extends S.Class<OpenclawChannelAccount
     tokenStatus: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Reported credential status (e.g. 'available'), when present.",
     }),
-  },
-  $I.annote("OpenclawChannelAccountStatus", {
-    description: "Tolerant per-account projection of `channels status --probe --json`.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawChannelAccountStatus", {
+      description: "Tolerant per-account projection of `channels status --probe --json`.",
+    })
+  )
 ) {}
 
 /**
@@ -750,8 +769,8 @@ export class OpenclawChannelAccountStatus extends S.Class<OpenclawChannelAccount
  * @category models
  * @since 0.0.0
  */
-export class OpenclawAgentTurn extends S.Class<OpenclawAgentTurn>($I`OpenclawAgentTurn`)(
-  {
+export class OpenclawAgentTurn extends S.Opaque<OpenclawAgentTurn, { readonly brand: unique symbol }>()(
+  S.Struct({
     aborted: S.OptionFromOptionalKey(S.Boolean).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Whether the run aborted before completing.",
     }),
@@ -773,10 +792,11 @@ export class OpenclawAgentTurn extends S.Class<OpenclawAgentTurn>($I`OpenclawAge
     text: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "First response payload text, when present.",
     }),
-  },
-  $I.annote("OpenclawAgentTurn", {
-    description: "Tolerant projection of a completed `agent --json` turn.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawAgentTurn", {
+      description: "Tolerant projection of a completed `agent --json` turn.",
+    })
+  )
 ) {}
 
 /**
@@ -798,16 +818,20 @@ export class OpenclawAgentTurn extends S.Class<OpenclawAgentTurn>($I`OpenclawAge
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSkillInventoryEntry extends S.Class<OpenclawSkillInventoryEntry>($I`OpenclawSkillInventoryEntry`)(
-  {
+export class OpenclawSkillInventoryEntry extends S.Opaque<
+  OpenclawSkillInventoryEntry,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     description: S.NonEmptyString,
     eligible: S.Boolean,
     name: S.NonEmptyString,
     source: S.NonEmptyString,
-  },
-  $I.annote("OpenclawSkillInventoryEntry", {
-    description: "Skill identity, eligibility, and source projected from the pinned CLI inventory.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawSkillInventoryEntry", {
+      description: "Skill identity, eligibility, and source projected from the pinned CLI inventory.",
+    })
+  )
 ) {}
 
 /**
@@ -834,14 +858,15 @@ export class OpenclawSkillInventoryEntry extends S.Class<OpenclawSkillInventoryE
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSkillInventory extends S.Class<OpenclawSkillInventory>($I`OpenclawSkillInventory`)(
-  {
+export class OpenclawSkillInventory extends S.Opaque<OpenclawSkillInventory, { readonly brand: unique symbol }>()(
+  S.Struct({
     skills: S.Array(OpenclawSkillInventoryEntry),
     workspaceDir: OpenclawAbsolutePath,
-  },
-  $I.annote("OpenclawSkillInventory", {
-    description: "Workspace and skill entries returned by the pinned skills inventory command.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawSkillInventory", {
+      description: "Workspace and skill entries returned by the pinned skills inventory command.",
+    })
+  )
 ) {}
 
 /**
@@ -861,14 +886,18 @@ export class OpenclawSkillInventory extends S.Class<OpenclawSkillInventory>($I`O
  * @category models
  * @since 0.0.0
  */
-export class OpenclawTelegramSendPayload extends S.Class<OpenclawTelegramSendPayload>($I`OpenclawTelegramSendPayload`)(
-  {
+export class OpenclawTelegramSendPayload extends S.Opaque<
+  OpenclawTelegramSendPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     messageId: S.NonEmptyString,
     ok: S.Literal(true),
-  },
-  $I.annote("OpenclawTelegramSendPayload", {
-    description: "Successful Telegram plugin receipt payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawTelegramSendPayload", {
+      description: "Successful Telegram plugin receipt payload.",
+    })
+  )
 ) {}
 
 /**
@@ -895,18 +924,22 @@ export class OpenclawTelegramSendPayload extends S.Class<OpenclawTelegramSendPay
  * @category models
  * @since 0.0.0
  */
-export class OpenclawTelegramSendResult extends S.Class<OpenclawTelegramSendResult>($I`OpenclawTelegramSendResult`)(
-  {
+export class OpenclawTelegramSendResult extends S.Opaque<
+  OpenclawTelegramSendResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     action: S.Literal("send"),
     channel: S.Literal("telegram"),
     dryRun: S.Boolean,
     handledBy: S.NonEmptyString,
     messageId: S.NonEmptyString,
     payload: OpenclawTelegramSendPayload,
-  },
-  $I.annote("OpenclawTelegramSendResult", {
-    description: "Successful Telegram message receipt without target or token data.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawTelegramSendResult", {
+      description: "Successful Telegram message receipt without target or token data.",
+    })
+  )
 ) {}
 
 /**
@@ -923,11 +956,12 @@ export class OpenclawTelegramSendResult extends S.Class<OpenclawTelegramSendResu
  * @category models
  * @since 0.0.0
  */
-export class OpenclawLocalModelEntry extends S.Class<OpenclawLocalModelEntry>($I`OpenclawLocalModelEntry`)(
-  { id: S.NonEmptyString },
-  $I.annote("OpenclawLocalModelEntry", {
-    description: "Configured model identifier projected from a local OpenAI-compatible endpoint.",
-  })
+export class OpenclawLocalModelEntry extends S.Opaque<OpenclawLocalModelEntry, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.NonEmptyString }).pipe(
+    $I.annoteSchema("OpenclawLocalModelEntry", {
+      description: "Configured model identifier projected from a local OpenAI-compatible endpoint.",
+    })
+  )
 ) {}
 
 /**
@@ -946,11 +980,12 @@ export class OpenclawLocalModelEntry extends S.Class<OpenclawLocalModelEntry>($I
  * @category models
  * @since 0.0.0
  */
-export class OpenclawLocalModels extends S.Class<OpenclawLocalModels>($I`OpenclawLocalModels`)(
-  { data: S.Array(OpenclawLocalModelEntry) },
-  $I.annote("OpenclawLocalModels", {
-    description: "Model inventory returned by a local OpenAI-compatible `/models` endpoint.",
-  })
+export class OpenclawLocalModels extends S.Opaque<OpenclawLocalModels, { readonly brand: unique symbol }>()(
+  S.Struct({ data: S.Array(OpenclawLocalModelEntry) }).pipe(
+    $I.annoteSchema("OpenclawLocalModels", {
+      description: "Model inventory returned by a local OpenAI-compatible `/models` endpoint.",
+    })
+  )
 ) {}
 
 /**
@@ -1052,8 +1087,11 @@ export type OpenclawLiveAcceptanceStep = typeof OpenclawLiveAcceptanceStep.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawLiveAcceptanceInput extends S.Class<OpenclawLiveAcceptanceInput>($I`OpenclawLiveAcceptanceInput`)(
-  {
+export class OpenclawLiveAcceptanceInput extends S.Opaque<
+  OpenclawLiveAcceptanceInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     channelAccounts: S.Array(OpenclawChannelAccountStatus),
     hostedModelId: S.NonEmptyString,
     hostedProviderId: S.NonEmptyString,
@@ -1064,10 +1102,11 @@ export class OpenclawLiveAcceptanceInput extends S.Class<OpenclawLiveAcceptanceI
     skillInventory: OpenclawSkillInventory,
     skillTurn: OpenclawAgentTurn,
     telegramSend: OpenclawTelegramSendResult,
-  },
-  $I.annote("OpenclawLiveAcceptanceInput", {
-    description: "Decoded hosted, local, skill, reload, and Telegram probe results.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawLiveAcceptanceInput", {
+      description: "Decoded hosted, local, skill, reload, and Telegram probe results.",
+    })
+  )
 ) {}
 
 /**
@@ -1087,16 +1126,17 @@ export class OpenclawLiveAcceptanceInput extends S.Class<OpenclawLiveAcceptanceI
  * @category models
  * @since 0.0.0
  */
-export class OpenclawLiveAcceptancePassed extends S.Class<OpenclawLiveAcceptancePassed>(
-  $I`OpenclawLiveAcceptancePassed`
-)(
-  {
-    _tag: S.tag("Passed"),
+export class OpenclawLiveAcceptancePassed extends S.Opaque<
+  OpenclawLiveAcceptancePassed,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("Passed", {
     steps: S.Array(OpenclawLiveAcceptanceStep),
-  },
-  $I.annote("OpenclawLiveAcceptancePassed", {
-    description: "All supplied P3 acceptance assertions passed.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawLiveAcceptancePassed", {
+      description: "All supplied P3 acceptance assertions passed.",
+    })
+  )
 ) {}
 
 /**
@@ -1117,17 +1157,18 @@ export class OpenclawLiveAcceptancePassed extends S.Class<OpenclawLiveAcceptance
  * @category models
  * @since 0.0.0
  */
-export class OpenclawLiveAcceptanceFailed extends S.Class<OpenclawLiveAcceptanceFailed>(
-  $I`OpenclawLiveAcceptanceFailed`
-)(
-  {
-    _tag: S.tag("Failed"),
+export class OpenclawLiveAcceptanceFailed extends S.Opaque<
+  OpenclawLiveAcceptanceFailed,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("Failed", {
     diagnostics: OpenclawDiagnosticText,
     step: OpenclawLiveAcceptanceStep,
-  },
-  $I.annote("OpenclawLiveAcceptanceFailed", {
-    description: "One named P3 acceptance assertion failed closed.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawLiveAcceptanceFailed", {
+      description: "One named P3 acceptance assertion failed closed.",
+    })
+  )
 ) {}
 
 /**
@@ -1197,8 +1238,8 @@ const openclawInvocationContextExtraEnvDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class OpenclawInvocationContext extends S.Class<OpenclawInvocationContext>($I`OpenclawInvocationContext`)(
-  {
+export class OpenclawInvocationContext extends S.Opaque<OpenclawInvocationContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     binaryPath: S.NonEmptyString.annotateKey({
       description: "Path of the pinned openclaw executable.",
     }),
@@ -1239,10 +1280,11 @@ export class OpenclawInvocationContext extends S.Class<OpenclawInvocationContext
       .annotateKey({
         description: "Absolute path exported as OPENCLAW_STATE_DIR, when set.",
       }),
-  },
-  $I.annote("OpenclawInvocationContext", {
-    description: "Hermetic invocation context for OpenClaw CLI operations.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawInvocationContext", {
+      description: "Hermetic invocation context for OpenClaw CLI operations.",
+    })
+  )
 ) {}
 
 /**
@@ -1300,7 +1342,9 @@ export type OpenclawSystemdActiveState = typeof OpenclawSystemdActiveState.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSystemdUnitState extends S.Class<OpenclawSystemdUnitState>($I`OpenclawSystemdUnitState`)(
+export class OpenclawSystemdUnitState extends S.Class<OpenclawSystemdUnitState, { readonly brand: unique symbol }>(
+  $I`OpenclawSystemdUnitState`
+)(
   {
     activeState: S.NonEmptyString.annotateKey({
       description: "Raw ActiveState value reported by systemctl.",
@@ -1387,8 +1431,8 @@ export type OpenclawHttpProbeStatus = typeof OpenclawHttpProbeStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class OpenclawHttpProbe extends S.Class<OpenclawHttpProbe>($I`OpenclawHttpProbe`)(
-  {
+export class OpenclawHttpProbe extends S.Opaque<OpenclawHttpProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     endpoint: S.NonEmptyString.annotateKey({
       description: "Probed endpoint URL.",
     }),
@@ -1398,10 +1442,11 @@ export class OpenclawHttpProbe extends S.Class<OpenclawHttpProbe>($I`OpenclawHtt
     status: OpenclawHttpProbeStatus.annotateKey({
       description: "Probe verdict; transport failures collapse to 'unreachable'.",
     }),
-  },
-  $I.annote("OpenclawHttpProbe", {
-    description: "Never-failing HTTP probe result for a gateway endpoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawHttpProbe", {
+      description: "Never-failing HTTP probe result for a gateway endpoint.",
+    })
+  )
 ) {}
 
 /**
@@ -1458,20 +1503,22 @@ export type OpenclawSchemaPlaceholderReason = typeof OpenclawSchemaPlaceholderRe
  * @category models
  * @since 0.0.0
  */
-export class OpenclawSchemaPlaceholderFinding extends S.Class<OpenclawSchemaPlaceholderFinding>(
-  $I`OpenclawSchemaPlaceholderFinding`
-)(
-  {
+export class OpenclawSchemaPlaceholderFinding extends S.Opaque<
+  OpenclawSchemaPlaceholderFinding,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     reason: OpenclawSchemaPlaceholderReason.annotateKey({
       description: "Why the surface is lossy in the exported schema.",
     }),
     surface: S.NonEmptyString.annotateKey({
       description: "Dotted config path of the declared extension surface.",
     }),
-  },
-  $I.annote("OpenclawSchemaPlaceholderFinding", {
-    description: "Lossy schema-export finding for a declared extension surface.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawSchemaPlaceholderFinding", {
+      description: "Lossy schema-export finding for a declared extension surface.",
+    })
+  )
 ) {}
 
 /**
@@ -1495,8 +1542,8 @@ export class OpenclawSchemaPlaceholderFinding extends S.Class<OpenclawSchemaPlac
  * @category models
  * @since 0.0.0
  */
-export class OpenclawCompatibilitySet extends S.Class<OpenclawCompatibilitySet>($I`OpenclawCompatibilitySet`)(
-  {
+export class OpenclawCompatibilitySet extends S.Opaque<OpenclawCompatibilitySet, { readonly brand: unique symbol }>()(
+  S.Struct({
     adapterVersion: OpenclawAdapterVersion.annotateKey({
       description: "Render-adapter version keyed to the pinned OpenClaw version.",
     }),
@@ -1515,8 +1562,9 @@ export class OpenclawCompatibilitySet extends S.Class<OpenclawCompatibilitySet>(
     openclawVersion: OpenclawTargetVersion.annotateKey({
       description: "Pinned OpenClaw version string.",
     }),
-  },
-  $I.annote("OpenclawCompatibilitySet", {
-    description: "Pinned Node/OpenClaw/adapter compatibility set.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenclawCompatibilitySet", {
+      description: "Pinned Node/OpenClaw/adapter compatibility set.",
+    })
+  )
 ) {}

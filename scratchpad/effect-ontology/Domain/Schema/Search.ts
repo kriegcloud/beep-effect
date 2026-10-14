@@ -46,8 +46,7 @@ const claimSearchRequestOffsetDefault = S.Natural.make(0);
  * @category dtos
  * @since 0.0.0
  */
-export class ClaimSearchRequest extends S.Class<ClaimSearchRequest>($I`ClaimSearchRequest`)(
-  {
+export class ClaimSearchRequest extends S.Opaque<ClaimSearchRequest, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString.annotateKey({ description: "Ontology scope for claim search." }),
     query: S.NonEmptyString,
     predicates: IRI.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
@@ -56,11 +55,9 @@ export class ClaimSearchRequest extends S.Class<ClaimSearchRequest>($I`ClaimSear
     rank: S.OptionFromOptionalKey(ClaimRank).pipe(S.withConstructorDefault(Effect.succeedNone)),
     limit: PosInt.pipe(S.withConstructorDefault(Effect.succeed(claimSearchRequestLimitDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(claimSearchRequestLimitDefault))),
     offset: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(claimSearchRequestOffsetDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(claimSearchRequestOffsetDefault))),
-  },
-  $I.annote("ClaimSearchRequest", {
+  }).pipe($I.annoteSchema("ClaimSearchRequest", {
     description: "Claim-search body with normalized filters and constrained pagination defaults.",
-  })
-) {}
+  }))) {}
 
 const PredicateFacet = S.Struct({
   iri: IRI,
@@ -105,8 +102,7 @@ const claimSearchResponseClaimsDefault = A.empty<ClaimWithRank>();
  * @category dtos
  * @since 0.0.0
  */
-export class ClaimSearchResponse extends S.Class<ClaimSearchResponse>($I`ClaimSearchResponse`)(
-  {
+export class ClaimSearchResponse extends S.Opaque<ClaimSearchResponse, { readonly brand: unique symbol }>()(S.Struct({
     query: S.NonEmptyString,
     claims: S.Array(ClaimWithRank).pipe(S.withConstructorDefault(Effect.succeed(claimSearchResponseClaimsDefault)), S.withDecodingDefaultType(Effect.succeed(claimSearchResponseClaimsDefault))),
     total: S.Natural,
@@ -114,11 +110,9 @@ export class ClaimSearchResponse extends S.Class<ClaimSearchResponse>($I`ClaimSe
     offset: S.Natural,
     hasMore: S.Boolean,
     facets: S.OptionFromOptionalKey(ClaimSearchFacets).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ClaimSearchResponse", {
+  }).pipe($I.annoteSchema("ClaimSearchResponse", {
     description: "Paginated claim-search response with optional predicate and source facets.",
-  })
-) {}
+  }))) {}
 
 const entitySearchRequestLimitDefault = PosInt.make(20);
 /**
@@ -137,17 +131,14 @@ const entitySearchRequestLimitDefault = PosInt.make(20);
  * @category dtos
  * @since 0.0.0
  */
-export class EntitySearchRequest extends S.Class<EntitySearchRequest>($I`EntitySearchRequest`)(
-  {
+export class EntitySearchRequest extends S.Opaque<EntitySearchRequest, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString.annotateKey({ description: "Ontology scope for entity search." }),
     query: S.NonEmptyString,
     types: IRI.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     limit: PosInt.pipe(S.withConstructorDefault(Effect.succeed(entitySearchRequestLimitDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(entitySearchRequestLimitDefault))),
-  },
-  $I.annote("EntitySearchRequest", {
+  }).pipe($I.annoteSchema("EntitySearchRequest", {
     description: "Entity-search body with optional ontology-type filter and positive result limit.",
-  })
-) {}
+  }))) {}
 
 const EntityTopClaim = S.Struct({
   predicate: IRI,
@@ -178,18 +169,15 @@ const entitySearchResultTopClaimsDefault = A.empty<typeof EntityTopClaim.Type>()
  * @category models
  * @since 0.0.0
  */
-export class EntitySearchResult extends S.Class<EntitySearchResult>($I`EntitySearchResult`)(
-  {
+export class EntitySearchResult extends S.Opaque<EntitySearchResult, { readonly brand: unique symbol }>()(S.Struct({
     iri: IRI,
     label: S.OptionFromNullishOr(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     types: S.Array(IRI).pipe(S.withConstructorDefault(Effect.succeed(entitySearchResultTypesDefault)), S.withDecodingDefaultType(Effect.succeed(entitySearchResultTypesDefault))),
     claimCount: S.Natural,
     topClaims: S.Array(EntityTopClaim).pipe(S.withConstructorDefault(Effect.succeed(entitySearchResultTopClaimsDefault)), S.withDecodingDefaultType(Effect.succeed(entitySearchResultTopClaimsDefault))),
-  },
-  $I.annote("EntitySearchResult", {
+  }).pipe($I.annoteSchema("EntitySearchResult", {
     description: "Entity-search result with canonical IRIs, non-negative claim count, and normalized claim previews.",
-  })
-) {}
+  }))) {}
 
 const entitySearchResponseEntitiesDefault = A.empty<EntitySearchResult>();
 /**
@@ -211,16 +199,13 @@ const entitySearchResponseEntitiesDefault = A.empty<EntitySearchResult>();
  * @category dtos
  * @since 0.0.0
  */
-export class EntitySearchResponse extends S.Class<EntitySearchResponse>($I`EntitySearchResponse`)(
-  {
+export class EntitySearchResponse extends S.Opaque<EntitySearchResponse, { readonly brand: unique symbol }>()(S.Struct({
     query: S.NonEmptyString,
     entities: S.Array(EntitySearchResult).pipe(S.withConstructorDefault(Effect.succeed(entitySearchResponseEntitiesDefault)), S.withDecodingDefaultType(Effect.succeed(entitySearchResponseEntitiesDefault))),
     total: S.Natural,
-  },
-  $I.annote("EntitySearchResponse", {
+  }).pipe($I.annoteSchema("EntitySearchResponse", {
     description: "Entity-search response with an always-present result collection and non-negative total.",
-  })
-) {}
+  }))) {}
 
 const suggestionQueryLimitDefault = PosInt.make(10);
 /**
@@ -239,16 +224,13 @@ const suggestionQueryLimitDefault = PosInt.make(10);
  * @category dtos
  * @since 0.0.0
  */
-export class SuggestionQuery extends S.Class<SuggestionQuery>($I`SuggestionQuery`)(
-  {
+export class SuggestionQuery extends S.Opaque<SuggestionQuery, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString.annotateKey({ description: "Ontology scope for suggestions." }),
     prefix: S.NonEmptyString,
     limit: PositiveLimitFromString.pipe(S.withConstructorDefault(Effect.succeed(suggestionQueryLimitDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(suggestionQueryLimitDefault))),
-  },
-  $I.annote("SuggestionQuery", {
+  }).pipe($I.annoteSchema("SuggestionQuery", {
     description: "Suggestion query with non-empty prefix and a positive limit decoded from URL text.",
-  })
-) {}
+  }))) {}
 
 /**
  * Individual entity suggestion.
@@ -269,17 +251,14 @@ export class SuggestionQuery extends S.Class<SuggestionQuery>($I`SuggestionQuery
  * @category models
  * @since 0.0.0
  */
-export class Suggestion extends S.Class<Suggestion>($I`Suggestion`)(
-  {
+export class Suggestion extends S.Opaque<Suggestion, { readonly brand: unique symbol }>()(S.Struct({
     label: S.NonEmptyString,
     iri: IRI,
     type: S.OptionFromNullishOr(IRI).pipe(S.withConstructorDefault(Effect.succeedNone)),
     description: S.OptionFromNullishOr(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("Suggestion", {
+  }).pipe($I.annoteSchema("Suggestion", {
     description: "Entity suggestion with canonical resource/type IRIs and optional descriptive text.",
-  })
-) {}
+  }))) {}
 
 const suggestionsResponseSuggestionsDefault = A.empty<Suggestion>();
 /**
@@ -296,15 +275,12 @@ const suggestionsResponseSuggestionsDefault = A.empty<Suggestion>();
  * @category dtos
  * @since 0.0.0
  */
-export class SuggestionsResponse extends S.Class<SuggestionsResponse>($I`SuggestionsResponse`)(
-  {
+export class SuggestionsResponse extends S.Opaque<SuggestionsResponse, { readonly brand: unique symbol }>()(S.Struct({
     prefix: S.NonEmptyString,
     suggestions: S.Array(Suggestion).pipe(S.withConstructorDefault(Effect.succeed(suggestionsResponseSuggestionsDefault)), S.withDecodingDefaultType(Effect.succeed(suggestionsResponseSuggestionsDefault))),
-  },
-  $I.annote("SuggestionsResponse", {
+  }).pipe($I.annoteSchema("SuggestionsResponse", {
     description: "Typeahead response with its original prefix and an always-present suggestion collection.",
-  })
-) {}
+  }))) {}
 
 const articleSearchRequestLimitDefault = PosInt.make(20);
 const articleSearchRequestOffsetDefault = S.Natural.make(0);
@@ -324,19 +300,16 @@ const articleSearchRequestOffsetDefault = S.Natural.make(0);
  * @category dtos
  * @since 0.0.0
  */
-export class ArticleSearchRequest extends S.Class<ArticleSearchRequest>($I`ArticleSearchRequest`)(
-  {
+export class ArticleSearchRequest extends S.Opaque<ArticleSearchRequest, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString.annotateKey({ description: "Ontology scope for article search." }),
     query: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     sources: S.NonEmptyString.pipe(S.Array, S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     dateRange: S.OptionFromOptionalKey(OrderedUtcRange).pipe(S.withConstructorDefault(Effect.succeedNone)),
     limit: PosInt.pipe(S.withConstructorDefault(Effect.succeed(articleSearchRequestLimitDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(articleSearchRequestLimitDefault))),
     offset: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(articleSearchRequestOffsetDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(articleSearchRequestOffsetDefault))),
-  },
-  $I.annote("ArticleSearchRequest", {
+  }).pipe($I.annoteSchema("ArticleSearchRequest", {
     description: "Article-search body with normalized filters and constrained pagination defaults.",
-  })
-) {}
+  }))) {}
 
 /**
  * Source-article search hit and its aggregate knowledge counts.
@@ -363,16 +336,13 @@ export class ArticleSearchRequest extends S.Class<ArticleSearchRequest>($I`Artic
  * @category models
  * @since 0.0.0
  */
-export class ArticleSearchResult extends S.Class<ArticleSearchResult>($I`ArticleSearchResult`)(
-  {
+export class ArticleSearchResult extends S.Opaque<ArticleSearchResult, { readonly brand: unique symbol }>()(S.Struct({
     article: ArticleSummary,
     claimCount: S.Natural,
     conflictCount: S.Natural,
-  },
-  $I.annote("ArticleSearchResult", {
+  }).pipe($I.annoteSchema("ArticleSearchResult", {
     description: "Article-search hit with non-negative extracted-claim and pending-conflict counts.",
-  })
-) {}
+  }))) {}
 
 const articleSearchResponseArticlesDefault = A.empty<ArticleSearchResult>();
 /**
@@ -396,15 +366,12 @@ const articleSearchResponseArticlesDefault = A.empty<ArticleSearchResult>();
  * @category dtos
  * @since 0.0.0
  */
-export class ArticleSearchResponse extends S.Class<ArticleSearchResponse>($I`ArticleSearchResponse`)(
-  {
+export class ArticleSearchResponse extends S.Opaque<ArticleSearchResponse, { readonly brand: unique symbol }>()(S.Struct({
     articles: S.Array(ArticleSearchResult).pipe(S.withConstructorDefault(Effect.succeed(articleSearchResponseArticlesDefault)), S.withDecodingDefaultType(Effect.succeed(articleSearchResponseArticlesDefault))),
     total: S.Natural,
     limit: PosInt,
     offset: S.Natural,
     hasMore: S.Boolean,
-  },
-  $I.annote("ArticleSearchResponse", {
+  }).pipe($I.annoteSchema("ArticleSearchResponse", {
     description: "Paginated article-search response with constrained counts and an always-present result collection.",
-  })
-) {}
+  }))) {}

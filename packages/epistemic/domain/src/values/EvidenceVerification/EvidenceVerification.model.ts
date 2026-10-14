@@ -77,10 +77,11 @@ export type EvidenceVerificationManifestationKey = typeof EvidenceVerificationMa
  * @category value-objects
  * @since 0.0.0
  */
-export class EvidenceVerificationManifestation extends S.Class<EvidenceVerificationManifestation>(
-  $I`EvidenceVerificationManifestation`
-)(
-  {
+export class EvidenceVerificationManifestation extends S.Opaque<
+  EvidenceVerificationManifestation,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     evidenceId: EpistemicIdentity.EvidenceId.annotateKey({
       description: "Existing epistemic evidence row bound to the verified anchor.",
     }),
@@ -88,10 +89,11 @@ export class EvidenceVerificationManifestation extends S.Class<EvidenceVerificat
       description:
         "Persisted receipt for the exact source identity and UTF-16 anchor; runtime use requires re-verification.",
     }),
-  },
-  $I.annote("EvidenceVerificationManifestation", {
-    description: "One exact evidence id and verified source-text anchor pair.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceVerificationManifestation", {
+      description: "One exact evidence id and verified source-text anchor pair.",
+    })
+  )
 ) {}
 
 const encodeManifestation = S.encodeResult(EvidenceVerificationManifestation);

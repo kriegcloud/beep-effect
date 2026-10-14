@@ -64,18 +64,19 @@ export type RecycleBinFormatVersion = typeof RecycleBinFormatVersion.Type;
  * @category models
  * @since 0.0.0
  */
-export class RecycleBinOriginal extends S.Class<RecycleBinOriginal>($I`RecycleBinOriginal`)(
-  {
+export class RecycleBinOriginal extends S.Opaque<RecycleBinOriginal, { readonly brand: unique symbol }>()(
+  S.Struct({
     deletedAtFiletime: S.NonEmptyString,
     deletedAtIso: S.NonEmptyString,
     originalName: S.NonEmptyString,
     originalPath: S.NonEmptyString,
     originalSizeBytes: S.Natural,
     version: RecycleBinFormatVersion,
-  },
-  $I.annote("RecycleBinOriginal", {
-    description: "Original path, name, size, and deletion time recovered from a $I recycle-bin metadata file.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecycleBinOriginal", {
+      description: "Original path, name, size, and deletion time recovered from a $I recycle-bin metadata file.",
+    })
+  )
 ) {}
 
 /**
@@ -108,18 +109,19 @@ export class RecycleBinOriginal extends S.Class<RecycleBinOriginal>($I`RecycleBi
  * @category models
  * @since 0.0.0
  */
-export class MatchedRestorationRecord extends S.Class<MatchedRestorationRecord>($I`MatchedRestorationRecord`)(
-  {
+export class MatchedRestorationRecord extends S.Opaque<MatchedRestorationRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentRelativePath: S.NonEmptyString,
     matchStatus: S.Literal("matched"),
     metadataRelativePath: S.NonEmptyString,
     original: RecycleBinOriginal,
     pairKey: S.NonEmptyString,
     sourceLabel: S.NonEmptyString,
-  },
-  $I.annote("MatchedRestorationRecord", {
-    description: "A $R content file whose original name and path were restored from its paired $I metadata file.",
-  })
+  }).pipe(
+    $I.annoteSchema("MatchedRestorationRecord", {
+      description: "A $R content file whose original name and path were restored from its paired $I metadata file.",
+    })
+  )
 ) {}
 
 /**
@@ -151,19 +153,21 @@ export class MatchedRestorationRecord extends S.Class<MatchedRestorationRecord>(
  * @category models
  * @since 0.0.0
  */
-export class UnmatchedMetadataRestorationRecord extends S.Class<UnmatchedMetadataRestorationRecord>(
-  $I`UnmatchedMetadataRestorationRecord`
-)(
-  {
+export class UnmatchedMetadataRestorationRecord extends S.Opaque<
+  UnmatchedMetadataRestorationRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     matchStatus: S.Literal("unmatched-metadata"),
     metadataRelativePath: S.NonEmptyString,
     original: RecycleBinOriginal,
     pairKey: S.NonEmptyString,
     sourceLabel: S.NonEmptyString,
-  },
-  $I.annote("UnmatchedMetadataRestorationRecord", {
-    description: "A $I metadata file whose paired $R content file is absent from the salvaged corpus.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnmatchedMetadataRestorationRecord", {
+      description: "A $I metadata file whose paired $R content file is absent from the salvaged corpus.",
+    })
+  )
 ) {}
 
 /**
@@ -186,18 +190,20 @@ export class UnmatchedMetadataRestorationRecord extends S.Class<UnmatchedMetadat
  * @category models
  * @since 0.0.0
  */
-export class UnmatchedContentRestorationRecord extends S.Class<UnmatchedContentRestorationRecord>(
-  $I`UnmatchedContentRestorationRecord`
-)(
-  {
+export class UnmatchedContentRestorationRecord extends S.Opaque<
+  UnmatchedContentRestorationRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contentRelativePath: S.NonEmptyString,
     matchStatus: S.Literal("unmatched-content"),
     pairKey: S.NonEmptyString,
     sourceLabel: S.NonEmptyString,
-  },
-  $I.annote("UnmatchedContentRestorationRecord", {
-    description: "A $R content file whose $I metadata file is absent, so its original name stays unknown.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnmatchedContentRestorationRecord", {
+      description: "A $R content file whose $I metadata file is absent, so its original name stays unknown.",
+    })
+  )
 ) {}
 
 /**
@@ -311,15 +317,16 @@ export type RecycleBinEntryKind = typeof RecycleBinEntryKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class RecycleBinScanEntry extends S.Class<RecycleBinScanEntry>($I`RecycleBinScanEntry`)(
-  {
+export class RecycleBinScanEntry extends S.Opaque<RecycleBinScanEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: RecycleBinEntryKind,
     pairKey: S.NonEmptyString,
     relativePath: S.NonEmptyString,
-  },
-  $I.annote("RecycleBinScanEntry", {
-    description: "A $I or $R artifact observed in a salvaged source, keyed for pairing.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecycleBinScanEntry", {
+      description: "A $I or $R artifact observed in a salvaged source, keyed for pairing.",
+    })
+  )
 ) {}
 
 /**
@@ -341,15 +348,16 @@ export class RecycleBinScanEntry extends S.Class<RecycleBinScanEntry>($I`Recycle
  * @category models
  * @since 0.0.0
  */
-export class RecycleBinPairedEntry extends S.Class<RecycleBinPairedEntry>($I`RecycleBinPairedEntry`)(
-  {
+export class RecycleBinPairedEntry extends S.Opaque<RecycleBinPairedEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentRelativePath: S.NonEmptyString,
     metadataRelativePath: S.NonEmptyString,
     pairKey: S.NonEmptyString,
-  },
-  $I.annote("RecycleBinPairedEntry", {
-    description: "A matched $I metadata and $R content pair sharing one pair key.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecycleBinPairedEntry", {
+      description: "A matched $I metadata and $R content pair sharing one pair key.",
+    })
+  )
 ) {}
 
 /**
@@ -371,13 +379,14 @@ export class RecycleBinPairedEntry extends S.Class<RecycleBinPairedEntry>($I`Rec
  * @category models
  * @since 0.0.0
  */
-export class RecycleBinPairing extends S.Class<RecycleBinPairing>($I`RecycleBinPairing`)(
-  {
+export class RecycleBinPairing extends S.Opaque<RecycleBinPairing, { readonly brand: unique symbol }>()(
+  S.Struct({
     matched: S.Array(RecycleBinPairedEntry),
     unmatchedContent: S.Array(RecycleBinScanEntry),
     unmatchedMetadata: S.Array(RecycleBinScanEntry),
-  },
-  $I.annote("RecycleBinPairing", {
-    description: "Matched pairs plus unmatched $I and $R leftovers for one pairing pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("RecycleBinPairing", {
+      description: "Matched pairs plus unmatched $I and $R leftovers for one pairing pass.",
+    })
+  )
 ) {}

@@ -102,8 +102,8 @@ const optionsFromInput = (options: ExiftoolErrorContextInput): ExiftoolErrorFrom
  * @category errors
  * @since 0.0.0
  */
-export class ExiftoolErrorContext extends S.Class<ExiftoolErrorContext>($I`ExiftoolErrorContext`)(
-  {
+export class ExiftoolErrorContext extends S.Opaque<ExiftoolErrorContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     command: S.OptionFromOptionalKey(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ExiftoolErrorContext.command", {
@@ -128,10 +128,11 @@ export class ExiftoolErrorContext extends S.Class<ExiftoolErrorContext>($I`Exift
         description: "Captured standard output text, when available.",
       })
     ),
-  },
-  $I.annote("ExiftoolErrorContext", {
-    description: "Additional process context captured for an ExifTool failure.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExiftoolErrorContext", {
+      description: "Additional process context captured for an ExifTool failure.",
+    })
+  )
 ) {}
 
 const existingExiftoolError = (cause: unknown): O.Option<ExiftoolError> =>
@@ -157,10 +158,11 @@ const existingExiftoolError = (cause: unknown): O.Option<ExiftoolError> =>
  * @category errors
  * @since 0.0.0
  */
-export class ExiftoolErrorFromUnknownOptions extends S.Class<ExiftoolErrorFromUnknownOptions>(
-  $I`ExiftoolErrorFromUnknownOptions`
-)(
-  {
+export class ExiftoolErrorFromUnknownOptions extends S.Opaque<
+  ExiftoolErrorFromUnknownOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     cause: S.OptionFromOptionalKey(ExiftoolDefect).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ExiftoolErrorFromUnknownOptions.cause", {
@@ -191,10 +193,11 @@ export class ExiftoolErrorFromUnknownOptions extends S.Class<ExiftoolErrorFromUn
         description: "Captured standard output text, when available.",
       })
     ),
-  },
-  $I.annote("ExiftoolErrorFromUnknownOptions", {
-    description: "Options used when normalizing unknown ExifTool boundary failures.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExiftoolErrorFromUnknownOptions", {
+      description: "Options used when normalizing unknown ExifTool boundary failures.",
+    })
+  )
 ) {}
 
 /**
@@ -212,7 +215,7 @@ export class ExiftoolErrorFromUnknownOptions extends S.Class<ExiftoolErrorFromUn
  * @category errors
  * @since 0.0.0
  */
-export class ExiftoolError extends S.TaggedError<ExiftoolError>($I`ExiftoolError`)(
+export class ExiftoolError extends S.TaggedError<ExiftoolError, { readonly brand: unique symbol }>($I`ExiftoolError`)(
   "ExiftoolError",
   {
     command: S.OptionFromOptionalKey(S.String).pipe(

@@ -35,14 +35,15 @@ const $I = $WorkspaceDomainId.create("entities/Turn/Turn.values");
  * @category models
  * @since 0.0.0
  */
-export class MessageItem extends S.Class<MessageItem>($I`MessageItem`)(
-  {
+export class MessageItem extends S.Opaque<MessageItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemType: S.tag("message"),
     messageId: WorkspaceIdentity.MessageId,
-  },
-  $I.annote("MessageItem", {
-    description: "Ordered turn item referencing persisted md-aligned message content.",
-  })
+  }).pipe(
+    $I.annoteSchema("MessageItem", {
+      description: "Ordered turn item referencing persisted md-aligned message content.",
+    })
+  )
 ) {}
 
 /**
@@ -66,16 +67,17 @@ export class MessageItem extends S.Class<MessageItem>($I`MessageItem`)(
  * @category models
  * @since 0.0.0
  */
-export class ToolCallItem extends S.Class<ToolCallItem>($I`ToolCallItem`)(
-  {
+export class ToolCallItem extends S.Opaque<ToolCallItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemType: S.tag("tool_call"),
     name: S.NonEmptyString,
     payload: UnknownRecord,
     toolCallId: S.NonEmptyString,
-  },
-  $I.annote("ToolCallItem", {
-    description: "Ordered turn item recording a tool invocation request.",
-  })
+  }).pipe(
+    $I.annoteSchema("ToolCallItem", {
+      description: "Ordered turn item recording a tool invocation request.",
+    })
+  )
 ) {}
 
 /**
@@ -98,15 +100,16 @@ export class ToolCallItem extends S.Class<ToolCallItem>($I`ToolCallItem`)(
  * @category models
  * @since 0.0.0
  */
-export class ToolResultItem extends S.Class<ToolResultItem>($I`ToolResultItem`)(
-  {
+export class ToolResultItem extends S.Opaque<ToolResultItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemType: S.tag("tool_result"),
     payload: UnknownRecord,
     toolCallId: S.NonEmptyString,
-  },
-  $I.annote("ToolResultItem", {
-    description: "Ordered turn item recording the result of a tool invocation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ToolResultItem", {
+      description: "Ordered turn item recording the result of a tool invocation.",
+    })
+  )
 ) {}
 
 /**
@@ -128,14 +131,15 @@ export class ToolResultItem extends S.Class<ToolResultItem>($I`ToolResultItem`)(
  * @category models
  * @since 0.0.0
  */
-export class ArtifactRefItem extends S.Class<ArtifactRefItem>($I`ArtifactRefItem`)(
-  {
+export class ArtifactRefItem extends S.Opaque<ArtifactRefItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     artifactId: WorkspaceIdentity.EmailArtifactId,
     itemType: S.tag("artifact_ref"),
-  },
-  $I.annote("ArtifactRefItem", {
-    description: "Ordered turn item referencing a workspace artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArtifactRefItem", {
+      description: "Ordered turn item referencing a workspace artifact.",
+    })
+  )
 ) {}
 
 /**
@@ -157,14 +161,15 @@ export class ArtifactRefItem extends S.Class<ArtifactRefItem>($I`ArtifactRefItem
  * @category models
  * @since 0.0.0
  */
-export class ActivityItem extends S.Class<ActivityItem>($I`ActivityItem`)(
-  {
+export class ActivityItem extends S.Opaque<ActivityItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     activityId: EpistemicIdentity.ActivityId,
     itemType: S.tag("activity"),
-  },
-  $I.annote("ActivityItem", {
-    description: "Ordered turn item linking runtime provenance activity.",
-  })
+  }).pipe(
+    $I.annoteSchema("ActivityItem", {
+      description: "Ordered turn item linking runtime provenance activity.",
+    })
+  )
 ) {}
 
 const TurnItemTag = LiteralKit(["message", "tool_call", "tool_result", "artifact_ref", "activity"]);
@@ -206,13 +211,12 @@ export const TurnItem = TurnItemTag.mapMembers(
  * **Example** (Annotate turn item type)
  *
  * ```ts
- * import type { TurnItem } from "@beep/workspace-domain/entities/Turn"
+ * import { ToolResultItem, type TurnItem } from "@beep/workspace-domain/entities/Turn"
  *
- * const item: TurnItem = {
- *   itemType: "tool_result",
+ * const item: TurnItem = ToolResultItem.make({
  *   payload: { ok: true },
  *   toolCallId: "tool-call-1",
- * }
+ * })
  * console.log(item.itemType)
  * ```
  *
@@ -257,15 +261,14 @@ export const TurnItems = S.NonEmptyArray(TurnItem).pipe(
  * **Example** (Annotate turn items type)
  *
  * ```ts
- * import type { TurnItems } from "@beep/workspace-domain/entities/Turn"
+ * import { ToolCallItem, type TurnItems } from "@beep/workspace-domain/entities/Turn"
  *
  * const items: TurnItems = [
- *   {
- *     itemType: "tool_call",
+ *   ToolCallItem.make({
  *     name: "search",
  *     payload: { query: "thread context" },
  *     toolCallId: "tool-call-1",
- *   },
+ *   }),
  * ]
  * console.log(items[0]?.itemType)
  * ```

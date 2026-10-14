@@ -23,6 +23,7 @@ import {
   SymbolId,
   SymbolIdentityParts,
   SymbolIdParts,
+  SymbolInit,
   SymbolKind,
   SymbolKindToCategory,
   SymbolNameSegment,
@@ -112,7 +113,7 @@ const decodeInternalSourceFile = S.decodeUnknownEffect(InternalTsMorphSourceFile
 const decodeInternalNode = S.decodeUnknownEffect(InternalTsMorphNode);
 const encodeSymbol = S.encodeEffect(Symbol);
 
-const baseSymbolInput = {
+const baseSymbolInput = SymbolInit.make({
   filePath: SymbolFilePath.make("src/main.ts"),
   name: SymbolNameSegment.make("login"),
   qualifiedName: SymbolQualifiedName.make("UserService.login"),
@@ -128,7 +129,7 @@ const baseSymbolInput = {
   byteOffset: ByteOffset.make(128),
   byteLength: ByteLength.make(84),
   contentHash: ContentHash.make("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"),
-};
+});
 
 const baseSymbol = makeSymbol({
   ...baseSymbolInput,
@@ -227,11 +228,13 @@ describe("TSMorph model taxonomy", () => {
           "MethodDeclaration",
         ]);
 
-        const scopeId = makeProjectScopeId({
-          tsConfigPath: yield* decodeTsConfigFilePath("packages/tooling/library/repo-utils/tsconfig.json"),
-          mode: TsMorphScopeMode.Enum.syntax,
-          referencePolicy: TsMorphReferencePolicy.Enum.workspaceOnly,
-        });
+        const scopeId = makeProjectScopeId(
+          ProjectIdentityParts.make({
+            tsConfigPath: yield* decodeTsConfigFilePath("packages/tooling/library/repo-utils/tsconfig.json"),
+            mode: TsMorphScopeMode.Enum.syntax,
+            referencePolicy: TsMorphReferencePolicy.Enum.workspaceOnly,
+          })
+        );
 
         expect(scopeId).toBe("packages/tooling/library/repo-utils/tsconfig.json::syntax#workspaceOnly");
         expect(yield* decodeProjectScopeId(scopeId)).toBe(scopeId);
@@ -243,11 +246,13 @@ describe("TSMorph model taxonomy", () => {
           "workspaceOnly",
         ]);
         expect(
-          makeProjectCacheKey({
-            tsConfigPath: yield* decodeTsConfigFilePath("packages/tooling/library/repo-utils/tsconfig.json"),
-            mode: TsMorphScopeMode.Enum.syntax,
-            referencePolicy: TsMorphReferencePolicy.Enum.workspaceOnly,
-          })
+          makeProjectCacheKey(
+            ProjectIdentityParts.make({
+              tsConfigPath: yield* decodeTsConfigFilePath("packages/tooling/library/repo-utils/tsconfig.json"),
+              mode: TsMorphScopeMode.Enum.syntax,
+              referencePolicy: TsMorphReferencePolicy.Enum.workspaceOnly,
+            })
+          )
         ).toBe("packages/tooling/library/repo-utils/tsconfig.json::syntax#workspaceOnly");
       })
     );
@@ -354,11 +359,13 @@ describe("TSMorph model taxonomy", () => {
         const symbol = makeSymbol(baseSymbolInput);
 
         expect(symbol.id).toBe(
-          makeSymbolId({
-            filePath: yield* decodeSymbolFilePath("src/main.ts"),
-            qualifiedName: yield* decodeSymbolQualifiedName("UserService.login"),
-            kind: yield* decodeSymbolKind("MethodDeclaration"),
-          })
+          makeSymbolId(
+            SymbolIdentityParts.make({
+              filePath: yield* decodeSymbolFilePath("src/main.ts"),
+              qualifiedName: yield* decodeSymbolQualifiedName("UserService.login"),
+              kind: yield* decodeSymbolKind("MethodDeclaration"),
+            })
+          )
         );
         expect(symbol.category).toBe(SymbolCategory.Enum.member);
         expect(

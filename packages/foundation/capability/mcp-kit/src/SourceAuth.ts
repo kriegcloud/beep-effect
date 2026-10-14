@@ -97,8 +97,8 @@ export type SourceAuthGate = typeof SourceAuthGate.Type;
  * @category models
  * @since 0.0.0
  */
-export class SourceAuthRegistration extends S.Class<SourceAuthRegistration>($I`SourceAuthRegistration`)(
-  {
+export class SourceAuthRegistration extends S.Opaque<SourceAuthRegistration, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Human-readable source name surfaced to callers and audit records.",
     }),
@@ -114,10 +114,11 @@ export class SourceAuthRegistration extends S.Class<SourceAuthRegistration>($I`S
         description: "Optional signup URL surfaced when the credential is missing.",
       })
     ),
-  },
-  $I.annote("SourceAuthRegistration", {
-    description: "Schema-first per-source credential-gate registration.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceAuthRegistration", {
+      description: "Schema-first per-source credential-gate registration.",
+    })
+  )
 ) {}
 
 /**

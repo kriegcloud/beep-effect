@@ -104,8 +104,8 @@ export type ReplayEventOutcome = typeof ReplayEventOutcome.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class ReplayEventVerdict extends S.Class<ReplayEventVerdict>($I`ReplayEventVerdict`)(
-  {
+export class ReplayEventVerdict extends S.Opaque<ReplayEventVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventIndex: S.Natural,
     admittedAtMillis: S.Natural,
     expectedNonce: S.NonEmptyString,
@@ -115,10 +115,11 @@ export class ReplayEventVerdict extends S.Class<ReplayEventVerdict>($I`ReplayEve
     outcome: ReplayEventOutcome,
     ledgerCensored: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     activeGrantNonces: S.Array(S.String).pipe(S.withConstructorDefault(Effect.succeed([]))),
-  },
-  $I.annote("ReplayEventVerdict", {
-    description: "Expected and projected first admission at one golden-journal grant instant.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplayEventVerdict", {
+      description: "Expected and projected first admission at one golden-journal grant instant.",
+    })
+  )
 ) {}
 
 /**
@@ -151,17 +152,18 @@ export class ReplayEventVerdict extends S.Class<ReplayEventVerdict>($I`ReplayEve
  * @category diagnostics
  * @since 0.0.0
  */
-export class InferredLeaseEviction extends S.Class<InferredLeaseEviction>($I`InferredLeaseEviction`)(
-  {
+export class InferredLeaseEviction extends S.Opaque<InferredLeaseEviction, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventIndex: S.Natural,
     evictedNonce: S.NonEmptyString,
     weightTokens: PosInt,
     activeTokenTotalBefore: S.Natural,
     activeTokenTotalAfter: S.Natural,
-  },
-  $I.annote("InferredLeaseEviction", {
-    description: "A never-released active grant evicted when a recorded admission proves its lease had died.",
-  })
+  }).pipe(
+    $I.annoteSchema("InferredLeaseEviction", {
+      description: "A never-released active grant evicted when a recorded admission proves its lease had died.",
+    })
+  )
 ) {}
 
 /**
@@ -221,16 +223,17 @@ export type ReplayTerminalTag = typeof ReplayTerminalTag.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class ReplaySkippedRow extends S.Class<ReplaySkippedRow>($I`ReplaySkippedRow`)(
-  {
+export class ReplaySkippedRow extends S.Opaque<ReplaySkippedRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventIndex: S.Natural,
     nonce: S.String,
     tag: ReplayTerminalTag,
     terminalAtMillis: S.Natural,
-  },
-  $I.annote("ReplaySkippedRow", {
-    description: "Release or lease eviction whose admission lies before the retained journal window.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplaySkippedRow", {
+      description: "Release or lease eviction whose admission lies before the retained journal window.",
+    })
+  )
 ) {}
 
 /**
@@ -262,8 +265,8 @@ export class ReplaySkippedRow extends S.Class<ReplaySkippedRow>($I`ReplaySkipped
  * @category diagnostics
  * @since 0.0.0
  */
-export class ReplayReport extends S.Class<ReplayReport>($I`ReplayReport`)(
-  {
+export class ReplayReport extends S.Opaque<ReplayReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventCount: S.Natural,
     admittedCount: S.Natural,
     releasedCount: S.Natural,
@@ -272,10 +275,11 @@ export class ReplayReport extends S.Class<ReplayReport>($I`ReplayReport`)(
     evictions: S.Array(InferredLeaseEviction),
     passed: S.Boolean,
     skippedRows: S.Array(ReplaySkippedRow).pipe(S.withConstructorDefault(Effect.succeed([]))),
-  },
-  $I.annote("ReplayReport", {
-    description: "Event counts and first-choice verdicts from deterministic differential replay.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReplayReport", {
+      description: "Event counts and first-choice verdicts from deterministic differential replay.",
+    })
+  )
 ) {}
 
 const isOrderedWindow = (window: {
@@ -321,17 +325,20 @@ const isOrderedWindow = (window: {
  * @category models
  * @since 0.0.0
  */
-export class ReplayWindow extends S.Class<ReplayWindow>($I`ReplayWindow`)(
+export class ReplayWindow extends S.Opaque<ReplayWindow, { readonly brand: unique symbol }>()(
   S.Struct({
     firstRetainedInstant: S.DateTimeUtcFromString,
     lastRetainedInstant: S.DateTimeUtcFromString,
     preV3Chains: S.Natural,
     journalSha256: Sha256Hex,
     manifestSha256: Sha256Hex,
-  }).check(S.makeFilter(isOrderedWindow, { message: "The first retained instant must not follow the last" })),
-  $I.annote("ReplayWindow", {
-    description: "Retained instants, pre-v3 chain count and pinned digests of one ring-trimmed journal.",
   })
+    .check(S.makeFilter(isOrderedWindow, { message: "The first retained instant must not follow the last" }))
+    .pipe(
+      $I.annoteSchema("ReplayWindow", {
+        description: "Retained instants, pre-v3 chain count and pinned digests of one ring-trimmed journal.",
+      })
+    )
 ) {}
 
 /**
@@ -355,11 +362,12 @@ export class ReplayWindow extends S.Class<ReplayWindow>($I`ReplayWindow`)(
  * @category models
  * @since 0.0.0
  */
-export class ReplayOptions extends S.Class<ReplayOptions>($I`ReplayOptions`)(
-  { window: ReplayWindow.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)) },
-  $I.annote("ReplayOptions", {
-    description: "Optional retained window for replaying a ring-trimmed live journal.",
-  })
+export class ReplayOptions extends S.Opaque<ReplayOptions, { readonly brand: unique symbol }>()(
+  S.Struct({ window: ReplayWindow.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)) }).pipe(
+    $I.annoteSchema("ReplayOptions", {
+      description: "Optional retained window for replaying a ring-trimmed live journal.",
+    })
+  )
 ) {}
 
 /**
@@ -382,7 +390,9 @@ export class ReplayOptions extends S.Class<ReplayOptions>($I`ReplayOptions`)(
  * @category errors
  * @since 0.0.0
  */
-export class ReplayWindowError extends S.TaggedError<ReplayWindowError>($I`ReplayWindowError`)(
+export class ReplayWindowError extends S.TaggedError<ReplayWindowError, { readonly brand: unique symbol }>(
+  $I`ReplayWindowError`
+)(
   "ReplayWindowError",
   { message: S.String, member: S.String, expected: S.String, actual: S.String },
   $I.annoteError<ReplayWindowError>("ReplayWindowError", {
@@ -1106,15 +1116,16 @@ export type MismatchAttribution = typeof MismatchAttribution.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class AttributedMismatch extends S.Class<AttributedMismatch>($I`AttributedMismatch`)(
-  {
+export class AttributedMismatch extends S.Opaque<AttributedMismatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     mismatch: ProjectionMismatch,
     attribution: MismatchAttribution,
     sharedCheckoutRoot: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("AttributedMismatch", {
-    description: "Live replay disagreement with the checkout join that explains it, if any.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttributedMismatch", {
+      description: "Live replay disagreement with the checkout join that explains it, if any.",
+    })
+  )
 ) {}
 
 /**
@@ -1133,11 +1144,12 @@ export class AttributedMismatch extends S.Class<AttributedMismatch>($I`Attribute
  * @category diagnostics
  * @since 0.0.0
  */
-export class FirstChoiceAgreement extends S.Class<FirstChoiceAgreement>($I`FirstChoiceAgreement`)(
-  { agreed: S.Natural, total: S.Natural },
-  $I.annote("FirstChoiceAgreement", {
-    description: "Passing verdicts out of all admitted-row verdicts; integers, never a ratio.",
-  })
+export class FirstChoiceAgreement extends S.Opaque<FirstChoiceAgreement, { readonly brand: unique symbol }>()(
+  S.Struct({ agreed: S.Natural, total: S.Natural }).pipe(
+    $I.annoteSchema("FirstChoiceAgreement", {
+      description: "Passing verdicts out of all admitted-row verdicts; integers, never a ratio.",
+    })
+  )
 ) {}
 
 /**
@@ -1160,11 +1172,12 @@ export class FirstChoiceAgreement extends S.Class<FirstChoiceAgreement>($I`First
  * @category diagnostics
  * @since 0.0.0
  */
-export class CustodyCensus extends S.Class<CustodyCensus>($I`CustodyCensus`)(
-  { live: S.Natural, surrogate: S.Natural, redacted: S.Natural },
-  $I.annote("CustodyCensus", {
-    description: "Live, surrogate and redacted row counts of one decoded admission journal.",
-  })
+export class CustodyCensus extends S.Opaque<CustodyCensus, { readonly brand: unique symbol }>()(
+  S.Struct({ live: S.Natural, surrogate: S.Natural, redacted: S.Natural }).pipe(
+    $I.annoteSchema("CustodyCensus", {
+      description: "Live, surrogate and redacted row counts of one decoded admission journal.",
+    })
+  )
 ) {}
 
 /**
@@ -1297,18 +1310,19 @@ export type Cq009PairRegime = typeof Cq009PairRegime.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class Cq009SameCheckoutPair extends S.Class<Cq009SameCheckoutPair>($I`Cq009SameCheckoutPair`)(
-  {
+export class Cq009SameCheckoutPair extends S.Opaque<Cq009SameCheckoutPair, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventIndex: S.Natural,
     holderNonce: S.NonEmptyString,
     entrantNonce: S.NonEmptyString,
     checkoutRoot: S.String,
     overlapBeginsAtMillis: S.Natural,
     regime: Cq009PairRegime,
-  },
-  $I.annote("Cq009SameCheckoutPair", {
-    description: "Two concurrently active replayed grants on one checkout and the instant their overlap begins.",
-  })
+  }).pipe(
+    $I.annoteSchema("Cq009SameCheckoutPair", {
+      description: "Two concurrently active replayed grants on one checkout and the instant their overlap begins.",
+    })
+  )
 ) {}
 
 /**
@@ -1341,18 +1355,19 @@ export class Cq009SameCheckoutPair extends S.Class<Cq009SameCheckoutPair>($I`Cq0
  * @category diagnostics
  * @since 0.0.0
  */
-export class Cq009SameCheckoutArm extends S.Class<Cq009SameCheckoutArm>($I`Cq009SameCheckoutArm`)(
-  {
+export class Cq009SameCheckoutArm extends S.Opaque<Cq009SameCheckoutArm, { readonly brand: unique symbol }>()(
+  S.Struct({
     arm: S.tag(Cq009Arm.Enum["same-checkout"]),
     status: Cq009ArmStatus.pick(["holds", "violated"]),
     pairs: S.Array(Cq009SameCheckoutPair),
     evaluatedGrants: S.Natural,
     grantsWithoutCheckout: S.Natural,
     grantsWithoutProtocol: S.Natural,
-  },
-  $I.annote("Cq009SameCheckoutArm", {
-    description: "Same-checkout arm of CQ-009 over the replayed active grant set, with its pairs and gaps.",
-  })
+  }).pipe(
+    $I.annoteSchema("Cq009SameCheckoutArm", {
+      description: "Same-checkout arm of CQ-009 over the replayed active grant set, with its pairs and gaps.",
+    })
+  )
 ) {}
 
 /**
@@ -1386,18 +1401,19 @@ export class Cq009SameCheckoutArm extends S.Class<Cq009SameCheckoutArm>($I`Cq009
  * @category diagnostics
  * @since 0.0.0
  */
-export class Cq009LegacyDrainArm extends S.Class<Cq009LegacyDrainArm>($I`Cq009LegacyDrainArm`)(
-  {
+export class Cq009LegacyDrainArm extends S.Opaque<Cq009LegacyDrainArm, { readonly brand: unique symbol }>()(
+  S.Struct({
     arm: S.tag(Cq009Arm.Enum["legacy-origin-drain"]),
     status: Cq009ArmStatus.pick(["unobservable"]),
     grantsWithOriginKey: S.Natural,
     rowsWithProtocol: S.Natural,
     rowsWithoutProtocol: S.Natural,
     sharedOriginActivePairs: S.Natural,
-  },
-  $I.annote("Cq009LegacyDrainArm", {
-    description: "Legacy-origin-drain arm of CQ-009, unobservable in the journal, with its protocol census.",
-  })
+  }).pipe(
+    $I.annoteSchema("Cq009LegacyDrainArm", {
+      description: "Legacy-origin-drain arm of CQ-009, unobservable in the journal, with its protocol census.",
+    })
+  )
 ) {}
 
 /**
@@ -1434,8 +1450,8 @@ export class Cq009LegacyDrainArm extends S.Class<Cq009LegacyDrainArm>($I`Cq009Le
  * @category diagnostics
  * @since 0.0.0
  */
-export class Cq009Censorship extends S.Class<Cq009Censorship>($I`Cq009Censorship`)(
-  {
+export class Cq009Censorship extends S.Opaque<Cq009Censorship, { readonly brand: unique symbol }>()(
+  S.Struct({
     firstRetainedInstant: S.DateTimeUtcFromString,
     lastRetainedInstant: S.DateTimeUtcFromString,
     preV3Chains: S.Natural,
@@ -1444,10 +1460,11 @@ export class Cq009Censorship extends S.Class<Cq009Censorship>($I`Cq009Censorship
     ticketEvictedRows: S.Natural,
     grantsActiveAtFirstEdge: S.Array(S.String),
     grantsActiveAtLastEdge: S.Array(S.String),
-  },
-  $I.annote("Cq009Censorship", {
-    description: "Window edges, pre-v3 chains, censored verdicts and never-granted requests CQ-009 cannot see.",
-  })
+  }).pipe(
+    $I.annoteSchema("Cq009Censorship", {
+      description: "Window edges, pre-v3 chains, censored verdicts and never-granted requests CQ-009 cannot see.",
+    })
+  )
 ) {}
 
 /**
@@ -1492,15 +1509,16 @@ export class Cq009Censorship extends S.Class<Cq009Censorship>($I`Cq009Censorship
  * @category diagnostics
  * @since 0.0.0
  */
-export class Cq009Verdict extends S.Class<Cq009Verdict>($I`Cq009Verdict`)(
-  {
+export class Cq009Verdict extends S.Opaque<Cq009Verdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     sameCheckout: Cq009SameCheckoutArm,
     legacyOriginDrain: Cq009LegacyDrainArm,
     censorship: Cq009Censorship,
-  },
-  $I.annote("Cq009Verdict", {
-    description: "CQ-009 arm by arm over a replayed journal: same-checkout, legacy drain and censorship.",
-  })
+  }).pipe(
+    $I.annoteSchema("Cq009Verdict", {
+      description: "CQ-009 arm by arm over a replayed journal: same-checkout, legacy drain and censorship.",
+    })
+  )
 ) {}
 
 /**
@@ -1563,8 +1581,8 @@ export class Cq009Verdict extends S.Class<Cq009Verdict>($I`Cq009Verdict`)(
  * @category diagnostics
  * @since 0.0.0
  */
-export class LiveReplayReport extends S.Class<LiveReplayReport>($I`LiveReplayReport`)(
-  {
+export class LiveReplayReport extends S.Opaque<LiveReplayReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     report: ReplayReport,
     window: ReplayWindow,
     agreement: FirstChoiceAgreement,
@@ -1574,10 +1592,11 @@ export class LiveReplayReport extends S.Class<LiveReplayReport>($I`LiveReplayRep
     ticketEvictedRows: S.Natural,
     custody: CustodyCensus,
     cq009: Cq009Verdict,
-  },
-  $I.annote("LiveReplayReport", {
-    description: "Replay report over a live pin with agreement, attributions, censorship and custody census.",
-  })
+  }).pipe(
+    $I.annoteSchema("LiveReplayReport", {
+      description: "Replay report over a live pin with agreement, attributions, censorship and custody census.",
+    })
+  )
 ) {}
 
 const checkoutRootOf = (event: AdmissionJournalEvent): O.Option<string> =>

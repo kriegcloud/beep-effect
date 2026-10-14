@@ -110,8 +110,7 @@ export type ExtractionStage = typeof ExtractionStage.Type;
  * @category configuration
  * @since 0.0.0
  */
-export class StageRetrievalOptions extends S.Class<StageRetrievalOptions>($I`StageRetrievalOptions`)(
-  {
+export class StageRetrievalOptions extends S.Opaque<StageRetrievalOptions, { readonly brand: unique symbol }>()(S.Struct({
     k: PositiveInt.pipe(S.optionalKey).annotateKey({ description: "Maximum positive-example count." }),
     negativeK: S.Natural.pipe(S.optionalKey).annotateKey({ description: "Maximum negative-example count." }),
     minSimilarity: SimilarityThreshold.pipe(S.optionalKey).annotateKey({
@@ -121,11 +120,9 @@ export class StageRetrievalOptions extends S.Class<StageRetrievalOptions>($I`Sta
     targetPredicate: S.NonEmptyString.pipe(S.optionalKey).annotateKey({
       description: "Optional target predicate filter.",
     }),
-  },
-  $I.annote("StageRetrievalOptions", {
+  }).pipe($I.annoteSchema("StageRetrievalOptions", {
     description: "Limits, similarity threshold, and ontology filters for stage-aware example retrieval.",
-  })
-) {}
+  }))) {}
 
 /**
  * Retrieved examples for a stage
@@ -142,15 +139,12 @@ export class StageRetrievalOptions extends S.Class<StageRetrievalOptions>($I`Sta
  * @category models
  * @since 0.0.0
  */
-export class StageExamples extends S.Class<StageExamples>($I`StageExamples`)(
-  {
+export class StageExamples extends S.Opaque<StageExamples, { readonly brand: unique symbol }>()(S.Struct({
     positives: S.Array(ScoredExample),
     negatives: S.Array(ScoredExample),
-  },
-  $I.annote("StageExamples", {
+  }).pipe($I.annoteSchema("StageExamples", {
     description: "Positive and negative few-shot examples selected for one pipeline stage.",
-  })
-) {}
+  }))) {}
 
 /**
  * Example statistics
@@ -167,17 +161,14 @@ export class StageExamples extends S.Class<StageExamples>($I`StageExamples`)(
  * @category models
  * @since 0.0.0
  */
-export class ExampleStats extends S.Class<ExampleStats>($I`ExampleStats`)(
-  {
+export class ExampleStats extends S.Opaque<ExampleStats, { readonly brand: unique symbol }>()(S.Struct({
     total: S.Natural,
     byType: S.Record(S.String, S.Natural),
     negativeCount: S.Natural,
     avgSuccessRate: S.NullOr(SimilarityThreshold),
-  },
-  $I.annote("ExampleStats", {
+  }).pipe($I.annoteSchema("ExampleStats", {
     description: "Example totals, type counts, negative count, and nullable average success rate.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Service

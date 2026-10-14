@@ -47,9 +47,10 @@ const $I = $RepoCliId.create("commands/Accounts/Accounts.view");
  * @category models
  * @since 0.0.0
  */
-export class AccountsBoardLayout extends S.Class<AccountsBoardLayout>($I`AccountsBoardLayout`)(
-  { width: S.Int, color: S.Boolean, status: S.String },
-  $I.annote("AccountsBoardLayout", { description: "Width, coloring, and title status of the accounts board." })
+export class AccountsBoardLayout extends S.Opaque<AccountsBoardLayout, { readonly brand: unique symbol }>()(
+  S.Struct({ width: S.Int, color: S.Boolean, status: S.String }).pipe(
+    $I.annoteSchema("AccountsBoardLayout", { description: "Width, coloring, and title status of the accounts board." })
+  )
 ) {}
 
 /**

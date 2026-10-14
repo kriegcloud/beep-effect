@@ -120,8 +120,8 @@ export const DurationSeconds = S.Int.check(
  * @category models
  * @since 0.0.0
  */
-export class QaRecordOptions extends S.Class<QaRecordOptions>($I`QaRecordOptions`)(
-  {
+export class QaRecordOptions extends S.Opaque<QaRecordOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     app: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     beacon: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
@@ -150,10 +150,11 @@ export class QaRecordOptions extends S.Class<QaRecordOptions>($I`QaRecordOptions
       S.withDecodingDefaultTypeKey(Effect.succeed(DEFAULT_SCENARIO_PATH))
     ),
     url: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("QaRecordOptions", {
-    description: "Validated options accepted by `beep qa record`.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaRecordOptions", {
+      description: "Validated options accepted by `beep qa record`.",
+    })
+  )
 ) {}
 
 /**
@@ -177,8 +178,8 @@ export class QaRecordOptions extends S.Class<QaRecordOptions>($I`QaRecordOptions
  * @category models
  * @since 0.0.0
  */
-export class QaExtractOptions extends S.Class<QaExtractOptions>($I`QaExtractOptions`)(
-  {
+export class QaExtractOptions extends S.Opaque<QaExtractOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     budgetMb: S.Option(BudgetMib).pipe(S.withConstructorDefault(Effect.succeedNone)),
     dryRun: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
@@ -186,10 +187,11 @@ export class QaExtractOptions extends S.Class<QaExtractOptions>($I`QaExtractOpti
     ),
     rules: S.Option(ExtractionRuleSet).pipe(S.withConstructorDefault(Effect.succeedNone)),
     session: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("QaExtractOptions", {
-    description: "Validated options accepted by `beep qa extract`.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaExtractOptions", {
+      description: "Validated options accepted by `beep qa extract`.",
+    })
+  )
 ) {}
 
 /**
@@ -208,13 +210,14 @@ export class QaExtractOptions extends S.Class<QaExtractOptions>($I`QaExtractOpti
  * @category models
  * @since 0.0.0
  */
-export class QaReportOptions extends S.Class<QaReportOptions>($I`QaReportOptions`)(
-  {
+export class QaReportOptions extends S.Opaque<QaReportOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     session: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("QaReportOptions", {
-    description: "Validated options accepted by `beep qa report`.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaReportOptions", {
+      description: "Validated options accepted by `beep qa report`.",
+    })
+  )
 ) {}
 
 /**
@@ -233,8 +236,8 @@ export class QaReportOptions extends S.Class<QaReportOptions>($I`QaReportOptions
  * @category models
  * @since 0.0.0
  */
-export class QaMarkOptions extends S.Class<QaMarkOptions>($I`QaMarkOptions`)(
-  {
+export class QaMarkOptions extends S.Opaque<QaMarkOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     data: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     label: S.String.check(
       S.isMinLength(1, {
@@ -244,10 +247,11 @@ export class QaMarkOptions extends S.Class<QaMarkOptions>($I`QaMarkOptions`)(
         message: "Expected a non-empty marker label",
       })
     ),
-  },
-  $I.annote("QaMarkOptions", {
-    description: "Validated options accepted by `beep qa mark`.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaMarkOptions", {
+      description: "Validated options accepted by `beep qa mark`.",
+    })
+  )
 ) {}
 
 /**
@@ -266,14 +270,15 @@ export class QaMarkOptions extends S.Class<QaMarkOptions>($I`QaMarkOptions`)(
  * @category models
  * @since 0.0.0
  */
-export class QaJudgePackOptions extends S.Class<QaJudgePackOptions>($I`QaJudgePackOptions`)(
-  {
+export class QaJudgePackOptions extends S.Opaque<QaJudgePackOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     round: RoundNumber,
     surface: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("QaJudgePackOptions", {
-    description: "Validated options accepted by `beep qa judge-pack`.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaJudgePackOptions", {
+      description: "Validated options accepted by `beep qa judge-pack`.",
+    })
+  )
 ) {}
 
 /**
@@ -291,14 +296,15 @@ export class QaJudgePackOptions extends S.Class<QaJudgePackOptions>($I`QaJudgePa
  * @category models
  * @since 0.0.0
  */
-export class QaJudgeIngestOptions extends S.Class<QaJudgeIngestOptions>($I`QaJudgeIngestOptions`)(
-  {
+export class QaJudgeIngestOptions extends S.Opaque<QaJudgeIngestOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     from: S.String,
     round: RoundNumber,
-  },
-  $I.annote("QaJudgeIngestOptions", {
-    description: "Validated options accepted by `beep qa judge-ingest`.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaJudgeIngestOptions", {
+      description: "Validated options accepted by `beep qa judge-ingest`.",
+    })
+  )
 ) {}
 
 /**
@@ -316,13 +322,14 @@ export class QaJudgeIngestOptions extends S.Class<QaJudgeIngestOptions>($I`QaJud
  * @category models
  * @since 0.0.0
  */
-export class QaJudgeLintOptions extends S.Class<QaJudgeLintOptions>($I`QaJudgeLintOptions`)(
-  {
+export class QaJudgeLintOptions extends S.Opaque<QaJudgeLintOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     round: RoundNumber,
-  },
-  $I.annote("QaJudgeLintOptions", {
-    description: "Validated options accepted by `beep qa judge-lint`.",
-  })
+  }).pipe(
+    $I.annoteSchema("QaJudgeLintOptions", {
+      description: "Validated options accepted by `beep qa judge-lint`.",
+    })
+  )
 ) {}
 
 /**

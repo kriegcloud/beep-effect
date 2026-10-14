@@ -397,7 +397,10 @@ export type HtmlChildGrammar = typeof HtmlChildGrammar.Type;
  * @category models
  * @since 0.0.0
  */
-export class HtmlConditionalCategoryRule extends S.Class<HtmlConditionalCategoryRule>($I`HtmlConditionalCategoryRule`)(
+export class HtmlConditionalCategoryRule extends S.Class<
+  HtmlConditionalCategoryRule,
+  { readonly brand: unique symbol }
+>($I`HtmlConditionalCategoryRule`)(
   {
     attribute: S.String,
     category: HtmlCategory,
@@ -1410,7 +1413,7 @@ export const HtmlBooleanAttributeName = LiteralKit([
  *
  * ```ts import.meta.vitest name="Decode a boolean attribute name"
  * import { HtmlBooleanAttributeName } from "@beep/html/Html.meta"
- * import * as Result from "effect/Result";
+ * import * as Result from "effect/Result"
  * import * as S from "effect/Schema"
  *
  * const decoded = S.decodeUnknownResult(HtmlBooleanAttributeName)("disabled")
@@ -1508,7 +1511,9 @@ export const HTML_ATTRIBUTE_SYNTAXES: Readonly<Record<string, HtmlAttributeSynta
  * @category models
  * @since 0.0.0
  */
-export class HtmlAttributeEquality extends S.Class<HtmlAttributeEquality>($I`HtmlAttributeEquality`)(
+export class HtmlAttributeEquality extends S.Class<HtmlAttributeEquality, { readonly brand: unique symbol }>(
+  $I`HtmlAttributeEquality`
+)(
   {
     left: S.String,
     message: S.String,
@@ -1575,7 +1580,9 @@ const HtmlAttributeRequirementPredicate = S.Union([
  * @category models
  * @since 0.0.0
  */
-export class HtmlAttributeRequirement extends S.Class<HtmlAttributeRequirement>($I`HtmlAttributeRequirement`)(
+export class HtmlAttributeRequirement extends S.Class<HtmlAttributeRequirement, { readonly brand: unique symbol }>(
+  $I`HtmlAttributeRequirement`
+)(
   {
     constraints: HtmlAttributeValueConstraint.pipe(S.NonEmptyArray, S.optionalKey),
     forbidden: S.String.pipe(S.NonEmptyArray, S.optionalKey),
@@ -1611,9 +1618,10 @@ export class HtmlAttributeRequirement extends S.Class<HtmlAttributeRequirement>(
  * @category models
  * @since 0.0.0
  */
-export class HtmlNumericAttributeRelationship extends S.Class<HtmlNumericAttributeRelationship>(
-  $I`HtmlNumericAttributeRelationship`
-)(
+export class HtmlNumericAttributeRelationship extends S.Class<
+  HtmlNumericAttributeRelationship,
+  { readonly brand: unique symbol }
+>($I`HtmlNumericAttributeRelationship`)(
   {
     left: S.String,
     leftDefault: S.Finite.pipe(S.optionalKey),
@@ -1645,7 +1653,9 @@ export class HtmlNumericAttributeRelationship extends S.Class<HtmlNumericAttribu
  * @category models
  * @since 0.0.0
  */
-export class HtmlForbiddenDescendants extends S.Class<HtmlForbiddenDescendants>($I`HtmlForbiddenDescendants`)(
+export class HtmlForbiddenDescendants extends S.Class<HtmlForbiddenDescendants, { readonly brand: unique symbol }>(
+  $I`HtmlForbiddenDescendants`
+)(
   {
     attributes: S.Array(S.String),
     categories: S.Array(HtmlCategory),
@@ -1674,7 +1684,9 @@ export class HtmlForbiddenDescendants extends S.Class<HtmlForbiddenDescendants>(
  * @category models
  * @since 0.0.0
  */
-export class HtmlForbiddenNamedAncestor extends S.Class<HtmlForbiddenNamedAncestor>($I`HtmlForbiddenNamedAncestor`)(
+export class HtmlForbiddenNamedAncestor extends S.Class<HtmlForbiddenNamedAncestor, { readonly brand: unique symbol }>(
+  $I`HtmlForbiddenNamedAncestor`
+)(
   {
     attributes: S.String.pipe(S.NonEmptyArray),
     tag: HtmlTag,
@@ -1699,7 +1711,10 @@ export class HtmlForbiddenNamedAncestor extends S.Class<HtmlForbiddenNamedAncest
  * @category models
  * @since 0.0.0
  */
-export class HtmlDocumentVisibilityLimit extends S.Class<HtmlDocumentVisibilityLimit>($I`HtmlDocumentVisibilityLimit`)(
+export class HtmlDocumentVisibilityLimit extends S.Class<
+  HtmlDocumentVisibilityLimit,
+  { readonly brand: unique symbol }
+>($I`HtmlDocumentVisibilityLimit`)(
   {
     maximum: S.Int.check(S.isGreaterThan(0)),
     unlessAttribute: S.String,
@@ -1724,7 +1739,10 @@ export class HtmlDocumentVisibilityLimit extends S.Class<HtmlDocumentVisibilityL
  * @category models
  * @since 0.0.0
  */
-export class HtmlElementConformanceRules extends S.Class<HtmlElementConformanceRules>($I`HtmlElementConformanceRules`)(
+export class HtmlElementConformanceRules extends S.Class<
+  HtmlElementConformanceRules,
+  { readonly brand: unique symbol }
+>($I`HtmlElementConformanceRules`)(
   {
     documentVisibilityLimit: HtmlDocumentVisibilityLimit.pipe(S.optionalKey),
     forbiddenDescendants: HtmlForbiddenDescendants.pipe(S.optionalKey),
@@ -1752,7 +1770,7 @@ export class HtmlElementConformanceRules extends S.Class<HtmlElementConformanceR
  * @category models
  * @since 0.0.0
  */
-export class HtmlElementMeta extends S.Class<HtmlElementMeta>($I`HtmlElementMeta`)(
+export class HtmlElementMeta extends S.Class<HtmlElementMeta, { readonly brand: unique symbol }>($I`HtmlElementMeta`)(
   {
     tag: HtmlTag,
     interface: S.NonEmptyString,

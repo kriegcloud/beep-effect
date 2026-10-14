@@ -34,7 +34,7 @@ const $I = $ScratchpadId.create("effected/package-json/License");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidSpdxLicenseError extends S.TaggedError<InvalidSpdxLicenseError>($I`InvalidSpdxLicenseError`)("InvalidSpdxLicenseError", {
+export class InvalidSpdxLicenseError extends S.TaggedError<InvalidSpdxLicenseError, { readonly brand: unique symbol }>($I`InvalidSpdxLicenseError`)("InvalidSpdxLicenseError", {
 	/**
 	 * The raw input string that failed validation.
 	 *

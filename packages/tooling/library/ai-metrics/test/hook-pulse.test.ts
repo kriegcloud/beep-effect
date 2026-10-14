@@ -374,7 +374,7 @@ describe("HookPulseV1", () => {
       const decoded = yield* withSaltEnv({}, decodeHookPulseFromLegacy(legacy));
       const serialized = yield* encodeUnknownJsonEffect(yield* encodeHookPulse(decoded));
 
-      expect(decoded).toBeInstanceOf(HookPulseV1);
+      expect(S.is(HookPulseV1)(decoded)).toBe(true);
       expect(decoded.sessionId).toMatch(/^[0-9a-f]{64}$/u);
       expect(decoded.cwd).toMatch(/^[0-9a-f]{64}$/u);
       expect(O.getOrThrow(decoded.transcriptPath)).toMatch(/^[0-9a-f]{64}$/u);
@@ -855,7 +855,7 @@ describe("HookPulseV1", () => {
         })
       );
 
-      expect(decoded).toBeInstanceOf(HookPulseV1);
+      expect(S.is(HookPulseV1)(decoded)).toBe(true);
       expect(decoded.hookEvent).toBe("Notification");
       expect(decoded.waitReason).toBe("unknown");
       assertNone(decoded.notificationType);
@@ -1128,7 +1128,7 @@ describe("HookPulseV1", () => {
     // The Result adapter proves the already-hashed fast path stays synchronous.
     const decoded = Result.getOrThrow(S.decodeResult(HookPulseV1FromRawEvent)(alreadyHashedRawInput));
 
-    expect(decoded).toBeInstanceOf(HookPulseV1);
+    expect(S.is(HookPulseV1)(decoded)).toBe(true);
     expect(decoded.sessionId).toBe(alreadyHashedRawEventFixture.session_id);
   });
   it.effect(

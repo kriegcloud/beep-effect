@@ -8,7 +8,7 @@ import type { ReactElement } from "react";
 
 const $I = $ScratchpadId.create("effected/cli/ui/internal/lazyView");
 
-class LazyViewStateError extends S.TaggedError<LazyViewStateError>($I`LazyViewStateError`)(
+class LazyViewStateError extends S.TaggedError<LazyViewStateError, { readonly brand: unique symbol }>($I`LazyViewStateError`)(
 	"LazyViewStateError",
 	{ message: S.String.annotate({ description: "The unloaded view or invalid loader preventing a lazy render." }) },
 	$I.annote("LazyViewStateError", { description: "A lazy view was rendered before loading or carried an invalid loader." }),
@@ -67,7 +67,7 @@ const NO_VIEW = (resolved: unknown): string => {
  * @category errors
  * @since 0.0.0
  */
-export class LazyViewShapeError extends S.TaggedError<LazyViewShapeError>($I`LazyViewShapeError`)(
+export class LazyViewShapeError extends S.TaggedError<LazyViewShapeError, { readonly brand: unique symbol }>($I`LazyViewShapeError`)(
 	"LazyViewShapeError",
 	{ message: S.String.annotate({ description: "The resolved module's invalid view shape and the expected shape." }) },
 	$I.annote("LazyViewShapeError", { description: "A deterministic invalid lazy-view module, cached for the handle's life." }),
@@ -154,7 +154,7 @@ export const lazyView = <S>(
 };
 
 /** A typed boundary around the loader's original rejection, retained for rendering unchanged. */
-class LazyViewLoadError extends S.TaggedError<LazyViewLoadError>($I`LazyViewLoadError`)(
+class LazyViewLoadError extends S.TaggedError<LazyViewLoadError, { readonly brand: unique symbol }>($I`LazyViewLoadError`)(
 	"LazyViewLoadError",
 	{ cause: S.Defect({ includeStack: true }).annotate({ description: "The original lazy-view load rejection, including a cached shape error." }) },
 	$I.annote("LazyViewLoadError", { description: "A typed boundary retaining the lazy-view loader's original rejection." }),

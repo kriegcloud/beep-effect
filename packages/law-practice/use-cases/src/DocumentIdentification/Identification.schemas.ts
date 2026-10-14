@@ -211,12 +211,11 @@ export type ContentHash = typeof ContentHash.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class ContactEmail extends S.Class<ContactEmail>($I`ContactEmail`)(
-  {
+export class ContactEmail extends S.Opaque<ContactEmail, { readonly brand: unique symbol }>()(
+  S.Struct({
     address: S.String.check(S.isTrimmed(), S.isLowercased(), S.isPattern(/^[^@\s]+@[^@\s]+\.[^@\s]+$/u)),
     role: S.Boolean,
-  },
-  $I.annote("ContactEmail", { description: "Normalised email address with shared mailbox status." })
+  }).pipe($I.annoteSchema("ContactEmail", { description: "Normalised email address with shared mailbox status." }))
 ) {}
 /**
  * E.164 telephone number and optional NANP area code.
@@ -232,12 +231,11 @@ export class ContactEmail extends S.Class<ContactEmail>($I`ContactEmail`)(
  * @category schemas
  * @since 0.0.0
  */
-export class PhoneNumber extends S.Class<PhoneNumber>($I`PhoneNumber`)(
-  {
+export class PhoneNumber extends S.Opaque<PhoneNumber, { readonly brand: unique symbol }>()(
+  S.Struct({
     e164: S.String.check(S.isPattern(/^\+[1-9][0-9]{7,14}$/u)),
     areaCode: optional(S.String.check(S.isPattern(/^[2-9][0-9]{2}$/u))),
-  },
-  $I.annote("PhoneNumber", { description: "E.164 telephone number and optional NANP area code." })
+  }).pipe($I.annoteSchema("PhoneNumber", { description: "E.164 telephone number and optional NANP area code." }))
 ) {}
 /**
  * Contact attribution with source and log-safe evidence description.
@@ -253,14 +251,17 @@ export class PhoneNumber extends S.Class<PhoneNumber>($I`PhoneNumber`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ContactLink extends S.Class<ContactLink>($I`ContactLink`)(
-  {
+export class ContactLink extends S.Opaque<ContactLink, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientNumber: ClientNumber,
     familyKey: optional(S.NonEmptyString),
     source: ContactLinkSource,
     evidence: S.NonEmptyString,
-  },
-  $I.annote("ContactLink", { description: "Contact attribution with source and log-safe evidence description." })
+  }).pipe(
+    $I.annoteSchema("ContactLink", {
+      description: "Contact attribution with source and log-safe evidence description.",
+    })
+  )
 ) {}
 /**
  * Unnormalised card read from a private contact source.
@@ -276,8 +277,8 @@ export class ContactLink extends S.Class<ContactLink>($I`ContactLink`)(
  * @category schemas
  * @since 0.0.0
  */
-export class RawContactCard extends S.Class<RawContactCard>($I`RawContactCard`)(
-  {
+export class RawContactCard extends S.Opaque<RawContactCard, { readonly brand: unique symbol }>()(
+  S.Struct({
     displayName: S.String,
     organization: optional(S.NonEmptyString),
     titles: S.Array(S.String),
@@ -285,8 +286,7 @@ export class RawContactCard extends S.Class<RawContactCard>($I`RawContactCard`)(
     phones: S.Array(S.String),
     addresses: S.Array(S.String),
     source: ContactSource,
-  },
-  $I.annote("RawContactCard", { description: "Unnormalised card read from a private contact source." })
+  }).pipe($I.annoteSchema("RawContactCard", { description: "Unnormalised card read from a private contact source." }))
 ) {}
 /**
  * Deduplicated person or organisation with stable identifier.
@@ -302,8 +302,8 @@ export class RawContactCard extends S.Class<RawContactCard>($I`RawContactCard`)(
  * @category schemas
  * @since 0.0.0
  */
-export class Contact extends S.Class<Contact>($I`Contact`)(
-  {
+export class Contact extends S.Opaque<Contact, { readonly brand: unique symbol }>()(
+  S.Struct({
     contactId: ContentHash,
     displayName: S.String,
     organization: optional(S.NonEmptyString),
@@ -314,8 +314,7 @@ export class Contact extends S.Class<Contact>($I`Contact`)(
     addresses: S.Array(S.String),
     sources: S.Array(ContactSource),
     links: S.Array(ContactLink),
-  },
-  $I.annote("Contact", { description: "Deduplicated person or organisation with stable identifier." })
+  }).pipe($I.annoteSchema("Contact", { description: "Deduplicated person or organisation with stable identifier." }))
 ) {}
 /**
  * Contact projection excluding telephone and postal address data.
@@ -331,16 +330,19 @@ export class Contact extends S.Class<Contact>($I`Contact`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ContactProjection extends S.Class<ContactProjection>($I`ContactProjection`)(
-  {
+export class ContactProjection extends S.Opaque<ContactProjection, { readonly brand: unique symbol }>()(
+  S.Struct({
     contactId: ContentHash,
     displayName: S.String,
     organization: optional(S.NonEmptyString),
     emails: S.Array(ContactEmail),
     sources: S.Array(ContactSource),
     links: S.Array(ContactLink),
-  },
-  $I.annote("ContactProjection", { description: "Contact projection excluding telephone and postal address data." })
+  }).pipe(
+    $I.annoteSchema("ContactProjection", {
+      description: "Contact projection excluding telephone and postal address data.",
+    })
+  )
 ) {}
 /**
  * Count of assertions from one provenance source.
@@ -356,12 +358,11 @@ export class ContactProjection extends S.Class<ContactProjection>($I`ContactProj
  * @category schemas
  * @since 0.0.0
  */
-export class SourceCount extends S.Class<SourceCount>($I`SourceCount`)(
-  {
+export class SourceCount extends S.Opaque<SourceCount, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: IndexSource,
     count: S.Natural,
-  },
-  $I.annote("SourceCount", { description: "Count of assertions from one provenance source." })
+  }).pipe($I.annoteSchema("SourceCount", { description: "Count of assertions from one provenance source." }))
 ) {}
 /**
  * Known client and docket pair; docket alone never identifies a client.
@@ -377,15 +378,16 @@ export class SourceCount extends S.Class<SourceCount>($I`SourceCount`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ClientDocketPair extends S.Class<ClientDocketPair>($I`ClientDocketPair`)(
-  {
+export class ClientDocketPair extends S.Opaque<ClientDocketPair, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientNumber: ClientNumber,
     docket: DocketId,
     sources: S.Array(SourceCount),
-  },
-  $I.annote("ClientDocketPair", {
-    description: "Known client and docket pair; docket alone never identifies a client.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClientDocketPair", {
+      description: "Known client and docket pair; docket alone never identifies a client.",
+    })
+  )
 ) {}
 /**
  * Client name with provenance.
@@ -401,12 +403,11 @@ export class ClientDocketPair extends S.Class<ClientDocketPair>($I`ClientDocketP
  * @category schemas
  * @since 0.0.0
  */
-export class ClientName extends S.Class<ClientName>($I`ClientName`)(
-  {
+export class ClientName extends S.Opaque<ClientName, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     source: IndexSource,
-  },
-  $I.annote("ClientName", { description: "Client name with provenance." })
+  }).pipe($I.annoteSchema("ClientName", { description: "Client name with provenance." }))
 ) {}
 /**
  * Known names and input folder names for a numbered client.
@@ -422,13 +423,14 @@ export class ClientName extends S.Class<ClientName>($I`ClientName`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ClientIndexEntry extends S.Class<ClientIndexEntry>($I`ClientIndexEntry`)(
-  {
+export class ClientIndexEntry extends S.Opaque<ClientIndexEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientNumber: ClientNumber,
     names: S.Array(ClientName),
     folders: S.Array(S.String),
-  },
-  $I.annote("ClientIndexEntry", { description: "Known names and input folder names for a numbered client." })
+  }).pipe(
+    $I.annoteSchema("ClientIndexEntry", { description: "Known names and input folder names for a numbered client." })
+  )
 ) {}
 /**
  * Input assertion from answers, folders, docket sheet, KG or email subjects.
@@ -444,8 +446,8 @@ export class ClientIndexEntry extends S.Class<ClientIndexEntry>($I`ClientIndexEn
  * @category schemas
  * @since 0.0.0
  */
-export class IndexEvidence extends S.Class<IndexEvidence>($I`IndexEvidence`)(
-  {
+export class IndexEvidence extends S.Opaque<IndexEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientNumber: optional(ClientNumber),
     names: S.Array(S.String),
     references: S.Array(S.String),
@@ -453,10 +455,11 @@ export class IndexEvidence extends S.Class<IndexEvidence>($I`IndexEvidence`)(
     emails: S.Array(S.String),
     contactIds: S.Array(ContentHash),
     source: IndexSource,
-  },
-  $I.annote("IndexEvidence", {
-    description: "Input assertion from answers, folders, docket sheet, KG or email subjects.",
-  })
+  }).pipe(
+    $I.annoteSchema("IndexEvidence", {
+      description: "Input assertion from answers, folders, docket sheet, KG or email subjects.",
+    })
+  )
 ) {}
 /**
  * Private index output consumed by resolution and evaluation.
@@ -472,13 +475,16 @@ export class IndexEvidence extends S.Class<IndexEvidence>($I`IndexEvidence`)(
  * @category schemas
  * @since 0.0.0
  */
-export class IdentificationIndex extends S.Class<IdentificationIndex>($I`IdentificationIndex`)(
-  {
+export class IdentificationIndex extends S.Opaque<IdentificationIndex, { readonly brand: unique symbol }>()(
+  S.Struct({
     clients: S.Array(ClientIndexEntry),
     pairs: S.Array(ClientDocketPair),
     contacts: S.Array(Contact),
-  },
-  $I.annote("IdentificationIndex", { description: "Private index output consumed by resolution and evaluation." })
+  }).pipe(
+    $I.annoteSchema("IdentificationIndex", {
+      description: "Private index output consumed by resolution and evaluation.",
+    })
+  )
 ) {}
 /**
  * Kind of extracted party.
@@ -591,14 +597,15 @@ export type DocumentType = typeof DocumentType.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class ExtractedParty extends S.Class<ExtractedParty>($I`ExtractedParty`)(
-  {
+export class ExtractedParty extends S.Opaque<ExtractedParty, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     kind: PartyKind,
     role: PartyRole,
     quote: S.NonEmptyString,
-  },
-  $I.annote("ExtractedParty", { description: "Quoted party claim subject to independent critic confirmation." })
+  }).pipe(
+    $I.annoteSchema("ExtractedParty", { description: "Quoted party claim subject to independent critic confirmation." })
+  )
 ) {}
 /**
  * Verbatim docket string with its source quote.
@@ -614,12 +621,11 @@ export class ExtractedParty extends S.Class<ExtractedParty>($I`ExtractedParty`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ExtractedDocket extends S.Class<ExtractedDocket>($I`ExtractedDocket`)(
-  {
+export class ExtractedDocket extends S.Opaque<ExtractedDocket, { readonly brand: unique symbol }>()(
+  S.Struct({
     text: S.NonEmptyString,
     quote: S.NonEmptyString,
-  },
-  $I.annote("ExtractedDocket", { description: "Verbatim docket string with its source quote." })
+  }).pipe($I.annoteSchema("ExtractedDocket", { description: "Verbatim docket string with its source quote." }))
 ) {}
 /**
  * Extractor facts kept private; quotes never appear in resolution outputs.
@@ -635,8 +641,8 @@ export class ExtractedDocket extends S.Class<ExtractedDocket>($I`ExtractedDocket
  * @category schemas
  * @since 0.0.0
  */
-export class DocumentExtraction extends S.Class<DocumentExtraction>($I`DocumentExtraction`)(
-  {
+export class DocumentExtraction extends S.Opaque<DocumentExtraction, { readonly brand: unique symbol }>()(
+  S.Struct({
     docType: DocumentType,
     title: optional(S.String),
     parties: S.Array(ExtractedParty),
@@ -645,10 +651,11 @@ export class DocumentExtraction extends S.Class<DocumentExtraction>($I`DocumentE
     patentNumbers: S.Array(S.String),
     emails: S.Array(S.String),
     dates: S.Array(S.String),
-  },
-  $I.annote("DocumentExtraction", {
-    description: "Extractor facts kept private; quotes never appear in resolution outputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentExtraction", {
+      description: "Extractor facts kept private; quotes never appear in resolution outputs.",
+    })
+  )
 ) {}
 /**
  * Independent critic accepted indexes and corrected document type.
@@ -664,14 +671,17 @@ export class DocumentExtraction extends S.Class<DocumentExtraction>($I`DocumentE
  * @category schemas
  * @since 0.0.0
  */
-export class CriticVerdict extends S.Class<CriticVerdict>($I`CriticVerdict`)(
-  {
+export class CriticVerdict extends S.Opaque<CriticVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     keepParties: S.Array(S.Natural),
     keepDockets: S.Array(S.Natural),
     docType: DocumentType,
     problems: S.Array(S.String),
-  },
-  $I.annote("CriticVerdict", { description: "Independent critic accepted indexes and corrected document type." })
+  }).pipe(
+    $I.annoteSchema("CriticVerdict", {
+      description: "Independent critic accepted indexes and corrected document type.",
+    })
+  )
 ) {}
 /**
  * Paired extractor and critic output for one document.
@@ -687,12 +697,13 @@ export class CriticVerdict extends S.Class<CriticVerdict>($I`CriticVerdict`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ConfirmedExtraction extends S.Class<ConfirmedExtraction>($I`ConfirmedExtraction`)(
-  {
+export class ConfirmedExtraction extends S.Opaque<ConfirmedExtraction, { readonly brand: unique symbol }>()(
+  S.Struct({
     extraction: DocumentExtraction,
     verdict: CriticVerdict,
-  },
-  $I.annote("ConfirmedExtraction", { description: "Paired extractor and critic output for one document." })
+  }).pipe(
+    $I.annoteSchema("ConfirmedExtraction", { description: "Paired extractor and critic output for one document." })
+  )
 ) {}
 /**
  * Canonical nested extractor JSONL record.
@@ -708,12 +719,11 @@ export class ConfirmedExtraction extends S.Class<ConfirmedExtraction>($I`Confirm
  * @category schemas
  * @since 0.0.0
  */
-export class ExtractionRecord extends S.Class<ExtractionRecord>($I`ExtractionRecord`)(
-  {
+export class ExtractionRecord extends S.Opaque<ExtractionRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     extraction: DocumentExtraction,
-  },
-  $I.annote("ExtractionRecord", { description: "Canonical nested extractor JSONL record." })
+  }).pipe($I.annoteSchema("ExtractionRecord", { description: "Canonical nested extractor JSONL record." }))
 ) {}
 /**
  * Canonical nested critic JSONL record.
@@ -729,12 +739,11 @@ export class ExtractionRecord extends S.Class<ExtractionRecord>($I`ExtractionRec
  * @category schemas
  * @since 0.0.0
  */
-export class CriticRecord extends S.Class<CriticRecord>($I`CriticRecord`)(
-  {
+export class CriticRecord extends S.Opaque<CriticRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     verdict: CriticVerdict,
-  },
-  $I.annote("CriticRecord", { description: "Canonical nested critic JSONL record." })
+  }).pipe($I.annoteSchema("CriticRecord", { description: "Canonical nested critic JSONL record." }))
 ) {}
 /**
  * Log-safe identification signal kind.
@@ -787,12 +796,15 @@ export type EvidenceKind = typeof EvidenceKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class EvidenceLine extends S.Class<EvidenceLine>($I`EvidenceLine`)(
-  {
+export class EvidenceLine extends S.Opaque<EvidenceLine, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: EvidenceKind,
     detail: S.NonEmptyString,
-  },
-  $I.annote("EvidenceLine", { description: "One reason containing identifiers or counts, never document text." })
+  }).pipe(
+    $I.annoteSchema("EvidenceLine", {
+      description: "One reason containing identifiers or counts, never document text.",
+    })
+  )
 ) {}
 /**
  * Measured confidence tier of a document attribution.
@@ -836,14 +848,17 @@ export type ConfidenceTier = typeof ConfidenceTier.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class Resolution extends S.Class<Resolution>($I`Resolution`)(
-  {
+export class Resolution extends S.Opaque<Resolution, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientNumber: optional(ClientKey),
     docket: optional(DocketId),
     tier: ConfidenceTier,
     evidence: S.Array(EvidenceLine),
-  },
-  $I.annote("Resolution", { description: "Resolution retaining ambiguity rather than guessing a client or docket." })
+  }).pipe(
+    $I.annoteSchema("Resolution", {
+      description: "Resolution retaining ambiguity rather than guessing a client or docket.",
+    })
+  )
 ) {}
 /**
  * Measured precision and coverage for one outcome tier.
@@ -859,16 +874,15 @@ export class Resolution extends S.Class<Resolution>($I`Resolution`)(
  * @category schemas
  * @since 0.0.0
  */
-export class TierEvaluation extends S.Class<TierEvaluation>($I`TierEvaluation`)(
-  {
+export class TierEvaluation extends S.Opaque<TierEvaluation, { readonly brand: unique symbol }>()(
+  S.Struct({
     tier: ConfidenceTier,
     resolved: S.Natural,
     right: S.Natural,
     wrong: S.Natural,
     precision: optional(S.Finite.check(S.isBetween({ minimum: 0, maximum: 1 }))),
     coverage: S.Finite.check(S.isBetween({ minimum: 0, maximum: 1 })),
-  },
-  $I.annote("TierEvaluation", { description: "Measured precision and coverage for one outcome tier." })
+  }).pipe($I.annoteSchema("TierEvaluation", { description: "Measured precision and coverage for one outcome tier." }))
 ) {}
 /**
  * Counts-only evaluation report for a deterministic hold-out.
@@ -884,13 +898,14 @@ export class TierEvaluation extends S.Class<TierEvaluation>($I`TierEvaluation`)(
  * @category schemas
  * @since 0.0.0
  */
-export class EvaluationReport extends S.Class<EvaluationReport>($I`EvaluationReport`)(
-  {
+export class EvaluationReport extends S.Opaque<EvaluationReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     trainSize: S.Natural,
     testSize: S.Natural,
     tiers: S.Array(TierEvaluation),
-  },
-  $I.annote("EvaluationReport", { description: "Counts-only evaluation report for a deterministic hold-out." })
+  }).pipe(
+    $I.annoteSchema("EvaluationReport", { description: "Counts-only evaluation report for a deterministic hold-out." })
+  )
 ) {}
 /**
  * Public record facts used for numeric application or patent queries.
@@ -906,12 +921,15 @@ export class EvaluationReport extends S.Class<EvaluationReport>($I`EvaluationRep
  * @category schemas
  * @since 0.0.0
  */
-export class UsptoRecordFacts extends S.Class<UsptoRecordFacts>($I`UsptoRecordFacts`)(
-  {
+export class UsptoRecordFacts extends S.Opaque<UsptoRecordFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
     docketNumber: optional(S.NonEmptyString),
     firstApplicant: optional(S.NonEmptyString),
-  },
-  $I.annote("UsptoRecordFacts", { description: "Public record facts used for numeric application or patent queries." })
+  }).pipe(
+    $I.annoteSchema("UsptoRecordFacts", {
+      description: "Public record facts used for numeric application or patent queries.",
+    })
+  )
 ) {}
 /**
  * Public USPTO numeric lookup kind.
@@ -951,12 +969,11 @@ export type LookupKind = typeof LookupKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class UsptoQuery extends S.Class<UsptoQuery>($I`UsptoQuery`)(
-  {
+export class UsptoQuery extends S.Opaque<UsptoQuery, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: LookupKind,
     number: S.String.check(S.isPattern(/^[0-9]+$/u)),
-  },
-  $I.annote("UsptoQuery", { description: "Numeric-only public lookup request." })
+  }).pipe($I.annoteSchema("UsptoQuery", { description: "Numeric-only public lookup request." }))
 ) {}
 /**
  * Public facts bound to the exact cited number.
@@ -972,12 +989,11 @@ export class UsptoQuery extends S.Class<UsptoQuery>($I`UsptoQuery`)(
  * @category schemas
  * @since 0.0.0
  */
-export class UsptoEvidence extends S.Class<UsptoEvidence>($I`UsptoEvidence`)(
-  {
+export class UsptoEvidence extends S.Opaque<UsptoEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     query: UsptoQuery,
     facts: UsptoRecordFacts,
-  },
-  $I.annote("UsptoEvidence", { description: "Public facts bound to the exact cited number." })
+  }).pipe($I.annoteSchema("UsptoEvidence", { description: "Public facts bound to the exact cited number." }))
 ) {}
 /**
  * Private lookup result including explicit missing records.
@@ -993,12 +1009,13 @@ export class UsptoEvidence extends S.Class<UsptoEvidence>($I`UsptoEvidence`)(
  * @category schemas
  * @since 0.0.0
  */
-export class UsptoLookupResult extends S.Class<UsptoLookupResult>($I`UsptoLookupResult`)(
-  {
+export class UsptoLookupResult extends S.Opaque<UsptoLookupResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     query: UsptoQuery,
     facts: optional(UsptoRecordFacts),
-  },
-  $I.annote("UsptoLookupResult", { description: "Private lookup result including explicit missing records." })
+  }).pipe(
+    $I.annoteSchema("UsptoLookupResult", { description: "Private lookup result including explicit missing records." })
+  )
 ) {}
 /**
  * Operator supplied alias; no aliases are embedded in the resolver.
@@ -1014,12 +1031,13 @@ export class UsptoLookupResult extends S.Class<UsptoLookupResult>($I`UsptoLookup
  * @category schemas
  * @since 0.0.0
  */
-export class ClientAlias extends S.Class<ClientAlias>($I`ClientAlias`)(
-  {
+export class ClientAlias extends S.Opaque<ClientAlias, { readonly brand: unique symbol }>()(
+  S.Struct({
     from: ClientKey,
     to: ClientKey,
-  },
-  $I.annote("ClientAlias", { description: "Operator supplied alias; no aliases are embedded in the resolver." })
+  }).pipe(
+    $I.annoteSchema("ClientAlias", { description: "Operator supplied alias; no aliases are embedded in the resolver." })
+  )
 ) {}
 /**
  * Input-supplied unnumbered client and its names.
@@ -1035,12 +1053,11 @@ export class ClientAlias extends S.Class<ClientAlias>($I`ClientAlias`)(
  * @category schemas
  * @since 0.0.0
  */
-export class PseudoClient extends S.Class<PseudoClient>($I`PseudoClient`)(
-  {
+export class PseudoClient extends S.Opaque<PseudoClient, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: S.String.check(S.isPattern(/^new:[^\s].*$/u)),
     names: S.Array(S.NonEmptyString),
-  },
-  $I.annote("PseudoClient", { description: "Input-supplied unnumbered client and its names." })
+  }).pipe($I.annoteSchema("PseudoClient", { description: "Input-supplied unnumbered client and its names." }))
 ) {}
 /**
  * Private attribution index and explicit operator policy inputs.
@@ -1056,16 +1073,19 @@ export class PseudoClient extends S.Class<PseudoClient>($I`PseudoClient`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ResolverContext extends S.Class<ResolverContext>($I`ResolverContext`)(
-  {
+export class ResolverContext extends S.Opaque<ResolverContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     clients: S.Array(ClientIndexEntry),
     pairs: S.Array(ClientDocketPair),
     contacts: S.Array(Contact),
     aliases: S.Array(ClientAlias),
     pseudoClients: S.Array(PseudoClient),
     excludedDomains: S.Array(S.String),
-  },
-  $I.annote("ResolverContext", { description: "Private attribution index and explicit operator policy inputs." })
+  }).pipe(
+    $I.annoteSchema("ResolverContext", {
+      description: "Private attribution index and explicit operator policy inputs.",
+    })
+  )
 ) {}
 /**
  * Content identity from an attorney-filed client folder.
@@ -1081,13 +1101,12 @@ export class ResolverContext extends S.Class<ResolverContext>($I`ResolverContext
  * @category schemas
  * @since 0.0.0
  */
-export class IdenticalCopy extends S.Class<IdenticalCopy>($I`IdenticalCopy`)(
-  {
+export class IdenticalCopy extends S.Opaque<IdenticalCopy, { readonly brand: unique symbol }>()(
+  S.Struct({
     contentHash: ContentHash,
     clientNumber: ClientNumber,
     docket: optional(DocketId),
-  },
-  $I.annote("IdenticalCopy", { description: "Content identity from an attorney-filed client folder." })
+  }).pipe($I.annoteSchema("IdenticalCopy", { description: "Content identity from an attorney-filed client folder." }))
 ) {}
 /**
  * Typed private evidence bundle for a single document.
@@ -1103,8 +1122,8 @@ export class IdenticalCopy extends S.Class<IdenticalCopy>($I`IdenticalCopy`)(
  * @category schemas
  * @since 0.0.0
  */
-export class IdentificationDocument extends S.Class<IdentificationDocument>($I`IdentificationDocument`)(
-  {
+export class IdentificationDocument extends S.Opaque<IdentificationDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentId: S.NonEmptyString,
     contentHash: ContentHash,
     text: S.String,
@@ -1112,8 +1131,9 @@ export class IdentificationDocument extends S.Class<IdentificationDocument>($I`I
     extraction: optional(ConfirmedExtraction),
     uspto: S.Array(UsptoEvidence),
     copies: S.Array(IdenticalCopy),
-  },
-  $I.annote("IdentificationDocument", { description: "Typed private evidence bundle for a single document." })
+  }).pipe(
+    $I.annoteSchema("IdentificationDocument", { description: "Typed private evidence bundle for a single document." })
+  )
 ) {}
 /**
  * Attorney-filed ground truth document used for training or hold-out.
@@ -1129,13 +1149,16 @@ export class IdentificationDocument extends S.Class<IdentificationDocument>($I`I
  * @category schemas
  * @since 0.0.0
  */
-export class TrainingDocument extends S.Class<TrainingDocument>($I`TrainingDocument`)(
-  {
+export class TrainingDocument extends S.Opaque<TrainingDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     document: IdentificationDocument,
     clientNumber: ClientNumber,
     docket: optional(DocketId),
-  },
-  $I.annote("TrainingDocument", { description: "Attorney-filed ground truth document used for training or hold-out." })
+  }).pipe(
+    $I.annoteSchema("TrainingDocument", {
+      description: "Attorney-filed ground truth document used for training or hold-out.",
+    })
+  )
 ) {}
 /**
  * Deterministic partition that keeps duplicate content together.
@@ -1151,12 +1174,13 @@ export class TrainingDocument extends S.Class<TrainingDocument>($I`TrainingDocum
  * @category schemas
  * @since 0.0.0
  */
-export class HoldOutSplit extends S.Class<HoldOutSplit>($I`HoldOutSplit`)(
-  {
+export class HoldOutSplit extends S.Opaque<HoldOutSplit, { readonly brand: unique symbol }>()(
+  S.Struct({
     train: S.Array(TrainingDocument),
     test: S.Array(TrainingDocument),
-  },
-  $I.annote("HoldOutSplit", { description: "Deterministic partition that keeps duplicate content together." })
+  }).pipe(
+    $I.annoteSchema("HoldOutSplit", { description: "Deterministic partition that keeps duplicate content together." })
+  )
 ) {}
 /**
  * Training-only client ownership of an evidence token.
@@ -1172,12 +1196,11 @@ export class HoldOutSplit extends S.Class<HoldOutSplit>($I`HoldOutSplit`)(
  * @category schemas
  * @since 0.0.0
  */
-export class TokenOwnership extends S.Class<TokenOwnership>($I`TokenOwnership`)(
-  {
+export class TokenOwnership extends S.Opaque<TokenOwnership, { readonly brand: unique symbol }>()(
+  S.Struct({
     token: S.NonEmptyString,
     clients: S.Array(ClientNumber),
-  },
-  $I.annote("TokenOwnership", { description: "Training-only client ownership of an evidence token." })
+  }).pipe($I.annoteSchema("TokenOwnership", { description: "Training-only client ownership of an evidence token." }))
 ) {}
 /**
  * Normalised text of one training document, kept for name learning.
@@ -1193,13 +1216,16 @@ export class TokenOwnership extends S.Class<TokenOwnership>($I`TokenOwnership`)(
  * @category schemas
  * @since 0.0.0
  */
-export class LearningText extends S.Class<LearningText>($I`LearningText`)(
-  {
+export class LearningText extends S.Opaque<LearningText, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientNumber: ClientNumber,
     contentHash: ContentHash,
     text: S.String,
-  },
-  $I.annote("LearningText", { description: "Normalised text of one training document, kept for name learning." })
+  }).pipe(
+    $I.annoteSchema("LearningText", {
+      description: "Normalised text of one training document, kept for name learning.",
+    })
+  )
 ) {}
 /**
  * Fitted token ownership and private training documents for name learning.
@@ -1215,12 +1241,15 @@ export class LearningText extends S.Class<LearningText>($I`LearningText`)(
  * @category schemas
  * @since 0.0.0
  */
-export class TokenFilter extends S.Class<TokenFilter>($I`TokenFilter`)(
-  {
+export class TokenFilter extends S.Opaque<TokenFilter, { readonly brand: unique symbol }>()(
+  S.Struct({
     ownership: S.Array(TokenOwnership),
     training: S.Array(LearningText),
-  },
-  $I.annote("TokenFilter", { description: "Fitted token ownership and private training documents for name learning." })
+  }).pipe(
+    $I.annoteSchema("TokenFilter", {
+      description: "Fitted token ownership and private training documents for name learning.",
+    })
+  )
 ) {}
 /**
  * Log-safe JSONL output for a resolved document.
@@ -1236,13 +1265,12 @@ export class TokenFilter extends S.Class<TokenFilter>($I`TokenFilter`)(
  * @category schemas
  * @since 0.0.0
  */
-export class ResolutionRecord extends S.Class<ResolutionRecord>($I`ResolutionRecord`)(
-  {
+export class ResolutionRecord extends S.Opaque<ResolutionRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentId: S.NonEmptyString,
     contentHash: ContentHash,
     resolution: Resolution,
-  },
-  $I.annote("ResolutionRecord", { description: "Log-safe JSONL output for a resolved document." })
+  }).pipe($I.annoteSchema("ResolutionRecord", { description: "Log-safe JSONL output for a resolved document." }))
 ) {}
 /**
  * A held-out prediction paired with attorney-filed ground truth.
@@ -1258,12 +1286,13 @@ export class ResolutionRecord extends S.Class<ResolutionRecord>($I`ResolutionRec
  * @category schemas
  * @since 0.0.0
  */
-export class EvaluationCase extends S.Class<EvaluationCase>($I`EvaluationCase`)(
-  {
+export class EvaluationCase extends S.Opaque<EvaluationCase, { readonly brand: unique symbol }>()(
+  S.Struct({
     truth: TrainingDocument,
     resolution: Resolution,
-  },
-  $I.annote("EvaluationCase", { description: "A held-out prediction paired with attorney-filed ground truth." })
+  }).pipe(
+    $I.annoteSchema("EvaluationCase", { description: "A held-out prediction paired with attorney-filed ground truth." })
+  )
 ) {}
 /**
  * Input-only folder policy for organising unresolved administration files.
@@ -1279,14 +1308,15 @@ export class EvaluationCase extends S.Class<EvaluationCase>($I`EvaluationCase`)(
  * @category schemas
  * @since 0.0.0
  */
-export class OrganisationRules extends S.Class<OrganisationRules>($I`OrganisationRules`)(
-  {
+export class OrganisationRules extends S.Opaque<OrganisationRules, { readonly brand: unique symbol }>()(
+  S.Struct({
     firmFolders: S.Array(S.String),
     formFolders: S.Array(S.String),
-  },
-  $I.annote("OrganisationRules", {
-    description: "Input-only folder policy for organising unresolved administration files.",
-  })
+  }).pipe(
+    $I.annoteSchema("OrganisationRules", {
+      description: "Input-only folder policy for organising unresolved administration files.",
+    })
+  )
 ) {}
 /**
  * Non-client administrative organisation decision.
@@ -1326,9 +1356,10 @@ export type OrganisationKind = typeof OrganisationKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class OrganisationDecision extends S.Class<OrganisationDecision>($I`OrganisationDecision`)(
-  {
+export class OrganisationDecision extends S.Opaque<OrganisationDecision, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: OrganisationKind,
-  },
-  $I.annote("OrganisationDecision", { description: "Administrative organisation without inventing a client." })
+  }).pipe(
+    $I.annoteSchema("OrganisationDecision", { description: "Administrative organisation without inventing a client." })
+  )
 ) {}

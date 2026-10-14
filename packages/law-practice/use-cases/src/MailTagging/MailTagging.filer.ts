@@ -6,6 +6,7 @@
  * @since 0.0.0
  */
 
+import { MailEnvelope, MailTaxonomy } from "@beep/law-practice-domain";
 import {
   ContentSha256,
   emptyTaggingRunReport,
@@ -125,7 +126,10 @@ const candidateNames = (first: string, content: FiledContent): ReadonlyArray<str
   A.dedupe(A.prepend(shortHashNames(content), first));
 
 const isUsptoSender = (request: FileAttachmentsRequest): boolean =>
-  A.contains(senderRuleCategories(request.taxonomy, request.envelope), PracticeCategory.Enum["P: USPTO"]);
+  A.contains(
+    senderRuleCategories(MailTaxonomy.make(request.taxonomy), MailEnvelope.make(request.envelope)),
+    PracticeCategory.Enum["P: USPTO"]
+  );
 
 const destinationOf = (request: FileAttachmentsRequest): O.Option<FilingDestination> =>
   isUsptoSender(request)

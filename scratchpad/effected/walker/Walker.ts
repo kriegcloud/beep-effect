@@ -9,7 +9,7 @@ import * as S from "effect/Schema";
 const $I = $ScratchpadId.create("effected/walker/Walker");
 
 /** Invalid traversal wiring, raised as a defect rather than a recoverable failure. */
-class WalkerDefect extends S.TaggedError<WalkerDefect>($I`WalkerDefect`)(
+class WalkerDefect extends S.TaggedError<WalkerDefect, { readonly brand: unique symbol }>($I`WalkerDefect`)(
 	"WalkerDefect",
 	{ message: S.String },
 	$I.annote("WalkerDefect", { description: "Invalid upward traversal wiring." }),

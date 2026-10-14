@@ -80,7 +80,7 @@ describe("@beep/utils schema parity", () => {
     "round-trips GlobOptions",
     { value: GlobOptions },
     ({ value }) => {
-      expectRoundTrip(GlobOptions, value);
+      expectRoundTrip(GlobOptions, GlobOptions.make(value));
     },
     { arbitrary: fcRuns(50) }
   );
@@ -89,7 +89,7 @@ describe("@beep/utils schema parity", () => {
     "round-trips AppendFileSyncOptions",
     { value: AppendFileSyncOptions },
     ({ value }) => {
-      expectRoundTrip(AppendFileSyncOptions, value);
+      expectRoundTrip(AppendFileSyncOptions, AppendFileSyncOptions.make(value));
     },
     { arbitrary: fcRuns(50) }
   );
@@ -98,7 +98,7 @@ describe("@beep/utils schema parity", () => {
     "round-trips RmSyncOptions",
     { value: RmSyncOptions },
     ({ value }) => {
-      expectRoundTrip(RmSyncOptions, value);
+      expectRoundTrip(RmSyncOptions, RmSyncOptions.make(value));
     },
     { arbitrary: fcRuns(50) }
   );
@@ -107,7 +107,7 @@ describe("@beep/utils schema parity", () => {
     "round-trips ReaddirSyncOptions",
     { value: ReaddirSyncOptions },
     ({ value }) => {
-      expectRoundTrip(ReaddirSyncOptions, value);
+      expectRoundTrip(ReaddirSyncOptions, ReaddirSyncOptions.make(value));
     },
     { arbitrary: fcRuns(50) }
   );

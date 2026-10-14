@@ -492,8 +492,8 @@ export type ClipCodec = typeof ClipCodec.Type;
  * @category models
  * @since 0.0.0
  */
-export class MetadataPair extends S.Class<MetadataPair>($I`MetadataPair`)(
-  {
+export class MetadataPair extends S.Opaque<MetadataPair, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: SafeMetadataKey.pipe(
       $I.annoteKey("MetadataPair.key", {
         description: "Pattern-guarded container metadata key.",
@@ -504,10 +504,11 @@ export class MetadataPair extends S.Class<MetadataPair>($I`MetadataPair`)(
         description: "Container metadata value written verbatim.",
       })
     ),
-  },
-  $I.annote("MetadataPair", {
-    description: "A single container metadata key/value assignment.",
-  })
+  }).pipe(
+    $I.annoteSchema("MetadataPair", {
+      description: "A single container metadata key/value assignment.",
+    })
+  )
 ) {}
 
 /**
@@ -530,8 +531,8 @@ export class MetadataPair extends S.Class<MetadataPair>($I`MetadataPair`)(
  * @category models
  * @since 0.0.0
  */
-export class ExtractFrameAtRequest extends S.Class<ExtractFrameAtRequest>($I`ExtractFrameAtRequest`)(
-  {
+export class ExtractFrameAtRequest extends S.Opaque<ExtractFrameAtRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     outPath: S.String.pipe(
       $I.annoteKey("ExtractFrameAtRequest.outPath", {
         description: "Destination path for the extracted PNG frame.",
@@ -554,10 +555,11 @@ export class ExtractFrameAtRequest extends S.Class<ExtractFrameAtRequest>($I`Ext
         description: "Video file path to extract the frame from.",
       })
     ),
-  },
-  $I.annote("ExtractFrameAtRequest", {
-    description: "Request to extract one frame at an exact timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFrameAtRequest", {
+      description: "Request to extract one frame at an exact timestamp.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ExtractFrameAtRequest);
 }
@@ -583,8 +585,8 @@ export class ExtractFrameAtRequest extends S.Class<ExtractFrameAtRequest>($I`Ext
  * @category models
  * @since 0.0.0
  */
-export class TimestampedFrame extends S.Class<TimestampedFrame>($I`TimestampedFrame`)(
-  {
+export class TimestampedFrame extends S.Opaque<TimestampedFrame, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileName: S.String.pipe(
       $I.annoteKey("TimestampedFrame.fileName", {
         description: "Generated PNG file name for the extracted frame.",
@@ -610,10 +612,11 @@ export class TimestampedFrame extends S.Class<TimestampedFrame>($I`TimestampedFr
         description: "Timestamp in seconds the frame extraction was requested at.",
       })
     ),
-  },
-  $I.annote("TimestampedFrame", {
-    description: "A frame extracted at a requested timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("TimestampedFrame", {
+      description: "A frame extracted at a requested timestamp.",
+    })
+  )
 ) {}
 
 /**
@@ -640,8 +643,8 @@ export class TimestampedFrame extends S.Class<TimestampedFrame>($I`TimestampedFr
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesAtRequest extends S.Class<ExtractFramesAtRequest>($I`ExtractFramesAtRequest`)(
-  {
+export class ExtractFramesAtRequest extends S.Opaque<ExtractFramesAtRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifestPath: S.Option(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<string>())),
       S.withDecodingDefault(Effect.succeed(O.none<string>())),
@@ -694,10 +697,11 @@ export class ExtractFramesAtRequest extends S.Class<ExtractFramesAtRequest>($I`E
         description: "Video file path to extract frames from.",
       })
     ),
-  },
-  $I.annote("ExtractFramesAtRequest", {
-    description: "Request to extract frames at an explicit list of timestamps.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesAtRequest", {
+      description: "Request to extract frames at an explicit list of timestamps.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ExtractFramesAtRequest);
 }
@@ -721,10 +725,11 @@ export class ExtractFramesAtRequest extends S.Class<ExtractFramesAtRequest>($I`E
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesAtManifestOptions extends S.Class<ExtractFramesAtManifestOptions>(
-  $I`ExtractFramesAtManifestOptions`
-)(
-  {
+export class ExtractFramesAtManifestOptions extends S.Opaque<
+  ExtractFramesAtManifestOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     overwrite: S.Boolean.pipe(
       $I.annoteKey("ExtractFramesAtManifestOptions.overwrite", {
         description: "Whether the extraction run allowed overwriting outputs.",
@@ -740,10 +745,11 @@ export class ExtractFramesAtManifestOptions extends S.Class<ExtractFramesAtManif
         description: "Requested timestamps in seconds recorded for reproducibility.",
       })
     ),
-  },
-  $I.annote("ExtractFramesAtManifestOptions", {
-    description: "Options recorded in an extract-frames-at manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesAtManifestOptions", {
+      description: "Options recorded in an extract-frames-at manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -779,8 +785,8 @@ export class ExtractFramesAtManifestOptions extends S.Class<ExtractFramesAtManif
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesAtManifest extends S.Class<ExtractFramesAtManifest>($I`ExtractFramesAtManifest`)(
-  {
+export class ExtractFramesAtManifest extends S.Opaque<ExtractFramesAtManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     frames: S.Array(TimestampedFrame).pipe(
       $I.annoteKey("ExtractFramesAtManifest.frames", {
         description: "Committed timestamped frame records.",
@@ -821,10 +827,11 @@ export class ExtractFramesAtManifest extends S.Class<ExtractFramesAtManifest>($I
         description: "Aggregate frame counts for the extraction run.",
       })
     ),
-  },
-  $I.annote("ExtractFramesAtManifest", {
-    description: "JSON manifest written by a successful extract-frames-at run.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesAtManifest", {
+      description: "JSON manifest written by a successful extract-frames-at run.",
+    })
+  )
 ) {
   static readonly encodeEffect = S.encodeUnknownEffect(ExtractFramesAtManifest);
 }
@@ -850,8 +857,8 @@ export class ExtractFramesAtManifest extends S.Class<ExtractFramesAtManifest>($I
  * @category models
  * @since 0.0.0
  */
-export class ExtractFramesAtResult extends S.Class<ExtractFramesAtResult>($I`ExtractFramesAtResult`)(
-  {
+export class ExtractFramesAtResult extends S.Opaque<ExtractFramesAtResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     frameCount: FrameCount.pipe(
       $I.annoteKey("ExtractFramesAtResult.frameCount", {
         description: "Number of committed PNG frames.",
@@ -877,10 +884,11 @@ export class ExtractFramesAtResult extends S.Class<ExtractFramesAtResult>($I`Ext
         description: "Resolved source video path used for extraction.",
       })
     ),
-  },
-  $I.annote("ExtractFramesAtResult", {
-    description: "Result returned after timestamped frames and manifest have been committed.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractFramesAtResult", {
+      description: "Result returned after timestamped frames and manifest have been committed.",
+    })
+  )
 ) {}
 
 /**
@@ -913,8 +921,8 @@ export class ExtractFramesAtResult extends S.Class<ExtractFramesAtResult>($I`Ext
  * @category models
  * @since 0.0.0
  */
-export class ExtractClipRequest extends S.Class<ExtractClipRequest>($I`ExtractClipRequest`)(
-  {
+export class ExtractClipRequest extends S.Opaque<ExtractClipRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     codec: ClipCodec.pipe(
       S.withConstructorDefault(Effect.succeed(ClipCodec.Enum.h264)),
       S.withDecodingDefaultTypeKey(Effect.succeed(ClipCodec.Enum.h264)),
@@ -952,10 +960,11 @@ export class ExtractClipRequest extends S.Class<ExtractClipRequest>($I`ExtractCl
         description: "Video file path to cut the clip from.",
       })
     ),
-  },
-  $I.annote("ExtractClipRequest", {
-    description: "Request to cut a re-encoded clip out of a video.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractClipRequest", {
+      description: "Request to cut a re-encoded clip out of a video.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ExtractClipRequest);
 }
@@ -982,8 +991,8 @@ export class ExtractClipRequest extends S.Class<ExtractClipRequest>($I`ExtractCl
  * @category models
  * @since 0.0.0
  */
-export class ExtractClipResult extends S.Class<ExtractClipResult>($I`ExtractClipResult`)(
-  {
+export class ExtractClipResult extends S.Opaque<ExtractClipResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     durationSeconds: S.Option(PositiveSeconds).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<PositiveSeconds>())),
       S.withDecodingDefault(Effect.succeed(O.none<PositiveSeconds>())),
@@ -1011,10 +1020,11 @@ export class ExtractClipResult extends S.Class<ExtractClipResult>($I`ExtractClip
         description: "Resolved source video path the clip was cut from.",
       })
     ),
-  },
-  $I.annote("ExtractClipResult", {
-    description: "Result returned after a clip has been committed.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExtractClipResult", {
+      description: "Result returned after a clip has been committed.",
+    })
+  )
 ) {}
 
 /**
@@ -1041,8 +1051,8 @@ export class ExtractClipResult extends S.Class<ExtractClipResult>($I`ExtractClip
  * @category models
  * @since 0.0.0
  */
-export class RenderGifRequest extends S.Class<RenderGifRequest>($I`RenderGifRequest`)(
-  {
+export class RenderGifRequest extends S.Opaque<RenderGifRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     dither: GifDither.pipe(
       S.withConstructorDefault(Effect.succeed(GifDither.Enum.bayer)),
       S.withDecodingDefaultTypeKey(Effect.succeed(GifDither.Enum.bayer)),
@@ -1091,10 +1101,11 @@ export class RenderGifRequest extends S.Class<RenderGifRequest>($I`RenderGifRequ
         description: "GIF pixel width; height follows the source aspect ratio.",
       })
     ),
-  },
-  $I.annote("RenderGifRequest", {
-    description: "Request to render a palette-optimized GIF from a video window.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderGifRequest", {
+      description: "Request to render a palette-optimized GIF from a video window.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(RenderGifRequest);
 }
@@ -1123,8 +1134,8 @@ export class RenderGifRequest extends S.Class<RenderGifRequest>($I`RenderGifRequ
  * @category models
  * @since 0.0.0
  */
-export class RenderGifResult extends S.Class<RenderGifResult>($I`RenderGifResult`)(
-  {
+export class RenderGifResult extends S.Opaque<RenderGifResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileSizeBytes: FileSizeBytes.pipe(
       $I.annoteKey("RenderGifResult.fileSizeBytes", {
         description: "Size of the committed GIF file in bytes.",
@@ -1140,10 +1151,11 @@ export class RenderGifResult extends S.Class<RenderGifResult>($I`RenderGifResult
         description: "Resolved source video path the GIF was rendered from.",
       })
     ),
-  },
-  $I.annote("RenderGifResult", {
-    description: "Result returned after a GIF has been committed.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderGifResult", {
+      description: "Result returned after a GIF has been committed.",
+    })
+  )
 ) {}
 
 /**
@@ -1174,8 +1186,8 @@ export class RenderGifResult extends S.Class<RenderGifResult>($I`RenderGifResult
  * @category models
  * @since 0.0.0
  */
-export class RenderContactSheetRequest extends S.Class<RenderContactSheetRequest>($I`RenderContactSheetRequest`)(
-  {
+export class RenderContactSheetRequest extends S.Opaque<RenderContactSheetRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     columns: TileCount.pipe(
       S.withConstructorDefault(Effect.succeed(4)),
       S.withDecodingDefaultTypeKey(Effect.succeed(4)),
@@ -1221,10 +1233,11 @@ export class RenderContactSheetRequest extends S.Class<RenderContactSheetRequest
         description: "Video file path to render the contact sheet from.",
       })
     ),
-  },
-  $I.annote("RenderContactSheetRequest", {
-    description: "Request to render a tiled contact sheet spanning a whole video.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderContactSheetRequest", {
+      description: "Request to render a tiled contact sheet spanning a whole video.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(RenderContactSheetRequest);
 }
@@ -1250,8 +1263,8 @@ export class RenderContactSheetRequest extends S.Class<RenderContactSheetRequest
  * @category models
  * @since 0.0.0
  */
-export class RenderContactSheetResult extends S.Class<RenderContactSheetResult>($I`RenderContactSheetResult`)(
-  {
+export class RenderContactSheetResult extends S.Opaque<RenderContactSheetResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     columns: TileCount.pipe(
       $I.annoteKey("RenderContactSheetResult.columns", {
         description: "Number of tile columns in the committed sheet.",
@@ -1277,10 +1290,11 @@ export class RenderContactSheetResult extends S.Class<RenderContactSheetResult>(
         description: "Resolved source video path the sheet was rendered from.",
       })
     ),
-  },
-  $I.annote("RenderContactSheetResult", {
-    description: "Result returned after a contact sheet has been committed.",
-  })
+  }).pipe(
+    $I.annoteSchema("RenderContactSheetResult", {
+      description: "Result returned after a contact sheet has been committed.",
+    })
+  )
 ) {}
 
 /**
@@ -1308,10 +1322,11 @@ export class RenderContactSheetResult extends S.Class<RenderContactSheetResult>(
  * @category models
  * @since 0.0.0
  */
-export class WriteContainerMetadataRequest extends S.Class<WriteContainerMetadataRequest>(
-  $I`WriteContainerMetadataRequest`
-)(
-  {
+export class WriteContainerMetadataRequest extends S.Opaque<
+  WriteContainerMetadataRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     metadata: S.Array(MetadataPair)
       .check(
         S.isMinLength(1, {
@@ -1343,10 +1358,11 @@ export class WriteContainerMetadataRequest extends S.Class<WriteContainerMetadat
         description: "Video file path to remux with metadata.",
       })
     ),
-  },
-  $I.annote("WriteContainerMetadataRequest", {
-    description: "Request to remux a video with additional container metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("WriteContainerMetadataRequest", {
+      description: "Request to remux a video with additional container metadata.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(WriteContainerMetadataRequest);
 }
@@ -1370,10 +1386,11 @@ export class WriteContainerMetadataRequest extends S.Class<WriteContainerMetadat
  * @category models
  * @since 0.0.0
  */
-export class WriteContainerMetadataResult extends S.Class<WriteContainerMetadataResult>(
-  $I`WriteContainerMetadataResult`
-)(
-  {
+export class WriteContainerMetadataResult extends S.Opaque<
+  WriteContainerMetadataResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     fileSizeBytes: FileSizeBytes.pipe(
       $I.annoteKey("WriteContainerMetadataResult.fileSizeBytes", {
         description: "Size of the committed remuxed file in bytes.",
@@ -1389,10 +1406,11 @@ export class WriteContainerMetadataResult extends S.Class<WriteContainerMetadata
         description: "Resolved source video path that was remuxed.",
       })
     ),
-  },
-  $I.annote("WriteContainerMetadataResult", {
-    description: "Result returned after a metadata remux has been committed.",
-  })
+  }).pipe(
+    $I.annoteSchema("WriteContainerMetadataResult", {
+      description: "Result returned after a metadata remux has been committed.",
+    })
+  )
 ) {}
 
 /**
@@ -1421,8 +1439,11 @@ export class WriteContainerMetadataResult extends S.Class<WriteContainerMetadata
  * @category models
  * @since 0.0.0
  */
-export class ProbeRegionLuminanceRequest extends S.Class<ProbeRegionLuminanceRequest>($I`ProbeRegionLuminanceRequest`)(
-  {
+export class ProbeRegionLuminanceRequest extends S.Opaque<
+  ProbeRegionLuminanceRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     height: VideoDimension.pipe(
       $I.annoteKey("ProbeRegionLuminanceRequest.height", {
         description: "Crop region height in pixels.",
@@ -1448,10 +1469,11 @@ export class ProbeRegionLuminanceRequest extends S.Class<ProbeRegionLuminanceReq
         description: "Crop region top offset in pixels.",
       })
     ),
-  },
-  $I.annote("ProbeRegionLuminanceRequest", {
-    description: "Request to sample mean luma over a crop region of every frame.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProbeRegionLuminanceRequest", {
+      description: "Request to sample mean luma over a crop region of every frame.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ProbeRegionLuminanceRequest);
 }
@@ -1471,8 +1493,8 @@ export class ProbeRegionLuminanceRequest extends S.Class<ProbeRegionLuminanceReq
  * @category models
  * @since 0.0.0
  */
-export class LuminanceSample extends S.Class<LuminanceSample>($I`LuminanceSample`)(
-  {
+export class LuminanceSample extends S.Opaque<LuminanceSample, { readonly brand: unique symbol }>()(
+  S.Struct({
     frameIndex: FrameIndex.pipe(
       $I.annoteKey("LuminanceSample.frameIndex", {
         description: "Zero-based decoded frame index reported by the metadata filter.",
@@ -1488,10 +1510,11 @@ export class LuminanceSample extends S.Class<LuminanceSample>($I`LuminanceSample
         description: "Presentation timestamp of the sampled frame in seconds.",
       })
     ),
-  },
-  $I.annote("LuminanceSample", {
-    description: "Mean luma of one frame's crop region.",
-  })
+  }).pipe(
+    $I.annoteSchema("LuminanceSample", {
+      description: "Mean luma of one frame's crop region.",
+    })
+  )
 ) {}
 
 /**
@@ -1509,8 +1532,11 @@ export class LuminanceSample extends S.Class<LuminanceSample>($I`LuminanceSample
  * @category models
  * @since 0.0.0
  */
-export class ProbeRegionLuminanceResult extends S.Class<ProbeRegionLuminanceResult>($I`ProbeRegionLuminanceResult`)(
-  {
+export class ProbeRegionLuminanceResult extends S.Opaque<
+  ProbeRegionLuminanceResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     samples: S.Array(LuminanceSample).pipe(
       $I.annoteKey("ProbeRegionLuminanceResult.samples", {
         description: "Per-frame mean luma samples in decode order.",
@@ -1521,10 +1547,11 @@ export class ProbeRegionLuminanceResult extends S.Class<ProbeRegionLuminanceResu
         description: "Resolved source video path that was sampled.",
       })
     ),
-  },
-  $I.annote("ProbeRegionLuminanceResult", {
-    description: "Result returned after sampling region luminance across a video.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProbeRegionLuminanceResult", {
+      description: "Result returned after sampling region luminance across a video.",
+    })
+  )
 ) {}
 
 /**

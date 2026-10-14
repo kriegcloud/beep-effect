@@ -12,7 +12,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { BoxError } from "./Box.errors.ts";
+import { BoxError, BoxErrorOptionsInput } from "./Box.errors.ts";
 import type * as Redacted from "effect/Redacted";
 
 const $I = $BoxId.create("Box.config");
@@ -46,13 +46,14 @@ const BoxCcgConfigShape = S.Struct({
  * @category models
  * @since 0.0.0
  */
-export class BoxDeveloperTokenConfig extends S.Class<BoxDeveloperTokenConfig>($I`BoxDeveloperTokenConfig`)(
-  {
+export class BoxDeveloperTokenConfig extends S.Opaque<BoxDeveloperTokenConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     token: S.Redacted(S.String),
-  },
-  $I.annote("BoxDeveloperTokenConfig", {
-    description: "Developer-token configuration for the Box technical driver.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxDeveloperTokenConfig", {
+      description: "Developer-token configuration for the Box technical driver.",
+    })
+  )
 ) {}
 
 /**
@@ -81,11 +82,12 @@ export class BoxDeveloperTokenConfig extends S.Class<BoxDeveloperTokenConfig>($I
  * @category models
  * @since 0.0.0
  */
-export class BoxCcgConfig extends S.Class<BoxCcgConfig>($I`BoxCcgConfig`)(
-  BoxCcgConfigShape,
-  $I.annote("BoxCcgConfig", {
-    description: "Client Credentials Grant configuration for the Box technical driver.",
-  })
+export class BoxCcgConfig extends S.Opaque<BoxCcgConfig, { readonly brand: unique symbol }>()(
+  BoxCcgConfigShape.pipe(
+    $I.annoteSchema("BoxCcgConfig", {
+      description: "Client Credentials Grant configuration for the Box technical driver.",
+    })
+  )
 ) {}
 
 /**
@@ -149,9 +151,12 @@ export const BoxConfigLayer = Layer.effect(
   Effect.gen(function* () {
     const token = yield* Config.Redacted("CLOUD_BOX_TOKEN").pipe(
       Effect.mapError((cause) =>
-        BoxError.fromReason("config", {
-          cause,
-        })
+        BoxError.fromReason(
+          "config",
+          BoxErrorOptionsInput.make({
+            cause,
+          })
+        )
       )
     );
     return BoxDeveloperTokenConfig.make({ token });

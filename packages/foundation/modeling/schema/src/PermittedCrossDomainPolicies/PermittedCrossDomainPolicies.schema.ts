@@ -130,16 +130,18 @@ export type PermittedCrossDomainPoliciesOption = typeof PermittedCrossDomainPoli
  * @category models
  * @since 0.0.0
  */
-export class PermittedCrossDomainPoliciesResponseHeader extends S.Class<PermittedCrossDomainPoliciesResponseHeader>(
-  $I`PermittedCrossDomainPoliciesResponseHeader`
-)(
-  {
+export class PermittedCrossDomainPoliciesResponseHeader extends S.Opaque<
+  PermittedCrossDomainPoliciesResponseHeader,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PermittedCrossDomainPoliciesResponseHeader", {
-    description: "The `X-Permitted-Cross-Domain-Policies` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("PermittedCrossDomainPoliciesResponseHeader", {
+      description: "The `X-Permitted-Cross-Domain-Policies` response header.",
+    })
+  )
 ) {}
 
 type PermittedCrossDomainPoliciesResponseHeaderEncoded = typeof PermittedCrossDomainPoliciesResponseHeader.Encoded;

@@ -63,8 +63,11 @@ export const DEFAULT_DOCGEN_EXCLUDE = ["src/internal/**/*.ts"] as const;
  * @category models
  * @since 0.0.0
  */
-export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInput>($I`CanonicalDocgenConfigInput`)(
-  {
+export class CanonicalDocgenConfigInput extends S.Opaque<
+  CanonicalDocgenConfigInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     rootDir: S.NonEmptyString.annotateKey({
       description: "Absolute repository root directory.",
     }),
@@ -77,10 +80,11 @@ export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInp
     packageName: RepoPackageName.annotateKey({
       description: "Workspace package name being configured for docgen.",
     }),
-  },
-  $I.annote("CanonicalDocgenConfigInput", {
-    description: "Input used to build the canonical repo docgen config for a package.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalDocgenConfigInput", {
+      description: "Input used to build the canonical repo docgen config for a package.",
+    })
+  )
 ) {}
 
 /**
@@ -129,10 +133,11 @@ export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInp
  * @category models
  * @since 0.0.0
  */
-export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDocgenExamplesCompilerOptions>(
-  $I`CanonicalDocgenExamplesCompilerOptions`
-)(
-  {
+export class CanonicalDocgenExamplesCompilerOptions extends S.Opaque<
+  CanonicalDocgenExamplesCompilerOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     noEmit: S.Literal(true),
     strict: S.Literal(true),
     skipLibCheck: S.Literal(true),
@@ -158,10 +163,11 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
     noErrorTruncation: S.Literal(true),
     types: S.Array(S.String),
     jsx: S.Literal("react-jsx"),
-  },
-  $I.annote("CanonicalDocgenExamplesCompilerOptions", {
-    description: "Managed TypeScript compiler options used for docgen examples.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalDocgenExamplesCompilerOptions", {
+      description: "Managed TypeScript compiler options used for docgen examples.",
+    })
+  )
 ) {}
 
 /**
@@ -213,16 +219,17 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
  * @category models
  * @since 0.0.0
  */
-export class CanonicalDocgenConfig extends S.Class<CanonicalDocgenConfig>($I`CanonicalDocgenConfig`)(
-  {
+export class CanonicalDocgenConfig extends S.Opaque<CanonicalDocgenConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     $schema: S.String,
     exclude: S.Array(S.String),
     srcLink: S.String,
     examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions,
-  },
-  $I.annote("CanonicalDocgenConfig", {
-    description: "Canonical repo docgen config payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalDocgenConfig", {
+      description: "Canonical repo docgen config payload.",
+    })
+  )
 ) {}
 
 const cloneStringArray = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.fromIterable(values);
@@ -327,18 +334,20 @@ export const toDocgenExamplesCompilerOptionsJson = (
  * @category models
  * @since 0.0.0
  */
-export class CanonicalDocgenConfigJsonShape extends S.Class<CanonicalDocgenConfigJsonShape>(
-  $I`CanonicalDocgenConfigJsonShape`
-)(
-  {
+export class CanonicalDocgenConfigJsonShape extends S.Opaque<
+  CanonicalDocgenConfigJsonShape,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     $schema: S.String,
     exclude: S.Array(S.String),
     srcLink: S.String,
     examplesCompilerOptions: S.Record(S.String, S.Unknown),
-  },
-  $I.annote("CanonicalDocgenConfigJsonShape", {
-    description: "JSON-compatible mirror of CanonicalDocgenConfig, returned by toCanonicalDocgenConfigJson.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanonicalDocgenConfigJsonShape", {
+      description: "JSON-compatible mirror of CanonicalDocgenConfig, returned by toCanonicalDocgenConfigJson.",
+    })
+  )
 ) {}
 
 /**
@@ -410,12 +419,13 @@ export type CanonicalDocgenConfigJson = (typeof CanonicalDocgenConfigJsonShape)[
  * @category models
  * @since 0.0.0
  */
-export const toCanonicalDocgenConfigJson = (config: CanonicalDocgenConfig): CanonicalDocgenConfigJson => ({
-  $schema: config.$schema,
-  exclude: cloneStringArray(config.exclude),
-  srcLink: config.srcLink,
-  examplesCompilerOptions: toDocgenExamplesCompilerOptionsJson(config.examplesCompilerOptions),
-});
+export const toCanonicalDocgenConfigJson = (config: CanonicalDocgenConfig): CanonicalDocgenConfigJson =>
+  CanonicalDocgenConfigJsonShape.make({
+    $schema: config.$schema,
+    exclude: cloneStringArray(config.exclude),
+    srcLink: config.srcLink,
+    examplesCompilerOptions: toDocgenExamplesCompilerOptionsJson(config.examplesCompilerOptions),
+  });
 
 /**
  * Build the canonical repo docgen config for a package.

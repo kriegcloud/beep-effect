@@ -143,8 +143,8 @@ export type SurfaceStep = typeof SurfaceStep.Type;
  * @category models
  * @since 0.0.0
  */
-export class ColorScale extends S.Class<ColorScale>($I`ColorScale`)(
-  {
+export class ColorScale extends S.Opaque<ColorScale, { readonly brand: unique symbol }>()(
+  S.Struct({
     "50": HexColor.annotateKey({ description: "Lightest tint." }),
     "100": HexColor.annotateKey({ description: "Tint step 100." }),
     "200": HexColor.annotateKey({ description: "Tint step 200." }),
@@ -155,8 +155,7 @@ export class ColorScale extends S.Class<ColorScale>($I`ColorScale`)(
     "700": HexColor.annotateKey({ description: "Tint step 700." }),
     "800": HexColor.annotateKey({ description: "Tint step 800." }),
     "900": HexColor.annotateKey({ description: "Darkest shade; favicon and theme-color ground." }),
-  },
-  $I.annote("ColorScale", { description: "Ten-stop hex color scale keyed by ScaleStep." })
+  }).pipe($I.annoteSchema("ColorScale", { description: "Ten-stop hex color scale keyed by ScaleStep." }))
 ) {}
 
 /**
@@ -173,16 +172,15 @@ export class ColorScale extends S.Class<ColorScale>($I`ColorScale`)(
  * @category models
  * @since 0.0.0
  */
-export class SurfaceScale extends S.Class<SurfaceScale>($I`SurfaceScale`)(
-  {
+export class SurfaceScale extends S.Opaque<SurfaceScale, { readonly brand: unique symbol }>()(
+  S.Struct({
     "0": HexColor.annotateKey({ description: "Page background." }),
     "50": HexColor.annotateKey({ description: "Raised surface one step above the page." }),
     "100": HexColor.annotateKey({ description: "Card and panel surface." }),
     "200": HexColor.annotateKey({ description: "Muted control surface." }),
     "300": HexColor.annotateKey({ description: "Hover and separator surface." }),
     "400": HexColor.annotateKey({ description: "Strongest surface; scrollbar thumb hover." }),
-  },
-  $I.annote("SurfaceScale", { description: "Six-stop surface scale keyed by SurfaceStep." })
+  }).pipe($I.annoteSchema("SurfaceScale", { description: "Six-stop surface scale keyed by SurfaceStep." }))
 ) {}
 
 /**
@@ -199,13 +197,12 @@ export class SurfaceScale extends S.Class<SurfaceScale>($I`SurfaceScale`)(
  * @category models
  * @since 0.0.0
  */
-export class Foreground extends S.Class<Foreground>($I`Foreground`)(
-  {
+export class Foreground extends S.Opaque<Foreground, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: HexColor.annotateKey({ description: "Primary text color." }),
     muted: HexColor.annotateKey({ description: "Secondary text color." }),
     subtle: HexColor.annotateKey({ description: "Tertiary text color for hints and metadata." }),
-  },
-  $I.annote("Foreground", { description: "Foreground text colors at three emphasis levels." })
+  }).pipe($I.annoteSchema("Foreground", { description: "Foreground text colors at three emphasis levels." }))
 ) {}
 
 /**
@@ -222,12 +219,11 @@ export class Foreground extends S.Class<Foreground>($I`Foreground`)(
  * @category models
  * @since 0.0.0
  */
-export class Border extends S.Class<Border>($I`Border`)(
-  {
+export class Border extends S.Opaque<Border, { readonly brand: unique symbol }>()(
+  S.Struct({
     base: HexColor.annotateKey({ description: "Resting border color." }),
     hover: HexColor.annotateKey({ description: "Border color on hover." }),
-  },
-  $I.annote("Border", { description: "Border colors at rest and on hover." })
+  }).pipe($I.annoteSchema("Border", { description: "Border colors at rest and on hover." }))
 ) {}
 
 /**
@@ -244,13 +240,12 @@ export class Border extends S.Class<Border>($I`Border`)(
  * @category models
  * @since 0.0.0
  */
-export class Semantic extends S.Class<Semantic>($I`Semantic`)(
-  {
+export class Semantic extends S.Opaque<Semantic, { readonly brand: unique symbol }>()(
+  S.Struct({
     success: HexColor.annotateKey({ description: "Success status color." }),
     warning: HexColor.annotateKey({ description: "Warning status color." }),
     error: HexColor.annotateKey({ description: "Error status color." }),
-  },
-  $I.annote("Semantic", { description: "Semantic status colors." })
+  }).pipe($I.annoteSchema("Semantic", { description: "Semantic status colors." }))
 ) {}
 
 /**
@@ -303,12 +298,11 @@ export type Alpha = typeof Alpha.Type;
  * @category models
  * @since 0.0.0
  */
-export class GlowStop extends S.Class<GlowStop>($I`GlowStop`)(
-  {
+export class GlowStop extends S.Opaque<GlowStop, { readonly brand: unique symbol }>()(
+  S.Struct({
     step: ScaleStep.annotateKey({ description: "Brand scale step the glow samples." }),
     alpha: Alpha.annotateKey({ description: "Opacity of the sampled step." }),
-  },
-  $I.annote("GlowStop", { description: "A brand scale step at an opacity." })
+  }).pipe($I.annoteSchema("GlowStop", { description: "A brand scale step at an opacity." }))
 ) {}
 
 /**
@@ -325,12 +319,11 @@ export class GlowStop extends S.Class<GlowStop>($I`GlowStop`)(
  * @category models
  * @since 0.0.0
  */
-export class GlowLayer extends S.Class<GlowLayer>($I`GlowLayer`)(
-  {
+export class GlowLayer extends S.Opaque<GlowLayer, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: GlowStop.annotateKey({ description: "Center stop of the radial glow." }),
     mid: GlowStop.annotateKey({ description: "Mid-radius stop before the glow fades to transparent." }),
-  },
-  $I.annote("GlowLayer", { description: "Radial glow layer with start and mid stops." })
+  }).pipe($I.annoteSchema("GlowLayer", { description: "Radial glow layer with start and mid stops." }))
 ) {}
 
 /**
@@ -347,13 +340,12 @@ export class GlowLayer extends S.Class<GlowLayer>($I`GlowLayer`)(
  * @category models
  * @since 0.0.0
  */
-export class Glow extends S.Class<Glow>($I`Glow`)(
-  {
+export class Glow extends S.Opaque<Glow, { readonly brand: unique symbol }>()(
+  S.Struct({
     primary: GlowLayer.annotateKey({ description: "Dominant glow layer." }),
     secondary: GlowLayer.annotateKey({ description: "Second glow layer, drifting against the primary." }),
     tertiary: GlowLayer.annotateKey({ description: "Deep background glow layer." }),
-  },
-  $I.annote("Glow", { description: "The three ambient glow layers." })
+  }).pipe($I.annoteSchema("Glow", { description: "The three ambient glow layers." }))
 ) {}
 
 /**
@@ -370,16 +362,15 @@ export class Glow extends S.Class<Glow>($I`Glow`)(
  * @category models
  * @since 0.0.0
  */
-export class ColorScheme extends S.Class<ColorScheme>($I`ColorScheme`)(
-  {
+export class ColorScheme extends S.Opaque<ColorScheme, { readonly nominal: unique symbol }>()(
+  S.Struct({
     brand: ColorScale.annotateKey({ description: "Brand hue scale for this scheme." }),
     surface: SurfaceScale.annotateKey({ description: "Background surfaces for this scheme." }),
     foreground: Foreground.annotateKey({ description: "Text colors for this scheme." }),
     border: Border.annotateKey({ description: "Border colors for this scheme." }),
     semantic: Semantic.annotateKey({ description: "Status colors for this scheme." }),
     glow: Glow.annotateKey({ description: "Ambient glow layers for this scheme." }),
-  },
-  $I.annote("ColorScheme", { description: "A complete color scheme for one appearance." })
+  }).pipe($I.annoteSchema("ColorScheme", { description: "A complete color scheme for one appearance." }))
 ) {}
 
 /**
@@ -431,14 +422,13 @@ export type SchemeName = typeof SchemeName.Type;
  * @category models
  * @since 0.0.0
  */
-export class FontStack extends S.Class<FontStack>($I`FontStack`)(
-  {
+export class FontStack extends S.Opaque<FontStack, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: PrintableText.annotateKey({ description: "Preferred font family name." }),
     fallbacks: S.Array(PrintableText).annotateKey({
       description: "Ordered fallback families and generic keywords.",
     }),
-  },
-  $I.annote("FontStack", { description: "A font family with its ordered fallbacks." })
+  }).pipe($I.annoteSchema("FontStack", { description: "A font family with its ordered fallbacks." }))
 ) {}
 
 /**
@@ -455,12 +445,11 @@ export class FontStack extends S.Class<FontStack>($I`FontStack`)(
  * @category models
  * @since 0.0.0
  */
-export class Typography extends S.Class<Typography>($I`Typography`)(
-  {
+export class Typography extends S.Opaque<Typography, { readonly brand: unique symbol }>()(
+  S.Struct({
     sans: FontStack.annotateKey({ description: "Body and UI text stack." }),
     mono: FontStack.annotateKey({ description: "Code and data stack." }),
-  },
-  $I.annote("Typography", { description: "Brand typography: sans and mono stacks." })
+  }).pipe($I.annoteSchema("Typography", { description: "Brand typography: sans and mono stacks." }))
 ) {}
 
 /**
@@ -526,12 +515,11 @@ export type SvgPathData = typeof SvgPathData.Type;
  * @category models
  * @since 0.0.0
  */
-export class MarkPoint extends S.Class<MarkPoint>($I`MarkPoint`)(
-  {
+export class MarkPoint extends S.Opaque<MarkPoint, { readonly brand: unique symbol }>()(
+  S.Struct({
     x: S.Finite.annotateKey({ description: "Horizontal coordinate in mark user units." }),
     y: S.Finite.annotateKey({ description: "Vertical coordinate in mark user units." }),
-  },
-  $I.annote("MarkPoint", { description: "A point in mark user units." })
+  }).pipe($I.annoteSchema("MarkPoint", { description: "A point in mark user units." }))
 ) {}
 
 /**
@@ -548,12 +536,11 @@ export class MarkPoint extends S.Class<MarkPoint>($I`MarkPoint`)(
  * @category models
  * @since 0.0.0
  */
-export class MarkRotation extends S.Class<MarkRotation>($I`MarkRotation`)(
-  {
+export class MarkRotation extends S.Opaque<MarkRotation, { readonly brand: unique symbol }>()(
+  S.Struct({
     degrees: S.Finite.annotateKey({ description: "Clockwise rotation in degrees." }),
     origin: MarkPoint.annotateKey({ description: "Rotation origin in the rotated group's own units." }),
-  },
-  $I.annote("MarkRotation", { description: "A rotation in degrees about an origin." })
+  }).pipe($I.annoteSchema("MarkRotation", { description: "A rotation in degrees about an origin." }))
 ) {}
 
 /**
@@ -570,15 +557,18 @@ export class MarkRotation extends S.Class<MarkRotation>($I`MarkRotation`)(
  * @category models
  * @since 0.0.0
  */
-export class PixelGlasses extends S.Class<PixelGlasses>($I`PixelGlasses`)(
-  {
+export class PixelGlasses extends S.Opaque<PixelGlasses, { readonly brand: unique symbol }>()(
+  S.Struct({
     translate: MarkPoint.annotateKey({ description: "Placement offset in mark user units." }),
     scale: S.Finite.annotateKey({ description: "Uniform scale from glasses pixels to mark user units." }),
     rotation: MarkRotation.annotateKey({ description: "Tilt applied after scaling." }),
     frame: SvgPathData.annotateKey({ description: "Filled frame outline path in glasses pixels." }),
     lenses: S.Array(SvgPathData).annotateKey({ description: "Filled lens paths in glasses pixels." }),
-  },
-  $I.annote("PixelGlasses", { description: "Tilted pixel glasses: placement transform plus frame and lens paths." })
+  }).pipe(
+    $I.annoteSchema("PixelGlasses", {
+      description: "Tilted pixel glasses: placement transform plus frame and lens paths.",
+    })
+  )
 ) {}
 
 /**
@@ -595,8 +585,8 @@ export class PixelGlasses extends S.Class<PixelGlasses>($I`PixelGlasses`)(
  * @category models
  * @since 0.0.0
  */
-export class BrandMark extends S.Class<BrandMark>($I`BrandMark`)(
-  {
+export class BrandMark extends S.Opaque<BrandMark, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: PrintableText.annotateKey({ description: "Accessible name of the mark." }),
     viewBox: S.Finite.check(S.isGreaterThan(0)).annotateKey({
       description: "Side length of the square view box in user units.",
@@ -606,8 +596,7 @@ export class BrandMark extends S.Class<BrandMark>($I`BrandMark`)(
       description: "Stroke width of the lambda paths in user units.",
     }),
     glasses: PixelGlasses.annotateKey({ description: "The pixel glasses overlay." }),
-  },
-  $I.annote("BrandMark", { description: "Geometry of the beep mark on a square view box." })
+  }).pipe($I.annoteSchema("BrandMark", { description: "Geometry of the beep mark on a square view box." }))
 ) {}
 
 /**
@@ -624,15 +613,18 @@ export class BrandMark extends S.Class<BrandMark>($I`BrandMark`)(
  * @category models
  * @since 0.0.0
  */
-export class BrandIdentity extends S.Class<BrandIdentity>($I`BrandIdentity`)(
-  {
+export class BrandIdentity extends S.Opaque<BrandIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: PrintableText.annotateKey({ description: "Brand name as rendered in wordmarks." }),
     light: ColorScheme.annotateKey({ description: "Light appearance scheme." }),
     dark: ColorScheme.annotateKey({ description: "Dark appearance scheme." }),
     typography: Typography.annotateKey({ description: "Font stacks." }),
     mark: BrandMark.annotateKey({ description: "Mark geometry." }),
-  },
-  $I.annote("BrandIdentity", { description: "The whole brand identity: color schemes, typography, and the mark." })
+  }).pipe(
+    $I.annoteSchema("BrandIdentity", {
+      description: "The whole brand identity: color schemes, typography, and the mark.",
+    })
+  )
 ) {}
 
 /**
@@ -686,13 +678,12 @@ export type SvgPaint = typeof SvgPaint.Type;
  * @category models
  * @since 0.0.0
  */
-export class MarkPaint extends S.Class<MarkPaint>($I`MarkPaint`)(
-  {
+export class MarkPaint extends S.Opaque<MarkPaint, { readonly brand: unique symbol }>()(
+  S.Struct({
     stroke: SvgPaint.annotateKey({ description: "Lambda stroke paint." }),
     frame: HexColor.annotateKey({ description: "Glasses frame fill." }),
     lens: HexColor.annotateKey({ description: "Glasses lens fill." }),
-  },
-  $I.annote("MarkPaint", { description: "Colors for the mark's stroke, frame, and lenses." })
+  }).pipe($I.annoteSchema("MarkPaint", { description: "Colors for the mark's stroke, frame, and lenses." }))
 ) {}
 
 /**
@@ -709,14 +700,13 @@ export class MarkPaint extends S.Class<MarkPaint>($I`MarkPaint`)(
  * @category models
  * @since 0.0.0
  */
-export class MarkGround extends S.Class<MarkGround>($I`MarkGround`)(
-  {
+export class MarkGround extends S.Opaque<MarkGround, { readonly brand: unique symbol }>()(
+  S.Struct({
     fill: HexColor.annotateKey({ description: "Ground rectangle fill." }),
     radius: S.Finite.check(S.isGreaterThanOrEqualTo(0)).annotateKey({
       description: "Corner radius in output user units.",
     }),
-  },
-  $I.annote("MarkGround", { description: "Rounded ground rectangle behind the mark." })
+  }).pipe($I.annoteSchema("MarkGround", { description: "Rounded ground rectangle behind the mark." }))
 ) {}
 
 /**
@@ -738,8 +728,8 @@ export class MarkGround extends S.Class<MarkGround>($I`MarkGround`)(
  * @category models
  * @since 0.0.0
  */
-export class MarkSvgRequest extends S.Class<MarkSvgRequest>($I`MarkSvgRequest`)(
-  {
+export class MarkSvgRequest extends S.Opaque<MarkSvgRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     mark: BrandMark.annotateKey({ description: "Mark geometry to render." }),
     size: S.Finite.check(S.isGreaterThan(0)).annotateKey({
       description: "Output view box side length; the mark scales to fill it.",
@@ -748,8 +738,9 @@ export class MarkSvgRequest extends S.Class<MarkSvgRequest>($I`MarkSvgRequest`)(
     ground: S.OptionFromOptionalKey(MarkGround)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional ground rectangle behind the mark." }),
-  },
-  $I.annote("MarkSvgRequest", { description: "Request to render the mark as a standalone SVG document." })
+  }).pipe(
+    $I.annoteSchema("MarkSvgRequest", { description: "Request to render the mark as a standalone SVG document." })
+  )
 ) {}
 
 /**
@@ -771,11 +762,10 @@ export class MarkSvgRequest extends S.Class<MarkSvgRequest>($I`MarkSvgRequest`)(
  * @category models
  * @since 0.0.0
  */
-export class WordmarkSvgRequest extends S.Class<WordmarkSvgRequest>($I`WordmarkSvgRequest`)(
-  {
+export class WordmarkSvgRequest extends S.Opaque<WordmarkSvgRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     identity: BrandIdentity.annotateKey({ description: "Identity supplying the mark, name, and sans stack." }),
     paint: MarkPaint.annotateKey({ description: "Colors for the mark." }),
     textFill: HexColor.annotateKey({ description: "Fill for the brand name text." }),
-  },
-  $I.annote("WordmarkSvgRequest", { description: "Request to render the mark beside the brand name." })
+  }).pipe($I.annoteSchema("WordmarkSvgRequest", { description: "Request to render the mark beside the brand name." }))
 ) {}

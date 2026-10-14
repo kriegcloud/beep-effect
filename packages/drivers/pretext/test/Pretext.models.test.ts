@@ -217,7 +217,7 @@ describe("pure layout helpers", () => {
 
       {
         const actualOption = O.map(
-          lineStats(snapshot.metrics, { maxWidth: 100_000, text }),
+          lineStats(snapshot.metrics, TextLayoutInput.make({ maxWidth: 100_000, text })),
           (stats) => stats.maxLineWidth
         );
         O.match(naturalWidth(snapshot.metrics, text), {
@@ -235,7 +235,7 @@ describe("pure layout helpers", () => {
       const metrics = snapshot.metrics;
       const wordWidth = (word: string): number => O.getOrThrow(R.get(metrics.words, word));
 
-      assertSome(lineRanges(metrics, { maxWidth: 90, text: "The dragon slithers" }), [
+      assertSome(lineRanges(metrics, TextLayoutInput.make({ maxWidth: 90, text: "The dragon slithers" })), [
         LineRange.make({
           startWord: 0,
           endWord: 2,

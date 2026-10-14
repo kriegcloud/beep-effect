@@ -142,17 +142,18 @@ export const MailRecipientKind = LiteralKit(["to", "cc", "bcc", "unknown"]).pipe
  * @category models
  * @since 0.0.0
  */
-export class MailRecipient extends S.Class<MailRecipient>($I`MailRecipient`)(
-  {
+export class MailRecipient extends S.Opaque<MailRecipient, { readonly brand: unique symbol }>()(
+  S.Struct({
     addressType: S.optionalKey(S.String),
     displayName: S.optionalKey(S.String),
     emailAddress: S.optionalKey(S.String),
     kind: MailRecipientKind,
-  },
-  $I.annote("MailRecipient", {
-    title: "Mail Recipient",
-    description: "Recipient kind, display name, address, and address type from one Recipients.txt block.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailRecipient", {
+      title: "Mail Recipient",
+      description: "Recipient kind, display name, address, and address type from one Recipients.txt block.",
+    })
+  )
 ) {}
 
 /**
@@ -176,8 +177,8 @@ export class MailRecipient extends S.Class<MailRecipient>($I`MailRecipient`)(
  * @category models
  * @since 0.0.0
  */
-export class OutlookMessageHeaders extends S.Class<OutlookMessageHeaders>($I`OutlookMessageHeaders`)(
-  {
+export class OutlookMessageHeaders extends S.Opaque<OutlookMessageHeaders, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientSubmitTime: S.optionalKey(S.String),
     conversationTopic: S.optionalKey(S.String),
     creationTime: S.optionalKey(S.String),
@@ -193,11 +194,12 @@ export class OutlookMessageHeaders extends S.Class<OutlookMessageHeaders>($I`Out
     sentRepresentingName: S.optionalKey(S.String),
     sizeBytes: S.optionalKey(S.Natural),
     subject: S.optionalKey(S.String),
-  },
-  $I.annote("OutlookMessageHeaders", {
-    title: "Outlook Message Headers",
-    description: "MAPI header fields of one exported item, verbatim as pffexport wrote them.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutlookMessageHeaders", {
+      title: "Outlook Message Headers",
+      description: "MAPI header fields of one exported item, verbatim as pffexport wrote them.",
+    })
+  )
 ) {}
 
 /**
@@ -227,8 +229,8 @@ export class OutlookMessageHeaders extends S.Class<OutlookMessageHeaders>($I`Out
  * @category models
  * @since 0.0.0
  */
-export class InternetMessageHeaders extends S.Class<InternetMessageHeaders>($I`InternetMessageHeaders`)(
-  {
+export class InternetMessageHeaders extends S.Opaque<InternetMessageHeaders, { readonly brand: unique symbol }>()(
+  S.Struct({
     cc: S.Array(S.String),
     contentType: S.optionalKey(S.String),
     date: S.optionalKey(S.String),
@@ -238,11 +240,12 @@ export class InternetMessageHeaders extends S.Class<InternetMessageHeaders>($I`I
     references: S.Array(S.String),
     subject: S.optionalKey(S.String),
     to: S.Array(S.String),
-  },
-  $I.annote("InternetMessageHeaders", {
-    title: "Internet Message Headers",
-    description: "RFC 5322 identity and addressing headers of one exported message.",
-  })
+  }).pipe(
+    $I.annoteSchema("InternetMessageHeaders", {
+      title: "Internet Message Headers",
+      description: "RFC 5322 identity and addressing headers of one exported message.",
+    })
+  )
 ) {}
 
 /**
@@ -297,19 +300,20 @@ export const MailAttachmentKind = LiteralKit(["file", "embedded-message"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class MailAttachmentEntry extends S.Class<MailAttachmentEntry>($I`MailAttachmentEntry`)(
-  {
+export class MailAttachmentEntry extends S.Opaque<MailAttachmentEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     embeddedMessagePath: S.optionalKey(CorpusRelativePath),
     fileName: S.String,
     kind: MailAttachmentKind,
     ordinal: S.Natural,
     relativePath: CorpusRelativePath,
     sizeBytes: S.Natural,
-  },
-  $I.annote("MailAttachmentEntry", {
-    title: "Mail Attachment Entry",
-    description: "Ordinal, kind, on-disk name, path, size, and (for embedded items) the nested message path.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailAttachmentEntry", {
+      title: "Mail Attachment Entry",
+      description: "Ordinal, kind, on-disk name, path, size, and (for embedded items) the nested message path.",
+    })
+  )
 ) {}
 
 /**
@@ -344,8 +348,8 @@ export class MailAttachmentEntry extends S.Class<MailAttachmentEntry>($I`MailAtt
  * @category models
  * @since 0.0.0
  */
-export class MailMessageIndexRecord extends S.Class<MailMessageIndexRecord>($I`MailMessageIndexRecord`)(
-  {
+export class MailMessageIndexRecord extends S.Opaque<MailMessageIndexRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachments: S.Array(MailAttachmentEntry),
     bodyFileName: S.optionalKey(S.String),
     bodySizeBytes: S.optionalKey(S.Natural),
@@ -358,12 +362,13 @@ export class MailMessageIndexRecord extends S.Class<MailMessageIndexRecord>($I`M
     recipients: S.Array(MailRecipient),
     sourceArtifactId: S.NonEmptyString,
     tree: MailExportTreeLabel,
-  },
-  $I.annote("MailMessageIndexRecord", {
-    title: "Mail Message Index Record",
-    description:
-      "One normalized per-message row: identity, folder, MAPI and RFC 5322 headers, recipients, body, attachments.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailMessageIndexRecord", {
+      title: "Mail Message Index Record",
+      description:
+        "One normalized per-message row: identity, folder, MAPI and RFC 5322 headers, recipients, body, attachments.",
+    })
+  )
 ) {}
 
 /**
@@ -408,8 +413,8 @@ export const MailMessageIndexRecordJson = JsonStringCodec(MailMessageIndexRecord
  * @category models
  * @since 0.0.0
  */
-export class MailMessageIndexSummary extends S.Class<MailMessageIndexSummary>($I`MailMessageIndexSummary`)(
-  {
+export class MailMessageIndexSummary extends S.Opaque<MailMessageIndexSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachmentBytes: S.Natural,
     attachmentCount: S.Natural,
     embeddedMessageCount: S.Natural,
@@ -420,11 +425,12 @@ export class MailMessageIndexSummary extends S.Class<MailMessageIndexSummary>($I
     recipientCount: S.Natural,
     sourceArtifactCount: S.Natural,
     tree: MailExportTreeLabel,
-  },
-  $I.annote("MailMessageIndexSummary", {
-    title: "Mail Message Index Summary",
-    description: "Counts only: sources, messages, embedded items, header coverage, recipients, attachments.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailMessageIndexSummary", {
+      title: "Mail Message Index Summary",
+      description: "Counts only: sources, messages, embedded items, header coverage, recipients, attachments.",
+    })
+  )
 ) {}
 
 /**
@@ -550,8 +556,8 @@ export const AttachmentRepairDecision = LiteralKit(["rename", "skip"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class AttachmentRepairProposal extends S.Class<AttachmentRepairProposal>($I`AttachmentRepairProposal`)(
-  {
+export class AttachmentRepairProposal extends S.Opaque<AttachmentRepairProposal, { readonly brand: unique symbol }>()(
+  S.Struct({
     clipLength: S.Natural,
     decision: AttachmentRepairDecision,
     flags: S.Array(AttachmentRepairFlag),
@@ -563,11 +569,12 @@ export class AttachmentRepairProposal extends S.Class<AttachmentRepairProposal>(
     remnantExtension: S.String,
     sizeBytes: S.Natural,
     tree: MailExportTreeLabel,
-  },
-  $I.annote("AttachmentRepairProposal", {
-    title: "Attachment Repair Proposal",
-    description: "Magic-sniffed type, clip analysis, flags, and the proposed repaired name for one attachment.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttachmentRepairProposal", {
+      title: "Attachment Repair Proposal",
+      description: "Magic-sniffed type, clip analysis, flags, and the proposed repaired name for one attachment.",
+    })
+  )
 ) {}
 
 /**
@@ -646,8 +653,11 @@ export const AttachmentRepairOutcome = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class AttachmentRepairJournalRow extends S.Class<AttachmentRepairJournalRow>($I`AttachmentRepairJournalRow`)(
-  {
+export class AttachmentRepairJournalRow extends S.Opaque<
+  AttachmentRepairJournalRow,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     fromPath: CorpusRelativePath,
     journalRunId: S.NonEmptyString,
     mimeType: S.String,
@@ -657,11 +667,12 @@ export class AttachmentRepairJournalRow extends S.Class<AttachmentRepairJournalR
     sizeBytes: S.Natural,
     toPath: CorpusRelativePath,
     tree: MailExportTreeLabel,
-  },
-  $I.annote("AttachmentRepairJournalRow", {
-    title: "Attachment Repair Journal Row",
-    description: "One rename or revert with the size/mtime identity used to undo it safely.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttachmentRepairJournalRow", {
+      title: "Attachment Repair Journal Row",
+      description: "One rename or revert with the size/mtime identity used to undo it safely.",
+    })
+  )
 ) {}
 
 /**
@@ -704,8 +715,8 @@ export const AttachmentRepairJournalRowJson = JsonStringCodec(AttachmentRepairJo
  * @category models
  * @since 0.0.0
  */
-export class AttachmentRepairSummary extends S.Class<AttachmentRepairSummary>($I`AttachmentRepairSummary`)(
-  {
+export class AttachmentRepairSummary extends S.Opaque<AttachmentRepairSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     byFlag: S.Record(S.String, S.Natural),
     byMime: S.Record(S.String, S.Natural),
     byOutcome: S.Record(S.String, S.Natural),
@@ -714,11 +725,12 @@ export class AttachmentRepairSummary extends S.Class<AttachmentRepairSummary>($I
     proposedRenames: S.Natural,
     scannedFiles: S.Natural,
     trees: S.Array(MailExportTreeLabel),
-  },
-  $I.annote("AttachmentRepairSummary", {
-    title: "Attachment Repair Summary",
-    description: "Counts only: scanned files, proposed renames, and breakdowns by flag, MIME type, and outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttachmentRepairSummary", {
+      title: "Attachment Repair Summary",
+      description: "Counts only: scanned files, proposed renames, and breakdowns by flag, MIME type, and outcome.",
+    })
+  )
 ) {}
 
 /**
@@ -804,8 +816,8 @@ export const MetadataCensusStatus = LiteralKit(["ok", "error"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class DocumentMetadataFields extends S.Class<DocumentMetadataFields>($I`DocumentMetadataFields`)(
-  {
+export class DocumentMetadataFields extends S.Opaque<DocumentMetadataFields, { readonly brand: unique symbol }>()(
+  S.Struct({
     author: S.optionalKey(S.String),
     company: S.optionalKey(S.String),
     createDate: S.optionalKey(S.String),
@@ -818,11 +830,12 @@ export class DocumentMetadataFields extends S.Class<DocumentMetadataFields>($I`D
     producer: S.optionalKey(S.String),
     revisionNumber: S.optionalKey(S.String),
     title: S.optionalKey(S.String),
-  },
-  $I.annote("DocumentMetadataFields", {
-    title: "Document Metadata Fields",
-    description: "Engine-independent selection: type, dates, author/last-author, creator/producer, title, pages.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentMetadataFields", {
+      title: "Document Metadata Fields",
+      description: "Engine-independent selection: type, dates, author/last-author, creator/producer, title, pages.",
+    })
+  )
 ) {}
 
 /**
@@ -857,8 +870,8 @@ export class DocumentMetadataFields extends S.Class<DocumentMetadataFields>($I`D
  * @category models
  * @since 0.0.0
  */
-export class MetadataCensusRecord extends S.Class<MetadataCensusRecord>($I`MetadataCensusRecord`)(
-  {
+export class MetadataCensusRecord extends S.Opaque<MetadataCensusRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     engine: MetadataCensusEngine,
     engineVersion: S.String,
     error: S.optionalKey(S.String),
@@ -869,11 +882,12 @@ export class MetadataCensusRecord extends S.Class<MetadataCensusRecord>($I`Metad
     sizeBytes: S.Natural,
     status: MetadataCensusStatus,
     tags: S.Record(S.String, S.Unknown),
-  },
-  $I.annote("MetadataCensusRecord", {
-    title: "Metadata Census Record",
-    description: "Filesystem identity, engine, normalized fields, raw tag set, and status for one file.",
-  })
+  }).pipe(
+    $I.annoteSchema("MetadataCensusRecord", {
+      title: "Metadata Census Record",
+      description: "Filesystem identity, engine, normalized fields, raw tag set, and status for one file.",
+    })
+  )
 ) {}
 
 /**
@@ -917,8 +931,8 @@ export const MetadataCensusRecordJson = JsonStringCodec(MetadataCensusRecord);
  * @category models
  * @since 0.0.0
  */
-export class MetadataCensusSummary extends S.Class<MetadataCensusSummary>($I`MetadataCensusSummary`)(
-  {
+export class MetadataCensusSummary extends S.Opaque<MetadataCensusSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     byFileType: S.Record(S.String, S.Natural),
     engineVersion: S.String,
     errorCount: S.Natural,
@@ -928,11 +942,12 @@ export class MetadataCensusSummary extends S.Class<MetadataCensusSummary>($I`Met
     roots: S.Array(S.NonEmptyString),
     withAuthor: S.Natural,
     withCreateDate: S.Natural,
-  },
-  $I.annote("MetadataCensusSummary", {
-    title: "Metadata Census Summary",
-    description: "Counts only: files, ok/error, author and create-date coverage, and a file-type breakdown.",
-  })
+  }).pipe(
+    $I.annoteSchema("MetadataCensusSummary", {
+      title: "Metadata Census Summary",
+      description: "Counts only: files, ok/error, author and create-date coverage, and a file-type breakdown.",
+    })
+  )
 ) {}
 
 /**
@@ -972,16 +987,17 @@ export const MetadataCensusSummaryJson = JsonStringCodec(MetadataCensusSummary);
  * @category models
  * @since 0.0.0
  */
-export class ProvenanceMessagesOptions extends S.Class<ProvenanceMessagesOptions>($I`ProvenanceMessagesOptions`)(
-  {
+export class ProvenanceMessagesOptions extends S.Opaque<ProvenanceMessagesOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.NonEmptyString,
     outputDir: S.optionalKey(S.NonEmptyString),
     trees: S.Array(MailExportTreeLabel),
-  },
-  $I.annote("ProvenanceMessagesOptions", {
-    title: "Provenance Messages Options",
-    description: "Corpus root, staging trees to index, and an optional output directory override.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProvenanceMessagesOptions", {
+      title: "Provenance Messages Options",
+      description: "Corpus root, staging trees to index, and an optional output directory override.",
+    })
+  )
 ) {}
 
 /**
@@ -1027,19 +1043,20 @@ export const AttachmentRepairMode = LiteralKit(["plan", "apply", "undo"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class AttachmentRepairOptions extends S.Class<AttachmentRepairOptions>($I`AttachmentRepairOptions`)(
-  {
+export class AttachmentRepairOptions extends S.Opaque<AttachmentRepairOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.NonEmptyString,
     fileCommand: S.NonEmptyString.pipe(S.withConstructorDefault(Effect.succeed("file"))),
     journalPath: S.optionalKey(S.NonEmptyString),
     mode: AttachmentRepairMode,
     outputDir: S.optionalKey(S.NonEmptyString),
     trees: S.Array(MailExportTreeLabel),
-  },
-  $I.annote("AttachmentRepairOptions", {
-    title: "Attachment Repair Options",
-    description: "Corpus root, mode, trees, the file(1) binary, and optional journal/output overrides.",
-  })
+  }).pipe(
+    $I.annoteSchema("AttachmentRepairOptions", {
+      title: "Attachment Repair Options",
+      description: "Corpus root, mode, trees, the file(1) binary, and optional journal/output overrides.",
+    })
+  )
 ) {}
 
 /**
@@ -1063,19 +1080,20 @@ export class AttachmentRepairOptions extends S.Class<AttachmentRepairOptions>($I
  * @category models
  * @since 0.0.0
  */
-export class MetadataCensusOptions extends S.Class<MetadataCensusOptions>($I`MetadataCensusOptions`)(
-  {
+export class MetadataCensusOptions extends S.Opaque<MetadataCensusOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     batchSize: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(S.Natural.make(500)))),
     concurrency: S.Natural.pipe(S.withConstructorDefault(Effect.succeed(S.Natural.make(4)))),
     corpusRoot: S.NonEmptyString,
     exiftoolCommand: S.NonEmptyString.pipe(S.withConstructorDefault(Effect.succeed("exiftool"))),
     outputDir: S.optionalKey(S.NonEmptyString),
     roots: S.Array(S.NonEmptyString),
-  },
-  $I.annote("MetadataCensusOptions", {
-    title: "Metadata Census Options",
-    description: "Corpus root, roots to scan, exiftool binary, batch size, concurrency, and output override.",
-  })
+  }).pipe(
+    $I.annoteSchema("MetadataCensusOptions", {
+      title: "Metadata Census Options",
+      description: "Corpus root, roots to scan, exiftool binary, batch size, concurrency, and output override.",
+    })
+  )
 ) {}
 
 /**
@@ -1093,8 +1111,8 @@ export class MetadataCensusOptions extends S.Class<MetadataCensusOptions>($I`Met
  * @category models
  * @since 0.0.0
  */
-export class MailExportTreeIndexResult extends S.Class<MailExportTreeIndexResult>($I`MailExportTreeIndexResult`)(
-  {
+export class MailExportTreeIndexResult extends S.Opaque<MailExportTreeIndexResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachmentBytes: S.Natural,
     attachmentCount: S.Natural,
     embeddedMessageCount: S.Natural,
@@ -1103,11 +1121,12 @@ export class MailExportTreeIndexResult extends S.Class<MailExportTreeIndexResult
     messageIdCount: S.Natural,
     recipientCount: S.Natural,
     sourceArtifactCount: S.Natural,
-  },
-  $I.annote("MailExportTreeIndexResult", {
-    title: "Mail Export Tree Index Result",
-    description: "Walk-level counters for one exported mail tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailExportTreeIndexResult", {
+      title: "Mail Export Tree Index Result",
+      description: "Walk-level counters for one exported mail tree.",
+    })
+  )
 ) {}
 
 /**
@@ -1125,14 +1144,15 @@ export class MailExportTreeIndexResult extends S.Class<MailExportTreeIndexResult
  * @category models
  * @since 0.0.0
  */
-export class MagicSniffResult extends S.Class<MagicSniffResult>($I`MagicSniffResult`)(
-  {
+export class MagicSniffResult extends S.Opaque<MagicSniffResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mimeType: S.String,
     extensions: S.Array(S.String),
-  },
-  $I.annote("MagicSniffResult", {
-    title: "Magic Sniff Result",
-    description: "Byte-signature verdict for one file from file(1).",
-  })
+  }).pipe(
+    $I.annoteSchema("MagicSniffResult", {
+      title: "Magic Sniff Result",
+      description: "Byte-signature verdict for one file from file(1).",
+    })
+  )
 ) {}

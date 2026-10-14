@@ -121,7 +121,9 @@ export const generateNodeId: Effect.Effect<NodeId> = Effect.gen(function* () {
  * @category errors
  * @since 0.0.0
  */
-export class NodeNotFoundError extends S.TaggedError<NodeNotFoundError>($I`NodeNotFoundError`)(
+export class NodeNotFoundError extends S.TaggedError<NodeNotFoundError, { readonly brand: unique symbol }>(
+  $I`NodeNotFoundError`
+)(
   "NodeNotFoundError",
   {
     nodeId: NodeId,
@@ -153,15 +155,16 @@ export class NodeNotFoundError extends S.TaggedError<NodeNotFoundError>($I`NodeN
  * @category models
  * @since 0.0.0
  */
-export class NodeMetadata extends S.Class<NodeMetadata>($I`NodeMetadata`)(
-  {
+export class NodeMetadata extends S.Opaque<NodeMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     depth: S.Natural,
     operation: S.Option(S.String),
     timestamp: S.Finite,
-  },
-  $I.annote("NodeMetadata", {
-    description: "Metadata associated with each graph node, tracking traversal depth, operation, and timestamp.",
-  })
+  }).pipe(
+    $I.annoteSchema("NodeMetadata", {
+      description: "Metadata associated with each graph node, tracking traversal depth, operation, and timestamp.",
+    })
+  )
 ) {}
 
 /**
@@ -208,13 +211,14 @@ export interface GraphNode<A> {
  * @category models
  * @since 0.0.0
  */
-export class GraphEdge extends S.Class<GraphEdge>($I`GraphEdge`)(
-  {
+export class GraphEdge extends S.Opaque<GraphEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
     relation: S.Literal("child"),
-  },
-  $I.annote("GraphEdge", {
-    description: "Represents a directed edge in the graph, indicating a 'child' relationship.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraphEdge", {
+      description: "Represents a directed edge in the graph, indicating a 'child' relationship.",
+    })
+  )
 ) {}
 
 /**
@@ -283,12 +287,12 @@ export const makeNode: {
       id,
       data,
       parentId,
-      metadata: {
+      metadata: NodeMetadata.make({
         operation,
         timestamp,
         // recalculated when added to a graph under a parent
         depth: S.Natural.make(O.match(parentId, { onNone: thunk0, onSome: () => 1 })),
-      },
+      }),
     };
   })
 );

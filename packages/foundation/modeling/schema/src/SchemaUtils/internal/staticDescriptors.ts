@@ -14,9 +14,10 @@ const $I = $SchemaId.create("SchemaUtils/internal/staticDescriptors");
 type WithStatics<Target extends object, Statics extends Record<string, unknown>> = Target & Statics;
 type ExistingStaticPreserver = (key: string) => boolean;
 
-class StaticDescriptorRedefinitionError extends S.TaggedError<StaticDescriptorRedefinitionError>(
-  $I`StaticDescriptorRedefinitionError`
-)(
+class StaticDescriptorRedefinitionError extends S.TaggedError<
+  StaticDescriptorRedefinitionError,
+  { readonly brand: unique symbol }
+>($I`StaticDescriptorRedefinitionError`)(
   "StaticDescriptorRedefinitionError",
   {
     key: S.String,

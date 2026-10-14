@@ -38,7 +38,9 @@ type YeetCommandErrorOptions =
  * @category errors
  * @since 0.0.0
  */
-export class YeetCommandError extends S.TaggedError<YeetCommandError>($I`YeetCommandError`)(
+export class YeetCommandError extends S.TaggedError<YeetCommandError, { readonly brand: unique symbol }>(
+  $I`YeetCommandError`
+)(
   "YeetCommandError",
   {
     message: S.String,

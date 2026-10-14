@@ -35,16 +35,17 @@ const $I = $RepoCliId.create("commands/Architecture/internal/AcceptedProofManife
  * @category models
  * @since 0.0.0
  */
-export class AcceptedProofFile extends S.Class<AcceptedProofFile>($I`AcceptedProofFile`)(
-  {
+export class AcceptedProofFile extends S.Opaque<AcceptedProofFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: ArchitectureSliceRole,
     stage: ArchitecturePlanStage,
     path: S.String,
     writer: ArchitectureWriterKind,
-  },
-  $I.annote("AcceptedProofFile", {
-    description: "Internal descriptor for a canonical proof file used to generate architecture operation plans.",
-  })
+  }).pipe(
+    $I.annoteSchema("AcceptedProofFile", {
+      description: "Internal descriptor for a canonical proof file used to generate architecture operation plans.",
+    })
+  )
 ) {}
 
 const roleBasePath = (role: ArchitectureSliceRole): O.Option<string> => {

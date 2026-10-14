@@ -39,8 +39,8 @@ const $I = $LawPracticeDomainId.create("values/Segment/Segment.model");
  * @category models
  * @since 0.0.0
  */
-export class Segment extends S.Class<Segment>($I`Segment`)(
-  {
+export class Segment extends S.Opaque<Segment, { readonly brand: unique symbol }>()(
+  S.Struct({
     cleanPos: S.Natural.annotateKey({
       description: "Start position in clean text",
     }),
@@ -50,8 +50,9 @@ export class Segment extends S.Class<Segment>($I`Segment`)(
     len: PosInt.annotateKey({
       description: "Number of positions covered by this segment",
     }),
-  },
-  $I.annote("Segment", {
-    description: "Compressed position mapping segment for cleaned and original text.",
-  })
+  }).pipe(
+    $I.annoteSchema("Segment", {
+      description: "Compressed position mapping segment for cleaned and original text.",
+    })
+  )
 ) {}

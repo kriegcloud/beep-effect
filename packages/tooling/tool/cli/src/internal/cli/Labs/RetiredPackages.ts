@@ -31,14 +31,15 @@ export const RETIRED_REGISTRY_PATH = "standards/changesets.retired-packages.json
  * @category schemas
  * @since 0.0.0
  */
-export class RetiredPackageRecord extends S.Class<RetiredPackageRecord>($I`RetiredPackageRecord`)(
-  {
+export class RetiredPackageRecord extends S.Opaque<RetiredPackageRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     rationale: S.NonEmptyString,
-  },
-  $I.annote("RetiredPackageRecord", {
-    description: "One retired workspace package name and its retirement rationale.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredPackageRecord", {
+      description: "One retired workspace package name and its retirement rationale.",
+    })
+  )
 ) {}
 
 /**
@@ -47,13 +48,14 @@ export class RetiredPackageRecord extends S.Class<RetiredPackageRecord>($I`Retir
  * @category schemas
  * @since 0.0.0
  */
-export class RetiredPackagesRegistry extends S.Class<RetiredPackagesRegistry>($I`RetiredPackagesRegistry`)(
-  {
+export class RetiredPackagesRegistry extends S.Opaque<RetiredPackagesRegistry, { readonly brand: unique symbol }>()(
+  S.Struct({
     packages: S.Array(RetiredPackageRecord),
-  },
-  $I.annote("RetiredPackagesRegistry", {
-    description: "Registry of retired workspace package names kept for changeset history.",
-  })
+  }).pipe(
+    $I.annoteSchema("RetiredPackagesRegistry", {
+      description: "Registry of retired workspace package names kept for changeset history.",
+    })
+  )
 ) {}
 
 const decodeRegistryJson = S.decodeEffect(S.fromJsonString(RetiredPackagesRegistry));

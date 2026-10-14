@@ -10,8 +10,8 @@ import type { BoxContentMigrationFile, BoxContentMigrationMap } from "../BoxCont
 const $I = $BoxProvisioningId.create("internal/contentMigration");
 
 /** One distinct folder a migration map requires, declared or implied as an ancestor. */
-export class RequiredContentFolder extends S.Class<RequiredContentFolder>($I`RequiredContentFolder`)(
-  {
+export class RequiredContentFolder extends S.Opaque<RequiredContentFolder, { readonly brand: unique symbol }>()(
+  S.Struct({
     depth: S.Natural,
     /** Leaf name spelling used if the folder has to be created. */
     name: S.String,
@@ -20,10 +20,11 @@ export class RequiredContentFolder extends S.Class<RequiredContentFolder>($I`Req
     pathKey: S.String,
     /** Provider-equivalent key of every segment, root-most first. */
     pathKeys: S.Array(S.String),
-  },
-  $I.annote("RequiredContentFolder", {
-    description: "Required destination folder with its provider-equivalent path keys and create spelling.",
-  })
+  }).pipe(
+    $I.annoteSchema("RequiredContentFolder", {
+      description: "Required destination folder with its provider-equivalent path keys and create spelling.",
+    })
+  )
 ) {}
 
 export const contentPathKeys = (path: ReadonlyArray<string>): ReadonlyArray<string> =>

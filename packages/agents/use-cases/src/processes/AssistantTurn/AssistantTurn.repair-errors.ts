@@ -27,7 +27,9 @@ const $I = $AgentsUseCasesId.create("processes/AssistantTurn/AssistantTurn.repai
  * @category errors
  * @since 0.0.0
  */
-export class BlockRepairFailed extends S.TaggedError<BlockRepairFailed>($I`BlockRepairFailed`)(
+export class BlockRepairFailed extends S.TaggedError<BlockRepairFailed, { readonly brand: unique symbol }>(
+  $I`BlockRepairFailed`
+)(
   "BlockRepairFailed",
   {
     message: S.String,
