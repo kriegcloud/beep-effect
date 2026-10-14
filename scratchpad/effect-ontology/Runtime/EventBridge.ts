@@ -112,7 +112,7 @@ export class EventBridgeService extends Context.Service<EventBridgeService, Even
  * @category errors
  * @since 0.0.0
  */
-export class EventBridgeError extends S.TaggedError<EventBridgeError>($I`EventBridgeError`)(
+export class EventBridgeError extends S.TaggedError<EventBridgeError, { readonly brand: unique symbol }>($I`EventBridgeError`)(
   "EventBridgeError",
   {
     phase: LiteralKit(["setup", "runtime"]),

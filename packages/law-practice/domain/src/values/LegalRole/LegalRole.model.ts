@@ -105,8 +105,8 @@ export type LegalRoleName = typeof LegalRoleName.Type;
  * @category models
  * @since 0.0.0
  */
-export class LegalRole extends S.Class<LegalRole>($I`LegalRole`)(
-  {
+export class LegalRole extends S.Opaque<LegalRole, { readonly brand: unique symbol }>()(
+  S.Struct({
     admittedPlayerKinds: AdmittedPlayerKinds.annotateKey({
       description: "Kinds of legal person the prescribing norm admits as players of this role.",
     }),
@@ -119,8 +119,9 @@ export class LegalRole extends S.Class<LegalRole>($I`LegalRole`)(
     sourceNorm: SourceNormRef.annotateKey({
       description: "Opaque reference to the norm prescribing this role.",
     }),
-  },
-  $I.annote("LegalRole", {
-    description: "One norm-prescribed role, scoped to the legal position relator that carries it.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalRole", {
+      description: "One norm-prescribed role, scoped to the legal position relator that carries it.",
+    })
+  )
 ) {}

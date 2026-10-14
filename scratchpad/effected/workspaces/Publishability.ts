@@ -33,7 +33,7 @@ const DEFAULT_REGISTRY = "https://registry.npmjs.org/";
  * @category models
  * @since 0.0.0
  */
-export class PublishTarget extends S.Class<PublishTarget>($I`PublishTarget`)({
+export class PublishTarget extends S.Class<PublishTarget, { readonly brand: unique symbol }>($I`PublishTarget`)({
 	/**
 	 * The package name being published.
 	 */

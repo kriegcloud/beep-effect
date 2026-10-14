@@ -134,15 +134,16 @@ export const TextKindSchema: S.Schema<TextKind> = TextKind.pipe(
  * @since 0.0.0
  */
 export const TypedTextSchema = <K extends TextKind>(kind: S.Schema<K>) => {
-  class TypedTextSchemaClass extends S.Class<TypedTextSchemaClass>($I`TypedTextSchema`)(
-    {
+  class TypedTextSchemaClass extends S.Opaque<TypedTextSchemaClass, { readonly brand: unique symbol }>()(
+    S.Struct({
       kind,
       content: S.String,
       metadata: S.optionalKey(S.Record(S.String, S.Unknown)),
-    },
-    $I.annote("TypedTextSchema", {
-      description: "Generic schema for text content tagged with a supplied ontology kind.",
-    })
+    }).pipe(
+      $I.annoteSchema("TypedTextSchema", {
+        description: "Generic schema for text content tagged with a supplied ontology kind.",
+      })
+    )
   ) {}
 
   return TypedTextSchemaClass;
@@ -161,9 +162,12 @@ export const TypedTextSchema = <K extends TextKind>(kind: S.Schema<K>) => {
  * **Example** (Document typed text value)
  *
  * ```ts
+ * import * as S from "effect/Schema"
+ * import { TypedTextSchema } from "@beep/nlp/Ontology/Kind"
  * import type { TypedText } from "@beep/nlp/Ontology/Kind"
  *
- * const doc: TypedText<"Document"> = { kind: "Document", content: "hello" }
+ * const DocumentText = TypedTextSchema(S.Literal("Document"))
+ * const doc: TypedText<"Document"> = DocumentText.make({ kind: "Document", content: "hello" })
  * console.log(doc.kind)
  * ```
  *
@@ -420,8 +424,8 @@ const kindContainmentTokenDefault = TextKind.pick(["Character", "POS", "Lemma"])
  * @category models
  * @since 0.0.0
  */
-export class KindContainment extends S.Class<KindContainment>($I`KindContainment`)(
-  {
+export class KindContainment extends S.Opaque<KindContainment, { readonly brand: unique symbol }>()(
+  S.Struct({
     Character: TextKind.pipe(
       S.Array,
       S.optionalKey,
@@ -494,10 +498,11 @@ export class KindContainment extends S.Class<KindContainment>($I`KindContainment
       S.withConstructorDefault(Effect.succeed(kindContainmentTokenDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(kindContainmentTokenDefault))
     ),
-  },
-  $I.annote("KindContainment", {
-    description: "Represents the containment relationships between different kinds of text elements in the ontology.",
-  })
+  }).pipe(
+    $I.annoteSchema("KindContainment", {
+      description: "Represents the containment relationships between different kinds of text elements in the ontology.",
+    })
+  )
 ) {
   private static readonly defaults = KindContainment.make({});
 

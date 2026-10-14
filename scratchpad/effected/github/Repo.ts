@@ -25,7 +25,7 @@ const $I = $ScratchpadId.create("effected/github/Repo");
  * @category errors
  * @since 0.0.0
  */
-export class InvalidRepoRefError extends S.TaggedError<InvalidRepoRefError>($I`InvalidRepoRefError`)("InvalidRepoRefError", {
+export class InvalidRepoRefError extends S.TaggedError<InvalidRepoRefError, { readonly brand: unique symbol }>($I`InvalidRepoRefError`)("InvalidRepoRefError", {
 	/**
 	 * What was handed in.
 	 *
@@ -68,7 +68,7 @@ export class InvalidRepoRefError extends S.TaggedError<InvalidRepoRefError>($I`I
  * @category models
  * @since 0.0.0
  */
-export class RepoRef extends S.Class<RepoRef>($I`RepoRef`)({
+export class RepoRef extends S.Class<RepoRef, { readonly brand: unique symbol }>($I`RepoRef`)({
 	/**
 	 * The user or organization.
 	 *

@@ -41,18 +41,22 @@ const $I = $ProfessionalDesktopId.create("runtime/RendererObservabilityConfig");
  * @category models
  * @since 0.0.0
  */
-export class RendererObservabilityConfig extends S.Class<RendererObservabilityConfig>($I`RendererObservabilityConfig`)(
-  {
+export class RendererObservabilityConfig extends S.Opaque<
+  RendererObservabilityConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     buildCommit: S.OptionFromOptional(S.NonEmptyString),
     deploymentEnvironment: S.NonEmptyString,
     launchId: S.NonEmptyString,
     logLevel: S.Literals(LogLevel.values),
     otlpUrl: S.OptionFromOptional(S.NonEmptyString),
     qaSessionId: S.NonEmptyString,
-  },
-  $I.annote("RendererObservabilityConfig", {
-    description: "Observability context supplied by the native desktop shell to the renderer runtime.",
-  })
+  }).pipe(
+    $I.annoteSchema("RendererObservabilityConfig", {
+      description: "Observability context supplied by the native desktop shell to the renderer runtime.",
+    })
+  )
 ) {
   static readonly decode = S.decodeUnknownEffect(RendererObservabilityConfig);
 }

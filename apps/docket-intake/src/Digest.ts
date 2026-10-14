@@ -29,14 +29,13 @@ const $I = $DocketIntakeId.create("Digest");
  * @category models
  * @since 0.0.0
  */
-export class DigestProgress extends S.Class<DigestProgress>($I`DigestProgress`)(
-  {
+export class DigestProgress extends S.Opaque<DigestProgress, { readonly brand: unique symbol }>()(
+  S.Struct({
     digestedThrough: S.Option(LocalDate).annotateKey({ description: "The last day a digest was written for." }),
     earliestProcessed: S.Option(LocalDate).annotateKey({
       description: "The earliest day any message in the ledger was processed on.",
     }),
-  },
-  $I.annote("DigestProgress", { description: "How far the docket intake digests have come." })
+  }).pipe($I.annoteSchema("DigestProgress", { description: "How far the docket intake digests have come." }))
 ) {}
 
 /**

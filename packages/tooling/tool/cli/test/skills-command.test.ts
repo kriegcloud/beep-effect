@@ -3,19 +3,24 @@ import {
   encodeSkillsLockDocumentJson,
   renderCodexConfigWithSkills,
   runSkillsUpdate,
+  SkillEffective,
   SkillsLockDocument,
+  SkillUpstreamContentFile,
   skillsCommand,
+  VendoredSkillLockEntry,
 } from "@beep/repo-cli/commands/Skills";
+import { computeSkillTree, installedTargetsHash } from "@beep/repo-cli/test/Skills";
 import { findRepoRoot } from "@beep/repo-utils";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { it } from "@beep/test-runner";
 import { A, O, Str } from "@beep/utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { assert, describe, expect } from "@effect/vitest";
-import { assertExitFailure, assertSome } from "@effect/vitest/utils";
+import { assertExitFailure, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Cause from "effect/Cause";
 import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
@@ -403,6 +408,60 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills update over a v2 l
       expect(yield* readProjectFile(".claude/skills/grill-me/SKILL.md")).toBe("vendored skill\n");
     }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
   );
+
+  it.effect("reports hand-edited vendored output and names both remedies", () =>
+    Effect.gen(function* () {
+      yield* temporaryRepository;
+      const fs = yield* FileSystem.FileSystem;
+      yield* writeProjectFile(".codex/config.toml", "[skills]\n  include_instructions = true\n");
+      yield* fs.makeDirectory(".agents", { recursive: true });
+      yield* fs.symlink("../.claude/skills", ".agents/skills");
+      yield* writeProjectFile(".claude/skills/demo/SKILL.md", "---\nname: demo\ndescription: Demo.\n---\n");
+      const tree = yield* computeSkillTree(
+        [
+          SkillUpstreamContentFile.make({
+            path: "SKILL.md",
+            mode: "100644",
+            bytes: new TextEncoder().encode(yield* readProjectFile(".claude/skills/demo/SKILL.md")),
+          }),
+        ],
+        "demo"
+      );
+      const fixture = yield* decodeSkillsLockDocumentJson(yield* fs.readFileString(oracleLockFixture));
+      const base = fixture.skills.oracle;
+      assert(base !== undefined && base._tag === "vendored");
+      const targets = [".claude/skills/demo", ".agents/skills/demo"];
+      const demo = VendoredSkillLockEntry.make({
+        ...base,
+        effective: SkillEffective.make({
+          treeHash: tree.treeHash,
+          installedTargets: targets,
+          installedTreeHash: yield* installedTargetsHash(
+            A.map(targets, (target) => [target, tree.treeHash] as const),
+            "demo"
+          ),
+        }),
+      });
+      const lock = SkillsLockDocument.make({ version: 2, skills: { demo } });
+      yield* writeProjectFile("skills-lock.json", `${yield* encodeSkillsLockDocumentJson(lock)}\n`);
+      const vendoredDrift = (drift: ReadonlyArray<{ readonly _tag: string }>) =>
+        A.filter(drift, (entry) => entry._tag === "HandEditedVendoredOutput");
+
+      // The untouched install is not hand-edited output.
+      expect(vendoredDrift(yield* runSkillsUpdate({ mode: "dry-run", skill: O.some("grill-me") }))).toEqual([]);
+
+      yield* writeProjectFile(".claude/skills/demo/SKILL.md", "---\nname: demo\ndescription: Edited by hand.\n---\n");
+      const error = yield* runSkillsUpdate({ mode: "check", skill: O.some("grill-me") }).pipe(Effect.flip);
+
+      expect(error._tag).toBe("SkillsDriftError");
+      const line = A.findFirst(A.filter(yield* TestConsole.logLines, P.isString), Str.startsWith("- hand-edited"));
+      assertSome(
+        line,
+        "- hand-edited-vendored-output: demo no longer matches its effective tree; revert it with beep skills materialize --skill demo, or keep it as a patch under .agents/skill-patches/demo and re-record the lock with beep skills lock-plan (beep skills patch add is not available yet)"
+      );
+      expect(yield* readProjectFile(".claude/skills/demo/SKILL.md")).toContain("Edited by hand.");
+    }).pipe(Effect.provideService(HttpClient.HttpClient, makeSkillsClient()))
+  );
 });
 
 const BiomeFileIncludes = S.Struct({ files: S.Struct({ includes: S.Array(S.String) }) });
@@ -525,4 +584,142 @@ it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills fixture ownership"
       })
     );
   }
+});
+
+it.layer(CommandTestLayer, { timeout: "30 seconds" })("skills command boundary reports", (it) => {
+  it.effect(
+    "renders an empty replay in both formats and refuses an unknown skill without changing the lock",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = yield* encodeSkillsLockDocumentJson(emptyLockV2);
+        yield* writeProjectFile("skills-lock.json", lock);
+        yield* runSkillsCommand(["replay", "--json", "--markdown", "replay.md"]);
+        expect(yield* TestConsole.logLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills-replay/v1")])
+        );
+        expect(yield* readProjectFile("replay.md")).toContain("<!-- beep-skills-replay -->");
+        yield* runSkillsCommand(["replay"]);
+        const refused = yield* Effect.exit(runSkillsCommand(["replay", "--skill", "not-registered"]));
+        refused.pipe(Exit.isFailure, assertTrue);
+        expect(yield* TestConsole.errorLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:replay:")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "reports an unknown relock entry and leaves the lock unchanged",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = yield* encodeSkillsLockDocumentJson(emptyLockV2);
+        yield* writeProjectFile("skills-lock.json", lock);
+        const refused = yield* Effect.exit(runSkillsCommand(["relock", "--skill", "not-registered", "--json"]));
+        refused.pipe(Exit.isFailure, assertTrue);
+        expect(yield* TestConsole.errorLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:relock:")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "writes an empty train issue and preserves that output when pull-request input is malformed",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        yield* writeProjectFile("prs.json", "[]");
+        const args = ["train-issue", "--batch", "2026-W42", "--prs", "prs.json", "--body-out", "issue.md"];
+        yield* runSkillsCommand(args);
+        expect(yield* TestConsole.logLines).toEqual(expect.arrayContaining([expect.stringContaining("2026-W42")]));
+        const body = yield* readProjectFile("issue.md");
+        expect(body).toContain("_No open skill update pull requests");
+        yield* writeProjectFile("prs.json", "not-json");
+        const refused = yield* Effect.exit(runSkillsCommand(args));
+        refused.pipe(Exit.isFailure, assertTrue);
+        expect(yield* TestConsole.errorLines).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:train-issue:")])
+        );
+        expect(yield* readProjectFile("issue.md")).toBe(body);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "reports materialization refusal for a legacy lock without changing it",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = '{"version":1,"skills":{}}\n';
+        yield* writeProjectFile("skills-lock.json", lock);
+
+        const refused = yield* runSkillsCommand(["materialize", "--check"]).pipe(Effect.exit);
+        refused.pipe(Exit.isFailure, assertTrue);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining("skills:materialize: skills-lock.json is not a skills-lock/v2 document."),
+          ])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "reports an unknown remote update refusal and preserves the existing lock",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock = '{"version":1,"skills":{}}\n';
+        yield* writeProjectFile("skills-lock.json", lock);
+
+        const refused = yield* runSkillsCommand(["update", "--skill", "not-registered"]).pipe(Effect.exit);
+        refused.pipe(Exit.isFailure, assertTrue);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(
+          expect.arrayContaining([expect.stringContaining("skills:update: Unknown remote-backed skill")])
+        );
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
+
+  it.effect(
+    "renders both report formats without changing the lock and reports malformed input",
+    Effect.fnUntraced(
+      function* () {
+        yield* temporaryRepository;
+        const lock =
+          '{"version":1,"skills":{"local-only":{"source":"beep-effect/beep-effect","sourceType":"local","computedHash":"0000000000000000000000000000000000000000000000000000000000000000"}}}';
+        yield* writeProjectFile("skills-lock.json", lock);
+        yield* writeProjectFile(".claude/skills/local-only/SKILL.md", "# Local-only fixture\n");
+        const fs = yield* FileSystem.FileSystem;
+        yield* fs.makeDirectory(".agents", { recursive: true });
+        yield* fs.symlink("../.claude/skills", ".agents/skills");
+        yield* runSkillsCommand(["lock-plan"]);
+        const human = yield* TestConsole.logLines;
+        expect(human).toEqual(expect.arrayContaining([expect.stringContaining("1 local")]));
+        yield* runSkillsCommand(["lock-plan", "--json"]);
+        const lines = yield* TestConsole.logLines;
+        expect(lines).toEqual(expect.arrayContaining([expect.stringContaining("skills-lock-migration-plan/v3")]));
+        expect(yield* readProjectFile("skills-lock.json")).toBe(lock);
+        yield* writeProjectFile("skills-lock.json", "not-json");
+        const refused = yield* Effect.exit(runSkillsCommand(["lock-plan"]));
+        refused.pipe(Exit.isFailure, assertTrue);
+        const errors = yield* TestConsole.errorLines;
+        expect(errors).toEqual(expect.arrayContaining([expect.stringContaining("skills:lock-plan:")]));
+      },
+      Effect.provideService(HttpClient.HttpClient, makeSkillsClient())
+    )
+  );
 });

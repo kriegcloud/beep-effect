@@ -40,9 +40,11 @@ import {
   decodeTransformationLedgerRecordJson,
   encodeRestorationAcceptanceRecordJson,
   encodeTransformationLedgerRecordJson,
+  MailFailureCause,
   MailOccurrenceMembership,
   RestorationAcceptanceRecord,
   RestorationRunSummary,
+  RestorationVerifyOptions,
   TransformationLedgerRecord,
 } from "./Restoration.schemas.ts";
 import {
@@ -276,7 +278,7 @@ const prepareTransformationRun = Effect.fn("CorpusRestoration.prepareTransformat
   scope: "full" | "slice",
   preservationLabel: string = runLabel
 ): Effect.fn.Return<TransformationRunContext, CorpusCommandError, TransformationRequirements> {
-  yield* verifyRestorationArchiveImpl({ corpusRoot, runLabel: preservationLabel });
+  yield* verifyRestorationArchiveImpl(RestorationVerifyOptions.make({ corpusRoot, runLabel: preservationLabel }));
   const path = yield* Path.Path;
   const preservation = yield* currentPreservationEvidence(corpusRoot, preservationLabel);
   const runRoot = path.join(corpusRoot, "staging", "restoration", "runs", runLabel);
@@ -876,7 +878,15 @@ const extractAttachmentText = Effect.fn("CorpusRestoration.extractAttachmentText
     options.maxTotalElapsedMillis - (now - context.startedAt)
   );
   if (remainingProbeMillis <= 0) {
-    return yield* transformationError(`Attachment repair exhausted the elapsed-time budget for ${attemptId}.`);
+    return yield* CorpusCommandError.new(
+      MailFailureCause.cases.AttachmentRepairElapsedBudget.make({
+        attemptElapsedMillis: nonNegative(now - attemptStartedAt),
+        familyElapsedMillis: nonNegative(now - context.startedAt),
+        maxElapsedMillis: options.maxElapsedMillis,
+        maxTotalElapsedMillis: options.maxTotalElapsedMillis,
+      }),
+      `Attachment repair exhausted the elapsed-time budget for ${attemptId}.`
+    );
   }
   const retained = yield* hashTransformationTree(attemptRoot);
   const available = yield* availableRestorationBytesAt(context.corpusRoot);
@@ -911,7 +921,14 @@ const extractAttachmentText = Effect.fn("CorpusRestoration.extractAttachmentText
     trim: true,
   }).pipe(CorpusCommandError.mapError("Attachment repair second-pass Tika invocation failed."));
   if (probe.exitCode !== 0 || probe.truncated || Str.isEmpty(probe.output)) {
-    return yield* transformationError(`Attachment repair second pass failed for attempt ${attemptId}.`);
+    return yield* CorpusCommandError.new(
+      MailFailureCause.cases.TikaSecondPassFailure.make({
+        emptyOutput: Str.isEmpty(probe.output),
+        exitCode: probe.exitCode,
+        truncated: probe.truncated,
+      }),
+      `Attachment repair second pass failed for attempt ${attemptId}.`
+    );
   }
   const text = `${probe.output}\n`;
   if (utf8ToBytes(text).length > remainingOutputBytes) {
@@ -1133,7 +1150,8 @@ const appendPstException = Effect.fn("CorpusRestoration.appendPstException")(fun
   attemptId: string,
   exceptionKind: PstExceptionKind,
   message: string,
-  retainedOutput: TransformationTreeDigest
+  retainedOutput: TransformationTreeDigest,
+  failureCause: O.Option<MailFailureCause> = O.none()
 ): Effect.fn.Return<boolean, CorpusCommandError, Crypto.Crypto | FileSystem.FileSystem | Path.Path> {
   const dispositionApproved = O.contains(context.mailScope, "full") && exceptionKind !== "engine-failure";
   yield* appendTransformationRecord(
@@ -1144,6 +1162,7 @@ const appendPstException = Effect.fn("CorpusRestoration.appendPstException")(fun
       attemptId,
       ...(dispositionApproved ? quarantineDisposition() : {}),
       exceptionKind,
+      ...O.getSomesStruct({ failureCause }),
       family: "mail",
       mailScope: yield* requireMailScope(context),
       message,
@@ -1217,6 +1236,23 @@ const pstEngineChildrenReconcile = Effect.fn("CorpusRestoration.pstEngineChildre
   return A.every(matches, (matches) => matches);
 });
 
+const decodeMailFailureCause = S.decodeUnknownOption(MailFailureCause);
+const isCorpusCommandError = S.is(CorpusCommandError);
+
+const mailFailureCause = (error: unknown, depth = 0): MailFailureCause => {
+  if (isFileProcessingOperationError(error)) {
+    return MailFailureCause.cases.FileProcessingOperationError.make({ reason: error.reason });
+  }
+  if (isCorpusCommandError(error)) {
+    return error.cause !== undefined && depth < 8
+      ? mailFailureCause(error.cause, depth + 1)
+      : MailFailureCause.cases.CorpusCommandError.make({});
+  }
+  const diagnostic = decodeMailFailureCause(error);
+  if (O.isSome(diagnostic)) return diagnostic.value;
+  return MailFailureCause.cases.Unknown.make({});
+};
+
 const pstFailureTerminal = Effect.fn("CorpusRestoration.pstFailureTerminal")(function* (
   context: TransformationRunContext,
   candidate: MailCandidate,
@@ -1233,7 +1269,8 @@ const pstFailureTerminal = Effect.fn("CorpusRestoration.pstFailureTerminal")(fun
     attemptId,
     classifyMailError(error),
     "Mail engine failed; raw attempt output was retained.",
-    retainedOutput
+    retainedOutput,
+    O.some(mailFailureCause(error))
   );
   return {
     inputBytes: pass.sizeBytes,
@@ -5071,6 +5108,7 @@ export const restorationTransformationTesting = {
   finishPstAttempt,
   groupRecycleEntries,
   hashTransformationTree,
+  mailFailureCause,
   isCompoundFileBinary,
   latestAttemptsAreTerminal,
   legacyFidelityPasses,
@@ -5228,7 +5266,7 @@ const reconcileAcceptanceUnderClaim = Effect.fn("CorpusRestoration.reconcileAcce
   mail: TransformationRunContext
 ): Effect.fn.Return<ReadonlyArray<RestorationAcceptanceRecord>, CorpusCommandError, TransformationRequirements> {
   const path = yield* Path.Path;
-  const preservation = yield* verifyRestorationArchiveImpl({ corpusRoot, runLabel });
+  const preservation = yield* verifyRestorationArchiveImpl(RestorationVerifyOptions.make({ corpusRoot, runLabel }));
   const preservationEvidence = yield* currentPreservationEvidence(corpusRoot, runLabel);
   const preservationOutputTree = yield* hashTransformationTree(path.join(corpusRoot, "raw", runLabel, "payload"));
   const preservationElapsedMillis = yield* deterministicPreservationElapsed(

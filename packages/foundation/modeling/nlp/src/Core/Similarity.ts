@@ -77,14 +77,15 @@ export type SimilarityMethod = typeof SimilarityMethod.Type;
  * @category models
  * @since 0.0.0
  */
-export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
-  {
+export class TverskyParams extends S.Opaque<TverskyParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     alpha: UnitInterval,
     beta: UnitInterval,
-  },
-  $I.annote("TverskyParams", {
-    description: "Weights used when computing the asymmetric Tversky set similarity.",
-  })
+  }).pipe(
+    $I.annoteSchema("TverskyParams", {
+      description: "Weights used when computing the asymmetric Tversky set similarity.",
+    })
+  )
 ) {}
 
 /**
@@ -107,14 +108,15 @@ export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
  * @category models
  * @since 0.0.0
  */
-export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet`)(
-  {
+export class DocumentTermSet extends S.Opaque<DocumentTermSet, { readonly brand: unique symbol }>()(
+  S.Struct({
     documentId: DocumentId,
     terms: S.Array(S.String),
-  },
-  $I.annote("DocumentTermSet", {
-    description: "Normalized term set extracted from a document for set-based similarity.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentTermSet", {
+      description: "Normalized term set extracted from a document for set-based similarity.",
+    })
+  )
 ) {}
 
 /**
@@ -142,8 +144,8 @@ export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet
  * @category models
  * @since 0.0.0
  */
-export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore`)(
-  {
+export class SimilarityScore extends S.Opaque<SimilarityScore, { readonly brand: unique symbol }>()(
+  S.Struct({
     document1Id: DocumentId,
     document2Id: DocumentId,
     method: SimilarityMethod,
@@ -151,8 +153,9 @@ export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore
       S.withConstructorDefault(Effect.succeedNone)
     ),
     score: UnitInterval,
-  },
-  $I.annote("SimilarityScore", {
-    description: "Similarity score comparing two document-like inputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("SimilarityScore", {
+      description: "Similarity score comparing two document-like inputs.",
+    })
+  )
 ) {}

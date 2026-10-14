@@ -26,6 +26,7 @@ import {
   summarizeYeetReviewThreadStates,
   YeetReviewThreadNewestComment,
   YeetReviewThreadStateCounts,
+  YeetReviewThreadStateSource,
   yeetReviewCommentAuthorKind,
   yeetReviewThreadStateInput,
 } from "../ReviewThreadState.ts";
@@ -279,7 +280,12 @@ const closeoutNewestComment = (thread: GhReviewThread): O.Option<YeetReviewThrea
 const closeoutThreadStateInput = (
   thread: GhReviewThread,
   pullRequestAuthor: O.Option<string>
-): YeetReviewThreadStateInput => yeetReviewThreadStateInput(thread, pullRequestAuthor, closeoutNewestComment(thread));
+): YeetReviewThreadStateInput =>
+  yeetReviewThreadStateInput(
+    YeetReviewThreadStateSource.make(thread),
+    pullRequestAuthor,
+    closeoutNewestComment(thread)
+  );
 
 /**
  * One pull request's closeout review threads, partitioned by what each owes.
@@ -302,15 +308,19 @@ const closeoutThreadStateInput = (
  * @category models
  * @since 0.0.0
  */
-export class CloseoutReviewThreadTriage extends S.Class<CloseoutReviewThreadTriage>($I`CloseoutReviewThreadTriage`)(
-  {
+export class CloseoutReviewThreadTriage extends S.Opaque<
+  CloseoutReviewThreadTriage,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     counts: YeetReviewThreadStateCounts,
     unresolvedThreads: S.Array(GhReviewThread),
     followUpThreads: S.Array(GhReviewThread),
-  },
-  $I.annote("CloseoutReviewThreadTriage", {
-    description: "A pull request's closeout review threads partitioned by classified state, with per-state tallies.",
-  })
+  }).pipe(
+    $I.annoteSchema("CloseoutReviewThreadTriage", {
+      description: "A pull request's closeout review threads partitioned by classified state, with per-state tallies.",
+    })
+  )
 ) {}
 
 const closeoutReviewThreadTriageImpl = (
@@ -381,14 +391,15 @@ export const closeoutReviewThreadTriage: {
  * @category models
  * @since 0.0.0
  */
-export class CloseoutReviewAdvisories extends S.Class<CloseoutReviewAdvisories>($I`CloseoutReviewAdvisories`)(
-  {
+export class CloseoutReviewAdvisories extends S.Opaque<CloseoutReviewAdvisories, { readonly brand: unique symbol }>()(
+  S.Struct({
     count: S.Finite,
     sources: S.Array(S.String),
-  },
-  $I.annote("CloseoutReviewAdvisories", {
-    description: "The advisory total a pull request's review bodies raise, with one source per contributing author.",
-  })
+  }).pipe(
+    $I.annoteSchema("CloseoutReviewAdvisories", {
+      description: "The advisory total a pull request's review bodies raise, with one source per contributing author.",
+    })
+  )
 ) {}
 
 const reviewAuthorLogin = (review: GhReview): O.Option<string> =>
@@ -772,13 +783,15 @@ export const closeoutGateStates = (input: CloseoutGateStatesInput): ReadonlyArra
  * @category testing
  * @since 0.0.0
  */
-export class CloseoutGateStatesTestComment extends S.Class<CloseoutGateStatesTestComment>(
-  $I`CloseoutGateStatesTestComment`
-)(
-  { authorLogin: S.String, body: S.String, url: S.String },
-  $I.annote("CloseoutGateStatesTestComment", {
-    description: "Minimal bot comment a closeout gate-state test feeds without a full GitHub payload.",
-  })
+export class CloseoutGateStatesTestComment extends S.Opaque<
+  CloseoutGateStatesTestComment,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ authorLogin: S.String, body: S.String, url: S.String }).pipe(
+    $I.annoteSchema("CloseoutGateStatesTestComment", {
+      description: "Minimal bot comment a closeout gate-state test feeds without a full GitHub payload.",
+    })
+  )
 ) {}
 
 /**
@@ -809,18 +822,22 @@ export class CloseoutGateStatesTestComment extends S.Class<CloseoutGateStatesTes
  * @category testing
  * @since 0.0.0
  */
-export class CloseoutGateStatesTestInput extends S.Class<CloseoutGateStatesTestInput>($I`CloseoutGateStatesTestInput`)(
-  {
+export class CloseoutGateStatesTestInput extends S.Opaque<
+  CloseoutGateStatesTestInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     options: PrCloseoutOptions,
     actionableReviewThreadCount: S.Finite,
     advisories: CloseoutReviewAdvisories,
     followUpThreadCount: S.Finite,
     greptile: GreptileSummary,
     botComments: S.Array(CloseoutGateStatesTestComment),
-  },
-  $I.annote("CloseoutGateStatesTestInput", {
-    description: "Closeout gate-state test inputs controlling gate requirements without GitHub payloads.",
-  })
+  }).pipe(
+    $I.annoteSchema("CloseoutGateStatesTestInput", {
+      description: "Closeout gate-state test inputs controlling gate requirements without GitHub payloads.",
+    })
+  )
 ) {}
 
 /**

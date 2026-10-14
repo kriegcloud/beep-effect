@@ -32,6 +32,7 @@ import {
   ManifestFieldWitness,
   TreeEntryWitness,
 } from "./KnowledgeDoctor.schemas.ts";
+import type { GoalDoctorFindingKind } from "../Goals/Doctor.ts";
 import type { KnowledgeOperationalError } from "./Knowledge.errors.ts";
 import type { KnowledgeDocumentFenceLine } from "./Knowledge.refs.ts";
 import type { KnowledgeFindingKind } from "./Knowledge.schemas.ts";
@@ -68,6 +69,44 @@ const nfc = Str.normalize("NFC");
  * @since 0.0.0
  */
 export const knowledgeDoctorDocumentId = (documentPath: string): string => nfc(`tree:${documentPath}`);
+
+/**
+ * The cause key of one goals-doctor finding, shared by the delegated finding and by every knowledge
+ * claim it explains.
+ *
+ * **Details**
+ *
+ * The key is `goals-doctor:<kind>:<slug>`, suffixed with `:<detail>` when the goals doctor
+ * distinguishes several findings of one kind in a packet (a reflection file name, a capability). A
+ * packet-status claim under a missing or invalid manifest uses the same key, which is what lets the
+ * manifest finding collapse the claims beneath it into one group.
+ *
+ * **Example** (Key an invalid manifest)
+ *
+ * ```ts
+ * import { knowledgeGoalsDoctorCauseKey } from "@beep/repo-cli/commands/Knowledge/KnowledgeDoctor.evaluators"
+ *
+ * console.log(knowledgeGoalsDoctorCauseKey({ kind: "manifest-invalid", slug: "demo" })) // "goals-doctor:manifest-invalid:demo"
+ * ```
+ *
+ * @param cause - Goals-doctor finding kind, packet slug, and the goals doctor's key suffix when it has one.
+ * @returns `goals-doctor:<kind>:<slug>`, with `:<detail>` appended when a detail is given.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const knowledgeGoalsDoctorCauseKey = (cause: {
+  readonly kind: GoalDoctorFindingKind;
+  readonly slug: string;
+  readonly detail?: string | undefined;
+}): string =>
+  pipe(
+    O.fromUndefinedOr(cause.detail),
+    O.filter(Str.isNonEmpty),
+    O.match({
+      onNone: () => `goals-doctor:${cause.kind}:${cause.slug}`,
+      onSome: (detail) => `goals-doctor:${cause.kind}:${cause.slug}:${detail}`,
+    })
+  );
 
 type KnowledgeFailureFields = {
   readonly kind: KnowledgeFindingKind;
@@ -220,8 +259,8 @@ export const isKnowledgeSymbolSpan = (span: string): boolean => SYMBOL_SPAN_PATT
  * A packet-status claim is a `goals/<slug>` span followed on the same line by a lifecycle-word span,
  * with only connective text between them (`(`, `is`, `now`, `lifecycle`, `status`, an arrow); a
  * past-tense or plural connective (`was`, `both`) is not a current claim and is skipped. An
- * imported-symbol claim is `` `Name` from `@beep/...` ``; its specifier span is read once, as part
- * of the claim. Columns are 1-based and point at the claim's first backtick.
+ * imported-symbol claim is an identifier span, the word `from`, and an `@beep/...` specifier span;
+ * the specifier span is read once, as part of the claim. Columns are 1-based and point at the claim's first backtick.
  *
  * **Example** (Read a status claim and a symbol claim)
  *
@@ -399,7 +438,7 @@ const evaluateClaimAgainst = (
       span,
       claim,
       `goals/${claim.slug} claim cannot be checked: its ops/manifest.json is ${facts.manifest} (a goals doctor finding).`,
-      `goals-doctor:manifest-${facts.manifest}:${claim.slug}`
+      knowledgeGoalsDoctorCauseKey({ kind: `manifest-${facts.manifest}`, slug: claim.slug })
     );
   }
   return claim.phase ? evaluatePhaseClaim(span, claim, facts) : evaluateStatusClaim(span, claim, facts);
@@ -415,7 +454,12 @@ const evaluatePacketSpan = Effect.fn("KnowledgeDoctor.evaluatePacketSpan")(funct
     A.findFirst(packets, (facts) => facts.slug === claim.slug),
     {
       onNone: () =>
-        packetFailure(span, claim, `No goal packet goals/${claim.slug} exists in this tree.`, `packet:${claim.slug}`),
+        packetFailure(
+          span,
+          claim,
+          `No goal packet goals/${claim.slug} exists in this tree.`,
+          `path:goals/${claim.slug}`
+        ),
       onSome: (facts) => evaluateClaimAgainst(span, claim, facts),
     }
   );
@@ -588,23 +632,54 @@ const resolveEntry = Effect.fn("KnowledgeDoctor.resolveSymbolEntry")(function* (
   );
 });
 
+// The export search's verdict: the declaring file, or why no file was found. `bounded` means the
+// search stopped at MAX_EXPORT_SEARCH_FILES; `opaque` lists the star specifiers it could not follow.
+type ExportSearch =
+  | { readonly _tag: "Found"; readonly file: string }
+  | { readonly _tag: "Missing"; readonly bounded: boolean; readonly opaque: ReadonlyArray<string> };
+
 const searchExport = (
   domain: KnowledgeDoctorDomain,
   name: string,
   frontier: ReadonlyArray<string>,
-  seen: HashSet.HashSet<string>
-): Effect.Effect<O.Option<string>, KnowledgeOperationalError> =>
+  seen: HashSet.HashSet<string>,
+  opaque: ReadonlyArray<string>
+): Effect.Effect<ExportSearch, KnowledgeOperationalError> =>
   A.match(frontier, {
-    onEmpty: () => Effect.succeedNone,
-    onNonEmpty: ([file, ...rest]) =>
-      HashSet.has(seen, file) || HashSet.size(seen) >= MAX_EXPORT_SEARCH_FILES
-        ? searchExport(domain, name, rest, seen)
-        : Effect.flatMap(domain.fileExports(file), (scan) =>
-            A.contains(scan.names, name)
-              ? Effect.succeedSome(file)
-              : searchExport(domain, name, A.appendAll(rest, scan.stars), HashSet.add(seen, file))
-          ),
+    onEmpty: () => Effect.succeed<ExportSearch>({ _tag: "Missing", bounded: false, opaque: A.dedupe(opaque) }),
+    onNonEmpty: ([file, ...rest]) => {
+      if (HashSet.has(seen, file)) {
+        return searchExport(domain, name, rest, seen, opaque);
+      }
+      if (HashSet.size(seen) >= MAX_EXPORT_SEARCH_FILES) {
+        return Effect.succeed<ExportSearch>({ _tag: "Missing", bounded: true, opaque: A.dedupe(opaque) });
+      }
+      return Effect.flatMap(domain.fileExports(file), (scan) =>
+        A.contains(scan.names, name)
+          ? Effect.succeed<ExportSearch>({ _tag: "Found", file })
+          : searchExport(
+              domain,
+              name,
+              A.appendAll(rest, scan.stars),
+              HashSet.add(seen, file),
+              A.appendAll(opaque, scan.opaqueStars)
+            )
+      );
+    },
   });
+
+const missingExportMessage = (
+  specifier: string,
+  name: string,
+  search: Extract<ExportSearch, { readonly _tag: "Missing" }>
+): string => {
+  if (search.bounded) {
+    return `${name} was not found in the first ${MAX_EXPORT_SEARCH_FILES} files re-exported by ${specifier}; the search stopped at its bound, so absence is unproven.`;
+  }
+  return A.isReadonlyArrayNonEmpty(search.opaque)
+    ? `${specifier} does not visibly export ${name}; not followed: export * from ${A.join(search.opaque, ", ")}.`
+    : `${specifier} does not export ${name}.`;
+};
 
 const evaluateExport = Effect.fn("KnowledgeDoctor.evaluateSymbolExport")(function* (
   span: KnowledgeSpan,
@@ -617,18 +692,18 @@ const evaluateExport = Effect.fn("KnowledgeDoctor.evaluateSymbolExport")(functio
     return resolvedBy(...witnesses);
   }
   const name = claim.exportName.value;
-  const declaring = yield* searchExport(tree.domain, name, [target], HashSet.empty());
-  return O.match(declaring, {
-    onNone: (): KnowledgeEvaluationOutcome =>
-      symbolFailure(
+  const search = yield* searchExport(tree.domain, name, [target], HashSet.empty(), []);
+  return search._tag === "Found"
+    ? resolvedBy(
+        ...witnesses,
+        ExportWitness.make({ packageName: claim.packageName, file: search.file, exportName: name })
+      )
+    : symbolFailure(
         span,
         `beep-export:${claim.specifier} ${name}`,
-        `${claim.specifier} does not export ${name}.`,
+        missingExportMessage(claim.specifier, name, search),
         `beep-export:${claim.specifier}:${name}`
-      ),
-    onSome: (file): KnowledgeEvaluationOutcome =>
-      resolvedBy(...witnesses, ExportWitness.make({ packageName: claim.packageName, file, exportName: name })),
-  });
+      );
 });
 
 const evaluateSubpath = Effect.fn("KnowledgeDoctor.evaluateSymbolSubpath")(function* (
@@ -692,7 +767,9 @@ const evaluateSymbolSpan = Effect.fn("KnowledgeDoctor.evaluateSymbolSpan")(funct
  * `exports` map (exact key, then the longest wildcard key; a `null` value blocks it) or, failing
  * that, a root `tsconfig.json` `paths` alias, and its target file must be tracked. An imported
  * identifier is found by a declaration scan of the target file and the files it star re-exports,
- * never by the compiler. A Turborepo task id is read for its package only.
+ * never by the compiler. A Turborepo task id is read for its package only. A missing identifier's
+ * message says when the search stopped at its 256-file bound, or which `export *` specifiers it could
+ * not follow, so an unproven absence never reads as a plain "does not export".
  *
  * **Example** (Read the evaluator identity)
  *

@@ -3,11 +3,12 @@
  *
  * **Details**
  *
- * Six tools: prepare, read and delete a mail draft; send a draft; create and
- * update a calendar event. Exactly one of them, `m365_outbox_send_draft`,
- * sends mail. None takes a mailbox, and none takes attendees. `get_draft`
- * reads any draft id; sending and deleting are limited to drafts this server
- * created, and updating to events it created that have no attendee.
+ * Six tools: prepare, read and delete a mail draft; check a send request;
+ * create and update a calendar event. Sending is fail-closed while Graph's
+ * draft-send action cannot bind the checked version. None takes a mailbox,
+ * and none takes attendees. `get_draft` reads any draft id; deleting is
+ * limited to drafts this server created, and updating to events it created
+ * that have no attendee.
  *
  * @category tools
  * @since 0.1.0
@@ -59,8 +60,8 @@ const additiveWriteToolHints = FourHintAnnotations.make({
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxToolError extends S.Class<OutboxToolError>($I`OutboxToolError`)(
-  {
+export class OutboxToolError extends S.Opaque<OutboxToolError, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: S.NonEmptyString.annotateKey({
       description: "Human-readable failure message safe to return to an MCP tool caller.",
     }),
@@ -73,8 +74,7 @@ export class OutboxToolError extends S.Class<OutboxToolError>($I`OutboxToolError
       description: "Whether repeating the same tool call may reasonably succeed. Never true for a send.",
     }),
     toolName: S.NonEmptyString.annotateKey({ description: "MCP tool that returned the failure." }),
-  },
-  $I.annote("OutboxToolError", { description: "Structured Microsoft 365 outbox tool failure." })
+  }).pipe($I.annoteSchema("OutboxToolError", { description: "Structured Microsoft 365 outbox tool failure." }))
 ) {}
 
 /**
@@ -99,8 +99,8 @@ export class OutboxToolError extends S.Class<OutboxToolError>($I`OutboxToolError
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxCreateDraftParams extends S.Class<OutboxCreateDraftParams>($I`OutboxCreateDraftParams`)(
-  {
+export class OutboxCreateDraftParams extends S.Opaque<OutboxCreateDraftParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachmentPaths: emptyByDefault(
       S.NonEmptyString,
       "Absolute paths of files to attach. Each must be a regular file under a configured attachment root."
@@ -111,8 +111,7 @@ export class OutboxCreateDraftParams extends S.Class<OutboxCreateDraftParams>($I
     cc: emptyByDefault(M365MailAddress, "Carbon-copy addresses."),
     subject: S.NonEmptyString.annotateKey({ description: "Message subject." }),
     to: S.Array(M365MailAddress).annotateKey({ description: "Primary recipient addresses." }),
-  },
-  $I.annote("OutboxCreateDraftParams", { description: "Parameters for preparing a mail draft." })
+  }).pipe($I.annoteSchema("OutboxCreateDraftParams", { description: "Parameters for preparing a mail draft." }))
 ) {}
 
 /**
@@ -131,8 +130,8 @@ export class OutboxCreateDraftParams extends S.Class<OutboxCreateDraftParams>($I
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxDraftCreated extends S.Class<OutboxDraftCreated>($I`OutboxDraftCreated`)(
-  {
+export class OutboxDraftCreated extends S.Opaque<OutboxDraftCreated, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachments: S.Array(OutboxAttachmentDigest).annotateKey({
       description: "Name, size and sha256 of each attached file. Restate these in send_draft's expect block.",
     }),
@@ -140,8 +139,9 @@ export class OutboxDraftCreated extends S.Class<OutboxDraftCreated>($I`OutboxDra
     webLink: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Outlook web URL of the draft." }),
-  },
-  $I.annote("OutboxDraftCreated", { description: "A prepared draft and the digests of its attachments." })
+  }).pipe(
+    $I.annoteSchema("OutboxDraftCreated", { description: "A prepared draft and the digests of its attachments." })
+  )
 ) {}
 
 /**
@@ -160,9 +160,8 @@ export class OutboxDraftCreated extends S.Class<OutboxDraftCreated>($I`OutboxDra
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxDraftRef extends S.Class<OutboxDraftRef>($I`OutboxDraftRef`)(
-  { draftId },
-  $I.annote("OutboxDraftRef", { description: "A draft addressed by its Graph id." })
+export class OutboxDraftRef extends S.Opaque<OutboxDraftRef, { readonly brand: unique symbol }>()(
+  S.Struct({ draftId }).pipe($I.annoteSchema("OutboxDraftRef", { description: "A draft addressed by its Graph id." }))
 ) {}
 
 /**
@@ -190,8 +189,8 @@ export class OutboxDraftRef extends S.Class<OutboxDraftRef>($I`OutboxDraftRef`)(
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxDraftView extends S.Class<OutboxDraftView>($I`OutboxDraftView`)(
-  {
+export class OutboxDraftView extends S.Opaque<OutboxDraftView, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachments: S.Array(OutboxAttachmentDigest).annotateKey({
       description: "Attachments as stored: name, byte length and sha256 of the stored bytes.",
     }),
@@ -207,8 +206,7 @@ export class OutboxDraftView extends S.Class<OutboxDraftView>($I`OutboxDraftView
     webLink: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Outlook web URL of the draft." }),
-  },
-  $I.annote("OutboxDraftView", { description: "A stored draft's recipients, subject and attachments." })
+  }).pipe($I.annoteSchema("OutboxDraftView", { description: "A stored draft's recipients, subject and attachments." }))
 ) {}
 
 /**
@@ -237,14 +235,13 @@ export class OutboxDraftView extends S.Class<OutboxDraftView>($I`OutboxDraftView
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxSendDraftParams extends S.Class<OutboxSendDraftParams>($I`OutboxSendDraftParams`)(
-  {
+export class OutboxSendDraftParams extends S.Opaque<OutboxSendDraftParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     draftId,
     expect: OutboxSendExpectation.annotateKey({
       description: "The exact recipients, subject and attachments this send must deliver.",
     }),
-  },
-  $I.annote("OutboxSendDraftParams", { description: "Parameters for sending a draft." })
+  }).pipe($I.annoteSchema("OutboxSendDraftParams", { description: "Parameters for sending a draft." }))
 ) {}
 
 /**
@@ -268,22 +265,21 @@ export class OutboxSendDraftParams extends S.Class<OutboxSendDraftParams>($I`Out
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxSendResult extends S.Class<OutboxSendResult>($I`OutboxSendResult`)(
-  {
+export class OutboxSendResult extends S.Opaque<OutboxSendResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     auditId: S.NonEmptyString.annotateKey({ description: "Id of this send's audit records." }),
     auditRecorded: S.Boolean.annotateKey({
       description: "False when the outcome record could not be appended to the audit log.",
     }),
     mismatches: emptyByDefault(
       OutboxSendMismatchField,
-      "When refused: the fields in which the stored draft differs from expect, or `not-created-here` alone when this server did not create the draft."
+      "When refused: differing draft fields, `not-created-here`, or `version-unbound` when a matching draft cannot be sent atomically."
     ),
     outcome: OutboxSendOutcome.annotateKey({
       description:
         "`sent`: Graph accepted the send. `refused`: nothing was sent. `unknown`: the send may or may not have happened; call get_draft (a draft that is gone was probably sent: confirm in Sent Items) and do not send again blindly.",
     }),
-  },
-  $I.annote("OutboxSendResult", { description: "How a send ended, with its audit id." })
+  }).pipe($I.annoteSchema("OutboxSendResult", { description: "How a send ended, with its audit id." }))
 ) {}
 
 /**
@@ -302,14 +298,13 @@ export class OutboxSendResult extends S.Class<OutboxSendResult>($I`OutboxSendRes
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxEventCreated extends S.Class<OutboxEventCreated>($I`OutboxEventCreated`)(
-  {
+export class OutboxEventCreated extends S.Opaque<OutboxEventCreated, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: GraphPathSegment.annotateKey({ description: "Graph id of the event." }),
     webLink: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Outlook web URL of the event." }),
-  },
-  $I.annote("OutboxEventCreated", { description: "A created calendar event." })
+  }).pipe($I.annoteSchema("OutboxEventCreated", { description: "A created calendar event." }))
 ) {}
 
 /**
@@ -330,14 +325,15 @@ export class OutboxEventCreated extends S.Class<OutboxEventCreated>($I`OutboxEve
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxUpdateEventParams extends S.Class<OutboxUpdateEventParams>($I`OutboxUpdateEventParams`)(
-  {
+export class OutboxUpdateEventParams extends S.Opaque<OutboxUpdateEventParams, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...M365EventPatch.fields,
     eventId: GraphPathSegment.annotateKey({ description: "Graph id of the event to change." }),
-  },
-  $I.annote("OutboxUpdateEventParams", {
-    description: "An event id and the fields to change; absent fields are left as they are.",
-  })
+  }).pipe(
+    $I.annoteSchema("OutboxUpdateEventParams", {
+      description: "An event id and the fields to change; absent fields are left as they are.",
+    })
+  )
 ) {}
 
 /**
@@ -356,11 +352,10 @@ export class OutboxUpdateEventParams extends S.Class<OutboxUpdateEventParams>($I
  * @category tool-schemas
  * @since 0.1.0
  */
-export class OutboxEventUpdated extends S.Class<OutboxEventUpdated>($I`OutboxEventUpdated`)(
-  {
+export class OutboxEventUpdated extends S.Opaque<OutboxEventUpdated, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: GraphPathSegment.annotateKey({ description: "Graph id of the event." }),
-  },
-  $I.annote("OutboxEventUpdated", { description: "An updated calendar event." })
+  }).pipe($I.annoteSchema("OutboxEventUpdated", { description: "An updated calendar event." }))
 ) {}
 
 /**
@@ -381,7 +376,7 @@ export class OutboxEventUpdated extends S.Class<OutboxEventUpdated>($I`OutboxEve
 export const OutboxCreateDraftTool = annotateFourHints(
   Tool.make("m365_outbox_create_draft", {
     description:
-      "Prepare a mail draft in the configured mailbox's Drafts folder, with files attached from absolute local paths under the configured attachment roots. This does not send anything: only m365_outbox_send_draft sends mail. Returns the draft id and the name, size and sha256 of each attachment; restate those in send_draft's expect block. The attachments are read back and compared with the local files; if an attachment fails or does not round-trip, the draft is deleted and the call fails.",
+      "Prepare a mail draft in the configured mailbox's Drafts folder, with files attached from absolute local paths under the configured attachment roots. This does not send anything. Automated draft sending is currently disabled because Graph cannot bind the send to the checked draft version. Returns the draft id and the name, size and sha256 of each attachment. The attachments are read back and compared with the local files; if an attachment fails or does not round-trip, the draft is deleted and the call fails.",
     failure: OutboxToolError,
     failureMode: "return",
     parameters: OutboxCreateDraftParams,
@@ -408,7 +403,7 @@ export const OutboxCreateDraftTool = annotateFourHints(
 export const OutboxGetDraftTool = annotateFourHints(
   Tool.make("m365_outbox_get_draft", {
     description:
-      "Read a draft as the mailbox stores it: whether it is still a draft, its recipients, subject and attachments (name, size and sha256 of the stored bytes, downloaded and hashed on each call). The body is not returned, only its length. This reads any draft id in the mailbox, but only a draft created by this server's create_draft can be sent or deleted. Call this after a send_draft outcome of unknown: a draft that is gone or is no longer a draft was sent.",
+      "Read a draft as the mailbox stores it: whether it is still a draft, its recipients, subject and attachments (name, size and sha256 of the stored bytes, downloaded and hashed on each call). The body is not returned, only its length. This reads any draft id in the mailbox; only a draft created by this server's create_draft can be deleted through this server. Automated sending is disabled.",
     failure: OutboxToolError,
     failureMode: "return",
     parameters: OutboxDraftRef,
@@ -463,7 +458,7 @@ export const OutboxDeleteDraftTool = annotateFourHints(
 export const OutboxSendDraftTool = annotateFourHints(
   Tool.make("m365_outbox_send_draft", {
     description:
-      "SENDS MAIL. This is the only tool that sends. It sends only a draft that this server's create_draft created; any other draft id sends nothing and returns outcome refused with the single field not-created-here. A draft created here and then edited in Outlook can still be sent once expect restates it as get_draft returns it. It sends exactly the stored draft, and only if the draft equals expect: the same to, cc and bcc addresses, the same subject, and the same attachments by name, size and sha256 (restate them exactly as create_draft or get_draft returned them; every attachment needs all three). The stored attachments are downloaded and hashed before sending. If anything differs it sends nothing and returns outcome refused with the differing fields; read the draft again with get_draft before restating. Outcome unknown means the request may or may not have reached Microsoft Graph: call get_draft (a draft that is gone or no longer a draft was sent) and never send again blindly. Every call is written to a local audit log.",
+      "SENDING DISABLED. Graph's send-draft action accepts only a mutable message id and cannot bind the checked draft version. This tool still checks the draft and records a refusal, but never calls Graph's send action. A matching draft returns outcome refused with version-unbound. Other mismatches are reported as before. A person can review and send the draft in Outlook. Every call is written to a local audit log.",
     failure: OutboxToolError,
     failureMode: "return",
     parameters: OutboxSendDraftParams,

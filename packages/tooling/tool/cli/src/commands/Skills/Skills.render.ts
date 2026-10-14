@@ -1,5 +1,5 @@
 /**
- * Pure renderers for read-only skill provenance reports.
+ * Pure renderers for skill provenance, lock-plan, and materialize reports.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -14,6 +14,7 @@ import * as jsonc from "jsonc-parser";
 import { SkillsLockMigrationPlan, SkillsLockWriteReceipt } from "./SkillsLock.schemas.ts";
 import type { SkillProvenanceReport } from "./Skills.schemas.ts";
 import type { SkillMigrationRow, UnresolvedMigrationRow, VendoredMigrationRow } from "./SkillsLock.schemas.ts";
+import type { SkillMaterializeReport, SkillMaterializeRow } from "./SkillsMaterialize.schemas.ts";
 
 const encodeUnknownJson = S.encodeUnknownResult(S.fromJsonString(S.Unknown));
 
@@ -348,4 +349,51 @@ export const renderSkillsLockWriteReceiptJson = (receipt: SkillsLockWriteReceipt
   const encoded = Result.getOrThrow(encodeWriteReceiptJson(receipt));
   const edits = jsonc.format(encoded, undefined, { tabSize: 2, insertSpaces: true });
   return `${jsonc.applyEdits(encoded, edits)}\n`;
+};
+
+const describeMaterializeTargets = (row: SkillMaterializeRow): string =>
+  A.join(
+    A.map(row.targets, (target) => `${target.target} ${target.state}`),
+    ", "
+  );
+
+const describeMaterializeRow = (row: SkillMaterializeRow): string => {
+  const patches = row.kind === "vendored" ? `, ${row.patches} patch(es)` : "";
+  const skew = A.length(A.dedupe(A.map(row.targets, (target) => target.state))) > 1 ? "; targets skewed" : "";
+  return `  ${row.skill}: ${row.status} (${row.kind}${patches}) [${describeMaterializeTargets(row)}]${skew}`;
+};
+
+/**
+ * Renders a materialize report as a headline plus one line per entry.
+ *
+ * **Details**
+ *
+ * The headline counts entries per status. Each entry line names its status,
+ * kind, patch count, and every install target with its state before the run
+ * wrote anything; targets in different states are flagged as skewed, which is
+ * what a crash between the two publish renames leaves behind.
+ *
+ * **Example** (Render an empty check report)
+ *
+ * ```ts
+ * import { renderSkillMaterializeSummary } from "@beep/repo-cli/commands/Skills/Skills.render"
+ * import { SkillMaterializeReport } from "@beep/repo-cli/commands/Skills/SkillsMaterialize.schemas"
+ *
+ * const report = SkillMaterializeReport.make({ mode: "check", rows: [] })
+ * console.log(renderSkillMaterializeSummary(report)) // "skills materialize --check: 0 current, 0 rebuilt, 0 would-rebuild, 0 local-drift"
+ * ```
+ *
+ * @param report - Mode plus one status row per lock entry (current, rebuilt, would-rebuild, local-drift).
+ * @returns The headline followed by one line per entry.
+ * @category formatting
+ * @since 0.0.0
+ */
+export const renderSkillMaterializeSummary = (report: SkillMaterializeReport): string => {
+  const count = (status: SkillMaterializeRow["status"]): string =>
+    `${A.length(A.filter(report.rows, (row) => row.status === status))} ${status}`;
+  const headline = `skills materialize${report.mode === "check" ? " --check" : ""}: ${A.join(
+    [count("current"), count("rebuilt"), count("would-rebuild"), count("local-drift")],
+    ", "
+  )}`;
+  return A.join([headline, ...A.map(report.rows, describeMaterializeRow)], "\n");
 };

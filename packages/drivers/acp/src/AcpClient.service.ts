@@ -53,6 +53,8 @@ const ACP_CLIENT_PENDING_NOTIFICATION_CAPACITY = 256;
  */
 export { makeTerminationError } from "./internal/stdio.ts";
 
+type AcpProtocolLoggingFields = typeof AcpProtocol.AcpProtocolLoggingOptions.Encoded;
+
 /**
  * Options for constructing an ACP client service.
  *
@@ -68,7 +70,7 @@ export { makeTerminationError } from "./internal/stdio.ts";
  * @category models
  * @since 0.0.0
  */
-export interface AcpClientOptions extends AcpProtocol.AcpProtocolLoggingOptions {
+export interface AcpClientOptions extends AcpProtocolLoggingFields {
   readonly logger?: (event: AcpProtocol.AcpProtocolLogEvent) => Effect.Effect<void>;
 }
 
@@ -156,6 +158,13 @@ export interface AcpClientShape extends AcpProtocol.AcpExtensionRegistrars {
     readonly closeSession: (
       payload: AcpSchema.CloseSessionRequest
     ) => Effect.Effect<AcpSchema.CloseSessionResponse, AcpError.AcpError>;
+    /**
+     * Selects the active mode for a session.
+     * @see https://agentclientprotocol.com/protocol/schema#session/set_mode
+     */
+    readonly setSessionMode: (
+      payload: AcpSchema.SetSessionModeRequest
+    ) => Effect.Effect<AcpSchema.SetSessionModeResponse, AcpError.AcpError>;
     /**
      * Selects the active model for a session.
      * @see https://agentclientprotocol.com/protocol/schema#session/set_model
@@ -655,6 +664,7 @@ export const make = Effect.fn($I`AcpClient_make`)(function* (
       forkSession: flow(rpc[AGENT_METHODS.session_fork], callRpc),
       resumeSession: flow(rpc[AGENT_METHODS.session_resume], callRpc),
       closeSession: flow(rpc[AGENT_METHODS.session_close], callRpc),
+      setSessionMode: flow(rpc[AGENT_METHODS.session_set_mode], callRpc),
       setSessionModel: flow(rpc[AGENT_METHODS.session_set_model], callRpc),
       setSessionConfigOption: flow(rpc[AGENT_METHODS.session_set_config_option], callRpc),
       prompt: flow(rpc[AGENT_METHODS.session_prompt], callRpc),

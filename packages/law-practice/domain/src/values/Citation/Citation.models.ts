@@ -104,8 +104,8 @@ const ParentheticalCitations = S.Array(S.suspend((): S.Codec<Citation.Type, Cita
  * @category models
  * @since 0.0.0
  */
-export class Parenthetical extends S.Class<Parenthetical>($I`Parenthetical`)(
-  {
+export class Parenthetical extends S.Opaque<Parenthetical, {}>()(
+  S.Struct({
     text: S.String.annotateKey({
       description: "Full text content between the parentheses (excluding parens themselves).",
     }),
@@ -120,10 +120,11 @@ export class Parenthetical extends S.Class<Parenthetical>($I`Parenthetical`)(
       })
     ),
     citations: ParentheticalCitations,
-  },
-  $I.annote("Parenthetical", {
-    description: "An extracted explanatory parenthetical from a case citation.",
-  })
+  }).pipe(
+    $I.annoteSchema("Parenthetical", {
+      description: "An extracted explanatory parenthetical from a case citation.",
+    })
+  )
 ) {}
 
 /**

@@ -34,16 +34,17 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.provenance");
  * @category schemas
  * @since 0.0.0
  */
-export class AlphaFullText extends S.Class<AlphaFullText>($I`AlphaFullText`)(
-  {
+export class AlphaFullText extends S.Opaque<AlphaFullText, { readonly brand: unique symbol }>()(
+  S.Struct({
     provider: S.Literal("alphaxiv"),
     operation: S.Literal("get_paper_content"),
     arguments: S.Struct({ url: S.String, fullText: S.Literal(true) }),
     result: S.Struct({ content: S.Array(S.Struct({ type: S.Literal("text"), text: S.String })) }),
-  },
-  $I.annote("AlphaFullText", {
-    description: "Original provider response from a fullText:true alphaXiv paper content invocation.",
-  })
+  }).pipe(
+    $I.annoteSchema("AlphaFullText", {
+      description: "Original provider response from a fullText:true alphaXiv paper content invocation.",
+    })
+  )
 ) {}
 const SlashLaunch = S.Struct({
   direction: S.Literal("sent"),

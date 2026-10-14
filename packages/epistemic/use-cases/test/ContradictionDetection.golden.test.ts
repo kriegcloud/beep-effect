@@ -1,7 +1,9 @@
 import { ContradictionCandidate, hasValidSeals } from "@beep/epistemic-domain/entities/Contradiction";
 import {
+  CanonicalContradictionBeliefPair,
   ContradictionAssessment,
   ContradictionCandidateContent,
+  ContradictionMatchBasis,
   contradictionCandidateDigest,
   contradictionCandidateKey,
 } from "@beep/epistemic-domain/values/Contradiction";
@@ -49,7 +51,12 @@ const conformance = Effect.fnUntraced(function* (record: DetectedContradiction, 
   assertSuccess(decodedEntity, candidate);
   assertSuccess(hasValidSeals(candidate), true);
   const content = yield* S.decodeEffect(ContradictionCandidateContent)(wire);
-  expect(record.candidateKey).toBe(contradictionCandidateKey(content.pair, content.matchBasis));
+  expect(record.candidateKey).toBe(
+    contradictionCandidateKey(
+      CanonicalContradictionBeliefPair.make(content.pair),
+      ContradictionMatchBasis.make(content.matchBasis)
+    )
+  );
   assertSuccess(contradictionCandidateDigest(content), record.candidateDigest);
   const submitted = S.decodeResult(SubmitContradictionCandidate)({
     ...wire,

@@ -137,6 +137,16 @@ const sha256Hex = (text: string) =>
   );
 
 describe("@beep/occt service", () => {
+  it.effect(
+    "rejects model specs exceeding the bounded overlap work limit",
+    Effect.fnUntraced(function* () {
+      const part = Part.make({ name: "box", add: [Box.make({ min: [0, 0, 0], max: [1, 1, 1] })] });
+      const decode = S.decodeUnknownEffect(ModelSpec);
+      const rejected = yield* Effect.flip(decode({ parts: A.makeBy(257, () => part) }));
+      expect(rejected.message).toContain("Expected at most 256 parts");
+      expect((yield* decode({ parts: A.makeBy(256, () => part) })).parts).toHaveLength(256);
+    })
+  );
   it.layer(TestLayer, { timeout: "60 seconds" })((it) => {
     it.effect(
       "reports kernel provenance",
@@ -559,6 +569,24 @@ describe("@beep/occt service", () => {
         expect(unslotted.partOverlaps).toBe(1);
         const legacy = yield* occt.summarize(fixture);
         expect(legacy.partOverlaps).toBe(0);
+      })
+    );
+
+    it.effect(
+      "reports a typed build failure when a part has zero width",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const error = yield* Effect.flip(
+          occt.summarize(
+            ModelSpec.make({
+              parts: [Part.make({ name: "degenerate", add: [box([0, 0, 0], [0, 10, 10])] })],
+            })
+          )
+        );
+        assertInstanceOf(error, OcctError);
+        expect(error.reason).toBe("solid-build");
+        expect(error.message).toBe("The kernel could not build the solid.");
+        assertNone(error.cause);
       })
     );
 

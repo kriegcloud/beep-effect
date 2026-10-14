@@ -15,7 +15,7 @@
         ".claude/skills/atom-reactivity-specialist",
         ".agents/skills/atom-reactivity-specialist"
       ],
-      "installedTreeHash": "1a1f6a97778421a322c83fcbd812add005e7007ddd6cfb39babab5e66e274189"
+      "installedTreeHash": "b185910764de5f03f333f39e3b45c74309db59d82914b86e06a6bea9209525e8"
     },
     "browser-qa-loop": {
       "_tag": "local",
@@ -23,7 +23,7 @@
         ".claude/skills/browser-qa-loop",
         ".agents/skills/browser-qa-loop"
       ],
-      "installedTreeHash": "7897ad5af85b04b5b780af2524a1642a0452babffcfb7512406f7fd82aec9ea4"
+      "installedTreeHash": "b1a4419a316d71ed299ddcba2b629b39e082b707dd72b0c766472d9e57e64f0a"
     },
     "closeout": {
       "_tag": "local",
@@ -31,7 +31,7 @@
         ".claude/skills/closeout",
         ".agents/skills/closeout"
       ],
-      "installedTreeHash": "d7283167801e1ba58e2f24c9e0f255fa8c12f2ed310e411b096266616d78b9f0"
+      "installedTreeHash": "8c5c3f17365d89bf85f4924e71ab0501c68ceb5d4b772c6de264e1f2410d3429"
     },
     "codex-findings": {
       "_tag": "local",
@@ -47,7 +47,7 @@
         ".claude/skills/crispen",
         ".agents/skills/crispen"
       ],
-      "installedTreeHash": "c111373fc6d77f010a6f7bcd941a10a576922a83adb77d0b2de1fa35db4bbb58"
+      "installedTreeHash": "202eccd4bedaa0d7e2de64a3af7c143dc95ef0127aa814bf62b228cd4137dbb3"
     },
     "effect-first-development": {
       "_tag": "local",
@@ -55,7 +55,7 @@
         ".claude/skills/effect-first-development",
         ".agents/skills/effect-first-development"
       ],
-      "installedTreeHash": "e4a013c6cc1b5fc120959b916493326d95cf9b0723f59173d608b913d6f67ab7"
+      "installedTreeHash": "f127f9a84ddd5516a53ecd4c344539ea2e6e70e89608e7ff360dbe035b672556"
     },
     "explore": {
       "_tag": "local",
@@ -63,7 +63,7 @@
         ".claude/skills/explore",
         ".agents/skills/explore"
       ],
-      "installedTreeHash": "5f4f4894ac028139a0ab576477dc8acd94ddfdf810aa1a9850e8240698807541"
+      "installedTreeHash": "5c9be0bc9e03ad6572ec45537163331194896c91310b0835b3933fc4a3a7e8c6"
     },
     "graft": {
       "_tag": "local",
@@ -139,7 +139,7 @@
         ".claude/skills/grill-with-docs",
         ".agents/skills/grill-with-docs"
       ],
-      "installedTreeHash": "5baabbc3181dfeab5fbb030c5b5546b1e4ea5ecae84018da717a8cc69b8245cd"
+      "installedTreeHash": "9067e73e3c7c22daa7070b2f86963063621a6a8a8ceac91b54129d51c2a7910a"
     },
     "grilling": {
       "_tag": "local",
@@ -163,7 +163,7 @@
         ".claude/skills/jsdoc-annotation-specialist",
         ".agents/skills/jsdoc-annotation-specialist"
       ],
-      "installedTreeHash": "c0adf04d19a92fe1eb658a2f83a1da8edab732aab2eb9ed4e1de241d9dc30265"
+      "installedTreeHash": "1db3bb2c822d31930349e69b75a835f972f5196a40c41d20691ff32577452922"
     },
     "motion-evidence-review": {
       "_tag": "local",
@@ -321,7 +321,7 @@
         ".claude/skills/orchestrate",
         ".agents/skills/orchestrate"
       ],
-      "installedTreeHash": "6a8d30811f4d310d9c7d048caa68d569c079391620d1fc1b2f6ddf1a88e31dca"
+      "installedTreeHash": "1d392f0511cefce3b16c34a335b32607f9808e2b32e56b307fa8864e4a8a0720"
     },
     "portless": {
       "_tag": "vendored",
@@ -408,7 +408,7 @@
         ".claude/skills/schema-first-development",
         ".agents/skills/schema-first-development"
       ],
-      "installedTreeHash": "9a943edb54a3a418302e1faf7b6537373529c270a797174221f729e84f5fd824"
+      "installedTreeHash": "4d987bd8a5659c31d0cb33dd160d4bc8ebb28e3d111d8b38c6a082656f8ba272"
     },
     "shadcn": {
       "_tag": "vendored",
@@ -553,11 +553,11 @@
       },
       "patches": {
         "required": true,
-        "patchSetHash": "dffcb1cd4dd6f39d6c64d489cef5fdae00a7dad33bdac70c38ce2f260f6c6835",
+        "patchSetHash": "00d0170bb5ed45fefbce83b9bf3ea4efd3ed7f89d31db95157e7ea6ff160077d",
         "series": [
           {
             "path": ".agents/skill-patches/shadcn/0001-design-system-md.patch",
-            "sha256": "df3a2b2c1d6c029315aee72df3b83cd622cd772e513f67bf0439df9b4c1829f8",
+            "sha256": "a49c6b5e0c728a1f222c5edfc870e66aad89c6f5e874f5da42002461c923fd93",
             "label": "temporary-drift",
             "owner": "@kriegcloud",
             "dropCondition": "Drop when upstream contains an equivalent change."
@@ -565,12 +565,12 @@
         ]
       },
       "effective": {
-        "treeHash": "f8b9671d0ef1f642a59a0c3882f121897e81b2f29c444f05582b0215942c93c8",
+        "treeHash": "de03aa45be748f5ebdfaac750a55c194deca42f93a44adbb0dd5ff10b4ce97c2",
         "installedTargets": [
           ".claude/skills/shadcn",
           ".agents/skills/shadcn"
         ],
-        "installedTreeHash": "545a75202a2b27669e2e6fa8df04a9c095435808add6543d817028baec52e754"
+        "installedTreeHash": "c6d530b267827e14c51c1cc4fbacd35b3276677a6c2e8f4d409d4faba06cbe87"
       }
     },
     "sparql-expert": {
@@ -730,7 +730,7 @@
         ".claude/skills/yeet",
         ".agents/skills/yeet"
       ],
-      "installedTreeHash": "ee99bf7b95520225bee1e8f54273a62fe328a3bfda00e781d4fd0f561817d013"
+      "installedTreeHash": "911c8caefdde3e53c5c652c612150f38fe3878f449c842d89f89e2d783c3413d"
     }
   }
 }

@@ -82,7 +82,7 @@ const ProgressStreamingFailureReason = LiteralKit(["BackpressureTimeout", "Queue
  * @category errors
  * @since 0.0.0
  */
-export class ProgressStreamingError extends S.TaggedError<ProgressStreamingError>($I`ProgressStreamingError`)(
+export class ProgressStreamingError extends S.TaggedError<ProgressStreamingError, { readonly brand: unique symbol }>($I`ProgressStreamingError`)(
   "ProgressStreamingError",
   {
     reason: ProgressStreamingFailureReason.annotateKey({
@@ -124,17 +124,14 @@ export class ProgressStreamingError extends S.TaggedError<ProgressStreamingError
  * @category models
  * @since 0.0.0
  */
-export class ProgressBuilderState extends S.Class<ProgressBuilderState>($I`ProgressBuilderState`)(
-  {
+export class ProgressBuilderState extends S.Opaque<ProgressBuilderState, { readonly brand: unique symbol }>()(S.Struct({
     runId: ExtractionRunId,
     totalChunks: PosInt,
     processedChunks: S.Natural,
     currentPhaseProgress: Percentage,
-  },
-  $I.annote("ProgressBuilderState", {
+  }).pipe($I.annoteSchema("ProgressBuilderState", {
     description: "Extraction run identity, chunk counts, and current phase progress held by the event builder.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Progress Event Builder (Functional)
@@ -948,18 +945,15 @@ export const setPhaseProgress = dual2(
  * @category models
  * @since 0.0.0
  */
-export class BackpressureState extends S.Class<BackpressureState>($I`BackpressureState`)(
-  {
+export class BackpressureState extends S.Opaque<BackpressureState, { readonly brand: unique symbol }>()(S.Struct({
     config: BackpressureConfig,
     eventQueue: S.Array(ProgressEvent),
     lastWarnTime: S.Finite.check(
       S.isGreaterThanOrEqualTo(0, { message: "Expected a non-negative backpressure warning timestamp" })
     ),
-  },
-  $I.annote("BackpressureState", {
+  }).pipe($I.annoteSchema("BackpressureState", {
     description: "Resolved queue policy, queued progress events, and the last warning timestamp.",
-  })
-) {}
+  }))) {}
 
 /**
  * Create backpressure handler state
@@ -1344,27 +1338,21 @@ export const withBackpressure: {
  * @category type-level
  * @since 0.0.0
  */
-class ResumablePartialResults extends S.Class<ResumablePartialResults>($I`ResumablePartialResults`)(
-  {
+class ResumablePartialResults extends S.Opaque<ResumablePartialResults, { readonly brand: unique symbol }>()(S.Struct({
     entityCount: S.Natural,
     relationCount: S.Natural,
-  },
-  $I.annote("ResumablePartialResults", {
+  }).pipe($I.annoteSchema("ResumablePartialResults", {
     description: "Entity and relation counts retained at an extraction pause point.",
-  })
-) {}
+  }))) {}
 
-class PauseReason extends S.Class<PauseReason>($I`PauseReason`)(
-  {
+class PauseReason extends S.Opaque<PauseReason, { readonly brand: unique symbol }>()(S.Struct({
     errorType: S.NonEmptyString,
     message: S.NonEmptyString,
     isRecoverable: S.Boolean,
     retryAfter: S.Duration.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PauseReason", {
+  }).pipe($I.annoteSchema("PauseReason", {
     description: "Failure and optional retry delay that caused extraction to pause.",
-  })
-) {}
+  }))) {}
 
 /**
  * Checkpoint and recovery context retained for a resumable extraction.
@@ -1388,18 +1376,15 @@ class PauseReason extends S.Class<PauseReason>($I`PauseReason`)(
  * @category models
  * @since 0.0.0
  */
-export class ResumableExtractionState extends S.Class<ResumableExtractionState>($I`ResumableExtractionState`)(
-  {
+export class ResumableExtractionState extends S.Opaque<ResumableExtractionState, { readonly brand: unique symbol }>()(S.Struct({
     runId: ExtractionRunId,
     lastSuccessfulChunkIndex: S.Natural,
     partialResults: ResumablePartialResults,
     pausedAt: S.Date,
     pauseReason: PauseReason.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ResumableExtractionState", {
+  }).pipe($I.annoteSchema("ResumableExtractionState", {
     description: "Checkpoint, partial counts, pause time, and recovery reason for a resumable extraction.",
-  })
-) {}
+  }))) {}
 
 /**
  * Extract resumable state from ExtractionFailedEvent

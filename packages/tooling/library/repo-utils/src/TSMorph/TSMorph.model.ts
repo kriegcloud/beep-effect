@@ -881,15 +881,16 @@ const resolvedProjectIdentity = S.TemplateLiteral([
  * @category models
  * @since 0.0.0
  */
-export class ProjectIdentityParts extends S.Class<ProjectIdentityParts>($I`ProjectIdentityParts`)(
-  {
+export class ProjectIdentityParts extends S.Opaque<ProjectIdentityParts, { readonly brand: unique symbol }>()(
+  S.Struct({
     tsConfigPath: TsConfigFilePath,
     mode: TsMorphScopeMode,
     referencePolicy: TsMorphReferencePolicy,
-  },
-  $I.annote("ProjectIdentityParts", {
-    description: "Structural identity parts for a resolved ts-morph project scope or cache key.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectIdentityParts", {
+      description: "Structural identity parts for a resolved ts-morph project scope or cache key.",
+    })
+  )
 ) {}
 
 const renderProjectIdentity = (parts: ProjectIdentityParts): string =>
@@ -1088,15 +1089,16 @@ export const SymbolIdParts = S.TemplateLiteralParser([SymbolFilePath, "::", Symb
  * @category models
  * @since 0.0.0
  */
-export class SymbolIdentityParts extends S.Class<SymbolIdentityParts>($I`SymbolIdentityParts`)(
-  {
+export class SymbolIdentityParts extends S.Opaque<SymbolIdentityParts, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: SymbolFilePath,
     qualifiedName: SymbolQualifiedName,
     kind: SymbolKind,
-  },
-  $I.annote("SymbolIdentityParts", {
-    description: "Structural identity parts for a stable symbol identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("SymbolIdentityParts", {
+      description: "Structural identity parts for a stable symbol identity.",
+    })
+  )
 ) {}
 
 /**
@@ -1361,8 +1363,8 @@ export const InternalTsMorphNode = S.declare<TsMorphNode>(
  * @category models
  * @since 0.0.0
  */
-export class Symbol extends S.Class<Symbol>($I`Symbol`)(
-  {
+export class Symbol extends S.Opaque<Symbol, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: SymbolId.annotateKey({
       description: "Stable symbol identity string.",
     }),
@@ -1414,10 +1416,11 @@ export class Symbol extends S.Class<Symbol>($I`Symbol`)(
     contentHash: ContentHash.annotateKey({
       description: "SHA-256 digest of the symbol source content.",
     }),
-  },
-  $I.annote("Symbol", {
-    description: "TS-native symbol record with strict identity, kind, and source-location metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("Symbol", {
+      description: "TS-native symbol record with strict identity, kind, and source-location metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -1479,8 +1482,8 @@ export declare namespace Symbol {
  * @category models
  * @since 0.0.0
  */
-export class SymbolInit extends S.Class<SymbolInit>($I`SymbolInit`)(
-  {
+export class SymbolInit extends S.Opaque<SymbolInit, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: Symbol.fields.filePath,
     name: Symbol.fields.name,
     qualifiedName: Symbol.fields.qualifiedName,
@@ -1502,10 +1505,11 @@ export class SymbolInit extends S.Class<SymbolInit>($I`SymbolInit`)(
     category: S.optionalKey(SymbolCategory).annotateKey({
       description: "Optional precomputed coarse symbol category.",
     }),
-  },
-  $I.annote("SymbolInit", {
-    description: "Input shape for constructing a normalized Symbol.",
-  })
+  }).pipe(
+    $I.annoteSchema("SymbolInit", {
+      description: "Input shape for constructing a normalized Symbol.",
+    })
+  )
 ) {}
 
 /**
@@ -1514,13 +1518,13 @@ export class SymbolInit extends S.Class<SymbolInit>($I`SymbolInit`)(
  * **Example** (Build stable symbol id)
  *
  * ```ts
- * import { makeSymbolId, SymbolFilePath, SymbolQualifiedName } from "@beep/repo-utils"
+ * import { makeSymbolId, SymbolFilePath, SymbolIdentityParts, SymbolQualifiedName } from "@beep/repo-utils"
  * import * as S from "effect/Schema"
  *
  * const filePath = S.decodeUnknownSync(SymbolFilePath)("src/User.ts")
  * const qualifiedName = S.decodeUnknownSync(SymbolQualifiedName)("User")
- * const symbolId = makeSymbolId({ filePath, qualifiedName, kind: "ClassDeclaration" })
- * console.log(symbolId)
+ * const symbolId = makeSymbolId(SymbolIdentityParts.make({ filePath, qualifiedName, kind: "ClassDeclaration" }))
+ * console.log(symbolId) // src/User.ts::User#ClassDeclaration
  * ```
  *
  * @param parts - Validated symbol identity parts containing the file path, qualified name, and declaration kind.
@@ -1536,16 +1540,18 @@ export const makeSymbolId = (parts: SymbolIdentityParts): SymbolId => SymbolId.f
  * **Example** (Build project scope id)
  *
  * ```ts
- * import { makeProjectScopeId, TsConfigFilePath } from "@beep/repo-utils"
+ * import { makeProjectScopeId, ProjectIdentityParts, TsConfigFilePath } from "@beep/repo-utils"
  * import * as S from "effect/Schema"
  *
  * const tsConfigPath = S.decodeUnknownSync(TsConfigFilePath)("tsconfig.json")
- * const scopeId = makeProjectScopeId({
- *   tsConfigPath,
- *   mode: "semantic",
- *   referencePolicy: "workspaceOnly"
- * })
- * console.log(scopeId)
+ * const scopeId = makeProjectScopeId(
+ *   ProjectIdentityParts.make({
+ *     tsConfigPath,
+ *     mode: "semantic",
+ *     referencePolicy: "workspaceOnly"
+ *   })
+ * )
+ * console.log(scopeId) // tsconfig.json::semantic#workspaceOnly
  * ```
  *
  * @param parts - Validated scope identity parts containing the tsconfig path, scope mode, and reference policy.
@@ -1561,16 +1567,18 @@ export const makeProjectScopeId = (parts: ProjectIdentityParts): ProjectScopeId 
  * **Example** (Build project cache key)
  *
  * ```ts
- * import { makeProjectCacheKey, TsConfigFilePath } from "@beep/repo-utils"
+ * import { makeProjectCacheKey, ProjectIdentityParts, TsConfigFilePath } from "@beep/repo-utils"
  * import * as S from "effect/Schema"
  *
  * const tsConfigPath = S.decodeUnknownSync(TsConfigFilePath)("tsconfig.json")
- * const cacheKey = makeProjectCacheKey({
- *   tsConfigPath,
- *   mode: "syntax",
- *   referencePolicy: "followReferences"
- * })
- * console.log(cacheKey)
+ * const cacheKey = makeProjectCacheKey(
+ *   ProjectIdentityParts.make({
+ *     tsConfigPath,
+ *     mode: "syntax",
+ *     referencePolicy: "followReferences"
+ *   })
+ * )
+ * console.log(cacheKey) // tsconfig.json::syntax#followReferences
  * ```
  *
  * @param parts - Validated cache identity parts containing the tsconfig path, scope mode, and reference policy.
@@ -1593,6 +1601,7 @@ export const makeProjectCacheKey = (parts: ProjectIdentityParts): ProjectCacheKe
  *   LineNumber,
  *   makeSymbol,
  *   SymbolFilePath,
+ *   SymbolInit,
  *   SymbolNameSegment,
  *   SymbolQualifiedName
  * } from "@beep/repo-utils"
@@ -1608,24 +1617,26 @@ export const makeProjectCacheKey = (parts: ProjectIdentityParts): ProjectCacheKe
  * const contentHash = S.decodeUnknownSync(ContentHash)(
  *   "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
  * )
- * const symbol = makeSymbol({
- *   filePath,
- *   name,
- *   qualifiedName,
- *   kind: "ClassDeclaration",
- *   signature: "export class User {}",
- *   docstring: O.none(),
- *   summary: O.some("User model."),
- *   decorators: [],
- *   keywords: ["User", "ClassDeclaration", "class"],
- *   parentId: O.none(),
- *   startLine: line,
- *   endLine: line,
- *   byteOffset,
- *   byteLength,
- *   contentHash
- * })
- * console.log(symbol.id)
+ * const symbol = makeSymbol(
+ *   SymbolInit.make({
+ *     filePath,
+ *     name,
+ *     qualifiedName,
+ *     kind: "ClassDeclaration",
+ *     signature: "export class User {}",
+ *     docstring: O.none(),
+ *     summary: O.some("User model."),
+ *     decorators: [],
+ *     keywords: ["User", "ClassDeclaration", "class"],
+ *     parentId: O.none(),
+ *     startLine: line,
+ *     endLine: line,
+ *     byteOffset,
+ *     byteLength,
+ *     contentHash
+ *   })
+ * )
+ * console.log(symbol.id) // src/User.ts::User#ClassDeclaration
  * ```
  *
  * @param input - Symbol fields to normalize into a `Symbol` instance.
@@ -1638,37 +1649,63 @@ export const makeSymbol = (input: SymbolInit): Symbol =>
     ...input,
     id:
       input.id ??
-      makeSymbolId({
-        filePath: input.filePath,
-        qualifiedName: input.qualifiedName,
-        kind: input.kind,
-      }),
+      makeSymbolId(
+        SymbolIdentityParts.make({
+          filePath: input.filePath,
+          qualifiedName: input.qualifiedName,
+          kind: input.kind,
+        })
+      ),
     category: input.category ?? symbolCategoryFromKind(input.kind),
   });
 
-class TsMorphScopeEntrypointTsConfig extends S.Class<TsMorphScopeEntrypointTsConfig>(
-  $I`TsMorphScopeEntrypointTsConfig`
-)(
-  {
-    _tag: S.tag("tsconfig"),
+class TsMorphScopeEntrypointTsConfig extends S.Opaque<
+  TsMorphScopeEntrypointTsConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("tsconfig", {
     tsConfigPath: TsConfigFilePath,
-  },
-  $I.annote("TsMorphScopeEntrypointTsConfig", {
-    description: "Scope entrypoint that directly targets a tsconfig file.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphScopeEntrypointTsConfig", {
+      description: "Scope entrypoint that directly targets a tsconfig file.",
+    })
+  )
 ) {
   static readonly new = (tsConfigPath: string) =>
     TsMorphScopeEntrypointTsConfig.make({ tsConfigPath: TsConfigFilePath.make(tsConfigPath) });
 }
 
-class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`TsMorphScopeEntrypointFile`)(
-  {
-    _tag: S.tag("file"),
+/**
+ * Scope entrypoint that resolves an owning tsconfig from a TypeScript file path.
+ *
+ * **Example** (Resolve a scope from a source file path)
+ *
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TsMorphScopeEntrypointFile } from "@beep/repo-utils/TSMorph/TSMorph.model"
+ *
+ * const entrypoint = S.decodeUnknownSync(TsMorphScopeEntrypointFile)({
+ *   _tag: "file",
+ *   filePath: "packages/foundation/modeling/schema/src/index.ts"
+ * })
+ *
+ * console.log(entrypoint.filePath) // => "packages/foundation/modeling/schema/src/index.ts"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TsMorphScopeEntrypointFile extends S.Opaque<
+  TsMorphScopeEntrypointFile,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("file", {
     filePath: TypeScriptFilePath,
-  },
-  $I.annote("TsMorphScopeEntrypointFile", {
-    description: "Scope entrypoint that resolves an owning tsconfig from a TypeScript file path.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphScopeEntrypointFile", {
+      description: "Scope entrypoint that resolves an owning tsconfig from a TypeScript file path.",
+    })
+  )
 ) {
   static readonly new = (filePath: TypeScriptFilePath) => TsMorphScopeEntrypointFile.make({ filePath });
 }
@@ -1734,16 +1771,20 @@ export type TsMorphScopeEntrypoint = typeof TsMorphScopeEntrypoint.Type;
  * @category models
  * @since 0.0.0
  */
-export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeRequest>($I`TsMorphProjectScopeRequest`)(
-  {
+export class TsMorphProjectScopeRequest extends S.Opaque<
+  TsMorphProjectScopeRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     entrypoint: TsMorphScopeEntrypoint,
     repoRootPath: S.OptionFromNullOr(RepoRootPath),
     mode: TsMorphScopeMode,
     referencePolicy: TsMorphReferencePolicy,
-  },
-  $I.annote("TsMorphProjectScopeRequest", {
-    description: "Request to resolve a ts-morph project scope from a file or tsconfig entrypoint.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphProjectScopeRequest", {
+      description: "Request to resolve a ts-morph project scope from a file or tsconfig entrypoint.",
+    })
+  )
 ) {}
 
 /**
@@ -1760,10 +1801,11 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
  * @category models
  * @since 0.0.0
  */
-export class TsMorphProjectInspectionRequest extends S.Class<TsMorphProjectInspectionRequest>(
-  $I`TsMorphProjectInspectionRequest`
-)(
-  {
+export class TsMorphProjectInspectionRequest extends S.Opaque<
+  TsMorphProjectInspectionRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     entrypoint: TsMorphScopeEntrypoint,
     repoRootPath: S.OptionFromNullOr(RepoRootPath),
     mode: TsMorphScopeMode,
@@ -1774,11 +1816,12 @@ export class TsMorphProjectInspectionRequest extends S.Class<TsMorphProjectInspe
       S.withConstructorDefault(Effect.succeed(true)),
       S.withDecodingDefault(Effect.succeed(true))
     ),
-  },
-  $I.annote("TsMorphProjectInspectionRequest", {
-    description:
-      "Request to inspect a resolved ts-morph project with optional source file loading without persisting edits.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphProjectInspectionRequest", {
+      description:
+        "Request to inspect a resolved ts-morph project with optional source file loading without persisting edits.",
+    })
+  )
 ) {
   /**
    * Request one package syntax project through its explicit test overlay.
@@ -1824,8 +1867,8 @@ const decodePackageProjectInspectionRequest = S.decodeUnknownEffect(TsMorphProje
  * @category models
  * @since 0.0.0
  */
-export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorphProjectScope`)(
-  {
+export class TsMorphProjectScope extends S.Opaque<TsMorphProjectScope, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     cacheKey: ProjectCacheKey,
     repoRootPath: RepoRootPath,
@@ -1833,10 +1876,11 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
     tsConfigPath: TsConfigFilePath,
     mode: TsMorphScopeMode,
     referencePolicy: TsMorphReferencePolicy,
-  },
-  $I.annote("TsMorphProjectScope", {
-    description: "Resolved ts-morph project scope with stable identity and workspace boundaries.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphProjectScope", {
+      description: "Resolved ts-morph project scope with stable identity and workspace boundaries.",
+    })
+  )
 ) {}
 
 /**
@@ -1853,14 +1897,15 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
  * @category models
  * @since 0.0.0
  */
-export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest>($I`TsMorphFileOutlineRequest`)(
-  {
+export class TsMorphFileOutlineRequest extends S.Opaque<TsMorphFileOutlineRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     filePath: TypeScriptFilePath,
-  },
-  $I.annote("TsMorphFileOutlineRequest", {
-    description: "Request to extract top-level outline symbols from a TypeScript file within a resolved scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphFileOutlineRequest", {
+      description: "Request to extract top-level outline symbols from a TypeScript file within a resolved scope.",
+    })
+  )
 ) {}
 
 /**
@@ -1877,15 +1922,16 @@ export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest
  * @category models
  * @since 0.0.0
  */
-export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFileOutline`)(
-  {
+export class TsMorphFileOutline extends S.Opaque<TsMorphFileOutline, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     filePath: TypeScriptFilePath,
     symbols: S.Array(Symbol),
-  },
-  $I.annote("TsMorphFileOutline", {
-    description: "Normalized file outline for a TypeScript source file.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphFileOutline", {
+      description: "Normalized file outline for a TypeScript source file.",
+    })
+  )
 ) {}
 
 /**
@@ -1902,13 +1948,14 @@ export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFi
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>($I`TsMorphSourceTextRequest`)(
-  {
+export class TsMorphSourceTextRequest extends S.Opaque<TsMorphSourceTextRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: TypeScriptFilePath,
-  },
-  $I.annote("TsMorphSourceTextRequest", {
-    description: "Request to read normalized source text for a TypeScript file.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphSourceTextRequest", {
+      description: "Request to read normalized source text for a TypeScript file.",
+    })
+  )
 ) {}
 
 /**
@@ -1925,15 +1972,16 @@ export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>(
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I`TsMorphSourceTextResult`)(
-  {
+export class TsMorphSourceTextResult extends S.Opaque<TsMorphSourceTextResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     filePath: TypeScriptFilePath,
     sourceText: SourceText,
     contentHash: ContentHash,
-  },
-  $I.annote("TsMorphSourceTextResult", {
-    description: "Source text payload and content hash for a TypeScript file.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphSourceTextResult", {
+      description: "Source text payload and content hash for a TypeScript file.",
+    })
+  )
 ) {}
 
 /**
@@ -1950,14 +1998,18 @@ export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupRequest>($I`TsMorphSymbolLookupRequest`)(
-  {
+export class TsMorphSymbolLookupRequest extends S.Opaque<
+  TsMorphSymbolLookupRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     symbolId: SymbolId,
-  },
-  $I.annote("TsMorphSymbolLookupRequest", {
-    description: "Request to load a normalized symbol by its stable symbol id within a resolved scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphSymbolLookupRequest", {
+      description: "Request to load a normalized symbol by its stable symbol id within a resolved scope.",
+    })
+  )
 ) {}
 
 /**
@@ -1974,14 +2026,15 @@ export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupReque
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult>($I`TsMorphSymbolLookupResult`)(
-  {
+export class TsMorphSymbolLookupResult extends S.Opaque<TsMorphSymbolLookupResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     symbol: Symbol,
-  },
-  $I.annote("TsMorphSymbolLookupResult", {
-    description: "Resolved normalized symbol payload for a symbol lookup request.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphSymbolLookupResult", {
+      description: "Resolved normalized symbol payload for a symbol lookup request.",
+    })
+  )
 ) {}
 
 /**
@@ -2034,8 +2087,11 @@ export type TsMorphSearchLimit = typeof TsMorphSearchLimit.Type;
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchRequest>($I`TsMorphSymbolSearchRequest`)(
-  {
+export class TsMorphSymbolSearchRequest extends S.Opaque<
+  TsMorphSymbolSearchRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     scopeId: ProjectScopeId.annotateKey({
       description: "Resolved ts-morph project scope to search.",
     }),
@@ -2051,10 +2107,11 @@ export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchReque
     limit: TsMorphSearchLimit.annotateKey({
       description: "Maximum number of matching symbols to return.",
     }),
-  },
-  $I.annote("TsMorphSymbolSearchRequest", {
-    description: "Request to search normalized symbols within a resolved ts-morph scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphSymbolSearchRequest", {
+      description: "Request to search normalized symbols within a resolved ts-morph scope.",
+    })
+  )
 ) {}
 
 /**
@@ -2071,8 +2128,8 @@ export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchReque
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult>($I`TsMorphSymbolSearchResult`)(
-  {
+export class TsMorphSymbolSearchResult extends S.Opaque<TsMorphSymbolSearchResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeId: ProjectScopeId.annotateKey({
       description: "Resolved ts-morph project scope searched.",
     }),
@@ -2088,10 +2145,11 @@ export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult
     total: S.Natural.annotateKey({
       description: "Total number of matching symbols before limit truncation.",
     }),
-  },
-  $I.annote("TsMorphSymbolSearchResult", {
-    description: "Normalized symbol search results for a query within a resolved scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphSymbolSearchResult", {
+      description: "Normalized symbol search results for a query within a resolved scope.",
+    })
+  )
 ) {}
 
 /**
@@ -2108,14 +2166,18 @@ export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceRequest>($I`TsMorphSymbolSourceRequest`)(
-  {
+export class TsMorphSymbolSourceRequest extends S.Opaque<
+  TsMorphSymbolSourceRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     symbolId: SymbolId,
-  },
-  $I.annote("TsMorphSymbolSourceRequest", {
-    description: "Request to read source text for a normalized symbol by its stable id.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphSymbolSourceRequest", {
+      description: "Request to read source text for a normalized symbol by its stable id.",
+    })
+  )
 ) {}
 
 /**
@@ -2132,16 +2194,17 @@ export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceReque
  * @category models
  * @since 0.0.0
  */
-export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult>($I`TsMorphSymbolSourceResult`)(
-  {
+export class TsMorphSymbolSourceResult extends S.Opaque<TsMorphSymbolSourceResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     symbol: Symbol,
     sourceText: SourceText,
     contentHash: ContentHash,
-  },
-  $I.annote("TsMorphSymbolSourceResult", {
-    description: "Normalized symbol payload together with extracted source text.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphSymbolSourceResult", {
+      description: "Normalized symbol payload together with extracted source text.",
+    })
+  )
 ) {}
 
 /**
@@ -2179,7 +2242,9 @@ export const TsMorphDiagnosticCategory = LiteralKit(["error", "warning", "sugges
  */
 export type TsMorphDiagnosticCategory = typeof TsMorphDiagnosticCategory.Type;
 
-class TsMorphDiagnosticBase extends S.Class<TsMorphDiagnosticBase>($I`TsMorphDiagnosticBase`)(
+class TsMorphDiagnosticBase extends S.Class<TsMorphDiagnosticBase, { readonly brand: unique symbol }>(
+  $I`TsMorphDiagnosticBase`
+)(
   {
     code: S.Natural,
     message: S.NonEmptyString,
@@ -2294,14 +2359,15 @@ export type TsMorphDiagnostic = typeof TsMorphDiagnostic.Type;
  * @category models
  * @since 0.0.0
  */
-export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest>($I`TsMorphDiagnosticsRequest`)(
-  {
+export class TsMorphDiagnosticsRequest extends S.Opaque<TsMorphDiagnosticsRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     filePath: TypeScriptFilePath,
-  },
-  $I.annote("TsMorphDiagnosticsRequest", {
-    description: "Request to compute normalized diagnostics for a TypeScript file within a resolved scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphDiagnosticsRequest", {
+      description: "Request to compute normalized diagnostics for a TypeScript file within a resolved scope.",
+    })
+  )
 ) {}
 
 /**
@@ -2318,13 +2384,14 @@ export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest
  * @category models
  * @since 0.0.0
  */
-export class TsMorphDiagnosticsResult extends S.Class<TsMorphDiagnosticsResult>($I`TsMorphDiagnosticsResult`)(
-  {
+export class TsMorphDiagnosticsResult extends S.Opaque<TsMorphDiagnosticsResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeId: ProjectScopeId,
     filePath: TypeScriptFilePath,
     diagnostics: S.Array(TsMorphDiagnostic),
-  },
-  $I.annote("TsMorphDiagnosticsResult", {
-    description: "Normalized diagnostics payload for a TypeScript file within a resolved scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsMorphDiagnosticsResult", {
+      description: "Normalized diagnostics payload for a TypeScript file within a resolved scope.",
+    })
+  )
 ) {}

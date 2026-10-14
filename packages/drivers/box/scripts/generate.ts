@@ -46,47 +46,50 @@ const DeclarationKind = LiteralKit(["class", "interface", "type"]).pipe(
   })
 );
 
-class GeneratedField extends S.Class<GeneratedField>($I`GeneratedField`)(
-  {
+class GeneratedField extends S.Opaque<GeneratedField, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     optional: S.Boolean,
     schemaExpression: S.String,
-  },
-  $I.annote("GeneratedField", {
-    description: "A single generated struct field with its schema expression.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratedField", {
+      description: "A single generated struct field with its schema expression.",
+    })
+  )
 ) {}
 
 // crispen: the optional fields stay schema-optional (`| undefined`) rather than
 // `Option` because the AST walker reads them via `?? default` / `!== undefined`;
 // `Option` would add wrapping noise here without enforcing any extra invariant.
-class GeneratedDeclaration extends S.Class<GeneratedDeclaration>($I`GeneratedDeclaration`)(
-  {
+class GeneratedDeclaration extends S.Opaque<GeneratedDeclaration, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseName: S.optionalKey(S.String),
     fields: GeneratedField.pipe(S.Array, S.optionalKey),
     kind: DeclarationKind,
     name: S.String,
     schemaExpression: S.optionalKey(S.String),
-  },
-  $I.annote("GeneratedDeclaration", {
-    description: "A schema, model, or type declaration extracted from the Box SDK type surface.",
-  })
+  }).pipe(
+    $I.annoteSchema("GeneratedDeclaration", {
+      description: "A schema, model, or type declaration extracted from the Box SDK type surface.",
+    })
+  )
 ) {}
 
-class MethodParameter extends S.Class<MethodParameter>($I`MethodParameter`)(
-  {
+class MethodParameter extends S.Opaque<MethodParameter, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     optional: S.Boolean,
     schemaExpression: S.String,
     typeText: S.String,
-  },
-  $I.annote("MethodParameter", {
-    description: "A single Box SDK method parameter with its schema expression and source type text.",
-  })
+  }).pipe(
+    $I.annoteSchema("MethodParameter", {
+      description: "A single Box SDK method parameter with its schema expression and source type text.",
+    })
+  )
 ) {}
 
-class ManagerMethod extends S.Class<ManagerMethod>($I`ManagerMethod`)(
-  {
+class ManagerMethod extends S.Opaque<ManagerMethod, { readonly brand: unique symbol }>()(
+  S.Struct({
     className: S.String,
     fileName: S.String,
     fullMethodName: S.String,
@@ -97,54 +100,59 @@ class ManagerMethod extends S.Class<ManagerMethod>($I`ManagerMethod`)(
     returnType: S.String,
     successName: S.String,
     successSchemaExpression: S.String,
-  },
-  $I.annote("ManagerMethod", {
-    description: "A Box SDK manager method wrapped as a generated JSON operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManagerMethod", {
+      description: "A Box SDK manager method wrapped as a generated JSON operation.",
+    })
+  )
 ) {}
 
-class GeneratedMethodDisposition extends S.TaggedClass<GeneratedMethodDisposition>($I`GeneratedMethodDisposition`)(
-  "generated",
-  { method: ManagerMethod },
-  $I.annote("GeneratedMethodDisposition", { description: "A Box SDK method accepted for JSON code generation." })
+class GeneratedMethodDisposition extends S.Opaque<GeneratedMethodDisposition, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("generated", { method: ManagerMethod }).pipe(
+    $I.annoteSchema("GeneratedMethodDisposition", {
+      description: "A Box SDK method accepted for JSON code generation.",
+    })
+  )
 ) {}
 
-class NamedMethodDisposition extends S.TaggedClass<NamedMethodDisposition>($I`NamedMethodDisposition`)(
-  "deprecated",
-  { name: S.String },
-  $I.annote("NamedMethodDisposition", { description: "A deprecated Box SDK method excluded from generation." })
+class NamedMethodDisposition extends S.Opaque<NamedMethodDisposition, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("deprecated", { name: S.String }).pipe(
+    $I.annoteSchema("NamedMethodDisposition", { description: "A deprecated Box SDK method excluded from generation." })
+  )
 ) {}
 
-class SkippedMethodDisposition extends S.TaggedClass<SkippedMethodDisposition>($I`SkippedMethodDisposition`)(
-  "skipped",
-  { name: S.String },
-  $I.annote("SkippedMethodDisposition", { description: "A non-JSON Box SDK method excluded from generation." })
+class SkippedMethodDisposition extends S.Opaque<SkippedMethodDisposition, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("skipped", { name: S.String }).pipe(
+    $I.annoteSchema("SkippedMethodDisposition", { description: "A non-JSON Box SDK method excluded from generation." })
+  )
 ) {}
 
 type MethodDisposition = GeneratedMethodDisposition | NamedMethodDisposition | SkippedMethodDisposition;
 
-class ManagerProperty extends S.Class<ManagerProperty>($I`ManagerProperty`)(
-  {
+class ManagerProperty extends S.Opaque<ManagerProperty, { readonly brand: unique symbol }>()(
+  S.Struct({
     className: S.String,
     managerName: S.String,
-  },
-  $I.annote("ManagerProperty", {
-    description: "A Box SDK manager exposed as a property on the generated BoxClient.",
-  })
+  }).pipe(
+    $I.annoteSchema("ManagerProperty", {
+      description: "A Box SDK manager exposed as a property on the generated BoxClient.",
+    })
+  )
 ) {}
 
-class BoxSdkPaths extends S.Class<BoxSdkPaths>($I`BoxSdkPaths`)(
-  {
+class BoxSdkPaths extends S.Opaque<BoxSdkPaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientPath: S.String,
     handWrittenSourceRoot: S.String,
     modelsOutputPath: S.String,
     operationsOutputPath: S.String,
     schemaDirectories: S.Array(S.String),
     sdkRoot: S.String,
-  },
-  $I.annote("BoxSdkPaths", {
-    description: "Filesystem paths the Box SDK generator reads from and writes to.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxSdkPaths", {
+      description: "Filesystem paths the Box SDK generator reads from and writes to.",
+    })
+  )
 ) {}
 
 // crispen: kept as a plain interface with effect collections — this is mutable
@@ -513,11 +521,13 @@ const propertyField = (
         extractPropertyName(member.name),
         O.fromUndefinedOr,
         O.filter((name) => name !== "rawData"),
-        O.map((name) => ({
-          name: propertyName(name),
-          optional: member.questionToken !== undefined,
-          schemaExpression: schemaForType(memberType, state),
-        }))
+        O.map((name) =>
+          GeneratedField.make({
+            name: propertyName(name),
+            optional: member.questionToken !== undefined,
+            schemaExpression: schemaForType(memberType, state),
+          })
+        )
       )
     )
   );
@@ -525,11 +535,13 @@ const propertyField = (
 const indexField = (member: ts.IndexSignatureDeclaration, state: GenerationState): O.Option<GeneratedField> =>
   pipe(
     O.fromUndefinedOr(member.type),
-    O.map((memberType) => ({
-      name: "[key: string]",
-      optional: false,
-      schemaExpression: schemaForType(memberType, state),
-    }))
+    O.map((memberType) =>
+      GeneratedField.make({
+        name: "[key: string]",
+        optional: false,
+        schemaExpression: schemaForType(memberType, state),
+      })
+    )
   );
 
 const fieldFromMember = (member: ts.ClassElement | ts.TypeElement, state: GenerationState): O.Option<GeneratedField> =>
@@ -606,27 +618,33 @@ const supportedDeclaration = (
   name: string
 ): GeneratedDeclaration =>
   Match.value(statement).pipe(
-    Match.when(ts.isInterfaceDeclaration, (declaration) => ({
-      fields: collectFields(declaration.members, state),
-      kind: "interface" as const,
-      name,
-    })),
-    Match.when(ts.isClassDeclaration, (declaration) => ({
-      ...pipe(
-        classBaseName(declaration, state),
-        O.fromUndefinedOr,
-        O.map((baseName) => ({ baseName })),
-        O.getOrElse(() => ({}))
-      ),
-      fields: collectFields(declaration.members, state),
-      kind: "class" as const,
-      name,
-    })),
-    Match.when(ts.isTypeAliasDeclaration, (declaration) => ({
-      kind: "type" as const,
-      name,
-      schemaExpression: schemaForType(declaration.type, state),
-    })),
+    Match.when(ts.isInterfaceDeclaration, (declaration) =>
+      GeneratedDeclaration.make({
+        fields: collectFields(declaration.members, state),
+        kind: "interface",
+        name,
+      })
+    ),
+    Match.when(ts.isClassDeclaration, (declaration) =>
+      GeneratedDeclaration.make({
+        ...pipe(
+          classBaseName(declaration, state),
+          O.fromUndefinedOr,
+          O.map((baseName) => ({ baseName })),
+          O.getOrElse(() => ({}))
+        ),
+        fields: collectFields(declaration.members, state),
+        kind: "class",
+        name,
+      })
+    ),
+    Match.when(ts.isTypeAliasDeclaration, (declaration) =>
+      GeneratedDeclaration.make({
+        kind: "type",
+        name,
+        schemaExpression: schemaForType(declaration.type, state),
+      })
+    ),
     Match.exhaustive
   );
 
@@ -861,14 +879,14 @@ const resolveBoxPaths = Effect.fnUntraced(function* () {
   const packageRoot = path.resolve(scriptDir, "..");
   const sdkRoot = yield* findSdkRoot(packageRoot);
   const generatedRoot = path.resolve(packageRoot, "src/_generated");
-  return {
+  return BoxSdkPaths.make({
     clientPath: path.resolve(sdkRoot, "lib/client.d.ts"),
     handWrittenSourceRoot: path.resolve(packageRoot, "src"),
     modelsOutputPath: path.resolve(generatedRoot, "Box.models.gen.ts"),
     operationsOutputPath: path.resolve(generatedRoot, "Box.operations.gen.ts"),
     schemaDirectories: [path.resolve(sdkRoot, "lib/schemas"), path.resolve(sdkRoot, "lib/managers")],
     sdkRoot,
-  } satisfies BoxSdkPaths;
+  });
 });
 
 const collectStatementNames = Effect.fn("Box.generate.collectStatementNames")(function* (
@@ -941,7 +959,9 @@ const managerPropertyFromMember = (member: ts.ClassElement): O.Option<ManagerPro
       pipe(
         O.fromUndefinedOr(property.type),
         O.filter(ts.isTypeReferenceNode),
-        O.map((reference) => ({ className: typeNameText(reference.typeName), managerName: property.name.getText() }))
+        O.map((reference) =>
+          ManagerProperty.make({ className: typeNameText(reference.typeName), managerName: property.name.getText() })
+        )
       )
     ),
     O.filter((property) => Str.endsWith("Manager")(property.className))
@@ -998,23 +1018,25 @@ const generatedManagerMethod = (
 ): ManagerMethod => {
   const methodName = member.name.getText(sourceFile);
   const operationName = `${toIdentifier(property.managerName)}${toIdentifier(methodName)}`;
-  return {
+  return ManagerMethod.make({
     className: property.className,
     fileName,
     fullMethodName: `${property.managerName}.${methodName}`,
     managerName: property.managerName,
     methodName,
-    parameters: A.map(member.parameters, (parameter) => ({
-      name: parameter.name.getText(sourceFile),
-      optional: parameter.questionToken !== undefined,
-      schemaExpression: parameter.type === undefined ? "S.Unknown" : schemaForType(parameter.type, state),
-      typeText: parameter.type?.getText(sourceFile) ?? "unknown",
-    })),
+    parameters: A.map(member.parameters, (parameter) =>
+      MethodParameter.make({
+        name: parameter.name.getText(sourceFile),
+        optional: parameter.questionToken !== undefined,
+        schemaExpression: parameter.type === undefined ? "S.Unknown" : schemaForType(parameter.type, state),
+        typeText: parameter.type?.getText(sourceFile) ?? "unknown",
+      })
+    ),
     payloadName: `${operationName}Payload`,
     returnType: returnType.getText(sourceFile),
     successName: `${operationName}Success`,
     successSchemaExpression: schemaForType(unwrapPromise(returnType), state),
-  };
+  });
 };
 
 const classifyManagerMethod = (
@@ -1208,7 +1230,7 @@ const renderStandaloneClassDeclaration = (
  * @category models
  * @since 0.0.0
  */
-export class ${declaration.name} extends S.Class<${declaration.name}>($I\`${declaration.name}\`)(
+export class ${declaration.name} extends S.Class<${declaration.name}, { readonly brand: unique symbol }>($I\`${declaration.name}\`)(
   {${fields}},
   $I.annote(${stringLiteral(declaration.name)}, {
     description: ${stringLiteral(description)}
@@ -1242,11 +1264,13 @@ const renderPayload = (method: ManagerMethod): string => {
     pipe(
       method.parameters,
       A.map((parameter) =>
-        renderField({
-          name: propertyName(parameter.name),
-          optional: parameter.optional,
-          schemaExpression: parameter.schemaExpression,
-        })
+        renderField(
+          GeneratedField.make({
+            name: propertyName(parameter.name),
+            optional: parameter.optional,
+            schemaExpression: parameter.schemaExpression,
+          })
+        )
       ),
       A.join("\n    ")
     )
@@ -1267,7 +1291,7 @@ const renderPayload = (method: ManagerMethod): string => {
  * @category models
  * @since 0.0.0
  */
-export class ${method.payloadName} extends S.Class<${method.payloadName}>($I\`${method.payloadName}\`)(
+export class ${method.payloadName} extends S.Class<${method.payloadName}, { readonly brand: unique symbol }>($I\`${method.payloadName}\`)(
   {${fields}},
   $I.annote(${stringLiteral(method.payloadName)}, {
     description: ${stringLiteral(description)}

@@ -187,7 +187,7 @@ export type TomlErrorCode = typeof TomlErrorCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class TomlDiagnostic extends S.Class<TomlDiagnostic>($I`TomlDiagnostic`)({
+export class TomlDiagnostic extends S.Class<TomlDiagnostic, { readonly brand: unique symbol }>($I`TomlDiagnostic`)({
 	code: TomlErrorCode.annotateKey({ description: "Failure category emitted during TOML lexing, parsing, semantic validation, or stringification" }),
 	message: S.String.annotateKey({ description: "Human-readable explanation supplied by the TOML engine for the failure" }),
 	offset: S.Finite.annotateKey({ description: "Zero-based start position of the diagnostic span in source UTF-16 code units, or zero for stringification failures" }),

@@ -21,6 +21,7 @@
  */
 "use client";
 
+import { EditTarget } from "@beep/agents-client";
 import {
   runTurnAtom,
   streamingTurnAtom,
@@ -114,11 +115,13 @@ const TurnRow = ({
                 size="xs"
                 title="Edit — rewrites the thread from here"
                 onClick={() =>
-                  editTurn({
-                    threadId,
-                    turnId: turn.turnId,
-                    content: item.content,
-                  })
+                  editTurn(
+                    EditTarget.make({
+                      threadId,
+                      turnId: turn.turnId,
+                      content: item.content,
+                    })
+                  )
                 }
                 data-testid="turn-edit"
               >

@@ -103,16 +103,17 @@ export type NormTextFragment = typeof NormTextFragment.Type;
  * @category models
  * @since 0.0.0
  */
-export class NormSourceReference extends S.Class<NormSourceReference>($I`NormSourceReference`)(
-  {
+export class NormSourceReference extends S.Opaque<NormSourceReference, { readonly brand: unique symbol }>()(
+  S.Struct({
     fragment: S.OptionFromNullOr(NormTextFragment).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Verbatim words this element was read from; absent when it rests on a provision as a whole.",
     }),
     norm: SourceNormRef.annotateKey({
       description: "Opaque reference to the norm this element was read from.",
     }),
-  },
-  $I.annote("NormSourceReference", {
-    description: "The norm text one recorded interpretation element rests on, pointed at per element.",
-  })
+  }).pipe(
+    $I.annoteSchema("NormSourceReference", {
+      description: "The norm text one recorded interpretation element rests on, pointed at per element.",
+    })
+  )
 ) {}

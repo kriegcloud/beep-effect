@@ -40,8 +40,8 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.evidence");
  * @category models
  * @since 0.0.0
  */
-export class LibraryProbeEvidence extends S.Class<LibraryProbeEvidence>($I`LibraryProbeEvidence`)(
-  {
+export class LibraryProbeEvidence extends S.Opaque<LibraryProbeEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     adapter: S.String,
     sourceId: S.String,
     sourceUrl: S.String,
@@ -49,10 +49,11 @@ export class LibraryProbeEvidence extends S.Class<LibraryProbeEvidence>($I`Libra
     captureId: S.String,
     complete: S.Boolean,
     artifacts: S.Array(LibraryArtifact),
-  },
-  $I.annote("LibraryProbeEvidence", {
-    description: "Operational probe referring to an actual complete source capture and hashed evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryProbeEvidence", {
+      description: "Operational probe referring to an actual complete source capture and hashed evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -165,7 +166,11 @@ export const libraryQualificationValid = Effect.fn("Library.qualificationValid")
     const probe = yield* fs
       .readFileString(path.join(root, artifact.path))
       .pipe(Effect.flatMap(decodeLibraryJson(LibraryProbeEvidence)), Effect.option);
-    if (O.isSome(probe) && (yield* validateQualificationProbe(root, catalog, qualification, probe.value))) return true;
+    if (
+      O.isSome(probe) &&
+      (yield* validateQualificationProbe(root, catalog, qualification, LibraryProbeEvidence.make(probe.value)))
+    )
+      return true;
   }
   return false;
 });
@@ -178,18 +183,19 @@ const TargetMetadata = S.Struct({
   capturedRevision: S.optionalKey(S.String),
   paperId: S.optionalKey(S.String),
 });
-class WebRedirectProof extends S.Class<WebRedirectProof>($I`WebRedirectProof`)(
-  {
+class WebRedirectProof extends S.Opaque<WebRedirectProof, { readonly brand: unique symbol }>()(
+  S.Struct({
     requestedUrl: S.String,
     resolvedUrl: S.String,
     status: S.Finite,
     providerSourceUrl: S.String,
     identityMerged: S.Literal(false),
-  },
-  $I.annote("WebRedirectProof", {
-    description:
-      "Retained HTTP confirmation linking a requested page to the provider's resolved URL without merging identities.",
-  })
+  }).pipe(
+    $I.annoteSchema("WebRedirectProof", {
+      description:
+        "Retained HTTP confirmation linking a requested page to the provider's resolved URL without merging identities.",
+    })
+  )
 ) {}
 const CitationResolution = S.Struct({
   sourceId: S.String,
@@ -955,7 +961,13 @@ const validateYoutubeApi = Effect.fn("Library.validateYoutubeApi")(function* (
 
   if (A.some(artifacts, (item) => item.bytes > 8_000_000)) return false;
   const envelopes = yield* json("import-provenance", LibraryImportPayload);
-  if (!A.some(envelopes, (item) => item.provider === "youtube-transcript-api" && importedCaptureBound(context, item)))
+  if (
+    !A.some(
+      envelopes,
+      (item) =>
+        item.provider === "youtube-transcript-api" && importedCaptureBound(context, LibraryImportPayload.make(item))
+    )
+  )
     return false;
   const receipts = A.flatten(yield* json("http-response-provenance", CaptionHttpReceipts));
   const apis = yield* json("raw-api-response", CaptionApi);
@@ -1162,12 +1174,13 @@ const validateImportedEvidence = Effect.fn("Library.validateImportedEvidence")(f
   const { source, role, json, webResponseValid } = context;
   const imports = yield* json("import-provenance", LibraryImportPayload);
   if (A.isReadonlyArrayEmpty(imports)) return undefined;
-  const imported = A.findFirst(imports, (item) => importedCaptureBound(context, item));
+  const imported = A.findFirst(imports, (item) => importedCaptureBound(context, LibraryImportPayload.make(item)));
   if (O.isNone(imported)) return false;
   const events = yield* readLibraryProviderEvents(context.root, role("raw-provider-events"));
-  if (source.kind === "paper") return yield* validateImportedPaper(context, imported.value, events);
-  if (source.kind === "x") return yield* validateXImport(context, imported.value, events);
-  if (importedFirecrawlMatches(context, imported.value)) return yield* webResponseValid();
+  if (source.kind === "paper")
+    return yield* validateImportedPaper(context, LibraryImportPayload.make(imported.value), events);
+  if (source.kind === "x") return yield* validateXImport(context, LibraryImportPayload.make(imported.value), events);
+  if (importedFirecrawlMatches(context, LibraryImportPayload.make(imported.value))) return yield* webResponseValid();
   // A generic interpretation envelope is not independent source evidence.
   return false;
 });
@@ -1333,16 +1346,17 @@ const currentCaptureClaim = Effect.fn("Library.currentCaptureClaim")(function* (
  * @category models
  * @since 0.0.0
  */
-export class LibraryEffectiveCapture extends S.Class<LibraryEffectiveCapture>($I`LibraryEffectiveCapture`)(
-  {
+export class LibraryEffectiveCapture extends S.Opaque<LibraryEffectiveCapture, { readonly brand: unique symbol }>()(
+  S.Struct({
     revision: S.String,
     capture: S.NullOr(LibraryCapture),
     category: S.String,
-  },
-  $I.annote("LibraryEffectiveCapture", {
-    description:
-      "Validated current claim for one requested revision: its capture, if any, and the category it settles on.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryEffectiveCapture", {
+      description:
+        "Validated current claim for one requested revision: its capture, if any, and the category it settles on.",
+    })
+  )
 ) {}
 
 /**

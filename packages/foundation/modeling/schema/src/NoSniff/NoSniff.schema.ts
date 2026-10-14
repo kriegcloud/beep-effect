@@ -116,21 +116,22 @@ export type NoSniffOption = typeof NoSniffOption.Type;
  * import * as O from "effect/Option"
  * import { NoSniffResponseHeader } from "@beep/schema/NoSniff"
  *
- * const header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: O.none() })
+ * const header = NoSniffResponseHeader.make({ name: "X-Content-Type-Options", value: O.none() })
  * console.log(header.name)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class NoSniffResponseHeader extends S.Class<NoSniffResponseHeader>($I`NoSniffResponseHeader`)(
-  {
+export class NoSniffResponseHeader extends S.Opaque<NoSniffResponseHeader, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("NoSniffResponseHeader", {
-    description: "The `X-Content-Type-Options` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("NoSniffResponseHeader", {
+      description: "The `X-Content-Type-Options` response header.",
+    })
+  )
 ) {}
 
 type NoSniffResponseHeaderEncoded = typeof NoSniffResponseHeader.Encoded;
@@ -220,7 +221,7 @@ export const NoSniffHeader = S.Union([NoSniffOption, S.Undefined]).pipe(
  * import * as O from "effect/Option"
  * import { NoSniffResponseHeader, type NoSniffHeader } from "@beep/schema/NoSniff"
  *
- * const header: NoSniffHeader = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: O.none() })
+ * const header: NoSniffHeader = NoSniffResponseHeader.make({ name: "X-Content-Type-Options", value: O.none() })
  * console.log(header.name)
  * ```
  *
@@ -265,7 +266,7 @@ export const Header = NoSniffHeader;
  * import * as O from "effect/Option"
  * import { NoSniffResponseHeader, type Header } from "@beep/schema/NoSniff"
  *
- * const header: Header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: O.none() })
+ * const header: Header = NoSniffResponseHeader.make({ name: "X-Content-Type-Options", value: O.none() })
  * console.log(header.name)
  * ```
  *

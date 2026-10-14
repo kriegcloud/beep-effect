@@ -234,9 +234,10 @@ export type PracticeKgCorrespondentRowResolution = typeof PracticeKgCorresponden
  * @category errors
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentAddressError extends S.TaggedError<PracticeKgCorrespondentAddressError>(
-  $I`PracticeKgCorrespondentAddressError`
-)(
+export class PracticeKgCorrespondentAddressError extends S.TaggedError<
+  PracticeKgCorrespondentAddressError,
+  { readonly brand: unique symbol }
+>($I`PracticeKgCorrespondentAddressError`)(
   "PracticeKgCorrespondentAddressError",
   {
     addressCount: S.Finite,
@@ -262,18 +263,20 @@ export class PracticeKgCorrespondentAddressError extends S.TaggedError<PracticeK
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentLookupRequest extends S.Class<PracticeKgCorrespondentLookupRequest>(
-  $I`PracticeKgCorrespondentLookupRequest`
-)(
-  {
+export class PracticeKgCorrespondentLookupRequest extends S.Opaque<
+  PracticeKgCorrespondentLookupRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     address: S.NonEmptyString.annotateKey({
       description:
         "One email address, bare or as one header entry (Pat Example <pat@example.com>); case and whitespace do not matter.",
     }),
-  },
-  $I.annote("PracticeKgCorrespondentLookupRequest", {
-    description: "Single email address to resolve to the practice matters it corresponds about.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentLookupRequest", {
+      description: "Single email address to resolve to the practice matters it corresponds about.",
+    })
+  )
 ) {}
 
 /**
@@ -296,20 +299,22 @@ export class PracticeKgCorrespondentLookupRequest extends S.Class<PracticeKgCorr
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentContact extends S.Class<PracticeKgCorrespondentContact>(
-  $I`PracticeKgCorrespondentContact`
-)(
-  {
+export class PracticeKgCorrespondentContact extends S.Opaque<
+  PracticeKgCorrespondentContact,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     contactId: S.NonEmptyString,
     displayName: S.String,
     organization: S.NullOr(S.String),
     roleAddress: S.Boolean.annotateKey({
       description: "True for a shared role mailbox such as docketing@ or info@; never resolves uniquely.",
     }),
-  },
-  $I.annote("PracticeKgCorrespondentContact", {
-    description: "Contact that owns an email address, with its role-mailbox flag.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentContact", {
+      description: "Contact that owns an email address, with its role-mailbox flag.",
+    })
+  )
 ) {}
 
 /**
@@ -333,17 +338,21 @@ export class PracticeKgCorrespondentContact extends S.Class<PracticeKgCorrespond
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentLink extends S.Class<PracticeKgCorrespondentLink>($I`PracticeKgCorrespondentLink`)(
-  {
+export class PracticeKgCorrespondentLink extends S.Opaque<
+  PracticeKgCorrespondentLink,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     clientNumber: S.NonEmptyString,
     contactId: S.NonEmptyString,
     evidence: S.String.annotateKey({ description: "Short opaque note from the contacts producer." }),
     familyKey: S.NullOr(S.String),
     source: PracticeKgContactLinkSource,
-  },
-  $I.annote("PracticeKgCorrespondentLink", {
-    description: "Contact link to a client number and, when known, one client-keyed matter.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentLink", {
+      description: "Contact link to a client number and, when known, one client-keyed matter.",
+    })
+  )
 ) {}
 
 /**
@@ -371,10 +380,11 @@ export class PracticeKgCorrespondentLink extends S.Class<PracticeKgCorrespondent
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentCandidate extends S.Class<PracticeKgCorrespondentCandidate>(
-  $I`PracticeKgCorrespondentCandidate`
-)(
-  {
+export class PracticeKgCorrespondentCandidate extends S.Opaque<
+  PracticeKgCorrespondentCandidate,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ccCount: S.Finite,
     client: S.NullOr(S.String),
     clientName: S.NullOr(S.String),
@@ -384,10 +394,11 @@ export class PracticeKgCorrespondentCandidate extends S.Class<PracticeKgCorrespo
     lastAt: S.NullOr(S.String),
     messageCount: S.Finite,
     toCount: S.Finite,
-  },
-  $I.annote("PracticeKgCorrespondentCandidate", {
-    description: "Matter an address appears on in filed email, counted by message and header role.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentCandidate", {
+      description: "Matter an address appears on in filed email, counted by message and header role.",
+    })
+  )
 ) {}
 
 /**
@@ -411,10 +422,11 @@ export class PracticeKgCorrespondentCandidate extends S.Class<PracticeKgCorrespo
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentEvidence extends S.Class<PracticeKgCorrespondentEvidence>(
-  $I`PracticeKgCorrespondentEvidence`
-)(
-  {
+export class PracticeKgCorrespondentEvidence extends S.Opaque<
+  PracticeKgCorrespondentEvidence,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     candidates: S.Array(PracticeKgCorrespondentCandidate),
     contacts: S.Array(PracticeKgCorrespondentContact),
     links: S.Array(PracticeKgCorrespondentLink),
@@ -424,10 +436,11 @@ export class PracticeKgCorrespondentEvidence extends S.Class<PracticeKgCorrespon
     practiceAddress: S.Boolean.annotateKey({
       description: "True when the address is on one of the practice's own domains.",
     }),
-  },
-  $I.annote("PracticeKgCorrespondentEvidence", {
-    description: "Contacts, links, and message-count candidates found for one address.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentEvidence", {
+      description: "Contacts, links, and message-count candidates found for one address.",
+    })
+  )
 ) {}
 
 /**
@@ -445,16 +458,18 @@ export class PracticeKgCorrespondentEvidence extends S.Class<PracticeKgCorrespon
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentDecision extends S.Class<PracticeKgCorrespondentDecision>(
-  $I`PracticeKgCorrespondentDecision`
-)(
-  {
+export class PracticeKgCorrespondentDecision extends S.Opaque<
+  PracticeKgCorrespondentDecision,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     familyKey: S.NullOr(S.String),
     resolution: PracticeKgMatterResolution,
-  },
-  $I.annote("PracticeKgCorrespondentDecision", {
-    description: "Resolution of a correspondent lookup and its matter key when unique.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentDecision", {
+      description: "Resolution of a correspondent lookup and its matter key when unique.",
+    })
+  )
 ) {}
 
 /**
@@ -482,18 +497,20 @@ export class PracticeKgCorrespondentDecision extends S.Class<PracticeKgCorrespon
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgCorrespondentLookupResult extends S.Class<PracticeKgCorrespondentLookupResult>(
-  $I`PracticeKgCorrespondentLookupResult`
-)(
-  {
+export class PracticeKgCorrespondentLookupResult extends S.Opaque<
+  PracticeKgCorrespondentLookupResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ...PracticeKgCorrespondentEvidence.fields,
     ...PracticeKgCorrespondentDecision.fields,
     address: S.NonEmptyString,
     bundleVersion: S.NonEmptyString,
-  },
-  $I.annote("PracticeKgCorrespondentLookupResult", {
-    description: "Matters an email address corresponds about, the attorney's links for it, and the resolution.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgCorrespondentLookupResult", {
+      description: "Matters an email address corresponds about, the attorney's links for it, and the resolution.",
+    })
+  )
 ) {}
 
 const isSoleContact = (evidence: PracticeKgCorrespondentEvidence): boolean =>

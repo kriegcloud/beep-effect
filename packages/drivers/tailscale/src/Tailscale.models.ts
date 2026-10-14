@@ -72,18 +72,19 @@ export type TailnetIpv4Address = typeof TailnetIpv4Address.Type;
  * @category dtos
  * @since 0.0.0
  */
-export class TailscaleStatusSelf extends S.Class<TailscaleStatusSelf>($I`TailscaleStatusSelf`)(
-  {
+export class TailscaleStatusSelf extends S.Opaque<TailscaleStatusSelf, { readonly brand: unique symbol }>()(
+  S.Struct({
     DNSName: S.String.pipe(S.optionalKey).annotateKey({
       description: "MagicDNS name reported for the local Tailscale node, when present.",
     }),
     TailscaleIPs: S.String.pipe(S.Array, S.optionalKey).annotateKey({
       description: "IP address strings reported for the local Tailscale node.",
     }),
-  },
-  $I.annote("TailscaleStatusSelf", {
-    description: "Validated local-node subset of the `tailscale status --json` payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("TailscaleStatusSelf", {
+      description: "Validated local-node subset of the `tailscale status --json` payload.",
+    })
+  )
 ) {}
 
 /**
@@ -101,15 +102,16 @@ export class TailscaleStatusSelf extends S.Class<TailscaleStatusSelf>($I`Tailsca
  * @category dtos
  * @since 0.0.0
  */
-export class TailscaleStatusJson extends S.Class<TailscaleStatusJson>($I`TailscaleStatusJson`)(
-  {
+export class TailscaleStatusJson extends S.Opaque<TailscaleStatusJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     Self: S.optionalKey(TailscaleStatusSelf).annotateKey({
       description: "Local-node status payload, when Tailscale reports one.",
     }),
-  },
-  $I.annote("TailscaleStatusJson", {
-    description: "Decoded subset of the `tailscale status --json` response.",
-  })
+  }).pipe(
+    $I.annoteSchema("TailscaleStatusJson", {
+      description: "Decoded subset of the `tailscale status --json` response.",
+    })
+  )
 ) {}
 
 /**
@@ -131,16 +133,17 @@ export class TailscaleStatusJson extends S.Class<TailscaleStatusJson>($I`Tailsca
  * @category models
  * @since 0.0.0
  */
-export class TailscaleStatus extends S.Class<TailscaleStatus>($I`TailscaleStatus`)(
-  {
+export class TailscaleStatus extends S.Opaque<TailscaleStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     magicDnsName: S.OptionFromNullOr(S.String).annotateKey({
       description: "Normalized MagicDNS name without a trailing root dot, when available.",
     }),
     tailnetIpv4Addresses: S.Array(TailnetIpv4Address).annotateKey({
       description: "Tailscale IPv4 addresses assigned to the local node.",
     }),
-  },
-  $I.annote("TailscaleStatus", {
-    description: "Normalized MagicDNS and Tailnet IPv4 facts for the local node.",
-  })
+  }).pipe(
+    $I.annoteSchema("TailscaleStatus", {
+      description: "Normalized MagicDNS and Tailnet IPv4 facts for the local node.",
+    })
+  )
 ) {}

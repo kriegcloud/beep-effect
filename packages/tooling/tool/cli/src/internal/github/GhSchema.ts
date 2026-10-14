@@ -45,16 +45,17 @@ const $I = $RepoCliId.create("internal/github/GhSchema");
  * @category models
  * @since 0.0.0
  */
-export class GhActor extends S.Class<GhActor>($I`GhActor`)(
-  {
+export class GhActor extends S.Opaque<GhActor, { readonly brand: unique symbol }>()(
+  S.Struct({
     __typename: S.optionalKey(S.String),
     login: S.String,
     type: S.optionalKey(S.String),
-  },
-  $I.annote("GhActor", {
-    description:
-      "GitHub actor metadata returned by gh, optionally carrying the GraphQL actor typename or the REST account type.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhActor", {
+      description:
+        "GitHub actor metadata returned by gh, optionally carrying the GraphQL actor typename or the REST account type.",
+    })
+  )
 ) {}
 
 /**
@@ -71,14 +72,15 @@ export class GhActor extends S.Class<GhActor>($I`GhActor`)(
  * @category models
  * @since 0.0.0
  */
-export class GhPageInfo extends S.Class<GhPageInfo>($I`GhPageInfo`)(
-  {
+export class GhPageInfo extends S.Opaque<GhPageInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     endCursor: S.NullOr(S.String),
     hasNextPage: S.Boolean,
-  },
-  $I.annote("GhPageInfo", {
-    description: "GitHub GraphQL connection pagination metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhPageInfo", {
+      description: "GitHub GraphQL connection pagination metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -101,17 +103,18 @@ export class GhPageInfo extends S.Class<GhPageInfo>($I`GhPageInfo`)(
  * @category models
  * @since 0.0.0
  */
-export class GhComment extends S.Class<GhComment>($I`GhComment`)(
-  {
+export class GhComment extends S.Opaque<GhComment, { readonly brand: unique symbol }>()(
+  S.Struct({
     author: S.NullOr(GhActor),
     body: S.String,
     createdAt: S.optionalKey(S.String),
     id: S.String,
     url: S.String,
-  },
-  $I.annote("GhComment", {
-    description: "Pull request comment returned by GitHub GraphQL.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhComment", {
+      description: "Pull request comment returned by GitHub GraphQL.",
+    })
+  )
 ) {}
 
 /**
@@ -145,8 +148,8 @@ export class GhComment extends S.Class<GhComment>($I`GhComment`)(
  * @category models
  * @since 0.0.0
  */
-export class GhPrView extends S.Class<GhPrView>($I`GhPrView`)(
-  {
+export class GhPrView extends S.Opaque<GhPrView, { readonly brand: unique symbol }>()(
+  S.Struct({
     author: GhActor.pipe(S.NullOr, S.optionalKey),
     headRefName: S.String,
     headRefOid: S.optionalKey(S.String),
@@ -155,8 +158,9 @@ export class GhPrView extends S.Class<GhPrView>($I`GhPrView`)(
     state: S.String,
     title: S.optionalKey(S.String),
     url: S.optionalKey(S.String),
-  },
-  $I.annote("GhPrView", {
-    description: "Unified gh pr view metadata decoding both the monitor and closeout --json field sets.",
-  })
+  }).pipe(
+    $I.annoteSchema("GhPrView", {
+      description: "Unified gh pr view metadata decoding both the monitor and closeout --json field sets.",
+    })
+  )
 ) {}

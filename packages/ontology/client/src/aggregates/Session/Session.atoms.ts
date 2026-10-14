@@ -163,15 +163,16 @@ const NO_SHAPES_DETECTED_MESSAGE = "No SHACL shapes detected in this document.";
  * @category models
  * @since 0.0.0
  */
-export class OpenOntologyDocumentInput extends S.Class<OpenOntologyDocumentInput>($I`OpenOntologyDocumentInput`)(
-  {
+export class OpenOntologyDocumentInput extends S.Opaque<OpenOntologyDocumentInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     sessionId: SessionId,
     path: OntologyFilePath,
     baseIri: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("OpenOntologyDocumentInput", {
-    description: "Open ontology document payload for the client atom.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenOntologyDocumentInput", {
+      description: "Open ontology document payload for the client atom.",
+    })
+  )
 ) {}
 
 /**
@@ -194,13 +195,14 @@ export class OpenOntologyDocumentInput extends S.Class<OpenOntologyDocumentInput
  * @category models
  * @since 0.0.0
  */
-export class SaveOntologyDocumentInput extends S.Class<SaveOntologyDocumentInput>($I`SaveOntologyDocumentInput`)(
-  {
+export class SaveOntologyDocumentInput extends S.Opaque<SaveOntologyDocumentInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
-  },
-  $I.annote("SaveOntologyDocumentInput", {
-    description: "Save ontology document payload for the client atom.",
-  })
+  }).pipe(
+    $I.annoteSchema("SaveOntologyDocumentInput", {
+      description: "Save ontology document payload for the client atom.",
+    })
+  )
 ) {}
 
 /**
@@ -233,13 +235,14 @@ export class SaveOntologyDocumentInput extends S.Class<SaveOntologyDocumentInput
  * @category models
  * @since 0.0.0
  */
-export class ApplyOntologyBatchInput extends S.Class<ApplyOntologyBatchInput>($I`ApplyOntologyBatchInput`)(
-  {
+export class ApplyOntologyBatchInput extends S.Opaque<ApplyOntologyBatchInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     operations: S.Array(ChangeOperation),
-  },
-  $I.annote("ApplyOntologyBatchInput", {
-    description: "Batch operation payload for the client mutation atom.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApplyOntologyBatchInput", {
+      description: "Batch operation payload for the client mutation atom.",
+    })
+  )
 ) {}
 
 /**
@@ -265,15 +268,17 @@ export class ApplyOntologyBatchInput extends S.Class<ApplyOntologyBatchInput>($I
  * @category models
  * @since 0.0.0
  */
-export class ApplyOntologyGraphGestureInput extends S.Class<ApplyOntologyGraphGestureInput>(
-  $I`ApplyOntologyGraphGestureInput`
-)(
-  {
+export class ApplyOntologyGraphGestureInput extends S.Opaque<
+  ApplyOntologyGraphGestureInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     gesture: OntologyGraphGesture,
-  },
-  $I.annote("ApplyOntologyGraphGestureInput", {
-    description: "Graph gesture payload converted into ontology change operations.",
-  })
+  }).pipe(
+    $I.annoteSchema("ApplyOntologyGraphGestureInput", {
+      description: "Graph gesture payload converted into ontology change operations.",
+    })
+  )
 ) {}
 
 /**
@@ -397,8 +402,11 @@ export type OntologyInspectorAction = typeof OntologyInspectorAction.Type;
  * @category models
  * @since 0.0.0
  */
-export class OntologyInspectorFormState extends S.Class<OntologyInspectorFormState>($I`OntologyInspectorFormState`)(
-  {
+export class OntologyInspectorFormState extends S.Opaque<
+  OntologyInspectorFormState,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     object: S.String,
     objectKind: OntologyInspectorObjectKind,
     predicate: S.String,
@@ -411,10 +419,11 @@ export class OntologyInspectorFormState extends S.Class<OntologyInspectorFormSta
     showObjectError: S.Boolean,
     showPredicateError: S.Boolean,
     showSubjectError: S.Boolean,
-  },
-  $I.annote("OntologyInspectorFormState", {
-    description: "Inspector draft values and schema-derived validation flags rendered by the UI.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyInspectorFormState", {
+      description: "Inspector draft values and schema-derived validation flags rendered by the UI.",
+    })
+  )
 ) {}
 
 const OntologyValidationStatus = LiteralKit(["idle", "running", "blocked", "failed", "complete"]);
@@ -1685,9 +1694,10 @@ const GRAPH_WORKER_TIMEOUT_MESSAGE = "The graph worker did not respond. The diag
  * @category errors
  * @since 0.0.0
  */
-export class OntologyGraphWorkerTimeoutError extends S.TaggedError<OntologyGraphWorkerTimeoutError>(
-  $I`OntologyGraphWorkerTimeoutError`
-)(
+export class OntologyGraphWorkerTimeoutError extends S.TaggedError<
+  OntologyGraphWorkerTimeoutError,
+  { readonly brand: unique symbol }
+>($I`OntologyGraphWorkerTimeoutError`)(
   "OntologyGraphWorkerTimeoutError",
   {
     message: S.NonEmptyString,

@@ -37,8 +37,9 @@ import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
 import { diffMembership } from "../../internal/ratchet/RatchetDiff.ts";
 import { runGitOutput } from "../../internal/repo-run/index.ts";
 import { reflectionFileNameIsArtifact, reflectionFrontmatterIsValid } from "../Lint/ReflectionArtifact.ts";
+import { observeGoalCompletion, storedGoalCompletion } from "./Completion.ts";
 import { GoalsGitError } from "./Goals.errors.ts";
-import { decodeGoalManifest, GoalPhaseStatus, GoalStatus } from "./Goals.schemas.ts";
+import { decodeGoalManifest, GoalPhaseStatus, GoalStatus, goalPullRequestRefs } from "./Goals.schemas.ts";
 import { capabilityProviderRows, compileCapabilityProjection, isStrandedProviderSet } from "./Graph.projection.ts";
 import {
   goalManifestPhases,
@@ -48,7 +49,7 @@ import {
   readmeLifecycleToken,
 } from "./Inventory.ts";
 import type { GitCommandErrorAdapter } from "../../internal/repo-run/index.ts";
-import type { GoalManifest } from "./Goals.schemas.ts";
+import type { GoalCompletionReceipt, GoalManifest, GoalPullRequestRef } from "./Goals.schemas.ts";
 import type { CapabilityProjection } from "./Graph.schemas.ts";
 import type { GoalPacketRecord } from "./Inventory.ts";
 
@@ -115,6 +116,7 @@ export const GoalDoctorFindingKind = LiteralKit([
   "active-missing-goal-md",
   "schema-version-upgrade",
   "completion-gate-unsatisfied",
+  "completion-gate-unknown",
   "superseded-without-pointer",
   "exploration-backlink-missing",
   "packet-stream-fork",
@@ -187,28 +189,30 @@ const GoalDoctorSeverity = LiteralKit(["blocking", "advisory"]).pipe(
  * @category models
  * @since 0.0.0
  */
-export class GoalDoctorFinding extends S.Class<GoalDoctorFinding>($I`GoalDoctorFinding`)(
-  {
+export class GoalDoctorFinding extends S.Opaque<GoalDoctorFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     kind: GoalDoctorFindingKind,
     severity: GoalDoctorSeverity,
     key: S.String,
     message: S.String,
-  },
-  $I.annote("GoalDoctorFinding", {
-    description: "One goals-doctor finding with a stable baseline-membership key.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalDoctorFinding", {
+      description: "One goals-doctor finding with a stable baseline-membership key.",
+    })
+  )
 ) {}
 
-class GoalsDoctorBaseline extends S.Class<GoalsDoctorBaseline>($I`GoalsDoctorBaseline`)(
-  {
+class GoalsDoctorBaseline extends S.Opaque<GoalsDoctorBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("goals-doctor-baseline/v1"),
     note: S.optionalKey(S.String),
     findings: S.Array(S.String),
-  },
-  $I.annote("GoalsDoctorBaseline", {
-    description: "Committed goals-doctor baseline: the inherited blocking-finding keys (may only shrink).",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalsDoctorBaseline", {
+      description: "Committed goals-doctor baseline: the inherited blocking-finding keys (may only shrink).",
+    })
+  )
 ) {}
 
 const decodeBaseline = S.decodeUnknownEffect(GoalsDoctorBaseline);
@@ -245,15 +249,16 @@ const finding = (
  * @category models
  * @since 0.0.0
  */
-export class GoalDoctorClassification extends S.Class<GoalDoctorClassification>($I`GoalDoctorClassification`)(
-  {
+export class GoalDoctorClassification extends S.Opaque<GoalDoctorClassification, { readonly brand: unique symbol }>()(
+  S.Struct({
     introduced: S.Array(GoalDoctorFinding),
     inherited: S.Array(GoalDoctorFinding),
     resolved: S.Array(S.String),
-  },
-  $I.annote("GoalDoctorClassification", {
-    description: "Baseline-ratchet classification: introduced blocks, inherited stays advisory, resolved shrinks.",
-  })
+  }).pipe(
+    $I.annoteSchema("GoalDoctorClassification", {
+      description: "Baseline-ratchet classification: introduced blocks, inherited stays advisory, resolved shrinks.",
+    })
+  )
 ) {}
 
 /**
@@ -315,20 +320,134 @@ const hasSupersessionPointer = (raw: Readonly<Record<string, unknown>>): boolean
   return topLevel || nested;
 };
 
-const reflectionArtifactFindings = Effect.fn("Goals.reflectionArtifactFindings")(function* (record: GoalPacketRecord) {
+/**
+ * Where a packet's `provenance.exploration` path points, as a goal-packet reader sees it.
+ *
+ * **Details**
+ *
+ * `escapes` is an absolute path or one that leaves the repository root; `present` and `absent` say
+ * whether the contained path exists in the reader's tree.
+ *
+ * **Example** (Recognize a missing back-link target)
+ *
+ * ```ts
+ * import { GoalExplorationPathState } from "@beep/repo-cli/commands/Goals/Doctor"
+ *
+ * console.log(GoalExplorationPathState.is.absent("absent")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const GoalExplorationPathState = LiteralKit(["present", "absent", "escapes"]).pipe(
+  $I.annoteSchema("GoalExplorationPathState", {
+    description: "Whether a packet's exploration back-link path exists, is missing, or leaves the repository.",
+  })
+);
+
+/**
+ * Where a packet's `provenance.exploration` path points.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type GoalExplorationPathState = typeof GoalExplorationPathState.Type;
+
+/**
+ * The packet-adjacent reads the goals packet core needs beyond its {@link GoalPacketRecord}.
+ *
+ * **Details**
+ *
+ * `beep goals doctor` reads the working filesystem through {@link makeGoalPacketFilesystemReader};
+ * the knowledge doctor reads one Git tree through its own reader, so both report the same packet
+ * findings from the same {@link goalPacketFindings} core. `reflectionFiles` lists the file names
+ * directly under `<packetPath>/history/reflections` (empty when the directory is absent).
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export interface GoalPacketReader<E, R> {
+  readonly explorationPath: (exploration: string) => Effect.Effect<GoalExplorationPathState, E, R>;
+  readonly readReflection: (packetPath: string, file: string) => Effect.Effect<string, E, R>;
+  readonly reflectionFiles: (packetPath: string) => Effect.Effect<ReadonlyArray<string>, E, R>;
+}
+
+const filesystemExplorationPath = Effect.fn("Goals.filesystemExplorationPath")(function* (exploration: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const repoRoot = yield* findRepoRoot();
+  const resolvedExploration = path.resolve(repoRoot, exploration);
+  const pathEscapesRepo =
+    path.isAbsolute(exploration) ||
+    Str.startsWith("//")(exploration) ||
+    Str.startsWith("\\\\")(exploration) ||
+    !isPathWithinRoot(repoRoot, resolvedExploration);
+  if (pathEscapesRepo) {
+    return GoalExplorationPathState.Enum.escapes;
+  }
+  const exists = yield* fs.exists(resolvedExploration).pipe(Effect.orElseSucceed(thunkFalse));
+  return exists ? GoalExplorationPathState.Enum.present : GoalExplorationPathState.Enum.absent;
+});
+
+const filesystemReflectionFiles = Effect.fn("Goals.filesystemReflectionFiles")(function* (packetPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const reflectionsDir = path.join(packetPath, "history", "reflections");
+  const reflectionsDirExists = yield* fs.exists(reflectionsDir).pipe(Effect.orElseSucceed(thunkFalse));
+  return reflectionsDirExists
+    ? yield* fs.readDirectory(reflectionsDir).pipe(Effect.orElseSucceed(A.empty<string>))
+    : A.empty<string>();
+});
+
+const filesystemReadReflection = Effect.fn("Goals.filesystemReadReflection")(function* (
+  packetPath: string,
+  file: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs
+    .readFileString(path.join(packetPath, "history", "reflections", file))
+    .pipe(Effect.orElseSucceed(thunkEmptyStr));
+});
+
+/**
+ * Builds the goal-packet reader over the working filesystem, the reader `beep goals doctor` uses.
+ *
+ * **Details**
+ *
+ * Unreadable reflection directories and files read as empty, and an exploration back-link resolves
+ * against the repository root found from the working directory.
+ *
+ * **Example** (Build the filesystem reader)
+ *
+ * ```ts
+ * import { makeGoalPacketFilesystemReader } from "@beep/repo-cli/commands/Goals/Doctor"
+ *
+ * const reader = makeGoalPacketFilesystemReader()
+ *
+ * console.log(typeof reader.reflectionFiles) // "function"
+ * ```
+ *
+ * @returns A reader whose reads need `FileSystem` and `Path`.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makeGoalPacketFilesystemReader = () => ({
+  explorationPath: filesystemExplorationPath,
+  readReflection: filesystemReadReflection,
+  reflectionFiles: filesystemReflectionFiles,
+});
+
+const reflectionArtifactFindings = Effect.fn("Goals.reflectionArtifactFindings")(function* <E, R>(
+  record: GoalPacketRecord,
+  reader: GoalPacketReader<E, R>
+) {
   // Reflection frontmatter must decode in ANY packet (the PR #365 YAML traps
   // hid in the completed-only gap).
-  const reflectionsDir = path.join(record.packetPath, "history", "reflections");
-  const reflectionsDirExists = yield* fs.exists(reflectionsDir).pipe(Effect.orElseSucceed(thunkFalse));
-  if (!reflectionsDirExists) {
-    return A.empty<GoalDoctorFinding>();
-  }
   let findings = A.empty<GoalDoctorFinding>();
-  const files = yield* fs.readDirectory(reflectionsDir).pipe(Effect.orElseSucceed(A.empty<string>));
+  const files = yield* reader.reflectionFiles(record.packetPath);
   for (const file of A.sort(A.filter(files, reflectionFileNameIsArtifact), Order.String)) {
-    const raw = yield* fs.readFileString(path.join(reflectionsDir, file)).pipe(Effect.orElseSucceed(thunkEmptyStr));
+    const raw = yield* reader.readReflection(record.packetPath, file);
     const valid = yield* reflectionFrontmatterIsValid(raw);
     if (!valid) {
       findings = A.append(
@@ -454,50 +573,79 @@ const decodedManifestFindings = (
 ): ReadonlyArray<GoalDoctorFinding> =>
   A.appendAll(statusConsistencyFindings(record, manifest), manifestAdvisoryFindings(record, manifest, raw));
 
-const explorationBacklinkFindings = Effect.fn("Goals.explorationBacklinkFindings")(function* (
+const explorationBacklinkFindings = Effect.fn("Goals.explorationBacklinkFindings")(function* <E, R>(
   record: GoalPacketRecord,
-  raw: Readonly<Record<string, unknown>>
+  raw: Readonly<Record<string, unknown>>,
+  reader: GoalPacketReader<E, R>
 ) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
   const provenance = pipe(R.get(raw, "provenance"), O.filter(isJsonRecord));
   const exploration = O.flatMap(provenance, (block) => stringAt(block, "exploration"));
   if (O.isNone(exploration)) {
     return A.empty<GoalDoctorFinding>();
   }
-  const repoRoot = yield* findRepoRoot();
-  const resolvedExploration = path.resolve(repoRoot, exploration.value);
-  const pathEscapesRepo =
-    path.isAbsolute(exploration.value) ||
-    Str.startsWith("//")(exploration.value) ||
-    Str.startsWith("\\\\")(exploration.value) ||
-    !isPathWithinRoot(repoRoot, resolvedExploration);
-  if (pathEscapesRepo) {
-    return A.of(
-      finding(
-        record.slug,
-        "exploration-backlink-missing",
-        "advisory",
-        `provenance.exploration "${exploration.value}" is an invalid path; expected a path contained within the repository root.`
-      )
-    );
-  }
-  const exists = yield* fs.exists(resolvedExploration).pipe(Effect.orElseSucceed(thunkFalse));
-  if (exists) {
-    return A.empty<GoalDoctorFinding>();
-  }
-  return A.of(
-    finding(
-      record.slug,
-      "exploration-backlink-missing",
-      "advisory",
-      `provenance.exploration "${exploration.value}" does not exist in the working tree.`
-    )
-  );
+  const state = yield* reader.explorationPath(exploration.value);
+  return GoalExplorationPathState.$match(state, {
+    present: () => A.empty<GoalDoctorFinding>(),
+    escapes: () =>
+      A.of(
+        finding(
+          record.slug,
+          "exploration-backlink-missing",
+          "advisory",
+          `provenance.exploration "${exploration.value}" is an invalid path; expected a path contained within the repository root.`
+        )
+      ),
+    absent: () =>
+      A.of(
+        finding(
+          record.slug,
+          "exploration-backlink-missing",
+          "advisory",
+          `provenance.exploration "${exploration.value}" does not exist in the working tree.`
+        )
+      ),
+  });
 });
 
-const packetFindings = Effect.fn("Goals.packetFindings")(function* (record: GoalPacketRecord) {
-  let findings = yield* reflectionArtifactFindings(record);
+/**
+ * The goals packet core: every packet-local goals-doctor finding of one packet, plus its decoded
+ * manifest.
+ *
+ * **Details**
+ *
+ * Reflection frontmatter, launcher size, manifest presence and decoding, status consistency, the
+ * manifest advisories, and the exploration back-link. Git-history advisories and capability findings
+ * span packets and are computed by the caller. The reader decides where packet-adjacent files come
+ * from, which is what lets the knowledge doctor list the same findings from a Git tree.
+ *
+ * **Example** (Check a packet with no manifest)
+ *
+ * ```ts
+ * import { goalPacketFindings, makeGoalPacketFilesystemReader } from "@beep/repo-cli/commands/Goals/Doctor"
+ * import { GoalPacketRecord } from "@beep/repo-cli/commands/Goals/Inventory"
+ * import * as Effect from "effect/Effect"
+ *
+ * const record = GoalPacketRecord.make({
+ *   slug: "demo",
+ *   packetPath: "goals/demo",
+ *   manifestPath: "goals/demo/ops/manifest.json",
+ *   readmePath: "goals/demo/README.md",
+ * })
+ *
+ * console.log(Effect.isEffect(goalPacketFindings(record, makeGoalPacketFilesystemReader()))) // true
+ * ```
+ *
+ * @param record - Packet surfaces read by the caller's inventory.
+ * @param reader - Source of reflection files and exploration back-link targets.
+ * @returns The packet's findings in emission order and its manifest when it decodes.
+ * @category validation
+ * @since 0.0.0
+ */
+export const goalPacketFindings = Effect.fn("Goals.packetFindings")(function* <E, R>(
+  record: GoalPacketRecord,
+  reader: GoalPacketReader<E, R>
+) {
+  let findings = yield* reflectionArtifactFindings(record, reader);
 
   if (record.goalMdChars !== undefined && record.goalMdChars > GOAL_MD_MAX_CHARS) {
     findings = A.append(
@@ -550,7 +698,7 @@ const packetFindings = Effect.fn("Goals.packetFindings")(function* (record: Goal
   }
 
   findings = A.appendAll(findings, decodedManifestFindings(record, decoded.value, raw));
-  findings = A.appendAll(findings, yield* explorationBacklinkFindings(record, raw));
+  findings = A.appendAll(findings, yield* explorationBacklinkFindings(record, raw, reader));
   return { findings, manifest: O.some(decoded.value) };
 });
 
@@ -695,33 +843,35 @@ const activeAfterMergeAdvisories = (
   return findings;
 };
 
+const completedManifest = (packet: DoctorPacket) =>
+  O.filter(
+    packet.manifest,
+    (manifest) =>
+      GoalStatus.is["completed-retained"](manifest.initiative.status) && !manifest.completionGate.grandfathered
+  );
+
 const completionGateAdvisories = (
   packets: ReadonlyArray<DoctorPacket>,
   subjectsText: string
-): ReadonlyArray<GoalDoctorFinding> => {
-  let findings = A.empty<GoalDoctorFinding>();
-  for (const packet of packets) {
-    if (O.isNone(packet.manifest)) {
-      continue;
-    }
-    const manifest = packet.manifest.value;
-    if (!GoalStatus.is["completed-retained"](manifest.initiative.status) || manifest.completionGate.grandfathered) {
-      continue;
-    }
-    if (!citedAnywhere(packet, subjectsText)) {
-      findings = A.append(
-        findings,
-        finding(
-          packet.record.slug,
-          "completion-gate-unsatisfied",
-          "advisory",
-          "completed-retained but no merge/squash commit cites the packet (completionGate not grandfathered)."
+): ReadonlyArray<GoalDoctorFinding> =>
+  A.flatMap(packets, (packet) =>
+    completedManifest(packet).pipe(
+      O.filter(
+        (manifest) => manifest.completionGate.pullRequests === undefined && !citedAnywhere(packet, subjectsText)
+      ),
+      O.map(() =>
+        A.of(
+          finding(
+            packet.record.slug,
+            "completion-gate-unsatisfied",
+            "advisory",
+            "Legacy completion declaration has no PR reference or packet citation in the scanned commit subjects; declare a final PR to inspect structured PR/head/merge facts. Overall verification also requires a complete merge-time ruleset inventory."
+          )
         )
-      );
-    }
-  }
-  return findings;
-};
+      ),
+      O.getOrElse(A.empty<GoalDoctorFinding>)
+    )
+  );
 
 const gitAdvisories = Effect.fn("Goals.gitAdvisories")(function* (packets: ReadonlyArray<DoctorPacket>) {
   let findings = A.empty<GoalDoctorFinding>();
@@ -902,6 +1052,78 @@ export const capabilityPacketFindings = (
 
 const findingLine = (item: GoalDoctorFinding): string => `- ${item.slug} [${item.kind}] ${item.message}`;
 
+const completionReceiptFindings = (
+  slug: string,
+  final: GoalPullRequestRef,
+  receipt: O.Option<GoalCompletionReceipt>
+) => {
+  const outcome = O.isSome(receipt) ? receipt.value.outcome : "unknown";
+  const detail = receipt.pipe(
+    O.map((row) =>
+      outcome === "unknown" && O.exists(row.requiredChecks, (snapshot) => !snapshot.inventoryComplete)
+        ? "Merge-time ruleset inventory completeness is unknown: GitHub cannot enumerate rulesets deleted since the merge. Online doctor inspects facts and completion refresh persists them; neither can verify completion without a complete historical inventory."
+        : "See head-bound completion evidence; lifecycle is unchanged."
+    ),
+    O.getOrElse(
+      () =>
+        "No matching clone receipt. Online doctor inspects PR/merge/check facts; completion refresh persists them. Overall verification requires a complete merge-time ruleset inventory, which GitHub's current inventory cannot reconstruct."
+    )
+  );
+  const findings =
+    outcome === "verified"
+      ? A.empty<GoalDoctorFinding>()
+      : A.of(
+          finding(
+            slug,
+            outcome === "unknown" ? "completion-gate-unknown" : "completion-gate-unsatisfied",
+            "advisory",
+            `Final PR #${final.number}: ${outcome}. ${detail}`
+          )
+        );
+  return findings;
+};
+
+const completionEvidenceAdvisory = Effect.fn("Goals.completionEvidenceAdvisory")(function* (
+  packet: DoctorPacket,
+  manifest: GoalManifest,
+  final: GoalPullRequestRef,
+  online: boolean
+) {
+  const root = yield* findRepoRoot().pipe(Effect.orElseSucceed(process.cwd));
+  const receipt = online
+    ? O.some(yield* observeGoalCompletion(root, packet.record.slug, manifest, final))
+    : yield* storedGoalCompletion(root, packet.record.slug, manifest, final).pipe(Effect.orElseSucceed(O.none));
+  if (O.isNone(receipt) && manifest.completionGate.pullRequests === undefined && !online) return O.none();
+  const findings = completionReceiptFindings(packet.record.slug, final, receipt);
+  return O.some({ slug: packet.record.slug, findings });
+});
+
+const structuredCompletionAdvisory = Effect.fn("Goals.structuredCompletionAdvisory")(function* (
+  packet: DoctorPacket,
+  online: boolean
+) {
+  const eligible = completedManifest(packet);
+  if (O.isNone(eligible))
+    return O.none<{ readonly slug: string; readonly findings: ReadonlyArray<GoalDoctorFinding> }>();
+  const manifest = eligible.value;
+  const final = A.findFirst(goalPullRequestRefs(manifest), (ref) => ref.role === "final");
+  if (O.isNone(final)) {
+    if (manifest.completionGate.pullRequests === undefined) return O.none();
+    const findings = manifest.completionGate.requiresPullRequest
+      ? A.of(
+          finding(
+            packet.record.slug,
+            "completion-gate-unknown",
+            "advisory",
+            "Typed completion declaration has no final PR; lifecycle is unchanged."
+          )
+        )
+      : A.empty<GoalDoctorFinding>();
+    return O.some({ slug: packet.record.slug, findings });
+  }
+  return yield* completionEvidenceAdvisory(packet, manifest, final.value, online);
+});
+
 /**
  * Run the goals doctor: collect findings, ratchet blocking ones against the
  * committed baseline, and fail on new blocking findings.
@@ -1004,12 +1226,14 @@ const printNonFatalFindings = Effect.fn("Goals.printNonFatalFindings")(function*
  */
 export const runGoalsDoctor = Effect.fn("Goals.runGoalsDoctor")(function* (options: {
   readonly writeBaseline: boolean;
+  readonly online?: boolean;
 }) {
   const records = yield* listGoalPackets();
+  const reader = makeGoalPacketFilesystemReader();
 
   const packets: Array<DoctorPacket & { readonly findings: ReadonlyArray<GoalDoctorFinding> }> = [];
   for (const record of records) {
-    const result = yield* packetFindings(record);
+    const result = yield* goalPacketFindings(record, reader);
     const raw = pipe(
       O.fromUndefinedOr(record.manifestText),
       O.flatMap(parseGoalManifestText),
@@ -1019,13 +1243,22 @@ export const runGoalsDoctor = Effect.fn("Goals.runGoalsDoctor")(function* (optio
   }
 
   const advisoriesFromGit = yield* gitAdvisories(packets);
+  const structured = A.getSomes(
+    yield* Effect.forEach(packets, (packet) => structuredCompletionAdvisory(packet, options.online === true))
+  );
+  const completionFindings = A.flatMap(structured, (row) => row.findings);
+  const structuredSlugs = HashSet.fromIterable(A.map(structured, (row) => row.slug));
   const capabilityFindings = capabilityPacketFindings(
     A.map(packets, (packet) => ({ slug: packet.record.slug, manifest: packet.manifest }))
   );
   const allFindings = [
     ...A.flatMap(packets, (packet) => packet.findings),
     ...capabilityFindings,
-    ...advisoriesFromGit.findings,
+    ...A.filter(
+      advisoriesFromGit.findings,
+      (item) => item.kind !== "completion-gate-unsatisfied" || !HashSet.has(structuredSlugs, item.slug)
+    ),
+    ...completionFindings,
   ];
   const blocking = A.filter(allFindings, (item) => item.severity === "blocking");
   const advisories = A.filter(allFindings, (item) => item.severity === "advisory");
@@ -1074,8 +1307,14 @@ const writeBaselineFlag = Flag.Boolean("write-baseline").pipe(
  */
 export const goalsDoctorCommand = Command.make(
   "doctor",
-  { writeBaseline: writeBaselineFlag },
-  Effect.fn(function* ({ writeBaseline }) {
-    yield* runGoalsDoctor({ writeBaseline });
+  {
+    writeBaseline: writeBaselineFlag,
+    online: Flag.Boolean("online").pipe(
+      Flag.withDefault(false),
+      Flag.withDescription("Observe typed final PRs on GitHub without writing receipts")
+    ),
+  },
+  Effect.fn("Goals.doctorCommand")(function* ({ writeBaseline, online }) {
+    yield* runGoalsDoctor({ writeBaseline, online });
   })
 ).pipe(Command.withDescription("Diff goal-packet manifest claims against git/filesystem evidence (baseline ratchet)"));

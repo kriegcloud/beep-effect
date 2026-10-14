@@ -91,10 +91,11 @@ const OpposedRelators = LawPractice.LegalPositionRelatorId.pipe(S.HashSet, S.toC
  * @category models
  * @since 0.0.0
  */
-export class LegalOppositionCandidateInput extends S.Class<LegalOppositionCandidateInput>(
-  $I`LegalOppositionCandidateInput`
-)(
-  {
+export class LegalOppositionCandidateInput extends S.Opaque<
+  LegalOppositionCandidateInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     act: LegalActDescription.annotateKey({
       description: "Act description both relations are about, shared because the derivations never rewrite it.",
     }),
@@ -104,9 +105,10 @@ export class LegalOppositionCandidateInput extends S.Class<LegalOppositionCandid
     relators: OpposedRelators.annotateKey({
       description: "The two stored relations, unordered so nothing in the shape reads as precedence.",
     }),
-  },
-  $I.annote("LegalOppositionCandidateInput", {
-    description:
-      "Two stored relations whose recorded scopes overlap on every axis and whose positions are prima facie opposed.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalOppositionCandidateInput", {
+      description:
+        "Two stored relations whose recorded scopes overlap on every axis and whose positions are prima facie opposed.",
+    })
+  )
 ) {}

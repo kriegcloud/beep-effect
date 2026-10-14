@@ -46,7 +46,7 @@ import {
 import { it } from "@beep/test-runner";
 import { A } from "@beep/utils";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect } from "@effect/vitest";
+import { describe, expect, vi } from "@effect/vitest";
 import { assertInstanceOf, assertNone, assertSome } from "@effect/vitest/utils";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -228,7 +228,7 @@ interface OpenTypeBuilder {
     close(): void;
   };
 }
-const labelAlphabetFont = Effect.gen(function* () {
+const makeLabelAlphabetFont = Effect.fnUntraced(function* (alphabet: string) {
   const module: { readonly default?: OpenTypeBuilder } & Partial<OpenTypeBuilder> = yield* Effect.promise(
     () => import(OPENTYPE_MODULE)
   );
@@ -256,10 +256,11 @@ const labelAlphabetFont = Effect.gen(function* () {
     unitsPerEm: 1000,
     ascender: 800,
     descender: -200,
-    glyphs: [notdef, ...A.map(A.fromIterable("0123456789FIG./ "), glyph)],
+    glyphs: [notdef, ...A.map(A.fromIterable(alphabet), glyph)],
   });
   return new Uint8Array(font.toArrayBuffer());
 });
+const labelAlphabetFont = makeLabelAlphabetFont("0123456789FIG./ ");
 
 const makeLayer = () =>
   FigureSet.layer.pipe(Layer.provide(Layer.merge(fakeEngine, fakeBackend)), Layer.provideMerge(NodeServices.layer));
@@ -840,6 +841,7 @@ describe("@beep/technical-drawing", () => {
         const decode = S.decodeUnknownEffect(LabelStyle);
         const sans = yield* decode({ typeface: "sans", sizePt: 18, render: "text" });
         expect(labelFontFamily(sans)).toBe("Arial");
+        expect(labelFontFamily(yield* decode({ typeface: "stroke", sizePt: 18 }))).toBe("Times New Roman");
         expect(labelFontFamily(yield* decode({ typeface: "serif", sizePt: 24, render: "text" }))).toBe(
           "Times New Roman"
         );
@@ -1319,6 +1321,36 @@ describe("@beep/technical-drawing", () => {
       );
 
       it.effect(
+        "rejects unreadable font files and missing label glyphs before producing output",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const specPath = path.join(dir, "spec.json");
+          const outputDir = path.join(dir, "out");
+          const service = yield* FigureSet;
+          const renderWith = Effect.fnUntraced(function* (fontFile: string) {
+            yield* fs.writeFileString(
+              specPath,
+              spec([{ view: "front", description: "is a front elevation view" }], [], {
+                sheet: { figureLabel: { typeface: "serif", sizePt: 24, fontFile } },
+              })
+            );
+            return yield* Effect.flip(service.render(RenderRequest.make({ specPath, outputDir, validate: false })));
+          });
+          const missing = yield* renderWith(path.join(dir, "missing.otf"));
+          expect(missing.reason).toBe("font");
+          expect(missing.message).toContain("Could not read label font");
+          const incompleteFont = path.join(dir, "missing-F.otf");
+          yield* fs.writeFile(incompleteFont, yield* makeLabelAlphabetFont("0123456789IG./ "));
+          const incomplete = yield* renderWith(incompleteFont);
+          expect(incomplete.reason).toBe("font");
+          expect(incomplete.message).toContain('the font has no glyph for "F"');
+          expect(yield* fs.exists(outputDir)).toBe(false);
+        })
+      );
+
+      it.effect(
         "outlines an operator font file on every runner and records its sha256",
         Effect.fnUntraced(function* () {
           const fs = yield* FileSystem.FileSystem;
@@ -1347,6 +1379,67 @@ describe("@beep/technical-drawing", () => {
           expect(outlinesOf(svg)).toMatch(/^M[\d. LZM-]+$/);
           expect(inkBox(outlinesOf(svg)).maxY - inkBox(outlinesOf(svg)).minY).toBeCloseTo((18 * 700) / 1000, 2);
         })
+      );
+
+      it.effect(
+        "accepts a default-export font parser with quadratic outlines and rejects an undersized cap height",
+        Effect.fnUntraced(function* () {
+          let capHeight = 700;
+          yield* Effect.sync(() =>
+            vi.doMock(OPENTYPE_MODULE, () => ({
+              default: {
+                parse: () => ({
+                  unitsPerEm: 1000,
+                  tables: { os2: { sCapHeight: capHeight } },
+                  charToGlyph: (char: string) => ({
+                    index: char === " " ? 0 : 1,
+                    advanceWidth: char === " " ? undefined : 500,
+                    path: {
+                      commands:
+                        char === " "
+                          ? []
+                          : [
+                              { type: "M", x: 0, y: 0 },
+                              { type: "Q", x1: 100, y1: 1400, x: 500, y: 0 },
+                              { type: "Q", x1: 500, y1: 350, x: 500, y: 700 },
+                              { type: "L", x: 0, y: 700 },
+                              { type: "Z" },
+                            ],
+                    },
+                  }),
+                }),
+              },
+            }))
+          );
+          yield* Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const dir = yield* fs.makeTempDirectoryScoped();
+            const specPath = path.join(dir, "spec.json");
+            const fontFile = path.join(dir, "quadratic.ttf");
+            const outputDir = path.join(dir, "out");
+            yield* fs.writeFileString(fontFile, "font parser boundary fixture");
+            yield* fs.writeFileString(
+              specPath,
+              spec([{ view: "front", description: "is a front elevation view" }], [], {
+                sheet: {
+                  sheetNumberLabel: { typeface: "sans", sizePt: 18, fontFile },
+                  figureLabel: { typeface: "serif", sizePt: 24, fontFile },
+                },
+              })
+            );
+            const service = yield* FigureSet;
+            const request = RenderRequest.make({ specPath, outputDir, validate: false });
+            const manifest = yield* service.render(request);
+            expect(A.some(manifest.labelFonts, (font) => font.fontFile === fontFile)).toBe(true);
+            expect(yield* fs.readFileString(path.join(outputDir, "fig-1.svg"))).toContain("Q");
+            capHeight = 1;
+            const undersized = yield* Effect.flip(service.render(request));
+            expect(undersized.reason).toBe("font");
+            expect(undersized.message).toContain("under 0.32 cm");
+          }).pipe(Effect.ensuring(Effect.sync(() => vi.doUnmock(OPENTYPE_MODULE))));
+        }),
+        { concurrent: false }
       );
 
       it.effect(

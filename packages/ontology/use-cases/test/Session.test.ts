@@ -42,6 +42,7 @@ import {
   TurtleCodec,
 } from "@beep/ontology-use-cases/aggregates/Session";
 import {
+  MakeQuadOptionsInput,
   makeBlankNode,
   makeDataset,
   makeLiteral,
@@ -252,10 +253,14 @@ describe("Session use-cases", () => {
         ChangeOperation.make({
           kind: "addQuad",
           partition: "ontologies",
-          quad: makeQuad(makeNamedNode("https://example.test/alice"), makeNamedNode("https://example.test/knows"), {
-            object: makeNamedNode("https://example.test/bob"),
-            graph: makeNamedNode(graphPartitionIri("ontologies")),
-          }),
+          quad: makeQuad(
+            makeNamedNode("https://example.test/alice"),
+            makeNamedNode("https://example.test/knows"),
+            MakeQuadOptionsInput.make({
+              object: makeNamedNode("https://example.test/bob"),
+              graph: makeNamedNode(graphPartitionIri("ontologies")),
+            })
+          ),
         })
       );
 
@@ -291,10 +296,14 @@ describe("Session use-cases", () => {
         ]);
         const inferredQuad = (subject: typeof pizza, predicate: typeof subClassOf, object: typeof pizza) =>
           serializeQuad(
-            makeQuad(subject, predicate, {
-              object,
-              graph: inferredGraph,
-            })
+            makeQuad(
+              subject,
+              predicate,
+              MakeQuadOptionsInput.make({
+                object,
+                graph: inferredGraph,
+              })
+            )
           );
         const fileStore = OntologyFileStore.of({
           read: Effect.fn("OntologyFileStore.read")((request) =>

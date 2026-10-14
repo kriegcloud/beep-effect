@@ -211,8 +211,8 @@ const defaultClientInfo: ImplementationInput = { name: "@beep/mcp-kit/client", v
  * @category models
  * @since 0.0.0
  */
-export class McpClientOptions extends S.Class<McpClientOptions>($I`McpClientOptions`)(
-  {
+export class McpClientOptions extends S.Opaque<McpClientOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     protocolVersion: S.String.pipe(
       S.withConstructorDefault(Effect.succeed<string>(MCP_PROTOCOL_VERSION)),
       S.annotateKey({ description: "Protocol revision claimed in the header and request metadata." })
@@ -225,10 +225,11 @@ export class McpClientOptions extends S.Class<McpClientOptions>($I`McpClientOpti
       S.withConstructorDefault(Effect.succeed<ClientCapabilitiesInput>({})),
       S.annotateKey({ description: "Client capabilities sent in request metadata." })
     ),
-  },
-  $I.annote("McpClientOptions", {
-    description: "Identity a kit MCP client presents on every stateless request.",
-  })
+  }).pipe(
+    $I.annoteSchema("McpClientOptions", {
+      description: "Identity a kit MCP client presents on every stateless request.",
+    })
+  )
 ) {}
 
 /**
@@ -248,13 +249,12 @@ export class McpClientOptions extends S.Class<McpClientOptions>($I`McpClientOpti
  * @category models
  * @since 0.0.0
  */
-export class JsonRpcError extends S.Class<JsonRpcError>($I`JsonRpcError`)(
-  {
+export class JsonRpcError extends S.Opaque<JsonRpcError, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.Int,
     message: S.String,
     data: S.optionalKey(S.Unknown),
-  },
-  $I.annote("JsonRpcError", { description: "JSON-RPC error object." })
+  }).pipe($I.annoteSchema("JsonRpcError", { description: "JSON-RPC error object." }))
 ) {}
 
 /**
@@ -303,16 +303,15 @@ export type JsonRpcId = typeof JsonRpcId.Type;
  * @category models
  * @since 0.0.0
  */
-export class JsonRpcMessage extends S.Class<JsonRpcMessage>($I`JsonRpcMessage`)(
-  {
+export class JsonRpcMessage extends S.Opaque<JsonRpcMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     jsonrpc: S.Literal("2.0").pipe(S.withConstructorDefault(Effect.succeed<"2.0">("2.0"))),
     id: JsonRpcId.pipe(S.NullOr, S.optionalKey),
     method: S.optionalKey(S.String),
     params: S.optionalKey(S.Unknown),
     result: S.optionalKey(S.Unknown),
     error: S.optionalKey(JsonRpcError),
-  },
-  $I.annote("JsonRpcMessage", { description: "One JSON-RPC 2.0 message." })
+  }).pipe($I.annoteSchema("JsonRpcMessage", { description: "One JSON-RPC 2.0 message." }))
 ) {}
 
 /**
@@ -350,7 +349,9 @@ export const JsonRpcMessageFromLine = S.fromJsonString(JsonRpcMessage);
  * @category models
  * @since 0.0.0
  */
-export class McpDiscoverResult extends S.Class<McpDiscoverResult>($I`McpDiscoverResult`)(
+export class McpDiscoverResult extends S.Class<McpDiscoverResult, { readonly brand: unique symbol }>(
+  $I`McpDiscoverResult`
+)(
   {
     supportedVersions: S.Array(S.String),
     capabilities: McpSchema.ServerCapabilities,
@@ -741,12 +742,11 @@ export const decodeHttpMessages: {
  * @category models
  * @since 0.0.0
  */
-export class McpHttpExchange extends S.Class<McpHttpExchange>($I`McpHttpExchange`)(
-  {
+export class McpHttpExchange extends S.Opaque<McpHttpExchange, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.Int,
     messages: S.Array(JsonRpcMessage),
-  },
-  $I.annote("McpHttpExchange", { description: "Status and decoded messages of one MCP HTTP exchange." })
+  }).pipe($I.annoteSchema("McpHttpExchange", { description: "Status and decoded messages of one MCP HTTP exchange." }))
 ) {}
 
 /**
@@ -846,8 +846,8 @@ const codecFor = S.toCodecJson as RpcSerialization.CodecFor;
  * @category models
  * @since 0.0.0
  */
-export class McpHttpProtocolOptions extends S.Class<McpHttpProtocolOptions>($I`McpHttpProtocolOptions`)(
-  {
+export class McpHttpProtocolOptions extends S.Opaque<McpHttpProtocolOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     url: S.String.annotateKey({ description: "Streamable HTTP endpoint the requests are posted to." }),
     client: S.optionalKey(McpClientOptions).annotateKey({
       description: "Identity presented on every request; defaults to McpClientOptions.make({}).",
@@ -855,8 +855,9 @@ export class McpHttpProtocolOptions extends S.Class<McpHttpProtocolOptions>($I`M
     headers: S.optionalKey(S.Record(S.String, S.String)).annotateKey({
       description: "Extra headers on every POST, for example origin or authorization.",
     }),
-  },
-  $I.annote("McpHttpProtocolOptions", { description: "Options of the streamable HTTP client protocol layer." })
+  }).pipe(
+    $I.annoteSchema("McpHttpProtocolOptions", { description: "Options of the streamable HTTP client protocol layer." })
+  )
 ) {}
 
 /**

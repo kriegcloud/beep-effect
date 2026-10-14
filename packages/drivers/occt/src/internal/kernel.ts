@@ -275,13 +275,17 @@ const commonVolume = (a: Shape3D, b: Shape3D): number => {
  *
  * @internal
  */
-export const countOverlaps = (parts: ReadonlyArray<BuiltPart>): number =>
-  pipe(
-    parts,
-    A.flatMap((a, i) => A.map(A.drop(parts, i + 1), (b) => [a.shape, b.shape] as const)),
-    A.filter(([a, b]) => boxesMeet(a, b) && commonVolume(a, b) > OVERLAP_TOLERANCE),
-    A.length
-  );
+export const countOverlaps = (parts: ReadonlyArray<BuiltPart>): number => {
+  let count = 0;
+  for (const [index, part] of A.entries(parts)) {
+    for (const other of A.drop(parts, index + 1)) {
+      if (boxesMeet(part.shape, other.shape) && commonVolume(part.shape, other.shape) > OVERLAP_TOLERANCE) {
+        count++;
+      }
+    }
+  }
+  return count;
+};
 
 /**
  * Measure a built model.
@@ -522,7 +526,7 @@ const regionsOf = (options: {
   };
   const pieces: ReadonlyArray<Piece> = A.flatMap(options.probes, ({ probe, pieces }) =>
     O.match(projectedProbe(options.camera, probe), {
-      onNone: () => A.empty<Piece>(),
+      onNone: A.empty<Piece>,
       onSome: (line) => {
         const edge = Math.min(probe.start, probe.end);
         return A.map(pieces, (s) => {
@@ -810,7 +814,7 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
           regions: O.map(
             regions,
             (byFace) => (face: number) =>
-              O.getOrElse(HashMap.get(byFace, face), () => A.empty<A.NonEmptyReadonlyArray<StretchPiece<ProbeLine>>>())
+              O.getOrElse(HashMap.get(byFace, face), A.empty<A.NonEmptyReadonlyArray<StretchPiece<ProbeLine>>>)
           ),
         })
       )

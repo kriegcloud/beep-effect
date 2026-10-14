@@ -84,14 +84,15 @@ const SKIP_BUCKETS: ReadonlyArray<string> = ["skipping", "skipped", "neutral"];
  * @category models
  * @since 0.0.0
  */
-export class YeetCheckSignal extends S.Class<YeetCheckSignal>($I`YeetCheckSignal`)(
-  {
+export class YeetCheckSignal extends S.Opaque<YeetCheckSignal, { readonly brand: unique symbol }>()(
+  S.Struct({
     bucket: S.String,
     state: S.String,
-  },
-  $I.annote("YeetCheckSignal", {
-    description: "Raw bucket and state strings for one check, as gh pr checks --json reports them.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetCheckSignal", {
+      description: "Raw bucket and state strings for one check, as gh pr checks --json reports them.",
+    })
+  )
 ) {}
 
 /**
@@ -218,8 +219,8 @@ export const yeetCheckRecordInstant = (value: string | null | undefined): O.Opti
  * @category models
  * @since 0.0.0
  */
-export class YeetWatchCheck extends S.Class<YeetWatchCheck>($I`YeetWatchCheck`)(
-  {
+export class YeetWatchCheck extends S.Opaque<YeetWatchCheck, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     description: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     outcome: YeetCheckOutcome,
@@ -231,10 +232,11 @@ export class YeetWatchCheck extends S.Class<YeetWatchCheck>($I`YeetWatchCheck`)(
     workflow: S.NullOr(S.String).pipe(S.withConstructorDefault(Effect.succeed(null))),
     startedAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     completedAt: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("YeetWatchCheck", {
-    description: "One PR check's name, classified outcome, and raw record within a watch snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetWatchCheck", {
+      description: "One PR check's name, classified outcome, and raw record within a watch snapshot.",
+    })
+  )
 ) {}
 
 /**
@@ -345,14 +347,15 @@ export const yeetFirstRed: (checks: ReadonlyArray<YeetWatchCheck>) => O.Option<Y
  * @category models
  * @since 0.0.0
  */
-export class YeetWatchThread extends S.Class<YeetWatchThread>($I`YeetWatchThread`)(
-  {
+export class YeetWatchThread extends S.Opaque<YeetWatchThread, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     state: YeetReviewThreadStateTag,
-  },
-  $I.annote("YeetWatchThread", {
-    description: "One PR review thread's identity and classified state within a watch snapshot.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetWatchThread", {
+      description: "One PR review thread's identity and classified state within a watch snapshot.",
+    })
+  )
 ) {}
 
 const yeetWatchSnapshotLabelsDefault = A.empty<string>();
@@ -387,8 +390,8 @@ const yeetWatchSnapshotLabelsDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class YeetWatchSnapshot extends S.Class<YeetWatchSnapshot>($I`YeetWatchSnapshot`)(
-  {
+export class YeetWatchSnapshot extends S.Opaque<YeetWatchSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     settle: YeetSettleVerdict.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     checks: S.Array(YeetWatchCheck),
     headSha: S.NonEmptyString,
@@ -423,10 +426,11 @@ export class YeetWatchSnapshot extends S.Class<YeetWatchSnapshot>($I`YeetWatchSn
         )
       )
     ),
-  },
-  $I.annote("YeetWatchSnapshot", {
-    description: "Everything one yeet watch poll observed about the pull request.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetWatchSnapshot", {
+      description: "Everything one yeet watch poll observed about the pull request.",
+    })
+  )
 ) {}
 
 /**
@@ -435,8 +439,8 @@ export class YeetWatchSnapshot extends S.Class<YeetWatchSnapshot>($I`YeetWatchSn
  * @category models
  * @since 0.0.0
  */
-export class YeetWatchStarted extends S.Class<YeetWatchStarted>($I`YeetWatchStarted`)(
-  {
+export class YeetWatchStarted extends S.Opaque<YeetWatchStarted, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("watch-started"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -444,10 +448,11 @@ export class YeetWatchStarted extends S.Class<YeetWatchStarted>($I`YeetWatchStar
     at: S.String,
     headSha: S.NonEmptyString,
     checks: S.Finite,
-  },
-  $I.annote("YeetWatchStarted", {
-    description: "First row of a watch stream: the head under watch and how many checks it carries.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetWatchStarted", {
+      description: "First row of a watch stream: the head under watch and how many checks it carries.",
+    })
+  )
 ) {}
 
 /**
@@ -462,8 +467,8 @@ export class YeetWatchStarted extends S.Class<YeetWatchStarted>($I`YeetWatchStar
  * @category models
  * @since 0.0.0
  */
-export class YeetCheckTransition extends S.Class<YeetCheckTransition>($I`YeetCheckTransition`)(
-  {
+export class YeetCheckTransition extends S.Opaque<YeetCheckTransition, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("check-transition"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -474,10 +479,11 @@ export class YeetCheckTransition extends S.Class<YeetCheckTransition>($I`YeetChe
     from: S.NullOr(YeetCheckOutcome),
     required: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
     to: YeetCheckOutcome,
-  },
-  $I.annote("YeetCheckTransition", {
-    description: "One PR check moved between classified outcomes (from null = first observation).",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetCheckTransition", {
+      description: "One PR check moved between classified outcomes (from null = first observation).",
+    })
+  )
 ) {}
 
 /**
@@ -553,8 +559,8 @@ export type YeetThreadTransitionTarget = typeof YeetThreadTransitionTarget.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetThreadTransition extends S.Class<YeetThreadTransition>($I`YeetThreadTransition`)(
-  {
+export class YeetThreadTransition extends S.Opaque<YeetThreadTransition, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("thread-transition"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -563,11 +569,12 @@ export class YeetThreadTransition extends S.Class<YeetThreadTransition>($I`YeetT
     headSha: S.NonEmptyString,
     threadId: S.NonEmptyString,
     to: YeetThreadTransitionTarget,
-  },
-  $I.annote("YeetThreadTransition", {
-    description:
-      "A review thread appeared (opened), was resolved, re-opened (unresolved), drew a reviewer follow-up, or was acknowledged by a bot.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetThreadTransition", {
+      description:
+        "A review thread appeared (opened), was resolved, re-opened (unresolved), drew a reviewer follow-up, or was acknowledged by a bot.",
+    })
+  )
 ) {}
 
 /**
@@ -576,8 +583,8 @@ export class YeetThreadTransition extends S.Class<YeetThreadTransition>($I`YeetT
  * @category models
  * @since 0.0.0
  */
-export class YeetMergeabilityChanged extends S.Class<YeetMergeabilityChanged>($I`YeetMergeabilityChanged`)(
-  {
+export class YeetMergeabilityChanged extends S.Opaque<YeetMergeabilityChanged, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("mergeability-changed"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -586,10 +593,11 @@ export class YeetMergeabilityChanged extends S.Class<YeetMergeabilityChanged>($I
     headSha: S.NonEmptyString,
     from: S.String,
     to: S.String,
-  },
-  $I.annote("YeetMergeabilityChanged", {
-    description: "GitHub's mergeability answer for the PR changed between polls.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMergeabilityChanged", {
+      description: "GitHub's mergeability answer for the PR changed between polls.",
+    })
+  )
 ) {}
 
 /**
@@ -610,10 +618,11 @@ export class YeetMergeabilityChanged extends S.Class<YeetMergeabilityChanged>($I
  * @category events
  * @since 0.0.0
  */
-export class YeetMergeReadyCriterionChanged extends S.Class<YeetMergeReadyCriterionChanged>(
-  $I`YeetMergeReadyCriterionChanged`
-)(
-  {
+export class YeetMergeReadyCriterionChanged extends S.Opaque<
+  YeetMergeReadyCriterionChanged,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     kind: S.tag("merge-ready-criterion-changed"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -623,10 +632,11 @@ export class YeetMergeReadyCriterionChanged extends S.Class<YeetMergeReadyCriter
     criterion: YeetMergeReadyCriterion,
     from: S.Boolean,
     to: S.Boolean,
-  },
-  $I.annote("YeetMergeReadyCriterionChanged", {
-    description: "One truthful merge-readiness criterion flipped between watch polls.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetMergeReadyCriterionChanged", {
+      description: "One truthful merge-readiness criterion flipped between watch polls.",
+    })
+  )
 ) {}
 
 /**
@@ -635,8 +645,8 @@ export class YeetMergeReadyCriterionChanged extends S.Class<YeetMergeReadyCriter
  * @category models
  * @since 0.0.0
  */
-export class YeetHeadChanged extends S.Class<YeetHeadChanged>($I`YeetHeadChanged`)(
-  {
+export class YeetHeadChanged extends S.Opaque<YeetHeadChanged, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("head-changed"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -644,10 +654,11 @@ export class YeetHeadChanged extends S.Class<YeetHeadChanged>($I`YeetHeadChanged
     at: S.String,
     from: S.NonEmptyString,
     to: S.NonEmptyString,
-  },
-  $I.annote("YeetHeadChanged", {
-    description: "The PR head moved to a new SHA; transitions before it belong to a superseded wave.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetHeadChanged", {
+      description: "The PR head moved to a new SHA; transitions before it belong to a superseded wave.",
+    })
+  )
 ) {}
 
 const yeetSettleChangedGatedDefault = A.empty<string>();
@@ -681,8 +692,8 @@ const yeetSettleChangedGatedDefault = A.empty<string>();
  * @category models
  * @since 0.0.0
  */
-export class YeetSettleChanged extends S.Class<YeetSettleChanged>($I`YeetSettleChanged`)(
-  {
+export class YeetSettleChanged extends S.Opaque<YeetSettleChanged, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("settle-changed"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -697,10 +708,11 @@ export class YeetSettleChanged extends S.Class<YeetSettleChanged>($I`YeetSettleC
       S.withConstructorDefault(Effect.succeed(yeetSettleChangedGatedDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(yeetSettleChangedGatedDefault))
     ),
-  },
-  $I.annote("YeetSettleChanged", {
-    description: "The merge loop's settle wait reason moved between polls, with the open census.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetSettleChanged", {
+      description: "The merge loop's settle wait reason moved between polls, with the open census.",
+    })
+  )
 ) {}
 
 /**
@@ -735,8 +747,8 @@ export class YeetSettleChanged extends S.Class<YeetSettleChanged>($I`YeetSettleC
  * @category models
  * @since 0.0.0
  */
-export class YeetCommentPosted extends S.Class<YeetCommentPosted>($I`YeetCommentPosted`)(
-  {
+export class YeetCommentPosted extends S.Opaque<YeetCommentPosted, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("comment-posted"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -751,10 +763,11 @@ export class YeetCommentPosted extends S.Class<YeetCommentPosted>($I`YeetComment
     line: S.NullOr(S.Finite).pipe(S.withConstructorDefault(Effect.succeed(null))),
     path: S.NullOr(S.String).pipe(S.withConstructorDefault(Effect.succeed(null))),
     url: S.String,
-  },
-  $I.annote("YeetCommentPosted", {
-    description: "One new PR review or conversation comment observed by the watch stream.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetCommentPosted", {
+      description: "One new PR review or conversation comment observed by the watch stream.",
+    })
+  )
 ) {}
 
 // Matches the classic comment monitor's operator excerpt bound; the full body
@@ -888,8 +901,8 @@ export type YeetWatchEndReason = typeof YeetWatchEndReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetWatchEnded extends S.Class<YeetWatchEnded>($I`YeetWatchEnded`)(
-  {
+export class YeetWatchEnded extends S.Opaque<YeetWatchEnded, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: S.tag("watch-ended"),
     schemaVersion: S.Literal(YEET_WATCH_SCHEMA_VERSION).pipe(
       S.withConstructorDefault(Effect.succeed(YEET_WATCH_SCHEMA_VERSION))
@@ -902,10 +915,11 @@ export class YeetWatchEnded extends S.Class<YeetWatchEnded>($I`YeetWatchEnded`)(
       S.withDecodingDefaultKey(Effect.succeed(0)),
       S.withConstructorDefault(Effect.succeed(0))
     ),
-  },
-  $I.annote("YeetWatchEnded", {
-    description: "Last row of a watch stream: why it ended and how many checks were failing.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetWatchEnded", {
+      description: "Last row of a watch stream: why it ended and how many checks were failing.",
+    })
+  )
 ) {}
 
 /**
@@ -999,15 +1013,16 @@ const threadTransitionTarget = (state: YeetReviewThreadStateTag): YeetThreadTran
  * @category models
  * @since 0.0.0
  */
-export class YeetWatchDiffInput extends S.Class<YeetWatchDiffInput>($I`YeetWatchDiffInput`)(
-  {
+export class YeetWatchDiffInput extends S.Opaque<YeetWatchDiffInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     at: S.String,
     next: YeetWatchSnapshot,
     prev: YeetWatchSnapshot,
-  },
-  $I.annote("YeetWatchDiffInput", {
-    description: "Two consecutive watch snapshots plus the timestamp stamped on derived events.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetWatchDiffInput", {
+      description: "Two consecutive watch snapshots plus the timestamp stamped on derived events.",
+    })
+  )
 ) {}
 
 /**

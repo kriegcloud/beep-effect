@@ -42,7 +42,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/NomicNlp");
  * @category errors
  * @since 0.0.0
  */
-export class NomicNlpError extends S.TaggedError<NomicNlpError>($I`NomicNlpError`)(
+export class NomicNlpError extends S.TaggedError<NomicNlpError, { readonly brand: unique symbol }>($I`NomicNlpError`)(
   "NomicNlpError",
   {
     message: ErrorMessage.annotateKey({

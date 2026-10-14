@@ -45,6 +45,7 @@ import { ReplyDrafts } from "../../commands/Yeet/internal/Reply.schemas.ts";
 import { withJournalFileLock } from "./AdmissionJournal.ts";
 import {
   BoundMoveOutcome,
+  DirectoryIdentity,
   directoryIdentity,
   openDirectoryHandle,
   removeThroughDirectoryHandle,
@@ -73,7 +74,7 @@ import {
 } from "./ResidueReap.schemas.ts";
 import type { ChildProcessSpawner } from "effect/process";
 import type * as Scope from "effect/Scope";
-import type { BoundRemovalOutcome, DirectoryHandleError, DirectoryIdentity } from "./DirectoryHandle.ts";
+import type { BoundRemovalOutcome, DirectoryHandleError } from "./DirectoryHandle.ts";
 import type { QualitySchedulerError } from "./QualityScheduler.schemas.ts";
 import type { ResidueReapSkipReason } from "./ResidueReap.schemas.ts";
 
@@ -1422,7 +1423,9 @@ const fenceArchiveMove = Effect.fnUntraced(function* (intent: ResidueArchiveInte
     kinds: ProcessAttachmentKind.literals,
   });
   if (O.isNone(attachments) || A.isReadonlyArrayNonEmpty(attachments.value)) {
-    const rolledBack = yield* archive.move(intent.destination, intent.source, intent).pipe(Effect.scoped);
+    const rolledBack = yield* archive
+      .move(intent.destination, intent.source, DirectoryIdentity.make(intent))
+      .pipe(Effect.scoped);
     const restored = BoundMoveOutcome.is.moved(rolledBack) || BoundMoveOutcome.is["moved-unsynced"](rolledBack);
     if (restored) {
       yield* syncDirectory(path.dirname(intent.source));
@@ -1777,7 +1780,7 @@ const citationSkip = Effect.fnUntraced(function* (checkout: string, candidatePat
   // the container. Match .beep-relative tails even when a receipt names another clone.
   const cited = A.some(A.getSomes(documents), (text) => {
     if (Str.includes(relative)(text)) return true;
-    const references = O.getOrElse(Str.match(/\.beep\/[^\s"\x27`<>[\]()]+/gu)(text), () => A.empty<string>());
+    const references = O.getOrElse(Str.match(/\.beep\/[^\s"\x27`<>[\]()]+/gu)(text), A.empty<string>);
     return A.some(references, (reference) => {
       const ref = Str.replace(/[.,;:)/-]+$/u, "")(reference);
       return (
@@ -2213,6 +2216,7 @@ type ResidueReapSettings = {
   readonly runId: string;
   readonly beepCacheRoot: string;
   readonly checkoutRoots: ReadonlyArray<string>;
+  readonly checkoutBoundaries: ReadonlyArray<readonly [string, O.Option<string>]>;
   readonly classes: ReadonlyArray<ResidueReapClass>;
   readonly codexRoot: string;
   readonly homeRoot: string;
@@ -2259,6 +2263,10 @@ const resolveSettings = Effect.fnUntraced(function* (options: ResidueReapOptions
   const fs = yield* FileSystem.FileSystem;
   const homeRoot = yield* resolveHomeRoot(options);
   const repoRoot = yield* resolveRepoRoot(options);
+  const checkoutRoots = yield* distinctCheckoutRoots(nonEmptyOr(options.checkoutRoots, [repoRoot]));
+  const checkoutBoundaries = yield* Effect.forEach(checkoutRoots, (checkout) =>
+    Effect.map(fs.realPath(checkout).pipe(Effect.option), (canonical) => [checkout, canonical] as const)
+  );
   const beepCacheRoot = path.join(homeRoot, ".cache", "beep");
   const now = yield* Clock.currentTimeMillis;
   const policy: ReapPolicy = {
@@ -2279,7 +2287,8 @@ const resolveSettings = Effect.fnUntraced(function* (options: ResidueReapOptions
   return {
     runId: yield* (yield* Crypto.Crypto).randomUUIDv4,
     beepCacheRoot,
-    checkoutRoots: yield* distinctCheckoutRoots(nonEmptyOr(options.checkoutRoots, [repoRoot])),
+    checkoutRoots,
+    checkoutBoundaries,
     classes: nonEmptyOr(options.classes, ResidueReapClass.literals),
     codexRoot: path.join(homeRoot, ".codex"),
     homeRoot,
@@ -2399,10 +2408,14 @@ const unapplied = (entry: ResidueReapCandidate): AppliedCandidate => ({
 const outerBoundaryFor = Effect.fnUntraced(function* (
   settings: ResidueReapSettings,
   entry: ResidueReapCandidate
-): Effect.fn.Return<O.Option<string>, never, FileSystem.FileSystem> {
-  const fs = yield* FileSystem.FileSystem;
+): Effect.fn.Return<O.Option<string>, never> {
   return isRepoScopedResidueClass(entry.reapClass)
-    ? yield* fs.realPath(optionOr(entry.checkoutRoot, settings.repoRoot)).pipe(Effect.option)
+    ? O.flatMap(
+        A.findFirst(settings.checkoutBoundaries, ([checkout]) =>
+          Str.Equivalence(checkout, optionOr(entry.checkoutRoot, settings.repoRoot))
+        ),
+        ([, canonical]) => canonical
+      )
     : O.some(settings.policy.homeBoundary);
 });
 
@@ -2447,7 +2460,9 @@ const restoreArchivedIntent = Effect.fnUntraced(function* (context: RecoveryInte
   const archive = yield* ResidueArchive;
   const refuse = recoveryRefusal;
   if (yield* fs.exists(intent.source)) return yield* refuse("Restore refuses an occupied source", "path-changed");
-  const moved = yield* archive.move(intent.destination, intent.source, intent).pipe(Effect.scoped);
+  const moved = yield* archive
+    .move(intent.destination, intent.source, DirectoryIdentity.make(intent))
+    .pipe(Effect.scoped);
   if (!BoundMoveOutcome.is.moved(moved) && !BoundMoveOutcome.is["moved-unsynced"](moved))
     return yield* refuse(
       `Restore failed: ${moved}; archive intent retained`,
@@ -2523,7 +2538,7 @@ const recoverArchiveIntent = Effect.fnUntraced(function* (context: RecoveryInten
   const identityAt = Effect.fnUntraced(function* (target: string) {
     if (O.isSome(yield* fs.readLink(target).pipe(Effect.option))) return false;
     return O.exists(O.flatMap(yield* fs.stat(target).pipe(Effect.option), directoryIdentity), (identity) =>
-      sameDirectoryIdentity(identity, intent)
+      sameDirectoryIdentity(identity, DirectoryIdentity.make(intent))
     );
   });
   const sourceMatches = yield* identityAt(intent.source);

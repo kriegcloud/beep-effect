@@ -309,9 +309,9 @@ describe("@beep/lexical-schema Pattern Ontology classification", () => {
   });
 
   describe("field-only constructors are checked in place", () => {
-    for (const member of [Md.Ul, Md.Ol, Md.TaskList, Md.Table]) {
+    for (const [name, member] of R.toEntries({ Ul: Md.Ul, Ol: Md.Ol, TaskList: Md.TaskList, Table: Md.Table })) {
       it.effect.prop(
-        `conserves or explicitly demotes the children of ${member.identifier} position by position`,
+        `conserves or explicitly demotes the children of ${name} position by position`,
         { block: Arbitrary.schema(member) },
         Effect.fnUntraced(function* ({ block }) {
           const node = yield* blockToLexical(block);

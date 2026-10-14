@@ -38,7 +38,9 @@ const $I = $DocumentsUseCasesId.create("aggregates/Sync/Sync.rpc");
  * @category protocols
  * @since 0.0.0
  */
-export class VaultSyncWorkspacePayload extends S.Class<VaultSyncWorkspacePayload>($I`VaultSyncWorkspacePayload`)(
+export class VaultSyncWorkspacePayload extends S.Class<VaultSyncWorkspacePayload, { readonly brand: unique symbol }>(
+  $I`VaultSyncWorkspacePayload`
+)(
   {
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault mirror the RPC addresses.",
@@ -70,20 +72,22 @@ export class VaultSyncWorkspacePayload extends S.Class<VaultSyncWorkspacePayload
  * @category protocols
  * @since 0.0.0
  */
-export class MarkVaultSyncConflictReviewedPayload extends S.Class<MarkVaultSyncConflictReviewedPayload>(
-  $I`MarkVaultSyncConflictReviewedPayload`
-)(
-  {
+export class MarkVaultSyncConflictReviewedPayload extends S.Opaque<
+  MarkVaultSyncConflictReviewedPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     conflictId: Documents.SyncConflictId.annotateKey({
       description: "Drift record to mark as reviewed.",
     }),
     workspaceId: WorkspaceIdentity.WorkspaceId.annotateKey({
       description: "Workspace whose vault mirror the RPC addresses.",
     }),
-  },
-  $I.annote("MarkVaultSyncConflictReviewedPayload", {
-    description: "Payload for marking one vault sync drift record as reviewed.",
-  })
+  }).pipe(
+    $I.annoteSchema("MarkVaultSyncConflictReviewedPayload", {
+      description: "Payload for marking one vault sync drift record as reviewed.",
+    })
+  )
 ) {}
 
 /**

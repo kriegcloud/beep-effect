@@ -11,6 +11,11 @@ for End-to-End Green: deterministic local repair, cheap-gates before the push,
 reviewed commit, push to a draft PR, hosted checks and review as the
 authoritative proof, review closeout, and merge readiness.
 
+For multi-session coordination, use [the orchestrate skill](../orchestrate/SKILL.md).
+Claude and Codex can both own that role. Its native and enrolled cross-provider
+message routes carry briefs and receipts; messages do not grant merge authority
+or bypass Yeet's exact-head checks and review window.
+
 ## Ground First
 
 1. Inspect the current branch and worktree:
@@ -307,7 +312,7 @@ bun run beep quality profile config workstation
 
 `yeet publish` gates the push on the cheap-gates tier (12 deterministic gates
 in one collected wave: config sync, tsgo rule parity, Effect imports,
-schema-first, goals checks, Knip, Fallow, changeset status, JSDoc ratchet) and
+schema-first, goals checks, Fallow, publish-enabled changeset status, JSDoc ratchet) and
 the head-install preflight (a frozen-lockfile install of committed `HEAD` in a
 temporary worktree). Hosted CI is the authoritative proof. `bun run beep yeet
 verify` (full tier) dispatches the hosted lane bodies locally and is on-demand:

@@ -20,6 +20,7 @@ import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { expectReportedExit, temporaryWorkingDirectory, writeProjectFile } from "./support/CommandTest.ts";
 
@@ -120,6 +121,7 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
         const missing = yield* compileGraduationPlan(snapshotOf({ exists: false }), requestOf(child("a-child")));
         expect(reasons(missing)).toEqual(["exploration-not-found"]);
         strictEqual(missing.explorationEdit, undefined);
+        expect(renderGraduationPlanHuman(missing)).toContain("exploration-not-found");
 
         const undecodable = yield* compileGraduationPlan(
           snapshotOf({ manifestText: "{ not json" }),
@@ -142,6 +144,16 @@ it.layer(NodeServices.layer, { concurrent: false, timeout: "60 seconds" })((it) 
           requestOf(child("a-child"))
         );
         expect(reasons(killed)).toEqual(["exploration-closed"]);
+      }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
+    );
+
+    it.effect("refuses a manifest naming a different exploration", () =>
+      Effect.gen(function* () {
+        const text = Str.replace(EXPLORATION, "another-exploration")(manifestText("active", "decompose"));
+        const plan = yield* compileGraduationPlan(snapshotOf({ manifestText: text }), requestOf(child("a-child")));
+        expect(reasons(plan)).toEqual(["manifest-undecodable"]);
+        expect(plan.conflicts[0]?.message).toContain('names slug "another-exploration"');
+        strictEqual(plan.explorationEdit, undefined);
       }).pipe(Effect.provideServiceEffect(Console.Console, TestConsole.make))
     );
 

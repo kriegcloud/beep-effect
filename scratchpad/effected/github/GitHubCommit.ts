@@ -17,7 +17,7 @@ import type { PageOptions } from "./Rest.ts";
 
 const $I = $ScratchpadId.create("effected/github/GitHubCommit");
 
-class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("UnstubbedError", {
+class UnstubbedError extends S.TaggedError<UnstubbedError, { readonly brand: unique symbol }>($I`UnstubbedError`)("UnstubbedError", {
 	message: S.String.annotateKey({ description: "The test-double member that needs an override." }),
 }, $I.annote("UnstubbedError", { description: "An unconfigured test-double member was called." })) {}
 
@@ -43,7 +43,7 @@ class UnstubbedError extends S.TaggedError<UnstubbedError>($I`UnstubbedError`)("
  * @category models
  * @since 0.0.0
  */
-export class CommitSummary extends S.Class<CommitSummary>($I`CommitSummary`)({
+export class CommitSummary extends S.Class<CommitSummary, { readonly brand: unique symbol }>($I`CommitSummary`)({
 	/** The commit sha. */
 	sha: S.String.annotateKey({ description: "The commit sha." }),
 	/** The full commit message, untrimmed — this package does not decide what "the message" means. */
@@ -151,7 +151,7 @@ export type FileStatus = typeof FileStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class CommitFile extends S.Class<CommitFile>($I`CommitFile`)({
+export class CommitFile extends S.Class<CommitFile, { readonly brand: unique symbol }>($I`CommitFile`)({
 	/** Repository-relative path, after any rename. */
 	path: S.String.annotateKey({ description: "Repository-relative path, after any rename." }),
 	/** What happened to it. */
@@ -186,7 +186,7 @@ export class CommitFile extends S.Class<CommitFile>($I`CommitFile`)({
  * @category models
  * @since 0.0.0
  */
-export class CommitComparison extends S.Class<CommitComparison>($I`CommitComparison`)({
+export class CommitComparison extends S.Class<CommitComparison, { readonly brand: unique symbol }>($I`CommitComparison`)({
 	/** How head relates to base. */
 	status: S.Literals(["diverged", "ahead", "behind", "identical"]).annotateKey({ description: "How head relates to base." }),
 	/** Commits head has that base does not. */

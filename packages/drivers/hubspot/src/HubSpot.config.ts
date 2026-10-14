@@ -167,8 +167,8 @@ const hubSpotConfigInputHeadersDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class HubSpotConfigInput extends S.Class<HubSpotConfigInput>($I`HubSpotConfigInput`)(
-  {
+export class HubSpotConfigInput extends S.Opaque<HubSpotConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     accountId: S.optionalKey(HubSpotAccountId).annotateKey({
       description: "HubSpot account id used in secure Forms API submission URLs.",
     }),
@@ -195,8 +195,9 @@ export class HubSpotConfigInput extends S.Class<HubSpotConfigInput>($I`HubSpotCo
       .annotateKey({
         description: "Additional HTTP headers merged into HubSpot API requests.",
       }),
-  },
-  $I.annote("HubSpotConfigInput", {
-    description: "Runtime configuration accepted by the HubSpot API driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("HubSpotConfigInput", {
+      description: "Runtime configuration accepted by the HubSpot API driver layer.",
+    })
+  )
 ) {}

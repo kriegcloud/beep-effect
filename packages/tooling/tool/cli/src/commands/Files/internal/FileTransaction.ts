@@ -10,7 +10,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
-import { FilesCommandError, formatPlatformError } from "../Files.errors.ts";
+import { FilesCommandError, formatPlatformError, PlatformErrorOptions } from "../Files.errors.ts";
 
 const $I = $RepoCliId.create("commands/Files/internal/FileTransaction");
 
@@ -26,7 +26,11 @@ const targetCandidateExists = Effect.fn("Files.targetCandidateExists")(function*
   if (isSymbolicLink) return true;
   return yield* fs
     .exists(candidate)
-    .pipe(Effect.mapError((cause) => formatPlatformError(`Failed to inspect ${description}`, candidate, { cause })));
+    .pipe(
+      Effect.mapError((cause) =>
+        formatPlatformError(`Failed to inspect ${description}`, candidate, PlatformErrorOptions.make({ cause }))
+      )
+    );
 });
 
 /**
@@ -36,18 +40,19 @@ const targetCandidateExists = Effect.fn("Files.targetCandidateExists")(function*
  * @category models
  * @since 0.0.0
  */
-export class StagedFileCommitRecord extends S.Class<StagedFileCommitRecord>($I`StagedFileCommitRecord`)(
-  {
+export class StagedFileCommitRecord extends S.Opaque<StagedFileCommitRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     backedUp: S.Boolean.pipe(S.mutableKey),
     backupPath: S.String,
     committed: S.Boolean.pipe(S.mutableKey),
     description: S.String,
     stagedPath: S.String,
     targetPath: S.String,
-  },
-  $I.annote("StagedFileCommitRecord", {
-    description: "Mutable commit progress and immutable paths for one staged filesystem replacement.",
-  })
+  }).pipe(
+    $I.annoteSchema("StagedFileCommitRecord", {
+      description: "Mutable commit progress and immutable paths for one staged filesystem replacement.",
+    })
+  )
 ) {}
 
 /**
@@ -81,7 +86,9 @@ export const canonicalizeFileTargetPath = Effect.fn("Files.canonicalizeFileTarge
       const canonicalCandidate = yield* fs
         .realPath(candidate)
         .pipe(
-          Effect.mapError((cause) => formatPlatformError(`Failed to resolve ${description}`, candidate, { cause }))
+          Effect.mapError((cause) =>
+            formatPlatformError(`Failed to resolve ${description}`, candidate, PlatformErrorOptions.make({ cause }))
+          )
         );
       const relativeSuffix = path.relative(candidate, resolvedTarget);
       return relativeSuffix === "" ? canonicalCandidate : path.resolve(canonicalCandidate, relativeSuffix);
@@ -121,7 +128,7 @@ export const canonicalizeFileTargetPath = Effect.fn("Files.canonicalizeFileTarge
  * @since 0.0.0
  */
 export const backupStagedFileTarget = Effect.fn("Files.backupStagedFileTarget")(function* (
-  record: StagedFileCommitRecord
+  record: typeof StagedFileCommitRecord.Encoded
 ): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
   yield* Effect.uninterruptible(
@@ -130,7 +137,11 @@ export const backupStagedFileTarget = Effect.fn("Files.backupStagedFileTarget")(
         .rename(record.targetPath, record.backupPath)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError(`Failed to back up existing ${record.description}`, record.targetPath, { cause })
+            formatPlatformError(
+              `Failed to back up existing ${record.description}`,
+              record.targetPath,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
       record.backedUp = true;
@@ -165,7 +176,7 @@ export const backupStagedFileTarget = Effect.fn("Files.backupStagedFileTarget")(
  * @since 0.0.0
  */
 export const commitStagedFileByRename = Effect.fn("Files.commitStagedFileByRename")(function* (
-  record: StagedFileCommitRecord,
+  record: typeof StagedFileCommitRecord.Encoded,
   failureAction: string
 ): Effect.fn.Return<void, FilesCommandError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
@@ -175,7 +186,11 @@ export const commitStagedFileByRename = Effect.fn("Files.commitStagedFileByRenam
         .rename(record.stagedPath, record.targetPath)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError(`${failureAction} ${record.description}`, record.targetPath, { cause })
+            formatPlatformError(
+              `${failureAction} ${record.description}`,
+              record.targetPath,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
       record.committed = true;

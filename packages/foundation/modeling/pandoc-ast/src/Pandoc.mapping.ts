@@ -72,7 +72,9 @@ const $I = $PandocAstId.create("Pandoc.mapping");
  * @category errors
  * @since 0.0.0
  */
-export class PandocMappingError extends S.TaggedError<PandocMappingError>($I`PandocMappingError`)(
+export class PandocMappingError extends S.TaggedError<PandocMappingError, { readonly brand: unique symbol }>(
+  $I`PandocMappingError`
+)(
   "PandocMappingError",
   {
     message: S.String,
@@ -1355,18 +1357,19 @@ const mdBlockToPandoc = (block: Md.Block, path: JsonPath): Effect.Effect<Project
  * @category models
  * @since 0.0.0
  */
-export class PandocToDocumentResult extends S.Class<PandocToDocumentResult>($I`PandocToDocumentResult`)(
-  {
+export class PandocToDocumentResult extends S.Opaque<PandocToDocumentResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     document: Md.Document.annotateKey({
       description: "Mapped Md document.",
     }),
     report: PandocCompatibilityReport.annotateKey({
       description: "Compatibility report for the mapping.",
     }),
-  },
-  $I.annote("PandocToDocumentResult", {
-    description: "Result of mapping a Pandoc document to @beep/md.",
-  })
+  }).pipe(
+    $I.annoteSchema("PandocToDocumentResult", {
+      description: "Result of mapping a Pandoc document to @beep/md.",
+    })
+  )
 ) {}
 
 /**
@@ -1427,18 +1430,19 @@ export declare namespace PandocToDocumentResult {
  * @category models
  * @since 0.0.0
  */
-export class DocumentToPandocResult extends S.Class<DocumentToPandocResult>($I`DocumentToPandocResult`)(
-  {
+export class DocumentToPandocResult extends S.Opaque<DocumentToPandocResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     pandoc: PandocDocument.annotateKey({
       description: "Mapped Pandoc document.",
     }),
     report: PandocCompatibilityReport.annotateKey({
       description: "Compatibility report for the mapping.",
     }),
-  },
-  $I.annote("DocumentToPandocResult", {
-    description: "Result of mapping an @beep/md document to Pandoc.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentToPandocResult", {
+      description: "Result of mapping an @beep/md document to Pandoc.",
+    })
+  )
 ) {}
 
 /**

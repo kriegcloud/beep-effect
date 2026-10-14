@@ -9,6 +9,7 @@
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
 import {
   MailRuleIntent,
+  MailTaxonomy,
   MatterCandidate,
   MatterEvidence,
   MatterEvidenceToken,
@@ -31,7 +32,6 @@ import * as Str from "effect/String";
 import { extractPracticeKgReferences } from "../PracticeKg.matter-lookup.ts";
 import type {
   MailEnvelope,
-  MailTaxonomy,
   MatterEvidenceKind,
   MatterIndexEntry,
   MatterKey,
@@ -250,7 +250,9 @@ const ruleCategories = (taxonomy: MailTaxonomy, signals: SenderSignals): Readonl
   A.map(A.filter(taxonomy.ruleIntents, ruleApplies(signals)), (rule) => rule.category);
 
 const practiceCategoriesOf = (context: MatterTaggerContext, signals: MailSignals): ReadonlyArray<PracticeCategory> =>
-  A.dedupe(A.appendAll(ruleCategories(context.taxonomy, signals), clientCategories(context, signals)));
+  A.dedupe(
+    A.appendAll(ruleCategories(MailTaxonomy.make(context.taxonomy), signals), clientCategories(context, signals))
+  );
 
 // A hit on an unattributed matter turns every unmatched outcome into `needs-attorney`.
 const escalated =

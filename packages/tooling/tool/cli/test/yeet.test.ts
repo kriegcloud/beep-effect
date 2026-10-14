@@ -827,7 +827,6 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
         "quality:security",
         "quality:secrets",
         "quality:commitlint",
-        "quality:knip",
         "quality:sast",
         "quality:changeset-status",
         "quality:nix",
@@ -4002,8 +4001,8 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
           paths: ["src/a.ts"],
         });
 
-        expect(staged).toBeInstanceOf(YeetStagedPublishIntent);
-        expect(existing).toBeInstanceOf(YeetExistingCommitPublishIntent);
+        expect(S.is(YeetStagedPublishIntent)(staged)).toBe(true);
+        expect(S.is(YeetExistingCommitPublishIntent)(existing)).toBe(true);
       })
     );
 
@@ -4018,7 +4017,7 @@ printf '%s\\n' '{"number":874,"headRefName":"repo-cli-yeet","state":"OPEN"}'
 
         const intent = yield* collectPublishIntent(tempContext, false);
 
-        expect(intent).toBeInstanceOf(YeetExistingCommitPublishIntent);
+        expect(S.is(YeetExistingCommitPublishIntent)(intent)).toBe(true);
         if (intent.kind === "existing-commit") {
           expect(intent.paths).toEqual(["tracked.txt"]);
           expect(intent.commitSha).toBe(Str.trim(yield* runGitCapture(tmpDir, ["rev-parse", "HEAD"])));

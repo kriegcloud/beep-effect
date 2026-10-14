@@ -13,6 +13,13 @@
  */
 export * from "./SkillFrontmatter.schemas.ts";
 /**
+ * Strict unified-diff application for skill patch series.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./SkillPatches.apply.ts";
+/**
  * Command definitions for repo-local skills management.
  *
  * @category commands
@@ -75,3 +82,38 @@ export * from "./SkillsLock.schemas.ts";
  * @since 0.0.0
  */
 export * from "./SkillsLock.write.ts";
+/**
+ * `skills materialize` report schemas.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillsMaterialize.schemas.ts";
+/**
+ * The verified-before-written skill materializer service.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./SkillsMaterialize.service.ts";
+/**
+ * Update-train renderers: replay comment, relock receipt, batch issue.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./SkillsRelock.render.ts";
+/**
+ * Update-train report, plan, and batch-issue schemas.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export * from "./SkillsRelock.schemas.ts";
+/**
+ * The skills update train service: replay and relock.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./SkillsRelock.service.ts";

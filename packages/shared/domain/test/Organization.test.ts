@@ -96,7 +96,7 @@ describe("Organization", () => {
           Organization.LicenseTier.is.team(decodedTier) ||
           Organization.LicenseTier.is.enterprise(decodedTier)
       );
-      assert.instanceOf(decodedSettings, Organization.Settings);
+      assertTrue(S.is(Organization.Settings)(decodedSettings));
       assert.strictEqual(decodedSettings.allowAgentActions, settings.allowAgentActions);
       assert.strictEqual(decodedSettings.defaultRetentionDays, settings.defaultRetentionDays);
 

@@ -3,6 +3,7 @@ import {
   BootstrapInput,
   compileAdoptionPlan,
   compileMaterializationPlan,
+  GoalPlanOperationalError,
   goalsCommand,
   listGoalPackets,
   MaterializationPlan,
@@ -180,6 +181,23 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
         })
       )
     );
+
+    it.effect("does not sweep staging names through a symlinked goals root", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const plan = yield* compileMaterializationPlan(input, []);
+          yield* writeProjectFile("outside/.staging-keep/data.txt", "keep\n");
+          yield* fs.symlink(`${process.cwd()}/outside`, "goals");
+
+          const exit = yield* Effect.exit(publishBootstrapPlan(plan));
+          exit.pipe(Exit.isFailure, assertTrue);
+          expect(String(exit)).toContain("symlinked goals root");
+          strictEqual(yield* fs.readFileString("outside/.staging-keep/data.txt"), "keep\n");
+        })
+      )
+    );
   });
 
   describe("goals adopt --write", { concurrent: false }, () => {
@@ -248,6 +266,24 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
         })
       )
     );
+
+    it.effect("refuses a reviewed adoption write through a symlinked packet ancestor", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          yield* seedHandRolled;
+          yield* fs.makeDirectory("outside", { recursive: true });
+          yield* fs.symlink(`${process.cwd()}/outside`, "goals/hand-rolled/ops");
+          const plan = yield* compileAdoptionPlan(yield* readPacketSnapshot("hand-rolled"), O.none());
+
+          const exit = yield* Effect.exit(applyAdoptionPlan(plan));
+          exit.pipe(Exit.isFailure, assertTrue);
+          expect(String(exit)).toContain("Refusing to write");
+          expect(yield* fs.readDirectory("outside")).toEqual([]);
+        })
+      )
+    );
   });
 
   describe("goals bootstrap|adopt write gate", { concurrent: false }, () => {
@@ -292,6 +328,34 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
   });
 
   describe("replacePinnedFile", { concurrent: false }, () => {
+    it.effect("refuses a lost generation lock and removes the staged replacement", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const preImage = '{"version":0}\n';
+          yield* writeProjectFile("pinned/state.json", preImage);
+          const preImageDigest = yield* sha256Hex(preImage);
+          const refused = yield* Effect.flip(
+            replacePinnedFile(
+              "pinned/state.json",
+              preImageDigest,
+              Effect.fnUntraced(function* () {
+                yield* fs
+                  .remove("pinned/state.json.lock")
+                  .pipe(Effect.mapError(GoalPlanOperationalError.new("Could not remove the fixture generation lock.")));
+                return '{"version":1}\n';
+              })
+            )
+          );
+          strictEqual(refused._tag, "GoalPlanOperationalError");
+          expect(refused.message).toContain("Refusing to replace pinned/state.json");
+          strictEqual(yield* fs.readFileString("pinned/state.json"), preImage);
+          expect(yield* fs.readDirectory("pinned")).toEqual(["state.json"]);
+        })
+      ).pipe(TestClock.withLive)
+    );
+
     it.effect("serializes two writers of one pre-image into one replacement and one refusal", () =>
       Effect.andThen(
         temporaryWorkingDirectory,

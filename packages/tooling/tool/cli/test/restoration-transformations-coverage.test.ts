@@ -4,6 +4,7 @@ import { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import {
   ArchiveLedgerRecord,
   CollectorManifestRecord,
+  CorpusCommandError,
   CorpusCommandServiceLive,
   decodeTransformationLedgerRecordJson,
   encodeArchiveLedgerRecordJson,
@@ -16,6 +17,7 @@ import {
   RestorationMailOptions,
   RestorationPreserveOptions,
   RestorationRecycleOptions,
+  RestorationVerifyOptions,
   reconcileRestorationAcceptance,
   restoreLegacyWord,
   restoreMail,
@@ -1969,6 +1971,37 @@ else exit 92; fi
     })
   );
 
+  it.effect("projects nested mail causes through a bounded message-free allowlist", () =>
+    Effect.sync(() => {
+      const original = FileProcessingOperationError.make({
+        reason: "operation-timed-out",
+        message: "private engine details",
+        engine: "/private/engine",
+        details: { arbitrary: "private output" },
+      });
+      const nested = CorpusCommandError.new(CorpusCommandError.new(original, "private wrapper"), "outer");
+      expect(RT.mailFailureCause(nested)).toEqual({
+        _tag: "FileProcessingOperationError",
+        reason: "operation-timed-out",
+      });
+      expect(RT.mailFailureCause(CorpusCommandError.make({ message: "no cause" }))).toEqual({
+        _tag: "CorpusCommandError",
+      });
+      expect(
+        RT.mailFailureCause({ _tag: "CaptureCommandTimedOutError", commandLine: "/private/tool", message: "private" })
+      ).toEqual({
+        _tag: "CaptureCommandTimedOutError",
+      });
+      expect(
+        RT.mailFailureCause({ _tag: "CapturePipeWedgedError", commandLine: "/private/tool", message: "private" })
+      ).toEqual({ _tag: "CapturePipeWedgedError" });
+      expect(RT.mailFailureCause({ _tag: "unrecognized private class", message: "private" })).toEqual({
+        _tag: "Unknown",
+      });
+      expect(RT.mailFailureCause(nested, 8)).toEqual({ _tag: "CorpusCommandError" });
+    })
+  );
+
   it.effect("refuses to launch Tika when retained children exhaust the attempt output budget", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
@@ -3184,7 +3217,9 @@ printf '%%PDF-1.4 synthetic attachment' > "$item/Attachment00001/report.bin"
         expect((yield* decodeTransformationLedgerRecordJson(lastLegacyLine)).recordType).toBe("family-acceptance-pass");
         yield* fs.writeFileString(legacyLedgerPath, `${A.join(legacyLines.slice(0, -1), "\n")}\n`);
         yield* restoreLegacyWord(legacyWordOptions);
-        const acceptances = yield* reconcileRestorationAcceptance({ corpusRoot, runLabel });
+        const acceptances = yield* reconcileRestorationAcceptance(
+          RestorationVerifyOptions.make({ corpusRoot, runLabel })
+        );
         expect(A.map(acceptances, (acceptance) => acceptance.family)).toEqual([
           "preservation",
           "mail",

@@ -9,12 +9,12 @@ digests while retaining the originals.
 
 ## Next action
 
-The bounded P2 wave stopped at family 8 after its further sealed failure.
-Eight families sealed: five accepted, families 5, 7 and 8 failed. Ordinal 9
-remains unstarted. Retain all evidence and report the PDF second-pass parser
-diagnosis to the orchestrator; no retry or next launch is authorized.
-P2 remains in-progress, P3 pending. Separate recovery of families 5/7,
-family-8 recovery scope and eighteen larger occurrences remain open.
+Recovery ordinal 5 sealed failure with TikaSecondPassFailure (exit 1,
+empty output, no truncation), retained as unsupported recovery evidence;
+never a third attempt. Main integration imports JSDoc-only Corpus source
+changes that fail the frozen launcher's byte comparison. Resolve execution
+identity before ordinals 7/8/9; all remain unstarted. See
+history/p2/2026-10-14-recovery-progress.md. No accepted recovery output.
 
 ## Launcher
 
@@ -40,6 +40,39 @@ ingestion v2, enrichment v2, and practice-kg bundle v2 remain gated MAP
 re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
+
+2026-10-14 reboot resume: recovery ordinal 5 sealed failure, exit one;
+TikaSecondPassFailure (empty stdout, no truncation), unsupported recovery
+occurrence, no third attempt. Retained 354,621,761 bytes; family elapsed
+1,264,398 ms; memory peak 30.1G; zero accepted store/child rows. Main
+integration succeeds, but three JSDoc blocks fail frozen source equality.
+Ordinals 7/8/9 unstarted; no new execution or identity override. See
+history/p2/2026-10-14-recovery-progress.md.
+
+2026-10-14: Recovery engine #1731 merged at 226087bfda. Four fresh
+manifests were committed before launch for failed ordinals 5/7/8/9.
+Ordinal 5 started at 13:38:59.023Z; its sole detached family unit is active
+in archive re-verification. Both real sandbox smokes, four focused
+restoration tests and two recovery regressions pass. Knowledge refs has
+fifteen inherited gates in eleven documents matching main, zero introduced
+gates. No recovery terminal outcome yet; old sealed state retained.
+
+
+2026-10-14: Ordinal 9 sealed failure, result one, one unapproved engine-failure.
+Input 456,877,056 bytes; retained output 1,177,728,174 bytes; family elapsed
+7,222,485 ms. Timing supports attachment-repair elapsed-budget exhaustion;
+exact cause unresolved. Nine sealed: five accepted, four failed. Accepted
+families reconcile 19,438 children. Frozen policies and identities match.
+See history/p2/2026-10-14-first-wave-terminal.md and the bounded recovery amendment.
+
+
+2026-10-14: Ordinal 9 launched at 08:42:20Z after both admitted sandbox
+smokes, four focused tests and the full sixty-second interval. Capacity
+403,566,137,344 bytes. Eight prior seals, policy identities and ledger hashes
+unchanged. Execution source matches the existing fallback amendment;
+no accepted ordinal-9 outcome or runtime-policy match is claimed yet.
+Knowledge refs has one attributed inherited documentation gate from #1685.
+
 
 2026-10-14: Family 8 sealed failure, result 1 and one unapproved engine-failure.
 Retained output 1,037,230,305 bytes from 436,306,944 input bytes; family

@@ -1,7 +1,7 @@
 # M365 agent outbox: Entra registration (operator-attended)
 
 The agent outbox (`goals/m365-agent-outbox`) lets agent sessions on the
-workstation draft mail with attachments, send a draft, and write calendar
+workstation draft mail with attachments and write calendar
 events in the attorney's mailbox. This runbook registers the application that
 lets it do so and, optionally, turns on the claude.ai connector's write tools.
 
@@ -10,7 +10,8 @@ Run it in the same sitting as the docket intake registration
 `goals/practice-docket-intake`): the same person, the same Entra admin center
 session and the same Exchange Online PowerShell session do both. The two registrations stay separate on purpose.
 The docket service reads inbound mail unattended and must never be able to
-send; the outbox can send and must never run unattended.
+send; the outbox registration retains a scoped send grant, but automated
+sending is disabled while the draft-version race is unresolved.
 
 It needs someone who is both an Entra application administrator and an
 Exchange Online administrator of the firm tenant. Steps 1 to 6 take about 15
@@ -240,8 +241,9 @@ any message with one.
    | Create, update and delete draft; create, update and delete event; respond to event | **Ask** |
    | SharePoint and OneDrive write tools, Teams send and post tools, mailbox rules, labels and automatic replies | **Blocked** |
 
-   The outbox stays the only route that sends mail from an agent session,
-   because it is the only one that checks the draft and writes an audit record.
+   Agent sessions cannot send mail through the outbox while its send action
+   returns `version-unbound`. The prepared draft must be reviewed and sent in
+   Outlook. Keep the connector send tools blocked.
 3. Reconnect the connector in a claude.ai session and ask it for its granted
    scopes. `Mail.ReadWrite` and `Calendars.ReadWrite` should be listed.
 

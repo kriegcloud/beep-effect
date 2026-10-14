@@ -348,3 +348,62 @@ and await orchestrator continuation/recovery scope. P2 remains in-progress.
 Separate family-5/7 recovery, the new family-8 parser follow-up, eighteen
 larger occurrences and estate/recycle/DOC gates remain open.
 See history/p2/2026-10-14-family-08-stop.md.
+
+
+**Authorized continuation 2026-10-14 08:35:38Z:** ordinal 9 launched once
+at 08:42:20Z under the unchanged launcher and committed fallback amendment.
+Eight prior families sealed: five accepted, three failures (5/7/8).
+Driver reconciles the ninth seal before its separate record PR. One bounded
+recovery amendment for 5/7/8 follows; commit it and obtain the orchestrator's
+approved reply before recovery launch. Repeated PDF second-pass failure is
+unsupported, with no third attempt. Eighteen larger occurrences and
+estate/recycle/DOC gates remain open for P3; P2 remains in-progress.
+
+
+**Terminal wave 2026-10-14:** nine sealed, five accepted, four failed
+(5/7/8/9). Ordinal 9 timing supports attachment-repair elapsed-budget
+exhaustion. No retry. Publish the separate terminal record and bounded
+5/7/8 recovery amendment; next extraction-engine binding and orchestrator
+approval required before launch. Family 9 needs explicit recovery scope.
+Eighteen larger occurrences and estate/recycle/DOC gates remain open for P3.
+
+
+**Recovery authorization 2026-10-14 11:14Z:** failed ordinals 5/7/8/9 have
+one bounded recovery batch using the SAME Java/Tika chain. The engine PR
+lands on main before execution. Four fresh sequential tool families, one
+occurrence/attempt each, use new manifests and attempt 22,320,000 ms;
+family 43,200,000 ms, ratio 4, 2 GiB output and 100 GB floor stay fixed.
+Preserve original cause classes/stable fields without messages. Repeated
+second-pass failure is dispositioned unsupported, never tried a third time;
+sealed failures and partial repairs stay evidence. No launch in the engine
+PR preparation run. Eighteen larger occurrences and estate/recycle/DOC
+gates remain open for P3. P2 stays in-progress.
+
+
+**Recovery freeze 2026-10-14:** engine PR #1731 merged at 226087bfda.
+Main integrated; source identity matches main. Four new pre-launch manifests
+bind failed ordinals 5/7/8/9, one fresh family each, concurrency one and
+one recovery attempt each. Attempt 22,320,000 ms; family 43,200,000 ms,
+ratio 4, 2 GiB output and 100 GB floor retained. Both admitted sandbox
+smokes and four focused tests pass. Launch ordinal 5 after committing
+freeze records and the full sixty-second interval; driver resumes after
+seal review. Repeated second-pass failure is unsupported with evidence,
+never accepted partial output or a third attempt. P2 stays in-progress;
+eighteen larger occurrences and estate/recycle/DOC gates stay open for P3.
+
+
+**Recovery launch 2026-10-14:** ordinal 5 started at 13:38:59.023Z in
+beep-heavy-corpus-restore-p2-recovery-2026-10-14-5.service. Sole live
+recovery family; archive re-verification active, result pending. The driver
+waits for this unit, then relaunches the lane to reconcile seal/children,
+fill the manifest policy digest once and progress to 7/8/9. No recovery
+accepted yet. All old families and their evidence remain immutable.
+
+
+**Recovery reboot resume 2026-10-14:** ordinal 5 sealed failure, result 1,
+TikaSecondPassFailure (exit 1, empty output, no truncation); unsupported
+recovery disposition, never a third attempt. Retained 354,621,761 bytes;
+family 1,264,398 ms; memory peak 30.1G. Main integration imports three
+JSDoc-only blocks in Corpus.service.ts, violating the frozen launcher's
+whole-directory byte comparison. Ordinals 7/8/9 remain unstarted pending
+orchestrator identity resolution; frozen manifests/launcher unchanged.

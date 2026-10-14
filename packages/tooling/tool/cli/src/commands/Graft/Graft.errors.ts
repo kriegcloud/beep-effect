@@ -29,7 +29,9 @@ const $I = $RepoCliId.create("commands/Graft/Graft.errors");
  * @category errors
  * @since 0.0.0
  */
-export class GraftCacheSourceError extends S.TaggedError<GraftCacheSourceError>($I`GraftCacheSourceError`)(
+export class GraftCacheSourceError extends S.TaggedError<GraftCacheSourceError, { readonly brand: unique symbol }>(
+  $I`GraftCacheSourceError`
+)(
   "GraftCacheSourceError",
   {
     path: S.String,
@@ -59,7 +61,9 @@ export class GraftCacheSourceError extends S.TaggedError<GraftCacheSourceError>(
  * @category errors
  * @since 0.0.0
  */
-export class GraftCacheTargetError extends S.TaggedError<GraftCacheTargetError>($I`GraftCacheTargetError`)(
+export class GraftCacheTargetError extends S.TaggedError<GraftCacheTargetError, { readonly brand: unique symbol }>(
+  $I`GraftCacheTargetError`
+)(
   "GraftCacheTargetError",
   {
     path: S.String,
@@ -89,7 +93,9 @@ export class GraftCacheTargetError extends S.TaggedError<GraftCacheTargetError>(
  * @category errors
  * @since 0.0.0
  */
-export class GraftCacheIoError extends S.TaggedError<GraftCacheIoError>($I`GraftCacheIoError`)(
+export class GraftCacheIoError extends S.TaggedError<GraftCacheIoError, { readonly brand: unique symbol }>(
+  $I`GraftCacheIoError`
+)(
   "GraftCacheIoError",
   {
     path: S.String,
@@ -120,7 +126,9 @@ export class GraftCacheIoError extends S.TaggedError<GraftCacheIoError>($I`Graft
  * @category errors
  * @since 0.0.0
  */
-export class GraftDeepLockError extends S.TaggedError<GraftDeepLockError>($I`GraftDeepLockError`)(
+export class GraftDeepLockError extends S.TaggedError<GraftDeepLockError, { readonly brand: unique symbol }>(
+  $I`GraftDeepLockError`
+)(
   "GraftDeepLockError",
   {
     path: S.String,
@@ -151,7 +159,9 @@ export class GraftDeepLockError extends S.TaggedError<GraftDeepLockError>($I`Gra
  * @category errors
  * @since 0.0.0
  */
-export class GraftDeepPreflightError extends S.TaggedError<GraftDeepPreflightError>($I`GraftDeepPreflightError`)(
+export class GraftDeepPreflightError extends S.TaggedError<GraftDeepPreflightError, { readonly brand: unique symbol }>(
+  $I`GraftDeepPreflightError`
+)(
   "GraftDeepPreflightError",
   {
     path: S.String,
@@ -187,7 +197,9 @@ export class GraftDeepPreflightError extends S.TaggedError<GraftDeepPreflightErr
  * @category errors
  * @since 0.0.0
  */
-export class GraftDeepStepError extends S.TaggedError<GraftDeepStepError>($I`GraftDeepStepError`)(
+export class GraftDeepStepError extends S.TaggedError<GraftDeepStepError, { readonly brand: unique symbol }>(
+  $I`GraftDeepStepError`
+)(
   "GraftDeepStepError",
   {
     step: GraftDeepRefreshPhase,

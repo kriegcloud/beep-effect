@@ -74,7 +74,7 @@ const $I = $ScratchpadId.create("effect-ontology/Workflow/StreamingExtraction");
 const SYSTEMIC_ERROR_CODES = ["ECONNREFUSED", "ETIMEDOUT", "ENOTFOUND"];
 const SYSTEMIC_ERROR_MESSAGES = ["connection refused", "database connection", "too many requests"];
 
-class GroundingWorkflowError extends S.TaggedError<GroundingWorkflowError>($I`GroundingWorkflowError`)(
+class GroundingWorkflowError extends S.TaggedError<GroundingWorkflowError, { readonly brand: unique symbol }>($I`GroundingWorkflowError`)(
   "GroundingWorkflowError",
   {
     message: S.NonEmptyString,

@@ -56,8 +56,8 @@ import * as Str from "effect/String";
 
 const $I = $TestUtilsId.create("FileSystemConformance");
 
-class TestLayerSettings extends S.Class<TestLayerSettings>($I`TestLayerSettings`)(
-  {
+class TestLayerSettings extends S.Opaque<TestLayerSettings, { readonly brand: unique symbol }>()(
+  S.Struct({
     accessOnDirectory: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(true)),
       $I.annoteKey("TestLayerSettings.accessOnDirectory", {
@@ -70,10 +70,11 @@ class TestLayerSettings extends S.Class<TestLayerSettings>($I`TestLayerSettings`
         description: "Whether a scoped temporary file removes its containing directory; defaults to true.",
       })
     ),
-  },
-  $I.annote("TestLayerSettings", {
-    description: "Resolved platform capabilities for the pinned filesystem conformance suite.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestLayerSettings", {
+      description: "Resolved platform capabilities for the pinned filesystem conformance suite.",
+    })
+  )
 ) {}
 
 /**

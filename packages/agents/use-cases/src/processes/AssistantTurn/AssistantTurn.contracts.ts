@@ -42,14 +42,15 @@ const BlockIndex = S.Int.check(
  * @category models
  * @since 0.0.0
  */
-export class UserTurnHistoryItem extends S.Class<UserTurnHistoryItem>($I`UserTurnHistoryItem`)(
-  {
+export class UserTurnHistoryItem extends S.Opaque<UserTurnHistoryItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: S.tag("user").annotateKey({ description: "User-authored turn discriminator." }),
     text: S.String.annotateKey({ description: "Plain-text user prompt projection consumed by the turn kernel." }),
-  },
-  $I.annote("UserTurnHistoryItem", {
-    description: "Plain-text prompt projection of a user thread item consumed by the turn kernel.",
-  })
+  }).pipe(
+    $I.annoteSchema("UserTurnHistoryItem", {
+      description: "Plain-text prompt projection of a user thread item consumed by the turn kernel.",
+    })
+  )
 ) {}
 
 /**
@@ -67,16 +68,17 @@ export class UserTurnHistoryItem extends S.Class<UserTurnHistoryItem>($I`UserTur
  * @category models
  * @since 0.0.0
  */
-export class AssistantTurnHistoryItem extends S.Class<AssistantTurnHistoryItem>($I`AssistantTurnHistoryItem`)(
-  {
+export class AssistantTurnHistoryItem extends S.Opaque<AssistantTurnHistoryItem, { readonly brand: unique symbol }>()(
+  S.Struct({
     role: S.tag("assistant").annotateKey({ description: "Assistant-authored turn discriminator." }),
     text: S.String.annotateKey({
       description: "Plain-text assistant response projection consumed by the turn kernel.",
     }),
-  },
-  $I.annote("AssistantTurnHistoryItem", {
-    description: "Plain-text prompt projection of an assistant thread item consumed by the turn kernel.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssistantTurnHistoryItem", {
+      description: "Plain-text prompt projection of an assistant thread item consumed by the turn kernel.",
+    })
+  )
 ) {}
 
 /**
@@ -108,9 +110,9 @@ export const TurnHistoryItem = S.Union([UserTurnHistoryItem, AssistantTurnHistor
  * **Example** (Annotate history item type)
  *
  * ```ts
- * import type { TurnHistoryItem } from "@beep/agents-use-cases/public"
+ * import { AssistantTurnHistoryItem, type TurnHistoryItem } from "@beep/agents-use-cases/public"
  *
- * const item: TurnHistoryItem = { role: "assistant", text: "Ready." }
+ * const item: TurnHistoryItem = AssistantTurnHistoryItem.make({ text: "Ready." })
  * console.log(item.role) // "assistant"
  * ```
  *
@@ -127,7 +129,7 @@ export type TurnHistoryItem = typeof TurnHistoryItem.Type;
  * **Example** (Index decoded assistant block)
  *
  * ```ts
- * import type { IndexedBlock } from "@beep/agents-use-cases/public"
+ * import { IndexedBlock } from "@beep/agents-use-cases/public"
  * import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
@@ -135,21 +137,22 @@ export type TurnHistoryItem = typeof TurnHistoryItem.Type;
  *   type: "paragraph",
  *   children: [{ type: "text", text: "Hello" }],
  * })
- * const indexed: IndexedBlock = { index: 0, block }
+ * const indexed = IndexedBlock.make({ index: 0, block })
  * console.log(indexed.index)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class IndexedBlock extends S.Class<IndexedBlock>($I`IndexedBlock`)(
-  {
+export class IndexedBlock extends S.Opaque<IndexedBlock, { readonly brand: unique symbol }>()(
+  S.Struct({
     block: AssistantBlock.annotateKey({ description: "Generated assistant block payload." }),
     index: BlockIndex.annotateKey({ description: "Zero-based block position in the generated assistant turn." }),
-  },
-  $I.annote("IndexedBlock", {
-    description: "Generated assistant block paired with the block's position in the turn stream.",
-  })
+  }).pipe(
+    $I.annoteSchema("IndexedBlock", {
+      description: "Generated assistant block paired with the block's position in the turn stream.",
+    })
+  )
 ) {
   static readonly encodeResult = S.encodeResult(IndexedBlock);
 }
@@ -179,8 +182,8 @@ export class IndexedBlock extends S.Class<IndexedBlock>($I`IndexedBlock`)(
  * @category models
  * @since 0.0.0
  */
-export class ProviderUsageMetadata extends S.Class<ProviderUsageMetadata>($I`ProviderUsageMetadata`)(
-  {
+export class ProviderUsageMetadata extends S.Opaque<ProviderUsageMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputTokens: S.Natural.annotateKey({
       description: "Total provider-reported input tokens, including cached input when the provider counts it.",
     }),
@@ -196,10 +199,11 @@ export class ProviderUsageMetadata extends S.Class<ProviderUsageMetadata>($I`Pro
     stopReason: S.OptionFromNullOr(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional normalized provider stop reason; encoded absence is JSON null.",
     }),
-  },
-  $I.annote("ProviderUsageMetadata", {
-    description: "Provider-reported model and token usage for a successfully finalized assistant turn.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProviderUsageMetadata", {
+      description: "Provider-reported model and token usage for a successfully finalized assistant turn.",
+    })
+  )
 ) {
   static readonly encodeResult = S.encodeResult(ProviderUsageMetadata);
 
@@ -221,14 +225,15 @@ export class ProviderUsageMetadata extends S.Class<ProviderUsageMetadata>($I`Pro
  * @category models
  * @since 0.0.0
  */
-export class AssistantTurnBlockEvent extends S.Class<AssistantTurnBlockEvent>($I`AssistantTurnBlockEvent`)(
-  {
+export class AssistantTurnBlockEvent extends S.Opaque<AssistantTurnBlockEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     block: IndexedBlock.annotateKey({ description: "Completed indexed assistant block." }),
     type: S.tag("block").annotateKey({ description: "Assistant block event discriminator." }),
-  },
-  $I.annote("AssistantTurnBlockEvent", {
-    description: "Assistant-turn stream event carrying one completed indexed block.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssistantTurnBlockEvent", {
+      description: "Assistant-turn stream event carrying one completed indexed block.",
+    })
+  )
 ) {}
 
 /**
@@ -247,16 +252,17 @@ export class AssistantTurnBlockEvent extends S.Class<AssistantTurnBlockEvent>($I
  * @category models
  * @since 0.0.0
  */
-export class AssistantTurnFinalization extends S.Class<AssistantTurnFinalization>($I`AssistantTurnFinalization`)(
-  {
+export class AssistantTurnFinalization extends S.Opaque<AssistantTurnFinalization, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("finalization").annotateKey({ description: "Assistant turn finalization discriminator." }),
     usage: ProviderUsageMetadata.annotateKey({
       description: "Provider-reported usage for the successfully finalized turn.",
     }),
-  },
-  $I.annote("AssistantTurnFinalization", {
-    description: "Terminal assistant-turn stream signal carrying provider usage metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssistantTurnFinalization", {
+      description: "Terminal assistant-turn stream signal carrying provider usage metadata.",
+    })
+  )
 ) {}
 
 const AssistantTurnEventTag = LiteralKit(["block", "finalization"]);

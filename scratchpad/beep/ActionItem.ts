@@ -506,7 +506,7 @@ const optionalEvidenceList = EvidenceRefChecked.pipe(S.Array, optionalNull, pg.j
  * @category errors
  * @since 0.0.0
  */
-export class TaskFieldConflict extends S.TaggedError<TaskFieldConflict>()(
+export class TaskFieldConflict extends S.TaggedError<TaskFieldConflict, { readonly brand: unique symbol }>()(
   "TaskFieldConflict",
   { message: S.String },
   $I.annoteError<TaskFieldConflict>("TaskFieldConflict", {

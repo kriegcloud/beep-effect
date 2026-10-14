@@ -21,10 +21,12 @@ describe("schema test helpers", () => {
   });
 
   it("supports object-valued class schemas", () => {
-    class ExamplePayload extends S.Class<ExamplePayload>("ExamplePayload")({
-      count: S.Literal(1),
-      status: S.Literal("ready"),
-    }) {}
+    class ExamplePayload extends S.Opaque<ExamplePayload, { readonly brand: unique symbol }>()(
+      S.Struct({
+        count: S.Literal(1),
+        status: S.Literal("ready"),
+      }).annotate({ identifier: "ExamplePayload" })
+    ) {}
 
     assertSchemaArbitraryDecodesToSelf(ExamplePayload, { runs: 5 });
   });

@@ -12,12 +12,13 @@
  */
 
 import { M365 } from "@beep/m365";
+import { M365AppOnlyConfigInput } from "@beep/m365/M365.config";
 import { sanitizedToolkit } from "@beep/mcp-kit";
 import * as McpServer from "effect/ai/McpServer";
 import { dual } from "effect/Function";
 import * as Layer from "effect/Layer";
 import { m365McpProtocols } from "./internal/McpProtocols.ts";
-import { OutboxAttachmentSource } from "./OutboxAttachmentSource.ts";
+import { OutboxAttachmentPolicy, OutboxAttachmentSource } from "./OutboxAttachmentSource.ts";
 import { OutboxAuditIds, OutboxAuditLog } from "./OutboxAuditLog.ts";
 import { makeOutboxToolkitHandlers, OutboxHandlerSettings } from "./OutboxHandlers.ts";
 import { OutboxToolkit } from "./OutboxTools.ts";
@@ -47,7 +48,7 @@ import type { M365McpServerConfig } from "./Server.ts";
  * @since 0.1.0
  */
 export const M365_OUTBOX_MCP_INSTRUCTIONS =
-  "Microsoft 365 outbox for one configured mailbox: prepare a mail draft with attachments from local paths, read or delete that draft, send it, and create or update calendar events. Only m365_outbox_send_draft sends mail. It sends exactly the stored draft and refuses when the draft differs from the expect block, so restate the recipients, subject and attachments (name, size and sha256 exactly as create_draft or get_draft returned them). After an outcome of unknown, call m365_outbox_get_draft: a draft that is still there was not sent; a draft that is gone was probably sent, so confirm it in Sent Items before reporting it as sent. Never send again blindly. Clients may open with an initialize handshake or call tools directly; both work.";
+  "Microsoft 365 outbox for one configured mailbox: prepare a mail draft with attachments from local paths, read or delete that draft, and create or update calendar events. Automated sending is disabled: m365_outbox_send_draft checks the draft but refuses even a matching expectation with version-unbound, without calling Graph's send action. A person can review and send the draft in Outlook. Clients may open with an initialize handshake or call tools directly; both work.";
 
 /**
  * Services the outbox handlers need: the driver, the attachment source and the
@@ -198,7 +199,7 @@ export const makeOutboxLiveServices = (
   FileSystem.FileSystem | Path.Path | Crypto.Crypto
 > =>
   Layer.mergeAll(
-    M365.makeAppOnlyLiveLayer(config.appOnly),
-    OutboxAttachmentSource.layer(config.attachments),
+    M365.makeAppOnlyLiveLayer(M365AppOnlyConfigInput.make(config.appOnly)),
+    OutboxAttachmentSource.layer(OutboxAttachmentPolicy.make(config.attachments)),
     OutboxAuditLog.layer(config.auditDirectory).pipe(Layer.provide(OutboxAuditIds.layer))
   );

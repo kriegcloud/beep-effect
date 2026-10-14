@@ -205,6 +205,44 @@ const plan = Effect.gen(function* () {
 describe("@beep/law-practice-server DocketIntake undo", () => {
   it.layer(UndoLayer, { timeout: "10 seconds" })((it) => {
     it.effect(
+      "undo of a reusing run leaves the event, and undo of its creating run deletes it",
+      Effect.fnUntraced(function* () {
+        const fake = yield* FakeGraph;
+        const journal = yield* DocketIntakeJournal;
+        const store = yield* DocketIntakeStore;
+        yield* Ref.set(
+          fake.events,
+          HashMap.make(["e-shared", event({ categories: ["Docket - unverified"], id: "e-shared" })])
+        );
+        yield* journal.append([
+          created(RUN, "e-shared"),
+          DocketJournalEntry.make({ at, runId: OTHER_RUN, kind: "event-reused", eventId: O.some("e-shared") }),
+        ]);
+        const reusedPlan = yield* planDocketUndo({
+          entries: yield* readDocketJournal(DIRECTORY),
+          mailbox: MAILBOX,
+          runId: OTHER_RUN,
+          state: yield* store.load,
+        });
+        expect(reusedPlan.events).toStrictEqual([]);
+        yield* applyDocketUndo({ mailbox: MAILBOX, plan: reusedPlan });
+        expect(HashMap.has(yield* Ref.get(fake.events), "e-shared")).toBe(true);
+        expect(yield* Ref.get(fake.calls)).toStrictEqual([]);
+        const originalPlan = yield* planDocketUndo({
+          entries: yield* readDocketJournal(DIRECTORY),
+          mailbox: MAILBOX,
+          runId: RUN,
+          state: yield* store.load,
+        });
+        expect(A.map(originalPlan.events, (target) => target.action)).toStrictEqual(["delete"]);
+        yield* applyDocketUndo({ mailbox: MAILBOX, plan: originalPlan });
+        expect(HashMap.has(yield* Ref.get(fake.events), "e-shared")).toBe(false);
+      })
+    );
+  });
+
+  it.layer(UndoLayer, { timeout: "10 seconds" })((it) => {
+    it.effect(
       "plans and reports a dry run without writing anything",
       Effect.fnUntraced(function* () {
         const fake = yield* FakeGraph;
@@ -372,6 +410,31 @@ describe("@beep/law-practice-server DocketIntake undo", () => {
           "e-uncategorised",
           "e-verified-added",
         ]);
+      })
+    );
+  });
+
+  it.layer(UndoLayer, { timeout: "10 seconds" })((it) => {
+    it.effect(
+      "keeps a calendar event verified after planning",
+      Effect.fnUntraced(function* () {
+        const fake = yield* FakeGraph;
+        const journalService = yield* DocketIntakeJournal;
+        yield* Ref.set(
+          fake.events,
+          HashMap.make(["e-race", event({ categories: ["Docket - unverified"], id: "e-race" })])
+        );
+        yield* journalService.append([created(RUN, "e-race")]);
+        const planned = yield* plan;
+        expect(planned.events[0]?.action).toBe("delete");
+        yield* Ref.update(
+          fake.events,
+          HashMap.set("e-race", event({ categories: ["Docket - verified"], changeKey: "ck-2", id: "e-race" }))
+        );
+        const report = yield* applyDocketUndo({ mailbox: MAILBOX, plan: planned });
+        expect(report.deleted).toBe(0);
+        expect(HashMap.has(yield* Ref.get(fake.events), "e-race")).toBe(true);
+        expect(A.some(yield* Ref.get(fake.calls), Str.startsWith("deleteEvent e-race"))).toBe(false);
       })
     );
   });

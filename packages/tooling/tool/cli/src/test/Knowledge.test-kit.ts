@@ -7,7 +7,9 @@
 
 export {
   applyKnowledgeRefsCheck,
+  renderKnowledgeDoctorCheckReport,
   renderKnowledgeDoctorHumanReport,
+  renderKnowledgeLeasesReport,
   renderKnowledgeRefsCheckSection,
   renderKnowledgeSemanticDeltaHumanReport,
 } from "../commands/Knowledge/Knowledge.command.ts";

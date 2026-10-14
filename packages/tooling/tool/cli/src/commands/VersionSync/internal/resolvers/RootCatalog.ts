@@ -82,8 +82,8 @@ export const exactVersionFromSpecifier = (value: unknown): string =>
  * @category models
  * @since 0.0.0
  */
-export class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPackageJsonDocument`)(
-  {
+export class RootPackageJsonDocument extends S.Opaque<RootPackageJsonDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     catalog: S.Record(S.String, S.String).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
       S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
@@ -92,10 +92,11 @@ export class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I
       S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
       S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
     ),
-  },
-  $I.annote("RootPackageJsonDocument", {
-    description: "Subset of root package.json fields required to resolve an installed tool version.",
-  })
+  }).pipe(
+    $I.annoteSchema("RootPackageJsonDocument", {
+      description: "Subset of root package.json fields required to resolve an installed tool version.",
+    })
+  )
 ) {}
 
 /**
@@ -131,16 +132,17 @@ export const readRootPackageJson = Effect.fn("readRootPackageJson")(function* (
   );
 });
 
-class BunLockDocument extends S.Class<BunLockDocument>($I`BunLockDocument`)(
-  {
+class BunLockDocument extends S.Opaque<BunLockDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     packages: S.Record(S.String, S.Array(S.Unknown)).pipe(
       S.withConstructorDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>())),
       S.withDecodingDefault(Effect.succeed(R.empty<string, ReadonlyArray<unknown>>()))
     ),
-  },
-  $I.annote("BunLockDocument", {
-    description: "Subset of bun.lock: the resolved package map whose entries start with `<name>@<version>`.",
-  })
+  }).pipe(
+    $I.annoteSchema("BunLockDocument", {
+      description: "Subset of bun.lock: the resolved package map whose entries start with `<name>@<version>`.",
+    })
+  )
 ) {}
 
 /**

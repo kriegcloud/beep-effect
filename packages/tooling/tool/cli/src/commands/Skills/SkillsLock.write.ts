@@ -35,6 +35,7 @@ import * as Ref from "effect/Ref";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
+import { requireSkillsLockUnchanged } from "./internal/LockFile.ts";
 import { PATCH_ROOT, stagedPatchPath } from "./internal/PatchStaging.ts";
 import { SkillsCommandError, SkillsLockWriteRefusal } from "./Skills.errors.ts";
 import { compileSkillsLockMigration } from "./Skills.service.ts";
@@ -305,23 +306,6 @@ const stagePatches = Effect.fn("SkillsLock.stagePatches")(function* (
   );
 });
 
-const requireLockUnchanged = Effect.fn("SkillsLock.requireLockUnchanged")(function* (
-  lockPath: string,
-  expected: Sha256Hex
-) {
-  const fs = yield* FileSystem.FileSystem;
-  const text = yield* fs
-    .readFileString(lockPath)
-    .pipe(SkillsCommandError.mapError(`Failed to re-read ${SKILLS_LOCK_PATH}.`, lockPath));
-  const actual = yield* sha256Of(textEncoder.encode(text), lockPath);
-  if (!Str.Equivalence(actual, expected)) {
-    return yield* SkillsLockWriteRefusal.make({
-      reason: "lock-changed",
-      message: `${SKILLS_LOCK_PATH} changed since planning (${expected} -> ${actual}); re-plan and review again.`,
-    });
-  }
-});
-
 // Returns whether this run created the patch tree where none existed before, so rollback
 // knows to remove it rather than restore a set-aside tree.
 const swapPatchTree = Effect.fn("SkillsLock.swapPatchTree")(function* (paths: PublishPaths, hasPatches: boolean) {
@@ -372,7 +356,7 @@ const publish = Effect.fn("SkillsLock.publish")(function* (
     yield* fs
       .writeFileString(paths.lockStage, lockText, { flag: "wx" })
       .pipe(SkillsCommandError.mapError(`Refusing to stage: ${paths.lockStage} already exists.`, paths.lockStage));
-    yield* requireLockUnchanged(paths.lockPath, plan.lockSha256);
+    yield* requireSkillsLockUnchanged(paths.lockPath, plan.lockSha256);
     yield* Ref.set(createdTarget, yield* swapPatchTree(paths, A.isReadonlyArrayNonEmpty(patchFiles)));
     yield* fs
       .rename(paths.lockStage, paths.lockPath)

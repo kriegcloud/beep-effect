@@ -62,8 +62,8 @@ const $I = $OcctId.create("Occt.models");
  * @category models
  * @since 0.0.0
  */
-export class ProjectionRequest extends S.Class<ProjectionRequest>($I`ProjectionRequest`)(
-  {
+export class ProjectionRequest extends S.Opaque<ProjectionRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     solid: ModelSpec.annotateKey({ description: "Model to project." }),
     cameras: S.Array(Camera)
       .check(
@@ -84,10 +84,11 @@ export class ProjectionRequest extends S.Class<ProjectionRequest>($I`ProjectionR
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({ description: "Straight-line shading plan; none projects outlines only." })
     ),
-  },
-  $I.annote("ProjectionRequest", {
-    description: "One model projected through one or more cameras.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProjectionRequest", {
+      description: "One model projected through one or more cameras.",
+    })
+  )
 ) {}
 
 const KernelVariantBase = LiteralKit(["single-thread"]);
@@ -145,14 +146,15 @@ export type KernelVariant = typeof KernelVariant.Type;
  * @category models
  * @since 0.0.0
  */
-export class KernelInfo extends S.Class<KernelInfo>($I`KernelInfo`)(
-  {
+export class KernelInfo extends S.Opaque<KernelInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     replicadVersion: S.NonEmptyString.annotateKey({ description: "Installed replicad package version." }),
     variant: KernelVariant.annotateKey({ description: "WASM build variant." }),
     wasmSha256: S.NonEmptyString.annotateKey({ description: "Lowercase hex SHA-256 of the loaded WASM binary." }),
     wasmBytes: S.Natural.annotateKey({ description: "Size of the loaded WASM binary in bytes." }),
-  },
-  $I.annote("KernelInfo", {
-    description: "Version and binary hash of the loaded geometry kernel.",
-  })
+  }).pipe(
+    $I.annoteSchema("KernelInfo", {
+      description: "Version and binary hash of the loaded geometry kernel.",
+    })
+  )
 ) {}

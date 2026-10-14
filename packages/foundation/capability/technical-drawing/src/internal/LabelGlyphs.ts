@@ -12,8 +12,8 @@
  * presented under any Reserved Font Name.
  *
  * Sources (sha256):
- * - sans: LiberationSans-Regular.ttf Version 2.1.5, baccc64becc3eb7d104b7c84d99f5314a0a1f896e2b3ea6c2f22fc08d2003bee
- * - serif: LiberationSerif-Regular.ttf Version 2.1.5, 86b9ea1c2f41bed9d7c09ccad4abc2894b33df5de60e5bbbece5d48610911870
+ * - sans: baccc64becc3eb7d104b7c84d99f5314a0a1f896e2b3ea6c2f22fc08d2003bee
+ * - serif: 86b9ea1c2f41bed9d7c09ccad4abc2894b33df5de60e5bbbece5d48610911870
  *
  * @internal
  * @packageDocumentation

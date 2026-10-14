@@ -91,8 +91,8 @@ export type PacketScanPolicy = typeof PacketScanPolicy.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class PacketDocument extends S.Class<PacketDocument>($I`PacketDocument`)(
-  {
+export class PacketDocument extends S.Opaque<PacketDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     // Directory segments must start alphanumeric, so a hidden directory such as
     // `.git/` is refused, while a dotfile filename such as `raw/.gitignore` —
     // which every Codex packet requires — is admitted. The trailing lookahead
@@ -126,10 +126,11 @@ export class PacketDocument extends S.Class<PacketDocument>($I`PacketDocument`)(
         description: "Whether scan hits refuse the write or are reported to the operator.",
       })
     ),
-  },
-  $I.annote("PacketDocument", {
-    description: "One document destined for a generated Codex findings packet.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketDocument", {
+      description: "One document destined for a generated Codex findings packet.",
+    })
+  )
 ) {}
 
 /**

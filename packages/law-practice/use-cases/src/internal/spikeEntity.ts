@@ -29,14 +29,15 @@ import { PosInt } from "./PosInt.ts";
 
 const $I = $LawPracticeUseCasesId.create("internal/spikeEntity");
 
-class SystemPrincipal extends S.Class<SystemPrincipal>($I`SystemPrincipal`)(
-  {
+class SystemPrincipal extends S.Opaque<SystemPrincipal, { readonly brand: unique symbol }>()(
+  S.Struct({
     component: S.tag("Runtime"),
     kind: S.tag("System"),
-  },
-  $I.annote("SystemPrincipal", {
-    description: "System principal stamped on spike entity audit envelopes.",
-  })
+  }).pipe(
+    $I.annoteSchema("SystemPrincipal", {
+      description: "System principal stamped on spike entity audit envelopes.",
+    })
+  )
 ) {}
 
 const publicIdFor = (entityType: string, id: number) => `${Str.snakeCase(entityType)}_a${id}`;
@@ -92,8 +93,8 @@ export const spikeEntityInput: {
  * @category testing
  * @since 0.0.0
  */
-export class EntityInput extends S.Class<EntityInput>($I`EntityInput`)(
-  {
+export class EntityInput extends S.Opaque<EntityInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     createdAt: S.Natural.annotateKey({
       description: "Synthetic creation timestamp in milliseconds for spike entity construction.",
     }),
@@ -127,8 +128,9 @@ export class EntityInput extends S.Class<EntityInput>($I`EntityInput`)(
     updatedByPrincipal: SystemPrincipal.annotateKey({
       description: "System principal that last updated the spike entity.",
     }),
-  },
-  $I.annote("EntityInput", {
-    description: "Input for constructing a spike entity",
-  })
+  }).pipe(
+    $I.annoteSchema("EntityInput", {
+      description: "Input for constructing a spike entity",
+    })
+  )
 ) {}

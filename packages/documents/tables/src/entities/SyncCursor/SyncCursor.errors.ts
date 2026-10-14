@@ -26,7 +26,10 @@ const $I = $DocumentsTablesId.create("entities/SyncCursor/SyncCursor.errors");
  * @category errors
  * @since 0.0.0
  */
-export class SyncCursorConverterError extends S.TaggedError<SyncCursorConverterError>($I`SyncCursorConverterError`)(
+export class SyncCursorConverterError extends S.TaggedError<
+  SyncCursorConverterError,
+  { readonly brand: unique symbol }
+>($I`SyncCursorConverterError`)(
   "SyncCursorConverterError",
   {
     message: S.String.annotateKey({

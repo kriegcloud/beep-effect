@@ -23,17 +23,18 @@ const $I = $RepoCliId.create("commands/Files/internal/ImageAudit.schemas");
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditOptions extends S.Class<ImageAuditOptions>($I`ImageAuditOptions`)(
-  {
+export class ImageAuditOptions extends S.Opaque<ImageAuditOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     dir: S.String,
     manifest: S.String,
     minConfidence: S.Finite,
     modelPath: S.String,
     overwrite: S.Boolean,
-  },
-  $I.annote("ImageAuditOptions", {
-    description: "Validated inputs for a read-only image identity and quality audit.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditOptions", {
+      description: "Validated inputs for a read-only image identity and quality audit.",
+    })
+  )
 ) {}
 
 /**
@@ -42,18 +43,22 @@ export class ImageAuditOptions extends S.Class<ImageAuditOptions>($I`ImageAuditO
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditMetadataPresence extends S.Class<ImageAuditMetadataPresence>($I`ImageAuditMetadataPresence`)(
-  {
+export class ImageAuditMetadataPresence extends S.Opaque<
+  ImageAuditMetadataPresence,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     hasExif: S.Boolean,
     hasIcc: S.Boolean,
     hasIptc: S.Boolean,
     hasXmp: S.Boolean,
     orientation: S.optionalKey(S.Int),
     orientationApplied: S.Boolean,
-  },
-  $I.annote("ImageAuditMetadataPresence", {
-    description: "Privacy-preserving metadata presence and orientation facts for a source image.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditMetadataPresence", {
+      description: "Privacy-preserving metadata presence and orientation facts for a source image.",
+    })
+  )
 ) {}
 
 /**
@@ -62,18 +67,19 @@ export class ImageAuditMetadataPresence extends S.Class<ImageAuditMetadataPresen
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditQualityMetrics extends S.Class<ImageAuditQualityMetrics>($I`ImageAuditQualityMetrics`)(
-  {
+export class ImageAuditQualityMetrics extends S.Opaque<ImageAuditQualityMetrics, { readonly brand: unique symbol }>()(
+  S.Struct({
     colorfulness: S.Finite,
     darkClipPct: S.Finite,
     edgeEnergy: S.Finite,
     entropyBits: S.Finite,
     lightClipPct: S.Finite,
     meanLuminance: S.Finite,
-  },
-  $I.annote("ImageAuditQualityMetrics", {
-    description: "Advisory luminance, clipping, color, entropy, and edge-energy measurements.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditQualityMetrics", {
+      description: "Advisory luminance, clipping, color, entropy, and edge-energy measurements.",
+    })
+  )
 ) {}
 
 /**
@@ -82,17 +88,18 @@ export class ImageAuditQualityMetrics extends S.Class<ImageAuditQualityMetrics>(
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditFaceMetrics extends S.Class<ImageAuditFaceMetrics>($I`ImageAuditFaceMetrics`)(
-  {
+export class ImageAuditFaceMetrics extends S.Opaque<ImageAuditFaceMetrics, { readonly brand: unique symbol }>()(
+  S.Struct({
     faceCount: S.Int,
     primaryFaceAreaPct: S.optionalKey(S.Finite),
     primaryFaceConfidence: S.optionalKey(S.Finite),
     primaryFaceHeight: S.optionalKey(S.Finite),
     primaryFaceWidth: S.optionalKey(S.Finite),
-  },
-  $I.annote("ImageAuditFaceMetrics", {
-    description: "Detected face count and primary-face scale measurements used only for review.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditFaceMetrics", {
+      description: "Detected face count and primary-face scale measurements used only for review.",
+    })
+  )
 ) {}
 
 /**
@@ -101,8 +108,8 @@ export class ImageAuditFaceMetrics extends S.Class<ImageAuditFaceMetrics>($I`Ima
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditEntry extends S.Class<ImageAuditEntry>($I`ImageAuditEntry`)(
-  {
+export class ImageAuditEntry extends S.Opaque<ImageAuditEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     aspectRatio: S.Finite,
     colorHash: S.String,
     decodedPixelSha256: FileSha256Hash,
@@ -118,10 +125,11 @@ export class ImageAuditEntry extends S.Class<ImageAuditEntry>($I`ImageAuditEntry
     sourceSha256: FileSha256Hash,
     sourceSizeBytes: S.String,
     width: PositiveMediaDimension,
-  },
-  $I.annote("ImageAuditEntry", {
-    description: "Hashes, geometry, metadata presence, face scale, and advisory quality data for one source image.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditEntry", {
+      description: "Hashes, geometry, metadata presence, face scale, and advisory quality data for one source image.",
+    })
+  )
 ) {}
 
 /**
@@ -130,15 +138,16 @@ export class ImageAuditEntry extends S.Class<ImageAuditEntry>($I`ImageAuditEntry
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditSkippedEntry extends S.Class<ImageAuditSkippedEntry>($I`ImageAuditSkippedEntry`)(
-  {
+export class ImageAuditSkippedEntry extends S.Opaque<ImageAuditSkippedEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: S.String,
     sourceName: S.String,
     sourcePath: S.String,
-  },
-  $I.annote("ImageAuditSkippedEntry", {
-    description: "A non-image, unsafe, or unreadable direct source entry skipped by the audit.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditSkippedEntry", {
+      description: "A non-image, unsafe, or unreadable direct source entry skipped by the audit.",
+    })
+  )
 ) {}
 
 /**
@@ -147,16 +156,17 @@ export class ImageAuditSkippedEntry extends S.Class<ImageAuditSkippedEntry>($I`I
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditSimilarityPair extends S.Class<ImageAuditSimilarityPair>($I`ImageAuditSimilarityPair`)(
-  {
+export class ImageAuditSimilarityPair extends S.Opaque<ImageAuditSimilarityPair, { readonly brand: unique symbol }>()(
+  S.Struct({
     colorDistance: S.Finite,
     perceptualDistance: S.Int,
     sourceNameA: S.String,
     sourceNameB: S.String,
-  },
-  $I.annote("ImageAuditSimilarityPair", {
-    description: "A candidate near-duplicate pair and its advisory perceptual and color distances.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditSimilarityPair", {
+      description: "A candidate near-duplicate pair and its advisory perceptual and color distances.",
+    })
+  )
 ) {}
 
 /**
@@ -165,14 +175,15 @@ export class ImageAuditSimilarityPair extends S.Class<ImageAuditSimilarityPair>(
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditCluster extends S.Class<ImageAuditCluster>($I`ImageAuditCluster`)(
-  {
+export class ImageAuditCluster extends S.Opaque<ImageAuditCluster, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     sourceNames: S.NonEmptyArray(S.String),
-  },
-  $I.annote("ImageAuditCluster", {
-    description: "A deterministic candidate cluster that requires visual confirmation.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditCluster", {
+      description: "A deterministic candidate cluster that requires visual confirmation.",
+    })
+  )
 ) {}
 
 /**
@@ -181,8 +192,8 @@ export class ImageAuditCluster extends S.Class<ImageAuditCluster>($I`ImageAuditC
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditSummary extends S.Class<ImageAuditSummary>($I`ImageAuditSummary`)(
-  {
+export class ImageAuditSummary extends S.Opaque<ImageAuditSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     analyzedCount: S.Int,
     duplicateClusterCount: S.Int,
     faceImageCount: S.Int,
@@ -192,10 +203,11 @@ export class ImageAuditSummary extends S.Class<ImageAuditSummary>($I`ImageAuditS
     similarityPairCount: S.Int,
     skippedCount: S.Int,
     totalCount: S.Int,
-  },
-  $I.annote("ImageAuditSummary", {
-    description: "Machine-readable counts for a completed image audit.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditSummary", {
+      description: "Machine-readable counts for a completed image audit.",
+    })
+  )
 ) {}
 
 /**
@@ -204,8 +216,8 @@ export class ImageAuditSummary extends S.Class<ImageAuditSummary>($I`ImageAuditS
  * @category models
  * @since 0.0.0
  */
-export class ImageAuditManifest extends S.Class<ImageAuditManifest>($I`ImageAuditManifest`)(
-  {
+export class ImageAuditManifest extends S.Opaque<ImageAuditManifest, { readonly brand: unique symbol }>()(
+  S.Struct({
     duplicateClusters: S.Array(ImageAuditCluster),
     entries: S.Array(ImageAuditEntry),
     manifestPath: S.String,
@@ -216,10 +228,11 @@ export class ImageAuditManifest extends S.Class<ImageAuditManifest>($I`ImageAudi
     skipped: S.Array(ImageAuditSkippedEntry),
     sourceDirectory: S.String,
     summary: ImageAuditSummary,
-  },
-  $I.annote("ImageAuditManifest", {
-    description: "Deterministic image audit evidence; all scores and clusters are advisory.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageAuditManifest", {
+      description: "Deterministic image audit evidence; all scores and clusters are advisory.",
+    })
+  )
 ) {}
 
 /**

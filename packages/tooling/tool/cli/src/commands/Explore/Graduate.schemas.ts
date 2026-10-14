@@ -53,12 +53,11 @@ const IsoDate = S.String.check(
  * @category models
  * @since 0.0.0
  */
-export class GraduationChildInput extends S.Class<GraduationChildInput>($I`GraduationChildInput`)(
-  {
+export class GraduationChildInput extends S.Opaque<GraduationChildInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: GoalSlug,
     title: S.NonEmptyString,
-  },
-  $I.annote("GraduationChildInput", { description: "One child goal packet a graduation creates." })
+  }).pipe($I.annoteSchema("GraduationChildInput", { description: "One child goal packet a graduation creates." }))
 ) {}
 
 /**
@@ -81,12 +80,13 @@ export class GraduationChildInput extends S.Class<GraduationChildInput>($I`Gradu
  * @category models
  * @since 0.0.0
  */
-export class GraduationRequest extends S.Class<GraduationRequest>($I`GraduationRequest`)(
-  {
+export class GraduationRequest extends S.Opaque<GraduationRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     children: S.Array(GraduationChildInput),
     today: IsoDate,
-  },
-  $I.annote("GraduationRequest", { description: "Requested children and the explicit date of one graduation." })
+  }).pipe(
+    $I.annoteSchema("GraduationRequest", { description: "Requested children and the explicit date of one graduation." })
+  )
 ) {}
 
 /**
@@ -114,14 +114,15 @@ export class GraduationRequest extends S.Class<GraduationRequest>($I`GraduationR
  * @category models
  * @since 0.0.0
  */
-export class ExistingGoalPacket extends S.Class<ExistingGoalPacket>($I`ExistingGoalPacket`)(
-  {
+export class ExistingGoalPacket extends S.Opaque<ExistingGoalPacket, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     provenanceExploration: S.optionalKey(S.String),
-  },
-  $I.annote("ExistingGoalPacket", {
-    description: "One goal packet already on disk with the exploration its manifest provenance names.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExistingGoalPacket", {
+      description: "One goal packet already on disk with the exploration its manifest provenance names.",
+    })
+  )
 ) {}
 
 /**
@@ -151,18 +152,19 @@ export class ExistingGoalPacket extends S.Class<ExistingGoalPacket>($I`ExistingG
  * @category models
  * @since 0.0.0
  */
-export class ExplorationSnapshot extends S.Class<ExplorationSnapshot>($I`ExplorationSnapshot`)(
-  {
+export class ExplorationSnapshot extends S.Opaque<ExplorationSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     exploration: PacketSlug,
     manifestPath: S.String,
     exists: S.Boolean,
     manifestText: S.optionalKey(S.String),
     manifestDigest: S.optionalKey(PlanDigest),
     goals: S.Array(ExistingGoalPacket),
-  },
-  $I.annote("ExplorationSnapshot", {
-    description: "Read-only exploration manifest and goal fleet capture consumed by the pure graduation compiler.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationSnapshot", {
+      description: "Read-only exploration manifest and goal fleet capture consumed by the pure graduation compiler.",
+    })
+  )
 ) {}
 
 /**
@@ -221,13 +223,12 @@ export type GraduationConflictReason = typeof GraduationConflictReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class GraduationConflict extends S.Class<GraduationConflict>($I`GraduationConflict`)(
-  {
+export class GraduationConflict extends S.Opaque<GraduationConflict, { readonly brand: unique symbol }>()(
+  S.Struct({
     reason: GraduationConflictReason,
     child: S.optionalKey(S.String),
     message: S.String,
-  },
-  $I.annote("GraduationConflict", { description: "One reason a graduation plan failed closed." })
+  }).pipe($I.annoteSchema("GraduationConflict", { description: "One reason a graduation plan failed closed." }))
 ) {}
 
 /**
@@ -258,18 +259,19 @@ export class GraduationConflict extends S.Class<GraduationConflict>($I`Graduatio
  * @category models
  * @since 0.0.0
  */
-export class ExplorationManifestEdit extends S.Class<ExplorationManifestEdit>($I`ExplorationManifestEdit`)(
-  {
+export class ExplorationManifestEdit extends S.Opaque<ExplorationManifestEdit, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     preImageDigest: PlanDigest,
     status: ExplorationStatus,
     stage: ExplorationStage,
     updated: IsoDate,
     appendGoals: S.Array(S.String),
-  },
-  $I.annote("ExplorationManifestEdit", {
-    description: "Hash-pinned status, stage, updated, and links.goals edit of an exploration manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExplorationManifestEdit", {
+      description: "Hash-pinned status, stage, updated, and links.goals edit of an exploration manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -287,14 +289,15 @@ export class ExplorationManifestEdit extends S.Class<ExplorationManifestEdit>($I
  * @category models
  * @since 0.0.0
  */
-export class GraduationPublishedChild extends S.Class<GraduationPublishedChild>($I`GraduationPublishedChild`)(
-  {
+export class GraduationPublishedChild extends S.Opaque<GraduationPublishedChild, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     packetPath: S.String,
-  },
-  $I.annote("GraduationPublishedChild", {
-    description: "A requested child an earlier run of the same graduation already published.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraduationPublishedChild", {
+      description: "A requested child an earlier run of the same graduation already published.",
+    })
+  )
 ) {}
 
 /**
@@ -356,8 +359,8 @@ export type GraduationPlanId = typeof GraduationPlanId.Type;
  * @category models
  * @since 0.0.0
  */
-export class GraduationPlan extends S.Class<GraduationPlan>($I`GraduationPlan`)(
-  {
+export class GraduationPlan extends S.Opaque<GraduationPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("graduation-plan/v1"),
     planId: GraduationPlanId,
     exploration: S.String,
@@ -365,8 +368,11 @@ export class GraduationPlan extends S.Class<GraduationPlan>($I`GraduationPlan`)(
     explorationEdit: S.optionalKey(ExplorationManifestEdit),
     alreadyPublished: S.Array(GraduationPublishedChild),
     conflicts: S.Array(GraduationConflict),
-  },
-  $I.annote("GraduationPlan", { description: "Deterministic, content-addressed intent of one exploration graduation." })
+  }).pipe(
+    $I.annoteSchema("GraduationPlan", {
+      description: "Deterministic, content-addressed intent of one exploration graduation.",
+    })
+  )
 ) {}
 
 /**
@@ -413,15 +419,16 @@ export type GraduationChildOutcome = typeof GraduationChildOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class GraduationChildReceipt extends S.Class<GraduationChildReceipt>($I`GraduationChildReceipt`)(
-  {
+export class GraduationChildReceipt extends S.Opaque<GraduationChildReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     slug: S.String,
     outcome: GraduationChildOutcome,
     receipt: S.optionalKey(MaterializationReceipt),
-  },
-  $I.annote("GraduationChildReceipt", {
-    description: "One child's materialization receipt, or its already-published outcome.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraduationChildReceipt", {
+      description: "One child's materialization receipt, or its already-published outcome.",
+    })
+  )
 ) {}
 
 /**
@@ -445,8 +452,8 @@ export class GraduationChildReceipt extends S.Class<GraduationChildReceipt>($I`G
  * @category models
  * @since 0.0.0
  */
-export class GraduationReceipt extends S.Class<GraduationReceipt>($I`GraduationReceipt`)(
-  {
+export class GraduationReceipt extends S.Opaque<GraduationReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("graduation-receipt/v1"),
     planId: GraduationPlanId,
     exploration: S.String,
@@ -454,10 +461,11 @@ export class GraduationReceipt extends S.Class<GraduationReceipt>($I`GraduationR
     manifestBeforeDigest: PlanDigest,
     manifestAfterDigest: PlanDigest,
     eventsAppended: S.Int,
-  },
-  $I.annote("GraduationReceipt", {
-    description: "What a --write replay of a reviewed graduation plan published and edited.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraduationReceipt", {
+      description: "What a --write replay of a reviewed graduation plan published and edited.",
+    })
+  )
 ) {}
 
 /**
@@ -509,8 +517,8 @@ export const GRADUATION_PENDING_SEGMENTS = ["ops", ".graduation-pending.json"] a
  * @category models
  * @since 0.0.0
  */
-export class GraduationPendingEvents extends S.Class<GraduationPendingEvents>($I`GraduationPendingEvents`)(
-  {
+export class GraduationPendingEvents extends S.Opaque<GraduationPendingEvents, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("graduation-pending/v1"),
     planId: GraduationPlanId,
     exploration: PacketSlug,
@@ -520,11 +528,12 @@ export class GraduationPendingEvents extends S.Class<GraduationPendingEvents>($I
     previousStage: ExplorationStage,
     at: PacketEventTimestamp,
     events: S.Array(PacketEventBody),
-  },
-  $I.annote("GraduationPendingEvents", {
-    description:
-      "Stream events an interrupted graduation still owes an opted-in exploration, pinned to the graduated manifest.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraduationPendingEvents", {
+      description:
+        "Stream events an interrupted graduation still owes an opted-in exploration, pinned to the graduated manifest.",
+    })
+  )
 ) {}
 
 /**
@@ -546,14 +555,15 @@ export class GraduationPendingEvents extends S.Class<GraduationPendingEvents>($I
  * @category models
  * @since 0.0.0
  */
-export class GraduationResumeReceipt extends S.Class<GraduationResumeReceipt>($I`GraduationResumeReceipt`)(
-  {
+export class GraduationResumeReceipt extends S.Opaque<GraduationResumeReceipt, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("graduation-resume-receipt/v1"),
     planId: GraduationPlanId,
     exploration: S.String,
     eventsAppended: S.Int,
-  },
-  $I.annote("GraduationResumeReceipt", {
-    description: "Events a --resume-events recovery appended for an interrupted graduation.",
-  })
+  }).pipe(
+    $I.annoteSchema("GraduationResumeReceipt", {
+      description: "Events a --resume-events recovery appended for an interrupted graduation.",
+    })
+  )
 ) {}

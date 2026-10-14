@@ -84,8 +84,8 @@ export type Pattern = typeof Pattern.Type;
  * @category models
  * @since 0.0.0
  */
-export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
-  {
+export class GlobOptions extends S.Opaque<GlobOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     absolute: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether matched paths should be returned as absolute paths.",
     }),
@@ -101,23 +101,25 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
     nodir: S.optionalKey(S.Boolean).annotateKey({
       description: "Whether directory matches should be omitted from results.",
     }),
-  },
-  $I.annote("GlobOptions", {
-    description: "Optional runtime flags for glob scans.",
-  })
+  }).pipe(
+    $I.annoteSchema("GlobOptions", {
+      description: "Optional runtime flags for glob scans.",
+    })
+  )
 ) {}
 
-class ResolvedGlobOptions extends S.Class<ResolvedGlobOptions>($I`ResolvedGlobOptions`)(
-  {
+class ResolvedGlobOptions extends S.Opaque<ResolvedGlobOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     absolute: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     cwd: S.String.pipe(S.withConstructorDefault(Effect.succeed("."))),
     dot: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
     ignore: Pattern.pipe(S.withConstructorDefault(Effect.succeed(A.empty<string>()))),
     nodir: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  },
-  $I.annote("ResolvedGlobOptions", {
-    description: "Resolved runtime flags for glob scans.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedGlobOptions", {
+      description: "Resolved runtime flags for glob scans.",
+    })
+  )
 ) {}
 
 const resolveGlobOptions = (options?: GlobOptions): ResolvedGlobOptions => ResolvedGlobOptions.make(options ?? {});
@@ -190,7 +192,7 @@ export declare namespace GlobError {
  * @category errors
  * @since 0.0.0
  */
-export class GlobError extends S.TaggedError<GlobError>($I`GlobError`)(
+export class GlobError extends S.TaggedError<GlobError, { readonly brand: unique symbol }>($I`GlobError`)(
   "GlobError",
   {
     pattern: Pattern.annotateKey({

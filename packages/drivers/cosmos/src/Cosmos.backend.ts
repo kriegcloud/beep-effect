@@ -73,14 +73,15 @@ export type CosmosBackend = typeof CosmosBackend.Type;
  * @category diagnostics
  * @since 0.0.0
  */
-export class CosmosCapabilityProbe extends S.Class<CosmosCapabilityProbe>($I`CosmosCapabilityProbe`)(
-  {
+export class CosmosCapabilityProbe extends S.Opaque<CosmosCapabilityProbe, { readonly brand: unique symbol }>()(
+  S.Struct({
     webGl2: S.Boolean,
     reason: S.String,
-  },
-  $I.annote("CosmosCapabilityProbe", {
-    description: "Runtime WebGL2 capability probe result for the ontology visualizer spike.",
-  })
+  }).pipe(
+    $I.annoteSchema("CosmosCapabilityProbe", {
+      description: "Runtime WebGL2 capability probe result for the ontology visualizer spike.",
+    })
+  )
 ) {}
 
 /**
@@ -103,15 +104,16 @@ export class CosmosCapabilityProbe extends S.Class<CosmosCapabilityProbe>($I`Cos
  * @category diagnostics
  * @since 0.0.0
  */
-export class CosmosBackendSelection extends S.Class<CosmosBackendSelection>($I`CosmosBackendSelection`)(
-  {
+export class CosmosBackendSelection extends S.Opaque<CosmosBackendSelection, { readonly brand: unique symbol }>()(
+  S.Struct({
     backend: CosmosBackend,
     webGl2: S.Boolean,
     reason: S.String,
-  },
-  $I.annote("CosmosBackendSelection", {
-    description: "Backend chosen from a runtime WebGL2 capability probe.",
-  })
+  }).pipe(
+    $I.annoteSchema("CosmosBackendSelection", {
+      description: "Backend chosen from a runtime WebGL2 capability probe.",
+    })
+  )
 ) {}
 
 const isHtmlCanvasElement = (value: unknown): value is HTMLCanvasElement => {
@@ -141,13 +143,14 @@ const HtmlCanvasElementLike = S.declare<HTMLCanvasElement>(isHtmlCanvasElement).
  * @category diagnostics
  * @since 0.0.0
  */
-export class ProbeWebGl2Options extends S.Class<ProbeWebGl2Options>($I`ProbeWebGl2Options`)(
-  {
+export class ProbeWebGl2Options extends S.Opaque<ProbeWebGl2Options, { readonly brand: unique symbol }>()(
+  S.Struct({
     canvas: S.OptionFromOptionalKey(HtmlCanvasElementLike).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ProbeWebGl2Options", {
-    description: "Optional canvas override for probing WebGL2 without creating a document element.",
-  })
+  }).pipe(
+    $I.annoteSchema("ProbeWebGl2Options", {
+      description: "Optional canvas override for probing WebGL2 without creating a document element.",
+    })
+  )
 ) {}
 
 /**

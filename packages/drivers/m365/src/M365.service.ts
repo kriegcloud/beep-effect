@@ -127,26 +127,28 @@ const M365Lane = LiteralKit(["delegated", "app-only"]).pipe(
   })
 );
 
-class M365ServiceConfig extends S.Class<M365ServiceConfig>($I`M365ServiceConfig`)(
-  {
+class M365ServiceConfig extends S.Opaque<M365ServiceConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     graphBaseUrl: URLStr,
     lane: M365Lane,
     maxRetries: S.Natural,
-  },
-  $I.annote("M365ServiceConfig", {
-    description: "Lane-independent settings the Microsoft Graph request executor needs.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ServiceConfig", {
+      description: "Lane-independent settings the Microsoft Graph request executor needs.",
+    })
+  )
 ) {}
 
-class M365Runtime extends S.Class<M365Runtime>($I`M365Runtime`)(
-  {
+class M365Runtime extends S.Opaque<M365Runtime, { readonly brand: unique symbol }>()(
+  S.Struct({
     auth: M365AuthShapeFromSelf,
     client: HttpClientFromSelf,
     config: M365ServiceConfig,
-  },
-  $I.annote("M365Runtime", {
-    description: "In-process Microsoft Graph service runtime: token provider, HTTP client, and resolved config.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365Runtime", {
+      description: "In-process Microsoft Graph service runtime: token provider, HTTP client, and resolved config.",
+    })
+  )
 ) {}
 
 const REQUEST_ACCEPT = "application/json";
@@ -175,7 +177,14 @@ const PROTECTED_EXTENSIONS: ReadonlyArray<string> = [
 ];
 
 const isGraphPathSegment = (value: string): boolean =>
-  !Str.isEmpty(value) && !Str.includes("/")(value) && !Str.includes("..")(value) && !Str.includes("%")(value);
+  !Str.isEmpty(value) &&
+  !Str.includes("/")(value) &&
+  !Str.includes("\\")(value) &&
+  !Str.includes("..")(value) &&
+  !Str.includes("%")(value) &&
+  !Str.includes("?")(value) &&
+  !Str.includes("#")(value) &&
+  !/[\u0000-\u001f\u007f]/u.test(value);
 
 /**
  * A Microsoft Graph id that is safe to put in a URL path.
@@ -204,7 +213,8 @@ export const GraphPathSegment = S.String.check(
     identifier: $I`GraphPathSegment`,
     title: "Graph path segment",
     description: "A Microsoft Graph path identifier that cannot traverse or inject URL path segments.",
-    message: "Graph path identifiers must be non-empty and must not contain '/', '..', or percent-encoded input.",
+    message:
+      "Graph path identifiers must be non-empty and must not contain URL delimiters, controls, '..', or percent-encoded input.",
   })
 ).pipe(
   $I.annoteSchema("GraphPathSegment", {
@@ -473,15 +483,16 @@ export type M365EventCollection = typeof M365EventCollection.Type;
  * @category models
  * @since 0.0.0
  */
-export class M365ListDrivesRequest extends S.Class<M365ListDrivesRequest>($I`M365ListDrivesRequest`)(
-  {
+export class M365ListDrivesRequest extends S.Opaque<M365ListDrivesRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     siteId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional SharePoint composite site id; omitted to list the signed-in user's drives.",
     }),
-  },
-  $I.annote("M365ListDrivesRequest", {
-    description: "Request for listing drives visible to the signed-in user or a specific site.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListDrivesRequest", {
+      description: "Request for listing drives visible to the signed-in user or a specific site.",
+    })
+  )
 ) {}
 
 /**
@@ -499,18 +510,19 @@ export class M365ListDrivesRequest extends S.Class<M365ListDrivesRequest>($I`M36
  * @category models
  * @since 0.0.0
  */
-export class M365ListSitesRequest extends S.Class<M365ListSitesRequest>($I`M365ListSitesRequest`)(
-  {
+export class M365ListSitesRequest extends S.Opaque<M365ListSitesRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     search: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(ALL_SITES_SEARCH)),
       S.withDecodingDefaultTypeKey(Effect.succeed(ALL_SITES_SEARCH))
     ).annotateKey({
       description: "Optional search text; defaults to `*` because Graph v1.0 site listing is search-based.",
     }),
-  },
-  $I.annote("M365ListSitesRequest", {
-    description: "Request for searching SharePoint sites.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListSitesRequest", {
+      description: "Request for searching SharePoint sites.",
+    })
+  )
 ) {}
 
 /**
@@ -528,13 +540,14 @@ export class M365ListSitesRequest extends S.Class<M365ListSitesRequest>($I`M365L
  * @category models
  * @since 0.0.0
  */
-export class M365GetSiteRequest extends S.Class<M365GetSiteRequest>($I`M365GetSiteRequest`)(
-  {
+export class M365GetSiteRequest extends S.Opaque<M365GetSiteRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     siteId: GraphPathSegment.annotateKey({ description: "SharePoint composite site id." }),
-  },
-  $I.annote("M365GetSiteRequest", {
-    description: "Request for reading one SharePoint site by id.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365GetSiteRequest", {
+      description: "Request for reading one SharePoint site by id.",
+    })
+  )
 ) {}
 
 /**
@@ -552,18 +565,22 @@ export class M365GetSiteRequest extends S.Class<M365GetSiteRequest>($I`M365GetSi
  * @category models
  * @since 0.0.0
  */
-export class M365DeltaDriveItemsRequest extends S.Class<M365DeltaDriveItemsRequest>($I`M365DeltaDriveItemsRequest`)(
-  {
+export class M365DeltaDriveItemsRequest extends S.Opaque<
+  M365DeltaDriveItemsRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     deltaLink: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional Graph-provided delta continuation URL; must target the configured Graph v1.0 origin.",
     }),
     driveId: GraphPathSegment.annotateKey({
       description: "Drive id whose root delta feed is read when deltaLink is absent.",
     }),
-  },
-  $I.annote("M365DeltaDriveItemsRequest", {
-    description: "Request for drive item delta enumeration.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365DeltaDriveItemsRequest", {
+      description: "Request for drive item delta enumeration.",
+    })
+  )
 ) {}
 
 /**
@@ -581,16 +598,18 @@ export class M365DeltaDriveItemsRequest extends S.Class<M365DeltaDriveItemsReque
  * @category models
  * @since 0.0.0
  */
-export class M365DownloadDriveItemContentRequest extends S.Class<M365DownloadDriveItemContentRequest>(
-  $I`M365DownloadDriveItemContentRequest`
-)(
-  {
+export class M365DownloadDriveItemContentRequest extends S.Opaque<
+  M365DownloadDriveItemContentRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     driveId: GraphPathSegment.annotateKey({ description: "Drive id containing the item." }),
     itemId: GraphPathSegment.annotateKey({ description: "Drive item id whose content should be downloaded." }),
-  },
-  $I.annote("M365DownloadDriveItemContentRequest", {
-    description: "Request for downloading a drive item's content.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365DownloadDriveItemContentRequest", {
+      description: "Request for downloading a drive item's content.",
+    })
+  )
 ) {}
 
 /**
@@ -608,15 +627,16 @@ export class M365DownloadDriveItemContentRequest extends S.Class<M365DownloadDri
  * @category models
  * @since 0.0.0
  */
-export class M365GetListItemRequest extends S.Class<M365GetListItemRequest>($I`M365GetListItemRequest`)(
-  {
+export class M365GetListItemRequest extends S.Opaque<M365GetListItemRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     itemId: GraphPathSegment.annotateKey({ description: "List item id." }),
     listId: GraphPathSegment.annotateKey({ description: "SharePoint list id." }),
     siteId: GraphPathSegment.annotateKey({ description: "SharePoint composite site id." }),
-  },
-  $I.annote("M365GetListItemRequest", {
-    description: "Request for reading a SharePoint list item with expanded fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365GetListItemRequest", {
+      description: "Request for reading a SharePoint list item with expanded fields.",
+    })
+  )
 ) {}
 
 /**
@@ -634,16 +654,18 @@ export class M365GetListItemRequest extends S.Class<M365GetListItemRequest>($I`M
  * @category models
  * @since 0.0.0
  */
-export class M365ListDriveItemVersionsRequest extends S.Class<M365ListDriveItemVersionsRequest>(
-  $I`M365ListDriveItemVersionsRequest`
-)(
-  {
+export class M365ListDriveItemVersionsRequest extends S.Opaque<
+  M365ListDriveItemVersionsRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     driveId: GraphPathSegment.annotateKey({ description: "Drive id containing the item." }),
     itemId: GraphPathSegment.annotateKey({ description: "Drive item id whose versions should be listed." }),
-  },
-  $I.annote("M365ListDriveItemVersionsRequest", {
-    description: "Request for listing a drive item's immutable versions.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListDriveItemVersionsRequest", {
+      description: "Request for listing a drive item's immutable versions.",
+    })
+  )
 ) {}
 
 /**
@@ -665,8 +687,8 @@ export class M365ListDriveItemVersionsRequest extends S.Class<M365ListDriveItemV
  * @category models
  * @since 0.0.0
  */
-export class M365ListMessagesRequest extends S.Class<M365ListMessagesRequest>($I`M365ListMessagesRequest`)(
-  {
+export class M365ListMessagesRequest extends S.Opaque<M365ListMessagesRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     bodyContentType: S.OptionFromOptionalKey(GraphBodyContentType)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional body format to ask Graph for (`text` strips HTML)." }),
@@ -675,21 +697,25 @@ export class M365ListMessagesRequest extends S.Class<M365ListMessagesRequest>($I
       .annotateKey({ description: "Optional Graph OData `$filter` query value." }),
     nextLink: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description:
-        "Optional `@odata.nextLink` of the previous page; must target the configured Graph origin. When present, filter, orderby and top are ignored.",
+        "Optional `@odata.nextLink` of the previous page; must target the configured Graph origin. When present, filter, orderby, select and top are ignored.",
     }),
     orderby: S.OptionFromOptionalKey(S.String)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional Graph OData `$orderby` query value." }),
+    select: S.OptionFromOptionalKey(S.String)
+      .pipe(S.withConstructorDefault(Effect.succeedNone))
+      .annotateKey({ description: "Optional Graph OData `$select` projection." }),
     top: S.OptionFromOptionalKey(PosInt)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional Graph `$top` page size." }),
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's messages.",
     }),
-  },
-  $I.annote("M365ListMessagesRequest", {
-    description: "Request for listing Outlook mail messages.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListMessagesRequest", {
+      description: "Request for listing Outlook mail messages.",
+    })
+  )
 ) {}
 
 /**
@@ -714,16 +740,17 @@ export class M365ListMessagesRequest extends S.Class<M365ListMessagesRequest>($I
  * @category models
  * @since 0.0.0
  */
-export class M365GetMailFolderRequest extends S.Class<M365GetMailFolderRequest>($I`M365GetMailFolderRequest`)(
-  {
+export class M365GetMailFolderRequest extends S.Opaque<M365GetMailFolderRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     folder: GraphPathSegment.annotateKey({ description: "Mail folder id or well-known folder name." }),
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Mailbox user id or address; required on the app-only lane.",
     }),
-  },
-  $I.annote("M365GetMailFolderRequest", {
-    description: "Request for reading one Outlook mail folder by id or well-known name.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365GetMailFolderRequest", {
+      description: "Request for reading one Outlook mail folder by id or well-known name.",
+    })
+  )
 ) {}
 
 /**
@@ -741,8 +768,8 @@ export class M365GetMailFolderRequest extends S.Class<M365GetMailFolderRequest>(
  * @category models
  * @since 0.0.0
  */
-export class M365GetMessageRequest extends S.Class<M365GetMessageRequest>($I`M365GetMessageRequest`)(
-  {
+export class M365GetMessageRequest extends S.Opaque<M365GetMessageRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     bodyContentType: S.OptionFromOptionalKey(GraphBodyContentType)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional body format to ask Graph for (`text` strips HTML)." }),
@@ -750,10 +777,11 @@ export class M365GetMessageRequest extends S.Class<M365GetMessageRequest>($I`M36
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's message.",
     }),
-  },
-  $I.annote("M365GetMessageRequest", {
-    description: "Request for reading one Outlook mail message.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365GetMessageRequest", {
+      description: "Request for reading one Outlook mail message.",
+    })
+  )
 ) {}
 
 /**
@@ -775,18 +803,19 @@ export class M365GetMessageRequest extends S.Class<M365GetMessageRequest>($I`M36
  * @category models
  * @since 0.0.0
  */
-export class M365ListEventsRequest extends S.Class<M365ListEventsRequest>($I`M365ListEventsRequest`)(
-  {
+export class M365ListEventsRequest extends S.Opaque<M365ListEventsRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     top: S.OptionFromOptionalKey(PosInt)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional Graph `$top` page size." }),
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's calendar events.",
     }),
-  },
-  $I.annote("M365ListEventsRequest", {
-    description: "Request for listing Outlook calendar events.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListEventsRequest", {
+      description: "Request for listing Outlook calendar events.",
+    })
+  )
 ) {}
 
 /**
@@ -804,16 +833,17 @@ export class M365ListEventsRequest extends S.Class<M365ListEventsRequest>($I`M36
  * @category models
  * @since 0.0.0
  */
-export class M365GetEventRequest extends S.Class<M365GetEventRequest>($I`M365GetEventRequest`)(
-  {
+export class M365GetEventRequest extends S.Opaque<M365GetEventRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: GraphPathSegment.annotateKey({ description: "Graph event id." }),
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's calendar event.",
     }),
-  },
-  $I.annote("M365GetEventRequest", {
-    description: "Request for reading one Outlook calendar event.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365GetEventRequest", {
+      description: "Request for reading one Outlook calendar event.",
+    })
+  )
 ) {}
 
 /**
@@ -975,12 +1005,11 @@ export const M365_IDEMPOTENCY_KEY_PROPERTY_ID =
  * @category models
  * @since 0.0.0
  */
-export class M365EventBody extends S.Class<M365EventBody>($I`M365EventBody`)(
-  {
+export class M365EventBody extends S.Opaque<M365EventBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.String.annotateKey({ description: "Body content (never logged in spans)." }),
     contentType: GraphBodyContentType.annotateKey({ description: "Body content type." }),
-  },
-  $I.annote("M365EventBody", { description: "Body written to an Outlook event." })
+  }).pipe($I.annoteSchema("M365EventBody", { description: "Body written to an Outlook event." }))
 ) {}
 
 /**
@@ -998,12 +1027,13 @@ export class M365EventBody extends S.Class<M365EventBody>($I`M365EventBody`)(
  * @category models
  * @since 0.0.0
  */
-export class M365EventDateTime extends S.Class<M365EventDateTime>($I`M365EventDateTime`)(
-  {
+export class M365EventDateTime extends S.Opaque<M365EventDateTime, { readonly brand: unique symbol }>()(
+  S.Struct({
     dateTime: S.NonEmptyString.annotateKey({ description: "ISO-8601 local date-time without offset." }),
     timeZone: S.NonEmptyString.annotateKey({ description: "IANA or Windows time-zone name." }),
-  },
-  $I.annote("M365EventDateTime", { description: "Wall-clock date-time and zone written to an Outlook event." })
+  }).pipe(
+    $I.annoteSchema("M365EventDateTime", { description: "Wall-clock date-time and zone written to an Outlook event." })
+  )
 ) {}
 
 type M365AllDayWindow = { readonly end: M365EventDateTime; readonly start: M365EventDateTime };
@@ -1066,8 +1096,8 @@ const eventOpt = <Sch extends S.Top>(schema: Sch, description: string) =>
  * @category models
  * @since 0.0.0
  */
-export class M365EventDraft extends S.Class<M365EventDraft>($I`M365EventDraft`)(
-  {
+export class M365EventDraft extends S.Opaque<M365EventDraft, { readonly brand: unique symbol }>()(
+  S.Struct({
     subject: S.NonEmptyString.annotateKey({ description: "Event subject (never logged in spans)." }),
     start: M365EventDateTime.annotateKey({ description: "Event start." }),
     end: M365EventDateTime.annotateKey({ description: "Event end; the following midnight for an all-day event." }),
@@ -1082,8 +1112,7 @@ export class M365EventDraft extends S.Class<M365EventDraft>($I`M365EventDraft`)(
     isReminderOn: eventOpt(S.Boolean, "Whether a reminder alert is set."),
     reminderMinutesBeforeStart: eventOpt(S.Natural, "Minutes before the start at which the reminder fires."),
     showAs: eventOpt(GraphEventShowAs, "Free/busy status to show."),
-  },
-  $I.annote("M365EventDraft", { description: "Fields of a new Outlook event." })
+  }).pipe($I.annoteSchema("M365EventDraft", { description: "Fields of a new Outlook event." }))
 ) {}
 
 /**
@@ -1108,8 +1137,8 @@ export class M365EventDraft extends S.Class<M365EventDraft>($I`M365EventDraft`)(
  * @category models
  * @since 0.0.0
  */
-export class M365EventPatch extends S.Class<M365EventPatch>($I`M365EventPatch`)(
-  {
+export class M365EventPatch extends S.Opaque<M365EventPatch, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: eventOpt(M365EventBody, "Replacement event body."),
     categories: eventOpt(S.Array(S.NonEmptyString), "Replacement for the whole category list."),
     end: eventOpt(M365EventDateTime, "Replacement event end."),
@@ -1119,8 +1148,7 @@ export class M365EventPatch extends S.Class<M365EventPatch>($I`M365EventPatch`)(
     showAs: eventOpt(GraphEventShowAs, "Free/busy status to show."),
     start: eventOpt(M365EventDateTime, "Replacement event start."),
     subject: eventOpt(S.NonEmptyString, "Replacement event subject."),
-  },
-  $I.annote("M365EventPatch", { description: "Fields to change on an existing Outlook event." })
+  }).pipe($I.annoteSchema("M365EventPatch", { description: "Fields to change on an existing Outlook event." }))
 ) {}
 
 const mailboxUserId = (description: string) =>
@@ -1159,15 +1187,14 @@ const mailboxUserId = (description: string) =>
  * @category models
  * @since 0.0.0
  */
-export class M365CreateEventRequest extends S.Class<M365CreateEventRequest>($I`M365CreateEventRequest`)(
-  {
+export class M365CreateEventRequest extends S.Opaque<M365CreateEventRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     event: M365EventDraft.annotateKey({ description: "Fields of the event to create." }),
     idempotencyKey: S.OptionFromOptionalKey(M365IdempotencyKey)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional key stored on the event for retry de-duplication and later lookup." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365CreateEventRequest", { description: "Request for creating an Outlook calendar event." })
+  }).pipe($I.annoteSchema("M365CreateEventRequest", { description: "Request for creating an Outlook calendar event." }))
 ) {}
 
 /**
@@ -1190,13 +1217,12 @@ export class M365CreateEventRequest extends S.Class<M365CreateEventRequest>($I`M
  * @category models
  * @since 0.0.0
  */
-export class M365UpdateEventRequest extends S.Class<M365UpdateEventRequest>($I`M365UpdateEventRequest`)(
-  {
+export class M365UpdateEventRequest extends S.Opaque<M365UpdateEventRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: GraphPathSegment.annotateKey({ description: "Graph event id." }),
     patch: M365EventPatch.annotateKey({ description: "Fields to change." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365UpdateEventRequest", { description: "Request for updating an Outlook calendar event." })
+  }).pipe($I.annoteSchema("M365UpdateEventRequest", { description: "Request for updating an Outlook calendar event." }))
 ) {}
 
 /**
@@ -1216,12 +1242,14 @@ export class M365UpdateEventRequest extends S.Class<M365UpdateEventRequest>($I`M
  * @category models
  * @since 0.0.0
  */
-export class M365DeleteEventRequest extends S.Class<M365DeleteEventRequest>($I`M365DeleteEventRequest`)(
-  {
+export class M365DeleteEventRequest extends S.Opaque<M365DeleteEventRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: GraphPathSegment.annotateKey({ description: "Graph event id." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365DeleteEventRequest", { description: "Request for deleting an Outlook calendar event." })
+    changeKey: S.OptionFromOptionalKey(S.NonEmptyString)
+      .pipe(S.withConstructorDefault(Effect.succeedNone))
+      .annotateKey({ description: "Optional version from the last event read; sent as `If-Match`." }),
+  }).pipe($I.annoteSchema("M365DeleteEventRequest", { description: "Request for deleting an Outlook calendar event." }))
 ) {}
 
 /**
@@ -1243,16 +1271,18 @@ export class M365DeleteEventRequest extends S.Class<M365DeleteEventRequest>($I`M
  * @category models
  * @since 0.0.0
  */
-export class M365FindEventsByIdempotencyKeyRequest extends S.Class<M365FindEventsByIdempotencyKeyRequest>(
-  $I`M365FindEventsByIdempotencyKeyRequest`
-)(
-  {
+export class M365FindEventsByIdempotencyKeyRequest extends S.Opaque<
+  M365FindEventsByIdempotencyKeyRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     idempotencyKey: M365IdempotencyKey.annotateKey({ description: "Key the events were created with." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365FindEventsByIdempotencyKeyRequest", {
-    description: "Request for finding Outlook events by their stored idempotency key.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365FindEventsByIdempotencyKeyRequest", {
+      description: "Request for finding Outlook events by their stored idempotency key.",
+    })
+  )
 ) {}
 
 /**
@@ -1271,15 +1301,17 @@ export class M365FindEventsByIdempotencyKeyRequest extends S.Class<M365FindEvent
  * @category models
  * @since 0.0.0
  */
-export class M365ListMasterCategoriesRequest extends S.Class<M365ListMasterCategoriesRequest>(
-  $I`M365ListMasterCategoriesRequest`
-)(
-  {
+export class M365ListMasterCategoriesRequest extends S.Opaque<
+  M365ListMasterCategoriesRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365ListMasterCategoriesRequest", {
-    description: "Request for listing a mailbox's Outlook master categories.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListMasterCategoriesRequest", {
+      description: "Request for listing a mailbox's Outlook master categories.",
+    })
+  )
 ) {}
 
 /**
@@ -1297,15 +1329,14 @@ export class M365ListMasterCategoriesRequest extends S.Class<M365ListMasterCateg
  * @category models
  * @since 0.0.0
  */
-export class M365MasterCategoryDraft extends S.Class<M365MasterCategoryDraft>($I`M365MasterCategoryDraft`)(
-  {
+export class M365MasterCategoryDraft extends S.Opaque<M365MasterCategoryDraft, { readonly brand: unique symbol }>()(
+  S.Struct({
     color: GraphCategoryColor.pipe(
       S.withConstructorDefault(Effect.succeed("none" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("none" as const))
     ).annotateKey({ description: "Preset color; defaults to `none`." }),
     displayName: S.NonEmptyString.annotateKey({ description: "Category name; unique in the mailbox." }),
-  },
-  $I.annote("M365MasterCategoryDraft", { description: "A master category to create." })
+  }).pipe($I.annoteSchema("M365MasterCategoryDraft", { description: "A master category to create." }))
 ) {}
 
 /**
@@ -1327,16 +1358,18 @@ export class M365MasterCategoryDraft extends S.Class<M365MasterCategoryDraft>($I
  * @category models
  * @since 0.0.0
  */
-export class M365CreateMasterCategoryRequest extends S.Class<M365CreateMasterCategoryRequest>(
-  $I`M365CreateMasterCategoryRequest`
-)(
-  {
+export class M365CreateMasterCategoryRequest extends S.Opaque<
+  M365CreateMasterCategoryRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     category: M365MasterCategoryDraft.annotateKey({ description: "The category to create." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365CreateMasterCategoryRequest", {
-    description: "Request for creating one Outlook master category.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365CreateMasterCategoryRequest", {
+      description: "Request for creating one Outlook master category.",
+    })
+  )
 ) {}
 
 /**
@@ -1359,16 +1392,18 @@ export class M365CreateMasterCategoryRequest extends S.Class<M365CreateMasterCat
  * @category models
  * @since 0.0.0
  */
-export class M365EnsureMasterCategoriesRequest extends S.Class<M365EnsureMasterCategoriesRequest>(
-  $I`M365EnsureMasterCategoriesRequest`
-)(
-  {
+export class M365EnsureMasterCategoriesRequest extends S.Opaque<
+  M365EnsureMasterCategoriesRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     categories: S.Array(M365MasterCategoryDraft).annotateKey({ description: "Categories that must exist." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365EnsureMasterCategoriesRequest", {
-    description: "Request for ensuring a set of Outlook master categories exists.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365EnsureMasterCategoriesRequest", {
+      description: "Request for ensuring a set of Outlook master categories exists.",
+    })
+  )
 ) {}
 
 /**
@@ -1387,16 +1422,20 @@ export class M365EnsureMasterCategoriesRequest extends S.Class<M365EnsureMasterC
  * @category models
  * @since 0.0.0
  */
-export class M365EnsuredMasterCategories extends S.Class<M365EnsuredMasterCategories>($I`M365EnsuredMasterCategories`)(
-  {
+export class M365EnsuredMasterCategories extends S.Opaque<
+  M365EnsuredMasterCategories,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     created: S.Array(GraphOutlookCategory).annotateKey({ description: "Categories this call created." }),
     existing: S.Array(S.String).annotateKey({
       description: "Requested display names that were already present (or created concurrently).",
     }),
-  },
-  $I.annote("M365EnsuredMasterCategories", {
-    description: "Result of ensuring a set of Outlook master categories exists.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365EnsuredMasterCategories", {
+      description: "Result of ensuring a set of Outlook master categories exists.",
+    })
+  )
 ) {}
 
 /**
@@ -1426,20 +1465,22 @@ export class M365EnsuredMasterCategories extends S.Class<M365EnsuredMasterCatego
  * @category models
  * @since 0.0.0
  */
-export class M365UpdateMessageCategoriesRequest extends S.Class<M365UpdateMessageCategoriesRequest>(
-  $I`M365UpdateMessageCategoriesRequest`
-)(
-  {
+export class M365UpdateMessageCategoriesRequest extends S.Opaque<
+  M365UpdateMessageCategoriesRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     categories: S.Array(S.NonEmptyString).annotateKey({ description: "The complete new category list." }),
     changeKey: S.OptionFromOptionalKey(S.NonEmptyString)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({ description: "Optional change key from the last read; sent as `If-Match`." }),
     messageId: GraphPathSegment.annotateKey({ description: "Graph message id." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365UpdateMessageCategoriesRequest", {
-    description: "Request for replacing the category list of one mail message.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365UpdateMessageCategoriesRequest", {
+      description: "Request for replacing the category list of one mail message.",
+    })
+  )
 ) {}
 
 /**
@@ -1458,16 +1499,18 @@ export class M365UpdateMessageCategoriesRequest extends S.Class<M365UpdateMessag
  * @category models
  * @since 0.0.0
  */
-export class M365ListMessageAttachmentsRequest extends S.Class<M365ListMessageAttachmentsRequest>(
-  $I`M365ListMessageAttachmentsRequest`
-)(
-  {
+export class M365ListMessageAttachmentsRequest extends S.Opaque<
+  M365ListMessageAttachmentsRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     messageId: GraphPathSegment.annotateKey({ description: "Graph message id." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365ListMessageAttachmentsRequest", {
-    description: "Request for listing a message's attachment metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListMessageAttachmentsRequest", {
+      description: "Request for listing a message's attachment metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -1490,17 +1533,19 @@ export class M365ListMessageAttachmentsRequest extends S.Class<M365ListMessageAt
  * @category models
  * @since 0.0.0
  */
-export class M365DownloadMessageAttachmentRequest extends S.Class<M365DownloadMessageAttachmentRequest>(
-  $I`M365DownloadMessageAttachmentRequest`
-)(
-  {
+export class M365DownloadMessageAttachmentRequest extends S.Opaque<
+  M365DownloadMessageAttachmentRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attachmentId: GraphPathSegment.annotateKey({ description: "Graph attachment id." }),
     messageId: GraphPathSegment.annotateKey({ description: "Graph message id." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365DownloadMessageAttachmentRequest", {
-    description: "Request for downloading the raw bytes of one file attachment.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365DownloadMessageAttachmentRequest", {
+      description: "Request for downloading the raw bytes of one file attachment.",
+    })
+  )
 ) {}
 
 /**
@@ -1518,11 +1563,10 @@ export class M365DownloadMessageAttachmentRequest extends S.Class<M365DownloadMe
  * @category models
  * @since 0.0.0
  */
-export class M365AttachmentContent extends S.Class<M365AttachmentContent>($I`M365AttachmentContent`)(
-  {
+export class M365AttachmentContent extends S.Opaque<M365AttachmentContent, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.Uint8Array.annotateKey({ description: "Attachment bytes (never logged)." }),
-  },
-  $I.annote("M365AttachmentContent", { description: "Raw bytes of a downloaded message attachment." })
+  }).pipe($I.annoteSchema("M365AttachmentContent", { description: "Raw bytes of a downloaded message attachment." }))
 ) {}
 
 /**
@@ -1640,12 +1684,11 @@ export type M365MailAddress = typeof M365MailAddress.Type;
  * @category models
  * @since 0.0.0
  */
-export class M365MailBody extends S.Class<M365MailBody>($I`M365MailBody`)(
-  {
+export class M365MailBody extends S.Opaque<M365MailBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.String.annotateKey({ description: "Body content (never logged in spans)." }),
     contentType: GraphBodyContentType.annotateKey({ description: "Body content type." }),
-  },
-  $I.annote("M365MailBody", { description: "Body written to an outbound mail draft." })
+  }).pipe($I.annoteSchema("M365MailBody", { description: "Body written to an outbound mail draft." }))
 ) {}
 
 const mailRecipients = (description: string) =>
@@ -1672,15 +1715,14 @@ const mailRecipients = (description: string) =>
  * @category models
  * @since 0.0.0
  */
-export class M365MailDraft extends S.Class<M365MailDraft>($I`M365MailDraft`)(
-  {
+export class M365MailDraft extends S.Opaque<M365MailDraft, { readonly brand: unique symbol }>()(
+  S.Struct({
     subject: S.NonEmptyString.annotateKey({ description: "Message subject (never logged in spans)." }),
     body: M365MailBody.annotateKey({ description: "Message body." }),
     toRecipients: mailRecipients("Primary recipient addresses."),
     ccRecipients: mailRecipients("Carbon-copy recipient addresses."),
     bccRecipients: mailRecipients("Blind-carbon-copy recipient addresses."),
-  },
-  $I.annote("M365MailDraft", { description: "Fields of a new mail draft." })
+  }).pipe($I.annoteSchema("M365MailDraft", { description: "Fields of a new mail draft." }))
 ) {}
 
 /**
@@ -1712,14 +1754,14 @@ export class M365MailDraft extends S.Class<M365MailDraft>($I`M365MailDraft`)(
  * @category models
  * @since 0.0.0
  */
-export class M365CreateDraftMessageRequest extends S.Class<M365CreateDraftMessageRequest>(
-  $I`M365CreateDraftMessageRequest`
-)(
-  {
+export class M365CreateDraftMessageRequest extends S.Opaque<
+  M365CreateDraftMessageRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     draft: M365MailDraft.annotateKey({ description: "Fields of the draft to create." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365CreateDraftMessageRequest", { description: "Request for creating a mail draft." })
+  }).pipe($I.annoteSchema("M365CreateDraftMessageRequest", { description: "Request for creating a mail draft." }))
 ) {}
 
 /**
@@ -1753,19 +1795,21 @@ export class M365CreateDraftMessageRequest extends S.Class<M365CreateDraftMessag
  * @category models
  * @since 0.0.0
  */
-export class M365AddMessageAttachmentRequest extends S.Class<M365AddMessageAttachmentRequest>(
-  $I`M365AddMessageAttachmentRequest`
-)(
-  {
+export class M365AddMessageAttachmentRequest extends S.Opaque<
+  M365AddMessageAttachmentRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     content: S.Uint8Array.annotateKey({ description: "Attachment bytes (never logged)." }),
     contentType: S.NonEmptyString.annotateKey({ description: "Attachment MIME type." }),
     messageId: GraphPathSegment.annotateKey({ description: "Graph id of the draft message." }),
     name: S.NonEmptyString.annotateKey({ description: "Attachment file name (never logged in spans)." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365AddMessageAttachmentRequest", {
-    description: "Request for attaching one file to a draft message.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365AddMessageAttachmentRequest", {
+      description: "Request for attaching one file to a draft message.",
+    })
+  )
 ) {}
 
 /**
@@ -1791,12 +1835,16 @@ export class M365AddMessageAttachmentRequest extends S.Class<M365AddMessageAttac
  * @category models
  * @since 0.0.0
  */
-export class M365SendDraftMessageRequest extends S.Class<M365SendDraftMessageRequest>($I`M365SendDraftMessageRequest`)(
-  {
+export class M365SendDraftMessageRequest extends S.Opaque<
+  M365SendDraftMessageRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     messageId: GraphPathSegment.annotateKey({ description: "Graph id of the draft message." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365SendDraftMessageRequest", { description: "Request for sending an existing draft message." })
+  }).pipe(
+    $I.annoteSchema("M365SendDraftMessageRequest", { description: "Request for sending an existing draft message." })
+  )
 ) {}
 
 /**
@@ -1815,14 +1863,14 @@ export class M365SendDraftMessageRequest extends S.Class<M365SendDraftMessageReq
  * @category models
  * @since 0.0.0
  */
-export class M365DeleteDraftMessageRequest extends S.Class<M365DeleteDraftMessageRequest>(
-  $I`M365DeleteDraftMessageRequest`
-)(
-  {
+export class M365DeleteDraftMessageRequest extends S.Opaque<
+  M365DeleteDraftMessageRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     messageId: GraphPathSegment.annotateKey({ description: "Graph id of the draft message." }),
     userId: mailboxUserId("Mailbox user id or address; required on the app-only lane."),
-  },
-  $I.annote("M365DeleteDraftMessageRequest", { description: "Request for deleting a draft message." })
+  }).pipe($I.annoteSchema("M365DeleteDraftMessageRequest", { description: "Request for deleting a draft message." }))
 ) {}
 
 /**
@@ -1833,7 +1881,7 @@ export class M365DeleteDraftMessageRequest extends S.Class<M365DeleteDraftMessag
  * ```ts
  * import { GraphDriveItem, M365DownloadedContent } from "@beep/m365"
  *
- * const result = new M365DownloadedContent({
+ * const result = M365DownloadedContent.make({
  *   bytes: new Uint8Array([1, 2, 3]),
  *   item: GraphDriveItem.make({ id: "item-id" })
  * })
@@ -1843,15 +1891,15 @@ export class M365DeleteDraftMessageRequest extends S.Class<M365DeleteDraftMessag
  * @category models
  * @since 0.0.0
  */
-export class M365DownloadedContent extends S.TaggedClass<M365DownloadedContent>($I`M365DownloadedContent`)(
-  "M365DownloadedContent",
-  {
+export class M365DownloadedContent extends S.Opaque<M365DownloadedContent, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("M365DownloadedContent", {
     bytes: S.Uint8Array.annotateKey({ description: "Downloaded file bytes." }),
     item: GraphDriveItem.annotateKey({ description: "Graph driveItem metadata for the downloaded content." }),
-  },
-  $I.annote("M365DownloadedContent", {
-    description: "Successfully downloaded drive item content.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365DownloadedContent", {
+      description: "Successfully downloaded drive item content.",
+    })
+  )
 ) {}
 
 /**
@@ -1868,7 +1916,7 @@ export class M365DownloadedContent extends S.TaggedClass<M365DownloadedContent>(
  * ```ts
  * import { GraphDriveItem, M365SkippedEncryptedItem } from "@beep/m365"
  *
- * const result = new M365SkippedEncryptedItem({
+ * const result = M365SkippedEncryptedItem.make({
  *   item: GraphDriveItem.make({ id: "item-id" }),
  *   reason: "protected extension"
  * })
@@ -1878,15 +1926,15 @@ export class M365DownloadedContent extends S.TaggedClass<M365DownloadedContent>(
  * @category models
  * @since 0.0.0
  */
-export class M365SkippedEncryptedItem extends S.TaggedClass<M365SkippedEncryptedItem>($I`M365SkippedEncryptedItem`)(
-  "M365SkippedEncryptedItem",
-  {
+export class M365SkippedEncryptedItem extends S.Opaque<M365SkippedEncryptedItem, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("M365SkippedEncryptedItem", {
     item: GraphDriveItem.annotateKey({ description: "Graph driveItem metadata for the skipped item." }),
     reason: S.String.annotateKey({ description: "Sanitized skip reason; never file content." }),
-  },
-  $I.annote("M365SkippedEncryptedItem", {
-    description: "Drive item content skipped because it appears protected or encrypted.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365SkippedEncryptedItem", {
+      description: "Drive item content skipped because it appears protected or encrypted.",
+    })
+  )
 ) {}
 
 /**
@@ -1942,8 +1990,8 @@ export type M365DriveItemDownload = typeof M365DriveItemDownload.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class M365ContactDraft extends S.Class<M365ContactDraft>($I`M365ContactDraft`)(
-  {
+export class M365ContactDraft extends S.Opaque<M365ContactDraft, { readonly brand: unique symbol }>()(
+  S.Struct({
     displayName: S.NonEmptyString,
     givenName: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     surname: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
@@ -1952,8 +2000,11 @@ export class M365ContactDraft extends S.Class<M365ContactDraft>($I`M365ContactDr
     businessPhones: S.Array(S.String),
     categories: S.Array(S.NonEmptyString),
     singleValueExtendedProperties: S.Array(GraphContactProperty),
-  },
-  $I.annote("M365ContactDraft", { description: "A contact create body; no mailbox contact update is provided." })
+  }).pipe(
+    $I.annoteSchema("M365ContactDraft", {
+      description: "A contact create body; no mailbox contact update is provided.",
+    })
+  )
 ) {}
 
 /**
@@ -1969,13 +2020,16 @@ export class M365ContactDraft extends S.Class<M365ContactDraft>($I`M365ContactDr
  * @category schemas
  * @since 0.0.0
  */
-export class M365CreateContactRequest extends S.Class<M365CreateContactRequest>($I`M365CreateContactRequest`)(
-  {
+export class M365CreateContactRequest extends S.Opaque<M365CreateContactRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     contact: M365ContactDraft,
     folderId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("M365CreateContactRequest", { description: "Create a contact in the default or an explicit folder." })
+  }).pipe(
+    $I.annoteSchema("M365CreateContactRequest", {
+      description: "Create a contact in the default or an explicit folder.",
+    })
+  )
 ) {}
 
 /**
@@ -1991,16 +2045,17 @@ export class M365CreateContactRequest extends S.Class<M365CreateContactRequest>(
  * @category schemas
  * @since 0.0.0
  */
-export class M365ListContactsRequest extends S.Class<M365ListContactsRequest>($I`M365ListContactsRequest`)(
-  {
+export class M365ListContactsRequest extends S.Opaque<M365ListContactsRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     folderId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
     nextLink: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     expandMarker: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
-  },
-  $I.annote("M365ListContactsRequest", {
-    description: "List a page of personal contacts with optional marker expansion.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListContactsRequest", {
+      description: "List a page of personal contacts with optional marker expansion.",
+    })
+  )
 ) {}
 
 /**
@@ -2016,14 +2071,14 @@ export class M365ListContactsRequest extends S.Class<M365ListContactsRequest>($I
  * @category schemas
  * @since 0.0.0
  */
-export class M365CreateContactFolderRequest extends S.Class<M365CreateContactFolderRequest>(
-  $I`M365CreateContactFolderRequest`
-)(
-  {
+export class M365CreateContactFolderRequest extends S.Opaque<
+  M365CreateContactFolderRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     displayName: S.NonEmptyString,
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("M365CreateContactFolderRequest", { description: "Create a dedicated contact folder." })
+  }).pipe($I.annoteSchema("M365CreateContactFolderRequest", { description: "Create a dedicated contact folder." }))
 ) {}
 
 /**
@@ -2039,17 +2094,19 @@ export class M365CreateContactFolderRequest extends S.Class<M365CreateContactFol
  * @category schemas
  * @since 0.0.0
  */
-export class M365ListContactFoldersRequest extends S.Class<M365ListContactFoldersRequest>(
-  $I`M365ListContactFoldersRequest`
-)(
-  {
+export class M365ListContactFoldersRequest extends S.Opaque<
+  M365ListContactFoldersRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     parentFolderId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
     nextLink: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("M365ListContactFoldersRequest", {
-    description: "List root folders or one folder’s children, with pagination.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365ListContactFoldersRequest", {
+      description: "List root folders or one folder’s children, with pagination.",
+    })
+  )
 ) {}
 
 /**
@@ -2065,14 +2122,17 @@ export class M365ListContactFoldersRequest extends S.Class<M365ListContactFolder
  * @category schemas
  * @since 0.0.0
  */
-export class M365DeleteContactRequest extends S.Class<M365DeleteContactRequest>($I`M365DeleteContactRequest`)(
-  {
+export class M365DeleteContactRequest extends S.Opaque<M365DeleteContactRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     folderId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
     contactId: GraphPathSegment,
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
     changeKey: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("M365DeleteContactRequest", { description: "Delete a contact, optionally conditional on its change key." })
+  }).pipe(
+    $I.annoteSchema("M365DeleteContactRequest", {
+      description: "Delete a contact, optionally conditional on its change key.",
+    })
+  )
 ) {}
 
 /**
@@ -2088,16 +2148,18 @@ export class M365DeleteContactRequest extends S.Class<M365DeleteContactRequest>(
  * @category schemas
  * @since 0.0.0
  */
-export class M365DeleteContactFolderRequest extends S.Class<M365DeleteContactFolderRequest>(
-  $I`M365DeleteContactFolderRequest`
-)(
-  {
+export class M365DeleteContactFolderRequest extends S.Opaque<
+  M365DeleteContactFolderRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     folderId: GraphPathSegment,
     userId: S.OptionFromOptionalKey(GraphPathSegment).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("M365DeleteContactFolderRequest", {
-    description: "Remove a journal-owned folder after the job proves it empty.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365DeleteContactFolderRequest", {
+      description: "Remove a journal-owned folder after the job proves it empty.",
+    })
+  )
 ) {}
 
 /** A page of GraphContact records.
@@ -2295,17 +2357,18 @@ const M365WriteMethod = LiteralKit(["POST", "PATCH", "DELETE"]).pipe(
 );
 type M365WriteMethod = typeof M365WriteMethod.Type;
 
-class M365WriteCall extends S.Class<M365WriteCall>($I`M365WriteCall`)(
-  {
+class M365WriteCall extends S.Opaque<M365WriteCall, { readonly brand: unique symbol }>()(
+  S.Struct({
     body: S.Option(S.Unknown),
     headers: S.Record(S.String, S.String),
     method: M365WriteMethod,
     resource: S.String,
     url: S.String,
-  },
-  $I.annote("M365WriteCall", {
-    description: "One encoded Microsoft Graph write: method, URL, extra headers and optional JSON body.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365WriteCall", {
+      description: "One encoded Microsoft Graph write: method, URL, extra headers and optional JSON body.",
+    })
+  )
 ) {}
 
 const signedWrite = Effect.fnUntraced(function* (
@@ -2693,24 +2756,26 @@ const GraphUploadUrl = S.String.check(
   })
 );
 
-class GraphUploadSession extends S.Class<GraphUploadSession>($I`GraphUploadSession`)(
-  {
+class GraphUploadSession extends S.Opaque<GraphUploadSession, { readonly brand: unique symbol }>()(
+  S.Struct({
     uploadUrl: GraphUploadUrl,
-  },
-  $I.annote("GraphUploadSession", {
-    description: "Microsoft Graph attachment upload session (the pre-authenticated chunk URL only).",
-  })
+  }).pipe(
+    $I.annoteSchema("GraphUploadSession", {
+      description: "Microsoft Graph attachment upload session (the pre-authenticated chunk URL only).",
+    })
+  )
 ) {}
 
-class M365UploadChunk extends S.Class<M365UploadChunk>($I`M365UploadChunk`)(
-  {
+class M365UploadChunk extends S.Opaque<M365UploadChunk, { readonly brand: unique symbol }>()(
+  S.Struct({
     bytes: S.Uint8Array,
     start: S.Natural,
     total: S.Natural,
-  },
-  $I.annote("M365UploadChunk", {
-    description: "One byte range of an attachment upload session: its bytes, start offset and the total size.",
-  })
+  }).pipe(
+    $I.annoteSchema("M365UploadChunk", {
+      description: "One byte range of an attachment upload session: its bytes, start offset and the total size.",
+    })
+  )
 ) {}
 
 const uploadChunks = (content: Uint8Array): ReadonlyArray<M365UploadChunk> =>
@@ -3076,7 +3141,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
     return yield* executeJsonWrite(
       runtime,
       M365WriteCall.make({
-        body: O.some(draftMessageBody(request.draft)),
+        body: O.some(draftMessageBody(M365MailDraft.make(request.draft))),
         headers: NO_HEADERS,
         method: "POST",
         resource: "messages",
@@ -3088,7 +3153,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
   createEvent: Effect.fn("M365.createEvent")(function* (rawRequest) {
     const request = yield* decodeRequest(M365CreateEventRequest, "events")(rawRequest);
     const url = yield* mailboxUrl(runtime.config, request.userId, "events", "events");
-    const event = yield* encodeEventDraft(request.event);
+    const event = yield* encodeEventDraft(M365EventDraft.make(request.event));
     yield* Effect.annotateCurrentSpan({ m365_has_idempotency_key: O.isSome(request.idempotencyKey) });
     return yield* executeJsonWrite(
       runtime,
@@ -3104,7 +3169,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
   }),
   createMasterCategory: Effect.fn("M365.createMasterCategory")(function* (rawRequest) {
     const request = yield* decodeRequest(M365CreateMasterCategoryRequest, "masterCategories")(rawRequest);
-    return yield* createMasterCategory(runtime, request.userId, request.category);
+    return yield* createMasterCategory(runtime, request.userId, M365MasterCategoryDraft.make(request.category));
   }),
   deleteDraftMessage: Effect.fn("M365.deleteDraftMessage")(function* (rawRequest) {
     const request = yield* decodeRequest(M365DeleteDraftMessageRequest, "messages")(rawRequest);
@@ -3116,7 +3181,13 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
     const url = yield* mailboxUrl(runtime.config, request.userId, `events/${request.eventId}`, "events");
     yield* executeWrite(
       runtime,
-      M365WriteCall.make({ body: O.none(), headers: NO_HEADERS, method: "DELETE", resource: "events", url })
+      M365WriteCall.make({
+        body: O.none(),
+        headers: changeKeyHeaders(request.changeKey),
+        method: "DELETE",
+        resource: "events",
+        url,
+      })
     );
   }),
   deltaDriveItems: Effect.fn("M365.deltaDriveItems")(function* (rawRequest) {
@@ -3271,6 +3342,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
           mailboxUrl(runtime.config, request.userId, "messages", "messages", [
             ["$filter", request.filter],
             ["$orderby", request.orderby],
+            ["$select", request.select],
             ["$top", request.top],
           ]),
         onSome: (link) => trustedGraphLink(runtime.config, link, "messages"),
@@ -3303,7 +3375,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
   updateEvent: Effect.fn("M365.updateEvent")(function* (rawRequest) {
     const request = yield* decodeRequest(M365UpdateEventRequest, "events")(rawRequest);
     const url = yield* mailboxUrl(runtime.config, request.userId, `events/${request.eventId}`, "events");
-    const body = yield* encodeEventPatch(request.patch);
+    const body = yield* encodeEventPatch(M365EventPatch.make(request.patch));
     return yield* executeJsonWrite(
       runtime,
       M365WriteCall.make({ body: O.some(body), headers: NO_HEADERS, method: "PATCH", resource: "events", url }),

@@ -134,7 +134,7 @@ export type ConfigEventPayload = typeof ConfigEventPayload.Type;
  * @category models
  * @since 0.0.0
  */
-export class ConfigEvent extends S.Class<ConfigEvent>($I`ConfigEvent`)({
+export class ConfigEvent extends S.Class<ConfigEvent, { readonly brand: unique symbol }>($I`ConfigEvent`)({
 	/** When the event occurred. */
 	timestamp: S.DateTimeUtc.annotateKey({ description: "When the event occurred." }),
 	/** What happened. */

@@ -119,6 +119,8 @@ const config = {
     "apps/practice-mail-tagging/package.json",
     "apps/practice-identify/package.json",
     "apps/practice-m365-contacts/package.json",
+    "apps/practice-claude-mod/package.json",
+    "packages/drivers/t3-code/package.json",
   ],
   customTypes: {
     catalog: {
@@ -135,7 +137,7 @@ const config = {
       // typescript-eslint (peer `<6.1.0`, TS7 tracked in
       // typescript-eslint/typescript-eslint#10940, still open 2026-09-24),
       // and commitlint's cosmiconfig-typescript-loader. ts-morph vendors its own TS 6 copy in
-      // @ts-morph/common and knip 6 parses with oxc, so neither needs this
+      // @ts-morph/common, so it does not need this
       // pin. Reassess the split when typescript-eslint releases against 7.1's API.
       // tstyche is pinned exactly to 8.0.0-beta.0 for its TypeScript 7.1 backend.
       // Explicit targets use its own store, independent of root typescript@6.
@@ -162,10 +164,12 @@ const config = {
       // rule set tsc-rs ports, so editor, gate and tsc-rs agree. The code is
       // already clean against 0.52.0 (proved 2026-10-13); that bump adds
       // effectSleepZeroToYieldNow, flatMapToTap, preferEffectArray,
-      // preferEffectRecord and preferSchemaTaggedError at "error", parks
-      // schemaClassMissingBrand "off" pending the S.Class/S.Struct/S.Opaque
-      // decision, drops the removed `debug` option, and must also sweep
-      // apps/labs, which `bun run check` filters out.
+      // preferEffectRecord, preferSchemaTaggedError and
+      // schemaClassMissingBrand at "error" (goal schema-opaque-default: the
+      // brand rule proved 0 hits on 2026-10-14; re-check preferEffectArray,
+      // which main gained 28 sites for after #1636), drops the removed
+      // `debug` option, and must also sweep apps/labs, which `bun run check`
+      // filters out.
       // tsc-rs (pingdotgg/ts-rust) runs `beep:build`, `beep:check` and
       // `beep:check:tests`; it compiles the Effect rules of one effect-tsgo
       // version in (0.6.0 ports 0.51.1) and pins its own TypeScript

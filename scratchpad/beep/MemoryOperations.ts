@@ -178,7 +178,7 @@ export const isTerminalOperationStatus = (status: MemoryOperationStatus): boolea
  * @category errors
  * @since 0.0.0
  */
-export class MemoryOperationError extends S.TaggedError<MemoryOperationError>()(
+export class MemoryOperationError extends S.TaggedError<MemoryOperationError, { readonly brand: unique symbol }>()(
   "MemoryOperationError",
   { message: S.String },
   $I.annoteError<MemoryOperationError>("MemoryOperationError", {

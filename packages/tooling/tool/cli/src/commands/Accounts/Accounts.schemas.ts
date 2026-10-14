@@ -31,7 +31,7 @@ const $I = $RepoCliId.create("commands/Accounts/Accounts.schemas");
  * @category models
  * @since 0.0.0
  */
-export const AccountProvider = LiteralKit(["claude", "codex", "muse", "grok"]).pipe(
+export const AccountProvider = LiteralKit(["claude", "codex", "muse", "grok", "junie"]).pipe(
   $I.annoteSchema("AccountProvider", { description: "Subscription provider whose plan limits are polled." })
 );
 
@@ -115,6 +115,8 @@ export type AccountLabel = typeof AccountLabel.Type;
  * One account: its provider, label, and the file its usage comes from. For a
  * polled provider that is the local proxy's stored login, which the proxy keeps
  * refreshed and the poller only reads; for a snapshot it is the snapshot file.
+ * Junie uses its home directory as the secure-storage namespace; its display
+ * label may be an account name containing spaces.
  *
  * **Example** (Make an account)
  *
@@ -128,9 +130,10 @@ export type AccountLabel = typeof AccountLabel.Type;
  * @category models
  * @since 0.0.0
  */
-export class AccountRef extends S.Class<AccountRef>($I`AccountRef`)(
-  { provider: AccountProviderName, label: AccountLabel, source: S.String },
-  $I.annote("AccountRef", { description: "An account and the file its usage comes from." })
+export class AccountRef extends S.Opaque<AccountRef, { readonly brand: unique symbol }>()(
+  S.Struct({ provider: AccountProviderName, label: S.NonEmptyString, source: S.String }).pipe(
+    $I.annoteSchema("AccountRef", { description: "An account and the file its usage comes from." })
+  )
 ) {}
 
 /**
@@ -184,14 +187,13 @@ export type UsageWindowKind = typeof UsageWindowKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class UsageWindow extends S.Class<UsageWindow>($I`UsageWindow`)(
-  {
+export class UsageWindow extends S.Opaque<UsageWindow, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: UsageWindowKind,
     scope: S.OptionFromNullOr(S.String),
     usedPercent: S.Finite,
     resetsAt: S.OptionFromNullOr(S.DateTimeUtcFromString),
-  },
-  $I.annote("UsageWindow", { description: "One plan-limit window: how full it is and when it resets." })
+  }).pipe($I.annoteSchema("UsageWindow", { description: "One plan-limit window: how full it is and when it resets." }))
 ) {}
 
 /**
@@ -237,17 +239,18 @@ export type CreditUnit = typeof CreditUnit.Type;
  * @category models
  * @since 0.0.0
  */
-export class CreditBalance extends S.Class<CreditBalance>($I`CreditBalance`)(
-  {
+export class CreditBalance extends S.Opaque<CreditBalance, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.String,
     unit: CreditUnit,
     remaining: S.Finite,
     limit: S.OptionFromNullOr(S.Finite),
     expiresAt: S.OptionFromNullOr(S.DateTimeUtcFromString),
-  },
-  $I.annote("CreditBalance", {
-    description: "A credit balance beside the plan limits: what is left and when it expires.",
-  })
+  }).pipe(
+    $I.annoteSchema("CreditBalance", {
+      description: "A credit balance beside the plan limits: what is left and when it expires.",
+    })
+  )
 ) {}
 
 /**
@@ -312,9 +315,10 @@ export type AccountUsageOutcome = typeof AccountUsageOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class AccountUsage extends S.Class<AccountUsage>($I`AccountUsage`)(
-  { account: AccountRef, outcome: AccountUsageOutcome },
-  $I.annote("AccountUsage", { description: "One account and the outcome of polling its plan limits." })
+export class AccountUsage extends S.Opaque<AccountUsage, { readonly brand: unique symbol }>()(
+  S.Struct({ account: AccountRef, outcome: AccountUsageOutcome }).pipe(
+    $I.annoteSchema("AccountUsage", { description: "One account and the outcome of polling its plan limits." })
+  )
 ) {}
 
 /**
@@ -338,7 +342,7 @@ export class AccountUsage extends S.Class<AccountUsage>($I`AccountUsage`)(
  * @category models
  * @since 0.0.0
  */
-export const AccountSection = LiteralKit(["claude", "codex", "supergrok", "muse", "other"]).pipe(
+export const AccountSection = LiteralKit(["claude", "codex", "supergrok", "muse", "junie", "other"]).pipe(
   $I.annoteSchema("AccountSection", {
     description: "The provider panel an account is ranked in.",
   })
@@ -359,6 +363,7 @@ const sectionOfProvider: Readonly<Record<string, AccountSection>> = {
   cursor: "supergrok",
   "grok-bot": "supergrok",
   muse: "muse",
+  junie: "junie",
 };
 
 /**
@@ -394,9 +399,10 @@ export const accountSection = (provider: string): AccountSection => sectionOfPro
  * @category models
  * @since 0.0.0
  */
-export class SignedInLogin extends S.Class<SignedInLogin>($I`SignedInLogin`)(
-  { provider: AccountProviderName, label: AccountLabel },
-  $I.annote("SignedInLogin", { description: "The account a provider's CLI is signed in to." })
+export class SignedInLogin extends S.Opaque<SignedInLogin, { readonly brand: unique symbol }>()(
+  S.Struct({ provider: AccountProviderName, label: AccountLabel }).pipe(
+    $I.annoteSchema("SignedInLogin", { description: "The account a provider's CLI is signed in to." })
+  )
 ) {}
 
 /**
@@ -457,8 +463,8 @@ export type AccountAvailability = typeof AccountAvailability.Type;
  * @category models
  * @since 0.0.0
  */
-export class AccountRanking extends S.Class<AccountRanking>($I`AccountRanking`)(
-  {
+export class AccountRanking extends S.Opaque<AccountRanking, { readonly brand: unique symbol }>()(
+  S.Struct({
     usage: AccountUsage,
     availability: AccountAvailability,
     weeklyRemainingPercent: S.OptionFromNullOr(S.Finite),
@@ -467,8 +473,11 @@ export class AccountRanking extends S.Class<AccountRanking>($I`AccountRanking`)(
     dataAgeHours: S.OptionFromNullOr(S.Finite),
     estimated: S.Boolean,
     signedIn: S.Boolean,
-  },
-  $I.annote("AccountRanking", { description: "An account's availability and how urgently its weekly quota needs use." })
+  }).pipe(
+    $I.annoteSchema("AccountRanking", {
+      description: "An account's availability and how urgently its weekly quota needs use.",
+    })
+  )
 ) {}
 
 /**
@@ -493,16 +502,17 @@ export class AccountRanking extends S.Class<AccountRanking>($I`AccountRanking`)(
  * @category models
  * @since 0.0.0
  */
-export class AccountSnapshot extends S.Class<AccountSnapshot>($I`AccountSnapshot`)(
-  {
+export class AccountSnapshot extends S.Opaque<AccountSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("accounts-snapshot/v1"),
     provider: AccountProviderName,
     label: AccountLabel,
     capturedAt: S.DateTimeUtcFromString,
     plan: S.OptionFromNullOr(S.String),
     windows: S.Array(UsageWindow),
-  },
-  $I.annote("AccountSnapshot", { description: "Usage windows a local collector captured for one account." })
+  }).pipe(
+    $I.annoteSchema("AccountSnapshot", { description: "Usage windows a local collector captured for one account." })
+  )
 ) {}
 
 /**
@@ -536,9 +546,10 @@ export const AccountSnapshotJson = JsonStringCodec(AccountSnapshot);
  * @category models
  * @since 0.0.0
  */
-export class AccountGroup extends S.Class<AccountGroup>($I`AccountGroup`)(
-  { section: AccountSection, rows: S.Array(AccountRanking) },
-  $I.annote("AccountGroup", { description: "One provider's accounts, most urgent to use first." })
+export class AccountGroup extends S.Opaque<AccountGroup, { readonly brand: unique symbol }>()(
+  S.Struct({ section: AccountSection, rows: S.Array(AccountRanking) }).pipe(
+    $I.annoteSchema("AccountGroup", { description: "One provider's accounts, most urgent to use first." })
+  )
 ) {}
 
 /**
@@ -555,15 +566,16 @@ export class AccountGroup extends S.Class<AccountGroup>($I`AccountGroup`)(
  * @category models
  * @since 0.0.0
  */
-export class AccountsStatusReport extends S.Class<AccountsStatusReport>($I`AccountsStatusReport`)(
-  {
+export class AccountsStatusReport extends S.Opaque<AccountsStatusReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("accounts-status/v2"),
     generatedAt: S.DateTimeUtcFromString,
     groups: S.Array(AccountGroup),
-  },
-  $I.annote("AccountsStatusReport", {
-    description: "Every registered account, one panel per provider, each ranked most urgent first.",
-  })
+  }).pipe(
+    $I.annoteSchema("AccountsStatusReport", {
+      description: "Every registered account, one panel per provider, each ranked most urgent first.",
+    })
+  )
 ) {}
 
 /**
@@ -623,6 +635,9 @@ const restarted = (window: UsageWindow): UsageWindow =>
 type OkOutcome = (typeof AccountUsageOutcome.cases.Ok)["Type"];
 
 const rankOk = (now: DateTime.Utc, usage: AccountUsage, ok: OkOutcome): AccountRanking => {
+  if (usage.account.provider === "junie" && A.some(ok.credits, (credit) => credit.remaining <= 0)) {
+    return unavailable(usage);
+  }
   const lapsed = hasResetBy(now);
   const estimated = O.isSome(ok.asOf) && A.some(ok.windows, lapsed);
   if (!estimated) return rankWindows(now, usage, ok.windows, ok.asOf, false);
@@ -753,7 +768,7 @@ export const rankAccounts: {
     A.sort(A.map(usages, rankAccount(now)), mostUrgentFirst)
 );
 
-const sectionOrder: ReadonlyArray<AccountSection> = ["claude", "codex", "supergrok", "muse", "other"];
+const sectionOrder: ReadonlyArray<AccountSection> = ["claude", "codex", "supergrok", "muse", "junie", "other"];
 
 const isSignedIn =
   (signedIn: ReadonlyArray<SignedInLogin>) =>

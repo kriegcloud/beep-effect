@@ -57,17 +57,18 @@ const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.Sc
  * @category models
  * @since 0.0.0
  */
-export class SerializedCodeBlockNode extends S.Class<SerializedCodeBlockNode>($I`SerializedCodeBlockNode`)(
-  {
+export class SerializedCodeBlockNode extends S.Opaque<SerializedCodeBlockNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.tag("codeblock"),
     version: S.Literal(1),
     format: ElementFormat,
     code: S.String,
     language: S.String,
-  },
-  $I.annote("SerializedCodeBlockNode", {
-    description: "Viewer-internal serialized code-block decorator node.",
-  })
+  }).pipe(
+    $I.annoteSchema("SerializedCodeBlockNode", {
+      description: "Viewer-internal serialized code-block decorator node.",
+    })
+  )
 ) {}
 const decodeUnknownSerializedCodeBlockNodeResult = S.decodeUnknownResult(SerializedCodeBlockNode);
 

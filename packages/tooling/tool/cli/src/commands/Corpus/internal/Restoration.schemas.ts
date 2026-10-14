@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { FileProcessingOperationErrorReason } from "@beep/file-processing/Operation";
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, Sha256Hex } from "@beep/schema";
 import * as A from "effect/Array";
@@ -199,8 +200,11 @@ const restorationPreserveOptionsExpectedCollectorUniqueSuccessfulDestinationCoun
  * @category configuration
  * @since 0.0.0
  */
-export class RestorationPreserveOptions extends S.Class<RestorationPreserveOptions>($I`RestorationPreserveOptions`)(
-  {
+export class RestorationPreserveOptions extends S.Opaque<
+  RestorationPreserveOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     absentRecycleTreePath: S.NonEmptyString,
     capacityCeilingBytes: PosInt,
     chunkSizeBytes: PosInt.pipe(
@@ -269,11 +273,12 @@ export class RestorationPreserveOptions extends S.Class<RestorationPreserveOptio
     ),
     sourceManifestPath: S.NonEmptyString,
     sourceRoot: S.NonEmptyString,
-  },
-  $I.annote("RestorationPreserveOptions", {
-    description:
-      "Explicit capacity policy, source locations, archive destination label, and optional recovery-test controls for one preservation run.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestorationPreserveOptions", {
+      description:
+        "Explicit capacity policy, source locations, archive destination label, and optional recovery-test controls for one preservation run.",
+    })
+  )
 ) {}
 
 /**
@@ -291,17 +296,18 @@ export class RestorationPreserveOptions extends S.Class<RestorationPreserveOptio
  * @category configuration
  * @since 0.0.0
  */
-export class RestorationVerifyOptions extends S.Class<RestorationVerifyOptions>($I`RestorationVerifyOptions`)(
-  {
+export class RestorationVerifyOptions extends S.Opaque<RestorationVerifyOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.NonEmptyString,
     runLabel: RunLabel.pipe(
       S.withConstructorDefault(Effect.succeed("t7-salvage-2026-08-10")),
       S.withDecodingDefaultTypeKey(Effect.succeed("t7-salvage-2026-08-10"))
     ),
-  },
-  $I.annote("RestorationVerifyOptions", {
-    description: "Corpus root and preservation run label independently reparsed and verified from a fresh process.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestorationVerifyOptions", {
+      description: "Corpus root and preservation run label independently reparsed and verified from a fresh process.",
+    })
+  )
 ) {}
 
 /**
@@ -367,15 +373,16 @@ const TransformationEvidenceIdentity = S.Struct({
  * @category schemas
  * @since 0.0.0
  */
-export class MailOccurrenceMember extends S.Class<MailOccurrenceMember>($I`MailOccurrenceMember`)(
-  {
+export class MailOccurrenceMember extends S.Opaque<MailOccurrenceMember, { readonly brand: unique symbol }>()(
+  S.Struct({
     objectId: Sha256Hex,
     sha256: Sha256Hex,
     sizeBytes: PosInt.check(S.isGreaterThanOrEqualTo(1048576), S.isLessThanOrEqualTo(536870912)),
-  },
-  $I.annote("MailOccurrenceMember", {
-    description: "One non-stub PST occurrence whose ratio-four allowance fits the retained two-GiB family cap.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailOccurrenceMember", {
+      description: "One non-stub PST occurrence whose ratio-four allowance fits the retained two-GiB family cap.",
+    })
+  )
 ) {}
 
 /**
@@ -399,8 +406,8 @@ export class MailOccurrenceMember extends S.Class<MailOccurrenceMember>($I`MailO
  * @category schemas
  * @since 0.0.0
  */
-export class MailOccurrenceMembership extends S.Class<MailOccurrenceMembership>($I`MailOccurrenceMembership`)(
-  {
+export class MailOccurrenceMembership extends S.Opaque<MailOccurrenceMembership, { readonly brand: unique symbol }>()(
+  S.Struct({
     schema: S.Literal("mail-occurrence-membership/v1"),
     preservationLabel: RunLabel,
     maxInputBytes: S.Literal(536870912),
@@ -414,10 +421,11 @@ export class MailOccurrenceMembership extends S.Class<MailOccurrenceMembership>(
         message: "Expected unique mail occurrence objectIds.",
       })
     ),
-  },
-  $I.annote("MailOccurrenceMembership", {
-    description: "At most ten pinned mail occurrences authorized by a committed bounded-wave plan.",
-  })
+  }).pipe(
+    $I.annoteSchema("MailOccurrenceMembership", {
+      description: "At most ten pinned mail occurrences authorized by a committed bounded-wave plan.",
+    })
+  )
 ) {}
 
 /**
@@ -454,8 +462,8 @@ export class MailOccurrenceMembership extends S.Class<MailOccurrenceMembership>(
  * @category configuration
  * @since 0.0.0
  */
-export class RestorationMailOptions extends S.Class<RestorationMailOptions>($I`RestorationMailOptions`)(
-  {
+export class RestorationMailOptions extends S.Opaque<RestorationMailOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     bwrapPath: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed("bwrap")),
       S.withDecodingDefaultTypeKey(Effect.succeed("bwrap"))
@@ -484,11 +492,12 @@ export class RestorationMailOptions extends S.Class<RestorationMailOptions>($I`R
       S.withConstructorDefault(Effect.succeed("java")),
       S.withDecodingDefaultTypeKey(Effect.succeed("java"))
     ),
-  },
-  $I.annote("RestorationMailOptions", {
-    description:
-      "Frozen engine and sandbox locations, denominator, elapsed-time ceiling, and disk amplification ceiling for one mail restoration scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestorationMailOptions", {
+      description:
+        "Frozen engine and sandbox locations, denominator, elapsed-time ceiling, and disk amplification ceiling for one mail restoration scope.",
+    })
+  )
 ) {}
 
 /**
@@ -515,8 +524,8 @@ export class RestorationMailOptions extends S.Class<RestorationMailOptions>($I`R
  * @category configuration
  * @since 0.0.0
  */
-export class RestorationRecycleOptions extends S.Class<RestorationRecycleOptions>($I`RestorationRecycleOptions`)(
-  {
+export class RestorationRecycleOptions extends S.Opaque<RestorationRecycleOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     corpusRoot: S.NonEmptyString,
     expectedMissingContentCount: S.Natural,
     expectedSurfaceCount: S.Natural,
@@ -526,10 +535,11 @@ export class RestorationRecycleOptions extends S.Class<RestorationRecycleOptions
       S.withConstructorDefault(Effect.succeed("t7-salvage-2026-08-10")),
       S.withDecodingDefaultTypeKey(Effect.succeed("t7-salvage-2026-08-10"))
     ),
-  },
-  $I.annote("RestorationRecycleOptions", {
-    description: "Expected three-volume and inherited-missing-payload denominators for recycle reconciliation.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestorationRecycleOptions", {
+      description: "Expected three-volume and inherited-missing-payload denominators for recycle reconciliation.",
+    })
+  )
 ) {}
 
 /**
@@ -560,10 +570,11 @@ export class RestorationRecycleOptions extends S.Class<RestorationRecycleOptions
  * @category configuration
  * @since 0.0.0
  */
-export class RestorationLegacyWordOptions extends S.Class<RestorationLegacyWordOptions>(
-  $I`RestorationLegacyWordOptions`
-)(
-  {
+export class RestorationLegacyWordOptions extends S.Opaque<
+  RestorationLegacyWordOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     bwrapPath: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed("bwrap")),
       S.withDecodingDefaultTypeKey(Effect.succeed("bwrap"))
@@ -597,60 +608,97 @@ export class RestorationLegacyWordOptions extends S.Class<RestorationLegacyWordO
       S.withDecodingDefaultTypeKey(Effect.succeed("t7-salvage-2026-08-10"))
     ),
     tikaJarPath: S.NonEmptyString,
-  },
-  $I.annote("RestorationLegacyWordOptions", {
-    description:
-      "Pinned converter identity, source denominator, elapsed-time ceiling, and declared visual fidelity threshold for one conversion run.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestorationLegacyWordOptions", {
+      description:
+        "Pinned converter identity, source denominator, elapsed-time ceiling, and declared visual fidelity threshold for one conversion run.",
+    })
+  )
 ) {}
 
-class CollectorCopiedManifestRecord extends S.Class<CollectorCopiedManifestRecord>($I`CollectorCopiedManifestRecord`)(
-  {
+/**
+ * Inherited collector success row for a newly copied destination.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CollectorCopiedManifestRecord extends S.Opaque<
+  CollectorCopiedManifestRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dst: S.NonEmptyString,
     size: S.Natural,
     src: S.NonEmptyString,
     status: S.Literal("copied"),
-  },
-  $I.annote("CollectorCopiedManifestRecord", {
-    description: "Inherited collector success row for a newly copied destination.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorCopiedManifestRecord", {
+      description: "Inherited collector success row for a newly copied destination.",
+    })
+  )
 ) {}
 
-class CollectorResumedManifestRecord extends S.Class<CollectorResumedManifestRecord>(
-  $I`CollectorResumedManifestRecord`
-)(
-  {
+/**
+ * Inherited collector success row for a destination resumed from prior work.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CollectorResumedManifestRecord extends S.Opaque<
+  CollectorResumedManifestRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     dst: S.NonEmptyString,
     size: S.Natural,
     src: S.NonEmptyString,
     status: S.Literal("resumed"),
-  },
-  $I.annote("CollectorResumedManifestRecord", {
-    description: "Inherited collector success row for a destination resumed from prior work.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorResumedManifestRecord", {
+      description: "Inherited collector success row for a destination resumed from prior work.",
+    })
+  )
 ) {}
 
-class CollectorErrorManifestRecord extends S.Class<CollectorErrorManifestRecord>($I`CollectorErrorManifestRecord`)(
-  {
+/**
+ * Inherited collector failure row that records a source and non-empty reason without a destination.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CollectorErrorManifestRecord extends S.Opaque<
+  CollectorErrorManifestRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     reason: S.NonEmptyString,
     src: S.NonEmptyString,
     status: S.Literal("error"),
-  },
-  $I.annote("CollectorErrorManifestRecord", {
-    description: "Inherited collector failure row that records a source and non-empty reason without a destination.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorErrorManifestRecord", {
+      description: "Inherited collector failure row that records a source and non-empty reason without a destination.",
+    })
+  )
 ) {}
 
-class CollectorExcludedSecretManifestRecord extends S.Class<CollectorExcludedSecretManifestRecord>(
-  $I`CollectorExcludedSecretManifestRecord`
-)(
-  {
+/**
+ * Inherited collector exclusion row whose source was deliberately omitted as secret material.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CollectorExcludedSecretManifestRecord extends S.Opaque<
+  CollectorExcludedSecretManifestRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     src: S.NonEmptyString,
     status: S.Literal("excluded-secret"),
-  },
-  $I.annote("CollectorExcludedSecretManifestRecord", {
-    description: "Inherited collector exclusion row whose source was deliberately omitted as secret material.",
-  })
+  }).pipe(
+    $I.annoteSchema("CollectorExcludedSecretManifestRecord", {
+      description: "Inherited collector exclusion row whose source was deliberately omitted as secret material.",
+    })
+  )
 ) {}
 
 /**
@@ -710,18 +758,31 @@ export type CollectorManifestRecord = typeof CollectorManifestRecord.Type;
  */
 export const decodeCollectorManifestRecordJson = JsonStringCodec(CollectorManifestRecord).decode;
 
-class SourceStat extends S.Class<SourceStat>($I`SourceStat`)(
-  {
+/**
+ * Source size and modification time observed before or after a streaming copy attempt.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SourceStat extends S.Opaque<SourceStat, { readonly brand: unique symbol }>()(
+  S.Struct({
     mtimeMillis: S.Natural,
     sizeBytes: S.Natural,
-  },
-  $I.annote("SourceStat", {
-    description: "Source size and modification time observed before or after a streaming copy attempt.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceStat", {
+      description: "Source size and modification time observed before or after a streaming copy attempt.",
+    })
+  )
 ) {}
 
-class ArchivePreflightRecord extends S.Class<ArchivePreflightRecord>($I`ArchivePreflightRecord`)(
-  {
+/**
+ * Capacity and object-count preflight that must pass before preservation writes payload bytes.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchivePreflightRecord extends S.Opaque<ArchivePreflightRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     approved: S.Boolean,
     approvedCeilingBytes: S.Natural,
     availableBytes: S.Natural,
@@ -733,14 +794,24 @@ class ArchivePreflightRecord extends S.Class<ArchivePreflightRecord>($I`ArchiveP
     requiredBytes: S.Natural,
     runId: RunId,
     schemaVersion: SchemaVersion,
-  },
-  $I.annote("ArchivePreflightRecord", {
-    description: "Capacity and object-count preflight that must pass before preservation writes payload bytes.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchivePreflightRecord", {
+      description: "Capacity and object-count preflight that must pass before preservation writes payload bytes.",
+    })
+  )
 ) {}
 
-class ArchiveDirectoryPassRecord extends S.Class<ArchiveDirectoryPassRecord>($I`ArchiveDirectoryPassRecord`)(
-  {
+/**
+ * Durably synced archive directory occurrence.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveDirectoryPassRecord extends S.Opaque<
+  ArchiveDirectoryPassRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     destinationRelativePath: RelativePath,
     objectId: ObjectId,
     objectKind: S.Literal("directory"),
@@ -750,14 +821,21 @@ class ArchiveDirectoryPassRecord extends S.Class<ArchiveDirectoryPassRecord>($I`
     schemaVersion: SchemaVersion,
     sourceLabel: S.NonEmptyString,
     sourceRelativePath: RelativePath,
-  },
-  $I.annote("ArchiveDirectoryPassRecord", {
-    description: "Durably synced archive directory occurrence.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveDirectoryPassRecord", {
+      description: "Durably synced archive directory occurrence.",
+    })
+  )
 ) {}
 
-class ArchiveFilePassRecord extends S.Class<ArchiveFilePassRecord>($I`ArchiveFilePassRecord`)(
-  {
+/**
+ * Terminal PASS for one stable source file after payload fsync, atomic promotion, independent destination hashing, and manifest fsync.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveFilePassRecord extends S.Opaque<ArchiveFilePassRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     attemptId: AttemptId,
     destinationRelativePath: RelativePath,
     objectId: ObjectId,
@@ -773,17 +851,25 @@ class ArchiveFilePassRecord extends S.Class<ArchiveFilePassRecord>($I`ArchiveFil
     sizeBytes: S.Natural,
     sourceLabel: S.NonEmptyString,
     sourceRelativePath: RelativePath,
-  },
-  $I.annote("ArchiveFilePassRecord", {
-    description:
-      "Terminal PASS for one stable source file after payload fsync, atomic promotion, independent destination hashing, and manifest fsync.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveFilePassRecord", {
+      description:
+        "Terminal PASS for one stable source file after payload fsync, atomic promotion, independent destination hashing, and manifest fsync.",
+    })
+  )
 ) {}
 
-class ArchiveChangedDuringCopyRecord extends S.Class<ArchiveChangedDuringCopyRecord>(
-  $I`ArchiveChangedDuringCopyRecord`
-)(
-  {
+/**
+ * Rejected copy attempt whose source size or modification time changed while bytes were streaming.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveChangedDuringCopyRecord extends S.Opaque<
+  ArchiveChangedDuringCopyRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     attemptId: AttemptId,
     destinationRelativePath: RelativePath,
     objectId: ObjectId,
@@ -795,10 +881,11 @@ class ArchiveChangedDuringCopyRecord extends S.Class<ArchiveChangedDuringCopyRec
     schemaVersion: SchemaVersion,
     sourceLabel: S.NonEmptyString,
     sourceRelativePath: RelativePath,
-  },
-  $I.annote("ArchiveChangedDuringCopyRecord", {
-    description: "Rejected copy attempt whose source size or modification time changed while bytes were streaming.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveChangedDuringCopyRecord", {
+      description: "Rejected copy attempt whose source size or modification time changed while bytes were streaming.",
+    })
+  )
 ) {}
 
 const ArchiveFailureKind = LiteralKit([
@@ -813,8 +900,14 @@ const ArchiveFailureKind = LiteralKit([
   })
 );
 
-class ArchiveFailureRecord extends S.Class<ArchiveFailureRecord>($I`ArchiveFailureRecord`)(
-  {
+/**
+ * Terminal preservation failure with explicit approval state.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveFailureRecord extends S.Opaque<ArchiveFailureRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     approved: S.Boolean,
     failureKind: ArchiveFailureKind,
     message: S.NonEmptyString,
@@ -825,10 +918,11 @@ class ArchiveFailureRecord extends S.Class<ArchiveFailureRecord>($I`ArchiveFailu
     schemaVersion: SchemaVersion,
     sourceLabel: S.NonEmptyString,
     sourceRelativePath: RelativePath,
-  },
-  $I.annote("ArchiveFailureRecord", {
-    description: "Terminal preservation failure with explicit approval state.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveFailureRecord", {
+      description: "Terminal preservation failure with explicit approval state.",
+    })
+  )
 ) {}
 
 const InheritedLossCategory = LiteralKit([
@@ -843,8 +937,14 @@ const InheritedLossCategory = LiteralKit([
   })
 );
 
-class InheritedLossRecord extends S.Class<InheritedLossRecord>($I`InheritedLossRecord`)(
-  {
+/**
+ * Operator-ratified inherited-loss opening balance recorded without claiming byte recovery.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class InheritedLossRecord extends S.Opaque<InheritedLossRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     approved: S.Literal(true),
     category: InheritedLossCategory,
     count: S.Natural,
@@ -852,24 +952,32 @@ class InheritedLossRecord extends S.Class<InheritedLossRecord>($I`InheritedLossR
     recordType: S.Literal("inherited-loss"),
     runId: RunId,
     schemaVersion: SchemaVersion,
-  },
-  $I.annote("InheritedLossRecord", {
-    description: "Operator-ratified inherited-loss opening balance recorded without claiming byte recovery.",
-  })
+  }).pipe(
+    $I.annoteSchema("InheritedLossRecord", {
+      description: "Operator-ratified inherited-loss opening balance recorded without claiming byte recovery.",
+    })
+  )
 ) {}
 
-class ArchiveManifestSealRecord extends S.Class<ArchiveManifestSealRecord>($I`ArchiveManifestSealRecord`)(
-  {
+/**
+ * Digest and row count covering the exact manifest bytes before this terminal seal row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveManifestSealRecord extends S.Opaque<ArchiveManifestSealRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifestSha256: Sha256Hex,
     recordCount: S.Natural,
     recordedAt: RecordedAt,
     recordType: S.Literal("archive-manifest-seal"),
     runId: RunId,
     schemaVersion: SchemaVersion,
-  },
-  $I.annote("ArchiveManifestSealRecord", {
-    description: "Digest and row count covering the exact manifest bytes before this terminal seal row.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveManifestSealRecord", {
+      description: "Digest and row count covering the exact manifest bytes before this terminal seal row.",
+    })
+  )
 ) {}
 
 /**
@@ -955,31 +1063,49 @@ const VerificationFailureKind = LiteralKit([
   })
 );
 
-class ArchiveVerificationPassRecord extends S.Class<ArchiveVerificationPassRecord>($I`ArchiveVerificationPassRecord`)(
-  {
+/**
+ * Fresh-process destination byte verification PASS for one terminal archive object.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveVerificationPassRecord extends S.Opaque<
+  ArchiveVerificationPassRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     destinationRelativePath: RelativePath,
     objectId: ObjectId,
     recordType: S.Literal("verification-pass"),
     sha256: Sha256Hex,
     sizeBytes: S.Natural,
-  },
-  $I.annote("ArchiveVerificationPassRecord", {
-    description: "Fresh-process destination byte verification PASS for one terminal archive object.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveVerificationPassRecord", {
+      description: "Fresh-process destination byte verification PASS for one terminal archive object.",
+    })
+  )
 ) {}
 
-class ArchiveVerificationFailureRecord extends S.Class<ArchiveVerificationFailureRecord>(
-  $I`ArchiveVerificationFailureRecord`
-)(
-  {
+/**
+ * Fresh-process archive verification failure for one object or manifest invariant.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArchiveVerificationFailureRecord extends S.Opaque<
+  ArchiveVerificationFailureRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     failureKind: VerificationFailureKind,
     message: S.NonEmptyString,
     objectId: ObjectId,
     recordType: S.Literal("verification-failure"),
-  },
-  $I.annote("ArchiveVerificationFailureRecord", {
-    description: "Fresh-process archive verification failure for one object or manifest invariant.",
-  })
+  }).pipe(
+    $I.annoteSchema("ArchiveVerificationFailureRecord", {
+      description: "Fresh-process archive verification failure for one object or manifest invariant.",
+    })
+  )
 ) {}
 
 /**
@@ -1062,8 +1188,8 @@ export const encodeArchiveVerificationRecordJson = JsonStringCodec(ArchiveVerifi
  * @category models
  * @since 0.0.0
  */
-export class RestorationRunSummary extends S.Class<RestorationRunSummary>($I`RestorationRunSummary`)(
-  {
+export class RestorationRunSummary extends S.Opaque<RestorationRunSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     elapsedMillis: S.Natural,
     exceptionCount: S.Natural,
     family: RestorationFamily,
@@ -1072,10 +1198,11 @@ export class RestorationRunSummary extends S.Class<RestorationRunSummary>($I`Res
     passCount: S.Natural,
     sourceCount: S.Natural,
     unapprovedCount: S.Natural,
-  },
-  $I.annote("RestorationRunSummary", {
-    description: "Aggregate-only terminal counts and byte/time measurements for one acceptance family.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestorationRunSummary", {
+      description: "Aggregate-only terminal counts and byte/time measurements for one acceptance family.",
+    })
+  )
 ) {}
 
 /**
@@ -1114,8 +1241,11 @@ export class RestorationRunSummary extends S.Class<RestorationRunSummary>($I`Res
  * @category models
  * @since 0.0.0
  */
-export class RestorationAcceptanceRecord extends S.Class<RestorationAcceptanceRecord>($I`RestorationAcceptanceRecord`)(
-  {
+export class RestorationAcceptanceRecord extends S.Opaque<
+  RestorationAcceptanceRecord,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     evidenceSha256: Sha256Hex,
     elapsedMillis: S.Natural,
     exceptionCount: S.Natural,
@@ -1136,10 +1266,11 @@ export class RestorationAcceptanceRecord extends S.Class<RestorationAcceptanceRe
     terminalCount: S.Natural,
     transformationRunId: S.optionalKey(RunId),
     unapprovedCount: S.Literal(0),
-  },
-  $I.annote("RestorationAcceptanceRecord", {
-    description: "Separate immutable PASS record emitted only after one family ledger independently reconciles.",
-  })
+  }).pipe(
+    $I.annoteSchema("RestorationAcceptanceRecord", {
+      description: "Separate immutable PASS record emitted only after one family ledger independently reconciles.",
+    })
+  )
 ) {}
 
 /**
@@ -1210,7 +1341,15 @@ const MailDisposition = LiteralKit(["defer", "process", "quarantine"]).pipe(
   })
 );
 
-class FamilyRunStartRecord extends S.Class<FamilyRunStartRecord>($I`FamilyRunStartRecord`)(
+/**
+ * Durable family clock, denominator, and resource contract reused unchanged by every restart of one transformation run.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FamilyRunStartRecord extends S.Class<FamilyRunStartRecord, { readonly brand: unique symbol }>(
+  $I`FamilyRunStartRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     expectedCount: S.Natural,
@@ -1227,7 +1366,15 @@ class FamilyRunStartRecord extends S.Class<FamilyRunStartRecord>($I`FamilyRunSta
   })
 ) {}
 
-class FamilyAttemptStartRecord extends S.Class<FamilyAttemptStartRecord>($I`FamilyAttemptStartRecord`)(
+/**
+ * Durable source-bound checkpoint written before one transformation candidate may create retained output.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FamilyAttemptStartRecord extends S.Class<FamilyAttemptStartRecord, { readonly brand: unique symbol }>(
+  $I`FamilyAttemptStartRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
@@ -1245,9 +1392,16 @@ class FamilyAttemptStartRecord extends S.Class<FamilyAttemptStartRecord>($I`Fami
   })
 ) {}
 
-class FamilyAttemptInterruptedRecord extends S.Class<FamilyAttemptInterruptedRecord>(
-  $I`FamilyAttemptInterruptedRecord`
-)(
+/**
+ * Immutable ownership row for canonical interrupted output retained before the same source is retried under a new attempt generation.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FamilyAttemptInterruptedRecord extends S.Class<
+  FamilyAttemptInterruptedRecord,
+  { readonly brand: unique symbol }
+>($I`FamilyAttemptInterruptedRecord`)(
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
@@ -1267,7 +1421,15 @@ class FamilyAttemptInterruptedRecord extends S.Class<FamilyAttemptInterruptedRec
   })
 ) {}
 
-class MailStorePassRecord extends S.Class<MailStorePassRecord>($I`MailStorePassRecord`)(
+/**
+ * Terminal mail-store PASS with zero unaccounted children and measured amplification.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MailStorePassRecord extends S.Class<MailStorePassRecord, { readonly brand: unique symbol }>(
+  $I`MailStorePassRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     accountedChildCount: S.Natural,
@@ -1289,13 +1451,77 @@ class MailStorePassRecord extends S.Class<MailStorePassRecord>($I`MailStorePassR
   })
 ) {}
 
-class MailStoreExceptionRecord extends S.Class<MailStoreExceptionRecord>($I`MailStoreExceptionRecord`)(
+/**
+ * Message-free original failure evidence retained by the mail terminal catch.
+ *
+ * **Details**
+ *
+ * Only fixed classes, numeric budgets and capture status are retained. Messages,
+ * process arguments, output, arbitrary driver details and paths are excluded.
+ * Existing exception rows may omit this evidence and remain decodable.
+ *
+ * **Example** (Record a nonzero second pass)
+ *
+ * ```ts import.meta.vitest name="Record a nonzero second pass"
+ * import { MailFailureCause } from "@beep/repo-cli/commands/Corpus"
+ *
+ * const cause = MailFailureCause.cases.TikaSecondPassFailure.make({
+ *   emptyOutput: true, exitCode: 1, truncated: false
+ * })
+ * cause.exitCode // => 1
+ * ```
+ *
+ * @category diagnostics
+ * @since 0.0.0
+ */
+export const MailFailureCause = S.TaggedUnion({
+  AttachmentRepairElapsedBudget: {
+    attemptElapsedMillis: S.Natural,
+    familyElapsedMillis: S.Natural,
+    maxElapsedMillis: PosInt,
+    maxTotalElapsedMillis: PosInt,
+  },
+  TikaSecondPassFailure: {
+    emptyOutput: S.Boolean,
+    exitCode: S.Finite,
+    truncated: S.Boolean,
+  },
+  FileProcessingOperationError: { reason: FileProcessingOperationErrorReason },
+  CaptureCommandTimedOutError: {},
+  CapturePipeWedgedError: {},
+  CorpusCommandError: {},
+  Unknown: {},
+}).pipe(
+  $I.annoteSchema("MailFailureCause", {
+    description:
+      "Allowlisted original mail failure classes and stable fields without corpus-bearing messages or paths.",
+  })
+);
+
+/**
+ * Decoded diagnostic evidence for {@link MailFailureCause}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type MailFailureCause = typeof MailFailureCause.Type;
+
+/**
+ * Terminal mail-store exception with explicit approval state and a digest covering every retained partial and final output byte.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MailStoreExceptionRecord extends S.Class<MailStoreExceptionRecord, { readonly brand: unique symbol }>(
+  $I`MailStoreExceptionRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     approved: S.Boolean,
     attemptId: AttemptId,
     disposition: S.optionalKey(MailDisposition),
     exceptionKind: MailExceptionKind,
+    failureCause: S.optionalKey(MailFailureCause),
     family: S.Literal("mail"),
     mailScope: MailRestorationScope,
     message: S.NonEmptyString,
@@ -1311,7 +1537,15 @@ class MailStoreExceptionRecord extends S.Class<MailStoreExceptionRecord>($I`Mail
   })
 ) {}
 
-class MailWarningRecord extends S.Class<MailWarningRecord>($I`MailWarningRecord`)(
+/**
+ * Bounded engine warning persisted for one mail restoration attempt.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MailWarningRecord extends S.Class<MailWarningRecord, { readonly brand: unique symbol }>(
+  $I`MailWarningRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
@@ -1326,7 +1560,15 @@ class MailWarningRecord extends S.Class<MailWarningRecord>($I`MailWarningRecord`
   })
 ) {}
 
-class MailChildPassRecord extends S.Class<MailChildPassRecord>($I`MailChildPassRecord`)(
+/**
+ * Per-child digest and size accounting row for one mail export attempt.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class MailChildPassRecord extends S.Class<MailChildPassRecord, { readonly brand: unique symbol }>(
+  $I`MailChildPassRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
@@ -1344,7 +1586,15 @@ class MailChildPassRecord extends S.Class<MailChildPassRecord>($I`MailChildPassR
   })
 ) {}
 
-class AttachmentTypeRepairRecord extends S.Class<AttachmentTypeRepairRecord>($I`AttachmentTypeRepairRecord`)(
+/**
+ * Byte-signature attachment disposition and non-destructive derived path for second-pass extraction.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AttachmentTypeRepairRecord extends S.Class<AttachmentTypeRepairRecord, { readonly brand: unique symbol }>(
+  $I`AttachmentTypeRepairRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
@@ -1370,7 +1620,15 @@ const RecycleJoinClass = LiteralKit(["duplicate", "missing-content", "orphan-con
   })
 );
 
-class RecycleJoinRecord extends S.Class<RecycleJoinRecord>($I`RecycleJoinRecord`)(
+/**
+ * Aggregate four-class join count for one recycle volume surface.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RecycleJoinRecord extends S.Class<RecycleJoinRecord, { readonly brand: unique symbol }>(
+  $I`RecycleJoinRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     count: S.Natural,
@@ -1385,7 +1643,15 @@ class RecycleJoinRecord extends S.Class<RecycleJoinRecord>($I`RecycleJoinRecord`
   })
 ) {}
 
-class RecycleMappingRecord extends S.Class<RecycleMappingRecord>($I`RecycleMappingRecord`)(
+/**
+ * Original path, content digest, restored path, occurrence, and volume identity mapping.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RecycleMappingRecord extends S.Class<RecycleMappingRecord, { readonly brand: unique symbol }>(
+  $I`RecycleMappingRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
@@ -1403,7 +1669,15 @@ class RecycleMappingRecord extends S.Class<RecycleMappingRecord>($I`RecycleMappi
   })
 ) {}
 
-class LegacyWordPassRecord extends S.Class<LegacyWordPassRecord>($I`LegacyWordPassRecord`)(
+/**
+ * Distinct-digest legacy-Word conversion PASS with pinned engine and declared text, pagination, and visual measures.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LegacyWordPassRecord extends S.Class<LegacyWordPassRecord, { readonly brand: unique symbol }>(
+  $I`LegacyWordPassRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     attemptId: AttemptId,
@@ -1423,7 +1697,15 @@ class LegacyWordPassRecord extends S.Class<LegacyWordPassRecord>($I`LegacyWordPa
   })
 ) {}
 
-class LegacyWordExceptionRecord extends S.Class<LegacyWordExceptionRecord>($I`LegacyWordExceptionRecord`)(
+/**
+ * Terminal distinct-digest legacy-Word exception with explicit approval state.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LegacyWordExceptionRecord extends S.Class<LegacyWordExceptionRecord, { readonly brand: unique symbol }>(
+  $I`LegacyWordExceptionRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     approved: S.Boolean,
@@ -1439,7 +1721,15 @@ class LegacyWordExceptionRecord extends S.Class<LegacyWordExceptionRecord>($I`Le
   })
 ) {}
 
-class FamilyAcceptancePassRecord extends S.Class<FamilyAcceptancePassRecord>($I`FamilyAcceptancePassRecord`)(
+/**
+ * Reconciled family acceptance record with a complete denominator and zero unapproved rows.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FamilyAcceptancePassRecord extends S.Class<FamilyAcceptancePassRecord, { readonly brand: unique symbol }>(
+  $I`FamilyAcceptancePassRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     evidenceSha256: Sha256Hex,
@@ -1458,7 +1748,16 @@ class FamilyAcceptancePassRecord extends S.Class<FamilyAcceptancePassRecord>($I`
   })
 ) {}
 
-class FamilyAcceptanceFailureRecord extends S.Class<FamilyAcceptanceFailureRecord>($I`FamilyAcceptanceFailureRecord`)(
+/**
+ * Fail-closed family acceptance record for an incomplete denominator or unapproved terminal row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FamilyAcceptanceFailureRecord extends S.Class<
+  FamilyAcceptanceFailureRecord,
+  { readonly brand: unique symbol }
+>($I`FamilyAcceptanceFailureRecord`)(
   {
     ...TransformationEvidenceIdentity.fields,
     evidenceSha256: Sha256Hex,
@@ -1478,7 +1777,15 @@ class FamilyAcceptanceFailureRecord extends S.Class<FamilyAcceptanceFailureRecor
   })
 ) {}
 
-class FamilyRunSummaryRecord extends S.Class<FamilyRunSummaryRecord>($I`FamilyRunSummaryRecord`)(
+/**
+ * Measured aggregate summary paired with one transformation-family acceptance row.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FamilyRunSummaryRecord extends S.Class<FamilyRunSummaryRecord, { readonly brand: unique symbol }>(
+  $I`FamilyRunSummaryRecord`
+)(
   {
     ...TransformationEvidenceIdentity.fields,
     elapsedMillis: S.Natural,

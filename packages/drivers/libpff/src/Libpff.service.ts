@@ -115,17 +115,19 @@ const deriveLibpffChildArtifactId = (
  * @category configuration
  * @since 0.0.0
  */
-export class LibpffFileProcessingEngineOptions extends S.Class<LibpffFileProcessingEngineOptions>(
-  $I`LibpffFileProcessingEngineOptions`
-)(
-  {
+export class LibpffFileProcessingEngineOptions extends S.Opaque<
+  LibpffFileProcessingEngineOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     syntheticExport: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
       description: "Enables the proof-only synthetic export path instead of the default unavailable deferral.",
     }),
-  },
-  $I.annote("LibpffFileProcessingEngineOptions", {
-    description: "Configuration options for the P1 libpff engine scaffold.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibpffFileProcessingEngineOptions", {
+      description: "Configuration options for the P1 libpff engine scaffold.",
+    })
+  )
 ) {}
 
 /**

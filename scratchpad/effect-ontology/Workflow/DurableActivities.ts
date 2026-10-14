@@ -303,18 +303,15 @@ export type ClaimPersistenceOutput = typeof ClaimPersistenceOutput.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class CrossBatchResolutionOutput extends S.Class<CrossBatchResolutionOutput>($I`CrossBatchResolutionOutput`)(
-  {
+export class CrossBatchResolutionOutput extends S.Opaque<CrossBatchResolutionOutput, { readonly brand: unique symbol }>()(S.Struct({
     entitiesTotal: S.Natural,
     matchedToExisting: S.Natural,
     newCanonicals: S.Natural,
     candidatesEvaluated: S.Natural,
     duration: S.DurationFromMillis,
-  },
-  $I.annote("CrossBatchResolutionOutput", {
+  }).pipe($I.annoteSchema("CrossBatchResolutionOutput", {
     description: "Cross-batch resolution counts and an Effect Duration execution measurement.",
-  })
-) {}
+  }))) {}
 
 /**
  * Validated batch, graph, enablement, and ontology scope for cross-batch entity resolution.
@@ -338,17 +335,14 @@ export class CrossBatchResolutionOutput extends S.Class<CrossBatchResolutionOutp
  * @category models
  * @since 0.0.0
  */
-export class CrossBatchResolutionInput extends S.Class<CrossBatchResolutionInput>($I`CrossBatchResolutionInput`)(
-  {
+export class CrossBatchResolutionInput extends S.Opaque<CrossBatchResolutionInput, { readonly brand: unique symbol }>()(S.Struct({
     batchId: BatchId,
     resolvedGraphUri: GcsUri,
     enabled: S.Boolean,
     ontologyId: OntologyName,
-  },
-  $I.annote("CrossBatchResolutionInput", {
+  }).pipe($I.annoteSchema("CrossBatchResolutionInput", {
     description: "Validated batch, graph, enablement, and ontology scope for cross-batch entity resolution.",
-  })
-) {}
+  }))) {}
 
 // -----------------------------------------------------------------------------
 // Shared helpers

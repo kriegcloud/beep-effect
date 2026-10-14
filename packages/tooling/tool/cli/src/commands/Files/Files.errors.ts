@@ -15,13 +15,31 @@ import { OpaqueDefect } from "../../internal/schema/OpaqueDefect.ts";
 
 const $I = $RepoCliId.create("commands/Files/Files.errors");
 
-class PlatformErrorOptions extends S.Class<PlatformErrorOptions>($I`PlatformErrorOptions`)(
-  {
+/**
+ * Options for platform errors, including a cause.
+ *
+ * **Example** (Wrap a permission failure from a rename)
+ *
+ * ```ts
+ * import { formatPlatformError, PlatformErrorOptions } from "@beep/repo-cli/commands/Files"
+ *
+ * const options = PlatformErrorOptions.make({ cause: new Error("EACCES: permission denied") })
+ * const error = formatPlatformError("Failed to rename file", "/srv/photos/IMG_0042.jpg", options)
+ *
+ * console.log(error.message) // => "Failed to rename file: \"/srv/photos/IMG_0042.jpg\""
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PlatformErrorOptions extends S.Opaque<PlatformErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: OpaqueDefect,
-  },
-  $I.annote("PlatformErrorOptions", {
-    description: "Options for platform errors, including a cause.",
-  })
+  }).pipe(
+    $I.annoteSchema("PlatformErrorOptions", {
+      description: "Options for platform errors, including a cause.",
+    })
+  )
 ) {}
 
 /**
@@ -39,7 +57,9 @@ class PlatformErrorOptions extends S.Class<PlatformErrorOptions>($I`PlatformErro
  * @category error-handling
  * @since 0.0.0
  */
-export class FilesCommandError extends S.TaggedError<FilesCommandError>($I`FilesCommandError`)(
+export class FilesCommandError extends S.TaggedError<FilesCommandError, { readonly brand: unique symbol }>(
+  $I`FilesCommandError`
+)(
   "FilesCommandError",
   {
     message: S.String,
@@ -75,9 +95,9 @@ export class FilesCommandError extends S.TaggedError<FilesCommandError>($I`Files
  * **Example** (Format rename platform error)
  *
  * ```ts
- * import { formatPlatformError } from "@beep/repo-cli/commands/Files"
+ * import { formatPlatformError, PlatformErrorOptions } from "@beep/repo-cli/commands/Files"
  *
- * const error = formatPlatformError("rename", "/tmp/source.txt", { cause: new Error("EACCES") })
+ * const error = formatPlatformError("rename", "/tmp/source.txt", PlatformErrorOptions.make({ cause: new Error("EACCES") }))
  * console.log(error.message.includes("/tmp/source.txt")) // true
  * ```
  *
@@ -98,6 +118,42 @@ export const formatPlatformError: {
       message: `${operation}: "${filePath}"`,
       cause: options.cause,
     })
+);
+
+/**
+ * Map any failure of an effect into the {@link formatPlatformError} file
+ * command error for one operation and path.
+ *
+ * **Example** (Map a failed stat)
+ *
+ * ```ts
+ * import { mapPlatformError } from "@beep/repo-cli/commands/Files"
+ * import * as Effect from "effect/Effect"
+ *
+ * const program = Effect.fail("EACCES").pipe(mapPlatformError("Failed to stat file", "/tmp/source.txt"))
+ * console.log(Effect.isEffect(program)) // true
+ * ```
+ *
+ * @param operation - Operation being attempted.
+ * @param filePath - Path reported in the error message.
+ * @returns The effect with its error channel replaced by a file command error.
+ * @category error-handling
+ * @since 0.0.0
+ */
+export const mapPlatformError: {
+  (
+    operation: string,
+    filePath: string
+  ): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, FilesCommandError, R>;
+  <A, E, R>(self: Effect.Effect<A, E, R>, operation: string, filePath: string): Effect.Effect<A, FilesCommandError, R>;
+} = dual(
+  3,
+  <A, E, R>(
+    self: Effect.Effect<A, E, R>,
+    operation: string,
+    filePath: string
+  ): Effect.Effect<A, FilesCommandError, R> =>
+    Effect.mapError(self, (cause) => formatPlatformError(operation, filePath, PlatformErrorOptions.make({ cause })))
 );
 
 /**

@@ -35,7 +35,11 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { formatJsonValue } from "../../internal/cli/Json.ts";
-import { applyJsoncModification as applySharedJsoncModification, decodeJsoncTextAs } from "../../internal/cli/Jsonc.ts";
+import {
+  applyJsoncModification as applySharedJsoncModification,
+  decodeJsoncTextAs,
+  JsoncModification,
+} from "../../internal/cli/Jsonc.ts";
 import {
   encodeLabManifestJson,
   isLabsWorkspacePath,
@@ -50,6 +54,7 @@ import { printLines } from "../../internal/cli/Printer.ts";
 import { scaffoldPackageScripts } from "../../internal/package-scripts/PackageScripts.schemas.ts";
 import { runToExit } from "../../internal/process/StepExec.ts";
 import { syncTsconfigAtRoot } from "../TsconfigSync/index.ts";
+import { TsconfigSyncRunOptionsSync } from "../TsconfigSync/TsconfigSync.schemas.ts";
 import {
   createFileGenerationPlanService,
   FileGenerationPlanInput,
@@ -297,14 +302,15 @@ const decodeToolingKindEffect = (input: unknown) =>
 const PackageKind = S.Union([FoundationKind, ToolingKind]);
 type PackageKind = typeof PackageKind.Type;
 
-class BeepPackageMetadata extends S.Class<BeepPackageMetadata>($I`BeepPackageMetadata`)(
-  {
+class BeepPackageMetadata extends S.Opaque<BeepPackageMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     family: PackageFamily,
     kind: S.optionalKey(PackageKind),
-  },
-  $I.annote("BeepPackageMetadata", {
-    description: "Metadata for a Beep package, including its family and optional kind.",
-  })
+  }).pipe(
+    $I.annoteSchema("BeepPackageMetadata", {
+      description: "Metadata for a Beep package, including its family and optional kind.",
+    })
+  )
 ) {}
 
 const ParentDir = S.String.check(S.isPattern(PARENT_DIR_PATTERN)).pipe(
@@ -493,15 +499,16 @@ const SERVICE_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = templateSpecsFro
  * Decoded scaffold-mode selector threaded through template, file, directory,
  * and manifest planning so lab/kind dispatch never travels as loose booleans.
  */
-class ScaffoldShape extends S.Class<ScaffoldShape>($I`ScaffoldShape`)(
-  {
+class ScaffoldShape extends S.Opaque<ScaffoldShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     appKind: S.OptionFromOptionalKey(AppKind),
     lab: S.Boolean,
     withStoriesTsconfig: S.Boolean,
-  },
-  $I.annote("ScaffoldShape", {
-    description: "Decoded scaffold-mode selector threaded through template, file, and manifest planning.",
-  })
+  }).pipe(
+    $I.annoteSchema("ScaffoldShape", {
+      description: "Decoded scaffold-mode selector threaded through template, file, and manifest planning.",
+    })
+  )
 ) {}
 
 const packageTemplateSpecsFor = (withStoriesTsconfig: boolean): ReadonlyArray<TemplateSpec> =>
@@ -510,7 +517,7 @@ const packageTemplateSpecsFor = (withStoriesTsconfig: boolean): ReadonlyArray<Te
     : PACKAGE_TEMPLATE_SPECS;
 
 // A library ships one real test so the declared `effect` and `@effect/vitest`
-// dependencies are used from the first commit (Knip) and the alias path is
+// dependencies are used from the first commit and the alias path is
 // exercised. The runtime-proof app reuses the package shape without a root
 // `@beep/*` alias, so it keeps the empty `test/` placeholder instead.
 const PACKAGE_TEST_TEMPLATE_SPEC = TemplateSpec.make({
@@ -761,8 +768,8 @@ const fileGenerationPlanService = createFileGenerationPlanService();
  * @category models
  * @since 0.0.0
  */
-export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext`)(
-  {
+export class TemplateContext extends S.Opaque<TemplateContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     scopedName: S.String,
     type: PackageType,
@@ -790,10 +797,11 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
     identityAccessor: S.String,
     effectLanguageServicePlugins: S.String,
     nextjsLanguageServicePlugins: S.String,
-  },
-  $I.annote("TemplateContext", {
-    description: "Variables passed into every template during package scaffolding.",
-  })
+  }).pipe(
+    $I.annoteSchema("TemplateContext", {
+      description: "Variables passed into every template during package scaffolding.",
+    })
+  )
 ) {}
 
 /**
@@ -893,12 +901,14 @@ const applyJsoncModification = (
   value: unknown,
   options?: { readonly isArrayInsertion?: boolean }
 ): string =>
-  applySharedJsoncModification({
-    content,
-    path,
-    value,
-    ...(options?.isArrayInsertion === true ? { isArrayInsertion: true } : {}),
-  });
+  applySharedJsoncModification(
+    JsoncModification.make({
+      content,
+      path,
+      value,
+      ...(options?.isArrayInsertion === true ? { isArrayInsertion: true } : {}),
+    })
+  );
 
 const appendWorkspaceEntry = (content: string, currentWorkspaces: unknown, packagePath: string): string => {
   if (P.isUndefined(currentWorkspaces)) {
@@ -1543,10 +1553,12 @@ export const createPackageCommand = Command.make(
     );
 
     const packageMetadata = O.isSome(packageFamily)
-      ? O.some<BeepPackageMetadata>({
-          family: packageFamily.value,
-          ...(O.isSome(packageKind) ? { kind: packageKind.value } : {}),
-        })
+      ? O.some<BeepPackageMetadata>(
+          BeepPackageMetadata.make({
+            family: packageFamily.value,
+            ...(O.isSome(packageKind) ? { kind: packageKind.value } : {}),
+          })
+        )
       : O.none<BeepPackageMetadata>();
     const ecosystemMetadata = pipe(
       packageMetadata,
@@ -1623,11 +1635,14 @@ export const createPackageCommand = Command.make(
     const identityUpdated = yield* lab
       ? Effect.map(LabIdentitySegment.syncLabIdentitySegment(repoRoot), ({ changed }) => changed)
       : ensureIdentityPackageRegistration(identityPackagesFilePath, name);
-    const syncResult = yield* syncTsconfigAtRoot(repoRoot, {
-      mode: "sync",
-      filter: undefined,
-      verbose: false,
-    });
+    const syncResult = yield* syncTsconfigAtRoot(
+      repoRoot,
+      TsconfigSyncRunOptionsSync.make({
+        mode: "sync",
+        filter: undefined,
+        verbose: false,
+      })
+    );
     // Sanctioned reuse restores the name's provenance: leaving the entry behind
     // would leave the registry claiming a live package is retired, and would
     // wedge the later `delete-package` retirement of the recreated name.
@@ -1752,7 +1767,7 @@ const generateEcosystemPackageJson = Effect.fn("CreatePackage.generateEcosystemP
     devDependencies: {
       "@types/node": "catalog:",
       "@effect/vitest": "catalog:",
-      // tsconfig.test.json lists `bun-types`; Knip reports it unresolved
+      // tsconfig.test.json lists `bun-types`; the type resolver needs its declaration
       // unless the package declares it.
       "bun-types": "catalog:",
       effect: "catalog:",
@@ -1811,7 +1826,7 @@ const appBaseScripts = (dev: string, build: string, lab: boolean) => ({
 // Lab-only workspace dependencies layered onto Next.js lab app manifests.
 // Only what the emitted templates actually consume: `@beep/repo-configs` in
 // next.config.ts, `@beep/ui` via postcss.config.mjs and the globals.css import.
-// Declaring more would fail the required Knip context on the first lab — labs
+// Declare only dependencies used by the generated lab — labs
 // are ceremony-exempt, never code-law exempt (D2). Lab authors add what they
 // import, like any other workspace.
 const NEXTJS_LAB_DEPENDENCIES: Readonly<Record<string, string>> = {
@@ -1835,7 +1850,7 @@ const labDependenciesFor = (
 // Dev-dependency table shared by React-flavored app manifests.
 // No `@effect/vitest`: the React app test templates use plain `vitest` plus
 // @testing-library. Only the `service` kind's test imports it, and that kind
-// declares it in its own devDependencies. Declaring it here fails Knip on the
+// declares it in its own devDependencies. Declaring it here adds an unused dependency to the
 // generated app.
 const REACT_APP_DEV_DEPENDENCIES = {
   "@testing-library/dom": "catalog:",
@@ -1903,14 +1918,14 @@ const serviceAppManifest: AppManifestBuilder = ({ baseManifest, lab, portlessLab
     // src/Api.ts imports the identity accessor; main.ts imports platform-bun
     // and effect. `@beep/schema`/`@beep/utils` are not imported by any emitted
     // file (the `S` in the templates is `effect/Schema`), so declaring them
-    // would fail the required Knip context on the first service app.
+    // would add unused dependencies to the first service app.
     "@beep/identity": "workspace:^",
     "@effect/platform-bun": "catalog:",
     effect: "catalog:",
   },
   devDependencies: {
     // test/health.test.ts provides its server and client through `it.layer`,
-    // so no test-utils layer helper is imported (declaring one fails Knip).
+    // so no test-utils layer helper is imported (no extra dependency is needed).
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
     typescript: "catalog:",
@@ -2094,7 +2109,7 @@ const generatePackageJson: (
       devDependencies: {
         "@types/node": "catalog:",
         "@effect/vitest": "catalog:",
-        // tsconfig.test.json lists `bun-types`; Knip reports it unresolved
+        // tsconfig.test.json lists `bun-types`; the type resolver needs its declaration
         // unless the package declares it.
         "bun-types": "catalog:",
       },

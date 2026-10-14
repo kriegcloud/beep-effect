@@ -55,7 +55,7 @@ const $I = $ScratchpadId.create("effect-ontology/Service/WikidataClient");
  * @category errors
  * @since 0.0.0
  */
-export class WikidataApiError extends S.TaggedError<WikidataApiError>($I`WikidataApiError`)(
+export class WikidataApiError extends S.TaggedError<WikidataApiError, { readonly brand: unique symbol }>($I`WikidataApiError`)(
   "WikidataApiError",
   {
     message: ErrorMessage.annotateKey({
@@ -93,7 +93,7 @@ export class WikidataApiError extends S.TaggedError<WikidataApiError>($I`Wikidat
  * @category errors
  * @since 0.0.0
  */
-export class WikidataRateLimitError extends S.TaggedError<WikidataRateLimitError>($I`WikidataRateLimitError`)(
+export class WikidataRateLimitError extends S.TaggedError<WikidataRateLimitError, { readonly brand: unique symbol }>($I`WikidataRateLimitError`)(
   "WikidataRateLimitError",
   {
     retryAfter: S.Duration.annotateKey({
@@ -257,17 +257,14 @@ const searchOptionsLimitDefault = PosInt.make(10);
  * @category models
  * @since 0.0.0
  */
-export class SearchOptions extends S.Class<SearchOptions>($I`SearchOptions`)(
-  {
+export class SearchOptions extends S.Opaque<SearchOptions, { readonly brand: unique symbol }>()(S.Struct({
     language: S.NonEmptyString.pipe(S.withConstructorDefault(Effect.succeed("en")), S.withDecodingDefaultTypeKey(Effect.succeed("en"))),
     limit: WikidataSearchLimit.pipe(S.withConstructorDefault(Effect.succeed(searchOptionsLimitDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(searchOptionsLimitDefault))),
     type: WikidataEntityType.pipe(S.withConstructorDefault(Effect.succeed(WikidataEntityType.Enum.item)), S.withDecodingDefaultTypeKey(Effect.succeed(WikidataEntityType.Enum.item))),
     strictLanguage: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefaultTypeKey(Effect.succeed(false))),
-  },
-  $I.annote("SearchOptions", {
+  }).pipe($I.annoteSchema("SearchOptions", {
     description: "Language, bounded result count, entity family, and language-matching policy for Wikidata search.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link SearchOptions}.

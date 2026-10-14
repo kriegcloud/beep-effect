@@ -28,15 +28,18 @@ const $I = $RepoCliId.create("commands/Knowledge/Knowledge.schemas");
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRewriteRule extends S.Class<KnowledgeRewriteRule>($I`KnowledgeRewriteRule`)(
-  {
+export class KnowledgeRewriteRule extends S.Opaque<KnowledgeRewriteRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.NonEmptyString.check(S.isPattern(/^(?!\/)(?!.*(?:^|\/)\.\.(?:\/|$))[^\p{Cc}]+$/u)),
     find: S.NonEmptyString,
     replace: S.String,
     count: S.Int.check(S.isGreaterThan(0)),
     note: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("KnowledgeRewriteRule", { description: "Exact-count literal rewrite; paths cannot escape the repository." })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRewriteRule", {
+      description: "Exact-count literal rewrite; paths cannot escape the repository.",
+    })
+  )
 ) {}
 
 /**
@@ -53,11 +56,12 @@ export class KnowledgeRewriteRule extends S.Class<KnowledgeRewriteRule>($I`Knowl
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRewriteRules extends S.Class<KnowledgeRewriteRules>($I`KnowledgeRewriteRules`)(
-  { schemaVersion: S.Literal("knowledge-refs-rewrite/v1"), rules: S.Array(KnowledgeRewriteRule) },
-  $I.annote("KnowledgeRewriteRules", {
-    description: "Versioned literal rewrite contract; rules execute in file order.",
-  })
+export class KnowledgeRewriteRules extends S.Opaque<KnowledgeRewriteRules, { readonly brand: unique symbol }>()(
+  S.Struct({ schemaVersion: S.Literal("knowledge-refs-rewrite/v1"), rules: S.Array(KnowledgeRewriteRule) }).pipe(
+    $I.annoteSchema("KnowledgeRewriteRules", {
+      description: "Versioned literal rewrite contract; rules execute in file order.",
+    })
+  )
 ) {}
 
 /**
@@ -72,11 +76,12 @@ export class KnowledgeRewriteRules extends S.Class<KnowledgeRewriteRules>($I`Kno
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRewriteReport extends S.Class<KnowledgeRewriteReport>($I`KnowledgeRewriteReport`)(
-  { applied: S.Natural, skipped: S.Natural, failures: S.Array(S.String), dryRun: S.Boolean },
-  $I.annote("KnowledgeRewriteReport", {
-    description: "Per-rule counts and drift diagnostics; failed files remain untouched.",
-  })
+export class KnowledgeRewriteReport extends S.Opaque<KnowledgeRewriteReport, { readonly brand: unique symbol }>()(
+  S.Struct({ applied: S.Natural, skipped: S.Natural, failures: S.Array(S.String), dryRun: S.Boolean }).pipe(
+    $I.annoteSchema("KnowledgeRewriteReport", {
+      description: "Per-rule counts and drift diagnostics; failed files remain untouched.",
+    })
+  )
 ) {}
 
 const KnowledgePublicText = S.String.check(
@@ -123,8 +128,13 @@ type KnowledgePublicDetail = typeof KnowledgePublicDetail.Type;
  * `historical-commit-not-ancestor`, `historical-marker-on-live-surface`, and
  * `unclassified-reference-span`), and its domain evaluators emit `unknown-beep-symbol`,
  * `packet-status-claim-drift`, `skill-lock-coverage-drift`, `unresolvable-skill-source`,
- * `floating-github-skill-source`, and `skill-license-unrecorded`; members are only ever added, never
- * repurposed. The remaining members are reserved for later evaluators.
+ * `floating-github-skill-source`, and `skill-license-unrecorded`. It lists each goals-doctor finding
+ * it reads from the tree as one `delegated-goals-doctor-finding`, whose gate stays with `goals doctor`.
+ * The gating form adds the governance kinds: `baseline-tamper` for a non-mint edit of the sealed
+ * baseline or the promotions file, and `lease-expired`, `lease-owner-unresolved`,
+ * `lease-issued-in-future`, `lease-lifetime-exceeded`, and `lease-quota-exceeded` for debt-lease
+ * violations. Members are only ever
+ * added, never repurposed. The remaining members are reserved for later evaluators.
  *
  * **Example** (Classify a Stage-1 finding kind)
  *
@@ -132,7 +142,7 @@ type KnowledgePublicDetail = typeof KnowledgePublicDetail.Type;
  * import { KnowledgeFindingKind } from "@beep/repo-cli/commands/Knowledge/Knowledge.schemas"
  *
  * console.log(KnowledgeFindingKind.is["index-drift"]("index-drift")) // true
- * console.log(KnowledgeFindingKind.literals.length) // 21
+ * console.log(KnowledgeFindingKind.literals.length) // 28
  * ```
  *
  * @category models
@@ -160,6 +170,13 @@ export const KnowledgeFindingKind = LiteralKit([
   "unknown-beep-symbol",
   "packet-status-claim-drift",
   "skill-license-unrecorded",
+  "delegated-goals-doctor-finding",
+  "baseline-tamper",
+  "lease-expired",
+  "lease-owner-unresolved",
+  "lease-issued-in-future",
+  "lease-lifetime-exceeded",
+  "lease-quota-exceeded",
 ]).pipe(
   $I.annoteSchema("KnowledgeFindingKind", {
     description: "Stable classes emitted or reserved by knowledge-surface evaluators.",
@@ -411,15 +428,16 @@ export type KnowledgeFindingId = typeof KnowledgeFindingId.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeFindingLocation extends S.Class<KnowledgeFindingLocation>($I`KnowledgeFindingLocation`)(
-  {
+export class KnowledgeFindingLocation extends S.Opaque<KnowledgeFindingLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     line: S.optionalKey(S.Natural),
     column: S.optionalKey(S.Natural),
-  },
-  $I.annote("KnowledgeFindingLocation", {
-    description: "Display location of a finding; path and offsets are excluded from identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeFindingLocation", {
+      description: "Display location of a finding; path and offsets are excluded from identity.",
+    })
+  )
 ) {}
 
 const KnowledgePublicFindingLocation = KnowledgeFindingLocation.check(
@@ -483,8 +501,8 @@ const KnowledgePublicFindingLocation = KnowledgeFindingLocation.check(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeFinding extends S.Class<KnowledgeFinding>($I`KnowledgeFinding`)(
-  {
+export class KnowledgeFinding extends S.Opaque<KnowledgeFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("knowledge-finding/v1"),
     normalizationVersion: S.tag("knowledge-normalization/v1"),
     findingId: KnowledgeFindingId,
@@ -496,10 +514,11 @@ export class KnowledgeFinding extends S.Class<KnowledgeFinding>($I`KnowledgeFind
     location: KnowledgePublicFindingLocation,
     message: KnowledgePublicText,
     remediation: KnowledgePublicText,
-  },
-  $I.annote("KnowledgeFinding", {
-    description: "Versioned normalized knowledge finding with comparison-scoped semantic identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeFinding", {
+      description: "Versioned normalized knowledge finding with comparison-scoped semantic identity.",
+    })
+  )
 ) {}
 
 /**
@@ -610,15 +629,16 @@ export const encodeKnowledgeFinding: {
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeTrackedEntry extends S.Class<KnowledgeTrackedEntry>($I`KnowledgeTrackedEntry`)(
-  {
+export class KnowledgeTrackedEntry extends S.Opaque<KnowledgeTrackedEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: S.String,
     objectId: S.String,
-  },
-  $I.annote("KnowledgeTrackedEntry", {
-    description: "Tracked path, Git mode, and object id from one commit tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeTrackedEntry", {
+      description: "Tracked path, Git mode, and object id from one commit tree.",
+    })
+  )
 ) {}
 
 /**
@@ -648,15 +668,16 @@ export class KnowledgeTrackedEntry extends S.Class<KnowledgeTrackedEntry>($I`Kno
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeRename extends S.Class<KnowledgeRename>($I`KnowledgeRename`)(
-  {
+export class KnowledgeRename extends S.Opaque<KnowledgeRename, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourcePath: S.String,
     targetPath: S.String,
     score: S.Natural,
-  },
-  $I.annote("KnowledgeRename", {
-    description: "A Git rename at or above the ratified 50 percent similarity threshold.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeRename", {
+      description: "A Git rename at or above the ratified 50 percent similarity threshold.",
+    })
+  )
 ) {}
 
 /**
@@ -680,14 +701,15 @@ export class KnowledgeRename extends S.Class<KnowledgeRename>($I`KnowledgeRename
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeCommandResolved extends S.Class<KnowledgeCommandResolved>($I`KnowledgeCommandResolved`)(
-  {
+export class KnowledgeCommandResolved extends S.Opaque<KnowledgeCommandResolved, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("resolved"),
     canonicalPath: S.Array(S.String),
-  },
-  $I.annote("KnowledgeCommandResolved", {
-    description: "A structurally resolved current-checkout beep command path whose help action was probed.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeCommandResolved", {
+      description: "A structurally resolved current-checkout beep command path whose help action was probed.",
+    })
+  )
 ) {}
 
 /**
@@ -711,14 +733,15 @@ export class KnowledgeCommandResolved extends S.Class<KnowledgeCommandResolved>(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeCommandUnknown extends S.Class<KnowledgeCommandUnknown>($I`KnowledgeCommandUnknown`)(
-  {
+export class KnowledgeCommandUnknown extends S.Opaque<KnowledgeCommandUnknown, { readonly brand: unique symbol }>()(
+  S.Struct({
     status: S.tag("unknown"),
     canonicalPath: S.Array(S.String),
-  },
-  $I.annote("KnowledgeCommandUnknown", {
-    description: "Canonical resolved prefix followed by the first unknown command word.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeCommandUnknown", {
+      description: "Canonical resolved prefix followed by the first unknown command word.",
+    })
+  )
 ) {}
 
 /**
@@ -790,14 +813,15 @@ export type KnowledgeCommandProbeResult = typeof KnowledgeCommandProbeResult.Typ
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeIndexBytes extends S.Class<KnowledgeIndexBytes>($I`KnowledgeIndexBytes`)(
-  {
+export class KnowledgeIndexBytes extends S.Opaque<KnowledgeIndexBytes, { readonly brand: unique symbol }>()(
+  S.Struct({
     expected: S.Uint8Array,
     archived: S.Uint8Array,
-  },
-  $I.annote("KnowledgeIndexBytes", {
-    description: "Exact expected and archived goals index bytes for one side of a comparison.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeIndexBytes", {
+      description: "Exact expected and archived goals index bytes for one side of a comparison.",
+    })
+  )
 ) {}
 
 /**
@@ -832,18 +856,19 @@ export class KnowledgeIndexBytes extends S.Class<KnowledgeIndexBytes>($I`Knowled
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeFindingCandidate extends S.Class<KnowledgeFindingCandidate>($I`KnowledgeFindingCandidate`)(
-  {
+export class KnowledgeFindingCandidate extends S.Opaque<KnowledgeFindingCandidate, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: KnowledgeFindingKind,
     documentId: S.String,
     subject: S.String,
     location: KnowledgeFindingLocation,
     message: S.String,
     remediation: S.String,
-  },
-  $I.annote("KnowledgeFindingCandidate", {
-    description: "A normalized finding before duplicate occurrence and digest assignment.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeFindingCandidate", {
+      description: "A normalized finding before duplicate occurrence and digest assignment.",
+    })
+  )
 ) {}
 
 /**
@@ -874,15 +899,19 @@ export class KnowledgeFindingCandidate extends S.Class<KnowledgeFindingCandidate
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeCommandOccurrence extends S.Class<KnowledgeCommandOccurrence>($I`KnowledgeCommandOccurrence`)(
-  {
+export class KnowledgeCommandOccurrence extends S.Opaque<
+  KnowledgeCommandOccurrence,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     documentId: S.String,
     location: KnowledgeFindingLocation,
     words: S.Array(S.String),
-  },
-  $I.annote("KnowledgeCommandOccurrence", {
-    description: "A source-ordered bun run beep command span before command-tree probing.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeCommandOccurrence", {
+      description: "A source-ordered bun run beep command span before command-tree probing.",
+    })
+  )
 ) {}
 
 /**
@@ -923,10 +952,11 @@ export class KnowledgeCommandOccurrence extends S.Class<KnowledgeCommandOccurren
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSemanticDeltaReport extends S.Class<KnowledgeSemanticDeltaReport>(
-  $I`KnowledgeSemanticDeltaReport`
-)(
-  {
+export class KnowledgeSemanticDeltaReport extends S.Opaque<
+  KnowledgeSemanticDeltaReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     introduced: S.Array(KnowledgeFinding),
     resolved: S.Array(KnowledgeFinding),
     unchanged: S.Array(KnowledgeFinding),
@@ -934,10 +964,11 @@ export class KnowledgeSemanticDeltaReport extends S.Class<KnowledgeSemanticDelta
     probeSkipDetail: S.OptionFromOptionalKey(KnowledgePublicDetail).pipe(
       S.withConstructorDefault(Effect.succeed(O.none<KnowledgePublicDetail>()))
     ),
-  },
-  $I.annote("KnowledgeSemanticDeltaReport", {
-    description: "Findings introduced, resolved, and unchanged between merge-base and HEAD archives.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSemanticDeltaReport", {
+      description: "Findings introduced, resolved, and unchanged between merge-base and HEAD archives.",
+    })
+  )
 ) {}
 
 /**

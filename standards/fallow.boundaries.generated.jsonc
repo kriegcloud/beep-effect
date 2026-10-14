@@ -630,6 +630,12 @@
         ]
       },
       {
+        "name": "@beep/practice-claude-mod",
+        "patterns": [
+          "apps/practice-claude-mod/src/**"
+        ]
+      },
+      {
         "name": "@beep/practice-identify",
         "patterns": [
           "apps/practice-identify/src/**"
@@ -789,6 +795,12 @@
         "name": "@beep/storybook",
         "patterns": [
           "apps/storybook/src/**"
+        ]
+      },
+      {
+        "name": "@beep/t3-code",
+        "patterns": [
+          "packages/drivers/t3-code/src/**"
         ]
       },
       {
@@ -1084,6 +1096,7 @@
       {
         "from": "@beep/ai-provider-cli",
         "allow": [
+          "@beep/acp",
           "@beep/ai-provider-cli",
           "@beep/identity",
           "@beep/schema",
@@ -1092,6 +1105,7 @@
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/acp",
           "@beep/ai-provider-cli",
           "@beep/identity",
           "@beep/schema",
@@ -1849,12 +1863,14 @@
           "@beep/effect-drizzle",
           "@beep/fc-runs",
           "@beep/pglite",
+          "@beep/repo-utils",
           "@beep/test-runner"
         ],
         "allowTypeOnly": [
           "@beep/effect-drizzle",
           "@beep/fc-runs",
           "@beep/pglite",
+          "@beep/repo-utils",
           "@beep/test-runner"
         ]
       },
@@ -2164,7 +2180,6 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/test-runner",
-          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
@@ -2172,7 +2187,6 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/test-runner",
-          "@beep/test-utils",
           "@beep/utils"
         ]
       },
@@ -3254,6 +3268,21 @@
         ]
       },
       {
+        "from": "@beep/practice-claude-mod",
+        "allow": [
+          "@beep/identity",
+          "@beep/practice-claude-mod",
+          "@beep/schema",
+          "@beep/test-runner"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/practice-claude-mod",
+          "@beep/schema",
+          "@beep/test-runner"
+        ]
+      },
+      {
         "from": "@beep/practice-identify",
         "allow": [
           "@beep/identity",
@@ -3581,6 +3610,7 @@
       {
         "from": "@beep/repo-cli",
         "allow": [
+          "@beep/ai-provider-cli",
           "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
@@ -3594,6 +3624,7 @@
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
+          "@beep/mcp-kit",
           "@beep/md",
           "@beep/obs",
           "@beep/observability",
@@ -3610,6 +3641,7 @@
           "@beep/runpod",
           "@beep/schema",
           "@beep/skill-contract",
+          "@beep/t3-code",
           "@beep/technical-drawing",
           "@beep/tesseract",
           "@beep/test-runner",
@@ -3619,6 +3651,7 @@
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/ai-provider-cli",
           "@beep/ai-sync",
           "@beep/chalk",
           "@beep/colors",
@@ -3632,6 +3665,7 @@
           "@beep/identity",
           "@beep/libpff",
           "@beep/m365",
+          "@beep/mcp-kit",
           "@beep/md",
           "@beep/obs",
           "@beep/observability",
@@ -3648,6 +3682,7 @@
           "@beep/runpod",
           "@beep/schema",
           "@beep/skill-contract",
+          "@beep/t3-code",
           "@beep/technical-drawing",
           "@beep/tesseract",
           "@beep/test-runner",
@@ -4019,6 +4054,23 @@
           "@beep/graph-3d",
           "@beep/storybook",
           "@beep/ui",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/t3-code",
+        "allow": [
+          "@beep/identity",
+          "@beep/mcp-kit",
+          "@beep/schema",
+          "@beep/t3-code",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/mcp-kit",
+          "@beep/schema",
+          "@beep/t3-code",
           "@beep/utils"
         ]
       },

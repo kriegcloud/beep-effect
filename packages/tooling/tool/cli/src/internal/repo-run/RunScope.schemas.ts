@@ -89,14 +89,15 @@ export type RunScopeStopOutcome = typeof RunScopeStopOutcome.Type;
  * @category models
  * @since 0.0.0
  */
-export class RunScopeTelemetry extends S.Class<RunScopeTelemetry>($I`RunScopeTelemetry`)(
-  {
+export class RunScopeTelemetry extends S.Opaque<RunScopeTelemetry, { readonly brand: unique symbol }>()(
+  S.Struct({
     memoryPeakBytes: S.optionalKey(S.Finite),
     tasksCurrent: S.optionalKey(S.Int),
-  },
-  $I.annote("RunScopeTelemetry", {
-    description: "Optional accounting values read from one systemd run scope.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunScopeTelemetry", {
+      description: "Optional accounting values read from one systemd run scope.",
+    })
+  )
 ) {}
 
 /**
@@ -119,8 +120,8 @@ export class RunScopeTelemetry extends S.Class<RunScopeTelemetry>($I`RunScopeTel
  * @category models
  * @since 0.0.0
  */
-export class RunScopeRecord extends S.Class<RunScopeRecord>($I`RunScopeRecord`)(
-  {
+export class RunScopeRecord extends S.Opaque<RunScopeRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     unitName: RunScopeUnitName,
     support: RunScopeSupport,
     attachedPid: S.Int,
@@ -128,10 +129,11 @@ export class RunScopeRecord extends S.Class<RunScopeRecord>($I`RunScopeRecord`)(
     memoryPeakBytes: S.optionalKey(S.Finite),
     tasksCurrent: S.optionalKey(S.Int),
     warning: S.optionalKey(S.String),
-  },
-  $I.annote("RunScopeRecord", {
-    description: "Scope attachment and optional accounting state retained on an admission lease.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunScopeRecord", {
+      description: "Scope attachment and optional accounting state retained on an admission lease.",
+    })
+  )
 ) {}
 
 const ProofJobUnitName = S.String.check(S.isPattern(/^beep-proof-[a-zA-Z0-9_-]+\.service$/u)).pipe(
