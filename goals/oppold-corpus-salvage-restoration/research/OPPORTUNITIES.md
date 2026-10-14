@@ -898,3 +898,15 @@ family engine failure; no live family was launched before it was repaired.
   confirms ready at the exact published head. No readiness proof is claimed.
   Cancelled the worker-owned monitor and observed its terminal inbox row
   before the sealed-failure handoff. No running worker-owned gate remains.
+
+
+## 2026-10-14: inherited knowledge-reference gate during ordinal-9 preflight
+
+- Doing: renew packet proof before the explicitly authorized ninth launch.
+- Evidence: knowledge refs at e8c520d65a exits one with one live gated
+  external-mirror-reference in .claude/skills/shadcn/design-system.md:31
+  (home-relative Desktop reference). That file matches origin/main and was
+  not edited by this lane. Doctor and index remain clean.
+- Prevention: resolve the inherited reference in its owning documentation lane.
+- Action: attribute the red as inherited, retain the measured result and
+  continue the authorized launch; no unrelated skill edit or link creation.

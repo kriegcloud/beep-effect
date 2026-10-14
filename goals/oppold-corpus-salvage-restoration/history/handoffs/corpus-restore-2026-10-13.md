@@ -1495,3 +1495,13 @@ occurrences and estate/recycle/DOC gates stay open for P3. Reversal: revert
 packet decisions while retaining all corpus artifacts and immutable manifests.
 No package source edited; package-verify and source hosted-parity not run
 (docs-only). Preserve the prior uncommitted report and friction receipt.
+
+
+Knowledge refs at e8c520d65ace9a554685c87e5f3840bef127826b exits one:
+one live gated external-mirror-reference in the untouched shadcn skill's
+Design System document (line 31, home-relative Desktop reference). Its file
+matches origin/main; inherited, not an execution precondition failure.
+No unrelated repair. Index, reflection-artifacts, launcher size, manifest
+JSON and whitespace pass. No reference links recreated. The current
+source still matches the pre-launch amendment; the documentation red does
+not change engines, selection, policy or ceilings. Retain this proof result.
