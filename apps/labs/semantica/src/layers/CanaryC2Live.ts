@@ -40,9 +40,8 @@ import { CanaryC2 } from "@/services/CanaryC2";
 import { RdfProjection } from "@/services/RdfProjection";
 import { Reasoner } from "@/services/Reasoner";
 import { PosInt } from "../schema/PosInt.ts";
+import type { C1EvalReport } from "@/schema/Projection";
 
-const C2_SCHEMA_VERSION = "c2-eval-report/v1";
-const C2_STAGE = "c2";
 const expectationJson = S.fromJsonString(GEntailmentExpectation);
 const reportJson = S.fromJsonString(C2EvalReport, { space: 2 });
 const telemetryJson = S.fromJsonString(EvalRunTelemetry, { space: 2 });
@@ -60,6 +59,44 @@ const C2_INTERACTIVE_QUERY: A.NonEmptyReadonlyArray<SparqlExpectation> = [
 
 const failed = (reason: ReasoningFailed["reason"], message: string): ReasoningFailed =>
   ReasoningFailed.make({ message, reason });
+
+/**
+ * Seals a C2 report only after hashing its unrefined field preimage.
+ *
+ * **Example** (Read the digest of a sealed C2 witness)
+ *
+ * ```ts
+ * import { sealC2EvalReport } from "@/layers/CanaryC2Live"
+ * import * as Effect from "effect/Effect"
+ * import type { C1EvalReport } from "@/schema/Projection"
+ * import type { ReasoningWitness } from "@/schema/Reasoning"
+ *
+ * const digest = (base: C1EvalReport, reasoning: ReasoningWitness) =>
+ *   sealC2EvalReport(base, reasoning).pipe(Effect.map((report) => report.reportDigest))
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const sealC2EvalReport = Effect.fn("CanaryC2.sealReport")(function* (
+  base: C1EvalReport,
+  reasoning: ReasoningWitness
+) {
+  const provisional = {
+    base,
+    reasoning,
+    reportDigest: Sha256Hex.make(Str.repeat(64)("0")),
+    schemaVersion: "c2-eval-report/v1" as const,
+    stage: "c2" as const,
+  };
+  const reportDigest = yield* digestOmitting(
+    S.Struct(C2EvalReport.fields),
+    "reportDigest"
+  )(provisional).pipe(Effect.mapError(() => failed("report-invalid", "The C2 report digest failed.")));
+  return yield* C2EvalReport.makeEffect({ ...provisional, reportDigest }).pipe(
+    Effect.mapError(() => failed("report-invalid", "The C2 report violates its schema contract."))
+  );
+});
 
 const statement = Effect.fn("CanaryC2.statement")(function* (triple: RdfTriple) {
   return yield* Effect.fromResult(makeRdfStatement(triple)).pipe(
@@ -335,23 +372,8 @@ const makeCanaryC2 = Effect.fn("CanaryC2.make")(function* () {
           events,
         }),
       });
-      const provisional: C2EvalReport = C2EvalReport.make({
-        base: base.report,
-        reasoning,
-        reportDigest: Sha256Hex.make(Str.repeat(64)("0")),
-        schemaVersion: C2_SCHEMA_VERSION,
-        stage: C2_STAGE,
-      });
-      const reportDigest = yield* digestOmitting(
-        S.Struct(C2EvalReport.fields),
-        "reportDigest"
-      )(provisional).pipe(
-        Effect.provideService(Crypto.Crypto, crypto),
-        Effect.mapError(() => failed("report-invalid", "The C2 report digest failed."))
-      );
-      const report = yield* C2EvalReport.makeEffect({ ...provisional, reportDigest }).pipe(
-        Effect.mapError(() => failed("report-invalid", "The C2 report violates its schema contract."))
-      );
+      const report = yield* sealC2EvalReport(base.report, reasoning).pipe(Effect.provideService(Crypto.Crypto, crypto));
+      const reportDigest = report.reportDigest;
       const coldStartMs = yield* measureBundleColdStart(processSpawner, runtimeProbeEntry);
       const timings = yield* Effect.forEach(A.replicate(C2_INTERACTIVE_QUERY, 20), () =>
         Clock.currentTimeMillis.pipe(
