@@ -47,6 +47,7 @@ import { Command } from "effect/cli";
 import * as Effect from "effect/Effect";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -385,7 +386,7 @@ describe("drawing review rules", () => {
       severity: "P1",
       scope: "all-sheets",
       figures: [2],
-      notes: [note("x", "Fig1.pdf").pipe(S.encodeResult(MarkupNote), Result.getOrThrow)],
+      notes: [pipe(note("x", "Fig1.pdf"), S.encodeResult(MarkupNote), Result.getOrThrow)],
       status: "open",
     };
     assertTrue(decode(base).pipe(Result.isFailure));
