@@ -311,6 +311,40 @@ describe("@beep/occt shading", () => {
     );
 
     it.effect(
+      "bands a wall beside a fin standing on it, where the fin's probe chords start inside the fin",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        // an 80 x 40 wall (front face y = 0) with a 4-thick fin standing on its front face, seen from the
+        // front-left above. Every probe across the wall's front face starts or runs inside the fin, which
+        // abuts the face; drawn as one long chord the hidden-line pass misread where the fin hides the
+        // wall, so the band of the area left of the fin was planned behind the fin and drew nothing
+        // (review loop 2, K-01). Probes go through the pass in short pieces.
+        const wall = Part.make({ name: "wall", add: [Box.make({ min: [-40, 0, 0], max: [40, 4, 40] })] });
+        const fin = Part.make({ name: "fin", add: [Box.make({ min: [-2, -30, 0], max: [2, 0, 30] })] });
+        const camera = Camera.make({ eye: [-1, -1, 1], up: [0, 0, 1] });
+        const [view] = yield* occt.project(
+          ProjectionRequest.make({
+            solid: ModelSpec.make({ parts: [wall, fin] }),
+            cameras: [camera],
+            shading: O.some(graded({ minStroke: 1, minFaceSpan: 6 })),
+          })
+        );
+        const strokes = view?.shading ?? [];
+        // the fin covers the sheet from (x - y)/sqrt(2) = -2/sqrt(2) rightward; strokes left of it lie on the wall
+        const finLeft = -2 / Math.SQRT2;
+        const sheetX = ([x1, , x2]: Segment) => (x1 + x2) / 2;
+        const onWallLeft = A.filter(strokes, (s) => isVertical(s) && Math.abs(sheetX(s) - finLeft) > 0.5);
+        expect(A.length(onWallLeft)).toBeGreaterThanOrEqual(2);
+        assertSome(
+          O.flatMap(O.fromNullishOr(view), (v) =>
+            O.map(v.shadingCoverage, (c) => [c.lostFaces, c.lostStretches] as const)
+          ),
+          [0, 0] as const
+        );
+      })
+    );
+
+    it.effect(
       "bands a cell walled off by slanting walls on its own, apart from the area outside the walls",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;

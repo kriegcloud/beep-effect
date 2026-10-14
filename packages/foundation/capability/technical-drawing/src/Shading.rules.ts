@@ -208,11 +208,17 @@ export const toneOf = (exposure: number): ShadingTone => {
 // and leave a face square to the light nearly bare.
 const toneSpacing = (tone: ShadingTone) =>
   ShadingTone.$match(tone, {
-    faint: () => ({ coverage: 0.15, minLines: 2, maxLines: 4 }),
-    light: () => ({ coverage: 0.3, minLines: 2, maxLines: 5 }),
-    medium: () => ({ coverage: 0.35, minLines: 3, maxLines: 7 }),
-    dark: () => ({ coverage: 0.35, minLines: 4, maxLines: 8 }),
+    faint: () => ({ coverage: 0.15, maxLines: 4 }),
+    light: () => ({ coverage: 0.3, maxLines: 5 }),
+    medium: () => ({ coverage: 0.35, maxLines: 7 }),
+    dark: () => ({ coverage: 0.35, maxLines: 8 }),
   });
+
+// A band is at least two lines (one reads as a doubled outline); past the second
+// line the tone's share of the span always wins, so a narrow dark face keeps its
+// band within the Guide's third of the span instead of reaching across half of it
+// (review loop 2, O-03).
+const BAND_FLOOR = 2;
 
 /**
  * Line offsets of graded shading across a face `span` wide on the sheet,
@@ -222,8 +228,8 @@ const toneSpacing = (tone: ShadingTone) =>
  *
  * The first line sits `minPitch` from the shadow edge; each gap is `1.4`
  * times the one before, capped at `maxPitch`. Lines stop when they pass the
- * tone's share of the span (once its minimum count is drawn) or its maximum
- * count, and never come within `minPitch` of the far edge. A face too narrow
+ * tone's share of the span (once two are drawn) or its maximum count, and
+ * never come within `minPitch` of the far edge. A face too narrow
  * for one line gets none. An optional `keep`, given a position and the index
  * the line would take, rejects positions where the face is too narrow for a
  * stroke (a tab, a lip, a pointed tip): the line is not counted and the next
@@ -251,12 +257,12 @@ export const gradedOffsets = (input: {
   const { span, minPitch } = input;
   const maxPitch = Math.max(input.maxPitch, minPitch);
   const keep = input.keep ?? (() => true);
-  const { coverage, minLines, maxLines } = toneSpacing(input.tone);
+  const { coverage, maxLines } = toneSpacing(input.tone);
   const limit = span - minPitch;
   const next = (offsets: ReadonlyArray<number>, at: number, gap: number): ReadonlyArray<number> => {
     const offset = at + gap;
     const drawn = A.length(offsets);
-    if (offset > limit || drawn >= maxLines || (drawn >= minLines && offset > coverage * span)) {
+    if (offset > limit || drawn >= maxLines || (drawn >= BAND_FLOOR && offset > coverage * span)) {
       return offsets;
     }
     return keep(offset, drawn)
@@ -550,6 +556,9 @@ const longestEdgeDirection = (face: FaceFacts): O.Option<V3> =>
 // equals the longer edge wins, so a regular lid keeps one direction per set.
 const MAJOR_EDGE_SHARE = 0.25;
 
+// Within 15 degrees of the sheet's vertical, where upright faces hatch.
+const WALL_HATCH_COS = Math.cos((15 * Math.PI) / 180);
+
 const majorEdgesOf = (face: FaceFacts): ReadonlyArray<FaceEdge> => {
   const longest = pipe(
     face.edges,
@@ -592,7 +601,17 @@ const darkestEdge = (face: FaceFacts, view: ViewFacts): O.Option<FaceEdge> => {
       Order.flip(Order.mapInput(Order.Number, lineLength))
     )
   );
-  return pipe(majorEdgesOf(face), A.sort(order), A.head);
+  const majors = majorEdgesOf(face);
+  // An inclined face never hatches within 15 degrees of the sheet's vertical in a view where upright faces hatch (any
+  // view not looking straight down or up): its strokes would run on from the band of a wall below it and read the
+  // flap as part of the wall (review loop 2, O-01; round 2, R2-02). It takes its darkest other major edge that still
+  // faces away from the light, when it has one.
+  const wallsHatch = Math.abs(dot(view.eye, MODEL_UP)) < COS_TOLERANCE;
+  const offWall =
+    wallsHatch && surfaceClassOf(face.normal) === "inclined"
+      ? A.filter(majors, (edge) => verticality(edge) < WALL_HATCH_COS && darkness(edge) > 0)
+      : A.empty<FaceEdge>();
+  return pipe(A.isReadonlyArrayNonEmpty(offWall) ? offWall : majors, A.sort(order), A.head);
 };
 
 const darkestEdgeDirection = (face: FaceFacts, view: ViewFacts): O.Option<V3> =>

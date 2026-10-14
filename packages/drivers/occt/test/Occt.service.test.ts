@@ -140,7 +140,8 @@ describe("@beep/occt service", () => {
   it.effect(
     "rejects model specs exceeding the bounded overlap work limit",
     Effect.fnUntraced(function* () {
-      const part = Part.make({ name: "box", add: [Box.make({ min: [0, 0, 0], max: [1, 1, 1] })] });
+      // encoded input: a primitive's decoded line style is an Option, which the decoder does not take back
+      const part = { name: "box", add: [{ kind: "box", min: [0, 0, 0], max: [1, 1, 1] }] };
       const decode = S.decodeUnknownEffect(ModelSpec);
       const rejected = yield* Effect.flip(decode({ parts: A.makeBy(257, () => part) }));
       expect(rejected.message).toContain("Expected at most 256 parts");

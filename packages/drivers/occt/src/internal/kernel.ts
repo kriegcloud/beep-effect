@@ -505,16 +505,16 @@ const offsetAt = (line: ProbeLine, x: number, y: number): number => {
   return line.probe.start + s * (line.probe.end - line.probe.start);
 };
 
-// The visible stretches of every probed face along its shading step: each
-// visible piece of a probe mapped back to offsets from the face's shadow
-// anchor, flagged when it starts at the face's own outline rather than behind
-// a part in front of it, and chained with the other pieces of the face where
-// they overlap or come within `merge` of each other along the step. The hatch
-// planner shades each chain, splitting off the pieces its band cannot reach.
+// The visible areas of every probed face along its shading step: each visible
+// run of a probe mapped back to offsets from the face's shadow anchor, and the
+// runs of neighbouring probe rows grouped into connected areas (below). The
+// hatch planner bands each area on its own.
+// Two visible runs of one probe closer than this along the step are one run cut at a piece boundary.
+const JOIN_TOLERANCE = 1e-6;
+
 const regionsOf = (options: {
   readonly camera: Camera;
   readonly probes: ReadonlyArray<{ readonly probe: ShadingProbe; readonly pieces: ReadonlyArray<Segment2> }>;
-  readonly merge: number;
   readonly outlines: ReadonlyArray<Segment2>;
 }): HashMap.HashMap<number, ReadonlyArray<A.NonEmptyReadonlyArray<StretchPiece<ProbeLine>>>> => {
   // a piece also keeps its two ends on the view plane with their offsets, for the link test below
@@ -528,26 +528,48 @@ const regionsOf = (options: {
     O.match(projectedProbe(options.camera, probe), {
       onNone: A.empty<Piece>,
       onSome: (line) => {
-        const edge = Math.min(probe.start, probe.end);
-        return A.map(pieces, (s) => {
-          const a = offsetAt(line, s[0], s[1]);
-          const b = offsetAt(line, s[2], s[3]);
-          const from = Math.min(a, b);
-          return {
+        // each visible piece as a run along the step, its lower end first; the probe went through the pass in
+        // short pieces, so the runs that touch are joined again
+        type Span = { readonly from: number; readonly to: number; readonly ends: readonly [End, End] };
+        const runs = pipe(
+          pieces,
+          A.map((s): Span => {
+            const a = offsetAt(line, s[0], s[1]);
+            const b = offsetAt(line, s[2], s[3]);
+            return a <= b
+              ? { from: a, to: b, ends: [[s[0], s[1], a] as const, [s[2], s[3], b] as const] }
+              : { from: b, to: a, ends: [[s[2], s[3], b] as const, [s[0], s[1], a] as const] };
+          }),
+          A.sort(Order.mapInput(Order.Number, (run: Span) => run.from)),
+          A.reduce(
+            A.empty<Span>(),
+            (joined: ReadonlyArray<Span>, run): ReadonlyArray<Span> =>
+              pipe(
+                A.last(joined),
+                O.filter((last) => run.from - last.to <= JOIN_TOLERANCE),
+                O.match({
+                  onNone: () => A.append(joined, run),
+                  onSome: (last): ReadonlyArray<Span> => {
+                    const ends: readonly [End, End] = run.to > last.to ? [last.ends[0], run.ends[1]] : last.ends;
+                    return A.append(A.dropRight(joined, 1), { from: last.from, to: Math.max(last.to, run.to), ends });
+                  },
+                })
+              )
+          )
+        );
+        return A.map(
+          runs,
+          (run): Piece => ({
             face: probe.face,
             height: probe.height,
-            ends: [
-              [s[0], s[1], a],
-              [s[2], s[3], b],
-            ] as const,
-            from,
-            to: Math.max(a, b),
+            ends: run.ends,
+            from: run.from,
+            to: run.to,
             low: probe.height - probe.reach,
             high: probe.height + probe.reach,
-            outline: Math.abs(from - edge) <= options.merge,
             probes: [line],
-          };
-        });
+          })
+        );
       },
     })
   );
@@ -780,7 +802,7 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
         O.map((plan) => {
           const probing = probeEdges({ oc, shape: solid, camera, plan, isBrokenFace });
           const pass = A.isReadonlyArrayNonEmpty(probing)
-            ? O.some(hiddenLines({ oc, built, camera, withHidden: false, extras: A.map(probing, (p) => p.edge) }))
+            ? O.some(hiddenLines({ oc, built, camera, withHidden: false, extras: A.map(probing, (p) => p.shape) }))
             : O.none();
           const pieces = O.match(pass, {
             onNone: () => A.empty<ReadonlyArray<replicad.Edge>>(),
@@ -789,7 +811,6 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
           return regionsOf({
             camera,
             probes: A.zipWith(probing, pieces, (p, edges) => ({ probe: p.probe, pieces: toSegments(edges) })),
-            merge: plan.minPitch,
             // the outlines the probes were seen past: a link between two pieces that crosses one is not a link
             outlines: O.match(pass, {
               onNone: () => A.empty<Segment2>(),
@@ -826,11 +847,13 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
   // face whose every stroke is lost can be counted.
   const faces: ReadonlyArray<{
     readonly treatment: FaceTreatment;
-    readonly stretches: ReadonlyArray<{ readonly shape: AnyShape; readonly probes: ReadonlyArray<ProbeLine> }>;
+    readonly stretches: ReadonlyArray<{
+      readonly planned: ReadonlyArray<readonly [V3, V3]>;
+      readonly shape: AnyShape;
+      readonly probes: ReadonlyArray<ProbeLine>;
+    }>;
   }> = O.match(shaded, { onNone: () => [], onSome: (view) => view.faces });
-  const stroked = A.flatMap(faces, (face, index) =>
-    A.map(face.stretches, (stretch) => ({ index, shape: stretch.shape, probes: stretch.probes }))
-  );
+  const stroked = A.flatMap(faces, (face, index) => A.map(face.stretches, (stretch) => ({ index, ...stretch })));
   // Overlay lines culled by their facing are never built; the rest go through
   // the same pass as the strokes, after them, as shapes of their own.
   const overlays = pipe(
@@ -926,21 +949,27 @@ const drawView = (options: ProjectOptions, surveyor: O.Option<Surveyor>): EdgeSe
   // for one cell of a lattice is cut across the whole face and shows in the
   // neighbouring cells at the same offsets, where it would read as a band on
   // the wrong side; a stretch planned over the whole face (no probes) keeps all its pieces.
-  // A visible stretch with room for fewer than two legible strokes (a piece survives the legibility pass only when it
-  // is at least the minimum stroke plus an inset of one pitch at each end) is a sliver glimpsed through a gap, such as
-  // a far wall seen through a star cell: it stays bare like a sliver face and is never counted lost. A stretch that had
-  // room for a band and still drew none is the loss the coverage reports.
+  // A stretch planned with room for fewer than two legible strokes (a stroke survives the legibility pass only when it
+  // is at least the minimum stroke plus an inset of one pitch at each end, measured on the view plane before hidden-line
+  // removal) is a sliver glimpsed through a gap, such as a far wall seen through a star cell: it stays bare like a
+  // sliver face and is never counted lost. Room is measured from the plan, never from what survived the pass, so a
+  // band planned with room and hidden all the same is the loss the coverage reports (review loop 2, K-03).
   const legibleLength = O.match(options.shading, {
     onNone: () => 0,
     onSome: (plan) => plan.minStroke + 2 * plan.minPitch,
   });
-  const lengthOf = ([x1, y1, x2, y2]: Segment2) => Math.hypot(x2 - x1, y2 - y1);
+  const onView = viewOf(camera);
+  const viewedLength = ([a, b]: readonly [V3, V3]): number => {
+    const p = onView(a);
+    const q = onView(b);
+    return Math.hypot(q.x - p.x, q.y - p.y);
+  };
   const drawn = A.zipWith(stroked, strokePieces, (stretch, edges) => {
     const pieces = toSegments(edges);
     const own = A.isReadonlyArrayNonEmpty(stretch.probes)
       ? A.filter(pieces, (piece) => A.some(stretch.probes, (line) => crosses(line, piece, tolerance)))
       : pieces;
-    if (graded && A.length(A.filter(own, (piece) => lengthOf(piece) >= legibleLength)) < 2) {
+    if (graded && A.length(A.filter(stretch.planned, (stroke) => viewedLength(stroke) >= legibleLength)) < 2) {
       return { index: stretch.index, sliver: true, segments: A.empty<Segment2>() };
     }
     const segments = legible(own);

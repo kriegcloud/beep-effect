@@ -173,7 +173,21 @@ const reachOf = (face: FaceFacts, along: V3): readonly [number, number] =>
     (reaches) => [Math.min(...reaches), Math.max(...reaches)] as const
   );
 
-type Probe = { readonly edge: replicad.Edge; readonly probe: ShadingProbe };
+type Probe = { readonly shape: replicad.AnyShape; readonly probe: ShadingProbe };
+
+// A probe goes through the hidden-line pass as a chain of short pieces in one compound: a long chord that starts
+// inside a part standing on the face (a wall behind a fin) is misread by the pass along its whole length, while each
+// short piece is read on its own (review loop 2, K-01). The kernel joins the visible pieces that touch.
+const PROBE_PIECE_PITCHES = 4;
+
+const chopped = (edge: replicad.Edge, length: number): replicad.AnyShape => {
+  const a = vec(edge.startPoint);
+  const b = vec(edge.endPoint);
+  const along = minusV(b, a);
+  const count = Math.max(1, Math.ceil(Math.hypot(along[0], along[1], along[2]) / length));
+  const at = (i: number): V3 => add(a, scale(along, i / count));
+  return replicad.makeCompound(A.makeBy(count, (i) => replicad.makeLine([...at(i)], [...at(i + 1)])));
+};
 
 // Probe lines across one graded face: at each height, the face's chord(s)
 // along its shading step, lifted off the face like its strokes and tagged
@@ -202,7 +216,7 @@ const probeFace =
             const from = vec(edge.startPoint);
             const to = vec(edge.endPoint);
             return {
-              edge: liftFor(face, plan)(edge),
+              shape: chopped(liftFor(face, plan)(edge), PROBE_PIECE_PITCHES * plan.minPitch),
               probe: ShadingProbe.make({
                 face: index,
                 rank,
@@ -235,7 +249,7 @@ export const probeEdges = (options: {
   readonly camera: Camera;
   readonly plan: ShadingPlan;
   readonly isBrokenFace: (face: replicad.Face) => boolean;
-}): ReadonlyArray<{ readonly edge: replicad.Edge; readonly probe: ShadingProbe }> =>
+}): ReadonlyArray<Probe> =>
   A.flatMap(
     options.shape.faces,
     probeFace(options.oc, viewFactsOf(options.camera), options.plan, options.isBrokenFace)
@@ -344,7 +358,6 @@ export type StretchPiece<P> = {
   readonly to: number;
   readonly low: number;
   readonly high: number;
-  readonly outline: boolean;
   readonly probes: ReadonlyArray<P>;
 };
 
@@ -387,14 +400,11 @@ const shadeFace =
       readonly pieces: ReadonlyArray<StretchPiece<P>>;
       readonly probes: ReadonlyArray<P>;
     };
-    // One band for one visible area of the face (the kernel groups the probe pieces into areas). An area that reaches the
-    // face's own outline is banded at the shadow anchor, whatever stands in
-    // front of parts of it (a wall behind a flap keeps its one band); an area
-    // bounded by parts in front of the face on every side (a lid seen through
-    // the cells of a lattice) is banded at its own nearest side. The strokes
-    // are then drawn only in the rows that saw the area at their offset, so a
-    // band tapers along a slanting occluder and never runs on into a
-    // neighbouring area.
+    // One band for one visible area of the face (the kernel groups the probe pieces into areas), measured from the
+    // area's own least offset along the step: an area at the face's outline starts at the face's edge (the rule
+    // clamps a start before the anchor), an area behind a part in front starts at its nearest side. The strokes
+    // are then drawn only in the rows that saw the area at their offset, so a band tapers along a slanting
+    // occluder and never runs on into a neighbouring area.
     const plannedFor = (pieces: A.NonEmptyReadonlyArray<StretchPiece<P>>): Planned => {
       // an area at the outline starts at the face's own edge, which may lie before the anchor's
       // origin (the rule clamps a negative start); an area behind a part in front starts at its nearest side
@@ -480,7 +490,11 @@ export const hatchCompound = <P>(options: {
 }): {
   readonly faces: ReadonlyArray<{
     readonly treatment: FaceTreatment;
-    readonly stretches: ReadonlyArray<{ readonly shape: replicad.AnyShape; readonly probes: ReadonlyArray<P> }>;
+    readonly stretches: ReadonlyArray<{
+      readonly planned: ReadonlyArray<readonly [V3, V3]>;
+      readonly shape: replicad.AnyShape;
+      readonly probes: ReadonlyArray<P>;
+    }>;
   }>;
   readonly coverage: ShadingCoverage;
 } => {
@@ -498,7 +512,12 @@ export const hatchCompound = <P>(options: {
   return {
     faces: A.map(shaded, (face) => ({
       treatment: face.treatment,
-      stretches: A.map(face.strokes, (set) => ({ shape: replicad.makeCompound([...set.edges]), probes: set.probes })),
+      // each stroke's ends are read before the strokes are compounded, for the kernel to measure the planned room
+      stretches: A.map(face.strokes, (set) => ({
+        planned: A.map(set.edges, (edge) => [vec(edge.startPoint), vec(edge.endPoint)] as const),
+        shape: replicad.makeCompound([...set.edges]),
+        probes: set.probes,
+      })),
     })),
     coverage: coverageOf(A.map(shaded, (face) => face.treatment)),
   };

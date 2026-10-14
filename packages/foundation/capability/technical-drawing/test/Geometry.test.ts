@@ -106,6 +106,6 @@ describe("Geometry.schemas primitive line style", () => {
     Effect.fnUntraced(function* ([box]) {
       expect(yield* decodeBox(yield* encodeBox(box))).toEqual(box);
     }),
-    { arbitrary: { numRuns: 50 } }
+    { arbitrary: { runs: 50 } }
   );
 });
