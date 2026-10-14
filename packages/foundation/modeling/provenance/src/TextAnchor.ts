@@ -58,11 +58,12 @@ export const TextAnchorFields = {
   }),
 };
 
-class TextAnchorStruct extends S.Class<TextAnchorStruct>($I`TextAnchorStruct`)(
-  TextAnchorFields,
-  $I.annote("TextAnchorStruct", {
-    description: "Internal structural base for a half-open UTF-16 text range and its exact quote.",
-  })
+class TextAnchorStruct extends S.Opaque<TextAnchorStruct, { readonly brand: unique symbol }>()(
+  S.Struct(TextAnchorFields).pipe(
+    $I.annoteSchema("TextAnchorStruct", {
+      description: "Internal structural base for a half-open UTF-16 text range and its exact quote.",
+    })
+  )
 ) {}
 const hasConsistentTextAnchorWidth = (anchor: {
   readonly endChar: number;
@@ -148,7 +149,7 @@ const TextAnchorSchema = TextAnchorStruct.mapFields(identity).check(TextAnchorWi
  * @category models
  * @since 0.0.0
  */
-export class TextAnchor extends S.Class<TextAnchor>($I`TextAnchor`)(
+export class TextAnchor extends S.Class<TextAnchor, { readonly brand: unique symbol }>($I`TextAnchor`)(
   TextAnchorSchema,
   $I.annote("TextAnchor", {
     toCodecArbitrary: (): SchemaAST.Link =>

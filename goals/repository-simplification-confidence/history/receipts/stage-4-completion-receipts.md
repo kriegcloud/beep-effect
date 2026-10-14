@@ -474,3 +474,14 @@ zero blocking findings, six advisories. The three overall historical outcomes
 stay unknown; read completeness and merge facts do not prove a complete
 historical inventory. The handoff records five resolved threads, independent
 medium Opus review and final publication/monitor boundary.
+
+### Default-branch guard qualification
+
+Source `8c00bdb927` fails a non-main DEFAULT_BRANCH include/exclude read
+instead of silently losing its contexts. Main, ALL and literal-ref matching
+remain supported. Independent medium Opus follow-up is zero actionable.
+All local parity and 293 scoped tests pass; full package audit/docgen pass
+868.0s/27.1s, with all existing coverage floors/ceilings met. A parallel
+checkout publishes the identical H2 source in `c6e855d8b9` and resolves the
+sixth thread with reply `4273798919`. Preserve that head by fast-forward;
+final dispatch binds the report-only delivery tip and bounded readiness.

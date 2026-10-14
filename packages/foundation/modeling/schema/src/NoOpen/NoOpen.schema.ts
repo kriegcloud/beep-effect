@@ -122,14 +122,15 @@ export type NoOpenOption = typeof NoOpenOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class NoOpenResponseHeader extends S.Class<NoOpenResponseHeader>($I`NoOpenResponseHeader`)(
-  {
+export class NoOpenResponseHeader extends S.Opaque<NoOpenResponseHeader, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("NoOpenResponseHeader", {
-    description: "The `X-Download-Options` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("NoOpenResponseHeader", {
+      description: "The `X-Download-Options` response header.",
+    })
+  )
 ) {}
 
 type NoOpenResponseHeaderEncoded = typeof NoOpenResponseHeader.Encoded;

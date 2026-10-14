@@ -314,8 +314,8 @@ export const empty = (): AnnotatedTextGraph => Graph.directed<AnnotatedNode, Tex
  * @since 0.0.0
  * @category models
  */
-class AnnotationOptions extends S.Class<AnnotationOptions>($I`AnnotationOptions`)(
-  {
+class AnnotationOptions extends S.Opaque<AnnotationOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     includeDependencies: S.Boolean.pipe(
       S.optionalKey,
       S.withConstructorDefault(Effect.succeed(false)),
@@ -344,10 +344,11 @@ class AnnotationOptions extends S.Class<AnnotationOptions>($I`AnnotationOptions`
     ).annotateKey({
       description: "Add part-of-speech annotations (default `true`).",
     }),
-  },
-  $I.annote("AnnotationOptions", {
-    description: "Options controlling which annotation strata `fromDocumentAnnotated` adds.",
-  })
+  }).pipe(
+    $I.annoteSchema("AnnotationOptions", {
+      description: "Options controlling which annotation strata `fromDocumentAnnotated` adds.",
+    })
+  )
 ) {}
 
 /**
@@ -365,14 +366,14 @@ class AnnotationOptions extends S.Class<AnnotationOptions>($I`AnnotationOptions`
  *
  * ```ts import.meta.vitest name="Build graph from document"
  * import * as Effect from "effect/Effect";
- * import { NLPBackend } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities, NLPBackend } from "@beep/nlp-processing/Backend/NLPBackend"
  * import { fromDocumentAnnotated } from "@beep/nlp-processing/Graph/AnnotatedTextGraph"
  * import { nodeCount } from "@beep/nlp-processing/Graph/AnnotatedTextGraph"
  *
  * const graph = Effect.runSync(
  *   Effect.provideService(fromDocumentAnnotated("Acme acquired Beta."), NLPBackend, {
  *     name: "minimal",
- *     capabilities: {
+ *     capabilities: BackendCapabilities.make({
  *       constituencyParsing: false,
  *       coreferenceResolution: false,
  *       dependencyParsing: false,
@@ -382,7 +383,7 @@ class AnnotationOptions extends S.Class<AnnotationOptions>($I`AnnotationOptions`
  *       relationExtraction: false,
  *       sentencization: true,
  *       tokenization: false
- *     },
+ *     }),
  *     sentencize: () => Effect.succeed(["Acme acquired Beta."]),
  *     posTag: () => Effect.succeed([]),
  *     lemmatize: () => Effect.succeed([]),

@@ -174,13 +174,17 @@ const commonVolume = (a: Shape3D, b: Shape3D): number => {
  *
  * @internal
  */
-export const countOverlaps = (parts: ReadonlyArray<BuiltPart>): number =>
-  pipe(
-    parts,
-    A.flatMap((a, i) => A.map(A.drop(parts, i + 1), (b) => [a.shape, b.shape] as const)),
-    A.filter(([a, b]) => boxesMeet(a, b) && commonVolume(a, b) > OVERLAP_TOLERANCE),
-    A.length
-  );
+export const countOverlaps = (parts: ReadonlyArray<BuiltPart>): number => {
+  let count = 0;
+  for (const [index, part] of A.entries(parts)) {
+    for (const other of A.drop(parts, index + 1)) {
+      if (boxesMeet(part.shape, other.shape) && commonVolume(part.shape, other.shape) > OVERLAP_TOLERANCE) {
+        count++;
+      }
+    }
+  }
+  return count;
+};
 
 /**
  * Measure a built model.
@@ -377,7 +381,7 @@ const regionsOf = (options: {
 }): HashMap.HashMap<number, ReadonlyArray<ShadingWindow>> => {
   const stretches: ReadonlyArray<Stretch> = A.flatMap(options.probes, ({ probe, pieces }) =>
     O.match(projectedProbe(options.camera, probe), {
-      onNone: () => A.empty<Stretch>(),
+      onNone: A.empty<Stretch>,
       onSome: (line) =>
         A.map(pieces, (s) => {
           const a = offsetAt(line, s[0], s[1]);
@@ -535,7 +539,7 @@ export const project = (options: {
           plan,
           regions: O.map(
             regions,
-            (windows) => (face: number) => O.getOrElse(HashMap.get(windows, face), () => A.empty<ShadingWindow>())
+            (windows) => (face: number) => O.getOrElse(HashMap.get(windows, face), A.empty<ShadingWindow>)
           ),
         })
       )

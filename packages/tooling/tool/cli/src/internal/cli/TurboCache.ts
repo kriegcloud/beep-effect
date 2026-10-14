@@ -129,15 +129,17 @@ const TurboEnvironmentVariableName = S.String.check(
  * @category diagnostics
  * @since 0.0.0
  */
-export class TurboEnvironmentHealthWarning extends S.Class<TurboEnvironmentHealthWarning>(
-  $I`TurboEnvironmentHealthWarning`
-)(
-  {
+export class TurboEnvironmentHealthWarning extends S.Opaque<
+  TurboEnvironmentHealthWarning,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     variableName: TurboEnvironmentVariableName,
-  },
-  $I.annote("TurboEnvironmentHealthWarning", {
-    description: "A checkout .env variable whose 1Password reference failed a value-suppressed health check.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboEnvironmentHealthWarning", {
+      description: "A checkout .env variable whose 1Password reference failed a value-suppressed health check.",
+    })
+  )
 ) {}
 
 /**
@@ -324,19 +326,20 @@ export type TurboCacheFallbackReason = typeof TurboCacheFallbackReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class TurboCacheEnvironment extends S.Class<TurboCacheEnvironment>($I`TurboCacheEnvironment`)(
-  {
+export class TurboCacheEnvironment extends S.Opaque<TurboCacheEnvironment, { readonly brand: unique symbol }>()(
+  S.Struct({
     api: S.optionalKey(TurboCacheValueSource),
     token: S.optionalKey(TurboCacheValueSource),
     team: S.optionalKey(TurboCacheValueSource),
     cache: S.optionalKey(S.String),
     cacheDir: S.optionalKey(S.String),
     home: S.optionalKey(S.String),
-  },
-  $I.annote("TurboCacheEnvironment", {
-    description:
-      "The Turbo remote-read configuration a checkout actually carries, plus the ambient cache directory inputs.",
-  })
+  }).pipe(
+    $I.annoteSchema("TurboCacheEnvironment", {
+      description:
+        "The Turbo remote-read configuration a checkout actually carries, plus the ambient cache directory inputs.",
+    })
+  )
 ) {}
 
 /**
@@ -381,16 +384,19 @@ export type TurboCachePlanTag = typeof TurboCachePlanTag.Type;
  * @category models
  * @since 0.0.0
  */
-export class CallerControlledTurboCache extends S.Class<CallerControlledTurboCache>($I`CallerControlledTurboCache`)(
-  {
-    _tag: S.tag("caller-controlled"),
+export class CallerControlledTurboCache extends S.Opaque<
+  CallerControlledTurboCache,
+  { readonly brand: unique symbol }
+>()(
+  S.TaggedStruct("caller-controlled", {
     reason: TurboCacheCallerReason,
     cacheDir: S.optionalKey(S.String),
-  },
-  $I.annote("CallerControlledTurboCache", {
-    description:
-      "The caller already controls the Turbo cache mode, so the CLI injects no mode flag; an explicit cache argument still keeps the shared workstation directory, CI keeps nothing.",
-  })
+  }).pipe(
+    $I.annoteSchema("CallerControlledTurboCache", {
+      description:
+        "The caller already controls the Turbo cache mode, so the CLI injects no mode flag; an explicit cache argument still keeps the shared workstation directory, CI keeps nothing.",
+    })
+  )
 ) {}
 
 /**
@@ -408,16 +414,16 @@ export class CallerControlledTurboCache extends S.Class<CallerControlledTurboCac
  * @category models
  * @since 0.0.0
  */
-export class LocalOnlyTurboCache extends S.Class<LocalOnlyTurboCache>($I`LocalOnlyTurboCache`)(
-  {
-    _tag: S.tag("local-only"),
+export class LocalOnlyTurboCache extends S.Opaque<LocalOnlyTurboCache, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("local-only", {
     reason: TurboCacheFallbackReason,
     missing: S.Array(TurboCacheEnvName),
     cacheDir: S.optionalKey(S.String),
-  },
-  $I.annote("LocalOnlyTurboCache", {
-    description: "The checkout is not provably configured for remote reads, so Turbo stays local-only.",
-  })
+  }).pipe(
+    $I.annoteSchema("LocalOnlyTurboCache", {
+      description: "The checkout is not provably configured for remote reads, so Turbo stays local-only.",
+    })
+  )
 ) {}
 
 /**
@@ -444,16 +450,16 @@ export class LocalOnlyTurboCache extends S.Class<LocalOnlyTurboCache>($I`LocalOn
  * @category models
  * @since 0.0.0
  */
-export class RemoteReadTurboCache extends S.Class<RemoteReadTurboCache>($I`RemoteReadTurboCache`)(
-  {
-    _tag: S.tag("remote-read"),
+export class RemoteReadTurboCache extends S.Opaque<RemoteReadTurboCache, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("remote-read", {
     mode: TurboCacheMode,
     requiresSecretSession: S.Boolean,
     cacheDir: S.optionalKey(S.String),
-  },
-  $I.annote("RemoteReadTurboCache", {
-    description: "The checkout carries a complete, sanctioned Turbo remote-read configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("RemoteReadTurboCache", {
+      description: "The checkout carries a complete, sanctioned Turbo remote-read configuration.",
+    })
+  )
 ) {}
 
 /**

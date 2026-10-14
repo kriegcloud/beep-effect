@@ -34,15 +34,16 @@ const $I = $OntologyUseCasesId.create("aggregates/Session/Session.commands");
  * @category commands
  * @since 0.0.0
  */
-export class OpenOntologyFileCommand extends S.Class<OpenOntologyFileCommand>($I`OpenOntologyFileCommand`)(
-  {
+export class OpenOntologyFileCommand extends S.Opaque<OpenOntologyFileCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     sessionId: SessionId,
     path: OntologyFilePath,
     baseIri: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("OpenOntologyFileCommand", {
-    description: "Command to open a Turtle document into an ontology session.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenOntologyFileCommand", {
+      description: "Command to open a Turtle document into an ontology session.",
+    })
+  )
 ) {}
 
 /**
@@ -73,15 +74,16 @@ export class OpenOntologyFileCommand extends S.Class<OpenOntologyFileCommand>($I
  * @category commands
  * @since 0.0.0
  */
-export class OpenOntologyFileResult extends S.Class<OpenOntologyFileResult>($I`OpenOntologyFileResult`)(
-  {
+export class OpenOntologyFileResult extends S.Opaque<OpenOntologyFileResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     session: Session,
     path: OntologyFilePath,
     source: TurtleDocumentText,
-  },
-  $I.annote("OpenOntologyFileResult", {
-    description: "Result of opening a Turtle document into an ontology session.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenOntologyFileResult", {
+      description: "Result of opening a Turtle document into an ontology session.",
+    })
+  )
 ) {}
 
 /**
@@ -110,15 +112,17 @@ export class OpenOntologyFileResult extends S.Class<OpenOntologyFileResult>($I`O
  * @category commands
  * @since 0.0.0
  */
-export class SerializeOntologySessionCommand extends S.Class<SerializeOntologySessionCommand>(
-  $I`SerializeOntologySessionCommand`
-)(
-  {
+export class SerializeOntologySessionCommand extends S.Opaque<
+  SerializeOntologySessionCommand,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     session: Session,
-  },
-  $I.annote("SerializeOntologySessionCommand", {
-    description: "Command to serialize an ontology session's asserted graph without writing it.",
-  })
+  }).pipe(
+    $I.annoteSchema("SerializeOntologySessionCommand", {
+      description: "Command to serialize an ontology session's asserted graph without writing it.",
+    })
+  )
 ) {}
 
 /**
@@ -139,15 +143,17 @@ export class SerializeOntologySessionCommand extends S.Class<SerializeOntologySe
  * @category commands
  * @since 0.0.0
  */
-export class SerializeOntologySessionResult extends S.Class<SerializeOntologySessionResult>(
-  $I`SerializeOntologySessionResult`
-)(
-  {
+export class SerializeOntologySessionResult extends S.Opaque<
+  SerializeOntologySessionResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     source: TurtleDocumentText,
-  },
-  $I.annote("SerializeOntologySessionResult", {
-    description: "Result of serializing an ontology session's asserted graph.",
-  })
+  }).pipe(
+    $I.annoteSchema("SerializeOntologySessionResult", {
+      description: "Result of serializing an ontology session's asserted graph.",
+    })
+  )
 ) {}
 
 /**
@@ -177,14 +183,15 @@ export class SerializeOntologySessionResult extends S.Class<SerializeOntologySes
  * @category commands
  * @since 0.0.0
  */
-export class SaveOntologyFileCommand extends S.Class<SaveOntologyFileCommand>($I`SaveOntologyFileCommand`)(
-  {
+export class SaveOntologyFileCommand extends S.Opaque<SaveOntologyFileCommand, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     session: Session,
-  },
-  $I.annote("SaveOntologyFileCommand", {
-    description: "Command to serialize an ontology session's asserted graph to Turtle.",
-  })
+  }).pipe(
+    $I.annoteSchema("SaveOntologyFileCommand", {
+      description: "Command to serialize an ontology session's asserted graph to Turtle.",
+    })
+  )
 ) {}
 
 /**
@@ -207,12 +214,13 @@ export class SaveOntologyFileCommand extends S.Class<SaveOntologyFileCommand>($I
  * @category commands
  * @since 0.0.0
  */
-export class SaveOntologyFileResult extends S.Class<SaveOntologyFileResult>($I`SaveOntologyFileResult`)(
-  {
+export class SaveOntologyFileResult extends S.Opaque<SaveOntologyFileResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: OntologyFilePath,
     source: TurtleDocumentText,
-  },
-  $I.annote("SaveOntologyFileResult", {
-    description: "Result of saving a session's asserted graph to Turtle.",
-  })
+  }).pipe(
+    $I.annoteSchema("SaveOntologyFileResult", {
+      description: "Result of saving a session's asserted graph to Turtle.",
+    })
+  )
 ) {}

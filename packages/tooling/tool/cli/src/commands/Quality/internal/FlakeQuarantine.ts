@@ -131,15 +131,16 @@ export const flakeQuarantineOutputBound = OutputBound.make({
  * @category models
  * @since 0.0.0
  */
-export class FlakeQuarantineTask extends S.Class<FlakeQuarantineTask>($I`FlakeQuarantineTask`)(
-  {
+export class FlakeQuarantineTask extends S.Opaque<FlakeQuarantineTask, { readonly brand: unique symbol }>()(
+  S.Struct({
     taskId: S.String,
     packageName: S.String,
     task: S.String,
-  },
-  $I.annote("FlakeQuarantineTask", {
-    description: "One failed Turbo task attributed to the no-location TS2589 flake signature.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlakeQuarantineTask", {
+      description: "One failed Turbo task attributed to the no-location TS2589 flake signature.",
+    })
+  )
 ) {}
 
 /**
@@ -172,8 +173,8 @@ export class FlakeQuarantineTask extends S.Class<FlakeQuarantineTask>($I`FlakeQu
  * @category models
  * @since 0.0.0
  */
-export class FlakeQuarantineIncident extends S.Class<FlakeQuarantineIncident>($I`FlakeQuarantineIncident`)(
-  {
+export class FlakeQuarantineIncident extends S.Opaque<FlakeQuarantineIncident, { readonly brand: unique symbol }>()(
+  S.Struct({
     policy: StepFlakeQuarantinePolicy,
     laneLabel: S.String,
     taskId: S.String,
@@ -183,10 +184,11 @@ export class FlakeQuarantineIncident extends S.Class<FlakeQuarantineIncident>($I
     detectedAt: S.String,
     standaloneDurationMs: S.Finite,
     laneRerunDurationMs: S.Finite,
-  },
-  $I.annote("FlakeQuarantineIncident", {
-    description: "One environment-only compiler flake quarantined by a quality lane rerun.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlakeQuarantineIncident", {
+      description: "One environment-only compiler flake quarantined by a quality lane rerun.",
+    })
+  )
 ) {}
 
 /**
@@ -207,14 +209,15 @@ export class FlakeQuarantineIncident extends S.Class<FlakeQuarantineIncident>($I
  * @category models
  * @since 0.0.0
  */
-export class FlakeQuarantineArtifact extends S.Class<FlakeQuarantineArtifact>($I`FlakeQuarantineArtifact`)(
-  {
+export class FlakeQuarantineArtifact extends S.Opaque<FlakeQuarantineArtifact, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("yeet-flake-quarantine/v1"),
     incidents: S.Array(FlakeQuarantineIncident),
-  },
-  $I.annote("FlakeQuarantineArtifact", {
-    description: "Persisted record of environment-only flake incidents quarantined during one quality run.",
-  })
+  }).pipe(
+    $I.annoteSchema("FlakeQuarantineArtifact", {
+      description: "Persisted record of environment-only flake incidents quarantined during one quality run.",
+    })
+  )
 ) {}
 
 /**

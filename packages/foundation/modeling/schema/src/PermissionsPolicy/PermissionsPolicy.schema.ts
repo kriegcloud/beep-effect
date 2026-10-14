@@ -373,15 +373,17 @@ export type PermissionsPolicyDirectives = typeof PermissionsPolicyDirectives.Typ
  * @category models
  * @since 0.0.0
  */
-export class PermissionsPolicyOptionStruct extends S.Class<PermissionsPolicyOptionStruct>(
-  $I`PermissionsPolicyOptionStruct`
-)(
-  {
+export class PermissionsPolicyOptionStruct extends S.Opaque<
+  PermissionsPolicyOptionStruct,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     directives: PermissionsPolicyDirectives,
-  },
-  $I.annote("PermissionsPolicyOptionStruct", {
-    description: "Structured configuration for the `Permissions-Policy` header.",
-  })
+  }).pipe(
+    $I.annoteSchema("PermissionsPolicyOptionStruct", {
+      description: "Structured configuration for the `Permissions-Policy` header.",
+    })
+  )
 ) {}
 const decodePermissionsPolicyOptionStruct = S.decodeEffect(PermissionsPolicyOptionStruct);
 
@@ -439,16 +441,18 @@ export type PermissionsPolicyOption = typeof PermissionsPolicyOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class PermissionsPolicyResponseHeader extends S.Class<PermissionsPolicyResponseHeader>(
-  $I`PermissionsPolicyResponseHeader`
-)(
-  {
+export class PermissionsPolicyResponseHeader extends S.Opaque<
+  PermissionsPolicyResponseHeader,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("PermissionsPolicyResponseHeader", {
-    description: "The `Permissions-Policy` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("PermissionsPolicyResponseHeader", {
+      description: "The `Permissions-Policy` response header.",
+    })
+  )
 ) {}
 
 type PermissionsPolicyResponseHeaderEncoded = typeof PermissionsPolicyResponseHeader.Encoded;

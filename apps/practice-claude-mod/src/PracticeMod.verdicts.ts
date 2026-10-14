@@ -34,7 +34,7 @@ const RowLine = S.fromJsonString(VerdictRow);
  * @category errors
  * @since 0.0.0
  */
-class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked`)(
+class VerdictLocked extends S.TaggedError<VerdictLocked, { readonly brand: unique symbol }>($I`VerdictLocked`)(
   "VerdictLocked",
   { itemId: S.NonEmptyString },
   $I.annote("VerdictLocked", { description: "A verdict was refused because its item is locked." })
@@ -46,7 +46,9 @@ class VerdictLocked extends S.TaggedError<VerdictLocked>($I`VerdictLocked`)(
  * @category errors
  * @since 0.0.0
  */
-class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable>($I`VerdictStoreUnreadable`)(
+class VerdictStoreUnreadable extends S.TaggedError<VerdictStoreUnreadable, { readonly brand: unique symbol }>(
+  $I`VerdictStoreUnreadable`
+)(
   "VerdictStoreUnreadable",
   { key: S.NonEmptyString, message: S.String },
   $I.annote("VerdictStoreUnreadable", { description: "The plugin store held verdict data that did not decode." })
@@ -84,13 +86,16 @@ type VerdictLogError = VerdictLocked | VerdictStoreUnreadable | ModHostError;
  * @category models
  * @since 0.0.0
  */
-export class VerdictInput extends S.Class<VerdictInput>($I`VerdictInput`)(
-  {
+export class VerdictInput extends S.Opaque<VerdictInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     item: KgAnswerItem,
     verdict: S.Option(Verdict),
     note: S.Option(S.NonEmptyString),
-  },
-  $I.annote("VerdictInput", { description: "A verdict (or an undo when none) and an optional note on one answer." })
+  }).pipe(
+    $I.annoteSchema("VerdictInput", {
+      description: "A verdict (or an undo when none) and an optional note on one answer.",
+    })
+  )
 ) {}
 
 /**
@@ -114,7 +119,7 @@ export class VerdictLog extends Context.Service<
   {
     readonly record: (input: VerdictInput) => Effect.Effect<VerdictRow, VerdictLogError>;
     readonly current: (itemId: string) => Effect.Effect<O.Option<VerdictRow>, VerdictLogError>;
-    readonly exportJsonl: (path: string) => Effect.Effect<number, VerdictLogError>;
+    readonly exportJsonl: Effect.Effect<string, VerdictLogError>;
   }
 >()($I`VerdictLog`) {}
 
@@ -196,13 +201,12 @@ export const makeVerdictLog = Effect.gen(function* () {
     return row;
   });
 
-  const exportJsonl = Effect.fn("VerdictLog.exportJsonl")(function* (path: string) {
+  const exportJsonl = Effect.gen(function* () {
     const rows = yield* readStored(host, RowsKey, StoredRows);
     const lines = yield* Effect.forEach(rows, (row) =>
       S.encodeEffect(RowLine)(row).pipe(Effect.mapError(unreadable(RowsKey)))
     );
-    yield* host.writeText(path, A.join(lines, "\n") + (lines.length > 0 ? "\n" : ""));
-    return rows.length;
+    return A.join(lines, "\n") + (lines.length > 0 ? "\n" : "");
   });
 
   const record = (input: VerdictInput) => Semaphore.withPermit(writes)(recordUnserialized(input));

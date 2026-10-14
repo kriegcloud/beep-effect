@@ -42,7 +42,7 @@ const $I = $ScratchpadId.create("effected/lockfiles/ConfigDependencyLock");
  * @category models
  * @since 0.0.0
  */
-export class ConfigDependencyLock extends S.Class<ConfigDependencyLock>($I`ConfigDependencyLock`)({
+export class ConfigDependencyLock extends S.Class<ConfigDependencyLock, { readonly brand: unique symbol }>($I`ConfigDependencyLock`)({
 	name: S.String.annotateKey({ description: "Config dependency package recorded in the pnpm lockfile's env preamble" }),
 	specifier: S.String.annotateKey({ description: "Config dependency specifier recorded verbatim by pnpm, without the legacy inline integrity suffix" }),
 	version: S.String.annotateKey({ description: "Exact config dependency version resolved by pnpm" }),

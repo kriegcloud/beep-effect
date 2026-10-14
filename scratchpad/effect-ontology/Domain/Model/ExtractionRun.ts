@@ -121,8 +121,7 @@ export type AuditEventType = typeof AuditEventType.Type;
  * @category models
  * @since 0.0.0
  */
-export class OutputMetadata extends S.Class<OutputMetadata>($I`OutputMetadata`)(
-  {
+export class OutputMetadata extends S.Opaque<OutputMetadata, { readonly brand: unique symbol }>()(S.Struct({
     type: OutputType.annotateKey({
       description: "Logical output artifact kind.",
     }),
@@ -138,11 +137,9 @@ export class OutputMetadata extends S.Class<OutputMetadata>($I`OutputMetadata`)(
     savedAt: S.DateTimeUtcFromString.annotateKey({
       description: "UTC instant at which persistence completed.",
     }),
-  },
-  $I.annote("OutputMetadata", {
+  }).pipe($I.annoteSchema("OutputMetadata", {
     description: "Typed output kind, path, integrity digest, size, and persistence time.",
-  })
-) {}
+  }))) {}
 
 const auditEventDataDefault = {};
 /**
@@ -163,16 +160,13 @@ const auditEventDataDefault = {};
  * @category domain-events
  * @since 0.0.0
  */
-export class AuditEvent extends S.Class<AuditEvent>($I`AuditEvent`)(
-  {
+export class AuditEvent extends S.Opaque<AuditEvent, { readonly brand: unique symbol }>()(S.Struct({
     timestamp: S.DateTimeUtcFromString,
     type: AuditEventType,
     data: S.Record(S.String, S.Json).pipe(S.withConstructorDefault(Effect.succeed(auditEventDataDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(auditEventDataDefault))),
-  },
-  $I.annote("AuditEvent", {
+  }).pipe($I.annoteSchema("AuditEvent", {
     description: "Timestamped audit event with a stable category and JSON-compatible data.",
-  })
-) {}
+  }))) {}
 
 const auditErrorContextDefault = {};
 /**
@@ -194,17 +188,14 @@ const auditErrorContextDefault = {};
  * @category errors
  * @since 0.0.0
  */
-export class AuditError extends S.Class<AuditError>($I`AuditError`)(
-  {
+export class AuditError extends S.Opaque<AuditError, { readonly brand: unique symbol }>()(S.Struct({
     timestamp: S.DateTimeUtcFromString,
     type: ErrorCode,
     message: S.NonEmptyString,
     context: S.Record(S.String, S.Json).pipe(S.withConstructorDefault(Effect.succeed(auditErrorContextDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(auditErrorContextDefault))),
-  },
-  $I.annote("AuditError", {
+  }).pipe($I.annoteSchema("AuditError", {
     description: "Timestamped extraction failure with a stable code and JSON-compatible context.",
-  })
-) {}
+  }))) {}
 
 /**
  * Canonical discriminated lifecycle state for an extraction run.
@@ -304,16 +295,13 @@ const chunkingConfigOverlapSentencesDefault = SentenceOverlap.make(2);
  * @category configuration
  * @since 0.0.0
  */
-export class ChunkingConfig extends S.Class<ChunkingConfig>($I`ChunkingConfig`)(
-  {
+export class ChunkingConfig extends S.Opaque<ChunkingConfig, { readonly brand: unique symbol }>()(S.Struct({
     maxChunkSize: ChunkSize.pipe(S.withConstructorDefault(Effect.succeed(chunkingConfigMaxChunkSizeDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(chunkingConfigMaxChunkSizeDefault))),
     preserveSentences: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true)), S.withDecodingDefaultTypeKey(Effect.succeed(true))),
     overlapSentences: SentenceOverlap.pipe(S.withConstructorDefault(Effect.succeed(chunkingConfigOverlapSentencesDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(chunkingConfigOverlapSentencesDefault))),
-  },
-  $I.annote("ChunkingConfig", {
+  }).pipe($I.annoteSchema("ChunkingConfig", {
     description: "Bounded, schema-defaulted policy for extraction text chunking.",
-  })
-) {
+  }))) {
   /**
    * Constructs the canonical chunking policy.
    *
@@ -386,17 +374,14 @@ const LlmTimeout = PosInt.check(
  * @category configuration
  * @since 0.0.0
  */
-export class LlmConfig extends S.Class<LlmConfig>($I`LlmConfig`)(
-  {
+export class LlmConfig extends S.Opaque<LlmConfig, { readonly brand: unique symbol }>()(S.Struct({
     model: S.NonEmptyString,
     temperature: Temperature,
     maxTokens: PosInt,
     timeout: LlmTimeout,
-  },
-  $I.annote("LlmConfig", {
+  }).pipe($I.annoteSchema("LlmConfig", {
     description: "Bounded model identifier, sampling, token, and timeout policy.",
-  })
-) {}
+  }))) {}
 
 const Concurrency = PosInt.check(
   S.isBetween(
@@ -416,17 +401,13 @@ const Concurrency = PosInt.check(
 
 const GroundingMode = LiteralKit(["Disabled", "Enabled"]);
 
-class GroundingDisabled extends S.Class<GroundingDisabled>($I`GroundingDisabled`)(
-  { mode: S.tag(GroundingMode.Enum.Disabled) },
-  $I.annote("GroundingDisabled", {
+class GroundingDisabled extends S.Opaque<GroundingDisabled, { readonly brand: unique symbol }>()(S.Struct({ mode: S.tag(GroundingMode.Enum.Disabled) }).pipe($I.annoteSchema("GroundingDisabled", {
     description: "Grounding verification is disabled while observations remain explicitly not evaluated.",
-  })
-) {}
+  }))) {}
 
 const groundingEnabledThresholdDefault = Confidence.make(0.8);
 const groundingEnabledBatchSizeDefault = PosInt.make(5);
-class GroundingEnabled extends S.Class<GroundingEnabled>($I`GroundingEnabled`)(
-  {
+class GroundingEnabled extends S.Opaque<GroundingEnabled, { readonly brand: unique symbol }>()(S.Struct({
     mode: S.tag(GroundingMode.Enum.Enabled),
     threshold: Confidence.pipe(
       S.withConstructorDefault(Effect.succeed(groundingEnabledThresholdDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(groundingEnabledThresholdDefault)),
@@ -436,11 +417,9 @@ class GroundingEnabled extends S.Class<GroundingEnabled>($I`GroundingEnabled`)(
       S.withConstructorDefault(Effect.succeed(groundingEnabledBatchSizeDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(groundingEnabledBatchSizeDefault)),
       S.annotateKey({ description: "Positive maximum number of facts sent in one grounding request." })
     ),
-  },
-  $I.annote("GroundingEnabled", {
+  }).pipe($I.annoteSchema("GroundingEnabled", {
     description: "Enabled grounding policy with schema-owned confidence and batch-size bounds.",
-  })
-) {}
+  }))) {}
 
 /**
  * Grounding policy captured with an extraction run.
@@ -519,8 +498,7 @@ const runConfigGroundingDefault = GroundingPolicy.cases.Enabled.make({});
  * @category configuration
  * @since 0.0.0
  */
-export class RunConfig extends S.Class<RunConfig>($I`RunConfig`)(
-  {
+export class RunConfig extends S.Opaque<RunConfig, { readonly brand: unique symbol }>()(S.Struct({
     ontology: OntologyRef,
     chunking: ChunkingConfig,
     llm: LlmConfig,
@@ -529,11 +507,9 @@ export class RunConfig extends S.Class<RunConfig>($I`RunConfig`)(
       S.withConstructorDefault(Effect.succeed(runConfigGroundingDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(runConfigGroundingDefault)),
       S.annotateKey({ description: "Grounding policy applied to extracted facts." })
     ),
-  },
-  $I.annote("RunConfig", {
+  }).pipe($I.annoteSchema("RunConfig", {
     description: "Ontology, chunking, model, concurrency, and grounding snapshot for a run.",
-  })
-) {}
+  }))) {}
 
 /**
  * Non-negative measurements collected during extraction.
@@ -559,8 +535,7 @@ export class RunConfig extends S.Class<RunConfig>($I`RunConfig`)(
  * @category models
  * @since 0.0.0
  */
-export class RunStats extends S.Class<RunStats>($I`RunStats`)(
-  {
+export class RunStats extends S.Opaque<RunStats, { readonly brand: unique symbol }>()(S.Struct({
     chunkCount: S.Natural,
     entityCount: S.Natural,
     relationCount: S.Natural,
@@ -568,11 +543,9 @@ export class RunStats extends S.Class<RunStats>($I`RunStats`)(
     clusterCount: S.Natural,
     tokensUsed: S.Natural,
     duration: S.DurationFromMillis,
-  },
-  $I.annote("RunStats", {
+  }).pipe($I.annoteSchema("RunStats", {
     description: "Non-negative extraction counts, token use, and elapsed duration.",
-  })
-) {}
+  }))) {}
 
 const extractionRunOutputsDefault = A.empty<OutputMetadata>();
 const extractionRunEventsDefault = A.empty<AuditEvent>();
@@ -618,7 +591,7 @@ const extractionRunErrorsDefault = A.empty<AuditError>();
  * @category aggregates
  * @since 0.0.0
  */
-export class ExtractionRun extends S.Class<ExtractionRun>($I`ExtractionRun`)(
+export class ExtractionRun extends S.Class<ExtractionRun, { readonly brand: unique symbol }>($I`ExtractionRun`)(
   {
     id: DocumentId,
     idempotencyKey: S.OptionFromOptionalKey(IdempotencyKey).pipe(S.withConstructorDefault(Effect.succeedNone)),

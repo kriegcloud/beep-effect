@@ -9,6 +9,7 @@ import {
   LintPolicySweeps,
   QUALITY_TASK_LANE_RUN_ARTIFACT_PATH_ENV,
   QUALITY_TASK_LANE_RUN_PARENT_ID_ENV,
+  QualityProfileDetectionInput,
 } from "@beep/repo-cli/commands/Quality";
 import {
   collectAuditDiffInputForTesting,
@@ -40,6 +41,7 @@ import {
   CoverageRegressionBaseline,
   CoverageScopeOwner,
   CoverageSelfJudgeScope,
+  CoverageSnapshotEntry,
   CoverageUncoveredCounts,
   changedCoverageOwners,
   cleanCoverageRegressionOutputs,
@@ -756,6 +758,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(select('{"packages":{"braces":["braces@3.0.3"],"braces@other":["braces@3.0.4"]}}')).toEqual([]);
       expect(select('{"packages":{"braces":["braces@3.0.3"],"parent/braces":["braces@3.0.2"]}}')).toEqual([]);
       expect(select('{"packages":{"braces":["braces@3.0.3"],"parent/braces@3.0.2":["braces@3.0.2"]}}')).toEqual([]);
+      expect(select('{"packages":{"braces":["braces@3.0.3"],"braces-legacy":["braces@3.0.2"]}}')).toEqual([]);
+      expect(select('{"packages":{"braces":["braces@3.0.3"],"parent/braces-legacy":["braces@3.0.2"]}}')).toEqual([]);
+      expect(select('{"packages":{"braces":["braces@3.0.3"],"braces-legacy":["braces@3.0.3"]}}')).toEqual([
+        "GHSA-vfj7-8cjw-p6xm",
+      ]);
       expect(select('{"packages":{"braces":["braces@3.0.3"],"parent/braces":["braces@3.0.3"]}}')).toEqual([
         "GHSA-vfj7-8cjw-p6xm",
       ]);
@@ -3445,31 +3452,37 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 
     it("detects explicit quality hardware profiles", () => {
       expect(
-        detectQualityProfileForTesting({
-          ci: true,
-          cpuCount: 64,
-          totalMemoryBytes: 128 * 1024 * 1024 * 1024,
-        })
+        detectQualityProfileForTesting(
+          QualityProfileDetectionInput.make({
+            ci: true,
+            cpuCount: 64,
+            totalMemoryBytes: 128 * 1024 * 1024 * 1024,
+          })
+        )
       ).toMatchObject({
         profile: "ci",
         config: { fullProofSlots: 1, reviewFixSlots: 1 },
       });
       expect(
-        detectQualityProfileForTesting({
-          ci: false,
-          cpuCount: 64,
-          totalMemoryBytes: 128 * 1024 * 1024 * 1024,
-        })
+        detectQualityProfileForTesting(
+          QualityProfileDetectionInput.make({
+            ci: false,
+            cpuCount: 64,
+            totalMemoryBytes: 128 * 1024 * 1024 * 1024,
+          })
+        )
       ).toMatchObject({
         profile: "workstation",
         config: { docgenParallel: 6, reviewFixSlots: 3 },
       });
       expect(
-        detectQualityProfileForTesting({
-          ci: false,
-          cpuCount: 8,
-          totalMemoryBytes: 16 * 1024 * 1024 * 1024,
-        })
+        detectQualityProfileForTesting(
+          QualityProfileDetectionInput.make({
+            ci: false,
+            cpuCount: 8,
+            totalMemoryBytes: 16 * 1024 * 1024 * 1024,
+          })
+        )
       ).toMatchObject({
         profile: "current",
         config: { docgenParallel: 3, reviewFixSlots: 1 },
@@ -4423,7 +4436,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const result = compareCoverageRegressionSnapshotsForTesting(
         coverageRegressionBaseline,
         [
-          {
+          CoverageSnapshotEntry.make({
             packageName: "@beep/existing",
             baseline: CoveragePackageBaseline.make({
               path: "packages/existing",
@@ -4432,11 +4445,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               uncovered: coverageUncovered(1),
               files: {},
             }),
-          },
-          {
+          }),
+          CoverageSnapshotEntry.make({
             packageName: "@beep/new",
             baseline: coveragePackageBaseline("packages/new"),
-          },
+          }),
         ],
         false
       );
@@ -5057,7 +5070,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       });
       const failures = compareCoverageRegressionSnapshotsForTesting(
         before,
-        [{ packageName, baseline: actual }],
+        [CoverageSnapshotEntry.make({ packageName, baseline: actual })],
         false
       ).failures;
       const rendered = renderCoverageFailuresForTesting(failures);
@@ -5086,8 +5099,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const result = compareCoverageRegressionSnapshotsForTesting(
         policyBaseline,
         [
-          { packageName: "@beep/debt", baseline: coveragePackageBaseline("packages/debt", 10) },
-          {
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/debt",
+            baseline: coveragePackageBaseline("packages/debt", 10),
+          }),
+          CoverageSnapshotEntry.make({
             packageName: "@beep/existing",
             baseline: CoveragePackageBaseline.make({
               path: "packages/existing",
@@ -5098,7 +5114,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               uncovered: coverageUncovered(0),
               files: {},
             }),
-          },
+          }),
         ],
         false
       );
@@ -5318,10 +5334,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
                 "@beep/a": coveragePackageBaseline("packages/a", 80),
                 "@beep/b": coveragePackageBaseline("packages/b", 80),
               };
-              const measured = A.map(["a", "b"], (name) => ({
-                packageName: `@beep/${name}`,
-                baseline: coveragePackageBaseline(`packages/${name}`, 60),
-              }));
+              const measured = A.map(["a", "b"], (name) =>
+                CoverageSnapshotEntry.make({
+                  packageName: `@beep/${name}`,
+                  baseline: coveragePackageBaseline(`packages/${name}`, 60),
+                })
+              );
               expect(
                 planCoverageBaselineWrite(
                   previous,
@@ -5832,7 +5850,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         const compare = (proposed: O.Option<CoverageRegressionBaseline>, actual: CoveragePackageBaseline) =>
           compareCoverageRegressionSnapshotsWithProposedForTesting(
             CoverageComparisonBaselines.make({ baseline: baseFloors, proposed }),
-            [{ packageName: "@beep/existing", baseline: actual }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
             false
           );
         const allMetrics = ["branches", "functions", "lines", "statements"];
@@ -5911,7 +5929,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               }),
               proposed: proposing(packageRow(80, 20, { [filePath]: coverageFileBaseline(50, 2) })),
             }),
-            [{ packageName: "@beep/existing", baseline: packageRow(80, 20, {}) }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: packageRow(80, 20, {}) })],
             false
           );
 
@@ -5971,7 +5989,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
                 })
               ),
             }),
-            [{ packageName: "@beep/existing", baseline: packageRow(80, 20, {}) }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: packageRow(80, 20, {}) })],
             false
           );
 
@@ -6041,7 +6059,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               mergeBase: O.some(rows(mergeBase)),
               selfJudge: O.some(planCoverageSelfJudgeScope(owners, changedFiles)),
             }),
-            [{ packageName: "@beep/existing", baseline: actual }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
             false
           );
         const base = packageRow(80, 20, { [filePath]: coverageFileBaseline(80, 20) });
@@ -6197,7 +6215,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               mergeBase: O.some(strictBase),
               selfJudge: O.some(planCoverageSelfJudgeScope(owners, [])),
             }),
-            [{ packageName: "@beep/existing", baseline: measured }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: measured })],
             false
           );
 
@@ -6212,7 +6230,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               mergeBase: O.some(rows(base)),
               selfJudge: O.some(planCoverageSelfJudgeScope(owners, [])),
             }),
-            [{ packageName: "@beep/existing", baseline: base }],
+            [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: base })],
             false
           );
 
@@ -6369,8 +6387,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
               const result = compareCoverageRegressionSnapshotsWithProposedForTesting(
                 baselines,
                 [
-                  { packageName: "@beep/touched", baseline: workspaceRow("touched", 70, 30) },
-                  { packageName: "@beep/untouched", baseline: workspaceRow("untouched", 70, 30) },
+                  CoverageSnapshotEntry.make({
+                    packageName: "@beep/touched",
+                    baseline: workspaceRow("touched", 70, 30),
+                  }),
+                  CoverageSnapshotEntry.make({
+                    packageName: "@beep/untouched",
+                    baseline: workspaceRow("untouched", 70, 30),
+                  }),
                 ],
                 false
               );
@@ -6539,9 +6563,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         const result = compareCoverageRegressionSnapshotsForTesting(
           baseline,
           [
-            { packageName: "@beep/b", baseline: regressed("packages/b") },
-            { packageName: "@beep/a", baseline: regressed("packages/a") },
-            { packageName: "@beep/ok", baseline: coveragePackageBaseline("packages/ok", 50) },
+            CoverageSnapshotEntry.make({ packageName: "@beep/b", baseline: regressed("packages/b") }),
+            CoverageSnapshotEntry.make({ packageName: "@beep/a", baseline: regressed("packages/a") }),
+            CoverageSnapshotEntry.make({
+              packageName: "@beep/ok",
+              baseline: coveragePackageBaseline("packages/ok", 50),
+            }),
           ],
           false
         );
@@ -6569,7 +6596,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         const belowTier = renderCoverageRemediation(
           compareCoverageRegressionSnapshotsForTesting(
             tiered,
-            [{ packageName: "@beep/ok", baseline: coveragePackageBaseline("packages/ok", 50) }],
+            [
+              CoverageSnapshotEntry.make({
+                packageName: "@beep/ok",
+                baseline: coveragePackageBaseline("packages/ok", 50),
+              }),
+            ],
             false
           )
         );
@@ -6580,7 +6612,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           renderCoverageRemediation(
             compareCoverageRegressionSnapshotsForTesting(
               baseline,
-              [{ packageName: "@beep/ok", baseline: coveragePackageBaseline("packages/ok", 50) }],
+              [
+                CoverageSnapshotEntry.make({
+                  packageName: "@beep/ok",
+                  baseline: coveragePackageBaseline("packages/ok", 50),
+                }),
+              ],
               false
             )
           )
@@ -6849,7 +6886,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const compare = (actual: CoveragePackageBaseline) =>
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures;
 
@@ -6909,7 +6946,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       });
       const failures = compareCoverageRegressionSnapshotsForTesting(
         before,
-        [{ packageName: "@beep/existing", baseline: actual }],
+        [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
         false
       ).failures;
 
@@ -6943,7 +6980,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual([]);
@@ -6972,7 +7009,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7004,7 +7041,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7048,7 +7085,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7085,7 +7122,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
 
       const failures = compareCoverageRegressionSnapshotsForTesting(
         before,
-        [{ packageName: "@beep/existing", baseline: actual }],
+        [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
         false
       ).failures;
 
@@ -7131,7 +7168,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual([]);
@@ -7166,7 +7203,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7203,7 +7240,7 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       expect(
         compareCoverageRegressionSnapshotsForTesting(
           before,
-          [{ packageName: "@beep/existing", baseline: actual }],
+          [CoverageSnapshotEntry.make({ packageName: "@beep/existing", baseline: actual })],
           false
         ).failures
       ).toEqual(
@@ -7245,8 +7282,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "@beep/held": committedHeld,
         },
         [
-          { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-          { packageName: "@beep/held", baseline: measuredHeld },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+          CoverageSnapshotEntry.make({ packageName: "@beep/held", baseline: measuredHeld }),
         ],
         changeSet,
         CoverageBaselineWriteOptions.make({ replaceAll: false })
@@ -7289,9 +7329,15 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "@beep/removed": coveragePackageBaseline("packages/removed", 70),
         },
         [
-          { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-          { packageName: "@beep/held", baseline: measuredHeld },
-          { packageName: "@beep/new", baseline: coveragePackageBaseline("packages/new", 90) },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+          CoverageSnapshotEntry.make({ packageName: "@beep/held", baseline: measuredHeld }),
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/new",
+            baseline: coveragePackageBaseline("packages/new", 90),
+          }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "origin/main merge-base a1b2c3d",
@@ -7322,8 +7368,8 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
           "@beep/b": coveragePackageBaseline("packages/b", 50),
         },
         [
-          { packageName: "@beep/a", baseline: coveragePackageBaseline("packages/a", 80) },
-          { packageName: "@beep/b", baseline: coveragePackageBaseline("packages/b", 90) },
+          CoverageSnapshotEntry.make({ packageName: "@beep/a", baseline: coveragePackageBaseline("packages/a", 80) }),
+          CoverageSnapshotEntry.make({ packageName: "@beep/b", baseline: coveragePackageBaseline("packages/b", 90) }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "dirty worktree only",
@@ -7342,8 +7388,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const plan = planCoverageBaselineWrite(
         { "@beep/existing": coveragePackageBaseline("packages/existing", 50) },
         [
-          { packageName: "@beep/existing", baseline: coveragePackageBaseline("packages/existing", 80) },
-          { packageName: "@beep/new", baseline: coveragePackageBaseline("packages/new", 90) },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/existing",
+            baseline: coveragePackageBaseline("packages/existing", 80),
+          }),
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/new",
+            baseline: coveragePackageBaseline("packages/new", 90),
+          }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "dirty worktree only",
@@ -7441,8 +7493,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const plan = planCoverageBaselineWrite(
         previous,
         [
-          { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-          { packageName: "@beep/fresh", baseline: coveragePackageBaseline("packages/fresh", 88) },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/fresh",
+            baseline: coveragePackageBaseline("packages/fresh", 88),
+          }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "dirty worktree only",
@@ -7477,8 +7535,11 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "@beep/unmeasured": coveragePackageBaseline("packages/unmeasured", 70),
       };
       const entries = [
-        { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-        { packageName: "@beep/held", baseline: measuredHeld },
+        CoverageSnapshotEntry.make({
+          packageName: "@beep/changed",
+          baseline: coveragePackageBaseline("packages/changed", 80),
+        }),
+        CoverageSnapshotEntry.make({ packageName: "@beep/held", baseline: measuredHeld }),
       ];
       const changeSet = CoverageBaselineChangeSet.make({
         baseDescription: "dirty worktree only",
@@ -7518,8 +7579,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
         "@beep/dependent": coveragePackageBaseline("packages/dependent", 61),
       };
       const entries = [
-        { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-        { packageName: "@beep/dependent", baseline: coveragePackageBaseline("packages/dependent", 93) },
+        CoverageSnapshotEntry.make({
+          packageName: "@beep/changed",
+          baseline: coveragePackageBaseline("packages/changed", 80),
+        }),
+        CoverageSnapshotEntry.make({
+          packageName: "@beep/dependent",
+          baseline: coveragePackageBaseline("packages/dependent", 93),
+        }),
       ];
       const changeSet = CoverageBaselineChangeSet.make({
         baseDescription: "dirty worktree only",
@@ -7571,7 +7638,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       // this run never measured.
       const plan = planCoverageBaselineWrite(
         previous,
-        [{ packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) }],
+        [
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+        ],
         changeSet,
         CoverageBaselineWriteOptions.make({ replaceAll: false, carryUnmeasured: true })
       );
@@ -7591,7 +7663,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       };
       const plan = planCoverageBaselineWrite(
         previous,
-        [{ packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) }],
+        [
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+        ],
         CoverageBaselineChangeSet.make({
           baseDescription: "origin/main merge-base a1b2c3d",
           packageNames: ["@beep/changed"],
@@ -7615,8 +7692,14 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const plan = planCoverageBaselineWrite(
         previous,
         [
-          { packageName: "@beep/changed", baseline: coveragePackageBaseline("packages/changed", 80) },
-          { packageName: "@beep/dependent", baseline: coveragePackageBaseline("packages/dependent", 93) },
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/changed",
+            baseline: coveragePackageBaseline("packages/changed", 80),
+          }),
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/dependent",
+            baseline: coveragePackageBaseline("packages/dependent", 93),
+          }),
         ],
         CoverageBaselineChangeSet.make({
           baseDescription: "origin/main merge-base a1b2c3d",
@@ -7641,7 +7724,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       };
       const plan = planCoverageBaselineWrite(
         previous,
-        [{ packageName: "@beep/held", baseline: coveragePackageBaseline("packages/held", 93) }],
+        [
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/held",
+            baseline: coveragePackageBaseline("packages/held", 93),
+          }),
+        ],
         CoverageBaselineChangeSet.make({ baseDescription: "dirty worktree only", packageNames: [], fullReasons: [] }),
         CoverageBaselineWriteOptions.make({ replaceAll: true, carryUnmeasured: true })
       );
@@ -7655,7 +7743,12 @@ it.layer(PlatformLayer, { concurrent: false, timeout: "30 seconds" })((it) => {
       const previous = { "@beep/held": coveragePackageBaseline("packages/held", 61) };
       const plan = planCoverageBaselineWrite(
         previous,
-        [{ packageName: "@beep/held", baseline: coveragePackageBaseline("packages/held", 93) }],
+        [
+          CoverageSnapshotEntry.make({
+            packageName: "@beep/held",
+            baseline: coveragePackageBaseline("packages/held", 93),
+          }),
+        ],
         CoverageBaselineChangeSet.make({ baseDescription: "dirty worktree only", packageNames: [], fullReasons: [] }),
         CoverageBaselineWriteOptions.make({ replaceAll: false, carryUnmeasured: true })
       );

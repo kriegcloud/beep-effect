@@ -61,6 +61,16 @@ describe("office-action pure raw rule v1", () => {
       expect(S.is(DocStructureAbstentionCode)(row.code)).toBe(true);
     }
   });
+  it("handles repeated incomplete statutory-period markers without quadratic scanning", () => {
+    const text = "SHORTENED STATUTORY PERIOD ".repeat(16_000);
+    const started = performance.now();
+    expect(recognizeOfficeActionPair(text, "direct-text")).toMatchObject({ status: "abstained", code: "absent" });
+    expect(performance.now() - started).toBeLessThan(2_000);
+    expect(recognizeOfficeActionPair(`${text}ELEVEN`, "direct-text")).toMatchObject({
+      status: "abstained",
+      code: "rule-not-covered",
+    });
+  });
   it("never recovers selection from an empty checkbox or historical attachment", () => {
     expect(recognizeOfficeActionPair(`[ ] FINAL [ ] NON-FINAL\n${period}`, "direct-text")).toMatchObject({
       code: "ambiguous",

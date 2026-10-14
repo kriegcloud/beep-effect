@@ -47,19 +47,16 @@ const $I = $ScratchpadId.create("effect-ontology/Service/ClaimPersistence");
  * @category models
  * @since 0.0.0
  */
-export class ArticleMetadata extends S.Class<ArticleMetadata>($I`ArticleMetadata`)(
-  {
+export class ArticleMetadata extends S.Opaque<ArticleMetadata, { readonly brand: unique symbol }>()(S.Struct({
     uri: S.NonEmptyString,
     ontologyId: S.NonEmptyString,
     headline: S.optionalKey(S.String),
     publishedAt: S.Date,
     sourceName: S.optionalKey(S.NonEmptyString),
     contentHash: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("ArticleMetadata", {
+  }).pipe($I.annoteSchema("ArticleMetadata", {
     description: "Validated article identity, publication time, and optional source metadata.",
-  })
-) {}
+  }))) {}
 
 /**
  * Result of claim persistence operation
@@ -81,16 +78,13 @@ export class ArticleMetadata extends S.Class<ArticleMetadata>($I`ArticleMetadata
  * @category models
  * @since 0.0.0
  */
-export class PersistenceResult extends S.Class<PersistenceResult>($I`PersistenceResult`)(
-  {
+export class PersistenceResult extends S.Opaque<PersistenceResult, { readonly brand: unique symbol }>()(S.Struct({
     articleId: S.NonEmptyString,
     claimsInserted: S.Natural,
     claimsTotal: S.Natural,
-  },
-  $I.annote("PersistenceResult", {
+  }).pipe($I.annoteSchema("PersistenceResult", {
     description: "Article identifier and non-negative claim persistence counts.",
-  })
-) {}
+  }))) {}
 
 // =============================================================================
 // Service

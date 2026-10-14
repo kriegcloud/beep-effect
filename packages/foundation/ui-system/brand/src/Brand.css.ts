@@ -8,8 +8,17 @@ import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { flow, pipe } from "effect/Function";
 import * as S from "effect/Schema";
-import { ScaleStep, SurfaceStep } from "./Brand.schema.ts";
-import type { BrandIdentity, ColorScheme, FontStack, Glow, GlowLayer, GlowStop, Typography } from "./Brand.schema.ts";
+import {
+  ColorScheme,
+  FontStack,
+  Glow,
+  GlowLayer,
+  GlowStop,
+  ScaleStep,
+  SurfaceStep,
+  Typography,
+} from "./Brand.schema.ts";
+import type { BrandIdentity } from "./Brand.schema.ts";
 
 /**
  * Banner line at the top of every generated stylesheet.
@@ -60,12 +69,14 @@ const quoteFamily = (family: string): string => (isGenericFontFamily(family) ? f
 /**
  * Render a {@link FontStack} as a CSS font-family list, escaping named families and leaving generic keywords bare.
  *
- * **Example** (Render the brand sans stack)
+ * **Example** (Render a sans font stack)
  *
  * ```ts
- * import { beep, fontStack } from "@beep/brand"
+ * import { FontStack, fontStack } from "@beep/brand"
  *
- * console.log(fontStack(beep.typography.sans))
+ * const sans = FontStack.make({ family: "Inter Variable", fallbacks: ["ui-sans-serif", "sans-serif"] })
+ *
+ * console.log(fontStack(sans)) // => "Inter Variable", ui-sans-serif, sans-serif
  * ```
  *
  * @param stack - Font stack to render.
@@ -97,20 +108,20 @@ const glowValue = (stop: GlowStop): string =>
   `color-mix(in srgb, var(--color-brand-${stop.step}) ${Math.round(stop.alpha * 100)}%, transparent)`;
 
 const glowLayerLines = (name: string, layer: GlowLayer): ReadonlyArray<string> => [
-  declaration(`beep-glow-${name}-start`, glowValue(layer.start)),
-  declaration(`beep-glow-${name}-mid`, glowValue(layer.mid)),
+  declaration(`beep-glow-${name}-start`, glowValue(GlowStop.make(layer.start))),
+  declaration(`beep-glow-${name}-mid`, glowValue(GlowStop.make(layer.mid))),
 ];
 
 const glowLines = (glow: Glow): ReadonlyArray<string> =>
   A.flatten([
-    glowLayerLines("primary", glow.primary),
-    glowLayerLines("secondary", glow.secondary),
-    glowLayerLines("tertiary", glow.tertiary),
+    glowLayerLines("primary", GlowLayer.make(glow.primary)),
+    glowLayerLines("secondary", GlowLayer.make(glow.secondary)),
+    glowLayerLines("tertiary", GlowLayer.make(glow.tertiary)),
   ]);
 
 const fontLines = (typography: Typography): ReadonlyArray<string> => [
-  declaration("font-brand-sans", fontStack(typography.sans)),
-  declaration("font-brand-mono", fontStack(typography.mono)),
+  declaration("font-brand-sans", fontStack(FontStack.make(typography.sans))),
+  declaration("font-brand-mono", fontStack(FontStack.make(typography.mono))),
   declaration("font-sans", "var(--font-brand-sans)"),
   declaration("font-mono", "var(--font-brand-mono)"),
 ];
@@ -148,9 +159,15 @@ export const renderThemeCss = (identity: BrandIdentity): string =>
   pipe(
     [
       GENERATED_CSS_BANNER,
-      block("@theme", A.flatten([schemeLines(identity.light), fontLines(identity.typography)])),
-      block(":root", glowLines(identity.light.glow)),
-      block(".dark", A.flatten([schemeLines(identity.dark), glowLines(identity.dark.glow)])),
+      block(
+        "@theme",
+        A.flatten([schemeLines(ColorScheme.make(identity.light)), fontLines(Typography.make(identity.typography))])
+      ),
+      block(":root", glowLines(Glow.make(identity.light.glow))),
+      block(
+        ".dark",
+        A.flatten([schemeLines(ColorScheme.make(identity.dark)), glowLines(Glow.make(identity.dark.glow))])
+      ),
     ],
     A.join("\n\n"),
     Str.concat("\n")

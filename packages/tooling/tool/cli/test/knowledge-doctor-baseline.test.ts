@@ -3,6 +3,7 @@ import {
   classifyKnowledgeBaselineGroup,
   encodeKnowledgeBaselineText,
   evaluateKnowledgeLeases,
+  isKnowledgeLeaseEffective,
   KNOWLEDGE_DOCTOR_BASELINE_PATH,
   KNOWLEDGE_DOCTOR_BASELINE_PENDING_MESSAGE,
   KNOWLEDGE_DOCTOR_LEASES_PATH,
@@ -14,7 +15,9 @@ import {
   KnowledgeDoctor,
   KnowledgeDoctorBaseline,
   KnowledgeDoctorCheckInput,
+  KnowledgeDoctorCheckOptions,
   KnowledgeDoctorIdentity,
+  KnowledgeDoctorLeasesOptions,
   KnowledgeDoctorLive,
   KnowledgeDoctorPromotion,
   KnowledgeDoctorPromotions,
@@ -564,6 +567,15 @@ describe("knowledge doctor sealed baseline", () => {
           ),
           [["lease-owner-unresolved"]]
         );
+        const future = yield* evaluate([
+          yield* lease({
+            key: key("1"),
+            issued: "2099-01-01T00:00:00Z",
+            expires: "2099-01-30T00:00:00Z",
+          }),
+        ]);
+        assert.deepStrictEqual(violationsOf(future), [["lease-issued-in-future"]]);
+        assert.strictEqual(isKnowledgeLeaseEffective(future[0]!), false);
         assert.deepStrictEqual(resolveKnowledgeCodeowners("* @a\ndocs/ @b @c\ndocs/x.md\n", "docs/y.md"), ["@b", "@c"]);
         assert.deepStrictEqual(resolveKnowledgeCodeowners("* @a\ndocs/ @b @c\ndocs/x.md\n", "docs/x.md"), []);
         assert.deepStrictEqual(
@@ -594,7 +606,7 @@ describe("knowledge doctor sealed baseline", () => {
             lease({
               key: `knowledge-doctor/v1:${Str.padStart(64, "0")(`${index}`)}`,
               document: `docs/doc-${index}.md`,
-              issued: `2026-10-${Str.padStart(2, "0")(`${index}`)}T00:00:00Z`,
+              issued: "2026-10-01T00:00:00Z",
               expires: "2026-10-30T00:00:00Z",
             })
           )
@@ -635,6 +647,22 @@ describe("knowledge doctor sealed baseline", () => {
         });
         assert.strictEqual(A.length((yield* ratchetOf(leasedRatchet)).leased), 1);
         assertNone(knowledgeDoctorGateFailure(leasedRatchet));
+        const future = yield* lease({
+          key: introducedKey,
+          issued: "2099-01-01T00:00:00Z",
+          expires: "2099-01-30T00:00:00Z",
+        });
+        const futureCheck = yield* checkOf(report, {
+          head: seal({ ...files, leases: O.some(leaseFile(future)) }),
+          base: files,
+        });
+        assert.strictEqual(A.length((yield* ratchetOf(futureCheck)).introduced), 1);
+        assert.strictEqual(
+          A.length(A.filter(futureCheck.findings, (row) => row.finding.kind === "lease-issued-in-future")),
+          1
+        );
+        assert.strictEqual(O.isSome(knowledgeDoctorGateFailure(futureCheck)), true);
+        assert.include(renderKnowledgeDoctorCheckReport(futureCheck), "lease-issued-in-future");
         const elsewhere = yield* lease({ key: introducedKey, document: "docs/b.md" });
         const misplaced = yield* ratchetOf(
           yield* checkOf(report, { head: seal({ ...files, leases: O.some(leaseFile(elsewhere)) }), base: files })
@@ -708,7 +736,9 @@ describe("knowledge doctor sealed baseline", () => {
         const absent = yield* Effect.flip(
           Effect.gen(function* () {
             const doctor = yield* KnowledgeDoctor;
-            return yield* doctor.leases({ baseRef: "refs/heads/knowledge-doctor-no-such-ref", now: NOW });
+            return yield* doctor.leases(
+              KnowledgeDoctorLeasesOptions.make({ baseRef: "refs/heads/knowledge-doctor-no-such-ref", now: NOW })
+            );
           })
         );
         assert.strictEqual(absent._tag === "KnowledgeDoctorInputError" ? absent.reason : absent._tag, "absent-ref");
@@ -747,7 +777,9 @@ describe("knowledge doctor sealed baseline", () => {
           { discard: true }
         );
         const doctor = yield* KnowledgeDoctor;
-        const missing = yield* doctor.check({ acceptMint: false, baseRef: "fixture-base", now: NOW }).pipe(Effect.flip);
+        const missing = yield* doctor
+          .check(KnowledgeDoctorCheckOptions.make({ acceptMint: false, baseRef: "fixture-base", now: NOW }))
+          .pipe(Effect.flip);
         assert.strictEqual(missing._tag, "KnowledgeDoctorInputError");
         assert.include(missing.message, "baseline");
         const baseline = yield* doctor.mint("HEAD");
@@ -775,10 +807,17 @@ describe("knowledge doctor sealed baseline", () => {
         });
 
         assert.strictEqual((yield* doctor.verifyMint).mintedAt, baseline.mintedAt);
-        const checked = yield* doctor.check({ acceptMint: true, baseRef: "fixture-base", now: NOW });
+        const checked = yield* doctor.check(
+          KnowledgeDoctorCheckOptions.make({ acceptMint: true, baseRef: "fixture-base", now: NOW })
+        );
         assert.strictEqual(O.isSome(checked.ratchet), true);
-        assert.deepStrictEqual((yield* doctor.leases({ baseRef: "fixture-base", now: NOW })).leases, []);
-        const ordinary = yield* doctor.check({ acceptMint: false, baseRef: "HEAD", now: NOW });
+        assert.deepStrictEqual(
+          (yield* doctor.leases(KnowledgeDoctorLeasesOptions.make({ baseRef: "fixture-base", now: NOW }))).leases,
+          []
+        );
+        const ordinary = yield* doctor.check(
+          KnowledgeDoctorCheckOptions.make({ acceptMint: false, baseRef: "HEAD", now: NOW })
+        );
         assert.strictEqual(O.isSome(ordinary.ratchet), true);
         assert.strictEqual((yield* doctor.mint("HEAD")).mintedAt, ordinary.tree);
         yield* fs.writeFileString(
@@ -802,7 +841,7 @@ describe("knowledge doctor sealed baseline", () => {
           cwd: root,
           extendEnv: true,
         });
-        const leases = yield* doctor.leases({ baseRef: "fixture-base", now: NOW });
+        const leases = yield* doctor.leases(KnowledgeDoctorLeasesOptions.make({ baseRef: "fixture-base", now: NOW }));
         assert.strictEqual(A.length(leases.leases), 1);
         assert.strictEqual(leases.leases[0]?.status, "active");
       }, Effect.scoped)

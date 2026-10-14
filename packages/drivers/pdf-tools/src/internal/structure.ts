@@ -9,8 +9,10 @@
 import { A, O } from "@beep/utils";
 import { pipe } from "effect/Function";
 import * as MutableHashMap from "effect/MutableHashMap";
+import * as MutableHashSet from "effect/MutableHashSet";
 import * as Order from "effect/Order";
 import { PDFArray, PDFDict, PDFHexString, PDFName, PDFNumber, PDFRef, PDFString } from "pdf-lib";
+import { PdfToolsError } from "../PdfTools.errors.ts";
 import { PageSize, PdfAnnotation, PdfFont, PdfRect, PdfStructure } from "../PdfTools.models.ts";
 import type { PDFDocument } from "pdf-lib";
 
@@ -30,26 +32,51 @@ const resolveDict = (doc: PDFDocument, value: unknown): O.Option<PDFDict> => {
   return resolved instanceof PDFDict ? O.some(resolved) : O.none();
 };
 
-const isEmbedded = (doc: PDFDocument, font: PDFDict): boolean => {
+const MAX_FONT_GRAPH_NODES = 10_000;
+const MAX_FONT_GRAPH_DEPTH = 256;
+
+const isEmbedded = (
+  doc: PDFDocument,
+  font: PDFDict,
+  resolved: MutableHashMap.MutableHashMap<PDFDict, boolean>,
+  visiting: MutableHashSet.MutableHashSet<PDFDict>,
+  budget: { count: number },
+  depth = 0
+): boolean => {
+  const cached = MutableHashMap.get(resolved, font);
+  if (O.isSome(cached)) return cached.value;
+  if (MutableHashSet.has(visiting, font)) {
+    throw PdfToolsError.make({ reason: "parse", message: "Cyclic PDF descendant-font graph." });
+  }
+  if (depth > MAX_FONT_GRAPH_DEPTH || ++budget.count > MAX_FONT_GRAPH_NODES) {
+    throw PdfToolsError.make({ reason: "parse", message: "PDF descendant-font graph exceeds inspection limits." });
+  }
+  MutableHashSet.add(visiting, font);
   const descendants = font.get(PDFName.of("DescendantFonts"));
   const resolvedDescendants = descendants instanceof PDFRef ? doc.context.lookup(descendants) : descendants;
   if (resolvedDescendants instanceof PDFArray) {
-    return pipe(
+    const embedded = pipe(
       resolvedDescendants.asArray(),
       A.some((entry) =>
         pipe(
           resolveDict(doc, entry),
-          O.map((d) => isEmbedded(doc, d)),
+          O.map((d) => isEmbedded(doc, d, resolved, visiting, budget, depth + 1)),
           O.getOrElse(() => false)
         )
       )
     );
+    MutableHashSet.remove(visiting, font);
+    MutableHashMap.set(resolved, font, embedded);
+    return embedded;
   }
-  return pipe(
+  const embedded = pipe(
     resolveDict(doc, font.get(PDFName.of("FontDescriptor"))),
     O.map((descriptor) => A.some(fontProgramKeys, (key) => descriptor.has(key))),
     O.getOrElse(() => false)
   );
+  MutableHashSet.remove(visiting, font);
+  MutableHashMap.set(resolved, font, embedded);
+  return embedded;
 };
 
 const fontName = (font: PDFDict): string => {
@@ -67,6 +94,9 @@ const fontOrder = Order.mapInput(Order.String, (font: PdfFont) => font.name);
 export const structureOf = (options: { readonly bytes: Uint8Array; readonly doc: PDFDocument }): PdfStructure => {
   const { bytes, doc } = options;
   const fonts = MutableHashMap.empty<string, PdfFont>();
+  const embedded = MutableHashMap.empty<PDFDict, boolean>();
+  const visiting = MutableHashSet.empty<PDFDict>();
+  const fontGraphBudget = { count: 0 };
   let annotationCount = 0;
   const pages = A.map(doc.getPages(), (page) => {
     const annots = page.node.Annots();
@@ -81,7 +111,11 @@ export const structureOf = (options: { readonly bytes: Uint8Array; readonly doc:
             O.map((font) => {
               const name = fontName(font);
               const key = value instanceof PDFRef ? value.toString() : name;
-              MutableHashMap.set(fonts, key, PdfFont.make({ name, embedded: isEmbedded(doc, font) }));
+              MutableHashMap.set(
+                fonts,
+                key,
+                PdfFont.make({ name, embedded: isEmbedded(doc, font, embedded, visiting, fontGraphBudget) })
+              );
             })
           );
         });

@@ -23,7 +23,7 @@ import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { FirecrawlClient } from "firecrawl";
 import { FIRECRAWL_API_URL, FirecrawlConfigInput } from "./Firecrawl.config.ts";
-import { FirecrawlCodecErrorReason, FirecrawlError } from "./Firecrawl.errors.ts";
+import { FirecrawlCodecErrorReason, FirecrawlError, FirecrawlErrorOptionsInput } from "./Firecrawl.errors.ts";
 import * as M from "./Firecrawl.models.ts";
 import type { FirecrawlClientOptions } from "firecrawl";
 import type {
@@ -296,10 +296,13 @@ const decodeWith = <A>(
 ): Effect.Effect<A, FirecrawlError> =>
   S.decodeUnknownEffect(schema)(value).pipe(
     Effect.mapError((cause) =>
-      FirecrawlError.fromReason(reason, {
-        cause,
-        method,
-      })
+      FirecrawlError.fromReason(
+        reason,
+        FirecrawlErrorOptionsInput.make({
+          cause,
+          method,
+        })
+      )
     )
   );
 
@@ -380,10 +383,13 @@ const emitWatcherEvent = <Event extends M.FirecrawlWatcherEvent>(
   Queue.failCauseUnsafe(
     queue,
     Cause.fail(
-      FirecrawlError.fromReason("response decoding", {
-        cause: result.failure,
-        method,
-      })
+      FirecrawlError.fromReason(
+        "response decoding",
+        FirecrawlErrorOptionsInput.make({
+          cause: result.failure,
+          method,
+        })
+      )
     )
   );
   return false;
@@ -465,17 +471,23 @@ const resolveConfig = Effect.fn("Firecrawl.resolveConfig")(function* (input: Fir
   const config = yield* encodeFirecrawlConfigInput(input).pipe(
     Effect.flatMap(decodeFirecrawlConfigInput),
     Effect.mapError((cause) =>
-      FirecrawlError.fromReason("config", {
-        cause,
-      })
+      FirecrawlError.fromReason(
+        "config",
+        FirecrawlErrorOptionsInput.make({
+          cause,
+        })
+      )
     )
   );
   const apiKey = yield* pipe(
     O.fromUndefinedOr(config.apiKey),
     Effect.fromOption(() =>
-      FirecrawlError.fromReason("config", {
-        cause: "missing FIRECRAWL_API_KEY",
-      })
+      FirecrawlError.fromReason(
+        "config",
+        FirecrawlErrorOptionsInput.make({
+          cause: "missing FIRECRAWL_API_KEY",
+        })
+      )
     )
   );
 
@@ -843,6 +855,6 @@ export class Firecrawl extends Context.Service<Firecrawl, FirecrawlShape>()($I`F
       );
 
       return Firecrawl.of(makeService(makeSdkClient(resolved)));
-    }).pipe(Effect.mapError((cause) => FirecrawlError.fromReason("config", { cause })))
+    }).pipe(Effect.mapError((cause) => FirecrawlError.fromReason("config", FirecrawlErrorOptionsInput.make({ cause }))))
   );
 }

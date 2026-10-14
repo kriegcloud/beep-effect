@@ -27,7 +27,12 @@ import {
   parseXmlSource,
   sourceMetadata,
 } from "../internal/Source.ts";
-import { SyncDataSourceMetadata, SyncDataTargetProjection, SyncDataToTsError } from "../SyncDataToTs.schemas.ts";
+import {
+  SyncDataSourceMetadata,
+  SyncDataTargetMetadata,
+  SyncDataTargetProjection,
+  SyncDataToTsError,
+} from "../SyncDataToTs.schemas.ts";
 import type { SyncDataFetchedSource } from "../internal/Source.ts";
 import type { SyncDataTarget } from "../SyncDataToTs.schemas.ts";
 
@@ -44,93 +49,102 @@ const canonicalPath = "packages/foundation/primitive/data/src/generated/iana-med
  */
 export const IANA_MEDIA_TYPES_SOURCE_URL = "https://www.iana.org/assignments/media-types/media-types.xml" as const;
 
-class IanaMediaTypeTextNode extends S.Class<IanaMediaTypeTextNode>($I`IanaMediaTypeTextNode`)(
-  {
+class IanaMediaTypeTextNode extends S.Opaque<IanaMediaTypeTextNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     "#text": S.String,
-  },
-  $I.annote("IanaMediaTypeTextNode", {
-    description: "XML text node emitted by the registry parser for selected fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("IanaMediaTypeTextNode", {
+      description: "XML text node emitted by the registry parser for selected fields.",
+    })
+  )
 ) {}
 
 const IanaMediaTypeName = S.Union([S.String, IanaMediaTypeTextNode]);
 
-class IanaMediaTypeRecord extends S.Class<IanaMediaTypeRecord>($I`IanaMediaTypeRecord`)(
-  {
+class IanaMediaTypeRecord extends S.Opaque<IanaMediaTypeRecord, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: IanaMediaTypeName,
     date: S.optionalKey(S.String),
-  },
-  $I.annote("IanaMediaTypeRecord", {
-    description: "Single IANA media type registry record.",
-  })
+  }).pipe(
+    $I.annoteSchema("IanaMediaTypeRecord", {
+      description: "Single IANA media type registry record.",
+    })
+  )
 ) {}
 
-class IanaMediaTypeRegistry extends S.Class<IanaMediaTypeRegistry>($I`IanaMediaTypeRegistry`)(
-  {
+class IanaMediaTypeRegistry extends S.Opaque<IanaMediaTypeRegistry, { readonly brand: unique symbol }>()(
+  S.Struct({
     title: S.String,
     record: S.optionalKey(S.Union([IanaMediaTypeRecord, S.Array(IanaMediaTypeRecord)])),
-  },
-  $I.annote("IanaMediaTypeRegistry", {
-    description: "Nested top-level IANA media type registry.",
-  })
+  }).pipe(
+    $I.annoteSchema("IanaMediaTypeRegistry", {
+      description: "Nested top-level IANA media type registry.",
+    })
+  )
 ) {}
 
-class IanaMediaTypesRoot extends S.Class<IanaMediaTypesRoot>($I`IanaMediaTypesRoot`)(
-  {
+class IanaMediaTypesRoot extends S.Opaque<IanaMediaTypesRoot, { readonly brand: unique symbol }>()(
+  S.Struct({
     updated: S.String,
     registry: S.Array(IanaMediaTypeRegistry),
-  },
-  $I.annote("IanaMediaTypesRoot", {
-    description: "Top-level IANA media type registry XML payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("IanaMediaTypesRoot", {
+      description: "Top-level IANA media type registry XML payload.",
+    })
+  )
 ) {}
 
-class IanaMediaTypesDocument extends S.Class<IanaMediaTypesDocument>($I`IanaMediaTypesDocument`)(
-  {
+class IanaMediaTypesDocument extends S.Opaque<IanaMediaTypesDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     registry: IanaMediaTypesRoot,
-  },
-  $I.annote("IanaMediaTypesDocument", {
-    description: "Decoded XML document for the official IANA media type registry.",
-  })
+  }).pipe(
+    $I.annoteSchema("IanaMediaTypesDocument", {
+      description: "Decoded XML document for the official IANA media type registry.",
+    })
+  )
 ) {}
 const decodeUnknownIanaMediaTypesDocument = S.decodeUnknownEffect(IanaMediaTypesDocument);
 
-class IanaMediaTypeEntry extends S.Class<IanaMediaTypeEntry>($I`IanaMediaTypeEntry`)(
-  {
+class IanaMediaTypeEntry extends S.Opaque<IanaMediaTypeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     type: S.String,
     topLevel: S.String,
     name: S.String,
     registryName: S.String,
     date: S.optionalKey(S.String),
-  },
-  $I.annote("IanaMediaTypeEntry", {
-    description: "Normalized IANA media type entry rendered into @beep/data.",
-  })
+  }).pipe(
+    $I.annoteSchema("IanaMediaTypeEntry", {
+      description: "Normalized IANA media type entry rendered into @beep/data.",
+    })
+  )
 ) {}
 
-class IanaMediaTypesCanonicalMetadata extends S.Class<IanaMediaTypesCanonicalMetadata>(
-  $I`IanaMediaTypesCanonicalMetadata`
-)(
-  {
+class IanaMediaTypesCanonicalMetadata extends S.Opaque<
+  IanaMediaTypesCanonicalMetadata,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: S.String,
     url: S.String,
     sha256: S.String,
     published: S.String,
-  },
-  $I.annote("IanaMediaTypesCanonicalMetadata", {
-    description: "Checked-in source metadata for the IANA media type registry.",
-  })
+  }).pipe(
+    $I.annoteSchema("IanaMediaTypesCanonicalMetadata", {
+      description: "Checked-in source metadata for the IANA media type registry.",
+    })
+  )
 ) {}
 
-class IanaMediaTypesCanonical extends S.Class<IanaMediaTypesCanonical>($I`IanaMediaTypesCanonical`)(
-  {
+class IanaMediaTypesCanonical extends S.Opaque<IanaMediaTypesCanonical, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal("beep-data/iana-media-types/v1"),
     metadata: IanaMediaTypesCanonicalMetadata,
     mediaTypesByType: S.Record(S.String, IanaMediaTypeEntry),
-  },
-  $I.annote("IanaMediaTypesCanonical", {
-    description: "Checked-in canonical IANA media type registry data.",
-  })
+  }).pipe(
+    $I.annoteSchema("IanaMediaTypesCanonical", {
+      description: "Checked-in canonical IANA media type registry data.",
+    })
+  )
 ) {}
 const decodeIanaMediaTypesCanonicalJson = S.decodeEffect(S.fromJsonString(IanaMediaTypesCanonical));
 
@@ -571,9 +585,11 @@ const acquireIanaMediaTypesProjection = fetchSource(targetId, "iana-media-types-
  * @since 0.0.0
  */
 export const ianaMediaTypesTarget: SyncDataTarget = {
-  id: targetId,
-  access: "public",
-  description: "Sync official MIME/media type literals from the IANA registry XML.",
-  sourceUrls: [IANA_MEDIA_TYPES_SOURCE_URL],
+  ...SyncDataTargetMetadata.make({
+    id: targetId,
+    access: "public",
+    description: "Sync official MIME/media type literals from the IANA registry XML.",
+    sourceUrls: [IANA_MEDIA_TYPES_SOURCE_URL],
+  }),
   acquire: acquireIanaMediaTypesProjection,
 };

@@ -248,7 +248,9 @@ export type HtmlSerializeRule = typeof HtmlSerializeRule.Type;
  * @category errors
  * @since 0.0.0
  */
-export class HtmlSerializeError extends S.TaggedError<HtmlSerializeError>($I`HtmlSerializeError`)(
+export class HtmlSerializeError extends S.TaggedError<HtmlSerializeError, { readonly brand: unique symbol }>(
+  $I`HtmlSerializeError`
+)(
   "HtmlSerializeError",
   {
     path: S.Array(S.String),

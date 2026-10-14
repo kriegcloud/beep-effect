@@ -80,8 +80,8 @@ const ProcessId = S.Int.check(S.isGreaterThan(0, { message: "Expected a positive
  * @category models
  * @since 0.0.0
  */
-export class StateLockHolder extends S.Class<StateLockHolder>($I`StateLockHolder`)(
-  {
+export class StateLockHolder extends S.Opaque<StateLockHolder, { readonly brand: unique symbol }>()(
+  S.Struct({
     pid: ProcessId.annotateKey({
       description: "Process id of the writing command.",
     }),
@@ -101,10 +101,11 @@ export class StateLockHolder extends S.Class<StateLockHolder>($I`StateLockHolder
       .annotateKey({
         description: "Start time of the holder process in clock ticks since boot; none when it could not be read.",
       }),
-  },
-  $I.annote("StateLockHolder", {
-    description: "Content of the state-directory writer lock.",
-  })
+  }).pipe(
+    $I.annoteSchema("StateLockHolder", {
+      description: "Content of the state-directory writer lock.",
+    })
+  )
 ) {}
 
 const StateLockHolderJson = S.fromJsonString(StateLockHolder);
@@ -133,7 +134,9 @@ const decodeHolder = S.decodeUnknownEffect(StateLockHolderJson);
  * @category errors
  * @since 0.0.0
  */
-export class StateDirectoryLocked extends S.TaggedError<StateDirectoryLocked>($I`StateDirectoryLocked`)(
+export class StateDirectoryLocked extends S.TaggedError<StateDirectoryLocked, { readonly brand: unique symbol }>(
+  $I`StateDirectoryLocked`
+)(
   "StateDirectoryLocked",
   {
     lockPath: S.NonEmptyString.annotateKey({
@@ -432,9 +435,11 @@ export const makeStateLock = Effect.fn("StateLock.make")(function* (stateDirecto
       const text = yield* Effect.orDie(
         encodeHolder(StateLockHolder.make({ pid: probe.pid, command, acquiredAt, bootId, startTime }))
       );
-      yield* Effect.mapError(fs.makeDirectory(stateDirectory, { recursive: true }), unwritable);
       yield* fs
-        .writeFileString(lockPath, text, { flag: "wx" })
+        .makeDirectory(stateDirectory, { recursive: true, mode: 0o700 })
+        .pipe(Effect.andThen(fs.chmod(stateDirectory, 0o700)), Effect.mapError(unwritable));
+      yield* fs
+        .writeFileString(lockPath, text, { flag: "wx", mode: 0o600 })
         .pipe(Effect.catchIf(isAlreadyExists, () => contend(command, mayTakeOver), flow(unwritable, Effect.fail)));
     }).pipe(Effect.withSpan("StateLock.acquire"));
   }

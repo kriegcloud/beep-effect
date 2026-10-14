@@ -29,7 +29,9 @@ const $I = $ProfessionalDesktopId.create("intake/VaultDirectoryPicker.rpc");
  * @category errors
  * @since 0.0.0
  */
-export class VaultDirectoryPickError extends S.TaggedError<VaultDirectoryPickError>($I`VaultDirectoryPickError`)(
+export class VaultDirectoryPickError extends S.TaggedError<VaultDirectoryPickError, { readonly brand: unique symbol }>(
+  $I`VaultDirectoryPickError`
+)(
   "VaultDirectoryPickError",
   {
     message: S.String,

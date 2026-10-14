@@ -45,8 +45,8 @@ const $I = $LawPracticeDomainId.create("values/HistoryLink/HistoryLink.model");
  * @category models
  * @since 0.0.0
  */
-export class HistoryLink extends S.Class<HistoryLink>($I`HistoryLink`)(
-  {
+export class HistoryLink extends S.Opaque<HistoryLink, { readonly brand: unique symbol }>()(
+  S.Struct({
     citationId: CitationId.annotateKey({
       description: "The case at this position in the subsequent-history chain (#849).",
     }),
@@ -58,10 +58,11 @@ export class HistoryLink extends S.Class<HistoryLink>($I`HistoryLink`)(
           "The disposition signal that led to this case; absent for the chain root, which has no inbound signal (#849).",
       })
     ),
-  },
-  $I.annote("HistoryLink", {
-    description: "One link in a subsequent-history chain (#849).",
-  })
+  }).pipe(
+    $I.annoteSchema("HistoryLink", {
+      description: "One link in a subsequent-history chain (#849).",
+    })
+  )
 ) {}
 
 /**

@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A } from "@beep/utils";
@@ -57,7 +58,7 @@ const isDeclarationFile = (file: string): boolean => /\.d\.(?:[cm]?ts|[^./]+\.ts
 const isTypeScriptFile = (file: string): boolean => /\.(?:[cm]?ts|tsx)$/u.test(file);
 const isTypeCheckedFile = (file: string): boolean => isTypeScriptFile(file) && !isDeclarationFile(file);
 
-class SubprocessResult extends S.Class<SubprocessResult>($I`SubprocessResult`)(
+class SubprocessResult extends S.Class<SubprocessResult, { readonly brand: unique symbol }>($I`SubprocessResult`)(
   {
     command: S.String,
     stdout: S.String,
@@ -73,44 +74,48 @@ class SubprocessResult extends S.Class<SubprocessResult>($I`SubprocessResult`)(
   }
 }
 
-class LawSandbox extends S.Class<LawSandbox>($I`LawSandbox`)(
-  {
+class LawSandbox extends S.Opaque<LawSandbox, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: S.String,
     fixtureRoot: S.String,
-  },
-  $I.annote("LawSandbox", {
-    description: "Scorer-owned staging directory holding only a fixture's source files and the lane configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("LawSandbox", {
+      description: "Scorer-owned staging directory holding only a fixture's source files and the lane configuration.",
+    })
+  )
 ) {}
 
-class LawLaneOutcome extends S.Class<LawLaneOutcome>($I`LawLaneOutcome`)(
-  {
+class LawLaneOutcome extends S.Opaque<LawLaneOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     violations: S.Array(AgentEffectivenessEvalViolation),
     report: AgentEffectivenessEvalLaneReport,
-  },
-  $I.annote("LawLaneOutcome", {
-    description: "Agent-attributable violations and run evidence from one law lane.",
-  })
+  }).pipe(
+    $I.annoteSchema("LawLaneOutcome", {
+      description: "Agent-attributable violations and run evidence from one law lane.",
+    })
+  )
 ) {}
 
-class BiomeJsonSummary extends S.Class<BiomeJsonSummary>($I`BiomeJsonSummary`)(
-  {
+class BiomeJsonSummary extends S.Opaque<BiomeJsonSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     changed: S.Finite,
     unchanged: S.Finite,
-  },
-  $I.annote("BiomeJsonSummary", {
-    description: "File counts from Biome's JSON reporter summary.",
-  })
+  }).pipe(
+    $I.annoteSchema("BiomeJsonSummary", {
+      description: "File counts from Biome's JSON reporter summary.",
+    })
+  )
 ) {}
 
-class BiomeJsonReport extends S.Class<BiomeJsonReport>($I`BiomeJsonReport`)(
-  {
+class BiomeJsonReport extends S.Opaque<BiomeJsonReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     summary: BiomeJsonSummary,
     diagnostics: S.Array(S.Unknown),
-  },
-  $I.annote("BiomeJsonReport", {
-    description: "Subset of Biome's JSON reporter output the scorer reads.",
-  })
+  }).pipe(
+    $I.annoteSchema("BiomeJsonReport", {
+      description: "Subset of Biome's JSON reporter output the scorer reads.",
+    })
+  )
 ) {}
 
 const decodeBiomeJsonReportOption = S.decodeUnknownOption(S.fromJsonString(BiomeJsonReport));
@@ -339,7 +344,15 @@ const prepareLawSandbox = Effect.fn("AgentEffectivenessEvalScorer.prepareLawSand
   );
   yield* Effect.forEach(
     sourceFiles,
-    (file) => stageSourceFile(path.join(fixtureDir, file), path.join(fixtureRoot, file)),
+    Effect.fn(function* (file) {
+      const from = yield* resolvePathWithinRoot({ root: fixtureDir, candidate: file }).pipe(
+        Effect.mapError(AgentEffectivenessEvalScorerError.mapError("Fixture source escaped its root.", { file }))
+      );
+      const to = yield* resolvePathWithinRoot({ root: fixtureRoot, candidate: file }).pipe(
+        Effect.mapError(AgentEffectivenessEvalScorerError.mapError("Staged source escaped its sandbox.", { file }))
+      );
+      yield* stageSourceFile(from, to);
+    }),
     { concurrency: 8, discard: true }
   );
   yield* fs

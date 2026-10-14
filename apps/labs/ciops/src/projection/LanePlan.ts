@@ -43,11 +43,12 @@ const $I = $CiopsId.create("projection/LanePlan");
  * @category models
  * @since 0.0.0
  */
-export class LanePrecedence extends S.Class<LanePrecedence>($I`LanePrecedence`)(
-  { beforeLaneId: S.NonEmptyString, afterLaneId: S.NonEmptyString },
-  $I.annote("LanePrecedence", {
-    description: "Provisional precedence from one handoff lane to the next; never a dependency claim.",
-  })
+export class LanePrecedence extends S.Opaque<LanePrecedence, { readonly brand: unique symbol }>()(
+  S.Struct({ beforeLaneId: S.NonEmptyString, afterLaneId: S.NonEmptyString }).pipe(
+    $I.annoteSchema("LanePrecedence", {
+      description: "Provisional precedence from one handoff lane to the next; never a dependency claim.",
+    })
+  )
 ) {}
 
 const byRank: Order.Order<HandoffLane> = Order.mapInput(Order.Number, (lane: HandoffLane) => lane.rank);

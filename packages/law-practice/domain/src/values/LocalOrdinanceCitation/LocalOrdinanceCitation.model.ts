@@ -49,8 +49,8 @@ const $I = $LawPracticeDomainId.create("values/LocalOrdinanceCitation/LocalOrdin
  * @category models
  * @since 0.0.0
  */
-export class LocalOrdinanceCitation extends S.Class<LocalOrdinanceCitation>($I`LocalOrdinanceCitation`)(
-  {
+export class LocalOrdinanceCitation extends S.Opaque<LocalOrdinanceCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("localOrdinance"),
     code: S.String.annotateKey({
@@ -66,10 +66,11 @@ export class LocalOrdinanceCitation extends S.Class<LocalOrdinanceCitation>($I`L
         description: 'Locality the code belongs to (e.g. "Clark County, NV").',
       })
     ),
-  },
-  $I.annote("LocalOrdinanceCitation", {
-    description: "Local / municipal ordinance citation (#778).",
-  })
+  }).pipe(
+    $I.annoteSchema("LocalOrdinanceCitation", {
+      description: "Local / municipal ordinance citation (#778).",
+    })
+  )
 ) {}
 
 /**

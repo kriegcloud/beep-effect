@@ -68,18 +68,19 @@ export type SourceTextDigest = typeof SourceTextDigest.Type;
  * @category models
  * @since 0.0.0
  */
-export class SourceTextExtractor extends S.Class<SourceTextExtractor>($I`SourceTextExtractor`)(
-  {
+export class SourceTextExtractor extends S.Opaque<SourceTextExtractor, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString.annotateKey({
       description: "Stable extractor implementation name.",
     }),
     version: S.NonEmptyString.annotateKey({
       description: "Pinned extractor implementation version.",
     }),
-  },
-  $I.annote("SourceTextExtractor", {
-    description: "The named and versioned extractor that produced an exact source-text manifestation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceTextExtractor", {
+      description: "The named and versioned extractor that produced an exact source-text manifestation.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeEffect(SourceTextExtractor);
 }
@@ -121,8 +122,8 @@ export class SourceTextExtractor extends S.Class<SourceTextExtractor>($I`SourceT
  * @category models
  * @since 0.0.0
  */
-export class SourceTextIdentity extends S.Class<SourceTextIdentity>($I`SourceTextIdentity`)(
-  {
+export class SourceTextIdentity extends S.Opaque<SourceTextIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     scopeRef: S.NonEmptyString.annotateKey({
       description: "Opaque matter or tenant scope reference used by the local resolver.",
     }),
@@ -142,9 +143,10 @@ export class SourceTextIdentity extends S.Class<SourceTextIdentity>($I`SourceTex
     normalizationVersion: S.NonEmptyString.annotateKey({
       description: "Version of the locator-only normalization contract.",
     }),
-  },
-  $I.annote("SourceTextIdentity", {
-    description:
-      "Matter-scoped identity for an exact source artifact and extracted raw-text manifestation, including pinned extractor and normalization versions.",
-  })
+  }).pipe(
+    $I.annoteSchema("SourceTextIdentity", {
+      description:
+        "Matter-scoped identity for an exact source artifact and extracted raw-text manifestation, including pinned extractor and normalization versions.",
+    })
+  )
 ) {}

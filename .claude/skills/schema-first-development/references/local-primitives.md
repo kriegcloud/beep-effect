@@ -131,7 +131,7 @@ modeling style.
 Prefer:
 
 ```ts
-export class InputError extends S.TaggedError<InputError>($I`InputError`)(
+export class InputError extends S.TaggedError<InputError, { readonly brand: unique symbol }>($I`InputError`)(
   "InputError",
   { message: S.String },
   $I.annote("InputError", {
@@ -142,15 +142,15 @@ export class InputError extends S.TaggedError<InputError>($I`InputError`)(
 
 Use the package `$I` composer when a distinct namespaced schema identifier is
 wanted. If no distinct identifier is needed, use
-`S.TaggedError<InputError>()("InputError", fields)`. Never pass a bare
-identifier equal to the tag. Cause-carrying errors declare
+`S.TaggedError<InputError, { readonly brand: unique symbol }>()("InputError", fields)`.
+Never pass a bare identifier equal to the tag. Cause-carrying errors declare
 `cause: S.Defect({ includeStack: true })` explicitly.
 
 ## Decide Between Raw `effect/Schema` and Local Helpers
 
 Use raw `effect/Schema` when:
 
-- composing an object model with `S.Class`
+- composing a plain-data object model with a branded `S.Opaque` over `S.Struct`
 - building a one-off local codec
 - using standard helpers such as `OptionFrom*`, `decodeTo`, or JSON codecs
 

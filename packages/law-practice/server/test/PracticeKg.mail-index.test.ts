@@ -73,9 +73,9 @@ const tables = PracticeKgMatterTables.make({
   ],
 });
 
-type Internet = ConstructorParameters<typeof PracticeKgMailIndexInternetHeaders>[0];
-type Outlook = ConstructorParameters<typeof PracticeKgMailIndexOutlookHeaders>[0];
-type Recipient = ConstructorParameters<typeof PracticeKgMailIndexRecipient>[0];
+type Internet = Parameters<typeof PracticeKgMailIndexInternetHeaders.make>[0];
+type Outlook = Parameters<typeof PracticeKgMailIndexOutlookHeaders.make>[0];
+type Recipient = Parameters<typeof PracticeKgMailIndexRecipient.make>[0];
 
 const row = (
   tree: string,

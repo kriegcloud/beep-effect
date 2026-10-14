@@ -90,26 +90,28 @@ const decodeSkillTreeMode = S.decodeUnknownEffect(SkillTreeMode);
 const GitHubTreeEntryType = LiteralKit(["blob", "tree", "commit"]);
 const GitHubTreeMode = LiteralKit(["100644", "100755", "120000", "040000", "160000"]);
 
-class GitHubTreeEntry extends S.Class<GitHubTreeEntry>($I`GitHubTreeEntry`)(
-  {
+class GitHubTreeEntry extends S.Opaque<GitHubTreeEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: GitHubTreeMode,
     type: GitHubTreeEntryType,
     sha: S.String,
-  },
-  $I.annote("GitHubTreeEntry", {
-    description: "Mode-aware entry returned by the GitHub recursive tree API.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTreeEntry", {
+      description: "Mode-aware entry returned by the GitHub recursive tree API.",
+    })
+  )
 ) {}
 
-class GitHubTree extends S.Class<GitHubTree>($I`GitHubTree`)(
-  {
+class GitHubTree extends S.Opaque<GitHubTree, { readonly brand: unique symbol }>()(
+  S.Struct({
     tree: S.Array(GitHubTreeEntry),
     truncated: S.Boolean,
-  },
-  $I.annote("GitHubTree", {
-    description: "GitHub recursive tree response used by the pinned upstream content source.",
-  })
+  }).pipe(
+    $I.annoteSchema("GitHubTree", {
+      description: "GitHub recursive tree response used by the pinned upstream content source.",
+    })
+  )
 ) {}
 
 const decodeGitHubTree = S.decodeUnknownEffect(S.fromJsonString(S.suspend(() => GitHubTree)));
@@ -140,12 +142,42 @@ const patchHeader = (filePath: string): string => `diff --git a/${filePath} b/${
 
 const abbreviatedSha = Str.slice(0, 12);
 
+const MAX_PATCH_LINES = 100_000;
+
+const countPatchLines = (content: string): number => {
+  if (Str.isEmpty(content)) {
+    return 0;
+  }
+  let lines = 1;
+  for (const character of content) {
+    if (character === "\n") {
+      lines++;
+    }
+    if (lines > MAX_PATCH_LINES) {
+      break;
+    }
+  }
+  return lines;
+};
+
+const ensurePatchLineBudget = (skill: string, filePath: string, before: string, after: string) =>
+  countPatchLines(before) + countPatchLines(after) > MAX_PATCH_LINES
+    ? Effect.fail(
+        SkillsCommandError.make({
+          message: `Skill patch exceeds the ${MAX_PATCH_LINES} line review limit`,
+          skill,
+          file: filePath,
+        })
+      )
+    : Effect.void;
+
 const renderAddedFilePatch = Effect.fn("SkillsProvenance.renderAddedFilePatch")(function* (
   skill: string,
   filePath: string,
   local: HashedSkillFile
 ): Effect.fn.Return<string, SkillsCommandError> {
   const after = yield* decodeTextFile(local, skill);
+  yield* ensurePatchLineBudget(skill, filePath, "", after);
   const headerLines = [
     patchHeader(filePath),
     `new file mode ${local.mode}`,
@@ -165,6 +197,7 @@ const renderDeletedFilePatch = Effect.fn("SkillsProvenance.renderDeletedFilePatc
   upstream: HashedSkillFile
 ): Effect.fn.Return<string, SkillsCommandError> {
   const before = yield* decodeTextFile(upstream, skill);
+  yield* ensurePatchLineBudget(skill, filePath, before, "");
   const headerLines = [
     patchHeader(filePath),
     `deleted file mode ${upstream.mode}`,
@@ -190,6 +223,7 @@ const renderModifiedFilePatch = Effect.fn("SkillsProvenance.renderModifiedFilePa
   }
   const before = yield* decodeTextFile(upstream, skill);
   const after = yield* decodeTextFile(local, skill);
+  yield* ensurePatchLineBudget(skill, filePath, before, after);
   return A.join(
     [
       patchHeader(filePath),

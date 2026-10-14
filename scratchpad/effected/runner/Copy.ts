@@ -22,7 +22,7 @@ import { AlreadyCopied, ManifestInvalid, UnexpectedDependency, UpstreamMissing }
 import { type CatalogEntry, catalogEntry, isIgnoredUpstreamDep } from "./Catalog.ts";
 import { type KitExports, readExportFacets, rewriteSpecifiers, type SpecifierResolver, tsExtension } from "./Exports.ts";
 import { assembleKnowledge, moduleTsconfig, okfLinks, readmeSkeleton, scanVendorNotices } from "./Knowledge.ts";
-import { type ExportEntry, LedgerRow, MODULE_NAMES, type ModuleName, NewDep } from "./Ledger.schema.ts";
+import { type ExportEntry, LedgerRow, MODULE_NAMES, type ModuleName, NewDep, UpstreamPaths } from "./Ledger.schema.ts";
 import { updateRow } from "./LedgerStore.ts";
 import { labPaths, type RunnerConfig, upstreamPaths } from "./Paths.ts";
 
@@ -476,7 +476,7 @@ export const expectedExports = Effect.fn("Copy.expectedExports")(function* (upst
  * @category models
  * @since 0.0.0
  */
-export class CopyReport extends S.Class<CopyReport>($I`CopyReport`)(
+export class CopyReport extends S.Class<CopyReport, { readonly brand: unique symbol }>($I`CopyReport`)(
   {
     module: S.String,
     sourceFiles: S.Int,
@@ -667,7 +667,7 @@ export const copyModule = Effect.fn("Copy.copyModule")(function* (
       LedgerRow.make({
         ...row,
         status: "in-progress",
-        upstreamPaths: { src: up.srcDir, test: up.testDir },
+        upstreamPaths: UpstreamPaths.make({ src: up.srcDir, test: up.testDir }),
         exportsExpected,
         newDeps,
         fixturesBytes: bytes,
@@ -720,7 +720,7 @@ export const registerExisting = Effect.fn("Copy.registerExisting")(function* (co
       LedgerRow.make({
         ...row,
         status: row.status === "pending" ? "in-progress" : row.status,
-        upstreamPaths: { src: up.srcDir, test: up.testDir },
+        upstreamPaths: UpstreamPaths.make({ src: up.srcDir, test: up.testDir }),
         exportsExpected,
         newDeps,
         fixturesBytes: bytes,

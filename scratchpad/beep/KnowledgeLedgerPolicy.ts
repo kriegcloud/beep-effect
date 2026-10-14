@@ -225,7 +225,7 @@ const authorityRank: Rec.ReadonlyRecord<string, number> = {
  * @category errors
  * @since 0.0.0
  */
-export class UnsupportedLedgerSlot extends S.TaggedError<UnsupportedLedgerSlot>()(
+export class UnsupportedLedgerSlot extends S.TaggedError<UnsupportedLedgerSlot, { readonly brand: unique symbol }>()(
   "UnsupportedLedgerSlot",
   { slot: S.String },
   $I.annoteError<UnsupportedLedgerSlot>("UnsupportedLedgerSlot", {
@@ -261,7 +261,7 @@ export declare namespace UnsupportedLedgerSlot {
  * @category errors
  * @since 0.0.0
  */
-export class NegativeProfileBudget extends S.TaggedError<NegativeProfileBudget>()(
+export class NegativeProfileBudget extends S.TaggedError<NegativeProfileBudget, { readonly brand: unique symbol }>()(
   "NegativeProfileBudget",
   { characterBudget: S.Int },
   $I.annoteError<NegativeProfileBudget>("NegativeProfileBudget", {

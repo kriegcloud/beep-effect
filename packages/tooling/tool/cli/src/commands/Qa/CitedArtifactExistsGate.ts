@@ -50,8 +50,8 @@ const evaluatorId = "@beep/repo-cli/qa/cited-artifact-exists";
  * @category models
  * @since 0.0.0
  */
-export class CitedArtifactExistsInput extends S.Class<CitedArtifactExistsInput>($I`CitedArtifactExistsInput`)(
-  {
+export class CitedArtifactExistsInput extends S.Opaque<CitedArtifactExistsInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     citedPaths: S.Array(S.String).pipe(
       $I.annoteKey("CitedArtifactExistsInput.citedPaths", {
         description: "Deduplicated artifact citations in their original inventory order.",
@@ -62,10 +62,11 @@ export class CitedArtifactExistsInput extends S.Class<CitedArtifactExistsInput>(
         description: "Lexical root of the QA round that owns the cited artifacts.",
       })
     ),
-  },
-  $I.annote("CitedArtifactExistsInput", {
-    description: "Round root and ordered artifact citations consumed by the cited-artifact gate.",
-  })
+  }).pipe(
+    $I.annoteSchema("CitedArtifactExistsInput", {
+      description: "Round root and ordered artifact citations consumed by the cited-artifact gate.",
+    })
+  )
 ) {}
 
 /**
@@ -83,17 +84,21 @@ export class CitedArtifactExistsInput extends S.Class<CitedArtifactExistsInput>(
  * @category models
  * @since 0.0.0
  */
-export class CitedArtifactExistsAllowed extends S.Class<CitedArtifactExistsAllowed>($I`CitedArtifactExistsAllowed`)(
-  {
+export class CitedArtifactExistsAllowed extends S.Opaque<
+  CitedArtifactExistsAllowed,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     checkedPaths: S.Array(S.String).pipe(
       $I.annoteKey("CitedArtifactExistsAllowed.checkedPaths", {
         description: "Artifact citations inspected by the evaluator in inventory order.",
       })
     ),
-  },
-  $I.annote("CitedArtifactExistsAllowed", {
-    description: "Observation detail for an allowed cited-artifact verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("CitedArtifactExistsAllowed", {
+      description: "Observation detail for an allowed cited-artifact verdict.",
+    })
+  )
 ) {}
 
 /**
@@ -114,8 +119,8 @@ export class CitedArtifactExistsAllowed extends S.Class<CitedArtifactExistsAllow
  * @category models
  * @since 0.0.0
  */
-export class CitedArtifactExistsDenied extends S.Class<CitedArtifactExistsDenied>($I`CitedArtifactExistsDenied`)(
-  {
+export class CitedArtifactExistsDenied extends S.Opaque<CitedArtifactExistsDenied, { readonly brand: unique symbol }>()(
+  S.Struct({
     checkedPaths: S.Array(S.String).pipe(
       $I.annoteKey("CitedArtifactExistsDenied.checkedPaths", {
         description: "Artifact citations inspected by the evaluator in inventory order.",
@@ -126,10 +131,11 @@ export class CitedArtifactExistsDenied extends S.Class<CitedArtifactExistsDenied
         description: "Original citations denied as missing, unsafe, aliased, unreadable, or non-file paths.",
       })
     ),
-  },
-  $I.annote("CitedArtifactExistsDenied", {
-    description: "Observation detail for a fail-closed cited-artifact denial.",
-  })
+  }).pipe(
+    $I.annoteSchema("CitedArtifactExistsDenied", {
+      description: "Observation detail for a fail-closed cited-artifact denial.",
+    })
+  )
 ) {}
 
 /**

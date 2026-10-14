@@ -212,4 +212,13 @@ describe("@beep/law-practice-domain DocketDeadline", () => {
     expect(docketReminderLadder(addDays(today, -3), today).rungs).toHaveLength(0);
     expect(docketReminderLadder(addDays(today, 31), today).truncated).toBe(false);
   });
+
+  it("does not subtract reminder offsets below the supported year range", () => {
+    const earliest = LocalDate.make({ year: 1, month: 1, day: 1 });
+    const later = LocalDate.make({ year: 2026, month: 10, day: 14 });
+    const ladder = docketReminderLadder(earliest, later);
+
+    expect(ladder.rungs).toStrictEqual([]);
+    expect(ladder.truncated).toBe(true);
+  });
 });

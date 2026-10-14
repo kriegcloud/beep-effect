@@ -125,7 +125,10 @@ const ViteFileSystemPrefix = "/@fs/";
  * @category errors
  * @since 0.0.0
  */
-export class IncompatiblePgliteDataDir extends S.TaggedError<IncompatiblePgliteDataDir>($I`IncompatiblePgliteDataDir`)(
+export class IncompatiblePgliteDataDir extends S.TaggedError<
+  IncompatiblePgliteDataDir,
+  { readonly brand: unique symbol }
+>($I`IncompatiblePgliteDataDir`)(
   "IncompatiblePgliteDataDir",
   {
     cause: S.Unknown.pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)).annotateKey({

@@ -174,40 +174,51 @@ const hostedSeriesTiers: ReadonlyArray<KpiTier> = ["ci-merge-green"];
  * @category models
  * @since 0.0.0
  */
-export class KpiFoldInput extends S.Class<KpiFoldInput>($I`KpiFoldInput`)(
-  {
+export class KpiFoldInput extends S.Opaque<KpiFoldInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputs: S.NonEmptyArray(PinnedKpiInput),
     captureInstant: S.DateTimeUtcFromString,
     journals: S.Array(FleetJournal),
     admissions: S.Array(KpiAdmissionRow),
     adoption: AdoptionTable,
     changeEvents: S.NonEmptyArray(ChangeEventRow),
-  },
-  $I.annote("KpiFoldInput", {
-    description: "Decoded, digest-verified journals, admission rows, adoption table and change events of one reading.",
-  })
+  }).pipe(
+    $I.annoteSchema("KpiFoldInput", {
+      description:
+        "Decoded, digest-verified journals, admission rows, adoption table and change events of one reading.",
+    })
+  )
 ) {}
 
 // One folded episode with the facts the reading needs beyond the contract's KpiEpisode.
-class FoldedEpisode extends S.Class<FoldedEpisode>($I`FoldedEpisode`)(
-  { episode: KpiEpisode, head: S.Option(GitCommitSha), queueWaitMs: S.Option(S.Natural) },
-  $I.annote("FoldedEpisode", {
-    description: "A KPI episode with its opening attempt's resolved head and, when it decomposes, its queue wait.",
-  })
+class FoldedEpisode extends S.Opaque<FoldedEpisode, { readonly brand: unique symbol }>()(
+  S.Struct({ episode: KpiEpisode, head: S.Option(GitCommitSha), queueWaitMs: S.Option(S.Natural) }).pipe(
+    $I.annoteSchema("FoldedEpisode", {
+      description: "A KPI episode with its opening attempt's resolved head and, when it decomposes, its queue wait.",
+    })
+  )
 ) {}
 
 // A streak of attempts: closed by a green attempt, or open at the end of the subsequence.
-class Streak extends S.Class<Streak>($I`Streak`)(
-  { members: S.NonEmptyArray(FleetAttempt), closing: S.Option(FleetAttempt) },
-  $I.annote("Streak", { description: "The red attempts of one streak and the green attempt that closed it, if any." })
+class Streak extends S.Opaque<Streak, { readonly brand: unique symbol }>()(
+  S.Struct({ members: S.NonEmptyArray(FleetAttempt), closing: S.Option(FleetAttempt) }).pipe(
+    $I.annoteSchema("Streak", {
+      description: "The red attempts of one streak and the green attempt that closed it, if any.",
+    })
+  )
 ) {}
 
 // Facts of one attempt journal the censoring rules read.
-class JournalFacts extends S.Class<JournalFacts>($I`JournalFacts`)(
-  { atWriterCap: S.Boolean, cutoff: S.Option(S.DateTimeUtcFromString), firstAttemptId: S.Option(S.String) },
-  $I.annote("JournalFacts", {
-    description: "Writer-cap flag, compaction cutoff and first retained attempt of one attempt journal.",
-  })
+class JournalFacts extends S.Opaque<JournalFacts, { readonly brand: unique symbol }>()(
+  S.Struct({
+    atWriterCap: S.Boolean,
+    cutoff: S.Option(S.DateTimeUtcFromString),
+    firstAttemptId: S.Option(S.String),
+  }).pipe(
+    $I.annoteSchema("JournalFacts", {
+      description: "Writer-cap flag, compaction cutoff and first retained attempt of one attempt journal.",
+    })
+  )
 ) {}
 
 const millis = DateTime.toEpochMillis;
@@ -311,9 +322,12 @@ const attemptOrder = Order.combine(
   Order.mapInput(Order.String, (attempt: FleetAttempt) => attempt.attemptId)
 );
 
-class StreakState extends S.Class<StreakState>($I`StreakState`)(
-  { open: S.Array(FleetAttempt), closed: S.Array(Streak) },
-  $I.annote("StreakState", { description: "Streak walk state: the open streak's members and the closed streaks." })
+class StreakState extends S.Opaque<StreakState, { readonly brand: unique symbol }>()(
+  S.Struct({ open: S.Array(FleetAttempt), closed: S.Array(Streak) }).pipe(
+    $I.annoteSchema("StreakState", {
+      description: "Streak walk state: the open streak's members and the closed streaks.",
+    })
+  )
 ) {}
 
 const closeStreak = (state: StreakState, attempt: FleetAttempt): StreakState =>
@@ -411,20 +425,22 @@ const resolutionsByNonce = (rows: ReadonlyArray<KpiAdmissionRow>): HashMap.HashM
   );
 
 // One admission ticket naming an attempt: its nonce, the attempt and its enqueue instant.
-class AttemptTicket extends S.Class<AttemptTicket>($I`AttemptTicket`)(
-  { nonce: S.String, attemptId: S.String, enqueuedAtMillis: S.Finite },
-  $I.annote("AttemptTicket", { description: "One admission ticket joined to a pinned attempt id." })
+class AttemptTicket extends S.Opaque<AttemptTicket, { readonly brand: unique symbol }>()(
+  S.Struct({ nonce: S.String, attemptId: S.String, enqueuedAtMillis: S.Finite }).pipe(
+    $I.annoteSchema("AttemptTicket", { description: "One admission ticket joined to a pinned attempt id." })
+  )
 ) {}
 
 // The joined tickets of every attempt id, and each ticket nonce's resolution.
-class TicketIndex extends S.Class<TicketIndex>($I`TicketIndex`)(
-  {
+class TicketIndex extends S.Opaque<TicketIndex, { readonly brand: unique symbol }>()(
+  S.Struct({
     byAttempt: S.HashMap(S.String, S.Array(AttemptTicket)),
     resolved: S.HashMap(S.String, S.Finite),
-  },
-  $I.annote("TicketIndex", {
-    description: "Admission tickets grouped by the attempt id they name, with each nonce's resolution instant.",
-  })
+  }).pipe(
+    $I.annoteSchema("TicketIndex", {
+      description: "Admission tickets grouped by the attempt id they name, with each nonce's resolution instant.",
+    })
+  )
 ) {}
 
 // Every row carrying an attempt id and an enqueue instant names a ticket: v3 enqueue and
@@ -682,11 +698,12 @@ const percentileRow =
     });
   };
 
-class SeatRequest extends S.Class<SeatRequest>($I`SeatRequest`)(
-  { enqueuedAt: S.DateTimeUtcFromString, waitMs: S.Natural, openAtCapture: S.Boolean },
-  $I.annote("SeatRequest", {
-    description: "One v3 seat request: its enqueue instant, its wait, and whether it was still open at capture.",
-  })
+class SeatRequest extends S.Opaque<SeatRequest, { readonly brand: unique symbol }>()(
+  S.Struct({ enqueuedAt: S.DateTimeUtcFromString, waitMs: S.Natural, openAtCapture: S.Boolean }).pipe(
+    $I.annoteSchema("SeatRequest", {
+      description: "One v3 seat request: its enqueue instant, its wait, and whether it was still open at capture.",
+    })
+  )
 ) {}
 
 // A request waits from its enqueue to its admission, withdrawal or ticket eviction, else to the capture (§7.6).

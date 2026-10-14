@@ -255,18 +255,19 @@ export type DocgenQualityFindingCode = typeof DocgenQualityFindingCode.Type;
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityFinding extends S.Class<DocgenQualityFinding>($I`DocgenQualityFinding`)(
-  {
+export class DocgenQualityFinding extends S.Opaque<DocgenQualityFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: DocgenQualityFindingCode,
     tier: DocgenQualityTier,
     scoreImpact: S.Finite,
     message: S.String,
     evidence: S.Array(S.String),
     remediation: S.String,
-  },
-  $I.annote("DocgenQualityFinding", {
-    description: "Single typed quality finding for one JSDoc subject.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityFinding", {
+      description: "Single typed quality finding for one JSDoc subject.",
+    })
+  )
 ) {}
 
 /**
@@ -289,16 +290,17 @@ export class DocgenQualityFinding extends S.Class<DocgenQualityFinding>($I`Docge
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityDiagnostic extends S.Class<DocgenQualityDiagnostic>($I`DocgenQualityDiagnostic`)(
-  {
+export class DocgenQualityDiagnostic extends S.Opaque<DocgenQualityDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
     category: S.String,
     code: S.Finite,
     message: S.String,
     line: S.Finite,
-  },
-  $I.annote("DocgenQualityDiagnostic", {
-    description: "Nearby TypeScript diagnostic carried as quality-review evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityDiagnostic", {
+      description: "Nearby TypeScript diagnostic carried as quality-review evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -321,16 +323,17 @@ export class DocgenQualityDiagnostic extends S.Class<DocgenQualityDiagnostic>($I
  * @category models
  * @since 0.0.0
  */
-export class DocgenRelatedSymbol extends S.Class<DocgenRelatedSymbol>($I`DocgenRelatedSymbol`)(
-  {
+export class DocgenRelatedSymbol extends S.Opaque<DocgenRelatedSymbol, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     kind: S.String,
     line: S.Finite,
     signature: S.String,
-  },
-  $I.annote("DocgenRelatedSymbol", {
-    description: "Nearby exported symbol carried as review context.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenRelatedSymbol", {
+      description: "Nearby exported symbol carried as review context.",
+    })
+  )
 ) {}
 
 /**
@@ -348,8 +351,8 @@ export class DocgenRelatedSymbol extends S.Class<DocgenRelatedSymbol>($I`DocgenR
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualitySubject extends S.Class<DocgenQualitySubject>($I`DocgenQualitySubject`)(
-  {
+export class DocgenQualitySubject extends S.Opaque<DocgenQualitySubject, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     packagePath: S.String,
     filePath: S.String,
@@ -371,10 +374,11 @@ export class DocgenQualitySubject extends S.Class<DocgenQualitySubject>($I`Docge
     deterministicMissingTags: S.Array(S.String),
     categoryValues: S.Array(S.String),
     categoryIssues: S.Array(S.String),
-  },
-  $I.annote("DocgenQualitySubject", {
-    description: "Stable evidence packet for one exported-symbol JSDoc quality review.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualitySubject", {
+      description: "Stable evidence packet for one exported-symbol JSDoc quality review.",
+    })
+  )
 ) {}
 
 /**
@@ -398,17 +402,18 @@ export class DocgenQualitySubject extends S.Class<DocgenQualitySubject>($I`Docge
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityReview extends S.Class<DocgenQualityReview>($I`DocgenQualityReview`)(
-  {
+export class DocgenQualityReview extends S.Opaque<DocgenQualityReview, { readonly brand: unique symbol }>()(
+  S.Struct({
     subjectId: S.String,
     tier: DocgenQualityTier,
     score: S.Finite,
     findings: S.Array(DocgenQualityFinding),
     rationale: S.String,
-  },
-  $I.annote("DocgenQualityReview", {
-    description: "Rubric outcome for one JSDoc quality subject.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityReview", {
+      description: "Rubric outcome for one JSDoc quality subject.",
+    })
+  )
 ) {}
 
 /**
@@ -433,18 +438,19 @@ export class DocgenQualityReview extends S.Class<DocgenQualityReview>($I`DocgenQ
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualitySummary extends S.Class<DocgenQualitySummary>($I`DocgenQualitySummary`)(
-  {
+export class DocgenQualitySummary extends S.Opaque<DocgenQualitySummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     packages: S.Finite,
     subjects: S.Finite,
     passing: S.Finite,
     warnings: S.Finite,
     failures: S.Finite,
     remediationPackets: S.Finite,
-  },
-  $I.annote("DocgenQualitySummary", {
-    description: "Aggregate summary for a JSDoc quality run.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualitySummary", {
+      description: "Aggregate summary for a JSDoc quality run.",
+    })
+  )
 ) {}
 
 /**
@@ -483,8 +489,11 @@ export class DocgenQualitySummary extends S.Class<DocgenQualitySummary>($I`Docge
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityPackageReport extends S.Class<DocgenQualityPackageReport>($I`DocgenQualityPackageReport`)(
-  {
+export class DocgenQualityPackageReport extends S.Opaque<
+  DocgenQualityPackageReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     packageName: S.String,
     packagePath: S.String,
     status: DocgenQualityPackageStatus,
@@ -495,10 +504,11 @@ export class DocgenQualityPackageReport extends S.Class<DocgenQualityPackageRepo
     subjects: S.Array(DocgenQualitySubject),
     reviews: S.Array(DocgenQualityReview),
     summary: DocgenQualitySummary,
-  },
-  $I.annote("DocgenQualityPackageReport", {
-    description: "Package-scoped JSDoc quality report.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityPackageReport", {
+      description: "Package-scoped JSDoc quality report.",
+    })
+  )
 ) {}
 
 /**
@@ -523,20 +533,22 @@ export class DocgenQualityPackageReport extends S.Class<DocgenQualityPackageRepo
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityRemediationPacket extends S.Class<DocgenQualityRemediationPacket>(
-  $I`DocgenQualityRemediationPacket`
-)(
-  {
+export class DocgenQualityRemediationPacket extends S.Opaque<
+  DocgenQualityRemediationPacket,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     id: S.String,
     subjectId: S.String,
     title: S.String,
     prompt: S.String,
     verificationCommand: S.String,
     verificationArgv: S.Array(S.String),
-  },
-  $I.annote("DocgenQualityRemediationPacket", {
-    description: "Bounded advisory packet for future Codex remediation.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityRemediationPacket", {
+      description: "Bounded advisory packet for future Codex remediation.",
+    })
+  )
 ) {}
 
 /**
@@ -554,8 +566,8 @@ export class DocgenQualityRemediationPacket extends S.Class<DocgenQualityRemedia
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualityReport extends S.Class<DocgenQualityReport>($I`DocgenQualityReport`)(
-  {
+export class DocgenQualityReport extends S.Opaque<DocgenQualityReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.Literal(QUALITY_SCHEMA_VERSION),
     rubricVersion: S.String,
     generatedAt: S.String,
@@ -564,10 +576,11 @@ export class DocgenQualityReport extends S.Class<DocgenQualityReport>($I`DocgenQ
     summary: DocgenQualitySummary,
     packages: S.Array(DocgenQualityPackageReport),
     remediationPackets: S.Array(DocgenQualityRemediationPacket),
-  },
-  $I.annote("DocgenQualityReport", {
-    description: "Consolidated report emitted by beep docgen quality.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualityReport", {
+      description: "Consolidated report emitted by beep docgen quality.",
+    })
+  )
 ) {}
 
 /**
@@ -588,17 +601,19 @@ export class DocgenQualityReport extends S.Class<DocgenQualityReport>($I`DocgenQ
  * @category models
  * @since 0.0.0
  */
-export class DocgenQualitySubjectCandidate extends S.Class<DocgenQualitySubjectCandidate>(
-  $I`DocgenQualitySubjectCandidate`
-)(
-  {
+export class DocgenQualitySubjectCandidate extends S.Opaque<
+  DocgenQualitySubjectCandidate,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     hashSourceText: S.String,
     identityStem: S.String,
     ...DocgenQualitySubject.mapFields(Struct.omit(["contentHash", "stableIdentity"])).fields,
-  },
-  $I.annote("DocgenQualitySubjectCandidate", {
-    description: "Subject candidate for docgen quality analysis",
-  })
+  }).pipe(
+    $I.annoteSchema("DocgenQualitySubjectCandidate", {
+      description: "Subject candidate for docgen quality analysis",
+    })
+  )
 ) {}
 
 /**

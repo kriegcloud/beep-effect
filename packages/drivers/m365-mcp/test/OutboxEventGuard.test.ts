@@ -83,7 +83,7 @@ describe("@beep/m365-mcp outbox event update guard", () => {
     [Arbitrary.schema(GuardCase)],
     ([input]) => {
       const check = checkOf(input);
-      const count = storedAttendeeCount(check.event);
+      const count = storedAttendeeCount(GraphEvent.make(check.event));
       const refusal = checkEventUpdate(check);
 
       assert.strictEqual(O.isNone(refusal), input.createdHere && count === 0);

@@ -85,17 +85,21 @@ export type TelemetryV2ArtifactKind = typeof TelemetryV2ArtifactKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class TelemetryV2ArtifactReceipt extends S.Class<TelemetryV2ArtifactReceipt>($I`TelemetryV2ArtifactReceipt`)(
-  {
+export class TelemetryV2ArtifactReceipt extends S.Opaque<
+  TelemetryV2ArtifactReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schemaVersion: S.Literal(artifactReceiptSchemaVersion),
     artifactKind: TelemetryV2ArtifactKind,
     artifactDigest: Sha256Hex,
     relativePath: S.NonEmptyString,
     byteCount: S.Natural,
-  },
-  $I.annote("TelemetryV2ArtifactReceipt", {
-    description: "Hash-only receipt for one atomically committed telemetry-v2 artifact.",
-  })
+  }).pipe(
+    $I.annoteSchema("TelemetryV2ArtifactReceipt", {
+      description: "Hash-only receipt for one atomically committed telemetry-v2 artifact.",
+    })
+  )
 ) {}
 
 const TelemetryV2StoreOperation = LiteralKit([
@@ -130,7 +134,9 @@ const TelemetryV2StoreOperation = LiteralKit([
  * @category errors
  * @since 0.0.0
  */
-export class TelemetryV2StoreError extends S.TaggedError<TelemetryV2StoreError>($I`TelemetryV2StoreError`)(
+export class TelemetryV2StoreError extends S.TaggedError<TelemetryV2StoreError, { readonly brand: unique symbol }>(
+  $I`TelemetryV2StoreError`
+)(
   "TelemetryV2StoreError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -156,16 +162,18 @@ export class TelemetryV2StoreError extends S.TaggedError<TelemetryV2StoreError>(
  * @category models
  * @since 0.0.0
  */
-export class TelemetryV2FlightRecordWriteResult extends S.Class<TelemetryV2FlightRecordWriteResult>(
-  $I`TelemetryV2FlightRecordWriteResult`
-)(
-  {
+export class TelemetryV2FlightRecordWriteResult extends S.Opaque<
+  TelemetryV2FlightRecordWriteResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     record: FlightRecord,
     receipt: TelemetryV2ArtifactReceipt,
-  },
-  $I.annote("TelemetryV2FlightRecordWriteResult", {
-    description: "Service-composed flight record and its durable accepted-event receipt.",
-  })
+  }).pipe(
+    $I.annoteSchema("TelemetryV2FlightRecordWriteResult", {
+      description: "Service-composed flight record and its durable accepted-event receipt.",
+    })
+  )
 ) {}
 
 /**
@@ -183,17 +191,19 @@ export class TelemetryV2FlightRecordWriteResult extends S.Class<TelemetryV2Fligh
  * @category models
  * @since 0.0.0
  */
-export class TelemetryV2IngestWriteResult extends S.Class<TelemetryV2IngestWriteResult>(
-  $I`TelemetryV2IngestWriteResult`
-)(
-  {
+export class TelemetryV2IngestWriteResult extends S.Opaque<
+  TelemetryV2IngestWriteResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     enumerationReceipt: TelemetryV2ArtifactReceipt,
     manifest: IngestManifest,
     manifestReceipt: TelemetryV2ArtifactReceipt,
-  },
-  $I.annote("TelemetryV2IngestWriteResult", {
-    description: "Persisted initial denominator and exact final coverage-attestation receipts.",
-  })
+  }).pipe(
+    $I.annoteSchema("TelemetryV2IngestWriteResult", {
+      description: "Persisted initial denominator and exact final coverage-attestation receipts.",
+    })
+  )
 ) {}
 
 /**

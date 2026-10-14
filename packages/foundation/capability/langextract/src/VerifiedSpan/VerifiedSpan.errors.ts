@@ -71,7 +71,9 @@ export type VerifiedSpanErrorReason = typeof VerifiedSpanErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class VerifiedSpanError extends S.TaggedError<VerifiedSpanError>($I`VerifiedSpanError`)(
+export class VerifiedSpanError extends S.TaggedError<VerifiedSpanError, { readonly brand: unique symbol }>(
+  $I`VerifiedSpanError`
+)(
   "VerifiedSpanError",
   {
     candidateIndex: S.Natural.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),

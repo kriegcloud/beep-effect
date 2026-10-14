@@ -14,8 +14,8 @@ import { ConfigResolver } from "../../effected/config-file/ConfigResolver.ts";
 import { JsonCodec } from "../../effected/config-file/JsonCodec.ts";
 import { MergeStrategy } from "../../effected/config-file/MergeStrategy.ts";
 
-class DbShape extends S.Class<DbShape>("DbShape")({ host: S.String }) {}
-class AppShape extends S.Class<AppShape>("AppShape")({
+class DbShape extends S.Class<DbShape, { readonly brand: unique symbol }>("DbShape")({ host: S.String }) {}
+class AppShape extends S.Class<AppShape, { readonly brand: unique symbol }>("AppShape")({
 	port: S.Finite,
 	host: S.String,
 	db: DbShape,

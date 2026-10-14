@@ -296,13 +296,13 @@ export const DocumentText: Monoid.Monoid<string> = Monoid.StringJoin("\n\n");
  * **Example** (Create document statistics)
  *
  * ```ts
- * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
- * const stats: NLPMonoid.DocumentStatistics = {
+ * const stats = NLPMonoid.DocumentStatistics.make({
  *   charCount: 42,
  *   sentenceCount: 2,
  *   wordCount: 7
- * }
+ * })
  *
  * console.log(stats.wordCount)
  * // 7
@@ -311,15 +311,16 @@ export const DocumentText: Monoid.Monoid<string> = Monoid.StringJoin("\n\n");
  * @category models
  * @since 0.0.0
  */
-export class DocumentStatistics extends S.Class<DocumentStatistics>($I`DocumentStatistics`)(
-  {
+export class DocumentStatistics extends S.Opaque<DocumentStatistics, { readonly brand: unique symbol }>()(
+  S.Struct({
     charCount: NonNegativeCount,
     sentenceCount: NonNegativeCount,
     wordCount: NonNegativeCount,
-  },
-  $I.annote("DocumentStatistics", {
-    description: "Document statistics carrier.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocumentStatistics", {
+      description: "Document statistics carrier.",
+    })
+  )
 ) {}
 
 /**
@@ -331,8 +332,8 @@ export class DocumentStatistics extends S.Class<DocumentStatistics>($I`DocumentS
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const totals = NLPMonoid.DocumentStats.combine(
- *   { charCount: 12, sentenceCount: 1, wordCount: 3 },
- *   { charCount: 18, sentenceCount: 2, wordCount: 4 }
+ *   NLPMonoid.DocumentStatistics.make({ charCount: 12, sentenceCount: 1, wordCount: 3 }),
+ *   NLPMonoid.DocumentStatistics.make({ charCount: 18, sentenceCount: 2, wordCount: 4 })
  * )
  *
  * console.log(totals)
@@ -343,7 +344,7 @@ export class DocumentStatistics extends S.Class<DocumentStatistics>($I`DocumentS
  * @since 0.0.0
  */
 export const DocumentStats: Monoid.Monoid<DocumentStatistics> = {
-  empty: { wordCount: 0, sentenceCount: 0, charCount: 0 },
+  empty: DocumentStatistics.make({ wordCount: 0, sentenceCount: 0, charCount: 0 }),
   combine: dual(2, (s1, s2) => ({
     wordCount: s1.wordCount + s2.wordCount,
     sentenceCount: s1.sentenceCount + s2.sentenceCount,
@@ -398,14 +399,14 @@ export const AnnotationMap = <K, V>(): Monoid.Monoid<MutableHashMap.MutableHashM
  * **Example** (Create named entity)
  *
  * ```ts
- * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
- * const entity: NLPMonoid.NamedEntity = {
+ * const entity = NLPMonoid.NamedEntity.make({
  *   endPos: 13,
  *   startPos: 0,
  *   text: "Effect Schema",
  *   type: "PRODUCT"
- * }
+ * })
  *
  * console.log(entity.type)
  * // "PRODUCT"
@@ -414,16 +415,17 @@ export const AnnotationMap = <K, V>(): Monoid.Monoid<MutableHashMap.MutableHashM
  * @category models
  * @since 0.0.0
  */
-export class NamedEntity extends S.Class<NamedEntity>($I`NamedEntity`)(
-  {
+export class NamedEntity extends S.Opaque<NamedEntity, { readonly brand: unique symbol }>()(
+  S.Struct({
     endPos: S.Finite,
     startPos: S.Finite,
     text: S.String,
     type: S.String,
-  },
-  $I.annote("NamedEntity", {
-    description: "Named entity carrier.",
-  })
+  }).pipe(
+    $I.annoteSchema("NamedEntity", {
+      description: "Named entity carrier.",
+    })
+  )
 ) {}
 
 /**
@@ -435,8 +437,8 @@ export class NamedEntity extends S.Class<NamedEntity>($I`NamedEntity`)(
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const entities = NLPMonoid.NamedEntityList.combine(
- *   [{ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" }],
- *   [{ endPos: 19, startPos: 7, text: "Schema", type: "MODULE" }]
+ *   [NLPMonoid.NamedEntity.make({ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" })],
+ *   [NLPMonoid.NamedEntity.make({ endPos: 19, startPos: 7, text: "Schema", type: "MODULE" })]
  * )
  *
  * console.log(entities.map((entity) => entity.text))
@@ -454,13 +456,13 @@ export const NamedEntityList: Monoid.Monoid<ReadonlyArray<NamedEntity>> = Monoid
  * **Example** (Create dependency edge)
  *
  * ```ts
- * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
- * const edge: NLPMonoid.DependencyEdge = {
+ * const edge = NLPMonoid.DependencyEdge.make({
  *   dependent: 2,
  *   head: 1,
  *   relation: "amod"
- * }
+ * })
  *
  * console.log(edge.relation)
  * // "amod"
@@ -469,15 +471,16 @@ export const NamedEntityList: Monoid.Monoid<ReadonlyArray<NamedEntity>> = Monoid
  * @category models
  * @since 0.0.0
  */
-export class DependencyEdge extends S.Class<DependencyEdge>($I`DependencyEdge`)(
-  {
+export class DependencyEdge extends S.Opaque<DependencyEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
     dependent: NonNegativeCount,
     head: NonNegativeCount,
     relation: S.String,
-  },
-  $I.annote("DependencyEdge", {
-    description: "Dependency parse edge carrier.",
-  })
+  }).pipe(
+    $I.annoteSchema("DependencyEdge", {
+      description: "Dependency parse edge carrier.",
+    })
+  )
 ) {}
 
 /**
@@ -489,8 +492,8 @@ export class DependencyEdge extends S.Class<DependencyEdge>($I`DependencyEdge`)(
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const edges = NLPMonoid.DependencyParse.combine(
- *   [{ dependent: 1, head: 0, relation: "nsubj" }],
- *   [{ dependent: 2, head: 0, relation: "obj" }]
+ *   [NLPMonoid.DependencyEdge.make({ dependent: 1, head: 0, relation: "nsubj" })],
+ *   [NLPMonoid.DependencyEdge.make({ dependent: 2, head: 0, relation: "obj" })]
  * )
  *
  * console.log(edges.map((edge) => edge.relation))
@@ -646,14 +649,14 @@ export const NGramFrequency: Monoid.Monoid<TermNumberMap> = {
  * ```ts
  * import * as HashSet from "effect/HashSet"
  * import * as MutableHashMap from "effect/MutableHashMap"
- * import type * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
+ * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
- * const analysis: NLPMonoid.TextAnalysis = {
+ * const analysis = NLPMonoid.TextAnalysis.make({
  *   bow: MutableHashMap.make(["effect", 2]),
- *   entities: [{ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" }],
+ *   entities: [NLPMonoid.NamedEntity.make({ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" })],
  *   sentenceCount: 1,
  *   vocabulary: HashSet.make("effect")
- * }
+ * })
  *
  * console.log(analysis.sentenceCount)
  * // 1
@@ -662,16 +665,17 @@ export const NGramFrequency: Monoid.Monoid<TermNumberMap> = {
  * @category models
  * @since 0.0.0
  */
-export class TextAnalysis extends S.Class<TextAnalysis>($I`TextAnalysis`)(
-  {
+export class TextAnalysis extends S.Opaque<TextAnalysis, { readonly brand: unique symbol }>()(
+  S.Struct({
     bow: BagOfWords,
     entities: S.Array(NamedEntity),
     sentenceCount: NonNegativeCount,
     vocabulary: S.HashSet(S.String),
-  },
-  $I.annote("TextAnalysis", {
-    description: "Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary).",
-  })
+  }).pipe(
+    $I.annoteSchema("TextAnalysis", {
+      description: "Combined text analysis carrier (bag-of-words + entities + sentence count + vocabulary).",
+    })
+  )
 ) {}
 
 /**
@@ -685,18 +689,18 @@ export class TextAnalysis extends S.Class<TextAnalysis>($I`TextAnalysis`)(
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const combined = NLPMonoid.TextAnalysisMonoid.combine(
- *   {
+ *   NLPMonoid.TextAnalysis.make({
  *     bow: MutableHashMap.make(["effect", 1]),
- *     entities: [{ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" }],
+ *     entities: [NLPMonoid.NamedEntity.make({ endPos: 6, startPos: 0, text: "Effect", type: "LIBRARY" })],
  *     sentenceCount: 1,
  *     vocabulary: HashSet.make("effect")
- *   },
- *   {
+ *   }),
+ *   NLPMonoid.TextAnalysis.make({
  *     bow: MutableHashMap.make(["schema", 2]),
  *     entities: [],
  *     sentenceCount: 2,
  *     vocabulary: HashSet.make("schema")
- *   }
+ *   })
  * )
  *
  * console.log({
@@ -711,12 +715,12 @@ export class TextAnalysis extends S.Class<TextAnalysis>($I`TextAnalysis`)(
  * @since 0.0.0
  */
 export const TextAnalysisMonoid: Monoid.Monoid<TextAnalysis> = {
-  empty: {
+  empty: TextAnalysis.make({
     bow: MutableHashMap.empty(),
     entities: [],
     sentenceCount: 0,
     vocabulary: HashSet.empty(),
-  },
+  }),
   combine: dual(2, (a1, a2) => ({
     bow: TokenBagOfWords.combine(a1.bow, a2.bow),
     entities: NamedEntityList.combine(a1.entities, a2.entities),
@@ -852,8 +856,8 @@ export const aggregateSentences = (sentences: ReadonlyArray<string>): string => 
  * import * as NLPMonoid from "@beep/nlp/Algebra/NLPMonoid"
  *
  * const totals = NLPMonoid.aggregateStats([
- *   { charCount: 10, sentenceCount: 1, wordCount: 2 },
- *   { charCount: 25, sentenceCount: 2, wordCount: 5 }
+ *   NLPMonoid.DocumentStatistics.make({ charCount: 10, sentenceCount: 1, wordCount: 2 }),
+ *   NLPMonoid.DocumentStatistics.make({ charCount: 25, sentenceCount: 2, wordCount: 5 })
  * ])
  *
  * console.log(totals)

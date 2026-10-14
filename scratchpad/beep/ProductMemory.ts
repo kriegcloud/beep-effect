@@ -524,7 +524,7 @@ const triggerWithinLimit = S.makeFilter((value: typeof triggerJson.Type) =>
  * @category errors
  * @since 0.0.0
  */
-export class MemoryItemRejected extends S.TaggedError<MemoryItemRejected>()(
+export class MemoryItemRejected extends S.TaggedError<MemoryItemRejected, { readonly brand: unique symbol }>()(
   "MemoryItemRejected",
   { reason: S.String },
   $I.annoteError<MemoryItemRejected>("MemoryItemRejected", {
@@ -1421,7 +1421,7 @@ const basePolicyChecks = (item: MemoryItem, policy: MemoryAccessPolicy): O.Optio
   if (item.processingState === "blocked") return O.some(decision(false, "processing_blocked"));
   if (item.sourceState === "tombstoned" || item.sourceState === "purged") return O.some(decision(false, "source_not_active"));
   if (policy.consumer === "unknown") return O.some(decision(false, "unknown_consumer"));
-  if (A.some(item.sensitivityLabels, (label) => HashSet.has(restrictedSensitivityLabels, label))) {
+  if (A.some(item.sensitivityLabels, (label) => HashSet.has(restrictedSensitivityLabels, Str.toLowerCase(Str.trim(label))))) {
     return O.some(decision(false, "restricted_sensitivity"));
   }
   if (!HashSet.has(knownVisibility, item.visibility)) return O.some(decision(false, "unknown_visibility"));

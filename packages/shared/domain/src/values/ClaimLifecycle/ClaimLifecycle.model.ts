@@ -91,13 +91,14 @@ export type ClaimLifecycle = typeof ClaimLifecycle.Type;
  * @category models
  * @since 0.0.0
  */
-export class ClaimLifecycleTransition extends S.Class<ClaimLifecycleTransition>($I`ClaimLifecycleTransition`)(
-  {
+export class ClaimLifecycleTransition extends S.Opaque<ClaimLifecycleTransition, { readonly brand: unique symbol }>()(
+  S.Struct({
     from: ClaimLifecycle.annotateKey({ description: "Lifecycle state before the transition." }),
     to: ClaimLifecycle.annotateKey({ description: "Lifecycle state after the transition." }),
     reason: ClaimLifecycleTransitionReason.annotateKey({ description: "Reason the transition occurred." }),
-  },
-  $I.annote("ClaimLifecycleTransition", {
-    description: "A single claim lifecycle state change with from/to states and a reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("ClaimLifecycleTransition", {
+      description: "A single claim lifecycle state change with from/to states and a reason.",
+    })
+  )
 ) {}

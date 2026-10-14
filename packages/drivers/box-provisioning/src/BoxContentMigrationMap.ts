@@ -183,11 +183,12 @@ export type BoxContentFolderPath = typeof BoxContentFolderPath.Type;
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationFolder extends S.Class<BoxContentMigrationFolder>($I`BoxContentMigrationFolder`)(
-  { path: BoxContentFolderPath },
-  $I.annote("BoxContentMigrationFolder", {
-    description: "Required destination folder path below the migration root folder.",
-  })
+export class BoxContentMigrationFolder extends S.Opaque<BoxContentMigrationFolder, { readonly brand: unique symbol }>()(
+  S.Struct({ path: BoxContentFolderPath }).pipe(
+    $I.annoteSchema("BoxContentMigrationFolder", {
+      description: "Required destination folder path below the migration root folder.",
+    })
+  )
 ) {}
 
 /**
@@ -222,18 +223,19 @@ export class BoxContentMigrationFolder extends S.Class<BoxContentMigrationFolder
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationFile extends S.Class<BoxContentMigrationFile>($I`BoxContentMigrationFile`)(
-  {
+export class BoxContentMigrationFile extends S.Opaque<BoxContentMigrationFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceRelativePath: BoxContentSourceRelativePath,
     sha256: Sha256Hex,
     sizeBytes: S.Natural,
     folderPath: BoxContentFolderPath,
     fileName: BoxFileName,
     ruleId: S.OptionFromOptionalKey(BoxContentMigrationRuleId).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("BoxContentMigrationFile", {
-    description: "Local source file identity, content hash, size, and Box destination.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentMigrationFile", {
+      description: "Local source file identity, content hash, size, and Box destination.",
+    })
+  )
 ) {}
 
 /**
@@ -266,8 +268,8 @@ export class BoxContentMigrationFile extends S.Class<BoxContentMigrationFile>($I
  * @category models
  * @since 0.0.0
  */
-export class BoxContentMigrationMap extends S.Class<BoxContentMigrationMap>($I`BoxContentMigrationMap`)(
-  {
+export class BoxContentMigrationMap extends S.Opaque<BoxContentMigrationMap, { readonly brand: unique symbol }>()(
+  S.Struct({
     version: S.Literal("box-content-migration-map/v1").pipe(
       S.withConstructorDefault(Effect.succeed("box-content-migration-map/v1"))
     ),
@@ -278,10 +280,11 @@ export class BoxContentMigrationMap extends S.Class<BoxContentMigrationMap>($I`B
     sourceRoot: S.NonEmptyString,
     folders: S.Array(BoxContentMigrationFolder),
     files: S.Array(BoxContentMigrationFile),
-  },
-  $I.annote("BoxContentMigrationMap", {
-    description: "Versioned confidential mapping of local source files into an anchored Box folder tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("BoxContentMigrationMap", {
+      description: "Versioned confidential mapping of local source files into an anchored Box folder tree.",
+    })
+  )
 ) {}
 
 const decodeUnknownBoxContentMigrationMap = S.decodeUnknownEffect(BoxContentMigrationMap);

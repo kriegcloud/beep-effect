@@ -108,11 +108,13 @@ export const OxlintReport = S.Struct({
 /** Decode stdout and retain malformed-report failures. */
 const parseReport = jsonReportParser(OxlintReport);
 
-class OxlintFixture extends S.Class<OxlintFixture>("OxlintFixture")({
-  configPath: S.String,
-  sourcePath: S.String,
-  tempDir: S.String,
-}) {}
+class OxlintFixture extends S.Opaque<OxlintFixture, { readonly brand: unique symbol }>()(
+  S.Struct({
+    configPath: S.String,
+    sourcePath: S.String,
+    tempDir: S.String,
+  }).annotate({ identifier: "OxlintFixture" })
+) {}
 
 const writeSupportingFile = Effect.fnUntraced(function* (
   tempDir: string,

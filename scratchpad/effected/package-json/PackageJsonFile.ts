@@ -41,7 +41,7 @@ const Json = S.fromJsonString(S.Unknown);
  * @category errors
  * @since 0.0.0
  */
-export class PackageJsonReadError extends S.TaggedError<PackageJsonReadError>($I`PackageJsonReadError`)("PackageJsonReadError", {
+export class PackageJsonReadError extends S.TaggedError<PackageJsonReadError, { readonly brand: unique symbol }>($I`PackageJsonReadError`)("PackageJsonReadError", {
 	/**
 	 * The path that could not be read.
 	 *
@@ -92,7 +92,7 @@ export class PackageJsonReadError extends S.TaggedError<PackageJsonReadError>($I
  * @category errors
  * @since 0.0.0
  */
-export class PackageJsonNotFoundError extends S.TaggedError<PackageJsonNotFoundError>($I`PackageJsonNotFoundError`)(
+export class PackageJsonNotFoundError extends S.TaggedError<PackageJsonNotFoundError, { readonly brand: unique symbol }>($I`PackageJsonNotFoundError`)(
 	"PackageJsonNotFoundError",
 	{
 		/**
@@ -139,7 +139,7 @@ export class PackageJsonNotFoundError extends S.TaggedError<PackageJsonNotFoundE
  * @category errors
  * @since 0.0.0
  */
-export class PackageJsonParseError extends S.TaggedError<PackageJsonParseError>($I`PackageJsonParseError`)("PackageJsonParseError", {
+export class PackageJsonParseError extends S.TaggedError<PackageJsonParseError, { readonly brand: unique symbol }>($I`PackageJsonParseError`)("PackageJsonParseError", {
 	/**
 	 * The path whose contents failed to parse as JSON.
 	 *
@@ -191,7 +191,7 @@ export class PackageJsonParseError extends S.TaggedError<PackageJsonParseError>(
  * @category errors
  * @since 0.0.0
  */
-export class PackageJsonWriteError extends S.TaggedError<PackageJsonWriteError>($I`PackageJsonWriteError`)("PackageJsonWriteError", {
+export class PackageJsonWriteError extends S.TaggedError<PackageJsonWriteError, { readonly brand: unique symbol }>($I`PackageJsonWriteError`)("PackageJsonWriteError", {
 	/**
 	 * The path that could not be written.
 	 *

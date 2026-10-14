@@ -93,7 +93,7 @@ const modelList = <A extends S.Top>(schema: A, column: string) =>
  * @category errors
  * @since 0.0.0
  */
-export class WorkstreamContractError extends S.TaggedError<WorkstreamContractError>()(
+export class WorkstreamContractError extends S.TaggedError<WorkstreamContractError, { readonly brand: unique symbol }>()(
   "WorkstreamContractError",
   { message: S.String },
   $I.annoteError("WorkstreamContractError", { description: "A workstream patch or contract rule failed." }),

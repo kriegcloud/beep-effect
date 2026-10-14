@@ -238,15 +238,16 @@ export type RgbChannel = typeof RgbChannel.Type;
  * @category models
  * @since 0.0.0
  */
-export class ImageSizeMetadata extends S.Class<ImageSizeMetadata>($I`ImageSizeMetadata`)(
-  {
+export class ImageSizeMetadata extends S.Opaque<ImageSizeMetadata, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: PositiveMediaDimension,
     orientation: S.optionalKey(S.Int),
     width: PositiveMediaDimension,
-  },
-  $I.annote("ImageSizeMetadata", {
-    description: "Dimension metadata returned by the image-size package.",
-  })
+  }).pipe(
+    $I.annoteSchema("ImageSizeMetadata", {
+      description: "Dimension metadata returned by the image-size package.",
+    })
+  )
 ) {}
 
 /**
@@ -264,13 +265,14 @@ export class ImageSizeMetadata extends S.Class<ImageSizeMetadata>($I`ImageSizeMe
  * @category models
  * @since 0.0.0
  */
-export class FfprobeSideData extends S.Class<FfprobeSideData>($I`FfprobeSideData`)(
-  {
+export class FfprobeSideData extends S.Opaque<FfprobeSideData, { readonly brand: unique symbol }>()(
+  S.Struct({
     rotation: S.optionalKey(S.Union([S.Finite, S.FiniteFromString])),
-  },
-  $I.annote("FfprobeSideData", {
-    description: "Side-data entry returned by ffprobe for a video stream.",
-  })
+  }).pipe(
+    $I.annoteSchema("FfprobeSideData", {
+      description: "Side-data entry returned by ffprobe for a video stream.",
+    })
+  )
 ) {}
 
 /**
@@ -288,16 +290,17 @@ export class FfprobeSideData extends S.Class<FfprobeSideData>($I`FfprobeSideData
  * @category models
  * @since 0.0.0
  */
-export class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
-  {
+export class FfprobeStream extends S.Opaque<FfprobeStream, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: PositiveMediaDimension,
     side_data_list: S.Array(FfprobeSideData).pipe(S.optionalKey),
     tags: S.optionalKey(S.Record(S.String, S.Unknown)),
     width: PositiveMediaDimension,
-  },
-  $I.annote("FfprobeStream", {
-    description: "Video stream metadata returned by ffprobe.",
-  })
+  }).pipe(
+    $I.annoteSchema("FfprobeStream", {
+      description: "Video stream metadata returned by ffprobe.",
+    })
+  )
 ) {}
 
 /**
@@ -315,13 +318,14 @@ export class FfprobeStream extends S.Class<FfprobeStream>($I`FfprobeStream`)(
  * @category models
  * @since 0.0.0
  */
-export class FfprobeOutput extends S.Class<FfprobeOutput>($I`FfprobeOutput`)(
-  {
+export class FfprobeOutput extends S.Opaque<FfprobeOutput, { readonly brand: unique symbol }>()(
+  S.Struct({
     streams: S.Array(FfprobeStream),
-  },
-  $I.annote("FfprobeOutput", {
-    description: "JSON document emitted by ffprobe stream probing.",
-  })
+  }).pipe(
+    $I.annoteSchema("FfprobeOutput", {
+      description: "JSON document emitted by ffprobe stream probing.",
+    })
+  )
 ) {}
 
 /**
@@ -402,14 +406,15 @@ export type SafeFilePrefix = typeof SafeFilePrefix.Type;
  * @category models
  * @since 0.0.0
  */
-export class MediaDimensions extends S.Class<MediaDimensions>($I`MediaDimensions`)(
-  {
+export class MediaDimensions extends S.Opaque<MediaDimensions, { readonly brand: unique symbol }>()(
+  S.Struct({
     height: PositiveMediaDimension,
     width: PositiveMediaDimension,
-  },
-  $I.annote("MediaDimensions", {
-    description: "Pixel dimensions discovered from an image or video file.",
-  })
+  }).pipe(
+    $I.annoteSchema("MediaDimensions", {
+      description: "Pixel dimensions discovered from an image or video file.",
+    })
+  )
 ) {}
 
 /**

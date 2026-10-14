@@ -382,15 +382,18 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock migration plan", (it) =
       Arbitrary.schema(SkillPinProposal),
       Arbitrary.schema(SkillPathHistoryWindow),
     ],
+    // Opaque struct values compare by shape: Arbitrary may build them with a null
+    // prototype while decoding yields plain objects, so toStrictEqual would compare
+    // prototypes, not data.
     Effect.fnUntraced(function* ([entry, drift, pin, window]) {
-      expect(
-        yield* S.decodeEffect(LocalSkillLockEntry)(yield* S.encodeEffect(LocalSkillLockEntry)(entry))
-      ).toStrictEqual(entry);
-      expect(yield* S.decodeEffect(SkillDriftRow)(yield* S.encodeEffect(SkillDriftRow)(drift))).toStrictEqual(drift);
-      expect(yield* S.decodeEffect(SkillPinProposal)(yield* S.encodeEffect(SkillPinProposal)(pin))).toStrictEqual(pin);
+      expect(yield* S.decodeEffect(LocalSkillLockEntry)(yield* S.encodeEffect(LocalSkillLockEntry)(entry))).toEqual(
+        entry
+      );
+      expect(yield* S.decodeEffect(SkillDriftRow)(yield* S.encodeEffect(SkillDriftRow)(drift))).toEqual(drift);
+      expect(yield* S.decodeEffect(SkillPinProposal)(yield* S.encodeEffect(SkillPinProposal)(pin))).toEqual(pin);
       expect(
         yield* S.decodeEffect(SkillPathHistoryWindow)(yield* S.encodeEffect(SkillPathHistoryWindow)(window))
-      ).toStrictEqual(window);
+      ).toEqual(window);
     }),
     { arbitrary: { runs: 32 } }
   );
@@ -708,6 +711,26 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock write", (it) => {
       ]);
       expect(renderUnifiedHunks("", "only\n")).toEqual(["@@ -0,0 +1 @@", "+only"]);
       expect(renderUnifiedHunks("same\n", "same\n")).toEqual([]);
+      const before = A.join(
+        A.append(
+          A.makeBy(2_100, (index) => `old-${index}`),
+          ""
+        ),
+        "\n"
+      );
+      const after = A.join(
+        A.append(
+          A.makeBy(2_100, (index) => `new-${index}`),
+          ""
+        ),
+        "\n"
+      );
+      const fallback = renderUnifiedHunks(before, after);
+      expect(fallback[0]).toBe("@@ -1,2100 +1,2100 @@");
+      expect(fallback[1]).toBe("-old-0");
+      expect(fallback[2_100]).toBe("-old-2099");
+      expect(fallback[2_101]).toBe("+new-0");
+      assertSome(A.last(fallback), "+new-2099");
     })
   );
 
@@ -1025,6 +1048,36 @@ layer(TestLayer, { timeout: "60 seconds" })("skills lock write", (it) => {
 });
 
 layer(TestLayer, { timeout: "60 seconds" })("skills provenance service", (it) => {
+  it.effect("rejects an oversized changed skill before building review hunks", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const repoRoot = yield* fs.makeTempDirectoryScoped({ prefix: "skills-provenance-budget-" });
+      const source = yield* makeFixtureSource();
+      const skillText = yield* readFixtureText("shadcn/upstream/SKILL.md");
+      const compositionText = yield* readFixtureText("shadcn/upstream/rules/composition.md");
+      const pngBytes = yield* readFixtureBinary("shadcn/upstream/assets/example.png.hex");
+      yield* writeFixtureFile(
+        repoRoot,
+        ".claude/skills/shadcn/SKILL.md",
+        textEncoder.encode(`${skillText}${Str.repeat(100_001)("\n")}`)
+      );
+      yield* writeFixtureFile(
+        repoRoot,
+        ".claude/skills/shadcn/rules/composition.md",
+        textEncoder.encode(compositionText)
+      );
+      yield* writeFixtureFile(repoRoot, ".claude/skills/shadcn/assets/example.png", pngBytes);
+      yield* linkAgentsTarget(repoRoot);
+
+      const exit = yield* resolveSkillProvenance("shadcn", repoRoot).pipe(
+        Effect.provideService(SkillUpstreamContentSource, source),
+        Effect.exit
+      );
+      exit.pipe(Exit.isFailure, assertTrue);
+      expect(String(exit)).toContain("line review limit");
+    })
+  );
+
   it.effect("detects text drift while proving the exact pin and unchanged binary asset", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;

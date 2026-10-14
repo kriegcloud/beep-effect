@@ -158,7 +158,7 @@ describe("TikaServerEngineConfig", () => {
     "round-trips schema-derived Tika Server config through encoded form",
     [TikaServerEngineConfig],
     ([config]) => {
-      expectRoundTrip(TikaServerEngineConfig, config);
+      expectRoundTrip(TikaServerEngineConfig, TikaServerEngineConfig.make(config));
     },
     { arbitrary: fcRuns(25) }
   );
@@ -167,7 +167,7 @@ describe("TikaServerEngineConfig", () => {
     "generates valid Tika Server configs for the nightly regression seed",
     [TikaServerEngineConfig],
     ([config]) => {
-      expectRoundTrip(TikaServerEngineConfig, config);
+      expectRoundTrip(TikaServerEngineConfig, TikaServerEngineConfig.make(config));
     },
     { arbitrary: { ...fcRuns(1_000), seed: 1_754_546_950 } }
   );

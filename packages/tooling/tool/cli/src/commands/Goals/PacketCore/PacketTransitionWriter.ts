@@ -45,7 +45,9 @@ import {
   PacketStageOrdinal,
   PacketStatusToken,
   PacketTip,
+  RiskTierOverriddenBody,
   RiskTierOverrideReason,
+  StatusSetBody,
   StoredPacketEvent,
 } from "./PacketCore.schemas.ts";
 import { packetEventDigest, packetEventFileName } from "./PacketDigest.ts";
@@ -125,7 +127,7 @@ const PacketTransitionGenesisPairCheck = S.makeFilter(
  * @category models
  * @since 0.0.0
  */
-export class PacketTransitionRequest extends S.Class<PacketTransitionRequest>($I`PacketTransitionRequest`)(
+export class PacketTransitionRequest extends S.Opaque<PacketTransitionRequest, { readonly brand: unique symbol }>()(
   S.Struct({
     locator: PacketStreamLocator,
     status: PacketStatusToken,
@@ -134,10 +136,13 @@ export class PacketTransitionRequest extends S.Class<PacketTransitionRequest>($I
     genesisOrdinal: S.optionalKey(PacketStageOrdinal),
     actor: PacketEventActor,
     at: PacketEventTimestamp,
-  }).check(PacketTransitionGenesisPairCheck),
-  $I.annote("PacketTransitionRequest", {
-    description: "One requested status transition with caller-validated vocabulary and genesis stage info.",
   })
+    .check(PacketTransitionGenesisPairCheck)
+    .pipe(
+      $I.annoteSchema("PacketTransitionRequest", {
+        description: "One requested status transition with caller-validated vocabulary and genesis stage info.",
+      })
+    )
 ) {}
 
 /**
@@ -172,9 +177,10 @@ export class PacketTransitionRequest extends S.Class<PacketTransitionRequest>($I
  * @category models
  * @since 0.0.0
  */
-export class PacketRiskTierOverrideRequest extends S.Class<PacketRiskTierOverrideRequest>(
-  $I`PacketRiskTierOverrideRequest`
-)(
+export class PacketRiskTierOverrideRequest extends S.Opaque<
+  PacketRiskTierOverrideRequest,
+  { readonly brand: unique symbol }
+>()(
   S.Struct({
     locator: PacketStreamLocator,
     tier: PacketRiskTier,
@@ -184,10 +190,13 @@ export class PacketRiskTierOverrideRequest extends S.Class<PacketRiskTierOverrid
     genesisOrdinal: S.optionalKey(PacketStageOrdinal),
     actor: PacketEventActor,
     at: PacketEventTimestamp,
-  }).check(PacketTransitionGenesisPairCheck),
-  $I.annote("PacketRiskTierOverrideRequest", {
-    description: "One requested operator risk-tier override with its recorded reason and genesis fallback.",
   })
+    .check(PacketTransitionGenesisPairCheck)
+    .pipe(
+      $I.annoteSchema("PacketRiskTierOverrideRequest", {
+        description: "One requested operator risk-tier override with its recorded reason and genesis fallback.",
+      })
+    )
 ) {}
 
 /**
@@ -270,8 +279,8 @@ export type PacketPlanRequest = typeof PacketPlanRequest.Type;
  * @category models
  * @since 0.0.0
  */
-export class PacketTransitionPlan extends S.Class<PacketTransitionPlan>($I`PacketTransitionPlan`)(
-  {
+export class PacketTransitionPlan extends S.Opaque<PacketTransitionPlan, { readonly brand: unique symbol }>()(
+  S.Struct({
     request: PacketPlanRequest,
     disposition: PacketTransitionDisposition,
     streamPresent: S.Boolean,
@@ -280,10 +289,11 @@ export class PacketTransitionPlan extends S.Class<PacketTransitionPlan>($I`Packe
     events: S.Array(PacketEvent),
     derivedAfter: S.optionalKey(PacketDerivedState),
     tracePath: S.String,
-  },
-  $I.annote("PacketTransitionPlan", {
-    description: "The exact events and derived state one transition would produce, computed without writing.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketTransitionPlan", {
+      description: "The exact events and derived state one transition would produce, computed without writing.",
+    })
+  )
 ) {}
 
 /**
@@ -306,17 +316,18 @@ export class PacketTransitionPlan extends S.Class<PacketTransitionPlan>($I`Packe
  * @category models
  * @since 0.0.0
  */
-export class PacketTransitionOutcome extends S.Class<PacketTransitionOutcome>($I`PacketTransitionOutcome`)(
-  {
+export class PacketTransitionOutcome extends S.Opaque<PacketTransitionOutcome, { readonly brand: unique symbol }>()(
+  S.Struct({
     disposition: PacketTransitionDisposition,
     appended: PacketRevision,
     tip: S.optionalKey(PacketTip),
     tracePath: S.String,
     traceWritten: S.Boolean,
-  },
-  $I.annote("PacketTransitionOutcome", {
-    description: "Committed-transition result with an explicit append, skipped, or streamless disposition.",
-  })
+  }).pipe(
+    $I.annoteSchema("PacketTransitionOutcome", {
+      description: "Committed-transition result with an explicit append, skipped, or streamless disposition.",
+    })
+  )
 ) {}
 
 /**
@@ -474,7 +485,11 @@ const makePacketTransitionWriter = Effect.fn("PacketTransitionWriter.make")(func
     // behind), that derived status is the accurate `previous`, not the
     // caller's manifest snapshot.
     const previous = derived.status ?? request.previousStatus;
-    const statusSet = draftAppendedEvent(request, base, { type: "status-set", status: request.status, previous });
+    const statusSet = draftAppendedEvent(
+      request,
+      base,
+      StatusSetBody.make({ type: "status-set", status: request.status, previous })
+    );
     return A.append(base.events, statusSet);
   });
 
@@ -490,12 +505,16 @@ const makePacketTransitionWriter = Effect.fn("PacketTransitionWriter.make")(func
       O.fromUndefinedOr(derived.riskTierOverride),
       O.map((override) => override.tier)
     );
-    const overridden = draftAppendedEvent(request, base, {
-      type: "risk-tier-overridden",
-      tier: request.tier,
-      ...optionalProp("previous", previous),
-      reason: request.reason,
-    });
+    const overridden = draftAppendedEvent(
+      request,
+      base,
+      RiskTierOverriddenBody.make({
+        type: "risk-tier-overridden",
+        tier: request.tier,
+        ...optionalProp("previous", previous),
+        reason: request.reason,
+      })
+    );
     return A.append(base.events, overridden);
   });
 

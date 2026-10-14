@@ -126,14 +126,18 @@ const SyntheticProjectionSeed = SyntheticProjectionCount.pipe(
  * @category protocols
  * @since 0.0.0
  */
-export class SyntheticProjectionResponse extends S.Class<SyntheticProjectionResponse>($I`SyntheticProjectionResponse`)(
-  {
+export class SyntheticProjectionResponse extends S.Opaque<
+  SyntheticProjectionResponse,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     elementCount: SyntheticProjectionNodeCount,
     projection: Session.OntologyGraphProjection,
-  },
-  $I.annote("SyntheticProjectionResponse", {
-    description: "Synthetic ontology graph projection returned across the worker RPC boundary.",
-  })
+  }).pipe(
+    $I.annoteSchema("SyntheticProjectionResponse", {
+      description: "Synthetic ontology graph projection returned across the worker RPC boundary.",
+    })
+  )
 ) {}
 
 /**

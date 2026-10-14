@@ -58,17 +58,18 @@ const $I = $SemanticaId.create("canary/Command");
  * @category models
  * @since 0.0.0
  */
-export class CanaryOptions extends S.Class<CanaryOptions>($I`CanaryOptions`)(
-  {
+export class CanaryOptions extends S.Opaque<CanaryOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     manifest: S.NonEmptyString,
     offline: S.Boolean,
     out: S.OptionFromNullOr(S.NonEmptyString),
     paper: S.OptionFromNullOr(S.NonEmptyString),
     selection: EvalSelectionMode,
-  },
-  $I.annote("CanaryOptions", {
-    description: "Manifest, source selection, optional paper, and replay mode parsed for one canary stage.",
-  })
+  }).pipe(
+    $I.annoteSchema("CanaryOptions", {
+      description: "Manifest, source selection, optional paper, and replay mode parsed for one canary stage.",
+    })
+  )
 ) {}
 
 const stageManifest = Flag.Path("manifest").pipe(

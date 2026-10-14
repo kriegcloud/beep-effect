@@ -26,11 +26,10 @@ import {
   readProfileHistory,
   unixSecondsToChromeMicros,
 } from "./BrowserHistory.ts";
-import { catalogDbPath, loadSeenUrls, persistCards } from "./CatalogOps.ts";
+import { CardPersistRow, catalogDbPath, loadSeenUrls, persistCards } from "./CatalogOps.ts";
 import { normalizeUrl, sha256HexOf, slugFor, VAULT_DIRS } from "./Vault.ts";
 import type { ResearchHistorySiftOptions } from "../Research.schemas.ts";
 import type { ResearchCommandServiceRequirements } from "../Research.service.ts";
-import type { CardPersistRow } from "./CatalogOps.ts";
 
 const decodeHistorySiftSummary = S.decodeUnknownEffect(ResearchHistorySiftSummary);
 
@@ -107,7 +106,7 @@ const historyStubCard = Effect.fnUntraced(function* (
     ],
     "\n"
   );
-  return { body, frontmatter, relativePath };
+  return CardPersistRow.make({ body, frontmatter, relativePath });
 });
 
 /**

@@ -31,8 +31,8 @@ const $I = $TodoxId.create("components/EvidenceGraph");
  * @category models
  * @since 0.0.0
  */
-class GraphNode extends S.Class<GraphNode>($I`GraphNode`)(
-  {
+class GraphNode extends S.Opaque<GraphNode, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.String,
     kind: LiteralKit(["source", "claim", "review", "brief"]),
     label: S.String,
@@ -46,8 +46,7 @@ class GraphNode extends S.Class<GraphNode>($I`GraphNode`)(
     state: S.Option(RecordState),
     body: S.String,
     meta: S.String,
-  },
-  $I.annote("GraphNode", { description: "An authored node of the hero evidence graph." })
+  }).pipe($I.annoteSchema("GraphNode", { description: "An authored node of the hero evidence graph." }))
 ) {}
 
 /**
@@ -56,14 +55,13 @@ class GraphNode extends S.Class<GraphNode>($I`GraphNode`)(
  * @category models
  * @since 0.0.0
  */
-class GraphEdge extends S.Class<GraphEdge>($I`GraphEdge`)(
-  {
+class GraphEdge extends S.Opaque<GraphEdge, { readonly brand: unique symbol }>()(
+  S.Struct({
     from: S.String,
     to: S.String,
     live: S.Boolean,
     path: S.String,
-  },
-  $I.annote("GraphEdge", { description: "A drawn connection between two graph nodes." })
+  }).pipe($I.annoteSchema("GraphEdge", { description: "A drawn connection between two graph nodes." }))
 ) {}
 
 const recordIn = <R extends { readonly no: string }>(records: ReadonlyArray<R>, no: string): O.Option<R> =>

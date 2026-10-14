@@ -134,21 +134,24 @@ export type CiLanePartitionId = typeof CiLanePartitionId.Type;
  * @category models
  * @since 0.0.0
  */
-export class CiLanePartitionShard extends S.Class<CiLanePartitionShard>($I`CiLanePartitionShard`)(
+export class CiLanePartitionShard extends S.Opaque<CiLanePartitionShard, { readonly brand: unique symbol }>()(
   S.Struct({
     index: S.Int.check(S.isGreaterThanOrEqualTo(1)),
     total: S.Int.check(S.isGreaterThanOrEqualTo(2)),
-  }).check(
-    S.makeFilter((shard: { readonly index: number; readonly total: number }) => shard.index <= shard.total, {
-      identifier: $I`CiLanePartitionShardIndexBoundCheck`,
-      title: "CI Lane Partition Shard Index Bound",
-      description: "Checks that a Vitest shard index never exceeds its shard total.",
-      message: "Shard index must not exceed the shard total.",
-    })
-  ),
-  $I.annote("CiLanePartitionShard", {
-    description: "One-based Vitest --shard slice (index/total) forwarded by a sharded CI lane partition.",
   })
+    .check(
+      S.makeFilter((shard: { readonly index: number; readonly total: number }) => shard.index <= shard.total, {
+        identifier: $I`CiLanePartitionShardIndexBoundCheck`,
+        title: "CI Lane Partition Shard Index Bound",
+        description: "Checks that a Vitest shard index never exceeds its shard total.",
+        message: "Shard index must not exceed the shard total.",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("CiLanePartitionShard", {
+        description: "One-based Vitest --shard slice (index/total) forwarded by a sharded CI lane partition.",
+      })
+    )
 ) {}
 
 /**
@@ -171,17 +174,18 @@ export class CiLanePartitionShard extends S.Class<CiLanePartitionShard>($I`CiLan
  * @category models
  * @since 0.0.0
  */
-export class CiLanePartition extends S.Class<CiLanePartition>($I`CiLanePartition`)(
-  {
+export class CiLanePartition extends S.Opaque<CiLanePartition, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: CiLanePartitionId,
     lane: PartitionedCiLane,
     packages: S.Array(S.String),
     weightSeconds: S.Finite,
     shard: S.optionalKey(CiLanePartitionShard),
-  },
-  $I.annote("CiLanePartition", {
-    description: "Schema-backed package assignment and measured p95 weight for one CI lane partition.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLanePartition", {
+      description: "Schema-backed package assignment and measured p95 weight for one CI lane partition.",
+    })
+  )
 ) {}
 
 /**
@@ -560,14 +564,15 @@ export const CI_LANE_PARTITIONS: ReadonlyArray<CiLanePartition> = [
  * @category models
  * @since 0.0.0
  */
-export class CiLaneDefaultPlacement extends S.Class<CiLaneDefaultPlacement>($I`CiLaneDefaultPlacement`)(
-  {
+export class CiLaneDefaultPlacement extends S.Opaque<CiLaneDefaultPlacement, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageName: S.String,
     partition: CiLanePartitionId,
-  },
-  $I.annote("CiLaneDefaultPlacement", {
-    description: "Name-derived partition assigned to an executable package absent from the curated table.",
-  })
+  }).pipe(
+    $I.annoteSchema("CiLaneDefaultPlacement", {
+      description: "Name-derived partition assigned to an executable package absent from the curated table.",
+    })
+  )
 ) {}
 
 const FNV_OFFSET_BASIS = 0x811c9dc5;

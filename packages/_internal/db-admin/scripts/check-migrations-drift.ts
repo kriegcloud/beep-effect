@@ -18,15 +18,14 @@ import * as Path from "effect/Path";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 import * as S from "effect/Schema";
 
-class MigrationsDriftError extends S.TaggedError<MigrationsDriftError>("@beep/db-admin/MigrationsDriftError")(
-  "MigrationsDriftError",
-  {
-    message: S.String,
-    newFolders: S.Array(S.String),
-  }
-) {}
+class MigrationsDriftError extends S.TaggedError<MigrationsDriftError, { readonly brand: unique symbol }>(
+  "@beep/db-admin/MigrationsDriftError"
+)("MigrationsDriftError", {
+  message: S.String,
+  newFolders: S.Array(S.String),
+}) {}
 
-class MigrationGenerationError extends S.TaggedError<MigrationGenerationError>(
+class MigrationGenerationError extends S.TaggedError<MigrationGenerationError, { readonly brand: unique symbol }>(
   "@beep/db-admin/MigrationGenerationError"
 )("MigrationGenerationError", {
   exitCode: S.Int,

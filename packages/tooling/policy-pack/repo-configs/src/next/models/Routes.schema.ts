@@ -159,40 +159,43 @@ export const RedirectStatusCodeValue = LiteralKit([301, 302, 303, 307, 308]).pip
  */
 export type RedirectStatusCodeValue = typeof RedirectStatusCodeValue.Type;
 
-class HeaderEntry extends S.Class<HeaderEntry>($I`HeaderEntry`)(
-  {
+class HeaderEntry extends S.Opaque<HeaderEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: S.String,
     value: S.String,
-  },
-  $I.annote("HeaderEntry", {
-    description: "Single HTTP response header entry emitted by a Next.js headers route.",
-  })
+  }).pipe(
+    $I.annoteSchema("HeaderEntry", {
+      description: "Single HTTP response header entry emitted by a Next.js headers route.",
+    })
+  )
 ) {}
 
-class RedirectPermanent extends S.Class<RedirectPermanent>($I`RedirectPermanent`)(
-  {
+class RedirectPermanent extends S.Opaque<RedirectPermanent, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...RouteBaseFields,
     destination: S.String,
     priority: S.optionalKey(S.Boolean),
     statusCode: S.optionalKey(S.Never),
     permanent: S.Boolean,
-  },
-  $I.annote("RedirectPermanent", {
-    description: "Redirect route configuration that uses the permanent flag.",
-  })
+  }).pipe(
+    $I.annoteSchema("RedirectPermanent", {
+      description: "Redirect route configuration that uses the permanent flag.",
+    })
+  )
 ) {}
 
-class RedirectStatusCode extends S.Class<RedirectStatusCode>($I`RedirectStatusCode`)(
-  {
+class RedirectStatusCode extends S.Opaque<RedirectStatusCode, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...RouteBaseFields,
     destination: S.String,
     priority: S.optionalKey(S.Boolean),
     statusCode: RedirectStatusCodeValue,
     permanent: S.optionalKey(S.Never),
-  },
-  $I.annote("RedirectStatusCode", {
-    description: "Redirect route configuration that uses an explicit status code.",
-  })
+  }).pipe(
+    $I.annoteSchema("RedirectStatusCode", {
+      description: "Redirect route configuration that uses an explicit status code.",
+    })
+  )
 ) {}
 
 /**
@@ -200,16 +203,17 @@ class RedirectStatusCode extends S.Class<RedirectStatusCode>($I`RedirectStatusCo
  *
  * @internal
  */
-class RewriteRoute extends S.Class<RewriteRoute>($I`Rewrite`)(
-  {
+class RewriteRoute extends S.Opaque<RewriteRoute, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...RouteBaseFields,
     destination: S.String,
-  },
-  $I.annote("Rewrite", {
-    description: "User-facing Next.js rewrite route configuration.",
-    documentation:
-      "Models the public Next.js rewrite fields and omits internal routing fields such as internal and regex.",
-  })
+  }).pipe(
+    $I.annoteSchema("Rewrite", {
+      description: "User-facing Next.js rewrite route configuration.",
+      documentation:
+        "Models the public Next.js rewrite fields and omits internal routing fields such as internal and regex.",
+    })
+  )
 ) {}
 
 /**
@@ -217,15 +221,16 @@ class RewriteRoute extends S.Class<RewriteRoute>($I`Rewrite`)(
  *
  * @internal
  */
-class HeaderRoute extends S.Class<HeaderRoute>($I`Header`)(
-  {
+class HeaderRoute extends S.Opaque<HeaderRoute, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...RouteBaseFields,
     headers: HeaderEntry.pipe(S.Array, S.mutable),
-  },
-  $I.annote("Header", {
-    description: "User-facing Next.js response header route configuration.",
-    documentation: "Models the public Next.js header fields and omits internal routing fields such as internal.",
-  })
+  }).pipe(
+    $I.annoteSchema("Header", {
+      description: "User-facing Next.js response header route configuration.",
+      documentation: "Models the public Next.js header fields and omits internal routing fields such as internal.",
+    })
+  )
 ) {}
 
 /**
@@ -233,15 +238,16 @@ class HeaderRoute extends S.Class<HeaderRoute>($I`Header`)(
  *
  * @internal
  */
-class MiddlewareRoute extends S.Class<MiddlewareRoute>($I`Middleware`)(
-  {
+class MiddlewareRoute extends S.Opaque<MiddlewareRoute, { readonly brand: unique symbol }>()(
+  S.Struct({
     source: S.String,
     locale: S.optionalKey(S.Literal(false)),
     ...RouteMatchFields,
-  },
-  $I.annote("Middleware", {
-    description: "Next.js middleware route matcher configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("Middleware", {
+      description: "Next.js middleware route matcher configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -271,9 +277,10 @@ export const Rewrite = RewriteRoute;
  * **Example** (Type rewrite configuration)
  *
  * ```ts
- * import type { Rewrite } from "@beep/repo-configs/next/models/Routes.schema"
- * const rewrite: Rewrite = { source: "/old", destination: "/new" }
- * console.log(rewrite)
+ * import { Rewrite } from "@beep/repo-configs/next/models/Routes.schema"
+ *
+ * const rewrite: Rewrite = Rewrite.make({ source: "/docs/:slug", destination: "/content/:slug" })
+ * console.log(rewrite.destination) // /content/:slug
  * ```
  *
  * @category models
@@ -308,12 +315,14 @@ export const Header = HeaderRoute;
  * **Example** (Type header route config)
  *
  * ```ts
- * import type { Header } from "@beep/repo-configs/next/models/Routes.schema"
- * const header: Header = {
+ * import { Header } from "@beep/repo-configs/next/models/Routes.schema"
+ * import * as S from "effect/Schema"
+ *
+ * const header: Header = S.decodeUnknownSync(Header)({
  *   source: "/secure",
  *   headers: [{ key: "x-frame-options", value: "deny" }]
- * }
- * console.log(header)
+ * })
+ * console.log(header.headers[0]?.key) // x-frame-options
  * ```
  *
  * @category models
@@ -354,13 +363,15 @@ export const Redirect = S.Union([RedirectPermanent, RedirectStatusCode]).pipe(
  * **Example** (Type temporary redirect)
  *
  * ```ts
- * import type { Redirect } from "@beep/repo-configs/next/models/Routes.schema"
- * const redirect: Redirect = {
+ * import { Redirect } from "@beep/repo-configs/next/models/Routes.schema"
+ * import * as S from "effect/Schema"
+ *
+ * const redirect: Redirect = S.decodeUnknownSync(Redirect)({
  *   source: "/old",
  *   destination: "/new",
  *   statusCode: 307
- * }
- * console.log(redirect)
+ * })
+ * console.log(redirect.statusCode) // 307
  * ```
  *
  * @category models
@@ -395,9 +406,10 @@ export const Middleware = MiddlewareRoute;
  * **Example** (Type middleware matcher)
  *
  * ```ts
- * import type { Middleware } from "@beep/repo-configs/next/models/Routes.schema"
- * const middleware: Middleware = { source: "/admin/:path*", locale: false }
- * console.log(middleware)
+ * import { Middleware } from "@beep/repo-configs/next/models/Routes.schema"
+ *
+ * const middleware: Middleware = Middleware.make({ source: "/admin/:path*", locale: false })
+ * console.log(middleware.source) // /admin/:path*
  * ```
  *
  * @category models

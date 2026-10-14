@@ -36,8 +36,8 @@ const $I = $ObservabilityId.create("server/Config");
  * @category models
  * @since 0.0.0
  */
-export class ServerObservabilityConfig extends S.Class<ServerObservabilityConfig>($I`ServerObservabilityConfig`)(
-  {
+export class ServerObservabilityConfig extends S.Opaque<ServerObservabilityConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     serviceName: S.String,
     serviceVersion: S.String,
     environment: S.String,
@@ -48,10 +48,11 @@ export class ServerObservabilityConfig extends S.Class<ServerObservabilityConfig
     devtoolsEnabled: S.Boolean,
     devtoolsUrl: S.String,
     prometheusPrefix: S.String,
-  },
-  $I.annote("ServerObservabilityConfig", {
-    description: "Server-only observability configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("ServerObservabilityConfig", {
+      description: "Server-only observability configuration.",
+    })
+  )
 ) {
   static readonly is = S.is(ServerObservabilityConfig);
 }

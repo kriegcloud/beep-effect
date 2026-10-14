@@ -980,3 +980,52 @@ that integrated main commit. No fix or base merge inside the frozen launch.
 - **Prevented by:** commit completed packet edits before running a suite
   whose contract compares git HEAD and working-tree bytes. Verify new
   helper signatures from installed Effect before using them in fixtures.
+
+
+## 2026-10-14 — Hosted inherited reds gate a locally proven recovery change
+
+- **Doing:** final exact-head closeout of recovery engine PR #1731.
+- **Evidence:** completed job logs show Lint Policy failed on fourteen
+  host-path observations and nine JSDoc warnings; Coverage Regression
+  failed on sixteen rows in nine non-Corpus files. Every reported file
+  matches the merge base. The changed restoration files retain their
+  per-file coverage floors; local scoped tests pass 6,197/6,197.
+- **Prevented by:** land the consolidated inherited lint/coverage repair
+  on main once and route ownership there. S11 gate and attribution stay
+  explicit; this lane never edits other packets or lowers a baseline.
+
+
+## 2026-10-14 — Post-merge proof receipts conflict with the published handoff
+
+- Doing: integrating the merged recovery engine before the live recovery.
+- Evidence: one add/add conflict in the dated handoff. Main ended before
+  this lane's locally appended final coverage/hosted attribution and report.
+  Preserve the append and complete the merge; engine source matches main.
+- Prevented by: committing post-push proof receipts with the next evidence
+  wave before integration; do not drop them or re-push a merged head branch.
+
+
+## 2026-10-14 — An added private-log reference trips the knowledge gate
+
+- Doing: verifying committed recovery freeze documentation before launch.
+- Evidence: knowledge refs reports sixteen live gated external-mirror
+  observations; one is the new SPEC private-log location. Fifteen other
+  observations are in documents that match main. No corpus tool ran.
+- Prevented by: write private-log locations relative to the declared corpus
+  home, matching the packet's existing inventory. Correct the introduced
+  row, commit, rerun; the orchestrator owns the inherited observations.
+
+
+## 2026-10-14 — Recovery source freeze includes unrelated JSDoc
+
+- Doing: reconcile the rebooted ordinal-5 recovery, then integrate main
+  before the successor-ruled ordinal-7 launch.
+- Evidence: three Corpus.service.ts JSDoc blocks differ from the committed
+  recovery codeHead (33 additions, six deletions). The frozen launcher checks
+  the entire Corpus directory with git diff --quiet and would exit 71.
+  Restoration implementation and libpff are unchanged; ordinal 7 unstarted.
+- Prevented by: define and record the exact frozen execution surface before
+  launch, or prescribe an execution route that survives mandatory main
+  integration without weakening an existing byte-identity contract.
+- Attribution: inherited source-comment changes from main; no local engine
+  edit. Orchestrator owns identity resolution; no manifest/launcher rewrite.

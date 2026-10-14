@@ -30,15 +30,16 @@ const $I = $RepoCliId.create("commands/Research/Library/Library.qualify");
  * @category models
  * @since 0.0.0
  */
-export class LibraryQualifyOptions extends S.Class<LibraryQualifyOptions>($I`LibraryQualifyOptions`)(
-  {
+export class LibraryQualifyOptions extends S.Opaque<LibraryQualifyOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     adapters: S.Array(S.String),
     sourceIds: S.Array(S.String),
     maxProbes: S.Int.check(S.isBetween({ minimum: 1, maximum: 3 })),
-  },
-  $I.annote("LibraryQualifyOptions", {
-    description: "Explicit adapter/source selection and bounded alternate-source probes.",
-  })
+  }).pipe(
+    $I.annoteSchema("LibraryQualifyOptions", {
+      description: "Explicit adapter/source selection and bounded alternate-source probes.",
+    })
+  )
 ) {}
 
 /**

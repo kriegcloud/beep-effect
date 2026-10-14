@@ -80,7 +80,9 @@ export type PacerAuthErrorReason = typeof PacerAuthErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class PacerAuthError extends S.TaggedError<PacerAuthError>($I`PacerAuthError`)(
+export class PacerAuthError extends S.TaggedError<PacerAuthError, { readonly brand: unique symbol }>(
+  $I`PacerAuthError`
+)(
   "PacerAuthError",
   {
     reason: PacerAuthErrorReason,
@@ -192,7 +194,7 @@ export type PacerPclErrorReason = typeof PacerPclErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class PacerPclError extends S.TaggedError<PacerPclError>($I`PacerPclError`)(
+export class PacerPclError extends S.TaggedError<PacerPclError, { readonly brand: unique symbol }>($I`PacerPclError`)(
   "PacerPclError",
   {
     reason: PacerPclErrorReason,
@@ -261,7 +263,9 @@ export class PacerPclError extends S.TaggedError<PacerPclError>($I`PacerPclError
  * @category errors
  * @since 0.0.0
  */
-export class PacerConfigError extends S.TaggedError<PacerConfigError>($I`PacerConfigError`)(
+export class PacerConfigError extends S.TaggedError<PacerConfigError, { readonly brand: unique symbol }>(
+  $I`PacerConfigError`
+)(
   "PacerConfigError",
   {
     cause: S.optionalKey(S.String),

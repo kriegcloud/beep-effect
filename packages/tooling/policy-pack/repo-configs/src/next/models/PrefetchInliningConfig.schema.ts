@@ -9,15 +9,19 @@ import * as S from "effect/Schema";
 
 const $I = $RepoConfigsId.create("next/models/PrefetchInliningConfig.schema");
 
-class PrefetchInliningConfigComplex extends S.Class<PrefetchInliningConfigComplex>($I`PrefetchInliningConfigComplex`)(
-  {
+class PrefetchInliningConfigComplex extends S.Opaque<
+  PrefetchInliningConfigComplex,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     maxSize: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
     maxBundleSize: S.Finite.check(S.isGreaterThanOrEqualTo(0)),
-  },
-  $I.annote("PrefetchInliningConfigComplex", {
-    description:
-      "Resolved form of the prefetchInlining config after normalization in\nconfig.ts. User input (true, partial objects) is converted to this shape.",
-  })
+  }).pipe(
+    $I.annoteSchema("PrefetchInliningConfigComplex", {
+      description:
+        "Resolved form of the prefetchInlining config after normalization in\nconfig.ts. User input (true, partial objects) is converted to this shape.",
+    })
+  )
 ) {}
 
 /**

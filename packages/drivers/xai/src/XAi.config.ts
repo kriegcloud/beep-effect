@@ -172,8 +172,8 @@ const xAiConfigInputHeadersDefault = R.empty();
  * @category utilities
  * @since 0.0.0
  */
-export class XAiConfigInput extends S.Class<XAiConfigInput>($I`XAiConfigInput`)(
-  {
+export class XAiConfigInput extends S.Opaque<XAiConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.OptionFromOptionalKey(S.String.pipe(S.RedactedFromValue)).pipe(
       S.withConstructorDefault(Effect.succeedNone)
     ),
@@ -196,8 +196,9 @@ export class XAiConfigInput extends S.Class<XAiConfigInput>($I`XAiConfigInput`)(
       S.withConstructorDefault(Effect.succeed(XAI_WEBSOCKET_URL)),
       S.withDecodingDefaultTypeKey(Effect.succeed(XAI_WEBSOCKET_URL))
     ),
-  },
-  $I.annote("XAiConfigInput", {
-    description: "Runtime configuration accepted by the xAI driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("XAiConfigInput", {
+      description: "Runtime configuration accepted by the xAI driver layer.",
+    })
+  )
 ) {}

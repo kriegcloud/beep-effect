@@ -214,7 +214,9 @@ export type AiMetricsArchiveAlgorithm = typeof AiMetricsArchiveAlgorithm.Type;
  * @category errors
  * @since 0.0.0
  */
-export class AiMetricsArchiveError extends S.TaggedError<AiMetricsArchiveError>($I`AiMetricsArchiveError`)(
+export class AiMetricsArchiveError extends S.TaggedError<AiMetricsArchiveError, { readonly brand: unique symbol }>(
+  $I`AiMetricsArchiveError`
+)(
   "AiMetricsArchiveError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),
@@ -252,10 +254,11 @@ export class AiMetricsArchiveError extends S.TaggedError<AiMetricsArchiveError>(
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsEncryptedRawArchiveEnvelope extends S.Class<AiMetricsEncryptedRawArchiveEnvelope>(
-  $I`AiMetricsEncryptedRawArchiveEnvelope`
-)(
-  {
+export class AiMetricsEncryptedRawArchiveEnvelope extends S.Opaque<
+  AiMetricsEncryptedRawArchiveEnvelope,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     algorithm: AiMetricsArchiveAlgorithm,
     archiveObjectId: AiMetricsRawArchiveObjectId,
     ciphertextBase64: AesGcmCiphertextBase64,
@@ -264,10 +267,11 @@ export class AiMetricsEncryptedRawArchiveEnvelope extends S.Class<AiMetricsEncry
     plaintextContentHash: ArchiveSha256Hex,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: ArchiveSha256Hex,
-  },
-  $I.annote("AiMetricsEncryptedRawArchiveEnvelope", {
-    description: "Encrypted raw transcript archive envelope with private source paths represented by salted hashes.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsEncryptedRawArchiveEnvelope", {
+      description: "Encrypted raw transcript archive envelope with private source paths represented by salted hashes.",
+    })
+  )
 ) {}
 
 const AiMetricsEncryptedRawArchiveEnvelopeFromJsonString = S.fromJsonString(AiMetricsEncryptedRawArchiveEnvelope);
@@ -296,8 +300,8 @@ const AiMetricsEncryptedRawArchiveEnvelopeFromJsonString = S.fromJsonString(AiMe
  * @category models
  * @since 0.0.0
  */
-export class AiMetricsRawArchiveObject extends S.Class<AiMetricsRawArchiveObject>($I`AiMetricsRawArchiveObject`)(
-  {
+export class AiMetricsRawArchiveObject extends S.Opaque<AiMetricsRawArchiveObject, { readonly brand: unique symbol }>()(
+  S.Struct({
     algorithm: AiMetricsArchiveAlgorithm,
     archiveObjectId: AiMetricsRawArchiveObjectId,
     archivePath: S.String,
@@ -306,10 +310,11 @@ export class AiMetricsRawArchiveObject extends S.Class<AiMetricsRawArchiveObject
     plaintextContentHash: ArchiveSha256Hex,
     sourceKind: AiMetricsTranscriptSource,
     sourcePathHash: ArchiveSha256Hex,
-  },
-  $I.annote("AiMetricsRawArchiveObject", {
-    description: "Safe metadata for one encrypted raw transcript archive object.",
-  })
+  }).pipe(
+    $I.annoteSchema("AiMetricsRawArchiveObject", {
+      description: "Safe metadata for one encrypted raw transcript archive object.",
+    })
+  )
 ) {}
 
 /**

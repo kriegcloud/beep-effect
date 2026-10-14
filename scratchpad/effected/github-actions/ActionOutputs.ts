@@ -30,7 +30,7 @@ const $I = $ScratchpadId.create("effected/github-actions/ActionOutputs");
  * @category errors
  * @since 0.0.0
  */
-export class RunnerFileUnavailableError extends S.TaggedError<RunnerFileUnavailableError>($I`RunnerFileUnavailableError`)(
+export class RunnerFileUnavailableError extends S.TaggedError<RunnerFileUnavailableError, { readonly brand: unique symbol }>($I`RunnerFileUnavailableError`)(
 	"RunnerFileUnavailableError",
 	{
 		/** The runner file involved, by environment variable name. */
@@ -75,7 +75,7 @@ export class RunnerFileUnavailableError extends S.TaggedError<RunnerFileUnavaila
  * @category errors
  * @since 0.0.0
  */
-export class RunnerFileWriteError extends S.TaggedError<RunnerFileWriteError>($I`RunnerFileWriteError`)("RunnerFileWriteError", {
+export class RunnerFileWriteError extends S.TaggedError<RunnerFileWriteError, { readonly brand: unique symbol }>($I`RunnerFileWriteError`)("RunnerFileWriteError", {
 	/** The runner file involved, by environment variable name. */
 	file: S.String.annotateKey({ description: "The runner file involved, by environment variable name." }),
 	/** The underlying failure, preserved structurally. */
@@ -117,7 +117,7 @@ export class RunnerFileWriteError extends S.TaggedError<RunnerFileWriteError>($I
  * @category errors
  * @since 0.0.0
  */
-export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError>($I`InvalidOutputNameError`)("InvalidOutputNameError", {
+export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError, { readonly brand: unique symbol }>($I`InvalidOutputNameError`)("InvalidOutputNameError", {
 	/** The offending name. */
 	name: S.String.annotateKey({ description: "The offending name." }),
 	/** The runner file involved, by environment variable name. */
@@ -161,7 +161,7 @@ export class InvalidOutputNameError extends S.TaggedError<InvalidOutputNameError
  * @category errors
  * @since 0.0.0
  */
-export class OutputEncodeError extends S.TaggedError<OutputEncodeError>($I`OutputEncodeError`)("OutputEncodeError", {
+export class OutputEncodeError extends S.TaggedError<OutputEncodeError, { readonly brand: unique symbol }>($I`OutputEncodeError`)("OutputEncodeError", {
 	/** The output or variable name whose value would not encode. */
 	name: S.String.annotateKey({ description: "The output or variable name whose value would not encode." }),
 	/** The underlying failure, preserved structurally. */
@@ -204,7 +204,7 @@ export class OutputEncodeError extends S.TaggedError<OutputEncodeError>($I`Outpu
  * @category errors
  * @since 0.0.0
  */
-export class DetachedOutputError extends S.TaggedError<DetachedOutputError>($I`DetachedOutputError`)("DetachedOutputError", {
+export class DetachedOutputError extends S.TaggedError<DetachedOutputError, { readonly brand: unique symbol }>($I`DetachedOutputError`)("DetachedOutputError", {
 	/** The runner file involved, by environment variable name. */
 	file: S.String.annotateKey({ description: "The runner file involved, by environment variable name." }),
 	/** The output or variable name, when one is involved. */
@@ -334,7 +334,7 @@ const encodeJson = <A, I>(
  * @category models
  * @since 0.0.0
  */
-export class RecordedOutput extends S.Class<RecordedOutput>($I`RecordedOutput`)({
+export class RecordedOutput extends S.Class<RecordedOutput, { readonly brand: unique symbol }>($I`RecordedOutput`)({
 	/** Which {@link ActionOutputsShape} member was called. */
 	member: S.Literals(["set", "setJson", "summary", "exportVariable", "addPath", "setFailed", "setSecret"]).annotateKey({ description: "Which ActionOutputsShape member was called." }),
 	/** The output or variable name, for the members that take one. */

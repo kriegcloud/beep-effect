@@ -196,8 +196,8 @@ export type PandocKeyValue = typeof PandocKeyValue.Type;
  * @category models
  * @since 0.0.0
  */
-export class PandocAttr extends S.Class<PandocAttr>($I`PandocAttr`)(
-  {
+export class PandocAttr extends S.Opaque<PandocAttr, {}>()(
+  S.Struct({
     classes: S.Array(S.String)
       .pipe(S.withConstructorDefault(Effect.succeed<ReadonlyArray<string>>([])))
       .annotateKey({
@@ -211,10 +211,11 @@ export class PandocAttr extends S.Class<PandocAttr>($I`PandocAttr`)(
       .annotateKey({
         description: "Pandoc attribute key/value pairs.",
       }),
-  },
-  $I.annote("PandocAttr", {
-    description: "Pandoc attribute triple represented with named fields.",
-  })
+  }).pipe(
+    $I.annoteSchema("PandocAttr", {
+      description: "Pandoc attribute triple represented with named fields.",
+    })
+  )
 ) {
   static readonly empty: PandocAttr = PandocAttr.make({ classes: [], id: "", keyValues: [] });
   static readonly isNonEmpty = (self: PandocAttr.Type): boolean =>
@@ -267,18 +268,19 @@ export declare namespace PandocAttr {
  * @category models
  * @since 0.0.0
  */
-export class PandocTarget extends S.Class<PandocTarget>($I`PandocTarget`)(
-  {
+export class PandocTarget extends S.Opaque<PandocTarget, {}>()(
+  S.Struct({
     title: S.String.pipe(S.withConstructorDefault(Effect.succeed<string>(""))).annotateKey({
       description: "Pandoc target title.",
     }),
     url: S.String.annotateKey({
       description: "Pandoc target URL.",
     }),
-  },
-  $I.annote("PandocTarget", {
-    description: "Pandoc link or image target.",
-  })
+  }).pipe(
+    $I.annoteSchema("PandocTarget", {
+      description: "Pandoc link or image target.",
+    })
+  )
 ) {}
 
 /**
@@ -727,17 +729,17 @@ export type PandocListItems = typeof PandocListItems.Type;
  * @category models
  * @since 0.0.0
  */
-export class Str extends S.TaggedClass<Str>($I`Str`)(
-  "str",
-  {
+export class Str extends S.Opaque<Str, {}>()(
+  S.TaggedStruct("str", {
     text: S.String.annotateKey({
       description: "Pandoc string text.",
     }),
-  },
-  $I.annote("Str", {
-    po: "atom",
-    description: "Plain text inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Str", {
+      po: "atom",
+      description: "Plain text inline.",
+    })
+  )
 ) {}
 
 /**
@@ -778,20 +780,20 @@ export declare namespace Str {
  * ```ts import.meta.vitest name="Making space inline"
  * import { Space } from "@beep/pandoc-ast/Pandoc.model"
  *
- * const node = Space.make()
+ * const node = Space.make({})
  * node._tag // => "space"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class Space extends S.TaggedClass<Space>($I`Space`)(
-  "space",
-  {},
-  $I.annote("Space", {
-    po: "milestone",
-    description: "Pandoc space inline.",
-  })
+export class Space extends S.Opaque<Space, {}>()(
+  S.TaggedStruct("space", {}).pipe(
+    $I.annoteSchema("Space", {
+      po: "milestone",
+      description: "Pandoc space inline.",
+    })
+  )
 ) {}
 
 /**
@@ -802,7 +804,7 @@ export class Space extends S.TaggedClass<Space>($I`Space`)(
  * ```ts import.meta.vitest name="Typing Space node"
  * import { Space } from "@beep/pandoc-ast/Pandoc.model"
  *
- * const node: Space.Type = Space.make()
+ * const node: Space.Type = Space.make({})
  * node._tag // => "space"
  * ```
  *
@@ -831,20 +833,20 @@ export declare namespace Space {
  * ```ts import.meta.vitest name="Making soft break inline"
  * import { SoftBreak } from "@beep/pandoc-ast/Pandoc.model"
  *
- * const node = SoftBreak.make()
+ * const node = SoftBreak.make({})
  * node._tag // => "softbreak"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class SoftBreak extends S.TaggedClass<SoftBreak>($I`SoftBreak`)(
-  "softbreak",
-  {},
-  $I.annote("SoftBreak", {
-    po: "milestone",
-    description: "Pandoc soft line break inline.",
-  })
+export class SoftBreak extends S.Opaque<SoftBreak, {}>()(
+  S.TaggedStruct("softbreak", {}).pipe(
+    $I.annoteSchema("SoftBreak", {
+      po: "milestone",
+      description: "Pandoc soft line break inline.",
+    })
+  )
 ) {}
 
 /**
@@ -855,7 +857,7 @@ export class SoftBreak extends S.TaggedClass<SoftBreak>($I`SoftBreak`)(
  * ```ts import.meta.vitest name="Typing SoftBreak node"
  * import { SoftBreak } from "@beep/pandoc-ast/Pandoc.model"
  *
- * const node: SoftBreak.Type = SoftBreak.make()
+ * const node: SoftBreak.Type = SoftBreak.make({})
  * node._tag // => "softbreak"
  * ```
  *
@@ -884,20 +886,20 @@ export declare namespace SoftBreak {
  * ```ts import.meta.vitest name="Making hard line break"
  * import { LineBreak } from "@beep/pandoc-ast/Pandoc.model"
  *
- * const node = LineBreak.make()
+ * const node = LineBreak.make({})
  * node._tag // => "linebreak"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class LineBreak extends S.TaggedClass<LineBreak>($I`LineBreak`)(
-  "linebreak",
-  {},
-  $I.annote("LineBreak", {
-    po: "milestone",
-    description: "Pandoc hard line break inline.",
-  })
+export class LineBreak extends S.Opaque<LineBreak, {}>()(
+  S.TaggedStruct("linebreak", {}).pipe(
+    $I.annoteSchema("LineBreak", {
+      po: "milestone",
+      description: "Pandoc hard line break inline.",
+    })
+  )
 ) {}
 
 /**
@@ -908,7 +910,7 @@ export class LineBreak extends S.TaggedClass<LineBreak>($I`LineBreak`)(
  * ```ts import.meta.vitest name="Typing LineBreak node"
  * import { LineBreak } from "@beep/pandoc-ast/Pandoc.model"
  *
- * const node: LineBreak.Type = LineBreak.make()
+ * const node: LineBreak.Type = LineBreak.make({})
  * node._tag // => "linebreak"
  * ```
  *
@@ -944,17 +946,17 @@ export declare namespace LineBreak {
  * @category models
  * @since 0.0.0
  */
-export class Emph extends S.TaggedClass<Emph>($I`Emph`)(
-  "emph",
-  {
+export class Emph extends S.Opaque<Emph, {}>()(
+  S.TaggedStruct("emph", {
     children: PandocInlineChildren.annotateKey({
       description: "Emphasized inline children.",
     }),
-  },
-  $I.annote("Emph", {
-    po: "inline",
-    description: "Pandoc emphasis inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Emph", {
+      po: "inline",
+      description: "Pandoc emphasis inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1005,17 +1007,17 @@ export declare namespace Emph {
  * @category models
  * @since 0.0.0
  */
-export class Strong extends S.TaggedClass<Strong>($I`Strong`)(
-  "strong",
-  {
+export class Strong extends S.Opaque<Strong, {}>()(
+  S.TaggedStruct("strong", {
     children: PandocInlineChildren.annotateKey({
       description: "Strong inline children.",
     }),
-  },
-  $I.annote("Strong", {
-    po: "inline",
-    description: "Pandoc strong inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Strong", {
+      po: "inline",
+      description: "Pandoc strong inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1066,17 +1068,17 @@ export declare namespace Strong {
  * @category models
  * @since 0.0.0
  */
-export class Strikeout extends S.TaggedClass<Strikeout>($I`Strikeout`)(
-  "strikeout",
-  {
+export class Strikeout extends S.Opaque<Strikeout, {}>()(
+  S.TaggedStruct("strikeout", {
     children: PandocInlineChildren.annotateKey({
       description: "Strikeout inline children.",
     }),
-  },
-  $I.annote("Strikeout", {
-    po: "inline",
-    description: "Pandoc strikeout inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Strikeout", {
+      po: "inline",
+      description: "Pandoc strikeout inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1129,17 +1131,17 @@ export declare namespace Strikeout {
  * @category models
  * @since 0.0.0
  */
-export class Underline extends S.TaggedClass<Underline>($I`Underline`)(
-  "underline",
-  {
+export class Underline extends S.Opaque<Underline, {}>()(
+  S.TaggedStruct("underline", {
     children: PandocInlineChildren.annotateKey({
       description: "Underlined inline children.",
     }),
-  },
-  $I.annote("Underline", {
-    po: "inline",
-    description: "Pandoc underlined inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Underline", {
+      po: "inline",
+      description: "Pandoc underlined inline content.",
+    })
+  )
 ) {}
 
 /**
@@ -1179,17 +1181,17 @@ export declare namespace Underline {
  * @category models
  * @since 0.0.0
  */
-export class Superscript extends S.TaggedClass<Superscript>($I`Superscript`)(
-  "superscript",
-  {
+export class Superscript extends S.Opaque<Superscript, {}>()(
+  S.TaggedStruct("superscript", {
     children: PandocInlineChildren.annotateKey({
       description: "Superscript inline children.",
     }),
-  },
-  $I.annote("Superscript", {
-    po: "inline",
-    description: "Pandoc superscript inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Superscript", {
+      po: "inline",
+      description: "Pandoc superscript inline content.",
+    })
+  )
 ) {}
 
 /**
@@ -1229,17 +1231,17 @@ export declare namespace Superscript {
  * @category models
  * @since 0.0.0
  */
-export class Subscript extends S.TaggedClass<Subscript>($I`Subscript`)(
-  "subscript",
-  {
+export class Subscript extends S.Opaque<Subscript, {}>()(
+  S.TaggedStruct("subscript", {
     children: PandocInlineChildren.annotateKey({
       description: "Subscript inline children.",
     }),
-  },
-  $I.annote("Subscript", {
-    po: "inline",
-    description: "Pandoc subscript inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Subscript", {
+      po: "inline",
+      description: "Pandoc subscript inline content.",
+    })
+  )
 ) {}
 
 /**
@@ -1279,17 +1281,17 @@ export declare namespace Subscript {
  * @category models
  * @since 0.0.0
  */
-export class SmallCaps extends S.TaggedClass<SmallCaps>($I`SmallCaps`)(
-  "smallCaps",
-  {
+export class SmallCaps extends S.Opaque<SmallCaps, {}>()(
+  S.TaggedStruct("smallCaps", {
     children: PandocInlineChildren.annotateKey({
       description: "Small-capital inline children.",
     }),
-  },
-  $I.annote("SmallCaps", {
-    po: "inline",
-    description: "Pandoc small-capital inline content.",
-  })
+  }).pipe(
+    $I.annoteSchema("SmallCaps", {
+      po: "inline",
+      description: "Pandoc small-capital inline content.",
+    })
+  )
 ) {}
 
 /**
@@ -1329,20 +1331,20 @@ export declare namespace SmallCaps {
  * @category models
  * @since 0.0.0
  */
-export class Quoted extends S.TaggedClass<Quoted>($I`Quoted`)(
-  "quoted",
-  {
+export class Quoted extends S.Opaque<Quoted, {}>()(
+  S.TaggedStruct("quoted", {
     children: PandocInlineChildren.annotateKey({
       description: "Quoted inline children.",
     }),
     quoteType: PandocQuoteType.annotateKey({
       description: "Quotation style constructor.",
     }),
-  },
-  $I.annote("Quoted", {
-    po: "inline",
-    description: "Pandoc quoted inline content with an explicit quotation style.",
-  })
+  }).pipe(
+    $I.annoteSchema("Quoted", {
+      po: "inline",
+      description: "Pandoc quoted inline content with an explicit quotation style.",
+    })
+  )
 ) {}
 
 /**
@@ -1391,18 +1393,19 @@ export declare namespace Quoted {
  * @category models
  * @since 0.0.0
  */
-export class Citation extends S.Class<Citation>($I`Citation`)(
-  {
+export class Citation extends S.Opaque<Citation, {}>()(
+  S.Struct({
     hash: S.Int.annotateKey({ description: "Pandoc citation hash." }),
     id: S.String.annotateKey({ description: "Pandoc citation identifier." }),
     mode: PandocCitationMode.annotateKey({ description: "Pandoc citation mode." }),
     noteNumber: S.Int.annotateKey({ description: "Pandoc citation note number." }),
     prefix: PandocInlineChildren.annotateKey({ description: "Citation prefix inlines." }),
     suffix: PandocInlineChildren.annotateKey({ description: "Citation suffix inlines." }),
-  },
-  $I.annote("Citation", {
-    description: "Structured Pandoc citation record embedded in a Cite inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Citation", {
+      description: "Structured Pandoc citation record embedded in a Cite inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1458,16 +1461,16 @@ export declare namespace Citation {
  * @category models
  * @since 0.0.0
  */
-export class Cite extends S.TaggedClass<Cite>($I`Cite`)(
-  "cite",
-  {
+export class Cite extends S.Opaque<Cite, {}>()(
+  S.TaggedStruct("cite", {
     children: PandocInlineChildren.annotateKey({ description: "Rendered citation fallback inlines." }),
     citations: S.Array(Citation).annotateKey({ description: "Structured Pandoc citations." }),
-  },
-  $I.annote("Cite", {
-    po: "inline",
-    description: "Pandoc citation inline with structured citations and rendered fallback content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Cite", {
+      po: "inline",
+      description: "Pandoc citation inline with structured citations and rendered fallback content.",
+    })
+  )
 ) {}
 
 /**
@@ -1509,16 +1512,16 @@ export declare namespace Cite {
  * @category models
  * @since 0.0.0
  */
-export class RawInline extends S.TaggedClass<RawInline>($I`RawInline`)(
-  "rawInline",
-  {
+export class RawInline extends S.Opaque<RawInline, {}>()(
+  S.TaggedStruct("rawInline", {
     format: PandocFormat.annotateKey({ description: "Raw inline source format." }),
     text: S.String.annotateKey({ description: "Raw inline source text." }),
-  },
-  $I.annote("RawInline", {
-    po: "atom",
-    description: "Pandoc raw inline content with an explicit source format.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawInline", {
+      po: "atom",
+      description: "Pandoc raw inline content with an explicit source format.",
+    })
+  )
 ) {}
 
 /**
@@ -1554,20 +1557,20 @@ export declare namespace RawInline {
  * @category models
  * @since 0.0.0
  */
-export class Code extends S.TaggedClass<Code>($I`Code`)(
-  "code",
-  {
+export class Code extends S.Opaque<Code, {}>()(
+  S.TaggedStruct("code", {
     attr: PandocAttr.annotateKey({
       description: "Pandoc code attributes.",
     }),
     text: S.String.annotateKey({
       description: "Inline code text.",
     }),
-  },
-  $I.annote("Code", {
-    po: "atom",
-    description: "Pandoc code inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Code", {
+      po: "atom",
+      description: "Pandoc code inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1624,9 +1627,8 @@ export declare namespace Code {
  * @category models
  * @since 0.0.0
  */
-export class Link extends S.TaggedClass<Link>($I`Link`)(
-  "link",
-  {
+export class Link extends S.Opaque<Link, {}>()(
+  S.TaggedStruct("link", {
     attr: PandocAttr.annotateKey({
       description: "Pandoc link attributes.",
     }),
@@ -1636,11 +1638,12 @@ export class Link extends S.TaggedClass<Link>($I`Link`)(
     target: PandocTarget.annotateKey({
       description: "Link target.",
     }),
-  },
-  $I.annote("Link", {
-    po: "inline",
-    description: "Pandoc link inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Link", {
+      po: "inline",
+      description: "Pandoc link inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1703,9 +1706,8 @@ export declare namespace Link {
  * @category models
  * @since 0.0.0
  */
-export class Image extends S.TaggedClass<Image>($I`Image`)(
-  "image",
-  {
+export class Image extends S.Opaque<Image, {}>()(
+  S.TaggedStruct("image", {
     attr: PandocAttr.annotateKey({
       description: "Pandoc image attributes.",
     }),
@@ -1715,11 +1717,12 @@ export class Image extends S.TaggedClass<Image>($I`Image`)(
     target: PandocTarget.annotateKey({
       description: "Image target.",
     }),
-  },
-  $I.annote("Image", {
-    po: "inline",
-    description: "Pandoc image inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Image", {
+      po: "inline",
+      description: "Pandoc image inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1778,20 +1781,20 @@ export declare namespace Image {
  * @category models
  * @since 0.0.0
  */
-export class Span extends S.TaggedClass<Span>($I`Span`)(
-  "span",
-  {
+export class Span extends S.Opaque<Span, {}>()(
+  S.TaggedStruct("span", {
     attr: PandocAttr.annotateKey({
       description: "Pandoc span attributes.",
     }),
     children: PandocInlineChildren.annotateKey({
       description: "Span children.",
     }),
-  },
-  $I.annote("Span", {
-    po: "inline",
-    description: "Pandoc span inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Span", {
+      po: "inline",
+      description: "Pandoc span inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1844,17 +1847,17 @@ export declare namespace Span {
  * @category models
  * @since 0.0.0
  */
-export class Note extends S.TaggedClass<Note>($I`Note`)(
-  "note",
-  {
+export class Note extends S.Opaque<Note, {}>()(
+  S.TaggedStruct("note", {
     blocks: PandocBlockChildren.annotateKey({
       description: "Note block contents.",
     }),
-  },
-  $I.annote("Note", {
-    po: "popup",
-    description: "Pandoc footnote or endnote inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Note", {
+      po: "popup",
+      description: "Pandoc footnote or endnote inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1905,20 +1908,20 @@ export declare namespace Note {
  * @category models
  * @since 0.0.0
  */
-export class Math extends S.TaggedClass<Math>($I`Math`)(
-  "math",
-  {
+export class Math extends S.Opaque<Math, {}>()(
+  S.TaggedStruct("math", {
     mathType: PandocMathType.annotateKey({
       description: "Math display mode.",
     }),
     text: S.String.annotateKey({
       description: "Math source text.",
     }),
-  },
-  $I.annote("Math", {
-    po: "atom",
-    description: "Pandoc math inline.",
-  })
+  }).pipe(
+    $I.annoteSchema("Math", {
+      po: "atom",
+      description: "Pandoc math inline.",
+    })
+  )
 ) {}
 
 /**
@@ -1967,7 +1970,7 @@ export declare namespace Math {
  * @category models
  * @since 0.0.0
  */
-export class UnknownInline extends S.TaggedClass<UnknownInline>($I`UnknownInline`)(
+export class UnknownInline extends S.TaggedClass<UnknownInline, {}>($I`UnknownInline`)(
   "unknownInline",
   {
     wire: PandocFutureConstructorWire.annotateKey({
@@ -2182,17 +2185,17 @@ export declare namespace PandocInline {
  * @category models
  * @since 0.0.0
  */
-export class Plain extends S.TaggedClass<Plain>($I`Plain`)(
-  "plain",
-  {
+export class Plain extends S.Opaque<Plain, {}>()(
+  S.TaggedStruct("plain", {
     children: PandocInlineChildren.annotateKey({
       description: "Plain inline children.",
     }),
-  },
-  $I.annote("Plain", {
-    po: "block",
-    description: "Pandoc plain block.",
-  })
+  }).pipe(
+    $I.annoteSchema("Plain", {
+      po: "block",
+      description: "Pandoc plain block.",
+    })
+  )
 ) {}
 
 /**
@@ -2243,17 +2246,17 @@ export declare namespace Plain {
  * @category models
  * @since 0.0.0
  */
-export class Para extends S.TaggedClass<Para>($I`Para`)(
-  "para",
-  {
+export class Para extends S.Opaque<Para, {}>()(
+  S.TaggedStruct("para", {
     children: PandocInlineChildren.annotateKey({
       description: "Paragraph inline children.",
     }),
-  },
-  $I.annote("Para", {
-    po: "block",
-    description: "Pandoc paragraph block.",
-  })
+  }).pipe(
+    $I.annoteSchema("Para", {
+      po: "block",
+      description: "Pandoc paragraph block.",
+    })
+  )
 ) {}
 
 /**
@@ -2304,9 +2307,8 @@ export declare namespace Para {
  * @category models
  * @since 0.0.0
  */
-export class Header extends S.TaggedClass<Header>($I`Header`)(
-  "header",
-  {
+export class Header extends S.Opaque<Header, {}>()(
+  S.TaggedStruct("header", {
     attr: PandocAttr.annotateKey({
       description: "Header attributes.",
     }),
@@ -2316,11 +2318,12 @@ export class Header extends S.TaggedClass<Header>($I`Header`)(
     level: S.Int.annotateKey({
       description: "Header level.",
     }),
-  },
-  $I.annote("Header", {
-    po: "block",
-    description: "Pandoc header block.",
-  })
+  }).pipe(
+    $I.annoteSchema("Header", {
+      po: "block",
+      description: "Pandoc header block.",
+    })
+  )
 ) {}
 
 /**
@@ -2375,17 +2378,17 @@ export declare namespace Header {
  * @category models
  * @since 0.0.0
  */
-export class BlockQuote extends S.TaggedClass<BlockQuote>($I`BlockQuote`)(
-  "blockquote",
-  {
+export class BlockQuote extends S.Opaque<BlockQuote, {}>()(
+  S.TaggedStruct("blockquote", {
     children: PandocBlockChildren.annotateKey({
       description: "Quoted block children.",
     }),
-  },
-  $I.annote("BlockQuote", {
-    po: "container",
-    description: "Pandoc block quote.",
-  })
+  }).pipe(
+    $I.annoteSchema("BlockQuote", {
+      po: "container",
+      description: "Pandoc block quote.",
+    })
+  )
 ) {}
 
 /**
@@ -2436,20 +2439,20 @@ export declare namespace BlockQuote {
  * @category models
  * @since 0.0.0
  */
-export class CodeBlock extends S.TaggedClass<CodeBlock>($I`CodeBlock`)(
-  "codeblock",
-  {
+export class CodeBlock extends S.Opaque<CodeBlock, {}>()(
+  S.TaggedStruct("codeblock", {
     attr: PandocAttr.annotateKey({
       description: "Code block attributes.",
     }),
     text: S.String.annotateKey({
       description: "Code block text.",
     }),
-  },
-  $I.annote("CodeBlock", {
-    po: "field",
-    description: "Pandoc fenced code block.",
-  })
+  }).pipe(
+    $I.annoteSchema("CodeBlock", {
+      po: "field",
+      description: "Pandoc fenced code block.",
+    })
+  )
 ) {}
 
 /**
@@ -2502,17 +2505,17 @@ export declare namespace CodeBlock {
  * @category models
  * @since 0.0.0
  */
-export class BulletList extends S.TaggedClass<BulletList>($I`BulletList`)(
-  "bulletlist",
-  {
+export class BulletList extends S.Opaque<BulletList, {}>()(
+  S.TaggedStruct("bulletlist", {
     items: PandocListItems.annotateKey({
       description: "Bullet list items.",
     }),
-  },
-  $I.annote("BulletList", {
-    po: "table",
-    description: "Pandoc bullet list block.",
-  })
+  }).pipe(
+    $I.annoteSchema("BulletList", {
+      po: "table",
+      description: "Pandoc bullet list block.",
+    })
+  )
 ) {}
 
 /**
@@ -2568,9 +2571,8 @@ export declare namespace BulletList {
  * @category models
  * @since 0.0.0
  */
-export class OrderedList extends S.TaggedClass<OrderedList>($I`OrderedList`)(
-  "orderedlist",
-  {
+export class OrderedList extends S.Opaque<OrderedList, {}>()(
+  S.TaggedStruct("orderedlist", {
     delimiter: PandocListNumberDelimiter.annotateKey({
       description: "Pandoc ordered-list delimiter token.",
     }),
@@ -2583,11 +2585,12 @@ export class OrderedList extends S.TaggedClass<OrderedList>($I`OrderedList`)(
     style: PandocListNumberStyle.annotateKey({
       description: "Pandoc ordered-list style token.",
     }),
-  },
-  $I.annote("OrderedList", {
-    po: "table",
-    description: "Pandoc ordered list block.",
-  })
+  }).pipe(
+    $I.annoteSchema("OrderedList", {
+      po: "table",
+      description: "Pandoc ordered list block.",
+    })
+  )
 ) {}
 
 /**
@@ -2649,13 +2652,13 @@ export declare namespace OrderedList {
  * @category models
  * @since 0.0.0
  */
-export class HorizontalRule extends S.TaggedClass<HorizontalRule>($I`HorizontalRule`)(
-  "horizontalrule",
-  {},
-  $I.annote("HorizontalRule", {
-    po: "meta",
-    description: "Pandoc horizontal rule block.",
-  })
+export class HorizontalRule extends S.Opaque<HorizontalRule, {}>()(
+  S.TaggedStruct("horizontalrule", {}).pipe(
+    $I.annoteSchema("HorizontalRule", {
+      po: "meta",
+      description: "Pandoc horizontal rule block.",
+    })
+  )
 ) {}
 
 /**
@@ -2705,20 +2708,20 @@ export declare namespace HorizontalRule {
  * @category models
  * @since 0.0.0
  */
-export class Div extends S.TaggedClass<Div>($I`Div`)(
-  "div",
-  {
+export class Div extends S.Opaque<Div, {}>()(
+  S.TaggedStruct("div", {
     attr: PandocAttr.annotateKey({
       description: "Div attributes.",
     }),
     children: PandocBlockChildren.annotateKey({
       description: "Div block children.",
     }),
-  },
-  $I.annote("Div", {
-    po: "container",
-    description: "Pandoc div block, including DOCX custom-style wrappers.",
-  })
+  }).pipe(
+    $I.annoteSchema("Div", {
+      po: "container",
+      description: "Pandoc div block, including DOCX custom-style wrappers.",
+    })
+  )
 ) {}
 
 /**
@@ -2776,17 +2779,17 @@ export declare namespace Div {
  * @category models
  * @since 0.0.0
  */
-export class LineBlock extends S.TaggedClass<LineBlock>($I`LineBlock`)(
-  "lineBlock",
-  {
+export class LineBlock extends S.Opaque<LineBlock, {}>()(
+  S.TaggedStruct("lineBlock", {
     lines: S.Array(PandocInlineChildren).annotateKey({
       description: "Ordered non-breaking lines of Pandoc inline content.",
     }),
-  },
-  $I.annote("LineBlock", {
-    po: "table",
-    description: "Pandoc line block containing multiple non-breaking inline lines.",
-  })
+  }).pipe(
+    $I.annoteSchema("LineBlock", {
+      po: "table",
+      description: "Pandoc line block containing multiple non-breaking inline lines.",
+    })
+  )
 ) {}
 
 /**
@@ -2826,16 +2829,16 @@ export declare namespace LineBlock {
  * @category models
  * @since 0.0.0
  */
-export class RawBlock extends S.TaggedClass<RawBlock>($I`RawBlock`)(
-  "rawBlock",
-  {
+export class RawBlock extends S.Opaque<RawBlock, {}>()(
+  S.TaggedStruct("rawBlock", {
     format: PandocFormat.annotateKey({ description: "Raw block source format." }),
     text: S.String.annotateKey({ description: "Raw block source text." }),
-  },
-  $I.annote("RawBlock", {
-    po: "field",
-    description: "Pandoc raw block content with an explicit source format.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawBlock", {
+      po: "field",
+      description: "Pandoc raw block content with an explicit source format.",
+    })
+  )
 ) {}
 
 /**
@@ -2909,17 +2912,17 @@ export type PandocDefinitionListItem = typeof PandocDefinitionListItem.Type;
  * @category models
  * @since 0.0.0
  */
-export class DefinitionList extends S.TaggedClass<DefinitionList>($I`DefinitionList`)(
-  "definitionList",
-  {
+export class DefinitionList extends S.Opaque<DefinitionList, {}>()(
+  S.TaggedStruct("definitionList", {
     items: S.Array(PandocDefinitionListItem).annotateKey({
       description: "Ordered Pandoc definition-list items.",
     }),
-  },
-  $I.annote("DefinitionList", {
-    po: "table",
-    description: "Pandoc definition list with structurally typed term/definition pairs.",
-  })
+  }).pipe(
+    $I.annoteSchema("DefinitionList", {
+      po: "table",
+      description: "Pandoc definition list with structurally typed term/definition pairs.",
+    })
+  )
 ) {}
 
 /**
@@ -2963,14 +2966,15 @@ export declare namespace DefinitionList {
  * @category models
  * @since 0.0.0
  */
-export class PandocCaption extends S.Class<PandocCaption>($I`PandocCaption`)(
-  {
+export class PandocCaption extends S.Opaque<PandocCaption, {}>()(
+  S.Struct({
     blocks: PandocBlockChildren.annotateKey({ description: "Long caption block content." }),
     short: S.OptionFromNullOr(PandocInlineChildren).annotateKey({ description: "Optional short caption inlines." }),
-  },
-  $I.annote("PandocCaption", {
-    description: "Pandoc table or figure caption with optional short and required long forms.",
-  })
+  }).pipe(
+    $I.annoteSchema("PandocCaption", {
+      description: "Pandoc table or figure caption with optional short and required long forms.",
+    })
+  )
 ) {}
 
 /**
@@ -3015,17 +3019,17 @@ export declare namespace PandocCaption {
  * @category models
  * @since 0.0.0
  */
-export class Figure extends S.TaggedClass<Figure>($I`Figure`)(
-  "figure",
-  {
+export class Figure extends S.Opaque<Figure, {}>()(
+  S.TaggedStruct("figure", {
     attr: PandocAttr.annotateKey({ description: "Figure attributes." }),
     caption: PandocCaption.annotateKey({ description: "Figure caption." }),
     children: PandocBlockChildren.annotateKey({ description: "Figure block content." }),
-  },
-  $I.annote("Figure", {
-    po: "container",
-    description: "Pandoc figure block with attributes, caption, and block content.",
-  })
+  }).pipe(
+    $I.annoteSchema("Figure", {
+      po: "container",
+      description: "Pandoc figure block with attributes, caption, and block content.",
+    })
+  )
 ) {}
 
 /**
@@ -3262,14 +3266,15 @@ const PandocBlockWire: S.Codec<unknown, unknown> = S.suspend(() =>
   ])
 );
 const isPandocSemanticTablePayload = S.is(PandocSemanticTablePayloadWire);
-class PandocConstructorJson extends S.Class<PandocConstructorJson>($I`PandocConstructorJson`)(
-  {
+class PandocConstructorJson extends S.Opaque<PandocConstructorJson, { readonly brand: unique symbol }>()(
+  S.Struct({
     c: S.optionalKey(S.Json),
     t: S.String,
-  },
-  $I.annote("PandocConstructorJson", {
-    description: "Internal structural view of a Pandoc JSON constructor.",
-  })
+  }).pipe(
+    $I.annoteSchema("PandocConstructorJson", {
+      description: "Internal structural view of a Pandoc JSON constructor.",
+    })
+  )
 ) {}
 const PandocJsonArray = S.Array(S.Json);
 const PandocTableCaptionPair = S.Tuple([S.NullOr(PandocJsonArray), PandocJsonArray]);
@@ -3399,7 +3404,7 @@ const tableCaptionPlainTextFromPayload = makeTableCaptionPlainTextFromPayload({
  * @category models
  * @since 0.0.0
  */
-export class Table extends S.TaggedClass<Table>($I`Table`)(
+export class Table extends S.TaggedClass<Table, {}>($I`Table`)(
   "table",
   {
     payload: PandocTablePayload.annotateKey({
@@ -3502,7 +3507,7 @@ export declare namespace Table {
  * @category models
  * @since 0.0.0
  */
-export class UnknownBlock extends S.TaggedClass<UnknownBlock>($I`UnknownBlock`)(
+export class UnknownBlock extends S.TaggedClass<UnknownBlock, {}>($I`UnknownBlock`)(
   "unknownBlock",
   {
     wire: PandocFutureConstructorWire.annotateKey({
@@ -3977,7 +3982,7 @@ export const MetaMap = S.TaggedStruct("metaMap", {
  * @category models
  * @since 0.0.0
  */
-export class UnknownMeta extends S.TaggedClass<UnknownMeta>($I`UnknownMeta`)(
+export class UnknownMeta extends S.TaggedClass<UnknownMeta, { readonly brand: unique symbol }>($I`UnknownMeta`)(
   "unknownMeta",
   {
     wire: PandocFutureConstructorWire.annotateKey({
@@ -4321,9 +4326,8 @@ export type PandocMeta = typeof PandocMeta.Type;
  * @category models
  * @since 0.0.0
  */
-export class PandocDocument extends S.TaggedClass<PandocDocument>($I`PandocDocument`)(
-  "pandocDocument",
-  {
+export class PandocDocument extends S.Opaque<PandocDocument, {}>()(
+  S.TaggedStruct("pandocDocument", {
     apiVersion: PandocApiVersion.pipe(
       S.withConstructorDefault(Effect.succeed<PandocApiVersion>(DEFAULT_PANDOC_API_VERSION))
     ).annotateKey({
@@ -4335,11 +4339,12 @@ export class PandocDocument extends S.TaggedClass<PandocDocument>($I`PandocDocum
     meta: PandocMeta.annotateKey({
       description: "Pandoc metadata object.",
     }),
-  },
-  $I.annote("PandocDocument", {
-    po: "container",
-    description: "Root Pandoc JSON document.",
-  })
+  }).pipe(
+    $I.annoteSchema("PandocDocument", {
+      po: "container",
+      description: "Root Pandoc JSON document.",
+    })
+  )
 ) {}
 
 /**

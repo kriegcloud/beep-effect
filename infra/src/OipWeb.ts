@@ -160,7 +160,10 @@ export const OipWebPulumiConfigValues = S.Class<OipWebPulumiConfigValues>($I`Oip
  * @category models
  * @since 0.0.0
  */
-export class OipPulumiStateBackendConfig extends S.Class<OipPulumiStateBackendConfig>($I`OipPulumiStateBackendConfig`)(
+export class OipPulumiStateBackendConfig extends S.Class<
+  OipPulumiStateBackendConfig,
+  { readonly brand: unique symbol }
+>($I`OipPulumiStateBackendConfig`)(
   {
     bucketName: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultPulumiStateBucketName)),
@@ -223,8 +226,8 @@ export class OipPulumiStateBackendConfig extends S.Class<OipPulumiStateBackendCo
  * @category models
  * @since 0.0.0
  */
-export class OipAssetsBucketConfig extends S.Class<OipAssetsBucketConfig>($I`OipAssetsBucketConfig`)(
-  {
+export class OipAssetsBucketConfig extends S.Opaque<OipAssetsBucketConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     bucketName: S.String.pipe(
       S.withConstructorDefault(Effect.succeed(defaultAssetsBucketName)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultAssetsBucketName))
@@ -237,10 +240,11 @@ export class OipAssetsBucketConfig extends S.Class<OipAssetsBucketConfig>($I`Oip
       S.withConstructorDefault(Effect.succeed(defaultAwsRegion)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultAwsRegion))
     ),
-  },
-  $I.annote("OipAssetsBucketConfig", {
-    description: "S3 asset bucket resources for OIP-controlled media.",
-  })
+  }).pipe(
+    $I.annoteSchema("OipAssetsBucketConfig", {
+      description: "S3 asset bucket resources for OIP-controlled media.",
+    })
+  )
 ) {}
 
 /**
@@ -256,8 +260,8 @@ export class OipAssetsBucketConfig extends S.Class<OipAssetsBucketConfig>($I`Oip
  * @category models
  * @since 0.0.0
  */
-export class OipDnsConfig extends S.Class<OipDnsConfig>($I`OipDnsConfig`)(
-  {
+export class OipDnsConfig extends S.Opaque<OipDnsConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     attachProductionDomains: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefaultTypeKey(Effect.succeed(false))
@@ -305,10 +309,11 @@ export class OipDnsConfig extends S.Class<OipDnsConfig>($I`OipDnsConfig`)(
       S.withConstructorDefault(Effect.succeed(defaultWwwDomain)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultWwwDomain))
     ),
-  },
-  $I.annote("OipDnsConfig", {
-    description: "DNS configuration for Cloudflare-managed OIP records.",
-  })
+  }).pipe(
+    $I.annoteSchema("OipDnsConfig", {
+      description: "DNS configuration for Cloudflare-managed OIP records.",
+    })
+  )
 ) {}
 
 /**
@@ -324,8 +329,8 @@ export class OipDnsConfig extends S.Class<OipDnsConfig>($I`OipDnsConfig`)(
  * @category models
  * @since 0.0.0
  */
-export class OipVercelProjectConfig extends S.Class<OipVercelProjectConfig>($I`OipVercelProjectConfig`)(
-  {
+export class OipVercelProjectConfig extends S.Opaque<OipVercelProjectConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     hubSpotAccountId: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     hubSpotFormGuid: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
     projectName: S.String.pipe(
@@ -359,10 +364,11 @@ export class OipVercelProjectConfig extends S.Class<OipVercelProjectConfig>($I`O
         Effect.succeed<typeof defaultVercelAuthenticationDeploymentType>(defaultVercelAuthenticationDeploymentType)
       )
     ),
-  },
-  $I.annote("OipVercelProjectConfig", {
-    description: "Vercel project configuration for @beep/oip-web.",
-  })
+  }).pipe(
+    $I.annoteSchema("OipVercelProjectConfig", {
+      description: "Vercel project configuration for @beep/oip-web.",
+    })
+  )
 ) {}
 
 /**
@@ -389,7 +395,7 @@ export type OipWebRuntimeSecrets = {
   readonly sanityApiToken?: pulumi.Input<string> | undefined;
 };
 
-const oipWebStackArgsAssetsDefault = OipAssetsBucketConfig.make();
+const oipWebStackArgsAssetsDefault = OipAssetsBucketConfig.make({});
 const oipWebStackArgsStateDefault = OipPulumiStateBackendConfig.make();
 /**
  * Pulumi-facing args for the OIP web stack.
@@ -404,8 +410,8 @@ const oipWebStackArgsStateDefault = OipPulumiStateBackendConfig.make();
  * @category models
  * @since 0.0.0
  */
-export class OipWebStackArgs extends S.Class<OipWebStackArgs>($I`OipWebStackArgs`)(
-  {
+export class OipWebStackArgs extends S.Opaque<OipWebStackArgs, { readonly brand: unique symbol }>()(
+  S.Struct({
     assets: OipAssetsBucketConfig.pipe(
       S.withConstructorDefault(Effect.succeed(oipWebStackArgsAssetsDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(oipWebStackArgsAssetsDefault))
@@ -422,10 +428,11 @@ export class OipWebStackArgs extends S.Class<OipWebStackArgs>($I`OipWebStackArgs
       S.withConstructorDefault(Effect.succeed(OipVercelProjectConfig.make({}))),
       S.withDecodingDefaultKey(Effect.succeed({}))
     ),
-  },
-  $I.annote("OipWebStackArgs", {
-    description: "Pulumi-facing args for the OIP web stack.",
-  })
+  }).pipe(
+    $I.annoteSchema("OipWebStackArgs", {
+      description: "Pulumi-facing args for the OIP web stack.",
+    })
+  )
 ) {}
 
 /**

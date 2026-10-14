@@ -139,8 +139,8 @@ export type FolioAlignmentKind = typeof FolioAlignmentKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class FolioAlignment extends S.Class<FolioAlignment>($I`FolioAlignment`)(
-  {
+export class FolioAlignment extends S.Opaque<FolioAlignment, { readonly brand: unique symbol }>()(
+  S.Struct({
     conceptIri: S.NullOr(IRIReference).annotateKey({
       description: "FOLIO concept IRI when a concept-level mapping exists.",
     }),
@@ -150,10 +150,11 @@ export class FolioAlignment extends S.Class<FolioAlignment>($I`FolioAlignment`)(
     sourceIris: S.Array(IRIReference).annotateKey({
       description: "Research source IRIs consulted when assigning the mapping.",
     }),
-  },
-  $I.annote("FolioAlignment", {
-    description: "FOLIO mapping metadata for a seed taxonomy concept.",
-  })
+  }).pipe(
+    $I.annoteSchema("FolioAlignment", {
+      description: "FOLIO mapping metadata for a seed taxonomy concept.",
+    })
+  )
 ) {}
 
 /**
@@ -182,10 +183,11 @@ export class FolioAlignment extends S.Class<FolioAlignment>($I`FolioAlignment`)(
  * @category models
  * @since 0.0.0
  */
-export class LegalDocumentTaxonomyConcept extends S.Class<LegalDocumentTaxonomyConcept>(
-  $I`LegalDocumentTaxonomyConcept`
-)(
-  {
+export class LegalDocumentTaxonomyConcept extends S.Opaque<
+  LegalDocumentTaxonomyConcept,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     definition: S.NonEmptyString.annotateKey({
       description: "SKOS-style definition used for deterministic document filing.",
     }),
@@ -213,10 +215,11 @@ export class LegalDocumentTaxonomyConcept extends S.Class<LegalDocumentTaxonomyC
     sortKey: S.NullOr(S.NonEmptyString).annotateKey({
       description: "Optional stable ordering key rendered into vault folders.",
     }),
-  },
-  $I.annote("LegalDocumentTaxonomyConcept", {
-    description: "One SKOS-style legal document taxonomy concept.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalDocumentTaxonomyConcept", {
+      description: "One SKOS-style legal document taxonomy concept.",
+    })
+  )
 ) {}
 
 /**
@@ -234,8 +237,8 @@ export class LegalDocumentTaxonomyConcept extends S.Class<LegalDocumentTaxonomyC
  * @category models
  * @since 0.0.0
  */
-export class LegalDocumentTaxonomy extends S.Class<LegalDocumentTaxonomy>($I`LegalDocumentTaxonomy`)(
-  {
+export class LegalDocumentTaxonomy extends S.Opaque<LegalDocumentTaxonomy, { readonly brand: unique symbol }>()(
+  S.Struct({
     concepts: S.Array(LegalDocumentTaxonomyConcept).annotateKey({
       description: "Ordered legal document taxonomy concepts.",
     }),
@@ -248,10 +251,11 @@ export class LegalDocumentTaxonomy extends S.Class<LegalDocumentTaxonomy>($I`Leg
     schemeIri: IRIReference.annotateKey({
       description: "Repository-owned SKOS concept scheme IRI.",
     }),
-  },
-  $I.annote("LegalDocumentTaxonomy", {
-    description: "Repo-owned legal document taxonomy seed.",
-  })
+  }).pipe(
+    $I.annoteSchema("LegalDocumentTaxonomy", {
+      description: "Repo-owned legal document taxonomy seed.",
+    })
+  )
 ) {}
 
 /**
@@ -275,8 +279,8 @@ export class LegalDocumentTaxonomy extends S.Class<LegalDocumentTaxonomy>($I`Leg
  * @category models
  * @since 0.0.0
  */
-export class VaultFilingContext extends S.Class<VaultFilingContext>($I`VaultFilingContext`)(
-  {
+export class VaultFilingContext extends S.Opaque<VaultFilingContext, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientDisplayName: S.NonEmptyString.annotateKey({
       description: "Display name captured when the client path segment is first created.",
     }),
@@ -289,10 +293,11 @@ export class VaultFilingContext extends S.Class<VaultFilingContext>($I`VaultFili
     matterStableKey: ValidWindowsPlainPathSegment.annotateKey({
       description: "Stable matter key rendered into the matter folder segment.",
     }),
-  },
-  $I.annote("VaultFilingContext", {
-    description: "Vault filing context supplied by the app or matter-resolution flow.",
-  })
+  }).pipe(
+    $I.annoteSchema("VaultFilingContext", {
+      description: "Vault filing context supplied by the app or matter-resolution flow.",
+    })
+  )
 ) {}
 
 /**

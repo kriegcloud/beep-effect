@@ -31,11 +31,12 @@ const $I = $RepoCliId.create("commands/Yeet/internal/ProofDigest");
 const textEncoder = new TextEncoder();
 const componentSeparator = new Uint8Array([0]);
 
-class PolicyPackManifest extends S.Class<PolicyPackManifest>($I`PolicyPackManifest`)(
-  { version: S.NonEmptyString },
-  $I.annote("PolicyPackManifest", {
-    description: "Policy-pack package manifest fields that participate in the proof epoch.",
-  })
+class PolicyPackManifest extends S.Opaque<PolicyPackManifest, { readonly brand: unique symbol }>()(
+  S.Struct({ version: S.NonEmptyString }).pipe(
+    $I.annoteSchema("PolicyPackManifest", {
+      description: "Policy-pack package manifest fields that participate in the proof epoch.",
+    })
+  )
 ) {}
 
 const decodePolicyPackManifest = S.decodeUnknownEffect(S.fromJsonString(PolicyPackManifest));

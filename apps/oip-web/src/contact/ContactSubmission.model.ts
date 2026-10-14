@@ -170,8 +170,8 @@ export type ContactResponseMessage = typeof ContactResponseMessage.Type;
  * @category models
  * @since 0.0.0
  */
-export class ContactSubmission extends S.Class<ContactSubmission>($I`ContactSubmission`)(
-  {
+export class ContactSubmission extends S.Opaque<ContactSubmission, { readonly brand: unique symbol }>()(
+  S.Struct({
     company: S.OptionFromOptionalKey(TrimmedContactText).pipe(S.withConstructorDefault(Effect.succeedNone)),
     email: ContactEmail,
     message: ContactMessage,
@@ -181,10 +181,11 @@ export class ContactSubmission extends S.Class<ContactSubmission>($I`ContactSubm
     submittedAt: S.Natural,
     technology: S.OptionFromOptionalKey(TrimmedContactText).pipe(S.withConstructorDefault(Effect.succeedNone)),
     website: S.OptionFromOptionalKey(TrimmedContactText).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ContactSubmission", {
-    description: "Browser-submitted OIP contact form payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContactSubmission", {
+      description: "Browser-submitted OIP contact form payload.",
+    })
+  )
 ) {
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
 }
@@ -225,10 +226,11 @@ const ContactSubmissionFormSubmittedAt = S.Union([S.Natural, ContactSubmissionFo
  * @category schemas
  * @since 0.0.0
  */
-export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormPayload>(
-  $I`ContactSubmissionFormPayload`
-)(
-  {
+export class ContactSubmissionFormPayload extends S.Opaque<
+  ContactSubmissionFormPayload,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     company: S.optionalKey(TrimmedContactText),
     email: ContactEmail,
     message: ContactMessage,
@@ -238,10 +240,11 @@ export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormP
     submittedAt: ContactSubmissionFormSubmittedAt,
     technology: S.optionalKey(TrimmedContactText),
     website: S.optionalKey(TrimmedContactText),
-  },
-  $I.annote("ContactSubmissionFormPayload", {
-    description: "Normalized browser form payload before contact submission decoding.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContactSubmissionFormPayload", {
+      description: "Normalized browser form payload before contact submission decoding.",
+    })
+  )
 ) {
   static readonly decodeUnknownResult = S.decodeUnknownResult(this);
   static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
@@ -346,7 +349,7 @@ export const contactSubmissionPayloadFromFormData = (formData: FormData): Contac
  * ```ts
  * import { ContactSubmissionResponse } from "@beep/oip-web/contact"
  *
- * const response = new ContactSubmissionResponse({
+ * const response = ContactSubmissionResponse.make({
  *   message: "Your note was received.",
  *   status: "accepted"
  * })
@@ -357,14 +360,15 @@ export const contactSubmissionPayloadFromFormData = (formData: FormData): Contac
  * @category models
  * @since 0.0.0
  */
-export class ContactSubmissionResponse extends S.Class<ContactSubmissionResponse>($I`ContactSubmissionResponse`)(
-  {
+export class ContactSubmissionResponse extends S.Opaque<ContactSubmissionResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     message: ContactResponseMessage,
     status: ContactSubmissionStatus,
-  },
-  $I.annote("ContactSubmissionResponse", {
-    description: "Public contact submission response.",
-  })
+  }).pipe(
+    $I.annoteSchema("ContactSubmissionResponse", {
+      description: "Public contact submission response.",
+    })
+  )
 ) {}
 
 /**

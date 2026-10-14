@@ -217,6 +217,34 @@ it.layer(Services, { timeout: "30 seconds" })((it) => {
     })
   );
 
+  it.effect("metadata census replaces a linked output leaf without truncating its outside target", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const { root } = yield* fixture();
+      const outside = yield* fs.makeTempDirectoryScoped();
+      const target = path.join(outside, "preserve.txt");
+      const output = path.join(root, "staging", "provenance");
+      const leaf = path.join(output, "metadata.jsonl");
+      yield* fs.makeDirectory(output, { recursive: true });
+      yield* fs.writeFileString(target, "preserve this file\n");
+      yield* fs.symlink(target, leaf);
+
+      yield* Effect.exit(
+        runMetadataCensus(
+          MetadataCensusOptions.make({
+            corpusRoot: root,
+            roots: ["staging/extract/children"],
+            batchSize: 2,
+            concurrency: 2,
+          })
+        )
+      );
+      expect(yield* fs.readFileString(target)).toBe("preserve this file\n");
+      expect(yield* fs.realPath(leaf)).toBe(leaf);
+    })
+  );
+
   it.effect("metadata census reads PDF/JPEG bytes and excludes staging sidecars", (ctx) =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;

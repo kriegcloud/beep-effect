@@ -38,9 +38,10 @@ const invalid = () => IdentificationError.make({ operation: "extraction-read", r
  * @category configuration
  * @since 0.0.0
  */
-export class ExtractionBatchesConfig extends S.Class<ExtractionBatchesConfig>($I`ExtractionBatchesConfig`)(
-  { directories: S.Array(S.NonEmptyString) },
-  $I.annote("ExtractionBatchesConfig", { description: "Private extraction batch directories." })
+export class ExtractionBatchesConfig extends S.Opaque<ExtractionBatchesConfig, { readonly brand: unique symbol }>()(
+  S.Struct({ directories: S.Array(S.NonEmptyString) }).pipe(
+    $I.annoteSchema("ExtractionBatchesConfig", { description: "Private extraction batch directories." })
+  )
 ) {}
 /**
  * Extraction batch configuration tag.

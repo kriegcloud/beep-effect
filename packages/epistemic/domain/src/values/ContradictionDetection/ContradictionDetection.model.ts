@@ -93,8 +93,8 @@ const assertionFitsProposal = S.makeFilter(
     message: "Expected an assertion fitting the shipped proposal fact bounds.",
   }
 );
-class DetectionBeliefStruct extends S.Class<DetectionBeliefStruct>($I`DetectionBeliefStruct`)(
-  {
+class DetectionBeliefStruct extends S.Opaque<DetectionBeliefStruct, { readonly brand: unique symbol }>()(
+  S.Struct({
     ref: BeliefVersionRef,
     subject: DetectionKey,
     predicate: DetectionKey,
@@ -104,8 +104,11 @@ class DetectionBeliefStruct extends S.Class<DetectionBeliefStruct>($I`DetectionB
     validFrom: S.DateTimeUtcFromMillis,
     validTo: S.OptionFromNullOr(S.DateTimeUtcFromMillis),
     modality: S.OptionFromOptionalKey(DetectionKey),
-  },
-  $I.annote("DetectionBeliefStruct", { description: "One immutable belief assertion supplied by a view caller." })
+  }).pipe(
+    $I.annoteSchema("DetectionBeliefStruct", {
+      description: "One immutable belief assertion supplied by a view caller.",
+    })
+  )
 ) {}
 const DetectionBeliefChecked = DetectionBeliefStruct.mapFields((fields) => fields).check(
   assertionFitsProposal,
@@ -128,9 +131,12 @@ const DetectionBeliefChecked = DetectionBeliefStruct.mapFields((fields) => field
  * @category value-objects
  * @since 0.0.0
  */
-export class DetectionBelief extends S.Class<DetectionBelief>($I`DetectionBelief`)(
-  DetectionBeliefChecked,
-  $I.annote("DetectionBelief", { description: "Validated immutable assertion; absent modality remains optional." })
+export class DetectionBelief extends S.Opaque<DetectionBelief, { readonly brand: unique symbol }>()(
+  DetectionBeliefChecked.pipe(
+    $I.annoteSchema("DetectionBelief", {
+      description: "Validated immutable assertion; absent modality remains optional.",
+    })
+  )
 ) {}
 const UniqueBeliefs = S.Array(DetectionBelief).check(
   S.makeFilter(
@@ -157,13 +163,15 @@ const UniqueBeliefs = S.Array(DetectionBelief).check(
  * @category value-objects
  * @since 0.0.0
  */
-export class ContradictionDetectionSnapshot extends S.Class<ContradictionDetectionSnapshot>(
-  $I`ContradictionDetectionSnapshot`
-)(
-  { beliefs: UniqueBeliefs, singleValuedPredicates: S.Array(DetectionKey) },
-  $I.annote("ContradictionDetectionSnapshot", {
-    description: "Complete detector input; undeclared predicates are treated as multi-valued.",
-  })
+export class ContradictionDetectionSnapshot extends S.Opaque<
+  ContradictionDetectionSnapshot,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ beliefs: UniqueBeliefs, singleValuedPredicates: S.Array(DetectionKey) }).pipe(
+    $I.annoteSchema("ContradictionDetectionSnapshot", {
+      description: "Complete detector input; undeclared predicates are treated as multi-valued.",
+    })
+  )
 ) {}
 /**
  * Fixed confidence for an assertion paired with its explicit equal negation.
@@ -193,15 +201,16 @@ export const ExactNegationConfidence = Confidence.make(1);
  * @since 0.0.0
  */
 export const ValueConflictConfidence = Confidence.make(0.9);
-class DetectedContradictionStruct extends S.Class<DetectedContradictionStruct>($I`DetectedContradictionStruct`)(
-  {
+class DetectedContradictionStruct extends S.Opaque<DetectedContradictionStruct, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...ContradictionCandidateContent.fields,
     candidateKey: ContradictionCandidateKey,
     candidateDigest: ContradictionCandidateDigest,
-  },
-  $I.annote("DetectedContradictionStruct", {
-    description: "Pure emitted content and seals, ready for caller-owned stamping.",
-  })
+  }).pipe(
+    $I.annoteSchema("DetectedContradictionStruct", {
+      description: "Pure emitted content and seals, ready for caller-owned stamping.",
+    })
+  )
 ) {}
 
 /**
@@ -217,15 +226,18 @@ class DetectedContradictionStruct extends S.Class<DetectedContradictionStruct>($
  * @category value-objects
  * @since 0.0.0
  */
-export class DetectedContradiction extends S.Class<DetectedContradiction>($I`DetectedContradiction`)(
-  DetectedContradictionStruct.mapFields((fields) => fields).check(
-    makeValidIntervalCheck({
-      identifier: $I`DetectedContradictionInterval`,
-      title: "Detected contradiction interval",
-      description: "Preserves the shipped content's non-empty half-open validity invariant.",
-    })
-  ),
-  $I.annote("DetectedContradiction", {
-    description: "Pure emitted content and seals with a valid half-open interval, ready for caller-owned stamping.",
-  })
+export class DetectedContradiction extends S.Opaque<DetectedContradiction, { readonly brand: unique symbol }>()(
+  DetectedContradictionStruct.mapFields((fields) => fields)
+    .check(
+      makeValidIntervalCheck({
+        identifier: $I`DetectedContradictionInterval`,
+        title: "Detected contradiction interval",
+        description: "Preserves the shipped content's non-empty half-open validity invariant.",
+      })
+    )
+    .pipe(
+      $I.annoteSchema("DetectedContradiction", {
+        description: "Pure emitted content and seals with a valid half-open interval, ready for caller-owned stamping.",
+      })
+    )
 ) {}

@@ -20,7 +20,7 @@ import {
   preflightOverwritableFile as preflightOverwritableFileShared,
   renameOrFail as renameOrFailShared,
 } from "../../../internal/cli/FsGuards.ts";
-import { FilesCommandError, formatPlatformError } from "../Files.errors.ts";
+import { FilesCommandError, formatPlatformError, mapPlatformError, PlatformErrorOptions } from "../Files.errors.ts";
 import { formatIndex, makeStripMetadataTempEntries, selectedCanonicalPathSet } from "../Files.media.ts";
 import { uniqueArchiveTargetName } from "../Files.plan.ts";
 import { FilesConcurrency, runFilesProgressForEach } from "../Files.progress.ts";
@@ -53,6 +53,14 @@ import type {
 } from "../Files.schemas.ts";
 
 const decodeFileSha256Hash = S.decodeUnknownEffect(FileSha256Hash);
+
+const makeDirectoryRecursive = (
+  fs: FileSystem.FileSystem,
+  directory: string,
+  operation: string,
+  reportedPath: string = directory
+): Effect.Effect<void, FilesCommandError> =>
+  fs.makeDirectory(directory, { recursive: true }).pipe(mapPlatformError(operation, reportedPath));
 
 interface NormalizeSeenOutput {
   readonly entry: NormalizePlanEntry;
@@ -123,7 +131,7 @@ export const preflightOverwritableFile = Effect.fn("Files.preflightOverwritableF
   yield* preflightOverwritableFileShared(filePath, {
     description,
     onInspectError: (cause, failedPath, failedDescription) =>
-      formatPlatformError(`Failed to inspect ${failedDescription}`, failedPath, { cause }),
+      formatPlatformError(`Failed to inspect ${failedDescription}`, failedPath, PlatformErrorOptions.make({ cause })),
     onRefuseNonFile: (failedPath, failedDescription) =>
       FilesCommandError.make({
         message: `Refusing to overwrite non-file ${failedDescription}: "${failedPath}"`,
@@ -133,7 +141,7 @@ export const preflightOverwritableFile = Effect.fn("Files.preflightOverwritableF
         message: `Refusing to overwrite existing ${failedDescription}: "${failedPath}"`,
       }),
     onStatError: (cause, failedPath, failedDescription) =>
-      formatPlatformError(`Failed to stat ${failedDescription}`, failedPath, { cause }),
+      formatPlatformError(`Failed to stat ${failedDescription}`, failedPath, PlatformErrorOptions.make({ cause })),
     overwrite,
   });
 });
@@ -237,7 +245,9 @@ export const preflightTargetCollisions = Effect.fn("Files.preflightTargetCollisi
     const exists = yield* fs
       .exists(entry.targetPath)
       .pipe(
-        Effect.mapError((cause) => formatPlatformError("Failed to inspect target path", entry.targetPath, { cause }))
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to inspect target path", entry.targetPath, PlatformErrorOptions.make({ cause }))
+        )
       );
 
     if (!exists) {
@@ -247,7 +257,9 @@ export const preflightTargetCollisions = Effect.fn("Files.preflightTargetCollisi
     const canonicalTarget = yield* fs
       .realPath(entry.targetPath)
       .pipe(
-        Effect.mapError((cause) => formatPlatformError("Failed to resolve target path", entry.targetPath, { cause }))
+        Effect.mapError((cause) =>
+          formatPlatformError("Failed to resolve target path", entry.targetPath, PlatformErrorOptions.make({ cause }))
+        )
       );
 
     if (!HashSet.has(selected, canonicalTarget)) {
@@ -279,7 +291,11 @@ export const applyCreateCaptionFilesPlan = Effect.fn("Files.applyCreateCaptionFi
       })
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to create temporary caption directory", plan.directory, { cause })
+          formatPlatformError(
+            "Failed to create temporary caption directory",
+            plan.directory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       ),
     Effect.fnUntraced(function* (tempDir) {
@@ -294,14 +310,22 @@ export const applyCreateCaptionFilesPlan = Effect.fn("Files.applyCreateCaptionFi
             .writeFileString(tempPath, plan.caption)
             .pipe(
               Effect.mapError((cause) =>
-                formatPlatformError("Failed to write temporary caption sidecar", tempPath, { cause })
+                formatPlatformError(
+                  "Failed to write temporary caption sidecar",
+                  tempPath,
+                  PlatformErrorOptions.make({ cause })
+                )
               )
             );
           yield* fs
             .rename(tempPath, entry.captionPath)
             .pipe(
               Effect.mapError((cause) =>
-                formatPlatformError("Failed to move caption sidecar into place", entry.captionPath, { cause })
+                formatPlatformError(
+                  "Failed to move caption sidecar into place",
+                  entry.captionPath,
+                  PlatformErrorOptions.make({ cause })
+                )
               )
             );
         }),
@@ -325,7 +349,7 @@ const hashFileSha256 = Effect.fn("Files.hashFileSha256")(function* (
   filePath: string
 ): Effect.fn.Return<FileSha256Hash, FilesCommandError, FileSystem.FileSystem | Crypto.Crypto> {
   const hex = yield* hashFileSha256Hex(filePath, (cause, failedPath) =>
-    formatPlatformError("Failed to read file for hashing", failedPath, { cause })
+    formatPlatformError("Failed to read file for hashing", failedPath, PlatformErrorOptions.make({ cause }))
   );
   return yield* decodeFileSha256Hash(`sha256:${hex}`).pipe(
     FilesCommandError.mapError(`Failed to hash normalized file "${filePath}"`)
@@ -341,14 +365,22 @@ const fileBytesEqual = Effect.fn("Files.fileBytesEqual")(function* (
     .readFile(leftPath)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to read file for duplicate comparison", leftPath, { cause })
+        formatPlatformError(
+          "Failed to read file for duplicate comparison",
+          leftPath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
   const right = yield* fs
     .readFile(rightPath)
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to read file for duplicate comparison", rightPath, { cause })
+        formatPlatformError(
+          "Failed to read file for duplicate comparison",
+          rightPath,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -467,30 +499,17 @@ export const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  yield* fs
-    .makeDirectory(plan.outputDirectory, { recursive: true })
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError("Failed to create normalize output directory", plan.outputDirectory, { cause })
-      )
-    );
-  yield* fs
-    .makeDirectory(path.dirname(plan.manifestPath), { recursive: true })
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError("Failed to create normalize manifest directory", plan.manifestPath, { cause })
-      )
-    );
+  yield* makeDirectoryRecursive(fs, plan.outputDirectory, "Failed to create normalize output directory");
+  yield* makeDirectoryRecursive(
+    fs,
+    path.dirname(plan.manifestPath),
+    "Failed to create normalize manifest directory",
+    plan.manifestPath
+  );
   if (O.isSome(plan.duplicateDirectory)) {
     const duplicateDirectory = plan.duplicateDirectory.value;
 
-    yield* fs.makeDirectory(duplicateDirectory, { recursive: true }).pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError("Failed to create normalize duplicate move directory", duplicateDirectory, {
-          cause,
-        })
-      )
-    );
+    yield* makeDirectoryRecursive(fs, duplicateDirectory, "Failed to create normalize duplicate move directory");
   }
 
   return yield* Effect.acquireUseRelease(
@@ -501,7 +520,11 @@ export const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function
       })
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to create temporary normalize directory", plan.outputDirectory, { cause })
+          formatPlatformError(
+            "Failed to create temporary normalize directory",
+            plan.outputDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       ),
     Effect.fnUntraced(function* (tempDir) {
@@ -529,7 +552,9 @@ export const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function
           const outputStat = yield* fs
             .stat(tempPath)
             .pipe(
-              Effect.mapError((cause) => formatPlatformError("Failed to stat normalized image", tempPath, { cause }))
+              Effect.mapError((cause) =>
+                formatPlatformError("Failed to stat normalized image", tempPath, PlatformErrorOptions.make({ cause }))
+              )
             );
           const outputHash = dedupe ? O.some(yield* hashFileSha256(tempPath)) : O.none<FileSha256Hash>();
           const candidates = O.isSome(outputHash)
@@ -606,7 +631,11 @@ export const applyNormalizePlan = Effect.fn("Files.applyNormalizePlan")(function
         .writeFileString(tempManifestPath, manifestContent)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError("Failed to write temporary normalize manifest", tempManifestPath, { cause })
+            formatPlatformError(
+              "Failed to write temporary normalize manifest",
+              tempManifestPath,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
 
@@ -674,20 +703,13 @@ export const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorC
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  yield* fs
-    .makeDirectory(plan.archiveDirectory, { recursive: true })
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError("Failed to create archive directory", plan.archiveDirectory, { cause })
-      )
-    );
-  yield* fs
-    .makeDirectory(path.dirname(plan.manifestPath), { recursive: true })
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError("Failed to create archive manifest directory", plan.manifestPath, { cause })
-      )
-    );
+  yield* makeDirectoryRecursive(fs, plan.archiveDirectory, "Failed to create archive directory");
+  yield* makeDirectoryRecursive(
+    fs,
+    path.dirname(plan.manifestPath),
+    "Failed to create archive manifest directory",
+    plan.manifestPath
+  );
 
   return yield* Effect.acquireUseRelease(
     fs
@@ -697,7 +719,11 @@ export const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorC
       })
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to create temporary archive directory", plan.archiveDirectory, { cause })
+          formatPlatformError(
+            "Failed to create temporary archive directory",
+            plan.archiveDirectory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       ),
     Effect.fnUntraced(function* (tempDir) {
@@ -709,7 +735,11 @@ export const applyArchivePoorCandidatesPlan = Effect.fn("Files.applyArchivePoorC
         .writeFileString(tempManifestPath, manifestContent)
         .pipe(
           Effect.mapError((cause) =>
-            formatPlatformError("Failed to write temporary archive manifest", tempManifestPath, { cause })
+            formatPlatformError(
+              "Failed to write temporary archive manifest",
+              tempManifestPath,
+              PlatformErrorOptions.make({ cause })
+            )
           )
         );
 
@@ -811,13 +841,7 @@ export const moveDetectFacesNoFaceEntries = Effect.fn("Files.moveDetectFacesNoFa
   const path = yield* Path.Path;
   const targetDirectory = moveNoFaceDirectory.value;
 
-  yield* fs
-    .makeDirectory(targetDirectory, { recursive: true })
-    .pipe(
-      Effect.mapError((cause) =>
-        formatPlatformError("Failed to create no-face image move directory", targetDirectory, { cause })
-      )
-    );
+  yield* makeDirectoryRecursive(fs, targetDirectory, "Failed to create no-face image move directory");
 
   let usedTargetNames = HashSet.empty<string>();
   let movePlans = A.empty<{
@@ -880,7 +904,11 @@ export const applyRenamePlan = Effect.fn("Files.applyRenamePlan")(function* (
     .makeTempDirectory({ directory, prefix: ".beep-files-sort-and-rename-" })
     .pipe(
       Effect.mapError((cause) =>
-        formatPlatformError("Failed to create temporary rename directory", directory, { cause })
+        formatPlatformError(
+          "Failed to create temporary rename directory",
+          directory,
+          PlatformErrorOptions.make({ cause })
+        )
       )
     );
 
@@ -910,7 +938,13 @@ export const applyRenamePlan = Effect.fn("Files.applyRenamePlan")(function* (
   yield* fs
     .remove(tempDir, { recursive: true, force: true })
     .pipe(
-      Effect.mapError((cause) => formatPlatformError("Failed to remove temporary rename directory", tempDir, { cause }))
+      Effect.mapError((cause) =>
+        formatPlatformError(
+          "Failed to remove temporary rename directory",
+          tempDir,
+          PlatformErrorOptions.make({ cause })
+        )
+      )
     );
 });
 
@@ -938,7 +972,11 @@ export const applyStripMetadataPlan = Effect.fn("Files.applyStripMetadataPlan")(
       .makeTempDirectory({ directory, prefix: ".beep-files-strip-metadata-" })
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to create temporary strip directory", directory, { cause })
+          formatPlatformError(
+            "Failed to create temporary strip directory",
+            directory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       ),
     Effect.fnUntraced(function* (tempDir) {
@@ -991,7 +1029,11 @@ export const applyCropBordersPlan = Effect.fn("Files.applyCropBordersPlan")(func
       .makeTempDirectory({ directory, prefix: ".beep-files-crop-borders-" })
       .pipe(
         Effect.mapError((cause) =>
-          formatPlatformError("Failed to create temporary crop-borders directory", directory, { cause })
+          formatPlatformError(
+            "Failed to create temporary crop-borders directory",
+            directory,
+            PlatformErrorOptions.make({ cause })
+          )
         )
       ),
     Effect.fnUntraced(function* (tempDir) {

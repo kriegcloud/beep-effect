@@ -35,7 +35,7 @@ const decodeJson = S.decodeResult(JsonValue);
 const quote = flow(S.encodeResult(JsonString), Result.getOrThrowWith(identity));
 const encodeConsumerDocument = flow(S.encodeResult(ConsumerDocument), Result.getOrThrowWith(identity));
 
-class PackedManifestError extends S.TaggedError<PackedManifestError>($I`PackedManifestError`)("PackedManifestError", {
+class PackedManifestError extends S.TaggedError<PackedManifestError, { readonly brand: unique symbol }>($I`PackedManifestError`)("PackedManifestError", {
 	message: S.String,
 }, $I.annote("PackedManifestError", { description: "A packed package.json is not an object." })) {}
 

@@ -67,15 +67,16 @@ const IdentityRegistryViolationKind = LiteralKit([
   })
 );
 
-class IdentityRegistryViolation extends S.Class<IdentityRegistryViolation>($I`IdentityRegistryViolation`)(
-  {
+class IdentityRegistryViolation extends S.Opaque<IdentityRegistryViolation, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: IdentityRegistryViolationKind,
     subject: S.String,
     detail: S.String,
-  },
-  $I.annote("IdentityRegistryViolation", {
-    description: "Identity registry lint violation row: violation kind, offending subject, and remediation detail.",
-  })
+  }).pipe(
+    $I.annoteSchema("IdentityRegistryViolation", {
+      description: "Identity registry lint violation row: violation kind, offending subject, and remediation detail.",
+    })
+  )
 ) {}
 
 const collectSourceFiles = Effect.fn("IdentityRegistry.collectSourceFiles")(function* (sourceRoot: string) {

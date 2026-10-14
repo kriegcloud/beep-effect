@@ -128,8 +128,8 @@ const dcat = (name: string): NamedNode => makeNamedNode(`${DCAT_NAMESPACE}${name
  * @category models
  * @since 0.0.0
  */
-export class OntologyRepairProposal extends S.Class<OntologyRepairProposal>($I`OntologyRepairProposal`)(
-  {
+export class OntologyRepairProposal extends S.Opaque<OntologyRepairProposal, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.NonEmptyString,
     violationIndex: S.Natural,
     focusNode: S.NonEmptyString,
@@ -137,10 +137,11 @@ export class OntologyRepairProposal extends S.Class<OntologyRepairProposal>($I`O
     message: S.String,
     operations: S.Array(ChangeOperation),
     verified: S.Boolean,
-  },
-  $I.annote("OntologyRepairProposal", {
-    description: "Verified ontology repair proposal generated from a SHACL violation.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyRepairProposal", {
+      description: "Verified ontology repair proposal generated from a SHACL violation.",
+    })
+  )
 ) {}
 
 /**
@@ -169,18 +170,22 @@ export class OntologyRepairProposal extends S.Class<OntologyRepairProposal>($I`O
  * @category models
  * @since 0.0.0
  */
-export class RunOntologyValidationInput extends S.Class<RunOntologyValidationInput>($I`RunOntologyValidationInput`)(
-  {
+export class RunOntologyValidationInput extends S.Opaque<
+  RunOntologyValidationInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     session: Session,
     inference: S.OptionFromOptionalKey(OntologyInferenceResult).pipe(S.withConstructorDefault(Effect.succeedNone)),
     maxResults: S.Natural.pipe(
       S.withConstructorDefault(Effect.succeed(100)),
       S.withDecodingDefaultKey(Effect.succeed(100))
     ),
-  },
-  $I.annote("RunOntologyValidationInput", {
-    description: "Validation request for an ontology session.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunOntologyValidationInput", {
+      description: "Validation request for an ontology session.",
+    })
+  )
 ) {}
 
 /**
@@ -206,17 +211,21 @@ export class RunOntologyValidationInput extends S.Class<RunOntologyValidationInp
  * @category models
  * @since 0.0.0
  */
-export class RunOntologyValidationResult extends S.Class<RunOntologyValidationResult>($I`RunOntologyValidationResult`)(
-  {
+export class RunOntologyValidationResult extends S.Opaque<
+  RunOntologyValidationResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     validation: ShaclValidationResult,
     repairs: S.Array(OntologyRepairProposal),
     shapeCount: S.Int,
     dataQuadCount: S.Int,
     inferredQuadCount: S.Int,
-  },
-  $I.annote("RunOntologyValidationResult", {
-    description: "Validation result with verified repair proposals.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunOntologyValidationResult", {
+      description: "Validation result with verified repair proposals.",
+    })
+  )
 ) {}
 
 /**
@@ -247,17 +256,19 @@ export class RunOntologyValidationResult extends S.Class<RunOntologyValidationRe
  * @category models
  * @since 0.0.0
  */
-export class ExportOntologyProvenanceCommand extends S.Class<ExportOntologyProvenanceCommand>(
-  $I`ExportOntologyProvenanceCommand`
-)(
-  {
+export class ExportOntologyProvenanceCommand extends S.Opaque<
+  ExportOntologyProvenanceCommand,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     session: Session,
     provPath: OntologyFilePath,
     datasetPath: OntologyFilePath,
-  },
-  $I.annote("ExportOntologyProvenanceCommand", {
-    description: "Provenance and dataset-description export command.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExportOntologyProvenanceCommand", {
+      description: "Provenance and dataset-description export command.",
+    })
+  )
 ) {}
 
 /**
@@ -282,18 +293,20 @@ export class ExportOntologyProvenanceCommand extends S.Class<ExportOntologyProve
  * @category models
  * @since 0.0.0
  */
-export class ExportOntologyProvenanceResult extends S.Class<ExportOntologyProvenanceResult>(
-  $I`ExportOntologyProvenanceResult`
-)(
-  {
+export class ExportOntologyProvenanceResult extends S.Opaque<
+  ExportOntologyProvenanceResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     provPath: OntologyFilePath,
     datasetPath: OntologyFilePath,
     provSource: TurtleDocumentText,
     datasetSource: TurtleDocumentText,
-  },
-  $I.annote("ExportOntologyProvenanceResult", {
-    description: "Provenance and dataset-description export result.",
-  })
+  }).pipe(
+    $I.annoteSchema("ExportOntologyProvenanceResult", {
+      description: "Provenance and dataset-description export result.",
+    })
+  )
 ) {}
 
 /**
@@ -315,7 +328,9 @@ export class ExportOntologyProvenanceResult extends S.Class<ExportOntologyProven
  * @category errors
  * @since 0.0.0
  */
-export class OntologyValidationError extends S.TaggedError<OntologyValidationError>($I`OntologyValidationError`)(
+export class OntologyValidationError extends S.TaggedError<OntologyValidationError, { readonly brand: unique symbol }>(
+  $I`OntologyValidationError`
+)(
   "OntologyValidationError",
   {
     reason: LiteralKit(["shaclFailed", "repairVerificationFailed", "actorIdentityMissing"]),

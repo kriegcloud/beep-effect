@@ -218,7 +218,7 @@ export type BackgroundColorName = BackgroundColorNameDefinition;
  * @category schemas
  * @since 0.0.0
  */
-export const ChalkConstructorOptions = ChalkConstructorOptionsDefinition;
+export const ChalkConstructorOptions: typeof ChalkConstructorOptionsDefinition = ChalkConstructorOptionsDefinition;
 
 /**
  * Constructor options accepted by {@link Chalk}.
@@ -271,9 +271,9 @@ export const ChalkOptions = ChalkOptionsDefinition;
  * **Example** (Typed options object)
  *
  * ```ts
- * import type { ChalkOptions } from "@beep/chalk"
+ * import { ChalkOptions } from "@beep/chalk"
  *
- * const opts: ChalkOptions = { level: 3 }
+ * const opts = ChalkOptions.make({ level: 3 })
  * console.log(opts.level)
  * ```
  *
@@ -396,9 +396,9 @@ export const ColorSupport = ColorSupportDefinition;
  * **Example** (Truecolor support object)
  *
  * ```ts
- * import type { ColorSupport } from "@beep/chalk"
+ * import { ColorSupport } from "@beep/chalk"
  *
- * const support: ColorSupport = { level: 3, hasBasic: true, has256: true, has16m: true }
+ * const support = ColorSupport.make({ level: 3, hasBasic: true, has256: true, has16m: true })
  * console.log(support.level)
  * ```
  *

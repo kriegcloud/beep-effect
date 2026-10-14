@@ -161,14 +161,15 @@ export type SkillMaterializeStatus = typeof SkillMaterializeStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class SkillMaterializeTarget extends S.Class<SkillMaterializeTarget>($I`SkillMaterializeTarget`)(
-  {
+export class SkillMaterializeTarget extends S.Opaque<SkillMaterializeTarget, { readonly brand: unique symbol }>()(
+  S.Struct({
     target: S.String,
     state: SkillMaterializeTargetState,
-  },
-  $I.annote("SkillMaterializeTarget", {
-    description: "One repo-relative install target and its state against the verified tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillMaterializeTarget", {
+      description: "One repo-relative install target and its state against the verified tree.",
+    })
+  )
 ) {}
 
 /**
@@ -198,17 +199,18 @@ export class SkillMaterializeTarget extends S.Class<SkillMaterializeTarget>($I`S
  * @category models
  * @since 0.0.0
  */
-export class SkillMaterializeRow extends S.Class<SkillMaterializeRow>($I`SkillMaterializeRow`)(
-  {
+export class SkillMaterializeRow extends S.Opaque<SkillMaterializeRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     skill: S.String,
     kind: S.Literals(["vendored", "local"]),
     status: SkillMaterializeStatus,
     patches: S.Natural,
     targets: S.Array(SkillMaterializeTarget),
-  },
-  $I.annote("SkillMaterializeRow", {
-    description: "The materialize outcome for one lock entry with its per-target states.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillMaterializeRow", {
+      description: "The materialize outcome for one lock entry with its per-target states.",
+    })
+  )
 ) {}
 
 /**
@@ -226,12 +228,13 @@ export class SkillMaterializeRow extends S.Class<SkillMaterializeRow>($I`SkillMa
  * @category models
  * @since 0.0.0
  */
-export class SkillMaterializeReport extends S.Class<SkillMaterializeReport>($I`SkillMaterializeReport`)(
-  {
+export class SkillMaterializeReport extends S.Opaque<SkillMaterializeReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: SkillMaterializeMode,
     rows: S.Array(SkillMaterializeRow),
-  },
-  $I.annote("SkillMaterializeReport", {
-    description: "Per-entry materialize outcomes for one write or check run.",
-  })
+  }).pipe(
+    $I.annoteSchema("SkillMaterializeReport", {
+      description: "Per-entry materialize outcomes for one write or check run.",
+    })
+  )
 ) {}
