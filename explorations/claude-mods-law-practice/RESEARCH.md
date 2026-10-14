@@ -162,6 +162,6 @@ Result on Claude Code 2.1.299:
   'spike' })` and asserted the decoded text: **1 pass**.
 
 Conclusion: an Effect + Schema bundle loads and runs in the mod engine;
-`apps/practice-claude-mod` can stay Effect-first with a bun bundle step. Not
+`apps/practice-claude-mod/**` can stay Effect-first with a bun bundle step. Not
 yet proven: bundle size once `@beep/law-practice-*` schemas are pulled in,
 and Windows parity (the attorney's PC), which the first slice proves.
