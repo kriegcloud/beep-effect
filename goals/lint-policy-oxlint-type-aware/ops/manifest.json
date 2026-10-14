@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "initiative-manifest/v2",
+  "initiative": {
+    "id": "lint-policy-oxlint-type-aware",
+    "packetId": "goal-packet/v1:4bfc00ef421054b3569815d001a38142cbed5e97c5e3a484cdd5aaad4c3edb76",
+    "title": "Deprecated-API law lane on oxlint type-aware",
+    "status": "completed-retained",
+    "created": "2026-10-14",
+    "updated": "2026-10-14",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/lint-policy-oxlint-type-aware",
+  "lifecycle": "completed-retained",
+  "mission": "P2b re-spike of lint-policy-single-digit: move the deprecated-API law lane from ESLint to oxlint type-aware behind the packet's hard gates",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Orchestrator reviews and publishes the lane result, then owns merge, reflection and lifecycle. This implementation lane must not publish or mark completed.",
+    "grandfathered": false,
+    "owner": "Claude orchestrator"
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/lint-policy-oxlint-type-aware/README.md",
+    "goals/lint-policy-oxlint-type-aware/SPEC.md",
+    "goals/lint-policy-oxlint-type-aware/PLAN.md",
+    "goals/lint-policy-oxlint-type-aware/GOAL.md",
+    "goals/lint-policy-oxlint-type-aware/research/SOURCES.md"
+  ],
+  "researchReports": [
+    "research/SOURCES.md",
+    "research/triage-2026-10-14.md",
+    "research/results.json",
+    "research/REPRODUCE.md",
+    "research/verification.jsonl",
+    "research/gate-results-resume.json",
+    "research/coverage-resume.json",
+    "research/corpus-parity-resume.json",
+    "research/verification-resume.jsonl",
+    "research/cache-baseline-review-2026-10-14.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/lint-policy-oxlint-type-aware/GOAL.md"
+    }
+  ],
+  "provides": [],
+  "requires": [],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "complete",
+      "exit": "37 assigned subjects; zero config errors; all findings repaired; 38-shard parity and corpus empty"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "complete"
+    },
+    {
+      "id": "P3",
+      "name": "Yeet: PR to mergeable",
+      "status": "complete",
+      "owner": "Claude orchestrator"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "complete",
+      "owner": "Claude orchestrator"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/lint-policy-oxlint-type-aware/GOAL.md)\" -le 4000",
+    "jq . goals/lint-policy-oxlint-type-aware/ops/manifest.json",
+    "rg -n \"lint-policy-oxlint-type-aware|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/lint-policy-oxlint-type-aware",
+    "git diff --check -- goals/lint-policy-oxlint-type-aware",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "Any spend: purchases, paid services, quota top-ups or plan changes need the operator.",
+    "The same blocker repeats after reasonable investigation."
+  ],
+  "parent": "goals/lint-policy-single-digit",
+  "verdict": "GO; hosted cold scan 71s wall <=150s (job 116063131680, head 9aa802c5bb)",
+  "currentPhase": "P2 local and hosted timing verified; inherited JSDoc unblocker remains orchestrator-owned",
+  "keyDecisions": [
+    {
+      "id": "orchestrator-precondition-ruling",
+      "decision": "Prior run: preconditions incomplete; gates not yet run. Clear named blockers before measuring.",
+      "rationale": "Binding parent precondition; no measured failing gate exists."
+    },
+    {
+      "id": "measured-local-go",
+      "decision": "Cut over locally after exact typed file coverage and empty full/corpus differences.",
+      "rationale": "38 uncached shards cover all 5200 typed subjects; local cold4-thread wall60.54s RSS12308852KiB; hosted cold scan 71s wall, 20:06:46Z–20:07:57Z, --threads=4, job116063131680 head9aa802c5bb, no deprecated vendor API usage found; no RSS logged/no OOM; lane F owns memory sizing."
+    }
+  ],
+  "statusNote": "Lane-owned implementation and all 26 package proofs pass. Full policy completes with inherited JSDoc-only red; orchestrator owns consolidated main repair, publication. Hosted cold scan 71s wall passes <=150s; rollback trigger evaluated and not triggered; no RSS logged/no OOM, lane F owns memory sizing."
+}

@@ -5,6 +5,7 @@ import {
   HeldRun,
   heldGroupRunIds,
   prSizeLabelDiff,
+  reviewerAppIntegrationMatches,
   SettingsEnvironment,
   setupCacheWriteDisabled,
   workflowPolicyDiagnostics,
@@ -106,6 +107,15 @@ describe("CI governance policy", () => {
       ).toBe(true);
     })
   );
+  it("requires the reviewer context to be pinned to the expected GitHub App", () => {
+    const pinned = { context: "beep-reviewer", integration_id: 5321138 };
+    expect(reviewerAppIntegrationMatches([pinned])).toBe(true);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer" }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer", integration_id: null }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "beep-reviewer", integration_id: 1 }])).toBe(false);
+    expect(reviewerAppIntegrationMatches([pinned, pinned])).toBe(false);
+    expect(reviewerAppIntegrationMatches([{ context: "Security", integration_id: 5321138 }])).toBe(false);
+  });
   it.effect("detects the old waiting main run and pending successor", () =>
     Effect.sync(() => {
       const old = { id: 1, status: "waiting", created_at: "2026-10-09T12:00:00Z", head_branch: "main" };

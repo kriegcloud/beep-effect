@@ -51,6 +51,7 @@ import { HostedExtractor, PatternExtractor } from "@/services/Extractor";
 import { Ledger } from "@/services/Ledger";
 import { Parser } from "@/services/Parser";
 import { ProviderCache } from "@/services/ProviderCache";
+import { LedgerLiveOptions } from "./LedgerLive.ts";
 import type * as LanguageModel from "effect/ai/LanguageModel";
 import type * as Config from "effect/Config";
 import type { CanaryOptions } from "@/canary/Command";
@@ -293,7 +294,9 @@ const makeCanaryC0 = Effect.fn("CanaryC0.make")(function* (
       hosted,
       pattern,
       evaluator,
-      LedgerLive({ ledgerRoot: config.ledgerRoot, mode, runId: run.id }).pipe(Layer.provide(support))
+      LedgerLive(LedgerLiveOptions.make({ ledgerRoot: config.ledgerRoot, mode, runId: run.id })).pipe(
+        Layer.provide(support)
+      )
     );
 
     const execution = yield* executionLayer.pipe(

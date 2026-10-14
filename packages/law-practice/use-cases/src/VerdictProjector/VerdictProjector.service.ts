@@ -13,7 +13,7 @@ import * as HashMap from "effect/HashMap";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as O from "effect/Option";
-import { isFinalVerdict, latestVerdictByItem } from "../internal/latestVerdict.ts";
+import { latestVerdictByItem } from "../internal/latestVerdict.ts";
 import { VerdictProjector } from "./VerdictProjector.ports.ts";
 import {
   ATTORNEY_CONFIRMED_REASON,
@@ -39,8 +39,7 @@ const disposition = Match.type<VerdictRow>().pipe(
 
 const projectRow = (item: ClaimFindingReviewItem, resolvedBy: Principal) => (row: VerdictRow) =>
   pipe(
-    O.liftPredicate(row, isFinalVerdict),
-    O.flatMap(disposition),
+    disposition(row),
     O.map(({ reason, status }) =>
       ClaimDispositionProjection.make({
         claimId: item.claimId,
@@ -79,6 +78,7 @@ const projectItem: VerdictProjectorShape["projectItem"] = ({ item, resolvedBy, r
  * ```ts
  * import { ReviewItem, VerdictRow } from "@beep/law-practice-domain"
  * import { VerdictProjector, VerdictProjectorLive } from "@beep/law-practice-use-cases/VerdictProjector"
+ * import { SystemPrincipal } from "@beep/shared-domain/entity/Principal"
  * import * as DateTime from "effect/DateTime"
  * import * as Effect from "effect/Effect"
  *
@@ -99,7 +99,7 @@ const projectItem: VerdictProjectorShape["projectItem"] = ({ item, resolvedBy, r
  *   })
  *   const projections = projector.project({
  *     items: [item],
- *     resolvedBy: { kind: "System", component: "Runtime" },
+ *     resolvedBy: SystemPrincipal.make({ kind: "System", component: "Runtime" }),
  *     rows: [row],
  *   })
  *   console.log(projections[0]?.status) // "active"

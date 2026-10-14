@@ -563,3 +563,32 @@ export class SchemaParityCodemodError extends S.TaggedError<
     SchemaParityCodemodError.new(messageWithCause(message, cause))
   );
 }
+
+/**
+ * TypeScript assignment could not be proved for the deprecated-API worker.
+ *
+ * **Example** (Report an unassigned script)
+ *
+ * ```ts
+ * import { LintProgramAssignmentError } from "@beep/repo-cli/commands/Lint/Lint.errors"
+ *
+ * const error = LintProgramAssignmentError.make({
+ *   files: ["packages/drivers/box/scripts/nested/seed.ts"],
+ *   message: "TypeScript file has no tsconfig owner.",
+ * })
+ * console.log(error.files)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class LintProgramAssignmentError extends S.TaggedError<
+  LintProgramAssignmentError,
+  { readonly brand: unique symbol }
+>($I`LintProgramAssignmentError`)(
+  "LintProgramAssignmentError",
+  { message: S.String, files: S.Array(S.String) },
+  $I.annoteError<LintProgramAssignmentError>("LintProgramAssignmentError", {
+    description: "The deprecated-API worker could not prove assignment of every TypeScript lint subject.",
+  })
+) {}

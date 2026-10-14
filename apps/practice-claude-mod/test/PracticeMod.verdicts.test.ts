@@ -9,6 +9,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 import { ModHost } from "@/PracticeMod.host";
 import { KgAnswerItem } from "@/PracticeMod.values";
@@ -123,7 +124,12 @@ describe("VerdictLog", () => {
           concurrency: 2,
         });
 
-        expect(A.map(rows, (row) => row.revision).toSorted()).toEqual([1, 2]);
+        expect(
+          A.sort(
+            A.map(rows, (row) => row.revision),
+            Order.Number
+          )
+        ).toEqual([1, 2]);
         const { store } = yield* FakeHostState;
         const stored = yield* store.pipe(
           MutableHashMap.get("verdict-rows/v2"),

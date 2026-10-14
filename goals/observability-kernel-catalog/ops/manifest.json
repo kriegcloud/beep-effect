@@ -58,12 +58,12 @@
     {
       "id": "P1",
       "name": "Defects + split",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Catalog + registry",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P3",

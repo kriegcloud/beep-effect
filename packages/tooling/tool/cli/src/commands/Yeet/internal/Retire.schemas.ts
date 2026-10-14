@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { GitObjectId } from "@beep/schema/Conformance";
 import * as S from "effect/Schema";
 import { JsonStringCodec } from "../../../internal/schema/JsonCodec.ts";
 import { WorktreeRemovalReceipt } from "../../Worktree/Worktree.schemas.ts";
@@ -54,6 +55,58 @@ export class YeetRetirePlan extends S.Opaque<YeetRetirePlan, { readonly brand: u
 ) {}
 
 /**
+ * What the retirement gate decided for a lane, and why.
+ *
+ * **Details**
+ *
+ * `pr-merged` is the ordinary closeout: the pull request resolved for the
+ * lane's branch is MERGED and heads that branch. `pr-less-on-main` covers a
+ * lane whose branch never headed a pull request but whose tip `origin/<main>`
+ * already contains (`git merge-base --is-ancestor`) while its tree is clean:
+ * the work landed some other way (a stacked parent, a direct push, a branch
+ * that was only ever a scratch checkout), so archiving it and deleting the
+ * local branch loses nothing. `refused` carries the first reason an operator
+ * would check, in the order they would check it: a pull request that is not
+ * MERGED or heads another branch, or, without one, a tip that `origin/<main>`
+ * does not contain or a dirty tree.
+ *
+ * **Example** (Match a verdict)
+ *
+ * ```ts
+ * import { YeetRetireVerdict } from "@beep/repo-cli/test/Yeet"
+ *
+ * const verdict = YeetRetireVerdict.cases["pr-less-on-main"].make({
+ *   tip: "1ed08f66df016a18c6d7d56bd97aa778912cb37b",
+ *   mainBranch: "main",
+ * })
+ * console.log(YeetRetireVerdict.guards.refused(verdict)) // false
+ * console.log(verdict._tag) // "pr-less-on-main"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const YeetRetireVerdict = S.TaggedUnion({
+  "pr-merged": {},
+  "pr-less-on-main": { tip: GitObjectId, mainBranch: S.NonEmptyString },
+  refused: { reason: S.NonEmptyString },
+}).pipe(
+  $I.annoteSchema("YeetRetireVerdict", {
+    description:
+      "The retirement gate's decision for a lane: its pull request is MERGED, its pull-request-less tip is already on the remote main branch with a clean tree, or the first reason it is refused.",
+  })
+);
+
+/**
+ * Decoded retirement verdict union.
+ *
+ * @see {@link YeetRetireVerdict} for the runtime schema.
+ * @category type-level
+ * @since 0.0.0
+ */
+export type YeetRetireVerdict = typeof YeetRetireVerdict.Type;
+
+/**
  * The `--plan --json` document of `yeet sweep --retire`: the retirement, its gate, and the clone sweep plan.
  *
  * **Example** (Encode a plan document)
@@ -69,15 +122,15 @@ export class YeetRetirePlan extends S.Opaque<YeetRetirePlan, { readonly brand: u
  */
 export class YeetRetireSweepPlan extends S.Opaque<YeetRetireSweepPlan, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-retire-sweep-plan/v1"),
+    schemaVersion: S.Literal("yeet-retire-sweep-plan/v2"),
     retire: YeetRetirePlan,
-    blocker: S.OptionFromNullOr(S.String),
+    verdict: YeetRetireVerdict,
     activePackets: S.Array(S.String),
     sweep: SweepPlan,
   }).pipe(
     $I.annoteSchema("YeetRetireSweepPlan", {
       description:
-        "Dry-run document for a retirement: the lane plan, why it would be refused if at all, the touched packets still active, and the owning clone's sweep plan.",
+        "Dry-run document for a retirement: the lane plan, the gate's verdict (why it proceeds or is refused), the touched packets still active, and the owning clone's sweep plan.",
     })
   )
 ) {}
@@ -106,15 +159,16 @@ export const YeetRetireSweepPlanJson = JsonStringCodec(YeetRetireSweepPlan);
  */
 export class YeetRetireSweepReport extends S.Opaque<YeetRetireSweepReport, { readonly brand: unique symbol }>()(
   S.Struct({
-    schemaVersion: S.Literal("yeet-retire-sweep-report/v1"),
+    schemaVersion: S.Literal("yeet-retire-sweep-report/v2"),
     retire: YeetRetirePlan,
+    verdict: YeetRetireVerdict,
     receipt: WorktreeRemovalReceipt,
     activePackets: S.Array(S.String),
     sweep: SweepReport,
   }).pipe(
     $I.annoteSchema("YeetRetireSweepReport", {
       description:
-        "Result document for a retirement: the lane plan, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report.",
+        "Result document for a retirement: the lane plan, the verdict that opened the gate, the worktree removal receipt, the touched packets still active, and the owning clone's sweep report.",
     })
   )
 ) {}

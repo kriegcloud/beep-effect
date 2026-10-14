@@ -902,13 +902,16 @@ describe("document and text refinements", () => {
   });
 
   it("accepts each claim-body width and rejects each inconsistent width", () => {
-    pipe([entityBody, relationBody, structureBody].every(isClaimBody), assertTrue);
+    pipe(A.every([entityBody, relationBody, structureBody], isClaimBody), assertTrue);
     pipe(
-      [
-        { ...entityBody, endChar: 5 },
-        { ...relationBody, endChar: 5 },
-        { ...structureBody, endChar: 5 },
-      ].every((body) => rejects(ClaimBody, body)),
+      A.every(
+        [
+          { ...entityBody, endChar: 5 },
+          { ...relationBody, endChar: 5 },
+          { ...structureBody, endChar: 5 },
+        ],
+        (body) => rejects(ClaimBody, body)
+      ),
       assertTrue
     );
   });

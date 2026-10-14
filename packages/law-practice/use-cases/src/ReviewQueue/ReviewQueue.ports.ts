@@ -170,9 +170,9 @@ export declare namespace RecordVerdictInput {
  * deletes one.
  *
  * - **Latest verdict.** An item's latest verdict is its row with the greatest
- *   `recordedAt` across every batch, ties broken by the greater `revision`;
- *   remaining ties go to the row appended last, since rows are read in
- *   append order. A latest verdict of `right` or `wrong` is final; `partly`
+ *   `recordedAt` across every batch; ties go to the row appended last, since
+ *   rows are read in append order. Revisions never break ties: they count per
+ *   item within one batch, and a later revision is always appended later. A latest verdict of `right` or `wrong` is final; `partly`
  *   and `withdrawn` are not, and `withdrawn` leaves the item with no current
  *   judgement.
  * - **Revisions.** Revisions count per item within one batch. A verdict is
@@ -183,7 +183,7 @@ export declare namespace RecordVerdictInput {
  *   in the log.
  * - **Lock.** A batch is locked once any of its rows carries `lockedAt`.
  *   Locking appends a copy of the batch's latest row (greatest `recordedAt`,
- *   then `revision`) with `revision` one higher, the same `itemId`, `verdict`,
+ *   then append order) with `revision` one higher, the same `itemId`, `verdict`,
  *   `note` and `recordedAt`, and `lockedAt` read from the clock. Verdict
  *   selection skips lock rows, so locking never changes any item's verdict or
  *   projection, even when `recordedAt` ties across batches. After that every write to the batch, a second lock included,
