@@ -378,25 +378,22 @@ describe("drawing review rules", () => {
     expect(others).toContain("declined: Already drawn that way.");
   });
 
-  it.effect(
-    "rejects a finding whose scope and figures disagree",
-    Effect.fnUntraced(function* () {
-      const decode = S.decodeUnknownResult(ReviewFinding);
-      const base = {
-        id: "A1-01",
-        severity: "P1",
-        scope: "all-sheets",
-        figures: [2],
-        notes: [yield* S.encodeEffect(MarkupNote)(note("x", "Fig1.pdf"))],
-        status: "open",
-      };
-      decode(base).pipe(Result.isFailure, assertTrue);
-      decode({ ...base, scope: "sheet", status: "planned" }).pipe(Result.isFailure, assertTrue);
-      decode({ ...base, scope: "sheet", figures: [] }).pipe(Result.isFailure, assertTrue);
-      decode({ ...base, scope: "sheet" }).pipe(Result.isSuccess, assertTrue);
-      decode({ ...base, figures: [] }).pipe(Result.isSuccess, assertTrue);
-    })
-  );
+  it("rejects a finding whose scope and figures disagree", () => {
+    const decode = S.decodeUnknownResult(ReviewFinding);
+    const base = {
+      id: "A1-01",
+      severity: "P1",
+      scope: "all-sheets",
+      figures: [2],
+      notes: [note("x", "Fig1.pdf").pipe(S.encodeResult(MarkupNote), Result.getOrThrow)],
+      status: "open",
+    };
+    assertTrue(decode(base).pipe(Result.isFailure));
+    assertTrue(decode({ ...base, scope: "sheet", status: "planned" }).pipe(Result.isFailure));
+    assertTrue(decode({ ...base, scope: "sheet", figures: [] }).pipe(Result.isFailure));
+    assertTrue(decode({ ...base, scope: "sheet" }).pipe(Result.isSuccess));
+    assertTrue(decode({ ...base, figures: [] }).pipe(Result.isSuccess));
+  });
 
   // The round files are JSON on disk: every value the schemas admit must
   // survive an encode/decode through JSON unchanged.
@@ -456,7 +453,7 @@ const SHEETS: ReadonlyArray<(page: PDFPage) => void> = [
 ];
 
 // The sent set, with `blankPages` extra empty pages to make a different set.
-const sheetSetPdf = Effect.fn("DrawingsReviewTest.sheetSetPdf")(function* (blankPages = 0) {
+const sheetSetPdf = Effect.fnUntraced(function* (blankPages = 0) {
   const doc = yield* Effect.promise(() => PDFDocument.create());
   A.forEach(SHEETS, (draw) => draw(doc.addPage([612, 792])));
   if (blankPages > 0) {
@@ -469,7 +466,7 @@ const sheetSetPdf = Effect.fn("DrawingsReviewTest.sheetSetPdf")(function* (blank
 });
 
 // A reviewer page: the drawing (or a foreign one) with typed notes on top.
-const reviewerPdf = Effect.fn("DrawingsReviewTest.reviewerPdf")(function* (
+const reviewerPdf = Effect.fnUntraced(function* (
   draw: (page: PDFPage) => void,
   notes: ReadonlyArray<readonly [string, number, number]>
 ) {
@@ -570,11 +567,7 @@ const writeReviewerFiles = Effect.fnUntraced(function* (inputs: string) {
 });
 
 // Writes `value` as JSON and returns the hash of the bytes written.
-const writeJsonFile = Effect.fn("DrawingsReviewTest.writeJsonFile")(function* <A, I>(
-  schema: S.Codec<A, I>,
-  file: string,
-  value: A
-) {
+const writeJsonFile = Effect.fnUntraced(function* <A, I>(schema: S.Codec<A, I>, file: string, value: A) {
   const fs = yield* FileSystem.FileSystem;
   const bytes = new TextEncoder().encode(yield* S.encodeEffect(S.fromJsonString(schema))(value));
   yield* fs.writeFile(file, bytes);
@@ -622,9 +615,7 @@ const toolPresent = (command: string) =>
     )
   );
 
-const skipWithoutPoppler = Effect.fn("DrawingsReviewTest.skipWithoutPoppler")(function* (context: {
-  readonly skip: (note?: string) => void;
-}) {
+const skipWithoutPoppler = Effect.fnUntraced(function* (context: { readonly skip: (note?: string) => void }) {
   for (const tool of ["pdftoppm", "pdftotext"]) {
     if (!(yield* toolPresent(tool))) {
       context.skip(`Missing native prerequisite: ${tool} on PATH`);
@@ -880,7 +871,7 @@ describe("beep drawings review", () => {
           ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: dispositionsFile })
         );
         expect(planned.round.status).toBe("planned");
-        planned.round.dispositionsSha256.pipe(O.isSome, assertTrue);
+        assertTrue(planned.round.dispositionsSha256.pipe(O.isSome));
         expect(yield* fs.exists(path.join(opened.roundDir, "dispositions.json"))).toBe(true);
         assertSome(
           O.map(planned.inventory, (inventory) => inventory.findings.map((f) => f.status)),

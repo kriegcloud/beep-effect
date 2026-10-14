@@ -15420,6 +15420,18 @@
             "functions": 36
           }
         },
+        "packages/drivers/m365/src/M365.env.ts": {
+          "lines": 96,
+          "statements": 96,
+          "branches": 100,
+          "functions": 87.5,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 1
+          }
+        },
         "packages/drivers/m365/src/M365.errors.ts": {
           "lines": 89.74,
           "statements": 84.44,
@@ -15430,6 +15442,18 @@
             "statements": 7,
             "branches": 2,
             "functions": 7
+          }
+        },
+        "packages/drivers/m365/src/M365.links.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
           }
         },
         "packages/drivers/m365/src/M365.schemas.ts": {
@@ -20132,6 +20156,57 @@
         }
       }
     },
+    "@beep/practice-identify": {
+      "path": "apps/practice-identify",
+      "lines": 92.9,
+      "statements": 90.9,
+      "branches": 73.52,
+      "functions": 83.67,
+      "uncovered": {
+        "lines": 10,
+        "statements": 14,
+        "branches": 9,
+        "functions": 8
+      },
+      "files": {
+        "apps/practice-identify/src/PracticeIdentify.command.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-identify/src/bin.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 0,
+          "functions": 100,
+          "uncovered": {
+            "lines": 2,
+            "statements": 2,
+            "branches": 2,
+            "functions": 0
+          }
+        },
+        "apps/practice-identify/src/runtime/Layer.ts": {
+          "lines": 93.49,
+          "statements": 90.83,
+          "branches": 78.12,
+          "functions": 77.77,
+          "uncovered": {
+            "lines": 8,
+            "statements": 12,
+            "branches": 7,
+            "functions": 8
+          }
+        }
+      }
+    },
     "@beep/practice-kg-mcp": {
       "path": "apps/practice-kg-mcp",
       "lines": 5.2,
@@ -20299,6 +20374,129 @@
             "statements": 13,
             "branches": 0,
             "functions": 4
+          }
+        }
+      }
+    },
+    "@beep/practice-m365-contacts": {
+      "path": "apps/practice-m365-contacts",
+      "lines": 73.15,
+      "statements": 72.81,
+      "branches": 75.69,
+      "functions": 71.06,
+      "uncovered": {
+        "lines": 98,
+        "statements": 115,
+        "branches": 35,
+        "functions": 46
+      },
+      "files": {
+        "apps/practice-m365-contacts/src/Contacts.command.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 0,
+          "functions": 0,
+          "uncovered": {
+            "lines": 24,
+            "statements": 26,
+            "branches": 4,
+            "functions": 15
+          }
+        },
+        "apps/practice-m365-contacts/src/Contacts.mailbox.ts": {
+          "lines": 12.5,
+          "statements": 11.47,
+          "branches": 0,
+          "functions": 25,
+          "uncovered": {
+            "lines": 49,
+            "statements": 54,
+            "branches": 14,
+            "functions": 12
+          }
+        },
+        "apps/practice-m365-contacts/src/Contacts.plan.ts": {
+          "lines": 86.36,
+          "statements": 86.79,
+          "branches": 96.15,
+          "functions": 76,
+          "uncovered": {
+            "lines": 6,
+            "statements": 7,
+            "branches": 1,
+            "functions": 6
+          }
+        },
+        "apps/practice-m365-contacts/src/Contacts.schemas.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "apps/practice-m365-contacts/src/Contacts.service.ts": {
+          "lines": 97.43,
+          "statements": 94.47,
+          "branches": 83.52,
+          "functions": 91.8,
+          "uncovered": {
+            "lines": 4,
+            "statements": 10,
+            "branches": 14,
+            "functions": 5
+          }
+        },
+        "apps/practice-m365-contacts/src/Contacts.source.ts": {
+          "lines": 95.45,
+          "statements": 93.1,
+          "branches": 100,
+          "functions": 87.09,
+          "uncovered": {
+            "lines": 2,
+            "statements": 4,
+            "branches": 0,
+            "functions": 4
+          }
+        },
+        "apps/practice-m365-contacts/src/Contacts.state.ts": {
+          "lines": 85.18,
+          "statements": 86.2,
+          "branches": 100,
+          "functions": 87.5,
+          "uncovered": {
+            "lines": 4,
+            "statements": 4,
+            "branches": 0,
+            "functions": 1
+          }
+        },
+        "apps/practice-m365-contacts/src/bin.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 0,
+          "functions": 0,
+          "uncovered": {
+            "lines": 8,
+            "statements": 9,
+            "branches": 2,
+            "functions": 3
+          }
+        },
+        "apps/practice-m365-contacts/src/main.ts": {
+          "lines": 0,
+          "statements": 0,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 1,
+            "statements": 1,
+            "branches": 0,
+            "functions": 0
           }
         }
       }
@@ -24382,6 +24580,30 @@
             "statements": 46,
             "branches": 8,
             "functions": 32
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Drawings/Drawings.intake.schemas.ts": {
+          "lines": 100,
+          "statements": 100,
+          "branches": 100,
+          "functions": 100,
+          "uncovered": {
+            "lines": 0,
+            "statements": 0,
+            "branches": 0,
+            "functions": 0
+          }
+        },
+        "packages/tooling/tool/cli/src/commands/Drawings/Drawings.intake.ts": {
+          "lines": 97.1,
+          "statements": 94.78,
+          "branches": 92.18,
+          "functions": 87.05,
+          "uncovered": {
+            "lines": 6,
+            "statements": 12,
+            "branches": 5,
+            "functions": 11
           }
         },
         "packages/tooling/tool/cli/src/commands/Drawings/Drawings.judge.ts": {
