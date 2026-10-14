@@ -270,3 +270,25 @@ advisories, goals index matches, whitespace and added-line public hygiene pass.
 No package source edited; package-verify and package-source hosted parity
 producers are not run for this docs-only continuation.
 Graft estimated 64,688 tokens saved across two retrievals.
+
+
+## Standing continuation — family 4 accepted
+
+Family 4 unit beep-heavy-corpus-restore-p2-2026-10-13-4.service ended with
+result zero. Seal 2026-10-14T00:09:57.518Z: expected/terminal one,
+unapproved zero. One store pass, zero warnings, exceptions or interruptions.
+All 836 children reconcile: 796 engine, 20 repair-copy and 20 Tika children.
+Both derived digest sets match the 20 distinct repaired digests. Dispositions:
+23 repaired occurrences, 62 unsupported, zero unchanged; no other derivations.
+Input 119,120,896 bytes; output/family disk usage 337,512,124 bytes;
+amplification 2.833357835x. Attempt 4,789,718 ms; family 4,797,300 ms;
+archive verification 311,220 ms; queue approximately 60,987 ms.
+Ledger SHA-256:
+c04d8248fe3b5d6ac17a3c7c43c06237d8ef1a5e4ec32ca6fe3f54f35fdf9870.
+All ceilings and frozen identities hold; earlier ledger hashes unchanged.
+Ledger relative to corpus home:
+`staging/restoration/runs/t7-salvage-2026-08-10-p2-2026-10-13-wave-04/ledgers/mail/slice.jsonl`.
+Renewed admitted direct Tika/pffexport sandbox smokes passed; four focused
+tests passed, 78 skipped, 3.85 seconds. Four of nine accepted; ordinals 5-9
+unstarted. Continue only after the full sixty-second interval and fresh
+capacity/state checks. Retain all ledgers, outputs and immutable manifests.

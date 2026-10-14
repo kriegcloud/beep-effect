@@ -1005,3 +1005,24 @@ integration inside the wave. If admission stalls, hold after at most twenty
 minutes without disturbing other lanes. P2 remains incomplete.
 Reversal: revert packet continuation decisions while retaining every family,
 output, ledger and freeze record. PR7 follows the terminal wave record.
+
+
+### 2026-10-14: family 4 accepted; continue the frozen bounded wave
+
+Standing Runs 12+/13+ ruling governs this continuation. Family 4 exited zero
+and sealed acceptance, reconciling 836 children: 796 engine, 20 repair-copy
+and 20 Tika children. Both derived digest sets match all 20 distinct repaired
+digests; dispositions 23 repaired occurrences / 62 unsupported, zero unchanged.
+Zero warnings, exceptions or interruptions. Input 119,120,896 bytes, output
+337,512,124 bytes (2.833357835x); attempt 4,789,718 ms, family 4,797,300 ms.
+All retained ceilings and nine frozen source/engine/launcher/membership/policy
+identities hold. Earlier ledger hashes remain unchanged; four of nine accepted.
+
+Decision: continue ordinal 5 only after renewed admitted real sandbox smokes
+and focused tests, a full sixty-second interval, fresh state checks and the
+100 GB floor. Renewed direct smokes and four focused tests passed. No main
+integration, code, engine or frozen launcher change inside the wave. P2 stays
+incomplete; eighteen larger occurrences and estate/recycle/DOC gates remain open.
+Reversal: revert packet continuation decisions while retaining every family,
+ledger, output and immutable pre-launch freeze record. PR7 follows the
+terminal wave record; never retry a sealed family or merge from this worker.

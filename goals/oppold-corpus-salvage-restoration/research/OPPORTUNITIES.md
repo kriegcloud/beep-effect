@@ -771,3 +771,13 @@ Free bytes 204492922880, above retained floor. Zero P2 families started.
 - **Prevented by:** preserve the user-bus environment on every worker relaunch
   and check manager reachability before issuing admitted work. No engine,
   launcher, unit configuration or outside job was changed.
+
+
+## 2026-10-14 — Composite smoke wrapper failed before engine execution
+
+- **Doing:** renewing admitted sandbox engine smokes before ordinal 5.
+- **Evidence:** the composite shell wrapper returned `bwrap: execvp` before
+  an engine ran. Both direct approved invocations then exited zero through
+  beep-heavy. The failure is wrapper evidence, not a failed corpus family.
+- **Prevented by:** use the brief's direct smoke invocations, preserving their
+  argument boundaries; keep the frozen live launcher unchanged.
