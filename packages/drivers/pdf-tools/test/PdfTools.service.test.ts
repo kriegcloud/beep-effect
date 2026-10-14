@@ -1,9 +1,13 @@
 import {
+  FontFamilyAlias,
   PageTextRequest,
+  PdfFont,
   PdfTools,
   PdfToolsConfig,
   PdfToolsError,
+  PinnedFonts,
   PngRequest,
+  pinnedFontconfig,
   RasterRequest,
   SvgToPdfRequest,
 } from "@beep/pdf-tools";
@@ -103,7 +107,11 @@ const fakeOutputs = (
   return Effect.void;
 };
 
-const makeFakeSpawnerLayer = (commands: Array<ChildProcess.StandardCommand>, exitCode = 0) =>
+const makeFakeSpawnerLayer = (
+  commands: Array<ChildProcess.StandardCommand>,
+  exitCode = 0,
+  fontconfigs: Array<string> = []
+) =>
   Layer.effect(
     ChildProcessSpawner.ChildProcessSpawner,
     Effect.gen(function* () {
@@ -117,6 +125,11 @@ const makeFakeSpawnerLayer = (commands: Array<ChildProcess.StandardCommand>, exi
             commands[A.length(commands)] = command;
             if (exitCode !== 0) {
               return makeHandle(exitCode, "tool stderr");
+            }
+            // The pinned fontconfig file lives in a scoped temp directory: read it while it exists.
+            const fontconfig = command.options.env?.FONTCONFIG_FILE;
+            if (fontconfig !== undefined) {
+              fontconfigs[A.length(fontconfigs)] = yield* fs.readFileString(fontconfig);
             }
             yield* fakeOutputs(fs, command);
             return makeHandle(0);
@@ -150,9 +163,9 @@ const HangingSpawner = Layer.succeed(
   )
 );
 
-const makeLayer = (commands: Array<ChildProcess.StandardCommand>, exitCode = 0) =>
+const makeLayer = (commands: Array<ChildProcess.StandardCommand>, exitCode = 0, fontconfigs: Array<string> = []) =>
   PdfTools.makeLayer().pipe(
-    Layer.provide(makeFakeSpawnerLayer(commands, exitCode)),
+    Layer.provide(makeFakeSpawnerLayer(commands, exitCode, fontconfigs)),
     Layer.provideMerge(NodeServices.layer)
   );
 
@@ -185,6 +198,85 @@ describe("@beep/pdf-tools service", () => {
         })
       );
     });
+  });
+
+  describe("svgToPdf with pinned fonts", () => {
+    const commands: Array<ChildProcess.StandardCommand> = [];
+    const fontconfigs: Array<string> = [];
+    it.layer(makeLayer(commands, 0, fontconfigs), { timeout: "30 seconds" })((it) => {
+      it.effect(
+        "runs rsvg-convert under a fontconfig file that sees only the pinned directory",
+        Effect.fnUntraced(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const dir = yield* fs.makeTempDirectoryScoped();
+          const fontDir = path.join(dir, "fonts & co");
+          yield* fs.makeDirectory(fontDir);
+          const tools = yield* PdfTools;
+          yield* tools.svgToPdf(
+            SvgToPdfRequest.make({
+              svgPaths: [path.join(dir, "a.svg")],
+              outputPath: path.join(dir, "out.pdf"),
+              fonts: O.some(
+                PinnedFonts.make({
+                  directory: fontDir,
+                  families: [FontFamilyAlias.make({ requested: "Arial", family: "Liberation Sans" })],
+                })
+              ),
+            })
+          );
+          expect(commands[0]?.options.env?.FONTCONFIG_FILE).toMatch(/fonts\.conf$/);
+          expect(commands[0]?.options.env?.SOURCE_DATE_EPOCH).toBe("0");
+          const config = fontconfigs[0] ?? "";
+          // the only <dir> is the pinned one, XML-escaped; no <include> pulls in the system config
+          expect(config.match(/<dir>/g)?.length).toBe(1);
+          expect(config).toContain(`<dir>${fontDir.replace("&", "&amp;")}</dir>`);
+          expect(config).not.toContain("<include");
+          expect(config).toContain(
+            `<test name="family" qual="any"><string>Arial</string></test><edit name="family" mode="assign" binding="strong"><string>Liberation Sans</string></edit>`
+          );
+        })
+      );
+
+      it.effect(
+        "refuses a pinned font directory that does not exist, before any tool runs",
+        Effect.fnUntraced(function* () {
+          const tools = yield* PdfTools;
+          const before = A.length(commands);
+          const error = yield* Effect.flip(
+            tools.svgToPdf(
+              SvgToPdfRequest.make({
+                svgPaths: ["a.svg"],
+                outputPath: "out.pdf",
+                fonts: O.some(PinnedFonts.make({ directory: "/nonexistent/beep-fonts", families: [] })),
+              })
+            )
+          );
+          assertInstanceOf(error, PdfToolsError);
+          expect(error.reason).toBe("invalid-request");
+          expect(A.length(commands)).toBe(before);
+        })
+      );
+    });
+
+    it.effect("writes the pinned fontconfig for every alias", () =>
+      Effect.sync(() => {
+        const config = pinnedFontconfig({
+          fonts: PinnedFonts.make({
+            directory: "/fonts",
+            families: [
+              FontFamilyAlias.make({ requested: "Arial", family: "Arial" }),
+              FontFamilyAlias.make({ requested: "Times New Roman", family: "Times New Roman" }),
+            ],
+          }),
+          cacheDirectory: "/cache",
+        });
+        expect(config).toContain("<cachedir>/cache</cachedir>");
+        expect(config.match(/<match target="pattern">/g)?.length).toBe(2);
+        expect(PdfFont.make({ name: "QWERTY+TimesNewRomanPSMT", embedded: true }).baseName).toBe("TimesNewRomanPSMT");
+        expect(PdfFont.make({ name: "Helvetica", embedded: false }).baseName).toBe("Helvetica");
+      })
+    );
   });
 
   describe("measurePage", () => {

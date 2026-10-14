@@ -10,6 +10,7 @@ import { $PdfToolsId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $PdfToolsId.create("PdfTools.models");
 
@@ -141,6 +142,78 @@ export const Dpi = S.Int.check(
  */
 export type Dpi = typeof Dpi.Type;
 
+const AbsoluteDirectory = S.NonEmptyString.check(
+  S.makeFilter(Str.startsWith("/"), {
+    identifier: $I`AbsoluteFontDirectoryCheck`,
+    title: "Font Directory",
+    description: "A pinned font directory is an absolute path.",
+    message: "Expected an absolute font directory",
+  })
+);
+
+/**
+ * A font family the converter must bind: the family an SVG requests and the
+ * family name of the font file it resolves to.
+ *
+ * **Example** (Bind Arial)
+ *
+ * ```ts
+ * import { FontFamilyAlias } from "@beep/pdf-tools"
+ *
+ * console.log(FontFamilyAlias.make({ requested: "Arial", family: "Arial" }).family)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class FontFamilyAlias extends S.Class<FontFamilyAlias>($I`FontFamilyAlias`)(
+  {
+    requested: S.NonEmptyString.annotateKey({ description: "Family name an SVG `font-family` requests." }),
+    family: S.NonEmptyString.annotateKey({ description: "Family name of the font file in the pinned directory." }),
+  },
+  $I.annote("FontFamilyAlias", {
+    description: "A requested font family and the pinned family it is bound to.",
+  })
+) {}
+
+/**
+ * Fonts `rsvg-convert` may use: one directory, nothing else, and the family
+ * bindings inside it.
+ *
+ * **Details**
+ *
+ * The driver writes a fontconfig file whose only font directory is
+ * `directory`, with a strong binding per alias, and runs `rsvg-convert` with
+ * `FONTCONFIG_FILE` pointing at it. System fonts are never visible, so the
+ * embedded fonts depend on the directory's files alone. A family the
+ * directory lacks draws nothing (rsvg-convert still exits 0); the caller's
+ * validator must check the page text.
+ *
+ * **Example** (Pin a directory)
+ *
+ * ```ts
+ * import { FontFamilyAlias, PinnedFonts } from "@beep/pdf-tools"
+ *
+ * const fonts = PinnedFonts.make({
+ *   directory: "/fonts",
+ *   families: [FontFamilyAlias.make({ requested: "Arial", family: "Arial" })]
+ * })
+ * console.log(fonts.directory)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PinnedFonts extends S.Class<PinnedFonts>($I`PinnedFonts`)(
+  {
+    directory: AbsoluteDirectory.annotateKey({ description: "The only directory fonts are read from." }),
+    families: S.Array(FontFamilyAlias).annotateKey({ description: "Requested families and their bindings." }),
+  },
+  $I.annote("PinnedFonts", {
+    description: "Font directory and family bindings an SVG to PDF conversion is pinned to.",
+  })
+) {}
+
 /**
  * Convert one or more SVG files into one PDF, one page per SVG, in order.
  *
@@ -148,7 +221,8 @@ export type Dpi = typeof Dpi.Type;
  *
  * `sourceDateEpoch` is exported as `SOURCE_DATE_EPOCH` so cairo writes a fixed
  * `CreationDate`; the driver always sets it (default 0) so output bytes do not
- * depend on the wall clock.
+ * depend on the wall clock. `fonts` pins the fonts `<text>` elements are set
+ * in (see {@link PinnedFonts}); without it the host's fontconfig is used.
  *
  * **Example** (Two sheets into one PDF 1.6)
  *
@@ -185,9 +259,13 @@ export class SvgToPdfRequest extends S.Class<SvgToPdfRequest>($I`SvgToPdfRequest
       S.withDecodingDefaultTypeKey(Effect.succeed(0)),
       S.annotateKey({ description: "Unix seconds used for the PDF creation date. Defaults to 0." })
     ),
+    fonts: S.OptionFromOptionalKey(PinnedFonts).pipe(
+      S.withConstructorDefault(Effect.succeedNone),
+      S.annotateKey({ description: "Font directory and bindings for `<text>`. Absent, the host fontconfig is used." })
+    ),
   },
   $I.annote("SvgToPdfRequest", {
-    description: "SVG pages to convert into one PDF with a fixed version and creation date.",
+    description: "SVG pages to convert into one PDF with a fixed version, creation date, and optional pinned fonts.",
   })
 ) {}
 
@@ -262,7 +340,25 @@ export class PdfFont extends S.Class<PdfFont>($I`PdfFont`)(
   $I.annote("PdfFont", {
     description: "Font name and embedding status.",
   })
-) {}
+) {
+  /**
+   * The BaseFont name without its six-letter subset tag (`ABCDEF+`).
+   *
+   * **Example** (A subset font)
+   *
+   * ```ts
+   * import { PdfFont } from "@beep/pdf-tools"
+   *
+   * console.log(PdfFont.make({ name: "ABCDEF+ArialMT", embedded: true }).baseName) // "ArialMT"
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  get baseName(): string {
+    return Str.replace(/^[A-Z]{6}\+/, "")(this.name);
+  }
+}
 
 /**
  * Structural facts about a PDF file.
