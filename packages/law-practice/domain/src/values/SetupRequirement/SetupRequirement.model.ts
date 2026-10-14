@@ -61,6 +61,9 @@ export type SetupRequirementId = typeof SetupRequirementId.Type;
  *
  * Agents never create accounts or type credentials. These are the only
  * interruptions setup may ask of the lawyer, and the doctor batches them.
+ * `install` covers running an installer the gateway cannot run itself (Claude
+ * Desktop); `configure` covers choosing a setting in Claude's extension
+ * settings, such as the knowledge-graph bundle folder.
  *
  * **Example** (Check a human step)
  *
@@ -81,6 +84,8 @@ export const HumanStep = LiteralKit([
   "admin-prompt",
   "reboot",
   "account-creation",
+  "install",
+  "configure",
 ]).pipe(
   $I.annoteSchema("HumanStep", {
     description: "A step only the lawyer can perform during setup.",
@@ -103,6 +108,92 @@ export const HumanStep = LiteralKit([
  * @since 0.0.0
  */
 export type HumanStep = typeof HumanStep.Type;
+
+/**
+ * What a setup requirement serves: a practice capability, or the workstation
+ * itself.
+ *
+ * **Details**
+ *
+ * Extends {@link PracticeCapability} with `workstation` for requirements every
+ * practice has regardless of its profile, such as Claude being installed and
+ * signed in or the system drive being encrypted.
+ *
+ * **Example** (Check a workstation scope)
+ *
+ * ```ts
+ * import { SetupCapability } from "@beep/law-practice-domain"
+ *
+ * console.log(SetupCapability.is.workstation("workstation")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const SetupCapability = LiteralKit([...PracticeCapability.literals, "workstation"]).pipe(
+  $I.annoteSchema("SetupCapability", {
+    description: "What a setup requirement serves: a practice capability or the workstation itself.",
+  })
+);
+
+/**
+ * Decoded type of {@link SetupCapability}.
+ *
+ * **Example** (Type a setup capability)
+ *
+ * ```ts
+ * import type { SetupCapability } from "@beep/law-practice-domain"
+ *
+ * const scope: SetupCapability = "workstation"
+ * console.log(scope)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SetupCapability = typeof SetupCapability.Type;
+
+/**
+ * Who owns a setup requirement: a provider adapter, Claude, or Windows.
+ *
+ * **Details**
+ *
+ * Extends {@link PracticeProvider} with `claude` (the host app the lawyer
+ * signs in to) and `windows` (operating-system settings such as BitLocker).
+ *
+ * **Example** (Check a Claude-owned requirement)
+ *
+ * ```ts
+ * import { SetupProvider } from "@beep/law-practice-domain"
+ *
+ * console.log(SetupProvider.is.claude("claude")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const SetupProvider = LiteralKit([...PracticeProvider.literals, "claude", "windows"]).pipe(
+  $I.annoteSchema("SetupProvider", {
+    description: "Who owns a setup requirement: a provider adapter, Claude, or Windows.",
+  })
+);
+
+/**
+ * Decoded type of {@link SetupProvider}.
+ *
+ * **Example** (Type a setup provider)
+ *
+ * ```ts
+ * import type { SetupProvider } from "@beep/law-practice-domain"
+ *
+ * const owner: SetupProvider = "windows"
+ * console.log(owner)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SetupProvider = typeof SetupProvider.Type;
 
 /**
  * A repair the gateway performs itself after the lawyer approves it.
@@ -242,8 +333,8 @@ export type Remediation = typeof Remediation.Type;
 export class SetupRequirement extends S.Class<SetupRequirement>($I`SetupRequirement`)(
   {
     id: SetupRequirementId.annotateKey({ description: "Stable identifier of the requirement." }),
-    capability: PracticeCapability.annotateKey({ description: "The capability this requirement serves." }),
-    provider: PracticeProvider.annotateKey({ description: "The provider adapter this requirement belongs to." }),
+    capability: SetupCapability.annotateKey({ description: "The capability this requirement serves." }),
+    provider: SetupProvider.annotateKey({ description: "The provider or host this requirement belongs to." }),
     dependsOn: S.Array(SetupRequirementId).annotateKey({
       description: "Requirements that must be satisfied before this one is probed.",
     }),

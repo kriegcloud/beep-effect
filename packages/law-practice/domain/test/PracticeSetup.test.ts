@@ -11,6 +11,8 @@ import {
   ProbeMissing,
   ProbeResult,
   Remediation,
+  SetupCapability,
+  SetupProvider,
   SetupRequirement,
   SetupRequirementId,
 } from "@beep/law-practice-domain/values/SetupRequirement";
@@ -101,6 +103,22 @@ describe("SetupRequirement", () => {
       expect(requirement.dependsOn).toEqual([installed]);
       expect(Remediation.guards["needs-human"](requirement.remediation)).toBe(true);
       expect(Remediation.guards.automatic(AutomaticRemediation.make({ summary: "Install Box Drive" }))).toBe(true);
+    })
+  );
+
+  it.effect("decodes a workstation requirement owned by Claude", () =>
+    Effect.gen(function* () {
+      const requirement = yield* S.decodeEffect(SetupRequirement)({
+        id: "claude-signed-in",
+        capability: "workstation",
+        provider: "claude",
+        dependsOn: [],
+        remediation: { kind: "needs-human", step: "install", instruction: "Install Claude Desktop." },
+        explain: "Claude runs the practice tools.",
+      });
+      expect(SetupCapability.is.workstation(requirement.capability)).toBe(true);
+      expect(SetupProvider.is.claude(requirement.provider)).toBe(true);
+      expect(SetupProvider.is["box-drive"]("box-drive")).toBe(true);
     })
   );
 
