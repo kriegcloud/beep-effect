@@ -1,6 +1,7 @@
 /**
  * Request and result models for the PDF tools driver: SVG → PDF conversion,
- * PDF structure inspection, and page raster metrics.
+ * PDF structure inspection, page raster metrics, and the markup-reading verbs
+ * (text blocks, raster ink coverage, annotations).
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -556,5 +557,202 @@ export class PageTextRequest extends S.Class<PageTextRequest>($I`PageTextRequest
   },
   $I.annote("PageTextRequest", {
     description: "One page of a PDF whose text is extracted.",
+  })
+) {}
+
+/**
+ * Rectangle on a PDF page in points, measured from the page's top-left corner
+ * (the `pdftotext -bbox-layout` convention).
+ *
+ * **Details**
+ *
+ * PDF annotation rectangles are stored bottom-left up; the driver converts
+ * them to this convention so text boxes and annotations share one frame.
+ *
+ * **Example** (A one-inch box one inch from the top-left corner)
+ *
+ * ```ts
+ * import { PdfRect } from "@beep/pdf-tools"
+ *
+ * console.log(PdfRect.make({ xMin: 72, yMin: 72, xMax: 144, yMax: 144 }).xMax)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PdfRect extends S.Class<PdfRect>($I`PdfRect`)(
+  {
+    xMin: S.Finite.annotateKey({ description: "Left edge, points from the page's left edge." }),
+    yMin: S.Finite.annotateKey({ description: "Top edge, points down from the page's top edge." }),
+    xMax: S.Finite.annotateKey({ description: "Right edge, points from the page's left edge." }),
+    yMax: S.Finite.annotateKey({ description: "Bottom edge, points down from the page's top edge." }),
+  },
+  $I.annote("PdfRect", {
+    description: "Rectangle in points from the page's top-left corner, as pdftotext reports it.",
+  })
+) {}
+
+/**
+ * One block of text on a page with its bounding rectangle.
+ *
+ * **Details**
+ *
+ * `text` keeps the words as extracted: words of one line joined by a single
+ * space, lines joined by a newline.
+ *
+ * **Example** (A two-line block)
+ *
+ * ```ts
+ * import { PdfRect, TextBlock } from "@beep/pdf-tools"
+ *
+ * const block = TextBlock.make({
+ *   text: "Rotate this view\nfront to the left",
+ *   rect: PdfRect.make({ xMin: 72, yMin: 80, xMax: 200, yMax: 104 })
+ * })
+ * console.log(block.text.split("\n").length)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TextBlock extends S.Class<TextBlock>($I`TextBlock`)(
+  {
+    text: S.String.annotateKey({ description: "Words joined by spaces, lines joined by newlines." }),
+    rect: PdfRect.annotateKey({ description: "Bounding rectangle of the block." }),
+  },
+  $I.annote("TextBlock", {
+    description: "A text block from `pdftotext -bbox-layout` and its rectangle.",
+  })
+) {}
+
+/**
+ * One page of one PDF file.
+ *
+ * **Example** (Page 3 of a sheet set)
+ *
+ * ```ts
+ * import { PdfPageRef } from "@beep/pdf-tools"
+ *
+ * console.log(PdfPageRef.make({ pdfPath: "sheets.pdf", page: 3 }).page)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PdfPageRef extends S.Class<PdfPageRef>($I`PdfPageRef`)(
+  {
+    pdfPath: S.NonEmptyString.annotateKey({ description: "PDF file." }),
+    page: PageNumber.annotateKey({ description: "One-based page." }),
+  },
+  $I.annote("PdfPageRef", {
+    description: "A PDF file and a one-based page in it.",
+  })
+) {}
+
+/**
+ * Request to measure how much of a base page's ink a marked-up page covers.
+ *
+ * **Details**
+ *
+ * Both pages are rasterised at `dpi` without anti-aliasing and compared with
+ * zero offset from the top-left corner. The marked page's ink is grown by
+ * `dilatePx` pixels in every direction first, so a re-export that moves a
+ * stroke by a fraction of a pixel still covers it.
+ *
+ * **Example** (Compare a reviewer page with sheet 2 at 36 dpi)
+ *
+ * ```ts
+ * import { InkCoverageRequest, PdfPageRef } from "@beep/pdf-tools"
+ *
+ * const request = InkCoverageRequest.make({
+ *   base: PdfPageRef.make({ pdfPath: "sheets.pdf", page: 2 }),
+ *   marked: PdfPageRef.make({ pdfPath: "reviewed.pdf", page: 1 }),
+ *   dpi: 36,
+ *   dilatePx: 2
+ * })
+ * console.log(request.dilatePx)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class InkCoverageRequest extends S.Class<InkCoverageRequest>($I`InkCoverageRequest`)(
+  {
+    base: PdfPageRef.annotateKey({ description: "Page whose ink must be covered (the sheet that was sent)." }),
+    marked: PdfPageRef.annotateKey({ description: "Page that may cover it (the page that came back)." }),
+    dpi: Dpi.annotateKey({ description: "Resolution both pages are rasterised at." }),
+    dilatePx: S.Natural.annotateKey({ description: "Pixels the marked ink is grown by before comparing." }),
+  },
+  $I.annote("InkCoverageRequest", {
+    description: "Two pages, a resolution, and a tolerance for a raster ink-coverage comparison.",
+  })
+) {}
+
+/**
+ * How much of a base page's ink a marked page covers.
+ *
+ * **Details**
+ *
+ * `coverage` is `coveredPixels / baseInkPixels`, and 0 for a blank base page.
+ * `markedInkPixels` counts the marked page's own ink before dilation, so a
+ * caller can tell a page that merely contains a sparse sheet from the page
+ * that sheet came back as.
+ *
+ * **Example** (Full coverage)
+ *
+ * ```ts
+ * import { InkCoverage } from "@beep/pdf-tools"
+ *
+ * const result = InkCoverage.make({ baseInkPixels: 400, coveredPixels: 400, markedInkPixels: 520, coverage: 1 })
+ * console.log(result.coverage)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class InkCoverage extends S.Class<InkCoverage>($I`InkCoverage`)(
+  {
+    baseInkPixels: S.Natural.annotateKey({ description: "Ink pixels on the base page." }),
+    coveredPixels: S.Natural.annotateKey({ description: "Base ink pixels the dilated marked ink covers." }),
+    markedInkPixels: S.Natural.annotateKey({ description: "Ink pixels on the marked page, before dilation." }),
+    coverage: S.Finite.annotateKey({ description: "coveredPixels / baseInkPixels; 0 for a blank base page." }),
+  },
+  $I.annote("InkCoverage", {
+    description: "Base ink, covered ink, marked ink, and the covered fraction of a raster comparison.",
+  })
+) {}
+
+/**
+ * One PDF annotation object (an Acrobat-style comment, highlight, or note).
+ *
+ * **Example** (A sticky note)
+ *
+ * ```ts
+ * import { PdfAnnotation, PdfRect } from "@beep/pdf-tools"
+ * import * as O from "effect/Option"
+ *
+ * const note = PdfAnnotation.make({
+ *   page: 1,
+ *   subtype: "Text",
+ *   rect: PdfRect.make({ xMin: 72, yMin: 72, xMax: 92, yMax: 92 }),
+ *   contents: O.some("Rotate this view"),
+ *   author: O.none()
+ * })
+ * console.log(note.subtype)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PdfAnnotation extends S.Class<PdfAnnotation>($I`PdfAnnotation`)(
+  {
+    page: PageNumber.annotateKey({ description: "One-based page the annotation sits on." }),
+    subtype: S.String.annotateKey({ description: "`/Subtype` name, such as Text, FreeText, or Highlight." }),
+    rect: PdfRect.annotateKey({ description: "`/Rect`, converted to points from the page's top-left corner." }),
+    contents: S.Option(S.String).annotateKey({ description: "`/Contents` text, when present." }),
+    author: S.Option(S.String).annotateKey({ description: "`/T` author, when present." }),
+  },
+  $I.annote("PdfAnnotation", {
+    description: "Page, subtype, rectangle, contents, and author of one PDF annotation.",
   })
 ) {}
