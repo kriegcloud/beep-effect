@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -36,8 +36,14 @@ leave no packet-applicable finding open.
 Refresh capture: the original 49 records retain their prior triage and proof; CSF-050–052 are validated, assigned, and repaired in the same PR.
 <!-- codex-findings-refresh:end -->
 
-`P5 repo-proof` - all 52 findings have current-HEAD verdicts and targeted
-repairs or already-fixed proof. Run package and Yeet checks before publication.
+`P9 close` - PR [#1728](https://github.com/beep-effect/beep-effect/pull/1728)
+merged at `de8ddd98448dc4d2f17714e90615ef1c66f2f815`. The 52 captured
+findings are Fixed in Security Cloud; the filtered open view contains only a
+separately captured finding in `codex-security-findings-2026-10-14-agent-message`.
+The final reviewer summary scored #1728 5/5. Two optional hosted checks were
+red at merge: inherited Lint Policy drift and Coverage Regression after a
+self-hosted runner lost communication. The repository's S11 exception governed
+the merge; the inherited lint repair has a separate owner and PR.
 
 ## Findings at a glance
 

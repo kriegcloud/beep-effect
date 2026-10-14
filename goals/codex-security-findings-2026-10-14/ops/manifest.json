@@ -3,13 +3,14 @@
   "initiative": {
     "id": "codex-security-findings-2026-10-14",
     "title": "Codex Security Findings (2026-10-14)",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-10-14",
     "updated": "2026-10-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/codex-security-findings-2026-10-14",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
+  "mergedPullRequest": 1728,
   "mission": "Remediate and close the 52 Codex security findings captured on 2026-10-14.",
   "executionCapable": true,
   "reflectionRequired": true,
@@ -30,7 +31,7 @@
     "goals/codex-security-findings-2026-10-14/GOAL.md",
     "goals/codex-security-findings-2026-10-14/research/SOURCES.md"
   ],
-  "researchReports": ["research/SOURCES.md"],
+  "researchReports": ["research/SOURCES.md", "research/OPPORTUNITIES.md"],
   "agentLaunchers": [
     {
       "kind": "codex-goal",
@@ -65,7 +66,7 @@
       "out-of-scope": 0,
       "untriaged": 0
     },
-    "note": "All 52 findings have current-HEAD dispositions: 51 repairs and one already fixed. The refreshed signed-in CSV preserved the first 49 records and appended CSF-050 through CSF-052; all three appended findings are validated and remediated."
+    "note": "All 52 captured findings are Fixed in Security Cloud after PR #1728 merged at de8ddd98448dc4d2f17714e90615ef1c66f2f815; 51 were remediated and one was already fixed. A later new finding is tracked in a separate packet."
   },
   "closeoutPolicy": {
     "fixed": "Fixed",
@@ -101,12 +102,12 @@
     {
       "id": "P2",
       "name": "Validate",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Lane partition",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P4",
@@ -116,27 +117,27 @@
     {
       "id": "P5",
       "name": "Repo proof",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P6",
       "name": "Publish",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P7",
       "name": "Monitor",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P8",
       "name": "Merge and close findings",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P9",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
