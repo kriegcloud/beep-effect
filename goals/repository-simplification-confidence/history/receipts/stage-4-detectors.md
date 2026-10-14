@@ -1,0 +1,122 @@
+# B detector evidence
+
+## Scan baseline
+
+Status: current-head reproduction and owner refresh completed at
+`01b3d54700fa4327472fb7beb0ed169766902c90`, integrated main on 2026-10-14.
+Raw logs and command exits are retained in `.beep/rsc-resume/`. This receipt
+records a candidate refresh. R14 requires the serialized chore to land
+before its counts become the program baseline. No zero-debt result is claimed.
+
+Bun 1.4.2, Effect 4.0.2 and signed Fallow 3.32.0 are installed. The Effect reference
+checkout is `74d19304da077d98cc6dcb294c71e253365f272f`. All heavy
+commands run serially within one `beep-heavy` admission. The source tree
+matched origin/main before reproduction; packet-only updates do not repair
+source findings. The previous proposed refresh and review records remain
+preserved in the lane's stashes and private evidence directory. They are
+not restored over current main.
+
+| Command | Exit | Observation and disposition |
+| --- | --- | --- |
+| `bun install` | 0 | Current dependency installation; no tracked lockfile delta. |
+| Sherif 1.10.0 | 0 | Landed schema dependency-ordering repair reproduced. |
+| Artifact generator fixtures | 0 | Fourteen tests pass, including broken links, aliases, cycles, escapes and fatal non-NotFound errors. |
+| `beep quality jsdoc-inventory`, private output paths | 0 | Full generation succeeds after #1617. Source findings remain; snapshot drift is separate. |
+| `beep lint schema-first` | 0 | Registry parity and advisory checks pass. Existing exceptions still require individual disposition. |
+| `beep lint schema-catalog` | 1 | Catalog snapshot stale; regenerate through its owner. |
+| `laws effect-imports --check` | 0 | No live root Effect import violation. |
+| `laws native-runtime --check` | 0 | Existing allowlist suppression still applies; this is not exception justification. |
+| `laws effect-fn --check` | 0 | No reported violation. |
+| `laws frozen-grant-set --check` | 0 | No reported violation. |
+| `laws terse-effect --check` | 1 | Existing source findings remain actionable pending individual review and repair. No source changed in this wave. |
+| `laws allowlist-check` | 0 | Current validator passes; provenance and expiry enforcement remain detector-wave work. |
+| Fallow raw dead-code JSON | 0 | Zero issues. Boundary and policy-pack zeros are unmeasured because those features are not configured. |
+| Fallow raw health JSON | 1 | Complexity findings remain. Static-estimated coverage and raw severity counts remain separate from baseline-absorbed findings. |
+| `bun run build` | 0 | All 151 tasks pass; provides the census precondition. |
+| `beep quality check-census` | 1 | Built-tree measurement completes; CLI instantiations grow against the committed floor. The owner refresh records that growth separately from source repairs. |
+
+### Owner refresh
+
+The commands ran in the prescribed order. JSDoc, JSDoc ratchet baseline,
+schema catalog, schema-first, Fallow dead-code and census writes exit 0.
+Fallow health writes its snapshot but exits 1 on the unchanged raw complexity
+frontier. Every output is tool-owned. Effect/Vitest inventory and policy
+fingerprint remain outside this wave. These are candidate measurements until
+R14 serialized merge, not accepted program baseline counts.
+
+| Artifact or metric | Committed snapshot | Current owner output |
+| --- | ---: | ---: |
+| JSDoc packages / public modules / exports | 141 / 2,880 / 20,404 | 147 / 3,462 / 23,453 |
+| Packages needing remediation / open modules / open exports | 120 / 366 / 2,949 | 81 / 912 / 1,388 |
+| Missing export examples | 9 | 8 |
+| Example-import findings / root-package findings | 3,111 / 3,110 | 1,363 / 1,342 |
+| Multiple description paragraphs | 426 | 425 |
+| Schema catalog entries | 6,211 | 7,377 |
+| Schema-first entries | 126 | 126, every entry body unchanged |
+| Fallow dead-code issues / version | 0 / 3.15.0 | 0 / 3.32.0 |
+| Fallow health per-file findings / target keys | 181 / 13 | 180 / 13 |
+| Census CLI single-checker instantiations | 4,936,391 | 5,168,031, increase 231,640 |
+
+The other five census sample counts are unchanged: schema 456,717,
+law-practice-domain 896,665, and typeperf 17,335 / 20,586 / 17,915.
+The compiler is `7.0.2+effect-tsgo.0.51.1` on both sides. The full census
+measures 150 packages with zero diagnostics in both overlay modes. The owner
+write records the source head and dirty state; packet and generated inputs
+are dirty, but no production source is changed by B. Re-recording the CLI
+growth does not count as a source repair. Check time remains advisory.
+
+A fresh finding-identity comparison uses repo path, symbol or module, row
+kind, finding family and serialized finding body, omitting line, column and
+anchor. It includes missing-summary findings and missing-required-tag values,
+so its units differ from earlier proposal comparisons. Committed snapshot
+identities are 3,411, current identities 2,731, persisting 1,560, disappeared
+1,851 and new 1,171. The snapshot predates intervening source and detector
+changes. Disappearance is not attributed to B; new/persisting rows require
+source review before a false-positive or boundary-exception disposition.
+Root-package findings are distinct from root Effect import findings, whose
+live law reports zero. No detector repair is made in this refresh.
+
+Raw Fallow health analyzes 5,227 files and 99,692 functions, with 148 functions
+above threshold: two critical, thirteen high and 133 moderate. Its coverage
+model is static-estimated. This is a different unit from 180 per-file
+baseline findings. Baseline absorption, a source delta gate or an unconfigured
+boundary detector does not establish zero actionable complexity debt.
+
+The current individual schema-first review proposals are preserved privately
+at `.beep/rsc-resume/schema-first-review.json` with source-bound evidence for
+every current identity. No proposal changes an exception body in this wave.
+
+### Committed-head parity
+
+Pending the candidate commit. Required command results are recorded in the
+[current handoff](../handoffs/rsc-b-standards-2026-10-14.md).
+
+## Exception schema
+
+Pending the detector wave. Before editing the effect-laws registry or its
+generated snapshot, the driver must confirm S5 effected-port notification.
+
+## Repairs
+
+Pending paired fixtures and current source proof. Existing #1617 traversal
+fixtures and its two old-head inbox repairs are verified in the current
+[handoff](../handoffs/rsc-b-standards-2026-10-14.md). They do not complete the
+FP-1 through FP-7 frontier.
+
+## Suppressions
+
+Pending current individual disposition. Previous occurrence-review proposals
+remain preserved privately. No suppression is removed or admitted in this
+generated-only wave.
+
+## Exception review
+
+Pending reconciliation of the older occurrence-specific proposals against
+current source and inventories. Unsupported justifications remain debt.
+V owns open canon cohorts under R102; B owns exception review. Old proposal
+counts are historical inputs, not current accepted exception totals.
+
+## Zero scan
+
+Pending all source repairs, provenance enforcement and registry reconciliation.
+Passing a baseline-aware gate does not establish zero actionable source debt.

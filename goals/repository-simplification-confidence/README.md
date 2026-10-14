@@ -4,6 +4,12 @@
 
 Lifecycle: `active`
 
+Program resumed on 2026-10-14. B integrated current main and is reproducing
+the first R20 generated refresh. Its [current handoff](history/handoffs/rsc-b-standards-2026-10-14.md)
+records the five resolved old-head inbox rows and the remaining publication
+and serialization gates. Earlier lane evidence below retains its recorded
+head and date; it does not certify current program completion.
+
 Latest E evidence: [GitHub audit](./history/receipts/stage-4-github-audit.md), [settings snapshots](./history/receipts/stage-3-github-settings.md), and [lane handoff](./history/handoffs/rsc-e-github-2026-10-09.md). E source repairs are final in ready PR #1568. Both integrated full package gates and all local hosted-parity lanes pass; focused fixtures pass 127 tests and scoped coverage passes 396 tests across all seven touched baseline files. The actual GITHUB_TOKEN hosted governance step passes. Cross-lane, trusted-main writer and post-merge acceptance remain open; inherited hosted coverage reds remain attributed for the consolidated repair.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
@@ -61,14 +67,15 @@ nothing was adopted or discarded. P0 Research is complete.
 
 ## Latest Evidence
 
-B's October 13 bounded baseline repair is published in
+B's October 13 bounded baseline repair landed in
 [PR #1616](https://github.com/beep-effect/beep-effect/pull/1616). It adds
 codec properties for the three inherited arbitrary-test findings. After
 integrating #1612, the schema-first owner removes their three superseded
 exception rows; the fresh check passes. Integrated local verification is
-settled, with eight inherited JSDoc ratchet increases; hosted requalification
-remains pending.
-[Current B handoff](history/handoffs/rsc-b-standards-2026-10-13.md) records
+settled, with eight inherited JSDoc ratchet increases at that proof head.
+The subsequently landed #1617 repairs its hosted traversal and Sherif
+failures; the October 14 current-head baseline is recorded separately.
+[October 13 B handoff](history/handoffs/rsc-b-standards-2026-10-13.md) records
 terminal package and parity results. The original refresh, guidance, and
 detector/provenance waves remain open.
 

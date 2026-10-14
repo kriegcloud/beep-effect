@@ -952,3 +952,21 @@ prior gates and quick integrated gates separately; hosted exact-head checks
 remain authoritative.
 
 - B (2026-10-13): keep detector acceptance pending until its durable final receipt exists. The codec-test handoff records bounded progress only; the valid #1616 review identified an ambiguous evidence-map link. Reversal: restore the final receipt link when detector fixtures and individual admissions are complete.
+
+
+### 2026-10-14 — B resumes the ordered R20 refresh
+
+- Decision: preserve the previous refresh stash and rerun the detector owners
+  against integrated main before preparing the dedicated generated chore.
+  The previous proposed counts and review hashes remain historical until
+  replaced by current measurements; R14 still requires serialized merge
+  before the candidate becomes the program baseline.
+- Reason: #1616 landed only the bounded codec-test repair. Its old JSDoc
+  generation and Repo Sanity failures are fixed by #1617, already on main.
+  Guidance previews also predate later policy and path changes. Direct
+  restoration would regress those changes.
+- Reversal: revert the eventual refresh PR and regenerate snapshots with
+  their owners. Preserve the raw old and current receipts for comparison.
+- Boundaries: no push before the RSC-RESUME cap gate; no effect-laws allowlist
+  or snapshot edit before S5 notification confirmation; V retains the open
+  canon cohorts under R102.

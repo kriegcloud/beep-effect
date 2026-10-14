@@ -244,7 +244,7 @@ produces them.
 | Surviving capabilities | `rsc-a-retire` (repository tools) + `rsc-f-agents` (agent capabilities) | `history/receipts/surviving-capabilities.md` |
 | Harness ledger presentation and decision links | `rsc-a-retire` (compact presentation) + `rsc-f-agents` (decision links via the supported writer) | `history/receipts/stage-5-acceptance.md#harness-ledger` |
 | Detector repairs | `rsc-b-standards` | **Pending** — detector fixtures and individual exception admission remain open |
-| Standards and documentation currency (brief 2.B) | `rsc-b-standards` | `history/receipts/stage-4-standards-docs.md` |
+| Standards and documentation currency (brief 2.B) | `rsc-b-standards` | **Pending** — reconciled previews require tracked application and proof after the R20 refresh |
 | Script ports | `rsc-c-scripts` | `history/receipts/stage-5-acceptance.md#script-ports` |
 | Sensitive scripts | `rsc-c-scripts` | `history/receipts/stage-5-acceptance.md#sensitive-scripts` |
 | Retained patches | `rsc-a-retire` | `history/receipts/stage-5-acceptance.md#retained-patches` |

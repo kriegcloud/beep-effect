@@ -417,3 +417,27 @@ with the repair SHA. No inventory, allowlist or coverage floor is edited by C.
 Earlier full package/docgen and unaffected parity remain retained. Updated-head
 hosted proof, B admission and the orchestrator gate remain open; program
 acceptance is not closed by these local receipts.
+
+
+## Package gates
+
+### B generated refresh, 2026-10-14
+
+No workspace package is edited by this first R20 wave. Package verification
+and scoped source coverage are not applicable to generated standards and
+packet evidence alone. The existing fourteen-test artifact-generator suite
+and Sherif pass as qualification of the already landed #1617 repair; they
+are not substitutes for a package gate or a new source repair. Final
+committed-head parity remains pending in the
+[B handoff](../handoffs/rsc-b-standards-2026-10-14.md).
+
+## Scope
+
+### B generated refresh, 2026-10-14
+
+The candidate carries owner-generated JSDoc, catalog, schema-first, Fallow
+and census snapshots with packet receipts. It changes no production source,
+`standards/coverage.regression-baseline.jsonc`, Effect/Vitest inventory, effect-laws allowlist, ESLint
+snapshot, root manifest, lockfile or agent-loaded guidance. The reconciled
+guidance previews stay private until the serialized first refresh lands.
+No source debt is relabelled an exception in this wave.

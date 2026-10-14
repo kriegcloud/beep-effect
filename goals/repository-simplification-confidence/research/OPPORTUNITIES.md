@@ -1076,3 +1076,17 @@ Hosted Repo Sanity job 115502999707 fails old-head Syncpack on minimatch
 repairs both; acknowledge with the actual main merge commit, not a waiver.
 The separately reported Sherif ordering issue still requires live attribution
 on the new head if it appears.
+
+
+### B resume admission environment, 2026-10-14
+
+- Work: qualify the landed Sherif and JSDoc traversal repairs, then reproduce
+  the current detector baseline through the required heavy wrapper.
+- Evidence: `beep-heavy bunx sherif@1.10.0 -r non-existent-packages` exits
+  before admission with `Failed to connect to user scope bus` because this
+  headless worker lacks the user-manager environment.
+- Action: use `XDG_RUNTIME_DIR=/run/user/1000` and the matching user bus
+  address on the wrapper. The admitted Sherif replay passes. No wrapper,
+  concurrency cap or authentication setting changed.
+- Prevention: the worker launcher should supply the user-manager environment
+  before invoking the canonical heavy wrapper.
