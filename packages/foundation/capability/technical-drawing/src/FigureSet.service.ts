@@ -179,8 +179,12 @@ const shadingFor = (input: {
   );
 };
 
-// Everything a sheet draws for a view: solid outlines plus broken-line parts.
-const drawnSegments = (edges: EdgeSet): ReadonlyArray<Segment2> => [...edges.visible, ...edges.broken];
+// Everything a sheet draws for a view: solid outlines, broken lines, and emphasis lines.
+const drawnSegments = (edges: EdgeSet): ReadonlyArray<Segment2> => [
+  ...edges.visible,
+  ...edges.broken,
+  ...edges.emphasis,
+];
 
 // An omitted pictorial is projected like the figure it is claimed from.
 const projectionOf = (spec: FigureSetSpec, view: ViewName): PictorialProjection =>
@@ -197,6 +201,7 @@ const proveOmission = (claim: OmissionClaim, shown: EdgeSet, omitted: EdgeSet): 
     relation: claim.relation,
     proven:
       A.length(shown.broken) === A.length(omitted.broken) &&
+      A.length(shown.emphasis) === A.length(omitted.emphasis) &&
       sameSegments({
         left: claim.relation === "identical" ? drawnSegments(shown) : mirrorSegments(drawnSegments(shown)),
         right: drawnSegments(omitted),
@@ -495,6 +500,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           segments: edges.visible,
           shading: shadingLines,
           broken: edges.broken,
+          emphasis: edges.emphasis,
           figure: index + 1,
           sheet: index + 1,
           sheets,
@@ -516,6 +522,8 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           visibleSegments: A.length(edges.visible),
           shadingSegments: A.length(shadingLines),
           brokenSegments: A.length(edges.broken),
+          // recorded only when drawn, so a manifest without overlays keeps its JSON
+          emphasisSegments: A.isReadonlyArrayNonEmpty(edges.emphasis) ? O.some(A.length(edges.emphasis)) : O.none(),
           camera: A.get(cameras, index),
           shadingCoverage: O.flatMap(shadedView, (view) => view.shadingCoverage),
         });
@@ -551,7 +559,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
     const shadingFindings = A.flatMap(shading, (view, index) => {
       const page = index + 1;
       const shadingMm = inMm(view.shading);
-      const outlineMm = inMm([...view.visible, ...view.broken]);
+      const outlineMm = inMm(drawnSegments(view));
       const gradedFindings = graded
         ? [
             ...shadingOutlineClearanceFindings({ page, shadingMm, outlineMm, options: validationOptions }),
