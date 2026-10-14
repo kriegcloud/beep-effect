@@ -796,3 +796,39 @@ What would prevent this: preserve a sanitized exception class and execution
 stage at the failure boundary, with a synthetic nonzero/empty GIF second-pass
 fixture. This is a follow-up, not authorization to change the frozen wave,
 approve an exception, retry a sealed family or launch ordinal 6.
+
+
+### 2026-10-14: API shell omitted the user-manager environment
+
+Doing: renewed wave continuation preflight after the accepted family-5 diagnosis.
+Evidence: the first read-only systemctl probe reported the user-bus environment
+was not defined. Standard XDG runtime and D-Bus variables restored command
+access; both admitted real sandbox smokes passed. No configuration changed.
+Prevention: forward user-manager environment into the API command surface,
+as the lane launcher already does. This was a shell precondition, not a
+family engine failure; no live family was launched before it was repaired.
+
+
+## 2026-10-14: larger bounded member reaches the attachment-repair time limit
+
+- Doing: reconcile the frozen first wave's seventh family after its unit ended.
+- Evidence: result 1, one unapproved engine-failure, family elapsed
+  7,211,513 ms near the 7,200,000-ms attempt cap; 246 repair copies and
+  245 Tika outputs, one unmatched 2,280,873-byte PDF copy. Terminal
+  failure cause was replaced with a generic message by pstFailureTerminal.
+- Prevention: preserve a sanitized failure stage and exception class in the
+  terminal row, and size repair-time ceilings using repair counts and tree-hash
+  costs for larger members. The current wave's rules and engines stay frozen.
+- Action: recorded the qualified elapsed-budget diagnosis, retained all output,
+  stopped before ordinal 8. No cause approval or sealed-family retry.
+
+## 2026-10-14: stop-record integration overlaps an earlier squash merge
+
+- Doing: merge main once after all family units ended, before evidence publication.
+- Evidence: four packet conflicts in PLAN, README, the handoff and manifest.
+  Main carried the earlier family-5 stop; this branch had the later authorized
+  continuation, family-6 acceptance and family-7 stop.
+- Prevention: integrate packet-only history from completed evidence PRs promptly
+  when the frozen execution permits it. Preserve dated decisions on both sides.
+- Action: retained this branch's newer packet records, including the earlier
+  family-5 evidence, and updated current status to the further sealed failure.
