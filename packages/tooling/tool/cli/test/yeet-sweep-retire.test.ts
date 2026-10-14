@@ -301,7 +301,7 @@ const wakingPanelTable = (holder: number) => {
                 pid,
                 parent: 55,
                 command: "zsh",
-                contextSwitches: switches.pipe(MutableRef.incrementAndGet, O.some),
+                contextSwitches: O.some(switches.pipe(MutableRef.incrementAndGet)),
               })
             )
           )
