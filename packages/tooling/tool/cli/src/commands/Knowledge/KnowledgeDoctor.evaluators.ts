@@ -220,8 +220,8 @@ export const isKnowledgeSymbolSpan = (span: string): boolean => SYMBOL_SPAN_PATT
  * A packet-status claim is a `goals/<slug>` span followed on the same line by a lifecycle-word span,
  * with only connective text between them (`(`, `is`, `now`, `lifecycle`, `status`, an arrow); a
  * past-tense or plural connective (`was`, `both`) is not a current claim and is skipped. An
- * imported-symbol claim is `` `Name` from `@beep/...` ``; its specifier span is read once, as part
- * of the claim. Columns are 1-based and point at the claim's first backtick.
+ * imported-symbol claim is an identifier span, the word `from`, and an `@beep/...` specifier span;
+ * the specifier span is read once, as part of the claim. Columns are 1-based and point at the claim's first backtick.
  *
  * **Example** (Read a status claim and a symbol claim)
  *

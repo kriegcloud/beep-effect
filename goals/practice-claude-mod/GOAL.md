@@ -20,7 +20,7 @@ prose when they conflict.
 
 Scope:
 
-- In: `apps/practice-claude-mod` (new, via `bun run beep create-package`), one `docs/runbooks/` page, this packet, and `explorations/claude-mods-law-practice` state.
+- In: `apps/practice-claude-mod/**` (new, via `bun run beep create-package`), one `docs/runbooks/` page, this packet, and `explorations/claude-mods-law-practice` state.
 - Out: passive time capture or time entries, mods API calls outside the SPEC D9 envelope, Claude Desktop chat and the MCPB extension, managed settings, any send/file/calendar action, client text in the repo, machine names or private paths in the repo.
 
 Workflow:

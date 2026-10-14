@@ -57,7 +57,7 @@ ordering above is priority, not a strict chain.
 
 **"An agent asks for account headroom and gets a fresh, attributed answer."**
 
-- `bun run beep palantiri parcel account-headroom --json` prints an
+- `beep palantiri parcel account-headroom --json` prints an
   `AccountHeadroomParcel`. It contains the provider, an account ordinal (never
   an email), remaining window and reset time, `asOf`, `sources[]`, and
   `Freshness`. It decodes to `Unknown{stale}` past its 60 s bound.
