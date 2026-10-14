@@ -17858,7 +17858,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "EdgeSet",
-      "description": "Canonically ordered visible, hidden, shading, and broken-line projected segments of one view."
+      "description": "Canonically ordered visible, hidden, shading, broken-line, and emphasis projected segments of one view."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17882,7 +17882,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "ModelSpec",
-      "description": "Compound of named parts built from primitives."
+      "description": "Compound of named parts built from primitives, plus authored overlay lines."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17891,6 +17891,22 @@
       "owner": "@beep/technical-drawing",
       "identity": "ModelSummary",
       "description": "Bounding box, volume, topology counts, and part-overlap count of a built model."
+    },
+    {
+      "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
+      "symbol": "OverlayLine",
+      "kind": "struct-const",
+      "owner": "@beep/technical-drawing",
+      "identity": "OverlayLine",
+      "description": "Authored open 3D polyline drawn as an emphasis or broken line, culled by an optional face normal and lifted off its face."
+    },
+    {
+      "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
+      "symbol": "OverlayStyle",
+      "kind": "literal-kit",
+      "owner": "@beep/technical-drawing",
+      "identity": "OverlayStyle",
+      "description": "Line class of an overlay line: emphasis (heavier than outlines) or broken (dashed, unclaimed, 37 CFR 1.152)."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -17946,7 +17962,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "ShadingCoverage",
-      "description": "Faces of one view given shading lines, faces skipped per reason, and faces whose lines were all lost after hidden-line removal."
+      "description": "Faces of one view given shading lines, faces skipped per reason, faces whose lines were all lost after hidden-line removal, and planned stretches that drew nothing."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/Geometry.schemas.ts",
@@ -18226,7 +18242,7 @@
       "kind": "struct-const",
       "owner": "@beep/technical-drawing",
       "identity": "SheetOptions",
-      "description": "Page format, margin standard, stroke and shading widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render."
+      "description": "Page format, margin standard, stroke, shading and emphasis widths, shading pitch range, style, axis, sliver width and minimum stroke, broken-line dash pattern, lettering height, label gap and styles, label font directory, and margin safety gap of a render."
     },
     {
       "file": "packages/foundation/capability/technical-drawing/src/TechnicalDrawing.errors.ts",
@@ -45967,6 +45983,134 @@
       "owner": "@beep/repo-cli",
       "identity": "DocsSection",
       "description": "A section of documentation."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticCategory",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticCategory",
+      "description": "Convention family of a finding."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFinding",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFinding",
+      "description": "Id, relation, severity, scope, category, figures, location, basis, observation, fix, and confidence."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFindingRelation",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFindingRelation",
+      "description": "new, or extends an earlier finding by id."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticFindingScope",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticFindingScope",
+      "description": "this-render, or pending-branch for items the brief defers."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticLoopRecord",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticLoopRecord",
+      "description": "Loop number, sheet-set hash, and runs of one loop."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPackManifest",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPackManifest",
+      "description": "Hashes and pack-relative files of a critic pack."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPriorAssessment",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPriorAssessment",
+      "description": "Stance and note on one earlier finding."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticPriorStance",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticPriorStance",
+      "description": "confirm (measured and agree), refute (say what was measured), or cannot-verify."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRelationKind",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRelationKind",
+      "description": "new, or extends an earlier finding of this loop."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticReport",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticReport",
+      "description": "Reviewer, verdict, blockers, assessment of earlier findings, findings, and what could not be assessed."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticReviewer",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticReviewer",
+      "description": "Name, id prefix, route, model, effort, and scope of one reviewer."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRoute",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRoute",
+      "description": "The CLI a reviewer runs on: codex exec, the grok CLI, claude -p, or cursor-agent."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticRunRecord",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticRunRecord",
+      "description": "Order, reviewer, exit code, report file, hash, count, and times of one run."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticScope",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticScope",
+      "description": "matter: the reviewer sees the matter pack; synthetic: only the public synthetic pack and the repo."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticVerdict",
+      "kind": "literal-kit",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticVerdict",
+      "description": "accept, accept-with-fixes, or reject."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.critics.schemas.ts",
+      "symbol": "CriticZoom",
+      "kind": "struct-const",
+      "owner": "@beep/repo-cli",
+      "identity": "CriticZoom",
+      "description": "Figure, label, and crop rectangle of a 300 dpi zoom."
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Drawings/Drawings.errors.ts",
