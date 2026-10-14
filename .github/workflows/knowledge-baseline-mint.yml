@@ -81,6 +81,9 @@ jobs:
           private-key: ${{ secrets.KNOWLEDGE_MINT_APP_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write
+          # create-pull-request applies `ready-for-heavy` through the Issues labels API;
+          # without issues:write that call fails and the baseline PR is never admitted.
+          permission-issues: write
 
       # The seal guard admits only `<KNOWLEDGE_MINT_APP_SLUG>[bot]`; a token for
       # any other App would open a pull request the guard reads as tamper.

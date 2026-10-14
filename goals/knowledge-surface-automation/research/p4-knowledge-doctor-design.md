@@ -385,8 +385,10 @@ dedicated GitHub App token, the same unprovisioned prerequisite that keeps
 ## Mint App prerequisite (operator)
 
 The mint workflow needs one GitHub App, installed on this repository only, with
-repository permissions **Contents: read and write** and **Pull requests: read and write**
-(nothing else; it needs no webhook). Then set, under the repository's Actions settings:
+repository permissions **Contents: read and write**, **Pull requests: read and write**
+and **Issues: read and write** (nothing else; it needs no webhook). Issues write is only
+for labels: the workflow applies `ready-for-heavy` through the Issues labels API, which
+admits the baseline PR to the heavy lanes. Then set, under the repository's Actions settings:
 
 | Kind | Name | Value |
 | --- | --- | --- |
