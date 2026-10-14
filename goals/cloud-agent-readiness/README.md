@@ -97,6 +97,9 @@ qualified by the beep-worker receipts.
   fresh profile comparison, corrected SSH launch isolation and remaining gaps.
 - [Graft/reference qualification](./history/2026-10-14-graft-reference-qualification.md):
   eleven reference clones, structural navigation and explicit resource/coverage limits.
+- [Detached recovery repair](./history/2026-10-14-detached-recovery-fix.md):
+  guarded automatic loaded-failed recovery, preserved systemd cause, 104 tests
+  and a live worker fixture; isolated observation budget.
 - [Detached Yeet execution](./history/2026-10-14-detached-yeet.md):
   real transient jobs, worker budgets, SSH-agent isolation, terminal receipts and
   a documented pressure/finalizer recovery gap; full green proof remains open.

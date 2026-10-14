@@ -674,7 +674,9 @@ describe("proof job launcher", () => {
     ["main process", { MainPID: "42" }],
     ["control process", { ControlPID: "42" }],
     ["remaining descendants", { TasksCurrent: "2" }],
+    ["inconsistent absent-cgroup task count", { ControlGroup: "", TasksCurrent: "2" }],
     ["missing accounting", { TasksCurrent: "" }],
+    ["unavailable accounting for an existing cgroup", { TasksCurrent: "[not set]" }],
     ["malformed PID", { MainPID: "invalid" }],
     ["unrecognized result", { Result: "new-result" }],
   ] as const) {
@@ -690,6 +692,17 @@ describe("proof job launcher", () => {
       )
     );
   }
+  it.effect("recovers a unit with no cgroup when systemd no longer exposes task accounting", () =>
+    fixture(
+      Effect.fnUntraced(function* (root) {
+        const launcher = yield* ProofJobLauncher.make(root);
+        const record = yield* launcher.submit(submission(root));
+        yield* running(root, launcher, record.jobId);
+        yield* terminalUnit(root, { ControlGroup: "", TasksCurrent: "[not set]" });
+        assertSome(O.getOrThrow(yield* launcher.read(record.jobId)).terminationReason, "timeout");
+      })
+    )
+  );
   it.effect("retains a live recorded identity despite an empty failed unit", () =>
     fixture(
       Effect.fnUntraced(function* (root) {

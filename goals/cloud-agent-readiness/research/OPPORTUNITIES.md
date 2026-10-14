@@ -215,3 +215,24 @@ terminal wait semantics, kernel budget evidence and archived cleanup receipts.
 - Normal failure and timeout wait paths pass; full green proof, cancellation and
   reboot recovery remain explicit acceptance work. Do not publish from these
   fixture receipts.
+
+
+## Detached recovery repair follow-up — 2026-10-14
+
+[Repair receipt](../history/2026-10-14-detached-recovery-fix.md) closes the
+loaded-failed stale-record gap. Recovery requires a terminal unit, zero
+main/control PIDs, empty task accounting or an absent cgroup, a dead recorded
+identity and compatible invocation. Timeout/OOM causes and exit evidence are
+preserved; absent proof outcomes never become green. 104 tests pass.
+
+The real worker reported TasksCurrent=[not set] after its cgroup disappeared.
+The first fixture read timed out; the corrected decoder accepts that sentinel
+only as empty-unit evidence when ControlGroup is also empty. Unavailable
+accounting for an existing cgroup still refuses recovery.
+
+Canonical job wait recovered the same failed-loaded unit as timeout without
+reset-failed. Observations now have a separate 1 GiB control budget outside the
+proof slice, avoiding shared-pressure starvation. ExecStopPost remains in the
+proof unit and can still be delayed; automatic recovery no longer depends on it
+finishing once all owned work is gone. Heavy proof, cancellation/reboot behavior,
+direct SSH detection and broader budget sizing remain separate acceptance.

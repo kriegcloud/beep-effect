@@ -228,7 +228,7 @@ class ProofJobUnitObservation extends S.Class<ProofJobUnitObservation>($I`ProofJ
     SubState: S.NonEmptyString,
     MainPID: systemdCount,
     ControlPID: systemdCount,
-    TasksCurrent: systemdCount,
+    TasksCurrent: S.Union([systemdCount, S.Literals(["[not set]"])]),
     ControlGroup: S.String,
     Result: ProofJobServiceResult,
     ExecMainCode: systemdCount,
@@ -566,7 +566,7 @@ const makeProofJobLauncher = Effect.fn("Yeet.ProofJobLauncher.make")(function* (
           (unit.ActiveState === "inactive" && unit.SubState === "dead")) &&
         unit.MainPID === "0" &&
         unit.ControlPID === "0" &&
-        (unit.ControlGroup === "" || unit.TasksCurrent === "0");
+        (unit.TasksCurrent === "0" || (unit.ControlGroup === "" && unit.TasksCurrent === "[not set]"));
       const invocationMatches = O.match(record.unit.invocationId, {
         onNone: () => true,
         onSome: (expected) => unit.InvocationID === expected,
