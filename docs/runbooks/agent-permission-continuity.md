@@ -71,13 +71,15 @@ cannot infer that the user actually exercised it.
 Codex records are keyed by the first `session_meta.id` in each file, with
 `session_id` as the family key. Later embedded parent metadata in forked
 history does not replace the child's identity. Supply every segment belonging
-to the thread and every child in the family. Turns are ordered across files by
-timestamp, then by supplied segment order and row position. The census compares
-every effective tuple against the chosen expected tuple, including both sides
-of segment and `thread_settings_applied` boundaries. Missing family identity,
-malformed rows, missing tuple fields, empty segments, or an unclosed settings
-boundary prevent a verified metadata verdict. A known mismatch remains
-unsatisfied even when other evidence is incomplete.
+to the thread and every child in the family. Valid timestamped tuples render
+in time order; supplied segment order and row position stabilize display ties.
+Retained untimed policies append after those tuples. Settings continuity uses
+strict timestamp order or positions within the same file. Equal timestamps
+in different files leave that side unproven unless another turn supplies
+ordered evidence. Every decoded effective tuple is compared with the chosen
+policy. Missing identity, malformed rows, missing tuple fields, empty segments
+or an unclosed settings boundary prevent a verified verdict. A known mismatch
+remains unsatisfied in an unidentified segment or a turn without a valid time.
 
 The config reader reuses `ModelsLocatorReader` to flag conventional top-level
 `default_permissions` plus legacy `sandbox_mode`. It is a coexistence check,

@@ -370,14 +370,15 @@ and overall program acceptance remain open.
 
 ## H4 lane status — 2026-10-14
 
-The Session census and Desktop continuity runbook are source-qualified at
-`64079959cf`: all required local parity gates and 39 scoped cases pass; the
-full pre-integration package proof and integrated quick proof are recorded
-separately. Publication/hosted review remains pending. No home or Claude
-harness settings changed. R97 keeps the project default. F still owns the
-legacy Codex key removal, backup and drift check. R96's operator-driven
-Desktop fixture batch remains an external dependency; current installed-build
-route results are unknown and Permission continuity remains open.
+The Session census and Desktop continuity runbook are in PR #1770. Source
+`a0c0177c98` includes main's S25 opaque-schema migration and both hosted review
+fixes; independent review has zero actionable findings. The 42 scoped cases
+pass. Final full package/parity qualification is running; earlier proof stays
+historical, and shared JSDoc/ruleset failures are attributed in the handoff.
+No home or Claude harness settings changed. R97 keeps the project default.
+F owns legacy Codex key removal, backup and drift check. R96's operator-driven
+Desktop fixture batch remains external; installed-build route results are
+unknown and Permission continuity remains open.
 
 Evidence map: [permission continuity](history/receipts/stage-5-acceptance.md#permission-continuity),
 [H4 handoff](history/handoffs/rsc-h4-permissions-2026-10-14.md).

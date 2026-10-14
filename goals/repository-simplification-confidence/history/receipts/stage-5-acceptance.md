@@ -27,14 +27,16 @@ Verification: the same hashes remain after the ignore edits; `git ls-files harne
 
 ## Package gates
 
-H4, 2026-10-14: the default `@beep/repo-cli` package gate passes audit in
-1,257.0 seconds and docgen in 42.2 seconds. The final scoped run passes 39 cases, including 14 census cases; a separate source review has zero outstanding findings. Subsequent
-bounded docgen and all nine doctest marker checks pass. The test helper's
-introduced tsgo diagnostics are repaired; the final 363-file typecheck passes.
-All local parity gates pass. Integrated quick verification passes after
-restoring the new main declaration outputs. Publication results are recorded in the
-[H4 handoff](../handoffs/rsc-h4-permissions-2026-10-14.md). These are reader
-qualification results; Desktop route acceptance remains open below.
+H4, 2026-10-14: earlier default CLI audits/docgen passed at their recorded
+pre-S25 snapshots (1,257.0s/42.2s and 1,045.0s/30.8s). Current source
+`a0c0177c98` follows main's opaque-schema migration and repairs both hosted
+review findings. Independent review has zero actionable findings; 42 scoped
+cases pass, with every incumbent coverage floor/ceiling met. Final post-S25
+full package/parity qualification is running. The JSDoc +2 root-import
+regression is attributed to two unchanged main examples, and live ruleset
+drift remains shared-owned. Current results are in the
+[H4 handoff](../handoffs/rsc-h4-permissions-2026-10-14.md). These qualify the
+reader; Desktop route acceptance remains open below.
 
 All eleven touched packages passed full run-5 package verification before E's main merge: box-provisioning, box, freshbooks, occt, pdf-tools, wink, colors, data, repo-ai-metrics, codegen-kit and repo-cli. The refreshed post-D CLI audit passed in 785 seconds with docgen in 28 seconds; test TSGo and full docgen also passed. E changes CLI source, so those CLI/parity passes are now historical. Ten unchanged package gates remain valid. Post-E full CLI verification fails only the live Knip workflow contract. Its docgen and the subsequent post-E parity/coverage sequence are not run. This is an S3 integration blocker requiring E-owned workflow retirement, followed by a fresh CLI/package/parity/coverage run.
 

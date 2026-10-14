@@ -2062,3 +2062,38 @@ drift locally; the lane has no diff in CI/ruleset source or workflows against
 main. Route reconciliation to the shared owner and rerun Security after it
 lands. A shared settings/declaration preflight would expose this before
 spending a full hosted run. No lane-local ruleset or workflow repair was made.
+
+### H4 — S25 integration requires branded constructor inputs (2026-10-14)
+
+After #1758 merged, H4 integrated main cleanly. The first package check then
+reported two missing `brand` fields in its reused Models locator inputs.
+Constructing `ModelsTargetFile` and `LocatorBinding` through their existing
+`.make` methods preserves the codemod's opaque schema shape; no cast or
+upstream rollback was needed. A consumer inventory for newly opaque models
+would expose these two lane-only call sites before integration. The fix is
+independently reviewed; the package check rerun passes.
+
+### H4 — review exposed incomplete-evidence gaps (2026-10-14)
+
+PR #1770 discussions 4276306627 and 4276306638 showed two false-safe
+assumptions: unidentified segments discarded known tuples, and equal-time
+turns from another segment could close a settings boundary by manifest order.
+Project policy payloads independently of identity/time, retain mismatches,
+and use only timestamp order or same-file position as boundary evidence.
+Regressions now cover orphan downgrades, invalid/missing times, both manifest
+permutations and a genuinely later supporting turn. Independent review also
+caught tuple rendering order changing during that fix; chronological rendering
+is restored. A generated missing-metadata and permutation test matrix would
+have exposed these cases before hosted review.
+
+### H4 — inherited hosted examples and Skills property (2026-10-14)
+
+On published pre-S25 head `9a1b342f05`, JSDoc job 116103973155 reports
+`no-root-package-import: 1345 > 1343`. The inventory diff identifies exactly
+`TierGate.ts:TierGateVerdict` and `UsptoDocumentTiers.ts:MintFetchableHandle`;
+both files match main, and H4 adds zero root-import examples. Property Laws
+job 116103972723 and Unit shard 116103972739 fail the same unchanged Skills
+codec property at `skills-provenance.test.ts:388`; the Unit parent merely
+aggregates it. Route these findings to the shared owner. Do not copy fixes
+or rewrite baselines in H4. The final post-S25 sequence includes a bounded
+recheck of the Skills property.

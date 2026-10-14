@@ -2,13 +2,13 @@
 
 ```text
 lane: rsc-h4-permissions
-head: 00209410a861eb39b7050e7902524731593a44ce (qualified source; receipt commits follow)   pr: #1770
-package-verify: @beep/repo-cli pass (integrated full audit 1045.0s/docgen 30.8s; explicit CLI environment quick lint 5.6s/check 6.2s)
-hosted-parity: test-tsgo=pass (363 files); docgen local=pass; jsdoc-ratchet=pass; knowledge refs=pass; fallow audit+health=pass (zero findings); coverage read=pass (39 tests; incumbent row 100% in every metric, zero uncovered)
+head: a0c0177c9830fed0e45db6f036b184341b66e617 (current source snapshot; final audit in progress)   pr: #1770
+package-verify: @beep/repo-cli current full run pending; prior integrated full audit 1045.0s/docgen 30.8s pass (historical pre-S25)
+hosted-parity: final source sequence in progress; test-tsgo=pass (364 files); preceding post-S25 JSDoc fails on two attributed main examples; 42 scoped tests pass and incumbent coverage is 100% in every metric, zero uncovered
 routes: ChatGPT Desktop x fresh/dormant-idle/dormant-relaunch/background/subagent-followup -> unknown, build 26.1007.71326-1, fixture none; Claude Desktop x same routes in bypass/auto -> unknown, build 2.37337.1-1, fixture none
 config: no backups created or writes; legacy sandbox_mode still present with default_permissions; F writer and drift check pending
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h4-permissions-2026-10-14.md
-open: corrected wave publication/hosted review; shared Security ruleset drift; post-#1758 main integration and parity; operator Desktop fixture batch; F owned-field config repair; overall Permission continuity remains open
+open: final post-S25 qualification/publication; reply+resolve both reviewed threads after push; shared Security/JSDoc and old Skills property reds; operator Desktop fixture batch; F owned-field config repair; overall Permission continuity remains open
 ```
 
 ## Delivered scope
@@ -92,14 +92,14 @@ F must remove only top-level legacy `sandbox_mode`, preserve
 run the return-of-key drift check before its final fingerprint panel.
 No project Claude permission change needs to be included in that fingerprint.
 
-The known inherited resume-wave reds (skills test HttpClient, schema-hoist
-on tests, cache-policy receipt digest, and Coverage Regression) belong to
-the consolidated main owner. Actual local results will be recorded separately;
-no diagnostic is assumed inherited merely because its category is listed.
+The resume inputs named several earlier reds; the later wave-2 correction
+states they were repaired on main. No current diagnostic is attributed from
+its category alone. The current shared findings below have explicit logs,
+source comparisons and reproductions.
 
-## Final source qualification
+## Historical qualification before the S25 integration
 
-Executable source is qualified at `64079959cfe9c0210a38004a468642ba020978be`,
+Executable source was qualified at `64079959cfe9c0210a38004a468642ba020978be`,
 with current main `061d5a40e425b7c03702a8ca03c4459e31166815` integrated.
 The last fetch before publication found no newer main commit. Later receipt
 updates change only packet prose; they do not change the qualified source.
@@ -212,3 +212,59 @@ required parity list, publish the integration wave and then issue the marker.
 The shared Security drift, operator fixture batch and F writer/drift check
 remain separate dependencies. The source/report head above identifies the
 qualified code; later packet-only commits carry the qualification receipt.
+
+## Current post-S25 and review checkpoint — 21:20 UTC
+
+This checkpoint supersedes the earlier pre-S25 blocked state. #1758 merged
+as `dd737364a158bb5bbc6ebe64746beb81a330c230`; main
+`d6040249f034a05b2aee014c60230c68a1ad780f` integrated cleanly in
+`94b212e65d4050a485e15c2f79ce71983439d306`. Source now stands at
+`a0c0177c9830fed0e45db6f036b184341b66e617`; PR #1770 still publishes
+`9a1b342f053a2171904c24b754b99c0528ae34c9` until the combined wave pushes.
+
+The six new data models follow branded `S.Opaque`. Reused Models targets
+and bindings use their existing constructors. Hosted review discussions
+4276306627 / `PRRT_kwDOPbO_N86shXFa` and
+4276306638 / `PRRT_kwDOPbO_N86shXFh` are fixed in the source: retain known
+policies without identity/time, and require actual timestamp or same-file
+position evidence for settings boundaries. Independent review additionally
+caught changed tuple rendering order; it is restored. Three new regression
+cases cover both findings plus absent/malformed timestamps. The Option
+collection uses current Effect v4 helpers. Final pinned source review has
+zero outstanding actionable findings bound to `a0c0177c98`.
+
+The latest scoped V8 run passes 42 tests in 37.45s. The census service has
+100% branch coverage; the incumbent Session command has 100% in every
+metric with zero uncovered counts. The new source's typecheck passes 364
+files. A final default package audit and complete parity sequence are running;
+bounded docgen will run after the audit to avoid overlapping docgen writers.
+No source change is planned unless a real check or review fails.
+
+Shared attribution: the post-S25 JSDoc inventory reproduces two extra root
+imports in `TierGate.ts:TierGateVerdict` and
+`UsptoDocumentTiers.ts:MintFetchableHandle`. Both files match main; H4 has
+zero root-import findings. Old published-head Property Laws and Unit shard
+fail the unchanged Skills codec property at `skills-provenance.test.ts:388`;
+the final sequence includes a current-main bounded recheck. Hosted Security
+on both earlier published heads fails only live ruleset/declaration drift.
+These rows are acknowledged with source-bound reasons, without a lane-local
+fix or baseline rewrite. Review replies are drafted and will post/resolve
+through Yeet after the source wave pushes.
+
+## Stable-source parity results — a0c0177c98
+
+The final source-only review and the completed parity sequence bind to
+`a0c0177c9830fed0e45db6f036b184341b66e617`. Effect Vitest, all nine doctests,
+364-file test-tsgo, CI knowledge refs (zero live gated observations), both
+Fallow checks (zero findings), retired paths, scoped coverage and the coverage
+read all exit 0. The scoped run passes 42 cases in 15.68s; service branches
+are 100%, and the incumbent Session command is 100% in all four metrics with
+zero uncovered counts. No baseline changed.
+
+JSDoc ratchet exits 1 on the two unchanged main examples already attributed
+above (`1345 > 1343`). The bounded current-main Skills property recheck also
+exits 1 at `skills-provenance.test.ts:388`, reproducing the hosted case after
+eight generated examples. Skills source and test still have no H4 diff from
+main. This rules out claiming the S25 merge alone resolved it. The default
+package audit and subsequent bounded docgen remain in progress/pending; their
+actual final results will be recorded before publication.

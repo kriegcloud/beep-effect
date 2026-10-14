@@ -1256,3 +1256,16 @@ incumbent touched coverage floor and uncovered ceiling is met; no baseline
 or generated inventory is changed. This avoids presenting historical full
 proof as an integrated-head result. Reversal: revert H4's PR and retain the
 historical receipts; no workstation config rollback is required.
+
+### 2026-10-14 — H4 follows S25 and retains incomplete mismatch evidence
+
+Integrate #1758 before final delivery. The six new plain-data models use
+branded `S.Opaque`, and reused Models inputs use their existing constructors;
+this preserves main's schema doctrine instead of reviving structural inputs.
+Retain decoded policy mismatches even without usable metadata/time. A settings
+boundary requires an earlier and later effective turn established by time or
+same-file position; manifest order supplies no cross-file tie evidence.
+Chronological valid tuples render first, followed by retained untimed tuples.
+Reason: hosted and independent review demonstrated two false-safe cases and
+a rendering regression. Reversal: revert the H4 PR; no workstation state was
+changed. Full package and parity qualification is repeated for this wave.
