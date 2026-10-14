@@ -83,10 +83,10 @@ Each entry: Question / Answer / Rationale (rejected options included).
   schema; until then the timer is a surface plus raw interval rows, not
   candidate entries.
 
-### D6 Code home: `apps/practice-claude-mod`
+### D6 Code home: `apps/practice-claude-mod/**`
 
 - **Question:** Where does the mod's source live, and in what form?
-- **Answer (operator):** `apps/practice-claude-mod`, a practice app like
+- **Answer (operator):** `apps/practice-claude-mod/**`, a practice app like
   `apps/practice-kg-mcp`: Effect-first TypeScript that uses the
   `@beep/law-practice-*` schemas, bundled into one ESM hooks module plus
   `plugin.json`, proven with `claude plugin validate` and `claude plugin test`.
@@ -140,7 +140,7 @@ Each entry: Question / Answer / Rationale (rejected options included).
 
 - **Question:** Does the verdict row schema live in `@beep/law-practice-*`
   or in the app?
-- **Answer (agent):** app-local in `apps/practice-claude-mod` until a second
+- **Answer (agent):** app-local in `apps/practice-claude-mod/**` until a second
   consumer (the practice-kg eval harness) reads it; then promote it into the
   law-practice slice.
 - **Rationale:** specific-home-first; one consumer does not justify slice
