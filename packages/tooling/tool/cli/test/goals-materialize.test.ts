@@ -3,6 +3,7 @@ import {
   BootstrapInput,
   compileAdoptionPlan,
   compileMaterializationPlan,
+  GoalPlanOperationalError,
   goalsCommand,
   listGoalPackets,
   MaterializationPlan,
@@ -327,6 +328,34 @@ it.layer(commandTestLayer, { concurrent: false, timeout: "60 seconds" })((it) =>
   });
 
   describe("replacePinnedFile", { concurrent: false }, () => {
+    it.effect("refuses a lost generation lock and removes the staged replacement", () =>
+      Effect.andThen(
+        temporaryWorkingDirectory,
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const preImage = '{"version":0}\n';
+          yield* writeProjectFile("pinned/state.json", preImage);
+          const preImageDigest = yield* sha256Hex(preImage);
+          const refused = yield* Effect.flip(
+            replacePinnedFile(
+              "pinned/state.json",
+              preImageDigest,
+              Effect.fnUntraced(function* () {
+                yield* fs
+                  .remove("pinned/state.json.lock")
+                  .pipe(Effect.mapError(GoalPlanOperationalError.new("Could not remove the fixture generation lock.")));
+                return '{"version":1}\n';
+              })
+            )
+          );
+          strictEqual(refused._tag, "GoalPlanOperationalError");
+          expect(refused.message).toContain("Refusing to replace pinned/state.json");
+          strictEqual(yield* fs.readFileString("pinned/state.json"), preImage);
+          expect(yield* fs.readDirectory("pinned")).toEqual(["state.json"]);
+        })
+      ).pipe(TestClock.withLive)
+    );
+
     it.effect("serializes two writers of one pre-image into one replacement and one refusal", () =>
       Effect.andThen(
         temporaryWorkingDirectory,

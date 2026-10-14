@@ -479,6 +479,24 @@ describe("@beep/occt service", () => {
     );
 
     it.effect(
+      "reports a typed build failure when a part has zero width",
+      Effect.fnUntraced(function* () {
+        const occt = yield* Occt;
+        const error = yield* Effect.flip(
+          occt.summarize(
+            ModelSpec.make({
+              parts: [Part.make({ name: "degenerate", add: [box([0, 0, 0], [0, 10, 10])] })],
+            })
+          )
+        );
+        assertInstanceOf(error, OcctError);
+        expect(error.reason).toBe("solid-build");
+        expect(error.message).toBe("The kernel could not build the solid.");
+        assertNone(error.cause);
+      })
+    );
+
+    it.effect(
       "rejects a camera with a zero eye vector",
       Effect.fnUntraced(function* () {
         const occt = yield* Occt;
