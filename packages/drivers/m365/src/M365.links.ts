@@ -181,3 +181,20 @@ export const OutlookItemRefFromInput = S.String.pipe(
     description: "Codec from a pasted Outlook web link or raw id to a Graph message or conversation reference.",
   })
 );
+
+/**
+ * Type for {@link OutlookItemRefFromInput}.
+ *
+ * **Example** (Annotate a decoded Outlook item reference)
+ *
+ * ```ts
+ * import type { OutlookItemRefFromInput } from "@beep/m365"
+ *
+ * const value: OutlookItemRefFromInput | undefined = undefined
+ * console.log(value)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OutlookItemRefFromInput = typeof OutlookItemRefFromInput.Type;

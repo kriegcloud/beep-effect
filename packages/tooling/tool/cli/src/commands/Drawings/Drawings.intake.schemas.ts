@@ -162,6 +162,23 @@ export const IntakePickFromString = S.String.pipe(
 );
 
 /**
+ * Type for {@link IntakePickFromString}.
+ *
+ * **Example** (Annotate a decoded pick)
+ *
+ * ```ts
+ * import type { IntakePickFromString } from "@beep/repo-cli/commands/Drawings"
+ *
+ * const value: IntakePickFromString | undefined = undefined
+ * console.log(value)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type IntakePickFromString = typeof IntakePickFromString.Type;
+
+/**
  * Request to pull one message's attachments into a directory under the corpus root.
  *
  * **Example** (Pull the newest message of a conversation)
