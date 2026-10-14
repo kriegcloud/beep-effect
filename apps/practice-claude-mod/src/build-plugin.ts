@@ -80,6 +80,8 @@ const program = Effect.gen(function* () {
     [
       "import {",
       "  configure,",
+      "  matterCommand,",
+      "  timeCommand,",
       "  practiceCommand,",
       "  registerCommands,",
       "  rememberAnswer,",
@@ -98,6 +100,8 @@ const program = Effect.gen(function* () {
       "    await rememberAnswer($)(e);",
       "    return next(e);",
       "  });",
+      '  on("command.run", { command: "matter" }, ($, e) => matterCommand($)(e.args));',
+      '  on("command.run", { command: "time" }, ($, e) => timeCommand($)(e.args));',
       '  on("command.run", { command: "right" }, ($, e) => verdictCommand($)("right", e.args));',
       '  on("command.run", { command: "wrong" }, ($, e) => verdictCommand($)("wrong", e.args));',
       '  on("command.run", { command: "partly" }, ($, e) => verdictCommand($)("partly", e.args));',

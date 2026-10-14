@@ -178,6 +178,8 @@ Seeded from the exploration's `DECISIONS.md` (full rationale there).
 
 | 2026-10-14 | D19 Repair local gates without committing or publishing: canonical Option assertions and bounded test layers; declare generated hook and engine-test entries; keep internal schemas/errors private; preserve persisted matter/timer contracts with a codec test; use Match for existing `/practice` dispatch | Removes introduced lint/dead-code/complexity findings while retaining plugin actions and payloads; sandbox-only runner friction is recorded in `research/OPPORTUNITIES.md` | Revert the focused gate-fix diff; no deployed plugin state is changed |
 
+| 2026-10-14 | D20 Matter/timer slice adds `$.mcp.call` for practice-kg read tools only, using the first configured server, and `$.clock.every` for visible minute updates. Decode only resolution, docketKey, client and familyKey in the browser; select only unique results. Capture the chosen matter at timer start; append raw intervals under `timer-intervals`, export to `practice-timer.jsonl` alongside verdicts. Module choices/timers reset on reload; failed stop writes keep the interval for retry. Hooks bundle: 299,481 bytes before, 311,453 bytes after (+11,972, 4.0%) | The use-cases server entry also exports services/handlers; an app-local boundary projection avoids server imports. No passive timing or narratives. Real server returns JSON text content; structuredContent remains supported | Remove the matter/time command hooks and ticker; retain existing stored intervals and exports; restore the previous envelope |
+
 ## Exception Ledger
 
 | Exception | Scope | Owner | Rationale | Removal condition |

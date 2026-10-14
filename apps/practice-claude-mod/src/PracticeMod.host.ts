@@ -22,9 +22,14 @@ const $I = $PracticeClaudeModId.create("PracticeMod.host");
  * @category schemas
  * @since 0.0.0
  */
-const ModHostOperation = LiteralKit(["store-get", "store-set", "fs-write", "session-id", "clock"]).pipe(
-  $I.annoteSchema("ModHostOperation", { description: "The mod engine call that failed." })
-);
+const ModHostOperation = LiteralKit([
+  "store-get",
+  "store-set",
+  "fs-write",
+  "session-id",
+  "clock",
+  "matter-lookup",
+]).pipe($I.annoteSchema("ModHostOperation", { description: "The mod engine call that failed." }));
 
 /**
  * Type-level union produced by {@link ModHostOperation}.

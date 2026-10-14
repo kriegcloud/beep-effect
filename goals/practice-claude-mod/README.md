@@ -31,7 +31,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P1 Implement — first slice (plain-language rows + verdict capture) built, tested in the engine, proven on the operator machine and installed on the attorney's PC; next: matter band + visible timer, then the ported skills.
+P1 Implement. The first slice (plain-language rows + verdict capture) is installed on the attorney's PC. The matter band and explicit timer are implemented locally, with 22 unit tests and 13 engine tests including terminal/desktop band checks. The changes remain uncommitted. Next: load the matter/timer build on the operator machine, then port the five skills.
 
 ## Latest Evidence
 
