@@ -20,7 +20,7 @@ import * as O from "effect/Option";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 import { agentMessageStoreLayer, requirePrivateAgentPath } from "./AgentMessage.layer.ts";
-import { EndpointBinding, Envelope, Receipt, RouterError } from "./AgentMessage.models.ts";
+import { EndpointBinding, Envelope, LaunchGrant, Receipt, RouterError } from "./AgentMessage.models.ts";
 import { EndpointDispatch, makeAgentMessageRouter } from "./AgentMessage.service.ts";
 import { AgentMessageStore } from "./AgentMessage.store.ts";
 
@@ -28,7 +28,24 @@ const ReceiptJson = S.fromJsonString(Receipt);
 const EnvelopeJson = S.fromJsonString(Envelope);
 const ProfileJson = S.fromJsonString(ManagedLaunchProfile);
 const BindingJson = S.fromJsonString(EndpointBinding);
+const GrantJson = S.fromJsonString(LaunchGrant);
 const $I = $RepoCliId.create("commands/AgentMessage/AgentMessage.runtime");
+const ownsReceivingGrant = (
+  grant: LaunchGrant,
+  endpointId: string,
+  ownerId: string,
+  generation: number,
+  repositoryScope: string
+) =>
+  grant.endpointId === endpointId &&
+  grant.ownerId === ownerId &&
+  grant.generation === generation &&
+  grant.repositoryScope === repositoryScope;
+const permitsReceivedEnvelope = (grant: LaunchGrant, envelope: Envelope) =>
+  envelope.to.kind === "direct" &&
+  envelope.to.endpointId === grant.endpointId &&
+  envelope.repositoryScope === grant.repositoryScope &&
+  (O.isNone(grant.conversationScope) || envelope.conversationId === grant.conversationScope.value);
 const isMailboxLockTimeout = S.is(
   S.Struct({
     code: S.Literal("storage"),
@@ -130,6 +147,9 @@ export const agentMessageServeCommand = Command.make(
     profileFile: Flag.String("profile-file").pipe(
       Flag.withDescription("Private owned native launch profile JSON; never an interactive home overlay")
     ),
+    grantFile: Flag.String("grant-file").pipe(
+      Flag.withDescription("Private host-issued receiving grant JSON for this managed worker")
+    ),
     endpointId: Flag.String("endpoint"),
     participantId: Flag.String("participant"),
     ownerId: Flag.String("owner"),
@@ -138,11 +158,19 @@ export const agentMessageServeCommand = Command.make(
       Flag.withDescription("New lifecycle generation; replacement is fenced by unresolved calls")
     ),
   },
-  ({ stateDir, profileFile, endpointId, participantId, ownerId, repositoryScope, generation }) =>
+  ({ stateDir, profileFile, grantFile, endpointId, participantId, ownerId, repositoryScope, generation }) =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       yield* requirePrivateAgentPath(profileFile, "File");
       const profile = yield* S.decodeEffect(ProfileJson)(yield* fs.readFileString(profileFile));
+      yield* requirePrivateAgentPath(grantFile, "File");
+      const expectedGrant = yield* S.decodeEffect(GrantJson)(yield* fs.readFileString(grantFile));
+      if (!ownsReceivingGrant(expectedGrant, endpointId, ownerId, generation, repositoryScope)) {
+        return yield* RouterError.make({
+          code: "invalidGrant",
+          message: "Managed receiving grant does not match the owned enrollment.",
+        });
+      }
       yield* requirePrivateAgentPath(profile.profileRoot, "Directory");
       if (profile.provider === "grok") {
         const canonicalState = yield* fs.realPath(stateDir);
@@ -200,6 +228,8 @@ export const agentMessageServeCommand = Command.make(
       });
       const store = yield* AgentMessageStore;
       yield* store.register(binding);
+      yield* store.registerGrant(expectedGrant);
+      yield* store.validateGrant(expectedGrant.grantId, yield* Clock.currentTimeMillis);
       const submit = Effect.fn("AgentMessage.nativeSubmit")(function* (
         claim: import("./AgentMessage.models.ts").Claim
       ) {
@@ -213,6 +243,10 @@ export const agentMessageServeCommand = Command.make(
             code: "policyMismatch",
             message: "Native ownership or policy changed before inference.",
           });
+        }
+        const grant = yield* store.validateGrant(expectedGrant.grantId, yield* Clock.currentTimeMillis);
+        if (!permitsReceivedEnvelope(grant, claim.envelope)) {
+          return "failed";
         }
         const body = yield* S.encodeEffect(EnvelopeJson)(claim.envelope).pipe(
           Effect.mapError(() => RouterError.make({ code: "storage", message: "Queued envelope could not be encoded." }))
