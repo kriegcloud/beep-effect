@@ -37,6 +37,7 @@ import {
   SkillUpstreamContentError,
   SkillUpstreamContentFile,
   SkillUpstreamContentSource,
+  SkillUpstreamContentSourceLive,
   skillPatchOwnerSourceFromCodeowners,
   skillResolutionSeeds,
   VendoredSkillLockEntry,
@@ -46,14 +47,16 @@ import { stagedPatchPath } from "@beep/repo-cli/test/Skills";
 import { findRepoRoot } from "@beep/repo-utils/Root";
 import { Sha256HexFromBytes } from "@beep/schema";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
-import { expect, layer } from "@effect/vitest";
+import { describe, expect, layer } from "@effect/vitest";
 import { assertNone, assertSome, assertTrue } from "@effect/vitest/utils";
 import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
+import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";
 import * as Hex from "effect/encoding/Hex";
 import * as FileSystem from "effect/FileSystem";
+import { HttpClient, HttpClientResponse } from "effect/http";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -1538,4 +1541,64 @@ layer(TestLayer, { timeout: "60 seconds" })("skills provenance service", (it) =>
       })
     )
   );
+});
+
+describe("live pinned skill transport", () => {
+  let historyText = `[{"sha":"${PINNED_SHADCN_REVISION}"}]`;
+  let treeText =
+    '{"tree":[{"path":"skills/shadcn/SKILL.md","mode":"100644","type":"blob","sha":"same-blob"},{"path":"skills/shadcn/rules/shared.md","mode":"100644","type":"blob","sha":"same-blob"},{"path":"LICENSE.md","mode":"100644","type":"blob","sha":"license-blob"}],"truncated":false}';
+  const rawRequests = A.empty<string>();
+  const client = HttpClient.make((request, url) =>
+    Effect.sync(() => {
+      const expectedAuthorization = url.hostname === "api.github.com" ? "Bearer synthetic-test-token" : undefined;
+      expect(request.headers.authorization === expectedAuthorization).toBe(true);
+      if (Str.endsWith("/commits")(url.pathname)) {
+        expect(url.searchParams.get("path")).toBe("skills/shadcn");
+        expect(url.searchParams.get("per_page")).toBe("100");
+        return HttpClientResponse.fromWeb(
+          request,
+          new Response(historyText, { headers: { link: '<https://api.github.com/next>; rel="next"' } })
+        );
+      }
+      if (Str.includes("/git/trees/")(url.pathname)) {
+        expect(url.pathname).toContain(PINNED_SHADCN_REVISION);
+        return HttpClientResponse.fromWeb(request, new Response(treeText));
+      }
+      rawRequests.push(url.pathname);
+      expect(url.pathname).toContain(PINNED_SHADCN_REVISION);
+      return HttpClientResponse.fromWeb(request, new Response("fixture bytes"));
+    })
+  );
+  const TransportLayer = SkillUpstreamContentSourceLive.pipe(
+    Layer.provide(Layer.succeed(HttpClient.HttpClient, client)),
+    Layer.provide(
+      Layer.succeed(ConfigProvider.ConfigProvider, ConfigProvider.fromUnknown({ GITHUB_TOKEN: "synthetic-test-token" }))
+    ),
+    Layer.provideMerge(TestLayer)
+  );
+  layer(TransportLayer)((it) => {
+    it.effect("bounds path history, distinguishes absence from unavailability, and caches pinned blobs", () =>
+      Effect.gen(function* () {
+        const upstream = yield* SkillUpstreamContentSource;
+        const resolution = (yield* findSkillResolutionSeed("shadcn")).pipe(O.getOrThrow);
+        const history = yield* upstream.listPathHistory(resolution);
+        expect(history.revisions).toEqual([PINNED_SHADCN_REVISION]);
+        expect(history.truncated).toBe(true);
+        const content = yield* upstream.load(resolution);
+        expect(A.map(content.files, (file) => file.path)).toEqual(["SKILL.md", "rules/shared.md"]);
+        const firstFetches = A.length(rawRequests);
+        expect(firstFetches).toBeGreaterThan(0);
+        yield* upstream.load(resolution);
+        expect(A.length(rawRequests)).toBe(firstFetches);
+        historyText = "[]";
+        expect((yield* Effect.flip(upstream.listPathHistory(resolution))).reason).toBe("path-absent");
+        historyText = "invalid-json";
+        expect((yield* Effect.flip(upstream.listPathHistory(resolution))).reason).toBe("unavailable");
+        treeText = '{"tree":[],"truncated":true}';
+        expect((yield* Effect.flip(upstream.load(resolution))).reason).toBe("unavailable");
+        treeText = '{"tree":[],"truncated":false}';
+        expect((yield* Effect.flip(upstream.load(resolution))).reason).toBe("path-absent");
+      })
+    );
+  });
 });

@@ -388,13 +388,13 @@
       "status": "open"
     },
     {
-      "id": "EV001:packages/tooling/tool/cli/test/skills-command.test.ts:112:runPromise@4#1",
+      "id": "EV001:packages/tooling/tool/cli/test/skills-command.test.ts:113:runPromise@4#1",
       "lens": "resource",
       "ruleId": "EV001",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/skills-command.test.ts",
-      "line": 112,
-      "endLine": 133,
+      "line": 113,
+      "endLine": 134,
       "symbol": "runPromise",
       "occurrence": "v2:149da61fd666f96b6c7d1ef69cb7906600cc84a9dcca67b0f6d585c585c34d56",
       "class": "shared-helper-runtime-boundary-review",
@@ -409,13 +409,13 @@
       "status": "open"
     },
     {
-      "id": "EV001:packages/tooling/tool/cli/test/skills-command.test.ts:138:runPromise@4#1",
+      "id": "EV001:packages/tooling/tool/cli/test/skills-command.test.ts:139:runPromise@4#1",
       "lens": "resource",
       "ruleId": "EV001",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/skills-command.test.ts",
-      "line": 138,
-      "endLine": 156,
+      "line": 139,
+      "endLine": 157,
       "symbol": "runPromise",
       "occurrence": "v2:668d040b1ad6be5d78b2d91fae1a389951780cc23b2e7944b6574f87740db8d0",
       "class": "shared-helper-runtime-boundary-review",
@@ -3243,7 +3243,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Retained intentional body-local configuration: exercises makePgliteSqlTestLayer environment precedence and invalid URL selection with per-operation ConfigProvider. Canonical scoped helper bounds that input; moving fixture to shared suite would alter tested config/provision failure boundary."
     },
     {
       "id": "EV002:packages/tooling/test-kit/test-utils/test/SqlTest.offline.test.ts:178:provideScopedLayer@8#1",
@@ -3286,7 +3287,8 @@
       "severity": "major",
       "confidence": 0.55,
       "mechanization": "judgment",
-      "status": "open"
+      "status": "exception",
+      "reason": "Retained intentional body-local configuration: exercises makePgliteSqlTestLayer environment precedence and invalid URL selection with per-operation ConfigProvider. Canonical scoped helper bounds that input; moving fixture to shared suite would alter tested config/provision failure boundary."
     },
     {
       "id": "EV002:packages/tooling/test-kit/test-utils/test/SqlTest.offline.test.ts:193:provideScopedLayer@10#1",
@@ -15218,13 +15220,13 @@
       "reason": "Owner repository-simplification-confidence / lane C. End each subprocess/resource helper scope before examining files or beginning the next invocation. Reconsider when lane B's census lands."
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/skills-command.test.ts:475:scoped@28#1",
+      "id": "EV004:packages/tooling/tool/cli/test/skills-command.test.ts:476:scoped@28#1",
       "lens": "resource",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/skills-command.test.ts",
-      "line": 475,
-      "endLine": 485,
+      "line": 476,
+      "endLine": 486,
       "symbol": "scoped",
       "occurrence": "v2:148aad97f0e247f2ad841b0e580298e057b1ea79267ffe9949f1d7316b57541c",
       "class": "shorter-scope-lifetime-review",
@@ -15239,13 +15241,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/skills-provenance.test.ts:1076:scoped@4#1",
+      "id": "EV004:packages/tooling/tool/cli/test/skills-provenance.test.ts:1079:scoped@4#1",
       "lens": "detector",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/skills-provenance.test.ts",
-      "line": 1076,
-      "endLine": 1117,
+      "line": 1079,
+      "endLine": 1120,
       "symbol": "scoped",
       "occurrence": "v2:bd92d1c2610d772dcf84cc408d536b2534d7843a9f05e68aa7d8c6e77cbfa9c6",
       "class": "redundant-whole-body-scope",
@@ -15260,13 +15262,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/skills-provenance.test.ts:1274:scoped@4#1",
+      "id": "EV004:packages/tooling/tool/cli/test/skills-provenance.test.ts:1277:scoped@4#1",
       "lens": "detector",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/skills-provenance.test.ts",
-      "line": 1274,
-      "endLine": 1337,
+      "line": 1277,
+      "endLine": 1340,
       "symbol": "scoped",
       "occurrence": "v2:ccb77e468c4c0e3dc6c53367c47e16bc22af7178ed93d72a0eefca211cfee920",
       "class": "redundant-whole-body-scope",
@@ -15281,13 +15283,13 @@
       "status": "open"
     },
     {
-      "id": "EV004:packages/tooling/tool/cli/test/skills-provenance.test.ts:1341:scoped@4#1",
+      "id": "EV004:packages/tooling/tool/cli/test/skills-provenance.test.ts:1344:scoped@4#1",
       "lens": "detector",
       "ruleId": "EV004",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/skills-provenance.test.ts",
-      "line": 1341,
-      "endLine": 1539,
+      "line": 1344,
+      "endLine": 1542,
       "symbol": "scoped",
       "occurrence": "v2:4c08590911fd736ad5ab5e88874f99e1de66567ad99c5eb33435ef29c7949baa",
       "class": "redundant-whole-body-scope",
@@ -16685,13 +16687,13 @@
       "reason": "Retain the complete original metadata-family assertion and dynamic module/member diagnostic. Public assertion helpers lack the message parameter; dropping it would weaken failure localization."
     },
     {
-      "id": "EV006:packages/foundation/capability/technical-drawing/test/FigureSet.test.ts:1421:expect@8#1",
+      "id": "EV006:packages/foundation/capability/technical-drawing/test/FigureSet.test.ts:1514:expect@8#1",
       "lens": "detector",
       "ruleId": "EV006",
       "package": "@beep/technical-drawing",
       "file": "packages/foundation/capability/technical-drawing/test/FigureSet.test.ts",
-      "line": 1421,
-      "endLine": 1421,
+      "line": 1514,
+      "endLine": 1514,
       "symbol": "expect",
       "occurrence": "v2:08f98db9d58005f004d8dd8bd14cd972dabcbd173a66d895f41a28b7828ea6c5",
       "class": "hand-rolled-data-assertion",
@@ -16706,13 +16708,13 @@
       "status": "open"
     },
     {
-      "id": "EV006:packages/foundation/capability/technical-drawing/test/FigureSet.test.ts:731:expect@8#1",
+      "id": "EV006:packages/foundation/capability/technical-drawing/test/FigureSet.test.ts:733:expect@8#1",
       "lens": "resource",
       "ruleId": "EV006",
       "package": "@beep/technical-drawing",
       "file": "packages/foundation/capability/technical-drawing/test/FigureSet.test.ts",
-      "line": 731,
-      "endLine": 736,
+      "line": 733,
+      "endLine": 738,
       "symbol": "expect",
       "occurrence": "v2:6e7ad30086532979405335c1179285ceab187cb9360ea9c905a2e55a72541c91",
       "class": "hand-rolled-data-assertion",
@@ -18304,6 +18306,27 @@
       "status": "open"
     },
     {
+      "id": "EV006:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:866:isTrue@10#1",
+      "lens": "resource",
+      "ruleId": "EV006",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/knowledge-doctor.test.ts",
+      "line": 866,
+      "endLine": 866,
+      "symbol": "isTrue",
+      "occurrence": "v2:e83c748c2e5b4f2cb38e27c4232f5d3db19fc4fe3f226f7f21b0e3f5d834fdf0",
+      "class": "hand-rolled-data-assertion",
+      "evidence": "assert.isTrue(Exit.isFailure(refused))",
+      "replacement": {
+        "primitive": "utils.assertTrue",
+        "sketch": "Preserve this Exit.isFailure Boolean branch check and its true polarity. A payload assertion requires an independently supplied expected value/error/Cause; do not invent one. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
+      },
+      "severity": "minor",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
       "id": "EV006:packages/tooling/tool/cli/test/proof-job.test.ts:1202:expect@8#1",
       "lens": "resource",
       "ruleId": "EV006",
@@ -18878,6 +18901,27 @@
       "replacement": {
         "primitive": "utils.assertSome",
         "sketch": "Review structural equality against the supplied Option.some constructor. Reuse only the existing expected operand; preserve matcher semantics. Exit.fail(error) does not supply the Cause required by assertExitFailure. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
+      },
+      "severity": "minor",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV006:packages/tooling/tool/cli/test/skills-command.test.ts:553:expect@8#1",
+      "lens": "resource",
+      "ruleId": "EV006",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/skills-command.test.ts",
+      "line": 553,
+      "endLine": 553,
+      "symbol": "expect",
+      "occurrence": "v2:b72fd15c0653b31229c17bc1cb6589c75916070ee01314dfc564c1a8d66c2fbb",
+      "class": "hand-rolled-data-assertion",
+      "evidence": "expect(Exit.isFailure(refused)).toBe(true)",
+      "replacement": {
+        "primitive": "utils.assertTrue",
+        "sketch": "Preserve this Exit.isFailure Boolean branch check and its true polarity. A payload assertion requires an independently supplied expected value/error/Cause; do not invent one. utils.deepStrictEqual: Use as explicit review navigation for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when the assertion is ambiguous or compound. Preserve the complete original assertion, matcher and all expected values during review. Structural equality is appropriate only when the original matcher actually requires recursive structural equality; this fallback does not establish a canonical structural-helper migration. utils.assertTrue: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly true. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertFalse: Use as Boolean-predicate review guidance for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an ambiguous or compound Boolean expression must be exactly false. Preserve the entire original Boolean expression and its expected polarity; this fallback does not prove canonical structural-helper migration. utils.assertNone: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be None. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSome: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when an Option must be Some with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertSuccess: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertFailure: Use for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion) when a genuine Result must fail with an expected error. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitFailure: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must fail with an expected Cause. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion. utils.assertExitSuccess: Use for result-outcome-assertion findings (EV005, candidate class result-outcome-assertion) after replacing Effect.result with Effect.exit, or for hand-rolled-data-assertion findings (EV006, candidate class hand-rolled-data-assertion), when an Exit must succeed with an expected value. Review assertion polarity and preserve every existing payload/error/Cause expectation. A Boolean branch assertion alone does not supply an expected payload, error or Cause; do not invent one or rewrite a compound predicate as a single structural assertion."
       },
       "severity": "minor",
       "confidence": 0.55,
@@ -22789,13 +22833,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/drivers/nlp-mcp/test/Streaming.functions.test.ts:10:@effect/platform-node/NodeFileSystem@0#1",
+      "id": "EV010:packages/drivers/nlp-mcp/test/Streaming.functions.test.ts:11:@effect/platform-node/NodeFileSystem@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/nlp-mcp",
       "file": "packages/drivers/nlp-mcp/test/Streaming.functions.test.ts",
-      "line": 10,
-      "endLine": 10,
+      "line": 11,
+      "endLine": 11,
       "symbol": "@effect/platform-node/NodeFileSystem",
       "occurrence": "v2:1e14fe3983e1b10ec8ca10f275771b44fe07b6efae5f900877c3f472b89c0872",
       "class": "platform-filesystem-candidate",
@@ -23127,6 +23171,27 @@
       "replacement": {
         "primitive": "it.layer",
         "sketch": "it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV010:packages/ecosystem/effect-drizzle/test/import-boundary.test.ts:3:@effect/platform-node@0#1",
+      "lens": "resource",
+      "ruleId": "EV010",
+      "package": "@beep/effect-drizzle",
+      "file": "packages/ecosystem/effect-drizzle/test/import-boundary.test.ts",
+      "line": 3,
+      "endLine": 3,
+      "symbol": "@effect/platform-node",
+      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
+      "class": "platform-resource-provenance-review",
+      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
       },
       "severity": "info",
       "confidence": 0.55,
@@ -24226,6 +24291,27 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Tsconfig discovery combines native SharedGlob and filesystem reads over real scoped workspace files."
+    },
+    {
+      "id": "EV010:packages/tooling/library/repo-utils/test/TsNativeApi.test.ts:8:@effect/platform-node@0#1",
+      "lens": "resource",
+      "ruleId": "EV010",
+      "package": "@beep/repo-utils",
+      "file": "packages/tooling/library/repo-utils/test/TsNativeApi.test.ts",
+      "line": 8,
+      "endLine": 8,
+      "symbol": "@effect/platform-node",
+      "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
+      "class": "platform-resource-provenance-review",
+      "evidence": "import { NodeServices } from \"@effect/platform-node\";",
+      "replacement": {
+        "primitive": "it.layer",
+        "sketch": "Review opaque platform resource provenance; filesystem use is unproven. Preserve the subject and identify actual services before selecting a filesystem layer. it.layer: Use for per-test-layer-provide candidates (EV002, candidate class per-test-layer-provide), resource-wrapper candidates (EV003, candidate class resource-wrapper), and platform-filesystem-candidate judgments (EV010, candidate class platform-filesystem-candidate)."
+      },
+      "severity": "info",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
     },
     {
       "id": "EV010:packages/tooling/library/repo-utils/test/UniqueDeps.test.ts:6:@effect/platform-node/NodeFileSystem@0#1",
@@ -25776,13 +25862,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/drawings-command.test.ts:12:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/drawings-command.test.ts:21:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/drawings-command.test.ts",
-      "line": 12,
-      "endLine": 12,
+      "line": 21,
+      "endLine": 21,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -26094,13 +26180,13 @@
       "reason": "NodeServices remains intentional because the command test reads a real temporary exploration manifest and goal packets through the host filesystem, the same boundary the snapshot reader crosses in production."
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/explore-graduate-write.test.ts:22:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/explore-graduate-write.test.ts:23:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/explore-graduate-write.test.ts",
-      "line": 22,
-      "endLine": 22,
+      "line": 23,
+      "endLine": 23,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -26348,13 +26434,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/goals-materialize.test.ts:17:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/goals-materialize.test.ts:18:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/goals-materialize.test.ts",
-      "line": 17,
-      "endLine": 17,
+      "line": 18,
+      "endLine": 18,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:2da961143fe305526d2b9544dcf389d12e43a188b48000414339b7d7e9e52c90",
       "class": "platform-resource-provenance-review",
@@ -26664,13 +26750,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:26:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/knowledge-doctor.test.ts:27:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/knowledge-doctor.test.ts",
-      "line": 26,
-      "endLine": 26,
+      "line": 27,
+      "endLine": 27,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
       "class": "platform-resource-provenance-review",
@@ -28260,13 +28346,13 @@
       "status": "open"
     },
     {
-      "id": "EV010:packages/tooling/tool/cli/test/skills-provenance.test.ts:48:@effect/platform-node@0#1",
+      "id": "EV010:packages/tooling/tool/cli/test/skills-provenance.test.ts:49:@effect/platform-node@0#1",
       "lens": "resource",
       "ruleId": "EV010",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/skills-provenance.test.ts",
-      "line": 48,
-      "endLine": 48,
+      "line": 49,
+      "endLine": 49,
       "symbol": "@effect/platform-node",
       "occurrence": "v2:c122ba715aab10408dee94ef6f4286a69aceb8cd2a04f5d1a8aa6d00e3207487",
       "class": "platform-resource-provenance-review",
@@ -32519,13 +32605,13 @@
       "reason": "Reviewed native fixture default hook/body budgets. Existing service-layer registrations and the new isolated recording-client fixture retain default budgets without extending any original deadline. The client fixture has no socket backend and proves actual handler dependency capture through its counted positive control."
     },
     {
-      "id": "EV014:packages/drivers/nlp-mcp/test/Streaming.functions.test.ts:21:it.layer@0#1",
+      "id": "EV014:packages/drivers/nlp-mcp/test/Streaming.functions.test.ts:24:it.layer@0#1",
       "lens": "resource",
       "ruleId": "EV014",
       "package": "@beep/nlp-mcp",
       "file": "packages/drivers/nlp-mcp/test/Streaming.functions.test.ts",
-      "line": 21,
-      "endLine": 21,
+      "line": 24,
+      "endLine": 24,
       "symbol": "it.layer",
       "occurrence": "v2:09243ba5bbe43e1f79cff1ae825e9e0f440461343bacdfcf4c044aebd1726272",
       "class": "resource-layer-without-hook-timeout",
@@ -32539,6 +32625,27 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "Reviewed native fixture default hook/body budgets. Existing service-layer registrations and the new isolated recording-client fixture retain default budgets without extending any original deadline. The client fixture has no socket backend and proves actual handler dependency capture through its counted positive control."
+    },
+    {
+      "id": "EV014:packages/drivers/nlp-mcp/test/Streaming.functions.test.ts:60:it.layer@0#1",
+      "lens": "resource",
+      "ruleId": "EV014",
+      "package": "@beep/nlp-mcp",
+      "file": "packages/drivers/nlp-mcp/test/Streaming.functions.test.ts",
+      "line": 60,
+      "endLine": 60,
+      "symbol": "it.layer",
+      "occurrence": "v2:35afc0f8b40b3608a88f1ddb361e28a31e6e0e486ac1f40e7b2cba05f5b70e69",
+      "class": "resource-layer-without-hook-timeout",
+      "evidence": "it.layer(StreamingToolkitHandlersLive.pipe(Layer.provideMerge(TestLayer), Layer.provideMerge(FetchHttpClient.layer)))",
+      "replacement": {
+        "primitive": "it.layer.option.timeout",
+        "sketch": "it.layer.option.timeout: Use for resource-layer-without-hook-timeout findings (EV014, candidate class resource-layer-without-hook-timeout). layer.option.timeout: Use for resource-layer-without-hook-timeout judgments (EV014, candidate class resource-layer-without-hook-timeout) at standalone layer(resource, { timeout }) acquisition when the resource needs an explicit hook budget. Diagnose slow or hung acquisition/release before selecting that budget."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
     },
     {
       "id": "EV014:packages/drivers/nlp-mcp/test/integration/Streaming.test.ts:419:it.layer@0#1",
@@ -37685,13 +37792,55 @@
       "status": "open"
     },
     {
-      "id": "EV014:packages/tooling/tool/cli/test/skills-provenance.test.ts:165:it.layer@0#1",
+      "id": "EV014:packages/tooling/tool/cli/test/skills-command.test.ts:531:it.layer@0#1",
+      "lens": "resource",
+      "ruleId": "EV014",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/skills-command.test.ts",
+      "line": 531,
+      "endLine": 531,
+      "symbol": "it.layer",
+      "occurrence": "v2:dd8d0ab62620896216ada4af923d7e2ea37f14aad6ea155a850d5e81d617212d",
+      "class": "resource-layer-without-hook-timeout",
+      "evidence": "it.layer(CommandTestLayer)",
+      "replacement": {
+        "primitive": "it.layer.option.timeout",
+        "sketch": "it.layer.option.timeout: Use for resource-layer-without-hook-timeout findings (EV014, candidate class resource-layer-without-hook-timeout). layer.option.timeout: Use for resource-layer-without-hook-timeout judgments (EV014, candidate class resource-layer-without-hook-timeout) at standalone layer(resource, { timeout }) acquisition when the resource needs an explicit hook budget. Diagnose slow or hung acquisition/release before selecting that budget."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV014:packages/tooling/tool/cli/test/skills-provenance.test.ts:1579:it.layer@2#1",
       "lens": "resource",
       "ruleId": "EV014",
       "package": "@beep/repo-cli",
       "file": "packages/tooling/tool/cli/test/skills-provenance.test.ts",
-      "line": 165,
-      "endLine": 165,
+      "line": 1579,
+      "endLine": 1579,
+      "symbol": "it.layer",
+      "occurrence": "v2:8343d3cdfda77300a4e2c72af9cccc915aef6370f531a43599acc74c4539ce30",
+      "class": "resource-layer-without-hook-timeout",
+      "evidence": "layer(TransportLayer)",
+      "replacement": {
+        "primitive": "it.layer.option.timeout",
+        "sketch": "it.layer.option.timeout: Use for resource-layer-without-hook-timeout findings (EV014, candidate class resource-layer-without-hook-timeout). layer.option.timeout: Use for resource-layer-without-hook-timeout judgments (EV014, candidate class resource-layer-without-hook-timeout) at standalone layer(resource, { timeout }) acquisition when the resource needs an explicit hook budget. Diagnose slow or hung acquisition/release before selecting that budget."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
+    },
+    {
+      "id": "EV014:packages/tooling/tool/cli/test/skills-provenance.test.ts:168:it.layer@0#1",
+      "lens": "resource",
+      "ruleId": "EV014",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/skills-provenance.test.ts",
+      "line": 168,
+      "endLine": 168,
       "symbol": "it.layer",
       "occurrence": "v2:dba8b825b31de4bd3c19dfdffcf06cc3e219a555a8934b885f78e5c0a3bf420c",
       "class": "resource-layer-without-hook-timeout",
@@ -38118,6 +38267,27 @@
       "mechanization": "judgment",
       "status": "exception",
       "reason": "The registered layer contains only fixed platform service factories. All fake handles, Deferreds, Refs, console effects and temporary paths are allocated inside the individual test. excludeTestServices is set only on the original live cases; controlled TestClock cases retain test services. See goals/effect-vitest-canon/research/step-capture-scope-proof.md."
+    },
+    {
+      "id": "EV014:packages/tooling/tool/cli/test/sync-data-to-ts.test.ts:1071:it.layer@0#1",
+      "lens": "resource",
+      "ruleId": "EV014",
+      "package": "@beep/repo-cli",
+      "file": "packages/tooling/tool/cli/test/sync-data-to-ts.test.ts",
+      "line": 1071,
+      "endLine": 1071,
+      "symbol": "it.layer",
+      "occurrence": "v2:b7344a6673803245bdd94cddcf0340b0c59fa28f8fecd4ce9ea122eabba72418",
+      "class": "resource-layer-without-hook-timeout",
+      "evidence": "it.layer(CommandTestLayer)",
+      "replacement": {
+        "primitive": "it.layer.option.timeout",
+        "sketch": "it.layer.option.timeout: Use for resource-layer-without-hook-timeout findings (EV014, candidate class resource-layer-without-hook-timeout). layer.option.timeout: Use for resource-layer-without-hook-timeout judgments (EV014, candidate class resource-layer-without-hook-timeout) at standalone layer(resource, { timeout }) acquisition when the resource needs an explicit hook budget. Diagnose slow or hung acquisition/release before selecting that budget."
+      },
+      "severity": "major",
+      "confidence": 0.55,
+      "mechanization": "judgment",
+      "status": "open"
     },
     {
       "id": "EV014:packages/tooling/tool/cli/test/worktree-command.test.ts:1033:it.layer@2#1",
@@ -39675,13 +39845,13 @@
       "reason": "This block has one effect test and a private TestClock. The case owns the request child fiber, advances the deterministic one-second retry delay and joins that fiber before fixture teardown. No sibling test shares or advances this clock; retain the retry subject without live time or resets."
     },
     {
-      "id": "EV015:packages/drivers/pdf-tools/test/PdfTools.service.test.ts:632:TestClock.adjust@17#1",
+      "id": "EV015:packages/drivers/pdf-tools/test/PdfTools.service.test.ts:670:TestClock.adjust@17#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/pdf-tools",
       "file": "packages/drivers/pdf-tools/test/PdfTools.service.test.ts",
-      "line": 632,
-      "endLine": 632,
+      "line": 670,
+      "endLine": 670,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:be3d8e00e5f6724d35353fc1614267e0d1bfcb4ccc5fe18ab4b7f576a9af37dd",
       "class": "shared-test-clock-adjustment",
@@ -39696,13 +39866,13 @@
       "status": "open"
     },
     {
-      "id": "EV015:packages/drivers/pdf-tools/test/PdfTools.service.test.ts:634:TestClock.adjust@17#1",
+      "id": "EV015:packages/drivers/pdf-tools/test/PdfTools.service.test.ts:672:TestClock.adjust@17#1",
       "lens": "resource",
       "ruleId": "EV015",
       "package": "@beep/pdf-tools",
       "file": "packages/drivers/pdf-tools/test/PdfTools.service.test.ts",
-      "line": 634,
-      "endLine": 634,
+      "line": 672,
+      "endLine": 672,
       "symbol": "TestClock.adjust",
       "occurrence": "v2:b6ba6f79959fb4d3a93781abc1fec28975a344511f13ebfc790a66c9477b9854",
       "class": "shared-test-clock-adjustment",
