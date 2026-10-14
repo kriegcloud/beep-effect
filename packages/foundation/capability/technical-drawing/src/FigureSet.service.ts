@@ -18,7 +18,8 @@ import * as S from "effect/Schema";
 import { ShadingPlan } from "./Geometry.schemas.ts";
 import { mirrorSegments, sameSegments } from "./Geometry.segments.ts";
 import { outlineFontFile } from "./internal/LabelOutline.ts";
-import { FigureRecord, LabelFontRecord, OmissionProof, RenderManifest, Sha256Hex } from "./Manifest.schemas.ts";
+import { sha256Hex } from "./Manifest.digest.ts";
+import { FigureRecord, LabelFontRecord, OmissionProof, RenderManifest } from "./Manifest.schemas.ts";
 import { commonScale, composeSheet } from "./Sheet.compose.ts";
 import { MIN_LETTER_HEIGHT_CM, PT_PER_CM, PT_PER_MM, SheetLabelFaces, SheetOptions } from "./Sheet.schemas.ts";
 import { DrawingError } from "./TechnicalDrawing.errors.ts";
@@ -100,20 +101,6 @@ export interface FigureSetShape {
   readonly validate: (pdfPath: string, options: ValidationOptions) => Effect.Effect<ValidationReport, DrawingError>;
 }
 
-// shared digest idiom with @beep/occt; no in-family home, future foundation capability candidate.
-// fallow-ignore-next-line code-duplication -- shared digest idiom; no in-family home, future foundation capability candidate
-const hexOf = (bytes: ArrayBuffer): string =>
-  pipe(
-    A.fromIterable(new Uint8Array(bytes)),
-    A.map((b) => b.toString(16).padStart(2, "0")),
-    A.join("")
-  );
-
-const sha256 = (bytes: Uint8Array): Effect.Effect<Sha256Hex> =>
-  Effect.promise(() => crypto.subtle.digest("SHA-256", bytes.slice().buffer)).pipe(
-    Effect.map((digest) => Sha256Hex.make(hexOf(digest)))
-  );
-
 // Shading pitch is a paper quantity: convert the sheet's mm range to model
 // units at the common scale (points per model unit), then project once more.
 const shadingFor = (input: {
@@ -165,7 +152,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
   const validate = Effect.fn("FigureSet.validate")(function* (pdfPath: string, options: ValidationOptions) {
     const resolved = path.resolve(pdfPath);
     const bytes = yield* fs.readFile(resolved).pipe(Effect.mapError(io(`Could not read "${resolved}".`)));
-    const pdfSha256 = yield* sha256(bytes);
+    const pdfSha256 = yield* sha256Hex(bytes);
     const facts = yield* pdf.inspect(resolved);
     // `A.range(1, 0)` is `[1]`, so an empty document needs its own branch.
     const pages = A.length(facts.pages) === 0 ? A.empty<number>() : A.range(1, A.length(facts.pages));
@@ -203,7 +190,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
         message: `Label font "${fontFile}" at ${style.sizePt} pt has a cap height of ${capCm.toFixed(3)} cm, under 0.32 cm.`,
       });
     }
-    return { record: LabelFontRecord.make({ fontFile, sha256: yield* sha256(bytes) }), face };
+    return { record: LabelFontRecord.make({ fontFile, sha256: yield* sha256Hex(bytes) }), face };
   });
 
   const labelFace = Effect.fnUntraced(function* (style: O.Option<LabelStyle>) {
@@ -220,7 +207,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
   const render = Effect.fn("FigureSet.render")(function* (request: RenderRequest) {
     const specPath = path.resolve(request.specPath);
     const specBytes = yield* fs.readFile(specPath).pipe(Effect.mapError(io(`Could not read "${specPath}".`)));
-    const specSha256 = yield* sha256(specBytes);
+    const specSha256 = yield* sha256Hex(specBytes);
     const spec = yield* decodeSpec(new TextDecoder().decode(specBytes)).pipe(
       Effect.mapError((cause) => DrawingError.fromUnknown("spec", `Invalid figure-set spec "${specPath}".`, cause))
     );
@@ -332,7 +319,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
           view: figure.view,
           description: figure.description,
           svgFile,
-          svgSha256: yield* sha256(svgBytes),
+          svgSha256: yield* sha256Hex(svgBytes),
           visibleSegments: A.length(edges.visible),
           shadingSegments: A.length(shadingLines),
           camera: A.get(cameras, index),
@@ -346,7 +333,7 @@ const makeService = Effect.fn("FigureSet.makeService")(function* () {
       pdfPath
     );
     const pdfBytes = yield* fs.readFile(pdfPath).pipe(Effect.mapError(io(`Could not read "${pdfPath}".`)));
-    const pdfSha256 = yield* sha256(pdfBytes);
+    const pdfSha256 = yield* sha256Hex(pdfBytes);
     const validation = request.validate
       ? O.some(yield* validate(pdfPath, ValidationOptions.make({ expectedPages: O.some(sheets) })))
       : O.none<ValidationReport>();
