@@ -1,13 +1,13 @@
 lane: rsc-h3-telemetry
-head: 7d651c59a2e8b8034a252a80f75fb12b12d8ab3f (qualified source; publication dispatch records the report successor)
+head: 0be6f4feff (post-Opaque qualified source; publication dispatch records the successor)
 pr: #1590 (reopened; content-final; orchestrator owns merge)
 package-verify: @beep/repo-ai-metrics pass; @beep/repo-cli pass (composed audit: full build/compile + 6432 runtime tests, repaired quick lint/check, full docgen; original full command exited 1 on formatting)
-hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet pass; knowledge refs pass; fallow audit/health pass; coverage read pass (10 baseline rows, 307 scoped tests; no full coverage-ratchet pass claimed)
+hosted-parity: test-tsgo pass; docgen local pass; jsdoc-ratchet inherited fail (+2 mcp-kit/uspto-mcp examples); knowledge refs pass; fallow audit/health pass; coverage read pass (10 baseline rows, 307 scoped tests; no full coverage-ratchet pass claimed)
 receipt: goals/repository-simplification-confidence/history/receipts/stage-4-h3-telemetry.md
 handoff: goals/repository-simplification-confidence/history/handoffs/rsc-h3-telemetry-2026-10-14.md
 per-client buckets: claude stamped adapter/native earlier workflows, current live 0/30; codex stamped adapter, ordinary native hooks/ancestry unknown, metrics unstamped-by-design; cursor stamped adapter/native earlier start, native tools unqualified, OTel/reconciliation unsupported; junie unsupported; grok unsupported
 requests to rsc-f-agents / rsc-shared: F owns native Codex trust/root-child attribution, dated namespace cutover/global projection, desktop/Codex OTel fields and a current archive-key reference; orchestrator owns remote access/scheduling and merge; A hook retirement is integrated before H3
-open items: hosted exact-tip checks/review/readiness; native/desktop/proxy qualification and remote forwarder queries; incomplete 30-session windows and 74 legacy schema failures prevent non-use; no telemetry-based retirement; no home edit or timer install
+open items: conflict-wave publication and hosted exact-tip checks/review/readiness; inherited beep-reviewer ruleset and two JSDoc examples owned by orchestrator; native/desktop/proxy qualification and remote forwarder queries; incomplete 30-session windows and 74 legacy schema failures prevent non-use; no telemetry-based retirement; no home edit or timer install
 
 The lane repairs the existing pipeline, including the real-checkout stamp timeout found during resume. Batched indexed inspection keeps parity and completes the three adapters in 0.490–0.566 seconds. Independent pinned Opus 5.5 medium review closed every P0–P3 finding. Current per-client dry runs write nothing.
 
@@ -20,3 +20,5 @@ Review-thread state at the last complete prepublication read: zero threads, no p
 Recovery: revert the H3 PR; additive logs and versioned history remain readable. F owns home-file rollback. The orchestrator owns merge and retirement.
 
 graft: approximately 64,886 tokens saved by two successful queries during this resume.
+
+Post-publication main #1758 required a schema conflict wave. The resolution keeps branded Opaque models and all H3 constraints. Fresh metrics full audit/docgen, both package quick checks, 76 CLI regressions, test-tsgo, local docgen, refs, Fallow and retired paths pass. Opus confirmation found zero remaining issues. The prior 6432-test runtime proof keeps its source boundary. The only new JSDoc red is two main examples outside H3; the receipt names both.

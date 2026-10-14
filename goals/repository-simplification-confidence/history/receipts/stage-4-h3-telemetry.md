@@ -396,3 +396,46 @@ post-merge retirement. Remote Prometheus/Phoenix and restored forwarder export
 remain unknown; no scheduling or home changes were performed by this lane.
 
 The first normal resumed publication returned exit 1 before any push despite green cheap gates. Yeet's clean-existing-commit intent captured the old remote lane-to-HEAD filename diff and exceeded its 512 KiB bound. The subsequent normal staged publication includes this actual friction receipt; its existing staged-path route preserves the complete preflight and push gates. No source/tooling guard or Git ref is changed to bypass the bound.
+
+## post-publication opaque integration
+
+The first wave published `0499a87c3999f85bb32e02d1bdd5043f24c58a9a`
+through normal Yeet, including green cheap gates and the clean-HEAD frozen
+install preflight. It became ready at 20:45:26Z. Its Security job failed only
+on hosted ruleset drift: live requires `beep-reviewer`, declared contexts omit
+it. H3 changes no ruleset/CI declaration; the row is attributed to the
+orchestrator under S11. Vercel's two build-rate-limit failures are environment
+rows exempt under the repository merge policy.
+
+Main #1758 then conflicted in three telemetry schemas. Merge `1c5270d37d`
+retains main's branded Opaque representation and H3's Natural budgets,
+UTC/calendar/order checks, startup/role metadata, pulse invariants and counters.
+Follow-up `0be6f4feff` restores the error brand and converts four H3-only private
+reconciliation records. The separate pinned Opus confirmation reports zero
+remaining actionable findings; codec statics and `.make` callers stay intact.
+The disarm-order check now also carries its title and description.
+
+Post-merge proof:
+
+| Check | Result / boundary |
+| --- | --- |
+| Metrics full package verification | Pass, audit 25.0 s and docgen 6.6 s, 21:23:11Z |
+| Both package quick checks | Pass after the brand fixes |
+| CLI prune/reconciliation/forwarder command regressions | 76 pass in two files, 21:23:25Z |
+| test-tsgo | Pass after the brand fixes |
+| Local docgen | Pass after the brand fixes |
+| Knowledge refs | Pass, zero live gated observations |
+| Fallow audit/health and retired paths | Pass |
+| JSDoc ratchet | Inherited +2 root-import findings: mcp-kit `src/TierGate.ts:TierGateVerdict` and uspto-mcp `src/UsptoDocumentTiers.ts:MintFetchableHandle`; H3 introduces none |
+
+The first post-brand runtime rerun failed because unrelated unresolved
+`/tmp/.git` appeared while other jobs were active. Both compile/lint checks
+passed; the private-temp rerun above passed all 76 cases. That unrelated
+metadata is retained and production checks remain strict. The previous
+6432-test native runtime result keeps its original source head; it is not
+relabeled a full post-migration runtime sweep. This wave's fresh package,
+codec/regression and compile/docgen evidence covers the schema resolution.
+
+The second publication is one complete base-conflict wave, not a per-file push.
+S11 permits the inherited JSDoc and hosted settings reds after attribution;
+the orchestrator owns the final gate and any consolidated main fix.
