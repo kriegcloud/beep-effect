@@ -110,7 +110,9 @@ export type MailTaggingPortFailure = typeof MailTaggingPortFailure.Type;
  * @category errors
  * @since 0.0.0
  */
-export class MailTaggingPortError extends S.TaggedError<MailTaggingPortError>($I`MailTaggingPortError`)(
+export class MailTaggingPortError extends S.TaggedError<MailTaggingPortError, { readonly brand: unique symbol }>(
+  $I`MailTaggingPortError`
+)(
   "MailTaggingPortError",
   {
     cause: causeField.annotateKey({
@@ -271,7 +273,9 @@ export type MailTaggingStateFailure = typeof MailTaggingStateFailure.Type;
  * @category errors
  * @since 0.0.0
  */
-export class MailTaggingStateError extends S.TaggedError<MailTaggingStateError>($I`MailTaggingStateError`)(
+export class MailTaggingStateError extends S.TaggedError<MailTaggingStateError, { readonly brand: unique symbol }>(
+  $I`MailTaggingStateError`
+)(
   "MailTaggingStateError",
   {
     cause: causeField.annotateKey({

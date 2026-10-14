@@ -80,7 +80,7 @@ export type AuthenticationReason = typeof AuthenticationReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class TicketExpiredError extends S.TaggedError<TicketExpiredError>($I`TicketExpiredError`)(
+export class TicketExpiredError extends S.TaggedError<TicketExpiredError, { readonly brand: unique symbol }>($I`TicketExpiredError`)(
   "TicketExpiredError",
   {
     message: ErrorMessage.annotateKey({
@@ -119,7 +119,7 @@ export class TicketExpiredError extends S.TaggedError<TicketExpiredError>($I`Tic
  * @category errors
  * @since 0.0.0
  */
-export class TicketNotFoundError extends S.TaggedError<TicketNotFoundError>($I`TicketNotFoundError`)(
+export class TicketNotFoundError extends S.TaggedError<TicketNotFoundError, { readonly brand: unique symbol }>($I`TicketNotFoundError`)(
   "TicketNotFoundError",
   {
     message: ErrorMessage.annotateKey({
@@ -154,7 +154,7 @@ export class TicketNotFoundError extends S.TaggedError<TicketNotFoundError>($I`T
  * @category errors
  * @since 0.0.0
  */
-export class AuthenticationError extends S.TaggedError<AuthenticationError>($I`AuthenticationError`)(
+export class AuthenticationError extends S.TaggedError<AuthenticationError, { readonly brand: unique symbol }>($I`AuthenticationError`)(
   "AuthenticationError",
   {
     message: ErrorMessage.annotateKey({
@@ -191,7 +191,7 @@ export class AuthenticationError extends S.TaggedError<AuthenticationError>($I`A
  * @category errors
  * @since 0.0.0
  */
-export class InvalidApiKeyError extends S.TaggedError<InvalidApiKeyError>($I`InvalidApiKeyError`)(
+export class InvalidApiKeyError extends S.TaggedError<InvalidApiKeyError, { readonly brand: unique symbol }>($I`InvalidApiKeyError`)(
   "InvalidApiKeyError",
   {
     message: ErrorMessage.annotateKey({

@@ -119,16 +119,17 @@ export const parseJsonText: (input: unknown) => O.Option<unknown> = S.decodeUnkn
  * @category models
  * @since 0.0.0
  */
-export class ModelsTargetLocation extends S.Class<ModelsTargetLocation>($I`ModelsTargetLocation`)(
-  {
+export class ModelsTargetLocation extends S.Opaque<ModelsTargetLocation, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: TargetRoot,
     path: S.NonEmptyString,
     home: S.NonEmptyString,
     repo: S.NonEmptyString,
-  },
-  $I.annote("ModelsTargetLocation", {
-    description: "A projection target's root, its manifest-written path, and both trees it resolves against.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsTargetLocation", {
+      description: "A projection target's root, its manifest-written path, and both trees it resolves against.",
+    })
+  )
 ) {}
 
 // A manifest is operator-written text, so a path in it can point anywhere —
@@ -235,13 +236,14 @@ export const resolveTargetPath = (location: ModelsTargetLocation): O.Option<stri
  * @category models
  * @since 0.0.0
  */
-export class ModelsTargetFile extends S.Class<ModelsTargetFile>($I`ModelsTargetFile`)(
-  {
+export class ModelsTargetFile extends S.Opaque<ModelsTargetFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     root: TargetRoot,
     absolutePath: S.NonEmptyString,
     content: S.String,
-  },
-  $I.annote("ModelsTargetFile", {
-    description: "One projection target's resolved path and text, as a locator reader sees it.",
-  })
+  }).pipe(
+    $I.annoteSchema("ModelsTargetFile", {
+      description: "One projection target's resolved path and text, as a locator reader sees it.",
+    })
+  )
 ) {}

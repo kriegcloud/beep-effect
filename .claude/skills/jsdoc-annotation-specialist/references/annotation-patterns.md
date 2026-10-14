@@ -5,14 +5,36 @@ composer created from the package identity.
 
 ## Class schemas (`S.Class`, `Model.Class`, `S.TaggedError`)
 
-The third argument to the class factory receives `$I.annote`:
+The annotations argument to the class factory receives `$I.annote`. Schema
+classes are for errors, persisted entities, schemas with instance members, and
+`.extend` chains, and they carry a brand type argument:
 
 ```ts
-class MyEntity extends S.Class<MyEntity>($I`MyEntity`)(
+class MyEntity extends S.Class<MyEntity, { readonly brand: unique symbol }>($I`MyEntity`)(
   { /* fields */ },
   $I.annote("MyEntity", {
     description: "A meaningful description reflected in JSDoc for the schema."
   })
+) {
+  get label(): string {
+    return "…"
+  }
+}
+```
+
+## Plain data schemas (`S.Opaque`)
+
+Plain data is a branded `S.Opaque` over a Struct. Annotate the Struct with
+`$I.annoteSchema` inside the pipe; `MyPayload.annotate(...)` would return a
+plain schema without the class statics:
+
+```ts
+class MyPayload extends S.Opaque<MyPayload, { readonly brand: unique symbol }>()(
+  S.Struct({ /* fields */ }).pipe(
+    $I.annoteSchema("MyPayload", {
+      description: "A meaningful description reflected in JSDoc for the schema."
+    })
+  )
 ) {}
 ```
 
@@ -22,7 +44,7 @@ Extend `S.TaggedError` from `effect/Schema` directly. Use the package `$I`
 composer when a distinct namespaced schema identifier is wanted:
 
 ```ts
-class MyError extends S.TaggedError<MyError>($I`MyError`)(
+class MyError extends S.TaggedError<MyError, { readonly brand: unique symbol }>($I`MyError`)(
   "MyError",
   { message: S.String, cause: S.Defect({ includeStack: true }) },
   $I.annote("MyError", {
@@ -32,7 +54,7 @@ class MyError extends S.TaggedError<MyError>($I`MyError`)(
 ```
 
 If no distinct identifier is needed, use
-`S.TaggedError<MyError>()("MyError", fields)`. Never pass a bare identifier
+`S.TaggedError<MyError, { readonly brand: unique symbol }>()("MyError", fields)`. Never pass a bare identifier
 equal to the tag. Cause-carrying errors declare
 `cause: S.Defect({ includeStack: true })` explicitly.
 

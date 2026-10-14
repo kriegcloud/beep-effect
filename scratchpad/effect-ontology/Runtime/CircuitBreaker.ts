@@ -95,16 +95,13 @@ const circuitBreakerConfigSuccessThresholdDefault = PosInt.make(2);
  * @category models
  * @since 0.0.0
  */
-export class CircuitBreakerConfig extends S.Class<CircuitBreakerConfig>($I`CircuitBreakerConfig`)(
-  {
+export class CircuitBreakerConfig extends S.Opaque<CircuitBreakerConfig, { readonly brand: unique symbol }>()(S.Struct({
     maxFailures: PosInt.pipe(S.withConstructorDefault(Effect.succeed(circuitBreakerConfigMaxFailuresDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(circuitBreakerConfigMaxFailuresDefault))),
     resetTimeout: S.Duration.pipe(S.withConstructorDefault(Effect.succeed(circuitBreakerConfigResetTimeoutDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(circuitBreakerConfigResetTimeoutDefault))),
     successThreshold: PosInt.pipe(S.withConstructorDefault(Effect.succeed(circuitBreakerConfigSuccessThresholdDefault)), S.withDecodingDefaultTypeKey(Effect.succeed(circuitBreakerConfigSuccessThresholdDefault))),
-  },
-  $I.annote("CircuitBreakerConfig", {
+  }).pipe($I.annoteSchema("CircuitBreakerConfig", {
     description: "Failure, recovery-delay, and recovery-success thresholds for a circuit breaker.",
-  })
-) {}
+  }))) {}
 
 /**
  * Constructor input accepted by {@link CircuitBreakerConfig}.
@@ -134,17 +131,14 @@ export const DEFAULT_CIRCUIT_CONFIG = CircuitBreakerConfig.make({});
 /**
  * Circuit breaker internal state
  */
-class CircuitBreakerState extends S.Class<CircuitBreakerState>($I`CircuitBreakerState`)(
-  {
+class CircuitBreakerState extends S.Opaque<CircuitBreakerState, { readonly brand: unique symbol }>()(S.Struct({
     state: CircuitState,
     failureCount: NonNegativeCounter,
     successCount: NonNegativeCounter,
     lastFailureTime: NonNegativeCounter,
-  },
-  $I.annote("CircuitBreakerState", {
+  }).pipe($I.annoteSchema("CircuitBreakerState", {
     description: "Mutable runtime counters and state held by a circuit breaker Ref.",
-  })
-) {}
+  }))) {}
 
 /**
  * Create a circuit breaker

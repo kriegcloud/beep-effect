@@ -637,6 +637,67 @@ const TestLayer = Layer.mergeAll(
 
 describe("beep drawings review", () => {
   it.layer(TestLayer, { timeout: "180 seconds" })((it) => {
+    it.effect("refuses a symlinked review directory before creating a round outside the corpus", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const outside = yield* fs.makeTempDirectoryScoped();
+        yield* fs.symlink(outside, path.join(corpus.matter, "review"));
+
+        const failure = yield* Effect.flip(
+          review.open(
+            ReviewOpenRequest.make({
+              location: corpus.location,
+              manifestPath: corpus.sent.manifest,
+              deliveryPath: O.none(),
+            })
+          )
+        );
+        assertInstanceOf(failure, DrawingsCommandError);
+        expect(yield* fs.exists(path.join(outside, "round-1"))).toBe(false);
+      })
+    );
+    it.effect("replaces a linked inventory entry without writing to its outside target", () =>
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const outside = yield* fs.makeTempDirectoryScoped();
+        const opened = yield* review.open(
+          ReviewOpenRequest.make({
+            location: corpus.location,
+            manifestPath: corpus.sent.manifest,
+            deliveryPath: O.none(),
+          })
+        );
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
+        const inventory = path.join(opened.roundDir, "inventory.json");
+        const outsideInventory = path.join(outside, "inventory.json");
+        yield* fs.rename(inventory, outsideInventory);
+        const original = yield* fs.readFile(outsideInventory);
+        yield* fs.symlink(outsideInventory, inventory);
+        const dispositionsFile = path.join(corpus.matter, "dispositions-draft.json");
+        yield* writeJsonFile(
+          ReviewDispositions,
+          dispositionsFile,
+          ReviewDispositions.make({
+            schemaVersion: "drawing-review-dispositions/v1",
+            round: 1,
+            entries: [entry("A1-01", specChange), entry("A1-02", declined), entry("A1-03", specChange, "P2")],
+          })
+        );
+
+        const planned = yield* review.plan(
+          ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: dispositionsFile })
+        );
+        expect(planned.round.status).toBe("planned");
+        expect(yield* fs.readFile(outsideInventory)).toStrictEqual(original);
+        expect(yield* fs.realPath(inventory)).toBe(inventory);
+      })
+    );
     it.effect("ingests flattened markup: notes with rects, an all-sheets merge, and unique-winner matches", (context) =>
       Effect.gen(function* () {
         if (yield* skipWithoutPoppler(context)) return;
@@ -807,7 +868,7 @@ describe("beep drawings review", () => {
           })
         );
         expect(notIngested.message).toContain("has no readable inventory.json");
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
         const pack = yield* buildDrawingJudgePack({
           manifestPath: corpus.other.manifest,
           round: 1,
@@ -844,7 +905,7 @@ describe("beep drawings review", () => {
           review.plan(ReviewPlanRequest.make({ location: corpus.location, dispositionsPath: "unused.json" }))
         );
         expect(early.message).toContain("is open; plan a round after ingest");
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
 
         const dispositionsFile = path.join(corpus.matter, "dispositions-draft.json");
         const write = (round: number, entries: ReadonlyArray<DispositionEntry>) =>
@@ -933,7 +994,7 @@ describe("beep drawings review", () => {
         expect(pending.refusals).toEqual([
           "review round 1 on this sheet set has not been ingested; its findings are unknown, not zero",
         ]);
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
 
         const sent = corpus.sent.hash.slice(0, 12);
         const refused = yield* Effect.flip(runDrawings(["statement", "--manifest", corpus.sent.manifest]));
@@ -1021,7 +1082,7 @@ describe("beep drawings review", () => {
             deliveryPath: O.none(),
           })
         );
-        const findings = yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        const findings = yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
         const roundFile = path.join(opened.roundDir, "round.json");
         const inventoryFile = path.join(opened.roundDir, "inventory.json");
 
@@ -1029,7 +1090,7 @@ describe("beep drawings review", () => {
         const resolved = A.map(findings, (finding) =>
           ReviewFinding.make({ ...finding, status: "resolved", disposition: O.some(specChange) })
         );
-        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(opened.round, resolved));
+        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(ReviewRound.make(opened.round), resolved));
         const status = yield* Effect.flip(review.status(corpus.location));
         expect(status.message).toContain(`"${inventoryFile}" changed outside beep drawings review (sha256`);
         const guarded = yield* Effect.flip(review.guard(corpus.sent.manifest, O.none()));
@@ -1048,13 +1109,13 @@ describe("beep drawings review", () => {
         yield* fs.remove(inventoryFile);
         const missing = yield* Effect.flip(review.status(corpus.location));
         expect(missing.message).toContain("is missing, but round.json records sha256");
-        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(opened.round, resolved));
+        yield* writeJsonFile(ReviewInventory, inventoryFile, inventoryOf(ReviewRound.make(opened.round), resolved));
         yield* writeJsonFile(ReviewRound, roundFile, ReviewRound.make({ ...opened.round, status: "ingested" }));
         const unrecorded = yield* Effect.flip(review.status(corpus.location));
         expect(unrecorded.message).toContain("round.json records no hash for it");
 
         // once planned, dispositions.json is checked too; a draft before planning is not
-        yield* seedIngested({ roundDir: opened.roundDir, round: opened.round });
+        yield* seedIngested({ roundDir: opened.roundDir, round: ReviewRound.make(opened.round) });
         const dispositionsFile = path.join(opened.roundDir, "dispositions.json");
         const write = (entries: ReadonlyArray<DispositionEntry>) =>
           writeJsonFile(
@@ -1082,6 +1143,38 @@ describe("beep drawings review", () => {
     );
 
     it.effect(
+      "records a delivery through a symlinked manifest directory",
+      Effect.fnUntraced(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const review = yield* DrawingReview;
+        const corpus = yield* makeCorpus();
+        const linkedDir = path.join(corpus.root, "linked-sent");
+        yield* fs.symlink(corpus.sent.dir, linkedDir);
+        const draftFile = path.join(corpus.matter, "linked-draft.json");
+        yield* fs.writeFileString(
+          draftFile,
+          yield* toJson({
+            draftId: "AAMk-linked",
+            webLink: "https://example.test/draft",
+            attachments: [{ name: "sheets.pdf", size: 1234, sha256: corpus.sent.hash }],
+          })
+        );
+        const written = yield* review.deliver(
+          DeliverRequest.make({
+            manifestPath: path.join(linkedDir, "manifest.json"),
+            draftPath: draftFile,
+            sentMessageId: O.none(),
+            internetMessageId: O.none(),
+            outPath: O.none(),
+          })
+        );
+        expect(written.path).toBe(path.join(corpus.sent.dir, "delivery.json"));
+        expect(yield* fs.exists(written.path)).toBe(true);
+      })
+    );
+
+    it.effect(
       "records a delivery from an outbox draft and opens the round from it",
       Effect.fnUntraced(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -1102,6 +1195,9 @@ describe("beep drawings review", () => {
         expect(wrong.message).toContain("No attachment of the draft is the sheet-set PDF");
 
         yield* fs.writeFileString(draftFile, yield* draft(corpus.sent.hash));
+        const deliveryFile = path.join(corpus.sent.dir, "delivery.json");
+        const escapedDelivery = path.join(corpus.root, "escaped-delivery.json");
+        yield* fs.symlink(escapedDelivery, deliveryFile);
         yield* runDrawings([
           "deliver",
           "record",
@@ -1113,7 +1209,7 @@ describe("beep drawings review", () => {
           "AAMk-sent",
         ]);
         expect(yield* logged).toContain(`delivery of sheet set ${corpus.sent.hash} recorded`);
-        const deliveryFile = path.join(corpus.sent.dir, "delivery.json");
+        expect(yield* fs.exists(escapedDelivery)).toBe(false);
         const twice = yield* Effect.flip(
           review.deliver(
             DeliverRequest.make({

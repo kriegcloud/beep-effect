@@ -19,7 +19,7 @@ import * as Layer from "effect/Layer";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { SanityConfigInput } from "./Sanity.config.ts";
-import { SanityError } from "./Sanity.errors.ts";
+import { SanityError, SanityErrorOptions } from "./Sanity.errors.ts";
 import type * as HttpClientError from "effect/http/HttpClientError";
 import type * as HttpClientResponse from "effect/http/HttpClientResponse";
 import type * as RedactedType from "effect/Redacted";
@@ -90,8 +90,8 @@ const sanityQueryRequestParamsDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class SanityQueryRequest extends S.Class<SanityQueryRequest>($I`SanityQueryRequest`)(
-  {
+export class SanityQueryRequest extends S.Opaque<SanityQueryRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     params: S.Record(S.String, SanityQueryParamValue)
       .pipe(
         S.withConstructorDefault(Effect.succeed(sanityQueryRequestParamsDefault)),
@@ -103,10 +103,11 @@ export class SanityQueryRequest extends S.Class<SanityQueryRequest>($I`SanityQue
     query: S.String.annotateKey({
       description: "GROQ query text submitted to the Sanity content API.",
     }),
-  },
-  $I.annote("SanityQueryRequest", {
-    description: "Sanity GROQ query request.",
-  })
+  }).pipe(
+    $I.annoteSchema("SanityQueryRequest", {
+      description: "Sanity GROQ query request.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(SanityQueryRequest);
 }
@@ -131,8 +132,8 @@ export class SanityQueryRequest extends S.Class<SanityQueryRequest>($I`SanityQue
  * @category models
  * @since 0.0.0
  */
-export class SanityQueryResponse extends S.Class<SanityQueryResponse>($I`SanityQueryResponse`)(
-  {
+export class SanityQueryResponse extends S.Opaque<SanityQueryResponse, { readonly brand: unique symbol }>()(
+  S.Struct({
     ms: S.OptionFromOptionalKey(S.Finite.check(S.isGreaterThanOrEqualTo(0)))
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -141,10 +142,11 @@ export class SanityQueryResponse extends S.Class<SanityQueryResponse>($I`SanityQ
     result: S.Unknown.annotateKey({
       description: "Raw Sanity query result payload selected by the caller's GROQ projection.",
     }),
-  },
-  $I.annote("SanityQueryResponse", {
-    description: "Sanity query response containing the raw result payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("SanityQueryResponse", {
+      description: "Sanity query response containing the raw result payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(SanityQueryResponse);
 }
@@ -155,13 +157,14 @@ export class SanityQueryResponse extends S.Class<SanityQueryResponse>($I`SanityQ
  * **Example** (Mock Sanity service shape)
  *
  * ```ts
- * import { SanityQueryResponse, type SanityShape } from "@beep/sanity"
- * import * as Effect from "effect/Effect";
+ * import { SanityQueryRequest, SanityQueryResponse, type SanityShape } from "@beep/sanity"
+ * import * as Effect from "effect/Effect"
+ *
  * const service: SanityShape = {
  *   fetch: () => Effect.succeed(SanityQueryResponse.make({ result: [] }))
  * }
  *
- * const program = service.fetch({ params: {}, query: "*[]" })
+ * const program = service.fetch(SanityQueryRequest.make({ params: {}, query: "*[]" }))
  *
  * console.log(Effect.runSync(program).result) // []
  * ```
@@ -173,18 +176,19 @@ export type SanityShape = {
   readonly fetch: (request: SanityQueryRequest) => Effect.Effect<SanityQueryResponse, SanityError>;
 };
 
-class ResolvedSanityConfig extends S.Class<ResolvedSanityConfig>($I`ResolvedSanityConfig`)(
-  {
+class ResolvedSanityConfig extends S.Opaque<ResolvedSanityConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiHost: URLStr,
     apiToken: S.String.pipe(S.Redacted, S.Option),
     apiVersion: S.String,
     dataset: S.String,
     headers: S.Record(S.String, S.String),
     projectId: S.String,
-  },
-  $I.annote("ResolvedSanityConfig", {
-    description: "Resolved runtime configuration for the Sanity service.",
-  })
+  }).pipe(
+    $I.annoteSchema("ResolvedSanityConfig", {
+      description: "Resolved runtime configuration for the Sanity service.",
+    })
+  )
 ) {}
 
 const encodeConfigInput = S.encodeEffect(SanityConfigInput);
@@ -197,7 +201,7 @@ const resolveConfig = Effect.fn("Sanity.resolveConfig")(function* (
   const config = yield* pipe(
     encodeConfigInput(input),
     Effect.flatMap(decodeConfigInput),
-    Effect.mapError((cause) => SanityError.fromReason("config", { cause }))
+    Effect.mapError((cause) => SanityError.fromReason("config", SanityErrorOptions.make({ cause })))
   );
   const projectId = yield* pipe(
     O.fromNullishOr(config.projectId),
@@ -209,7 +213,7 @@ const resolveConfig = Effect.fn("Sanity.resolveConfig")(function* (
   );
   const apiHost = yield* pipe(
     decodeApiHost(config.apiHost),
-    Effect.mapError((cause) => SanityError.fromReason("config", { cause }))
+    Effect.mapError((cause) => SanityError.fromReason("config", SanityErrorOptions.make({ cause })))
   );
 
   return ResolvedSanityConfig.make({
@@ -264,7 +268,7 @@ const makeRequest = Effect.fn("Sanity.makeRequest")(function* (
 ) {
   const decoded = yield* pipe(
     SanityQueryRequest.decodeEffect(request),
-    Effect.mapError((cause) => SanityError.fromReason("request encoding", { cause }))
+    Effect.mapError((cause) => SanityError.fromReason("request encoding", SanityErrorOptions.make({ cause })))
   );
   const url = queryUrl(config);
 
@@ -277,10 +281,13 @@ const makeRequest = Effect.fn("Sanity.makeRequest")(function* (
         params: decoded.params,
       }),
     Effect.mapError((cause) =>
-      SanityError.fromReason("request encoding", {
-        cause,
-        url,
-      })
+      SanityError.fromReason(
+        "request encoding",
+        SanityErrorOptions.make({
+          cause,
+          url,
+        })
+      )
     )
   );
 });
@@ -293,10 +300,13 @@ const ensureSuccess = Effect.fnUntraced(function* (
     return response;
   }
 
-  return yield* SanityError.fromReason("response status", {
-    status: response.status,
-    url,
-  });
+  return yield* SanityError.fromReason(
+    "response status",
+    SanityErrorOptions.make({
+      status: response.status,
+      url,
+    })
+  );
 });
 
 const decodeResponse = Effect.fnUntraced(
@@ -311,10 +321,13 @@ const decodeResponse = Effect.fnUntraced(
   (effect, url) =>
     effect.pipe(
       Effect.mapError((cause) =>
-        SanityError.fromReason("response decoding", {
-          cause,
-          url,
-        })
+        SanityError.fromReason(
+          "response decoding",
+          SanityErrorOptions.make({
+            cause,
+            url,
+          })
+        )
       )
     )
 );
@@ -325,10 +338,13 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedSanityConfig
     const url = queryUrl(config);
     const response = yield* client.execute(httpRequest).pipe(
       Effect.mapError((cause) =>
-        SanityError.fromReason("transport", {
-          cause,
-          url,
-        })
+        SanityError.fromReason(
+          "transport",
+          SanityErrorOptions.make({
+            cause,
+            url,
+          })
+        )
       )
     );
     const success = yield* ensureSuccess(url, response);
@@ -436,6 +452,6 @@ export class Sanity extends Context.Service<Sanity, SanityShape>()($I`Sanity`) {
       );
 
       return Sanity.of(makeService(client, resolved));
-    }).pipe(Effect.mapError((cause) => SanityError.fromReason("config", { cause })))
+    }).pipe(Effect.mapError((cause) => SanityError.fromReason("config", SanityErrorOptions.make({ cause }))))
   ).pipe(Layer.provide(FetchHttpClient.layer));
 }

@@ -87,12 +87,12 @@ const NormalizedUrlScheme = S.Trim.pipe(
  * @category models
  * @since 0.0.0
  */
-export class CompatibilityUrlPolicy extends S.TaggedClass<CompatibilityUrlPolicy>($I`CompatibilityUrlPolicy`)(
-  "Compatibility",
-  {},
-  $I.annote("CompatibilityUrlPolicy", {
-    description: "Compatibility URL behavior retained for legacy Markdown output.",
-  })
+export class CompatibilityUrlPolicy extends S.Opaque<CompatibilityUrlPolicy, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("Compatibility", {}).pipe(
+    $I.annoteSchema("CompatibilityUrlPolicy", {
+      description: "Compatibility URL behavior retained for legacy Markdown output.",
+    })
+  )
 ) {}
 
 /**
@@ -116,9 +116,8 @@ export class CompatibilityUrlPolicy extends S.TaggedClass<CompatibilityUrlPolicy
  * @category models
  * @since 0.0.0
  */
-export class AllowListUrlPolicySpec extends S.TaggedClass<AllowListUrlPolicySpec>($I`AllowListUrlPolicySpec`)(
-  "AllowList",
-  {
+export class AllowListUrlPolicySpec extends S.Opaque<AllowListUrlPolicySpec, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("AllowList", {
     schemes: S.Array(NormalizedUrlScheme).annotateKey({
       description: "Lowercase URL schemes accepted by the policy.",
     }),
@@ -131,10 +130,11 @@ export class AllowListUrlPolicySpec extends S.TaggedClass<AllowListUrlPolicySpec
     allowBackslashRelative: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
       description: "Whether relative destinations containing backslashes are accepted.",
     }),
-  },
-  $I.annote("AllowListUrlPolicySpec", {
-    description: "Explicit URL scheme and relative-destination allow list.",
-  })
+  }).pipe(
+    $I.annoteSchema("AllowListUrlPolicySpec", {
+      description: "Explicit URL scheme and relative-destination allow list.",
+    })
+  )
 ) {}
 
 /**

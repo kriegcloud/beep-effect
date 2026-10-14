@@ -237,8 +237,8 @@ export type KnowledgeSealableSpanClass = typeof KnowledgeSealableSpanClass.Type;
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeBaselineEntry extends S.Class<KnowledgeBaselineEntry>($I`KnowledgeBaselineEntry`)(
-  {
+export class KnowledgeBaselineEntry extends S.Opaque<KnowledgeBaselineEntry, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: KnowledgeBaselineKey,
     group: KnowledgeBaselineGroup,
     kind: KnowledgeFindingKind,
@@ -246,10 +246,11 @@ export class KnowledgeBaselineEntry extends S.Class<KnowledgeBaselineEntry>($I`K
     subject: S.String,
     spanClass: KnowledgeSealableSpanClass,
     owners: S.Array(S.String),
-  },
-  $I.annote("KnowledgeBaselineEntry", {
-    description: "One sealed inherited knowledge-doctor finding: key, named group, kind, document, subject, owners.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeBaselineEntry", {
+      description: "One sealed inherited knowledge-doctor finding: key, named group, kind, document, subject, owners.",
+    })
+  )
 ) {}
 
 /**
@@ -280,16 +281,17 @@ export class KnowledgeBaselineEntry extends S.Class<KnowledgeBaselineEntry>($I`K
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorBaseline extends S.Class<KnowledgeDoctorBaseline>($I`KnowledgeDoctorBaseline`)(
-  {
+export class KnowledgeDoctorBaseline extends S.Opaque<KnowledgeDoctorBaseline, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("knowledge-doctor-baseline/v1"),
     mintedAt: KnowledgeCommitSha,
     note: S.String,
     entries: S.Array(KnowledgeBaselineEntry),
-  },
-  $I.annote("KnowledgeDoctorBaseline", {
-    description: "Sealed knowledge-doctor baseline minted by CI at one default-branch commit.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorBaseline", {
+      description: "Sealed knowledge-doctor baseline minted by CI at one default-branch commit.",
+    })
+  )
 ) {}
 
 /**
@@ -312,15 +314,16 @@ export class KnowledgeDoctorBaseline extends S.Class<KnowledgeDoctorBaseline>($I
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorPromotion extends S.Class<KnowledgeDoctorPromotion>($I`KnowledgeDoctorPromotion`)(
-  {
+export class KnowledgeDoctorPromotion extends S.Opaque<KnowledgeDoctorPromotion, { readonly brand: unique symbol }>()(
+  S.Struct({
     kind: KnowledgeFindingKind,
     promotedAt: KnowledgeCommitSha,
     windowEvidence: S.NonEmptyString,
-  },
-  $I.annote("KnowledgeDoctorPromotion", {
-    description: "A finding kind promoted from report-only to blocking, with its C7 window evidence.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorPromotion", {
+      description: "A finding kind promoted from report-only to blocking, with its C7 window evidence.",
+    })
+  )
 ) {}
 
 /**
@@ -337,14 +340,15 @@ export class KnowledgeDoctorPromotion extends S.Class<KnowledgeDoctorPromotion>(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorPromotions extends S.Class<KnowledgeDoctorPromotions>($I`KnowledgeDoctorPromotions`)(
-  {
+export class KnowledgeDoctorPromotions extends S.Opaque<KnowledgeDoctorPromotions, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("knowledge-doctor-promotions/v1"),
     promotions: S.Array(KnowledgeDoctorPromotion),
-  },
-  $I.annote("KnowledgeDoctorPromotions", {
-    description: "Append-only, human-reviewed list of promoted knowledge-doctor finding kinds.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorPromotions", {
+      description: "Append-only, human-reviewed list of promoted knowledge-doctor finding kinds.",
+    })
+  )
 ) {}
 
 /**
@@ -361,14 +365,15 @@ export class KnowledgeDoctorPromotions extends S.Class<KnowledgeDoctorPromotions
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeIdentityMapping extends S.Class<KnowledgeIdentityMapping>($I`KnowledgeIdentityMapping`)(
-  {
+export class KnowledgeIdentityMapping extends S.Opaque<KnowledgeIdentityMapping, { readonly brand: unique symbol }>()(
+  S.Struct({
     from: S.String,
     to: S.String,
-  },
-  $I.annote("KnowledgeIdentityMapping", {
-    description: "A document path at mintedAt and the path it has now, for moves git lineage loses.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeIdentityMapping", {
+      description: "A document path at mintedAt and the path it has now, for moves git lineage loses.",
+    })
+  )
 ) {}
 
 /**
@@ -385,14 +390,15 @@ export class KnowledgeIdentityMapping extends S.Class<KnowledgeIdentityMapping>(
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorIdentity extends S.Class<KnowledgeDoctorIdentity>($I`KnowledgeDoctorIdentity`)(
-  {
+export class KnowledgeDoctorIdentity extends S.Opaque<KnowledgeDoctorIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("knowledge-doctor-identity/v1"),
     mappings: S.Array(KnowledgeIdentityMapping),
-  },
-  $I.annote("KnowledgeDoctorIdentity", {
-    description: "Durable-identity sidecar mappings for documents rename lineage provably loses.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorIdentity", {
+      description: "Durable-identity sidecar mappings for documents rename lineage provably loses.",
+    })
+  )
 ) {}
 
 /* -------------------------------------------------------------------------------------------------
@@ -428,18 +434,19 @@ export class KnowledgeDoctorIdentity extends S.Class<KnowledgeDoctorIdentity>($I
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSealFiles extends S.Class<KnowledgeSealFiles>($I`KnowledgeSealFiles`)(
-  {
+export class KnowledgeSealFiles extends S.Opaque<KnowledgeSealFiles, { readonly brand: unique symbol }>()(
+  S.Struct({
     baseline: S.Option(KnowledgeDoctorBaseline),
     baselineText: S.Option(S.String),
     codeowners: S.Option(S.String),
     identity: S.Option(KnowledgeDoctorIdentity),
     leases: S.Option(KnowledgeDebtLeases),
     promotions: S.Option(KnowledgeDoctorPromotions),
-  },
-  $I.annote("KnowledgeSealFiles", {
-    description: "The baseline, promotions, leases, identity sidecar, and CODEOWNERS read from one tree.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSealFiles", {
+      description: "The baseline, promotions, leases, identity sidecar, and CODEOWNERS read from one tree.",
+    })
+  )
 ) {}
 
 const readTrackedText = Effect.fn("KnowledgeDoctor.readTrackedText")(function* (
@@ -637,6 +644,7 @@ const GOVERNANCE_KINDS = HashSet.make<ReadonlyArray<KnowledgeFindingKind>>(
   "baseline-tamper",
   "lease-expired",
   "lease-owner-unresolved",
+  "lease-issued-in-future",
   "lease-lifetime-exceeded",
   "lease-quota-exceeded"
 );
@@ -756,16 +764,17 @@ const keyedRows = Effect.fn("KnowledgeDoctor.keyedRows")(function* (
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeIdentityInput extends S.Class<KnowledgeIdentityInput>($I`KnowledgeIdentityInput`)(
-  {
+export class KnowledgeIdentityInput extends S.Opaque<KnowledgeIdentityInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     renames: S.Array(S.Tuple([S.String, S.String])),
     sidecar: S.Array(KnowledgeIdentityMapping),
     mintedAtPaths: S.HashSet(S.String),
     headPaths: S.HashSet(S.String),
-  },
-  $I.annote("KnowledgeIdentityInput", {
-    description: "Rename lineage, sidecar mappings, and the tracked paths at mintedAt and now.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeIdentityInput", {
+      description: "Rename lineage, sidecar mappings, and the tracked paths at mintedAt and now.",
+    })
+  )
 ) {}
 
 /**
@@ -785,14 +794,18 @@ export class KnowledgeIdentityInput extends S.Class<KnowledgeIdentityInput>($I`K
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeIdentityResolution extends S.Class<KnowledgeIdentityResolution>($I`KnowledgeIdentityResolution`)(
-  {
+export class KnowledgeIdentityResolution extends S.Opaque<
+  KnowledgeIdentityResolution,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     identity: S.HashMap(S.String, S.String),
     rejected: S.Array(S.String),
-  },
-  $I.annote("KnowledgeIdentityResolution", {
-    description: "Current-to-durable document path map and the rejected identity-sidecar mappings.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeIdentityResolution", {
+      description: "Current-to-durable document path map and the rejected identity-sidecar mappings.",
+    })
+  )
 ) {}
 
 /**
@@ -979,16 +992,20 @@ export const knowledgeRemovedPackageNames = (removals: ReadonlyArray<KnowledgePa
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeBaselineGroupInput extends S.Class<KnowledgeBaselineGroupInput>($I`KnowledgeBaselineGroupInput`)(
-  {
+export class KnowledgeBaselineGroupInput extends S.Opaque<
+  KnowledgeBaselineGroupInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     row: KnowledgeDoctorFinding,
     line: S.Option(S.String),
     attributed: S.Boolean,
     removedPackages: S.HashSet(S.String),
-  },
-  $I.annote("KnowledgeBaselineGroupInput", {
-    description: "A finding, its source line, its attribution, and the retired package names its group is read from.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeBaselineGroupInput", {
+      description: "A finding, its source line, its attribution, and the retired package names its group is read from.",
+    })
+  )
 ) {}
 
 /**
@@ -1340,14 +1357,16 @@ export const verifyKnowledgeBaselineText = Effect.fn("KnowledgeDoctor.verifyBase
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeMintAcceptance extends S.Class<KnowledgeMintAcceptance>($I`KnowledgeMintAcceptance`)(
-  {
+export class KnowledgeMintAcceptance extends S.Opaque<KnowledgeMintAcceptance, { readonly brand: unique symbol }>()(
+  S.Struct({
     mintedAtIsAncestor: S.Boolean,
     reproduces: S.Boolean,
-  },
-  $I.annote("KnowledgeMintAcceptance", {
-    description: "Whether the minted commit is an ancestor of the merge-base and the baseline re-mints byte for byte.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeMintAcceptance", {
+      description:
+        "Whether the minted commit is an ancestor of the merge-base and the baseline re-mints byte for byte.",
+    })
+  )
 ) {}
 
 /**
@@ -1379,16 +1398,17 @@ export class KnowledgeMintAcceptance extends S.Class<KnowledgeMintAcceptance>($I
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeSealGuardInput extends S.Class<KnowledgeSealGuardInput>($I`KnowledgeSealGuardInput`)(
-  {
+export class KnowledgeSealGuardInput extends S.Opaque<KnowledgeSealGuardInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     acceptMint: S.Option(KnowledgeMintAcceptance),
     base: KnowledgeSealFiles,
     changedPaths: S.Array(S.String),
     head: KnowledgeSealFiles,
-  },
-  $I.annote("KnowledgeSealGuardInput", {
-    description: "Base and head seal files, the branch's changed paths, and the CI mint acceptance facts.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeSealGuardInput", {
+      description: "Base and head seal files, the branch's changed paths, and the CI mint acceptance facts.",
+    })
+  )
 ) {}
 
 const BASELINE_REMEDIATION =
@@ -1654,8 +1674,8 @@ export const knowledgeSealGuard = (input: KnowledgeSealGuardInput): ReadonlyArra
  * @category models
  * @since 0.0.0
  */
-export class KnowledgeDoctorCheckInput extends S.Class<KnowledgeDoctorCheckInput>($I`KnowledgeDoctorCheckInput`)(
-  {
+export class KnowledgeDoctorCheckInput extends S.Opaque<KnowledgeDoctorCheckInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     acceptMint: S.Option(KnowledgeMintAcceptance),
     base: KnowledgeSealFiles,
     baseRef: S.String,
@@ -1668,10 +1688,11 @@ export class KnowledgeDoctorCheckInput extends S.Class<KnowledgeDoctorCheckInput
     removals: KnowledgePathRemoval.pipe(S.Array, S.Option),
     renames: S.Array(S.Tuple([S.String, S.String])),
     report: KnowledgeDoctorReport,
-  },
-  $I.annote("KnowledgeDoctorCheckInput", {
-    description: "A scanned report plus every seal, lease, identity, and history input of one gating check.",
-  })
+  }).pipe(
+    $I.annoteSchema("KnowledgeDoctorCheckInput", {
+      description: "A scanned report plus every seal, lease, identity, and history input of one gating check.",
+    })
+  )
 ) {}
 
 const ratchetOrder = Order.mapInput(Order.String, (entry: KnowledgeRatchetEntry) => entry.findingId);

@@ -10,7 +10,7 @@ import { cn } from "@beep/ui/lib/utils";
 import { A, O, P, R, Str, Struct } from "@beep/utils";
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
-import { requireReactContext } from "../lib/react-invariant.ts";
+import { ReactContextInvariantOptions, requireReactContext } from "../lib/react-invariant.ts";
 import type { TooltipValueType } from "recharts";
 
 // The two color schemes a series may set a color for. The theme stylesheet sets
@@ -65,7 +65,10 @@ const ChartContext = React.createContext<ChartContextProps | null>(null);
 
 function useChart() {
   const context = React.useContext(ChartContext);
-  return requireReactContext(context, { message: "useChart must be used within a <ChartContainer />" });
+  return requireReactContext(
+    context,
+    ReactContextInvariantOptions.make({ message: "useChart must be used within a <ChartContainer />" })
+  );
 }
 
 /**

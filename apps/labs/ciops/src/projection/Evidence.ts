@@ -107,7 +107,9 @@ export type EvidenceMode = typeof EvidenceMode.Type;
  * @category errors
  * @since 0.0.0
  */
-export class EvidenceDriftError extends S.TaggedError<EvidenceDriftError>($I`EvidenceDriftError`)(
+export class EvidenceDriftError extends S.TaggedError<EvidenceDriftError, { readonly brand: unique symbol }>(
+  $I`EvidenceDriftError`
+)(
   "EvidenceDriftError",
   { path: S.String, message: S.String },
   $I.annoteError<EvidenceDriftError>("EvidenceDriftError", {
@@ -134,15 +136,16 @@ export class EvidenceDriftError extends S.TaggedError<EvidenceDriftError>($I`Evi
  * @category models
  * @since 0.0.0
  */
-export class EvidencePaths extends S.Class<EvidencePaths>($I`EvidencePaths`)(
-  {
+export class EvidencePaths extends S.Opaque<EvidencePaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     abox: S.String,
     journal: S.String,
     evidence: S.String,
-  },
-  $I.annote("EvidencePaths", {
-    description: "Policy A-Box, admission journal and evidence report paths for one replay run.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidencePaths", {
+      description: "Policy A-Box, admission journal and evidence report paths for one replay run.",
+    })
+  )
 ) {}
 
 /**
@@ -274,14 +277,15 @@ const sha256 = (content: string) => sha256Bytes(utf8.encode(content));
  * @category models
  * @since 0.0.0
  */
-export class EvidenceRun extends S.Class<EvidenceRun>($I`EvidenceRun`)(
-  {
+export class EvidenceRun extends S.Opaque<EvidenceRun, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: EvidenceMode,
     rendered: S.String,
-  },
-  $I.annote("EvidenceRun", {
-    description: "Mode and rendered Markdown of a replay-evidence run that passed the differential replay.",
-  })
+  }).pipe(
+    $I.annoteSchema("EvidenceRun", {
+      description: "Mode and rendered Markdown of a replay-evidence run that passed the differential replay.",
+    })
+  )
 ) {}
 
 /**
@@ -368,18 +372,19 @@ export const generateReplayEvidence = Effect.fn("Evidence.generateReplayEvidence
  * @category models
  * @since 0.0.0
  */
-export class LiveEvidencePaths extends S.Class<LiveEvidencePaths>($I`LiveEvidencePaths`)(
-  {
+export class LiveEvidencePaths extends S.Opaque<LiveEvidencePaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     repoRoot: S.String,
     abox: S.String,
     goldenJournal: S.String,
     journal: S.String,
     manifest: S.String,
     evidence: S.String,
-  },
-  $I.annote("LiveEvidencePaths", {
-    description: "Repo root, repo-relative pinned inputs and the evidence path of one live replay run.",
-  })
+  }).pipe(
+    $I.annoteSchema("LiveEvidencePaths", {
+      description: "Repo root, repo-relative pinned inputs and the evidence path of one live replay run.",
+    })
+  )
 ) {}
 
 /**
@@ -398,16 +403,17 @@ export class LiveEvidencePaths extends S.Class<LiveEvidencePaths>($I`LiveEvidenc
  * @category models
  * @since 0.0.0
  */
-export class LiveEvidenceSummary extends S.Class<LiveEvidenceSummary>($I`LiveEvidenceSummary`)(
-  {
+export class LiveEvidenceSummary extends S.Opaque<LiveEvidenceSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     live: LiveReplayReport,
     golden: FirstChoiceAgreement,
     goldenJournalSha256: S.String,
     policySha256: S.String,
-  },
-  $I.annote("LiveEvidenceSummary", {
-    description: "Live replay report beside the golden agreement recomputed in the same run.",
-  })
+  }).pipe(
+    $I.annoteSchema("LiveEvidenceSummary", {
+      description: "Live replay report beside the golden agreement recomputed in the same run.",
+    })
+  )
 ) {}
 
 /**
@@ -424,11 +430,12 @@ export class LiveEvidenceSummary extends S.Class<LiveEvidenceSummary>($I`LiveEvi
  * @category models
  * @since 0.0.0
  */
-export class LiveEvidenceRun extends S.Class<LiveEvidenceRun>($I`LiveEvidenceRun`)(
-  { mode: EvidenceMode, rendered: S.String, summary: LiveEvidenceSummary },
-  $I.annote("LiveEvidenceRun", {
-    description: "Mode, typed summary and rendered Markdown of one live replay-evidence run.",
-  })
+export class LiveEvidenceRun extends S.Opaque<LiveEvidenceRun, { readonly brand: unique symbol }>()(
+  S.Struct({ mode: EvidenceMode, rendered: S.String, summary: LiveEvidenceSummary }).pipe(
+    $I.annoteSchema("LiveEvidenceRun", {
+      description: "Mode, typed summary and rendered Markdown of one live replay-evidence run.",
+    })
+  )
 ) {}
 
 const pinDisagreement = (member: string, expected: string, actual: string) =>

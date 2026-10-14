@@ -126,8 +126,8 @@ export type YeetRunMode = typeof YeetRunMode.Type;
  * @category models
  * @since 0.0.0
  */
-export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`YeetRunPlanModeOptions`)(
-  {
+export class YeetRunPlanModeOptions extends S.Opaque<YeetRunPlanModeOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     amend: S.Boolean,
     collectAll: S.Boolean.pipe(
       S.withConstructorDefault(Effect.succeed(false)),
@@ -155,10 +155,11 @@ export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`Y
       S.withConstructorDefault(Effect.succeed(false)),
       S.withDecodingDefault(Effect.succeed(false))
     ),
-  },
-  $I.annote("YeetRunPlanModeOptions", {
-    description: "Options for building a Yeet run plan in a specific mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetRunPlanModeOptions", {
+      description: "Options for building a Yeet run plan in a specific mode.",
+    })
+  )
 ) {}
 
 const YEET_TURBO_CONCURRENCY = "3" as const;

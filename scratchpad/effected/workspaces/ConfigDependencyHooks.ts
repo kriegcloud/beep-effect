@@ -54,7 +54,7 @@ import { JsonObject, isPlainObject } from "./PackageManagerName.ts";
 const $I = $ScratchpadId.create("effected/workspaces/ConfigDependencyHooks");
 
 /** A replay failure reconstructed from the subprocess protocol. */
-class ConfigDependencyReplayError extends S.TaggedError<ConfigDependencyReplayError>($I`ConfigDependencyReplayError`)(
+class ConfigDependencyReplayError extends S.TaggedError<ConfigDependencyReplayError, { readonly brand: unique symbol }>($I`ConfigDependencyReplayError`)(
 	"ConfigDependencyReplayError",
 	{ message: S.String },
 	$I.annote("ConfigDependencyReplayError", { description: "A replay failure reconstructed from the subprocess protocol." }),

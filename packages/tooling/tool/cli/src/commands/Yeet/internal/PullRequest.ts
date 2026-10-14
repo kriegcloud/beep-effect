@@ -323,15 +323,16 @@ export const buildPrBody = Effect.fn("Yeet.buildPrBody")(function* (
  * @category models
  * @since 0.0.0
  */
-export class YeetEnsuredPullRequest extends S.Class<YeetEnsuredPullRequest>($I`YeetEnsuredPullRequest`)(
-  {
+export class YeetEnsuredPullRequest extends S.Opaque<YeetEnsuredPullRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     number: S.Finite,
     url: S.String.pipe(S.OptionFromOptionalKey, S.withConstructorDefault(Effect.succeedNone)),
     created: S.Boolean,
-  },
-  $I.annote("YeetEnsuredPullRequest", {
-    description: "The pull request a publish created or found open for its branch.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetEnsuredPullRequest", {
+      description: "The pull request a publish created or found open for its branch.",
+    })
+  )
 ) {}
 
 interface EnsurePullRequestDependencies {
@@ -666,7 +667,7 @@ const editPullRequestTitle = Effect.fn("Yeet.editPullRequestTitle")(function* (
   if (!isGraphQlRateLimitOutput(edited.output)) {
     return YeetPullRequestTitleSync.make({
       status: "failed",
-      message: `could not replace the merge-commit subject on pull request #${number}; run: gh pr edit ${number} --title "${title}"\n${edited.output}`,
+      message: `could not replace the merge-commit subject on pull request #${number}; review and edit its title in GitHub.\n${edited.output}`,
     });
   }
   const patched = yield* capture(
@@ -678,7 +679,7 @@ const editPullRequestTitle = Effect.fn("Yeet.editPullRequestTitle")(function* (
     ? updated
     : YeetPullRequestTitleSync.make({
         status: "failed",
-        message: `could not replace the merge-commit subject on pull request #${number} through REST; run: gh pr edit ${number} --title "${title}"\n${patched.output}`,
+        message: `could not replace the merge-commit subject on pull request #${number} through REST; review and edit its title in GitHub.\n${patched.output}`,
       });
 });
 

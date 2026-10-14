@@ -63,6 +63,7 @@ import {
   renderUnsafe,
   renderWith,
   renderWithUnsafe,
+  UrlRenderOptions,
 } from "@beep/md/Md.render";
 import {
   DocumentSafetyViolation,
@@ -904,7 +905,7 @@ Demo video`);
     expect(escapeHtmlUrlAttributeWithPolicy("artifact:abc", StrictWebUrlPolicySpec)).toBe("#");
     expect(escapeHtmlUrlAttribute("file:///tmp/a")).toBe("#");
 
-    const markdownAdapter = makeMarkdownAdapter({ urlPolicy: BrowserSafeUrlPolicySpec });
+    const markdownAdapter = makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec }));
     assertSuccess<string, RenderError>(
       renderWith(markdownAdapter, Md.make([Md.p(Md.a("file:///tmp/a", "File"))])),
       "[File](#)"
@@ -920,7 +921,7 @@ Demo video`);
     expect(controlSeparatedSlashMarkdown).toBe("[External](#)");
     expect(micromark(controlSeparatedSlashMarkdown)).toBe('<p><a href="#">External</a></p>');
 
-    const htmlAdapter = makeHtmlFragmentAdapter({ urlPolicy: StrictWebUrlPolicySpec });
+    const htmlAdapter = makeHtmlFragmentAdapter(UrlRenderOptions.make({ urlPolicy: StrictWebUrlPolicySpec }));
     assertSuccess<string, RenderError>(
       renderWith(htmlAdapter, Md.make([Md.p(Md.a("artifact:abc", "Artifact"))])),
       '<p><a href="#">Artifact</a></p>'
@@ -940,12 +941,12 @@ Demo video`);
         Md.ul([Md.li([Md.p([Md.a("tel:+15551234567", "Call"), Md.text(" "), Md.a("https://example.com", "Web")])])]),
       ]),
     ]);
-    expect(renderWithUnsafe(makeMarkdownAdapter({ urlPolicy: telOnly }), recursivelyNested)).toBe(
-      "> - [Call](tel:+15551234567) [Web](#)"
-    );
-    expect(renderWithUnsafe(makeHtmlFragmentAdapter({ urlPolicy: telOnly }), recursivelyNested)).toBe(
-      '<blockquote><ul><li><p><a href="tel:+15551234567">Call</a> <a href="#">Web</a></p></li></ul></blockquote>'
-    );
+    expect(
+      renderWithUnsafe(makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy: telOnly })), recursivelyNested)
+    ).toBe("> - [Call](tel:+15551234567) [Web](#)");
+    expect(
+      renderWithUnsafe(makeHtmlFragmentAdapter(UrlRenderOptions.make({ urlPolicy: telOnly })), recursivelyNested)
+    ).toBe('<blockquote><ul><li><p><a href="tel:+15551234567">Call</a> <a href="#">Web</a></p></li></ul></blockquote>');
 
     const markedInspiredEvasions = [
       "java\u0000script:alert(1)",
@@ -998,8 +999,14 @@ Demo video`);
       Md.embed("video", "https://example.com/video", { description: "Caption" }),
       Md.hr,
     ]);
-    const markdown = renderWithUnsafe(makeMarkdownAdapter({ urlPolicy: BrowserSafeUrlPolicySpec }), document);
-    const html = renderWithUnsafe(makeHtmlFragmentAdapter({ urlPolicy: BrowserSafeUrlPolicySpec }), document);
+    const markdown = renderWithUnsafe(
+      makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec })),
+      document
+    );
+    const html = renderWithUnsafe(
+      makeHtmlFragmentAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec })),
+      document
+    );
 
     expect(markdown).toContain('![Image](https://example.com/image.png "Image title")<br/>$a+b$[^note]');
     expect(markdown).toContain("[Nested](https://example.com/nested)");
@@ -1029,8 +1036,8 @@ Demo video`);
     });
 
     for (const urlPolicy of [denyAll, httpOnly]) {
-      const markdown = renderWithUnsafe(makeMarkdownAdapter({ urlPolicy }), document);
-      const html = renderWithUnsafe(makeHtmlFragmentAdapter({ urlPolicy }), document);
+      const markdown = renderWithUnsafe(makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy })), document);
+      const html = renderWithUnsafe(makeHtmlFragmentAdapter(UrlRenderOptions.make({ urlPolicy })), document);
 
       expect(markdown).toBe("YouTube video\n\n> YouTube video\n\n- YouTube video");
       expect(markdown).not.toContain("#");
@@ -1041,11 +1048,17 @@ Demo video`);
       expect(html).not.toContain("youtube-nocookie.com");
     }
 
-    expect(renderWithUnsafe(makeMarkdownAdapter({ urlPolicy: BrowserSafeUrlPolicySpec }), Md.make([youtube]))).toBe(
-      "https://www.youtube.com/watch?v=abcDEF123_-"
-    );
     expect(
-      renderWithUnsafe(makeHtmlFragmentAdapter({ urlPolicy: BrowserSafeUrlPolicySpec }), Md.make([youtube]))
+      renderWithUnsafe(
+        makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec })),
+        Md.make([youtube])
+      )
+    ).toBe("https://www.youtube.com/watch?v=abcDEF123_-");
+    expect(
+      renderWithUnsafe(
+        makeHtmlFragmentAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec })),
+        Md.make([youtube])
+      )
     ).toContain('src="https://www.youtube-nocookie.com/embed/abcDEF123_-"');
   });
 
@@ -1437,8 +1450,8 @@ describe("render boundary shapes", () => {
       '<table><thead><tr><th>Name</th><th style="text-align:right">Value</th></tr></thead><tbody><tr><td>A</td><td style="text-align:right">B</td></tr></tbody></table>'
     );
     expect(renderHtmlBlock(body)).toBe("<table><tbody><tr><td>Body</td></tr></tbody></table>");
-    const markdown = makeMarkdownAdapter({ urlPolicy: BrowserSafeUrlPolicySpec });
-    const html = makeHtmlFragmentAdapter({ urlPolicy: BrowserSafeUrlPolicySpec });
+    const markdown = makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec }));
+    const html = makeHtmlFragmentAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec }));
     expect(renderWithUnsafe(markdown, Md.make([empty]))).toBe("");
     expect(renderWithUnsafe(html, Md.make([table]))).toBe(renderHtmlBlock(table));
   });
@@ -1452,15 +1465,21 @@ describe("render boundary shapes", () => {
       Md.embed("image", "https://example.com/image.png", { title: "Picture" }),
       Md.ol(["First"]),
     ]);
-    const markdown = renderWithUnsafe(makeMarkdownAdapter({ urlPolicy: BrowserSafeUrlPolicySpec }), document);
+    const markdown = renderWithUnsafe(
+      makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec })),
+      document
+    );
     expect(markdown).toBe('[^empty]:\n\n> [!NOTE]\n\n![Picture](https://example.com/image.png "Picture")\n\n1. First');
     expect(
-      renderWithUnsafe(makeHtmlFragmentAdapter({ urlPolicy: BrowserSafeUrlPolicySpec }), Md.make([Md.ol(["First"])]))
+      renderWithUnsafe(
+        makeHtmlFragmentAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec })),
+        Md.make([Md.ol(["First"])])
+      )
     ).toBe("<ol><li>First</li></ol>");
   });
 
   it("escapes raw Markdown inside policy-rendered link labels", () => {
-    const adapter = makeMarkdownAdapter({ urlPolicy: BrowserSafeUrlPolicySpec });
+    const adapter = makeMarkdownAdapter(UrlRenderOptions.make({ urlPolicy: BrowserSafeUrlPolicySpec }));
     expect(renderWithUnsafe(adapter, Md.make([Md.p(Md.a("https://example.com", Md.rawMarkdown("[label]")))]))).toBe(
       "[\\[label\\]](https://example.com)"
     );

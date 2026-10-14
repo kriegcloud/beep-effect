@@ -24,15 +24,16 @@ const $I = $RepoUtilsId.create("TsNativeApi.models");
  * @category configuration
  * @since 0.0.0
  */
-export class TsNativeConfig extends S.Class<TsNativeConfig>($I`TsNativeConfig`)(
-  {
+export class TsNativeConfig extends S.Opaque<TsNativeConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     executable: S.OptionFromOptionalKey(S.NonEmptyString).pipe(S.withConstructorDefault(Effect.succeedNone)),
     cwd: S.NonEmptyString,
     tsconfig: S.NonEmptyString,
-  },
-  $I.annote("TsNativeConfig", {
-    description: "Native compiler executable override, working directory and default project config.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsNativeConfig", {
+      description: "Native compiler executable override, working directory and default project config.",
+    })
+  )
 ) {}
 
 /**
@@ -80,18 +81,19 @@ export type TsNativeDiagnosticCategory = typeof TsNativeDiagnosticCategory.Type;
  * @category models
  * @since 0.0.0
  */
-export class TsNativeDiagnostic extends S.Class<TsNativeDiagnostic>($I`TsNativeDiagnostic`)(
-  {
+export class TsNativeDiagnostic extends S.Opaque<TsNativeDiagnostic, { readonly brand: unique symbol }>()(
+  S.Struct({
     fileName: S.OptionFromOptionalKey(S.String),
     pos: S.Int,
     end: S.Int,
     code: S.Int,
     category: TsNativeDiagnosticCategory,
     text: S.String,
-  },
-  $I.annote("TsNativeDiagnostic", {
-    description: "Serializable native diagnostic with optional source filename and UTF-16 offsets.",
-  })
+  }).pipe(
+    $I.annoteSchema("TsNativeDiagnostic", {
+      description: "Serializable native diagnostic with optional source filename and UTF-16 offsets.",
+    })
+  )
 ) {}
 
 /**
@@ -107,7 +109,9 @@ export class TsNativeDiagnostic extends S.Class<TsNativeDiagnostic>($I`TsNativeD
  * @category error-handling
  * @since 0.0.0
  */
-export class TsNativeBinaryNotFound extends S.TaggedError<TsNativeBinaryNotFound>($I`TsNativeBinaryNotFound`)(
+export class TsNativeBinaryNotFound extends S.TaggedError<TsNativeBinaryNotFound, { readonly brand: unique symbol }>(
+  $I`TsNativeBinaryNotFound`
+)(
   "TsNativeBinaryNotFound",
   { executable: S.String, cause: S.Defect({ includeStack: true }) },
   $I.annoteError<TsNativeBinaryNotFound>("TsNativeBinaryNotFound", {
@@ -128,7 +132,9 @@ export class TsNativeBinaryNotFound extends S.TaggedError<TsNativeBinaryNotFound
  * @category error-handling
  * @since 0.0.0
  */
-export class TsNativeProtocolFailure extends S.TaggedError<TsNativeProtocolFailure>($I`TsNativeProtocolFailure`)(
+export class TsNativeProtocolFailure extends S.TaggedError<TsNativeProtocolFailure, { readonly brand: unique symbol }>(
+  $I`TsNativeProtocolFailure`
+)(
   "TsNativeProtocolFailure",
   { operation: S.String, cause: S.Defect({ includeStack: true }) },
   $I.annoteError<TsNativeProtocolFailure>("TsNativeProtocolFailure", {
@@ -149,7 +155,10 @@ export class TsNativeProtocolFailure extends S.TaggedError<TsNativeProtocolFailu
  * @category error-handling
  * @since 0.0.0
  */
-export class TsNativeFileNotInProgram extends S.TaggedError<TsNativeFileNotInProgram>($I`TsNativeFileNotInProgram`)(
+export class TsNativeFileNotInProgram extends S.TaggedError<
+  TsNativeFileNotInProgram,
+  { readonly brand: unique symbol }
+>($I`TsNativeFileNotInProgram`)(
   "TsNativeFileNotInProgram",
   { filePath: S.String, tsconfig: S.String },
   $I.annoteError<TsNativeFileNotInProgram>("TsNativeFileNotInProgram", {

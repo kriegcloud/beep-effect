@@ -166,16 +166,18 @@ export type ReferrerPolicyOption = typeof ReferrerPolicyOption.Type;
  * @category models
  * @since 0.0.0
  */
-export class ReferrerPolicyResponseHeader extends S.Class<ReferrerPolicyResponseHeader>(
-  $I`ReferrerPolicyResponseHeader`
-)(
-  {
+export class ReferrerPolicyResponseHeader extends S.Opaque<
+  ReferrerPolicyResponseHeader,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ReferrerPolicyResponseHeader", {
-    description: "The `Referrer-Policy` response header.",
-  })
+  }).pipe(
+    $I.annoteSchema("ReferrerPolicyResponseHeader", {
+      description: "The `Referrer-Policy` response header.",
+    })
+  )
 ) {}
 
 type ReferrerPolicyResponseHeaderEncoded = typeof ReferrerPolicyResponseHeader.Encoded;

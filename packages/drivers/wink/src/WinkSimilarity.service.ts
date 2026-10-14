@@ -58,16 +58,17 @@ const VectorSimilarityFromSelf = S.declare((u: unknown): u is VectorSimilarity =
   })
 );
 
-class SimilarityRuntime extends S.Class<SimilarityRuntime>($I`SimilarityRuntime`)(
-  {
+class SimilarityRuntime extends S.Opaque<SimilarityRuntime, { readonly brand: unique symbol }>()(
+  S.Struct({
     bow: BowSimilarityFromSelf,
     set: SetSimilarityFromSelf,
     vector: VectorSimilarityFromSelf,
-  },
-  $I.annote("SimilarityRuntime", {
-    description:
-      "In-process wink-nlp native similarity function bag: bag-of-words cosine, set Tversky, and vector cosine handles.",
-  })
+  }).pipe(
+    $I.annoteSchema("SimilarityRuntime", {
+      description:
+        "In-process wink-nlp native similarity function bag: bag-of-words cosine, set Tversky, and vector cosine handles.",
+    })
+  )
 ) {}
 
 type WinkSimilarityShape = {
@@ -103,7 +104,9 @@ const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => new Set(t
  * @category errors
  * @since 0.0.0
  */
-export class SimilarityError extends S.TaggedError<SimilarityError>($I`SimilarityError`)(
+export class SimilarityError extends S.TaggedError<SimilarityError, { readonly brand: unique symbol }>(
+  $I`SimilarityError`
+)(
   "SimilarityError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)),

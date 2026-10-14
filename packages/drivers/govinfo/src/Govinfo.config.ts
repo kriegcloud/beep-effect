@@ -127,8 +127,8 @@ const govinfoConfigInputApiUrlDefault = URLStr.make(GOVINFO_API_URL);
  * @category models
  * @since 0.0.0
  */
-export class GovinfoConfigInput extends S.Class<GovinfoConfigInput>($I`GovinfoConfigInput`)(
-  {
+export class GovinfoConfigInput extends S.Opaque<GovinfoConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     apiKey: S.OptionFromOptionalKey(S.String.pipe(S.RedactedFromValue)).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       S.annotateKey({
@@ -141,8 +141,9 @@ export class GovinfoConfigInput extends S.Class<GovinfoConfigInput>($I`GovinfoCo
     ).annotateKey({
       description: "Base URL for GovInfo REST API requests.",
     }),
-  },
-  $I.annote("GovinfoConfigInput", {
-    description: "Runtime configuration accepted by the GovInfo REST API driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("GovinfoConfigInput", {
+      description: "Runtime configuration accepted by the GovInfo REST API driver layer.",
+    })
+  )
 ) {}

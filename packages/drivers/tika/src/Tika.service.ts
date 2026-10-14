@@ -13,7 +13,7 @@ import * as O from "@beep/utils/Option";
 import * as Effect from "effect/Effect";
 import { TIKA_ENGINE_NAME } from "./Tika.config.ts";
 import { TIKA_SCAFFOLD_ENGINE_UNAVAILABLE_MESSAGE, tikaOperationError } from "./Tika.error-translation.ts";
-import { makeTikaError } from "./Tika.errors.ts";
+import { makeTikaError, TikaErrorOptions } from "./Tika.errors.ts";
 import type {
   DetectFileOperation,
   ExportArchiveOperation,
@@ -72,7 +72,9 @@ const decodeSourceText = (operation: ExtractFileOperation): Effect.Effect<string
   }
 
   if (operation.source.bytes === undefined) {
-    return Effect.fail(makeTikaError("engine-unavailable", { cause: "source bytes unavailable" }));
+    return Effect.fail(
+      makeTikaError("engine-unavailable", TikaErrorOptions.make({ cause: "source bytes unavailable" }))
+    );
   }
 
   return Effect.try({

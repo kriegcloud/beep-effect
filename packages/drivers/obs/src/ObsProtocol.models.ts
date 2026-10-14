@@ -161,8 +161,8 @@ export type ObsOutputState = typeof ObsOutputState.Type;
  * @category models
  * @since 0.0.0
  */
-export class ObsAuthChallenge extends S.Class<ObsAuthChallenge>($I`ObsAuthChallenge`)(
-  {
+export class ObsAuthChallenge extends S.Opaque<ObsAuthChallenge, { readonly brand: unique symbol }>()(
+  S.Struct({
     challenge: S.String.pipe(
       $I.annoteKey("ObsAuthChallenge.challenge", {
         description: "Base64 challenge string issued by the obs-websocket server.",
@@ -173,10 +173,11 @@ export class ObsAuthChallenge extends S.Class<ObsAuthChallenge>($I`ObsAuthChalle
         description: "Base64 salt string issued by the obs-websocket server.",
       })
     ),
-  },
-  $I.annote("ObsAuthChallenge", {
-    description: "Authentication challenge carried by the obs-websocket Hello message.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsAuthChallenge", {
+      description: "Authentication challenge carried by the obs-websocket Hello message.",
+    })
+  )
 ) {}
 
 /**
@@ -194,8 +195,8 @@ export class ObsAuthChallenge extends S.Class<ObsAuthChallenge>($I`ObsAuthChalle
  * @category models
  * @since 0.0.0
  */
-export class ObsHello extends S.Class<ObsHello>($I`ObsHello`)(
-  {
+export class ObsHello extends S.Opaque<ObsHello, { readonly brand: unique symbol }>()(
+  S.Struct({
     authentication: S.OptionFromOptionalKey(ObsAuthChallenge).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ObsHello.authentication", {
@@ -218,10 +219,11 @@ export class ObsHello extends S.Class<ObsHello>($I`ObsHello`)(
         description: "RPC version the server would like to use.",
       })
     ),
-  },
-  $I.annote("ObsHello", {
-    description: "obs-websocket Hello payload sent immediately on client connection.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsHello", {
+      description: "obs-websocket Hello payload sent immediately on client connection.",
+    })
+  )
 ) {}
 
 /**
@@ -239,8 +241,8 @@ export class ObsHello extends S.Class<ObsHello>($I`ObsHello`)(
  * @category models
  * @since 0.0.0
  */
-export class ObsIdentify extends S.Class<ObsIdentify>($I`ObsIdentify`)(
-  {
+export class ObsIdentify extends S.Opaque<ObsIdentify, { readonly brand: unique symbol }>()(
+  S.Struct({
     authentication: S.OptionFromOptionalKey(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ObsIdentify.authentication", {
@@ -257,10 +259,11 @@ export class ObsIdentify extends S.Class<ObsIdentify>($I`ObsIdentify`)(
         description: "RPC version the client would like the server to use.",
       })
     ),
-  },
-  $I.annote("ObsIdentify", {
-    description: "obs-websocket Identify payload answering the Hello message.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsIdentify", {
+      description: "obs-websocket Identify payload answering the Hello message.",
+    })
+  )
 ) {}
 
 /**
@@ -278,17 +281,18 @@ export class ObsIdentify extends S.Class<ObsIdentify>($I`ObsIdentify`)(
  * @category models
  * @since 0.0.0
  */
-export class ObsIdentified extends S.Class<ObsIdentified>($I`ObsIdentified`)(
-  {
+export class ObsIdentified extends S.Opaque<ObsIdentified, { readonly brand: unique symbol }>()(
+  S.Struct({
     negotiatedRpcVersion: S.Int.pipe(
       $I.annoteKey("ObsIdentified.negotiatedRpcVersion", {
         description: "RPC version the server settled on for this session.",
       })
     ),
-  },
-  $I.annote("ObsIdentified", {
-    description: "obs-websocket Identified payload confirming a ready session.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsIdentified", {
+      description: "obs-websocket Identified payload confirming a ready session.",
+    })
+  )
 ) {}
 
 /**
@@ -306,8 +310,8 @@ export class ObsIdentified extends S.Class<ObsIdentified>($I`ObsIdentified`)(
  * @category models
  * @since 0.0.0
  */
-export class ObsEventEnvelope extends S.Class<ObsEventEnvelope>($I`ObsEventEnvelope`)(
-  {
+export class ObsEventEnvelope extends S.Opaque<ObsEventEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventData: S.OptionFromOptionalKey(UnknownRecord).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ObsEventEnvelope.eventData", {
@@ -324,10 +328,11 @@ export class ObsEventEnvelope extends S.Class<ObsEventEnvelope>($I`ObsEventEnvel
         description: "obs-websocket event type name.",
       })
     ),
-  },
-  $I.annote("ObsEventEnvelope", {
-    description: "obs-websocket Event payload describing an OBS event.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsEventEnvelope", {
+      description: "obs-websocket Event payload describing an OBS event.",
+    })
+  )
 ) {}
 
 /**
@@ -345,8 +350,8 @@ export class ObsEventEnvelope extends S.Class<ObsEventEnvelope>($I`ObsEventEnvel
  * @category models
  * @since 0.0.0
  */
-export class ObsRequestEnvelope extends S.Class<ObsRequestEnvelope>($I`ObsRequestEnvelope`)(
-  {
+export class ObsRequestEnvelope extends S.Opaque<ObsRequestEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({
     requestData: S.OptionFromOptionalKey(UnknownRecord).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ObsRequestEnvelope.requestData", {
@@ -363,10 +368,11 @@ export class ObsRequestEnvelope extends S.Class<ObsRequestEnvelope>($I`ObsReques
         description: "obs-websocket request type to invoke.",
       })
     ),
-  },
-  $I.annote("ObsRequestEnvelope", {
-    description: "obs-websocket Request payload sent by the client.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRequestEnvelope", {
+      description: "obs-websocket Request payload sent by the client.",
+    })
+  )
 ) {}
 
 /**
@@ -384,8 +390,8 @@ export class ObsRequestEnvelope extends S.Class<ObsRequestEnvelope>($I`ObsReques
  * @category models
  * @since 0.0.0
  */
-export class ObsRequestStatus extends S.Class<ObsRequestStatus>($I`ObsRequestStatus`)(
-  {
+export class ObsRequestStatus extends S.Opaque<ObsRequestStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: S.Int.pipe(
       $I.annoteKey("ObsRequestStatus.code", {
         description: "obs-websocket RequestStatus code (100 on success).",
@@ -402,10 +408,11 @@ export class ObsRequestStatus extends S.Class<ObsRequestStatus>($I`ObsRequestSta
         description: "Whether the request resulted in RequestStatus::Success.",
       })
     ),
-  },
-  $I.annote("ObsRequestStatus", {
-    description: "obs-websocket RequestStatus object carried by every RequestResponse.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRequestStatus", {
+      description: "obs-websocket RequestStatus object carried by every RequestResponse.",
+    })
+  )
 ) {}
 
 /**
@@ -427,8 +434,11 @@ export class ObsRequestStatus extends S.Class<ObsRequestStatus>($I`ObsRequestSta
  * @category models
  * @since 0.0.0
  */
-export class ObsRequestResponseEnvelope extends S.Class<ObsRequestResponseEnvelope>($I`ObsRequestResponseEnvelope`)(
-  {
+export class ObsRequestResponseEnvelope extends S.Opaque<
+  ObsRequestResponseEnvelope,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     requestId: S.String.pipe(
       $I.annoteKey("ObsRequestResponseEnvelope.requestId", {
         description: "Request correlation id mirrored from the originating request.",
@@ -450,10 +460,11 @@ export class ObsRequestResponseEnvelope extends S.Class<ObsRequestResponseEnvelo
         description: "Response payload object, when the request type returns data.",
       })
     ),
-  },
-  $I.annote("ObsRequestResponseEnvelope", {
-    description: "obs-websocket RequestResponse payload answering a client request.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRequestResponseEnvelope", {
+      description: "obs-websocket RequestResponse payload answering a client request.",
+    })
+  )
 ) {}
 
 /**
@@ -471,8 +482,8 @@ export class ObsRequestResponseEnvelope extends S.Class<ObsRequestResponseEnvelo
  * @category models
  * @since 0.0.0
  */
-export class ObsHelloMessage extends S.Class<ObsHelloMessage>($I`ObsHelloMessage`)(
-  {
+export class ObsHelloMessage extends S.Opaque<ObsHelloMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     d: ObsHello.pipe(
       $I.annoteKey("ObsHelloMessage.d", {
         description: "Hello payload data.",
@@ -483,10 +494,11 @@ export class ObsHelloMessage extends S.Class<ObsHelloMessage>($I`ObsHelloMessage
         description: "obs-websocket Hello OpCode discriminator.",
       })
     ),
-  },
-  $I.annote("ObsHelloMessage", {
-    description: "obs-websocket Hello base-envelope message.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsHelloMessage", {
+      description: "obs-websocket Hello base-envelope message.",
+    })
+  )
 ) {}
 
 /**
@@ -504,8 +516,8 @@ export class ObsHelloMessage extends S.Class<ObsHelloMessage>($I`ObsHelloMessage
  * @category models
  * @since 0.0.0
  */
-export class ObsIdentifyMessage extends S.Class<ObsIdentifyMessage>($I`ObsIdentifyMessage`)(
-  {
+export class ObsIdentifyMessage extends S.Opaque<ObsIdentifyMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     d: ObsIdentify.pipe(
       $I.annoteKey("ObsIdentifyMessage.d", {
         description: "Identify payload data.",
@@ -516,10 +528,11 @@ export class ObsIdentifyMessage extends S.Class<ObsIdentifyMessage>($I`ObsIdenti
         description: "obs-websocket Identify OpCode discriminator.",
       })
     ),
-  },
-  $I.annote("ObsIdentifyMessage", {
-    description: "obs-websocket Identify base-envelope message.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsIdentifyMessage", {
+      description: "obs-websocket Identify base-envelope message.",
+    })
+  )
 ) {}
 
 /**
@@ -537,8 +550,8 @@ export class ObsIdentifyMessage extends S.Class<ObsIdentifyMessage>($I`ObsIdenti
  * @category models
  * @since 0.0.0
  */
-export class ObsIdentifiedMessage extends S.Class<ObsIdentifiedMessage>($I`ObsIdentifiedMessage`)(
-  {
+export class ObsIdentifiedMessage extends S.Opaque<ObsIdentifiedMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     d: ObsIdentified.pipe(
       $I.annoteKey("ObsIdentifiedMessage.d", {
         description: "Identified payload data.",
@@ -549,10 +562,11 @@ export class ObsIdentifiedMessage extends S.Class<ObsIdentifiedMessage>($I`ObsId
         description: "obs-websocket Identified OpCode discriminator.",
       })
     ),
-  },
-  $I.annote("ObsIdentifiedMessage", {
-    description: "obs-websocket Identified base-envelope message.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsIdentifiedMessage", {
+      description: "obs-websocket Identified base-envelope message.",
+    })
+  )
 ) {}
 
 /**
@@ -572,8 +586,8 @@ export class ObsIdentifiedMessage extends S.Class<ObsIdentifiedMessage>($I`ObsId
  * @category models
  * @since 0.0.0
  */
-export class ObsEventMessage extends S.Class<ObsEventMessage>($I`ObsEventMessage`)(
-  {
+export class ObsEventMessage extends S.Opaque<ObsEventMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     d: ObsEventEnvelope.pipe(
       $I.annoteKey("ObsEventMessage.d", {
         description: "Event payload data.",
@@ -584,10 +598,11 @@ export class ObsEventMessage extends S.Class<ObsEventMessage>($I`ObsEventMessage
         description: "obs-websocket Event OpCode discriminator.",
       })
     ),
-  },
-  $I.annote("ObsEventMessage", {
-    description: "obs-websocket Event base-envelope message.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsEventMessage", {
+      description: "obs-websocket Event base-envelope message.",
+    })
+  )
 ) {}
 
 /**
@@ -607,8 +622,8 @@ export class ObsEventMessage extends S.Class<ObsEventMessage>($I`ObsEventMessage
  * @category models
  * @since 0.0.0
  */
-export class ObsRequestMessage extends S.Class<ObsRequestMessage>($I`ObsRequestMessage`)(
-  {
+export class ObsRequestMessage extends S.Opaque<ObsRequestMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     d: ObsRequestEnvelope.pipe(
       $I.annoteKey("ObsRequestMessage.d", {
         description: "Request payload data.",
@@ -619,10 +634,11 @@ export class ObsRequestMessage extends S.Class<ObsRequestMessage>($I`ObsRequestM
         description: "obs-websocket Request OpCode discriminator.",
       })
     ),
-  },
-  $I.annote("ObsRequestMessage", {
-    description: "obs-websocket Request base-envelope message.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRequestMessage", {
+      description: "obs-websocket Request base-envelope message.",
+    })
+  )
 ) {}
 
 /**
@@ -646,8 +662,8 @@ export class ObsRequestMessage extends S.Class<ObsRequestMessage>($I`ObsRequestM
  * @category models
  * @since 0.0.0
  */
-export class ObsRequestResponseMessage extends S.Class<ObsRequestResponseMessage>($I`ObsRequestResponseMessage`)(
-  {
+export class ObsRequestResponseMessage extends S.Opaque<ObsRequestResponseMessage, { readonly brand: unique symbol }>()(
+  S.Struct({
     d: ObsRequestResponseEnvelope.pipe(
       $I.annoteKey("ObsRequestResponseMessage.d", {
         description: "RequestResponse payload data.",
@@ -658,10 +674,11 @@ export class ObsRequestResponseMessage extends S.Class<ObsRequestResponseMessage
         description: "obs-websocket RequestResponse OpCode discriminator.",
       })
     ),
-  },
-  $I.annote("ObsRequestResponseMessage", {
-    description: "obs-websocket RequestResponse base-envelope message.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRequestResponseMessage", {
+      description: "obs-websocket RequestResponse base-envelope message.",
+    })
+  )
 ) {}
 
 /**
@@ -868,8 +885,8 @@ export const encodeObsOutgoingMessageJson: {
  * @category models
  * @since 0.0.0
  */
-export class ObsRecordStateChangedData extends S.Class<ObsRecordStateChangedData>($I`ObsRecordStateChangedData`)(
-  {
+export class ObsRecordStateChangedData extends S.Opaque<ObsRecordStateChangedData, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputActive: S.Boolean.pipe(
       $I.annoteKey("ObsRecordStateChangedData.outputActive", {
         description: "Whether the record output is active.",
@@ -885,10 +902,11 @@ export class ObsRecordStateChangedData extends S.Class<ObsRecordStateChangedData
         description: "The specific state of the record output.",
       })
     ),
-  },
-  $I.annote("ObsRecordStateChangedData", {
-    description: "obs-websocket RecordStateChanged event data payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRecordStateChangedData", {
+      description: "obs-websocket RecordStateChanged event data payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsRecordStateChangedData);
 }
@@ -915,8 +933,11 @@ export class ObsRecordStateChangedData extends S.Class<ObsRecordStateChangedData
  * @category events
  * @since 0.0.0
  */
-export class ObsRecordStateChangedEvent extends S.Class<ObsRecordStateChangedEvent>($I`ObsRecordStateChangedEvent`)(
-  {
+export class ObsRecordStateChangedEvent extends S.Opaque<
+  ObsRecordStateChangedEvent,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     eventType: S.tag("RecordStateChanged").pipe(
       $I.annoteKey("ObsRecordStateChangedEvent.eventType", {
         description: "Discriminator for typed RecordStateChanged driver events.",
@@ -937,10 +958,11 @@ export class ObsRecordStateChangedEvent extends S.Class<ObsRecordStateChangedEve
         description: "The specific state of the record output.",
       })
     ),
-  },
-  $I.annote("ObsRecordStateChangedEvent", {
-    description: "Typed obs-websocket RecordStateChanged driver event.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRecordStateChangedEvent", {
+      description: "Typed obs-websocket RecordStateChanged driver event.",
+    })
+  )
 ) {
   static readonly is = S.is(ObsRecordStateChangedEvent);
 }
@@ -966,8 +988,8 @@ export class ObsRecordStateChangedEvent extends S.Class<ObsRecordStateChangedEve
  * @category events
  * @since 0.0.0
  */
-export class ObsUnknownEvent extends S.Class<ObsUnknownEvent>($I`ObsUnknownEvent`)(
-  {
+export class ObsUnknownEvent extends S.Opaque<ObsUnknownEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventData: S.Option(UnknownRecord).pipe(
       $I.annoteKey("ObsUnknownEvent.eventData", {
         description: "Raw event payload object, when the event carried data.",
@@ -983,10 +1005,11 @@ export class ObsUnknownEvent extends S.Class<ObsUnknownEvent>($I`ObsUnknownEvent
         description: "obs-websocket event type name passed through unmodeled.",
       })
     ),
-  },
-  $I.annote("ObsUnknownEvent", {
-    description: "Passthrough driver event for unmodeled obs-websocket event types.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsUnknownEvent", {
+      description: "Passthrough driver event for unmodeled obs-websocket event types.",
+    })
+  )
 ) {
   static readonly is = S.is(ObsUnknownEvent);
 }
@@ -1053,8 +1076,8 @@ export type ObsEvent = typeof ObsEvent.Type;
  * @category models
  * @since 0.0.0
  */
-export class ObsVersionInfo extends S.Class<ObsVersionInfo>($I`ObsVersionInfo`)(
-  {
+export class ObsVersionInfo extends S.Opaque<ObsVersionInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     availableRequests: S.Array(S.String).pipe(
       $I.annoteKey("ObsVersionInfo.availableRequests", {
         description: "RPC requests available for the negotiated RPC version.",
@@ -1090,10 +1113,11 @@ export class ObsVersionInfo extends S.Class<ObsVersionInfo>($I`ObsVersionInfo`)(
         description: "Image formats available in screenshot requests.",
       })
     ),
-  },
-  $I.annote("ObsVersionInfo", {
-    description: "obs-websocket GetVersion response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsVersionInfo", {
+      description: "obs-websocket GetVersion response payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsVersionInfo);
 }
@@ -1119,8 +1143,8 @@ export class ObsVersionInfo extends S.Class<ObsVersionInfo>($I`ObsVersionInfo`)(
  * @category models
  * @since 0.0.0
  */
-export class ObsRecordStatus extends S.Class<ObsRecordStatus>($I`ObsRecordStatus`)(
-  {
+export class ObsRecordStatus extends S.Opaque<ObsRecordStatus, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputActive: S.Boolean.pipe(
       $I.annoteKey("ObsRecordStatus.outputActive", {
         description: "Whether the record output is active.",
@@ -1146,10 +1170,11 @@ export class ObsRecordStatus extends S.Class<ObsRecordStatus>($I`ObsRecordStatus
         description: "Current formatted timecode string for the record output.",
       })
     ),
-  },
-  $I.annote("ObsRecordStatus", {
-    description: "obs-websocket GetRecordStatus response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRecordStatus", {
+      description: "obs-websocket GetRecordStatus response payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsRecordStatus);
 }
@@ -1170,17 +1195,18 @@ export class ObsRecordStatus extends S.Class<ObsRecordStatus>($I`ObsRecordStatus
  * @category models
  * @since 0.0.0
  */
-export class ObsStopRecordResult extends S.Class<ObsStopRecordResult>($I`ObsStopRecordResult`)(
-  {
+export class ObsStopRecordResult extends S.Opaque<ObsStopRecordResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     outputPath: S.String.pipe(
       $I.annoteKey("ObsStopRecordResult.outputPath", {
         description: "File name for the saved recording (authoritative).",
       })
     ),
-  },
-  $I.annote("ObsStopRecordResult", {
-    description: "obs-websocket StopRecord response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsStopRecordResult", {
+      description: "obs-websocket StopRecord response payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsStopRecordResult);
 }
@@ -1200,17 +1226,18 @@ export class ObsStopRecordResult extends S.Class<ObsStopRecordResult>($I`ObsStop
  * @category models
  * @since 0.0.0
  */
-export class ObsRecordDirectory extends S.Class<ObsRecordDirectory>($I`ObsRecordDirectory`)(
-  {
+export class ObsRecordDirectory extends S.Opaque<ObsRecordDirectory, { readonly brand: unique symbol }>()(
+  S.Struct({
     recordDirectory: S.String.pipe(
       $I.annoteKey("ObsRecordDirectory.recordDirectory", {
         description: "Directory the record output writes files to.",
       })
     ),
-  },
-  $I.annote("ObsRecordDirectory", {
-    description: "obs-websocket GetRecordDirectory response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsRecordDirectory", {
+      description: "obs-websocket GetRecordDirectory response payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsRecordDirectory);
 }
@@ -1231,18 +1258,19 @@ export class ObsRecordDirectory extends S.Class<ObsRecordDirectory>($I`ObsRecord
  * @category models
  * @since 0.0.0
  */
-export class ObsCreatedScene extends S.Class<ObsCreatedScene>($I`ObsCreatedScene`)(
-  {
+export class ObsCreatedScene extends S.Opaque<ObsCreatedScene, { readonly brand: unique symbol }>()(
+  S.Struct({
     sceneUuid: S.OptionFromOptionalKey(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ObsCreatedScene.sceneUuid", {
         description: "UUID of the created scene, when the server reports one.",
       })
     ),
-  },
-  $I.annote("ObsCreatedScene", {
-    description: "obs-websocket CreateScene response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsCreatedScene", {
+      description: "obs-websocket CreateScene response payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsCreatedScene);
 }
@@ -1262,8 +1290,8 @@ export class ObsCreatedScene extends S.Class<ObsCreatedScene>($I`ObsCreatedScene
  * @category models
  * @since 0.0.0
  */
-export class ObsSceneSummary extends S.Class<ObsSceneSummary>($I`ObsSceneSummary`)(
-  {
+export class ObsSceneSummary extends S.Opaque<ObsSceneSummary, { readonly brand: unique symbol }>()(
+  S.Struct({
     sceneIndex: S.OptionFromOptionalKey(S.Int).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ObsSceneSummary.sceneIndex", {
@@ -1281,10 +1309,11 @@ export class ObsSceneSummary extends S.Class<ObsSceneSummary>($I`ObsSceneSummary
         description: "UUID of the scene, when the server reports one.",
       })
     ),
-  },
-  $I.annote("ObsSceneSummary", {
-    description: "One scene summary entry from obs-websocket GetSceneList.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsSceneSummary", {
+      description: "One scene summary entry from obs-websocket GetSceneList.",
+    })
+  )
 ) {}
 
 /**
@@ -1303,8 +1332,8 @@ export class ObsSceneSummary extends S.Class<ObsSceneSummary>($I`ObsSceneSummary
  * @category models
  * @since 0.0.0
  */
-export class ObsSceneList extends S.Class<ObsSceneList>($I`ObsSceneList`)(
-  {
+export class ObsSceneList extends S.Opaque<ObsSceneList, { readonly brand: unique symbol }>()(
+  S.Struct({
     currentProgramSceneName: S.OptionFromNullOr(S.String).pipe(
       $I.annoteKey("ObsSceneList.currentProgramSceneName", {
         description: "Current program scene name; none when null (non-main canvas or internal state desync).",
@@ -1315,10 +1344,11 @@ export class ObsSceneList extends S.Class<ObsSceneList>($I`ObsSceneList`)(
         description: "Scenes known to OBS.",
       })
     ),
-  },
-  $I.annote("ObsSceneList", {
-    description: "obs-websocket GetSceneList response payload subset.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsSceneList", {
+      description: "obs-websocket GetSceneList response payload subset.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsSceneList);
 }
@@ -1339,8 +1369,8 @@ export class ObsSceneList extends S.Class<ObsSceneList>($I`ObsSceneList`)(
  * @category models
  * @since 0.0.0
  */
-export class ObsCreatedInput extends S.Class<ObsCreatedInput>($I`ObsCreatedInput`)(
-  {
+export class ObsCreatedInput extends S.Opaque<ObsCreatedInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputUuid: S.OptionFromOptionalKey(S.String).pipe(
       S.withConstructorDefault(Effect.succeedNone),
       $I.annoteKey("ObsCreatedInput.inputUuid", {
@@ -1352,10 +1382,11 @@ export class ObsCreatedInput extends S.Class<ObsCreatedInput>($I`ObsCreatedInput
         description: "ID of the newly created scene item.",
       })
     ),
-  },
-  $I.annote("ObsCreatedInput", {
-    description: "obs-websocket CreateInput response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsCreatedInput", {
+      description: "obs-websocket CreateInput response payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsCreatedInput);
 }
@@ -1378,8 +1409,8 @@ export class ObsCreatedInput extends S.Class<ObsCreatedInput>($I`ObsCreatedInput
  * @category models
  * @since 0.0.0
  */
-export class ObsInputSettingsInfo extends S.Class<ObsInputSettingsInfo>($I`ObsInputSettingsInfo`)(
-  {
+export class ObsInputSettingsInfo extends S.Opaque<ObsInputSettingsInfo, { readonly brand: unique symbol }>()(
+  S.Struct({
     inputKind: S.String.pipe(
       $I.annoteKey("ObsInputSettingsInfo.inputKind", {
         description: "The kind of the input.",
@@ -1390,10 +1421,11 @@ export class ObsInputSettingsInfo extends S.Class<ObsInputSettingsInfo>($I`ObsIn
         description: "Settings object for the input (defaults not included).",
       })
     ),
-  },
-  $I.annote("ObsInputSettingsInfo", {
-    description: "obs-websocket GetInputSettings response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsInputSettingsInfo", {
+      description: "obs-websocket GetInputSettings response payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsInputSettingsInfo);
 }
@@ -1414,17 +1446,18 @@ export class ObsInputSettingsInfo extends S.Class<ObsInputSettingsInfo>($I`ObsIn
  * @category models
  * @since 0.0.0
  */
-export class ObsSceneItemList extends S.Class<ObsSceneItemList>($I`ObsSceneItemList`)(
-  {
+export class ObsSceneItemList extends S.Opaque<ObsSceneItemList, { readonly brand: unique symbol }>()(
+  S.Struct({
     sceneItems: S.Array(UnknownRecord).pipe(
       $I.annoteKey("ObsSceneItemList.sceneItems", {
         description: "Raw scene item records in the scene.",
       })
     ),
-  },
-  $I.annote("ObsSceneItemList", {
-    description: "obs-websocket GetSceneItemList response payload.",
-  })
+  }).pipe(
+    $I.annoteSchema("ObsSceneItemList", {
+      description: "obs-websocket GetSceneItemList response payload.",
+    })
+  )
 ) {
   static readonly decodeEffect = S.decodeUnknownEffect(ObsSceneItemList);
 }

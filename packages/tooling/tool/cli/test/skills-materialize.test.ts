@@ -556,6 +556,48 @@ layer(TestLayer, { timeout: "60 seconds" })("skills materialize", (it) => {
     })
   );
 
+  it.effect("refuses a symlinked install directory outside the repository before publishing", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* makeRepo("linked");
+      const outside = yield* fs.makeTempDirectoryScoped({ prefix: "skills-materialize-outside-" });
+      const outsideSkill = path.join(outside, SKILL);
+      yield* fs.makeDirectory(outsideSkill, { recursive: true });
+      yield* fs.writeFileString(path.join(outsideSkill, "SKILL.md"), "outside sentinel\n");
+      yield* fs.remove(path.join(repoRoot, ".agents/skills"));
+      yield* fs.symlink(outside, path.join(repoRoot, ".agents/skills"));
+      yield* fs.writeFileString(path.join(repoRoot, CLAUDE_TARGET, "SKILL.md"), "hand edit\n");
+
+      const refused = yield* materialize(repoRoot, "write").pipe(Effect.flip);
+      expect(refused._tag).toBe("SkillsCommandError");
+      expect(refused.message).toContain("outside the repository");
+      expect(yield* fs.readFileString(path.join(outsideSkill, "SKILL.md"))).toBe("outside sentinel\n");
+      expect(yield* fs.readFileString(path.join(repoRoot, CLAUDE_TARGET, "SKILL.md"))).toBe("hand edit\n");
+      expect(yield* fs.exists(path.join(outside, ".skills-materialize"))).toBe(false);
+    })
+  );
+
+  it.effect("refuses a skills link into an unrelated repository directory", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const repoRoot = yield* makeRepo("linked");
+      const unrelatedSkill = path.join(repoRoot, "unrelated", SKILL);
+      yield* fs.makeDirectory(unrelatedSkill, { recursive: true });
+      yield* fs.writeFileString(path.join(unrelatedSkill, "SKILL.md"), "unrelated sentinel\n");
+      yield* fs.remove(path.join(repoRoot, ".agents/skills"));
+      yield* fs.symlink("../unrelated", path.join(repoRoot, ".agents/skills"));
+      yield* fs.writeFileString(path.join(repoRoot, CLAUDE_TARGET, "SKILL.md"), "hand edit\n");
+
+      const refused = yield* materialize(repoRoot, "write").pipe(Effect.flip);
+      expect(refused._tag).toBe("SkillsCommandError");
+      expect(refused.message).toContain("permitted skills directories");
+      expect(yield* fs.readFileString(path.join(unrelatedSkill, "SKILL.md"))).toBe("unrelated sentinel\n");
+      expect(yield* fs.readFileString(path.join(repoRoot, CLAUDE_TARGET, "SKILL.md"))).toBe("hand edit\n");
+    })
+  );
+
   it.effect("refuses an unverified pristine tree or patch before writing anything", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;

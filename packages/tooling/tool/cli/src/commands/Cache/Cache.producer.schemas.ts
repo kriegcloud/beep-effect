@@ -38,15 +38,16 @@ const $I = $RepoCliId.create("commands/Cache/Cache.producer.schemas");
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerBundle extends S.Class<CacheProducerBundle>($I`CacheProducerBundle`)(
-  {
+export class CacheProducerBundle extends S.Opaque<CacheProducerBundle, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-producer-bundle/v1"),
     pilot: CacheSignedPilotReceipt,
     protocol: CacheProtocolExecution,
-  },
-  $I.annote("CacheProducerBundle", {
-    description: "One channel's complete native pilot and conformance observations; authentication remains separate.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProducerBundle", {
+      description: "One channel's complete native pilot and conformance observations; authentication remains separate.",
+    })
+  )
 ) {}
 
 /**
@@ -61,8 +62,8 @@ export class CacheProducerBundle extends S.Class<CacheProducerBundle>($I`CachePr
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerBinding extends S.Class<CacheProducerBinding>($I`CacheProducerBinding`)(
-  {
+export class CacheProducerBinding extends S.Opaque<CacheProducerBinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     sourceRevision: GitObjectId,
     workflowRevision: GitObjectId,
     workflowImplementation: Sha256Hex,
@@ -77,10 +78,11 @@ export class CacheProducerBinding extends S.Class<CacheProducerBinding>($I`Cache
     signedConfigurationDigest: Sha256Hex,
     toolchainDigest: Sha256Hex,
     signedRootConfiguration: Sha256Hex,
-  },
-  $I.annote("CacheProducerBinding", {
-    description: "Trusted workflow and live computation identities expected by a receipt verifier.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProducerBinding", {
+      description: "Trusted workflow and live computation identities expected by a receipt verifier.",
+    })
+  )
 ) {}
 
 /**
@@ -95,11 +97,16 @@ export class CacheProducerBinding extends S.Class<CacheProducerBinding>($I`Cache
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerApproval extends S.Class<CacheProducerApproval>($I`CacheProducerApproval`)(
-  { schemaVersion: S.tag("cache-producer-approval/v3"), binding: CacheProducerBinding, contract: CacheTaskContract },
-  $I.annote("CacheProducerApproval", {
-    description: "Private complete task contract and its independently approved workflow binding.",
-  })
+export class CacheProducerApproval extends S.Opaque<CacheProducerApproval, { readonly brand: unique symbol }>()(
+  S.Struct({
+    schemaVersion: S.tag("cache-producer-approval/v3"),
+    binding: CacheProducerBinding,
+    contract: CacheTaskContract,
+  }).pipe(
+    $I.annoteSchema("CacheProducerApproval", {
+      description: "Private complete task contract and its independently approved workflow binding.",
+    })
+  )
 ) {}
 
 /**
@@ -119,13 +126,19 @@ export class CacheProducerApproval extends S.Class<CacheProducerApproval>($I`Cac
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerEvidenceFragment extends S.Class<CacheProducerEvidenceFragment>(
-  $I`CacheProducerEvidenceFragment`
-)(
-  { reference: CacheEvidenceReference, contents: S.NonEmptyString, observation: CacheQualificationObservation },
-  $I.annote("CacheProducerEvidenceFragment", {
-    description: "Exact projected native evidence bytes and their bound policy row.",
-  })
+export class CacheProducerEvidenceFragment extends S.Opaque<
+  CacheProducerEvidenceFragment,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
+    reference: CacheEvidenceReference,
+    contents: S.NonEmptyString,
+    observation: CacheQualificationObservation,
+  }).pipe(
+    $I.annoteSchema("CacheProducerEvidenceFragment", {
+      description: "Exact projected native evidence bytes and their bound policy row.",
+    })
+  )
 ) {}
 
 /**
@@ -140,18 +153,19 @@ export class CacheProducerEvidenceFragment extends S.Class<CacheProducerEvidence
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerBody extends S.Class<CacheProducerBody>($I`CacheProducerBody`)(
-  {
+export class CacheProducerBody extends S.Opaque<CacheProducerBody, { readonly brand: unique symbol }>()(
+  S.Struct({
     schemaVersion: S.tag("cache-producer-envelope-body/v2"),
     issuer: Sha256Hex,
     binding: CacheProducerBinding,
     payloadSha256: Sha256Hex,
     issuedAtMs: S.Natural,
     expiresAtMs: S.Natural,
-  },
-  $I.annote("CacheProducerBody", {
-    description: "Versioned identity, payload digest and bounded validity authenticated by an issuer.",
-  })
+  }).pipe(
+    $I.annoteSchema("CacheProducerBody", {
+      description: "Versioned identity, payload digest and bounded validity authenticated by an issuer.",
+    })
+  )
 ) {}
 
 /**
@@ -166,9 +180,10 @@ export class CacheProducerBody extends S.Class<CacheProducerBody>($I`CacheProduc
  * @category schemas
  * @since 0.0.0
  */
-export class CacheProducerEnvelope extends S.Class<CacheProducerEnvelope>($I`CacheProducerEnvelope`)(
-  { body: CacheProducerBody, mac: Sha256Hex },
-  $I.annote("CacheProducerEnvelope", {
-    description: "Authenticated producer body requiring a separately trusted issuer to verify.",
-  })
+export class CacheProducerEnvelope extends S.Opaque<CacheProducerEnvelope, { readonly brand: unique symbol }>()(
+  S.Struct({ body: CacheProducerBody, mac: Sha256Hex }).pipe(
+    $I.annoteSchema("CacheProducerEnvelope", {
+      description: "Authenticated producer body requiring a separately trusted issuer to verify.",
+    })
+  )
 ) {}

@@ -36,15 +36,16 @@ const $I = $SemanticaId.create("corpus/ByteWitness");
  * @category models
  * @since 0.0.0
  */
-export class ByteExpectation extends S.Class<ByteExpectation>($I`ByteExpectation`)(
-  {
+export class ByteExpectation extends S.Opaque<ByteExpectation, { readonly brand: unique symbol }>()(
+  S.Struct({
     relativePath: S.NonEmptyString,
     sha256: Sha256Hex,
     bytes: S.Natural,
-  },
-  $I.annote("ByteExpectation", {
-    description: "Expected relative path, SHA-256 digest, and byte length for one witnessed file.",
-  })
+  }).pipe(
+    $I.annoteSchema("ByteExpectation", {
+      description: "Expected relative path, SHA-256 digest, and byte length for one witnessed file.",
+    })
+  )
 ) {}
 
 const ByteDriftKind = LiteralKit(["missing-file", "sha256-mismatch", "bytes-mismatch"]).annotate(

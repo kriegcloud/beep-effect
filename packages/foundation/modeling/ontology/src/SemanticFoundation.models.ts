@@ -186,15 +186,16 @@ export type SkosMappingKind = typeof SkosMappingKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class ConceptAlignment extends S.Class<ConceptAlignment>($I`ConceptAlignment`)(
-  {
+export class ConceptAlignment extends S.Opaque<ConceptAlignment, { readonly brand: unique symbol }>()(
+  S.Struct({
     conceptIri: IRIReference,
     kind: SkosMappingKind,
     sourceIri: IRIReference,
-  },
-  $I.annote("ConceptAlignment", {
-    description: "Vetted external SKOS mapping metadata for a repo-owned concept.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConceptAlignment", {
+      description: "Vetted external SKOS mapping metadata for a repo-owned concept.",
+    })
+  )
 ) {}
 
 /**
@@ -217,8 +218,8 @@ export class ConceptAlignment extends S.Class<ConceptAlignment>($I`ConceptAlignm
  * @category models
  * @since 0.0.0
  */
-export class TaxonomyConcept extends S.Class<TaxonomyConcept>($I`TaxonomyConcept`)(
-  {
+export class TaxonomyConcept extends S.Opaque<TaxonomyConcept, { readonly brand: unique symbol }>()(
+  S.Struct({
     alignments: S.Array(ConceptAlignment),
     broader: S.Array(IRIReference),
     definition: S.NonEmptyString,
@@ -226,10 +227,11 @@ export class TaxonomyConcept extends S.Class<TaxonomyConcept>($I`TaxonomyConcept
     filingSegment: FilingSegment,
     iri: IRIReference,
     prefLabel: S.NonEmptyString,
-  },
-  $I.annote("TaxonomyConcept", {
-    description: "One repository-owned SKOS concept with filing and document-class metadata.",
-  })
+  }).pipe(
+    $I.annoteSchema("TaxonomyConcept", {
+      description: "One repository-owned SKOS concept with filing and document-class metadata.",
+    })
+  )
 ) {}
 
 /**
@@ -284,9 +286,10 @@ export type FilingRootKind = typeof FilingRootKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class FilingRoot extends S.Class<FilingRoot>($I`FilingRoot`)(
-  { iri: IRIReference, kind: FilingRootKind, rootSegment: FilingSegment },
-  $I.annote("FilingRoot", { description: "Vocabulary data for a local or mirrored filing root." })
+export class FilingRoot extends S.Opaque<FilingRoot, { readonly brand: unique symbol }>()(
+  S.Struct({ iri: IRIReference, kind: FilingRootKind, rootSegment: FilingSegment }).pipe(
+    $I.annoteSchema("FilingRoot", { description: "Vocabulary data for a local or mirrored filing root." })
+  )
 ) {}
 
 /**
@@ -302,15 +305,18 @@ export class FilingRoot extends S.Class<FilingRoot>($I`FilingRoot`)(
  * @category models
  * @since 0.0.0
  */
-export class TaxonomySeed extends S.Class<TaxonomySeed>($I`TaxonomySeed`)(
-  {
+export class TaxonomySeed extends S.Opaque<TaxonomySeed, { readonly brand: unique symbol }>()(
+  S.Struct({
     concepts: S.Array(TaxonomyConcept),
     filingRoots: S.Array(FilingRoot),
     pathTemplateSegments: S.Array(FilingSegment),
     schemeIri: IRIReference,
     title: S.NonEmptyString,
-  },
-  $I.annote("TaxonomySeed", { description: "A loadable SKOS taxonomy seed and its filing vocabulary metadata." })
+  }).pipe(
+    $I.annoteSchema("TaxonomySeed", {
+      description: "A loadable SKOS taxonomy seed and its filing vocabulary metadata.",
+    })
+  )
 ) {
   static readonly fromUnknownJsonStringEffect = S.decodeUnknownEffect(S.fromJsonString(TaxonomySeed));
 }

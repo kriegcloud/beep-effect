@@ -31,7 +31,7 @@ const $I = $AcpId.create("errors");
  * @category errors
  * @since 0.0.0
  */
-export class AcpSpawnError extends S.TaggedError<AcpSpawnError>($I`AcpSpawnError`)(
+export class AcpSpawnError extends S.TaggedError<AcpSpawnError, { readonly brand: unique symbol }>($I`AcpSpawnError`)(
   "AcpSpawnError",
   {
     cause: S.OptionFromOptionalKey(
@@ -73,7 +73,9 @@ export class AcpSpawnError extends S.TaggedError<AcpSpawnError>($I`AcpSpawnError
  * @category errors
  * @since 0.0.0
  */
-export class AcpProcessExitedError extends S.TaggedError<AcpProcessExitedError>($I`AcpProcessExitedError`)(
+export class AcpProcessExitedError extends S.TaggedError<AcpProcessExitedError, { readonly brand: unique symbol }>(
+  $I`AcpProcessExitedError`
+)(
   "AcpProcessExitedError",
   {
     cause: S.OptionFromOptionalKey(
@@ -116,7 +118,9 @@ export class AcpProcessExitedError extends S.TaggedError<AcpProcessExitedError>(
  * @category errors
  * @since 0.0.0
  */
-export class AcpProtocolParseError extends S.TaggedError<AcpProtocolParseError>($I`AcpProtocolParseError`)(
+export class AcpProtocolParseError extends S.TaggedError<AcpProtocolParseError, { readonly brand: unique symbol }>(
+  $I`AcpProtocolParseError`
+)(
   "AcpProtocolParseError",
   {
     cause: S.OptionFromOptionalKey(
@@ -166,7 +170,9 @@ export class AcpProtocolParseError extends S.TaggedError<AcpProtocolParseError>(
  * @category errors
  * @since 0.0.0
  */
-export class AcpTransportError extends S.TaggedError<AcpTransportError>($I`AcpTransportError`)(
+export class AcpTransportError extends S.TaggedError<AcpTransportError, { readonly brand: unique symbol }>(
+  $I`AcpTransportError`
+)(
   "AcpTransportError",
   {
     cause: S.OptionFromOptionalKey(
@@ -200,7 +206,9 @@ export class AcpTransportError extends S.TaggedError<AcpTransportError>($I`AcpTr
  * @category errors
  * @since 0.0.0
  */
-export class AcpRequestError extends S.TaggedError<AcpRequestError>($I`AcpRequestError`)(
+export class AcpRequestError extends S.TaggedError<AcpRequestError, { readonly brand: unique symbol }>(
+  $I`AcpRequestError`
+)(
   "AcpRequestError",
   {
     code: AcpSchema.ErrorCode.annotateKey({

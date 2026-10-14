@@ -309,13 +309,14 @@ export type FileProcessingSkipReason = typeof FileProcessingSkipReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class StrategyPreference extends S.Class<StrategyPreference>($I`StrategyPreference`)(
-  {
+export class StrategyPreference extends S.Opaque<StrategyPreference, { readonly brand: unique symbol }>()(
+  S.Struct({
     engine: FileProcessingEngineFamily,
-  },
-  $I.annote("StrategyPreference", {
-    description: "Engine preference requested for a file-processing operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("StrategyPreference", {
+      description: "Engine preference requested for a file-processing operation.",
+    })
+  )
 ) {}
 
 /**
@@ -339,16 +340,17 @@ export class StrategyPreference extends S.Class<StrategyPreference>($I`StrategyP
  * @category models
  * @since 0.0.0
  */
-export class SupportedSelectedStrategy extends S.Class<SupportedSelectedStrategy>($I`SupportedSelectedStrategy`)(
-  {
+export class SupportedSelectedStrategy extends S.Opaque<SupportedSelectedStrategy, { readonly brand: unique symbol }>()(
+  S.Struct({
     disposition: S.Literal("supported"),
     engine: FileProcessingEngineFamily,
     format: FileFormatFamily,
     operationKind: FileProcessingOperationKind,
-  },
-  $I.annote("SupportedSelectedStrategy", {
-    description: "Resolved strategy for a supported source artifact operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("SupportedSelectedStrategy", {
+      description: "Resolved strategy for a supported source artifact operation.",
+    })
+  )
 ) {}
 
 /**
@@ -373,17 +375,18 @@ export class SupportedSelectedStrategy extends S.Class<SupportedSelectedStrategy
  * @category models
  * @since 0.0.0
  */
-export class DeferredSelectedStrategy extends S.Class<DeferredSelectedStrategy>($I`DeferredSelectedStrategy`)(
-  {
+export class DeferredSelectedStrategy extends S.Opaque<DeferredSelectedStrategy, { readonly brand: unique symbol }>()(
+  S.Struct({
     disposition: S.Literal("deferred"),
     engine: FileProcessingEngineFamily,
     format: FileFormatFamily,
     operationKind: FileProcessingOperationKind,
     skipReason: FileProcessingSkipReason,
-  },
-  $I.annote("DeferredSelectedStrategy", {
-    description: "Resolved strategy for an intentionally deferred source artifact operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("DeferredSelectedStrategy", {
+      description: "Resolved strategy for an intentionally deferred source artifact operation.",
+    })
+  )
 ) {}
 
 /**
@@ -408,17 +411,21 @@ export class DeferredSelectedStrategy extends S.Class<DeferredSelectedStrategy>(
  * @category models
  * @since 0.0.0
  */
-export class UnsupportedSelectedStrategy extends S.Class<UnsupportedSelectedStrategy>($I`UnsupportedSelectedStrategy`)(
-  {
+export class UnsupportedSelectedStrategy extends S.Opaque<
+  UnsupportedSelectedStrategy,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     disposition: S.Literal("unsupported"),
     engine: FileProcessingEngineFamily,
     format: FileFormatFamily,
     operationKind: FileProcessingOperationKind,
     skipReason: FileProcessingSkipReason,
-  },
-  $I.annote("UnsupportedSelectedStrategy", {
-    description: "Resolved strategy for an unsupported source artifact operation.",
-  })
+  }).pipe(
+    $I.annoteSchema("UnsupportedSelectedStrategy", {
+      description: "Resolved strategy for an unsupported source artifact operation.",
+    })
+  )
 ) {}
 
 /**
@@ -507,9 +514,10 @@ export type SelectedStrategy = typeof SelectedStrategy.Type;
  * @category models
  * @since 0.0.0
  */
-export class FileProcessingEngineDescriptor extends S.Class<FileProcessingEngineDescriptor>(
-  $I`FileProcessingEngineDescriptor`
-)(
+export class FileProcessingEngineDescriptor extends S.Class<
+  FileProcessingEngineDescriptor,
+  { readonly brand: unique symbol }
+>($I`FileProcessingEngineDescriptor`)(
   {
     capabilities: S.Array(FileProcessingCapability),
     engine: FileProcessingEngineFamily,

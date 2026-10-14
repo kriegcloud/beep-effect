@@ -117,15 +117,16 @@ const SiteCount = S.Int.check(S.isGreaterThanOrEqualTo(0)).pipe(
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodEdit extends S.Class<SchemaParityCodemodEdit>($I`SchemaParityCodemodEdit`)(
-  {
+export class SchemaParityCodemodEdit extends S.Opaque<SchemaParityCodemodEdit, { readonly brand: unique symbol }>()(
+  S.Struct({
     start: SourceOffset,
     end: SourceOffset,
     text: S.String,
-  },
-  $I.annote("SchemaParityCodemodEdit", {
-    description: "One text replacement planned against a file's original text.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodEdit", {
+      description: "One text replacement planned against a file's original text.",
+    })
+  )
 ) {}
 
 /**
@@ -200,8 +201,8 @@ export type SchemaParityCodemodImport = typeof SchemaParityCodemodImport.Type;
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodSite extends S.Class<SchemaParityCodemodSite>($I`SchemaParityCodemodSite`)(
-  {
+export class SchemaParityCodemodSite extends S.Opaque<SchemaParityCodemodSite, { readonly brand: unique symbol }>()(
+  S.Struct({
     ruleId: SchemaParityCodemodRuleId,
     facet: S.NonEmptyString,
     filePath: S.String,
@@ -209,10 +210,11 @@ export class SchemaParityCodemodSite extends S.Class<SchemaParityCodemodSite>($I
     column: SourcePosition,
     before: S.String,
     after: S.String,
-  },
-  $I.annote("SchemaParityCodemodSite", {
-    description: "One occurrence a codemod rule rewrites, with its before and after text.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodSite", {
+      description: "One occurrence a codemod rule rewrites, with its before and after text.",
+    })
+  )
 ) {}
 
 /**
@@ -244,8 +246,11 @@ export class SchemaParityCodemodSite extends S.Class<SchemaParityCodemodSite>($I
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodResidue extends S.Class<SchemaParityCodemodResidue>($I`SchemaParityCodemodResidue`)(
-  {
+export class SchemaParityCodemodResidue extends S.Opaque<
+  SchemaParityCodemodResidue,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ruleId: SchemaParityCodemodRuleId,
     facet: S.NonEmptyString,
     filePath: S.String,
@@ -253,10 +258,11 @@ export class SchemaParityCodemodResidue extends S.Class<SchemaParityCodemodResid
     column: SourcePosition,
     text: S.String,
     reason: S.NonEmptyString,
-  },
-  $I.annote("SchemaParityCodemodResidue", {
-    description: "An occurrence a codemod rule matched but cannot rewrite mechanically.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodResidue", {
+      description: "An occurrence a codemod rule matched but cannot rewrite mechanically.",
+    })
+  )
 ) {}
 
 /**
@@ -282,16 +288,18 @@ export class SchemaParityCodemodResidue extends S.Class<SchemaParityCodemodResid
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodQuarantine extends S.Class<SchemaParityCodemodQuarantine>(
-  $I`SchemaParityCodemodQuarantine`
-)(
-  {
+export class SchemaParityCodemodQuarantine extends S.Opaque<
+  SchemaParityCodemodQuarantine,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
     reason: S.NonEmptyString,
-  },
-  $I.annote("SchemaParityCodemodQuarantine", {
-    description: "A file the schema-parity codemod engine refused to write.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodQuarantine", {
+      description: "A file the schema-parity codemod engine refused to write.",
+    })
+  )
 ) {}
 
 /**
@@ -309,8 +317,11 @@ export class SchemaParityCodemodQuarantine extends S.Class<SchemaParityCodemodQu
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodRulePlan extends S.Class<SchemaParityCodemodRulePlan>($I`SchemaParityCodemodRulePlan`)(
-  {
+export class SchemaParityCodemodRulePlan extends S.Opaque<
+  SchemaParityCodemodRulePlan,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     edits: S.Array(SchemaParityCodemodEdit).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<SchemaParityCodemodEdit>()))
     ),
@@ -323,10 +334,11 @@ export class SchemaParityCodemodRulePlan extends S.Class<SchemaParityCodemodRule
     residue: S.Array(SchemaParityCodemodResidue).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<SchemaParityCodemodResidue>()))
     ),
-  },
-  $I.annote("SchemaParityCodemodRulePlan", {
-    description: "Edits, imports, rewritten sites and residue one codemod rule planned for one file.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodRulePlan", {
+      description: "Edits, imports, rewritten sites and residue one codemod rule planned for one file.",
+    })
+  )
 ) {}
 
 /**
@@ -400,8 +412,11 @@ export type SchemaParityCodemodFileOutcome = typeof SchemaParityCodemodFileOutco
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodOptions extends S.Class<SchemaParityCodemodOptions>($I`SchemaParityCodemodOptions`)(
-  {
+export class SchemaParityCodemodOptions extends S.Opaque<
+  SchemaParityCodemodOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     rules: S.NonEmptyArray(SchemaParityCodemodRuleId),
     paths: S.NonEmptyArray(S.NonEmptyString).pipe(
       S.withConstructorDefault(Effect.succeed<A.NonEmptyReadonlyArray<string>>(["packages", "apps"]))
@@ -411,10 +426,11 @@ export class SchemaParityCodemodOptions extends S.Class<SchemaParityCodemodOptio
     tsconfig: S.NonEmptyString.pipe(S.withConstructorDefault(Effect.succeed("tsconfig.json"))),
     root: S.optionalKey(S.NonEmptyString),
     report: S.optionalKey(S.NonEmptyString),
-  },
-  $I.annote("SchemaParityCodemodOptions", {
-    description: "Options accepted by a schema-parity codemod run.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodOptions", {
+      description: "Options accepted by a schema-parity codemod run.",
+    })
+  )
 ) {}
 
 /**
@@ -432,17 +448,19 @@ export class SchemaParityCodemodOptions extends S.Class<SchemaParityCodemodOptio
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodFacetCount extends S.Class<SchemaParityCodemodFacetCount>(
-  $I`SchemaParityCodemodFacetCount`
-)(
-  {
+export class SchemaParityCodemodFacetCount extends S.Opaque<
+  SchemaParityCodemodFacetCount,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ruleId: SchemaParityCodemodRuleId,
     facet: S.NonEmptyString,
     sites: SiteCount,
-  },
-  $I.annote("SchemaParityCodemodFacetCount", {
-    description: "Rewritten-site count for one schema-parity codemod rule facet.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodFacetCount", {
+      description: "Rewritten-site count for one schema-parity codemod rule facet.",
+    })
+  )
 ) {}
 
 /**
@@ -471,8 +489,8 @@ export class SchemaParityCodemodFacetCount extends S.Class<SchemaParityCodemodFa
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodReport extends S.Class<SchemaParityCodemodReport>($I`SchemaParityCodemodReport`)(
-  {
+export class SchemaParityCodemodReport extends S.Opaque<SchemaParityCodemodReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     mode: SchemaParityCodemodMode,
     rules: S.Array(SchemaParityCodemodRuleId),
     paths: S.Array(S.String),
@@ -483,10 +501,11 @@ export class SchemaParityCodemodReport extends S.Class<SchemaParityCodemodReport
     sites: S.Array(SchemaParityCodemodSite),
     residue: S.Array(SchemaParityCodemodResidue),
     quarantines: S.Array(SchemaParityCodemodQuarantine),
-  },
-  $I.annote("SchemaParityCodemodReport", {
-    description: "Result of one schema-parity codemod run.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodReport", {
+      description: "Result of one schema-parity codemod run.",
+    })
+  )
 ) {}
 
 /**
@@ -504,15 +523,17 @@ export class SchemaParityCodemodReport extends S.Class<SchemaParityCodemodReport
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodRuleContext extends S.Class<SchemaParityCodemodRuleContext>(
-  $I`SchemaParityCodemodRuleContext`
-)(
-  {
+export class SchemaParityCodemodRuleContext extends S.Opaque<
+  SchemaParityCodemodRuleContext,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     filePath: S.String,
-  },
-  $I.annote("SchemaParityCodemodRuleContext", {
-    description: "Per-file context a schema-parity codemod rule receives while planning.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodRuleContext", {
+      description: "Per-file context a schema-parity codemod rule receives while planning.",
+    })
+  )
 ) {}
 
 type SchemaParityCodemodPlanner = (
@@ -555,14 +576,15 @@ const SchemaParityCodemodPlannerFunction = S.declare((input: unknown): input is 
  * @category models
  * @since 0.0.0
  */
-export class SchemaParityCodemodRule extends S.Class<SchemaParityCodemodRule>($I`SchemaParityCodemodRule`)(
-  {
+export class SchemaParityCodemodRule extends S.Opaque<SchemaParityCodemodRule, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: SchemaParityCodemodRuleId,
     description: S.NonEmptyString,
     candidatePattern: S.RegExp,
     plan: SchemaParityCodemodPlannerFunction,
-  },
-  $I.annote("SchemaParityCodemodRule", {
-    description: "A registered schema-parity codemod rule: identity, text prefilter and planner.",
-  })
+  }).pipe(
+    $I.annoteSchema("SchemaParityCodemodRule", {
+      description: "A registered schema-parity codemod rule: identity, text prefilter and planner.",
+    })
+  )
 ) {}

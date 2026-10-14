@@ -54,8 +54,8 @@ const $I = $PracticeKgMcpId.create("runtime/SelfCheck");
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgSelfCheckReport extends S.Class<PracticeKgSelfCheckReport>($I`PracticeKgSelfCheckReport`)(
-  {
+export class PracticeKgSelfCheckReport extends S.Opaque<PracticeKgSelfCheckReport, { readonly brand: unique symbol }>()(
+  S.Struct({
     ok: S.tag(true),
     extensionVersion: S.NonEmptyString,
     bundleVersion: S.NonEmptyString,
@@ -63,10 +63,11 @@ export class PracticeKgSelfCheckReport extends S.Class<PracticeKgSelfCheckReport
     nodes: S.Natural,
     matters: S.Natural,
     tools: S.Natural,
-  },
-  $I.annote("PracticeKgSelfCheckReport", {
-    description: "Versions and store counts proving an installed practice KG host can read its bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgSelfCheckReport", {
+      description: "Versions and store counts proving an installed practice KG host can read its bundle.",
+    })
+  )
 ) {}
 
 /**
@@ -92,20 +93,25 @@ export class PracticeKgSelfCheckReport extends S.Class<PracticeKgSelfCheckReport
  * @category models
  * @since 0.0.0
  */
-export class PracticeKgSelfCheckRefusal extends S.Class<PracticeKgSelfCheckRefusal>($I`PracticeKgSelfCheckRefusal`)(
-  {
+export class PracticeKgSelfCheckRefusal extends S.Opaque<
+  PracticeKgSelfCheckRefusal,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     ok: S.tag(false),
     message: S.String,
     cause: S.optionalKey(S.String),
-  },
-  $I.annote("PracticeKgSelfCheckRefusal", {
-    description: "Reason an installed practice KG host could not read its bundle.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgSelfCheckRefusal", {
+      description: "Reason an installed practice KG host could not read its bundle.",
+    })
+  )
 ) {}
 
-class CountRow extends S.Class<CountRow>($I`CountRow`)(
-  { count: S.Natural },
-  $I.annote("CountRow", { description: "Single-row count returned by a self-check store query." })
+class CountRow extends S.Opaque<CountRow, { readonly brand: unique symbol }>()(
+  S.Struct({ count: S.Natural }).pipe(
+    $I.annoteSchema("CountRow", { description: "Single-row count returned by a self-check store query." })
+  )
 ) {}
 
 const decodeCountRows = S.decodeUnknownEffect(S.NonEmptyArray(CountRow));

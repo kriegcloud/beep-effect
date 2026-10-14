@@ -34,7 +34,7 @@ const OverrideValue: S.Codec<OverrideValue> = S.Union([
  * @category schemas
  * @since 0.0.0
  */
-export class BunExtension extends S.Class<BunExtension>($I`BunExtension`)({
+export class BunExtension extends S.Class<BunExtension, { readonly brand: unique symbol }>($I`BunExtension`)({
 	_tag: S.tag("bun").annotateKey({ description: "Identifies this extension as bun-specific lockfile data" }),
 	catalog: S.optionalKey(S.Record(S.String, S.Unknown)).annotateKey({ description: "Default unnamed catalog entries preserved from the bun lockfile" }),
 	catalogs: S.optionalKey(S.Record(S.String, S.Record(S.String, S.Unknown))).annotateKey({ description: "Catalog definitions preserved from the bun lockfile, keyed by catalog name" }),

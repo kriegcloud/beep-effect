@@ -133,6 +133,16 @@ const sha256Hex = (text: string) =>
   );
 
 describe("@beep/occt service", () => {
+  it.effect(
+    "rejects model specs exceeding the bounded overlap work limit",
+    Effect.fnUntraced(function* () {
+      const part = Part.make({ name: "box", add: [Box.make({ min: [0, 0, 0], max: [1, 1, 1] })] });
+      const decode = S.decodeUnknownEffect(ModelSpec);
+      const rejected = yield* Effect.flip(decode({ parts: A.makeBy(257, () => part) }));
+      expect(rejected.message).toContain("Expected at most 256 parts");
+      expect((yield* decode({ parts: A.makeBy(256, () => part) })).parts).toHaveLength(256);
+    })
+  );
   it.layer(TestLayer, { timeout: "60 seconds" })((it) => {
     it.effect(
       "reports kernel provenance",

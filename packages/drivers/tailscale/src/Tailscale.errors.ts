@@ -64,9 +64,10 @@ const commandContextFields = {
  * @category errors
  * @since 0.0.0
  */
-export class TailscaleCommandSpawnError extends S.TaggedError<TailscaleCommandSpawnError>(
-  $I`TailscaleCommandSpawnError`
-)(
+export class TailscaleCommandSpawnError extends S.TaggedError<
+  TailscaleCommandSpawnError,
+  { readonly brand: unique symbol }
+>($I`TailscaleCommandSpawnError`)(
   "TailscaleCommandSpawnError",
   {
     ...commandContextFields,
@@ -103,9 +104,10 @@ export class TailscaleCommandSpawnError extends S.TaggedError<TailscaleCommandSp
  * @category errors
  * @since 0.0.0
  */
-export class TailscaleCommandOutputError extends S.TaggedError<TailscaleCommandOutputError>(
-  $I`TailscaleCommandOutputError`
-)(
+export class TailscaleCommandOutputError extends S.TaggedError<
+  TailscaleCommandOutputError,
+  { readonly brand: unique symbol }
+>($I`TailscaleCommandOutputError`)(
   "TailscaleCommandOutputError",
   {
     ...commandContextFields,
@@ -143,7 +145,10 @@ export class TailscaleCommandOutputError extends S.TaggedError<TailscaleCommandO
  * @category errors
  * @since 0.0.0
  */
-export class TailscaleCommandExitError extends S.TaggedError<TailscaleCommandExitError>($I`TailscaleCommandExitError`)(
+export class TailscaleCommandExitError extends S.TaggedError<
+  TailscaleCommandExitError,
+  { readonly brand: unique symbol }
+>($I`TailscaleCommandExitError`)(
   "TailscaleCommandExitError",
   {
     ...commandContextFields,
@@ -187,9 +192,10 @@ export class TailscaleCommandExitError extends S.TaggedError<TailscaleCommandExi
  * @category errors
  * @since 0.0.0
  */
-export class TailscaleCommandTimeoutError extends S.TaggedError<TailscaleCommandTimeoutError>(
-  $I`TailscaleCommandTimeoutError`
-)(
+export class TailscaleCommandTimeoutError extends S.TaggedError<
+  TailscaleCommandTimeoutError,
+  { readonly brand: unique symbol }
+>($I`TailscaleCommandTimeoutError`)(
   "TailscaleCommandTimeoutError",
   {
     ...commandContextFields,
@@ -282,7 +288,10 @@ export type TailscaleCommandError = typeof TailscaleCommandError.Type;
  * @category errors
  * @since 0.0.0
  */
-export class TailscaleStatusParseError extends S.TaggedError<TailscaleStatusParseError>($I`TailscaleStatusParseError`)(
+export class TailscaleStatusParseError extends S.TaggedError<
+  TailscaleStatusParseError,
+  { readonly brand: unique symbol }
+>($I`TailscaleStatusParseError`)(
   "TailscaleStatusParseError",
   {
     cause: S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent)).annotateKey({

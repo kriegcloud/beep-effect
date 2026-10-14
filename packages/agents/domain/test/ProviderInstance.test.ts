@@ -105,9 +105,9 @@ describe("@beep/agents-domain ProviderInstance", () => {
         probedAt: probedAtIso,
       });
 
-      expect(authenticated).toBeInstanceOf(AuthenticatedSnapshot);
-      expect(unauthenticated).toBeInstanceOf(UnauthenticatedSnapshot);
-      expect(probeFailed).toBeInstanceOf(ProbeFailedSnapshot);
+      expect(S.is(AuthenticatedSnapshot)(authenticated)).toBe(true);
+      expect(S.is(UnauthenticatedSnapshot)(unauthenticated)).toBe(true);
+      expect(S.is(ProbeFailedSnapshot)(probeFailed)).toBe(true);
       expect(S.is(AuthSnapshot)(authenticated)).toBe(true);
       expect(AuthSnapshot.guards.authenticated(authenticated)).toBe(true);
       expect(AuthSnapshot.guards.unauthenticated(authenticated)).toBe(false);

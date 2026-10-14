@@ -283,8 +283,8 @@ const freshbooksConfigInputHeadersDefault = R.empty();
  * @category models
  * @since 0.0.0
  */
-export class FreshbooksConfigInput extends S.Class<FreshbooksConfigInput>($I`FreshbooksConfigInput`)(
-  {
+export class FreshbooksConfigInput extends S.Opaque<FreshbooksConfigInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     clientId: S.NonEmptyString.annotateKey({
       description: "FreshBooks OAuth application client id.",
     }),
@@ -314,8 +314,9 @@ export class FreshbooksConfigInput extends S.Class<FreshbooksConfigInput>($I`Fre
       .annotateKey({
         description: "Additional HTTP headers merged into FreshBooks API requests.",
       }),
-  },
-  $I.annote("FreshbooksConfigInput", {
-    description: "Runtime configuration accepted by the FreshBooks API driver layer.",
-  })
+  }).pipe(
+    $I.annoteSchema("FreshbooksConfigInput", {
+      description: "Runtime configuration accepted by the FreshBooks API driver layer.",
+    })
+  )
 ) {}

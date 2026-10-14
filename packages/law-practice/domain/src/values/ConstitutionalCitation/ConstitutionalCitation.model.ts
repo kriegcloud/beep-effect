@@ -50,8 +50,8 @@ const $I = $LawPracticeDomainId.create("values/ConstitutionalCitation/Constituti
  * @category models
  * @since 0.0.0
  */
-export class ConstitutionalCitation extends S.Class<ConstitutionalCitation>($I`ConstitutionalCitation`)(
-  {
+export class ConstitutionalCitation extends S.Opaque<ConstitutionalCitation, { readonly brand: unique symbol }>()(
+  S.Struct({
     ...CitationBase.fields,
     type: S.tag("constitutional"),
     jurisdiction: S.String.pipe(
@@ -116,10 +116,11 @@ export class ConstitutionalCitation extends S.Class<ConstitutionalCitation>($I`C
         description: "Component spans locating the sub-parts of this constitutional citation within the source text.",
       })
     ),
-  },
-  $I.annote("ConstitutionalCitation", {
-    description: "A parsed constitutional citation referencing an article, amendment, clause, or the Preamble.",
-  })
+  }).pipe(
+    $I.annoteSchema("ConstitutionalCitation", {
+      description: "A parsed constitutional citation referencing an article, amendment, clause, or the Preamble.",
+    })
+  )
 ) {}
 
 /**

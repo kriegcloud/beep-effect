@@ -116,18 +116,19 @@ const $I = $RepoCliId.create("commands/Yeet/internal/Converge");
  * @category models
  * @since 0.0.0
  */
-export class YeetConvergeObservation extends S.Class<YeetConvergeObservation>($I`YeetConvergeObservation`)(
-  {
+export class YeetConvergeObservation extends S.Opaque<YeetConvergeObservation, { readonly brand: unique symbol }>()(
+  S.Struct({
     checks: S.Array(YeetWatchCheck),
     headSha: S.NonEmptyString,
     mergeStateStatus: S.String,
     prNumber: S.Finite,
     threads: S.Array(YeetWatchThread),
-  },
-  $I.annote("YeetConvergeObservation", {
-    description:
-      "One pull-request observation narrowed to what inbox convergence reads: head, number, checks, threads and merge state.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetConvergeObservation", {
+      description:
+        "One pull-request observation narrowed to what inbox convergence reads: head, number, checks, threads and merge state.",
+    })
+  )
 ) {}
 
 // Review threads are wave-exempt: a push does not resolve them, so their rows
@@ -275,17 +276,18 @@ export const convergeYeetInbox = Effect.fn("Yeet.convergeInbox")(function* (
  * @category models
  * @since 0.0.0
  */
-export class YeetPrCommentWindow extends S.Class<YeetPrCommentWindow>($I`YeetPrCommentWindow`)(
-  {
+export class YeetPrCommentWindow extends S.Opaque<YeetPrCommentWindow, { readonly brand: unique symbol }>()(
+  S.Struct({
     actingLogin: S.NonEmptyString,
     headSha: S.NonEmptyString,
     prNumber: S.Finite,
     since: S.String,
-  },
-  $I.annote("YeetPrCommentWindow", {
-    description:
-      "The pull request, observed head, acting login and window start one until-ready comment poll converges into rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("YeetPrCommentWindow", {
+      description:
+        "The pull request, observed head, acting login and window start one until-ready comment poll converges into rows.",
+    })
+  )
 ) {}
 
 // The two top-level kinds, with the instant the stream orders them by. An

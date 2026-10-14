@@ -34,16 +34,17 @@ const decodeSha256HexFromBytes = S.decodeUnknownEffect(Sha256HexFromBytes);
  * @category models
  * @since 0.0.0
  */
-export class HashedSkillFile extends S.Class<HashedSkillFile>($I`HashedSkillFile`)(
-  {
+export class HashedSkillFile extends S.Opaque<HashedSkillFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: S.String,
     mode: SkillTreeMode,
     bytes: S.Uint8Array,
     sha256: Sha256Hex,
-  },
-  $I.annote("HashedSkillFile", {
-    description: "Binary-safe skill file paired with its canonical content digest.",
-  })
+  }).pipe(
+    $I.annoteSchema("HashedSkillFile", {
+      description: "Binary-safe skill file paired with its canonical content digest.",
+    })
+  )
 ) {}
 
 /**
@@ -53,16 +54,17 @@ export class HashedSkillFile extends S.Class<HashedSkillFile>($I`HashedSkillFile
  * @category models
  * @since 0.0.0
  */
-export class ComputedSkillTree extends S.Class<ComputedSkillTree>($I`ComputedSkillTree`)(
-  {
+export class ComputedSkillTree extends S.Opaque<ComputedSkillTree, { readonly brand: unique symbol }>()(
+  S.Struct({
     files: S.Array(HashedSkillFile),
     manifest: S.Array(SkillSnapshotFile),
     treeHash: Sha256Hex,
     manifestHash: Sha256Hex,
-  },
-  $I.annote("ComputedSkillTree", {
-    description: "Ordered mode-aware manifest plus pristine or effective aggregate hashes.",
-  })
+  }).pipe(
+    $I.annoteSchema("ComputedSkillTree", {
+      description: "Ordered mode-aware manifest plus pristine or effective aggregate hashes.",
+    })
+  )
 ) {}
 
 const normalizeSlashes = Str.replaceAll("\\", "/");

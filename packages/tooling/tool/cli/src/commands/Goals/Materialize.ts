@@ -37,6 +37,7 @@ import * as O from "effect/Option";
 import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { createContainedFileString } from "../../internal/cli/FsGuards.ts";
 import { assertJournalFileLockOwned, withJournalFileLock } from "../../internal/repo-run/AdmissionJournal.ts";
 import { removeEmptyDirectory } from "../../internal/repo-run/DirectoryHandle.ts";
 import { MaterializationReceipt, MaterializedFile } from "./Bootstrap.schemas.ts";
@@ -68,16 +69,12 @@ const refuseConflicted = (plan: MaterializationPlan) =>
 
 const fileErrorFor = (message: string) => GoalPlanOperationalError.new(message);
 
-const writeExclusive = Effect.fn("Goals.writeExclusive")(function* (absolutePath: string, payload: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  yield* fs
-    .makeDirectory(path.dirname(absolutePath), { recursive: true })
-    .pipe(Effect.mapError(fileErrorFor(`Failed to create the parent of ${absolutePath}.`)));
-  yield* fs
-    .writeFileString(absolutePath, payload, { flag: "wx" })
-    .pipe(Effect.mapError(fileErrorFor(`Refusing to write ${absolutePath}: it exists or cannot be created.`)));
-});
+const writeExclusive = (root: string, absolutePath: string, payload: string) =>
+  createContainedFileString(root, absolutePath, payload).pipe(
+    Effect.mapError(
+      fileErrorFor(`Refusing to write ${absolutePath}: it exists, escapes the packet, or cannot be created.`)
+    )
+  );
 
 const receiptFile = Effect.fn("Goals.receiptFile")(function* (entry: PlanEntry & { readonly payload: string }) {
   const digest = yield* sha256HexBytes(textEncoder.encode(entry.payload));
@@ -134,6 +131,15 @@ const removeIfEmpty = (absolutePath: string) => Effect.asVoid(removeEmptyDirecto
 const sweepStaleStages = Effect.fn("Goals.sweepStaleStages")(function* (goalsDir: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const goalsLink = yield* fs.readLink(goalsDir).pipe(
+    Effect.as(true),
+    Effect.orElseSucceed(() => false)
+  );
+  if (goalsLink) {
+    return yield* GoalPlanOperationalError.new("Refusing to sweep staging entries through a symlinked goals root.")(
+      undefined
+    );
+  }
   const entries = yield* fs.readDirectory(goalsDir).pipe(Effect.orElseSucceed(A.empty<string>));
   // Every removal is attempted; the failures are reported together by path.
   const outcomes = yield* Effect.forEach(A.filter(entries, Str.startsWith(".staging-")), (entry) => {
@@ -200,7 +206,12 @@ export const publishBootstrapPlan = Effect.fn("Goals.publishBootstrapPlan")(func
       .pipe(Effect.mapError(fileErrorFor(`Refusing to stage: ${stage} already exists or cannot be created.`)));
     yield* Effect.forEach(
       creates,
-      (entry) => writeExclusive(path.join(stage, path.relative(plan.packetPath, entry.path)), entry.payload),
+      (entry) =>
+        writeExclusive(
+          path.resolve(stage),
+          path.resolve(stage, path.relative(plan.packetPath, entry.path)),
+          entry.payload
+        ),
       { discard: true }
     );
     const validations = yield* validateStage(stage);
@@ -426,9 +437,13 @@ export const applyAdoptionPlan = Effect.fn("Goals.applyAdoptionPlan")(function* 
     { discard: true }
   );
   const creates = writtenCreates(plan);
-  yield* Effect.forEach(creates, (entry) => writeExclusive(path.join(repoRoot, entry.path), entry.payload), {
-    discard: true,
-  });
+  yield* Effect.forEach(
+    creates,
+    (entry) => writeExclusive(path.resolve(repoRoot), path.resolve(repoRoot, entry.path), entry.payload),
+    {
+      discard: true,
+    }
+  );
   const written = yield* Effect.forEach(creates, receiptFile);
   return MaterializationReceipt.make({
     planId: plan.planId,

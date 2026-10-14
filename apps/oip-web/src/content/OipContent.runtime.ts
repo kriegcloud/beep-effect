@@ -61,7 +61,9 @@ type OipContentLoadErrorOptions = {
  * @category errors
  * @since 0.0.0
  */
-export class OipContentLoadError extends S.TaggedError<OipContentLoadError>($I`OipContentLoadError`)(
+export class OipContentLoadError extends S.TaggedError<OipContentLoadError, { readonly brand: unique symbol }>(
+  $I`OipContentLoadError`
+)(
   "OipContentLoadError",
   {
     provider: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)),

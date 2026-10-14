@@ -115,15 +115,15 @@ export type DocumentSafetyPathSegment = typeof DocumentSafetyPathSegment.Type;
  * @category errors
  * @since 0.0.0
  */
-export class RawNodeSafetyViolation extends S.TaggedClass<RawNodeSafetyViolation>($I`RawNodeSafetyViolation`)(
-  "RawNode",
-  {
+export class RawNodeSafetyViolation extends S.Opaque<RawNodeSafetyViolation, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("RawNode", {
     path: S.Array(DocumentSafetyPathSegment),
     nodeTag: S.Literals(["rawMarkdown", "rawHtml"]),
-  },
-  $I.annote("RawNodeSafetyViolation", {
-    description: "Path-located trusted raw node rejected by the user-content boundary.",
-  })
+  }).pipe(
+    $I.annoteSchema("RawNodeSafetyViolation", {
+      description: "Path-located trusted raw node rejected by the user-content boundary.",
+    })
+  )
 ) {}
 
 /**
@@ -222,9 +222,8 @@ const urlSafetyViolationPathDefault = A.empty();
  * @category errors
  * @since 0.0.0
  */
-export class UrlSafetyViolation extends S.TaggedClass<UrlSafetyViolation>($I`UrlSafetyViolation`)(
-  "UnsafeUrl",
-  {
+export class UrlSafetyViolation extends S.Opaque<UrlSafetyViolation, { readonly brand: unique symbol }>()(
+  S.TaggedStruct("UnsafeUrl", {
     path: DocumentSafetyPathSegment.pipe(
       S.Array,
       S.withConstructorDefault(Effect.succeed(urlSafetyViolationPathDefault)),
@@ -233,10 +232,11 @@ export class UrlSafetyViolation extends S.TaggedClass<UrlSafetyViolation>($I`Url
     nodeTag: UrlNodeTag,
     destination: S.String,
     destinationKind: DestinationKind,
-  },
-  $I.annote("UrlSafetyViolation", {
-    description: "Path-located URL rejected by the canonical user-content policy.",
-  })
+  }).pipe(
+    $I.annoteSchema("UrlSafetyViolation", {
+      description: "Path-located URL rejected by the canonical user-content policy.",
+    })
+  )
 ) {}
 
 /**
@@ -255,7 +255,9 @@ export class UrlSafetyViolation extends S.TaggedClass<UrlSafetyViolation>($I`Url
  * @category errors
  * @since 0.0.0
  */
-export class ScalarSafetyViolation extends S.TaggedError<ScalarSafetyViolation>($I`ScalarSafetyViolation`)(
+export class ScalarSafetyViolation extends S.TaggedError<ScalarSafetyViolation, { readonly brand: unique symbol }>(
+  $I`ScalarSafetyViolation`
+)(
   "InvalidScalar",
   {
     path: S.Array(DocumentSafetyPathSegment),
@@ -284,9 +286,10 @@ export class ScalarSafetyViolation extends S.TaggedError<ScalarSafetyViolation>(
  * @category errors
  * @since 0.0.0
  */
-export class DuplicateFootnoteDefinitionSafetyViolation extends S.TaggedError<DuplicateFootnoteDefinitionSafetyViolation>(
-  $I`DuplicateFootnoteDefinitionSafetyViolation`
-)(
+export class DuplicateFootnoteDefinitionSafetyViolation extends S.TaggedError<
+  DuplicateFootnoteDefinitionSafetyViolation,
+  { readonly brand: unique symbol }
+>($I`DuplicateFootnoteDefinitionSafetyViolation`)(
   "DuplicateFootnoteDefinition",
   {
     identifier: FootnoteIdentifier,
@@ -324,9 +327,10 @@ export class DuplicateFootnoteDefinitionSafetyViolation extends S.TaggedError<Du
  * @category errors
  * @since 0.0.0
  */
-export class HtmlProjectionSafetyViolation extends S.TaggedError<HtmlProjectionSafetyViolation>(
-  $I`HtmlProjectionSafetyViolation`
-)(
+export class HtmlProjectionSafetyViolation extends S.TaggedError<
+  HtmlProjectionSafetyViolation,
+  { readonly brand: unique symbol }
+>($I`HtmlProjectionSafetyViolation`)(
   "HtmlProjection",
   HtmlConformanceIssue.fields,
   $I.annoteError<HtmlProjectionSafetyViolation>("HtmlProjectionSafetyViolation", {
@@ -353,9 +357,10 @@ export class HtmlProjectionSafetyViolation extends S.TaggedError<HtmlProjectionS
  * @category errors
  * @since 0.0.0
  */
-export class DocumentComplexitySafetyViolation extends S.TaggedError<DocumentComplexitySafetyViolation>(
-  $I`DocumentComplexitySafetyViolation`
-)(
+export class DocumentComplexitySafetyViolation extends S.TaggedError<
+  DocumentComplexitySafetyViolation,
+  { readonly brand: unique symbol }
+>($I`DocumentComplexitySafetyViolation`)(
   "DocumentComplexity",
   {
     maxNodes: S.Natural,

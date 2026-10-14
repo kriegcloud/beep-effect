@@ -72,7 +72,7 @@ export type PnpmCatalogs = typeof PnpmCatalogs.Type;
  * @category models
  * @since 0.0.0
  */
-export class PnpmExtension extends S.Class<PnpmExtension>($I`PnpmExtension`)({
+export class PnpmExtension extends S.Class<PnpmExtension, { readonly brand: unique symbol }>($I`PnpmExtension`)({
 	_tag: S.tag("pnpm").annotateKey({ description: "Identifies extension data preserved from a pnpm lockfile" }),
 	catalogs: S.optionalKey(PnpmCatalogs).annotateKey({ description: "Catalog definitions recorded in the lockfile, mapping catalog and package names to pinned versions or specifier/version pairs" }),
 	overrides: S.optionalKey(S.Record(S.String, S.String)).annotateKey({ description: "Dependency version overrides recorded in the pnpm lockfile header" }),

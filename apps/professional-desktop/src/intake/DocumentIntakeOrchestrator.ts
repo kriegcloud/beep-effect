@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { DocumentIntakeActionError, DocumentsRpcs } from "@beep/documents-use-cases/public";
+import { DocumentIntakeActionError, DocumentsRpcs, IntakeDroppedFileInput } from "@beep/documents-use-cases/public";
 import * as DocumentUseCases from "@beep/documents-use-cases/server";
 import { LogRedactedCauseOptions, logRedactedCause } from "@beep/observability/CauseRedaction";
 import { observeWorkflow } from "@beep/observability/Metric";
@@ -159,7 +159,7 @@ export const DocumentIntakeHandlersLive = DocumentsRpcs.toLayer(
               })
             );
             return yield* documentIntake
-              .intakeDroppedFile({ ...payload, vaultRootPath })
+              .intakeDroppedFile(IntakeDroppedFileInput.make({ ...payload, vaultRootPath }))
               .pipe(Effect.catch(toDocumentIntakeActionError("IntakeDroppedFile")));
           })
         );

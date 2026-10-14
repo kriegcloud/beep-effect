@@ -385,15 +385,16 @@ export type AssembledPredicateKind = typeof AssembledPredicateKind.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class FactLiteral extends S.Class<FactLiteral>($I`FactLiteral`)(
-  {
+export class FactLiteral extends S.Opaque<FactLiteral, { readonly brand: unique symbol }>()(
+  S.Struct({
     value: S.Union([S.String, S.Finite, S.Boolean]),
     datatypeIri: S.OptionFromOptionalKey(IRI),
     language: S.OptionFromOptionalKey(LanguageTag),
-  },
-  $I.annote("FactLiteral", {
-    description: "Resolved typed literal carried by an assembled fact.",
-  })
+  }).pipe(
+    $I.annoteSchema("FactLiteral", {
+      description: "Resolved typed literal carried by an assembled fact.",
+    })
+  )
 ) {}
 
 /**
@@ -457,16 +458,17 @@ export type FactObject = typeof FactObject.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class AssembledFact extends S.Class<AssembledFact>($I`AssembledFact`)(
-  {
+export class AssembledFact extends S.Opaque<AssembledFact, { readonly brand: unique symbol }>()(
+  S.Struct({
     subjectIri: IRI,
     predicateIri: IRI,
     object: FactObject,
     reverse: S.Boolean,
-  },
-  $I.annote("AssembledFact", {
-    description: "Assembled subject/predicate/object fact with a reverse marker.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssembledFact", {
+      description: "Assembled subject/predicate/object fact with a reverse marker.",
+    })
+  )
 ) {}
 
 /**
@@ -490,8 +492,8 @@ export class AssembledFact extends S.Class<AssembledFact>($I`AssembledFact`)(
  * @category schemas
  * @since 0.0.0
  */
-export class AssembledPredicate extends S.Class<AssembledPredicate>($I`AssembledPredicate`)(
-  {
+export class AssembledPredicate extends S.Opaque<AssembledPredicate, { readonly brand: unique symbol }>()(
+  S.Struct({
     key: S.NonEmptyString,
     term: S.NonEmptyString,
     termIri: IRI,
@@ -499,10 +501,11 @@ export class AssembledPredicate extends S.Class<AssembledPredicate>($I`Assembled
     description: S.OptionFromOptionalKey(S.NonEmptyString),
     rangeIri: S.OptionFromOptionalKey(IRI),
     reverse: S.Boolean,
-  },
-  $I.annote("AssembledPredicate", {
-    description: "Assembled field predicate with inferred datatype/object kind.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssembledPredicate", {
+      description: "Assembled field predicate with inferred datatype/object kind.",
+    })
+  )
 ) {}
 
 /**
@@ -525,18 +528,19 @@ export class AssembledPredicate extends S.Class<AssembledPredicate>($I`Assembled
  * @category schemas
  * @since 0.0.0
  */
-export class AssembledClass extends S.Class<AssembledClass>($I`AssembledClass`)(
-  {
+export class AssembledClass extends S.Opaque<AssembledClass, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     iri: IRI,
     curie: S.NonEmptyString,
     description: S.OptionFromOptionalKey(S.NonEmptyString),
     skos: S.OptionFromOptionalKey(SkosClassification),
     predicates: S.Array(AssembledPredicate),
-  },
-  $I.annote("AssembledClass", {
-    description: "Assembled ontology class with collected field predicates.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssembledClass", {
+      description: "Assembled ontology class with collected field predicates.",
+    })
+  )
 ) {}
 
 /**
@@ -600,15 +604,16 @@ export type OntologyWarningCode = typeof OntologyWarningCode.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class OntologyValidationWarning extends S.Class<OntologyValidationWarning>($I`OntologyValidationWarning`)(
-  {
+export class OntologyValidationWarning extends S.Opaque<OntologyValidationWarning, { readonly brand: unique symbol }>()(
+  S.Struct({
     code: OntologyWarningCode,
     message: S.NonEmptyString,
     subjectIri: S.OptionFromOptionalKey(IRI),
-  },
-  $I.annote("OntologyValidationWarning", {
-    description: "Observable SKOS gate warning on an assembled ontology.",
-  })
+  }).pipe(
+    $I.annoteSchema("OntologyValidationWarning", {
+      description: "Observable SKOS gate warning on an assembled ontology.",
+    })
+  )
 ) {}
 
 /**
@@ -633,18 +638,19 @@ export class OntologyValidationWarning extends S.Class<OntologyValidationWarning
  * @category schemas
  * @since 0.0.0
  */
-export class AssembledOntology extends S.Class<AssembledOntology>($I`AssembledOntology`)(
-  {
+export class AssembledOntology extends S.Opaque<AssembledOntology, { readonly brand: unique symbol }>()(
+  S.Struct({
     label: S.NonEmptyString,
     baseIri: IRI,
     prefix: S.NonEmptyString,
     classes: S.Array(AssembledClass),
     facts: S.Array(AssembledFact),
     warnings: S.Array(OntologyValidationWarning),
-  },
-  $I.annote("AssembledOntology", {
-    description: "Predicate-open assembled ontology with observable warnings.",
-  })
+  }).pipe(
+    $I.annoteSchema("AssembledOntology", {
+      description: "Predicate-open assembled ontology with observable warnings.",
+    })
+  )
 ) {}
 
 /**
@@ -715,7 +721,9 @@ export type OntologyAssemblyErrorReason = typeof OntologyAssemblyErrorReason.Typ
  * @category error-handling
  * @since 0.0.0
  */
-export class OntologyAssemblyError extends S.TaggedError<OntologyAssemblyError>($I`OntologyAssemblyError`)(
+export class OntologyAssemblyError extends S.TaggedError<OntologyAssemblyError, { readonly brand: unique symbol }>(
+  $I`OntologyAssemblyError`
+)(
   "OntologyAssemblyError",
   {
     reason: OntologyAssemblyErrorReason,

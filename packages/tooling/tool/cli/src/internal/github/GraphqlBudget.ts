@@ -65,9 +65,10 @@ export const GraphqlBudgetSource = LiteralKit(["graphql-probe", "rest-fallback"]
  * @category models
  * @since 0.0.0
  */
-export class GraphqlBudgetSnapshot extends S.Class<GraphqlBudgetSnapshot>($I`GraphqlBudgetSnapshot`)(
-  { remaining: S.Int, resetAt: S.DateTimeUtc, source: GraphqlBudgetSource },
-  $I.annote("GraphqlBudgetSnapshot", { description: "Remaining GraphQL points and the window reset time." })
+export class GraphqlBudgetSnapshot extends S.Opaque<GraphqlBudgetSnapshot, { readonly brand: unique symbol }>()(
+  S.Struct({ remaining: S.Int, resetAt: S.DateTimeUtc, source: GraphqlBudgetSource }).pipe(
+    $I.annoteSchema("GraphqlBudgetSnapshot", { description: "Remaining GraphQL points and the window reset time." })
+  )
 ) {}
 
 /**
@@ -90,9 +91,10 @@ export class GraphqlBudgetSnapshot extends S.Class<GraphqlBudgetSnapshot>($I`Gra
  * @category models
  * @since 0.0.0
  */
-export class GraphqlBudgetPolicy extends S.Class<GraphqlBudgetPolicy>($I`GraphqlBudgetPolicy`)(
-  { threshold: S.Int, wait: S.Boolean, maxWait: S.Duration },
-  $I.annote("GraphqlBudgetPolicy", { description: "How the GraphQL budget guard treats a low budget." })
+export class GraphqlBudgetPolicy extends S.Opaque<GraphqlBudgetPolicy, { readonly brand: unique symbol }>()(
+  S.Struct({ threshold: S.Int, wait: S.Boolean, maxWait: S.Duration }).pipe(
+    $I.annoteSchema("GraphqlBudgetPolicy", { description: "How the GraphQL budget guard treats a low budget." })
+  )
 ) {
   /** Wait up to 65 minutes when fewer than 25 points remain. */
   static readonly default = GraphqlBudgetPolicy.make({ threshold: 25, wait: true, maxWait: Duration.minutes(65) });
@@ -117,9 +119,10 @@ export const GraphqlBudgetAction = LiteralKit(["proceed", "wait", "refuse"]).pip
  * @category models
  * @since 0.0.0
  */
-export class GraphqlBudgetDecision extends S.Class<GraphqlBudgetDecision>($I`GraphqlBudgetDecision`)(
-  { action: GraphqlBudgetAction, waitFor: S.Duration },
-  $I.annote("GraphqlBudgetDecision", { description: "The guard's decision for a budget snapshot." })
+export class GraphqlBudgetDecision extends S.Opaque<GraphqlBudgetDecision, { readonly brand: unique symbol }>()(
+  S.Struct({ action: GraphqlBudgetAction, waitFor: S.Duration }).pipe(
+    $I.annoteSchema("GraphqlBudgetDecision", { description: "The guard's decision for a budget snapshot." })
+  )
 ) {}
 
 const WAIT_SLACK = Duration.seconds(5);
@@ -130,9 +133,13 @@ const WAIT_SLACK = Duration.seconds(5);
  * @category models
  * @since 0.0.0
  */
-export class GraphqlBudgetDecisionInput extends S.Class<GraphqlBudgetDecisionInput>($I`GraphqlBudgetDecisionInput`)(
-  { snapshot: GraphqlBudgetSnapshot, policy: GraphqlBudgetPolicy, now: S.DateTimeUtc },
-  $I.annote("GraphqlBudgetDecisionInput", { description: "The inputs of one GraphQL budget decision." })
+export class GraphqlBudgetDecisionInput extends S.Opaque<
+  GraphqlBudgetDecisionInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({ snapshot: GraphqlBudgetSnapshot, policy: GraphqlBudgetPolicy, now: S.DateTimeUtc }).pipe(
+    $I.annoteSchema("GraphqlBudgetDecisionInput", { description: "The inputs of one GraphQL budget decision." })
+  )
 ) {}
 
 /**
@@ -195,7 +202,9 @@ export const decideGraphqlBudget = ({ snapshot, policy, now }: GraphqlBudgetDeci
  * @category errors
  * @since 0.0.0
  */
-export class GraphqlBudgetExhausted extends S.TaggedError<GraphqlBudgetExhausted>($I`GraphqlBudgetExhausted`)(
+export class GraphqlBudgetExhausted extends S.TaggedError<GraphqlBudgetExhausted, { readonly brand: unique symbol }>(
+  $I`GraphqlBudgetExhausted`
+)(
   "GraphqlBudgetExhausted",
   { operation: S.String, remaining: S.Int, resetAt: S.DateTimeUtc },
   $I.annoteError<GraphqlBudgetExhausted>("GraphqlBudgetExhausted", {

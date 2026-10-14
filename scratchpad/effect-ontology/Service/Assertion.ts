@@ -106,8 +106,7 @@ interface AssertionOverride {
  * @category models
  * @since 0.0.0
  */
-export class CreateAssertionInput extends S.Class<CreateAssertionInput>($I`CreateAssertionInput`)(
-  {
+export class CreateAssertionInput extends S.Opaque<CreateAssertionInput, { readonly brand: unique symbol }>()(S.Struct({
     ontologyId: S.NonEmptyString.annotateKey({ description: "Ontology scope shared by every source claim." }),
     claimIds: S.NonEmptyArray(S.NonEmptyString).annotateKey({
       description: "One or more claim identifiers from which the assertion is derived.",
@@ -122,11 +121,9 @@ export class CreateAssertionInput extends S.Class<CreateAssertionInput>($I`Creat
     confidence: Confidence.pipe(S.optionalKey).annotateKey({
       description: "Optional confidence override in the unit interval.",
     }),
-  },
-  $I.annote("CreateAssertionInput", {
+  }).pipe($I.annoteSchema("CreateAssertionInput", {
     description: "Validated source claims, decision, curator, overrides, and confidence for assertion creation.",
-  })
-) {}
+  }))) {}
 
 /**
  * Filter for querying assertions
@@ -147,19 +144,16 @@ export class CreateAssertionInput extends S.Class<CreateAssertionInput>($I`Creat
  * @category configuration
  * @since 0.0.0
  */
-export class AssertionFilter extends S.Class<AssertionFilter>($I`AssertionFilter`)(
-  {
+export class AssertionFilter extends S.Opaque<AssertionFilter, { readonly brand: unique symbol }>()(S.Struct({
     subjectIri: S.String.pipe(S.optionalKey),
     predicateIri: S.String.pipe(S.optionalKey),
     status: AssertionStatus.pipe(S.optionalKey),
     curatedBy: S.String.pipe(S.optionalKey),
     limit: S.Natural.pipe(S.optionalKey),
     offset: S.Natural.pipe(S.optionalKey),
-  },
-  $I.annote("AssertionFilter", {
+  }).pipe($I.annoteSchema("AssertionFilter", {
     description: "Optional subject, predicate, status, curator, limit, and offset for assertion queries.",
-  })
-) {}
+  }))) {}
 
 /**
  * Assertion with full provenance information
@@ -196,15 +190,12 @@ export class AssertionFilter extends S.Class<AssertionFilter>($I`AssertionFilter
  * @category models
  * @since 0.0.0
  */
-export class AssertionWithProvenance extends S.Class<AssertionWithProvenance>($I`AssertionWithProvenance`)(
-  {
+export class AssertionWithProvenance extends S.Opaque<AssertionWithProvenance, { readonly brand: unique symbol }>()(S.Struct({
     assertion: S.suspend((): typeof AssertionRow => AssertionRow),
     sourceClaims: S.Array(Claims).pipe(S.mutable),
-  },
-  $I.annote("AssertionWithProvenance", {
+  }).pipe($I.annoteSchema("AssertionWithProvenance", {
     description: "Curated assertion paired with the complete set of source claim rows.",
-  })
-) {}
+  }))) {}
 
 /**
  * Internal assertion row type (matches what we store)
@@ -238,8 +229,7 @@ export class AssertionWithProvenance extends S.Class<AssertionWithProvenance>($I
  * @category models
  * @since 0.0.0
  */
-export class AssertionRow extends S.Class<AssertionRow>($I`AssertionRow`)(
-  {
+export class AssertionRow extends S.Opaque<AssertionRow, { readonly brand: unique symbol }>()(S.Struct({
     id: S.NonEmptyString,
     ontologyId: S.NonEmptyString,
     subjectIri: S.NonEmptyString,
@@ -255,11 +245,9 @@ export class AssertionRow extends S.Class<AssertionRow>($I`AssertionRow`)(
     validTo: S.NullOr(S.Date),
     rejectedAt: S.NullOr(S.Date),
     rejectionReason: S.NullOr(S.NonEmptyString),
-  },
-  $I.annote("AssertionRow", {
+  }).pipe($I.annoteSchema("AssertionRow", {
     description: "Stored assertion triple, lifecycle status, provenance, curator, confidence, and validity window.",
-  })
-) {}
+  }))) {}
 
 /**
  *  Typed failure for assertion lifecycle operations.
@@ -279,7 +267,7 @@ export class AssertionRow extends S.Class<AssertionRow>($I`AssertionRow`)(
  * @category errors
  * @since 0.0.0
  */
-export class AssertionError extends S.TaggedError<AssertionError>($I`AssertionError`)(
+export class AssertionError extends S.TaggedError<AssertionError, { readonly brand: unique symbol }>($I`AssertionError`)(
   "AssertionError",
   {
     operation: S.Literals(["create", "reject"]).annotateKey({

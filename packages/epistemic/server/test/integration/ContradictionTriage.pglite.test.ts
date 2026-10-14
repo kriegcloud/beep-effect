@@ -13,6 +13,7 @@ import {
   ContradictionBeliefPair,
   ContradictionCandidateContent,
   ContradictionMatchBasis,
+  ContradictionProposalContent,
   ContradictionProposalDigest,
   ContradictionProposalId,
   ContradictionReceiptKey,
@@ -383,14 +384,14 @@ const makeSubmission = Effect.fnUntraced(function* (
     leftEvidenceIds,
     rightEvidenceIds,
   });
-  const proposalContent = {
+  const proposalContent = ContradictionProposalContent.make({
     fact: { amount: "125" },
     losingBelief: beliefA,
     proposalId: ContradictionProposalId.make(yield* sha256Hex(`proposal-${scenario}`)),
     rationale: "The signed amendment controls.",
     validFrom: instant(proposalValidFrom),
     validTo: pipe(O.fromNullishOr(proposalValidTo), O.map(instant)),
-  };
+  });
   const proposal = ContradictionResolutionProposal.make({
     ...proposalContent,
     proposalDigest: Result.getOrThrow(contradictionProposalDigest(proposalContent)),
@@ -721,7 +722,10 @@ if (!shouldRunPgliteIntegration) {
           const secondOrganizationId = SharedIdentity.OrganizationId.make(2);
           const seeded = yield* seedScenario(109, firstOrganizationId);
           const command = yield* makeSubmission(109, seeded);
-          const normalized = canonicalizeContradiction(command.pair, command.matchBasis);
+          const normalized = canonicalizeContradiction(
+            ContradictionBeliefPair.make(command.pair),
+            ContradictionMatchBasis.make(command.matchBasis)
+          );
           const candidateKey = contradictionCandidateKey(normalized.pair, normalized.matchBasis);
           const candidateDigest = Result.getOrThrow(
             contradictionCandidateDigest(

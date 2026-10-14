@@ -138,17 +138,19 @@ export type PracticeKgMatterResolution = typeof PracticeKgMatterResolution.Type;
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMatterLookupRequest extends S.Class<PracticeKgMatterLookupRequest>(
-  $I`PracticeKgMatterLookupRequest`
-)(
-  {
+export class PracticeKgMatterLookupRequest extends S.Opaque<
+  PracticeKgMatterLookupRequest,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     reference: S.NonEmptyString.annotateKey({
       description: "One docket, family, application, patent, or client identifier to resolve.",
     }),
-  },
-  $I.annote("PracticeKgMatterLookupRequest", {
-    description: "Single reference to resolve to practice matters.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterLookupRequest", {
+      description: "Single reference to resolve to practice matters.",
+    })
+  )
 ) {}
 
 /**
@@ -174,8 +176,8 @@ export class PracticeKgMatterLookupRequest extends S.Class<PracticeKgMatterLooku
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMatterDocket extends S.Class<PracticeKgMatterDocket>($I`PracticeKgMatterDocket`)(
-  {
+export class PracticeKgMatterDocket extends S.Opaque<PracticeKgMatterDocket, { readonly brand: unique symbol }>()(
+  S.Struct({
     applicationNumbers: S.Array(S.String),
     docket: S.NonEmptyString,
     docketKey: S.NonEmptyString,
@@ -185,10 +187,11 @@ export class PracticeKgMatterDocket extends S.Class<PracticeKgMatterDocket>($I`P
       description: "True when the lookup reference named this docket or a number filed from it.",
     }),
     patentNumbers: S.Array(S.String),
-  },
-  $I.annote("PracticeKgMatterDocket", {
-    description: "Docket of a practice matter with its application and patent numbers.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterDocket", {
+      description: "Docket of a practice matter with its application and patent numbers.",
+    })
+  )
 ) {}
 
 /**
@@ -227,8 +230,8 @@ export class PracticeKgMatterDocket extends S.Class<PracticeKgMatterDocket>($I`P
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMatter extends S.Class<PracticeKgMatter>($I`PracticeKgMatter`)(
-  {
+export class PracticeKgMatter extends S.Opaque<PracticeKgMatter, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributionSource: KgAttributionSource,
     client: S.NullOr(S.String),
     clientName: S.NullOr(S.String).annotateKey({
@@ -241,10 +244,11 @@ export class PracticeKgMatter extends S.Class<PracticeKgMatter>($I`PracticeKgMat
     family: S.NonEmptyString,
     familyKey: S.NonEmptyString,
     matchedOn: S.Array(PracticeKgMatterMatchedOn),
-  },
-  $I.annote("PracticeKgMatter", {
-    description: "Client-keyed docket family with its dockets, attribution, and how the reference matched it.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatter", {
+      description: "Client-keyed docket family with its dockets, attribution, and how the reference matched it.",
+    })
+  )
 ) {}
 
 /**
@@ -267,18 +271,20 @@ export class PracticeKgMatter extends S.Class<PracticeKgMatter>($I`PracticeKgMat
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgMatterLookupResult extends S.Class<PracticeKgMatterLookupResult>(
-  $I`PracticeKgMatterLookupResult`
-)(
-  {
+export class PracticeKgMatterLookupResult extends S.Opaque<
+  PracticeKgMatterLookupResult,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     bundleVersion: S.NonEmptyString,
     matters: S.Array(PracticeKgMatter),
     reference: S.NonEmptyString,
     resolution: PracticeKgMatterResolution,
-  },
-  $I.annote("PracticeKgMatterLookupResult", {
-    description: "Matters a reference resolved to, with the bundle version that answered.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgMatterLookupResult", {
+      description: "Matters a reference resolved to, with the bundle version that answered.",
+    })
+  )
 ) {}
 
 /**
@@ -296,9 +302,10 @@ export class PracticeKgMatterLookupResult extends S.Class<PracticeKgMatterLookup
  * @category errors
  * @since 0.0.0
  */
-export class PracticeKgMatterLookupError extends S.TaggedError<PracticeKgMatterLookupError>(
-  $I`PracticeKgMatterLookupError`
-)(
+export class PracticeKgMatterLookupError extends S.TaggedError<
+  PracticeKgMatterLookupError,
+  { readonly brand: unique symbol }
+>($I`PracticeKgMatterLookupError`)(
   "PracticeKgMatterLookupError",
   {
     cause: S.optionalKey(S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))),
@@ -447,18 +454,19 @@ export const extractPracticeKgReferences = (text: string): ReadonlyArray<string>
  * @category schemas
  * @since 0.0.0
  */
-export class PracticeKgPathEvidence extends S.Class<PracticeKgPathEvidence>($I`PracticeKgPathEvidence`)(
-  {
+export class PracticeKgPathEvidence extends S.Opaque<PracticeKgPathEvidence, { readonly brand: unique symbol }>()(
+  S.Struct({
     attorneyMatterNumbers: S.Array(S.String).annotateKey({
       description: "Dotted client.matter-number folder suffixes; the attorney's own sequence, never a family key.",
     }),
     clientNumber: S.NullOr(S.String),
     dockets: S.Array(S.String),
     familyKeys: S.Array(S.String),
-  },
-  $I.annote("PracticeKgPathEvidence", {
-    description: "Client number, dockets, matter keys, and attorney matter numbers read from a file path.",
-  })
+  }).pipe(
+    $I.annoteSchema("PracticeKgPathEvidence", {
+      description: "Client number, dockets, matter keys, and attorney matter numbers read from a file path.",
+    })
+  )
 ) {}
 
 const distinctSorted: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(

@@ -46,8 +46,9 @@ const lastUserPrompt = (history: ReadonlyArray<TurnHistoryItem>): O.Option<strin
  *
  * ```ts
  * import { fixtureBlocksFor } from "@beep/agents-use-cases/proof"
+ * import { UserTurnHistoryItem } from "@beep/agents-use-cases/public"
  *
- * const blocks = fixtureBlocksFor([{ role: "user", text: "hi" }])
+ * const blocks = fixtureBlocksFor([UserTurnHistoryItem.make({ text: "hi" })])
  * console.log(blocks.length) // 4
  * ```
  *
@@ -123,8 +124,9 @@ export const fixtureProviderUsage = ProviderUsageMetadata.make({
  *
  * ```ts
  * import { fixtureEventsFor } from "@beep/agents-use-cases/proof"
+ * import { UserTurnHistoryItem } from "@beep/agents-use-cases/public"
  *
- * console.log(fixtureEventsFor([{ role: "user", text: "hi" }])[4]?.type) // "finalization"
+ * console.log(fixtureEventsFor([UserTurnHistoryItem.make({ text: "hi" })])[4]?.type) // "finalization"
  * ```
  *
  * @category fixtures
@@ -145,14 +147,14 @@ export const fixtureEventsFor = (history: ReadonlyArray<TurnHistoryItem>): Reado
  * **Example** (Provide kernel and collect)
  *
  * ```ts
- * import { AgentTurnKernel } from "@beep/agents-use-cases/public"
+ * import { AgentTurnKernel, UserTurnHistoryItem } from "@beep/agents-use-cases/public"
  * import { FixtureTurnKernel } from "@beep/agents-use-cases/proof"
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
  * const program = Effect.gen(function* () {
  *   const kernel = yield* AgentTurnKernel
  *   const blocks = yield* Stream.runCollect(
- *     kernel.streamTurn([{ role: "user", text: "hello" }])
+ *     kernel.streamTurn([UserTurnHistoryItem.make({ text: "hello" })])
  *   )
  *
  *   return blocks.map((event) => event.type)

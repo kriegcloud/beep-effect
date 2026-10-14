@@ -30,7 +30,7 @@ const platform = (): Layer.Layer<FileSystem.FileSystem | Path.Path> =>
 		Path.layer,
 	);
 
-class Doc extends S.Class<Doc>("Doc")({ name: S.String, port: S.Finite }) {}
+class Doc extends S.Class<Doc, { readonly brand: unique symbol }>("Doc")({ name: S.String, port: S.Finite }) {}
 class DocConfig extends ConfigFile.Service<DocConfig, Doc>()("test/EncodeConfig") {}
 
 const layerFor = (codec: ConfigCodecShape) =>

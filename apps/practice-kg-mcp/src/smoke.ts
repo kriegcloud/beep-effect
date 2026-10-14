@@ -30,24 +30,28 @@ const $I = $PracticeKgMcpId.create("smoke");
 const FixtureDigest = `sha256:${Str.repeat(64)("a")}`;
 const ExpectedTools = R.keys(PracticeKgToolkit.tools);
 
-class SmokeTool extends S.Class<SmokeTool>($I`SmokeTool`)(
-  { name: S.String },
-  $I.annote("SmokeTool", { description: "Tool name returned by the compiled MCP host." })
+class SmokeTool extends S.Opaque<SmokeTool, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.String }).pipe(
+    $I.annoteSchema("SmokeTool", { description: "Tool name returned by the compiled MCP host." })
+  )
 ) {}
 
-class SmokeToolsResult extends S.Class<SmokeToolsResult>($I`SmokeToolsResult`)(
-  { tools: S.Array(SmokeTool) },
-  $I.annote("SmokeToolsResult", { description: "Tool-list payload returned by the compiled MCP host." })
+class SmokeToolsResult extends S.Opaque<SmokeToolsResult, { readonly brand: unique symbol }>()(
+  S.Struct({ tools: S.Array(SmokeTool) }).pipe(
+    $I.annoteSchema("SmokeToolsResult", { description: "Tool-list payload returned by the compiled MCP host." })
+  )
 ) {}
 
-class SmokeToolsResponse extends S.Class<SmokeToolsResponse>($I`SmokeToolsResponse`)(
-  { result: SmokeToolsResult },
-  $I.annote("SmokeToolsResponse", { description: "Tool-list JSON-RPC response from the compiled MCP host." })
+class SmokeToolsResponse extends S.Opaque<SmokeToolsResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ result: SmokeToolsResult }).pipe(
+    $I.annoteSchema("SmokeToolsResponse", { description: "Tool-list JSON-RPC response from the compiled MCP host." })
+  )
 ) {}
 
-class SmokeServerInfo extends S.Class<SmokeServerInfo>($I`SmokeServerInfo`)(
-  { name: S.Literal("beep-practice-kg") },
-  $I.annote("SmokeServerInfo", { description: "Server identity returned by MCP initialization." })
+class SmokeServerInfo extends S.Opaque<SmokeServerInfo, { readonly brand: unique symbol }>()(
+  S.Struct({ name: S.Literal("beep-practice-kg") }).pipe(
+    $I.annoteSchema("SmokeServerInfo", { description: "Server identity returned by MCP initialization." })
+  )
 ) {}
 
 // The 2026-07-28 `server/discover` result carries serverInfo under a `_meta`
@@ -58,61 +62,73 @@ const PROTOCOL_VERSION_META_KEY = "io.modelcontextprotocol/protocolVersion";
 const CLIENT_CAPABILITIES_META_KEY = "io.modelcontextprotocol/clientCapabilities";
 const CLIENT_INFO_META_KEY = "io.modelcontextprotocol/clientInfo";
 const MCP_PROTOCOL_VERSION = "2026-07-28";
-class SmokeDiscoverMeta extends S.Class<SmokeDiscoverMeta>($I`SmokeDiscoverMeta`)(
-  { [SERVER_INFO_META_KEY]: SmokeServerInfo },
-  $I.annote("SmokeDiscoverMeta", { description: "Discover result metadata carrying the server identity." })
+class SmokeDiscoverMeta extends S.Opaque<SmokeDiscoverMeta, { readonly brand: unique symbol }>()(
+  S.Struct({ [SERVER_INFO_META_KEY]: SmokeServerInfo }).pipe(
+    $I.annoteSchema("SmokeDiscoverMeta", { description: "Discover result metadata carrying the server identity." })
+  )
 ) {}
-class SmokeDiscoverResult extends S.Class<SmokeDiscoverResult>($I`SmokeDiscoverResult`)(
-  { _meta: SmokeDiscoverMeta, supportedVersions: S.Array(S.String) },
-  $I.annote("SmokeDiscoverResult", { description: "Initialization payload returned by the compiled MCP host." })
-) {}
-
-class SmokeDiscoverResponse extends S.Class<SmokeDiscoverResponse>($I`SmokeDiscoverResponse`)(
-  { result: SmokeDiscoverResult },
-  $I.annote("SmokeDiscoverResponse", { description: "Initialization JSON-RPC response from the compiled MCP host." })
+class SmokeDiscoverResult extends S.Opaque<SmokeDiscoverResult, { readonly brand: unique symbol }>()(
+  S.Struct({ _meta: SmokeDiscoverMeta, supportedVersions: S.Array(S.String) }).pipe(
+    $I.annoteSchema("SmokeDiscoverResult", { description: "Initialization payload returned by the compiled MCP host." })
+  )
 ) {}
 
-class SmokeManifestEnv extends S.Class<SmokeManifestEnv>($I`SmokeManifestEnv`)(
-  {
+class SmokeDiscoverResponse extends S.Opaque<SmokeDiscoverResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ result: SmokeDiscoverResult }).pipe(
+    $I.annoteSchema("SmokeDiscoverResponse", {
+      description: "Initialization JSON-RPC response from the compiled MCP host.",
+    })
+  )
+) {}
+
+class SmokeManifestEnv extends S.Opaque<SmokeManifestEnv, { readonly brand: unique symbol }>()(
+  S.Struct({
     BUNDLE_DIR: S.String,
     NODE_PATH: S.String,
     PRACTICE_KG_CORPUS_ROOT: S.String,
-  },
-  $I.annote("SmokeManifestEnv", {
-    description: "Env contract Claude Desktop applies when spawning the compiled host.",
-  })
+  }).pipe(
+    $I.annoteSchema("SmokeManifestEnv", {
+      description: "Env contract Claude Desktop applies when spawning the compiled host.",
+    })
+  )
 ) {}
 
-class SmokeManifestMcpConfig extends S.Class<SmokeManifestMcpConfig>($I`SmokeManifestMcpConfig`)(
-  { command: S.String, env: SmokeManifestEnv },
-  $I.annote("SmokeManifestMcpConfig", { description: "Launch-configuration slice of the MCPB manifest." })
+class SmokeManifestMcpConfig extends S.Opaque<SmokeManifestMcpConfig, { readonly brand: unique symbol }>()(
+  S.Struct({ command: S.String, env: SmokeManifestEnv }).pipe(
+    $I.annoteSchema("SmokeManifestMcpConfig", { description: "Launch-configuration slice of the MCPB manifest." })
+  )
 ) {}
 
-class SmokeManifestServer extends S.Class<SmokeManifestServer>($I`SmokeManifestServer`)(
-  { mcp_config: SmokeManifestMcpConfig },
-  $I.annote("SmokeManifestServer", { description: "Server block of the MCPB manifest." })
+class SmokeManifestServer extends S.Opaque<SmokeManifestServer, { readonly brand: unique symbol }>()(
+  S.Struct({ mcp_config: SmokeManifestMcpConfig }).pipe(
+    $I.annoteSchema("SmokeManifestServer", { description: "Server block of the MCPB manifest." })
+  )
 ) {}
 
-class SmokeManifest extends S.Class<SmokeManifest>($I`SmokeManifest`)(
-  { server: SmokeManifestServer },
-  $I.annote("SmokeManifest", {
-    description: "Manifest slice the smoke replays to spawn the compiled host exactly as Claude Desktop does.",
-  })
+class SmokeManifest extends S.Opaque<SmokeManifest, { readonly brand: unique symbol }>()(
+  S.Struct({ server: SmokeManifestServer }).pipe(
+    $I.annoteSchema("SmokeManifest", {
+      description: "Manifest slice the smoke replays to spawn the compiled host exactly as Claude Desktop does.",
+    })
+  )
 ) {}
 
-class SmokeCallContent extends S.Class<SmokeCallContent>($I`SmokeCallContent`)(
-  { text: S.String, type: S.Literal("text") },
-  $I.annote("SmokeCallContent", { description: "Text content item returned by a compiled-host tool call." })
+class SmokeCallContent extends S.Opaque<SmokeCallContent, { readonly brand: unique symbol }>()(
+  S.Struct({ text: S.String, type: S.Literal("text") }).pipe(
+    $I.annoteSchema("SmokeCallContent", { description: "Text content item returned by a compiled-host tool call." })
+  )
 ) {}
 
-class SmokeCallResult extends S.Class<SmokeCallResult>($I`SmokeCallResult`)(
-  { content: S.Array(SmokeCallContent) },
-  $I.annote("SmokeCallResult", { description: "Tool-call payload returned by the compiled MCP host." })
+class SmokeCallResult extends S.Opaque<SmokeCallResult, { readonly brand: unique symbol }>()(
+  S.Struct({ content: S.Array(SmokeCallContent) }).pipe(
+    $I.annoteSchema("SmokeCallResult", { description: "Tool-call payload returned by the compiled MCP host." })
+  )
 ) {}
 
-class SmokeCallResponse extends S.Class<SmokeCallResponse>($I`SmokeCallResponse`)(
-  { result: SmokeCallResult },
-  $I.annote("SmokeCallResponse", { description: "Tool-call JSON-RPC response from the compiled MCP host." })
+class SmokeCallResponse extends S.Opaque<SmokeCallResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ result: SmokeCallResult }).pipe(
+    $I.annoteSchema("SmokeCallResponse", { description: "Tool-call JSON-RPC response from the compiled MCP host." })
+  )
 ) {}
 
 const decodeDiscover = S.decodeUnknownEffect(S.fromJsonString(SmokeDiscoverResponse));
@@ -336,19 +352,24 @@ const runCompiledHost = Effect.fn("PracticeKgSmoke.runCompiledHost")(function* (
 // against the compiled artifact as well as the stateless framing above.
 const HANDSHAKE_PROTOCOL_VERSION = "2025-11-25";
 
-class SmokeInitializeResult extends S.Class<SmokeInitializeResult>($I`SmokeInitializeResult`)(
-  { protocolVersion: S.Literal(HANDSHAKE_PROTOCOL_VERSION), serverInfo: SmokeServerInfo },
-  $I.annote("SmokeInitializeResult", { description: "Initialize result negotiated by the compiled MCP host." })
+class SmokeInitializeResult extends S.Opaque<SmokeInitializeResult, { readonly brand: unique symbol }>()(
+  S.Struct({ protocolVersion: S.Literal(HANDSHAKE_PROTOCOL_VERSION), serverInfo: SmokeServerInfo }).pipe(
+    $I.annoteSchema("SmokeInitializeResult", { description: "Initialize result negotiated by the compiled MCP host." })
+  )
 ) {}
 
-class SmokeInitializeResponse extends S.Class<SmokeInitializeResponse>($I`SmokeInitializeResponse`)(
-  { id: S.Literal(0), result: SmokeInitializeResult },
-  $I.annote("SmokeInitializeResponse", { description: "Initialize JSON-RPC response from the compiled MCP host." })
+class SmokeInitializeResponse extends S.Opaque<SmokeInitializeResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Literal(0), result: SmokeInitializeResult }).pipe(
+    $I.annoteSchema("SmokeInitializeResponse", {
+      description: "Initialize JSON-RPC response from the compiled MCP host.",
+    })
+  )
 ) {}
 
-class SmokeHandshakeToolsResponse extends S.Class<SmokeHandshakeToolsResponse>($I`SmokeHandshakeToolsResponse`)(
-  { id: S.Literal(1), result: SmokeToolsResult },
-  $I.annote("SmokeHandshakeToolsResponse", { description: "Tool list returned after an initialize handshake." })
+class SmokeHandshakeToolsResponse extends S.Opaque<SmokeHandshakeToolsResponse, { readonly brand: unique symbol }>()(
+  S.Struct({ id: S.Literal(1), result: SmokeToolsResult }).pipe(
+    $I.annoteSchema("SmokeHandshakeToolsResponse", { description: "Tool list returned after an initialize handshake." })
+  )
 ) {}
 
 const decodeInitialize = S.decodeUnknownEffect(S.fromJsonString(SmokeInitializeResponse));

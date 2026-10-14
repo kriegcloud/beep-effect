@@ -25,10 +25,10 @@ import { dual, flow } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Obs from "../internal/observability.ts";
 import { PosInt } from "../internal/PosInt.ts";
-import { NLPBackend } from "./NLPBackend.ts";
+import { BackendCapabilities, NLPBackend } from "./NLPBackend.ts";
 import type * as EffectCache from "effect/Cache";
 import type * as O from "effect/Option";
-import type { BackendCapabilities, NLPBackendShape } from "./NLPBackend.ts";
+import type { NLPBackendShape } from "./NLPBackend.ts";
 
 const $I = $NlpProcessingId.create("Backend/Composition");
 
@@ -94,10 +94,10 @@ const cachedGet = <A, E, R>(
  * ```ts import.meta.vitest name="Primary secondary fallback composition"
  * import * as Effect from "effect/Effect";
  * import { withFallback } from "@beep/nlp-processing/Backend/Composition"
- * import { notSupported } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities, notSupported } from "@beep/nlp-processing/Backend/NLPBackend"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
  *
- * const capabilities = {
+ * const capabilities = BackendCapabilities.make({
  *   constituencyParsing: false,
  *   coreferenceResolution: false,
  *   dependencyParsing: false,
@@ -107,7 +107,7 @@ const cachedGet = <A, E, R>(
  *   relationExtraction: false,
  *   sentencization: false,
  *   tokenization: true
- * }
+ * })
  * const primary: NLPBackendShape = {
  *   name: "primary",
  *   capabilities,
@@ -130,7 +130,7 @@ export const withFallback: {
   (primary: NLPBackendShape, secondary: NLPBackendShape): NLPBackendShape;
   (secondary: NLPBackendShape): (primary: NLPBackendShape) => NLPBackendShape;
 } = dual(2, (primary: NLPBackendShape, secondary: NLPBackendShape): NLPBackendShape => {
-  const capabilities: BackendCapabilities = {
+  const capabilities: BackendCapabilities = BackendCapabilities.make({
     constituencyParsing: primary.capabilities.constituencyParsing || secondary.capabilities.constituencyParsing,
     coreferenceResolution: primary.capabilities.coreferenceResolution || secondary.capabilities.coreferenceResolution,
     dependencyParsing: primary.capabilities.dependencyParsing || secondary.capabilities.dependencyParsing,
@@ -140,7 +140,7 @@ export const withFallback: {
     relationExtraction: primary.capabilities.relationExtraction || secondary.capabilities.relationExtraction,
     sentencization: primary.capabilities.sentencization || secondary.capabilities.sentencization,
     tokenization: primary.capabilities.tokenization || secondary.capabilities.tokenization,
-  };
+  });
 
   return NLPBackend.of({
     capabilities,
@@ -209,19 +209,19 @@ const cachingOptionsTimeToLiveDefault = Duration.minutes(10);
  * ```ts import.meta.vitest name="Caching options capacity TTL"
  * import * as S from "effect/Schema"
  * import * as Duration from "effect/Duration";
- * import type { CachingOptions } from "@beep/nlp-processing/Backend/Composition"
+ * import { CachingOptions } from "@beep/nlp-processing/Backend/Composition"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
  *
- * const options: CachingOptions = { capacity: PosInt.make(64), timeToLive: Duration.minutes(5) }
+ * const options = CachingOptions.make({ capacity: PosInt.make(64), timeToLive: Duration.minutes(5) })
  * options.capacity // => 64
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class CachingOptions extends S.Class<CachingOptions>($I`CachingOptions`)(
-  {
+export class CachingOptions extends S.Opaque<CachingOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     capacity: PosInt.pipe(
       S.withConstructorDefault(Effect.succeed(cachingOptionsCapacityDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(cachingOptionsCapacityDefault))
@@ -230,10 +230,11 @@ export class CachingOptions extends S.Class<CachingOptions>($I`CachingOptions`)(
       S.withConstructorDefault(Effect.succeed(cachingOptionsTimeToLiveDefault)),
       S.withDecodingDefaultTypeKey(Effect.succeed(cachingOptionsTimeToLiveDefault))
     ),
-  },
-  $I.annote("CachingOptions", {
-    description: "Cache settings for memoized backend composition.",
-  })
+  }).pipe(
+    $I.annoteSchema("CachingOptions", {
+      description: "Cache settings for memoized backend composition.",
+    })
+  )
 ) {}
 
 /**
@@ -252,12 +253,13 @@ export class CachingOptions extends S.Class<CachingOptions>($I`CachingOptions`)(
  * import * as Effect from "effect/Effect";
  * import { withCaching } from "@beep/nlp-processing/Backend/Composition"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const PosInt = S.Int.check(S.isGreaterThan(0))
  *
  * const backend: NLPBackendShape = {
  *   name: "minimal",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -267,7 +269,7 @@ export class CachingOptions extends S.Class<CachingOptions>($I`CachingOptions`)(
  *     relationExtraction: false,
  *     sentencization: true,
  *     tokenization: true
- *   },
+ *   }),
  *   tokenize: (text) => Effect.succeed(text.split(" ")),
  *   sentencize: (text) => Effect.succeed([text]),
  *   posTag: () => Effect.succeed([]),
@@ -372,10 +374,11 @@ export const withCaching = Effect.fn("withCaching")(function* (
  * import * as O from "effect/Option"
  * import { selectByCapability } from "@beep/nlp-processing/Backend/Composition"
  * import type { NLPBackendShape } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend"
  *
  * const backend: NLPBackendShape = {
  *   name: "tokenizer",
- *   capabilities: {
+ *   capabilities: BackendCapabilities.make({
  *     constituencyParsing: false,
  *     coreferenceResolution: false,
  *     dependencyParsing: false,
@@ -385,7 +388,7 @@ export const withCaching = Effect.fn("withCaching")(function* (
  *     relationExtraction: false,
  *     sentencization: true,
  *     tokenization: true
- *   },
+ *   }),
  *   tokenize: (text) => Effect.succeed(text.split(" ")),
  *   sentencize: (text) => Effect.succeed([text]),
  *   posTag: () => Effect.succeed([]),
@@ -401,10 +404,17 @@ export const withCaching = Effect.fn("withCaching")(function* (
  * @since 0.0.0
  */
 export const selectByCapability: {
-  (backends: ReadonlyArray<NLPBackendShape>, capability: keyof BackendCapabilities): O.Option<NLPBackendShape>;
-  (capability: keyof BackendCapabilities): (backends: ReadonlyArray<NLPBackendShape>) => O.Option<NLPBackendShape>;
+  (
+    backends: ReadonlyArray<NLPBackendShape>,
+    capability: keyof typeof BackendCapabilities.fields
+  ): O.Option<NLPBackendShape>;
+  (
+    capability: keyof typeof BackendCapabilities.fields
+  ): (backends: ReadonlyArray<NLPBackendShape>) => O.Option<NLPBackendShape>;
 } = dual(
   2,
-  (backends: ReadonlyArray<NLPBackendShape>, capability: keyof BackendCapabilities): O.Option<NLPBackendShape> =>
-    A.findFirst(backends, (backend) => backend.capabilities[capability])
+  (
+    backends: ReadonlyArray<NLPBackendShape>,
+    capability: keyof typeof BackendCapabilities.fields
+  ): O.Option<NLPBackendShape> => A.findFirst(backends, (backend) => backend.capabilities[capability])
 );

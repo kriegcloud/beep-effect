@@ -85,7 +85,9 @@ import type { EnumRegistry, TableOf } from "./table.ts";
  * @category errors
  * @since 0.0.0
  */
-export class SchemaAssemblyError extends TaggedError<SchemaAssemblyError>("@beep/effect-drizzle/SchemaAssemblyError")(
+export class SchemaAssemblyError extends TaggedError<SchemaAssemblyError, { readonly brand: unique symbol }>(
+  "@beep/effect-drizzle/SchemaAssemblyError"
+)(
   "SchemaAssemblyError",
   {
     message: StringSchema,

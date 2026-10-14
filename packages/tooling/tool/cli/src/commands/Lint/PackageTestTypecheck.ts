@@ -133,15 +133,16 @@ export type TestTypecheckBlindSpotKind = typeof TestTypecheckBlindSpotKind.Type;
  * @category models
  * @since 0.0.0
  */
-export class TestTypecheckBlindSpot extends S.Class<TestTypecheckBlindSpot>($I`TestTypecheckBlindSpot`)(
-  {
+export class TestTypecheckBlindSpot extends S.Opaque<TestTypecheckBlindSpot, { readonly brand: unique symbol }>()(
+  S.Struct({
     package: S.String,
     directory: S.String,
     kind: TestTypecheckBlindSpotKind,
-  },
-  $I.annote("TestTypecheckBlindSpot", {
-    description: "A package with test/ sources that its own check script never typechecks.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestTypecheckBlindSpot", {
+      description: "A package with test/ sources that its own check script never typechecks.",
+    })
+  )
 ) {}
 
 /**
@@ -162,17 +163,19 @@ export class TestTypecheckBlindSpot extends S.Class<TestTypecheckBlindSpot>($I`T
  * @category models
  * @since 0.0.0
  */
-export class TestTypecheckBlindSpotSummary extends S.Class<TestTypecheckBlindSpotSummary>(
-  $I`TestTypecheckBlindSpotSummary`
-)(
-  {
+export class TestTypecheckBlindSpotSummary extends S.Opaque<
+  TestTypecheckBlindSpotSummary,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     total_findings: S.Finite,
     missing_test_tsconfig: S.Finite,
     unwired_test_tsconfig: S.Finite,
-  },
-  $I.annote("TestTypecheckBlindSpotSummary", {
-    description: "Deterministic per-kind count summary for test-typecheck blind spots.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestTypecheckBlindSpotSummary", {
+      description: "Deterministic per-kind count summary for test-typecheck blind spots.",
+    })
+  )
 ) {}
 
 /**
@@ -193,10 +196,11 @@ export class TestTypecheckBlindSpotSummary extends S.Class<TestTypecheckBlindSpo
  * @category models
  * @since 0.0.0
  */
-export class TestTypecheckBlindSpotBaseline extends S.Class<TestTypecheckBlindSpotBaseline>(
-  $I`TestTypecheckBlindSpotBaseline`
-)(
-  {
+export class TestTypecheckBlindSpotBaseline extends S.Opaque<
+  TestTypecheckBlindSpotBaseline,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     schema_version: S.Literal(1),
     command: S.String,
     regeneration_command: S.String,
@@ -205,20 +209,22 @@ export class TestTypecheckBlindSpotBaseline extends S.Class<TestTypecheckBlindSp
     notes: S.Record(S.String, S.String),
     check: TestTypecheckBlindSpotSummary,
     findings: S.Array(TestTypecheckBlindSpot),
-  },
-  $I.annote("TestTypecheckBlindSpotBaseline", {
-    description: "Committed shrink-only baseline of packages whose check script skips their test sources.",
-  })
+  }).pipe(
+    $I.annoteSchema("TestTypecheckBlindSpotBaseline", {
+      description: "Committed shrink-only baseline of packages whose check script skips their test sources.",
+    })
+  )
 ) {}
 
-class PackageManifestDocument extends S.Class<PackageManifestDocument>($I`PackageManifestDocument`)(
-  {
+class PackageManifestDocument extends S.Opaque<PackageManifestDocument, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.String,
     scripts: S.optionalKey(S.Record(S.String, S.String)),
-  },
-  $I.annote("PackageManifestDocument", {
-    description: "Minimal package.json shape used to resolve a package's name and check-script graph.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageManifestDocument", {
+      description: "Minimal package.json shape used to resolve a package's name and check-script graph.",
+    })
+  )
 ) {}
 
 const decodePackageManifest = decodeJsoncTextAs(PackageManifestDocument);
@@ -469,14 +475,18 @@ const renderFindingLines = (findings: ReadonlyArray<TestTypecheckBlindSpot>): Re
  * @category models
  * @since 0.0.0
  */
-export class PackageTestTypecheckOptions extends S.Class<PackageTestTypecheckOptions>($I`PackageTestTypecheckOptions`)(
-  {
+export class PackageTestTypecheckOptions extends S.Opaque<
+  PackageTestTypecheckOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baselinePath: S.String,
     writeBaseline: S.Boolean,
-  },
-  $I.annote("PackageTestTypecheckOptions", {
-    description: "Options accepted by the package test-typecheck lint: baseline location and write mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("PackageTestTypecheckOptions", {
+      description: "Options accepted by the package test-typecheck lint: baseline location and write mode.",
+    })
+  )
 ) {}
 
 /**
@@ -485,12 +495,14 @@ export class PackageTestTypecheckOptions extends S.Class<PackageTestTypecheckOpt
  * **Example** (Usage)
  *
  * ```ts
- * import { runPackageTestTypecheckLint } from "@beep/repo-cli/commands/Lint/PackageTestTypecheck"
+ * import { PackageTestTypecheckOptions, runPackageTestTypecheckLint } from "@beep/repo-cli/commands/Lint/PackageTestTypecheck"
  * import * as Effect from "effect/Effect";
- * const program = runPackageTestTypecheckLint({
- *   baselinePath: "standards/test-typecheck.blindspot-baseline.jsonc",
- *   writeBaseline: false
- * })
+ * const program = runPackageTestTypecheckLint(
+ *   PackageTestTypecheckOptions.make({
+ *     baselinePath: "standards/test-typecheck.blindspot-baseline.jsonc",
+ *     writeBaseline: false
+ *   })
+ * )
  * console.log(Effect.isEffect(program))
  * ```
  *
@@ -608,5 +620,6 @@ export const lintPackageTestTypecheckCommand = Command.make(
       Flag.withDescription("Rewrite the blind-spot baseline from the current scan, preserving hand-authored notes")
     ),
   },
-  ({ baseline, writeBaseline }) => runPackageTestTypecheckLint({ baselinePath: baseline, writeBaseline })
+  ({ baseline, writeBaseline }) =>
+    runPackageTestTypecheckLint(PackageTestTypecheckOptions.make({ baselinePath: baseline, writeBaseline }))
 ).pipe(Command.withDescription("Gate packages whose check script never typechecks their own test/ sources"));

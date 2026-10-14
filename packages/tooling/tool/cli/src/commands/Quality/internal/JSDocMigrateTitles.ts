@@ -426,20 +426,22 @@ const packTitleRequestGroups = (
  * @category models
  * @since 0.0.0
  */
-export class RunJSDocMigrateTitlesOptions extends S.Class<RunJSDocMigrateTitlesOptions>(
-  $I`RunJSDocMigrateTitlesOptions`
-)(
-  {
+export class RunJSDocMigrateTitlesOptions extends S.Opaque<
+  RunJSDocMigrateTitlesOptions,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     extract: S.optionalKey(S.String),
     titles: S.optionalKey(S.String),
     proxyUrl: S.optionalKey(S.String),
     model: S.optionalKey(S.String),
     limitFiles: S.optionalKey(S.Int),
     concurrency: S.optionalKey(S.Int),
-  },
-  $I.annote("RunJSDocMigrateTitlesOptions", {
-    description: "Options for the jsdoc-migrate titles stage: data files, proxy endpoint, model, and file cap.",
-  })
+  }).pipe(
+    $I.annoteSchema("RunJSDocMigrateTitlesOptions", {
+      description: "Options for the jsdoc-migrate titles stage: data files, proxy endpoint, model, and file cap.",
+    })
+  )
 ) {}
 
 /**

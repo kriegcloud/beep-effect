@@ -6,6 +6,7 @@
  * @since 0.0.0
  */
 import { A } from "@beep/utils";
+import { PixelGlasses } from "./Brand.schema.ts";
 import { glassesTransform } from "./Brand.svg.ts";
 import { beep } from "./Brand.tokens.ts";
 import type { HTMLAttributes, SVGProps } from "react";
@@ -50,7 +51,7 @@ export const BeepMark = (props: SVGProps<SVGSVGElement>) => (
         strokeLinejoin="round"
       />
     ))}
-    <g transform={glassesTransform(glasses)}>
+    <g transform={glassesTransform(PixelGlasses.make(glasses))}>
       <path fill={`var(--color-fg, ${beep.dark.foreground.base})`} d={glasses.frame} />
       {A.map(glasses.lenses, (d) => (
         <path key={d} fill={`var(--color-surface-0, ${beep.dark.surface["0"]})`} d={d} />

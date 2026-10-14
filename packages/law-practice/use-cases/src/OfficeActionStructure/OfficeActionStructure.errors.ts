@@ -21,9 +21,10 @@ const $I = $LawPracticeUseCasesId.create("OfficeActionStructure/OfficeActionStru
  * @category models
  * @since 0.0.0
  */
-export class OfficeActionStructureStorageError extends S.TaggedError<OfficeActionStructureStorageError>(
-  $I`OfficeActionStructureStorageError`
-)(
+export class OfficeActionStructureStorageError extends S.TaggedError<
+  OfficeActionStructureStorageError,
+  { readonly brand: unique symbol }
+>($I`OfficeActionStructureStorageError`)(
   "OfficeActionStructureStorageError",
   { message: S.NonEmptyString },
   $I.annote("OfficeActionStructureStorageError", {

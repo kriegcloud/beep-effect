@@ -11,6 +11,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
 
 const readFixture = Effect.fnUntraced(function* (name: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -92,6 +93,30 @@ describe("review body signal parsing", () => {
     expect(parsed.newFindings.p0).toBe(0);
     expect(parsed.newFindings.p1).toBe(0);
     expect(parsed.newFindings.p2).toBe(0);
+  });
+
+  it("keeps an overflowing review count from aborting advisory parsing", () => {
+    const parsed = signal("reviewer", `### Greptile Review\nP0:${Str.repeat(400)("9")} P1:0 P2:0`);
+
+    expect(parsed.signal).toBe("greptile");
+    if (parsed.signal !== "greptile") {
+      return;
+    }
+    expect(parsed.newFindings.p0).toBe(100_000);
+    expect(yeetReviewBodyAdvisoryCount(parsed, [])).toBe(100_000);
+  });
+
+  it("bounds accumulated review counts from repeated items", () => {
+    const parsed = signal("reviewer", "### Greptile Review\n**NEW:** 99999×P1, 99999×P1");
+
+    expect(parsed.signal === "greptile" && parsed.newFindings.p1).toBe(100_000);
+
+    const coderabbit = signal(
+      "coderabbitai[bot]",
+      "**Actionable comments posted: 999999999999999999999999**\nNitpick comments (99999)\nNitpick comments (99999)"
+    );
+    expect(coderabbit.signal === "coderabbit" && coderabbit.actionable).toBe(100_000);
+    expect(coderabbit.signal === "coderabbit" && coderabbit.nitpicks).toBe(100_000);
   });
 
   it("reads a Greptile-format NEW item list when the body prints no triplet", () => {

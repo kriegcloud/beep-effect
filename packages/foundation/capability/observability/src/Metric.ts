@@ -56,15 +56,16 @@ const $I = $ObservabilityId.create("Metric");
  * @category models
  * @since 0.0.0
  */
-export class TrackDurationOptions extends S.Class<TrackDurationOptions>($I`TrackDurationOptions`)(
-  {
+export class TrackDurationOptions extends S.Opaque<TrackDurationOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     attributes: S.Record(S.String, S.String).pipe(S.optionalKey).annotateKey({
       description: "Metric attributes attached to the duration measurement.",
     }),
-  },
-  $I.annote("TrackDurationOptions", {
-    description: "Options for tracking one duration metric around an Effect.",
-  })
+  }).pipe(
+    $I.annoteSchema("TrackDurationOptions", {
+      description: "Options for tracking one duration metric around an Effect.",
+    })
+  )
 ) {}
 
 /**

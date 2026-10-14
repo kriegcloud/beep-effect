@@ -238,8 +238,8 @@ const EffectSchemaInventorySummary = S.String.check(S.isMaxLength(400), singleLi
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryRow extends S.Class<EffectSchemaInventoryRow>($I`EffectSchemaInventoryRow`)(
-  {
+export class EffectSchemaInventoryRow extends S.Opaque<EffectSchemaInventoryRow, { readonly brand: unique symbol }>()(
+  S.Struct({
     sha: EffectSchemaInventoryPin,
     module: EffectSchemaInventoryModuleName,
     file: EffectSchemaInventorySourcePath,
@@ -255,10 +255,11 @@ export class EffectSchemaInventoryRow extends S.Class<EffectSchemaInventoryRow>(
     signature: EffectSchemaInventorySignature,
     overloads: EffectSchemaInventoryCount,
     importable: S.Boolean,
-  },
-  $I.annote("EffectSchemaInventoryRow", {
-    description: "One schema-inventory/v1 declaration-facet row of an Effect module at the pinned sha.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryRow", {
+      description: "One schema-inventory/v1 declaration-facet row of an Effect module at the pinned sha.",
+    })
+  )
 ) {}
 
 /**
@@ -286,16 +287,20 @@ export class EffectSchemaInventoryRow extends S.Class<EffectSchemaInventoryRow>(
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryModule extends S.Class<EffectSchemaInventoryModule>($I`EffectSchemaInventoryModule`)(
-  {
+export class EffectSchemaInventoryModule extends S.Opaque<
+  EffectSchemaInventoryModule,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     file: EffectSchemaInventorySourcePath,
     module: EffectSchemaInventoryModuleName,
     slug: S.NonEmptyString,
     importable: S.Boolean,
-  },
-  $I.annote("EffectSchemaInventoryModule", {
-    description: "Upstream source file, Effect import path, JSONL file stem, and importability of one module.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryModule", {
+      description: "Upstream source file, Effect import path, JSONL file stem, and importability of one module.",
+    })
+  )
 ) {}
 
 /**
@@ -318,16 +323,18 @@ export class EffectSchemaInventoryModule extends S.Class<EffectSchemaInventoryMo
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryModuleRows extends S.Class<EffectSchemaInventoryModuleRows>(
-  $I`EffectSchemaInventoryModuleRows`
-)(
-  {
+export class EffectSchemaInventoryModuleRows extends S.Opaque<
+  EffectSchemaInventoryModuleRows,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     module: EffectSchemaInventoryModule,
     rows: S.Array(EffectSchemaInventoryRow),
-  },
-  $I.annote("EffectSchemaInventoryModuleRows", {
-    description: "One module-list entry and its sorted schema-inventory/v1 rows.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryModuleRows", {
+      description: "One module-list entry and its sorted schema-inventory/v1 rows.",
+    })
+  )
 ) {}
 
 /**
@@ -350,17 +357,19 @@ export class EffectSchemaInventoryModuleRows extends S.Class<EffectSchemaInvento
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryExtraction extends S.Class<EffectSchemaInventoryExtraction>(
-  $I`EffectSchemaInventoryExtraction`
-)(
-  {
+export class EffectSchemaInventoryExtraction extends S.Opaque<
+  EffectSchemaInventoryExtraction,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     parser: S.NonEmptyString,
     bareStarDeclarationsOmitted: EffectSchemaInventoryCount,
     modules: S.Array(EffectSchemaInventoryModuleRows),
-  },
-  $I.annote("EffectSchemaInventoryExtraction", {
-    description: "Parser version, omitted bare star re-exports, and per-module rows of one extraction pass.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryExtraction", {
+      description: "Parser version, omitted bare star re-exports, and per-module rows of one extraction pass.",
+    })
+  )
 ) {}
 
 /**
@@ -383,17 +392,19 @@ export class EffectSchemaInventoryExtraction extends S.Class<EffectSchemaInvento
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryIndexHeader extends S.Class<EffectSchemaInventoryIndexHeader>(
-  $I`EffectSchemaInventoryIndexHeader`
-)(
-  {
+export class EffectSchemaInventoryIndexHeader extends S.Opaque<
+  EffectSchemaInventoryIndexHeader,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     pin: EffectSchemaInventoryPin,
     parser: S.NonEmptyString,
     digest: Sha256Hex,
-  },
-  $I.annote("EffectSchemaInventoryIndexHeader", {
-    description: "Pin, TypeScript parser version, and row digest recorded in the committed INDEX.md.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryIndexHeader", {
+      description: "Pin, TypeScript parser version, and row digest recorded in the committed INDEX.md.",
+    })
+  )
 ) {}
 
 /**
@@ -411,14 +422,15 @@ export class EffectSchemaInventoryIndexHeader extends S.Class<EffectSchemaInvent
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryFile extends S.Class<EffectSchemaInventoryFile>($I`EffectSchemaInventoryFile`)(
-  {
+export class EffectSchemaInventoryFile extends S.Opaque<EffectSchemaInventoryFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     name: S.NonEmptyString,
     content: S.String,
-  },
-  $I.annote("EffectSchemaInventoryFile", {
-    description: "Name and exact text of one generated inventory fixture file.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryFile", {
+      description: "Name and exact text of one generated inventory fixture file.",
+    })
+  )
 ) {}
 
 /**
@@ -447,10 +459,11 @@ export class EffectSchemaInventoryFile extends S.Class<EffectSchemaInventoryFile
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryReceipt extends S.Class<EffectSchemaInventoryReceipt>(
-  $I`EffectSchemaInventoryReceipt`
-)(
-  {
+export class EffectSchemaInventoryReceipt extends S.Opaque<
+  EffectSchemaInventoryReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     pin: EffectSchemaInventoryPin,
     parser: S.NonEmptyString,
     digest: Sha256Hex,
@@ -460,10 +473,11 @@ export class EffectSchemaInventoryReceipt extends S.Class<EffectSchemaInventoryR
     internalRows: EffectSchemaInventoryCount,
     deprecatedRows: EffectSchemaInventoryCount,
     bareStarDeclarationsOmitted: EffectSchemaInventoryCount,
-  },
-  $I.annote("EffectSchemaInventoryReceipt", {
-    description: "Pin, parser, digest, and totals of one inventory generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryReceipt", {
+      description: "Pin, parser, digest, and totals of one inventory generation.",
+    })
+  )
 ) {}
 
 /**
@@ -487,16 +501,18 @@ export class EffectSchemaInventoryReceipt extends S.Class<EffectSchemaInventoryR
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryRendered extends S.Class<EffectSchemaInventoryRendered>(
-  $I`EffectSchemaInventoryRendered`
-)(
-  {
+export class EffectSchemaInventoryRendered extends S.Opaque<
+  EffectSchemaInventoryRendered,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     receipt: EffectSchemaInventoryReceipt,
     files: S.Array(EffectSchemaInventoryFile),
-  },
-  $I.annote("EffectSchemaInventoryRendered", {
-    description: "Receipt and owned files of one in-memory inventory generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryRendered", {
+      description: "Receipt and owned files of one in-memory inventory generation.",
+    })
+  )
 ) {}
 
 /**
@@ -568,16 +584,18 @@ export type EffectSchemaInventoryDrift = typeof EffectSchemaInventoryDrift.Type;
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryCheckReport extends S.Class<EffectSchemaInventoryCheckReport>(
-  $I`EffectSchemaInventoryCheckReport`
-)(
-  {
+export class EffectSchemaInventoryCheckReport extends S.Opaque<
+  EffectSchemaInventoryCheckReport,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     receipt: EffectSchemaInventoryReceipt,
     drift: S.Array(EffectSchemaInventoryDrift),
-  },
-  $I.annote("EffectSchemaInventoryCheckReport", {
-    description: "Generation receipt plus every drift between the committed fixture and the pinned sources.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryCheckReport", {
+      description: "Generation receipt plus every drift between the committed fixture and the pinned sources.",
+    })
+  )
 ) {}
 
 /**
@@ -602,19 +620,21 @@ export class EffectSchemaInventoryCheckReport extends S.Class<EffectSchemaInvent
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryGraftEntry extends S.Class<EffectSchemaInventoryGraftEntry>(
-  $I`EffectSchemaInventoryGraftEntry`
-)(
-  {
+export class EffectSchemaInventoryGraftEntry extends S.Opaque<
+  EffectSchemaInventoryGraftEntry,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     name: S.String,
     kind: S.String,
     span: S.String,
     signature: S.OptionFromOptionalKey(S.String),
     summary: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("EffectSchemaInventoryGraftEntry", {
-    description: "Name, kind, line span, signature, and summary graft reports for one declaration.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryGraftEntry", {
+      description: "Name, kind, line span, signature, and summary graft reports for one declaration.",
+    })
+  )
 ) {}
 
 /**
@@ -632,16 +652,18 @@ export class EffectSchemaInventoryGraftEntry extends S.Class<EffectSchemaInvento
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryGraftSkeleton extends S.Class<EffectSchemaInventoryGraftSkeleton>(
-  $I`EffectSchemaInventoryGraftSkeleton`
-)(
-  {
+export class EffectSchemaInventoryGraftSkeleton extends S.Opaque<
+  EffectSchemaInventoryGraftSkeleton,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     file: S.String,
     entries: S.Array(EffectSchemaInventoryGraftEntry),
-  },
-  $I.annote("EffectSchemaInventoryGraftSkeleton", {
-    description: "Declarations graft reports for one module source file.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryGraftSkeleton", {
+      description: "Declarations graft reports for one module source file.",
+    })
+  )
 ) {}
 
 /**
@@ -671,18 +693,20 @@ export class EffectSchemaInventoryGraftSkeleton extends S.Class<EffectSchemaInve
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryGraftContext extends S.Class<EffectSchemaInventoryGraftContext>(
-  $I`EffectSchemaInventoryGraftContext`
-)(
-  {
+export class EffectSchemaInventoryGraftContext extends S.Opaque<
+  EffectSchemaInventoryGraftContext,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     head: EffectSchemaInventoryPin,
     workingTreeMatchesPin: S.Boolean,
     entries: S.Array(EffectSchemaInventoryGraftEntry),
-  },
-  $I.annote("EffectSchemaInventoryGraftContext", {
-    description:
-      "Graft skeleton of a module in the reference working tree, its HEAD, and whether the working-tree file equals the pin blob.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryGraftContext", {
+      description:
+        "Graft skeleton of a module in the reference working tree, its HEAD, and whether the working-tree file equals the pin blob.",
+    })
+  )
 ) {}
 
 /**
@@ -705,19 +729,21 @@ export class EffectSchemaInventoryGraftContext extends S.Class<EffectSchemaInven
  * @category models
  * @since 0.0.0
  */
-export class EffectSchemaInventoryPromptReceipt extends S.Class<EffectSchemaInventoryPromptReceipt>(
-  $I`EffectSchemaInventoryPromptReceipt`
-)(
-  {
+export class EffectSchemaInventoryPromptReceipt extends S.Opaque<
+  EffectSchemaInventoryPromptReceipt,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     module: EffectSchemaInventoryModuleName,
     target: S.NonEmptyString,
     rows: EffectSchemaInventoryCount,
     workingTreeMatchesPin: S.Boolean,
-  },
-  $I.annote("EffectSchemaInventoryPromptReceipt", {
-    description:
-      "Module, output path, row count, and whether graft's working-tree file matched the pin for a written lane prompt.",
-  })
+  }).pipe(
+    $I.annoteSchema("EffectSchemaInventoryPromptReceipt", {
+      description:
+        "Module, output path, row count, and whether graft's working-tree file matched the pin for a written lane prompt.",
+    })
+  )
 ) {}
 
 /**

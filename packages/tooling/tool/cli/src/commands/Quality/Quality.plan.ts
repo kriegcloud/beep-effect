@@ -7,8 +7,12 @@
 
 import { cpus, totalmem } from "node:os";
 import { Str } from "@beep/utils";
-import { QualityHardwareProfile, QualityProfileConfig, QualityProfileDetection } from "./Quality.schemas.ts";
-import type { QualityProfileDetectionInput } from "./Quality.schemas.ts";
+import {
+  QualityHardwareProfile,
+  QualityProfileConfig,
+  QualityProfileDetection,
+  QualityProfileDetectionInput,
+} from "./Quality.schemas.ts";
 
 const gibibytes = (bytes: number): number => Math.round((bytes / 1024 / 1024 / 1024) * 10) / 10;
 
@@ -65,13 +69,16 @@ export const qualityProfileConfigForTesting = (profile: QualityHardwareProfile):
  * **Example** (Detect from host facts)
  *
  * ```ts
+ * import { QualityProfileDetectionInput } from "@beep/repo-cli/commands/Quality"
  * import { detectQualityProfileForTesting } from "@beep/repo-cli/test/Quality"
  *
- * const profile = detectQualityProfileForTesting({
- *   ci: false,
- *   cpuCount: 64,
- *   totalMemoryBytes: 128 * 1024 * 1024 * 1024
- * })
+ * const profile = detectQualityProfileForTesting(
+ *   QualityProfileDetectionInput.make({
+ *     ci: false,
+ *     cpuCount: 64,
+ *     totalMemoryBytes: 128 * 1024 * 1024 * 1024
+ *   })
+ * )
  * console.log(profile.profile)
  * ```
  *
@@ -111,8 +118,10 @@ export const detectQualityProfileForTesting = (input: QualityProfileDetectionInp
  * @since 0.0.0
  */
 export const detectQualityProfile = (): QualityProfileDetection =>
-  detectQualityProfileForTesting({
-    ci: Str.isNonEmpty(Bun.env.CI ?? ""),
-    cpuCount: cpus().length,
-    totalMemoryBytes: totalmem(),
-  });
+  detectQualityProfileForTesting(
+    QualityProfileDetectionInput.make({
+      ci: Str.isNonEmpty(Bun.env.CI ?? ""),
+      cpuCount: cpus().length,
+      totalMemoryBytes: totalmem(),
+    })
+  );

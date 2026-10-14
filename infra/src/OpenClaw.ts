@@ -396,8 +396,8 @@ export const OpenClawPulumiConfigValues = S.Class<OpenClawPulumiConfigValuesFiel
  * @category models
  * @since 0.0.0
  */
-export class OpenClawExpectedIdentity extends S.Class<OpenClawExpectedIdentity>($I`OpenClawExpectedIdentity`)(
-  {
+export class OpenClawExpectedIdentity extends S.Opaque<OpenClawExpectedIdentity, { readonly brand: unique symbol }>()(
+  S.Struct({
     home: OpenclawAbsolutePath.annotateKey({
       description: "Absolute home directory of the target user.",
     }),
@@ -416,10 +416,11 @@ export class OpenClawExpectedIdentity extends S.Class<OpenClawExpectedIdentity>(
     username: S.NonEmptyString.annotateKey({
       description: "Expected login name of the target user.",
     }),
-  },
-  $I.annote("OpenClawExpectedIdentity", {
-    description: "Fully declared identity of the workstation the OpenClaw stack is bound to.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawExpectedIdentity", {
+      description: "Fully declared identity of the workstation the OpenClaw stack is bound to.",
+    })
+  )
 ) {}
 
 /**
@@ -435,8 +436,8 @@ export class OpenClawExpectedIdentity extends S.Class<OpenClawExpectedIdentity>(
  * @category models
  * @since 0.0.0
  */
-export class OpenClawWorkstationPaths extends S.Class<OpenClawWorkstationPaths>($I`OpenClawWorkstationPaths`)(
-  {
+export class OpenClawWorkstationPaths extends S.Opaque<OpenClawWorkstationPaths, { readonly brand: unique symbol }>()(
+  S.Struct({
     configRoot: OpenclawAbsolutePath.pipe(
       S.withConstructorDefault(Effect.succeed(defaultConfigRoot)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultConfigRoot))
@@ -461,10 +462,11 @@ export class OpenClawWorkstationPaths extends S.Class<OpenClawWorkstationPaths>(
     ).annotateKey({
       description: "Name of the stack-owned `systemd --user` unit.",
     }),
-  },
-  $I.annote("OpenClawWorkstationPaths", {
-    description: "Filesystem layout the OpenClaw workstation applicator owns.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawWorkstationPaths", {
+      description: "Filesystem layout the OpenClaw workstation applicator owns.",
+    })
+  )
 ) {}
 
 /**
@@ -488,10 +490,11 @@ export class OpenClawWorkstationPaths extends S.Class<OpenClawWorkstationPaths>(
  * @category models
  * @since 0.0.0
  */
-export class OpenClawHostedProviderConfig extends S.Class<OpenClawHostedProviderConfig>(
-  $I`OpenClawHostedProviderConfig`
-)(
-  {
+export class OpenClawHostedProviderConfig extends S.Opaque<
+  OpenClawHostedProviderConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     apiKeyRef: OpenclawSecretReference,
     baseUrl: S.NonEmptyString.check(
       S.isPattern(hostedProviderBaseUrlPattern, {
@@ -504,10 +507,11 @@ export class OpenClawHostedProviderConfig extends S.Class<OpenClawHostedProvider
     modelId: S.NonEmptyString,
     modelName: S.NonEmptyString,
     providerId: S.NonEmptyString,
-  },
-  $I.annote("OpenClawHostedProviderConfig", {
-    description: "Required hosted OpenAI-compatible provider configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawHostedProviderConfig", {
+      description: "Required hosted OpenAI-compatible provider configuration.",
+    })
+  )
 ) {}
 
 /**
@@ -529,16 +533,20 @@ export class OpenClawHostedProviderConfig extends S.Class<OpenClawHostedProvider
  * @category models
  * @since 0.0.0
  */
-export class OpenClawLocalProviderConfig extends S.Class<OpenClawLocalProviderConfig>($I`OpenClawLocalProviderConfig`)(
-  {
+export class OpenClawLocalProviderConfig extends S.Opaque<
+  OpenClawLocalProviderConfig,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     baseUrl: LoopbackProviderBaseUrl,
     modelId: S.NonEmptyString,
     modelName: S.NonEmptyString,
     providerId: S.NonEmptyString,
-  },
-  $I.annote("OpenClawLocalProviderConfig", {
-    description: "Required local loopback OpenAI-compatible provider configuration.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawLocalProviderConfig", {
+      description: "Required local loopback OpenAI-compatible provider configuration.",
+    })
+  )
 ) {}
 
 const openClawDeploymentConfigGatewayAuthTokenRefDefault = OpenclawSecretReference.make(defaultGatewayAuthTokenRef);
@@ -579,8 +587,8 @@ const openClawDeploymentConfigGatewayAuthTokenRefDefault = OpenclawSecretReferen
  * @category models
  * @since 0.0.0
  */
-export class OpenClawDeploymentConfig extends S.Class<OpenClawDeploymentConfig>($I`OpenClawDeploymentConfig`)(
-  {
+export class OpenClawDeploymentConfig extends S.Opaque<OpenClawDeploymentConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentId: S.NonEmptyString.pipe(
       S.withConstructorDefault(Effect.succeed(defaultAgentId)),
       S.withDecodingDefaultTypeKey(Effect.succeed(defaultAgentId))
@@ -647,10 +655,11 @@ export class OpenClawDeploymentConfig extends S.Class<OpenClawDeploymentConfig>(
       S.withConstructorDefault(Effect.succeed("disabled" as const)),
       S.withDecodingDefaultTypeKey(Effect.succeed("disabled" as const))
     ),
-  },
-  $I.annote("OpenClawDeploymentConfig", {
-    description: "Deployment inputs the OpenClaw stack renders into a deployment intent.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawDeploymentConfig", {
+      description: "Deployment inputs the OpenClaw stack renders into a deployment intent.",
+    })
+  )
 ) {}
 
 const utf8 = new TextEncoder();
@@ -821,8 +830,8 @@ export const makeOpenClawDeploymentIntent: {
  * @category models
  * @since 0.0.0
  */
-export class OpenClawBackupConfig extends S.Class<OpenClawBackupConfig>($I`OpenClawBackupConfig`)(
-  {
+export class OpenClawBackupConfig extends S.Opaque<OpenClawBackupConfig, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentSocketPath: S.OptionFromOptionalKey(S.String).pipe(S.withConstructorDefault(Effect.succeedNone)).annotateKey({
       description: "Local SSH agent socket exported as `SSH_AUTH_SOCK` while shipping, when declared.",
     }),
@@ -847,10 +856,11 @@ export class OpenClawBackupConfig extends S.Class<OpenClawBackupConfig>($I`OpenC
     ).annotateKey({
       description: "Remote login used to ship encrypted snapshot archives.",
     }),
-  },
-  $I.annote("OpenClawBackupConfig", {
-    description: "Backup shipping inputs for encrypted OpenClaw generation snapshots.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawBackupConfig", {
+      description: "Backup shipping inputs for encrypted OpenClaw generation snapshots.",
+    })
+  )
 ) {}
 
 /**
@@ -893,8 +903,8 @@ export class OpenClawBackupConfig extends S.Class<OpenClawBackupConfig>($I`OpenC
  * @category models
  * @since 0.0.0
  */
-export class OpenClawGeneration extends S.Class<OpenClawGeneration>($I`OpenClawGeneration`)(
-  {
+export class OpenClawGeneration extends S.Opaque<OpenClawGeneration, { readonly brand: unique symbol }>()(
+  S.Struct({
     agentId: S.NonEmptyString,
     canonicalJson: S.String.annotateKey({
       description: "Canonical `openclaw.json` bytes rendered by the driver adapter.",
@@ -947,10 +957,11 @@ export class OpenClawGeneration extends S.Class<OpenClawGeneration>($I`OpenClawG
     workspace: OpenclawAbsolutePath.annotateKey({
       description: "Absolute path of the agent workspace directory.",
     }),
-  },
-  $I.annote("OpenClawGeneration", {
-    description: "One immutable, content-addressed OpenClaw generation.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawGeneration", {
+      description: "One immutable, content-addressed OpenClaw generation.",
+    })
+  )
 ) {}
 
 /**
@@ -973,8 +984,8 @@ export class OpenClawGeneration extends S.Class<OpenClawGeneration>($I`OpenClawG
  * @category models
  * @since 0.0.0
  */
-export class OpenClawBundleHashInput extends S.Class<OpenClawBundleHashInput>($I`OpenClawBundleHashInput`)(
-  {
+export class OpenClawBundleHashInput extends S.Opaque<OpenClawBundleHashInput, { readonly brand: unique symbol }>()(
+  S.Struct({
     configHash: OpenclawSha256Hex.annotateKey({
       description: "SHA-256 of the canonical OpenClaw configuration.",
     }),
@@ -984,10 +995,11 @@ export class OpenClawBundleHashInput extends S.Class<OpenClawBundleHashInput>($I
     soulHash: OpenclawSha256Hex.annotateKey({
       description: "SHA-256 of the immutable legal-agent persona.",
     }),
-  },
-  $I.annote("OpenClawBundleHashInput", {
-    description: "Content hashes combined into the length-delimited OpenClaw generation identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawBundleHashInput", {
+      description: "Content hashes combined into the length-delimited OpenClaw generation identity.",
+    })
+  )
 ) {}
 
 /**
@@ -1004,20 +1016,22 @@ export class OpenClawBundleHashInput extends S.Class<OpenClawBundleHashInput>($I
  * @category models
  * @since 0.0.0
  */
-export class OpenClawGenerationIdentityScriptInput extends S.Class<OpenClawGenerationIdentityScriptInput>(
-  $I`OpenClawGenerationIdentityScriptInput`
-)(
-  {
+export class OpenClawGenerationIdentityScriptInput extends S.Opaque<
+  OpenClawGenerationIdentityScriptInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     generation: OpenClawGeneration.annotateKey({
       description: "Content-addressed generation the rendered script operates on.",
     }),
     identity: OpenClawExpectedIdentity.annotateKey({
       description: "Expected workstation identity the rendered script verifies.",
     }),
-  },
-  $I.annote("OpenClawGenerationIdentityScriptInput", {
-    description: "Input shared by OpenClaw scripts that bind a generation to its expected workstation identity.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawGenerationIdentityScriptInput", {
+      description: "Input shared by OpenClaw scripts that bind a generation to its expected workstation identity.",
+    })
+  )
 ) {}
 
 /**
@@ -1033,20 +1047,22 @@ export class OpenClawGenerationIdentityScriptInput extends S.Class<OpenClawGener
  * @category models
  * @since 0.0.0
  */
-export class OpenClawBackupShipScriptInput extends S.Class<OpenClawBackupShipScriptInput>(
-  $I`OpenClawBackupShipScriptInput`
-)(
-  {
+export class OpenClawBackupShipScriptInput extends S.Opaque<
+  OpenClawBackupShipScriptInput,
+  { readonly brand: unique symbol }
+>()(
+  S.Struct({
     backup: OpenClawBackupConfig.annotateKey({
       description: "Encrypted backup shipping configuration.",
     }),
     generation: OpenClawGeneration.annotateKey({
       description: "Content-addressed generation whose snapshot is shipped.",
     }),
-  },
-  $I.annote("OpenClawBackupShipScriptInput", {
-    description: "Input for rendering an encrypted OpenClaw backup shipping script.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawBackupShipScriptInput", {
+      description: "Input for rendering an encrypted OpenClaw backup shipping script.",
+    })
+  )
 ) {}
 
 const generationDir = (generation: OpenClawGeneration): string => `${generation.configRoot}/${generation.generationId}`;
@@ -1166,17 +1182,19 @@ const renderGenerationManifest = (generation: OpenClawGeneration): string =>
  *
  * @example
  * ```ts
- * import { makeOpenClawBundleHash } from "@beep/infra"
+ * import { makeOpenClawBundleHash, OpenClawBundleHashInput } from "@beep/infra"
  * import { OpenclawSha256Hex } from "@beep/openclaw"
  *
  * import * as Effect from "effect/Effect"
  *
  * const zeroHash = OpenclawSha256Hex.make("0".repeat(64))
- * const bundleHash = makeOpenClawBundleHash({
- *   configHash: zeroHash,
- *   proofSkillHash: zeroHash,
- *   soulHash: zeroHash
- * })
+ * const bundleHash = makeOpenClawBundleHash(
+ *   OpenClawBundleHashInput.make({
+ *     configHash: zeroHash,
+ *     proofSkillHash: zeroHash,
+ *     soulHash: zeroHash
+ *   })
+ * )
  * console.log(Effect.isEffect(bundleHash))
  * // true
  * ```
@@ -1252,7 +1270,10 @@ export const makeOpenClawGeneration: (
 ) => Effect.Effect<OpenClawGeneration, PlatformError, Crypto.Crypto> = Effect.fn($I`makeOpenClawGeneration`)(function* (
   args: OpenClawStackArgs
 ) {
-  const intent = yield* makeOpenClawDeploymentIntent(args.deployment, args.paths.configRoot);
+  const intent = yield* makeOpenClawDeploymentIntent(
+    OpenClawDeploymentConfig.make(args.deployment),
+    args.paths.configRoot
+  );
   const rendered = yield* renderOpenclawConfig(intent);
   const soulHash = OpenclawSha256Hex.make(yield* sha256Hex(openClawLegalSoulMarkdown));
   const proofSkillHash = OpenclawSha256Hex.make(yield* sha256Hex(openClawProofSkillMarkdown));
@@ -1262,7 +1283,9 @@ export const makeOpenClawGeneration: (
     configRoot: args.paths.configRoot,
     configHash: rendered.contentHash,
     gatewayPort: args.deployment.gatewayPort,
-    generationId: yield* makeOpenClawBundleHash({ configHash: rendered.contentHash, proofSkillHash, soulHash }),
+    generationId: yield* makeOpenClawBundleHash(
+      OpenClawBundleHashInput.make({ configHash: rendered.contentHash, proofSkillHash, soulHash })
+    ),
     home: args.identity.home,
     hostedModelId: args.deployment.hostedProvider.modelId,
     hostedProviderId: args.deployment.hostedProvider.providerId,
@@ -1448,18 +1471,19 @@ export const renderOpenClawRunScript = (generation: OpenClawGeneration): string 
  * @category models
  * @since 0.0.0
  */
-export class OpenClawGenerationFile extends S.Class<OpenClawGenerationFile>($I`OpenClawGenerationFile`)(
-  {
+export class OpenClawGenerationFile extends S.Opaque<OpenClawGenerationFile, { readonly brand: unique symbol }>()(
+  S.Struct({
     content: S.String.annotateKey({
       description: "Exact bytes written into the generation directory.",
     }),
     mode: OpenClawFileMode.annotateKey({
       description: "Filesystem mode the file is materialized with.",
     }),
-  },
-  $I.annote("OpenClawGenerationFile", {
-    description: "One rendered OpenClaw generation file with its materialization mode.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawGenerationFile", {
+      description: "One rendered OpenClaw generation file with its materialization mode.",
+    })
+  )
 ) {}
 
 /**
@@ -1536,6 +1560,7 @@ export const renderOpenClawGenerationTree = (
  * import {
  *   makeOpenClawGeneration,
  *   makeOpenClawStackArgsFromConfigValues,
+ *   OpenClawGenerationIdentityScriptInput,
  *   renderOpenClawPreflightScript
  * } from "@beep/infra"
  * import * as Effect from "effect/Effect"
@@ -1561,10 +1586,12 @@ export const renderOpenClawGenerationTree = (
  *   telegramBotTokenRef: "op://beep-openclaw/telegram/bot-token"
  * })
  * const identity = args.identity
- * const script = renderOpenClawPreflightScript({
- *   generation: Effect.runSync(makeOpenClawGeneration(args).pipe(Effect.provideService(Crypto.Crypto, NodeCrypto.make))),
- *   identity
- * })
+ * const script = renderOpenClawPreflightScript(
+ *   OpenClawGenerationIdentityScriptInput.make({
+ *     generation: Effect.runSync(makeOpenClawGeneration(args).pipe(Effect.provideService(Crypto.Crypto, NodeCrypto.make))),
+ *     identity
+ *   })
+ * )
  * console.log(script.includes("PREFLIGHT-OK")) // true
  * ```
  *
@@ -1576,7 +1603,7 @@ export const renderOpenClawPreflightScript = ({
   identity,
 }: OpenClawGenerationIdentityScriptInput): string =>
   bashScript([
-    ...scriptPreamble(generation),
+    ...scriptPreamble(OpenClawGeneration.make(generation)),
     "fail() { printf 'PREFLIGHT-FAIL: %s\\n' \"$1\" >&2; exit 78; }",
     ...A.map(
       ["curl", "install", "loginctl", "sha256sum", "sqlite3", "systemctl"],
@@ -1586,7 +1613,7 @@ export const renderOpenClawPreflightScript = ({
     // a name lookup is satisfied by any shim earlier on PATH, which is precisely what the
     // privileged scripts must never call.
     "[ -u /usr/bin/sudo ] || fail '/usr/bin/sudo is missing or not setuid root'",
-    ...A.flatMap(identityChecks(identity), identityAssertionLines),
+    ...A.flatMap(identityChecks(OpenClawExpectedIdentity.make(identity)), identityAssertionLines),
     `linger="$(loginctl show-user ${shellQuote(identity.username)} -p Linger --value || printf '')"`,
     `[ "\${linger}" = yes ] || fail "linger not enabled for ${identity.username} (Linger=\${linger})"`,
     `[ -d "\${XDG_RUNTIME_DIR}" ] || fail "runtime dir \${XDG_RUNTIME_DIR} missing"`,
@@ -1599,7 +1626,12 @@ export const renderOpenClawPreflightScript = ({
     "esac",
     `for candidate in ${A.join(
       A.map(
-        [activeConfigPath(generation), generationDir(generation), generation.stateDir, `${generation.runtimeDir}/bus`],
+        [
+          activeConfigPath(OpenClawGeneration.make(generation)),
+          generationDir(OpenClawGeneration.make(generation)),
+          generation.stateDir,
+          `${generation.runtimeDir}/bus`,
+        ],
         shellQuote
       ),
       " "
@@ -1993,12 +2025,12 @@ const driftAuditLines = (input: OpenClawGenerationIdentityScriptInput): Readonly
     `  printf '${driftAlertPrefix} %s expected=%s actual=%s\\n' "$1" "$2" "$3"`,
     "  drift_alerts=$((drift_alerts + 1))",
     "}",
-    `pointer_target="$(readlink ${shellQuote(pointerPath(generation))} 2>/dev/null || printf 'absent')"`,
+    `pointer_target="$(readlink ${shellQuote(pointerPath(OpenClawGeneration.make(generation)))} 2>/dev/null || printf 'absent')"`,
     `[ "\${pointer_target}" = ${shellQuote(
       generation.generationId
     )} ] || alert generation-pointer ${shellQuote(generation.generationId)} "\${pointer_target}"`,
     `installed_openclaw="$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\\([^"]*\\)".*/\\1/p' ${shellQuote(
-      `${generationDir(generation)}/node_modules/openclaw/package.json`
+      `${generationDir(OpenClawGeneration.make(generation))}/node_modules/openclaw/package.json`
     )} 2>/dev/null | head -n 1 || printf 'absent')"`,
     `[ "\${installed_openclaw}" = ${shellQuote(
       generation.openclawVersion
@@ -2007,7 +2039,7 @@ const driftAuditLines = (input: OpenClawGenerationIdentityScriptInput): Readonly
     `[ "\${installed_node}" = ${shellQuote(
       generation.nodeVersion
     )} ] || alert node-version ${shellQuote(generation.nodeVersion)} "\${installed_node:-absent}"`,
-    `unit_sha="$(sha256sum ${shellQuote(unitPath(generation))} 2>/dev/null | cut -d' ' -f1 || printf 'absent')"`,
+    `unit_sha="$(sha256sum ${shellQuote(unitPath(OpenClawGeneration.make(generation)))} 2>/dev/null | cut -d' ' -f1 || printf 'absent')"`,
     // `$(...)` strips the trailing newline the heredoc carried, so the digest is
     // taken over the text plus the single newline the installed unit file ends with.
     "expected_unit_sha=\"$(printf '%s\\n' \"${expected_unit_text}\" | sha256sum | cut -d' ' -f1)\"",
@@ -2016,31 +2048,31 @@ const driftAuditLines = (input: OpenClawGenerationIdentityScriptInput): Readonly
     `[ "\${unit_enabled}" = enabled ] || alert unit-enabled enabled "\${unit_enabled}"`,
     `unit_active="$(systemctl --user is-active ${shellQuote(generation.unitName)} 2>&1 || true)"`,
     `[ "\${unit_active}" = active ] || alert unit-active active "\${unit_active}"`,
-    `config_sha="$(sha256sum ${shellQuote(activeConfigPath(generation))} 2>/dev/null | cut -d' ' -f1 || printf 'absent')"`,
+    `config_sha="$(sha256sum ${shellQuote(activeConfigPath(OpenClawGeneration.make(generation)))} 2>/dev/null | cut -d' ' -f1 || printf 'absent')"`,
     `[ "\${config_sha}" = ${shellQuote(
       generation.configHash
     )} ] || alert config-hash ${shellQuote(generation.configHash)} "\${config_sha:-absent}"`,
     // Mode comparison uses stat's octal form so the numeric encodings systemd and
     // stat report for the same permissions (33188 vs 420) can never read as drift.
-    `config_mode="$(stat -c '%a' ${shellQuote(activeConfigPath(generation))} 2>/dev/null || printf 'absent')"`,
+    `config_mode="$(stat -c '%a' ${shellQuote(activeConfigPath(OpenClawGeneration.make(generation)))} 2>/dev/null || printf 'absent')"`,
     `[ "\${config_mode}" = 644 ] || alert config-mode 644 "\${config_mode}"`,
     `run_mode="$(stat -c '%a' ${shellQuote(
-      `${pointerPath(generation)}/${runScriptFileName}`
+      `${pointerPath(OpenClawGeneration.make(generation))}/${runScriptFileName}`
     )} 2>/dev/null || printf 'absent')"`,
     `[ "\${run_mode}" = 755 ] || alert run-script-mode 755 "\${run_mode}"`,
     `if env -i PATH=${shellQuote(`${generation.nodeBinDir}:/usr/bin:/bin`)} HOME=${shellQuote(
       generation.home
-    )} OPENCLAW_CONFIG_PATH=${shellQuote(activeConfigPath(generation))} OPENCLAW_STATE_DIR=${shellQuote(
+    )} OPENCLAW_CONFIG_PATH=${shellQuote(activeConfigPath(OpenClawGeneration.make(generation)))} OPENCLAW_STATE_DIR=${shellQuote(
       generation.stateDir
     )} OPENCLAW_NIX_MODE=1 ${shellQuote(
-      `${pointerPath(generation)}/node_modules/.bin/openclaw`
+      `${pointerPath(OpenClawGeneration.make(generation))}/node_modules/.bin/openclaw`
     )} config validate >/dev/null 2>&1; then`,
     "  config_validate=ok",
     "else",
     "  config_validate=failed",
     "fi",
     '[ "${config_validate}" = ok ] || alert config-validate ok "${config_validate}"',
-    ...A.flatMap(identityChecks(input.identity), (check) => [
+    ...A.flatMap(identityChecks(OpenClawExpectedIdentity.make(input.identity)), (check) => [
       `observed_${check.variable}="$(${check.actual} 2>/dev/null || printf 'unreadable')"`,
       `[ "\${observed_${check.variable}}" = ${shellQuote(check.expected)} ] || alert identity-${Str.replace(
         / /gu,
@@ -2072,6 +2104,7 @@ const expectedUnitTextLines = (generation: OpenClawGeneration): ReadonlyArray<st
  * import {
  *   makeOpenClawGeneration,
  *   makeOpenClawStackArgsFromConfigValues,
+ *   OpenClawGenerationIdentityScriptInput,
  *   renderOpenClawDriftAuditScript
  * } from "@beep/infra"
  * import * as Effect from "effect/Effect"
@@ -2097,10 +2130,12 @@ const expectedUnitTextLines = (generation: OpenClawGeneration): ReadonlyArray<st
  *   telegramBotTokenRef: "op://beep-openclaw/telegram/bot-token"
  * })
  * const identity = args.identity
- * const script = renderOpenClawDriftAuditScript({
- *   generation: Effect.runSync(makeOpenClawGeneration(args).pipe(Effect.provideService(Crypto.Crypto, NodeCrypto.make))),
- *   identity
- * })
+ * const script = renderOpenClawDriftAuditScript(
+ *   OpenClawGenerationIdentityScriptInput.make({
+ *     generation: Effect.runSync(makeOpenClawGeneration(args).pipe(Effect.provideService(Crypto.Crypto, NodeCrypto.make))),
+ *     identity
+ *   })
+ * )
  * console.log(script.includes("ALERT: OPENCLAW_CONFIG_DRIFT")) // true
  * ```
  *
@@ -2111,7 +2146,7 @@ export const renderOpenClawDriftAuditScript = (input: OpenClawGenerationIdentity
   bashScript([
     "set -uo pipefail",
     trustedBasePath,
-    ...expectedUnitTextLines(input.generation),
+    ...expectedUnitTextLines(OpenClawGeneration.make(input.generation)),
     ...driftAuditLines(input),
     "exit 0",
   ]);
@@ -2128,6 +2163,7 @@ export const renderOpenClawDriftAuditScript = (input: OpenClawGenerationIdentity
  * import {
  *   makeOpenClawGeneration,
  *   makeOpenClawStackArgsFromConfigValues,
+ *   OpenClawGenerationIdentityScriptInput,
  *   renderOpenClawProbeScript
  * } from "@beep/infra"
  * import * as Effect from "effect/Effect"
@@ -2153,10 +2189,12 @@ export const renderOpenClawDriftAuditScript = (input: OpenClawGenerationIdentity
  *   telegramBotTokenRef: "op://beep-openclaw/telegram/bot-token"
  * })
  * const identity = args.identity
- * const script = renderOpenClawProbeScript({
- *   generation: Effect.runSync(makeOpenClawGeneration(args).pipe(Effect.provideService(Crypto.Crypto, NodeCrypto.make))),
- *   identity
- * })
+ * const script = renderOpenClawProbeScript(
+ *   OpenClawGenerationIdentityScriptInput.make({
+ *     generation: Effect.runSync(makeOpenClawGeneration(args).pipe(Effect.provideService(Crypto.Crypto, NodeCrypto.make))),
+ *     identity
+ *   })
+ * )
  * console.log(script.includes("PROBE-COMPLETE")) // true
  * ```
  *
@@ -2171,18 +2209,18 @@ export const renderOpenClawProbeScript = (input: OpenClawGenerationIdentityScrip
     trustedBasePath,
     `export XDG_RUNTIME_DIR=${shellQuote(generation.runtimeDir)}`,
     `export DBUS_SESSION_BUS_ADDRESS=${shellQuote(`unix:path=${generation.runtimeDir}/bus`)}`,
-    ...expectedUnitTextLines(generation),
+    ...expectedUnitTextLines(OpenClawGeneration.make(generation)),
     `http_status="$(curl -s -o /dev/null -w '%{http_code}' --max-time 3 ${shellQuote(
-      healthUrl(generation)
+      healthUrl(OpenClawGeneration.make(generation))
     )} || printf '000')"`,
-    `printf 'PROBE-LIVENESS ${healthUrl(generation)} status=%s\\n' "\${http_status}"`,
-    `if ${shellQuote(`${pointerPath(generation)}/node_modules/.bin/openclaw`)} gateway call health >/dev/null 2>&1; then`,
+    `printf 'PROBE-LIVENESS ${healthUrl(OpenClawGeneration.make(generation))} status=%s\\n' "\${http_status}"`,
+    `if ${shellQuote(`${pointerPath(OpenClawGeneration.make(generation))}/node_modules/.bin/openclaw`)} gateway call health >/dev/null 2>&1; then`,
     "  printf 'PROBE-GATEWAY-HEALTH ok\\n'",
     "else",
     "  printf 'PROBE-GATEWAY-HEALTH unreachable\\n'",
     "fi",
     `if ${shellQuote(
-      `${pointerPath(generation)}/node_modules/.bin/openclaw`
+      `${pointerPath(OpenClawGeneration.make(generation))}/node_modules/.bin/openclaw`
     )} channels status --probe >/dev/null 2>&1; then`,
     "  printf 'PROBE-CHANNELS ok\\n'",
     "else",
@@ -2304,6 +2342,7 @@ export const renderOpenClawLiveAcceptanceScript = (generation: OpenClawGeneratio
  *   makeOpenClawGeneration,
  *   makeOpenClawStackArgsFromConfigValues,
  *   OpenClawBackupConfig,
+ *   OpenClawBackupShipScriptInput,
  *   renderOpenClawBackupShipScript
  * } from "@beep/infra"
  * import * as Effect from "effect/Effect"
@@ -2328,10 +2367,12 @@ export const renderOpenClawLiveAcceptanceScript = (generation: OpenClawGeneratio
  *   localProviderModelName: "Gemma 3 4B",
  *   telegramBotTokenRef: "op://beep-openclaw/telegram/bot-token"
  * })
- * const script = renderOpenClawBackupShipScript({
- *   backup: OpenClawBackupConfig.make({ passphraseSecretRef: "op://beep-openclaw/backup/passphrase" }),
- *   generation: Effect.runSync(makeOpenClawGeneration(args).pipe(Effect.provideService(Crypto.Crypto, NodeCrypto.make)))
- * })
+ * const script = renderOpenClawBackupShipScript(
+ *   OpenClawBackupShipScriptInput.make({
+ *     backup: OpenClawBackupConfig.make({ passphraseSecretRef: "op://beep-openclaw/backup/passphrase" }),
+ *     generation: Effect.runSync(makeOpenClawGeneration(args).pipe(Effect.provideService(Crypto.Crypto, NodeCrypto.make)))
+ *   })
+ * )
  * console.log(script.includes("BACKUP-OK")) // true
  * ```
  *
@@ -2402,8 +2443,8 @@ export const renderOpenClawBackupShipScript = ({ backup, generation }: OpenClawB
  * @category models
  * @since 0.0.0
  */
-export class OpenClawStackArgs extends S.Class<OpenClawStackArgs>($I`OpenClawStackArgs`)(
-  {
+export class OpenClawStackArgs extends S.Opaque<OpenClawStackArgs, { readonly brand: unique symbol }>()(
+  S.Struct({
     backup: S.OptionFromOptionalKey(OpenClawBackupConfig)
       .pipe(S.withConstructorDefault(Effect.succeedNone))
       .annotateKey({
@@ -2421,10 +2462,11 @@ export class OpenClawStackArgs extends S.Class<OpenClawStackArgs>($I`OpenClawSta
     ).annotateKey({
       description: "Filesystem layout the workstation applicator owns.",
     }),
-  },
-  $I.annote("OpenClawStackArgs", {
-    description: "Pulumi-facing OpenClaw workstation arguments resolved before component construction.",
-  })
+  }).pipe(
+    $I.annoteSchema("OpenClawStackArgs", {
+      description: "Pulumi-facing OpenClaw workstation arguments resolved before component construction.",
+    })
+  )
 ) {
   /**
    * Build component args around a declared workstation identity.
@@ -2697,7 +2739,7 @@ export class OpenClawStack extends pulumi.ComponentResource {
    *
    * @since 0.0.0
    */
-  public readonly generation: pulumi.Output<OpenClawGeneration>;
+  public readonly generation: pulumi.Output<pulumi.Unwrap<OpenClawGeneration>>;
 
   /**
    * Content-addressed generation id, which is also the generation directory name.
@@ -2822,10 +2864,12 @@ export class OpenClawStack extends pulumi.ComponentResource {
     const identity = args.identity;
     const unitText = renderOpenClawUnit(generation);
     const runScript = renderOpenClawRunScript(generation);
-    const preflightScript = renderOpenClawPreflightScript({ generation, identity });
+    const preflightScript = renderOpenClawPreflightScript(
+      OpenClawGenerationIdentityScriptInput.make({ generation, identity })
+    );
     const stageScript = renderOpenClawStageScript(generation);
     const applyScript = renderOpenClawApplyScript(generation);
-    const probeScript = renderOpenClawProbeScript({ generation, identity });
+    const probeScript = renderOpenClawProbeScript(OpenClawGenerationIdentityScriptInput.make({ generation, identity }));
     const generationTriggers = [
       generation.generationId,
       generation.canonicalJson,
@@ -2883,7 +2927,7 @@ export class OpenClawStack extends pulumi.ComponentResource {
     );
     const backupShip = O.getOrUndefined(
       O.map(args.backup, (backup) => {
-        const backupScript = renderOpenClawBackupShipScript({ backup, generation });
+        const backupScript = renderOpenClawBackupShipScript(OpenClawBackupShipScriptInput.make({ backup, generation }));
 
         return new command.local.Command(
           `${name}-backup-ship`,
@@ -2913,7 +2957,9 @@ export class OpenClawStack extends pulumi.ComponentResource {
     this.gatewayPort = pulumi.output(generation.gatewayPort);
     this.openclawVersion = pulumi.output(generation.openclawVersion);
     this.nodeVersion = pulumi.output(generation.nodeVersion);
-    this.driftAuditCommand = pulumi.output(renderOpenClawDriftAuditScript({ generation, identity }));
+    this.driftAuditCommand = pulumi.output(
+      renderOpenClawDriftAuditScript(OpenClawGenerationIdentityScriptInput.make({ generation, identity }))
+    );
     this.liveAcceptanceCommand = pulumi.output(renderOpenClawLiveAcceptanceScript(generation));
     this.rollbackCommand = pulumi.output(renderOpenClawRollbackScript(generation));
     this.preflightStdout = pulumi.secret(preflight.stdout);

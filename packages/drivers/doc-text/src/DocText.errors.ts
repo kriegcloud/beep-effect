@@ -76,15 +76,16 @@ const isDocTextErrorReason = S.is(DocTextErrorReason);
  * @category errors
  * @since 0.0.0
  */
-export class DocTextErrorOptions extends S.Class<DocTextErrorOptions>($I`DocTextErrorOptions`)(
-  {
+export class DocTextErrorOptions extends S.Opaque<DocTextErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.optionalKey(S.String).annotateKey({
       description: "Sanitized technical cause string when one is safe to retain.",
     }),
-  },
-  $I.annote("DocTextErrorOptions", {
-    description: "Options for configuring DocTextError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("DocTextErrorOptions", {
+      description: "Options for configuring DocTextError instances.",
+    })
+  )
 ) {}
 
 /**
@@ -102,7 +103,7 @@ export class DocTextErrorOptions extends S.Class<DocTextErrorOptions>($I`DocText
  * @category errors
  * @since 0.0.0
  */
-export class DocTextError extends S.TaggedError<DocTextError>($I`DocTextError`)(
+export class DocTextError extends S.TaggedError<DocTextError, { readonly brand: unique symbol }>($I`DocTextError`)(
   "DocTextError",
   {
     cause: S.OptionFromOptionalKey(S.String).pipe(

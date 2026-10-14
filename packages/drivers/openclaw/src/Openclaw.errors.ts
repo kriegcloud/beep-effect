@@ -58,7 +58,10 @@ const commandContextFields = {
  * @category errors
  * @since 0.0.0
  */
-export class OpenclawCommandSpawnError extends S.TaggedError<OpenclawCommandSpawnError>($I`OpenclawCommandSpawnError`)(
+export class OpenclawCommandSpawnError extends S.TaggedError<
+  OpenclawCommandSpawnError,
+  { readonly brand: unique symbol }
+>($I`OpenclawCommandSpawnError`)(
   "OpenclawCommandSpawnError",
   {
     ...commandContextFields,
@@ -106,7 +109,10 @@ export class OpenclawCommandSpawnError extends S.TaggedError<OpenclawCommandSpaw
  * @category errors
  * @since 0.0.0
  */
-export class OpenclawCommandExitError extends S.TaggedError<OpenclawCommandExitError>($I`OpenclawCommandExitError`)(
+export class OpenclawCommandExitError extends S.TaggedError<
+  OpenclawCommandExitError,
+  { readonly brand: unique symbol }
+>($I`OpenclawCommandExitError`)(
   "OpenclawCommandExitError",
   {
     ...commandContextFields,
@@ -153,9 +159,10 @@ export class OpenclawCommandExitError extends S.TaggedError<OpenclawCommandExitE
  * @category errors
  * @since 0.0.0
  */
-export class OpenclawCommandTimeoutError extends S.TaggedError<OpenclawCommandTimeoutError>(
-  $I`OpenclawCommandTimeoutError`
-)(
+export class OpenclawCommandTimeoutError extends S.TaggedError<
+  OpenclawCommandTimeoutError,
+  { readonly brand: unique symbol }
+>($I`OpenclawCommandTimeoutError`)(
   "OpenclawCommandTimeoutError",
   {
     ...commandContextFields,
@@ -197,7 +204,10 @@ export class OpenclawCommandTimeoutError extends S.TaggedError<OpenclawCommandTi
  * @category errors
  * @since 0.0.0
  */
-export class OpenclawOutputParseError extends S.TaggedError<OpenclawOutputParseError>($I`OpenclawOutputParseError`)(
+export class OpenclawOutputParseError extends S.TaggedError<
+  OpenclawOutputParseError,
+  { readonly brand: unique symbol }
+>($I`OpenclawOutputParseError`)(
   "OpenclawOutputParseError",
   {
     ...commandContextFields,

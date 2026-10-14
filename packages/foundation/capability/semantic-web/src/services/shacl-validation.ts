@@ -95,22 +95,23 @@ export type ShaclSeverity = typeof ShaclSeverity.Type;
  * @category models
  * @since 0.0.0
  */
-export class ShaclPropertyShape extends S.Class<ShaclPropertyShape>($I`ShaclPropertyShape`)(
-  {
+export class ShaclPropertyShape extends S.Opaque<ShaclPropertyShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     path: NamedNode,
     minCount: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
     maxCount: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
     datatype: S.OptionFromOptionalKey(NamedNode).pipe(S.withConstructorDefault(Effect.succeedNone)),
     class: S.OptionFromOptionalKey(NamedNode).pipe(S.withConstructorDefault(Effect.succeedNone)),
     hasValue: S.OptionFromOptionalKey(ObjectTerm).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ShaclPropertyShape", {
-    description: "SHACL property shape used by the bounded service contract.",
-    semanticSchemaMetadata: serviceContractMetadata(
-      "ShaclPropertyShape",
-      "SHACL property shape used by the bounded service contract."
-    ),
-  })
+  }).pipe(
+    $I.annoteSchema("ShaclPropertyShape", {
+      description: "SHACL property shape used by the bounded service contract.",
+      semanticSchemaMetadata: serviceContractMetadata(
+        "ShaclPropertyShape",
+        "SHACL property shape used by the bounded service contract."
+      ),
+    })
+  )
 ) {}
 
 /**
@@ -138,20 +139,21 @@ export class ShaclPropertyShape extends S.Class<ShaclPropertyShape>($I`ShaclProp
  * @category models
  * @since 0.0.0
  */
-export class ShaclNodeShape extends S.Class<ShaclNodeShape>($I`ShaclNodeShape`)(
-  {
+export class ShaclNodeShape extends S.Opaque<ShaclNodeShape, { readonly brand: unique symbol }>()(
+  S.Struct({
     id: S.OptionFromOptionalKey(NamedNode).pipe(S.withConstructorDefault(Effect.succeedNone)),
     targetNode: S.OptionFromOptionalKey(NamedNode).pipe(S.withConstructorDefault(Effect.succeedNone)),
     targetClass: S.OptionFromOptionalKey(NamedNode).pipe(S.withConstructorDefault(Effect.succeedNone)),
     properties: S.Array(ShaclPropertyShape),
-  },
-  $I.annote("ShaclNodeShape", {
-    description: "SHACL node shape used by the bounded service contract.",
-    semanticSchemaMetadata: serviceContractMetadata(
-      "ShaclNodeShape",
-      "SHACL node shape used by the bounded service contract."
-    ),
-  })
+  }).pipe(
+    $I.annoteSchema("ShaclNodeShape", {
+      description: "SHACL node shape used by the bounded service contract.",
+      semanticSchemaMetadata: serviceContractMetadata(
+        "ShaclNodeShape",
+        "SHACL node shape used by the bounded service contract."
+      ),
+    })
+  )
 ) {}
 
 const makeShaclValidationViolationMember = <Severity extends ShaclSeverity>(severity: S.Literal<Severity>) =>
@@ -246,20 +248,21 @@ export type ShaclValidationViolation = typeof ShaclValidationViolation.Type;
  * @category models
  * @since 0.0.0
  */
-export class ShaclValidationRequest extends S.Class<ShaclValidationRequest>($I`ShaclValidationRequest`)(
-  {
+export class ShaclValidationRequest extends S.Opaque<ShaclValidationRequest, { readonly brand: unique symbol }>()(
+  S.Struct({
     dataset: Dataset,
     shapes: S.Array(ShaclNodeShape),
     shapesDataset: S.OptionFromOptionalKey(Dataset).pipe(S.withConstructorDefault(Effect.succeedNone)),
     maxResults: S.OptionFromOptionalKey(S.Natural).pipe(S.withConstructorDefault(Effect.succeedNone)),
-  },
-  $I.annote("ShaclValidationRequest", {
-    description: "SHACL validation request.",
-    semanticSchemaMetadata: serviceContractMetadata(
-      "ShaclValidationRequest",
-      "Request to validate RDF data against bounded SHACL-inspired shapes."
-    ),
-  })
+  }).pipe(
+    $I.annoteSchema("ShaclValidationRequest", {
+      description: "SHACL validation request.",
+      semanticSchemaMetadata: serviceContractMetadata(
+        "ShaclValidationRequest",
+        "Request to validate RDF data against bounded SHACL-inspired shapes."
+      ),
+    })
+  )
 ) {}
 
 /**
@@ -282,16 +285,17 @@ export class ShaclValidationRequest extends S.Class<ShaclValidationRequest>($I`S
  * @category models
  * @since 0.0.0
  */
-export class ShaclValidationResult extends S.Class<ShaclValidationResult>($I`ShaclValidationResult`)(
-  {
+export class ShaclValidationResult extends S.Opaque<ShaclValidationResult, { readonly brand: unique symbol }>()(
+  S.Struct({
     conforms: S.Boolean,
     violations: S.Array(ShaclValidationViolation),
     truncated: S.Boolean,
-  },
-  $I.annote("ShaclValidationResult", {
-    description: "SHACL validation result.",
-    semanticSchemaMetadata: serviceContractMetadata("ShaclValidationResult", "SHACL validation result."),
-  })
+  }).pipe(
+    $I.annoteSchema("ShaclValidationResult", {
+      description: "SHACL validation result.",
+      semanticSchemaMetadata: serviceContractMetadata("ShaclValidationResult", "SHACL validation result."),
+    })
+  )
 ) {}
 
 /**
@@ -355,7 +359,9 @@ export type ShaclValidationErrorReason = typeof ShaclValidationErrorReason.Type;
  * @category errors
  * @since 0.0.0
  */
-export class ShaclValidationError extends S.TaggedError<ShaclValidationError>($I`ShaclValidationError`)(
+export class ShaclValidationError extends S.TaggedError<ShaclValidationError, { readonly brand: unique symbol }>(
+  $I`ShaclValidationError`
+)(
   "ShaclValidationError",
   {
     reason: ShaclValidationErrorReason,

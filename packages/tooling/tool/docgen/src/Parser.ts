@@ -20,6 +20,13 @@ import * as S from "effect/Schema";
 import * as ast from "ts-morph";
 import * as Configuration from "./Configuration.ts";
 import * as Domain from "./Domain.ts";
+import {
+  ClassNewOptions,
+  DocNewOptions,
+  ExportNewOptions,
+  ModuleNewOptions,
+  SignaturePositionOptions,
+} from "./Domain.ts";
 
 const $I = $RepoDocgenId.create("Parser");
 
@@ -112,14 +119,15 @@ const getDocComment: (ranges: ReadonlyArray<ast.CommentRange>) => O.Option<ast.C
   A.last
 );
 
-class ParsedComment extends S.Class<ParsedComment>($I`ParsedComment`)(
-  {
+class ParsedComment extends S.Opaque<ParsedComment, { readonly brand: unique symbol }>()(
+  S.Struct({
     description: S.String.pipe(S.UndefinedOr),
     tags: S.Record(S.String, S.Array(S.String).pipe(S.UndefinedOr)),
-  },
-  $I.annote("ParsedComment", {
-    description: "Normalized description and grouped tag values parsed from a raw JSDoc block.",
-  })
+  }).pipe(
+    $I.annoteSchema("ParsedComment", {
+      description: "Normalized description and grouped tag values parsed from a raw JSDoc block.",
+    })
+  )
 ) {}
 
 /**
@@ -168,15 +176,18 @@ const isVariableDeclarationList = (
 
 const parseDoc = (text: string) => {
   const comment = parseComment(text);
-  return Domain.Doc.new(comment.description, {
-    since: comment.tags.since ?? [],
-    deprecated: comment.tags.deprecated ?? [],
-    examples: comment.tags.example ?? [],
-    category: comment.tags.category ?? [],
-    throws: comment.tags.throws ?? [],
-    sees: comment.tags.see ?? [],
-    tags: comment.tags,
-  });
+  return Domain.Doc.new(
+    comment.description,
+    DocNewOptions.make({
+      since: comment.tags.since ?? [],
+      deprecated: comment.tags.deprecated ?? [],
+      examples: comment.tags.example ?? [],
+      category: comment.tags.category ?? [],
+      throws: comment.tags.throws ?? [],
+      sees: comment.tags.see ?? [],
+      tags: comment.tags,
+    })
+  );
 };
 
 const shouldIgnore = (doc: Domain.Doc): boolean => R.has(doc.tags, "internal") || R.has(doc.tags, "ignore");
@@ -198,10 +209,14 @@ const parseInterfaceDeclaration = Effect.fn("parseInterfaceDeclaration")(functio
 
   const position = yield* parsePosition(id);
   return [
-    Domain.Interface.new(id.getName(), doc, {
-      signature: id.getText(),
-      position,
-    }),
+    Domain.Interface.new(
+      id.getName(),
+      doc,
+      SignaturePositionOptions.make({
+        signature: id.getText(),
+        position,
+      })
+    ),
   ];
 });
 
@@ -286,7 +301,7 @@ const parseFunctionDeclaration = Effect.fn("parseFunctionDeclaration")(function*
   const name = fd.getName() ?? "";
   const signature = `declare const ${name}: ${parseType(fd)}`;
   const position = yield* parsePosition(fd);
-  return [Domain.Function.new(name, doc, { signature, position })];
+  return [Domain.Function.new(name, doc, SignaturePositionOptions.make({ signature, position }))];
 });
 
 const parseFunctionVariableDeclaration = Effect.fn("parseFunctionVariableDeclaration")(function* (
@@ -304,7 +319,7 @@ const parseFunctionVariableDeclaration = Effect.fn("parseFunctionVariableDeclara
   const name = vd.getName();
   const signature = `declare const ${name}: ${parseType(vd)}`;
   const position = yield* parsePosition(vd);
-  return [Domain.Function.new(name, doc, { signature, position })];
+  return [Domain.Function.new(name, doc, SignaturePositionOptions.make({ signature, position }))];
 });
 
 const getFunctionDeclarations = Effect.gen(function* () {
@@ -375,7 +390,7 @@ const parseTypeAliasDeclaration = Effect.fn("parseTypeAliasDeclaration")(functio
   const definition = ta.getTypeNode()?.getText() ?? "";
   const signature = `type ${ta.getTypeParameters().length > 0 ? type : name} = ${definition}`;
   const position = yield* parsePosition(ta);
-  return [Domain.TypeAlias.new(name, doc, { signature, position })];
+  return [Domain.TypeAlias.new(name, doc, SignaturePositionOptions.make({ signature, position }))];
 });
 
 const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDeclaration>) =>
@@ -426,7 +441,7 @@ const parseConstantVariableDeclaration = Effect.fn("parseConstantVariableDeclara
   const name = vd.getName();
   const signature = `declare const ${name}: ${parseType(vd)}`;
   const position = yield* parsePosition(vd);
-  return [Domain.Constant.new(name, doc, { signature, position })];
+  return [Domain.Constant.new(name, doc, SignaturePositionOptions.make({ signature, position }))];
 });
 
 /**
@@ -486,11 +501,15 @@ const parseExportSpecifier = Effect.fn("parseExportSpecifier")(function* (
   const doc = O.isSome(docComment) ? parseDoc(docComment.value.getText()) : parseDoc("");
   const signature = `declare const ${name}: ${parseType(es)}`;
   const position = yield* parsePosition(es);
-  return Domain.Export.new(name, doc, {
-    signature,
-    position,
-    isNamespaceExport: false,
-  });
+  return Domain.Export.new(
+    name,
+    doc,
+    ExportNewOptions.make({
+      signature,
+      position,
+      isNamespaceExport: false,
+    })
+  );
 });
 
 const parseExportStar = Effect.fn("parseExportStar")(function* (ed: ast.ExportDeclaration, name: string) {
@@ -504,11 +523,11 @@ const parseExportStar = Effect.fn("parseExportStar")(function* (ed: ast.ExportDe
     doc.modifyDescription(
       `Re-exports all named exports from the ${name} module${namespace === undefined ? "" : ` as \`${namespace}\``}.`
     ),
-    {
+    ExportNewOptions.make({
       signature,
       position,
       isNamespaceExport: true,
-    }
+    })
   );
 });
 
@@ -642,10 +661,14 @@ const parseMethod = Effect.fn("parseMethod")(function* (md: ast.MethodDeclaratio
 
   const position = yield* parsePosition(md);
   return O.some(
-    Domain.DocEntry.new(name, doc, {
-      signature: `declare const ${name}: ${parseType(md)}`,
-      position,
-    })
+    Domain.DocEntry.new(
+      name,
+      doc,
+      SignaturePositionOptions.make({
+        signature: `declare const ${name}: ${parseType(md)}`,
+        position,
+      })
+    )
   );
 });
 
@@ -664,10 +687,14 @@ const parseProperty = Effect.fn("parseProperty")(function* (pd: ast.PropertyDecl
   );
   const position = yield* parsePosition(pd);
   return [
-    Domain.DocEntry.new(pd.getName(), doc, {
-      signature: `${readonlyPrefix}${pd.getName()}: ${parseType(pd)}`,
-      position,
-    }),
+    Domain.DocEntry.new(
+      pd.getName(),
+      doc,
+      SignaturePositionOptions.make({
+        signature: `${readonlyPrefix}${pd.getName()}: ${parseType(pd)}`,
+        position,
+      })
+    ),
   ];
 });
 
@@ -679,10 +706,14 @@ const parseGetAccessor = Effect.fn("parseGetAccessor")(function* (accessor: ast.
 
   const position = yield* parsePosition(accessor);
   return [
-    Domain.DocEntry.new(accessor.getName(), doc, {
-      signature: `readonly ${accessor.getName()}: ${parseType(accessor)}`,
-      position,
-    }),
+    Domain.DocEntry.new(
+      accessor.getName(),
+      doc,
+      SignaturePositionOptions.make({
+        signature: `readonly ${accessor.getName()}: ${parseType(accessor)}`,
+        position,
+      })
+    ),
   ];
 });
 
@@ -769,13 +800,17 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
   const properties = yield* parseProperties(c);
   const position = yield* parsePosition(c);
   return [
-    Domain.Class.new(name, doc, {
-      signature,
-      position,
-      methods,
-      staticMethods,
-      properties,
-    }),
+    Domain.Class.new(
+      name,
+      doc,
+      ClassNewOptions.make({
+        signature,
+        position,
+        methods,
+        staticMethods,
+        properties,
+      })
+    ),
   ];
 });
 
@@ -877,17 +912,21 @@ export const parseModule = Effect.gen(function* () {
 
   const name = source.sourceFile.getBaseName();
 
-  return Domain.Module.new(source, name, {
-    doc,
-    path: source.path,
-    classes,
-    interfaces,
-    functions,
-    typeAliases,
-    constants,
-    exports,
-    namespaces,
-  });
+  return Domain.Module.new(
+    source,
+    name,
+    ModuleNewOptions.make({
+      doc,
+      path: source.path,
+      classes,
+      interfaces,
+      functions,
+      typeAliases,
+      constants,
+      exports,
+      namespaces,
+    })
+  );
 });
 
 /**

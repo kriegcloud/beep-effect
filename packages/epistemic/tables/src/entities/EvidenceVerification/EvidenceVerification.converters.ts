@@ -74,7 +74,7 @@ const validateEvidenceAssociation = (
   Eq.equals(verification.orgId, evidence.orgId) &&
   Eq.equals(verification.evidenceId, evidence.id) &&
   !DateTime.isLessThan(verification.createdAt, evidence.createdAt) &&
-  EvidenceSpan.matchesAnchor(evidence.span, verification.verifiedAnchor.anchor)
+  EvidenceSpan.matchesAnchor(EvidenceSpan.make(evidence.span), verification.verifiedAnchor.anchor)
     ? Result.succeed(verification)
     : Result.fail(
         new S.SchemaError(

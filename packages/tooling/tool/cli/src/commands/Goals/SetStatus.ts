@@ -30,7 +30,7 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import * as R from "effect/Record";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.ts";
-import { applyJsoncModification } from "../../internal/cli/Jsonc.ts";
+import { applyJsoncModification, JsoncModification } from "../../internal/cli/Jsonc.ts";
 import { optionalProp } from "../../internal/cli/OptionRecord.ts";
 import {
   GoalManifestInvalidError,
@@ -428,11 +428,17 @@ const setStatusForSlug = Effect.fn("Goals.setStatusForSlug")(function* (
     }
   }
 
-  let nextManifest = applyJsoncModification({ content: manifestText, path: ["initiative", "status"], value: status });
+  let nextManifest = applyJsoncModification(
+    JsoncModification.make({ content: manifestText, path: ["initiative", "status"], value: status })
+  );
   if (R.has(manifest, "lifecycle")) {
-    nextManifest = applyJsoncModification({ content: nextManifest, path: ["lifecycle"], value: status });
+    nextManifest = applyJsoncModification(
+      JsoncModification.make({ content: nextManifest, path: ["lifecycle"], value: status })
+    );
   }
-  nextManifest = applyJsoncModification({ content: nextManifest, path: ["initiative", "updated"], value: today });
+  nextManifest = applyJsoncModification(
+    JsoncModification.make({ content: nextManifest, path: ["initiative", "updated"], value: today })
+  );
 
   yield* fs.writeFileString(record.manifestPath, nextManifest);
   yield* fs.writeFileString(record.readmePath, rewrittenReadme);

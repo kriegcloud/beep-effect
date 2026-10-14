@@ -101,7 +101,7 @@ export type XAiWebSocketEndpointMethodName = Extract<
  * import { XAiNoBodyResponse } from "@beep/xai"
  *
  * const method: XAiEndpointMethod = () =>
- *   Effect.succeed(new XAiNoBodyResponse({ headers: {}, status: 204 }))
+ *   Effect.succeed(XAiNoBodyResponse.make({ headers: {}, status: 204 }))
  *
  * const tag = Effect.runSync(Effect.map(method(), (response) => response._tag))
  * console.log(tag) // "NoBody"

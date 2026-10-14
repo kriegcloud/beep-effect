@@ -70,18 +70,19 @@ const UncoveredReasonBase = LiteralKit([
  * @category models
  * @since 0.0.0
  */
-export class CandorFilingScope extends S.Class<CandorFilingScope>($I`CandorFilingScope`)(
-  {
+export class CandorFilingScope extends S.Opaque<CandorFilingScope, { readonly brand: unique symbol }>()(
+  S.Struct({
     citingApplication: CitingApplicationIdentity.annotateKey({
       description: "Filing the candor question is asked about.",
     }),
     orgId: Shared.OrganizationId.annotateKey({
       description: "Organization whose records may be read; never inferred from a row.",
     }),
-  },
-  $I.annote("CandorFilingScope", {
-    description: "Tenant-scoped filing key for every candor record read and every verdict.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandorFilingScope", {
+      description: "Tenant-scoped filing key for every candor record read and every verdict.",
+    })
+  )
 ) {}
 
 /**
@@ -153,18 +154,19 @@ export type UncoveredReason = typeof UncoveredReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class UncoveredEvent extends S.Class<UncoveredEvent>($I`UncoveredEvent`)(
-  {
+export class UncoveredEvent extends S.Opaque<UncoveredEvent, { readonly brand: unique symbol }>()(
+  S.Struct({
     eventId: LawPractice.PatentCitationEventId.annotateKey({
       description: "Identifier of the recorded event that is not covered.",
     }),
     reason: UncoveredReason.annotateKey({
       description: "Fail-closed reason this event is not covered.",
     }),
-  },
-  $I.annote("UncoveredEvent", {
-    description: "One recorded citation event the gate declines to treat as covered, with its reason.",
-  })
+  }).pipe(
+    $I.annoteSchema("UncoveredEvent", {
+      description: "One recorded citation event the gate declines to treat as covered, with its reason.",
+    })
+  )
 ) {}
 
 /**
@@ -212,18 +214,19 @@ export class UncoveredEvent extends S.Class<UncoveredEvent>($I`UncoveredEvent`)(
  * @category models
  * @since 0.0.0
  */
-export class CandorGateVerdict extends S.Class<CandorGateVerdict>($I`CandorGateVerdict`)(
-  {
+export class CandorGateVerdict extends S.Opaque<CandorGateVerdict, { readonly brand: unique symbol }>()(
+  S.Struct({
     scope: CandorFilingScope.annotateKey({
       description: "Tenant-scoped filing this verdict was recomputed for.",
     }),
     uncovered: S.Array(UncoveredEvent).annotateKey({
       description: "Every recorded event the gate declines to treat as covered, with its reason.",
     }),
-  },
-  $I.annote("CandorGateVerdict", {
-    description: "Recomputed candor answer for one filing, carrying only the uncovered events it found.",
-  })
+  }).pipe(
+    $I.annoteSchema("CandorGateVerdict", {
+      description: "Recomputed candor answer for one filing, carrying only the uncovered events it found.",
+    })
+  )
 ) {
   /**
    * Derive whether promotion is candor-blocked for this verdict.

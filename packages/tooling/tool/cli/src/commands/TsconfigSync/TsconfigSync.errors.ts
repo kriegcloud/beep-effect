@@ -26,7 +26,9 @@ const $I = $RepoCliId.create("commands/TsconfigSync/TsconfigSync.errors");
  * @category utilities
  * @since 0.0.0
  */
-export class TsconfigSyncDriftError extends S.TaggedError<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
+export class TsconfigSyncDriftError extends S.TaggedError<TsconfigSyncDriftError, { readonly brand: unique symbol }>(
+  $I`TsconfigSyncDriftError`
+)(
   "TsconfigSyncDriftError",
   {
     fileCount: S.Finite,
@@ -74,7 +76,9 @@ export class TsconfigSyncDriftError extends S.TaggedError<TsconfigSyncDriftError
  * @category utilities
  * @since 0.0.0
  */
-export class TsconfigSyncCycleError extends S.TaggedError<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
+export class TsconfigSyncCycleError extends S.TaggedError<TsconfigSyncCycleError, { readonly brand: unique symbol }>(
+  $I`TsconfigSyncCycleError`
+)(
   "TsconfigSyncCycleError",
   {
     cycles: S.String.pipe(S.Array, S.Array),
@@ -122,7 +126,9 @@ export class TsconfigSyncCycleError extends S.TaggedError<TsconfigSyncCycleError
  * @category utilities
  * @since 0.0.0
  */
-export class TsconfigSyncFilterError extends S.TaggedError<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
+export class TsconfigSyncFilterError extends S.TaggedError<TsconfigSyncFilterError, { readonly brand: unique symbol }>(
+  $I`TsconfigSyncFilterError`
+)(
   "TsconfigSyncFilterError",
   {
     filter: S.String,

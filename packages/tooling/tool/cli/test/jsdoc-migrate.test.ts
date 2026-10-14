@@ -3,6 +3,7 @@ import {
   documentationShapeViolations,
   isPackageSourceFile,
   isPackageSourceFileIncludingGenerated,
+  JSDocMigrateBlockInput,
   JSDocMigrateInlineText,
   JSDocMigrateProxyUrl,
   jsdocMigrateBlockStats,
@@ -51,11 +52,13 @@ const simpleBlock = lines(
 
 describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
   it("converts a fenced @example into a titled Example section", () => {
-    const result = rewriteJSDocMigrateBlock({
-      blockText: simpleBlock,
-      indent: "",
-      data: { titles: ["Decode a user name"] },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: simpleBlock,
+        indent: "",
+        data: { titles: ["Decode a user name"] },
+      })
+    );
     expect(result._tag).toBe("Rewritten");
     if (result._tag !== "Rewritten") {
       return;
@@ -80,11 +83,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       " * @since 0.0.0",
       " */"
     );
-    const result = rewriteJSDocMigrateBlock({
-      blockText: block,
-      indent: "",
-      data: { titles: ["Assign Ok status type"] },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: block,
+        indent: "",
+        data: { titles: ["Assign Ok status type"] },
+      })
+    );
     expect(result._tag).toBe("Quarantined");
     if (result._tag === "Quarantined") {
       expect(result.reasons).toContain("inheritdoc-summary-content");
@@ -102,7 +107,9 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       " * @since 0.0.0",
       " */"
     );
-    const result = rewriteJSDocMigrateBlock({ blockText: block, indent: "", data: { titles: [] } });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({ blockText: block, indent: "", data: { titles: [] } })
+    );
     expect(result._tag).toBe("Quarantined");
     if (result._tag === "Quarantined") {
       expect(result.reasons).toContain("inheritdoc-summary-content");
@@ -111,7 +118,9 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
 
   it("quarantines an unfenced @example instead of inventing a fence", () => {
     const block = lines("/**", " * Adds numbers.", " *", " * @example", " * add(1, 2)", " *", " * @since 0.0.0", " */");
-    const result = rewriteJSDocMigrateBlock({ blockText: block, indent: "", data: { titles: ["Add numbers"] } });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({ blockText: block, indent: "", data: { titles: ["Add numbers"] } })
+    );
     expect(result._tag).toBe("Quarantined");
     if (result._tag === "Quarantined") {
       expect(result.reasons).toContain("unfenced-example");
@@ -136,11 +145,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       " * @since 0.0.0",
       " */"
     );
-    const result = rewriteJSDocMigrateBlock({
-      blockText: block,
-      indent: "",
-      data: { titles: ["First case", "Second case"] },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: block,
+        indent: "",
+        data: { titles: ["First case", "Second case"] },
+      })
+    );
     expect(result._tag).toBe("Rewritten");
     if (result._tag !== "Rewritten") {
       return;
@@ -153,7 +164,9 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
   });
 
   it("fails with DataMismatch when the title count disagrees with the block", () => {
-    const result = rewriteJSDocMigrateBlock({ blockText: simpleBlock, indent: "", data: { titles: [] } });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({ blockText: simpleBlock, indent: "", data: { titles: [] } })
+    );
     expect(result._tag).toBe("DataMismatch");
   });
 
@@ -172,11 +185,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       " * @since 0.0.0",
       " */"
     );
-    const result = rewriteJSDocMigrateBlock({
-      blockText: block,
-      indent: "",
-      data: { titles: ["Decode a name"], remarks: "details" },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: block,
+        indent: "",
+        data: { titles: ["Decode a name"], remarks: "details" },
+      })
+    );
     expect(result._tag).toBe("Rewritten");
     if (result._tag !== "Rewritten") {
       return;
@@ -197,11 +212,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       " * @since 0.0.0",
       " */"
     );
-    const result = rewriteJSDocMigrateBlock({
-      blockText: block,
-      indent: "",
-      data: { titles: [], remarks: "gotchas" },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: block,
+        indent: "",
+        data: { titles: [], remarks: "gotchas" },
+      })
+    );
     expect(result._tag).toBe("Rewritten");
     if (result._tag !== "Rewritten") {
       return;
@@ -227,11 +244,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
     );
     const before = documentationShapeViolations(block);
     expect(A.some(before, (finding) => finding.rule === "multiple-description-paragraphs")).toBe(true);
-    const result = rewriteJSDocMigrateBlock({
-      blockText: block,
-      indent: "",
-      data: { titles: ["Digest a value"], leadEnd: 1 },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: block,
+        indent: "",
+        data: { titles: ["Digest a value"], leadEnd: 1 },
+      })
+    );
     expect(result._tag).toBe("Rewritten");
     if (result._tag !== "Rewritten") {
       return;
@@ -256,11 +275,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       " * @remarks Watch out for empty input.",
       " */"
     );
-    const result = rewriteJSDocMigrateBlock({
-      blockText: block,
-      indent: "",
-      data: { titles: [], remarks: "gotchas", seePurposes: ["for the related decoder."] },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: block,
+        indent: "",
+        data: { titles: [], remarks: "gotchas", seePurposes: ["for the related decoder."] },
+      })
+    );
     expect(result._tag).toBe("Rewritten");
     if (result._tag !== "Rewritten") {
       return;
@@ -295,11 +316,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       " * @since 0.0.0",
       " */"
     );
-    const result = rewriteJSDocMigrateBlock({
-      blockText: block,
-      indent: "",
-      data: { titles: ["Parse a citation"] },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: block,
+        indent: "",
+        data: { titles: ["Parse a citation"] },
+      })
+    );
     expect(result._tag).toBe("Rewritten");
     if (result._tag !== "Rewritten") {
       return;
@@ -327,11 +350,13 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       " * ```",
       " */"
     );
-    const result = rewriteJSDocMigrateBlock({
-      blockText: block,
-      indent: "",
-      data: { titles: ["Parse a citation"] },
-    });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({
+        blockText: block,
+        indent: "",
+        data: { titles: ["Parse a citation"] },
+      })
+    );
     expect(result._tag).toBe("Quarantined");
     if (result._tag === "Quarantined") {
       expect(result.reasons).toContain("mixed-example-carriers");
@@ -351,7 +376,9 @@ describe("JSDocMigrateRewrite rewriteJSDocMigrateBlock", () => {
       "   * @since 0.0.0",
       "   */"
     );
-    const result = rewriteJSDocMigrateBlock({ blockText: block, indent: "  ", data: { titles: ["Read the member"] } });
+    const result = rewriteJSDocMigrateBlock(
+      JSDocMigrateBlockInput.make({ blockText: block, indent: "  ", data: { titles: ["Read the member"] } })
+    );
     expect(result._tag).toBe("Rewritten");
     if (result._tag !== "Rewritten") {
       return;

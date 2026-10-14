@@ -76,8 +76,8 @@ export type EcfrErrorReason = typeof EcfrErrorReason.Type;
  * @category models
  * @since 0.0.0
  */
-export class EcfrErrorOptions extends S.Class<EcfrErrorOptions>($I`EcfrErrorOptions`)(
-  {
+export class EcfrErrorOptions extends S.Opaque<EcfrErrorOptions, { readonly brand: unique symbol }>()(
+  S.Struct({
     cause: S.OptionFromOptionalKey(
       S.Defect({ includeStack: true }).pipe(S.overrideToEquivalence(SchemaUtils.alwaysEquivalent))
     ).pipe(
@@ -92,10 +92,11 @@ export class EcfrErrorOptions extends S.Class<EcfrErrorOptions>($I`EcfrErrorOpti
         description: "HTTP response status code associated with the eCFR failure when one was available.",
       })
     ),
-  },
-  $I.annote("EcfrErrorOptions", {
-    description: "Options for configuring EcfrError instances.",
-  })
+  }).pipe(
+    $I.annoteSchema("EcfrErrorOptions", {
+      description: "Options for configuring EcfrError instances.",
+    })
+  )
 ) {}
 
 /**
@@ -113,7 +114,7 @@ export class EcfrErrorOptions extends S.Class<EcfrErrorOptions>($I`EcfrErrorOpti
  * @category errors
  * @since 0.0.0
  */
-export class EcfrError extends S.TaggedError<EcfrError>($I`EcfrError`)(
+export class EcfrError extends S.TaggedError<EcfrError, { readonly brand: unique symbol }>($I`EcfrError`)(
   "EcfrError",
   {
     cause: S.OptionFromOptionalKey(

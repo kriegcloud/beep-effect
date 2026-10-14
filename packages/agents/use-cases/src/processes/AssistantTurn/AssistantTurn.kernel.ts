@@ -26,12 +26,13 @@ const $I = $AgentsUseCasesId.create("processes/AssistantTurn/AssistantTurn.kerne
  *
  * ```ts
  * import type { AgentTurnKernelShape } from "@beep/agents-use-cases/public"
+ * import { UserTurnHistoryItem } from "@beep/agents-use-cases/public"
  * import * as Stream from "effect/Stream";
  * const kernel: AgentTurnKernelShape = {
  *   streamTurn: () => Stream.empty
  * }
  *
- * const stream = kernel.streamTurn([{ role: "user", text: "Summarize this." }])
+ * const stream = kernel.streamTurn([UserTurnHistoryItem.make({ text: "Summarize this." })])
  * console.log(stream)
  * ```
  *
@@ -56,14 +57,14 @@ export interface AgentTurnKernelShape {
  * **Example** (Stream turn with fixture)
  *
  * ```ts
- * import { AgentTurnKernel } from "@beep/agents-use-cases/public"
+ * import { AgentTurnKernel, UserTurnHistoryItem } from "@beep/agents-use-cases/public"
  * import { FixtureTurnKernel } from "@beep/agents-use-cases/proof"
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";
  * const program = Effect.gen(function* () {
  *   const kernel = yield* AgentTurnKernel
  *   const blocks = yield* Stream.runCollect(
- *     kernel.streamTurn([{ role: "user", text: "ping" }])
+ *     kernel.streamTurn([UserTurnHistoryItem.make({ text: "ping" })])
  *   )
  *
  *   return blocks.map((event) => event.type)

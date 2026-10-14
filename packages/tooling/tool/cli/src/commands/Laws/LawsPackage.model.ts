@@ -47,16 +47,17 @@ export type LawsPackageLaw = typeof LawsPackageLaw.Type;
  * @category models
  * @since 0.0.0
  */
-export class LawsPackageScope extends S.Class<LawsPackageScope>($I`LawsPackageScope`)(
-  {
+export class LawsPackageScope extends S.Opaque<LawsPackageScope, { readonly brand: unique symbol }>()(
+  S.Struct({
     packageDir: S.NonEmptyString,
     repoRoot: S.NonEmptyString,
     overlayPath: S.NonEmptyString,
     laws: S.Array(LawsPackageLaw),
-  },
-  $I.annote("LawsPackageScope", {
-    description: "Repository-relative package and overlay with an explicit law inventory.",
-  })
+  }).pipe(
+    $I.annoteSchema("LawsPackageScope", {
+      description: "Repository-relative package and overlay with an explicit law inventory.",
+    })
+  )
 ) {}
 /**
  * Counts and diagnostic text for one law, with its advisory and failure policy.
@@ -70,15 +71,14 @@ export class LawsPackageScope extends S.Class<LawsPackageScope>($I`LawsPackageSc
  * @category models
  * @since 0.0.0
  */
-export class LawsPackageFinding extends S.Class<LawsPackageFinding>($I`LawsPackageFinding`)(
-  {
+export class LawsPackageFinding extends S.Opaque<LawsPackageFinding, { readonly brand: unique symbol }>()(
+  S.Struct({
     law: LawsPackageLaw,
     findingCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
     advisory: S.Boolean,
     strictFailure: S.Boolean,
     diagnostics: S.Array(S.String),
-  },
-  $I.annote("LawsPackageFinding", { description: "Per-law counts, diagnostics and check policy." })
+  }).pipe($I.annoteSchema("LawsPackageFinding", { description: "Per-law counts, diagnostics and check policy." }))
 ) {}
 /**
  * Results from one package project, including its actual source-file count.
@@ -92,7 +92,9 @@ export class LawsPackageFinding extends S.Class<LawsPackageFinding>($I`LawsPacka
  * @category models
  * @since 0.0.0
  */
-export class LawsPackageReport extends S.Class<LawsPackageReport>($I`LawsPackageReport`)(
-  { projectSourceFileCount: S.Int.check(S.isGreaterThanOrEqualTo(0)), findings: S.Array(LawsPackageFinding) },
-  $I.annote("LawsPackageReport", { description: "Package project size and per-law findings." })
+export class LawsPackageReport extends S.Opaque<LawsPackageReport, { readonly brand: unique symbol }>()(
+  S.Struct({
+    projectSourceFileCount: S.Int.check(S.isGreaterThanOrEqualTo(0)),
+    findings: S.Array(LawsPackageFinding),
+  }).pipe($I.annoteSchema("LawsPackageReport", { description: "Package project size and per-law findings." }))
 ) {}

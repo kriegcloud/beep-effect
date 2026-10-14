@@ -7,35 +7,41 @@ const provider = () => A.join(["s", "k", "-", "canary", "Provider", "8271"], "")
 const jwt = () => A.join(["ey", "J", "HeaderABC", ".", "PayloadABC", ".", "SignatureABC"], "");
 export const canaryBuilders: A.NonEmptyReadonlyArray<() => string> = [value, provider, jwt];
 
-class ExpectedCount extends S.Class<ExpectedCount>("SecretScrubFixtureCount")({
-  category: S.Literals([
-    "secret-assignment",
-    "auth-header",
-    "bearer-token",
-    "provider-key",
-    "jwt",
-    "home-path",
-    "private-tag",
-  ]),
-  count: S.Natural,
-}) {}
-class ExpectedScrub extends S.Class<ExpectedScrub>("SecretScrubFixtureExpected")({
-  sanitizedText: S.String,
-  categories: S.Array(ExpectedCount),
-  coverage: S.Literals(["known", "unknown"]),
-  residue: S.Literals(["clear", "present", "unresolved"]),
-  safeForPrompt: S.Boolean,
-  evidence: S.Literal("mask-offsets-version-retention-only"),
-  persistenceCanaryCount: S.Literal(0),
-  logCanaryCount: S.Literal(0),
-  actionAuthorized: S.Boolean,
-}) {}
-export class SecretScrubFixture extends S.Class<SecretScrubFixture>("SecretScrubFixture")({
-  id: S.NonEmptyString,
-  text: S.String,
-  inputCoverage: S.Literals(["known", "unknown"]),
-  expected: ExpectedScrub,
-}) {}
+class ExpectedCount extends S.Opaque<ExpectedCount, { readonly brand: unique symbol }>()(
+  S.Struct({
+    category: S.Literals([
+      "secret-assignment",
+      "auth-header",
+      "bearer-token",
+      "provider-key",
+      "jwt",
+      "home-path",
+      "private-tag",
+    ]),
+    count: S.Natural,
+  }).annotate({ identifier: "SecretScrubFixtureCount" })
+) {}
+class ExpectedScrub extends S.Opaque<ExpectedScrub, { readonly brand: unique symbol }>()(
+  S.Struct({
+    sanitizedText: S.String,
+    categories: S.Array(ExpectedCount),
+    coverage: S.Literals(["known", "unknown"]),
+    residue: S.Literals(["clear", "present", "unresolved"]),
+    safeForPrompt: S.Boolean,
+    evidence: S.Literal("mask-offsets-version-retention-only"),
+    persistenceCanaryCount: S.Literal(0),
+    logCanaryCount: S.Literal(0),
+    actionAuthorized: S.Boolean,
+  }).annotate({ identifier: "SecretScrubFixtureExpected" })
+) {}
+export class SecretScrubFixture extends S.Opaque<SecretScrubFixture, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.NonEmptyString,
+    text: S.String,
+    inputCoverage: S.Literals(["known", "unknown"]),
+    expected: ExpectedScrub,
+  }).annotate({ identifier: "SecretScrubFixture" })
+) {}
 const fixture = (
   id: string,
   text: string,
@@ -134,16 +140,18 @@ export const secretScrubFixtures = () => [
 ];
 
 // Old/new rendering expectations remain transient; assertions compare booleans only.
-export class ConsumerRedactionFixture extends S.Class<ConsumerRedactionFixture>("ConsumerRedactionFixture")({
-  id: S.NonEmptyString,
-  text: S.String,
-  oldCause: S.String,
-  newCause: S.String,
-  oldMetrics: S.String,
-  newMetrics: S.String,
-  assignmentCount: S.Natural,
-  headerCount: S.Natural,
-}) {}
+export class ConsumerRedactionFixture extends S.Opaque<ConsumerRedactionFixture, { readonly brand: unique symbol }>()(
+  S.Struct({
+    id: S.NonEmptyString,
+    text: S.String,
+    oldCause: S.String,
+    newCause: S.String,
+    oldMetrics: S.String,
+    newMetrics: S.String,
+    assignmentCount: S.Natural,
+    headerCount: S.Natural,
+  }).annotate({ identifier: "ConsumerRedactionFixture" })
+) {}
 export const consumerRedactionFixtures = () => [
   ConsumerRedactionFixture.make({
     id: "quoted-assignment-containing-header",

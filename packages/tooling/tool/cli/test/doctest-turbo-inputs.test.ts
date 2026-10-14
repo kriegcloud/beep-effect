@@ -12,19 +12,23 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("test/doctest-turbo-inputs");
-class DoctestTaskDefinition extends S.Class<DoctestTaskDefinition>($I`DoctestTaskDefinition`)(
-  {
+class DoctestTaskDefinition extends S.Opaque<DoctestTaskDefinition, { readonly brand: unique symbol }>()(
+  S.Struct({
     cache: S.Boolean,
     outputs: S.Array(S.String),
     inputs: S.Array(S.String),
     dependsOn: S.Array(S.String),
     env: S.Array(S.String),
-  },
-  $I.annote("DoctestTaskDefinition", { description: "Production doctest task declaration for the real hash fixture." })
+  }).pipe(
+    $I.annoteSchema("DoctestTaskDefinition", {
+      description: "Production doctest task declaration for the real hash fixture.",
+    })
+  )
 ) {}
-class DoctestTaskSummary extends S.Class<DoctestTaskSummary>($I`DoctestTaskSummary`)(
-  { taskId: S.String, hash: S.String, dependencies: S.Array(S.String) },
-  $I.annote("DoctestTaskSummary", { description: "Doctest identity, hash and transit edges from Turbo." })
+class DoctestTaskSummary extends S.Opaque<DoctestTaskSummary, { readonly brand: unique symbol }>()(
+  S.Struct({ taskId: S.String, hash: S.String, dependencies: S.Array(S.String) }).pipe(
+    $I.annoteSchema("DoctestTaskSummary", { description: "Doctest identity, hash and transit edges from Turbo." })
+  )
 ) {}
 const Configuration = S.Struct({
   global: S.Struct({ env: S.Array(S.String), passThroughEnv: S.Array(S.String) }),

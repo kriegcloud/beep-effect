@@ -138,6 +138,26 @@ describe("MailTagging file-backed state", () => {
     );
   });
 
+  it.layer(state(), { timeout: "30 seconds" })("private state modes", (it) => {
+    it.effect(
+      "repairs a permissive existing directory and ledger before appending",
+      Effect.fnUntraced(function* () {
+        const ledger = yield* TagLedger;
+        const fs = yield* FileSystem.FileSystem;
+        const location = yield* MailTaggingStateLocation;
+        const target = yield* stateFile("tag-ledger.jsonl");
+
+        yield* ledger.append(applied);
+        yield* fs.chmod(location.stateDirectory, 0o755);
+        yield* fs.chmod(target, 0o644);
+        yield* ledger.append(undone);
+
+        expect((yield* fs.stat(location.stateDirectory)).mode & 0o077).toBe(0);
+        expect((yield* fs.stat(target)).mode & 0o077).toBe(0);
+      })
+    );
+  });
+
   it.layer(state(), { timeout: "30 seconds" })("filing ledger", (it) => {
     it.effect(
       "round-trips filing intents and completions through filing-ledger.jsonl",

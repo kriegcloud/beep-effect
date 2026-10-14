@@ -216,7 +216,7 @@ describe("VersionAccess.default.set", () => {
 	);
 });
 
-class VersionAccessError extends S.TaggedError<VersionAccessError>()("VersionAccessError", { message: S.String }) {
+class VersionAccessError extends S.TaggedError<VersionAccessError, { readonly brand: unique symbol }>()("VersionAccessError", { message: S.String }) {
 	override name = "Error";
 }
 

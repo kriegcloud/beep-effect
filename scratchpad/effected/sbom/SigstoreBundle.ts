@@ -83,7 +83,7 @@ export const IN_TOTO_PAYLOAD_TYPE = "application/vnd.in-toto+json" as const;
  * @category models
  * @since 0.0.0
  */
-export class SigstoreBundle extends S.Class<SigstoreBundle>($I`SigstoreBundle`)({
+export class SigstoreBundle extends S.Class<SigstoreBundle, { readonly brand: unique symbol }>($I`SigstoreBundle`)({
 	/** The bundle's media type, usually {@link SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE}. */
 	mediaType: S.String.annotateKey({ description: "The bundle's media type, usually SIGSTORE_BUNDLE_V0_3_MEDIA_TYPE." }),
 	/** The certificate and transparency-log entries a verifier checks. */
