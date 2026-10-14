@@ -69,6 +69,16 @@ export type TwirpResult<T> = T | typeof CONFLICT;
  * retryability by testing the *message* for `"HTTP 503"` and `"ECONNRESET"`,
  * which makes a reworded message a silent policy change.
  *
+ * **Example** (Classify an unsupported HTTP status)
+ *
+ * ```ts
+ * import { TwirpFailure } from "@beep/scratchpad/effected/github-actions/internal/twirp"
+ * import * as S from "effect/Schema"
+ *
+ * const failure = S.decodeUnknownSync(TwirpFailure)({ kind: "status", method: "CreateCacheEntry", status: 503 })
+ * console.log(failure.kind, failure.status) // status 503
+ * ```
+ *
  * @internal
  * @category models
  * @since 0.0.0

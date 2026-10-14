@@ -357,6 +357,16 @@ const EDITOR_ADVISORY = /\(\d+,\d+\): (?:warning|suggestion|message) TS\d+:/;
 /**
  * What the editor's tsgo run means for the check gate.
  *
+ * **Example** (Decode a clean verdict with advisories)
+ *
+ * ```ts
+ * import { EditorTsgoVerdict } from "@beep/scratchpad/effected/runner/Gates"
+ * import * as S from "effect/Schema"
+ *
+ * const verdict = S.decodeUnknownSync(EditorTsgoVerdict)({ red: false, errors: [], advisories: 3 })
+ * console.log(verdict.red, verdict.advisories) // false 3
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

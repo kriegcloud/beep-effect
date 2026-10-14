@@ -8,6 +8,16 @@ const $I = $ScratchpadId.create("effected/cli/internal/scanAudience");
 /**
  * The four parsed audience flags, as core hands them to a shared-flag command.
  *
+ * **Example** (Decode one explicit agent audience)
+ *
+ * ```ts
+ * import { AudienceFlagValues } from "@beep/scratchpad/effected/cli/internal/scanAudience"
+ * import * as S from "effect/Schema"
+ *
+ * const flags = S.decodeUnknownSync(AudienceFlagValues)({ audience: ["agent"], human: [], agent: [true], ci: [] })
+ * console.log(flags.audience, flags.agent) // [ "agent" ] [ true ]
+ * ```
+ *
  * @internal
  * @category type-level
  * @since 0.0.0
