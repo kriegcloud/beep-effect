@@ -259,3 +259,22 @@ test("a timer write failure is visible and the same interval can be retried", as
   );
   expect(writes).toBe(1);
 });
+
+test("a failed verdict save shows an error toast", async ($, on) => {
+  on("store.get", () => ({ value: undefined }));
+  mock.clock(on);
+  mock.session(on);
+  const toasts: Array<string> = [];
+  on("ui.toast", (_$, e) => {
+    toasts.push(e.text);
+    return { value: undefined };
+  });
+  on("store.set", () => ({ deny: "disk full" }));
+  on("session.messages", () => ({ value: [{ role: "user", text: "Which matter is 10008US01?", toolUses: [] }] }));
+  on("turn.complete", () => ({ text: "" }));
+  on("session.id", () => ({ value: "s-1" }));
+  await $.turn.complete({ answer: "It is 12345.10008US01.", turnId: "t-2", isAborted: false, durationMs: 10 });
+  const result = await $.command.run({ command: "wrong", args: "", origin, presentation });
+  expect(JSON.stringify(result)).toContain("The verdict could not be saved. Try again.");
+  expect(toasts).toContain("The verdict could not be saved. Try again.");
+});

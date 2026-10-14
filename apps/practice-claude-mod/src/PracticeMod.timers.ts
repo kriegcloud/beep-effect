@@ -9,6 +9,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as S from "effect/Schema";
+import * as Semaphore from "effect/Semaphore";
 import { ModHost } from "./PracticeMod.host.ts";
 import { TimerInterval } from "./PracticeMod.values.ts";
 import type { ModHostError } from "./PracticeMod.host.ts";
@@ -61,13 +62,15 @@ export class TimerLog extends Context.Service<
  */
 export const makeTimerLog = Effect.gen(function* () {
   const host = yield* ModHost;
+  // record reads, appends and writes the stored rows; serialize it like VerdictLog.
+  const writes = yield* Semaphore.make(1);
   const read = Effect.gen(function* () {
     const raw = yield* host.storeGet(RowsKey);
     return raw === undefined
       ? A.empty<TimerInterval>()
       : yield* S.decodeUnknownEffect(StoredRows)(raw).pipe(Effect.mapError(unreadable));
   });
-  const record = Effect.fn("TimerLog.record")(function* (interval: TimerInterval) {
+  const recordUnserialized = Effect.fn("TimerLog.record")(function* (interval: TimerInterval) {
     const rows = yield* read;
     const encoded = yield* S.encodeEffect(StoredRows)(A.append(rows, interval)).pipe(Effect.mapError(unreadable));
     yield* host.storeSet(RowsKey, encoded);
@@ -78,6 +81,7 @@ export const makeTimerLog = Effect.gen(function* () {
     yield* host.writeText(path, A.join(lines, "\n") + (lines.length > 0 ? "\n" : ""));
     return rows.length;
   });
+  const record = (interval: TimerInterval) => Semaphore.withPermit(writes)(recordUnserialized(interval));
   return TimerLog.of({ record, exportJsonl });
 });
 

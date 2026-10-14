@@ -108,8 +108,8 @@ Higher sources outrank lower sources when they conflict.
       `bun run beep quality package-verify @beep/practice-claude-mod`.
 - [ ] On the operator machine (plugin loaded from `dist/plugin` via
       `CLAUDE_CODE_PLUGIN_DIRS`, practice-kg registered against the current
-      bundle): a practice-kg question shows plain-language rows, and ctrl+o
-      shows the raw call.
+      bundle): a practice-kg question shows plain-language rows, and
+      `/practice raw` shows the raw calls again (D13).
 - [ ] Pressing Wrong (or `/wrong <note>`) appends one schema-valid verdict
       row and shows a "Saved" toast; undo appends a superseding revision; a
       forced write failure shows an error toast; `/practice export` writes

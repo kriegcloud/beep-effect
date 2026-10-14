@@ -35,6 +35,7 @@ import * as MutableRef from "effect/MutableRef";
 import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Semaphore from "effect/Semaphore";
 import * as Str from "effect/String";
 import { ModHost, ModHostError, makeModHost } from "./PracticeMod.host.ts";
 import { chosenMatterOf, decodeMatterLookup } from "./PracticeMod.matters.ts";
@@ -116,6 +117,24 @@ const runWith =
         Effect.provideServiceEffect(TimerLog, makeTimerLog),
         Effect.provideService(ModHost, makeModHost($))
       )
+    );
+
+// One writer at a time: the band and the slash commands can overlap, and
+// each dispatch builds its own VerdictLog over the shared plugin store.
+const verdictWrites = Semaphore.makeUnsafe(1);
+// The same for stopping the timer: two overlapping stops must write one interval.
+const timerWrites = Semaphore.makeUnsafe(1);
+
+const LockedText = "This answer is locked; the verdict was not saved.";
+const SaveFailedText = "The verdict could not be saved. Try again.";
+
+// A failed save is shown as a toast: a band press has no command reply.
+const toastText =
+  ($: Engine) =>
+  (text: string): Effect.Effect<string> =>
+    Effect.as(
+      Effect.sync(() => $.ui.toast(text)),
+      text
     );
 
 const noteOf = (args: string): O.Option<string> => O.liftPredicate(Str.trim(args), Str.isNonEmpty);
@@ -229,8 +248,9 @@ const recordVerdict =
             $.ui.invalidate("ui.render");
             return saved;
           }).pipe(
-            Effect.catchTag("VerdictLocked", () => Effect.succeed("This answer is locked; the verdict was not saved.")),
-            Effect.orElseSucceed(() => "The verdict could not be saved. Try again.")
+            Semaphore.withPermit(verdictWrites),
+            Effect.catchTag("VerdictLocked", () => toastText($)(LockedText)),
+            Effect.catch(() => toastText($)(SaveFailedText))
           )
         ),
     });
@@ -534,7 +554,7 @@ export const timeCommand =
               $.ui.invalidate("ui.render");
               yield* host.toast("Timer interval saved.");
               return { text: "Timer stopped. Interval saved." };
-            })
+            }).pipe(Semaphore.withPermit(timerWrites))
           ),
           Match.when("", () =>
             Effect.gen(function* () {
