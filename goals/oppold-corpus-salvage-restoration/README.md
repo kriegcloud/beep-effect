@@ -41,6 +41,14 @@ re-entry points. The solo-practice corpus kit remains deferred.
 
 ## Latest evidence
 
+2026-10-14 reboot resume: recovery ordinal 5 sealed failure, exit one;
+TikaSecondPassFailure (empty stdout, no truncation), unsupported recovery
+occurrence, no third attempt. Retained 354,621,761 bytes; family elapsed
+1,264,398 ms; memory peak 30.1G; zero accepted store/child rows. Main
+integration succeeds, but three JSDoc blocks fail frozen source equality.
+Ordinals 7/8/9 unstarted; no new execution or identity override. See
+history/p2/2026-10-14-recovery-progress.md.
+
 2026-10-14: Recovery engine #1731 merged at 226087bfda. Four fresh
 manifests were committed before launch for failed ordinals 5/7/8/9.
 Ordinal 5 started at 13:38:59.023Z; its sole detached family unit is active
