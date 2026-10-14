@@ -229,6 +229,24 @@ const filterBindings = (
       (A.isReadonlyArrayEmpty(surfaces) || A.contains(surfaces, candidate.surface))
   );
 
+const absentModelProblem = (
+  binding: ModelBinding,
+  reference: LocatorBinding,
+  answered: ReadonlyArray<CatalogSource>
+): O.Option<DriftKind> => {
+  const invalidEffort = O.exists(binding.effort, (effort) => !isEffortAllowedOnSurface(binding.surface, effort));
+  if (invalidEffort || (reference.field !== "model" && O.isNone(binding.effort))) {
+    return O.some<DriftKind>("invalid-effort");
+  }
+  // Junie has no catalog overlay; only an answering catalog for this surface
+  // supplies evidence that an absent id is unknown.
+  const catalogAnswered =
+    binding.surface !== "junie-cli" &&
+    (A.contains(answered, "router-for-me") ||
+      O.exists(surfaceOverlay(binding.surface), (source) => A.contains(answered, source)));
+  return catalogAnswered ? O.some<DriftKind>("unknown-model") : O.none<DriftKind>();
+};
+
 const bindingProblem = (
   binding: ModelBinding,
   reference: LocatorBinding,
@@ -236,20 +254,7 @@ const bindingProblem = (
   answered: ReadonlyArray<CatalogSource>
 ): O.Option<DriftKind> => {
   const model = HashMap.get(models, binding.modelId);
-  if (O.isNone(model)) {
-    // Every layer being absent is "no catalog", not a retirement; an id absent
-    // from a catalog that *did* answer is the only retirement signal upstream
-    // gives, because removals are hard deletes.
-    const invalidEffort = O.exists(binding.effort, (effort) => !isEffortAllowedOnSurface(binding.surface, effort));
-    if (invalidEffort || (reference.field !== "model" && O.isNone(binding.effort))) {
-      return O.some<DriftKind>("invalid-effort");
-    }
-    const catalogAnswered =
-      binding.surface !== "junie-cli" &&
-      (A.contains(answered, "router-for-me") ||
-        O.exists(surfaceOverlay(binding.surface), (source) => A.contains(answered, source)));
-    return catalogAnswered ? O.some<DriftKind>("unknown-model") : O.none<DriftKind>();
-  }
+  if (O.isNone(model)) return absentModelProblem(binding, reference, answered);
 
   const overlayAnswered = O.exists(surfaceOverlay(binding.surface), (source) => A.contains(answered, source));
   if (overlayAnswered && !availableOnSurface(model.value, binding.surface)) {

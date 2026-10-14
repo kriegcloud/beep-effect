@@ -24,7 +24,11 @@ import {
   grokUsageOutcome,
   grokUsageWindows,
   groupAccounts,
+  JunieAuthTestBody,
   JunieAuthTestBodyJson,
+  JunieRefreshBody,
+  JunieRefreshBodyJson,
+  JunieStoredCredential,
   JunieStoredCredentialJson,
   junieRefreshOutcome,
   junieUsageOutcome,
@@ -43,12 +47,17 @@ import {
   UsageWindow,
   watchAccounts,
 } from "@beep/repo-cli/test/Accounts";
-import { NodeCrypto, NodeServices } from "@effect/platform-node";
+import { fcRuns } from "@beep/test-utils";
+import * as MemoryFileSystem from "@beep/test-utils/MemoryFileSystem";
+import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
-import { assertNone, assertSome } from "@effect/vitest/utils";
+import { assertFailure, assertNone, assertSome, assertSuccess, assertTrue } from "@effect/vitest/utils";
+import * as Arbitrary from "effect/Arbitrary";
 import * as A from "effect/Array";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
+import * as Context from "effect/Context";
+import * as Crypto from "effect/Crypto";
 import { Command } from "effect/cli";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -62,11 +71,12 @@ import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Path from "effect/Path";
+import * as ChildProcessSpawner from "effect/process/ChildProcessSpawner";
 import * as Queue from "effect/Queue";
 import * as R from "effect/Record";
 import * as Redacted from "effect/Redacted";
 import * as Ref from "effect/Ref";
-import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import * as Terminal from "effect/Terminal";
 import * as TestClock from "effect/testing/TestClock";
 import type * as Cause from "effect/Cause";
@@ -605,6 +615,15 @@ describe("accounts board rendering", () => {
 const respond = (request: HttpClientRequest.HttpClientRequest, body: string, status = 200) =>
   HttpClientResponse.fromWeb(request, new Response(body, { status }));
 
+const testCrypto = Layer.succeed(
+  Crypto.Crypto,
+  Crypto.make({
+    randomBytes: (size) => new Uint8Array(size),
+    digest: (_algorithm, data) => Effect.succeed(data),
+  })
+);
+const inheritedPlatform = Layer.mergeAll(NodeServices.layer, testCrypto);
+
 const runLive = Effect.fn("runLive")(function* <A, E>(
   files: Readonly<Record<string, string>>,
   client: HttpClient.HttpClient,
@@ -626,7 +645,6 @@ const runLive = Effect.fn("runLive")(function* <A, E>(
   );
   return yield* Layer.build(layerAccountsUsageLive).pipe(
     Effect.flatMap((context) => Effect.provideContext(program, context)),
-    Effect.provide(NodeCrypto.layer),
     Effect.provideService(HttpClient.HttpClient, client),
     Effect.provideService(
       ConfigProvider.ConfigProvider,
@@ -648,7 +666,7 @@ const authFiles = {
   "broken.json": "{",
 };
 
-it.layer(NodeServices.layer, { timeout: "30 seconds" })("live account poller", (it) => {
+it.layer(inheritedPlatform, { timeout: "30 seconds" })("live account poller", (it) => {
   it.effect("lists every supported login and polls each with its own token", () =>
     Effect.gen(function* () {
       const seen = yield* Ref.make(A.empty<ReadonlyArray<string | undefined>>());
@@ -777,7 +795,7 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("live account poller", (
   );
 });
 
-it.layer(NodeServices.layer, { timeout: "30 seconds" })("local snapshots", (it) => {
+it.layer(inheritedPlatform, { timeout: "30 seconds" })("local snapshots", (it) => {
   const snapshot = `{"schemaVersion":"accounts-snapshot/v1","provider":"cursor","label":"me@example.com","capturedAt":"2026-01-04T21:00:00.000Z","plan":"Ultra","windows":[{"kind":"cycle","scope":null,"usedPercent":14,"resetsAt":"2026-01-05T10:00:00.000Z"},{"kind":"cycle-scoped","scope":"Auto","usedPercent":11,"resetsAt":null}]}`;
 
   it.effect("shows a snapshot file as a row and skips one it cannot read", () =>
@@ -837,7 +855,7 @@ const captureOutput = Effect.fnUntraced(function* <A, E, R>(effect: Effect.Effec
 });
 
 describe("accounts status command", () => {
-  it.layer(NodeServices.layer, { timeout: "30 seconds" })((it) => {
+  it.layer(inheritedPlatform, { timeout: "30 seconds" })((it) => {
     it.effect("prints the ranked report as text and as one JSON document", () =>
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
@@ -960,17 +978,46 @@ describe("live accounts screen", () => {
 });
 
 describe("Junie direct balance", () => {
+  it.effect.prop(
+    "round trips Junie balance and credential wire schemas",
+    [Arbitrary.schema(JunieAuthTestBody), Arbitrary.schema(JunieStoredCredential)],
+    Effect.fnUntraced(function* ([balance, credential]) {
+      assertTrue(
+        S.toEquivalence(JunieAuthTestBody)(
+          yield* S.decodeEffect(JunieAuthTestBody)(yield* S.encodeEffect(JunieAuthTestBody)(balance)),
+          balance
+        )
+      );
+      assertTrue(
+        S.toEquivalence(JunieStoredCredential)(
+          yield* S.decodeEffect(JunieStoredCredential)(yield* S.encodeEffect(JunieStoredCredential)(credential)),
+          credential
+        )
+      );
+    }),
+    { arbitrary: fcRuns(24) }
+  );
   const body =
     '{"active":true,"authType":"","balanceLeft":880000,"balanceUnit":"CREDITS","licenseType":"AIP","meta":null}';
   it("decodes the live wire shape and keeps balance separate from cycle limits", () => {
-    expect(O.isSome(JunieAuthTestBodyJson.decodeOption(body))).toBe(true);
+    assertSome(
+      JunieAuthTestBodyJson.decodeOption(body),
+      JunieAuthTestBody.make({
+        active: O.some(true),
+        authType: O.some(""),
+        balanceLeft: O.some(880000),
+        balanceUnit: O.some("CREDITS"),
+        licenseType: O.some("AIP"),
+        meta: O.none(),
+      })
+    );
     const outcome = junieUsageOutcome({ identity: O.some("synthetic@example.com"), status: 200, body });
     expect(outcome._tag).toBe("Ok");
     if (outcome._tag !== "Ok") return;
-    expect(outcome.plan).toEqual(O.some("JetBrains AI Pro"));
+    assertSome(outcome.plan, "JetBrains AI Pro");
     expect(outcome.windows).toEqual([]);
     expect(outcome.credits[0]?.remaining).toBe(880000);
-    expect(outcome.credits[0]?.limit).toEqual(O.none());
+    assertNone(outcome.credits[0]?.limit ?? O.some(0));
     const usage = AccountUsage.make({
       account: AccountRef.make({ provider: "junie", label: "synthetic", source: "synthetic" }),
       outcome,
@@ -1006,13 +1053,21 @@ describe("Junie direct balance", () => {
   });
   it("rejects unsupported credential envelopes", () => {
     assertNone(JunieStoredCredentialJson.decodeOption('{"simpleToken":"synthetic"}'));
-    expect(
-      O.isSome(
-        JunieStoredCredentialJson.decodeOption(
-          '{"jbAccount":{"access_token":"synthetic-access","refresh_token":"synthetic-refresh","expires_in":3600,"name":"Synthetic Name"}}'
-        )
-      )
-    ).toBe(true);
+    assertSome(
+      JunieStoredCredentialJson.decodeOption(
+        '{"jbAccount":{"access_token":"synthetic-access","refresh_token":"synthetic-refresh","expires_in":3600,"name":"Synthetic Name"}}'
+      ),
+      JunieStoredCredential.make({
+        jbAccount: {
+          access_token: Redacted.make("synthetic-access"),
+          refresh_token: Redacted.make("synthetic-refresh"),
+          expires_in: 3600,
+          email: O.none(),
+          name: O.some("Synthetic Name"),
+          id_token: O.none(),
+        },
+      })
+    );
   });
   it("rejects rotated refresh tokens and accepts unchanged or omitted ones", () => {
     const stored = Redacted.make("synthetic-stored");
@@ -1021,28 +1076,47 @@ describe("Junie direct balance", () => {
       status: 200,
       body: '{"access_token":"synthetic-access","refresh_token":"synthetic-new","expires_in":3600}',
     });
-    expect(Result.isFailure(rotated)).toBe(true);
-    if (Result.isFailure(rotated))
-      expect(rotated.failure).toMatchObject({ _tag: "Failed", detail: expect.stringContaining("run junie once") });
+    assertFailure(
+      rotated,
+      AccountUsageOutcome.cases.Failed.make({
+        detail: "JetBrains rotated the refresh token; run junie once before polling again",
+      })
+    );
     for (const body of [
       '{"access_token":"synthetic-access","refresh_token":"synthetic-stored","expires_in":3600}',
       '{"access_token":"synthetic-access","expires_in":3600}',
     ]) {
-      expect(Result.isSuccess(junieRefreshOutcome({ stored, status: 200, body }))).toBe(true);
+      const decoded = JunieRefreshBodyJson.decodeOption(body);
+      assertSome(
+        decoded,
+        JunieRefreshBody.make({
+          access_token: Redacted.make("synthetic-access"),
+          refresh_token: body.includes("refresh_token") ? O.some(stored) : O.none(),
+          expires_in: 3600,
+          id_token: O.none(),
+        })
+      );
+      assertSuccess(junieRefreshOutcome({ stored, status: 200, body }), decoded.value);
     }
-    expect(Result.isFailure(junieRefreshOutcome({ stored, status: 401, body: "" }))).toBe(true);
+    assertFailure(
+      junieRefreshOutcome({ stored, status: 401, body: "" }),
+      AccountUsageOutcome.cases.Failed.make({ detail: "JetBrains OAuth refresh is unavailable" })
+    );
   });
 });
 
-it.layer(NodeServices.layer, { timeout: "30 seconds" })("Junie fallback poller", (it) => {
-  const credential = {
-    ".junie/secure_credentials.json":
-      '{"jb-account-stored":{"jbAccount":{"access_token":"synthetic-old","refresh_token":"synthetic-refresh","expires_in":3600,"name":"Synthetic Name"}}}',
-  };
-  it.effect("discovers a fallback login and uses the refreshed access token for balance", () =>
+class JunieRequests extends Context.Service<JunieRequests, Ref.Ref<ReadonlyArray<ReadonlyArray<string | undefined>>>>()(
+  "test/JunieRequests"
+) {}
+
+const junieTestLayer = (files: Readonly<Record<string, string>>, rotated: boolean) => {
+  const root = "/accounts-test";
+  const requests = Layer.effect(JunieRequests, Ref.make(A.empty<ReadonlyArray<string | undefined>>()));
+  const client = Layer.effect(
+    HttpClient.HttpClient,
     Effect.gen(function* () {
-      const seen = yield* Ref.make(A.empty<ReadonlyArray<string | undefined>>());
-      const client = HttpClient.make((request) =>
+      const seen = yield* JunieRequests;
+      return HttpClient.make((request) =>
         Ref.update(
           seen,
           A.append([
@@ -1056,64 +1130,121 @@ it.layer(NodeServices.layer, { timeout: "30 seconds" })("Junie fallback poller",
           Effect.as(
             respond(
               request,
-              request.url === "https://oauth.account.jetbrains.com/oauth2/token"
-                ? '{"access_token":"synthetic-fresh","refresh_token":"synthetic-refresh","expires_in":3600}'
+              request.url.includes("oauth2")
+                ? rotated
+                  ? '{"access_token":"synthetic-fresh","refresh_token":"synthetic-rotated","expires_in":3600}'
+                  : '{"access_token":"synthetic-fresh","refresh_token":"synthetic-refresh","expires_in":3600}'
                 : '{"active":true,"balanceLeft":12,"balanceUnit":"CREDITS","licenseType":"AIP"}'
             )
           )
         )
       );
-      const rows = yield* runLive(credential, client, pollAccounts);
-      expect(rows[0]?.outcome).toMatchObject({ _tag: "Ok" });
-      expect(A.map(rows, (row) => [row.account.provider, row.account.label, row.outcome._tag])).toEqual([
-        ["junie", "Synthetic Name", "Ok"],
-      ]);
-      expect(yield* Ref.get(seen)).toEqual([
-        ["POST", "https://oauth.account.jetbrains.com/oauth2/token", undefined, undefined, undefined],
-        ["GET", "https://ingrazzio-cloud-prod.labs.jb.gg/auth/test", "Bearer synthetic-fresh", "true", "true"],
-      ]);
     })
+  ).pipe(Layer.provide(requests));
+  const filesystem = MemoryFileSystem.layer.pipe(
+    Layer.tap((context) =>
+      Effect.gen(function* () {
+        const fs = Context.get(context, FileSystem.FileSystem);
+        const path = yield* Path.Path;
+        yield* fs.makeDirectory(`${root}/snapshots`, { recursive: true });
+        yield* Effect.forEach(
+          R.toEntries(files),
+          ([name, content]) =>
+            fs
+              .makeDirectory(path.dirname(`${root}/${name}`), { recursive: true })
+              .pipe(Effect.andThen(fs.writeFileString(`${root}/${name}`, content))),
+          { discard: true }
+        );
+      })
+    ),
+    Layer.provide(Path.layer)
   );
-  it.effect("does not request a balance after refresh token rotation", () =>
-    Effect.gen(function* () {
-      const requests = yield* Ref.make(0);
-      const client = HttpClient.make((request) =>
-        Ref.update(requests, (n) => n + 1).pipe(
-          Effect.as(
-            respond(request, '{"access_token":"synthetic-fresh","refresh_token":"synthetic-rotated","expires_in":3600}')
-          )
-        )
-      );
-      const rows = yield* runLive(credential, client, pollAccounts);
-      expect(yield* Ref.get(requests)).toBe(1);
-      expect(rows[0]?.outcome).toMatchObject({ _tag: "Failed", detail: expect.stringContaining("run junie once") });
-      const previous = A.map(rows, (row) =>
-        AccountUsage.make({
-          account: row.account,
-          outcome: junieUsageOutcome({
-            identity: O.none(),
-            status: 200,
-            body: '{"active":true,"balanceLeft":12,"balanceUnit":"CREDITS","licenseType":"AIP"}',
-          }),
-        })
-      );
-      expect(retainLastGood(rows, previous, DateTime.makeUnsafe(0))).toEqual(rows);
-    })
-  );
-  it.effect("shows unsupported credentials without failing other accounts", () =>
-    Effect.gen(function* () {
-      const rows = yield* runLive(
-        {
-          ".junie/secure_credentials.json": '{"jb-account-stored":{"enterpriseAccount":{}}}',
-          "claude-me.json": authFiles["claude-me.json"],
+  const services = Layer.mergeAll(
+    filesystem,
+    Path.layer,
+    client,
+    Layer.succeed(
+      ConfigProvider.ConfigProvider,
+      ConfigProvider.fromEnv({
+        env: {
+          HOME: root,
+          BEEP_ACCOUNTS_AUTH_DIR: root,
+          BEEP_ACCOUNTS_SNAPSHOT_DIR: `${root}/snapshots`,
         },
-        HttpClient.make((request) => Effect.succeed(respond(request, "{}"))),
-        pollAccounts
-      );
-      expect(A.map(rows, (row) => [row.account.provider, row.outcome._tag])).toEqual([
-        ["claude", "Ok"],
-        ["junie", "Failed"],
-      ]);
+      })
+    ),
+    Layer.succeed(
+      Crypto.Crypto,
+      Crypto.make({ randomBytes: (size) => new Uint8Array(size), digest: (_algorithm, data) => Effect.succeed(data) })
+    ),
+    Layer.succeed(ChildProcessSpawner.ChildProcessSpawner, {
+      ...ChildProcessSpawner.make(() => Effect.die("Unexpected process spawn")),
+      string: () => Effect.succeed(""),
     })
   );
+  return layerAccountsUsageLive.pipe(Layer.provide(services), Layer.provideMerge(requests));
+};
+
+describe("Junie fallback poller", () => {
+  const credential = {
+    ".junie/secure_credentials.json":
+      '{"jb-account-stored":{"jbAccount":{"access_token":"synthetic-old","refresh_token":"synthetic-refresh","expires_in":3600,"name":"Synthetic Name"}}}',
+  };
+  it.layer(junieTestLayer(credential, false), { timeout: "30 seconds" })("unchanged refresh", (it) => {
+    it.effect("refreshes in memory and sends the direct balance headers", () =>
+      Effect.gen(function* () {
+        const seen = yield* JunieRequests;
+        const rows = yield* pollAccounts;
+        expect(rows[0]?.outcome).toMatchObject({ _tag: "Ok" });
+        expect(A.map(rows, (row) => [row.account.provider, row.account.label, row.outcome._tag])).toEqual([
+          ["junie", "Synthetic Name", "Ok"],
+        ]);
+        expect(yield* Ref.get(seen)).toEqual([
+          ["POST", "https://oauth.account.jetbrains.com/oauth2/token", undefined, undefined, undefined],
+          ["GET", "https://ingrazzio-cloud-prod.labs.jb.gg/auth/test", "Bearer synthetic-fresh", "true", "true"],
+        ]);
+      })
+    );
+  });
+  it.layer(junieTestLayer(credential, true), { timeout: "30 seconds" })("rotated refresh", (it) => {
+    it.effect("does not request a balance after refresh token rotation", () =>
+      Effect.gen(function* () {
+        const requests = yield* JunieRequests;
+        const rows = yield* pollAccounts;
+        expect(A.length(yield* Ref.get(requests))).toBe(1);
+        expect(rows[0]?.outcome).toMatchObject({ _tag: "Failed", detail: expect.stringContaining("run junie once") });
+        const previous = A.map(rows, (row) =>
+          AccountUsage.make({
+            account: row.account,
+            outcome: junieUsageOutcome({
+              identity: O.none(),
+              status: 200,
+              body: '{"active":true,"balanceLeft":12,"balanceUnit":"CREDITS","licenseType":"AIP"}',
+            }),
+          })
+        );
+        expect(retainLastGood(rows, previous, DateTime.makeUnsafe(0))).toEqual(rows);
+      })
+    );
+  });
+  it.layer(
+    junieTestLayer(
+      {
+        ".junie/secure_credentials.json": '{"jb-account-stored":{"enterpriseAccount":{}}}',
+        "claude-me.json": authFiles["claude-me.json"],
+      },
+      false
+    ),
+    { timeout: "30 seconds" }
+  )("unsupported credentials", (it) => {
+    it.effect("shows unsupported credentials without failing other accounts", () =>
+      Effect.gen(function* () {
+        const rows = yield* pollAccounts;
+        expect(A.map(rows, (row) => [row.account.provider, row.outcome._tag])).toEqual([
+          ["claude", "Ok"],
+          ["junie", "Failed"],
+        ]);
+      })
+    );
+  });
 });

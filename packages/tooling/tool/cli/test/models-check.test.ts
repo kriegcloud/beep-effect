@@ -19,7 +19,7 @@ import {
   seedModelsManifest,
   UpstreamCatalog,
 } from "@beep/repo-cli/commands/Models";
-import { fcRuns, provideScopedLayer } from "@beep/test-utils";
+import { fcRuns } from "@beep/test-utils";
 import { NodeCrypto, NodeServices } from "@effect/platform-node";
 import { expect, layer } from "@effect/vitest";
 import { assertNone, assertSome, strictEqual } from "@effect/vitest/utils";
@@ -370,15 +370,6 @@ layer(Layer.mergeAll(platform, models), { timeout: "30 seconds" })((it) => {
     })
   );
 
-  it.effect("does not infer Codex retirement from a Cursor-only offline catalog", () =>
-    Effect.gen(function* () {
-      const { report } = yield* runCheckIn("manifest-codex-current.yaml", true).pipe(
-        provideScopedLayer(FixtureCatalogSourcesCursorOnly)
-      );
-      expect(report.findings).toEqual([]);
-    })
-  );
-
   it.effect("accepts a Junie binding without a catalog overlay for JetBrains-route models", () =>
     Effect.gen(function* () {
       const report = yield* runCheck("manifest-junie.yaml");
@@ -429,6 +420,28 @@ layer(Layer.mergeAll(platform, modelsWithoutProxy), { timeout: "30 seconds" })((
 
       strictEqual(report.hasDrift, false);
       expect(A.map(report.findings, (entry) => entry.targetId)).not.toContain("proxy.env");
+    })
+  );
+});
+
+layer(
+  Layer.mergeAll(
+    platform,
+    Layer.mergeAll(
+      ModelsCatalogLive,
+      ModelsCheckLive,
+      ModelsLedgerLive,
+      ModelsLocatorReaderLive,
+      ModelsManifestStoreLive,
+      FixtureCatalogSourcesCursorOnly
+    ).pipe(Layer.provide(platform))
+  ),
+  { timeout: "30 seconds" }
+)((it) => {
+  it.effect("does not infer Codex retirement from a Cursor-only offline catalog", () =>
+    Effect.gen(function* () {
+      const { report } = yield* runCheckIn("manifest-codex-current.yaml", true);
+      expect(report.findings).toEqual([]);
     })
   );
 });

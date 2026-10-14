@@ -167,6 +167,18 @@ const failed = (detail: string) => AccountUsageOutcome.cases.Failed.make({ detai
 
 const isRejectedStatus = (status: number): boolean => status === 401 || status === 403;
 
+class JunieRefreshResponse extends S.Class<JunieRefreshResponse>($I`JunieRefreshResponse`)(
+  { stored: S.Redacted(S.String), status: S.Finite, body: S.String },
+  $I.annote("JunieRefreshResponse", {
+    description: "Stored token and JetBrains OAuth response to validate without persisting.",
+  })
+) {}
+
+class GrokUsageResponse extends S.Class<GrokUsageResponse>($I`GrokUsageResponse`)(
+  { identity: S.Option(S.String), status: S.Finite, body: S.Uint8Array },
+  $I.annote("GrokUsageResponse", { description: "Account identity and binary Grok billing response." })
+) {}
+
 type UsageTextResponse = {
   readonly identity: O.Option<string>;
   readonly status: number;
@@ -357,11 +369,7 @@ export const junieUsageOutcome: (response: UsageTextResponse) => AccountUsageOut
  * @category utilities
  * @since 0.0.0
  */
-export const junieRefreshOutcome = (response: {
-  readonly stored: Redacted.Redacted<string>;
-  readonly status: number;
-  readonly body: string;
-}) => {
+export const junieRefreshOutcome = (response: JunieRefreshResponse) => {
   const { stored, status, body } = response;
   const decoded = status === 200 ? JunieRefreshBodyJson.decodeOption(body) : O.none();
   if (O.isNone(decoded)) return Result.fail(failed("JetBrains OAuth refresh is unavailable"));
@@ -390,11 +398,7 @@ const JunieFallbackJson = JsonStringCodec(S.Struct({ "jb-account-stored": JunieS
  * @category utilities
  * @since 0.0.0
  */
-export const grokUsageOutcome = (response: {
-  readonly identity: O.Option<string>;
-  readonly status: number;
-  readonly body: Uint8Array;
-}): AccountUsageOutcome => {
+export const grokUsageOutcome = (response: GrokUsageResponse): AccountUsageOutcome => {
   if (isRejectedStatus(response.status)) return loginRejected;
   if (response.status !== 200) return failed(`Grok billing answered HTTP ${response.status}`);
   return O.match(grokUsageWindows(response.body), {
